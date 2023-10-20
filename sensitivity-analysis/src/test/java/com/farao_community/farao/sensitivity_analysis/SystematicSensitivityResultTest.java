@@ -9,6 +9,7 @@ package com.farao_community.farao.sensitivity_analysis;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.CracFactory;
+import com.farao_community.farao.data.crac_api.InstantKind;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_api.range_action.HvdcRangeAction;
@@ -54,11 +55,13 @@ class SystematicSensitivityResultTest {
 
     private RangeActionSensitivityProvider rangeActionSensitivityProvider;
     private PtdfSensitivityProvider ptdfSensitivityProvider;
+    private int instantOutageOrder;
 
     @BeforeEach
     public void setUp() {
         network = NetworkImportsUtil.import12NodesNetwork();
         Crac crac = CommonCracCreation.createWithPreventivePstRange(Set.of(Side.LEFT, Side.RIGHT));
+        instantOutageOrder = crac.getUniqueInstant(InstantKind.CURATIVE).getOrder();
 
         ZonalData<SensitivityVariableSet> glskProvider = UcteGlskDocument.importGlsk(getClass().getResourceAsStream("/glsk_proportional_12nodes.xml"))
             .getZonalGlsks(network, Instant.parse("2016-07-28T22:30:00Z"));
@@ -83,7 +86,7 @@ class SystematicSensitivityResultTest {
             ptdfSensitivityProvider.getContingencies(network),
             new ArrayList<>(),
             SensitivityAnalysisParameters.load());
-        SystematicSensitivityResult result = new SystematicSensitivityResult().completeData(sensitivityAnalysisResult, CommonCracCreation.INSTANT_OUTAGE);
+        SystematicSensitivityResult result = new SystematicSensitivityResult().completeData(sensitivityAnalysisResult, instantOutageOrder);
 
         // Before postTreating intensities
         assertEquals(-20, result.getReferenceFlow(contingencyCnec, Side.LEFT), EPSILON);
@@ -107,7 +110,7 @@ class SystematicSensitivityResultTest {
             rangeActionSensitivityProvider.getContingencies(network),
             new ArrayList<>(),
             SensitivityAnalysisParameters.load());
-        SystematicSensitivityResult result = new SystematicSensitivityResult().completeData(sensitivityAnalysisResult, CommonCracCreation.INSTANT_OUTAGE).postTreatIntensities();
+        SystematicSensitivityResult result = new SystematicSensitivityResult().completeData(sensitivityAnalysisResult, instantOutageOrder).postTreatIntensities();
 
         // Then
         assertTrue(result.isSuccess());
@@ -138,7 +141,7 @@ class SystematicSensitivityResultTest {
             ptdfSensitivityProvider.getContingencies(network),
             new ArrayList<>(),
             SensitivityAnalysisParameters.load());
-        SystematicSensitivityResult result = new SystematicSensitivityResult().completeData(sensitivityAnalysisResult, CommonCracCreation.INSTANT_OUTAGE).postTreatIntensities();
+        SystematicSensitivityResult result = new SystematicSensitivityResult().completeData(sensitivityAnalysisResult, instantOutageOrder).postTreatIntensities();
 
         // Then
         assertTrue(result.isSuccess());
@@ -160,7 +163,7 @@ class SystematicSensitivityResultTest {
     void testFailureSensiResult() {
         // When
         SensitivityAnalysisResult sensitivityAnalysisResult = Mockito.mock(SensitivityAnalysisResult.class);
-        SystematicSensitivityResult result = new SystematicSensitivityResult().completeData(sensitivityAnalysisResult, CommonCracCreation.INSTANT_OUTAGE).postTreatIntensities();
+        SystematicSensitivityResult result = new SystematicSensitivityResult().completeData(sensitivityAnalysisResult, instantOutageOrder).postTreatIntensities();
 
         // Then
         assertFalse(result.isSuccess());
@@ -207,7 +210,7 @@ class SystematicSensitivityResultTest {
             new ArrayList<>(),
             SensitivityAnalysisParameters.load());
         SystematicSensitivityResult result = new SystematicSensitivityResult()
-            .completeData(sensitivityAnalysisResult, CommonCracCreation.INSTANT_OUTAGE)
+            .completeData(sensitivityAnalysisResult, instantOutageOrder)
             .postTreatIntensities()
             .postTreatHvdcs(network, hvdcs);
 
@@ -231,7 +234,7 @@ class SystematicSensitivityResultTest {
             new ArrayList<>(),
             SensitivityAnalysisParameters.load());
         SystematicSensitivityResult result = new SystematicSensitivityResult()
-            .completeData(sensitivityAnalysisResult, CommonCracCreation.INSTANT_OUTAGE)
+            .completeData(sensitivityAnalysisResult, instantOutageOrder)
             .postTreatIntensities()
             .postTreatHvdcs(network, hvdcs);
 

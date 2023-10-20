@@ -28,7 +28,9 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ForkJoinTask;
 import java.util.stream.Collectors;
 
-import static com.farao_community.farao.commons.logs.FaraoLoggerProvider.*;
+import static com.farao_community.farao.commons.logs.FaraoLoggerProvider.BUSINESS_LOGS;
+import static com.farao_community.farao.commons.logs.FaraoLoggerProvider.BUSINESS_WARNS;
+import static com.farao_community.farao.commons.logs.FaraoLoggerProvider.TECHNICAL_LOGS;
 
 /**
  * Monitors voltage of VoltageCnecs
@@ -46,6 +48,17 @@ public class VoltageMonitoring {
         this.crac = crac;
         this.network = network;
         this.raoResult = raoResult;
+    }
+
+    /**
+     * Compares an voltageCnec's thresholds to a voltage (parameter).
+     * Returns true if a threshold is breached.
+     */
+    private static boolean thresholdOvershoot(VoltageCnec voltageCnec, ExtremeVoltageValues voltages) {
+        return voltageCnec.getThresholds().stream()
+            .anyMatch(threshold -> threshold.limitsByMax() && voltages != null && voltages.getMax() > threshold.max().orElseThrow())
+            || voltageCnec.getThresholds().stream()
+            .anyMatch(threshold -> threshold.limitsByMin() && voltages != null && voltages.getMin() < threshold.min().orElseThrow());
     }
 
     /**
@@ -111,7 +124,7 @@ public class VoltageMonitoring {
      * For curative states, consider auto (when they exist) and curative states.
      */
     private void applyOptimalRemedialActionsOnContingencyState(State state, Network networkClone) {
-        if (state.getInstant().equals(Instant.CURATIVE)) {
+        if (state.getInstant().getInstantKind().equals(InstantKind.CURATIVE)) {
             Optional<Contingency> contingency = state.getContingency();
             if (contingency.isPresent()) {
                 crac.getStates(contingency.get()).forEach(contingencyState ->
@@ -200,17 +213,6 @@ public class VoltageMonitoring {
             }
         });
         return voltagePerCnec;
-    }
-
-    /**
-     * Compares an voltageCnec's thresholds to a voltage (parameter).
-     * Returns true if a threshold is breached.
-     */
-    private static boolean thresholdOvershoot(VoltageCnec voltageCnec, ExtremeVoltageValues voltages) {
-        return voltageCnec.getThresholds().stream()
-            .anyMatch(threshold -> threshold.limitsByMax() && voltages != null && voltages.getMax() > threshold.max().orElseThrow())
-            || voltageCnec.getThresholds().stream()
-            .anyMatch(threshold -> threshold.limitsByMin() && voltages != null && voltages.getMin() < threshold.min().orElseThrow());
     }
 
     /**
@@ -318,7 +320,7 @@ public class VoltageMonitoring {
         BUSINESS_WARNS.warn("Load-flow computation failed at state {}. Skipping this state.", state);
         Map<VoltageCnec, ExtremeVoltageValues> voltagePerCnec = new HashMap<>();
         crac.getVoltageCnecs(state).forEach(vc -> {
-            voltagePerCnec.put(vc, new ExtremeVoltageValues(new HashSet<>(Arrays.asList(Double.NaN))));
+            voltagePerCnec.put(vc, new ExtremeVoltageValues(new HashSet<>(List.of(Double.NaN))));
         });
         return new VoltageMonitoringResult(voltagePerCnec, new HashMap<>(), securityStatus);
     }

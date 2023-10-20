@@ -31,8 +31,8 @@ final class ComputationStatusMapSerializer {
 
     static void serialize(RaoResult raoResult, Crac crac, JsonGenerator jsonGenerator) throws IOException {
         List<State> sortedListOfStates = crac.getStates().stream()
-                .sorted(STATE_COMPARATOR)
-                .collect(Collectors.toList());
+            .sorted(STATE_COMPARATOR)
+            .toList();
 
         jsonGenerator.writeArrayFieldStart(COMPUTATION_STATUS_MAP);
         for (State state : sortedListOfStates) {
@@ -40,7 +40,7 @@ final class ComputationStatusMapSerializer {
             if (!computationStatus.equals(ComputationStatus.DEFAULT)) {
                 jsonGenerator.writeStartObject();
                 jsonGenerator.writeStringField(COMPUTATION_STATUS, raoResult.getComputationStatus(state).toString());
-                jsonGenerator.writeStringField(INSTANT, serializeInstant(state.getInstant()));
+                jsonGenerator.writeStringField(INSTANT, serializeInstantId(state.getInstant()));
                 Optional<Contingency> optContingency = state.getContingency();
                 if (optContingency.isPresent()) {
                     jsonGenerator.writeStringField(CONTINGENCY_ID, optContingency.get().getId());

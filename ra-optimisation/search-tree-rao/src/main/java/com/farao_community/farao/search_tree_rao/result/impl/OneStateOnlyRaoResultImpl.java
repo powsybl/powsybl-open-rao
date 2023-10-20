@@ -47,12 +47,12 @@ public class OneStateOnlyRaoResultImpl implements RaoResult {
         this.optimizedFlowCnecs = optimizedFlowCnecs;
     }
 
-    private FlowResult getAppropriateResult(String optimizedInstantId, FlowCnec flowCnec) {
+    private FlowResult getAppropriateResult(Instant optimizedInstant, FlowCnec flowCnec) {
         if (!optimizedFlowCnecs.contains(flowCnec)) {
             throw new FaraoException("Cnec not optimized in this perimeter.");
         }
         State state = flowCnec.getState();
-        if (optimizedInstantId == null) {
+        if (optimizedInstant == null) {
             return initialResult;
         }
         if (optimizedState.isPreventive()) {
@@ -89,33 +89,33 @@ public class OneStateOnlyRaoResultImpl implements RaoResult {
     }
 
     @Override
-    public double getMargin(String optimizedInstantId, FlowCnec flowCnec, Unit unit) {
-        return getAppropriateResult(optimizedInstantId, flowCnec).getMargin(flowCnec, unit);
+    public double getMargin(Instant optimizedInstant, FlowCnec flowCnec, Unit unit) {
+        return getAppropriateResult(optimizedInstant, flowCnec).getMargin(flowCnec, unit);
     }
 
     @Override
-    public double getRelativeMargin(String optimizedInstantId, FlowCnec flowCnec, Unit unit) {
-        return getAppropriateResult(optimizedInstantId, flowCnec).getRelativeMargin(flowCnec, unit);
+    public double getRelativeMargin(Instant optimizedInstant, FlowCnec flowCnec, Unit unit) {
+        return getAppropriateResult(optimizedInstant, flowCnec).getRelativeMargin(flowCnec, unit);
     }
 
     @Override
-    public double getFlow(String optimizedInstantId, FlowCnec flowCnec, Side side, Unit unit) {
-        return getAppropriateResult(optimizedInstantId, flowCnec).getFlow(flowCnec, side, unit);
+    public double getFlow(Instant optimizedInstant, FlowCnec flowCnec, Side side, Unit unit) {
+        return getAppropriateResult(optimizedInstant, flowCnec).getFlow(flowCnec, side, unit);
     }
 
     @Override
-    public double getCommercialFlow(String optimizedInstantId, FlowCnec flowCnec, Side side, Unit unit) {
-        return getAppropriateResult(optimizedInstantId, flowCnec).getCommercialFlow(flowCnec, side, unit);
+    public double getCommercialFlow(Instant optimizedInstant, FlowCnec flowCnec, Side side, Unit unit) {
+        return getAppropriateResult(optimizedInstant, flowCnec).getCommercialFlow(flowCnec, side, unit);
     }
 
     @Override
-    public double getLoopFlow(String optimizedInstantId, FlowCnec flowCnec, Side side, Unit unit) {
-        return getAppropriateResult(optimizedInstantId, flowCnec).getLoopFlow(flowCnec, side, unit);
+    public double getLoopFlow(Instant optimizedInstant, FlowCnec flowCnec, Side side, Unit unit) {
+        return getAppropriateResult(optimizedInstant, flowCnec).getLoopFlow(flowCnec, side, unit);
     }
 
     @Override
-    public double getPtdfZonalSum(String optimizedInstantId, FlowCnec flowCnec, Side side) {
-        return getAppropriateResult(optimizedInstantId, flowCnec).getPtdfZonalSum(flowCnec, side);
+    public double getPtdfZonalSum(Instant optimizedInstant, FlowCnec flowCnec, Side side) {
+        return getAppropriateResult(optimizedInstant, flowCnec).getPtdfZonalSum(flowCnec, side);
     }
 
     public PerimeterResult getPerimeterResult(State state) {

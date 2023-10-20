@@ -6,8 +6,6 @@
  */
 package com.farao_community.farao.data.rao_result_impl;
 
-import com.farao_community.farao.data.crac_api.Instant;
-
 import java.util.HashMap;
 import java.util.Map;
 
@@ -17,18 +15,18 @@ import java.util.Map;
 public class AngleCnecResult {
 
     private static final ElementaryAngleCnecResult DEFAULT_RESULT = new ElementaryAngleCnecResult();
-    private final Map<Instant, ElementaryAngleCnecResult> results;
+    private final Map<String, ElementaryAngleCnecResult> results;
 
     AngleCnecResult() {
         results = new HashMap<>();
     }
 
-    public ElementaryAngleCnecResult getResult(Instant optimizedInstant) {
-        return results.getOrDefault(optimizedInstant, DEFAULT_RESULT);
+    public ElementaryAngleCnecResult getResult(String optimizedInstantId) {
+        return results.getOrDefault(optimizedInstantId, DEFAULT_RESULT);
     }
 
-    public ElementaryAngleCnecResult getAndCreateIfAbsentResultForOptimizationState(Instant optimizedInstant) {
-        results.putIfAbsent(optimizedInstant, new ElementaryAngleCnecResult());
-        return results.get(optimizedInstant);
+    public ElementaryAngleCnecResult getAndCreateIfAbsentResultForOptimizationState(String optimizedInstantId) {
+        results.putIfAbsent(optimizedInstantId, new ElementaryAngleCnecResult());
+        return results.get(optimizedInstantId);
     }
 }

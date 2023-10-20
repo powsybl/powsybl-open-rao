@@ -69,18 +69,18 @@ class SweMonitoredSeriesCreatorTest {
             "ms3ID", mscc3
         ));
 
-        addCnecsToMscc(mscc1, Set.of(Instant.PREVENTIVE), new HashSet<>());
-        addCnecsToMscc(mscc2, Set.of(Instant.PREVENTIVE, Instant.OUTAGE, Instant.AUTO, Instant.CURATIVE), Set.of(contingency));
-        addCnecsToMscc(mscc3, Set.of(Instant.OUTAGE, Instant.AUTO, Instant.CURATIVE), Set.of(contingency));
+        addCnecsToMscc(mscc1, Set.of(InstantKind.PREVENTIVE), new HashSet<>());
+        addCnecsToMscc(mscc2, Set.of(InstantKind.PREVENTIVE, InstantKind.OUTAGE, InstantKind.AUTO, InstantKind.CURATIVE), Set.of(contingency));
+        addCnecsToMscc(mscc3, Set.of(InstantKind.OUTAGE, InstantKind.AUTO, InstantKind.CURATIVE), Set.of(contingency));
 
-        setCnecResult(mscc1, Instant.PREVENTIVE, null, 100);
-        setCnecResult(mscc2, Instant.PREVENTIVE, contingency, -80);
-        setCnecResult(mscc2, Instant.OUTAGE, contingency, -120);
-        setCnecResult(mscc2, Instant.AUTO, contingency, 120);
-        setCnecResult(mscc2, Instant.CURATIVE, contingency, -90);
-        setCnecResult(mscc3, Instant.OUTAGE, contingency, -105);
-        setCnecResult(mscc3, Instant.AUTO, contingency, -105);
-        setCnecResult(mscc3, Instant.CURATIVE, contingency, 95);
+        setCnecResult(mscc1, InstantKind.PREVENTIVE, null, 100);
+        setCnecResult(mscc2, InstantKind.PREVENTIVE, contingency, -80);
+        setCnecResult(mscc2, InstantKind.OUTAGE, contingency, -120);
+        setCnecResult(mscc2, InstantKind.AUTO, contingency, 120);
+        setCnecResult(mscc2, InstantKind.CURATIVE, contingency, -90);
+        setCnecResult(mscc3, InstantKind.OUTAGE, contingency, -105);
+        setCnecResult(mscc3, InstantKind.AUTO, contingency, -105);
+        setCnecResult(mscc3, InstantKind.CURATIVE, contingency, 95);
 
         SweMonitoredSeriesCreator monitoredSeriesCreator = new SweMonitoredSeriesCreator(sweCneHelper, cracCreationContext);
 
@@ -115,7 +115,7 @@ class SweMonitoredSeriesCreatorTest {
         for (Instant instant : instants) {
             MeasurementCreationContext measurementCC = Mockito.mock(MeasurementCreationContext.class);
             MultiKeyMap<Object, CnecCreationContext> cnecCCs = new MultiKeyMap<>();
-            if (instant != Instant.PREVENTIVE) {
+            if (instant != InstantKind.PREVENTIVE) {
                 for (Contingency contingency : contingencies) {
                     CnecCreationContext cnecCC = Mockito.mock(CnecCreationContext.class);
                     Mockito.when(cnecCC.isImported()).thenReturn(true);
@@ -175,7 +175,7 @@ class SweMonitoredSeriesCreatorTest {
 
     private void setCnecResult(MonitoredSeriesCreationContext mscc, Instant instant, Contingency contingency, double flow) {
         String cnecId;
-        if (instant != Instant.PREVENTIVE) {
+        if (instant != InstantKind.PREVENTIVE) {
             cnecId = mscc.getNativeName() + " - " + contingency.getId() + " - " + instant;
         } else {
             cnecId = mscc.getNativeName() + " - " + instant;

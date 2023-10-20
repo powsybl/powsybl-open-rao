@@ -124,10 +124,10 @@ abstract class AbstractOptimizationPerimeterTest {
             .add();
 
         pState = crac.getPreventiveState();
-        oState1 = crac.getState("outage-1", INSTANT_OUTAGE);
-        oState2 = crac.getState("outage-2", INSTANT_OUTAGE);
-        cState1 = crac.getState("outage-1", INSTANT_CURATIVE);
-        cState2 = crac.getState("outage-2", INSTANT_CURATIVE);
+        oState1 = crac.getState("outage-1", "outage");
+        oState2 = crac.getState("outage-2", "outage");
+        cState1 = crac.getState("outage-1", "curative");
+        cState2 = crac.getState("outage-2", "curative");
 
         prePerimeterResult = Mockito.mock(PrePerimeterResult.class);
     }

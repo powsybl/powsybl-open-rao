@@ -43,7 +43,7 @@ public class RaoResultImpl implements RaoResult {
     private final Map<VoltageCnec, VoltageCnecResult> voltageCnecResults = new HashMap<>();
     private final Map<NetworkAction, NetworkActionResult> networkActionResults = new HashMap<>();
     private final Map<RangeAction<?>, RangeActionResult> rangeActionResults = new HashMap<>();
-    private final Map<Instant, CostResult> costResults = new HashMap<>();
+    private final Map<String, CostResult> costResults = new HashMap<>();
     private ComputationStatus sensitivityStatus;
     private OptimizationStepsExecuted optimizationStepsExecuted = OptimizationStepsExecuted.FIRST_PREVENTIVE_ONLY;
 
@@ -69,7 +69,7 @@ public class RaoResultImpl implements RaoResult {
         return sensitivityStatusPerState.getOrDefault(state, ComputationStatus.DEFAULT);
     }
 
-    private Instant checkOptimizedInstant(Instant optimizedInstant, FlowCnec flowCnec) {
+    private String checkOptimizedInstantId(Instant optimizedInstant, FlowCnec flowCnec) {
         if (optimizedInstant == null) {
             return null;
         }
@@ -80,57 +80,57 @@ public class RaoResultImpl implements RaoResult {
         if (instant.getInstantKind().equals(InstantKind.OUTAGE)) {
             instant = instant.getPreviousInstant();
         }
-        return instant;
+        return instant.getId();
     }
 
     @Override
-    public double getFlow(String optimizedInstantId, FlowCnec flowCnec, Side side, Unit unit) {
-        return flowCnecResults.getOrDefault(flowCnec, DEFAULT_FLOWCNEC_RESULT).getResult(checkOptimizedInstant(optimizedInstantId, flowCnec)).getFlow(side, unit);
+    public double getFlow(Instant optimizedInstant, FlowCnec flowCnec, Side side, Unit unit) {
+        return flowCnecResults.getOrDefault(flowCnec, DEFAULT_FLOWCNEC_RESULT).getResult(checkOptimizedInstantId(optimizedInstant, flowCnec)).getFlow(side, unit);
     }
 
     @Override
-    public double getAngle(Instant optimizedInstant, AngleCnec angleCnec, Unit unit) {
-        return angleCnecResults.getOrDefault(angleCnec, DEFAULT_ANGLECNEC_RESULT).getResult(optimizedInstant).getAngle(unit);
+    public double getAngle(String optimizedInstantId, AngleCnec angleCnec, Unit unit) {
+        return angleCnecResults.getOrDefault(angleCnec, DEFAULT_ANGLECNEC_RESULT).getResult(optimizedInstantId).getAngle(unit);
     }
 
     @Override
-    public double getVoltage(Instant optimizedInstant, VoltageCnec voltageCnec, Unit unit) {
-        return voltageCnecResults.getOrDefault(voltageCnec, DEFAULT_VOLTAGECNEC_RESULT).getResult(optimizedInstant).getVoltage(unit);
+    public double getVoltage(String optimizedInstantId, VoltageCnec voltageCnec, Unit unit) {
+        return voltageCnecResults.getOrDefault(voltageCnec, DEFAULT_VOLTAGECNEC_RESULT).getResult(optimizedInstantId).getVoltage(unit);
     }
 
     @Override
-    public double getMargin(String optimizedInstantId, FlowCnec flowCnec, Unit unit) {
-        return flowCnecResults.getOrDefault(flowCnec, DEFAULT_FLOWCNEC_RESULT).getResult(checkOptimizedInstant(optimizedInstantId, flowCnec)).getMargin(unit);
+    public double getMargin(Instant optimizedInstant, FlowCnec flowCnec, Unit unit) {
+        return flowCnecResults.getOrDefault(flowCnec, DEFAULT_FLOWCNEC_RESULT).getResult(checkOptimizedInstantId(optimizedInstant, flowCnec)).getMargin(unit);
     }
 
     @Override
-    public double getMargin(Instant optimizedInstant, AngleCnec angleCnec, Unit unit) {
-        return angleCnecResults.getOrDefault(angleCnec, DEFAULT_ANGLECNEC_RESULT).getResult(optimizedInstant).getMargin(unit);
+    public double getMargin(String optimizedInstantId, AngleCnec angleCnec, Unit unit) {
+        return angleCnecResults.getOrDefault(angleCnec, DEFAULT_ANGLECNEC_RESULT).getResult(optimizedInstantId).getMargin(unit);
     }
 
     @Override
-    public double getMargin(Instant optimizedInstant, VoltageCnec voltageCnec, Unit unit) {
-        return voltageCnecResults.getOrDefault(voltageCnec, DEFAULT_VOLTAGECNEC_RESULT).getResult(optimizedInstant).getMargin(unit);
+    public double getMargin(String optimizedInstantId, VoltageCnec voltageCnec, Unit unit) {
+        return voltageCnecResults.getOrDefault(voltageCnec, DEFAULT_VOLTAGECNEC_RESULT).getResult(optimizedInstantId).getMargin(unit);
     }
 
     @Override
-    public double getRelativeMargin(String optimizedInstantId, FlowCnec flowCnec, Unit unit) {
-        return flowCnecResults.getOrDefault(flowCnec, DEFAULT_FLOWCNEC_RESULT).getResult(checkOptimizedInstant(optimizedInstantId, flowCnec)).getRelativeMargin(unit);
+    public double getRelativeMargin(Instant optimizedInstant, FlowCnec flowCnec, Unit unit) {
+        return flowCnecResults.getOrDefault(flowCnec, DEFAULT_FLOWCNEC_RESULT).getResult(checkOptimizedInstantId(optimizedInstant, flowCnec)).getRelativeMargin(unit);
     }
 
     @Override
-    public double getLoopFlow(String optimizedInstantId, FlowCnec flowCnec, Side side, Unit unit) {
-        return flowCnecResults.getOrDefault(flowCnec, DEFAULT_FLOWCNEC_RESULT).getResult(checkOptimizedInstant(optimizedInstantId, flowCnec)).getLoopFlow(side, unit);
+    public double getLoopFlow(Instant optimizedInstant, FlowCnec flowCnec, Side side, Unit unit) {
+        return flowCnecResults.getOrDefault(flowCnec, DEFAULT_FLOWCNEC_RESULT).getResult(checkOptimizedInstantId(optimizedInstant, flowCnec)).getLoopFlow(side, unit);
     }
 
     @Override
-    public double getCommercialFlow(String optimizedInstantId, FlowCnec flowCnec, Side side, Unit unit) {
-        return flowCnecResults.getOrDefault(flowCnec, DEFAULT_FLOWCNEC_RESULT).getResult(checkOptimizedInstant(optimizedInstantId, flowCnec)).getCommercialFlow(side, unit);
+    public double getCommercialFlow(Instant optimizedInstant, FlowCnec flowCnec, Side side, Unit unit) {
+        return flowCnecResults.getOrDefault(flowCnec, DEFAULT_FLOWCNEC_RESULT).getResult(checkOptimizedInstantId(optimizedInstant, flowCnec)).getCommercialFlow(side, unit);
     }
 
     @Override
-    public double getPtdfZonalSum(String optimizedInstantId, FlowCnec flowCnec, Side side) {
-        return flowCnecResults.getOrDefault(flowCnec, DEFAULT_FLOWCNEC_RESULT).getResult(checkOptimizedInstant(optimizedInstantId, flowCnec)).getPtdfZonalSum(side);
+    public double getPtdfZonalSum(Instant optimizedInstant, FlowCnec flowCnec, Side side) {
+        return flowCnecResults.getOrDefault(flowCnec, DEFAULT_FLOWCNEC_RESULT).getResult(checkOptimizedInstantId(optimizedInstant, flowCnec)).getPtdfZonalSum(side);
     }
 
     public FlowCnecResult getAndCreateIfAbsentFlowCnecResult(FlowCnec flowCnec) {
@@ -148,9 +148,9 @@ public class RaoResultImpl implements RaoResult {
         return voltageCnecResults.get(voltageCnec);
     }
 
-    public CostResult getAndCreateIfAbsentCostResult(Instant optimizedInstant) {
-        costResults.putIfAbsent(optimizedInstant, new CostResult());
-        return costResults.get(optimizedInstant);
+    public CostResult getAndCreateIfAbsentCostResult(String optimizedInstantId) {
+        costResults.putIfAbsent(optimizedInstantId, new CostResult());
+        return costResults.get(optimizedInstantId);
     }
 
     @Override
@@ -314,7 +314,7 @@ public class RaoResultImpl implements RaoResult {
     }
 
     private State lookupState(String contingencyId, Instant instant) {
-        return crac.getStates(instant.getInstantKind()).stream()
+        return crac.getStates(instant.getId()).stream()
             .filter(state -> state.getContingency().isPresent() && state.getContingency().get().getId().equals(contingencyId))
             .findAny()
             .orElse(null);

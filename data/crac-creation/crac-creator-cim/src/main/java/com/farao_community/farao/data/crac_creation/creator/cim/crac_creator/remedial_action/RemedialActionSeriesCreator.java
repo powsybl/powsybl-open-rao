@@ -93,17 +93,17 @@ public class RemedialActionSeriesCreator {
                                      AngleCnec angleCnec,
                                      Country sharedDomain) {
         if (applicationModeMarketObjectStatus.equals(ApplicationModeMarketObjectStatus.PRA.getStatus())) {
-            addUsageRulesAtInstant(remedialActionAdder, contingencies, invalidContingencies, flowCnecs, angleCnec, sharedDomain, Instant.PREVENTIVE);
+            addUsageRulesAtInstant(remedialActionAdder, contingencies, invalidContingencies, flowCnecs, angleCnec, sharedDomain, InstantKind.PREVENTIVE);
         }
         if (applicationModeMarketObjectStatus.equals(ApplicationModeMarketObjectStatus.CRA.getStatus())) {
-            addUsageRulesAtInstant(remedialActionAdder, contingencies, invalidContingencies, flowCnecs, angleCnec, sharedDomain, Instant.CURATIVE);
+            addUsageRulesAtInstant(remedialActionAdder, contingencies, invalidContingencies, flowCnecs, angleCnec, sharedDomain, InstantKind.CURATIVE);
         }
         if (applicationModeMarketObjectStatus.equals(ApplicationModeMarketObjectStatus.PRA_AND_CRA.getStatus())) {
-            addUsageRulesAtInstant(remedialActionAdder, null, null, flowCnecs, angleCnec, sharedDomain, Instant.PREVENTIVE);
-            addUsageRulesAtInstant(remedialActionAdder, contingencies, invalidContingencies, flowCnecs, angleCnec, sharedDomain, Instant.CURATIVE);
+            addUsageRulesAtInstant(remedialActionAdder, null, null, flowCnecs, angleCnec, sharedDomain, InstantKind.PREVENTIVE);
+            addUsageRulesAtInstant(remedialActionAdder, contingencies, invalidContingencies, flowCnecs, angleCnec, sharedDomain, InstantKind.CURATIVE);
         }
         if (applicationModeMarketObjectStatus.equals(ApplicationModeMarketObjectStatus.AUTO.getStatus())) {
-            addUsageRulesAtInstant(remedialActionAdder, contingencies, invalidContingencies, flowCnecs, angleCnec, sharedDomain, Instant.AUTO);
+            addUsageRulesAtInstant(remedialActionAdder, contingencies, invalidContingencies, flowCnecs, angleCnec, sharedDomain, InstantKind.AUTO);
         }
     }
 
@@ -199,7 +199,7 @@ public class RemedialActionSeriesCreator {
     private static void addOnAngleConstraintUsageRule(RemedialActionAdder<?> adder, AngleCnec angleCnec) {
         adder.newOnAngleConstraintUsageRule()
             .withAngleCnec(angleCnec.getId())
-            .withInstantId(Instant.CURATIVE)
+            .withInstantId(InstantKind.CURATIVE)
             .add();
     }
 

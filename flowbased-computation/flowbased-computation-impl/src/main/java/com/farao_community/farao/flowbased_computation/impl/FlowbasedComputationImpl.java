@@ -8,10 +8,9 @@ package com.farao_community.farao.flowbased_computation.impl;
 
 import com.farao_community.farao.commons.RandomizedString;
 import com.farao_community.farao.commons.Unit;
-import com.powsybl.glsk.commons.ZonalData;
 import com.farao_community.farao.data.crac_api.Contingency;
 import com.farao_community.farao.data.crac_api.Crac;
-import com.farao_community.farao.data.crac_api.Instant;
+import com.farao_community.farao.data.crac_api.InstantKind;
 import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.cnec.Side;
@@ -28,6 +27,7 @@ import com.farao_community.farao.sensitivity_analysis.AppliedRemedialActions;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityInterface;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityResult;
 import com.google.auto.service.AutoService;
+import com.powsybl.glsk.commons.ZonalData;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.sensitivity.SensitivityVariableSet;
 import com.powsybl.sensitivity.WeightedSensitivityVariable;
@@ -48,6 +48,62 @@ import static com.farao_community.farao.commons.logs.FaraoLoggerProvider.TECHNIC
 public class FlowbasedComputationImpl implements FlowbasedComputationProvider {
 
     private static final String INITIAL_STATE_WITH_PRA = "InitialStateWithPra";
+
+    /**
+     * Find all remedial actions saved in CRAC, on a given network, at a given state.
+     *
+     * @param crac  CRAC that should contain result extension
+     * @param state State for which the RAs should be applied
+     */
+    public static Set<NetworkAction> findAllAvailableRemedialActionsForState(Crac crac, State state) {
+        Set<NetworkAction> networkActionsAppl = new HashSet<>();
+
+        crac.getNetworkActions().forEach(na -> {
+            UsageMethod usageMethod = na.getUsageMethod(state);
+            if (usageMethod.equals(UsageMethod.AVAILABLE) || usageMethod.equals(UsageMethod.FORCED)) {
+                networkActionsAppl.add(na);
+            } else if (usageMethod.equals(UsageMethod.TO_BE_EVALUATED)) {
+                BUSINESS_WARNS.warn("Network action {} with usage method TO_BE_EVALUATED will not be applied, as we don't have access to the flow results.", na.getId());
+                /*
+                 * This method is only used in FlowbasedComputation.
+                 * We do not assess the availability of such remedial actions: they're not supposed to exist.
+                 * If it is needed in the future, we will have to loop around a sensitivity computation, followed by a
+                 * re-assessment of additional available RAs and applying them, then re-running sensitivity, etc
+                 * until the list of applied remedial actions stops changing
+                 */
+            }
+        });
+
+        return networkActionsAppl;
+    }
+
+    /**
+     * Find network actions saved in CRAC result extension on current working variant of given network, at a given state.
+     *
+     * @param raoResult      Result of Rao computation
+     * @param state          State for which the RAs should be applied
+     * @param networkActions All network actions
+     */
+    public static Set<NetworkAction> findAppliedNetworkActionsForState(RaoResult raoResult, State state, Set<NetworkAction> networkActions) {
+        Set<NetworkAction> networkActionsAppl = new HashSet<>();
+
+        networkActions.forEach(na -> {
+            if (raoResult.isActivated(state, na)) {
+                networkActionsAppl.add(na);
+            }
+        });
+        return networkActionsAppl;
+    }
+
+    /**
+     * Find range actions saved in CRAC result extension on current working variant of given network, at a given state.
+     *
+     * @param raoResult Result of Rao computation
+     * @param state     State for which the RAs should be applied
+     */
+    public static Map<RangeAction<?>, Double> findAppliedRangeActionsForState(RaoResult raoResult, State state) {
+        return new HashMap<>(raoResult.getOptimizedSetPointsOnState(state));
+    }
 
     @Override
     public String getName() {
@@ -71,14 +127,14 @@ public class FlowbasedComputationImpl implements FlowbasedComputationProvider {
         if (raoResult == null) {
             TECHNICAL_LOGS.debug("RAO result is null: applying all network actions from CRAC.");
             crac.getStates().forEach(state -> {
-                if (state.getInstant().equals(Instant.CURATIVE)) {
+                if (state.getInstant().getInstantKind().equals(InstantKind.CURATIVE)) {
                     appliedRemedialActions.addAppliedNetworkActions(state, findAllAvailableRemedialActionsForState(crac, state));
                 }
             });
         } else {
             TECHNICAL_LOGS.debug("RAO result is not null: applying remedial actions selected by the RAO.");
             crac.getStates().forEach(state -> {
-                if (state.getInstant().equals(Instant.CURATIVE)) {
+                if (state.getInstant().getInstantKind().equals(InstantKind.CURATIVE)) {
                     appliedRemedialActions.addAppliedNetworkActions(state, findAppliedNetworkActionsForState(raoResult, state, crac.getNetworkActions()));
                     appliedRemedialActions.addAppliedRangeActions(state, findAppliedRangeActionsForState(raoResult, state));
                 }
@@ -86,11 +142,11 @@ public class FlowbasedComputationImpl implements FlowbasedComputationProvider {
         }
 
         SystematicSensitivityInterface systematicSensitivityInterface = SystematicSensitivityInterface.builder()
-                .withSensitivityProviderName(parameters.getSensitivityProvider())
-                .withParameters(parameters.getSensitivityAnalysisParameters())
-                .withPtdfSensitivities(glsk, crac.getFlowCnecs(), Collections.singleton(Unit.MEGAWATT))
-                .withAppliedRemedialActions(appliedRemedialActions)
-                .build();
+            .withSensitivityProviderName(parameters.getSensitivityProvider())
+            .withParameters(parameters.getSensitivityAnalysisParameters())
+            .withPtdfSensitivities(glsk, crac.getFlowCnecs(), Collections.singleton(Unit.MEGAWATT))
+            .withAppliedRemedialActions(appliedRemedialActions)
+            .build();
 
         // Preventive perimeter
         String initialNetworkId = network.getVariantManager().getWorkingVariantId();
@@ -138,14 +194,14 @@ public class FlowbasedComputationImpl implements FlowbasedComputationProvider {
 
     private DataDomain buildFlowbasedDomain(Crac crac, ZonalData<SensitivityVariableSet> glsk, SystematicSensitivityResult result) {
         return DataDomain.builder()
-                .id(RandomizedString.getRandomizedString())
-                .name("FlowBased results")
-                .description("")
-                .sourceFormat("code")
-                .dataPreContingency(buildDataPreContingency(crac, glsk, result))
-                .dataPostContingency(buildDataPostContingencies(crac, glsk, result))
-                .glskData(buildDataGlskFactors(glsk))
-                .build();
+            .id(RandomizedString.getRandomizedString())
+            .name("FlowBased results")
+            .description("")
+            .sourceFormat("code")
+            .dataPreContingency(buildDataPreContingency(crac, glsk, result))
+            .dataPostContingency(buildDataPostContingencies(crac, glsk, result))
+            .glskData(buildDataGlskFactors(glsk))
+            .build();
     }
 
     private List<DataGlskFactors> buildDataGlskFactors(ZonalData<SensitivityVariableSet> glsk) {
@@ -162,15 +218,15 @@ public class FlowbasedComputationImpl implements FlowbasedComputationProvider {
 
     private DataPostContingency buildDataPostContingency(Crac crac, Contingency contingency, ZonalData<SensitivityVariableSet> glsk, SystematicSensitivityResult result) {
         return DataPostContingency.builder()
-                .contingencyId(contingency.getId())
-                .dataMonitoredBranches(buildDataMonitoredBranches(crac, crac.getStates(contingency), glsk, result))
-                .build();
+            .contingencyId(contingency.getId())
+            .dataMonitoredBranches(buildDataMonitoredBranches(crac, crac.getStates(contingency), glsk, result))
+            .build();
     }
 
     private DataPreContingency buildDataPreContingency(Crac crac, ZonalData<SensitivityVariableSet> glsk, SystematicSensitivityResult result) {
         return DataPreContingency.builder()
-                .dataMonitoredBranches(buildDataMonitoredBranches(crac, Set.of(crac.getPreventiveState()), glsk, result))
-                .build();
+            .dataMonitoredBranches(buildDataMonitoredBranches(crac, Set.of(crac.getPreventiveState()), glsk, result))
+            .build();
     }
 
     private List<DataMonitoredBranch> buildDataMonitoredBranches(Crac crac, Set<State> states, ZonalData<SensitivityVariableSet> glsk, SystematicSensitivityResult result) {
@@ -183,82 +239,26 @@ public class FlowbasedComputationImpl implements FlowbasedComputationProvider {
         double maxThreshold = cnec.getUpperBound(Side.LEFT, Unit.MEGAWATT).orElse(Double.POSITIVE_INFINITY);
         double minThreshold = cnec.getLowerBound(Side.LEFT, Unit.MEGAWATT).orElse(Double.NEGATIVE_INFINITY);
         return new DataMonitoredBranch(
-                cnec.getId(),
-                cnec.getName(),
-                cnec.getState().getInstant().toString(),
-                cnec.getNetworkElement().getId(),
-                minThreshold,
-                maxThreshold,
-                zeroIfNaN(result.getReferenceFlow(cnec, Side.LEFT)), // TODO : handle both sides if needed
-                buildDataPtdfPerCountry(cnec, glsk, result)
+            cnec.getId(),
+            cnec.getName(),
+            cnec.getState().getInstant().toString(),
+            cnec.getNetworkElement().getId(),
+            minThreshold,
+            maxThreshold,
+            zeroIfNaN(result.getReferenceFlow(cnec, Side.LEFT)), // TODO : handle both sides if needed
+            buildDataPtdfPerCountry(cnec, glsk, result)
         );
     }
 
     private List<DataPtdfPerCountry> buildDataPtdfPerCountry(FlowCnec cnec, ZonalData<SensitivityVariableSet> glskProvider, SystematicSensitivityResult result) {
         Map<String, SensitivityVariableSet> glsks = glskProvider.getDataPerZone();
         return glsks.values().stream()
-                .map(glsk ->
-                        new DataPtdfPerCountry(
-                                glsk.getId(),
-                                zeroIfNaN(result.getSensitivityOnFlow(glsk.getId(), cnec, Side.LEFT)) // TODO : handle both sides if needed
-                        )
-                ).collect(Collectors.toList());
-    }
-
-    /**
-     * Find all remedial actions saved in CRAC, on a given network, at a given state.
-     *
-     * @param crac CRAC that should contain result extension
-     * @param state State for which the RAs should be applied
-     */
-    public static Set<NetworkAction> findAllAvailableRemedialActionsForState(Crac crac, State state) {
-        Set<NetworkAction> networkActionsAppl = new HashSet<>();
-
-        crac.getNetworkActions().forEach(na -> {
-            UsageMethod usageMethod = na.getUsageMethod(state);
-            if (usageMethod.equals(UsageMethod.AVAILABLE) || usageMethod.equals(UsageMethod.FORCED)) {
-                networkActionsAppl.add(na);
-            } else if (usageMethod.equals(UsageMethod.TO_BE_EVALUATED)) {
-                BUSINESS_WARNS.warn("Network action {} with usage method TO_BE_EVALUATED will not be applied, as we don't have access to the flow results.", na.getId());
-                /*
-                 * This method is only used in FlowbasedComputation.
-                 * We do not assess the availability of such remedial actions: they're not supposed to exist.
-                 * If it is needed in the future, we will have to loop around a sensitivity computation, followed by a
-                 * re-assessment of additional available RAs and applying them, then re-running sensitivity, etc
-                 * until the list of applied remedial actions stops changing
-                 */
-            }
-        });
-
-        return networkActionsAppl;
-    }
-
-    /**
-     * Find network actions saved in CRAC result extension on current working variant of given network, at a given state.
-     *
-     * @param raoResult Result of Rao computation
-     * @param state State for which the RAs should be applied
-     * @param networkActions All network actions
-     */
-    public static Set<NetworkAction> findAppliedNetworkActionsForState(RaoResult raoResult, State state, Set<NetworkAction> networkActions) {
-        Set<NetworkAction> networkActionsAppl = new HashSet<>();
-
-        networkActions.forEach(na -> {
-            if (raoResult.isActivated(state, na)) {
-                networkActionsAppl.add(na);
-            }
-        });
-        return networkActionsAppl;
-    }
-
-    /**
-     * Find range actions saved in CRAC result extension on current working variant of given network, at a given state.
-     *
-     * @param raoResult Result of Rao computation
-     * @param state State for which the RAs should be applied
-     */
-    public static Map<RangeAction<?>, Double> findAppliedRangeActionsForState(RaoResult raoResult, State state) {
-        return new HashMap<>(raoResult.getOptimizedSetPointsOnState(state));
+            .map(glsk ->
+                new DataPtdfPerCountry(
+                    glsk.getId(),
+                    zeroIfNaN(result.getSensitivityOnFlow(glsk.getId(), cnec, Side.LEFT)) // TODO : handle both sides if needed
+                )
+            ).toList();
     }
 
     private double zeroIfNaN(double value) {

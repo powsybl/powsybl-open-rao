@@ -7,7 +7,6 @@
 package com.farao_community.farao.data.rao_result_impl;
 
 import com.farao_community.farao.commons.Unit;
-import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.cnec.Side;
 import org.junit.jupiter.api.Test;
 
@@ -23,10 +22,10 @@ class FlowCnecResultTest {
         FlowCnecResult defaultFlowCnecResult = new FlowCnecResult();
         assertEquals(Double.NaN, defaultFlowCnecResult.getResult(null).getCommercialFlow(Side.LEFT, Unit.MEGAWATT), 1e-3);
         assertEquals(Double.NaN, defaultFlowCnecResult.getResult(null).getFlow(Side.RIGHT, Unit.AMPERE), 1e-3);
-        assertEquals(Double.NaN, defaultFlowCnecResult.getResult(Instant.PREVENTIVE).getMargin(Unit.MEGAWATT), 1e-3);
-        assertEquals(Double.NaN, defaultFlowCnecResult.getResult(Instant.PREVENTIVE).getRelativeMargin(Unit.AMPERE), 1e-3);
-        assertEquals(Double.NaN, defaultFlowCnecResult.getResult(Instant.CURATIVE).getLoopFlow(Side.LEFT, Unit.MEGAWATT), 1e-3);
-        assertEquals(Double.NaN, defaultFlowCnecResult.getResult(Instant.CURATIVE).getPtdfZonalSum(Side.RIGHT), 1e-3);
+        assertEquals(Double.NaN, defaultFlowCnecResult.getResult("preventive").getMargin(Unit.MEGAWATT), 1e-3);
+        assertEquals(Double.NaN, defaultFlowCnecResult.getResult("preventive").getRelativeMargin(Unit.AMPERE), 1e-3);
+        assertEquals(Double.NaN, defaultFlowCnecResult.getResult("curative").getLoopFlow(Side.LEFT, Unit.MEGAWATT), 1e-3);
+        assertEquals(Double.NaN, defaultFlowCnecResult.getResult("curative").getPtdfZonalSum(Side.RIGHT), 1e-3);
     }
 
     @Test

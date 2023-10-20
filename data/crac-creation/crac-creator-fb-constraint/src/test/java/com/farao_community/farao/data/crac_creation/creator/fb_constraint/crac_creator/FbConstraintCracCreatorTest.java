@@ -7,15 +7,18 @@
 package com.farao_community.farao.data.crac_creation.creator.fb_constraint.crac_creator;
 
 import com.farao_community.farao.commons.Unit;
-import com.farao_community.farao.data.crac_api.*;
+import com.farao_community.farao.data.crac_api.Contingency;
+import com.farao_community.farao.data.crac_api.Crac;
+import com.farao_community.farao.data.crac_api.CracFactory;
+import com.farao_community.farao.data.crac_api.InstantKind;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
-import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.range.RangeType;
 import com.farao_community.farao.data.crac_api.range.TapRange;
-import com.farao_community.farao.data.crac_api.usage_rule.OnInstant;
+import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.usage_rule.OnContingencyState;
+import com.farao_community.farao.data.crac_api.usage_rule.OnInstant;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import com.farao_community.farao.data.crac_creation.creator.api.ImportStatus;
 import com.farao_community.farao.data.crac_creation.creator.api.parameters.CracCreationParameters;
@@ -100,7 +103,7 @@ class FbConstraintCracCreatorTest {
         assertTrue(creationContext.getBranchCnecCreationContext("BE_CBCO_000001").isImported());
         assertTrue(creationContext.getBranchCnecCreationContext("BE_CBCO_000001").isBaseCase());
         assertEquals(1, creationContext.getBranchCnecCreationContext("BE_CBCO_000001").getCreatedCnecsIds().size());
-        assertEquals("BE_CBCO_000001 - preventive", creationContext.getBranchCnecCreationContext("BE_CBCO_000001").getCreatedCnecsIds().get(Instant.PREVENTIVE));
+        assertEquals("BE_CBCO_000001 - preventive", creationContext.getBranchCnecCreationContext("BE_CBCO_000001").getCreatedCnecsIds().get(InstantKind.PREVENTIVE));
 
         assertNotNull(crac.getFlowCnec("BE_CBCO_000001 - preventive"));
         assertEquals("[BE-BE] BBE1 - BBE2 [DIR]", crac.getFlowCnec("BE_CBCO_000001 - preventive").getName());
@@ -113,8 +116,8 @@ class FbConstraintCracCreatorTest {
         assertTrue(creationContext.getBranchCnecCreationContext("BE_CBCO_000003").isImported());
         assertFalse(creationContext.getBranchCnecCreationContext("BE_CBCO_000003").isBaseCase());
         assertEquals(2, creationContext.getBranchCnecCreationContext("BE_CBCO_000003").getCreatedCnecsIds().size());
-        assertEquals("BE_CBCO_000003 - outage", creationContext.getBranchCnecCreationContext("BE_CBCO_000003").getCreatedCnecsIds().get(Instant.OUTAGE));
-        assertEquals("BE_CBCO_000003 - curative", creationContext.getBranchCnecCreationContext("BE_CBCO_000003").getCreatedCnecsIds().get(Instant.CURATIVE));
+        assertEquals("BE_CBCO_000003 - outage", creationContext.getBranchCnecCreationContext("BE_CBCO_000003").getCreatedCnecsIds().get(InstantKind.OUTAGE));
+        assertEquals("BE_CBCO_000003 - curative", creationContext.getBranchCnecCreationContext("BE_CBCO_000003").getCreatedCnecsIds().get(InstantKind.CURATIVE));
 
         assertNotNull(crac.getFlowCnec("BE_CBCO_000003 - outage"));
         assertEquals("[BE-BE] BBE3 - BBE2 [DIR]", crac.getFlowCnec("BE_CBCO_000003 - outage").getName());

@@ -51,9 +51,9 @@ class RangeActionActivationResultImplTest {
             .add();
 
         pState = crac.getPreventiveState();
-        oState1 = crac.getState("Contingency FR1 FR3", CommonCracCreation.INSTANT_OUTAGE);
-        cState1 = crac.getState("Contingency FR1 FR3", CommonCracCreation.INSTANT_CURATIVE);
-        cState2 = crac.getState("Contingency FR1 FR2", CommonCracCreation.INSTANT_CURATIVE);
+        oState1 = crac.getState("Contingency FR1 FR3", "outage");
+        cState1 = crac.getState("Contingency FR1 FR3", "curative");
+        cState2 = crac.getState("Contingency FR1 FR2", "curative");
 
         pstRangeAction1 = (PstRangeAction) crac.newPstRangeAction()
             .withId("pst1")

@@ -10,7 +10,6 @@ package com.farao_community.farao.data.rao_result_json.deserializers;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Crac;
-import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.rao_result_impl.ElementaryFlowCnecResult;
@@ -54,9 +53,9 @@ final class FlowCnecResultArrayDeserializer {
     private static void deserializeFlowCnecResult(JsonParser jsonParser, FlowCnecResult flowCnecResult, String jsonFileVersion) throws IOException {
         while (!jsonParser.nextToken().isStructEnd()) {
             ElementaryFlowCnecResult eFlowCnecResult;
-            Instant optimizedInstant = deserializeOptimizedInstant(jsonParser.getCurrentName(), jsonFileVersion);
+            String optimizedInstantId = deserializeOptimizedInstant(jsonParser.getCurrentName(), jsonFileVersion);
             jsonParser.nextToken();
-            eFlowCnecResult = flowCnecResult.getAndCreateIfAbsentResultForOptimizationState(optimizedInstant);
+            eFlowCnecResult = flowCnecResult.getAndCreateIfAbsentResultForOptimizationState(optimizedInstantId);
             deserializeElementaryFlowCnecResult(jsonParser, eFlowCnecResult, jsonFileVersion);
         }
     }

@@ -64,7 +64,7 @@ public final class JsonVoltageCnecsCreationParameters {
     }
 
     private static Map<Instant, VoltageMonitoredContingenciesAndThresholds> deserializeStatesAndThresholds(JsonParser jsonParser) throws IOException, NoSuchFieldException {
-        Map<Instant, VoltageMonitoredContingenciesAndThresholds> statesAndThresholds = new EnumMap<>(Instant.class);
+        Map<String, VoltageMonitoredContingenciesAndThresholds> statesAndThresholds = new HashMap<>();
 
         while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
             Instant instant = null;
@@ -89,7 +89,7 @@ public final class JsonVoltageCnecsCreationParameters {
                 }
             }
             Objects.requireNonNull(instant);
-            if (instant.equals(Instant.PREVENTIVE) && !Objects.isNull(contingencyNames) && !contingencyNames.isEmpty()) {
+            if (instant.equals(InstantKind.PREVENTIVE) && !Objects.isNull(contingencyNames) && !contingencyNames.isEmpty()) {
                 throw new FaraoException("When monitoring the preventive instant, no contingency can be defined.");
             }
             if (statesAndThresholds.containsKey(instant)) {
@@ -191,7 +191,7 @@ public final class JsonVoltageCnecsCreationParameters {
         if (array == null || array.isEmpty()) {
             return;
         }
-        List<String> sortedArray = array.stream().sorted().collect(Collectors.toList());
+        List<String> sortedArray = array.stream().sorted().toList();
         jsonGenerator.writeArrayFieldStart(fieldName);
         for (String str : sortedArray) {
             jsonGenerator.writeString(str);
@@ -200,7 +200,7 @@ public final class JsonVoltageCnecsCreationParameters {
     }
 
     private static Unit stringToUnit(String string) {
-        if (string.toLowerCase().equalsIgnoreCase(KILOVOLT)) {
+        if (string.equalsIgnoreCase(KILOVOLT)) {
             return Unit.KILOVOLT;
         } else {
             throw new FaraoException(String.format("Unhandled unit in voltage monitoring: %s", string));

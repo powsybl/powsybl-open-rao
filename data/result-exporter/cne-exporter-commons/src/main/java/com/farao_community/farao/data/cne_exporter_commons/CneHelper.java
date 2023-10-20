@@ -24,13 +24,13 @@ import static com.farao_community.farao.data.cne_exporter_commons.CneConstants.T
  */
 public class CneHelper {
 
-    private Crac crac;
-    private Network network;
-    private boolean relativePositiveMargins;
-    private boolean withLoopflows;
-    private RaoResult raoResult;
-    private CneExporterParameters exporterParameters;
-    private double mnecAcceptableMarginDiminution;
+    private final Crac crac;
+    private final Network network;
+    private final boolean relativePositiveMargins;
+    private final boolean withLoopflows;
+    private final RaoResult raoResult;
+    private final CneExporterParameters exporterParameters;
+    private final double mnecAcceptableMarginDiminution;
 
     public CneHelper(Crac crac, Network network, RaoResult raoResult, RaoParameters raoParameters, CneExporterParameters exporterParameters) {
         this.crac = crac;
@@ -64,7 +64,7 @@ public class CneHelper {
     }
 
     public String instantToCodeConverter(Instant instant) {
-        if (instant.equals(Instant.PREVENTIVE)) { // Before contingency
+        if (instant.equals(InstantKind.PREVENTIVE)) { // Before contingency
             return PATL_MEASUREMENT_TYPE;
         } else { // After contingency, before any post-contingency RA
             return TATL_MEASUREMENT_TYPE;

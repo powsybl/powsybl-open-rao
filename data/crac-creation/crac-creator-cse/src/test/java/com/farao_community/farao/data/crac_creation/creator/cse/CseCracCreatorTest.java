@@ -8,7 +8,6 @@ package com.farao_community.farao.data.crac_creation.creator.cse;
 
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Crac;
-import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.RemedialAction;
 import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
@@ -39,7 +38,10 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import static com.farao_community.farao.data.crac_creation.creator.api.ImportStatus.*;
+import static com.farao_community.farao.data.crac_creation.creator.api.ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK;
+import static com.farao_community.farao.data.crac_creation.creator.api.ImportStatus.INCOMPLETE_DATA;
+import static com.farao_community.farao.data.crac_creation.creator.api.ImportStatus.INCONSISTENCY_IN_DATA;
+import static com.farao_community.farao.data.crac_creation.creator.api.ImportStatus.NOT_YET_HANDLED_BY_FARAO;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -185,7 +187,7 @@ class CseCracCreatorTest {
         assertFalse(cnec1context.isDirectionInvertedInNetwork());
         assertTrue(cnec1context.getContingencyId().isEmpty());
         assertEquals(1, cnec1context.getCreatedCnecsIds().size());
-        assertEquals("basecase_branch_1 - NNL2AA1 ->NNL3AA1  - preventive", cnec1context.getCreatedCnecsIds().get(Instant.PREVENTIVE));
+        assertEquals("basecase_branch_1 - NNL2AA1 ->NNL3AA1  - preventive", cnec1context.getCreatedCnecsIds().get(InstantKind.PREVENTIVE));
     }
 
     @Test
@@ -197,9 +199,9 @@ class CseCracCreatorTest {
         assertFalse(((CseCriticalBranchCreationContext) cnec1context).isSelected());
         assertTrue(((CseCriticalBranchCreationContext) cnec2context).isSelected());
         assertTrue(((CseCriticalBranchCreationContext) cnec3context).isSelected());
-        assertFalse(importedCrac.getCnec(cnec1context.getCreatedCnecsIds().get(Instant.PREVENTIVE)).isOptimized());
-        assertTrue(importedCrac.getCnec(cnec2context.getCreatedCnecsIds().get(Instant.PREVENTIVE)).isOptimized());
-        assertTrue(importedCrac.getCnec(cnec3context.getCreatedCnecsIds().get(Instant.PREVENTIVE)).isOptimized());
+        assertFalse(importedCrac.getCnec(cnec1context.getCreatedCnecsIds().get(InstantKind.PREVENTIVE)).isOptimized());
+        assertTrue(importedCrac.getCnec(cnec2context.getCreatedCnecsIds().get(InstantKind.PREVENTIVE)).isOptimized());
+        assertTrue(importedCrac.getCnec(cnec3context.getCreatedCnecsIds().get(InstantKind.PREVENTIVE)).isOptimized());
     }
 
     @Test
@@ -211,8 +213,8 @@ class CseCracCreatorTest {
         assertFalse(cnec2context.isDirectionInvertedInNetwork());
         assertEquals("outage_1", cnec2context.getContingencyId().get());
         assertEquals(2, cnec2context.getCreatedCnecsIds().size());
-        assertEquals("French line 1 - FFR1AA1 ->FFR2AA1   - outage_1 - outage", cnec2context.getCreatedCnecsIds().get(Instant.OUTAGE));
-        assertEquals("French line 1 - FFR1AA1 ->FFR2AA1   - outage_1 - curative", cnec2context.getCreatedCnecsIds().get(Instant.CURATIVE));
+        assertEquals("French line 1 - FFR1AA1 ->FFR2AA1   - outage_1 - outage", cnec2context.getCreatedCnecsIds().get(InstantKind.OUTAGE));
+        assertEquals("French line 1 - FFR1AA1 ->FFR2AA1   - outage_1 - curative", cnec2context.getCreatedCnecsIds().get(InstantKind.CURATIVE));
     }
 
     @Test
@@ -302,8 +304,8 @@ class CseCracCreatorTest {
         setUp("/cracs/cse_crac_onConstraint.xml");
 
         State preventiveState = importedCrac.getPreventiveState();
-        State outageState = importedCrac.getState(importedCrac.getContingency("outage_1"), Instant.OUTAGE);
-        State curativeState = importedCrac.getState(importedCrac.getContingency("outage_1"), Instant.CURATIVE);
+        State outageState = importedCrac.getState(importedCrac.getContingency("outage_1"), InstantKind.OUTAGE);
+        State curativeState = importedCrac.getState(importedCrac.getContingency("outage_1"), InstantKind.CURATIVE);
 
         FlowCnec outageCnec = importedCrac.getFlowCnec("French line 1 - FFR1AA1 ->FFR2AA1   - outage_1 - outage");
         FlowCnec curativeCnec = importedCrac.getFlowCnec("French line 1 - FFR1AA1 ->FFR2AA1   - outage_1 - curative");
@@ -317,8 +319,8 @@ class CseCracCreatorTest {
         UsageRule usageRule2 = usageRuleList.get(1);
         assertTrue(usageRule1 instanceof OnFlowConstraint);
         assertTrue(usageRule2 instanceof OnFlowConstraint);
-        assertEquals(Instant.PREVENTIVE, ((OnFlowConstraint) usageRule1).getInstant());
-        assertEquals(Instant.PREVENTIVE, ((OnFlowConstraint) usageRule2).getInstant());
+        assertEquals(InstantKind.PREVENTIVE, usageRule1.getInstant());
+        assertEquals(InstantKind.PREVENTIVE, usageRule2.getInstant());
         assertTrue(((OnFlowConstraint) usageRule1).getFlowCnec().equals(outageCnec) || ((OnFlowConstraint) usageRule2).getFlowCnec().equals(outageCnec));
         assertTrue(((OnFlowConstraint) usageRule1).getFlowCnec().equals(curativeCnec) || ((OnFlowConstraint) usageRule2).getFlowCnec().equals(curativeCnec));
         assertEquals(UsageMethod.TO_BE_EVALUATED, usageRule1.getUsageMethod(preventiveState));
@@ -334,7 +336,7 @@ class CseCracCreatorTest {
         usageRule1 = ra.getUsageRules().iterator().next();
         assertTrue(usageRule1 instanceof OnFlowConstraint);
         assertSame(curativeCnec, ((OnFlowConstraint) usageRule1).getFlowCnec());
-        assertEquals(Instant.CURATIVE, ((OnFlowConstraint) usageRule1).getInstant());
+        assertEquals(InstantKind.CURATIVE, usageRule1.getInstant());
         assertEquals(UsageMethod.UNDEFINED, usageRule1.getUsageMethod(preventiveState));
         assertEquals(UsageMethod.UNDEFINED, usageRule1.getUsageMethod(outageState));
         assertEquals(UsageMethod.TO_BE_EVALUATED, usageRule1.getUsageMethod(curativeState));
@@ -442,7 +444,7 @@ class CseCracCreatorTest {
         Iterator<UsageRule> iterator4 = cra4.getUsageRules().iterator();
         UsageRule crac4UsageRule0 = iterator4.next();
         assertTrue(crac4UsageRule0 instanceof OnFlowConstraintInCountry);
-        assertEquals(Instant.CURATIVE, crac4UsageRule0.getInstant());
+        assertEquals(InstantKind.CURATIVE, crac4UsageRule0.getInstant());
         assertEquals(Country.NL, ((OnFlowConstraintInCountry) crac4UsageRule0).getCountry());
         // cra_5
         RemedialAction<?> cra5 = importedCrac.getNetworkAction("cra_5");
@@ -450,7 +452,7 @@ class CseCracCreatorTest {
         Iterator<UsageRule> iterator5 = cra5.getUsageRules().iterator();
         UsageRule crac5UsageRule0 = iterator5.next();
         assertTrue(crac5UsageRule0 instanceof OnFlowConstraintInCountry);
-        assertEquals(Instant.CURATIVE, crac5UsageRule0.getInstant());
+        assertEquals(InstantKind.CURATIVE, crac5UsageRule0.getInstant());
         assertEquals(Country.FR, ((OnFlowConstraintInCountry) crac5UsageRule0).getCountry());
         // cra_6
         assertTrue(importedCrac.getNetworkAction("cra_6").getUsageRules().isEmpty());

@@ -10,7 +10,7 @@ import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.CracFactory;
-import com.farao_community.farao.data.crac_api.Instant;
+import com.farao_community.farao.data.crac_api.InstantKind;
 import com.farao_community.farao.data.crac_api.NetworkElement;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.cnec.Side;
@@ -78,7 +78,7 @@ class RangeActionSensitivityProviderTest {
             .withMax(10.)
             .add()
             .withNominalVoltage(380.)
-            .withInstantId(Instant.CURATIVE)
+            .withInstantId("curative")
             .withContingency("contingency-generator")
             .add();
 
@@ -92,7 +92,7 @@ class RangeActionSensitivityProviderTest {
             .withMax(10.)
             .add()
             .withNominalVoltage(380.)
-            .withInstantId(Instant.CURATIVE)
+            .withInstantId("curative")
             .withContingency("contingency-hvdc")
             .add();
 
@@ -106,7 +106,7 @@ class RangeActionSensitivityProviderTest {
             .withMax(10.)
             .add()
             .withNominalVoltage(380.)
-            .withInstantId(Instant.CURATIVE)
+            .withInstantId("curative")
             .withContingency("contingency-busbar-section")
             .add();
 
@@ -158,7 +158,7 @@ class RangeActionSensitivityProviderTest {
             .withMin(-10.)
             .withMax(10.)
             .add()
-            .withInstantId(Instant.CURATIVE)
+            .withInstantId("curative")
             .withContingency("contingency-fail")
             .withNominalVoltage(380.)
             .add();
@@ -239,10 +239,11 @@ class RangeActionSensitivityProviderTest {
     @Test
     void testHvdcSensi() {
         Crac crac = CracFactory.findDefault().create("test-crac");
+        crac.addInstant("preventive", InstantKind.PREVENTIVE, null);
         FlowCnec flowCnec = crac.newFlowCnec()
             .withId("cnec")
             .withNetworkElement("BBE1AA11 FFR5AA11 1")
-            .withInstantId(Instant.PREVENTIVE)
+            .withInstantId("preventive")
             .newThreshold().withMax(1000.).withUnit(Unit.MEGAWATT).withSide(Side.LEFT).add()
             .newThreshold().withMax(1000.).withUnit(Unit.MEGAWATT).withSide(Side.RIGHT).add()
             .add();
@@ -288,10 +289,11 @@ class RangeActionSensitivityProviderTest {
     @Test
     void testUnhandledElement() {
         Crac crac = CracFactory.findDefault().create("test-crac");
+        crac.addInstant("preventive", InstantKind.PREVENTIVE, null);
         FlowCnec flowCnec = crac.newFlowCnec()
             .withId("cnec")
             .withNetworkElement("BBE1AA11 FFR5AA11 1")
-            .withInstantId(Instant.PREVENTIVE)
+            .withInstantId("preventive")
             .newThreshold().withMax(1000.).withUnit(Unit.MEGAWATT).withSide(Side.LEFT).add()
             .add();
 

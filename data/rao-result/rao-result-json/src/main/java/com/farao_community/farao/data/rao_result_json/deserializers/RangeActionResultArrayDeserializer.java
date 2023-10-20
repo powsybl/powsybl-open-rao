@@ -9,7 +9,6 @@ package com.farao_community.farao.data.rao_result_json.deserializers;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Crac;
-import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.data.rao_result_impl.RangeActionResult;
 import com.farao_community.farao.data.rao_result_impl.RaoResultImpl;
@@ -21,8 +20,11 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 
 import static com.farao_community.farao.data.rao_result_json.RaoResultJsonConstants.*;
-import static com.farao_community.farao.data.rao_result_json.deserializers.DeprecatedRaoResultJsonConstants.*;
-import static com.farao_community.farao.data.rao_result_json.deserializers.Utils.*;
+import static com.farao_community.farao.data.rao_result_json.deserializers.DeprecatedRaoResultJsonConstants.HVDCRANGEACTION_ID;
+import static com.farao_community.farao.data.rao_result_json.deserializers.DeprecatedRaoResultJsonConstants.HVDCRANGEACTION_RESULTS;
+import static com.farao_community.farao.data.rao_result_json.deserializers.DeprecatedRaoResultJsonConstants.HVDC_NETWORKELEMENT_ID;
+import static com.farao_community.farao.data.rao_result_json.deserializers.DeprecatedRaoResultJsonConstants.PST_NETWORKELEMENT_ID;
+import static com.farao_community.farao.data.rao_result_json.deserializers.Utils.checkDeprecatedField;
 
 /**
  * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
@@ -108,7 +110,7 @@ final class RangeActionResultArrayDeserializer {
     }
 
     private static void deserializeResultsPerStates(JsonParser jsonParser, RangeActionResult rangeActionResult, Crac crac) throws IOException {
-        Instant instant = null;
+        String instantId = null;
         String contingencyId = null;
         Double setpoint = null;
         while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
@@ -116,7 +118,7 @@ final class RangeActionResultArrayDeserializer {
                 switch (jsonParser.getCurrentName()) {
 
                     case INSTANT:
-                        instant = deserializeInstant(jsonParser.nextTextValue());
+                        instantId = deserializeInstantId(jsonParser.nextTextValue());
                         break;
 
                     case CONTINGENCY_ID:
@@ -142,7 +144,7 @@ final class RangeActionResultArrayDeserializer {
             if (setpoint == null) {
                 throw new FaraoException(String.format("Cannot deserialize RaoResult: setpoint is required in %s", RANGEACTION_RESULTS));
             }
-            rangeActionResult.addActivationForState(StateDeserializer.getState(instant, contingencyId, crac, RANGEACTION_RESULTS), setpoint);
+            rangeActionResult.addActivationForState(StateDeserializer.getState(instantId, contingencyId, crac, RANGEACTION_RESULTS), setpoint);
         }
     }
 }

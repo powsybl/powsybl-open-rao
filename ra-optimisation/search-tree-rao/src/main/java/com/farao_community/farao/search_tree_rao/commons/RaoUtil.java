@@ -10,7 +10,7 @@ package com.farao_community.farao.search_tree_rao.commons;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.commons.logs.FaraoLoggerProvider;
-import com.farao_community.farao.data.crac_api.Instant;
+import com.farao_community.farao.data.crac_api.InstantKind;
 import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.cnec.Cnec;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
@@ -54,7 +54,7 @@ public final class RaoUtil {
 
     public static void checkParameters(RaoParameters raoParameters, RaoInput raoInput) {
         if (raoParameters.getObjectiveFunctionParameters().getType().getUnit().equals(Unit.AMPERE)
-                && raoParameters.getLoadFlowAndSensitivityParameters().getSensitivityWithLoadFlowParameters().getLoadFlowParameters().isDc()) {
+            && raoParameters.getLoadFlowAndSensitivityParameters().getSensitivityWithLoadFlowParameters().getLoadFlowParameters().isDc()) {
             throw new FaraoException(format("Objective function %s cannot be calculated with a DC default sensitivity engine", raoParameters.getObjectiveFunctionParameters().getType().toString()));
         }
 
@@ -68,16 +68,16 @@ public final class RaoUtil {
         }
 
         if ((raoParameters.hasExtension(LoopFlowParametersExtension.class)
-                || raoParameters.getObjectiveFunctionParameters().getType().relativePositiveMargins())
-                && (Objects.isNull(raoInput.getReferenceProgram()))) {
+            || raoParameters.getObjectiveFunctionParameters().getType().relativePositiveMargins())
+            && (Objects.isNull(raoInput.getReferenceProgram()))) {
             FaraoLoggerProvider.BUSINESS_WARNS.warn("No ReferenceProgram provided. A ReferenceProgram will be generated using information in the network file.");
             raoInput.setReferenceProgram(ReferenceProgramBuilder.buildReferenceProgram(raoInput.getNetwork(), raoParameters.getLoadFlowAndSensitivityParameters().getLoadFlowProvider(), raoParameters.getLoadFlowAndSensitivityParameters().getSensitivityWithLoadFlowParameters().getLoadFlowParameters()));
         }
 
         if (raoParameters.hasExtension(LoopFlowParametersExtension.class) && (Objects.isNull(raoInput.getReferenceProgram()) || Objects.isNull(raoInput.getGlskProvider()))) {
             String msg = format(
-                    "Loopflow computation cannot be performed on CRAC %s because it lacks a ReferenceProgram or a GlskProvider",
-                    raoInput.getCrac().getId());
+                "Loopflow computation cannot be performed on CRAC %s because it lacks a ReferenceProgram or a GlskProvider",
+                raoInput.getCrac().getId());
             FaraoLoggerProvider.BUSINESS_LOGS.error(msg);
             throw new FaraoException(msg);
         }
@@ -137,15 +137,15 @@ public final class RaoUtil {
         if (state.isPreventive() || state.equals(optimizationContext.getMainOptimizationState())) {
             // no previous instant
             return null;
-        } else if (state.getInstant().equals(Instant.CURATIVE)) {
+        } else if (state.getInstant().getInstantKind().equals(InstantKind.CURATIVE)) {
 
             // look if a preventive range action acts on the same network elements
             State preventiveState = optimizationContext.getMainOptimizationState();
 
             if (preventiveState.isPreventive()) {
                 Optional<RangeAction<?>> correspondingRa = optimizationContext.getRangeActionsPerState().get(preventiveState).stream()
-                        .filter(ra -> ra.getId().equals(rangeAction.getId()) || ra.getNetworkElements().equals(rangeAction.getNetworkElements()))
-                        .findAny();
+                    .filter(ra -> ra.getId().equals(rangeAction.getId()) || ra.getNetworkElements().equals(rangeAction.getNetworkElements()))
+                    .findAny();
 
                 if (correspondingRa.isPresent()) {
                     return Pair.of(correspondingRa.get(), preventiveState);

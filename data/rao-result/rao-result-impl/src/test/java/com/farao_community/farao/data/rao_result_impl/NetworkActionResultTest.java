@@ -13,10 +13,9 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Set;
 
-import static com.farao_community.farao.data.crac_api.Instant.CURATIVE;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
@@ -35,8 +34,8 @@ class NetworkActionResultTest {
         NetworkActionResult networkActionResult = new NetworkActionResult();
 
         assertFalse(networkActionResult.isActivated(crac.getPreventiveState()));
-        assertFalse(networkActionResult.isActivated(crac.getState("Contingency FR1 FR2", CURATIVE)));
-        assertFalse(networkActionResult.isActivated(crac.getState("Contingency FR1 FR3", CURATIVE)));
+        assertFalse(networkActionResult.isActivated(crac.getState("Contingency FR1 FR2", "curative")));
+        assertFalse(networkActionResult.isActivated(crac.getState("Contingency FR1 FR3", "curative")));
         assertTrue(networkActionResult.getStatesWithActivation().isEmpty());
     }
 
@@ -46,19 +45,19 @@ class NetworkActionResultTest {
         networkActionResult.addActivationForState(crac.getPreventiveState());
 
         assertTrue(networkActionResult.isActivated(crac.getPreventiveState()));
-        assertFalse(networkActionResult.isActivated(crac.getState("Contingency FR1 FR2", CURATIVE)));
-        assertFalse(networkActionResult.isActivated(crac.getState("Contingency FR1 FR3", CURATIVE)));
+        assertFalse(networkActionResult.isActivated(crac.getState("Contingency FR1 FR2", "curative")));
+        assertFalse(networkActionResult.isActivated(crac.getState("Contingency FR1 FR3", "curative")));
         assertEquals(1, networkActionResult.getStatesWithActivation().size());
     }
 
     @Test
     void activatedInTwoCurativeStatesTest() {
         NetworkActionResult networkActionResult = new NetworkActionResult();
-        networkActionResult.addActivationForStates(Set.of(crac.getState("Contingency FR1 FR3", CURATIVE), crac.getState("Contingency FR1 FR2", CURATIVE)));
+        networkActionResult.addActivationForStates(Set.of(crac.getState("Contingency FR1 FR3", "curative"), crac.getState("Contingency FR1 FR2", "curative")));
 
         assertFalse(networkActionResult.isActivated(crac.getPreventiveState()));
-        assertTrue(networkActionResult.isActivated(crac.getState("Contingency FR1 FR2", CURATIVE)));
-        assertTrue(networkActionResult.isActivated(crac.getState("Contingency FR1 FR3", CURATIVE)));
+        assertTrue(networkActionResult.isActivated(crac.getState("Contingency FR1 FR2", "curative")));
+        assertTrue(networkActionResult.isActivated(crac.getState("Contingency FR1 FR3", "curative")));
         assertEquals(2, networkActionResult.getStatesWithActivation().size());
     }
 }

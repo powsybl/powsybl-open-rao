@@ -8,7 +8,7 @@ package com.farao_community.farao.search_tree_rao.search_tree.algorithms;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
-import com.farao_community.farao.data.crac_api.Instant;
+import com.farao_community.farao.data.crac_api.InstantKind;
 import com.farao_community.farao.data.crac_api.RemedialAction;
 import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
@@ -53,14 +53,6 @@ import static com.farao_community.farao.search_tree_rao.commons.RaoLogger.getVir
  */
 public class Leaf implements OptimizationResult {
     private static final String NO_RESULTS_AVAILABLE = "No results available.";
-
-    public enum Status {
-        CREATED,
-        ERROR,
-        EVALUATED,
-        OPTIMIZED
-    }
-
     /**
      * Network Actions which will be tested (including the
      * network actions from the parent leaves as well as from
@@ -69,10 +61,9 @@ public class Leaf implements OptimizationResult {
     private final OptimizationPerimeter optimizationPerimeter;
     private final Set<NetworkAction> appliedNetworkActionsInPrimaryState;
     private final AppliedRemedialActions appliedRemedialActionsInSecondaryStates; // for 2nd prev
-    private Network network;
     private final RangeActionActivationResult raActivationResultFromParentLeaf;
     private final RangeActionSetpointResult prePerimeterSetpoints;
-
+    private Network network;
     /**
      * Status of the leaf's Network Action evaluation
      */
@@ -81,7 +72,6 @@ public class Leaf implements OptimizationResult {
     private SensitivityResult preOptimSensitivityResult;
     private ObjectiveFunctionResult preOptimObjectiveFunctionResult;
     private LinearOptimizationResult postOptimResult;
-
     /**
      * Flag indicating whether the data needed for optimization is present
      * It is assumed that data is present initially and that it can be deleted afterwards
@@ -101,9 +91,9 @@ public class Leaf implements OptimizationResult {
         this.prePerimeterSetpoints = prePerimeterSetpoints;
         if (!Objects.isNull(newCombinationToApply)) {
             this.appliedNetworkActionsInPrimaryState = Stream.concat(
-                            alreadyAppliedNetworkActionsInPrimaryState.stream(),
-                            newCombinationToApply.getNetworkActionSet().stream())
-                    .collect(Collectors.toSet());
+                    alreadyAppliedNetworkActionsInPrimaryState.stream(),
+                    newCombinationToApply.getNetworkActionSet().stream())
+                .collect(Collectors.toSet());
         } else {
             this.appliedNetworkActionsInPrimaryState = alreadyAppliedNetworkActionsInPrimaryState;
         }
@@ -192,32 +182,32 @@ public class Leaf implements OptimizationResult {
 
             // build input
             IteratingLinearOptimizerInput linearOptimizerInput = IteratingLinearOptimizerInput.create()
-                    .withNetwork(network)
-                    .withOptimizationPerimeter(searchTreeInput.getOptimizationPerimeter())
-                    .withInitialFlowResult(searchTreeInput.getInitialFlowResult())
-                    .withPrePerimeterFlowResult(searchTreeInput.getPrePerimeterResult())
-                    .withPrePerimeterSetpoints(prePerimeterSetpoints)
-                    .withPreOptimizationFlowResult(preOptimFlowResult)
-                    .withPreOptimizationSensitivityResult(preOptimSensitivityResult)
-                    .withPreOptimizationAppliedRemedialActions(appliedRemedialActionsInSecondaryStates)
-                    .withRaActivationFromParentLeaf(raActivationResultFromParentLeaf)
-                    .withObjectiveFunction(searchTreeInput.getObjectiveFunction())
-                    .withToolProvider(searchTreeInput.getToolProvider())
-                    .build();
+                .withNetwork(network)
+                .withOptimizationPerimeter(searchTreeInput.getOptimizationPerimeter())
+                .withInitialFlowResult(searchTreeInput.getInitialFlowResult())
+                .withPrePerimeterFlowResult(searchTreeInput.getPrePerimeterResult())
+                .withPrePerimeterSetpoints(prePerimeterSetpoints)
+                .withPreOptimizationFlowResult(preOptimFlowResult)
+                .withPreOptimizationSensitivityResult(preOptimSensitivityResult)
+                .withPreOptimizationAppliedRemedialActions(appliedRemedialActionsInSecondaryStates)
+                .withRaActivationFromParentLeaf(raActivationResultFromParentLeaf)
+                .withObjectiveFunction(searchTreeInput.getObjectiveFunction())
+                .withToolProvider(searchTreeInput.getToolProvider())
+                .build();
 
             // build parameters
             IteratingLinearOptimizerParameters linearOptimizerParameters = IteratingLinearOptimizerParameters.create()
-                    .withObjectiveFunction(parameters.getObjectiveFunction())
-                    .withRangeActionParameters(parameters.getRangeActionParameters())
-                    .withMnecParameters(parameters.getMnecParameters())
-                    .withMaxMinRelativeMarginParameters(parameters.getMaxMinRelativeMarginParameters())
-                    .withLoopFlowParameters(parameters.getLoopFlowParameters())
-                    .withUnoptimizedCnecParameters(parameters.getUnoptimizedCnecParameters())
-                    .withRaLimitationParameters(getRaLimitationParameters(searchTreeInput.getOptimizationPerimeter(), parameters))
-                    .withSolverParameters(parameters.getSolverParameters())
-                    .withMaxNumberOfIterations(parameters.getMaxNumberOfIterations())
-                    .withRaRangeShrinking(parameters.getTreeParameters().getRaRangeShrinking())
-                    .build();
+                .withObjectiveFunction(parameters.getObjectiveFunction())
+                .withRangeActionParameters(parameters.getRangeActionParameters())
+                .withMnecParameters(parameters.getMnecParameters())
+                .withMaxMinRelativeMarginParameters(parameters.getMaxMinRelativeMarginParameters())
+                .withLoopFlowParameters(parameters.getLoopFlowParameters())
+                .withUnoptimizedCnecParameters(parameters.getUnoptimizedCnecParameters())
+                .withRaLimitationParameters(getRaLimitationParameters(searchTreeInput.getOptimizationPerimeter(), parameters))
+                .withSolverParameters(parameters.getSolverParameters())
+                .withMaxNumberOfIterations(parameters.getMaxNumberOfIterations())
+                .withRaRangeShrinking(parameters.getTreeParameters().getRaRangeShrinking())
+                .build();
 
             postOptimResult = IteratingLinearOptimizer.optimize(linearOptimizerInput, linearOptimizerParameters);
 
@@ -231,7 +221,7 @@ public class Leaf implements OptimizationResult {
 
     private void resetPreOptimRangeActionsSetpoints(OptimizationPerimeter optimizationContext) {
         optimizationContext.getRangeActionsPerState().forEach((state, rangeActions) ->
-                rangeActions.forEach(ra -> ra.apply(network, raActivationResultFromParentLeaf.getOptimizedSetpoint(ra, state))));
+            rangeActions.forEach(ra -> ra.apply(network, raActivationResultFromParentLeaf.getOptimizedSetpoint(ra, state))));
     }
 
     private RangeActionLimitationParameters getRaLimitationParameters(OptimizationPerimeter context, SearchTreeParameters parameters) {
@@ -263,24 +253,24 @@ public class Leaf implements OptimizationResult {
         } else if (context instanceof GlobalOptimizationPerimeter) {
 
             context.getRangeActionOptimizationStates().stream()
-                    .filter(state -> state.getInstant().equals(Instant.CURATIVE))
-                    .forEach(state -> {
-                        int maxRa = parameters.getRaLimitationParameters().getMaxCurativeRa() - appliedRemedialActionsInSecondaryStates.getAppliedNetworkActions(state).size();
-                        Set<String> tsoWithAlreadyActivatedRa = appliedRemedialActionsInSecondaryStates.getAppliedNetworkActions(state).stream().map(RemedialAction::getOperator).collect(Collectors.toSet());
-                        int maxTso = parameters.getRaLimitationParameters().getMaxCurativeTso() - tsoWithAlreadyActivatedRa.size();
-                        Map<String, Integer> maxPstPerTso = parameters.getRaLimitationParameters().getMaxCurativePstPerTso();
-                        Map<String, Integer> maxRaPerTso = new HashMap<>(parameters.getRaLimitationParameters().getMaxCurativeRaPerTso());
-                        maxRaPerTso.entrySet().forEach(entry -> {
-                            int alreadyActivatedNetworkActionsForTso = appliedRemedialActionsInSecondaryStates.getAppliedNetworkActions(state).stream().filter(na -> entry.getKey().equals(na.getOperator())).collect(Collectors.toSet()).size();
-                            entry.setValue(entry.getValue() - alreadyActivatedNetworkActionsForTso);
-                        });
-
-                        limitationParameters.setMaxRangeAction(state, maxRa);
-                        limitationParameters.setMaxTso(state, maxTso);
-                        limitationParameters.setMaxTsoExclusion(state, tsoWithAlreadyActivatedRa);
-                        limitationParameters.setMaxPstPerTso(state, maxPstPerTso);
-                        limitationParameters.setMaxRangeActionPerTso(state, maxRaPerTso);
+                .filter(state -> state.getInstant().getInstantKind().equals(InstantKind.CURATIVE))
+                .forEach(state -> {
+                    int maxRa = parameters.getRaLimitationParameters().getMaxCurativeRa() - appliedRemedialActionsInSecondaryStates.getAppliedNetworkActions(state).size();
+                    Set<String> tsoWithAlreadyActivatedRa = appliedRemedialActionsInSecondaryStates.getAppliedNetworkActions(state).stream().map(RemedialAction::getOperator).collect(Collectors.toSet());
+                    int maxTso = parameters.getRaLimitationParameters().getMaxCurativeTso() - tsoWithAlreadyActivatedRa.size();
+                    Map<String, Integer> maxPstPerTso = parameters.getRaLimitationParameters().getMaxCurativePstPerTso();
+                    Map<String, Integer> maxRaPerTso = new HashMap<>(parameters.getRaLimitationParameters().getMaxCurativeRaPerTso());
+                    maxRaPerTso.entrySet().forEach(entry -> {
+                        int alreadyActivatedNetworkActionsForTso = appliedRemedialActionsInSecondaryStates.getAppliedNetworkActions(state).stream().filter(na -> entry.getKey().equals(na.getOperator())).collect(Collectors.toSet()).size();
+                        entry.setValue(entry.getValue() - alreadyActivatedNetworkActionsForTso);
                     });
+
+                    limitationParameters.setMaxRangeAction(state, maxRa);
+                    limitationParameters.setMaxTso(state, maxTso);
+                    limitationParameters.setMaxTsoExclusion(state, tsoWithAlreadyActivatedRa);
+                    limitationParameters.setMaxPstPerTso(state, maxPstPerTso);
+                    limitationParameters.setMaxRangeActionPerTso(state, maxRaPerTso);
+                });
         }
         return limitationParameters;
     }
@@ -300,7 +290,7 @@ public class Leaf implements OptimizationResult {
      */
     public String getIdentifier() {
         return isRoot() ? "Root leaf" :
-                "network action(s): " + appliedNetworkActionsInPrimaryState.stream().map(NetworkAction::getName).collect(Collectors.joining(", "));
+            "network action(s): " + appliedNetworkActionsInPrimaryState.stream().map(NetworkAction::getName).collect(Collectors.joining(", "));
     }
 
     @Override
@@ -323,12 +313,12 @@ public class Leaf implements OptimizationResult {
     long getNumberOfActivatedRangeActions() {
         if (status == Status.EVALUATED) {
             return (long) optimizationPerimeter.getRangeActionsPerState().keySet().stream()
-                    .mapToDouble(s -> raActivationResultFromParentLeaf.getActivatedRangeActions(s).size())
-                    .sum();
+                .mapToDouble(s -> raActivationResultFromParentLeaf.getActivatedRangeActions(s).size())
+                .sum();
         } else if (status == Status.OPTIMIZED) {
             return (long) optimizationPerimeter.getRangeActionsPerState().keySet().stream()
-                    .mapToDouble(s -> postOptimResult.getActivatedRangeActions(s).size())
-                    .sum();
+                .mapToDouble(s -> postOptimResult.getActivatedRangeActions(s).size())
+                .sum();
         } else {
             throw new FaraoException(NO_RESULTS_AVAILABLE);
         }
@@ -581,7 +571,7 @@ public class Leaf implements OptimizationResult {
     @Override
     public double getSensitivityValue(FlowCnec flowCnec, Side side, RangeAction<?> rangeAction, Unit unit) {
         if (status == Status.EVALUATED ||
-                (status == Status.OPTIMIZED && !postOptimResult.getRangeActions().contains(rangeAction))) {
+            (status == Status.OPTIMIZED && !postOptimResult.getRangeActions().contains(rangeAction))) {
             return preOptimSensitivityResult.getSensitivityValue(flowCnec, side, rangeAction, unit);
         } else if (status == Status.OPTIMIZED) {
             return postOptimResult.getSensitivityValue(flowCnec, side, rangeAction, unit);
@@ -607,5 +597,12 @@ public class Leaf implements OptimizationResult {
     public void finalizeOptimization() {
         this.network = null;
         this.optimizationDataPresent = false;
+    }
+
+    public enum Status {
+        CREATED,
+        ERROR,
+        EVALUATED,
+        OPTIMIZED
     }
 }

@@ -39,11 +39,16 @@ import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.when;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
@@ -74,7 +79,9 @@ class IteratingLinearOptimizerTest {
         when(rangeAction.getId()).thenReturn("ra");
         when(rangeAction.getNetworkElements()).thenReturn(Set.of(Mockito.mock(NetworkElement.class)));
         optimizedState = Mockito.mock(State.class);
-        when(optimizedState.getInstant()).thenReturn(Instant.PREVENTIVE);
+        Instant instantPrev = Mockito.mock(Instant.class);
+        Mockito.when(instantPrev.getInstantKind()).thenReturn(InstantKind.PREVENTIVE);
+        when(optimizedState.getInstant()).thenReturn(instantPrev);
 
         objectiveFunction = Mockito.mock(ObjectiveFunction.class);
         SystematicSensitivityInterface systematicSensitivityInterface = Mockito.mock(SystematicSensitivityInterface.class);
@@ -154,8 +161,8 @@ class IteratingLinearOptimizerTest {
                 objectiveFunctionResults[i] = objectiveFunctionResult;
             }
             when(objectiveFunction.evaluate(any(), any(), any(), any())).thenReturn(
-                    initialObjectiveFunctionResult,
-                    objectiveFunctionResults
+                initialObjectiveFunctionResult,
+                objectiveFunctionResults
             );
         }
     }
@@ -163,6 +170,7 @@ class IteratingLinearOptimizerTest {
     private void mockLinearProblem(List<LinearProblemStatus> statuses, List<Double> setPoints) {
         doAnswer(new Answer() {
             private int count = 0;
+
             public Object answer(InvocationOnMock invocation) {
                 count += 1;
                 if (statuses.get(count - 1) == LinearProblemStatus.OPTIMAL) {
@@ -315,8 +323,8 @@ class IteratingLinearOptimizerTest {
         mockFunctionalCost(100., 120., 105., 90., 100., 95.);
         Crac crac = CracFactory.findDefault().create("test-crac");
         rangeAction = (PstRangeAction) crac.newPstRangeAction().withId("test-pst").withNetworkElement("BBE2AA1  BBE3AA1  1")
-                .withInitialTap(0)
-                .withTapToAngleConversionMap(Map.of(0, 0., 1, 1., 2, 2., 3, 3., 4, 4., 5, 5.)).add();
+            .withInitialTap(0)
+            .withTapToAngleConversionMap(Map.of(0, 0., 1, 1., 2, 2., 3, 3., 4, 4., 5, 5.)).add();
         when(optimizationPerimeter.getRangeActionsPerState()).thenReturn(Map.of(
             optimizedState, Set.of(rangeAction)
         ));

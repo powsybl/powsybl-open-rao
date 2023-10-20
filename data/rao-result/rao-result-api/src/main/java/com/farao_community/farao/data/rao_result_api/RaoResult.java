@@ -47,24 +47,24 @@ public interface RaoResult {
      * It gives the flow on a {@link FlowCnec} after a given {@link Instant} and in a
      * given {@link Unit}.
      *
-     * @param optimizedInstantId : The optimized instant to be studied (set to null to access initial results)
-     * @param flowCnec           : The branch to be studied.
-     * @param side               : The side of the branch to be queried.
-     * @param unit               : The unit in which the flow is queried. Only accepted values are MEGAWATT or AMPERE.
+     * @param optimizedInstant : The optimized instant to be studied (set to null to access initial results)
+     * @param flowCnec         : The branch to be studied.
+     * @param side             : The side of the branch to be queried.
+     * @param unit             : The unit in which the flow is queried. Only accepted values are MEGAWATT or AMPERE.
      * @return The flow on the branch at the optimization state in the given unit.
      */
-    double getFlow(String optimizedInstantId, FlowCnec flowCnec, Side side, Unit unit);
+    double getFlow(Instant optimizedInstant, FlowCnec flowCnec, Side side, Unit unit);
 
     /**
      * It gives the angle on an {@link AngleCnec} at a given {@link Instant} and in a
      * given {@link Unit}.
      *
-     * @param optimizedInstant: The optimized instant to be studied (set to null to access initial results)
-     * @param angleCnec:        The angle cnec to be studied.
-     * @param unit:             The unit in which the flow is queried. Only accepted value for now is DEGREE.
+     * @param optimizedInstantId : The optimized instant to be studied (set to null to access initial results)
+     * @param angleCnec          :        The angle cnec to be studied.
+     * @param unit               :             The unit in which the flow is queried. Only accepted value for now is DEGREE.
      * @return The angle on the cnec at the optimization state in the given unit.
      */
-    default double getAngle(Instant optimizedInstant, AngleCnec angleCnec, Unit unit) {
+    default double getAngle(String optimizedInstantId, AngleCnec angleCnec, Unit unit) {
         throw new FaraoException("Angle cnecs are not computed in the rao");
     }
 
@@ -72,12 +72,12 @@ public interface RaoResult {
      * It gives the voltage on a {@link VoltageCnec} at a given {@link Instant} and in a
      * given {@link Unit}.
      *
-     * @param optimizedInstant: The optimized instant to be studied (set to null to access initial results)
-     * @param voltageCnec:      The voltage cnec to be studied.
-     * @param unit:             The unit in which the flow is queried. Only accepted value for now is KILOVOLT.
+     * @param optimizedInstantId : The optimized instant to be studied (set to null to access initial results)
+     * @param voltageCnec        :      The voltage cnec to be studied.
+     * @param unit               :             The unit in which the flow is queried. Only accepted value for now is KILOVOLT.
      * @return The voltage on the cnec at the optimization state in the given unit.
      */
-    default double getVoltage(Instant optimizedInstant, VoltageCnec voltageCnec, Unit unit) {
+    default double getVoltage(String optimizedInstantId, VoltageCnec voltageCnec, Unit unit) {
         throw new FaraoException("Voltage cnecs are not computed in the rao");
     }
 
@@ -86,24 +86,24 @@ public interface RaoResult {
      * given {@link Unit}. It is basically the difference between the flow and the most constraining threshold in the
      * flow direction of the given branch. If it is negative the branch is under constraint.
      *
-     * @param optimizedInstantId : The optimized instant to be studied (set to null to access initial results)
-     * @param flowCnec           : The branch to be studied.
-     * @param unit               : The unit in which the margin is queried. Only accepted values are MEGAWATT or AMPERE.
+     * @param optimizedInstant : The optimized instant to be studied (set to null to access initial results)
+     * @param flowCnec         : The branch to be studied.
+     * @param unit             : The unit in which the margin is queried. Only accepted values are MEGAWATT or AMPERE.
      * @return The margin on the branch at the optimization state in the given unit.
      */
-    double getMargin(String optimizedInstantId, FlowCnec flowCnec, Unit unit);
+    double getMargin(Instant optimizedInstant, FlowCnec flowCnec, Unit unit);
 
     /**
      * It gives the margin on an {@link AngleCnec} at a given {@link Instant} and in a
      * given {@link Unit}. It is basically the difference between the angle and the most constraining threshold in the
      * angle direction of the given branch. If it is negative the cnec is under constraint.
      *
-     * @param optimizedInstant: The optimized instant to be studied (set to null to access initial results)
-     * @param angleCnec:        The angle cnec to be studied.
-     * @param unit:             The unit in which the margin is queried. Only accepted for now is DEGREE.
+     * @param optimizedInstantId : The optimized instant to be studied (set to null to access initial results)
+     * @param angleCnec          :        The angle cnec to be studied.
+     * @param unit               :             The unit in which the margin is queried. Only accepted for now is DEGREE.
      * @return The margin on the angle cnec at the optimization state in the given unit.
      */
-    default double getMargin(Instant optimizedInstant, AngleCnec angleCnec, Unit unit) {
+    default double getMargin(String optimizedInstantId, AngleCnec angleCnec, Unit unit) {
         throw new FaraoException("Angle cnecs are not computed in the rao");
     }
 
@@ -112,12 +112,12 @@ public interface RaoResult {
      * given {@link Unit}. It is basically the difference between the voltage and the most constraining threshold in the
      * of the given voltage level. If it is negative the cnec is under constraint.
      *
-     * @param optimizedInstant: The optimized instant to be studied (set to null to access initial results)
-     * @param voltageCnec:      The voltage cnec to be studied.
-     * @param unit:             The unit in which the margin is queried. Only accepted for now is KILOVOLT.
+     * @param optimizedInstantId : The optimized instant to be studied (set to null to access initial results)
+     * @param voltageCnec        :      The voltage cnec to be studied.
+     * @param unit               :             The unit in which the margin is queried. Only accepted for now is KILOVOLT.
      * @return The margin on the voltage cnec at the optimization state in the given unit.
      */
-    default double getMargin(Instant optimizedInstant, VoltageCnec voltageCnec, Unit unit) {
+    default double getMargin(String optimizedInstantId, VoltageCnec voltageCnec, Unit unit) {
         throw new FaraoException("Voltage cnecs are not computed in the rao");
     }
 
@@ -129,53 +129,53 @@ public interface RaoResult {
      * RAO. If it is negative the branch is under constraint. If the PTDFs are not defined in the
      * computation or the sum of them is null, this method could return {@code Double.NaN} values.
      *
-     * @param optimizedInstantId : The optimized instant to be studied (set to null to access initial results)
-     * @param flowCnec           : The branch to be studied.
-     * @param unit               : The unit in which the relative margin is queried. Only accepted values are MEGAWATT or AMPERE.
+     * @param optimizedInstant : The optimized instant to be studied (set to null to access initial results)
+     * @param flowCnec         : The branch to be studied.
+     * @param unit             : The unit in which the relative margin is queried. Only accepted values are MEGAWATT or AMPERE.
      * @return The relative margin on the branch at the optimization state in the given unit.
      */
-    double getRelativeMargin(String optimizedInstantId, FlowCnec flowCnec, Unit unit);
+    double getRelativeMargin(Instant optimizedInstant, FlowCnec flowCnec, Unit unit);
 
     /**
      * It gives the value of commercial flow (according to CORE D-2 CC methodology) on a {@link FlowCnec} at a given
      * {@link Instant} and in a given {@link Unit}. If the branch is not considered as a branch on which the
      * loop flows are monitored, this method could return {@code Double.NaN} values.
      *
-     * @param optimizedInstantId : The optimized instant to be studied (set to null to access initial results)
-     * @param flowCnec           : The branch to be studied.
-     * @param unit               : The unit in which the commercial flow is queried. Only accepted values are MEGAWATT or AMPERE.
+     * @param optimizedInstant : The optimized instant to be studied (set to null to access initial results)
+     * @param flowCnec         : The branch to be studied.
+     * @param unit             : The unit in which the commercial flow is queried. Only accepted values are MEGAWATT or AMPERE.
      * @return The commercial flow on the branch at the optimization state in the given unit.
      */
-    double getCommercialFlow(String optimizedInstantId, FlowCnec flowCnec, Side side, Unit unit);
+    double getCommercialFlow(Instant optimizedInstant, FlowCnec flowCnec, Side side, Unit unit);
 
     /**
      * It gives the value of loop flow (according to CORE D-2 CC methodology) on a {@link FlowCnec} at a given
      * {@link Instant} and in a given {@link Unit}. If the branch is not considered as a branch on which the
      * loop flows are monitored, this method could return {@code Double.NaN} values.
      *
-     * @param optimizedInstantId : The optimized instant to be studied (set to null to access initial results)
-     * @param flowCnec           : The branch to be studied.
-     * @param unit               : The unit in which the loop flow is queried. Only accepted values are MEGAWATT or AMPERE.
+     * @param optimizedInstant : The optimized instant to be studied (set to null to access initial results)
+     * @param flowCnec         : The branch to be studied.
+     * @param unit             : The unit in which the loop flow is queried. Only accepted values are MEGAWATT or AMPERE.
      * @return The loop flow on the branch at the optimization state in the given unit.
      */
-    double getLoopFlow(String optimizedInstantId, FlowCnec flowCnec, Side side, Unit unit);
+    double getLoopFlow(Instant optimizedInstant, FlowCnec flowCnec, Side side, Unit unit);
 
     /**
      * It gives the sum of the computation areas' zonal PTDFs on a {@link FlowCnec} at a given
      * {@link Instant}. If the computation does not consider PTDF values or if the RAO does
      * not define any list of considered areas, this method could return {@code Double.NaN} values.
      *
-     * @param optimizedInstantId : The optimized instant to be studied (set to null to access initial results)
-     * @param flowCnec           : The branch to be studied.
+     * @param optimizedInstant : The optimized instant to be studied (set to null to access initial results)
+     * @param flowCnec         : The branch to be studied.
      * @return The sum of the computation areas' zonal PTDFs on the branch at the optimization state.
      */
-    double getPtdfZonalSum(String optimizedInstantId, FlowCnec flowCnec, Side side);
+    double getPtdfZonalSum(Instant optimizedInstant, FlowCnec flowCnec, Side side);
 
     /**
      * It gives the global cost of the situation at a given {@link Instant} according to the objective
      * function defined in the RAO.
      *
-     * @param optimizedInstant: The optimized instant to be studied (set to null to access initial results)
+     * @param optimizedInstant : The optimized instant to be studied (set to null to access initial results)
      * @return The global cost of the situation state.
      */
     default double getCost(Instant optimizedInstant) {
@@ -186,7 +186,7 @@ public interface RaoResult {
      * It gives the functional cost of the situation at a given {@link Instant} according to the objective
      * function defined in the RAO. It represents the main part of the objective function.
      *
-     * @param optimizedInstant: The optimized instant to be studied (set to null to access initial results)
+     * @param optimizedInstant : The optimized instant to be studied (set to null to access initial results)
      * @return The functional cost of the situation state.
      */
     double getFunctionalCost(Instant optimizedInstant);
@@ -196,7 +196,7 @@ public interface RaoResult {
      * objective function defined in the RAO. It represents the secondary parts of the objective
      * function.
      *
-     * @param optimizedInstant: The optimized instant to be studied (set to null to access initial results)
+     * @param optimizedInstant : The optimized instant to be studied (set to null to access initial results)
      * @return The global virtual cost of the situation state.
      */
     double getVirtualCost(Instant optimizedInstant);
@@ -214,8 +214,8 @@ public interface RaoResult {
      * secondary parts of the objective. If the specified name is not part of the virtual costs defined in the
      * objective function, this method could return {@code Double.NaN} values.
      *
-     * @param optimizedInstant: The optimized instant to be studied (set to null to access initial results)
-     * @param virtualCostName:  The name of the virtual cost.
+     * @param optimizedInstant : The optimized instant to be studied (set to null to access initial results)
+     * @param virtualCostName  :  The name of the virtual cost.
      * @return The specific virtual cost of the situation state.
      */
     double getVirtualCost(Instant optimizedInstant, String virtualCostName);

@@ -10,7 +10,6 @@ package com.farao_community.farao.data.swe_cne_exporter;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Contingency;
 import com.farao_community.farao.data.crac_api.Crac;
-import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.cnec.AngleCnec;
 import com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.CimCracCreationContext;
 import com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.cnec.AngleCnecCreationContext;
@@ -18,7 +17,10 @@ import com.farao_community.farao.data.swe_cne_exporter.xsd.AdditionalConstraintS
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import static com.farao_community.farao.commons.logs.FaraoLoggerProvider.BUSINESS_WARNS;
@@ -44,19 +46,19 @@ public class SweAdditionalConstraintSeriesCreator {
             return additionalConstraintSeriesList;
         }
         List<AngleCnecCreationContext> sortedAngleCnecs = cracCreationContext.getAngleCnecCreationContexts().stream()
-                .filter(AngleCnecCreationContext::isImported)
-                .sorted(Comparator.comparing(AngleCnecCreationContext::getCreatedCnecId))
-                .collect(Collectors.toList());
+            .filter(AngleCnecCreationContext::isImported)
+            .sorted(Comparator.comparing(AngleCnecCreationContext::getCreatedCnecId))
+            .toList();
         if (Objects.isNull(contingency)) {
             sortedAngleCnecs.stream().filter(angleCnecCreationContext -> Objects.isNull(angleCnecCreationContext.getContingencyId()))
-                    .forEach(angleCnecCreationContext ->
-                BUSINESS_WARNS.warn("Preventive angle cnec {} will not be added to CNE file", angleCnecCreationContext.getNativeId()));
+                .forEach(angleCnecCreationContext ->
+                    BUSINESS_WARNS.warn("Preventive angle cnec {} will not be added to CNE file", angleCnecCreationContext.getNativeId()));
         } else {
             sortedAngleCnecs.stream()
-                    .filter(angleCnecCreationContext -> angleCnecCreationContext.getContingencyId().equals(contingency.getId()))
-                            .map(this::generateAdditionalConstraintSeries)
-                                    .filter(Objects::nonNull)
-                                            .forEach(additionalConstraintSeriesList::add);
+                .filter(angleCnecCreationContext -> angleCnecCreationContext.getContingencyId().equals(contingency.getId()))
+                .map(this::generateAdditionalConstraintSeries)
+                .filter(Objects::nonNull)
+                .forEach(additionalConstraintSeriesList::add);
         }
         return additionalConstraintSeriesList;
     }
@@ -64,7 +66,7 @@ public class SweAdditionalConstraintSeriesCreator {
     private AdditionalConstraintSeries generateAdditionalConstraintSeries(AngleCnecCreationContext angleCnecCreationContext) {
         Crac crac = sweCneHelper.getCrac();
         AngleCnec angleCnec = crac.getAngleCnec(angleCnecCreationContext.getCreatedCnecId());
-        if (!angleCnec.getState().getInstant().equals(Instant.CURATIVE)) {
+        if (!angleCnec.getState().getInstant().getInstantKind().equals(InstantKind.CURATIVE)) {
             BUSINESS_WARNS.warn("{} angle cnec {} will not be added to CNE file", angleCnec.getState().getInstant(), angleCnecCreationContext.getNativeId());
             return null;
         }

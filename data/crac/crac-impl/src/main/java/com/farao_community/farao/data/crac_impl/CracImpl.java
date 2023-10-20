@@ -189,6 +189,17 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
     }
 
     @Override
+    public Instant getUniqueInstant(InstantKind instantKind) {
+        Set<Instant> instants = getInstants(instantKind);
+        if (instants.size() != 1) {
+            throw new FaraoException("Crac does not contain exactly one outage instant");
+        }
+        return instants.stream().findFirst().orElseThrow(
+            () -> new FaraoException(String.format("Should not occur as there is only one %s instant", instantKind))
+        );
+    }
+
+    @Override
     public Set<Instant> getInstants(InstantKind instantKind) {
         return instants.values().stream()
             .filter(instant -> instant.getInstantKind().equals(instantKind))

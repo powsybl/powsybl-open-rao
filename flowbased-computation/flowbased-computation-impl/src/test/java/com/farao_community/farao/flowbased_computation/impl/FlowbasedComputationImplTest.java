@@ -6,11 +6,9 @@
  */
 package com.farao_community.farao.flowbased_computation.impl;
 
-import com.farao_community.farao.data.crac_api.cnec.Side;
-import com.powsybl.glsk.commons.ZonalData;
 import com.farao_community.farao.data.crac_api.Crac;
-import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
+import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.flowbased_domain.DataMonitoredBranch;
 import com.farao_community.farao.data.flowbased_domain.DataPtdfPerCountry;
@@ -22,6 +20,7 @@ import com.farao_community.farao.data.rao_result_impl.RaoResultImpl;
 import com.farao_community.farao.flowbased_computation.FlowbasedComputationParameters;
 import com.farao_community.farao.flowbased_computation.FlowbasedComputationProvider;
 import com.farao_community.farao.flowbased_computation.FlowbasedComputationResult;
+import com.powsybl.glsk.commons.ZonalData;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.sensitivity.SensitivityVariableSet;
 import org.junit.jupiter.api.BeforeEach;
@@ -33,7 +32,8 @@ import java.util.stream.Collectors;
 
 import static com.farao_community.farao.commons.Unit.AMPERE;
 import static com.farao_community.farao.commons.Unit.MEGAWATT;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
@@ -218,16 +218,16 @@ class FlowbasedComputationImplTest {
 
     private Map<String, Double> frefResultById(FlowbasedComputationResult result) {
         return result.getFlowBasedDomain().getDataPreContingency().getDataMonitoredBranches().stream()
-                .collect(Collectors.toMap(
-                        DataMonitoredBranch::getId,
-                        DataMonitoredBranch::getFref));
+            .collect(Collectors.toMap(
+                DataMonitoredBranch::getId,
+                DataMonitoredBranch::getFref));
     }
 
     private Map<String, Double> fmaxResultById(FlowbasedComputationResult result) {
         return result.getFlowBasedDomain().getDataPreContingency().getDataMonitoredBranches().stream()
-                .collect(Collectors.toMap(
-                        DataMonitoredBranch::getId,
-                        DataMonitoredBranch::getFmax));
+            .collect(Collectors.toMap(
+                DataMonitoredBranch::getId,
+                DataMonitoredBranch::getFmax));
     }
 
     private Map<String, Map<String, Double>> ptdfResultById(FlowbasedComputationResult result) {
@@ -235,10 +235,10 @@ class FlowbasedComputationImplTest {
             .collect(Collectors.toMap(
                 DataMonitoredBranch::getId,
                 dataMonitoredBranch -> dataMonitoredBranch.getPtdfList().stream()
-                .collect(Collectors.toMap(
-                    DataPtdfPerCountry::getCountry,
-                    DataPtdfPerCountry::getPtdf
-                ))
+                    .collect(Collectors.toMap(
+                        DataPtdfPerCountry::getCountry,
+                        DataPtdfPerCountry::getPtdf
+                    ))
             ));
     }
 
@@ -267,8 +267,8 @@ class FlowbasedComputationImplTest {
 
             elementaryFlowCnecResult.setPtdfZonalSum(Side.LEFT, 0.1);
 
-            flowCnecResult.getAndCreateIfAbsentResultForOptimizationState(Instant.CURATIVE);
-            elementaryFlowCnecResult = flowCnecResult.getResult(Instant.CURATIVE);
+            flowCnecResult.getAndCreateIfAbsentResultForOptimizationState("curative");
+            elementaryFlowCnecResult = flowCnecResult.getResult("curative");
 
             elementaryFlowCnecResult.setFlow(Side.LEFT, 200., MEGAWATT);
             elementaryFlowCnecResult.setMargin(201., MEGAWATT);
@@ -283,7 +283,7 @@ class FlowbasedComputationImplTest {
             elementaryFlowCnecResult.setPtdfZonalSum(Side.LEFT, 0.1);
         });
 
-        raoResult.getAndCreateIfAbsentNetworkActionResult(na).addActivationForState(crac.getState("N-1 FR-BE", Instant.CURATIVE));
+        raoResult.getAndCreateIfAbsentNetworkActionResult(na).addActivationForState(crac.getState("N-1 FR-BE", "curative"));
 
         raoResult.setComputationStatus(ComputationStatus.DEFAULT);
 

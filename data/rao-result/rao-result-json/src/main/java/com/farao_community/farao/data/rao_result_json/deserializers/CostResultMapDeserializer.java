@@ -7,14 +7,16 @@
 package com.farao_community.farao.data.rao_result_json.deserializers;
 
 import com.farao_community.farao.commons.FaraoException;
-import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.rao_result_impl.CostResult;
 import com.farao_community.farao.data.rao_result_impl.RaoResultImpl;
 import com.fasterxml.jackson.core.JsonParser;
 
 import java.io.IOException;
 
-import static com.farao_community.farao.data.rao_result_json.RaoResultJsonConstants.*;
+import static com.farao_community.farao.data.rao_result_json.RaoResultJsonConstants.COST_RESULTS;
+import static com.farao_community.farao.data.rao_result_json.RaoResultJsonConstants.FUNCTIONAL_COST;
+import static com.farao_community.farao.data.rao_result_json.RaoResultJsonConstants.VIRTUAL_COSTS;
+import static com.farao_community.farao.data.rao_result_json.RaoResultJsonConstants.deserializeOptimizedInstant;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
@@ -26,15 +28,15 @@ final class CostResultMapDeserializer {
 
     static void deserialize(JsonParser jsonParser, RaoResultImpl raoResult, String jsonFileVersion) throws IOException {
         while (!jsonParser.nextToken().isStructEnd()) {
-            Instant optimizedInstant = deserializeOptimizedInstant(jsonParser.getCurrentName(), jsonFileVersion);
+            String optimizedInstantId = deserializeOptimizedInstant(jsonParser.getCurrentName(), jsonFileVersion);
             jsonParser.nextToken();
-            deserializeCostResult(jsonParser, raoResult, optimizedInstant);
+            deserializeCostResult(jsonParser, raoResult, optimizedInstantId);
         }
     }
 
-    private static void deserializeCostResult(JsonParser jsonParser, RaoResultImpl raoResult, Instant optInstant) throws IOException {
+    private static void deserializeCostResult(JsonParser jsonParser, RaoResultImpl raoResult, String optInstantId) throws IOException {
 
-        CostResult costResult = raoResult.getAndCreateIfAbsentCostResult(optInstant);
+        CostResult costResult = raoResult.getAndCreateIfAbsentCostResult(optInstantId);
 
         while (!jsonParser.nextToken().isStructEnd()) {
             switch (jsonParser.getCurrentName()) {

@@ -10,11 +10,10 @@ package com.farao_community.farao.data.rao_result_json.deserializers;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Crac;
-import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.cnec.VoltageCnec;
-import com.farao_community.farao.data.rao_result_impl.VoltageCnecResult;
 import com.farao_community.farao.data.rao_result_impl.ElementaryVoltageCnecResult;
 import com.farao_community.farao.data.rao_result_impl.RaoResultImpl;
+import com.farao_community.farao.data.rao_result_impl.VoltageCnecResult;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 
@@ -51,22 +50,20 @@ final class VoltageCnecResultArrayDeserializer {
     private static void deserializeVoltageCnecResult(JsonParser jsonParser, VoltageCnecResult voltageCnecResult, String jsonFileVersion) throws IOException {
         while (!jsonParser.nextToken().isStructEnd()) {
             ElementaryVoltageCnecResult eVoltageCnecResult;
-            Instant optimizedInstant = deserializeOptimizedInstant(jsonParser.getCurrentName(), jsonFileVersion);
+            String optimizedInstantId = deserializeOptimizedInstant(jsonParser.getCurrentName(), jsonFileVersion);
             jsonParser.nextToken();
-            eVoltageCnecResult = voltageCnecResult.getAndCreateIfAbsentResultForOptimizationState(optimizedInstant);
+            eVoltageCnecResult = voltageCnecResult.getAndCreateIfAbsentResultForOptimizationState(optimizedInstantId);
             deserializeElementaryVoltageCnecResult(jsonParser, eVoltageCnecResult);
         }
     }
 
     private static void deserializeElementaryVoltageCnecResult(JsonParser jsonParser, ElementaryVoltageCnecResult eVoltageCnecResult) throws IOException {
         while (!jsonParser.nextToken().isStructEnd()) {
-            switch (jsonParser.getCurrentName()) {
-                case KILOVOLT_UNIT:
-                    jsonParser.nextToken();
-                    deserializeElementaryVoltageCnecResultForUnit(jsonParser, eVoltageCnecResult, Unit.KILOVOLT);
-                    break;
-                default:
-                    throw new FaraoException(String.format("Cannot deserialize RaoResult: unexpected field in %s (%s)", VOLTAGECNEC_RESULTS, jsonParser.getCurrentName()));
+            if (jsonParser.getCurrentName().equals(KILOVOLT_UNIT)) {
+                jsonParser.nextToken();
+                deserializeElementaryVoltageCnecResultForUnit(jsonParser, eVoltageCnecResult, Unit.KILOVOLT);
+            } else {
+                throw new FaraoException(String.format("Cannot deserialize RaoResult: unexpected field in %s (%s)", VOLTAGECNEC_RESULTS, jsonParser.getCurrentName()));
             }
         }
     }

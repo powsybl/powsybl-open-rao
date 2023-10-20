@@ -2,7 +2,6 @@ package com.farao_community.farao.data.crac_creation.creator.cim.parameters;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
-import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_creation.creator.api.parameters.CracCreationParameters;
 import com.farao_community.farao.data.crac_creation.creator.api.parameters.JsonCracCreationParameters;
 import org.junit.jupiter.api.Test;
@@ -36,17 +35,17 @@ class JsonVoltageCnecsCreationParametersTest {
         assertEquals(Set.of("ne1", "ne2"), vParams.getMonitoredNetworkElements());
         assertEquals(2, vParams.getMonitoredStatesAndThresholds().size());
 
-        assertNotNull(vParams.getMonitoredStatesAndThresholds().get(Instant.PREVENTIVE));
-        assertNull(vParams.getMonitoredStatesAndThresholds().get(Instant.PREVENTIVE).getContingencyNames());
-        assertEquals(2, vParams.getMonitoredStatesAndThresholds().get(Instant.PREVENTIVE).getThresholdPerNominalV().size());
-        assertEquals(new VoltageThreshold(Unit.KILOVOLT, 180., null), vParams.getMonitoredStatesAndThresholds().get(Instant.PREVENTIVE).getThresholdPerNominalV().get(200.));
-        assertEquals(new VoltageThreshold(Unit.KILOVOLT, 395., 430.), vParams.getMonitoredStatesAndThresholds().get(Instant.PREVENTIVE).getThresholdPerNominalV().get(400.));
+        assertNotNull(vParams.getMonitoredStatesAndThresholds().get(InstantKind.PREVENTIVE));
+        assertNull(vParams.getMonitoredStatesAndThresholds().get(InstantKind.PREVENTIVE).getContingencyNames());
+        assertEquals(2, vParams.getMonitoredStatesAndThresholds().get(InstantKind.PREVENTIVE).getThresholdPerNominalV().size());
+        assertEquals(new VoltageThreshold(Unit.KILOVOLT, 180., null), vParams.getMonitoredStatesAndThresholds().get(InstantKind.PREVENTIVE).getThresholdPerNominalV().get(200.));
+        assertEquals(new VoltageThreshold(Unit.KILOVOLT, 395., 430.), vParams.getMonitoredStatesAndThresholds().get(InstantKind.PREVENTIVE).getThresholdPerNominalV().get(400.));
 
-        assertNotNull(vParams.getMonitoredStatesAndThresholds().get(Instant.CURATIVE));
-        assertEquals(Set.of("N-1 ONE", "N-1 TWO"), vParams.getMonitoredStatesAndThresholds().get(Instant.CURATIVE).getContingencyNames());
-        assertEquals(2, vParams.getMonitoredStatesAndThresholds().get(Instant.CURATIVE).getThresholdPerNominalV().size());
-        assertEquals(new VoltageThreshold(Unit.KILOVOLT, null, 230.), vParams.getMonitoredStatesAndThresholds().get(Instant.CURATIVE).getThresholdPerNominalV().get(210.));
-        assertEquals(new VoltageThreshold(Unit.KILOVOLT, 380., 430.), vParams.getMonitoredStatesAndThresholds().get(Instant.CURATIVE).getThresholdPerNominalV().get(400.));
+        assertNotNull(vParams.getMonitoredStatesAndThresholds().get(InstantKind.CURATIVE));
+        assertEquals(Set.of("N-1 ONE", "N-1 TWO"), vParams.getMonitoredStatesAndThresholds().get(InstantKind.CURATIVE).getContingencyNames());
+        assertEquals(2, vParams.getMonitoredStatesAndThresholds().get(InstantKind.CURATIVE).getThresholdPerNominalV().size());
+        assertEquals(new VoltageThreshold(Unit.KILOVOLT, null, 230.), vParams.getMonitoredStatesAndThresholds().get(InstantKind.CURATIVE).getThresholdPerNominalV().get(210.));
+        assertEquals(new VoltageThreshold(Unit.KILOVOLT, 380., 430.), vParams.getMonitoredStatesAndThresholds().get(InstantKind.CURATIVE).getThresholdPerNominalV().get(400.));
     }
 
     @Test

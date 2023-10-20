@@ -959,25 +959,25 @@ class PreventiveAndCurativesRaoResultImplTest {
     void testAngleAndVoltageCnec() {
         AngleCnec angleCnec = mock(AngleCnec.class);
         VoltageCnec voltageCnec = mock(VoltageCnec.class);
-        Instant optimizedInstant = mock(Instant.class);
+        String optimizedInstantId = mock(String.class);
 
-        FaraoException exception = assertThrows(FaraoException.class, () -> output.getMargin(optimizedInstant, angleCnec, MEGAWATT));
+        FaraoException exception = assertThrows(FaraoException.class, () -> output.getMargin(optimizedInstantId, angleCnec, MEGAWATT));
         assertEquals("", exception.getMessage());
-        exception = assertThrows(FaraoException.class, () -> output.getMargin(optimizedInstant, angleCnec, AMPERE));
+        exception = assertThrows(FaraoException.class, () -> output.getMargin(optimizedInstantId, angleCnec, AMPERE));
         assertEquals("", exception.getMessage());
-        exception = assertThrows(FaraoException.class, () -> output.getMargin(optimizedInstant, voltageCnec, MEGAWATT));
+        exception = assertThrows(FaraoException.class, () -> output.getMargin(optimizedInstantId, voltageCnec, MEGAWATT));
         assertEquals("", exception.getMessage());
-        exception = assertThrows(FaraoException.class, () -> output.getMargin(optimizedInstant, voltageCnec, AMPERE));
-        assertEquals("", exception.getMessage());
-
-        exception = assertThrows(FaraoException.class, () -> output.getVoltage(optimizedInstant, voltageCnec, MEGAWATT));
-        assertEquals("", exception.getMessage());
-        exception = assertThrows(FaraoException.class, () -> output.getVoltage(optimizedInstant, voltageCnec, AMPERE));
+        exception = assertThrows(FaraoException.class, () -> output.getMargin(optimizedInstantId, voltageCnec, AMPERE));
         assertEquals("", exception.getMessage());
 
-        exception = assertThrows(FaraoException.class, () -> output.getAngle(optimizedInstant, angleCnec, MEGAWATT));
+        exception = assertThrows(FaraoException.class, () -> output.getVoltage(optimizedInstantId, voltageCnec, MEGAWATT));
         assertEquals("", exception.getMessage());
-        exception = assertThrows(FaraoException.class, () -> output.getMargin(optimizedInstant, angleCnec, AMPERE));
+        exception = assertThrows(FaraoException.class, () -> output.getVoltage(optimizedInstantId, voltageCnec, AMPERE));
+        assertEquals("", exception.getMessage());
+
+        exception = assertThrows(FaraoException.class, () -> output.getAngle(optimizedInstantId, angleCnec, MEGAWATT));
+        assertEquals("", exception.getMessage());
+        exception = assertThrows(FaraoException.class, () -> output.getMargin(optimizedInstantId, angleCnec, AMPERE));
         assertEquals("", exception.getMessage());
     }
 }

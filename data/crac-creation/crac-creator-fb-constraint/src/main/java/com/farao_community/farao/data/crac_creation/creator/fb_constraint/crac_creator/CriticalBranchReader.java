@@ -9,6 +9,7 @@ package com.farao_community.farao.data.crac_creation.creator.fb_constraint.crac_
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.Instant;
+import com.farao_community.farao.data.crac_api.InstantKind;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnecAdder;
 import com.farao_community.farao.data.crac_api.cnec.Side;
@@ -108,21 +109,21 @@ class CriticalBranchReader {
 
     String getBaseCaseCnecId() {
         if (isBaseCase) {
-            return criticalBranch.getId().concat(" - ").concat(Instant.PREVENTIVE.toString());
+            return criticalBranch.getId().concat(" - ").concat(InstantKind.PREVENTIVE.toString());
         }
         return null;
     }
 
     String getOutageCnecId() {
         if (!isBaseCase) {
-            return criticalBranch.getId().concat(" - ").concat(Instant.OUTAGE.toString());
+            return criticalBranch.getId().concat(" - ").concat(InstantKind.OUTAGE.toString());
         }
         return null;
     }
 
     String getCurativeCnecId() {
         if (!isBaseCase) {
-            return criticalBranch.getId().concat(" - ").concat(Instant.CURATIVE.toString());
+            return criticalBranch.getId().concat(" - ").concat(InstantKind.CURATIVE.toString());
         }
         return null;
     }
@@ -141,10 +142,10 @@ class CriticalBranchReader {
 
     void addCnecs(Crac crac) {
         if (isBaseCase) {
-            addCnecWithPermanentThreshold(crac, Instant.PREVENTIVE);
+            addCnecWithPermanentThreshold(crac, InstantKind.PREVENTIVE);
         } else {
             addOutageCnecWithTemporaryThreshold(crac);
-            addCnecWithPermanentThreshold(crac, Instant.CURATIVE);
+            addCnecWithPermanentThreshold(crac, InstantKind.CURATIVE);
         }
     }
 
@@ -212,7 +213,7 @@ class CriticalBranchReader {
     }
 
     private void addOutageCnecWithTemporaryThreshold(Crac crac) {
-        FlowCnecAdder curativeCnecAdder = createCnecAdder(crac, Instant.OUTAGE);
+        FlowCnecAdder curativeCnecAdder = createCnecAdder(crac, InstantKind.OUTAGE);
         addTemporaryThresholds(curativeCnecAdder);
         FlowCnec cnec = curativeCnecAdder.add();
         addLoopFlowExtension(cnec, criticalBranch);

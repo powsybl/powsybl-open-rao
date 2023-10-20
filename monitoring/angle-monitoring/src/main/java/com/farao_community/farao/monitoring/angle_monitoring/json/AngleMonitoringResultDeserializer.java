@@ -26,7 +26,10 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import static com.farao_community.farao.monitoring.angle_monitoring.json.JsonAngleMonitoringResultConstants.*;
+import static com.farao_community.farao.monitoring.angle_monitoring.json.JsonAngleMonitoringResultConstants.ANGLE_MONITORING_RESULT;
+import static com.farao_community.farao.monitoring.angle_monitoring.json.JsonAngleMonitoringResultConstants.ANGLE_VALUES;
+import static com.farao_community.farao.monitoring.angle_monitoring.json.JsonAngleMonitoringResultConstants.APPLIED_CRAS;
+import static com.farao_community.farao.monitoring.angle_monitoring.json.JsonAngleMonitoringResultConstants.QUANTITY;
 import static com.farao_community.farao.monitoring.monitoring_common.json.JsonCommonMonitoringResultConstants.*;
 import static com.farao_community.farao.monitoring.monitoring_common.json.MonitoringCommonDeserializer.getState;
 
@@ -94,7 +97,8 @@ public class AngleMonitoringResultDeserializer extends JsonDeserializer<AngleMon
             while (!jsonParser.nextToken().isStructEnd()) {
                 switch (jsonParser.currentName()) {
                     case INSTANT:
-                        instant = deserializeInstant(jsonParser.nextTextValue());
+                        String stringValue = jsonParser.nextTextValue();
+                        instant = stringValue;
                         break;
                     case CONTINGENCY:
                         contingencyId = jsonParser.nextTextValue();
@@ -119,7 +123,7 @@ public class AngleMonitoringResultDeserializer extends JsonDeserializer<AngleMon
             }
             State state = getState(instant, contingencyId, crac);
             if (angleResults.stream().anyMatch(angleResult -> angleResult.getAngleCnec().equals(angleCnec) &&
-                    angleResult.getState().equals(state))) {
+                angleResult.getState().equals(state))) {
                 throw new FaraoException(String.format("Angle values for AngleCnec %s, instant %s and contingency %s are defined more than once", cnecId, instant.toString(), contingencyId));
             }
             angleResults.add(new AngleMonitoringResult.AngleResult(angleCnec, quantity));

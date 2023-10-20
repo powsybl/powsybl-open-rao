@@ -19,15 +19,11 @@ import com.powsybl.sensitivity.SensitivityAnalysisParameters;
 import com.powsybl.sensitivity.SensitivityAnalysisResult;
 import com.powsybl.sensitivity.SensitivityFactor;
 
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.farao_community.farao.sensitivity_analysis.SensitivityAnalysisUtil.convertCracContingencyToPowsybl;
 import static com.farao_community.farao.commons.logs.FaraoLoggerProvider.TECHNICAL_LOGS;
+import static com.farao_community.farao.sensitivity_analysis.SensitivityAnalysisUtil.convertCracContingencyToPowsybl;
 
 /**
  * @author Pengbo Wang {@literal <pengbo.wang at rte-international.com>}
@@ -45,18 +41,18 @@ final class SystematicSensitivityAdapter {
         SensitivityAnalysisResult result;
         try {
             result = SensitivityAnalysis.find(sensitivityProvider).run(network,
-                    network.getVariantManager().getWorkingVariantId(),
-                    cnecSensitivityProvider.getAllFactors(network),
-                    cnecSensitivityProvider.getContingencies(network),
-                    cnecSensitivityProvider.getVariableSets(),
-                    sensitivityComputationParameters);
+                network.getVariantManager().getWorkingVariantId(),
+                cnecSensitivityProvider.getAllFactors(network),
+                cnecSensitivityProvider.getContingencies(network),
+                cnecSensitivityProvider.getVariableSets(),
+                sensitivityComputationParameters);
         } catch (Exception e) {
             TECHNICAL_LOGS.error(String.format("Systematic sensitivity analysis failed: %s", e.getMessage()));
             return new SystematicSensitivityResult(SystematicSensitivityResult.SensitivityComputationStatus.FAILURE);
         }
         TECHNICAL_LOGS.debug("Systematic sensitivity analysis [end]");
         Instant instant = getInstantClosestToPreventive(cnecSensitivityProvider);
-        return new SystematicSensitivityResult().completeData(result, instant).postTreatIntensities().postTreatHvdcs(network, cnecSensitivityProvider.getHvdcs());
+        return new SystematicSensitivityResult().completeData(result, instant.getOrder()).postTreatIntensities().postTreatHvdcs(network, cnecSensitivityProvider.getHvdcs());
     }
 
     private static Instant getInstantClosestToPreventive(CnecSensitivityProvider cnecSensitivityProvider) {
@@ -106,7 +102,7 @@ final class SystematicSensitivityAdapter {
             allFactorsWithoutRa,
             contingenciesWithoutRa,
             cnecSensitivityProvider.getVariableSets(),
-            sensitivityComputationParameters), instantClosestToPreventiveWithoutRa);
+            sensitivityComputationParameters), instantClosestToPreventiveWithoutRa.getOrder());
 
         // systematic analyses for states with RA
         cnecSensitivityProvider.disableFactorsForBaseCaseSituation();
@@ -135,7 +131,7 @@ final class SystematicSensitivityAdapter {
                 cnecSensitivityProvider.getContingencyFactors(network, contingencyList),
                 contingencyList,
                 cnecSensitivityProvider.getVariableSets(),
-                sensitivityComputationParameters), state.getInstant());
+                sensitivityComputationParameters), state.getInstant().getOrder());
             network.getVariantManager().removeVariant(variantForState);
             counterForLogs++;
         }

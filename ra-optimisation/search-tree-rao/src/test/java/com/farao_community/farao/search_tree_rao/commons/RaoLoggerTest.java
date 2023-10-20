@@ -14,20 +14,17 @@ import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.commons.logs.FaraoLogger;
 import com.farao_community.farao.commons.logs.FaraoLoggerProvider;
 import com.farao_community.farao.commons.logs.RaoBusinessLogs;
-import com.farao_community.farao.data.crac_api.Contingency;
-import com.farao_community.farao.data.crac_api.Instant;
-import com.farao_community.farao.data.crac_api.NetworkElement;
-import com.farao_community.farao.data.crac_api.State;
+import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.rao_api.parameters.ObjectiveFunctionParameters;
+import com.farao_community.farao.search_tree_rao.castor.algorithm.BasecaseScenario;
+import com.farao_community.farao.search_tree_rao.castor.algorithm.ContingencyScenario;
 import com.farao_community.farao.search_tree_rao.result.api.FlowResult;
 import com.farao_community.farao.search_tree_rao.result.api.ObjectiveFunctionResult;
 import com.farao_community.farao.search_tree_rao.result.api.OptimizationResult;
-import com.farao_community.farao.search_tree_rao.castor.algorithm.BasecaseScenario;
-import com.farao_community.farao.search_tree_rao.castor.algorithm.ContingencyScenario;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -35,15 +32,14 @@ import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
+import static com.farao_community.farao.commons.Unit.AMPERE;
+import static com.farao_community.farao.commons.Unit.MEGAWATT;
 import static java.lang.String.format;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static com.farao_community.farao.commons.Unit.MEGAWATT;
-import static com.farao_community.farao.commons.Unit.AMPERE;
 
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
@@ -68,10 +64,10 @@ class RaoLoggerTest {
         objectiveFunctionResult = mock(ObjectiveFunctionResult.class);
         flowResult = mock(FlowResult.class);
         basecaseOptimResult = mock(OptimizationResult.class);
-        statePreventive = mockState("preventive", Instant.PREVENTIVE);
-        stateCo1Auto = mockState("co1 - auto", Instant.AUTO);
-        stateCo1Curative = mockState("co1 - curative", Instant.CURATIVE);
-        stateCo2Curative = mockState("co2 - curative", Instant.CURATIVE);
+        statePreventive = mockState("preventive", InstantKind.PREVENTIVE);
+        stateCo1Auto = mockState("co1 - auto", InstantKind.AUTO);
+        stateCo1Curative = mockState("co1 - curative", InstantKind.CURATIVE);
+        stateCo2Curative = mockState("co2 - curative", InstantKind.CURATIVE);
 
         cnec1 = mockCnec("ne1", stateCo1Curative, -10, -10, 30, 300, 0.1);
         cnec2 = mockCnec("ne2", statePreventive, 0, 0, -10, -10, 0.2);
@@ -80,8 +76,10 @@ class RaoLoggerTest {
         cnec5 = mockCnec("ne5", stateCo1Curative, 30, 300, 20, 100, 0.5);
     }
 
-    private State mockState(String stateId, Instant instant) {
+    private State mockState(String stateId, InstantKind instantKind) {
         State state = mock(State.class);
+        Instant instant = mock(Instant.class);
+        when(instant.getInstantKind()).thenReturn(instantKind);
         when(state.getId()).thenReturn(stateId);
         when(state.getInstant()).thenReturn(instant);
         return state;
@@ -293,9 +291,13 @@ class RaoLoggerTest {
     @Test
     void testLogOptimizationSummary() {
         State preventive = Mockito.mock(State.class);
-        when(preventive.getInstant()).thenReturn(Instant.PREVENTIVE);
+        Instant instantPrev = Mockito.mock(Instant.class);
+        when(instantPrev.getInstantKind()).thenReturn(InstantKind.PREVENTIVE);
+        when(preventive.getInstant()).thenReturn(instantPrev);
         State curative = Mockito.mock(State.class);
-        when(curative.getInstant()).thenReturn(Instant.CURATIVE);
+        Instant instantCurative = Mockito.mock(Instant.class);
+        when(instantCurative.getInstantKind()).thenReturn(InstantKind.CURATIVE);
+        when(curative.getInstant()).thenReturn(instantCurative);
         Contingency contingency = Mockito.mock(Contingency.class);
         when(contingency.getName()).thenReturn("contingency");
         when(curative.getContingency()).thenReturn(Optional.of(contingency));
@@ -368,9 +370,13 @@ class RaoLoggerTest {
     @Test
     void testLogFailedOptimizationSummary() {
         State preventive = Mockito.mock(State.class);
-        when(preventive.getInstant()).thenReturn(Instant.PREVENTIVE);
+        Instant instantPrev = Mockito.mock(Instant.class);
+        when(instantPrev.getInstantKind()).thenReturn(InstantKind.PREVENTIVE);
+        when(preventive.getInstant()).thenReturn(instantPrev);
         State curative = Mockito.mock(State.class);
-        when(curative.getInstant()).thenReturn(Instant.CURATIVE);
+        Instant instantCurative = Mockito.mock(Instant.class);
+        when(instantCurative.getInstantKind()).thenReturn(InstantKind.CURATIVE);
+        when(curative.getInstant()).thenReturn(instantCurative);
         Contingency contingency = Mockito.mock(Contingency.class);
         when(contingency.getName()).thenReturn("contingency");
         when(curative.getContingency()).thenReturn(Optional.of(contingency));

@@ -49,6 +49,20 @@ public final class CoreCneCnecsCreator {
 
     }
 
+    public static double getFlowUnitMultiplier(FlowCnec cnec, Side voltageSide, Unit unitFrom, Unit unitTo) {
+        if (unitFrom == unitTo) {
+            return 1;
+        }
+        double nominalVoltage = cnec.getNominalVoltage(voltageSide);
+        if (unitFrom == Unit.MEGAWATT && unitTo == Unit.AMPERE) {
+            return 1000 / (nominalVoltage * Math.sqrt(3));
+        } else if (unitFrom == Unit.AMPERE && unitTo == Unit.MEGAWATT) {
+            return nominalVoltage * Math.sqrt(3) / 1000;
+        } else {
+            throw new FaraoException("Only conversions between MW and A are supported.");
+        }
+    }
+
     public List<ConstraintSeries> generate() {
         List<ConstraintSeries> constraintSeries = new ArrayList<>();
         List<BranchCnecCreationContext> sortedCnecs = cracCreationContext.getBranchCnecCreationContexts().stream()
@@ -68,11 +82,11 @@ public final class CoreCneCnecsCreator {
         String outageBranchCnecId;
         String curativeBranchCnecId;
         if (branchCnecCreationContext.isBaseCase()) {
-            outageBranchCnecId = branchCnecCreationContext.getCreatedCnecsIds().get(Instant.PREVENTIVE);
+            outageBranchCnecId = branchCnecCreationContext.getCreatedCnecsIds().get(InstantKind.PREVENTIVE);
             curativeBranchCnecId = outageBranchCnecId;
         } else {
-            outageBranchCnecId = branchCnecCreationContext.getCreatedCnecsIds().get(Instant.OUTAGE);
-            curativeBranchCnecId = branchCnecCreationContext.getCreatedCnecsIds().get(Instant.CURATIVE);
+            outageBranchCnecId = branchCnecCreationContext.getCreatedCnecsIds().get(InstantKind.OUTAGE);
+            curativeBranchCnecId = branchCnecCreationContext.getCreatedCnecsIds().get(InstantKind.CURATIVE);
         }
 
         // A52 (CNEC)
@@ -130,8 +144,8 @@ public final class CoreCneCnecsCreator {
         constraintSeriesOfCnec.add(constraintSeriesB57);
 
         if (optionalContingency.isPresent() &&
-            (!cneHelper.getRaoResult().getActivatedNetworkActionsDuringState(cneHelper.getCrac().getState(optionalContingency.get(), Instant.CURATIVE)).isEmpty()
-                || !cneHelper.getRaoResult().getActivatedRangeActionsDuringState(cneHelper.getCrac().getState(optionalContingency.get(), Instant.CURATIVE)).isEmpty())) {
+            (!cneHelper.getRaoResult().getActivatedNetworkActionsDuringState(cneHelper.getCrac().getState(optionalContingency.get(), InstantKind.CURATIVE)).isEmpty()
+                || !cneHelper.getRaoResult().getActivatedRangeActionsDuringState(cneHelper.getCrac().getState(optionalContingency.get(), InstantKind.CURATIVE)).isEmpty())) {
             // B54
             // TODO : remove the 'if' condition when we go back to exporting B54 series even if no CRAs are applied
             List<Analog> measurementsB54 = createB54MeasurementsOfCnec(curativeCnec, asMnec, shouldInvertBranchDirection);
@@ -141,17 +155,6 @@ public final class CoreCneCnecsCreator {
         }
 
         return constraintSeriesOfCnec;
-    }
-
-    private class AnalogComparator implements Comparator<Analog> {
-        @Override
-        public int compare(Analog o1, Analog o2) {
-            if (o1.getMeasurementType().equals(o2.getMeasurementType())) {
-                return o1.getUnitSymbol().compareTo(o2.getUnitSymbol());
-            } else {
-                return o1.getMeasurementType().compareTo(o2.getMeasurementType());
-            }
-        }
     }
 
     private List<Analog> createB88MeasurementsOfCnec(FlowCnec permanentCnec, FlowCnec temporaryCnec, boolean asMnec, boolean shouldInvertBranchDirection) {
@@ -165,16 +168,16 @@ public final class CoreCneCnecsCreator {
 
     private List<Analog> createB57MeasurementsOfCnec(FlowCnec cnec, boolean asMnec, boolean shouldInvertBranchDirection) {
         List<Analog> measurements = new ArrayList<>();
-        measurements.addAll(createFlowMeasurementsOfFlowCnec(cnec, Instant.PREVENTIVE, true, shouldInvertBranchDirection)); // TODO : replace true with !asMnec when we go back to proper implementation
-        measurements.addAll(createMarginMeasurementsOfFlowCnec(cnec, Instant.PREVENTIVE, asMnec, true, shouldInvertBranchDirection));
+        measurements.addAll(createFlowMeasurementsOfFlowCnec(cnec, InstantKind.PREVENTIVE, true, shouldInvertBranchDirection)); // TODO : replace true with !asMnec when we go back to proper implementation
+        measurements.addAll(createMarginMeasurementsOfFlowCnec(cnec, InstantKind.PREVENTIVE, asMnec, true, shouldInvertBranchDirection));
         measurements.sort(new AnalogComparator());
         return measurements;
     }
 
     private List<Analog> createB54MeasurementsOfCnec(FlowCnec cnec, boolean asMnec, boolean shouldInvertBranchDirection) {
         List<Analog> measurements = new ArrayList<>();
-        measurements.addAll(createFlowMeasurementsOfFlowCnec(cnec, Instant.CURATIVE, true, shouldInvertBranchDirection)); // TODO : replace true with !asMnec when we go back to proper implementation
-        measurements.addAll(createMarginMeasurementsOfFlowCnec(cnec, Instant.CURATIVE, asMnec, false, shouldInvertBranchDirection));
+        measurements.addAll(createFlowMeasurementsOfFlowCnec(cnec, InstantKind.CURATIVE, true, shouldInvertBranchDirection)); // TODO : replace true with !asMnec when we go back to proper implementation
+        measurements.addAll(createMarginMeasurementsOfFlowCnec(cnec, InstantKind.CURATIVE, asMnec, false, shouldInvertBranchDirection));
         measurements.sort(new AnalogComparator());
         return measurements;
     }
@@ -217,16 +220,16 @@ public final class CoreCneCnecsCreator {
 
     private double getCnecFlow(FlowCnec cnec, Side side, Instant optimizedInstant) {
         Instant resultState = optimizedInstant;
-        if (resultState == Instant.CURATIVE && cnec.getState().getInstant().equals(Instant.PREVENTIVE)) {
-            resultState = Instant.PREVENTIVE;
+        if (resultState == InstantKind.CURATIVE && cnec.getState().getInstant().getInstantKind().equals(InstantKind.PREVENTIVE)) {
+            resultState = InstantKind.PREVENTIVE;
         }
         return cneHelper.getRaoResult().getFlow(resultState, cnec, side, Unit.MEGAWATT);
     }
 
     private double getCnecMargin(FlowCnec cnec, Instant optimizedInstant, boolean asMnec, Unit unit, boolean deductFrmFromThreshold) {
         Instant resultState = optimizedInstant;
-        if (resultState == Instant.CURATIVE && cnec.getState().getInstant().equals(Instant.PREVENTIVE)) {
-            resultState = Instant.PREVENTIVE;
+        if (resultState == InstantKind.CURATIVE && cnec.getState().getInstant().getInstantKind().equals(InstantKind.PREVENTIVE)) {
+            resultState = InstantKind.PREVENTIVE;
         }
         return getThresholdToMarginMap(cnec, resultState, asMnec, unit, deductFrmFromThreshold).values().stream().min(Double::compareTo).orElseThrow();
     }
@@ -234,8 +237,8 @@ public final class CoreCneCnecsCreator {
     private double getCnecRelativeMargin(FlowCnec cnec, Instant optimizedInstant, boolean asMnec, Unit unit) {
         double absoluteMargin = getCnecMargin(cnec, optimizedInstant, asMnec, unit, true);
         Instant resultState = optimizedInstant;
-        if (resultState == Instant.CURATIVE && cnec.getState().getInstant().equals(Instant.PREVENTIVE)) {
-            resultState = Instant.PREVENTIVE;
+        if (resultState == InstantKind.CURATIVE && cnec.getState().getInstant().getInstantKind().equals(InstantKind.PREVENTIVE)) {
+            resultState = InstantKind.PREVENTIVE;
         }
         return absoluteMargin > 0 ? absoluteMargin / cneHelper.getRaoResult().getPtdfZonalSum(resultState, cnec, getMonitoredSide(cnec)) : absoluteMargin;
     }
@@ -279,10 +282,10 @@ public final class CoreCneCnecsCreator {
      * Returns a map containing all threshold for a given cnec and the associated margins
      * If the CNEC is also a MNEC, extra thresholds corresponding to the MNEc constraints are returned
      *
-     * @param cnec              the FlowCnec
+     * @param cnec             the FlowCnec
      * @param optimizedInstant the Instant for computing margins
-     * @param asMnec            true if it should be treated as a MNEC
-     * @param unit              the unit of the threshold and margin
+     * @param asMnec           true if it should be treated as a MNEC
+     * @param unit             the unit of the threshold and margin
      */
     private Map<Double, Double> getThresholdToMarginMap(FlowCnec cnec, Instant optimizedInstant, boolean asMnec, Unit unit, boolean deductFrmFromThreshold) {
         Map<Double, Double> thresholdToMarginMap = new HashMap<>();
@@ -339,8 +342,8 @@ public final class CoreCneCnecsCreator {
 
     private List<Analog> createLoopflowMeasurements(FlowCnec cnec, Instant optimizedInstant, boolean shouldInvertBranchDirection) {
         Instant resultOptimState = optimizedInstant;
-        if (optimizedInstant == Instant.CURATIVE && cnec.getState().isPreventive()) {
-            resultOptimState = Instant.PREVENTIVE;
+        if (optimizedInstant.getInstantKind() == InstantKind.CURATIVE && cnec.getState().isPreventive()) {
+            resultOptimState = InstantKind.PREVENTIVE;
         }
         List<Analog> measurements = new ArrayList<>();
         try {
@@ -358,21 +361,18 @@ public final class CoreCneCnecsCreator {
         return measurements;
     }
 
-    public static double getFlowUnitMultiplier(FlowCnec cnec, Side voltageSide, Unit unitFrom, Unit unitTo) {
-        if (unitFrom == unitTo) {
-            return 1;
-        }
-        double nominalVoltage = cnec.getNominalVoltage(voltageSide);
-        if (unitFrom == Unit.MEGAWATT && unitTo == Unit.AMPERE) {
-            return 1000 / (nominalVoltage * Math.sqrt(3));
-        } else if (unitFrom == Unit.AMPERE && unitTo == Unit.MEGAWATT) {
-            return nominalVoltage * Math.sqrt(3) / 1000;
-        } else {
-            throw new FaraoException("Only conversions between MW and A are supported.");
-        }
-    }
-
     private Side getMonitoredSide(FlowCnec cnec) {
         return cnec.getMonitoredSides().contains(Side.LEFT) ? Side.LEFT : Side.RIGHT;
+    }
+
+    private class AnalogComparator implements Comparator<Analog> {
+        @Override
+        public int compare(Analog o1, Analog o2) {
+            if (o1.getMeasurementType().equals(o2.getMeasurementType())) {
+                return o1.getUnitSymbol().compareTo(o2.getUnitSymbol());
+            } else {
+                return o1.getMeasurementType().compareTo(o2.getMeasurementType());
+            }
+        }
     }
 }

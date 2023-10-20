@@ -18,7 +18,10 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import org.jgrapht.alg.util.Pair;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -35,8 +38,8 @@ final class RangeActionResultArraySerializer {
     static void serialize(RaoResult raoResult, Crac crac, JsonGenerator jsonGenerator) throws IOException {
 
         List<RangeAction<?>> sortedListOfRangeActions = crac.getRangeActions().stream()
-                .sorted(Comparator.comparing(RangeAction::getId))
-                .collect(Collectors.toList());
+            .sorted(Comparator.comparing(RangeAction::getId))
+            .toList();
 
         jsonGenerator.writeArrayFieldStart(RANGEACTION_RESULTS);
         for (RangeAction<?> rangeAction : sortedListOfRangeActions) {
@@ -56,12 +59,12 @@ final class RangeActionResultArraySerializer {
         }
 
         List<State> statesWhenRangeActionIsActivated = crac.getStates().stream()
-                .filter(state -> safeIsActivatedDuringState(raoResult, state, rangeAction))
-                .sorted(STATE_COMPARATOR)
-                .collect(Collectors.toList());
+            .filter(state -> safeIsActivatedDuringState(raoResult, state, rangeAction))
+            .sorted(STATE_COMPARATOR)
+            .toList();
 
         Map<State, Pair<Integer, Double>> activatedSetpoints = statesWhenRangeActionIsActivated.stream().collect(Collectors.toMap(
-                Function.identity(), state -> Pair.of(safeGetOptimizedTap(raoResult, state, rangeAction), safeGetOptimizedSetpoint(raoResult, state, rangeAction))
+            Function.identity(), state -> Pair.of(safeGetOptimizedTap(raoResult, state, rangeAction), safeGetOptimizedSetpoint(raoResult, state, rangeAction))
         ));
         writeStateToTapAndSetpointArray(jsonGenerator, activatedSetpoints, RaoResultJsonConstants.STATES_ACTIVATED);
 
@@ -118,7 +121,7 @@ final class RangeActionResultArraySerializer {
         jsonGenerator.writeArrayFieldStart(arrayName);
         for (Map.Entry<State, Pair<Integer, Double>> entry : stateToTapAndSetpoint.entrySet()) {
             jsonGenerator.writeStartObject();
-            jsonGenerator.writeStringField(INSTANT, serializeInstant(entry.getKey().getInstant()));
+            jsonGenerator.writeStringField(INSTANT, serializeInstantId(entry.getKey().getInstant()));
 
             Optional<Contingency> optContingency = entry.getKey().getContingency();
             if (optContingency.isPresent()) {

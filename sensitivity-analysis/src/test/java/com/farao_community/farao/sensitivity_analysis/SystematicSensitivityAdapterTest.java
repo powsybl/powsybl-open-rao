@@ -113,7 +113,7 @@ class SystematicSensitivityAdapterTest {
             .add();
         RangeActionSensitivityProvider factorProvider = new RangeActionSensitivityProvider(crac.getRangeActions(), crac.getFlowCnecs(), Set.of(Unit.MEGAWATT, Unit.AMPERE));
         AppliedRemedialActions appliedRemedialActions = new AppliedRemedialActions();
-        appliedRemedialActions.addAppliedRangeAction(crac.getState("Contingency FR1 FR3", CommonCracCreation.INSTANT_CURATIVE), crac.getPstRangeAction("pst"), -3.1);
+        appliedRemedialActions.addAppliedRangeAction(crac.getState("Contingency FR1 FR3", "curative"), crac.getPstRangeAction("pst"), -3.1);
 
         SystematicSensitivityResult result = SystematicSensitivityAdapter.runSensitivity(network, factorProvider, appliedRemedialActions, new SensitivityAnalysisParameters(), "MockSensi");
 

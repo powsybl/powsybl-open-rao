@@ -51,32 +51,32 @@ public class UnoptimizedRaoResultImpl implements RaoResult {
     }
 
     @Override
-    public double getFlow(String optimizedInstantId, FlowCnec flowCnec, Side side, Unit unit) {
+    public double getFlow(Instant optimizedInstant, FlowCnec flowCnec, Side side, Unit unit) {
         return initialResult.getFlow(flowCnec, side, unit);
     }
 
     @Override
-    public double getMargin(String optimizedInstantId, FlowCnec flowCnec, Unit unit) {
+    public double getMargin(Instant optimizedInstant, FlowCnec flowCnec, Unit unit) {
         return initialResult.getMargin(flowCnec, unit);
     }
 
     @Override
-    public double getRelativeMargin(String optimizedInstantId, FlowCnec flowCnec, Unit unit) {
+    public double getRelativeMargin(Instant optimizedInstant, FlowCnec flowCnec, Unit unit) {
         return initialResult.getRelativeMargin(flowCnec, unit);
     }
 
     @Override
-    public double getCommercialFlow(String optimizedInstantId, FlowCnec flowCnec, Side side, Unit unit) {
+    public double getCommercialFlow(Instant optimizedInstant, FlowCnec flowCnec, Side side, Unit unit) {
         return initialResult.getCommercialFlow(flowCnec, side, unit);
     }
 
     @Override
-    public double getLoopFlow(String optimizedInstantId, FlowCnec flowCnec, Side side, Unit unit) {
+    public double getLoopFlow(Instant optimizedInstant, FlowCnec flowCnec, Side side, Unit unit) {
         return initialResult.getLoopFlow(flowCnec, side, unit);
     }
 
     @Override
-    public double getPtdfZonalSum(String optimizedInstantId, FlowCnec flowCnec, Side side) {
+    public double getPtdfZonalSum(Instant optimizedInstant, FlowCnec flowCnec, Side side) {
         return initialResult.getPtdfZonalSum(flowCnec, side);
     }
 

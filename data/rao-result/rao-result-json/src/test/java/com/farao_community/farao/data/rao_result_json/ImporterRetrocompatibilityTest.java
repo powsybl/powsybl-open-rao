@@ -430,22 +430,22 @@ class ImporterRetrocompatibilityTest {
         AngleCnec angleCnec = crac.getAngleCnec("angleCnecId");
         assertEquals(3135., importedRaoResult.getAngle(null, angleCnec, DEGREE), DOUBLE_TOLERANCE);
         assertEquals(3131., importedRaoResult.getMargin(null, angleCnec, DEGREE), DOUBLE_TOLERANCE);
-        assertEquals(3235., importedRaoResult.getAngle(INSTANT_PREV, angleCnec, DEGREE), DOUBLE_TOLERANCE);
-        assertEquals(3231., importedRaoResult.getMargin(INSTANT_PREV, angleCnec, DEGREE), DOUBLE_TOLERANCE);
-        assertEquals(3335., importedRaoResult.getAngle(INSTANT_AUTO, angleCnec, DEGREE), DOUBLE_TOLERANCE);
-        assertEquals(3331., importedRaoResult.getMargin(INSTANT_AUTO, angleCnec, DEGREE), DOUBLE_TOLERANCE);
-        assertEquals(3435., importedRaoResult.getAngle(INSTANT_CURATIVE, angleCnec, DEGREE), DOUBLE_TOLERANCE);
-        assertEquals(3431., importedRaoResult.getMargin(INSTANT_CURATIVE, angleCnec, DEGREE), DOUBLE_TOLERANCE);
+        assertEquals(3235., importedRaoResult.getAngle("preventive", angleCnec, DEGREE), DOUBLE_TOLERANCE);
+        assertEquals(3231., importedRaoResult.getMargin("preventive", angleCnec, DEGREE), DOUBLE_TOLERANCE);
+        assertEquals(3335., importedRaoResult.getAngle("auto", angleCnec, DEGREE), DOUBLE_TOLERANCE);
+        assertEquals(3331., importedRaoResult.getMargin("auto", angleCnec, DEGREE), DOUBLE_TOLERANCE);
+        assertEquals(3435., importedRaoResult.getAngle("curative", angleCnec, DEGREE), DOUBLE_TOLERANCE);
+        assertEquals(3431., importedRaoResult.getMargin("curative", angleCnec, DEGREE), DOUBLE_TOLERANCE);
 
         VoltageCnec voltageCnec = crac.getVoltageCnec("voltageCnecId");
         assertEquals(4146., importedRaoResult.getVoltage(null, voltageCnec, KILOVOLT), DOUBLE_TOLERANCE);
         assertEquals(4141., importedRaoResult.getMargin(null, voltageCnec, KILOVOLT), DOUBLE_TOLERANCE);
-        assertEquals(4246., importedRaoResult.getVoltage(INSTANT_PREV, voltageCnec, KILOVOLT), DOUBLE_TOLERANCE);
-        assertEquals(4241., importedRaoResult.getMargin(INSTANT_PREV, voltageCnec, KILOVOLT), DOUBLE_TOLERANCE);
-        assertEquals(4346., importedRaoResult.getVoltage(INSTANT_AUTO, voltageCnec, KILOVOLT), DOUBLE_TOLERANCE);
-        assertEquals(4341., importedRaoResult.getMargin(INSTANT_AUTO, voltageCnec, KILOVOLT), DOUBLE_TOLERANCE);
-        assertEquals(4446., importedRaoResult.getVoltage(INSTANT_CURATIVE, voltageCnec, KILOVOLT), DOUBLE_TOLERANCE);
-        assertEquals(4441., importedRaoResult.getMargin(INSTANT_CURATIVE, voltageCnec, KILOVOLT), DOUBLE_TOLERANCE);
+        assertEquals(4246., importedRaoResult.getVoltage("preventive", voltageCnec, KILOVOLT), DOUBLE_TOLERANCE);
+        assertEquals(4241., importedRaoResult.getMargin("preventive", voltageCnec, KILOVOLT), DOUBLE_TOLERANCE);
+        assertEquals(4346., importedRaoResult.getVoltage("auto", voltageCnec, KILOVOLT), DOUBLE_TOLERANCE);
+        assertEquals(4341., importedRaoResult.getMargin("auto", voltageCnec, KILOVOLT), DOUBLE_TOLERANCE);
+        assertEquals(4446., importedRaoResult.getVoltage("curative", voltageCnec, KILOVOLT), DOUBLE_TOLERANCE);
+        assertEquals(4441., importedRaoResult.getMargin("curative", voltageCnec, KILOVOLT), DOUBLE_TOLERANCE);
     }
 
     private void testBaseContentOfV1Point2RaoResult(RaoResult importedRaoResult, Crac crac) {
@@ -739,12 +739,12 @@ class ImporterRetrocompatibilityTest {
         AngleCnec angleCnec = crac.getAngleCnec("angleCnecId");
         assertEquals(3135., importedRaoResult.getAngle(null, angleCnec, DEGREE), DOUBLE_TOLERANCE);
         assertEquals(3131., importedRaoResult.getMargin(null, angleCnec, DEGREE), DOUBLE_TOLERANCE);
-        assertEquals(3235., importedRaoResult.getAngle(INSTANT_PREV, angleCnec, DEGREE), DOUBLE_TOLERANCE);
-        assertEquals(3231., importedRaoResult.getMargin(INSTANT_PREV, angleCnec, DEGREE), DOUBLE_TOLERANCE);
-        assertEquals(3335., importedRaoResult.getAngle(INSTANT_AUTO, angleCnec, DEGREE), DOUBLE_TOLERANCE);
-        assertEquals(3331., importedRaoResult.getMargin(INSTANT_AUTO, angleCnec, DEGREE), DOUBLE_TOLERANCE);
-        assertEquals(3435., importedRaoResult.getAngle(INSTANT_CURATIVE, angleCnec, DEGREE), DOUBLE_TOLERANCE);
-        assertEquals(3431., importedRaoResult.getMargin(INSTANT_CURATIVE, angleCnec, DEGREE), DOUBLE_TOLERANCE);
+        assertEquals(3235., importedRaoResult.getAngle("preventive", angleCnec, DEGREE), DOUBLE_TOLERANCE);
+        assertEquals(3231., importedRaoResult.getMargin("preventive", angleCnec, DEGREE), DOUBLE_TOLERANCE);
+        assertEquals(3335., importedRaoResult.getAngle("auto", angleCnec, DEGREE), DOUBLE_TOLERANCE);
+        assertEquals(3331., importedRaoResult.getMargin("auto", angleCnec, DEGREE), DOUBLE_TOLERANCE);
+        assertEquals(3435., importedRaoResult.getAngle("curative", angleCnec, DEGREE), DOUBLE_TOLERANCE);
+        assertEquals(3431., importedRaoResult.getMargin("curative", angleCnec, DEGREE), DOUBLE_TOLERANCE);
 
         /*
         VoltageCnec
@@ -752,12 +752,12 @@ class ImporterRetrocompatibilityTest {
         VoltageCnec voltageCnec = crac.getVoltageCnec("voltageCnecId");
         assertEquals(4146., importedRaoResult.getVoltage(null, voltageCnec, KILOVOLT), DOUBLE_TOLERANCE);
         assertEquals(4141., importedRaoResult.getMargin(null, voltageCnec, KILOVOLT), DOUBLE_TOLERANCE);
-        assertEquals(4246., importedRaoResult.getVoltage(INSTANT_PREV, voltageCnec, KILOVOLT), DOUBLE_TOLERANCE);
-        assertEquals(4241., importedRaoResult.getMargin(INSTANT_PREV, voltageCnec, KILOVOLT), DOUBLE_TOLERANCE);
-        assertEquals(4346., importedRaoResult.getVoltage(INSTANT_AUTO, voltageCnec, KILOVOLT), DOUBLE_TOLERANCE);
-        assertEquals(4341., importedRaoResult.getMargin(INSTANT_AUTO, voltageCnec, KILOVOLT), DOUBLE_TOLERANCE);
-        assertEquals(4446., importedRaoResult.getVoltage(INSTANT_CURATIVE, voltageCnec, KILOVOLT), DOUBLE_TOLERANCE);
-        assertEquals(4441., importedRaoResult.getMargin(INSTANT_CURATIVE, voltageCnec, KILOVOLT), DOUBLE_TOLERANCE);
+        assertEquals(4246., importedRaoResult.getVoltage("preventive", voltageCnec, KILOVOLT), DOUBLE_TOLERANCE);
+        assertEquals(4241., importedRaoResult.getMargin("preventive", voltageCnec, KILOVOLT), DOUBLE_TOLERANCE);
+        assertEquals(4346., importedRaoResult.getVoltage("auto", voltageCnec, KILOVOLT), DOUBLE_TOLERANCE);
+        assertEquals(4341., importedRaoResult.getMargin("auto", voltageCnec, KILOVOLT), DOUBLE_TOLERANCE);
+        assertEquals(4446., importedRaoResult.getVoltage("curative", voltageCnec, KILOVOLT), DOUBLE_TOLERANCE);
+        assertEquals(4441., importedRaoResult.getMargin("curative", voltageCnec, KILOVOLT), DOUBLE_TOLERANCE);
     }
 
     private void testBaseContentOfV1Point3RaoResult(RaoResult importedRaoResult, Crac crac) {

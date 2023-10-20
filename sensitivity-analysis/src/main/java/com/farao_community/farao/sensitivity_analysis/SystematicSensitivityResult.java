@@ -7,7 +7,6 @@
 package com.farao_community.farao.sensitivity_analysis;
 
 import com.farao_community.farao.data.crac_api.Contingency;
-import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.cnec.Cnec;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
@@ -17,19 +16,9 @@ import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.sensitivity_analysis.ra_sensi_handler.RangeActionSensiHandler;
 import com.powsybl.iidm.network.HvdcLine;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.sensitivity.SensitivityAnalysisResult;
-import com.powsybl.sensitivity.SensitivityFactor;
-import com.powsybl.sensitivity.SensitivityFunctionType;
-import com.powsybl.sensitivity.SensitivityValue;
-import com.powsybl.sensitivity.SensitivityVariableSet;
+import com.powsybl.sensitivity.*;
 
-import java.util.Comparator;
-import java.util.EnumMap;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -38,9 +27,10 @@ import java.util.stream.Collectors;
 public class SystematicSensitivityResult {
 
     private final StateResult nStateResult = new StateResult();
-    private final Map<Instant, Map<String, StateResult>> postContingencyResults = new HashMap<>();
+    private final Map<Integer, Map<String, StateResult>> postContingencyResults = new HashMap<>();
     private final Map<Cnec, StateResult> memoizedStateResultPerCnec = new HashMap<>();
     private SensitivityComputationStatus status;
+
     public SystematicSensitivityResult() {
         this.status = SensitivityComputationStatus.SUCCESS;
     }
@@ -49,8 +39,8 @@ public class SystematicSensitivityResult {
         this.status = status;
     }
 
-    public SystematicSensitivityResult completeData(SensitivityAnalysisResult results, Instant instant) {
-        postContingencyResults.putIfAbsent(instant, new HashMap<>());
+    public SystematicSensitivityResult completeData(SensitivityAnalysisResult results, Integer instantOrder) {
+        postContingencyResults.putIfAbsent(instantOrder, new HashMap<>());
 
         if (results == null) {
             this.status = SensitivityComputationStatus.FAILURE;
@@ -66,7 +56,7 @@ public class SystematicSensitivityResult {
             results.getValues(contingencyStatus.getContingencyId()).forEach(sensitivityValue ->
                 fillIndividualValue(sensitivityValue, contingencyStateResult, results.getFactors(), contingencyStatus.getStatus())
             );
-            postContingencyResults.get(instant).put(contingencyStatus.getContingencyId(), contingencyStateResult);
+            postContingencyResults.get(instantOrder).put(contingencyStatus.getContingencyId(), contingencyStateResult);
         }
         nStateResult.status = this.status;
         return this;
@@ -188,14 +178,14 @@ public class SystematicSensitivityResult {
     public SensitivityComputationStatus getStatus(State state) {
         Optional<Contingency> optionalContingency = state.getContingency();
         if (optionalContingency.isPresent()) {
-            List<Instant> possibleInstants = postContingencyResults.keySet().stream()
-                .filter(instant -> instant.comesBefore(state.getInstant()) || instant.equals(state.getInstant()))
-                .sorted(Comparator.comparingInt(instant -> -instant.getOrder()))
+            List<Integer> possibleInstants = postContingencyResults.keySet().stream()
+                .filter(instantOrder -> instantOrder <= state.getInstant().getOrder())
+                .sorted(Comparator.comparingInt(instantOrder -> -instantOrder))
                 .toList();
-            for (Instant instant : possibleInstants) {
+            for (Integer instantOrder : possibleInstants) {
                 // Use latest sensi computed on state
-                if (postContingencyResults.get(instant).containsKey(optionalContingency.get().getId())) {
-                    return postContingencyResults.get(instant).get(optionalContingency.get().getId()).getSensitivityComputationStatus();
+                if (postContingencyResults.get(instantOrder).containsKey(optionalContingency.get().getId())) {
+                    return postContingencyResults.get(instantOrder).get(optionalContingency.get().getId()).getSensitivityComputationStatus();
                 }
             }
             return SensitivityComputationStatus.FAILURE;
@@ -253,15 +243,15 @@ public class SystematicSensitivityResult {
         }
         Optional<Contingency> optionalContingency = cnec.getState().getContingency();
         if (optionalContingency.isPresent()) {
-            List<Instant> possibleInstants = postContingencyResults.keySet().stream()
-                .filter(instant -> instant.comesBefore(cnec.getState().getInstant()) || instant.equals(cnec.getState().getInstant()))
-                .sorted(Comparator.comparingInt(instant -> -instant.getOrder()))
+            List<Integer> possibleInstants = postContingencyResults.keySet().stream()
+                .filter(instantOrder -> instantOrder <= cnec.getState().getInstant().getOrder())
+                .sorted(Comparator.comparingInt(instantOrder -> -instantOrder))
                 .toList();
-            for (Instant instant : possibleInstants) {
+            for (Integer instantOrder : possibleInstants) {
                 // Use latest sensi computed on the cnec's contingency amidst the last instants before cnec state.
                 String contingencyId = optionalContingency.get().getId();
-                if (postContingencyResults.get(instant).containsKey(contingencyId)) {
-                    memoizedStateResultPerCnec.put(cnec, postContingencyResults.get(instant).get(contingencyId));
+                if (postContingencyResults.get(instantOrder).containsKey(contingencyId)) {
+                    memoizedStateResultPerCnec.put(cnec, postContingencyResults.get(instantOrder).get(contingencyId));
                     return memoizedStateResultPerCnec.get(cnec);
                 }
             }

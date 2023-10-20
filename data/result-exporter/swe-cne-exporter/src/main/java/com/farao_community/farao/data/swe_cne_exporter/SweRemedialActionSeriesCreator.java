@@ -16,12 +16,16 @@ import com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.Cim
 import com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.remedial_action.PstRangeActionSeriesCreationContext;
 import com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.remedial_action.RemedialActionSeriesCreationContext;
 import com.farao_community.farao.data.rao_result_api.RaoResult;
-import com.farao_community.farao.data.swe_cne_exporter.xsd.*;
+import com.farao_community.farao.data.swe_cne_exporter.xsd.RemedialActionRegisteredResource;
+import com.farao_community.farao.data.swe_cne_exporter.xsd.RemedialActionSeries;
 import com.farao_community.farao.monitoring.angle_monitoring.AngleMonitoringResult;
 import org.apache.commons.lang3.NotImplementedException;
 
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import static com.farao_community.farao.data.cne_exporter_commons.CneConstants.*;
@@ -46,7 +50,7 @@ public class SweRemedialActionSeriesCreator {
         List<RemedialActionSeriesCreationContext> sortedRas = cracCreationContext.getRemedialActionSeriesCreationContexts().stream()
             .filter(RemedialActionSeriesCreationContext::isImported)
             .sorted(Comparator.comparing(RemedialActionSeriesCreationContext::getNativeId))
-            .collect(Collectors.toList());
+            .toList();
         if (Objects.isNull(contingency)) {
             //PREVENTIVE
             sortedRas.forEach(
@@ -61,7 +65,7 @@ public class SweRemedialActionSeriesCreator {
             //CURATIVE && AUTO
             sortedRas.forEach(
                 raSeriesCreationContext -> {
-                    RemedialActionSeries raSeries = generateRaSeries(crac.getState(contingency, Instant.AUTO), raSeriesCreationContext, false);
+                    RemedialActionSeries raSeries = generateRaSeries(crac.getState(contingency, InstantKind.AUTO), raSeriesCreationContext, false);
                     if (Objects.nonNull(raSeries)) {
                         remedialActionSeriesList.add(raSeries);
                     }
@@ -69,7 +73,7 @@ public class SweRemedialActionSeriesCreator {
             );
             sortedRas.forEach(
                 raSeriesCreationContext -> {
-                    RemedialActionSeries raSeries = generateRaSeries(crac.getState(contingency, Instant.CURATIVE), raSeriesCreationContext, false);
+                    RemedialActionSeries raSeries = generateRaSeries(crac.getState(contingency, InstantKind.CURATIVE), raSeriesCreationContext, false);
                     if (Objects.nonNull(raSeries)) {
                         remedialActionSeriesList.add(raSeries);
                     }
@@ -85,7 +89,7 @@ public class SweRemedialActionSeriesCreator {
         List<RemedialActionSeriesCreationContext> sortedRas = cracCreationContext.getRemedialActionSeriesCreationContexts().stream()
             .filter(RemedialActionSeriesCreationContext::isImported)
             .sorted(Comparator.comparing(RemedialActionSeriesCreationContext::getNativeId))
-            .collect(Collectors.toList());
+            .toList();
         if (Objects.isNull(contingency)) {
             //PREVENTIVE
             sortedRas.forEach(
@@ -108,7 +112,7 @@ public class SweRemedialActionSeriesCreator {
             );
             sortedRas.forEach(
                 raSeriesCreationContext -> {
-                    RemedialActionSeries raSeries = generateRaSeries(crac.getState(contingency, Instant.AUTO), raSeriesCreationContext, true);
+                    RemedialActionSeries raSeries = generateRaSeries(crac.getState(contingency, InstantKind.AUTO), raSeriesCreationContext, true);
                     if (Objects.nonNull(raSeries)) {
                         remedialActionSeriesList.add(raSeries);
                     }
@@ -116,7 +120,7 @@ public class SweRemedialActionSeriesCreator {
             );
             sortedRas.forEach(
                 raSeriesCreationContext -> {
-                    RemedialActionSeries raSeries = generateRaSeries(crac.getState(contingency, Instant.CURATIVE), raSeriesCreationContext, true);
+                    RemedialActionSeries raSeries = generateRaSeries(crac.getState(contingency, InstantKind.CURATIVE), raSeriesCreationContext, true);
                     if (Objects.nonNull(raSeries)) {
                         remedialActionSeriesList.add(raSeries);
                     }
@@ -133,15 +137,15 @@ public class SweRemedialActionSeriesCreator {
         List<RemedialAction<?>> usedRas = new ArrayList<>();
         if (Objects.nonNull(raoResult)) {
             context.getCreatedIds().stream().sorted()
-                    .map(crac::getRemedialAction)
-                    .filter(ra -> raoResult.isActivatedDuringState(state, ra))
-                            .forEach(usedRas::add);
+                .map(crac::getRemedialAction)
+                .filter(ra -> raoResult.isActivatedDuringState(state, ra))
+                .forEach(usedRas::add);
         }
         if (Objects.nonNull(angleMonitoringResult) && !angleMonitoringResult.isDivergent()) {
             context.getCreatedIds().stream().sorted()
-                    .map(crac::getRemedialAction)
-                    .filter(ra -> angleMonitoringResult.getAppliedCras(state).stream().anyMatch(cra -> cra.getId().equals(ra.getId())))
-                            .forEach(usedRas::add);
+                .map(crac::getRemedialAction)
+                .filter(ra -> angleMonitoringResult.getAppliedCras(state).stream().anyMatch(cra -> cra.getId().equals(ra.getId())))
+                .forEach(usedRas::add);
         }
         for (RemedialAction<?> usedRa : usedRas) {
             if (usedRa instanceof NetworkAction) {
@@ -196,9 +200,9 @@ public class SweRemedialActionSeriesCreator {
     private String getApplicationModeMarketObjectStatusStatus(State state) {
         if (state.isPreventive()) {
             return PREVENTIVE_MARKET_OBJECT_STATUS;
-        } else if (state.getInstant().equals(Instant.AUTO)) {
+        } else if (state.getInstant().getInstantKind().equals(InstantKind.AUTO)) {
             return AUTO_MARKET_OBJECT_STATUS;
-        } else if (state.getInstant().equals(Instant.CURATIVE)) {
+        } else if (state.getInstant().getInstantKind().equals(InstantKind.CURATIVE)) {
             return CURATIVE_MARKET_OBJECT_STATUS;
         } else {
             throw new FaraoException(String.format("Unexpected instant for remedial action application : %s", state.getInstant().toString()));
@@ -206,10 +210,9 @@ public class SweRemedialActionSeriesCreator {
     }
 
     private RemedialActionRegisteredResource generateRegisteredResource(PstRangeAction pstRangeAction, State state, RemedialActionSeriesCreationContext context) {
-        if (!(context instanceof PstRangeActionSeriesCreationContext)) {
+        if (!(context instanceof PstRangeActionSeriesCreationContext pstContext)) {
             throw new FaraoException("Expected a PstRangeActionSeriesCreationContext");
         }
-        PstRangeActionSeriesCreationContext pstContext = (PstRangeActionSeriesCreationContext) context;
 
         RemedialActionRegisteredResource registeredResource = new RemedialActionRegisteredResource();
         registeredResource.setMRID(SweCneUtil.createResourceIDString(A02_CODING_SCHEME, pstContext.getNetworkElementNativeMrid()));

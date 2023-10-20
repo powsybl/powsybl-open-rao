@@ -9,7 +9,6 @@ package com.farao_community.farao.data.rao_result_json.deserializers;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Crac;
-import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.rao_result_impl.NetworkActionResult;
 import com.farao_community.farao.data.rao_result_impl.RaoResultImpl;
@@ -55,13 +54,13 @@ final class NetworkActionResultArrayDeserializer {
     }
 
     private static void deserializeStates(JsonParser jsonParser, NetworkActionResult networkActionResult, Crac crac) throws IOException {
-        Instant instant = null;
+        String instantId = null;
         String contingencyId = null;
         while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
             while (!jsonParser.nextToken().isStructEnd()) {
                 switch (jsonParser.getCurrentName()) {
                     case INSTANT:
-                        instant = deserializeInstant(jsonParser.nextTextValue());
+                        instantId = deserializeInstantId(jsonParser.nextTextValue());
                         break;
                     case CONTINGENCY_ID:
                         contingencyId = jsonParser.nextTextValue();
@@ -70,7 +69,7 @@ final class NetworkActionResultArrayDeserializer {
                         throw new FaraoException(String.format("Cannot deserialize RaoResult: unexpected field in %s (%s)", NETWORKACTION_RESULTS, jsonParser.getCurrentName()));
                 }
             }
-            networkActionResult.addActivationForState(StateDeserializer.getState(instant, contingencyId, crac, NETWORKACTION_RESULTS));
+            networkActionResult.addActivationForState(StateDeserializer.getState(instantId, contingencyId, crac, NETWORKACTION_RESULTS));
         }
     }
 }

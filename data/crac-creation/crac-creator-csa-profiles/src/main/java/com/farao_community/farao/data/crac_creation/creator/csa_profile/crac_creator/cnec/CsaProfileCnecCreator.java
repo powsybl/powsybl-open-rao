@@ -144,7 +144,7 @@ public class CsaProfileCnecCreator {
         }
         if (inBaseCase) {
             String cnecName = assessedElementName + " - preventive";
-            this.addCnec(cnecAdder, limitType, null, assessedElementId, cnecName, Instant.PREVENTIVE, rejectedLinksAssessedElementContingency);
+            this.addCnec(cnecAdder, limitType, null, assessedElementId, cnecName, InstantKind.PREVENTIVE, rejectedLinksAssessedElementContingency);
         }
     }
 
@@ -481,17 +481,17 @@ public class CsaProfileCnecCreator {
                 csaProfileCnecCreationContexts.add(CsaProfileCnecCreationContext.notImported(assessedElementId, ImportStatus.INCONSISTENCY_IN_DATA, "OperationalLimitType.acceptableDuration is incorrect : " + acceptableDurationStr));
                 return false;
             } else if (acceptableDuration == 0) {
-                instant = inBaseCase ? Instant.PREVENTIVE : Instant.CURATIVE;
+                instant = inBaseCase ? InstantKind.PREVENTIVE : InstantKind.CURATIVE;
             } else if (acceptableDuration <= CracCreationParameters.DurationThresholdsLimits.DURATION_THRESHOLDS_LIMITS_MAX_OUTAGE_INSTANT.getLimit()) {
-                instant = Instant.OUTAGE;
+                instant = InstantKind.OUTAGE;
             } else if (acceptableDuration <= CracCreationParameters.DurationThresholdsLimits.DURATION_THRESHOLDS_LIMITS_MAX_AUTO_INSTANT.getLimit()) {
-                instant = Instant.AUTO;
+                instant = InstantKind.AUTO;
             } else {
-                instant = Instant.CURATIVE;
+                instant = InstantKind.CURATIVE;
             }
             flowCnecAdder.withInstantId(instant.getId());
         } else if (CsaProfileConstants.LimitKind.PATL.toString().equals(kind)) {
-            instant = inBaseCase ? Instant.PREVENTIVE : Instant.CURATIVE;
+            instant = inBaseCase ? InstantKind.PREVENTIVE : InstantKind.CURATIVE;
             flowCnecAdder.withInstantId(instant.getId());
         } else {
             csaProfileCnecCreationContexts.add(CsaProfileCnecCreationContext.notImported(assessedElementId, ImportStatus.INCONSISTENCY_IN_DATA, "OperationalLimitType.kind is incorrect : " + kind));
@@ -566,8 +566,8 @@ public class CsaProfileCnecCreator {
             return false;
         }
 
-        this.cnecInstant = inBaseCase ? Instant.PREVENTIVE : Instant.CURATIVE;
-        voltageCnecAdder.withInstantId(this.cnecInstant.getId());
+        this.cnecInstant = inBaseCase ? InstantKind.PREVENTIVE : InstantKind.CURATIVE;
+        voltageCnecAdder.withInstantId(this.cnecInstantKind.getId());
         return true;
     }
 
@@ -592,7 +592,7 @@ public class CsaProfileCnecCreator {
     }
 
     private void addAngleLimitInstant(AngleCnecAdder angleCnecAdder, boolean inBaseCase) {
-        this.cnecInstant = inBaseCase ? Instant.PREVENTIVE : Instant.CURATIVE;
+        this.cnecInstant = inBaseCase ? InstantKind.PREVENTIVE : InstantKind.CURATIVE;
         angleCnecAdder.withInstantId(this.cnecInstant.getId());
     }
 

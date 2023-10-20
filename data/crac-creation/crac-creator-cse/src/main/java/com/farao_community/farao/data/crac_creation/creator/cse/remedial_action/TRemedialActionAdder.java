@@ -71,9 +71,9 @@ public class TRemedialActionAdder {
 
     private static Instant getInstant(TApplication tApplication) {
         return switch (tApplication.getV()) {
-            case "PREVENTIVE" -> Instant.PREVENTIVE;
-            case "SPS" -> Instant.AUTO;
-            case "CURATIVE" -> Instant.CURATIVE;
+            case "PREVENTIVE" -> InstantKind.PREVENTIVE;
+            case "SPS" -> InstantKind.AUTO;
+            case "CURATIVE" -> InstantKind.CURATIVE;
             default ->
                 throw new IllegalArgumentException(String.format("%s is not a recognized application type for remedial action", tApplication.getV()));
         };
@@ -332,7 +332,7 @@ public class TRemedialActionAdder {
         // According to <SharedWith> tag :
         String sharedWithId = tRemedialAction.getSharedWith().getV();
         if (sharedWithId.equals("CSE")) {
-            if (raApplicationInstant.equals(Instant.AUTO)) {
+            if (raApplicationInstantKind.equals(InstantKind.AUTO)) {
                 throw new FaraoException("Cannot import automatons from CSE CRAC yet");
             } else {
                 addOnInstantUsageRules(remedialActionAdder, raApplicationInstant);

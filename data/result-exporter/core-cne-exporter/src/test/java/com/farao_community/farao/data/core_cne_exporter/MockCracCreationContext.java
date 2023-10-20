@@ -7,10 +7,7 @@
 
 package com.farao_community.farao.data.core_cne_exporter;
 
-import com.farao_community.farao.data.crac_api.Crac;
-import com.farao_community.farao.data.crac_api.Instant;
-import com.farao_community.farao.data.crac_api.NetworkElement;
-import com.farao_community.farao.data.crac_api.RemedialAction;
+import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_creation.creator.api.CracCreationReport;
 import com.farao_community.farao.data.crac_creation.creator.api.ImportStatus;
@@ -24,13 +21,14 @@ import java.util.stream.Stream;
 /**
  * Dummy class that has no real use, but allows the CRAC exporters
  * to function with cracs that were created in the code or using a json file
+ *
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
 public class MockCracCreationContext implements UcteCracCreationContext {
 
-    private Crac crac;
-    private List<MockCnecCreationContext> mockCnecCreationContexts;
-    private List<MockRemedialActionCreationContext> mockRemedialActionCreationContexts;
+    private final Crac crac;
+    private final List<MockCnecCreationContext> mockCnecCreationContexts;
+    private final List<MockRemedialActionCreationContext> mockRemedialActionCreationContexts;
 
     public MockCracCreationContext(Crac crac) {
         this.crac = crac;
@@ -45,9 +43,9 @@ public class MockCracCreationContext implements UcteCracCreationContext {
 
     private void addCnecCreationContext(FlowCnec flowCnec, Crac crac) {
         List<MockCnecCreationContext> cnecsWithSameNe = mockCnecCreationContexts.stream().filter(creationContext ->
-                creationContext.getFlowCnec().getNetworkElements().equals(flowCnec.getNetworkElements())
+            creationContext.getFlowCnec().getNetworkElements().equals(flowCnec.getNetworkElements())
                 && creationContext.getFlowCnec().getState().getContingency().equals(flowCnec.getState().getContingency())
-        ).collect(Collectors.toList());
+        ).toList();
         if (cnecsWithSameNe.isEmpty()) {
             mockCnecCreationContexts.add(new MockCnecCreationContext(flowCnec, crac));
         } else {
@@ -120,7 +118,7 @@ public class MockCracCreationContext implements UcteCracCreationContext {
             map.put(flowCnec.getState().getInstant(), flowCnec.getId());
             if (!isBaseCase) {
                 Stream.of(Instant.values())
-                    .filter(instant -> instant != Instant.PREVENTIVE)
+                    .filter(instant -> instant != InstantKind.PREVENTIVE)
                     .filter(instant -> instant != flowCnec.getState().getInstant())
                     .forEach(instant -> {
                         FlowCnec otherBranchCnec = crac.getFlowCnecs(crac.getState(flowCnec.getState().getContingency().get().getId(), instant)).stream()
@@ -206,7 +204,7 @@ public class MockCracCreationContext implements UcteCracCreationContext {
 
     public class MockRemedialActionCreationContext implements PstRangeActionCreationContext {
 
-        private RemedialAction remedialAction;
+        private final RemedialAction remedialAction;
         boolean isImported;
         boolean isInverted;
         String nativeNetworkElementId;
@@ -253,13 +251,13 @@ public class MockCracCreationContext implements UcteCracCreationContext {
             return isInverted;
         }
 
+        public void setInverted(boolean inverted) {
+            isInverted = inverted;
+        }
+
         @Override
         public String getNativeNetworkElementId() {
             return nativeNetworkElementId;
-        }
-
-        public void setInverted(boolean inverted) {
-            isInverted = inverted;
         }
 
         public void setNativeNetworkElementId(String nativeNetworkElementId) {

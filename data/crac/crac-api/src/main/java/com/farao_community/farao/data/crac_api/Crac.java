@@ -83,6 +83,8 @@ public interface Crac extends Identifiable<Crac> {
      */
     Instant getPreventiveInstant();
 
+    Instant getUniqueInstant(InstantKind instantKind);
+
     /**
      * Gather all the instants present in the Crac with the correct instantKind.
      */
