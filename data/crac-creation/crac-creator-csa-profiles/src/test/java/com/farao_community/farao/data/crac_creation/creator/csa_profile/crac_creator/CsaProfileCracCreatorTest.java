@@ -24,15 +24,13 @@ import com.farao_community.farao.data.crac_api.usage_rule.*;
 import com.farao_community.farao.data.crac_creation.creator.api.ImportStatus;
 import com.farao_community.farao.data.crac_creation.creator.api.parameters.CracCreationParameters;
 import com.farao_community.farao.data.crac_creation.creator.csa_profile.CsaProfileCrac;
-import com.farao_community.farao.data.crac_creation.creator.csa_profile.crac_creator.cnec.CsaProfileCnecCreationContext;
-import com.farao_community.farao.data.crac_creation.creator.csa_profile.crac_creator.remedial_action.CsaProfileRemedialActionCreationContext;
 import com.farao_community.farao.data.crac_creation.creator.csa_profile.importer.CsaProfileCracImporter;
 import com.farao_community.farao.data.crac_impl.OnContingencyStateImpl;
 import com.farao_community.farao.data.crac_impl.OnFlowConstraintImpl;
 import com.google.common.base.Suppliers;
 import com.powsybl.computation.local.LocalComputationManager;
-import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.Identifiable;
+import com.powsybl.iidm.network.*;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
@@ -56,7 +54,7 @@ class CsaProfileCracCreatorTest {
         assertEquals(expectedContingencyId, c.getId());
         assertEquals(expectedContingencyName, c.getName());
         List<NetworkElement> networkElements = c.getNetworkElements().stream()
-                .sorted(Comparator.comparing(NetworkElement::getId)).toList();
+            .sorted(Comparator.comparing(NetworkElement::getId)).toList();
         assertEquals(expectedNetworkElementsSize, networkElements.size());
         for (int i = 0; i < expectedNetworkElementsSize; i++) {
             assertEquals(expectedNetworkElementsIds.get(i), networkElements.get(i).getId());
@@ -82,7 +80,7 @@ class CsaProfileCracCreatorTest {
     }
 
     private void assertRaNotImported(String raId, ImportStatus importStatus, String importStatusDetail) {
-        CsaProfileRemedialActionCreationContext context = cracCreationContext.getRemedialActionCreationContext(raId);
+        CsaProfileElementaryCreationContext context = cracCreationContext.getRemedialActionCreationContext(raId);
         assertNotNull(context);
         assertFalse(context.isImported());
         assertEquals(importStatusDetail, context.getImportStatusDetail());
@@ -127,7 +125,7 @@ class CsaProfileCracCreatorTest {
     }
 
     private void assertPstRangeActionImported(CsaProfileCracCreationContext cracCreationContext, String id, String networkElement, boolean isAltered, int numberOfUsageRules) {
-        CsaProfileRemedialActionCreationContext remedialActionCreationContext = cracCreationContext.getRemedialActionCreationContext(id);
+        CsaProfileElementaryCreationContext remedialActionCreationContext = cracCreationContext.getRemedialActionCreationContext(id);
         assertNotNull(remedialActionCreationContext);
         assertTrue(remedialActionCreationContext.isImported());
         assertEquals(isAltered, remedialActionCreationContext.isAltered());
@@ -138,7 +136,7 @@ class CsaProfileCracCreatorTest {
     }
 
     private void assertNetworkActionImported(CsaProfileCracCreationContext cracCreationContext, String id, Set<String> networkElements, boolean isAltered, int numberOfUsageRules) {
-        CsaProfileRemedialActionCreationContext remedialActionSeriesCreationContext = cracCreationContext.getRemedialActionCreationContext(id);
+        CsaProfileElementaryCreationContext remedialActionSeriesCreationContext = cracCreationContext.getRemedialActionCreationContext(id);
         assertNotNull(remedialActionSeriesCreationContext);
         assertTrue(remedialActionSeriesCreationContext.isImported());
         assertEquals(isAltered, remedialActionSeriesCreationContext.isAltered());
@@ -150,41 +148,41 @@ class CsaProfileCracCreatorTest {
 
     private void assertHasOnInstantUsageRule(CsaProfileCracCreationContext cracCreationContext, String raId, Instant instant, UsageMethod usageMethod) {
         assertTrue(
-                cracCreationContext.getCrac().getRemedialAction(raId).getUsageRules().stream().filter(OnInstant.class::isInstance)
-                        .map(OnInstant.class::cast)
-                        .anyMatch(ur -> ur.getInstant().equals(instant) && ur.getUsageMethod().equals(usageMethod))
+            cracCreationContext.getCrac().getRemedialAction(raId).getUsageRules().stream().filter(OnInstant.class::isInstance)
+                .map(OnInstant.class::cast)
+                .anyMatch(ur -> ur.getInstant().equals(instant) && ur.getUsageMethod().equals(usageMethod))
         );
     }
 
     private void assertHasOnContingencyStateUsageRule(CsaProfileCracCreationContext cracCreationContext, String raId, String contingencyId, Instant instant, UsageMethod usageMethod) {
         assertTrue(
-                cracCreationContext.getCrac().getRemedialAction(raId).getUsageRules().stream().filter(OnContingencyState.class::isInstance)
-                        .map(OnContingencyState.class::cast)
-                        .anyMatch(ur -> ur.getContingency().getId().equals(contingencyId) && ur.getInstant().equals(instant) && ur.getUsageMethod().equals(usageMethod))
+            cracCreationContext.getCrac().getRemedialAction(raId).getUsageRules().stream().filter(OnContingencyState.class::isInstance)
+                .map(OnContingencyState.class::cast)
+                .anyMatch(ur -> ur.getContingency().getId().equals(contingencyId) && ur.getInstant().equals(instant) && ur.getUsageMethod().equals(usageMethod))
         );
     }
 
     private void assertHasOnFlowConstraintUsageRule(CsaProfileCracCreationContext cracCreationContext, String raId, String flowCnecId, Instant instant, UsageMethod usageMethod) {
         assertTrue(
-                cracCreationContext.getCrac().getRemedialAction(raId).getUsageRules().stream().filter(OnFlowConstraint.class::isInstance)
-                        .map(OnFlowConstraint.class::cast)
-                        .anyMatch(ur -> ur.getFlowCnec().getId().equals(flowCnecId) && ur.getInstant().equals(instant) && ur.getUsageMethod().equals(usageMethod))
+            cracCreationContext.getCrac().getRemedialAction(raId).getUsageRules().stream().filter(OnFlowConstraint.class::isInstance)
+                .map(OnFlowConstraint.class::cast)
+                .anyMatch(ur -> ur.getFlowCnec().getId().equals(flowCnecId) && ur.getInstant().equals(instant) && ur.getUsageMethod().equals(usageMethod))
         );
     }
 
     private void assertHasOnAngleConstraintUsageRule(CsaProfileCracCreationContext cracCreationContext, String raId, String angleCnecId, Instant instant, UsageMethod usageMethod) {
         assertTrue(
-                cracCreationContext.getCrac().getRemedialAction(raId).getUsageRules().stream().filter(OnAngleConstraint.class::isInstance)
-                        .map(OnAngleConstraint.class::cast)
-                        .anyMatch(ur -> ur.getAngleCnec().getId().equals(angleCnecId) && ur.getInstant().equals(instant) && ur.getUsageMethod().equals(usageMethod))
+            cracCreationContext.getCrac().getRemedialAction(raId).getUsageRules().stream().filter(OnAngleConstraint.class::isInstance)
+                .map(OnAngleConstraint.class::cast)
+                .anyMatch(ur -> ur.getAngleCnec().getId().equals(angleCnecId) && ur.getInstant().equals(instant) && ur.getUsageMethod().equals(usageMethod))
         );
     }
 
     private void assertHasOnVoltageConstraintUsageRule(CsaProfileCracCreationContext cracCreationContext, String raId, String voltageCnecId, Instant instant, UsageMethod usageMethod) {
         assertTrue(
-                cracCreationContext.getCrac().getRemedialAction(raId).getUsageRules().stream().filter(OnVoltageConstraint.class::isInstance)
-                        .map(OnVoltageConstraint.class::cast)
-                        .anyMatch(ur -> ur.getVoltageCnec().getId().equals(voltageCnecId) && ur.getInstant().equals(instant) && ur.getUsageMethod().equals(usageMethod))
+            cracCreationContext.getCrac().getRemedialAction(raId).getUsageRules().stream().filter(OnVoltageConstraint.class::isInstance)
+                .map(OnVoltageConstraint.class::cast)
+                .anyMatch(ur -> ur.getVoltageCnec().getId().equals(voltageCnecId) && ur.getInstant().equals(instant) && ur.getUsageMethod().equals(usageMethod))
         );
     }
 
@@ -205,43 +203,43 @@ class CsaProfileCracCreatorTest {
         assertEquals(1, cracCreationContext.getCreationReport().getReport().size());
         assertEquals(2, cracCreationContext.getCrac().getContingencies().size());
         List<Contingency> listContingencies = cracCreationContext.getCrac().getContingencies()
-                .stream().sorted(Comparator.comparing(Contingency::getId)).collect(Collectors.toList());
+            .stream().sorted(Comparator.comparing(Contingency::getId)).collect(Collectors.toList());
 
         this.assertContingencyEquality(listContingencies.iterator().next(),
-                "493480ba-93c3-426e-bee5-347d8dda3749", "ELIA_CO1",
-                1, Arrays.asList("17086487-56ba-4979-b8de-064025a6b4da + 8fdc7abd-3746-481a-a65e-3df56acd8b13"));
+            "493480ba-93c3-426e-bee5-347d8dda3749", "ELIA_CO1",
+            1, Arrays.asList("17086487-56ba-4979-b8de-064025a6b4da + 8fdc7abd-3746-481a-a65e-3df56acd8b13"));
         this.assertContingencyEquality(listContingencies.get(1),
-                "c0a25fd7-eee0-4191-98a5-71a74469d36e", "TENNET_TSO_CO1",
-                1, Arrays.asList("b18cd1aa-7808-49b9-a7cf-605eaf07b006 + e8acf6b6-99cb-45ad-b8dc-16c7866a4ddc"));
+            "c0a25fd7-eee0-4191-98a5-71a74469d36e", "TENNET_TSO_CO1",
+            1, Arrays.asList("b18cd1aa-7808-49b9-a7cf-605eaf07b006 + e8acf6b6-99cb-45ad-b8dc-16c7866a4ddc"));
 
         assertEquals(4, cracCreationContext.getCrac().getFlowCnecs().size());
         List<FlowCnec> listFlowCnecs = cracCreationContext.getCrac().getFlowCnecs()
-                .stream().sorted(Comparator.comparing(FlowCnec::getId)).collect(Collectors.toList());
+            .stream().sorted(Comparator.comparing(FlowCnec::getId)).collect(Collectors.toList());
 
         this.assertFlowCnecEquality(listFlowCnecs.iterator().next(),
-                "ELIA_AE1 - ELIA_CO1 - curative",
-                "ELIA_AE1 - ELIA_CO1 - curative",
-                "ffbabc27-1ccd-4fdc-b037-e341706c8d29",
-                CURATIVE, "493480ba-93c3-426e-bee5-347d8dda3749",
-                +1312., -1312., Side.LEFT);
+            "ELIA_AE1 - ELIA_CO1 - curative",
+            "ELIA_AE1 - ELIA_CO1 - curative",
+            "ffbabc27-1ccd-4fdc-b037-e341706c8d29",
+            CURATIVE, "493480ba-93c3-426e-bee5-347d8dda3749",
+            +1312., -1312., Side.LEFT);
         this.assertFlowCnecEquality(listFlowCnecs.get(1),
-                "ELIA_AE1 - preventive",
-                "ELIA_AE1 - preventive",
-                "ffbabc27-1ccd-4fdc-b037-e341706c8d29",
-                PREVENTIVE, null,
-                +1312., -1312., Side.LEFT);
+            "ELIA_AE1 - preventive",
+            "ELIA_AE1 - preventive",
+            "ffbabc27-1ccd-4fdc-b037-e341706c8d29",
+            PREVENTIVE, null,
+            +1312., -1312., Side.LEFT);
         this.assertFlowCnecEquality(listFlowCnecs.get(2),
-                "TENNET_TSO_AE1NL - TENNET_TSO_CO1 - curative",
-                "TENNET_TSO_AE1NL - TENNET_TSO_CO1 - curative",
-                "b18cd1aa-7808-49b9-a7cf-605eaf07b006 + e8acf6b6-99cb-45ad-b8dc-16c7866a4ddc",
-                CURATIVE, "c0a25fd7-eee0-4191-98a5-71a74469d36e",
-                +1876., -1876., Side.RIGHT);
+            "TENNET_TSO_AE1NL - TENNET_TSO_CO1 - curative",
+            "TENNET_TSO_AE1NL - TENNET_TSO_CO1 - curative",
+            "b18cd1aa-7808-49b9-a7cf-605eaf07b006 + e8acf6b6-99cb-45ad-b8dc-16c7866a4ddc",
+            CURATIVE, "c0a25fd7-eee0-4191-98a5-71a74469d36e",
+            +1876., -1876., Side.RIGHT);
         this.assertFlowCnecEquality(listFlowCnecs.get(3),
-                "TENNET_TSO_AE1NL - preventive",
-                "TENNET_TSO_AE1NL - preventive",
-                "b18cd1aa-7808-49b9-a7cf-605eaf07b006 + e8acf6b6-99cb-45ad-b8dc-16c7866a4ddc",
-                PREVENTIVE, null,
-                +1876., -1876., Side.RIGHT);
+            "TENNET_TSO_AE1NL - preventive",
+            "TENNET_TSO_AE1NL - preventive",
+            "b18cd1aa-7808-49b9-a7cf-605eaf07b006 + e8acf6b6-99cb-45ad-b8dc-16c7866a4ddc",
+            PREVENTIVE, null,
+            +1876., -1876., Side.RIGHT);
 
         // csa-9-1
         assertTrue(cracCreationContext.getCrac().getNetworkActions().isEmpty());
@@ -266,56 +264,56 @@ class CsaProfileCracCreatorTest {
         assertEquals(12, cracCreationContext.getCrac().getFlowCnecs().size());
 
         List<Contingency> listContingencies = cracCreationContext.getCrac().getContingencies()
-                .stream().sorted(Comparator.comparing(Contingency::getId)).collect(Collectors.toList());
+            .stream().sorted(Comparator.comparing(Contingency::getId)).collect(Collectors.toList());
 
         this.assertContingencyEquality(listContingencies.iterator().next(),
-                "13334fdf-9cc2-4341-adb6-1281269040b4", "REE_CO3",
-                2, Arrays.asList("04566cf8-c766-11e1-8775-005056c00008", "0475dbd8-c766-11e1-8775-005056c00008"));
+            "13334fdf-9cc2-4341-adb6-1281269040b4", "REE_CO3",
+            2, Arrays.asList("04566cf8-c766-11e1-8775-005056c00008", "0475dbd8-c766-11e1-8775-005056c00008"));
         this.assertContingencyEquality(listContingencies.get(1),
-                "264e9a19-ae28-4c85-a43c-6b7818ca0e6c", "RTE_CO4",
-                1, Arrays.asList("536f4b84-db4c-4545-96e9-bb5a87f65d13 + d9622e7f-5bf0-4e7e-b766-b8596c6fe4ae"));
+            "264e9a19-ae28-4c85-a43c-6b7818ca0e6c", "RTE_CO4",
+            1, Arrays.asList("536f4b84-db4c-4545-96e9-bb5a87f65d13 + d9622e7f-5bf0-4e7e-b766-b8596c6fe4ae"));
         this.assertContingencyEquality(listContingencies.get(2),
-                "37997e71-cb7d-4a8c-baa6-2a1594956da9", "ELIA_CO3",
-                1, Arrays.asList("550ebe0d-f2b2-48c1-991f-cebea43a21aa"));
+            "37997e71-cb7d-4a8c-baa6-2a1594956da9", "ELIA_CO3",
+            1, Arrays.asList("550ebe0d-f2b2-48c1-991f-cebea43a21aa"));
         this.assertContingencyEquality(listContingencies.get(3),
-                "475ba18f-cbf5-490b-b65d-e8e03f9bcbc4", "RTE_CO2",
-                1, Arrays.asList("e02e1166-1c43-4a4d-8c5a-82298ee0c8f5"));
+            "475ba18f-cbf5-490b-b65d-e8e03f9bcbc4", "RTE_CO2",
+            1, Arrays.asList("e02e1166-1c43-4a4d-8c5a-82298ee0c8f5"));
         this.assertContingencyEquality(listContingencies.get(4),
-                "5d587c7e-9ced-416a-ad17-6ef9b241a998", "RTE_CO3",
-                1, Arrays.asList("2ab1b800-0c93-4517-86b5-8fd6a3a24ee7"));
+            "5d587c7e-9ced-416a-ad17-6ef9b241a998", "RTE_CO3",
+            1, Arrays.asList("2ab1b800-0c93-4517-86b5-8fd6a3a24ee7"));
         this.assertContingencyEquality(listContingencies.get(5),
-                "7e31c67d-67ba-4592-8ac1-9e806d697c8e", "ELIA_CO2",
-                1, Arrays.asList("536f4b84-db4c-4545-96e9-bb5a87f65d13 + d9622e7f-5bf0-4e7e-b766-b8596c6fe4ae"));
+            "7e31c67d-67ba-4592-8ac1-9e806d697c8e", "ELIA_CO2",
+            1, Arrays.asList("536f4b84-db4c-4545-96e9-bb5a87f65d13 + d9622e7f-5bf0-4e7e-b766-b8596c6fe4ae"));
         this.assertContingencyEquality(listContingencies.get(6),
-                "8cdec4c6-10c3-40c1-9eeb-7f6ae8d9b3fe", "REE_CO1",
-                1, Arrays.asList("044bbe91-c766-11e1-8775-005056c00008"));
+            "8cdec4c6-10c3-40c1-9eeb-7f6ae8d9b3fe", "REE_CO1",
+            1, Arrays.asList("044bbe91-c766-11e1-8775-005056c00008"));
         this.assertContingencyEquality(listContingencies.get(7),
-                "96c96ad8-844c-4f3b-8b38-c886ba2c0214", "REE_CO5",
-                1, Arrays.asList("891e77ff-39c6-4648-8eda-d81f730271f9 + a04e4e41-c0b4-496e-9ef3-390ea089411f"));
+            "96c96ad8-844c-4f3b-8b38-c886ba2c0214", "REE_CO5",
+            1, Arrays.asList("891e77ff-39c6-4648-8eda-d81f730271f9 + a04e4e41-c0b4-496e-9ef3-390ea089411f"));
         this.assertContingencyEquality(listContingencies.get(8),
-                "9d17b84c-33b5-4a68-b8b9-ed5b31038d40", "REE_CO4",
-                2, Arrays.asList("04566cf8-c766-11e1-8775-005056c00008", "0475dbd8-c766-11e1-8775-005056c00008"));
+            "9d17b84c-33b5-4a68-b8b9-ed5b31038d40", "REE_CO4",
+            2, Arrays.asList("04566cf8-c766-11e1-8775-005056c00008", "0475dbd8-c766-11e1-8775-005056c00008"));
         this.assertContingencyEquality(listContingencies.get(9),
-                "b6b780cb-9fe5-4c45-989d-447a927c3874", "REE_CO2",
-                1, Arrays.asList("048481d0-c766-11e1-8775-005056c00008"));
+            "b6b780cb-9fe5-4c45-989d-447a927c3874", "REE_CO2",
+            1, Arrays.asList("048481d0-c766-11e1-8775-005056c00008"));
         this.assertContingencyEquality(listContingencies.get(10),
-                "bd7bb012-f7b9-45e0-9e15-4e2aa3592829", "TENNET_TSO_CO3",
-                1, Arrays.asList("9c3b8f97-7972-477d-9dc8-87365cc0ad0e"));
+            "bd7bb012-f7b9-45e0-9e15-4e2aa3592829", "TENNET_TSO_CO3",
+            1, Arrays.asList("9c3b8f97-7972-477d-9dc8-87365cc0ad0e"));
         this.assertContingencyEquality(listContingencies.get(11),
-                "ce19dd34-429e-4b72-8813-7615cc57b4a4", "RTE_CO6",
-                1, Arrays.asList("04839777-c766-11e1-8775-005056c00008"));
+            "ce19dd34-429e-4b72-8813-7615cc57b4a4", "RTE_CO6",
+            1, Arrays.asList("04839777-c766-11e1-8775-005056c00008"));
         this.assertContingencyEquality(listContingencies.get(12),
-                "d9ef0d5e-732d-441e-9611-c817b0afbc41", "RTE_CO5",
-                1, Arrays.asList("f0dee14e-aa43-411e-a2ea-b9879c20f3be"));
+            "d9ef0d5e-732d-441e-9611-c817b0afbc41", "RTE_CO5",
+            1, Arrays.asList("f0dee14e-aa43-411e-a2ea-b9879c20f3be"));
         this.assertContingencyEquality(listContingencies.get(13),
-                "e05bbe20-9d4a-40da-9777-8424d216785d", "RTE_CO1",
-                1, Arrays.asList("f1c13f90-6d89-4a37-a51c-94742ad2dd72"));
+            "e05bbe20-9d4a-40da-9777-8424d216785d", "RTE_CO1",
+            1, Arrays.asList("f1c13f90-6d89-4a37-a51c-94742ad2dd72"));
         this.assertContingencyEquality(listContingencies.get(14),
-                "e9eab3fe-c328-4f78-9bc1-77adb59f6ba7", "ELIA_CO1",
-                1, Arrays.asList("dad02278-bd25-476f-8f58-dbe44be72586 + ed0c5d75-4a54-43c8-b782-b20d7431630b"));
+            "e9eab3fe-c328-4f78-9bc1-77adb59f6ba7", "ELIA_CO1",
+            1, Arrays.asList("dad02278-bd25-476f-8f58-dbe44be72586 + ed0c5d75-4a54-43c8-b782-b20d7431630b"));
 
         List<FlowCnec> listFlowCnecs = cracCreationContext.getCrac().getFlowCnecs()
-                .stream().sorted(Comparator.comparing(FlowCnec::getId)).collect(Collectors.toList());
+            .stream().sorted(Comparator.comparing(FlowCnec::getId)).collect(Collectors.toList());
         // TODO : check flow cnecs
     }
 
@@ -337,32 +335,32 @@ class CsaProfileCracCreatorTest {
         assertEquals(7, cracCreationContext.getCrac().getContingencies().size());
         assertEquals(4, cracCreationContext.getCrac().getFlowCnecs().size());
         List<Contingency> listContingencies = cracCreationContext.getCrac().getContingencies()
-                .stream().sorted(Comparator.comparing(Contingency::getId)).collect(Collectors.toList());
+            .stream().sorted(Comparator.comparing(Contingency::getId)).collect(Collectors.toList());
 
         this.assertContingencyEquality(listContingencies.iterator().next(),
-                "264e9a19-ae28-4c85-a43c-6b7818ca0e6c", "RTE_CO4",
-                1, Arrays.asList("536f4b84-db4c-4545-96e9-bb5a87f65d13 + d9622e7f-5bf0-4e7e-b766-b8596c6fe4ae"));
+            "264e9a19-ae28-4c85-a43c-6b7818ca0e6c", "RTE_CO4",
+            1, Arrays.asList("536f4b84-db4c-4545-96e9-bb5a87f65d13 + d9622e7f-5bf0-4e7e-b766-b8596c6fe4ae"));
         this.assertContingencyEquality(listContingencies.get(1),
-                "475ba18f-cbf5-490b-b65d-e8e03f9bcbc4", "RTE_CO2",
-                1, Arrays.asList("e02e1166-1c43-4a4d-8c5a-82298ee0c8f5"));
+            "475ba18f-cbf5-490b-b65d-e8e03f9bcbc4", "RTE_CO2",
+            1, Arrays.asList("e02e1166-1c43-4a4d-8c5a-82298ee0c8f5"));
         this.assertContingencyEquality(listContingencies.get(2),
-                "5d587c7e-9ced-416a-ad17-6ef9b241a998", "RTE_CO3",
-                1, Arrays.asList("2ab1b800-0c93-4517-86b5-8fd6a3a24ee7"));
+            "5d587c7e-9ced-416a-ad17-6ef9b241a998", "RTE_CO3",
+            1, Arrays.asList("2ab1b800-0c93-4517-86b5-8fd6a3a24ee7"));
         this.assertContingencyEquality(listContingencies.get(3),
-                "bd7bb012-f7b9-45e0-9e15-4e2aa3592829", "TENNET_TSO_CO3",
-                1, Arrays.asList("9c3b8f97-7972-477d-9dc8-87365cc0ad0e"));
+            "bd7bb012-f7b9-45e0-9e15-4e2aa3592829", "TENNET_TSO_CO3",
+            1, Arrays.asList("9c3b8f97-7972-477d-9dc8-87365cc0ad0e"));
         this.assertContingencyEquality(listContingencies.get(4),
-                "ce19dd34-429e-4b72-8813-7615cc57b4a4", "RTE_CO6",
-                1, Arrays.asList("04839777-c766-11e1-8775-005056c00008"));
+            "ce19dd34-429e-4b72-8813-7615cc57b4a4", "RTE_CO6",
+            1, Arrays.asList("04839777-c766-11e1-8775-005056c00008"));
         this.assertContingencyEquality(listContingencies.get(5),
-                "d9ef0d5e-732d-441e-9611-c817b0afbc41", "RTE_CO5",
-                1, Arrays.asList("f0dee14e-aa43-411e-a2ea-b9879c20f3be"));
+            "d9ef0d5e-732d-441e-9611-c817b0afbc41", "RTE_CO5",
+            1, Arrays.asList("f0dee14e-aa43-411e-a2ea-b9879c20f3be"));
         this.assertContingencyEquality(listContingencies.get(6),
-                "e05bbe20-9d4a-40da-9777-8424d216785d", "RTE_CO1",
-                1, Arrays.asList("f1c13f90-6d89-4a37-a51c-94742ad2dd72"));
+            "e05bbe20-9d4a-40da-9777-8424d216785d", "RTE_CO1",
+            1, Arrays.asList("f1c13f90-6d89-4a37-a51c-94742ad2dd72"));
 
         List<FlowCnec> listFlowCnecs = cracCreationContext.getCrac().getFlowCnecs()
-                .stream().sorted(Comparator.comparing(FlowCnec::getId)).collect(Collectors.toList());
+            .stream().sorted(Comparator.comparing(FlowCnec::getId)).collect(Collectors.toList());
         // TODO : check flow cnecs
     }
 
@@ -385,17 +383,17 @@ class CsaProfileCracCreatorTest {
         assertEquals(4, cracCreationContext.getCrac().getFlowCnecs().size());
 
         List<Contingency> listContingencies = cracCreationContext.getCrac().getContingencies()
-                .stream().sorted(Comparator.comparing(Contingency::getId)).collect(Collectors.toList());
+            .stream().sorted(Comparator.comparing(Contingency::getId)).collect(Collectors.toList());
 
         this.assertContingencyEquality(listContingencies.iterator().next(),
-                "493480ba-93c3-426e-bee5-347d8dda3749", "ELIA_CO1",
-                1, Arrays.asList("17086487-56ba-4979-b8de-064025a6b4da + 8fdc7abd-3746-481a-a65e-3df56acd8b13"));
+            "493480ba-93c3-426e-bee5-347d8dda3749", "ELIA_CO1",
+            1, Arrays.asList("17086487-56ba-4979-b8de-064025a6b4da + 8fdc7abd-3746-481a-a65e-3df56acd8b13"));
         this.assertContingencyEquality(listContingencies.get(1),
-                "c0a25fd7-eee0-4191-98a5-71a74469d36e", "TENNET_TSO_CO1",
-                1, Arrays.asList("b18cd1aa-7808-49b9-a7cf-605eaf07b006 + e8acf6b6-99cb-45ad-b8dc-16c7866a4ddc"));
+            "c0a25fd7-eee0-4191-98a5-71a74469d36e", "TENNET_TSO_CO1",
+            1, Arrays.asList("b18cd1aa-7808-49b9-a7cf-605eaf07b006 + e8acf6b6-99cb-45ad-b8dc-16c7866a4ddc"));
 
         List<FlowCnec> listFlowCnecs = cracCreationContext.getCrac().getFlowCnecs()
-                .stream().sorted(Comparator.comparing(FlowCnec::getId)).collect(Collectors.toList());
+            .stream().sorted(Comparator.comparing(FlowCnec::getId)).collect(Collectors.toList());
         // TODO : check flow cnecs
     }
 
@@ -675,7 +673,7 @@ class CsaProfileCracCreatorTest {
         Mockito.when(network.getLoadStream()).thenAnswer(invocation -> {
             Stream<Load> loadStream = Stream.of(loadMock);
             Stream<Load> filteredStream = loadStream.filter(load ->
-                    load.getId().equals("rotating-machine")
+                load.getId().equals("rotating-machine")
             );
             return filteredStream;
         });
@@ -815,33 +813,33 @@ class CsaProfileCracCreatorTest {
         assertEquals(20., eliaRa1.getRanges().iterator().next().getMaxTap());
         assertEquals(1, eliaRa1.getUsageRules().size());
         assertEquals(CURATIVE, eliaRa1.getUsageRules().iterator().next().getInstant());
-       // TODO waiting for PO to check US, after implementation of CSA11 behaviour changed, assertEquals("493480ba-93c3-426e-bee5-347d8dda3749", ((OnContingencyStateImpl) eliaRa1.getUsageRules().iterator().next()).getState().getContingency().get().getId());
+        // TODO waiting for PO to check US, after implementation of CSA11 behaviour changed, assertEquals("493480ba-93c3-426e-bee5-347d8dda3749", ((OnContingencyStateImpl) eliaRa1.getUsageRules().iterator().next()).getState().getContingency().get().getId());
         Map<Integer, Double> expectedTapToAngleMap = Map.ofEntries(
-                Map.entry(1, 4.926567934889113),
-                Map.entry(2, 4.4625049779277965),
-                Map.entry(3, 4.009142308337196),
-                Map.entry(4, 3.5661689080738133),
-                Map.entry(5, 3.133282879390916),
-                Map.entry(6, 2.7101913084587235),
-                Map.entry(7, 2.296610111393503),
-                Map.entry(8, 1.892263865774221),
-                Map.entry(9, 1.496885630374893),
-                Map.entry(10, 1.1102167555229658),
-                Map.entry(11, 0.7320066862066437),
-                Map.entry(12, 0.36201275979482317),
-                Map.entry(13, -0.0),
-                Map.entry(14, -0.3542590914949466),
-                Map.entry(15, -0.7009847445128217),
-                Map.entry(16, -1.040390129895497),
-                Map.entry(17, -1.3726815681386877),
-                Map.entry(18, -1.698058736365395),
-                Map.entry(19, -2.016714872973585),
-                Map.entry(20, -2.32883697939856),
-                Map.entry(21, -2.6346060185232267),
-                Map.entry(22, -2.9341971093513304),
-                Map.entry(23, -3.227779717630807),
-                Map.entry(24, -3.515517842177712),
-                Map.entry(25, -3.797570196706609)
+            Map.entry(1, 4.926567934889113),
+            Map.entry(2, 4.4625049779277965),
+            Map.entry(3, 4.009142308337196),
+            Map.entry(4, 3.5661689080738133),
+            Map.entry(5, 3.133282879390916),
+            Map.entry(6, 2.7101913084587235),
+            Map.entry(7, 2.296610111393503),
+            Map.entry(8, 1.892263865774221),
+            Map.entry(9, 1.496885630374893),
+            Map.entry(10, 1.1102167555229658),
+            Map.entry(11, 0.7320066862066437),
+            Map.entry(12, 0.36201275979482317),
+            Map.entry(13, -0.0),
+            Map.entry(14, -0.3542590914949466),
+            Map.entry(15, -0.7009847445128217),
+            Map.entry(16, -1.040390129895497),
+            Map.entry(17, -1.3726815681386877),
+            Map.entry(18, -1.698058736365395),
+            Map.entry(19, -2.016714872973585),
+            Map.entry(20, -2.32883697939856),
+            Map.entry(21, -2.6346060185232267),
+            Map.entry(22, -2.9341971093513304),
+            Map.entry(23, -3.227779717630807),
+            Map.entry(24, -3.515517842177712),
+            Map.entry(25, -3.797570196706609)
         );
         assertEquals(expectedTapToAngleMap, eliaRa1.getTapToAngleConversionMap());
     }
@@ -867,47 +865,47 @@ class CsaProfileCracCreatorTest {
         assertEquals(CURATIVE, reeRa1.getUsageRules().iterator().next().getInstant());
         assertEquals("8cdec4c6-10c3-40c1-9eeb-7f6ae8d9b3fe", ((OnContingencyStateImpl) reeRa1.getUsageRules().iterator().next()).getState().getContingency().get().getId());
         Map<Integer, Double> expectedTapToAngleMap = Map.ofEntries(
-                Map.entry(-1, -2.0),
-                Map.entry(0, 0.0),
-                Map.entry(-2, -4.0),
-                Map.entry(1, 2.0),
-                Map.entry(-3, -6.0),
-                Map.entry(2, 4.0),
-                Map.entry(-4, -8.0),
-                Map.entry(3, 6.0),
-                Map.entry(-5, -10.0),
-                Map.entry(4, 8.0),
-                Map.entry(-6, -12.0),
-                Map.entry(5, 10.0),
-                Map.entry(-7, -14.0),
-                Map.entry(6, 12.0),
-                Map.entry(-8, -16.0),
-                Map.entry(7, 14.0),
-                Map.entry(-9, -18.0),
-                Map.entry(8, 16.0),
-                Map.entry(-10, -20.0),
-                Map.entry(9, 18.0),
-                Map.entry(-11, -22.0),
-                Map.entry(10, 20.0),
-                Map.entry(-12, -24.0),
-                Map.entry(11, 22.0),
-                Map.entry(-13, -26.0),
-                Map.entry(12, 24.0),
-                Map.entry(-14, -28.0),
-                Map.entry(13, 26.0),
-                Map.entry(-15, -30.0),
-                Map.entry(14, 28.0),
-                Map.entry(-16, -32.0),
-                Map.entry(15, 30.0),
-                Map.entry(-17, -34.0),
-                Map.entry(16, 32.0),
-                Map.entry(-18, -36.0),
-                Map.entry(17, 34.0),
-                Map.entry(-19, -38.0),
-                Map.entry(18, 36.0),
-                Map.entry(-20, -40.0),
-                Map.entry(19, 38.0),
-                Map.entry(20, 40.0)
+            Map.entry(-1, -2.0),
+            Map.entry(0, 0.0),
+            Map.entry(-2, -4.0),
+            Map.entry(1, 2.0),
+            Map.entry(-3, -6.0),
+            Map.entry(2, 4.0),
+            Map.entry(-4, -8.0),
+            Map.entry(3, 6.0),
+            Map.entry(-5, -10.0),
+            Map.entry(4, 8.0),
+            Map.entry(-6, -12.0),
+            Map.entry(5, 10.0),
+            Map.entry(-7, -14.0),
+            Map.entry(6, 12.0),
+            Map.entry(-8, -16.0),
+            Map.entry(7, 14.0),
+            Map.entry(-9, -18.0),
+            Map.entry(8, 16.0),
+            Map.entry(-10, -20.0),
+            Map.entry(9, 18.0),
+            Map.entry(-11, -22.0),
+            Map.entry(10, 20.0),
+            Map.entry(-12, -24.0),
+            Map.entry(11, 22.0),
+            Map.entry(-13, -26.0),
+            Map.entry(12, 24.0),
+            Map.entry(-14, -28.0),
+            Map.entry(13, 26.0),
+            Map.entry(-15, -30.0),
+            Map.entry(14, 28.0),
+            Map.entry(-16, -32.0),
+            Map.entry(15, 30.0),
+            Map.entry(-17, -34.0),
+            Map.entry(16, 32.0),
+            Map.entry(-18, -36.0),
+            Map.entry(17, 34.0),
+            Map.entry(-19, -38.0),
+            Map.entry(18, 36.0),
+            Map.entry(-20, -40.0),
+            Map.entry(19, 38.0),
+            Map.entry(20, 40.0)
         );
         assertEquals(expectedTapToAngleMap, reeRa1.getTapToAngleConversionMap());
 
@@ -937,17 +935,17 @@ class CsaProfileCracCreatorTest {
         // Check Flow Cnecs
         assertEquals(6, importedCrac.getFlowCnecs().size());
         assertFlowCnecEquality(importedCrac.getFlowCnec("RTE_FFR2AA1--FFR3AA1--2 - RTE_co1_fr2_fr3_1 - curative"), "RTE_FFR2AA1--FFR3AA1--2 - RTE_co1_fr2_fr3_1 - curative", "RTE_FFR2AA1--FFR3AA1--2 - RTE_co1_fr2_fr3_1 - curative",
-                "FFR2AA1--FFR3AA1--2", CURATIVE, "co1_fr2_fr3_1", 2500., -2500., Side.RIGHT);
+            "FFR2AA1--FFR3AA1--2", CURATIVE, "co1_fr2_fr3_1", 2500., -2500., Side.RIGHT);
         assertFlowCnecEquality(importedCrac.getFlowCnec("RTE_FFR3AA1--FFR5AA1--1 - RTE_co1_fr2_fr3_1 - outage"), "RTE_FFR3AA1--FFR5AA1--1 - RTE_co1_fr2_fr3_1 - outage", "RTE_FFR3AA1--FFR5AA1--1 - RTE_co1_fr2_fr3_1 - outage",
-                "FFR3AA1--FFR5AA1--1", OUTAGE, "co1_fr2_fr3_1", 1500., -1500., Side.RIGHT);
+            "FFR3AA1--FFR5AA1--1", OUTAGE, "co1_fr2_fr3_1", 1500., -1500., Side.RIGHT);
         assertFlowCnecEquality(importedCrac.getFlowCnec("RTE_FFR2AA1--DDE3AA1--1 - preventive"), "RTE_FFR2AA1--DDE3AA1--1 - preventive", "RTE_FFR2AA1--DDE3AA1--1 - preventive",
-                "FFR2AA1--DDE3AA1--1", PREVENTIVE, null, 1000., -1000., Side.RIGHT);
+            "FFR2AA1--DDE3AA1--1", PREVENTIVE, null, 1000., -1000., Side.RIGHT);
         assertFlowCnecEquality(importedCrac.getFlowCnec("RTE_FFR3AA1--FFR5AA1--1 - RTE_co1_fr2_fr3_1 - curative"), "RTE_FFR3AA1--FFR5AA1--1 - RTE_co1_fr2_fr3_1 - curative", "RTE_FFR3AA1--FFR5AA1--1 - RTE_co1_fr2_fr3_1 - curative",
-                "FFR3AA1--FFR5AA1--1", CURATIVE, "co1_fr2_fr3_1", 1000., -1000., Side.RIGHT);
+            "FFR3AA1--FFR5AA1--1", CURATIVE, "co1_fr2_fr3_1", 1000., -1000., Side.RIGHT);
         assertFlowCnecEquality(importedCrac.getFlowCnec("TENNET_TSO_NNL2AA1--BBE3AA1--1 - preventive"), "TENNET_TSO_NNL2AA1--BBE3AA1--1 - preventive", "TENNET_TSO_NNL2AA1--BBE3AA1--1 - preventive",
-                "NNL2AA1--BBE3AA1--1", PREVENTIVE, null, 5000., -5000., Side.RIGHT);
+            "NNL2AA1--BBE3AA1--1", PREVENTIVE, null, 5000., -5000., Side.RIGHT);
         assertFlowCnecEquality(importedCrac.getFlowCnec("RTE_FFR2AA1--DDE3AA1--1 - RTE_co1_fr2_fr3_1 - outage"), "RTE_FFR2AA1--DDE3AA1--1 - RTE_co1_fr2_fr3_1 - outage", "RTE_FFR2AA1--DDE3AA1--1 - RTE_co1_fr2_fr3_1 - outage",
-                "FFR2AA1--DDE3AA1--1", OUTAGE, "co1_fr2_fr3_1", 1200., -1200., Side.RIGHT);
+            "FFR2AA1--DDE3AA1--1", OUTAGE, "co1_fr2_fr3_1", 1200., -1200., Side.RIGHT);
 
         // Check PST RAs
         assertPstRangeActionImported(cracCreationContext, "pst_be", "BBE2AA1--BBE3AA1--1", false, 1);
@@ -982,32 +980,32 @@ class CsaProfileCracCreatorTest {
         assertTrue(cracCreationContext.isCreationSuccessful());
         assertEquals(4, cracCreationContext.getCrac().getFlowCnecs().size());
         List<FlowCnec> listFlowCnecs = cracCreationContext.getCrac().getFlowCnecs()
-                .stream().sorted(Comparator.comparing(FlowCnec::getId)).collect(Collectors.toList());
+            .stream().sorted(Comparator.comparing(FlowCnec::getId)).collect(Collectors.toList());
 
         this.assertFlowCnecEquality(listFlowCnecs.iterator().next(),
-                "RTE_AE - RTE_CO1 - curative",
-                "RTE_AE - RTE_CO1 - curative",
-                "FFR3AA1--FFR5AA1--1",
-                CURATIVE, "0451f8be-83d7-45da-b80b-4014259ff624",
-                +1000., -1000., Side.RIGHT);
+            "RTE_AE - RTE_CO1 - curative",
+            "RTE_AE - RTE_CO1 - curative",
+            "FFR3AA1--FFR5AA1--1",
+            CURATIVE, "0451f8be-83d7-45da-b80b-4014259ff624",
+            +1000., -1000., Side.RIGHT);
         this.assertFlowCnecEquality(listFlowCnecs.get(1),
-                "RTE_AE - RTE_CO3 - curative",
-                "RTE_AE - RTE_CO3 - curative",
-                "FFR3AA1--FFR5AA1--1",
-                CURATIVE, "4491d904-93c4-41d4-a509-57f9fed2e31c",
-                +1000., -1000., Side.RIGHT);
+            "RTE_AE - RTE_CO3 - curative",
+            "RTE_AE - RTE_CO3 - curative",
+            "FFR3AA1--FFR5AA1--1",
+            CURATIVE, "4491d904-93c4-41d4-a509-57f9fed2e31c",
+            +1000., -1000., Side.RIGHT);
         this.assertFlowCnecEquality(listFlowCnecs.get(2),
-                "RTE_AE - preventive",
-                "RTE_AE - preventive",
-                "FFR3AA1--FFR5AA1--1",
-                PREVENTIVE, null,
-                +1000., -1000., Side.RIGHT);
+            "RTE_AE - preventive",
+            "RTE_AE - preventive",
+            "FFR3AA1--FFR5AA1--1",
+            PREVENTIVE, null,
+            +1000., -1000., Side.RIGHT);
         this.assertFlowCnecEquality(listFlowCnecs.get(3),
-                "RTE_AE2 - preventive",
-                "RTE_AE2 - preventive",
-                "FFR3AA1--FFR5AA1--1",
-                PREVENTIVE, null,
-                +1000., -1000., Side.RIGHT);
+            "RTE_AE2 - preventive",
+            "RTE_AE2 - preventive",
+            "FFR3AA1--FFR5AA1--1",
+            PREVENTIVE, null,
+            +1000., -1000., Side.RIGHT);
     }
 
     @Test
@@ -1040,7 +1038,7 @@ class CsaProfileCracCreatorTest {
 
         assertEquals(4, cracCreationContext.getCrac().getAngleCnecs().size());
         List<AngleCnec> angleCnecs = cracCreationContext.getCrac().getAngleCnecs().stream()
-                .sorted(Comparator.comparing(AngleCnec::getId)).toList();
+            .sorted(Comparator.comparing(AngleCnec::getId)).toList();
 
         // RTE_AE1 - preventive
         AngleCnec angleCnec1 = angleCnecs.iterator().next();
@@ -1108,8 +1106,8 @@ class CsaProfileCracCreatorTest {
         CsaProfileCracCreationContext cracCreationContext = cracCreator.createCrac(nativeCrac, network, OffsetDateTime.parse("2023-03-29T12:00Z"), new CracCreationParameters());
         assertEquals(0, cracCreationContext.getCrac().getAngleCnecs().size());
 
-        List<CsaProfileCnecCreationContext> cnecCreationContexts = cracCreationContext.getCnecCreationContexts().stream()
-                .sorted(Comparator.comparing(CsaProfileCnecCreationContext::getNativeId)).toList();
+        List<CsaProfileElementaryCreationContext> cnecCreationContexts = cracCreationContext.getCnecCreationContexts().stream()
+            .sorted(Comparator.comparing(CsaProfileElementaryCreationContext::getNativeId)).toList();
         assertEquals(6, cnecCreationContexts.size());
 
         // Missing AngleReferenceTerminal
@@ -1181,7 +1179,7 @@ class CsaProfileCracCreatorTest {
         CsaProfileCracCreationContext cracCreationContext = cracCreator.createCrac(nativeCrac, network, OffsetDateTime.parse("2023-04-27T12:00Z"), new CracCreationParameters());
 
         cracCreationContext.getCrac().getRemedialActions()
-                .forEach(ra -> assertTrue(ra.getUsageRules().stream().noneMatch(usageRule -> usageRule instanceof OnFlowConstraintImpl)));
+            .forEach(ra -> assertTrue(ra.getUsageRules().stream().noneMatch(usageRule -> usageRule instanceof OnFlowConstraintImpl)));
     }
 
     @Test
@@ -1249,44 +1247,44 @@ class CsaProfileCracCreatorTest {
         // Check Flow Cnecs
         assertEquals(4, cracCreationContext.getCrac().getFlowCnecs().size());
         assertFlowCnecEquality(cracCreationContext.getCrac().getFlowCnec("RTE_AE1 - RTE_CO1 - curative"),
-                "RTE_AE1 - RTE_CO1 - curative",
-                "RTE_AE1 - RTE_CO1 - curative",
-                "60038442-5c02-21a9-22ad-f0554a65a466",
-                CURATIVE,
-                "6c9656a6-84c2-4967-aabc-51f63a7abdf1",
-                1000.,
-                -1000.,
-                Side.LEFT);
+            "RTE_AE1 - RTE_CO1 - curative",
+            "RTE_AE1 - RTE_CO1 - curative",
+            "60038442-5c02-21a9-22ad-f0554a65a466",
+            CURATIVE,
+            "6c9656a6-84c2-4967-aabc-51f63a7abdf1",
+            1000.,
+            -1000.,
+            Side.LEFT);
 
         assertFlowCnecEquality(cracCreationContext.getCrac().getFlowCnec("RTE_AE1 - preventive"),
-                "RTE_AE1 - preventive",
-                "RTE_AE1 - preventive",
-                "60038442-5c02-21a9-22ad-f0554a65a466",
-                PREVENTIVE,
-                null,
-                1000.,
-                -1000.,
-                Side.LEFT);
+            "RTE_AE1 - preventive",
+            "RTE_AE1 - preventive",
+            "60038442-5c02-21a9-22ad-f0554a65a466",
+            PREVENTIVE,
+            null,
+            1000.,
+            -1000.,
+            Side.LEFT);
 
         assertFlowCnecEquality(cracCreationContext.getCrac().getFlowCnec("RTE_AE2 - RTE_CO2 - curative"),
-                "RTE_AE2 - RTE_CO2 - curative",
-                "RTE_AE2 - RTE_CO2 - curative",
-                "65e9a6a7-8488-7b17-6344-cb7d61b7920b",
-                CURATIVE,
-                "410a7075-51df-4c5c-aa80-0bb1bbe41190",
-                1000.,
-                -1000.,
-                Side.RIGHT);
+            "RTE_AE2 - RTE_CO2 - curative",
+            "RTE_AE2 - RTE_CO2 - curative",
+            "65e9a6a7-8488-7b17-6344-cb7d61b7920b",
+            CURATIVE,
+            "410a7075-51df-4c5c-aa80-0bb1bbe41190",
+            1000.,
+            -1000.,
+            Side.RIGHT);
 
         assertFlowCnecEquality(cracCreationContext.getCrac().getFlowCnec("RTE_AE2 - preventive"),
-                "RTE_AE2 - preventive",
-                "RTE_AE2 - preventive",
-                "65e9a6a7-8488-7b17-6344-cb7d61b7920b",
-                PREVENTIVE,
-                null,
-                1000.,
-                -1000.,
-                Side.RIGHT);
+            "RTE_AE2 - preventive",
+            "RTE_AE2 - preventive",
+            "65e9a6a7-8488-7b17-6344-cb7d61b7920b",
+            PREVENTIVE,
+            null,
+            1000.,
+            -1000.,
+            Side.RIGHT);
 
         //4 remedial actions and a total of 8 onFlowConstraint usage rules.
         assertEquals(4, cracCreationContext.getCrac().getRemedialActions().size());
@@ -1337,48 +1335,48 @@ class CsaProfileCracCreatorTest {
         CsaProfileCracCreationContext cracCreationContext = cracCreator.createCrac(nativeCrac, network, OffsetDateTime.parse("2023-03-29T12:00Z"), new CracCreationParameters());
 
         assertAngleCnecEquality(cracCreationContext.getCrac().getAngleCnec("RTE_AE1 - RTE_CO1 - curative"),
-                "RTE_AE1 - RTE_CO1 - curative",
-                "RTE_AE1 - RTE_CO1 - curative",
-                "60038442-5c02-21a9-22ad-f0554a65a466",
-                "65e9a6a7-8488-7b17-6344-cb7d61b7920b",
-                CURATIVE,
-                "6c9656a6-84c2-4967-aabc-51f63a7abdf1",
-                30.,
-                -30.,
-                true);
+            "RTE_AE1 - RTE_CO1 - curative",
+            "RTE_AE1 - RTE_CO1 - curative",
+            "60038442-5c02-21a9-22ad-f0554a65a466",
+            "65e9a6a7-8488-7b17-6344-cb7d61b7920b",
+            CURATIVE,
+            "6c9656a6-84c2-4967-aabc-51f63a7abdf1",
+            30.,
+            -30.,
+            true);
 
         assertAngleCnecEquality(cracCreationContext.getCrac().getAngleCnec("RTE_AE1 - preventive"),
-                "RTE_AE1 - preventive",
-                "RTE_AE1 - preventive",
-                "60038442-5c02-21a9-22ad-f0554a65a466",
-                "65e9a6a7-8488-7b17-6344-cb7d61b7920b",
-                PREVENTIVE,
-                null,
-                30.,
-                -30.,
-                true);
+            "RTE_AE1 - preventive",
+            "RTE_AE1 - preventive",
+            "60038442-5c02-21a9-22ad-f0554a65a466",
+            "65e9a6a7-8488-7b17-6344-cb7d61b7920b",
+            PREVENTIVE,
+            null,
+            30.,
+            -30.,
+            true);
 
         assertAngleCnecEquality(cracCreationContext.getCrac().getAngleCnec("RTE_AE2 - RTE_CO2 - curative"),
-                "RTE_AE2 - RTE_CO2 - curative",
-                "RTE_AE2 - RTE_CO2 - curative",
-                "65e9a6a7-8488-7b17-6344-cb7d61b7920b",
-                "60038442-5c02-21a9-22ad-f0554a65a466",
-                CURATIVE,
-                "410a7075-51df-4c5c-aa80-0bb1bbe41190",
-                15.,
-                -15.,
-                true);
+            "RTE_AE2 - RTE_CO2 - curative",
+            "RTE_AE2 - RTE_CO2 - curative",
+            "65e9a6a7-8488-7b17-6344-cb7d61b7920b",
+            "60038442-5c02-21a9-22ad-f0554a65a466",
+            CURATIVE,
+            "410a7075-51df-4c5c-aa80-0bb1bbe41190",
+            15.,
+            -15.,
+            true);
 
         assertAngleCnecEquality(cracCreationContext.getCrac().getAngleCnec("RTE_AE2 - preventive"),
-                "RTE_AE2 - preventive",
-                "RTE_AE2 - preventive",
-                "65e9a6a7-8488-7b17-6344-cb7d61b7920b",
-                "60038442-5c02-21a9-22ad-f0554a65a466",
-                PREVENTIVE,
-                null,
-                15.,
-                -15.,
-                true);
+            "RTE_AE2 - preventive",
+            "RTE_AE2 - preventive",
+            "65e9a6a7-8488-7b17-6344-cb7d61b7920b",
+            "60038442-5c02-21a9-22ad-f0554a65a466",
+            PREVENTIVE,
+            null,
+            15.,
+            -15.,
+            true);
 
         //4 remedial actions and a total of 8 onAngleConstraint usage rules.
         assertEquals(4, cracCreationContext.getCrac().getRemedialActions().size());
@@ -1435,44 +1433,44 @@ class CsaProfileCracCreatorTest {
         CsaProfileCracCreationContext cracCreationContext = cracCreator.createCrac(nativeCrac, network, OffsetDateTime.parse("2023-03-29T12:00Z"), new CracCreationParameters());
 
         assertVoltageCnecEquality(cracCreationContext.getCrac().getVoltageCnec("RTE_AE1 - RTE_CO1 - curative"),
-                "RTE_AE1 - RTE_CO1 - curative",
-                "RTE_AE1 - RTE_CO1 - curative",
-                "60038442-5c02-21a9-22ad-f0554a65a466",
-                CURATIVE,
-                "6c9656a6-84c2-4967-aabc-51f63a7abdf1",
-                817.,
-                null,
-                true);
+            "RTE_AE1 - RTE_CO1 - curative",
+            "RTE_AE1 - RTE_CO1 - curative",
+            "60038442-5c02-21a9-22ad-f0554a65a466",
+            CURATIVE,
+            "6c9656a6-84c2-4967-aabc-51f63a7abdf1",
+            817.,
+            null,
+            true);
 
         assertVoltageCnecEquality(cracCreationContext.getCrac().getVoltageCnec("RTE_AE1 - preventive"),
-                "RTE_AE1 - preventive",
-                "RTE_AE1 - preventive",
-                "60038442-5c02-21a9-22ad-f0554a65a466",
-                PREVENTIVE,
-                null,
-                817.,
-                null,
-                true);
+            "RTE_AE1 - preventive",
+            "RTE_AE1 - preventive",
+            "60038442-5c02-21a9-22ad-f0554a65a466",
+            PREVENTIVE,
+            null,
+            817.,
+            null,
+            true);
 
         assertVoltageCnecEquality(cracCreationContext.getCrac().getVoltageCnec("RTE_AE2 - RTE_CO2 - curative"),
-                "RTE_AE2 - RTE_CO2 - curative",
-                "RTE_AE2 - RTE_CO2 - curative",
-                "65e9a6a7-8488-7b17-6344-cb7d61b7920b",
-                CURATIVE,
-                "410a7075-51df-4c5c-aa80-0bb1bbe41190",
-                null,
-                520.,
-                true);
+            "RTE_AE2 - RTE_CO2 - curative",
+            "RTE_AE2 - RTE_CO2 - curative",
+            "65e9a6a7-8488-7b17-6344-cb7d61b7920b",
+            CURATIVE,
+            "410a7075-51df-4c5c-aa80-0bb1bbe41190",
+            null,
+            520.,
+            true);
 
         assertVoltageCnecEquality(cracCreationContext.getCrac().getVoltageCnec("RTE_AE2 - preventive"),
-                "RTE_AE2 - preventive",
-                "RTE_AE2 - preventive",
-                "65e9a6a7-8488-7b17-6344-cb7d61b7920b",
-                PREVENTIVE,
-                null,
-                null,
-                520.,
-                true);
+            "RTE_AE2 - preventive",
+            "RTE_AE2 - preventive",
+            "65e9a6a7-8488-7b17-6344-cb7d61b7920b",
+            PREVENTIVE,
+            null,
+            null,
+            520.,
+            true);
 
         //4 remedial actions and a total of 8 onVoltageConstraint usage rules.
         assertEquals(4, cracCreationContext.getCrac().getRemedialActions().size());
