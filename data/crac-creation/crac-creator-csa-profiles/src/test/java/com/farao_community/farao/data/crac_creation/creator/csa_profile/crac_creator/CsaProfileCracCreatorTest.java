@@ -135,7 +135,6 @@ class CsaProfileCracCreatorTest {
         assertEquals(numberOfUsageRules, cracCreationContext.getCrac().getPstRangeAction(id).getUsageRules().size());
     }
 
-
     private void assertNetworkActionImported(CsaProfileCracCreationContext cracCreationContext, String id, Set<String> networkElements, boolean isAltered, int numberOfUsageRules) {
         CsaProfileElementaryCreationContext remedialActionSeriesCreationContext = cracCreationContext.getRemedialActionCreationContext(id);
         assertNotNull(remedialActionSeriesCreationContext);
