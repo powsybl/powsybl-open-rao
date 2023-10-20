@@ -8,9 +8,6 @@
 package com.farao_community.farao.data.crac_creation.creator.csa_profile.crac_creator;
 
 import com.farao_community.farao.data.crac_api.Crac;
-import com.farao_community.farao.data.crac_creation.creator.csa_profile.crac_creator.cnec.CsaProfileCnecCreationContext;
-import com.farao_community.farao.data.crac_creation.creator.csa_profile.crac_creator.contingency.CsaProfileContingencyCreationContext;
-import com.farao_community.farao.data.crac_creation.creator.csa_profile.crac_creator.remedial_action.CsaProfileRemedialActionCreationContext;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
@@ -31,9 +28,9 @@ class CsaProfileCracCreationContextTest {
         CsaProfileCracCreationContext context = new CsaProfileCracCreationContext(crac, offsetDateTime, "network_name");
         context.creationSuccess(crac);
 
-        CsaProfileContingencyCreationContext cocc = Mockito.mock(CsaProfileContingencyCreationContext.class);
-        CsaProfileRemedialActionCreationContext racc = Mockito.mock(CsaProfileRemedialActionCreationContext.class);
-        CsaProfileCnecCreationContext cncc = Mockito.mock(CsaProfileCnecCreationContext.class);
+        CsaProfileElementaryCreationContext cocc = Mockito.mock(CsaProfileElementaryCreationContext.class);
+        CsaProfileElementaryCreationContext racc = Mockito.mock(CsaProfileElementaryCreationContext.class);
+        CsaProfileElementaryCreationContext cncc = Mockito.mock(CsaProfileElementaryCreationContext.class);
 
         context.setContingencyCreationContexts(Set.of(cocc));
         context.setCnecCreationContexts(Set.of(cncc));
