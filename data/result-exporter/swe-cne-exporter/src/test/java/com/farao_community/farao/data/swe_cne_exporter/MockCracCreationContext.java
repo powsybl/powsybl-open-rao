@@ -7,10 +7,7 @@
 
 package com.farao_community.farao.data.swe_cne_exporter;
 
-import com.farao_community.farao.data.crac_api.Crac;
-import com.farao_community.farao.data.crac_api.Instant;
-import com.farao_community.farao.data.crac_api.NetworkElement;
-import com.farao_community.farao.data.crac_api.RemedialAction;
+import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_creation.creator.api.CracCreationReport;
 import com.farao_community.farao.data.crac_creation.creator.api.ImportStatus;
@@ -18,7 +15,6 @@ import com.farao_community.farao.data.crac_creation.creator.api.std_creation_con
 
 import java.time.OffsetDateTime;
 import java.util.*;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -187,7 +183,7 @@ public class MockCracCreationContext implements UcteCracCreationContext {
         }
 
         @Override
-        public Map<Instant, String> getCreatedCnecsIds() {
+        public Map<String, String> getCreatedCnecsIds() {
             return createdCnecsIds;
         }
 

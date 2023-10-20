@@ -100,7 +100,7 @@ public class FbConstraintCracCreator implements CracCreator<FbConstraint, FbCons
 
     private void createCnecs(Crac crac, List<CriticalBranchReader> criticalBranchReaders, FbConstraintCreationContext creationContext) {
         criticalBranchReaders.forEach(criticalBranchReader -> {
-            creationContext.addCriticalBranchCreationContext(new CriticalBranchCreationContext(criticalBranchReader));
+            creationContext.addCriticalBranchCreationContext(new CriticalBranchCreationContext(criticalBranchReader, crac));
             if (criticalBranchReader.isCriticialBranchValid()) {
                 criticalBranchReader.addCnecs(crac);
             }

@@ -8,6 +8,7 @@ package com.farao_community.farao.data.crac_creation.creator.cse;
 
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Crac;
+import com.farao_community.farao.data.crac_api.InstantKind;
 import com.farao_community.farao.data.crac_api.RemedialAction;
 import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
@@ -163,8 +164,8 @@ class CseCracCreatorTest {
         parameters.getExtension(CseCracCreationParameters.class).setRangeActionGroupsAsString(List.of("PRA_HVDC + CRA_HVDC"));
         setUpWithHvdcNetwork("/cracs/cse_crac_with_hvdc.xml");
         assertTrue(cracCreationContext.isCreationSuccessful());
-        assertEquals("PRA_HVDC + CRA_HVDC", importedCrac.getInjectionRangeAction("PRA_HVDC").getGroupId().get());
-        assertEquals(importedCrac.getInjectionRangeAction("CRA_HVDC").getGroupId().get(), importedCrac.getInjectionRangeAction("PRA_HVDC").getGroupId().get());
+        assertEquals("PRA_HVDC + CRA_HVDC", importedCrac.getInjectionRangeAction("PRA_HVDC").getGroupId().orElseThrow());
+        assertEquals(importedCrac.getInjectionRangeAction("CRA_HVDC").getGroupId().orElseThrow(), importedCrac.getInjectionRangeAction("PRA_HVDC").getGroupId().orElseThrow());
         assertEquals("FR", importedCrac.getInjectionRangeAction("PRA_HVDC").getOperator());
         assertEquals(2000, importedCrac.getInjectionRangeAction("PRA_HVDC").getRanges().get(0).getMax(), 1e-1);
         assertEquals(-100, importedCrac.getInjectionRangeAction("PRA_HVDC").getRanges().get(0).getMin(), 1e-1);
@@ -187,7 +188,7 @@ class CseCracCreatorTest {
         assertFalse(cnec1context.isDirectionInvertedInNetwork());
         assertTrue(cnec1context.getContingencyId().isEmpty());
         assertEquals(1, cnec1context.getCreatedCnecsIds().size());
-        assertEquals("basecase_branch_1 - NNL2AA1 ->NNL3AA1  - preventive", cnec1context.getCreatedCnecsIds().get(InstantKind.PREVENTIVE));
+        assertEquals("basecase_branch_1 - NNL2AA1 ->NNL3AA1  - preventive", cnec1context.getCreatedCnecsIds().get("preventive"));
     }
 
     @Test
@@ -199,9 +200,9 @@ class CseCracCreatorTest {
         assertFalse(((CseCriticalBranchCreationContext) cnec1context).isSelected());
         assertTrue(((CseCriticalBranchCreationContext) cnec2context).isSelected());
         assertTrue(((CseCriticalBranchCreationContext) cnec3context).isSelected());
-        assertFalse(importedCrac.getCnec(cnec1context.getCreatedCnecsIds().get(InstantKind.PREVENTIVE)).isOptimized());
-        assertTrue(importedCrac.getCnec(cnec2context.getCreatedCnecsIds().get(InstantKind.PREVENTIVE)).isOptimized());
-        assertTrue(importedCrac.getCnec(cnec3context.getCreatedCnecsIds().get(InstantKind.PREVENTIVE)).isOptimized());
+        assertFalse(importedCrac.getCnec(cnec1context.getCreatedCnecsIds().get("preventive")).isOptimized());
+        assertTrue(importedCrac.getCnec(cnec2context.getCreatedCnecsIds().get("preventive")).isOptimized());
+        assertTrue(importedCrac.getCnec(cnec3context.getCreatedCnecsIds().get("preventive")).isOptimized());
     }
 
     @Test
@@ -211,10 +212,10 @@ class CseCracCreatorTest {
         assertFalse(cnec2context.isBaseCase());
         assertTrue(cnec2context.isImported());
         assertFalse(cnec2context.isDirectionInvertedInNetwork());
-        assertEquals("outage_1", cnec2context.getContingencyId().get());
+        assertEquals("outage_1", cnec2context.getContingencyId().orElseThrow());
         assertEquals(2, cnec2context.getCreatedCnecsIds().size());
-        assertEquals("French line 1 - FFR1AA1 ->FFR2AA1   - outage_1 - outage", cnec2context.getCreatedCnecsIds().get(InstantKind.OUTAGE));
-        assertEquals("French line 1 - FFR1AA1 ->FFR2AA1   - outage_1 - curative", cnec2context.getCreatedCnecsIds().get(InstantKind.CURATIVE));
+        assertEquals("French line 1 - FFR1AA1 ->FFR2AA1   - outage_1 - outage", cnec2context.getCreatedCnecsIds().get("outage"));
+        assertEquals("French line 1 - FFR1AA1 ->FFR2AA1   - outage_1 - curative", cnec2context.getCreatedCnecsIds().get("curative"));
     }
 
     @Test
@@ -304,8 +305,8 @@ class CseCracCreatorTest {
         setUp("/cracs/cse_crac_onConstraint.xml");
 
         State preventiveState = importedCrac.getPreventiveState();
-        State outageState = importedCrac.getState(importedCrac.getContingency("outage_1"), InstantKind.OUTAGE);
-        State curativeState = importedCrac.getState(importedCrac.getContingency("outage_1"), InstantKind.CURATIVE);
+        State outageState = importedCrac.getState(importedCrac.getContingency("outage_1"), "outage");
+        State curativeState = importedCrac.getState(importedCrac.getContingency("outage_1"), "curative");
 
         FlowCnec outageCnec = importedCrac.getFlowCnec("French line 1 - FFR1AA1 ->FFR2AA1   - outage_1 - outage");
         FlowCnec curativeCnec = importedCrac.getFlowCnec("French line 1 - FFR1AA1 ->FFR2AA1   - outage_1 - curative");
@@ -319,8 +320,8 @@ class CseCracCreatorTest {
         UsageRule usageRule2 = usageRuleList.get(1);
         assertTrue(usageRule1 instanceof OnFlowConstraint);
         assertTrue(usageRule2 instanceof OnFlowConstraint);
-        assertEquals(InstantKind.PREVENTIVE, usageRule1.getInstant());
-        assertEquals(InstantKind.PREVENTIVE, usageRule2.getInstant());
+        assertEquals("preventive", usageRule1.getInstant().getId());
+        assertEquals("preventive", usageRule2.getInstant().getId());
         assertTrue(((OnFlowConstraint) usageRule1).getFlowCnec().equals(outageCnec) || ((OnFlowConstraint) usageRule2).getFlowCnec().equals(outageCnec));
         assertTrue(((OnFlowConstraint) usageRule1).getFlowCnec().equals(curativeCnec) || ((OnFlowConstraint) usageRule2).getFlowCnec().equals(curativeCnec));
         assertEquals(UsageMethod.TO_BE_EVALUATED, usageRule1.getUsageMethod(preventiveState));
@@ -336,7 +337,7 @@ class CseCracCreatorTest {
         usageRule1 = ra.getUsageRules().iterator().next();
         assertTrue(usageRule1 instanceof OnFlowConstraint);
         assertSame(curativeCnec, ((OnFlowConstraint) usageRule1).getFlowCnec());
-        assertEquals(InstantKind.CURATIVE, usageRule1.getInstant());
+        assertEquals("curative", usageRule1.getInstant().getId());
         assertEquals(UsageMethod.UNDEFINED, usageRule1.getUsageMethod(preventiveState));
         assertEquals(UsageMethod.UNDEFINED, usageRule1.getUsageMethod(outageState));
         assertEquals(UsageMethod.TO_BE_EVALUATED, usageRule1.getUsageMethod(curativeState));
@@ -349,22 +350,22 @@ class CseCracCreatorTest {
 
         FlowCnec flowCnec1 = importedCrac.getFlowCnec("basecase_branch_1 - NNL2AA1 ->NNL3AA1  - preventive");
         assertEquals(1, flowCnec1.getThresholds().size());
-        assertEquals(0.7, flowCnec1.getThresholds().iterator().next().max().get(), DOUBLE_TOLERANCE);
+        assertEquals(0.7, flowCnec1.getThresholds().iterator().next().max().orElseThrow(), DOUBLE_TOLERANCE);
         assertTrue(flowCnec1.getThresholds().iterator().next().min().isEmpty());
-        assertEquals(0.7 * 5000., flowCnec1.getUpperBound(Side.LEFT, Unit.AMPERE).get(), DOUBLE_TOLERANCE);
+        assertEquals(0.7 * 5000., flowCnec1.getUpperBound(Side.LEFT, Unit.AMPERE).orElseThrow(), DOUBLE_TOLERANCE);
 
         FlowCnec flowCnec2 = importedCrac.getFlowCnec("basecase_branch_2 - NNL1AA1 ->NNL3AA1  - preventive");
         assertEquals(1, flowCnec2.getThresholds().size());
-        assertEquals(-1., flowCnec2.getThresholds().iterator().next().min().get(), DOUBLE_TOLERANCE);
+        assertEquals(-1., flowCnec2.getThresholds().iterator().next().min().orElseThrow(), DOUBLE_TOLERANCE);
         assertTrue(flowCnec2.getThresholds().iterator().next().max().isEmpty());
-        assertEquals(-5000., flowCnec2.getLowerBound(Side.LEFT, Unit.AMPERE).get(), DOUBLE_TOLERANCE);
+        assertEquals(-5000., flowCnec2.getLowerBound(Side.LEFT, Unit.AMPERE).orElseThrow(), DOUBLE_TOLERANCE);
 
         FlowCnec flowCnec3 = importedCrac.getFlowCnec("basecase_branch_3 - NNL1AA1 ->NNL2AA1  - preventive");
         assertEquals(1, flowCnec3.getThresholds().size());
-        assertEquals(-0.2, flowCnec3.getThresholds().iterator().next().min().get(), DOUBLE_TOLERANCE);
-        assertEquals(0.2, flowCnec3.getThresholds().iterator().next().max().get(), DOUBLE_TOLERANCE);
-        assertEquals(-0.2 * 5000., flowCnec3.getLowerBound(Side.LEFT, Unit.AMPERE).get(), DOUBLE_TOLERANCE);
-        assertEquals(0.2 * 5000., flowCnec3.getUpperBound(Side.LEFT, Unit.AMPERE).get(), DOUBLE_TOLERANCE);
+        assertEquals(-0.2, flowCnec3.getThresholds().iterator().next().min().orElseThrow(), DOUBLE_TOLERANCE);
+        assertEquals(0.2, flowCnec3.getThresholds().iterator().next().max().orElseThrow(), DOUBLE_TOLERANCE);
+        assertEquals(-0.2 * 5000., flowCnec3.getLowerBound(Side.LEFT, Unit.AMPERE).orElseThrow(), DOUBLE_TOLERANCE);
+        assertEquals(0.2 * 5000., flowCnec3.getUpperBound(Side.LEFT, Unit.AMPERE).orElseThrow(), DOUBLE_TOLERANCE);
     }
 
     @Test
@@ -374,22 +375,22 @@ class CseCracCreatorTest {
 
         FlowCnec flowCnec1 = importedCrac.getFlowCnec("basecase_branch_1 - NNL2AA1 ->NNL3AA1  - preventive");
         assertEquals(1, flowCnec1.getThresholds().size());
-        assertEquals(0.7, flowCnec1.getThresholds().iterator().next().max().get(), DOUBLE_TOLERANCE);
+        assertEquals(0.7, flowCnec1.getThresholds().iterator().next().max().orElseThrow(), DOUBLE_TOLERANCE);
         assertTrue(flowCnec1.getThresholds().iterator().next().min().isEmpty());
-        assertEquals(0.7 * 5000., flowCnec1.getUpperBound(Side.RIGHT, Unit.AMPERE).get(), DOUBLE_TOLERANCE);
+        assertEquals(0.7 * 5000., flowCnec1.getUpperBound(Side.RIGHT, Unit.AMPERE).orElseThrow(), DOUBLE_TOLERANCE);
 
         FlowCnec flowCnec2 = importedCrac.getFlowCnec("basecase_branch_2 - NNL1AA1 ->NNL3AA1  - preventive");
         assertEquals(1, flowCnec2.getThresholds().size());
-        assertEquals(-1., flowCnec2.getThresholds().iterator().next().min().get(), DOUBLE_TOLERANCE);
+        assertEquals(-1., flowCnec2.getThresholds().iterator().next().min().orElseThrow(), DOUBLE_TOLERANCE);
         assertTrue(flowCnec2.getThresholds().iterator().next().max().isEmpty());
-        assertEquals(-5000., flowCnec2.getLowerBound(Side.RIGHT, Unit.AMPERE).get(), DOUBLE_TOLERANCE);
+        assertEquals(-5000., flowCnec2.getLowerBound(Side.RIGHT, Unit.AMPERE).orElseThrow(), DOUBLE_TOLERANCE);
 
         FlowCnec flowCnec3 = importedCrac.getFlowCnec("basecase_branch_3 - NNL1AA1 ->NNL2AA1  - preventive");
         assertEquals(1, flowCnec3.getThresholds().size());
-        assertEquals(-0.2, flowCnec3.getThresholds().iterator().next().min().get(), DOUBLE_TOLERANCE);
-        assertEquals(0.2, flowCnec3.getThresholds().iterator().next().max().get(), DOUBLE_TOLERANCE);
-        assertEquals(-0.2 * 5000., flowCnec3.getLowerBound(Side.RIGHT, Unit.AMPERE).get(), DOUBLE_TOLERANCE);
-        assertEquals(0.2 * 5000., flowCnec3.getUpperBound(Side.RIGHT, Unit.AMPERE).get(), DOUBLE_TOLERANCE);
+        assertEquals(-0.2, flowCnec3.getThresholds().iterator().next().min().orElseThrow(), DOUBLE_TOLERANCE);
+        assertEquals(0.2, flowCnec3.getThresholds().iterator().next().max().orElseThrow(), DOUBLE_TOLERANCE);
+        assertEquals(-0.2 * 5000., flowCnec3.getLowerBound(Side.RIGHT, Unit.AMPERE).orElseThrow(), DOUBLE_TOLERANCE);
+        assertEquals(0.2 * 5000., flowCnec3.getUpperBound(Side.RIGHT, Unit.AMPERE).orElseThrow(), DOUBLE_TOLERANCE);
     }
 
     @Test
@@ -399,20 +400,20 @@ class CseCracCreatorTest {
 
         FlowCnec flowCnec1 = importedCrac.getFlowCnec("basecase_branch_1 - NNL2AA1 ->NNL3AA1  - preventive");
         assertEquals(2, flowCnec1.getThresholds().size());
-        assertEquals(0.7 * 5000., flowCnec1.getUpperBound(Side.LEFT, Unit.AMPERE).get(), DOUBLE_TOLERANCE);
-        assertEquals(0.7 * 5000., flowCnec1.getUpperBound(Side.RIGHT, Unit.AMPERE).get(), DOUBLE_TOLERANCE);
+        assertEquals(0.7 * 5000., flowCnec1.getUpperBound(Side.LEFT, Unit.AMPERE).orElseThrow(), DOUBLE_TOLERANCE);
+        assertEquals(0.7 * 5000., flowCnec1.getUpperBound(Side.RIGHT, Unit.AMPERE).orElseThrow(), DOUBLE_TOLERANCE);
 
         FlowCnec flowCnec2 = importedCrac.getFlowCnec("basecase_branch_2 - NNL1AA1 ->NNL3AA1  - preventive");
         assertEquals(2, flowCnec2.getThresholds().size());
-        assertEquals(-5000., flowCnec2.getLowerBound(Side.LEFT, Unit.AMPERE).get(), DOUBLE_TOLERANCE);
-        assertEquals(-5000., flowCnec2.getLowerBound(Side.RIGHT, Unit.AMPERE).get(), DOUBLE_TOLERANCE);
+        assertEquals(-5000., flowCnec2.getLowerBound(Side.LEFT, Unit.AMPERE).orElseThrow(), DOUBLE_TOLERANCE);
+        assertEquals(-5000., flowCnec2.getLowerBound(Side.RIGHT, Unit.AMPERE).orElseThrow(), DOUBLE_TOLERANCE);
 
         FlowCnec flowCnec3 = importedCrac.getFlowCnec("basecase_branch_3 - NNL1AA1 ->NNL2AA1  - preventive");
         assertEquals(2, flowCnec3.getThresholds().size());
-        assertEquals(-0.2 * 5000., flowCnec3.getLowerBound(Side.LEFT, Unit.AMPERE).get(), DOUBLE_TOLERANCE);
-        assertEquals(0.2 * 5000., flowCnec3.getUpperBound(Side.LEFT, Unit.AMPERE).get(), DOUBLE_TOLERANCE);
-        assertEquals(-0.2 * 5000., flowCnec3.getLowerBound(Side.RIGHT, Unit.AMPERE).get(), DOUBLE_TOLERANCE);
-        assertEquals(0.2 * 5000., flowCnec3.getUpperBound(Side.RIGHT, Unit.AMPERE).get(), DOUBLE_TOLERANCE);
+        assertEquals(-0.2 * 5000., flowCnec3.getLowerBound(Side.LEFT, Unit.AMPERE).orElseThrow(), DOUBLE_TOLERANCE);
+        assertEquals(0.2 * 5000., flowCnec3.getUpperBound(Side.LEFT, Unit.AMPERE).orElseThrow(), DOUBLE_TOLERANCE);
+        assertEquals(-0.2 * 5000., flowCnec3.getLowerBound(Side.RIGHT, Unit.AMPERE).orElseThrow(), DOUBLE_TOLERANCE);
+        assertEquals(0.2 * 5000., flowCnec3.getUpperBound(Side.RIGHT, Unit.AMPERE).orElseThrow(), DOUBLE_TOLERANCE);
     }
 
     @Test
@@ -444,7 +445,7 @@ class CseCracCreatorTest {
         Iterator<UsageRule> iterator4 = cra4.getUsageRules().iterator();
         UsageRule crac4UsageRule0 = iterator4.next();
         assertTrue(crac4UsageRule0 instanceof OnFlowConstraintInCountry);
-        assertEquals(InstantKind.CURATIVE, crac4UsageRule0.getInstant());
+        assertEquals("curative", crac4UsageRule0.getInstant().getId());
         assertEquals(Country.NL, ((OnFlowConstraintInCountry) crac4UsageRule0).getCountry());
         // cra_5
         RemedialAction<?> cra5 = importedCrac.getNetworkAction("cra_5");
@@ -452,7 +453,7 @@ class CseCracCreatorTest {
         Iterator<UsageRule> iterator5 = cra5.getUsageRules().iterator();
         UsageRule crac5UsageRule0 = iterator5.next();
         assertTrue(crac5UsageRule0 instanceof OnFlowConstraintInCountry);
-        assertEquals(InstantKind.CURATIVE, crac5UsageRule0.getInstant());
+        assertEquals("curative", crac5UsageRule0.getInstant().getId());
         assertEquals(Country.FR, ((OnFlowConstraintInCountry) crac5UsageRule0).getCountry());
         // cra_6
         assertTrue(importedCrac.getNetworkAction("cra_6").getUsageRules().isEmpty());

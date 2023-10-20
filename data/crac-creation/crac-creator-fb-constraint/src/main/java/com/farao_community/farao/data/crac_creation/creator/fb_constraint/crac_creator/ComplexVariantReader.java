@@ -7,6 +7,8 @@
 package com.farao_community.farao.data.crac_creation.creator.fb_constraint.crac_creator;
 
 import com.farao_community.farao.data.crac_api.Crac;
+import com.farao_community.farao.data.crac_api.Instant;
+import com.farao_community.farao.data.crac_api.InstantKind;
 import com.farao_community.farao.data.crac_api.RemedialActionAdder;
 import com.farao_community.farao.data.crac_api.network_action.NetworkActionAdder;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeActionAdder;
@@ -61,7 +63,7 @@ class ComplexVariantReader {
                 .withName(complexVariant.getName())
                 .withOperator(complexVariant.getTsoOrigin());
             actionReaders.get(0).addAction(pstRangeActionAdder);
-            addUsageRules(pstRangeActionAdder);
+            addUsageRules(pstRangeActionAdder, crac);
             pstRangeActionAdder.add();
             complexVariantCreationContext = PstComplexVariantCreationContext.imported(
                 complexVariant.getId(),
@@ -76,7 +78,7 @@ class ComplexVariantReader {
                 .withName(complexVariant.getName())
                 .withOperator(complexVariant.getTsoOrigin());
             actionReaders.forEach(action -> action.addAction(networkActionAdder));
-            addUsageRules(networkActionAdder);
+            addUsageRules(networkActionAdder, crac);
             networkActionAdder.add();
         }
     }
@@ -166,21 +168,23 @@ class ComplexVariantReader {
         }
     }
 
-    private void addUsageRules(RemedialActionAdder<?> remedialActionAdder) {
+    private void addUsageRules(RemedialActionAdder<?> remedialActionAdder, Crac crac) {
         ActionsSetType actionsSetType = complexVariant.getActionsSet().get(0);
 
         if (actionsSetType.isPreventive()) {
+            Instant instant = crac.getUniqueInstant(InstantKind.PREVENTIVE);
             remedialActionAdder.newOnInstantUsageRule()
-                .withInstantId(Instant.PREVENTIVE)
+                .withInstantId(instant.getId())
                 .withUsageMethod(AVAILABLE)
                 .add();
         }
 
         if (actionsSetType.isCurative() && !Objects.isNull(afterCoList)) {
+            Instant instant = crac.getUniqueInstant(InstantKind.CURATIVE);
             for (String co : afterCoList) {
                 remedialActionAdder.newOnContingencyStateUsageRule()
                     .withContingency(co)
-                    .withInstantId(InstantKind.CURATIVE)
+                    .withInstantId(instant.getId())
                     .withUsageMethod(AVAILABLE)
                     .add();
             }

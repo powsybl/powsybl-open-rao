@@ -8,7 +8,6 @@ package com.farao_community.farao.data.crac_creation.creator.fb_constraint.crac_
 
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Crac;
-import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.InstantKind;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnecAdder;
@@ -142,10 +141,10 @@ class CriticalBranchReader {
 
     void addCnecs(Crac crac) {
         if (isBaseCase) {
-            addCnecWithPermanentThreshold(crac, InstantKind.PREVENTIVE);
+            addCnecWithPermanentThreshold(crac, crac.getUniqueInstant(InstantKind.PREVENTIVE).getId());
         } else {
             addOutageCnecWithTemporaryThreshold(crac);
-            addCnecWithPermanentThreshold(crac, InstantKind.CURATIVE);
+            addCnecWithPermanentThreshold(crac, crac.getUniqueInstant(InstantKind.CURATIVE).getId());
         }
     }
 
@@ -205,28 +204,28 @@ class CriticalBranchReader {
         }
     }
 
-    private void addCnecWithPermanentThreshold(Crac crac, Instant instant) {
-        FlowCnecAdder preventiveCnecAdder = createCnecAdder(crac, instant);
+    private void addCnecWithPermanentThreshold(Crac crac, String instantId) {
+        FlowCnecAdder preventiveCnecAdder = createCnecAdder(crac, instantId);
         addPermanentThresholds(preventiveCnecAdder);
         FlowCnec cnec = preventiveCnecAdder.add();
         addLoopFlowExtension(cnec, criticalBranch);
     }
 
     private void addOutageCnecWithTemporaryThreshold(Crac crac) {
-        FlowCnecAdder curativeCnecAdder = createCnecAdder(crac, InstantKind.OUTAGE);
+        FlowCnecAdder curativeCnecAdder = createCnecAdder(crac, crac.getUniqueInstant(InstantKind.OUTAGE).getId());
         addTemporaryThresholds(curativeCnecAdder);
         FlowCnec cnec = curativeCnecAdder.add();
         addLoopFlowExtension(cnec, criticalBranch);
     }
 
-    private FlowCnecAdder createCnecAdder(Crac crac, Instant instant) {
+    private FlowCnecAdder createCnecAdder(Crac crac, String instantId) {
         CriticalBranchType.Branch branch = criticalBranch.getBranch();
 
         FlowCnecAdder adder = crac.newFlowCnec()
-            .withId(criticalBranch.getId().concat(" - ").concat(instant.toString()))
+            .withId(criticalBranch.getId().concat(" - ").concat(instantId))
             .withName(branch.getName())
             .withNetworkElement(ucteFlowElementHelper.getIdInNetwork())
-            .withInstantId(instant.getId())
+            .withInstantId(instantId)
             .withReliabilityMargin(criticalBranch.getFrmMw())
             .withOperator(criticalBranch.getTsoOrigin())
             .withMonitored(criticalBranch.isMNEC())

@@ -15,7 +15,6 @@ import com.farao_community.farao.data.crac_creation.creator.api.std_creation_con
 
 import java.time.OffsetDateTime;
 import java.util.*;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -184,7 +183,7 @@ public class MockCracCreationContext implements UcteCracCreationContext {
         }
 
         @Override
-        public Map<Instant, String> getCreatedCnecsIds() {
+        public Map<String, String> getCreatedCnecsIds() {
             return createdCnecsIds;
         }
 

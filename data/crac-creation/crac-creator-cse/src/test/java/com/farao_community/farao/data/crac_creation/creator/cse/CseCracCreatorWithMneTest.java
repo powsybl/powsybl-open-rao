@@ -8,7 +8,7 @@ package com.farao_community.farao.data.crac_creation.creator.cse;
 
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Crac;
-import com.farao_community.farao.data.crac_api.Instant;
+import com.farao_community.farao.data.crac_api.InstantKind;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_creation.creator.api.ImportStatus;
@@ -50,19 +50,19 @@ class CseCracCreatorWithMneTest {
         assertNotNull(cseCriticalBranchCreationContext);
         assertFalse(cseCriticalBranchCreationContext.isSelected());
         assertTrue(cseCriticalBranchCreationContext.isImported());
-        assertNotNull(cseCriticalBranchCreationContext.getCreatedCnecsIds().get(InstantKind.OUTAGE));
-        assertNotNull(cseCriticalBranchCreationContext.getCreatedCnecsIds().get(InstantKind.CURATIVE));
-        assertNotNull(cseCriticalBranchCreationContext.getCreatedCnecsIds().get(InstantKind.AUTO));
-        assertNull(cseCriticalBranchCreationContext.getCreatedCnecsIds().get(InstantKind.PREVENTIVE));
+        assertNotNull(cseCriticalBranchCreationContext.getCreatedCnecsIds().get("outage"));
+        assertNotNull(cseCriticalBranchCreationContext.getCreatedCnecsIds().get("curative"));
+        assertNotNull(cseCriticalBranchCreationContext.getCreatedCnecsIds().get("auto"));
+        assertNull(cseCriticalBranchCreationContext.getCreatedCnecsIds().get("preventive"));
         assertEquals(ImportStatus.IMPORTED, cseCriticalBranchCreationContext.getImportStatus());
         assertFalse(cseCriticalBranchCreationContext.isBaseCase());
         assertEquals(contingencyId, cseCriticalBranchCreationContext.getContingencyId().orElseThrow());
         assertEquals(fromNode, cseCriticalBranchCreationContext.getNativeBranch().getFrom());
         assertEquals(toNode, cseCriticalBranchCreationContext.getNativeBranch().getTo());
         assertEquals(suffix, cseCriticalBranchCreationContext.getNativeBranch().getSuffix());
-        assertEquals(cnecOutageId, cseCriticalBranchCreationContext.getCreatedCnecsIds().get(InstantKind.OUTAGE));
-        assertEquals(cnecCurativeId, cseCriticalBranchCreationContext.getCreatedCnecsIds().get(InstantKind.CURATIVE));
-        assertEquals(cnecAutoId, cseCriticalBranchCreationContext.getCreatedCnecsIds().get(InstantKind.AUTO));
+        assertEquals(cnecOutageId, cseCriticalBranchCreationContext.getCreatedCnecsIds().get("outage"));
+        assertEquals(cnecCurativeId, cseCriticalBranchCreationContext.getCreatedCnecsIds().get("curative"));
+        assertEquals(cnecAutoId, cseCriticalBranchCreationContext.getCreatedCnecsIds().get("auto"));
         assertEquals(inverted, cseCriticalBranchCreationContext.isDirectionInvertedInNetwork());
     }
 
@@ -96,8 +96,8 @@ class CseCracCreatorWithMneTest {
         assertEquals(inverted, cseCriticalBranchCreationContext.isDirectionInvertedInNetwork());
     }
 
-    public void assertMneWithContingencyInCrac(String name, String fromNode, String toNode, String suffix, String direction, String contingencyId, Instant instant, double expectedIMax, double expectedThreshold, Unit expectedThresholdUnit, double expectedNV) {
-        String createdCnecId = String.format("%s - %s ->%s   - %s - %s", name, fromNode, toNode, contingencyId, instant);
+    public void assertMneWithContingencyInCrac(String name, String fromNode, String toNode, String suffix, String direction, String contingencyId, String instantId, double expectedIMax, double expectedThreshold, Unit expectedThresholdUnit, double expectedNV) {
+        String createdCnecId = String.format("%s - %s ->%s   - %s - %s", name, fromNode, toNode, contingencyId, instantId);
         String nativeId = String.format("%s - %s  - %s  - %s", name, fromNode, toNode, contingencyId);
         Crac crac = cracCreationContext.getCrac();
         FlowCnec flowCnec = crac.getFlowCnec(createdCnecId);
@@ -109,8 +109,8 @@ class CseCracCreatorWithMneTest {
         assertEquals(expectedIMax, flowCnec.getIMax(Side.RIGHT), 0.00001);
         assertTrue(hasThreshold(nativeId, expectedThreshold, expectedThresholdUnit, flowCnec, direction, Side.LEFT));
         assertTrue(hasThreshold(nativeId, expectedThreshold, expectedThresholdUnit, flowCnec, direction, Side.RIGHT));
-        assertEquals(contingencyId, flowCnec.getState().getContingency().get().getId());
-        assertEquals(flowCnec.getState().getInstant(), instant);
+        assertEquals(contingencyId, flowCnec.getState().getContingency().orElseThrow().getId());
+        assertEquals(instantId, flowCnec.getState().getInstant().getId());
         assertEquals(flowCnec.getNetworkElement().getId(), crac.getFlowCnec(createdCnecId).getNetworkElement().getName());
         boolean directionInvertedInNetwork = cracCreationContext.getBranchCnecCreationContext(nativeId).isDirectionInvertedInNetwork();
         if (directionInvertedInNetwork) {
@@ -122,8 +122,8 @@ class CseCracCreatorWithMneTest {
         assertEquals(expectedNV, flowCnec.getNominalVoltage(Side.LEFT), 0.00001);
     }
 
-    public void assertMneBaseCaseInCrac(String name, String fromNode, String toNode, String suffix, String direction, Instant instant, double expectedIMax, double expectedThreshold, Unit expectedThresholdUnit, double expectedNV) {
-        String createdCnecId = String.format("%s - %s ->%s  - %s", name, fromNode, toNode, instant);
+    public void assertMneBaseCaseInCrac(String name, String fromNode, String toNode, String suffix, String direction, String instantId, double expectedIMax, double expectedThreshold, Unit expectedThresholdUnit, double expectedNV) {
+        String createdCnecId = String.format("%s - %s ->%s  - %s", name, fromNode, toNode, instantId);
         String nativeId = String.format("%s - %s  - %s  - %s", name, fromNode, toNode, "basecase");
         Crac crac = cracCreationContext.getCrac();
         FlowCnec flowCnec = crac.getFlowCnec(createdCnecId);
@@ -173,13 +173,13 @@ class CseCracCreatorWithMneTest {
     }
 
     public void assertAllMneCorrectlyImportedInCrac() {
-        assertMneWithContingencyInCrac("mne_test", "NNL2AA1", "NNL3AA1", "1", "DIRECT", "outage_1", InstantKind.OUTAGE, 5000, 1.1, Unit.PERCENT_IMAX, 380);
-        assertMneWithContingencyInCrac("mne_test", "NNL2AA1", "NNL3AA1", "1", "DIRECT", "outage_1", InstantKind.AUTO, 5000, 6000, Unit.AMPERE, 380);
-        assertMneWithContingencyInCrac("mne_test", "NNL2AA1", "NNL3AA1", "1", "DIRECT", "outage_1", InstantKind.CURATIVE, 5000, 6500, Unit.AMPERE, 380);
-        assertMneWithContingencyInCrac("mne_test", "NNL2AA1", "NNL3AA1", "1", "DIRECT", "outage_2", InstantKind.OUTAGE, 5000, 1.1, Unit.PERCENT_IMAX, 380);
-        assertMneWithContingencyInCrac("mne_test", "NNL2AA1", "NNL3AA1", "1", "DIRECT", "outage_2", InstantKind.AUTO, 5000, 6000, Unit.AMPERE, 380);
-        assertMneWithContingencyInCrac("mne_test", "NNL2AA1", "NNL3AA1", "1", "DIRECT", "outage_2", InstantKind.CURATIVE, 5000, 6500, Unit.AMPERE, 380);
-        assertMneBaseCaseInCrac("mne_test", "NNL2AA1", "NNL3AA1", "1", "DIRECT", InstantKind.PREVENTIVE, 5000, 1, Unit.PERCENT_IMAX, 380);
+        assertMneWithContingencyInCrac("mne_test", "NNL2AA1", "NNL3AA1", "1", "DIRECT", "outage_1", "outage", 5000, 1.1, Unit.PERCENT_IMAX, 380);
+        assertMneWithContingencyInCrac("mne_test", "NNL2AA1", "NNL3AA1", "1", "DIRECT", "outage_1", "auto", 5000, 6000, Unit.AMPERE, 380);
+        assertMneWithContingencyInCrac("mne_test", "NNL2AA1", "NNL3AA1", "1", "DIRECT", "outage_1", "curative", 5000, 6500, Unit.AMPERE, 380);
+        assertMneWithContingencyInCrac("mne_test", "NNL2AA1", "NNL3AA1", "1", "DIRECT", "outage_2", "outage", 5000, 1.1, Unit.PERCENT_IMAX, 380);
+        assertMneWithContingencyInCrac("mne_test", "NNL2AA1", "NNL3AA1", "1", "DIRECT", "outage_2", "auto", 5000, 6000, Unit.AMPERE, 380);
+        assertMneWithContingencyInCrac("mne_test", "NNL2AA1", "NNL3AA1", "1", "DIRECT", "outage_2", "curative", 5000, 6500, Unit.AMPERE, 380);
+        assertMneBaseCaseInCrac("mne_test", "NNL2AA1", "NNL3AA1", "1", "DIRECT", "preventive", 5000, 1, Unit.PERCENT_IMAX, 380);
     }
 
     public void assertAllMneCorrectlyImportedInCriticalBranchesCreationContext() {

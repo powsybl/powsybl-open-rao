@@ -10,6 +10,7 @@ import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.Instant;
+import com.farao_community.farao.data.crac_api.InstantKind;
 import com.farao_community.farao.data.crac_api.RemedialActionAdder;
 import com.farao_community.farao.data.crac_api.network_action.ActionType;
 import com.farao_community.farao.data.crac_api.network_action.NetworkActionAdder;
@@ -69,14 +70,12 @@ public class TRemedialActionAdder {
         }
     }
 
-    private static Instant getInstant(TApplication tApplication) {
-        return switch (tApplication.getV()) {
-            case "PREVENTIVE" -> InstantKind.PREVENTIVE;
-            case "SPS" -> InstantKind.AUTO;
-            case "CURATIVE" -> InstantKind.CURATIVE;
-            default ->
-                throw new IllegalArgumentException(String.format("%s is not a recognized application type for remedial action", tApplication.getV()));
-        };
+    private Instant getInstant(TApplication tApplication) {
+        try {
+            return crac.getInstant(tApplication.getV());
+        } catch (FaraoException faraoException) {
+            throw new IllegalArgumentException(String.format("%s is not a recognized application type for remedial action", tApplication.getV()));
+        }
     }
 
     public void add() {
@@ -332,17 +331,17 @@ public class TRemedialActionAdder {
         // According to <SharedWith> tag :
         String sharedWithId = tRemedialAction.getSharedWith().getV();
         if (sharedWithId.equals("CSE")) {
-            if (raApplicationInstantKind.equals(InstantKind.AUTO)) {
+            if (raApplicationInstant.getInstantKind().equals(InstantKind.AUTO)) {
                 throw new FaraoException("Cannot import automatons from CSE CRAC yet");
             } else {
-                addOnInstantUsageRules(remedialActionAdder, raApplicationInstant);
+                addOnInstantUsageRules(remedialActionAdder, raApplicationInstant.getId());
             }
         } else {
-            addOnFlowConstraintUsageRulesAfterSpecificCountry(remedialActionAdder, tRemedialAction, raApplicationInstant, sharedWithId);
+            addOnFlowConstraintUsageRulesAfterSpecificCountry(remedialActionAdder, tRemedialAction, raApplicationInstant.getId(), sharedWithId);
         }
     }
 
-    private void addOnFlowConstraintUsageRulesAfterSpecificCountry(RemedialActionAdder<?> remedialActionAdder, TRemedialAction tRemedialAction, Instant raApplicationInstant, String sharedWithId) {
+    private void addOnFlowConstraintUsageRulesAfterSpecificCountry(RemedialActionAdder<?> remedialActionAdder, TRemedialAction tRemedialAction, String raApplicationInstantId, String sharedWithId) {
         // Check that sharedWithID is a UCTE country
         if (sharedWithId.equals("None")) {
             return;
@@ -358,15 +357,15 @@ public class TRemedialActionAdder {
 
         // RA is available for specific UCTE country
         remedialActionAdder.newOnFlowConstraintInCountryUsageRule()
-            .withInstantId(raApplicationInstant.getId())
+            .withInstantId(raApplicationInstantId)
             .withCountry(country)
             .add();
     }
 
-    private void addOnInstantUsageRules(RemedialActionAdder<?> remedialActionAdder, Instant raApplicationInstant) {
+    private void addOnInstantUsageRules(RemedialActionAdder<?> remedialActionAdder, String raApplicationInstantId) {
         // RA is available for all countries
         remedialActionAdder.newOnInstantUsageRule()
-            .withInstantId(raApplicationInstant.getId())
+            .withInstantId(raApplicationInstantId)
             .withUsageMethod(UsageMethod.AVAILABLE)
             .add();
     }

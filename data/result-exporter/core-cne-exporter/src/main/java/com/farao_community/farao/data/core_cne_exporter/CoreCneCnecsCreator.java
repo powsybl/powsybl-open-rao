@@ -17,6 +17,7 @@ import com.farao_community.farao.data.core_cne_exporter.xsd.ContingencySeries;
 import com.farao_community.farao.data.core_cne_exporter.xsd.MonitoredRegisteredResource;
 import com.farao_community.farao.data.crac_api.Contingency;
 import com.farao_community.farao.data.crac_api.Instant;
+import com.farao_community.farao.data.crac_api.InstantKind;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_creation.creator.api.std_creation_context.BranchCnecCreationContext;

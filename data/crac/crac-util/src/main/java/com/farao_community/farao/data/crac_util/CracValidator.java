@@ -7,7 +7,6 @@
 
 package com.farao_community.farao.data.crac_util;
 
-import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnecAdder;
@@ -34,8 +33,8 @@ public final class CracValidator {
         // should not be used
     }
 
-    public static List<String> validateCrac(Crac crac, Network network, Instant instantAuto) {
-        return new ArrayList<>(addOutageCnecsForAutoCnecsWithoutRas(crac, network, instantAuto));
+    public static List<String> validateCrac(Crac crac, Network network) {
+        return new ArrayList<>(addOutageCnecsForAutoCnecsWithoutRas(crac, network));
     }
 
     /**
@@ -43,12 +42,9 @@ public final class CracValidator {
      * but on the OUTAGE instant.
      * Beware that the CRAC is modified since extra CNECs are added.
      */
-    private static List<String> addOutageCnecsForAutoCnecsWithoutRas(Crac crac, Network network, Instant instantAuto) {
-        if (!instantAuto.getInstantKind().equals(InstantKind.AUTO)) {
-            throw new FaraoException("Instant should be an auto instant");
-        }
+    private static List<String> addOutageCnecsForAutoCnecsWithoutRas(Crac crac, Network network) {
         List<String> report = new ArrayList<>();
-        crac.getStates(instantAuto.getId()).forEach(state -> {
+        crac.getStates(crac.getUniqueInstant(InstantKind.AUTO).getId()).forEach(state -> {
             if (hasNoRemedialAction(state, crac) || hasGlobalRemedialActions(state, crac)) {
                 // 1. Auto state has no RA => it will not constitute a perimeter
                 //    => Auto CNECs will be optimized in preventive RAO, no need to duplicate them

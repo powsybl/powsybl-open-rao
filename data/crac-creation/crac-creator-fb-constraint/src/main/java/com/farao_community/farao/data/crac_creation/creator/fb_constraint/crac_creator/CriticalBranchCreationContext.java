@@ -6,7 +6,7 @@
  */
 package com.farao_community.farao.data.crac_creation.creator.fb_constraint.crac_creator;
 
-import com.farao_community.farao.data.crac_api.Instant;
+import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.InstantKind;
 import com.farao_community.farao.data.crac_creation.creator.api.ImportStatus;
 import com.farao_community.farao.data.crac_creation.creator.api.std_creation_context.BranchCnecCreationContext;
@@ -28,11 +28,10 @@ public class CriticalBranchCreationContext implements BranchCnecCreationContext 
     private final Map<String, String> createdCnecIds;
     private final ImportStatus importStatus;
     private final String importStatusDetail;
-
     private final String contingencyId;
     private final boolean isDirectionInverted;
 
-    CriticalBranchCreationContext(CriticalBranchReader criticalBranchReader) {
+    CriticalBranchCreationContext(CriticalBranchReader criticalBranchReader, Crac crac) {
         this.criticalBranchId = criticalBranchReader.getCriticalBranch().getId();
         this.nativeBranch = criticalBranchReader.getNativeBranch();
         this.isBaseCase = criticalBranchReader.isBaseCase();
@@ -43,12 +42,12 @@ public class CriticalBranchCreationContext implements BranchCnecCreationContext 
 
         if (criticalBranchReader.isCriticialBranchValid() && criticalBranchReader.isBaseCase()) {
             this.isDirectionInverted = criticalBranchReader.isInvertedInNetwork();
-            this.createdCnecIds.put(InstantKind.PREVENTIVE, criticalBranchReader.getBaseCaseCnecId());
+            this.createdCnecIds.put(crac.getUniqueInstant(InstantKind.PREVENTIVE).getId(), criticalBranchReader.getBaseCaseCnecId());
             this.contingencyId = null;
         } else if (criticalBranchReader.isCriticialBranchValid() && !criticalBranchReader.isBaseCase()) {
             this.isDirectionInverted = criticalBranchReader.isInvertedInNetwork();
-            this.createdCnecIds.put(InstantKind.OUTAGE, criticalBranchReader.getOutageCnecId());
-            this.createdCnecIds.put(InstantKind.CURATIVE, criticalBranchReader.getCurativeCnecId());
+            this.createdCnecIds.put(crac.getUniqueInstant(InstantKind.OUTAGE).getId(), criticalBranchReader.getOutageCnecId());
+            this.createdCnecIds.put(crac.getUniqueInstant(InstantKind.CURATIVE).getId(), criticalBranchReader.getCurativeCnecId());
             this.contingencyId = criticalBranchReader.getOutageReader().getOutage().getId();
         } else {
             this.contingencyId = null;
@@ -118,7 +117,7 @@ public class CriticalBranchCreationContext implements BranchCnecCreationContext 
     }
 
     @Override
-    public Map<Instant, String> getCreatedCnecsIds() {
+    public Map<String, String> getCreatedCnecsIds() {
         return createdCnecIds;
     }
 }
