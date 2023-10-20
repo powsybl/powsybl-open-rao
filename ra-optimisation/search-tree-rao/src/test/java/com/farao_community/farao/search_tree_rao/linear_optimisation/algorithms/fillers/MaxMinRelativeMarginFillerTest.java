@@ -80,7 +80,8 @@ class MaxMinRelativeMarginFillerTest extends AbstractFillerTest {
             initialRangeActionSetpointResult,
             new RangeActionActivationResultImpl(initialRangeActionSetpointResult),
             rangeActionParameters,
-            MEGAWATT);
+            MEGAWATT,
+            false);
     }
 
     private void createMaxMinRelativeMarginFiller(Unit unit, double cnecInitialAbsolutePtdfSum) {

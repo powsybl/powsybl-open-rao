@@ -135,7 +135,8 @@ public class LinearProblemBuilder {
             inputs.getPrePerimeterSetpoints(),
             inputs.getRaActivationFromParentLeaf(),
             parameters.getRangeActionParameters(),
-            parameters.getObjectiveFunctionUnit()
+            parameters.getObjectiveFunctionUnit(),
+            parameters.getRaRangeShrinking()
         );
     }
 
@@ -177,7 +178,8 @@ public class LinearProblemBuilder {
                 inputs.getOptimizationPerimeter(),
                 inputs.getOptimizationPerimeter().getFlowCnecs(),
                 inputs.getPrePerimeterFlowResult(),
-                parameters.getUnoptimizedCnecParameters()
+                parameters.getUnoptimizedCnecParameters(),
+                parameters.getRangeActionParameters()
         );
     }
 

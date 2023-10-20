@@ -6,6 +6,8 @@
  */
 package com.farao_community.farao.data.crac_api.network_action;
 
+import com.farao_community.farao.commons.Unit;
+
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
@@ -16,6 +18,8 @@ public interface InjectionSetpointAdder {
     InjectionSetpointAdder withNetworkElement(String networkElementId, String networkElementName);
 
     InjectionSetpointAdder withSetpoint(double setPoint);
+
+    InjectionSetpointAdder withUnit(Unit unit);
 
     NetworkActionAdder add();
 

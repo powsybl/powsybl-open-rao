@@ -34,6 +34,8 @@ import org.junit.jupiter.api.Test;
 
 import java.io.InputStream;
 import java.time.OffsetDateTime;
+import java.util.Comparator;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -147,7 +149,7 @@ class CseCracCreatorTest {
         //range from network
         assertEquals(-500, importedCrac.getInjectionRangeAction("PRA_HVDC").getRanges().get(1).getMin(), 1e-1);
         assertEquals(800, importedCrac.getInjectionRangeAction("PRA_HVDC").getRanges().get(1).getMax(), 1e-1);
-        assertEquals("AVAILABLE", importedCrac.getInjectionRangeAction("PRA_HVDC").getUsageRules().get(0).getUsageMethod().toString());
+        assertEquals("AVAILABLE", importedCrac.getInjectionRangeAction("PRA_HVDC").getUsageRules().iterator().next().getUsageMethod().toString());
         assertEquals(2, importedCrac.getInjectionRangeAction("PRA_HVDC").getInjectionDistributionKeys().size());
         assertEquals(-1., importedCrac.getInjectionRangeAction("PRA_HVDC").getInjectionDistributionKeys().entrySet().stream().filter(e -> e.getKey().getId().equals("BBE2AA12_generator")).findAny().orElseThrow().getValue(), 1e-3);
         assertEquals(1., importedCrac.getInjectionRangeAction("PRA_HVDC").getInjectionDistributionKeys().entrySet().stream().filter(e -> e.getKey().getId().equals("FFR3AA12_generator")).findAny().orElseThrow().getValue(), 1e-3);
@@ -164,7 +166,7 @@ class CseCracCreatorTest {
         assertEquals("FR", importedCrac.getInjectionRangeAction("PRA_HVDC").getOperator());
         assertEquals(2000, importedCrac.getInjectionRangeAction("PRA_HVDC").getRanges().get(0).getMax(), 1e-1);
         assertEquals(-100, importedCrac.getInjectionRangeAction("PRA_HVDC").getRanges().get(0).getMin(), 1e-1);
-        assertEquals("AVAILABLE", importedCrac.getInjectionRangeAction("PRA_HVDC").getUsageRules().get(0).getUsageMethod().toString());
+        assertEquals("AVAILABLE", importedCrac.getInjectionRangeAction("PRA_HVDC").getUsageRules().iterator().next().getUsageMethod().toString());
     }
 
     @Test
@@ -309,8 +311,10 @@ class CseCracCreatorTest {
         // PRA
         RemedialAction<?> ra = importedCrac.getRangeAction("PST_pra_3_BBE2AA1  BBE3AA1  1");
         assertEquals(2, ra.getUsageRules().size());
-        UsageRule usageRule1 = ra.getUsageRules().get(0);
-        UsageRule usageRule2 = ra.getUsageRules().get(1);
+        List<UsageRule> usageRuleList = ra.getUsageRules().stream().toList();
+
+        UsageRule usageRule1 = usageRuleList.get(0);
+        UsageRule usageRule2 = usageRuleList.get(1);
         assertTrue(usageRule1 instanceof OnFlowConstraint);
         assertTrue(usageRule2 instanceof OnFlowConstraint);
         assertEquals(Instant.PREVENTIVE, ((OnFlowConstraint) usageRule1).getInstant());
@@ -327,7 +331,7 @@ class CseCracCreatorTest {
         // CRA
         ra = importedCrac.getNetworkAction("cra_1");
         assertEquals(1, ra.getUsageRules().size());
-        usageRule1 = ra.getUsageRules().get(0);
+        usageRule1 = ra.getUsageRules().iterator().next();
         assertTrue(usageRule1 instanceof OnFlowConstraint);
         assertSame(curativeCnec, ((OnFlowConstraint) usageRule1).getFlowCnec());
         assertEquals(Instant.CURATIVE, ((OnFlowConstraint) usageRule1).getInstant());
@@ -416,30 +420,38 @@ class CseCracCreatorTest {
         // cra_1
         RemedialAction<?> cra1 = importedCrac.getNetworkAction("cra_1");
         assertEquals(1, cra1.getUsageRules().size()); // one OnConstraint on CNEC 1
-        assertTrue(cra1.getUsageRules().get(0) instanceof OnFlowConstraint);
+        Iterator<UsageRule> iterator1 = cra1.getUsageRules().iterator();
+        UsageRule crac1UsageRule0 = iterator1.next();
+        assertTrue(crac1UsageRule0 instanceof OnFlowConstraint);
         // cra_2
         RemedialAction<?> cra2 = importedCrac.getNetworkAction("cra_2");
         assertEquals(2, cra2.getUsageRules().size()); // one OnInstant, one OnConstraint on CNEC 1
-        assertTrue(cra2.getUsageRules().get(0) instanceof OnFlowConstraint);
-        assertTrue(cra2.getUsageRules().get(1) instanceof OnInstant);
+        List<UsageRule> usageRules2List = cra2.getUsageRules().stream().sorted(Comparator.comparing(UsageRule::getUsageMethod)).toList();
+        assertTrue(usageRules2List.get(0) instanceof OnInstant);
+        assertTrue(usageRules2List.get(1) instanceof OnFlowConstraint);
         // cra_3
         RemedialAction<?> cra3 = importedCrac.getNetworkAction("cra_3");
         assertEquals(2, cra3.getUsageRules().size()); // 1 OnConstraint on CNEC 1 and 1 on country FR
-        assertTrue(cra3.getUsageRules().get(0) instanceof OnFlowConstraint);
-        assertTrue(cra3.getUsageRules().get(1) instanceof OnFlowConstraintInCountry);
-        assertEquals(Country.FR, ((OnFlowConstraintInCountry) cra3.getUsageRules().get(1)).getCountry());
+        List<UsageRule> usageRules3List = cra3.getUsageRules().stream().sorted(Comparator.comparing(ur -> ur.getClass().getName())).toList();
+        assertTrue(usageRules3List.get(0) instanceof OnFlowConstraint);
+        assertTrue(usageRules3List.get(1) instanceof OnFlowConstraintInCountry);
+        assertEquals(Country.FR, ((OnFlowConstraintInCountry) usageRules3List.get(1)).getCountry());
         // cra_4
         RemedialAction<?> cra4 = importedCrac.getNetworkAction("cra_4");
         assertEquals(1, cra4.getUsageRules().size()); // on country NL
-        assertTrue(cra4.getUsageRules().get(0) instanceof OnFlowConstraintInCountry);
-        assertEquals(Instant.CURATIVE, ((OnFlowConstraintInCountry) cra4.getUsageRules().get(0)).getInstant());
-        assertEquals(Country.NL, ((OnFlowConstraintInCountry) cra4.getUsageRules().get(0)).getCountry());
+        Iterator<UsageRule> iterator4 = cra4.getUsageRules().iterator();
+        UsageRule crac4UsageRule0 = iterator4.next();
+        assertTrue(crac4UsageRule0 instanceof OnFlowConstraintInCountry);
+        assertEquals(Instant.CURATIVE, crac4UsageRule0.getInstant());
+        assertEquals(Country.NL, ((OnFlowConstraintInCountry) crac4UsageRule0).getCountry());
         // cra_5
         RemedialAction<?> cra5 = importedCrac.getNetworkAction("cra_5");
         assertEquals(1, cra5.getUsageRules().size()); // on country FR
-        assertTrue(cra5.getUsageRules().get(0) instanceof OnFlowConstraintInCountry);
-        assertEquals(Instant.CURATIVE, ((OnFlowConstraintInCountry) cra5.getUsageRules().get(0)).getInstant());
-        assertEquals(Country.FR, ((OnFlowConstraintInCountry) cra5.getUsageRules().get(0)).getCountry());
+        Iterator<UsageRule> iterator5 = cra5.getUsageRules().iterator();
+        UsageRule crac5UsageRule0 = iterator5.next();
+        assertTrue(crac5UsageRule0 instanceof OnFlowConstraintInCountry);
+        assertEquals(Instant.CURATIVE, crac5UsageRule0.getInstant());
+        assertEquals(Country.FR, ((OnFlowConstraintInCountry) crac5UsageRule0).getCountry());
         // cra_6
         assertTrue(importedCrac.getNetworkAction("cra_6").getUsageRules().isEmpty());
     }

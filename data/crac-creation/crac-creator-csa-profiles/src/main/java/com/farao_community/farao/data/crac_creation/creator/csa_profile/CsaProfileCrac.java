@@ -54,8 +54,20 @@ public class CsaProfileCrac implements NativeCrac {
         return this.queryTripleStore(CsaProfileConstants.REQUEST_ASSESSED_ELEMENT_WITH_CONTINGENCY);
     }
 
+    public PropertyBags getAssessedElementsWithRemedialAction() {
+        return this.queryTripleStore(CsaProfileConstants.REQUEST_ASSESSED_ELEMENT_WITH_REMEDIAL_ACTION);
+    }
+
     public PropertyBags getCurrentLimits() {
         return this.queryTripleStore(CsaProfileConstants.REQUEST_CURRENT_LIMIT);
+    }
+
+    public PropertyBags getVoltageLimits() {
+        return this.queryTripleStore(CsaProfileConstants.REQUEST_VOLTAGE_LIMIT);
+    }
+
+    public PropertyBags getAngleLimits() {
+        return this.queryTripleStore(CsaProfileConstants.REQUEST_ANGLE_LIMIT, tripleStoreCsaProfileCrac.contextNames());
     }
 
     private PropertyBags queryTripleStore(String queryKey) {

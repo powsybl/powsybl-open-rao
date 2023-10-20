@@ -14,7 +14,6 @@ import com.farao_community.farao.data.crac_api.usage_rule.UsageRule;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -43,7 +42,7 @@ public interface RemedialAction<I extends RemedialAction<I>> extends Identifiabl
     /**
      * Get the list of {@link UsageRule} of the Remedial Action
      */
-    List<UsageRule> getUsageRules();
+    Set<UsageRule> getUsageRules();
 
     /**
      * Get the {@link UsageMethod} of the Remedial Action in a given state, deduced from the
