@@ -11,15 +11,11 @@ import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_creation.creator.api.CracCreationContext;
 import com.farao_community.farao.data.crac_creation.creator.api.CracCreationReport;
 import com.farao_community.farao.data.crac_creation.creator.api.ElementaryCreationContext;
-import com.farao_community.farao.data.crac_creation.creator.csa_profile.crac_creator.cnec.CsaProfileCnecCreationContext;
-import com.farao_community.farao.data.crac_creation.creator.csa_profile.crac_creator.contingency.CsaProfileContingencyCreationContext;
-import com.farao_community.farao.data.crac_creation.creator.csa_profile.crac_creator.remedial_action.CsaProfileRemedialActionCreationContext;
 
 import java.time.OffsetDateTime;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * @author Jean-Pierre Arnould {@literal <jean-pierre.arnould at rte-france.com>}
@@ -30,11 +26,11 @@ public class CsaProfileCracCreationContext implements CracCreationContext {
 
     private boolean isCreationSuccessful;
 
-    private Set<CsaProfileContingencyCreationContext> contingencyCreationContexts;
+    private Set<CsaProfileElementaryCreationContext> contingencyCreationContexts;
 
-    private Set<CsaProfileRemedialActionCreationContext> remedialActionCreationContexts;
+    private Set<CsaProfileElementaryCreationContext> remedialActionCreationContexts;
 
-    private Set<CsaProfileCnecCreationContext> cnecCreationContexts;
+    private Set<CsaProfileElementaryCreationContext> cnecCreationContexts;
 
     private CracCreationReport creationReport;
 
@@ -80,32 +76,32 @@ public class CsaProfileCracCreationContext implements CracCreationContext {
         return this.networkName;
     }
 
-    public void setContingencyCreationContexts(Set<CsaProfileContingencyCreationContext> contingencyCreationContexts) {
-        this.contingencyCreationContexts = contingencyCreationContexts.stream().collect(Collectors.toSet());
+    public void setContingencyCreationContexts(Set<CsaProfileElementaryCreationContext> contingencyCreationContexts) {
+        this.contingencyCreationContexts = new HashSet<>(contingencyCreationContexts);
     }
 
-    public Set<CsaProfileContingencyCreationContext> getContingencyCreationContexts() {
+    public Set<CsaProfileElementaryCreationContext> getContingencyCreationContexts() {
         return new HashSet<>(this.contingencyCreationContexts);
     }
 
-    public Set<CsaProfileRemedialActionCreationContext> getRemedialActionCreationContexts() {
+    public Set<CsaProfileElementaryCreationContext> getRemedialActionCreationContexts() {
         return new HashSet<>(remedialActionCreationContexts);
     }
 
-    public CsaProfileRemedialActionCreationContext getRemedialActionCreationContext(String nativeId) {
+    public CsaProfileElementaryCreationContext getRemedialActionCreationContext(String nativeId) {
         return remedialActionCreationContexts.stream().filter(rac -> rac.getNativeId().equals(nativeId)).findFirst().orElse(null);
     }
 
-    public void setRemedialActionCreationContexts(Set<CsaProfileRemedialActionCreationContext> remedialActionCreationContexts) {
+    public void setRemedialActionCreationContexts(Set<CsaProfileElementaryCreationContext> remedialActionCreationContexts) {
         this.remedialActionCreationContexts = remedialActionCreationContexts;
     }
 
-    public void setCnecCreationContexts(Set<CsaProfileCnecCreationContext> cnecCreationContexts) {
-        this.cnecCreationContexts = cnecCreationContexts.stream().collect(Collectors.toSet());
+    public void setCnecCreationContexts(Set<CsaProfileElementaryCreationContext> cnecCreationContexts) {
+        this.cnecCreationContexts = new HashSet<>(cnecCreationContexts);
     }
 
-    public Set<CsaProfileCnecCreationContext> getCnecCreationContexts() {
-        return this.cnecCreationContexts.stream().collect(Collectors.toSet());
+    public Set<CsaProfileElementaryCreationContext> getCnecCreationContexts() {
+        return new HashSet<>(this.cnecCreationContexts);
     }
 
     @Override

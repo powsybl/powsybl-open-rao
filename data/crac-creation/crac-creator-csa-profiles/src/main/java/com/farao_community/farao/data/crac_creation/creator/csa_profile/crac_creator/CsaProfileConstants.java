@@ -18,6 +18,26 @@ public final class CsaProfileConstants {
     }
 
     /**
+     * CSA Profiles keywords
+     */
+    public enum CsaProfile {
+        ASSESSED_ELEMENT("AE"),
+        CONTINGENCY("CO"),
+        EQUIPMENT_RELIABILITY("ER"),
+        REMEDIAL_ACTION("RA");
+
+        CsaProfile(String keyword) {
+            this.keyword = keyword;
+        }
+
+        private final String keyword;
+
+        public String getKeyword() {
+            return this.keyword;
+        }
+    }
+
+    /**
      * constants to read rdf files
      */
 
@@ -69,15 +89,12 @@ public final class CsaProfileConstants {
 
     public static final String IMPORTED_CONTINGENT_STATUS = "http://iec.ch/TC57/CIM100#ContingencyEquipmentStatusKind.outOfService";
 
-    public static final String CONTINGENCY_FILE_KEYWORD = "CO";
-
     /**
      * remedial actions
      */
 
     public static final String REMEDIAL_ACTION_NAME = "name";
     public static final String REMEDIAL_ACTION_MESSAGE = "Remedial action ";
-    public static final String REMEDIAL_ACTION_FILE_KEYWORD = "RA";
     public static final String GRID_STATE_ALTERATION_REMEDIAL_ACTION = "gridStateAlterationRemedialAction";
     public static final String TOPOLOGY_ACTION = "topologyAction";
     public static final String ROTATING_MACHINE_ACTION = "rotatingMachineAction";
@@ -93,22 +110,64 @@ public final class CsaProfileConstants {
     public static final String SWITCH = "switchId";
     public static final String NORMAL_ENABLED = "normalEnabled";
     public static final String GRID_ALTERATION_PROPERTY_REFERENCE = "propertyReference";
-    public static final String PROPERTY_REFERENCE_SWITCH_OPEN = "http://energy.referencedata.eu/PropertyReference/Switch.open";
-    public static final String PROPERTY_REFERENCE_ROTATING_MACHINE = "http://energy.referencedata.eu/PropertyReference/RotatingMachine.p";
-    public static final String PROPERTY_REFERENCE_TAP_POSITION = "http://energy.referencedata.eu/PropertyReference/TapChanger.step";
+
+    public enum PropertyReference {
+        SWITCH("Switch.open"),
+        ROTATING_MACHINE("RotatingMachine.p"),
+        TAP_CHANGER("TapChanger.step");
+
+        PropertyReference(String name) {
+            this.name = name;
+        }
+
+        private final String name;
+        private static final String URL = "http://energy.referencedata.eu/PropertyReference/";
+
+        @Override
+        public String toString() {
+            return PropertyReference.URL + this.name;
+        }
+    }
 
     public static final String ROTATING_MACHINE = "rotatingMachineId";
-
     public static final String TAP_CHANGER = "tapChangerId";
-
     public static final String NORMAL_VALUE = "normalValue";
-
     public static final String STATIC_PROPERTY_RANGE_VALUE_KIND = "valueKind";
     public static final String STATIC_PROPERTY_RANGE_DIRECTION = "direction";
-    public static final String DIRECTION_NONE = "http://entsoe.eu/ns/nc#RelativeDirectionKind.none";
-    public static final String DIRECTION_DOWN = "http://entsoe.eu/ns/nc#RelativeDirectionKind.down";
-    public static final String DIRECTION_UP = "http://entsoe.eu/ns/nc#RelativeDirectionKind.up";
-    public static final String VALUE_KIND_ABSOLUTE = "http://entsoe.eu/ns/nc#ValueOffsetKind.absolute";
+
+    public enum RelativeDirectionKind {
+        NONE("none"),
+        DOWN("down"),
+        UP("up");
+
+        RelativeDirectionKind(String name) {
+            this.name = name;
+        }
+
+        private final String name;
+        private static final String URL = ENTSOE_NS_NC_URL + "#RelativeDirectionKind.";
+
+        @Override
+        public String toString() {
+            return RelativeDirectionKind.URL + this.name;
+        }
+    }
+
+    public enum ValueOffsetKind {
+        ABSOLUTE("absolute");
+
+        ValueOffsetKind(String name) {
+            this.name = name;
+        }
+
+        private final String name;
+        private static final String URL = ENTSOE_NS_NC_URL + "#ValueOffsetKind.";
+
+        @Override
+        public String toString() {
+            return ValueOffsetKind.URL + this.name;
+        }
+    }
 
     public enum RemedialActionKind {
         CURATIVE("curative"),
@@ -172,8 +231,6 @@ public final class CsaProfileConstants {
 
     public static final String REQUEST_VOLTAGE_LIMIT_IS_INFINITE_DURATION = "isInfiniteDuration";
 
-    public static final String ASSESSED_ELEMENT_FILE_KEYWORD = "AE";
-
     public static final String ENTSOE_NS_NC_URL = "http://entsoe.eu/ns/nc";
 
     public static final List<String> CURRENT_LIMIT_POSSIBLE_ALIASES_BY_TYPE_LEFT = List.of("CGMES.Terminal1", "CGMES.Terminal_Boundary_1");
@@ -219,12 +276,12 @@ public final class CsaProfileConstants {
         }
     }
 
-    public enum LimitDirectionKind {
+    public enum OperationalLimitDirectionKind {
         ABSOLUTE("absoluteValue"),
         HIGH("high"),
         LOW("low");
 
-        LimitDirectionKind(String direction) {
+        OperationalLimitDirectionKind(String direction) {
             this.direction = direction;
         }
 
@@ -233,7 +290,7 @@ public final class CsaProfileConstants {
 
         @Override
         public String toString() {
-            return LimitDirectionKind.URL + this.direction;
+            return OperationalLimitDirectionKind.URL + this.direction;
         }
     }
 
@@ -241,8 +298,6 @@ public final class CsaProfileConstants {
      * requests for angle cnec
      */
 
-    public static final String EQUIPMENT_RELIABILITY_FILE_KEYWORD = "ER";
-    public static final String REQUEST_ANGLE_REFERENCE_TERMINAL = "AngleReferenceTerminal";
     public static final String REQUEST_IS_FLOW_TO_REF_TERMINAL = "isFlowToRefTerminal";
     public static final String REQUEST_ANGLE_LIMIT = "angleLimit";
 
@@ -261,5 +316,11 @@ public final class CsaProfileConstants {
         public String toString() {
             return this.type;
         }
+    }
+
+    public enum HeaderValidity {
+        OK,
+        INVALID_KEYWORD,
+        INVALID_INTERVAL;
     }
 }

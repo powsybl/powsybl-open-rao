@@ -13,6 +13,7 @@ import com.farao_community.farao.data.crac_creation.creator.api.ImportStatus;
 import com.farao_community.farao.data.crac_creation.creator.csa_profile.crac_creator.CsaProfileConstants;
 import com.farao_community.farao.data.crac_creation.creator.csa_profile.crac_creator.CsaProfileCracCreationContext;
 import com.farao_community.farao.data.crac_creation.creator.csa_profile.crac_creator.CsaProfileCracUtils;
+import com.farao_community.farao.data.crac_creation.creator.csa_profile.crac_creator.CsaProfileElementaryCreationContext;
 import com.farao_community.farao.data.crac_creation.util.cgmes.CgmesBranchHelper;
 import com.powsybl.iidm.network.DanglingLine;
 import com.powsybl.iidm.network.Identifiable;
@@ -39,8 +40,8 @@ public class CsaProfileContingencyCreator {
 
     private final Map<String, Set<PropertyBag>> contingencyEquipmentsPropertyBags;
 
-    private Set<CsaProfileContingencyCreationContext> csaProfileContingencyCreationContexts;
-    private CsaProfileCracCreationContext cracCreationContext;
+    private Set<CsaProfileElementaryCreationContext> csaProfileContingencyCreationContexts;
+    private final CsaProfileCracCreationContext cracCreationContext;
 
     public CsaProfileContingencyCreator(Crac crac, Network network, PropertyBags contingenciesPropertyBags, PropertyBags contingencyEquipmentsPropertyBags, CsaProfileCracCreationContext cracCreationContext) {
         this.crac = crac;
@@ -102,12 +103,12 @@ public class CsaProfileContingencyCreator {
         }
 
         if (!atLeastOneCorrectContingentStatus) {
-            csaProfileContingencyCreationContexts.add(CsaProfileContingencyCreationContext.notImported(contingencyId, ImportStatus.INCONSISTENCY_IN_DATA, "all contingency equipments have incorrect contingent status : " + incorrectContingentStatusElements));
+            csaProfileContingencyCreationContexts.add(CsaProfileElementaryCreationContext.notImported(contingencyId, ImportStatus.INCONSISTENCY_IN_DATA, "all contingency equipments have incorrect contingent status : " + incorrectContingentStatusElements));
             return;
         }
 
         if (!atLeastOneNetworkElement) {
-            csaProfileContingencyCreationContexts.add(CsaProfileContingencyCreationContext.notImported(contingencyId, ImportStatus.INCONSISTENCY_IN_DATA, "all contingency equipments are missing in network : " + missingNetworkElements));
+            csaProfileContingencyCreationContexts.add(CsaProfileElementaryCreationContext.notImported(contingencyId, ImportStatus.INCONSISTENCY_IN_DATA, "all contingency equipments are missing in network : " + missingNetworkElements));
             return;
         }
 
@@ -115,44 +116,38 @@ public class CsaProfileContingencyCreator {
             .add();
 
         if (isIncorrectContingentStatus) {
-            csaProfileContingencyCreationContexts.add(CsaProfileContingencyCreationContext.imported(contingencyId, contingencyId, contingencyName, "incorrect contingent status for equipment(s) : " + incorrectContingentStatusElements, true));
+            csaProfileContingencyCreationContexts.add(CsaProfileElementaryCreationContext.imported(contingencyId, contingencyId, contingencyName, "incorrect contingent status for equipment(s) : " + incorrectContingentStatusElements, true));
             return;
         }
 
         if (isMissingNetworkElement) {
-            csaProfileContingencyCreationContexts.add(CsaProfileContingencyCreationContext.imported(contingencyId, contingencyId, contingencyName, "missing contingent equipment(s) in network : " + incorrectContingentStatusElements, true));
+            csaProfileContingencyCreationContexts.add(CsaProfileElementaryCreationContext.imported(contingencyId, contingencyId, contingencyName, "missing contingent equipment(s) in network : " + incorrectContingentStatusElements, true));
             return;
         }
 
-        csaProfileContingencyCreationContexts.add(CsaProfileContingencyCreationContext.imported(contingencyId, contingencyId, contingencyName, "", false));
+        csaProfileContingencyCreationContexts.add(CsaProfileElementaryCreationContext.imported(contingencyId, contingencyId, contingencyName, "", false));
     }
 
     private Set<PropertyBag> dataCheck(PropertyBag contingencyPropertyBag, String contingencyId) {
-        String keyword = contingencyPropertyBag.get(CsaProfileConstants.REQUEST_HEADER_KEYWORD);
-        String startTime = contingencyPropertyBag.get(CsaProfileConstants.REQUEST_HEADER_START_DATE);
-        String endTime = contingencyPropertyBag.get(CsaProfileConstants.REQUEST_HEADER_END_DATE);
+        CsaProfileConstants.HeaderValidity headerValidity = CsaProfileCracUtils.checkProfileHeader(contingencyPropertyBag, CsaProfileConstants.CsaProfile.CONTINGENCY, cracCreationContext.getTimeStamp());
+        if (headerValidity == CsaProfileConstants.HeaderValidity.INVALID_KEYWORD) {
+            csaProfileContingencyCreationContexts.add(CsaProfileElementaryCreationContext.notImported(contingencyId, ImportStatus.INCONSISTENCY_IN_DATA, "Model.keyword must be " + CsaProfileConstants.CsaProfile.CONTINGENCY));
+            return new HashSet<>();
+        } else if (headerValidity == CsaProfileConstants.HeaderValidity.INVALID_INTERVAL) {
+            csaProfileContingencyCreationContexts.add(CsaProfileElementaryCreationContext.notImported(contingencyId, ImportStatus.NOT_FOR_REQUESTED_TIMESTAMP, "Required timestamp does not fall between Model.startDate and Model.endDate"));
+            return new HashSet<>();
+        }
 
         Boolean mustStudy = Boolean.parseBoolean(contingencyPropertyBag.get(CsaProfileConstants.REQUEST_CONTINGENCIES_MUST_STUDY));
-
-        if (!CsaProfileConstants.CONTINGENCY_FILE_KEYWORD.equals(keyword)) {
-            csaProfileContingencyCreationContexts.add(CsaProfileContingencyCreationContext.notImported(contingencyId, ImportStatus.INCONSISTENCY_IN_DATA, "Model.keyword must be CO, but it is " + keyword));
-            return new HashSet<PropertyBag>();
-        }
-
-        if (!CsaProfileCracUtils.isValidInterval(cracCreationContext.getTimeStamp(), startTime, endTime)) {
-            csaProfileContingencyCreationContexts.add(CsaProfileContingencyCreationContext.notImported(contingencyId, ImportStatus.NOT_FOR_REQUESTED_TIMESTAMP, "Required timestamp does not fall between Model.startDate and Model.endDate"));
-            return new HashSet<PropertyBag>();
-        }
-
         if (!Boolean.TRUE.equals(mustStudy)) {
-            csaProfileContingencyCreationContexts.add(CsaProfileContingencyCreationContext.notImported(contingencyId, ImportStatus.NOT_FOR_RAO, "contingency.mustStudy is false"));
-            return new HashSet<PropertyBag>();
+            csaProfileContingencyCreationContexts.add(CsaProfileElementaryCreationContext.notImported(contingencyId, ImportStatus.NOT_FOR_RAO, "contingency.mustStudy is false"));
+            return new HashSet<>();
         }
 
         Set<PropertyBag> contingencyEquipments = contingencyEquipmentsPropertyBags.get(contingencyPropertyBag.getId(CsaProfileConstants.REQUEST_CONTINGENCY));
         if (contingencyEquipments == null) {
-            csaProfileContingencyCreationContexts.add(CsaProfileContingencyCreationContext.notImported(contingencyId, ImportStatus.INCOMPLETE_DATA, "no contingency equipment linked to the contingency"));
-            return new HashSet<PropertyBag>();
+            csaProfileContingencyCreationContexts.add(CsaProfileElementaryCreationContext.notImported(contingencyId, ImportStatus.INCOMPLETE_DATA, "no contingency equipment linked to the contingency"));
+            return new HashSet<>();
         }
 
         return contingencyEquipments;
@@ -171,11 +166,13 @@ public class CsaProfileContingencyCreator {
             networkElementId = networkElement.getId();
         }
 
-        if (networkElement instanceof DanglingLine) {
-            Optional<TieLine> optionalTieLine = ((DanglingLine) networkElement).getTieLine();
-            if (optionalTieLine.isPresent()) {
-                networkElementId = optionalTieLine.get().getId();
-            }
+        if (networkElement != null) {
+            try {
+                Optional<TieLine> optionalTieLine = ((DanglingLine) networkElement).getTieLine();
+                if (optionalTieLine.isPresent()) {
+                    networkElementId = optionalTieLine.get().getId();
+                }
+            } catch (Exception ignored) { } // NOSONAR
         }
         return networkElementId;
     }
