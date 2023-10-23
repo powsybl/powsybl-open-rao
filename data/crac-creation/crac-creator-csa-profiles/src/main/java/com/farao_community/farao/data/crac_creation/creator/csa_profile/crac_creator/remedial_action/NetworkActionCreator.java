@@ -59,7 +59,7 @@ public class NetworkActionCreator {
 
     private void addInjectionSetPointElementaryAction(Set<PropertyBag> staticPropertyRangesLinkedToRotatingMachineAction, String remedialActionId, NetworkActionAdder networkActionAdder, PropertyBag rotatingMachineActionPropertyBag) {
         CsaProfileCracUtils.checkNormalEnabled(rotatingMachineActionPropertyBag, remedialActionId, "RotatingMachineAction");
-        CsaProfileCracUtils.checkPropertyReference(rotatingMachineActionPropertyBag, remedialActionId, "RotatingMachineAction", CsaProfileConstants.PROPERTY_REFERENCE_ROTATING_MACHINE);
+        CsaProfileCracUtils.checkPropertyReference(rotatingMachineActionPropertyBag, remedialActionId, "RotatingMachineAction", CsaProfileConstants.PropertyReference.ROTATING_MACHINE.toString());
         String rawId = rotatingMachineActionPropertyBag.get(CsaProfileConstants.ROTATING_MACHINE);
         String rotatingMachineId = rawId.substring(rawId.lastIndexOf("_") + 1);
         Optional<Generator> optionalGenerator = network.getGeneratorStream().filter(gen -> gen.getId().equals(rotatingMachineId)).findAny();
@@ -69,7 +69,7 @@ public class NetworkActionCreator {
         }
 
         PropertyBag staticPropertyRangePropertyBag = staticPropertyRangesLinkedToRotatingMachineAction.iterator().next(); // get a random one (in theory only one will be present in case of rotating machines)
-        CsaProfileCracUtils.checkPropertyReference(staticPropertyRangePropertyBag, remedialActionId, "StaticPropertyRange", CsaProfileConstants.PROPERTY_REFERENCE_ROTATING_MACHINE);
+        CsaProfileCracUtils.checkPropertyReference(staticPropertyRangePropertyBag, remedialActionId, "StaticPropertyRange", CsaProfileConstants.PropertyReference.ROTATING_MACHINE.toString());
         float normalValue;
         try {
             normalValue = Float.parseFloat(staticPropertyRangePropertyBag.get(CsaProfileConstants.NORMAL_VALUE));
@@ -78,14 +78,14 @@ public class NetworkActionCreator {
         }
         String valueKind = staticPropertyRangePropertyBag.get(CsaProfileConstants.STATIC_PROPERTY_RANGE_VALUE_KIND);
         String direction = staticPropertyRangePropertyBag.get(CsaProfileConstants.STATIC_PROPERTY_RANGE_DIRECTION);
-        if (!(valueKind.equals(CsaProfileConstants.VALUE_KIND_ABSOLUTE) && direction.equals(CsaProfileConstants.DIRECTION_NONE))) {
+        if (!(valueKind.equals(CsaProfileConstants.ValueOffsetKind.ABSOLUTE.toString()) && direction.equals(CsaProfileConstants.RelativeDirectionKind.NONE.toString()))) {
             throw new FaraoImportException(ImportStatus.INCONSISTENCY_IN_DATA, CsaProfileConstants.REMEDIAL_ACTION_MESSAGE + remedialActionId + " will not be imported because StaticPropertyRange has wrong values of valueKind and direction, the only allowed combination is absolute + none");
         }
         networkActionAdder.newInjectionSetPoint()
-                .withSetpoint(normalValue)
-                .withNetworkElement(rotatingMachineId)
-                .withUnit(Unit.MEGAWATT)
-                .add();
+            .withSetpoint(normalValue)
+            .withNetworkElement(rotatingMachineId)
+            .withUnit(Unit.MEGAWATT)
+            .add();
     }
 
     private Optional<Load> findLoad(String rotatingMachineId) {
@@ -98,7 +98,7 @@ public class NetworkActionCreator {
         if (network.getSwitch(switchId) == null) {
             throw new FaraoImportException(ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK, CsaProfileConstants.REMEDIAL_ACTION_MESSAGE + remedialActionId + " will not be imported because network model does not contain a switch with id: " + switchId);
         }
-        CsaProfileCracUtils.checkPropertyReference(topologyActionPropertyBag, remedialActionId, "TopologyAction", CsaProfileConstants.PROPERTY_REFERENCE_SWITCH_OPEN);
+        CsaProfileCracUtils.checkPropertyReference(topologyActionPropertyBag, remedialActionId, "TopologyAction", CsaProfileConstants.PropertyReference.SWITCH.toString());
         networkActionAdder.newTopologicalAction()
             .withNetworkElement(switchId)
             // todo this is a temporary behaviour closing switch will be implemented in a later version
