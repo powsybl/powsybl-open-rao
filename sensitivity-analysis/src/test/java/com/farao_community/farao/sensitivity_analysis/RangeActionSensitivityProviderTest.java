@@ -307,6 +307,6 @@ class RangeActionSensitivityProviderTest {
         RangeActionSensitivityProvider provider = new RangeActionSensitivityProvider(Set.of(mockHvdcRangeAction), Set.of(flowCnec), Set.of(Unit.MEGAWATT, Unit.AMPERE));
 
         FaraoException exception = assertThrows(FaraoException.class, () -> provider.getBasecaseFactors(network));
-        assertEquals("", exception.getMessage());
+        assertEquals("Range action type of null not implemented yet", exception.getMessage());
     }
 }

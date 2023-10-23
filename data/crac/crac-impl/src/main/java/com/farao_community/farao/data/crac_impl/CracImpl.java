@@ -154,7 +154,7 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
     public Instant addInstant(String instantId, InstantKind instantKind, String prevInstantId) {
         if (instants.containsKey(instantId)) {
             Instant instant = instants.get(instantId);
-            if (instantKind == instant.getInstantKind() && Objects.equals(prevInstantId, instant.getPreviousInstant().getId())) {
+            if (instantKind == instant.getInstantKind() && Objects.equals(instants.get(prevInstantId), instant.getPreviousInstant())) {
                 return instant;
             } else {
                 throw new FaraoException(format("Instant %s is already defined with other arguments", instantId));

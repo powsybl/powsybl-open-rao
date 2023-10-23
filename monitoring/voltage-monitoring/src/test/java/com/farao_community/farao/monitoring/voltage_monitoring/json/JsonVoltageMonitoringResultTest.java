@@ -105,6 +105,6 @@ class JsonVoltageMonitoringResultTest {
     void importNokTest(String source) {
         InputStream inputStream = getClass().getResourceAsStream("/result-" + source + ".json");
         FaraoException exception = assertThrows(FaraoException.class, () -> voltageMonitoringResultImporter.importVoltageMonitoringResult(inputStream, crac));
-        assertEquals("", exception.getMessage());
+        assertEquals("Status must be specified right after type of document.", exception.getMessage());
     }
 }

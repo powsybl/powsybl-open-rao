@@ -56,7 +56,7 @@ class SkippedOptimizationResultImplTest {
         assertEquals(0, skippedOptimizationResult.getVirtualCost("emptyString"), 1e-6);
         assertTrue(skippedOptimizationResult.getVirtualCostNames().isEmpty());
         FaraoException exception = assertThrows(FaraoException.class, () -> skippedOptimizationResult.getSensitivityValue(flowCnec, side, rangeAction, unit));
-        assertEquals("", exception.getMessage());
+        assertEquals("Should not be used: optimization result has been skipped.", exception.getMessage());
         exception = assertThrows(FaraoException.class, () -> skippedOptimizationResult.getSensitivityValue(flowCnec, side, sensitivityVariableSet, unit));
         assertEquals("", exception.getMessage());
         exception = assertThrows(FaraoException.class, () -> skippedOptimizationResult.getFlow(flowCnec, side, unit));

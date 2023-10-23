@@ -190,7 +190,7 @@ class AutomatonPerimeterResultImplTest {
     void testWrongState() {
         State wrongState = mock(State.class);
         FaraoException exception = assertThrows(FaraoException.class, () -> result.getActivatedRangeActions(wrongState));
-        assertEquals("", exception.getMessage());
+        assertEquals("State should be null but was null", exception.getMessage());
     }
 
     @Test

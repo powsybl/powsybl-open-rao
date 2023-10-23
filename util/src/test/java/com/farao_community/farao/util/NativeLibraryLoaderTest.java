@@ -20,6 +20,6 @@ class NativeLibraryLoaderTest {
     @Test
     void shouldFailWhenLibraryNotFound() {
         FaraoException exception = assertThrows(FaraoException.class, () -> NativeLibraryLoader.loadNativeLibrary("thisLibraryWillNeverExist"));
-        assertEquals("", exception.getMessage());
+        assertEquals("Failed to load library 'thisLibraryWillNeverExist'", exception.getMessage());
     }
 }

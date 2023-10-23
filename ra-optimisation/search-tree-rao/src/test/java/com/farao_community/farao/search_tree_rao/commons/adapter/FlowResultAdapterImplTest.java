@@ -134,6 +134,6 @@ class FlowResultAdapterImplTest {
         assertEquals(0.57, flowResult.getPtdfZonalSum(cnec2, RIGHT), DOUBLE_TOLERANCE);
         assertEquals(ptdfZonalSums, flowResult.getPtdfZonalSums());
         FaraoException exception = assertThrows(FaraoException.class, () -> flowResult.getPtdfZonalSum(Mockito.mock(FlowCnec.class), LEFT));
-        assertEquals("", exception.getMessage());
+        assertEquals("No PTDF zonal sum for cnec null (side LEFT)", exception.getMessage());
     }
 }

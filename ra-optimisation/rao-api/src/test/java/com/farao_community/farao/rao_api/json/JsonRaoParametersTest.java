@@ -183,7 +183,7 @@ class JsonRaoParametersTest extends AbstractConverterTest {
     void importNokTest(String source) {
         InputStream inputStream = getClass().getResourceAsStream("/RaoParametersWith" + source + "_v2.json");
         FaraoException exception = assertThrows(FaraoException.class, () -> JsonRaoParameters.read(inputStream));
-        assertEquals("", exception.getMessage());
+        assertEquals("Unknown approximation value: FIXED_PTDF_WRONG", exception.getMessage());
     }
 
     static class DummyExtension extends AbstractExtension<RaoParameters> {

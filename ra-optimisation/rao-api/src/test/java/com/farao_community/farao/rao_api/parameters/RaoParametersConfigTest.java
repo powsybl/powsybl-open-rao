@@ -286,7 +286,7 @@ class RaoParametersConfigTest {
         topoActionsModuleConfig.setStringListProperty("predefined-combinations", List.of("{na12 + {na22}", "{na41} + {na5} + {na6}"));
         RaoParameters parameters = new RaoParameters();
         FaraoException exception = assertThrows(FaraoException.class, () -> RaoParameters.load(parameters, platformCfg));
-        assertEquals("", exception.getMessage());
+        assertEquals("{na12  contains too few or too many occurences of \"{ or \"}", exception.getMessage());
     }
 
     @Test
@@ -295,7 +295,7 @@ class RaoParametersConfigTest {
         topoActionsModuleConfig.setStringListProperty("predefined-combinations", List.of("{na12} - {na22}", "{na41} + {na5} + {na6}"));
         RaoParameters parameters = new RaoParameters();
         FaraoException exception = assertThrows(FaraoException.class, () -> RaoParameters.load(parameters, platformCfg));
-        assertEquals("", exception.getMessage());
+        assertEquals("{na12} - {na22} contains too few or too many occurences of \"{ or \"}", exception.getMessage());
     }
 
     @ParameterizedTest
@@ -305,7 +305,7 @@ class RaoParametersConfigTest {
         raUsageLimitsModuleConfig.setStringListProperty("max-curative-topo-per-tso", source);
         RaoParameters parameters = new RaoParameters();
         FaraoException exception = assertThrows(FaraoException.class, () -> RaoParameters.load(parameters, platformCfg));
-        assertEquals("", exception.getMessage());
+        assertEquals("{ABC contains too few or too many occurences of \"{ or \"}", exception.getMessage());
     }
 
     @ParameterizedTest
@@ -315,7 +315,7 @@ class RaoParametersConfigTest {
         notOptimizedModuleConfig.setStringListProperty("do-not-optimize-cnec-secured-by-its-pst", source);
         RaoParameters parameters = new RaoParameters();
         FaraoException exception = assertThrows(FaraoException.class, () -> RaoParameters.load(parameters, platformCfg));
-        assertEquals("", exception.getMessage());
+        assertEquals("{cnec1 contains too few or too many occurences of \"{ or \"}", exception.getMessage());
     }
 
     @Test
@@ -325,7 +325,7 @@ class RaoParametersConfigTest {
         Mockito.when(mockedPlatformConfig.getOptionalModuleConfig("rao-loop-flow-parameters")).thenReturn(Optional.of(loopFlowModuleConfig));
         LoopFlowParametersConfigLoader configLoader = new LoopFlowParametersConfigLoader();
         FaraoException exception = assertThrows(FaraoException.class, () -> configLoader.load(mockedPlatformConfig));
-        assertEquals("", exception.getMessage());
+        assertEquals("[France] could not be recognized as a country", exception.getMessage());
     }
 
     @Test
@@ -335,7 +335,7 @@ class RaoParametersConfigTest {
         Mockito.when(mockedPlatformConfig.getOptionalModuleConfig("rao-relative-margins-parameters")).thenReturn(Optional.of(relativeMarginsModuleConfig));
         RelativeMarginsParametersConfigLoader configLoader = new RelativeMarginsParametersConfigLoader();
         FaraoException exception = assertThrows(FaraoException.class, () -> configLoader.load(mockedPlatformConfig));
-        assertEquals("", exception.getMessage());
+        assertEquals("ZoneToZonePtdfDefinition should have the following syntax: {Code_1}-{Code_2}+{Code_3}... where Code_i are 16-characters EI codes or 2-characters country codes.", exception.getMessage());
     }
 
     @Test
@@ -345,6 +345,6 @@ class RaoParametersConfigTest {
         Mockito.when(mockedPlatformConfig.getOptionalModuleConfig("rao-relative-margins-parameters")).thenReturn(Optional.of(relativeMarginsModuleConfig));
         RelativeMarginsParametersConfigLoader configLoader = new RelativeMarginsParametersConfigLoader();
         FaraoException exception = assertThrows(FaraoException.class, () -> configLoader.load(mockedPlatformConfig));
-        assertEquals("", exception.getMessage());
+        assertEquals("ZoneToZonePtdfDefinition should have the following syntax: {Code_1}-{Code_2}+{Code_3}... where Code_i are 16-characters EI codes or 2-characters country codes.", exception.getMessage());
     }
 }

@@ -78,7 +78,7 @@ class RaoTest {
         // case with two providers : should throw as no config defines which provider must be selected
         List<RaoProvider> raoProviders = ImmutableList.of(new RaoProviderMock(), new AnotherRaoProviderMock());
         FaraoException exception = assertThrows(FaraoException.class, () -> Rao.find(null, raoProviders, platformConfig));
-        assertEquals("", exception.getMessage());
+        assertEquals("Several RAO implementations found ([RandomRAO, GlobalRAOptimizer]), you must add configuration to select the implementation", exception.getMessage());
     }
 
     @Test
@@ -94,7 +94,7 @@ class RaoTest {
         // case with no provider
         List<RaoProvider> raoProviders = ImmutableList.of();
         FaraoException exception = assertThrows(FaraoException.class, () -> Rao.find(null, raoProviders, platformConfig));
-        assertEquals("", exception.getMessage());
+        assertEquals("No RAO providers found", exception.getMessage());
     }
 
     @Test
@@ -112,6 +112,6 @@ class RaoTest {
         platformConfig.createModuleConfig("rao").setStringProperty("default", "UnknownRao");
         List<RaoProvider> raoProviders = ImmutableList.of(new RaoProviderMock());
         FaraoException exception = assertThrows(FaraoException.class, () -> Rao.find(null, raoProviders, platformConfig));
-        assertEquals("", exception.getMessage());
+        assertEquals("RA optimizer provider 'UnknownRao' not found", exception.getMessage());
     }
 }

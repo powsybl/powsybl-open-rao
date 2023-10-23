@@ -42,7 +42,7 @@ class LoopFlowResultTest {
     void loopFlowResultCnecNotFound() {
         LoopFlowResult loopFlowResult = new LoopFlowResult();
         FaraoException exception = assertThrows(FaraoException.class, () -> loopFlowResult.getLoopFlow(cnec, Side.RIGHT));
-        assertEquals("", exception.getMessage());
+        assertEquals("No loop-flow value found for cnec null on side RIGHT", exception.getMessage());
     }
 }
 

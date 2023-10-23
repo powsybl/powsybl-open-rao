@@ -386,7 +386,7 @@ class LeafTest {
         Leaf leaf = buildNotEvaluatedRootLeaf();
         FlowCnec flowCnec = Mockito.mock(FlowCnec.class);
         FaraoException exception = assertThrows(FaraoException.class, () -> leaf.getFlow(flowCnec, LEFT, MEGAWATT));
-        assertEquals("", exception.getMessage());
+        assertEquals("No results available.", exception.getMessage());
     }
 
     @Test
@@ -394,7 +394,7 @@ class LeafTest {
         Leaf leaf = buildNotEvaluatedRootLeaf();
         FlowCnec flowCnec = Mockito.mock(FlowCnec.class);
         FaraoException exception = assertThrows(FaraoException.class, () -> leaf.getCommercialFlow(flowCnec, LEFT, MEGAWATT));
-        assertEquals("", exception.getMessage());
+        assertEquals("No results available.", exception.getMessage());
     }
 
     @Test
@@ -402,14 +402,14 @@ class LeafTest {
         Leaf leaf = buildNotEvaluatedRootLeaf();
         FlowCnec flowCnec = Mockito.mock(FlowCnec.class);
         FaraoException exception = assertThrows(FaraoException.class, () -> leaf.getPtdfZonalSum(flowCnec, LEFT));
-        assertEquals("", exception.getMessage());
+        assertEquals("No results available.", exception.getMessage());
     }
 
     @Test
     void getPtdfZonalSumsBeforeEvaluation() {
         Leaf leaf = buildNotEvaluatedRootLeaf();
         FaraoException exception = assertThrows(FaraoException.class, leaf::getPtdfZonalSums);
-        assertEquals("", exception.getMessage());
+        assertEquals("No results available.", exception.getMessage());
     }
 
     @Test
@@ -443,7 +443,7 @@ class LeafTest {
     void getFunctionalCostBeforeOptimization() {
         Leaf leaf = buildNotEvaluatedRootLeaf();
         FaraoException exception = assertThrows(FaraoException.class, leaf::getFunctionalCost);
-        assertEquals("", exception.getMessage());
+        assertEquals("No results available.", exception.getMessage());
     }
 
     @Test
@@ -481,14 +481,14 @@ class LeafTest {
     void getVirtualCostBeforeOptimization() {
         Leaf leaf = buildNotEvaluatedRootLeaf();
         FaraoException exception = assertThrows(FaraoException.class, leaf::getVirtualCost);
-        assertEquals("", exception.getMessage());
+        assertEquals("No results available.", exception.getMessage());
     }
 
     @Test
     void getSpecificVirtualCostBeforeOptimization() {
         Leaf leaf = buildNotEvaluatedRootLeaf();
         FaraoException exception = assertThrows(FaraoException.class, () -> leaf.getVirtualCost(virtualCostName));
-        assertEquals("", exception.getMessage());
+        assertEquals("No results available.", exception.getMessage());
     }
 
     @Test
@@ -528,14 +528,14 @@ class LeafTest {
     void getMostLimitingElementsBeforeOptimization() {
         Leaf leaf = buildNotEvaluatedRootLeaf();
         FaraoException exception = assertThrows(FaraoException.class, () -> leaf.getMostLimitingElements(0));
-        assertEquals("", exception.getMessage());
+        assertEquals("No results available.", exception.getMessage());
     }
 
     @Test
     void getCostlyElementsBeforeOptimization() {
         Leaf leaf = buildNotEvaluatedRootLeaf();
         FaraoException exception = assertThrows(FaraoException.class, () -> leaf.getCostlyElements(virtualCostName, 0));
-        assertEquals("", exception.getMessage());
+        assertEquals("No results available.", exception.getMessage());
     }
 
     @Test
@@ -646,21 +646,21 @@ class LeafTest {
         Leaf leaf = buildNotEvaluatedRootLeaf();
         PstRangeAction pstRangeAction = Mockito.mock(PstRangeAction.class);
         FaraoException exception = assertThrows(FaraoException.class, () -> leaf.getOptimizedTap(pstRangeAction, optimizedState));
-        assertEquals("", exception.getMessage());
+        assertEquals("No results available.", exception.getMessage());
     }
 
     @Test
     void getOptimizedTapsBeforeEvaluation() {
         Leaf leaf = buildNotEvaluatedRootLeaf();
         FaraoException exception = assertThrows(FaraoException.class, () -> leaf.getOptimizedTapsOnState(optimizedState));
-        assertEquals("", exception.getMessage());
+        assertEquals("No results available.", exception.getMessage());
     }
 
     @Test
     void getOptimizedSetpointsBeforeEvaluation() {
         Leaf leaf = buildNotEvaluatedRootLeaf();
         FaraoException exception = assertThrows(FaraoException.class, () -> leaf.getOptimizedSetpointsOnState(optimizedState));
-        assertEquals("", exception.getMessage());
+        assertEquals("No results available.", exception.getMessage());
     }
 
     @Test
@@ -668,7 +668,7 @@ class LeafTest {
         Leaf leaf = buildNotEvaluatedRootLeaf();
         RangeAction<?> rangeAction = Mockito.mock(RangeAction.class);
         FaraoException exception = assertThrows(FaraoException.class, () -> leaf.getOptimizedSetpoint(rangeAction, optimizedState));
-        assertEquals("", exception.getMessage());
+        assertEquals("No results available.", exception.getMessage());
     }
 
     @Test
@@ -701,7 +701,7 @@ class LeafTest {
     void getSensitivityStatusBeforeEvaluation() {
         Leaf leaf = buildNotEvaluatedRootLeaf();
         FaraoException exception = assertThrows(FaraoException.class, leaf::getSensitivityStatus);
-        assertEquals("", exception.getMessage());
+        assertEquals("No results available.", exception.getMessage());
     }
 
     @Test
@@ -751,7 +751,7 @@ class LeafTest {
         FlowCnec flowCnec = Mockito.mock(FlowCnec.class);
         RangeAction<?> rangeAction = Mockito.mock(RangeAction.class);
         FaraoException exception = assertThrows(FaraoException.class, () -> leaf.getSensitivityValue(flowCnec, RIGHT, rangeAction, MEGAWATT));
-        assertEquals("", exception.getMessage());
+        assertEquals("No results available.", exception.getMessage());
     }
 
     @Test
@@ -760,14 +760,14 @@ class LeafTest {
         FlowCnec flowCnec = Mockito.mock(FlowCnec.class);
         SensitivityVariableSet linearGlsk = Mockito.mock(SensitivityVariableSet.class);
         FaraoException exception = assertThrows(FaraoException.class, () -> leaf.getSensitivityValue(flowCnec, RIGHT, linearGlsk, MEGAWATT));
-        assertEquals("", exception.getMessage());
+        assertEquals("No results available.", exception.getMessage());
     }
 
     @Test
     void getObjectiveFunctionBeforeEvaluation() {
         Leaf leaf = buildNotEvaluatedRootLeaf();
         FaraoException exception = assertThrows(FaraoException.class, leaf::getObjectiveFunction);
-        assertEquals("", exception.getMessage());
+        assertEquals("No results available.", exception.getMessage());
     }
 
     @Test
@@ -802,7 +802,7 @@ class LeafTest {
         rootLeaf.optimize(searchTreeInput, searchTreeParameters);
         rootLeaf.finalizeOptimization();
         FaraoException exception = assertThrows(FaraoException.class, () -> rootLeaf.optimize(searchTreeInput, searchTreeParameters));
-        assertEquals("", exception.getMessage());
+        assertEquals("Cannot optimize leaf, because optimization data has been deleted", exception.getMessage());
     }
 
     @Test
@@ -816,7 +816,7 @@ class LeafTest {
         when(naCombinationToApply.getNetworkActionSet()).thenReturn(Set.of(na1, na2));
         Set<NetworkAction> alreadyAppliedNetworkActions = Set.of();
         FaraoException exception = assertThrows(FaraoException.class, () -> new Leaf(optimizationPerimeter, network, alreadyAppliedNetworkActions, naCombinationToApply, rangeActionActivationResult, prePerimeterResult, appliedRemedialActions));
-        assertEquals("", exception.getMessage());
+        assertEquals("null could not be applied on the network", exception.getMessage());
     }
 
     @Test

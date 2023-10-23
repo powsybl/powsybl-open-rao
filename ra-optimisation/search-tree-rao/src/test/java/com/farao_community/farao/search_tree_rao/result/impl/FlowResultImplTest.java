@@ -72,13 +72,13 @@ class FlowResultImplTest {
         assertEquals(235, branchResult.getFlow(optimizedCnec, RIGHT, Unit.AMPERE), DOUBLE_TOLERANCE);
 
         FaraoException exception = assertThrows(FaraoException.class, () -> branchResult.getPtdfZonalSum(loopFlowCnec, LEFT));
-        assertEquals("", exception.getMessage());
+        assertEquals("a mock of what would happen if trying to access ptdf sum", exception.getMessage());
         assertEquals(30., branchResult.getPtdfZonalSum(optimizedCnec, RIGHT), DOUBLE_TOLERANCE);
         assertEquals(Map.of(optimizedCnec, Map.of(RIGHT, 30.)), branchResult.getPtdfZonalSums());
 
         assertEquals(200, branchResult.getCommercialFlow(loopFlowCnec, LEFT, Unit.MEGAWATT), DOUBLE_TOLERANCE);
         exception = assertThrows(FaraoException.class, () -> branchResult.getCommercialFlow(loopFlowCnec, LEFT, Unit.AMPERE));
-        assertEquals("", exception.getMessage());
+        assertEquals("Commercial flows only in MW.", exception.getMessage());
         exception = assertThrows(FaraoException.class, () -> branchResult.getCommercialFlow(optimizedCnec, RIGHT, Unit.MEGAWATT));
         assertEquals("", exception.getMessage());
     }
@@ -95,9 +95,9 @@ class FlowResultImplTest {
     @Test
     void testWrongFlowUnit() {
         FaraoException exception = assertThrows(FaraoException.class, () -> branchResult.getFlow(optimizedCnec, RIGHT, Unit.KILOVOLT));
-        assertEquals("", exception.getMessage());
+        assertEquals("Unknown unit for flow.", exception.getMessage());
         exception = assertThrows(FaraoException.class, () -> branchResult.getFlow(optimizedCnec, RIGHT, Unit.DEGREE));
-        assertEquals("", exception.getMessage());
+        assertEquals("Unknown unit for flow.", exception.getMessage());
         exception = assertThrows(FaraoException.class, () -> branchResult.getFlow(optimizedCnec, RIGHT, Unit.PERCENT_IMAX));
         assertEquals("", exception.getMessage());
         exception = assertThrows(FaraoException.class, () -> branchResult.getFlow(optimizedCnec, RIGHT, Unit.TAP));

@@ -68,7 +68,7 @@ class RandomizedStringTest {
 
         List<String> usedStrings = Collections.singletonList("RANDOMIZED_STRING_" + uuid);
         FaraoException exception = assertThrows(FaraoException.class, () -> RandomizedString.getRandomizedString("RANDOMIZED_STRING_", usedStrings, 1));
-        assertEquals("", exception.getMessage());
+        assertEquals("Failed to create a randomized string with prefix 'RANDOMIZED_STRING_' in 1 try.", exception.getMessage());
     }
 
     @Test

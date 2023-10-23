@@ -68,9 +68,9 @@ class FlowResultFromMapImplTest {
         assertEquals(285, branchResultFromMap.getFlow(optimizedCnec, RIGHT, AMPERE), DOUBLE_TOLERANCE);
 
         FaraoException exception = assertThrows(FaraoException.class, () -> branchResultFromMap.getPtdfZonalSum(loopFlowCnec, LEFT));
-        assertEquals("", exception.getMessage());
+        assertEquals("No PTDF computed on the CNEC null on side LEFT", exception.getMessage());
         exception = assertThrows(FaraoException.class, () -> branchResultFromMap.getPtdfZonalSum(loopFlowCnec, RIGHT));
-        assertEquals("", exception.getMessage());
+        assertEquals("No PTDF computed on the CNEC null on side RIGHT", exception.getMessage());
         assertEquals(30., branchResultFromMap.getPtdfZonalSum(optimizedCnec, LEFT), DOUBLE_TOLERANCE);
         assertEquals(35., branchResultFromMap.getPtdfZonalSum(optimizedCnec, RIGHT), DOUBLE_TOLERANCE);
         assertEquals(Map.of(optimizedCnec, Map.of(LEFT, 30., RIGHT, 35.)), branchResultFromMap.getPtdfZonalSums());
@@ -102,9 +102,9 @@ class FlowResultFromMapImplTest {
     @Test
     void testWrongFlowUnit() {
         FaraoException exception = assertThrows(FaraoException.class, () -> branchResultFromMap.getFlow(optimizedCnec, LEFT, KILOVOLT));
-        assertEquals("", exception.getMessage());
+        assertEquals("Unknown unit for flow.", exception.getMessage());
         exception = assertThrows(FaraoException.class, () -> branchResultFromMap.getFlow(optimizedCnec, RIGHT, DEGREE));
-        assertEquals("", exception.getMessage());
+        assertEquals("Unknown unit for flow.", exception.getMessage());
         exception = assertThrows(FaraoException.class, () -> branchResultFromMap.getFlow(optimizedCnec, LEFT, PERCENT_IMAX));
         assertEquals("", exception.getMessage());
         exception = assertThrows(FaraoException.class, () -> branchResultFromMap.getFlow(optimizedCnec, RIGHT, TAP));

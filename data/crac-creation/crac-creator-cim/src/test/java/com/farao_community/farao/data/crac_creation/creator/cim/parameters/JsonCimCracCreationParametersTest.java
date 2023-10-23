@@ -100,7 +100,7 @@ class JsonCimCracCreationParametersTest {
     void importNokTest(String source) {
         InputStream inputStream = getClass().getResourceAsStream("/parameters/cim-crac-creation-parameters-" + source + ".json");
         FaraoException exception = assertThrows(FaraoException.class, () -> JsonCracCreationParameters.read(inputStream));
-        assertEquals("", exception.getMessage());
+        assertEquals("Unexpected field: unknown-field", exception.getMessage());
     }
 
     @Test

@@ -44,7 +44,7 @@ class FailedRaoResultImplTest {
         assertEquals(ComputationStatus.FAILURE, failedRaoResultImpl.getComputationStatus(state));
 
         FaraoException exception = assertThrows(FaraoException.class, () -> failedRaoResultImpl.getFunctionalCost(optInstant));
-        assertEquals("", exception.getMessage());
+        assertEquals("Should not be used: the RAO failed.", exception.getMessage());
         exception = assertThrows(FaraoException.class, () -> failedRaoResultImpl.getVirtualCost(optInstant));
         assertEquals("", exception.getMessage());
         exception = assertThrows(FaraoException.class, failedRaoResultImpl::getVirtualCostNames);
@@ -103,7 +103,7 @@ class FailedRaoResultImplTest {
         FailedRaoResultImpl failedRaoResultImpl = new FailedRaoResultImpl();
         FlowCnec flowCnec = mock(FlowCnec.class);
         FaraoException exception = assertThrows(FaraoException.class, () -> failedRaoResultImpl.getFlow(optInstant, flowCnec, Side.LEFT, MEGAWATT));
-        assertEquals("", exception.getMessage());
+        assertEquals("Should not be used: the RAO failed.", exception.getMessage());
         exception = assertThrows(FaraoException.class, () -> failedRaoResultImpl.getCommercialFlow(optInstant, flowCnec, Side.LEFT, MEGAWATT));
         assertEquals("", exception.getMessage());
         exception = assertThrows(FaraoException.class, () -> failedRaoResultImpl.getLoopFlow(optInstant, flowCnec, Side.LEFT, MEGAWATT));

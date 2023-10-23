@@ -32,21 +32,21 @@ class RefProgImporterTest {
     void testUnexistantFile() {
         Path path = Paths.get("/refProg_12nodes_doesntexist.xml");
         FaraoException exception = assertThrows(FaraoException.class, () -> RefProgImporter.importRefProg(path, offsetDateTime));
-        assertEquals("", exception.getMessage());
+        assertEquals("java.io.FileNotFoundException: /refProg_12nodes_doesntexist.xml (No such file or directory)", exception.getMessage());
     }
 
     @Test
     void testWrongXml() {
         InputStream inputStream = getClass().getResourceAsStream("/wrong_refProg.xml");
         FaraoException exception = assertThrows(FaraoException.class, () -> RefProgImporter.importRefProg(inputStream, offsetDateTime));
-        assertEquals("", exception.getMessage());
+        assertEquals("RefProg file is not valid for this date 2020-01-06T23:00Z", exception.getMessage());
     }
 
     @Test
     void testRefProgWithoutInterval() {
         InputStream inputStream = getClass().getResourceAsStream("/refProg_noInterval.xml");
         FaraoException exception = assertThrows(FaraoException.class, () -> RefProgImporter.importRefProg(inputStream, offsetDateTime));
-        assertEquals("", exception.getMessage());
+        assertEquals("Cannot import RefProg file because its publication time interval is unknown", exception.getMessage());
     }
 
     @Test
@@ -54,7 +54,7 @@ class RefProgImporterTest {
         offsetDateTime = OffsetDateTime.of(2020, 1, 6, 23, 0, 0, 0, ZoneOffset.UTC);
         InputStream inputStream = getClass().getResourceAsStream("/refProg_12nodes.xml");
         FaraoException exception = assertThrows(FaraoException.class, () -> RefProgImporter.importRefProg(inputStream, offsetDateTime));
-        assertEquals("", exception.getMessage());
+        assertEquals("RefProg file is not valid for this date 2020-01-06T23:00Z", exception.getMessage());
     }
 
     @Test

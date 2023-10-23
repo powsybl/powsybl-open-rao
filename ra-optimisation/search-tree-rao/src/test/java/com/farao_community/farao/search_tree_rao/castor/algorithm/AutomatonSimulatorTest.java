@@ -250,7 +250,7 @@ class AutomatonSimulatorTest {
         RangeAction<?> ra = Mockito.mock(RangeAction.class);
         Mockito.when(ra.getUsageMethod(autoState)).thenReturn(UsageMethod.AVAILABLE);
         FaraoException exception = assertThrows(FaraoException.class, () -> automatonSimulator.gatherFlowCnecsForAutoRangeAction(ra, autoState, network));
-        assertEquals("", exception.getMessage());
+        assertEquals("Range action Mock for RangeAction, hashCode: 1122090977 has usage method AVAILABLE although FORCED or TO_BE_EVALUATED were expected.", exception.getMessage());
     }
 
     @Test

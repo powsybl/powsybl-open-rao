@@ -72,7 +72,7 @@ class ContingencyScenarioTest {
     void testWrongAutoContingency() {
         Mockito.when(automatonState.getContingency()).thenReturn(Optional.empty());
         FaraoException exception = assertThrows(FaraoException.class, () -> new ContingencyScenario(contingency, automatonState, curativeState));
-        assertEquals("", exception.getMessage());
+        assertEquals("Automaton state Mock for State, hashCode: 309135464 do not refer to the contingency Mock for Contingency, hashCode: 1144702392", exception.getMessage());
 
         Mockito.when(automatonState.getContingency()).thenReturn(Optional.of(Mockito.mock(Contingency.class)));
         exception = assertThrows(FaraoException.class, () -> new ContingencyScenario(contingency, automatonState, curativeState));
@@ -83,7 +83,7 @@ class ContingencyScenarioTest {
     void testWrongCurativeContingency() {
         Mockito.when(curativeState.getContingency()).thenReturn(Optional.empty());
         FaraoException exception = assertThrows(FaraoException.class, () -> new ContingencyScenario(contingency, automatonState, curativeState));
-        assertEquals("", exception.getMessage());
+        assertEquals("Curative state Mock for State, hashCode: 2138645808 do not refer to the contingency Mock for Contingency, hashCode: 550764532", exception.getMessage());
 
         Mockito.when(curativeState.getContingency()).thenReturn(Optional.of(Mockito.mock(Contingency.class)));
         exception = assertThrows(FaraoException.class, () -> new ContingencyScenario(contingency, automatonState, curativeState));

@@ -52,7 +52,7 @@ class CracCreationParametersJsonTest {
     void importNokTest() {
         InputStream inputStream = getClass().getResourceAsStream("/parameters/crac-creator-parameters-nok.json");
         FaraoException exception = assertThrows(FaraoException.class, () -> JsonCracCreationParameters.read(inputStream));
-        assertEquals("", exception.getMessage());
+        assertEquals("Unexpected field: do-not-exist-field", exception.getMessage());
     }
 
     @Test

@@ -62,6 +62,6 @@ class NativeCracImportersTest {
     void testImportFileNotFound() {
         Path path = Paths.get("not_found", "file");
         FaraoException exception = assertThrows(FaraoException.class, () -> NativeCracImporters.importData(path));
-        assertEquals("", exception.getMessage());
+        assertEquals("File not found.", exception.getMessage());
     }
 }

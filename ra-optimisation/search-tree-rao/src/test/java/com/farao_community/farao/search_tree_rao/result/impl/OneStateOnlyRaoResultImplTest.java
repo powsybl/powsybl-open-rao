@@ -293,7 +293,7 @@ class OneStateOnlyRaoResultImplTest {
         State otherState = mock(State.class);
         assertNull(output.getPerimeterResult(otherState));
         FaraoException exception = assertThrows(FaraoException.class, () -> output.wasActivatedBeforeState(otherState, networkAction));
-        assertEquals("", exception.getMessage());
+        assertEquals("Trying to access perimeter result for the wrong state.", exception.getMessage());
         exception = assertThrows(FaraoException.class, () -> output.isActivatedDuringState(otherState, networkAction));
         assertEquals("", exception.getMessage());
         exception = assertThrows(FaraoException.class, () -> output.getActivatedNetworkActionsDuringState(otherState));
@@ -325,7 +325,7 @@ class OneStateOnlyRaoResultImplTest {
         when(optimizedState.isPreventive()).thenReturn(false);
 
         FaraoException exception = assertThrows(FaraoException.class, output::getPostPreventivePerimeterResult);
-        assertEquals("", exception.getMessage());
+        assertEquals("Trying to access perimeter result for the wrong state.", exception.getMessage());
 
         // margins
         when(cnec1state.isPreventive()).thenReturn(true);
@@ -431,7 +431,7 @@ class OneStateOnlyRaoResultImplTest {
         output.setOptimizationStepsExecuted(OptimizationStepsExecuted.SECOND_PREVENTIVE_IMPROVED_FIRST);
         assertTrue(output.getOptimizationStepsExecuted().hasRunSecondPreventive());
         FaraoException exception = assertThrows(FaraoException.class, () -> output.setOptimizationStepsExecuted(OptimizationStepsExecuted.FIRST_PREVENTIVE_ONLY));
-        assertEquals("", exception.getMessage());
+        assertEquals("The RaoResult object should not be modified outside of its usual routine", exception.getMessage());
         exception = assertThrows(FaraoException.class, () -> output.setOptimizationStepsExecuted(OptimizationStepsExecuted.SECOND_PREVENTIVE_FELLBACK_TO_FIRST_PREVENTIVE_SITUATION));
         assertEquals("", exception.getMessage());
         exception = assertThrows(FaraoException.class, () -> output.setOptimizationStepsExecuted(OptimizationStepsExecuted.FIRST_PREVENTIVE_FELLBACK_TO_INITIAL_SITUATION));

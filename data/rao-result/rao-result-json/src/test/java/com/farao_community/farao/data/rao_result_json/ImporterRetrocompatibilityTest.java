@@ -112,7 +112,7 @@ class ImporterRetrocompatibilityTest {
         Crac crac = new JsonImport().importCrac(cracFile);
         RaoResultImporter importer = new RaoResultImporter();
         FaraoException exception = assertThrows(FaraoException.class, () -> importer.importRaoResult(raoResultFile, crac));
-        assertEquals("", exception.getMessage());
+        assertEquals("Cannot deserialize RaoResult: field flow in flowCnecResults in not supported in file version 1.2 (last supported in version 1.1)", exception.getMessage());
     }
 
     @Test
@@ -136,7 +136,7 @@ class ImporterRetrocompatibilityTest {
         Crac crac = new JsonImport().importCrac(cracFile);
         RaoResultImporter importer = new RaoResultImporter();
         FaraoException exception = assertThrows(FaraoException.class, () -> importer.importRaoResult(raoResultFile, crac));
-        assertEquals("", exception.getMessage());
+        assertEquals("Cannot deserialize RaoResult: field flow in flowCnecResults in not supported in file version 1.2 (last supported in version 1.1)", exception.getMessage());
     }
 
     @Test
@@ -169,11 +169,11 @@ class ImporterRetrocompatibilityTest {
 
         InputStream raoResultFile = getClass().getResourceAsStream("/retrocompatibility/v1.3/rao-result-v1.3-error1.json");
         FaraoException exception = assertThrows(FaraoException.class, () -> importer.importRaoResult(raoResultFile, crac));
-        assertEquals("", exception.getMessage());
+        assertEquals("Cannot deserialize RaoResult: field pstRangeActionId in RAO_RESULT in not supported in file version 1.3 (last supported in version 1.2)", exception.getMessage());
 
         InputStream raoResultFile2 = getClass().getResourceAsStream("/retrocompatibility/v1.3/rao-result-v1.3-error2.json");
         exception = assertThrows(FaraoException.class, () -> importer.importRaoResult(raoResultFile2, crac));
-        assertEquals("", exception.getMessage());
+        assertEquals("Cannot deserialize RaoResult: field afterPraTap in rangeActionResults in not supported in file version 1.3 (last supported in version 1.2)", exception.getMessage());
     }
 
     private void testBaseContentOfV1RaoResult(RaoResult importedRaoResult, Crac crac) {

@@ -226,7 +226,7 @@ class AngleMonitoringTest {
         runAngleMonitoring();
         mockCurativeStates();
         FaraoException exception = assertThrows(FaraoException.class, () -> angleMonitoringResult.getAngle(acCur1, Unit.DEGREE));
-        assertEquals("", exception.getMessage());
+        assertEquals("AngleMonitoringResult was not defined with AngleCnec acCur1 and state coL1 - curative", exception.getMessage());
     }
 
     @Test
@@ -235,7 +235,7 @@ class AngleMonitoringTest {
         mockPreventiveState();
         runAngleMonitoring();
         FaraoException exception = assertThrows(FaraoException.class, () -> angleMonitoringResult.getAngle(acPrev, Unit.KILOVOLT));
-        assertEquals("", exception.getMessage());
+        assertEquals("Unhandled unit kV for AngleCnec acPrev", exception.getMessage());
     }
 
     @Test

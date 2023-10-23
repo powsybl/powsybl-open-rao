@@ -65,6 +65,6 @@ class JsonVoltageCnecsCreationParametersTest {
     void importNokTest(String source) {
         InputStream inputStream = getClass().getResourceAsStream("/parameters/voltage-cnecs-creation-parameters-" + source + ".json");
         FaraoException exception = assertThrows(FaraoException.class, () -> JsonCracCreationParameters.read(inputStream));
-        assertEquals("", exception.getMessage());
+        assertEquals("Multiple thresholds for same nominalV (400.0) defined", exception.getMessage());
     }
 }

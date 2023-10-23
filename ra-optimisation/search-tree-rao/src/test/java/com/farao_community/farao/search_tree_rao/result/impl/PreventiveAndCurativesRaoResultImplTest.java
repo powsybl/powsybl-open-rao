@@ -233,9 +233,9 @@ class PreventiveAndCurativesRaoResultImplTest {
 
     private void flowResultThrows(Instant instant, FlowCnec cnec) {
         FaraoException exception = assertThrows(FaraoException.class, () -> output.getFlow(instant, cnec, Side.LEFT, Unit.MEGAWATT));
-        assertEquals("", exception.getMessage());
+        assertEquals("Trying to access results for instant outage at optimization state auto is not allowed", exception.getMessage());
         exception = assertThrows(FaraoException.class, () -> output.getMargin(instant, cnec, Unit.MEGAWATT));
-        assertEquals("", exception.getMessage());
+        assertEquals("Trying to access results for instant outage at optimization state auto is not allowed", exception.getMessage());
         exception = assertThrows(FaraoException.class, () -> output.getRelativeMargin(instant, cnec, Unit.MEGAWATT));
         assertEquals("", exception.getMessage());
         exception = assertThrows(FaraoException.class, () -> output.getCommercialFlow(instant, cnec, Side.LEFT, Unit.MEGAWATT));
@@ -402,7 +402,7 @@ class PreventiveAndCurativesRaoResultImplTest {
         assertEquals(22, output.getPreOptimizationTapOnState(curativeState1, pstRangeAction));
         assertEquals(22, output.getPreOptimizationTapOnState(curativeState2, pstRangeAction));
         FaraoException exception = assertThrows(FaraoException.class, () -> output.getPreOptimizationTapOnState(curativeState3, pstRangeAction));
-        assertEquals("", exception.getMessage());
+        assertEquals("State null was not optimized and does not have pre-optim values", exception.getMessage());
     }
 
     @Test
@@ -422,7 +422,7 @@ class PreventiveAndCurativesRaoResultImplTest {
         assertEquals(28.9, output.getPreOptimizationSetPointOnState(curativeState1, pstRangeAction), DOUBLE_TOLERANCE);
         assertEquals(28.9, output.getPreOptimizationSetPointOnState(curativeState2, pstRangeAction), DOUBLE_TOLERANCE);
         FaraoException exception = assertThrows(FaraoException.class, () -> output.getPreOptimizationSetPointOnState(curativeState3, pstRangeAction));
-        assertEquals("", exception.getMessage());
+        assertEquals("State null was not optimized and does not have pre-optim values", exception.getMessage());
     }
 
     @Test
@@ -578,9 +578,9 @@ class PreventiveAndCurativesRaoResultImplTest {
 
         // null
         FaraoException exception = assertThrows(FaraoException.class, () -> output.getPerimeterResult(null, preventiveState));
-        assertEquals("", exception.getMessage());
+        assertEquals("No PerimeterResult for INITIAL optimization state", exception.getMessage());
         exception = assertThrows(FaraoException.class, () -> output.getPerimeterResult(null, outageState));
-        assertEquals("", exception.getMessage());
+        assertEquals("No PerimeterResult for INITIAL optimization state", exception.getMessage());
         exception = assertThrows(FaraoException.class, () -> output.getPerimeterResult(null, autoState1));
         assertEquals("", exception.getMessage());
         exception = assertThrows(FaraoException.class, () -> output.getPerimeterResult(null, curativeState1));
@@ -837,9 +837,9 @@ class PreventiveAndCurativesRaoResultImplTest {
 
         // null
         FaraoException exception = assertThrows(FaraoException.class, () -> output.getPerimeterResult(null, preventiveState));
-        assertEquals("", exception.getMessage());
+        assertEquals("No PerimeterResult for INITIAL optimization state", exception.getMessage());
         exception = assertThrows(FaraoException.class, () -> output.getPerimeterResult(null, outageState));
-        assertEquals("", exception.getMessage());
+        assertEquals("No PerimeterResult for INITIAL optimization state", exception.getMessage());
         exception = assertThrows(FaraoException.class, () -> output.getPerimeterResult(null, autoState1));
         assertEquals("", exception.getMessage());
         exception = assertThrows(FaraoException.class, () -> output.getPerimeterResult(null, curativeState1));
@@ -948,9 +948,9 @@ class PreventiveAndCurativesRaoResultImplTest {
         output.setOptimizationStepsExecuted(OptimizationStepsExecuted.SECOND_PREVENTIVE_IMPROVED_FIRST);
         assertTrue(output.getOptimizationStepsExecuted().hasRunSecondPreventive());
         FaraoException exception = assertThrows(FaraoException.class, () -> output.setOptimizationStepsExecuted(OptimizationStepsExecuted.FIRST_PREVENTIVE_ONLY));
-        assertEquals("", exception.getMessage());
+        assertEquals("The RaoResult object should not be modified outside of its usual routine", exception.getMessage());
         exception = assertThrows(FaraoException.class, () -> output.setOptimizationStepsExecuted(OptimizationStepsExecuted.SECOND_PREVENTIVE_FELLBACK_TO_FIRST_PREVENTIVE_SITUATION));
-        assertEquals("", exception.getMessage());
+        assertEquals("The RaoResult object should not be modified outside of its usual routine", exception.getMessage());
         exception = assertThrows(FaraoException.class, () -> output.setOptimizationStepsExecuted(OptimizationStepsExecuted.FIRST_PREVENTIVE_FELLBACK_TO_INITIAL_SITUATION));
         assertEquals("", exception.getMessage());
     }

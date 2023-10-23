@@ -42,9 +42,9 @@ class SensitivityResultImplTest {
         assertEquals(8, sensitivityResultImpl.getSensitivityValue(cnec, LEFT, rangeAction, MEGAWATT), DOUBLE_TOLERANCE);
 
         FaraoException exception = assertThrows(FaraoException.class, () -> sensitivityResultImpl.getSensitivityValue(cnec, LEFT, rangeAction, KILOVOLT));
-        assertEquals("", exception.getMessage());
+        assertEquals("Unhandled unit for sensitivity value on range action : kV.", exception.getMessage());
         exception = assertThrows(FaraoException.class, () -> sensitivityResultImpl.getSensitivityValue(cnec, LEFT, rangeAction, DEGREE));
-        assertEquals("", exception.getMessage());
+        assertEquals("Unhandled unit for sensitivity value on range action : °.", exception.getMessage());
         exception = assertThrows(FaraoException.class, () -> sensitivityResultImpl.getSensitivityValue(cnec, LEFT, rangeAction, PERCENT_IMAX));
         assertEquals("", exception.getMessage());
         exception = assertThrows(FaraoException.class, () -> sensitivityResultImpl.getSensitivityValue(cnec, LEFT, rangeAction, TAP));
@@ -64,7 +64,7 @@ class SensitivityResultImplTest {
 
         assertEquals(8, sensitivityResultImpl.getSensitivityValue(cnec, LEFT, linearGlsk, MEGAWATT), DOUBLE_TOLERANCE);
         FaraoException exception = assertThrows(FaraoException.class, () -> sensitivityResultImpl.getSensitivityValue(cnec, LEFT, linearGlsk, AMPERE));
-        assertEquals("", exception.getMessage());
+        assertEquals("Unknown unit for sensitivity value on linear GLSK : A.", exception.getMessage());
     }
 
     @Test

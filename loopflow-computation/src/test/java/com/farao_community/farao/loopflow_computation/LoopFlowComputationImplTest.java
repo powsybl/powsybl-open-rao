@@ -106,7 +106,7 @@ class LoopFlowComputationImplTest {
         Mockito.doReturn(null).when(network).getGenerator("gen1");
         Mockito.doReturn(null).when(network).getLoad("gen1");
         FaraoException exception = assertThrows(FaraoException.class, () -> LoopFlowComputationImpl.isInMainComponent(linearGlsk, network));
-        assertEquals("", exception.getMessage());
+        assertEquals("gen1 is neither a generator nor a load nor a dangling line in the network. It is not a valid GLSK.", exception.getMessage());
 
         Mockito.doReturn(Map.of(
                 "gen1", new WeightedSensitivityVariable("gen1", 5f),
@@ -155,7 +155,7 @@ class LoopFlowComputationImplTest {
         Mockito.doReturn(null).when(network).getLoad("dl1");
         Mockito.doReturn(dl1).when(network).getDanglingLine("dl1");
         exception = assertThrows(FaraoException.class, () -> LoopFlowComputationImpl.isInMainComponent(linearGlsk, network));
-        assertEquals("", exception.getMessage());
+        assertEquals("load1 is neither a generator nor a load nor a dangling line in the network. It is not a valid GLSK.", exception.getMessage());
     }
 
     @Test

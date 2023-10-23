@@ -32,13 +32,13 @@ class CracFactoryTest {
     @Test
     void mustThrowIfImplemNotFound() {
         FaraoException exception = assertThrows(FaraoException.class, () -> CracFactory.find("SimpleCracFactory"));
-        assertEquals("", exception.getMessage());
+        assertEquals("Crac factory 'SimpleCracFactory' not found", exception.getMessage());
     }
 
     @Test
     void mustThrowIfNameNullAndMultipleImplem() {
         FaraoException exception = assertThrows(FaraoException.class, () -> CracFactory.find(null));
-        assertEquals("", exception.getMessage());
+        assertEquals("No CracFactory implementation found, or no default implementation set and multiple implementation found.", exception.getMessage());
     }
 
     @Test

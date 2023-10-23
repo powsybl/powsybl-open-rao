@@ -122,6 +122,6 @@ class JsonAngleMonitoringResultTest {
     void importNokTest(String source) {
         InputStream inputStream = getClass().getResourceAsStream("/result-" + source + ".json");
         FaraoException exception = assertThrows(FaraoException.class, () -> angleMonitoringResultImporter.importAngleMonitoringResult(inputStream, crac));
-        assertEquals("", exception.getMessage());
+        assertEquals("Instant, CNEC ID and quantity must be defined in angle-cnec-quantities-in-degrees", exception.getMessage());
     }
 }

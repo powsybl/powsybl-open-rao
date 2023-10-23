@@ -174,7 +174,7 @@ class RaoParametersConsistencyTest {
 
         nocp.setDoNotOptimizeCnecsSecuredByTheirPst(Map.of("cnec1", "pst1"));
         FaraoException exception = assertThrows(FaraoException.class, () -> nocp.setDoNotOptimizeCurativeCnecsForTsosWithoutCras(true));
-        assertEquals("", exception.getMessage());
+        assertEquals("do-not-optimize-cnec-secured-by-its-pst and do-not-optimize-curative-cnecs-for-tsos-without-cras are incompatible", exception.getMessage());
     }
 
     @Test
@@ -185,7 +185,7 @@ class RaoParametersConsistencyTest {
         nocp.setDoNotOptimizeCurativeCnecsForTsosWithoutCras(true);
         Map<String, String> stringMap = Map.of("cnec1", "pst1");
         FaraoException exception = assertThrows(FaraoException.class, () -> nocp.setDoNotOptimizeCnecsSecuredByTheirPst(stringMap));
-        assertEquals("", exception.getMessage());
+        assertEquals("do-not-optimize-cnec-secured-by-its-pst and do-not-optimize-curative-cnecs-for-tsos-without-cras are incompatible", exception.getMessage());
     }
 
     @Test

@@ -55,7 +55,7 @@ class TopologicalActionAdderImplTest {
         TopologicalActionAdder topologicalActionAdder = networkActionAdder.newTopologicalAction()
             .withActionType(ActionType.OPEN);
         FaraoException exception = assertThrows(FaraoException.class, topologicalActionAdder::add);
-        assertEquals("", exception.getMessage());
+        assertEquals("Cannot add TopologicalAction without a network element. Please use withNetworkElement() with a non null value", exception.getMessage());
     }
 
     @Test
@@ -63,6 +63,6 @@ class TopologicalActionAdderImplTest {
         TopologicalActionAdder topologicalActionAdder = networkActionAdder.newTopologicalAction()
             .withNetworkElement("branchNetworkElementId");
         FaraoException exception = assertThrows(FaraoException.class, topologicalActionAdder::add);
-        assertEquals("", exception.getMessage());
+        assertEquals("Cannot add TopologicalAction without a action type. Please use withActionType() with a non null value", exception.getMessage());
     }
 }

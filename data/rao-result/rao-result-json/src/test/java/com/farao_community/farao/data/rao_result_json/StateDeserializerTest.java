@@ -8,6 +8,8 @@ package com.farao_community.farao.data.rao_result_json;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Crac;
+import com.farao_community.farao.data.crac_api.Instant;
+import com.farao_community.farao.data.crac_api.InstantKind;
 import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.rao_result_json.deserializers.StateDeserializer;
 import org.junit.jupiter.api.Test;
@@ -30,14 +32,23 @@ class StateDeserializerTest {
         Mockito.when(crac.getPreventiveState()).thenReturn(preventiveState);
         Mockito.when(crac.getState(contingencyId, "curative")).thenReturn(curativeState);
         Mockito.when(crac.getState(contingencyId, "outage")).thenReturn(outageState);
+        Instant instantPrev = Mockito.mock(Instant.class);
+        Mockito.when(instantPrev.getInstantKind()).thenReturn(InstantKind.PREVENTIVE);
+        Mockito.when(crac.getInstant("preventive")).thenReturn(instantPrev);
+        Instant instantOutage = Mockito.mock(Instant.class);
+        Mockito.when(instantOutage.getInstantKind()).thenReturn(InstantKind.OUTAGE);
+        Mockito.when(crac.getInstant("outage")).thenReturn(instantOutage);
+        Instant instantCurative = Mockito.mock(Instant.class);
+        Mockito.when(instantCurative.getInstantKind()).thenReturn(InstantKind.CURATIVE);
+        Mockito.when(crac.getInstant("curative")).thenReturn(instantCurative);
 
         FaraoException exception = assertThrows(FaraoException.class, () -> StateDeserializer.getState(null, contingencyId, crac, "type"));
-        assertEquals("", exception.getMessage());
+        assertEquals("Cannot deserialize RaoResult: no instant defined in activated states of type", exception.getMessage());
         assertEquals(preventiveState, StateDeserializer.getState("preventive", null, crac, null));
         exception = assertThrows(FaraoException.class, () -> StateDeserializer.getState("outage", null, crac, "type"));
-        assertEquals("", exception.getMessage());
+        assertEquals("Cannot deserialize RaoResult: no contingency defined in N-k activated states of type", exception.getMessage());
         exception = assertThrows(FaraoException.class, () -> StateDeserializer.getState("outage", "wrongContingencyId", crac, "type"));
-        assertEquals("", exception.getMessage());
+        assertEquals("Cannot deserialize RaoResult: State at instant outage with contingency wrongContingencyId not found in Crac", exception.getMessage());
         assertEquals(outageState, StateDeserializer.getState("outage", contingencyId, crac, "type"));
         assertEquals(curativeState, StateDeserializer.getState("curative", contingencyId, crac, "type"));
     }

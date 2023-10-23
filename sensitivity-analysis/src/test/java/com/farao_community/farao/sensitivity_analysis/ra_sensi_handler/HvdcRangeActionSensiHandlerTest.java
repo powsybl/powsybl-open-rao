@@ -79,7 +79,7 @@ class HvdcRangeActionSensiHandlerTest {
         HvdcRangeActionSensiHandler sensiHandler = new HvdcRangeActionSensiHandler(hvdcRangeAction);
 
         FaraoException exception = assertThrows(FaraoException.class, () -> sensiHandler.checkConsistency(network));
-        assertEquals("", exception.getMessage());
+        assertEquals("Unable to create sensitivity variable for HvdcRangeAction hvdcRangeId, on element BBE1AA11 BBE2AA11 1", exception.getMessage());
     }
 
     @Test
@@ -97,6 +97,6 @@ class HvdcRangeActionSensiHandlerTest {
         HvdcRangeActionSensiHandler sensiHandler = new HvdcRangeActionSensiHandler(hvdcRangeAction);
 
         FaraoException exception = assertThrows(FaraoException.class, () -> sensiHandler.checkConsistency(network));
-        assertEquals("", exception.getMessage());
+        assertEquals("Unable to create sensitivity variable for HvdcRangeAction hvdcRangeId, on element unknownNetworkElement", exception.getMessage());
     }
 }

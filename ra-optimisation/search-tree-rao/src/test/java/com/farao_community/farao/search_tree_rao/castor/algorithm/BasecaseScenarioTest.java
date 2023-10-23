@@ -8,7 +8,10 @@
 package com.farao_community.farao.search_tree_rao.castor.algorithm;
 
 import com.farao_community.farao.commons.FaraoException;
+import com.farao_community.farao.data.crac_api.Instant;
+import com.farao_community.farao.data.crac_api.InstantKind;
 import com.farao_community.farao.data.crac_api.State;
+import com.farao_community.farao.data.crac_impl.InstantImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -28,12 +31,17 @@ class BasecaseScenarioTest {
 
     @BeforeEach
     public void setUp() {
+        Instant instantPrev = new InstantImpl("preventive", InstantKind.PREVENTIVE, null);
+        Instant instantOutage = new InstantImpl("outage", InstantKind.OUTAGE, instantPrev);
+        Instant instantAuto = new InstantImpl("auto", InstantKind.AUTO, instantOutage);
+        Instant instantCurative = new InstantImpl("curative", InstantKind.CURATIVE, instantAuto);
+
         basecaseState = Mockito.mock(State.class);
-        Mockito.when(basecaseState.getInstant().getId()).thenReturn("preventive");
+        Mockito.when(basecaseState.getInstant()).thenReturn(instantPrev);
         otherState1 = Mockito.mock(State.class);
-        Mockito.when(otherState1.getInstant().getId()).thenReturn("outage");
+        Mockito.when(otherState1.getInstant()).thenReturn(instantOutage);
         otherState2 = Mockito.mock(State.class);
-        Mockito.when(otherState2.getInstant().getId()).thenReturn("curative");
+        Mockito.when(otherState2.getInstant()).thenReturn(instantCurative);
     }
 
     @Test
@@ -62,14 +70,14 @@ class BasecaseScenarioTest {
         Set<State> otherStates = Set.of(otherState2);
         assertThrows(NullPointerException.class, () -> new BasecaseScenario(null, otherStates));
         FaraoException exception = assertThrows(FaraoException.class, () -> new BasecaseScenario(otherState1, otherStates));
-        assertEquals("", exception.getMessage());
+        assertEquals("Basecase state Mock for State, hashCode: 653345773 is not preventive", exception.getMessage());
     }
 
     @Test
     void testWrongOtherScenario() {
         Set<State> otherStates = Set.of(basecaseState, otherState1);
         FaraoException exception = assertThrows(FaraoException.class, () -> new BasecaseScenario(basecaseState, otherStates));
-        assertEquals("", exception.getMessage());
+        assertEquals("OtherStates should not be preventive", exception.getMessage());
     }
 
     @Test
@@ -83,6 +91,6 @@ class BasecaseScenarioTest {
         basecaseScenario.addOtherState(otherState2);
         assertEquals(Set.of(otherState1, otherState2), basecaseScenario.getOtherStates());
         FaraoException exception = assertThrows(FaraoException.class, () -> basecaseScenario.addOtherState(basecaseState));
-        assertEquals("", exception.getMessage());
+        assertEquals("OtherStates should not be preventive", exception.getMessage());
     }
 }

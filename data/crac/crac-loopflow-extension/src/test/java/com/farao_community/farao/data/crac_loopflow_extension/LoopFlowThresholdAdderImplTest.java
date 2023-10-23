@@ -57,7 +57,7 @@ class LoopFlowThresholdAdderImplTest {
         LoopFlowThresholdAdder loopFlowThresholdAdder = flowCnec.newExtension(LoopFlowThresholdAdder.class)
             .withUnit(Unit.MEGAWATT);
         FaraoException exception = assertThrows(FaraoException.class, loopFlowThresholdAdder::add);
-        assertEquals("", exception.getMessage());
+        assertEquals("Cannot add LoopFlowThreshold without a threshold value. Please use withValue() with a non null value", exception.getMessage());
     }
 
     @Test
@@ -65,7 +65,7 @@ class LoopFlowThresholdAdderImplTest {
         LoopFlowThresholdAdder loopFlowThresholdAdder = flowCnec.newExtension(LoopFlowThresholdAdder.class)
             .withValue(100.0);
         FaraoException exception = assertThrows(FaraoException.class, loopFlowThresholdAdder::add);
-        assertEquals("", exception.getMessage());
+        assertEquals("Cannot add LoopFlowThreshold without a threshold unit. Please use withUnit() with a non null value", exception.getMessage());
     }
 
     @Test
@@ -74,7 +74,7 @@ class LoopFlowThresholdAdderImplTest {
             .withUnit(Unit.MEGAWATT)
             .withValue(-100.0);
         FaraoException exception = assertThrows(FaraoException.class, loopFlowThresholdAdder::add);
-        assertEquals("", exception.getMessage());
+        assertEquals("LoopFlowThresholds must have a positive threshold.", exception.getMessage());
     }
 
     @Test
@@ -83,6 +83,6 @@ class LoopFlowThresholdAdderImplTest {
             .withUnit(Unit.PERCENT_IMAX)
             .withValue(25);
         FaraoException exception = assertThrows(FaraoException.class, loopFlowThresholdAdder::add);
-        assertEquals("", exception.getMessage());
+        assertEquals("LoopFlowThresholds in Unit.PERCENT_IMAX must be defined between 0 and 1, where 1 = 100%.", exception.getMessage());
     }
 }
