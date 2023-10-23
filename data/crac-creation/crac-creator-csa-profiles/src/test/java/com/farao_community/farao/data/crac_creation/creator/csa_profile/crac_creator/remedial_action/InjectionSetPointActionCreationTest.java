@@ -1,10 +1,8 @@
 package com.farao_community.farao.data.crac_creation.creator.csa_profile.crac_creator.remedial_action;
 
-import com.farao_community.farao.data.crac_api.RemedialAction;
 import com.farao_community.farao.data.crac_api.network_action.InjectionSetpoint;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
-import com.farao_community.farao.data.crac_api.usage_rule.UsageRule;
 import com.farao_community.farao.data.crac_creation.creator.api.ImportStatus;
 import com.farao_community.farao.data.crac_creation.creator.api.parameters.CracCreationParameters;
 import com.farao_community.farao.data.crac_creation.creator.csa_profile.CsaProfileCrac;
@@ -27,10 +25,7 @@ import java.io.File;
 import java.io.InputStream;
 import java.nio.file.Paths;
 import java.time.OffsetDateTime;
-import java.util.Comparator;
-import java.util.List;
 import java.util.Properties;
-import java.util.Set;
 import java.util.stream.Stream;
 
 import static com.farao_community.farao.data.crac_api.Instant.CURATIVE;
@@ -64,7 +59,6 @@ public class InjectionSetPointActionCreationTest {
         CsaProfileCracCreationContext cracCreationContext = cracCreator.createCrac(nativeCrac, network, OffsetDateTime.parse("2023-03-29T12:00Z"), new CracCreationParameters());
 
         assertEquals(8, cracCreationContext.getCrac().getRemedialActions().size());
-        Set<RemedialAction<?>> remedialActions = cracCreationContext.getCrac().getRemedialActions();
         // RA1 (on instant)
         NetworkAction ra1 = cracCreationContext.getCrac().getNetworkAction("on-instant-preventive-remedial-action");
         assertEquals("RA1", ra1.getName());
@@ -126,18 +120,6 @@ public class InjectionSetPointActionCreationTest {
         assertEquals("rotating-machine", ra4.getNetworkElements().iterator().next().getId());
         assertEquals(15.6, ((InjectionSetpoint) ra4.getElementaryActions().iterator().next()).getSetpoint(), 0.1);
 
-        // on-state-excluded-curative-remedial-action (on state + on instant)
-        NetworkAction ra5 = cracCreationContext.getCrac().getNetworkAction("on-state-excluded-curative-remedial-action");
-        assertEquals("RA5", ra5.getName());
-        List<UsageRule> usageRules = ra5.getUsageRules().stream().sorted(Comparator.comparing(UsageRule::getUsageMethod)).toList();
-// TODO check with thomas
-/*assertEquals(2, usageRules.size());
-        assertTrue(ra5.getUsageRules().stream().map(UsageRule::getInstant).allMatch(i -> i.equals(CURATIVE)));
-        assertEquals(UsageMethod.AVAILABLE, usageRules.iterator().next().getUsageMethod());
-        assertEquals(UsageMethod.UNAVAILABLE, usageRules.get(1).getUsageMethod());
-        assertEquals("contingency", ((OnContingencyStateImpl) usageRules.get(1)).getState().getContingency().get().getId());
-        assertEquals("rotating-machine", ra5.getNetworkElements().iterator().next().getId());
-        assertEquals(25.7, ((InjectionSetpoint) ra5.getElementaryActions().iterator().next()).getSetpoint(), 0.1);*/
     }
 
     @Test

@@ -7,7 +7,9 @@
 
 package com.farao_community.farao.data.crac_creation.creator.csa_profile.crac_creator;
 
+import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.*;
+import com.farao_community.farao.data.crac_api.cnec.AngleCnec;
 import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_api.usage_rule.*;
 import com.farao_community.farao.data.crac_creation.creator.api.parameters.CracCreationParameters;
@@ -16,7 +18,9 @@ import com.farao_community.farao.data.crac_creation.creator.csa_profile.importer
 import com.google.common.base.Suppliers;
 import com.powsybl.computation.local.LocalComputationManager;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.Identifiable;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 
 import java.io.File;
 import java.io.InputStream;
@@ -80,8 +84,6 @@ public class CsaProfileCracCreatorTest {
         CsaProfileCracCreationTestUtil.assertHasOnInstantUsageRule(cracCreationContext, "open_fr1_fr3", PREVENTIVE, UsageMethod.AVAILABLE);
     }
 
-    /*
-    // TODO check with Thomas, no contingencies are created
     @Test
     public void checkExcludedCombinationConstraintHandling() {
         //CSA 63_1
@@ -115,7 +117,7 @@ public class CsaProfileCracCreatorTest {
         Mockito.when(network.getIdentifiable("073a3aef-f425-48ec-ba72-d68ad4dd333c")).thenReturn((Identifiable) terminal2Mock);
         Mockito.when(network.getIdentifiable("9b476375-4005-46b5-8465-0192dfdbba51")).thenReturn((Identifiable) terminal1Mock);
         Mockito.when(network.getIdentifiable("175aa88b-c62a-4411-b4df-474c436692d0")).thenReturn((Identifiable) terminal2Mock);
-        Mockito.when(network.getIdentifiable("d1db384f-3a27-434b-93f5-5afa3ab23b00")).thenReturn((Identifiable) switchMock);
+        Mockito.when(network.getSwitch("d1db384f-3a27-434b-93f5-5afa3ab23b00")).thenReturn(switchMock);
         Mockito.when(network.getIdentifiable("ff3c8013-d3f9-4198-a1f2-98d3ebdf30c4")).thenReturn(networkElementMock);
 
         CsaProfileCracCreationContext cracCreationContext = cracCreator.createCrac(nativeCrac, network, OffsetDateTime.parse("2023-03-29T12:00Z"), new CracCreationParameters());
@@ -127,7 +129,7 @@ public class CsaProfileCracCreatorTest {
                 .sorted(Comparator.comparing(AngleCnec::getId)).toList();
 
         // RTE_AE1 - RTE_CO1 - curative
-        AngleCnec angleCnec1 = angleCnecs.iterator().next();
+        AngleCnec angleCnec1 = angleCnecs.get(0);
         assertEquals("RTE_AE1 - RTE_CO1 - curative", angleCnec1.getId());
         assertEquals("RTE_AE1 - RTE_CO1 - curative", angleCnec1.getName());
         assertEquals("c2e3e624-8389-4a50-a2f8-be51631ba221", angleCnec1.getImportingNetworkElement().getId());
@@ -139,25 +141,36 @@ public class CsaProfileCracCreatorTest {
         AngleCnec angleCnec2 = angleCnecs.get(1);
         assertEquals("RTE_AE2 - RTE_CO3 - curative", angleCnec2.getId());
         assertEquals("RTE_AE2 - RTE_CO3 - curative", angleCnec2.getName());
-        assertEquals("9b476375-4005-46b5-8465-0192dfdbba51", angleCnec2.getImportingNetworkElement().getId());
-        assertEquals("175aa88b-c62a-4411-b4df-474c436692d0", angleCnec2.getExportingNetworkElement().getId());
+        assertEquals("c2e3e624-8389-4a50-a2f8-be51631ba221", angleCnec2.getImportingNetworkElement().getId());
+        assertEquals("073a3aef-f425-48ec-ba72-d68ad4dd333c", angleCnec2.getExportingNetworkElement().getId());
+        assertEquals(-45.0, angleCnec2.getLowerBound(Unit.DEGREE).get());
         assertEquals(45.0, angleCnec2.getUpperBound(Unit.DEGREE).get());
-        assertEquals(-45.0, angleCnec2.getUpperBound(Unit.DEGREE).get());
-
 
         assertEquals(3, cracCreationContext.getCrac().getContingencies().size());
         List<Contingency> listContingencies = cracCreationContext.getCrac().getContingencies()
                 .stream().sorted(Comparator.comparing(Contingency::getId)).toList();
-        CsaProfileCracCreationTestUtil.assertContingencyEquality(listContingencies.iterator().next(),
-                "5bd378fa-700b-4b88-b73a-327100ad18bf", "RTE_CO1",
+
+        CsaProfileCracCreationTestUtil.assertContingencyEquality(listContingencies.get(0),
+                "2a193923-ac8a-40e8-b0f0-50ba28826317", "RTE_CO2",
                 1, List.of("ff3c8013-d3f9-4198-a1f2-98d3ebdf30c4"));
         CsaProfileCracCreationTestUtil.assertContingencyEquality(listContingencies.get(1),
-                "2a193923-ac8a-40e8-b0f0-50ba28826317", "RTE_CO2",
+                "5bd378fa-700b-4b88-b73a-327100ad18bf", "RTE_CO1",
                 1, List.of("ff3c8013-d3f9-4198-a1f2-98d3ebdf30c4"));
         CsaProfileCracCreationTestUtil.assertContingencyEquality(listContingencies.get(2),
                 "8f2cac52-ba92-4922-b8e2-2ee0414829f5", "RTE_CO3",
                 1, List.of("ff3c8013-d3f9-4198-a1f2-98d3ebdf30c4"));
 
+        assertEquals(4, cracCreationContext.getCrac().getRemedialActions().size());
+        CsaProfileCracCreationTestUtil.assertNetworkActionImported(cracCreationContext, "ac60186a-8ee9-4379-8ce2-48fe335b0357", Set.of("d1db384f-3a27-434b-93f5-5afa3ab23b00"), false, 2);
+        CsaProfileCracCreationTestUtil.assertNetworkActionImported(cracCreationContext, "4b6f26d2-887e-4bb5-b4a0-d9dbfbca0c7d", Set.of("d1db384f-3a27-434b-93f5-5afa3ab23b00"), false, 2);
+        CsaProfileCracCreationTestUtil.assertNetworkActionImported(cracCreationContext, "fb21c59d-4268-4ba2-aa1b-ae2767799a36", Set.of("d1db384f-3a27-434b-93f5-5afa3ab23b00"), true, 1);
+        CsaProfileCracCreationTestUtil.assertNetworkActionImported(cracCreationContext, "6dccb771-921c-4025-8079-f55590868704", Set.of("d1db384f-3a27-434b-93f5-5afa3ab23b00"), false, 1);
+
+        CsaProfileCracCreationTestUtil.assertHasOnAngleConstraintUsageRule(cracCreationContext, "ac60186a-8ee9-4379-8ce2-48fe335b0357", "RTE_AE1 - RTE_CO1 - curative", CURATIVE, UsageMethod.TO_BE_EVALUATED); // TODO change TO_BE_EVALUATED by FORCED
+        CsaProfileCracCreationTestUtil.assertHasOnAngleConstraintUsageRule(cracCreationContext, "ac60186a-8ee9-4379-8ce2-48fe335b0357", "RTE_AE2 - RTE_CO3 - curative", CURATIVE, UsageMethod.TO_BE_EVALUATED); // TODO change TO_BE_EVALUATED by AVAILABLE
+        CsaProfileCracCreationTestUtil.assertHasOnAngleConstraintUsageRule(cracCreationContext, "4b6f26d2-887e-4bb5-b4a0-d9dbfbca0c7d", "RTE_AE1 - RTE_CO1 - curative", CURATIVE, UsageMethod.TO_BE_EVALUATED); // TODO change TO_BE_EVALUATED by FORCED
+        CsaProfileCracCreationTestUtil.assertHasOnAngleConstraintUsageRule(cracCreationContext, "4b6f26d2-887e-4bb5-b4a0-d9dbfbca0c7d", "RTE_AE2 - RTE_CO3 - curative", CURATIVE, UsageMethod.TO_BE_EVALUATED); // TODO change TO_BE_EVALUATED by AVAILABLE
+        CsaProfileCracCreationTestUtil.assertHasOnAngleConstraintUsageRule(cracCreationContext, "fb21c59d-4268-4ba2-aa1b-ae2767799a36", "RTE_AE2 - RTE_CO3 - curative", CURATIVE, UsageMethod.TO_BE_EVALUATED); // TODO change TO_BE_EVALUATED by FORCED
+        CsaProfileCracCreationTestUtil.assertHasOnAngleConstraintUsageRule(cracCreationContext, "6dccb771-921c-4025-8079-f55590868704", "RTE_AE2 - RTE_CO3 - curative", CURATIVE, UsageMethod.TO_BE_EVALUATED); // TODO change TO_BE_EVALUATED by AVAILABLE
     }
-     */
 }

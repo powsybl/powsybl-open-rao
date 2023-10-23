@@ -4,7 +4,6 @@ import com.farao_community.farao.data.crac_api.network_action.ActionType;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.crac_api.network_action.TopologicalAction;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
-import com.farao_community.farao.data.crac_api.usage_rule.UsageRule;
 import com.farao_community.farao.data.crac_creation.creator.api.parameters.CracCreationParameters;
 import com.farao_community.farao.data.crac_creation.creator.csa_profile.CsaProfileCrac;
 import com.farao_community.farao.data.crac_creation.creator.csa_profile.crac_creator.CsaProfileCracCreationContext;
@@ -25,7 +24,6 @@ import java.io.File;
 import java.io.InputStream;
 import java.nio.file.Paths;
 import java.time.OffsetDateTime;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Properties;
 
@@ -169,18 +167,6 @@ public class TopologicalActionCreationTest {
         assertEquals("RA4", ra4.getName());
         assertEquals(CURATIVE, ra4.getUsageRules().iterator().next().getInstant());
         assertEquals(UsageMethod.FORCED, ra4.getUsageRules().iterator().next().getUsageMethod());
-
-        // RA5 (on instant + on instant)
-        NetworkAction ra5 = cracCreationContext.getCrac().getNetworkAction("on-state-excluded-curative-topological-action-parent-remedial-action");
-        assertEquals("RA5", ra5.getName());
-        List<UsageRule> usageRules = ra5.getUsageRules().stream().sorted(Comparator.comparing(UsageRule::getUsageMethod)).toList();
-// TODO check with thomas        assertEquals(2, usageRules.size());
-/*        assertEquals(CURATIVE, usageRules.iterator().next().getInstant());
-        assertEquals(UsageMethod.AVAILABLE, usageRules.iterator().next().getUsageMethod());
-
-        assertEquals(CURATIVE, usageRules.get(1).getInstant());
-        assertEquals(UsageMethod.UNAVAILABLE, usageRules.get(1).getUsageMethod());
-        assertEquals("contingency", ((OnContingencyStateImpl) usageRules.get(1)).getState().getContingency().get().getId());*/
 
         // RTE_RA7 (on instant)
         NetworkAction ra7 = cracCreationContext.getCrac().getNetworkAction("topological-action-with-tso-name-parent-remedial-action");
