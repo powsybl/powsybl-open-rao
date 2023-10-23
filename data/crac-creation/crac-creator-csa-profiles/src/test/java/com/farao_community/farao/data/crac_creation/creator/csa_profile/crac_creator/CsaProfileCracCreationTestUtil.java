@@ -11,7 +11,6 @@ import com.farao_community.farao.data.crac_api.threshold.BranchThreshold;
 import com.farao_community.farao.data.crac_api.threshold.Threshold;
 import com.farao_community.farao.data.crac_api.usage_rule.*;
 import com.farao_community.farao.data.crac_creation.creator.api.ImportStatus;
-import com.farao_community.farao.data.crac_creation.creator.csa_profile.crac_creator.remedial_action.CsaProfileRemedialActionCreationContext;
 
 import java.util.Comparator;
 import java.util.List;
@@ -93,10 +92,10 @@ public final class CsaProfileCracCreationTestUtil {
     }
 
     public static void assertPstRangeActionImported(CsaProfileCracCreationContext cracCreationContext, String id, String networkElement, boolean isAltered, int numberOfUsageRules) {
-        CsaProfileRemedialActionCreationContext remedialActionCreationContext = cracCreationContext.getRemedialActionCreationContext(id);
-        assertNotNull(remedialActionCreationContext);
-        assertTrue(remedialActionCreationContext.isImported());
-        assertEquals(isAltered, remedialActionCreationContext.isAltered());
+        CsaProfileElementaryCreationContext csaProfileElementaryCreationContext = cracCreationContext.getRemedialActionCreationContext(id);
+        assertNotNull(csaProfileElementaryCreationContext);
+        assertTrue(csaProfileElementaryCreationContext.isImported());
+        assertEquals(isAltered, csaProfileElementaryCreationContext.isAltered());
         assertNotNull(cracCreationContext.getCrac().getPstRangeAction(id));
         String actualNetworkElement = cracCreationContext.getCrac().getPstRangeAction(id).getNetworkElement().toString();
         assertEquals(networkElement, actualNetworkElement);
@@ -104,10 +103,10 @@ public final class CsaProfileCracCreationTestUtil {
     }
 
     public static void assertNetworkActionImported(CsaProfileCracCreationContext cracCreationContext, String id, Set<String> networkElements, boolean isAltered, int numberOfUsageRules) {
-        CsaProfileRemedialActionCreationContext remedialActionSeriesCreationContext = cracCreationContext.getRemedialActionCreationContext(id);
-        assertNotNull(remedialActionSeriesCreationContext);
-        assertTrue(remedialActionSeriesCreationContext.isImported());
-        assertEquals(isAltered, remedialActionSeriesCreationContext.isAltered());
+        CsaProfileElementaryCreationContext csaProfileElementaryCreationContext = cracCreationContext.getRemedialActionCreationContext(id);
+        assertNotNull(csaProfileElementaryCreationContext);
+        assertTrue(csaProfileElementaryCreationContext.isImported());
+        assertEquals(isAltered, csaProfileElementaryCreationContext.isAltered());
         assertNotNull(cracCreationContext.getCrac().getNetworkAction(id));
         Set<String> actualNetworkElements = cracCreationContext.getCrac().getNetworkAction(id).getNetworkElements().stream().map(NetworkElement::getId).collect(Collectors.toSet());
         assertEquals(networkElements, actualNetworkElements);
@@ -155,7 +154,7 @@ public final class CsaProfileCracCreationTestUtil {
     }
 
     public static void assertRaNotImported(CsaProfileCracCreationContext cracCreationContext, String raId, ImportStatus importStatus, String importStatusDetail) {
-        CsaProfileRemedialActionCreationContext context = cracCreationContext.getRemedialActionCreationContext(raId);
+        CsaProfileElementaryCreationContext context = cracCreationContext.getRemedialActionCreationContext(raId);
         assertNotNull(context);
         assertFalse(context.isImported());
         assertEquals(importStatusDetail, context.getImportStatusDetail());
