@@ -8,6 +8,7 @@ package com.farao_community.farao.search_tree_rao.search_tree.algorithms;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
+import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.InstantKind;
 import com.farao_community.farao.data.crac_api.RemedialAction;
 import com.farao_community.farao.data.crac_api.State;
@@ -139,14 +140,14 @@ public class Leaf implements OptimizationResult {
      * This method performs a systematic sensitivity computation on the leaf only if it has not been done previously.
      * If the computation works fine status is updated to EVALUATED otherwise it is set to ERROR.
      */
-    void evaluate(ObjectiveFunction objectiveFunction, SensitivityComputer sensitivityComputer) {
+    void evaluate(ObjectiveFunction objectiveFunction, SensitivityComputer sensitivityComputer, Instant instantOutage) {
         if (status.equals(Status.EVALUATED)) {
             TECHNICAL_LOGS.debug("Leaf has already been evaluated");
             preOptimObjectiveFunctionResult = objectiveFunction.evaluate(preOptimFlowResult, raActivationResultFromParentLeaf, preOptimSensitivityResult, preOptimSensitivityResult.getSensitivityStatus());
             return;
         }
         TECHNICAL_LOGS.debug("Evaluating {}", this);
-        sensitivityComputer.compute(network);
+        sensitivityComputer.compute(network, instantOutage);
         if (sensitivityComputer.getSensitivityResult().getSensitivityStatus() == ComputationStatus.FAILURE) {
             BUSINESS_WARNS.warn("Failed to evaluate leaf: sensitivity analysis failed");
             status = Status.ERROR;
@@ -168,7 +169,7 @@ public class Leaf implements OptimizationResult {
      * is either the same as the initial variant ID if the optimization has not been efficient or a new ID
      * corresponding to a new variant created by the IteratingLinearOptimizer.
      */
-    void optimize(SearchTreeInput searchTreeInput, SearchTreeParameters parameters) {
+    void optimize(SearchTreeInput searchTreeInput, SearchTreeParameters parameters, Instant instantOutage) {
         if (!optimizationDataPresent) {
             throw new FaraoException("Cannot optimize leaf, because optimization data has been deleted");
         }
@@ -209,7 +210,7 @@ public class Leaf implements OptimizationResult {
                 .withRaRangeShrinking(parameters.getTreeParameters().getRaRangeShrinking())
                 .build();
 
-            postOptimResult = IteratingLinearOptimizer.optimize(linearOptimizerInput, linearOptimizerParameters);
+            postOptimResult = IteratingLinearOptimizer.optimize(linearOptimizerInput, linearOptimizerParameters, instantOutage);
 
             status = Status.OPTIMIZED;
         } else if (status.equals(Status.ERROR)) {

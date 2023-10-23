@@ -8,6 +8,7 @@ package com.farao_community.farao.data.crac_creation.creator.cse;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Crac;
+import com.farao_community.farao.data.crac_api.InstantKind;
 import com.farao_community.farao.data.crac_creation.creator.api.CracCreator;
 import com.farao_community.farao.data.crac_creation.creator.api.parameters.CracCreationParameters;
 import com.farao_community.farao.data.crac_creation.creator.cse.critical_branch.TCriticalBranchesAdder;
@@ -33,6 +34,22 @@ import java.util.List;
 public class CseCracCreator implements CracCreator<CseCrac, CseCracCreationContext> {
     CseCracCreationContext creationContext;
 
+    private static void addCseInstants(Crac crac) {
+        crac.addInstant("preventive", InstantKind.PREVENTIVE, null);
+        crac.addInstant("outage", InstantKind.OUTAGE, "preventive");
+        crac.addInstant("curative", InstantKind.CURATIVE, "outage");
+    }
+
+    public static TCRACSeries getCracSeries(CRACDocumentType cracDocumentType) {
+        // Check that there is only one CRACSeries in the file, which defines the CRAC
+        // XSD enables several CRACSeries but without any further specification it doesn't make sense.
+        List<TCRACSeries> tcracSeriesList = cracDocumentType.getCRACSeries();
+        if (tcracSeriesList.size() != 1) {
+            throw new FaraoException("CRAC file contains no or more than one <CRACSeries> tag which is not handled.");
+        }
+        return tcracSeriesList.get(0);
+    }
+
     @Override
     public String getNativeCracFormat() {
         return "CseCrac";
@@ -42,6 +59,7 @@ public class CseCracCreator implements CracCreator<CseCrac, CseCracCreationConte
     public CseCracCreationContext createCrac(CseCrac cseCrac, Network network, OffsetDateTime offsetDateTime, CracCreationParameters cracCreationParameters) {
         // Set attributes
         Crac crac = cracCreationParameters.getCracFactory().create(cseCrac.getCracDocument().getDocumentIdentification().getV());
+        addCseInstants(crac);
         this.creationContext = new CseCracCreationContext(crac, offsetDateTime, network.getNameOrId());
 
         // Check timestamp field
@@ -86,15 +104,4 @@ public class CseCracCreator implements CracCreator<CseCrac, CseCracCreationConte
             return creationContext.creationFailure();
         }
     }
-
-    public static TCRACSeries getCracSeries(CRACDocumentType cracDocumentType) {
-        // Check that there is only one CRACSeries in the file, which defines the CRAC
-        // XSD enables several CRACSeries but without any further specification it doesn't make sense.
-        List<TCRACSeries> tcracSeriesList = cracDocumentType.getCRACSeries();
-        if (tcracSeriesList.size() != 1) {
-            throw new FaraoException("CRAC file contains no or more than one <CRACSeries> tag which is not handled.");
-        }
-        return tcracSeriesList.get(0);
-    }
-
 }

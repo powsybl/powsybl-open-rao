@@ -9,9 +9,10 @@ package com.farao_community.farao.sensitivity_analysis;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
-import com.powsybl.glsk.commons.ZonalData;
+import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
+import com.powsybl.glsk.commons.ZonalData;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.sensitivity.SensitivityAnalysisParameters;
 import com.powsybl.sensitivity.SensitivityVariableSet;
@@ -19,7 +20,8 @@ import com.powsybl.sensitivity.SensitivityVariableSet;
 import java.util.Objects;
 import java.util.Set;
 
-import static com.farao_community.farao.commons.logs.FaraoLoggerProvider.*;
+import static com.farao_community.farao.commons.logs.FaraoLoggerProvider.BUSINESS_WARNS;
+import static com.farao_community.farao.commons.logs.FaraoLoggerProvider.TECHNICAL_LOGS;
 
 /**
  * An interface with the engine that computes sensitivities and flows needed in the RAO.
@@ -49,13 +51,47 @@ public final class SystematicSensitivityInterface {
      */
     private AppliedRemedialActions appliedRemedialActions;
 
+    SystematicSensitivityInterface() {
+
+    }
+
+    public static SystematicSensitivityInterfaceBuilder builder() {
+        return new SystematicSensitivityInterfaceBuilder();
+    }
+
+    /**
+     * Run the systematic sensitivity analysis on the given network and crac, and associates the
+     * SystematicSensitivityResult to the given network variant.
+     */
+    public SystematicSensitivityResult run(Network network, Instant instantOutage) {
+        SystematicSensitivityResult result = runWithConfig(network, parameters, instantOutage);
+        if (!result.isSuccess()) {
+            BUSINESS_WARNS.warn("Sensitivity analysis failed.");
+        }
+        return result;
+    }
+
+    /**
+     * Run the systematic sensitivity analysis with given SensitivityComputationParameters, throw a
+     * SensitivityComputationException is the computation fails.
+     */
+    private SystematicSensitivityResult runWithConfig(Network network, SensitivityAnalysisParameters sensitivityAnalysisParameters, Instant instantOutage) {
+        SystematicSensitivityResult tempSystematicSensitivityAnalysisResult = SystematicSensitivityAdapter
+            .runSensitivity(network, cnecSensitivityProvider, appliedRemedialActions, sensitivityAnalysisParameters, sensitivityProvider, instantOutage);
+
+        if (!tempSystematicSensitivityAnalysisResult.isSuccess()) {
+            TECHNICAL_LOGS.error("Sensitivity analysis failed: no output data available.");
+        }
+        return tempSystematicSensitivityAnalysisResult;
+    }
+
     /**
      * Builder
      */
     public static final class SystematicSensitivityInterfaceBuilder {
+        private final MultipleSensitivityProvider multipleSensitivityProvider = new MultipleSensitivityProvider();
         private String sensitivityProvider;
         private SensitivityAnalysisParameters defaultParameters;
-        private final MultipleSensitivityProvider multipleSensitivityProvider = new MultipleSensitivityProvider();
         private AppliedRemedialActions appliedRemedialActions;
         private boolean providerInitialised = false;
 
@@ -116,39 +152,5 @@ public final class SystematicSensitivityInterface {
             systematicSensitivityInterface.appliedRemedialActions = appliedRemedialActions;
             return systematicSensitivityInterface;
         }
-    }
-
-    public static SystematicSensitivityInterfaceBuilder builder() {
-        return new SystematicSensitivityInterfaceBuilder();
-    }
-
-    SystematicSensitivityInterface() {
-
-    }
-
-    /**
-     * Run the systematic sensitivity analysis on the given network and crac, and associates the
-     * SystematicSensitivityResult to the given network variant.
-     */
-    public SystematicSensitivityResult run(Network network) {
-        SystematicSensitivityResult result = runWithConfig(network, parameters);
-        if (!result.isSuccess()) {
-            BUSINESS_WARNS.warn("Sensitivity analysis failed.");
-        }
-        return result;
-    }
-
-    /**
-     * Run the systematic sensitivity analysis with given SensitivityComputationParameters, throw a
-     * SensitivityComputationException is the computation fails.
-     */
-    private SystematicSensitivityResult runWithConfig(Network network, SensitivityAnalysisParameters sensitivityAnalysisParameters) {
-        SystematicSensitivityResult tempSystematicSensitivityAnalysisResult = SystematicSensitivityAdapter
-                .runSensitivity(network, cnecSensitivityProvider, appliedRemedialActions, sensitivityAnalysisParameters, sensitivityProvider);
-
-        if (!tempSystematicSensitivityAnalysisResult.isSuccess()) {
-            TECHNICAL_LOGS.error("Sensitivity analysis failed: no output data available.");
-        }
-        return tempSystematicSensitivityAnalysisResult;
     }
 }

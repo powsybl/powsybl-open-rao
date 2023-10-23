@@ -38,7 +38,7 @@ class JsonCimCracCreationParametersTest {
             Arguments.of("nok3", "Range action rangeAction1 has two or more associated speed"),
             Arguments.of("nok4", "Missing range action ID in range-action-speeds"),
             Arguments.of("nok5", "Missing speed in range-action-speeds"),
-            Arguments.of("nok-aligned", "Range actions rangeAction2 and rangeAction1 are aligned but have different speeds (2 and 1)")
+            Arguments.of("nok-aligned", "Range actions rangeAction1 and rangeAction2 are aligned but have different speeds (1 and 2)")
         );
     }
 

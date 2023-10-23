@@ -8,6 +8,7 @@
 package com.farao_community.farao.data.crac_creation.creator.cim.crac_creator;
 
 import com.farao_community.farao.data.crac_api.Crac;
+import com.farao_community.farao.data.crac_api.InstantKind;
 import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_creation.creator.api.CracCreator;
 import com.farao_community.farao.data.crac_creation.creator.api.parameters.CracCreationParameters;
@@ -32,10 +33,10 @@ import java.util.Set;
  */
 @AutoService(CracCreator.class)
 public class CimCracCreator implements CracCreator<CimCrac, CimCracCreationContext> {
+    CimCracCreationContext creationContext;
     private List<TimeSeries> cimTimeSeries;
     private Crac crac;
     private Network network;
-    CimCracCreationContext creationContext;
 
     @Override
     public String getNativeCracFormat() {
@@ -46,6 +47,7 @@ public class CimCracCreator implements CracCreator<CimCrac, CimCracCreationConte
     public CimCracCreationContext createCrac(CimCrac cimCrac, Network network, OffsetDateTime offsetDateTime, CracCreationParameters parameters) {
         // Set attributes
         this.crac = parameters.getCracFactory().create(cimCrac.getCracDocument().getMRID());
+        addCimInstants();
         this.network = network;
         this.cimTimeSeries = new ArrayList<>(cimCrac.getCracDocument().getTimeSeries());
         this.creationContext = new CimCracCreationContext(crac, offsetDateTime, network.getNameOrId());
@@ -81,6 +83,13 @@ public class CimCracCreator implements CracCreator<CimCrac, CimCracCreationConte
         creationContext.buildCreationReport();
         CracValidator.validateCrac(crac, network).forEach(creationContext.getCreationReport()::added);
         return creationContext.creationSuccess(crac);
+    }
+
+    private void addCimInstants() {
+        crac.addInstant("preventive", InstantKind.PREVENTIVE, null);
+        crac.addInstant("outage", InstantKind.OUTAGE, "preventive");
+        crac.addInstant("auto", InstantKind.AUTO, "outage");
+        crac.addInstant("curative", InstantKind.CURATIVE, "auto");
     }
 
     private void createContingencies() {

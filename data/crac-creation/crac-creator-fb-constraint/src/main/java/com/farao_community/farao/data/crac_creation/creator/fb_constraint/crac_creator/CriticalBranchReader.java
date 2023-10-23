@@ -108,21 +108,21 @@ class CriticalBranchReader {
 
     String getBaseCaseCnecId() {
         if (isBaseCase) {
-            return criticalBranch.getId().concat(" - ").concat(InstantKind.PREVENTIVE.toString());
+            return criticalBranch.getId().concat(" - ").concat(InstantKind.PREVENTIVE.toString().toLowerCase());
         }
         return null;
     }
 
     String getOutageCnecId() {
         if (!isBaseCase) {
-            return criticalBranch.getId().concat(" - ").concat(InstantKind.OUTAGE.toString());
+            return criticalBranch.getId().concat(" - ").concat(InstantKind.OUTAGE.toString().toLowerCase());
         }
         return null;
     }
 
     String getCurativeCnecId() {
         if (!isBaseCase) {
-            return criticalBranch.getId().concat(" - ").concat(InstantKind.CURATIVE.toString());
+            return criticalBranch.getId().concat(" - ").concat(InstantKind.CURATIVE.toString().toLowerCase());
         }
         return null;
     }

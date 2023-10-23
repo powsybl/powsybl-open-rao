@@ -7,6 +7,7 @@
 
 package com.farao_community.farao.search_tree_rao.commons;
 
+import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.loopflow_computation.LoopFlowComputation;
@@ -20,7 +21,8 @@ import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityInter
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityResult;
 import com.powsybl.iidm.network.Network;
 
-import java.util.*;
+import java.util.Objects;
+import java.util.Set;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
@@ -34,8 +36,12 @@ public final class SensitivityComputer {
         // Should not be used
     }
 
-    public void compute(Network network) {
-        result = systematicSensitivityInterface.run(network);
+    public static SensitivityComputerBuilder create() {
+        return new SensitivityComputerBuilder();
+    }
+
+    public void compute(Network network, Instant instantOutage) {
+        result = systematicSensitivityInterface.run(network, instantOutage);
     }
 
     public FlowResult getBranchResult(Network network) {
@@ -44,10 +50,6 @@ public final class SensitivityComputer {
 
     public SensitivityResult getSensitivityResult() {
         return new SensitivityResultImpl(result);
-    }
-
-    public static SensitivityComputerBuilder create() {
-        return new SensitivityComputerBuilder();
     }
 
     public static final class SensitivityComputerBuilder {
@@ -111,11 +113,11 @@ public final class SensitivityComputer {
             boolean computePtdfs = absolutePtdfSumsComputation != null;
             boolean computeLoopFlows = loopFlowComputation != null;
             sensitivityComputer.systematicSensitivityInterface = toolProvider.getSystematicSensitivityInterface(
-                    flowCnecs,
-                    rangeActions,
-                    computePtdfs,
-                    computeLoopFlows,
-                    appliedRemedialActions
+                flowCnecs,
+                rangeActions,
+                computePtdfs,
+                computeLoopFlows,
+                appliedRemedialActions
             );
             BranchResultAdapterImpl.BranchResultAdpaterBuilder builder = BranchResultAdapterImpl.create();
             if (loopFlowComputation != null) {

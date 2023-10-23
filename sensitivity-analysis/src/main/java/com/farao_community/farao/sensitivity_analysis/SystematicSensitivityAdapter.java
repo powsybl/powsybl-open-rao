@@ -12,6 +12,7 @@ import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.InstantKind;
 import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.cnec.Cnec;
+import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.sensitivity.SensitivityAnalysis;
@@ -36,7 +37,8 @@ final class SystematicSensitivityAdapter {
     static SystematicSensitivityResult runSensitivity(Network network,
                                                       CnecSensitivityProvider cnecSensitivityProvider,
                                                       SensitivityAnalysisParameters sensitivityComputationParameters,
-                                                      String sensitivityProvider) {
+                                                      String sensitivityProvider,
+                                                      Instant instantOutage) {
         TECHNICAL_LOGS.debug("Systematic sensitivity analysis [start]");
         SensitivityAnalysisResult result;
         try {
@@ -51,25 +53,31 @@ final class SystematicSensitivityAdapter {
             return new SystematicSensitivityResult(SystematicSensitivityResult.SensitivityComputationStatus.FAILURE);
         }
         TECHNICAL_LOGS.debug("Systematic sensitivity analysis [end]");
-        Instant instant = getInstantClosestToPreventive(cnecSensitivityProvider);
-        return new SystematicSensitivityResult().completeData(result, instant.getOrder()).postTreatIntensities().postTreatHvdcs(network, cnecSensitivityProvider.getHvdcs());
+        return new SystematicSensitivityResult().completeData(result, instantOutage.getOrder()).postTreatIntensities().postTreatHvdcs(network, cnecSensitivityProvider.getHvdcs());
     }
 
-    private static Instant getInstantClosestToPreventive(CnecSensitivityProvider cnecSensitivityProvider) {
-        return cnecSensitivityProvider.getFlowCnecs().stream()
-            .map(flowCnec -> flowCnec.getState().getInstant())
-            .filter(instant -> instant.getInstantKind() != InstantKind.PREVENTIVE)
-            .min(Comparator.comparing(Instant::getOrder))
-            .orElse(null); // TODO: Optional est une meilleur pratique que null
+    private static int getOrderInstantOutage(CnecSensitivityProvider cnecSensitivityProvider) {
+        for (FlowCnec flowCnec : cnecSensitivityProvider.getFlowCnecs()) {
+            Instant instant = flowCnec.getState().getInstant();
+            while (instant != null) {
+                System.out.println(instant);
+                if (instant.getInstantKind() == InstantKind.OUTAGE) {
+                    return instant.getOrder();
+                }
+                instant = instant.getPreviousInstant();
+            }
+        }
+        throw new FaraoException("Outage instant was not found in the CNECs");
     }
 
     static SystematicSensitivityResult runSensitivity(Network network,
                                                       CnecSensitivityProvider cnecSensitivityProvider,
                                                       AppliedRemedialActions appliedRemedialActions,
                                                       SensitivityAnalysisParameters sensitivityComputationParameters,
-                                                      String sensitivityProvider) {
+                                                      String sensitivityProvider,
+                                                      Instant instantOutage) {
         if (appliedRemedialActions == null || appliedRemedialActions.isEmpty(network)) {
-            return runSensitivity(network, cnecSensitivityProvider, sensitivityComputationParameters, sensitivityProvider);
+            return runSensitivity(network, cnecSensitivityProvider, sensitivityComputationParameters, sensitivityProvider, instantOutage);
         }
 
         TECHNICAL_LOGS.debug("Systematic sensitivity analysis with applied RA [start]");

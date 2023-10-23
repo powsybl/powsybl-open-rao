@@ -70,7 +70,7 @@ class CimCracCreationParametersTest {
 
         parameters.setRangeActionGroupsAsString(parallelRaAsConcatenatedString);
         FaraoException exception = assertThrows(FaraoException.class, () -> parameters.setRemedialActionSpeed(speedSet));
-        assertEquals("Range actions rangeAction2 and rangeAction1 are aligned but have different speeds (2 and 1)", exception.getMessage());
+        assertEquals("Range actions rangeAction1 and rangeAction2 are aligned but have different speeds (1 and 2)", exception.getMessage());
     }
 
     @Test
@@ -82,7 +82,7 @@ class CimCracCreationParametersTest {
 
         parameters.setRangeActionGroupsAsString(parallelRaAsConcatenatedString);
         FaraoException exception = assertThrows(FaraoException.class, () -> parameters.setRemedialActionSpeed(speedSet));
-        assertEquals("Range action rangeAction3 has a speed 1 already defined", exception.getMessage());
+        assertEquals("Range action rangeAction1 has a speed 1 already defined", exception.getMessage());
     }
 
     @Test

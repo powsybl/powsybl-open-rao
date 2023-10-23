@@ -9,6 +9,7 @@ package com.farao_community.farao.search_tree_rao.search_tree.algorithms;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.commons.logs.FaraoLogger;
+import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.cnec.Side;
@@ -35,11 +36,16 @@ import org.apache.commons.lang3.NotImplementedException;
 
 import java.nio.charset.StandardCharsets;
 import java.util.*;
-import java.util.concurrent.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ForkJoinTask;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
-import static com.farao_community.farao.commons.logs.FaraoLoggerProvider.*;
+import static com.farao_community.farao.commons.logs.FaraoLoggerProvider.BUSINESS_LOGS;
+import static com.farao_community.farao.commons.logs.FaraoLoggerProvider.BUSINESS_WARNS;
+import static com.farao_community.farao.commons.logs.FaraoLoggerProvider.TECHNICAL_LOGS;
 import static com.farao_community.farao.search_tree_rao.castor.algorithm.AutomatonSimulator.getRangeActionsAndTheirTapsAppliedOnState;
 
 /**
@@ -115,19 +121,19 @@ public class SearchTree {
                 parameters.getNetworkActionParameters().skipNetworkActionFarFromMostLimitingElements(),
                 parameters.getNetworkActionParameters().getMaxNumberOfBoundariesForSkippingNetworkActions(),
                 parameters.getNetworkActionParameters().getNetworkActionCombinations(),
-                    input.getOptimizationPerimeter().getMainOptimizationState()
+                input.getOptimizationPerimeter().getMainOptimizationState()
             );
         }
     }
 
-    public CompletableFuture<OptimizationResult> run() {
+    public CompletableFuture<OptimizationResult> run(Instant instantOutage) {
 
         initLeaves(input);
 
         applyForcedNetworkActionsOnRootLeaf();
 
         TECHNICAL_LOGS.debug("Evaluating root leaf");
-        rootLeaf.evaluate(input.getObjectiveFunction(), getSensitivityComputerForEvaluation(true));
+        rootLeaf.evaluate(input.getObjectiveFunction(), getSensitivityComputerForEvaluation(true), instantOutage);
         if (rootLeaf.getStatus().equals(Leaf.Status.ERROR)) {
             topLevelLogger.info("Could not evaluate leaf: {}", rootLeaf);
             logOptimizationSummary(rootLeaf);
@@ -143,7 +149,7 @@ public class SearchTree {
         RaoLogger.logMostLimitingElementsResults(TECHNICAL_LOGS, rootLeaf, parameters.getObjectiveFunction(), NUMBER_LOGGED_ELEMENTS_DURING_TREE);
 
         TECHNICAL_LOGS.info("Linear optimization on root leaf");
-        optimizeLeaf(rootLeaf);
+        optimizeLeaf(rootLeaf, instantOutage);
 
         topLevelLogger.info("{}", rootLeaf);
         RaoLogger.logRangeActions(TECHNICAL_LOGS, optimalLeaf, input.getOptimizationPerimeter(), null);
@@ -155,7 +161,7 @@ public class SearchTree {
             return CompletableFuture.completedFuture(rootLeaf);
         }
 
-        iterateOnTree();
+        iterateOnTree(instantOutage);
 
         TECHNICAL_LOGS.info("Search-tree RAO completed with status {}", optimalLeaf.getSensitivityStatus());
 
@@ -208,7 +214,7 @@ public class SearchTree {
         logVirtualCostInformation(optimalLeaf, "");
     }
 
-    private void iterateOnTree() {
+    private void iterateOnTree(Instant instantOutage) {
         int depth = 0;
         boolean hasImproved = true;
         if (input.getOptimizationPerimeter().getNetworkActions().isEmpty()) {
@@ -222,7 +228,7 @@ public class SearchTree {
             while (depth < parameters.getTreeParameters().getMaximumSearchDepth() && hasImproved && !stopCriterionReached(optimalLeaf)) {
                 TECHNICAL_LOGS.info("Search depth {} [start]", depth + 1);
                 previousDepthOptimalLeaf = optimalLeaf;
-                updateOptimalLeafWithNextDepthBestLeaf(networkPool);
+                updateOptimalLeafWithNextDepthBestLeaf(networkPool, instantOutage);
                 hasImproved = previousDepthOptimalLeaf != optimalLeaf; // It means this depth evaluation has improved the global cost
                 if (hasImproved) {
                     TECHNICAL_LOGS.info("Search depth {} [end]", depth + 1);
@@ -248,7 +254,7 @@ public class SearchTree {
     /**
      * Evaluate all the leaves. We use FaraoNetworkPool to parallelize the computation
      */
-    private void updateOptimalLeafWithNextDepthBestLeaf(AbstractNetworkPool networkPool) throws InterruptedException {
+    private void updateOptimalLeafWithNextDepthBestLeaf(AbstractNetworkPool networkPool, Instant instantOutage) throws InterruptedException {
 
         TreeMap<NetworkActionCombination, Boolean> naCombinationsSorted = new TreeMap<>(this::deterministicNetworkActionCombinationComparison);
         naCombinationsSorted.putAll(bloomer.bloom(optimalLeaf, input.getOptimizationPerimeter().getNetworkActions()));
@@ -282,7 +288,7 @@ public class SearchTree {
                                     ra.apply(networkClone, previousDepthOptimalLeaf.getOptimizedSetpoint(ra, input.getOptimizationPerimeter().getMainOptimizationState()))
                                 );
                         }
-                        optimizeNextLeafAndUpdate(naCombination, shouldRangeActionBeRemoved, networkClone);
+                        optimizeNextLeafAndUpdate(naCombination, shouldRangeActionBeRemoved, networkClone, instantOutage);
 
                     } else {
                         topLevelLogger.info("Skipping {} optimization because earlier combination fulfills stop criterion.", naCombination.getConcatenatedId());
@@ -294,7 +300,7 @@ public class SearchTree {
                 networkPool.releaseUsedNetwork(networkClone);
                 return null; // we need to return null, in order for the compiler to know that this statement must be reached in normal cases
             })
-        ).collect(Collectors.toList());
+        ).toList();
         for (ForkJoinTask<Object> task : tasks) {
             try {
                 task.get();
@@ -322,7 +328,7 @@ public class SearchTree {
         }
         // 4. Last priority is random but deterministic
         return Integer.compare(Hashing.crc32().hashString(ra1.getConcatenatedId(), StandardCharsets.UTF_8).hashCode(),
-                Hashing.crc32().hashString(ra2.getConcatenatedId(), StandardCharsets.UTF_8).hashCode());
+            Hashing.crc32().hashString(ra2.getConcatenatedId(), StandardCharsets.UTF_8).hashCode());
     }
 
     /**
@@ -354,7 +360,7 @@ public class SearchTree {
         return AbstractNetworkPool.create(network, network.getVariantManager().getWorkingVariantId(), leavesInParallel, false);
     }
 
-    void optimizeNextLeafAndUpdate(NetworkActionCombination naCombination, boolean shouldRangeActionBeRemoved, Network network) {
+    void optimizeNextLeafAndUpdate(NetworkActionCombination naCombination, boolean shouldRangeActionBeRemoved, Network network, Instant instantOutage) {
         Leaf leaf;
         try {
             // We get initial range action results from the previous optimal leaf
@@ -368,7 +374,7 @@ public class SearchTree {
             throw e;
         }
         // We evaluate the leaf with taking the results of the previous optimal leaf if we do not want to update some results
-        leaf.evaluate(input.getObjectiveFunction(), getSensitivityComputerForEvaluation(shouldRangeActionBeRemoved));
+        leaf.evaluate(input.getObjectiveFunction(), getSensitivityComputerForEvaluation(shouldRangeActionBeRemoved), instantOutage);
 
         topLevelLogger.info("Evaluated {}", leaf);
         if (!leaf.getStatus().equals(Leaf.Status.ERROR)) {
@@ -376,7 +382,7 @@ public class SearchTree {
                 if (combinationFulfillingStopCriterion.isPresent() && deterministicNetworkActionCombinationComparison(naCombination, combinationFulfillingStopCriterion.get()) > 0) {
                     topLevelLogger.info("Skipping {} optimization because earlier combination fulfills stop criterion.", naCombination.getConcatenatedId());
                 } else {
-                    optimizeLeaf(leaf);
+                    optimizeLeaf(leaf, instantOutage);
 
                     topLevelLogger.info("Optimized {}", leaf);
                     logVirtualCostInformation(leaf, "Optimized ");
@@ -401,9 +407,9 @@ public class SearchTree {
             shouldRangeActionBeRemoved ? input.getPreOptimizationAppliedRemedialActions() : getPreviousDepthAppliedRemedialActionsBeforeNewLeafEvaluation(previousDepthOptimalLeaf));
     }
 
-    private void optimizeLeaf(Leaf leaf) {
+    private void optimizeLeaf(Leaf leaf, Instant instantOutage) {
         if (!input.getOptimizationPerimeter().getRangeActions().isEmpty()) {
-            leaf.optimize(input, parameters);
+            leaf.optimize(input, parameters, instantOutage);
             if (!leaf.getStatus().equals(Leaf.Status.OPTIMIZED)) {
                 topLevelLogger.info("Failed to optimize leaf: {}", leaf);
             }
@@ -515,8 +521,8 @@ public class SearchTree {
         AppliedRemedialActions alreadyAppliedRa = input.getPreOptimizationAppliedRemedialActions().copy();
         if (input.getOptimizationPerimeter() instanceof GlobalOptimizationPerimeter) {
             input.getOptimizationPerimeter().getRangeActionsPerState().entrySet().stream()
-                    .filter(e -> !e.getKey().equals(input.getOptimizationPerimeter().getMainOptimizationState())) // remove preventive state
-                    .forEach(e -> e.getValue().forEach(ra -> alreadyAppliedRa.addAppliedRangeAction(e.getKey(), ra, previousDepthRangeActionActivations.getOptimizedSetpoint(ra, e.getKey()))));
+                .filter(e -> !e.getKey().equals(input.getOptimizationPerimeter().getMainOptimizationState())) // remove preventive state
+                .forEach(e -> e.getValue().forEach(ra -> alreadyAppliedRa.addAppliedRangeAction(e.getKey(), ra, previousDepthRangeActionActivations.getOptimizedSetpoint(ra, e.getKey()))));
         }
         return alreadyAppliedRa;
     }
@@ -526,8 +532,8 @@ public class SearchTree {
      */
     private void logVirtualCostInformation(Leaf leaf, String prefix) {
         leaf.getVirtualCostNames().stream()
-                .filter(virtualCostName -> leaf.getVirtualCost(virtualCostName) > 1e-6)
-                .forEach(virtualCostName -> logVirtualCostDetails(leaf, virtualCostName, prefix));
+            .filter(virtualCostName -> leaf.getVirtualCost(virtualCostName) > 1e-6)
+            .forEach(virtualCostName -> logVirtualCostDetails(leaf, virtualCostName, prefix));
     }
 
     /**
@@ -539,8 +545,8 @@ public class SearchTree {
     void logVirtualCostDetails(Leaf leaf, String virtualCostName, String prefix) {
         FaraoLogger logger = topLevelLogger;
         if (!costSatisfiesStopCriterion(leaf.getCost())
-                && costSatisfiesStopCriterion(leaf.getCost() - leaf.getVirtualCost(virtualCostName))
-                && (leaf.isRoot() || !costSatisfiesStopCriterion(previousDepthOptimalLeaf.getFunctionalCost()))) {
+            && costSatisfiesStopCriterion(leaf.getCost() - leaf.getVirtualCost(virtualCostName))
+            && (leaf.isRoot() || !costSatisfiesStopCriterion(previousDepthOptimalLeaf.getFunctionalCost()))) {
             // Stop criterion would have been reached without virtual cost, for the first time at this depth
             // and for the given leaf
             BUSINESS_LOGS.info("{}{}, stop criterion could have been reached without \"{}\" virtual cost", prefix, leaf.getIdentifier(), virtualCostName);
@@ -558,18 +564,18 @@ public class SearchTree {
             Side limitingSide = leaf.getMargin(flowCnec, Side.LEFT, unit) < leaf.getMargin(flowCnec, Side.RIGHT, unit) ? Side.LEFT : Side.RIGHT;
             double flow = leaf.getFlow(flowCnec, limitingSide, unit);
             Double limitingThreshold = flow >= 0 ? flowCnec.getUpperBound(limitingSide, unit).orElse(flowCnec.getLowerBound(limitingSide, unit).orElse(Double.NaN))
-                    : flowCnec.getLowerBound(limitingSide, unit).orElse(flowCnec.getUpperBound(limitingSide, unit).orElse(Double.NaN));
+                : flowCnec.getLowerBound(limitingSide, unit).orElse(flowCnec.getUpperBound(limitingSide, unit).orElse(Double.NaN));
             logs.add(String.format(Locale.ENGLISH,
-                    "%s%s, limiting \"%s\" constraint #%02d: flow = %.2f %s, threshold = %.2f %s, margin = %.2f %s, element %s at state %s, CNEC ID = \"%s\", CNEC name = \"%s\"",
-                    prefix,
-                    leaf.getIdentifier(),
-                    virtualCostName,
-                    i,
-                    flow, unit,
-                    limitingThreshold, unit,
-                    leaf.getMargin(flowCnec, limitingSide, unit), unit,
-                    flowCnec.getNetworkElement().getId(), flowCnec.getState().getId(),
-                    flowCnec.getId(), flowCnec.getName()));
+                "%s%s, limiting \"%s\" constraint #%02d: flow = %.2f %s, threshold = %.2f %s, margin = %.2f %s, element %s at state %s, CNEC ID = \"%s\", CNEC name = \"%s\"",
+                prefix,
+                leaf.getIdentifier(),
+                virtualCostName,
+                i,
+                flow, unit,
+                limitingThreshold, unit,
+                leaf.getMargin(flowCnec, limitingSide, unit), unit,
+                flowCnec.getNetworkElement().getId(), flowCnec.getState().getId(),
+                flowCnec.getId(), flowCnec.getName()));
             i++;
         }
         return logs;

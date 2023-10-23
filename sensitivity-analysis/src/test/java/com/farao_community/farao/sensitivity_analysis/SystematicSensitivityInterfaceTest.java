@@ -8,6 +8,7 @@
 package com.farao_community.farao.sensitivity_analysis;
 
 import com.farao_community.farao.data.crac_api.Crac;
+import com.farao_community.farao.data.crac_api.InstantKind;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_impl.utils.CommonCracCreation;
@@ -24,7 +25,9 @@ import org.mockito.Mockito;
 import java.io.IOException;
 import java.util.Random;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /**
  * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
@@ -66,7 +69,7 @@ class SystematicSensitivityInterfaceTest {
     @Test
     void testRunDefaultConfigOk() {
         // mock sensi service - run OK
-        Mockito.when(SystematicSensitivityAdapter.runSensitivity(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.anyString()))
+        Mockito.when(SystematicSensitivityAdapter.runSensitivity(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.anyString(), crac.getUniqueInstant(InstantKind.OUTAGE)))
             .thenAnswer(invocationOnMock -> systematicAnalysisResultOk);
 
         // run engine
@@ -75,11 +78,11 @@ class SystematicSensitivityInterfaceTest {
             .withParameters(defaultParameters)
             .withSensitivityProvider(Mockito.mock(CnecSensitivityProvider.class))
             .build();
-        SystematicSensitivityResult systematicSensitivityAnalysisResult = systematicSensitivityInterface.run(network);
+        SystematicSensitivityResult systematicSensitivityAnalysisResult = systematicSensitivityInterface.run(network, crac.getUniqueInstant(InstantKind.OUTAGE));
 
         // assert results
         assertNotNull(systematicSensitivityAnalysisResult);
-        for (FlowCnec cnec: crac.getFlowCnecs()) {
+        for (FlowCnec cnec : crac.getFlowCnecs()) {
             if (cnec.getId().equals("cnec2basecase")) {
                 assertEquals(1400., systematicSensitivityAnalysisResult.getReferenceFlow(cnec, Side.LEFT), FLOW_TOLERANCE);
                 assertEquals(2800., systematicSensitivityAnalysisResult.getReferenceFlow(cnec, Side.RIGHT), FLOW_TOLERANCE);
@@ -107,7 +110,7 @@ class SystematicSensitivityInterfaceTest {
             .build();
 
         // run - expected failure
-        SystematicSensitivityResult result = systematicSensitivityInterface.run(network);
+        SystematicSensitivityResult result = systematicSensitivityInterface.run(network, crac.getUniqueInstant(InstantKind.OUTAGE));
         assertFalse(result.isSuccess());
     }
 

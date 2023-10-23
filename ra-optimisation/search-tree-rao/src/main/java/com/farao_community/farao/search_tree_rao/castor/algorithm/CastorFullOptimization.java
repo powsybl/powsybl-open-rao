@@ -401,7 +401,7 @@ public class CastorFullOptimization {
             .withToolProvider(toolProvider)
             .build();
 
-        OptimizationResult optResult = new SearchTree(searchTreeInput, searchTreeParameters, true).run().join();
+        OptimizationResult optResult = new SearchTree(searchTreeInput, searchTreeParameters, true).run(raoInput.getCrac().getUniqueInstant(InstantKind.OUTAGE)).join();
         applyRemedialActions(raoInput.getNetwork(), optResult, raoInput.getCrac().getPreventiveState());
         return new OneStateOnlyRaoResultImpl(raoInput.getCrac().getPreventiveState(), initialResult, optResult, searchTreeInput.getOptimizationPerimeter().getFlowCnecs());
     }
@@ -510,7 +510,7 @@ public class CastorFullOptimization {
             .withToolProvider(toolProvider)
             .build();
 
-        OptimizationResult result = new SearchTree(searchTreeInput, searchTreeParameters, false).run().join();
+        OptimizationResult result = new SearchTree(searchTreeInput, searchTreeParameters, false).run(crac.getUniqueInstant(InstantKind.OUTAGE)).join();
         TECHNICAL_LOGS.info("Curative state {} has been optimized.", curativeState.getId());
         return result;
     }
@@ -687,7 +687,7 @@ public class CastorFullOptimization {
             .withToolProvider(toolProvider)
             .build();
 
-        OptimizationResult result = new SearchTree(searchTreeInput, searchTreeParameters, true).run().join();
+        OptimizationResult result = new SearchTree(searchTreeInput, searchTreeParameters, true).run(raoInput.getCrac().getUniqueInstant(InstantKind.OUTAGE)).join();
 
         // apply PRAs
         result.getActivatedRangeActions(raoInput.getCrac().getPreventiveState()).forEach(rangeAction -> rangeAction.apply(raoInput.getNetwork(), result.getOptimizedSetpoint(rangeAction, raoInput.getCrac().getPreventiveState())));

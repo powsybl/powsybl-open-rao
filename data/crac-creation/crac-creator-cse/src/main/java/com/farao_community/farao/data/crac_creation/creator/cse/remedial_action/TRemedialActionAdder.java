@@ -71,11 +71,13 @@ public class TRemedialActionAdder {
     }
 
     private Instant getInstant(TApplication tApplication) {
-        try {
-            return crac.getInstant(tApplication.getV());
-        } catch (FaraoException faraoException) {
-            throw new IllegalArgumentException(String.format("%s is not a recognized application type for remedial action", tApplication.getV()));
-        }
+        return switch (tApplication.getV()) {
+            case "PREVENTIVE" -> crac.getUniqueInstant(InstantKind.PREVENTIVE);
+            case "SPS" -> crac.getUniqueInstant(InstantKind.AUTO);
+            case "CURATIVE" -> crac.getUniqueInstant(InstantKind.CURATIVE);
+            default ->
+                throw new IllegalArgumentException(String.format("%s is not a recognized application type for remedial action", tApplication.getV()));
+        };
     }
 
     public void add() {
@@ -186,8 +188,7 @@ public class TRemedialActionAdder {
         // After looping on all nodes
         addUsageRules(networkActionAdder, tRemedialAction);
         networkActionAdder.add();
-        assert alteringDetail != null;
-        cseCracCreationContext.addRemedialActionCreationContext(CseRemedialActionCreationContext.imported(tRemedialAction, createdRAId, isAltered, alteringDetail.toString()));
+        cseCracCreationContext.addRemedialActionCreationContext(CseRemedialActionCreationContext.imported(tRemedialAction, createdRAId, isAltered, alteringDetail != null ? alteringDetail.toString() : ""));
     }
 
     private void importPstRangeAction(TRemedialAction tRemedialAction) {

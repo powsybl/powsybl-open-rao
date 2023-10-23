@@ -320,6 +320,7 @@ final class ExampleGenerator {
     static Crac crac() {
         Crac crac = new CracImplFactory().create("test-crac");
         crac.addInstant("preventive", InstantKind.PREVENTIVE, null);
+        crac.addInstant("outage", InstantKind.OUTAGE, "preventive");
 
         crac.newFlowCnec()
             .withId("FR-BE1")

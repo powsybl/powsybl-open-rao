@@ -7,15 +7,17 @@
 package com.farao_community.farao.search_tree_rao.castor.algorithm;
 
 import com.farao_community.farao.data.crac_api.Crac;
+import com.farao_community.farao.data.crac_api.Instant;
+import com.farao_community.farao.data.crac_api.InstantKind;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.rao_api.parameters.RaoParameters;
 import com.farao_community.farao.rao_api.parameters.extensions.LoopFlowParametersExtension;
-import com.farao_community.farao.search_tree_rao.result.api.*;
-import com.farao_community.farao.search_tree_rao.result.impl.PrePerimeterSensitivityResultImpl;
 import com.farao_community.farao.search_tree_rao.commons.SensitivityComputer;
 import com.farao_community.farao.search_tree_rao.commons.ToolProvider;
 import com.farao_community.farao.search_tree_rao.commons.objective_function_evaluator.ObjectiveFunction;
+import com.farao_community.farao.search_tree_rao.result.api.*;
+import com.farao_community.farao.search_tree_rao.result.impl.PrePerimeterSensitivityResultImpl;
 import com.farao_community.farao.search_tree_rao.result.impl.RangeActionActivationResultImpl;
 import com.farao_community.farao.search_tree_rao.result.impl.RangeActionSetpointResultImpl;
 import com.farao_community.farao.sensitivity_analysis.AppliedRemedialActions;
@@ -64,7 +66,7 @@ public class PrePerimeterSensitivityAnalysis {
         sensitivityComputer = sensitivityComputerBuilder.build();
         objectiveFunction = ObjectiveFunction.create().buildForInitialSensitivityComputation(flowCnecs, raoParameters, crac, RangeActionSetpointResultImpl.buildWithSetpointsFromNetwork(network, rangeActions));
 
-        return runAndGetResult(network, objectiveFunction);
+        return runAndGetResult(network, objectiveFunction, crac.getUniqueInstant(InstantKind.OUTAGE));
     }
 
     public PrePerimeterResult runBasedOnInitialResults(Network network,
@@ -93,7 +95,7 @@ public class PrePerimeterSensitivityAnalysis {
 
         objectiveFunction = ObjectiveFunction.create().build(flowCnecs, toolProvider.getLoopFlowCnecs(flowCnecs), initialFlowResult, initialFlowResult, initialRangeActionSetpointResult, crac, operatorsNotSharingCras, raoParameters);
 
-        return runAndGetResult(network, objectiveFunction);
+        return runAndGetResult(network, objectiveFunction, crac.getUniqueInstant(InstantKind.OUTAGE));
     }
 
     public ObjectiveFunction getObjectiveFunction() {
@@ -102,23 +104,23 @@ public class PrePerimeterSensitivityAnalysis {
 
     private SensitivityComputer.SensitivityComputerBuilder buildSensiBuilder() {
         return SensitivityComputer.create()
-                .withToolProvider(toolProvider)
-                .withCnecs(flowCnecs)
-                .withRangeActions(rangeActions);
+            .withToolProvider(toolProvider)
+            .withCnecs(flowCnecs)
+            .withRangeActions(rangeActions);
     }
 
-    private PrePerimeterResult runAndGetResult(Network network, ObjectiveFunction objectiveFunction) {
-        sensitivityComputer.compute(network);
+    private PrePerimeterResult runAndGetResult(Network network, ObjectiveFunction objectiveFunction, Instant instantOutage) {
+        sensitivityComputer.compute(network, instantOutage);
         FlowResult flowResult = sensitivityComputer.getBranchResult(network);
         SensitivityResult sensitivityResult = sensitivityComputer.getSensitivityResult();
         RangeActionSetpointResult rangeActionSetpointResult = RangeActionSetpointResultImpl.buildWithSetpointsFromNetwork(network, rangeActions);
         RangeActionActivationResult rangeActionActivationResult = new RangeActionActivationResultImpl(rangeActionSetpointResult);
         ObjectiveFunctionResult objectiveFunctionResult = getResult(objectiveFunction, flowResult, rangeActionActivationResult, sensitivityResult);
         return new PrePerimeterSensitivityResultImpl(
-                flowResult,
-                sensitivityResult,
-                rangeActionSetpointResult,
-                objectiveFunctionResult
+            flowResult,
+            sensitivityResult,
+            rangeActionSetpointResult,
+            objectiveFunctionResult
         );
     }
 

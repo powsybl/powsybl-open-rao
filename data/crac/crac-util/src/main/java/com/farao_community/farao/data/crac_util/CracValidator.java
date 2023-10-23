@@ -44,21 +44,23 @@ public final class CracValidator {
      */
     private static List<String> addOutageCnecsForAutoCnecsWithoutRas(Crac crac, Network network) {
         List<String> report = new ArrayList<>();
-        crac.getStates(crac.getUniqueInstant(InstantKind.AUTO).getId()).forEach(state -> {
-            if (hasNoRemedialAction(state, crac) || hasGlobalRemedialActions(state, crac)) {
-                // 1. Auto state has no RA => it will not constitute a perimeter
-                //    => Auto CNECs will be optimized in preventive RAO, no need to duplicate them
-                // 2. If state has "global" RA (useful for all CNECs), nothing to do neither
-                return;
-            }
-            // Find CNECs with no useful RA and duplicate them on outage instant
-            crac.getFlowCnecs(state).stream()
-                .filter(cnec -> crac.getRemedialActions().stream().noneMatch(ra -> isRaUsefulForCnec(ra, cnec, network)))
-                .forEach(cnec -> {
-                    duplicateCnecOnOutageInstant(crac, cnec);
-                    report.add(String.format("CNEC \"%s\" has no associated automaton. It will be cloned on the OUTAGE instant in order to be secured during preventive RAO.", cnec.getId()));
-                });
-        });
+        if (!crac.getInstants(InstantKind.AUTO).isEmpty()) {
+            crac.getStates(crac.getUniqueInstant(InstantKind.AUTO).getId()).forEach(state -> {
+                if (hasNoRemedialAction(state, crac) || hasGlobalRemedialActions(state, crac)) {
+                    // 1. Auto state has no RA => it will not constitute a perimeter
+                    //    => Auto CNECs will be optimized in preventive RAO, no need to duplicate them
+                    // 2. If state has "global" RA (useful for all CNECs), nothing to do neither
+                    return;
+                }
+                // Find CNECs with no useful RA and duplicate them on outage instant
+                crac.getFlowCnecs(state).stream()
+                    .filter(cnec -> crac.getRemedialActions().stream().noneMatch(ra -> isRaUsefulForCnec(ra, cnec, network)))
+                    .forEach(cnec -> {
+                        duplicateCnecOnOutageInstant(crac, cnec);
+                        report.add(String.format("CNEC \"%s\" has no associated automaton. It will be cloned on the OUTAGE instant in order to be secured during preventive RAO.", cnec.getId()));
+                    });
+            });
+        }
         return report;
     }
 

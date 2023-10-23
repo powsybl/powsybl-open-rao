@@ -268,7 +268,7 @@ class CimCracCreatorTest {
             ra.getUsageRules().stream()
                 .filter(OnAngleConstraint.class::isInstance)
                 .anyMatch(
-                    ur -> ((OnAngleConstraint) ur).getInstant().getInstantKind().equals("curative")
+                    ur -> ((OnAngleConstraint) ur).getInstant().getInstantKind().equals(InstantKind.CURATIVE)
                         && ((OnAngleConstraint) ur).getAngleCnec().getId().equals(angleCnecId)
                         && ((OnAngleConstraint) ur).getUsageMethod().equals(UsageMethod.TO_BE_EVALUATED)
                 ));
@@ -294,9 +294,9 @@ class CimCracCreatorTest {
         cnec.getThresholds().forEach(threshold -> {
             assertEquals(unit, threshold.getUnit());
             assertTrue(threshold.limitsByMin());
-            assertEquals(min, threshold.min().get(), DOUBLE_TOLERANCE);
+            assertEquals(min, threshold.min().orElseThrow(), DOUBLE_TOLERANCE);
             assertTrue(threshold.limitsByMax());
-            assertEquals(max, threshold.max().get(), DOUBLE_TOLERANCE);
+            assertEquals(max, threshold.max().orElseThrow(), DOUBLE_TOLERANCE);
         });
     }
 
@@ -485,8 +485,8 @@ class CimCracCreatorTest {
         Set<String> createdIds2 = Set.of("HVDC-direction11 + HVDC-direction12 - BBE2AA12 FFR3AA12 1", "HVDC-direction11 + HVDC-direction12 - BBE2AA11 FFR3AA11 1");
         assertHvdcRangeActionImported("HVDC-direction11", createdIds1, Set.of("BBE2AA11 FFR3AA11 1", "BBE2AA12 FFR3AA12 1"), Set.of("HVDC"), true);
         assertHvdcRangeActionImported("HVDC-direction12", createdIds2, Set.of("BBE2AA11 FFR3AA11 1", "BBE2AA12 FFR3AA12 1"), Set.of("HVDC"), false);
-        assertEquals("BBE2AA11 FFR3AA11 1 + BBE2AA12 FFR3AA12 1", importedCrac.getHvdcRangeAction("HVDC-direction11 + HVDC-direction12 - BBE2AA12 FFR3AA12 1").getGroupId().get());
-        assertEquals("BBE2AA11 FFR3AA11 1 + BBE2AA12 FFR3AA12 1", importedCrac.getHvdcRangeAction("HVDC-direction11 + HVDC-direction12 - BBE2AA11 FFR3AA11 1").getGroupId().get());
+        assertEquals("BBE2AA11 FFR3AA11 1 + BBE2AA12 FFR3AA12 1", importedCrac.getHvdcRangeAction("HVDC-direction11 + HVDC-direction12 - BBE2AA12 FFR3AA12 1").getGroupId().orElseThrow());
+        assertEquals("BBE2AA11 FFR3AA11 1 + BBE2AA12 FFR3AA12 1", importedCrac.getHvdcRangeAction("HVDC-direction11 + HVDC-direction12 - BBE2AA11 FFR3AA11 1").getGroupId().orElseThrow());
     }
 
     @Test
@@ -589,7 +589,7 @@ class CimCracCreatorTest {
         NetworkAction ra1 = importedCrac.getNetworkAction("RA_1");
         assertEquals(1, ra1.getUsageRules().size());
         assertTrue(ra1.getUsageRules().iterator().next() instanceof OnFlowConstraintInCountry);
-        assertEquals("preventive", ra1.getUsageRules().iterator().next().getInstant());
+        assertEquals("preventive", ra1.getUsageRules().iterator().next().getInstant().getId());
         assertEquals(Country.PT, ((OnFlowConstraintInCountry) ra1.getUsageRules().iterator().next()).getCountry());
         assertEquals(2, ra1.getElementaryActions().size());
         assertTrue(ra1.getElementaryActions().stream()
@@ -608,7 +608,7 @@ class CimCracCreatorTest {
         NetworkAction ra2 = importedCrac.getNetworkAction("RA_2");
         assertEquals(1, ra2.getUsageRules().size());
         assertTrue(ra2.getUsageRules().iterator().next() instanceof OnFlowConstraintInCountry);
-        assertEquals("curative", ra2.getUsageRules().iterator().next().getInstant());
+        assertEquals("curative", ra2.getUsageRules().iterator().next().getInstant().getId());
         assertEquals(Country.ES, ((OnFlowConstraintInCountry) ra2.getUsageRules().iterator().next()).getCountry());
         assertEquals(2, ra2.getElementaryActions().size());
         assertTrue(ra2.getElementaryActions().stream()
@@ -630,13 +630,13 @@ class CimCracCreatorTest {
             ra3.getUsageRules().stream()
                 .filter(OnInstant.class::isInstance)
                 .map(OnInstant.class::cast)
-                .anyMatch(ur -> ur.getInstant().getInstantKind().equals("preventive"))
+                .anyMatch(ur -> ur.getInstant().getInstantKind().equals(InstantKind.PREVENTIVE))
         );
         assertTrue(
             ra3.getUsageRules().stream()
                 .filter(OnContingencyState.class::isInstance)
                 .map(OnContingencyState.class::cast)
-                .anyMatch(ur -> ur.getInstant().getInstantKind().equals("curative") && ur.getContingency().getId().equals("CO_1"))
+                .anyMatch(ur -> ur.getInstant().getInstantKind().equals(InstantKind.CURATIVE) && ur.getContingency().getId().equals("CO_1"))
         );
         assertEquals(2, ra3.getElementaryActions().size());
         assertTrue(ra3.getElementaryActions().stream()
@@ -909,7 +909,7 @@ class CimCracCreatorTest {
         assertNotNull(duplicate);
         assertEquals(flowCnec.getNetworkElement().getId(), duplicate.getNetworkElement().getId());
         assertEquals(flowCnec.getState().getContingency(), duplicate.getState().getContingency());
-        assertEquals(InstantKind.OUTAGE, duplicate.getState().getInstant());
+        assertEquals(InstantKind.OUTAGE, duplicate.getState().getInstant().getInstantKind());
         assertEquals(flowCnec.isOptimized(), duplicate.isOptimized());
         assertEquals(flowCnec.isMonitored(), duplicate.isMonitored());
         assertEquals(flowCnec.getReliabilityMargin(), duplicate.getReliabilityMargin(), 1e-6);
