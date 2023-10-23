@@ -80,7 +80,7 @@ class FlowResultImplTest {
         exception = assertThrows(FaraoException.class, () -> branchResult.getCommercialFlow(loopFlowCnec, LEFT, Unit.AMPERE));
         assertEquals("Commercial flows only in MW.", exception.getMessage());
         exception = assertThrows(FaraoException.class, () -> branchResult.getCommercialFlow(optimizedCnec, RIGHT, Unit.MEGAWATT));
-        assertEquals("", exception.getMessage());
+        assertEquals("a mock of what would happen if trying to access LF", exception.getMessage());
     }
 
     @Test
@@ -99,8 +99,8 @@ class FlowResultImplTest {
         exception = assertThrows(FaraoException.class, () -> branchResult.getFlow(optimizedCnec, RIGHT, Unit.DEGREE));
         assertEquals("Unknown unit for flow.", exception.getMessage());
         exception = assertThrows(FaraoException.class, () -> branchResult.getFlow(optimizedCnec, RIGHT, Unit.PERCENT_IMAX));
-        assertEquals("", exception.getMessage());
+        assertEquals("Unknown unit for flow.", exception.getMessage());
         exception = assertThrows(FaraoException.class, () -> branchResult.getFlow(optimizedCnec, RIGHT, Unit.TAP));
-        assertEquals("", exception.getMessage());
+        assertEquals("Unknown unit for flow.", exception.getMessage());
     }
 }

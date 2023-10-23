@@ -46,9 +46,9 @@ class SensitivityResultImplTest {
         exception = assertThrows(FaraoException.class, () -> sensitivityResultImpl.getSensitivityValue(cnec, LEFT, rangeAction, DEGREE));
         assertEquals("Unhandled unit for sensitivity value on range action : °.", exception.getMessage());
         exception = assertThrows(FaraoException.class, () -> sensitivityResultImpl.getSensitivityValue(cnec, LEFT, rangeAction, PERCENT_IMAX));
-        assertEquals("", exception.getMessage());
+        assertEquals("Unhandled unit for sensitivity value on range action : %.", exception.getMessage());
         exception = assertThrows(FaraoException.class, () -> sensitivityResultImpl.getSensitivityValue(cnec, LEFT, rangeAction, TAP));
-        assertEquals("", exception.getMessage());
+        assertEquals("Unhandled unit for sensitivity value on range action : .", exception.getMessage());
     }
 
     @Test

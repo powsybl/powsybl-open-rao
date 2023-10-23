@@ -58,27 +58,27 @@ class SkippedOptimizationResultImplTest {
         FaraoException exception = assertThrows(FaraoException.class, () -> skippedOptimizationResult.getSensitivityValue(flowCnec, side, rangeAction, unit));
         assertEquals("Should not be used: optimization result has been skipped.", exception.getMessage());
         exception = assertThrows(FaraoException.class, () -> skippedOptimizationResult.getSensitivityValue(flowCnec, side, sensitivityVariableSet, unit));
-        assertEquals("", exception.getMessage());
+        assertEquals("Should not be used: optimization result has been skipped.", exception.getMessage());
         exception = assertThrows(FaraoException.class, () -> skippedOptimizationResult.getFlow(flowCnec, side, unit));
-        assertEquals("", exception.getMessage());
+        assertEquals("Should not be used: optimization result has been skipped.", exception.getMessage());
         exception = assertThrows(FaraoException.class, () -> skippedOptimizationResult.getCommercialFlow(flowCnec, side, unit));
-        assertEquals("", exception.getMessage());
+        assertEquals("Should not be used: optimization result has been skipped.", exception.getMessage());
         exception = assertThrows(FaraoException.class, () -> skippedOptimizationResult.getPtdfZonalSum(flowCnec, side));
-        assertEquals("", exception.getMessage());
+        assertEquals("Should not be used: optimization result has been skipped.", exception.getMessage());
         exception = assertThrows(FaraoException.class, () -> skippedOptimizationResult.getPtdfZonalSums());
-        assertEquals("", exception.getMessage());
+        assertEquals("Should not be used: optimization result has been skipped.", exception.getMessage());
         exception = assertThrows(FaraoException.class, () -> skippedOptimizationResult.getCostlyElements("emptyString", 10));
-        assertEquals("", exception.getMessage());
+        assertEquals("Should not be used: optimization result has been skipped.", exception.getMessage());
         exception = assertThrows(FaraoException.class, () -> skippedOptimizationResult.getOptimizedSetpoint(rangeAction, state));
-        assertEquals("", exception.getMessage());
+        assertEquals("Should not be used: optimization result has been skipped.", exception.getMessage());
         exception = assertThrows(FaraoException.class, () -> skippedOptimizationResult.getOptimizedSetpointsOnState(state));
-        assertEquals("", exception.getMessage());
+        assertEquals("Should not be used: optimization result has been skipped.", exception.getMessage());
         exception = assertThrows(FaraoException.class, () -> skippedOptimizationResult.getOptimizedTap(pstRangeAction, state));
-        assertEquals("", exception.getMessage());
+        assertEquals("Should not be used: optimization result has been skipped.", exception.getMessage());
         exception = assertThrows(FaraoException.class, () -> skippedOptimizationResult.getOptimizedTapsOnState(state));
-        assertEquals("", exception.getMessage());
+        assertEquals("Should not be used: optimization result has been skipped.", exception.getMessage());
         exception = assertThrows(FaraoException.class, skippedOptimizationResult::getObjectiveFunction);
-        assertEquals("", exception.getMessage());
+        assertEquals("Should not be used: optimization result has been skipped.", exception.getMessage());
     }
 
     @Test

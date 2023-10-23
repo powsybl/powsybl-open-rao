@@ -95,6 +95,7 @@ class InjectionRangeActionSensiHandlerTest {
     void checkConsistencyNotAnInjection() {
         Network network = Network.read("TestCase16NodesWithUcteHvdc.uct", getClass().getResourceAsStream("/TestCase16NodesWithUcteHvdc.uct"));
         Crac crac = CracFactory.findDefault().create("test-crac");
+        crac.addInstant("preventive", InstantKind.PREVENTIVE, null);
         InjectionRangeAction injectionRangeAction = (InjectionRangeAction) crac.newInjectionRangeAction().withId("injectionRangeId")
             .withNetworkElementAndKey(1, "BBE1AA11 BBE2AA11 1")
             .newRange().withMin(-1000).withMax(1000).add()
@@ -104,13 +105,14 @@ class InjectionRangeActionSensiHandlerTest {
         InjectionRangeActionSensiHandler sensiHandler = new InjectionRangeActionSensiHandler(injectionRangeAction);
 
         FaraoException exception = assertThrows(FaraoException.class, () -> sensiHandler.checkConsistency(network));
-        assertEquals("", exception.getMessage());
+        assertEquals("Unable to create sensitivity variable for InjectionRangeAction injectionRangeId, on element BBE1AA11 BBE2AA11 1", exception.getMessage());
     }
 
     @Test
     void checkConsistencyNotANetworkElement() {
         Network network = Network.read("TestCase16NodesWithUcteHvdc.uct", getClass().getResourceAsStream("/TestCase16NodesWithUcteHvdc.uct"));
         Crac crac = CracFactory.findDefault().create("test-crac");
+        crac.addInstant("preventive", InstantKind.PREVENTIVE, null);
         InjectionRangeAction injectionRangeAction = (InjectionRangeAction) crac.newInjectionRangeAction().withId("injectionRangeId")
             .withNetworkElementAndKey(1, "unknown")
             .newRange().withMin(-1000).withMax(1000).add()
@@ -120,6 +122,6 @@ class InjectionRangeActionSensiHandlerTest {
         InjectionRangeActionSensiHandler sensiHandler = new InjectionRangeActionSensiHandler(injectionRangeAction);
 
         FaraoException exception = assertThrows(FaraoException.class, () -> sensiHandler.checkConsistency(network));
-        assertEquals("", exception.getMessage());
+        assertEquals("Unable to create sensitivity variable for InjectionRangeAction injectionRangeId, on element unknown", exception.getMessage());
     }
 }

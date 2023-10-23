@@ -166,7 +166,7 @@ class RangeActionSensitivityProviderTest {
         RangeActionSensitivityProvider provider = new RangeActionSensitivityProvider(new HashSet<>(),
             Set.of(crac.getFlowCnec("failureCnec")), Stream.of(Unit.MEGAWATT, Unit.AMPERE).collect(Collectors.toSet()));
         FaraoException exception = assertThrows(FaraoException.class, () -> provider.getContingencies(network));
-        assertEquals("", exception.getMessage());
+        assertEquals("Unable to apply contingency element FFR3AA1 while converting crac contingency to Powsybl format", exception.getMessage());
     }
 
     @Test

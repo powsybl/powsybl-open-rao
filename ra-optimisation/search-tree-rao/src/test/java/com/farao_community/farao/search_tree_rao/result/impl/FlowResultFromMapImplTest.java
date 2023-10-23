@@ -78,13 +78,13 @@ class FlowResultFromMapImplTest {
         assertEquals(200, branchResultFromMap.getCommercialFlow(loopFlowCnec, LEFT, MEGAWATT), DOUBLE_TOLERANCE);
         assertEquals(250, branchResultFromMap.getCommercialFlow(loopFlowCnec, RIGHT, MEGAWATT), DOUBLE_TOLERANCE);
         exception = assertThrows(FaraoException.class, () -> branchResultFromMap.getCommercialFlow(loopFlowCnec, LEFT, AMPERE));
-        assertEquals("", exception.getMessage());
+        assertEquals("Commercial flows only in MW.", exception.getMessage());
         exception = assertThrows(FaraoException.class, () -> branchResultFromMap.getCommercialFlow(loopFlowCnec, RIGHT, AMPERE));
-        assertEquals("", exception.getMessage());
+        assertEquals("Commercial flows only in MW.", exception.getMessage());
         exception = assertThrows(FaraoException.class, () -> branchResultFromMap.getCommercialFlow(optimizedCnec, LEFT, MEGAWATT));
-        assertEquals("", exception.getMessage());
+        assertEquals("No commercial flow on the CNEC null on side LEFT", exception.getMessage());
         exception = assertThrows(FaraoException.class, () -> branchResultFromMap.getCommercialFlow(optimizedCnec, RIGHT, MEGAWATT));
-        assertEquals("", exception.getMessage());
+        assertEquals("No commercial flow on the CNEC null on side RIGHT", exception.getMessage());
     }
 
     @Test
@@ -106,8 +106,8 @@ class FlowResultFromMapImplTest {
         exception = assertThrows(FaraoException.class, () -> branchResultFromMap.getFlow(optimizedCnec, RIGHT, DEGREE));
         assertEquals("Unknown unit for flow.", exception.getMessage());
         exception = assertThrows(FaraoException.class, () -> branchResultFromMap.getFlow(optimizedCnec, LEFT, PERCENT_IMAX));
-        assertEquals("", exception.getMessage());
+        assertEquals("Unknown unit for flow.", exception.getMessage());
         exception = assertThrows(FaraoException.class, () -> branchResultFromMap.getFlow(optimizedCnec, RIGHT, TAP));
-        assertEquals("", exception.getMessage());
+        assertEquals("Unknown unit for flow.", exception.getMessage());
     }
 }

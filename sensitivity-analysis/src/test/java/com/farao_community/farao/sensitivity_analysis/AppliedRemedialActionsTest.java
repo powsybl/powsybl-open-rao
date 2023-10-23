@@ -124,7 +124,7 @@ class AppliedRemedialActionsTest {
         AppliedRemedialActions appliedRemedialActions = new AppliedRemedialActions();
         State state = crac.getPreventiveState();
         FaraoException exception = assertThrows(FaraoException.class, () -> appliedRemedialActions.addAppliedNetworkAction(state, networkAction));
-        assertEquals("", exception.getMessage());
+        assertEquals("Sensitivity analysis with applied remedial actions only work with CURATIVE and AUTO remedial actions.", exception.getMessage());
     }
 
     @Test

@@ -66,7 +66,7 @@ class PstRangeActionSensiHandlerTest {
 
         PstRangeActionSensiHandler sensiHandler = new PstRangeActionSensiHandler(pstRangeAction);
         FaraoException exception = assertThrows(FaraoException.class, () -> sensiHandler.checkConsistency(network));
-        assertEquals("", exception.getMessage());
+        assertEquals("Unable to create sensitivity variable for PstRangeAction pstOnBranch, on element BBE1AA1  BB23AA1  1", exception.getMessage());
     }
 
     @Test
@@ -84,6 +84,6 @@ class PstRangeActionSensiHandlerTest {
 
         PstRangeActionSensiHandler sensiHandler = new PstRangeActionSensiHandler(pstRangeAction);
         FaraoException exception = assertThrows(FaraoException.class, () -> sensiHandler.checkConsistency(network));
-        assertEquals("", exception.getMessage());
+        assertEquals("Unable to create sensitivity variable for PstRangeAction pstOnNonExistingElement, on element unknown", exception.getMessage());
     }
 }

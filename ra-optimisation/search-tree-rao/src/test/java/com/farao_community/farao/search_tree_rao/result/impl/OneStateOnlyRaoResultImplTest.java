@@ -295,28 +295,28 @@ class OneStateOnlyRaoResultImplTest {
         FaraoException exception = assertThrows(FaraoException.class, () -> output.wasActivatedBeforeState(otherState, networkAction));
         assertEquals("Trying to access perimeter result for the wrong state.", exception.getMessage());
         exception = assertThrows(FaraoException.class, () -> output.isActivatedDuringState(otherState, networkAction));
-        assertEquals("", exception.getMessage());
+        assertEquals("Trying to access perimeter result for the wrong state.", exception.getMessage());
         exception = assertThrows(FaraoException.class, () -> output.getActivatedNetworkActionsDuringState(otherState));
-        assertEquals("", exception.getMessage());
+        assertEquals("Trying to access perimeter result for the wrong state.", exception.getMessage());
 
         exception = assertThrows(FaraoException.class, () -> output.isActivatedDuringState(otherState, rangeAction));
-        assertEquals("", exception.getMessage());
+        assertEquals("Trying to access perimeter result for the wrong state.", exception.getMessage());
         exception = assertThrows(FaraoException.class, () -> output.getPreOptimizationTapOnState(otherState, pstRangeAction));
-        assertEquals("", exception.getMessage());
+        assertEquals("Trying to access perimeter result for the wrong state.", exception.getMessage());
         exception = assertThrows(FaraoException.class, () -> output.getOptimizedTapOnState(otherState, pstRangeAction));
-        assertEquals("", exception.getMessage());
+        assertEquals("Trying to access perimeter result for the wrong state.", exception.getMessage());
         exception = assertThrows(FaraoException.class, () -> output.getPreOptimizationSetPointOnState(otherState, rangeAction));
-        assertEquals("", exception.getMessage());
+        assertEquals("Trying to access perimeter result for the wrong state.", exception.getMessage());
         exception = assertThrows(FaraoException.class, () -> output.getOptimizedSetPointOnState(otherState, rangeAction));
-        assertEquals("", exception.getMessage());
+        assertEquals("Trying to access perimeter result for the wrong state.", exception.getMessage());
         exception = assertThrows(FaraoException.class, () -> output.getActivatedRangeActionsDuringState(otherState));
-        assertEquals("", exception.getMessage());
+        assertEquals("Trying to access perimeter result for the wrong state.", exception.getMessage());
         exception = assertThrows(FaraoException.class, () -> output.getOptimizedTapsOnState(otherState));
-        assertEquals("", exception.getMessage());
+        assertEquals("Trying to access perimeter result for the wrong state.", exception.getMessage());
         exception = assertThrows(FaraoException.class, () -> output.getOptimizedSetPointsOnState(otherState));
-        assertEquals("", exception.getMessage());
-        exception = assertThrows(FaraoException.class, () -> output.getMargin(INSTANT_CURATIVE, mock(FlowCnec.class), Unit.MEGAWATT), "Cnec not optimized in this perimeter.");
-        assertEquals("", exception.getMessage());
+        assertEquals("Trying to access perimeter result for the wrong state.", exception.getMessage());
+        exception = assertThrows(FaraoException.class, () -> output.getMargin(INSTANT_CURATIVE, mock(FlowCnec.class), Unit.MEGAWATT));
+        assertEquals("Cnec not optimized in this perimeter.", exception.getMessage());
     }
 
     @Test
@@ -433,34 +433,34 @@ class OneStateOnlyRaoResultImplTest {
         FaraoException exception = assertThrows(FaraoException.class, () -> output.setOptimizationStepsExecuted(OptimizationStepsExecuted.FIRST_PREVENTIVE_ONLY));
         assertEquals("The RaoResult object should not be modified outside of its usual routine", exception.getMessage());
         exception = assertThrows(FaraoException.class, () -> output.setOptimizationStepsExecuted(OptimizationStepsExecuted.SECOND_PREVENTIVE_FELLBACK_TO_FIRST_PREVENTIVE_SITUATION));
-        assertEquals("", exception.getMessage());
+        assertEquals("The RaoResult object should not be modified outside of its usual routine", exception.getMessage());
         exception = assertThrows(FaraoException.class, () -> output.setOptimizationStepsExecuted(OptimizationStepsExecuted.FIRST_PREVENTIVE_FELLBACK_TO_INITIAL_SITUATION));
-        assertEquals("", exception.getMessage());
+        assertEquals("The RaoResult object should not be modified outside of its usual routine", exception.getMessage());
     }
 
     @Test
     void testAngleAndVoltageCnec() {
         AngleCnec angleCnec = mock(AngleCnec.class);
         VoltageCnec voltageCnec = mock(VoltageCnec.class);
-        String optInstantId = mock(String.class);
+        String optInstantId = "instant";
 
         FaraoException exception = assertThrows(FaraoException.class, () -> output.getMargin(optInstantId, angleCnec, MEGAWATT));
-        assertEquals("", exception.getMessage());
+        assertEquals("Angle cnecs are not computed in the rao", exception.getMessage());
         exception = assertThrows(FaraoException.class, () -> output.getMargin(optInstantId, angleCnec, AMPERE));
-        assertEquals("", exception.getMessage());
+        assertEquals("Angle cnecs are not computed in the rao", exception.getMessage());
         exception = assertThrows(FaraoException.class, () -> output.getMargin(optInstantId, voltageCnec, MEGAWATT));
-        assertEquals("", exception.getMessage());
+        assertEquals("Voltage cnecs are not computed in the rao", exception.getMessage());
         exception = assertThrows(FaraoException.class, () -> output.getMargin(optInstantId, voltageCnec, AMPERE));
-        assertEquals("", exception.getMessage());
+        assertEquals("Voltage cnecs are not computed in the rao", exception.getMessage());
 
         exception = assertThrows(FaraoException.class, () -> output.getVoltage(optInstantId, voltageCnec, MEGAWATT));
-        assertEquals("", exception.getMessage());
+        assertEquals("Voltage cnecs are not computed in the rao", exception.getMessage());
         exception = assertThrows(FaraoException.class, () -> output.getVoltage(optInstantId, voltageCnec, AMPERE));
-        assertEquals("", exception.getMessage());
+        assertEquals("Voltage cnecs are not computed in the rao", exception.getMessage());
 
         exception = assertThrows(FaraoException.class, () -> output.getAngle(optInstantId, angleCnec, MEGAWATT));
-        assertEquals("", exception.getMessage());
+        assertEquals("Angle cnecs are not computed in the rao", exception.getMessage());
         exception = assertThrows(FaraoException.class, () -> output.getMargin(optInstantId, angleCnec, AMPERE));
-        assertEquals("", exception.getMessage());
+        assertEquals("Angle cnecs are not computed in the rao", exception.getMessage());
     }
 }
