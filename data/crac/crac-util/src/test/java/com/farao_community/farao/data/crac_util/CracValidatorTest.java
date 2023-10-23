@@ -109,12 +109,6 @@ class CracValidatorTest {
     }
 
     @Test
-    void testDuplicateAutoCnecsWithInvalidInstant() {
-        FaraoException exception = assertThrows(FaraoException.class, () -> CracValidator.validateCrac(crac, network));
-        assertEquals("Instant should be an auto instant", exception.getMessage());
-    }
-
-    @Test
     void testDuplicateAutoCnecs0() {
         // No auto RA in CRAC => no auto perimeter => no need to duplicate CNECs
         List<String> report = CracValidator.validateCrac(crac, network);

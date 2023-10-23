@@ -65,6 +65,10 @@ class UnoptimizedCnecParametersTest {
     void testUnoptimizedCnecsInSeriesWithPsts() {
 
         Crac crac = CracFactory.findDefault().create("crac");
+        crac.addInstant("preventive", InstantKind.PREVENTIVE, null);
+        crac.addInstant("outage", InstantKind.OUTAGE, "preventive");
+        crac.addInstant("auto", InstantKind.AUTO, "outage");
+        crac.addInstant("curative", InstantKind.CURATIVE, "auto");
 
         crac.newFlowCnec().withId("flowCnec-1")
             .withNetworkElement("ne1Id")
