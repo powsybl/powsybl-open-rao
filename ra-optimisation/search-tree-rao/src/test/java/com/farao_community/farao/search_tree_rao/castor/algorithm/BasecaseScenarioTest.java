@@ -40,6 +40,7 @@ class BasecaseScenarioTest {
         Mockito.when(basecaseState.getInstant()).thenReturn(instantPrev);
         otherState1 = Mockito.mock(State.class);
         Mockito.when(otherState1.getInstant()).thenReturn(instantOutage);
+        Mockito.when(otherState1.toString()).thenReturn("Other state 1");
         otherState2 = Mockito.mock(State.class);
         Mockito.when(otherState2.getInstant()).thenReturn(instantCurative);
     }
@@ -70,7 +71,7 @@ class BasecaseScenarioTest {
         Set<State> otherStates = Set.of(otherState2);
         assertThrows(NullPointerException.class, () -> new BasecaseScenario(null, otherStates));
         FaraoException exception = assertThrows(FaraoException.class, () -> new BasecaseScenario(otherState1, otherStates));
-        assertEquals("Basecase state Mock for State, hashCode: 653345773 is not preventive", exception.getMessage());
+        assertEquals("Basecase state `Other state 1` is not preventive", exception.getMessage());
     }
 
     @Test

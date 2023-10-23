@@ -9,10 +9,7 @@ package com.farao_community.farao.search_tree_rao.commons;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
-import com.farao_community.farao.data.crac_api.Crac;
-import com.farao_community.farao.data.crac_api.InstantKind;
-import com.farao_community.farao.data.crac_api.RemedialAction;
-import com.farao_community.farao.data.crac_api.State;
+import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_api.network_action.ActionType;
@@ -88,7 +85,7 @@ class RaoUtilTest {
         raoParameters.getExtension(RelativeMarginsParametersExtension.class).setPtdfBoundariesFromString(new ArrayList<>(Arrays.asList("{FR}-{ES}", "{ES}-{PT}")));
         raoParameters.getObjectiveFunctionParameters().setType(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN_IN_AMPERE);
         FaraoException exception = assertThrows(FaraoException.class, () -> RaoUtil.checkParameters(raoParameters, raoInput));
-        assertEquals("", exception.getMessage());
+        assertEquals("Objective function MAX_MIN_RELATIVE_MARGIN_IN_AMPERE requires glsks", exception.getMessage());
     }
 
     @Test
@@ -96,7 +93,7 @@ class RaoUtilTest {
         addGlskProvider();
         raoParameters.getObjectiveFunctionParameters().setType(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN_IN_AMPERE);
         FaraoException exception = assertThrows(FaraoException.class, () -> RaoUtil.checkParameters(raoParameters, raoInput));
-        assertEquals("", exception.getMessage());
+        assertEquals("Objective function MAX_MIN_RELATIVE_MARGIN_IN_AMPERE requires a config with a non empty boundary set", exception.getMessage());
     }
 
     @Test
@@ -104,7 +101,7 @@ class RaoUtilTest {
         addGlskProvider();
         raoParameters.getObjectiveFunctionParameters().setType(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN_IN_AMPERE);
         FaraoException exception = assertThrows(FaraoException.class, () -> RaoUtil.checkParameters(raoParameters, raoInput));
-        assertEquals("", exception.getMessage());
+        assertEquals("Objective function MAX_MIN_RELATIVE_MARGIN_IN_AMPERE requires a config with a non empty boundary set", exception.getMessage());
     }
 
     @Test
@@ -114,7 +111,7 @@ class RaoUtilTest {
         raoParameters.getExtension(RelativeMarginsParametersExtension.class).setPtdfBoundariesFromString(new ArrayList<>());
         raoParameters.getObjectiveFunctionParameters().setType(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT);
         FaraoException exception = assertThrows(FaraoException.class, () -> RaoUtil.checkParameters(raoParameters, raoInput));
-        assertEquals("", exception.getMessage());
+        assertEquals("Objective function MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT requires a config with a non empty boundary set", exception.getMessage());
     }
 
     @Test
@@ -122,7 +119,7 @@ class RaoUtilTest {
         raoParameters.getObjectiveFunctionParameters().setType(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN_IN_AMPERE);
         raoParameters.getLoadFlowAndSensitivityParameters().getSensitivityWithLoadFlowParameters().getLoadFlowParameters().setDc(true);
         FaraoException exception = assertThrows(FaraoException.class, () -> RaoUtil.checkParameters(raoParameters, raoInput));
-        assertEquals("", exception.getMessage());
+        assertEquals("Objective function MAX_MIN_RELATIVE_MARGIN_IN_AMPERE cannot be calculated with a DC default sensitivity engine", exception.getMessage());
     }
 
     @Test
@@ -143,13 +140,13 @@ class RaoUtilTest {
         assertEquals(200 * Math.sqrt(3) / 1000., RaoUtil.getFlowUnitMultiplier(cnec, Side.RIGHT, Unit.AMPERE, Unit.MEGAWATT), DOUBLE_TOLERANCE);
 
         FaraoException exception = assertThrows(FaraoException.class, () -> RaoUtil.getFlowUnitMultiplier(cnec, Side.LEFT, Unit.MEGAWATT, Unit.PERCENT_IMAX));
-        assertEquals("", exception.getMessage());
+        assertEquals("Only conversions between MW and A are supported.", exception.getMessage());
         exception = assertThrows(FaraoException.class, () -> RaoUtil.getFlowUnitMultiplier(cnec, Side.LEFT, Unit.KILOVOLT, Unit.MEGAWATT));
-        assertEquals("", exception.getMessage());
+        assertEquals("Only conversions between MW and A are supported.", exception.getMessage());
         exception = assertThrows(FaraoException.class, () -> RaoUtil.getFlowUnitMultiplier(cnec, Side.RIGHT, Unit.AMPERE, Unit.TAP));
-        assertEquals("", exception.getMessage());
+        assertEquals("Only conversions between MW and A are supported.", exception.getMessage());
         exception = assertThrows(FaraoException.class, () -> RaoUtil.getFlowUnitMultiplier(cnec, Side.RIGHT, Unit.DEGREE, Unit.AMPERE));
-        assertEquals("", exception.getMessage());
+        assertEquals("Only conversions between MW and A are supported.", exception.getMessage());
     }
 
     @Test
@@ -233,8 +230,11 @@ class RaoUtilTest {
 
     @Test
     void testIsOnFlowConstraintInCountryAvailable() {
+        Instant instantCurative = Mockito.mock(Instant.class);
+        Mockito.when(instantCurative.getId()).thenReturn("curative");
+        Mockito.when(instantCurative.getInstantKind()).thenReturn(InstantKind.CURATIVE);
         State optimizedState = Mockito.mock(State.class);
-        when(optimizedState.getInstant().getId()).thenReturn("curative");
+        when(optimizedState.getInstant()).thenReturn(instantCurative);
 
         FlowCnec cnecFrBe = crac.getFlowCnec("cnec1stateCurativeContingency1");
         FlowCnec cnecFrDe = crac.getFlowCnec("cnec2stateCurativeContingency2");

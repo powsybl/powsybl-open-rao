@@ -35,7 +35,7 @@ public class BasecaseScenario {
     public BasecaseScenario(State basecaseState, Set<State> otherStates) {
         Objects.requireNonNull(basecaseState);
         if (!basecaseState.getInstant().getInstantKind().equals(InstantKind.PREVENTIVE)) {
-            throw new FaraoException(String.format("Basecase state %s is not preventive", basecaseState));
+            throw new FaraoException(String.format("Basecase state `%s` is not preventive", basecaseState));
         }
         if (otherStates != null && otherStates.stream().anyMatch(state -> state.getInstant().getInstantKind().equals(InstantKind.PREVENTIVE))) {
             throw new FaraoException("OtherStates should not be preventive");

@@ -46,55 +46,55 @@ class FailedRaoResultImplTest {
         FaraoException exception = assertThrows(FaraoException.class, () -> failedRaoResultImpl.getFunctionalCost(optInstant));
         assertEquals("Should not be used: the RAO failed.", exception.getMessage());
         exception = assertThrows(FaraoException.class, () -> failedRaoResultImpl.getVirtualCost(optInstant));
-        assertEquals("", exception.getMessage());
+        assertEquals("Should not be used: the RAO failed.", exception.getMessage());
         exception = assertThrows(FaraoException.class, failedRaoResultImpl::getVirtualCostNames);
-        assertEquals("", exception.getMessage());
+        assertEquals("Should not be used: the RAO failed.", exception.getMessage());
         exception = assertThrows(FaraoException.class, () -> failedRaoResultImpl.getVirtualCost(optInstant, ""));
-        assertEquals("", exception.getMessage());
+        assertEquals("Should not be used: the RAO failed.", exception.getMessage());
 
         exception = assertThrows(FaraoException.class, () -> failedRaoResultImpl.wasActivatedBeforeState(state, networkAction));
-        assertEquals("", exception.getMessage());
+        assertEquals("Should not be used: the RAO failed.", exception.getMessage());
         exception = assertThrows(FaraoException.class, () -> failedRaoResultImpl.isActivatedDuringState(state, networkAction));
-        assertEquals("", exception.getMessage());
+        assertEquals("Should not be used: the RAO failed.", exception.getMessage());
         exception = assertThrows(FaraoException.class, () -> failedRaoResultImpl.getActivatedNetworkActionsDuringState(state));
-        assertEquals("", exception.getMessage());
+        assertEquals("Should not be used: the RAO failed.", exception.getMessage());
 
         exception = assertThrows(FaraoException.class, () -> failedRaoResultImpl.isActivatedDuringState(state, rangeAction));
-        assertEquals("", exception.getMessage());
+        assertEquals("Should not be used: the RAO failed.", exception.getMessage());
         exception = assertThrows(FaraoException.class, () -> failedRaoResultImpl.getPreOptimizationTapOnState(state, pstRangeAction));
-        assertEquals("", exception.getMessage());
+        assertEquals("Should not be used: the RAO failed.", exception.getMessage());
         exception = assertThrows(FaraoException.class, () -> failedRaoResultImpl.getOptimizedTapOnState(state, pstRangeAction));
-        assertEquals("", exception.getMessage());
+        assertEquals("Should not be used: the RAO failed.", exception.getMessage());
         exception = assertThrows(FaraoException.class, () -> failedRaoResultImpl.getPreOptimizationSetPointOnState(state, rangeAction));
-        assertEquals("", exception.getMessage());
+        assertEquals("Should not be used: the RAO failed.", exception.getMessage());
         exception = assertThrows(FaraoException.class, () -> failedRaoResultImpl.getOptimizedSetPointOnState(state, rangeAction));
-        assertEquals("", exception.getMessage());
+        assertEquals("Should not be used: the RAO failed.", exception.getMessage());
         exception = assertThrows(FaraoException.class, () -> failedRaoResultImpl.getActivatedRangeActionsDuringState(state));
-        assertEquals("", exception.getMessage());
+        assertEquals("Should not be used: the RAO failed.", exception.getMessage());
         exception = assertThrows(FaraoException.class, () -> failedRaoResultImpl.getOptimizedTapsOnState(state));
-        assertEquals("", exception.getMessage());
+        assertEquals("Should not be used: the RAO failed.", exception.getMessage());
         exception = assertThrows(FaraoException.class, () -> failedRaoResultImpl.getOptimizedSetPointsOnState(state));
-        assertEquals("", exception.getMessage());
+        assertEquals("Should not be used: the RAO failed.", exception.getMessage());
         exception = assertThrows(FaraoException.class, failedRaoResultImpl::getOptimizationStepsExecuted);
-        assertEquals("", exception.getMessage());
+        assertEquals("Should not be used: the RAO failed.", exception.getMessage());
         exception = assertThrows(FaraoException.class, () -> failedRaoResultImpl.setOptimizationStepsExecuted(OptimizationStepsExecuted.FIRST_PREVENTIVE_ONLY));
-        assertEquals("", exception.getMessage());
+        assertEquals("Should not be used: the RAO failed.", exception.getMessage());
     }
 
     @Test
     void testAngleAndVoltageCnec() {
-        String optInstantId = mock(String.class);
+        String optInstantId = "instant";
         FailedRaoResultImpl failedRaoResultImpl = new FailedRaoResultImpl();
         AngleCnec angleCnec = mock(AngleCnec.class);
         VoltageCnec voltageCnec = mock(VoltageCnec.class);
         FaraoException exception = assertThrows(FaraoException.class, () -> failedRaoResultImpl.getMargin(optInstantId, angleCnec, MEGAWATT));
-        assertEquals("", exception.getMessage());
+        assertEquals("Angle cnecs are not computed in the rao", exception.getMessage());
         exception = assertThrows(FaraoException.class, () -> failedRaoResultImpl.getMargin(optInstantId, voltageCnec, MEGAWATT));
-        assertEquals("", exception.getMessage());
+        assertEquals("Voltage cnecs are not computed in the rao", exception.getMessage());
         exception = assertThrows(FaraoException.class, () -> failedRaoResultImpl.getVoltage(optInstantId, voltageCnec, MEGAWATT));
-        assertEquals("", exception.getMessage());
+        assertEquals("Voltage cnecs are not computed in the rao", exception.getMessage());
         exception = assertThrows(FaraoException.class, () -> failedRaoResultImpl.getAngle(optInstantId, angleCnec, MEGAWATT));
-        assertEquals("", exception.getMessage());
+        assertEquals("Angle cnecs are not computed in the rao", exception.getMessage());
     }
 
     @Test
@@ -105,16 +105,16 @@ class FailedRaoResultImplTest {
         FaraoException exception = assertThrows(FaraoException.class, () -> failedRaoResultImpl.getFlow(optInstant, flowCnec, Side.LEFT, MEGAWATT));
         assertEquals("Should not be used: the RAO failed.", exception.getMessage());
         exception = assertThrows(FaraoException.class, () -> failedRaoResultImpl.getCommercialFlow(optInstant, flowCnec, Side.LEFT, MEGAWATT));
-        assertEquals("", exception.getMessage());
+        assertEquals("Should not be used: the RAO failed.", exception.getMessage());
         exception = assertThrows(FaraoException.class, () -> failedRaoResultImpl.getLoopFlow(optInstant, flowCnec, Side.LEFT, MEGAWATT));
-        assertEquals("", exception.getMessage());
+        assertEquals("Should not be used: the RAO failed.", exception.getMessage());
         exception = assertThrows(FaraoException.class, () -> failedRaoResultImpl.getPtdfZonalSum(optInstant, flowCnec, Side.LEFT));
-        assertEquals("", exception.getMessage());
+        assertEquals("Should not be used: the RAO failed.", exception.getMessage());
         exception = assertThrows(FaraoException.class, () -> failedRaoResultImpl.getFlow(optInstant, flowCnec, Side.LEFT, MEGAWATT));
-        assertEquals("", exception.getMessage());
+        assertEquals("Should not be used: the RAO failed.", exception.getMessage());
         exception = assertThrows(FaraoException.class, () -> failedRaoResultImpl.getMargin(optInstant, flowCnec, MEGAWATT));
-        assertEquals("", exception.getMessage());
+        assertEquals("Should not be used: the RAO failed.", exception.getMessage());
         exception = assertThrows(FaraoException.class, () -> failedRaoResultImpl.getRelativeMargin(optInstant, flowCnec, MEGAWATT));
-        assertEquals("", exception.getMessage());
+        assertEquals("Should not be used: the RAO failed.", exception.getMessage());
     }
 }

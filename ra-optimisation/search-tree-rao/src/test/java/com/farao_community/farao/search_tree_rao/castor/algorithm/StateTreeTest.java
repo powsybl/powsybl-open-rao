@@ -11,6 +11,7 @@ import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.CracFactory;
+import com.farao_community.farao.data.crac_api.InstantKind;
 import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
@@ -82,6 +83,10 @@ class StateTreeTest {
 
     private void setUpCustomCrac() {
         crac = CracFactory.findDefault().create("crac-id");
+        crac.addInstant("preventive", InstantKind.PREVENTIVE, null);
+        crac.addInstant("outage", InstantKind.OUTAGE, "preventive");
+        crac.addInstant("auto", InstantKind.AUTO, "outage");
+        crac.addInstant("curative", InstantKind.CURATIVE, "auto");
         crac.newContingency().withId("contingency-1").add();
         crac.newContingency().withId("contingency-2").add();
         crac.newContingency().withId("contingency-3").add();
@@ -226,11 +231,15 @@ class StateTreeTest {
         Mockito.when(mockCrac.getPotentiallyAvailableNetworkActions(outageState))
             .thenReturn(Set.of(Mockito.mock(NetworkAction.class)));
         FaraoException exception = assertThrows(FaraoException.class, () -> new StateTree(mockCrac));
-        assertEquals("", exception.getMessage());
+        assertEquals("Outage state contingency-1 - outage has available RAs. This is not supported.", exception.getMessage());
     }
 
     private void setUpCustomCracWithAutoInstant(boolean withAutoState, boolean withAutoRa, boolean withCurativeState, boolean withCurativeRa) {
         crac = CracFactory.findDefault().create("crac-id");
+        crac.addInstant("preventive", InstantKind.PREVENTIVE, null);
+        crac.addInstant("outage", InstantKind.OUTAGE, "preventive");
+        crac.addInstant("auto", InstantKind.AUTO, "outage");
+        crac.addInstant("curative", InstantKind.CURATIVE, "auto");
         crac.newContingency().withId("contingency").add();
         crac.newFlowCnec()
             .withInstantId("preventive")
@@ -314,7 +323,7 @@ class StateTreeTest {
         // 2.1 Only AUTO exists and has RAs
         setUpCustomCracWithAutoInstant(true, true, false, false);
         FaraoException exception = assertThrows(FaraoException.class, () -> new StateTree(crac));
-        assertEquals("", exception.getMessage());
+        assertEquals("Automaton state contingency - auto has RAs, but curative state null doesn't. This is not supported.", exception.getMessage());
     }
 
     @Test
@@ -351,7 +360,7 @@ class StateTreeTest {
         // 4.2 Both AUTO and CURATIVE exist, only AUTO has RAs
         setUpCustomCracWithAutoInstant(true, true, true, false);
         FaraoException exception = assertThrows(FaraoException.class, () -> new StateTree(crac));
-        assertEquals("", exception.getMessage());
+        assertEquals("Automaton state contingency - auto has RAs, but curative state contingency - curative doesn't. This is not supported.", exception.getMessage());
 
         // 4.3 Both AUTO and CURATIVE exist, only CURATIVE has RAs
         setUpCustomCracWithAutoInstant(true, false, true, true);
