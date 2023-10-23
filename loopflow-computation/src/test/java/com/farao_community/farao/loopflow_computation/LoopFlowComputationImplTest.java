@@ -155,7 +155,7 @@ class LoopFlowComputationImplTest {
         Mockito.doReturn(null).when(network).getLoad("dl1");
         Mockito.doReturn(dl1).when(network).getDanglingLine("dl1");
         exception = assertThrows(FaraoException.class, () -> LoopFlowComputationImpl.isInMainComponent(linearGlsk, network));
-        assertEquals("load1 is neither a generator nor a load nor a dangling line in the network. It is not a valid GLSK.", exception.getMessage());
+        assertEquals("gen1 is neither a generator nor a load nor a dangling line in the network. It is not a valid GLSK.", exception.getMessage());
     }
 
     @Test

@@ -6,13 +6,15 @@ import com.farao_community.farao.data.crac_creation.creator.api.parameters.CracC
 import com.farao_community.farao.data.crac_creation.creator.api.parameters.JsonCracCreationParameters;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.ValueSource;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -23,6 +25,20 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
 class JsonVoltageCnecsCreationParametersTest {
+    public static Stream<Arguments> provideParameters() {
+        return Stream.of(
+            Arguments.of("nok1", "TODO"),
+            Arguments.of("nok2", "TODO"),
+            Arguments.of("nok3", "Multiple thresholds for same nominalV (400.0) defined"),
+            Arguments.of("nok4", "Unhandled unit in voltage monitoring: ampere"),
+            Arguments.of("nok5", "At least one monitored element and one monitored state with thresholds should be defined."),
+            Arguments.of("nok6", "At least one monitored element and one monitored state with thresholds should be defined."),
+            Arguments.of("nok7", "At least one threshold should be defined."),
+            Arguments.of("nok8", "Field nominalV for thresholds-per-nominal-v should be defined."),
+            Arguments.of("nok9", "Could not deserialize monitored-states-and-thresholds")
+        );
+    }
+
     @Test
     void testImportVoltageCnecs() {
         CracCreationParameters importedParameters = JsonCracCreationParameters.read(getClass().getResourceAsStream("/parameters/voltage-cnecs-creation-parameters.json"));
@@ -61,10 +77,10 @@ class JsonVoltageCnecsCreationParametersTest {
     }
 
     @ParameterizedTest
-    @ValueSource(strings = {"nok1", "nok2", "nok3", "nok4", "nok5", "nok6", "nok7", "nok8", "nok9"})
-    void importNokTest(String source) {
+    @MethodSource("provideParameters")
+    void importNokTest(String source, String message) {
         InputStream inputStream = getClass().getResourceAsStream("/parameters/voltage-cnecs-creation-parameters-" + source + ".json");
         FaraoException exception = assertThrows(FaraoException.class, () -> JsonCracCreationParameters.read(inputStream));
-        assertEquals("Multiple thresholds for same nominalV (400.0) defined", exception.getMessage());
+        assertEquals(message, exception.getMessage());
     }
 }

@@ -11,13 +11,15 @@ import com.farao_community.farao.data.crac_creation.creator.api.parameters.CracC
 import com.farao_community.farao.data.crac_creation.creator.api.parameters.JsonCracCreationParameters;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.ValueSource;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -28,6 +30,17 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 class JsonCimCracCreationParametersTest {
+
+    public static Stream<Arguments> provideParameters() {
+        return Stream.of(
+            Arguments.of("nok", "Unexpected field: unknown-field"),
+            Arguments.of("nok-same-speed", "Range action rangeAction1 has a speed 1 already defined"),
+            Arguments.of("nok3", "Range action rangeAction1 has two or more associated speed"),
+            Arguments.of("nok4", "Missing range action ID in range-action-speeds"),
+            Arguments.of("nok5", "Missing speed in range-action-speeds"),
+            Arguments.of("nok-aligned", "Range actions rangeAction2 and rangeAction1 are aligned but have different speeds (2 and 1)")
+        );
+    }
 
     @Test
     void roundTripTest() {
@@ -96,11 +109,11 @@ class JsonCimCracCreationParametersTest {
     }
 
     @ParameterizedTest
-    @ValueSource(strings = {"nok", "nok-same-speed", "nok3", "nok4", "nok5", "nok-aligned"})
-    void importNokTest(String source) {
+    @MethodSource("provideParameters")
+    void importNokTest(String source, String message) {
         InputStream inputStream = getClass().getResourceAsStream("/parameters/cim-crac-creation-parameters-" + source + ".json");
         FaraoException exception = assertThrows(FaraoException.class, () -> JsonCracCreationParameters.read(inputStream));
-        assertEquals("Unexpected field: unknown-field", exception.getMessage());
+        assertEquals(message, exception.getMessage());
     }
 
     @Test

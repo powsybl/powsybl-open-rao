@@ -24,7 +24,8 @@ import com.powsybl.commons.test.AbstractConverterTest;
 import com.powsybl.commons.test.ComparisonUtils;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.ValueSource;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -32,6 +33,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -40,6 +42,15 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 class JsonRaoParametersTest extends AbstractConverterTest {
     static double DOUBLE_TOLERANCE = 1e-6;
+
+    public static Stream<Arguments> provideParameters() {
+        return Stream.of(
+            Arguments.of("LoopFlowError", "Unknown approximation value: FIXED_PTDF_WRONG"),
+            Arguments.of("CurStopCriterionError", "Unknown preventive stop criterion: WRONG"),
+            Arguments.of("WrongField", "Cannot deserialize multi-threading parameters: unexpected field in multi-threading (leaves-in-parallel)"),
+            Arguments.of("NegativeField", "Unexpected negative integer!")
+        );
+    }
 
     @Test
     void roundTripDefault() throws IOException {
@@ -179,11 +190,11 @@ class JsonRaoParametersTest extends AbstractConverterTest {
     }
 
     @ParameterizedTest
-    @ValueSource(strings = {"LoopFlowError", "PrevStopCriterionError", "CurStopCriterionError", "WrongField", "NegativeField"})
-    void importNokTest(String source) {
+    @MethodSource("provideParameters")
+    void importNokTest(String source, String message) {
         InputStream inputStream = getClass().getResourceAsStream("/RaoParametersWith" + source + "_v2.json");
         FaraoException exception = assertThrows(FaraoException.class, () -> JsonRaoParameters.read(inputStream));
-        assertEquals("Unknown approximation value: FIXED_PTDF_WRONG", exception.getMessage());
+        assertEquals(message, exception.getMessage());
     }
 
     static class DummyExtension extends AbstractExtension<RaoParameters> {

@@ -29,6 +29,19 @@ public class CseCriticalBranchCreationContext implements BranchCnecCreationConte
     private final String invalidBranchReason;
     private final ImportStatus criticalBranchImportStatus;
 
+    CseCriticalBranchCreationContext(CriticalBranchReader criticalBranchReader) {
+        this.criticalBranchName = criticalBranchReader.getCriticalBranchName();
+        this.nativeBranch = criticalBranchReader.getNativeBranch();
+        this.isBaseCase = criticalBranchReader.isBaseCase();
+        this.isImported = criticalBranchReader.isImported();
+        this.createdCnecIds = criticalBranchReader.getCreatedCnecIds();
+        this.contingencyId = criticalBranchReader.getContingencyId();
+        this.isDirectionInverted = criticalBranchReader.isDirectionInverted();
+        this.selected = criticalBranchReader.isSelected();
+        this.invalidBranchReason = criticalBranchReader.getInvalidBranchReason();
+        this.criticalBranchImportStatus = criticalBranchReader.getImportStatus();
+    }
+
     @Override
     public NativeBranch getNativeBranch() {
         return nativeBranch;
@@ -81,18 +94,5 @@ public class CseCriticalBranchCreationContext implements BranchCnecCreationConte
 
     public boolean isSelected() {
         return selected;
-    }
-
-    CseCriticalBranchCreationContext(CriticalBranchReader criticalBranchReader) {
-        this.criticalBranchName = criticalBranchReader.getCriticalBranchName();
-        this.nativeBranch = criticalBranchReader.getNativeBranch();
-        this.isBaseCase = criticalBranchReader.isBaseCase();
-        this.isImported = criticalBranchReader.isImported();
-        this.createdCnecIds = criticalBranchReader.getCreatedCnecIds();
-        this.contingencyId = criticalBranchReader.getContingencyId();
-        this.isDirectionInverted = criticalBranchReader.isDirectionInverted();
-        this.selected = criticalBranchReader.isSelected();
-        this.invalidBranchReason = criticalBranchReader.getInvalidBranchReason();
-        this.criticalBranchImportStatus = criticalBranchReader.getImportStatus();
     }
 }

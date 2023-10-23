@@ -15,6 +15,7 @@ import com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.Cim
 import com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.cnec.CnecCreationContext;
 import com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.cnec.MeasurementCreationContext;
 import com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.cnec.MonitoredSeriesCreationContext;
+import com.farao_community.farao.data.crac_impl.InstantImpl;
 import com.farao_community.farao.data.rao_result_api.RaoResult;
 import com.farao_community.farao.data.swe_cne_exporter.xsd.MonitoredSeries;
 import com.powsybl.iidm.network.Branch;
@@ -53,6 +54,14 @@ class SweMonitoredSeriesCreatorTest {
         Mockito.when(sweCneHelper.getCrac()).thenReturn(crac);
         Mockito.when(sweCneHelper.getRaoResult()).thenReturn(raoResult);
         Mockito.when(sweCneHelper.getNetwork()).thenReturn(network);
+        Instant instantPrev = new InstantImpl("preventive", InstantKind.PREVENTIVE, null);
+        Instant instantOutage = new InstantImpl("outage", InstantKind.OUTAGE, instantPrev);
+        Instant instantAuto = new InstantImpl("auto", InstantKind.AUTO, instantOutage);
+        Instant instantCurative = new InstantImpl("curative", InstantKind.CURATIVE, instantAuto);
+        Mockito.when(crac.getInstant("preventive")).thenReturn(instantPrev);
+        Mockito.when(crac.getInstant("outage")).thenReturn(instantOutage);
+        Mockito.when(crac.getInstant("auto")).thenReturn(instantAuto);
+        Mockito.when(crac.getInstant("curative")).thenReturn(instantCurative);
     }
 
     @Test

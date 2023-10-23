@@ -235,15 +235,15 @@ class PreventiveAndCurativesRaoResultImplTest {
         FaraoException exception = assertThrows(FaraoException.class, () -> output.getFlow(instant, cnec, Side.LEFT, Unit.MEGAWATT));
         assertEquals(String.format("Trying to access results for instant %s at optimization state %s is not allowed", cnec.getState().getInstant().getId(), instant.toString()), exception.getMessage());
         exception = assertThrows(FaraoException.class, () -> output.getMargin(instant, cnec, Unit.MEGAWATT));
-        assertEquals(String.format("Trying to access results for instant %s at optimization state %s is not allowed", cnec.getState().getInstant().getId(), instant.toString()), exception.getMessage());
+        assertEquals(String.format("Trying to access results for instant %s at optimization state %s is not allowed", cnec.getState().getInstant().getId(), instant), exception.getMessage());
         exception = assertThrows(FaraoException.class, () -> output.getRelativeMargin(instant, cnec, Unit.MEGAWATT));
-        assertEquals(String.format("Trying to access results for instant %s at optimization state %s is not allowed", cnec.getState().getInstant().getId(), instant.toString()), exception.getMessage());
+        assertEquals(String.format("Trying to access results for instant %s at optimization state %s is not allowed", cnec.getState().getInstant().getId(), instant), exception.getMessage());
         exception = assertThrows(FaraoException.class, () -> output.getCommercialFlow(instant, cnec, Side.LEFT, Unit.MEGAWATT));
-        assertEquals(String.format("Trying to access results for instant %s at optimization state %s is not allowed", cnec.getState().getInstant().getId(), instant.toString()), exception.getMessage());
+        assertEquals(String.format("Trying to access results for instant %s at optimization state %s is not allowed", cnec.getState().getInstant().getId(), instant), exception.getMessage());
         exception = assertThrows(FaraoException.class, () -> output.getLoopFlow(instant, cnec, Side.LEFT, Unit.MEGAWATT));
-        assertEquals(String.format("Trying to access results for instant %s at optimization state %s is not allowed", cnec.getState().getInstant().getId(), instant.toString()), exception.getMessage());
+        assertEquals(String.format("Trying to access results for instant %s at optimization state %s is not allowed", cnec.getState().getInstant().getId(), instant), exception.getMessage());
         exception = assertThrows(FaraoException.class, () -> output.getPtdfZonalSum(instant, cnec, Side.LEFT));
-        assertEquals(String.format("Trying to access results for instant %s at optimization state %s is not allowed", cnec.getState().getInstant().getId(), instant.toString()), exception.getMessage());
+        assertEquals(String.format("Trying to access results for instant %s at optimization state %s is not allowed", cnec.getState().getInstant().getId(), instant), exception.getMessage());
     }
 
     @Test

@@ -293,10 +293,12 @@ class RaoLoggerTest {
         State preventive = Mockito.mock(State.class);
         Instant instantPrev = Mockito.mock(Instant.class);
         when(instantPrev.getInstantKind()).thenReturn(InstantKind.PREVENTIVE);
+        when(instantPrev.toString()).thenReturn("preventive");
         when(preventive.getInstant()).thenReturn(instantPrev);
         State curative = Mockito.mock(State.class);
         Instant instantCurative = Mockito.mock(Instant.class);
         when(instantCurative.getInstantKind()).thenReturn(InstantKind.CURATIVE);
+        when(instantCurative.toString()).thenReturn("curative");
         when(curative.getInstant()).thenReturn(instantCurative);
         Contingency contingency = Mockito.mock(Contingency.class);
         when(contingency.getName()).thenReturn("contingency");

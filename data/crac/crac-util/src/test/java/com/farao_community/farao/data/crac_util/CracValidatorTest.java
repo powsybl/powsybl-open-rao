@@ -11,7 +11,6 @@ import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.CracFactory;
-import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.InstantKind;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.cnec.Side;
@@ -111,7 +110,6 @@ class CracValidatorTest {
 
     @Test
     void testDuplicateAutoCnecsWithInvalidInstant() {
-        Instant instantOutage = crac.getInstant("outage");
         FaraoException exception = assertThrows(FaraoException.class, () -> CracValidator.validateCrac(crac, network));
         assertEquals("Instant should be an auto instant", exception.getMessage());
     }

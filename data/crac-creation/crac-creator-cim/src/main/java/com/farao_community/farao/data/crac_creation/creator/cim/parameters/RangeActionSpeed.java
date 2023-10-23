@@ -6,6 +6,8 @@
  */
 package com.farao_community.farao.data.crac_creation.creator.cim.parameters;
 
+import java.util.Objects;
+
 /**
  * A class that maps rangeActionId to speed
  *
@@ -26,5 +28,22 @@ public class RangeActionSpeed {
 
     public Integer getSpeed() {
         return speed;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        RangeActionSpeed that = (RangeActionSpeed) o;
+        return Objects.equals(rangeActionId, that.rangeActionId) && Objects.equals(speed, that.speed);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(rangeActionId, speed);
     }
 }

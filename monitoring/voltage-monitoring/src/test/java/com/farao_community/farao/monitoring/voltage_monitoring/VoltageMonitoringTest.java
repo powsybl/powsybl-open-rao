@@ -362,6 +362,10 @@ class VoltageMonitoringTest {
     public void setUpCracFactory(String networkFileName) {
         network = Network.read(networkFileName, getClass().getResourceAsStream("/" + networkFileName));
         crac = CracFactory.findDefault().create("test-crac");
+        crac.addInstant("preventive", InstantKind.PREVENTIVE, null);
+        crac.addInstant("outage", InstantKind.OUTAGE, "preventive");
+        crac.addInstant("auto", InstantKind.AUTO, "outage");
+        crac.addInstant("curative", InstantKind.CURATIVE, "auto");
     }
 
     public void mockPreventiveState() {

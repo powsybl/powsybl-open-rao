@@ -45,20 +45,20 @@ class RaoParametersConfigTest {
 
     static Stream<Arguments> generateIntMap() {
         return Stream.of(
-            Arguments.of(List.of("{ABC:5", "{DEF}:6")),
-            Arguments.of(List.of("{ABC}+5", "{DEF}:6")),
-            Arguments.of(List.of("{ABC}", "{DEF}:6")),
-            Arguments.of(List.of("5", "{DEF}:6"))
+            Arguments.of(List.of("{ABC:5", "{DEF}:6"), "{ABC contains too few or too many occurences of \"{ or \"}"),
+            Arguments.of(List.of("{ABC}+5", "{DEF}:6"), "String-Integer pairs separated by \":\" must be defined, e.g {String1}:Integer instead of {ABC}+5"),
+            Arguments.of(List.of("{ABC}", "{DEF}:6"), "String-Integer pairs separated by \":\" must be defined, e.g {String1}:Integer instead of {ABC}"),
+            Arguments.of(List.of("5", "{DEF}:6"), "String-Integer pairs separated by \":\" must be defined, e.g {String1}:Integer instead of 5")
         );
     }
 
     static Stream<Arguments> generateStringStringMap() {
         return Stream.of(
-            Arguments.of(List.of("{cnec1:{pst1}", "{halfline1Cnec2 + halfline2Cnec2}:{pst2}")),
-            Arguments.of(List.of("{cnec1}:pst1}", "{halfline1Cnec2 + halfline2Cnec2}:{pst2}")),
-            Arguments.of(List.of("{cnec1}:", "{halfline1Cnec2 + halfline2Cnec2}:{pst2}")),
-            Arguments.of(List.of(":{pst1}", "{halfline1Cnec2 + halfline2Cnec2}:{pst2}")),
-            Arguments.of(List.of("{cnec1}{blabla}:{pst1}"))
+            Arguments.of(List.of("{cnec1:{pst1}", "{halfline1Cnec2 + halfline2Cnec2}:{pst2}"), "{cnec1 contains too few or too many occurences of \"{ or \"}"),
+            Arguments.of(List.of("{cnec1}:pst1}", "{halfline1Cnec2 + halfline2Cnec2}:{pst2}"), "pst1} contains too few or too many occurences of \"{ or \"}"),
+            Arguments.of(List.of("{cnec1}:", "{halfline1Cnec2 + halfline2Cnec2}:{pst2}"), "String pairs separated by \":\" must be defined, e.g {String1}:{String2} instead of {cnec1}:"),
+            Arguments.of(List.of(":{pst1}", "{halfline1Cnec2 + halfline2Cnec2}:{pst2}"), " contains too few or too many occurences of \"{ or \"}"),
+            Arguments.of(List.of("{cnec1}{blabla}:{pst1}"), "{cnec1}{blabla} contains too few or too many occurences of \"{ or \"}")
         );
     }
 
@@ -300,22 +300,22 @@ class RaoParametersConfigTest {
 
     @ParameterizedTest
     @MethodSource("generateIntMap")
-    void inconsistentStringIntMap(List<String> source) {
+    void inconsistentStringIntMap(List<String> source, String message) {
         MapModuleConfig raUsageLimitsModuleConfig = platformCfg.createModuleConfig("rao-ra-usage-limits-per-contingency");
         raUsageLimitsModuleConfig.setStringListProperty("max-curative-topo-per-tso", source);
         RaoParameters parameters = new RaoParameters();
         FaraoException exception = assertThrows(FaraoException.class, () -> RaoParameters.load(parameters, platformCfg));
-        assertEquals("{ABC contains too few or too many occurences of \"{ or \"}", exception.getMessage());
+        assertEquals(message, exception.getMessage());
     }
 
     @ParameterizedTest
     @MethodSource("generateStringStringMap")
-    void inconsistentStringStringMap(List<String> source) {
+    void inconsistentStringStringMap(List<String> source, String message) {
         MapModuleConfig notOptimizedModuleConfig = platformCfg.createModuleConfig("rao-not-optimized-cnecs");
         notOptimizedModuleConfig.setStringListProperty("do-not-optimize-cnec-secured-by-its-pst", source);
         RaoParameters parameters = new RaoParameters();
         FaraoException exception = assertThrows(FaraoException.class, () -> RaoParameters.load(parameters, platformCfg));
-        assertEquals("{cnec1 contains too few or too many occurences of \"{ or \"}", exception.getMessage());
+        assertEquals(message, exception.getMessage());
     }
 
     @Test

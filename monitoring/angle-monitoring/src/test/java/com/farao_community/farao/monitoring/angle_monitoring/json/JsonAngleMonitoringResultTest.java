@@ -16,7 +16,8 @@ import com.farao_community.farao.monitoring.angle_monitoring.AngleMonitoringResu
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.ValueSource;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -25,6 +26,7 @@ import java.io.OutputStream;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -44,6 +46,30 @@ class JsonAngleMonitoringResultTest {
     State preventiveState;
     Contingency co1;
     AngleMonitoringResultImporter angleMonitoringResultImporter;
+
+    public static Stream<Arguments> provideParameters() {
+        return Stream.of(
+            Arguments.of("nok1", "Instant, CNEC ID and quantity must be defined in angle-cnec-quantities-in-degrees"),
+            Arguments.of("nok2", "Instant, CNEC ID and quantity must be defined in angle-cnec-quantities-in-degrees"),
+            Arguments.of("nok3", "Instant, CNEC ID and quantity must be defined in angle-cnec-quantities-in-degrees"),
+            Arguments.of("nok4", "No contingency defined with instant curative"),
+            Arguments.of("nok5", "Angle values for AngleCnec ac1, instant preventive and contingency null are defined more than once"),
+            Arguments.of("nok6", "Angle values for AngleCnec ac2, instant curative and contingency co1 are defined more than once"),
+            Arguments.of("nok7", "AngleCnec ac3 does not exist in the CRAC"),
+            Arguments.of("nok8", "Unexpected field wrong in angle-cnec-quantities-in-degrees"),
+            Arguments.of("nok9", "Unexpected field wrong in remedial-actions"),
+            Arguments.of("nok10", "Unexpected field wrong in ANGLE_MONITORING_RESULT"),
+            Arguments.of("nok11", "Type of document must be specified at the beginning as ANGLE_MONITORING_RESULT"),
+            Arguments.of("nok12", "Type of document must be specified at the beginning as ANGLE_MONITORING_RESULT"),
+            Arguments.of("nok13", "Status must be specified right after type of document."),
+            Arguments.of("nok14", "Unhandled status : UNHANDLED_STATUS"),
+            Arguments.of("nok15", "State with instant preventive and contingency null has previously been defined in remedial-actions"),
+            Arguments.of("nok16", "State with instant curative and contingency co1 has previously been defined in remedial-actions"),
+            Arguments.of("nok17", "No contingency defined with instant curative"),
+            Arguments.of("nok18", "State with instant auto and contingency co1 does not exist in CRAC"),
+            Arguments.of("nok19", "Instant 'unhandled_instant' has not been defined")
+        );
+    }
 
     @BeforeEach
     public void setUp() {
@@ -117,11 +143,10 @@ class JsonAngleMonitoringResultTest {
     }
 
     @ParameterizedTest
-    @ValueSource(strings = {"nok1", "nok2", "nok3", "nok4", "nok5", "nok6", "nok7", "nok8", "nok9",
-        "nok10", "nok11", "nok12", "nok13", "nok14", "nok15", "nok16", "nok17", "nok18", "nok19"})
-    void importNokTest(String source) {
+    @MethodSource("provideParameters")
+    void importNokTest(String source, String message) {
         InputStream inputStream = getClass().getResourceAsStream("/result-" + source + ".json");
         FaraoException exception = assertThrows(FaraoException.class, () -> angleMonitoringResultImporter.importAngleMonitoringResult(inputStream, crac));
-        assertEquals("Instant, CNEC ID and quantity must be defined in angle-cnec-quantities-in-degrees", exception.getMessage());
+        assertEquals(message, exception.getMessage());
     }
 }

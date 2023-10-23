@@ -15,7 +15,8 @@ import com.farao_community.farao.monitoring.voltage_monitoring.VoltageMonitoring
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.ValueSource;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -24,6 +25,7 @@ import java.io.OutputStream;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Stream;
 
 import static com.farao_community.farao.monitoring.voltage_monitoring.VoltageMonitoringResult.Status.UNKNOWN;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -41,6 +43,20 @@ class JsonVoltageMonitoringResultTest {
     State preventiveState;
     Contingency co1;
     VoltageMonitoringResultImporter voltageMonitoringResultImporter;
+
+    public static Stream<Arguments> provideParameters() {
+        return Stream.of(
+            Arguments.of("nok1", "Status must be specified right after type of document."),
+            Arguments.of("nok2", "Status must be specified right after type of document."),
+            Arguments.of("nok3", "Status must be specified right after type of document."),
+            Arguments.of("nok4", "Status must be specified right after type of document."),
+            Arguments.of("nok5", "Status must be specified right after type of document."),
+            Arguments.of("nok6", "Status must be specified right after type of document."),
+            Arguments.of("nok7", "Status must be specified right after type of document."),
+            Arguments.of("nok8", "type of document must be specified at the beginning as VOLTAGE_MONITORING_RESULT"),
+            Arguments.of("nok9", "type of document must be specified at the beginning as VOLTAGE_MONITORING_RESULT")
+        );
+    }
 
     @BeforeEach
     public void setUp() {
@@ -101,10 +117,10 @@ class JsonVoltageMonitoringResultTest {
     }
 
     @ParameterizedTest
-    @ValueSource(strings = {"nok1", "nok2", "nok3", "nok4", "nok5", "nok6", "nok7", "nok8", "nok9"})
-    void importNokTest(String source) {
+    @MethodSource("provideParameters")
+    void importNokTest(String source, String message) {
         InputStream inputStream = getClass().getResourceAsStream("/result-" + source + ".json");
         FaraoException exception = assertThrows(FaraoException.class, () -> voltageMonitoringResultImporter.importVoltageMonitoringResult(inputStream, crac));
-        assertEquals("Status must be specified right after type of document.", exception.getMessage());
+        assertEquals(message, exception.getMessage());
     }
 }
