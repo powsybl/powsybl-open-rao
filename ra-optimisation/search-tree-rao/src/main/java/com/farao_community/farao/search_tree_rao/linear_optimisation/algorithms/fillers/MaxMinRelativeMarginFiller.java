@@ -9,6 +9,7 @@ package com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
+import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.rao_api.parameters.extensions.PtdfApproximation;
 import com.farao_community.farao.rao_api.parameters.extensions.RelativeMarginsParametersExtension;
 import com.farao_community.farao.search_tree_rao.commons.RaoUtil;
@@ -63,7 +64,9 @@ public class MaxMinRelativeMarginFiller extends MaxMinMarginFiller {
     @Override
     public void updateBetweenSensiIteration(LinearProblem linearProblem, FlowResult flowResult, SensitivityResult sensitivityResult, RangeActionActivationResult rangeActionActivationResult) {
         if (ptdfApproximationLevel.shouldUpdatePtdfWithPstChange()) {
-            setOrUpdateRelativeMarginCoefficients(linearProblem, flowResult);
+            optimizedCnecs.forEach(cnec -> cnec.getMonitoredSides().forEach(side ->
+                setOrUpdateRelativeMarginCoefficients(linearProblem, flowResult, cnec, side)
+            ));
         }
     }
 
@@ -128,28 +131,52 @@ public class MaxMinRelativeMarginFiller extends MaxMinMarginFiller {
         minimumRelativeMarginSetToZero.setCoefficient(minRelMarginSignBinaryVariable, -maxPositiveRelativeRam);
         minimumRelativeMarginSetToZero.setCoefficient(minRelMarginVariable, 1);
 
-        optimizedCnecs.forEach(cnec -> cnec.getMonitoredSides().forEach(side -> {
-            FaraoMPVariable flowVariable = linearProblem.getFlowVariable(cnec, side);
+        optimizedCnecs.forEach(cnec -> cnec.getMonitoredSides().forEach(side ->
+            setOrUpdateRelativeMarginCoefficients(linearProblem, initialFlowResult, cnec, side)
+        ));
+    }
 
-            if (flowVariable == null) {
-                throw new FaraoException(String.format("Flow variable has not yet been created for Cnec %s (side %s)", cnec.getId(), side));
+    private void setOrUpdateRelativeMarginCoefficients(LinearProblem linearProblem, FlowResult flowResult, FlowCnec cnec, Side side) {
+        FaraoMPVariable minRelMarginVariable = linearProblem.getMinimumRelativeMarginVariable();
+        FaraoMPVariable minRelMarginSignBinaryVariable = linearProblem.getMinimumRelativeMarginSignBinaryVariable();
+        FaraoMPVariable flowVariable = linearProblem.getFlowVariable(cnec, side);
+
+        if (minRelMarginVariable == null) {
+            throw new FaraoException("Minimum relative margin variable has not yet been created");
+        }
+        if (minRelMarginSignBinaryVariable == null)  {
+            throw new FaraoException("Minimum relative margin sign binary variable has not yet been created");
+        }
+        if (flowVariable == null) {
+            throw new FaraoException(String.format("Flow variable has not yet been created for Cnec %s (side %s)", cnec.getId(), side));
+        }
+
+        double unitConversionCoefficient = RaoUtil.getFlowUnitMultiplier(cnec, side, unit, MEGAWATT);
+        double relMarginCoef = Math.max(flowResult.getPtdfZonalSum(cnec, side), ptdfSumLowerBound);
+
+        Optional<Double> minFlow = cnec.getLowerBound(side, MEGAWATT);
+        Optional<Double> maxFlow = cnec.getUpperBound(side, MEGAWATT);
+
+        if (minFlow.isPresent()) {
+            FaraoMPConstraint minimumMarginNegative = linearProblem.getMinimumRelativeMarginConstraint(cnec, side, LinearProblem.MarginExtension.BELOW_THRESHOLD);
+            if (minimumMarginNegative == null) {
+                minimumMarginNegative = linearProblem.addMinimumRelativeMarginConstraint(-LinearProblem.infinity(), LinearProblem.infinity(), cnec, side, LinearProblem.MarginExtension.BELOW_THRESHOLD);
             }
-
-            Optional<Double> minFlow = cnec.getLowerBound(side, MEGAWATT);
-            Optional<Double> maxFlow = cnec.getUpperBound(side, MEGAWATT);
-            double unitConversionCoefficient = RaoUtil.getFlowUnitMultiplier(cnec, side, unit, MEGAWATT);
-
-            if (minFlow.isPresent()) {
-                FaraoMPConstraint minimumMarginNegative = linearProblem.addMinimumRelativeMarginConstraint(-LinearProblem.infinity(), LinearProblem.infinity(), cnec, side, LinearProblem.MarginExtension.BELOW_THRESHOLD);
-                minimumMarginNegative.setCoefficient(flowVariable, -1);
+            minimumMarginNegative.setUb(-minFlow.get() + unitConversionCoefficient * relMarginCoef * maxNegativeRelativeRam);
+            minimumMarginNegative.setCoefficient(minRelMarginVariable, unitConversionCoefficient * relMarginCoef);
+            minimumMarginNegative.setCoefficient(minRelMarginSignBinaryVariable, unitConversionCoefficient * relMarginCoef * maxNegativeRelativeRam);
+            minimumMarginNegative.setCoefficient(flowVariable, -1);
+        }
+        if (maxFlow.isPresent()) {
+            FaraoMPConstraint minimumMarginPositive = linearProblem.getMinimumRelativeMarginConstraint(cnec, side, LinearProblem.MarginExtension.ABOVE_THRESHOLD);
+            if (minimumMarginPositive == null) {
+                minimumMarginPositive = linearProblem.addMinimumRelativeMarginConstraint(-LinearProblem.infinity(), LinearProblem.infinity(), cnec, side, LinearProblem.MarginExtension.ABOVE_THRESHOLD);
             }
-
-            if (maxFlow.isPresent()) {
-                FaraoMPConstraint minimumMarginPositive = linearProblem.addMinimumRelativeMarginConstraint(-LinearProblem.infinity(), LinearProblem.infinity(), cnec, side, LinearProblem.MarginExtension.ABOVE_THRESHOLD);
-                minimumMarginPositive.setCoefficient(flowVariable, 1);
-            }
-        }));
-        setOrUpdateRelativeMarginCoefficients(linearProblem, initialFlowResult);
+            minimumMarginPositive.setUb(maxFlow.get() + unitConversionCoefficient * relMarginCoef * maxNegativeRelativeRam);
+            minimumMarginPositive.setCoefficient(minRelMarginVariable, unitConversionCoefficient * relMarginCoef);
+            minimumMarginPositive.setCoefficient(minRelMarginSignBinaryVariable, unitConversionCoefficient * relMarginCoef * maxNegativeRelativeRam);
+            minimumMarginPositive.setCoefficient(flowVariable, 1);
+        }
     }
 
     private void fillObjectiveWithMinRelMargin(LinearProblem linearProblem) {
@@ -158,45 +185,5 @@ public class MaxMinRelativeMarginFiller extends MaxMinMarginFiller {
             throw new FaraoException("Minimum relative margin variable has not yet been created");
         }
         linearProblem.getObjective().setCoefficient(minRelMarginVariable, -1);
-    }
-
-    private void setOrUpdateRelativeMarginCoefficients(LinearProblem linearProblem, FlowResult flowResult) {
-        FaraoMPVariable minRelMarginVariable = linearProblem.getMinimumRelativeMarginVariable();
-        FaraoMPVariable minRelMarginSignBinaryVariable = linearProblem.getMinimumRelativeMarginSignBinaryVariable();
-        if (minRelMarginVariable == null) {
-            throw new FaraoException("Minimum relative margin variable has not yet been created");
-        }
-        if (minRelMarginSignBinaryVariable == null)  {
-            throw new FaraoException("Minimum relative margin sign binary variable has not yet been created");
-        }
-
-        optimizedCnecs.forEach(cnec -> cnec.getMonitoredSides().forEach(side -> {
-            double relMarginCoef = Math.max(flowResult.getPtdfZonalSum(cnec, side), ptdfSumLowerBound);
-
-            double unitConversionCoefficient = RaoUtil.getFlowUnitMultiplier(cnec, side, unit, MEGAWATT);
-
-            Optional<Double> minFlow = cnec.getLowerBound(side, MEGAWATT);
-            Optional<Double> maxFlow = cnec.getUpperBound(side, MEGAWATT);
-
-            if (minFlow.isPresent()) {
-                FaraoMPConstraint minimumMarginNegative = linearProblem.getMinimumRelativeMarginConstraint(cnec, side, LinearProblem.MarginExtension.BELOW_THRESHOLD);
-                if (minimumMarginNegative == null) {
-                    throw new FaraoException(String.format("Minimum margin (relative to low threshold) variable has not yet been created for Cnec %s (side %s)", cnec.getId(), side));
-                }
-                minimumMarginNegative.setUb(-minFlow.get() + unitConversionCoefficient * relMarginCoef * maxNegativeRelativeRam);
-                minimumMarginNegative.setCoefficient(minRelMarginVariable, unitConversionCoefficient * relMarginCoef);
-                minimumMarginNegative.setCoefficient(minRelMarginSignBinaryVariable, unitConversionCoefficient * relMarginCoef * maxNegativeRelativeRam);
-            }
-
-            if (maxFlow.isPresent()) {
-                FaraoMPConstraint minimumMarginPositive = linearProblem.getMinimumRelativeMarginConstraint(cnec, side, LinearProblem.MarginExtension.ABOVE_THRESHOLD);
-                if (minimumMarginPositive == null) {
-                    throw new FaraoException(String.format("Minimum margin (relative to high threshold) variable has not yet been created for Cnec %s (side %s)", cnec.getId(), side));
-                }
-                minimumMarginPositive.setUb(maxFlow.get() + unitConversionCoefficient * relMarginCoef * maxNegativeRelativeRam);
-                minimumMarginPositive.setCoefficient(minRelMarginVariable, unitConversionCoefficient * relMarginCoef);
-                minimumMarginPositive.setCoefficient(minRelMarginSignBinaryVariable, unitConversionCoefficient * relMarginCoef * maxNegativeRelativeRam);
-            }
-        }));
     }
 }
