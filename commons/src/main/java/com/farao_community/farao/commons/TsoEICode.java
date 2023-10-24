@@ -50,14 +50,22 @@ public enum TsoEICode {
     UA("UA", "10XUA-WPS------K", "UA_WPS"),
     UN("UN", "10XRKS-KOSTT-007", "KOSOVA-TSMO");
 
-    private String shortId;
-    private String eiCode;
-    private String displayName;
+    private final String shortId;
+    private final String eiCode;
+    private final String displayName;
 
     TsoEICode(String shortId, String eiCode, String displayName) {
         this.shortId = shortId;
         this.eiCode = eiCode;
         this.displayName = displayName;
+    }
+
+    public static TsoEICode fromShortId(String shortId) {
+        return Arrays.stream(TsoEICode.values()).filter(tsoEICode -> tsoEICode.shortId.equals(shortId)).findAny().orElseThrow();
+    }
+
+    public static TsoEICode fromEICode(String eiCode) {
+        return Arrays.stream(TsoEICode.values()).filter(tsoEICode -> tsoEICode.eiCode.equals(eiCode)).findAny().orElseThrow();
     }
 
     public String getShortId() {
@@ -70,13 +78,5 @@ public enum TsoEICode {
 
     public String getDisplayName() {
         return displayName;
-    }
-
-    public static TsoEICode fromShortId(String shortId) {
-        return Arrays.stream(TsoEICode.values()).filter(tsoEICode -> tsoEICode.shortId.equals(shortId)).findAny().orElseThrow();
-    }
-
-    public static TsoEICode fromEICode(String eiCode) {
-        return Arrays.stream(TsoEICode.values()).filter(tsoEICode -> tsoEICode.eiCode.equals(eiCode)).findAny().orElseThrow();
     }
 }

@@ -16,8 +16,8 @@ import java.util.Objects;
  */
 public class CountryBoundary {
 
-    private Country country1;
-    private Country country2;
+    private final Country country1;
+    private final Country country2;
 
     public CountryBoundary(Country country1, Country country2) {
         if (country1.equals(country2)) {
@@ -42,8 +42,7 @@ public class CountryBoundary {
 
     @Override
     public boolean equals(Object obj) {
-        if (obj instanceof CountryBoundary) {
-            CountryBoundary other = (CountryBoundary) obj;
+        if (obj instanceof CountryBoundary other) {
             return Sets.newHashSet(country1, country2).equals(Sets.newHashSet(other.country1, other.country2));
         }
         return false;

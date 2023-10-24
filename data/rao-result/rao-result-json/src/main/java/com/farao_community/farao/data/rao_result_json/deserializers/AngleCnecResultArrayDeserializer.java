@@ -50,7 +50,7 @@ final class AngleCnecResultArrayDeserializer {
     private static void deserializeAngleCnecResult(JsonParser jsonParser, AngleCnecResult angleCnecResult, String jsonFileVersion) throws IOException {
         while (!jsonParser.nextToken().isStructEnd()) {
             ElementaryAngleCnecResult eAngleCnecResult;
-            String optimizedInstantId = deserializeOptimizedInstant(jsonParser.getCurrentName(), jsonFileVersion);
+            String optimizedInstantId = deserializeOptimizedInstantId(jsonParser.getCurrentName(), jsonFileVersion);
             jsonParser.nextToken();
             eAngleCnecResult = angleCnecResult.getAndCreateIfAbsentResultForOptimizationState(optimizedInstantId);
             deserializeElementaryAngleCnecResult(jsonParser, eAngleCnecResult);

@@ -8,7 +8,6 @@
 package com.farao_community.farao.sensitivity_analysis;
 
 import com.farao_community.farao.data.crac_api.Crac;
-import com.farao_community.farao.data.crac_api.InstantKind;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_impl.utils.CommonCracCreation;
@@ -69,7 +68,7 @@ class SystematicSensitivityInterfaceTest {
     @Test
     void testRunDefaultConfigOk() {
         // mock sensi service - run OK
-        Mockito.when(SystematicSensitivityAdapter.runSensitivity(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.anyString(), crac.getUniqueInstant(InstantKind.OUTAGE)))
+        Mockito.when(SystematicSensitivityAdapter.runSensitivity(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.anyString(), Mockito.any()))
             .thenAnswer(invocationOnMock -> systematicAnalysisResultOk);
 
         // run engine
@@ -78,7 +77,7 @@ class SystematicSensitivityInterfaceTest {
             .withParameters(defaultParameters)
             .withSensitivityProvider(Mockito.mock(CnecSensitivityProvider.class))
             .build();
-        SystematicSensitivityResult systematicSensitivityAnalysisResult = systematicSensitivityInterface.run(network, crac.getUniqueInstant(InstantKind.OUTAGE));
+        SystematicSensitivityResult systematicSensitivityAnalysisResult = systematicSensitivityInterface.run(network, crac.getInstant("outage"));
 
         // assert results
         assertNotNull(systematicSensitivityAnalysisResult);
@@ -100,7 +99,7 @@ class SystematicSensitivityInterfaceTest {
     @Test
     void testRunDefaultConfigFails() {
         // mock sensi service - run with null sensi
-        Mockito.when(SystematicSensitivityAdapter.runSensitivity(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
+        Mockito.when(SystematicSensitivityAdapter.runSensitivity(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.anyString(), Mockito.any()))
             .thenAnswer(invocationOnMock -> systematicAnalysisResultFailed);
 
         SystematicSensitivityInterface systematicSensitivityInterface = SystematicSensitivityInterface.builder()
@@ -110,7 +109,7 @@ class SystematicSensitivityInterfaceTest {
             .build();
 
         // run - expected failure
-        SystematicSensitivityResult result = systematicSensitivityInterface.run(network, crac.getUniqueInstant(InstantKind.OUTAGE));
+        SystematicSensitivityResult result = systematicSensitivityInterface.run(network, crac.getInstant("outage"));
         assertFalse(result.isSuccess());
     }
 

@@ -35,10 +35,9 @@ public class TopologicalActionAdderImpl implements TopologicalActionAdder {
     }
 
     @Override
-    public TopologicalActionAdder withNetworkElement(String networkElementId, String networkElementName) {
+    public void withNetworkElement(String networkElementId, String networkElementName) {
         this.networkElementId = networkElementId;
         this.networkElementName = networkElementName;
-        return this;
     }
 
     @Override

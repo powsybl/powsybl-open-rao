@@ -98,7 +98,7 @@ public class FbConstraintCracCreator implements CracCreator<FbConstraint, FbCons
                 .filter(CriticalBranchReader::isCriticialBranchValid)
                 .filter(cbr -> !cbr.isBaseCase())
                 .map(CriticalBranchReader::getOutageReader)
-                .collect(Collectors.toList()));
+                .toList());
 
             createContingencies(crac, outageReaders);
             createCnecs(crac, criticalBranchReaders, creationContext);

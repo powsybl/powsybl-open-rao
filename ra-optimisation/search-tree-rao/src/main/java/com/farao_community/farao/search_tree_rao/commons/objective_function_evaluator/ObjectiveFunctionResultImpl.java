@@ -73,7 +73,7 @@ public class ObjectiveFunctionResultImpl implements ObjectiveFunctionResult {
         if (!areCostsComputed) {
             computeCosts(new HashSet<>());
         }
-        if (virtualCosts.size() > 0) {
+        if (!virtualCosts.isEmpty()) {
             return virtualCosts.values().stream().mapToDouble(v -> v).sum();
         }
         return 0;

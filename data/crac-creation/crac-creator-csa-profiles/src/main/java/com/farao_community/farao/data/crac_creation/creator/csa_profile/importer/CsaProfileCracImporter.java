@@ -57,7 +57,7 @@ public class CsaProfileCracImporter implements NativeCracImporter<CsaProfileCrac
                     if (tempFileOk) {
                         InputStream in = new BufferedInputStream(zipInputStream);
                         try (OutputStream out = new BufferedOutputStream(new FileOutputStream(tempFile))) {
-                            int nBytes = -1;
+                            int nBytes;
                             byte[] buffer = new byte[2048];
 
                             while ((nBytes = in.read(buffer)) > 0 && currentSizeEntry < maxSizeEntry) {

@@ -14,7 +14,6 @@ import org.apache.commons.lang3.StringUtils;
 import java.util.*;
 
 /**
- *
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
  */
 public final class ParametersUtil {
@@ -34,7 +33,7 @@ public final class ParametersUtil {
         return countryList;
     }
 
-    protected static Map<String, String> convertListToStringStringMap(List<String> stringList) {
+    static Map<String, String> convertListToStringStringMap(List<String> stringList) {
         Map<String, String> map = new HashMap<>();
         stringList.forEach(listEntry -> {
             String[] splitListEntry = listEntry.split(":");
@@ -46,13 +45,13 @@ public final class ParametersUtil {
         return map;
     }
 
-    protected static List<String> convertStringStringMapToList(Map<String, String> map) {
+    static List<String> convertStringStringMapToList(Map<String, String> map) {
         List<String> list = new ArrayList<>();
         map.forEach((key, value) -> list.add("{" + key + "}:{" + value + "}"));
         return list;
     }
 
-    protected static Map<String, Integer> convertListToStringIntMap(List<String> stringList) {
+    static Map<String, Integer> convertListToStringIntMap(List<String> stringList) {
         Map<String, Integer> map = new HashMap<>();
         stringList.forEach(listEntry -> {
             String[] splitListEntry = listEntry.split(":");
@@ -64,13 +63,13 @@ public final class ParametersUtil {
         return map;
     }
 
-    protected static List<String> convertStringIntMapToList(Map<String, Integer> map) {
+    static List<String> convertStringIntMapToList(Map<String, Integer> map) {
         List<String> list = new ArrayList<>();
         map.forEach((key, value) -> list.add("{" + key + "}:" + value.toString()));
         return list;
     }
 
-    protected static List<List<String>> convertListToListOfList(List<String> stringList) {
+    static List<List<String>> convertListToListOfList(List<String> stringList) {
         List<List<String>> listOfList = new ArrayList<>();
         stringList.forEach(listEntry -> {
             String[] splitListEntry = listEntry.split("\\+");
@@ -83,7 +82,7 @@ public final class ParametersUtil {
         return listOfList;
     }
 
-    protected static List<String> convertListOfListToList(List<List<String>> listOfList) {
+    static List<String> convertListOfListToList(List<List<String>> listOfList) {
         List<String> finalList = new ArrayList<>();
         listOfList.forEach(subList -> {
             if (!subList.isEmpty()) {
@@ -99,7 +98,7 @@ public final class ParametersUtil {
             throw new FaraoException(String.format("%s contains too few or too many occurences of \"{ or \"}", stringInBrackets));
         }
         String insideString = StringUtils.substringBetween(stringInBrackets, "{", "}");
-        if (insideString == null || insideString.length() == 0) {
+        if (insideString == null || insideString.isEmpty()) {
             throw new FaraoException(String.format("%s is not contained into brackets", stringInBrackets));
         }
         return insideString;

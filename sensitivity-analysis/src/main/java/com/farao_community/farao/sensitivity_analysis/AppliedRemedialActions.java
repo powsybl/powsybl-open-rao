@@ -7,7 +7,6 @@
 package com.farao_community.farao.sensitivity_analysis;
 
 import com.farao_community.farao.commons.FaraoException;
-import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.InstantKind;
 import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
@@ -23,11 +22,6 @@ import java.util.stream.Collectors;
 public class AppliedRemedialActions {
 
     private final Map<State, AppliedRemedialActionsPerState> appliedRa = new HashMap<>();
-
-    private static class AppliedRemedialActionsPerState {
-        private final Set<NetworkAction> networkActions = new HashSet<>();
-        private final Map<RangeAction<?>, Double> rangeActions = new HashMap<>();
-    }
 
     public void addAppliedNetworkAction(State state, NetworkAction networkAction) {
         if (networkAction != null) {
@@ -90,8 +84,8 @@ public class AppliedRemedialActions {
     public void applyOnNetwork(State state, Network network) {
         // Apply remedial actions from all states before or equal to given state
         appliedRa.keySet().stream().filter(stateBefore ->
-            (stateBefore.getInstant().comesBefore(state.getInstant()) || stateBefore.getInstant().equals(state.getInstant()))
-                && (stateBefore.getContingency().isEmpty() || stateBefore.getContingency().equals(state.getContingency())))
+                (stateBefore.getInstant().comesBefore(state.getInstant()) || stateBefore.getInstant().equals(state.getInstant()))
+                    && (stateBefore.getContingency().isEmpty() || stateBefore.getContingency().equals(state.getContingency())))
             .sorted(Comparator.comparingInt(stateBefore -> stateBefore.getInstant().getOrder()))
             .forEach(stateBefore -> {
                 appliedRa.get(stateBefore).rangeActions.forEach((rangeAction, setPoint) -> rangeAction.apply(network, setPoint));
@@ -127,7 +121,7 @@ public class AppliedRemedialActions {
     }
 
     public AppliedRemedialActions copyCurative() {
-        Map<State, AppliedRemedialActionsPerState> curativeMap =  appliedRa.entrySet().stream()
+        Map<State, AppliedRemedialActionsPerState> curativeMap = appliedRa.entrySet().stream()
             .filter(entry -> entry.getKey().getInstant().getInstantKind().equals(InstantKind.CURATIVE))
             .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
         AppliedRemedialActions ara = new AppliedRemedialActions();
@@ -136,5 +130,10 @@ public class AppliedRemedialActions {
             ara.addAppliedRangeActions(state, appliedRaOnState.rangeActions);
         });
         return ara;
+    }
+
+    private static class AppliedRemedialActionsPerState {
+        private final Set<NetworkAction> networkActions = new HashSet<>();
+        private final Map<RangeAction<?>, Double> rangeActions = new HashMap<>();
     }
 }

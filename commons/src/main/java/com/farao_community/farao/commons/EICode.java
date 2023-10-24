@@ -8,8 +8,8 @@
 
 package com.farao_community.farao.commons;
 
-import com.powsybl.iidm.network.Country;
 import com.powsybl.glsk.commons.CountryEICode;
+import com.powsybl.iidm.network.Country;
 
 import java.util.Optional;
 
@@ -23,7 +23,7 @@ public class EICode {
      */
     public static final int EIC_LENGTH = 16;
 
-    private String areaCode;
+    private final String areaCode;
     private Optional<Country> optionalCountry;
 
     public EICode(String areaCode) {
@@ -65,19 +65,11 @@ public class EICode {
             return false;
         }
         EICode eiCode = (EICode) o;
-        if (this.optionalCountry.isPresent()) {
-            return this.optionalCountry.get().equals(eiCode.optionalCountry.orElse(null));
-        } else {
-            return areaCode.equals(eiCode.getAreaCode());
-        }
+        return this.optionalCountry.map(country -> country.equals(eiCode.optionalCountry.orElse(null))).orElseGet(() -> areaCode.equals(eiCode.getAreaCode()));
     }
 
     @Override
     public int hashCode() {
-        if (this.optionalCountry.isPresent()) {
-            return this.optionalCountry.get().hashCode();
-        } else {
-            return areaCode.hashCode();
-        }
+        return this.optionalCountry.map(Enum::hashCode).orElseGet(areaCode::hashCode);
     }
 }

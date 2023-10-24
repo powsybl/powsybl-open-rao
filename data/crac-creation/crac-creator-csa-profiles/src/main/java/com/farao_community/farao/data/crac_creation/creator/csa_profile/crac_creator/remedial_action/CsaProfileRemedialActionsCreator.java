@@ -34,6 +34,7 @@ import java.util.function.Function;
  * @author Mohamed Ben-rejeb {@literal <mohamed.ben-rejeb at rte-france.com>}
  */
 public class CsaProfileRemedialActionsCreator {
+    final Set<CsaProfileElementaryCreationContext> csaProfileRemedialActionCreationContexts = new HashSet<>();
     private final Crac crac;
     private final Network network;
     private final PropertyBags gridStateAlterationRemedialActionPropertyBags;
@@ -44,7 +45,6 @@ public class CsaProfileRemedialActionsCreator {
     private final PropertyBags contingencyWithRemedialActionsPropertyBags;
     private final OnConstraintUsageRuleHelper onConstraintUsageRuleHelper;
     private final CsaProfileCracCreationContext cracCreationContext;
-    Set<CsaProfileElementaryCreationContext> csaProfileRemedialActionCreationContexts = new HashSet<>();
 
     public CsaProfileRemedialActionsCreator(Crac crac, Network network, CsaProfileCracCreationContext cracCreationContext, PropertyBags gridStateAlterationRemedialActionPropertyBags, PropertyBags contingencyWithRemedialActionsPropertyBags,
                                             PropertyBags topologyActionsPropertyBags,

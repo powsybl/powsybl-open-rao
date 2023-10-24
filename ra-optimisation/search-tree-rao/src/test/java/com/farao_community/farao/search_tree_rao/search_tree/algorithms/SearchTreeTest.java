@@ -477,7 +477,7 @@ class SearchTreeTest {
         when(rootLeaf.getStatus()).thenReturn(Leaf.Status.EVALUATED);
         Mockito.doReturn(rootLeaf).when(searchTree).makeLeaf(optimizationPerimeter, network, prePerimeterResult, appliedRemedialActions);
         // rootLeaf should not be optimized : its virtual cost is zero so stop criterion is already reached
-        doThrow(FaraoException.class).when(rootLeaf).optimize(any(), any(), instantOutage);
+        doThrow(FaraoException.class).when(rootLeaf).optimize(any(), any(), any());
 
         try {
             searchTree.run(instantOutage);

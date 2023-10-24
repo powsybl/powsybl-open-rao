@@ -16,6 +16,7 @@ import com.farao_community.farao.data.crac_api.network_action.ActionType;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
+import com.farao_community.farao.data.crac_impl.InstantImpl;
 import com.farao_community.farao.data.crac_impl.utils.CommonCracCreation;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
 import com.farao_community.farao.rao_api.RaoInput;
@@ -230,9 +231,10 @@ class RaoUtilTest {
 
     @Test
     void testIsOnFlowConstraintInCountryAvailable() {
-        Instant instantCurative = Mockito.mock(Instant.class);
-        Mockito.when(instantCurative.getId()).thenReturn("curative");
-        Mockito.when(instantCurative.getInstantKind()).thenReturn(InstantKind.CURATIVE);
+        Instant instantPrev = new InstantImpl("preventive", InstantKind.PREVENTIVE, null);
+        Instant instantOutage = new InstantImpl("outage", InstantKind.OUTAGE, instantPrev);
+        Instant instantAuto = new InstantImpl("auto", InstantKind.AUTO, instantOutage);
+        Instant instantCurative = new InstantImpl("curative", InstantKind.CURATIVE, instantAuto);
         State optimizedState = Mockito.mock(State.class);
         when(optimizedState.getInstant()).thenReturn(instantCurative);
 
@@ -279,7 +281,7 @@ class RaoUtilTest {
         assertIsOnFlowInCountryAvailable(na3, optimizedState, flowResult, true);
 
         when(flowResult.getMargin(eq(cnecFrBe), any())).thenReturn(-150.);
-        when(optimizedState.getInstant().getId()).thenReturn("preventive");
+        when(optimizedState.getInstant()).thenReturn(instantPrev);
         assertIsOnFlowInCountryAvailable(na1, optimizedState, flowResult, false);
         assertIsOnFlowInCountryAvailable(na2, optimizedState, flowResult, false);
         assertIsOnFlowInCountryAvailable(na3, optimizedState, flowResult, false);

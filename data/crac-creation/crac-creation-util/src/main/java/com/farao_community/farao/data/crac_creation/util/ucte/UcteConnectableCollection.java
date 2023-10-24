@@ -29,7 +29,7 @@ class UcteConnectableCollection {
         One key can be associated to several values, as several Connectables
         can have the same fromNodeId.
      */
-    private TreeMultimap<String, UcteConnectable> connectables;
+    private final TreeMultimap<String, UcteConnectable> connectables;
 
     UcteConnectableCollection(Network network) {
         connectables = TreeMultimap.create(Ordering.<String>natural().nullsFirst(), Ordering.<UcteConnectable>natural().nullsFirst());
@@ -37,6 +37,40 @@ class UcteConnectableCollection {
         addDanglingLines(network);
         addSwitches(network);
         addHvdcs(network);
+    }
+
+    /**
+     * Get the order code for an identifiable, on a given side (side is important for tie lines)
+     */
+    private static String getOrderCode(Identifiable<?> identifiable, Branch.Side side) {
+        String connectableId;
+        if (identifiable instanceof TieLine && identifiable.getId().length() > UcteUtils.MAX_BRANCH_ID_LENGTH) {
+            Objects.requireNonNull(side, "Side should be specified for tielines");
+            int separator = identifiable.getId().indexOf(UcteUtils.TIELINE_SEPARATOR);
+            connectableId = side.equals(Branch.Side.ONE) ? identifiable.getId().substring(0, separator) : identifiable.getId().substring(separator + UcteUtils.TIELINE_SEPARATOR.length());
+        } else {
+            connectableId = identifiable.getId();
+        }
+        return connectableId.substring(UcteUtils.UCTE_NODE_LENGTH * 2 + 2);
+    }
+
+    private static String getOrderCode(Identifiable<?> identifiable) {
+        return getOrderCode(identifiable, null);
+    }
+
+    /**
+     * Get all the element name of an identifiable
+     * Note that tie-line can contain several element names
+     */
+    private static Set<String> getElementNames(Identifiable<?> identifiable) {
+        return identifiable.getPropertyNames().stream()
+            .filter(propertyName -> propertyName.startsWith("elementName"))
+            .map(identifiable::getProperty)
+            .collect(Collectors.toSet());
+    }
+
+    private static String getNodeName(String nodeName) {
+        return nodeName.replace("YNODE_", ""); // remove 'YNODE_' prefix that is added on some Xnode by powsybl
     }
 
     UcteMatchingResult lookForConnectable(String fromNodeId, String toNodeId, String suffix, UcteNetworkAnalyzerProperties.BusIdMatchPolicy policy, ConnectableType... connectableTypes) {
@@ -118,7 +152,7 @@ class UcteConnectableCollection {
             List<UcteMatchingResult> matchedConnectables = ucteConnectables.stream()
                 .filter(ucteConnectable -> ucteConnectable.doesMatch(fromNodeId, toNodeId, suffix, connectableTypes))
                 .map(ucteConnectable -> ucteConnectable.getUcteMatchingResult(fromNodeId, toNodeId, suffix, connectableTypes))
-                .collect(Collectors.toList());
+                .toList();
 
             if (matchedConnectables.size() == 1) {
                 return matchedConnectables.get(0);
@@ -204,39 +238,5 @@ class UcteConnectableCollection {
             String to = getNodeName(hvdcLine.getConverterStation2().getTerminal().getBusBreakerView().getBus().getId());
             connectables.put(from, new UcteConnectable(from, to, getOrderCode(hvdcLine), getElementNames(hvdcLine), hvdcLine, false));
         });
-    }
-
-    /**
-     * Get the order code for an identifiable, on a given side (side is important for tie lines)
-     */
-    private static String getOrderCode(Identifiable<?> identifiable, Branch.Side side) {
-        String connectableId;
-        if (identifiable instanceof TieLine && identifiable.getId().length() > UcteUtils.MAX_BRANCH_ID_LENGTH) {
-            Objects.requireNonNull(side, "Side should be specified for tielines");
-            int separator = identifiable.getId().indexOf(UcteUtils.TIELINE_SEPARATOR);
-            connectableId = side.equals(Branch.Side.ONE) ? identifiable.getId().substring(0, separator) : identifiable.getId().substring(separator + UcteUtils.TIELINE_SEPARATOR.length());
-        } else {
-            connectableId = identifiable.getId();
-        }
-        return connectableId.substring(UcteUtils.UCTE_NODE_LENGTH * 2 + 2);
-    }
-
-    private static String getOrderCode(Identifiable<?> identifiable) {
-        return getOrderCode(identifiable, null);
-    }
-
-    /**
-     * Get all the element name of an identifiable
-     * Note that tie-line can contain several element names
-     */
-    private static Set<String> getElementNames(Identifiable<?> identifiable) {
-        return identifiable.getPropertyNames().stream()
-            .filter(propertyName -> propertyName.startsWith("elementName"))
-            .map(identifiable::getProperty)
-            .collect(Collectors.toSet());
-    }
-
-    private static String getNodeName(String nodeName) {
-        return nodeName.replace("YNODE_", ""); // remove 'YNODE_' prefix that is added on some Xnode by powsybl
     }
 }

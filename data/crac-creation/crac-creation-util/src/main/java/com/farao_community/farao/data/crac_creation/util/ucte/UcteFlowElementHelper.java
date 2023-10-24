@@ -30,22 +30,21 @@ import static java.lang.String.format;
  */
 public class UcteFlowElementHelper extends AbstractUcteConnectableHelper implements CnecElementHelper {
 
-    private boolean isInvertedInNetwork = false;
-    private Branch.Side halfLineSide = null;
-    private boolean isHalfLine = false;
-
     protected Double nominalVoltageLeft;
     protected Double nominalVoltageRight;
     protected Double currentLimitLeft;
     protected Double currentLimitRight;
+    private boolean isInvertedInNetwork = false;
+    private Branch.Side halfLineSide = null;
+    private boolean isHalfLine = false;
 
     /**
      * Constructor, based on a separate fields.
      *
-     * @param fromNode,             UCTE-id of the origin extremity of the branch
-     * @param toNode,               UCTE-id of the destination extremity of the branch
-     * @param suffix,               suffix of the branch, either an order code or an elementName
-     * @param ucteNetworkAnalyzer,  UcteNetworkAnalyzer object built upon the network
+     * @param fromNode,            UCTE-id of the origin extremity of the branch
+     * @param toNode,              UCTE-id of the destination extremity of the branch
+     * @param suffix,              suffix of the branch, either an order code or an elementName
+     * @param ucteNetworkAnalyzer, UcteNetworkAnalyzer object built upon the network
      */
     public UcteFlowElementHelper(String fromNode, String toNode, String suffix, UcteNetworkAnalyzer ucteNetworkAnalyzer) {
         super(fromNode, toNode, suffix);
@@ -58,11 +57,11 @@ public class UcteFlowElementHelper extends AbstractUcteConnectableHelper impleme
      * Constructor, based on a separate fields. Either the order code, or the element name must be
      * non-null. If the two are defined, the suffix which will be used by default is the order code.
      *
-     * @param fromNode,             UCTE-id of the origin extremity of the branch
-     * @param toNode,               UCTE-id of the destination extremity of the branch
-     * @param orderCode,            order code of the branch
-     * @param elementName,          element name of the branch
-     * @param ucteNetworkAnalyzer,  UcteNetworkAnalyzer object built upon the network
+     * @param fromNode,            UCTE-id of the origin extremity of the branch
+     * @param toNode,              UCTE-id of the destination extremity of the branch
+     * @param orderCode,           order code of the branch
+     * @param elementName,         element name of the branch
+     * @param ucteNetworkAnalyzer, UcteNetworkAnalyzer object built upon the network
      */
     public UcteFlowElementHelper(String fromNode, String toNode, String orderCode, String elementName, UcteNetworkAnalyzer ucteNetworkAnalyzer) {
         super(fromNode, toNode, orderCode, elementName);
@@ -74,8 +73,8 @@ public class UcteFlowElementHelper extends AbstractUcteConnectableHelper impleme
     /**
      * Constructor, based on a concatenated id.
      *
-     * @param ucteBranchId,         concatenated UCTE branch id, of the form "FROMNODE TO__NODE SUFFIX"
-     * @param ucteNetworkAnalyzer,  UcteNetworkAnalyzer object built upon the network
+     * @param ucteBranchId,        concatenated UCTE branch id, of the form "FROMNODE TO__NODE SUFFIX"
+     * @param ucteNetworkAnalyzer, UcteNetworkAnalyzer object built upon the network
      */
     public UcteFlowElementHelper(String ucteBranchId, UcteNetworkAnalyzer ucteNetworkAnalyzer) {
         super(ucteBranchId);
@@ -181,7 +180,7 @@ public class UcteFlowElementHelper extends AbstractUcteConnectableHelper impleme
             this.connectableIdInNetwork = tieLine.getId();
             Branch.Side side = tieLine.getDanglingLine1() == danglingLine ? Branch.Side.ONE : Branch.Side.TWO;
             // dangling line convention is x node to terminal, so dl 1 is towards terminal 1 (opposite) and dl 2 is towards terminal 2 (direct)
-            this.isInvertedInNetwork = tieLine.getDanglingLine1() == danglingLine ? !isInvertedInNetwork : isInvertedInNetwork;
+            this.isInvertedInNetwork = (tieLine.getDanglingLine1() == danglingLine) != isInvertedInNetwork;
             interpretTieLine(tieLine, side);
         } else {
             checkDanglingLineNominalVoltage(danglingLine);

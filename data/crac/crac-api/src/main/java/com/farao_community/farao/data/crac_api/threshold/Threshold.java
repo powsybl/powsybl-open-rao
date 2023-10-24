@@ -15,7 +15,7 @@ import java.util.Optional;
 
 /**
  * Generic interface for thresholds.
- *
+ * <p>
  * A threshold defines the bounds between which the {@link PhysicalParameter} of a {@link Cnec}
  * should ideally remains.
  *

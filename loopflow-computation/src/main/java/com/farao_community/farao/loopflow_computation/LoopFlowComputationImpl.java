@@ -36,9 +36,9 @@ import static java.util.Objects.requireNonNull;
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 public class LoopFlowComputationImpl implements LoopFlowComputation {
-    protected ZonalData<SensitivityVariableSet> glsk;
-    protected ReferenceProgram referenceProgram;
-    protected Map<EICode, SensitivityVariableSet> glskMap;
+    protected final ZonalData<SensitivityVariableSet> glsk;
+    protected final ReferenceProgram referenceProgram;
+    protected final Map<EICode, SensitivityVariableSet> glskMap;
 
     public LoopFlowComputationImpl(ZonalData<SensitivityVariableSet> glsk, ReferenceProgram referenceProgram) {
         this.glsk = requireNonNull(glsk, "glskProvider should not be null");

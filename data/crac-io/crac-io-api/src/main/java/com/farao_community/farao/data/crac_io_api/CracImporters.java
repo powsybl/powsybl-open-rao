@@ -23,7 +23,7 @@ import java.util.function.Supplier;
 public final class CracImporters {
 
     private static final Supplier<List<CracImporter>> CRAC_IMPORTERS
-        = Suppliers.memoize(() -> new ServiceLoaderCache<>(CracImporter.class).getServices())::get;
+        = Suppliers.memoize(() -> new ServiceLoaderCache<>(CracImporter.class).getServices());
 
     private CracImporters() {
     }

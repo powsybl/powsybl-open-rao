@@ -18,9 +18,10 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 import java.io.IOException;
 import java.util.Comparator;
 import java.util.Map;
-import java.util.stream.Collectors;
 
-import static com.farao_community.farao.monitoring.monitoring_common.json.JsonCommonMonitoringResultConstants.*;
+import static com.farao_community.farao.monitoring.monitoring_common.json.JsonCommonMonitoringResultConstants.CNEC_ID;
+import static com.farao_community.farao.monitoring.monitoring_common.json.JsonCommonMonitoringResultConstants.STATUS;
+import static com.farao_community.farao.monitoring.monitoring_common.json.JsonCommonMonitoringResultConstants.TYPE;
 import static com.farao_community.farao.monitoring.voltage_monitoring.json.JsonVoltageMonitoringResultConstants.*;
 
 /**
@@ -51,9 +52,9 @@ public class VoltageMonitoringResultSerializer extends JsonSerializer<VoltageMon
 
     private void serializeExtremeVoltageValue(VoltageMonitoringResult voltageMonitoringResult, JsonGenerator jsonGenerator) throws IOException {
         for (Map.Entry<VoltageCnec, ExtremeVoltageValues> entry :
-                voltageMonitoringResult.getExtremeVoltageValues().entrySet()
-                        .stream().sorted(Comparator.comparing(e -> e.getKey().getId()))
-                        .collect(Collectors.toList())) {
+            voltageMonitoringResult.getExtremeVoltageValues().entrySet()
+                .stream().sorted(Comparator.comparing(e -> e.getKey().getId()))
+                .toList()) {
             jsonGenerator.writeStartObject();
             jsonGenerator.writeStringField(CNEC_ID, entry.getKey().getId());
             jsonGenerator.writeNumberField(MIN, entry.getValue().getMin());

@@ -28,10 +28,10 @@ public class FaraoMPSolver {
 
     private static final int NUMBER_OF_BITS_TO_ROUND_OFF = 30;
     private final MPSolver mpSolver;
-    private MPSolverParameters solveConfiguration;
     Map<String, FaraoMPConstraint> constraints = new HashMap<>();
     Map<String, FaraoMPVariable> variables = new HashMap<>();
     FaraoMPObjective objective;
+    private MPSolverParameters solveConfiguration;
 
     // Only for tests
     protected FaraoMPSolver() {
@@ -53,6 +53,18 @@ public class FaraoMPSolver {
                 throw new FaraoException(String.format("unknown solver %s in RAO parameters", solver));
         }
         solveConfiguration = new MPSolverParameters();
+    }
+
+    private static LinearProblemStatus convertResultStatus(MPSolver.ResultStatus status) {
+        return switch (status) {
+            case OPTIMAL -> LinearProblemStatus.OPTIMAL;
+            case ABNORMAL -> LinearProblemStatus.ABNORMAL;
+            case FEASIBLE -> LinearProblemStatus.FEASIBLE;
+            case UNBOUNDED -> LinearProblemStatus.UNBOUNDED;
+            case INFEASIBLE -> LinearProblemStatus.INFEASIBLE;
+            case NOT_SOLVED -> LinearProblemStatus.NOT_SOLVED;
+            default -> throw new NotImplementedException(String.format("Status %s not handled.", status));
+        };
     }
 
     public FaraoMPConstraint getConstraint(String name) {
@@ -113,11 +125,10 @@ public class FaraoMPSolver {
         return mpConstraint;
     }
 
-    public boolean setSolverSpecificParametersAsString(String solverSpecificParameters) {
+    public void setSolverSpecificParametersAsString(String solverSpecificParameters) {
         if (solverSpecificParameters != null) {
-            return mpSolver.setSolverSpecificParametersAsString(solverSpecificParameters);
+            mpSolver.setSolverSpecificParametersAsString(solverSpecificParameters);
         } else {
-            return true;
         }
     }
 
@@ -130,25 +141,6 @@ public class FaraoMPSolver {
             mpSolver.enableOutput();
         }
         return convertResultStatus(mpSolver.solve(solveConfiguration));
-    }
-
-    private static LinearProblemStatus convertResultStatus(MPSolver.ResultStatus status) {
-        switch (status) {
-            case OPTIMAL:
-                return LinearProblemStatus.OPTIMAL;
-            case ABNORMAL:
-                return LinearProblemStatus.ABNORMAL;
-            case FEASIBLE:
-                return LinearProblemStatus.FEASIBLE;
-            case UNBOUNDED:
-                return LinearProblemStatus.UNBOUNDED;
-            case INFEASIBLE:
-                return LinearProblemStatus.INFEASIBLE;
-            case NOT_SOLVED:
-                return LinearProblemStatus.NOT_SOLVED;
-            default:
-                throw new NotImplementedException(String.format("Status %s not handled.", status));
-        }
     }
 
     public int numVariables() {

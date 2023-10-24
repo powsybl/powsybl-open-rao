@@ -13,7 +13,7 @@ public interface TopologicalActionAdder {
 
     TopologicalActionAdder withNetworkElement(String networkElementId);
 
-    TopologicalActionAdder withNetworkElement(String networkElementId, String networkElementName);
+    void withNetworkElement(String networkElementId, String networkElementName);
 
     TopologicalActionAdder withActionType(ActionType actionType);
 

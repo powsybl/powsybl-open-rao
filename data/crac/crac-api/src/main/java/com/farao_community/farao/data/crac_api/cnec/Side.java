@@ -25,18 +25,15 @@ public enum Side {
         this.iidmSide = iidmSide;
     }
 
-    public Branch.Side iidmSide() {
-        return iidmSide;
+    public static Side fromIidmSide(Branch.Side side) {
+        return switch (side) {
+            case ONE -> LEFT;
+            case TWO -> RIGHT;
+            default -> throw new FaraoException(String.format("Unhandled iidm side: %s", side));
+        };
     }
 
-    public static Side fromIidmSide(Branch.Side side) {
-        switch (side) {
-            case ONE:
-                return LEFT;
-            case TWO:
-                return RIGHT;
-            default:
-                throw new FaraoException(String.format("Unhandled iidm side: %s", side));
-        }
+    public Branch.Side iidmSide() {
+        return iidmSide;
     }
 }

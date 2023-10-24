@@ -18,6 +18,7 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import java.io.IOException;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 
 import static com.farao_community.farao.data.rao_result_json.RaoResultJsonConstants.*;
 
@@ -65,7 +66,7 @@ final class AngleCnecResultArraySerializer {
     private static void serializeAngleCnecResultForOptimizationState(String optInstantId, AngleCnec angleCnec, RaoResult raoResult, JsonGenerator jsonGenerator) throws IOException {
 
         if (containsAnyResultForOptimizationState(raoResult, angleCnec, optInstantId)) {
-            jsonGenerator.writeObjectFieldStart(optInstantId);
+            jsonGenerator.writeObjectFieldStart(Optional.ofNullable(optInstantId).orElse("")); // TODO use serializer ?
             serializeAngleCnecResultForOptimizationStateAndUnit(optInstantId, Unit.DEGREE, angleCnec, raoResult, jsonGenerator);
             jsonGenerator.writeEndObject();
         }

@@ -17,7 +17,7 @@ import java.util.Set;
 
 /**
  * Specific type of {@link Cnec} that monitors phase angle shift between two ends of a branch.
- *
+ * <p>
  * The angle direction is defined by having an exporting element and an importing element.
  *
  * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
@@ -69,13 +69,13 @@ public interface AngleCnec extends Cnec<AngleCnec> {
      * {@code reliabilityMargin} into account.
      * If the margin is positive, it means that the limits of the {@code thresholds} are respected. If it is negative,
      * it means that that a limit of the {@code thresholds} has been overcome.
-     *
+     * <p>
      * margin = min(maxThreshold - actualValue, actualValue - minThreshold)
      *
      * @param actualValue: Value of the {@link PhysicalParameter} on the {@code side} of the {@code AngleCnec}
-     *                   on which to make the difference to compute the margin.
-     * @param unit: Unit of the {@code actualValue}. It will also be the one of the returned value. The only accepted
-     *            unit for now is DEGREE.
+     *                     on which to make the difference to compute the margin.
+     * @param unit:        Unit of the {@code actualValue}. It will also be the one of the returned value. The only accepted
+     *                     unit for now is DEGREE.
      * @return The margin of the {@code AngleCnec} on the given {@code side} with the given {@code unit} taking
      * {@code reliabilityMargin} into account.
      */

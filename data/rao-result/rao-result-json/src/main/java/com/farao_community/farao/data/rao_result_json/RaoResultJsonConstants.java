@@ -18,6 +18,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.Objects;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
@@ -103,14 +104,14 @@ public final class RaoResultJsonConstants {
     public static final String SECOND_PREVENTIVE_FELLBACK_TO_FIRST_PREVENTIVE_SITUATION = "Second preventive fellback to first preventive results";
     public static final String SECOND_PREVENTIVE_FELLBACK_TO_INITIAL_SITUATION = "Second preventive fellback to initial situation";
     // state comparator
-    public static final Comparator<State> STATE_COMPARATOR = (s1, s2) -> {
+    public static final Comparator<State> STATE_COMPARATOR = (s1, s2) -> { // TODO redo this
         if (s1.getInstant().getOrder() != s2.getInstant().getOrder()) {
             return s1.compareTo(s2);
         } else if (s1.getInstant().getInstantKind().equals(InstantKind.PREVENTIVE)) {
             return 0;
         } else {
             // Since instant is not preventive, there is a contingency for sure
-            return s1.getContingency().get().getId().compareTo(s2.getContingency().get().getId());
+            return s1.getContingency().orElseThrow().getId().compareTo(s2.getContingency().orElseThrow().getId());
         }
     };
 
@@ -185,10 +186,13 @@ public final class RaoResultJsonConstants {
 
     public static String deserializeInstantId(String stringValue) {
         // TODO review this
+        if (Objects.equals(stringValue, INITIAL_INSTANT)) {
+            return null;
+        }
         return stringValue;
     }
 
-    public static String deserializeOptimizedInstant(String stringValue, String jsonFileVersion) {
+    public static String deserializeOptimizedInstantId(String stringValue, String jsonFileVersion) {
         // TODO review this
         if (getPrimaryVersionNumber(jsonFileVersion) <= 1 && getSubVersionNumber(jsonFileVersion) <= 3) {
             return switch (stringValue) {
@@ -196,7 +200,8 @@ public final class RaoResultJsonConstants {
                 case AFTER_PRA_OPT_STATE -> InstantKind.PREVENTIVE.toString();
                 case AFTER_ARA_OPT_STATE -> InstantKind.AUTO.toString();
                 case AFTER_CRA_OPT_STATE -> InstantKind.CURATIVE.toString();
-                default -> throw new FaraoException(String.format("Unrecognized optimization state %s", stringValue));
+                default ->
+                    throw new FaraoException(String.format("Unrecognized optimization state %s", stringValue)); // TODO valid exception message ?
             };
         } else {
             return deserializeInstantId(stringValue);

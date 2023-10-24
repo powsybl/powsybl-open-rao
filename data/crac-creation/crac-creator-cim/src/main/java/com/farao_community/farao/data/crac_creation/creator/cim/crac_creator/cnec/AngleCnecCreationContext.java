@@ -14,11 +14,11 @@ import com.farao_community.farao.data.crac_creation.creator.api.ImportStatus;
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
  */
 public final class AngleCnecCreationContext implements ElementaryCreationContext {
-    private String createdAngleCnecId;
-    private String contingencyID;
-    private String serieId;
-    private ImportStatus angleCnecImportStatus;
-    private String angleCnecImportStatusDetail;
+    private final String createdAngleCnecId;
+    private final String contingencyID;
+    private final String serieId;
+    private final ImportStatus angleCnecImportStatus;
+    private final String angleCnecImportStatusDetail;
 
     private AngleCnecCreationContext(String createdAngleCnecId, String contingencyID, String serieId, ImportStatus angleCnecImportStatus, String angleCnecImportStatusDetail) {
         this.createdAngleCnecId = createdAngleCnecId;
@@ -33,7 +33,7 @@ public final class AngleCnecCreationContext implements ElementaryCreationContext
     }
 
     static AngleCnecCreationContext imported(String createdAngleCnecId, String contingencyID, String serieId, String alteringDetail) {
-        return new AngleCnecCreationContext(createdAngleCnecId, contingencyID, serieId, ImportStatus.IMPORTED,  alteringDetail);
+        return new AngleCnecCreationContext(createdAngleCnecId, contingencyID, serieId, ImportStatus.IMPORTED, alteringDetail);
     }
 
     @Override

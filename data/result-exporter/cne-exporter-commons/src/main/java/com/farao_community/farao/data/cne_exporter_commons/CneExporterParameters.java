@@ -13,54 +13,15 @@ package com.farao_community.farao.data.cne_exporter_commons;
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
 public class CneExporterParameters {
-    private String documentId;
-    private int revisionNumber;
-    private String domainId;
-    private ProcessType processType;
-    private String senderId;
-    private RoleType senderRole;
-    private String receiverId;
-    private RoleType receiverRole;
-    private String timeInterval;
-
-    public enum RoleType {
-        CAPACITY_COORDINATOR("A36"),
-        REGIONAL_SECURITY_COORDINATOR("A44"),
-        SYSTEM_OPERATOR("A04");
-
-        private String code;
-        private RoleType(String code) {
-            this.code = code;
-        }
-
-        public String getCode() {
-            return code;
-        }
-
-        @Override
-        public String toString() {
-            return getCode();
-        }
-    }
-
-    public enum ProcessType {
-        DAY_AHEAD_CC("A48"), // Day-ahead capacity determination
-        Z01("Z01"); // Day-ahead capacity determination for SWE, does not exist in xsd
-
-        private String code;
-        private ProcessType(String code) {
-            this.code = code;
-        }
-
-        public String getCode() {
-            return code;
-        }
-
-        @Override
-        public String toString() {
-            return getCode();
-        }
-    }
+    private final String documentId;
+    private final int revisionNumber;
+    private final String domainId;
+    private final ProcessType processType;
+    private final String senderId;
+    private final RoleType senderRole;
+    private final String receiverId;
+    private final RoleType receiverRole;
+    private final String timeInterval;
 
     public CneExporterParameters(String documentId, int revisionNumber, String domainId, ProcessType processType, String senderId, RoleType senderRole, String receiverId, RoleType receiverRole, String timeInterval) {
         this.documentId = documentId;
@@ -108,5 +69,46 @@ public class CneExporterParameters {
 
     public String getTimeInterval() {
         return timeInterval;
+    }
+
+    public enum RoleType {
+        CAPACITY_COORDINATOR("A36"),
+        REGIONAL_SECURITY_COORDINATOR("A44"),
+        SYSTEM_OPERATOR("A04");
+
+        private final String code;
+
+        RoleType(String code) {
+            this.code = code;
+        }
+
+        public String getCode() {
+            return code;
+        }
+
+        @Override
+        public String toString() {
+            return getCode();
+        }
+    }
+
+    public enum ProcessType {
+        DAY_AHEAD_CC("A48"), // Day-ahead capacity determination
+        Z01("Z01"); // Day-ahead capacity determination for SWE, does not exist in xsd
+
+        private final String code;
+
+        ProcessType(String code) {
+            this.code = code;
+        }
+
+        public String getCode() {
+            return code;
+        }
+
+        @Override
+        public String toString() {
+            return getCode();
+        }
     }
 }

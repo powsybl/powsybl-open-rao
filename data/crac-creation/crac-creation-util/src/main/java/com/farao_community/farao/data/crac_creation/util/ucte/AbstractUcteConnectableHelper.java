@@ -17,7 +17,7 @@ import static java.lang.String.format;
  */
 public abstract class AbstractUcteConnectableHelper {
 
-    protected String connectableId;
+    protected final String connectableId;
     protected String from;
     protected String to;
     protected String suffix;
@@ -116,36 +116,30 @@ public abstract class AbstractUcteConnectableHelper {
         this.invalidReason = invalidReason;
     }
 
-    private boolean checkSuffix(String order, String elementName) {
-        if (!Objects.isNull(order) && order.length() > 0) {
+    private void checkSuffix(String order, String elementName) {
+        if (!Objects.isNull(order) && !order.isEmpty()) {
             this.suffix = order;
-            return true;
-        } else if (!Objects.isNull(elementName) && elementName.length() > 0) {
+        } else if (!Objects.isNull(elementName) && !elementName.isEmpty()) {
             this.suffix = elementName;
-            return true;
         } else {
             invalidate("branch has neither an 'order' nor an 'elementName' field");
-            return false;
         }
     }
 
-    private boolean decomposeUcteId(String ucteId) {
+    private void decomposeUcteId(String ucteId) {
         if (ucteId.length() < UcteUtils.MIN_BRANCH_ID_LENGTH
-                || ucteId.length() > UcteUtils.MAX_BRANCH_ID_LENGTH) {
+            || ucteId.length() > UcteUtils.MAX_BRANCH_ID_LENGTH) {
 
             invalidate(String.format("UCTE branch id should contain %d to %d characters (NODE1ID_ NODE2_ID SUFFIX). This id is not valid: %s", UcteUtils.MIN_BRANCH_ID_LENGTH, UcteUtils.MAX_BRANCH_ID_LENGTH, ucteId));
-            return false;
 
         } else if (!Character.isWhitespace(ucteId.charAt(UcteUtils.UCTE_NODE_LENGTH)) ||
-                !Character.isWhitespace(ucteId.charAt(UcteUtils.UCTE_NODE_LENGTH * 2 + 1))) {
+            !Character.isWhitespace(ucteId.charAt(UcteUtils.UCTE_NODE_LENGTH * 2 + 1))) {
 
             invalidate(String.format("UCTE branch should be of the form 'NODE1ID_ NODE2_ID SUFFIX'. This id is not valid: %s", ucteId));
-            return false;
         } else {
             from = ucteId.substring(0, UcteUtils.UCTE_NODE_LENGTH);
             to = ucteId.substring(UcteUtils.UCTE_NODE_LENGTH + 1, UcteUtils.UCTE_NODE_LENGTH * 2 + 1);
             suffix = ucteId.substring(UcteUtils.UCTE_NODE_LENGTH * 2 + 2);
-            return true;
         }
     }
 

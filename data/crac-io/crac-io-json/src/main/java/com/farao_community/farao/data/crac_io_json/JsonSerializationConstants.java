@@ -162,7 +162,7 @@ public final class JsonSerializationConstants {
     // serialization of enums
 
     public static String serializeInstant(Instant instant) {
-        return instant.getId();
+        return instant.getId(); // TODO review this
     }
 
     public static String serializeUnit(Unit unit) {

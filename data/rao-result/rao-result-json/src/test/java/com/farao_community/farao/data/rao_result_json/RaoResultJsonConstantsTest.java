@@ -70,20 +70,20 @@ class RaoResultJsonConstantsTest {
     void testDeserializeInstant() {
         // TODO remove this test ?
         assertNull(deserializeInstantId("initial"));
-        assertEquals(InstantKind.PREVENTIVE.toString(), deserializeInstantId("preventive"));
-        assertEquals(InstantKind.OUTAGE.toString(), deserializeInstantId("outage"));
-        assertEquals(InstantKind.AUTO.toString(), deserializeInstantId("auto"));
-        assertEquals(InstantKind.CURATIVE.toString(), deserializeInstantId("curative"));
+        assertEquals("preventive", deserializeInstantId("preventive"));
+        assertEquals("outage", deserializeInstantId("outage"));
+        assertEquals("auto", deserializeInstantId("auto"));
+        assertEquals("curative", deserializeInstantId("curative"));
     }
 
     @Test
     void testDeserializeOptimizedInstant() {
         // TODO remove this test ?
-        assertNull(deserializeOptimizedInstant("initial", "1.4"));
-        assertEquals(InstantKind.PREVENTIVE.toString(), deserializeOptimizedInstant("preventive", "1.4"));
-        assertEquals(InstantKind.OUTAGE.toString(), deserializeOptimizedInstant("outage", "1.4"));
-        assertEquals(InstantKind.AUTO.toString(), deserializeOptimizedInstant("auto", "1.4"));
-        assertEquals(InstantKind.CURATIVE.toString(), deserializeOptimizedInstant("curative", "1.4"));
+        assertNull(deserializeOptimizedInstantId("initial", "1.4"));
+        assertEquals("preventive", deserializeOptimizedInstantId("preventive", "1.4"));
+        assertEquals("outage", deserializeOptimizedInstantId("outage", "1.4"));
+        assertEquals("auto", deserializeOptimizedInstantId("auto", "1.4"));
+        assertEquals("curative", deserializeOptimizedInstantId("curative", "1.4"));
     }
 
     @Test
@@ -106,6 +106,10 @@ class RaoResultJsonConstantsTest {
         Instant instantOutage = Mockito.mock(Instant.class);
         Instant instantAuto = Mockito.mock(Instant.class);
         Instant instantCurative = Mockito.mock(Instant.class);
+        when(instantPrev.getOrder()).thenReturn(0);
+        when(instantOutage.getOrder()).thenReturn(1);
+        when(instantAuto.getOrder()).thenReturn(2);
+        when(instantCurative.getOrder()).thenReturn(3);
         when(instantPrev.getInstantKind()).thenReturn(InstantKind.PREVENTIVE);
         when(instantOutage.getInstantKind()).thenReturn(InstantKind.OUTAGE);
         when(instantAuto.getInstantKind()).thenReturn(InstantKind.AUTO);

@@ -55,7 +55,7 @@ public class AngleMonitoringResultDeserializer extends JsonDeserializer<AngleMon
         if (!firstFieldName.equals(TYPE) || !jsonParser.nextTextValue().equals(ANGLE_MONITORING_RESULT)) {
             throw new FaraoException(String.format("Type of document must be specified at the beginning as %s", ANGLE_MONITORING_RESULT));
         }
-        AngleMonitoringResult.Status status = null;
+        AngleMonitoringResult.Status status;
         String secondFieldName = jsonParser.nextFieldName();
         if (!secondFieldName.equals(STATUS)) {
             throw new FaraoException("Status must be specified right after type of document.");

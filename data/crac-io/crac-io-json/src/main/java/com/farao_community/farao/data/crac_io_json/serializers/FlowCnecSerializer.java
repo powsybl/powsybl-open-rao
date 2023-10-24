@@ -19,7 +19,6 @@ import com.powsybl.commons.json.JsonUtil;
 import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import static com.farao_community.farao.data.crac_io_json.JsonSerializationConstants.*;
 
@@ -81,8 +80,8 @@ public class FlowCnecSerializer<I extends FlowCnec> extends AbstractJsonSerializ
         gen.writeArrayFieldStart(THRESHOLDS);
         List<BranchThreshold> sortedListOfThresholds = flowCnec.getThresholds().stream()
             .sorted(new ThresholdComparator())
-            .collect(Collectors.toList());
-        for (BranchThreshold threshold: sortedListOfThresholds) {
+            .toList();
+        for (BranchThreshold threshold : sortedListOfThresholds) {
             gen.writeObject(threshold);
         }
         gen.writeEndArray();

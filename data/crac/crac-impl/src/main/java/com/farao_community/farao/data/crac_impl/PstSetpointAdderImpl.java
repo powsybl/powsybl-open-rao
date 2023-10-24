@@ -34,10 +34,9 @@ public class PstSetpointAdderImpl implements PstSetpointAdder {
     }
 
     @Override
-    public PstSetpointAdder withNetworkElement(String networkElementId, String networkElementName) {
+    public void withNetworkElement(String networkElementId, String networkElementName) {
         this.networkElementId = networkElementId;
         this.networkElementName = networkElementName;
-        return this;
     }
 
     @Override

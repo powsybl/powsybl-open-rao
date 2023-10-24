@@ -8,7 +8,7 @@ package com.farao_community.farao.data.native_crac_api;
 
 /**
  * Common interface for all NativeCrac objects.
- *
+ * <p>
  * A NativeCrac is an object which contains all the raw information of a CRAC native file. Where
  * CRAC stands for 'Contingency list, Remedial Actions and additional Constraints'.
  *

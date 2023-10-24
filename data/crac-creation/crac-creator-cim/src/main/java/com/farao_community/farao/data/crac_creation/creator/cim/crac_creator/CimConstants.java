@@ -14,16 +14,11 @@ import java.util.Objects;
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
 public final class CimConstants {
-    private CimConstants() {
-    }
-
     // --- GENERAL
     public static final String MEGAWATT_UNIT_SYMBOL = "MAW";
     public static final String AMPERES_UNIT_SYMBOL = "AMP";
-
     // --- Contingencies
     public static final String CONTINGENCY_SERIES_BUSINESS_TYPE = "B55";
-
     // --- Cnecs
     // ------ FlowCnecs
     public static final String CNECS_SERIES_BUSINESS_TYPE = "B57";
@@ -41,11 +36,23 @@ public final class CimConstants {
     public static final String DEGREE = "DD";
     public static final String IMPORTING_ELEMENT = "A46";
     public static final String EXPORTING_ELEMENT = "A47";
-
     // --- Remedial Actions
     public static final String REMEDIAL_ACTIONS_SERIES_BUSINESS_TYPE = "B56";
     public static final List<String> REMEDIAL_ACTION_OPTIMIZATION_STATUS = List.of("Z01", "A01", "A52", "A49");
     public static final String BUSINESS_TYPE_IN_REMEDIALACTION_SERIES = "B59";
+    // ------ PST remedial action
+    public static final String PST_CAPACITY_UNIT_SYMBOL = "C62";
+
+    private CimConstants() {
+    }
+
+    public static String readOperator(String remedialActionId) {
+        if (Objects.isNull(remedialActionId)) {
+            return null;
+        } else {
+            return remedialActionId.split("-")[0];
+        }
+    }
 
     public enum ApplicationModeMarketObjectStatus {
         PRA("A18"),
@@ -53,7 +60,7 @@ public final class CimConstants {
         PRA_AND_CRA("A27"),
         AUTO("A20");
 
-        private String status;
+        private final String status;
 
         ApplicationModeMarketObjectStatus(String status) {
             this.status = status;
@@ -68,7 +75,7 @@ public final class CimConstants {
         MIGHT_BE_USED("A39"),
         SHALL_BE_USED("A38");
 
-        private String status;
+        private final String status;
 
         AvailabilityMarketObjectStatus(String status) {
             this.status = status;
@@ -89,7 +96,7 @@ public final class CimConstants {
         CLOSE("A22"),
         PMODE("A43");
 
-        private String status;
+        private final String status;
 
         MarketObjectStatus(String status) {
             this.status = status;
@@ -111,7 +118,7 @@ public final class CimConstants {
         DEPRECATED_LINE("A12"),
         HVDC("B22");
 
-        private String status;
+        private final String status;
 
         PsrType(String status) {
             this.status = status;
@@ -119,17 +126,6 @@ public final class CimConstants {
 
         public String getStatus() {
             return status;
-        }
-    }
-
-    // ------ PST remedial action
-    public static final String PST_CAPACITY_UNIT_SYMBOL = "C62";
-
-    public static String readOperator(String remedialActionId) {
-        if (Objects.isNull(remedialActionId)) {
-            return null;
-        } else {
-            return remedialActionId.split("-")[0];
         }
     }
 }

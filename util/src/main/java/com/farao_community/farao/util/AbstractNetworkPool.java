@@ -9,9 +9,11 @@ package com.farao_community.farao.util;
 import com.farao_community.farao.commons.RandomizedString;
 import com.powsybl.iidm.network.Network;
 
-import java.util.*;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.*;
-import java.util.stream.Collectors;
 
 import static com.farao_community.farao.util.MCDContextWrapper.wrapWithMdcContext;
 
@@ -25,17 +27,9 @@ public abstract class AbstractNetworkPool extends ForkJoinPool implements AutoCl
     // State used to save initial content of target variant.
     // Useful when targetVariant equals VariantManagerConstants.INITIAL_VARIANT_ID
     protected final String stateSaveVariant;
-    protected Network network;
-    protected String networkInitialVariantId;
-    protected Set<String> baseNetworkVariantIds;
-
-    public static AbstractNetworkPool create(Network network, String targetVariant, int parallelism, boolean initClones) {
-        if (parallelism == 1) {
-            return new SingleNetworkPool(network, targetVariant);
-        } else {
-            return new MultipleNetworkPool(network, targetVariant, parallelism, initClones);
-        }
-    }
+    protected final Network network;
+    protected final String networkInitialVariantId;
+    protected final Set<String> baseNetworkVariantIds;
 
     protected AbstractNetworkPool(Network network, String targetVariant, int parallelism) {
         super(parallelism);
@@ -47,6 +41,14 @@ public abstract class AbstractNetworkPool extends ForkJoinPool implements AutoCl
         this.networkInitialVariantId = network.getVariantManager().getWorkingVariantId();
         this.network = network;
         this.baseNetworkVariantIds = new HashSet<>(network.getVariantManager().getVariantIds());
+    }
+
+    public static AbstractNetworkPool create(Network network, String targetVariant, int parallelism, boolean initClones) {
+        if (parallelism == 1) {
+            return new SingleNetworkPool(network, targetVariant);
+        } else {
+            return new MultipleNetworkPool(network, targetVariant, parallelism, initClones);
+        }
     }
 
     public Network getAvailableNetwork() throws InterruptedException {
@@ -74,9 +76,9 @@ public abstract class AbstractNetworkPool extends ForkJoinPool implements AutoCl
 
     protected void cleanVariants(Network networkClone) {
         List<String> variantsToBeRemoved = networkClone.getVariantManager().getVariantIds().stream()
-                .filter(variantId -> !baseNetworkVariantIds.contains(variantId))
-                .filter(variantId -> !variantId.equals(stateSaveVariant))
-                .collect(Collectors.toList());
+            .filter(variantId -> !baseNetworkVariantIds.contains(variantId))
+            .filter(variantId -> !variantId.equals(stateSaveVariant))
+            .toList();
         variantsToBeRemoved.forEach(variantId -> networkClone.getVariantManager().removeVariant(variantId));
     }
 

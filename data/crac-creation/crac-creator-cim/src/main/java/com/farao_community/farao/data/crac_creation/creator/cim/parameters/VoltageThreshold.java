@@ -20,9 +20,9 @@ import static java.lang.Math.abs;
  */
 public class VoltageThreshold {
 
-    protected Unit unit;
-    protected Double min;
-    protected Double max;
+    protected final Unit unit;
+    protected final Double min;
+    protected final Double max;
 
     public VoltageThreshold(Unit unit, Double min, Double max) {
         this.unit = unit;
@@ -52,8 +52,8 @@ public class VoltageThreshold {
         }
         VoltageThreshold otherT = (VoltageThreshold) o;
         return ((unit == null && otherT.getUnit() == null) || (unit != null && unit.equals(otherT.getUnit())))
-                && equalsDouble(max, otherT.getMax())
-                && equalsDouble(min, otherT.getMin());
+            && equalsDouble(max, otherT.getMax())
+            && equalsDouble(min, otherT.getMin());
     }
 
     @Override

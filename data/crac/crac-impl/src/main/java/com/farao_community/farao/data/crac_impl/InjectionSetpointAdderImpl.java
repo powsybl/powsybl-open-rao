@@ -37,10 +37,9 @@ public class InjectionSetpointAdderImpl implements InjectionSetpointAdder {
     }
 
     @Override
-    public InjectionSetpointAdder withNetworkElement(String networkElementId, String networkElementName) {
+    public void withNetworkElement(String networkElementId, String networkElementName) {
         this.networkElementId = networkElementId;
         this.networkElementName = networkElementName;
-        return this;
     }
 
     @Override

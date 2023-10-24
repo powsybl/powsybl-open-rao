@@ -14,7 +14,7 @@ import java.util.Set;
 
 /**
  * Generic interface for the definition of elementary actions
- *
+ * <p>
  * An elementary action is an action on the network which can be
  * activated by a {@link NetworkAction}
  *

@@ -50,7 +50,7 @@ public class LoopFlowThresholdAdderImpl extends AbstractExtensionAdder<FlowCnec,
         if (thresholdValue < 0) {
             throw new FaraoException("LoopFlowThresholds must have a positive threshold.");
         }
-        if (thresholdUnit.equals(Unit.PERCENT_IMAX) && (thresholdValue > 1 || thresholdValue < 0)) {
+        if (thresholdUnit.equals(Unit.PERCENT_IMAX) && thresholdValue > 1) {
             throw new FaraoException("LoopFlowThresholds in Unit.PERCENT_IMAX must be defined between 0 and 1, where 1 = 100%.");
         }
         if (thresholdUnit.getPhysicalParameter() != PhysicalParameter.FLOW) {

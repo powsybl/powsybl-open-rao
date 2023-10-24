@@ -25,28 +25,22 @@ public final class JsonCracCreationParametersConstants {
     }
 
     static String serializeMonitoredLineSide(CracCreationParameters.MonitoredLineSide monitoredLineSide) {
-        switch (monitoredLineSide) {
-            case MONITOR_LINES_ON_LEFT_SIDE:
-                return MONITOR_LINES_ON_LEFT_SIDE_TEXT;
-            case MONITOR_LINES_ON_RIGHT_SIDE:
-                return MONITOR_LINES_ON_RIGHT_SIDE_TEXT;
-            case MONITOR_LINES_ON_BOTH_SIDES:
-                return MONITOR_LINES_ON_BOTH_SIDES_TEXT;
-            default:
-                throw new FaraoException(String.format("Unknown monitored line side: %s", monitoredLineSide));
-        }
+        return switch (monitoredLineSide) {
+            case MONITOR_LINES_ON_LEFT_SIDE -> MONITOR_LINES_ON_LEFT_SIDE_TEXT;
+            case MONITOR_LINES_ON_RIGHT_SIDE -> MONITOR_LINES_ON_RIGHT_SIDE_TEXT;
+            case MONITOR_LINES_ON_BOTH_SIDES -> MONITOR_LINES_ON_BOTH_SIDES_TEXT;
+            default -> throw new FaraoException(String.format("Unknown monitored line side: %s", monitoredLineSide));
+        };
     }
 
     static CracCreationParameters.MonitoredLineSide deserializeMonitoredLineSide(String monitoredLineSide) {
-        switch (monitoredLineSide) {
-            case MONITOR_LINES_ON_LEFT_SIDE_TEXT:
-                return CracCreationParameters.MonitoredLineSide.MONITOR_LINES_ON_LEFT_SIDE;
-            case MONITOR_LINES_ON_RIGHT_SIDE_TEXT:
-                return CracCreationParameters.MonitoredLineSide.MONITOR_LINES_ON_RIGHT_SIDE;
-            case MONITOR_LINES_ON_BOTH_SIDES_TEXT:
-                return CracCreationParameters.MonitoredLineSide.MONITOR_LINES_ON_BOTH_SIDES;
-            default:
-                throw new FaraoException(String.format("Unknown monitored line side: %s", monitoredLineSide));
-        }
+        return switch (monitoredLineSide) {
+            case MONITOR_LINES_ON_LEFT_SIDE_TEXT -> CracCreationParameters.MonitoredLineSide.MONITOR_LINES_ON_LEFT_SIDE;
+            case MONITOR_LINES_ON_RIGHT_SIDE_TEXT ->
+                CracCreationParameters.MonitoredLineSide.MONITOR_LINES_ON_RIGHT_SIDE;
+            case MONITOR_LINES_ON_BOTH_SIDES_TEXT ->
+                CracCreationParameters.MonitoredLineSide.MONITOR_LINES_ON_BOTH_SIDES;
+            default -> throw new FaraoException(String.format("Unknown monitored line side: %s", monitoredLineSide));
+        };
     }
 }

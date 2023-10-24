@@ -284,7 +284,7 @@ public final class CoreCneCnecsCreator {
         if (thresholdToMarginMap.isEmpty()) {
             return 0;
         }
-        return thresholdToMarginMap.entrySet().stream().min(Comparator.comparing(Map.Entry::getValue)).orElseThrow().getKey();
+        return thresholdToMarginMap.entrySet().stream().min(Map.Entry.comparingByValue()).orElseThrow().getKey();
     }
 
     /**
@@ -374,7 +374,7 @@ public final class CoreCneCnecsCreator {
         return cnec.getMonitoredSides().contains(Side.LEFT) ? Side.LEFT : Side.RIGHT;
     }
 
-    private class AnalogComparator implements Comparator<Analog> {
+    private static class AnalogComparator implements Comparator<Analog> {
         @Override
         public int compare(Analog o1, Analog o2) {
             if (o1.getMeasurementType().equals(o2.getMeasurementType())) {

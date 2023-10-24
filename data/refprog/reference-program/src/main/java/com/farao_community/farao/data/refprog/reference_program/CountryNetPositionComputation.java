@@ -19,7 +19,7 @@ import java.util.Optional;
  */
 public class CountryNetPositionComputation {
 
-    private Network network;
+    private final Network network;
     private Map<EICode, Double> netPositions;
 
     public CountryNetPositionComputation(Network network) {
@@ -63,11 +63,7 @@ public class CountryNetPositionComputation {
     }
 
     private Country getSubstationNullableCountry(Optional<Substation> substation) {
-        if (substation.isPresent()) {
-            return substation.get().getNullableCountry();
-        } else {
-            return null;
-        }
+        return substation.map(Substation::getNullableCountry).orElse(null);
     }
 
     private void addLeavingFlow(DanglingLine danglingLine, EICode area) {

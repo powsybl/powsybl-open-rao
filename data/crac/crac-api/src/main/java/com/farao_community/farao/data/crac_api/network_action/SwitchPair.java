@@ -19,10 +19,10 @@ public interface SwitchPair extends ElementaryAction {
     /**
      * Get the switch that should be opened by the elementary action
      */
-    public NetworkElement getSwitchToOpen();
+    NetworkElement getSwitchToOpen();
 
     /**
      * Get the switch that should be closed by the elementary action
      */
-    public NetworkElement getSwitchToClose();
+    NetworkElement getSwitchToClose();
 }

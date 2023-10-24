@@ -19,11 +19,11 @@ public interface Range {
     /**
      * Get the {@link RangeType} of the range
      */
-    public RangeType getRangeType();
+    RangeType getRangeType();
 
     /**
      * Get the {@link Unit} in which the bounds of the range are defined
      */
-    public Unit getUnit();
+    Unit getUnit();
 
 }

@@ -16,7 +16,7 @@ import java.io.IOException;
 import static com.farao_community.farao.data.rao_result_json.RaoResultJsonConstants.COST_RESULTS;
 import static com.farao_community.farao.data.rao_result_json.RaoResultJsonConstants.FUNCTIONAL_COST;
 import static com.farao_community.farao.data.rao_result_json.RaoResultJsonConstants.VIRTUAL_COSTS;
-import static com.farao_community.farao.data.rao_result_json.RaoResultJsonConstants.deserializeOptimizedInstant;
+import static com.farao_community.farao.data.rao_result_json.RaoResultJsonConstants.deserializeOptimizedInstantId;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
@@ -28,7 +28,7 @@ final class CostResultMapDeserializer {
 
     static void deserialize(JsonParser jsonParser, RaoResultImpl raoResult, String jsonFileVersion) throws IOException {
         while (!jsonParser.nextToken().isStructEnd()) {
-            String optimizedInstantId = deserializeOptimizedInstant(jsonParser.getCurrentName(), jsonFileVersion);
+            String optimizedInstantId = deserializeOptimizedInstantId(jsonParser.getCurrentName(), jsonFileVersion);
             jsonParser.nextToken();
             deserializeCostResult(jsonParser, raoResult, optimizedInstantId);
         }

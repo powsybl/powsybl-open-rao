@@ -27,8 +27,8 @@ public class LoopFlowThresholdImpl extends AbstractExtension<FlowCnec> implement
        threshold (retrieved from the Crac, without considering the frm), and NOT as a percentage
         of the branch current limit (retrieved from the Network)
      */
-    private double inputThreshold;
-    private Unit inputThresholdUnit;
+    private final double inputThreshold;
+    private final Unit inputThresholdUnit;
 
     @Deprecated
     //todo: make private package
@@ -49,16 +49,14 @@ public class LoopFlowThresholdImpl extends AbstractExtension<FlowCnec> implement
 
     @Override
     public double getThresholdWithReliabilityMargin(Unit requestedUnit) {
-        switch (requestedUnit) {
-            case MEGAWATT:
-                return getThreshold(requestedUnit) - this.getExtendable().getReliabilityMargin();
-            case AMPERE:
-                return getThreshold(requestedUnit) - convertMWToA(this.getExtendable().getReliabilityMargin());
-            case PERCENT_IMAX:
-                return getThreshold(requestedUnit) - convertAToPercentImax(convertMWToA(this.getExtendable().getReliabilityMargin()));
-            default:
+        return switch (requestedUnit) {
+            case MEGAWATT -> getThreshold(requestedUnit) - this.getExtendable().getReliabilityMargin();
+            case AMPERE -> getThreshold(requestedUnit) - convertMWToA(this.getExtendable().getReliabilityMargin());
+            case PERCENT_IMAX ->
+                getThreshold(requestedUnit) - convertAToPercentImax(convertMWToA(this.getExtendable().getReliabilityMargin()));
+            default ->
                 throw new FaraoException("Loopflow thresholds can only be returned in AMPERE, MEGAWATT or PERCENT_IMAX");
-        }
+        };
     }
 
     @Override

@@ -18,8 +18,8 @@ import java.util.stream.Collectors;
 public final class ComplexVariantCrossCompatibility {
 
     private static final Comparator<ComplexVariantReader> COMPLEX_VARIANT_PRIORITY_RULE =
-            Comparator.nullsLast(Comparator.comparing(ComplexVariantCrossCompatibility::getGroupId))
-                    .thenComparing((ComplexVariantReader cvr) -> cvr.getComplexVariant().getId());
+        Comparator.nullsLast(Comparator.comparing(ComplexVariantCrossCompatibility::getGroupId))
+            .thenComparing((ComplexVariantReader cvr) -> cvr.getComplexVariant().getId());
 
     private ComplexVariantCrossCompatibility() {
     }
@@ -39,8 +39,8 @@ public final class ComplexVariantCrossCompatibility {
             for (int j = i + 1; j < n; j++) {
 
                 if (complexVariantReaders.get(j).isComplexVariantValid()
-                        && actionsOverlap(complexVariantReaders.get(i), complexVariantReaders.get(j))
-                        && usageRulesOverlap(complexVariantReaders.get(i), complexVariantReaders.get(j))) {
+                    && actionsOverlap(complexVariantReaders.get(i), complexVariantReaders.get(j))
+                    && usageRulesOverlap(complexVariantReaders.get(i), complexVariantReaders.get(j))) {
                     overlappingComplexVariants.add(complexVariantReaders.get(j));
                 }
             }
@@ -58,12 +58,12 @@ public final class ComplexVariantCrossCompatibility {
 
             // PST actions overlap each others if they both act on a same pst
             Set<String> pst1 = cvr1.getActionReaders().stream()
-                    .map(ActionReader::getNetworkElementId)
-                    .collect(Collectors.toSet());
+                .map(ActionReader::getNetworkElementId)
+                .collect(Collectors.toSet());
 
             Set<String> pst2 = cvr2.getActionReaders().stream()
-                    .map(ActionReader::getNetworkElementId)
-                    .collect(Collectors.toSet());
+                .map(ActionReader::getNetworkElementId)
+                .collect(Collectors.toSet());
 
             return !Collections.disjoint(pst1, pst2);
 
@@ -94,12 +94,8 @@ public final class ComplexVariantCrossCompatibility {
             return true;
         }
 
-        if (ast1.isCurative() && ast2.isCurative()
-                && !Collections.disjoint(ast1.getAfterCOList().getAfterCOId(), ast2.getAfterCOList().getAfterCOId())) {
-            return true;
-        }
-
-        return false;
+        return ast1.isCurative() && ast2.isCurative()
+            && !Collections.disjoint(ast1.getAfterCOList().getAfterCOId(), ast2.getAfterCOList().getAfterCOId());
     }
 
     private static void invalidateAllButOne(List<ComplexVariantReader> overlappingComplexVariants) {
@@ -115,8 +111,8 @@ public final class ComplexVariantCrossCompatibility {
 
     private static String getGroupId(ComplexVariantReader cvr) {
         return cvr.getActionReaders().stream()
-                .filter(ar -> ar.getGroupId() != null)
-                .map(ActionReader::getGroupId)
-                .findAny().orElse("ZZ");
+            .map(ActionReader::getGroupId)
+            .filter(groupId -> groupId != null)
+            .findAny().orElse("ZZ");
     }
 }

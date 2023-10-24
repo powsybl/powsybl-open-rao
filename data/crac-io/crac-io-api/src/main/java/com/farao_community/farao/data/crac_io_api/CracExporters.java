@@ -9,17 +9,15 @@ package com.farao_community.farao.data.crac_io_api;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Crac;
-
-import java.io.*;
-import java.nio.file.Path;
-import java.util.function.Supplier;
 import com.google.common.base.Suppliers;
 import com.powsybl.commons.util.ServiceLoaderCache;
 import com.powsybl.iidm.network.Network;
 
+import java.io.*;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
+import java.util.function.Supplier;
 
 /**
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
@@ -27,7 +25,7 @@ import java.util.stream.Collectors;
 public final class CracExporters {
 
     private static final Supplier<List<CracExporter>> CRAC_EXPORTERS
-        = Suppliers.memoize(() -> new ServiceLoaderCache<>(CracExporter.class).getServices())::get;
+        = Suppliers.memoize(() -> new ServiceLoaderCache<>(CracExporter.class).getServices());
 
     private CracExporters() {
     }
@@ -63,7 +61,7 @@ public final class CracExporters {
             if (cracExporters.size() > 1 && name == null) {
                 // several crac exporters and no information to select which one to choose, we can only throw
                 // an exception
-                List<String> exportersNames = cracExporters.stream().map(CracExporter::getFormat).collect(Collectors.toList());
+                List<String> exportersNames = cracExporters.stream().map(CracExporter::getFormat).toList();
                 throw new FaraoException("Several crac exporters implementations found (" + exportersNames
                     + "), you must specify an explicit exporter name");
             }

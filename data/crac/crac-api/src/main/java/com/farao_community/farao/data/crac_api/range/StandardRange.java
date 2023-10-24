@@ -10,7 +10,7 @@ package com.farao_community.farao.data.crac_api.range;
 /**
  * Interface dedicated to the definition of the so-called 'standard' range of
  * a StandardRangeAction
- *
+ * <p>
  * StandardRange are defined with a min and a max value.
  *
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}

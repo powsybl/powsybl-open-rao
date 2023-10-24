@@ -126,8 +126,8 @@ public final class SystematicSensitivityInterface {
             return this.withSensitivityProvider(new RangeActionSensitivityProvider(rangeActions, cnecs, units));
         }
 
-        public SystematicSensitivityInterfaceBuilder withLoadflow(Set<FlowCnec> cnecs, Set<Unit> units) {
-            return this.withSensitivityProvider(new LoadflowProvider(cnecs, units));
+        public void withLoadflow(Set<FlowCnec> cnecs, Set<Unit> units) {
+            this.withSensitivityProvider(new LoadflowProvider(cnecs, units));
         }
 
         public SystematicSensitivityInterfaceBuilder withAppliedRemedialActions(AppliedRemedialActions appliedRemedialActions) {

@@ -29,8 +29,12 @@ import java.util.Objects;
 
 import static com.farao_community.farao.data.cne_exporter_commons.CneConstants.*;
 import static com.farao_community.farao.data.cne_exporter_commons.CneUtil.createXMLGregorianCalendarNow;
-import static com.farao_community.farao.data.core_cne_exporter.CoreCneClassCreator.*;
-import static com.farao_community.farao.data.core_cne_exporter.CoreCneUtil.*;
+import static com.farao_community.farao.data.core_cne_exporter.CoreCneClassCreator.newPeriod;
+import static com.farao_community.farao.data.core_cne_exporter.CoreCneClassCreator.newPoint;
+import static com.farao_community.farao.data.core_cne_exporter.CoreCneClassCreator.newTimeSeries;
+import static com.farao_community.farao.data.core_cne_exporter.CoreCneUtil.createAreaIDString;
+import static com.farao_community.farao.data.core_cne_exporter.CoreCneUtil.createEsmpDateTimeIntervalForWholeDay;
+import static com.farao_community.farao.data.core_cne_exporter.CoreCneUtil.createPartyIDString;
 
 /**
  * Fills the classes that constitute the CNE file structure
@@ -39,9 +43,9 @@ import static com.farao_community.farao.data.core_cne_exporter.CoreCneUtil.*;
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
 public class CoreCne {
-    private CriticalNetworkElementMarketDocument marketDocument;
-    private CneHelper cneHelper;
-    private UcteCracCreationContext cracCreationContext;
+    private final CriticalNetworkElementMarketDocument marketDocument;
+    private final CneHelper cneHelper;
+    private final UcteCracCreationContext cracCreationContext;
 
     public CoreCne(Crac crac, Network network, UcteCracCreationContext cracCreationContext, RaoResult raoResult, RaoParameters raoParameters, CneExporterParameters exporterParameters) {
         marketDocument = new CriticalNetworkElementMarketDocument();

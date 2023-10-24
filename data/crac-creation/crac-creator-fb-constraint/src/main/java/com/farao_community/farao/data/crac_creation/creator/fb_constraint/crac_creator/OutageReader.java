@@ -18,7 +18,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 /**
  * @author Baptiste Seguinot{@literal <baptiste.seguinot at rte-france.com>}
@@ -31,6 +30,11 @@ class OutageReader {
     private String invalidOutageReason = "";
 
     private List<String> outageElementIds;
+
+    OutageReader(OutageType outage, UcteNetworkAnalyzer ucteNetworkHelper) {
+        this.outage = outage;
+        interpretWithNetwork(ucteNetworkHelper);
+    }
 
     OutageType getOutage() {
         return outage;
@@ -52,11 +56,6 @@ class OutageReader {
         contingencyAdder.add();
     }
 
-    OutageReader(OutageType outage, UcteNetworkAnalyzer ucteNetworkHelper) {
-        this.outage = outage;
-        interpretWithNetwork(ucteNetworkHelper);
-    }
-
     private void interpretWithNetwork(UcteNetworkAnalyzer ucteNetworkHelper) {
 
         if (outage.getHvdcVH().isEmpty() && outage.getBranch().isEmpty()) {
@@ -71,7 +70,7 @@ class OutageReader {
 
             List<UcteContingencyElementHelper> outageElementsReader = outage.getBranch().stream()
                 .map(branch -> new UcteContingencyElementHelper(branch.getFrom(), branch.getTo(), branch.getOrder(), branch.getElementName(), ucteNetworkHelper))
-                .collect(Collectors.toList());
+                .toList();
 
             Optional<UcteContingencyElementHelper> invalidBranch = outageElementsReader.stream().filter(br -> !br.isValid()).findAny();
 

@@ -304,7 +304,7 @@ public class PreventiveAndCurativesRaoResultImpl implements RaoResult {
             (optimizedInstant.getInstantKind() == InstantKind.AUTO && postContingencyResults.keySet().stream().noneMatch(state -> state.getInstant().getInstantKind().equals(InstantKind.AUTO)))) {
             // using postPreventiveResult would exclude curative CNECs
             return resultsWithPrasForAllCnecs;
-        } else if (postContingencyResults.containsKey(flowCnec.getState()) && optimizedInstant.equals(flowCnec.getState().getInstant().getId())) {
+        } else if (postContingencyResults.containsKey(flowCnec.getState()) && optimizedInstant.equals(flowCnec.getState().getInstant())) {
             // if cnec has been optimized during a post contingency instant
             return postContingencyResults.get(flowCnec.getState());
         } else if (!postContingencyResults.containsKey(flowCnec.getState())) {

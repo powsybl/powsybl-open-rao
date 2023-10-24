@@ -28,35 +28,6 @@ public class ZoneToZonePtdfDefinition {
     private final List<WeightedZoneToSlackPtdf> zoneToSlackPtdfs;
     private String zoneToZonePtdfAsString;
 
-    public static class WeightedZoneToSlackPtdf {
-        private final EICode ptdfZoneToSlack;
-        private final double weight;
-
-        WeightedZoneToSlackPtdf(EICode ptdfZoneToSlack, double weight) {
-            this.ptdfZoneToSlack = ptdfZoneToSlack;
-            this.weight = weight;
-        }
-
-        public double getWeight() {
-            return weight;
-        }
-
-        public EICode getEiCode() {
-            return ptdfZoneToSlack;
-        }
-
-        @Override
-        public String toString() {
-            if (!(weight > 1 || weight < 1)) {
-                return String.format("+{%s}", ptdfZoneToSlack.toString());
-            } else if (!(weight > -1 || weight < -1)) {
-                return String.format("-{%s}", ptdfZoneToSlack.toString());
-            } else {
-                throw new NotImplementedException("Method toString() has not been implemented for weight different from 1 or -1");
-            }
-        }
-    }
-
     public ZoneToZonePtdfDefinition(List<WeightedZoneToSlackPtdf> zoneToSlackPtdfs) {
         this.zoneToSlackPtdfs = zoneToSlackPtdfs;
     }
@@ -122,7 +93,7 @@ public class ZoneToZonePtdfDefinition {
 
     private EICode convertBracketIntoEiCode(String eiCodeInBrackets) {
         String eiCodeAsString = StringUtils.substringBetween(eiCodeInBrackets, "{", "}");
-        if (eiCodeAsString == null || eiCodeAsString.length() == 0) {
+        if (eiCodeAsString == null || eiCodeAsString.isEmpty()) {
             throw new FaraoException(WRONG_SYNTAX_MSG);
         }
         if (eiCodeAsString.length() == 16) {
@@ -131,6 +102,35 @@ public class ZoneToZonePtdfDefinition {
             return new EICode(Country.valueOf(eiCodeAsString));
         } else {
             throw new FaraoException(WRONG_SYNTAX_MSG);
+        }
+    }
+
+    public static class WeightedZoneToSlackPtdf {
+        private final EICode ptdfZoneToSlack;
+        private final double weight;
+
+        WeightedZoneToSlackPtdf(EICode ptdfZoneToSlack, double weight) {
+            this.ptdfZoneToSlack = ptdfZoneToSlack;
+            this.weight = weight;
+        }
+
+        public double getWeight() {
+            return weight;
+        }
+
+        public EICode getEiCode() {
+            return ptdfZoneToSlack;
+        }
+
+        @Override
+        public String toString() {
+            if (!(weight > 1 || weight < 1)) {
+                return String.format("+{%s}", ptdfZoneToSlack.toString());
+            } else if (!(weight > -1 || weight < -1)) {
+                return String.format("-{%s}", ptdfZoneToSlack.toString());
+            } else {
+                throw new NotImplementedException("Method toString() has not been implemented for weight different from 1 or -1");
+            }
         }
     }
 }
