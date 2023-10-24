@@ -38,6 +38,7 @@ public class CsaProfileRemedialActionsCreator {
     private final PropertyBags gridStateAlterationRemedialActionPropertyBags;
     private final PropertyBags topologyActionsPropertyBags;
     private final PropertyBags rotatingMachineActionsPropertyBags;
+    private final PropertyBags shuntCompensatorModificationsPropertyBags;
     private final PropertyBags tapPositionPropertyBags;
     private final PropertyBags staticPropertyRangesPropertyBags;
     private final PropertyBags contingencyWithRemedialActionsPropertyBags;
@@ -48,6 +49,7 @@ public class CsaProfileRemedialActionsCreator {
     public CsaProfileRemedialActionsCreator(Crac crac, Network network, CsaProfileCracCreationContext cracCreationContext, PropertyBags gridStateAlterationRemedialActionPropertyBags, PropertyBags contingencyWithRemedialActionsPropertyBags,
                                             PropertyBags topologyActionsPropertyBags,
                                             PropertyBags rotatingMachineActionsPropertyBags,
+                                            PropertyBags shuntCompensatorModificationsPropertyBags,
                                             PropertyBags tapPositionPropertyBags,
                                             PropertyBags staticPropertyRangesPropertyBags,
                                             OnConstraintUsageRuleHelper onConstraintUsageRuleHelper) {
@@ -57,6 +59,7 @@ public class CsaProfileRemedialActionsCreator {
         this.contingencyWithRemedialActionsPropertyBags = contingencyWithRemedialActionsPropertyBags;
         this.topologyActionsPropertyBags = topologyActionsPropertyBags;
         this.rotatingMachineActionsPropertyBags = rotatingMachineActionsPropertyBags;
+        this.shuntCompensatorModificationsPropertyBags = shuntCompensatorModificationsPropertyBags;
         this.tapPositionPropertyBags = tapPositionPropertyBags;
         this.staticPropertyRangesPropertyBags = staticPropertyRangesPropertyBags;
         this.cracCreationContext = cracCreationContext;
@@ -68,6 +71,7 @@ public class CsaProfileRemedialActionsCreator {
         Map<String, Set<PropertyBag>> linkedContingencyWithRAs = CsaProfileCracUtils.getMappedPropertyBagsSet(contingencyWithRemedialActionsPropertyBags, CsaProfileConstants.GRID_STATE_ALTERATION_REMEDIAL_ACTION);
         Map<String, Set<PropertyBag>> linkedTopologyActions = CsaProfileCracUtils.getMappedPropertyBagsSet(topologyActionsPropertyBags, CsaProfileConstants.GRID_STATE_ALTERATION_REMEDIAL_ACTION);
         Map<String, Set<PropertyBag>> linkedRotatingMachineActions = CsaProfileCracUtils.getMappedPropertyBagsSet(rotatingMachineActionsPropertyBags, CsaProfileConstants.GRID_STATE_ALTERATION_REMEDIAL_ACTION);
+        Map<String, Set<PropertyBag>> linkedShuntCompensatorModifications = CsaProfileCracUtils.getMappedPropertyBagsSet(shuntCompensatorModificationsPropertyBags, CsaProfileConstants.GRID_STATE_ALTERATION_REMEDIAL_ACTION);
         Map<String, Set<PropertyBag>> linkedTapPositionActions = CsaProfileCracUtils.getMappedPropertyBagsSet(tapPositionPropertyBags, CsaProfileConstants.GRID_STATE_ALTERATION_REMEDIAL_ACTION);
         Map<String, Set<PropertyBag>> linkedStaticPropertyRanges = CsaProfileCracUtils.getMappedPropertyBagsSet(staticPropertyRangesPropertyBags, CsaProfileConstants.GRID_STATE_ALTERATION_REMEDIAL_ACTION); // the id here is the id of the subclass of gridStateAlteration (tapPositionAction, RotatingMachine, ..)
 
@@ -86,7 +90,7 @@ public class CsaProfileRemedialActionsCreator {
                 Optional<Integer> speedOpt = getSpeedOpt(parentRemedialActionPropertyBag.get(CsaProfileConstants.TIME_TO_IMPLEMENT));
 
                 if (remedialActionType.equals(RemedialActionType.NETWORK_ACTION)) {
-                    remedialActionAdder = networkActionCreator.getNetworkActionAdder(linkedTopologyActions, linkedRotatingMachineActions, linkedStaticPropertyRanges, remedialActionId);
+                    remedialActionAdder = networkActionCreator.getNetworkActionAdder(linkedTopologyActions, linkedRotatingMachineActions, linkedShuntCompensatorModifications, linkedStaticPropertyRanges, remedialActionId);
                 } else {
                     remedialActionAdder = pstRangeActionCreator.getPstRangeActionAdder(linkedTapPositionActions, linkedStaticPropertyRanges, remedialActionId);
                 }
