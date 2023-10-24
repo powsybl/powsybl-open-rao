@@ -155,17 +155,20 @@ public class RaoResultImpl implements RaoResult {
 
     @Override
     public double getCost(Instant optimizedInstant) {
-        return costResults.getOrDefault(optimizedInstant.getId(), DEFAULT_COST_RESULT).getCost();
+        String id = optimizedInstant==null ? null : optimizedInstant.getId();
+        return costResults.getOrDefault(id, DEFAULT_COST_RESULT).getCost();
     }
 
     @Override
     public double getFunctionalCost(Instant optimizedInstant) {
-        return costResults.getOrDefault(optimizedInstant.getId(), DEFAULT_COST_RESULT).getFunctionalCost();
+        String id = optimizedInstant==null ? null : optimizedInstant.getId();
+        return costResults.getOrDefault(id, DEFAULT_COST_RESULT).getFunctionalCost();
     }
 
     @Override
     public double getVirtualCost(Instant optimizedInstant) {
-        return costResults.getOrDefault(optimizedInstant.getId(), DEFAULT_COST_RESULT).getVirtualCost();
+        String id = optimizedInstant==null ? null : optimizedInstant.getId();
+        return costResults.getOrDefault(id, DEFAULT_COST_RESULT).getVirtualCost();
     }
 
     @Override
@@ -175,7 +178,8 @@ public class RaoResultImpl implements RaoResult {
 
     @Override
     public double getVirtualCost(Instant optimizedInstant, String virtualCostName) {
-        return costResults.getOrDefault(optimizedInstant.getId(), DEFAULT_COST_RESULT).getVirtualCost(virtualCostName);
+        String id = optimizedInstant==null ? null : optimizedInstant.getId();
+        return costResults.getOrDefault(id, DEFAULT_COST_RESULT).getVirtualCost(virtualCostName);
     }
 
     @Override

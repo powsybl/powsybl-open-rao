@@ -186,7 +186,7 @@ public final class RaoResultJsonConstants {
 
     public static String deserializeInstantId(String stringValue) {
         // TODO review this
-        if (Objects.equals(stringValue, INITIAL_INSTANT)) {
+        if (Objects.equals(stringValue, "")) {
             return null;
         }
         return stringValue;
