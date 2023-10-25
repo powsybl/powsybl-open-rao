@@ -32,10 +32,10 @@ import static com.farao_community.farao.data.crac_api.Instant.CURATIVE;
 import static com.farao_community.farao.data.crac_api.Instant.PREVENTIVE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class InjectionSetPointActionCreationTest {
+class InjectionSetPointActionCreationTest {
 
     @Test
-    public void testImportInjectionSetPointActions() {
+    void testImportInjectionSetPointActions() {
         CsaProfileCracImporter cracImporter = new CsaProfileCracImporter();
         InputStream inputStream = getClass().getResourceAsStream("/csa-23/CSA_23_1_ValidProfiles.zip");
         CsaProfileCrac nativeCrac = cracImporter.importNativeCrac(inputStream);
@@ -58,7 +58,7 @@ public class InjectionSetPointActionCreationTest {
 
         CsaProfileCracCreationContext cracCreationContext = cracCreator.createCrac(nativeCrac, network, OffsetDateTime.parse("2023-03-29T12:00Z"), new CracCreationParameters());
 
-        assertEquals(8, cracCreationContext.getCrac().getRemedialActions().size());
+        assertEquals(7, cracCreationContext.getCrac().getRemedialActions().size());
         // RA1 (on instant)
         NetworkAction ra1 = cracCreationContext.getCrac().getNetworkAction("on-instant-preventive-remedial-action");
         assertEquals("RA1", ra1.getName());

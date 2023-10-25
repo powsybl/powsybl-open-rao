@@ -98,11 +98,10 @@ public class CsaProfileRemedialActionsCreator {
                 }
                 speedOpt.ifPresent(remedialActionAdder::withSpeed);
 
-                Instant remedialActionInstant;
                 if (linkedContingencyWithRAs.containsKey(remedialActionId)) {
                     // on state usage rule
                     String randomCombinationConstraintKind = linkedContingencyWithRAs.get(remedialActionId).iterator().next().get(CsaProfileConstants.COMBINATION_CONSTRAINT_KIND);
-                    checkAllContingenciesLinkedToRaHaveTheSameConstraintKind(remedialActionId, linkedContingencyWithRAs.get(remedialActionId), randomCombinationConstraintKind);
+                    checkElementCombinationConstraintKindsCoherence(remedialActionId, linkedContingencyWithRAs.get(remedialActionId));
 
                     List<String> faraoContingenciesIds = linkedContingencyWithRAs.get(remedialActionId).stream()
                             .map(contingencyWithRemedialActionPropertyBag ->
@@ -159,10 +158,26 @@ public class CsaProfileRemedialActionsCreator {
                 .withUsageMethod(usageMethod).add());
     }
 
-    private void checkAllContingenciesLinkedToRaHaveTheSameConstraintKind(String remedialActionId, Set<PropertyBag> linkedContingencyWithRAs, String firstKind) {
+    private void checkElementCombinationConstraintKindsCoherence(String remedialActionId, Set<PropertyBag> linkedContingencyWithRAs) {
+        // The same contingency cannot have different Element Combination Constraint Kinds
+        Map<String, Boolean> numberOfIncludedPerContingency = new HashMap<>();
+        Map<String, Boolean> numberOfConsideredPerContingency = new HashMap<>();
         for (PropertyBag propertyBag : linkedContingencyWithRAs) {
-            if (!propertyBag.get(CsaProfileConstants.COMBINATION_CONSTRAINT_KIND).equals(firstKind)) {
-                throw new FaraoImportException(ImportStatus.INCONSISTENCY_IN_DATA, CsaProfileConstants.REMEDIAL_ACTION_MESSAGE + remedialActionId + " will not be imported because ElementCombinationConstraintKind of a remedial action linked to a contingency must be all of the same kind");
+            String combinationKind = propertyBag.get(CsaProfileConstants.COMBINATION_CONSTRAINT_KIND);
+            String contingencyId = propertyBag.get(CsaProfileConstants.REQUEST_CONTINGENCY);
+            if (combinationKind.equals(CsaProfileConstants.ElementCombinationConstraintKind.INCLUDED.toString())) {
+                numberOfIncludedPerContingency.put(contingencyId, true);
+            } else if (combinationKind.equals(CsaProfileConstants.ElementCombinationConstraintKind.CONSIDERED.toString())) {
+                numberOfConsideredPerContingency.put(contingencyId, true);
+            } else if (combinationKind.equals(CsaProfileConstants.ElementCombinationConstraintKind.EXCLUDED.toString())) {
+                throw new FaraoImportException(ImportStatus.INCONSISTENCY_IN_DATA, CsaProfileConstants.REMEDIAL_ACTION_MESSAGE + remedialActionId + " will not be imported because of an illegal EXCLUDED ElementCombinationConstraintKind");
+            } else {
+                throw new FaraoImportException(ImportStatus.INCONSISTENCY_IN_DATA, CsaProfileConstants.REMEDIAL_ACTION_MESSAGE + remedialActionId + " will not be imported because of an invalid Element Combination Constraint Kind");
+            }
+            Boolean hasIncluded = numberOfIncludedPerContingency.get(contingencyId);
+            Boolean hasConsidered = numberOfConsideredPerContingency.get(contingencyId);
+            if ((hasIncluded != null) && (hasConsidered != null) && hasIncluded && hasConsidered) {
+                throw new FaraoImportException(ImportStatus.INCONSISTENCY_IN_DATA, CsaProfileConstants.REMEDIAL_ACTION_MESSAGE + remedialActionId + " will not be imported because the ElementCombinationConstraintKinds that link the remedial action to the contingency " + contingencyId + " are different");
             }
         }
     }

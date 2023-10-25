@@ -12,6 +12,7 @@ import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_api.cnec.AngleCnec;
 import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_api.usage_rule.*;
+import com.farao_community.farao.data.crac_creation.creator.api.ImportStatus;
 import com.farao_community.farao.data.crac_creation.creator.api.parameters.CracCreationParameters;
 import com.farao_community.farao.data.crac_creation.creator.csa_profile.CsaProfileCrac;
 import com.farao_community.farao.data.crac_creation.creator.csa_profile.importer.CsaProfileCracImporter;
@@ -28,13 +29,14 @@ import java.nio.file.Paths;
 import java.time.OffsetDateTime;
 import java.util.*;
 
+import static com.farao_community.farao.data.crac_creation.creator.csa_profile.crac_creator.CsaProfileCracCreationTestUtil.assertRaNotImported;
 import static org.junit.jupiter.api.Assertions.*;
 import static com.farao_community.farao.data.crac_api.Instant.*;
 
-public class CsaProfileCracCreatorTest {
+class CsaProfileCracCreatorTest {
 
     @Test
-    public void testCustomImportCase() {
+    void testCustomImportCase() {
         Properties importParams = new Properties();
         Network network = Network.read(Paths.get(new File(CsaProfileCracCreatorTest.class.getResource("/TestCase_13_5_4.zip").getFile()).toString()), LocalComputationManager.getDefault(), Suppliers.memoize(ImportConfig::load).get(), importParams);
 
@@ -85,7 +87,7 @@ public class CsaProfileCracCreatorTest {
     }
 
     @Test
-    public void checkExcludedCombinationConstraintHandling() {
+    void checkExcludedCombinationConstraintHandling() {
         //CSA 63_1
         CsaProfileCracImporter cracImporter = new CsaProfileCracImporter();
         InputStream inputStream = getClass().getResourceAsStream("/CSA_63_1_ValidationTest.zip");
@@ -160,17 +162,17 @@ public class CsaProfileCracCreatorTest {
                 "8f2cac52-ba92-4922-b8e2-2ee0414829f5", "RTE_CO3",
                 1, List.of("ff3c8013-d3f9-4198-a1f2-98d3ebdf30c4"));
 
-        assertEquals(4, cracCreationContext.getCrac().getRemedialActions().size());
+        assertEquals(3, cracCreationContext.getCrac().getRemedialActions().size());
         CsaProfileCracCreationTestUtil.assertNetworkActionImported(cracCreationContext, "ac60186a-8ee9-4379-8ce2-48fe335b0357", Set.of("d1db384f-3a27-434b-93f5-5afa3ab23b00"), false, 2);
         CsaProfileCracCreationTestUtil.assertNetworkActionImported(cracCreationContext, "4b6f26d2-887e-4bb5-b4a0-d9dbfbca0c7d", Set.of("d1db384f-3a27-434b-93f5-5afa3ab23b00"), false, 2);
-        CsaProfileCracCreationTestUtil.assertNetworkActionImported(cracCreationContext, "fb21c59d-4268-4ba2-aa1b-ae2767799a36", Set.of("d1db384f-3a27-434b-93f5-5afa3ab23b00"), true, 1);
         CsaProfileCracCreationTestUtil.assertNetworkActionImported(cracCreationContext, "6dccb771-921c-4025-8079-f55590868704", Set.of("d1db384f-3a27-434b-93f5-5afa3ab23b00"), false, 1);
 
         CsaProfileCracCreationTestUtil.assertHasOnAngleConstraintUsageRule(cracCreationContext, "ac60186a-8ee9-4379-8ce2-48fe335b0357", "RTE_AE1 - RTE_CO1 - curative", CURATIVE, UsageMethod.TO_BE_EVALUATED); // TODO change TO_BE_EVALUATED by FORCED
         CsaProfileCracCreationTestUtil.assertHasOnAngleConstraintUsageRule(cracCreationContext, "ac60186a-8ee9-4379-8ce2-48fe335b0357", "RTE_AE2 - RTE_CO3 - curative", CURATIVE, UsageMethod.TO_BE_EVALUATED); // TODO change TO_BE_EVALUATED by AVAILABLE
         CsaProfileCracCreationTestUtil.assertHasOnAngleConstraintUsageRule(cracCreationContext, "4b6f26d2-887e-4bb5-b4a0-d9dbfbca0c7d", "RTE_AE1 - RTE_CO1 - curative", CURATIVE, UsageMethod.TO_BE_EVALUATED); // TODO change TO_BE_EVALUATED by FORCED
         CsaProfileCracCreationTestUtil.assertHasOnAngleConstraintUsageRule(cracCreationContext, "4b6f26d2-887e-4bb5-b4a0-d9dbfbca0c7d", "RTE_AE2 - RTE_CO3 - curative", CURATIVE, UsageMethod.TO_BE_EVALUATED); // TODO change TO_BE_EVALUATED by AVAILABLE
-        CsaProfileCracCreationTestUtil.assertHasOnAngleConstraintUsageRule(cracCreationContext, "fb21c59d-4268-4ba2-aa1b-ae2767799a36", "RTE_AE2 - RTE_CO3 - curative", CURATIVE, UsageMethod.TO_BE_EVALUATED); // TODO change TO_BE_EVALUATED by FORCED
         CsaProfileCracCreationTestUtil.assertHasOnAngleConstraintUsageRule(cracCreationContext, "6dccb771-921c-4025-8079-f55590868704", "RTE_AE2 - RTE_CO3 - curative", CURATIVE, UsageMethod.TO_BE_EVALUATED); // TODO change TO_BE_EVALUATED by AVAILABLE
+
+        assertRaNotImported(cracCreationContext, "fb21c59d-4268-4ba2-aa1b-ae2767799a36", ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action fb21c59d-4268-4ba2-aa1b-ae2767799a36 will not be imported because of an illegal EXCLUDED ElementCombinationConstraintKind");
     }
 }
