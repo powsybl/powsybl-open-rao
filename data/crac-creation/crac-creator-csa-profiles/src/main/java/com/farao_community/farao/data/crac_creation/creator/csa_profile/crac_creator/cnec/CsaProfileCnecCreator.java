@@ -347,7 +347,7 @@ public class CsaProfileCnecCreator {
         String networkElementId = networkElement.getId();
         flowCnecAdder.withNetworkElement(networkElementId);
 
-        boolean isInstantOk = this.addCurrentLimitInstant(assessedElementId, flowCnecAdder, cnecLimit, inBaseCase);
+        boolean isInstantOk = this.addCurrentLimitInstant(assessedElementId, flowCnecAdder, cnecLimit);
         if (!isInstantOk) {
             return false;
         }
@@ -484,7 +484,7 @@ public class CsaProfileCnecCreator {
         return networkElement;
     }
 
-    private boolean addCurrentLimitInstant(String assessedElementId, FlowCnecAdder flowCnecAdder, PropertyBag currentLimit, boolean inBaseCase) {
+    private boolean addCurrentLimitInstant(String assessedElementId, FlowCnecAdder flowCnecAdder, PropertyBag currentLimit) {
         this.cnecInstant = null;
         String kind = currentLimit.get(CsaProfileConstants.REQUEST_OPERATIONAL_LIMIT_KIND);
         Instant instant;
@@ -495,8 +495,6 @@ public class CsaProfileCnecCreator {
             if (acceptableDuration < 0) {
                 csaProfileCnecCreationContexts.add(CsaProfileElementaryCreationContext.notImported(assessedElementId, ImportStatus.INCONSISTENCY_IN_DATA, "OperationalLimitType.acceptableDuration is incorrect : " + acceptableDurationStr));
                 return false;
-            } else if (acceptableDuration == 0) {
-                instant = inBaseCase ? Instant.PREVENTIVE : Instant.CURATIVE;
             } else if (acceptableDuration <= CracCreationParameters.DurationThresholdsLimits.DURATION_THRESHOLDS_LIMITS_MAX_OUTAGE_INSTANT.getLimit()) {
                 instant = Instant.OUTAGE;
             } else if (acceptableDuration <= CracCreationParameters.DurationThresholdsLimits.DURATION_THRESHOLDS_LIMITS_MAX_AUTO_INSTANT.getLimit()) {
@@ -506,7 +504,7 @@ public class CsaProfileCnecCreator {
             }
             flowCnecAdder.withInstant(instant);
         } else if (CsaProfileConstants.LimitKind.PATL.toString().equals(kind)) {
-            instant = inBaseCase ? Instant.PREVENTIVE : Instant.CURATIVE;
+            instant = Instant.CURATIVE;
             flowCnecAdder.withInstant(instant);
         } else {
             csaProfileCnecCreationContexts.add(CsaProfileElementaryCreationContext.notImported(assessedElementId, ImportStatus.INCONSISTENCY_IN_DATA, "OperationalLimitType.kind is incorrect : " + kind));
