@@ -42,12 +42,11 @@ public class OnConstraintUsageRuleHelper {
     }
 
     private void readAssessedElementsWithRemedialAction(PropertyBags assessedElementsWithRemedialAction) {
-        assessedElementsWithRemedialAction.stream().filter(this::checkNormalEnabled).forEach(propertyBag -> {
+        assessedElementsWithRemedialAction.stream().filter(this::checkNormalEnabled).filter(propertyBag -> getImportedCnecsNativeIdsToFaraoIds().containsKey(removePrefix(propertyBag.get(CsaProfileConstants.REQUEST_ASSESSED_ELEMENT)))).forEach(propertyBag -> {
             String combinationConstraintKind = propertyBag.get(CsaProfileConstants.COMBINATION_CONSTRAINT_KIND);
             String remedialActionId = removePrefix(propertyBag.get(CsaProfileConstants.REQUEST_REMEDIAL_ACTION));
             String assessedElementId = removePrefix(propertyBag.get(CsaProfileConstants.REQUEST_ASSESSED_ELEMENT));
 
-            // TODO handle exception if getImportedCnecsNativeIdsToFaraoIds().get(assessedElementId) -> nullpointer
             Set<String> faraoCnecIds = getImportedCnecsNativeIdsToFaraoIds().get(assessedElementId);
 
             if (combinationConstraintKind.equals(CsaProfileConstants.ElementCombinationConstraintKind.EXCLUDED.toString())) {
