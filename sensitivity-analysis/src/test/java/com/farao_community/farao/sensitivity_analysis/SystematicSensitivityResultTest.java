@@ -10,6 +10,9 @@ import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_api.CracFactory;
 import com.farao_community.farao.data.crac_api.range_action.HvdcRangeAction;
+import com.powsybl.commons.reporter.Reporter;
+import com.powsybl.computation.local.LocalComputationManager;
+import com.powsybl.contingency.Contingency;
 import com.powsybl.glsk.commons.ZonalData;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
@@ -25,10 +28,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Set;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -41,6 +41,7 @@ class SystematicSensitivityResultTest {
     private static final double EPSILON = 1e-2;
 
     private Network network;
+    private String networkVariantId;
     private FlowCnec nStateCnec;
     private FlowCnec contingencyCnec;
     private RangeAction<?> rangeAction;
@@ -53,6 +54,7 @@ class SystematicSensitivityResultTest {
     @BeforeEach
     public void setUp() {
         network = NetworkImportsUtil.import12NodesNetwork();
+        networkVariantId = network.getVariantManager().getWorkingVariantId();
         Crac crac = CommonCracCreation.createWithPreventivePstRange(Set.of(Side.LEFT, Side.RIGHT));
 
         ZonalData<SensitivityVariableSet> glskProvider = UcteGlskDocument.importGlsk(getClass().getResourceAsStream("/glsk_proportional_12nodes.xml"))
@@ -72,13 +74,25 @@ class SystematicSensitivityResultTest {
 
     @Test
     void testPostTreatIntensities() {
+        // Given
+        List<SensitivityFactor> factors = rangeActionSensitivityProvider.getAllFactors(network);
+        List<Contingency> contingencies = ptdfSensitivityProvider.getContingencies(network);
+        SystematicSensitivityResult result = new SystematicSensitivityResult(SystematicSensitivityResult.SensitivityComputationStatus.FAILURE);
+
+        SensitivityFactorReader factorReader = new SensitivityFactorModelReader(factors, network);
+        SensitivityResultWriter resultWriter = SystematicSensitivityResult.getSensitivityResultWriter(factors, result, com.farao_community.farao.data.crac_api.Instant.OUTAGE, contingencies);
+
         // When
-        SensitivityAnalysisResult sensitivityAnalysisResult = SensitivityAnalysis.find().run(network,
-            rangeActionSensitivityProvider.getAllFactors(network),
-            ptdfSensitivityProvider.getContingencies(network),
+        SensitivityAnalysis.find().run(network,
+            networkVariantId,
+            factorReader,
+            resultWriter,
+            contingencies,
             new ArrayList<>(),
-            SensitivityAnalysisParameters.load());
-        SystematicSensitivityResult result = new SystematicSensitivityResult().completeData(sensitivityAnalysisResult, com.farao_community.farao.data.crac_api.Instant.OUTAGE);
+            SensitivityAnalysisParameters.load(),
+            LocalComputationManager.getDefault(),
+            Reporter.NO_OP
+        );
 
         // Before postTreating intensities
         assertEquals(-20, result.getReferenceFlow(contingencyCnec, Side.LEFT), EPSILON);
@@ -96,13 +110,25 @@ class SystematicSensitivityResultTest {
 
     @Test
     void testPstResultManipulation() {
+        // Given
+        List<SensitivityFactor> factors = rangeActionSensitivityProvider.getAllFactors(network);
+        List<Contingency> contingencies = rangeActionSensitivityProvider.getContingencies(network);
+        SystematicSensitivityResult result = new SystematicSensitivityResult(SystematicSensitivityResult.SensitivityComputationStatus.FAILURE);
+        SensitivityFactorReader factorReader = new SensitivityFactorModelReader(factors, network);
+        SensitivityResultWriter resultWriter = SystematicSensitivityResult.getSensitivityResultWriter(factors, result, com.farao_community.farao.data.crac_api.Instant.OUTAGE, contingencies);
+
         // When
-        SensitivityAnalysisResult sensitivityAnalysisResult = SensitivityAnalysis.find().run(network,
-            rangeActionSensitivityProvider.getAllFactors(network),
-            rangeActionSensitivityProvider.getContingencies(network),
+        SensitivityAnalysis.find().run(network,
+            networkVariantId,
+            factorReader,
+            resultWriter,
+            contingencies,
             new ArrayList<>(),
-            SensitivityAnalysisParameters.load());
-        SystematicSensitivityResult result = new SystematicSensitivityResult().completeData(sensitivityAnalysisResult, com.farao_community.farao.data.crac_api.Instant.OUTAGE).postTreatIntensities();
+            SensitivityAnalysisParameters.load(),
+            LocalComputationManager.getDefault(),
+            Reporter.NO_OP
+        );
+        result.postTreatIntensities();
 
         // Then
         assertTrue(result.isSuccess());
@@ -127,13 +153,26 @@ class SystematicSensitivityResultTest {
 
     @Test
     void testPtdfResultManipulation() {
+        // Given
+        List<SensitivityFactor> factors = ptdfSensitivityProvider.getAllFactors(network);
+        List<Contingency> contingencies = ptdfSensitivityProvider.getContingencies(network);
+        SystematicSensitivityResult result = new SystematicSensitivityResult(SystematicSensitivityResult.SensitivityComputationStatus.FAILURE);
+
+        SensitivityFactorReader factorReader = new SensitivityFactorModelReader(factors, network);
+        SensitivityResultWriter resultWriter = SystematicSensitivityResult.getSensitivityResultWriter(factors, result, com.farao_community.farao.data.crac_api.Instant.OUTAGE, contingencies);
+
         // When
-        SensitivityAnalysisResult sensitivityAnalysisResult = SensitivityAnalysis.find().run(network,
-            ptdfSensitivityProvider.getAllFactors(network),
-            ptdfSensitivityProvider.getContingencies(network),
+        SensitivityAnalysis.find().run(network,
+            networkVariantId,
+            factorReader,
+            resultWriter,
+            contingencies,
             new ArrayList<>(),
-            SensitivityAnalysisParameters.load());
-        SystematicSensitivityResult result = new SystematicSensitivityResult().completeData(sensitivityAnalysisResult, com.farao_community.farao.data.crac_api.Instant.OUTAGE).postTreatIntensities();
+            SensitivityAnalysisParameters.load(),
+            LocalComputationManager.getDefault(),
+            Reporter.NO_OP
+        );
+        result.postTreatIntensities();
 
         // Then
         assertTrue(result.isSuccess());
@@ -153,10 +192,21 @@ class SystematicSensitivityResultTest {
 
     @Test
     void testFailureSensiResult() {
-        // When
-        SensitivityAnalysisResult sensitivityAnalysisResult = Mockito.mock(SensitivityAnalysisResult.class);
-        SystematicSensitivityResult result = new SystematicSensitivityResult().completeData(sensitivityAnalysisResult, com.farao_community.farao.data.crac_api.Instant.OUTAGE).postTreatIntensities();
+        SensitivityFactorReader factorReader =  Mockito.mock(SensitivityFactorModelReader.class);
+        SystematicSensitivityResult result = new SystematicSensitivityResult(SystematicSensitivityResult.SensitivityComputationStatus.FAILURE);
+        SensitivityResultWriter resultWriter = SystematicSensitivityResult.getSensitivityResultWriter(new ArrayList<>(), result, com.farao_community.farao.data.crac_api.Instant.OUTAGE, new ArrayList<>());
 
+        // When
+        SensitivityAnalysis.find().run(network,
+            networkVariantId,
+            factorReader,
+            resultWriter,
+            new ArrayList<>(),
+            new ArrayList<>(),
+            SensitivityAnalysisParameters.load(),
+            LocalComputationManager.getDefault(),
+            Reporter.NO_OP
+        );
         // Then
         assertFalse(result.isSuccess());
         assertEquals(SystematicSensitivityResult.SensitivityComputationStatus.FAILURE, result.getStatus());
@@ -194,17 +244,28 @@ class SystematicSensitivityResultTest {
 
     @Test
     void testPostTreatHvdcNoEffect() {
+        // Given
         setUpForHvdc();
         Map<String, HvdcRangeAction> hvdcs = Map.of(hvdcRangeAction.getNetworkElement().getId(), hvdcRangeAction);
-        SensitivityAnalysisResult sensitivityAnalysisResult = SensitivityAnalysis.find().run(network,
-            rangeActionSensitivityProvider.getAllFactors(network),
-            rangeActionSensitivityProvider.getContingencies(network),
+        List<SensitivityFactor> factors = rangeActionSensitivityProvider.getAllFactors(network);
+        List<Contingency> contingencies = rangeActionSensitivityProvider.getContingencies(network);
+        SystematicSensitivityResult result = new SystematicSensitivityResult(SystematicSensitivityResult.SensitivityComputationStatus.FAILURE);
+
+        SensitivityFactorReader factorReader = new SensitivityFactorModelReader(factors, network);
+        SensitivityResultWriter resultWriter = SystematicSensitivityResult.getSensitivityResultWriter(factors, result, com.farao_community.farao.data.crac_api.Instant.OUTAGE, contingencies);
+
+        // When
+        SensitivityAnalysis.find().run(network,
+            networkVariantId,
+            factorReader,
+            resultWriter,
+            contingencies,
             new ArrayList<>(),
-            SensitivityAnalysisParameters.load());
-        SystematicSensitivityResult result = new SystematicSensitivityResult()
-            .completeData(sensitivityAnalysisResult, com.farao_community.farao.data.crac_api.Instant.OUTAGE)
-            .postTreatIntensities()
-            .postTreatHvdcs(network, hvdcs);
+            SensitivityAnalysisParameters.load(),
+            LocalComputationManager.getDefault(),
+            Reporter.NO_OP
+        );
+        result.postTreatIntensities().postTreatHvdcs(network, hvdcs);
 
         assertEquals(30., result.getReferenceFlow(nStateCnec, Side.LEFT), EPSILON);
         assertEquals(40., result.getReferenceIntensity(nStateCnec, Side.LEFT), EPSILON);
@@ -217,18 +278,29 @@ class SystematicSensitivityResultTest {
 
     @Test
     void testPostTreatHvdcInvert() {
+        // Given
         setUpForHvdc();
         Map<String, HvdcRangeAction> hvdcs = Map.of(hvdcRangeAction.getNetworkElement().getId(), hvdcRangeAction);
         network.getHvdcLine("BBE2AA11 FFR3AA11 1").setConvertersMode(HvdcLine.ConvertersMode.SIDE_1_INVERTER_SIDE_2_RECTIFIER);
-        SensitivityAnalysisResult sensitivityAnalysisResult = SensitivityAnalysis.find().run(network,
-            rangeActionSensitivityProvider.getAllFactors(network),
-            rangeActionSensitivityProvider.getContingencies(network),
+        List<SensitivityFactor> factors = rangeActionSensitivityProvider.getAllFactors(network);
+        List<Contingency> contingencies = rangeActionSensitivityProvider.getContingencies(network);
+        SystematicSensitivityResult result = new SystematicSensitivityResult(SystematicSensitivityResult.SensitivityComputationStatus.FAILURE);
+
+        SensitivityFactorReader factorReader = new SensitivityFactorModelReader(factors, network);
+        SensitivityResultWriter resultWriter = SystematicSensitivityResult.getSensitivityResultWriter(factors, result, com.farao_community.farao.data.crac_api.Instant.OUTAGE, contingencies);
+
+        // When
+        SensitivityAnalysis.find().run(network,
+            networkVariantId,
+            factorReader,
+            resultWriter,
+            contingencies,
             new ArrayList<>(),
-            SensitivityAnalysisParameters.load());
-        SystematicSensitivityResult result = new SystematicSensitivityResult()
-            .completeData(sensitivityAnalysisResult, com.farao_community.farao.data.crac_api.Instant.OUTAGE)
-            .postTreatIntensities()
-            .postTreatHvdcs(network, hvdcs);
+            SensitivityAnalysisParameters.load(),
+            LocalComputationManager.getDefault(),
+            Reporter.NO_OP
+        );
+        result.postTreatIntensities().postTreatHvdcs(network, hvdcs);
 
         assertEquals(30., result.getReferenceFlow(nStateCnec, Side.LEFT), EPSILON);
         assertEquals(40., result.getReferenceIntensity(nStateCnec, Side.LEFT), EPSILON);

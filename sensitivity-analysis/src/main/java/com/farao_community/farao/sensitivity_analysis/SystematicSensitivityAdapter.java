@@ -11,12 +11,11 @@ import com.farao_community.farao.commons.RandomizedString;
 import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.cnec.Cnec;
+import com.powsybl.commons.reporter.Reporter;
+import com.powsybl.computation.local.LocalComputationManager;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.sensitivity.SensitivityAnalysis;
-import com.powsybl.sensitivity.SensitivityAnalysisParameters;
-import com.powsybl.sensitivity.SensitivityAnalysisResult;
-import com.powsybl.sensitivity.SensitivityFactor;
+import com.powsybl.sensitivity.*;
 
 import java.util.Collections;
 import java.util.List;
@@ -40,20 +39,32 @@ final class SystematicSensitivityAdapter {
                                                       SensitivityAnalysisParameters sensitivityComputationParameters,
                                                       String sensitivityProvider) {
         TECHNICAL_LOGS.debug("Systematic sensitivity analysis [start]");
-        SensitivityAnalysisResult result;
         try {
-            result = SensitivityAnalysis.find(sensitivityProvider).run(network,
-                    network.getVariantManager().getWorkingVariantId(),
-                    cnecSensitivityProvider.getAllFactors(network),
-                    cnecSensitivityProvider.getContingencies(network),
-                    cnecSensitivityProvider.getVariableSets(),
-                    sensitivityComputationParameters);
+
+            List<SensitivityFactor> factors = cnecSensitivityProvider.getAllFactors(network);
+            SystematicSensitivityResult result = new SystematicSensitivityResult(SystematicSensitivityResult.SensitivityComputationStatus.FAILURE);
+            List<Contingency> contingencies = cnecSensitivityProvider.getContingencies(network);
+
+            SensitivityFactorReader factorReader = new SensitivityFactorModelReader(factors, network);
+            SensitivityResultWriter resultWriter = SystematicSensitivityResult.getSensitivityResultWriter(factors, result, Instant.OUTAGE, contingencies);
+
+            SensitivityAnalysis.find(sensitivityProvider).run(network,
+                network.getVariantManager().getWorkingVariantId(),
+                factorReader,
+                resultWriter,
+                contingencies,
+                cnecSensitivityProvider.getVariableSets(),
+                sensitivityComputationParameters,
+                LocalComputationManager.getDefault(),
+                Reporter.NO_OP
+            );
+
+            TECHNICAL_LOGS.debug("Systematic sensitivity analysis [end]");
+            return result.postTreatIntensities().postTreatHvdcs(network, cnecSensitivityProvider.getHvdcs());
         } catch (Exception e) {
             TECHNICAL_LOGS.error(String.format("Systematic sensitivity analysis failed: %s", e.getMessage()));
             return new SystematicSensitivityResult(SystematicSensitivityResult.SensitivityComputationStatus.FAILURE);
         }
-        TECHNICAL_LOGS.debug("Systematic sensitivity analysis [end]");
-        return new SystematicSensitivityResult().completeData(result, Instant.OUTAGE).postTreatIntensities().postTreatHvdcs(network, cnecSensitivityProvider.getHvdcs());
     }
 
     static SystematicSensitivityResult runSensitivity(Network network,
@@ -83,15 +94,25 @@ final class SystematicSensitivityAdapter {
             .distinct()
             .collect(Collectors.toList());
 
-        SystematicSensitivityResult result = new SystematicSensitivityResult();
         List<SensitivityFactor> allFactorsWithoutRa = cnecSensitivityProvider.getBasecaseFactors(network);
         allFactorsWithoutRa.addAll(cnecSensitivityProvider.getContingencyFactors(network, contingenciesWithoutRa));
-        result.completeData(SensitivityAnalysis.find(sensitivityProvider).run(network,
+
+        SystematicSensitivityResult result = new SystematicSensitivityResult(SystematicSensitivityResult.SensitivityComputationStatus.FAILURE);
+        List<Contingency> contingencies = cnecSensitivityProvider.getContingencies(network);
+
+        SensitivityFactorReader factorReader = new SensitivityFactorModelReader(allFactorsWithoutRa, network);
+        SensitivityResultWriter resultWriter = SystematicSensitivityResult.getSensitivityResultWriter(allFactorsWithoutRa, result, Instant.OUTAGE, contingencies);
+
+        SensitivityAnalysis.find(sensitivityProvider).run(network,
             network.getVariantManager().getWorkingVariantId(),
-            allFactorsWithoutRa,
-            contingenciesWithoutRa,
+            factorReader,
+            resultWriter,
+            contingencies,
             cnecSensitivityProvider.getVariableSets(),
-            sensitivityComputationParameters), Instant.OUTAGE);
+            sensitivityComputationParameters,
+            LocalComputationManager.getDefault(),
+            Reporter.NO_OP
+        );
 
         // systematic analyses for states with RA
         cnecSensitivityProvider.disableFactorsForBaseCaseSituation();
@@ -114,13 +135,21 @@ final class SystematicSensitivityAdapter {
             appliedRemedialActions.applyOnNetwork(state, network);
 
             List<Contingency> contingencyList = Collections.singletonList(convertCracContingencyToPowsybl(optContingency.get(), network));
+            List<SensitivityFactor> contingencyFactors = cnecSensitivityProvider.getContingencyFactors(network, contingencyList);
 
-            result.completeData(SensitivityAnalysis.find(sensitivityProvider).run(network,
+            SensitivityFactorReader contingencyFactorsReader = new SensitivityFactorModelReader(contingencyFactors, network);
+            SensitivityResultWriter contingencyResultWriter = SystematicSensitivityResult.getSensitivityResultWriter(contingencyFactors, result, state.getInstant(), contingencyList);
+
+            SensitivityAnalysis.find(sensitivityProvider).run(network,
                 network.getVariantManager().getWorkingVariantId(),
-                cnecSensitivityProvider.getContingencyFactors(network, contingencyList),
+                contingencyFactorsReader,
+                contingencyResultWriter,
                 contingencyList,
                 cnecSensitivityProvider.getVariableSets(),
-                sensitivityComputationParameters), state.getInstant());
+                sensitivityComputationParameters,
+                LocalComputationManager.getDefault(),
+                Reporter.NO_OP
+            );
             network.getVariantManager().removeVariant(variantForState);
             counterForLogs++;
         }
