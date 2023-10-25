@@ -7,14 +7,25 @@ import com.farao_community.farao.data.crac_api.cnec.AngleCnec;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_api.cnec.VoltageCnec;
+import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.crac_api.threshold.BranchThreshold;
 import com.farao_community.farao.data.crac_api.threshold.Threshold;
 import com.farao_community.farao.data.crac_api.usage_rule.*;
+import com.farao_community.farao.data.crac_creation.creator.api.CracCreationContext;
 import com.farao_community.farao.data.crac_creation.creator.api.ImportStatus;
+import com.farao_community.farao.data.crac_creation.creator.api.parameters.CracCreationParameters;
+import com.farao_community.farao.data.crac_creation.creator.csa_profile.CsaProfileCrac;
+import com.farao_community.farao.data.crac_creation.creator.csa_profile.importer.CsaProfileCracImporter;
+import com.google.common.base.Suppliers;
+import com.powsybl.computation.local.LocalComputationManager;
+import com.powsybl.iidm.network.ImportConfig;
+import com.powsybl.iidm.network.Network;
 
-import java.util.Comparator;
-import java.util.List;
-import java.util.Set;
+import java.io.File;
+import java.io.InputStream;
+import java.nio.file.Paths;
+import java.time.OffsetDateTime;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -159,5 +170,35 @@ public final class CsaProfileCracCreationTestUtil {
         assertFalse(context.isImported());
         assertEquals(importStatusDetail, context.getImportStatusDetail());
         assertEquals(importStatus, context.getImportStatus());
+    }
+
+    public static void assertTopologicalActionImported(CracCreationContext cracCreationContext, String raId, String raName, String switchId) {
+        NetworkAction ra = cracCreationContext.getCrac().getNetworkAction(raId);
+        assertEquals(raName, ra.getName());
+        assertEquals(switchId, ra.getNetworkElements().stream().toList().get(0).getId());
+    }
+
+    public static void assertTopologicalActionImported(CracCreationContext cracCreationContext, String raId, String raName, String switchId, int speed) {
+        assertTopologicalActionImported(cracCreationContext, raId, raName, switchId);
+        Optional<Integer> importedSpeed = cracCreationContext.getCrac().getNetworkAction(raId).getSpeed();
+        assertNotNull(importedSpeed);
+        assertEquals(speed, importedSpeed.get());
+    }
+
+    public static CsaProfileCracCreationContext getCsaCracCreationContext(String csaProfilesArchive, Network network) {
+        CsaProfileCracImporter cracImporter = new CsaProfileCracImporter();
+        InputStream inputStream = CsaProfileCracCreationTestUtil.class.getResourceAsStream(csaProfilesArchive);
+        CsaProfileCrac nativeCrac = cracImporter.importNativeCrac(inputStream);
+        CsaProfileCracCreator cracCreator = new CsaProfileCracCreator();
+        return cracCreator.createCrac(nativeCrac, network, OffsetDateTime.parse("2023-03-29T12:00Z"), new CracCreationParameters());
+    }
+
+    public static CsaProfileCracCreationContext getCsaCracCreationContext(String csaProfilesArchive) {
+        Network network = getNetworkFromResource(csaProfilesArchive);
+        return getCsaCracCreationContext(csaProfilesArchive, network);
+    }
+
+    public static Network getNetworkFromResource(String filename) {
+        return Network.read(Paths.get(new File(CsaProfileCracCreatorTest.class.getResource(filename).getFile()).toString()), LocalComputationManager.getDefault(), Suppliers.memoize(ImportConfig::load).get(), new Properties());
     }
 }

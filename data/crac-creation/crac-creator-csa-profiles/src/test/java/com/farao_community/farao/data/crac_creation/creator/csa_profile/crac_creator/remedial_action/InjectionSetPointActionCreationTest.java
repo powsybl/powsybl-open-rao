@@ -4,44 +4,26 @@ import com.farao_community.farao.data.crac_api.network_action.InjectionSetpoint;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import com.farao_community.farao.data.crac_creation.creator.api.ImportStatus;
-import com.farao_community.farao.data.crac_creation.creator.api.parameters.CracCreationParameters;
-import com.farao_community.farao.data.crac_creation.creator.csa_profile.CsaProfileCrac;
 import com.farao_community.farao.data.crac_creation.creator.csa_profile.crac_creator.CsaProfileCracCreationContext;
 import com.farao_community.farao.data.crac_creation.creator.csa_profile.crac_creator.CsaProfileCracCreationTestUtil;
-import com.farao_community.farao.data.crac_creation.creator.csa_profile.crac_creator.CsaProfileCracCreator;
-import com.farao_community.farao.data.crac_creation.creator.csa_profile.crac_creator.CsaProfileCracCreatorTest;
-import com.farao_community.farao.data.crac_creation.creator.csa_profile.importer.CsaProfileCracImporter;
 import com.farao_community.farao.data.crac_impl.OnContingencyStateImpl;
-import com.google.common.base.Suppliers;
-import com.powsybl.computation.local.LocalComputationManager;
 import com.powsybl.iidm.network.Branch;
-import com.powsybl.iidm.network.ImportConfig;
 import com.powsybl.iidm.network.Load;
 import com.powsybl.iidm.network.Network;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-import java.io.File;
-import java.io.InputStream;
-import java.nio.file.Paths;
-import java.time.OffsetDateTime;
-import java.util.Properties;
 import java.util.stream.Stream;
 
 import static com.farao_community.farao.data.crac_api.Instant.CURATIVE;
 import static com.farao_community.farao.data.crac_api.Instant.PREVENTIVE;
+import static com.farao_community.farao.data.crac_creation.creator.csa_profile.crac_creator.CsaProfileCracCreationTestUtil.getCsaCracCreationContext;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class InjectionSetPointActionCreationTest {
 
     @Test
     void testImportInjectionSetPointActions() {
-        CsaProfileCracImporter cracImporter = new CsaProfileCracImporter();
-        InputStream inputStream = getClass().getResourceAsStream("/csa-23/CSA_23_1_ValidProfiles.zip");
-        CsaProfileCrac nativeCrac = cracImporter.importNativeCrac(inputStream);
-
-        CsaProfileCracCreator cracCreator = new CsaProfileCracCreator();
-
         Network network = Mockito.mock(Network.class);
         Branch networkElementMock = Mockito.mock(Branch.class);
         Mockito.when(networkElementMock.getId()).thenReturn("equipment-with-contingency");
@@ -56,7 +38,7 @@ class InjectionSetPointActionCreationTest {
             );
         });
 
-        CsaProfileCracCreationContext cracCreationContext = cracCreator.createCrac(nativeCrac, network, OffsetDateTime.parse("2023-03-29T12:00Z"), new CracCreationParameters());
+        CsaProfileCracCreationContext cracCreationContext = getCsaCracCreationContext("/csa-23/CSA_23_1_ValidProfiles.zip", network);
 
         assertEquals(7, cracCreationContext.getCrac().getRemedialActions().size());
         // RA1 (on instant)
@@ -124,14 +106,10 @@ class InjectionSetPointActionCreationTest {
 
     @Test
     void testIgnoreInvalidInjectionSetpointProfile() {
-        Properties importParams = new Properties();
-        Network network = Network.read(Paths.get(new File(CsaProfileCracCreatorTest.class.getResource("/csa-23/CSA_23_2_InvalidProfiles.zip").getFile()).toString()), LocalComputationManager.getDefault(), Suppliers.memoize(ImportConfig::load).get(), importParams);
-        CsaProfileCracImporter cracImporter = new CsaProfileCracImporter();
-        InputStream inputStream = getClass().getResourceAsStream("/csa-23/CSA_23_2_InvalidProfiles.zip");
-        CsaProfileCrac nativeCrac = cracImporter.importNativeCrac(inputStream);
-        CsaProfileCracCreator cracCreator = new CsaProfileCracCreator();
-        CsaProfileCracCreationContext cracCreationContext = cracCreator.createCrac(nativeCrac, network, OffsetDateTime.parse("2023-03-29T12:00Z"), new CracCreationParameters());
+        CsaProfileCracCreationContext cracCreationContext = getCsaCracCreationContext("/csa-23/CSA_23_2_InvalidProfiles.zip");
+
         assertEquals(0, cracCreationContext.getCrac().getRemedialActions().size());
+
         CsaProfileCracCreationTestUtil.assertRaNotImported(cracCreationContext, "parent-remedial-action-1", ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK, "Remedial action parent-remedial-action-1 will not be imported because Network model does not contain a generator, neither a load with id of RotatingMachine: unknown-rotating-machine");
         CsaProfileCracCreationTestUtil.assertRaNotImported(cracCreationContext, "parent-remedial-action-2", ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action parent-remedial-action-2 will not be imported because there is no topology actions, no Set point actions, nor tap position action linked to that RA");
         CsaProfileCracCreationTestUtil.assertRaNotImported(cracCreationContext, "parent-remedial-action-3", ImportStatus.NOT_FOR_RAO, "Remedial action 'parent-remedial-action-3' will not be imported because field 'normalEnabled' in 'RotatingMachineAction' must be true or empty");
