@@ -178,7 +178,7 @@ public final class RaoResultJsonConstants {
 
     public static String serializeInstantId(Instant instant) {
         if (instant == null) {
-            return INITIAL_INSTANT;
+            return "";
         }
         // TODO review this
         return instant.getId();
@@ -186,7 +186,7 @@ public final class RaoResultJsonConstants {
 
     public static String deserializeInstantId(String stringValue) {
         // TODO review this
-        if (Objects.equals(stringValue, "")) {
+        if (Objects.equals(stringValue, "") || Objects.equals(stringValue, INITIAL_INSTANT)) {
             return null;
         }
         return stringValue;
@@ -197,9 +197,9 @@ public final class RaoResultJsonConstants {
         if (getPrimaryVersionNumber(jsonFileVersion) <= 1 && getSubVersionNumber(jsonFileVersion) <= 3) {
             return switch (stringValue) {
                 case INITIAL_OPT_STATE -> null;
-                case AFTER_PRA_OPT_STATE -> InstantKind.PREVENTIVE.toString();
-                case AFTER_ARA_OPT_STATE -> InstantKind.AUTO.toString();
-                case AFTER_CRA_OPT_STATE -> InstantKind.CURATIVE.toString();
+                case AFTER_PRA_OPT_STATE -> PREVENTIVE_INSTANT;
+                case AFTER_ARA_OPT_STATE -> AUTO_INSTANT;
+                case AFTER_CRA_OPT_STATE -> CURATIVE_INSTANT;
                 default ->
                     throw new FaraoException(String.format("Unrecognized optimization state %s", stringValue)); // TODO valid exception message ?
             };

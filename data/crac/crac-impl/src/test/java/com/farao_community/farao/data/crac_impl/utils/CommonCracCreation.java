@@ -197,10 +197,6 @@ public final class CommonCracCreation {
 
     public static Crac createWithPreventivePstRange(Set<Side> monitoredCnecSides) {
         Crac crac = create(monitoredCnecSides);
-        crac.addInstant("preventive", InstantKind.PREVENTIVE, null);
-        crac.addInstant("outage", InstantKind.OUTAGE, "preventive");
-        crac.addInstant("auto", InstantKind.AUTO, "outage");
-        crac.addInstant("curative", InstantKind.CURATIVE, "auto");
         Network network = import12NodesNetwork();
         IidmPstHelper pstHelper = new IidmPstHelper("BBE2AA1  BBE3AA1  1", network);
 
@@ -230,10 +226,6 @@ public final class CommonCracCreation {
 
     public static Crac createWithCurativePstRange(Set<Side> monitoredCnecSides) {
         Crac crac = create();
-        crac.addInstant("preventive", InstantKind.PREVENTIVE, null);
-        crac.addInstant("outage", InstantKind.OUTAGE, "preventive");
-        crac.addInstant("auto", InstantKind.AUTO, "outage");
-        crac.addInstant("curative", InstantKind.CURATIVE, "auto");
         Network network = import12NodesNetwork();
         IidmPstHelper pstHelper = new IidmPstHelper("BBE2AA1  BBE3AA1  1", network);
 
@@ -260,10 +252,6 @@ public final class CommonCracCreation {
 
     public static Crac createWithPreventiveAndCurativePstRange() {
         Crac crac = create();
-        crac.addInstant("preventive", InstantKind.PREVENTIVE, null);
-        crac.addInstant("outage", InstantKind.OUTAGE, "preventive");
-        crac.addInstant("auto", InstantKind.AUTO, "outage");
-        crac.addInstant("curative", InstantKind.CURATIVE, "auto");
         Network network = import12NodesNetwork();
         IidmPstHelper pstHelper = new IidmPstHelper("BBE2AA1  BBE3AA1  1", network);
 

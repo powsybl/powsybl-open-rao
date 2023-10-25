@@ -52,12 +52,7 @@ class RaoResultRoundTripTest {
     void roundTripTest() {
         // get exhaustive CRAC and RaoResult
         Crac crac = ExhaustiveCracCreation.create();
-        crac.addInstant("preventive", InstantKind.PREVENTIVE, null);
-        crac.addInstant("outage", InstantKind.OUTAGE, "preventive");
-        crac.addInstant("auto", InstantKind.AUTO, "outage");
-        crac.addInstant("curative", InstantKind.CURATIVE, "auto");
         Instant instantPrev = crac.getInstant("preventive");
-        Instant instantOutage = crac.getInstant("outage");
         Instant instantAuto = crac.getInstant("auto");
         Instant instantCurative = crac.getInstant("curative");
 

@@ -37,7 +37,8 @@ public class CseCracCreator implements CracCreator<CseCrac, CseCracCreationConte
     private static void addCseInstants(Crac crac) {
         crac.addInstant("preventive", InstantKind.PREVENTIVE, null);
         crac.addInstant("outage", InstantKind.OUTAGE, "preventive");
-        crac.addInstant("curative", InstantKind.CURATIVE, "outage");
+        crac.addInstant("auto", InstantKind.AUTO, "outage");
+        crac.addInstant("curative", InstantKind.CURATIVE, "auto");
     }
 
     public static TCRACSeries getCracSeries(CRACDocumentType cracDocumentType) {

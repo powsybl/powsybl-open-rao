@@ -140,7 +140,7 @@ public class CriticalBranchReader {
     }
 
     public Map<String, String> getCreatedCnecIds() {
-        return new HashMap<>(createdCnecIds);
+        return Collections.unmodifiableMap(createdCnecIds);
     }
 
     public String getContingencyId() {

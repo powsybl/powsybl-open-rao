@@ -82,10 +82,6 @@ class AngleMonitoringTest {
         CimCracCreator cimCracCreator = new CimCracCreator();
         CimCracCreationContext cracCreationContext = cimCracCreator.createCrac(cimCrac, network, parametrableOffsetDateTime, cracCreationParameters);
         crac = cracCreationContext.getCrac();
-        crac.addInstant("preventive", InstantKind.PREVENTIVE, null);
-        crac.addInstant("outage", InstantKind.OUTAGE, "preventive");
-        crac.addInstant("auto", InstantKind.AUTO, "outage");
-        crac.addInstant("curative", InstantKind.CURATIVE, "auto");
         cimGlskDocument = CimGlskDocument.importGlsk(getClass().getResourceAsStream("/GlskB45MicroGridTest.xml"));
         glskOffsetDateTime = OffsetDateTime.parse("2021-04-02T05:30Z");
     }

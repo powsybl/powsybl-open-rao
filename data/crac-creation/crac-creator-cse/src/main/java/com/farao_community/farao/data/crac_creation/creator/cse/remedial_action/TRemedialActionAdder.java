@@ -375,7 +375,7 @@ public class TRemedialActionAdder {
         if (remedialActionsForCnecsMap.containsKey(tRemedialAction.getName().getV())) {
             for (String flowCnecId : remedialActionsForCnecsMap.get(tRemedialAction.getName().getV())) {
                 // Only add the usage rule if the RemedialAction can be applied before or during CNEC instant
-                if (raApplicationInstant.comesBefore(crac.getFlowCnec(flowCnecId).getState().getInstant())) {
+                if (raApplicationInstant.getOrder() <= crac.getFlowCnec(flowCnecId).getState().getInstant().getOrder()) {
                     remedialActionAdder.newOnFlowConstraintUsageRule()
                         .withInstantId(raApplicationInstant.getId())
                         .withFlowCnec(flowCnecId)

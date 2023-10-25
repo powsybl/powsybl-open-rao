@@ -48,7 +48,7 @@ public class LoopFlowComputationImpl implements LoopFlowComputation {
 
     static boolean isInMainComponent(SensitivityVariableSet linearGlsk, Network network) {
         boolean atLeastOneGlskConnected = false;
-        for (String glsk : linearGlsk.getVariablesById().keySet()) {
+        for (String glsk : linearGlsk.getVariablesById().keySet().stream().sorted().toList()) {
             Injection<?> injection = getInjection(glsk, network);
             if (injection == null) {
                 throw new FaraoException(String.format("%s is neither a generator nor a load nor a dangling line in the network. It is not a valid GLSK.", glsk));

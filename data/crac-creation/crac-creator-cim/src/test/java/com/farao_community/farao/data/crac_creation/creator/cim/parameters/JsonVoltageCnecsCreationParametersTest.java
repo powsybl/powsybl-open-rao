@@ -27,7 +27,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 class JsonVoltageCnecsCreationParametersTest {
     public static Stream<Arguments> provideParameters() {
         return Stream.of(
-            //Arguments.of("nok1", ""), // Disabled test with a state with an instant id "preventive" and some contingencies. But we don't know this state is a preventive one in the importer.
+            Arguments.of("nok1", "When monitoring the preventive instant, no contingency can be defined."), // Disabled test with a state with an instant id "preventive" and some contingencies. But we don't know this state is a preventive one in the importer.
             Arguments.of("nok2", "A threshold is already defined for instant curative."),
             Arguments.of("nok3", "Multiple thresholds for same nominalV (400.0) defined"),
             Arguments.of("nok4", "Unhandled unit in voltage monitoring: ampere"),
@@ -73,7 +73,7 @@ class JsonVoltageCnecsCreationParametersTest {
         String exportedString = os.toString();
 
         InputStream inputStream = getClass().getResourceAsStream("/parameters/voltage-cnecs-creation-parameters-for-round-trip.json");
-        assertEquals(new String(Objects.requireNonNull(inputStream).readAllBytes()).replaceAll("\r", ""), exportedString.replaceAll("\r", ""));
+        assertEquals(new String(Objects.requireNonNull(inputStream).readAllBytes()), exportedString);
     }
 
     @ParameterizedTest

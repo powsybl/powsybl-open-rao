@@ -8,7 +8,6 @@ package com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms
 
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Crac;
-import com.farao_community.farao.data.crac_api.InstantKind;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_api.range.RangeType;
@@ -68,7 +67,6 @@ abstract class AbstractFillerTest {
         // arrange some data for all fillers test
         // crac and network
         crac = CracImporters.importCrac("crac/small-crac.json", getClass().getResourceAsStream("/crac/small-crac.json"));
-        crac.addInstant("preventive", InstantKind.PREVENTIVE, null);
         network = NetworkImportsUtil.import12NodesNetwork();
 
         // get cnec and rangeAction

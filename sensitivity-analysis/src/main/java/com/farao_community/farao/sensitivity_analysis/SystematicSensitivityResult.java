@@ -180,7 +180,7 @@ public class SystematicSensitivityResult {
         if (optionalContingency.isPresent()) {
             List<Integer> possibleInstants = postContingencyResults.keySet().stream()
                 .filter(instantOrder -> instantOrder <= state.getInstant().getOrder())
-                .sorted(Comparator.comparingInt(instantOrder -> -instantOrder))
+                .sorted(Comparator.reverseOrder())
                 .toList();
             for (Integer instantOrder : possibleInstants) {
                 // Use latest sensi computed on state
@@ -245,7 +245,7 @@ public class SystematicSensitivityResult {
         if (optionalContingency.isPresent()) {
             List<Integer> possibleInstants = postContingencyResults.keySet().stream()
                 .filter(instantOrder -> instantOrder <= cnec.getState().getInstant().getOrder())
-                .sorted(Comparator.comparingInt(instantOrder -> -instantOrder))
+                .sorted(Comparator.reverseOrder())
                 .toList();
             for (Integer instantOrder : possibleInstants) {
                 // Use latest sensi computed on the cnec's contingency amidst the last instants before cnec state.

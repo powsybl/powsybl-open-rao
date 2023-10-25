@@ -22,7 +22,7 @@ import java.io.IOException;
 
 import static com.farao_community.farao.data.rao_result_json.RaoResultJsonConstants.*;
 import static com.farao_community.farao.data.rao_result_json.deserializers.DeprecatedRaoResultJsonConstants.HVDCRANGEACTION_RESULTS;
-import static com.farao_community.farao.data.rao_result_json.deserializers.Utils.*;
+import static com.farao_community.farao.data.rao_result_json.deserializers.Utils.checkDeprecatedField;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
@@ -118,8 +118,7 @@ public class RaoResultDeserializer extends JsonDeserializer<RaoResult> {
                     importRangeAction(jsonParser, raoResult, jsonFileVersion);
                     break;
 
-                case STANDARDRANGEACTION_RESULTS:
-                case PSTRANGEACTION_RESULTS:
+                case STANDARDRANGEACTION_RESULTS, PSTRANGEACTION_RESULTS:
                     checkDeprecatedField(jsonParser, RAO_RESULT_TYPE, jsonFileVersion, "1.2");
                     importRangeAction(jsonParser, raoResult, jsonFileVersion);
                     break;

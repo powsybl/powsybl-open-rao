@@ -163,8 +163,7 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
         Instant prevInstant = getPrevInstant(prevInstantId);
         Instant instant = new InstantImpl(instantId, instantKind, prevInstant);
         instants.put(instantId, instant);
-        return instant;
-
+        return instant; // TODO Do we return instant ? I'm not a huge fan of this...
     }
 
     private Instant getPrevInstant(String prevInstantId) {

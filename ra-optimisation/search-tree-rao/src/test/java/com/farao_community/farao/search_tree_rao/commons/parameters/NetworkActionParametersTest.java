@@ -37,7 +37,6 @@ class NetworkActionParametersTest {
     @BeforeEach
     public void setUp() {
         crac = ExhaustiveCracCreation.create();
-        crac.addInstant("preventive", InstantKind.PREVENTIVE, null);
     }
 
     @Test
