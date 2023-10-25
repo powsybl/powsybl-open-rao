@@ -80,7 +80,7 @@ public class SystematicSensitivityResult {
         this.postContingencyResults.put(Instant.CURATIVE, new HashMap<>());
     }
 
-    public static SensitivityResultWriter getSensitivityResultWriter(List<SensitivityFactor> factors, SystematicSensitivityResult result, Instant instant, List<com.powsybl.contingency.Contingency> contingencies) {
+    protected static SensitivityResultWriter getSensitivityResultWriter(List<SensitivityFactor> factors, SystematicSensitivityResult result, Instant instant, List<com.powsybl.contingency.Contingency> contingencies) {
         return new SensitivityResultWriter() {
             @Override
             public void writeSensitivityValue(int factorIndex, int contingencyIndex, double value, double functionReference) {
