@@ -13,7 +13,7 @@ package com.farao_community.farao.rao_api.parameters.extensions;
  */
 public enum PtdfApproximation {
     FIXED_PTDF, // compute PTDFs only once at beginning of RAO (best performance, worst accuracy)
-    UPDATE_PTDF_WITH_TOPO, // recompute PTDFs after every topological change in the network (worst performance, better accuracy for AC, best accuracy for DC)
+    UPDATE_PTDF_WITH_TOPO, // recompute PTDFs after every topological change in the network (worse performance, better accuracy for AC, best accuracy for DC)
     UPDATE_PTDF_WITH_TOPO_AND_PST; // recompute PTDFs after every topological or PST change in the network (worst performance, best accuracy for AC)
 
     public boolean shouldUpdatePtdfWithTopologicalChange() {

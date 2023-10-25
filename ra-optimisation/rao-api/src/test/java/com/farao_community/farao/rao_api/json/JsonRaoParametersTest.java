@@ -176,8 +176,8 @@ class JsonRaoParametersTest extends AbstractConverterTest {
     }
 
     @Test
-    void testFailOnWrongVersion() {
-        FaraoException e = assertThrows(FaraoException.class, () -> JsonRaoParameters.read(getClass().getResourceAsStream("/RaoParameters_wrongVersion.json")));
+    void testFailOnOldVersion() {
+        FaraoException e = assertThrows(FaraoException.class, () -> JsonRaoParameters.read(getClass().getResourceAsStream("/RaoParameters_oldVersion.json")));
         assertEquals("RaoParameters version '2.0' cannot be deserialized. The only supported version currently is '2.1'.", e.getMessage());
     }
 

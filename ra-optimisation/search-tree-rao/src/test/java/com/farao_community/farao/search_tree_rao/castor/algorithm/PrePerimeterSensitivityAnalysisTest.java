@@ -148,7 +148,7 @@ class PrePerimeterSensitivityAnalysisTest {
     }
 
     @Test
-    void testRunWithFixedPtdf() {
+    void testRunAndRecomputePtdf() {
         raoParameters.addExtension(LoopFlowParametersExtension.class, new LoopFlowParametersExtension());
         raoParameters.getExtension(LoopFlowParametersExtension.class).setPtdfApproximation(PtdfApproximation.UPDATE_PTDF_WITH_TOPO);
         raoParameters.addExtension(RelativeMarginsParametersExtension.class, new RelativeMarginsParametersExtension());

@@ -6,6 +6,7 @@
  */
 package com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.linear_problem;
 
+import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.rao_api.parameters.RangeActionsOptimizationParameters;
 import com.farao_community.farao.search_tree_rao.result.api.LinearProblemStatus;
 import com.google.ortools.linearsolver.MPSolver;
@@ -57,7 +58,6 @@ public class FaraoMPSolver {
 
     public FaraoMPConstraint makeConstraint(double lb, double ub, String name) {
         // check that constraint does not already exist
-        System.out.println(String.format("!!!!!!! adding constraint: %s - %.1f - %.1f", name, lb, ub));
         assertFalse(constraints.stream().anyMatch(v -> v.name().equals(name)));
 
         MPConstraintMock newConstraint = new MPConstraintMock(name, lb, ub);
@@ -84,7 +84,6 @@ public class FaraoMPSolver {
     }
 
     public FaraoMPConstraint makeConstraint(String name) {
-        System.out.println("!!!!!!! adding constraint: " + name);
         MPConstraintMock newConstraint = new MPConstraintMock(name, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
         constraints.add(newConstraint);
         return newConstraint;
@@ -92,8 +91,8 @@ public class FaraoMPSolver {
 
     public FaraoMPVariable getVariable(String varName) {
         List<MPVariableMock> variablesWithSameName = variables.stream().filter(v -> v.name().equals(varName)).collect(Collectors.toList());
-        if (variablesWithSameName.size() == 0) {
-            return null;
+        if (variablesWithSameName.isEmpty()) {
+            throw new FaraoException(String.format("Variable %s has not been created yet", varName));
         }
         return variablesWithSameName.get(0);
     }
@@ -108,8 +107,8 @@ public class FaraoMPSolver {
 
     public FaraoMPConstraint getConstraint(String constraintName) {
         List<MPConstraintMock> constraintsWithSameName = constraints.stream().filter(v -> v.name().equals(constraintName)).collect(Collectors.toList());
-        if (constraintsWithSameName.size() == 0) {
-            return null;
+        if (constraintsWithSameName.isEmpty()) {
+            throw new FaraoException(String.format("Constraint %s has not been created yet", constraintName));
         }
         return constraintsWithSameName.get(0);
     }
