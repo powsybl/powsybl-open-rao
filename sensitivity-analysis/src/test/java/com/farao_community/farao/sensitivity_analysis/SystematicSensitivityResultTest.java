@@ -101,7 +101,7 @@ class SystematicSensitivityResultTest {
         assertEquals(205, result.getReferenceIntensity(contingencyCnec, Side.RIGHT), EPSILON);
 
         // After postTreating intensities
-        result.postTreatIntensities();
+        result.postTreatIntensitiesAndStatus();
         assertEquals(-20, result.getReferenceFlow(contingencyCnec, Side.LEFT), EPSILON);
         assertEquals(-200, result.getReferenceIntensity(contingencyCnec, Side.LEFT), EPSILON);
         assertEquals(25, result.getReferenceFlow(contingencyCnec, Side.RIGHT), EPSILON);
@@ -112,7 +112,7 @@ class SystematicSensitivityResultTest {
     void testPstResultManipulation() {
         // Given
         SystematicSensitivityResult result = runSensitivityAnalysis(network, rangeActionSensitivityProvider.getAllFactors(network), rangeActionSensitivityProvider.getContingencies(network));
-        result.postTreatIntensities();
+        result.postTreatIntensitiesAndStatus();
 
         // Then
         assertTrue(result.isSuccess());
@@ -139,7 +139,7 @@ class SystematicSensitivityResultTest {
     void testPtdfResultManipulation() {
         // Given
         SystematicSensitivityResult result = runSensitivityAnalysis(network, ptdfSensitivityProvider.getAllFactors(network), ptdfSensitivityProvider.getContingencies(network));
-        result.postTreatIntensities();
+        result.postTreatIntensitiesAndStatus();
 
         // Then
         assertTrue(result.isSuccess());
@@ -215,7 +215,7 @@ class SystematicSensitivityResultTest {
         setUpForHvdc();
         Map<String, HvdcRangeAction> hvdcs = Map.of(hvdcRangeAction.getNetworkElement().getId(), hvdcRangeAction);
         SystematicSensitivityResult result = runSensitivityAnalysis(network, rangeActionSensitivityProvider.getAllFactors(network), rangeActionSensitivityProvider.getContingencies(network));
-        result.postTreatIntensities().postTreatHvdcs(network, hvdcs);
+        result.postTreatIntensitiesAndStatus().postTreatHvdcs(network, hvdcs);
 
         assertEquals(30., result.getReferenceFlow(nStateCnec, Side.LEFT), EPSILON);
         assertEquals(40., result.getReferenceIntensity(nStateCnec, Side.LEFT), EPSILON);
@@ -233,7 +233,7 @@ class SystematicSensitivityResultTest {
         Map<String, HvdcRangeAction> hvdcs = Map.of(hvdcRangeAction.getNetworkElement().getId(), hvdcRangeAction);
         network.getHvdcLine("BBE2AA11 FFR3AA11 1").setConvertersMode(HvdcLine.ConvertersMode.SIDE_1_INVERTER_SIDE_2_RECTIFIER);
         SystematicSensitivityResult result = runSensitivityAnalysis(network, rangeActionSensitivityProvider.getAllFactors(network), rangeActionSensitivityProvider.getContingencies(network));
-        result.postTreatIntensities().postTreatHvdcs(network, hvdcs);
+        result.postTreatIntensitiesAndStatus().postTreatHvdcs(network, hvdcs);
 
         assertEquals(30., result.getReferenceFlow(nStateCnec, Side.LEFT), EPSILON);
         assertEquals(40., result.getReferenceIntensity(nStateCnec, Side.LEFT), EPSILON);

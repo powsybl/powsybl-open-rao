@@ -93,10 +93,9 @@ public class SystematicSensitivityResult {
                 }
 
                 // status set to failure initially, and set to success if we find at least one non NaN value
-                if (!Double.isNaN(functionReference) && !Double.isNaN(value)) {
-                    result.setStatus(SensitivityComputationStatus.SUCCESS);
+                if (result.getStatus().equals(SensitivityComputationStatus.FAILURE) && (!Double.isNaN(functionReference) && !Double.isNaN(value))) {
+                        result.setStatus(SensitivityComputationStatus.SUCCESS);
                 }
-                result.nStateResult.status = result.getStatus();
             }
 
             @Override
@@ -143,7 +142,8 @@ public class SystematicSensitivityResult {
         }
     }
 
-    public SystematicSensitivityResult postTreatIntensities() {
+    public SystematicSensitivityResult postTreatIntensitiesAndStatus() {
+        nStateResult.status = this.getStatus();
         postTreatIntensitiesOnState(nStateResult);
         postContingencyResults.values().forEach(map -> map.values().forEach(this::postTreatIntensitiesOnState));
         return this;
@@ -160,14 +160,6 @@ public class SystematicSensitivityResult {
                     sideAndFlow.forEach((side, flow) -> {
                         if (flow < 0) {
                             stateResult.getReferenceIntensities().get(neId).put(side, -stateResult.getReferenceIntensities().get(neId).get(side));
-                        }
-                    });
-                }
-                if (stateResult.getIntensitySensitivities().containsKey(neId)) {
-                    sideAndFlow.forEach((side, flow) -> {
-                        if (flow < 0) {
-                            Map<String, Map<Side, Double>> sensitivities = stateResult.getIntensitySensitivities().get(neId);
-                            sensitivities.forEach((actionId, sideToSensi) -> sensitivities.get(actionId).put(side, -sideToSensi.get(side)));
                         }
                     });
                 }

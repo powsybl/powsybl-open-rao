@@ -60,7 +60,7 @@ final class SystematicSensitivityAdapter {
             );
 
             TECHNICAL_LOGS.debug("Systematic sensitivity analysis [end]");
-            return result.postTreatIntensities().postTreatHvdcs(network, cnecSensitivityProvider.getHvdcs());
+            return result.postTreatIntensitiesAndStatus().postTreatHvdcs(network, cnecSensitivityProvider.getHvdcs());
         } catch (Exception e) {
             TECHNICAL_LOGS.error(String.format("Systematic sensitivity analysis failed: %s", e.getMessage()));
             return new SystematicSensitivityResult(SystematicSensitivityResult.SensitivityComputationStatus.FAILURE);
@@ -157,6 +157,6 @@ final class SystematicSensitivityAdapter {
         TECHNICAL_LOGS.debug("Systematic sensitivity analysis with applied RA [end]");
 
         network.getVariantManager().setWorkingVariant(workingVariantId);
-        return result.postTreatIntensities().postTreatHvdcs(network, cnecSensitivityProvider.getHvdcs());
+        return result.postTreatIntensitiesAndStatus().postTreatHvdcs(network, cnecSensitivityProvider.getHvdcs());
     }
 }
