@@ -160,23 +160,22 @@ public class CsaProfileRemedialActionsCreator {
 
     private void checkElementCombinationConstraintKindsCoherence(String remedialActionId, Set<PropertyBag> linkedContingencyWithRAs) {
         // The same contingency cannot have different Element Combination Constraint Kinds
-        Map<String, Boolean> numberOfIncludedPerContingency = new HashMap<>();
-        Map<String, Boolean> numberOfConsideredPerContingency = new HashMap<>();
+        // The same contingency can appear several times, so we need to create a memory system
+        Set<String> contingenciesWithIncluded = new HashSet<>();
+        Set<String> contingenciesWithConsidered = new HashSet<>();
         for (PropertyBag propertyBag : linkedContingencyWithRAs) {
             String combinationKind = propertyBag.get(CsaProfileConstants.COMBINATION_CONSTRAINT_KIND);
             String contingencyId = propertyBag.get(CsaProfileConstants.REQUEST_CONTINGENCY);
             if (combinationKind.equals(CsaProfileConstants.ElementCombinationConstraintKind.INCLUDED.toString())) {
-                numberOfIncludedPerContingency.put(contingencyId, true);
+                contingenciesWithIncluded.add(contingencyId);
             } else if (combinationKind.equals(CsaProfileConstants.ElementCombinationConstraintKind.CONSIDERED.toString())) {
-                numberOfConsideredPerContingency.put(contingencyId, true);
+                contingenciesWithConsidered.add(contingencyId);
             } else if (combinationKind.equals(CsaProfileConstants.ElementCombinationConstraintKind.EXCLUDED.toString())) {
                 throw new FaraoImportException(ImportStatus.INCONSISTENCY_IN_DATA, CsaProfileConstants.REMEDIAL_ACTION_MESSAGE + remedialActionId + " will not be imported because of an illegal EXCLUDED ElementCombinationConstraintKind");
             } else {
                 throw new FaraoImportException(ImportStatus.INCONSISTENCY_IN_DATA, CsaProfileConstants.REMEDIAL_ACTION_MESSAGE + remedialActionId + " will not be imported because of an invalid Element Combination Constraint Kind");
             }
-            Boolean hasIncluded = numberOfIncludedPerContingency.get(contingencyId);
-            Boolean hasConsidered = numberOfConsideredPerContingency.get(contingencyId);
-            if ((hasIncluded != null) && (hasConsidered != null) && hasIncluded && hasConsidered) {
+            if (contingenciesWithIncluded.contains(contingencyId) && contingenciesWithConsidered.contains(contingencyId)) {
                 throw new FaraoImportException(ImportStatus.INCONSISTENCY_IN_DATA, CsaProfileConstants.REMEDIAL_ACTION_MESSAGE + remedialActionId + " will not be imported because the ElementCombinationConstraintKinds that link the remedial action to the contingency " + contingencyId + " are different");
             }
         }
