@@ -101,7 +101,7 @@ public class CsaProfileRemedialActionsCreator {
                 if (linkedContingencyWithRAs.containsKey(remedialActionId)) {
                     // on state usage rule
                     String randomCombinationConstraintKind = linkedContingencyWithRAs.get(remedialActionId).iterator().next().get(CsaProfileConstants.COMBINATION_CONSTRAINT_KIND);
-                    checkElementCombinationConstraintKindsCoherence(remedialActionId, linkedContingencyWithRAs.get(remedialActionId));
+                    checkElementCombinationConstraintKindsCoherence(remedialActionId, linkedContingencyWithRAs);
 
                     List<String> faraoContingenciesIds = linkedContingencyWithRAs.get(remedialActionId).stream()
                             .map(contingencyWithRemedialActionPropertyBag ->
@@ -158,12 +158,13 @@ public class CsaProfileRemedialActionsCreator {
                 .withUsageMethod(usageMethod).add());
     }
 
-    private void checkElementCombinationConstraintKindsCoherence(String remedialActionId, Set<PropertyBag> linkedContingencyWithRAs) {
+    private void checkElementCombinationConstraintKindsCoherence(String remedialActionId, Map<String, Set<PropertyBag>> linkedContingencyWithRAs) {
         // The same contingency cannot have different Element Combination Constraint Kinds
         // The same contingency can appear several times, so we need to create a memory system
         Set<String> contingenciesWithIncluded = new HashSet<>();
         Set<String> contingenciesWithConsidered = new HashSet<>();
-        for (PropertyBag propertyBag : linkedContingencyWithRAs) {
+        Set<PropertyBag> linkedContingencyWithRA = linkedContingencyWithRAs.get(remedialActionId);
+        for (PropertyBag propertyBag : linkedContingencyWithRA) {
             String combinationKind = propertyBag.get(CsaProfileConstants.COMBINATION_CONSTRAINT_KIND);
             String contingencyId = propertyBag.get(CsaProfileConstants.REQUEST_CONTINGENCY);
             if (combinationKind.equals(CsaProfileConstants.ElementCombinationConstraintKind.INCLUDED.toString())) {
