@@ -32,7 +32,6 @@ public class SystematicSensitivityResult {
         private final Map<String, Map<Side, Double>> referenceFlows = new HashMap<>();
         private final Map<String, Map<Side, Double>> referenceIntensities = new HashMap<>();
         private final Map<String, Map<String, Map<Side, Double>>> flowSensitivities = new HashMap<>();
-        private final Map<String, Map<String, Map<Side, Double>>> intensitySensitivities = new HashMap<>();
 
         private SensitivityComputationStatus getSensitivityComputationStatus() {
             return status;
@@ -48,10 +47,6 @@ public class SystematicSensitivityResult {
 
         private Map<String, Map<String, Map<Side, Double>>> getFlowSensitivities() {
             return flowSensitivities;
-        }
-
-        private Map<String, Map<String, Map<Side, Double>>> getIntensitySensitivities() {
-            return intensitySensitivities;
         }
     }
 
@@ -175,17 +170,11 @@ public class SystematicSensitivityResult {
     }
 
     private void postTreatHvdcsOnState(Network network, Map<String, HvdcRangeAction> hvdcRangeActions, StateResult stateResult) {
-        hvdcRangeActions.forEach((networkElementId, hvdcRangeAction) -> {
-            HvdcLine hvdcLine = network.getHvdcLine(networkElementId);
-            if (hvdcLine.getConvertersMode() == HvdcLine.ConvertersMode.SIDE_1_INVERTER_SIDE_2_RECTIFIER) {
+        hvdcRangeActions.keySet().forEach(networkElementId -> {
+            if (network.getHvdcLine(networkElementId).getConvertersMode() == HvdcLine.ConvertersMode.SIDE_1_INVERTER_SIDE_2_RECTIFIER) {
                 stateResult.getFlowSensitivities().forEach((cnecId, cnecFlowSensis) -> {
                     if (cnecFlowSensis.containsKey(networkElementId)) {
                         cnecFlowSensis.put(networkElementId, invertMapValues(cnecFlowSensis.get(networkElementId)));
-                    }
-                });
-                stateResult.getIntensitySensitivities().forEach((cnecId, cnecIntensitySensis) -> {
-                    if (cnecIntensitySensis.containsKey(networkElementId)) {
-                        cnecIntensitySensis.put(networkElementId, invertMapValues(cnecIntensitySensis.get(networkElementId)));
                     }
                 });
             }
