@@ -1,42 +1,21 @@
 package com.farao_community.farao.data.crac_creation.creator.csa_profile.crac_creator.contingencies;
 
 import com.farao_community.farao.data.crac_api.Contingency;
-import com.farao_community.farao.data.crac_creation.creator.api.parameters.CracCreationParameters;
-import com.farao_community.farao.data.crac_creation.creator.csa_profile.CsaProfileCrac;
 import com.farao_community.farao.data.crac_creation.creator.csa_profile.crac_creator.CsaProfileCracCreationContext;
 import com.farao_community.farao.data.crac_creation.creator.csa_profile.crac_creator.CsaProfileCracCreationTestUtil;
-import com.farao_community.farao.data.crac_creation.creator.csa_profile.crac_creator.CsaProfileCracCreator;
-import com.farao_community.farao.data.crac_creation.creator.csa_profile.crac_creator.CsaProfileCracCreatorTest;
-import com.farao_community.farao.data.crac_creation.creator.csa_profile.importer.CsaProfileCracImporter;
-import com.google.common.base.Suppliers;
-import com.powsybl.computation.local.LocalComputationManager;
-import com.powsybl.iidm.network.ImportConfig;
-import com.powsybl.iidm.network.Network;
 import org.junit.jupiter.api.Test;
 
-import java.io.File;
-import java.io.InputStream;
-import java.nio.file.Paths;
-import java.time.OffsetDateTime;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Properties;
 
+import static com.farao_community.farao.data.crac_creation.creator.csa_profile.crac_creator.CsaProfileCracCreationTestUtil.getCsaCracCreationContext;
 import static org.junit.jupiter.api.Assertions.*;
 
-public class ContingenciesCreationTest {
+class ContingenciesCreationTest {
 
     @Test
-    public void testTC1Contingencies() {
-        Properties importParams = new Properties();
-        Network network = Network.read(Paths.get(new File(CsaProfileCracCreatorTest.class.getResource("/TestConfiguration_TC1_v29Mar2023.zip").getFile()).toString()), LocalComputationManager.getDefault(), Suppliers.memoize(ImportConfig::load).get(), importParams);
-
-        CsaProfileCracImporter cracImporter = new CsaProfileCracImporter();
-        InputStream inputStream = getClass().getResourceAsStream("/TestConfiguration_TC1_v29Mar2023.zip");
-        CsaProfileCrac nativeCrac = cracImporter.importNativeCrac(inputStream);
-
-        CsaProfileCracCreator cracCreator = new CsaProfileCracCreator();
-        CsaProfileCracCreationContext cracCreationContext = cracCreator.createCrac(nativeCrac, network, OffsetDateTime.parse("2023-03-29T12:00Z"), new CracCreationParameters());
+    void testTC1Contingencies() {
+        CsaProfileCracCreationContext cracCreationContext = getCsaCracCreationContext("/TestConfiguration_TC1_v29Mar2023.zip");
 
         assertNotNull(cracCreationContext);
         assertTrue(cracCreationContext.isCreationSuccessful());
@@ -57,16 +36,8 @@ public class ContingenciesCreationTest {
     }
 
     @Test
-    public void testTC2Contingencies() {
-        CsaProfileCracImporter cracImporter = new CsaProfileCracImporter();
-        InputStream inputStream = getClass().getResourceAsStream("/CSA_TestConfiguration_TC2_Draft_v14Apr2023.zip");
-        CsaProfileCrac nativeCrac = cracImporter.importNativeCrac(inputStream);
-
-        Properties importParams = new Properties();
-        Network network = Network.read(Paths.get(new File(CsaProfileCracCreatorTest.class.getResource("/CSA_TestConfiguration_TC2_Draft_v14Apr2023.zip").getFile()).toString()), LocalComputationManager.getDefault(), Suppliers.memoize(ImportConfig::load).get(), importParams);
-
-        CsaProfileCracCreator cracCreator = new CsaProfileCracCreator();
-        CsaProfileCracCreationContext cracCreationContext = cracCreator.createCrac(nativeCrac, network, OffsetDateTime.parse("2023-03-29T12:00Z"), new CracCreationParameters());
+    void testTC2Contingencies() {
+        CsaProfileCracCreationContext cracCreationContext = getCsaCracCreationContext("/CSA_TestConfiguration_TC2_Draft_v14Apr2023.zip");
 
         assertNotNull(cracCreationContext);
         assertTrue(cracCreationContext.isCreationSuccessful());
@@ -125,16 +96,8 @@ public class ContingenciesCreationTest {
     }
 
     @Test
-    public void testCreateCracCSATestWithRejectedFiles() {
-        CsaProfileCracImporter cracImporter = new CsaProfileCracImporter();
-        InputStream inputStream = getClass().getResourceAsStream("/CSA_Test_With_Rejected_Files.zip");
-        CsaProfileCrac nativeCrac = cracImporter.importNativeCrac(inputStream);
-
-        Properties importParams = new Properties();
-        Network network = Network.read(Paths.get(new File(CsaProfileCracCreatorTest.class.getResource("/CSA_Test_With_Rejected_Files.zip").getFile()).toString()), LocalComputationManager.getDefault(), Suppliers.memoize(ImportConfig::load).get(), importParams);
-
-        CsaProfileCracCreator cracCreator = new CsaProfileCracCreator();
-        CsaProfileCracCreationContext cracCreationContext = cracCreator.createCrac(nativeCrac, network, OffsetDateTime.parse("2023-03-29T12:00Z"), new CracCreationParameters());
+    void testCreateCracCSATestWithRejectedFiles() {
+        CsaProfileCracCreationContext cracCreationContext = getCsaCracCreationContext("/CSA_Test_With_Rejected_Files.zip");
 
         assertNotNull(cracCreationContext);
         assertTrue(cracCreationContext.isCreationSuccessful());
@@ -168,16 +131,8 @@ public class ContingenciesCreationTest {
     }
 
     @Test
-    public void testCreateCracCSATestWithRefusedContingencies() {
-        CsaProfileCracImporter cracImporter = new CsaProfileCracImporter();
-        InputStream inputStream = getClass().getResourceAsStream("/Test_With_Refused_Contingencies.zip");
-        CsaProfileCrac nativeCrac = cracImporter.importNativeCrac(inputStream);
-
-        Properties importParams = new Properties();
-        Network network = Network.read(Paths.get(new File(CsaProfileCracCreatorTest.class.getResource("/Test_With_Refused_Contingencies.zip").getFile()).toString()), LocalComputationManager.getDefault(), Suppliers.memoize(ImportConfig::load).get(), importParams);
-
-        CsaProfileCracCreator cracCreator = new CsaProfileCracCreator();
-        CsaProfileCracCreationContext cracCreationContext = cracCreator.createCrac(nativeCrac, network, OffsetDateTime.parse("2023-03-29T12:00Z"), new CracCreationParameters());
+    void testCreateCracCSATestWithRefusedContingencies() {
+        CsaProfileCracCreationContext cracCreationContext = getCsaCracCreationContext("/Test_With_Refused_Contingencies.zip");
 
         assertNotNull(cracCreationContext);
         assertTrue(cracCreationContext.isCreationSuccessful());

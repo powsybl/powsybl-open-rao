@@ -4,47 +4,25 @@ import com.farao_community.farao.data.crac_api.network_action.ActionType;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.crac_api.network_action.TopologicalAction;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
-import com.farao_community.farao.data.crac_creation.creator.api.parameters.CracCreationParameters;
-import com.farao_community.farao.data.crac_creation.creator.csa_profile.CsaProfileCrac;
+import com.farao_community.farao.data.crac_creation.creator.api.ImportStatus;
 import com.farao_community.farao.data.crac_creation.creator.csa_profile.crac_creator.CsaProfileCracCreationContext;
-import com.farao_community.farao.data.crac_creation.creator.csa_profile.crac_creator.CsaProfileCracCreator;
-import com.farao_community.farao.data.crac_creation.creator.csa_profile.crac_creator.CsaProfileCracCreatorTest;
-import com.farao_community.farao.data.crac_creation.creator.csa_profile.importer.CsaProfileCracImporter;
 import com.farao_community.farao.data.crac_impl.OnContingencyStateImpl;
-import com.google.common.base.Suppliers;
-import com.powsybl.computation.local.LocalComputationManager;
-import com.powsybl.iidm.network.Branch;
-import com.powsybl.iidm.network.ImportConfig;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.Switch;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 
-import java.io.File;
-import java.io.InputStream;
-import java.nio.file.Paths;
-import java.time.OffsetDateTime;
 import java.util.List;
-import java.util.Properties;
+import java.util.Set;
 
 import static com.farao_community.farao.data.crac_api.Instant.CURATIVE;
 import static com.farao_community.farao.data.crac_api.Instant.PREVENTIVE;
+import static com.farao_community.farao.data.crac_creation.creator.csa_profile.crac_creator.CsaProfileCracCreationTestUtil.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class TopologicalActionCreationTest {
+class TopologicalActionCreationTest {
 
     @Test
-    public void testTC2ImportNetworkActions() {
-        Properties importParams = new Properties();
-        Network network = Network.read(Paths.get(new File(CsaProfileCracCreatorTest.class.getResource("/csa-9/CSA_TestConfiguration_TC2_27Apr2023.zip").getFile()).toString()), LocalComputationManager.getDefault(), Suppliers.memoize(ImportConfig::load).get(), importParams);
-
-        CsaProfileCracImporter cracImporter = new CsaProfileCracImporter();
-        InputStream inputStream = getClass().getResourceAsStream("/csa-9/CSA_TestConfiguration_TC2_27Apr2023.zip");
-        CsaProfileCrac nativeCrac = cracImporter.importNativeCrac(inputStream);
-
-        CsaProfileCracCreator cracCreator = new CsaProfileCracCreator();
-        CsaProfileCracCreationContext cracCreationContext = cracCreator.createCrac(nativeCrac, network, OffsetDateTime.parse("2023-04-27T12:00Z"), new CracCreationParameters());
+    void testTC2ImportNetworkActions() {
+        CsaProfileCracCreationContext cracCreationContext = getCsaCracCreationContext("/CSA_TestConfiguration_TC2_27Apr2023.zip");
 
         assertNotNull(cracCreationContext);
         assertEquals(9, cracCreationContext.getCrac().getNetworkActions().size());
@@ -129,155 +107,61 @@ public class TopologicalActionCreationTest {
     }
 
     @Test
-    public void testImportNetworkActions() {
-        Network network = Mockito.mock(Network.class);
-        Mockito.when(network.getSwitch("switch")).thenReturn(Mockito.mock(Switch.class));
-        Branch networkElementMock = Mockito.mock(Branch.class);
-        Mockito.when(networkElementMock.getId()).thenReturn("equipment-with-contingency");
-        Mockito.when(network.getIdentifiable("equipment-with-contingency")).thenReturn(networkElementMock);
+    void testImportNetworkActions() {
+        CsaProfileCracCreationContext cracCreationContext = getCsaCracCreationContext("/csa-9/CSA_9_4_ValidProfiles.zip");
 
-        CsaProfileCracImporter cracImporter = new CsaProfileCracImporter();
-        InputStream inputStream = getClass().getResourceAsStream("/csa-9/CSA_9_4_ValidProfiles.zip");
-        CsaProfileCrac nativeCrac = cracImporter.importNativeCrac(inputStream);
-
-        CsaProfileCracCreator cracCreator = new CsaProfileCracCreator();
-        CsaProfileCracCreationContext cracCreationContext = cracCreator.createCrac(nativeCrac, network, OffsetDateTime.parse("2023-03-29T12:00Z"), new CracCreationParameters());
+        assertEquals(7, cracCreationContext.getCrac().getRemedialActions().size());
 
         // RA1 (on instant)
-        NetworkAction ra1 = cracCreationContext.getCrac().getNetworkAction("on-instant-preventive-topological-action-parent-remedial-action");
-        assertEquals("RA1", ra1.getName());
-        assertEquals(PREVENTIVE, ra1.getUsageRules().iterator().next().getInstant());
-        assertEquals(UsageMethod.AVAILABLE, ra1.getUsageRules().iterator().next().getUsageMethod());
+        assertTopologicalActionImported(cracCreationContext, "on-instant-preventive-topological-remedial-action", "RA1", "BBE1AA1  BBE4AA1  1");
+        assertHasOnInstantUsageRule(cracCreationContext, "on-instant-preventive-topological-remedial-action", PREVENTIVE, UsageMethod.AVAILABLE);
 
         // RA2 (on instant)
-        NetworkAction ra2 = cracCreationContext.getCrac().getNetworkAction("on-instant-curative-topological-action-parent-remedial-action");
-        assertEquals("RA2", ra2.getName());
-        assertEquals(CURATIVE, ra2.getUsageRules().iterator().next().getInstant());
-        assertEquals(UsageMethod.AVAILABLE, ra2.getUsageRules().iterator().next().getUsageMethod());
+        assertTopologicalActionImported(cracCreationContext, "on-instant-curative-topological-remedial-action", "RA2", "BBE1AA1  BBE4AA1  1");
+        assertHasOnInstantUsageRule(cracCreationContext, "on-instant-curative-topological-remedial-action", CURATIVE, UsageMethod.AVAILABLE);
 
         // RA3 (on state)
-        NetworkAction ra3 = cracCreationContext.getCrac().getNetworkAction("on-state-considered-curative-topological-action-parent-remedial-action");
-        assertEquals("RA3", ra3.getName());
-        assertEquals(CURATIVE, ra3.getUsageRules().iterator().next().getInstant());
-        assertEquals(UsageMethod.AVAILABLE, ra3.getUsageRules().iterator().next().getUsageMethod());
-        assertEquals("switch", ra3.getNetworkElements().iterator().next().getId());
+        assertTopologicalActionImported(cracCreationContext, "on-contingency-state-considered-curative-topological-remedial-action", "RA3", "BBE1AA1  BBE4AA1  1");
+        assertHasOnContingencyStateUsageRule(cracCreationContext, "on-contingency-state-considered-curative-topological-remedial-action", "bbda9fe0-77e0-4f8e-b9d9-4402a539f2b7", CURATIVE, UsageMethod.AVAILABLE);
 
         // RA4 (on state)
-        NetworkAction ra4 = cracCreationContext.getCrac().getNetworkAction("on-state-included-curative-topological-action-parent-remedial-action");
-        assertEquals("RA4", ra4.getName());
-        assertEquals(CURATIVE, ra4.getUsageRules().iterator().next().getInstant());
-        assertEquals(UsageMethod.FORCED, ra4.getUsageRules().iterator().next().getUsageMethod());
+        assertTopologicalActionImported(cracCreationContext, "on-contingency-state-included-curative-topological-remedial-action", "RA4", "BBE1AA1  BBE4AA1  1");
+        assertHasOnContingencyStateUsageRule(cracCreationContext, "on-contingency-state-included-curative-topological-remedial-action", "bbda9fe0-77e0-4f8e-b9d9-4402a539f2b7", CURATIVE, UsageMethod.FORCED);
 
-        // RTE_RA7 (on instant)
-        NetworkAction ra7 = cracCreationContext.getCrac().getNetworkAction("topological-action-with-tso-name-parent-remedial-action");
-        assertEquals("RTE_RA7", ra7.getName());
-        assertEquals("RTE", ra7.getOperator());
-        assertEquals(PREVENTIVE, ra7.getUsageRules().iterator().next().getInstant());
-        assertEquals(UsageMethod.AVAILABLE, ra7.getUsageRules().iterator().next().getUsageMethod());
+        // nameless-topological-remedial-action-with-speed (on instant)
+        assertTopologicalActionImported(cracCreationContext, "nameless-topological-remedial-action-with-speed", "nameless-topological-remedial-action-with-speed", "BBE1AA1  BBE4AA1  1", 137);
 
-        // nameless-topological-action-with-speed-parent-remedial-action (on instant)
-        NetworkAction raNameless = cracCreationContext.getCrac().getNetworkAction("nameless-topological-action-with-speed-parent-remedial-action");
-        assertEquals("nameless-topological-action-with-speed-parent-remedial-action", raNameless.getName());
-        assertEquals(PREVENTIVE, raNameless.getUsageRules().iterator().next().getInstant());
-        assertEquals(UsageMethod.AVAILABLE, raNameless.getUsageRules().iterator().next().getUsageMethod());
-        assertEquals(137, raNameless.getSpeed().get());
+        // RTE_RA6 (on instant)
+        assertTopologicalActionImported(cracCreationContext, "topological-remedial-action-with-tso-name", "RTE_RA6", "BBE1AA1  BBE4AA1  1");
+        assertHasOnInstantUsageRule(cracCreationContext, "topological-remedial-action-with-tso-name", PREVENTIVE, UsageMethod.AVAILABLE);
 
-        // nameless-topological-action-with-tso-name-parent-remedial-action (on instant)
-        NetworkAction raNameless2 = cracCreationContext.getCrac().getNetworkAction("nameless-topological-action-with-tso-name-parent-remedial-action");
-        assertEquals("nameless-topological-action-with-tso-name-parent-remedial-action", raNameless2.getName());
-        assertEquals("RTE", raNameless2.getOperator());
-        assertEquals(PREVENTIVE, raNameless2.getUsageRules().iterator().next().getInstant());
-        assertEquals(UsageMethod.AVAILABLE, raNameless2.getUsageRules().iterator().next().getUsageMethod());
+        // nameless-topological-remedial-action-with-tso-name-parent (on instant)
+        assertTopologicalActionImported(cracCreationContext, "nameless-topological-remedial-action-with-tso-name-parent", "nameless-topological-remedial-action-with-tso-name-parent", "BBE1AA1  BBE4AA1  1");
+        assertHasOnInstantUsageRule(cracCreationContext, "nameless-topological-remedial-action-with-tso-name-parent", PREVENTIVE, UsageMethod.AVAILABLE);
     }
 
     @Test
-    public void testIgnoreWrongRAKeyword() {
-        Properties importParams = new Properties();
-        Network network = Network.read(Paths.get(new File(CsaProfileCracCreatorTest.class.getResource("/csa-9/CSA_9_5_WrongKeyword.zip").getFile()).toString()), LocalComputationManager.getDefault(), Suppliers.memoize(ImportConfig::load).get(), importParams);
-
-        CsaProfileCracImporter cracImporter = new CsaProfileCracImporter();
-        InputStream inputStream = getClass().getResourceAsStream("/csa-9/CSA_9_5_WrongKeyword.zip");
-        CsaProfileCrac nativeCrac = cracImporter.importNativeCrac(inputStream);
-
-        CsaProfileCracCreator cracCreator = new CsaProfileCracCreator();
-        CsaProfileCracCreationContext cracCreationContext = cracCreator.createCrac(nativeCrac, network, OffsetDateTime.parse("2023-03-29T12:00Z"), new CracCreationParameters());
+    void testIgnoreInvalidTopologicalActions() {
+        CsaProfileCracCreationContext cracCreationContext = getCsaCracCreationContext("/csa-9/CSA_9_5_InvalidProfiles.zip");
 
         assertEquals(0, cracCreationContext.getCrac().getRemedialActions().size());
+
+        assertRaNotImported(cracCreationContext, "wrong-keyword-topological-remedial-action", ImportStatus.INCONSISTENCY_IN_DATA, "Model.keyword must be RA");
+        assertRaNotImported(cracCreationContext, "not-yet-valid-topological-remedial-action", ImportStatus.NOT_FOR_REQUESTED_TIMESTAMP, "Required timestamp does not fall between Model.startDate and Model.endDate");
+        assertRaNotImported(cracCreationContext, "outdated-topological-remedial-action", ImportStatus.NOT_FOR_REQUESTED_TIMESTAMP, "Required timestamp does not fall between Model.startDate and Model.endDate");
+        assertRaNotImported(cracCreationContext, "unavailable-topological-remedial-action", ImportStatus.NOT_FOR_RAO, "Remedial action unavailable-topological-remedial-action will not be imported because RemedialAction.normalAvailable must be 'true' to be imported");
+        assertRaNotImported(cracCreationContext, "undefined-topological-remedial-action", ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action undefined-topological-remedial-action will not be imported because there is no topology actions, no Set point actions, nor tap position action linked to that RA");
+        assertRaNotImported(cracCreationContext, "topological-remedial-action-with-not-existing-switch", ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK, "Remedial action topological-remedial-action-with-not-existing-switch will not be imported because network model does not contain a switch with id: unknown-switch");
+        assertRaNotImported(cracCreationContext, "topological-remedial-action-with-wrong-property-reference", ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action 'topological-remedial-action-with-wrong-property-reference' will not be imported because 'TopologyAction' must have a property reference with 'http://energy.referencedata.eu/PropertyReference/Switch.open' value, but it was: 'http://energy.referencedata.eu/PropertyReference/RotatingMachine.p'");
+        assertRaNotImported(cracCreationContext, "preventive-topological-remedial-action-with-contingency", ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action preventive-topological-remedial-action-with-contingency will not be imported because it is linked to a contingency but it's kind is not curative");
     }
 
     @Test
-    public void testIgnoreUnhandledProfile() {
-        Properties importParams = new Properties();
-        Network network = Network.read(Paths.get(new File(CsaProfileCracCreatorTest.class.getResource("/csa-9/CSA_9_6_NotYetValidProfile.zip").getFile()).toString()), LocalComputationManager.getDefault(), Suppliers.memoize(ImportConfig::load).get(), importParams);
+    void testImportRemedialActionWithMultipleContingencies() {
+        CsaProfileCracCreationContext cracCreationContext = getCsaCracCreationContext("/CSA_MultipleContingenciesForTheSameRemedialAction.zip");
 
-        CsaProfileCracImporter cracImporter = new CsaProfileCracImporter();
-        InputStream inputStream = getClass().getResourceAsStream("/csa-9/CSA_9_6_NotYetValidProfile.zip");
-        CsaProfileCrac nativeCrac = cracImporter.importNativeCrac(inputStream);
-
-        CsaProfileCracCreator cracCreator = new CsaProfileCracCreator();
-        CsaProfileCracCreationContext cracCreationContext = cracCreator.createCrac(nativeCrac, network, OffsetDateTime.parse("2023-03-29T12:00Z"), new CracCreationParameters());
-
-        assertEquals(0, cracCreationContext.getCrac().getRemedialActions().size());
+        assertEquals(1, cracCreationContext.getCrac().getRemedialActions().size());
+        assertNetworkActionImported(cracCreationContext, "ra2", Set.of("BBE1AA1  BBE4AA1  1"), false, 2);
+        assertRaNotImported(cracCreationContext, "ra1", ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action ra1 will not be imported because the ElementCombinationConstraintKinds that link the remedial action to the contingency http://entsoe.eu/#_co1 are different");
     }
-
-    @Test
-    public void testIgnoreOutdatedProfile() {
-        Properties importParams = new Properties();
-        Network network = Network.read(Paths.get(new File(CsaProfileCracCreatorTest.class.getResource("/csa-9/CSA_9_7_OutdatedProfile.zip").getFile()).toString()), LocalComputationManager.getDefault(), Suppliers.memoize(ImportConfig::load).get(), importParams);
-
-        CsaProfileCracImporter cracImporter = new CsaProfileCracImporter();
-        InputStream inputStream = getClass().getResourceAsStream("/csa-9/CSA_9_7_OutdatedProfile.zip");
-        CsaProfileCrac nativeCrac = cracImporter.importNativeCrac(inputStream);
-
-        CsaProfileCracCreator cracCreator = new CsaProfileCracCreator();
-        CsaProfileCracCreationContext cracCreationContext = cracCreator.createCrac(nativeCrac, network, OffsetDateTime.parse("2023-03-29T12:00Z"), new CracCreationParameters());
-
-        assertEquals(0, cracCreationContext.getCrac().getRemedialActions().size());
-    }
-
-    @Test
-    public void testIgnoreInvalidNetworkActions() {
-        Properties importParams = new Properties();
-        Network network = Network.read(Paths.get(new File(CsaProfileCracCreatorTest.class.getResource("/csa-9/CSA_9_8_InvalidRemedialActions.zip").getFile()).toString()), LocalComputationManager.getDefault(), Suppliers.memoize(ImportConfig::load).get(), importParams);
-
-        CsaProfileCracImporter cracImporter = new CsaProfileCracImporter();
-        InputStream inputStream = getClass().getResourceAsStream("/csa-9/CSA_9_8_InvalidRemedialActions.zip");
-        CsaProfileCrac nativeCrac = cracImporter.importNativeCrac(inputStream);
-
-        CsaProfileCracCreator cracCreator = new CsaProfileCracCreator();
-        CsaProfileCracCreationContext cracCreationContext = cracCreator.createCrac(nativeCrac, network, OffsetDateTime.parse("2023-03-29T12:00Z"), new CracCreationParameters());
-
-        assertEquals(0, cracCreationContext.getCrac().getRemedialActions().size());
-    }
-
-    @Test
-    public void testIgnoreInvalidTopologicalActions() {
-        Properties importParams = new Properties();
-        Network network = Network.read(Paths.get(new File(CsaProfileCracCreatorTest.class.getResource("/csa-9/CSA_9_9_InvalidTopologicalActions.zip").getFile()).toString()), LocalComputationManager.getDefault(), Suppliers.memoize(ImportConfig::load).get(), importParams);
-
-        CsaProfileCracImporter cracImporter = new CsaProfileCracImporter();
-        InputStream inputStream = getClass().getResourceAsStream("/csa-9/CSA_9_9_InvalidTopologicalActions.zip");
-        CsaProfileCrac nativeCrac = cracImporter.importNativeCrac(inputStream);
-
-        CsaProfileCracCreator cracCreator = new CsaProfileCracCreator();
-        CsaProfileCracCreationContext cracCreationContext = cracCreator.createCrac(nativeCrac, network, OffsetDateTime.parse("2023-03-29T12:00Z"), new CracCreationParameters());
-
-        assertEquals(0, cracCreationContext.getCrac().getRemedialActions().size());
-    }
-
-    @Test
-    public void testIgnoreInvalidContingenciesWithNetworkActions() {
-        Properties importParams = new Properties();
-        Network network = Network.read(Paths.get(new File(CsaProfileCracCreatorTest.class.getResource("/csa-9/CSA_9_10_InvalidContingenciesWithRemedialActions.zip").getFile()).toString()), LocalComputationManager.getDefault(), Suppliers.memoize(ImportConfig::load).get(), importParams);
-
-        CsaProfileCracImporter cracImporter = new CsaProfileCracImporter();
-        InputStream inputStream = getClass().getResourceAsStream("/csa-9/CSA_9_10_InvalidContingenciesWithRemedialActions.zip");
-        CsaProfileCrac nativeCrac = cracImporter.importNativeCrac(inputStream);
-
-        CsaProfileCracCreator cracCreator = new CsaProfileCracCreator();
-        CsaProfileCracCreationContext cracCreationContext = cracCreator.createCrac(nativeCrac, network, OffsetDateTime.parse("2023-03-29T12:00Z"), new CracCreationParameters());
-
-        assertEquals(0, cracCreationContext.getCrac().getRemedialActions().size());
-    }
-
 }
