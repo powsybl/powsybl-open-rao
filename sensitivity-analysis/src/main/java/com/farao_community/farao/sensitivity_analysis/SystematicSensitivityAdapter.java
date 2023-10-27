@@ -101,16 +101,18 @@ final class SystematicSensitivityAdapter {
         SystematicSensitivityResult result = new SystematicSensitivityResult();
         List<SensitivityFactor> allFactorsWithoutRa = cnecSensitivityProvider.getBasecaseFactors(network);
         allFactorsWithoutRa.addAll(cnecSensitivityProvider.getContingencyFactors(network, contingenciesWithoutRa));
-        Instant instantClosestToPreventiveWithoutRa = statesWithoutRa.stream().map(State::getInstant)
+        OptionalInt instantOrderClosestToPreventiveWithoutRa = statesWithoutRa.stream().map(State::getInstant)
             .filter(instant -> instant.getInstantKind() != InstantKind.PREVENTIVE)
-            .min(Comparator.comparing(Instant::getOrder))
-            .orElse(null); // TODO: Optional est une meilleur pratique que null
-        result.completeData(SensitivityAnalysis.find(sensitivityProvider).run(network,
-            network.getVariantManager().getWorkingVariantId(),
-            allFactorsWithoutRa,
-            contingenciesWithoutRa,
-            cnecSensitivityProvider.getVariableSets(),
-            sensitivityComputationParameters), instantClosestToPreventiveWithoutRa.getOrder());
+            .mapToInt(Instant::getOrder)
+            .min();
+        if (instantOrderClosestToPreventiveWithoutRa.isPresent()) {
+            result.completeData(SensitivityAnalysis.find(sensitivityProvider).run(network,
+                network.getVariantManager().getWorkingVariantId(),
+                allFactorsWithoutRa,
+                contingenciesWithoutRa,
+                cnecSensitivityProvider.getVariableSets(),
+                sensitivityComputationParameters), instantOrderClosestToPreventiveWithoutRa.getAsInt());
+        }
 
         // systematic analyses for states with RA
         cnecSensitivityProvider.disableFactorsForBaseCaseSituation();
