@@ -73,7 +73,7 @@ public class NetworkActionCreator {
         CsaProfileCracUtils.checkPropertyReference(rotatingMachineActionPropertyBag, remedialActionId, "RotatingMachineAction", CsaProfileConstants.PropertyReference.ROTATING_MACHINE.toString());
         String rawId = rotatingMachineActionPropertyBag.get(CsaProfileConstants.ROTATING_MACHINE);
         String rotatingMachineId = rawId.substring(rawId.lastIndexOf("_") + 1);
-        float initialSetPoint = getInitialSetPoint(rotatingMachineId);
+        float initialSetPoint = getInitialSetPoint(rotatingMachineId, remedialActionId);
 
         PropertyBag staticPropertyRangePropertyBag = staticPropertyRangesLinkedToRotatingMachineAction.iterator().next(); // get a random one because there is only one
         CsaProfileCracUtils.checkPropertyReference(staticPropertyRangePropertyBag, remedialActionId, "StaticPropertyRange", CsaProfileConstants.PropertyReference.ROTATING_MACHINE.toString());
@@ -91,7 +91,7 @@ public class NetworkActionCreator {
         CsaProfileCracUtils.checkPropertyReference(shuntCompensatorModificationPropertyBag, remedialActionId, "ShuntCompensatorModification", CsaProfileConstants.PropertyReference.SHUNT_COMPENSATOR.toString());
         String rawId = shuntCompensatorModificationPropertyBag.get(CsaProfileConstants.SHUNT_COMPENSATOR_ID);
         String shuntCompensatorId = rawId.substring(rawId.lastIndexOf("_") + 1);
-        float initialSetPoint = getInitialSetPoint(shuntCompensatorId);
+        float initialSetPoint = getInitialSetPoint(shuntCompensatorId, remedialActionId);
 
         PropertyBag staticPropertyRangePropertyBag = staticPropertyRangesLinkedToShuntCompensatorModification.iterator().next(); // get a random one because there is only one
         CsaProfileCracUtils.checkPropertyReference(staticPropertyRangePropertyBag, remedialActionId, "StaticPropertyRange", CsaProfileConstants.PropertyReference.SHUNT_COMPENSATOR.toString());
@@ -103,12 +103,12 @@ public class NetworkActionCreator {
             .add();
     }
 
-    private float getInitialSetPoint(String injectionSetPointActionId) {
+    private float getInitialSetPoint(String injectionSetPointActionId, String remedialActionId) {
         float initialSetPoint = 0f;
         Optional<Generator> optionalGenerator = network.getGeneratorStream().filter(gen -> gen.getId().equals(injectionSetPointActionId)).findAny();
         Optional<Load> optionalLoad = findLoad(injectionSetPointActionId);
         if (optionalGenerator.isEmpty() && optionalLoad.isEmpty()) {
-            throw new FaraoImportException(ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK, CsaProfileConstants.REMEDIAL_ACTION_MESSAGE + injectionSetPointActionId + " will not be imported because Network model does not contain a generator, neither a load with id of injection set point action: " + injectionSetPointActionId);
+            throw new FaraoImportException(ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK, CsaProfileConstants.REMEDIAL_ACTION_MESSAGE + remedialActionId + " will not be imported because Network model does not contain a generator, neither a load with id of injection set point action: " + injectionSetPointActionId);
         } else if (optionalGenerator.isPresent()) {
             initialSetPoint = (float) optionalGenerator.get().getMinP();
         } else {
