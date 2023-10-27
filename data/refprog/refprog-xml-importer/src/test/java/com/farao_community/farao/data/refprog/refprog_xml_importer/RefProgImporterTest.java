@@ -33,7 +33,8 @@ class RefProgImporterTest {
     void testUnexistantFile() {
         Path path = Paths.get("/refProg_12nodes_doesntexist.xml");
         FaraoException exception = assertThrows(FaraoException.class, () -> RefProgImporter.importRefProg(path, offsetDateTime));
-        assertTrue(exception.getMessage().contains("java.io.FileNotFoundException: /refProg_12nodes_doesntexist.xml")); // platform dependant exception message
+        assertTrue(exception.getMessage().contains("java.io.FileNotFoundException")); // platform dependant exception message
+        assertTrue(exception.getMessage().contains("refProg_12nodes_doesntexist.xml")); // platform dependant exception message
     }
 
     @Test
