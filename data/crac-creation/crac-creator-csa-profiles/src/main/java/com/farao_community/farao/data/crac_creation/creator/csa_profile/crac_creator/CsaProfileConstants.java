@@ -141,7 +141,8 @@ public final class CsaProfileConstants {
     public enum RelativeDirectionKind {
         NONE("none"),
         DOWN("down"),
-        UP("up");
+        UP("up"),
+        UP_AND_DOWN("upAndDown");
 
         RelativeDirectionKind(String name) {
             this.name = name;
@@ -157,7 +158,9 @@ public final class CsaProfileConstants {
     }
 
     public enum ValueOffsetKind {
-        ABSOLUTE("absolute");
+        ABSOLUTE("absolute"),
+        INCREMENTAL("incremental"),
+        INCREMENTAL_PERCENTAGE("incrementalPercentage");
 
         ValueOffsetKind(String name) {
             this.name = name;
