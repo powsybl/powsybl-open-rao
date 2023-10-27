@@ -117,7 +117,7 @@ public final class CsaProfileConstants {
         SWITCH("Switch.open"),
         ROTATING_MACHINE("RotatingMachine.p"),
         TAP_CHANGER("TapChanger.step"),
-        SHUNT_COMPENSATOR("ShuntCompensatorModification.sections");
+        SHUNT_COMPENSATOR("ShuntCompensator.sections");
 
         PropertyReference(String name) {
             this.name = name;

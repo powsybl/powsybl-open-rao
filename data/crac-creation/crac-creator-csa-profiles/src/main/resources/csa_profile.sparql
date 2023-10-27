@@ -290,6 +290,7 @@ WHERE {
         rdf:type nc:ShuntCompensatorModification ;
         cim:IdentifiedObject.mRID ?mRID ;
         nc:GridStateAlteration.PropertyReference ?propertyReference ;
+        nc:GridStateAlteration.GridStateAlterationRemedialAction ?gridStateAlterationRemedialAction ;
         nc:ShuntCompensatorModification.ShuntCompensator ?shuntCompensatorId ;
     OPTIONAL {
         ?shuntCompensatorModification
