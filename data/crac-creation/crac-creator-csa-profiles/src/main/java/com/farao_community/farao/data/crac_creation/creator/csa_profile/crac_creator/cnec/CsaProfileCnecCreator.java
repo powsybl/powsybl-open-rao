@@ -348,7 +348,7 @@ public class CsaProfileCnecCreator {
         String networkElementId = networkElement.getId();
         flowCnecAdder.withNetworkElement(networkElementId);
 
-        boolean isInstantOk = addCurrentLimitInstant(assessedElementId, flowCnecAdder, cnecLimit, inBaseCase);
+        boolean isInstantOk = addCurrentLimitInstant(assessedElementId, flowCnecAdder, cnecLimit);
         if (!isInstantOk) {
             return false;
         }
@@ -486,7 +486,7 @@ public class CsaProfileCnecCreator {
         return networkElement;
     }
 
-    private boolean addCurrentLimitInstant(String assessedElementId, FlowCnecAdder flowCnecAdder, PropertyBag currentLimit, boolean inBaseCase) {
+    private boolean addCurrentLimitInstant(String assessedElementId, FlowCnecAdder flowCnecAdder, PropertyBag currentLimit) {
         cnecInstantId = null;
         String kind = currentLimit.get(CsaProfileConstants.REQUEST_OPERATIONAL_LIMIT_KIND);
         InstantKind instantKind;
@@ -497,8 +497,6 @@ public class CsaProfileCnecCreator {
             if (acceptableDuration < 0) {
                 csaProfileCnecCreationContexts.add(CsaProfileElementaryCreationContext.notImported(assessedElementId, ImportStatus.INCONSISTENCY_IN_DATA, "OperationalLimitType.acceptableDuration is incorrect : " + acceptableDurationStr));
                 return false;
-            } else if (acceptableDuration == 0) {
-                instantKind = inBaseCase ? InstantKind.PREVENTIVE : InstantKind.CURATIVE;
             } else if (acceptableDuration <= CracCreationParameters.DurationThresholdsLimits.DURATION_THRESHOLDS_LIMITS_MAX_OUTAGE_INSTANT.getLimit()) {
                 instantKind = InstantKind.OUTAGE;
             } else if (acceptableDuration <= CracCreationParameters.DurationThresholdsLimits.DURATION_THRESHOLDS_LIMITS_MAX_AUTO_INSTANT.getLimit()) {
@@ -510,10 +508,7 @@ public class CsaProfileCnecCreator {
             flowCnecAdder.withInstantId(cnecInstantId);
             return true;
         } else if (CsaProfileConstants.LimitKind.PATL.toString().equals(kind)) {
-            instantKind = inBaseCase ? InstantKind.PREVENTIVE : InstantKind.CURATIVE;
-            cnecInstantId = crac.getUniqueInstant(instantKind).getId();
-            flowCnecAdder.withInstantId(cnecInstantId);
-            return true;
+            flowCnecAdder.withInstantId(crac.getUniqueInstant(InstantKind.CURATIVE).getId());
         } else {
             csaProfileCnecCreationContexts.add(CsaProfileElementaryCreationContext.notImported(assessedElementId, ImportStatus.INCONSISTENCY_IN_DATA, "OperationalLimitType.kind is incorrect : " + kind));
             return false;
