@@ -66,13 +66,16 @@ public class CsaProfileRemedialActionsCreator {
     }
 
     private static boolean isOnConstraintInstantCoherent(InstantKind cnecInstantKind, Instant remedialInstant) {
-        return switch (remedialInstant.getInstantKind()) {
-            case PREVENTIVE ->
-                cnecInstantKind == InstantKind.PREVENTIVE || cnecInstantKind == InstantKind.OUTAGE || cnecInstantKind == InstantKind.CURATIVE;
-            case AUTO -> cnecInstantKind == InstantKind.AUTO;
-            case CURATIVE -> cnecInstantKind == InstantKind.CURATIVE;
-            default -> false;
-        };
+        switch (remedialInstant.getInstantKind()) {
+            case PREVENTIVE:
+                return cnecInstantKind == InstantKind.PREVENTIVE || cnecInstantKind == InstantKind.OUTAGE || cnecInstantKind == InstantKind.CURATIVE;
+            case AUTO:
+                return cnecInstantKind == InstantKind.AUTO;
+            case CURATIVE:
+                return cnecInstantKind == InstantKind.CURATIVE;
+            default:
+                return false;
+        }
     }
 
     private void createAndAddRemedialActions() {

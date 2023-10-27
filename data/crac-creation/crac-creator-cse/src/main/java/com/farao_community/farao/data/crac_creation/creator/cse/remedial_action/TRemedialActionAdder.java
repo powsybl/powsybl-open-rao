@@ -66,18 +66,21 @@ public class TRemedialActionAdder {
         if (tVariationType.getV().equals(ABSOLUTE_VARIATION_TYPE)) {
             return RangeType.ABSOLUTE;
         } else {
-            throw new IllegalArgumentException(String.format("%s type is not handled by the importer", tVariationType.getV()));
+            throw new FaraoException(String.format("%s type is not handled by the importer", tVariationType.getV()));
         }
     }
 
     private Instant getInstant(TApplication tApplication) {
-        return switch (tApplication.getV()) {
-            case "PREVENTIVE" -> crac.getUniqueInstant(InstantKind.PREVENTIVE);
-            case "SPS" -> crac.getUniqueInstant(InstantKind.AUTO);
-            case "CURATIVE" -> crac.getUniqueInstant(InstantKind.CURATIVE);
-            default ->
-                throw new IllegalArgumentException(String.format("%s is not a recognized application type for remedial action", tApplication.getV()));
-        };
+        switch (tApplication.getV()) {
+            case "PREVENTIVE":
+                return crac.getUniqueInstant(InstantKind.PREVENTIVE);
+            case "SPS":
+                return crac.getUniqueInstant(InstantKind.AUTO);
+            case "CURATIVE":
+                return crac.getUniqueInstant(InstantKind.CURATIVE);
+            default:
+                throw new FaraoException(String.format("%s is not a recognized application type for remedial action", tApplication.getV()));
+        }
     }
 
     public void add() {

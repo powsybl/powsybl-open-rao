@@ -178,22 +178,22 @@ public class CastorFullOptimization {
             return false;
         }
         ObjectiveFunctionParameters.CurativeStopCriterion curativeStopCriterion = raoParameters.getObjectiveFunctionParameters().getCurativeStopCriterion();
-        return switch (curativeStopCriterion) {
-            case MIN_OBJECTIVE ->
+        switch (curativeStopCriterion) {
+            case MIN_OBJECTIVE:
                 // Run 2nd preventive RAO in all cases
-                true;
-            case SECURE ->
+                return true;
+            case SECURE:
                 // Run 2nd preventive RAO if one perimeter of the curative optimization is unsecure
-                isAnyResultUnsecure(curativeRaoResults);
-            case PREVENTIVE_OBJECTIVE ->
+                return isAnyResultUnsecure(curativeRaoResults);
+            case PREVENTIVE_OBJECTIVE:
                 // Run 2nd preventive RAO if the final result has a worse cost than the preventive perimeter
-                isFinalCostWorseThanPreventive(raoParameters.getObjectiveFunctionParameters().getCurativeMinObjImprovement(), firstPreventiveResult, postFirstRaoResult);
-            case PREVENTIVE_OBJECTIVE_AND_SECURE ->
+                return isFinalCostWorseThanPreventive(raoParameters.getObjectiveFunctionParameters().getCurativeMinObjImprovement(), firstPreventiveResult, postFirstRaoResult);
+            case PREVENTIVE_OBJECTIVE_AND_SECURE:
                 // Run 2nd preventive RAO if the final result has a worse cost than the preventive perimeter or is unsecure
-                isAnyResultUnsecure(curativeRaoResults) || isFinalCostWorseThanPreventive(raoParameters.getObjectiveFunctionParameters().getCurativeMinObjImprovement(), firstPreventiveResult, postFirstRaoResult);
-            default ->
+                return isAnyResultUnsecure(curativeRaoResults) || isFinalCostWorseThanPreventive(raoParameters.getObjectiveFunctionParameters().getCurativeMinObjImprovement(), firstPreventiveResult, postFirstRaoResult);
+            default:
                 throw new FaraoException(String.format("Unknown curative RAO stop criterion: %s", curativeStopCriterion));
-        };
+        }
     }
 
     /**

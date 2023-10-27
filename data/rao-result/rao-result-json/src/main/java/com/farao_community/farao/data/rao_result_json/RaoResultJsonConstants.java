@@ -137,43 +137,64 @@ public final class RaoResultJsonConstants {
 
     // serialization of enums
     public static String serializeUnit(Unit unit) {
-        return switch (unit) {
-            case AMPERE -> AMPERE_UNIT;
-            case DEGREE -> DEGREE_UNIT;
-            case MEGAWATT -> MEGAWATT_UNIT;
-            case KILOVOLT -> KILOVOLT_UNIT;
-            case PERCENT_IMAX -> PERCENT_IMAX_UNIT;
-            case TAP -> TAP_UNIT;
-            default -> throw new FaraoException(String.format("Unsupported unit %s", unit));
-        };
+        switch (unit) {
+            case AMPERE:
+                return AMPERE_UNIT;
+            case DEGREE:
+                return DEGREE_UNIT;
+            case MEGAWATT:
+                return MEGAWATT_UNIT;
+            case KILOVOLT:
+                return KILOVOLT_UNIT;
+            case PERCENT_IMAX:
+                return PERCENT_IMAX_UNIT;
+            case TAP:
+                return TAP_UNIT;
+            default:
+                throw new FaraoException(String.format("Unsupported unit %s", unit));
+        }
     }
 
     public static Unit deserializeUnit(String stringValue) {
-        return switch (stringValue) {
-            case AMPERE_UNIT -> Unit.AMPERE;
-            case DEGREE_UNIT -> Unit.DEGREE;
-            case MEGAWATT_UNIT -> Unit.MEGAWATT;
-            case KILOVOLT_UNIT -> Unit.KILOVOLT;
-            case PERCENT_IMAX_UNIT -> Unit.PERCENT_IMAX;
-            case TAP_UNIT -> Unit.TAP;
-            default -> throw new FaraoException(String.format("Unrecognized unit %s", stringValue));
-        };
+        switch (stringValue) {
+            case AMPERE_UNIT:
+                return Unit.AMPERE;
+            case DEGREE_UNIT:
+                return Unit.DEGREE;
+            case MEGAWATT_UNIT:
+                return Unit.MEGAWATT;
+            case KILOVOLT_UNIT:
+                return Unit.KILOVOLT;
+            case PERCENT_IMAX_UNIT:
+                return Unit.PERCENT_IMAX;
+            case TAP_UNIT:
+                return Unit.TAP;
+            default:
+                throw new FaraoException(String.format("Unrecognized unit %s", stringValue));
+        }
     }
 
     // serialization of enums
     public static String serializeSide(Side side) {
-        return switch (side) {
-            case LEFT -> LEFT_SIDE;
-            case RIGHT -> RIGHT_SIDE;
-        };
+        switch (side) {
+            case LEFT:
+                return LEFT_SIDE;
+            case RIGHT:
+                return RIGHT_SIDE;
+            default:
+                throw new IllegalArgumentException();
+        }
     }
 
     public static Side deserializeSide(String stringValue) {
-        return switch (stringValue) {
-            case LEFT_SIDE -> Side.LEFT;
-            case RIGHT_SIDE -> Side.RIGHT;
-            default -> throw new FaraoException(String.format("Unrecognized side %s", stringValue));
-        };
+        switch (stringValue) {
+            case LEFT_SIDE:
+                return Side.LEFT;
+            case RIGHT_SIDE:
+                return Side.RIGHT;
+            default:
+                throw new FaraoException(String.format("Unrecognized side %s", stringValue));
+        }
     }
 
     public static String serializeInstantId(Instant instant) {
@@ -195,57 +216,77 @@ public final class RaoResultJsonConstants {
     public static String deserializeOptimizedInstantId(String stringValue, String jsonFileVersion) {
         // TODO review this
         if (getPrimaryVersionNumber(jsonFileVersion) <= 1 && getSubVersionNumber(jsonFileVersion) <= 3) {
-            return switch (stringValue) {
-                case INITIAL_OPT_STATE -> null;
-                case AFTER_PRA_OPT_STATE -> PREVENTIVE_INSTANT;
-                case AFTER_ARA_OPT_STATE -> AUTO_INSTANT;
-                case AFTER_CRA_OPT_STATE -> CURATIVE_INSTANT;
-                default ->
-                    throw new FaraoException(String.format("Unrecognized optimization state %s", stringValue)); // TODO valid exception message ?
-            };
+            switch (stringValue) {
+                case INITIAL_OPT_STATE:
+                    return null;
+                case AFTER_PRA_OPT_STATE:
+                    return PREVENTIVE_INSTANT;
+                case AFTER_ARA_OPT_STATE:
+                    return AUTO_INSTANT;
+                case AFTER_CRA_OPT_STATE:
+                    return CURATIVE_INSTANT;
+                default:
+                    throw new FaraoException(String.format("Unrecognized optimization state %s", stringValue)); // TODO valid exception message ?}
+            }
         } else {
             return deserializeInstantId(stringValue);
         }
     }
 
     public static String serializeStatus(ComputationStatus computationStatus) {
-        return switch (computationStatus) {
-            case DEFAULT -> DEFAULT_STATUS;
-            case FAILURE -> FAILURE_STATUS;
-        };
+        switch (computationStatus) {
+            case DEFAULT:
+                return DEFAULT_STATUS;
+            case FAILURE:
+                return FAILURE_STATUS;
+            default:
+                throw new IllegalArgumentException();
+        }
     }
 
     public static ComputationStatus deserializeStatus(String stringValue) {
-        return switch (stringValue) {
-            case DEFAULT_STATUS -> ComputationStatus.DEFAULT;
-            case FAILURE_STATUS -> ComputationStatus.FAILURE;
-            default -> throw new FaraoException(String.format("Unrecognized computation status %s", stringValue));
-        };
+        switch (stringValue) {
+            case DEFAULT_STATUS:
+                return ComputationStatus.DEFAULT;
+            case FAILURE_STATUS:
+                return ComputationStatus.FAILURE;
+            default:
+                throw new FaraoException(String.format("Unrecognized computation status %s", stringValue));
+        }
     }
 
     public static String serializeOptimizedStepsExecuted(OptimizationStepsExecuted optimizationStepsExecuted) {
-        return switch (optimizationStepsExecuted) {
-            case FIRST_PREVENTIVE_ONLY -> FIRST_PREVENTIVE_ONLY;
-            case FIRST_PREVENTIVE_FELLBACK_TO_INITIAL_SITUATION -> FIRST_PREVENTIVE_FELLBACK;
-            case SECOND_PREVENTIVE_IMPROVED_FIRST -> SECOND_PREVENTIVE_IMPROVED_FIRST;
-            case SECOND_PREVENTIVE_FELLBACK_TO_FIRST_PREVENTIVE_SITUATION ->
-                SECOND_PREVENTIVE_FELLBACK_TO_FIRST_PREVENTIVE_SITUATION;
-            case SECOND_PREVENTIVE_FELLBACK_TO_INITIAL_SITUATION -> SECOND_PREVENTIVE_FELLBACK_TO_INITIAL_SITUATION;
-        };
+        switch (optimizationStepsExecuted) {
+            case FIRST_PREVENTIVE_ONLY:
+                return FIRST_PREVENTIVE_ONLY;
+            case FIRST_PREVENTIVE_FELLBACK_TO_INITIAL_SITUATION:
+                return FIRST_PREVENTIVE_FELLBACK;
+            case SECOND_PREVENTIVE_IMPROVED_FIRST:
+                return SECOND_PREVENTIVE_IMPROVED_FIRST;
+            case SECOND_PREVENTIVE_FELLBACK_TO_FIRST_PREVENTIVE_SITUATION:
+                return SECOND_PREVENTIVE_FELLBACK_TO_FIRST_PREVENTIVE_SITUATION;
+            case SECOND_PREVENTIVE_FELLBACK_TO_INITIAL_SITUATION:
+                return SECOND_PREVENTIVE_FELLBACK_TO_INITIAL_SITUATION;
+            default:
+                throw new FaraoException(String.format("Unsupported optimization steps executed %s", optimizationStepsExecuted));
+        }
     }
 
     public static OptimizationStepsExecuted deserializeOptimizedStepsExecuted(String stringValue) {
-        return switch (stringValue) {
-            case FIRST_PREVENTIVE_ONLY -> OptimizationStepsExecuted.FIRST_PREVENTIVE_ONLY;
-            case FIRST_PREVENTIVE_FELLBACK -> OptimizationStepsExecuted.FIRST_PREVENTIVE_FELLBACK_TO_INITIAL_SITUATION;
-            case SECOND_PREVENTIVE_IMPROVED_FIRST -> OptimizationStepsExecuted.SECOND_PREVENTIVE_IMPROVED_FIRST;
-            case SECOND_PREVENTIVE_FELLBACK_TO_FIRST_PREVENTIVE_SITUATION ->
-                OptimizationStepsExecuted.SECOND_PREVENTIVE_FELLBACK_TO_FIRST_PREVENTIVE_SITUATION;
-            case SECOND_PREVENTIVE_FELLBACK_TO_INITIAL_SITUATION ->
-                OptimizationStepsExecuted.SECOND_PREVENTIVE_FELLBACK_TO_INITIAL_SITUATION;
-            default ->
+        switch (stringValue) {
+            case FIRST_PREVENTIVE_ONLY:
+                return OptimizationStepsExecuted.FIRST_PREVENTIVE_ONLY;
+            case FIRST_PREVENTIVE_FELLBACK:
+                return OptimizationStepsExecuted.FIRST_PREVENTIVE_FELLBACK_TO_INITIAL_SITUATION;
+            case SECOND_PREVENTIVE_IMPROVED_FIRST:
+                return OptimizationStepsExecuted.SECOND_PREVENTIVE_IMPROVED_FIRST;
+            case SECOND_PREVENTIVE_FELLBACK_TO_FIRST_PREVENTIVE_SITUATION:
+                return OptimizationStepsExecuted.SECOND_PREVENTIVE_FELLBACK_TO_FIRST_PREVENTIVE_SITUATION;
+            case SECOND_PREVENTIVE_FELLBACK_TO_INITIAL_SITUATION:
+                return OptimizationStepsExecuted.SECOND_PREVENTIVE_FELLBACK_TO_INITIAL_SITUATION;
+            default:
                 throw new FaraoException(String.format("Unrecognized optimization steps executed %s", stringValue));
-        };
+        }
     }
 
 }

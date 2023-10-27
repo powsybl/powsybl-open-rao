@@ -22,10 +22,10 @@ import java.util.stream.Collectors;
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
  */
 public class AngleMonitoringResult {
-
     private final Set<AngleResult> angleCnecsWithAngle;
     private final Map<State, Set<NetworkAction>> appliedCras;
     private final Status status;
+
     public AngleMonitoringResult(Set<AngleResult> angleCnecsWithAngle, Map<State, Set<NetworkAction>> appliedCras, Status status) {
         this.angleCnecsWithAngle = angleCnecsWithAngle;
         this.appliedCras = appliedCras;

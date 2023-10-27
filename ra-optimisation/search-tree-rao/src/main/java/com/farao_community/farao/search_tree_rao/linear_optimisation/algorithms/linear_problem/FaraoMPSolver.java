@@ -56,15 +56,22 @@ public class FaraoMPSolver {
     }
 
     private static LinearProblemStatus convertResultStatus(MPSolver.ResultStatus status) {
-        return switch (status) {
-            case OPTIMAL -> LinearProblemStatus.OPTIMAL;
-            case ABNORMAL -> LinearProblemStatus.ABNORMAL;
-            case FEASIBLE -> LinearProblemStatus.FEASIBLE;
-            case UNBOUNDED -> LinearProblemStatus.UNBOUNDED;
-            case INFEASIBLE -> LinearProblemStatus.INFEASIBLE;
-            case NOT_SOLVED -> LinearProblemStatus.NOT_SOLVED;
-            default -> throw new NotImplementedException(String.format("Status %s not handled.", status));
-        };
+        switch (status) {
+            case OPTIMAL:
+                return LinearProblemStatus.OPTIMAL;
+            case ABNORMAL:
+                return LinearProblemStatus.ABNORMAL;
+            case FEASIBLE:
+                return LinearProblemStatus.FEASIBLE;
+            case UNBOUNDED:
+                return LinearProblemStatus.UNBOUNDED;
+            case INFEASIBLE:
+                return LinearProblemStatus.INFEASIBLE;
+            case NOT_SOLVED:
+                return LinearProblemStatus.NOT_SOLVED;
+            default:
+                throw new NotImplementedException(String.format("Status %s not handled.", status));
+        }
     }
 
     public FaraoMPConstraint getConstraint(String name) {

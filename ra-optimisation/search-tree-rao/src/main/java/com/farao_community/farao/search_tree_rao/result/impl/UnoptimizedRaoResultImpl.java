@@ -26,6 +26,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * A RaoResult implementation that contains the initial situation before optimization
@@ -107,9 +108,11 @@ public class UnoptimizedRaoResultImpl implements RaoResult {
 
     @Override
     public boolean isActivatedDuringState(State state, RemedialAction<?> remedialAction) {
-        if (remedialAction instanceof NetworkAction networkAction) {
+        if (remedialAction instanceof NetworkAction) {
+            NetworkAction networkAction = (NetworkAction) remedialAction;
             return isActivatedDuringState(state, networkAction);
-        } else if (remedialAction instanceof RangeAction<?> rangeAction) {
+        } else if (remedialAction instanceof RangeAction<?>) {
+            RangeAction<?> rangeAction = (RangeAction<?>) remedialAction;
             return isActivatedDuringState(state, rangeAction);
         } else {
             throw new FaraoException("Unrecognized remedial action type");
@@ -163,13 +166,10 @@ public class UnoptimizedRaoResultImpl implements RaoResult {
 
     @Override
     public Map<PstRangeAction, Integer> getOptimizedTapsOnState(State state) {
-        Map<PstRangeAction, Integer> tapPerPst = new HashMap<>();
-        initialResult.getRangeActions().forEach(ra -> {
-            if (ra instanceof PstRangeAction pstRangeAction) {
-                tapPerPst.put(pstRangeAction, initialResult.getTap(pstRangeAction));
-            }
-        });
-        return tapPerPst;
+        return initialResult.getRangeActions().stream()
+            .filter(PstRangeAction.class::isInstance)
+            .map(ra -> (PstRangeAction) ra)
+            .collect(Collectors.toMap(pstRangeAction -> pstRangeAction, initialResult::getTap, (a, b) -> b));
     }
 
     @Override

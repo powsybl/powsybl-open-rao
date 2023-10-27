@@ -227,8 +227,8 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
         return getCnecs().stream().anyMatch(cnec -> cnec.getState().getContingency().isPresent()
             && cnec.getState().getContingency().get().getId().equals(contingencyId))
             || getRemedialActions().stream().map(RemedialAction::getUsageRules).flatMap(Set::stream)
-            .anyMatch(usageMethod -> (usageMethod instanceof OnContingencyStateImpl onContingencyState)
-                && onContingencyState.getContingency().getId().equals(contingencyId));
+            .anyMatch(usageMethod -> (usageMethod instanceof OnContingencyStateImpl)
+                && ((OnContingencyState) usageMethod).getContingency().getId().equals(contingencyId));
     }
 
     //endregion
@@ -319,7 +319,7 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
             || getRemedialActions().stream()
             .map(RemedialAction::getUsageRules)
             .flatMap(Set::stream)
-            .anyMatch(ur -> ur instanceof OnContingencyState onContingencyState && onContingencyState.getState().getId().equals(stateId));
+            .anyMatch(ur -> ur instanceof OnContingencyState && ((OnContingencyState) ur).getState().getId().equals(stateId));
     }
 
     //endregion

@@ -88,7 +88,15 @@ public class InjectionRangeActionAdderImpl extends AbstractStandardRangeActionAd
         return distributionKeyMap;
     }
 
-    private record DistributionKeyOnNetworkElement(double distributionKey, String networkElementId,
-                                                   String networkElementName) {
+    private static class DistributionKeyOnNetworkElement {
+        String networkElementId;
+        String networkElementName;
+        double distributionKey;
+
+        DistributionKeyOnNetworkElement(double distributionKey, String networkElementId, String networkElementName) {
+            this.networkElementId = networkElementId;
+            this.networkElementName = networkElementName;
+            this.distributionKey = distributionKey;
+        }
     }
 }

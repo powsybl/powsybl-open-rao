@@ -42,7 +42,8 @@ public class CountryBoundary {
 
     @Override
     public boolean equals(Object obj) {
-        if (obj instanceof CountryBoundary other) {
+        if (obj instanceof CountryBoundary) {
+            CountryBoundary other = (CountryBoundary) obj;
             return Sets.newHashSet(country1, country2).equals(Sets.newHashSet(other.country1, other.country2));
         }
         return false;

@@ -181,11 +181,16 @@ public final class CoreCneRemedialActionsCreator {
     private RemedialActionSeries createB56RemedialActionSeries(String remedialActionId, String remedialActionName, String operator, InstantKind optimizedInstantKind) {
         String marketObjectStatus = null;
         if (optimizedInstantKind != null) {
-            marketObjectStatus = switch (optimizedInstantKind) {
-                case PREVENTIVE -> PREVENTIVE_MARKET_OBJECT_STATUS;
-                case CURATIVE -> CURATIVE_MARKET_OBJECT_STATUS;
-                default -> throw new FaraoException("Unknown CNE state");
-            };
+            switch (optimizedInstantKind) {
+                case PREVENTIVE:
+                    marketObjectStatus = PREVENTIVE_MARKET_OBJECT_STATUS;
+                    break;
+                case CURATIVE:
+                    marketObjectStatus = CURATIVE_MARKET_OBJECT_STATUS;
+                    break;
+                default:
+                    throw new FaraoException("Unknown CNE state");
+            }
         }
 
         RemedialActionSeries remedialActionSeries = newRemedialActionSeries(remedialActionId, remedialActionName, marketObjectStatus);

@@ -155,19 +155,19 @@ public class RaoResultImpl implements RaoResult {
 
     @Override
     public double getCost(Instant optimizedInstant) {
-        String id = optimizedInstant==null ? null : optimizedInstant.getId();
+        String id = optimizedInstant == null ? null : optimizedInstant.getId();
         return costResults.getOrDefault(id, DEFAULT_COST_RESULT).getCost();
     }
 
     @Override
     public double getFunctionalCost(Instant optimizedInstant) {
-        String id = optimizedInstant==null ? null : optimizedInstant.getId();
+        String id = optimizedInstant == null ? null : optimizedInstant.getId();
         return costResults.getOrDefault(id, DEFAULT_COST_RESULT).getFunctionalCost();
     }
 
     @Override
     public double getVirtualCost(Instant optimizedInstant) {
-        String id = optimizedInstant==null ? null : optimizedInstant.getId();
+        String id = optimizedInstant == null ? null : optimizedInstant.getId();
         return costResults.getOrDefault(id, DEFAULT_COST_RESULT).getVirtualCost();
     }
 
@@ -178,15 +178,17 @@ public class RaoResultImpl implements RaoResult {
 
     @Override
     public double getVirtualCost(Instant optimizedInstant, String virtualCostName) {
-        String id = optimizedInstant==null ? null : optimizedInstant.getId();
+        String id = optimizedInstant == null ? null : optimizedInstant.getId();
         return costResults.getOrDefault(id, DEFAULT_COST_RESULT).getVirtualCost(virtualCostName);
     }
 
     @Override
     public boolean isActivatedDuringState(State state, RemedialAction<?> remedialAction) {
-        if (remedialAction instanceof NetworkAction networkAction) {
+        if (remedialAction instanceof NetworkAction) {
+            NetworkAction networkAction = (NetworkAction) remedialAction;
             return isActivatedDuringState(state, networkAction);
-        } else if (remedialAction instanceof RangeAction<?> rangeAction) {
+        } else if (remedialAction instanceof RangeAction<?>) {
+            RangeAction<?> rangeAction = (RangeAction<?>) remedialAction;
             return isActivatedDuringState(state, rangeAction);
         } else {
             throw new FaraoException("Unrecognized remedial action type");

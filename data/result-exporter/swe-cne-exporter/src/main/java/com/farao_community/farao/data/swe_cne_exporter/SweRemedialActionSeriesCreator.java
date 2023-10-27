@@ -209,9 +209,10 @@ public class SweRemedialActionSeriesCreator {
     }
 
     private RemedialActionRegisteredResource generateRegisteredResource(PstRangeAction pstRangeAction, State state, RemedialActionSeriesCreationContext context) {
-        if (!(context instanceof PstRangeActionSeriesCreationContext pstContext)) {
+        if (!(context instanceof PstRangeActionSeriesCreationContext)) {
             throw new FaraoException("Expected a PstRangeActionSeriesCreationContext");
         }
+        PstRangeActionSeriesCreationContext pstContext = (PstRangeActionSeriesCreationContext) context;
 
         RemedialActionRegisteredResource registeredResource = new RemedialActionRegisteredResource();
         registeredResource.setMRID(SweCneUtil.createResourceIDString(A02_CODING_SCHEME, pstContext.getNetworkElementNativeMrid()));

@@ -93,16 +93,14 @@ public class CseCracCreationContext implements UcteCracCreationContext {
     }
 
     private void addToReport(Collection<? extends ElementaryCreationContext> contexts, String nativeTypeIdentifier) {
-        contexts.stream().filter(ElementaryCreationContext::isAltered)
+        contexts.stream()
+            .filter(ElementaryCreationContext::isAltered)
             .sorted(Comparator.comparing(ElementaryCreationContext::getNativeId))
-            .forEach(context ->
-                creationReport.altered(String.format("%s \"%s\" was modified: %s. ", nativeTypeIdentifier, context.getNativeId(), context.getImportStatusDetail()))
-            );
-        contexts.stream().filter(context -> !context.isImported())
+            .forEach(context -> creationReport.altered(String.format("%s \"%s\" was modified: %s. ", nativeTypeIdentifier, context.getNativeId(), context.getImportStatusDetail())));
+        contexts.stream()
+            .filter(context -> !context.isImported())
             .sorted(Comparator.comparing(ElementaryCreationContext::getNativeId))
-            .forEach(context ->
-                creationReport.removed(String.format("%s \"%s\" was not imported: %s. %s.", nativeTypeIdentifier, context.getNativeId(), context.getImportStatus(), context.getImportStatusDetail()))
-            );
+            .forEach(context -> creationReport.removed(String.format("%s \"%s\" was not imported: %s. %s.", nativeTypeIdentifier, context.getNativeId(), context.getImportStatus(), context.getImportStatusDetail())));
     }
 
     @Override

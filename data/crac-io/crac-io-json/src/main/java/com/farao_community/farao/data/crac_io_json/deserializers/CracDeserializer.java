@@ -76,7 +76,6 @@ public class CracDeserializer extends JsonDeserializer<Crac> {
         crac.addInstant("auto", InstantKind.AUTO, "outage");
         crac.addInstant("curative", InstantKind.CURATIVE, "auto");
 
-
         HashMap<String, String> deserializedNetworkElementsNamesPerId = null;
 
         // deserialize the following lines of the Crac

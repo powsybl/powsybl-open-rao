@@ -118,7 +118,8 @@ public class RaoResultDeserializer extends JsonDeserializer<RaoResult> {
                     importRangeAction(jsonParser, raoResult, jsonFileVersion);
                     break;
 
-                case STANDARDRANGEACTION_RESULTS, PSTRANGEACTION_RESULTS:
+                case PSTRANGEACTION_RESULTS:
+                case STANDARDRANGEACTION_RESULTS:
                     checkDeprecatedField(jsonParser, RAO_RESULT_TYPE, jsonFileVersion, "1.2");
                     importRangeAction(jsonParser, raoResult, jsonFileVersion);
                     break;

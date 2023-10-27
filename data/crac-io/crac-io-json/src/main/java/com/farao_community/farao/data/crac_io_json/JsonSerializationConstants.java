@@ -166,43 +166,67 @@ public final class JsonSerializationConstants {
     }
 
     public static String serializeUnit(Unit unit) {
-        return switch (unit) {
-            case AMPERE -> AMPERE_UNIT;
-            case DEGREE -> DEGREE_UNIT;
-            case MEGAWATT -> MEGAWATT_UNIT;
-            case KILOVOLT -> KILOVOLT_UNIT;
-            case PERCENT_IMAX -> PERCENT_IMAX_UNIT;
-            case TAP -> TAP_UNIT;
-            case SECTION_COUNT -> SECTION_COUNT_UNIT;
-        };
+        switch (unit) {
+            case AMPERE:
+                return AMPERE_UNIT;
+            case DEGREE:
+                return DEGREE_UNIT;
+            case MEGAWATT:
+                return MEGAWATT_UNIT;
+            case KILOVOLT:
+                return KILOVOLT_UNIT;
+            case PERCENT_IMAX:
+                return PERCENT_IMAX_UNIT;
+            case TAP:
+                return TAP_UNIT;
+            case SECTION_COUNT:
+                return SECTION_COUNT_UNIT;
+            default:
+                throw new FaraoException(String.format("Unrecognized unit %s", unit));
+        }
     }
 
     public static Unit deserializeUnit(String stringValue) {
-        return switch (stringValue) {
-            case AMPERE_UNIT -> Unit.AMPERE;
-            case DEGREE_UNIT -> Unit.DEGREE;
-            case MEGAWATT_UNIT -> Unit.MEGAWATT;
-            case KILOVOLT_UNIT -> Unit.KILOVOLT;
-            case PERCENT_IMAX_UNIT -> Unit.PERCENT_IMAX;
-            case TAP_UNIT -> Unit.TAP;
-            case SECTION_COUNT_UNIT -> Unit.SECTION_COUNT;
-            default -> throw new FaraoException(String.format("Unrecognized unit %s", stringValue));
-        };
+        switch (stringValue) {
+            case AMPERE_UNIT:
+                return Unit.AMPERE;
+            case DEGREE_UNIT:
+                return Unit.DEGREE;
+            case MEGAWATT_UNIT:
+                return Unit.MEGAWATT;
+            case KILOVOLT_UNIT:
+                return Unit.KILOVOLT;
+            case PERCENT_IMAX_UNIT:
+                return Unit.PERCENT_IMAX;
+            case TAP_UNIT:
+                return Unit.TAP;
+            case SECTION_COUNT_UNIT:
+                return Unit.SECTION_COUNT;
+            default:
+                throw new FaraoException(String.format("Unrecognized unit %s", stringValue));
+        }
     }
 
     public static String serializeSide(Side side) {
-        return switch (side) {
-            case LEFT -> LEFT_SIDE;
-            case RIGHT -> RIGHT_SIDE;
-        };
+        switch (side) {
+            case LEFT:
+                return LEFT_SIDE;
+            case RIGHT:
+                return RIGHT_SIDE;
+            default:
+                throw new FaraoException(String.format("Unsupported side %s", side));
+        }
     }
 
     public static Side deserializeSide(String stringValue) {
-        return switch (stringValue) {
-            case LEFT_SIDE -> Side.LEFT;
-            case RIGHT_SIDE -> Side.RIGHT;
-            default -> throw new FaraoException(String.format("Unrecognized side %s", stringValue));
-        };
+        switch (stringValue) {
+            case LEFT_SIDE:
+                return Side.LEFT;
+            case RIGHT_SIDE:
+                return Side.RIGHT;
+            default:
+                throw new FaraoException(String.format("Unrecognized side %s", stringValue));
+        }
     }
 
     /**
@@ -211,10 +235,12 @@ public final class JsonSerializationConstants {
      */
     public static Side convertBranchThresholdRuleToSide(String branchThresholdRule, Pair<Double, Double> nominalV) {
         switch (branchThresholdRule) {
-            case ON_LEFT_SIDE_RULE, ON_REGULATED_SIDE_RULE:
+            case ON_LEFT_SIDE_RULE:
+            case ON_REGULATED_SIDE_RULE:
                 // This is true only when the network is in UCTE format.
                 return Side.LEFT;
-            case ON_RIGHT_SIDE_RULE, ON_NON_REGULATED_SIDE_RULE:
+            case ON_RIGHT_SIDE_RULE:
+            case ON_NON_REGULATED_SIDE_RULE:
                 // This is true only when the network is in UCTE format.
                 return Side.RIGHT;
             case ON_LOW_VOLTAGE_LEVEL_RULE:
@@ -241,55 +267,81 @@ public final class JsonSerializationConstants {
     }
 
     public static String serializeUsageMethod(UsageMethod usageMethod) {
-        return switch (usageMethod) {
-            case UNAVAILABLE -> UNAVAILABLE_USAGE_METHOD;
-            case FORCED -> FORCED_USAGE_METHOD;
-            case AVAILABLE -> AVAILABLE_USAGE_METHOD;
-            case UNDEFINED -> UNDEFINED_USAGE_METHOD;
-            default -> throw new FaraoException(String.format("Unsupported usage method %s", usageMethod));
-        };
+        switch (usageMethod) {
+            case UNAVAILABLE:
+                return UNAVAILABLE_USAGE_METHOD;
+            case FORCED:
+                return FORCED_USAGE_METHOD;
+            case AVAILABLE:
+                return AVAILABLE_USAGE_METHOD;
+            case UNDEFINED:
+                return UNDEFINED_USAGE_METHOD;
+            default:
+                throw new FaraoException(String.format("Unsupported usage method %s", usageMethod));
+        }
     }
 
     public static UsageMethod deserializeUsageMethod(String stringValue, String version) {
-        return switch (stringValue) {
-            case UNAVAILABLE_USAGE_METHOD -> UsageMethod.UNAVAILABLE;
-            case FORCED_USAGE_METHOD -> UsageMethod.FORCED;
-            case AVAILABLE_USAGE_METHOD -> UsageMethod.AVAILABLE;
-            case UNDEFINED_USAGE_METHOD -> UsageMethod.UNDEFINED;
-            default -> throw new FaraoException(String.format("Unrecognized usage method %s", stringValue));
-        };
+        switch (stringValue) {
+            case UNAVAILABLE_USAGE_METHOD:
+                return UsageMethod.UNAVAILABLE;
+            case FORCED_USAGE_METHOD:
+                return UsageMethod.FORCED;
+            case AVAILABLE_USAGE_METHOD:
+                return UsageMethod.AVAILABLE;
+            case UNDEFINED_USAGE_METHOD:
+                return UsageMethod.UNDEFINED;
+            default:
+                throw new FaraoException(String.format("Unrecognized usage method %s", stringValue));
+        }
     }
 
     public static String serializeRangeType(RangeType rangeType) {
-        return switch (rangeType) {
-            case ABSOLUTE -> ABSOLUTE_RANGE;
-            case RELATIVE_TO_PREVIOUS_INSTANT -> RELATIVE_TO_PREVIOUS_INSTANT_RANGE;
-            case RELATIVE_TO_INITIAL_NETWORK -> RELATIVE_TO_INITIAL_NETWORK_RANGE;
-        };
+        switch (rangeType) {
+            case ABSOLUTE:
+                return ABSOLUTE_RANGE;
+            case RELATIVE_TO_PREVIOUS_INSTANT:
+                return RELATIVE_TO_PREVIOUS_INSTANT_RANGE;
+            case RELATIVE_TO_INITIAL_NETWORK:
+                return RELATIVE_TO_INITIAL_NETWORK_RANGE;
+            default:
+                throw new FaraoException(String.format("Unrecognized range type %s", rangeType));
+        }
     }
 
     public static RangeType deserializeRangeType(String stringValue) {
-        return switch (stringValue) {
-            case ABSOLUTE_RANGE -> RangeType.ABSOLUTE;
-            case RELATIVE_TO_PREVIOUS_INSTANT_RANGE -> RangeType.RELATIVE_TO_PREVIOUS_INSTANT;
-            case RELATIVE_TO_INITIAL_NETWORK_RANGE -> RangeType.RELATIVE_TO_INITIAL_NETWORK;
-            default -> throw new FaraoException(String.format("Unrecognized range type %s", stringValue));
-        };
+        switch (stringValue) {
+            case ABSOLUTE_RANGE:
+                return RangeType.ABSOLUTE;
+            case RELATIVE_TO_PREVIOUS_INSTANT_RANGE:
+                return RangeType.RELATIVE_TO_PREVIOUS_INSTANT;
+            case RELATIVE_TO_INITIAL_NETWORK_RANGE:
+                return RangeType.RELATIVE_TO_INITIAL_NETWORK;
+            default:
+                throw new FaraoException(String.format("Unrecognized range type %s", stringValue));
+        }
     }
 
     public static String serializeActionType(ActionType actionType) {
-        return switch (actionType) {
-            case OPEN -> OPEN_ACTION;
-            case CLOSE -> CLOSE_ACTION;
-        };
+        switch (actionType) {
+            case OPEN:
+                return OPEN_ACTION;
+            case CLOSE:
+                return CLOSE_ACTION;
+            default:
+                throw new FaraoException(String.format("Unsupported action type %s", actionType));
+        }
     }
 
     public static ActionType deserializeActionType(String stringValue) {
-        return switch (stringValue) {
-            case OPEN_ACTION -> ActionType.OPEN;
-            case CLOSE_ACTION -> ActionType.CLOSE;
-            default -> throw new FaraoException(String.format("Unrecognized action type %s", stringValue));
-        };
+        switch (stringValue) {
+            case OPEN_ACTION:
+                return ActionType.OPEN;
+            case CLOSE_ACTION:
+                return ActionType.CLOSE;
+            default:
+                throw new FaraoException(String.format("Unrecognized action type %s", stringValue));
+        }
     }
 
     public static class ThresholdComparator implements Comparator<Threshold> {
@@ -298,9 +350,9 @@ public final class JsonSerializationConstants {
             String unit1 = serializeUnit(o1.getUnit());
             String unit2 = serializeUnit(o2.getUnit());
             if (unit1.equals(unit2)) {
-                if ((o1 instanceof BranchThreshold branchThreshold1 && o2 instanceof BranchThreshold branchThreshold2) &&
-                    !branchThreshold1.getSide().equals(branchThreshold2.getSide())) {
-                    return serializeSide(branchThreshold1.getSide()).compareTo(serializeSide(branchThreshold2.getSide()));
+                if ((o1 instanceof BranchThreshold && o2 instanceof BranchThreshold) &&
+                    !((BranchThreshold) o1).getSide().equals(((BranchThreshold) o2).getSide())) {
+                    return serializeSide(((BranchThreshold) o1).getSide()).compareTo(serializeSide(((BranchThreshold) o2).getSide()));
                 }
                 if (o1.min().isPresent()) {
                     return -1;
@@ -327,19 +379,24 @@ public final class JsonSerializationConstants {
             if (o1 instanceof OnInstant) {
                 return 0;
             }
-            if (o1 instanceof OnContingencyState onContingencyState) {
+            if (o1 instanceof OnContingencyState) {
+                OnContingencyState onContingencyState = (OnContingencyState) o1;
                 return onContingencyState.getState().getId().compareTo(((OnContingencyState) o2).getState().getId());
             }
-            if (o1 instanceof OnFlowConstraint onFlowConstraint) {
+            if (o1 instanceof OnFlowConstraint) {
+                OnFlowConstraint onFlowConstraint = (OnFlowConstraint) o1;
                 return onFlowConstraint.getFlowCnec().getId().compareTo(((OnFlowConstraint) o2).getFlowCnec().getId());
             }
-            if (o1 instanceof OnFlowConstraintInCountry onFlowConstraintInCountry) {
+            if (o1 instanceof OnFlowConstraintInCountry) {
+                OnFlowConstraintInCountry onFlowConstraintInCountry = (OnFlowConstraintInCountry) o1;
                 return onFlowConstraintInCountry.getCountry().toString().compareTo(((OnFlowConstraintInCountry) o2).getCountry().toString());
             }
-            if (o1 instanceof OnAngleConstraint onAngleConstraint) {
+            if (o1 instanceof OnAngleConstraint) {
+                OnAngleConstraint onAngleConstraint = (OnAngleConstraint) o1;
                 return onAngleConstraint.getAngleCnec().getId().compareTo(((OnAngleConstraint) o2).getAngleCnec().getId());
             }
-            if (o1 instanceof OnVoltageConstraint onVoltageConstraint) {
+            if (o1 instanceof OnVoltageConstraint) {
+                OnVoltageConstraint onVoltageConstraint = (OnVoltageConstraint) o1;
                 return onVoltageConstraint.getVoltageCnec().getId().compareTo(((OnVoltageConstraint) o2).getVoltageCnec().getId());
             }
             throw new FaraoException(String.format("Unknown usage rule type: %s", o1.getClass()));

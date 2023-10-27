@@ -105,11 +105,14 @@ public abstract class AbstractRemedialAction<I extends RemedialAction<I>> extend
      */
     @Override
     public boolean isRemedialActionAvailable(State state, boolean evaluatedCondition) {
-        return switch (getUsageMethod(state)) {
-            case AVAILABLE -> true;
-            case TO_BE_EVALUATED -> evaluatedCondition;
-            default -> false;
-        };
+        switch (getUsageMethod(state)) {
+            case AVAILABLE:
+                return true;
+            case TO_BE_EVALUATED:
+                return evaluatedCondition;
+            default:
+                return false;
+        }
     }
 
     /**

@@ -205,24 +205,31 @@ public class MonitoredSeriesCreator {
     }
 
     private InstantKind getMeasurementInstant(Analog measurement) {
-        return switch (measurement.getMeasurementType()) {
-            case CNECS_N_STATE_MEASUREMENT_TYPE -> InstantKind.PREVENTIVE;
-            case CNECS_OUTAGE_STATE_MEASUREMENT_TYPE -> InstantKind.OUTAGE;
-            case CNECS_AUTO_STATE_MEASUREMENT_TYPE -> InstantKind.AUTO;
-            case CNECS_CURATIVE_STATE_MEASUREMENT_TYPE -> InstantKind.CURATIVE;
-            default ->
+        switch (measurement.getMeasurementType()) {
+            case CNECS_N_STATE_MEASUREMENT_TYPE:
+                return InstantKind.PREVENTIVE;
+            case CNECS_OUTAGE_STATE_MEASUREMENT_TYPE:
+                return InstantKind.OUTAGE;
+            case CNECS_AUTO_STATE_MEASUREMENT_TYPE:
+                return InstantKind.AUTO;
+            case CNECS_CURATIVE_STATE_MEASUREMENT_TYPE:
+                return InstantKind.CURATIVE;
+            default:
                 throw new FaraoException(String.format("Unrecognized measurementType: %s", measurement.getMeasurementType()));
-        };
+        }
     }
 
     private Unit getMeasurementUnit(Analog measurement) {
-        return switch (measurement.getUnitSymbol()) {
-            case CNECS_PATL_UNIT_SYMBOL -> Unit.PERCENT_IMAX;
-            case MEGAWATT_UNIT_SYMBOL -> Unit.MEGAWATT;
-            case AMPERES_UNIT_SYMBOL -> Unit.AMPERE;
-            default ->
+        switch (measurement.getUnitSymbol()) {
+            case CNECS_PATL_UNIT_SYMBOL:
+                return Unit.PERCENT_IMAX;
+            case MEGAWATT_UNIT_SYMBOL:
+                return Unit.MEGAWATT;
+            case AMPERES_UNIT_SYMBOL:
+                return Unit.AMPERE;
+            default:
                 throw new FaraoException(String.format("Unrecognized unitSymbol: %s", measurement.getUnitSymbol()));
-        };
+        }
     }
 
     private String getMeasurementDirection(Analog measurement) {

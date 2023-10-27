@@ -7,6 +7,7 @@
 
 package com.farao_community.farao.data.swe_cne_exporter;
 
+import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Contingency;
 import com.farao_community.farao.data.crac_api.Crac;
@@ -70,7 +71,7 @@ public class SweMonitoredSeriesCreator {
                                 }
                             )
                     )
-            );
+        );
     }
 
     public List<MonitoredSeries> generateMonitoredSeries(Contingency contingency) {
@@ -169,11 +170,17 @@ public class SweMonitoredSeriesCreator {
     }
 
     private String getThresholdMeasurementType(FlowCnec cnec) {
-        return switch (cnec.getState().getInstant().getInstantKind()) {
-            case PREVENTIVE -> PATL_MEASUREMENT_TYPE;
-            case OUTAGE -> TATL_MEASUREMENT_TYPE;
-            case AUTO -> AUTO_MEASUREMENT_TYPE;
-            case CURATIVE -> CURATIVE_MEASUREMENT_TYPE;
-        };
+        switch (cnec.getState().getInstant().getInstantKind()) {
+            case PREVENTIVE:
+                return PATL_MEASUREMENT_TYPE;
+            case OUTAGE:
+                return TATL_MEASUREMENT_TYPE;
+            case AUTO:
+                return AUTO_MEASUREMENT_TYPE;
+            case CURATIVE:
+                return CURATIVE_MEASUREMENT_TYPE;
+            default:
+                throw new FaraoException(String.format("Unexpected instant: %s", cnec.getState().getInstant().toString()));
+        }
     }
 }

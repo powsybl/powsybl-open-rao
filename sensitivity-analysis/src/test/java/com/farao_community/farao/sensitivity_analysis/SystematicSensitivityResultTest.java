@@ -24,7 +24,6 @@ import com.powsybl.sensitivity.SensitivityAnalysis;
 import com.powsybl.sensitivity.SensitivityAnalysisParameters;
 import com.powsybl.sensitivity.SensitivityAnalysisResult;
 import com.powsybl.sensitivity.SensitivityVariableSet;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
@@ -57,9 +56,9 @@ class SystematicSensitivityResultTest {
     private PtdfSensitivityProvider ptdfSensitivityProvider;
     private int instantOutageOrder;
 
-    @BeforeEach
     public void setUp() {
         network = NetworkImportsUtil.import12NodesNetwork();
+        //TODO remove this
         Crac crac = CommonCracCreation.createWithPreventivePstRange(Set.of(Side.LEFT, Side.RIGHT));
         instantOutageOrder = crac.getInstant("curative").getOrder();
 
@@ -80,6 +79,7 @@ class SystematicSensitivityResultTest {
 
     @Test
     void testPostTreatIntensities() {
+        setUp();
         // When
         SensitivityAnalysisResult sensitivityAnalysisResult = SensitivityAnalysis.find().run(network,
             rangeActionSensitivityProvider.getAllFactors(network),
@@ -104,6 +104,7 @@ class SystematicSensitivityResultTest {
 
     @Test
     void testPstResultManipulation() {
+        setUp();
         // When
         SensitivityAnalysisResult sensitivityAnalysisResult = SensitivityAnalysis.find().run(network,
             rangeActionSensitivityProvider.getAllFactors(network),
@@ -135,6 +136,7 @@ class SystematicSensitivityResultTest {
 
     @Test
     void testPtdfResultManipulation() {
+        setUp();
         // When
         SensitivityAnalysisResult sensitivityAnalysisResult = SensitivityAnalysis.find().run(network,
             ptdfSensitivityProvider.getAllFactors(network),
@@ -161,6 +163,7 @@ class SystematicSensitivityResultTest {
 
     @Test
     void testFailureSensiResult() {
+        setUp();
         // When
         SensitivityAnalysisResult sensitivityAnalysisResult = Mockito.mock(SensitivityAnalysisResult.class);
         SystematicSensitivityResult result = new SystematicSensitivityResult().completeData(sensitivityAnalysisResult, instantOutageOrder).postTreatIntensities();

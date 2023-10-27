@@ -84,7 +84,8 @@ class UcteConnectable implements Comparable<UcteConnectable> {
 
     @Override
     public boolean equals(Object obj) {
-        if (obj instanceof UcteConnectable other) {
+        if (obj instanceof UcteConnectable) {
+            UcteConnectable other = (UcteConnectable) obj;
             return this.ucteFromNode.equals(other.ucteFromNode)
                 && this.ucteToNode.equals(other.ucteToNode)
                 && this.ucteOrderCode.equals(other.ucteOrderCode)

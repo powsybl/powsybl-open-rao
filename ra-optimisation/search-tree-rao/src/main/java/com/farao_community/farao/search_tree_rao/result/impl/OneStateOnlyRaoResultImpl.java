@@ -195,9 +195,11 @@ public class OneStateOnlyRaoResultImpl implements RaoResult {
 
     @Override
     public boolean isActivatedDuringState(State state, RemedialAction<?> remedialAction) {
-        if (remedialAction instanceof NetworkAction networkAction) {
+        if (remedialAction instanceof NetworkAction) {
+            NetworkAction networkAction = (NetworkAction) remedialAction;
             return isActivatedDuringState(state, networkAction);
-        } else if (remedialAction instanceof RangeAction<?> rangeAction) {
+        } else if (remedialAction instanceof RangeAction<?>) {
+            RangeAction<?> rangeAction = (RangeAction<?>) remedialAction;
             return isActivatedDuringState(state, rangeAction);
         } else {
             throw new FaraoException("Unrecognized remedial action type");
