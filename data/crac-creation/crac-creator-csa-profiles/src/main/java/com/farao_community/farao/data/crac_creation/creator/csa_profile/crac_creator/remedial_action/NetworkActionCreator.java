@@ -126,7 +126,8 @@ public class NetworkActionCreator {
             throw new FaraoImportException(ImportStatus.INCONSISTENCY_IN_DATA, CsaProfileConstants.REMEDIAL_ACTION_MESSAGE + remedialActionId + " will not be imported because StaticPropertyRange has wrong values of valueKind and direction");
         }
 
-        float normalValue, setPointValue = 0f;
+        float normalValue = 0f;
+        float setPointValue = 0f;
         try {
             normalValue = Float.parseFloat(staticPropertyRangePropertyBag.get(CsaProfileConstants.NORMAL_VALUE));
         } catch (Exception e) {
