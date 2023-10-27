@@ -504,15 +504,16 @@ public class CsaProfileCnecCreator {
             } else {
                 instantKind = InstantKind.CURATIVE;
             }
-            cnecInstantId = crac.getUniqueInstant(instantKind).getId();
             flowCnecAdder.withInstantId(cnecInstantId);
-            return true;
         } else if (CsaProfileConstants.LimitKind.PATL.toString().equals(kind)) {
-            flowCnecAdder.withInstantId(crac.getUniqueInstant(InstantKind.CURATIVE).getId());
+            instantKind = InstantKind.CURATIVE;
+            flowCnecAdder.withInstantId(crac.getUniqueInstant(instantKind).getId());
         } else {
             csaProfileCnecCreationContexts.add(CsaProfileElementaryCreationContext.notImported(assessedElementId, ImportStatus.INCONSISTENCY_IN_DATA, "OperationalLimitType.kind is incorrect : " + kind));
             return false;
         }
+        cnecInstantId = crac.getUniqueInstant(instantKind).getId();
+        return true;
     }
 
     private boolean addCurrentLimitThreshold(String assessedElementId, FlowCnecAdder flowCnecAdder, PropertyBag currentLimit, Identifiable<?> networkElement, Side side) {

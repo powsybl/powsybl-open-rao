@@ -248,7 +248,7 @@ class FlowCnecAdderImplTest {
             .withNominalVoltage(220)
             .withIMax(2000.);
         FaraoException exception = assertThrows(FaraoException.class, flowCnecAdder::add);
-        assertEquals("Cannot add Cnec without a instant. Please use withInstant() with a non null value", exception.getMessage());
+        assertEquals("Cannot add Cnec without a instant. Please use withInstantId() with a non null value", exception.getMessage());
     }
 
     @Test

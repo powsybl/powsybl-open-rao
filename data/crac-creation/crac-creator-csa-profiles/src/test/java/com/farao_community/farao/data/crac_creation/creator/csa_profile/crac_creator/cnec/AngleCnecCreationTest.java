@@ -14,8 +14,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 
-import static com.farao_community.farao.data.crac_api.Instant.CURATIVE;
-import static com.farao_community.farao.data.crac_api.Instant.PREVENTIVE;
 import static com.farao_community.farao.data.crac_creation.creator.csa_profile.crac_creator.CsaProfileCracCreationTestUtil.getCsaCracCreationContext;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -160,49 +158,13 @@ class AngleCnecCreationTest {
 
         CsaProfileCracCreationContext cracCreationContext = getCsaCracCreationContext("/csa-11/CSA_11_4_OnAngleConstraint.zip", network);
 
-        CsaProfileCracCreationTestUtil.assertAngleCnecEquality(cracCreationContext.getCrac().getAngleCnec("RTE_AE1 - RTE_CO1 - curative"),
-                "RTE_AE1 - RTE_CO1 - curative",
-                "RTE_AE1 - RTE_CO1 - curative",
-                "60038442-5c02-21a9-22ad-f0554a65a466",
-                "65e9a6a7-8488-7b17-6344-cb7d61b7920b",
-                CURATIVE,
-                "6c9656a6-84c2-4967-aabc-51f63a7abdf1",
-                30.,
-                -30.,
-                true);
+        CsaProfileCracCreationTestUtil.assertAngleCnecEquality(cracCreationContext.getCrac().getAngleCnec("RTE_AE1 - RTE_CO1 - curative"), "RTE_AE1 - RTE_CO1 - curative", "RTE_AE1 - RTE_CO1 - curative", "60038442-5c02-21a9-22ad-f0554a65a466", "65e9a6a7-8488-7b17-6344-cb7d61b7920b", "curative", "6c9656a6-84c2-4967-aabc-51f63a7abdf1", 30., -30., true);
 
-        CsaProfileCracCreationTestUtil.assertAngleCnecEquality(cracCreationContext.getCrac().getAngleCnec("RTE_AE1 - preventive"),
-                "RTE_AE1 - preventive",
-                "RTE_AE1 - preventive",
-                "60038442-5c02-21a9-22ad-f0554a65a466",
-                "65e9a6a7-8488-7b17-6344-cb7d61b7920b",
-                PREVENTIVE,
-                null,
-                30.,
-                -30.,
-                true);
+        CsaProfileCracCreationTestUtil.assertAngleCnecEquality(cracCreationContext.getCrac().getAngleCnec("RTE_AE1 - preventive"), "RTE_AE1 - preventive", "RTE_AE1 - preventive", "60038442-5c02-21a9-22ad-f0554a65a466", "65e9a6a7-8488-7b17-6344-cb7d61b7920b", "preventive", null, 30., -30., true);
 
-        CsaProfileCracCreationTestUtil.assertAngleCnecEquality(cracCreationContext.getCrac().getAngleCnec("RTE_AE2 - RTE_CO2 - curative"),
-                "RTE_AE2 - RTE_CO2 - curative",
-                "RTE_AE2 - RTE_CO2 - curative",
-                "65e9a6a7-8488-7b17-6344-cb7d61b7920b",
-                "60038442-5c02-21a9-22ad-f0554a65a466",
-                CURATIVE,
-                "410a7075-51df-4c5c-aa80-0bb1bbe41190",
-                15.,
-                -15.,
-                true);
+        CsaProfileCracCreationTestUtil.assertAngleCnecEquality(cracCreationContext.getCrac().getAngleCnec("RTE_AE2 - RTE_CO2 - curative"), "RTE_AE2 - RTE_CO2 - curative", "RTE_AE2 - RTE_CO2 - curative", "65e9a6a7-8488-7b17-6344-cb7d61b7920b", "60038442-5c02-21a9-22ad-f0554a65a466", "curative", "410a7075-51df-4c5c-aa80-0bb1bbe41190", 15., -15., true);
 
-        CsaProfileCracCreationTestUtil.assertAngleCnecEquality(cracCreationContext.getCrac().getAngleCnec("RTE_AE2 - preventive"),
-                "RTE_AE2 - preventive",
-                "RTE_AE2 - preventive",
-                "65e9a6a7-8488-7b17-6344-cb7d61b7920b",
-                "60038442-5c02-21a9-22ad-f0554a65a466",
-                PREVENTIVE,
-                null,
-                15.,
-                -15.,
-                true);
+        CsaProfileCracCreationTestUtil.assertAngleCnecEquality(cracCreationContext.getCrac().getAngleCnec("RTE_AE2 - preventive"), "RTE_AE2 - preventive", "RTE_AE2 - preventive", "65e9a6a7-8488-7b17-6344-cb7d61b7920b", "60038442-5c02-21a9-22ad-f0554a65a466", "preventive", null, 15., -15., true);
 
         //4 remedial actions and a total of 8 onAngleConstraint usage rules.
         assertEquals(4, cracCreationContext.getCrac().getRemedialActions().size());
@@ -211,17 +173,17 @@ class AngleCnecCreationTest {
         CsaProfileCracCreationTestUtil.assertNetworkActionImported(cracCreationContext, "f17a745b-60a1-4acd-887f-ebc8349b4597", Set.of("f9c8d9ce-6c44-4293-b60e-93c658411d68"), true, 2);
         CsaProfileCracCreationTestUtil.assertNetworkActionImported(cracCreationContext, "a8f21a9a-49dc-4c2a-9745-405392f0d87b", Set.of("f9c8d9ce-6c44-4293-b60e-93c658411d68"), false, 2);
 
-        CsaProfileCracCreationTestUtil.assertHasOnAngleConstraintUsageRule(cracCreationContext, "6c283463-9aac-4d9b-9d0b-6710c5b2aa00", "RTE_AE1 - preventive", PREVENTIVE, UsageMethod.TO_BE_EVALUATED); // TODO change TO_BE_EVALUATED by AVAILABLE
-        CsaProfileCracCreationTestUtil.assertHasOnAngleConstraintUsageRule(cracCreationContext, "6c283463-9aac-4d9b-9d0b-6710c5b2aa00", "RTE_AE1 - RTE_CO1 - curative", PREVENTIVE, UsageMethod.TO_BE_EVALUATED);
+        CsaProfileCracCreationTestUtil.assertHasOnAngleConstraintUsageRule(cracCreationContext, "6c283463-9aac-4d9b-9d0b-6710c5b2aa00", "RTE_AE1 - preventive", "preventive", UsageMethod.TO_BE_EVALUATED); // TODO change TO_BE_EVALUATED by AVAILABLE
+        CsaProfileCracCreationTestUtil.assertHasOnAngleConstraintUsageRule(cracCreationContext, "6c283463-9aac-4d9b-9d0b-6710c5b2aa00", "RTE_AE1 - RTE_CO1 - curative", "preventive", UsageMethod.TO_BE_EVALUATED);
 
-        CsaProfileCracCreationTestUtil.assertHasOnAngleConstraintUsageRule(cracCreationContext, "0af9ce7e-8013-4362-96a0-40ac0a970eb6", "RTE_AE2 - preventive", PREVENTIVE, UsageMethod.TO_BE_EVALUATED); // TODO change TO_BE_EVALUATED by AVAILABLE
-        CsaProfileCracCreationTestUtil.assertHasOnAngleConstraintUsageRule(cracCreationContext, "0af9ce7e-8013-4362-96a0-40ac0a970eb6", "RTE_AE2 - RTE_CO2 - curative", PREVENTIVE, UsageMethod.TO_BE_EVALUATED);
+        CsaProfileCracCreationTestUtil.assertHasOnAngleConstraintUsageRule(cracCreationContext, "0af9ce7e-8013-4362-96a0-40ac0a970eb6", "RTE_AE2 - preventive", "preventive", UsageMethod.TO_BE_EVALUATED); // TODO change TO_BE_EVALUATED by AVAILABLE
+        CsaProfileCracCreationTestUtil.assertHasOnAngleConstraintUsageRule(cracCreationContext, "0af9ce7e-8013-4362-96a0-40ac0a970eb6", "RTE_AE2 - RTE_CO2 - curative", "preventive", UsageMethod.TO_BE_EVALUATED);
 
-        CsaProfileCracCreationTestUtil.assertHasOnAngleConstraintUsageRule(cracCreationContext, "f17a745b-60a1-4acd-887f-ebc8349b4597", "RTE_AE2 - preventive", PREVENTIVE, UsageMethod.TO_BE_EVALUATED); // TODO change TO_BE_EVALUATED by AVAILABLE
-        CsaProfileCracCreationTestUtil.assertHasOnAngleConstraintUsageRule(cracCreationContext, "f17a745b-60a1-4acd-887f-ebc8349b4597", "RTE_AE2 - RTE_CO2 - curative", PREVENTIVE, UsageMethod.TO_BE_EVALUATED);
+        CsaProfileCracCreationTestUtil.assertHasOnAngleConstraintUsageRule(cracCreationContext, "f17a745b-60a1-4acd-887f-ebc8349b4597", "RTE_AE2 - preventive", "preventive", UsageMethod.TO_BE_EVALUATED); // TODO change TO_BE_EVALUATED by AVAILABLE
+        CsaProfileCracCreationTestUtil.assertHasOnAngleConstraintUsageRule(cracCreationContext, "f17a745b-60a1-4acd-887f-ebc8349b4597", "RTE_AE2 - RTE_CO2 - curative", "preventive", UsageMethod.TO_BE_EVALUATED);
 
-        CsaProfileCracCreationTestUtil.assertHasOnAngleConstraintUsageRule(cracCreationContext, "a8f21a9a-49dc-4c2a-9745-405392f0d87b", "RTE_AE1 - RTE_CO1 - curative", CURATIVE, UsageMethod.TO_BE_EVALUATED); // TODO change TO_BE_EVALUATED by AVAILABLE
-        CsaProfileCracCreationTestUtil.assertHasOnAngleConstraintUsageRule(cracCreationContext, "a8f21a9a-49dc-4c2a-9745-405392f0d87b", "RTE_AE2 - RTE_CO2 - curative", CURATIVE, UsageMethod.TO_BE_EVALUATED);
+        CsaProfileCracCreationTestUtil.assertHasOnAngleConstraintUsageRule(cracCreationContext, "a8f21a9a-49dc-4c2a-9745-405392f0d87b", "RTE_AE1 - RTE_CO1 - curative", "curative", UsageMethod.TO_BE_EVALUATED); // TODO change TO_BE_EVALUATED by AVAILABLE
+        CsaProfileCracCreationTestUtil.assertHasOnAngleConstraintUsageRule(cracCreationContext, "a8f21a9a-49dc-4c2a-9745-405392f0d87b", "RTE_AE2 - RTE_CO2 - curative", "curative", UsageMethod.TO_BE_EVALUATED);
     }
 
 }

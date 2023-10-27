@@ -220,7 +220,7 @@ class AngleCnecAdderImplTest {
             .withImportingNetworkElement("ineId")
             .newThreshold().withUnit(Unit.DEGREE).withMax(100.0).withMin(-100.0).add();
         FaraoException exception = assertThrows(FaraoException.class, angleCnecAdder::add);
-        assertEquals("Cannot add Cnec without a instant. Please use withInstant() with a non null value", exception.getMessage());
+        assertEquals("Cannot add Cnec without a instant. Please use withInstantId() with a non null value", exception.getMessage());
     }
 
     @Test

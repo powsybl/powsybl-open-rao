@@ -201,7 +201,7 @@ class VoltageCnecAdderImplTest {
             .withNetworkElement("neId")
             .newThreshold().withUnit(Unit.KILOVOLT).withMax(100.0).withMin(-100.0).add();
         FaraoException exception = assertThrows(FaraoException.class, voltageCnecAdder::add);
-        assertEquals("Cannot add Cnec without a instant. Please use withInstant() with a non null value", exception.getMessage());
+        assertEquals("Cannot add Cnec without a instant. Please use withInstantId() with a non null value", exception.getMessage());
     }
 
     @Test
