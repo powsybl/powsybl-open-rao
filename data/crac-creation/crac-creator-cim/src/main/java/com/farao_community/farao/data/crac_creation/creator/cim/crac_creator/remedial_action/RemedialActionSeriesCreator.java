@@ -174,7 +174,7 @@ public class RemedialActionSeriesCreator {
                                                AngleCnec angleCnec,
                                                Country sharedDomain,
                                                InstantKind instantKind) {
-        Instant instant = crac.getUniqueInstant(instantKind);
+        Instant instant = crac.getInstant(instantKind);
         if (!flowCnecs.isEmpty()) {
             flowCnecs.forEach(flowCnec -> addOnFlowConstraintUsageRule(remedialActionAdder, flowCnec, instant));
             return;
@@ -201,7 +201,7 @@ public class RemedialActionSeriesCreator {
     private static void addOnAngleConstraintUsageRule(Crac crac, RemedialActionAdder<?> adder, AngleCnec angleCnec) {
         adder.newOnAngleConstraintUsageRule()
             .withAngleCnec(angleCnec.getId())
-            .withInstantId(crac.getUniqueInstant(InstantKind.CURATIVE).getId())
+            .withInstantId(crac.getInstant(InstantKind.CURATIVE).getId())
             .add();
     }
 

@@ -32,7 +32,7 @@ class JsonLoopFlowThresholdImplImportExportTest {
     @Test
     void roundTripTest() {
         Crac crac = new CracImpl("cracId");
-        crac.addInstant("preventive", InstantKind.PREVENTIVE, null);
+        crac.newInstant("preventive", InstantKind.PREVENTIVE, null);
 
         crac.newFlowCnec()
             .withId("cnec1")

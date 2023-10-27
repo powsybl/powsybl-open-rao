@@ -74,10 +74,10 @@ class JsonAngleMonitoringResultTest {
     @BeforeEach
     public void setUp() {
         crac = CracFactory.findDefault().create("test-crac");
-        crac.addInstant("preventive", InstantKind.PREVENTIVE, null);
-        crac.addInstant("outage", InstantKind.OUTAGE, "preventive");
-        crac.addInstant("auto", InstantKind.AUTO, "outage");
-        crac.addInstant("curative", InstantKind.CURATIVE, "auto");
+        crac.newInstant("preventive", InstantKind.PREVENTIVE, null);
+        crac.newInstant("outage", InstantKind.OUTAGE, "preventive");
+        crac.newInstant("auto", InstantKind.AUTO, "outage");
+        crac.newInstant("curative", InstantKind.CURATIVE, "auto");
         co1 = crac.newContingency().withId("co1").withNetworkElement("co1-ne").add();
         ac1 = addAngleCnec("ac1", "impNe1", "expNe1", "preventive", null, 145., 150.);
         ac2 = addAngleCnec("ac2", "impNe2", "expNe2", "curative", co1.getId(), 140., 145.);

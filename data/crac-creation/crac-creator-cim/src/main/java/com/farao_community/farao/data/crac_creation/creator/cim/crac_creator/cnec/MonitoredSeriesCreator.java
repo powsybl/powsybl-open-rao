@@ -193,7 +193,7 @@ public class MonitoredSeriesCreator {
         String direction;
         double threshold;
         try {
-            instant = crac.getUniqueInstant(getMeasurementInstant(measurement));
+            instant = crac.getInstant(getMeasurementInstant(measurement));
             unit = getMeasurementUnit(measurement);
             direction = getMeasurementDirection(measurement);
             threshold = (unit.equals(Unit.PERCENT_IMAX) ? 0.01 : 1) * measurement.getAnalogValuesValue(); // FARAO uses relative convention for %Imax (0 <= threshold <= 1)

@@ -66,7 +66,7 @@ public class PrePerimeterSensitivityAnalysis {
         sensitivityComputer = sensitivityComputerBuilder.build();
         objectiveFunction = ObjectiveFunction.create().buildForInitialSensitivityComputation(flowCnecs, raoParameters, crac, RangeActionSetpointResultImpl.buildWithSetpointsFromNetwork(network, rangeActions));
 
-        return runAndGetResult(network, objectiveFunction, crac.getUniqueInstant(InstantKind.OUTAGE));
+        return runAndGetResult(network, objectiveFunction, crac.getInstant(InstantKind.OUTAGE));
     }
 
     public PrePerimeterResult runBasedOnInitialResults(Network network,
@@ -95,7 +95,7 @@ public class PrePerimeterSensitivityAnalysis {
 
         objectiveFunction = ObjectiveFunction.create().build(flowCnecs, toolProvider.getLoopFlowCnecs(flowCnecs), initialFlowResult, initialFlowResult, initialRangeActionSetpointResult, crac, operatorsNotSharingCras, raoParameters);
 
-        return runAndGetResult(network, objectiveFunction, crac.getUniqueInstant(InstantKind.OUTAGE));
+        return runAndGetResult(network, objectiveFunction, crac.getInstant(InstantKind.OUTAGE));
     }
 
     public ObjectiveFunction getObjectiveFunction() {

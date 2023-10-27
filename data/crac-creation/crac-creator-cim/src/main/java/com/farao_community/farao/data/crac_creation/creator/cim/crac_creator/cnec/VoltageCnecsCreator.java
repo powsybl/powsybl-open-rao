@@ -48,7 +48,7 @@ public class VoltageCnecsCreator {
         Map<String, Double> elementsAndNominalV = filterMonitoredNetworkElementsAndFetchNominalV();
         for (Map.Entry<String, VoltageMonitoredContingenciesAndThresholds> entry : voltageCnecsCreationParameters.getMonitoredStatesAndThresholds().entrySet()) {
             Set<String> filteredContingencies = new HashSet<>();
-            if (!entry.getKey().equals(cracCreationContext.getCrac().getUniqueInstant(InstantKind.PREVENTIVE).getId())) {
+            if (!entry.getKey().equals(cracCreationContext.getCrac().getInstant(InstantKind.PREVENTIVE).getId())) {
                 filteredContingencies = filterContingencies(entry.getValue().getContingencyNames());
             }
             createAndAddCnecs(elementsAndNominalV, entry.getKey(), filteredContingencies, entry.getValue().getThresholdPerNominalV());

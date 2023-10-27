@@ -33,7 +33,7 @@ class AngleCnecImplTest {
     @BeforeEach
     public void setUp() {
         crac = new CracImplFactory().create("cracId");
-        crac.addInstant("preventive", InstantKind.PREVENTIVE, null);
+        crac.newInstant("preventive", InstantKind.PREVENTIVE, null);
     }
 
     private AngleCnecAdder initPreventiveCnecAdder() {

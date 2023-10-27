@@ -39,9 +39,9 @@ import static com.google.common.collect.Iterables.isEmpty;
 public class FbConstraintCracCreator implements CracCreator<FbConstraint, FbConstraintCreationContext> {
 
     private static void addFbContraintInstants(Crac crac) {
-        crac.addInstant("preventive", InstantKind.PREVENTIVE, null);
-        crac.addInstant("outage", InstantKind.OUTAGE, "preventive");
-        crac.addInstant("curative", InstantKind.CURATIVE, "outage");
+        crac.newInstant("preventive", InstantKind.PREVENTIVE, null);
+        crac.newInstant("outage", InstantKind.OUTAGE, "preventive");
+        crac.newInstant("curative", InstantKind.CURATIVE, "outage");
     }
 
     @Override

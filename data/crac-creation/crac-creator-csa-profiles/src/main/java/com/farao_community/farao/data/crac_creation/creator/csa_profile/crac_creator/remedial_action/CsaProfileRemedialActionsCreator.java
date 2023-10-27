@@ -128,7 +128,7 @@ public class CsaProfileRemedialActionsCreator {
                         )
                         .toList();
 
-                    Instant instantCurative = crac.getUniqueInstant(InstantKind.CURATIVE);
+                    Instant instantCurative = crac.getInstant(InstantKind.CURATIVE);
                     boolean hasAtLeastOneOnConstraintUsageRule = addOnConstraintUsageRules(instantCurative, remedialActionAdder, remedialActionId, alterations);
                     if (!hasAtLeastOneOnConstraintUsageRule) {
                         if (!randomCombinationConstraintKind.equals(CsaProfileConstants.ElementCombinationConstraintKind.EXCLUDED.toString())) {
@@ -140,14 +140,14 @@ public class CsaProfileRemedialActionsCreator {
                 } else { // no contingency linked to RA --> on instant usage rule
                     String kind = parentRemedialActionPropertyBag.get(CsaProfileConstants.RA_KIND);
                     if (kind.equals(CsaProfileConstants.RemedialActionKind.PREVENTIVE.toString())) {
-                        Instant instantPrev = crac.getUniqueInstant(InstantKind.PREVENTIVE);
+                        Instant instantPrev = crac.getInstant(InstantKind.PREVENTIVE);
                         boolean hasAtLeastOneOnConstraintUsageRule = addOnConstraintUsageRules(instantPrev, remedialActionAdder, remedialActionId, alterations);
                         if (!hasAtLeastOneOnConstraintUsageRule) {
 
                             remedialActionAdder.newOnInstantUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withInstantId(instantPrev.getId()).add();
                         }
                     } else {
-                        Instant instantCurative = crac.getUniqueInstant(InstantKind.CURATIVE);
+                        Instant instantCurative = crac.getInstant(InstantKind.CURATIVE);
                         boolean hasAtLeastOneOnConstraintUsageRule = addOnConstraintUsageRules(instantCurative, remedialActionAdder, remedialActionId, alterations);
                         if (!hasAtLeastOneOnConstraintUsageRule) {
 

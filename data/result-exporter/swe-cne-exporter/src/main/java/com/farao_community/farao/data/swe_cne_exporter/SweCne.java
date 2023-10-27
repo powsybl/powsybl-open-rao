@@ -114,7 +114,7 @@ public class SweCne {
         RaoResult raoResult = sweCneHelper.getRaoResult();
         AngleMonitoringResult angleMonitoringResult = sweCneHelper.getAngleMonitoringResult();
         boolean isDivergent = sweCneHelper.isAnyContingencyInFailure() || raoResult.getComputationStatus() == ComputationStatus.FAILURE;
-        boolean isUnsecure = raoResult.getFunctionalCost(cracCreationContext.getCrac().getUniqueInstant(InstantKind.CURATIVE)) > 0;
+        boolean isUnsecure = raoResult.getFunctionalCost(cracCreationContext.getCrac().getInstant(InstantKind.CURATIVE)) > 0;
         if (Objects.nonNull(angleMonitoringResult)) {
             isDivergent = isDivergent || angleMonitoringResult.isDivergent();
             isUnsecure = isUnsecure || angleMonitoringResult.isUnsecure();

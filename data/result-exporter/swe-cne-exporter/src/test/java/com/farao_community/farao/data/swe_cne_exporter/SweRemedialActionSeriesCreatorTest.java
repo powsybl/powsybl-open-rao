@@ -53,10 +53,10 @@ class SweRemedialActionSeriesCreatorTest {
         Mockito.when(crac.getInstant("outage")).thenReturn(instantOutage);
         Mockito.when(crac.getInstant("auto")).thenReturn(instantAuto);
         Mockito.when(crac.getInstant("curative")).thenReturn(instantCurative);
-        Mockito.when(crac.getUniqueInstant(InstantKind.PREVENTIVE)).thenReturn(instantPrev);
-        Mockito.when(crac.getUniqueInstant(InstantKind.OUTAGE)).thenReturn(instantOutage);
-        Mockito.when(crac.getUniqueInstant(InstantKind.AUTO)).thenReturn(instantAuto);
-        Mockito.when(crac.getUniqueInstant(InstantKind.CURATIVE)).thenReturn(instantCurative);
+        Mockito.when(crac.getInstant(InstantKind.PREVENTIVE)).thenReturn(instantPrev);
+        Mockito.when(crac.getInstant(InstantKind.OUTAGE)).thenReturn(instantOutage);
+        Mockito.when(crac.getInstant(InstantKind.AUTO)).thenReturn(instantAuto);
+        Mockito.when(crac.getInstant(InstantKind.CURATIVE)).thenReturn(instantCurative);
     }
 
     @Test

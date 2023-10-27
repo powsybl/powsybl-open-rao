@@ -66,34 +66,31 @@ public interface Crac extends Identifiable<Crac> {
     /**
      * Add instant
      *
-     * @return
+     * @return crac
      */
-    Instant addInstant(String instantId, InstantKind instantKind, String prevInstantId);
-
-    /**
-     * Gather all the states present in the Crac. It returns a set because instants must not
-     * be duplicated and there is no defined order for instants.
-     */
-    // TODO: return a list instead?
-    Set<Instant> getInstants();
-
-    /**
-     * Select the preventive state. This state is unique. It's the only state that is
-     * defined on the preventive instant, with no contingency.
-     */
-    Instant getPreventiveInstant();
-
-    Instant getUniqueInstant(InstantKind instantKind);
-
-    /**
-     * Gather all the instants present in the Crac with the correct instantKind.
-     */
-    Set<Instant> getInstants(InstantKind instantKind);
+    Instant newInstant(String instantId, InstantKind instantKind, String prevInstantId);
 
     /**
      * Get instant based on Id
      */
     Instant getInstant(String instantId);
+
+    /**
+     * Gather all the instants present in the Crac. It returns a set of unordred instants
+     */
+    Set<Instant> getInstants();
+
+    /**
+     * Get instant based on a kind. Throws exception :
+     * - if crac does not contain such instant Kind or
+     * - if multiple instants of this kind are defined in the crac
+     */
+    Instant getInstant(InstantKind instantKind);
+
+    /**
+     * Gather all the instants present in the Crac with the correct instantKind.
+     */
+    Set<Instant> getInstants(InstantKind instantKind);
 
     // States management
 

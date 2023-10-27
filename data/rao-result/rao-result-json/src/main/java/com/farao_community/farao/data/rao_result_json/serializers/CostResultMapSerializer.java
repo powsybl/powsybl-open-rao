@@ -32,9 +32,9 @@ final class CostResultMapSerializer {
 
         jsonGenerator.writeObjectFieldStart(COST_RESULTS);
         serializeCostResultForOptimizationState(null, raoResult, jsonGenerator);
-        serializeCostResultForOptimizationState(crac.getUniqueInstant(InstantKind.PREVENTIVE), raoResult, jsonGenerator);
-        serializeCostResultForOptimizationState(crac.getUniqueInstant(InstantKind.AUTO), raoResult, jsonGenerator);
-        serializeCostResultForOptimizationState(crac.getUniqueInstant(InstantKind.CURATIVE), raoResult, jsonGenerator);
+        serializeCostResultForOptimizationState(crac.getInstant(InstantKind.PREVENTIVE), raoResult, jsonGenerator);
+        serializeCostResultForOptimizationState(crac.getInstant(InstantKind.AUTO), raoResult, jsonGenerator);
+        serializeCostResultForOptimizationState(crac.getInstant(InstantKind.CURATIVE), raoResult, jsonGenerator);
         jsonGenerator.writeEndObject();
     }
 

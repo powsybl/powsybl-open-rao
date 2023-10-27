@@ -40,9 +40,9 @@ class CracValidatorTest {
         crac = CracFactory.findDefault().create("crac");
         crac.newContingency().withId("co-1").withNetworkElement("BBE1AA1  BBE2AA1  1").add();
         crac.newContingency().withId("co-2").withNetworkElement("BBE1AA1  BBE3AA1  1").add();
-        crac.addInstant("preventive", InstantKind.PREVENTIVE, null);
-        crac.addInstant("outage", InstantKind.OUTAGE, "preventive");
-        crac.addInstant("auto", InstantKind.AUTO, "outage");
+        crac.newInstant("preventive", InstantKind.PREVENTIVE, null);
+        crac.newInstant("outage", InstantKind.OUTAGE, "preventive");
+        crac.newInstant("auto", InstantKind.AUTO, "outage");
 
         crac.newFlowCnec()
             .withId("auto-cnec-1")

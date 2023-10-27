@@ -31,8 +31,8 @@ class VoltageThresholdAdderImplTest {
     @BeforeEach
     public void setUp() {
         crac = new CracImplFactory().create("test-crac");
-        crac.addInstant("preventive", InstantKind.PREVENTIVE, null);
-        crac.addInstant("outage", InstantKind.OUTAGE, "preventive");
+        crac.newInstant("preventive", InstantKind.PREVENTIVE, null);
+        crac.newInstant("outage", InstantKind.OUTAGE, "preventive");
         contingency = crac.newContingency().withId("conId").add();
     }
 

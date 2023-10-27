@@ -388,10 +388,10 @@ class RaoResultRoundTripTest {
     @Test
     void testRoundTripRangeActionsCrossResults() {
         Crac crac = CracFactory.findDefault().create("crac");
-        crac.addInstant("preventive", InstantKind.PREVENTIVE, null);
-        crac.addInstant("outage", InstantKind.OUTAGE, "preventive");
-        crac.addInstant("auto", InstantKind.AUTO, "outage");
-        crac.addInstant("curative", InstantKind.CURATIVE, "auto");
+        crac.newInstant("preventive", InstantKind.PREVENTIVE, null);
+        crac.newInstant("outage", InstantKind.OUTAGE, "preventive");
+        crac.newInstant("auto", InstantKind.AUTO, "outage");
+        crac.newInstant("curative", InstantKind.CURATIVE, "auto");
         PstRangeAction pstPrev = (PstRangeAction) crac.newPstRangeAction().withId("pst-prev").withNetworkElement("pst").withInitialTap(-1)
             .withTapToAngleConversionMap(Map.of(-1, -10., 0, 0., 1, 10., 2, 20., 3, 30.))
             .withSpeed(1)

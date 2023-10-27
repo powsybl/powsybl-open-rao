@@ -33,7 +33,7 @@ class NetworkActionCombinationTest {
     public void setUp() {
 
         Crac crac = CracFactory.findDefault().create("crac");
-        crac.addInstant("preventive", InstantKind.PREVENTIVE, null);
+        crac.newInstant("preventive", InstantKind.PREVENTIVE, null);
 
         networkAction1 = (NetworkAction) crac.newNetworkAction()
             .withId("topological-action-1")

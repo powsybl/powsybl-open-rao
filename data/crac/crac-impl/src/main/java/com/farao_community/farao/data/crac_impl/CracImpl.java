@@ -151,7 +151,7 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
     }
 
     @Override
-    public Instant addInstant(String instantId, InstantKind instantKind, String prevInstantId) {
+    public Instant newInstant(String instantId, InstantKind instantKind, String prevInstantId) {
         if (instants.containsKey(instantId)) {
             Instant instant = instants.get(instantId);
             if (instantKind == instant.getInstantKind() && Objects.equals(instants.get(prevInstantId), instant.getPreviousInstant())) {
@@ -164,6 +164,14 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
         Instant instant = new InstantImpl(instantId, instantKind, prevInstant);
         instants.put(instantId, instant);
         return instant; // TODO Do we return instant ? I'm not a huge fan of this...
+    }
+
+    @Override
+    public Instant getInstant(String instantId) {
+        if (!instants.containsKey(instantId)) {
+            throw new FaraoException(String.format("Instant '%s' has not been defined", instantId));
+        }
+        return instants.get(instantId);
     }
 
     private Instant getPrevInstant(String prevInstantId) {
@@ -183,12 +191,7 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
     }
 
     @Override
-    public Instant getPreventiveInstant() {
-        return instants.get("preventive");
-    }
-
-    @Override
-    public Instant getUniqueInstant(InstantKind instantKind) {
+    public Instant getInstant(InstantKind instantKind) {
         Set<Instant> instantsOfKind = getInstants(instantKind);
         if (instantsOfKind.size() != 1) {
             throw new FaraoException(String.format("Crac does not contain exactly one instant of kind '%s'. It contains %d instants of kind '%s'", instantKind.toString(), instantsOfKind.size(), instantKind));
@@ -203,14 +206,6 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
         return instants.values().stream()
             .filter(instant -> instant.getInstantKind().equals(instantKind))
             .collect(Collectors.toSet());
-    }
-
-    @Override
-    public Instant getInstant(String instantId) {
-        if (!instants.containsKey(instantId)) {
-            throw new FaraoException(String.format("Instant '%s' has not been defined", instantId));
-        }
-        return instants.get(instantId);
     }
 
     void addContingency(Contingency contingency) {

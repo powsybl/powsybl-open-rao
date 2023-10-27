@@ -145,7 +145,7 @@ public class CsaProfileCnecCreator {
         }
         if (inBaseCase) {
             String cnecName = assessedElementName + " - preventive";
-            String instantPrevId = crac.getUniqueInstant(InstantKind.PREVENTIVE).getId();
+            String instantPrevId = crac.getInstant(InstantKind.PREVENTIVE).getId();
             addCnec(cnecAdder, limitType, null, assessedElementId, cnecName, instantPrevId, rejectedLinksAssessedElementContingency);
         }
     }
@@ -507,12 +507,12 @@ public class CsaProfileCnecCreator {
             flowCnecAdder.withInstantId(cnecInstantId);
         } else if (CsaProfileConstants.LimitKind.PATL.toString().equals(kind)) {
             instantKind = InstantKind.CURATIVE;
-            flowCnecAdder.withInstantId(crac.getUniqueInstant(instantKind).getId());
+            flowCnecAdder.withInstantId(crac.getInstant(instantKind).getId());
         } else {
             csaProfileCnecCreationContexts.add(CsaProfileElementaryCreationContext.notImported(assessedElementId, ImportStatus.INCONSISTENCY_IN_DATA, "OperationalLimitType.kind is incorrect : " + kind));
             return false;
         }
-        cnecInstantId = crac.getUniqueInstant(instantKind).getId();
+        cnecInstantId = crac.getInstant(instantKind).getId();
         return true;
     }
 
@@ -582,7 +582,7 @@ public class CsaProfileCnecCreator {
             return false;
         }
 
-        cnecInstantId = inBaseCase ? crac.getUniqueInstant(InstantKind.PREVENTIVE).getId() : crac.getUniqueInstant(InstantKind.CURATIVE).getId();
+        cnecInstantId = inBaseCase ? crac.getInstant(InstantKind.PREVENTIVE).getId() : crac.getInstant(InstantKind.CURATIVE).getId();
         voltageCnecAdder.withInstantId(cnecInstantId);
         return true;
     }
@@ -608,7 +608,7 @@ public class CsaProfileCnecCreator {
     }
 
     private void addAngleLimitInstant(AngleCnecAdder angleCnecAdder, boolean inBaseCase) {
-        cnecInstantId = crac.getUniqueInstant(inBaseCase ? InstantKind.PREVENTIVE : InstantKind.CURATIVE).getId();
+        cnecInstantId = crac.getInstant(inBaseCase ? InstantKind.PREVENTIVE : InstantKind.CURATIVE).getId();
         angleCnecAdder.withInstantId(cnecInstantId);
     }
 

@@ -64,7 +64,7 @@ public class SweRemedialActionSeriesCreator {
             //CURATIVE && AUTO
             sortedRas.forEach(
                 raSeriesCreationContext -> {
-                    RemedialActionSeries raSeries = generateRaSeries(crac.getState(contingency, crac.getUniqueInstant(InstantKind.AUTO).getId()), raSeriesCreationContext, false);
+                    RemedialActionSeries raSeries = generateRaSeries(crac.getState(contingency, crac.getInstant(InstantKind.AUTO).getId()), raSeriesCreationContext, false);
                     if (Objects.nonNull(raSeries)) {
                         remedialActionSeriesList.add(raSeries);
                     }
@@ -72,7 +72,7 @@ public class SweRemedialActionSeriesCreator {
             );
             sortedRas.forEach(
                 raSeriesCreationContext -> {
-                    RemedialActionSeries raSeries = generateRaSeries(crac.getState(contingency, crac.getUniqueInstant(InstantKind.CURATIVE).getId()), raSeriesCreationContext, false);
+                    RemedialActionSeries raSeries = generateRaSeries(crac.getState(contingency, crac.getInstant(InstantKind.CURATIVE).getId()), raSeriesCreationContext, false);
                     if (Objects.nonNull(raSeries)) {
                         remedialActionSeriesList.add(raSeries);
                     }
@@ -111,7 +111,7 @@ public class SweRemedialActionSeriesCreator {
             );
             sortedRas.forEach(
                 raSeriesCreationContext -> {
-                    RemedialActionSeries raSeries = generateRaSeries(crac.getState(contingency, crac.getUniqueInstant(InstantKind.AUTO).getId()), raSeriesCreationContext, true);
+                    RemedialActionSeries raSeries = generateRaSeries(crac.getState(contingency, crac.getInstant(InstantKind.AUTO).getId()), raSeriesCreationContext, true);
                     if (Objects.nonNull(raSeries)) {
                         remedialActionSeriesList.add(raSeries);
                     }
@@ -119,7 +119,7 @@ public class SweRemedialActionSeriesCreator {
             );
             sortedRas.forEach(
                 raSeriesCreationContext -> {
-                    RemedialActionSeries raSeries = generateRaSeries(crac.getState(contingency, crac.getUniqueInstant(InstantKind.CURATIVE).getId()), raSeriesCreationContext, true);
+                    RemedialActionSeries raSeries = generateRaSeries(crac.getState(contingency, crac.getInstant(InstantKind.CURATIVE).getId()), raSeriesCreationContext, true);
                     if (Objects.nonNull(raSeries)) {
                         remedialActionSeriesList.add(raSeries);
                     }

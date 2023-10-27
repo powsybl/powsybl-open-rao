@@ -139,7 +139,7 @@ public final class CoreCneRemedialActionsCreator {
     private List<ConstraintSeries> createPostCraRaConstraintSeries(List<PstRangeAction> sortedRangeActions, List<NetworkAction> sortedNetworkActions) {
         List<ConstraintSeries> constraintSeriesList = new ArrayList<>();
         cneHelper.getCrac().getContingencies().stream().sorted(Comparator.comparing(Identifiable::getId)).forEach(contingency -> {
-            State curativeState = cneHelper.getCrac().getState(contingency.getId(), cneHelper.getCrac().getUniqueInstant(InstantKind.CURATIVE).getId());
+            State curativeState = cneHelper.getCrac().getState(contingency.getId(), cneHelper.getCrac().getInstant(InstantKind.CURATIVE).getId());
             if (curativeState == null) {
                 return;
             }

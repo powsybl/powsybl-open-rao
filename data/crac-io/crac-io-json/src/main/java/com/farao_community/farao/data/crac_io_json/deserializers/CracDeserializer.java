@@ -71,10 +71,10 @@ public class CracDeserializer extends JsonDeserializer<Crac> {
         String name = jsonParser.nextTextValue();
         Crac crac = cracFactory.create(id, name);
         // TODO check version before add instants
-        crac.addInstant("preventive", InstantKind.PREVENTIVE, null);
-        crac.addInstant("outage", InstantKind.OUTAGE, "preventive");
-        crac.addInstant("auto", InstantKind.AUTO, "outage");
-        crac.addInstant("curative", InstantKind.CURATIVE, "auto");
+        crac.newInstant("preventive", InstantKind.PREVENTIVE, null);
+        crac.newInstant("outage", InstantKind.OUTAGE, "preventive");
+        crac.newInstant("auto", InstantKind.AUTO, "outage");
+        crac.newInstant("curative", InstantKind.CURATIVE, "auto");
 
         HashMap<String, String> deserializedNetworkElementsNamesPerId = null;
 

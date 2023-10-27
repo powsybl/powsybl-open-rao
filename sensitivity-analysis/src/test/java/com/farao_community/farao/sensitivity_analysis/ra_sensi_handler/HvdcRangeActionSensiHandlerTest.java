@@ -32,7 +32,7 @@ class HvdcRangeActionSensiHandlerTest {
     void checkConsistencyOKTest() {
         Network network = Network.read("TestCase16NodesWithHvdc.xiidm", getClass().getResourceAsStream("/TestCase16NodesWithHvdc.xiidm"));
         Crac crac = CracFactory.findDefault().create("test-crac");
-        crac.addInstant("preventive", InstantKind.PREVENTIVE, null);
+        crac.newInstant("preventive", InstantKind.PREVENTIVE, null);
         HvdcRangeAction hvdcRangeAction = (HvdcRangeAction) crac.newHvdcRangeAction().withId("hvdcRangeId")
             .withNetworkElement("BBE2AA11 FFR3AA11 1")
             .newRange().withMin(-1000).withMax(1000).add()
@@ -68,7 +68,7 @@ class HvdcRangeActionSensiHandlerTest {
     void checkConsistencyNotAHvdc() {
         Network network = Network.read("TestCase16NodesWithHvdc.xiidm", getClass().getResourceAsStream("/TestCase16NodesWithHvdc.xiidm"));
         Crac crac = CracFactory.findDefault().create("test-crac");
-        crac.addInstant("preventive", InstantKind.PREVENTIVE, null);
+        crac.newInstant("preventive", InstantKind.PREVENTIVE, null);
 
         HvdcRangeAction hvdcRangeAction = (HvdcRangeAction) crac.newHvdcRangeAction().withId("hvdcRangeId")
             .withNetworkElement("BBE1AA11 BBE2AA11 1")
@@ -86,7 +86,7 @@ class HvdcRangeActionSensiHandlerTest {
     void checkConsistencyNotANetworkElement() {
         Network network = Network.read("TestCase16NodesWithHvdc.xiidm", getClass().getResourceAsStream("/TestCase16NodesWithHvdc.xiidm"));
         Crac crac = CracFactory.findDefault().create("test-crac");
-        crac.addInstant("preventive", InstantKind.PREVENTIVE, null);
+        crac.newInstant("preventive", InstantKind.PREVENTIVE, null);
 
         HvdcRangeAction hvdcRangeAction = (HvdcRangeAction) crac.newHvdcRangeAction().withId("hvdcRangeId")
             .withNetworkElement("unknownNetworkElement")

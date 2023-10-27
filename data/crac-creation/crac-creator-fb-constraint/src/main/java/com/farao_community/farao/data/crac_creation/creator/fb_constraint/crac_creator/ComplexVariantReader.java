@@ -172,7 +172,7 @@ class ComplexVariantReader {
         ActionsSetType actionsSetType = complexVariant.getActionsSet().get(0);
 
         if (actionsSetType.isPreventive()) {
-            Instant instant = crac.getUniqueInstant(InstantKind.PREVENTIVE);
+            Instant instant = crac.getInstant(InstantKind.PREVENTIVE);
             remedialActionAdder.newOnInstantUsageRule()
                 .withInstantId(instant.getId())
                 .withUsageMethod(AVAILABLE)
@@ -180,7 +180,7 @@ class ComplexVariantReader {
         }
 
         if (actionsSetType.isCurative() && !Objects.isNull(afterCoList)) {
-            Instant instant = crac.getUniqueInstant(InstantKind.CURATIVE);
+            Instant instant = crac.getInstant(InstantKind.CURATIVE);
             for (String co : afterCoList) {
                 remedialActionAdder.newOnContingencyStateUsageRule()
                     .withContingency(co)

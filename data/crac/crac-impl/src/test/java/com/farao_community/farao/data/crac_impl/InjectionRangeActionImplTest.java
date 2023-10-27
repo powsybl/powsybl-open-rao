@@ -32,7 +32,7 @@ class InjectionRangeActionImplTest {
     public void setUp() {
         network = NetworkImportsUtil.import12NodesNetwork();
         crac = new CracImpl("test-crac");
-        crac.addInstant("preventive", InstantKind.PREVENTIVE, null);
+        crac.newInstant("preventive", InstantKind.PREVENTIVE, null);
     }
 
     @Test

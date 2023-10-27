@@ -87,7 +87,7 @@ public class CastorOneStateOnly {
 
         if (raoInput.getOptimizedState().getInstant().getInstantKind().equals(InstantKind.AUTO)) {
             perimeterFlowCnecs = raoInput.getCrac().getFlowCnecs(raoInput.getOptimizedState());
-            String instantCurativeId = raoInput.getCrac().getUniqueInstant(InstantKind.CURATIVE).getId();
+            String instantCurativeId = raoInput.getCrac().getInstant(InstantKind.CURATIVE).getId();
             State curativeState = raoInput.getCrac().getState(raoInput.getOptimizedState().getContingency().orElseThrow().getId(), instantCurativeId);
             AutomatonSimulator automatonSimulator = new AutomatonSimulator(raoInput.getCrac(), raoParameters, toolProvider, initialResults, initialResults, initialResults, stateTree.getOperatorsNotSharingCras(), 2);
             optimizationResult = automatonSimulator.simulateAutomatonState(raoInput.getOptimizedState(), curativeState, raoInput.getNetwork());
@@ -115,7 +115,7 @@ public class CastorOneStateOnly {
                 .withObjectiveFunction(ObjectiveFunction.create().build(optPerimeter.getFlowCnecs(), optPerimeter.getLoopFlowCnecs(), initialResults, initialResults, initialResults, raoInput.getCrac(), operatorsNotToOptimize, raoParameters))
                 .withToolProvider(toolProvider)
                 .build();
-            optimizationResult = new SearchTree(searchTreeInput, searchTreeParameters, true).run(raoInput.getCrac().getUniqueInstant(InstantKind.OUTAGE)).join();
+            optimizationResult = new SearchTree(searchTreeInput, searchTreeParameters, true).run(raoInput.getCrac().getInstant(InstantKind.OUTAGE)).join();
 
             // apply RAs and return results
             optimizationResult.getRangeActions().forEach(rangeAction -> rangeAction.apply(raoInput.getNetwork(), optimizationResult.getOptimizedSetpoint(rangeAction, raoInput.getOptimizedState())));

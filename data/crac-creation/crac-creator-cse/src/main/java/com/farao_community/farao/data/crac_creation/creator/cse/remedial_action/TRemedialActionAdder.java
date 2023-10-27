@@ -73,11 +73,11 @@ public class TRemedialActionAdder {
     private Instant getInstant(TApplication tApplication) {
         switch (tApplication.getV()) {
             case "PREVENTIVE":
-                return crac.getUniqueInstant(InstantKind.PREVENTIVE);
+                return crac.getInstant(InstantKind.PREVENTIVE);
             case "SPS":
-                return crac.getUniqueInstant(InstantKind.AUTO);
+                return crac.getInstant(InstantKind.AUTO);
             case "CURATIVE":
-                return crac.getUniqueInstant(InstantKind.CURATIVE);
+                return crac.getInstant(InstantKind.CURATIVE);
             default:
                 throw new FaraoException(String.format("%s is not a recognized application type for remedial action", tApplication.getV()));
         }

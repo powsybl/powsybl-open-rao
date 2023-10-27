@@ -169,7 +169,7 @@ public class CastorFullOptimization {
             BUSINESS_LOGS.info("There is not enough time to run a 2nd preventive RAO (target end time: {}, estimated time needed based on first preventive RAO: {} seconds)", targetEndInstant, estimatedPreventiveRaoTimeInSeconds);
             return false;
         }
-        Instant instantCurative = raoInput.getCrac().getUniqueInstant(InstantKind.CURATIVE);
+        Instant instantCurative = raoInput.getCrac().getInstant(InstantKind.CURATIVE);
         if (raoParameters.getSecondPreventiveRaoParameters().getExecutionCondition().equals(SecondPreventiveRaoParameters.ExecutionCondition.COST_INCREASE)
             && postFirstRaoResult.getCost(instantCurative) <= postFirstRaoResult.getCost(null)) {
             BUSINESS_LOGS.info("Cost has not increased during RAO, there is no need to run a 2nd preventive RAO.");
@@ -200,7 +200,7 @@ public class CastorFullOptimization {
      * Returns true if final cost (after PRAO + ARAO + CRAO) is worse than the cost at the end of the preventive perimeter
      */
     private boolean isFinalCostWorseThanPreventive(double curativeMinObjImprovement, OptimizationResult preventiveResult, RaoResult postFirstRaoResult) {
-        Instant instantCurative = raoInput.getCrac().getUniqueInstant(InstantKind.CURATIVE);
+        Instant instantCurative = raoInput.getCrac().getInstant(InstantKind.CURATIVE);
         return postFirstRaoResult.getCost(instantCurative) > preventiveResult.getCost() - curativeMinObjImprovement;
     }
 
@@ -325,7 +325,7 @@ public class CastorFullOptimization {
             BUSINESS_LOGS.info("RAO has succeeded thanks to second preventive step when first preventive step had failed");
             return true;
         }
-        Instant instantCurative = raoInput.getCrac().getUniqueInstant(InstantKind.CURATIVE);
+        Instant instantCurative = raoInput.getCrac().getInstant(InstantKind.CURATIVE);
         double firstPreventiveCost = mergedRaoResults.getCost(instantCurative);
         double secondPreventiveCost = secondPreventiveRaoResults.getCost(instantCurative);
         if (secondPreventiveCost > firstPreventiveCost) {
@@ -346,7 +346,7 @@ public class CastorFullOptimization {
         double initialCost = initialResult.getCost();
         double initialFunctionalCost = initialResult.getFunctionalCost();
         double initialVirtualCost = initialResult.getVirtualCost();
-        Instant instantCurative = raoInput.getCrac().getUniqueInstant(InstantKind.CURATIVE);
+        Instant instantCurative = raoInput.getCrac().getInstant(InstantKind.CURATIVE);
         double finalCost = finalRaoResult.getCost(instantCurative);
         double finalFunctionalCost = finalRaoResult.getFunctionalCost(instantCurative);
         double finalVirtualCost = finalRaoResult.getVirtualCost(instantCurative);
@@ -401,7 +401,7 @@ public class CastorFullOptimization {
             .withToolProvider(toolProvider)
             .build();
 
-        OptimizationResult optResult = new SearchTree(searchTreeInput, searchTreeParameters, true).run(raoInput.getCrac().getUniqueInstant(InstantKind.OUTAGE)).join();
+        OptimizationResult optResult = new SearchTree(searchTreeInput, searchTreeParameters, true).run(raoInput.getCrac().getInstant(InstantKind.OUTAGE)).join();
         applyRemedialActions(raoInput.getNetwork(), optResult, raoInput.getCrac().getPreventiveState());
         return new OneStateOnlyRaoResultImpl(raoInput.getCrac().getPreventiveState(), initialResult, optResult, searchTreeInput.getOptimizationPerimeter().getFlowCnecs());
     }
@@ -510,7 +510,7 @@ public class CastorFullOptimization {
             .withToolProvider(toolProvider)
             .build();
 
-        OptimizationResult result = new SearchTree(searchTreeInput, searchTreeParameters, false).run(crac.getUniqueInstant(InstantKind.OUTAGE)).join();
+        OptimizationResult result = new SearchTree(searchTreeInput, searchTreeParameters, false).run(crac.getInstant(InstantKind.OUTAGE)).join();
         TECHNICAL_LOGS.info("Curative state {} has been optimized.", curativeState.getId());
         return result;
     }
@@ -610,8 +610,8 @@ public class CastorFullOptimization {
 
         // Get the applied network actions for every contingency perimeter
         AppliedRemedialActions appliedArasAndCras = new AppliedRemedialActions();
-        Instant instantCurative = raoInput.getCrac().getUniqueInstant(InstantKind.CURATIVE);
-        Instant instantAuto = raoInput.getCrac().getUniqueInstant(InstantKind.AUTO);
+        Instant instantCurative = raoInput.getCrac().getInstant(InstantKind.CURATIVE);
+        Instant instantAuto = raoInput.getCrac().getInstant(InstantKind.AUTO);
         addAppliedNetworkActionsPostContingency(instantAuto, appliedArasAndCras, postContingencyResults);
         addAppliedNetworkActionsPostContingency(instantCurative, appliedArasAndCras, postContingencyResults);
         // Get the applied range actions for every auto contingency perimeter
@@ -687,7 +687,7 @@ public class CastorFullOptimization {
             .withToolProvider(toolProvider)
             .build();
 
-        OptimizationResult result = new SearchTree(searchTreeInput, searchTreeParameters, true).run(raoInput.getCrac().getUniqueInstant(InstantKind.OUTAGE)).join();
+        OptimizationResult result = new SearchTree(searchTreeInput, searchTreeParameters, true).run(raoInput.getCrac().getInstant(InstantKind.OUTAGE)).join();
 
         // apply PRAs
         result.getActivatedRangeActions(raoInput.getCrac().getPreventiveState()).forEach(rangeAction -> rangeAction.apply(raoInput.getNetwork(), result.getOptimizedSetpoint(rangeAction, raoInput.getCrac().getPreventiveState())));
