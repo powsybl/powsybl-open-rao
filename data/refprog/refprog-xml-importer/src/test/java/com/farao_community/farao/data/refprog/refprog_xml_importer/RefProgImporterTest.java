@@ -20,6 +20,7 @@ import java.time.ZoneOffset;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
@@ -32,7 +33,7 @@ class RefProgImporterTest {
     void testUnexistantFile() {
         Path path = Paths.get("/refProg_12nodes_doesntexist.xml");
         FaraoException exception = assertThrows(FaraoException.class, () -> RefProgImporter.importRefProg(path, offsetDateTime));
-        assertEquals("java.io.FileNotFoundException: /refProg_12nodes_doesntexist.xml (No such file or directory)", exception.getMessage());
+        assertTrue(exception.getMessage().contains("java.io.FileNotFoundException: /refProg_12nodes_doesntexist.xml")); // platform dependant exception message
     }
 
     @Test
