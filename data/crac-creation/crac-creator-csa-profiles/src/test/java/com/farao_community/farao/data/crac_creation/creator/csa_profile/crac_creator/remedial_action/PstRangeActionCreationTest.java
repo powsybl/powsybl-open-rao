@@ -2,42 +2,21 @@ package com.farao_community.farao.data.crac_creation.creator.csa_profile.crac_cr
 
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_creation.creator.api.ImportStatus;
-import com.farao_community.farao.data.crac_creation.creator.api.parameters.CracCreationParameters;
-import com.farao_community.farao.data.crac_creation.creator.csa_profile.CsaProfileCrac;
 import com.farao_community.farao.data.crac_creation.creator.csa_profile.crac_creator.CsaProfileCracCreationContext;
-import com.farao_community.farao.data.crac_creation.creator.csa_profile.crac_creator.CsaProfileCracCreator;
-import com.farao_community.farao.data.crac_creation.creator.csa_profile.crac_creator.CsaProfileCracCreatorTest;
-import com.farao_community.farao.data.crac_creation.creator.csa_profile.importer.CsaProfileCracImporter;
 import com.farao_community.farao.data.crac_impl.OnContingencyStateImpl;
-import com.google.common.base.Suppliers;
-import com.powsybl.computation.local.LocalComputationManager;
-import com.powsybl.iidm.network.ImportConfig;
-import com.powsybl.iidm.network.Network;
 import org.junit.jupiter.api.Test;
 
-import java.io.File;
-import java.io.InputStream;
-import java.nio.file.Paths;
-import java.time.OffsetDateTime;
 import java.util.Map;
-import java.util.Properties;
 
 import static com.farao_community.farao.data.crac_api.Instant.CURATIVE;
+import static com.farao_community.farao.data.crac_creation.creator.csa_profile.crac_creator.CsaProfileCracCreationTestUtil.getCsaCracCreationContext;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class PstRangeActionCreationTest {
+class PstRangeActionCreationTest {
 
     @Test
-    public void testTC1ImportPstRangeActions() {
-        Properties importParams = new Properties();
-        Network network = Network.read(Paths.get(new File(CsaProfileCracCreatorTest.class.getResource("/TestConfiguration_TC1_v29Mar2023.zip").getFile()).toString()), LocalComputationManager.getDefault(), Suppliers.memoize(ImportConfig::load).get(), importParams);
-
-        CsaProfileCracImporter cracImporter = new CsaProfileCracImporter();
-        InputStream inputStream = getClass().getResourceAsStream("/TestConfiguration_TC1_v29Mar2023.zip");
-        CsaProfileCrac nativeCrac = cracImporter.importNativeCrac(inputStream);
-
-        CsaProfileCracCreator cracCreator = new CsaProfileCracCreator();
-        CsaProfileCracCreationContext cracCreationContext = cracCreator.createCrac(nativeCrac, network, OffsetDateTime.parse("2023-03-29T12:00Z"), new CracCreationParameters());
+    void testTC1ImportPstRangeActions() {
+        CsaProfileCracCreationContext cracCreationContext = getCsaCracCreationContext("/TestConfiguration_TC1_v29Mar2023.zip");
 
         // ELIA_RA1 (on instant)
         PstRangeAction eliaRa1 = cracCreationContext.getCrac().getPstRangeAction("7fc2fc14-eea6-4e69-b8d9-a3edc218e687");
@@ -82,16 +61,8 @@ public class PstRangeActionCreationTest {
     }
 
     @Test
-    public void testTC2ImportPstRangeActions() {
-        CsaProfileCracImporter cracImporter = new CsaProfileCracImporter();
-        InputStream inputStream = getClass().getResourceAsStream("/CSA_TestConfiguration_TC2_Draft_v14Apr2023.zip");
-        CsaProfileCrac nativeCrac = cracImporter.importNativeCrac(inputStream);
-
-        Properties importParams = new Properties();
-        Network network = Network.read(Paths.get(new File(CsaProfileCracCreatorTest.class.getResource("/CSA_TestConfiguration_TC2_Draft_v14Apr2023.zip").getFile()).toString()), LocalComputationManager.getDefault(), Suppliers.memoize(ImportConfig::load).get(), importParams);
-
-        CsaProfileCracCreator cracCreator = new CsaProfileCracCreator();
-        CsaProfileCracCreationContext cracCreationContext = cracCreator.createCrac(nativeCrac, network, OffsetDateTime.parse("2023-03-29T12:00Z"), new CracCreationParameters());
+    void testTC2ImportPstRangeActions() {
+        CsaProfileCracCreationContext cracCreationContext = getCsaCracCreationContext("/CSA_TestConfiguration_TC2_Draft_v14Apr2023.zip");
 
         PstRangeAction reeRa1 = cracCreationContext.getCrac().getPstRangeAction("5898c268-9b32-4ab5-9cfc-64546135a337");
         assertEquals("RA1", reeRa1.getName());

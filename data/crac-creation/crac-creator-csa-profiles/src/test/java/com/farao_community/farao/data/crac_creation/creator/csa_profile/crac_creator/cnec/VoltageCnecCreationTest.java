@@ -1,33 +1,23 @@
 package com.farao_community.farao.data.crac_creation.creator.csa_profile.crac_creator.cnec;
 
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
-import com.farao_community.farao.data.crac_creation.creator.api.parameters.CracCreationParameters;
-import com.farao_community.farao.data.crac_creation.creator.csa_profile.CsaProfileCrac;
 import com.farao_community.farao.data.crac_creation.creator.csa_profile.crac_creator.CsaProfileCracCreationContext;
 import com.farao_community.farao.data.crac_creation.creator.csa_profile.crac_creator.CsaProfileCracCreationTestUtil;
-import com.farao_community.farao.data.crac_creation.creator.csa_profile.crac_creator.CsaProfileCracCreator;
-import com.farao_community.farao.data.crac_creation.creator.csa_profile.importer.CsaProfileCracImporter;
 import com.powsybl.iidm.network.*;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-import java.io.InputStream;
-import java.time.OffsetDateTime;
 import java.util.Set;
 
 import static com.farao_community.farao.data.crac_api.Instant.CURATIVE;
 import static com.farao_community.farao.data.crac_api.Instant.PREVENTIVE;
+import static com.farao_community.farao.data.crac_creation.creator.csa_profile.crac_creator.CsaProfileCracCreationTestUtil.getCsaCracCreationContext;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class VoltageCnecCreationTest {
+class VoltageCnecCreationTest {
 
     @Test
-    public void checkOnConstraintWith4VoltageCnecs() {
-        CsaProfileCracImporter cracImporter = new CsaProfileCracImporter();
-        InputStream inputStream = getClass().getResourceAsStream("/csa-11/CSA_11_5_OnVoltageConstraint.zip");
-        CsaProfileCrac nativeCrac = cracImporter.importNativeCrac(inputStream);
-        CsaProfileCracCreator cracCreator = new CsaProfileCracCreator();
-
+    void checkOnConstraintWith4VoltageCnecs() {
         Network network = Mockito.spy(Network.create("Test", "code"));
         BusbarSection terminal1Mock = Mockito.mock(BusbarSection.class);
         BusbarSection terminal2Mock = Mockito.mock(BusbarSection.class);
@@ -53,7 +43,7 @@ public class VoltageCnecCreationTest {
 
         Mockito.when(network.getIdentifiable("3a88a6a7-66fe-4988-9019-b3b288fd54ee")).thenReturn(networkElementMock);
 
-        CsaProfileCracCreationContext cracCreationContext = cracCreator.createCrac(nativeCrac, network, OffsetDateTime.parse("2023-03-29T12:00Z"), new CracCreationParameters());
+        CsaProfileCracCreationContext cracCreationContext = getCsaCracCreationContext("/csa-11/CSA_11_5_OnVoltageConstraint.zip", network);
 
         CsaProfileCracCreationTestUtil.assertVoltageCnecEquality(cracCreationContext.getCrac().getVoltageCnec("RTE_AE1 - RTE_CO1 - curative"),
                 "RTE_AE1 - RTE_CO1 - curative",
