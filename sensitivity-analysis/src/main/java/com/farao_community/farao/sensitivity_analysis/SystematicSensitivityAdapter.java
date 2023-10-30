@@ -14,6 +14,7 @@ import com.farao_community.farao.data.crac_api.cnec.Cnec;
 import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.computation.local.LocalComputationManager;
 import com.powsybl.contingency.Contingency;
+import com.powsybl.iidm.network.HvdcLine;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.sensitivity.*;
 
@@ -46,7 +47,9 @@ final class SystematicSensitivityAdapter {
             List<Contingency> contingencies = cnecSensitivityProvider.getContingencies(network);
 
             SensitivityFactorReader factorReader = new SensitivityFactorModelReader(factors, network);
-            SensitivityResultWriter resultWriter = SystematicSensitivityResult.getSensitivityResultWriter(factors, result, Instant.OUTAGE, contingencies);
+            Set<String> hvdcsToInvert = cnecSensitivityProvider.getHvdcs().keySet().stream()
+                .filter(networkElementId -> network.getHvdcLine(networkElementId).getConvertersMode() == HvdcLine.ConvertersMode.SIDE_1_INVERTER_SIDE_2_RECTIFIER).collect(Collectors.toSet());
+            SensitivityResultWriter resultWriter = SystematicSensitivityResult.getSensitivityResultWriter(factors, result, Instant.OUTAGE, contingencies, hvdcsToInvert);
 
             SensitivityAnalysis.find(sensitivityProvider).run(network,
                 network.getVariantManager().getWorkingVariantId(),
@@ -60,7 +63,7 @@ final class SystematicSensitivityAdapter {
             );
 
             TECHNICAL_LOGS.debug("Systematic sensitivity analysis [end]");
-            return result.postTreatIntensitiesAndStatus().postTreatHvdcs(network, cnecSensitivityProvider.getHvdcs());
+            return result.postTreatIntensitiesAndStatus();
         } catch (Exception e) {
             TECHNICAL_LOGS.error(String.format("Systematic sensitivity analysis failed: %s", e.getMessage()));
             return new SystematicSensitivityResult(SystematicSensitivityResult.SensitivityComputationStatus.FAILURE);
@@ -101,7 +104,9 @@ final class SystematicSensitivityAdapter {
         List<Contingency> contingencies = cnecSensitivityProvider.getContingencies(network);
 
         SensitivityFactorReader factorReader = new SensitivityFactorModelReader(allFactorsWithoutRa, network);
-        SensitivityResultWriter resultWriter = SystematicSensitivityResult.getSensitivityResultWriter(allFactorsWithoutRa, result, Instant.OUTAGE, contingencies);
+        Set<String> hvdcsToInvert = cnecSensitivityProvider.getHvdcs().keySet().stream()
+            .filter(networkElementId -> network.getHvdcLine(networkElementId).getConvertersMode() == HvdcLine.ConvertersMode.SIDE_1_INVERTER_SIDE_2_RECTIFIER).collect(Collectors.toSet());
+        SensitivityResultWriter resultWriter = SystematicSensitivityResult.getSensitivityResultWriter(allFactorsWithoutRa, result, Instant.OUTAGE, contingencies, hvdcsToInvert);
 
         SensitivityAnalysis.find(sensitivityProvider).run(network,
             network.getVariantManager().getWorkingVariantId(),
@@ -138,7 +143,7 @@ final class SystematicSensitivityAdapter {
             List<SensitivityFactor> contingencyFactors = cnecSensitivityProvider.getContingencyFactors(network, contingencyList);
 
             SensitivityFactorReader contingencyFactorsReader = new SensitivityFactorModelReader(contingencyFactors, network);
-            SensitivityResultWriter contingencyResultWriter = SystematicSensitivityResult.getSensitivityResultWriter(contingencyFactors, result, state.getInstant(), contingencyList);
+            SensitivityResultWriter contingencyResultWriter = SystematicSensitivityResult.getSensitivityResultWriter(contingencyFactors, result, state.getInstant(), contingencyList, hvdcsToInvert);
 
             SensitivityAnalysis.find(sensitivityProvider).run(network,
                 network.getVariantManager().getWorkingVariantId(),
@@ -157,6 +162,6 @@ final class SystematicSensitivityAdapter {
         TECHNICAL_LOGS.debug("Systematic sensitivity analysis with applied RA [end]");
 
         network.getVariantManager().setWorkingVariant(workingVariantId);
-        return result.postTreatIntensitiesAndStatus().postTreatHvdcs(network, cnecSensitivityProvider.getHvdcs());
+        return result.postTreatIntensitiesAndStatus();
     }
 }

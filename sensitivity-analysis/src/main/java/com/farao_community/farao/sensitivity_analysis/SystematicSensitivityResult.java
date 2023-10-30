@@ -12,11 +12,8 @@ import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.cnec.Cnec;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.cnec.Side;
-import com.farao_community.farao.data.crac_api.range_action.HvdcRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.sensitivity_analysis.ra_sensi_handler.RangeActionSensiHandler;
-import com.powsybl.iidm.network.HvdcLine;
-import com.powsybl.iidm.network.Network;
 import com.powsybl.sensitivity.*;
 
 import java.util.*;
@@ -75,15 +72,15 @@ public class SystematicSensitivityResult {
         this.postContingencyResults.put(Instant.CURATIVE, new HashMap<>());
     }
 
-    protected static SensitivityResultWriter getSensitivityResultWriter(List<SensitivityFactor> factors, SystematicSensitivityResult result, Instant instant, List<com.powsybl.contingency.Contingency> contingencies) {
+    protected static SensitivityResultWriter getSensitivityResultWriter(List<SensitivityFactor> factors, SystematicSensitivityResult result, Instant instant, List<com.powsybl.contingency.Contingency> contingencies, Set<String> hvdcsToInvert) {
         return new SensitivityResultWriter() {
             @Override
             public void writeSensitivityValue(int factorIndex, int contingencyIndex, double value, double functionReference) {
                 if (contingencyIndex == -1) {
-                    fillIndividualValue(functionReference, value, factors.get(factorIndex), result.nStateResult);
+                    fillIndividualValue(functionReference, value, factors.get(factorIndex), hvdcsToInvert, result.nStateResult);
                 } else {
                     StateResult contingencyStateResult = result.postContingencyResults.get(instant).getOrDefault(contingencies.get(contingencyIndex).getId(), new StateResult());
-                    fillIndividualValue(functionReference, value, factors.get(factorIndex), contingencyStateResult);
+                    fillIndividualValue(functionReference, value, factors.get(factorIndex), hvdcsToInvert, contingencyStateResult);
                     result.postContingencyResults.get(instant).put(contingencies.get(contingencyIndex).getId(), contingencyStateResult);
                 }
 
@@ -95,21 +92,17 @@ public class SystematicSensitivityResult {
 
             @Override
             public void writeContingencyStatus(int contingencyIndex, SensitivityAnalysisResult.Status status) {
-                if (contingencyIndex >= 0) {
                     StateResult contingencyStateResult = result.postContingencyResults.get(instant).getOrDefault(contingencies.get(contingencyIndex).getId(), new StateResult());
                     contingencyStateResult.status = status.equals(SensitivityAnalysisResult.Status.FAILURE) ? SensitivityComputationStatus.FAILURE : SensitivityComputationStatus.SUCCESS;
                     result.postContingencyResults.get(instant).put(contingencies.get(contingencyIndex).getId(), contingencyStateResult);
-                }
             }
         };
     }
 
-    private static void fillIndividualValue(double reference, double sensitivity, SensitivityFactor factor, StateResult stateResult) {
+    private static void fillIndividualValue(double reference, double sensitivity, SensitivityFactor factor, Set<String> hvdcsToInvert, StateResult stateResult) {
         double functionReference = reference;
-        double sensitivityValue = sensitivity;
         if (Double.isNaN(reference)) {
             functionReference = 0;
-            sensitivityValue = 0;
         }
 
         Side side = null;
@@ -129,7 +122,7 @@ public class SystematicSensitivityResult {
             stateResult.getFlowSensitivities()
                 .computeIfAbsent(factor.getFunctionId(), k -> new HashMap<>())
                 .computeIfAbsent(factor.getVariableId(), k -> new EnumMap<>(Side.class))
-                .putIfAbsent(side, sensitivityValue * activePowerCoefficient);
+                .putIfAbsent(side, Double.isNaN(reference) ? 0 : sensitivity * activePowerCoefficient * ((hvdcsToInvert.contains(factor.getVariableId())) ? -1 : 1));
         } else if (factor.getFunctionType().equals(SensitivityFunctionType.BRANCH_CURRENT_1) || factor.getFunctionType().equals(SensitivityFunctionType.BRANCH_CURRENT_2)) {
             stateResult.getReferenceIntensities()
                 .computeIfAbsent(factor.getFunctionId(), k -> new EnumMap<>(Side.class))
@@ -159,32 +152,6 @@ public class SystematicSensitivityResult {
                     });
                 }
             });
-    }
-
-    public SystematicSensitivityResult postTreatHvdcs(Network network, Map<String, HvdcRangeAction> hvdcRangeActions) {
-        postTreatHvdcsOnState(network, hvdcRangeActions, nStateResult);
-        postContingencyResults.get(Instant.OUTAGE).values().forEach(stateResult -> postTreatHvdcsOnState(network, hvdcRangeActions, stateResult));
-        postContingencyResults.get(Instant.AUTO).values().forEach(stateResult -> postTreatHvdcsOnState(network, hvdcRangeActions, stateResult));
-        postContingencyResults.get(Instant.CURATIVE).values().forEach(stateResult -> postTreatHvdcsOnState(network, hvdcRangeActions, stateResult));
-        return this;
-    }
-
-    private void postTreatHvdcsOnState(Network network, Map<String, HvdcRangeAction> hvdcRangeActions, StateResult stateResult) {
-        hvdcRangeActions.keySet().forEach(networkElementId -> {
-            if (network.getHvdcLine(networkElementId).getConvertersMode() == HvdcLine.ConvertersMode.SIDE_1_INVERTER_SIDE_2_RECTIFIER) {
-                stateResult.getFlowSensitivities().forEach((cnecId, cnecFlowSensis) -> {
-                    if (cnecFlowSensis.containsKey(networkElementId)) {
-                        cnecFlowSensis.put(networkElementId, invertMapValues(cnecFlowSensis.get(networkElementId)));
-                    }
-                });
-            }
-        });
-    }
-
-    private Map<Side, Double> invertMapValues(Map<Side, Double> map) {
-        Map<Side, Double> invertedMap = new EnumMap<>(Side.class);
-        map.forEach((key, value) -> invertedMap.put(key, -value));
-        return invertedMap;
     }
 
     public boolean isSuccess() {
