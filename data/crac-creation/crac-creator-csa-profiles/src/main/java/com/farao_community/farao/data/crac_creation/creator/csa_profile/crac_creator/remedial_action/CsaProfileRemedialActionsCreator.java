@@ -449,7 +449,7 @@ public class CsaProfileRemedialActionsCreator {
                         )
                         .toList();
 
-                    boolean hasAtLeastOneOnConstraintUsageRule = addOnConstraintUsageRules(Instant.CURATIVE, remedialActionAdder, autoRemedialActionId, new ArrayList<>()); // TODO check with peter INSTANT.AUTO?
+                    boolean hasAtLeastOneOnConstraintUsageRule = addOnConstraintUsageRules(Instant.CURATIVE, remedialActionAdder, autoRemedialActionId, new ArrayList<>());
                     if (!hasAtLeastOneOnConstraintUsageRule) {
                         addOnContingencyStateUsageRules(remedialActionAdder, faraoContingenciesIds, CsaProfileConstants.ElementCombinationConstraintKind.INCLUDED.toString(), Instant.AUTO);
                     }
