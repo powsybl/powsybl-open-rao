@@ -41,6 +41,7 @@ public class CsaProfileRemedialActionsCreator {
     private final PropertyBags gridStateAlterationRemedialActionPropertyBags;
     private final PropertyBags topologyActionsPropertyBags;
     private final PropertyBags rotatingMachineActionsPropertyBags;
+    private final PropertyBags shuntCompensatorModificationsPropertyBags;
     private final PropertyBags tapPositionPropertyBags;
     private final PropertyBags staticPropertyRangesPropertyBags;
     private final PropertyBags contingencyWithRemedialActionsPropertyBags;
@@ -59,6 +60,7 @@ public class CsaProfileRemedialActionsCreator {
     public CsaProfileRemedialActionsCreator(Crac crac, Network network, CsaProfileCracCreationContext cracCreationContext, PropertyBags gridStateAlterationRemedialActionPropertyBags, PropertyBags contingencyWithRemedialActionsPropertyBags,
                                             PropertyBags topologyActionsPropertyBags,
                                             PropertyBags rotatingMachineActionsPropertyBags,
+                                            PropertyBags shuntCompensatorModificationsPropertyBags,
                                             PropertyBags tapPositionPropertyBags,
                                             PropertyBags staticPropertyRangesPropertyBags,
                                             OnConstraintUsageRuleHelper onConstraintUsageRuleHelper,
@@ -75,6 +77,7 @@ public class CsaProfileRemedialActionsCreator {
         this.contingencyWithRemedialActionsPropertyBags = contingencyWithRemedialActionsPropertyBags;
         this.topologyActionsPropertyBags = topologyActionsPropertyBags;
         this.rotatingMachineActionsPropertyBags = rotatingMachineActionsPropertyBags;
+        this.shuntCompensatorModificationsPropertyBags = shuntCompensatorModificationsPropertyBags;
         this.tapPositionPropertyBags = tapPositionPropertyBags;
         this.staticPropertyRangesPropertyBags = staticPropertyRangesPropertyBags;
         this.cracCreationContext = cracCreationContext;
@@ -95,6 +98,7 @@ public class CsaProfileRemedialActionsCreator {
         Map<String, Set<PropertyBag>> linkedContingencyWithRAs = CsaProfileCracUtils.getMappedPropertyBagsSet(contingencyWithRemedialActionsPropertyBags, CsaProfileConstants.GRID_STATE_ALTERATION_REMEDIAL_ACTION);
         Map<String, Set<PropertyBag>> linkedTopologyActions = CsaProfileCracUtils.getMappedPropertyBagsSet(topologyActionsPropertyBags, CsaProfileConstants.GRID_STATE_ALTERATION_REMEDIAL_ACTION);
         Map<String, Set<PropertyBag>> linkedRotatingMachineActions = CsaProfileCracUtils.getMappedPropertyBagsSet(rotatingMachineActionsPropertyBags, CsaProfileConstants.GRID_STATE_ALTERATION_REMEDIAL_ACTION);
+        Map<String, Set<PropertyBag>> linkedShuntCompensatorModifications = CsaProfileCracUtils.getMappedPropertyBagsSet(shuntCompensatorModificationsPropertyBags, CsaProfileConstants.GRID_STATE_ALTERATION_REMEDIAL_ACTION);
         Map<String, Set<PropertyBag>> linkedTapPositionActions = CsaProfileCracUtils.getMappedPropertyBagsSet(tapPositionPropertyBags, CsaProfileConstants.GRID_STATE_ALTERATION_REMEDIAL_ACTION);
         Map<String, Set<PropertyBag>> linkedStaticPropertyRanges = CsaProfileCracUtils.getMappedPropertyBagsSet(staticPropertyRangesPropertyBags, CsaProfileConstants.GRID_STATE_ALTERATION_REMEDIAL_ACTION); // the id here is the id of the subclass of gridStateAlteration (tapPositionAction, RotatingMachine, ..)
 
@@ -106,7 +110,7 @@ public class CsaProfileRemedialActionsCreator {
 
             try {
                 List<String> alterations = new ArrayList<>();
-                RemedialActionType remedialActionType = checkRemedialActionCanBeImportedAndIdentifyType(parentRemedialActionPropertyBag, linkedTopologyActions, linkedRotatingMachineActions, linkedTapPositionActions, linkedStaticPropertyRanges);
+                RemedialActionType remedialActionType = checkRemedialActionCanBeImportedAndIdentifyType(parentRemedialActionPropertyBag, linkedTopologyActions, linkedRotatingMachineActions, linkedShuntCompensatorModifications, linkedTapPositionActions, linkedStaticPropertyRanges);
                 RemedialActionAdder<?> remedialActionAdder;
                 String nativeRaName = parentRemedialActionPropertyBag.get(CsaProfileConstants.REMEDIAL_ACTION_NAME);
                 String tsoName = parentRemedialActionPropertyBag.get(CsaProfileConstants.TSO);
@@ -114,7 +118,7 @@ public class CsaProfileRemedialActionsCreator {
                 Optional<Integer> speedOpt = getSpeedOpt(parentRemedialActionPropertyBag.get(CsaProfileConstants.TIME_TO_IMPLEMENT));
 
                 if (remedialActionType.equals(RemedialActionType.NETWORK_ACTION)) {
-                    remedialActionAdder = networkActionCreator.getNetworkActionAdder(linkedTopologyActions, linkedRotatingMachineActions, linkedStaticPropertyRanges, remedialActionId);
+                    remedialActionAdder = networkActionCreator.getNetworkActionAdder(linkedTopologyActions, linkedRotatingMachineActions, linkedShuntCompensatorModifications, linkedStaticPropertyRanges, remedialActionId);
                 } else {
                     remedialActionAdder = pstRangeActionCreator.getPstRangeActionAdder(linkedTapPositionActions, linkedStaticPropertyRanges, remedialActionId);
                 }
@@ -128,13 +132,13 @@ public class CsaProfileRemedialActionsCreator {
                 if (linkedContingencyWithRAs.containsKey(remedialActionId)) {
                     // on state usage rule
                     String randomCombinationConstraintKind = linkedContingencyWithRAs.get(remedialActionId).iterator().next().get(CsaProfileConstants.COMBINATION_CONSTRAINT_KIND);
-                    checkAllContingenciesLinkedToRaHaveTheSameConstraintKind(remedialActionId, linkedContingencyWithRAs.get(remedialActionId), randomCombinationConstraintKind);
+                    checkElementCombinationConstraintKindsCoherence(remedialActionId, linkedContingencyWithRAs);
 
                     List<String> faraoContingenciesIds = linkedContingencyWithRAs.get(remedialActionId).stream()
                         .map(contingencyWithRemedialActionPropertyBag ->
-                            checkContingencyAndGetFaraoId(cracCreationContext,
+                            checkContingencyAndGetFaraoId(
                                 contingencyWithRemedialActionPropertyBag,
-                                parentRemedialActionPropertyBag.get(CsaProfileConstants.RA_KIND),
+                                parentRemedialActionPropertyBag,
                                 remedialActionId,
                                 randomCombinationConstraintKind
                             )
@@ -144,7 +148,7 @@ public class CsaProfileRemedialActionsCreator {
                     boolean hasAtLeastOneOnConstraintUsageRule = addOnConstraintUsageRules(Instant.CURATIVE, remedialActionAdder, remedialActionId, alterations);
                     if (!hasAtLeastOneOnConstraintUsageRule) {
                         if (!randomCombinationConstraintKind.equals(CsaProfileConstants.ElementCombinationConstraintKind.EXCLUDED.toString())) {
-                            addOnContingencyStateUsageRules(remedialActionAdder, faraoContingenciesIds, randomCombinationConstraintKind, Instant.CURATIVE);
+                            addOnContingencyStateUsageRules(remedialActionAdder, faraoContingenciesIds, randomCombinationConstraintKind);
                         } else {
                             alterations.add(String.format("The association 'RemedialAction'/'Contingencies' '%s'/'%s' will be ignored because 'excluded' combination constraint kind is not supported", remedialActionId, String.join(". ", faraoContingenciesIds)));
                         }
@@ -177,23 +181,39 @@ public class CsaProfileRemedialActionsCreator {
         this.cracCreationContext.setRemedialActionCreationContexts(csaProfileRemedialActionCreationContexts);
     }
 
-    private void addOnContingencyStateUsageRules(RemedialActionAdder<?> remedialActionAdder, List<String> faraoContingenciesIds, String randomCombinationConstraintKind, Instant instant) {
+    private void addOnContingencyStateUsageRules(RemedialActionAdder<?> remedialActionAdder, List<String> faraoContingenciesIds, String randomCombinationConstraintKind) {
         UsageMethod usageMethod = CsaProfileCracUtils.getConstraintToUsageMethodMap().get(randomCombinationConstraintKind);
         faraoContingenciesIds.forEach(faraoContingencyId -> remedialActionAdder.newOnContingencyStateUsageRule()
-            .withInstant(instant)
+            .withInstant(Instant.CURATIVE)
             .withContingency(faraoContingencyId)
             .withUsageMethod(usageMethod).add());
     }
 
-    static void checkAllContingenciesLinkedToRaHaveTheSameConstraintKind(String remedialActionId, Set<PropertyBag> linkedContingencyWithRAs, String firstKind) {
-        for (PropertyBag propertyBag : linkedContingencyWithRAs) {
-            if (!propertyBag.get(CsaProfileConstants.COMBINATION_CONSTRAINT_KIND).equals(firstKind)) {
-                throw new FaraoImportException(ImportStatus.INCONSISTENCY_IN_DATA, CsaProfileConstants.REMEDIAL_ACTION_MESSAGE + remedialActionId + " will not be imported because ElementCombinationConstraintKind of a remedial action linked to a contingency must be all of the same kind");
+    private void checkElementCombinationConstraintKindsCoherence(String remedialActionId, Map<String, Set<PropertyBag>> linkedContingencyWithRAs) {
+        // The same contingency cannot have different Element Combination Constraint Kinds
+        // The same contingency can appear several times, so we need to create a memory system
+        Set<String> contingenciesWithIncluded = new HashSet<>();
+        Set<String> contingenciesWithConsidered = new HashSet<>();
+        Set<PropertyBag> linkedContingencyWithRA = linkedContingencyWithRAs.get(remedialActionId);
+        for (PropertyBag propertyBag : linkedContingencyWithRA) {
+            String combinationKind = propertyBag.get(CsaProfileConstants.COMBINATION_CONSTRAINT_KIND);
+            String contingencyId = propertyBag.get(CsaProfileConstants.REQUEST_CONTINGENCY);
+            if (combinationKind.equals(CsaProfileConstants.ElementCombinationConstraintKind.INCLUDED.toString())) {
+                contingenciesWithIncluded.add(contingencyId);
+            } else if (combinationKind.equals(CsaProfileConstants.ElementCombinationConstraintKind.CONSIDERED.toString())) {
+                contingenciesWithConsidered.add(contingencyId);
+            } else if (combinationKind.equals(CsaProfileConstants.ElementCombinationConstraintKind.EXCLUDED.toString())) {
+                throw new FaraoImportException(ImportStatus.INCONSISTENCY_IN_DATA, CsaProfileConstants.REMEDIAL_ACTION_MESSAGE + remedialActionId + " will not be imported because of an illegal EXCLUDED ElementCombinationConstraintKind");
+            } else {
+                throw new FaraoImportException(ImportStatus.INCONSISTENCY_IN_DATA, CsaProfileConstants.REMEDIAL_ACTION_MESSAGE + remedialActionId + " will not be imported because of an invalid Element Combination Constraint Kind");
+            }
+            if (contingenciesWithIncluded.contains(contingencyId) && contingenciesWithConsidered.contains(contingencyId)) {
+                throw new FaraoImportException(ImportStatus.INCONSISTENCY_IN_DATA, CsaProfileConstants.REMEDIAL_ACTION_MESSAGE + remedialActionId + " will not be imported because the ElementCombinationConstraintKinds that link the remedial action to the contingency " + contingencyId + " are different");
             }
         }
     }
 
-    private RemedialActionType checkRemedialActionCanBeImportedAndIdentifyType(PropertyBag remedialActionPropertyBag, Map<String, Set<PropertyBag>> linkedTopologyActions, Map<String, Set<PropertyBag>> linkedRotatingMachineActions, Map<String, Set<PropertyBag>> linkedTapPositionActions, Map<String, Set<PropertyBag>> linkedStaticPropertyRanges) {
+    private RemedialActionType checkRemedialActionCanBeImportedAndIdentifyType(PropertyBag remedialActionPropertyBag, Map<String, Set<PropertyBag>> linkedTopologyActions, Map<String, Set<PropertyBag>> linkedRotatingMachineActions, Map<String, Set<PropertyBag>> linkedShuntCompensatorModifications, Map<String, Set<PropertyBag>> linkedTapPositionActions, Map<String, Set<PropertyBag>> linkedStaticPropertyRanges) {
         String remedialActionId = remedialActionPropertyBag.getId(CsaProfileConstants.GRID_STATE_ALTERATION_REMEDIAL_ACTION);
 
         String kind = remedialActionPropertyBag.get(CsaProfileConstants.RA_KIND);
@@ -202,7 +222,7 @@ public class CsaProfileRemedialActionsCreator {
 
         CsaProfileConstants.HeaderValidity headerValidity = CsaProfileCracUtils.checkProfileHeader(remedialActionPropertyBag, CsaProfileConstants.CsaProfile.REMEDIAL_ACTION, cracCreationContext.getTimeStamp());
         if (headerValidity == CsaProfileConstants.HeaderValidity.INVALID_KEYWORD) {
-            throw new FaraoImportException(ImportStatus.INCONSISTENCY_IN_DATA, "Model.keyword must be " + CsaProfileConstants.CsaProfile.REMEDIAL_ACTION);
+            throw new FaraoImportException(ImportStatus.INCONSISTENCY_IN_DATA, "Model.keyword must be " + CsaProfileConstants.CsaProfile.REMEDIAL_ACTION.getKeyword());
         } else if (headerValidity == CsaProfileConstants.HeaderValidity.INVALID_INTERVAL) {
             throw new FaraoImportException(ImportStatus.NOT_FOR_REQUESTED_TIMESTAMP, "Required timestamp does not fall between Model.startDate and Model.endDate");
         }
@@ -217,7 +237,10 @@ public class CsaProfileRemedialActionsCreator {
         if (linkedTopologyActions.containsKey(remedialActionId)) {
             return RemedialActionType.NETWORK_ACTION;
         } else if (linkedRotatingMachineActions.containsKey(remedialActionId)) {
-            checkEachRotatingMachineHasExactlyOneStaticPropertyRangeElseThrowException(remedialActionId, linkedRotatingMachineActions.get(remedialActionId), linkedStaticPropertyRanges);
+            checkEachInjectionSetPointActionHasExactlyOneStaticPropertyRangeElseThrowException(remedialActionId, linkedRotatingMachineActions.get(remedialActionId), linkedStaticPropertyRanges);
+            return RemedialActionType.NETWORK_ACTION;
+        } else if (linkedShuntCompensatorModifications.containsKey(remedialActionId)) {
+            checkEachInjectionSetPointActionHasExactlyOneStaticPropertyRangeElseThrowException(remedialActionId, linkedShuntCompensatorModifications.get(remedialActionId), linkedStaticPropertyRanges);
             return RemedialActionType.NETWORK_ACTION;
         } else if (linkedTapPositionActions.containsKey(remedialActionId)) { // StaticPropertyRanges not mandatory in case of tapPositionsActions
             return RemedialActionType.PST_RANGE_ACTION;
@@ -226,19 +249,19 @@ public class CsaProfileRemedialActionsCreator {
         }
     }
 
-    private void checkEachRotatingMachineHasExactlyOneStaticPropertyRangeElseThrowException(String remedialActionId, Set<PropertyBag> rotatingMachineActionsForOneRa, Map<String, Set<PropertyBag>> staticPropertyRangesLinkedToRotatingMachineActions) {
-        int numberOfStaticPropertyRanges = getNumberOfStaticPropertyRangeForRotatingMachineAction(rotatingMachineActionsForOneRa, staticPropertyRangesLinkedToRotatingMachineActions);
+    private void checkEachInjectionSetPointActionHasExactlyOneStaticPropertyRangeElseThrowException(String remedialActionId, Set<PropertyBag> injectionSetPointActionsActionsForOneRa, Map<String, Set<PropertyBag>> staticPropertyRangesLinkedToInjectionSetPointActions) {
+        int numberOfStaticPropertyRanges = getNumberOfStaticPropertyRangeForInjectionSetPointAction(injectionSetPointActionsActionsForOneRa, staticPropertyRangesLinkedToInjectionSetPointActions);
         if (numberOfStaticPropertyRanges == 0) {
             throw new FaraoImportException(ImportStatus.INCONSISTENCY_IN_DATA, CsaProfileConstants.REMEDIAL_ACTION_MESSAGE + remedialActionId + " will not be imported because there is no StaticPropertyRange linked to that RA");
         } else if (numberOfStaticPropertyRanges > 1) {
-            throw new FaraoImportException(ImportStatus.INCONSISTENCY_IN_DATA, CsaProfileConstants.REMEDIAL_ACTION_MESSAGE + remedialActionId + " will not be imported because several conflictual StaticPropertyRanges are linked to that RA's RotatingMachineAction");
+            throw new FaraoImportException(ImportStatus.INCONSISTENCY_IN_DATA, CsaProfileConstants.REMEDIAL_ACTION_MESSAGE + remedialActionId + " will not be imported because several conflictual StaticPropertyRanges are linked to that RA's injection set point action");
         }
     }
 
-    private int getNumberOfStaticPropertyRangeForRotatingMachineAction(Set<PropertyBag> rotatingMachineActionsForOneRa, Map<String, Set<PropertyBag>> staticPropertyRangesLinkedToRotatingMachineActions) {
+    private int getNumberOfStaticPropertyRangeForInjectionSetPointAction(Set<PropertyBag> injectionSetPointActionsForOneRa, Map<String, Set<PropertyBag>> staticPropertyRangesLinkedToInjectionSetPointActions) {
         int numberOfStaticPropertyRanges = 0;
-        for (PropertyBag rotatingMachineAction : rotatingMachineActionsForOneRa) {
-            Set<PropertyBag> staticPropertyRangePropertyBags = staticPropertyRangesLinkedToRotatingMachineActions.get(rotatingMachineAction.getId("mRID"));
+        for (PropertyBag injectionSetPointAction : injectionSetPointActionsForOneRa) {
+            Set<PropertyBag> staticPropertyRangePropertyBags = staticPropertyRangesLinkedToInjectionSetPointActions.get(injectionSetPointAction.getId("mRID"));
             if (staticPropertyRangePropertyBags != null) {
                 numberOfStaticPropertyRanges += staticPropertyRangePropertyBags.size();
             }
@@ -246,8 +269,9 @@ public class CsaProfileRemedialActionsCreator {
         return numberOfStaticPropertyRanges;
     }
 
-    static String checkContingencyAndGetFaraoId(CsaProfileCracCreationContext cracCreationContext, PropertyBag contingencyWithRemedialActionPropertyBag, String raKind, String remedialActionId, String combinationConstraintKind) {
-        if (!raKind.equals(CsaProfileConstants.RemedialActionKind.CURATIVE.toString())) {
+    private String checkContingencyAndGetFaraoId(PropertyBag contingencyWithRemedialActionPropertyBag, PropertyBag parentRemedialActionPropertyBag, String
+        remedialActionId, String combinationConstraintKind) {
+        if (!parentRemedialActionPropertyBag.get(CsaProfileConstants.RA_KIND).equals(CsaProfileConstants.RemedialActionKind.CURATIVE.toString())) {
             throw new FaraoImportException(ImportStatus.INCONSISTENCY_IN_DATA, CsaProfileConstants.REMEDIAL_ACTION_MESSAGE + remedialActionId + " will not be imported because it is linked to a contingency but it's kind is not curative");
         }
 

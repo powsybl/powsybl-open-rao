@@ -107,23 +107,31 @@ public class CsaProfileCrac implements NativeCrac {
     }
 
     public PropertyBags getTopologyAction() {
-        return this.queryTripleStore(CsaProfileConstants.TOPOLOGY_ACTION, tripleStoreCsaProfileCrac.contextNames());
+        return this.queryTripleStore(CsaProfileConstants.TOPOLOGY_ACTION);
     }
 
     public PropertyBags getRotatingMachineAction() {
-        return this.queryTripleStore(CsaProfileConstants.ROTATING_MACHINE_ACTION, tripleStoreCsaProfileCrac.contextNames());
+        return this.queryTripleStore(CsaProfileConstants.ROTATING_MACHINE_ACTION);
+    }
+
+    public PropertyBags getShuntCompensatorModifications() {
+        return this.queryTripleStore(CsaProfileConstants.SHUNT_COMPENSATOR_MODIFICATION);
     }
 
     public PropertyBags getTapPositionAction() {
-        return this.queryTripleStore(CsaProfileConstants.TAP_POSITION_ACTION, tripleStoreCsaProfileCrac.contextNames());
+        return this.queryTripleStore(CsaProfileConstants.TAP_POSITION_ACTION);
     }
 
     public PropertyBags getStaticPropertyRanges() {
-        return this.queryTripleStore(CsaProfileConstants.STATIC_PROPERTY_RANGE, tripleStoreCsaProfileCrac.contextNames());
+        return this.queryTripleStore(CsaProfileConstants.STATIC_PROPERTY_RANGE);
     }
 
     public PropertyBags getContingencyWithRemedialAction() {
-        return this.queryTripleStore(CsaProfileConstants.CONTINGENCY_WITH_REMEDIAL_ACTION, tripleStoreCsaProfileCrac.contextNames());
+        return this.queryTripleStore(CsaProfileConstants.CONTINGENCY_WITH_REMEDIAL_ACTION);
+    }
+
+    private PropertyBags queryTripleStore(String queryKey) {
+        return this.queryTripleStore(queryKey, new HashSet<>());
     }
 
     private PropertyBags queryTripleStore(List<String> queryKeys, Set<String> contexts) {
