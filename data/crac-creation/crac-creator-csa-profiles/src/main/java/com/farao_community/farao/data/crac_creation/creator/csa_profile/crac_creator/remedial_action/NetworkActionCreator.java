@@ -45,10 +45,9 @@ public class NetworkActionCreator {
 
         if (linkedRotatingMachineActions.containsKey(remedialActionId)) {
             for (PropertyBag rotatingMachineActionPropertyBag : linkedRotatingMachineActions.get(remedialActionId)) {
-                if (staticPropertyRanges.containsKey(rotatingMachineActionPropertyBag.getId("mRID"))) {
-                    addInjectionSetPointElementaryAction(
-                        staticPropertyRanges.get(rotatingMachineActionPropertyBag.getId("mRID")),
-                        remedialActionId, networkActionAdder, rotatingMachineActionPropertyBag);
+                String rotatingMachineId = rotatingMachineActionPropertyBag.getId(CsaProfileConstants.MRID);
+                if (staticPropertyRanges.containsKey(rotatingMachineId)) {
+                    addInjectionSetPointElementaryAction(staticPropertyRanges.get(rotatingMachineId), remedialActionId, networkActionAdder, rotatingMachineActionPropertyBag);
                 } else {
                     throw new FaraoImportException(ImportStatus.INCONSISTENCY_IN_DATA, CsaProfileConstants.REMEDIAL_ACTION_MESSAGE + remedialActionId + " will not be imported because there is no StaticPropertyRange linked to that RA");
                 }
@@ -61,7 +60,7 @@ public class NetworkActionCreator {
         CsaProfileCracUtils.checkNormalEnabled(rotatingMachineActionPropertyBag, remedialActionId, "RotatingMachineAction");
         CsaProfileCracUtils.checkPropertyReference(rotatingMachineActionPropertyBag, remedialActionId, "RotatingMachineAction", CsaProfileConstants.PropertyReference.ROTATING_MACHINE.toString());
         String rawId = rotatingMachineActionPropertyBag.get(CsaProfileConstants.ROTATING_MACHINE);
-        String rotatingMachineId = rawId.substring(rawId.lastIndexOf("_") + 1);
+        String rotatingMachineId = rawId.substring(rawId.lastIndexOf("#_") + 2).replace("+", " ");
         Optional<Generator> optionalGenerator = network.getGeneratorStream().filter(gen -> gen.getId().equals(rotatingMachineId)).findAny();
         Optional<Load> optionalLoad = findLoad(rotatingMachineId);
         if (optionalGenerator.isEmpty() && optionalLoad.isEmpty()) {

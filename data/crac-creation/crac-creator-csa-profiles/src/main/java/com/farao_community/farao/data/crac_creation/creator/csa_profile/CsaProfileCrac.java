@@ -74,6 +74,34 @@ public class CsaProfileCrac implements NativeCrac {
         return this.queryTripleStore(queryKey, new HashSet<>());
     }
 
+    public PropertyBags getRotatingMachineActionAuto() {
+        return this.queryTripleStore(CsaProfileConstants.ROTATING_MACHINE_ACTION_AUTO, tripleStoreCsaProfileCrac.contextNames());
+    }
+
+    public PropertyBags getTopologyActionAuto() {
+        return this.queryTripleStore(CsaProfileConstants.TOPOLOGY_ACTION_AUTO, tripleStoreCsaProfileCrac.contextNames());
+    }
+
+    public PropertyBags getStage() {
+        return this.queryTripleStore(CsaProfileConstants.STAGE, tripleStoreCsaProfileCrac.contextNames());
+    }
+
+    public PropertyBags getGridStateAlterationCollection() {
+        return this.queryTripleStore(CsaProfileConstants.GRID_STATE_ALTERATION_COLLECTION, tripleStoreCsaProfileCrac.contextNames());
+    }
+
+    public PropertyBags getRemedialActionScheme() {
+        return this.queryTripleStore(CsaProfileConstants.REMEDIAL_ACTION_SCHEME, tripleStoreCsaProfileCrac.contextNames());
+    }
+
+    public PropertyBags getSchemeRemedialActions() {
+        return this.queryTripleStore(CsaProfileConstants.SCHEME_REMEDIAL_ACTION, tripleStoreCsaProfileCrac.contextNames());
+    }
+
+    public PropertyBags getRemedialActionsSchedule() {
+        return this.queryTripleStore(CsaProfileConstants.REMEDIAL_ACTION_SCHEDULE, tripleStoreCsaProfileCrac.contextNames());
+    }
+
     public PropertyBags getRemedialActions() {
         return this.queryTripleStore(CsaProfileConstants.GRID_STATE_ALTERATION_REMEDIAL_ACTION, tripleStoreCsaProfileCrac.contextNames());
     }

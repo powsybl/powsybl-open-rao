@@ -47,7 +47,7 @@ public class TopologicalActionCreationTest {
         CsaProfileCracCreationContext cracCreationContext = cracCreator.createCrac(nativeCrac, network, OffsetDateTime.parse("2023-04-27T12:00Z"), new CracCreationParameters());
 
         assertNotNull(cracCreationContext);
-        assertEquals(9, cracCreationContext.getCrac().getNetworkActions().size());
+        assertEquals(10, cracCreationContext.getCrac().getNetworkActions().size());
         // RA17 (on instant)
         NetworkAction ra17 = cracCreationContext.getCrac().getNetworkAction("cfabf356-c5e1-4391-b91b-3330bc24f0c9");
         assertEquals("RA17", ra17.getName());

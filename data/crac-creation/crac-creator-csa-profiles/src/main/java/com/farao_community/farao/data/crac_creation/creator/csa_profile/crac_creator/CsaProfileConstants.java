@@ -24,7 +24,8 @@ public final class CsaProfileConstants {
         ASSESSED_ELEMENT("AE"),
         CONTINGENCY("CO"),
         EQUIPMENT_RELIABILITY("ER"),
-        REMEDIAL_ACTION("RA");
+        REMEDIAL_ACTION("RA"),
+        REMEDIAL_ACTION_SCHEDULE("RAS");
 
         CsaProfile(String keyword) {
             this.keyword = keyword;
@@ -95,6 +96,16 @@ public final class CsaProfileConstants {
 
     public static final String REMEDIAL_ACTION_NAME = "name";
     public static final String REMEDIAL_ACTION_MESSAGE = "Remedial action ";
+    public static final String AUTO_REMEDIAL_ACTION_MESSAGE = "Auto Remedial action ";
+    public static final String REMEDIAL_ACTION_SCHEDULE = "remedialActionSchedule";
+    public static final String SCHEME_REMEDIAL_ACTION = "schemeRemedialAction";
+    public static final String REMEDIAL_ACTION_SCHEME = "remedialActionScheme";
+    public static final String STAGE = "stage";
+    public static final String SIPS = "http://entsoe.eu/ns/nc#RemedialActionSchemeKind.sips";
+    public static final String NORMAL_ARMED = "normalArmed";
+    public static final String TOPOLOGY_ACTION_AUTO = "topologyActionAuto";
+    public static final String ROTATING_MACHINE_ACTION_AUTO = "rotatingMachineActionAuto";
+    public static final String GRID_STATE_ALTERATION_COLLECTION = "gridStateAlterationCollection";
     public static final String GRID_STATE_ALTERATION_REMEDIAL_ACTION = "gridStateAlterationRemedialAction";
     public static final String TOPOLOGY_ACTION = "topologyAction";
     public static final String ROTATING_MACHINE_ACTION = "rotatingMachineAction";
