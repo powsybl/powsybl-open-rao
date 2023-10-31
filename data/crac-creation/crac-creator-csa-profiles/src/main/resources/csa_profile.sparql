@@ -436,3 +436,18 @@ WHERE {
             }
 }
 
+# query: shuntCompensatorModificationAuto
+PREFIX nc: <http://entsoe.eu/ns/nc#>
+PREFIX cim: <http://iec.ch/TC57/CIM100#>
+SELECT *
+WHERE {
+    ?shuntCompensatorModificationAuto
+        rdf:type nc:ShuntCompensatorModification ;
+        cim:IdentifiedObject.mRID ?mRID ;
+        nc:GridStateAlteration.PropertyReference ?propertyReference ;
+        nc:GridStateAlteration.GridStateAlterationCollection ?gridStateAlterationCollection ;
+        nc:ShuntCompensatorModification.ShuntCompensator ?shuntCompensatorId ;
+    OPTIONAL {
+        ?shuntCompensatorModificationAuto nc:RemedialAction.normalEnabled ?normalEnabled .
+    }
+}
