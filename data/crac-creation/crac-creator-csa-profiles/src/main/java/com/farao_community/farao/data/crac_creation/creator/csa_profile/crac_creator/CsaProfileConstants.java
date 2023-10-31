@@ -110,11 +110,14 @@ public final class CsaProfileConstants {
     public static final String SWITCH = "switchId";
     public static final String NORMAL_ENABLED = "normalEnabled";
     public static final String GRID_ALTERATION_PROPERTY_REFERENCE = "propertyReference";
+    public static final String SHUNT_COMPENSATOR_MODIFICATION = "shuntCompensatorModification";
+    public static final String SHUNT_COMPENSATOR_ID = "shuntCompensatorId";
 
     public enum PropertyReference {
         SWITCH("Switch.open"),
         ROTATING_MACHINE("RotatingMachine.p"),
-        TAP_CHANGER("TapChanger.step");
+        TAP_CHANGER("TapChanger.step"),
+        SHUNT_COMPENSATOR("ShuntCompensator.sections");
 
         PropertyReference(String name) {
             this.name = name;
@@ -192,53 +195,30 @@ public final class CsaProfileConstants {
 
     public static final String REQUEST_ASSESSED_ELEMENT = "assessedElement";
     public static final String REQUEST_REMEDIAL_ACTION = "remedialAction";
-
     public static final String REQUEST_ASSESSED_ELEMENT_WITH_CONTINGENCY = "assessedElementWithContingency";
     public static final String REQUEST_ASSESSED_ELEMENT_WITH_REMEDIAL_ACTION = "assessedElementWithRemedialAction";
-
     public static final String REQUEST_ASSESSED_ELEMENT_IN_BASE_CASE = "inBaseCase";
-
     public static final String REQUEST_ASSESSED_ELEMENT_NAME = "name";
-
     public static final String REQUEST_ASSESSED_ELEMENT_OPERATOR = "assessedSystemOperator";
-
     public static final String REQUEST_ASSESSED_ELEMENT_OPERATIONAL_LIMIT = "operationalLimit";
-
     public static final String REQUEST_ASSESSED_ELEMENT_IS_CRITICAL = "isCritical";
-
     public static final String REQUEST_ASSESSED_ELEMENT_NORMAL_ENABLED = "normalEnabled";
-
     public static final String REQUEST_ASSESSED_ELEMENT_IS_COMBINABLE_WITH_CONTINGENCY = "isCombinableWithContingency";
     public static final String REQUEST_ASSESSED_ELEMENT_IS_COMBINABLE_WITH_REMEDIAL_ACTION = "isCombinableWithRemedialAction";
-
     public static final String REQUEST_ASSESSED_ELEMENT_WITH_CONTINGENCY_COMBINATION_CONSTRAINT_KIND = "combinationConstraintKind";
-
     public static final String REQUEST_ASSESSED_ELEMENT_WITH_CONTINGENCY_NORMAL_ENABLED = "normalEnabled";
-
     public static final String REQUEST_CURRENT_LIMIT = "currentLimit";
-
     public static final String REQUEST_VOLTAGE_LIMIT = "voltageLimit";
-
     public static final String REQUEST_OPERATIONAL_LIMIT_NORMAL_VALUE = "normalValue";
-
     public static final String REQUEST_OPERATIONAL_LIMIT_TERMINAL = "terminal";
-
     public static final String REQUEST_OPERATIONAL_LIMIT_KIND = "kind";
-
     public static final String REQUEST_OPERATIONAL_LIMIT_DIRECTION = "direction";
-
     public static final String REQUEST_OPERATIONAL_LIMIT_ACCEPTABLE_DURATION = "acceptableDuration";
-
     public static final String REQUEST_VOLTAGE_LIMIT_IS_INFINITE_DURATION = "isInfiniteDuration";
-
     public static final String ENTSOE_NS_NC_URL = "http://entsoe.eu/ns/nc";
-
     public static final List<String> CURRENT_LIMIT_POSSIBLE_ALIASES_BY_TYPE_LEFT = List.of("CGMES.Terminal1", "CGMES.Terminal_Boundary_1");
-
     public static final List<String> CURRENT_LIMIT_POSSIBLE_ALIASES_BY_TYPE_RIGHT = List.of("CGMES.Terminal2", "CGMES.Terminal_Boundary_2");
-
     public static final List<String> CURRENT_LIMIT_POSSIBLE_ALIASES_BY_TYPE_TIE_LINE = List.of("CGMES.Terminal1", "CGMES.Terminal_Boundary");
-
     public static final String IEC_URL = "http://iec.ch/TC57/";
 
     public enum ElementCombinationConstraintKind {

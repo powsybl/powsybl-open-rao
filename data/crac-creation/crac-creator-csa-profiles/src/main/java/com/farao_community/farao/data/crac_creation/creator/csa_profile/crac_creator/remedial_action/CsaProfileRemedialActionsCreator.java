@@ -38,6 +38,7 @@ public class CsaProfileRemedialActionsCreator {
     private final PropertyBags gridStateAlterationRemedialActionPropertyBags;
     private final PropertyBags topologyActionsPropertyBags;
     private final PropertyBags rotatingMachineActionsPropertyBags;
+    private final PropertyBags shuntCompensatorModificationsPropertyBags;
     private final PropertyBags tapPositionPropertyBags;
     private final PropertyBags staticPropertyRangesPropertyBags;
     private final PropertyBags contingencyWithRemedialActionsPropertyBags;
@@ -48,6 +49,7 @@ public class CsaProfileRemedialActionsCreator {
     public CsaProfileRemedialActionsCreator(Crac crac, Network network, CsaProfileCracCreationContext cracCreationContext, PropertyBags gridStateAlterationRemedialActionPropertyBags, PropertyBags contingencyWithRemedialActionsPropertyBags,
                                             PropertyBags topologyActionsPropertyBags,
                                             PropertyBags rotatingMachineActionsPropertyBags,
+                                            PropertyBags shuntCompensatorModificationsPropertyBags,
                                             PropertyBags tapPositionPropertyBags,
                                             PropertyBags staticPropertyRangesPropertyBags,
                                             OnConstraintUsageRuleHelper onConstraintUsageRuleHelper) {
@@ -57,6 +59,7 @@ public class CsaProfileRemedialActionsCreator {
         this.contingencyWithRemedialActionsPropertyBags = contingencyWithRemedialActionsPropertyBags;
         this.topologyActionsPropertyBags = topologyActionsPropertyBags;
         this.rotatingMachineActionsPropertyBags = rotatingMachineActionsPropertyBags;
+        this.shuntCompensatorModificationsPropertyBags = shuntCompensatorModificationsPropertyBags;
         this.tapPositionPropertyBags = tapPositionPropertyBags;
         this.staticPropertyRangesPropertyBags = staticPropertyRangesPropertyBags;
         this.cracCreationContext = cracCreationContext;
@@ -68,6 +71,7 @@ public class CsaProfileRemedialActionsCreator {
         Map<String, Set<PropertyBag>> linkedContingencyWithRAs = CsaProfileCracUtils.getMappedPropertyBagsSet(contingencyWithRemedialActionsPropertyBags, CsaProfileConstants.GRID_STATE_ALTERATION_REMEDIAL_ACTION);
         Map<String, Set<PropertyBag>> linkedTopologyActions = CsaProfileCracUtils.getMappedPropertyBagsSet(topologyActionsPropertyBags, CsaProfileConstants.GRID_STATE_ALTERATION_REMEDIAL_ACTION);
         Map<String, Set<PropertyBag>> linkedRotatingMachineActions = CsaProfileCracUtils.getMappedPropertyBagsSet(rotatingMachineActionsPropertyBags, CsaProfileConstants.GRID_STATE_ALTERATION_REMEDIAL_ACTION);
+        Map<String, Set<PropertyBag>> linkedShuntCompensatorModifications = CsaProfileCracUtils.getMappedPropertyBagsSet(shuntCompensatorModificationsPropertyBags, CsaProfileConstants.GRID_STATE_ALTERATION_REMEDIAL_ACTION);
         Map<String, Set<PropertyBag>> linkedTapPositionActions = CsaProfileCracUtils.getMappedPropertyBagsSet(tapPositionPropertyBags, CsaProfileConstants.GRID_STATE_ALTERATION_REMEDIAL_ACTION);
         Map<String, Set<PropertyBag>> linkedStaticPropertyRanges = CsaProfileCracUtils.getMappedPropertyBagsSet(staticPropertyRangesPropertyBags, CsaProfileConstants.GRID_STATE_ALTERATION_REMEDIAL_ACTION); // the id here is the id of the subclass of gridStateAlteration (tapPositionAction, RotatingMachine, ..)
 
@@ -79,7 +83,7 @@ public class CsaProfileRemedialActionsCreator {
 
             try {
                 List<String> alterations = new ArrayList<>();
-                RemedialActionType remedialActionType = checkRemedialActionCanBeImportedAndIdentifyType(parentRemedialActionPropertyBag, linkedTopologyActions, linkedRotatingMachineActions, linkedTapPositionActions, linkedStaticPropertyRanges);
+                RemedialActionType remedialActionType = checkRemedialActionCanBeImportedAndIdentifyType(parentRemedialActionPropertyBag, linkedTopologyActions, linkedRotatingMachineActions, linkedShuntCompensatorModifications, linkedTapPositionActions, linkedStaticPropertyRanges);
                 RemedialActionAdder<?> remedialActionAdder;
                 String nativeRaName = parentRemedialActionPropertyBag.get(CsaProfileConstants.REMEDIAL_ACTION_NAME);
                 String tsoName = parentRemedialActionPropertyBag.get(CsaProfileConstants.TSO);
@@ -87,7 +91,7 @@ public class CsaProfileRemedialActionsCreator {
                 Optional<Integer> speedOpt = getSpeedOpt(parentRemedialActionPropertyBag.get(CsaProfileConstants.TIME_TO_IMPLEMENT));
 
                 if (remedialActionType.equals(RemedialActionType.NETWORK_ACTION)) {
-                    remedialActionAdder = networkActionCreator.getNetworkActionAdder(linkedTopologyActions, linkedRotatingMachineActions, linkedStaticPropertyRanges, remedialActionId);
+                    remedialActionAdder = networkActionCreator.getNetworkActionAdder(linkedTopologyActions, linkedRotatingMachineActions, linkedShuntCompensatorModifications, linkedStaticPropertyRanges, remedialActionId);
                 } else {
                     remedialActionAdder = pstRangeActionCreator.getPstRangeActionAdder(linkedTapPositionActions, linkedStaticPropertyRanges, remedialActionId);
                 }
@@ -104,15 +108,15 @@ public class CsaProfileRemedialActionsCreator {
                     checkElementCombinationConstraintKindsCoherence(remedialActionId, linkedContingencyWithRAs);
 
                     List<String> faraoContingenciesIds = linkedContingencyWithRAs.get(remedialActionId).stream()
-                            .map(contingencyWithRemedialActionPropertyBag ->
-                                    checkContingencyAndGetFaraoId(
-                                            contingencyWithRemedialActionPropertyBag,
-                                            parentRemedialActionPropertyBag,
-                                            remedialActionId,
-                                            randomCombinationConstraintKind
-                                    )
+                        .map(contingencyWithRemedialActionPropertyBag ->
+                            checkContingencyAndGetFaraoId(
+                                contingencyWithRemedialActionPropertyBag,
+                                parentRemedialActionPropertyBag,
+                                remedialActionId,
+                                randomCombinationConstraintKind
                             )
-                            .toList();
+                        )
+                        .toList();
 
                     boolean hasAtLeastOneOnConstraintUsageRule = addOnConstraintUsageRules(Instant.CURATIVE, remedialActionAdder, remedialActionId, alterations);
                     if (!hasAtLeastOneOnConstraintUsageRule) {
@@ -153,9 +157,9 @@ public class CsaProfileRemedialActionsCreator {
     private void addOnContingencyStateUsageRules(RemedialActionAdder<?> remedialActionAdder, List<String> faraoContingenciesIds, String randomCombinationConstraintKind) {
         UsageMethod usageMethod = CsaProfileCracUtils.getConstraintToUsageMethodMap().get(randomCombinationConstraintKind);
         faraoContingenciesIds.forEach(faraoContingencyId -> remedialActionAdder.newOnContingencyStateUsageRule()
-                .withInstant(Instant.CURATIVE)
-                .withContingency(faraoContingencyId)
-                .withUsageMethod(usageMethod).add());
+            .withInstant(Instant.CURATIVE)
+            .withContingency(faraoContingencyId)
+            .withUsageMethod(usageMethod).add());
     }
 
     private void checkElementCombinationConstraintKindsCoherence(String remedialActionId, Map<String, Set<PropertyBag>> linkedContingencyWithRAs) {
@@ -182,7 +186,7 @@ public class CsaProfileRemedialActionsCreator {
         }
     }
 
-    private RemedialActionType checkRemedialActionCanBeImportedAndIdentifyType(PropertyBag remedialActionPropertyBag, Map<String, Set<PropertyBag>> linkedTopologyActions, Map<String, Set<PropertyBag>> linkedRotatingMachineActions, Map<String, Set<PropertyBag>> linkedTapPositionActions, Map<String, Set<PropertyBag>> linkedStaticPropertyRanges) {
+    private RemedialActionType checkRemedialActionCanBeImportedAndIdentifyType(PropertyBag remedialActionPropertyBag, Map<String, Set<PropertyBag>> linkedTopologyActions, Map<String, Set<PropertyBag>> linkedRotatingMachineActions, Map<String, Set<PropertyBag>> linkedShuntCompensatorModifications, Map<String, Set<PropertyBag>> linkedTapPositionActions, Map<String, Set<PropertyBag>> linkedStaticPropertyRanges) {
         String remedialActionId = remedialActionPropertyBag.getId(CsaProfileConstants.GRID_STATE_ALTERATION_REMEDIAL_ACTION);
 
         String kind = remedialActionPropertyBag.get(CsaProfileConstants.RA_KIND);
@@ -206,7 +210,10 @@ public class CsaProfileRemedialActionsCreator {
         if (linkedTopologyActions.containsKey(remedialActionId)) {
             return RemedialActionType.NETWORK_ACTION;
         } else if (linkedRotatingMachineActions.containsKey(remedialActionId)) {
-            checkEachRotatingMachineHasExactlyOneStaticPropertyRangeElseThrowException(remedialActionId, linkedRotatingMachineActions.get(remedialActionId), linkedStaticPropertyRanges);
+            checkEachInjectionSetPointActionHasExactlyOneStaticPropertyRangeElseThrowException(remedialActionId, linkedRotatingMachineActions.get(remedialActionId), linkedStaticPropertyRanges);
+            return RemedialActionType.NETWORK_ACTION;
+        } else if (linkedShuntCompensatorModifications.containsKey(remedialActionId)) {
+            checkEachInjectionSetPointActionHasExactlyOneStaticPropertyRangeElseThrowException(remedialActionId, linkedShuntCompensatorModifications.get(remedialActionId), linkedStaticPropertyRanges);
             return RemedialActionType.NETWORK_ACTION;
         } else if (linkedTapPositionActions.containsKey(remedialActionId)) { // StaticPropertyRanges not mandatory in case of tapPositionsActions
             return RemedialActionType.PST_RANGE_ACTION;
@@ -215,19 +222,19 @@ public class CsaProfileRemedialActionsCreator {
         }
     }
 
-    private void checkEachRotatingMachineHasExactlyOneStaticPropertyRangeElseThrowException(String remedialActionId, Set<PropertyBag> rotatingMachineActionsForOneRa, Map<String, Set<PropertyBag>> staticPropertyRangesLinkedToRotatingMachineActions) {
-        int numberOfStaticPropertyRanges = getNumberOfStaticPropertyRangeForRotatingMachineAction(rotatingMachineActionsForOneRa, staticPropertyRangesLinkedToRotatingMachineActions);
+    private void checkEachInjectionSetPointActionHasExactlyOneStaticPropertyRangeElseThrowException(String remedialActionId, Set<PropertyBag> injectionSetPointActionsActionsForOneRa, Map<String, Set<PropertyBag>> staticPropertyRangesLinkedToInjectionSetPointActions) {
+        int numberOfStaticPropertyRanges = getNumberOfStaticPropertyRangeForInjectionSetPointAction(injectionSetPointActionsActionsForOneRa, staticPropertyRangesLinkedToInjectionSetPointActions);
         if (numberOfStaticPropertyRanges == 0) {
             throw new FaraoImportException(ImportStatus.INCONSISTENCY_IN_DATA, CsaProfileConstants.REMEDIAL_ACTION_MESSAGE + remedialActionId + " will not be imported because there is no StaticPropertyRange linked to that RA");
         } else if (numberOfStaticPropertyRanges > 1) {
-            throw new FaraoImportException(ImportStatus.INCONSISTENCY_IN_DATA, CsaProfileConstants.REMEDIAL_ACTION_MESSAGE + remedialActionId + " will not be imported because several conflictual StaticPropertyRanges are linked to that RA's RotatingMachineAction");
+            throw new FaraoImportException(ImportStatus.INCONSISTENCY_IN_DATA, CsaProfileConstants.REMEDIAL_ACTION_MESSAGE + remedialActionId + " will not be imported because several conflictual StaticPropertyRanges are linked to that RA's injection set point action");
         }
     }
 
-    private int getNumberOfStaticPropertyRangeForRotatingMachineAction(Set<PropertyBag> rotatingMachineActionsForOneRa, Map<String, Set<PropertyBag>> staticPropertyRangesLinkedToRotatingMachineActions) {
+    private int getNumberOfStaticPropertyRangeForInjectionSetPointAction(Set<PropertyBag> injectionSetPointActionsForOneRa, Map<String, Set<PropertyBag>> staticPropertyRangesLinkedToInjectionSetPointActions) {
         int numberOfStaticPropertyRanges = 0;
-        for (PropertyBag rotatingMachineAction : rotatingMachineActionsForOneRa) {
-            Set<PropertyBag> staticPropertyRangePropertyBags = staticPropertyRangesLinkedToRotatingMachineActions.get(rotatingMachineAction.getId("mRID"));
+        for (PropertyBag injectionSetPointAction : injectionSetPointActionsForOneRa) {
+            Set<PropertyBag> staticPropertyRangePropertyBags = staticPropertyRangesLinkedToInjectionSetPointActions.get(injectionSetPointAction.getId("mRID"));
             if (staticPropertyRangePropertyBags != null) {
                 numberOfStaticPropertyRanges += staticPropertyRangePropertyBags.size();
             }
@@ -236,7 +243,7 @@ public class CsaProfileRemedialActionsCreator {
     }
 
     private String checkContingencyAndGetFaraoId(PropertyBag contingencyWithRemedialActionPropertyBag, PropertyBag parentRemedialActionPropertyBag, String
-            remedialActionId, String combinationConstraintKind) {
+        remedialActionId, String combinationConstraintKind) {
         if (!parentRemedialActionPropertyBag.get(CsaProfileConstants.RA_KIND).equals(CsaProfileConstants.RemedialActionKind.CURATIVE.toString())) {
             throw new FaraoImportException(ImportStatus.INCONSISTENCY_IN_DATA, CsaProfileConstants.REMEDIAL_ACTION_MESSAGE + remedialActionId + " will not be imported because it is linked to a contingency but it's kind is not curative");
         }
@@ -302,23 +309,23 @@ public class CsaProfileRemedialActionsCreator {
             if (isOnConstraintInstantCoherent(cnec.getState().getInstant(), remedialActionInstant)) {
                 if (cnec instanceof FlowCnec) {
                     remedialActionAdder.newOnFlowConstraintUsageRule()
-                            .withInstant(remedialActionInstant)
-                            .withFlowCnec(cnecId)
-                            .add();
+                        .withInstant(remedialActionInstant)
+                        .withFlowCnec(cnecId)
+                        .add();
                     // TODO add .withUsageMethod(usageMethod) when API of OnFlowConstraintAdder is ready
                     return true;
                 } else if (cnec instanceof VoltageCnec) {
                     remedialActionAdder.newOnVoltageConstraintUsageRule()
-                            .withInstant(remedialActionInstant)
-                            .withVoltageCnec(cnecId)
-                            .add();
+                        .withInstant(remedialActionInstant)
+                        .withVoltageCnec(cnecId)
+                        .add();
                     // TODO add .withUsageMethod(usageMethod) when API of OnFlowConstraintAdder is ready
                     return true;
                 } else if (cnec instanceof AngleCnec) {
                     remedialActionAdder.newOnAngleConstraintUsageRule()
-                            .withInstant(remedialActionInstant)
-                            .withAngleCnec(cnecId)
-                            .add();
+                        .withInstant(remedialActionInstant)
+                        .withAngleCnec(cnecId)
+                        .add();
                     // TODO add .withUsageMethod(usageMethod) when API of OnFlowConstraintAdder is ready
                     return true;
                 } else {
