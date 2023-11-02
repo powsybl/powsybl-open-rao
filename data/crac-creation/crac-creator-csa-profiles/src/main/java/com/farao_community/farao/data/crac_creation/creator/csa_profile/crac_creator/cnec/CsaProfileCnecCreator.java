@@ -476,8 +476,8 @@ public class CsaProfileCnecCreator {
             }
         }
 
-        if (networkElement instanceof DanglingLine danglingLine) {
-            Optional<TieLine> optionalTieLine = danglingLine.getTieLine();
+        if (networkElement instanceof DanglingLine) {
+            Optional<TieLine> optionalTieLine = ((DanglingLine) networkElement).getTieLine();
             if (optionalTieLine.isPresent()) {
                 networkElement = optionalTieLine.get();
             }
@@ -540,8 +540,9 @@ public class CsaProfileCnecCreator {
     }
 
     private Side getSideFromNetworkElement(Identifiable<?> networkElement, String terminalId) {
-        if (networkElement instanceof TieLine tieLine) {
+        if (networkElement instanceof TieLine) {
             for (String key : CsaProfileConstants.CURRENT_LIMIT_POSSIBLE_ALIASES_BY_TYPE_TIE_LINE) {
+                TieLine tieLine = (TieLine) networkElement;
                 Optional<String> oAlias = tieLine.getDanglingLine1().getAliasFromType(key);
                 if (oAlias.isPresent() && oAlias.get().equals(terminalId)) {
                     return Side.LEFT;

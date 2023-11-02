@@ -8,7 +8,6 @@
 package com.farao_community.farao.data.crac_creation.creator.cim.crac_creator;
 
 import com.farao_community.farao.data.crac_api.Crac;
-import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_creation.creator.api.CracCreationContext;
 import com.farao_community.farao.data.crac_creation.creator.api.CracCreationReport;
 import com.farao_community.farao.data.crac_creation.creator.api.ElementaryCreationContext;

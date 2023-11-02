@@ -58,7 +58,6 @@ public class TRemedialActionAdder {
         this.cseCracCreationParameters = cseCracCreationParameters;
     }
 
-
     public void add() {
         List<TRemedialActions> tRemedialActionsList = tcracSeries.getRemedialActions();
         for (TRemedialActions tRemedialActions : tRemedialActionsList) {

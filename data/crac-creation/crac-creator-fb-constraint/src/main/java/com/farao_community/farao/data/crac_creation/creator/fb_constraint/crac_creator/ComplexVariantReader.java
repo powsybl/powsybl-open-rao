@@ -7,7 +7,6 @@
 package com.farao_community.farao.data.crac_creation.creator.fb_constraint.crac_creator;
 
 import com.farao_community.farao.data.crac_api.Crac;
-import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.InstantKind;
 import com.farao_community.farao.data.crac_api.RemedialActionAdder;
 import com.farao_community.farao.data.crac_api.network_action.NetworkActionAdder;

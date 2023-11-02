@@ -61,7 +61,7 @@ class AngleCnecAdderImplTest {
                 .withImportingNetworkElement("ineId2")
                 .newThreshold().withUnit(Unit.DEGREE).withMax(500.0).add()
                 .add();
-        }
+    }
 
     @Test
     void testCheckCnecs() {
