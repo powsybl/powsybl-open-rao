@@ -95,7 +95,7 @@ public class CounterTradeRangeActionImpl extends AbstractRangeAction<CounterTrad
     @Override
     public int hashCode() {
         int hashCode = super.hashCode();
-        hashCode += 31 * exportingCountry.hashCode();
+        hashCode += 31 * exportingCountry.hashCode() + 63 * importingCountry.hashCode();
         return hashCode;
     }
 }
