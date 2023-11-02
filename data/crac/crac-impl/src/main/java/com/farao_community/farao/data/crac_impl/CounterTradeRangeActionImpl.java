@@ -4,6 +4,7 @@ import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.NetworkElement;
 import com.farao_community.farao.data.crac_api.range.StandardRange;
 import com.farao_community.farao.data.crac_api.range_action.CounterTradeRangeAction;
+import com.farao_community.farao.data.crac_api.range_action.HvdcRangeAction;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageRule;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
@@ -89,12 +90,16 @@ public class CounterTradeRangeActionImpl extends AbstractRangeAction<CounterTrad
         }
 
         return this.exportingCountry.equals(((CounterTradeRangeAction) o).getExportingCountry())
-                && this.importingCountry.equals(((CounterTradeRangeAction) o).getImportingCountry());
+                && this.importingCountry.equals(((CounterTradeRangeAction) o).getImportingCountry())
+                && this.ranges.equals(((CounterTradeRangeAction) o).getRanges());
     }
 
     @Override
     public int hashCode() {
         int hashCode = super.hashCode();
+        for (StandardRange range : ranges) {
+            hashCode += 31 * range.hashCode();
+        }
         hashCode += 31 * exportingCountry.hashCode() + 63 * importingCountry.hashCode();
         return hashCode;
     }
