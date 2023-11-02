@@ -38,14 +38,14 @@ class InjectionRangeActionAdderImplTest {
     @Test
     void testAdd() {
         InjectionRangeAction injectionRangeAction = (InjectionRangeAction) crac.newInjectionRangeAction()
-            .withId("id1")
-            .withOperator("BE")
-            .withGroupId("groupId1")
-            .withNetworkElementAndKey(1., injectionId1)
-            .withNetworkElementAndKey(-1., injectionId2, injectionName2)
-            .newRange().withMin(-5).withMax(10).add()
-            .newOnInstantUsageRule().withInstant("preventive").withUsageMethod(UsageMethod.AVAILABLE).add()
-            .add();
+                .withId("id1")
+                .withOperator("BE")
+                .withGroupId("groupId1")
+                .withNetworkElementAndKey(1., injectionId1)
+                .withNetworkElementAndKey(-1., injectionId2, injectionName2)
+                .newRange().withMin(-5).withMax(10).add()
+                .newOnInstantUsageRule().withInstant("preventive").withUsageMethod(UsageMethod.AVAILABLE).add()
+                .add();
 
         assertEquals("id1", injectionRangeAction.getId());
         assertEquals("id1", injectionRangeAction.getName());
@@ -69,15 +69,15 @@ class InjectionRangeActionAdderImplTest {
     @Test
     void testAddWithSumOnSameInjection() {
         InjectionRangeAction injectionRangeAction = (InjectionRangeAction) crac.newInjectionRangeAction()
-            .withId("id1")
-            .withOperator("BE")
-            .withGroupId("groupId1")
-            .withNetworkElementAndKey(1., injectionId1)
-            .withNetworkElementAndKey(4., injectionId1)
-            .withNetworkElementAndKey(-1., injectionId2, injectionName2)
-            .newRange().withMin(-5).withMax(10).add()
-            .newOnInstantUsageRule().withInstant("preventive").withUsageMethod(UsageMethod.AVAILABLE).add()
-            .add();
+                .withId("id1")
+                .withOperator("BE")
+                .withGroupId("groupId1")
+                .withNetworkElementAndKey(1., injectionId1)
+                .withNetworkElementAndKey(4., injectionId1)
+                .withNetworkElementAndKey(-1., injectionId2, injectionName2)
+                .newRange().withMin(-5).withMax(10).add()
+                .newOnInstantUsageRule().withInstant("preventive").withUsageMethod(UsageMethod.AVAILABLE).add()
+                .add();
 
         assertEquals("id1", injectionRangeAction.getId());
         assertEquals("id1", injectionRangeAction.getName());
@@ -102,13 +102,13 @@ class InjectionRangeActionAdderImplTest {
     @Test
     void testAddWithoutGroupId() {
         InjectionRangeAction injectionRangeAction = (InjectionRangeAction) crac.newInjectionRangeAction()
-            .withId("id1")
-            .withOperator("BE")
-            .withNetworkElementAndKey(1., injectionId1)
-            .withNetworkElementAndKey(-1., injectionId2, injectionName2)
-            .newRange().withMin(-5).withMax(10).add()
-            .newOnInstantUsageRule().withInstant("preventive").withUsageMethod(UsageMethod.AVAILABLE).add()
-            .add();
+                .withId("id1")
+                .withOperator("BE")
+                .withNetworkElementAndKey(1., injectionId1)
+                .withNetworkElementAndKey(-1., injectionId2, injectionName2)
+                .newRange().withMin(-5).withMax(10).add()
+                .newOnInstantUsageRule().withInstant("preventive").withUsageMethod(UsageMethod.AVAILABLE).add()
+                .add();
 
         assertEquals("id1", injectionRangeAction.getId());
         assertEquals("BE", injectionRangeAction.getOperator());
@@ -130,11 +130,11 @@ class InjectionRangeActionAdderImplTest {
         This test should however warnings
          */
         InjectionRangeAction injectionRangeAction = (InjectionRangeAction) crac.newInjectionRangeAction()
-            .withId("id1")
-            .withOperator("BE")
-            .withNetworkElementAndKey(1., injectionId1)
-            .newRange().withMin(-5).withMax(10).add()
-            .add();
+                .withId("id1")
+                .withOperator("BE")
+                .withNetworkElementAndKey(1., injectionId1)
+                .newRange().withMin(-5).withMax(10).add()
+                .add();
 
         assertEquals("id1", injectionRangeAction.getId());
         assertEquals("BE", injectionRangeAction.getOperator());
@@ -149,13 +149,13 @@ class InjectionRangeActionAdderImplTest {
     @Test
     void testAddWithoutOperator() {
         InjectionRangeAction injectionRangeAction = (InjectionRangeAction) crac.newInjectionRangeAction()
-            .withId("id1")
-            .withGroupId("groupId1")
-            .withNetworkElementAndKey(1., injectionId1)
-            .withNetworkElementAndKey(-1., injectionId2, injectionName2)
-            .newRange().withMin(-5).withMax(10).add()
-            .newOnInstantUsageRule().withInstant("preventive").withUsageMethod(UsageMethod.AVAILABLE).add()
-            .add();
+                .withId("id1")
+                .withGroupId("groupId1")
+                .withNetworkElementAndKey(1., injectionId1)
+                .withNetworkElementAndKey(-1., injectionId2, injectionName2)
+                .newRange().withMin(-5).withMax(10).add()
+                .newOnInstantUsageRule().withInstant("preventive").withUsageMethod(UsageMethod.AVAILABLE).add()
+                .add();
 
         assertEquals("id1", injectionRangeAction.getId());
         assertNull(injectionRangeAction.getOperator());
@@ -207,11 +207,11 @@ class InjectionRangeActionAdderImplTest {
     @Test
     void testIdNotUnique() {
         crac.newInjectionRangeAction()
-            .withId("sameId")
-            .withNetworkElementAndKey(1., injectionId1)
-            .newRange().withMin(-5).withMax(10).add()
-            .newOnInstantUsageRule().withInstant("preventive").withUsageMethod(UsageMethod.AVAILABLE).add()
-            .add();
+                .withId("sameId")
+                .withNetworkElementAndKey(1., injectionId1)
+                .newRange().withMin(-5).withMax(10).add()
+                .newOnInstantUsageRule().withInstant("preventive").withUsageMethod(UsageMethod.AVAILABLE).add()
+                .add();
         InjectionRangeActionAdder injectionRangeActionAdder = crac.newInjectionRangeAction()
             .withId("sameId")
             .withNetworkElementAndKey(1., injectionId1)

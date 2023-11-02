@@ -30,6 +30,44 @@ import static com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil.
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
 public final class CommonCracCreation {
+    private static class IidmPstHelper {
+
+        private final String pstId;
+        private int initialTapPosition;
+        private Map<Integer, Double> tapToAngleConversionMap;
+
+        public IidmPstHelper(String pstId, Network network) {
+            this.pstId = pstId;
+            interpretWithNetwork(network);
+        }
+
+        public int getInitialTap() {
+            return initialTapPosition;
+        }
+
+        public Map<Integer, Double> getTapToAngleConversionMap() {
+            return tapToAngleConversionMap;
+        }
+
+        private void interpretWithNetwork(Network network) {
+            TwoWindingsTransformer transformer = network.getTwoWindingsTransformer(pstId);
+            if (Objects.isNull(transformer)) {
+                return;
+            }
+            PhaseTapChanger phaseTapChanger = transformer.getPhaseTapChanger();
+            if (Objects.isNull(phaseTapChanger)) {
+                return;
+            }
+            this.initialTapPosition = phaseTapChanger.getTapPosition();
+            buildTapToAngleConversionMap(phaseTapChanger);
+        }
+
+        private void buildTapToAngleConversionMap(PhaseTapChanger phaseTapChanger) {
+            tapToAngleConversionMap = new HashMap<>();
+            phaseTapChanger.getAllSteps().forEach((tap, step) -> tapToAngleConversionMap.put(tap, step.getAlpha()));
+        }
+    }
+
     private CommonCracCreation() {
         // nothing
     }
@@ -259,13 +297,8 @@ public final class CommonCracCreation {
             .withId("pst")
             .withNetworkElement("BBE2AA1  BBE3AA1  1", "BBE2AA1  BBE3AA1  1 name")
             .withOperator("operator1")
-            .newOnInstantUsageRule()
-            .withInstant("preventive")
-            .withUsageMethod(UsageMethod.AVAILABLE).add()
-            .newOnContingencyStateUsageRule()
-            .withInstant("curative")
-            .withContingency("Contingency FR1 FR3")
-            .withUsageMethod(UsageMethod.AVAILABLE).add()
+            .newOnInstantUsageRule().withInstant("preventive").withUsageMethod(UsageMethod.AVAILABLE).add()
+            .newOnContingencyStateUsageRule().withInstant("curative").withContingency("Contingency FR1 FR3").withUsageMethod(UsageMethod.AVAILABLE).add()
             .newTapRange()
             .withRangeType(RangeType.ABSOLUTE)
             .withMinTap(-16)
@@ -276,43 +309,5 @@ public final class CommonCracCreation {
             .add();
 
         return crac;
-    }
-
-    private static class IidmPstHelper {
-
-        private final String pstId;
-        private int initialTapPosition;
-        private Map<Integer, Double> tapToAngleConversionMap;
-
-        public IidmPstHelper(String pstId, Network network) {
-            this.pstId = pstId;
-            interpretWithNetwork(network);
-        }
-
-        public int getInitialTap() {
-            return initialTapPosition;
-        }
-
-        public Map<Integer, Double> getTapToAngleConversionMap() {
-            return tapToAngleConversionMap;
-        }
-
-        private void interpretWithNetwork(Network network) {
-            TwoWindingsTransformer transformer = network.getTwoWindingsTransformer(pstId);
-            if (Objects.isNull(transformer)) {
-                return;
-            }
-            PhaseTapChanger phaseTapChanger = transformer.getPhaseTapChanger();
-            if (Objects.isNull(phaseTapChanger)) {
-                return;
-            }
-            this.initialTapPosition = phaseTapChanger.getTapPosition();
-            buildTapToAngleConversionMap(phaseTapChanger);
-        }
-
-        private void buildTapToAngleConversionMap(PhaseTapChanger phaseTapChanger) {
-            tapToAngleConversionMap = new HashMap<>();
-            phaseTapChanger.getAllSteps().forEach((tap, step) -> tapToAngleConversionMap.put(tap, step.getAlpha()));
-        }
     }
 }

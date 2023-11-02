@@ -28,11 +28,11 @@ class LoopFlowThresholdAdderImplTest {
             .withOperator("operator")
             .withOptimized(true)
             .newThreshold()
-            .withSide(Side.LEFT)
-            .withUnit(Unit.MEGAWATT)
-            .withMax(1000.0)
-            .withMin(-1000.0)
-            .add()
+                .withSide(Side.LEFT)
+                .withUnit(Unit.MEGAWATT)
+                .withMax(1000.0)
+                .withMin(-1000.0)
+                .add()
             .add();
     }
 

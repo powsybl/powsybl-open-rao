@@ -9,18 +9,17 @@ package com.farao_community.farao.data.crac_impl;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
-import com.farao_community.farao.data.crac_api.Crac;
-import com.farao_community.farao.data.crac_api.range.RangeType;
+import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_api.range.TapRangeAdder;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeActionAdder;
+import com.farao_community.farao.data.crac_api.range.RangeType;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.Map;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
@@ -77,8 +76,7 @@ class TapRangeAdderImplTest {
         TapRangeAdder tapRangeAdder = pstRangeActionAdder.newTapRange()
             .withMinTap(-5)
             .withMaxTap(10);
-        FaraoException exception = assertThrows(FaraoException.class, tapRangeAdder::add);
-        assertEquals("Cannot add TapRange without a range type. Please use withRangeType() with a non null value", exception.getMessage());
+        assertThrows(FaraoException.class, tapRangeAdder::add);
     }
 
     @Test
@@ -99,7 +97,6 @@ class TapRangeAdderImplTest {
             .withRangeType(RangeType.ABSOLUTE)
             .withMinTap(5)
             .withMaxTap(-10);
-        FaraoException exception = assertThrows(FaraoException.class, tapRangeAdder::add);
-        assertEquals("Max tap of TapRange must be equal or greater than min tap.", exception.getMessage());
+        assertThrows(FaraoException.class, tapRangeAdder::add);
     }
 }

@@ -12,7 +12,7 @@ import com.powsybl.commons.extensions.Extension;
 
 /**
  * A loopFlowThreshold limits the loop-flow on a given FlowCnec
- * <p>
+ *
  * Contrary to the BranchThreshold, the LoopFlowThresholds operates on both direction of a
  * CNEC. That is to say, the loop-flow on the CNEC should remains in the interval:
  * [-getThreshold() ; getThreshold()]

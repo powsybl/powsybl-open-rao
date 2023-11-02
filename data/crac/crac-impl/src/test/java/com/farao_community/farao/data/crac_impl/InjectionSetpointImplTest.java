@@ -60,8 +60,8 @@ class InjectionSetpointImplTest {
     void applyOnGenerator() {
         Network network = NetworkImportsUtil.import12NodesNetwork();
         InjectionSetpointImpl generatorSetpoint = new InjectionSetpointImpl(
-            new NetworkElementImpl("FFR1AA1 _generator"),
-            100, Unit.MEGAWATT);
+                new NetworkElementImpl("FFR1AA1 _generator"),
+                100, Unit.MEGAWATT);
 
         generatorSetpoint.apply(network);
         assertEquals(100., network.getGenerator("FFR1AA1 _generator").getTargetP(), 1e-3);
@@ -91,8 +91,8 @@ class InjectionSetpointImplTest {
     void applyOnLoad() {
         Network network = NetworkImportsUtil.import12NodesNetwork();
         InjectionSetpointImpl loadSetpoint = new InjectionSetpointImpl(
-            new NetworkElementImpl("FFR1AA1 _load"),
-            100, Unit.MEGAWATT);
+                new NetworkElementImpl("FFR1AA1 _load"),
+                100, Unit.MEGAWATT);
 
         loadSetpoint.apply(network);
         assertEquals(100., network.getLoad("FFR1AA1 _load").getP0(), 1e-3);
@@ -125,8 +125,8 @@ class InjectionSetpointImplTest {
         Network network = NetworkImportsUtil.import12NodesNetwork();
         NetworkImportsUtil.addDanglingLine(network);
         InjectionSetpointImpl danglingLineSetpoint = new InjectionSetpointImpl(
-            new NetworkElementImpl("DL1"),
-            100, Unit.MEGAWATT);
+                new NetworkElementImpl("DL1"),
+                100, Unit.MEGAWATT);
 
         danglingLineSetpoint.apply(network);
         assertEquals(100., network.getDanglingLine("DL1").getP0(), 1e-3);
@@ -137,8 +137,8 @@ class InjectionSetpointImplTest {
         Network network = NetworkImportsUtil.import12NodesNetwork();
         NetworkImportsUtil.addShuntCompensator(network);
         InjectionSetpointImpl shuntCompensatorSetpoint = new InjectionSetpointImpl(
-            new NetworkElementImpl("SC1"),
-            0, Unit.SECTION_COUNT);
+                new NetworkElementImpl("SC1"),
+                0, Unit.SECTION_COUNT);
         assertTrue(shuntCompensatorSetpoint.hasImpactOnNetwork(network));
     }
 
@@ -147,8 +147,8 @@ class InjectionSetpointImplTest {
         Network network = NetworkImportsUtil.import12NodesNetwork();
         NetworkImportsUtil.addShuntCompensator(network);
         InjectionSetpointImpl shuntCompensatorSetpoint = new InjectionSetpointImpl(
-            new NetworkElementImpl("SC1"),
-            1, Unit.SECTION_COUNT);
+                new NetworkElementImpl("SC1"),
+                1, Unit.SECTION_COUNT);
         assertFalse(shuntCompensatorSetpoint.hasImpactOnNetwork(network));
     }
 
@@ -157,8 +157,8 @@ class InjectionSetpointImplTest {
         Network network = NetworkImportsUtil.import12NodesNetwork();
         NetworkImportsUtil.addShuntCompensator(network);
         InjectionSetpointImpl shuntCompensatorSetpoint = new InjectionSetpointImpl(
-            new NetworkElementImpl("SC1"),
-            2, Unit.SECTION_COUNT);
+                new NetworkElementImpl("SC1"),
+                2, Unit.SECTION_COUNT);
         shuntCompensatorSetpoint.apply(network);
         assertEquals(2., network.getShuntCompensator("SC1").getSectionCount(), 1e-3);
     }
@@ -166,8 +166,8 @@ class InjectionSetpointImplTest {
     @Test
     void getUnit() {
         InjectionSetpointImpl dummy = new InjectionSetpointImpl(
-            new NetworkElementImpl("wrong_name"),
-            100, Unit.MEGAWATT);
+                new NetworkElementImpl("wrong_name"),
+                100, Unit.MEGAWATT);
         assertEquals(Unit.MEGAWATT, dummy.getUnit());
     }
 
@@ -175,8 +175,8 @@ class InjectionSetpointImplTest {
     void hasImpactOnNetworkThrow() {
         Network network = NetworkImportsUtil.import12NodesNetwork();
         InjectionSetpointImpl dummy = new InjectionSetpointImpl(
-            new NetworkElementImpl("wrong_name"),
-            100, Unit.MEGAWATT);
+                new NetworkElementImpl("wrong_name"),
+                100, Unit.MEGAWATT);
         assertThrows(NotImplementedException.class, () -> dummy.hasImpactOnNetwork(network));
     }
 

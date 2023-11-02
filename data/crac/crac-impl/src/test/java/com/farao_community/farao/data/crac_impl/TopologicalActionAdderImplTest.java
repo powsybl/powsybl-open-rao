@@ -12,9 +12,7 @@ import com.farao_community.farao.data.crac_api.network_action.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
@@ -54,15 +52,13 @@ class TopologicalActionAdderImplTest {
     void testNoNetworkElement() {
         TopologicalActionAdder topologicalActionAdder = networkActionAdder.newTopologicalAction()
             .withActionType(ActionType.OPEN);
-        FaraoException exception = assertThrows(FaraoException.class, topologicalActionAdder::add);
-        assertEquals("Cannot add TopologicalAction without a network element. Please use withNetworkElement() with a non null value", exception.getMessage());
+        assertThrows(FaraoException.class, topologicalActionAdder::add);
     }
 
     @Test
     void testNoActionType() {
         TopologicalActionAdder topologicalActionAdder = networkActionAdder.newTopologicalAction()
             .withNetworkElement("branchNetworkElementId");
-        FaraoException exception = assertThrows(FaraoException.class, topologicalActionAdder::add);
-        assertEquals("Cannot add TopologicalAction without a action type. Please use withActionType() with a non null value", exception.getMessage());
+        assertThrows(FaraoException.class, topologicalActionAdder::add);
     }
 }

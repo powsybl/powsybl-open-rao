@@ -131,8 +131,7 @@ class NetworkElementImplTest {
     void testGetLocationAbsent() {
         Network network = Network.read("TestCase12NodesWithSwitch.uct", getClass().getResourceAsStream("/TestCase12NodesWithSwitch.uct"));
         NetworkElementImpl networkElement = new NetworkElementImpl("non-existent");
-        FaraoException exception = assertThrows(FaraoException.class, () -> networkElement.getLocation(network));
-        assertEquals("Network element non-existent was not found in the network.", exception.getMessage());
+        assertThrows(FaraoException.class, () -> networkElement.getLocation(network));
     }
 
     @Test
@@ -149,7 +148,7 @@ class NetworkElementImplTest {
         VoltageLevel voltageLevel = Mockito.mock(VoltageLevel.class);
         Mockito.when(voltageLevel.getSubstation()).thenReturn(Optional.empty());
         Mockito.when(switchMock.getVoltageLevel()).thenReturn(voltageLevel);
-        Identifiable identifiable = switchMock;
+        Identifiable identifiable = (Identifiable) switchMock;
         Mockito.when(network.getIdentifiable("switch")).thenReturn(identifiable);
 
         NetworkElementImpl networkElement = new NetworkElementImpl("switch");

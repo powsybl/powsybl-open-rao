@@ -38,12 +38,12 @@ class InjectionRangeActionImplTest {
     @Test
     void applyOnTwoGeneratorsTest() {
         InjectionRangeAction ira = (InjectionRangeAction) crac.newInjectionRangeAction()
-            .withId("injectionRangeActionId")
-            .withNetworkElementAndKey(1., "BBE1AA1 _generator")
-            .withNetworkElementAndKey(-1., "DDE3AA1 _generator")
-            .newRange().withMin(-1000).withMax(1000).add()
-            .newOnInstantUsageRule().withInstant("preventive").withUsageMethod(UsageMethod.AVAILABLE).add()
-            .add();
+                .withId("injectionRangeActionId")
+                .withNetworkElementAndKey(1., "BBE1AA1 _generator")
+                .withNetworkElementAndKey(-1., "DDE3AA1 _generator")
+                .newRange().withMin(-1000).withMax(1000).add()
+                .newOnInstantUsageRule().withInstant("preventive").withUsageMethod(UsageMethod.AVAILABLE).add()
+                .add();
 
         // set to 100 MW
         ira.apply(network, 100.);
@@ -61,13 +61,13 @@ class InjectionRangeActionImplTest {
     @Test
     void applyOnCombinationOfLoadAndGeneratorsTest() {
         InjectionRangeAction ira = (InjectionRangeAction) crac.newInjectionRangeAction()
-            .withId("injectionRangeActionId")
-            .withNetworkElementAndKey(0.2, "BBE3AA1 _load")
-            .withNetworkElementAndKey(0.3, "FFR2AA1 _generator")
-            .withNetworkElementAndKey(0.5, "NNL3AA1 _load")
-            .newRange().withMin(-1000).withMax(1000).add()
-            .newOnInstantUsageRule().withInstant("preventive").withUsageMethod(UsageMethod.AVAILABLE).add()
-            .add();
+                .withId("injectionRangeActionId")
+                .withNetworkElementAndKey(0.2, "BBE3AA1 _load")
+                .withNetworkElementAndKey(0.3, "FFR2AA1 _generator")
+                .withNetworkElementAndKey(0.5, "NNL3AA1 _load")
+                .newRange().withMin(-1000).withMax(1000).add()
+                .newOnInstantUsageRule().withInstant("preventive").withUsageMethod(UsageMethod.AVAILABLE).add()
+                .add();
 
         // set to 100 MW
         ira.apply(network, 100.);
@@ -87,11 +87,11 @@ class InjectionRangeActionImplTest {
     @Test
     void rangeActionOnNonExistingElementTest() {
         InjectionRangeAction ira = (InjectionRangeAction) crac.newInjectionRangeAction()
-            .withId("injectionRangeActionId")
-            .withNetworkElementAndKey(1, "unknown _load")
-            .newRange().withMin(-1000).withMax(1000).add()
-            .newOnInstantUsageRule().withInstant("preventive").withUsageMethod(UsageMethod.AVAILABLE).add()
-            .add();
+                .withId("injectionRangeActionId")
+                .withNetworkElementAndKey(1, "unknown _load")
+                .newRange().withMin(-1000).withMax(1000).add()
+                .newOnInstantUsageRule().withInstant("preventive").withUsageMethod(UsageMethod.AVAILABLE).add()
+                .add();
 
         try {
             ira.apply(network, 100.);
@@ -111,11 +111,11 @@ class InjectionRangeActionImplTest {
     @Test
     void rangeActionOnNotAnInjectionTest() {
         InjectionRangeAction ira = (InjectionRangeAction) crac.newInjectionRangeAction()
-            .withId("injectionRangeActionId")
-            .withNetworkElementAndKey(1, "BBE1AA1  BBE2AA1  1")
-            .newRange().withMin(-1000).withMax(1000).add()
-            .newOnInstantUsageRule().withInstant("preventive").withUsageMethod(UsageMethod.AVAILABLE).add()
-            .add();
+                .withId("injectionRangeActionId")
+                .withNetworkElementAndKey(1, "BBE1AA1  BBE2AA1  1")
+                .newRange().withMin(-1000).withMax(1000).add()
+                .newOnInstantUsageRule().withInstant("preventive").withUsageMethod(UsageMethod.AVAILABLE).add()
+                .add();
 
         try {
             ira.apply(network, 100.);
@@ -135,12 +135,12 @@ class InjectionRangeActionImplTest {
     @Test
     void getCurrentSetpointTest() {
         InjectionRangeAction ira = (InjectionRangeAction) crac.newInjectionRangeAction()
-            .withId("injectionRangeActionId")
-            .withNetworkElementAndKey(1., "BBE1AA1 _load")
-            .withNetworkElementAndKey(1., "DDE3AA1 _generator")
-            .newRange().withMin(-1000).withMax(1000).add()
-            .newOnInstantUsageRule().withInstant("preventive").withUsageMethod(UsageMethod.AVAILABLE).add()
-            .add();
+                .withId("injectionRangeActionId")
+                .withNetworkElementAndKey(1., "BBE1AA1 _load")
+                .withNetworkElementAndKey(1., "DDE3AA1 _generator")
+                .newRange().withMin(-1000).withMax(1000).add()
+                .newOnInstantUsageRule().withInstant("preventive").withUsageMethod(UsageMethod.AVAILABLE).add()
+                .add();
 
         network.getLoad("BBE1AA1 _load").setP0(-50);
         network.getGenerator("DDE3AA1 _generator").setTargetP(50);
@@ -164,12 +164,12 @@ class InjectionRangeActionImplTest {
     @Test
     void getMinMaxAdmissibleSetpointTest() {
         InjectionRangeAction ira = (InjectionRangeAction) crac.newInjectionRangeAction()
-            .withId("injectionRangeActionId")
-            .withNetworkElementAndKey(1., "BBE1AA1 _load")
-            .newRange().withMin(-1000).withMax(1000).add()
-            .newRange().withMin(-1300).withMax(400).add()
-            .newOnInstantUsageRule().withInstant("preventive").withUsageMethod(UsageMethod.AVAILABLE).add()
-            .add();
+                .withId("injectionRangeActionId")
+                .withNetworkElementAndKey(1., "BBE1AA1 _load")
+                .newRange().withMin(-1000).withMax(1000).add()
+                .newRange().withMin(-1300).withMax(400).add()
+                .newOnInstantUsageRule().withInstant("preventive").withUsageMethod(UsageMethod.AVAILABLE).add()
+                .add();
 
         assertEquals(-1000, ira.getMinAdmissibleSetpoint(0.0), 1e-3);
         assertEquals(400, ira.getMaxAdmissibleSetpoint(0.0), 1e-3);

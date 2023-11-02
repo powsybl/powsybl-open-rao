@@ -36,9 +36,9 @@ class OnInstantAdderImplTest {
         crac.newInstant("auto", InstantKind.AUTO, "outage");
         crac.newInstant("curative", InstantKind.CURATIVE, "auto");
         crac.newContingency()
-            .withId("contingencyId")
-            .withNetworkElement("networkElementId")
-            .add();
+                .withId("contingencyId")
+                .withNetworkElement("networkElementId")
+                .add();
         remedialActionAdder = crac.newNetworkAction()
             .withId("networkActionId")
             .withName("networkActionName")
@@ -66,10 +66,10 @@ class OnInstantAdderImplTest {
     @Test
     void testOkCurative() {
         RemedialAction remedialAction = remedialActionAdder.newOnInstantUsageRule()
-            .withInstant("curative")
-            .withUsageMethod(UsageMethod.AVAILABLE)
-            .add()
-            .add();
+                .withInstant("curative")
+                .withUsageMethod(UsageMethod.AVAILABLE)
+                .add()
+                .add();
 
         UsageRule usageRule = (UsageRule) remedialAction.getUsageRules().iterator().next();
 

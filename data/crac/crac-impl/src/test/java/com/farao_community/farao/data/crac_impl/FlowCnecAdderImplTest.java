@@ -84,12 +84,12 @@ class FlowCnecAdderImplTest {
 
         // Verify that network elements were created
         crac.newFlowCnec()
-            .withId("cnecId3")
-            .withInstant("preventive")
-            .withOperator("cnec2Operator")
-            .withNetworkElement("neId2") // same as cnec2
-            .newThreshold().withUnit(Unit.MEGAWATT).withSide(LEFT).withMax(500.0).add()
-            .add();
+                .withId("cnecId3")
+                .withInstant("preventive")
+                .withOperator("cnec2Operator")
+                .withNetworkElement("neId2") // same as cnec2
+                .newThreshold().withUnit(Unit.MEGAWATT).withSide(LEFT).withMax(500.0).add()
+                .add();
         assertEquals(2, crac.getNetworkElements().size());
         assertNotNull(crac.getNetworkElement("neId1"));
         assertNotNull(crac.getNetworkElement("neId2"));
@@ -158,14 +158,14 @@ class FlowCnecAdderImplTest {
     @Test
     void testNotOptimizedNotMonitored2() {
         FlowCnec cnec = crac.newFlowCnec().withId("Cnec ID")
-            .withInstant("outage")
-            .withContingency(contingency1Id)
-            .withNetworkElement("Network Element ID")
-            .newThreshold().withUnit(Unit.AMPERE).withSide(LEFT).withMax(100.0).withMin(-100.0).add()
-            .withOptimized(false)
-            .withMonitored(false)
-            .withNominalVoltage(380.)
-            .add();
+                .withInstant("outage")
+                .withContingency(contingency1Id)
+                .withNetworkElement("Network Element ID")
+                .newThreshold().withUnit(Unit.AMPERE).withSide(LEFT).withMax(100.0).withMin(-100.0).add()
+                .withOptimized(false)
+                .withMonitored(false)
+                .withNominalVoltage(380.)
+                .add();
         assertFalse(cnec.isOptimized());
         assertFalse(cnec.isMonitored());
     }

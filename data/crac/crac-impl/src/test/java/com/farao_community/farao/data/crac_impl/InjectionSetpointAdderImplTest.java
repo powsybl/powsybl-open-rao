@@ -16,9 +16,7 @@ import com.farao_community.farao.data.crac_api.network_action.NetworkActionAdder
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
@@ -74,7 +72,7 @@ class InjectionSetpointAdderImplTest {
     @Test
     void testNoUnit() {
         InjectionSetpointAdder injectionSetpointAdder = networkActionAdder.newInjectionSetPoint()
-            .withNetworkElement("groupNetworkElementId").withSetpoint(100.);
+                .withNetworkElement("groupNetworkElementId").withSetpoint(100.);
         Exception e = assertThrows(FaraoException.class, injectionSetpointAdder::add);
         assertEquals("Cannot add InjectionSetPoint without a unit. Please use withUnit() with a non null value", e.getMessage());
     }
@@ -82,7 +80,7 @@ class InjectionSetpointAdderImplTest {
     @Test
     void testNegativeSetPointWithSectionCount() {
         InjectionSetpointAdder injectionSetpointAdder = networkActionAdder.newInjectionSetPoint()
-            .withNetworkElement("groupNetworkElementId").withSetpoint(-100.).withUnit(Unit.SECTION_COUNT);
+                .withNetworkElement("groupNetworkElementId").withSetpoint(-100.).withUnit(Unit.SECTION_COUNT);
         Exception e = assertThrows(FaraoException.class, injectionSetpointAdder::add);
         assertEquals("With a SECTION_COUNT unit, setpoint should be a positive integer", e.getMessage());
     }
@@ -90,7 +88,7 @@ class InjectionSetpointAdderImplTest {
     @Test
     void testNonIntegerSetPointWithSectionCount() {
         InjectionSetpointAdder injectionSetpointAdder = networkActionAdder.newInjectionSetPoint()
-            .withNetworkElement("groupNetworkElementId").withSetpoint(1.3).withUnit(Unit.SECTION_COUNT);
+                .withNetworkElement("groupNetworkElementId").withSetpoint(1.3).withUnit(Unit.SECTION_COUNT);
         Exception e = assertThrows(FaraoException.class, injectionSetpointAdder::add);
         assertEquals("With a SECTION_COUNT unit, setpoint should be a positive integer", e.getMessage());
     }

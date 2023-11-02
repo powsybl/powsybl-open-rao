@@ -19,9 +19,7 @@ import org.mockito.Mockito;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Alexandre Montigny {@literal <alexandre.montigny at rte-france.com>}
@@ -51,7 +49,7 @@ class NetworkActionImplTest {
             "operator",
             new HashSet<>(Collections.singleton(mockedUsageRule1)),
             Collections.singleton(mockedElementaryAction1),
-            10
+                10
         );
 
         assertEquals("id", networkAction.getId());
@@ -68,9 +66,9 @@ class NetworkActionImplTest {
             "id",
             "name",
             "operator",
-            new HashSet<>(Arrays.asList(mockedUsageRule1, mockedUsageRule2)),
-            new HashSet<>(Arrays.asList(mockedElementaryAction1, mockedElementaryAction2)),
-            10
+                new HashSet<>(Arrays.asList(mockedUsageRule1, mockedUsageRule2)),
+                new HashSet<>(Arrays.asList(mockedElementaryAction1, mockedElementaryAction2)),
+                10
         );
 
         assertEquals("id", networkAction.getId());
@@ -90,7 +88,7 @@ class NetworkActionImplTest {
             "operator",
             new HashSet<>(List.of(mockedUsageRule1, mockedUsageRule2)),
             Set.of(mockedElementaryAction1, mockedElementaryAction2),
-            10
+                10
         );
 
         Mockito.when(mockedElementaryAction1.canBeApplied(Mockito.any())).thenReturn(false);
@@ -113,7 +111,7 @@ class NetworkActionImplTest {
             "operator",
             new HashSet<>(List.of(mockedUsageRule1, mockedUsageRule2)),
             Set.of(mockedElementaryAction1, mockedElementaryAction2),
-            10
+                10
         );
 
         Mockito.when(mockedElementaryAction1.hasImpactOnNetwork(Mockito.any())).thenReturn(true);

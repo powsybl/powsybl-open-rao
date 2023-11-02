@@ -9,8 +9,8 @@ package com.farao_community.farao.data.crac_loopflow_extension;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.PhysicalParameter;
 import com.farao_community.farao.commons.Unit;
-import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_io_json.ExtensionsHandler;
+import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
@@ -69,7 +69,7 @@ public class JsonCnecLoopFlowExtensionSerializer implements ExtensionsHandler.Ex
         if (inputThreshold < 0) {
             throw new FaraoException("LoopFlowThresholds must have a positive threshold.");
         }
-        if (unit.equals(Unit.PERCENT_IMAX) && inputThreshold > 1) {
+        if (unit.equals(Unit.PERCENT_IMAX) && (inputThreshold > 1 || inputThreshold < 0)) {
             throw new FaraoException("LoopFlowThresholds in Unit.PERCENT_IMAX must be defined between 0 and 1, where 1 = 100%.");
         }
         if (unit.getPhysicalParameter() != PhysicalParameter.FLOW) {

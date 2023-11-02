@@ -48,13 +48,13 @@ class NetworkActionAdderImplTest {
             .withName("networkActionName")
             .withOperator("operator")
             .newPstSetPoint()
-            .withNetworkElement("pstNetworkElementId")
-            .withSetpoint(6)
-            .add()
+                .withNetworkElement("pstNetworkElementId")
+                .withSetpoint(6)
+                .add()
             .newOnInstantUsageRule()
-            .withInstant("preventive")
-            .withUsageMethod(UsageMethod.AVAILABLE)
-            .add()
+                .withInstant("preventive")
+                .withUsageMethod(UsageMethod.AVAILABLE)
+                .add()
             .add();
 
         assertEquals("networkActionId", networkAction.getId());
@@ -72,13 +72,13 @@ class NetworkActionAdderImplTest {
             .withName("networkActionName")
             .withOperator("operator")
             .newPstSetPoint()
-            .withNetworkElement("pstNetworkElementId")
-            .withSetpoint(6)
-            .add()
+                .withNetworkElement("pstNetworkElementId")
+                .withSetpoint(6)
+                .add()
             .newPstSetPoint()
-            .withNetworkElement("anotherPstNetworkElementId")
-            .withSetpoint(4)
-            .add()
+                .withNetworkElement("anotherPstNetworkElementId")
+                .withSetpoint(4)
+                .add()
             .add();
 
         assertEquals("networkActionId", networkAction.getId());
@@ -96,17 +96,17 @@ class NetworkActionAdderImplTest {
             .withName("networkActionName")
             .withOperator("operator")
             .newPstSetPoint()
-            .withNetworkElement("pstNetworkElementId")
-            .withSetpoint(6)
-            .add()
+                .withNetworkElement("pstNetworkElementId")
+                .withSetpoint(6)
+                .add()
             .newOnInstantUsageRule()
-            .withInstant("preventive")
-            .withUsageMethod(UsageMethod.AVAILABLE)
-            .add()
+                .withInstant("preventive")
+                .withUsageMethod(UsageMethod.AVAILABLE)
+                .add()
             .newOnContingencyStateUsageRule()
-            .withInstant("curative")
-            .withContingency("contingencyId")
-            .withUsageMethod(UsageMethod.AVAILABLE)
+                .withInstant("curative")
+                .withContingency("contingencyId")
+                .withUsageMethod(UsageMethod.AVAILABLE)
             .add()
             .add();
 
@@ -124,9 +124,9 @@ class NetworkActionAdderImplTest {
             .withId("networkActionId")
             .withOperator("operator")
             .newPstSetPoint()
-            .withNetworkElement("pstNetworkElementId")
-            .withSetpoint(6)
-            .add()
+                .withNetworkElement("pstNetworkElementId")
+                .withSetpoint(6)
+                .add()
             .add();
 
         assertEquals("networkActionId", networkAction.getId());
@@ -142,9 +142,9 @@ class NetworkActionAdderImplTest {
             .withId("networkActionId")
             .withName("networkActionName")
             .newPstSetPoint()
-            .withNetworkElement("pstNetworkElementId")
-            .withSetpoint(6)
-            .add()
+                .withNetworkElement("pstNetworkElementId")
+                .withSetpoint(6)
+                .add()
             .add();
 
         assertEquals("networkActionId", networkAction.getId());
@@ -156,12 +156,12 @@ class NetworkActionAdderImplTest {
     @Test
     void testNokWithoutId() {
         NetworkActionAdder networkActionAdder = crac.newNetworkAction()
-            .withName("networkActionName")
-            .withOperator("operator")
-            .newPstSetPoint()
-            .withNetworkElement("pstNetworkElementId")
-            .withSetpoint(6)
-            .add();
+                .withName("networkActionName")
+                .withOperator("operator")
+                .newPstSetPoint()
+                    .withNetworkElement("pstNetworkElementId")
+                    .withSetpoint(6)
+                    .add();
         FaraoException exception = assertThrows(FaraoException.class, networkActionAdder::add);
         assertEquals("Cannot add a NetworkAction object with no specified id. Please use withId()", exception.getMessage());
     }
@@ -195,14 +195,14 @@ class NetworkActionAdderImplTest {
     @Test
     void testOkWithoutSpeed() {
         NetworkAction networkAction = (NetworkAction) crac.newNetworkAction()
-            .withId("networkActionId")
-            .withName("networkActionName")
-            .withOperator("operator")
-            .newPstSetPoint()
-            .withNetworkElement("pstNetworkElementId")
-            .withSetpoint(6)
-            .add()
-            .add();
+                .withId("networkActionId")
+                .withName("networkActionName")
+                .withOperator("operator")
+                .newPstSetPoint()
+                .withNetworkElement("pstNetworkElementId")
+                .withSetpoint(6)
+                .add()
+                .add();
 
         assertEquals(Optional.empty(), networkAction.getSpeed());
     }
@@ -210,15 +210,15 @@ class NetworkActionAdderImplTest {
     @Test
     void testOkWithSpeed() {
         NetworkAction networkAction = (NetworkAction) crac.newNetworkAction()
-            .withId("networkActionId")
-            .withName("networkActionName")
-            .withOperator("operator")
-            .withSpeed(123)
-            .newPstSetPoint()
-            .withNetworkElement("pstNetworkElementId")
-            .withSetpoint(6)
-            .add()
-            .add();
+                .withId("networkActionId")
+                .withName("networkActionName")
+                .withOperator("operator")
+                .withSpeed(123)
+                .newPstSetPoint()
+                .withNetworkElement("pstNetworkElementId")
+                .withSetpoint(6)
+                .add()
+                .add();
 
         assertEquals(123, networkAction.getSpeed().orElseThrow().intValue());
     }

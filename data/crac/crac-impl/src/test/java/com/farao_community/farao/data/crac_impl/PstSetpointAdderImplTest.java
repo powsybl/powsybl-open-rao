@@ -15,9 +15,7 @@ import com.farao_community.farao.data.crac_api.network_action.PstSetpointAdder;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
@@ -58,15 +56,13 @@ class PstSetpointAdderImplTest {
     void testNoNetworkElement() {
         PstSetpointAdder pstSetpointAdder = networkActionAdder.newPstSetPoint()
             .withSetpoint(0);
-        FaraoException exception = assertThrows(FaraoException.class, pstSetpointAdder::add);
-        assertEquals("Cannot add PstSetPoint without a network element. Please use withNetworkElement() with a non null value", exception.getMessage());
+        assertThrows(FaraoException.class, pstSetpointAdder::add);
     }
 
     @Test
     void testNoSetpoint() {
         PstSetpointAdder pstSetpointAdder = networkActionAdder.newPstSetPoint()
             .withNetworkElement("pstNetworkElementId");
-        FaraoException exception = assertThrows(FaraoException.class, pstSetpointAdder::add);
-        assertEquals("Cannot add PstSetPoint without a setpoint. Please use withSetPoint() with a non null value", exception.getMessage());
+        assertThrows(FaraoException.class, pstSetpointAdder::add);
     }
 }

@@ -60,14 +60,14 @@ class HvdcRangeActionImplTest {
     @Test
     void getInitialSetpoint() {
         HvdcRangeAction hvdcRa = (HvdcRangeAction) hvdcRangeActionAdder.newRange().withMin(-5).withMax(10).add()
-            .add();
+                .add();
         assertEquals(0, hvdcRa.getCurrentSetpoint(network), 1e-6);
     }
 
     @Test
     void applyPositiveSetpoint() {
         HvdcRangeAction hvdcRa = (HvdcRangeAction) hvdcRangeActionAdder.newRange().withMin(-5).withMax(10).add()
-            .add();
+                .add();
         hvdcRa.apply(network, 5);
         hvdcRa.apply(networkWithAngleDroop, 6);
         assertEquals(5, hvdcRa.getCurrentSetpoint(network), 1e-6);
@@ -78,7 +78,7 @@ class HvdcRangeActionImplTest {
     @Test
     void applyNegativeSetpoint() {
         HvdcRangeAction hvdcRa = (HvdcRangeAction) hvdcRangeActionAdder.newRange().withMin(-5).withMax(10).add()
-            .add();
+                .add();
         hvdcRa.apply(network, -3);
         hvdcRa.apply(networkWithAngleDroop, -4);
         assertEquals(-3, hvdcRa.getCurrentSetpoint(network), 1e-6);
@@ -89,7 +89,7 @@ class HvdcRangeActionImplTest {
     @Test
     void getPositiveSetpoint() {
         HvdcRangeAction hvdcRa = (HvdcRangeAction) hvdcRangeActionAdder.newRange().withMin(-5).withMax(10).add()
-            .add();
+                .add();
         hvdcRa.apply(network, 5);
         hvdcLine.setConvertersMode(HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER);
         assertEquals(5, hvdcRa.getCurrentSetpoint(network), 1e-6);
@@ -98,7 +98,7 @@ class HvdcRangeActionImplTest {
     @Test
     void getNegativeSetpoint() {
         HvdcRangeAction hvdcRa = (HvdcRangeAction) hvdcRangeActionAdder.newRange().withMin(-5).withMax(10).add()
-            .add();
+                .add();
         hvdcRa.apply(network, 3);
         hvdcLine.setConvertersMode(HvdcLine.ConvertersMode.SIDE_1_INVERTER_SIDE_2_RECTIFIER);
         assertEquals(-3, hvdcRa.getCurrentSetpoint(network), 1e-6);
@@ -121,7 +121,7 @@ class HvdcRangeActionImplTest {
     @Test
     void hvdcWithSpecificRange() {
         HvdcRangeAction hvdcRa = (HvdcRangeAction) hvdcRangeActionAdder.newRange().withMin(-5).withMax(10).add()
-            .add();
+                .add();
 
         assertEquals(-5, hvdcRa.getMinAdmissibleSetpoint(0), 1e-3);
         assertEquals(10, hvdcRa.getMaxAdmissibleSetpoint(0), 1e-3);
@@ -144,7 +144,7 @@ class HvdcRangeActionImplTest {
     @Test
     void testGetLocation() {
         HvdcRangeAction hvdcRa = (HvdcRangeAction) hvdcRangeActionAdder.newRange().withMin(-5).withMax(10).add()
-            .add();
+                .add();
         Set<Optional<Country>> countries = hvdcRa.getLocation(network);
         assertEquals(2, countries.size());
         assertTrue(countries.contains(Optional.of(Country.BE)));
@@ -154,9 +154,9 @@ class HvdcRangeActionImplTest {
     @Test
     void hvdcEquals() {
         HvdcRangeAction hvdcRa1 = (HvdcRangeAction) hvdcRangeActionAdder.newRange().withMin(-5).withMax(10).add()
-            .add();
+                .add();
         HvdcRangeAction hvdcRa2 = (HvdcRangeAction) hvdcRangeActionAdder.withId("anotherId").newRange().withMin(-5).withMax(10).add()
-            .add();
+                .add();
 
         assertEquals(hvdcRa1.hashCode(), hvdcRa1.hashCode());
         assertEquals(hvdcRa1, hvdcRa1);

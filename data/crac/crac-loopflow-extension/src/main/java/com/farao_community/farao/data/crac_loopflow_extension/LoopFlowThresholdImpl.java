@@ -27,8 +27,8 @@ public class LoopFlowThresholdImpl extends AbstractExtension<FlowCnec> implement
        threshold (retrieved from the Crac, without considering the frm), and NOT as a percentage
         of the branch current limit (retrieved from the Network)
      */
-    private final double inputThreshold;
-    private final Unit inputThresholdUnit;
+    private double inputThreshold;
+    private Unit inputThresholdUnit;
 
     @Deprecated
     //todo: make private package

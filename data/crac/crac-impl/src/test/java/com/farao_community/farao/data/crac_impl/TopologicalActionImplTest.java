@@ -7,8 +7,8 @@
 
 package com.farao_community.farao.data.crac_impl;
 
-import com.farao_community.farao.data.crac_api.NetworkElement;
 import com.farao_community.farao.data.crac_api.network_action.ActionType;
+import com.farao_community.farao.data.crac_api.NetworkElement;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
 import com.powsybl.iidm.network.Network;
 import org.apache.commons.lang3.NotImplementedException;
@@ -29,12 +29,12 @@ class TopologicalActionImplTest {
     @BeforeEach
     public void setUp() {
         topologyOpen = new TopologicalActionImpl(
-            new NetworkElementImpl("FFR2AA1  DDE3AA1  1"),
-            ActionType.OPEN
+                new NetworkElementImpl("FFR2AA1  DDE3AA1  1"),
+                ActionType.OPEN
         );
         topologyClose = new TopologicalActionImpl(
-            new NetworkElementImpl("FFR2AA1  DDE3AA1  1"),
-            ActionType.CLOSE
+                new NetworkElementImpl("FFR2AA1  DDE3AA1  1"),
+                ActionType.CLOSE
         );
     }
 
@@ -113,8 +113,8 @@ class TopologicalActionImplTest {
     void applyOnUnsupportedElement() {
         Network network = NetworkImportsUtil.import12NodesNetwork();
         TopologicalActionImpl topologyOnNode = new TopologicalActionImpl(
-            new NetworkElementImpl("FFR2AA1"),
-            ActionType.OPEN);
+                new NetworkElementImpl("FFR2AA1"),
+                ActionType.OPEN);
 
         assertThrows(NotImplementedException.class, () -> topologyOnNode.apply(network));
     }

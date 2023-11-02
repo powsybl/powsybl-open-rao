@@ -7,29 +7,25 @@
 
 package com.farao_community.farao.data.crac_util;
 
-import com.farao_community.farao.data.crac_api.Contingency;
-import com.farao_community.farao.data.crac_api.Crac;
-import com.farao_community.farao.data.crac_api.RemedialAction;
-import com.farao_community.farao.data.crac_api.State;
-import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
+import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
+import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.data.crac_api.usage_rule.OnContingencyState;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageRule;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.Identifiable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import static com.farao_community.farao.data.crac_util.CracCleaningFeature.CHECK_CNEC_MNEC;
 import static com.farao_community.farao.data.crac_util.CracCleaningFeature.REMOVE_UNHANDLED_CONTINGENCIES;
 
 /**
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
+ *
  * @deprecated Please use the crac creator API to create a "clean" crac from the beginning
  */
 @Deprecated
@@ -38,19 +34,6 @@ public class CracCleaner {
     private static final Logger LOGGER = LoggerFactory.getLogger(CracCleaner.class);
 
     public CracCleaner() {
-    }
-
-    private static void cleanUsageRules(RemedialAction<?> remedialAction, Set<State> removedStates, List<String> report) {
-        Set<UsageRule> removedUr = new HashSet<>();
-        remedialAction.getUsageRules().forEach(usageRule -> {
-            if (usageRule instanceof OnContingencyState && removedStates.contains(((OnContingencyState) usageRule).getState())) {
-                report.add(String.format("[REMOVED] OnContingencyState usage rule of RA %s is removed because its associated Contingency [%s] has been removed",
-                    remedialAction.getId(),
-                    ((OnContingencyState) usageRule).getState().getContingency().get().getId()));
-                removedUr.add(usageRule);
-            }
-        });
-        remedialAction.getUsageRules().removeAll(removedUr);
     }
 
     public List<String> cleanCrac(Crac crac, Network network) {
@@ -80,7 +63,7 @@ public class CracCleaner {
 
         // remove RangeAction whose NetworkElement is absent from the network
         ArrayList<RangeAction<?>> absentFromNetworkRangeActions = new ArrayList<>();
-        for (RangeAction<?> rangeAction : crac.getRangeActions()) {
+        for (RangeAction<?> rangeAction: crac.getRangeActions()) {
             rangeAction.getNetworkElements().forEach(networkElement -> {
                 if (network.getIdentifiable(networkElement.getId()) == null) {
                     absentFromNetworkRangeActions.add(rangeAction);
@@ -92,7 +75,7 @@ public class CracCleaner {
 
         // remove NetworkAction whose NetworkElement is absent from the network
         ArrayList<NetworkAction> absentFromNetworkNetworkActions = new ArrayList<>();
-        for (NetworkAction networkAction : crac.getNetworkActions()) {
+        for (NetworkAction networkAction: crac.getNetworkActions()) {
             networkAction.getNetworkElements().forEach(networkElement -> {
                 if (network.getIdentifiable(networkElement.getId()) == null) {
                     absentFromNetworkNetworkActions.add(networkAction);
@@ -113,9 +96,9 @@ public class CracCleaner {
                 } else if (!(identifiable instanceof Branch || identifiable instanceof Generator || identifiable instanceof HvdcLine || identifiable instanceof BusbarSection || identifiable instanceof DanglingLine)) {
                     if (REMOVE_UNHANDLED_CONTINGENCIES.isEnabled()) {
                         removedContingencies.add(contingency);
-                        report.add(String.format("[REMOVED] Contingency %s has a network element [%s] of unhandled type [%s].  It is removed from the Crac.", contingency.getId(), networkElement.getId(), identifiable.getClass()));
+                        report.add(String.format("[REMOVED] Contingency %s has a network element [%s] of unhandled type [%s].  It is removed from the Crac.", contingency.getId(), networkElement.getId(), identifiable.getClass().toString()));
                     } else {
-                        report.add(String.format("[WARNING] Contingency %s has a network element [%s] of unhandled type [%s]. This may result in unexpected behavior.", contingency.getId(), networkElement.getId(), identifiable.getClass()));
+                        report.add(String.format("[WARNING] Contingency %s has a network element [%s] of unhandled type [%s]. This may result in unexpected behavior.", contingency.getId(), networkElement.getId(), identifiable.getClass().toString()));
                     }
                     // do not delete contingencies now as they are needed to check which associated states/cnecs should be removed as well
                 }
@@ -169,6 +152,19 @@ public class CracCleaner {
         report.forEach(LOGGER::warn);
 
         return report;
+    }
+
+    private static void cleanUsageRules(RemedialAction<?> remedialAction, Set<State> removedStates, List<String> report) {
+        Set<UsageRule> removedUr = new HashSet<>();
+        remedialAction.getUsageRules().forEach(usageRule -> {
+            if (usageRule instanceof OnContingencyState && removedStates.contains(((OnContingencyState) usageRule).getState())) {
+                report.add(String.format("[REMOVED] OnContingencyState usage rule of RA %s is removed because its associated Contingency [%s] has been removed",
+                    remedialAction.getId(),
+                    ((OnContingencyState) usageRule).getState().getContingency().get().getId()));
+                removedUr.add(usageRule);
+            }
+        });
+        remedialAction.getUsageRules().removeAll(removedUr);
     }
 
     public void enableFeature(CracCleaningFeature feature) {

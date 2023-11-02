@@ -33,30 +33,30 @@ class JsonLoopFlowThresholdImplImportExportTest {
         crac.newInstant("preventive", InstantKind.PREVENTIVE, null);
 
         crac.newFlowCnec()
-            .withId("cnec1")
-            .withNetworkElement("ne1")
-            .withInstant("preventive")
-            .newThreshold().withSide(Side.LEFT).withUnit(Unit.AMPERE).withMin(-500.).add()
-            .withNominalVoltage(380.)
-            .add()
+                .withId("cnec1")
+                .withNetworkElement("ne1")
+                .withInstant("preventive")
+                .newThreshold().withSide(Side.LEFT).withUnit(Unit.AMPERE).withMin(-500.).add()
+                .withNominalVoltage(380.)
+                .add()
             .newExtension(LoopFlowThresholdAdder.class).withValue(100).withUnit(Unit.AMPERE).add();
 
         crac.newFlowCnec()
-            .withId("cnec2")
-            .withNetworkElement("ne2")
-            .withInstant("preventive")
-            .newThreshold().withSide(Side.LEFT).withUnit(Unit.PERCENT_IMAX).withMin(-0.3).add()
-            .withNominalVoltage(380.)
-            .withIMax(5000.)
-            .add()
+                .withId("cnec2")
+                .withNetworkElement("ne2")
+                .withInstant("preventive")
+                .newThreshold().withSide(Side.LEFT).withUnit(Unit.PERCENT_IMAX).withMin(-0.3).add()
+                .withNominalVoltage(380.)
+                .withIMax(5000.)
+                .add()
             .newExtension(LoopFlowThresholdAdder.class).withValue(.3).withUnit(Unit.PERCENT_IMAX).add();
 
         crac.newFlowCnec()
-            .withId("cnec3")
-            .withNetworkElement("ne3")
-            .withInstant("preventive")
-            .newThreshold().withSide(Side.LEFT).withUnit(Unit.MEGAWATT).withMin(-700.).withMax(700.).add()
-            .add();
+                .withId("cnec3")
+                .withNetworkElement("ne3")
+                .withInstant("preventive")
+                .newThreshold().withSide(Side.LEFT).withUnit(Unit.MEGAWATT).withMin(-700.).withMax(700.).add()
+                .add();
 
         // export Crac
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
