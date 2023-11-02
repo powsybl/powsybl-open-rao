@@ -12,7 +12,7 @@ import static com.farao_community.farao.data.crac_impl.AdderUtils.assertAttribut
 import static com.farao_community.farao.data.crac_impl.AdderUtils.assertAttributeNotNull;
 
 /**
- * @author Gabriel Plante {@literal <gabriel.plante_externe at rte-france.com}
+ * @author Gabriel Plante {@literal <gabriel.plante_externe at rte-france.com>}
  */
 class CounterTradeRangeActionAdderImpl extends AbstractStandardRangeActionAdder<CounterTradeRangeActionAdder> implements CounterTradeRangeActionAdder {
 

@@ -10,6 +10,9 @@ import java.util.Optional;
 
 import static com.farao_community.farao.data.crac_io_json.JsonSerializationConstants.*;
 
+/**
+ * @author Gabriel Plante {@literal <gabriel.plante_externe at rte-france.com>}
+ */
 public class CounterTradeRangeActionSerializer extends AbstractJsonSerializer<CounterTradeRangeAction> {
 
     @Override

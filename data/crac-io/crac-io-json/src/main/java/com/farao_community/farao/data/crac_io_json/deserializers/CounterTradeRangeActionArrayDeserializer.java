@@ -12,6 +12,9 @@ import java.util.Map;
 
 import static com.farao_community.farao.data.crac_io_json.JsonSerializationConstants.*;
 
+/**
+ * @author Gabriel Plante {@literal <gabriel.plante_externe at rte-france.com>}
+ */
 public final class CounterTradeRangeActionArrayDeserializer {
     private CounterTradeRangeActionArrayDeserializer() {
     }
