@@ -7,6 +7,8 @@ import java.util.List;
 
 /**
  * @author Gabriel Plante {@literal <gabriel.plante_externe at rte-france.com}
+ * This class is here to avoid code duplication
+ * and because adding another base class to standard range actions would be too much class depth
  */
 public final class StandardRangeActionUtils {
 
