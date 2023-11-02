@@ -33,10 +33,10 @@ import java.util.Set;
  */
 @AutoService(CracCreator.class)
 public class CimCracCreator implements CracCreator<CimCrac, CimCracCreationContext> {
-    CimCracCreationContext creationContext;
     private List<TimeSeries> cimTimeSeries;
     private Crac crac;
     private Network network;
+    CimCracCreationContext creationContext;
 
     @Override
     public String getNativeCracFormat() {

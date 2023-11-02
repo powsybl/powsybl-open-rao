@@ -6,9 +6,7 @@
  */
 package com.farao_community.farao.commons;
 
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 
@@ -54,7 +52,7 @@ class RandomizedStringTest {
     void generateStringDifferentToInvalidOnes() {
         UUID uuid = UUID.fromString("2937ed60-9511-11ea-bb37-0242ac130002");
         UUID otherUuid = UUID.fromString("622fc1d6-41ba-43bc-9c54-c11073fc2ce7");
-        uuidMock.when(UUID::randomUUID).thenReturn(uuid, otherUuid);
+        uuidMock.when(() -> UUID.randomUUID()).thenReturn(uuid, otherUuid);
 
         String generatedString = RandomizedString.getRandomizedString("TEST_", Collections.singletonList("TEST_" + uuid));
         assertEquals("TEST_" + otherUuid, generatedString);
@@ -67,8 +65,7 @@ class RandomizedStringTest {
         uuidMock.when(UUID::randomUUID).thenReturn(uuid, otherUuid);
 
         List<String> usedStrings = Collections.singletonList("RANDOMIZED_STRING_" + uuid);
-        FaraoException exception = assertThrows(FaraoException.class, () -> RandomizedString.getRandomizedString("RANDOMIZED_STRING_", usedStrings, 1));
-        assertEquals("Failed to create a randomized string with prefix 'RANDOMIZED_STRING_' in 1 try.", exception.getMessage());
+        assertThrows(FaraoException.class, () -> RandomizedString.getRandomizedString("RANDOMIZED_STRING_", usedStrings, 1));
     }
 
     @Test

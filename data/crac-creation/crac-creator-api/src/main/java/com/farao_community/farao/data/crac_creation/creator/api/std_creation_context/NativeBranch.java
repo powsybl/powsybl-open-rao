@@ -11,9 +11,9 @@ package com.farao_community.farao.data.crac_creation.creator.api.std_creation_co
  */
 public class NativeBranch {
 
-    private final String from;
-    private final String to;
-    private final String suffix;
+    private String from;
+    private String to;
+    private String suffix;
 
     public NativeBranch(String from, String to, String suffix) {
         this.from = from;

@@ -113,4 +113,5 @@ class UcteConnectable implements Comparable<UcteConnectable> {
     private boolean matchType(ConnectableType... connectableTypes) {
         return Arrays.stream(connectableTypes).anyMatch(cType -> cType.equals(type));
     }
+
 }
