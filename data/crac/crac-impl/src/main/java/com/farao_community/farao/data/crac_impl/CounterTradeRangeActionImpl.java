@@ -4,7 +4,6 @@ import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.NetworkElement;
 import com.farao_community.farao.data.crac_api.range.StandardRange;
 import com.farao_community.farao.data.crac_api.range_action.CounterTradeRangeAction;
-import com.farao_community.farao.data.crac_api.range_action.HvdcRangeAction;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageRule;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
