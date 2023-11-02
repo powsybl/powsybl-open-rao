@@ -8,10 +8,7 @@
 
 package com.farao_community.farao.data.crac_io_json.serializers;
 
-import com.farao_community.farao.data.crac_api.Contingency;
-import com.farao_community.farao.data.crac_api.Crac;
-import com.farao_community.farao.data.crac_api.NetworkElement;
-import com.farao_community.farao.data.crac_api.RemedialAction;
+import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_api.cnec.AngleCnec;
 import com.farao_community.farao.data.crac_api.cnec.Cnec;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
@@ -72,13 +69,13 @@ public class CracSerializer extends AbstractJsonSerializer<Crac> {
 
         // Get network elements from Contingencies
         crac.getContingencies().stream().map(Contingency::getNetworkElements).flatMap(Set::stream)
-            .filter(networkElement -> !networkElement.getId().equals(networkElement.getName()))
-            .forEach(networkElement -> networkElementsNamesPerId.put(networkElement.getId(), networkElement.getName()));
+                .filter(networkElement -> !networkElement.getId().equals(networkElement.getName()))
+                .forEach(networkElement -> networkElementsNamesPerId.put(networkElement.getId(), networkElement.getName()));
 
         // Get network elements from RemedialActions
         for (RemedialAction<?> remedialAction : crac.getRemedialActions()) {
             remedialAction.getNetworkElements().stream().filter(networkElement -> !networkElement.getId().equals(networkElement.getName()))
-                .forEach(networkElement -> networkElementsNamesPerId.put(networkElement.getId(), networkElement.getName()));
+                    .forEach(networkElement -> networkElementsNamesPerId.put(networkElement.getId(), networkElement.getName()));
         }
 
         // Write all
@@ -88,8 +85,8 @@ public class CracSerializer extends AbstractJsonSerializer<Crac> {
     private void serializeContingencies(Crac crac, JsonGenerator gen) throws IOException {
         gen.writeArrayFieldStart(CONTINGENCIES);
         List<Contingency> sortedListOfContingencies = crac.getContingencies().stream()
-            .sorted(Comparator.comparing(Contingency::getId))
-            .toList();
+                .sorted(Comparator.comparing(Contingency::getId))
+                .collect(Collectors.toList());
         for (Contingency contingency : sortedListOfContingencies) {
             gen.writeObject(contingency);
         }
@@ -99,8 +96,8 @@ public class CracSerializer extends AbstractJsonSerializer<Crac> {
     private void serializeFlowCnecs(Crac crac, JsonGenerator gen) throws IOException {
         gen.writeArrayFieldStart(FLOW_CNECS);
         List<FlowCnec> sortedListOfCnecs = crac.getFlowCnecs().stream()
-            .sorted(Comparator.comparing(FlowCnec::getId))
-            .toList();
+                .sorted(Comparator.comparing(FlowCnec::getId))
+                .collect(Collectors.toList());
         for (FlowCnec flowCnec : sortedListOfCnecs) {
             gen.writeObject(flowCnec);
         }
@@ -111,7 +108,7 @@ public class CracSerializer extends AbstractJsonSerializer<Crac> {
         gen.writeArrayFieldStart(ANGLE_CNECS);
         List<AngleCnec> sortedListOfCnecs = crac.getAngleCnecs().stream()
             .sorted(Comparator.comparing(AngleCnec::getId))
-            .toList();
+            .collect(Collectors.toList());
         for (AngleCnec angleCnec : sortedListOfCnecs) {
             gen.writeObject(angleCnec);
         }
@@ -122,7 +119,7 @@ public class CracSerializer extends AbstractJsonSerializer<Crac> {
         gen.writeArrayFieldStart(VOLTAGE_CNECS);
         List<VoltageCnec> sortedListOfCnecs = crac.getVoltageCnecs().stream()
             .sorted(Comparator.comparing(VoltageCnec::getId))
-            .toList();
+            .collect(Collectors.toList());
         for (VoltageCnec voltageCnec : sortedListOfCnecs) {
             gen.writeObject(voltageCnec);
         }
@@ -132,8 +129,8 @@ public class CracSerializer extends AbstractJsonSerializer<Crac> {
     private void serializePstRangeActions(Crac crac, JsonGenerator gen) throws IOException {
         gen.writeArrayFieldStart(PST_RANGE_ACTIONS);
         List<PstRangeAction> sortedListPsts = crac.getPstRangeActions().stream()
-            .sorted(Comparator.comparing(PstRangeAction::getId))
-            .toList();
+                .sorted(Comparator.comparing(PstRangeAction::getId))
+                .collect(Collectors.toList());
         for (PstRangeAction pstRangeAction : sortedListPsts) {
             gen.writeObject(pstRangeAction);
         }
@@ -143,8 +140,8 @@ public class CracSerializer extends AbstractJsonSerializer<Crac> {
     private void serializeHvdcRangeActions(Crac crac, JsonGenerator gen) throws IOException {
         gen.writeArrayFieldStart(HVDC_RANGE_ACTIONS);
         List<HvdcRangeAction> sortedListHvdcs = crac.getHvdcRangeActions().stream()
-            .sorted(Comparator.comparing(HvdcRangeAction::getId))
-            .toList();
+                .sorted(Comparator.comparing(HvdcRangeAction::getId))
+                .collect(Collectors.toList());
         for (HvdcRangeAction hvdcRangeAction : sortedListHvdcs) {
             gen.writeObject(hvdcRangeAction);
         }
@@ -154,8 +151,8 @@ public class CracSerializer extends AbstractJsonSerializer<Crac> {
     private void serializeInjectionRangeActions(Crac crac, JsonGenerator gen) throws IOException {
         gen.writeArrayFieldStart(INJECTION_RANGE_ACTIONS);
         List<InjectionRangeAction> sortedInjectionRangeActionList = crac.getInjectionRangeActions().stream()
-            .sorted(Comparator.comparing(InjectionRangeAction::getId))
-            .toList();
+                .sorted(Comparator.comparing(InjectionRangeAction::getId))
+                .collect(Collectors.toList());
         for (InjectionRangeAction injectionRangeAction : sortedInjectionRangeActionList) {
             gen.writeObject(injectionRangeAction);
         }
@@ -165,8 +162,8 @@ public class CracSerializer extends AbstractJsonSerializer<Crac> {
     private void serializeNetworkActions(Crac crac, JsonGenerator gen) throws IOException {
         gen.writeArrayFieldStart(NETWORK_ACTIONS);
         List<NetworkAction> sortedList = crac.getNetworkActions().stream()
-            .sorted(Comparator.comparing(NetworkAction::getId))
-            .toList();
+                .sorted(Comparator.comparing(NetworkAction::getId))
+                .collect(Collectors.toList());
         for (NetworkAction networkAction : sortedList) {
             gen.writeObject(networkAction);
         }

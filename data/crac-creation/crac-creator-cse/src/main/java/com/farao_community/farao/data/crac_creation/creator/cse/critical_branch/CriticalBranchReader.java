@@ -186,8 +186,8 @@ public class CriticalBranchReader {
     private static void addThreshold(FlowCnecAdder cnecAdder, double positiveLimit, Unit unit, String direction, boolean invert, Set<Side> monitoredSides) {
         monitoredSides.forEach(side -> {
             BranchThresholdAdder branchThresholdAdder = cnecAdder.newThreshold()
-                .withSide(side)
-                .withUnit(unit);
+                    .withSide(side)
+                    .withUnit(unit);
             convertMinMax(branchThresholdAdder, positiveLimit, direction, invert, unit.equals(Unit.PERCENT_IMAX));
             branchThresholdAdder.add();
         });

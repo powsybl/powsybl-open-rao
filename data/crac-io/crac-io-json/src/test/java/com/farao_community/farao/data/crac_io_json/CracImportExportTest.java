@@ -184,9 +184,9 @@ class CracImportExportTest {
 
         // check onContingencyState usage Rule (curative)
         OnContingencyState onContingencyState = crac.getNetworkAction("pstSetpointRaId").getUsageRules().stream()
-            .filter(ur -> ur instanceof OnContingencyState)
-            .map(ur -> (OnContingencyState) ur)
-            .findAny().orElse(null);
+                .filter(ur -> ur instanceof OnContingencyState)
+                .map(ur -> (OnContingencyState) ur)
+                .findAny().orElse(null);
         assertNotNull(onContingencyState);
         assertEquals("contingency1Id", onContingencyState.getContingency().getId());
         assertEquals("curative", onContingencyState.getInstant().getId());
@@ -247,11 +247,11 @@ class CracImportExportTest {
         assertEquals(2, crac.getPstRangeAction("pstRange1Id").getRanges().size());
 
         TapRange absRange = crac.getPstRangeAction("pstRange1Id").getRanges().stream()
-            .filter(tapRange -> tapRange.getRangeType().equals(RangeType.ABSOLUTE))
-            .findAny().orElse(null);
+                .filter(tapRange -> tapRange.getRangeType().equals(RangeType.ABSOLUTE))
+                .findAny().orElse(null);
         TapRange relRange = crac.getPstRangeAction("pstRange1Id").getRanges().stream()
-            .filter(tapRange -> tapRange.getRangeType().equals(RangeType.RELATIVE_TO_INITIAL_NETWORK))
-            .findAny().orElse(null);
+                .filter(tapRange -> tapRange.getRangeType().equals(RangeType.RELATIVE_TO_INITIAL_NETWORK))
+                .findAny().orElse(null);
 
         assertNotNull(absRange);
         assertEquals(1, absRange.getMinTap());

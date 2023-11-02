@@ -37,7 +37,7 @@ public class NetworkActionSerializer extends AbstractJsonSerializer<NetworkActio
 
     private void serializeElementaryActions(NetworkAction networkAction, Class<? extends ElementaryAction> elementaryActionType, String arrayName, JsonGenerator gen) throws IOException {
         List<ElementaryAction> actions = networkAction.getElementaryActions().stream().filter(action -> elementaryActionType.isAssignableFrom(action.getClass()))
-            .sorted(Comparator.comparing(this::buildElementaryActionId)).toList();
+                .sorted(Comparator.comparing(this::buildElementaryActionId)).collect(Collectors.toList());
         if (!actions.isEmpty()) {
             gen.writeArrayFieldStart(arrayName);
             for (ElementaryAction ea : actions) {

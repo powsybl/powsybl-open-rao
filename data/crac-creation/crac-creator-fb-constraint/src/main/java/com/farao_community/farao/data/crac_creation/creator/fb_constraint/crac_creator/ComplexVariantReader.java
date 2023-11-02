@@ -114,8 +114,8 @@ class ComplexVariantReader {
 
         // interpret actions
         actionReaders = complexVariant.getActionsSet().get(0).getAction().stream()
-            .map(actionType -> new ActionReader(actionType, ucteNetworkAnalyzer))
-            .toList();
+                .map(actionType -> new ActionReader(actionType, ucteNetworkAnalyzer))
+                .toList();
 
         Optional<ActionReader> invalidAction = actionReaders.stream().filter(actionReader -> !actionReader.isActionValid()).findAny();
 

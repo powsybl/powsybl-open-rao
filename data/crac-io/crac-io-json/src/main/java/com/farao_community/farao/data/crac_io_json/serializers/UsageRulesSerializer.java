@@ -13,6 +13,7 @@ import com.fasterxml.jackson.core.JsonGenerator;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static com.farao_community.farao.data.crac_io_json.JsonSerializationConstants.*;
 
@@ -34,9 +35,9 @@ public final class UsageRulesSerializer {
 
     private static void serializeUsageRules(RemedialAction<?> remedialAction, Class<? extends UsageRule> usageRuleType, String arrayName, JsonGenerator gen) throws IOException {
         List<UsageRule> usageRules = remedialAction.getUsageRules().stream()
-            .filter(usageRule -> usageRuleType.isAssignableFrom(usageRule.getClass()))
-            .sorted(new UsageRuleComparator())
-            .toList();
+                .filter(usageRule -> usageRuleType.isAssignableFrom(usageRule.getClass()))
+                .sorted(new UsageRuleComparator())
+                .collect(Collectors.toList());
         if (!usageRules.isEmpty()) {
             gen.writeArrayFieldStart(arrayName);
             for (UsageRule ea : usageRules) {

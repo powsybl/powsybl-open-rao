@@ -15,7 +15,7 @@ import java.util.Set;
 
 /**
  * Interface to contingencies
- * <p>
+ *
  * A contingency is the triggering of one or several {@link NetworkElement}, after which
  * {@link Cnec} can be monitored and {@link RemedialAction} applied.
  *

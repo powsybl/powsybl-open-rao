@@ -31,11 +31,6 @@ class OutageReader {
 
     private List<String> outageElementIds;
 
-    OutageReader(OutageType outage, UcteNetworkAnalyzer ucteNetworkHelper) {
-        this.outage = outage;
-        interpretWithNetwork(ucteNetworkHelper);
-    }
-
     OutageType getOutage() {
         return outage;
     }
@@ -54,6 +49,11 @@ class OutageReader {
             .withName(outage.getName());
         outageElementIds.forEach(contingencyAdder::withNetworkElement);
         contingencyAdder.add();
+    }
+
+    OutageReader(OutageType outage, UcteNetworkAnalyzer ucteNetworkHelper) {
+        this.outage = outage;
+        interpretWithNetwork(ucteNetworkHelper);
     }
 
     private void interpretWithNetwork(UcteNetworkAnalyzer ucteNetworkHelper) {

@@ -143,9 +143,9 @@ class JsonSerializationConstantsTest {
         UsageRule onInstant2 = mockUsageRule(INSTANT_PREV, UsageMethod.FORCED, null, null, null, null, null);
         UsageRule onInstant3 = mockUsageRule(INSTANT_CURATIVE, UsageMethod.AVAILABLE, null, null, null, null, null);
 
-        //assertEquals(0, comparator.compare(onInstant1, onInstant1));
-        //assertEquals(0, comparator.compare(onInstant2, onInstant2));
-        //assertEquals(0, comparator.compare(onInstant3, onInstant3));
+        assertEquals(0, comparator.compare(onInstant1, onInstant1));
+        assertEquals(0, comparator.compare(onInstant2, onInstant2));
+        assertEquals(0, comparator.compare(onInstant3, onInstant3));
         assertTrue(comparator.compare(onInstant1, onInstant2) < 0);
         assertTrue(comparator.compare(onInstant2, onInstant3) < 0);
         assertTrue(comparator.compare(onInstant1, onInstant3) < 0);

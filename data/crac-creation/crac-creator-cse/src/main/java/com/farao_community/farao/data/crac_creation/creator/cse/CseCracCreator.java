@@ -34,23 +34,6 @@ import java.util.List;
 public class CseCracCreator implements CracCreator<CseCrac, CseCracCreationContext> {
     CseCracCreationContext creationContext;
 
-    private static void addCseInstants(Crac crac) {
-        crac.newInstant("preventive", InstantKind.PREVENTIVE, null);
-        crac.newInstant("outage", InstantKind.OUTAGE, "preventive");
-        crac.newInstant("auto", InstantKind.AUTO, "outage");
-        crac.newInstant("curative", InstantKind.CURATIVE, "auto");
-    }
-
-    public static TCRACSeries getCracSeries(CRACDocumentType cracDocumentType) {
-        // Check that there is only one CRACSeries in the file, which defines the CRAC
-        // XSD enables several CRACSeries but without any further specification it doesn't make sense.
-        List<TCRACSeries> tcracSeriesList = cracDocumentType.getCRACSeries();
-        if (tcracSeriesList.size() != 1) {
-            throw new FaraoException("CRAC file contains no or more than one <CRACSeries> tag which is not handled.");
-        }
-        return tcracSeriesList.get(0);
-    }
-
     @Override
     public String getNativeCracFormat() {
         return "CseCrac";
@@ -104,5 +87,22 @@ public class CseCracCreator implements CracCreator<CseCrac, CseCracCreationConte
             creationContext.getCreationReport().error(String.format("CRAC could not be created: %s", e.getMessage()));
             return creationContext.creationFailure();
         }
+    }
+
+    private static void addCseInstants(Crac crac) {
+        crac.newInstant("preventive", InstantKind.PREVENTIVE, null);
+        crac.newInstant("outage", InstantKind.OUTAGE, "preventive");
+        crac.newInstant("auto", InstantKind.AUTO, "outage");
+        crac.newInstant("curative", InstantKind.CURATIVE, "auto");
+    }
+
+    public static TCRACSeries getCracSeries(CRACDocumentType cracDocumentType) {
+        // Check that there is only one CRACSeries in the file, which defines the CRAC
+        // XSD enables several CRACSeries but without any further specification it doesn't make sense.
+        List<TCRACSeries> tcracSeriesList = cracDocumentType.getCRACSeries();
+        if (tcracSeriesList.size() != 1) {
+            throw new FaraoException("CRAC file contains no or more than one <CRACSeries> tag which is not handled.");
+        }
+        return tcracSeriesList.get(0);
     }
 }
