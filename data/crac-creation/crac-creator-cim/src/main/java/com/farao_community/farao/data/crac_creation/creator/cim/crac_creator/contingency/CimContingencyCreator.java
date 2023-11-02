@@ -22,10 +22,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
-import static com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.CimConstants.CNECS_SERIES_BUSINESS_TYPE;
-import static com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.CimConstants.CONTINGENCY_SERIES_BUSINESS_TYPE;
-import static com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.CimConstants.REMEDIAL_ACTIONS_SERIES_BUSINESS_TYPE;
+import static com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.CimConstants.*;
 
 /**
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
@@ -34,8 +33,12 @@ public class CimContingencyCreator {
     private final Crac crac;
     private final Network network;
     private final List<TimeSeries> cimTimeSeries;
-    private final CimCracCreationContext cracCreationContext;
     private Set<CimContingencyCreationContext> cimContingencyCreationContexts;
+    private CimCracCreationContext cracCreationContext;
+
+    public Set<CimContingencyCreationContext> getContingencyCreationContexts() {
+        return new HashSet<>(cimContingencyCreationContexts);
+    }
 
     public CimContingencyCreator(List<TimeSeries> cimTimeSeries, Crac crac, Network network, CimCracCreationContext cracCreationContext) {
         this.cimTimeSeries = cimTimeSeries;
@@ -44,17 +47,13 @@ public class CimContingencyCreator {
         this.cracCreationContext = cracCreationContext;
     }
 
-    public Set<CimContingencyCreationContext> getContingencyCreationContexts() {
-        return new HashSet<>(cimContingencyCreationContexts);
-    }
-
     public void createAndAddContingencies() {
         this.cimContingencyCreationContexts = new HashSet<>();
 
         for (TimeSeries cimTimeSerie : cimTimeSeries) {
             for (SeriesPeriod cimPeriodInTimeSerie : cimTimeSerie.getPeriod()) {
                 for (Point cimPointInPeriodInTimeSerie : cimPeriodInTimeSerie.getPoint()) {
-                    for (Series cimSerie : cimPointInPeriodInTimeSerie.getSeries().stream().filter(this::describesContingencyToImport).toList()) {
+                    for (Series cimSerie : cimPointInPeriodInTimeSerie.getSeries().stream().filter(this::describesContingencyToImport).collect(Collectors.toList())) {
                         for (ContingencySeries cimContingency : cimSerie.getContingencySeries()) {
                             addContingency(cimContingency);
                         }
@@ -72,8 +71,8 @@ public class CimContingencyCreator {
 
         String createdContingencyId = cimContingency.getMRID();
         ContingencyAdder contingencyAdder = crac.newContingency()
-            .withId(createdContingencyId)
-            .withName(cimContingency.getName());
+                .withId(createdContingencyId)
+                .withName(cimContingency.getName());
 
         if (cimContingency.getRegisteredResource().isEmpty()) {
             cimContingencyCreationContexts.add(CimContingencyCreationContext.notImported(createdContingencyId, cimContingency.getName(), ImportStatus.INCOMPLETE_DATA, "No registered resources"));
@@ -82,7 +81,7 @@ public class CimContingencyCreator {
 
         boolean anyRegisteredResourceOk = false;
         boolean allRegisteredResourcesOk = true;
-        StringBuilder missingNetworkElements = null;
+        String missingNetworkElements = null;
         for (ContingencyRegisteredResource registeredResource : cimContingency.getRegisteredResource()) {
             String networkElementId = getNetworkElementIdInNetwork(registeredResource.getMRID().getValue());
             if (networkElementId != null) {
@@ -91,9 +90,9 @@ public class CimContingencyCreator {
             } else {
                 allRegisteredResourcesOk = false;
                 if (missingNetworkElements == null) {
-                    missingNetworkElements = new StringBuilder(registeredResource.getMRID().getValue());
+                    missingNetworkElements = registeredResource.getMRID().getValue();
                 } else {
-                    missingNetworkElements.append(", ").append(registeredResource.getMRID().getValue());
+                    missingNetworkElements += ", " + registeredResource.getMRID().getValue();
                 }
             }
         }

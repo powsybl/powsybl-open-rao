@@ -14,12 +14,12 @@ import com.farao_community.farao.data.crac_creation.creator.api.ImportStatus;
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
  */
 public final class CimContingencyCreationContext implements ElementaryCreationContext {
-    private final String contingencyID;
-    private final String contingencyName;
-    private final ImportStatus importStatus;
-    private final String createdContingencyId;
-    private final String importStatusDetail;
-    private final boolean isAltered;
+    private String contingencyID;
+    private String contingencyName;
+    private ImportStatus importStatus;
+    private String createdContingencyId;
+    private String importStatusDetail;
+    private boolean isAltered;
 
     private CimContingencyCreationContext(String contingencyID, String contingencyName, ImportStatus importStatus, String createdContingencyID, boolean isAltered, String importStatusDetail) {
         this.contingencyID = contingencyID;

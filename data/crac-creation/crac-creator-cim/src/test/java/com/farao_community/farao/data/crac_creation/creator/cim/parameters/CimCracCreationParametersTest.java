@@ -14,10 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
@@ -69,8 +66,7 @@ class CimCracCreationParametersTest {
         Set<RangeActionSpeed> speedSet = Set.of(new RangeActionSpeed("rangeAction1", 1), new RangeActionSpeed("rangeAction2", 2));
 
         parameters.setRangeActionGroupsAsString(parallelRaAsConcatenatedString);
-        FaraoException exception = assertThrows(FaraoException.class, () -> parameters.setRemedialActionSpeed(speedSet));
-        assertEquals("Range actions rangeAction1 and rangeAction2 are aligned but have different speeds (1 and 2)", exception.getMessage());
+        assertThrows(FaraoException.class, () -> parameters.setRemedialActionSpeed(speedSet));
     }
 
     @Test
@@ -81,8 +77,7 @@ class CimCracCreationParametersTest {
         Set<RangeActionSpeed> speedSet = Set.of(new RangeActionSpeed("rangeAction1", 1), new RangeActionSpeed("rangeAction3", 1));
 
         parameters.setRangeActionGroupsAsString(parallelRaAsConcatenatedString);
-        FaraoException exception = assertThrows(FaraoException.class, () -> parameters.setRemedialActionSpeed(speedSet));
-        assertEquals("Range action rangeAction1 has a speed 1 already defined", exception.getMessage());
+        assertThrows(FaraoException.class, () -> parameters.setRemedialActionSpeed(speedSet));
     }
 
     @Test

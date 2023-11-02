@@ -153,7 +153,7 @@ public class HvdcRangeActionCreator {
                 ).collect(Collectors.toSet());
             } catch (FaraoException e) {
                 return raSeriesIds.stream().map(id ->
-                    RemedialActionSeriesCreationContext.notImported(id, ImportStatus.INCONSISTENCY_IN_DATA, e.getMessage())).collect(Collectors.toSet());
+                        RemedialActionSeriesCreationContext.notImported(id, ImportStatus.INCONSISTENCY_IN_DATA, e.getMessage())).collect(Collectors.toSet());
             }
         }
 

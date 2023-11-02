@@ -16,8 +16,8 @@ import java.util.Set;
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
 public class VoltageMonitoredContingenciesAndThresholds {
-    private final Set<String> contingencyNames;
-    private final Map<Double, VoltageThreshold> thresholdPerNominalV;
+    private Set<String> contingencyNames;
+    private Map<Double, VoltageThreshold> thresholdPerNominalV;
 
     public VoltageMonitoredContingenciesAndThresholds(Set<String> contingencyNames, Map<Double, VoltageThreshold> thresholdPerNominalV) {
         Objects.requireNonNull(thresholdPerNominalV);

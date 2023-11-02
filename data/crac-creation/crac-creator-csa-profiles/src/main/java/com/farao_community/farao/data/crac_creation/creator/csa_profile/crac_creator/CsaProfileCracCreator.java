@@ -56,6 +56,7 @@ public class CsaProfileCracCreator implements CracCreator<CsaProfileCrac, CsaPro
         crac.newInstant("outage", InstantKind.OUTAGE, "preventive");
         crac.newInstant("auto", InstantKind.AUTO, "outage");
         crac.newInstant("curative", InstantKind.CURATIVE, "auto");
+        // TODO : add other curative instants here
     }
 
     private void createRemedialActions(PropertyBags remedialActionsPropertyBags, PropertyBags topologyActionsPropertyBags, PropertyBags rotatingMachineActionPropertyBags, PropertyBags tapPositionPropertyBags, PropertyBags staticPropertyRanges, PropertyBags contingencyWithRemedialActionsPropertyBags, OnConstraintUsageRuleHelper onConstraintUsageRuleAdder) {

@@ -9,9 +9,7 @@ package com.farao_community.farao.data.crac_creation.creator.cim.parameters;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_creation.creator.api.parameters.AbstractAlignedRaCracCreationParameters;
 
-import java.util.Comparator;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
@@ -53,20 +51,17 @@ public class CimCracCreationParameters extends AbstractAlignedRaCracCreationPara
     }
 
     public void checkRangeActionSpeedSet() {
-        speedSet.stream().sorted(Comparator.comparing(RangeActionSpeed::hashCode)).forEach(
-            raSpeed1 -> speedSet.stream().sorted(Comparator.comparing(RangeActionSpeed::hashCode)).forEach(
-                raSpeed2 -> ckechRangeActionSpeed(raSpeed1, raSpeed2)
-            ));
-    }
-
-    private void ckechRangeActionSpeed(RangeActionSpeed raSpeed1, RangeActionSpeed raSpeed2) {
-        // Aligned RAs :
-        if (areRasAligned(raSpeed1.getRangeActionId(), raSpeed2.getRangeActionId())) {
-            if (!raSpeed1.getSpeed().equals(raSpeed2.getSpeed())) {
-                throw new FaraoException(String.format("Range actions %s and %s are aligned but have different speeds (%s and %s)", raSpeed1.getRangeActionId(), raSpeed2.getRangeActionId(), raSpeed1.getSpeed().toString(), raSpeed2.getSpeed().toString()));
+        for (RangeActionSpeed raSpeed1 : speedSet) {
+            for (RangeActionSpeed raSpeed2 : speedSet) {
+                // Aligned RAs :
+                if (areRasAligned(raSpeed1.getRangeActionId(), raSpeed2.getRangeActionId())) {
+                    if (!raSpeed1.getSpeed().equals(raSpeed2.getSpeed())) {
+                        throw new FaraoException(String.format("Range actions %s and %s are aligned but have different speeds (%s and %s)", raSpeed1.getRangeActionId(), raSpeed2.getRangeActionId(), raSpeed1.getSpeed().toString(), raSpeed2.getSpeed().toString()));
+                    }
+                } else if (raSpeed1.getSpeed().equals(raSpeed2.getSpeed()) && !raSpeed1.getRangeActionId().equals(raSpeed2.getRangeActionId())) {
+                    throw new FaraoException(String.format("Range action %s has a speed %s already defined", raSpeed1.getRangeActionId(), raSpeed1.getSpeed().toString()));
+                }
             }
-        } else if (raSpeed1.getSpeed().equals(raSpeed2.getSpeed()) && !raSpeed1.getRangeActionId().equals(raSpeed2.getRangeActionId())) {
-            throw new FaraoException(String.format("Range action %s has a speed %s already defined", raSpeed1.getRangeActionId(), raSpeed1.getSpeed().toString()));
         }
     }
 
