@@ -8,9 +8,7 @@
 package com.farao_community.farao.data.crac_api.cnec;
 
 import com.farao_community.farao.commons.PhysicalParameter;
-import com.farao_community.farao.data.crac_api.Identifiable;
-import com.farao_community.farao.data.crac_api.NetworkElement;
-import com.farao_community.farao.data.crac_api.State;
+import com.farao_community.farao.data.crac_api.*;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
 
@@ -20,11 +18,11 @@ import java.util.Set;
 
 /**
  * Interface for Critical Network Element &amp; Contingency
- * <p>
+ *
  * A Cnec represents a set of {@link NetworkElement} that are considered critical in the network.
  * The {@link PhysicalParameter} of the Cnec is therefore monitored and/or optimized in
  * RAOs relying on the Crac containing this Cnec.
- * <p>
+ *
  * A Cnec is defined for a specific {@link State}. That is to say, either for the preventive
  * instant, or after a contingency in a post-outage instant.
  *
@@ -57,30 +55,18 @@ public interface Cnec<I extends Cnec<I>> extends Identifiable<I> {
 
     /**
      * Returns a tag indicating whether or not the {@link PhysicalParameter} of the Cnec is optimized.
-     * <p>
+     *
      * For instance, in the search-tree-rao, the margin of such a Cnec will be "maximized" (optimized), in case
      * it is the most limiting one.
      */
     boolean isOptimized();
 
     /**
-     * @deprecated use the method withOptimized() of the {@link CnecAdder} instead
-     */
-    @Deprecated(since = "3.0.0")
-    void setOptimized(boolean optimized);
-
-    /**
      * Returns a tag indicating whether or not the {@link PhysicalParameter} of the Cnec is monitored.
-     * <p>
+     *
      * For instance, in the search-tree-rao, the margin of such a Cnec should remain positive.
      */
     boolean isMonitored();
-
-    /**
-     * @deprecated use the method withMonitored() of the {@link CnecAdder} instead
-     */
-    @Deprecated(since = "3.0.0")
-    void setMonitored(boolean monitored);
 
     /**
      * Getter of the operator of the Cnec
@@ -99,4 +85,18 @@ public interface Cnec<I extends Cnec<I>> extends Identifiable<I> {
         getNetworkElements().forEach(networkElement -> locations.addAll(networkElement.getLocation(network)));
         return locations;
     }
+
+    /**
+     * @deprecated
+     * use the method withMonitored() of the {@link CnecAdder} instead
+     */
+    @Deprecated (since = "3.0.0")
+    void setMonitored(boolean monitored);
+
+    /**
+     * @deprecated
+     * use the method withOptimized() of the {@link CnecAdder} instead
+     */
+    @Deprecated (since = "3.0.0")
+    void setOptimized(boolean optimized);
 }

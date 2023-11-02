@@ -40,13 +40,6 @@ public abstract class AbstractRemedialAction<I extends RemedialAction<I>> extend
         this(id, name, operator, usageRules, null);
     }
 
-    private static boolean isCnecInCountry(Cnec<?> cnec, Country country, Network network) {
-        return cnec.getLocation(network).stream()
-            .filter(Optional::isPresent)
-            .map(Optional::get)
-            .anyMatch(cnecCountry -> cnecCountry.equals(country));
-    }
-
     void addUsageRule(UsageRule usageRule) {
         this.usageRules.add(usageRule);
     }
@@ -122,12 +115,12 @@ public abstract class AbstractRemedialAction<I extends RemedialAction<I>> extend
         Set<FlowCnec> toBeConsideredCnecs = new HashSet<>();
         // OnFlowConstraint
         List<OnFlowConstraint> onFlowConstraintUsageRules = getUsageRules().stream().filter(OnFlowConstraint.class::isInstance).map(OnFlowConstraint.class::cast)
-            .filter(ofc -> ofc.getUsageMethod(optimizedState).equals(UsageMethod.TO_BE_EVALUATED)).toList();
+                .filter(ofc -> ofc.getUsageMethod(optimizedState).equals(UsageMethod.TO_BE_EVALUATED)).toList();
         onFlowConstraintUsageRules.forEach(onFlowConstraint -> toBeConsideredCnecs.add(onFlowConstraint.getFlowCnec()));
 
         // OnFlowConstraintInCountry
         List<OnFlowConstraintInCountry> onFlowConstraintInCountryUsageRules = getUsageRules().stream().filter(OnFlowConstraintInCountry.class::isInstance).map(OnFlowConstraintInCountry.class::cast)
-            .filter(ofc -> ofc.getUsageMethod(optimizedState).equals(UsageMethod.TO_BE_EVALUATED)).toList();
+                .filter(ofc -> ofc.getUsageMethod(optimizedState).equals(UsageMethod.TO_BE_EVALUATED)).toList();
         onFlowConstraintInCountryUsageRules.forEach(onFlowConstraintInCountry -> {
             Map<InstantKind, Set<InstantKind>> allowedCnecInstantPerRaInstant = Map.of(
                 InstantKind.PREVENTIVE, Set.of(InstantKind.PREVENTIVE, InstantKind.OUTAGE, InstantKind.CURATIVE),
@@ -135,11 +128,18 @@ public abstract class AbstractRemedialAction<I extends RemedialAction<I>> extend
                 InstantKind.CURATIVE, Set.of(InstantKind.CURATIVE)
             );
             toBeConsideredCnecs.addAll(perimeterCnecs.stream()
-                .filter(cnec -> allowedCnecInstantPerRaInstant.get(onFlowConstraintInCountry.getInstant().getInstantKind()).contains(cnec.getState().getInstant().getInstantKind()))
-                .filter(cnec -> isCnecInCountry(cnec, onFlowConstraintInCountry.getCountry(), network))
-                .collect(Collectors.toSet()));
+                    .filter(cnec -> allowedCnecInstantPerRaInstant.get(onFlowConstraintInCountry.getInstant().getInstantKind()).contains(cnec.getState().getInstant().getInstantKind()))
+                    .filter(cnec -> isCnecInCountry(cnec, onFlowConstraintInCountry.getCountry(), network))
+                    .collect(Collectors.toSet()));
         });
         return toBeConsideredCnecs;
+    }
+
+    private static boolean isCnecInCountry(Cnec<?> cnec, Country country, Network network) {
+        return cnec.getLocation(network).stream()
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .anyMatch(cnecCountry -> cnecCountry.equals(country));
     }
 
     @Override
@@ -152,8 +152,8 @@ public abstract class AbstractRemedialAction<I extends RemedialAction<I>> extend
         }
         AbstractRemedialAction<?> remedialAction = (AbstractRemedialAction<?>) o;
         return super.equals(remedialAction)
-            && new HashSet<>(usageRules).equals(new HashSet<>(remedialAction.getUsageRules()))
-            && ((operator != null && operator.equals(remedialAction.operator)) || (operator == null && remedialAction.operator == null));
+                && new HashSet<>(usageRules).equals(new HashSet<>(remedialAction.getUsageRules()))
+                && ((operator != null && operator.equals(remedialAction.operator)) || (operator == null && remedialAction.operator == null));
     }
 
     @Override

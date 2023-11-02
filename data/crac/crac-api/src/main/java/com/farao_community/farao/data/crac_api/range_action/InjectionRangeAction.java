@@ -12,19 +12,19 @@ import java.util.Map;
 
 /**
  * A range action interface specifying an action on one or several Injections
- * <p>
+ *
  * Injections can be Generator and/or Loads (DanglingLine are not yet taken into
  * account in that object).
- * <p>
+ *
  * The InjectionRangeAction can affect several Injections, the conversion between
  * the setpoint of the RangeAction and the value - in megawatt - of each injection
  * can be defined with distribution keys.
- * <p>
+ *
  * For instance, this implementation of RangeAction can be used to represent actions
  * on HVDCs, when HVDCs are modelled in the network with 2 Generators. In that case,
  * the appropriate InjectionRangeAction to represent the HVDC would be an action on
  * the two Generators, with distribution keys of 1 and -1.
- * <p>
+ *
  * The 'generator convention' is used to represent the injections. A positive injection
  * is a positive generation or a negative load, and a negative injection is a negative
  * generation or a positive load.

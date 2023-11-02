@@ -11,9 +11,9 @@ import java.util.Optional;
 
 /**
  * A State is a situation defined by an {@link Instant} and an optional {@link Contingency}
- * <p>
+ *
  * It can be the preventive state, which takes place at InstantKind.PREVENTIVE.
- * <p>
+ *
  * Or a post-contingency state, which takes place at another instant than
  * InstantKind.PREVENTIVE, and after a given contingency.
  *

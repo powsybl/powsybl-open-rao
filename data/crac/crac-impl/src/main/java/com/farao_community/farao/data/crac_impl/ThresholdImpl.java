@@ -21,9 +21,9 @@ import static java.lang.Math.abs;
  */
 public class ThresholdImpl implements Threshold {
 
-    protected final Unit unit;
-    protected final Double min;
-    protected final Double max;
+    protected Unit unit;
+    protected Double min;
+    protected Double max;
 
     ThresholdImpl(Unit unit, Double min, Double max) {
         this.unit = unit;
@@ -66,8 +66,8 @@ public class ThresholdImpl implements Threshold {
         }
         ThresholdImpl otherT = (ThresholdImpl) o;
         return ((unit == null && otherT.getUnit() == null) || (unit != null && unit.equals(otherT.getUnit())))
-            && equalsDouble(max, otherT.getMax())
-            && equalsDouble(min, otherT.getMin());
+                && equalsDouble(max, otherT.getMax())
+                && equalsDouble(min, otherT.getMin());
     }
 
     @Override

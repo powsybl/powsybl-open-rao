@@ -17,7 +17,7 @@ import java.util.Set;
  */
 public abstract class AbstractRangeAction<T extends RangeAction<T>> extends AbstractRemedialAction<T> implements RangeAction<T> {
 
-    protected final String groupId;
+    protected String groupId = null;
 
     AbstractRangeAction(String id, String name, String operator, Set<UsageRule> usageRules, String groupId, Integer speed) {
         super(id, name, operator, usageRules, speed);
@@ -40,7 +40,7 @@ public abstract class AbstractRangeAction<T extends RangeAction<T>> extends Abst
         AbstractRangeAction<?> otherRa = (AbstractRangeAction<?>) o;
 
         return super.equals(o)
-            && (groupId == null && otherRa.getGroupId().isEmpty() || groupId != null && groupId.equals(otherRa.getGroupId().orElse(null)));
+                && (groupId == null && otherRa.getGroupId().isEmpty() || groupId != null && groupId.equals(otherRa.getGroupId().orElse(null)));
     }
 
     @Override

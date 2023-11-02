@@ -20,10 +20,10 @@ import java.util.stream.Collectors;
 
 /**
  * Most generic interface for remedial actions.
- * <p>
+ *
  * A Remedial Action is a lever which can be applied on the network. It is typically used to improve
  * a network situation (e.g. increase the margin on the critical network elements).
- * <p>
+ *
  * A Remedial Action contains {@link UsageRule} which defines conditions under which it can be used.
  * For instance, most remedial actions cannot be used in all {@link State}, and the usage rules of the
  * remedial action specify on which state it is available.
@@ -75,13 +75,12 @@ public interface RemedialAction<I extends RemedialAction<I>> extends Identifiabl
 
     /**
      * Returns the location of the remedial action, as a set of optional countries
-     *
      * @param network: the network object used to look for the location of the network elements of the remedial action
      * @return a set of optional countries containing the remedial action
      */
     default Set<Optional<Country>> getLocation(Network network) {
         return getNetworkElements().stream().map(networkElement -> networkElement.getLocation(network))
-            .flatMap(Set::stream).collect(Collectors.toUnmodifiableSet());
+                .flatMap(Set::stream).collect(Collectors.toUnmodifiableSet());
     }
 
     OnContingencyStateAdderToRemedialAction<I> newOnStateUsageRule();

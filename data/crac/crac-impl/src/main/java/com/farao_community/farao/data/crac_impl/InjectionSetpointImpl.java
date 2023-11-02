@@ -8,8 +8,8 @@
 package com.farao_community.farao.data.crac_impl;
 
 import com.farao_community.farao.commons.Unit;
-import com.farao_community.farao.data.crac_api.NetworkElement;
 import com.farao_community.farao.data.crac_api.network_action.InjectionSetpoint;
+import com.farao_community.farao.data.crac_api.NetworkElement;
 import com.powsybl.iidm.network.*;
 import org.apache.commons.lang3.NotImplementedException;
 
@@ -48,17 +48,13 @@ public final class InjectionSetpointImpl implements InjectionSetpoint {
     public boolean hasImpactOnNetwork(Network network) {
         Identifiable<?> identifiable = network.getIdentifiable(networkElement.getId());
         if (identifiable instanceof Generator) {
-            Generator generator = (Generator) identifiable;
-            return Math.abs(generator.getTargetP() - setpoint) >= EPSILON;
+            return Math.abs(((Generator) identifiable).getTargetP() - setpoint) >= EPSILON;
         } else if (identifiable instanceof Load) {
-            Load load = (Load) identifiable;
-            return Math.abs(load.getP0() - setpoint) >= EPSILON;
+            return Math.abs(((Load) identifiable).getP0() - setpoint) >= EPSILON;
         } else if (identifiable instanceof DanglingLine) {
-            DanglingLine danglingLine = (DanglingLine) identifiable;
-            return Math.abs(danglingLine.getP0() - setpoint) >= EPSILON;
+            return Math.abs(((DanglingLine) identifiable).getP0() - setpoint) >= EPSILON;
         } else if (identifiable instanceof ShuntCompensator) {
-            ShuntCompensator shuntCompensator = (ShuntCompensator) identifiable;
-            return Math.abs(shuntCompensator.getSectionCount() - setpoint) >= EPSILON;
+            return Math.abs(((ShuntCompensator) identifiable).getSectionCount() - setpoint) >= EPSILON;
         } else {
             throw new NotImplementedException("Injection setpoint only handled for generators, loads, dangling lines or shunt compensator");
         }
@@ -112,7 +108,7 @@ public final class InjectionSetpointImpl implements InjectionSetpoint {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        InjectionSetpointImpl oInjectionSetPoint = (InjectionSetpointImpl) o;
+        InjectionSetpointImpl oInjectionSetPoint =  (InjectionSetpointImpl) o;
         return oInjectionSetPoint.getNetworkElement().equals(this.networkElement)
             && oInjectionSetPoint.getSetpoint() == this.setpoint;
     }

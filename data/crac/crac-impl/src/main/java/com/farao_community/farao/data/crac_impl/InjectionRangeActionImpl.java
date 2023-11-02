@@ -16,10 +16,7 @@ import com.powsybl.iidm.network.Load;
 import com.powsybl.iidm.network.Network;
 import org.apache.commons.lang3.NotImplementedException;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -129,8 +126,8 @@ public class InjectionRangeActionImpl extends AbstractRangeAction<InjectionRange
     @Override
     public double getCurrentSetpoint(Network network) {
         List<Double> currentSetpoints = injectionDistributionKeys.entrySet().stream()
-            .map(entry -> getInjectionSetpoint(network, entry.getKey().getId(), entry.getValue()))
-            .collect(Collectors.toList());
+                .map(entry -> getInjectionSetpoint(network, entry.getKey().getId(), entry.getValue()))
+                .collect(Collectors.toList());
 
         if (currentSetpoints.size() == 1) {
             return currentSetpoints.get(0);
@@ -174,7 +171,7 @@ public class InjectionRangeActionImpl extends AbstractRangeAction<InjectionRange
             return false;
         }
         return this.injectionDistributionKeys.equals(((InjectionRangeAction) o).getInjectionDistributionKeys())
-            && this.ranges.equals(((InjectionRangeAction) o).getRanges());
+                && this.ranges.equals(((InjectionRangeAction) o).getRanges());
     }
 
     @Override

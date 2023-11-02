@@ -25,6 +25,10 @@ public enum Side {
         this.iidmSide = iidmSide;
     }
 
+    public Branch.Side iidmSide() {
+        return iidmSide;
+    }
+
     public static Side fromIidmSide(Branch.Side side) {
         switch (side) {
             case ONE:
@@ -34,9 +38,5 @@ public enum Side {
             default:
                 throw new FaraoException(String.format("Unhandled iidm side: %s", side));
         }
-    }
-
-    public Branch.Side iidmSide() {
-        return iidmSide;
     }
 }

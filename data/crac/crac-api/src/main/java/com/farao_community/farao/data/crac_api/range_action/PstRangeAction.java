@@ -16,10 +16,10 @@ import java.util.Map;
 
 /**
  * A range action interface specifying an action on a PST
- * <p>
+ *
  * The bounds of the range within which the tap of the PST should remain
  * are defined with a List of {@link TapRange}.
- * <p>
+ *
  * The convention used for the setpoint of the Range Action, and so the
  * 'double' of the super class methods apply(), getMinValue(), getMaxValue()
  * and getCurrentValue() is the angle of the PST, in degrees.

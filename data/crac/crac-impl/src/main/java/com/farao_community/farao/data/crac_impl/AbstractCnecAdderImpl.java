@@ -41,7 +41,7 @@ public abstract class AbstractCnecAdderImpl<J extends CnecAdder<J>> extends Abst
     protected void checkCnec() {
         checkId();
         AdderUtils.assertAttributeNotEmpty(networkElementsIdAndName.entrySet(), "Cnec", "network element", "withNetworkElement()");
-        AdderUtils.assertAttributeNotNull(instantId, "Cnec", "instant", "withInstantId()");
+        AdderUtils.assertAttributeNotNull(instantId, "Cnec", "instant", "withInstant()");
 
         if (owner.getInstant(instantId).getInstantKind().equals(InstantKind.PREVENTIVE)) {
             if (contingencyId != null) {

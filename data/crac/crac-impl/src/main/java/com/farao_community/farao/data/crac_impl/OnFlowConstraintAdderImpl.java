@@ -44,7 +44,7 @@ public class OnFlowConstraintAdderImpl<T extends AbstractRemedialActionAdder<T>>
 
     @Override
     public T add() {
-        assertAttributeNotNull(instantId, "OnFlowConstraint", "instantKind", "withInstantKind()");
+        assertAttributeNotNull(instantId, "OnFlowConstraint", "instant", "withInstant()");
         assertAttributeNotNull(flowCnecId, "OnFlowConstraint", "flow cnec", "withFlowCnec()");
 
         Instant instant = owner.getCrac().getInstant(instantId);

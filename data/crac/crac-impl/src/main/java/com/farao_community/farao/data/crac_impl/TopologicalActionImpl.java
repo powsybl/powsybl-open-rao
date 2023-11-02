@@ -7,8 +7,8 @@
 
 package com.farao_community.farao.data.crac_impl;
 
-import com.farao_community.farao.data.crac_api.NetworkElement;
 import com.farao_community.farao.data.crac_api.network_action.ActionType;
+import com.farao_community.farao.data.crac_api.NetworkElement;
 import com.farao_community.farao.data.crac_api.network_action.TopologicalAction;
 import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Identifiable;
@@ -27,8 +27,8 @@ import java.util.Set;
  */
 public final class TopologicalActionImpl implements TopologicalAction {
 
-    private final NetworkElement networkElement;
-    private final ActionType actionType;
+    private NetworkElement networkElement;
+    private ActionType actionType;
 
     TopologicalActionImpl(NetworkElement networkElement, ActionType actionType) {
         this.networkElement = networkElement;
@@ -43,7 +43,7 @@ public final class TopologicalActionImpl implements TopologicalAction {
     @Override
     public void apply(Network network) {
         Identifiable<?> element = network.getIdentifiable(networkElement.getId());
-        if (element instanceof Branch<?>) {
+        if (element instanceof Branch) {
             Branch<?> branch = (Branch<?>) element;
             if (actionType == ActionType.OPEN) {
                 branch.getTerminal1().disconnect();
@@ -63,7 +63,7 @@ public final class TopologicalActionImpl implements TopologicalAction {
     @Override
     public boolean hasImpactOnNetwork(Network network) {
         Identifiable<?> element = network.getIdentifiable(networkElement.getId());
-        if (element instanceof Branch<?>) {
+        if (element instanceof Branch) {
             Branch<?> branch = (Branch<?>) element;
             if (actionType == ActionType.OPEN) {
                 // Line is considered closed if both terminal are connected
@@ -94,7 +94,7 @@ public final class TopologicalActionImpl implements TopologicalAction {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        TopologicalActionImpl oTopologicalAction = (TopologicalActionImpl) o;
+        TopologicalActionImpl oTopologicalAction =  (TopologicalActionImpl) o;
         return oTopologicalAction.getNetworkElement().equals(this.networkElement) && oTopologicalAction.getActionType().equals(this.actionType);
     }
 

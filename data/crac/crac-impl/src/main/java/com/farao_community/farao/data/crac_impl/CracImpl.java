@@ -70,8 +70,8 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
      */
     void safeRemoveNetworkElements(Set<String> networkElementIds) {
         networkElementIds.stream()
-            .filter(networkElementId -> !isNetworkElementUsedWithinCrac(networkElementId))
-            .forEach(networkElements::remove);
+                .filter(networkElementId -> !isNetworkElementUsedWithinCrac(networkElementId))
+                .forEach(networkElements::remove);
     }
 
     /**
@@ -84,14 +84,14 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
         return getContingencies().stream()
             .flatMap(co -> co.getNetworkElements().stream())
             .anyMatch(ne -> ne.getId().equals(networkElementId))
-            || getCnecs().stream()
-            .map(Cnec::getNetworkElements)
-            .flatMap(Set::stream)
-            .anyMatch(ne -> ((NetworkElement) ne).getId().equals(networkElementId))
-            || getRemedialActions().stream()
-            .map(RemedialAction::getNetworkElements)
-            .flatMap(Set::stream)
-            .anyMatch(ne -> ne.getId().equals(networkElementId));
+                || getCnecs().stream()
+                .map(Cnec::getNetworkElements)
+                .flatMap(Set::stream)
+                .anyMatch(ne -> ((NetworkElement) ne).getId().equals(networkElementId))
+                || getRemedialActions().stream()
+                .map(RemedialAction::getNetworkElements)
+                .flatMap(Set::stream)
+                .anyMatch(ne -> ne.getId().equals(networkElementId));
     }
 
     /**
@@ -100,7 +100,7 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
      * otherwise it is created and then returned. An error is thrown when an element with an already
      * existing ID is added with a different name.
      *
-     * @param networkElementId:   network element ID as in network files
+     * @param networkElementId: network element ID as in network files
      * @param networkElementName: network element name for more human readable name
      * @return a network element object that is already defined in the crac
      */
@@ -214,16 +214,15 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
 
     /**
      * Check if a Contingency is referenced in the CRAC (ie in a Cnec or in a RemedialAction's UsageRule)
-     *
      * @param contingencyId: ID of the Contingency
      * @return true if the Contingency is referenced in a Cnec or in a RemedialAction's UsageRule
      */
     private boolean isContingencyUsedWithinCrac(String contingencyId) {
         return getCnecs().stream().anyMatch(cnec -> cnec.getState().getContingency().isPresent()
-            && cnec.getState().getContingency().get().getId().equals(contingencyId))
-            || getRemedialActions().stream().map(RemedialAction::getUsageRules).flatMap(Set::stream)
-            .anyMatch(usageMethod -> (usageMethod instanceof OnContingencyStateImpl)
-                && ((OnContingencyState) usageMethod).getContingency().getId().equals(contingencyId));
+                    && cnec.getState().getContingency().get().getId().equals(contingencyId))
+                || getRemedialActions().stream().map(RemedialAction::getUsageRules).flatMap(Set::stream)
+                .anyMatch(usageMethod -> (usageMethod instanceof OnContingencyStateImpl)
+                        && ((OnContingencyState) usageMethod).getContingency().getId().equals(contingencyId));
     }
 
     //endregion
@@ -298,8 +297,8 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
      */
     void safeRemoveStates(Set<String> stateIds) {
         stateIds.stream()
-            .filter(stateId -> !isStateUsedWithinCrac(stateId))
-            .forEach(states::remove);
+                .filter(stateId -> !isStateUsedWithinCrac(stateId))
+                .forEach(states::remove);
     }
 
     /**
@@ -311,10 +310,10 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
     private boolean isStateUsedWithinCrac(String stateId) {
         return getCnecs().stream()
             .anyMatch(cnec -> cnec.getState().getId().equals(stateId))
-            || getRemedialActions().stream()
-            .map(RemedialAction::getUsageRules)
-            .flatMap(Set::stream)
-            .anyMatch(ur -> ur instanceof OnContingencyState && ((OnContingencyState) ur).getState().getId().equals(stateId));
+                || getRemedialActions().stream()
+                .map(RemedialAction::getUsageRules)
+                .flatMap(Set::stream)
+                .anyMatch(ur -> ur instanceof OnContingencyState && ((OnContingencyState) ur).getState().getId().equals(stateId));
     }
 
     //endregion
@@ -415,8 +414,8 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
     @Override
     public Set<FlowCnec> getFlowCnecs(State state) {
         return flowCnecs.values().stream()
-            .filter(cnec -> cnec.getState().equals(state))
-            .collect(Collectors.toSet());
+                .filter(cnec -> cnec.getState().equals(state))
+                .collect(Collectors.toSet());
     }
 
     @Override
@@ -557,9 +556,9 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
 
     private Set<State> getAssociatedStates(RemedialAction<?> remedialAction) {
         return remedialAction.getUsageRules().stream()
-            .filter(OnContingencyState.class::isInstance)
-            .map(ur -> ((OnContingencyState) ur).getState())
-            .collect(Collectors.toSet());
+                .filter(OnContingencyState.class::isInstance)
+                .map(ur -> ((OnContingencyState) ur).getState())
+                .collect(Collectors.toSet());
     }
 
     // endregion
@@ -623,14 +622,14 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
     @Override
     public Set<RangeAction<?>> getRangeActions(State state, UsageMethod... usageMethods) {
         Set<RangeAction<?>> pstRangeActionsSet = pstRangeActions.values().stream()
-            .filter(rangeAction -> Arrays.stream(usageMethods).anyMatch(usageMethod -> rangeAction.getUsageMethod(state).equals(usageMethod)))
-            .collect(Collectors.toSet());
+                .filter(rangeAction -> Arrays.stream(usageMethods).anyMatch(usageMethod -> rangeAction.getUsageMethod(state).equals(usageMethod)))
+                .collect(Collectors.toSet());
         Set<RangeAction<?>> hvdcRangeActionsSet = hvdcRangeActions.values().stream()
-            .filter(rangeAction -> Arrays.stream(usageMethods).anyMatch(usageMethod -> rangeAction.getUsageMethod(state).equals(usageMethod)))
-            .collect(Collectors.toSet());
+                .filter(rangeAction -> Arrays.stream(usageMethods).anyMatch(usageMethod -> rangeAction.getUsageMethod(state).equals(usageMethod)))
+                .collect(Collectors.toSet());
         Set<RangeAction<?>> injectionRangeActionSet = injectionRangeActions.values().stream()
-            .filter(rangeAction -> Arrays.stream(usageMethods).anyMatch(usageMethod -> rangeAction.getUsageMethod(state).equals(usageMethod)))
-            .collect(Collectors.toSet());
+                .filter(rangeAction -> Arrays.stream(usageMethods).anyMatch(usageMethod -> rangeAction.getUsageMethod(state).equals(usageMethod)))
+                .collect(Collectors.toSet());
         Set<RangeAction<?>> rangeActionsSet = new HashSet<>(pstRangeActionsSet);
         rangeActionsSet.addAll(hvdcRangeActionsSet);
         rangeActionsSet.addAll(injectionRangeActionSet);

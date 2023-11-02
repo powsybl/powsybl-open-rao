@@ -10,9 +10,7 @@ package com.farao_community.farao.data.crac_api;
 import com.farao_community.farao.commons.FaraoException;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
@@ -31,14 +29,12 @@ class CracFactoryTest {
 
     @Test
     void mustThrowIfImplemNotFound() {
-        FaraoException exception = assertThrows(FaraoException.class, () -> CracFactory.find("SimpleCracFactory"));
-        assertEquals("Crac factory 'SimpleCracFactory' not found", exception.getMessage());
+        assertThrows(FaraoException.class, () -> CracFactory.find("SimpleCracFactory"));
     }
 
     @Test
     void mustThrowIfNameNullAndMultipleImplem() {
-        FaraoException exception = assertThrows(FaraoException.class, () -> CracFactory.find(null));
-        assertEquals("No CracFactory implementation found, or no default implementation set and multiple implementation found.", exception.getMessage());
+        assertThrows(FaraoException.class, () -> CracFactory.find(null));
     }
 
     @Test

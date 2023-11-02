@@ -14,7 +14,7 @@ import java.util.Set;
 
 /**
  * Remedial action interface specifying a direct action on the network.
- * <p>
+ *
  * The Network Action is completely defined by itself.
  * It involves a Set of {@link ElementaryAction}.
  * When the apply method is called, an action is triggered on each of these Elementary
@@ -35,7 +35,6 @@ public interface NetworkAction extends RemedialAction<NetworkAction> {
 
     /**
      * Apply the action on a given network.
-     *
      * @param network the Network to apply the network action upon
      * @return true if the network action was applied, false if not (eg if it was already applied)
      */

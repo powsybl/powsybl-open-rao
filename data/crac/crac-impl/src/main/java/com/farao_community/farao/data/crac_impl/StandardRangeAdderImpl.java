@@ -10,7 +10,7 @@ package com.farao_community.farao.data.crac_impl;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.range.StandardRange;
 import com.farao_community.farao.data.crac_api.range.StandardRangeAdder;
-import com.farao_community.farao.data.crac_api.range_action.StandardRangeActionAdder;
+import com.farao_community.farao.data.crac_api.range_action.*;
 
 /**
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}

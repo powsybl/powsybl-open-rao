@@ -9,8 +9,7 @@ package com.farao_community.farao.data.crac_impl;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.NetworkElement;
-import com.farao_community.farao.data.crac_api.range_action.InjectionRangeAction;
-import com.farao_community.farao.data.crac_api.range_action.InjectionRangeActionAdder;
+import com.farao_community.farao.data.crac_api.range_action.*;
 
 import java.util.*;
 
@@ -26,14 +25,14 @@ public class InjectionRangeActionAdderImpl extends AbstractStandardRangeActionAd
     public static final String INJECTION_RANGE_ACTION = "InjectionRangeAction";
     private final List<DistributionKeyOnNetworkElement> distributionKeys;
 
-    InjectionRangeActionAdderImpl(CracImpl owner) {
-        super(owner);
-        distributionKeys = new ArrayList<>();
-    }
-
     @Override
     protected String getTypeDescription() {
         return INJECTION_RANGE_ACTION;
+    }
+
+    InjectionRangeActionAdderImpl(CracImpl owner) {
+        super(owner);
+        distributionKeys = new ArrayList<>();
     }
 
     @Override

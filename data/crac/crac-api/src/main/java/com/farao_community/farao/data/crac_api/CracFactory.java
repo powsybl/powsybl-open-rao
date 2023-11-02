@@ -16,12 +16,37 @@ import java.util.List;
 
 /**
  * Crac Factory interface.
- * <p>
+ *
  * A CracFactory enables the creation of a Crac object
  *
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
 public interface CracFactory {
+    /**
+     * Create a {@code Crac} object.
+     *
+     * @param id:   ID to assign to the created Crac.
+     * @param name: Name to assign to the created Crac.
+     * @return the created {@code Crac} instance.
+     */
+    Crac create(String id, String name);
+
+    /**
+     * Create a {@code Crac} object. Name will be equal to id.
+     *
+     * @param id: ID to assign to the created Crac.
+     * @return the created {@code Crac} instance with given ID, name equal to ID.
+     */
+    default Crac create(String id) {
+        return create(id, id);
+    }
+
+    /**
+     * Function that returns the name of the factory implementation
+     *
+     * @return The name of the CracFactory implementation.
+     */
+    String getName();
 
     /**
      * Find a {@code CracFactory} implementation by its name
@@ -54,34 +79,8 @@ public interface CracFactory {
      */
     static CracFactory findDefault() {
         String factoryName = PlatformConfig.defaultConfig().getOptionalModuleConfig("crac")
-            .flatMap(mc -> mc.getOptionalStringProperty("default"))
-            .orElse(null);
+                .flatMap(mc -> mc.getOptionalStringProperty("default"))
+                .orElse(null);
         return find(factoryName);
     }
-
-    /**
-     * Create a {@code Crac} object.
-     *
-     * @param id:   ID to assign to the created Crac.
-     * @param name: Name to assign to the created Crac.
-     * @return the created {@code Crac} instance.
-     */
-    Crac create(String id, String name);
-
-    /**
-     * Create a {@code Crac} object. Name will be equal to id.
-     *
-     * @param id: ID to assign to the created Crac.
-     * @return the created {@code Crac} instance with given ID, name equal to ID.
-     */
-    default Crac create(String id) {
-        return create(id, id);
-    }
-
-    /**
-     * Function that returns the name of the factory implementation
-     *
-     * @return The name of the CracFactory implementation.
-     */
-    String getName();
 }

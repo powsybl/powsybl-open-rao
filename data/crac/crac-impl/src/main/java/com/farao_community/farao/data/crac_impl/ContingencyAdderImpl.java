@@ -12,9 +12,7 @@ import com.farao_community.farao.data.crac_api.Contingency;
 import com.farao_community.farao.data.crac_api.ContingencyAdder;
 import com.farao_community.farao.data.crac_api.NetworkElement;
 
-import java.util.HashSet;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 
 import static java.lang.String.format;
 
@@ -22,7 +20,7 @@ import static java.lang.String.format;
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
 public class ContingencyAdderImpl extends AbstractIdentifiableAdder<ContingencyAdder> implements ContingencyAdder {
-    final CracImpl owner;
+    CracImpl owner;
     private final Set<NetworkElement> networkElements = new HashSet<>();
 
     ContingencyAdderImpl(CracImpl owner) {

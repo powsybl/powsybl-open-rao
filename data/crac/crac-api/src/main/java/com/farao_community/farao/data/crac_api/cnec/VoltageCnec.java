@@ -62,14 +62,14 @@ public interface VoltageCnec extends Cnec<VoltageCnec> {
      * {@code reliabilityMargin} into account.
      * If the margin is positive, it means that the limits of the {@code thresholds} are respected. If it is negative,
      * it means that that a limit of the {@code thresholds} has been overcome.
-     * <p>
+     *
      * margin = min(maxThreshold - actualValue, actualValue - minThreshold)
      *
      * @param actualValue: Value of the {@link PhysicalParameter} of the {@code VoltageCnec}.
-     * @param unit:        Unit of the {@code actualValue}. It will also be the one of the returned value. The only accepted
-     *                     unit for now is KILOVOLT.
+     * @param unit: Unit of the {@code actualValue}. It will also be the one of the returned value. The only accepted
+     *      unit for now is KILOVOLT.
      * @return The margin of the {@code VoltageCnec} with the given {@code unit} taking {@code reliabilityMargin}
-     * into account.
+     *      into account.
      */
     double computeMargin(double actualValue, Unit unit);
 }

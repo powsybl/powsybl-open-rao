@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
 
 /**
  * Specific type of {@link Cnec} that is defined on a branch of the network.
- * <p>
+ *
  * It presents the singularity of having two sides that could have different voltage levels
  * and independent {@link BranchThreshold}. These thresholds will limit the {@link PhysicalParameter}
  * defined for this {@code BranchCnec}.
@@ -53,9 +53,9 @@ public interface BranchCnec<T extends BranchCnec<T>> extends Cnec<T> {
      * {@code reliabilityMargin} into account.
      *
      * @param side: The side on which the lower bound is queried. It could require conversions if the thresholds are
-     *              defined on a different side that the one requested.
+     *            defined on a different side that the one requested.
      * @param unit: The unit in which the bound would be returned. It could require conversions if the thresholds are
-     *              defined in a different unit that the one requested.
+     *            defined in a different unit that the one requested.
      * @return The lower bound of the {@link PhysicalParameter} on this {@code BranchCnec}.
      */
     Optional<Double> getLowerBound(Side side, Unit unit);
@@ -67,9 +67,9 @@ public interface BranchCnec<T extends BranchCnec<T>> extends Cnec<T> {
      * {@code reliabilityMargin} into account.
      *
      * @param side: The side on which the upper bound is queried. It could require conversions if the thresholds are
-     *              defined on a different side that the one requested.
+     *            defined on a different side that the one requested.
      * @param unit: The unit in which the upper bound would be returned. It could require conversions if the thresholds are
-     *              defined in a different unit that the one requested.
+     *            defined in a different unit that the one requested.
      * @return The upper bound of the {@link PhysicalParameter} on this {@code BranchCnec}.
      */
     Optional<Double> getUpperBound(Side side, Unit unit);
@@ -81,13 +81,13 @@ public interface BranchCnec<T extends BranchCnec<T>> extends Cnec<T> {
      * {@code reliabilityMargin} into account.
      * If the margin is positive, it means that the limits of the {@code thresholds} are respected. If it is negative,
      * it means that that a limit of the {@code thresholds} has been overcome.
-     * <p>
+     *
      * margin = min(maxThreshold - actualValue, actualValue - minThreshold)
      *
      * @param actualValue: Value of the {@link PhysicalParameter} on the {@code side} of the {@code BranchCnec}
-     *                     on which to make the difference to compute the margin.
-     * @param side:        The side on which the {@code actualValue} is taken and on which the margin will be computed.
-     * @param unit:        Unit of the {@code actualValue}. It will also be the one of the returned value.
+     *                   on which to make the difference to compute the margin.
+     * @param side: The side on which the {@code actualValue} is taken and on which the margin will be computed.
+     * @param unit: Unit of the {@code actualValue}. It will also be the one of the returned value.
      * @return The margin of the {@code BranchCnec} on the given {@code side} with the given {@code unit} taking
      * {@code reliabilityMargin} into account.
      */

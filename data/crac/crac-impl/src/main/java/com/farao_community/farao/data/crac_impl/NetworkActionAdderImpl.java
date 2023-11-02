@@ -21,7 +21,7 @@ import java.util.Set;
  */
 public class NetworkActionAdderImpl extends AbstractRemedialActionAdder<NetworkActionAdder> implements NetworkActionAdder {
 
-    private final Set<ElementaryAction> elementaryActions;
+    private Set<ElementaryAction> elementaryActions;
 
     NetworkActionAdderImpl(CracImpl owner) {
         super(owner);

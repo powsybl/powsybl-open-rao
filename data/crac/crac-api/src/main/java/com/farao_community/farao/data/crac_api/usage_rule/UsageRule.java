@@ -28,12 +28,7 @@ public interface UsageRule {
     UsageMethod getUsageMethod(State state);
 
     /**
-     * Get the Instant of the usage rule
+     * Get the Instant of the free to use
      */
     Instant getInstant();
-
-    /**
-     * Get the Instant ID of the usage rule
-     */
-    String getInstantId();
 }

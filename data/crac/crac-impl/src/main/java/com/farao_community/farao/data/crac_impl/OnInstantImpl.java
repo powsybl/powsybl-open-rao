@@ -21,7 +21,7 @@ import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
  */
 public final class OnInstantImpl extends AbstractUsageRule implements OnInstant {
 
-    private final Instant instant;
+    private Instant instant;
 
     OnInstantImpl(UsageMethod usageMethod, Instant instant) {
         super(usageMethod);
@@ -53,10 +53,5 @@ public final class OnInstantImpl extends AbstractUsageRule implements OnInstant 
     @Override
     public Instant getInstant() {
         return instant;
-    }
-
-    @Override
-    public String getInstantId() {
-        return instant.getId();
     }
 }

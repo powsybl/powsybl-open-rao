@@ -15,7 +15,7 @@ public interface InjectionSetpointAdder {
 
     InjectionSetpointAdder withNetworkElement(String networkElementId);
 
-    void withNetworkElement(String networkElementId, String networkElementName);
+    InjectionSetpointAdder withNetworkElement(String networkElementId, String networkElementName);
 
     InjectionSetpointAdder withSetpoint(double setPoint);
 

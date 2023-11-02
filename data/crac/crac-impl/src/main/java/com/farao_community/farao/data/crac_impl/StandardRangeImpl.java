@@ -8,8 +8,8 @@
 package com.farao_community.farao.data.crac_impl;
 
 import com.farao_community.farao.commons.Unit;
-import com.farao_community.farao.data.crac_api.range.RangeType;
 import com.farao_community.farao.data.crac_api.range.StandardRange;
+import com.farao_community.farao.data.crac_api.range.RangeType;
 
 /**
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}

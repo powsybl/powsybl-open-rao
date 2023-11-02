@@ -24,21 +24,21 @@ import java.util.Set;
  */
 public abstract class AbstractBranchCnec<T extends BranchCnec<T>> extends AbstractCnec<T> implements BranchCnec<T> {
 
+    protected Set<BranchThreshold> thresholds;
     protected final Double[] nominalVoltages = new Double[2];
-    protected final Set<BranchThreshold> thresholds;
-    protected final BranchBoundsCache bounds = new BranchBoundsCache();
+    protected BranchBoundsCache bounds = new BranchBoundsCache();
 
     AbstractBranchCnec(String id,
-                       String name,
-                       NetworkElement networkElement,
-                       String operator,
-                       State state,
-                       boolean optimized,
-                       boolean monitored,
-                       Set<BranchThreshold> thresholds,
-                       double frm,
-                       Double nominalVLeft,
-                       Double nominalVRight) {
+                        String name,
+                        NetworkElement networkElement,
+                        String operator,
+                        State state,
+                        boolean optimized,
+                        boolean monitored,
+                        Set<BranchThreshold> thresholds,
+                        double frm,
+                        Double nominalVLeft,
+                        Double nominalVRight) {
         super(id, name, Collections.singleton(networkElement), operator, state, optimized, monitored, frm);
         this.thresholds = thresholds;
         this.nominalVoltages[0] = nominalVLeft;

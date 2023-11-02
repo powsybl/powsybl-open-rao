@@ -16,9 +16,9 @@ import com.farao_community.farao.data.crac_api.range.RangeType;
  */
 public abstract class AbstractRange implements Range {
 
-    private final RangeType rangeType;
+    private RangeType rangeType;
 
-    private final Unit unit;
+    private Unit unit;
 
     AbstractRange(RangeType rangeType, Unit unit) {
         this.rangeType = rangeType;

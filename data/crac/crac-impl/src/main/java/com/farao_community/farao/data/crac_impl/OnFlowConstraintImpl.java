@@ -16,8 +16,8 @@ import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
 public class OnFlowConstraintImpl extends AbstractUsageRule implements OnFlowConstraint {
-    private final Instant instant;
-    private final FlowCnec flowCnec;
+    private Instant instant;
+    private FlowCnec flowCnec;
 
     OnFlowConstraintImpl(Instant instant, FlowCnec flowCnec) {
         super(UsageMethod.TO_BE_EVALUATED);
@@ -33,11 +33,6 @@ public class OnFlowConstraintImpl extends AbstractUsageRule implements OnFlowCon
     @Override
     public Instant getInstant() {
         return instant;
-    }
-
-    @Override
-    public String getInstantId() {
-        return instant.getId();
     }
 
     @Override

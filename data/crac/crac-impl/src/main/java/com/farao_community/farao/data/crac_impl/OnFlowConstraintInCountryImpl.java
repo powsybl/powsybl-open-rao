@@ -16,8 +16,8 @@ import com.powsybl.iidm.network.Country;
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
 public class OnFlowConstraintInCountryImpl extends AbstractUsageRule implements OnFlowConstraintInCountry {
-    private final Instant instant;
-    private final Country country;
+    private Instant instant;
+    private Country country;
 
     OnFlowConstraintInCountryImpl(Instant instant, Country country) {
         super(UsageMethod.TO_BE_EVALUATED);
@@ -33,11 +33,6 @@ public class OnFlowConstraintInCountryImpl extends AbstractUsageRule implements 
     @Override
     public Instant getInstant() {
         return instant;
-    }
-
-    @Override
-    public String getInstantId() {
-        return instant.getId();
     }
 
     @Override
