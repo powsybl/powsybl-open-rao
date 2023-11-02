@@ -72,7 +72,7 @@ class UnoptimizedCnecParametersTest {
 
         crac.newFlowCnec().withId("flowCnec-1")
             .withNetworkElement("ne1Id")
-            .withInstantId("preventive")
+            .withInstant("preventive")
             .withOperator("operator1")
             .withOptimized()
             .newThreshold().withSide(Side.RIGHT).withUnit(Unit.AMPERE).withMin(-500.).add()
@@ -84,7 +84,7 @@ class UnoptimizedCnecParametersTest {
 
         crac.newFlowCnec().withId("flowCnec-2")
             .withNetworkElement("ne2Id")
-            .withInstantId("curative")
+            .withInstant("curative")
             .withContingency("co2")
             .withOperator("operator1")
             .withOptimized()
@@ -101,7 +101,7 @@ class UnoptimizedCnecParametersTest {
             .withTapToAngleConversionMap(Map.of(-3, 0., -2, .5, -1, 1., 0, 1.5, 1, 2., 2, 2.5, 3, 3.))
             .newTapRange().withRangeType(RangeType.ABSOLUTE).withMinTap(1).withMaxTap(7).add()
             .newTapRange().withRangeType(RangeType.RELATIVE_TO_INITIAL_NETWORK).withMinTap(-3).withMaxTap(3).add()
-            .newOnInstantUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withInstantId("preventive").add()
+            .newOnInstantUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withInstant("preventive").add()
             .add();
 
         crac.newPstRangeAction().withId("pstRange2Id")

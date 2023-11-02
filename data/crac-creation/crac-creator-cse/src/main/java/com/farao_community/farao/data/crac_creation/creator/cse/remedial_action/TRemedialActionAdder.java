@@ -361,7 +361,7 @@ public class TRemedialActionAdder {
 
         // RA is available for specific UCTE country
         remedialActionAdder.newOnFlowConstraintInCountryUsageRule()
-            .withInstantId(raApplicationInstantId)
+            .withInstant(raApplicationInstantId)
             .withCountry(country)
             .add();
     }
@@ -369,7 +369,7 @@ public class TRemedialActionAdder {
     private void addOnInstantUsageRules(RemedialActionAdder<?> remedialActionAdder, String raApplicationInstantId) {
         // RA is available for all countries
         remedialActionAdder.newOnInstantUsageRule()
-            .withInstantId(raApplicationInstantId)
+            .withInstant(raApplicationInstantId)
             .withUsageMethod(UsageMethod.AVAILABLE)
             .add();
     }
@@ -380,7 +380,7 @@ public class TRemedialActionAdder {
                 // Only add the usage rule if the RemedialAction can be applied before or during CNEC instant
                 if (raApplicationInstant.getOrder() <= crac.getFlowCnec(flowCnecId).getState().getInstant().getOrder()) {
                     remedialActionAdder.newOnFlowConstraintUsageRule()
-                        .withInstantId(raApplicationInstant.getId())
+                        .withInstant(raApplicationInstant.getId())
                         .withFlowCnec(flowCnecId)
                         .add();
                 }

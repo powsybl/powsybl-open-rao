@@ -21,10 +21,7 @@ import com.powsybl.iidm.network.Network;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
@@ -45,12 +42,12 @@ class AppliedRemedialActionsTest {
         networkAction = (NetworkAction) crac.newNetworkAction()
             .withId("na-id")
             .newTopologicalAction().withActionType(ActionType.OPEN).withNetworkElement("BBE2AA1  FFR3AA1  1").add()
-            .newOnInstantUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withInstantId("curative").add()
+            .newOnInstantUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withInstant("curative").add()
             .add();
         autoNetworkAction = (NetworkAction) crac.newNetworkAction()
             .withId("na-auto-id")
             .newTopologicalAction().withActionType(ActionType.OPEN).withNetworkElement("BBE2AA1  FFR3AA1  1").add()
-            .newOnInstantUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withInstantId("auto").add()
+            .newOnInstantUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withInstant("auto").add()
             .add();
     }
 
@@ -147,7 +144,7 @@ class AppliedRemedialActionsTest {
         crac.newFlowCnec()
             .withId("autoCnec")
             .withNetworkElement("BBE2AA1  FFR3AA1  1")
-            .withInstantId("auto")
+            .withInstant("auto")
             .withContingency("Contingency FR1 FR3")
             .withOptimized(true)
             .withOperator("operator1")
@@ -163,7 +160,7 @@ class AppliedRemedialActionsTest {
         crac.newFlowCnec()
             .withId("autoCnec2")
             .withNetworkElement("BBE2AA1  FFR3AA1  1")
-            .withInstantId("auto")
+            .withInstant("auto")
             .withContingency("Contingency FR1 FR2")
             .withOptimized(true)
             .withOperator("operator1")

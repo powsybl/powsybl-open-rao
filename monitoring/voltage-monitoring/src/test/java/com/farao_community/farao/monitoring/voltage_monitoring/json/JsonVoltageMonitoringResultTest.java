@@ -72,12 +72,12 @@ class JsonVoltageMonitoringResultTest {
         crac.newNetworkAction()
             .withId("na1")
             .newInjectionSetPoint().withNetworkElement("ne1").withSetpoint(50.).withUnit(Unit.MEGAWATT).add()
-            .newOnVoltageConstraintUsageRule().withInstantId("preventive").withVoltageCnec(vc1.getId()).add()
+            .newOnVoltageConstraintUsageRule().withInstant("preventive").withVoltageCnec(vc1.getId()).add()
             .add();
         crac.newNetworkAction()
             .withId("na2")
             .newInjectionSetPoint().withNetworkElement("ne2").withSetpoint(150.).withUnit(Unit.MEGAWATT).add()
-            .newOnVoltageConstraintUsageRule().withInstantId("curative").withVoltageCnec(vc2.getId()).add()
+            .newOnVoltageConstraintUsageRule().withInstant("curative").withVoltageCnec(vc2.getId()).add()
             .add();
         voltageMonitoringResultImporter = new VoltageMonitoringResultImporter();
     }
@@ -85,7 +85,7 @@ class JsonVoltageMonitoringResultTest {
     private VoltageCnec addVoltageCnec(String id, String networkElement, Double min, Double max, String instantId, String contingencyId) {
         return crac.newVoltageCnec()
             .withId(id)
-            .withInstantId(instantId)
+            .withInstant(instantId)
             .withNetworkElement(networkElement)
             .withMonitored()
             .newThreshold().withUnit(Unit.KILOVOLT).withMin(min).withMax(max).add()

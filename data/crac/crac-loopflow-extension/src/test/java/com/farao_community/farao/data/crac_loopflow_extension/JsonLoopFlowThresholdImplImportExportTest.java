@@ -21,9 +21,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
@@ -37,7 +35,7 @@ class JsonLoopFlowThresholdImplImportExportTest {
         crac.newFlowCnec()
             .withId("cnec1")
             .withNetworkElement("ne1")
-            .withInstantId("preventive")
+            .withInstant("preventive")
             .newThreshold().withSide(Side.LEFT).withUnit(Unit.AMPERE).withMin(-500.).add()
             .withNominalVoltage(380.)
             .add()
@@ -46,7 +44,7 @@ class JsonLoopFlowThresholdImplImportExportTest {
         crac.newFlowCnec()
             .withId("cnec2")
             .withNetworkElement("ne2")
-            .withInstantId("preventive")
+            .withInstant("preventive")
             .newThreshold().withSide(Side.LEFT).withUnit(Unit.PERCENT_IMAX).withMin(-0.3).add()
             .withNominalVoltage(380.)
             .withIMax(5000.)
@@ -56,7 +54,7 @@ class JsonLoopFlowThresholdImplImportExportTest {
         crac.newFlowCnec()
             .withId("cnec3")
             .withNetworkElement("ne3")
-            .withInstantId("preventive")
+            .withInstant("preventive")
             .newThreshold().withSide(Side.LEFT).withUnit(Unit.MEGAWATT).withMin(-700.).withMax(700.).add()
             .add();
 

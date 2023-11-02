@@ -225,7 +225,7 @@ class CriticalBranchReader {
             .withId(criticalBranch.getId().concat(" - ").concat(instantId))
             .withName(branch.getName())
             .withNetworkElement(ucteFlowElementHelper.getIdInNetwork())
-            .withInstantId(instantId)
+            .withInstant(instantId)
             .withReliabilityMargin(criticalBranch.getFrmMw())
             .withOperator(criticalBranch.getTsoOrigin())
             .withMonitored(criticalBranch.isMNEC())

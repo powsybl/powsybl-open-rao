@@ -21,10 +21,7 @@ import com.powsybl.iidm.network.Country;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
@@ -50,7 +47,7 @@ class OnFlowConstraintInCountryAdderImplTest {
         crac.newFlowCnec()
             .withId("cnec2stateCurativeContingency1")
             .withNetworkElement("FFR2AA1  DDE3AA1  1")
-            .withInstantId("curative")
+            .withInstant("curative")
             .withContingency("Contingency FR1 FR3")
             .withOptimized(true)
             .withOperator("operator2")
@@ -80,7 +77,7 @@ class OnFlowConstraintInCountryAdderImplTest {
     @Test
     void testOkPreventive() {
         RemedialAction remedialAction = remedialActionAdder.newOnFlowConstraintInCountryUsageRule()
-            .withInstantId("preventive")
+            .withInstant("preventive")
             .withCountry(Country.FR)
             .add()
             .add();
@@ -99,14 +96,14 @@ class OnFlowConstraintInCountryAdderImplTest {
 
     @Test
     void testOutageException() {
-        OnFlowConstraintInCountryAdder adder = remedialActionAdder.newOnFlowConstraintInCountryUsageRule().withInstantId("outage").withCountry(Country.FR);
+        OnFlowConstraintInCountryAdder adder = remedialActionAdder.newOnFlowConstraintInCountryUsageRule().withInstant("outage").withCountry(Country.FR);
         FaraoException exception = assertThrows(FaraoException.class, adder::add);
         assertEquals("OnFlowConstraintInCountry usage rules are not allowed for OUTAGE instant.", exception.getMessage());
     }
 
     @Test
     void testAbsentCountryException() {
-        OnFlowConstraintInCountryAdder adder = remedialActionAdder.newOnFlowConstraintInCountryUsageRule().withInstantId("preventive");
+        OnFlowConstraintInCountryAdder adder = remedialActionAdder.newOnFlowConstraintInCountryUsageRule().withInstant("preventive");
         FaraoException exception = assertThrows(FaraoException.class, adder::add);
         assertEquals("Cannot add OnFlowConstraintInCountry without a country. Please use withCountry() with a non null value", exception.getMessage());
     }

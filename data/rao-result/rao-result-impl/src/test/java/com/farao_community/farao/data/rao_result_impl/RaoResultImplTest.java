@@ -26,10 +26,7 @@ import java.util.Set;
 
 import static com.farao_community.farao.commons.Unit.AMPERE;
 import static com.farao_community.farao.commons.Unit.MEGAWATT;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
@@ -54,10 +51,10 @@ class RaoResultImplTest {
         pst = crac.getPstRangeAction("pst");
         na = (NetworkAction) crac.newNetworkAction().withId("na-id")
             .newTopologicalAction().withNetworkElement("any").withActionType(ActionType.OPEN).add()
-            .newOnInstantUsageRule().withInstantId("preventive").withUsageMethod(UsageMethod.AVAILABLE).add()
-            .newOnContingencyStateUsageRule().withContingency("Contingency FR1 FR3").withInstantId("auto").withUsageMethod(UsageMethod.FORCED).add()
-            .newOnContingencyStateUsageRule().withContingency("Contingency FR1 FR2").withInstantId("auto").withUsageMethod(UsageMethod.UNAVAILABLE).add()
-            .newOnInstantUsageRule().withInstantId("curative").withUsageMethod(UsageMethod.AVAILABLE).add()
+            .newOnInstantUsageRule().withInstant("preventive").withUsageMethod(UsageMethod.AVAILABLE).add()
+            .newOnContingencyStateUsageRule().withContingency("Contingency FR1 FR3").withInstant("auto").withUsageMethod(UsageMethod.FORCED).add()
+            .newOnContingencyStateUsageRule().withContingency("Contingency FR1 FR2").withInstant("auto").withUsageMethod(UsageMethod.UNAVAILABLE).add()
+            .newOnInstantUsageRule().withInstant("curative").withUsageMethod(UsageMethod.AVAILABLE).add()
             .add();
 
         raoResult = new RaoResultImpl(crac);

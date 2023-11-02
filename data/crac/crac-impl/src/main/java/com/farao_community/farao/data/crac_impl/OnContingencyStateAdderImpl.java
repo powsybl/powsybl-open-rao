@@ -42,7 +42,7 @@ public class OnContingencyStateAdderImpl<T extends AbstractRemedialActionAdder<T
     }
 
     @Override
-    public OnContingencyStateAdder<T> withInstantId(String instantId) {
+    public OnContingencyStateAdder<T> withInstant(String instantId) {
         this.instantId = instantId;
         return this;
     }

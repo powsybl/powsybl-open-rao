@@ -39,7 +39,7 @@ class AngleThresholdAdderImplTest {
     @Test
     void testAddThresholdInDegree() {
         AngleCnec cnec = crac.newAngleCnec()
-            .withId("test-cnec").withInstantId("outage").withContingency(contingency.getId())
+            .withId("test-cnec").withInstant("outage").withContingency(contingency.getId())
             .withExportingNetworkElement("eneID")
             .withImportingNetworkElement("ineID")
             .newThreshold().withUnit(Unit.DEGREE).withMin(-250.0).withMax(1000.0).add()

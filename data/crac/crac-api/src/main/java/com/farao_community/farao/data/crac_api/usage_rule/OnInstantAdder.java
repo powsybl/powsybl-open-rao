@@ -13,7 +13,7 @@ import com.farao_community.farao.data.crac_api.RemedialActionAdder;
  */
 public interface OnInstantAdder<T extends RemedialActionAdder<T>> {
 
-    OnInstantAdder<T> withInstantId(String instantId);
+    OnInstantAdder<T> withInstant(String instantId);
 
     OnInstantAdder<T> withUsageMethod(UsageMethod usageMethod);
 

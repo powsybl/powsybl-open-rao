@@ -30,7 +30,7 @@ public class OnInstantAdderImpl<T extends AbstractRemedialActionAdder<T>> implem
     }
 
     @Override
-    public OnInstantAdder<T> withInstantId(String instantId) {
+    public OnInstantAdder<T> withInstant(String instantId) {
         this.instantId = instantId;
         return this;
     }

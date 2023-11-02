@@ -19,10 +19,7 @@ import com.farao_community.farao.data.crac_api.usage_rule.UsageRule;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
@@ -52,7 +49,7 @@ class OnInstantAdderImplTest {
     @Test
     void testOkPreventive() {
         RemedialAction remedialAction = remedialActionAdder.newOnInstantUsageRule()
-            .withInstantId("preventive")
+            .withInstant("preventive")
             .withUsageMethod(UsageMethod.AVAILABLE)
             .add()
             .add();
@@ -69,7 +66,7 @@ class OnInstantAdderImplTest {
     @Test
     void testOkCurative() {
         RemedialAction remedialAction = remedialActionAdder.newOnInstantUsageRule()
-            .withInstantId("curative")
+            .withInstant("curative")
             .withUsageMethod(UsageMethod.AVAILABLE)
             .add()
             .add();
@@ -93,7 +90,7 @@ class OnInstantAdderImplTest {
     @Test
     void testNoUsageMethod() {
         OnInstantAdder<NetworkActionAdder> onInstantAdder = remedialActionAdder.newOnInstantUsageRule()
-            .withInstantId("preventive");
+            .withInstant("preventive");
         FaraoException exception = assertThrows(FaraoException.class, onInstantAdder::add);
         assertEquals("Cannot add OnInstant without a usage method. Please use withUsageMethod() with a non null value", exception.getMessage());
     }
@@ -101,7 +98,7 @@ class OnInstantAdderImplTest {
     @Test
     void testOutageInstant() {
         OnInstantAdder<NetworkActionAdder> onInstantAdder = remedialActionAdder.newOnInstantUsageRule()
-            .withInstantId("outage")
+            .withInstant("outage")
             .withUsageMethod(UsageMethod.AVAILABLE);
         FaraoException exception = assertThrows(FaraoException.class, onInstantAdder::add);
         assertEquals("OnInstant usage rules are not allowed for OUTAGE instant.", exception.getMessage());

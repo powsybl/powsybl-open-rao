@@ -324,7 +324,7 @@ final class ExampleGenerator {
 
         crac.newFlowCnec()
             .withId("FR-BE1")
-            .withInstantId("preventive")
+            .withInstant("preventive")
             .withNetworkElement("FR-BE1")
             .newThreshold()
             .withMin(-200.)
@@ -336,7 +336,7 @@ final class ExampleGenerator {
 
         crac.newFlowCnec()
             .withId("FR-DE")
-            .withInstantId("preventive")
+            .withInstant("preventive")
             .withNetworkElement("FR-DE")
             .newThreshold()
             .withMin(-200.)
@@ -348,7 +348,7 @@ final class ExampleGenerator {
 
         crac.newFlowCnec()
             .withId("BE2-NL")
-            .withInstantId("preventive")
+            .withInstant("preventive")
             .withNetworkElement("BE2-NL")
             .newThreshold()
             .withMin(-200.)
@@ -360,7 +360,7 @@ final class ExampleGenerator {
 
         crac.newFlowCnec()
             .withId("DE-NL")
-            .withInstantId("preventive")
+            .withInstant("preventive")
             .withNetworkElement("DE-NL")
             .newThreshold()
             .withMin(-200.)
@@ -372,7 +372,7 @@ final class ExampleGenerator {
 
         crac.newFlowCnec()
             .withId("BE1-BE2")
-            .withInstantId("preventive")
+            .withInstant("preventive")
             .withNetworkElement("BE1-BE2")
             .newThreshold()
             .withMin(-200.)

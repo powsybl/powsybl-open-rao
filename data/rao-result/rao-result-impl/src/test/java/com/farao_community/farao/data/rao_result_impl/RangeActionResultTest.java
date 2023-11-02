@@ -13,9 +13,7 @@ import com.farao_community.farao.data.crac_impl.utils.CommonCracCreation;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
@@ -33,7 +31,7 @@ class RangeActionResultTest {
             .withId("cnec-outage-co1")
             .withNetworkElement("anyNetworkElement")
             .withContingency("Contingency FR1 FR2")
-            .withInstantId("outage")
+            .withInstant("outage")
             .newThreshold().withSide(Side.LEFT).withUnit(Unit.MEGAWATT).withMax(1000.).add()
             .add();
 
@@ -41,7 +39,7 @@ class RangeActionResultTest {
             .withId("cnec-outage-co2")
             .withNetworkElement("anyNetworkElement")
             .withContingency("Contingency FR1 FR3")
-            .withInstantId("outage")
+            .withInstant("outage")
             .newThreshold().withSide(Side.LEFT).withUnit(Unit.MEGAWATT).withMax(1000.).add()
             .add();
     }
@@ -145,7 +143,7 @@ class RangeActionResultTest {
         RangeActionResult rangeActionResult = new RangeActionResult();
 
         // Add dummy flow cnec to create auto state
-        crac.newFlowCnec().withId("dummy").withContingency("Contingency FR1 FR2").withInstantId("auto").withNetworkElement("ne")
+        crac.newFlowCnec().withId("dummy").withContingency("Contingency FR1 FR2").withInstant("auto").withNetworkElement("ne")
             .newThreshold().withMax(1.).withSide(Side.LEFT).withUnit(Unit.MEGAWATT).add()
             .add();
 

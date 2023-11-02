@@ -144,14 +144,14 @@ public class CsaProfileRemedialActionsCreator {
                         boolean hasAtLeastOneOnConstraintUsageRule = addOnConstraintUsageRules(instantPrev, remedialActionAdder, remedialActionId, alterations);
                         if (!hasAtLeastOneOnConstraintUsageRule) {
 
-                            remedialActionAdder.newOnInstantUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withInstantId(instantPrev.getId()).add();
+                            remedialActionAdder.newOnInstantUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withInstant(instantPrev.getId()).add();
                         }
                     } else {
                         Instant instantCurative = crac.getInstant(InstantKind.CURATIVE);
                         boolean hasAtLeastOneOnConstraintUsageRule = addOnConstraintUsageRules(instantCurative, remedialActionAdder, remedialActionId, alterations);
                         if (!hasAtLeastOneOnConstraintUsageRule) {
 
-                            remedialActionAdder.newOnInstantUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withInstantId(instantCurative.getId()).add();
+                            remedialActionAdder.newOnInstantUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withInstant(instantCurative.getId()).add();
                         }
                     }
                 }
@@ -172,7 +172,7 @@ public class CsaProfileRemedialActionsCreator {
     private void addOnContingencyStateUsageRules(RemedialActionAdder<?> remedialActionAdder, List<String> faraoContingenciesIds, String instantCurativeId, String randomCombinationConstraintKind) {
         UsageMethod usageMethod = CsaProfileCracUtils.getConstraintToUsageMethodMap().get(randomCombinationConstraintKind);
         faraoContingenciesIds.forEach(faraoContingencyId -> remedialActionAdder.newOnContingencyStateUsageRule()
-            .withInstantId(instantCurativeId)
+            .withInstant(instantCurativeId)
             .withContingency(faraoContingencyId)
             .withUsageMethod(usageMethod).add());
     }
@@ -255,7 +255,7 @@ public class CsaProfileRemedialActionsCreator {
     }
 
     private String checkContingencyAndGetFaraoId(PropertyBag contingencyWithRemedialActionPropertyBag, PropertyBag parentRemedialActionPropertyBag, String
-            remedialActionId, String combinationConstraintKind) {
+        remedialActionId, String combinationConstraintKind) {
         if (!parentRemedialActionPropertyBag.get(CsaProfileConstants.RA_KIND).equals(CsaProfileConstants.RemedialActionKind.CURATIVE.toString())) {
             throw new FaraoImportException(ImportStatus.INCONSISTENCY_IN_DATA, CsaProfileConstants.REMEDIAL_ACTION_MESSAGE + remedialActionId + " will not be imported because it is linked to a contingency but it's kind is not curative");
         }
@@ -316,21 +316,21 @@ public class CsaProfileRemedialActionsCreator {
             if (isOnConstraintInstantCoherent(cnec.getState().getInstant().getInstantKind(), remedialActionInstant)) {
                 if (cnec instanceof FlowCnec) {
                     remedialActionAdder.newOnFlowConstraintUsageRule()
-                        .withInstantId(remedialActionInstant.getId())
+                        .withInstant(remedialActionInstant.getId())
                         .withFlowCnec(cnecId)
                         .add();
                     // TODO add .withUsageMethod(usageMethod) when API of OnFlowConstraintAdder is ready
                     return true;
                 } else if (cnec instanceof VoltageCnec) {
                     remedialActionAdder.newOnVoltageConstraintUsageRule()
-                        .withInstantId(remedialActionInstant.getId())
+                        .withInstant(remedialActionInstant.getId())
                         .withVoltageCnec(cnecId)
                         .add();
                     // TODO add .withUsageMethod(usageMethod) when API of OnFlowConstraintAdder is ready
                     return true;
                 } else if (cnec instanceof AngleCnec) {
                     remedialActionAdder.newOnAngleConstraintUsageRule()
-                        .withInstantId(remedialActionInstant.getId())
+                        .withInstant(remedialActionInstant.getId())
                         .withAngleCnec(cnecId)
                         .add();
                     // TODO add .withUsageMethod(usageMethod) when API of OnFlowConstraintAdder is ready

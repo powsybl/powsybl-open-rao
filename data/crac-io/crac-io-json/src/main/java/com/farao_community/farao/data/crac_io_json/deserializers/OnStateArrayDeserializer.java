@@ -15,10 +15,7 @@ import com.fasterxml.jackson.core.JsonToken;
 
 import java.io.IOException;
 
-import static com.farao_community.farao.data.crac_io_json.JsonSerializationConstants.CONTINGENCY_ID;
-import static com.farao_community.farao.data.crac_io_json.JsonSerializationConstants.INSTANT;
-import static com.farao_community.farao.data.crac_io_json.JsonSerializationConstants.USAGE_METHOD;
-import static com.farao_community.farao.data.crac_io_json.JsonSerializationConstants.deserializeUsageMethod;
+import static com.farao_community.farao.data.crac_io_json.JsonSerializationConstants.*;
 
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
@@ -33,7 +30,7 @@ public final class OnStateArrayDeserializer {
             while (!jsonParser.nextToken().isStructEnd()) {
                 switch (jsonParser.getCurrentName()) {
                     case INSTANT:
-                        adder.withInstantId(jsonParser.nextTextValue());
+                        adder.withInstant(jsonParser.nextTextValue());
                         break;
                     case USAGE_METHOD:
                         adder.withUsageMethod(deserializeUsageMethod(jsonParser.nextTextValue(), version));

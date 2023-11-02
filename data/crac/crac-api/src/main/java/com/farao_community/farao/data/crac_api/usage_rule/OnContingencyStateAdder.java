@@ -17,7 +17,7 @@ public interface OnContingencyStateAdder<T extends RemedialActionAdder<T>> {
 
     OnContingencyStateAdder<T> withContingency(String contingencyId);
 
-    OnContingencyStateAdder<T> withInstantId(String instantId);
+    OnContingencyStateAdder<T> withInstant(String instantId);
 
     OnContingencyStateAdder<T> withUsageMethod(UsageMethod usageMethod);
 

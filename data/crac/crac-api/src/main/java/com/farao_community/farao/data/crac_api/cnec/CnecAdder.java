@@ -18,7 +18,7 @@ public interface CnecAdder<J extends CnecAdder<J>> extends IdentifiableAdder<J> 
 
     J withNetworkElement(String networkElementId);
 
-    J withInstantId(String instantId);
+    J withInstant(String instantId);
 
     J withContingency(String contingencyId);
 

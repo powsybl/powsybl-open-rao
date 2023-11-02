@@ -73,7 +73,7 @@ public abstract class AbstractCnecAdderImpl<J extends CnecAdder<J>> extends Abst
     }
 
     @Override
-    public J withInstantId(String instantId) {
+    public J withInstant(String instantId) {
         this.instantId = instantId;
         return (J) this;
     }

@@ -55,7 +55,7 @@ public final class VoltageCnecArrayDeserializer {
                         voltageCnecAdder.withOperator(jsonParser.nextTextValue());
                         break;
                     case INSTANT:
-                        voltageCnecAdder.withInstantId(jsonParser.nextTextValue());
+                        voltageCnecAdder.withInstant(jsonParser.nextTextValue());
                         break;
                     case CONTINGENCY_ID:
                         voltageCnecAdder.withContingency(jsonParser.nextTextValue());

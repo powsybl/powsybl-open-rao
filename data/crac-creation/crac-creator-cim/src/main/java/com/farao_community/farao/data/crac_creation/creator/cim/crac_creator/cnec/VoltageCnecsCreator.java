@@ -132,7 +132,7 @@ public class VoltageCnecsCreator {
         try {
             adder.withId(cnecId)
                 .withNetworkElement(networkElementId)
-                .withInstantId(instantId)
+                .withInstant(instantId)
                 .withMonitored()
                 .newThreshold().withUnit(threshold.getUnit()).withMin(threshold.getMin()).withMax(threshold.getMax()).add()
                 .add();

@@ -16,10 +16,7 @@ import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
@@ -46,7 +43,7 @@ class HvdcRangeActionAdderImplTest {
             .withGroupId("groupId1")
             .newRange().withMin(-5).withMax(10).add()
             .newOnInstantUsageRule()
-            .withInstantId("preventive")
+            .withInstant("preventive")
             .withUsageMethod(UsageMethod.AVAILABLE)
             .add()
             .add();
@@ -71,7 +68,7 @@ class HvdcRangeActionAdderImplTest {
             .withInitialSetpoint(1)
             .newRange().withMin(-5).withMax(10).add()
             .newOnInstantUsageRule()
-            .withInstantId("auto")
+            .withInstant("auto")
             .withUsageMethod(UsageMethod.FORCED)
             .add()
             .add();
@@ -97,7 +94,7 @@ class HvdcRangeActionAdderImplTest {
             .withInitialSetpoint(1)
             .newRange().withMin(-5).withMax(10).add()
             .newOnInstantUsageRule()
-            .withInstantId("auto")
+            .withInstant("auto")
             .withUsageMethod(UsageMethod.FORCED)
             .add();
         FaraoException exception = assertThrows(FaraoException.class, hvdcRangeActionAdder::add);
@@ -112,7 +109,7 @@ class HvdcRangeActionAdderImplTest {
             .withNetworkElement(networkElementId)
             .newRange().withMin(-5).withMax(10).add()
             .newOnInstantUsageRule()
-            .withInstantId("preventive")
+            .withInstant("preventive")
             .withUsageMethod(UsageMethod.AVAILABLE)
             .add()
             .add();
@@ -153,7 +150,7 @@ class HvdcRangeActionAdderImplTest {
             .withNetworkElement(networkElementId)
             .newRange().withMin(-5).withMax(10).add()
             .newOnInstantUsageRule()
-            .withInstantId("preventive")
+            .withInstant("preventive")
             .withUsageMethod(UsageMethod.AVAILABLE)
             .add()
             .add();

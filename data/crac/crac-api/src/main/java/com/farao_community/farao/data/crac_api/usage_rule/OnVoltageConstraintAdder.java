@@ -13,7 +13,7 @@ import com.farao_community.farao.data.crac_api.RemedialActionAdder;
  */
 public interface OnVoltageConstraintAdder<T extends RemedialActionAdder<T>> {
 
-    OnVoltageConstraintAdder<T> withInstantId(String instantId);
+    OnVoltageConstraintAdder<T> withInstant(String instantId);
 
     OnVoltageConstraintAdder<T> withVoltageCnec(String voltageCnecId);
 

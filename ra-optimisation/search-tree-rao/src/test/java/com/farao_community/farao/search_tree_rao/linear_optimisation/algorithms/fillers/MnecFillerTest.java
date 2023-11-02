@@ -34,9 +34,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
 
 /**
@@ -64,7 +62,7 @@ class MnecFillerTest extends AbstractFillerTest {
             .withNominalVoltage(380.)
             .withOptimized(true)
             .withMonitored(true)
-            .withInstantId("preventive")
+            .withInstant("preventive")
             .add();
 
         mnec2 = crac.newFlowCnec()
@@ -79,7 +77,7 @@ class MnecFillerTest extends AbstractFillerTest {
             .withNominalVoltage(380.)
             .withOptimized(true)
             .withMonitored(true)
-            .withInstantId("preventive")
+            .withInstant("preventive")
             .add();
 
         mnec3 = crac.newFlowCnec()
@@ -90,7 +88,7 @@ class MnecFillerTest extends AbstractFillerTest {
             .withNominalVoltage(380.)
             .withOptimized(true)
             .withMonitored(true)
-            .withInstantId("preventive")
+            .withInstant("preventive")
             .add();
 
         RangeActionSetpointResult initialRangeActionSetpointResult = new RangeActionSetpointResultImpl(Collections.emptyMap());

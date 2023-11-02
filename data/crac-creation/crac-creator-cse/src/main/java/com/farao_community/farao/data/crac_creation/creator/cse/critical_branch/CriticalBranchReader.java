@@ -192,7 +192,7 @@ public class CriticalBranchReader {
         FlowCnecAdder cnecAdder = crac.newFlowCnec()
             .withId(cnecId)
             .withName(tBranch.getName().getV())
-            .withInstantId(instantId)
+            .withInstant(instantId)
             .withContingency(outage)
             .withOptimized(selected).withMonitored(isMonitored)
             .withNetworkElement(branchHelper.getIdInNetwork())

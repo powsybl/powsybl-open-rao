@@ -39,7 +39,7 @@ class VoltageThresholdAdderImplTest {
     @Test
     void testAddThresholdInDegree() {
         VoltageCnec cnec = crac.newVoltageCnec()
-            .withId("test-cnec").withInstantId("outage").withContingency(contingency.getId())
+            .withId("test-cnec").withInstant("outage").withContingency(contingency.getId())
             .withNetworkElement("neID")
             .newThreshold().withUnit(Unit.KILOVOLT).withMin(-250.0).withMax(1000.0).add()
             .add();

@@ -45,7 +45,7 @@ class RangeActionActivationResultImplTest {
         crac.newFlowCnec()
             .withId("cnecOnOutageState1")
             .withNetworkElement("BBE2AA1  FFR3AA1  1")
-            .withInstantId("outage")
+            .withInstant("outage")
             .withContingency("Contingency FR1 FR3")
             .newThreshold().withUnit(Unit.MEGAWATT).withSide(Side.LEFT).withMin(-1500.).withMax(1500.).add()
             .add();
@@ -58,8 +58,8 @@ class RangeActionActivationResultImplTest {
         pstRangeAction1 = (PstRangeAction) crac.newPstRangeAction()
             .withId("pst1")
             .withNetworkElement("BBE2AA1  BBE3AA1  1")
-            .newOnInstantUsageRule().withInstantId("preventive").withUsageMethod(UsageMethod.AVAILABLE).add()
-            .newOnInstantUsageRule().withInstantId("curative").withUsageMethod(UsageMethod.AVAILABLE).add()
+            .newOnInstantUsageRule().withInstant("preventive").withUsageMethod(UsageMethod.AVAILABLE).add()
+            .newOnInstantUsageRule().withInstant("curative").withUsageMethod(UsageMethod.AVAILABLE).add()
             .withInitialTap(0)
             .withTapToAngleConversionMap(Map.of(-3, -3.1, -2, -2.1, -1, -1.1, 0, 0., 1, 1.1, 2, 2.1, 3, 3.1))
             .add();
@@ -67,8 +67,8 @@ class RangeActionActivationResultImplTest {
         pstRangeAction2 = (PstRangeAction) crac.newPstRangeAction()
             .withId("pst2")
             .withNetworkElement("BBE2AA1  BBE3AA1  1")
-            .newOnInstantUsageRule().withInstantId("preventive").withUsageMethod(UsageMethod.AVAILABLE).add()
-            .newOnInstantUsageRule().withInstantId("curative").withUsageMethod(UsageMethod.AVAILABLE).add()
+            .newOnInstantUsageRule().withInstant("preventive").withUsageMethod(UsageMethod.AVAILABLE).add()
+            .newOnInstantUsageRule().withInstant("curative").withUsageMethod(UsageMethod.AVAILABLE).add()
             .withInitialTap(0)
             .withTapToAngleConversionMap(Map.of(-3, -3.1, -2, -2.1, -1, -1.1, 0, 0., 1, 1.1, 2, 2.1, 3, 3.1))
             .add();
@@ -76,8 +76,8 @@ class RangeActionActivationResultImplTest {
         pstRangeAction3 = (PstRangeAction) crac.newPstRangeAction()
             .withId("pst3")
             .withNetworkElement("anotherPst")
-            .newOnInstantUsageRule().withInstantId("preventive").withUsageMethod(UsageMethod.AVAILABLE).add()
-            .newOnInstantUsageRule().withInstantId("curative").withUsageMethod(UsageMethod.AVAILABLE).add()
+            .newOnInstantUsageRule().withInstant("preventive").withUsageMethod(UsageMethod.AVAILABLE).add()
+            .newOnInstantUsageRule().withInstant("curative").withUsageMethod(UsageMethod.AVAILABLE).add()
             .withInitialTap(0)
             .withTapToAngleConversionMap(Map.of(-3, -3.1, -2, -2.1, -1, -1.1, 0, 0., 1, 1.1, 2, 2.1, 3, 3.1))
             .add();

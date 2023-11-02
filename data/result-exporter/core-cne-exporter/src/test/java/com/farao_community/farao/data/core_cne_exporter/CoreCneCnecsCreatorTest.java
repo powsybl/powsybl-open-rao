@@ -34,12 +34,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.eq;
-import static org.mockito.Mockito.when;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
@@ -148,7 +144,7 @@ class CoreCneCnecsCreatorTest {
             .withId("bbb_cnec1")
             .withNetworkElement("FFR2AA1  DDE3AA1  1")
             .withOperator("FR")
-            .withInstantId("preventive")
+            .withInstant("preventive")
             .withOptimized()
             .withNominalVoltage(400.)
             .withReliabilityMargin(0.)
@@ -161,7 +157,7 @@ class CoreCneCnecsCreatorTest {
             .withId("aaa_cnec2")
             .withNetworkElement("NNL2AA1  NNL3AA1  1")
             .withOperator("NL")
-            .withInstantId("preventive")
+            .withInstant("preventive")
             .withOptimized()
             .withNominalVoltage(400.)
             .withReliabilityMargin(10.)
@@ -213,7 +209,7 @@ class CoreCneCnecsCreatorTest {
             .withId("cnec1")
             .withNetworkElement("FFR2AA1  DDE3AA1  1")
             .withOperator("D8")
-            .withInstantId("preventive")
+            .withInstant("preventive")
             .withMonitored()
             .withNominalVoltage(400.)
             .withReliabilityMargin(0.)
@@ -250,7 +246,7 @@ class CoreCneCnecsCreatorTest {
             .withId("cnec1")
             .withNetworkElement("FFR2AA1  DDE3AA1  1")
             .withOperator("D7")
-            .withInstantId("preventive")
+            .withInstant("preventive")
             .withOptimized()
             .withMonitored()
             .withNominalVoltage(400.)
@@ -303,7 +299,7 @@ class CoreCneCnecsCreatorTest {
             .withId("zzz_cnec1 - N")
             .withNetworkElement("FFR2AA1  DDE3AA1  1")
             .withOperator("D2")
-            .withInstantId("preventive")
+            .withInstant("preventive")
             .withOptimized()
             .withNominalVoltage(400.)
             .withReliabilityMargin(30.)
@@ -313,7 +309,7 @@ class CoreCneCnecsCreatorTest {
             .withId("cnec1 - Outage")
             .withNetworkElement("FFR2AA1  DDE3AA1  1")
             .withOperator("D2")
-            .withInstantId("outage")
+            .withInstant("outage")
             .withContingency("contingency1")
             .withOptimized()
             .withNominalVoltage(400.)
@@ -324,7 +320,7 @@ class CoreCneCnecsCreatorTest {
             .withId("cnec1 - Curative")
             .withNetworkElement("FFR2AA1  DDE3AA1  1")
             .withOperator("D2")
-            .withInstantId("curative")
+            .withInstant("curative")
             .withContingency("contingency1")
             .withOptimized()
             .withNominalVoltage(400.)
@@ -379,7 +375,7 @@ class CoreCneCnecsCreatorTest {
             .withId("cnec1")
             .withNetworkElement("FFR2AA1  DDE3AA1  1")
             .withOperator("D4")
-            .withInstantId("preventive")
+            .withInstant("preventive")
             .withOptimized()
             .withNominalVoltage(400.)
             .withReliabilityMargin(0.)

@@ -34,9 +34,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
@@ -78,7 +76,7 @@ class RangeActionSensitivityProviderTest {
             .withMax(10.)
             .add()
             .withNominalVoltage(380.)
-            .withInstantId("curative")
+            .withInstant("curative")
             .withContingency("contingency-generator")
             .add();
 
@@ -92,7 +90,7 @@ class RangeActionSensitivityProviderTest {
             .withMax(10.)
             .add()
             .withNominalVoltage(380.)
-            .withInstantId("curative")
+            .withInstant("curative")
             .withContingency("contingency-hvdc")
             .add();
 
@@ -106,7 +104,7 @@ class RangeActionSensitivityProviderTest {
             .withMax(10.)
             .add()
             .withNominalVoltage(380.)
-            .withInstantId("curative")
+            .withInstant("curative")
             .withContingency("contingency-busbar-section")
             .add();
 
@@ -158,7 +156,7 @@ class RangeActionSensitivityProviderTest {
             .withMin(-10.)
             .withMax(10.)
             .add()
-            .withInstantId("curative")
+            .withInstant("curative")
             .withContingency("contingency-fail")
             .withNominalVoltage(380.)
             .add();
@@ -243,7 +241,7 @@ class RangeActionSensitivityProviderTest {
         FlowCnec flowCnec = crac.newFlowCnec()
             .withId("cnec")
             .withNetworkElement("BBE1AA11 FFR5AA11 1")
-            .withInstantId("preventive")
+            .withInstant("preventive")
             .newThreshold().withMax(1000.).withUnit(Unit.MEGAWATT).withSide(Side.LEFT).add()
             .newThreshold().withMax(1000.).withUnit(Unit.MEGAWATT).withSide(Side.RIGHT).add()
             .add();
@@ -293,7 +291,7 @@ class RangeActionSensitivityProviderTest {
         FlowCnec flowCnec = crac.newFlowCnec()
             .withId("cnec")
             .withNetworkElement("BBE1AA11 FFR5AA11 1")
-            .withInstantId("preventive")
+            .withInstant("preventive")
             .newThreshold().withMax(1000.).withUnit(Unit.MEGAWATT).withSide(Side.LEFT).add()
             .add();
 

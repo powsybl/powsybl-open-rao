@@ -31,7 +31,7 @@ public class OnFlowConstraintAdderImpl<T extends AbstractRemedialActionAdder<T>>
     }
 
     @Override
-    public OnFlowConstraintAdder<T> withInstantId(String instantId) {
+    public OnFlowConstraintAdder<T> withInstant(String instantId) {
         this.instantId = instantId;
         return this;
     }

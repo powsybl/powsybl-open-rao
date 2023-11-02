@@ -37,9 +37,7 @@ import java.util.Map;
 import java.util.Set;
 
 import static com.farao_community.farao.commons.Unit.MEGAWATT;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
 
 /**
@@ -68,7 +66,7 @@ class UnoptimizedCnecFillerPstLimitationRuleTest extends AbstractFillerTest {
             .withNetworkElement("neId")
             .newThreshold().withSide(Side.LEFT).withMax(800.0).withMin(-1000.).withUnit(Unit.MEGAWATT).add()
             .withOptimized(true)
-            .withInstantId("preventive")
+            .withInstant("preventive")
             .withOperator("NL")
             .add();
         crac.newPstRangeAction().withId("pstRangeActionInSeries")
@@ -78,7 +76,7 @@ class UnoptimizedCnecFillerPstLimitationRuleTest extends AbstractFillerTest {
             .withInitialTap(1)
             .withTapToAngleConversionMap(Map.of(-3, 0., -2, .5, -1, 1., 0, 1.5, 1, 2., 2, 2.5, 3, 3.))
             .newTapRange().withRangeType(RangeType.RELATIVE_TO_INITIAL_NETWORK).withMinTap(-3).withMaxTap(3).add()
-            .newOnInstantUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withInstantId("preventive").add()
+            .newOnInstantUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withInstant("preventive").add()
             .add();
 
         // Set initial margins on both preventive CNECs

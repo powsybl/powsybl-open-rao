@@ -28,9 +28,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
@@ -85,12 +83,12 @@ class JsonAngleMonitoringResultTest {
         na1 = (NetworkAction) crac.newNetworkAction()
             .withId("na1")
             .newInjectionSetPoint().withNetworkElement("ne1").withSetpoint(50.).withUnit(Unit.MEGAWATT).add()
-            .newOnAngleConstraintUsageRule().withInstantId("preventive").withAngleCnec(ac1.getId()).add()
+            .newOnAngleConstraintUsageRule().withInstant("preventive").withAngleCnec(ac1.getId()).add()
             .add();
         na2 = (NetworkAction) crac.newNetworkAction()
             .withId("na2")
             .newInjectionSetPoint().withNetworkElement("ne2").withSetpoint(150.).withUnit(Unit.MEGAWATT).add()
-            .newOnAngleConstraintUsageRule().withInstantId("curative").withAngleCnec(ac2.getId()).add()
+            .newOnAngleConstraintUsageRule().withInstant("curative").withAngleCnec(ac2.getId()).add()
             .add();
         angleMonitoringResultImporter = new AngleMonitoringResultImporter();
     }
@@ -99,7 +97,7 @@ class JsonAngleMonitoringResultTest {
         if (Objects.isNull(contingencyId)) {
             return crac.newAngleCnec()
                 .withId(id)
-                .withInstantId(instantId)
+                .withInstant(instantId)
                 .withImportingNetworkElement(importingNetworkElement)
                 .withExportingNetworkElement(exportingNetworkElement)
                 .withMonitored()
@@ -108,7 +106,7 @@ class JsonAngleMonitoringResultTest {
         } else {
             return crac.newAngleCnec()
                 .withId(id)
-                .withInstantId(instantId)
+                .withInstant(instantId)
                 .withContingency(contingencyId)
                 .withImportingNetworkElement(importingNetworkElement)
                 .withExportingNetworkElement(exportingNetworkElement)

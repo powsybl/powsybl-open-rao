@@ -36,9 +36,7 @@ import java.util.Map;
 import java.util.Set;
 
 import static com.farao_community.farao.commons.Unit.MEGAWATT;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
 
 /**
@@ -66,7 +64,7 @@ class UnoptimizedCnecFillerMarginDecreaseRuleTest extends AbstractFillerTest {
             .withNetworkElement("NNL1AA1  NNL2AA1  1")
             .newThreshold().withSide(Side.RIGHT).withMax(800.0).withMin(-1000.).withUnit(Unit.MEGAWATT).add()
             .withOptimized(true)
-            .withInstantId("preventive")
+            .withInstant("preventive")
             .withOperator("NL")
             .add();
 

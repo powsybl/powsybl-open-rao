@@ -289,7 +289,7 @@ public class MonitoredSeriesCreator {
             flowCnecAdder.withContingency(contingencyId);
             cnecId += " - " + contingencyId;
         }
-        flowCnecAdder.withInstantId(instant.getId());
+        flowCnecAdder.withInstant(instant.getId());
         cnecId += " - " + instant.getId();
 
         if (Objects.isNull(crac.getFlowCnec(cnecId))) {

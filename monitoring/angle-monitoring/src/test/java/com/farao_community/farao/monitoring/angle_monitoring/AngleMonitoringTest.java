@@ -36,10 +36,7 @@ import java.time.OffsetDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
@@ -102,7 +99,7 @@ class AngleMonitoringTest {
         crac.newNetworkAction()
             .withId("Open L1 - 1")
             .newTopologicalAction().withNetworkElement("L1").withActionType(ActionType.OPEN).add()
-            .newOnAngleConstraintUsageRule().withInstantId("preventive").withAngleCnec(acPrev.getId()).add()
+            .newOnAngleConstraintUsageRule().withInstant("preventive").withAngleCnec(acPrev.getId()).add()
             .add();
     }
 
@@ -123,7 +120,7 @@ class AngleMonitoringTest {
     private AngleCnec addAngleCnec(String id, String instantId, String contingency, String importingNetworkElement, String exportingNetworkElement, Double min, Double max) {
         return crac.newAngleCnec()
             .withId(id)
-            .withInstantId(instantId)
+            .withInstant(instantId)
             .withContingency(contingency)
             .withImportingNetworkElement(importingNetworkElement)
             .withExportingNetworkElement(exportingNetworkElement)
@@ -189,7 +186,7 @@ class AngleMonitoringTest {
         naL1Cur = (NetworkAction) crac.newNetworkAction()
             .withId("Open L1 - 2")
             .newTopologicalAction().withNetworkElement("L1").withActionType(ActionType.OPEN).add()
-            .newOnAngleConstraintUsageRule().withInstantId("curative").withAngleCnec(acCur1.getId()).add()
+            .newOnAngleConstraintUsageRule().withInstant("curative").withAngleCnec(acCur1.getId()).add()
             .add();
         runAngleMonitoring();
         assertTrue(angleMonitoringResult.isUnsecure());
@@ -207,7 +204,7 @@ class AngleMonitoringTest {
         naL1Cur = (NetworkAction) crac.newNetworkAction()
             .withId("Injection L1 - 2")
             .newInjectionSetPoint().withNetworkElement("LD2").withSetpoint(50.).withUnit(Unit.MEGAWATT).add()
-            .newOnAngleConstraintUsageRule().withInstantId("curative").withAngleCnec(acCur1.getId()).add()
+            .newOnAngleConstraintUsageRule().withInstant("curative").withAngleCnec(acCur1.getId()).add()
             .add();
         runAngleMonitoring();
         assertTrue(angleMonitoringResult.isSecure());

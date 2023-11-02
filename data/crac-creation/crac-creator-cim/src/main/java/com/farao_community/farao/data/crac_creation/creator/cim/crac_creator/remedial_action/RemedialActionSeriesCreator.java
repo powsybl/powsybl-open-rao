@@ -112,7 +112,7 @@ public class RemedialActionSeriesCreator {
 
     private static void addOnInstantUsageRules(RemedialActionAdder<?> adder, Instant raApplicationInstant) {
         adder.newOnInstantUsageRule()
-            .withInstantId(raApplicationInstant.getId())
+            .withInstant(raApplicationInstant.getId())
             .withUsageMethod(UsageMethod.AVAILABLE)
             .add();
     }
@@ -120,7 +120,7 @@ public class RemedialActionSeriesCreator {
     private static void addOnStateUsageRules(RemedialActionAdder<?> adder, Instant raApplicationInstant, UsageMethod usageMethod, List<Contingency> contingencies) {
         contingencies.forEach(contingency ->
             adder.newOnContingencyStateUsageRule()
-                .withInstantId(raApplicationInstant.getId())
+                .withInstant(raApplicationInstant.getId())
                 .withUsageMethod(usageMethod)
                 .withContingency(contingency.getId())
                 .add());
@@ -140,7 +140,7 @@ public class RemedialActionSeriesCreator {
         }
         adder.newOnFlowConstraintUsageRule()
             .withFlowCnec(flowCnec.getId())
-            .withInstantId(instant.getId())
+            .withInstant(instant.getId())
             .add();
     }
 
@@ -184,7 +184,7 @@ public class RemedialActionSeriesCreator {
             return;
         }
         if (!Objects.isNull(sharedDomain)) {
-            remedialActionAdder.newOnFlowConstraintInCountryUsageRule().withInstantId(instant.getId()).withCountry(sharedDomain).add();
+            remedialActionAdder.newOnFlowConstraintInCountryUsageRule().withInstant(instant.getId()).withCountry(sharedDomain).add();
             return;
         }
 
@@ -201,7 +201,7 @@ public class RemedialActionSeriesCreator {
     private static void addOnAngleConstraintUsageRule(Crac crac, RemedialActionAdder<?> adder, AngleCnec angleCnec) {
         adder.newOnAngleConstraintUsageRule()
             .withAngleCnec(angleCnec.getId())
-            .withInstantId(crac.getInstant(InstantKind.CURATIVE).getId())
+            .withInstant(crac.getInstant(InstantKind.CURATIVE).getId())
             .add();
     }
 

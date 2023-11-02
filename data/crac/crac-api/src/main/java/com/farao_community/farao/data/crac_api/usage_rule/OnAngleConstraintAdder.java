@@ -12,7 +12,7 @@ import com.farao_community.farao.data.crac_api.RemedialActionAdder;
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
 public interface OnAngleConstraintAdder<T extends RemedialActionAdder<T>> {
-    OnAngleConstraintAdder<T> withInstantId(String instantId);
+    OnAngleConstraintAdder<T> withInstant(String instantId);
 
     OnAngleConstraintAdder<T> withAngleCnec(String angleCnecId);
 

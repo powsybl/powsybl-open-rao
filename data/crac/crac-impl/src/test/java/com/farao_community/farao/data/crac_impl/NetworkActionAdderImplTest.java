@@ -18,9 +18,7 @@ import org.junit.jupiter.api.Test;
 import java.util.Map;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
@@ -54,7 +52,7 @@ class NetworkActionAdderImplTest {
             .withSetpoint(6)
             .add()
             .newOnInstantUsageRule()
-            .withInstantId("preventive")
+            .withInstant("preventive")
             .withUsageMethod(UsageMethod.AVAILABLE)
             .add()
             .add();
@@ -102,11 +100,11 @@ class NetworkActionAdderImplTest {
             .withSetpoint(6)
             .add()
             .newOnInstantUsageRule()
-            .withInstantId("preventive")
+            .withInstant("preventive")
             .withUsageMethod(UsageMethod.AVAILABLE)
             .add()
             .newOnContingencyStateUsageRule()
-            .withInstantId("curative")
+            .withInstant("curative")
             .withContingency("contingencyId")
             .withUsageMethod(UsageMethod.AVAILABLE)
             .add()

@@ -58,7 +58,7 @@ public final class AngleCnecArrayDeserializer {
                         angleCnecAdder.withOperator(jsonParser.nextTextValue());
                         break;
                     case INSTANT:
-                        angleCnecAdder.withInstantId(jsonParser.nextTextValue());
+                        angleCnecAdder.withInstant(jsonParser.nextTextValue());
                         break;
                     case CONTINGENCY_ID:
                         angleCnecAdder.withContingency(jsonParser.nextTextValue());

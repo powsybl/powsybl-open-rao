@@ -35,10 +35,7 @@ import java.util.Set;
 import static com.farao_community.farao.commons.Unit.*;
 import static com.farao_community.farao.data.crac_api.cnec.Side.LEFT;
 import static com.farao_community.farao.data.crac_api.cnec.Side.RIGHT;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
@@ -395,30 +392,30 @@ class RaoResultRoundTripTest {
         PstRangeAction pstPrev = (PstRangeAction) crac.newPstRangeAction().withId("pst-prev").withNetworkElement("pst").withInitialTap(-1)
             .withTapToAngleConversionMap(Map.of(-1, -10., 0, 0., 1, 10., 2, 20., 3, 30.))
             .withSpeed(1)
-            .newOnInstantUsageRule().withInstantId("preventive").withUsageMethod(UsageMethod.AVAILABLE).add()
+            .newOnInstantUsageRule().withInstant("preventive").withUsageMethod(UsageMethod.AVAILABLE).add()
             .add();
         PstRangeAction pstAuto = (PstRangeAction) crac.newPstRangeAction().withId("pst-auto").withNetworkElement("pst").withInitialTap(-1)
             .withTapToAngleConversionMap(Map.of(-1, -10., 0, 0., 1, 10., 2, 20., 3, 30.))
             .withSpeed(1)
-            .newOnInstantUsageRule().withInstantId("auto").withUsageMethod(UsageMethod.FORCED).add()
+            .newOnInstantUsageRule().withInstant("auto").withUsageMethod(UsageMethod.FORCED).add()
             .add();
         PstRangeAction pstCur = (PstRangeAction) crac.newPstRangeAction().withId("pst-cur").withNetworkElement("pst").withInitialTap(-1)
             .withTapToAngleConversionMap(Map.of(-1, -10., 0, 0., 1, 10., 2, 20., 3, 30.))
-            .newOnInstantUsageRule().withInstantId("curative").withUsageMethod(UsageMethod.AVAILABLE).add()
+            .newOnInstantUsageRule().withInstant("curative").withUsageMethod(UsageMethod.AVAILABLE).add()
             .add();
 
         // dummy flow cnecs
         crac.newContingency().withId("contingency").withNetworkElement("co-ne").add();
-        crac.newFlowCnec().withId("dummy-preventive").withInstantId("preventive").withNetworkElement("ne")
+        crac.newFlowCnec().withId("dummy-preventive").withInstant("preventive").withNetworkElement("ne")
             .newThreshold().withMax(1.).withSide(Side.LEFT).withUnit(Unit.MEGAWATT).add()
             .add();
-        crac.newFlowCnec().withId("dummy-outage").withContingency("contingency").withInstantId("outage").withNetworkElement("ne")
+        crac.newFlowCnec().withId("dummy-outage").withContingency("contingency").withInstant("outage").withNetworkElement("ne")
             .newThreshold().withMax(1.).withSide(Side.LEFT).withUnit(Unit.MEGAWATT).add()
             .add();
-        crac.newFlowCnec().withId("dummy-auto").withContingency("contingency").withInstantId("auto").withNetworkElement("ne")
+        crac.newFlowCnec().withId("dummy-auto").withContingency("contingency").withInstant("auto").withNetworkElement("ne")
             .newThreshold().withMax(1.).withSide(Side.LEFT).withUnit(Unit.MEGAWATT).add()
             .add();
-        crac.newFlowCnec().withId("dummy-cur").withContingency("contingency").withInstantId("curative").withNetworkElement("ne")
+        crac.newFlowCnec().withId("dummy-cur").withContingency("contingency").withInstant("curative").withNetworkElement("ne")
             .newThreshold().withMax(1.).withSide(Side.LEFT).withUnit(Unit.MEGAWATT).add()
             .add();
 

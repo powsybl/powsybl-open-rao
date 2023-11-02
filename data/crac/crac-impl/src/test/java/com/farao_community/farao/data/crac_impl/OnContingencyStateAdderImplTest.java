@@ -20,10 +20,7 @@ import com.farao_community.farao.data.crac_api.usage_rule.UsageRule;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
@@ -57,7 +54,7 @@ class OnContingencyStateAdderImplTest {
     @Test
     void testOk() {
         RemedialAction<?> remedialAction = remedialActionAdder.newOnContingencyStateUsageRule()
-            .withInstantId("curative")
+            .withInstant("curative")
             .withContingency("contingencyId")
             .withUsageMethod(UsageMethod.AVAILABLE)
             .add()
@@ -76,7 +73,7 @@ class OnContingencyStateAdderImplTest {
     @Test
     void testOkPreventive() {
         RemedialAction<?> remedialAction = remedialActionAdder.newOnContingencyStateUsageRule()
-            .withInstantId("preventive")
+            .withInstant("preventive")
             .withUsageMethod(UsageMethod.FORCED)
             .add()
             .add();
@@ -100,7 +97,7 @@ class OnContingencyStateAdderImplTest {
     @Test
     void testNoContingency() {
         OnContingencyStateAdder<NetworkActionAdder> onContingencyStateAdder = remedialActionAdder.newOnContingencyStateUsageRule()
-            .withInstantId("curative")
+            .withInstant("curative")
             .withUsageMethod(UsageMethod.AVAILABLE);
         FaraoException exception = assertThrows(FaraoException.class, onContingencyStateAdder::add);
         assertEquals("Cannot add OnContingencyState without a contingency. Please use withContingency() with a non null value", exception.getMessage());
@@ -109,7 +106,7 @@ class OnContingencyStateAdderImplTest {
     @Test
     void testNoUsageMethod() {
         OnContingencyStateAdder<NetworkActionAdder> onContingencyStateAdder = remedialActionAdder.newOnContingencyStateUsageRule()
-            .withInstantId("curative")
+            .withInstant("curative")
             .withContingency("contingencyId");
         FaraoException exception = assertThrows(FaraoException.class, onContingencyStateAdder::add);
         assertEquals("Cannot add OnContingencyState without a usage method. Please use withUsageMethod() with a non null value", exception.getMessage());
@@ -118,7 +115,7 @@ class OnContingencyStateAdderImplTest {
     @Test
     void testUnknownContingency() {
         OnContingencyStateAdder<NetworkActionAdder> onContingencyStateAdder = remedialActionAdder.newOnContingencyStateUsageRule()
-            .withInstantId("curative")
+            .withInstant("curative")
             .withContingency("unknownContingencyId")
             .withUsageMethod(UsageMethod.AVAILABLE);
         FaraoException exception = assertThrows(FaraoException.class, onContingencyStateAdder::add);
@@ -128,7 +125,7 @@ class OnContingencyStateAdderImplTest {
     @Test
     void testPreventiveInstant() {
         OnContingencyStateAdder<NetworkActionAdder> onContingencyStateAdder = remedialActionAdder.newOnContingencyStateUsageRule()
-            .withInstantId("preventive")
+            .withInstant("preventive")
             .withContingency("contingencyId")
             .withUsageMethod(UsageMethod.AVAILABLE);
         FaraoException exception = assertThrows(FaraoException.class, onContingencyStateAdder::add);
@@ -138,7 +135,7 @@ class OnContingencyStateAdderImplTest {
     @Test
     void testOutageInstant() {
         OnContingencyStateAdder<NetworkActionAdder> onContingencyStateAdder = remedialActionAdder.newOnContingencyStateUsageRule()
-            .withInstantId("outage")
+            .withInstant("outage")
             .withContingency("contingencyId")
             .withUsageMethod(UsageMethod.AVAILABLE);
         FaraoException exception = assertThrows(FaraoException.class, onContingencyStateAdder::add);

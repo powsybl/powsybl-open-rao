@@ -13,7 +13,7 @@ import com.powsybl.iidm.network.Country;
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
 public interface OnFlowConstraintInCountryAdder<T extends RemedialActionAdder<T>> {
-    OnFlowConstraintInCountryAdder<T> withInstantId(String instantId);
+    OnFlowConstraintInCountryAdder<T> withInstant(String instantId);
 
     OnFlowConstraintInCountryAdder<T> withCountry(Country country);
 

@@ -107,7 +107,7 @@ class SystematicSensitivityAdapterTest {
         crac.newFlowCnec()
             .withId("cnec2stateOutageContingency1")
             .withNetworkElement("FFR2AA1  DDE3AA1  1")
-            .withInstantId("outage")
+            .withInstant("outage")
             .withContingency("Contingency FR1 FR3")
             .withOptimized(true)
             .withOperator("operator2")

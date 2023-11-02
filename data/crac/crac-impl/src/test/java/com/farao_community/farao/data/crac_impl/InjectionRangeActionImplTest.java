@@ -42,7 +42,7 @@ class InjectionRangeActionImplTest {
             .withNetworkElementAndKey(1., "BBE1AA1 _generator")
             .withNetworkElementAndKey(-1., "DDE3AA1 _generator")
             .newRange().withMin(-1000).withMax(1000).add()
-            .newOnInstantUsageRule().withInstantId("preventive").withUsageMethod(UsageMethod.AVAILABLE).add()
+            .newOnInstantUsageRule().withInstant("preventive").withUsageMethod(UsageMethod.AVAILABLE).add()
             .add();
 
         // set to 100 MW
@@ -66,7 +66,7 @@ class InjectionRangeActionImplTest {
             .withNetworkElementAndKey(0.3, "FFR2AA1 _generator")
             .withNetworkElementAndKey(0.5, "NNL3AA1 _load")
             .newRange().withMin(-1000).withMax(1000).add()
-            .newOnInstantUsageRule().withInstantId("preventive").withUsageMethod(UsageMethod.AVAILABLE).add()
+            .newOnInstantUsageRule().withInstant("preventive").withUsageMethod(UsageMethod.AVAILABLE).add()
             .add();
 
         // set to 100 MW
@@ -90,7 +90,7 @@ class InjectionRangeActionImplTest {
             .withId("injectionRangeActionId")
             .withNetworkElementAndKey(1, "unknown _load")
             .newRange().withMin(-1000).withMax(1000).add()
-            .newOnInstantUsageRule().withInstantId("preventive").withUsageMethod(UsageMethod.AVAILABLE).add()
+            .newOnInstantUsageRule().withInstant("preventive").withUsageMethod(UsageMethod.AVAILABLE).add()
             .add();
 
         try {
@@ -114,7 +114,7 @@ class InjectionRangeActionImplTest {
             .withId("injectionRangeActionId")
             .withNetworkElementAndKey(1, "BBE1AA1  BBE2AA1  1")
             .newRange().withMin(-1000).withMax(1000).add()
-            .newOnInstantUsageRule().withInstantId("preventive").withUsageMethod(UsageMethod.AVAILABLE).add()
+            .newOnInstantUsageRule().withInstant("preventive").withUsageMethod(UsageMethod.AVAILABLE).add()
             .add();
 
         try {
@@ -139,7 +139,7 @@ class InjectionRangeActionImplTest {
             .withNetworkElementAndKey(1., "BBE1AA1 _load")
             .withNetworkElementAndKey(1., "DDE3AA1 _generator")
             .newRange().withMin(-1000).withMax(1000).add()
-            .newOnInstantUsageRule().withInstantId("preventive").withUsageMethod(UsageMethod.AVAILABLE).add()
+            .newOnInstantUsageRule().withInstant("preventive").withUsageMethod(UsageMethod.AVAILABLE).add()
             .add();
 
         network.getLoad("BBE1AA1 _load").setP0(-50);
@@ -168,7 +168,7 @@ class InjectionRangeActionImplTest {
             .withNetworkElementAndKey(1., "BBE1AA1 _load")
             .newRange().withMin(-1000).withMax(1000).add()
             .newRange().withMin(-1300).withMax(400).add()
-            .newOnInstantUsageRule().withInstantId("preventive").withUsageMethod(UsageMethod.AVAILABLE).add()
+            .newOnInstantUsageRule().withInstant("preventive").withUsageMethod(UsageMethod.AVAILABLE).add()
             .add();
 
         assertEquals(-1000, ira.getMinAdmissibleSetpoint(0.0), 1e-3);

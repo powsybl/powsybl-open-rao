@@ -31,7 +31,7 @@ public class OnAngleConstraintAdderImpl<T extends AbstractRemedialActionAdder<T>
     }
 
     @Override
-    public OnAngleConstraintAdder<T> withInstantId(String instantId) {
+    public OnAngleConstraintAdder<T> withInstant(String instantId) {
         this.instantId = instantId;
         return this;
     }

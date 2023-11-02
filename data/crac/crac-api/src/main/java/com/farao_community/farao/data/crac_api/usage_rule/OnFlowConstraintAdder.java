@@ -12,7 +12,7 @@ import com.farao_community.farao.data.crac_api.RemedialActionAdder;
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
 public interface OnFlowConstraintAdder<T extends RemedialActionAdder<T>> {
-    OnFlowConstraintAdder<T> withInstantId(String instantId);
+    OnFlowConstraintAdder<T> withInstant(String instantId);
 
     OnFlowConstraintAdder<T> withFlowCnec(String flowCnecId);
 
