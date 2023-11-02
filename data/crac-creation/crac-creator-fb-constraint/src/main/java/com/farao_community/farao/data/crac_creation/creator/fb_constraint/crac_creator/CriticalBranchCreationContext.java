@@ -31,46 +31,6 @@ public class CriticalBranchCreationContext implements BranchCnecCreationContext 
     private final String contingencyId;
     private final boolean isDirectionInverted;
 
-    CriticalBranchCreationContext(CriticalBranchReader criticalBranchReader, Crac crac) {
-        this.criticalBranchId = criticalBranchReader.getCriticalBranch().getId();
-        this.nativeBranch = criticalBranchReader.getNativeBranch();
-        this.isBaseCase = criticalBranchReader.isBaseCase();
-        this.isImported = criticalBranchReader.isCriticialBranchValid();
-        this.createdCnecIds = new HashMap<>();
-        this.importStatus = criticalBranchReader.getImportStatus();
-        this.importStatusDetail = criticalBranchReader.getImportStatusDetail();
-
-        if (criticalBranchReader.isCriticialBranchValid() && criticalBranchReader.isBaseCase()) {
-            this.isDirectionInverted = criticalBranchReader.isInvertedInNetwork();
-            this.createdCnecIds.put(crac.getInstant(InstantKind.PREVENTIVE).getId(), criticalBranchReader.getBaseCaseCnecId());
-            this.contingencyId = null;
-        } else if (criticalBranchReader.isCriticialBranchValid() && !criticalBranchReader.isBaseCase()) {
-            this.isDirectionInverted = criticalBranchReader.isInvertedInNetwork();
-            this.createdCnecIds.put(crac.getInstant(InstantKind.OUTAGE).getId(), criticalBranchReader.getOutageCnecId());
-            this.createdCnecIds.put(crac.getInstant(InstantKind.CURATIVE).getId(), criticalBranchReader.getCurativeCnecId());
-            this.contingencyId = criticalBranchReader.getOutageReader().getOutage().getId();
-        } else {
-            this.contingencyId = null;
-            this.isDirectionInverted = false;
-        }
-    }
-
-    private CriticalBranchCreationContext(String criticalBranchId, NativeBranch nativeBranch, boolean isBaseCase, String contingencyId, boolean isImported, Map<String, String> createdCnecIds, boolean isDirectionInverted, ImportStatus importStatus, String importStatusDetail) {
-        this.criticalBranchId = criticalBranchId;
-        this.nativeBranch = nativeBranch;
-        this.isBaseCase = isBaseCase;
-        this.contingencyId = contingencyId;
-        this.isImported = isImported;
-        this.createdCnecIds = createdCnecIds;
-        this.isDirectionInverted = isDirectionInverted;
-        this.importStatus = importStatus;
-        this.importStatusDetail = importStatusDetail;
-    }
-
-    public static CriticalBranchCreationContext notImported(String criticalBranchId, ImportStatus importStatus, String importStatusDetail) {
-        return new CriticalBranchCreationContext(criticalBranchId, null, false, null, false, new HashMap<>(), false, importStatus, importStatusDetail);
-    }
-
     @Override
     public String getNativeId() {
         return criticalBranchId;
@@ -119,5 +79,45 @@ public class CriticalBranchCreationContext implements BranchCnecCreationContext 
     @Override
     public Map<String, String> getCreatedCnecsIds() {
         return createdCnecIds;
+    }
+
+    CriticalBranchCreationContext(CriticalBranchReader criticalBranchReader, Crac crac) {
+        this.criticalBranchId = criticalBranchReader.getCriticalBranch().getId();
+        this.nativeBranch = criticalBranchReader.getNativeBranch();
+        this.isBaseCase = criticalBranchReader.isBaseCase();
+        this.isImported = criticalBranchReader.isCriticialBranchValid();
+        this.createdCnecIds = new HashMap<>();
+        this.importStatus = criticalBranchReader.getImportStatus();
+        this.importStatusDetail = criticalBranchReader.getImportStatusDetail();
+
+        if (criticalBranchReader.isCriticialBranchValid() && criticalBranchReader.isBaseCase()) {
+            this.isDirectionInverted = criticalBranchReader.isInvertedInNetwork();
+            this.createdCnecIds.put(crac.getInstant(InstantKind.PREVENTIVE).getId(), criticalBranchReader.getBaseCaseCnecId());
+            this.contingencyId = null;
+        } else if (criticalBranchReader.isCriticialBranchValid() && !criticalBranchReader.isBaseCase()) {
+            this.isDirectionInverted = criticalBranchReader.isInvertedInNetwork();
+            this.createdCnecIds.put(crac.getInstant(InstantKind.OUTAGE).getId(), criticalBranchReader.getOutageCnecId());
+            this.createdCnecIds.put(crac.getInstant(InstantKind.CURATIVE).getId(), criticalBranchReader.getCurativeCnecId());
+            this.contingencyId = criticalBranchReader.getOutageReader().getOutage().getId();
+        } else {
+            this.contingencyId = null;
+            this.isDirectionInverted = false;
+        }
+    }
+
+    private CriticalBranchCreationContext(String criticalBranchId, NativeBranch nativeBranch, boolean isBaseCase, String contingencyId, boolean isImported, Map<String, String> createdCnecIds, boolean isDirectionInverted, ImportStatus importStatus, String importStatusDetail) {
+        this.criticalBranchId = criticalBranchId;
+        this.nativeBranch = nativeBranch;
+        this.isBaseCase = isBaseCase;
+        this.contingencyId = contingencyId;
+        this.isImported = isImported;
+        this.createdCnecIds = createdCnecIds;
+        this.isDirectionInverted = isDirectionInverted;
+        this.importStatus = importStatus;
+        this.importStatusDetail = importStatusDetail;
+    }
+
+    public static CriticalBranchCreationContext notImported(String criticalBranchId, ImportStatus importStatus, String importStatusDetail) {
+        return new CriticalBranchCreationContext(criticalBranchId, null, false, null, false, new HashMap<>(), false, importStatus, importStatusDetail);
     }
 }

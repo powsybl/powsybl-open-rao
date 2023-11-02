@@ -540,9 +540,9 @@ class AutomatonSimulatorTest {
     @Test
     void testSimulateRangeAutomatons() {
         State curativeState = mock(State.class);
-        Instant instantCurative = Mockito.mock(Instant.class);
-        Mockito.when(instantCurative.getInstantKind()).thenReturn(InstantKind.CURATIVE);
-        when(curativeState.getInstant()).thenReturn(instantCurative);
+        Instant curativeInstant = Mockito.mock(Instant.class);
+        Mockito.when(curativeInstant.getInstantKind()).thenReturn(InstantKind.CURATIVE);
+        when(curativeState.getInstant()).thenReturn(curativeInstant);
         when(curativeState.getContingency()).thenReturn(Optional.of(crac.getContingency("contingency1")));
 
         when(mockedPreAutoPerimeterSensitivityAnalysis.runBasedOnInitialResults(any(), any(), any(), any(), any(), any())).thenReturn(mockedPrePerimeterResult);
@@ -602,9 +602,9 @@ class AutomatonSimulatorTest {
     @Test
     void testSimulateAutomatonState() {
         State curativeState = mock(State.class);
-        Instant instantCurative = Mockito.mock(Instant.class);
-        Mockito.when(instantCurative.getInstantKind()).thenReturn(InstantKind.CURATIVE);
-        when(curativeState.getInstant()).thenReturn(instantCurative);
+        Instant curativeInstant = Mockito.mock(Instant.class);
+        Mockito.when(curativeInstant.getInstantKind()).thenReturn(InstantKind.CURATIVE);
+        when(curativeState.getInstant()).thenReturn(curativeInstant);
         when(curativeState.getContingency()).thenReturn(Optional.of(crac.getContingency("contingency1")));
 
         when(mockedPreAutoPerimeterSensitivityAnalysis.runBasedOnInitialResults(any(), any(), any(), any(), any(), any())).thenReturn(mockedPrePerimeterResult);
@@ -643,9 +643,9 @@ class AutomatonSimulatorTest {
     void testSimulateAutomatonStateFailure() {
         when(mockedPrePerimeterResult.getSensitivityStatus(autoState)).thenReturn(ComputationStatus.FAILURE);
         State curativeState = mock(State.class);
-        Instant instantCurative = Mockito.mock(Instant.class);
-        Mockito.when(instantCurative.getInstantKind()).thenReturn(InstantKind.CURATIVE);
-        when(curativeState.getInstant()).thenReturn(instantCurative);
+        Instant curativeInstant = Mockito.mock(Instant.class);
+        Mockito.when(curativeInstant.getInstantKind()).thenReturn(InstantKind.CURATIVE);
+        when(curativeState.getInstant()).thenReturn(curativeInstant);
         when(curativeState.getContingency()).thenReturn(Optional.of(crac.getContingency("contingency1")));
         AutomatonPerimeterResultImpl result = automatonSimulator.simulateAutomatonState(autoState, curativeState, network);
         assertNotNull(result);

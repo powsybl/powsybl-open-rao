@@ -32,15 +32,15 @@ class StateDeserializerTest {
         Mockito.when(crac.getPreventiveState()).thenReturn(preventiveState);
         Mockito.when(crac.getState(contingencyId, "curative")).thenReturn(curativeState);
         Mockito.when(crac.getState(contingencyId, "outage")).thenReturn(outageState);
-        Instant instantPrev = Mockito.mock(Instant.class);
-        Mockito.when(instantPrev.getInstantKind()).thenReturn(InstantKind.PREVENTIVE);
-        Mockito.when(crac.getInstant("preventive")).thenReturn(instantPrev);
+        Instant prevInstant = Mockito.mock(Instant.class);
+        Mockito.when(prevInstant.getInstantKind()).thenReturn(InstantKind.PREVENTIVE);
+        Mockito.when(crac.getInstant("preventive")).thenReturn(prevInstant);
         Instant instantOutage = Mockito.mock(Instant.class);
         Mockito.when(instantOutage.getInstantKind()).thenReturn(InstantKind.OUTAGE);
         Mockito.when(crac.getInstant("outage")).thenReturn(instantOutage);
-        Instant instantCurative = Mockito.mock(Instant.class);
-        Mockito.when(instantCurative.getInstantKind()).thenReturn(InstantKind.CURATIVE);
-        Mockito.when(crac.getInstant("curative")).thenReturn(instantCurative);
+        Instant curativeInstant = Mockito.mock(Instant.class);
+        Mockito.when(curativeInstant.getInstantKind()).thenReturn(InstantKind.CURATIVE);
+        Mockito.when(crac.getInstant("curative")).thenReturn(curativeInstant);
 
         FaraoException exception = assertThrows(FaraoException.class, () -> StateDeserializer.getState(null, contingencyId, crac, "type"));
         assertEquals("Cannot deserialize RaoResult: no instant defined in activated states of type", exception.getMessage());

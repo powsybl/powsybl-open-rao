@@ -42,6 +42,42 @@ public class CriticalBranchReader {
     private boolean selected;
     private Set<Side> monitoredSides;
 
+    public String getCriticalBranchName() {
+        return criticalBranchName;
+    }
+
+    public NativeBranch getNativeBranch() {
+        return nativeBranch;
+    }
+
+    public boolean isBaseCase() {
+        return isBaseCase;
+    }
+
+    public Map<String, String> getCreatedCnecIds() {
+        return Collections.unmodifiableMap(createdCnecIds);
+    }
+
+    public String getContingencyId() {
+        return contingencyId;
+    }
+
+    public boolean isImported() {
+        return isImported;
+    }
+
+    public String getInvalidBranchReason() {
+        return invalidBranchReason;
+    }
+
+    public boolean isDirectionInverted() {
+        return isDirectionInverted;
+    }
+
+    public boolean isSelected() {
+        return selected;
+    }
+
     public CriticalBranchReader(List<TBranch> tBranches, @Nullable TOutage tOutage, Crac crac, UcteNetworkAnalyzer ucteNetworkAnalyzer, Set<Side> defaultMonitoredSides, boolean isMonitored) {
         if (tBranches.size() > 1) {
             this.criticalBranchName = tBranches.stream().map(tBranch -> tBranch.getName().getV()).collect(Collectors.joining(" ; "));
@@ -87,6 +123,66 @@ public class CriticalBranchReader {
         }
     }
 
+    private String defineOutage(TOutage tOutage) {
+        if (tOutage == null) {
+            return "basecase";
+        }
+        return tOutage.getName() == null ? tOutage.getV() : tOutage.getName().getV();
+    }
+
+    private void importPreventiveCnec(TBranch tBranch, UcteFlowElementHelper branchHelper, Crac crac, boolean isMonitored) {
+        importCnec(crac, tBranch, branchHelper, isMonitored ? tBranch.getIlimitMNE() : tBranch.getImax(), null, crac.getInstant(InstantKind.PREVENTIVE).getId(), isMonitored);
+    }
+
+    private void importCurativeCnecs(TBranch tBranch, UcteFlowElementHelper branchHelper, String outage, Crac crac, boolean isMonitored) {
+        HashMap<String, TImax> cnecCaracs = new HashMap<>();
+        cnecCaracs.put(crac.getInstant(InstantKind.OUTAGE).getId(), isMonitored ? tBranch.getIlimitMNEAfterOutage() : tBranch.getImaxAfterOutage());
+        if (!crac.getInstants(InstantKind.AUTO).isEmpty()) {
+            cnecCaracs.put(crac.getInstant(InstantKind.AUTO).getId(), isMonitored ? tBranch.getIlimitMNEAfterSPS() : tBranch.getImaxAfterSPS());
+        }
+        cnecCaracs.put(crac.getInstant(InstantKind.CURATIVE).getId(), isMonitored ? tBranch.getIlimitMNEAfterCRA() : tBranch.getImaxAfterCRA());
+        cnecCaracs.forEach((instantId, iMax) -> importCnec(crac, tBranch, branchHelper, iMax, outage, instantId, isMonitored));
+    }
+
+    private void importCnec(Crac crac, TBranch tBranch, UcteFlowElementHelper branchHelper, @Nullable TImax tImax, String outage, String instantId, boolean isMonitored) {
+        if (tImax == null) {
+            return;
+        }
+        String cnecId = getCnecId(tBranch, outage, instantId);
+        FlowCnecAdder cnecAdder = crac.newFlowCnec()
+                .withId(cnecId)
+                .withName(tBranch.getName().getV())
+                .withInstant(instantId)
+                .withContingency(outage)
+                .withOptimized(selected).withMonitored(isMonitored)
+                .withNetworkElement(branchHelper.getIdInNetwork())
+                .withIMax(branchHelper.getCurrentLimit(Branch.Side.ONE), Side.LEFT)
+                .withIMax(branchHelper.getCurrentLimit(Branch.Side.TWO), Side.RIGHT)
+                .withNominalVoltage(branchHelper.getNominalVoltage(Branch.Side.ONE), Side.LEFT)
+                .withNominalVoltage(branchHelper.getNominalVoltage(Branch.Side.TWO), Side.RIGHT);
+
+        Set<Side> monitoredSidesForThreshold = monitoredSides;
+        Unit unit = convertUnit(tImax.getUnit());
+        // For transformers, if unit is absolute amperes, monitor low voltage side
+        if (!branchHelper.isHalfLine() && unit.equals(Unit.AMPERE) &&
+                Math.abs(branchHelper.getNominalVoltage(Branch.Side.ONE) - branchHelper.getNominalVoltage(Branch.Side.TWO)) > 1) {
+            monitoredSidesForThreshold = (branchHelper.getNominalVoltage(Branch.Side.ONE) <= branchHelper.getNominalVoltage(Branch.Side.TWO)) ?
+                    Set.of(Side.LEFT) : Set.of(Side.RIGHT);
+        }
+        addThreshold(cnecAdder, tImax.getV(), unit, tBranch.getDirection().getV(), isDirectionInverted, monitoredSidesForThreshold);
+        cnecAdder.add();
+        createdCnecIds.put(instantId, cnecId);
+        if (!isMonitored) {
+            storeRemedialActions(tBranch);
+        }
+    }
+
+    private void storeRemedialActions(TBranch tBranch) {
+        tBranch.getRemedialActions().forEach(tRemedialActions ->
+                tRemedialActions.getName().forEach(tName -> remedialActionIds.add(tName.getV()))
+        );
+    }
+
     private static void addThreshold(FlowCnecAdder cnecAdder, double positiveLimit, Unit unit, String direction, boolean invert, Set<Side> monitoredSides) {
         monitoredSides.forEach(side -> {
             BranchThresholdAdder branchThresholdAdder = cnecAdder.newThreshold()
@@ -125,102 +221,6 @@ public class CriticalBranchReader {
     // In case it is not specified we consider it as selected
     private static boolean isSelected(TBranch tBranch) {
         return tBranch.getSelected() == null || "true".equals(tBranch.getSelected().getV());
-    }
-
-    public String getCriticalBranchName() {
-        return criticalBranchName;
-    }
-
-    public NativeBranch getNativeBranch() {
-        return nativeBranch;
-    }
-
-    public boolean isBaseCase() {
-        return isBaseCase;
-    }
-
-    public Map<String, String> getCreatedCnecIds() {
-        return Collections.unmodifiableMap(createdCnecIds);
-    }
-
-    public String getContingencyId() {
-        return contingencyId;
-    }
-
-    public boolean isImported() {
-        return isImported;
-    }
-
-    public String getInvalidBranchReason() {
-        return invalidBranchReason;
-    }
-
-    public boolean isDirectionInverted() {
-        return isDirectionInverted;
-    }
-
-    public boolean isSelected() {
-        return selected;
-    }
-
-    private String defineOutage(TOutage tOutage) {
-        if (tOutage == null) {
-            return "basecase";
-        }
-        return tOutage.getName() == null ? tOutage.getV() : tOutage.getName().getV();
-    }
-
-    private void importPreventiveCnec(TBranch tBranch, UcteFlowElementHelper branchHelper, Crac crac, boolean isMonitored) {
-        importCnec(crac, tBranch, branchHelper, isMonitored ? tBranch.getIlimitMNE() : tBranch.getImax(), null, crac.getInstant(InstantKind.PREVENTIVE).getId(), isMonitored);
-    }
-
-    private void importCurativeCnecs(TBranch tBranch, UcteFlowElementHelper branchHelper, String outage, Crac crac, boolean isMonitored) {
-        HashMap<String, TImax> cnecCaracs = new HashMap<>();
-        cnecCaracs.put(crac.getInstant(InstantKind.OUTAGE).getId(), isMonitored ? tBranch.getIlimitMNEAfterOutage() : tBranch.getImaxAfterOutage());
-        if (!crac.getInstants(InstantKind.AUTO).isEmpty()) {
-            cnecCaracs.put(crac.getInstant(InstantKind.AUTO).getId(), isMonitored ? tBranch.getIlimitMNEAfterSPS() : tBranch.getImaxAfterSPS());
-        }
-        cnecCaracs.put(crac.getInstant(InstantKind.CURATIVE).getId(), isMonitored ? tBranch.getIlimitMNEAfterCRA() : tBranch.getImaxAfterCRA());
-        cnecCaracs.forEach((instantId, iMax) -> importCnec(crac, tBranch, branchHelper, iMax, outage, instantId, isMonitored));
-    }
-
-    private void importCnec(Crac crac, TBranch tBranch, UcteFlowElementHelper branchHelper, @Nullable TImax tImax, String outage, String instantId, boolean isMonitored) {
-        if (tImax == null) {
-            return;
-        }
-        String cnecId = getCnecId(tBranch, outage, instantId);
-        FlowCnecAdder cnecAdder = crac.newFlowCnec()
-            .withId(cnecId)
-            .withName(tBranch.getName().getV())
-            .withInstant(instantId)
-            .withContingency(outage)
-            .withOptimized(selected).withMonitored(isMonitored)
-            .withNetworkElement(branchHelper.getIdInNetwork())
-            .withIMax(branchHelper.getCurrentLimit(Branch.Side.ONE), Side.LEFT)
-            .withIMax(branchHelper.getCurrentLimit(Branch.Side.TWO), Side.RIGHT)
-            .withNominalVoltage(branchHelper.getNominalVoltage(Branch.Side.ONE), Side.LEFT)
-            .withNominalVoltage(branchHelper.getNominalVoltage(Branch.Side.TWO), Side.RIGHT);
-
-        Set<Side> monitoredSidesForThreshold = monitoredSides;
-        Unit unit = convertUnit(tImax.getUnit());
-        // For transformers, if unit is absolute amperes, monitor low voltage side
-        if (!branchHelper.isHalfLine() && unit.equals(Unit.AMPERE) &&
-            Math.abs(branchHelper.getNominalVoltage(Branch.Side.ONE) - branchHelper.getNominalVoltage(Branch.Side.TWO)) > 1) {
-            monitoredSidesForThreshold = (branchHelper.getNominalVoltage(Branch.Side.ONE) <= branchHelper.getNominalVoltage(Branch.Side.TWO)) ?
-                Set.of(Side.LEFT) : Set.of(Side.RIGHT);
-        }
-        addThreshold(cnecAdder, tImax.getV(), unit, tBranch.getDirection().getV(), isDirectionInverted, monitoredSidesForThreshold);
-        cnecAdder.add();
-        createdCnecIds.put(instantId, cnecId);
-        if (!isMonitored) {
-            storeRemedialActions(tBranch);
-        }
-    }
-
-    private void storeRemedialActions(TBranch tBranch) {
-        tBranch.getRemedialActions().forEach(tRemedialActions ->
-            tRemedialActions.getName().forEach(tName -> remedialActionIds.add(tName.getV()))
-        );
     }
 
     public Set<String> getRemedialActionIds() {

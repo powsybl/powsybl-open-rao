@@ -45,47 +45,6 @@ class CriticalBranchReader {
     private UcteFlowElementHelper ucteFlowElementHelper;
     private Side ampereThresholdSide = null;
 
-    CriticalBranchReader(CriticalBranchType criticalBranch, UcteNetworkAnalyzer ucteNetworkAnalyzer, Set<Side> defaultMonitoredSides) {
-        this.criticalBranch = criticalBranch;
-        this.monitoredSides = defaultMonitoredSides;
-        interpretWithNetwork(ucteNetworkAnalyzer);
-    }
-
-    private static void addLoopFlowExtension(FlowCnec cnec, CriticalBranchType criticalBranch) {
-        if (criticalBranch.getMinRAMfactor() != null && isCrossZonal(criticalBranch.getBranch())) {
-            cnec.newExtension(LoopFlowThresholdAdder.class)
-                .withUnit(Unit.PERCENT_IMAX)
-                .withValue((100.0 - criticalBranch.getMinRAMfactor().doubleValue()) / 100.)
-                .add();
-        }
-    }
-
-    static boolean isCrossZonal(CriticalBranchType.Branch branch) {
-
-        // check if first characters of the from/to nodes are different
-        // if 1st characters are different, it means that:
-        //   - the nodes come from two different countries,
-        //   - or one the nodes is a Xnode
-
-        if (!branch.getFrom().substring(0, 1).equals(branch.getTo().substring(0, 1))) {
-            return true;
-        }
-
-        // check if the name of branch finishes with [XX] with XX a country code
-
-        if (Pattern.compile("\\[[A-Za-z]{2}\\]$").matcher(branch.getName()).find()) {
-            String countryCode = branch.getName().substring(branch.getName().length() - 3, branch.getName().length() - 1);
-            try {
-                Country.valueOf(countryCode);
-                return true;
-            } catch (IllegalArgumentException e) {
-                return false;
-            }
-        }
-
-        return false;
-    }
-
     boolean isCriticialBranchValid() {
         return importStatus.equals(ImportStatus.IMPORTED);
     }
@@ -137,6 +96,12 @@ class CriticalBranchReader {
 
     boolean isInvertedInNetwork() {
         return isInvertedInNetwork;
+    }
+
+    CriticalBranchReader(CriticalBranchType criticalBranch, UcteNetworkAnalyzer ucteNetworkAnalyzer, Set<Side> defaultMonitoredSides) {
+        this.criticalBranch = criticalBranch;
+        this.monitoredSides = defaultMonitoredSides;
+        interpretWithNetwork(ucteNetworkAnalyzer);
     }
 
     void addCnecs(Crac crac) {
@@ -307,4 +272,38 @@ class CriticalBranchReader {
         }
     }
 
+    private static void addLoopFlowExtension(FlowCnec cnec, CriticalBranchType criticalBranch) {
+        if (criticalBranch.getMinRAMfactor() != null && isCrossZonal(criticalBranch.getBranch())) {
+            cnec.newExtension(LoopFlowThresholdAdder.class)
+                .withUnit(Unit.PERCENT_IMAX)
+                .withValue((100.0 - criticalBranch.getMinRAMfactor().doubleValue()) / 100.)
+                .add();
+        }
+    }
+
+    static boolean isCrossZonal(CriticalBranchType.Branch branch) {
+
+        // check if first characters of the from/to nodes are different
+        // if 1st characters are different, it means that:
+        //   - the nodes come from two different countries,
+        //   - or one the nodes is a Xnode
+
+        if (!branch.getFrom().substring(0, 1).equals(branch.getTo().substring(0, 1))) {
+            return true;
+        }
+
+        // check if the name of branch finishes with [XX] with XX a country code
+
+        if (Pattern.compile("\\[[A-Za-z]{2}\\]$").matcher(branch.getName()).find()) {
+            String countryCode = branch.getName().substring(branch.getName().length() - 3, branch.getName().length() - 1);
+            try {
+                Country.valueOf(countryCode);
+                return true;
+            } catch (IllegalArgumentException e) {
+                return false;
+            }
+        }
+
+        return false;
+    }
 }

@@ -39,6 +39,14 @@ class ComplexVariantReader {
     private ImportStatus importStatus;
     private String importStatusDetail;
 
+    boolean isComplexVariantValid() {
+        return importStatus.equals(ImportStatus.IMPORTED);
+    }
+
+    IndependantComplexVariant getComplexVariant() {
+        return complexVariant;
+    }
+
     ComplexVariantReader(IndependantComplexVariant complexVariant, UcteNetworkAnalyzer ucteNetworkAnalyzer, Set<String> validCoIds) {
         this.complexVariant = complexVariant;
 
@@ -48,35 +56,27 @@ class ComplexVariantReader {
         }
     }
 
-    boolean isComplexVariantValid() {
-        return importStatus.equals(ImportStatus.IMPORTED);
-    }
-
-    IndependantComplexVariant getComplexVariant() {
-        return complexVariant;
-    }
-
     void addRemedialAction(Crac crac) {
         if (type.equals(ActionReader.Type.PST)) {
             PstRangeActionAdder pstRangeActionAdder = crac.newPstRangeAction()
-                .withId(complexVariant.getId())
-                .withName(complexVariant.getName())
-                .withOperator(complexVariant.getTsoOrigin());
+                    .withId(complexVariant.getId())
+                    .withName(complexVariant.getName())
+                    .withOperator(complexVariant.getTsoOrigin());
             actionReaders.get(0).addAction(pstRangeActionAdder);
             addUsageRules(pstRangeActionAdder, crac);
             pstRangeActionAdder.add();
             complexVariantCreationContext = PstComplexVariantCreationContext.imported(
-                complexVariant.getId(),
-                actionReaders.get(0).getNativeNetworkElementId(),
-                getCreatedRaId(),
-                actionReaders.get(0).isInverted(),
-                actionReaders.get(0).getInversionMessage()
+                    complexVariant.getId(),
+                    actionReaders.get(0).getNativeNetworkElementId(),
+                    getCreatedRaId(),
+                    actionReaders.get(0).isInverted(),
+                    actionReaders.get(0).getInversionMessage()
             );
         } else {
             NetworkActionAdder networkActionAdder = crac.newNetworkAction()
-                .withId(complexVariant.getId())
-                .withName(complexVariant.getName())
-                .withOperator(complexVariant.getTsoOrigin());
+                    .withId(complexVariant.getId())
+                    .withName(complexVariant.getName())
+                    .withOperator(complexVariant.getTsoOrigin());
             actionReaders.forEach(action -> action.addAction(networkActionAdder));
             addUsageRules(networkActionAdder, crac);
             networkActionAdder.add();
@@ -172,21 +172,19 @@ class ComplexVariantReader {
         ActionsSetType actionsSetType = complexVariant.getActionsSet().get(0);
 
         if (actionsSetType.isPreventive()) {
-            Instant instant = crac.getInstant(InstantKind.PREVENTIVE);
             remedialActionAdder.newOnInstantUsageRule()
-                .withInstant(instant.getId())
-                .withUsageMethod(AVAILABLE)
-                .add();
+                    .withInstant(crac.getInstant(InstantKind.PREVENTIVE).getId())
+                    .withUsageMethod(AVAILABLE)
+                    .add();
         }
 
         if (actionsSetType.isCurative() && !Objects.isNull(afterCoList)) {
-            Instant instant = crac.getInstant(InstantKind.CURATIVE);
             for (String co : afterCoList) {
                 remedialActionAdder.newOnContingencyStateUsageRule()
-                    .withContingency(co)
-                    .withInstant(instant.getId())
-                    .withUsageMethod(AVAILABLE)
-                    .add();
+                        .withContingency(co)
+                        .withInstant(crac.getInstant(InstantKind.CURATIVE).getId())
+                        .withUsageMethod(AVAILABLE)
+                        .add();
             }
         }
     }

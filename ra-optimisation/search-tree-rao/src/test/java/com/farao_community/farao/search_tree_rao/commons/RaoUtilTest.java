@@ -227,12 +227,12 @@ class RaoUtilTest {
 
     @Test
     void testIsOnFlowConstraintInCountryAvailable() {
-        Instant instantPrev = new InstantImpl("preventive", InstantKind.PREVENTIVE, null);
-        Instant instantOutage = new InstantImpl("outage", InstantKind.OUTAGE, instantPrev);
+        Instant prevInstant = new InstantImpl("preventive", InstantKind.PREVENTIVE, null);
+        Instant instantOutage = new InstantImpl("outage", InstantKind.OUTAGE, prevInstant);
         Instant instantAuto = new InstantImpl("auto", InstantKind.AUTO, instantOutage);
-        Instant instantCurative = new InstantImpl("curative", InstantKind.CURATIVE, instantAuto);
+        Instant curativeInstant = new InstantImpl("curative", InstantKind.CURATIVE, instantAuto);
         State optimizedState = Mockito.mock(State.class);
-        when(optimizedState.getInstant()).thenReturn(instantCurative);
+        when(optimizedState.getInstant()).thenReturn(curativeInstant);
 
         FlowCnec cnecFrBe = crac.getFlowCnec("cnec1stateCurativeContingency1");
         FlowCnec cnecFrDe = crac.getFlowCnec("cnec2stateCurativeContingency2");
@@ -277,7 +277,7 @@ class RaoUtilTest {
         assertIsOnFlowInCountryAvailable(na3, optimizedState, flowResult, true);
 
         when(flowResult.getMargin(eq(cnecFrBe), any())).thenReturn(-150.);
-        when(optimizedState.getInstant()).thenReturn(instantPrev);
+        when(optimizedState.getInstant()).thenReturn(prevInstant);
         assertIsOnFlowInCountryAvailable(na1, optimizedState, flowResult, false);
         assertIsOnFlowInCountryAvailable(na2, optimizedState, flowResult, false);
         assertIsOnFlowInCountryAvailable(na3, optimizedState, flowResult, false);

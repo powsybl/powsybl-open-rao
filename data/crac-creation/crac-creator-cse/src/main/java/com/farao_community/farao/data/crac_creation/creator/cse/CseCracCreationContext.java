@@ -24,15 +24,15 @@ import java.util.*;
  */
 public class CseCracCreationContext implements UcteCracCreationContext {
 
-    private final CracCreationReport creationReport;
-    private final OffsetDateTime timestamp;
-    private final String networkName;
     private Crac crac;
     private boolean isCreationSuccessful;
+    private CracCreationReport creationReport;
     private Map<String, CseCriticalBranchCreationContext> criticalBranchCreationContexts = new HashMap<>();
     private Map<String, CseCriticalBranchCreationContext> monitoredElementCreationContexts = new HashMap<>();
     private Map<String, CseOutageCreationContext> outageCreationContexts = new HashMap<>();
     private Map<String, CseRemedialActionCreationContext> remedialActionCreationContexts = new HashMap<>();
+    private final OffsetDateTime timestamp;
+    private final String networkName;
 
     public CseCracCreationContext(Crac crac, OffsetDateTime timestamp, String networkName) {
         this.crac = crac;
@@ -93,14 +93,16 @@ public class CseCracCreationContext implements UcteCracCreationContext {
     }
 
     private void addToReport(Collection<? extends ElementaryCreationContext> contexts, String nativeTypeIdentifier) {
-        contexts.stream()
-            .filter(ElementaryCreationContext::isAltered)
+        contexts.stream().filter(ElementaryCreationContext::isAltered)
             .sorted(Comparator.comparing(ElementaryCreationContext::getNativeId))
-            .forEach(context -> creationReport.altered(String.format("%s \"%s\" was modified: %s. ", nativeTypeIdentifier, context.getNativeId(), context.getImportStatusDetail())));
-        contexts.stream()
-            .filter(context -> !context.isImported())
+            .forEach(context ->
+            creationReport.altered(String.format("%s \"%s\" was modified: %s. ", nativeTypeIdentifier, context.getNativeId(), context.getImportStatusDetail()))
+        );
+        contexts.stream().filter(context -> !context.isImported())
             .sorted(Comparator.comparing(ElementaryCreationContext::getNativeId))
-            .forEach(context -> creationReport.removed(String.format("%s \"%s\" was not imported: %s. %s.", nativeTypeIdentifier, context.getNativeId(), context.getImportStatus(), context.getImportStatusDetail())));
+            .forEach(context ->
+            creationReport.removed(String.format("%s \"%s\" was not imported: %s. %s.", nativeTypeIdentifier, context.getNativeId(), context.getImportStatus(), context.getImportStatusDetail()))
+        );
     }
 
     @Override

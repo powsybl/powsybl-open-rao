@@ -145,8 +145,8 @@ public class CsaProfileCnecCreator {
         }
         if (inBaseCase) {
             String cnecName = assessedElementName + " - preventive";
-            String instantPrevId = crac.getInstant(InstantKind.PREVENTIVE).getId();
-            addCnec(cnecAdder, limitType, null, assessedElementId, cnecName, instantPrevId, rejectedLinksAssessedElementContingency);
+            String prevInstantId = crac.getInstant(InstantKind.PREVENTIVE).getId();
+            addCnec(cnecAdder, limitType, null, assessedElementId, cnecName, prevInstantId, rejectedLinksAssessedElementContingency);
         }
     }
 

@@ -149,23 +149,23 @@ class CseCracCreatorWithMneTest {
         if ((!directionInvertedInNetwork && direction.equals("DIRECT")) || (directionInvertedInNetwork && direction.equals("OPPOSITE"))) {
             // should have max
             return flowCnec.getThresholds().stream().anyMatch(threshold -> threshold.getSide().equals(side)
-                && threshold.max().isPresent() && threshold.max().get().equals(expectedThreshold)
-                && threshold.getUnit().equals(expectedThresholdUnit)
+                    && threshold.max().isPresent() && threshold.max().get().equals(expectedThreshold)
+                    && threshold.getUnit().equals(expectedThresholdUnit)
             );
         }
         if ((directionInvertedInNetwork && direction.equals("DIRECT")) || (!directionInvertedInNetwork && direction.equals("OPPOSITE"))) {
             // should have min
             return flowCnec.getThresholds().stream().anyMatch(threshold -> threshold.getSide().equals(side)
-                && threshold.min().isPresent() && threshold.min().get().equals(-expectedThreshold)
-                && threshold.getUnit().equals(expectedThresholdUnit)
+                    && threshold.min().isPresent() && threshold.min().get().equals(-expectedThreshold)
+                    && threshold.getUnit().equals(expectedThresholdUnit)
             );
         }
         // should have min and max
         return flowCnec.getThresholds().stream().anyMatch(threshold ->
-            threshold.getSide().equals(side)
-                && threshold.max().isPresent() && threshold.max().get().equals(expectedThreshold)
-                && threshold.min().isPresent() && threshold.min().get().equals(-expectedThreshold)
-                && threshold.getUnit().equals(expectedThresholdUnit)
+                threshold.getSide().equals(side)
+                        && threshold.max().isPresent() && threshold.max().get().equals(expectedThreshold)
+                        && threshold.min().isPresent() && threshold.min().get().equals(-expectedThreshold)
+                        && threshold.getUnit().equals(expectedThresholdUnit)
         );
     }
 

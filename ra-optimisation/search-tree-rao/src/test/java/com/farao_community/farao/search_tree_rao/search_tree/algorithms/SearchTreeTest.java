@@ -149,10 +149,10 @@ class SearchTreeTest {
         ObjectiveFunction objectiveFunction = Mockito.mock(ObjectiveFunction.class);
         when(searchTreeInput.getObjectiveFunction()).thenReturn(objectiveFunction);
         when(optimizedState.getContingency()).thenReturn(Optional.empty());
-        Instant instantPrev = Mockito.mock(Instant.class);
-        when(instantPrev.getInstantKind()).thenReturn(InstantKind.PREVENTIVE);
-        when(instantPrev.toString()).thenReturn("preventive");
-        when(optimizedState.getInstant()).thenReturn(instantPrev);
+        Instant prevInstant = Mockito.mock(Instant.class);
+        when(prevInstant.getInstantKind()).thenReturn(InstantKind.PREVENTIVE);
+        when(prevInstant.toString()).thenReturn("preventive");
+        when(optimizedState.getInstant()).thenReturn(prevInstant);
         rootLeaf = Mockito.mock(Leaf.class);
         when(searchTreeInput.getToolProvider()).thenReturn(Mockito.mock(ToolProvider.class));
     }

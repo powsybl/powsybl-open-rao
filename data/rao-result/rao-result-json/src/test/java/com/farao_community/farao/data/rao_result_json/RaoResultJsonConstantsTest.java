@@ -56,14 +56,14 @@ class RaoResultJsonConstantsTest {
     @Test
     void testSerializeInstantId() {
         assertEquals("", serializeInstantId(null));
-        InstantImpl instantPrev = new InstantImpl("preventive", InstantKind.PREVENTIVE, null);
-        InstantImpl instantOutage = new InstantImpl("outage", InstantKind.OUTAGE, instantPrev);
+        InstantImpl prevInstant = new InstantImpl("preventive", InstantKind.PREVENTIVE, null);
+        InstantImpl instantOutage = new InstantImpl("outage", InstantKind.OUTAGE, prevInstant);
         InstantImpl instantAuto = new InstantImpl("auto", InstantKind.AUTO, instantOutage);
-        InstantImpl instantCurative = new InstantImpl("curative", InstantKind.CURATIVE, instantAuto);
-        assertEquals("preventive", serializeInstantId(instantPrev));
+        InstantImpl curativeInstant = new InstantImpl("curative", InstantKind.CURATIVE, instantAuto);
+        assertEquals("preventive", serializeInstantId(prevInstant));
         assertEquals("outage", serializeInstantId(instantOutage));
         assertEquals("auto", serializeInstantId(instantAuto));
-        assertEquals("curative", serializeInstantId(instantCurative));
+        assertEquals("curative", serializeInstantId(curativeInstant));
     }
 
     @Test
@@ -102,34 +102,34 @@ class RaoResultJsonConstantsTest {
     void testCompareStates() {
         State state1 = Mockito.spy(State.class);
         State state2 = Mockito.spy(State.class);
-        Instant instantPrev = Mockito.mock(Instant.class);
+        Instant prevInstant = Mockito.mock(Instant.class);
         Instant instantOutage = Mockito.mock(Instant.class);
         Instant instantAuto = Mockito.mock(Instant.class);
-        Instant instantCurative = Mockito.mock(Instant.class);
-        when(instantPrev.getOrder()).thenReturn(0);
+        Instant curativeInstant = Mockito.mock(Instant.class);
+        when(prevInstant.getOrder()).thenReturn(0);
         when(instantOutage.getOrder()).thenReturn(1);
         when(instantAuto.getOrder()).thenReturn(2);
-        when(instantCurative.getOrder()).thenReturn(3);
-        when(instantPrev.getInstantKind()).thenReturn(InstantKind.PREVENTIVE);
+        when(curativeInstant.getOrder()).thenReturn(3);
+        when(prevInstant.getInstantKind()).thenReturn(InstantKind.PREVENTIVE);
         when(instantOutage.getInstantKind()).thenReturn(InstantKind.OUTAGE);
         when(instantAuto.getInstantKind()).thenReturn(InstantKind.AUTO);
-        when(instantCurative.getInstantKind()).thenReturn(InstantKind.CURATIVE);
+        when(curativeInstant.getInstantKind()).thenReturn(InstantKind.CURATIVE);
 
         when(state1.getInstant()).thenReturn(instantOutage);
         when(state2.getInstant()).thenReturn(instantAuto);
         assertEquals(-1, STATE_COMPARATOR.compare(state1, state2));
         assertEquals(1, STATE_COMPARATOR.compare(state2, state1));
 
-        when(state1.getInstant()).thenReturn(instantPrev);
-        when(state2.getInstant()).thenReturn(instantPrev);
+        when(state1.getInstant()).thenReturn(prevInstant);
+        when(state2.getInstant()).thenReturn(prevInstant);
         assertEquals(0, STATE_COMPARATOR.compare(state1, state2));
         assertEquals(0, STATE_COMPARATOR.compare(state2, state1));
 
-        when(state1.getInstant()).thenReturn(instantCurative);
+        when(state1.getInstant()).thenReturn(curativeInstant);
         Contingency co1 = mock(Contingency.class);
         when(co1.getId()).thenReturn("bbb");
         when(state1.getContingency()).thenReturn(Optional.of(co1));
-        when(state2.getInstant()).thenReturn(instantCurative);
+        when(state2.getInstant()).thenReturn(curativeInstant);
         Contingency co2 = mock(Contingency.class);
         when(co2.getId()).thenReturn("aaa");
         when(state2.getContingency()).thenReturn(Optional.of(co2));

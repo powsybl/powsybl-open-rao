@@ -50,14 +50,14 @@ final class AngleCnecResultArraySerializer {
             jsonGenerator.writeStringField(ANGLECNEC_ID, angleCnec.getId());
 
             serializeAngleCnecResultForOptimizationState(null, angleCnec, raoResult, jsonGenerator);
-            Instant instantPrev = crac.getInstant(InstantKind.PREVENTIVE);
-            serializeAngleCnecResultForOptimizationState(instantPrev.getId(), angleCnec, raoResult, jsonGenerator);
+            Instant prevInstant = crac.getInstant(InstantKind.PREVENTIVE);
+            serializeAngleCnecResultForOptimizationState(prevInstant.getId(), angleCnec, raoResult, jsonGenerator);
 
             if (!angleCnec.getState().isPreventive()) {
                 Instant instantAuto = crac.getInstant(InstantKind.AUTO);
-                Instant instantCurative = crac.getInstant(InstantKind.CURATIVE);
+                Instant curativeInstant = crac.getInstant(InstantKind.CURATIVE);
                 serializeAngleCnecResultForOptimizationState(instantAuto.getId(), angleCnec, raoResult, jsonGenerator);
-                serializeAngleCnecResultForOptimizationState(instantCurative.getId(), angleCnec, raoResult, jsonGenerator);
+                serializeAngleCnecResultForOptimizationState(curativeInstant.getId(), angleCnec, raoResult, jsonGenerator);
             }
             jsonGenerator.writeEndObject();
         }
@@ -97,13 +97,13 @@ final class AngleCnecResultArraySerializer {
             return containsAnyResultForOptimizationState(raoResult, angleCnec, null) ||
                 containsAnyResultForOptimizationState(raoResult, angleCnec, angleCnec.getState().getInstant().getId());
         } else {
-            Instant instantPrev = crac.getInstant(InstantKind.PREVENTIVE);
+            Instant prevInstant = crac.getInstant(InstantKind.PREVENTIVE);
             Instant instantAuto = crac.getInstant(InstantKind.AUTO);
-            Instant instantCurative = crac.getInstant(InstantKind.CURATIVE);
+            Instant curativeInstant = crac.getInstant(InstantKind.CURATIVE);
             return containsAnyResultForOptimizationState(raoResult, angleCnec, null) ||
-                containsAnyResultForOptimizationState(raoResult, angleCnec, instantPrev.getId()) ||
+                containsAnyResultForOptimizationState(raoResult, angleCnec, prevInstant.getId()) ||
                 containsAnyResultForOptimizationState(raoResult, angleCnec, instantAuto.getId()) ||
-                containsAnyResultForOptimizationState(raoResult, angleCnec, instantCurative.getId());
+                containsAnyResultForOptimizationState(raoResult, angleCnec, curativeInstant.getId());
         }
     }
 

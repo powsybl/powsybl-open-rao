@@ -31,18 +31,18 @@ class BasecaseScenarioTest {
 
     @BeforeEach
     public void setUp() {
-        Instant instantPrev = new InstantImpl("preventive", InstantKind.PREVENTIVE, null);
-        Instant instantOutage = new InstantImpl("outage", InstantKind.OUTAGE, instantPrev);
+        Instant prevInstant = new InstantImpl("preventive", InstantKind.PREVENTIVE, null);
+        Instant instantOutage = new InstantImpl("outage", InstantKind.OUTAGE, prevInstant);
         Instant instantAuto = new InstantImpl("auto", InstantKind.AUTO, instantOutage);
-        Instant instantCurative = new InstantImpl("curative", InstantKind.CURATIVE, instantAuto);
+        Instant curativeInstant = new InstantImpl("curative", InstantKind.CURATIVE, instantAuto);
 
         basecaseState = Mockito.mock(State.class);
-        Mockito.when(basecaseState.getInstant()).thenReturn(instantPrev);
+        Mockito.when(basecaseState.getInstant()).thenReturn(prevInstant);
         otherState1 = Mockito.mock(State.class);
         Mockito.when(otherState1.getInstant()).thenReturn(instantOutage);
         Mockito.when(otherState1.toString()).thenReturn("Other state 1");
         otherState2 = Mockito.mock(State.class);
-        Mockito.when(otherState2.getInstant()).thenReturn(instantCurative);
+        Mockito.when(otherState2.getInstant()).thenReturn(curativeInstant);
     }
 
     @Test

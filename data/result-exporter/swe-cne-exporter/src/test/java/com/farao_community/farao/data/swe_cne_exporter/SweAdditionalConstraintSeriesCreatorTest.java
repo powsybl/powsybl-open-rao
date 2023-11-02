@@ -59,9 +59,9 @@ class SweAdditionalConstraintSeriesCreatorTest {
         Mockito.when(angleMonitoringResult.getAngle(angleCnec2, Unit.DEGREE)).thenReturn(-21.34);
         Mockito.when(cracCreationContext.getAngleCnecCreationContexts()).thenReturn(Set.of(acc1, acc2));
         State curativeState = Mockito.mock(State.class);
-        Instant instantCurative = Mockito.mock(Instant.class);
-        Mockito.when(instantCurative.getInstantKind()).thenReturn(InstantKind.CURATIVE);
-        Mockito.when(curativeState.getInstant()).thenReturn(instantCurative);
+        Instant curativeInstant = Mockito.mock(Instant.class);
+        Mockito.when(curativeInstant.getInstantKind()).thenReturn(InstantKind.CURATIVE);
+        Mockito.when(curativeState.getInstant()).thenReturn(curativeInstant);
         Mockito.when(angleCnec1.getState()).thenReturn(curativeState);
         Mockito.when(angleCnec2.getState()).thenReturn(curativeState);
         return new SweAdditionalConstraintSeriesCreator(sweCneHelper, cracCreationContext);
@@ -74,9 +74,9 @@ class SweAdditionalConstraintSeriesCreatorTest {
         Mockito.when(crac.getAngleCnec(accPrev.getCreatedCnecId())).thenReturn(angleCnecPrev);
         Mockito.when(angleCnecPrev.getName()).thenReturn("AngleCnecNamePrev");
         State prevState = Mockito.mock(State.class);
-        Instant instantPrev = Mockito.mock(Instant.class);
-        Mockito.when(instantPrev.getInstantKind()).thenReturn(InstantKind.PREVENTIVE);
-        Mockito.when(prevState.getInstant()).thenReturn(instantPrev);
+        Instant prevInstant = Mockito.mock(Instant.class);
+        Mockito.when(prevInstant.getInstantKind()).thenReturn(InstantKind.PREVENTIVE);
+        Mockito.when(prevState.getInstant()).thenReturn(prevInstant);
         Mockito.when(angleCnecPrev.getState()).thenReturn(prevState);
         Mockito.when(cracCreationContext.getAngleCnecCreationContexts()).thenReturn(Set.of(accPrev));
         SweAdditionalConstraintSeriesCreator additionalConstraintSeriesCreator = new SweAdditionalConstraintSeriesCreator(sweCneHelper, cracCreationContext);

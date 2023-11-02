@@ -58,30 +58,6 @@ public class TRemedialActionAdder {
         this.cseCracCreationParameters = cseCracCreationParameters;
     }
 
-    private static ActionType convertActionType(TStatusType tStatusType) {
-        return (Objects.equals(tStatusType.getV(), "CLOSE")) ? ActionType.CLOSE : ActionType.OPEN;
-    }
-
-    private static RangeType convertRangeType(TVariationType tVariationType) {
-        if (tVariationType.getV().equals(ABSOLUTE_VARIATION_TYPE)) {
-            return RangeType.ABSOLUTE;
-        } else {
-            throw new FaraoException(String.format("%s type is not handled by the importer", tVariationType.getV()));
-        }
-    }
-
-    private Instant getInstant(TApplication tApplication) {
-        switch (tApplication.getV()) {
-            case "PREVENTIVE":
-                return crac.getInstant(InstantKind.PREVENTIVE);
-            case "SPS":
-                return crac.getInstant(InstantKind.AUTO);
-            case "CURATIVE":
-                return crac.getInstant(InstantKind.CURATIVE);
-            default:
-                throw new FaraoException(String.format("%s is not a recognized application type for remedial action", tApplication.getV()));
-        }
-    }
 
     public void add() {
         List<TRemedialActions> tRemedialActionsList = tcracSeries.getRemedialActions();
@@ -326,6 +302,31 @@ public class TRemedialActionAdder {
             generatorFromHelper.getGeneratorId(),
             hvdcNodes.getToNode().getV(),
             generatorToHelper.getGeneratorId()));
+    }
+
+    private static ActionType convertActionType(TStatusType tStatusType) {
+        return (Objects.equals(tStatusType.getV(), "CLOSE")) ? ActionType.CLOSE : ActionType.OPEN;
+    }
+
+    private static RangeType convertRangeType(TVariationType tVariationType) {
+        if (tVariationType.getV().equals(ABSOLUTE_VARIATION_TYPE)) {
+            return RangeType.ABSOLUTE;
+        } else {
+            throw new FaraoException(String.format("%s type is not handled by the importer", tVariationType.getV()));
+        }
+    }
+
+    private Instant getInstant(TApplication tApplication) {
+        switch (tApplication.getV()) {
+            case "PREVENTIVE":
+                return crac.getInstant(InstantKind.PREVENTIVE);
+            case "SPS":
+                return crac.getInstant(InstantKind.AUTO);
+            case "CURATIVE":
+                return crac.getInstant(InstantKind.CURATIVE);
+            default:
+                throw new FaraoException(String.format("%s is not a recognized application type for remedial action", tApplication.getV()));
+        }
     }
 
     void addUsageRules(RemedialActionAdder<?> remedialActionAdder, TRemedialAction tRemedialAction) {

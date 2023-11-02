@@ -158,13 +158,49 @@ class AngleCnecCreationTest {
 
         CsaProfileCracCreationContext cracCreationContext = getCsaCracCreationContext("/csa-11/CSA_11_4_OnAngleConstraint.zip", network);
 
-        CsaProfileCracCreationTestUtil.assertAngleCnecEquality(cracCreationContext.getCrac().getAngleCnec("RTE_AE1 - RTE_CO1 - curative"), "RTE_AE1 - RTE_CO1 - curative", "RTE_AE1 - RTE_CO1 - curative", "60038442-5c02-21a9-22ad-f0554a65a466", "65e9a6a7-8488-7b17-6344-cb7d61b7920b", "curative", "6c9656a6-84c2-4967-aabc-51f63a7abdf1", 30., -30., true);
+        CsaProfileCracCreationTestUtil.assertAngleCnecEquality(cracCreationContext.getCrac().getAngleCnec("RTE_AE1 - RTE_CO1 - curative"),
+                "RTE_AE1 - RTE_CO1 - curative",
+                "RTE_AE1 - RTE_CO1 - curative",
+                "60038442-5c02-21a9-22ad-f0554a65a466",
+                "65e9a6a7-8488-7b17-6344-cb7d61b7920b",
+                "curative",
+                "6c9656a6-84c2-4967-aabc-51f63a7abdf1",
+                30.,
+                -30.,
+                true);
 
-        CsaProfileCracCreationTestUtil.assertAngleCnecEquality(cracCreationContext.getCrac().getAngleCnec("RTE_AE1 - preventive"), "RTE_AE1 - preventive", "RTE_AE1 - preventive", "60038442-5c02-21a9-22ad-f0554a65a466", "65e9a6a7-8488-7b17-6344-cb7d61b7920b", "preventive", null, 30., -30., true);
+        CsaProfileCracCreationTestUtil.assertAngleCnecEquality(cracCreationContext.getCrac().getAngleCnec("RTE_AE1 - preventive"),
+                "RTE_AE1 - preventive",
+                "RTE_AE1 - preventive",
+                "60038442-5c02-21a9-22ad-f0554a65a466",
+                "65e9a6a7-8488-7b17-6344-cb7d61b7920b",
+                "preventive",
+                null,
+                30.,
+                -30.,
+                true);
 
-        CsaProfileCracCreationTestUtil.assertAngleCnecEquality(cracCreationContext.getCrac().getAngleCnec("RTE_AE2 - RTE_CO2 - curative"), "RTE_AE2 - RTE_CO2 - curative", "RTE_AE2 - RTE_CO2 - curative", "65e9a6a7-8488-7b17-6344-cb7d61b7920b", "60038442-5c02-21a9-22ad-f0554a65a466", "curative", "410a7075-51df-4c5c-aa80-0bb1bbe41190", 15., -15., true);
+        CsaProfileCracCreationTestUtil.assertAngleCnecEquality(cracCreationContext.getCrac().getAngleCnec("RTE_AE2 - RTE_CO2 - curative"),
+                "RTE_AE2 - RTE_CO2 - curative",
+                "RTE_AE2 - RTE_CO2 - curative",
+                "65e9a6a7-8488-7b17-6344-cb7d61b7920b",
+                "60038442-5c02-21a9-22ad-f0554a65a466",
+                "curative",
+                "410a7075-51df-4c5c-aa80-0bb1bbe41190",
+                15.,
+                -15.,
+                true);
 
-        CsaProfileCracCreationTestUtil.assertAngleCnecEquality(cracCreationContext.getCrac().getAngleCnec("RTE_AE2 - preventive"), "RTE_AE2 - preventive", "RTE_AE2 - preventive", "65e9a6a7-8488-7b17-6344-cb7d61b7920b", "60038442-5c02-21a9-22ad-f0554a65a466", "preventive", null, 15., -15., true);
+        CsaProfileCracCreationTestUtil.assertAngleCnecEquality(cracCreationContext.getCrac().getAngleCnec("RTE_AE2 - preventive"),
+                "RTE_AE2 - preventive",
+                "RTE_AE2 - preventive",
+                "65e9a6a7-8488-7b17-6344-cb7d61b7920b",
+                "60038442-5c02-21a9-22ad-f0554a65a466",
+                "preventive",
+                null,
+                15.,
+                -15.,
+                true);
 
         //4 remedial actions and a total of 8 onAngleConstraint usage rules.
         assertEquals(4, cracCreationContext.getCrac().getRemedialActions().size());

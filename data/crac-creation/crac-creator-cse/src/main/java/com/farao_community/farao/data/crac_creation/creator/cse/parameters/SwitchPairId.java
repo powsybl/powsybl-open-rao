@@ -16,8 +16,8 @@ import java.util.Objects;
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
 public class SwitchPairId {
-    private final String switchToOpenId;
-    private final String switchToCloseId;
+    private String switchToOpenId;
+    private String switchToCloseId;
 
     public SwitchPairId(String switchToOpenId, String switchToCloseId) {
         Objects.requireNonNull(switchToOpenId);

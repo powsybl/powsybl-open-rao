@@ -54,14 +54,14 @@ class SweMonitoredSeriesCreatorTest {
         Mockito.when(sweCneHelper.getCrac()).thenReturn(crac);
         Mockito.when(sweCneHelper.getRaoResult()).thenReturn(raoResult);
         Mockito.when(sweCneHelper.getNetwork()).thenReturn(network);
-        Instant instantPrev = new InstantImpl("preventive", InstantKind.PREVENTIVE, null);
-        Instant instantOutage = new InstantImpl("outage", InstantKind.OUTAGE, instantPrev);
+        Instant prevInstant = new InstantImpl("preventive", InstantKind.PREVENTIVE, null);
+        Instant instantOutage = new InstantImpl("outage", InstantKind.OUTAGE, prevInstant);
         Instant instantAuto = new InstantImpl("auto", InstantKind.AUTO, instantOutage);
-        Instant instantCurative = new InstantImpl("curative", InstantKind.CURATIVE, instantAuto);
-        Mockito.when(crac.getInstant("preventive")).thenReturn(instantPrev);
+        Instant curativeInstant = new InstantImpl("curative", InstantKind.CURATIVE, instantAuto);
+        Mockito.when(crac.getInstant("preventive")).thenReturn(prevInstant);
         Mockito.when(crac.getInstant("outage")).thenReturn(instantOutage);
         Mockito.when(crac.getInstant("auto")).thenReturn(instantAuto);
-        Mockito.when(crac.getInstant("curative")).thenReturn(instantCurative);
+        Mockito.when(crac.getInstant("curative")).thenReturn(curativeInstant);
     }
 
     @Test

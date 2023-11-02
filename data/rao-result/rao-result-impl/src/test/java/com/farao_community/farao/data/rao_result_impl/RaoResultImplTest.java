@@ -38,15 +38,15 @@ class RaoResultImplTest {
     private FlowCnec cnec;
     private PstRangeAction pst;
     private NetworkAction na;
-    private Instant instantPrev;
+    private Instant prevInstant;
     private Instant instantAuto;
-    private Instant instantCurative;
+    private Instant curativeInstant;
 
     private void setUp() {
         crac = CommonCracCreation.createWithPreventiveAndCurativePstRange();
-        instantPrev = crac.getInstant("preventive");
+        prevInstant = crac.getInstant("preventive");
         instantAuto = crac.getInstant("auto");
-        instantCurative = crac.getInstant("curative");
+        curativeInstant = crac.getInstant("curative");
         cnec = crac.getFlowCnec("cnec1basecase");
         pst = crac.getPstRangeAction("pst");
         na = (NetworkAction) crac.newNetworkAction().withId("na-id")
@@ -148,9 +148,9 @@ class RaoResultImplTest {
         assertEquals(0.1, raoResult.getPtdfZonalSum(null, cnec, Side.LEFT), DOUBLE_TOLERANCE);
 
         // should always return after pra results because the cnec is Preventive
-        getResultAtAGivenState(instantPrev);
+        getResultAtAGivenState(prevInstant);
         getResultAtAGivenState(instantAuto);
-        getResultAtAGivenState(instantCurative);
+        getResultAtAGivenState(curativeInstant);
     }
 
     @Test
@@ -209,11 +209,11 @@ class RaoResultImplTest {
         assertEquals(0., raoResult.getVirtualCost(null), DOUBLE_TOLERANCE);
         assertEquals(100., raoResult.getCost(null), DOUBLE_TOLERANCE);
 
-        assertEquals(-50., raoResult.getFunctionalCost(instantCurative), DOUBLE_TOLERANCE);
-        assertEquals(10., raoResult.getVirtualCost(instantCurative, "loopFlow"), DOUBLE_TOLERANCE);
-        assertEquals(2., raoResult.getVirtualCost(instantCurative, "MNEC"), DOUBLE_TOLERANCE);
-        assertEquals(12., raoResult.getVirtualCost(instantCurative), DOUBLE_TOLERANCE);
-        assertEquals(-38, raoResult.getCost(instantCurative), DOUBLE_TOLERANCE);
+        assertEquals(-50., raoResult.getFunctionalCost(curativeInstant), DOUBLE_TOLERANCE);
+        assertEquals(10., raoResult.getVirtualCost(curativeInstant, "loopFlow"), DOUBLE_TOLERANCE);
+        assertEquals(2., raoResult.getVirtualCost(curativeInstant, "MNEC"), DOUBLE_TOLERANCE);
+        assertEquals(12., raoResult.getVirtualCost(curativeInstant), DOUBLE_TOLERANCE);
+        assertEquals(-38, raoResult.getCost(curativeInstant), DOUBLE_TOLERANCE);
 
         assertEquals(ComputationStatus.DEFAULT, raoResult.getComputationStatus());
     }

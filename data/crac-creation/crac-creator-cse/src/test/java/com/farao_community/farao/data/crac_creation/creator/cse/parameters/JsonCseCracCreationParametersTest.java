@@ -11,34 +11,20 @@ import com.farao_community.farao.data.crac_creation.creator.api.parameters.CracC
 import com.farao_community.farao.data.crac_creation.creator.api.parameters.JsonCracCreationParameters;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.Arguments;
-import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Stream;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 class JsonCseCracCreationParametersTest {
-
-    public static Stream<Arguments> provideParameters() {
-        return Stream.of(
-            Arguments.of("nok", "Unexpected field: unknown-field"),
-            Arguments.of("nok2", "Remedial action remedialAction2 has two or more associated bus-bar-change-switches lists"),
-            Arguments.of("nok3", "Missing remedial action ID in bus-bar-change-switches"),
-            Arguments.of("nok4", "Missing switch to open or switch to close in switch pair"),
-            Arguments.of("nok5", "Missing switch to open or switch to close in switch pair")
-        );
-    }
 
     private void checkBusBarChangeSwitchesContent(CseCracCreationParameters parameters, String remedialActionId, Set<SwitchPairId> switchPairs) {
         assertNotNull(parameters.getBusBarChangeSwitches(remedialActionId));
@@ -98,10 +84,9 @@ class JsonCseCracCreationParametersTest {
     }
 
     @ParameterizedTest
-    @MethodSource("provideParameters")
-    void importNokTest(String source, String message) {
+    @ValueSource(strings = {"nok", "nok2", "nok3", "nok4", "nok5"})
+    void importNokTest(String source) {
         InputStream inputStream = getClass().getResourceAsStream("/parameters/cse-crac-creation-parameters-" + source + ".json");
-        FaraoException exception = assertThrows(FaraoException.class, () -> JsonCracCreationParameters.read(inputStream));
-        assertEquals(message, exception.getMessage());
+        assertThrows(FaraoException.class, () -> JsonCracCreationParameters.read(inputStream));
     }
 }

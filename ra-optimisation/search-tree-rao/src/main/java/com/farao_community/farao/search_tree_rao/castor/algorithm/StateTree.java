@@ -84,9 +84,9 @@ public class StateTree {
      */
     private void processAutoAndCurativeInstants(Contingency contingency, Crac crac) {
         String instantAutoId = crac.getInstant(InstantKind.AUTO).getId();
-        String instantCurativeId = crac.getInstant(InstantKind.CURATIVE).getId();
+        String curativeInstantId = crac.getInstant(InstantKind.CURATIVE).getId();
         State automatonState = crac.getState(contingency.getId(), instantAutoId);
-        State curativeState = crac.getState(contingency.getId(), instantCurativeId);
+        State curativeState = crac.getState(contingency.getId(), curativeInstantId);
         boolean autoRasExist = (automatonState != null) && anyAvailableRemedialAction(crac, automatonState);
         boolean curativeRasExist = (curativeState != null) && anyAvailableRemedialAction(crac, curativeState);
 

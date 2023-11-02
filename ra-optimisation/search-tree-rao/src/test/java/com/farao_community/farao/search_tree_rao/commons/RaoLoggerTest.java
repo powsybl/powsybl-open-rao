@@ -291,15 +291,15 @@ class RaoLoggerTest {
     @Test
     void testLogOptimizationSummary() {
         State preventive = Mockito.mock(State.class);
-        Instant instantPrev = Mockito.mock(Instant.class);
-        when(instantPrev.getInstantKind()).thenReturn(InstantKind.PREVENTIVE);
-        when(instantPrev.toString()).thenReturn("preventive");
-        when(preventive.getInstant()).thenReturn(instantPrev);
+        Instant prevInstant = Mockito.mock(Instant.class);
+        when(prevInstant.getInstantKind()).thenReturn(InstantKind.PREVENTIVE);
+        when(prevInstant.toString()).thenReturn("preventive");
+        when(preventive.getInstant()).thenReturn(prevInstant);
         State curative = Mockito.mock(State.class);
-        Instant instantCurative = Mockito.mock(Instant.class);
-        when(instantCurative.getInstantKind()).thenReturn(InstantKind.CURATIVE);
-        when(instantCurative.toString()).thenReturn("curative");
-        when(curative.getInstant()).thenReturn(instantCurative);
+        Instant curativeInstant = Mockito.mock(Instant.class);
+        when(curativeInstant.getInstantKind()).thenReturn(InstantKind.CURATIVE);
+        when(curativeInstant.toString()).thenReturn("curative");
+        when(curative.getInstant()).thenReturn(curativeInstant);
         Contingency contingency = Mockito.mock(Contingency.class);
         when(contingency.getName()).thenReturn("contingency");
         when(curative.getContingency()).thenReturn(Optional.of(contingency));
@@ -372,13 +372,13 @@ class RaoLoggerTest {
     @Test
     void testLogFailedOptimizationSummary() {
         State preventive = Mockito.mock(State.class);
-        Instant instantPrev = Mockito.mock(Instant.class);
-        when(instantPrev.getInstantKind()).thenReturn(InstantKind.PREVENTIVE);
-        when(preventive.getInstant()).thenReturn(instantPrev);
+        Instant prevInstant = Mockito.mock(Instant.class);
+        when(prevInstant.getInstantKind()).thenReturn(InstantKind.PREVENTIVE);
+        when(preventive.getInstant()).thenReturn(prevInstant);
         State curative = Mockito.mock(State.class);
-        Instant instantCurative = Mockito.mock(Instant.class);
-        when(instantCurative.getInstantKind()).thenReturn(InstantKind.CURATIVE);
-        when(curative.getInstant()).thenReturn(instantCurative);
+        Instant curativeInstant = Mockito.mock(Instant.class);
+        when(curativeInstant.getInstantKind()).thenReturn(InstantKind.CURATIVE);
+        when(curative.getInstant()).thenReturn(curativeInstant);
         Contingency contingency = Mockito.mock(Contingency.class);
         when(contingency.getName()).thenReturn("contingency");
         when(curative.getContingency()).thenReturn(Optional.of(contingency));
