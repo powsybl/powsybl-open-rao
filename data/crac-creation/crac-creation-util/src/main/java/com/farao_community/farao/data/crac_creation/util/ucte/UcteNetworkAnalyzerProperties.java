@@ -14,7 +14,14 @@ package com.farao_community.farao.data.crac_creation.util.ucte;
  */
 public class UcteNetworkAnalyzerProperties {
 
-    private final BusIdMatchPolicy busIdMatchPolicy;
+    // For Bus IDs with 7 characters, either complete them with white spaces or wildcards
+    public enum BusIdMatchPolicy {
+        COMPLETE_WITH_WHITESPACES,
+        COMPLETE_WITH_WILDCARDS,
+        REPLACE_8TH_CHARACTER_WITH_WILDCARD
+    }
+
+    private BusIdMatchPolicy busIdMatchPolicy;
 
     public UcteNetworkAnalyzerProperties(BusIdMatchPolicy busIdMatchPolicy) {
         this.busIdMatchPolicy = busIdMatchPolicy;
@@ -22,12 +29,5 @@ public class UcteNetworkAnalyzerProperties {
 
     public BusIdMatchPolicy getBusIdMatchPolicy() {
         return busIdMatchPolicy;
-    }
-
-    // For Bus IDs with 7 characters, either complete them with white spaces or wildcards
-    public enum BusIdMatchPolicy {
-        COMPLETE_WITH_WHITESPACES,
-        COMPLETE_WITH_WILDCARDS,
-        REPLACE_8TH_CHARACTER_WITH_WILDCARD
     }
 }

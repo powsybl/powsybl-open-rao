@@ -10,9 +10,7 @@ package com.farao_community.farao.data.crac_creation.creator.api;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.farao_community.farao.commons.logs.FaraoLoggerProvider.BUSINESS_LOGS;
-import static com.farao_community.farao.commons.logs.FaraoLoggerProvider.BUSINESS_WARNS;
-import static com.farao_community.farao.commons.logs.FaraoLoggerProvider.TECHNICAL_LOGS;
+import static com.farao_community.farao.commons.logs.FaraoLoggerProvider.*;
 
 /**
  * Common methods used in CRAC creation reports
@@ -20,7 +18,7 @@ import static com.farao_community.farao.commons.logs.FaraoLoggerProvider.TECHNIC
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
  */
 public final class CracCreationReport {
-    private final List<String> creationReport;
+    private List<String> creationReport;
 
     public CracCreationReport() {
         creationReport = new ArrayList<>();

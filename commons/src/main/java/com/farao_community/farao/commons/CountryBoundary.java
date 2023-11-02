@@ -16,8 +16,8 @@ import java.util.Objects;
  */
 public class CountryBoundary {
 
-    private final Country country1;
-    private final Country country2;
+    private Country country1;
+    private Country country2;
 
     public CountryBoundary(Country country1, Country country2) {
         if (country1.equals(country2)) {

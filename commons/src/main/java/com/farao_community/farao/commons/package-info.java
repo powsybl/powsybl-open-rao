@@ -7,7 +7,7 @@
 
 /**
  * Common utilities for FARAO
- * <p>
+ *
  * This package include utilities that could serve in all FARAO modules.
  *
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}

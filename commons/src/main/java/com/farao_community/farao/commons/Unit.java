@@ -24,8 +24,8 @@ public enum Unit {
     TAP(PhysicalParameter.ANGLE, ""),
     SECTION_COUNT(null, "");
 
-    private final PhysicalParameter physicalParameter;
-    private final String symbol;
+    private PhysicalParameter physicalParameter;
+    private String symbol;
 
     Unit(PhysicalParameter physicalParameter, String symbol) {
         this.physicalParameter = physicalParameter;
@@ -44,7 +44,7 @@ public enum Unit {
 
     public void checkPhysicalParameter(PhysicalParameter requestedPhysicalParameter) {
         if (!requestedPhysicalParameter.equals(physicalParameter)) {
-            throw new FaraoException(String.format("%s Unit is not suited to measure a %s value.", this.toString(), requestedPhysicalParameter));
+            throw new FaraoException(String.format("%s Unit is not suited to measure a %s value.", this.toString(), requestedPhysicalParameter.toString()));
         }
     }
 }

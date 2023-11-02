@@ -19,8 +19,28 @@ final class UcteMatchingResult {
 
     private final MatchStatus status;
     private final UcteConnectable.Side side;
-    private final Identifiable<?> iidmIdentifiable;
     private boolean isInverted;
+    private final Identifiable<?> iidmIdentifiable;
+
+    enum MatchStatus {
+        SINGLE_MATCH(true),
+        NOT_FOUND(false),
+        SEVERAL_MATCH(true);
+
+        private boolean hasMatched;
+
+        MatchStatus(boolean hasMatched) {
+            this.hasMatched = hasMatched;
+        }
+    }
+
+    boolean hasMatched() {
+        return status.hasMatched;
+    }
+
+    boolean isInverted() {
+        return isInverted;
+    }
 
     private UcteMatchingResult(MatchStatus status, UcteConnectable.Side side, boolean isInverted, Identifiable<?> iidmIdentifiable) {
         this.status = status;
@@ -41,14 +61,6 @@ final class UcteMatchingResult {
         return new UcteMatchingResult(MatchStatus.SINGLE_MATCH, side, isInverted, match);
     }
 
-    boolean hasMatched() {
-        return status.hasMatched;
-    }
-
-    boolean isInverted() {
-        return isInverted;
-    }
-
     UcteMatchingResult invert() {
         isInverted = !isInverted;
         return this;
@@ -64,17 +76,5 @@ final class UcteMatchingResult {
 
     MatchStatus getStatus() {
         return status;
-    }
-
-    enum MatchStatus {
-        SINGLE_MATCH(true),
-        NOT_FOUND(false),
-        SEVERAL_MATCH(true);
-
-        private final boolean hasMatched;
-
-        MatchStatus(boolean hasMatched) {
-            this.hasMatched = hasMatched;
-        }
     }
 }

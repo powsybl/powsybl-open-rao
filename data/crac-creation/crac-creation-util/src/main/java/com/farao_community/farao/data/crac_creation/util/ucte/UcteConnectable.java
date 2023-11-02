@@ -16,10 +16,10 @@ import java.util.Set;
 /**
  * A UcteConnectable refers to a network element which connect two buses of a UCTE network.
  * For instance, tie-line, dangling-line, transformers and switch are UcteConnectables.
- * <p>
+ *
  * The UcteConnectable class store the iidm Identifiable of the Connectable, as well as some
  * UCTE information about this Identifiable (fromNode, toNode, orderCode,...).
- * <p>
+ *
  * It is used within the {@link UcteConnectableCollection}
  *
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
@@ -36,6 +36,12 @@ class UcteConnectable implements Comparable<UcteConnectable> {
     private final Side iidmSide;
     private final boolean isIidmConventionInverted; //transformer conventions between iidm and UCTE formats are inverted
     private final ConnectableType type;
+
+    enum Side {
+        ONE,
+        TWO, // a tie-line contains two half-lines, each half-line point towards one side of the tie-line
+        BOTH // used for all elements but tie-lines
+    }
 
     UcteConnectable(String from, String to, String orderCode, Set<String> elementNames, Identifiable<?> iidmConnectable, boolean isIidmConventionInverted) {
         this(from, to, orderCode, elementNames, iidmConnectable, isIidmConventionInverted, Side.BOTH);
@@ -105,13 +111,6 @@ class UcteConnectable implements Comparable<UcteConnectable> {
     }
 
     private boolean matchType(ConnectableType... connectableTypes) {
-        return Arrays.asList(connectableTypes).contains(type);
+        return Arrays.stream(connectableTypes).anyMatch(cType -> cType.equals(type));
     }
-
-    enum Side {
-        ONE,
-        TWO, // a tie-line contains two half-lines, each half-line point towards one side of the tie-line
-        BOTH // used for all elements but tie-lines
-    }
-
 }
