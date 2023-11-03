@@ -12,7 +12,6 @@ import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.InstantKind;
 import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.cnec.Cnec;
-import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.sensitivity.SensitivityAnalysis;
@@ -43,31 +42,17 @@ final class SystematicSensitivityAdapter {
         SensitivityAnalysisResult result;
         try {
             result = SensitivityAnalysis.find(sensitivityProvider).run(network,
-                network.getVariantManager().getWorkingVariantId(),
-                cnecSensitivityProvider.getAllFactors(network),
-                cnecSensitivityProvider.getContingencies(network),
-                cnecSensitivityProvider.getVariableSets(),
-                sensitivityComputationParameters);
+                    network.getVariantManager().getWorkingVariantId(),
+                    cnecSensitivityProvider.getAllFactors(network),
+                    cnecSensitivityProvider.getContingencies(network),
+                    cnecSensitivityProvider.getVariableSets(),
+                    sensitivityComputationParameters);
         } catch (Exception e) {
             TECHNICAL_LOGS.error(String.format("Systematic sensitivity analysis failed: %s", e.getMessage()));
             return new SystematicSensitivityResult(SystematicSensitivityResult.SensitivityComputationStatus.FAILURE);
         }
         TECHNICAL_LOGS.debug("Systematic sensitivity analysis [end]");
         return new SystematicSensitivityResult().completeData(result, instantOutage.getOrder()).postTreatIntensities().postTreatHvdcs(network, cnecSensitivityProvider.getHvdcs());
-    }
-
-    private static int getOrderInstantOutage(CnecSensitivityProvider cnecSensitivityProvider) {
-        for (FlowCnec flowCnec : cnecSensitivityProvider.getFlowCnecs()) {
-            Instant instant = flowCnec.getState().getInstant();
-            while (instant != null) {
-                System.out.println(instant);
-                if (instant.getInstantKind() == InstantKind.OUTAGE) {
-                    return instant.getOrder();
-                }
-                instant = instant.getPreviousInstant();
-            }
-        }
-        throw new FaraoException("Outage instant was not found in the CNECs");
     }
 
     static SystematicSensitivityResult runSensitivity(Network network,

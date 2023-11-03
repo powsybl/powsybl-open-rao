@@ -651,39 +651,39 @@ class SearchTreeTest {
 
         // 1. First priority given to combinations detected during RAO
         assertEquals(-1, searchTree.deterministicNetworkActionCombinationComparison(
-            new NetworkActionCombination(Set.of(na1), true),
-            new NetworkActionCombination(Set.of(na2), false)
+                new NetworkActionCombination(Set.of(na1), true),
+                new NetworkActionCombination(Set.of(na2), false)
         ));
         assertEquals(1, searchTree.deterministicNetworkActionCombinationComparison(
-            predefinedNaCombination,
-            new NetworkActionCombination(Set.of(na2), true)
+                predefinedNaCombination,
+                new NetworkActionCombination(Set.of(na2), true)
         ));
         // 2. Second priority given to pre-defined combinations
         assertEquals(-1, searchTree.deterministicNetworkActionCombinationComparison(
-            predefinedNaCombination,
-            new NetworkActionCombination(Set.of(na2), false)
+                predefinedNaCombination,
+                new NetworkActionCombination(Set.of(na2), false)
         ));
         assertEquals(1, searchTree.deterministicNetworkActionCombinationComparison(
-            new NetworkActionCombination(Set.of(na2), false),
-            predefinedNaCombination
+                new NetworkActionCombination(Set.of(na2), false),
+                predefinedNaCombination
         ));
         // 3. Third priority given to large combinations
         assertEquals(-1, searchTree.deterministicNetworkActionCombinationComparison(
-            new NetworkActionCombination(Set.of(na1, na2), false),
-            new NetworkActionCombination(Set.of(na2), false)
+                new NetworkActionCombination(Set.of(na1, na2), false),
+                new NetworkActionCombination(Set.of(na2), false)
         ));
         assertEquals(1, searchTree.deterministicNetworkActionCombinationComparison(
-            new NetworkActionCombination(Set.of(na1), true),
-            new NetworkActionCombination(Set.of(na2, na1), true)
+                new NetworkActionCombination(Set.of(na1), true),
+                new NetworkActionCombination(Set.of(na2, na1), true)
         ));
         // 4. Last priority is random but deterministic
         assertEquals(-1, searchTree.deterministicNetworkActionCombinationComparison(
-            new NetworkActionCombination(Set.of(na1), true),
-            new NetworkActionCombination(Set.of(na2), true)
+                new NetworkActionCombination(Set.of(na1), true),
+                new NetworkActionCombination(Set.of(na2), true)
         ));
         assertEquals(1, searchTree.deterministicNetworkActionCombinationComparison(
-            new NetworkActionCombination(Set.of(na2), false),
-            new NetworkActionCombination(Set.of(na1), false)
+                new NetworkActionCombination(Set.of(na2), false),
+                new NetworkActionCombination(Set.of(na1), false)
         ));
     }
 }

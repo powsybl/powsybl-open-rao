@@ -12,6 +12,7 @@ import com.powsybl.iidm.xml.NetworkXml;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static com.farao_community.farao.commons.logs.FaraoLoggerProvider.TECHNICAL_LOGS;
 
@@ -32,9 +33,9 @@ public class MultipleNetworkPool extends AbstractNetworkPool {
     @Override
     protected void cleanVariants(Network networkClone) {
         List<String> variantsToBeRemoved = networkClone.getVariantManager().getVariantIds().stream()
-            .filter(variantId -> !variantId.equals(VariantManagerConstants.INITIAL_VARIANT_ID))
-            .filter(variantId -> !variantId.equals(stateSaveVariant))
-            .toList();
+                .filter(variantId -> !variantId.equals(VariantManagerConstants.INITIAL_VARIANT_ID))
+                .filter(variantId -> !variantId.equals(stateSaveVariant))
+                .collect(Collectors.toList());
         variantsToBeRemoved.forEach(variantId -> networkClone.getVariantManager().removeVariant(variantId));
     }
 

@@ -23,6 +23,11 @@ public class AppliedRemedialActions {
 
     private final Map<State, AppliedRemedialActionsPerState> appliedRa = new HashMap<>();
 
+    private static class AppliedRemedialActionsPerState {
+        private final Set<NetworkAction> networkActions = new HashSet<>();
+        private final Map<RangeAction<?>, Double> rangeActions = new HashMap<>();
+    }
+
     public void addAppliedNetworkAction(State state, NetworkAction networkAction) {
         if (networkAction != null) {
             checkState(state);
@@ -84,8 +89,8 @@ public class AppliedRemedialActions {
     public void applyOnNetwork(State state, Network network) {
         // Apply remedial actions from all states before or equal to given state
         appliedRa.keySet().stream().filter(stateBefore ->
-                (stateBefore.getInstant().comesBefore(state.getInstant()) || stateBefore.getInstant().equals(state.getInstant()))
-                    && (stateBefore.getContingency().isEmpty() || stateBefore.getContingency().equals(state.getContingency())))
+            (stateBefore.getInstant().comesBefore(state.getInstant()) || stateBefore.getInstant().equals(state.getInstant()))
+                && (stateBefore.getContingency().isEmpty() || stateBefore.getContingency().equals(state.getContingency())))
             .sorted(Comparator.comparingInt(stateBefore -> stateBefore.getInstant().getOrder()))
             .forEach(stateBefore -> {
                 appliedRa.get(stateBefore).rangeActions.forEach((rangeAction, setPoint) -> rangeAction.apply(network, setPoint));
@@ -130,10 +135,5 @@ public class AppliedRemedialActions {
             ara.addAppliedRangeActions(state, appliedRaOnState.rangeActions);
         });
         return ara;
-    }
-
-    private static class AppliedRemedialActionsPerState {
-        private final Set<NetworkAction> networkActions = new HashSet<>();
-        private final Map<RangeAction<?>, Double> rangeActions = new HashMap<>();
     }
 }

@@ -26,6 +26,39 @@ import java.util.stream.Collectors;
  */
 public class SystematicSensitivityResult {
 
+    private static class StateResult {
+        private final Map<String, Map<Side, Double>> referenceFlows = new HashMap<>();
+        private final Map<String, Map<Side, Double>> referenceIntensities = new HashMap<>();
+        private final Map<String, Map<String, Map<Side, Double>>> flowSensitivities = new HashMap<>();
+        private final Map<String, Map<String, Map<Side, Double>>> intensitySensitivities = new HashMap<>();
+        private SensitivityComputationStatus status;
+
+        private SensitivityComputationStatus getSensitivityComputationStatus() {
+            return status;
+        }
+
+        private Map<String, Map<Side, Double>> getReferenceFlows() {
+            return referenceFlows;
+        }
+
+        private Map<String, Map<Side, Double>> getReferenceIntensities() {
+            return referenceIntensities;
+        }
+
+        private Map<String, Map<String, Map<Side, Double>>> getFlowSensitivities() {
+            return flowSensitivities;
+        }
+
+        private Map<String, Map<String, Map<Side, Double>>> getIntensitySensitivities() {
+            return intensitySensitivities;
+        }
+    }
+
+    public enum SensitivityComputationStatus {
+        SUCCESS,
+        FAILURE
+    }
+
     private final StateResult nStateResult = new StateResult();
     private final Map<Integer, Map<String, StateResult>> postContingencyResults = new HashMap<>();
     private final Map<Cnec, StateResult> memoizedStateResultPerCnec = new HashMap<>();
@@ -179,9 +212,9 @@ public class SystematicSensitivityResult {
         Optional<Contingency> optionalContingency = state.getContingency();
         if (optionalContingency.isPresent()) {
             List<Integer> possibleInstants = postContingencyResults.keySet().stream()
-                .filter(instantOrder -> instantOrder <= state.getInstant().getOrder())
-                .sorted(Comparator.reverseOrder())
-                .toList();
+                    .filter(instantOrder -> instantOrder <= state.getInstant().getOrder())
+                    .sorted(Comparator.reverseOrder())
+                    .toList();
             for (Integer instantOrder : possibleInstants) {
                 // Use latest sensi computed on state
                 if (postContingencyResults.get(instantOrder).containsKey(optionalContingency.get().getId())) {
@@ -201,8 +234,8 @@ public class SystematicSensitivityResult {
     public double getReferenceFlow(FlowCnec cnec, Side side) {
         StateResult stateResult = getCnecStateResult(cnec);
         if (stateResult == null ||
-            !stateResult.getReferenceFlows().containsKey(cnec.getNetworkElement().getId()) ||
-            !stateResult.getReferenceFlows().get(cnec.getNetworkElement().getId()).containsKey(side)) {
+                !stateResult.getReferenceFlows().containsKey(cnec.getNetworkElement().getId()) ||
+                !stateResult.getReferenceFlows().get(cnec.getNetworkElement().getId()).containsKey(side)) {
             return 0.0;
         }
         return stateResult.getReferenceFlows().get(cnec.getNetworkElement().getId()).get(side);
@@ -211,8 +244,8 @@ public class SystematicSensitivityResult {
     public double getReferenceIntensity(FlowCnec cnec, Side side) {
         StateResult stateResult = getCnecStateResult(cnec);
         if (stateResult == null ||
-            !stateResult.getReferenceIntensities().containsKey(cnec.getNetworkElement().getId()) ||
-            !stateResult.getReferenceIntensities().get(cnec.getNetworkElement().getId()).containsKey(side)) {
+                !stateResult.getReferenceIntensities().containsKey(cnec.getNetworkElement().getId()) ||
+                !stateResult.getReferenceIntensities().get(cnec.getNetworkElement().getId()).containsKey(side)) {
             return 0.0;
         }
         return stateResult.getReferenceIntensities().get(cnec.getNetworkElement().getId()).get(side);
@@ -229,9 +262,9 @@ public class SystematicSensitivityResult {
     public double getSensitivityOnFlow(String variableId, FlowCnec cnec, Side side) {
         StateResult stateResult = getCnecStateResult(cnec);
         if (stateResult == null ||
-            !stateResult.getFlowSensitivities().containsKey(cnec.getNetworkElement().getId()) ||
-            !stateResult.getFlowSensitivities().get(cnec.getNetworkElement().getId()).containsKey(variableId) ||
-            !stateResult.getFlowSensitivities().get(cnec.getNetworkElement().getId()).get(variableId).containsKey(side)) {
+                !stateResult.getFlowSensitivities().containsKey(cnec.getNetworkElement().getId()) ||
+                !stateResult.getFlowSensitivities().get(cnec.getNetworkElement().getId()).containsKey(variableId) ||
+                !stateResult.getFlowSensitivities().get(cnec.getNetworkElement().getId()).get(variableId).containsKey(side)) {
             return 0.0;
         }
         return stateResult.getFlowSensitivities().get(cnec.getNetworkElement().getId()).get(variableId).get(side);
@@ -244,9 +277,9 @@ public class SystematicSensitivityResult {
         Optional<Contingency> optionalContingency = cnec.getState().getContingency();
         if (optionalContingency.isPresent()) {
             List<Integer> possibleInstants = postContingencyResults.keySet().stream()
-                .filter(instantOrder -> instantOrder <= cnec.getState().getInstant().getOrder())
-                .sorted(Comparator.reverseOrder())
-                .toList();
+                    .filter(instantOrder -> instantOrder <= cnec.getState().getInstant().getOrder())
+                    .sorted(Comparator.reverseOrder())
+                    .toList();
             for (Integer instantOrder : possibleInstants) {
                 // Use latest sensi computed on the cnec's contingency amidst the last instants before cnec state.
                 String contingencyId = optionalContingency.get().getId();
@@ -258,39 +291,6 @@ public class SystematicSensitivityResult {
             return null;
         } else {
             return nStateResult;
-        }
-    }
-
-    public enum SensitivityComputationStatus {
-        SUCCESS,
-        FAILURE
-    }
-
-    private static class StateResult {
-        private final Map<String, Map<Side, Double>> referenceFlows = new HashMap<>();
-        private final Map<String, Map<Side, Double>> referenceIntensities = new HashMap<>();
-        private final Map<String, Map<String, Map<Side, Double>>> flowSensitivities = new HashMap<>();
-        private final Map<String, Map<String, Map<Side, Double>>> intensitySensitivities = new HashMap<>();
-        private SensitivityComputationStatus status;
-
-        private SensitivityComputationStatus getSensitivityComputationStatus() {
-            return status;
-        }
-
-        private Map<String, Map<Side, Double>> getReferenceFlows() {
-            return referenceFlows;
-        }
-
-        private Map<String, Map<Side, Double>> getReferenceIntensities() {
-            return referenceIntensities;
-        }
-
-        private Map<String, Map<String, Map<Side, Double>>> getFlowSensitivities() {
-            return flowSensitivities;
-        }
-
-        private Map<String, Map<String, Map<Side, Double>>> getIntensitySensitivities() {
-            return intensitySensitivities;
         }
     }
 }

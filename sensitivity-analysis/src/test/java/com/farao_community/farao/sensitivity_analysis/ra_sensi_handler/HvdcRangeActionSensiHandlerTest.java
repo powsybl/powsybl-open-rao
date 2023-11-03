@@ -34,10 +34,10 @@ class HvdcRangeActionSensiHandlerTest {
         Crac crac = CracFactory.findDefault().create("test-crac");
         crac.newInstant("preventive", InstantKind.PREVENTIVE, null);
         HvdcRangeAction hvdcRangeAction = (HvdcRangeAction) crac.newHvdcRangeAction().withId("hvdcRangeId")
-            .withNetworkElement("BBE2AA11 FFR3AA11 1")
-            .newRange().withMin(-1000).withMax(1000).add()
-            .newOnInstantUsageRule().withInstant("preventive").withUsageMethod(UsageMethod.AVAILABLE).add()
-            .add();
+                .withNetworkElement("BBE2AA11 FFR3AA11 1")
+                .newRange().withMin(-1000).withMax(1000).add()
+                .newOnInstantUsageRule().withInstant("preventive").withUsageMethod(UsageMethod.AVAILABLE).add()
+                .add();
 
         HvdcRangeActionSensiHandler sensiHandler = new HvdcRangeActionSensiHandler(hvdcRangeAction);
 
@@ -49,10 +49,10 @@ class HvdcRangeActionSensiHandlerTest {
         Crac crac = CommonCracCreation.create();
         FlowCnec flowCnec = crac.getFlowCnec("cnec1basecase");
         HvdcRangeAction hvdcRangeAction = (HvdcRangeAction) crac.newHvdcRangeAction().withId("hvdcRangeId")
-            .withNetworkElement("BBE2AA11 FFR3AA11 1")
-            .newRange().withMin(-1000).withMax(1000).add()
-            .newOnInstantUsageRule().withInstant("preventive").withUsageMethod(UsageMethod.AVAILABLE).add()
-            .add();
+                .withNetworkElement("BBE2AA11 FFR3AA11 1")
+                .newRange().withMin(-1000).withMax(1000).add()
+                .newOnInstantUsageRule().withInstant("preventive").withUsageMethod(UsageMethod.AVAILABLE).add()
+                .add();
 
         HvdcRangeActionSensiHandler sensiHandler = new HvdcRangeActionSensiHandler(hvdcRangeAction);
 
@@ -71,10 +71,10 @@ class HvdcRangeActionSensiHandlerTest {
         crac.newInstant("preventive", InstantKind.PREVENTIVE, null);
 
         HvdcRangeAction hvdcRangeAction = (HvdcRangeAction) crac.newHvdcRangeAction().withId("hvdcRangeId")
-            .withNetworkElement("BBE1AA11 BBE2AA11 1")
-            .newRange().withMin(-1000).withMax(1000).add()
-            .newOnInstantUsageRule().withInstant("preventive").withUsageMethod(UsageMethod.AVAILABLE).add()
-            .add();
+                .withNetworkElement("BBE1AA11 BBE2AA11 1")
+                .newRange().withMin(-1000).withMax(1000).add()
+                .newOnInstantUsageRule().withInstant("preventive").withUsageMethod(UsageMethod.AVAILABLE).add()
+                .add();
 
         HvdcRangeActionSensiHandler sensiHandler = new HvdcRangeActionSensiHandler(hvdcRangeAction);
 
@@ -89,10 +89,10 @@ class HvdcRangeActionSensiHandlerTest {
         crac.newInstant("preventive", InstantKind.PREVENTIVE, null);
 
         HvdcRangeAction hvdcRangeAction = (HvdcRangeAction) crac.newHvdcRangeAction().withId("hvdcRangeId")
-            .withNetworkElement("unknownNetworkElement")
-            .newRange().withMin(-1000).withMax(1000).add()
-            .newOnInstantUsageRule().withInstant("preventive").withUsageMethod(UsageMethod.AVAILABLE).add()
-            .add();
+                .withNetworkElement("unknownNetworkElement")
+                .newRange().withMin(-1000).withMax(1000).add()
+                .newOnInstantUsageRule().withInstant("preventive").withUsageMethod(UsageMethod.AVAILABLE).add()
+                .add();
 
         HvdcRangeActionSensiHandler sensiHandler = new HvdcRangeActionSensiHandler(hvdcRangeAction);
 

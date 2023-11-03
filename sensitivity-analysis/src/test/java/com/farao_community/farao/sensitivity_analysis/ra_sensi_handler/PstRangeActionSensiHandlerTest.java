@@ -56,13 +56,13 @@ class PstRangeActionSensiHandlerTest {
         Network network = NetworkImportsUtil.import12NodesNetwork();
         Crac crac = CommonCracCreation.createWithPreventivePstRange();
         PstRangeAction pstRangeAction = (PstRangeAction) crac.newPstRangeAction()
-            .withId("pstOnBranch")
-            .withNetworkElement("BBE1AA1  BB23AA1  1")
-            .newOnInstantUsageRule().withInstant("preventive").withUsageMethod(UsageMethod.AVAILABLE).add()
-            .newTapRange().withRangeType(RangeType.ABSOLUTE).withMinTap(-16).withMaxTap(16).add()
-            .withInitialTap(0)
-            .withTapToAngleConversionMap(crac.getPstRangeAction("pst").getTapToAngleConversionMap())
-            .add();
+                .withId("pstOnBranch")
+                .withNetworkElement("BBE1AA1  BB23AA1  1")
+                .newOnInstantUsageRule().withInstant("preventive").withUsageMethod(UsageMethod.AVAILABLE).add()
+                .newTapRange().withRangeType(RangeType.ABSOLUTE).withMinTap(-16).withMaxTap(16).add()
+                .withInitialTap(0)
+                .withTapToAngleConversionMap(crac.getPstRangeAction("pst").getTapToAngleConversionMap())
+                .add();
 
         PstRangeActionSensiHandler sensiHandler = new PstRangeActionSensiHandler(pstRangeAction);
         FaraoException exception = assertThrows(FaraoException.class, () -> sensiHandler.checkConsistency(network));
@@ -74,13 +74,13 @@ class PstRangeActionSensiHandlerTest {
         Network network = NetworkImportsUtil.import12NodesNetwork();
         Crac crac = CommonCracCreation.createWithPreventivePstRange();
         PstRangeAction pstRangeAction = (PstRangeAction) crac.newPstRangeAction()
-            .withId("pstOnNonExistingElement")
-            .withNetworkElement("unknown")
-            .newOnInstantUsageRule().withInstant("preventive").withUsageMethod(UsageMethod.AVAILABLE).add()
-            .newTapRange().withRangeType(RangeType.ABSOLUTE).withMinTap(-16).withMaxTap(16).add()
-            .withInitialTap(0)
-            .withTapToAngleConversionMap(crac.getPstRangeAction("pst").getTapToAngleConversionMap())
-            .add();
+                .withId("pstOnNonExistingElement")
+                .withNetworkElement("unknown")
+                .newOnInstantUsageRule().withInstant("preventive").withUsageMethod(UsageMethod.AVAILABLE).add()
+                .newTapRange().withRangeType(RangeType.ABSOLUTE).withMinTap(-16).withMaxTap(16).add()
+                .withInitialTap(0)
+                .withTapToAngleConversionMap(crac.getPstRangeAction("pst").getTapToAngleConversionMap())
+                .add();
 
         PstRangeActionSensiHandler sensiHandler = new PstRangeActionSensiHandler(pstRangeAction);
         FaraoException exception = assertThrows(FaraoException.class, () -> sensiHandler.checkConsistency(network));

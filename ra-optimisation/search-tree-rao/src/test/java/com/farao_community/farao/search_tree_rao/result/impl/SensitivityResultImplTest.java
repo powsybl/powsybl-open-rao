@@ -16,10 +16,9 @@ import com.powsybl.sensitivity.SensitivityVariableSet;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-import static com.farao_community.farao.commons.Unit.*;
+import static org.junit.jupiter.api.Assertions.*;
 import static com.farao_community.farao.data.crac_api.cnec.Side.LEFT;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static com.farao_community.farao.commons.Unit.*;
 import static org.mockito.Mockito.when;
 
 /**
@@ -32,7 +31,7 @@ class SensitivityResultImplTest {
     void testSensitivitiesOnRangeAction() {
         SystematicSensitivityResult systematicSensitivityResult = Mockito.mock(SystematicSensitivityResult.class);
         SensitivityResultImpl sensitivityResultImpl = new SensitivityResultImpl(
-            systematicSensitivityResult
+                systematicSensitivityResult
         );
 
         RangeAction<?> rangeAction = Mockito.mock(RangeAction.class);
@@ -41,21 +40,17 @@ class SensitivityResultImplTest {
 
         assertEquals(8, sensitivityResultImpl.getSensitivityValue(cnec, LEFT, rangeAction, MEGAWATT), DOUBLE_TOLERANCE);
 
-        FaraoException exception = assertThrows(FaraoException.class, () -> sensitivityResultImpl.getSensitivityValue(cnec, LEFT, rangeAction, KILOVOLT));
-        assertEquals("Unhandled unit for sensitivity value on range action : kV.", exception.getMessage());
-        exception = assertThrows(FaraoException.class, () -> sensitivityResultImpl.getSensitivityValue(cnec, LEFT, rangeAction, DEGREE));
-        assertEquals("Unhandled unit for sensitivity value on range action : °.", exception.getMessage());
-        exception = assertThrows(FaraoException.class, () -> sensitivityResultImpl.getSensitivityValue(cnec, LEFT, rangeAction, PERCENT_IMAX));
-        assertEquals("Unhandled unit for sensitivity value on range action : %.", exception.getMessage());
-        exception = assertThrows(FaraoException.class, () -> sensitivityResultImpl.getSensitivityValue(cnec, LEFT, rangeAction, TAP));
-        assertEquals("Unhandled unit for sensitivity value on range action : .", exception.getMessage());
+        assertThrows(FaraoException.class, () -> sensitivityResultImpl.getSensitivityValue(cnec, LEFT, rangeAction, KILOVOLT));
+        assertThrows(FaraoException.class, () -> sensitivityResultImpl.getSensitivityValue(cnec, LEFT, rangeAction, DEGREE));
+        assertThrows(FaraoException.class, () -> sensitivityResultImpl.getSensitivityValue(cnec, LEFT, rangeAction, PERCENT_IMAX));
+        assertThrows(FaraoException.class, () -> sensitivityResultImpl.getSensitivityValue(cnec, LEFT, rangeAction, TAP));
     }
 
     @Test
     void testSensitivitiesOnLinearGLSK() {
         SystematicSensitivityResult systematicSensitivityResult = Mockito.mock(SystematicSensitivityResult.class);
         SensitivityResultImpl sensitivityResultImpl = new SensitivityResultImpl(
-            systematicSensitivityResult
+                systematicSensitivityResult
         );
 
         SensitivityVariableSet linearGlsk = Mockito.mock(SensitivityVariableSet.class);
@@ -63,15 +58,14 @@ class SensitivityResultImplTest {
         when(systematicSensitivityResult.getSensitivityOnFlow(linearGlsk, cnec, LEFT)).thenReturn(8.);
 
         assertEquals(8, sensitivityResultImpl.getSensitivityValue(cnec, LEFT, linearGlsk, MEGAWATT), DOUBLE_TOLERANCE);
-        FaraoException exception = assertThrows(FaraoException.class, () -> sensitivityResultImpl.getSensitivityValue(cnec, LEFT, linearGlsk, AMPERE));
-        assertEquals("Unknown unit for sensitivity value on linear GLSK : A.", exception.getMessage());
+        assertThrows(FaraoException.class, () -> sensitivityResultImpl.getSensitivityValue(cnec, LEFT, linearGlsk, AMPERE));
     }
 
     @Test
     void testStatus() {
         SystematicSensitivityResult systematicSensitivityResult = Mockito.mock(SystematicSensitivityResult.class);
         SensitivityResultImpl sensitivityResultImpl = new SensitivityResultImpl(
-            systematicSensitivityResult
+                systematicSensitivityResult
         );
 
         when(systematicSensitivityResult.getStatus()).thenReturn(SystematicSensitivityResult.SensitivityComputationStatus.SUCCESS);

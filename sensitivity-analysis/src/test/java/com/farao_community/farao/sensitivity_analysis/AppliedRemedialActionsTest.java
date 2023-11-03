@@ -40,10 +40,10 @@ class AppliedRemedialActionsTest {
         crac = CommonCracCreation.createWithCurativePstRange();
         pstRangeAction = crac.getPstRangeAction("pst");
         networkAction = (NetworkAction) crac.newNetworkAction()
-            .withId("na-id")
-            .newTopologicalAction().withActionType(ActionType.OPEN).withNetworkElement("BBE2AA1  FFR3AA1  1").add()
-            .newOnInstantUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withInstant("curative").add()
-            .add();
+                .withId("na-id")
+                .newTopologicalAction().withActionType(ActionType.OPEN).withNetworkElement("BBE2AA1  FFR3AA1  1").add()
+                .newOnInstantUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withInstant("curative").add()
+                .add();
         autoNetworkAction = (NetworkAction) crac.newNetworkAction()
             .withId("na-auto-id")
             .newTopologicalAction().withActionType(ActionType.OPEN).withNetworkElement("BBE2AA1  FFR3AA1  1").add()

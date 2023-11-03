@@ -219,9 +219,9 @@ class SystematicSensitivityResultTest {
             .postTreatIntensities()
             .postTreatHvdcs(network, hvdcs);
 
-        //assertEquals(30., result.getReferenceFlow(nStateCnec, Side.LEFT), EPSILON);
-        //assertEquals(40., result.getReferenceIntensity(nStateCnec, Side.LEFT), EPSILON);
-        //assertEquals(0.34, result.getSensitivityOnFlow(hvdcRangeAction, nStateCnec, Side.LEFT), EPSILON);
+        assertEquals(30., result.getReferenceFlow(nStateCnec, Side.LEFT), EPSILON);
+        assertEquals(40., result.getReferenceIntensity(nStateCnec, Side.LEFT), EPSILON);
+        assertEquals(0.34, result.getSensitivityOnFlow(hvdcRangeAction, nStateCnec, Side.LEFT), EPSILON);
 
         assertEquals(26., result.getReferenceFlow(contingencyCnec, Side.RIGHT), EPSILON);
         assertEquals(-31., result.getReferenceIntensity(contingencyCnec, Side.RIGHT), EPSILON);

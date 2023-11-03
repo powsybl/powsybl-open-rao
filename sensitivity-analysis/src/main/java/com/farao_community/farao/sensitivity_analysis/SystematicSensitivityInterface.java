@@ -51,40 +51,6 @@ public final class SystematicSensitivityInterface {
      */
     private AppliedRemedialActions appliedRemedialActions;
 
-    SystematicSensitivityInterface() {
-
-    }
-
-    public static SystematicSensitivityInterfaceBuilder builder() {
-        return new SystematicSensitivityInterfaceBuilder();
-    }
-
-    /**
-     * Run the systematic sensitivity analysis on the given network and crac, and associates the
-     * SystematicSensitivityResult to the given network variant.
-     */
-    public SystematicSensitivityResult run(Network network, Instant instantOutage) {
-        SystematicSensitivityResult result = runWithConfig(network, parameters, instantOutage);
-        if (!result.isSuccess()) {
-            BUSINESS_WARNS.warn("Sensitivity analysis failed.");
-        }
-        return result;
-    }
-
-    /**
-     * Run the systematic sensitivity analysis with given SensitivityComputationParameters, throw a
-     * SensitivityComputationException is the computation fails.
-     */
-    private SystematicSensitivityResult runWithConfig(Network network, SensitivityAnalysisParameters sensitivityAnalysisParameters, Instant instantOutage) {
-        SystematicSensitivityResult tempSystematicSensitivityAnalysisResult = SystematicSensitivityAdapter
-            .runSensitivity(network, cnecSensitivityProvider, appliedRemedialActions, sensitivityAnalysisParameters, sensitivityProvider, instantOutage);
-
-        if (!tempSystematicSensitivityAnalysisResult.isSuccess()) {
-            TECHNICAL_LOGS.error("Sensitivity analysis failed: no output data available.");
-        }
-        return tempSystematicSensitivityAnalysisResult;
-    }
-
     /**
      * Builder
      */
@@ -126,8 +92,8 @@ public final class SystematicSensitivityInterface {
             return this.withSensitivityProvider(new RangeActionSensitivityProvider(rangeActions, cnecs, units));
         }
 
-        public void withLoadflow(Set<FlowCnec> cnecs, Set<Unit> units) {
-            this.withSensitivityProvider(new LoadflowProvider(cnecs, units));
+        public SystematicSensitivityInterfaceBuilder withLoadflow(Set<FlowCnec> cnecs, Set<Unit> units) {
+            return this.withSensitivityProvider(new LoadflowProvider(cnecs, units));
         }
 
         public SystematicSensitivityInterfaceBuilder withAppliedRemedialActions(AppliedRemedialActions appliedRemedialActions) {
@@ -152,5 +118,39 @@ public final class SystematicSensitivityInterface {
             systematicSensitivityInterface.appliedRemedialActions = appliedRemedialActions;
             return systematicSensitivityInterface;
         }
+    }
+
+    public static SystematicSensitivityInterfaceBuilder builder() {
+        return new SystematicSensitivityInterfaceBuilder();
+    }
+
+    SystematicSensitivityInterface() {
+
+    }
+
+    /**
+     * Run the systematic sensitivity analysis on the given network and crac, and associates the
+     * SystematicSensitivityResult to the given network variant.
+     */
+    public SystematicSensitivityResult run(Network network, Instant instantOutage) {
+        SystematicSensitivityResult result = runWithConfig(network, parameters, instantOutage);
+        if (!result.isSuccess()) {
+            BUSINESS_WARNS.warn("Sensitivity analysis failed.");
+        }
+        return result;
+    }
+
+    /**
+     * Run the systematic sensitivity analysis with given SensitivityComputationParameters, throw a
+     * SensitivityComputationException is the computation fails.
+     */
+    private SystematicSensitivityResult runWithConfig(Network network, SensitivityAnalysisParameters sensitivityAnalysisParameters, Instant instantOutage) {
+        SystematicSensitivityResult tempSystematicSensitivityAnalysisResult = SystematicSensitivityAdapter
+                .runSensitivity(network, cnecSensitivityProvider, appliedRemedialActions, sensitivityAnalysisParameters, sensitivityProvider, instantOutage);
+
+        if (!tempSystematicSensitivityAnalysisResult.isSuccess()) {
+            TECHNICAL_LOGS.error("Sensitivity analysis failed: no output data available.");
+        }
+        return tempSystematicSensitivityAnalysisResult;
     }
 }
