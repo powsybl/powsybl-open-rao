@@ -104,9 +104,9 @@ public class PrePerimeterSensitivityAnalysis {
 
     private SensitivityComputer.SensitivityComputerBuilder buildSensiBuilder() {
         return SensitivityComputer.create()
-            .withToolProvider(toolProvider)
-            .withCnecs(flowCnecs)
-            .withRangeActions(rangeActions);
+                .withToolProvider(toolProvider)
+                .withCnecs(flowCnecs)
+                .withRangeActions(rangeActions);
     }
 
     private PrePerimeterResult runAndGetResult(Network network, ObjectiveFunction objectiveFunction, Instant instantOutage) {
@@ -117,10 +117,10 @@ public class PrePerimeterSensitivityAnalysis {
         RangeActionActivationResult rangeActionActivationResult = new RangeActionActivationResultImpl(rangeActionSetpointResult);
         ObjectiveFunctionResult objectiveFunctionResult = getResult(objectiveFunction, flowResult, rangeActionActivationResult, sensitivityResult);
         return new PrePerimeterSensitivityResultImpl(
-            flowResult,
-            sensitivityResult,
-            rangeActionSetpointResult,
-            objectiveFunctionResult
+                flowResult,
+                sensitivityResult,
+                rangeActionSetpointResult,
+                objectiveFunctionResult
         );
     }
 

@@ -7,22 +7,22 @@
 package com.farao_community.farao.search_tree_rao.commons;
 
 import com.farao_community.farao.commons.EICode;
-import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.cnec.Side;
+import com.powsybl.glsk.commons.ZonalData;
+import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.rao_api.ZoneToZonePtdfDefinition;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityResult;
-import com.powsybl.glsk.commons.ZonalData;
 import com.powsybl.sensitivity.SensitivityVariableSet;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
 /**
- * This class computes the absolute PTDF sums on a given set of CNECs
- * It requires that the sensitivity values be already computed
+ *  This class computes the absolute PTDF sums on a given set of CNECs
+ *  It requires that the sensitivity values be already computed
  *
- * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
- * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
+ *  @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
+ *  @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 public class AbsolutePtdfSumsComputation {
     private final ZonalData<SensitivityVariableSet> glskProvider;
@@ -60,10 +60,10 @@ public class AbsolutePtdfSumsComputation {
 
     private double computeZToZPtdf(ZoneToZonePtdfDefinition zToz, Map<EICode, Double> zToSlackPtdfMap) {
 
-        List<Double> zoneToSlackPtdf = zToz.getZoneToSlackPtdfs().stream()
+        List<Double> zoneToSlackPtdf =  zToz.getZoneToSlackPtdfs().stream()
             .filter(zToS -> zToSlackPtdfMap.containsKey(zToS.getEiCode()))
             .map(zToS -> zToS.getWeight() * zToSlackPtdfMap.get(zToS.getEiCode()))
-            .toList();
+            .collect(Collectors.toList());
 
         if (zoneToSlackPtdf.size() < 2) {
             // the boundary should at least contains two zoneToSlack PTDFs

@@ -233,100 +233,100 @@ class CastorFullOptimizationTest {
         crac.newInstant("auto", InstantKind.AUTO, "outage");
         crac.newInstant("curative", InstantKind.CURATIVE, "auto");
         Contingency contingency1 = crac.newContingency()
-            .withId("contingency1")
-            .withNetworkElement("contingency1-ne")
-            .add();
+                .withId("contingency1")
+                .withNetworkElement("contingency1-ne")
+                .add();
         Contingency contingency2 = crac.newContingency()
-            .withId("contingency2")
-            .withNetworkElement("contingency2-ne")
-            .add();
+                .withId("contingency2")
+                .withNetworkElement("contingency2-ne")
+                .add();
         crac.newFlowCnec()
-            .withId("cnec")
-            .withNetworkElement("cnec-ne")
-            .withContingency("contingency1")
-            .withInstant("curative")
-            .withNominalVoltage(220.)
-            .newThreshold().withSide(Side.RIGHT).withMax(1000.).withUnit(Unit.AMPERE).add()
-            .add();
+                .withId("cnec")
+                .withNetworkElement("cnec-ne")
+                .withContingency("contingency1")
+                .withInstant("curative")
+                .withNominalVoltage(220.)
+                .newThreshold().withSide(Side.RIGHT).withMax(1000.).withUnit(Unit.AMPERE).add()
+                .add();
         // ra1 : preventive only
         ra1 = (RangeAction<?>) crac.newPstRangeAction()
-            .withId("ra1")
-            .withNetworkElement("ra1-ne")
-            .newOnInstantUsageRule().withInstant("preventive").withUsageMethod(UsageMethod.AVAILABLE).add()
-            .newOnContingencyStateUsageRule().withContingency("contingency1").withInstant("curative").withUsageMethod(UsageMethod.UNDEFINED).add()
-            .withInitialTap(0).withTapToAngleConversionMap(Map.of(0, -100., 1, 100.))
-            .add();
+                .withId("ra1")
+                .withNetworkElement("ra1-ne")
+                .newOnInstantUsageRule().withInstant("preventive").withUsageMethod(UsageMethod.AVAILABLE).add()
+                .newOnContingencyStateUsageRule().withContingency("contingency1").withInstant("curative").withUsageMethod(UsageMethod.UNDEFINED).add()
+                .withInitialTap(0).withTapToAngleConversionMap(Map.of(0, -100., 1, 100.))
+                .add();
         // ra2 : preventive and curative
         ra2 = (RangeAction<?>) crac.newPstRangeAction()
-            .withId("ra2")
-            .withNetworkElement("ra2-ne")
-            .newOnInstantUsageRule().withInstant("preventive").withUsageMethod(UsageMethod.UNAVAILABLE).add()
-            .newOnContingencyStateUsageRule().withContingency("contingency2").withInstant("curative").withUsageMethod(UsageMethod.AVAILABLE).add()
-            .withInitialTap(0).withTapToAngleConversionMap(Map.of(0, -100., 1, 100.))
-            .add();
+                .withId("ra2")
+                .withNetworkElement("ra2-ne")
+                .newOnInstantUsageRule().withInstant("preventive").withUsageMethod(UsageMethod.UNAVAILABLE).add()
+                .newOnContingencyStateUsageRule().withContingency("contingency2").withInstant("curative").withUsageMethod(UsageMethod.AVAILABLE).add()
+                .withInitialTap(0).withTapToAngleConversionMap(Map.of(0, -100., 1, 100.))
+                .add();
         // ra3 : preventive and curative
         ra3 = (RangeAction<?>) crac.newPstRangeAction()
-            .withId("ra3")
-            .withNetworkElement("ra3-ne")
-            .newOnInstantUsageRule().withInstant("preventive").withUsageMethod(UsageMethod.AVAILABLE).add()
-            .newOnContingencyStateUsageRule().withContingency("contingency1").withInstant("curative").withUsageMethod(UsageMethod.AVAILABLE).add()
-            .withInitialTap(0).withTapToAngleConversionMap(Map.of(0, -100., 1, 100.))
-            .add();
+                .withId("ra3")
+                .withNetworkElement("ra3-ne")
+                .newOnInstantUsageRule().withInstant("preventive").withUsageMethod(UsageMethod.AVAILABLE).add()
+                .newOnContingencyStateUsageRule().withContingency("contingency1").withInstant("curative").withUsageMethod(UsageMethod.AVAILABLE).add()
+                .withInitialTap(0).withTapToAngleConversionMap(Map.of(0, -100., 1, 100.))
+                .add();
         // ra4 : preventive only, but with same NetworkElement as ra5
         ra4 = (RangeAction<?>) crac.newPstRangeAction()
-            .withId("ra4")
-            .withNetworkElement("ra4-ne1")
-            .withNetworkElement("ra4-ne2")
-            .newOnInstantUsageRule().withInstant("preventive").withUsageMethod(UsageMethod.AVAILABLE).add()
-            .withInitialTap(0).withTapToAngleConversionMap(Map.of(0, -100., 1, 100.))
-            .add();
+                .withId("ra4")
+                .withNetworkElement("ra4-ne1")
+                .withNetworkElement("ra4-ne2")
+                .newOnInstantUsageRule().withInstant("preventive").withUsageMethod(UsageMethod.AVAILABLE).add()
+                .withInitialTap(0).withTapToAngleConversionMap(Map.of(0, -100., 1, 100.))
+                .add();
         // ra5 : curative only, but with same NetworkElement as ra4
         ra5 = (RangeAction<?>) crac.newPstRangeAction()
-            .withId("ra5")
-            .withNetworkElement("ra4-ne1")
-            .withNetworkElement("ra4-ne2")
-            .newOnContingencyStateUsageRule().withContingency("contingency2").withInstant("curative").withUsageMethod(UsageMethod.AVAILABLE).add()
-            .withInitialTap(0).withTapToAngleConversionMap(Map.of(0, -100., 1, 100.))
-            .add();
+                .withId("ra5")
+                .withNetworkElement("ra4-ne1")
+                .withNetworkElement("ra4-ne2")
+                .newOnContingencyStateUsageRule().withContingency("contingency2").withInstant("curative").withUsageMethod(UsageMethod.AVAILABLE).add()
+                .withInitialTap(0).withTapToAngleConversionMap(Map.of(0, -100., 1, 100.))
+                .add();
         // ra6 : preventive and curative (onFlowConstraint)
         ra6 = (RangeAction<?>) crac.newPstRangeAction()
-            .withId("ra6")
-            .withNetworkElement("ra6-ne")
-            .newOnInstantUsageRule().withInstant("preventive").withUsageMethod(UsageMethod.AVAILABLE).add()
-            .newOnFlowConstraintUsageRule().withFlowCnec("cnec").withInstant("curative").add()
-            .withInitialTap(0).withTapToAngleConversionMap(Map.of(0, -100., 1, 100.))
-            .add();
+                .withId("ra6")
+                .withNetworkElement("ra6-ne")
+                .newOnInstantUsageRule().withInstant("preventive").withUsageMethod(UsageMethod.AVAILABLE).add()
+                .newOnFlowConstraintUsageRule().withFlowCnec("cnec").withInstant("curative").add()
+                .withInitialTap(0).withTapToAngleConversionMap(Map.of(0, -100., 1, 100.))
+                .add();
         // ra7 : auto only
         ra7 = (RangeAction<?>) crac.newPstRangeAction()
-            .withId("ra7")
-            .withNetworkElement("ra7-ne")
-            .newOnContingencyStateUsageRule().withContingency("contingency2").withInstant("auto").withUsageMethod(UsageMethod.FORCED).add()
-            .withInitialTap(0).withTapToAngleConversionMap(Map.of(0, -100., 1, 100.))
-            .withSpeed(1)
-            .add();
+                .withId("ra7")
+                .withNetworkElement("ra7-ne")
+                .newOnContingencyStateUsageRule().withContingency("contingency2").withInstant("auto").withUsageMethod(UsageMethod.FORCED).add()
+                .withInitialTap(0).withTapToAngleConversionMap(Map.of(0, -100., 1, 100.))
+                .withSpeed(1)
+                .add();
         // ra8 : preventive and auto
         ra8 = (RangeAction<?>) crac.newPstRangeAction()
-            .withId("ra8")
-            .withNetworkElement("ra8-ne")
-            .newOnInstantUsageRule().withInstant("preventive").withUsageMethod(UsageMethod.AVAILABLE).add()
-            .newOnContingencyStateUsageRule().withContingency("contingency1").withInstant("auto").withUsageMethod(UsageMethod.FORCED).add()
-            .withInitialTap(0).withTapToAngleConversionMap(Map.of(0, -100., 1, 100.))
-            .withSpeed(2)
-            .add();
+                .withId("ra8")
+                .withNetworkElement("ra8-ne")
+                .newOnInstantUsageRule().withInstant("preventive").withUsageMethod(UsageMethod.AVAILABLE).add()
+                .newOnContingencyStateUsageRule().withContingency("contingency1").withInstant("auto").withUsageMethod(UsageMethod.FORCED).add()
+                .withInitialTap(0).withTapToAngleConversionMap(Map.of(0, -100., 1, 100.))
+                .withSpeed(2)
+                .add();
         // ra9 : preventive only, but with same NetworkElement as ra8
         ra9 = (RangeAction<?>) crac.newPstRangeAction()
-            .withId("ra9")
-            .withNetworkElement("ra8-ne")
-            .newOnInstantUsageRule().withInstant("preventive").withUsageMethod(UsageMethod.AVAILABLE).add()
-            .withInitialTap(0).withTapToAngleConversionMap(Map.of(0, -100., 1, 100.))
-            .add();
+                .withId("ra9")
+                .withNetworkElement("ra8-ne")
+                .newOnInstantUsageRule().withInstant("preventive").withUsageMethod(UsageMethod.AVAILABLE).add()
+                .withInitialTap(0).withTapToAngleConversionMap(Map.of(0, -100., 1, 100.))
+                .add();
         // na1 : preventive + curative
         na1 = (NetworkAction) crac.newNetworkAction()
-            .withId("na1")
-            .newTopologicalAction().withNetworkElement("na1-ne").withActionType(ActionType.OPEN).add()
-            .newOnInstantUsageRule().withInstant("preventive").withUsageMethod(UsageMethod.AVAILABLE).add()
-            .newOnContingencyStateUsageRule().withContingency("contingency1").withInstant("curative").withUsageMethod(UsageMethod.AVAILABLE).add()
-            .add();
+                .withId("na1")
+                .newTopologicalAction().withNetworkElement("na1-ne").withActionType(ActionType.OPEN).add()
+                .newOnInstantUsageRule().withInstant("preventive").withUsageMethod(UsageMethod.AVAILABLE).add()
+                .newOnContingencyStateUsageRule().withContingency("contingency1").withInstant("curative").withUsageMethod(UsageMethod.AVAILABLE).add()
+                .add();
 
         state1 = crac.getState(contingency1, "curative");
         state2 = crac.getState(contingency2, "curative");
@@ -445,30 +445,30 @@ class CastorFullOptimizationTest {
         crac.newInstant("auto", InstantKind.AUTO, "outage");
         crac.newInstant("curative", InstantKind.CURATIVE, "auto");
         Contingency contingency1 = crac.newContingency()
-            .withId("contingency1")
-            .withNetworkElement("contingency1-ne")
-            .add();
+                .withId("contingency1")
+                .withNetworkElement("contingency1-ne")
+                .add();
         Contingency contingency2 = crac.newContingency()
-            .withId("contingency2")
-            .withNetworkElement("contingency2-ne")
-            .add();
+                .withId("contingency2")
+                .withNetworkElement("contingency2-ne")
+                .add();
         // ra1 : preventive only
         PstRangeActionAdder adder = crac.newPstRangeAction()
-            .withId("ra1")
-            .withNetworkElement("BBE2AA1  BBE3AA1  1")
-            .withInitialTap(0).withTapToAngleConversionMap(tapToAngleConversionMap)
-            .newOnInstantUsageRule().withInstant("preventive").withUsageMethod(UsageMethod.AVAILABLE).add();
+                .withId("ra1")
+                .withNetworkElement("BBE2AA1  BBE3AA1  1")
+                .withInitialTap(0).withTapToAngleConversionMap(tapToAngleConversionMap)
+                .newOnInstantUsageRule().withInstant("preventive").withUsageMethod(UsageMethod.AVAILABLE).add();
         if (curative) {
             adder.newOnContingencyStateUsageRule().withContingency("contingency1").withInstant("curative").withUsageMethod(UsageMethod.AVAILABLE).add();
         }
         ra1 = (RangeAction<?>) adder.add();
         // na1 : preventive + curative
         na1 = (NetworkAction) crac.newNetworkAction()
-            .withId("na1")
-            .newTopologicalAction().withNetworkElement("BBE1AA1  BBE2AA1  1").withActionType(ActionType.OPEN).add()
-            .newOnInstantUsageRule().withInstant("preventive").withUsageMethod(UsageMethod.AVAILABLE).add()
-            .newOnContingencyStateUsageRule().withContingency("contingency2").withInstant("curative").withUsageMethod(UsageMethod.AVAILABLE).add()
-            .add();
+                .withId("na1")
+                .newTopologicalAction().withNetworkElement("BBE1AA1  BBE2AA1  1").withActionType(ActionType.OPEN).add()
+                .newOnInstantUsageRule().withInstant("preventive").withUsageMethod(UsageMethod.AVAILABLE).add()
+                .newOnContingencyStateUsageRule().withContingency("contingency2").withInstant("curative").withUsageMethod(UsageMethod.AVAILABLE).add()
+                .add();
 
         state1 = crac.getState(contingency1, "curative");
         state2 = crac.getState(contingency2, "curative");

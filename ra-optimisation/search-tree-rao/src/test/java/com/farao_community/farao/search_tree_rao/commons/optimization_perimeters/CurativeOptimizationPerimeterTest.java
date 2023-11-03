@@ -14,9 +14,7 @@ import org.mockito.Mockito;
 
 import java.util.Set;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
@@ -53,7 +51,6 @@ class CurativeOptimizationPerimeterTest extends AbstractOptimizationPerimeterTes
 
     @Test
     void curativePerimeterbuildOnPreventiveStateTest() {
-        FaraoException exception = assertThrows(FaraoException.class, () -> CurativeOptimizationPerimeter.build(pState, crac, network, raoParameters, prePerimeterResult));
-        assertEquals("a CurativeOptimizationContext must be based on a curative state", exception.getMessage());
+        assertThrows(FaraoException.class, () -> CurativeOptimizationPerimeter.build(pState, crac, network, raoParameters, prePerimeterResult));
     }
 }

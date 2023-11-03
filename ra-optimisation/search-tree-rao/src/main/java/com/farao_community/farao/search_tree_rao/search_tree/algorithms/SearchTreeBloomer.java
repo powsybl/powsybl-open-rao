@@ -129,7 +129,7 @@ public final class SearchTreeBloomer {
             // elements of the combination which have not been activated yet
             List<NetworkAction> notTestedNaInCombination = preDefinedCombination.getNetworkActionSet().stream()
                 .filter(na -> !fromLeaf.getActivatedNetworkActions().contains(na))
-                .toList();
+                .collect(Collectors.toList());
 
             // if all the actions of the combinations have been selected but one, there is no need
             // to test that individual action anymore
@@ -252,7 +252,7 @@ public final class SearchTreeBloomer {
 
         Map<NetworkActionCombination, Boolean> filteredNaCombinations = naCombinations.keySet().stream()
             .filter(naCombination -> naCombination.getNetworkActionSet().stream().anyMatch(na -> isNetworkActionCloseToLocations(na, worstCnecLocation, countryGraph)))
-            .collect(Collectors.toMap(naCombination -> naCombination, naCombinations::get));
+                .collect(Collectors.toMap(naCombination -> naCombination, naCombinations::get));
 
         if (naCombinations.size() > filteredNaCombinations.size()) {
             TECHNICAL_LOGS.info("{} network action combinations have been filtered out because they are too far from the most limiting element", naCombinations.size() - filteredNaCombinations.size());
@@ -275,8 +275,8 @@ public final class SearchTreeBloomer {
         tsos.forEach(tso -> {
             int activatedTopoForTso = (int) fromLeaf.getActivatedNetworkActions().stream().filter(networkAction -> tso.equals(networkAction.getOperator())).count();
 
-            int limitationDueToMaxRa = maxRaPerTso.getOrDefault(tso, Integer.MAX_VALUE) - activatedTopoForTso;
-            int limitationDueToMaxTopo = maxTopoPerTso.getOrDefault(tso, Integer.MAX_VALUE) - activatedTopoForTso;
+            int limitationDueToMaxRa =  maxRaPerTso.getOrDefault(tso, Integer.MAX_VALUE) - activatedTopoForTso;
+            int limitationDueToMaxTopo =  maxTopoPerTso.getOrDefault(tso, Integer.MAX_VALUE) - activatedTopoForTso;
 
             updatedMaxTopoPerTso.put(tso, Math.min(limitationDueToMaxRa, limitationDueToMaxTopo));
         });

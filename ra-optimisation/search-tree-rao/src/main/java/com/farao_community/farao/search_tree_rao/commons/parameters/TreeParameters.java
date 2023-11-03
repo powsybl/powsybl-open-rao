@@ -21,6 +21,11 @@ import com.farao_community.farao.rao_api.parameters.RaoParameters;
  */
 public final class TreeParameters {
 
+    public enum StopCriterion {
+        MIN_OBJECTIVE,
+        AT_TARGET_OBJECTIVE_VALUE
+    }
+
     private final StopCriterion stopCriterion;
     private final double targetObjectiveValue;
     private final int maximumSearchDepth;
@@ -37,6 +42,26 @@ public final class TreeParameters {
         this.maximumSearchDepth = maximumSearchDepth;
         this.leavesInParallel = leavesInParallel;
         this.raRangeShrinking = raRangeShrinking;
+    }
+
+    public StopCriterion getStopCriterion() {
+        return stopCriterion;
+    }
+
+    public double getTargetObjectiveValue() {
+        return targetObjectiveValue;
+    }
+
+    public int getMaximumSearchDepth() {
+        return maximumSearchDepth;
+    }
+
+    public int getLeavesInParallel() {
+        return leavesInParallel;
+    }
+
+    public boolean getRaRangeShrinking() {
+        return raRangeShrinking;
     }
 
     public static TreeParameters buildForPreventivePerimeter(RaoParameters parameters) {
@@ -110,30 +135,5 @@ public final class TreeParameters {
                 parameters.getMultithreadingParameters().getPreventiveLeavesInParallel(),
                 raRangeShrinking);
         }
-    }
-
-    public StopCriterion getStopCriterion() {
-        return stopCriterion;
-    }
-
-    public double getTargetObjectiveValue() {
-        return targetObjectiveValue;
-    }
-
-    public int getMaximumSearchDepth() {
-        return maximumSearchDepth;
-    }
-
-    public int getLeavesInParallel() {
-        return leavesInParallel;
-    }
-
-    public boolean getRaRangeShrinking() {
-        return raRangeShrinking;
-    }
-
-    public enum StopCriterion {
-        MIN_OBJECTIVE,
-        AT_TARGET_OBJECTIVE_VALUE
     }
 }

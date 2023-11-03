@@ -34,18 +34,24 @@ public class SensitivityResultImpl implements SensitivityResult {
 
     @Override
     public ComputationStatus getSensitivityStatus() {
-        if (systematicSensitivityResult.getStatus() == SystematicSensitivityResult.SensitivityComputationStatus.SUCCESS) {
-            return ComputationStatus.DEFAULT;
+        switch (systematicSensitivityResult.getStatus()) {
+            case SUCCESS:
+                return ComputationStatus.DEFAULT;
+            default:
+            case FAILURE:
+                return ComputationStatus.FAILURE;
         }
-        return ComputationStatus.FAILURE;
     }
 
     @Override
     public ComputationStatus getSensitivityStatus(State state) {
-        if (systematicSensitivityResult.getStatus(state) == SystematicSensitivityResult.SensitivityComputationStatus.SUCCESS) {
-            return ComputationStatus.DEFAULT;
+        switch (systematicSensitivityResult.getStatus(state)) {
+            case SUCCESS:
+                return ComputationStatus.DEFAULT;
+            default:
+            case FAILURE:
+                return ComputationStatus.FAILURE;
         }
-        return ComputationStatus.FAILURE;
     }
 
     public Set<String> getContingencies() {

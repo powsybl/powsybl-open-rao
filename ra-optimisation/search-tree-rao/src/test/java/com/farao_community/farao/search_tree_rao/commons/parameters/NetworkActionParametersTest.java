@@ -80,35 +80,35 @@ class NetworkActionParametersTest {
         crac.newInstant("preventive", InstantKind.PREVENTIVE, null);
 
         crac.newNetworkAction()
-            .withId("topological-action-1")
-            .withOperator("operator-1")
-            .newTopologicalAction().withActionType(ActionType.OPEN).withNetworkElement("any-network-element").add()
-            .newOnInstantUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withInstant("preventive").add()
-            .add();
+                .withId("topological-action-1")
+                .withOperator("operator-1")
+                .newTopologicalAction().withActionType(ActionType.OPEN).withNetworkElement("any-network-element").add()
+                .newOnInstantUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withInstant("preventive").add()
+                .add();
 
         crac.newNetworkAction()
-            .withId("topological-action-2")
-            .withOperator("operator-2")
-            .newTopologicalAction().withActionType(ActionType.CLOSE).withNetworkElement("any-other-network-element").add()
-            .newOnInstantUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withInstant("preventive").add()
-            .add();
+                .withId("topological-action-2")
+                .withOperator("operator-2")
+                .newTopologicalAction().withActionType(ActionType.CLOSE).withNetworkElement("any-other-network-element").add()
+                .newOnInstantUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withInstant("preventive").add()
+                .add();
 
         crac.newNetworkAction()
-            .withId("pst-setpoint")
-            .withOperator("operator-2")
-            .newPstSetPoint().withSetpoint(10).withNetworkElement("any-other-network-element").add()
-            .newOnInstantUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withInstant("preventive").add()
-            .add();
+                .withId("pst-setpoint")
+                .withOperator("operator-2")
+                .newPstSetPoint().withSetpoint(10).withNetworkElement("any-other-network-element").add()
+                .newOnInstantUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withInstant("preventive").add()
+                .add();
 
         // test list
         RaoParameters parameters = new RaoParameters();
 
         parameters.getTopoOptimizationParameters().setPredefinedCombinations(List.of(
-            List.of("topological-action-1", "topological-action-2"), // OK
-            List.of("topological-action-1", "topological-action-2", "pst-setpoint"), // OK
-            List.of("topological-action-1", "unknown-na-id"), // should be filtered
-            List.of("topological-action-1"), // should be filtered (one action only)
-            new ArrayList<>())); // should be filtered
+                List.of("topological-action-1", "topological-action-2"), // OK
+                List.of("topological-action-1", "topological-action-2", "pst-setpoint"), // OK
+                List.of("topological-action-1", "unknown-na-id"), // should be filtered
+                List.of("topological-action-1"), // should be filtered (one action only)
+                new ArrayList<>())); // should be filtered
 
         List<NetworkActionCombination> naCombinations = NetworkActionParameters.computePredefinedCombinations(crac, parameters.getTopoOptimizationParameters());
 

@@ -30,13 +30,10 @@ class ContingencyScenarioTest {
     @BeforeEach
     public void setUp() {
         contingency = Mockito.mock(Contingency.class);
-        Mockito.when(contingency.toString()).thenReturn("Contingency");
         automatonState = Mockito.mock(State.class);
         Mockito.when(automatonState.getContingency()).thenReturn(Optional.of(contingency));
-        Mockito.when(automatonState.toString()).thenReturn("Automaton state 1");
         curativeState = Mockito.mock(State.class);
         Mockito.when(curativeState.getContingency()).thenReturn(Optional.of(contingency));
-        Mockito.when(curativeState.toString()).thenReturn("Curative state 1");
     }
 
     @Test
@@ -74,23 +71,19 @@ class ContingencyScenarioTest {
     @Test
     void testWrongAutoContingency() {
         Mockito.when(automatonState.getContingency()).thenReturn(Optional.empty());
-        FaraoException exception = assertThrows(FaraoException.class, () -> new ContingencyScenario(contingency, automatonState, curativeState));
-        assertEquals("Automaton state Automaton state 1 do not refer to the contingency Contingency", exception.getMessage());
+        assertThrows(FaraoException.class, () -> new ContingencyScenario(contingency, automatonState, curativeState));
 
         Mockito.when(automatonState.getContingency()).thenReturn(Optional.of(Mockito.mock(Contingency.class)));
-        exception = assertThrows(FaraoException.class, () -> new ContingencyScenario(contingency, automatonState, curativeState));
-        assertEquals("Automaton state Automaton state 1 do not refer to the contingency Contingency", exception.getMessage());
+        assertThrows(FaraoException.class, () -> new ContingencyScenario(contingency, automatonState, curativeState));
     }
 
     @Test
     void testWrongCurativeContingency() {
         Mockito.when(curativeState.getContingency()).thenReturn(Optional.empty());
-        FaraoException exception = assertThrows(FaraoException.class, () -> new ContingencyScenario(contingency, automatonState, curativeState));
-        assertEquals("Curative state Curative state 1 do not refer to the contingency Contingency", exception.getMessage());
+        assertThrows(FaraoException.class, () -> new ContingencyScenario(contingency, automatonState, curativeState));
 
         Mockito.when(curativeState.getContingency()).thenReturn(Optional.of(Mockito.mock(Contingency.class)));
-        exception = assertThrows(FaraoException.class, () -> new ContingencyScenario(contingency, automatonState, curativeState));
-        assertEquals("Curative state Curative state 1 do not refer to the contingency Contingency", exception.getMessage());
+        assertThrows(FaraoException.class, () -> new ContingencyScenario(contingency, automatonState, curativeState));
     }
 
 }

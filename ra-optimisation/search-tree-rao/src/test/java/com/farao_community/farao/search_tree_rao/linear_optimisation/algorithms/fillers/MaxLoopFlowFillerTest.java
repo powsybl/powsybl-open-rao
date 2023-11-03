@@ -87,9 +87,9 @@ class MaxLoopFlowFillerTest extends AbstractFillerTest {
         FlowResult initialFlowResult = Mockito.mock(FlowResult.class);
         when(initialFlowResult.getLoopFlow(cnec1, Side.LEFT, Unit.MEGAWATT)).thenReturn(initialLoopFlowValue);
         maxLoopFlowFiller = new MaxLoopFlowFiller(
-            Set.of(cnec1),
-            initialFlowResult,
-            loopFlowParameters
+                Set.of(cnec1),
+                initialFlowResult,
+                loopFlowParameters
         );
     }
 

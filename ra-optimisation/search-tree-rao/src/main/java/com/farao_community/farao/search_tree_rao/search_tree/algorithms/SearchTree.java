@@ -121,7 +121,7 @@ public class SearchTree {
                 parameters.getNetworkActionParameters().skipNetworkActionFarFromMostLimitingElements(),
                 parameters.getNetworkActionParameters().getMaxNumberOfBoundariesForSkippingNetworkActions(),
                 parameters.getNetworkActionParameters().getNetworkActionCombinations(),
-                input.getOptimizationPerimeter().getMainOptimizationState()
+                    input.getOptimizationPerimeter().getMainOptimizationState()
             );
         }
     }
@@ -328,7 +328,7 @@ public class SearchTree {
         }
         // 4. Last priority is random but deterministic
         return Integer.compare(Hashing.crc32().hashString(ra1.getConcatenatedId(), StandardCharsets.UTF_8).hashCode(),
-            Hashing.crc32().hashString(ra2.getConcatenatedId(), StandardCharsets.UTF_8).hashCode());
+                Hashing.crc32().hashString(ra2.getConcatenatedId(), StandardCharsets.UTF_8).hashCode());
     }
 
     /**
@@ -521,8 +521,8 @@ public class SearchTree {
         AppliedRemedialActions alreadyAppliedRa = input.getPreOptimizationAppliedRemedialActions().copy();
         if (input.getOptimizationPerimeter() instanceof GlobalOptimizationPerimeter) {
             input.getOptimizationPerimeter().getRangeActionsPerState().entrySet().stream()
-                .filter(e -> !e.getKey().equals(input.getOptimizationPerimeter().getMainOptimizationState())) // remove preventive state
-                .forEach(e -> e.getValue().forEach(ra -> alreadyAppliedRa.addAppliedRangeAction(e.getKey(), ra, previousDepthRangeActionActivations.getOptimizedSetpoint(ra, e.getKey()))));
+                    .filter(e -> !e.getKey().equals(input.getOptimizationPerimeter().getMainOptimizationState())) // remove preventive state
+                    .forEach(e -> e.getValue().forEach(ra -> alreadyAppliedRa.addAppliedRangeAction(e.getKey(), ra, previousDepthRangeActionActivations.getOptimizedSetpoint(ra, e.getKey()))));
         }
         return alreadyAppliedRa;
     }
@@ -532,8 +532,8 @@ public class SearchTree {
      */
     private void logVirtualCostInformation(Leaf leaf, String prefix) {
         leaf.getVirtualCostNames().stream()
-            .filter(virtualCostName -> leaf.getVirtualCost(virtualCostName) > 1e-6)
-            .forEach(virtualCostName -> logVirtualCostDetails(leaf, virtualCostName, prefix));
+                .filter(virtualCostName -> leaf.getVirtualCost(virtualCostName) > 1e-6)
+                .forEach(virtualCostName -> logVirtualCostDetails(leaf, virtualCostName, prefix));
     }
 
     /**
@@ -545,8 +545,8 @@ public class SearchTree {
     void logVirtualCostDetails(Leaf leaf, String virtualCostName, String prefix) {
         FaraoLogger logger = topLevelLogger;
         if (!costSatisfiesStopCriterion(leaf.getCost())
-            && costSatisfiesStopCriterion(leaf.getCost() - leaf.getVirtualCost(virtualCostName))
-            && (leaf.isRoot() || !costSatisfiesStopCriterion(previousDepthOptimalLeaf.getFunctionalCost()))) {
+                && costSatisfiesStopCriterion(leaf.getCost() - leaf.getVirtualCost(virtualCostName))
+                && (leaf.isRoot() || !costSatisfiesStopCriterion(previousDepthOptimalLeaf.getFunctionalCost()))) {
             // Stop criterion would have been reached without virtual cost, for the first time at this depth
             // and for the given leaf
             BUSINESS_LOGS.info("{}{}, stop criterion could have been reached without \"{}\" virtual cost", prefix, leaf.getIdentifier(), virtualCostName);
@@ -564,18 +564,18 @@ public class SearchTree {
             Side limitingSide = leaf.getMargin(flowCnec, Side.LEFT, unit) < leaf.getMargin(flowCnec, Side.RIGHT, unit) ? Side.LEFT : Side.RIGHT;
             double flow = leaf.getFlow(flowCnec, limitingSide, unit);
             Double limitingThreshold = flow >= 0 ? flowCnec.getUpperBound(limitingSide, unit).orElse(flowCnec.getLowerBound(limitingSide, unit).orElse(Double.NaN))
-                : flowCnec.getLowerBound(limitingSide, unit).orElse(flowCnec.getUpperBound(limitingSide, unit).orElse(Double.NaN));
+                    : flowCnec.getLowerBound(limitingSide, unit).orElse(flowCnec.getUpperBound(limitingSide, unit).orElse(Double.NaN));
             logs.add(String.format(Locale.ENGLISH,
-                "%s%s, limiting \"%s\" constraint #%02d: flow = %.2f %s, threshold = %.2f %s, margin = %.2f %s, element %s at state %s, CNEC ID = \"%s\", CNEC name = \"%s\"",
-                prefix,
-                leaf.getIdentifier(),
-                virtualCostName,
-                i,
-                flow, unit,
-                limitingThreshold, unit,
-                leaf.getMargin(flowCnec, limitingSide, unit), unit,
-                flowCnec.getNetworkElement().getId(), flowCnec.getState().getId(),
-                flowCnec.getId(), flowCnec.getName()));
+                    "%s%s, limiting \"%s\" constraint #%02d: flow = %.2f %s, threshold = %.2f %s, margin = %.2f %s, element %s at state %s, CNEC ID = \"%s\", CNEC name = \"%s\"",
+                    prefix,
+                    leaf.getIdentifier(),
+                    virtualCostName,
+                    i,
+                    flow, unit,
+                    limitingThreshold, unit,
+                    leaf.getMargin(flowCnec, limitingSide, unit), unit,
+                    flowCnec.getNetworkElement().getId(), flowCnec.getState().getId(),
+                    flowCnec.getId(), flowCnec.getName()));
             i++;
         }
         return logs;

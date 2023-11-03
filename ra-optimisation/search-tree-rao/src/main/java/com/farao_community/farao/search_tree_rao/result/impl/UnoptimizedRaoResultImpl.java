@@ -18,15 +18,14 @@ import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.data.rao_result_api.ComputationStatus;
-import com.farao_community.farao.data.rao_result_api.OptimizationStepsExecuted;
 import com.farao_community.farao.data.rao_result_api.RaoResult;
+import com.farao_community.farao.data.rao_result_api.OptimizationStepsExecuted;
 import com.farao_community.farao.search_tree_rao.result.api.PrePerimeterResult;
 
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * A RaoResult implementation that contains the initial situation before optimization
@@ -109,11 +108,9 @@ public class UnoptimizedRaoResultImpl implements RaoResult {
     @Override
     public boolean isActivatedDuringState(State state, RemedialAction<?> remedialAction) {
         if (remedialAction instanceof NetworkAction) {
-            NetworkAction networkAction = (NetworkAction) remedialAction;
-            return isActivatedDuringState(state, networkAction);
+            return isActivatedDuringState(state, (NetworkAction) remedialAction);
         } else if (remedialAction instanceof RangeAction<?>) {
-            RangeAction<?> rangeAction = (RangeAction<?>) remedialAction;
-            return isActivatedDuringState(state, rangeAction);
+            return isActivatedDuringState(state, (RangeAction<?>) remedialAction);
         } else {
             throw new FaraoException("Unrecognized remedial action type");
         }
@@ -166,10 +163,13 @@ public class UnoptimizedRaoResultImpl implements RaoResult {
 
     @Override
     public Map<PstRangeAction, Integer> getOptimizedTapsOnState(State state) {
-        return initialResult.getRangeActions().stream()
-            .filter(PstRangeAction.class::isInstance)
-            .map(ra -> (PstRangeAction) ra)
-            .collect(Collectors.toMap(pstRangeAction -> pstRangeAction, initialResult::getTap, (a, b) -> b));
+        Map<PstRangeAction, Integer> tapPerPst = new HashMap<>();
+        initialResult.getRangeActions().forEach(ra -> {
+            if (ra instanceof PstRangeAction) {
+                tapPerPst.put((PstRangeAction) ra, initialResult.getTap((PstRangeAction) ra));
+            }
+        });
+        return tapPerPst;
     }
 
     @Override
@@ -182,16 +182,16 @@ public class UnoptimizedRaoResultImpl implements RaoResult {
     }
 
     @Override
-    public OptimizationStepsExecuted getOptimizationStepsExecuted() {
-        return optimizationStepsExecuted;
-    }
-
-    @Override
     public void setOptimizationStepsExecuted(OptimizationStepsExecuted optimizationStepsExecuted) {
         if (this.optimizationStepsExecuted.isOverwritePossible(optimizationStepsExecuted)) {
             this.optimizationStepsExecuted = optimizationStepsExecuted;
         } else {
             throw new FaraoException("The RaoResult object should not be modified outside of its usual routine");
         }
+    }
+
+    @Override
+    public OptimizationStepsExecuted getOptimizationStepsExecuted() {
+        return optimizationStepsExecuted;
     }
 }

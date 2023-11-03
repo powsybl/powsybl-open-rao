@@ -37,11 +37,11 @@ import static java.lang.String.format;
  */
 public class RaUsageLimitsFiller implements ProblemFiller {
 
-    private static final double RANGE_ACTION_SETPOINT_EPSILON = 1e-5;
     private final Map<State, Set<RangeAction<?>>> rangeActions;
     private final RangeActionSetpointResult prePerimeterRangeActionSetpoints;
     private final RangeActionLimitationParameters rangeActionLimitationParameters;
-    private final boolean arePstSetpointsApproximated;
+    private boolean arePstSetpointsApproximated;
+    private static final double RANGE_ACTION_SETPOINT_EPSILON = 1e-5;
 
     public RaUsageLimitsFiller(Map<State, Set<RangeAction<?>>> rangeActions,
                                RangeActionSetpointResult prePerimeterRangeActionSetpoints,
@@ -94,9 +94,9 @@ public class RaUsageLimitsFiller implements ProblemFiller {
     }
 
     /**
-     * Get relaxation term to add to correct the initial setpoint, to ensure problem feasibility depending on the approximations.
-     * If PSTs are modelled with approximate integers, make sure that the initial setpoint is feasible (it should be at
-     * a distance smaller then 0.3 * getAverageAbsoluteTapToAngleConversionFactor from a feasible setpoint in the MIP)
+     *  Get relaxation term to add to correct the initial setpoint, to ensure problem feasibility depending on the approximations.
+     *  If PSTs are modelled with approximate integers, make sure that the initial setpoint is feasible (it should be at
+     *  a distance smaller then 0.3 * getAverageAbsoluteTapToAngleConversionFactor from a feasible setpoint in the MIP)
      */
     private double getInitialSetpointRelaxation(RangeAction rangeAction) {
         if (rangeAction instanceof PstRangeAction && arePstSetpointsApproximated) {

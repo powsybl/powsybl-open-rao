@@ -196,11 +196,9 @@ public class OneStateOnlyRaoResultImpl implements RaoResult {
     @Override
     public boolean isActivatedDuringState(State state, RemedialAction<?> remedialAction) {
         if (remedialAction instanceof NetworkAction) {
-            NetworkAction networkAction = (NetworkAction) remedialAction;
-            return isActivatedDuringState(state, networkAction);
+            return isActivatedDuringState(state, (NetworkAction) remedialAction);
         } else if (remedialAction instanceof RangeAction<?>) {
-            RangeAction<?> rangeAction = (RangeAction<?>) remedialAction;
-            return isActivatedDuringState(state, rangeAction);
+            return isActivatedDuringState(state, (RangeAction<?>) remedialAction);
         } else {
             throw new FaraoException("Unrecognized remedial action type");
         }
@@ -296,16 +294,16 @@ public class OneStateOnlyRaoResultImpl implements RaoResult {
     }
 
     @Override
-    public OptimizationStepsExecuted getOptimizationStepsExecuted() {
-        return optimizationStepsExecuted;
-    }
-
-    @Override
     public void setOptimizationStepsExecuted(OptimizationStepsExecuted optimizationStepsExecuted) {
         if (this.optimizationStepsExecuted.isOverwritePossible(optimizationStepsExecuted)) {
             this.optimizationStepsExecuted = optimizationStepsExecuted;
         } else {
             throw new FaraoException("The RaoResult object should not be modified outside of its usual routine");
         }
+    }
+
+    @Override
+    public OptimizationStepsExecuted getOptimizationStepsExecuted() {
+        return optimizationStepsExecuted;
     }
 }

@@ -36,10 +36,6 @@ public final class SensitivityComputer {
         // Should not be used
     }
 
-    public static SensitivityComputerBuilder create() {
-        return new SensitivityComputerBuilder();
-    }
-
     public void compute(Network network, Instant instantOutage) {
         result = systematicSensitivityInterface.run(network, instantOutage);
     }
@@ -50,6 +46,10 @@ public final class SensitivityComputer {
 
     public SensitivityResult getSensitivityResult() {
         return new SensitivityResultImpl(result);
+    }
+
+    public static SensitivityComputerBuilder create() {
+        return new SensitivityComputerBuilder();
     }
 
     public static final class SensitivityComputerBuilder {
@@ -113,11 +113,11 @@ public final class SensitivityComputer {
             boolean computePtdfs = absolutePtdfSumsComputation != null;
             boolean computeLoopFlows = loopFlowComputation != null;
             sensitivityComputer.systematicSensitivityInterface = toolProvider.getSystematicSensitivityInterface(
-                flowCnecs,
-                rangeActions,
-                computePtdfs,
-                computeLoopFlows,
-                appliedRemedialActions
+                    flowCnecs,
+                    rangeActions,
+                    computePtdfs,
+                    computeLoopFlows,
+                    appliedRemedialActions
             );
             BranchResultAdapterImpl.BranchResultAdpaterBuilder builder = BranchResultAdapterImpl.create();
             if (loopFlowComputation != null) {

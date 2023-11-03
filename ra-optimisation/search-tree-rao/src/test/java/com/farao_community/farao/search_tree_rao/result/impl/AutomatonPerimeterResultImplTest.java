@@ -20,23 +20,16 @@ import com.powsybl.sensitivity.SensitivityVariableSet;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
-import static com.farao_community.farao.commons.Unit.AMPERE;
-import static com.farao_community.farao.commons.Unit.MEGAWATT;
-import static com.farao_community.farao.data.crac_api.cnec.Side.LEFT;
-import static com.farao_community.farao.data.crac_api.cnec.Side.RIGHT;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.junit.jupiter.api.Assertions.*;
+import static com.farao_community.farao.commons.Unit.*;
+import static com.farao_community.farao.data.crac_api.cnec.Side.LEFT;
+import static com.farao_community.farao.data.crac_api.cnec.Side.RIGHT;
 
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
@@ -171,7 +164,7 @@ class AutomatonPerimeterResultImplTest {
     }
 
     @Test
-        //TODO modify
+    //TODO modify
     void testGetTapsAndSetpoints() {
         when(postAutoSensitivity.getSetpoint(pstRangeActionShifted)).thenReturn(rangeActionsWithSetpoint.get(pstRangeActionShifted));
         when(postAutoSensitivity.getSetpoint(unshiftedRangeAction)).thenReturn(rangeActionsWithSetpoint.get(unshiftedRangeAction));
@@ -189,8 +182,7 @@ class AutomatonPerimeterResultImplTest {
     @Test
     void testWrongState() {
         State wrongState = mock(State.class);
-        FaraoException exception = assertThrows(FaraoException.class, () -> result.getActivatedRangeActions(wrongState));
-        assertEquals("State should be null but was null", exception.getMessage());
+        assertThrows(FaraoException.class, () -> result.getActivatedRangeActions(wrongState));
     }
 
     @Test

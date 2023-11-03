@@ -37,25 +37,6 @@ public class StateTree {
         this.operatorsNotSharingCras = findOperatorsNotSharingCras(crac, optimizedCurativeStates);
     }
 
-    private static boolean anyAvailableRemedialAction(Crac crac, State state) {
-        return !crac.getPotentiallyAvailableNetworkActions(state).isEmpty() ||
-            !crac.getPotentiallyAvailableRangeActions(state).isEmpty();
-    }
-
-    static Set<String> findOperatorsNotSharingCras(Crac crac, Set<State> optimizedCurativeStates) {
-        Set<String> tsos = crac.getFlowCnecs().stream().map(Cnec::getOperator).collect(Collectors.toSet());
-        tsos.addAll(crac.getRemedialActions().stream().map(RemedialAction::getOperator).collect(Collectors.toSet()));
-        // <!> If a CNEC's operator is null, filter it out of the list of operators not sharing CRAs
-        return tsos.stream().filter(tso -> !Objects.isNull(tso) && !tsoHasCra(tso, crac, optimizedCurativeStates)).collect(Collectors.toSet());
-    }
-
-    static boolean tsoHasCra(String tso, Crac crac, Set<State> optimizedCurativeStates) {
-        return optimizedCurativeStates.stream().anyMatch(state ->
-            crac.getPotentiallyAvailableNetworkActions(state).stream().map(RemedialAction::getOperator).anyMatch(raTso -> raTso.equals(tso)) ||
-                crac.getPotentiallyAvailableRangeActions(state).stream().map(RemedialAction::getOperator).anyMatch(raTso -> raTso.equals(tso))
-        );
-    }
-
     /**
      * Process OUTAGE state for a given contingency.
      * If the state has RAs, the case is not supported by FARAO.
@@ -79,7 +60,7 @@ public class StateTree {
      * If the state has AUTO and CURATIVE RAs, both states will be treated in a dedicated scenario.
      * If the AUTO has no RA but the CURATIVE has RAs, the AUTO will be optimized in basecase RAO and the CURATIVE in a dedicated scenario.
      * If neither AUTO nor CURATIVE states have RAs, they will be optimized in basecase RAO.
-     * <p>
+     *
      * If AUTO or CURATIVE state does not exist, it will not be optimized.
      */
     private void processAutoAndCurativeInstants(Contingency contingency, Crac crac) {
@@ -119,5 +100,24 @@ public class StateTree {
 
     public Set<String> getOperatorsNotSharingCras() {
         return operatorsNotSharingCras;
+    }
+
+    private static boolean anyAvailableRemedialAction(Crac crac, State state) {
+        return !crac.getPotentiallyAvailableNetworkActions(state).isEmpty() ||
+            !crac.getPotentiallyAvailableRangeActions(state).isEmpty();
+    }
+
+    static Set<String> findOperatorsNotSharingCras(Crac crac, Set<State> optimizedCurativeStates) {
+        Set<String> tsos = crac.getFlowCnecs().stream().map(Cnec::getOperator).collect(Collectors.toSet());
+        tsos.addAll(crac.getRemedialActions().stream().map(RemedialAction::getOperator).collect(Collectors.toSet()));
+        // <!> If a CNEC's operator is null, filter it out of the list of operators not sharing CRAs
+        return tsos.stream().filter(tso -> !Objects.isNull(tso) && !tsoHasCra(tso, crac, optimizedCurativeStates)).collect(Collectors.toSet());
+    }
+
+    static boolean tsoHasCra(String tso, Crac crac, Set<State> optimizedCurativeStates) {
+        return optimizedCurativeStates.stream().anyMatch(state ->
+            crac.getPotentiallyAvailableNetworkActions(state).stream().map(RemedialAction::getOperator).anyMatch(raTso -> raTso.equals(tso)) ||
+                crac.getPotentiallyAvailableRangeActions(state).stream().map(RemedialAction::getOperator).anyMatch(raTso -> raTso.equals(tso))
+        );
     }
 }

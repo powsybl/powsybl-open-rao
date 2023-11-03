@@ -65,10 +65,10 @@ public class CastorOneStateOnly {
 
         // compute initial sensitivity on CNECs of the only optimized state
         PrePerimeterSensitivityAnalysis prePerimeterSensitivityAnalysis = new PrePerimeterSensitivityAnalysis(
-            raoInput.getCrac().getFlowCnecs(raoInput.getOptimizedState()),
-            raoInput.getCrac().getRangeActions(raoInput.getOptimizedState(), UsageMethod.AVAILABLE, UsageMethod.TO_BE_EVALUATED),
-            raoParameters,
-            toolProvider);
+                raoInput.getCrac().getFlowCnecs(raoInput.getOptimizedState()),
+                raoInput.getCrac().getRangeActions(raoInput.getOptimizedState(), UsageMethod.AVAILABLE, UsageMethod.TO_BE_EVALUATED),
+                raoParameters,
+                toolProvider);
 
         PrePerimeterResult initialResults;
         initialResults = prePerimeterSensitivityAnalysis.runInitialSensitivityAnalysis(raoInput.getNetwork(), raoInput.getCrac());
@@ -102,19 +102,19 @@ public class CastorOneStateOnly {
             }
             perimeterFlowCnecs = optPerimeter.getFlowCnecs();
             SearchTreeParameters searchTreeParameters = SearchTreeParameters.create()
-                .withConstantParametersOverAllRao(raoParameters, raoInput.getCrac())
-                .withTreeParameters(treeParameters)
-                .withUnoptimizedCnecParameters(UnoptimizedCnecParameters.build(raoParameters.getNotOptimizedCnecsParameters(), stateTree.getOperatorsNotSharingCras(), raoInput.getCrac()))
-                .build();
+                    .withConstantParametersOverAllRao(raoParameters, raoInput.getCrac())
+                    .withTreeParameters(treeParameters)
+                    .withUnoptimizedCnecParameters(UnoptimizedCnecParameters.build(raoParameters.getNotOptimizedCnecsParameters(), stateTree.getOperatorsNotSharingCras(), raoInput.getCrac()))
+                    .build();
             SearchTreeInput searchTreeInput = SearchTreeInput.create()
-                .withNetwork(raoInput.getNetwork())
-                .withOptimizationPerimeter(optPerimeter)
-                .withInitialFlowResult(initialResults)
-                .withPrePerimeterResult(initialResults)
-                .withPreOptimizationAppliedNetworkActions(new AppliedRemedialActions()) //no remedial Action applied
-                .withObjectiveFunction(ObjectiveFunction.create().build(optPerimeter.getFlowCnecs(), optPerimeter.getLoopFlowCnecs(), initialResults, initialResults, initialResults, raoInput.getCrac(), operatorsNotToOptimize, raoParameters))
-                .withToolProvider(toolProvider)
-                .build();
+                    .withNetwork(raoInput.getNetwork())
+                    .withOptimizationPerimeter(optPerimeter)
+                    .withInitialFlowResult(initialResults)
+                    .withPrePerimeterResult(initialResults)
+                    .withPreOptimizationAppliedNetworkActions(new AppliedRemedialActions()) //no remedial Action applied
+                    .withObjectiveFunction(ObjectiveFunction.create().build(optPerimeter.getFlowCnecs(), optPerimeter.getLoopFlowCnecs(), initialResults, initialResults, initialResults, raoInput.getCrac(), operatorsNotToOptimize, raoParameters))
+                    .withToolProvider(toolProvider)
+                    .build();
             optimizationResult = new SearchTree(searchTreeInput, searchTreeParameters, true).run(raoInput.getCrac().getInstant(InstantKind.OUTAGE)).join();
 
             // apply RAs and return results

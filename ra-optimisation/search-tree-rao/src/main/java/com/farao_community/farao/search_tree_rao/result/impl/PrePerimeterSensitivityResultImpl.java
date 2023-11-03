@@ -20,6 +20,7 @@ import com.powsybl.sensitivity.SensitivityVariableSet;
 import java.util.*;
 
 public class PrePerimeterSensitivityResultImpl implements PrePerimeterResult {
+
     private final FlowResult flowResult;
     private final SensitivityResult sensitivityResult;
     private final RangeActionSetpointResult prePerimeterSetpoints;

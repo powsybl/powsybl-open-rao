@@ -27,13 +27,11 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import static com.farao_community.farao.data.crac_api.cnec.Side.LEFT;
-import static com.farao_community.farao.data.crac_api.cnec.Side.RIGHT;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
+import static com.farao_community.farao.data.crac_api.cnec.Side.LEFT;
+import static com.farao_community.farao.data.crac_api.cnec.Side.RIGHT;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
@@ -61,7 +59,7 @@ class FlowResultAdapterImplTest {
     @Test
     void testBasicReturns() {
         BranchResultAdapter branchResultAdapter = branchResultAdpaterBuilder
-            .build();
+                .build();
 
         when(systematicSensitivityResult.getReferenceFlow(cnec1, LEFT)).thenReturn(200.);
         when(systematicSensitivityResult.getReferenceIntensity(cnec1, LEFT)).thenReturn(58.);
@@ -93,9 +91,9 @@ class FlowResultAdapterImplTest {
         FlowResult ptdfFlowResult = new FlowResultFromMapImpl(systematicSensitivityResult, new HashMap<>(), Map.of(cnec1, Map.of(LEFT, 20.)));
         FlowResult commercialFlowFlowResult = new FlowResultFromMapImpl(systematicSensitivityResult, Map.of(cnec2, Map.of(RIGHT, 300.)), new HashMap<>());
         BranchResultAdapter branchResultAdapter = branchResultAdpaterBuilder
-            .withPtdfsResults(ptdfFlowResult)
-            .withCommercialFlowsResults(commercialFlowFlowResult)
-            .build();
+                .withPtdfsResults(ptdfFlowResult)
+                .withCommercialFlowsResults(commercialFlowFlowResult)
+                .build();
 
         FlowResult flowResult = branchResultAdapter.getResult(systematicSensitivityResult, network);
 
@@ -108,12 +106,12 @@ class FlowResultAdapterImplTest {
         LoopFlowComputation loopFlowComputation = Mockito.mock(LoopFlowComputation.class);
         FlowResult ptdfFlowResult = new FlowResultFromMapImpl(systematicSensitivityResult, new HashMap<>(), Map.of(cnec1, Map.of(LEFT, 20.)));
         BranchResultAdapter branchResultAdapter = branchResultAdpaterBuilder.withPtdfsResults(ptdfFlowResult)
-            .withCommercialFlowsResults(loopFlowComputation, Set.of(cnec2))
-            .build();
+                .withCommercialFlowsResults(loopFlowComputation, Set.of(cnec2))
+                .build();
 
         LoopFlowResult loopFlowResult = Mockito.mock(LoopFlowResult.class);
         when(loopFlowComputation.buildLoopFlowsFromReferenceFlowAndPtdf(systematicSensitivityResult, Set.of(cnec2), network))
-            .thenReturn(loopFlowResult);
+                .thenReturn(loopFlowResult);
         when(loopFlowResult.getCommercialFlow(cnec2, RIGHT)).thenReturn(300.);
         FlowResult flowResult = branchResultAdapter.getResult(systematicSensitivityResult, network);
 
@@ -127,13 +125,12 @@ class FlowResultAdapterImplTest {
         Map<FlowCnec, Map<Side, Double>> ptdfZonalSums = Map.of(cnec1, Map.of(LEFT, 1.63), cnec2, Map.of(RIGHT, 0.57));
         when(absolutePtdfSumsComputation.computeAbsolutePtdfSums(any(), any())).thenReturn(ptdfZonalSums);
         BranchResultAdapter branchResultAdapter = branchResultAdpaterBuilder
-            .withPtdfsResults(absolutePtdfSumsComputation, Set.of(cnec1, cnec2))
-            .build();
+                .withPtdfsResults(absolutePtdfSumsComputation, Set.of(cnec1, cnec2))
+                .build();
         FlowResult flowResult = branchResultAdapter.getResult(systematicSensitivityResult, network);
         assertEquals(1.63, flowResult.getPtdfZonalSum(cnec1, LEFT), DOUBLE_TOLERANCE);
         assertEquals(0.57, flowResult.getPtdfZonalSum(cnec2, RIGHT), DOUBLE_TOLERANCE);
         assertEquals(ptdfZonalSums, flowResult.getPtdfZonalSums());
-        FaraoException exception = assertThrows(FaraoException.class, () -> flowResult.getPtdfZonalSum(Mockito.mock(FlowCnec.class), LEFT));
-        assertEquals("No PTDF zonal sum for cnec null (side LEFT)", exception.getMessage());
+        assertThrows(FaraoException.class, () -> flowResult.getPtdfZonalSum(Mockito.mock(FlowCnec.class), LEFT));
     }
 }

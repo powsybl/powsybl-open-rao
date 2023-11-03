@@ -130,14 +130,6 @@ public class PreventiveAndCurativesRaoResultImpl implements RaoResult {
         return results;
     }
 
-    /**
-     * Returns true if the perimeter has an actual functional cost, ie has CNECs
-     * (as opposed to a perimeter with pure MNECs only)
-     */
-    private static boolean hasActualFunctionalCost(PerimeterResult perimeterResult) {
-        return !perimeterResult.getMostLimitingElements(1).isEmpty();
-    }
-
     private Set<String> getContingenciesToExclude(StateTree stateTree) {
         Set<String> contingenciesToExclude = new HashSet<>();
         stateTree.getContingencyScenarios().forEach(contingencyScenario -> {
@@ -331,6 +323,14 @@ public class PreventiveAndCurativesRaoResultImpl implements RaoResult {
         return highestFunctionalCost;
     }
 
+    /**
+     * Returns true if the perimeter has an actual functional cost, ie has CNECs
+     * (as opposed to a perimeter with pure MNECs only)
+     */
+    private static boolean hasActualFunctionalCost(PerimeterResult perimeterResult) {
+        return !perimeterResult.getMostLimitingElements(1).isEmpty();
+    }
+
     public List<FlowCnec> getMostLimitingElements() {
         //TODO : store values to be able to merge easily
         return Collections.emptyList();
@@ -408,11 +408,9 @@ public class PreventiveAndCurativesRaoResultImpl implements RaoResult {
     @Override
     public boolean isActivatedDuringState(State state, RemedialAction<?> remedialAction) {
         if (remedialAction instanceof NetworkAction) {
-            NetworkAction networkAction = (NetworkAction) remedialAction;
-            return isActivatedDuringState(state, networkAction);
+            return isActivatedDuringState(state, (NetworkAction) remedialAction);
         } else if (remedialAction instanceof RangeAction<?>) {
-            RangeAction<?> rangeAction = (RangeAction<?>) remedialAction;
-            return isActivatedDuringState(state, rangeAction);
+            return isActivatedDuringState(state, (RangeAction<?>) remedialAction);
         } else {
             throw new FaraoException("Unrecognized remedial action type");
         }
@@ -572,16 +570,16 @@ public class PreventiveAndCurativesRaoResultImpl implements RaoResult {
     }
 
     @Override
-    public OptimizationStepsExecuted getOptimizationStepsExecuted() {
-        return optimizationStepsExecuted;
-    }
-
-    @Override
     public void setOptimizationStepsExecuted(OptimizationStepsExecuted optimizationStepsExecuted) {
         if (this.optimizationStepsExecuted.isOverwritePossible(optimizationStepsExecuted)) {
             this.optimizationStepsExecuted = optimizationStepsExecuted;
         } else {
             throw new FaraoException("The RaoResult object should not be modified outside of its usual routine");
         }
+    }
+
+    @Override
+    public OptimizationStepsExecuted getOptimizationStepsExecuted() {
+        return optimizationStepsExecuted;
     }
 }

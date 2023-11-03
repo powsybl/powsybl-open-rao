@@ -163,8 +163,8 @@ class IteratingLinearOptimizerTest {
                 objectiveFunctionResults[i] = objectiveFunctionResult;
             }
             when(objectiveFunction.evaluate(any(), any(), any(), any())).thenReturn(
-                initialObjectiveFunctionResult,
-                objectiveFunctionResults
+                    initialObjectiveFunctionResult,
+                    objectiveFunctionResults
             );
         }
     }
@@ -172,7 +172,6 @@ class IteratingLinearOptimizerTest {
     private void mockLinearProblem(List<LinearProblemStatus> statuses, List<Double> setPoints) {
         doAnswer(new Answer() {
             private int count = 0;
-
             public Object answer(InvocationOnMock invocation) {
                 count += 1;
                 if (statuses.get(count - 1) == LinearProblemStatus.OPTIMAL) {
@@ -345,8 +344,8 @@ class IteratingLinearOptimizerTest {
         mockFunctionalCost(100., 120., 105., 90., 100., 95.);
         Crac crac = CracFactory.findDefault().create("test-crac");
         rangeAction = (PstRangeAction) crac.newPstRangeAction().withId("test-pst").withNetworkElement("BBE2AA1  BBE3AA1  1")
-            .withInitialTap(0)
-            .withTapToAngleConversionMap(Map.of(0, 0., 1, 1., 2, 2., 3, 3., 4, 4., 5, 5.)).add();
+                .withInitialTap(0)
+                .withTapToAngleConversionMap(Map.of(0, 0., 1, 1., 2, 2., 3, 3., 4, 4., 5, 5.)).add();
         when(optimizationPerimeter.getRangeActionsPerState()).thenReturn(Map.of(
             optimizedState, Set.of(rangeAction)
         ));

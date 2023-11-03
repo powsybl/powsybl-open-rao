@@ -31,6 +31,7 @@ import org.apache.commons.lang3.NotImplementedException;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static java.lang.String.format;
 
@@ -41,15 +42,16 @@ import static java.lang.String.format;
 public class CoreProblemFiller implements ProblemFiller {
 
     private static final double RANGE_ACTION_SETPOINT_EPSILON = 1e-5;
-    private static final double RANGE_SHRINK_RATE = 0.667;
+
     private final OptimizationPerimeter optimizationContext;
     private final Set<FlowCnec> flowCnecs;
     private final RangeActionSetpointResult prePerimeterRangeActionSetpoints;
     private final RangeActionActivationResult raActivationFromParentLeaf;
     private final RangeActionsOptimizationParameters rangeActionParameters;
     private final Unit unit;
-    private final boolean raRangeShrinking;
     private int iteration = 0;
+    private static final double RANGE_SHRINK_RATE = 0.667;
+    private final boolean raRangeShrinking;
 
     public CoreProblemFiller(OptimizationPerimeter optimizationContext,
                              RangeActionSetpointResult prePerimeterRangeActionSetpoints,
@@ -102,7 +104,7 @@ public class CoreProblemFiller implements ProblemFiller {
      */
     private void buildFlowVariables(LinearProblem linearProblem) {
         flowCnecs.forEach(cnec ->
-            cnec.getMonitoredSides().forEach(side -> linearProblem.addFlowVariable(-LinearProblem.infinity(), LinearProblem.infinity(), cnec, side))
+                cnec.getMonitoredSides().forEach(side -> linearProblem.addFlowVariable(-LinearProblem.infinity(), LinearProblem.infinity(), cnec, side))
         );
     }
 
@@ -114,10 +116,11 @@ public class CoreProblemFiller implements ProblemFiller {
      *     <li>in MEGAWATT for HVDC range actions</li>
      *     <li>in MEGAWATT for Injection range actions</li>
      * </ul>
-     * <p>
+     *
      * Build one absolute variation variable AV[r] for each RangeAction r
      * This variable describes the absolute difference between the range action setpoint
      * and its initial value. It is given in the same unit as S[r].
+     *
      */
     private void buildRangeActionVariables(LinearProblem linearProblem) {
         optimizationContext.getRangeActionsPerState().forEach((state, rangeActions) ->
@@ -183,7 +186,7 @@ public class CoreProblemFiller implements ProblemFiller {
 
         List<State> statesBeforeCnec = FillersUtil.getPreviousStates(cnec.getState(), optimizationContext).stream()
             .sorted((s1, s2) -> Integer.compare(s2.getInstant().getOrder(), s1.getInstant().getOrder())) // start with curative state
-            .toList();
+            .collect(Collectors.toList());
 
         Set<RangeAction<?>> alreadyConsideredAction = new HashSet<>();
 
@@ -239,7 +242,10 @@ public class CoreProblemFiller implements ProblemFiller {
     private void buildRangeActionConstraints(LinearProblem linearProblem) {
         optimizationContext.getRangeActionsPerState().entrySet().stream()
             .sorted(Comparator.comparingInt(e -> e.getKey().getInstant().getOrder()))
-            .forEach(entry -> entry.getValue().forEach(rangeAction -> buildConstraintsForRangeActionAndState(linearProblem, rangeAction, entry.getKey())));
+            .forEach(entry ->
+                entry.getValue().forEach(rangeAction -> buildConstraintsForRangeActionAndState(linearProblem, rangeAction, entry.getKey())
+            )
+        );
     }
 
     private void updateRangeActionConstraints(LinearProblem linearProblem, RangeActionActivationResult rangeActionActivationResult) {

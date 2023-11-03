@@ -71,54 +71,54 @@ class UnoptimizedCnecParametersTest {
         crac.newInstant("curative", InstantKind.CURATIVE, "auto");
 
         crac.newFlowCnec().withId("flowCnec-1")
-            .withNetworkElement("ne1Id")
-            .withInstant("preventive")
-            .withOperator("operator1")
-            .withOptimized()
-            .newThreshold().withSide(Side.RIGHT).withUnit(Unit.AMPERE).withMin(-500.).add()
-            .withIMax(1000., Side.RIGHT)
-            .withNominalVoltage(220.)
-            .add();
+                .withNetworkElement("ne1Id")
+                .withInstant("preventive")
+                .withOperator("operator1")
+                .withOptimized()
+                .newThreshold().withSide(Side.RIGHT).withUnit(Unit.AMPERE).withMin(-500.).add()
+                .withIMax(1000., Side.RIGHT)
+                .withNominalVoltage(220.)
+                .add();
 
         crac.newContingency().withId("co2").withNetworkElement("ne22").add();
 
         crac.newFlowCnec().withId("flowCnec-2")
-            .withNetworkElement("ne2Id")
-            .withInstant("curative")
-            .withContingency("co2")
-            .withOperator("operator1")
-            .withOptimized()
-            .newThreshold().withSide(Side.RIGHT).withUnit(Unit.AMPERE).withMin(-500.).add()
-            .withIMax(1000., Side.RIGHT)
-            .withNominalVoltage(220.)
-            .add();
+                .withNetworkElement("ne2Id")
+                .withInstant("curative")
+                .withContingency("co2")
+                .withOperator("operator1")
+                .withOptimized()
+                .newThreshold().withSide(Side.RIGHT).withUnit(Unit.AMPERE).withMin(-500.).add()
+                .withIMax(1000., Side.RIGHT)
+                .withNominalVoltage(220.)
+                .add();
 
         crac.newPstRangeAction().withId("pstRange1Id")
-            .withName("pstRange1Name")
-            .withOperator("RTE")
-            .withNetworkElement("pst1")
-            .withInitialTap(2)
-            .withTapToAngleConversionMap(Map.of(-3, 0., -2, .5, -1, 1., 0, 1.5, 1, 2., 2, 2.5, 3, 3.))
-            .newTapRange().withRangeType(RangeType.ABSOLUTE).withMinTap(1).withMaxTap(7).add()
-            .newTapRange().withRangeType(RangeType.RELATIVE_TO_INITIAL_NETWORK).withMinTap(-3).withMaxTap(3).add()
-            .newOnInstantUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withInstant("preventive").add()
-            .add();
+                .withName("pstRange1Name")
+                .withOperator("RTE")
+                .withNetworkElement("pst1")
+                .withInitialTap(2)
+                .withTapToAngleConversionMap(Map.of(-3, 0., -2, .5, -1, 1., 0, 1.5, 1, 2., 2, 2.5, 3, 3.))
+                .newTapRange().withRangeType(RangeType.ABSOLUTE).withMinTap(1).withMaxTap(7).add()
+                .newTapRange().withRangeType(RangeType.RELATIVE_TO_INITIAL_NETWORK).withMinTap(-3).withMaxTap(3).add()
+                .newOnInstantUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withInstant("preventive").add()
+                .add();
 
         crac.newPstRangeAction().withId("pstRange2Id")
-            .withName("pstRange2Name")
-            .withOperator("RTE")
-            .withNetworkElement("pst2")
-            .withGroupId("group-1-pst")
-            .withInitialTap(1)
-            .withTapToAngleConversionMap(Map.of(-3, 0., -2, .5, -1, 1., 0, 1.5, 1, 2., 2, 2.5, 3, 3.))
-            .newTapRange().withRangeType(RangeType.ABSOLUTE).withMinTap(1).withMaxTap(7).add()
-            .newTapRange().withRangeType(RangeType.RELATIVE_TO_INITIAL_NETWORK).withMinTap(-3).withMaxTap(3).add()
-            .add();
+                .withName("pstRange2Name")
+                .withOperator("RTE")
+                .withNetworkElement("pst2")
+                .withGroupId("group-1-pst")
+                .withInitialTap(1)
+                .withTapToAngleConversionMap(Map.of(-3, 0., -2, .5, -1, 1., 0, 1.5, 1, 2., 2, 2.5, 3, 3.))
+                .newTapRange().withRangeType(RangeType.ABSOLUTE).withMinTap(1).withMaxTap(7).add()
+                .newTapRange().withRangeType(RangeType.RELATIVE_TO_INITIAL_NETWORK).withMinTap(-3).withMaxTap(3).add()
+                .add();
 
         RaoParameters raoParameters = new RaoParameters();
         raoParameters.getNotOptimizedCnecsParameters().setDoNotOptimizeCnecsSecuredByTheirPst(Map.of("ne1Id", "pst1",
-            "ne2Id", "fakeId",
-            "fakeId", "pst2"));
+                "ne2Id", "fakeId",
+                "fakeId", "pst2"));
         UnoptimizedCnecParameters.build(raoParameters.getNotOptimizedCnecsParameters(), Set.of("BE"), crac);
 
         Map<FlowCnec, RangeAction<?>> map = UnoptimizedCnecParameters.getDoNotOptimizeCnecsSecuredByTheirPst(raoParameters.getNotOptimizedCnecsParameters(), crac);
@@ -130,15 +130,15 @@ class UnoptimizedCnecParametersTest {
 
         // Add pst with same networkElement to crac
         crac.newPstRangeAction().withId("pstRange3Id")
-            .withName("pstRange3Name")
-            .withOperator("RTE")
-            .withNetworkElement("pst2")
-            .withGroupId("group-1-pst")
-            .withInitialTap(1)
-            .withTapToAngleConversionMap(Map.of(-3, 0., -2, .5, -1, 1., 0, 1.5, 1, 2., 2, 2.5, 3, 3.))
-            .newTapRange().withRangeType(RangeType.ABSOLUTE).withMinTap(1).withMaxTap(7).add()
-            .newTapRange().withRangeType(RangeType.RELATIVE_TO_INITIAL_NETWORK).withMinTap(-3).withMaxTap(3).add()
-            .add();
+                .withName("pstRange3Name")
+                .withOperator("RTE")
+                .withNetworkElement("pst2")
+                .withGroupId("group-1-pst")
+                .withInitialTap(1)
+                .withTapToAngleConversionMap(Map.of(-3, 0., -2, .5, -1, 1., 0, 1.5, 1, 2., 2, 2.5, 3, 3.))
+                .newTapRange().withRangeType(RangeType.ABSOLUTE).withMinTap(1).withMaxTap(7).add()
+                .newTapRange().withRangeType(RangeType.RELATIVE_TO_INITIAL_NETWORK).withMinTap(-3).withMaxTap(3).add()
+                .add();
         RaoParameters newRaoParameters = new RaoParameters();
         newRaoParameters.getNotOptimizedCnecsParameters().setDoNotOptimizeCnecsSecuredByTheirPst(Map.of("ne1Id", "pst2"));
         Map<FlowCnec, RangeAction<?>> newMap = UnoptimizedCnecParameters.getDoNotOptimizeCnecsSecuredByTheirPst(newRaoParameters.getNotOptimizedCnecsParameters(), crac);

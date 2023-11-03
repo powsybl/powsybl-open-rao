@@ -33,20 +33,57 @@ public final class LinearProblem {
     private final double relativeMipGap;
     private final String solverSpecificParameters;
 
-    LinearProblem(List<ProblemFiller> fillerList, FaraoMPSolver solver, double relativeMipGap, String solverSpecificParameters) {
-        this.solver = solver;
-        this.fillerList = fillerList;
-        this.relativeMipGap = relativeMipGap;
-        this.solverSpecificParameters = solverSpecificParameters;
-        this.solver.objective().setMinimization();
+    public enum AbsExtension {
+        POSITIVE,
+        NEGATIVE
+    }
+
+    public enum VariationDirectionExtension {
+        UPWARD,
+        DOWNWARD
+    }
+
+    public enum VariationReferenceExtension {
+        PREPERIMETER,
+        PREVIOUS_ITERATION
+    }
+
+    public enum MarginExtension {
+        BELOW_THRESHOLD,
+        ABOVE_THRESHOLD
+    }
+
+    public enum BoundExtension {
+        LOWER_BOUND,
+        UPPER_BOUND
+    }
+
+    public enum RaRangeShrinking {
+        TRUE("iterative-shrink"),
+        FALSE("");
+
+        private final String name;
+
+        RaRangeShrinking(String name) {
+            this.name = name;
+        }
+
+        @Override
+        public String toString() {
+            return name;
+        }
     }
 
     public static LinearProblemBuilder create() {
         return new LinearProblemBuilder();
     }
 
-    public static double infinity() {
-        return 1e10;
+    LinearProblem(List<ProblemFiller> fillerList, FaraoMPSolver solver, double relativeMipGap, String solverSpecificParameters) {
+        this.solver = solver;
+        this.fillerList = fillerList;
+        this.relativeMipGap = relativeMipGap;
+        this.solverSpecificParameters = solverSpecificParameters;
+        this.solver.objective().setMinimization();
     }
 
     public List<ProblemFiller> getFillers() {
@@ -171,8 +208,8 @@ public final class LinearProblem {
         return solver.getConstraint(isVariationInDirectionConstraintId(rangeAction, state, reference, direction));
     }
 
-    public void addRangeActionGroupSetpointVariable(double lb, double ub, String rangeActionGroupId, State state) {
-        solver.makeNumVar(lb, ub, rangeActionGroupSetpointVariableId(rangeActionGroupId, state));
+    public FaraoMPVariable addRangeActionGroupSetpointVariable(double lb, double ub, String rangeActionGroupId, State state) {
+        return solver.makeNumVar(lb, ub, rangeActionGroupSetpointVariableId(rangeActionGroupId, state));
     }
 
     public FaraoMPVariable getRangeActionGroupSetpointVariable(String rangeActionGroupId, State state) {
@@ -259,8 +296,8 @@ public final class LinearProblem {
         return solver.getVariable(minimumMarginVariableId());
     }
 
-    public void addMinimumRelativeMarginVariable(double lb, double ub) {
-        solver.makeNumVar(lb, ub, minimumRelativeMarginVariableId());
+    public FaraoMPVariable addMinimumRelativeMarginVariable(double lb, double ub) {
+        return solver.makeNumVar(lb, ub, minimumRelativeMarginVariableId());
     }
 
     public FaraoMPVariable getMinimumRelativeMarginVariable() {
@@ -292,8 +329,8 @@ public final class LinearProblem {
         return solver.getVariable(loopflowViolationVariableId(cnec, side));
     }
 
-    public void addMnecViolationVariable(double lb, double ub, FlowCnec mnec, Side side) {
-        solver.makeNumVar(lb, ub, mnecViolationVariableId(mnec, side));
+    public FaraoMPVariable addMnecViolationVariable(double lb, double ub, FlowCnec mnec, Side side) {
+        return solver.makeNumVar(lb, ub, mnecViolationVariableId(mnec, side));
     }
 
     public FaraoMPVariable getMnecViolationVariable(FlowCnec mnec, Side side) {
@@ -308,8 +345,8 @@ public final class LinearProblem {
         return solver.getConstraint(mnecFlowConstraintId(mnec, side, belowOrAboveThreshold));
     }
 
-    public void addOptimizeCnecBinaryVariable(FlowCnec cnec, Side side) {
-        solver.makeIntVar(0, 1, optimizeCnecBinaryVariableId(cnec, side));
+    public FaraoMPVariable addOptimizeCnecBinaryVariable(FlowCnec cnec, Side side) {
+        return solver.makeIntVar(0, 1, optimizeCnecBinaryVariableId(cnec, side));
     }
 
     public FaraoMPVariable getOptimizeCnecBinaryVariable(FlowCnec cnec, Side side) {
@@ -372,45 +409,8 @@ public final class LinearProblem {
         return solver.getConstraint(tsoRaUsedConstraintId(operator, rangeAction, state));
     }
 
-    public enum AbsExtension {
-        POSITIVE,
-        NEGATIVE
-    }
-
-    public enum VariationDirectionExtension {
-        UPWARD,
-        DOWNWARD
-    }
-
-    public enum VariationReferenceExtension {
-        PREPERIMETER,
-        PREVIOUS_ITERATION
-    }
-
-    public enum MarginExtension {
-        BELOW_THRESHOLD,
-        ABOVE_THRESHOLD
-    }
-
-    public enum BoundExtension {
-        LOWER_BOUND,
-        UPPER_BOUND
-    }
-
-    public enum RaRangeShrinking {
-        TRUE("iterative-shrink"),
-        FALSE("");
-
-        private final String name;
-
-        RaRangeShrinking(String name) {
-            this.name = name;
-        }
-
-        @Override
-        public String toString() {
-            return name;
-        }
+    public static double infinity() {
+        return 1e10;
     }
 
 }

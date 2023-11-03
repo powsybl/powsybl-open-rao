@@ -27,9 +27,51 @@ public class RangeActionActivationResultImpl implements RangeActionActivationRes
 
     private final Map<RangeAction<?>, ElementaryResult> elementaryResultMap = new HashMap<>();
 
-    boolean shouldRecomputeSetpointsPerState;
+    boolean shouldRecomputeSetpointsPerState = true;
 
-    private Map<String, Map<State, Double>> setpointPerStatePerPstId;
+    private Map<String, Map<State, Double> > setpointPerStatePerPstId;
+
+    private static class ElementaryResult {
+        private final double refSetpoint;
+        private final Map<State, Double> setPointPerState;
+
+        ElementaryResult(double refSetpoint) {
+            this.refSetpoint = refSetpoint;
+            this.setPointPerState = new HashMap<>();
+        }
+
+        private void activate(State state, Double setpoint) {
+            setPointPerState.put(state, setpoint);
+        }
+
+        private boolean isExplicitlyActivatedDuringState(State state) {
+            return setPointPerState.containsKey(state);
+        }
+
+        private double getSetpoint(State state) {
+            if (setPointPerState.containsKey(state)) {
+                return setPointPerState.get(state);
+            } else {
+                Optional<State> lastActivation = getLastPreviousActivation(state);
+                if (lastActivation.isPresent()) {
+                    return setPointPerState.get(lastActivation.get());
+                } else {
+                    return refSetpoint;
+                }
+            }
+        }
+
+        private Optional<State> getLastPreviousActivation(State state) {
+            return setPointPerState.keySet().stream()
+                .filter(s -> s.getContingency().equals(state.getContingency()) || s.getContingency().isEmpty())
+                .filter(s -> s.getInstant().comesBefore(state.getInstant()))
+                .max(Comparator.comparingInt(s -> s.getInstant().getOrder()));
+        }
+
+        private Set<State> getAllStatesWithActivation() {
+            return setPointPerState.keySet();
+        }
+    }
 
     public RangeActionActivationResultImpl(RangeActionSetpointResult rangeActionSetpointResult) {
         shouldRecomputeSetpointsPerState = true;
@@ -72,7 +114,11 @@ public class RangeActionActivationResultImpl implements RangeActionActivationRes
             .filter(e -> e.getValue().isExplicitlyActivatedDuringState(state))
             .filter(e -> {
                 Optional<State> pState = getPreviousState(state);
-                return pState.map(value -> Math.abs(getOptimizedSetpoint(e.getKey(), state) - getOptimizedSetpoint(e.getKey(), value)) > 1e-6).orElseGet(() -> Math.abs(getOptimizedSetpoint(e.getKey(), state) - e.getValue().refSetpoint) > 1e-6);
+                if (pState.isEmpty()) {
+                    return Math.abs(getOptimizedSetpoint(e.getKey(), state) - e.getValue().refSetpoint) > 1e-6;
+                } else {
+                    return Math.abs(getOptimizedSetpoint(e.getKey(), state) - getOptimizedSetpoint(e.getKey(), pState.get())) > 1e-6;
+                }
             })
             .map(Map.Entry::getKey)
             .collect(Collectors.toSet());
@@ -139,47 +185,5 @@ public class RangeActionActivationResultImpl implements RangeActionActivationRes
             .filter(s -> s.getContingency().equals(state.getContingency()) || s.getContingency().isEmpty())
             .filter(s -> s.getInstant().comesBefore(state.getInstant()))
             .max(Comparator.comparingInt(s -> s.getInstant().getOrder()));
-    }
-
-    private static class ElementaryResult {
-        private final double refSetpoint;
-        private final Map<State, Double> setPointPerState;
-
-        ElementaryResult(double refSetpoint) {
-            this.refSetpoint = refSetpoint;
-            this.setPointPerState = new HashMap<>();
-        }
-
-        private void activate(State state, Double setpoint) {
-            setPointPerState.put(state, setpoint);
-        }
-
-        private boolean isExplicitlyActivatedDuringState(State state) {
-            return setPointPerState.containsKey(state);
-        }
-
-        private double getSetpoint(State state) {
-            if (setPointPerState.containsKey(state)) {
-                return setPointPerState.get(state);
-            } else {
-                Optional<State> lastActivation = getLastPreviousActivation(state);
-                if (lastActivation.isPresent()) {
-                    return setPointPerState.get(lastActivation.get());
-                } else {
-                    return refSetpoint;
-                }
-            }
-        }
-
-        private Optional<State> getLastPreviousActivation(State state) {
-            return setPointPerState.keySet().stream()
-                .filter(s -> s.getContingency().equals(state.getContingency()) || s.getContingency().isEmpty())
-                .filter(s -> s.getInstant().comesBefore(state.getInstant()))
-                .max(Comparator.comparingInt(s -> s.getInstant().getOrder()));
-        }
-
-        private Set<State> getAllStatesWithActivation() {
-            return setPointPerState.keySet();
-        }
     }
 }
