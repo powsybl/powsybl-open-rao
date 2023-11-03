@@ -28,20 +28,20 @@ class RangeActionResultTest {
 
         //define CNECs on Outage state so that the Crac contains outage states
         crac.newFlowCnec()
-            .withId("cnec-outage-co1")
-            .withNetworkElement("anyNetworkElement")
-            .withContingency("Contingency FR1 FR2")
-            .withInstant("outage")
-            .newThreshold().withSide(Side.LEFT).withUnit(Unit.MEGAWATT).withMax(1000.).add()
-            .add();
+                .withId("cnec-outage-co1")
+                .withNetworkElement("anyNetworkElement")
+                .withContingency("Contingency FR1 FR2")
+                .withInstant("outage")
+                .newThreshold().withSide(Side.LEFT).withUnit(Unit.MEGAWATT).withMax(1000.).add()
+                .add();
 
         crac.newFlowCnec()
-            .withId("cnec-outage-co2")
-            .withNetworkElement("anyNetworkElement")
-            .withContingency("Contingency FR1 FR3")
-            .withInstant("outage")
-            .newThreshold().withSide(Side.LEFT).withUnit(Unit.MEGAWATT).withMax(1000.).add()
-            .add();
+                .withId("cnec-outage-co2")
+                .withNetworkElement("anyNetworkElement")
+                .withContingency("Contingency FR1 FR3")
+                .withInstant("outage")
+                .newThreshold().withSide(Side.LEFT).withUnit(Unit.MEGAWATT).withMax(1000.).add()
+                .add();
     }
 
     @Test
@@ -144,8 +144,8 @@ class RangeActionResultTest {
 
         // Add dummy flow cnec to create auto state
         crac.newFlowCnec().withId("dummy").withContingency("Contingency FR1 FR2").withInstant("auto").withNetworkElement("ne")
-            .newThreshold().withMax(1.).withSide(Side.LEFT).withUnit(Unit.MEGAWATT).add()
-            .add();
+                .newThreshold().withMax(1.).withSide(Side.LEFT).withUnit(Unit.MEGAWATT).add()
+                .add();
 
         rangeActionResult.setInitialSetpoint(0.3);
         rangeActionResult.addActivationForState(crac.getPreventiveState(), 1.6);

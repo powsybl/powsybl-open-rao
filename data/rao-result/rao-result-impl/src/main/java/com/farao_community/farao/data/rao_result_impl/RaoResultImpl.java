@@ -208,16 +208,16 @@ public class RaoResultImpl implements RaoResult {
 
         // if it is activated in the preventive state, return true
         if (networkActionResults.getOrDefault(networkAction, DEFAULT_NETWORKACTION_RESULT)
-            .getStatesWithActivation().stream()
-            .anyMatch(State::isPreventive)) {
+                .getStatesWithActivation().stream()
+                .anyMatch(State::isPreventive)) {
             return true;
         }
 
         return networkActionResults.getOrDefault(networkAction, DEFAULT_NETWORKACTION_RESULT)
-            .getStatesWithActivation().stream()
-            .filter(st -> st.getContingency().isPresent())
-            .filter(st -> st.getInstant().getOrder() < state.getInstant().getOrder())
-            .anyMatch(st -> st.getContingency().get().getId().equals(state.getContingency().get().getId()));
+                .getStatesWithActivation().stream()
+                .filter(st -> st.getContingency().isPresent())
+                .filter(st -> st.getInstant().getOrder() < state.getInstant().getOrder())
+                .anyMatch(st -> st.getContingency().get().getId().equals(state.getContingency().get().getId()));
     }
 
     @Override
@@ -228,9 +228,9 @@ public class RaoResultImpl implements RaoResult {
     @Override
     public Set<NetworkAction> getActivatedNetworkActionsDuringState(State state) {
         return networkActionResults.entrySet().stream()
-            .filter(e -> e.getValue().getStatesWithActivation().contains(state))
-            .map(Map.Entry::getKey)
-            .collect(Collectors.toSet());
+                .filter(e -> e.getValue().getStatesWithActivation().contains(state))
+                .map(Map.Entry::getKey)
+                .collect(Collectors.toSet());
     }
 
     public RangeActionResult getAndCreateIfAbsentRangeActionResult(RangeAction<?> rangeAction) {
@@ -269,9 +269,9 @@ public class RaoResultImpl implements RaoResult {
         while (Objects.nonNull(stateBefore)) {
             final State finalStateBefore = stateBefore;
             Optional<Map.Entry<RangeAction<?>, RangeActionResult>> activatedRangeAction =
-                rangeActionResults.entrySet().stream().filter(entry ->
+                    rangeActionResults.entrySet().stream().filter(entry ->
                     entry.getKey().getNetworkElements().equals(rangeAction.getNetworkElements())
-                        && entry.getValue().isActivatedDuringState(finalStateBefore)).findAny();
+                            && entry.getValue().isActivatedDuringState(finalStateBefore)).findAny();
             if (activatedRangeAction.isPresent()) {
                 return activatedRangeAction.get().getValue().getOptimizedSetpointOnState(stateBefore);
             }
@@ -284,9 +284,9 @@ public class RaoResultImpl implements RaoResult {
     @Override
     public Set<RangeAction<?>> getActivatedRangeActionsDuringState(State state) {
         return rangeActionResults.entrySet().stream()
-            .filter(e -> e.getValue().isActivatedDuringState(state))
-            .map(Map.Entry::getKey)
-            .collect(Collectors.toSet());
+                .filter(e -> e.getValue().isActivatedDuringState(state))
+                .map(Map.Entry::getKey)
+                .collect(Collectors.toSet());
     }
 
     @Override

@@ -390,34 +390,34 @@ class RaoResultRoundTripTest {
         crac.newInstant("auto", InstantKind.AUTO, "outage");
         crac.newInstant("curative", InstantKind.CURATIVE, "auto");
         PstRangeAction pstPrev = (PstRangeAction) crac.newPstRangeAction().withId("pst-prev").withNetworkElement("pst").withInitialTap(-1)
-            .withTapToAngleConversionMap(Map.of(-1, -10., 0, 0., 1, 10., 2, 20., 3, 30.))
-            .withSpeed(1)
-            .newOnInstantUsageRule().withInstant("preventive").withUsageMethod(UsageMethod.AVAILABLE).add()
-            .add();
+                .withTapToAngleConversionMap(Map.of(-1, -10., 0, 0., 1, 10., 2, 20., 3, 30.))
+                .withSpeed(1)
+                .newOnInstantUsageRule().withInstant("preventive").withUsageMethod(UsageMethod.AVAILABLE).add()
+                .add();
         PstRangeAction pstAuto = (PstRangeAction) crac.newPstRangeAction().withId("pst-auto").withNetworkElement("pst").withInitialTap(-1)
-            .withTapToAngleConversionMap(Map.of(-1, -10., 0, 0., 1, 10., 2, 20., 3, 30.))
-            .withSpeed(1)
-            .newOnInstantUsageRule().withInstant("auto").withUsageMethod(UsageMethod.FORCED).add()
-            .add();
+                .withTapToAngleConversionMap(Map.of(-1, -10., 0, 0., 1, 10., 2, 20., 3, 30.))
+                .withSpeed(1)
+                .newOnInstantUsageRule().withInstant("auto").withUsageMethod(UsageMethod.FORCED).add()
+                .add();
         PstRangeAction pstCur = (PstRangeAction) crac.newPstRangeAction().withId("pst-cur").withNetworkElement("pst").withInitialTap(-1)
-            .withTapToAngleConversionMap(Map.of(-1, -10., 0, 0., 1, 10., 2, 20., 3, 30.))
-            .newOnInstantUsageRule().withInstant("curative").withUsageMethod(UsageMethod.AVAILABLE).add()
-            .add();
+                .withTapToAngleConversionMap(Map.of(-1, -10., 0, 0., 1, 10., 2, 20., 3, 30.))
+                .newOnInstantUsageRule().withInstant("curative").withUsageMethod(UsageMethod.AVAILABLE).add()
+                .add();
 
         // dummy flow cnecs
         crac.newContingency().withId("contingency").withNetworkElement("co-ne").add();
         crac.newFlowCnec().withId("dummy-preventive").withInstant("preventive").withNetworkElement("ne")
-            .newThreshold().withMax(1.).withSide(Side.LEFT).withUnit(Unit.MEGAWATT).add()
-            .add();
+                .newThreshold().withMax(1.).withSide(Side.LEFT).withUnit(Unit.MEGAWATT).add()
+                .add();
         crac.newFlowCnec().withId("dummy-outage").withContingency("contingency").withInstant("outage").withNetworkElement("ne")
-            .newThreshold().withMax(1.).withSide(Side.LEFT).withUnit(Unit.MEGAWATT).add()
-            .add();
+                .newThreshold().withMax(1.).withSide(Side.LEFT).withUnit(Unit.MEGAWATT).add()
+                .add();
         crac.newFlowCnec().withId("dummy-auto").withContingency("contingency").withInstant("auto").withNetworkElement("ne")
-            .newThreshold().withMax(1.).withSide(Side.LEFT).withUnit(Unit.MEGAWATT).add()
-            .add();
+                .newThreshold().withMax(1.).withSide(Side.LEFT).withUnit(Unit.MEGAWATT).add()
+                .add();
         crac.newFlowCnec().withId("dummy-cur").withContingency("contingency").withInstant("curative").withNetworkElement("ne")
-            .newThreshold().withMax(1.).withSide(Side.LEFT).withUnit(Unit.MEGAWATT).add()
-            .add();
+                .newThreshold().withMax(1.).withSide(Side.LEFT).withUnit(Unit.MEGAWATT).add()
+                .add();
 
         State outageState = crac.getState("contingency", "outage");
         State autoState = crac.getState("contingency", "auto");

@@ -65,7 +65,7 @@ public final class CracValidator {
     }
 
     private static void duplicateCnecOnOutageInstant(Crac crac, FlowCnec cnec) {
-        Instant outageInstant = getOutageInstant(cnec);
+        Instant outageInstant = crac.getInstant(InstantKind.OUTAGE);
         FlowCnecAdder adder = crac.newFlowCnec()
             .withId(cnec.getId() + " - OUTAGE DUPLICATE")
             .withNetworkElement(cnec.getNetworkElement().getId())
@@ -74,20 +74,11 @@ public final class CracValidator {
             .withNominalVoltage(cnec.getNominalVoltage(Side.LEFT), Side.LEFT)
             .withNominalVoltage(cnec.getNominalVoltage(Side.RIGHT), Side.RIGHT)
             .withReliabilityMargin(cnec.getReliabilityMargin())
-            .withInstant(outageInstant.getId())
-            .withContingency(cnec.getState().getContingency().orElseThrow().getId())
+            .withInstant(outageInstant.getId()).withContingency(cnec.getState().getContingency().orElseThrow().getId())
             .withOptimized(cnec.isOptimized())
             .withMonitored(cnec.isMonitored());
         copyThresholds(cnec, adder);
         adder.add();
-    }
-
-    private static Instant getOutageInstant(FlowCnec cnec) {
-        Instant outageInstant = cnec.getState().getInstant();
-        while (!outageInstant.getInstantKind().equals(InstantKind.OUTAGE)) {
-            outageInstant = outageInstant.getPreviousInstant();
-        }
-        return outageInstant;
     }
 
     private static boolean hasNoRemedialAction(State state, Crac crac) {

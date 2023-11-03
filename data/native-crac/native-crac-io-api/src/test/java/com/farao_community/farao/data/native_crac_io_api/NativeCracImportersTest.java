@@ -14,7 +14,6 @@ import org.junit.jupiter.api.Test;
 import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Objects;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -52,7 +51,7 @@ class NativeCracImportersTest {
 
     @Test
     void testImportFromPath() {
-        NativeCrac nativeCrac = NativeCracImporters.importData(Paths.get(new File(Objects.requireNonNull(getClass().getResource("/empty.txt")).getFile()).getAbsolutePath()));
+        NativeCrac nativeCrac = NativeCracImporters.importData(Paths.get(new File(getClass().getResource("/empty.txt").getFile()).getAbsolutePath()));
         assertNotNull(nativeCrac);
         assertEquals("MockedNativeCracFormat", nativeCrac.getFormat());
 
@@ -61,7 +60,6 @@ class NativeCracImportersTest {
     @Test
     void testImportFileNotFound() {
         Path path = Paths.get("not_found", "file");
-        FaraoException exception = assertThrows(FaraoException.class, () -> NativeCracImporters.importData(path));
-        assertEquals("File not found.", exception.getMessage());
+        assertThrows(FaraoException.class, () -> NativeCracImporters.importData(path));
     }
 }

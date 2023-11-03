@@ -16,6 +16,7 @@ import java.io.*;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 /**
  * A utility class to work with native CRAC importers
@@ -25,14 +26,13 @@ import java.util.function.Supplier;
 public final class NativeCracImporters {
 
     private static final Supplier<List<NativeCracImporter>> NATIVE_CRAC_IMPORTERS
-        = Suppliers.memoize(() -> new ServiceLoaderCache<>(NativeCracImporter.class).getServices());
+        = Suppliers.memoize(() -> new ServiceLoaderCache<>(NativeCracImporter.class).getServices())::get;
 
     private NativeCracImporters() {
     }
 
     /**
      * Flexible method to import a NativeCrac from a file, trying to guess its format
-     *
      * @param nativeCracPath {@link Path} of the native CRAC file
      */
     public static NativeCrac importData(Path nativeCracPath) {
@@ -47,8 +47,7 @@ public final class NativeCracImporters {
 
     /**
      * Flexible method to import a NativeCrac from a file, trying to guess its format
-     *
-     * @param fileName    name of the native CRAC file
+     * @param fileName name of the native CRAC file
      * @param inputStream input stream of the native CRAC file
      */
     public static NativeCrac importData(String fileName, InputStream inputStream) {
@@ -67,8 +66,7 @@ public final class NativeCracImporters {
 
     /**
      * Find an importer for a specified file, trying to guess its format
-     *
-     * @param fileName    name of the native CRAC file
+     * @param fileName name of the native CRAC file
      * @param inputStream input stream of the native CRAC file
      * @return the importer if one exists for the given file or <code>null</code> otherwise.
      */
@@ -91,14 +89,13 @@ public final class NativeCracImporters {
 
     /**
      * Find an importer for the specified NativeCrac format name.
-     *
      * @param fileFormat unique identifier of a native CRAC file format
      * @return the importer if one exists for the given format or <code>null</code> otherwise.
      */
     public static NativeCracImporter findImporter(String fileFormat) {
-        List<NativeCracImporter> importersWithFormat = NATIVE_CRAC_IMPORTERS.get().stream()
+        List<NativeCracImporter> importersWithFormat =  NATIVE_CRAC_IMPORTERS.get().stream()
             .filter(importer -> importer.getFormat().equals(fileFormat))
-            .toList();
+            .collect(Collectors.toList());
 
         if (importersWithFormat.size() == 1) {
             return importersWithFormat.get(0);
