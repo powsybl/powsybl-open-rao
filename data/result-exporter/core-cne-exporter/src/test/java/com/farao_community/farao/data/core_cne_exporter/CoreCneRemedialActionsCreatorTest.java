@@ -62,17 +62,17 @@ class CoreCneRemedialActionsCreatorTest {
         crac.newInstant("auto", InstantKind.AUTO, "outage");
         crac.newInstant("curative", InstantKind.CURATIVE, "auto");
         crac.newContingency()
-            .withId("cnec1")
-            .withId("contingency-id")
-            .withNetworkElement("BBE2AA1  BBE3AA1  1")
-            .add();
+                .withId("cnec1")
+                .withId("contingency-id")
+                .withNetworkElement("BBE2AA1  BBE3AA1  1")
+                .add();
         crac.newFlowCnec()
-            .withId("cnec2")
-            .withNetworkElement("BBE2AA1  BBE3AA1  1")
-            .withContingency("contingency-id")
-            .withInstant("curative")
-            .newThreshold().withUnit(Unit.MEGAWATT).withMax(100.).withSide(Side.RIGHT).add()
-            .add();
+                .withId("cnec2")
+                .withNetworkElement("BBE2AA1  BBE3AA1  1")
+                .withContingency("contingency-id")
+                .withInstant("curative")
+                .newThreshold().withUnit(Unit.MEGAWATT).withMax(100.).withSide(Side.RIGHT).add()
+                .add();
         raoResult = Mockito.mock(RaoResult.class);
         raoParameters = new RaoParameters();
 
@@ -97,12 +97,12 @@ class CoreCneRemedialActionsCreatorTest {
     @Test
     void testPstInitialSetpoint() {
         PstRangeAction pstRangeAction = (PstRangeAction) crac.newPstRangeAction()
-            .withId("ra-id")
-            .withNetworkElement("BBE2AA1  BBE3AA1  1")
-            .withInitialTap(5)
-            .withTapToAngleConversionMap(Map.of(5, 5., 6, 6.))
-            .withOperator("BE")
-            .add();
+                .withId("ra-id")
+                .withNetworkElement("BBE2AA1  BBE3AA1  1")
+                .withInitialTap(5)
+                .withTapToAngleConversionMap(Map.of(5, 5., 6, 6.))
+                .withOperator("BE")
+                .add();
 
         Mockito.when(raoResult.isActivatedDuringState(crac.getStates().iterator().next(), pstRangeAction)).thenReturn(true);
 
@@ -154,12 +154,12 @@ class CoreCneRemedialActionsCreatorTest {
     @Test
     void testIgnorePstWithNoUsageRule() {
         PstRangeAction pstRangeAction = (PstRangeAction) crac.newPstRangeAction()
-            .withId("ra-id")
-            .withNetworkElement("BBE2AA1  BBE3AA1  1")
-            .withInitialTap(5)
-            .withTapToAngleConversionMap(Map.of(5, 5., 6, 6.))
-            .withOperator("BE")
-            .add();
+                .withId("ra-id")
+                .withNetworkElement("BBE2AA1  BBE3AA1  1")
+                .withInitialTap(5)
+                .withTapToAngleConversionMap(Map.of(5, 5., 6, 6.))
+                .withOperator("BE")
+                .add();
 
         Mockito.when(raoResult.getActivatedRangeActionsDuringState(any())).thenReturn(Set.of(pstRangeAction));
         Mockito.when(raoResult.isActivatedDuringState(crac.getStates().iterator().next(), pstRangeAction)).thenReturn(true);
@@ -178,13 +178,13 @@ class CoreCneRemedialActionsCreatorTest {
     @Test
     void testPstUsedInPreventive() {
         PstRangeAction pstRangeAction = (PstRangeAction) crac.newPstRangeAction()
-            .withId("ra-id")
-            .withNetworkElement("BBE2AA1  BBE3AA1  1")
-            .withInitialTap(5)
-            .withTapToAngleConversionMap(Map.of(5, 5., 6, 6.))
-            .withOperator("BE")
-            .newOnInstantUsageRule().withInstant("preventive").withUsageMethod(UsageMethod.AVAILABLE).add()
-            .add();
+                .withId("ra-id")
+                .withNetworkElement("BBE2AA1  BBE3AA1  1")
+                .withInitialTap(5)
+                .withTapToAngleConversionMap(Map.of(5, 5., 6, 6.))
+                .withOperator("BE")
+                .newOnInstantUsageRule().withInstant("preventive").withUsageMethod(UsageMethod.AVAILABLE).add()
+                .add();
 
         Mockito.when(raoResult.getActivatedRangeActionsDuringState(any())).thenReturn(Set.of(pstRangeAction));
         Mockito.when(raoResult.getOptimizedTapOnState(crac.getPreventiveState(), pstRangeAction)).thenReturn(16);
@@ -229,13 +229,13 @@ class CoreCneRemedialActionsCreatorTest {
     @Test
     void testPstUsedInCurative() {
         PstRangeAction pstRangeAction = (PstRangeAction) crac.newPstRangeAction()
-            .withId("ra-id")
-            .withNetworkElement("BBE2AA1  BBE3AA1  1")
-            .withInitialTap(5)
-            .withTapToAngleConversionMap(Map.of(5, 5., 6, 6.))
-            .withOperator("BE")
-            .newOnContingencyStateUsageRule().withContingency("contingency-id").withInstant("curative").withUsageMethod(UsageMethod.AVAILABLE).add()
-            .add();
+                .withId("ra-id")
+                .withNetworkElement("BBE2AA1  BBE3AA1  1")
+                .withInitialTap(5)
+                .withTapToAngleConversionMap(Map.of(5, 5., 6, 6.))
+                .withOperator("BE")
+                .newOnContingencyStateUsageRule().withContingency("contingency-id").withInstant("curative").withUsageMethod(UsageMethod.AVAILABLE).add()
+                .add();
 
         Mockito.when(raoResult.getActivatedRangeActionsDuringState(crac.getPreventiveState())).thenReturn(new HashSet());
         Mockito.when(raoResult.getActivatedRangeActionsDuringState(crac.getState("contingency-id", "outage"))).thenReturn(new HashSet());
@@ -284,10 +284,10 @@ class CoreCneRemedialActionsCreatorTest {
     @Test
     void testIgnoreNetworkActionWithNoUsageRule() {
         NetworkAction networkAction = (NetworkAction) crac.newNetworkAction()
-            .withId("ra-id")
-            .newTopologicalAction().withNetworkElement("BBE2AA1  BBE3AA1  1").withActionType(ActionType.CLOSE).add()
-            .withOperator("BE")
-            .add();
+                .withId("ra-id")
+                .newTopologicalAction().withNetworkElement("BBE2AA1  BBE3AA1  1").withActionType(ActionType.CLOSE).add()
+                .withOperator("BE")
+                .add();
 
         Mockito.when(raoResult.getActivatedNetworkActionsDuringState(any())).thenReturn(Set.of(networkAction));
 
@@ -303,11 +303,11 @@ class CoreCneRemedialActionsCreatorTest {
     @Test
     void testNetworkActionUsedInPreventive() {
         NetworkAction networkAction = (NetworkAction) crac.newNetworkAction()
-            .withId("ra-id")
-            .newTopologicalAction().withNetworkElement("BBE2AA1  BBE3AA1  1").withActionType(ActionType.CLOSE).add()
-            .withOperator("BE")
-            .newOnInstantUsageRule().withInstant("preventive").withUsageMethod(UsageMethod.AVAILABLE).add()
-            .add();
+                .withId("ra-id")
+                .newTopologicalAction().withNetworkElement("BBE2AA1  BBE3AA1  1").withActionType(ActionType.CLOSE).add()
+                .withOperator("BE")
+                .newOnInstantUsageRule().withInstant("preventive").withUsageMethod(UsageMethod.AVAILABLE).add()
+                .add();
 
         Mockito.when(raoResult.getActivatedNetworkActionsDuringState(crac.getPreventiveState())).thenReturn(Set.of(networkAction));
 
@@ -345,11 +345,11 @@ class CoreCneRemedialActionsCreatorTest {
     @Test
     void testNetworkActionUsedInCurative() {
         NetworkAction networkAction = (NetworkAction) crac.newNetworkAction()
-            .withId("ra-id")
-            .newTopologicalAction().withNetworkElement("BBE2AA1  BBE3AA1  1").withActionType(ActionType.CLOSE).add()
-            .withOperator("BE")
-            .newOnContingencyStateUsageRule().withContingency("contingency-id").withInstant("curative").withUsageMethod(UsageMethod.AVAILABLE).add()
-            .add();
+                .withId("ra-id")
+                .newTopologicalAction().withNetworkElement("BBE2AA1  BBE3AA1  1").withActionType(ActionType.CLOSE).add()
+                .withOperator("BE")
+                .newOnContingencyStateUsageRule().withContingency("contingency-id").withInstant("curative").withUsageMethod(UsageMethod.AVAILABLE).add()
+                .add();
 
         Mockito.when(raoResult.getActivatedNetworkActionsDuringState(crac.getPreventiveState())).thenReturn(new HashSet());
         Mockito.when(raoResult.getActivatedNetworkActionsDuringState(crac.getState("contingency-id", "outage"))).thenReturn(new HashSet());

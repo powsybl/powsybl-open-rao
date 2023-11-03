@@ -359,10 +359,6 @@ public final class CoreCneCnecsCreator {
         return measurements;
     }
 
-    private Side getMonitoredSide(FlowCnec cnec) {
-        return cnec.getMonitoredSides().contains(Side.LEFT) ? Side.LEFT : Side.RIGHT;
-    }
-
     public static double getFlowUnitMultiplier(FlowCnec cnec, Side voltageSide, Unit unitFrom, Unit unitTo) {
         if (unitFrom == unitTo) {
             return 1;
@@ -375,5 +371,9 @@ public final class CoreCneCnecsCreator {
         } else {
             throw new FaraoException("Only conversions between MW and A are supported.");
         }
+    }
+
+    private Side getMonitoredSide(FlowCnec cnec) {
+        return cnec.getMonitoredSides().contains(Side.LEFT) ? Side.LEFT : Side.RIGHT;
     }
 }
