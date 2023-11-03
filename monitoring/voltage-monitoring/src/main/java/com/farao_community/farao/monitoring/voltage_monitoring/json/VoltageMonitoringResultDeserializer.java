@@ -25,9 +25,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import static com.farao_community.farao.monitoring.monitoring_common.json.JsonCommonMonitoringResultConstants.CNEC_ID;
-import static com.farao_community.farao.monitoring.monitoring_common.json.JsonCommonMonitoringResultConstants.STATUS;
-import static com.farao_community.farao.monitoring.monitoring_common.json.JsonCommonMonitoringResultConstants.TYPE;
+import static com.farao_community.farao.monitoring.monitoring_common.json.JsonCommonMonitoringResultConstants.*;
 import static com.farao_community.farao.monitoring.voltage_monitoring.json.JsonVoltageMonitoringResultConstants.*;
 
 /**
@@ -52,7 +50,7 @@ public class VoltageMonitoringResultDeserializer extends JsonDeserializer<Voltag
         if (!firstFieldName.equals(TYPE) || !jsonParser.nextTextValue().equals(VOLTAGE_MONITORING_RESULT)) {
             throw new FaraoException(String.format("type of document must be specified at the beginning as %s", VOLTAGE_MONITORING_RESULT));
         }
-        VoltageMonitoringResult.Status status;
+        VoltageMonitoringResult.Status status = null;
         String secondFieldName = jsonParser.nextFieldName();
         if (!secondFieldName.equals(STATUS)) {
             throw new FaraoException("Status must be specified right after type of document.");

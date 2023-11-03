@@ -46,19 +46,19 @@ public class SweAdditionalConstraintSeriesCreator {
             return additionalConstraintSeriesList;
         }
         List<AngleCnecCreationContext> sortedAngleCnecs = cracCreationContext.getAngleCnecCreationContexts().stream()
-            .filter(AngleCnecCreationContext::isImported)
-            .sorted(Comparator.comparing(AngleCnecCreationContext::getCreatedCnecId))
-            .toList();
+                .filter(AngleCnecCreationContext::isImported)
+                .sorted(Comparator.comparing(AngleCnecCreationContext::getCreatedCnecId))
+                .toList();
         if (Objects.isNull(contingency)) {
             sortedAngleCnecs.stream().filter(angleCnecCreationContext -> Objects.isNull(angleCnecCreationContext.getContingencyId()))
-                .forEach(angleCnecCreationContext ->
-                    BUSINESS_WARNS.warn("Preventive angle cnec {} will not be added to CNE file", angleCnecCreationContext.getNativeId()));
+                    .forEach(angleCnecCreationContext ->
+                BUSINESS_WARNS.warn("Preventive angle cnec {} will not be added to CNE file", angleCnecCreationContext.getNativeId()));
         } else {
             sortedAngleCnecs.stream()
-                .filter(angleCnecCreationContext -> angleCnecCreationContext.getContingencyId().equals(contingency.getId()))
-                .map(this::generateAdditionalConstraintSeries)
-                .filter(Objects::nonNull)
-                .forEach(additionalConstraintSeriesList::add);
+                    .filter(angleCnecCreationContext -> angleCnecCreationContext.getContingencyId().equals(contingency.getId()))
+                        .map(this::generateAdditionalConstraintSeries)
+                            .filter(Objects::nonNull)
+                                .forEach(additionalConstraintSeriesList::add);
         }
         return additionalConstraintSeriesList;
     }

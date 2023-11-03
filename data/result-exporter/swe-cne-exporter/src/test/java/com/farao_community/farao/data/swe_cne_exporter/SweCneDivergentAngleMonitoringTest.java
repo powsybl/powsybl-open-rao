@@ -30,7 +30,6 @@ import org.junit.jupiter.api.Test;
 import java.io.*;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
-import java.util.Objects;
 import java.util.Set;
 
 import static com.farao_community.farao.data.swe_cne_exporter.SweCneTest.compareCneFiles;
@@ -87,7 +86,7 @@ class SweCneDivergentAngleMonitoringTest {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         new SweCneExporter().exportCne(crac, network, (CimCracCreationContext) cracCreationContext, raoResult, angleMonitoringResult, new RaoParameters(), params, outputStream);
         try {
-            InputStream inputStream = new FileInputStream(Objects.requireNonNull(SweCneDivergentAngleMonitoringTest.class.getResource("/SweCNEDivergentAngleMonitoring_Z01.xml")).getFile());
+            InputStream inputStream = new FileInputStream(SweCneDivergentAngleMonitoringTest.class.getResource("/SweCNEDivergentAngleMonitoring_Z01.xml").getFile());
             compareCneFiles(inputStream, new ByteArrayInputStream(outputStream.toByteArray()));
         } catch (IOException e) {
             Assertions.fail();

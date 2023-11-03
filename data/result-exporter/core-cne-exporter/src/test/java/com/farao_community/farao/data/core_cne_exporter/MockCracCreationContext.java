@@ -44,7 +44,7 @@ public class MockCracCreationContext implements UcteCracCreationContext {
 
     private void addCnecCreationContext(FlowCnec flowCnec, Crac crac) {
         List<MockCnecCreationContext> cnecsWithSameNe = mockCnecCreationContexts.stream().filter(creationContext ->
-            creationContext.getFlowCnec().getNetworkElements().equals(flowCnec.getNetworkElements())
+                creationContext.getFlowCnec().getNetworkElements().equals(flowCnec.getNetworkElements())
                 && creationContext.getFlowCnec().getState().getContingency().equals(flowCnec.getState().getContingency())
         ).toList();
         if (cnecsWithSameNe.isEmpty()) {
@@ -252,13 +252,13 @@ public class MockCracCreationContext implements UcteCracCreationContext {
             return isInverted;
         }
 
-        public void setInverted(boolean inverted) {
-            isInverted = inverted;
-        }
-
         @Override
         public String getNativeNetworkElementId() {
             return nativeNetworkElementId;
+        }
+
+        public void setInverted(boolean inverted) {
+            isInverted = inverted;
         }
 
         public void setNativeNetworkElementId(String nativeNetworkElementId) {

@@ -17,11 +17,9 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 import java.io.IOException;
 import java.util.Comparator;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
-import static com.farao_community.farao.monitoring.angle_monitoring.json.JsonAngleMonitoringResultConstants.ANGLE_MONITORING_RESULT;
-import static com.farao_community.farao.monitoring.angle_monitoring.json.JsonAngleMonitoringResultConstants.ANGLE_VALUES;
-import static com.farao_community.farao.monitoring.angle_monitoring.json.JsonAngleMonitoringResultConstants.APPLIED_CRAS;
-import static com.farao_community.farao.monitoring.angle_monitoring.json.JsonAngleMonitoringResultConstants.QUANTITY;
+import static com.farao_community.farao.monitoring.angle_monitoring.json.JsonAngleMonitoringResultConstants.*;
 import static com.farao_community.farao.monitoring.monitoring_common.json.JsonCommonMonitoringResultConstants.*;
 
 /**
@@ -52,7 +50,7 @@ public class AngleMonitoringResultSerializer extends JsonSerializer<AngleMonitor
     }
 
     private void serializeAngleValues(AngleMonitoringResult angleMonitoringResult, JsonGenerator jsonGenerator) throws IOException {
-        for (AngleMonitoringResult.AngleResult angleResult : angleMonitoringResult.getAngleCnecsWithAngle().stream().sorted(Comparator.comparing(AngleMonitoringResult.AngleResult::getId)).toList()) {
+        for (AngleMonitoringResult.AngleResult angleResult : angleMonitoringResult.getAngleCnecsWithAngle().stream().sorted(Comparator.comparing(AngleMonitoringResult.AngleResult::getId)).collect(Collectors.toList())) {
             jsonGenerator.writeStartObject();
             jsonGenerator.writeStringField(INSTANT, angleResult.getState().getInstant().toString());
             Optional<Contingency> optContingency = angleResult.getState().getContingency();

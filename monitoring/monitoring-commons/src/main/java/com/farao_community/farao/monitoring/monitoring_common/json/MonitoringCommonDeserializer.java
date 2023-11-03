@@ -34,8 +34,7 @@ public final class MonitoringCommonDeserializer {
             while (!jsonParser.nextToken().isStructEnd()) {
                 switch (jsonParser.currentName()) {
                     case INSTANT:
-                        String stringValue = jsonParser.nextTextValue();
-                        instant = crac.getInstant(stringValue);
+                        instant = crac.getInstant(jsonParser.nextTextValue());
                         break;
                     case CONTINGENCY:
                         contingencyId = jsonParser.nextTextValue();

@@ -81,28 +81,28 @@ class JsonAngleMonitoringResultTest {
         ac2 = addAngleCnec("ac2", "impNe2", "expNe2", "curative", co1.getId(), 140., 145.);
         preventiveState = crac.getPreventiveState();
         na1 = (NetworkAction) crac.newNetworkAction()
-            .withId("na1")
-            .newInjectionSetPoint().withNetworkElement("ne1").withSetpoint(50.).withUnit(Unit.MEGAWATT).add()
-            .newOnAngleConstraintUsageRule().withInstant("preventive").withAngleCnec(ac1.getId()).add()
-            .add();
+                .withId("na1")
+                .newInjectionSetPoint().withNetworkElement("ne1").withSetpoint(50.).withUnit(Unit.MEGAWATT).add()
+                .newOnAngleConstraintUsageRule().withInstant("preventive").withAngleCnec(ac1.getId()).add()
+                .add();
         na2 = (NetworkAction) crac.newNetworkAction()
-            .withId("na2")
-            .newInjectionSetPoint().withNetworkElement("ne2").withSetpoint(150.).withUnit(Unit.MEGAWATT).add()
-            .newOnAngleConstraintUsageRule().withInstant("curative").withAngleCnec(ac2.getId()).add()
-            .add();
+                .withId("na2")
+                .newInjectionSetPoint().withNetworkElement("ne2").withSetpoint(150.).withUnit(Unit.MEGAWATT).add()
+                .newOnAngleConstraintUsageRule().withInstant("curative").withAngleCnec(ac2.getId()).add()
+                .add();
         angleMonitoringResultImporter = new AngleMonitoringResultImporter();
     }
 
     private AngleCnec addAngleCnec(String id, String importingNetworkElement, String exportingNetworkElement, String instantId, String contingencyId, Double min, Double max) {
         if (Objects.isNull(contingencyId)) {
             return crac.newAngleCnec()
-                .withId(id)
-                .withInstant(instantId)
-                .withImportingNetworkElement(importingNetworkElement)
-                .withExportingNetworkElement(exportingNetworkElement)
-                .withMonitored()
-                .newThreshold().withUnit(Unit.DEGREE).withMin(min).withMax(max).add()
-                .add();
+                    .withId(id)
+                    .withInstant(instantId)
+                    .withImportingNetworkElement(importingNetworkElement)
+                    .withExportingNetworkElement(exportingNetworkElement)
+                    .withMonitored()
+                    .newThreshold().withUnit(Unit.DEGREE).withMin(min).withMax(max).add()
+                    .add();
         } else {
             return crac.newAngleCnec()
                 .withId(id)
@@ -128,7 +128,7 @@ class JsonAngleMonitoringResultTest {
         assertEquals(2, angleMonitoringResult.getAngleCnecsWithAngle().size());
         Set<AngleMonitoringResult.AngleResult> expectedResult = Set.of(new AngleMonitoringResult.AngleResult(ac1, 2.3), new AngleMonitoringResult.AngleResult(ac2, 4.6));
         angleMonitoringResult.getAngleCnecsWithAngle().forEach(angleResult ->
-            assertTrue(expectedResult.stream().anyMatch(exRes -> compareAngleResults(exRes, angleResult))));
+                assertTrue(expectedResult.stream().anyMatch(exRes -> compareAngleResults(exRes, angleResult))));
         OutputStream os = new ByteArrayOutputStream();
         new AngleMonitoringResultExporter().export(angleMonitoringResult, os);
         String expected = new String(Objects.requireNonNull(getClass().getResourceAsStream("/result-roundTrip.json")).readAllBytes());
@@ -137,7 +137,7 @@ class JsonAngleMonitoringResultTest {
 
     private boolean compareAngleResults(AngleMonitoringResult.AngleResult ar1, AngleMonitoringResult.AngleResult ar2) {
         return ar1.getAngleCnec().equals(ar2.getAngleCnec()) && ar1.getState().equals(ar2.getState())
-            && (Math.abs(ar1.getAngle() - ar2.getAngle()) < ANGLE_TOLERANCE);
+                && (Math.abs(ar1.getAngle() - ar2.getAngle()) < ANGLE_TOLERANCE);
     }
 
     @ParameterizedTest

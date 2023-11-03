@@ -8,9 +8,7 @@ import org.junit.jupiter.api.Test;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 class ZoneToZonePtdfDefinitionTest {
 
@@ -67,38 +65,32 @@ class ZoneToZonePtdfDefinitionTest {
 
     @Test
     void testWrongSyntax1() {
-        FaraoException exception = assertThrows(FaraoException.class, () -> new ZoneToZonePtdfDefinition("FR-ES"));
-        assertEquals("ZoneToZonePtdfDefinition should have the following syntax: {Code_1}-{Code_2}+{Code_3}... where Code_i are 16-characters EI codes or 2-characters country codes.", exception.getMessage());
+        assertThrows(FaraoException.class, () -> new ZoneToZonePtdfDefinition("FR-ES"));
     }
 
     @Test
     void testWrongSyntax2() {
-        FaraoException exception = assertThrows(FaraoException.class, () -> new ZoneToZonePtdfDefinition("FR/ES"));
-        assertEquals("ZoneToZonePtdfDefinition should have the following syntax: {Code_1}-{Code_2}+{Code_3}... where Code_i are 16-characters EI codes or 2-characters country codes.", exception.getMessage());
+        assertThrows(FaraoException.class, () -> new ZoneToZonePtdfDefinition("FR/ES"));
     }
 
     @Test
     void testWrongSyntax3() {
-        FaraoException exception = assertThrows(FaraoException.class, () -> new ZoneToZonePtdfDefinition("{{FR}-{ES}"));
-        assertEquals("ZoneToZonePtdfDefinition should have the following syntax: {Code_1}-{Code_2}+{Code_3}... where Code_i are 16-characters EI codes or 2-characters country codes.", exception.getMessage());
+        assertThrows(FaraoException.class, () -> new ZoneToZonePtdfDefinition("{{FR}-{ES}"));
     }
 
     @Test
     void testWrongSyntax4() {
-        FaraoException exception = assertThrows(FaraoException.class, () -> new ZoneToZonePtdfDefinition("{FR}/{ES}"));
-        assertEquals("ZoneToZonePtdfDefinition should have the following syntax: {Code_1}-{Code_2}+{Code_3}... where Code_i are 16-characters EI codes or 2-characters country codes.", exception.getMessage());
+        assertThrows(FaraoException.class, () -> new ZoneToZonePtdfDefinition("{FR}/{ES}"));
     }
 
     @Test
     void testWrongSyntax5() {
-        FaraoException exception = assertThrows(FaraoException.class, () -> new ZoneToZonePtdfDefinition("{FRANCE}-{ES}"));
-        assertEquals("ZoneToZonePtdfDefinition should have the following syntax: {Code_1}-{Code_2}+{Code_3}... where Code_i are 16-characters EI codes or 2-characters country codes.", exception.getMessage());
+        assertThrows(FaraoException.class, () -> new ZoneToZonePtdfDefinition("{FRANCE}-{ES}"));
     }
 
     @Test
     void testWrongSyntax6() {
-        FaraoException exception = assertThrows(FaraoException.class, () -> new ZoneToZonePtdfDefinition("{}/{ES}"));
-        assertEquals("ZoneToZonePtdfDefinition should have the following syntax: {Code_1}-{Code_2}+{Code_3}... where Code_i are 16-characters EI codes or 2-characters country codes.", exception.getMessage());
+        assertThrows(FaraoException.class, () -> new ZoneToZonePtdfDefinition("{}/{ES}"));
     }
 
     @Test

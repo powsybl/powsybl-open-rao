@@ -42,9 +42,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.farao_community.farao.commons.Unit.MEGAWATT;
-import static com.farao_community.farao.commons.logs.FaraoLoggerProvider.BUSINESS_LOGS;
-import static com.farao_community.farao.commons.logs.FaraoLoggerProvider.BUSINESS_WARNS;
-import static com.farao_community.farao.commons.logs.FaraoLoggerProvider.TECHNICAL_LOGS;
+import static com.farao_community.farao.commons.logs.FaraoLoggerProvider.*;
 
 /**
  * Automaton simulator
@@ -54,9 +52,9 @@ import static com.farao_community.farao.commons.logs.FaraoLoggerProvider.TECHNIC
  * @author Godelaine De-Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
  */
 public final class AutomatonSimulator {
-    public static final double SENSI_UNDER_ESTIMATOR_MIN = 0.5;
     private static final double DOUBLE_NON_NULL = 1e-12;
     private static final int MAX_NUMBER_OF_SENSI_IN_AUTO_SETPOINT_SHIFT = 10;
+    public static final double SENSI_UNDER_ESTIMATOR_MIN = 0.5;
     private static final double SENSI_UNDER_ESTIMATOR_DECREMENT = 0.15;
 
     private final Crac crac;
@@ -81,140 +79,6 @@ public final class AutomatonSimulator {
         this.operatorsNotSharingCras = operatorsNotSharingCras;
         this.numberLoggedElementsDuringRao = numberLoggedElementsDuringRao;
         this.flowCnecRangeActionMap = UnoptimizedCnecParameters.getDoNotOptimizeCnecsSecuredByTheirPst(raoParameters.getNotOptimizedCnecsParameters(), crac);
-    }
-
-    public static Map<RangeAction<?>, Double> getRangeActionsAndTheirTapsAppliedOnState(OptimizationResult optimizationResult, State state) {
-        Set<RangeAction<?>> setActivatedRangeActions = optimizationResult.getActivatedRangeActions(state);
-        Map<RangeAction<?>, Double> allRangeActions = new HashMap<>();
-        setActivatedRangeActions.stream().filter(PstRangeAction.class::isInstance).map(PstRangeAction.class::cast).forEach(pstRangeAction -> allRangeActions.put(pstRangeAction, (double) optimizationResult.getOptimizedTap(pstRangeAction, state)));
-        setActivatedRangeActions.stream().filter(ra -> !(ra instanceof PstRangeAction)).forEach(rangeAction -> allRangeActions.put(rangeAction, optimizationResult.getOptimizedSetpoint(rangeAction, state)));
-        return allRangeActions;
-    }
-
-    /**
-     * This function checks that the group of aligned range actions :
-     * - contains same type range actions (PST, HVDC, or other) : all-or-none principle
-     * - contains range actions that share the same usage rule
-     * - contains range actions that are all available at AUTO instant.
-     * Returns true if checks are valid.
-     */
-    static boolean checkAlignedRangeActions(State automatonState, List<RangeAction<?>> alignedRa, List<RangeAction<?>> rangeActionsOrderedBySpeed) {
-        if (alignedRa.size() == 1) {
-            // nothing to check
-            return true;
-        }
-        // Ignore aligned range actions with heterogeneous types
-        if (alignedRa.stream().map(Object::getClass).distinct().count() > 1) {
-            BUSINESS_WARNS.warn("Range action group {} contains range actions of different types; they are not simulated", alignedRa.get(0).getGroupId().orElseThrow());
-            return false;
-        }
-        // Ignore aligned range actions when one element of the group has a different usage method than the others
-        if (alignedRa.stream().map(rangeAction -> rangeAction.getUsageMethod(automatonState)).distinct().count() > 1) {
-            BUSINESS_WARNS.warn("Range action group {} contains range actions with different usage methods; they are not simulated", alignedRa.get(0).getGroupId().orElseThrow());
-            return false;
-        }
-        // Ignore aligned range actions when one element of the group is not available at AUTO instant
-        if (alignedRa.stream().anyMatch(aRa -> !rangeActionsOrderedBySpeed.contains(aRa))) {
-            BUSINESS_WARNS.warn("Range action group {} contains range actions not all available at AUTO instant; they are not simulated", alignedRa.get(0).getGroupId().orElseThrow());
-            return false;
-        }
-        return true;
-    }
-
-    private static Map<String, Double> computeHvdcAngleDroopActivePowerControlValues(Network network, State state, String loadFlowProvider, LoadFlowParameters loadFlowParameters) {
-        // Create a temporary variant to apply contingency and compute load-flow on
-        String initialVariantId = network.getVariantManager().getWorkingVariantId();
-        String tmpVariant = RandomizedString.getRandomizedString("HVDC_LF", network.getVariantManager().getVariantIds(), 10);
-        network.getVariantManager().cloneVariant(initialVariantId, tmpVariant);
-        network.getVariantManager().setWorkingVariant(tmpVariant);
-
-        // Apply contingency and compute load-flow
-        if (state.getContingency().isPresent()) {
-            state.getContingency().orElseThrow().apply(network, null);
-        }
-        LoadFlow.find(loadFlowProvider).run(network, loadFlowParameters);
-
-        // Compute HvdcAngleDroopActivePowerControl values of HVDC lines
-        Map<String, Double> controls = network.getHvdcLineStream()
-            .filter(hvdcLine -> hvdcLine.getExtension(HvdcAngleDroopActivePowerControl.class) != null)
-            .collect(Collectors.toMap(com.powsybl.iidm.network.Identifiable::getId, AutomatonSimulator::computeHvdcAngleDroopActivePowerControlValue));
-
-        // Reset working variant
-        network.getVariantManager().setWorkingVariant(initialVariantId);
-        network.getVariantManager().removeVariant(tmpVariant);
-
-        return controls;
-    }
-
-    /**
-     * Compute setpoint set by AngleDroopActivePowerControl = p0 + droop * angle difference
-     * NB: p0 and angle difference are always in 1->2 direction
-     *
-     * @param hvdcLine: HVDC line object
-     * @return the setpoint computed by the HvdcAngleDroopActivePowerControl
-     */
-    private static double computeHvdcAngleDroopActivePowerControlValue(HvdcLine hvdcLine) {
-        double phi1 = hvdcLine.getConverterStation1().getTerminal().getBusView().getBus().getAngle();
-        double phi2 = hvdcLine.getConverterStation2().getTerminal().getBusView().getBus().getAngle();
-        double p0 = hvdcLine.getExtension(HvdcAngleDroopActivePowerControl.class).getP0();
-        double droop = hvdcLine.getExtension(HvdcAngleDroopActivePowerControl.class).getDroop();
-        return p0 + droop * (phi1 - phi2);
-    }
-
-    /**
-     * Disables the HvdcAngleDroopActivePowerControl on an HVDC line and sets its active power set-point
-     *
-     * @param hvdcLineId:          ID of the HVDC line
-     * @param network:             network to modify the HVDC line in
-     * @param activePowerSetpoint: active power set-point to set on the HVDC line
-     */
-    private static void disableHvdcAngleDroopActivePowerControl(String hvdcLineId, Network network, double activePowerSetpoint) {
-        HvdcLine hvdcLine = network.getHvdcLine(hvdcLineId);
-        TECHNICAL_LOGS.debug("Disabling HvdcAngleDroopActivePowerControl on HVDC line {} and setting its set-point to {}", hvdcLine.getId(), activePowerSetpoint);
-        hvdcLine.getExtension(HvdcAngleDroopActivePowerControl.class).setEnabled(false);
-        hvdcLine.setConvertersMode(activePowerSetpoint > 0 ? HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER : HvdcLine.ConvertersMode.SIDE_1_INVERTER_SIDE_2_RECTIFIER);
-        hvdcLine.setActivePowerSetpoint(Math.abs(activePowerSetpoint));
-    }
-
-    /**
-     * Computes the signum of a value evolution "newValue - oldValue"
-     * If the evolution is smaller than 1e-6 in absolute value, it returns 0
-     * If the double signum is smaller than 1e-6 in absolute value, it returns 0
-     * Else, it returns 1 if evolution is positive, -1 if evolution is negative
-     */
-    private static int safeDiffSignum(double newValue, double oldValue) {
-        if (Math.abs(newValue - oldValue) < 1e-6) {
-            return 0;
-        }
-        double signum = Math.signum(newValue - oldValue);
-        if (Math.abs(signum) < 1e-6) {
-            return 0;
-        }
-        if (signum > 0) {
-            return 1;
-        }
-        return -1;
-    }
-
-    /**
-     * This function converts angleToBeRounded in the angle corresponding to the first tap
-     * after angleToBeRounded in the direction opposite of initialAngle.
-     */
-    static Double roundUpAngleToTapWrtInitialSetpoint(PstRangeAction rangeAction, double angleToBeRounded, double initialAngle) {
-        double direction = safeDiffSignum(angleToBeRounded, initialAngle);
-        if (direction > 0) {
-            Optional<Double> roundedAngle = rangeAction.getTapToAngleConversionMap().values().stream().filter(angle -> angle >= angleToBeRounded).min(Double::compareTo);
-            if (roundedAngle.isPresent()) {
-                return roundedAngle.get();
-            }
-        } else if (direction < 0) {
-            Optional<Double> roundedAngle = rangeAction.getTapToAngleConversionMap().values().stream().filter(angle -> angle <= angleToBeRounded).max(Double::compareTo);
-            if (roundedAngle.isPresent()) {
-                return roundedAngle.get();
-            }
-        }
-        // else, min or max was not found or angleToBeRounded = initialAngle. Return closest tap :
-        return rangeAction.getTapToAngleConversionMap().get(rangeAction.convertAngleToTap(angleToBeRounded));
     }
 
     /**
@@ -251,11 +115,11 @@ public final class AutomatonSimulator {
         // Sensitivity analysis failed :
         if (rangeAutomatonSimulationResult.getPerimeterResult().getSensitivityStatus(automatonState) == ComputationStatus.FAILURE) {
             AutomatonPerimeterResultImpl failedAutomatonPerimeterResultImpl = new AutomatonPerimeterResultImpl(
-                rangeAutomatonSimulationResult.getPerimeterResult(),
-                topoSimulationResult.getActivatedNetworkActions(),
-                rangeAutomatonSimulationResult.getActivatedRangeActions(),
-                rangeAutomatonSimulationResult.getRangeActionsWithSetpoint(),
-                automatonState);
+                    rangeAutomatonSimulationResult.getPerimeterResult(),
+                    topoSimulationResult.getActivatedNetworkActions(),
+                    rangeAutomatonSimulationResult.getActivatedRangeActions(),
+                    rangeAutomatonSimulationResult.getRangeActionsWithSetpoint(),
+                    automatonState);
             failedAutomatonPerimeterResultImpl.setComputationStatus(ComputationStatus.FAILURE);
             TECHNICAL_LOGS.info("Automaton state {} has failed during sensitivity computation during range automaton simulation.", automatonState.getId());
             RaoLogger.logFailedOptimizationSummary(BUSINESS_LOGS, automatonState, failedAutomatonPerimeterResultImpl.getActivatedNetworkActions(), getRangeActionsAndTheirTapsAppliedOnState(failedAutomatonPerimeterResultImpl, automatonState));
@@ -283,17 +147,46 @@ public final class AutomatonSimulator {
         return new PrePerimeterSensitivityAnalysis(flowCnecsInSensi, rangeActionsInSensi, raoParameters, toolProvider);
     }
 
+    public static Map<RangeAction<?>, Double> getRangeActionsAndTheirTapsAppliedOnState(OptimizationResult optimizationResult, State state) {
+        Set< RangeAction<?>> setActivatedRangeActions = optimizationResult.getActivatedRangeActions(state);
+        Map<RangeAction<?>, Double> allRangeActions = new HashMap<>();
+        setActivatedRangeActions.stream().filter(PstRangeAction.class::isInstance).map(PstRangeAction.class::cast).forEach(pstRangeAction -> allRangeActions.put(pstRangeAction, (double) optimizationResult.getOptimizedTap(pstRangeAction, state)));
+        setActivatedRangeActions.stream().filter(ra -> !(ra instanceof PstRangeAction)).forEach(rangeAction -> allRangeActions.put(rangeAction, optimizationResult.getOptimizedSetpoint(rangeAction, state)));
+        return allRangeActions;
+    }
+
     AutomatonPerimeterResultImpl createFailedAutomatonPerimeterResult(State autoState, PrePerimeterResult result, Set<NetworkAction> activatedNetworkActions, String defineMoment) {
         AutomatonPerimeterResultImpl failedAutomatonPerimeterResultImpl = new AutomatonPerimeterResultImpl(
-            result,
-            activatedNetworkActions,
-            new HashSet<>(),
-            new HashMap<>(),
-            autoState);
+                result,
+                activatedNetworkActions,
+                new HashSet<>(),
+                new HashMap<>(),
+                autoState);
         failedAutomatonPerimeterResultImpl.setComputationStatus(ComputationStatus.FAILURE);
         TECHNICAL_LOGS.info("Automaton state {} has failed during sensitivity computation {} topological automaton simulation.", autoState.getId(), defineMoment);
         RaoLogger.logFailedOptimizationSummary(BUSINESS_LOGS, autoState, failedAutomatonPerimeterResultImpl.getActivatedNetworkActions(), getRangeActionsAndTheirTapsAppliedOnState(failedAutomatonPerimeterResultImpl, autoState));
         return failedAutomatonPerimeterResultImpl;
+    }
+
+    /**
+     * Utility class to hold the results of topo actions simulation
+     */
+    static class TopoAutomatonSimulationResult {
+        private final PrePerimeterResult perimeterResult;
+        private final Set<NetworkAction> activatedNetworkActions;
+
+        public TopoAutomatonSimulationResult(PrePerimeterResult perimeterResult, Set<NetworkAction> activatedNetworkActions) {
+            this.perimeterResult = perimeterResult;
+            this.activatedNetworkActions = activatedNetworkActions;
+        }
+
+        public PrePerimeterResult getPerimeterResult() {
+            return perimeterResult;
+        }
+
+        public Set<NetworkAction> getActivatedNetworkActions() {
+            return activatedNetworkActions;
+        }
     }
 
     /**
@@ -310,8 +203,8 @@ public final class AutomatonSimulator {
         // -- Then add those with TO_BE_EVALUATED usage method when evaluation condition is verified
         // -- Evaluation condition is isAnyMarginNegative amongst network actions' flow cnecs associated to their usage rules
         crac.getNetworkActions(automatonState, UsageMethod.TO_BE_EVALUATED).stream()
-            .filter(na -> na.isRemedialActionAvailable(automatonState, RaoUtil.isAnyMarginNegative(prePerimeterSensitivityOutput, na.getFlowCnecsConstrainingUsageRules(crac.getFlowCnecs(), network, automatonState), raoParameters.getObjectiveFunctionParameters().getType().getUnit())))
-            .forEach(appliedNetworkActions::add);
+                .filter(na -> na.isRemedialActionAvailable(automatonState, RaoUtil.isAnyMarginNegative(prePerimeterSensitivityOutput, na.getFlowCnecsConstrainingUsageRules(crac.getFlowCnecs(), network, automatonState), raoParameters.getObjectiveFunctionParameters().getType().getUnit())))
+                .forEach(appliedNetworkActions::add);
 
         if (appliedNetworkActions.isEmpty()) {
             TECHNICAL_LOGS.info("Topological automaton state {} has been skipped as no topological automatons were activated.", automatonState.getId());
@@ -339,6 +232,33 @@ public final class AutomatonSimulator {
         return new TopoAutomatonSimulationResult(automatonRangeActionOptimizationSensitivityAnalysisOutput, appliedNetworkActions);
     }
 
+    /**
+     * Utility class to hold the results of auto range actions simulation
+     */
+    static class RangeAutomatonSimulationResult {
+        private final PrePerimeterResult perimeterResult;
+        private final Set<RangeAction<?>> activatedRangeActions;
+        private final Map<RangeAction<?>, Double> rangeActionsWithSetpoint;
+
+        RangeAutomatonSimulationResult(PrePerimeterResult perimeterResult, Set<RangeAction<?>> activatedRangeActions, Map<RangeAction<?>, Double> rangeActionsWithSetpoint) {
+            this.perimeterResult = perimeterResult;
+            this.activatedRangeActions = activatedRangeActions;
+            this.rangeActionsWithSetpoint = rangeActionsWithSetpoint;
+        }
+
+        PrePerimeterResult getPerimeterResult() {
+            return perimeterResult;
+        }
+
+        Set<RangeAction<?>> getActivatedRangeActions() {
+            return activatedRangeActions;
+        }
+
+        Map<RangeAction<?>, Double> getRangeActionsWithSetpoint() {
+            return rangeActionsWithSetpoint;
+        }
+    }
+
     RangeAutomatonSimulationResult simulateRangeAutomatons(State automatonState, State curativeState, Network network, PrePerimeterSensitivityAnalysis preAutoPerimeterSensitivityAnalysis, PrePerimeterResult postAutoTopoResult) {
         PrePerimeterResult finalPostAutoResult = postAutoTopoResult;
         // -- Create groups of aligned range actions
@@ -361,12 +281,12 @@ public final class AutomatonSimulator {
             Set<FlowCnec> flowCnecs = gatherFlowCnecsForAutoRangeAction(availableRa, automatonState, network);
             // Shift
             RangeAutomatonSimulationResult postShiftResult = shiftRangeActionsUntilFlowCnecsSecure(
-                alignedRa,
-                flowCnecs,
-                network,
-                preAutoPerimeterSensitivityAnalysis,
-                finalPostAutoResult,
-                automatonState);
+                    alignedRa,
+                    flowCnecs,
+                    network,
+                    preAutoPerimeterSensitivityAnalysis,
+                    finalPostAutoResult,
+                    automatonState);
             finalPostAutoResult = postShiftResult.getPerimeterResult();
             activatedRangeActions.addAll(postShiftResult.getActivatedRangeActions());
             rangeActionsWithSetpoint.putAll(postShiftResult.getRangeActionsWithSetpoint());
@@ -424,9 +344,9 @@ public final class AutomatonSimulator {
         });
         // -- Sort RAs from fastest to slowest
         List<RangeAction<?>> rangeActionsOrderedBySpeed = availableRangeActions.stream()
-            .filter(rangeAction -> rangeAction.getSpeed().isPresent())
-            .sorted(Comparator.comparing(ra -> ra.getSpeed().get()))
-            .collect(Collectors.toList());
+                .filter(rangeAction -> rangeAction.getSpeed().isPresent())
+                .sorted(Comparator.comparing(ra -> ra.getSpeed().get()))
+                .collect(Collectors.toList());
 
         // 3) Gather aligned range actions : they will be simulated simultaneously in one shot
         // -- Create groups of aligned range actions
@@ -438,16 +358,50 @@ public final class AutomatonSimulator {
             // Look for aligned range actions in all range actions : they have the same groupId and the same usageMethod
             Optional<String> groupId = availableRangeAction.getGroupId();
             List<RangeAction<?>> alignedRa;
-            alignedRa = groupId.map(s -> crac.getRangeActions().stream()
-                .filter(rangeAction -> s.equals(rangeAction.getGroupId().orElse(null)))
-                .sorted(Comparator.comparing(RangeAction::getId))
-                .collect(Collectors.toList())).orElseGet(() -> List.of(availableRangeAction));
+            if (groupId.isPresent()) {
+                alignedRa = crac.getRangeActions().stream()
+                        .filter(rangeAction -> groupId.get().equals(rangeAction.getGroupId().orElse(null)))
+                        .sorted(Comparator.comparing(RangeAction::getId))
+                        .collect(Collectors.toList());
+            } else {
+                alignedRa = List.of(availableRangeAction);
+            }
             if (!checkAlignedRangeActions(automatonState, alignedRa, rangeActionsOrderedBySpeed)) {
                 continue;
             }
             rangeActionsOnAutomatonState.add(alignedRa);
         }
         return rangeActionsOnAutomatonState;
+    }
+
+    /**
+     * This function checks that the group of aligned range actions :
+     * - contains same type range actions (PST, HVDC, or other) : all-or-none principle
+     * - contains range actions that share the same usage rule
+     * - contains range actions that are all available at AUTO instant.
+     * Returns true if checks are valid.
+     */
+    static boolean checkAlignedRangeActions(State automatonState, List<RangeAction<?>> alignedRa, List<RangeAction<?>> rangeActionsOrderedBySpeed) {
+        if (alignedRa.size() == 1) {
+            // nothing to check
+            return true;
+        }
+        // Ignore aligned range actions with heterogeneous types
+        if (alignedRa.stream().map(Object::getClass).distinct().count() > 1) {
+            BUSINESS_WARNS.warn("Range action group {} contains range actions of different types; they are not simulated", alignedRa.get(0).getGroupId().orElseThrow());
+            return false;
+        }
+        // Ignore aligned range actions when one element of the group has a different usage method than the others
+        if (alignedRa.stream().map(rangeAction -> rangeAction.getUsageMethod(automatonState)).distinct().count() > 1) {
+            BUSINESS_WARNS.warn("Range action group {} contains range actions with different usage methods; they are not simulated", alignedRa.get(0).getGroupId().orElseThrow());
+            return false;
+        }
+        // Ignore aligned range actions when one element of the group is not available at AUTO instant
+        if (alignedRa.stream().anyMatch(aRa -> !rangeActionsOrderedBySpeed.contains(aRa))) {
+            BUSINESS_WARNS.warn("Range action group {} contains range actions not all available at AUTO instant; they are not simulated", alignedRa.get(0).getGroupId().orElseThrow());
+            return false;
+        }
+        return true;
     }
 
     /**
@@ -463,10 +417,10 @@ public final class AutomatonSimulator {
         Set<FlowCnec> flowCnecs = crac.getFlowCnecs(automatonState);
         flowCnecs.addAll(crac.getFlowCnecs(curativeState));
         PrePerimeterSensitivityAnalysis prePerimeterSensitivityAnalysis = new PrePerimeterSensitivityAnalysis(
-            flowCnecs,
-            curativeRangeActions,
-            raoParameters,
-            toolProvider);
+                flowCnecs,
+                curativeRangeActions,
+                raoParameters,
+                toolProvider);
 
         // Run computation
         TECHNICAL_LOGS.info("Running pre curative sensitivity analysis after auto state {}.", automatonState.getId());
@@ -480,10 +434,10 @@ public final class AutomatonSimulator {
      * It returns the sensitivity analysis result and the HVDC active power set-points that have been set.
      */
     Pair<PrePerimeterResult, Map<HvdcRangeAction, Double>> disableHvdcAngleDroopActivePowerControl(List<RangeAction<?>> alignedRa,
-                                                                                                   Network network,
-                                                                                                   PrePerimeterSensitivityAnalysis preAutoPerimeterSensitivityAnalysis,
-                                                                                                   PrePerimeterResult prePerimeterSensitivityOutput,
-                                                                                                   State automatonState) {
+                                                               Network network,
+                                                               PrePerimeterSensitivityAnalysis preAutoPerimeterSensitivityAnalysis,
+                                                               PrePerimeterResult prePerimeterSensitivityOutput,
+                                                               State automatonState) {
         Set<HvdcRangeAction> hvdcRasWithControl = alignedRa.stream()
             .filter(HvdcRangeAction.class::isInstance)
             .map(HvdcRangeAction.class::cast)
@@ -526,6 +480,60 @@ public final class AutomatonSimulator {
         RaoLogger.logMostLimitingElementsResults(TECHNICAL_LOGS, result, Set.of(automatonState), raoParameters.getObjectiveFunctionParameters().getType(), numberLoggedElementsDuringRao);
 
         return Pair.of(result, activePowerSetpoints);
+    }
+
+    private static Map<String, Double> computeHvdcAngleDroopActivePowerControlValues(Network network, State state, String loadFlowProvider, LoadFlowParameters loadFlowParameters) {
+        // Create a temporary variant to apply contingency and compute load-flow on
+        String initialVariantId = network.getVariantManager().getWorkingVariantId();
+        String tmpVariant = RandomizedString.getRandomizedString("HVDC_LF", network.getVariantManager().getVariantIds(), 10);
+        network.getVariantManager().cloneVariant(initialVariantId, tmpVariant);
+        network.getVariantManager().setWorkingVariant(tmpVariant);
+
+        // Apply contingency and compute load-flow
+        if (state.getContingency().isPresent()) {
+            state.getContingency().orElseThrow().apply(network, null);
+        }
+        LoadFlow.find(loadFlowProvider).run(network, loadFlowParameters);
+
+        // Compute HvdcAngleDroopActivePowerControl values of HVDC lines
+        Map<String, Double> controls = network.getHvdcLineStream()
+                .filter(hvdcLine -> hvdcLine.getExtension(HvdcAngleDroopActivePowerControl.class) != null)
+                    .collect(Collectors.toMap(com.powsybl.iidm.network.Identifiable::getId, AutomatonSimulator::computeHvdcAngleDroopActivePowerControlValue));
+
+        // Reset working variant
+        network.getVariantManager().setWorkingVariant(initialVariantId);
+        network.getVariantManager().removeVariant(tmpVariant);
+
+        return controls;
+    }
+
+    /**
+     * Compute setpoint set by AngleDroopActivePowerControl = p0 + droop * angle difference
+     * NB: p0 and angle difference are always in 1->2 direction
+     *
+     * @param hvdcLine: HVDC line object
+     * @return the setpoint computed by the HvdcAngleDroopActivePowerControl
+     */
+    private static double computeHvdcAngleDroopActivePowerControlValue(HvdcLine hvdcLine) {
+        double phi1 = hvdcLine.getConverterStation1().getTerminal().getBusView().getBus().getAngle();
+        double phi2 = hvdcLine.getConverterStation2().getTerminal().getBusView().getBus().getAngle();
+        double p0 = hvdcLine.getExtension(HvdcAngleDroopActivePowerControl.class).getP0();
+        double droop = hvdcLine.getExtension(HvdcAngleDroopActivePowerControl.class).getDroop();
+        return p0 + droop * (phi1 - phi2);
+    }
+
+    /**
+     * Disables the HvdcAngleDroopActivePowerControl on an HVDC line and sets its active power set-point
+     * @param hvdcLineId:          ID of the HVDC line
+     * @param network:             network to modify the HVDC line in
+     * @param activePowerSetpoint: active power set-point to set on the HVDC line
+     */
+    private static void disableHvdcAngleDroopActivePowerControl(String hvdcLineId, Network network, double activePowerSetpoint) {
+        HvdcLine hvdcLine = network.getHvdcLine(hvdcLineId);
+        TECHNICAL_LOGS.debug("Disabling HvdcAngleDroopActivePowerControl on HVDC line {} and setting its set-point to {}", hvdcLine.getId(), activePowerSetpoint);
+        hvdcLine.getExtension(HvdcAngleDroopActivePowerControl.class).setEnabled(false);
+        hvdcLine.setConvertersMode(activePowerSetpoint > 0 ? HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER : HvdcLine.ConvertersMode.SIDE_1_INVERTER_SIDE_2_RECTIFIER);
+        hvdcLine.setActivePowerSetpoint(Math.abs(activePowerSetpoint));
     }
 
     /**
@@ -638,6 +646,26 @@ public final class AutomatonSimulator {
     }
 
     /**
+     * Computes the signum of a value evolution "newValue - oldValue"
+     * If the evolution is smaller than 1e-6 in absolute value, it returns 0
+     * If the double signum is smaller than 1e-6 in absolute value, it returns 0
+     * Else, it returns 1 if evolution is positive, -1 if evolution is negative
+     */
+    private static int safeDiffSignum(double newValue, double oldValue) {
+        if (Math.abs(newValue - oldValue) < 1e-6) {
+            return 0;
+        }
+        double signum = Math.signum(newValue - oldValue);
+        if (Math.abs(signum) < 1e-6) {
+            return 0;
+        }
+        if (signum > 0) {
+            return 1;
+        }
+        return -1;
+    }
+
+    /**
      * This function builds a list of cnecs with negative margin, except cnecs in cnecsToBeExcluded.
      * N.B : margin is retrieved in MEGAWATT as only the sign matters.
      * Returns a sorted list of FlowCnecs-Side pairs with negative margins.
@@ -680,6 +708,27 @@ public final class AutomatonSimulator {
         return optimalSetpoint;
     }
 
+    /**
+     * This function converts angleToBeRounded in the angle corresponding to the first tap
+     * after angleToBeRounded in the direction opposite of initialAngle.
+     */
+    static Double roundUpAngleToTapWrtInitialSetpoint(PstRangeAction rangeAction, double angleToBeRounded, double initialAngle) {
+        double direction = safeDiffSignum(angleToBeRounded, initialAngle);
+        if (direction > 0) {
+            Optional<Double> roundedAngle = rangeAction.getTapToAngleConversionMap().values().stream().filter(angle -> angle >= angleToBeRounded).min(Double::compareTo);
+            if (roundedAngle.isPresent()) {
+                return roundedAngle.get();
+            }
+        } else if (direction < 0) {
+            Optional<Double> roundedAngle = rangeAction.getTapToAngleConversionMap().values().stream().filter(angle -> angle <= angleToBeRounded).max(Double::compareTo);
+            if (roundedAngle.isPresent()) {
+                return roundedAngle.get();
+            }
+        }
+        // else, min or max was not found or angleToBeRounded = initialAngle. Return closest tap :
+        return rangeAction.getTapToAngleConversionMap().get(rangeAction.convertAngleToTap(angleToBeRounded));
+    }
+
     private PrePerimeterResult buildPrePerimeterResultForOptimizedState(PrePerimeterResult postAutoResult, State optimizedState) {
         // Gather variables necessary for PrePerimeterResult construction
         FlowResult flowResult = postAutoResult.getFlowResult();
@@ -695,53 +744,5 @@ public final class AutomatonSimulator {
         ObjectiveFunctionResult objectiveFunctionResult = new ObjectiveFunctionResultImpl(objectiveFunction, flowResult, rangeActionActivationResult, sensitivityResult, status);
         return new PrePerimeterSensitivityResultImpl(flowResult, sensitivityResult, rangeActionSetpointResult, objectiveFunctionResult);
 
-    }
-
-    /**
-     * Utility class to hold the results of topo actions simulation
-     */
-    static class TopoAutomatonSimulationResult {
-        private final PrePerimeterResult perimeterResult;
-        private final Set<NetworkAction> activatedNetworkActions;
-
-        public TopoAutomatonSimulationResult(PrePerimeterResult perimeterResult, Set<NetworkAction> activatedNetworkActions) {
-            this.perimeterResult = perimeterResult;
-            this.activatedNetworkActions = activatedNetworkActions;
-        }
-
-        public PrePerimeterResult getPerimeterResult() {
-            return perimeterResult;
-        }
-
-        public Set<NetworkAction> getActivatedNetworkActions() {
-            return activatedNetworkActions;
-        }
-    }
-
-    /**
-     * Utility class to hold the results of auto range actions simulation
-     */
-    static class RangeAutomatonSimulationResult {
-        private final PrePerimeterResult perimeterResult;
-        private final Set<RangeAction<?>> activatedRangeActions;
-        private final Map<RangeAction<?>, Double> rangeActionsWithSetpoint;
-
-        RangeAutomatonSimulationResult(PrePerimeterResult perimeterResult, Set<RangeAction<?>> activatedRangeActions, Map<RangeAction<?>, Double> rangeActionsWithSetpoint) {
-            this.perimeterResult = perimeterResult;
-            this.activatedRangeActions = activatedRangeActions;
-            this.rangeActionsWithSetpoint = rangeActionsWithSetpoint;
-        }
-
-        PrePerimeterResult getPerimeterResult() {
-            return perimeterResult;
-        }
-
-        Set<RangeAction<?>> getActivatedRangeActions() {
-            return activatedRangeActions;
-        }
-
-        Map<RangeAction<?>, Double> getRangeActionsWithSetpoint() {
-            return rangeActionsWithSetpoint;
-        }
     }
 }

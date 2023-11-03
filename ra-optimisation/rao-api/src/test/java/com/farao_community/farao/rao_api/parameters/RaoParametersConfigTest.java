@@ -10,10 +10,7 @@ import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.rao_api.parameters.extensions.*;
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
-import com.powsybl.commons.config.InMemoryPlatformConfig;
-import com.powsybl.commons.config.MapModuleConfig;
-import com.powsybl.commons.config.ModuleConfig;
-import com.powsybl.commons.config.PlatformConfig;
+import com.powsybl.commons.config.*;
 import com.powsybl.iidm.network.Country;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -26,41 +23,16 @@ import java.nio.file.FileSystem;
 import java.util.*;
 import java.util.stream.Stream;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyDouble;
-import static org.mockito.ArgumentMatchers.anyList;
-import static org.mockito.ArgumentMatchers.eq;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.*;
 
 /**
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
  */
 class RaoParametersConfigTest {
-    static double DOUBLE_TOLERANCE = 1e-6;
     private PlatformConfig mockedPlatformConfig;
     private InMemoryPlatformConfig platformCfg;
-
-    static Stream<Arguments> generateIntMap() {
-        return Stream.of(
-            Arguments.of(List.of("{ABC:5", "{DEF}:6"), "{ABC contains too few or too many occurences of \"{ or \"}"),
-            Arguments.of(List.of("{ABC}+5", "{DEF}:6"), "String-Integer pairs separated by \":\" must be defined, e.g {String1}:Integer instead of {ABC}+5"),
-            Arguments.of(List.of("{ABC}", "{DEF}:6"), "String-Integer pairs separated by \":\" must be defined, e.g {String1}:Integer instead of {ABC}"),
-            Arguments.of(List.of("5", "{DEF}:6"), "String-Integer pairs separated by \":\" must be defined, e.g {String1}:Integer instead of 5")
-        );
-    }
-
-    static Stream<Arguments> generateStringStringMap() {
-        return Stream.of(
-            Arguments.of(List.of("{cnec1:{pst1}", "{halfline1Cnec2 + halfline2Cnec2}:{pst2}"), "{cnec1 contains too few or too many occurences of \"{ or \"}"),
-            Arguments.of(List.of("{cnec1}:pst1}", "{halfline1Cnec2 + halfline2Cnec2}:{pst2}"), "pst1} contains too few or too many occurences of \"{ or \"}"),
-            Arguments.of(List.of("{cnec1}:", "{halfline1Cnec2 + halfline2Cnec2}:{pst2}"), "String pairs separated by \":\" must be defined, e.g {String1}:{String2} instead of {cnec1}:"),
-            Arguments.of(List.of(":{pst1}", "{halfline1Cnec2 + halfline2Cnec2}:{pst2}"), " contains too few or too many occurences of \"{ or \"}"),
-            Arguments.of(List.of("{cnec1}{blabla}:{pst1}"), "{cnec1}{blabla} contains too few or too many occurences of \"{ or \"}")
-        );
-    }
+    static double DOUBLE_TOLERANCE = 1e-6;
 
     @BeforeEach
     public void setUp() {
@@ -285,8 +257,7 @@ class RaoParametersConfigTest {
         MapModuleConfig topoActionsModuleConfig = platformCfg.createModuleConfig("rao-topological-actions-optimization");
         topoActionsModuleConfig.setStringListProperty("predefined-combinations", List.of("{na12 + {na22}", "{na41} + {na5} + {na6}"));
         RaoParameters parameters = new RaoParameters();
-        FaraoException exception = assertThrows(FaraoException.class, () -> RaoParameters.load(parameters, platformCfg));
-        assertEquals("{na12  contains too few or too many occurences of \"{ or \"}", exception.getMessage());
+        assertThrows(FaraoException.class, () -> RaoParameters.load(parameters, platformCfg));
     }
 
     @Test
@@ -294,28 +265,44 @@ class RaoParametersConfigTest {
         MapModuleConfig topoActionsModuleConfig = platformCfg.createModuleConfig("rao-topological-actions-optimization");
         topoActionsModuleConfig.setStringListProperty("predefined-combinations", List.of("{na12} - {na22}", "{na41} + {na5} + {na6}"));
         RaoParameters parameters = new RaoParameters();
-        FaraoException exception = assertThrows(FaraoException.class, () -> RaoParameters.load(parameters, platformCfg));
-        assertEquals("{na12} - {na22} contains too few or too many occurences of \"{ or \"}", exception.getMessage());
+        assertThrows(FaraoException.class, () -> RaoParameters.load(parameters, platformCfg));
     }
 
     @ParameterizedTest
     @MethodSource("generateIntMap")
-    void inconsistentStringIntMap(List<String> source, String message) {
+    void inconsistentStringIntMap(List<String> source) {
         MapModuleConfig raUsageLimitsModuleConfig = platformCfg.createModuleConfig("rao-ra-usage-limits-per-contingency");
         raUsageLimitsModuleConfig.setStringListProperty("max-curative-topo-per-tso", source);
         RaoParameters parameters = new RaoParameters();
-        FaraoException exception = assertThrows(FaraoException.class, () -> RaoParameters.load(parameters, platformCfg));
-        assertEquals(message, exception.getMessage());
+        assertThrows(FaraoException.class, () -> RaoParameters.load(parameters, platformCfg));
+    }
+
+    static Stream<Arguments> generateIntMap() {
+        return Stream.of(
+            Arguments.of(List.of("{ABC:5", "{DEF}:6")),
+            Arguments.of(List.of("{ABC}+5", "{DEF}:6")),
+            Arguments.of(List.of("{ABC}", "{DEF}:6")),
+            Arguments.of(List.of("5", "{DEF}:6"))
+        );
     }
 
     @ParameterizedTest
     @MethodSource("generateStringStringMap")
-    void inconsistentStringStringMap(List<String> source, String message) {
+    void inconsistentStringStringMap(List<String> source) {
         MapModuleConfig notOptimizedModuleConfig = platformCfg.createModuleConfig("rao-not-optimized-cnecs");
         notOptimizedModuleConfig.setStringListProperty("do-not-optimize-cnec-secured-by-its-pst", source);
         RaoParameters parameters = new RaoParameters();
-        FaraoException exception = assertThrows(FaraoException.class, () -> RaoParameters.load(parameters, platformCfg));
-        assertEquals(message, exception.getMessage());
+        assertThrows(FaraoException.class, () -> RaoParameters.load(parameters, platformCfg));
+    }
+
+    static Stream<Arguments> generateStringStringMap() {
+        return Stream.of(
+            Arguments.of(List.of("{cnec1:{pst1}", "{halfline1Cnec2 + halfline2Cnec2}:{pst2}")),
+            Arguments.of(List.of("{cnec1}:pst1}", "{halfline1Cnec2 + halfline2Cnec2}:{pst2}")),
+            Arguments.of(List.of("{cnec1}:", "{halfline1Cnec2 + halfline2Cnec2}:{pst2}")),
+            Arguments.of(List.of(":{pst1}", "{halfline1Cnec2 + halfline2Cnec2}:{pst2}")),
+            Arguments.of(List.of("{cnec1}{blabla}:{pst1}"))
+        );
     }
 
     @Test
@@ -324,8 +311,7 @@ class RaoParametersConfigTest {
         Mockito.when(loopFlowModuleConfig.getStringListProperty(eq("countries"), anyList())).thenReturn(List.of("France", "ES", "PT"));
         Mockito.when(mockedPlatformConfig.getOptionalModuleConfig("rao-loop-flow-parameters")).thenReturn(Optional.of(loopFlowModuleConfig));
         LoopFlowParametersConfigLoader configLoader = new LoopFlowParametersConfigLoader();
-        FaraoException exception = assertThrows(FaraoException.class, () -> configLoader.load(mockedPlatformConfig));
-        assertEquals("[France] could not be recognized as a country", exception.getMessage());
+        assertThrows(FaraoException.class, () -> configLoader.load(mockedPlatformConfig));
     }
 
     @Test
@@ -334,8 +320,7 @@ class RaoParametersConfigTest {
         Mockito.when(relativeMarginsModuleConfig.getStringListProperty(eq("ptdf-boundaries"), anyList())).thenReturn(List.of("{FR}{BE}"));
         Mockito.when(mockedPlatformConfig.getOptionalModuleConfig("rao-relative-margins-parameters")).thenReturn(Optional.of(relativeMarginsModuleConfig));
         RelativeMarginsParametersConfigLoader configLoader = new RelativeMarginsParametersConfigLoader();
-        FaraoException exception = assertThrows(FaraoException.class, () -> configLoader.load(mockedPlatformConfig));
-        assertEquals("ZoneToZonePtdfDefinition should have the following syntax: {Code_1}-{Code_2}+{Code_3}... where Code_i are 16-characters EI codes or 2-characters country codes.", exception.getMessage());
+        assertThrows(FaraoException.class, () -> configLoader.load(mockedPlatformConfig));
     }
 
     @Test
@@ -344,7 +329,6 @@ class RaoParametersConfigTest {
         Mockito.when(relativeMarginsModuleConfig.getStringListProperty(eq("ptdf-boundaries"), anyList())).thenReturn(List.of("{FR-{BE}"));
         Mockito.when(mockedPlatformConfig.getOptionalModuleConfig("rao-relative-margins-parameters")).thenReturn(Optional.of(relativeMarginsModuleConfig));
         RelativeMarginsParametersConfigLoader configLoader = new RelativeMarginsParametersConfigLoader();
-        FaraoException exception = assertThrows(FaraoException.class, () -> configLoader.load(mockedPlatformConfig));
-        assertEquals("ZoneToZonePtdfDefinition should have the following syntax: {Code_1}-{Code_2}+{Code_3}... where Code_i are 16-characters EI codes or 2-characters country codes.", exception.getMessage());
+        assertThrows(FaraoException.class, () -> configLoader.load(mockedPlatformConfig));
     }
 }

@@ -110,9 +110,9 @@ class LoopFlowComputationImplTest {
         assertEquals("gen1 is neither a generator nor a load nor a dangling line in the network. It is not a valid GLSK.", exception.getMessage());
 
         Mockito.doReturn(Map.of(
-                "gen1", new WeightedSensitivityVariable("gen1", 5f),
-                "load1", new WeightedSensitivityVariable("load1", 6f),
-                "dl1", new WeightedSensitivityVariable("dl1", 6f)))
+                    "gen1", new WeightedSensitivityVariable("gen1", 5f),
+                    "load1", new WeightedSensitivityVariable("load1", 6f),
+                    "dl1", new WeightedSensitivityVariable("dl1", 6f)))
             .when(linearGlsk).getVariablesById();
         Generator gen1 = Mockito.mock(Generator.class);
         Load load1 = Mockito.mock(Load.class);
@@ -170,8 +170,8 @@ class LoopFlowComputationImplTest {
         Mockito.doReturn(busView).when(terminal).getBusView();
 
         Mockito.doReturn(Set.of(
-                new WeightedSensitivityVariable("gen1", 5f),
-                new WeightedSensitivityVariable("load1", 6f)))
+                    new WeightedSensitivityVariable("gen1", 5f),
+                    new WeightedSensitivityVariable("load1", 6f)))
             .when(linearGlsk).getVariables();
         Generator gen1 = Mockito.mock(Generator.class);
         Load load1 = Mockito.mock(Load.class);

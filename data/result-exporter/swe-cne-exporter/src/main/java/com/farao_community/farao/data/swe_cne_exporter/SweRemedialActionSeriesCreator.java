@@ -136,15 +136,15 @@ public class SweRemedialActionSeriesCreator {
         List<RemedialAction<?>> usedRas = new ArrayList<>();
         if (Objects.nonNull(raoResult)) {
             context.getCreatedIds().stream().sorted()
-                .map(crac::getRemedialAction)
-                .filter(ra -> raoResult.isActivatedDuringState(state, ra))
-                .forEach(usedRas::add);
+                    .map(crac::getRemedialAction)
+                    .filter(ra -> raoResult.isActivatedDuringState(state, ra))
+                            .forEach(usedRas::add);
         }
         if (Objects.nonNull(angleMonitoringResult) && !angleMonitoringResult.isDivergent()) {
             context.getCreatedIds().stream().sorted()
-                .map(crac::getRemedialAction)
-                .filter(ra -> angleMonitoringResult.getAppliedCras(state).stream().anyMatch(cra -> cra.getId().equals(ra.getId())))
-                .forEach(usedRas::add);
+                    .map(crac::getRemedialAction)
+                    .filter(ra -> angleMonitoringResult.getAppliedCras(state).stream().anyMatch(cra -> cra.getId().equals(ra.getId())))
+                            .forEach(usedRas::add);
         }
         for (RemedialAction<?> usedRa : usedRas) {
             if (usedRa instanceof NetworkAction) {

@@ -252,13 +252,13 @@ public class MockCracCreationContext implements UcteCracCreationContext {
             return isInverted;
         }
 
-        public void setInverted(boolean inverted) {
-            isInverted = inverted;
-        }
-
         @Override
         public String getNativeNetworkElementId() {
             return nativeNetworkElementId;
+        }
+
+        public void setInverted(boolean inverted) {
+            isInverted = inverted;
         }
 
         public void setNativeNetworkElementId(String nativeNetworkElementId) {

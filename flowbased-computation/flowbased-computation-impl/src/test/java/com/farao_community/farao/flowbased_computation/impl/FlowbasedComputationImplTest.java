@@ -218,16 +218,16 @@ class FlowbasedComputationImplTest {
 
     private Map<String, Double> frefResultById(FlowbasedComputationResult result) {
         return result.getFlowBasedDomain().getDataPreContingency().getDataMonitoredBranches().stream()
-            .collect(Collectors.toMap(
-                DataMonitoredBranch::getId,
-                DataMonitoredBranch::getFref));
+                .collect(Collectors.toMap(
+                        DataMonitoredBranch::getId,
+                        DataMonitoredBranch::getFref));
     }
 
     private Map<String, Double> fmaxResultById(FlowbasedComputationResult result) {
         return result.getFlowBasedDomain().getDataPreContingency().getDataMonitoredBranches().stream()
-            .collect(Collectors.toMap(
-                DataMonitoredBranch::getId,
-                DataMonitoredBranch::getFmax));
+                .collect(Collectors.toMap(
+                        DataMonitoredBranch::getId,
+                        DataMonitoredBranch::getFmax));
     }
 
     private Map<String, Map<String, Double>> ptdfResultById(FlowbasedComputationResult result) {
@@ -235,10 +235,10 @@ class FlowbasedComputationImplTest {
             .collect(Collectors.toMap(
                 DataMonitoredBranch::getId,
                 dataMonitoredBranch -> dataMonitoredBranch.getPtdfList().stream()
-                    .collect(Collectors.toMap(
-                        DataPtdfPerCountry::getCountry,
-                        DataPtdfPerCountry::getPtdf
-                    ))
+                .collect(Collectors.toMap(
+                    DataPtdfPerCountry::getCountry,
+                    DataPtdfPerCountry::getPtdf
+                ))
             ));
     }
 

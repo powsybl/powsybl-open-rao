@@ -51,17 +51,6 @@ public class VoltageMonitoring {
     }
 
     /**
-     * Compares an voltageCnec's thresholds to a voltage (parameter).
-     * Returns true if a threshold is breached.
-     */
-    private static boolean thresholdOvershoot(VoltageCnec voltageCnec, ExtremeVoltageValues voltages) {
-        return voltageCnec.getThresholds().stream()
-            .anyMatch(threshold -> threshold.limitsByMax() && voltages != null && voltages.getMax() > threshold.max().orElseThrow())
-            || voltageCnec.getThresholds().stream()
-            .anyMatch(threshold -> threshold.limitsByMin() && voltages != null && voltages.getMin() < threshold.min().orElseThrow());
-    }
-
-    /**
      * Main function : runs VoltageMonitoring computation on all VoltageCnecs defined in the CRAC.
      * Returns an VoltageMonitoringResult
      */
@@ -213,6 +202,17 @@ public class VoltageMonitoring {
             }
         });
         return voltagePerCnec;
+    }
+
+    /**
+     * Compares an voltageCnec's thresholds to a voltage (parameter).
+     * Returns true if a threshold is breached.
+     */
+    private static boolean thresholdOvershoot(VoltageCnec voltageCnec, ExtremeVoltageValues voltages) {
+        return voltageCnec.getThresholds().stream()
+            .anyMatch(threshold -> threshold.limitsByMax() && voltages != null && voltages.getMax() > threshold.max().orElseThrow())
+            || voltageCnec.getThresholds().stream()
+            .anyMatch(threshold -> threshold.limitsByMin() && voltages != null && voltages.getMin() < threshold.min().orElseThrow());
     }
 
     /**

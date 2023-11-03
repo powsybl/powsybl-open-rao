@@ -46,40 +46,13 @@ public class LoopFlowComputationImpl implements LoopFlowComputation {
         this.glskMap = buildRefProgGlskMap();
     }
 
-    static boolean isInMainComponent(SensitivityVariableSet linearGlsk, Network network) {
-        boolean atLeastOneGlskConnected = false;
-        for (String glsk : linearGlsk.getVariablesById().keySet().stream().sorted().toList()) {
-            Injection<?> injection = getInjection(glsk, network);
-            if (injection == null) {
-                throw new FaraoException(String.format("%s is neither a generator nor a load nor a dangling line in the network. It is not a valid GLSK.", glsk));
-            }
-            // If bus is disconnected, then powsybl returns a null bus
-            if (injection.getTerminal().getBusView().getBus() != null && injection.getTerminal().getBusView().getBus().isInMainConnectedComponent()) {
-                atLeastOneGlskConnected = true;
-            }
-        }
-        return atLeastOneGlskConnected;
-    }
-
-    static Injection<?> getInjection(String injectionId, Network network) {
-        Generator generator = network.getGenerator(injectionId);
-        if (generator != null) {
-            return generator;
-        }
-        Load load = network.getLoad(injectionId);
-        if (load != null) {
-            return load;
-        }
-        return network.getDanglingLine(injectionId);
-    }
-
     @Override
     public LoopFlowResult calculateLoopFlows(Network network, String sensitivityProvider, SensitivityAnalysisParameters sensitivityAnalysisParameters, Set<FlowCnec> flowCnecs, Instant instantOutage) {
         SystematicSensitivityInterface systematicSensitivityInterface = SystematicSensitivityInterface.builder()
-            .withSensitivityProviderName(sensitivityProvider)
-            .withParameters(sensitivityAnalysisParameters)
-            .withPtdfSensitivities(glsk, flowCnecs, Collections.singleton(Unit.MEGAWATT))
-            .build();
+                .withSensitivityProviderName(sensitivityProvider)
+                .withParameters(sensitivityAnalysisParameters)
+                .withPtdfSensitivities(glsk, flowCnecs, Collections.singleton(Unit.MEGAWATT))
+                .build();
 
         SystematicSensitivityResult ptdfsAndRefFlows = systematicSensitivityInterface.run(network, instantOutage);
 
@@ -106,6 +79,33 @@ public class LoopFlowComputationImpl implements LoopFlowComputation {
         Map<SensitivityVariableSet, Boolean> map = new HashMap<>();
         glskMap.values().forEach(linearGlsk -> map.putIfAbsent(linearGlsk, isInMainComponent(linearGlsk, network)));
         return map;
+    }
+
+    static boolean isInMainComponent(SensitivityVariableSet linearGlsk, Network network) {
+        boolean atLeastOneGlskConnected = false;
+        for (String glsk : linearGlsk.getVariablesById().keySet().stream().sorted().toList()) {
+            Injection<?> injection = getInjection(glsk, network);
+            if (injection == null) {
+                throw new FaraoException(String.format("%s is neither a generator nor a load nor a dangling line in the network. It is not a valid GLSK.", glsk));
+            }
+            // If bus is disconnected, then powsybl returns a null bus
+            if (injection.getTerminal().getBusView().getBus() != null && injection.getTerminal().getBusView().getBus().isInMainConnectedComponent()) {
+                atLeastOneGlskConnected = true;
+            }
+        }
+        return atLeastOneGlskConnected;
+    }
+
+    static Injection<?> getInjection(String injectionId, Network network) {
+        Generator generator = network.getGenerator(injectionId);
+        if (generator != null) {
+            return generator;
+        }
+        Load load = network.getLoad(injectionId);
+        if (load != null) {
+            return load;
+        }
+        return network.getDanglingLine(injectionId);
     }
 
     protected Stream<Map.Entry<EICode, SensitivityVariableSet>> getGlskStream(FlowCnec flowCnec) {

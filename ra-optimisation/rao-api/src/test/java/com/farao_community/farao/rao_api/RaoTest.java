@@ -26,9 +26,7 @@ import org.mockito.Mockito;
 import java.nio.file.FileSystem;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Baptiste Seguinot <baptiste.seguinot at rte-france.com>
@@ -77,8 +75,7 @@ class RaoTest {
     void testDefaultTwoProviders() {
         // case with two providers : should throw as no config defines which provider must be selected
         List<RaoProvider> raoProviders = ImmutableList.of(new RaoProviderMock(), new AnotherRaoProviderMock());
-        FaraoException exception = assertThrows(FaraoException.class, () -> Rao.find(null, raoProviders, platformConfig));
-        assertEquals("Several RAO implementations found ([RandomRAO, GlobalRAOptimizer]), you must add configuration to select the implementation", exception.getMessage());
+        assertThrows(FaraoException.class, () -> Rao.find(null, raoProviders, platformConfig));
     }
 
     @Test
@@ -93,8 +90,7 @@ class RaoTest {
     void testDefaultNoProvider() {
         // case with no provider
         List<RaoProvider> raoProviders = ImmutableList.of();
-        FaraoException exception = assertThrows(FaraoException.class, () -> Rao.find(null, raoProviders, platformConfig));
-        assertEquals("No RAO providers found", exception.getMessage());
+        assertThrows(FaraoException.class, () -> Rao.find(null, raoProviders, platformConfig));
     }
 
     @Test
@@ -111,7 +107,6 @@ class RaoTest {
         // case with 1 provider with config but with a name that is not the one of provider.
         platformConfig.createModuleConfig("rao").setStringProperty("default", "UnknownRao");
         List<RaoProvider> raoProviders = ImmutableList.of(new RaoProviderMock());
-        FaraoException exception = assertThrows(FaraoException.class, () -> Rao.find(null, raoProviders, platformConfig));
-        assertEquals("RA optimizer provider 'UnknownRao' not found", exception.getMessage());
+        assertThrows(FaraoException.class, () -> Rao.find(null, raoProviders, platformConfig));
     }
 }

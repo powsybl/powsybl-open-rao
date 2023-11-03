@@ -21,6 +21,30 @@ public class LoopFlowResult {
 
     private final Map<BranchCnec<?>, Map<Side, LoopFlow>> loopFlowMap;
 
+    private static class LoopFlow {
+        final double loopFlowValue;
+        final double commercialFlowValue;
+        final double totalFlowValue;
+
+        LoopFlow(double loopFlow, double commercialFlow, double totalFlow) {
+            this.loopFlowValue = loopFlow;
+            this.commercialFlowValue = commercialFlow;
+            this.totalFlowValue = totalFlow;
+        }
+
+        double getLoopFlow() {
+            return loopFlowValue;
+        }
+
+        double getCommercialFlow() {
+            return commercialFlowValue;
+        }
+
+        double getTotalFlow() {
+            return totalFlowValue;
+        }
+    }
+
     public LoopFlowResult() {
         this.loopFlowMap = new HashMap<>();
     }
@@ -48,29 +72,5 @@ public class LoopFlowResult {
             throw new FaraoException(String.format("No reference flow value found for cnec %s on side %s", cnec.getId(), side));
         }
         return loopFlowMap.get(cnec).get(side).getTotalFlow();
-    }
-
-    private static class LoopFlow {
-        final double loopFlowValue;
-        final double commercialFlowValue;
-        final double totalFlowValue;
-
-        LoopFlow(double loopFlow, double commercialFlow, double totalFlow) {
-            this.loopFlowValue = loopFlow;
-            this.commercialFlowValue = commercialFlow;
-            this.totalFlowValue = totalFlow;
-        }
-
-        double getLoopFlow() {
-            return loopFlowValue;
-        }
-
-        double getCommercialFlow() {
-            return commercialFlowValue;
-        }
-
-        double getTotalFlow() {
-            return totalFlowValue;
-        }
     }
 }

@@ -24,18 +24,17 @@ import org.mockito.Mockito;
 import java.util.*;
 
 import static com.farao_community.farao.commons.Unit.MEGAWATT;
-
 /**
  * Test case is a network with 5 nodes and 1 xnode (in 4 countries).
- * <p>
- * FR   (+100 MW)       BE 1  (+125 MW)
- * + ------------ +---------------------------+ XBE (-25 MW)
- * |              |
- * |              +  BE 2 (-100 MW)
- * |              |
- * + ------------ +
- * DE   (0 MW)          NL  (-100 MW)
- * <p>
+ *
+ *       FR   (+100 MW)       BE 1  (+125 MW)
+ *          + ------------ +---------------------------+ XBE (-25 MW)
+ *          |              |
+ *          |              +  BE 2 (-100 MW)
+ *          |              |
+ *          + ------------ +
+ *       DE   (0 MW)          NL  (-100 MW)
+ *
  * All lines have same impedance and are monitored.
  * Each Country GLSK is a simple one node GLSK, except for Belgium where GLSKs are equally distributed
  * on the 2 nodes + the xnode
@@ -45,6 +44,7 @@ import static com.farao_community.farao.commons.Unit.MEGAWATT;
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 final class ExampleGenerator {
+
     private ExampleGenerator() {
         throw new AssertionError("Utility class should not be instantiated");
     }
@@ -327,11 +327,11 @@ final class ExampleGenerator {
             .withInstant("preventive")
             .withNetworkElement("FR-BE1")
             .newThreshold()
-            .withMin(-200.)
-            .withMax(200.)
-            .withUnit(MEGAWATT)
-            .withSide(Side.LEFT)
-            .add()
+                .withMin(-200.)
+                .withMax(200.)
+                .withUnit(MEGAWATT)
+                .withSide(Side.LEFT)
+                .add()
             .add();
 
         crac.newFlowCnec()
@@ -339,11 +339,11 @@ final class ExampleGenerator {
             .withInstant("preventive")
             .withNetworkElement("FR-DE")
             .newThreshold()
-            .withMin(-200.)
-            .withMax(200.)
-            .withUnit(MEGAWATT)
-            .withSide(Side.RIGHT)
-            .add()
+                .withMin(-200.)
+                .withMax(200.)
+                .withUnit(MEGAWATT)
+                .withSide(Side.RIGHT)
+                .add()
             .add();
 
         crac.newFlowCnec()
@@ -351,11 +351,11 @@ final class ExampleGenerator {
             .withInstant("preventive")
             .withNetworkElement("BE2-NL")
             .newThreshold()
-            .withMin(-200.)
-            .withMax(200.)
-            .withUnit(MEGAWATT)
-            .withSide(Side.LEFT)
-            .add()
+                .withMin(-200.)
+                .withMax(200.)
+                .withUnit(MEGAWATT)
+                .withSide(Side.LEFT)
+                .add()
             .add();
 
         crac.newFlowCnec()
@@ -363,11 +363,11 @@ final class ExampleGenerator {
             .withInstant("preventive")
             .withNetworkElement("DE-NL")
             .newThreshold()
-            .withMin(-200.)
-            .withMax(200.)
-            .withUnit(MEGAWATT)
-            .withSide(Side.RIGHT)
-            .add()
+                .withMin(-200.)
+                .withMax(200.)
+                .withUnit(MEGAWATT)
+                .withSide(Side.RIGHT)
+                .add()
             .add();
 
         crac.newFlowCnec()
@@ -375,11 +375,11 @@ final class ExampleGenerator {
             .withInstant("preventive")
             .withNetworkElement("BE1-BE2")
             .newThreshold()
-            .withMin(-200.)
-            .withMax(200.)
-            .withUnit(MEGAWATT)
-            .withSide(Side.LEFT)
-            .add()
+                .withMin(-200.)
+                .withMax(200.)
+                .withUnit(MEGAWATT)
+                .withSide(Side.LEFT)
+                .add()
             .add();
 
         return crac;
