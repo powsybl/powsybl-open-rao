@@ -139,7 +139,7 @@ class OnFlowConstraintAdderImplTest {
     void testNoInstantException() {
         OnFlowConstraintAdder adder = remedialActionAdder.newOnFlowConstraintUsageRule().withFlowCnec("cnec2stateCurativeContingency1");
         FaraoException exception = assertThrows(FaraoException.class, adder::add);
-        assertEquals("Cannot add OnFlowConstraint without a instantKind. Please use withInstantKind() with a non null value", exception.getMessage());
+        assertEquals("Cannot add OnFlowConstraint without a instant. Please use withInstant() with a non null value", exception.getMessage());
     }
 
     private void addCnec(String id, String instantId) {
