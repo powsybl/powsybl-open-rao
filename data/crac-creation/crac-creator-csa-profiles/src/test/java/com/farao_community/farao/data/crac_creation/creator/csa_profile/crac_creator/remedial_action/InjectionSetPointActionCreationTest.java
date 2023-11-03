@@ -15,6 +15,7 @@ import org.mockito.Mockito;
 
 import java.util.stream.Stream;
 
+import static com.farao_community.farao.data.crac_api.InstantKind.PREVENTIVE;
 import static com.farao_community.farao.data.crac_creation.creator.csa_profile.crac_creator.CsaProfileCracCreationTestUtil.getCsaCracCreationContext;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -160,14 +161,14 @@ class InjectionSetPointActionCreationTest {
         assertEquals(2, cracCreationContext.getCrac().getRemedialActions().size());
         NetworkAction ra1 = cracCreationContext.getCrac().getNetworkAction("d6247efe-3317-4c75-a752-c2a3a9f03aed");
         assertEquals("d6247efe-3317-4c75-a752-c2a3a9f03aed", ra1.getName());
-        assertEquals(PREVENTIVE, ra1.getUsageRules().iterator().next().getInstant());
+        assertEquals(PREVENTIVE, ra1.getUsageRules().iterator().next().getInstant().getInstantKind());
         assertEquals(UsageMethod.AVAILABLE, ra1.getUsageRules().iterator().next().getUsageMethod());
         assertEquals("726c5cfa-d197-4e98-95a1-7dd357dd9353", ((InjectionSetpoint) ra1.getElementaryActions().iterator().next()).getNetworkElement().getId());
         assertEquals(5, ((InjectionSetpoint) ra1.getElementaryActions().iterator().next()).getSetpoint());
 
         NetworkAction ra2 = cracCreationContext.getCrac().getNetworkAction("c1ac819a-4f03-48ee-826e-6f7c19dfba0a");
         assertEquals("c1ac819a-4f03-48ee-826e-6f7c19dfba0a", ra2.getName());
-        assertEquals(PREVENTIVE, ra2.getUsageRules().iterator().next().getInstant());
+        assertEquals(PREVENTIVE, ra2.getUsageRules().iterator().next().getInstant().getInstantKind());
         assertEquals(UsageMethod.AVAILABLE, ra2.getUsageRules().iterator().next().getUsageMethod());
         assertEquals("726c5cfa-d197-4e98-95a1-7dd357dd9353", ((InjectionSetpoint) ra2.getElementaryActions().iterator().next()).getNetworkElement().getId());
         assertEquals(3, ((InjectionSetpoint) ra2.getElementaryActions().iterator().next()).getSetpoint(), 0.1);
