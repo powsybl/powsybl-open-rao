@@ -18,7 +18,6 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.util.Arrays;
 import java.util.Comparator;
-import java.util.Objects;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
@@ -208,8 +207,7 @@ public final class RaoResultJsonConstants {
     }
 
     public static String deserializeInstantId(String stringValue) {
-        // TODO review this
-        if (stringValue.equals(INITIAL_INSTANT)) {
+        if (stringValue.equals("") || stringValue.equals(INITIAL_INSTANT)) { // TODO review this "" test (see RaoResultRoundTripTest)
             return null;
         }
         return stringValue;

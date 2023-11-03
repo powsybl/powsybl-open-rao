@@ -55,7 +55,7 @@ class RaoResultJsonConstantsTest {
 
     @Test
     void testSerializeInstantId() {
-        assertEquals("", serializeInstantId(null));
+        assertEquals("initial", serializeInstantId(null));
         InstantImpl prevInstant = new InstantImpl("preventive", InstantKind.PREVENTIVE, null);
         InstantImpl instantOutage = new InstantImpl("outage", InstantKind.OUTAGE, prevInstant);
         InstantImpl instantAuto = new InstantImpl("auto", InstantKind.AUTO, instantOutage);

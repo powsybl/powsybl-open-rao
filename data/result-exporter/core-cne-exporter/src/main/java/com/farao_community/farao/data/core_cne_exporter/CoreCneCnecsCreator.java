@@ -50,28 +50,6 @@ public final class CoreCneCnecsCreator {
 
     }
 
-    public static double getFlowUnitMultiplier(FlowCnec cnec, Side voltageSide, Unit unitFrom, Unit unitTo) {
-        if (unitFrom == unitTo) {
-            return 1;
-        }
-        double nominalVoltage = cnec.getNominalVoltage(voltageSide);
-        if (unitFrom == Unit.MEGAWATT && unitTo == Unit.AMPERE) {
-            return 1000 / (nominalVoltage * Math.sqrt(3));
-        } else if (unitFrom == Unit.AMPERE && unitTo == Unit.MEGAWATT) {
-            return nominalVoltage * Math.sqrt(3) / 1000;
-        } else {
-            throw new FaraoException("Only conversions between MW and A are supported.");
-        }
-    }
-
-    private static Instant getPreventiveInstant(Instant optimizedInstant) {
-        Instant resultOptimState = optimizedInstant;
-        while (resultOptimState != null && resultOptimState.getInstantKind() != InstantKind.PREVENTIVE) {
-            resultOptimState = resultOptimState.getPreviousInstant();
-        }
-        return resultOptimState;
-    }
-
     public List<ConstraintSeries> generate() {
         List<ConstraintSeries> constraintSeries = new ArrayList<>();
         List<BranchCnecCreationContext> sortedCnecs = cracCreationContext.getBranchCnecCreationContexts().stream()
@@ -166,6 +144,17 @@ public final class CoreCneCnecsCreator {
         return constraintSeriesOfCnec;
     }
 
+    private static class AnalogComparator implements Comparator<Analog> {
+        @Override
+        public int compare(Analog o1, Analog o2) {
+            if (o1.getMeasurementType().equals(o2.getMeasurementType())) {
+                return o1.getUnitSymbol().compareTo(o2.getUnitSymbol());
+            } else {
+                return o1.getMeasurementType().compareTo(o2.getMeasurementType());
+            }
+        }
+    }
+
     private List<Analog> createB88MeasurementsOfCnec(FlowCnec permanentCnec, FlowCnec temporaryCnec, boolean asMnec, boolean shouldInvertBranchDirection) {
         List<Analog> measurements = new ArrayList<>();
         measurements.addAll(createFlowMeasurementsOfFlowCnec(permanentCnec, null, true, shouldInvertBranchDirection)); // TODO : replace true with !asMnec when we go back to proper implementation
@@ -230,7 +219,7 @@ public final class CoreCneCnecsCreator {
     private double getCnecFlow(FlowCnec cnec, Side side, Instant optimizedInstant) {
         Instant resultState = optimizedInstant;
         if (resultState != null && resultState.getInstantKind() == InstantKind.CURATIVE && cnec.getState().getInstant().getInstantKind().equals(InstantKind.PREVENTIVE)) {
-            resultState = getPreventiveInstant(optimizedInstant);
+            resultState = cracCreationContext.getCrac().getInstant(InstantKind.PREVENTIVE);
         }
         return cneHelper.getRaoResult().getFlow(resultState, cnec, side, Unit.MEGAWATT);
     }
@@ -238,7 +227,7 @@ public final class CoreCneCnecsCreator {
     private double getCnecMargin(FlowCnec cnec, Instant optimizedInstant, boolean asMnec, Unit unit, boolean deductFrmFromThreshold) {
         Instant resultState = optimizedInstant;
         if (resultState != null && resultState.getInstantKind() == InstantKind.CURATIVE && cnec.getState().getInstant().getInstantKind().equals(InstantKind.PREVENTIVE)) {
-            resultState = getPreventiveInstant(optimizedInstant);
+            resultState = cracCreationContext.getCrac().getInstant(InstantKind.PREVENTIVE);
         }
         return getThresholdToMarginMap(cnec, resultState, asMnec, unit, deductFrmFromThreshold).values().stream().min(Double::compareTo).orElseThrow();
     }
@@ -247,7 +236,7 @@ public final class CoreCneCnecsCreator {
         double absoluteMargin = getCnecMargin(cnec, optimizedInstant, asMnec, unit, true);
         Instant resultState = optimizedInstant;
         if (resultState != null && resultState.getInstantKind() == InstantKind.CURATIVE && cnec.getState().getInstant().getInstantKind().equals(InstantKind.PREVENTIVE)) {
-            resultState = getPreventiveInstant(optimizedInstant);
+            resultState = cracCreationContext.getCrac().getInstant(InstantKind.PREVENTIVE);
         }
         return absoluteMargin > 0 ? absoluteMargin / cneHelper.getRaoResult().getPtdfZonalSum(resultState, cnec, getMonitoredSide(cnec)) : absoluteMargin;
     }
@@ -352,7 +341,7 @@ public final class CoreCneCnecsCreator {
     private List<Analog> createLoopflowMeasurements(FlowCnec cnec, Instant optimizedInstant, boolean shouldInvertBranchDirection) {
         Instant resultOptimState = optimizedInstant;
         if (resultOptimState != null && optimizedInstant.getInstantKind() == InstantKind.CURATIVE && cnec.getState().isPreventive()) {
-            resultOptimState = getPreventiveInstant(resultOptimState);
+            resultOptimState = cracCreationContext.getCrac().getInstant(InstantKind.PREVENTIVE);
         }
         List<Analog> measurements = new ArrayList<>();
         try {
@@ -374,14 +363,17 @@ public final class CoreCneCnecsCreator {
         return cnec.getMonitoredSides().contains(Side.LEFT) ? Side.LEFT : Side.RIGHT;
     }
 
-    private static class AnalogComparator implements Comparator<Analog> {
-        @Override
-        public int compare(Analog o1, Analog o2) {
-            if (o1.getMeasurementType().equals(o2.getMeasurementType())) {
-                return o1.getUnitSymbol().compareTo(o2.getUnitSymbol());
-            } else {
-                return o1.getMeasurementType().compareTo(o2.getMeasurementType());
-            }
+    public static double getFlowUnitMultiplier(FlowCnec cnec, Side voltageSide, Unit unitFrom, Unit unitTo) {
+        if (unitFrom == unitTo) {
+            return 1;
+        }
+        double nominalVoltage = cnec.getNominalVoltage(voltageSide);
+        if (unitFrom == Unit.MEGAWATT && unitTo == Unit.AMPERE) {
+            return 1000 / (nominalVoltage * Math.sqrt(3));
+        } else if (unitFrom == Unit.AMPERE && unitTo == Unit.MEGAWATT) {
+            return nominalVoltage * Math.sqrt(3) / 1000;
+        } else {
+            throw new FaraoException("Only conversions between MW and A are supported.");
         }
     }
 }
