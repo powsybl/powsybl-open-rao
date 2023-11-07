@@ -451,3 +451,17 @@ WHERE {
         ?shuntCompensatorModificationAuto nc:RemedialAction.normalEnabled ?normalEnabled .
     }
 }
+
+# query: tapPositionActionAuto
+PREFIX nc: <http://entsoe.eu/ns/nc#>
+PREFIX cim: <http://iec.ch/TC57/CIM100#>
+SELECT *
+WHERE {
+    ?tapPositionActionAuto
+        rdf:type nc:TapPositionAction ;
+        cim:IdentifiedObject.mRID ?mRID ;
+        nc:GridStateAlteration.PropertyReference ?propertyReference;
+        nc:GridStateAlteration.GridStateAlterationCollection ?gridStateAlterationCollection ;
+        nc:TapPositionAction.TapChanger ?tapChangerId ;
+
+}

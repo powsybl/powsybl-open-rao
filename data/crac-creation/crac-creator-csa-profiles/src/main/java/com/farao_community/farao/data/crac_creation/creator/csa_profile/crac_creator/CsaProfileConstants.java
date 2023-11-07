@@ -105,6 +105,8 @@ public final class CsaProfileConstants {
     public static final String NORMAL_ARMED = "normalArmed";
     public static final String TOPOLOGY_ACTION_AUTO = "topologyActionAuto";
     public static final String ROTATING_MACHINE_ACTION_AUTO = "rotatingMachineActionAuto";
+    public static final String TAP_POSITION_ACTION_AUTO = "tapPositionActionAuto";
+
     public static final String SHUNT_COMPENSATOR_MODIFICATION_AUTO = "shuntCompensatorModificationAuto";
     public static final String GRID_STATE_ALTERATION_COLLECTION = "gridStateAlterationCollection";
     public static final String GRID_STATE_ALTERATION_REMEDIAL_ACTION = "gridStateAlterationRemedialAction";

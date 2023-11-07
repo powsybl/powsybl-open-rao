@@ -4,6 +4,7 @@ import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.NetworkElement;
 import com.farao_community.farao.data.crac_api.RemedialAction;
 import com.farao_community.farao.data.crac_api.network_action.*;
+import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageRule;
 import com.farao_community.farao.data.crac_creation.creator.api.parameters.CracCreationParameters;
@@ -13,20 +14,14 @@ import com.farao_community.farao.data.crac_creation.creator.csa_profile.crac_cre
 import com.farao_community.farao.data.crac_creation.creator.csa_profile.importer.CsaProfileCracImporter;
 import com.farao_community.farao.data.crac_creation.util.FaraoImportException;
 import com.farao_community.farao.data.crac_impl.OnContingencyStateImpl;
-import com.google.common.base.Suppliers;
-import com.powsybl.computation.local.LocalComputationManager;
-import com.powsybl.iidm.network.ImportConfig;
 import com.powsybl.iidm.network.Network;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-import java.io.File;
 import java.io.InputStream;
-import java.nio.file.Paths;
 import java.time.OffsetDateTime;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Properties;
 import java.util.stream.Collectors;
 
 import static com.farao_community.farao.data.crac_creation.creator.csa_profile.crac_creator.CsaProfileCracCreationTestUtil.getCsaCracCreationContext;
@@ -54,45 +49,45 @@ public class AutoRemedialActionTest {
 
     @Test
     public void importAutoRemedialActionSps2() {
-        CsaProfileCracCreationContext cracCreationContext = getCsaCracCreationContext("/CSA_SPS_2_ValidProflies.zip");
+        CsaProfileCracCreationContext cracCreationContext = getCsaCracCreationContext("/SPS_with_shunt_compensator_and_pst.zip");
 
         List<RemedialAction> autoRemedialActionList = cracCreationContext.getCrac().getRemedialActions().stream().filter(ra -> ra.getUsageRules().stream().anyMatch(usageRule -> usageRule.getInstant().equals(Instant.AUTO))).collect(Collectors.toList());
-        assertEquals(3, autoRemedialActionList.size());
+        assertEquals(4, autoRemedialActionList.size());
 
-        NetworkAction ara1 = cracCreationContext.getCrac().getNetworkAction("scheme-remedial-action");
-        assertEquals("scheme-remedial-action", ara1.getName());
-        UsageRule ur1 = ara1.getUsageRules().iterator().next();
+        NetworkAction ara2 = cracCreationContext.getCrac().getNetworkAction("auto-topological-action");
+        assertEquals("ARA2", ara2.getName());
+        UsageRule ur1 = ara2.getUsageRules().iterator().next();
         assertEquals(Instant.AUTO, ur1.getInstant());
         assertEquals(UsageMethod.FORCED, ur1.getUsageMethod());
-        assertEquals("contingency-1", ((OnContingencyStateImpl) ur1).getContingency().getId());
-        assertEquals("BBE1AA1  BBE4AA1  1", ara1.getNetworkElements().iterator().next().getId());
-        assertEquals(ActionType.OPEN, ((TopologicalAction) ara1.getElementaryActions().iterator().next()).getActionType());
+        assertEquals("contingency-2", ((OnContingencyStateImpl) ur1).getContingency().getId());
+        assertEquals("BBE1AA1  BBE4AA1  1", ara2.getNetworkElements().iterator().next().getId());
+        assertEquals(ActionType.OPEN, ((TopologicalAction) ara2.getElementaryActions().iterator().next()).getActionType());
 
-        NetworkAction ara2 = cracCreationContext.getCrac().getNetworkAction("named-scheme-remedial-action");
-        assertEquals("ARA2", ara2.getName());
-        UsageRule ur2 = ara2.getUsageRules().iterator().next();
-        assertEquals(Instant.AUTO, ur2.getInstant());
-        assertEquals(UsageMethod.FORCED, ur2.getUsageMethod());
-        assertEquals("contingency-2", ((OnContingencyStateImpl) ur2).getContingency().getId());
-        assertEquals("BBE1AA1 _generator", ara2.getNetworkElements().iterator().next().getId());
-        assertEquals(75., ((InjectionSetpoint) ara2.getElementaryActions().iterator().next()).getSetpoint());
-
-        NetworkAction ara3 = cracCreationContext.getCrac().getNetworkAction("named-scheme-remedial-action-with-tso-and-speed");
-        assertEquals("RTE_ARA3", ara3.getName());
+        NetworkAction ara3 = cracCreationContext.getCrac().getNetworkAction("auto-rotating-machine-action");
+        assertEquals("ARA3", ara3.getName());
         assertEquals(10, ara3.getSpeed().get());
-        assertEquals("RTE", ara3.getOperator());
         UsageRule ur3 = ara3.getUsageRules().iterator().next();
         assertEquals(Instant.AUTO, ur3.getInstant());
         assertEquals(UsageMethod.FORCED, ur3.getUsageMethod());
         assertEquals("contingency-3", ((OnContingencyStateImpl) ur3).getContingency().getId());
         List<NetworkElement> networkElements = ara3.getNetworkElements().stream().sorted(Comparator.comparing(NetworkElement::getId)).toList();
-        List<ElementaryAction> elementaryActions = ara3.getElementaryActions().stream().sorted(Comparator.comparing(ElementaryAction::hashCode)).toList();
+        assertEquals("FFR1AA1 _generator", networkElements.get(0).getId());
+        assertEquals("FFR2AA1 _generator", networkElements.get(1).getId());
 
-        assertEquals("BBE1AA1  BBE4AA1  1", networkElements.get(0).getId());
-        assertEquals(ActionType.OPEN, ((TopologicalAction) elementaryActions.get(0)).getActionType());
+        NetworkAction ara4 = cracCreationContext.getCrac().getNetworkAction("auto-shunt-compensator-action");
+        assertEquals("ARA4", ara4.getName());
+        UsageRule ur4 = ara4.getUsageRules().iterator().next();
+        assertEquals(Instant.AUTO, ur4.getInstant());
+        assertEquals(UsageMethod.FORCED, ur4.getUsageMethod());
+        assertEquals(3, ((InjectionSetpoint) ara4.getElementaryActions().iterator().next()).getSetpoint());
 
-        assertEquals("BBE1AA1 _generator", networkElements.get(1).getId());
-        assertEquals(100., ((InjectionSetpoint) elementaryActions.get(1)).getSetpoint());
+        PstRangeAction ara1 = cracCreationContext.getCrac().getPstRangeAction("auto-pst-range-action");
+        assertEquals("ARA1", ara1.getName());
+        assertEquals("BBE2AA1  BBE3AA1  1", ara1.getNetworkElement().getId());
+        assertEquals(-3, ara1.getRanges().get(0).getMinTap());
+        assertEquals(7, ara1.getRanges().get(0).getMaxTap());
+        assertEquals("contingency-1", ((OnContingencyStateImpl) ara1.getUsageRules().iterator().next()).getContingency().getId());
+
     }
 
     @Test

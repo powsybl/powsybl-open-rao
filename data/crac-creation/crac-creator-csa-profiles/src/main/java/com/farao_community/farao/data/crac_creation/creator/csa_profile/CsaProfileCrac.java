@@ -110,6 +110,10 @@ public class CsaProfileCrac implements NativeCrac {
         return this.queryTripleStore(CsaProfileConstants.TOPOLOGY_ACTION_AUTO, tripleStoreCsaProfileCrac.contextNames());
     }
 
+    public PropertyBags getTapPositionActionAuto() {
+        return this.queryTripleStore(CsaProfileConstants.TAP_POSITION_ACTION_AUTO, tripleStoreCsaProfileCrac.contextNames());
+    }
+
     public PropertyBags getStage() {
         return this.queryTripleStore(CsaProfileConstants.STAGE, tripleStoreCsaProfileCrac.contextNames());
     }
@@ -129,7 +133,6 @@ public class CsaProfileCrac implements NativeCrac {
     public PropertyBags getRemedialActionsSchedule() {
         return this.queryTripleStore(CsaProfileConstants.REMEDIAL_ACTION_SCHEDULE, tripleStoreCsaProfileCrac.contextNames());
     }
-
 
     private PropertyBags queryTripleStore(String queryKey) {
         return this.queryTripleStore(queryKey, new HashSet<>());
