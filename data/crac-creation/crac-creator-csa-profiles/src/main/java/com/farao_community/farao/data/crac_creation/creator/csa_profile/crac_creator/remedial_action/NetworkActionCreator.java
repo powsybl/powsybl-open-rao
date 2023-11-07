@@ -17,6 +17,7 @@ import com.farao_community.farao.data.crac_creation.util.FaraoImportException;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Load;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.ShuntCompensator;
 import com.powsybl.triplestore.api.PropertyBag;
 
 import java.util.Map;
@@ -107,12 +108,15 @@ public class NetworkActionCreator {
         float initialSetPoint = 0f;
         Optional<Generator> optionalGenerator = network.getGeneratorStream().filter(gen -> gen.getId().equals(injectionSetPointActionId)).findAny();
         Optional<Load> optionalLoad = findLoad(injectionSetPointActionId);
-        if (optionalGenerator.isEmpty() && optionalLoad.isEmpty()) {
-            throw new FaraoImportException(ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK, CsaProfileConstants.REMEDIAL_ACTION_MESSAGE + remedialActionId + " will not be imported because Network model does not contain a generator, neither a load with id of injection set point action: " + injectionSetPointActionId);
+        ShuntCompensator shuntCompensator = network.getShuntCompensator(injectionSetPointActionId);
+        if (optionalGenerator.isEmpty() && optionalLoad.isEmpty() && shuntCompensator == null) {
+            throw new FaraoImportException(ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK, CsaProfileConstants.REMEDIAL_ACTION_MESSAGE + remedialActionId + " will not be imported because Network model contains nor a generator, nor a load, neither a shunt compensator, with id of injection set point action: " + injectionSetPointActionId);
         } else if (optionalGenerator.isPresent()) {
-            initialSetPoint = (float) optionalGenerator.get().getMinP();
-        } else {
+            initialSetPoint = (float) optionalGenerator.get().getTargetP();
+        } else if (optionalLoad.isPresent()) {
             initialSetPoint = (float) optionalLoad.get().getP0();
+        } else {
+            initialSetPoint = (float) shuntCompensator.getSectionCount();
         }
         return initialSetPoint;
     }
