@@ -91,35 +91,35 @@ public class CsaProfileCrac implements NativeCrac {
     }
 
     public PropertyBags getStaticPropertyRanges() {
-        return this.queryTripleStore(CsaProfileConstants.STATIC_PROPERTY_RANGE, tripleStoreCsaProfileCrac.contextNames());
+        return this.queryTripleStore(CsaProfileConstants.STATIC_PROPERTY_RANGE);
     }
 
     public PropertyBags getContingencyWithRemedialAction() {
-        return this.queryTripleStore(CsaProfileConstants.CONTINGENCY_WITH_REMEDIAL_ACTION, tripleStoreCsaProfileCrac.contextNames());
+        return this.queryTripleStore(CsaProfileConstants.CONTINGENCY_WITH_REMEDIAL_ACTION);
     }
 
     public PropertyBags getShuntCompensatorModificationAuto() {
-        return this.queryTripleStore(CsaProfileConstants.SHUNT_COMPENSATOR_MODIFICATION_AUTO, tripleStoreCsaProfileCrac.contextNames());
+        return this.queryTripleStore(CsaProfileConstants.SHUNT_COMPENSATOR_MODIFICATION_AUTO);
     }
 
     public PropertyBags getRotatingMachineActionAuto() {
-        return this.queryTripleStore(CsaProfileConstants.ROTATING_MACHINE_ACTION_AUTO, tripleStoreCsaProfileCrac.contextNames());
+        return this.queryTripleStore(CsaProfileConstants.ROTATING_MACHINE_ACTION_AUTO);
     }
 
     public PropertyBags getTopologyActionAuto() {
-        return this.queryTripleStore(CsaProfileConstants.TOPOLOGY_ACTION_AUTO, tripleStoreCsaProfileCrac.contextNames());
+        return this.queryTripleStore(CsaProfileConstants.TOPOLOGY_ACTION_AUTO);
     }
 
     public PropertyBags getTapPositionActionAuto() {
-        return this.queryTripleStore(CsaProfileConstants.TAP_POSITION_ACTION_AUTO, tripleStoreCsaProfileCrac.contextNames());
+        return this.queryTripleStore(CsaProfileConstants.TAP_POSITION_ACTION_AUTO);
     }
 
     public PropertyBags getStage() {
-        return this.queryTripleStore(CsaProfileConstants.STAGE, tripleStoreCsaProfileCrac.contextNames());
+        return this.queryTripleStore(CsaProfileConstants.STAGE);
     }
 
     public PropertyBags getGridStateAlterationCollection() {
-        return this.queryTripleStore(CsaProfileConstants.GRID_STATE_ALTERATION_COLLECTION, tripleStoreCsaProfileCrac.contextNames());
+        return this.queryTripleStore(CsaProfileConstants.GRID_STATE_ALTERATION_COLLECTION);
     }
 
     public PropertyBags getRemedialActionScheme() {
@@ -127,7 +127,7 @@ public class CsaProfileCrac implements NativeCrac {
     }
 
     public PropertyBags getSchemeRemedialActions() {
-        return this.queryTripleStore(CsaProfileConstants.SCHEME_REMEDIAL_ACTION, tripleStoreCsaProfileCrac.contextNames());
+        return this.queryTripleStore(CsaProfileConstants.SCHEME_REMEDIAL_ACTION);
     }
 
     public PropertyBags getRemedialActionsSchedule() {
