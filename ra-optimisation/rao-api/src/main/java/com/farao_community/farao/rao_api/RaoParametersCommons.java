@@ -12,8 +12,8 @@ import com.farao_community.farao.rao_api.parameters.extensions.PtdfApproximation
 /**
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
  */
-public final class RaoParametersConstants {
-    private RaoParametersConstants() {
+public final class RaoParametersCommons {
+    private RaoParametersCommons() {
     }
 
     public static final String RAO_PARAMETERS_VERSION = "2.1";

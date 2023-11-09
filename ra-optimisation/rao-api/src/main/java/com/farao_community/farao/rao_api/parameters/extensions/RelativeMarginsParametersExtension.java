@@ -14,7 +14,7 @@ import com.powsybl.commons.extensions.AbstractExtension;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
-import static com.farao_community.farao.rao_api.RaoParametersConstants.*;
+import static com.farao_community.farao.rao_api.RaoParametersCommons.*;
 /**
  * Extension : relative margin parameters for RAO
  *

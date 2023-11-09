@@ -13,7 +13,7 @@ import com.powsybl.commons.config.PlatformConfig;
 import java.util.ArrayList;
 import java.util.Objects;
 
-import static com.farao_community.farao.rao_api.RaoParametersConstants.*;
+import static com.farao_community.farao.rao_api.RaoParametersCommons.*;
 /**
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
  */
