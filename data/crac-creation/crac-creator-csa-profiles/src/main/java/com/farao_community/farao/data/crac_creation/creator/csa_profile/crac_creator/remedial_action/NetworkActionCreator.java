@@ -121,7 +121,7 @@ public class NetworkActionCreator {
         return initialSetPoint;
     }
 
-    private float getSetPointValue(PropertyBag staticPropertyRangePropertyBag, String remedialActionId, boolean isValueMustBePositiveInteger, float initialSetPoint) {
+    private float getSetPointValue(PropertyBag staticPropertyRangePropertyBag, String remedialActionId, boolean mustValueBePositiveInteger, float initialSetPoint) {
         String valueKind = staticPropertyRangePropertyBag.get(CsaProfileConstants.STATIC_PROPERTY_RANGE_VALUE_KIND);
         String direction = staticPropertyRangePropertyBag.get(CsaProfileConstants.STATIC_PROPERTY_RANGE_DIRECTION);
         if ((CsaProfileConstants.ValueOffsetKind.ABSOLUTE.toString().equals(valueKind) && !CsaProfileConstants.RelativeDirectionKind.NONE.toString().equals(direction))
@@ -155,7 +155,7 @@ public class NetworkActionCreator {
             }
         }
 
-        if (isValueMustBePositiveInteger) {
+        if (mustValueBePositiveInteger) {
             if (setPointValue < 0) {
                 throw new FaraoImportException(ImportStatus.INCONSISTENCY_IN_DATA, CsaProfileConstants.REMEDIAL_ACTION_MESSAGE + remedialActionId + " will not be imported because StaticPropertyRange has a negative normalValue so no set-point value was retrieved");
             }
