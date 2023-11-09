@@ -10,6 +10,7 @@ import com.farao_community.farao.data.crac_impl.OnContingencyStateImpl;
 import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Load;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.ShuntCompensator;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
@@ -184,21 +185,49 @@ class InjectionSetPointActionCreationTest {
     @Test
     void testImportSetPointIncrementalValues() {
         Network network = Mockito.mock(Network.class);
-        Branch networkElementMock = Mockito.mock(Branch.class);
-        Mockito.when(networkElementMock.getId()).thenReturn("606a1624-2be7-4c5b-8957-62126b8f38ad ");
-        Mockito.when(network.getIdentifiable("606a1624-2be7-4c5b-8957-62126b8f38ad ")).thenReturn(networkElementMock);
-
-        Load loadMock = Mockito.mock(Load.class);
-        Mockito.when(loadMock.getId()).thenReturn("606a1624-2be7-4c5b-8957-62126b8f38ad ");
-        Mockito.when(network.getLoadStream()).thenAnswer(invocation -> {
-            Stream<Load> loadStream = Stream.of(loadMock);
-            return loadStream.filter(load ->
-                load.getId().equals("606a1624-2be7-4c5b-8957-62126b8f38ad ")
-            );
-        });
+        ShuntCompensator shuntCompensatorMock = Mockito.mock(ShuntCompensator.class);
+        Mockito.when(shuntCompensatorMock.getId()).thenReturn("606a1624-2be7-4c5b-8957-62126b8f38ad");
+        Mockito.when(shuntCompensatorMock.getSectionCount()).thenReturn(150);
+        Mockito.when(network.getShuntCompensator("606a1624-2be7-4c5b-8957-62126b8f38ad")).thenReturn(shuntCompensatorMock);
 
         CsaProfileCracCreationContext cracCreationContext = getCsaCracCreationContext("/CSA_33_TestExample.zip", network);
 
         assertNotNull(cracCreationContext);
+        assertEquals(5, cracCreationContext.getCrac().getRemedialActions().size());
+
+        NetworkAction ra1 = cracCreationContext.getCrac().getNetworkAction("9cfbe895-d7f3-4396-9405-d28a37d8a6bf");
+        assertEquals("RTE_Relatively decreasing set-point RA in percent", ra1.getName());
+        assertEquals(PREVENTIVE, ra1.getUsageRules().iterator().next().getInstant());
+        assertEquals(UsageMethod.AVAILABLE, ra1.getUsageRules().iterator().next().getUsageMethod());
+        assertEquals("606a1624-2be7-4c5b-8957-62126b8f38ad", ((InjectionSetpoint) ra1.getElementaryActions().iterator().next()).getNetworkElement().getId());
+        assertEquals(90, ((InjectionSetpoint) ra1.getElementaryActions().iterator().next()).getSetpoint());
+
+        NetworkAction ra2 = cracCreationContext.getCrac().getNetworkAction("a5ebfb06-3e6b-4397-85d4-3158a5952372");
+        assertEquals("RTE_Absolute set-point RA", ra2.getName());
+        assertEquals(PREVENTIVE, ra2.getUsageRules().iterator().next().getInstant());
+        assertEquals(UsageMethod.AVAILABLE, ra2.getUsageRules().iterator().next().getUsageMethod());
+        assertEquals("606a1624-2be7-4c5b-8957-62126b8f38ad", ((InjectionSetpoint) ra2.getElementaryActions().iterator().next()).getNetworkElement().getId());
+        assertEquals(100, ((InjectionSetpoint) ra2.getElementaryActions().iterator().next()).getSetpoint());
+
+        NetworkAction ra3 = cracCreationContext.getCrac().getNetworkAction("9346a870-47b0-4a70-8ab5-bac72ed83280");
+        assertEquals("RTE_Relatively increasing set-point RA in percent", ra3.getName());
+        assertEquals(PREVENTIVE, ra3.getUsageRules().iterator().next().getInstant());
+        assertEquals(UsageMethod.AVAILABLE, ra3.getUsageRules().iterator().next().getUsageMethod());
+        assertEquals("606a1624-2be7-4c5b-8957-62126b8f38ad", ((InjectionSetpoint) ra3.getElementaryActions().iterator().next()).getNetworkElement().getId());
+        assertEquals(195, ((InjectionSetpoint) ra3.getElementaryActions().iterator().next()).getSetpoint());
+
+        NetworkAction ra4 = cracCreationContext.getCrac().getNetworkAction("3bf50d11-f507-46c9-ae98-cd3e66020dde");
+        assertEquals("RTE_Relatively increasing set-point RA", ra4.getName());
+        assertEquals(PREVENTIVE, ra4.getUsageRules().iterator().next().getInstant());
+        assertEquals(UsageMethod.AVAILABLE, ra4.getUsageRules().iterator().next().getUsageMethod());
+        assertEquals("606a1624-2be7-4c5b-8957-62126b8f38ad", ((InjectionSetpoint) ra4.getElementaryActions().iterator().next()).getNetworkElement().getId());
+        assertEquals(170, ((InjectionSetpoint) ra4.getElementaryActions().iterator().next()).getSetpoint());
+
+        NetworkAction ra5 = cracCreationContext.getCrac().getNetworkAction("c96947f6-0c3d-4cf1-9331-937529fef6e9");
+        assertEquals("RTE_Relatively decreasing set-point RA", ra5.getName());
+        assertEquals(PREVENTIVE, ra5.getUsageRules().iterator().next().getInstant());
+        assertEquals(UsageMethod.AVAILABLE, ra5.getUsageRules().iterator().next().getUsageMethod());
+        assertEquals("606a1624-2be7-4c5b-8957-62126b8f38ad", ((InjectionSetpoint) ra5.getElementaryActions().iterator().next()).getNetworkElement().getId());
+        assertEquals(135, ((InjectionSetpoint) ra5.getElementaryActions().iterator().next()).getSetpoint());
     }
 }
