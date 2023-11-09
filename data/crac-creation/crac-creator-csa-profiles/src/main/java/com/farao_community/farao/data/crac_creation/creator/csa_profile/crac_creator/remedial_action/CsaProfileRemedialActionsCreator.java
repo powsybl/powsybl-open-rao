@@ -457,7 +457,7 @@ public class CsaProfileRemedialActionsCreator {
                 } else if (linkedTapPositionActionsAuto.containsKey(collectionId)) { // StaticPropertyRanges not mandatory in case of tapPositionsActions
                     remedialActionType = RemedialActionType.PST_RANGE_ACTION;
                 } else {
-                    throw new FaraoImportException(ImportStatus.INCONSISTENCY_IN_DATA, CsaProfileConstants.REMEDIAL_ACTION_MESSAGE + collectionId + " will not be imported because there is no topology actions, no Set point actions, nor tap position action linked to that ARA");
+                    throw new FaraoImportException(ImportStatus.INCONSISTENCY_IN_DATA, CsaProfileConstants.REMEDIAL_ACTION_MESSAGE + collectionId + " will not be imported because there is no elementary action for that ARA" );
                 }
 
                 RemedialActionAdder<?> remedialActionAdder;
