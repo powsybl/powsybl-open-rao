@@ -39,8 +39,8 @@ class HvdcRangeActionImplTest {
 
     @BeforeEach
     public void setUp() {
-        Crac crac = new CracImplFactory().create("cracId");
-        crac.newInstant("preventive", InstantKind.PREVENTIVE, null);
+        Crac crac = new CracImplFactory().create("cracId")
+            .newInstant("preventive", InstantKind.PREVENTIVE);
         network = NetworkImportsUtil.import16NodesNetworkWithHvdc();
         networkWithAngleDroop = NetworkImportsUtil.import16NodesNetworkWithAngleDroopHvdcs();
         String networkElementId = "BBE2AA11 FFR3AA11 1";

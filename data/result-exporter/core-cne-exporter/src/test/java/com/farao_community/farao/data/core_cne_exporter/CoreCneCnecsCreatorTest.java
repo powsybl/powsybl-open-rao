@@ -52,11 +52,11 @@ class CoreCneCnecsCreatorTest {
     public void setUp() {
         CneUtil.initUniqueIds();
         network = Network.read("TestCase12Nodes.uct", getClass().getResourceAsStream("/TestCase12Nodes.uct"));
-        crac = CracFactory.findDefault().create("test-crac");
-        crac.newInstant("preventive", InstantKind.PREVENTIVE, null);
-        crac.newInstant("outage", InstantKind.OUTAGE, "preventive");
-        crac.newInstant("auto", InstantKind.AUTO, "outage");
-        crac.newInstant("curative", InstantKind.CURATIVE, "auto");
+        crac = CracFactory.findDefault().create("test-crac")
+            .newInstant("preventive", InstantKind.PREVENTIVE)
+            .newInstant("outage", InstantKind.OUTAGE)
+            .newInstant("auto", InstantKind.AUTO)
+            .newInstant("curative", InstantKind.CURATIVE);
         raoResult = Mockito.mock(RaoResult.class);
         raoParameters = new RaoParameters();
         exporterParameters = new CneExporterParameters("22XCORESO------S-20211115-F299v1", 2, "10YDOM-REGION-1V", CneExporterParameters.ProcessType.DAY_AHEAD_CC,

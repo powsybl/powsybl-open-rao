@@ -35,8 +35,8 @@ class FlowCnecImplTest {
 
     @BeforeEach
     public void setUp() {
-        crac = new CracImplFactory().create("cracId");
-        crac.newInstant("preventive", InstantKind.PREVENTIVE, null);
+        crac = new CracImplFactory().create("cracId")
+            .newInstant("preventive", InstantKind.PREVENTIVE);
     }
 
     private FlowCnecAdder initPreventiveCnecAdder() {

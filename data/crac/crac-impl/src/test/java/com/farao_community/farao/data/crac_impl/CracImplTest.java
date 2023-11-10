@@ -42,14 +42,22 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 class CracImplTest {
     private CracImpl crac;
+    private Instant preventiveInstant;
+    private Instant outageInstant;
+    private Instant autoInstant;
+    private Instant curativeInstant;
 
     @BeforeEach
     public void setUp() {
-        crac = new CracImpl("test-crac");
-        crac.newInstant("preventive", InstantKind.PREVENTIVE, null);
-        crac.newInstant("outage", InstantKind.OUTAGE, "preventive");
-        crac.newInstant("auto", InstantKind.AUTO, "outage");
-        crac.newInstant("curative", InstantKind.CURATIVE, "auto");
+        crac = new CracImpl("test-crac")
+            .newInstant("preventive", InstantKind.PREVENTIVE)
+            .newInstant("outage", InstantKind.OUTAGE)
+            .newInstant("auto", InstantKind.AUTO)
+            .newInstant("curative", InstantKind.CURATIVE);
+        preventiveInstant = crac.getInstant("preventive");
+        outageInstant = crac.getInstant("outage");
+        autoInstant = crac.getInstant("auto");
+        curativeInstant = crac.getInstant("curative");
     }
 
     @Test
@@ -896,5 +904,51 @@ class CracImplTest {
         NetworkActionAdder networkActionAdder = crac.newNetworkAction();
         assertTrue(networkActionAdder instanceof NetworkActionAdderImpl);
         assertSame(crac, ((NetworkActionAdderImpl) networkActionAdder).getCrac());
+    }
+
+    @Test
+    void testNewInstantAlreadyDefined() {
+        assertDoesNotThrow(() -> crac.newInstant("outage", InstantKind.OUTAGE));
+        FaraoException exception = assertThrows(FaraoException.class, () -> crac.newInstant("outage", InstantKind.PREVENTIVE));
+        assertEquals("Instant 'outage' is already defined with other arguments", exception.getMessage());
+    }
+
+    @Test
+    void testGetInstantNeverDefined() {
+        FaraoException exception = assertThrows(FaraoException.class, () -> crac.getInstant("never defined"));
+        assertEquals("Instant 'never defined' has not been defined", exception.getMessage());
+    }
+
+    @Test
+    void testGetInstantByKindWithOneInstantPerInstantKind() {
+        assertEquals(preventiveInstant, crac.getInstant(InstantKind.PREVENTIVE));
+        assertEquals(outageInstant, crac.getInstant(InstantKind.OUTAGE));
+        assertEquals(autoInstant, crac.getInstant(InstantKind.AUTO));
+        assertEquals(curativeInstant, crac.getInstant(InstantKind.CURATIVE));
+    }
+
+    @Test
+    void testGetInstantsByKindWithTwoInstantsPerInstantKind() {
+        crac.newInstant("preventive 2", InstantKind.PREVENTIVE)
+            .newInstant("outage 2", InstantKind.OUTAGE)
+            .newInstant("auto 2", InstantKind.AUTO)
+            .newInstant("curative 2", InstantKind.CURATIVE);
+        Instant preventiveInstant2 = crac.getInstant("preventive 2");
+        Instant outageInstant2 = crac.getInstant("outage 2");
+        Instant autoInstant2 = crac.getInstant("auto 2");
+        Instant curativeInstant2 = crac.getInstant("curative 2");
+
+        assertEquals(Set.of(preventiveInstant, preventiveInstant2), crac.getInstants(InstantKind.PREVENTIVE));
+        assertEquals(Set.of(outageInstant, outageInstant2), crac.getInstants(InstantKind.OUTAGE));
+        assertEquals(Set.of(autoInstant, autoInstant2), crac.getInstants(InstantKind.AUTO));
+        assertEquals(Set.of(curativeInstant, curativeInstant2), crac.getInstants(InstantKind.CURATIVE));
+    }
+
+    @Test
+    void testGetInstantByKindDoesNotWorkWithTwoInstantsPerInstantKind() {
+        crac.newInstant("curative 2", InstantKind.CURATIVE);
+
+        FaraoException exception = assertThrows(FaraoException.class, () -> crac.getInstant(InstantKind.CURATIVE));
+        assertEquals("Crac does not contain exactly one instant of kind 'CURATIVE'. It contains 2 instants of kind 'CURATIVE'", exception.getMessage());
     }
 }

@@ -35,12 +35,12 @@ class CracValidatorTest {
     public void setUp() {
         network = Network.read("TestCase12Nodes.uct", getClass().getResourceAsStream("/TestCase12Nodes.uct"));
 
-        crac = CracFactory.findDefault().create("crac");
+        crac = CracFactory.findDefault().create("crac")
+            .newInstant("preventive", InstantKind.PREVENTIVE)
+            .newInstant("outage", InstantKind.OUTAGE)
+            .newInstant("auto", InstantKind.AUTO);
         crac.newContingency().withId("co-1").withNetworkElement("BBE1AA1  BBE2AA1  1").add();
         crac.newContingency().withId("co-2").withNetworkElement("BBE1AA1  BBE3AA1  1").add();
-        crac.newInstant("preventive", InstantKind.PREVENTIVE, null);
-        crac.newInstant("outage", InstantKind.OUTAGE, "preventive");
-        crac.newInstant("auto", InstantKind.AUTO, "outage");
 
         crac.newFlowCnec()
             .withId("auto-cnec-1")

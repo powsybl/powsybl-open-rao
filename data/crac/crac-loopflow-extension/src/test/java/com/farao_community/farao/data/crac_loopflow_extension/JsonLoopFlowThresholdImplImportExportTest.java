@@ -29,8 +29,8 @@ import static org.junit.jupiter.api.Assertions.*;
 class JsonLoopFlowThresholdImplImportExportTest {
     @Test
     void roundTripTest() {
-        Crac crac = new CracImpl("cracId");
-        crac.newInstant("preventive", InstantKind.PREVENTIVE, null);
+        Crac crac = new CracImpl("cracId")
+            .newInstant("preventive", InstantKind.PREVENTIVE);
 
         crac.newFlowCnec()
                 .withId("cnec1")

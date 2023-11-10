@@ -56,11 +56,11 @@ class CoreCneRemedialActionsCreatorTest {
         exporterParameters = new CneExporterParameters("22XCORESO------S-20211115-F299v1", 10, "10YDOM-REGION-1V", CneExporterParameters.ProcessType.DAY_AHEAD_CC,
             "22XCORESO------S", CneExporterParameters.RoleType.REGIONAL_SECURITY_COORDINATOR, "17XTSO-CS------W", CneExporterParameters.RoleType.CAPACITY_COORDINATOR,
             "2021-10-30T22:00Z/2021-10-31T23:00Z");
-        crac = CracFactory.findDefault().create("test-crac");
-        crac.newInstant("preventive", InstantKind.PREVENTIVE, null);
-        crac.newInstant("outage", InstantKind.OUTAGE, "preventive");
-        crac.newInstant("auto", InstantKind.AUTO, "outage");
-        crac.newInstant("curative", InstantKind.CURATIVE, "auto");
+        crac = CracFactory.findDefault().create("test-crac")
+            .newInstant("preventive", InstantKind.PREVENTIVE)
+            .newInstant("outage", InstantKind.OUTAGE)
+            .newInstant("auto", InstantKind.AUTO)
+            .newInstant("curative", InstantKind.CURATIVE);
         crac.newContingency()
                 .withId("cnec1")
                 .withId("contingency-id")

@@ -318,9 +318,9 @@ final class ExampleGenerator {
     }
 
     static Crac crac() {
-        Crac crac = new CracImplFactory().create("test-crac");
-        crac.newInstant("preventive", InstantKind.PREVENTIVE, null);
-        crac.newInstant("outage", InstantKind.OUTAGE, "preventive");
+        Crac crac = new CracImplFactory().create("test-crac")
+            .newInstant("preventive", InstantKind.PREVENTIVE)
+            .newInstant("outage", InstantKind.OUTAGE);
 
         crac.newFlowCnec()
             .withId("FR-BE1")

@@ -54,11 +54,11 @@ class VoltageMonitoringTest {
     @BeforeEach
     public void setUp() {
         network = Network.read("network.xiidm", getClass().getResourceAsStream("/network.xiidm"));
-        crac = CracFactory.findDefault().create("test-crac");
-        crac.newInstant("preventive", InstantKind.PREVENTIVE, null);
-        crac.newInstant("outage", InstantKind.OUTAGE, "preventive");
-        crac.newInstant("auto", InstantKind.AUTO, "outage");
-        crac.newInstant("curative", InstantKind.CURATIVE, "auto");
+        crac = CracFactory.findDefault().create("test-crac")
+            .newInstant("preventive", InstantKind.PREVENTIVE)
+            .newInstant("outage", InstantKind.OUTAGE)
+            .newInstant("auto", InstantKind.AUTO)
+            .newInstant("curative", InstantKind.CURATIVE);
 
         naOpenL1 = (NetworkAction) crac.newNetworkAction()
             .withId("Open L1")
@@ -361,11 +361,11 @@ class VoltageMonitoringTest {
 
     public void setUpCracFactory(String networkFileName) {
         network = Network.read(networkFileName, getClass().getResourceAsStream("/" + networkFileName));
-        crac = CracFactory.findDefault().create("test-crac");
-        crac.newInstant("preventive", InstantKind.PREVENTIVE, null);
-        crac.newInstant("outage", InstantKind.OUTAGE, "preventive");
-        crac.newInstant("auto", InstantKind.AUTO, "outage");
-        crac.newInstant("curative", InstantKind.CURATIVE, "auto");
+        crac = CracFactory.findDefault().create("test-crac")
+            .newInstant("preventive", InstantKind.PREVENTIVE)
+            .newInstant("outage", InstantKind.OUTAGE)
+            .newInstant("auto", InstantKind.AUTO)
+            .newInstant("curative", InstantKind.CURATIVE);
     }
 
     public void mockPreventiveState() {

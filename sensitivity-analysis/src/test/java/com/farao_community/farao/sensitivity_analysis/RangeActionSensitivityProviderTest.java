@@ -236,8 +236,8 @@ class RangeActionSensitivityProviderTest {
 
     @Test
     void testHvdcSensi() {
-        Crac crac = CracFactory.findDefault().create("test-crac");
-        crac.newInstant("preventive", InstantKind.PREVENTIVE, null);
+        Crac crac = CracFactory.findDefault().create("test-crac")
+            .newInstant("preventive", InstantKind.PREVENTIVE);
         FlowCnec flowCnec = crac.newFlowCnec()
             .withId("cnec")
             .withNetworkElement("BBE1AA11 FFR5AA11 1")
@@ -286,8 +286,8 @@ class RangeActionSensitivityProviderTest {
 
     @Test
     void testUnhandledElement() {
-        Crac crac = CracFactory.findDefault().create("test-crac");
-        crac.newInstant("preventive", InstantKind.PREVENTIVE, null);
+        Crac crac = CracFactory.findDefault().create("test-crac")
+            .newInstant("preventive", InstantKind.PREVENTIVE);
         FlowCnec flowCnec = crac.newFlowCnec()
             .withId("cnec")
             .withNetworkElement("BBE1AA11 FFR5AA11 1")

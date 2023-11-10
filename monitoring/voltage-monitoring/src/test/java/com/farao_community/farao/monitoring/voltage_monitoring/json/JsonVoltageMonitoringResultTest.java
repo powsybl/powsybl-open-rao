@@ -60,11 +60,11 @@ class JsonVoltageMonitoringResultTest {
 
     @BeforeEach
     public void setUp() {
-        crac = CracFactory.findDefault().create("test-crac");
-        crac.newInstant("preventive", InstantKind.PREVENTIVE, null);
-        crac.newInstant("outage", InstantKind.OUTAGE, "preventive");
-        crac.newInstant("auto", InstantKind.AUTO, "outage");
-        crac.newInstant("curative", InstantKind.CURATIVE, "auto");
+        crac = CracFactory.findDefault().create("test-crac")
+            .newInstant("preventive", InstantKind.PREVENTIVE)
+            .newInstant("outage", InstantKind.OUTAGE)
+            .newInstant("auto", InstantKind.AUTO)
+            .newInstant("curative", InstantKind.CURATIVE);
         co1 = crac.newContingency().withId("co1").withNetworkElement("co1-ne").add();
         vc1 = addVoltageCnec("VL45", "VL45", 145., 150., "preventive", null);
         vc2 = addVoltageCnec("VL46", "VL46", 140., 145., "curative", co1.getId());

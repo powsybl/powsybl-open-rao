@@ -68,7 +68,7 @@ public interface Crac extends Identifiable<Crac> {
      *
      * @return crac
      */
-    Instant newInstant(String instantId, InstantKind instantKind, String prevInstantId);
+    Crac newInstant(String instantId, InstantKind instantKind);
 
     /**
      * Get instant based on Id

@@ -34,11 +34,11 @@ class UnoptimizedCnecParametersTest {
 
     @BeforeEach
     public void setUp() {
-        crac = new CracImpl("test-crac");
-        crac.newInstant("preventive", InstantKind.PREVENTIVE, null);
-        crac.newInstant("outage", InstantKind.OUTAGE, "preventive");
-        crac.newInstant("auto", InstantKind.AUTO, "outage");
-        crac.newInstant("curative", InstantKind.CURATIVE, "auto");
+        crac = new CracImpl("test-crac")
+            .newInstant("preventive", InstantKind.PREVENTIVE)
+            .newInstant("outage", InstantKind.OUTAGE)
+            .newInstant("auto", InstantKind.AUTO)
+            .newInstant("curative", InstantKind.CURATIVE);
     }
 
     @Test
@@ -64,11 +64,11 @@ class UnoptimizedCnecParametersTest {
     @Test
     void testUnoptimizedCnecsInSeriesWithPsts() {
 
-        Crac crac = CracFactory.findDefault().create("crac");
-        crac.newInstant("preventive", InstantKind.PREVENTIVE, null);
-        crac.newInstant("outage", InstantKind.OUTAGE, "preventive");
-        crac.newInstant("auto", InstantKind.AUTO, "outage");
-        crac.newInstant("curative", InstantKind.CURATIVE, "auto");
+        Crac crac = CracFactory.findDefault().create("crac")
+            .newInstant("preventive", InstantKind.PREVENTIVE)
+            .newInstant("outage", InstantKind.OUTAGE)
+            .newInstant("auto", InstantKind.AUTO)
+            .newInstant("curative", InstantKind.CURATIVE);
 
         crac.newFlowCnec().withId("flowCnec-1")
                 .withNetworkElement("ne1Id")

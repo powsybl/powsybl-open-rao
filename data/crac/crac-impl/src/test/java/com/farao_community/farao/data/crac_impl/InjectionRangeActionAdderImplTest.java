@@ -28,8 +28,8 @@ class InjectionRangeActionAdderImplTest {
 
     @BeforeEach
     public void setUp() {
-        crac = new CracImpl("test-crac");
-        crac.newInstant("preventive", InstantKind.PREVENTIVE, null);
+        crac = new CracImpl("test-crac")
+            .newInstant("preventive", InstantKind.PREVENTIVE);
         injectionId1 = "BBE2AA11_Generator";
         injectionId2 = "FFR3AA11_Load";
         injectionName2 = "Load in FFR3AA11";

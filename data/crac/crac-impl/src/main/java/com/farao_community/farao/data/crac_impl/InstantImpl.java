@@ -7,10 +7,13 @@
 
 package com.farao_community.farao.data.crac_impl;
 
+import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.InstantKind;
 import com.farao_community.farao.data.crac_api.RemedialAction;
 import com.farao_community.farao.data.crac_api.cnec.Cnec;
+
+import java.util.Objects;
 
 /**
  * Class representing the instants at which a {@link Cnec} can be monitored and
@@ -27,6 +30,9 @@ public class InstantImpl extends AbstractIdentifiable<InstantImpl> implements In
 
     public InstantImpl(String id, InstantKind instantKind, Instant previous) {
         super(id);
+        if (Objects.equals(id, "initial")) {
+            throw new FaraoException("Instant with id \"initial\" cannont be defined");
+        }
         if (previous == null) {
             // TODO should first instant always be a preventive one ?
             this.order = 0;

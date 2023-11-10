@@ -41,9 +41,9 @@ class CracCleanerTest {
 
     @Test
     void testCleanCrac() {
-        Crac crac = CracFactory.findDefault().create("cracId");
-        crac.newInstant("preventive", InstantKind.PREVENTIVE, null);
-        crac.newInstant("outage", InstantKind.OUTAGE, "preventive");
+        Crac crac = CracFactory.findDefault().create("cracId")
+            .newInstant("preventive", InstantKind.PREVENTIVE)
+            .newInstant("outage", InstantKind.OUTAGE);
 
         // contingencies
         crac.newContingency()
@@ -224,8 +224,8 @@ class CracCleanerTest {
 
     private Crac createTestCrac() {
         CracFactory factory = CracFactory.findDefault();
-        Crac crac = factory.create("test-crac");
-        crac.newInstant("preventive", InstantKind.PREVENTIVE, null);
+        Crac crac = factory.create("test-crac")
+            .newInstant("preventive", InstantKind.PREVENTIVE);
 
         crac.newFlowCnec()
             .withId("BBE1AA1  BBE2AA1  1")
@@ -309,11 +309,11 @@ class CracCleanerTest {
 
     @Test
     void testRemoveOnStateUsageRule() {
-        Crac crac = CracFactory.findDefault().create("cracId");
-        crac.newInstant("preventive", InstantKind.PREVENTIVE, null);
-        crac.newInstant("outage", InstantKind.OUTAGE, "preventive");
-        crac.newInstant("auto", InstantKind.AUTO, "outage");
-        crac.newInstant("curative", InstantKind.CURATIVE, "auto");
+        Crac crac = CracFactory.findDefault().create("cracId")
+            .newInstant("preventive", InstantKind.PREVENTIVE)
+            .newInstant("outage", InstantKind.OUTAGE)
+            .newInstant("auto", InstantKind.AUTO)
+            .newInstant("curative", InstantKind.CURATIVE);
 
         crac.newContingency()
             .withId("cont_exists")

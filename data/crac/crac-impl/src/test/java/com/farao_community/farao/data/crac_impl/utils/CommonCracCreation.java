@@ -82,11 +82,11 @@ public final class CommonCracCreation {
 
     public static Crac create(CracFactory cracFactory, Set<Side> monitoredCnecSides) {
 
-        Crac crac = cracFactory.create("idSimpleCracTestUS", "nameSimpleCracTestUS");
-        crac.newInstant("preventive", InstantKind.PREVENTIVE, null);
-        crac.newInstant("outage", InstantKind.OUTAGE, "preventive");
-        crac.newInstant("auto", InstantKind.AUTO, "outage");
-        crac.newInstant("curative", InstantKind.CURATIVE, "auto");
+        Crac crac = cracFactory.create("idSimpleCracTestUS", "nameSimpleCracTestUS")
+            .newInstant("preventive", InstantKind.PREVENTIVE)
+            .newInstant("outage", InstantKind.OUTAGE)
+            .newInstant("auto", InstantKind.AUTO)
+            .newInstant("curative", InstantKind.CURATIVE);
 
         // Contingencies
         crac.newContingency()

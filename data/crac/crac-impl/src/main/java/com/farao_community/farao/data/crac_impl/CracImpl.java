@@ -42,6 +42,7 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
     private final Map<String, InjectionRangeAction> injectionRangeActions = new HashMap<>();
     private final Map<String, CounterTradeRangeAction> counterTradeRangeActions = new HashMap<>();
     private final Map<String, NetworkAction> networkActions = new HashMap<>();
+    private Instant lastInstantAdded = null;
 
     public CracImpl(String id, String name) {
         super(id, name);
@@ -152,19 +153,17 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
     }
 
     @Override
-    public Instant newInstant(String instantId, InstantKind instantKind, String prevInstantId) {
+    public CracImpl newInstant(String instantId, InstantKind instantKind) {
         if (instants.containsKey(instantId)) {
-            Instant instant = instants.get(instantId);
-            if (instantKind == instant.getInstantKind() && Objects.equals(instants.get(prevInstantId), instant.getPreviousInstant())) {
-                return instant;
-            } else {
-                throw new FaraoException(format("Instant %s is already defined with other arguments", instantId));
+            Instant oldInstant = instants.get(instantId);
+            if (instantKind != oldInstant.getInstantKind()) {
+                throw new FaraoException(format("Instant '%s' is already defined with other arguments", instantId));
             }
         }
-        Instant prevInstant = getPrevInstant(prevInstantId);
-        Instant instant = new InstantImpl(instantId, instantKind, prevInstant);
+        Instant instant = new InstantImpl(instantId, instantKind, lastInstantAdded);
+        lastInstantAdded = instant;
         instants.put(instantId, instant);
-        return instant; // TODO Do we return instant ? I'm not a huge fan of this...
+        return this;
     }
 
     @Override
@@ -175,19 +174,9 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
         return instants.get(instantId);
     }
 
-    private Instant getPrevInstant(String prevInstantId) {
-        if (prevInstantId == null) {
-            return null;
-        }
-        Instant prevInstant = instants.get(prevInstantId);
-        if (prevInstant == null) {
-            throw new FaraoException(format("Previous instant %s has not been defined", prevInstantId));
-        }
-        return prevInstant;
-    }
-
     @Override
     public Set<Instant> getInstants() {
+        // TODO : is it really used ?
         return new HashSet<>(instants.values());
     }
 

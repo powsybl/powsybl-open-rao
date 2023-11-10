@@ -27,10 +27,10 @@ class HvdcRangeActionAdderImplTest {
 
     @BeforeEach
     public void setUp() {
-        crac = new CracImpl("test-crac");
-        crac.newInstant("preventive", InstantKind.PREVENTIVE, null);
-        crac.newInstant("outage", InstantKind.OUTAGE, "preventive");
-        crac.newInstant("auto", InstantKind.AUTO, "outage");
+        crac = new CracImpl("test-crac")
+            .newInstant("preventive", InstantKind.PREVENTIVE)
+            .newInstant("outage", InstantKind.OUTAGE)
+            .newInstant("auto", InstantKind.AUTO);
         networkElementId = "BBE2AA11 FFR3AA11 1";
     }
 

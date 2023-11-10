@@ -41,13 +41,11 @@ abstract class AbstractOptimizationPerimeterTest {
         network = NetworkImportsUtil.import12NodesNetwork();
         raoParameters = new RaoParameters();
 
-        crac = CracFactory.findDefault().create("cracId");
-        crac.newInstant("preventive", InstantKind.PREVENTIVE, null);
-        crac.newInstant("outage", InstantKind.OUTAGE, "preventive");
-        crac.newInstant("auto", InstantKind.AUTO, "outage");
-        crac.newInstant("curative", InstantKind.CURATIVE, "auto");
-
-        crac.newContingency().withId("outage-1").withNetworkElement("FFR1AA1  FFR3AA1  1").add();
+        crac = CracFactory.findDefault().create("cracId")
+            .newInstant("preventive", InstantKind.PREVENTIVE)
+            .newInstant("outage", InstantKind.OUTAGE)
+            .newInstant("auto", InstantKind.AUTO)
+            .newInstant("curative", InstantKind.CURATIVE);
         crac.newContingency().withId("outage-2").withNetworkElement("FFR2AA1  DDE3AA1  1").add();
 
         // one preventive CNEC

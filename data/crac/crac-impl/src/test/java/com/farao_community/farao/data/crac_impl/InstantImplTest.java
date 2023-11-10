@@ -7,14 +7,12 @@
 
 package com.farao_community.farao.data.crac_impl;
 
+import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.InstantKind;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Hugo Schindler {@literal <hugo.schindler at rte-france.com>}
@@ -51,5 +49,11 @@ class InstantImplTest {
         assertFalse(instantAuto.comesBefore(instantAuto));
         assertTrue(instantOutage.comesBefore(curativeInstant));
         assertFalse(instantOutage.comesBefore(prevInstant));
+    }
+
+    @Test
+    void testInitialInstantIsProtected() {
+        FaraoException exception = assertThrows(FaraoException.class, () -> new InstantImpl("initial", InstantKind.PREVENTIVE, null));
+        assertEquals("Instant with id \"initial\" cannont be defined", exception.getMessage());
     }
 }

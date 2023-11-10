@@ -18,8 +18,8 @@ class LoopFlowThresholdAdderImplTest {
     @BeforeEach
     public void setUp() {
 
-        Crac crac = CracFactory.findDefault().create("cracId", "cracName");
-        crac.newInstant("preventive", InstantKind.PREVENTIVE, null);
+        Crac crac = CracFactory.findDefault().create("cracId", "cracName")
+            .newInstant("preventive", InstantKind.PREVENTIVE);
         flowCnec = crac.newFlowCnec()
             .withId("flowCnecId")
             .withName("flowCnecName")

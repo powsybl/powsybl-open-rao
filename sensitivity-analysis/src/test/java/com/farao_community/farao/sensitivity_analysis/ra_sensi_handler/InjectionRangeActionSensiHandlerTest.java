@@ -30,8 +30,8 @@ class InjectionRangeActionSensiHandlerTest {
     @Test
     void checkConsistencyOKTest() {
         Network network = Network.read("TestCase16NodesWithUcteHvdc.uct", getClass().getResourceAsStream("/TestCase16NodesWithUcteHvdc.uct"));
-        Crac crac = CracFactory.findDefault().create("test-crac");
-        crac.newInstant("preventive", InstantKind.PREVENTIVE, null);
+        Crac crac = CracFactory.findDefault().create("test-crac")
+            .newInstant("preventive", InstantKind.PREVENTIVE);
         InjectionRangeAction injectionRangeAction = (InjectionRangeAction) crac.newInjectionRangeAction().withId("injectionRangeId")
                 .withNetworkElementAndKey(0.4, "BBE2AA12_generator")
                 .withNetworkElementAndKey(0.4, "BBE2AA12_load")
@@ -94,8 +94,8 @@ class InjectionRangeActionSensiHandlerTest {
     @Test
     void checkConsistencyNotAnInjection() {
         Network network = Network.read("TestCase16NodesWithUcteHvdc.uct", getClass().getResourceAsStream("/TestCase16NodesWithUcteHvdc.uct"));
-        Crac crac = CracFactory.findDefault().create("test-crac");
-        crac.newInstant("preventive", InstantKind.PREVENTIVE, null);
+        Crac crac = CracFactory.findDefault().create("test-crac")
+            .newInstant("preventive", InstantKind.PREVENTIVE);
         InjectionRangeAction injectionRangeAction = (InjectionRangeAction) crac.newInjectionRangeAction().withId("injectionRangeId")
                 .withNetworkElementAndKey(1, "BBE1AA11 BBE2AA11 1")
                 .newRange().withMin(-1000).withMax(1000).add()
@@ -111,8 +111,8 @@ class InjectionRangeActionSensiHandlerTest {
     @Test
     void checkConsistencyNotANetworkElement() {
         Network network = Network.read("TestCase16NodesWithUcteHvdc.uct", getClass().getResourceAsStream("/TestCase16NodesWithUcteHvdc.uct"));
-        Crac crac = CracFactory.findDefault().create("test-crac");
-        crac.newInstant("preventive", InstantKind.PREVENTIVE, null);
+        Crac crac = CracFactory.findDefault().create("test-crac")
+            .newInstant("preventive", InstantKind.PREVENTIVE);
         InjectionRangeAction injectionRangeAction = (InjectionRangeAction) crac.newInjectionRangeAction().withId("injectionRangeId")
             .withNetworkElementAndKey(1, "unknown")
             .newRange().withMin(-1000).withMax(1000).add()

@@ -76,8 +76,8 @@ class NetworkActionParametersTest {
     @Test
     void testNetworkActionCombinations() {
 
-        Crac crac = CracFactory.findDefault().create("crac");
-        crac.newInstant("preventive", InstantKind.PREVENTIVE, null);
+        Crac crac = CracFactory.findDefault().create("crac")
+            .newInstant("preventive", InstantKind.PREVENTIVE);
 
         crac.newNetworkAction()
                 .withId("topological-action-1")
