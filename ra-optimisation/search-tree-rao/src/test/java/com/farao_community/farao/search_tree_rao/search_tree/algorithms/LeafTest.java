@@ -81,7 +81,7 @@ class LeafTest {
 
     private MockedStatic<LinearProblem> linearProblemMockedStatic;
     private MockedStatic<IteratingLinearOptimizer> iteratingLinearOptimizerMockedStatic;
-    private Instant instantOutage;
+    private Instant outageInstant;
 
     @BeforeEach
     public void setUp() {
@@ -107,8 +107,8 @@ class LeafTest {
         linearProblemMockedStatic = mockStatic(LinearProblem.class);
         iteratingLinearOptimizerMockedStatic = mockStatic(IteratingLinearOptimizer.class);
 
-        instantOutage = Mockito.mock(Instant.class);
-        Mockito.when(instantOutage.getOrder()).thenReturn(1);
+        outageInstant = Mockito.mock(Instant.class);
+        Mockito.when(outageInstant.getOrder()).thenReturn(1);
     }
 
     @AfterEach
@@ -183,7 +183,7 @@ class LeafTest {
         Leaf rootLeaf = new Leaf(optimizationPerimeter, network, prePerimeterResult, appliedRemedialActions);
         ObjectiveFunctionResult preOptimObjectiveFunctionResult = Mockito.mock(ObjectiveFunctionResult.class);
         when(costEvaluatorMock.evaluate(prePerimeterResult, rootLeaf.getRangeActionActivationResult(), prePerimeterResult, sensitivityStatus)).thenReturn(preOptimObjectiveFunctionResult);
-        rootLeaf.evaluate(costEvaluatorMock, sensitivityComputer, instantOutage);
+        rootLeaf.evaluate(costEvaluatorMock, sensitivityComputer, outageInstant);
         assertEquals(Leaf.Status.EVALUATED, rootLeaf.getStatus());
     }
 
@@ -221,7 +221,7 @@ class LeafTest {
         double expectedCost = 5.;
         Leaf leaf1 = prepareLeafForEvaluation(na1, expectedSensitivityStatus, expectedFlowResult, expectedCost);
 
-        leaf1.evaluate(costEvaluatorMock, sensitivityComputer, instantOutage);
+        leaf1.evaluate(costEvaluatorMock, sensitivityComputer, outageInstant);
 
         assertEquals(Leaf.Status.EVALUATED, leaf1.getStatus());
         assertEquals(expectedFlowResult, leaf1.getPreOptimBranchResult());
@@ -237,11 +237,11 @@ class LeafTest {
         double expectedCost = 5.;
         Leaf leaf1 = prepareLeafForEvaluation(na1, expectedSensitivityStatus, expectedFlowResult, expectedCost);
 
-        leaf1.evaluate(costEvaluatorMock, sensitivityComputer, instantOutage);
+        leaf1.evaluate(costEvaluatorMock, sensitivityComputer, outageInstant);
 
         ListAppender<ILoggingEvent> listAppender = getTechnicalLogs();
 
-        leaf1.evaluate(costEvaluatorMock, sensitivityComputer, instantOutage);
+        leaf1.evaluate(costEvaluatorMock, sensitivityComputer, outageInstant);
         List<ILoggingEvent> logsList = listAppender.list;
         assertEquals(1, logsList.size());
         assertEquals("[DEBUG] Leaf has already been evaluated", logsList.get(0).toString());
@@ -270,9 +270,9 @@ class LeafTest {
         SensitivityResult sensitivityResult = Mockito.mock(SensitivityResult.class);
         Mockito.when(sensitivityComputer.getSensitivityResult()).thenReturn(sensitivityResult);
         Mockito.when(sensitivityResult.getSensitivityStatus()).thenReturn(ComputationStatus.FAILURE);
-        Mockito.doNothing().when(sensitivityComputer).compute(network, instantOutage);
+        Mockito.doNothing().when(sensitivityComputer).compute(network, outageInstant);
 
-        rootLeaf.evaluate(costEvaluatorMock, sensitivityComputer, instantOutage);
+        rootLeaf.evaluate(costEvaluatorMock, sensitivityComputer, outageInstant);
 
         assertEquals(Leaf.Status.ERROR, rootLeaf.getStatus());
     }
@@ -284,7 +284,7 @@ class LeafTest {
         ListAppender<ILoggingEvent> listAppender = getBusinessWarns();
         SearchTreeInput searchTreeInput = Mockito.mock(SearchTreeInput.class);
         SearchTreeParameters searchTreeParameters = Mockito.mock(SearchTreeParameters.class);
-        rootLeaf.optimize(searchTreeInput, searchTreeParameters, instantOutage);
+        rootLeaf.optimize(searchTreeInput, searchTreeParameters, outageInstant);
         assertEquals(1, listAppender.list.size());
         String expectedLog = String.format("[WARN] Impossible to optimize leaf: %s\n because evaluation has not been performed", rootLeaf);
         assertEquals(expectedLog, listAppender.list.get(0).toString());
@@ -296,12 +296,12 @@ class LeafTest {
         SensitivityResult sensitivityResult = Mockito.mock(SensitivityResult.class);
         Mockito.when(sensitivityComputer.getSensitivityResult()).thenReturn(sensitivityResult);
         Mockito.when(sensitivityResult.getSensitivityStatus()).thenReturn(ComputationStatus.FAILURE);
-        Mockito.doNothing().when(sensitivityComputer).compute(network, instantOutage);
-        rootLeaf.evaluate(costEvaluatorMock, sensitivityComputer, instantOutage);
+        Mockito.doNothing().when(sensitivityComputer).compute(network, outageInstant);
+        rootLeaf.evaluate(costEvaluatorMock, sensitivityComputer, outageInstant);
         ListAppender<ILoggingEvent> listAppender = getBusinessWarns();
         SearchTreeInput searchTreeInput = Mockito.mock(SearchTreeInput.class);
         SearchTreeParameters searchTreeParameters = Mockito.mock(SearchTreeParameters.class);
-        rootLeaf.optimize(searchTreeInput, searchTreeParameters, instantOutage);
+        rootLeaf.optimize(searchTreeInput, searchTreeParameters, outageInstant);
         assertEquals(1, listAppender.list.size());
         String expectedLog = String.format("[WARN] Impossible to optimize leaf: %s\n because evaluation failed", rootLeaf);
         assertEquals(expectedLog, listAppender.list.get(0).toString());
@@ -318,7 +318,7 @@ class LeafTest {
         SearchTreeParameters searchTreeParameters = Mockito.mock(SearchTreeParameters.class);
         when(searchTreeParameters.getObjectiveFunction()).thenReturn(Mockito.mock(ObjectiveFunctionParameters.ObjectiveFunctionType.class));
         when(searchTreeParameters.getTreeParameters()).thenReturn(Mockito.mock(TreeParameters.class));
-        rootLeaf.optimize(searchTreeInput, searchTreeParameters, instantOutage);
+        rootLeaf.optimize(searchTreeInput, searchTreeParameters, outageInstant);
         assertEquals(Leaf.Status.OPTIMIZED, rootLeaf.getStatus());
     }
 
@@ -335,7 +335,7 @@ class LeafTest {
 
         FlowResult flowResult = Mockito.mock(FlowResult.class);
         when(sensitivityComputer.getBranchResult(network)).thenReturn(flowResult);
-        leaf.evaluate(costEvaluatorMock, sensitivityComputer, instantOutage);
+        leaf.evaluate(costEvaluatorMock, sensitivityComputer, outageInstant);
 
         double expectedFlow = 3.;
         Unit unit = MEGAWATT;
@@ -365,7 +365,7 @@ class LeafTest {
         when(searchTreeParameters.getObjectiveFunction()).thenReturn(Mockito.mock(ObjectiveFunctionParameters.ObjectiveFunctionType.class));
         when(searchTreeParameters.getTreeParameters()).thenReturn(Mockito.mock(TreeParameters.class));
         prepareLinearProblemBuilder(linearOptimizationResult);
-        leaf.optimize(searchTreeInput, searchTreeParameters, instantOutage);
+        leaf.optimize(searchTreeInput, searchTreeParameters, outageInstant);
 
         FlowCnec flowCnec = Mockito.mock(FlowCnec.class);
 
@@ -424,7 +424,7 @@ class LeafTest {
         FlowResult expectedFlowResult = Mockito.mock(FlowResult.class);
         double expectedCost = 5.;
         Leaf leaf = prepareLeafForEvaluation(na1, expectedSensitivityStatus, expectedFlowResult, expectedCost);
-        leaf.evaluate(costEvaluatorMock, sensitivityComputer, instantOutage);
+        leaf.evaluate(costEvaluatorMock, sensitivityComputer, outageInstant);
         assertEquals(expectedCost / 2, leaf.getFunctionalCost(), DOUBLE_TOLERANCE);
     }
 
@@ -438,7 +438,7 @@ class LeafTest {
         when(searchTreeParameters.getObjectiveFunction()).thenReturn(Mockito.mock(ObjectiveFunctionParameters.ObjectiveFunctionType.class));
         when(searchTreeParameters.getTreeParameters()).thenReturn(Mockito.mock(TreeParameters.class));
         prepareLinearProblemBuilder(linearOptimizationResult);
-        leaf.optimize(searchTreeInput, searchTreeParameters, instantOutage);
+        leaf.optimize(searchTreeInput, searchTreeParameters, outageInstant);
         double expectedFunctionalCost = 3.;
         when(linearOptimizationResult.getFunctionalCost()).thenReturn(expectedFunctionalCost);
         assertEquals(expectedFunctionalCost, leaf.getFunctionalCost(), DOUBLE_TOLERANCE);
@@ -459,7 +459,7 @@ class LeafTest {
         FlowResult expectedFlowResult = Mockito.mock(FlowResult.class);
         double expectedCost = 5.;
         Leaf leaf = prepareLeafForEvaluation(na1, expectedSensitivityStatus, expectedFlowResult, expectedCost);
-        leaf.evaluate(costEvaluatorMock, sensitivityComputer, instantOutage);
+        leaf.evaluate(costEvaluatorMock, sensitivityComputer, outageInstant);
         assertEquals(expectedCost / 2, leaf.getVirtualCost(), DOUBLE_TOLERANCE);
         assertEquals(expectedCost / 2, leaf.getVirtualCost(virtualCostName), DOUBLE_TOLERANCE);
     }
@@ -474,7 +474,7 @@ class LeafTest {
         when(searchTreeParameters.getObjectiveFunction()).thenReturn(Mockito.mock(ObjectiveFunctionParameters.ObjectiveFunctionType.class));
         when(searchTreeParameters.getTreeParameters()).thenReturn(Mockito.mock(TreeParameters.class));
         prepareLinearProblemBuilder(linearOptimizationResult);
-        leaf.optimize(searchTreeInput, searchTreeParameters, instantOutage);
+        leaf.optimize(searchTreeInput, searchTreeParameters, outageInstant);
         double expectedVirtualCost = 3.;
         when(linearOptimizationResult.getVirtualCost()).thenReturn(expectedVirtualCost);
         assertEquals(expectedVirtualCost, leaf.getVirtualCost(), DOUBLE_TOLERANCE);
@@ -505,7 +505,7 @@ class LeafTest {
         FlowCnec flowCnec = Mockito.mock(FlowCnec.class);
         List<FlowCnec> flowCnecs = Collections.singletonList(flowCnec);
         Leaf leaf = prepareLeafForEvaluation(na1, expectedSensitivityStatus, expectedFlowResult, expectedCost, flowCnecs);
-        leaf.evaluate(costEvaluatorMock, sensitivityComputer, instantOutage);
+        leaf.evaluate(costEvaluatorMock, sensitivityComputer, outageInstant);
         assertEquals(flowCnecs, leaf.getMostLimitingElements(flowCnecs.size()));
         assertEquals(flowCnecs, leaf.getCostlyElements(virtualCostName, flowCnecs.size()));
     }
@@ -520,7 +520,7 @@ class LeafTest {
         when(searchTreeParameters.getObjectiveFunction()).thenReturn(Mockito.mock(ObjectiveFunctionParameters.ObjectiveFunctionType.class));
         when(searchTreeParameters.getTreeParameters()).thenReturn(Mockito.mock(TreeParameters.class));
         prepareLinearProblemBuilder(linearOptimizationResult);
-        leaf.optimize(searchTreeInput, searchTreeParameters, instantOutage);
+        leaf.optimize(searchTreeInput, searchTreeParameters, outageInstant);
         FlowCnec flowCnec = Mockito.mock(FlowCnec.class);
         List<FlowCnec> flowCnecs = Collections.singletonList(flowCnec);
         when(linearOptimizationResult.getMostLimitingElements(flowCnecs.size())).thenReturn(flowCnecs);
@@ -551,7 +551,7 @@ class LeafTest {
         Set<String> virtualCostNames = new HashSet<>();
         virtualCostNames.add(virtualCostName);
         when(objectiveFunctionResult.getVirtualCostNames()).thenReturn(virtualCostNames);
-        leaf.evaluate(costEvaluatorMock, sensitivityComputer, instantOutage);
+        leaf.evaluate(costEvaluatorMock, sensitivityComputer, outageInstant);
         assertEquals(virtualCostNames, leaf.getVirtualCostNames());
     }
 
@@ -581,7 +581,7 @@ class LeafTest {
         when(prePerimeterResult.getSetpoint(pstRangeAction)).thenReturn(optimalSetpoint);
 
         Leaf leaf = new Leaf(optimizationPerimeter, network, prePerimeterResult, appliedRemedialActions);
-        leaf.evaluate(costEvaluatorMock, sensitivityComputer, instantOutage);
+        leaf.evaluate(costEvaluatorMock, sensitivityComputer, outageInstant);
 
         assertEquals(rangeActions, leaf.getRangeActions());
         assertEquals(optimalTap, leaf.getOptimizedTap(pstRangeAction, optimizedState));
@@ -600,7 +600,7 @@ class LeafTest {
         when(searchTreeParameters.getObjectiveFunction()).thenReturn(Mockito.mock(ObjectiveFunctionParameters.ObjectiveFunctionType.class));
         when(searchTreeParameters.getTreeParameters()).thenReturn(Mockito.mock(TreeParameters.class));
         prepareLinearProblemBuilder(linearOptimizationResult);
-        leaf.optimize(searchTreeInput, searchTreeParameters, instantOutage);
+        leaf.optimize(searchTreeInput, searchTreeParameters, outageInstant);
 
         PstRangeAction pstRangeAction = Mockito.mock(PstRangeAction.class);
         RangeAction<?> rangeAction = Mockito.mock(RangeAction.class);
@@ -697,7 +697,7 @@ class LeafTest {
         SearchTreeParameters searchTreeParameters = Mockito.mock(SearchTreeParameters.class);
         when(searchTreeParameters.getObjectiveFunction()).thenReturn(Mockito.mock(ObjectiveFunctionParameters.ObjectiveFunctionType.class));
         when(searchTreeParameters.getTreeParameters()).thenReturn(Mockito.mock(TreeParameters.class));
-        leaf.optimize(searchTreeInput, searchTreeParameters, instantOutage);
+        leaf.optimize(searchTreeInput, searchTreeParameters, outageInstant);
 
         assertEquals(sensitivityStatus, leaf.getSensitivityStatus());
     }
@@ -735,7 +735,7 @@ class LeafTest {
         when(searchTreeParameters.getObjectiveFunction()).thenReturn(Mockito.mock(ObjectiveFunctionParameters.ObjectiveFunctionType.class));
         when(searchTreeParameters.getTreeParameters()).thenReturn(Mockito.mock(TreeParameters.class));
         prepareLinearProblemBuilder(linearOptimizationResult);
-        leaf.optimize(searchTreeInput, searchTreeParameters, instantOutage);
+        leaf.optimize(searchTreeInput, searchTreeParameters, outageInstant);
 
         FlowCnec flowCnec = Mockito.mock(FlowCnec.class);
         RangeAction<?> rangeAction = Mockito.mock(RangeAction.class);
@@ -785,7 +785,7 @@ class LeafTest {
         when(searchTreeParameters.getObjectiveFunction()).thenReturn(Mockito.mock(ObjectiveFunctionParameters.ObjectiveFunctionType.class));
         when(searchTreeParameters.getTreeParameters()).thenReturn(Mockito.mock(TreeParameters.class));
         prepareLinearProblemBuilder(linearOptimizationResult);
-        leaf.optimize(searchTreeInput, searchTreeParameters, instantOutage);
+        leaf.optimize(searchTreeInput, searchTreeParameters, outageInstant);
 
         ObjectiveFunction objectiveFunction = Mockito.mock(ObjectiveFunction.class);
         doReturn(objectiveFunction).when(linearOptimizationResult).getObjectiveFunction();
@@ -804,9 +804,9 @@ class LeafTest {
         when(searchTreeParameters.getObjectiveFunction()).thenReturn(Mockito.mock(ObjectiveFunctionParameters.ObjectiveFunctionType.class));
         when(searchTreeParameters.getTreeParameters()).thenReturn(Mockito.mock(TreeParameters.class));
         prepareLinearProblemBuilder(Mockito.mock(IteratingLinearOptimizationResultImpl.class));
-        rootLeaf.optimize(searchTreeInput, searchTreeParameters, instantOutage);
+        rootLeaf.optimize(searchTreeInput, searchTreeParameters, outageInstant);
         rootLeaf.finalizeOptimization();
-        FaraoException exception = assertThrows(FaraoException.class, () -> rootLeaf.optimize(searchTreeInput, searchTreeParameters, instantOutage));
+        FaraoException exception = assertThrows(FaraoException.class, () -> rootLeaf.optimize(searchTreeInput, searchTreeParameters, outageInstant));
         assertEquals("Cannot optimize leaf, because optimization data has been deleted", exception.getMessage());
     }
 
@@ -835,7 +835,7 @@ class LeafTest {
         when(searchTreeParameters.getObjectiveFunction()).thenReturn(Mockito.mock(ObjectiveFunctionParameters.ObjectiveFunctionType.class));
         when(searchTreeParameters.getTreeParameters()).thenReturn(Mockito.mock(TreeParameters.class));
         prepareLinearProblemBuilder(linearOptimizationResult);
-        leaf.optimize(searchTreeInput, searchTreeParameters, instantOutage);
+        leaf.optimize(searchTreeInput, searchTreeParameters, outageInstant);
         when(linearOptimizationResult.getCost()).thenReturn(-100.5);
         when(linearOptimizationResult.getFunctionalCost()).thenReturn(-160.);
         // With virtual cost

@@ -36,8 +36,8 @@ public final class SensitivityComputer {
         // Should not be used
     }
 
-    public void compute(Network network, Instant instantOutage) {
-        result = systematicSensitivityInterface.run(network, instantOutage);
+    public void compute(Network network, Instant outageInstant) {
+        result = systematicSensitivityInterface.run(network, outageInstant);
     }
 
     public FlowResult getBranchResult(Network network) {

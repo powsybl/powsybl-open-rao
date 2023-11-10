@@ -69,7 +69,7 @@ class CastorFullOptimizationTest {
     private NetworkAction na1;
     private CastorFullOptimization castorFullOptimization;
     private Instant prevInstant;
-    private Instant instantAuto;
+    private Instant autoInstant;
     private Instant curativeInstant;
 
     @BeforeEach
@@ -77,7 +77,7 @@ class CastorFullOptimizationTest {
         network = Network.read("network_with_alegro_hub.xiidm", getClass().getResourceAsStream("/network/network_with_alegro_hub.xiidm"));
         crac = CracImporters.importCrac("crac/small-crac.json", getClass().getResourceAsStream("/crac/small-crac.json"));
         prevInstant = crac.getInstant("preventive");
-        instantAuto = crac.getInstant("auto");
+        autoInstant = crac.getInstant("auto");
         curativeInstant = crac.getInstant("curative");
         RaoInput inputs = Mockito.mock(RaoInput.class);
         when(inputs.getNetwork()).thenReturn(network);
@@ -527,7 +527,7 @@ class CastorFullOptimizationTest {
         Map<State, OptimizationResult> curativeResults = Map.of(state1, optimResult1, state2, optimResult2);
 
         AppliedRemedialActions appliedRemedialActions = new AppliedRemedialActions();
-        CastorFullOptimization.addAppliedNetworkActionsPostContingency(instantAuto, appliedRemedialActions, curativeResults);
+        CastorFullOptimization.addAppliedNetworkActionsPostContingency(autoInstant, appliedRemedialActions, curativeResults);
         CastorFullOptimization.addAppliedNetworkActionsPostContingency(curativeInstant, appliedRemedialActions, curativeResults);
 
         // do not apply network action
@@ -545,7 +545,7 @@ class CastorFullOptimizationTest {
         assertFalse(network.getLine(naNeId).getTerminal1().isConnected());
 
         // add range action
-        CastorFullOptimization.addAppliedRangeActionsPostContingency(instantAuto, appliedRemedialActions, curativeResults);
+        CastorFullOptimization.addAppliedRangeActionsPostContingency(autoInstant, appliedRemedialActions, curativeResults);
         CastorFullOptimization.addAppliedRangeActionsPostContingency(curativeInstant, appliedRemedialActions, curativeResults);
 
         // apply also range action

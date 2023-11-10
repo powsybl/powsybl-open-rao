@@ -146,14 +146,14 @@ public class Leaf implements OptimizationResult {
      * This method performs a systematic sensitivity computation on the leaf only if it has not been done previously.
      * If the computation works fine status is updated to EVALUATED otherwise it is set to ERROR.
      */
-    void evaluate(ObjectiveFunction objectiveFunction, SensitivityComputer sensitivityComputer, Instant instantOutage) {
+    void evaluate(ObjectiveFunction objectiveFunction, SensitivityComputer sensitivityComputer, Instant outageInstant) {
         if (status.equals(Status.EVALUATED)) {
             TECHNICAL_LOGS.debug("Leaf has already been evaluated");
             preOptimObjectiveFunctionResult = objectiveFunction.evaluate(preOptimFlowResult, raActivationResultFromParentLeaf, preOptimSensitivityResult, preOptimSensitivityResult.getSensitivityStatus());
             return;
         }
         TECHNICAL_LOGS.debug("Evaluating {}", this);
-        sensitivityComputer.compute(network, instantOutage);
+        sensitivityComputer.compute(network, outageInstant);
         if (sensitivityComputer.getSensitivityResult().getSensitivityStatus() == ComputationStatus.FAILURE) {
             BUSINESS_WARNS.warn("Failed to evaluate leaf: sensitivity analysis failed");
             status = Status.ERROR;
@@ -175,7 +175,7 @@ public class Leaf implements OptimizationResult {
      * is either the same as the initial variant ID if the optimization has not been efficient or a new ID
      * corresponding to a new variant created by the IteratingLinearOptimizer.
      */
-    void optimize(SearchTreeInput searchTreeInput, SearchTreeParameters parameters, Instant instantOutage) {
+    void optimize(SearchTreeInput searchTreeInput, SearchTreeParameters parameters, Instant outageInstant) {
         if (!optimizationDataPresent) {
             throw new FaraoException("Cannot optimize leaf, because optimization data has been deleted");
         }
@@ -216,7 +216,7 @@ public class Leaf implements OptimizationResult {
                     .withRaRangeShrinking(parameters.getTreeParameters().getRaRangeShrinking())
                     .build();
 
-            postOptimResult = IteratingLinearOptimizer.optimize(linearOptimizerInput, linearOptimizerParameters, instantOutage);
+            postOptimResult = IteratingLinearOptimizer.optimize(linearOptimizerInput, linearOptimizerParameters, outageInstant);
 
             status = Status.OPTIMIZED;
         } else if (status.equals(Status.ERROR)) {

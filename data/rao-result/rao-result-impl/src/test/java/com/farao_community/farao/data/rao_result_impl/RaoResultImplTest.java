@@ -39,13 +39,13 @@ class RaoResultImplTest {
     private PstRangeAction pst;
     private NetworkAction na;
     private Instant prevInstant;
-    private Instant instantAuto;
+    private Instant autoInstant;
     private Instant curativeInstant;
 
     private void setUp() {
         crac = CommonCracCreation.createWithPreventiveAndCurativePstRange();
         prevInstant = crac.getInstant("preventive");
-        instantAuto = crac.getInstant("auto");
+        autoInstant = crac.getInstant("auto");
         curativeInstant = crac.getInstant("curative");
         cnec = crac.getFlowCnec("cnec1basecase");
         pst = crac.getPstRangeAction("pst");
@@ -149,7 +149,7 @@ class RaoResultImplTest {
 
         // should always return after pra results because the cnec is Preventive
         getResultAtAGivenState(prevInstant);
-        getResultAtAGivenState(instantAuto);
+        getResultAtAGivenState(autoInstant);
         getResultAtAGivenState(curativeInstant);
     }
 

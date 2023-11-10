@@ -52,13 +52,13 @@ class SystematicSensitivityResultTest {
 
     private RangeActionSensitivityProvider rangeActionSensitivityProvider;
     private PtdfSensitivityProvider ptdfSensitivityProvider;
-    private int instantOutageOrder;
+    private int outageInstantOrder;
 
     public void setUp() {
         network = NetworkImportsUtil.import12NodesNetwork();
         //TODO remove this
         Crac crac = CommonCracCreation.createWithPreventivePstRange(Set.of(Side.LEFT, Side.RIGHT));
-        instantOutageOrder = crac.getInstant("curative").getOrder();
+        outageInstantOrder = crac.getInstant("curative").getOrder();
 
         ZonalData<SensitivityVariableSet> glskProvider = UcteGlskDocument.importGlsk(getClass().getResourceAsStream("/glsk_proportional_12nodes.xml"))
             .getZonalGlsks(network, Instant.parse("2016-07-28T22:30:00Z"));
@@ -84,7 +84,7 @@ class SystematicSensitivityResultTest {
             ptdfSensitivityProvider.getContingencies(network),
             new ArrayList<>(),
             SensitivityAnalysisParameters.load());
-        SystematicSensitivityResult result = new SystematicSensitivityResult().completeData(sensitivityAnalysisResult, instantOutageOrder);
+        SystematicSensitivityResult result = new SystematicSensitivityResult().completeData(sensitivityAnalysisResult, outageInstantOrder);
 
         // Before postTreating intensities
         assertEquals(-20, result.getReferenceFlow(contingencyCnec, Side.LEFT), EPSILON);
@@ -109,7 +109,7 @@ class SystematicSensitivityResultTest {
             rangeActionSensitivityProvider.getContingencies(network),
             new ArrayList<>(),
             SensitivityAnalysisParameters.load());
-        SystematicSensitivityResult result = new SystematicSensitivityResult().completeData(sensitivityAnalysisResult, instantOutageOrder).postTreatIntensities();
+        SystematicSensitivityResult result = new SystematicSensitivityResult().completeData(sensitivityAnalysisResult, outageInstantOrder).postTreatIntensities();
 
         // Then
         assertTrue(result.isSuccess());
@@ -141,7 +141,7 @@ class SystematicSensitivityResultTest {
             ptdfSensitivityProvider.getContingencies(network),
             new ArrayList<>(),
             SensitivityAnalysisParameters.load());
-        SystematicSensitivityResult result = new SystematicSensitivityResult().completeData(sensitivityAnalysisResult, instantOutageOrder).postTreatIntensities();
+        SystematicSensitivityResult result = new SystematicSensitivityResult().completeData(sensitivityAnalysisResult, outageInstantOrder).postTreatIntensities();
 
         // Then
         assertTrue(result.isSuccess());
@@ -164,7 +164,7 @@ class SystematicSensitivityResultTest {
         setUp();
         // When
         SensitivityAnalysisResult sensitivityAnalysisResult = Mockito.mock(SensitivityAnalysisResult.class);
-        SystematicSensitivityResult result = new SystematicSensitivityResult().completeData(sensitivityAnalysisResult, instantOutageOrder).postTreatIntensities();
+        SystematicSensitivityResult result = new SystematicSensitivityResult().completeData(sensitivityAnalysisResult, outageInstantOrder).postTreatIntensities();
 
         // Then
         assertFalse(result.isSuccess());
@@ -215,7 +215,7 @@ class SystematicSensitivityResultTest {
             new ArrayList<>(),
             SensitivityAnalysisParameters.load());
         SystematicSensitivityResult result = new SystematicSensitivityResult()
-            .completeData(sensitivityAnalysisResult, instantOutageOrder)
+            .completeData(sensitivityAnalysisResult, outageInstantOrder)
             .postTreatIntensities()
             .postTreatHvdcs(network, hvdcs);
 
@@ -239,7 +239,7 @@ class SystematicSensitivityResultTest {
             new ArrayList<>(),
             SensitivityAnalysisParameters.load());
         SystematicSensitivityResult result = new SystematicSensitivityResult()
-            .completeData(sensitivityAnalysisResult, instantOutageOrder)
+            .completeData(sensitivityAnalysisResult, outageInstantOrder)
             .postTreatIntensities()
             .postTreatHvdcs(network, hvdcs);
 

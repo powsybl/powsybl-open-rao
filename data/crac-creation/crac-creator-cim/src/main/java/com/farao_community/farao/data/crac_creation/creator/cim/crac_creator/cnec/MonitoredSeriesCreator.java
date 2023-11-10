@@ -285,7 +285,7 @@ public class MonitoredSeriesCreator {
             flowCnecAdder.withOptimized();
         }
 
-        if (instant.getInstantKind() != InstantKind.PREVENTIVE) {
+        if (!instant.isPreventive()) {
             flowCnecAdder.withContingency(contingencyId);
             cnecId += " - " + contingencyId;
         }

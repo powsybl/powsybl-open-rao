@@ -496,8 +496,8 @@ public class CsaProfileRemedialActionsCreator {
                     Instant curativeInstant = crac.getInstant(InstantKind.CURATIVE);
                     boolean hasAtLeastOneOnConstraintUsageRule = addOnConstraintUsageRules(curativeInstant, remedialActionAdder, autoRemedialActionId, new ArrayList<>());
                     if (!hasAtLeastOneOnConstraintUsageRule) {
-                        Instant instantAuto = crac.getInstant(InstantKind.AUTO);
-                        addOnContingencyStateUsageRules(remedialActionAdder, faraoContingenciesIds, CsaProfileConstants.ElementCombinationConstraintKind.INCLUDED.toString(), instantAuto.getId());
+                        Instant autoInstant = crac.getInstant(InstantKind.AUTO);
+                        addOnContingencyStateUsageRules(remedialActionAdder, faraoContingenciesIds, CsaProfileConstants.ElementCombinationConstraintKind.INCLUDED.toString(), autoInstant.getId());
                     }
                 } else {
                     throw new FaraoImportException(ImportStatus.INCONSISTENCY_IN_DATA, CsaProfileConstants.AUTO_REMEDIAL_ACTION_MESSAGE + autoRemedialActionId + " will not be imported because no contingency is linked to the remedial action");

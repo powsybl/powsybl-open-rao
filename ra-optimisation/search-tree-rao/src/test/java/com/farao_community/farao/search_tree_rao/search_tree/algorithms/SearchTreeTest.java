@@ -95,7 +95,7 @@ class SearchTreeTest {
     private int leavesInParallel;
 
     private NetworkActionCombination predefinedNaCombination;
-    private Instant instantOutage;
+    private Instant outageInstant;
 
     @BeforeEach
     public void setUp() throws Exception {
@@ -105,8 +105,8 @@ class SearchTreeTest {
         searchTree = Mockito.spy(new SearchTree(searchTreeInput, searchTreeParameters, true));
         when(searchTreeParameters.getObjectiveFunction()).thenReturn(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_MARGIN_IN_MEGAWATT);
         mockNetworkPool(network);
-        instantOutage = Mockito.mock(Instant.class);
-        Mockito.when(instantOutage.getOrder()).thenReturn(1);
+        outageInstant = Mockito.mock(Instant.class);
+        Mockito.when(outageInstant.getOrder()).thenReturn(1);
     }
 
     private void setSearchTreeParameters() {
@@ -164,7 +164,7 @@ class SearchTreeTest {
         when(rootLeaf.getStatus()).thenReturn(Leaf.Status.ERROR);
         Mockito.doReturn(rootLeaf).when(searchTree).makeLeaf(optimizationPerimeter, network, prePerimeterResult, appliedRemedialActions);
 
-        OptimizationResult result = searchTree.run(instantOutage).get();
+        OptimizationResult result = searchTree.run(outageInstant).get();
         assertEquals(rootLeaf, result);
     }
 
@@ -179,7 +179,7 @@ class SearchTreeTest {
         when(rootLeaf.getStatus()).thenReturn(Leaf.Status.EVALUATED);
         Mockito.doReturn(rootLeaf).when(searchTree).makeLeaf(optimizationPerimeter, network, prePerimeterResult, appliedRemedialActions);
 
-        OptimizationResult result = searchTree.run(instantOutage).get();
+        OptimizationResult result = searchTree.run(outageInstant).get();
         assertEquals(rootLeaf, result);
         assertEquals(leafCost, result.getCost(), DOUBLE_TOLERANCE);
     }
@@ -196,7 +196,7 @@ class SearchTreeTest {
         when(rootLeaf.getCost()).thenReturn(2.);
         when(rootLeaf.getStatus()).thenReturn(Leaf.Status.EVALUATED, Leaf.Status.OPTIMIZED);
         Mockito.doReturn(rootLeaf).when(searchTree).makeLeaf(optimizationPerimeter, network, prePerimeterResult, appliedRemedialActions);
-        OptimizationResult result = searchTree.run(instantOutage).get();
+        OptimizationResult result = searchTree.run(outageInstant).get();
         assertEquals(rootLeaf, result);
         assertEquals(2., result.getCost(), DOUBLE_TOLERANCE);
     }
@@ -209,7 +209,7 @@ class SearchTreeTest {
         when(rootLeaf.getCost()).thenReturn(4., 2.);
         when(rootLeaf.getStatus()).thenReturn(Leaf.Status.EVALUATED, Leaf.Status.OPTIMIZED);
         Mockito.doReturn(rootLeaf).when(searchTree).makeLeaf(optimizationPerimeter, network, prePerimeterResult, appliedRemedialActions);
-        OptimizationResult result = searchTree.run(instantOutage).get();
+        OptimizationResult result = searchTree.run(outageInstant).get();
         assertEquals(rootLeaf, result);
         assertEquals(2., result.getCost(), DOUBLE_TOLERANCE);
     }
@@ -228,7 +228,7 @@ class SearchTreeTest {
         when(childLeaf.getStatus()).thenReturn(Leaf.Status.ERROR);
         Mockito.doReturn(childLeaf).when(searchTree).createChildLeaf(network, new NetworkActionCombination(networkAction), false);
 
-        OptimizationResult result = searchTree.run(instantOutage).get();
+        OptimizationResult result = searchTree.run(outageInstant).get();
         assertEquals(rootLeaf, result);
         assertEquals(4., result.getCost(), DOUBLE_TOLERANCE);
     }
@@ -239,10 +239,10 @@ class SearchTreeTest {
         when(sensitivityComputer.getSensitivityResult()).thenReturn(sensitivityResult);
         when(sensitivityResult.getSensitivityStatus()).thenReturn(ComputationStatus.DEFAULT);
         when(sensitivityComputer.getBranchResult(network)).thenReturn(null);
-        Mockito.doNothing().when(sensitivityComputer).compute(network, instantOutage);
+        Mockito.doNothing().when(sensitivityComputer).compute(network, outageInstant);
         ObjectiveFunction objectiveFunction = Mockito.mock(ObjectiveFunction.class);
         when(objectiveFunction.evaluate(any(), any(), any(), any())).thenReturn(null);
-        leaf.evaluate(objectiveFunction, sensitivityComputer, instantOutage);
+        leaf.evaluate(objectiveFunction, sensitivityComputer, outageInstant);
     }
 
     @Test
@@ -287,7 +287,7 @@ class SearchTreeTest {
 
         mockLeafsCosts(rootLeafCostAfterOptim, childLeafCostAfterOptim, childLeaf);
 
-        OptimizationResult result = searchTree.run(instantOutage).get();
+        OptimizationResult result = searchTree.run(outageInstant).get();
         assertEquals(childLeaf, result);
     }
 
@@ -303,7 +303,7 @@ class SearchTreeTest {
 
         mockLeafsCosts(rootLeafCostAfterOptim, childLeafCostAfterOptim, childLeaf);
 
-        OptimizationResult result = searchTree.run(instantOutage).get();
+        OptimizationResult result = searchTree.run(outageInstant).get();
         assertEquals(rootLeaf, result);
     }
 
@@ -342,7 +342,7 @@ class SearchTreeTest {
         when(childLeaf2.getCost()).thenReturn(childLeaf2CostAfterOptim);
         Mockito.doReturn(childLeaf2).when(searchTree).createChildLeaf(any(), eq(availableNaCombinations.get(1)), eq(false));
 
-        OptimizationResult result = searchTree.run(instantOutage).get();
+        OptimizationResult result = searchTree.run(outageInstant).get();
         assertEquals(childLeaf1, result);
     }
 
@@ -360,7 +360,7 @@ class SearchTreeTest {
 
         mockLeafsCosts(rootLeafCostAfterOptim, childLeafCostAfterOptim, childLeaf);
 
-        OptimizationResult result = searchTree.run(instantOutage).get();
+        OptimizationResult result = searchTree.run(outageInstant).get();
         assertEquals(childLeaf, result);
     }
 
@@ -377,7 +377,7 @@ class SearchTreeTest {
         mockRootLeafCost(5.);
         when(rootLeaf.getOptimizedSetpoint(rangeAction2, optimizedState)).thenReturn(3.);
 
-        OptimizationResult result = searchTree.run(instantOutage).get();
+        OptimizationResult result = searchTree.run(outageInstant).get();
         assertEquals(3., result.getOptimizedSetpoint(rangeAction2, optimizedState), DOUBLE_TOLERANCE);
     }
 
@@ -480,7 +480,7 @@ class SearchTreeTest {
         doThrow(FaraoException.class).when(rootLeaf).optimize(any(), any(), any());
 
         try {
-            searchTree.run(instantOutage);
+            searchTree.run(outageInstant);
         } catch (FaraoException e) {
             fail("Should not have optimized rootleaf as it had already reached the stop criterion");
         }
@@ -503,7 +503,7 @@ class SearchTreeTest {
 
         ListAppender<ILoggingEvent> technical = getLogs(TechnicalLogs.class);
         ListAppender<ILoggingEvent> business = getLogs(RaoBusinessLogs.class);
-        searchTree.run(instantOutage);
+        searchTree.run(outageInstant);
         assertEquals(1, technical.list.size());
         assertEquals(2, business.list.size());
         assertEquals(expectedLog1, technical.list.get(0).toString());
@@ -529,7 +529,7 @@ class SearchTreeTest {
 
         ListAppender<ILoggingEvent> technical = getLogs(TechnicalLogs.class);
         ListAppender<ILoggingEvent> business = getLogs(RaoBusinessLogs.class);
-        searchTree.run(instantOutage);
+        searchTree.run(outageInstant);
         assertEquals(2, technical.list.size());
         assertEquals(1, business.list.size());
         assertEquals(expectedLog1, technical.list.get(0).toString());

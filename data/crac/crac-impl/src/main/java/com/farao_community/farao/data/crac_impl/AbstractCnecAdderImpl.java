@@ -64,7 +64,7 @@ public abstract class AbstractCnecAdderImpl<J extends CnecAdder<J>> extends Abst
     protected State getState() {
         State state;
         Instant instant = owner.getInstant(instantId);
-        if (instant.getInstantKind() != InstantKind.PREVENTIVE) {
+        if (!instant.isPreventive()) {
             state = owner.addState(owner.getContingency(contingencyId), instant.getId());
         } else {
             state = owner.addPreventiveState(instantId);

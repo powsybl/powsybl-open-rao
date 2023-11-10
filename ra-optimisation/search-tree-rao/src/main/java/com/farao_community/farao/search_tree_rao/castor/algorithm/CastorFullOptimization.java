@@ -552,11 +552,11 @@ public class CastorFullOptimization {
         // Get the applied network actions for every contingency perimeter
         AppliedRemedialActions appliedArasAndCras = new AppliedRemedialActions();
         Instant instantCurative = raoInput.getCrac().getInstant(InstantKind.CURATIVE);
-        Instant instantAuto = raoInput.getCrac().getInstant(InstantKind.AUTO);
-        addAppliedNetworkActionsPostContingency(instantAuto, appliedArasAndCras, postContingencyResults);
+        Instant autoInstant = raoInput.getCrac().getInstant(InstantKind.AUTO);
+        addAppliedNetworkActionsPostContingency(autoInstant, appliedArasAndCras, postContingencyResults);
         addAppliedNetworkActionsPostContingency(instantCurative, appliedArasAndCras, postContingencyResults);
         // Get the applied range actions for every auto contingency perimeter
-        addAppliedRangeActionsPostContingency(instantAuto, appliedArasAndCras, postContingencyResults);
+        addAppliedRangeActionsPostContingency(autoInstant, appliedArasAndCras, postContingencyResults);
 
         // Apply 1st preventive results for range actions that are both preventive and auto or curative. This way we are sure
         // that the optimal setpoints of the curative results stay coherent with their allowed range and close to

@@ -23,7 +23,7 @@ public class PreventiveState implements State {
     private final Instant instant;
 
     PreventiveState(Instant instant) {
-        if (instant.getInstantKind() != InstantKind.PREVENTIVE) { // TODO test this
+        if (!instant.isPreventive()) { // TODO test this
             throw new FaraoException("Instant must be preventive");
         }
         this.instant = instant;

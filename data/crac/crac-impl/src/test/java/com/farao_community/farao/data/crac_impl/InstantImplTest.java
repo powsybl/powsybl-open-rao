@@ -32,23 +32,23 @@ class InstantImplTest {
     @Test
     void testCombineInstants() {
         Instant prevInstant = new InstantImpl("preventive", InstantKind.PREVENTIVE, null);
-        Instant instantOutage = new InstantImpl("outage", InstantKind.OUTAGE, prevInstant);
-        Instant instantAuto = new InstantImpl("auto", InstantKind.AUTO, instantOutage);
-        Instant curativeInstant = new InstantImpl("curative", InstantKind.CURATIVE, instantAuto);
+        Instant outageInstant = new InstantImpl("outage", InstantKind.OUTAGE, prevInstant);
+        Instant autoInstant = new InstantImpl("auto", InstantKind.AUTO, outageInstant);
+        Instant curativeInstant = new InstantImpl("curative", InstantKind.CURATIVE, autoInstant);
 
         assertEquals(0, prevInstant.getOrder());
-        assertEquals(1, instantOutage.getOrder());
-        assertEquals(2, instantAuto.getOrder());
+        assertEquals(1, outageInstant.getOrder());
+        assertEquals(2, autoInstant.getOrder());
         assertEquals(3, curativeInstant.getOrder());
 
         assertNull(prevInstant.getPreviousInstant());
-        assertEquals("preventive", instantOutage.getPreviousInstant().getId());
-        assertEquals(instantOutage, instantAuto.getPreviousInstant());
-        assertEquals(instantAuto, curativeInstant.getPreviousInstant());
+        assertEquals("preventive", outageInstant.getPreviousInstant().getId());
+        assertEquals(outageInstant, autoInstant.getPreviousInstant());
+        assertEquals(autoInstant, curativeInstant.getPreviousInstant());
 
-        assertFalse(instantAuto.comesBefore(instantAuto));
-        assertTrue(instantOutage.comesBefore(curativeInstant));
-        assertFalse(instantOutage.comesBefore(prevInstant));
+        assertFalse(autoInstant.comesBefore(autoInstant));
+        assertTrue(outageInstant.comesBefore(curativeInstant));
+        assertFalse(outageInstant.comesBefore(prevInstant));
     }
 
     @Test

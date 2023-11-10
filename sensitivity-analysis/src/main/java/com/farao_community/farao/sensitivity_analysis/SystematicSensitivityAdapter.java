@@ -37,7 +37,7 @@ final class SystematicSensitivityAdapter {
                                                       CnecSensitivityProvider cnecSensitivityProvider,
                                                       SensitivityAnalysisParameters sensitivityComputationParameters,
                                                       String sensitivityProvider,
-                                                      Instant instantOutage) {
+                                                      Instant outageInstant) {
         TECHNICAL_LOGS.debug("Systematic sensitivity analysis [start]");
         SensitivityAnalysisResult result;
         try {
@@ -52,7 +52,7 @@ final class SystematicSensitivityAdapter {
             return new SystematicSensitivityResult(SystematicSensitivityResult.SensitivityComputationStatus.FAILURE);
         }
         TECHNICAL_LOGS.debug("Systematic sensitivity analysis [end]");
-        return new SystematicSensitivityResult().completeData(result, instantOutage.getOrder()).postTreatIntensities().postTreatHvdcs(network, cnecSensitivityProvider.getHvdcs());
+        return new SystematicSensitivityResult().completeData(result, outageInstant.getOrder()).postTreatIntensities().postTreatHvdcs(network, cnecSensitivityProvider.getHvdcs());
     }
 
     static SystematicSensitivityResult runSensitivity(Network network,
@@ -60,9 +60,9 @@ final class SystematicSensitivityAdapter {
                                                       AppliedRemedialActions appliedRemedialActions,
                                                       SensitivityAnalysisParameters sensitivityComputationParameters,
                                                       String sensitivityProvider,
-                                                      Instant instantOutage) {
+                                                      Instant outageInstant) {
         if (appliedRemedialActions == null || appliedRemedialActions.isEmpty(network)) {
-            return runSensitivity(network, cnecSensitivityProvider, sensitivityComputationParameters, sensitivityProvider, instantOutage);
+            return runSensitivity(network, cnecSensitivityProvider, sensitivityComputationParameters, sensitivityProvider, outageInstant);
         }
 
         TECHNICAL_LOGS.debug("Systematic sensitivity analysis with applied RA [start]");
@@ -87,7 +87,7 @@ final class SystematicSensitivityAdapter {
         List<SensitivityFactor> allFactorsWithoutRa = cnecSensitivityProvider.getBasecaseFactors(network);
         allFactorsWithoutRa.addAll(cnecSensitivityProvider.getContingencyFactors(network, contingenciesWithoutRa));
         OptionalInt instantOrderClosestToPreventiveWithoutRa = statesWithoutRa.stream().map(State::getInstant)
-            .filter(instant -> instant.getInstantKind() != InstantKind.PREVENTIVE)
+            .filter(instant -> !instant.isPreventive())
             .mapToInt(Instant::getOrder)
             .min();
         if (instantOrderClosestToPreventiveWithoutRa.isPresent()) {

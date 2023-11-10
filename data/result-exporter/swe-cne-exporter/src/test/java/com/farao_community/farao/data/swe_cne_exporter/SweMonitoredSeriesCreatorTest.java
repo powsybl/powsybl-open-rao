@@ -55,12 +55,12 @@ class SweMonitoredSeriesCreatorTest {
         Mockito.when(sweCneHelper.getRaoResult()).thenReturn(raoResult);
         Mockito.when(sweCneHelper.getNetwork()).thenReturn(network);
         Instant prevInstant = new InstantImpl("preventive", InstantKind.PREVENTIVE, null);
-        Instant instantOutage = new InstantImpl("outage", InstantKind.OUTAGE, prevInstant);
-        Instant instantAuto = new InstantImpl("auto", InstantKind.AUTO, instantOutage);
-        Instant curativeInstant = new InstantImpl("curative", InstantKind.CURATIVE, instantAuto);
+        Instant outageInstant = new InstantImpl("outage", InstantKind.OUTAGE, prevInstant);
+        Instant autoInstant = new InstantImpl("auto", InstantKind.AUTO, outageInstant);
+        Instant curativeInstant = new InstantImpl("curative", InstantKind.CURATIVE, autoInstant);
         Mockito.when(crac.getInstant("preventive")).thenReturn(prevInstant);
-        Mockito.when(crac.getInstant("outage")).thenReturn(instantOutage);
-        Mockito.when(crac.getInstant("auto")).thenReturn(instantAuto);
+        Mockito.when(crac.getInstant("outage")).thenReturn(outageInstant);
+        Mockito.when(crac.getInstant("auto")).thenReturn(autoInstant);
         Mockito.when(crac.getInstant("curative")).thenReturn(curativeInstant);
     }
 
@@ -125,7 +125,7 @@ class SweMonitoredSeriesCreatorTest {
             MeasurementCreationContext measurementCC = Mockito.mock(MeasurementCreationContext.class);
             MultiKeyMap<Object, CnecCreationContext> cnecCCs = new MultiKeyMap<>();
             Instant instant = crac.getInstant(instantId);
-            if (instant.getInstantKind() != InstantKind.PREVENTIVE) {
+            if (!instant.isPreventive()) {
                 for (Contingency contingency : contingencies) {
                     CnecCreationContext cnecCC = Mockito.mock(CnecCreationContext.class);
                     Mockito.when(cnecCC.isImported()).thenReturn(true);
@@ -185,7 +185,7 @@ class SweMonitoredSeriesCreatorTest {
 
     private void setCnecResult(MonitoredSeriesCreationContext mscc, Instant instant, Contingency contingency, double flow) {
         String cnecId;
-        if (instant.getInstantKind() != InstantKind.PREVENTIVE) {
+        if (!instant.isPreventive()) {
             cnecId = mscc.getNativeName() + " - " + contingency.getId() + " - " + instant;
         } else {
             cnecId = mscc.getNativeName() + " - " + instant;

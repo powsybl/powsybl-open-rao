@@ -51,9 +51,9 @@ class LinearProblemResultTest {
     @BeforeEach
     public void setUp() {
         Instant prevInstant = new InstantImpl("preventive", InstantKind.PREVENTIVE, null);
-        Instant instantOutage = new InstantImpl("outage", InstantKind.OUTAGE, prevInstant);
-        Instant instantAuto = new InstantImpl("auto", InstantKind.AUTO, instantOutage);
-        Instant curativeInstant = new InstantImpl("curative", InstantKind.CURATIVE, instantAuto);
+        Instant outageInstant = new InstantImpl("outage", InstantKind.OUTAGE, prevInstant);
+        Instant autoInstant = new InstantImpl("auto", InstantKind.AUTO, outageInstant);
+        Instant curativeInstant = new InstantImpl("curative", InstantKind.CURATIVE, autoInstant);
         preventiveState = Mockito.mock(State.class);
         Mockito.when(preventiveState.getInstant()).thenReturn(prevInstant);
         Mockito.when(preventiveState.isPreventive()).thenReturn(true);

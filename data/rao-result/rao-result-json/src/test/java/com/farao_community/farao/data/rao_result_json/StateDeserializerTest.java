@@ -35,9 +35,9 @@ class StateDeserializerTest {
         Instant prevInstant = Mockito.mock(Instant.class);
         Mockito.when(prevInstant.getInstantKind()).thenReturn(InstantKind.PREVENTIVE);
         Mockito.when(crac.getInstant("preventive")).thenReturn(prevInstant);
-        Instant instantOutage = Mockito.mock(Instant.class);
-        Mockito.when(instantOutage.getInstantKind()).thenReturn(InstantKind.OUTAGE);
-        Mockito.when(crac.getInstant("outage")).thenReturn(instantOutage);
+        Instant outageInstant = Mockito.mock(Instant.class);
+        Mockito.when(outageInstant.getInstantKind()).thenReturn(InstantKind.OUTAGE);
+        Mockito.when(crac.getInstant("outage")).thenReturn(outageInstant);
         Instant curativeInstant = Mockito.mock(Instant.class);
         Mockito.when(curativeInstant.getInstantKind()).thenReturn(InstantKind.CURATIVE);
         Mockito.when(crac.getInstant("curative")).thenReturn(curativeInstant);

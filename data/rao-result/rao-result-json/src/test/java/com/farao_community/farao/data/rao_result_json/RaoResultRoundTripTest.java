@@ -50,7 +50,7 @@ class RaoResultRoundTripTest {
         // get exhaustive CRAC and RaoResult
         Crac crac = ExhaustiveCracCreation.create();
         Instant prevInstant = crac.getInstant("preventive");
-        Instant instantAuto = crac.getInstant("auto");
+        Instant autoInstant = crac.getInstant("auto");
         Instant curativeInstant = crac.getInstant("curative");
 
         RaoResult raoResult = ExhaustiveRaoResultCreation.create(crac);
@@ -93,11 +93,11 @@ class RaoResultRoundTripTest {
         assertEquals(0., importedRaoResult.getVirtualCost(prevInstant), DOUBLE_TOLERANCE);
         assertEquals(80., importedRaoResult.getCost(prevInstant), DOUBLE_TOLERANCE);
 
-        assertEquals(-20., importedRaoResult.getFunctionalCost(instantAuto), DOUBLE_TOLERANCE);
-        assertEquals(15., importedRaoResult.getVirtualCost(instantAuto, "loopFlow"), DOUBLE_TOLERANCE);
-        assertEquals(20., importedRaoResult.getVirtualCost(instantAuto, "MNEC"), DOUBLE_TOLERANCE);
-        assertEquals(35., importedRaoResult.getVirtualCost(instantAuto), DOUBLE_TOLERANCE);
-        assertEquals(15., importedRaoResult.getCost(instantAuto), DOUBLE_TOLERANCE);
+        assertEquals(-20., importedRaoResult.getFunctionalCost(autoInstant), DOUBLE_TOLERANCE);
+        assertEquals(15., importedRaoResult.getVirtualCost(autoInstant, "loopFlow"), DOUBLE_TOLERANCE);
+        assertEquals(20., importedRaoResult.getVirtualCost(autoInstant, "MNEC"), DOUBLE_TOLERANCE);
+        assertEquals(35., importedRaoResult.getVirtualCost(autoInstant), DOUBLE_TOLERANCE);
+        assertEquals(15., importedRaoResult.getCost(autoInstant), DOUBLE_TOLERANCE);
 
         assertEquals(-50., importedRaoResult.getFunctionalCost(curativeInstant), DOUBLE_TOLERANCE);
         assertEquals(10., importedRaoResult.getVirtualCost(curativeInstant, "loopFlow"), DOUBLE_TOLERANCE);
@@ -111,7 +111,7 @@ class RaoResultRoundTripTest {
 
         /*
         cnec4prevId: preventive, no loop-flows, optimized
-        - contains result in null and in prevInstant. Results in instantAuto and curativeInstant are the same as prevInstant because the CNEC is preventive
+        - contains result in null and in prevInstant. Results in autoInstant and curativeInstant are the same as prevInstant because the CNEC is preventive
         - contains result relative margin and PTDF sum but not for loop and commercial flows
          */
         FlowCnec cnecP = crac.getFlowCnec("cnec4prevId");
@@ -136,14 +136,14 @@ class RaoResultRoundTripTest {
         assertEquals(0.4, importedRaoResult.getPtdfZonalSum(prevInstant, cnecP, Side.LEFT), DOUBLE_TOLERANCE);
         assertTrue(Double.isNaN(importedRaoResult.getPtdfZonalSum(prevInstant, cnecP, Side.RIGHT)));
 
-        assertEquals(importedRaoResult.getFlow(instantAuto, cnecP, LEFT, AMPERE), importedRaoResult.getFlow(prevInstant, cnecP, LEFT, AMPERE), DOUBLE_TOLERANCE);
-        assertEquals(importedRaoResult.getFlow(instantAuto, cnecP, RIGHT, AMPERE), importedRaoResult.getFlow(prevInstant, cnecP, RIGHT, AMPERE), DOUBLE_TOLERANCE);
+        assertEquals(importedRaoResult.getFlow(autoInstant, cnecP, LEFT, AMPERE), importedRaoResult.getFlow(prevInstant, cnecP, LEFT, AMPERE), DOUBLE_TOLERANCE);
+        assertEquals(importedRaoResult.getFlow(autoInstant, cnecP, RIGHT, AMPERE), importedRaoResult.getFlow(prevInstant, cnecP, RIGHT, AMPERE), DOUBLE_TOLERANCE);
         assertEquals(importedRaoResult.getFlow(curativeInstant, cnecP, LEFT, AMPERE), importedRaoResult.getFlow(prevInstant, cnecP, LEFT, AMPERE), DOUBLE_TOLERANCE);
         assertEquals(importedRaoResult.getFlow(curativeInstant, cnecP, RIGHT, AMPERE), importedRaoResult.getFlow(prevInstant, cnecP, RIGHT, AMPERE), DOUBLE_TOLERANCE);
 
         /*
         cnec1outageId: outage, with loop-flows, optimized
-        - contains result in null and in prevInstant. Results in instantAuto and curativeInstant are the same as prevInstant because the CNEC is preventive
+        - contains result in null and in prevInstant. Results in autoInstant and curativeInstant are the same as prevInstant because the CNEC is preventive
         - contains result for loop-flows, commercial flows, relative margin and PTDF sum
          */
 
@@ -169,14 +169,14 @@ class RaoResultRoundTripTest {
         assertTrue(Double.isNaN(importedRaoResult.getPtdfZonalSum(prevInstant, cnecO, Side.LEFT)));
         assertEquals(0.6, importedRaoResult.getPtdfZonalSum(prevInstant, cnecO, Side.RIGHT), DOUBLE_TOLERANCE);
 
-        assertTrue(Double.isNaN(importedRaoResult.getFlow(instantAuto, cnecO, Side.LEFT, MEGAWATT)));
-        assertEquals(importedRaoResult.getFlow(instantAuto, cnecO, RIGHT, MEGAWATT), importedRaoResult.getFlow(prevInstant, cnecO, RIGHT, MEGAWATT), DOUBLE_TOLERANCE);
+        assertTrue(Double.isNaN(importedRaoResult.getFlow(autoInstant, cnecO, Side.LEFT, MEGAWATT)));
+        assertEquals(importedRaoResult.getFlow(autoInstant, cnecO, RIGHT, MEGAWATT), importedRaoResult.getFlow(prevInstant, cnecO, RIGHT, MEGAWATT), DOUBLE_TOLERANCE);
         assertTrue(Double.isNaN(importedRaoResult.getFlow(curativeInstant, cnecO, Side.LEFT, MEGAWATT)));
         assertEquals(importedRaoResult.getFlow(curativeInstant, cnecO, RIGHT, MEGAWATT), importedRaoResult.getFlow(prevInstant, cnecO, RIGHT, MEGAWATT), DOUBLE_TOLERANCE);
 
         /*
         cnec3autoId: auto, without loop-flows, pureMNEC
-        - contains result in null, prevInstant, and instantAuto. Results in curativeInstant are the same as instantAuto because the CNEC is auto
+        - contains result in null, prevInstant, and autoInstant. Results in curativeInstant are the same as autoInstant because the CNEC is auto
         - do not contain results for loop-flows, or relative margin
          */
 
@@ -196,16 +196,16 @@ class RaoResultRoundTripTest {
         assertEquals(3220.5, importedRaoResult.getFlow(prevInstant, cnecA, Side.RIGHT, AMPERE), DOUBLE_TOLERANCE);
         assertEquals(3221., importedRaoResult.getMargin(prevInstant, cnecA, AMPERE), DOUBLE_TOLERANCE);
 
-        assertEquals(3310., importedRaoResult.getFlow(instantAuto, cnecA, Side.LEFT, MEGAWATT), DOUBLE_TOLERANCE);
-        assertEquals(3310.5, importedRaoResult.getFlow(instantAuto, cnecA, Side.RIGHT, MEGAWATT), DOUBLE_TOLERANCE);
-        assertEquals(3311., importedRaoResult.getMargin(instantAuto, cnecA, MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(3310., importedRaoResult.getFlow(autoInstant, cnecA, Side.LEFT, MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(3310.5, importedRaoResult.getFlow(autoInstant, cnecA, Side.RIGHT, MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(3311., importedRaoResult.getMargin(autoInstant, cnecA, MEGAWATT), DOUBLE_TOLERANCE);
 
-        assertEquals(importedRaoResult.getFlow(curativeInstant, cnecA, LEFT, MEGAWATT), importedRaoResult.getFlow(instantAuto, cnecA, LEFT, MEGAWATT), DOUBLE_TOLERANCE);
-        assertEquals(importedRaoResult.getFlow(curativeInstant, cnecA, RIGHT, MEGAWATT), importedRaoResult.getFlow(instantAuto, cnecA, RIGHT, MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(importedRaoResult.getFlow(curativeInstant, cnecA, LEFT, MEGAWATT), importedRaoResult.getFlow(autoInstant, cnecA, LEFT, MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(importedRaoResult.getFlow(curativeInstant, cnecA, RIGHT, MEGAWATT), importedRaoResult.getFlow(autoInstant, cnecA, RIGHT, MEGAWATT), DOUBLE_TOLERANCE);
 
          /*
         cnec3curId: curative, without loop-flows, pureMNEC
-        - contains result in null, prevInstant, and instantAuto and in curativeInstant
+        - contains result in null, prevInstant, and autoInstant and in curativeInstant
         - do not contain results for loop-flows, or relative margin
          */
 
@@ -225,9 +225,9 @@ class RaoResultRoundTripTest {
         assertEquals(3220.5, importedRaoResult.getFlow(prevInstant, cnecC, Side.RIGHT, AMPERE), DOUBLE_TOLERANCE);
         assertEquals(3221., importedRaoResult.getMargin(prevInstant, cnecC, AMPERE), DOUBLE_TOLERANCE);
 
-        assertEquals(3310., importedRaoResult.getFlow(instantAuto, cnecC, Side.LEFT, MEGAWATT), DOUBLE_TOLERANCE);
-        assertEquals(3310.5, importedRaoResult.getFlow(instantAuto, cnecC, Side.RIGHT, MEGAWATT), DOUBLE_TOLERANCE);
-        assertEquals(3311., importedRaoResult.getMargin(instantAuto, cnecC, MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(3310., importedRaoResult.getFlow(autoInstant, cnecC, Side.LEFT, MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(3310.5, importedRaoResult.getFlow(autoInstant, cnecC, Side.RIGHT, MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(3311., importedRaoResult.getMargin(autoInstant, cnecC, MEGAWATT), DOUBLE_TOLERANCE);
 
         assertEquals(3410., importedRaoResult.getFlow(curativeInstant, cnecC, Side.LEFT, MEGAWATT), DOUBLE_TOLERANCE);
         assertEquals(3410.5, importedRaoResult.getFlow(curativeInstant, cnecC, Side.RIGHT, MEGAWATT), DOUBLE_TOLERANCE);
