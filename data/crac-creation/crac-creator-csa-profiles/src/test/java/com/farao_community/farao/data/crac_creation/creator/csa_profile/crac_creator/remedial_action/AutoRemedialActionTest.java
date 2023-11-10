@@ -1,9 +1,12 @@
 package com.farao_community.farao.data.crac_creation.creator.csa_profile.crac_creator.remedial_action;
 
-import com.farao_community.farao.data.crac_api.Instant;
+import com.farao_community.farao.data.crac_api.InstantKind;
 import com.farao_community.farao.data.crac_api.NetworkElement;
 import com.farao_community.farao.data.crac_api.RemedialAction;
-import com.farao_community.farao.data.crac_api.network_action.*;
+import com.farao_community.farao.data.crac_api.network_action.ActionType;
+import com.farao_community.farao.data.crac_api.network_action.InjectionSetpoint;
+import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
+import com.farao_community.farao.data.crac_api.network_action.TopologicalAction;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageRule;
@@ -28,19 +31,19 @@ import static com.farao_community.farao.data.crac_creation.creator.csa_profile.c
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-public class AutoRemedialActionTest {
+class AutoRemedialActionTest {
 
     @Test
-    public void importAutoRemedialActionTC2() {
+    void importAutoRemedialActionTC2() {
         CsaProfileCracCreationContext cracCreationContext = getCsaCracCreationContext("/CSA_TestConfiguration_TC2_27Apr2023.zip");
-        List<RemedialAction> autoRemedialActionList = cracCreationContext.getCrac().getRemedialActions().stream().filter(ra -> ra.getUsageRules().stream().anyMatch(usageRule -> usageRule.getInstant().equals(Instant.AUTO))).collect(Collectors.toList());
+        List<RemedialAction> autoRemedialActionList = cracCreationContext.getCrac().getRemedialActions().stream().filter(ra -> ra.getUsageRules().stream().anyMatch(usageRule -> usageRule.getInstant().getInstantKind().equals(InstantKind.AUTO))).collect(Collectors.toList());
         assertEquals(1, autoRemedialActionList.size());
         NetworkAction autoRa = (NetworkAction) autoRemedialActionList.get(0);
         assertEquals("31d41e36-11c8-417b-bafb-c410d4391898", autoRa.getId());
         assertEquals("CRA", autoRa.getName());
         assertEquals(1, autoRa.getUsageRules().size());
         UsageRule onStateUsageRule = autoRa.getUsageRules().iterator().next();
-        assertEquals(Instant.AUTO, onStateUsageRule.getInstant());
+        assertEquals(InstantKind.AUTO, onStateUsageRule.getInstant().getInstantKind());
         assertEquals(UsageMethod.FORCED, onStateUsageRule.getUsageMethod());
         assertEquals("e05bbe20-9d4a-40da-9777-8424d216785d", ((OnContingencyStateImpl) onStateUsageRule).getContingency().getId());
         assertEquals("2db971f1-ed3d-4ea6-acf5-983c4289d51b", autoRa.getNetworkElements().iterator().next().getId());
@@ -48,16 +51,16 @@ public class AutoRemedialActionTest {
     }
 
     @Test
-    public void importAutoRemedialActionSps2() {
+    void importAutoRemedialActionSps2() {
         CsaProfileCracCreationContext cracCreationContext = getCsaCracCreationContext("/SPS_with_shunt_compensator_and_pst.zip");
 
-        List<RemedialAction> autoRemedialActionList = cracCreationContext.getCrac().getRemedialActions().stream().filter(ra -> ra.getUsageRules().stream().anyMatch(usageRule -> usageRule.getInstant().equals(Instant.AUTO))).collect(Collectors.toList());
+        List<RemedialAction> autoRemedialActionList = cracCreationContext.getCrac().getRemedialActions().stream().filter(ra -> ra.getUsageRules().stream().anyMatch(usageRule -> usageRule.getInstant().getInstantKind().equals(InstantKind.AUTO))).collect(Collectors.toList());
         assertEquals(4, autoRemedialActionList.size());
 
         NetworkAction ara2 = cracCreationContext.getCrac().getNetworkAction("auto-topological-action");
         assertEquals("ARA2", ara2.getName());
         UsageRule ur1 = ara2.getUsageRules().iterator().next();
-        assertEquals(Instant.AUTO, ur1.getInstant());
+        assertEquals(InstantKind.AUTO, ur1.getInstant().getInstantKind());
         assertEquals(UsageMethod.FORCED, ur1.getUsageMethod());
         assertEquals("contingency-2", ((OnContingencyStateImpl) ur1).getContingency().getId());
         assertEquals("BBE1AA1  BBE4AA1  1", ara2.getNetworkElements().iterator().next().getId());
@@ -67,7 +70,7 @@ public class AutoRemedialActionTest {
         assertEquals("ARA3", ara3.getName());
         assertEquals(10, ara3.getSpeed().get());
         UsageRule ur3 = ara3.getUsageRules().iterator().next();
-        assertEquals(Instant.AUTO, ur3.getInstant());
+        assertEquals(InstantKind.AUTO, ur3.getInstant().getInstantKind());
         assertEquals(UsageMethod.FORCED, ur3.getUsageMethod());
         assertEquals("contingency-3", ((OnContingencyStateImpl) ur3).getContingency().getId());
         List<NetworkElement> networkElements = ara3.getNetworkElements().stream().sorted(Comparator.comparing(NetworkElement::getId)).toList();
@@ -77,7 +80,7 @@ public class AutoRemedialActionTest {
         NetworkAction ara4 = cracCreationContext.getCrac().getNetworkAction("auto-shunt-compensator-action");
         assertEquals("ARA4", ara4.getName());
         UsageRule ur4 = ara4.getUsageRules().iterator().next();
-        assertEquals(Instant.AUTO, ur4.getInstant());
+        assertEquals(InstantKind.AUTO, ur4.getInstant().getInstantKind());
         assertEquals(UsageMethod.FORCED, ur4.getUsageMethod());
         assertEquals(3, ((InjectionSetpoint) ara4.getElementaryActions().iterator().next()).getSetpoint());
 
@@ -91,7 +94,7 @@ public class AutoRemedialActionTest {
     }
 
     @Test
-    public void importInvalidRasProfilesSps3() {
+    void importInvalidRasProfilesSps3() {
         Network network = Mockito.mock(Network.class);
         CsaProfileCracImporter cracImporter = new CsaProfileCracImporter();
         InputStream inputStream = getClass().getResourceAsStream("/CSA_SPS_3_InvalidProflies.zip");

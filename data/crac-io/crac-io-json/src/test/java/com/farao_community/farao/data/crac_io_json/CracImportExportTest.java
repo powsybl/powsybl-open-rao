@@ -362,7 +362,7 @@ class CracImportExportTest {
         usageRules = crac.getRemedialAction("counterTradeRange1Id").getUsageRules();
         assertEquals(2, usageRules.size());
         ur = (OnFlowConstraintInCountry) usageRules.stream().filter(OnFlowConstraintInCountry.class::isInstance).findAny().orElseThrow();
-        assertEquals(CURATIVE, ur.getInstant());
+        assertEquals("curative", ur.getInstant().getId());
         assertEquals(Country.ES, ur.getCountry());
     }
 }
