@@ -73,7 +73,7 @@ class CounterTradeRangeActionAdderImplTest {
         This behaviour is considered admissible:
             - without usage rule, the remedial action will never be available
 
-        This test should however warnings
+        This test should however issue a warning
          */
         CounterTradeRangeAction counterTradeRangeAction = (CounterTradeRangeAction) crac.newCounterTradeRangeAction()
                 .withId("id1")
