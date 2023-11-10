@@ -50,7 +50,7 @@ class CracImportExportTest {
         assertEquals(7, importedCrac.getFlowCnecs().size());
         assertEquals(1, importedCrac.getAngleCnecs().size());
         assertEquals(1, importedCrac.getVoltageCnecs().size());
-        assertEquals(7, importedCrac.getRangeActions().size());
+        assertEquals(8, importedCrac.getRangeActions().size());
         assertEquals(4, importedCrac.getNetworkActions().size());
 
         // --------------------------
@@ -341,6 +341,26 @@ class CracImportExportTest {
 
         // Check OnFlowConstraintInCountry usage rules
         usageRules = crac.getInjectionRangeAction("injectionRange1Id").getUsageRules();
+        assertEquals(2, usageRules.size());
+        ur = (OnFlowConstraintInCountry) usageRules.stream().filter(OnFlowConstraintInCountry.class::isInstance).findAny().orElseThrow();
+        assertEquals(CURATIVE, ur.getInstant());
+        assertEquals(Country.ES, ur.getCountry());
+
+        // ---------------------------------
+        // --- test CounterTradeRangeAction ---
+        // ---------------------------------
+
+        assertNotNull(crac.getCounterTradeRangeAction("counterTradeRange1Id"));
+
+        assertEquals("counterTradeRange1Name", crac.getCounterTradeRangeAction("counterTradeRange1Id").getName());
+        assertNull(crac.getCounterTradeRangeAction("counterTradeRange1Id").getOperator());
+        assertTrue(crac.getCounterTradeRangeAction("counterTradeRange1Id").getGroupId().isEmpty());
+        assertEquals(2, crac.getCounterTradeRangeAction("counterTradeRange1Id").getRanges().size());
+        assertEquals(Country.FR, crac.getCounterTradeRangeAction("counterTradeRange1Id").getExportingCountry());
+        assertEquals(Country.DE, crac.getCounterTradeRangeAction("counterTradeRange1Id").getImportingCountry());
+
+        // Check OnFlowConstraintInCountry usage rules
+        usageRules = crac.getRemedialAction("counterTradeRange1Id").getUsageRules();
         assertEquals(2, usageRules.size());
         ur = (OnFlowConstraintInCountry) usageRules.stream().filter(OnFlowConstraintInCountry.class::isInstance).findAny().orElseThrow();
         assertEquals(CURATIVE, ur.getInstant());

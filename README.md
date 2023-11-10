@@ -24,7 +24,7 @@ for development and testing purposes.
 ### Prerequisites
 
 In order to build **farao-core**, you need the following environment available:
-  - Install JDK *(11 or greater)*,
+  - Install JDK *(17 or greater)*,
   - Install Maven latest version.
 
 ### Installing

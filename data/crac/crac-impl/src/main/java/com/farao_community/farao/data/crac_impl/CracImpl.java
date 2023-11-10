@@ -39,6 +39,7 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
     private final Map<String, PstRangeAction> pstRangeActions = new HashMap<>();
     private final Map<String, HvdcRangeAction> hvdcRangeActions = new HashMap<>();
     private final Map<String, InjectionRangeAction> injectionRangeActions = new HashMap<>();
+    private final Map<String, CounterTradeRangeAction> counterTradeRangeActions = new HashMap<>();
     private final Map<String, NetworkAction> networkActions = new HashMap<>();
 
     public CracImpl(String id, String name) {
@@ -518,6 +519,11 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
     }
 
     @Override
+    public CounterTradeRangeActionAdder newCounterTradeRangeAction() {
+        return new CounterTradeRangeActionAdderImpl(this);
+    }
+
+    @Override
     public Set<PstRangeAction> getPstRangeActions() {
         return new HashSet<>(pstRangeActions.values());
     }
@@ -530,6 +536,11 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
     @Override
     public Set<InjectionRangeAction> getInjectionRangeActions() {
         return new HashSet<>(injectionRangeActions.values());
+    }
+
+    @Override
+    public Set<CounterTradeRangeAction> getCounterTradeRangeActions() {
+        return new HashSet<>(counterTradeRangeActions.values());
     }
 
     @Override
@@ -548,10 +559,16 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
     }
 
     @Override
+    public CounterTradeRangeAction getCounterTradeRangeAction(String counterTradeRangActionId) {
+        return counterTradeRangeActions.get(counterTradeRangActionId);
+    }
+
+    @Override
     public Set<RangeAction<?>> getRangeActions() {
         Set<RangeAction<?>> rangeActionsSet = new HashSet<>(pstRangeActions.values());
         rangeActionsSet.addAll(hvdcRangeActions.values());
         rangeActionsSet.addAll(injectionRangeActions.values());
+        rangeActionsSet.addAll(counterTradeRangeActions.values());
         return rangeActionsSet;
     }
 
@@ -583,8 +600,10 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
             return pstRangeActions.get(id);
         } else if (hvdcRangeActions.get(id) != null) {
             return hvdcRangeActions.get(id);
-        } else {
+        } else if (injectionRangeActions.get(id) != null) {
             return injectionRangeActions.get(id);
+        } else {
+            return counterTradeRangeActions.get(id);
         }
     }
 
@@ -657,6 +676,10 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
 
     void addInjectionRangeAction(InjectionRangeAction injectionRangeAction) {
         injectionRangeActions.put(injectionRangeAction.getId(), injectionRangeAction);
+    }
+
+    void addCounterTradeRangeAction(CounterTradeRangeAction counterTradeRangeAction) {
+        counterTradeRangeActions.put(counterTradeRangeAction.getId(), counterTradeRangeAction);
     }
 
     // endregion
