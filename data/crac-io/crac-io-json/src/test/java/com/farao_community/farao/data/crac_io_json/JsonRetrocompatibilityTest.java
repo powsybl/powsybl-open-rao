@@ -229,10 +229,7 @@ class JsonRetrocompatibilityTest {
 
     @Test
     void importV1Point9Test() {
-
-        // renaming usage rules
-        // Branch threshold rule no longer handled
-
+        // Add support for CounterTrade remedial actions
         InputStream cracFile = getClass().getResourceAsStream("/retrocompatibility/v1/crac-v1.9.json");
 
         Crac crac = new JsonImport().importCrac(cracFile);
