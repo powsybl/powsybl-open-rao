@@ -131,5 +131,9 @@ public final class CsaProfileCracUtils {
         return csaProfileKeyword.getKeyword().equals(keyword);
     }
 
+    public static String removePrefix(String mridWithPrefix) {
+        return mridWithPrefix.substring(mridWithPrefix.lastIndexOf("_") + 1);
+    }
+
 }
 

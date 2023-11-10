@@ -23,6 +23,7 @@ import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.data.crac_api.threshold.BranchThreshold;
 import com.farao_community.farao.data.crac_api.threshold.Threshold;
 import com.farao_community.farao.data.crac_api.usage_rule.*;
+import com.powsybl.iidm.network.Country;
 import org.junit.jupiter.api.Test;
 
 import java.io.InputStream;
@@ -223,6 +224,25 @@ class JsonRetrocompatibilityTest {
         assertEquals(2, crac.getHvdcRangeActions().size());
         assertEquals(1, crac.getInjectionRangeActions().size());
         testContentOfV1Point8Crac(crac);
+    }
+
+    @Test
+    void importV1Point9Test() {
+        // Add support for CounterTrade remedial actions
+        InputStream cracFile = getClass().getResourceAsStream("/retrocompatibility/v1/crac-v1.9.json");
+
+        Crac crac = new JsonImport().importCrac(cracFile);
+
+        assertEquals(2, crac.getContingencies().size());
+        assertEquals(7, crac.getFlowCnecs().size());
+        assertEquals(1, crac.getAngleCnecs().size());
+        assertEquals(1, crac.getVoltageCnecs().size());
+        assertEquals(4, crac.getNetworkActions().size());
+        assertEquals(4, crac.getPstRangeActions().size());
+        assertEquals(2, crac.getHvdcRangeActions().size());
+        assertEquals(1, crac.getInjectionRangeActions().size());
+        assertEquals(1, crac.getCounterTradeRangeActions().size());
+        testContentOfV1Point9Crac(crac);
     }
 
     private void testContentOfV1Point0Crac(Crac crac) {
@@ -559,5 +579,19 @@ class JsonRetrocompatibilityTest {
         testContentOfV1Point7Crac(crac);
         // test new injection setpoint unit
         assertEquals(Unit.MEGAWATT, ((InjectionSetpoint) crac.getNetworkAction("injectionSetpointRaId").getElementaryActions().stream().filter(InjectionSetpoint.class::isInstance).findFirst().orElseThrow()).getUnit());
+    }
+
+    void testContentOfV1Point9Crac(Crac crac) {
+
+        testContentOfV1Point8Crac(crac);
+        // test counter trade range action
+        assertNotNull(crac.getCounterTradeRangeAction("counterTradeRange1Id"));
+
+        assertEquals("counterTradeRange1Name", crac.getCounterTradeRangeAction("counterTradeRange1Id").getName());
+        assertNull(crac.getCounterTradeRangeAction("counterTradeRange1Id").getOperator());
+        assertTrue(crac.getCounterTradeRangeAction("counterTradeRange1Id").getGroupId().isEmpty());
+        assertEquals(2, crac.getCounterTradeRangeAction("counterTradeRange1Id").getRanges().size());
+        assertEquals(Country.FR, crac.getCounterTradeRangeAction("counterTradeRange1Id").getExportingCountry());
+        assertEquals(Country.DE, crac.getCounterTradeRangeAction("counterTradeRange1Id").getImportingCountry());
     }
 }

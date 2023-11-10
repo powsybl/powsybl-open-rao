@@ -122,6 +122,11 @@ public class CracDeserializer extends JsonDeserializer<Crac> {
                     InjectionRangeActionArrayDeserializer.deserialize(jsonParser, version, crac, deserializedNetworkElementsNamesPerId);
                     break;
 
+                case COUNTER_TRADE_RANGE_ACTIONS:
+                    jsonParser.nextToken();
+                    CounterTradeRangeActionArrayDeserializer.deserialize(jsonParser, version, crac, deserializedNetworkElementsNamesPerId);
+                    break;
+
                 case NETWORK_ACTIONS:
                     jsonParser.nextToken();
                     NetworkActionArrayDeserializer.deserialize(jsonParser, version, crac, deserializedNetworkElementsNamesPerId);

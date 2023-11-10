@@ -34,6 +34,7 @@ import com.farao_community.farao.search_tree_rao.result.api.PerimeterResult;
 import com.farao_community.farao.search_tree_rao.result.api.PrePerimeterResult;
 import com.farao_community.farao.search_tree_rao.result.impl.FailedRaoResultImpl;
 import com.farao_community.farao.sensitivity_analysis.AppliedRemedialActions;
+import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.PhaseTapChanger;
 import org.junit.jupiter.api.BeforeEach;
@@ -64,6 +65,7 @@ class CastorFullOptimizationTest {
     private RangeAction<?> ra7;
     private RangeAction<?> ra8;
     private RangeAction<?> ra9;
+    private RangeAction<?> ra10;
     private NetworkAction na1;
     private CastorFullOptimization castorFullOptimization;
     private Instant prevInstant;
@@ -320,6 +322,16 @@ class CastorFullOptimizationTest {
                 .newOnInstantUsageRule().withInstant("preventive").withUsageMethod(UsageMethod.AVAILABLE).add()
                 .withInitialTap(0).withTapToAngleConversionMap(Map.of(0, -100., 1, 100.))
                 .add();
+        // ra10 : preventive only, counter trade
+        ra10 = (RangeAction<?>) crac.newCounterTradeRangeAction()
+                .withId("ra10")
+                .withExportingCountry(Country.FR)
+                .withImportingCountry(Country.DE)
+                .newOnInstantUsageRule().withInstant(Instant.PREVENTIVE).withUsageMethod(UsageMethod.AVAILABLE).add()
+                .newOnContingencyStateUsageRule().withContingency("contingency1").withInstant(Instant.CURATIVE).withUsageMethod(UsageMethod.UNDEFINED).add()
+                .newRange().withMin(-1000).withMax(1000).add()
+                .add();
+
         // na1 : preventive + curative
         na1 = (NetworkAction) crac.newNetworkAction()
                 .withId("na1")
