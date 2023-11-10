@@ -8,7 +8,6 @@ package com.farao_community.farao.data.crac_impl;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Instant;
-import com.farao_community.farao.data.crac_api.InstantKind;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.usage_rule.OnFlowConstraint;
 import com.farao_community.farao.data.crac_api.usage_rule.OnFlowConstraintAdder;
@@ -48,10 +47,10 @@ public class OnFlowConstraintAdderImpl<T extends AbstractRemedialActionAdder<T>>
         assertAttributeNotNull(flowCnecId, "OnFlowConstraint", "flow cnec", "withFlowCnec()");
 
         Instant instant = owner.getCrac().getInstant(instantId);
-        if (instant.getInstantKind().equals(InstantKind.OUTAGE)) {
+        if (instant.isOutage()) {
             throw new FaraoException("OnFlowConstraint usage rules are not allowed for OUTAGE instant.");
         }
-        if (instant.getInstantKind().equals(InstantKind.PREVENTIVE)) {
+        if (instant.isPreventive()) {
             owner.getCrac().addPreventiveState(instantId);
         }
 

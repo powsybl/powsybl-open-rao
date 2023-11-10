@@ -28,4 +28,12 @@ public interface Instant<T extends Instant<T>> extends Identifiable<T> {
     boolean comesBefore(Instant otherInstant);
 
     Instant getPreviousInstant();
+
+    boolean isPreventive();
+
+    boolean isOutage();
+
+    boolean isAuto();
+
+    boolean isCurative();
 }

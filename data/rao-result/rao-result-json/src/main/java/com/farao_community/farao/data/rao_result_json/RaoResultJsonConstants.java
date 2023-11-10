@@ -9,7 +9,6 @@ package com.farao_community.farao.data.rao_result_json;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Instant;
-import com.farao_community.farao.data.crac_api.InstantKind;
 import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.rao_result_api.ComputationStatus;
@@ -293,7 +292,7 @@ public final class RaoResultJsonConstants {
     public static final Comparator<State> STATE_COMPARATOR = (s1, s2) -> { // TODO redo this
         if (s1.getInstant().getOrder() != s2.getInstant().getOrder()) {
             return s1.compareTo(s2);
-        } else if (s1.getInstant().getInstantKind().equals(InstantKind.PREVENTIVE)) {
+        } else if (s1.getInstant().isPreventive()) {
             return 0;
         } else {
             // Since instant is not preventive, there is a contingency for sure

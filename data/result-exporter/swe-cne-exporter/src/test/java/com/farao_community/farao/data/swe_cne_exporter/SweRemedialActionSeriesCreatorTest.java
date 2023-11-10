@@ -134,7 +134,7 @@ class SweRemedialActionSeriesCreatorTest {
         Mockito.when(state.getInstant()).thenReturn(instant);
         Mockito.when(state.getContingency()).thenReturn(Objects.isNull(contingency) ? Optional.empty() : Optional.of(contingency));
         Mockito.when(crac.getState(contingency, instant.getId())).thenReturn(state);
-        if (instant.getInstantKind().equals(InstantKind.PREVENTIVE)) {
+        if (instant.isPreventive()) {
             Mockito.when(state.isPreventive()).thenReturn(true);
             Mockito.when(crac.getPreventiveState()).thenReturn(state);
         } else {

@@ -264,7 +264,7 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
     State addState(Contingency contingency, String instantId) {
         Objects.requireNonNull(contingency, "Contingency must not be null when adding a state.");
         Instant instant = getInstant(instantId);
-        if (instant.getInstantKind().equals(InstantKind.PREVENTIVE)) {
+        if (instant.isPreventive()) {
             throw new FaraoException("Impossible to add a preventive state with a contingency.");
         }
         if (getState(contingency, instantId) != null) {

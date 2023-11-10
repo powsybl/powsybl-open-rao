@@ -268,7 +268,7 @@ class CimCracCreatorTest {
                 ra.getUsageRules().stream()
                         .filter(OnAngleConstraint.class::isInstance)
                         .anyMatch(
-                                ur -> ((OnAngleConstraint) ur).getInstant().getInstantKind().equals(InstantKind.CURATIVE)
+                                ur -> ((OnAngleConstraint) ur).getInstant().isCurative()
                                         && ((OnAngleConstraint) ur).getAngleCnec().getId().equals(angleCnecId)
                                         && ((OnAngleConstraint) ur).getUsageMethod().equals(UsageMethod.TO_BE_EVALUATED)
                         ));
@@ -630,13 +630,13 @@ class CimCracCreatorTest {
                 ra3.getUsageRules().stream()
                         .filter(OnInstant.class::isInstance)
                         .map(OnInstant.class::cast)
-                        .anyMatch(ur -> ur.getInstant().getInstantKind().equals(InstantKind.PREVENTIVE))
+                        .anyMatch(ur -> ur.getInstant().isPreventive())
         );
         assertTrue(
                 ra3.getUsageRules().stream()
                         .filter(OnContingencyState.class::isInstance)
                         .map(OnContingencyState.class::cast)
-                        .anyMatch(ur -> ur.getInstant().getInstantKind().equals(InstantKind.CURATIVE) && ur.getContingency().getId().equals("CO_1"))
+                        .anyMatch(ur -> ur.getInstant().isCurative() && ur.getContingency().getId().equals("CO_1"))
         );
         assertEquals(2, ra3.getElementaryActions().size());
         assertTrue(ra3.getElementaryActions().stream()
@@ -947,10 +947,10 @@ class CimCracCreatorTest {
         assertEquals(14, importedCrac.getFlowCnecs().size());
 
         assertCnecImported("TUU_MR_31", Set.of(
-                "GHIOL_QSDFGH_1_220 - Co-one-1 - auto", "GHIOL_QSDFGH_1_220 - preventive", "GHIOL_QSDFGH_1_220 - Co-one-1 - outage",
-                "GHIOL_QSDFGH_1_220 - Co-one-3 - outage", "GHIOL_QSDFGH_1_220 - Co-one-3 - curative", "GHIOL_QSDFGH_1_220 - Co-one-2 - curative",
-                "GHIOL_QSDFGH_1_220 - Co-one-3 - auto", "GHIOL_QSDFGH_1_220 - Co-one-1 - curative", "GHIOL_QSDFGH_1_220 - Co-one-2 - auto",
-                "GHIOL_QSDFGH_1_220 - Co-one-2 - outage"
+            "GHIOL_QSDFGH_1_220 - Co-one-1 - auto", "GHIOL_QSDFGH_1_220 - preventive", "GHIOL_QSDFGH_1_220 - Co-one-1 - outage",
+            "GHIOL_QSDFGH_1_220 - Co-one-3 - outage", "GHIOL_QSDFGH_1_220 - Co-one-3 - curative", "GHIOL_QSDFGH_1_220 - Co-one-2 - curative",
+            "GHIOL_QSDFGH_1_220 - Co-one-3 - auto", "GHIOL_QSDFGH_1_220 - Co-one-1 - curative", "GHIOL_QSDFGH_1_220 - Co-one-2 - auto",
+            "GHIOL_QSDFGH_1_220 - Co-one-2 - outage"
         ));
         assertHasOneThreshold("GHIOL_QSDFGH_1_220 - preventive", Side.LEFT, Unit.PERCENT_IMAX, -1, 1);
         assertHasOneThreshold("GHIOL_QSDFGH_1_220 - Co-one-1 - outage", Side.LEFT, Unit.PERCENT_IMAX, -1.15, 1.15);
@@ -958,8 +958,8 @@ class CimCracCreatorTest {
         assertHasOneThreshold("GHIOL_QSDFGH_1_220 - Co-one-3 - curative", Side.LEFT, Unit.PERCENT_IMAX, -1.05, 1.05);
 
         assertCnecImported("TUU_MR_56", Set.of(
-                "GHIOL_QSRBJH_1_400 - Co-one-1 - auto", "GHIOL_QSRBJH_1_400 - preventive", "GHIOL_QSRBJH_1_400 - Co-one-1 - outage",
-                "GHIOL_QSRBJH_1_400 - Co-one-1 - curative"
+            "GHIOL_QSRBJH_1_400 - Co-one-1 - auto", "GHIOL_QSRBJH_1_400 - preventive", "GHIOL_QSRBJH_1_400 - Co-one-1 - outage",
+            "GHIOL_QSRBJH_1_400 - Co-one-1 - curative"
         ));
         assertHasOneThreshold("GHIOL_QSRBJH_1_400 - preventive", Side.LEFT, Unit.PERCENT_IMAX, -1, 1);
         assertHasOneThreshold("GHIOL_QSRBJH_1_400 - Co-one-1 - outage", Side.LEFT, Unit.PERCENT_IMAX, -1.5, 1.5);

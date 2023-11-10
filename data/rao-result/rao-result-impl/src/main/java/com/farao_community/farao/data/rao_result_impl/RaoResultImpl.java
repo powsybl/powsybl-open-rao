@@ -8,7 +8,10 @@ package com.farao_community.farao.data.rao_result_impl;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
-import com.farao_community.farao.data.crac_api.*;
+import com.farao_community.farao.data.crac_api.Crac;
+import com.farao_community.farao.data.crac_api.Instant;
+import com.farao_community.farao.data.crac_api.RemedialAction;
+import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.cnec.AngleCnec;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.cnec.Side;
@@ -77,7 +80,7 @@ public class RaoResultImpl implements RaoResult {
         if (flowCnec.getState().getInstant().comesBefore(instant)) {
             instant = flowCnec.getState().getInstant();
         }
-        if (instant.getInstantKind().equals(InstantKind.OUTAGE)) {
+        if (instant.isOutage()) {
             instant = instant.getPreviousInstant();
         }
         return instant.getId();
@@ -308,7 +311,7 @@ public class RaoResultImpl implements RaoResult {
     }
 
     private State stateBefore(String contingencyId, Instant instant) {
-        if (instant.getInstantKind().equals(InstantKind.PREVENTIVE) || instant.getInstantKind().equals(InstantKind.OUTAGE)) {
+        if (instant.isPreventive() || instant.isOutage()) {
             return crac.getPreventiveState();
         }
         State stateBefore = lookupState(contingencyId, instant.getPreviousInstant());

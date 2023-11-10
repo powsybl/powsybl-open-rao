@@ -36,7 +36,7 @@ class AutoRemedialActionTest {
     @Test
     void importAutoRemedialActionTC2() {
         CsaProfileCracCreationContext cracCreationContext = getCsaCracCreationContext("/CSA_TestConfiguration_TC2_27Apr2023.zip");
-        List<RemedialAction> autoRemedialActionList = cracCreationContext.getCrac().getRemedialActions().stream().filter(ra -> ra.getUsageRules().stream().anyMatch(usageRule -> usageRule.getInstant().getInstantKind().equals(InstantKind.AUTO))).collect(Collectors.toList());
+        List<RemedialAction> autoRemedialActionList = cracCreationContext.getCrac().getRemedialActions().stream().filter(ra -> ra.getUsageRules().stream().anyMatch(usageRule -> usageRule.getInstant().isAuto())).collect(Collectors.toList());
         assertEquals(1, autoRemedialActionList.size());
         NetworkAction autoRa = (NetworkAction) autoRemedialActionList.get(0);
         assertEquals("31d41e36-11c8-417b-bafb-c410d4391898", autoRa.getId());
@@ -54,7 +54,7 @@ class AutoRemedialActionTest {
     void importAutoRemedialActionSps2() {
         CsaProfileCracCreationContext cracCreationContext = getCsaCracCreationContext("/SPS_with_shunt_compensator_and_pst.zip");
 
-        List<RemedialAction> autoRemedialActionList = cracCreationContext.getCrac().getRemedialActions().stream().filter(ra -> ra.getUsageRules().stream().anyMatch(usageRule -> usageRule.getInstant().getInstantKind().equals(InstantKind.AUTO))).collect(Collectors.toList());
+        List<RemedialAction> autoRemedialActionList = cracCreationContext.getCrac().getRemedialActions().stream().filter(ra -> ra.getUsageRules().stream().anyMatch(usageRule -> usageRule.getInstant().isAuto())).collect(Collectors.toList());
         assertEquals(4, autoRemedialActionList.size());
 
         NetworkAction ara2 = cracCreationContext.getCrac().getNetworkAction("auto-topological-action");

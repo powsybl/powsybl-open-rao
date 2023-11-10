@@ -9,7 +9,6 @@ package com.farao_community.farao.data.cne_exporter_commons;
 
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.Instant;
-import com.farao_community.farao.data.crac_api.InstantKind;
 import com.farao_community.farao.data.rao_result_api.RaoResult;
 import com.farao_community.farao.rao_api.parameters.RaoParameters;
 import com.farao_community.farao.rao_api.parameters.extensions.LoopFlowParametersExtension;
@@ -65,7 +64,7 @@ public class CneHelper {
     }
 
     public String instantToCodeConverter(Instant instant) {
-        if (instant.getInstantKind().equals(InstantKind.PREVENTIVE)) { // Before contingency
+        if (instant.isPreventive()) { // Before contingency
             return PATL_MEASUREMENT_TYPE;
         } else { // After contingency, before any post-contingency RA
             return TATL_MEASUREMENT_TYPE;

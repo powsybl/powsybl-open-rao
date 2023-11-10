@@ -3,7 +3,6 @@ package com.farao_community.farao.monitoring.monitoring_common.json;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.Instant;
-import com.farao_community.farao.data.crac_api.InstantKind;
 import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.fasterxml.jackson.core.JsonParser;
@@ -16,9 +15,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static com.farao_community.farao.monitoring.monitoring_common.json.JsonCommonMonitoringResultConstants.CONTINGENCY;
-import static com.farao_community.farao.monitoring.monitoring_common.json.JsonCommonMonitoringResultConstants.INSTANT;
-import static com.farao_community.farao.monitoring.monitoring_common.json.JsonCommonMonitoringResultConstants.REMEDIAL_ACTIONS;
+import static com.farao_community.farao.monitoring.monitoring_common.json.JsonCommonMonitoringResultConstants.*;
 
 public final class MonitoringCommonDeserializer {
     private static final String UNEXPECTED_FIELD_ERROR = "Unexpected field %s in %s";
@@ -63,7 +60,7 @@ public final class MonitoringCommonDeserializer {
 
     public static State getState(Instant instant, String contingencyId, Crac crac) {
         if (contingencyId == null) {
-            if (instant.getInstantKind().equals(InstantKind.PREVENTIVE)) {
+            if (instant.isPreventive()) {
                 return crac.getPreventiveState();
             } else {
                 throw new FaraoException(String.format("No contingency defined with instant %s", instant));

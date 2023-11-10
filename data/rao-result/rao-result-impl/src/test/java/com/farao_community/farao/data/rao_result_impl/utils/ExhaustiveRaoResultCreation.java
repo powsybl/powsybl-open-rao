@@ -204,11 +204,11 @@ public final class ExhaustiveRaoResultCreation {
         ElementaryFlowCnecResult afterPraEfcr = flowCnecResult.getAndCreateIfAbsentResultForOptimizationState("preventive");
         fillElementaryResult(afterPraEfcr, x, 200, hasLoopFlow, isPureMnec, cnec.getMonitoredSides());
 
-        if (cnec.getState().getInstant().getInstantKind() == InstantKind.AUTO || cnec.getState().getInstant().getInstantKind() == InstantKind.CURATIVE) {
+        if (cnec.getState().getInstant().isAuto() || cnec.getState().getInstant().isCurative()) {
             ElementaryFlowCnecResult afterAraEfcr = flowCnecResult.getAndCreateIfAbsentResultForOptimizationState("auto");
             fillElementaryResult(afterAraEfcr, x, 300, hasLoopFlow, isPureMnec, cnec.getMonitoredSides());
         }
-        if (cnec.getState().getInstant().getInstantKind() == InstantKind.CURATIVE) {
+        if (cnec.getState().getInstant().isCurative()) {
             ElementaryFlowCnecResult afterCraEfcr = flowCnecResult.getAndCreateIfAbsentResultForOptimizationState("curative");
             fillElementaryResult(afterCraEfcr, x, 400, hasLoopFlow, isPureMnec, cnec.getMonitoredSides());
         }
@@ -223,11 +223,11 @@ public final class ExhaustiveRaoResultCreation {
         ElementaryAngleCnecResult afterPraEacr = angleCnecResult.getAndCreateIfAbsentResultForOptimizationState("preventive");
         fillElementaryResult(afterPraEacr, x, 200);
 
-        if (cnec.getState().getInstant().getInstantKind() == InstantKind.AUTO || cnec.getState().getInstant().getInstantKind() == InstantKind.CURATIVE) {
+        if (cnec.getState().getInstant().isAuto() || cnec.getState().getInstant().isCurative()) {
             ElementaryAngleCnecResult afterAraEacr = angleCnecResult.getAndCreateIfAbsentResultForOptimizationState("auto");
             fillElementaryResult(afterAraEacr, x, 300);
         }
-        if (cnec.getState().getInstant().getInstantKind() == InstantKind.CURATIVE) {
+        if (cnec.getState().getInstant().isCurative()) {
             ElementaryAngleCnecResult afterCraEacr = angleCnecResult.getAndCreateIfAbsentResultForOptimizationState("curative");
             fillElementaryResult(afterCraEacr, x, 400);
         }
@@ -242,11 +242,11 @@ public final class ExhaustiveRaoResultCreation {
         ElementaryVoltageCnecResult afterPraEacr = voltageCnecResult.getAndCreateIfAbsentResultForOptimizationState("preventive");
         fillElementaryResult(afterPraEacr, x, 200);
 
-        if (cnec.getState().getInstant().getInstantKind() == InstantKind.AUTO || cnec.getState().getInstant().getInstantKind() == InstantKind.CURATIVE) {
+        if (cnec.getState().getInstant().isAuto() || cnec.getState().getInstant().isCurative()) {
             ElementaryVoltageCnecResult afterAraEacr = voltageCnecResult.getAndCreateIfAbsentResultForOptimizationState("auto");
             fillElementaryResult(afterAraEacr, x, 300);
         }
-        if (cnec.getState().getInstant().getInstantKind() == InstantKind.CURATIVE) {
+        if (cnec.getState().getInstant().isCurative()) {
             ElementaryVoltageCnecResult afterCraEacr = voltageCnecResult.getAndCreateIfAbsentResultForOptimizationState("curative");
             fillElementaryResult(afterCraEacr, x, 400);
         }

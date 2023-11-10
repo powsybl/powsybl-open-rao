@@ -335,7 +335,7 @@ public class TRemedialActionAdder {
         // According to <SharedWith> tag :
         String sharedWithId = tRemedialAction.getSharedWith().getV();
         if (sharedWithId.equals("CSE")) {
-            if (raApplicationInstant.getInstantKind().equals(InstantKind.AUTO)) {
+            if (raApplicationInstant.isAuto()) {
                 throw new FaraoException("Cannot import automatons from CSE CRAC yet");
             } else {
                 addOnInstantUsageRules(remedialActionAdder, raApplicationInstant.getId());

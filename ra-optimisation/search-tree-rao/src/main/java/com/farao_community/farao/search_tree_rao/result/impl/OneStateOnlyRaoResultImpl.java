@@ -9,7 +9,10 @@ package com.farao_community.farao.search_tree_rao.result.impl;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
-import com.farao_community.farao.data.crac_api.*;
+import com.farao_community.farao.data.crac_api.Contingency;
+import com.farao_community.farao.data.crac_api.Instant;
+import com.farao_community.farao.data.crac_api.RemedialAction;
+import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
@@ -127,7 +130,7 @@ public class OneStateOnlyRaoResultImpl implements RaoResult {
     }
 
     public PerimeterResult getPostPreventivePerimeterResult() {
-        if (!optimizedState.getInstant().getInstantKind().equals(InstantKind.PREVENTIVE)) {
+        if (!optimizedState.getInstant().isPreventive()) {
             // TODO : review this also
             throw new FaraoException(WRONG_STATE);
         }

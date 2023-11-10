@@ -407,10 +407,10 @@ public class RemedialActionSeriesCreator {
 
         checkUsageRulesContingencies(instant, contingencies, invalidContingencies);
 
-        if (instant.getInstantKind().equals(InstantKind.PREVENTIVE) || (instant.getInstantKind().equals(InstantKind.CURATIVE) && (contingencies == null || contingencies.isEmpty()))) {
+        if (instant.isPreventive() || (instant.isCurative() && (contingencies == null || contingencies.isEmpty()))) {
             addOnInstantUsageRules(remedialActionAdder, instant);
         } else {
-            UsageMethod usageMethod = instant.getInstantKind().equals(InstantKind.CURATIVE) ? UsageMethod.AVAILABLE : UsageMethod.FORCED;
+            UsageMethod usageMethod = instant.isCurative() ? UsageMethod.AVAILABLE : UsageMethod.FORCED;
             RemedialActionSeriesCreator.addOnStateUsageRules(remedialActionAdder, instant, usageMethod, contingencies);
         }
     }

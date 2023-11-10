@@ -85,7 +85,7 @@ public class CastorOneStateOnly {
         OptimizationResult optimizationResult;
         Set<FlowCnec> perimeterFlowCnecs;
 
-        if (raoInput.getOptimizedState().getInstant().getInstantKind().equals(InstantKind.AUTO)) {
+        if (raoInput.getOptimizedState().getInstant().isAuto()) {
             perimeterFlowCnecs = raoInput.getCrac().getFlowCnecs(raoInput.getOptimizedState());
             String curativeInstantId = raoInput.getCrac().getInstant(InstantKind.CURATIVE).getId();
             State curativeState = raoInput.getCrac().getState(raoInput.getOptimizedState().getContingency().orElseThrow().getId(), curativeInstantId);

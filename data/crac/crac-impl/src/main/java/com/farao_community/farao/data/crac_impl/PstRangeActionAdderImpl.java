@@ -8,7 +8,6 @@
 package com.farao_community.farao.data.crac_impl;
 
 import com.farao_community.farao.commons.FaraoException;
-import com.farao_community.farao.data.crac_api.InstantKind;
 import com.farao_community.farao.data.crac_api.NetworkElement;
 import com.farao_community.farao.data.crac_api.range.RangeType;
 import com.farao_community.farao.data.crac_api.range.TapRange;
@@ -110,7 +109,7 @@ public class PstRangeActionAdderImpl extends AbstractRemedialActionAdder<PstRang
     }
 
     private boolean isPreventiveUsageRule(UsageRule usageRule) {
-        return usageRule.getInstant().getInstantKind().equals(InstantKind.PREVENTIVE);
+        return usageRule.getInstant().isPreventive();
     }
 
     private List<TapRange> checkRanges() {
@@ -169,7 +168,7 @@ public class PstRangeActionAdderImpl extends AbstractRemedialActionAdder<PstRang
 
     void checkAutoUsageRules() {
         usageRules.forEach(usageRule -> {
-            if (usageRule.getInstant().getInstantKind().equals(InstantKind.AUTO) && Objects.isNull(speed)) {
+            if (usageRule.getInstant().isAuto() && Objects.isNull(speed)) {
                 throw new FaraoException("Cannot create an AUTO Pst range action without speed defined");
             }
         });

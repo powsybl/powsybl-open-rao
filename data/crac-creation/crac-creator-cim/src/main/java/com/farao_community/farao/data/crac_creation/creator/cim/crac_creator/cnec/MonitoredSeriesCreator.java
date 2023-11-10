@@ -247,7 +247,7 @@ public class MonitoredSeriesCreator {
                                                 boolean isMnec, String direction, Unit unit, double threshold,
                                                 List<Contingency> contingencies, Instant instant) {
         MeasurementCreationContext measurementCreationContext = MeasurementCreationContext.imported();
-        if (instant.getInstantKind() == InstantKind.PREVENTIVE) {
+        if (instant.isPreventive()) {
             addCnecsOnContingency(cnecNativeId, branchHelper, isMnec, direction, unit, threshold, null, instant, measurementCreationContext);
         } else {
             contingencies.forEach(contingency ->

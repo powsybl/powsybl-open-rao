@@ -8,7 +8,6 @@
 package com.farao_community.farao.search_tree_rao.castor.algorithm;
 
 import com.farao_community.farao.commons.FaraoException;
-import com.farao_community.farao.data.crac_api.InstantKind;
 import com.farao_community.farao.data.crac_api.State;
 
 import java.util.HashSet;
@@ -34,10 +33,10 @@ public class BasecaseScenario {
      */
     public BasecaseScenario(State basecaseState, Set<State> otherStates) {
         Objects.requireNonNull(basecaseState);
-        if (!basecaseState.getInstant().getInstantKind().equals(InstantKind.PREVENTIVE)) {
+        if (!basecaseState.getInstant().isPreventive()) {
             throw new FaraoException(String.format("Basecase state `%s` is not preventive", basecaseState));
         }
-        if (otherStates != null && otherStates.stream().anyMatch(state -> state.getInstant().getInstantKind().equals(InstantKind.PREVENTIVE))) {
+        if (otherStates != null && otherStates.stream().anyMatch(state -> state.getInstant().isPreventive())) {
             throw new FaraoException("OtherStates should not be preventive");
         }
         this.basecaseState = basecaseState;
@@ -59,7 +58,7 @@ public class BasecaseScenario {
     }
 
     void addOtherState(State state) {
-        if (state.getInstant().getInstantKind().equals(InstantKind.PREVENTIVE)) {
+        if (state.getInstant().isPreventive()) {
             throw new FaraoException("OtherStates should not be preventive");
         }
         otherStates.add(state);

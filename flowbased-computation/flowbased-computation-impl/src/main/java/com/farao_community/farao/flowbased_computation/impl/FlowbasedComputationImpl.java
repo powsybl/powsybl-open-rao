@@ -71,14 +71,14 @@ public class FlowbasedComputationImpl implements FlowbasedComputationProvider {
         if (raoResult == null) {
             TECHNICAL_LOGS.debug("RAO result is null: applying all network actions from CRAC.");
             crac.getStates().forEach(state -> {
-                if (state.getInstant().getInstantKind().equals(InstantKind.CURATIVE)) {
+                if (state.getInstant().isCurative()) {
                     appliedRemedialActions.addAppliedNetworkActions(state, findAllAvailableRemedialActionsForState(crac, state));
                 }
             });
         } else {
             TECHNICAL_LOGS.debug("RAO result is not null: applying remedial actions selected by the RAO.");
             crac.getStates().forEach(state -> {
-                if (state.getInstant().getInstantKind().equals(InstantKind.CURATIVE)) {
+                if (state.getInstant().isCurative()) {
                     appliedRemedialActions.addAppliedNetworkActions(state, findAppliedNetworkActionsForState(raoResult, state, crac.getNetworkActions()));
                     appliedRemedialActions.addAppliedRangeActions(state, findAppliedRangeActionsForState(raoResult, state));
                 }

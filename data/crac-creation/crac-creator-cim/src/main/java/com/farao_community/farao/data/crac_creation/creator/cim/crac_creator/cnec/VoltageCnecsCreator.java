@@ -101,7 +101,7 @@ public class VoltageCnecsCreator {
     }
 
     private void createAndAddCnecs(Map<String, Double> elementsAndNominalV, String instantId, Set<String> filteredContingencies, Map<Double, VoltageThreshold> thresholdPerNominalV) {
-        if (!cracCreationContext.getCrac().getInstant(instantId).getInstantKind().equals(InstantKind.PREVENTIVE) && filteredContingencies.isEmpty()) {
+        if (!cracCreationContext.getCrac().getInstant(instantId).isPreventive() && filteredContingencies.isEmpty()) {
             return;
         }
         elementsAndNominalV.forEach((key, value) -> {

@@ -29,7 +29,9 @@ import com.farao_community.farao.search_tree_rao.commons.optimization_perimeters
 import com.farao_community.farao.search_tree_rao.commons.optimization_perimeters.PreventiveOptimizationPerimeter;
 import com.farao_community.farao.search_tree_rao.commons.parameters.TreeParameters;
 import com.farao_community.farao.search_tree_rao.commons.parameters.UnoptimizedCnecParameters;
-import com.farao_community.farao.search_tree_rao.result.api.*;
+import com.farao_community.farao.search_tree_rao.result.api.OptimizationResult;
+import com.farao_community.farao.search_tree_rao.result.api.PerimeterResult;
+import com.farao_community.farao.search_tree_rao.result.api.PrePerimeterResult;
 import com.farao_community.farao.search_tree_rao.result.impl.*;
 import com.farao_community.farao.search_tree_rao.search_tree.algorithms.SearchTree;
 import com.farao_community.farao.search_tree_rao.search_tree.inputs.SearchTreeInput;
@@ -400,7 +402,7 @@ public class CastorFullOptimization {
         }
         Instant curativeInstant = raoInput.getCrac().getInstant(InstantKind.CURATIVE);
         if (raoParameters.getSecondPreventiveRaoParameters().getExecutionCondition().equals(SecondPreventiveRaoParameters.ExecutionCondition.COST_INCREASE)
-                && postFirstRaoResult.getCost(curativeInstant) <= postFirstRaoResult.getCost(null)) {
+            && postFirstRaoResult.getCost(curativeInstant) <= postFirstRaoResult.getCost(null)) {
             BUSINESS_LOGS.info("Cost has not increased during RAO, there is no need to run a 2nd preventive RAO.");
             // it is not necessary to compare initial & post-preventive costs since the preventive RAO cannot increase its own cost
             // only compare initial cost with the curative costs
@@ -469,7 +471,7 @@ public class CastorFullOptimization {
         if (raoParameters.getSecondPreventiveRaoParameters().getReOptimizeCurativeRangeActions()) {
             for (Map.Entry<State, OptimizationResult> entry : postContingencyResults.entrySet()) {
                 State state = entry.getKey();
-                if (!state.getInstant().getInstantKind().equals(InstantKind.CURATIVE)) {
+                if (!state.getInstant().isCurative()) {
                     continue;
                 }
                 secondPreventiveRaoResult.perimeterResult.getActivatedRangeActions(state)
@@ -480,7 +482,7 @@ public class CastorFullOptimization {
         // ---- only RAs from perimeters that haven't failed are included in appliedArasAndCras
         // ---- this check is only performed here because SkippedOptimizationResultImpl with appliedRas can only be generated for AUTO instant
         newPostContingencyResults.entrySet().stream().filter(entry ->
-                !(entry.getValue() instanceof SkippedOptimizationResultImpl) && entry.getKey().getInstant().getInstantKind().equals(InstantKind.AUTO))
+                !(entry.getValue() instanceof SkippedOptimizationResultImpl) && entry.getKey().getInstant().isAuto())
             .forEach(entry -> {
                 appliedArasAndCras.addAppliedNetworkActions(entry.getKey(), entry.getValue().getActivatedNetworkActions());
                 entry.getValue().getActivatedRangeActions(entry.getKey()).forEach(rangeAction -> appliedArasAndCras.addAppliedRangeAction(entry.getKey(), rangeAction, entry.getValue().getOptimizedSetpoint(rangeAction, entry.getKey())));
@@ -493,7 +495,7 @@ public class CastorFullOptimization {
         }
         for (Map.Entry<State, OptimizationResult> entry : postContingencyResults.entrySet()) {
             State state = entry.getKey();
-            if (!state.getInstant().getInstantKind().equals(InstantKind.CURATIVE)) {
+            if (!state.getInstant().isCurative()) {
                 continue;
             }
             // Specific case : curative state was previously skipped because it led to a sensitivity analysis failure.
@@ -692,7 +694,7 @@ public class CastorFullOptimization {
 
     static boolean isRangeActionAutoOrCurative(RangeAction<?> rangeAction, Crac crac) {
         return crac.getStates().stream()
-                .filter(state -> state.getInstant().getInstantKind().equals(InstantKind.AUTO) ||  state.getInstant().getInstantKind().equals(InstantKind.CURATIVE))
+                .filter(state -> state.getInstant().isAuto() || state.getInstant().isCurative())
                 .anyMatch(state -> isRangeActionAvailableInState(rangeAction, state, crac));
     }
 

@@ -199,9 +199,9 @@ public class SweRemedialActionSeriesCreator {
     private String getApplicationModeMarketObjectStatusStatus(State state) {
         if (state.isPreventive()) {
             return PREVENTIVE_MARKET_OBJECT_STATUS;
-        } else if (state.getInstant().getInstantKind().equals(InstantKind.AUTO)) {
+        } else if (state.getInstant().isAuto()) {
             return AUTO_MARKET_OBJECT_STATUS;
-        } else if (state.getInstant().getInstantKind().equals(InstantKind.CURATIVE)) {
+        } else if (state.getInstant().isCurative()) {
             return CURATIVE_MARKET_OBJECT_STATUS;
         } else {
             throw new FaraoException(String.format("Unexpected instant for remedial action application : %s", state.getInstant().toString()));

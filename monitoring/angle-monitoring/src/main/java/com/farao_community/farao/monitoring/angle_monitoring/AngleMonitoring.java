@@ -8,7 +8,10 @@
 package com.farao_community.farao.monitoring.angle_monitoring;
 
 import com.farao_community.farao.commons.FaraoException;
-import com.farao_community.farao.data.crac_api.*;
+import com.farao_community.farao.data.crac_api.Contingency;
+import com.farao_community.farao.data.crac_api.Crac;
+import com.farao_community.farao.data.crac_api.RemedialAction;
+import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.cnec.AngleCnec;
 import com.farao_community.farao.data.crac_api.cnec.Cnec;
 import com.farao_community.farao.data.crac_api.network_action.ElementaryAction;
@@ -21,7 +24,6 @@ import com.powsybl.glsk.api.GlskPoint;
 import com.powsybl.glsk.cim.CimGlskDocument;
 import com.powsybl.glsk.cim.CimGlskPoint;
 import com.powsybl.glsk.commons.CountryEICode;
-import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.*;
 import com.powsybl.loadflow.LoadFlow;
 import com.powsybl.loadflow.LoadFlowParameters;
@@ -33,9 +35,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ForkJoinTask;
 import java.util.stream.Collectors;
 
-import static com.farao_community.farao.commons.logs.FaraoLoggerProvider.BUSINESS_LOGS;
-import static com.farao_community.farao.commons.logs.FaraoLoggerProvider.BUSINESS_WARNS;
-import static com.farao_community.farao.commons.logs.FaraoLoggerProvider.TECHNICAL_LOGS;
+import static com.farao_community.farao.commons.logs.FaraoLoggerProvider.*;
 
 /**
  * Monitors AngleCnecs' angles.
@@ -123,7 +123,7 @@ public class AngleMonitoring {
      * For curative states, consider auto (when they exist) and curative states.
      */
     private void applyOptimalRemedialActionsOnContingencyState(State state, Network networkClone) {
-        if (state.getInstant().getInstantKind().equals(InstantKind.CURATIVE)) {
+        if (state.getInstant().isCurative()) {
             Optional<Contingency> contingency = state.getContingency();
             crac.getStates(contingency.orElseThrow()).forEach(contingencyState ->
                         applyOptimalRemedialActions(state, networkClone));

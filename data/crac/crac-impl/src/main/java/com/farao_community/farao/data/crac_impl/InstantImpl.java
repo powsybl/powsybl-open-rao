@@ -63,4 +63,24 @@ public class InstantImpl extends AbstractIdentifiable<InstantImpl> implements In
     public Instant getPreviousInstant() {
         return previous;
     }
+
+    @Override
+    public boolean isPreventive() {
+        return instantKind == InstantKind.PREVENTIVE;
+    }
+
+    @Override
+    public boolean isOutage() {
+        return instantKind == InstantKind.OUTAGE;
+    }
+
+    @Override
+    public boolean isAuto() {
+        return instantKind == InstantKind.AUTO;
+    }
+
+    @Override
+    public boolean isCurative() {
+        return instantKind == InstantKind.CURATIVE;
+    }
 }

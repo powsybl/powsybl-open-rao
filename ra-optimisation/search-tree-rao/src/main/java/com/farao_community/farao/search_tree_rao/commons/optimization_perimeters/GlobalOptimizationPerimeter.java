@@ -7,7 +7,6 @@
 package com.farao_community.farao.search_tree_rao.commons.optimization_perimeters;
 
 import com.farao_community.farao.data.crac_api.Crac;
-import com.farao_community.farao.data.crac_api.InstantKind;
 import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
@@ -53,7 +52,7 @@ public class GlobalOptimizationPerimeter extends AbstractOptimizationPerimeter {
 
         //add curative range actions
         crac.getStates().stream()
-            .filter(s -> s.getInstant().getInstantKind().equals(InstantKind.CURATIVE))
+            .filter(s -> s.getInstant().isCurative())
             .forEach(state -> {
                 Set<RangeAction<?>> availableRaForState = crac.getRangeActions().stream()
                     .filter(ra -> ra.isRemedialActionAvailable(state, RaoUtil.isAnyMarginNegative(prePerimeterResult, ra.getFlowCnecsConstrainingUsageRules(flowCnecs, network, state), raoParameters.getObjectiveFunctionParameters().getType().getUnit())))
