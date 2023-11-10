@@ -36,33 +36,33 @@ public class NetworkActionCreator {
         this.network = network;
     }
 
-    public NetworkActionAdder getNetworkActionAdder(Map<String, Set<PropertyBag>> linkedTopologyActions, Map<String, Set<PropertyBag>> linkedRotatingMachineActions, Map<String, Set<PropertyBag>> linkedShuntCompensatorModifications, Map<String, Set<PropertyBag>> staticPropertyRanges, String remedialActionId) {
-        NetworkActionAdder networkActionAdder = crac.newNetworkAction().withId(remedialActionId);
-        if (linkedTopologyActions.containsKey(remedialActionId)) {
-            for (PropertyBag topologyActionPropertyBag : linkedTopologyActions.get(remedialActionId)) {
-                addTopologicalElementaryAction(networkActionAdder, topologyActionPropertyBag, remedialActionId);
+    public NetworkActionAdder getNetworkActionAdder(Map<String, Set<PropertyBag>> linkedTopologyActions, Map<String, Set<PropertyBag>> linkedRotatingMachineActions, Map<String, Set<PropertyBag>> linkedShuntCompensatorModifications, Map<String, Set<PropertyBag>> staticPropertyRanges, String gridStateAlterationId, String targetRaId) {
+        NetworkActionAdder networkActionAdder = crac.newNetworkAction().withId(targetRaId);
+        if (linkedTopologyActions.containsKey(gridStateAlterationId)) {
+            for (PropertyBag topologyActionPropertyBag : linkedTopologyActions.get(gridStateAlterationId)) {
+                addTopologicalElementaryAction(networkActionAdder, topologyActionPropertyBag, gridStateAlterationId);
             }
         }
 
-        if (linkedRotatingMachineActions.containsKey(remedialActionId)) {
-            for (PropertyBag rotatingMachineActionPropertyBag : linkedRotatingMachineActions.get(remedialActionId)) {
+        if (linkedRotatingMachineActions.containsKey(gridStateAlterationId)) {
+            for (PropertyBag rotatingMachineActionPropertyBag : linkedRotatingMachineActions.get(gridStateAlterationId)) {
                 if (staticPropertyRanges.containsKey(rotatingMachineActionPropertyBag.getId(CsaProfileConstants.MRID))) {
                     addInjectionSetPointFromRotatingMachineAction(
                         staticPropertyRanges.get(rotatingMachineActionPropertyBag.getId(CsaProfileConstants.MRID)),
-                        remedialActionId, networkActionAdder, rotatingMachineActionPropertyBag);
+                        gridStateAlterationId, networkActionAdder, rotatingMachineActionPropertyBag);
                 } else {
-                    throw new FaraoImportException(ImportStatus.INCONSISTENCY_IN_DATA, CsaProfileConstants.REMEDIAL_ACTION_MESSAGE + remedialActionId + " will not be imported because there is no StaticPropertyRange linked to that RA");
+                    throw new FaraoImportException(ImportStatus.INCONSISTENCY_IN_DATA, CsaProfileConstants.REMEDIAL_ACTION_MESSAGE + targetRaId + " will not be imported because there is no StaticPropertyRange linked to that RA");
                 }
             }
         }
-        if (linkedShuntCompensatorModifications.containsKey(remedialActionId)) {
-            for (PropertyBag shuntCompensatorModificationPropertyBag : linkedShuntCompensatorModifications.get(remedialActionId)) {
+        if (linkedShuntCompensatorModifications.containsKey(gridStateAlterationId)) {
+            for (PropertyBag shuntCompensatorModificationPropertyBag : linkedShuntCompensatorModifications.get(gridStateAlterationId)) {
                 if (staticPropertyRanges.containsKey(shuntCompensatorModificationPropertyBag.getId(CsaProfileConstants.MRID))) {
                     addInjectionSetPointFromShuntCompensatorModification(
                         staticPropertyRanges.get(shuntCompensatorModificationPropertyBag.getId(CsaProfileConstants.MRID)),
-                        remedialActionId, networkActionAdder, shuntCompensatorModificationPropertyBag);
+                        gridStateAlterationId, networkActionAdder, shuntCompensatorModificationPropertyBag);
                 } else {
-                    throw new FaraoImportException(ImportStatus.INCONSISTENCY_IN_DATA, CsaProfileConstants.REMEDIAL_ACTION_MESSAGE + remedialActionId + " will not be imported because there is no StaticPropertyRange linked to that RA");
+                    throw new FaraoImportException(ImportStatus.INCONSISTENCY_IN_DATA, CsaProfileConstants.REMEDIAL_ACTION_MESSAGE + targetRaId + " will not be imported because there is no StaticPropertyRange linked to that RA");
                 }
             }
         }
@@ -73,8 +73,8 @@ public class NetworkActionCreator {
         CsaProfileCracUtils.checkNormalEnabled(rotatingMachineActionPropertyBag, remedialActionId, "RotatingMachineAction");
         CsaProfileCracUtils.checkPropertyReference(rotatingMachineActionPropertyBag, remedialActionId, "RotatingMachineAction", CsaProfileConstants.PropertyReference.ROTATING_MACHINE.toString());
         String rawId = rotatingMachineActionPropertyBag.get(CsaProfileConstants.ROTATING_MACHINE);
-        String rotatingMachineId = rawId.substring(rawId.lastIndexOf("_") + 1);
-        float initialSetPoint = getInitialSetPoint(rotatingMachineId, remedialActionId);
+        String rotatingMachineId = rawId.substring(rawId.lastIndexOf("#_") + 2).replace("+", " ");
+        float initialSetPoint = getInitialSetPointRotatingMachine(rotatingMachineId, remedialActionId);
 
         PropertyBag staticPropertyRangePropertyBag = staticPropertyRangesLinkedToRotatingMachineAction.iterator().next(); // get a random one because there is only one
         CsaProfileCracUtils.checkPropertyReference(staticPropertyRangePropertyBag, remedialActionId, "StaticPropertyRange", CsaProfileConstants.PropertyReference.ROTATING_MACHINE.toString());
@@ -92,7 +92,7 @@ public class NetworkActionCreator {
         CsaProfileCracUtils.checkPropertyReference(shuntCompensatorModificationPropertyBag, remedialActionId, "ShuntCompensatorModification", CsaProfileConstants.PropertyReference.SHUNT_COMPENSATOR.toString());
         String rawId = shuntCompensatorModificationPropertyBag.get(CsaProfileConstants.SHUNT_COMPENSATOR_ID);
         String shuntCompensatorId = rawId.substring(rawId.lastIndexOf("_") + 1);
-        float initialSetPoint = getInitialSetPoint(shuntCompensatorId, remedialActionId);
+        float initialSetPoint = getInitialSetPointShuntCompensator(shuntCompensatorId, remedialActionId);
 
         PropertyBag staticPropertyRangePropertyBag = staticPropertyRangesLinkedToShuntCompensatorModification.iterator().next(); // get a random one because there is only one
         CsaProfileCracUtils.checkPropertyReference(staticPropertyRangePropertyBag, remedialActionId, "StaticPropertyRange", CsaProfileConstants.PropertyReference.SHUNT_COMPENSATOR.toString());
@@ -104,17 +104,25 @@ public class NetworkActionCreator {
             .add();
     }
 
-    private float getInitialSetPoint(String injectionSetPointActionId, String remedialActionId) {
+    private float getInitialSetPointRotatingMachine(String injectionSetPointActionId, String remedialActionId) {
         float initialSetPoint = 0f;
         Optional<Generator> optionalGenerator = network.getGeneratorStream().filter(gen -> gen.getId().equals(injectionSetPointActionId)).findAny();
         Optional<Load> optionalLoad = findLoad(injectionSetPointActionId);
-        ShuntCompensator shuntCompensator = network.getShuntCompensator(injectionSetPointActionId);
-        if (optionalGenerator.isEmpty() && optionalLoad.isEmpty() && shuntCompensator == null) {
-            throw new FaraoImportException(ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK, CsaProfileConstants.REMEDIAL_ACTION_MESSAGE + remedialActionId + " will not be imported because Network model contains nor a generator, nor a load, neither a shunt compensator, with id of injection set point action: " + injectionSetPointActionId);
+        if (optionalGenerator.isEmpty() && optionalLoad.isEmpty()) {
+            throw new FaraoImportException(ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK, CsaProfileConstants.REMEDIAL_ACTION_MESSAGE + remedialActionId + " will not be imported because Network model does not contain a generator, neither a load with id of RotatingMachine: " + injectionSetPointActionId);
         } else if (optionalGenerator.isPresent()) {
             initialSetPoint = (float) optionalGenerator.get().getTargetP();
-        } else if (optionalLoad.isPresent()) {
+        } else {
             initialSetPoint = (float) optionalLoad.get().getP0();
+        }
+        return initialSetPoint;
+    }
+
+    private float getInitialSetPointShuntCompensator(String injectionSetPointActionId, String remedialActionId) {
+        float initialSetPoint = 0f;
+        ShuntCompensator shuntCompensator = network.getShuntCompensator(injectionSetPointActionId);
+        if (shuntCompensator == null) {
+            throw new FaraoImportException(ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK, CsaProfileConstants.REMEDIAL_ACTION_MESSAGE + remedialActionId + " will not be imported because Network model does not contain a shunt compensator with id of ShuntCompensator: " + injectionSetPointActionId);
         } else {
             initialSetPoint = (float) shuntCompensator.getSectionCount();
         }

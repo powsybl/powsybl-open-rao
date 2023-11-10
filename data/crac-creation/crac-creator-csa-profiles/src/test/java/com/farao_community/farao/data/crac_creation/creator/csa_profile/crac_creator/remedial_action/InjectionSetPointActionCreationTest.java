@@ -112,7 +112,7 @@ class InjectionSetPointActionCreationTest {
 
         assertEquals(0, cracCreationContext.getCrac().getRemedialActions().size());
 
-        CsaProfileCracCreationTestUtil.assertRaNotImported(cracCreationContext, "parent-remedial-action-1", ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK, "Remedial action parent-remedial-action-1 will not be imported because Network model contains nor a generator, nor a load, neither a shunt compensator, with id of injection set point action: unknown-rotating-machine");
+        CsaProfileCracCreationTestUtil.assertRaNotImported(cracCreationContext, "parent-remedial-action-1", ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK, "Remedial action parent-remedial-action-1 will not be imported because Network model does not contain a generator, neither a load with id of RotatingMachine: unknown-rotating-machine");
         CsaProfileCracCreationTestUtil.assertRaNotImported(cracCreationContext, "parent-remedial-action-2", ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action parent-remedial-action-2 will not be imported because there is no topology actions, no Set point actions, nor tap position action linked to that RA");
         CsaProfileCracCreationTestUtil.assertRaNotImported(cracCreationContext, "parent-remedial-action-3", ImportStatus.NOT_FOR_RAO, "Remedial action 'parent-remedial-action-3' will not be imported because field 'normalEnabled' in 'RotatingMachineAction' must be true or empty");
         CsaProfileCracCreationTestUtil.assertRaNotImported(cracCreationContext, "parent-remedial-action-4", ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action 'parent-remedial-action-4' will not be imported because 'RotatingMachineAction' must have a property reference with 'http://energy.referencedata.eu/PropertyReference/RotatingMachine.p' value, but it was: 'http://energy.referencedata.eu/PropertyReference/RotatingMachine.q'");
@@ -134,15 +134,14 @@ class InjectionSetPointActionCreationTest {
 
     @Test
     void testImportShuntCompensatorModifications() {
-        Network network = Mockito.mock(Network.class);
-        Branch networkElementMock = Mockito.mock(Branch.class);
-        Mockito.when(networkElementMock.getId()).thenReturn("726c5cfa-d197-4e98-95a1-7dd357dd9353");
-        Mockito.when(network.getIdentifiable("726c5cfa-d197-4e98-95a1-7dd357dd9353")).thenReturn(networkElementMock);
-
-        Load loadMock = Mockito.mock(Load.class);
+        ShuntCompensator loadMock = Mockito.mock(ShuntCompensator.class);
         Mockito.when(loadMock.getId()).thenReturn("726c5cfa-d197-4e98-95a1-7dd357dd9353");
-        Mockito.when(network.getLoadStream()).thenAnswer(invocation -> {
-            Stream<Load> loadStream = Stream.of(loadMock);
+
+        Network network = Mockito.mock(Network.class);
+        Mockito.when(network.getShuntCompensator("726c5cfa-d197-4e98-95a1-7dd357dd9353")).thenReturn(loadMock);
+
+        Mockito.when(network.getShuntCompensatorStream()).thenAnswer(invocation -> {
+            Stream<ShuntCompensator> loadStream = Stream.of(loadMock);
             return loadStream.filter(load ->
                 load.getId().equals("726c5cfa-d197-4e98-95a1-7dd357dd9353")
             );
@@ -157,7 +156,7 @@ class InjectionSetPointActionCreationTest {
         CsaProfileCracCreationTestUtil.assertRaNotImported(cracCreationContext, "4a0b07a9-0a33-4926-a0ef-b3ebf7c9eb17", ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action 4a0b07a9-0a33-4926-a0ef-b3ebf7c9eb17 will not be imported because StaticPropertyRange has a negative normalValue so no set-point value was retrieved");
         CsaProfileCracCreationTestUtil.assertRaNotImported(cracCreationContext, "e3eb8875-79a7-42d6-8bc2-9ae81e9265c9", ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action e3eb8875-79a7-42d6-8bc2-9ae81e9265c9 will not be imported because StaticPropertyRange has a non integer-castable normalValue so no set-point value was retrieved");
         CsaProfileCracCreationTestUtil.assertRaNotImported(cracCreationContext, "6206f03a-9db7-4c46-86aa-03f8aec9d0f2", ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action 6206f03a-9db7-4c46-86aa-03f8aec9d0f2 will not be imported because there is no StaticPropertyRange linked to that RA");
-        CsaProfileCracCreationTestUtil.assertRaNotImported(cracCreationContext, "c5c666d1-cc87-4652-ae81-1694a3849a07", ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK, "Remedial action c5c666d1-cc87-4652-ae81-1694a3849a07 will not be imported because Network model contains nor a generator, nor a load, neither a shunt compensator, with id of injection set point action: f8cf2bf7-c100-40e6-8c7c-c2bfc7099606");
+        CsaProfileCracCreationTestUtil.assertRaNotImported(cracCreationContext, "c5c666d1-cc87-4652-ae81-1694a3849a07", ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK, "Remedial action c5c666d1-cc87-4652-ae81-1694a3849a07 will not be imported because Network model does not contain a shunt compensator with id of ShuntCompensator: f8cf2bf7-c100-40e6-8c7c-c2bfc7099606");
 
         assertEquals(3, cracCreationContext.getCrac().getRemedialActions().size());
         NetworkAction ra1 = cracCreationContext.getCrac().getNetworkAction("d6247efe-3317-4c75-a752-c2a3a9f03aed");
@@ -185,10 +184,15 @@ class InjectionSetPointActionCreationTest {
     @Test
     void testImportSetPointIncrementalValues() {
         Network network = Mockito.mock(Network.class);
-        ShuntCompensator shuntCompensatorMock = Mockito.mock(ShuntCompensator.class);
-        Mockito.when(shuntCompensatorMock.getId()).thenReturn("606a1624-2be7-4c5b-8957-62126b8f38ad");
-        Mockito.when(shuntCompensatorMock.getSectionCount()).thenReturn(150);
-        Mockito.when(network.getShuntCompensator("606a1624-2be7-4c5b-8957-62126b8f38ad")).thenReturn(shuntCompensatorMock);
+        Load loadMock = Mockito.mock(Load.class);
+        Mockito.when(loadMock.getId()).thenReturn("606a1624-2be7-4c5b-8957-62126b8f38ad");
+        Mockito.when(loadMock.getP0()).thenReturn(150.0);
+        Mockito.when(network.getLoadStream()).thenAnswer(invocation -> {
+            Stream<Load> loadStream = Stream.of(loadMock);
+            return loadStream.filter(load ->
+                load.getId().equals("606a1624-2be7-4c5b-8957-62126b8f38ad")
+            );
+        });
 
         CsaProfileCracCreationContext cracCreationContext = getCsaCracCreationContext("/CSA_33_TestExample.zip", network);
 
