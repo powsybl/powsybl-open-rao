@@ -9,6 +9,7 @@ package com.farao_community.farao.sensitivity_analysis;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Crac;
+import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_api.network_action.ActionType;
@@ -33,11 +34,15 @@ class AppliedRemedialActionsTest {
     private NetworkAction networkAction;
     private NetworkAction autoNetworkAction;
     private PstRangeAction pstRangeAction;
+    private Instant autoInstant;
+    private Instant curativeInstant;
 
     @BeforeEach
     public void setUp() {
         network = NetworkImportsUtil.import12NodesNetwork();
         crac = CommonCracCreation.createWithCurativePstRange();
+        autoInstant = crac.getInstant("auto");
+        curativeInstant = crac.getInstant("curative");
         pstRangeAction = crac.getPstRangeAction("pst");
         networkAction = (NetworkAction) crac.newNetworkAction()
                 .withId("na-id")
@@ -54,8 +59,8 @@ class AppliedRemedialActionsTest {
     @Test
     void testAppliedRemedialActionOnOneState() {
         AppliedRemedialActions appliedRemedialActions = new AppliedRemedialActions();
-        appliedRemedialActions.addAppliedNetworkAction(crac.getState("Contingency FR1 FR3", "curative"), networkAction);
-        appliedRemedialActions.addAppliedRangeAction(crac.getState("Contingency FR1 FR3", "curative"), pstRangeAction, 3.1);
+        appliedRemedialActions.addAppliedNetworkAction(crac.getState("Contingency FR1 FR3", curativeInstant), networkAction);
+        appliedRemedialActions.addAppliedRangeAction(crac.getState("Contingency FR1 FR3", curativeInstant), pstRangeAction, 3.1);
 
         // check object
         assertFalse(appliedRemedialActions.isEmpty(network));
@@ -67,7 +72,7 @@ class AppliedRemedialActionsTest {
         assertEquals(0, network.getTwoWindingsTransformer("BBE2AA1  BBE3AA1  1").getPhaseTapChanger().getTapPosition(), 0);
         assertEquals(0, network.getTwoWindingsTransformer("BBE2AA1  BBE3AA1  1").getPhaseTapChanger().getCurrentStep().getAlpha(), 1e-3);
 
-        appliedRemedialActions.applyOnNetwork(crac.getState("Contingency FR1 FR3", "curative"), network);
+        appliedRemedialActions.applyOnNetwork(crac.getState("Contingency FR1 FR3", curativeInstant), network);
 
         assertFalse(network.getBranch("BBE2AA1  FFR3AA1  1").getTerminal1().isConnected());
         assertEquals(8, network.getTwoWindingsTransformer("BBE2AA1  BBE3AA1  1").getPhaseTapChanger().getTapPosition(), 0);
@@ -77,8 +82,8 @@ class AppliedRemedialActionsTest {
     @Test
     void testAppliedRemedialActionOnTwoStates() {
         AppliedRemedialActions appliedRemedialActions = new AppliedRemedialActions();
-        appliedRemedialActions.addAppliedNetworkAction(crac.getState("Contingency FR1 FR3", "curative"), networkAction);
-        appliedRemedialActions.addAppliedRangeAction(crac.getState("Contingency FR1 FR2", "curative"), pstRangeAction, 3.2);
+        appliedRemedialActions.addAppliedNetworkAction(crac.getState("Contingency FR1 FR3", curativeInstant), networkAction);
+        appliedRemedialActions.addAppliedRangeAction(crac.getState("Contingency FR1 FR2", curativeInstant), pstRangeAction, 3.2);
 
         assertFalse(appliedRemedialActions.isEmpty(network));
         assertEquals(2, appliedRemedialActions.getStatesWithRa(network).size());
@@ -87,7 +92,7 @@ class AppliedRemedialActionsTest {
         assertTrue(network.getBranch("BBE2AA1  FFR3AA1  1").getTerminal1().isConnected());
         assertEquals(0, network.getTwoWindingsTransformer("BBE2AA1  BBE3AA1  1").getPhaseTapChanger().getTapPosition(), 0);
 
-        appliedRemedialActions.applyOnNetwork(crac.getState("Contingency FR1 FR3", "curative"), network);
+        appliedRemedialActions.applyOnNetwork(crac.getState("Contingency FR1 FR3", curativeInstant), network);
 
         assertFalse(network.getBranch("BBE2AA1  FFR3AA1  1").getTerminal1().isConnected());
         assertEquals(0, network.getTwoWindingsTransformer("BBE2AA1  BBE3AA1  1").getPhaseTapChanger().getTapPosition(), 0);
@@ -104,7 +109,7 @@ class AppliedRemedialActionsTest {
     @Test
     void testAppliedRangeActionWithSetpointEqualToInitialNetwork() {
         AppliedRemedialActions appliedRemedialActions = new AppliedRemedialActions();
-        appliedRemedialActions.addAppliedRangeAction(crac.getState("Contingency FR1 FR2", "curative"), pstRangeAction, 0.0);
+        appliedRemedialActions.addAppliedRangeAction(crac.getState("Contingency FR1 FR2", curativeInstant), pstRangeAction, 0.0);
         // should not be taken into account, as PST setpoint is the same as in the initial network
 
         assertTrue(appliedRemedialActions.isEmpty(network));
@@ -122,15 +127,15 @@ class AppliedRemedialActionsTest {
     @Test
     void testCopy() {
         AppliedRemedialActions originalAra = new AppliedRemedialActions();
-        originalAra.addAppliedNetworkAction(crac.getState("Contingency FR1 FR3", "curative"), networkAction);
-        originalAra.addAppliedRangeAction(crac.getState("Contingency FR1 FR2", "curative"), pstRangeAction, 3.2);
+        originalAra.addAppliedNetworkAction(crac.getState("Contingency FR1 FR3", curativeInstant), networkAction);
+        originalAra.addAppliedRangeAction(crac.getState("Contingency FR1 FR2", curativeInstant), pstRangeAction, 3.2);
 
         // make a copy
         AppliedRemedialActions copyAra = originalAra.copy();
         assertFalse(originalAra.isEmpty(network));
         assertFalse(copyAra.isEmpty(network));
-        assertEquals(1, copyAra.getAppliedNetworkActions(crac.getState("Contingency FR1 FR3", "curative")).size());
-        assertEquals(1, copyAra.getAppliedRangeActions(crac.getState("Contingency FR1 FR2", "curative")).size());
+        assertEquals(1, copyAra.getAppliedNetworkActions(crac.getState("Contingency FR1 FR3", curativeInstant)).size());
+        assertEquals(1, copyAra.getAppliedRangeActions(crac.getState("Contingency FR1 FR2", curativeInstant)).size());
 
         // reset the original one
         originalAra = new AppliedRemedialActions();
@@ -175,19 +180,19 @@ class AppliedRemedialActionsTest {
             .add();
 
         AppliedRemedialActions originalAra = new AppliedRemedialActions();
-        originalAra.addAppliedNetworkAction(crac.getState("Contingency FR1 FR3", "curative"), networkAction);
-        originalAra.addAppliedRangeAction(crac.getState("Contingency FR1 FR2", "curative"), pstRangeAction, 3.2);
-        originalAra.addAppliedNetworkAction(crac.getState("Contingency FR1 FR3", "auto"), autoNetworkAction);
-        originalAra.addAppliedRangeAction(crac.getState("Contingency FR1 FR2", "auto"), pstRangeAction, 2.3);
+        originalAra.addAppliedNetworkAction(crac.getState("Contingency FR1 FR3", curativeInstant), networkAction);
+        originalAra.addAppliedRangeAction(crac.getState("Contingency FR1 FR2", curativeInstant), pstRangeAction, 3.2);
+        originalAra.addAppliedNetworkAction(crac.getState("Contingency FR1 FR3", autoInstant), autoNetworkAction);
+        originalAra.addAppliedRangeAction(crac.getState("Contingency FR1 FR2", autoInstant), pstRangeAction, 2.3);
 
         // make a copy
         AppliedRemedialActions copyAra = originalAra.copyNetworkActionsAndAutomaticRangeActions();
         assertFalse(originalAra.isEmpty(network));
         assertFalse(copyAra.isEmpty(network));
-        assertEquals(1, copyAra.getAppliedNetworkActions(crac.getState("Contingency FR1 FR3", "curative")).size());
-        assertEquals(0, copyAra.getAppliedRangeActions(crac.getState("Contingency FR1 FR2", "curative")).size());
-        assertEquals(1, copyAra.getAppliedNetworkActions(crac.getState("Contingency FR1 FR3", "auto")).size());
-        assertEquals(1, copyAra.getAppliedRangeActions(crac.getState("Contingency FR1 FR2", "auto")).size());
+        assertEquals(1, copyAra.getAppliedNetworkActions(crac.getState("Contingency FR1 FR3", curativeInstant)).size());
+        assertEquals(0, copyAra.getAppliedRangeActions(crac.getState("Contingency FR1 FR2", curativeInstant)).size());
+        assertEquals(1, copyAra.getAppliedNetworkActions(crac.getState("Contingency FR1 FR3", autoInstant)).size());
+        assertEquals(1, copyAra.getAppliedRangeActions(crac.getState("Contingency FR1 FR2", autoInstant)).size());
 
         // reset the original one
         originalAra = new AppliedRemedialActions();

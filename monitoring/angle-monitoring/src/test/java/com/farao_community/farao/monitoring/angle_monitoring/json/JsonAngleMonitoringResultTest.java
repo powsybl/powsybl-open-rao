@@ -124,7 +124,7 @@ class JsonAngleMonitoringResultTest {
         assertEquals(Set.of("na1"), angleMonitoringResult.getAppliedCras(preventiveState).stream().map(NetworkAction::getId).collect(Collectors.toSet()));
         assertEquals(2, angleMonitoringResult.getAppliedCras().keySet().size());
         assertEquals(1, angleMonitoringResult.getAppliedCras().get(preventiveState).size());
-        assertEquals(1, angleMonitoringResult.getAppliedCras().get(crac.getState(co1.getId(), "curative")).size());
+        assertEquals(1, angleMonitoringResult.getAppliedCras().get(crac.getState(co1.getId(), crac.getInstant("curative"))).size());
         assertEquals(2, angleMonitoringResult.getAngleCnecsWithAngle().size());
         Set<AngleMonitoringResult.AngleResult> expectedResult = Set.of(new AngleMonitoringResult.AngleResult(ac1, 2.3), new AngleMonitoringResult.AngleResult(ac2, 4.6));
         angleMonitoringResult.getAngleCnecsWithAngle().forEach(angleResult ->

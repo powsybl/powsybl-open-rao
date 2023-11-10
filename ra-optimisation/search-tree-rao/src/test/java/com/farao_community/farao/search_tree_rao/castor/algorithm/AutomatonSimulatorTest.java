@@ -120,7 +120,8 @@ class AutomatonSimulatorTest {
             .withNominalVoltage(220.)
             .newThreshold().withSide(Side.RIGHT).withMax(1000.).withUnit(Unit.AMPERE).add()
             .add();
-        autoState = crac.getState(contingency1, "auto");
+        Instant autoInstant = crac.getInstant("auto");
+        autoState = crac.getState(contingency1, autoInstant);
         ra2 = (RangeAction<?>) crac.newPstRangeAction()
             .withId("ra2")
             .withNetworkElement("ra2-ne")
@@ -221,7 +222,7 @@ class AutomatonSimulatorTest {
             .newOnInstantUsageRule().withInstant("auto").withUsageMethod(UsageMethod.FORCED).add()
             .add();
 
-        autoState = crac.getState(contingency1, "auto");
+        autoState = crac.getState(contingency1, autoInstant);
 
         raoParameters = new RaoParameters();
         raoParameters.getObjectiveFunctionParameters().setType(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT);

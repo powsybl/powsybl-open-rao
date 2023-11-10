@@ -8,6 +8,7 @@ package com.farao_community.farao.data.rao_result_impl;
 
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Crac;
+import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_impl.utils.CommonCracCreation;
 import org.junit.jupiter.api.BeforeEach;
@@ -21,10 +22,16 @@ import static org.junit.jupiter.api.Assertions.*;
 class RangeActionResultTest {
 
     private Crac crac;
+    private Instant outageInstant;
+    private Instant autoInstant;
+    private Instant curativeInstant;
 
     @BeforeEach
     public void setUp() {
         crac = CommonCracCreation.create();
+        outageInstant = crac.getInstant("outage");
+        autoInstant = crac.getInstant("auto");
+        curativeInstant = crac.getInstant("curative");
 
         //define CNECs on Outage state so that the Crac contains outage states
         crac.newFlowCnec()
@@ -49,10 +56,10 @@ class RangeActionResultTest {
         RangeActionResult rangeActionResult = new RangeActionResult();
 
         assertFalse(rangeActionResult.isActivatedDuringState(crac.getPreventiveState()));
-        assertFalse(rangeActionResult.isActivatedDuringState(crac.getState("Contingency FR1 FR2", "outage")));
-        assertFalse(rangeActionResult.isActivatedDuringState(crac.getState("Contingency FR1 FR3", "outage")));
-        assertFalse(rangeActionResult.isActivatedDuringState(crac.getState("Contingency FR1 FR2", "curative")));
-        assertFalse(rangeActionResult.isActivatedDuringState(crac.getState("Contingency FR1 FR3", "curative")));
+        assertFalse(rangeActionResult.isActivatedDuringState(crac.getState("Contingency FR1 FR2", outageInstant)));
+        assertFalse(rangeActionResult.isActivatedDuringState(crac.getState("Contingency FR1 FR3", outageInstant)));
+        assertFalse(rangeActionResult.isActivatedDuringState(crac.getState("Contingency FR1 FR2", curativeInstant)));
+        assertFalse(rangeActionResult.isActivatedDuringState(crac.getState("Contingency FR1 FR3", curativeInstant)));
 
         assertEquals(Double.NaN, rangeActionResult.getInitialSetpoint());
         assertEquals(Double.NaN, rangeActionResult.getOptimizedSetpointOnState(crac.getPreventiveState()));
@@ -68,8 +75,8 @@ class RangeActionResultTest {
         //is activated
 
         assertTrue(rangeActionResult.isActivatedDuringState(crac.getPreventiveState()));
-        assertFalse(rangeActionResult.isActivatedDuringState(crac.getState("Contingency FR1 FR2", "curative")));
-        assertFalse(rangeActionResult.isActivatedDuringState(crac.getState("Contingency FR1 FR3", "curative")));
+        assertFalse(rangeActionResult.isActivatedDuringState(crac.getState("Contingency FR1 FR2", curativeInstant)));
+        assertFalse(rangeActionResult.isActivatedDuringState(crac.getState("Contingency FR1 FR3", curativeInstant)));
 
         // initial values
         assertEquals(0.3, rangeActionResult.getInitialSetpoint(), 1e-3);
@@ -78,10 +85,10 @@ class RangeActionResultTest {
         assertEquals(1.6, rangeActionResult.getOptimizedSetpointOnState(crac.getPreventiveState()), 1e-3);
 
         // outage state
-        assertEquals(1.6, rangeActionResult.getOptimizedSetpointOnState(crac.getState("Contingency FR1 FR2", "outage")), 1e-3);
+        assertEquals(1.6, rangeActionResult.getOptimizedSetpointOnState(crac.getState("Contingency FR1 FR2", outageInstant)), 1e-3);
 
         // curative state
-        assertEquals(1.6, rangeActionResult.getOptimizedSetpointOnState(crac.getState("Contingency FR1 FR2", "curative")), 1e-3);
+        assertEquals(1.6, rangeActionResult.getOptimizedSetpointOnState(crac.getState("Contingency FR1 FR2", curativeInstant)), 1e-3);
     }
 
     @Test
@@ -89,25 +96,25 @@ class RangeActionResultTest {
         RangeActionResult rangeActionResult = new RangeActionResult();
 
         rangeActionResult.setInitialSetpoint(0.3);
-        rangeActionResult.addActivationForState(crac.getState("Contingency FR1 FR2", "curative"), -1.6);
+        rangeActionResult.addActivationForState(crac.getState("Contingency FR1 FR2", curativeInstant), -1.6);
 
         //is activated
 
         assertFalse(rangeActionResult.isActivatedDuringState(crac.getPreventiveState()));
-        assertTrue(rangeActionResult.isActivatedDuringState(crac.getState("Contingency FR1 FR2", "curative")));
-        assertFalse(rangeActionResult.isActivatedDuringState(crac.getState("Contingency FR1 FR3", "curative")));
+        assertTrue(rangeActionResult.isActivatedDuringState(crac.getState("Contingency FR1 FR2", curativeInstant)));
+        assertFalse(rangeActionResult.isActivatedDuringState(crac.getState("Contingency FR1 FR3", curativeInstant)));
 
         // preventive state
         assertEquals(0.3, rangeActionResult.getOptimizedSetpointOnState(crac.getPreventiveState()), 1e-3);
 
         // outage state
-        assertEquals(0.3, rangeActionResult.getOptimizedSetpointOnState(crac.getState("Contingency FR1 FR2", "outage")), 1e-3);
+        assertEquals(0.3, rangeActionResult.getOptimizedSetpointOnState(crac.getState("Contingency FR1 FR2", outageInstant)), 1e-3);
 
         // curative state
-        assertEquals(-1.6, rangeActionResult.getOptimizedSetpointOnState(crac.getState("Contingency FR1 FR2", "curative")), 1e-3);
+        assertEquals(-1.6, rangeActionResult.getOptimizedSetpointOnState(crac.getState("Contingency FR1 FR2", curativeInstant)), 1e-3);
 
         // other curative state (not activated)
-        assertEquals(0.3, rangeActionResult.getOptimizedSetpointOnState(crac.getState("Contingency FR1 FR3", "curative")), 1e-3);
+        assertEquals(0.3, rangeActionResult.getOptimizedSetpointOnState(crac.getState("Contingency FR1 FR3", curativeInstant)), 1e-3);
     }
 
     @Test
@@ -116,26 +123,26 @@ class RangeActionResultTest {
 
         rangeActionResult.setInitialSetpoint(0.3);
         rangeActionResult.addActivationForState(crac.getPreventiveState(), 1.6);
-        rangeActionResult.addActivationForState(crac.getState("Contingency FR1 FR2", "curative"), -1.6);
+        rangeActionResult.addActivationForState(crac.getState("Contingency FR1 FR2", curativeInstant), -1.6);
 
         //is activated
 
         assertTrue(rangeActionResult.isActivatedDuringState(crac.getPreventiveState()));
-        assertTrue(rangeActionResult.isActivatedDuringState(crac.getState("Contingency FR1 FR2", "curative")));
-        assertFalse(rangeActionResult.isActivatedDuringState(crac.getState("Contingency FR1 FR3", "curative")));
+        assertTrue(rangeActionResult.isActivatedDuringState(crac.getState("Contingency FR1 FR2", curativeInstant)));
+        assertFalse(rangeActionResult.isActivatedDuringState(crac.getState("Contingency FR1 FR3", curativeInstant)));
         assertEquals(2, rangeActionResult.getStatesWithActivation().size());
 
         // preventive state
         assertEquals(1.6, rangeActionResult.getOptimizedSetpointOnState(crac.getPreventiveState()), 1e-3);
 
         // outage state
-        assertEquals(1.6, rangeActionResult.getOptimizedSetpointOnState(crac.getState("Contingency FR1 FR2", "outage")), 1e-3);
+        assertEquals(1.6, rangeActionResult.getOptimizedSetpointOnState(crac.getState("Contingency FR1 FR2", outageInstant)), 1e-3);
 
         // curative state
-        assertEquals(-1.6, rangeActionResult.getOptimizedSetpointOnState(crac.getState("Contingency FR1 FR2", "curative")), 1e-3);
+        assertEquals(-1.6, rangeActionResult.getOptimizedSetpointOnState(crac.getState("Contingency FR1 FR2", curativeInstant)), 1e-3);
 
         // other curative state (not activated)
-        assertEquals(1.6, rangeActionResult.getOptimizedSetpointOnState(crac.getState("Contingency FR1 FR3", "curative")), 1e-3);
+        assertEquals(1.6, rangeActionResult.getOptimizedSetpointOnState(crac.getState("Contingency FR1 FR3", curativeInstant)), 1e-3);
     }
 
     @Test
@@ -149,28 +156,28 @@ class RangeActionResultTest {
 
         rangeActionResult.setInitialSetpoint(0.3);
         rangeActionResult.addActivationForState(crac.getPreventiveState(), 1.6);
-        rangeActionResult.addActivationForState(crac.getState("Contingency FR1 FR2", "curative"), -1.6);
+        rangeActionResult.addActivationForState(crac.getState("Contingency FR1 FR2", curativeInstant), -1.6);
 
         //is activated
 
         assertTrue(rangeActionResult.isActivatedDuringState(crac.getPreventiveState()));
-        assertTrue(rangeActionResult.isActivatedDuringState(crac.getState("Contingency FR1 FR2", "curative")));
-        assertFalse(rangeActionResult.isActivatedDuringState(crac.getState("Contingency FR1 FR3", "curative")));
+        assertTrue(rangeActionResult.isActivatedDuringState(crac.getState("Contingency FR1 FR2", curativeInstant)));
+        assertFalse(rangeActionResult.isActivatedDuringState(crac.getState("Contingency FR1 FR3", curativeInstant)));
         assertEquals(2, rangeActionResult.getStatesWithActivation().size());
 
         // preventive state
         assertEquals(1.6, rangeActionResult.getOptimizedSetpointOnState(crac.getPreventiveState()), 1e-3);
 
         // outage state
-        assertEquals(1.6, rangeActionResult.getOptimizedSetpointOnState(crac.getState("Contingency FR1 FR2", "outage")), 1e-3);
+        assertEquals(1.6, rangeActionResult.getOptimizedSetpointOnState(crac.getState("Contingency FR1 FR2", outageInstant)), 1e-3);
 
         // auto state
-        assertEquals(1.6, rangeActionResult.getOptimizedSetpointOnState(crac.getState("Contingency FR1 FR2", "auto")), 1e-3);
+        assertEquals(1.6, rangeActionResult.getOptimizedSetpointOnState(crac.getState("Contingency FR1 FR2", autoInstant)), 1e-3);
 
         // curative state
-        assertEquals(-1.6, rangeActionResult.getOptimizedSetpointOnState(crac.getState("Contingency FR1 FR2", "curative")), 1e-3);
+        assertEquals(-1.6, rangeActionResult.getOptimizedSetpointOnState(crac.getState("Contingency FR1 FR2", curativeInstant)), 1e-3);
 
         // other curative state (not activated)
-        assertEquals(1.6, rangeActionResult.getOptimizedSetpointOnState(crac.getState("Contingency FR1 FR3", "curative")), 1e-3);
+        assertEquals(1.6, rangeActionResult.getOptimizedSetpointOnState(crac.getState("Contingency FR1 FR3", curativeInstant)), 1e-3);
     }
 }

@@ -116,7 +116,7 @@ class CracImplTest {
 
     @Test
     void testGetStateWithNotExistingContingencyId() {
-        FaraoException exception = assertThrows(FaraoException.class, () -> crac.getState("fail-contingency", "curative"));
+        FaraoException exception = assertThrows(FaraoException.class, () -> crac.getState("fail-contingency", curativeInstant));
         assertEquals("Contingency fail-contingency does not exist, as well as the related state.", exception.getMessage());
     }
 
@@ -128,7 +128,7 @@ class CracImplTest {
                 .withNetworkElement("ne")
                 .add();
 
-        assertNull(crac.getState(contingency, "curative"));
+        assertNull(crac.getState(contingency, curativeInstant));
     }
 
     @Test
@@ -240,11 +240,11 @@ class CracImplTest {
                 .withNetworkElement("anyNetworkElement")
                 .add();
 
-        State state1 = crac.addState(contingency1, "curative");
-        State state2 = crac.addState(contingency1, "auto");
-        State state3 = crac.addState(contingency2, "curative");
-        State state4 = crac.addState(contingency1, "outage");
-        crac.addState(contingency2, "outage");
+        State state1 = crac.addState(contingency1, curativeInstant);
+        State state2 = crac.addState(contingency1, autoInstant);
+        State state3 = crac.addState(contingency2, curativeInstant);
+        State state4 = crac.addState(contingency1, outageInstant);
+        crac.addState(contingency2, outageInstant);
 
         crac.newFlowCnec()
                 .withId("cnec")
@@ -277,11 +277,11 @@ class CracImplTest {
         assertEquals(5, crac.getStates().size());
         crac.safeRemoveStates(Set.of(state1.getId(), state2.getId(), state3.getId(), state4.getId()));
         assertEquals(4, crac.getStates().size());
-        assertNotNull(crac.getState(contingency1, "curative"));
-        assertNotNull(crac.getState(contingency1, "curative"));
-        assertNotNull(crac.getState(contingency2, "curative"));
-        assertNull(crac.getState(contingency2, "auto"));
-        assertNotNull(crac.getState(contingency2, "curative"));
+        assertNotNull(crac.getState(contingency1, curativeInstant));
+        assertNotNull(crac.getState(contingency1, curativeInstant));
+        assertNotNull(crac.getState(contingency2, curativeInstant));
+        assertNull(crac.getState(contingency2, autoInstant));
+        assertNotNull(crac.getState(contingency2, curativeInstant));
     }
 
     @Test
@@ -376,11 +376,11 @@ class CracImplTest {
         Contingency contingency2 = new ContingencyImpl("co2", "co2", Collections.singleton(Mockito.mock(NetworkElement.class)));
         crac.addContingency(contingency1);
         crac.addContingency(contingency2);
-        State state1 = crac.addState(contingency1, "curative");
-        State state2 = crac.addState(contingency1, "outage");
-        State state3 = crac.addState(contingency2, "curative");
-        State state4 = crac.addState(contingency2, "auto");
-        State state5 = crac.addState(contingency2, "outage");
+        State state1 = crac.addState(contingency1, curativeInstant);
+        State state2 = crac.addState(contingency1, outageInstant);
+        State state3 = crac.addState(contingency2, curativeInstant);
+        State state4 = crac.addState(contingency2, autoInstant);
+        State state5 = crac.addState(contingency2, outageInstant);
 
         assertEquals(2, crac.getStates(contingency1).size());
         assertTrue(crac.getStates(contingency1).containsAll(Set.of(state1, state2)));
@@ -396,26 +396,26 @@ class CracImplTest {
         Contingency contingency2 = new ContingencyImpl("co2", "co2", Collections.singleton(Mockito.mock(NetworkElement.class)));
         crac.addContingency(contingency1);
         crac.addContingency(contingency2);
-        State state1 = crac.addState(contingency1, "curative");
-        State state2 = crac.addState(contingency1, "outage");
-        State state3 = crac.addState(contingency2, "curative");
-        State state4 = crac.addState(contingency2, "auto");
-        State state5 = crac.addState(contingency2, "outage");
+        State state1 = crac.addState(contingency1, curativeInstant);
+        State state2 = crac.addState(contingency1, outageInstant);
+        State state3 = crac.addState(contingency2, curativeInstant);
+        State state4 = crac.addState(contingency2, autoInstant);
+        State state5 = crac.addState(contingency2, outageInstant);
 
-        assertEquals(2, crac.getStates("outage").size());
-        assertTrue(crac.getStates("curative").containsAll(Set.of(state1, state3)));
-        assertEquals(2, crac.getStates("outage").size());
-        assertTrue(crac.getStates("outage").containsAll(Set.of(state2, state5)));
-        assertEquals(1, crac.getStates("auto").size());
-        assertTrue(crac.getStates("auto").contains(state4));
-        assertTrue(crac.getStates("preventive").isEmpty());
+        assertEquals(2, crac.getStates(outageInstant).size());
+        assertTrue(crac.getStates(curativeInstant).containsAll(Set.of(state1, state3)));
+        assertEquals(2, crac.getStates(outageInstant).size());
+        assertTrue(crac.getStates(outageInstant).containsAll(Set.of(state2, state5)));
+        assertEquals(1, crac.getStates(autoInstant).size());
+        assertTrue(crac.getStates(autoInstant).contains(state4));
+        assertTrue(crac.getStates(preventiveInstant).isEmpty());
     }
 
     @Test
     void testAddStateWithPreventiveError() {
         Contingency contingency1 = new ContingencyImpl("co1", "co1", Collections.singleton(Mockito.mock(NetworkElement.class)));
         crac.addContingency(contingency1);
-        FaraoException exception = assertThrows(FaraoException.class, () -> crac.addState(contingency1, "preventive"));
+        FaraoException exception = assertThrows(FaraoException.class, () -> crac.addState(contingency1, preventiveInstant));
         assertEquals("Impossible to add a preventive state with a contingency.", exception.getMessage());
     }
 
@@ -423,15 +423,15 @@ class CracImplTest {
     void testAddSameStateTwice() {
         Contingency contingency1 = new ContingencyImpl("co1", "co1", Collections.singleton(Mockito.mock(NetworkElement.class)));
         crac.addContingency(contingency1);
-        State state1 = crac.addState(contingency1, "curative");
-        State state2 = crac.addState(contingency1, "curative");
+        State state1 = crac.addState(contingency1, curativeInstant);
+        State state2 = crac.addState(contingency1, curativeInstant);
         assertSame(state1, state2);
     }
 
     @Test
     void testAddStateBeforecontingencyError() {
         Contingency contingency1 = new ContingencyImpl("co1", "co1", Collections.singleton(Mockito.mock(NetworkElement.class)));
-        FaraoException exception = assertThrows(FaraoException.class, () -> crac.addState(contingency1, "curative"));
+        FaraoException exception = assertThrows(FaraoException.class, () -> crac.addState(contingency1, curativeInstant));
         assertEquals("Please add co1 to crac first.", exception.getMessage());
     }
 
@@ -475,8 +475,8 @@ class CracImplTest {
                 .newThreshold().withMax(1000.).withUnit(Unit.MEGAWATT).withSide(Side.LEFT).add()
                 .add();
 
-        State state1 = crac.getState("co1", "curative");
-        State state2 = crac.getState("co2", "outage");
+        State state1 = crac.getState("co1", curativeInstant);
+        State state2 = crac.getState("co2", outageInstant);
 
         assertEquals(2, crac.getFlowCnecs(state1).size());
         assertEquals(2, crac.getCnecs(state1).size());
@@ -536,19 +536,19 @@ class CracImplTest {
         crac.removeCnec("cnec1");
         assertNull(crac.getCnec("cnec1"));
         assertNotNull(crac.getNetworkElement("ne1")); // still used by cnec2
-        assertNotNull(crac.getState("co1", "curative")); // state1, still used by cnec3
+        assertNotNull(crac.getState("co1", curativeInstant)); // state1, still used by cnec3
 
         crac.removeFlowCnec("cnec2");
         assertNull(crac.getCnec("cnec2"));
         assertNull(crac.getNetworkElement("ne1")); // unused
-        assertNotNull(crac.getState("co1", "curative")); // state1, still used by cnec3
-        assertNotNull(crac.getState("co1", "outage")); // state2, still used by cnec4
+        assertNotNull(crac.getState("co1", curativeInstant)); // state1, still used by cnec3
+        assertNotNull(crac.getState("co1", outageInstant)); // state2, still used by cnec4
 
         crac.removeFlowCnec("cnec3");
         assertNull(crac.getCnec("cnec3"));
         assertNotNull(crac.getNetworkElement("ne2")); // still used by cnec4
-        assertNull(crac.getState("co1", "curative")); // unused
-        assertNotNull(crac.getState("co1", "outage")); // state2, still used by cnec4
+        assertNull(crac.getState("co1", curativeInstant)); // unused
+        assertNotNull(crac.getState("co1", outageInstant)); // state2, still used by cnec4
 
         crac.removeCnec("cnec4");
         assertEquals(0, crac.getFlowCnecs().size());
@@ -592,8 +592,8 @@ class CracImplTest {
                 .withTapToAngleConversionMap(Map.of(-1, -1., 0, 0., 1, 1.))
                 .add();
 
-        State state1 = crac.getState("co1", "curative");
-        State state2 = crac.getState("co2", "curative");
+        State state1 = crac.getState("co1", curativeInstant);
+        State state2 = crac.getState("co2", curativeInstant);
 
         assertEquals(0, crac.getRangeActions(state1, FORCED).size());
         assertEquals(2, crac.getRangeActions(state1, UsageMethod.AVAILABLE).size());
@@ -611,19 +611,19 @@ class CracImplTest {
         crac.removeRemedialAction("ra1");
         assertNull(crac.getRemedialAction("ra1"));
         assertNotNull(crac.getNetworkElement("ne1")); // still used by ra2
-        assertNotNull(crac.getState("co1", "curative")); // state1, still used by ra3
+        assertNotNull(crac.getState("co1", curativeInstant)); // state1, still used by ra3
 
         crac.removePstRangeAction("ra2");
         assertNull(crac.getRangeAction("ra2"));
         assertNull(crac.getNetworkElement("ne1")); // unused
-        assertNotNull(crac.getState("co1", "curative")); // state1, still used by ra3
-        assertNotNull(crac.getState("co2", "curative")); // state2, still used by RA4
+        assertNotNull(crac.getState("co1", curativeInstant)); // state1, still used by ra3
+        assertNotNull(crac.getState("co2", curativeInstant)); // state2, still used by RA4
 
         crac.removePstRangeAction("ra3");
         assertNull(crac.getPstRangeAction("ra3"));
         assertNotNull(crac.getNetworkElement("ne2")); // still used by ra4
-        assertNull(crac.getState("co1", "curative")); // unused
-        assertNotNull(crac.getState("co2", "curative")); // state2, still used by ra4
+        assertNull(crac.getState("co1", curativeInstant)); // unused
+        assertNotNull(crac.getState("co2", curativeInstant)); // state2, still used by ra4
 
         crac.removeRemedialAction("ra4");
         assertEquals(0, crac.getRemedialActions().size());
@@ -663,8 +663,8 @@ class CracImplTest {
                 .newRange().withMin(-5).withMax(10).add()
                 .add();
 
-        State state1 = crac.getState("co1", "curative");
-        State state2 = crac.getState("co2", "curative");
+        State state1 = crac.getState("co1", curativeInstant);
+        State state2 = crac.getState("co2", curativeInstant);
 
         assertEquals(0, crac.getRangeActions(state1, FORCED).size());
         assertEquals(2, crac.getRangeActions(state1, UsageMethod.AVAILABLE).size());
@@ -682,19 +682,19 @@ class CracImplTest {
         crac.removeRemedialAction("ra1");
         assertNull(crac.getRemedialAction("ra1"));
         assertNotNull(crac.getNetworkElement("ne1")); // still used by ra2
-        assertNotNull(crac.getState("co1", "curative")); // state1, still used by ra3
+        assertNotNull(crac.getState("co1", curativeInstant)); // state1, still used by ra3
 
         crac.removeHvdcRangeAction("ra2");
         assertNull(crac.getRangeAction("ra2"));
         assertNull(crac.getNetworkElement("ne1")); // unused
-        assertNotNull(crac.getState("co1", "curative")); // state1, still used by ra3
-        assertNotNull(crac.getState("co2", "curative")); // state2, still used by RA4
+        assertNotNull(crac.getState("co1", curativeInstant)); // state1, still used by ra3
+        assertNotNull(crac.getState("co2", curativeInstant)); // state2, still used by RA4
 
         crac.removeHvdcRangeAction("ra3");
         assertNull(crac.getHvdcRangeAction("ra3"));
         assertNotNull(crac.getNetworkElement("ne2")); // still used by ra4
-        assertNull(crac.getState("co1", "curative")); // unused
-        assertNotNull(crac.getState("co2", "curative")); // state2, still used by ra4
+        assertNull(crac.getState("co1", curativeInstant)); // unused
+        assertNotNull(crac.getState("co2", curativeInstant)); // state2, still used by ra4
 
         crac.removeRemedialAction("ra4");
         assertEquals(0, crac.getRemedialActions().size());
@@ -737,8 +737,8 @@ class CracImplTest {
                 .withTapToAngleConversionMap(Map.of(-1, -1., 0, 0., 1, 1.))
                 .add();
 
-        State state1 = crac.getState("co1", "curative");
-        State state2 = crac.getState("co2", "curative");
+        State state1 = crac.getState("co1", curativeInstant);
+        State state2 = crac.getState("co2", curativeInstant);
 
         assertTrue(crac.getRangeActions(state1, TO_BE_EVALUATED).isEmpty());
         assertEquals(Set.of(ra1), crac.getRangeActions(state1, AVAILABLE));
@@ -779,8 +779,8 @@ class CracImplTest {
                 .newRange().withMin(-5).withMax(10).add()
                 .add();
 
-        State state1 = crac.getState("co1", "curative");
-        State state2 = crac.getState("co2", "curative");
+        State state1 = crac.getState("co1", curativeInstant);
+        State state2 = crac.getState("co2", curativeInstant);
 
         assertTrue(crac.getRangeActions(state1, TO_BE_EVALUATED).isEmpty());
         assertEquals(Set.of(ra1), crac.getRangeActions(state1, AVAILABLE));
@@ -796,9 +796,9 @@ class CracImplTest {
         NetworkElement neCo = crac.addNetworkElement("neCo", "neCo");
         Contingency contingency1 = new ContingencyImpl("co1", "co1", Collections.singleton(neCo));
         crac.addContingency(contingency1);
-        State state1 = crac.addState(contingency1, "curative");
+        State state1 = crac.addState(contingency1, curativeInstant);
         UsageRule ur1 = new OnContingencyStateImpl(UsageMethod.AVAILABLE, state1);
-        State state2 = crac.addState(contingency1, "outage");
+        State state2 = crac.addState(contingency1, outageInstant);
         UsageRule ur2 = new OnContingencyStateImpl(FORCED, state2);
 
         NetworkElement ne1 = crac.addNetworkElement("ne1", "ne1");
@@ -830,19 +830,19 @@ class CracImplTest {
         crac.removeRemedialAction("ra1");
         assertNull(crac.getRemedialAction("ra1"));
         assertNotNull(crac.getNetworkElement("ne1")); // still used by ra2
-        assertNotNull(crac.getState(contingency1, "curative")); // state1, still used by ra3
+        assertNotNull(crac.getState(contingency1, curativeInstant)); // state1, still used by ra3
 
         crac.removeNetworkAction("ra2");
         assertNull(crac.getNetworkAction("ra2"));
         assertNull(crac.getNetworkElement("ne1")); // unused
-        assertNotNull(crac.getState(contingency1, "curative")); // state1, still used by ra3
-        assertNotNull(crac.getState(contingency1, "outage")); // state2, still used by RA4
+        assertNotNull(crac.getState(contingency1, curativeInstant)); // state1, still used by ra3
+        assertNotNull(crac.getState(contingency1, outageInstant)); // state2, still used by RA4
 
         crac.removeNetworkAction("ra3");
         assertNull(crac.getNetworkAction("ra3"));
         assertNotNull(crac.getNetworkElement("ne2")); // still used by ra4
-        assertNull(crac.getState(contingency1, "curative")); // unused
-        assertNotNull(crac.getState(contingency1, "outage")); // state2, still used by ra4
+        assertNull(crac.getState(contingency1, curativeInstant)); // unused
+        assertNotNull(crac.getState(contingency1, outageInstant)); // state2, still used by ra4
 
         crac.removeRemedialAction("ra4");
         assertEquals(0, crac.getRemedialActions().size());
@@ -856,9 +856,9 @@ class CracImplTest {
         NetworkElement neCo = crac.addNetworkElement("neCo", "neCo");
         Contingency contingency1 = new ContingencyImpl("co1", "co1", Collections.singleton(neCo));
         crac.addContingency(contingency1);
-        State state1 = crac.addState(contingency1, "curative");
+        State state1 = crac.addState(contingency1, curativeInstant);
         UsageRule ur1 = new OnContingencyStateImpl(UsageMethod.AVAILABLE, state1);
-        State state2 = crac.addState(contingency1, "outage");
+        State state2 = crac.addState(contingency1, outageInstant);
         UsageRule ur2 = new OnContingencyStateImpl(FORCED, state2);
         UsageRule ur3 = new OnContingencyStateImpl(FORCED, state1);
 

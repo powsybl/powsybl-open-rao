@@ -312,11 +312,14 @@ class ImporterRetrocompatibilityTest {
         // --- NetworkAction results ---
         // -----------------------------
 
+        Instant outageInstant = crac.getInstant("outage");
+        Instant autoInstant = crac.getInstant("auto");
+        Instant curativeInstant = crac.getInstant("curative");
         State pState = crac.getPreventiveState();
-        State oState2 = crac.getState("contingency2Id", "outage");
-        State aState2 = crac.getState("contingency2Id", "auto");
-        State cState1 = crac.getState("contingency1Id", "curative");
-        State cState2 = crac.getState("contingency2Id", "curative");
+        State oState2 = crac.getState("contingency2Id", outageInstant);
+        State aState2 = crac.getState("contingency2Id", autoInstant);
+        State cState1 = crac.getState("contingency1Id", curativeInstant);
+        State cState2 = crac.getState("contingency2Id", curativeInstant);
 
         /*
         complexNetworkActionId, activated in preventive
@@ -425,7 +428,8 @@ class ImporterRetrocompatibilityTest {
 
         InjectionRangeAction rangeAction = crac.getInjectionRangeAction("injectionRange1Id");
         assertEquals(100., importedRaoResult.getOptimizedSetPointOnState(crac.getPreventiveState(), rangeAction), DOUBLE_TOLERANCE);
-        assertEquals(-300., importedRaoResult.getOptimizedSetPointOnState(crac.getState("contingency1Id", "curative"), rangeAction), DOUBLE_TOLERANCE);
+        Instant curativeInstant = crac.getInstant("curative");
+        assertEquals(-300., importedRaoResult.getOptimizedSetPointOnState(crac.getState("contingency1Id", curativeInstant), rangeAction), DOUBLE_TOLERANCE);
 
         AngleCnec angleCnec = crac.getAngleCnec("angleCnecId");
         assertEquals(3135., importedRaoResult.getAngle(null, angleCnec, DEGREE), DOUBLE_TOLERANCE);
@@ -615,11 +619,14 @@ class ImporterRetrocompatibilityTest {
         // --- NetworkAction results ---
         // -----------------------------
 
+        Instant outageInstant = crac.getInstant("outage");
+        Instant autoInstant = crac.getInstant("auto");
+        Instant curativeInstant = crac.getInstant("curative");
         State pState = crac.getPreventiveState();
-        State oState2 = crac.getState("contingency2Id", "outage");
-        State aState2 = crac.getState("contingency2Id", "auto");
-        State cState1 = crac.getState("contingency1Id", "curative");
-        State cState2 = crac.getState("contingency2Id", "curative");
+        State oState2 = crac.getState("contingency2Id", outageInstant);
+        State aState2 = crac.getState("contingency2Id", autoInstant);
+        State cState1 = crac.getState("contingency1Id", curativeInstant);
+        State cState2 = crac.getState("contingency2Id", curativeInstant);
 
         /*
         complexNetworkActionId, activated in preventive
@@ -764,7 +771,9 @@ class ImporterRetrocompatibilityTest {
         testBaseContentOfV1Point2RaoResult(importedRaoResult, crac);
         // Test computation status map
         assertEquals(ComputationStatus.DEFAULT, importedRaoResult.getComputationStatus(crac.getPreventiveState()));
-        assertEquals(ComputationStatus.FAILURE, importedRaoResult.getComputationStatus(crac.getState("contingency1Id", "curative")));
-        assertEquals(ComputationStatus.DEFAULT, importedRaoResult.getComputationStatus(crac.getState("contingency2Id", "auto")));
+        Instant autoInstant = crac.getInstant("auto");
+        Instant curativeInstant = crac.getInstant("curative");
+        assertEquals(ComputationStatus.FAILURE, importedRaoResult.getComputationStatus(crac.getState("contingency1Id", curativeInstant)));
+        assertEquals(ComputationStatus.DEFAULT, importedRaoResult.getComputationStatus(crac.getState("contingency2Id", autoInstant)));
     }
 }

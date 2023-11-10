@@ -9,6 +9,7 @@ package com.farao_community.farao.data.crac_impl;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Crac;
+import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.InstantKind;
 import com.farao_community.farao.data.crac_api.RemedialAction;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnecAdder;
@@ -30,6 +31,10 @@ import static org.junit.jupiter.api.Assertions.*;
 class OnFlowConstraintAdderImplTest {
     private Crac crac;
     private NetworkActionAdder remedialActionAdder;
+    private Instant preventiveInstant;
+    private Instant outageInstant;
+    private Instant autoInstant;
+    private Instant curativeInstant;
 
     @BeforeEach
     public void setUp() {
@@ -38,6 +43,10 @@ class OnFlowConstraintAdderImplTest {
             .newInstant("outage", InstantKind.OUTAGE)
             .newInstant("auto", InstantKind.AUTO)
             .newInstant("curative", InstantKind.CURATIVE);
+        preventiveInstant = crac.getInstant("preventive");
+        outageInstant = crac.getInstant("outage");
+        autoInstant = crac.getInstant("auto");
+        curativeInstant = crac.getInstant("curative");
 
         crac.newContingency()
             .withId("Contingency FR1 FR3")
@@ -90,7 +99,7 @@ class OnFlowConstraintAdderImplTest {
         assertEquals("preventive", onFlowConstraint.getInstant().getId());
         assertEquals(UsageMethod.TO_BE_EVALUATED, onFlowConstraint.getUsageMethod());
         assertEquals(UsageMethod.TO_BE_EVALUATED, onFlowConstraint.getUsageMethod(crac.getPreventiveState()));
-        assertEquals(UsageMethod.UNDEFINED, onFlowConstraint.getUsageMethod(crac.getState(crac.getContingency("Contingency FR1 FR3"), "curative")));
+        assertEquals(UsageMethod.UNDEFINED, onFlowConstraint.getUsageMethod(crac.getState(crac.getContingency("Contingency FR1 FR3"), curativeInstant)));
         assertEquals(2, crac.getStates().size());
         assertNotNull(crac.getPreventiveState());
     }
@@ -109,7 +118,7 @@ class OnFlowConstraintAdderImplTest {
         OnFlowConstraint onFlowConstraint = (OnFlowConstraint) usageRule;
         assertEquals("curative", onFlowConstraint.getInstant().getId());
         assertEquals(UsageMethod.TO_BE_EVALUATED, onFlowConstraint.getUsageMethod());
-        assertEquals(UsageMethod.TO_BE_EVALUATED, onFlowConstraint.getUsageMethod(crac.getState(crac.getContingency("Contingency FR1 FR3"), "curative")));
+        assertEquals(UsageMethod.TO_BE_EVALUATED, onFlowConstraint.getUsageMethod(crac.getState(crac.getContingency("Contingency FR1 FR3"), curativeInstant)));
         assertEquals(1, crac.getStates().size());
     }
 

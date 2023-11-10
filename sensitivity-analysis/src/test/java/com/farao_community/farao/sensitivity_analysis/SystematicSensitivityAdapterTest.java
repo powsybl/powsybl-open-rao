@@ -10,7 +10,6 @@ import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.InstantKind;
-import com.farao_community.farao.data.crac_impl.InstantImpl;
 import com.farao_community.farao.data.crac_impl.utils.CommonCracCreation;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
 import com.powsybl.iidm.network.Network;
@@ -29,18 +28,15 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class SystematicSensitivityAdapterTest {
 
     public static final double DOUBLE_TOLERANCE = 1e-6;
-    private static final Instant INSTANT_PREV = new InstantImpl("preventive", InstantKind.PREVENTIVE, null);
-    private static final Instant INSTANT_OUTAGE = new InstantImpl("outage", InstantKind.OUTAGE, INSTANT_PREV);
-    private static final Instant INSTANT_AUTO = new InstantImpl("auto", InstantKind.AUTO, INSTANT_OUTAGE);
-    private static final Instant INSTANT_CURATIVE = new InstantImpl("curative", InstantKind.CURATIVE, INSTANT_AUTO);
 
     @Test
     void testWithoutAppliedRa() {
         Network network = NetworkImportsUtil.import12NodesNetwork();
         Crac crac = CommonCracCreation.createWithPreventivePstRange(Set.of(LEFT, RIGHT));
+        Instant outageInstant = crac.getInstant("outage");
         RangeActionSensitivityProvider factorProvider = new RangeActionSensitivityProvider(crac.getRangeActions(), crac.getFlowCnecs(), Set.of(Unit.MEGAWATT, Unit.AMPERE));
 
-        SystematicSensitivityResult result = SystematicSensitivityAdapter.runSensitivity(network, factorProvider, new SensitivityAnalysisParameters(), "MockSensi", INSTANT_OUTAGE);
+        SystematicSensitivityResult result = SystematicSensitivityAdapter.runSensitivity(network, factorProvider, new SensitivityAnalysisParameters(), "MockSensi", outageInstant);
 
         // "standard results" of the MockSensiProvider are expected
         assertEquals(10, result.getReferenceFlow(crac.getFlowCnec("cnec2basecase"), LEFT), DOUBLE_TOLERANCE);
@@ -71,9 +67,10 @@ class SystematicSensitivityAdapterTest {
     void testWithoutAppliedRaLeftSideOnly() {
         Network network = NetworkImportsUtil.import12NodesNetwork();
         Crac crac = CommonCracCreation.createWithPreventivePstRange(Set.of(LEFT));
+        Instant outageInstant = crac.getInstant("outage");
         RangeActionSensitivityProvider factorProvider = new RangeActionSensitivityProvider(crac.getRangeActions(), crac.getFlowCnecs(), Set.of(Unit.MEGAWATT, Unit.AMPERE));
 
-        SystematicSensitivityResult result = SystematicSensitivityAdapter.runSensitivity(network, factorProvider, new SensitivityAnalysisParameters(), "MockSensi", INSTANT_OUTAGE);
+        SystematicSensitivityResult result = SystematicSensitivityAdapter.runSensitivity(network, factorProvider, new SensitivityAnalysisParameters(), "MockSensi", outageInstant);
 
         // "standard results" of the MockSensiProvider are expected
         assertEquals(10, result.getReferenceFlow(crac.getFlowCnec("cnec2basecase"), LEFT), DOUBLE_TOLERANCE);
@@ -104,6 +101,7 @@ class SystematicSensitivityAdapterTest {
     void testWithAppliedRa() {
         Network network = NetworkImportsUtil.import12NodesNetwork();
         Crac crac = CommonCracCreation.createWithPreventivePstRange(Set.of(LEFT, RIGHT));
+        Instant curativeInstant = crac.getInstant("curative");
         crac.newFlowCnec()
             .withId("cnec2stateOutageContingency1")
             .withNetworkElement("FFR2AA1  DDE3AA1  1")
@@ -120,7 +118,7 @@ class SystematicSensitivityAdapterTest {
             .add();
         RangeActionSensitivityProvider factorProvider = new RangeActionSensitivityProvider(crac.getRangeActions(), crac.getFlowCnecs(), Set.of(Unit.MEGAWATT, Unit.AMPERE));
         AppliedRemedialActions appliedRemedialActions = new AppliedRemedialActions();
-        appliedRemedialActions.addAppliedRangeAction(crac.getState("Contingency FR1 FR3", "curative"), crac.getPstRangeAction("pst"), -3.1);
+        appliedRemedialActions.addAppliedRangeAction(crac.getState("Contingency FR1 FR3", curativeInstant), crac.getPstRangeAction("pst"), -3.1);
 
         SystematicSensitivityResult result = SystematicSensitivityAdapter.runSensitivity(network, factorProvider, appliedRemedialActions, new SensitivityAnalysisParameters(), "MockSensi", crac.getInstant(InstantKind.OUTAGE));
 

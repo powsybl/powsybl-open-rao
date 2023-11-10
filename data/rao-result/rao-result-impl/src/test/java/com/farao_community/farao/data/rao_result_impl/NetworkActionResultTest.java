@@ -7,6 +7,7 @@
 package com.farao_community.farao.data.rao_result_impl;
 
 import com.farao_community.farao.data.crac_api.Crac;
+import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_impl.utils.CommonCracCreation;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -23,10 +24,12 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class NetworkActionResultTest {
 
     private Crac crac;
+    private Instant curativeInstant;
 
     @BeforeEach
     public void setUp() {
         crac = CommonCracCreation.create();
+        curativeInstant = crac.getInstant("curative");
     }
 
     @Test
@@ -34,8 +37,8 @@ class NetworkActionResultTest {
         NetworkActionResult networkActionResult = new NetworkActionResult();
 
         assertFalse(networkActionResult.isActivated(crac.getPreventiveState()));
-        assertFalse(networkActionResult.isActivated(crac.getState("Contingency FR1 FR2", "curative")));
-        assertFalse(networkActionResult.isActivated(crac.getState("Contingency FR1 FR3", "curative")));
+        assertFalse(networkActionResult.isActivated(crac.getState("Contingency FR1 FR2", curativeInstant)));
+        assertFalse(networkActionResult.isActivated(crac.getState("Contingency FR1 FR3", curativeInstant)));
         assertTrue(networkActionResult.getStatesWithActivation().isEmpty());
     }
 
@@ -45,19 +48,19 @@ class NetworkActionResultTest {
         networkActionResult.addActivationForState(crac.getPreventiveState());
 
         assertTrue(networkActionResult.isActivated(crac.getPreventiveState()));
-        assertFalse(networkActionResult.isActivated(crac.getState("Contingency FR1 FR2", "curative")));
-        assertFalse(networkActionResult.isActivated(crac.getState("Contingency FR1 FR3", "curative")));
+        assertFalse(networkActionResult.isActivated(crac.getState("Contingency FR1 FR2", curativeInstant)));
+        assertFalse(networkActionResult.isActivated(crac.getState("Contingency FR1 FR3", curativeInstant)));
         assertEquals(1, networkActionResult.getStatesWithActivation().size());
     }
 
     @Test
     void activatedInTwoCurativeStatesTest() {
         NetworkActionResult networkActionResult = new NetworkActionResult();
-        networkActionResult.addActivationForStates(Set.of(crac.getState("Contingency FR1 FR3", "curative"), crac.getState("Contingency FR1 FR2", "curative")));
+        networkActionResult.addActivationForStates(Set.of(crac.getState("Contingency FR1 FR3", curativeInstant), crac.getState("Contingency FR1 FR2", curativeInstant)));
 
         assertFalse(networkActionResult.isActivated(crac.getPreventiveState()));
-        assertTrue(networkActionResult.isActivated(crac.getState("Contingency FR1 FR2", "curative")));
-        assertTrue(networkActionResult.isActivated(crac.getState("Contingency FR1 FR3", "curative")));
+        assertTrue(networkActionResult.isActivated(crac.getState("Contingency FR1 FR2", curativeInstant)));
+        assertTrue(networkActionResult.isActivated(crac.getState("Contingency FR1 FR3", curativeInstant)));
         assertEquals(2, networkActionResult.getStatesWithActivation().size());
     }
 }

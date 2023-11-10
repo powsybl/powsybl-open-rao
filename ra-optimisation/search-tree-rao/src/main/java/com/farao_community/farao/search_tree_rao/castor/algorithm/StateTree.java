@@ -43,8 +43,8 @@ public class StateTree {
      * Else, the state is optimized in basecase RAO.
      */
     private void processOutageInstant(Contingency contingency, Crac crac) {
-        String outageInstantId = crac.getInstant(InstantKind.OUTAGE).getId();
-        State outageState = crac.getState(contingency.getId(), outageInstantId);
+        Instant outageInstant = crac.getInstant(InstantKind.OUTAGE);
+        State outageState = crac.getState(contingency.getId(), outageInstant);
         if (outageState != null) {
             if (anyAvailableRemedialAction(crac, outageState)) {
                 throw new FaraoException(String.format("Outage state %s has available RAs. This is not supported.", outageState));
@@ -64,10 +64,10 @@ public class StateTree {
      * If AUTO or CURATIVE state does not exist, it will not be optimized.
      */
     private void processAutoAndCurativeInstants(Contingency contingency, Crac crac) {
-        String autoInstantId = crac.getInstant(InstantKind.AUTO).getId();
-        String curativeInstantId = crac.getInstant(InstantKind.CURATIVE).getId();
-        State automatonState = crac.getState(contingency.getId(), autoInstantId);
-        State curativeState = crac.getState(contingency.getId(), curativeInstantId);
+        Instant autoInstant = crac.getInstant(InstantKind.AUTO);
+        Instant curativeInstant = crac.getInstant(InstantKind.CURATIVE);
+        State automatonState = crac.getState(contingency.getId(), autoInstant);
+        State curativeState = crac.getState(contingency.getId(), curativeInstant);
         boolean autoRasExist = (automatonState != null) && anyAvailableRemedialAction(crac, automatonState);
         boolean curativeRasExist = (curativeState != null) && anyAvailableRemedialAction(crac, curativeState);
 

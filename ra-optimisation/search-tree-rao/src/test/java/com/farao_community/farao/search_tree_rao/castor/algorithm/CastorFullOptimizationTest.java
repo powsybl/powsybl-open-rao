@@ -340,8 +340,8 @@ class CastorFullOptimizationTest {
                 .newOnContingencyStateUsageRule().withContingency("contingency1").withInstant("curative").withUsageMethod(UsageMethod.AVAILABLE).add()
                 .add();
 
-        state1 = crac.getState(contingency1, "curative");
-        state2 = crac.getState(contingency2, "curative");
+        state1 = crac.getState(contingency1, curativeInstant);
+        state2 = crac.getState(contingency2, curativeInstant);
     }
 
     @Test
@@ -482,8 +482,8 @@ class CastorFullOptimizationTest {
                 .newOnContingencyStateUsageRule().withContingency("contingency2").withInstant("curative").withUsageMethod(UsageMethod.AVAILABLE).add()
                 .add();
 
-        state1 = crac.getState(contingency1, "curative");
-        state2 = crac.getState(contingency2, "curative");
+        state1 = crac.getState(contingency1, curativeInstant);
+        state2 = crac.getState(contingency2, curativeInstant);
     }
 
     @Test
@@ -585,7 +585,7 @@ class CastorFullOptimizationTest {
         assertEquals(493.56, raoResult.getFunctionalCost(prevInstant), 1.);
         assertEquals(256.78, raoResult.getFunctionalCost(curativeInstant), 1.);
         assertEquals(Set.of(crac.getNetworkAction("close_de3_de4"), crac.getNetworkAction("close_fr1_fr5")), raoResult.getActivatedNetworkActionsDuringState(crac.getPreventiveState()));
-        assertEquals(Set.of(crac.getNetworkAction("open_fr1_fr3")), raoResult.getActivatedNetworkActionsDuringState(crac.getState(crac.getContingency("co1_fr2_fr3_1"), "curative")));
+        assertEquals(Set.of(crac.getNetworkAction("open_fr1_fr3")), raoResult.getActivatedNetworkActionsDuringState(crac.getState(crac.getContingency("co1_fr2_fr3_1"), curativeInstant)));
         assertEquals(OptimizationStepsExecuted.FIRST_PREVENTIVE_ONLY, raoResult.getOptimizationStepsExecuted());
     }
 
@@ -607,7 +607,7 @@ class CastorFullOptimizationTest {
         assertEquals(674.6, raoResult.getFunctionalCost(prevInstant), 1.);
         assertEquals(-555.91, raoResult.getFunctionalCost(curativeInstant), 1.);
         assertEquals(Set.of(crac.getNetworkAction("close_de3_de4"), crac.getNetworkAction("open_fr1_fr2")), raoResult.getActivatedNetworkActionsDuringState(crac.getPreventiveState()));
-        assertEquals(Set.of(crac.getNetworkAction("open_fr1_fr3")), raoResult.getActivatedNetworkActionsDuringState(crac.getState(crac.getContingency("co1_fr2_fr3_1"), "curative")));
+        assertEquals(Set.of(crac.getNetworkAction("open_fr1_fr3")), raoResult.getActivatedNetworkActionsDuringState(crac.getState(crac.getContingency("co1_fr2_fr3_1"), curativeInstant)));
         assertEquals(OptimizationStepsExecuted.SECOND_PREVENTIVE_IMPROVED_FIRST, raoResult.getOptimizationStepsExecuted());
         FaraoException exception = assertThrows(FaraoException.class, () -> raoResult.setOptimizationStepsExecuted(OptimizationStepsExecuted.FIRST_PREVENTIVE_ONLY));
         assertEquals("The RaoResult object should not be modified outside of its usual routine", exception.getMessage());
@@ -632,7 +632,7 @@ class CastorFullOptimizationTest {
         assertEquals(674.6, raoResult.getFunctionalCost(prevInstant), 1.);
         assertEquals(-555.91, raoResult.getFunctionalCost(curativeInstant), 1.);
         assertEquals(Set.of(crac.getNetworkAction("close_de3_de4"), crac.getNetworkAction("open_fr1_fr2")), raoResult.getActivatedNetworkActionsDuringState(crac.getPreventiveState()));
-        assertEquals(Set.of(crac.getNetworkAction("open_fr1_fr3")), raoResult.getActivatedNetworkActionsDuringState(crac.getState(crac.getContingency("co1_fr2_fr3_1"), "curative")));
+        assertEquals(Set.of(crac.getNetworkAction("open_fr1_fr3")), raoResult.getActivatedNetworkActionsDuringState(crac.getState(crac.getContingency("co1_fr2_fr3_1"), curativeInstant)));
         assertEquals(OptimizationStepsExecuted.SECOND_PREVENTIVE_IMPROVED_FIRST, raoResult.getOptimizationStepsExecuted());
         FaraoException exception = assertThrows(FaraoException.class, () -> raoResult.setOptimizationStepsExecuted(OptimizationStepsExecuted.FIRST_PREVENTIVE_FELLBACK_TO_INITIAL_SITUATION));
         assertEquals("The RaoResult object should not be modified outside of its usual routine", exception.getMessage());

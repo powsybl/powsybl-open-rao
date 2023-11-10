@@ -9,6 +9,7 @@ package com.farao_community.farao.search_tree_rao.result.impl;
 
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Crac;
+import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
@@ -51,9 +52,11 @@ class RangeActionActivationResultImplTest {
             .add();
 
         pState = crac.getPreventiveState();
-        oState1 = crac.getState("Contingency FR1 FR3", "outage");
-        cState1 = crac.getState("Contingency FR1 FR3", "curative");
-        cState2 = crac.getState("Contingency FR1 FR2", "curative");
+        Instant outageInstant = crac.getInstant("outage");
+        oState1 = crac.getState("Contingency FR1 FR3", outageInstant);
+        Instant curativeInstant = crac.getInstant("curative");
+        cState1 = crac.getState("Contingency FR1 FR3", curativeInstant);
+        cState2 = crac.getState("Contingency FR1 FR2", curativeInstant);
 
         pstRangeAction1 = (PstRangeAction) crac.newPstRangeAction()
             .withId("pst1")

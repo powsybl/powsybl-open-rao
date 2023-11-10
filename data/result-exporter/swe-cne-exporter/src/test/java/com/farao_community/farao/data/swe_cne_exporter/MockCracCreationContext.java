@@ -121,7 +121,7 @@ public class MockCracCreationContext implements UcteCracCreationContext {
                     .filter(instant -> !instant.isPreventive())
                     .filter(instant -> instant != flowCnec.getState().getInstant())
                     .forEach(instant -> {
-                        FlowCnec otherBranchCnec = crac.getFlowCnecs(crac.getState(flowCnec.getState().getContingency().orElseThrow().getId(), instant.getId())).stream()
+                        FlowCnec otherBranchCnec = crac.getFlowCnecs(crac.getState(flowCnec.getState().getContingency().orElseThrow().getId(), instant)).stream()
                             .filter(flowCnec1 -> flowCnec1.getNetworkElements().equals(flowCnec.getNetworkElements()))
                             .findFirst()
                             .orElse(flowCnec);

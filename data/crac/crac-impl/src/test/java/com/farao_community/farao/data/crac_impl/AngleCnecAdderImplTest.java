@@ -112,7 +112,7 @@ class AngleCnecAdderImplTest {
         // Verify states were created
         assertEquals(2, crac.getStates().size());
         assertNotNull(crac.getPreventiveState());
-        assertNotNull(crac.getState(contingency1Id, "outage"));
+        assertNotNull(crac.getState(contingency1Id, crac.getInstant("outage")));
     }
 
     @Test

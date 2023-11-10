@@ -50,6 +50,7 @@ class VoltageMonitoringTest {
     private NetworkAction naCloseL2;
     private PstRangeAction pst;
     private VoltageCnec vcPrev;
+    private Instant curativeInstant;
 
     @BeforeEach
     public void setUp() {
@@ -59,6 +60,7 @@ class VoltageMonitoringTest {
             .newInstant("outage", InstantKind.OUTAGE)
             .newInstant("auto", InstantKind.AUTO)
             .newInstant("curative", InstantKind.CURATIVE);
+        curativeInstant = crac.getInstant("curative");
 
         naOpenL1 = (NetworkAction) crac.newNetworkAction()
             .withId("Open L1")
@@ -298,9 +300,9 @@ class VoltageMonitoringTest {
         VoltageCnec vc1b = addVoltageCnec("vc1b", "curative", "coL1L2", "VL2", 375., 395.);
         VoltageCnec vc2b = addVoltageCnec("vc2b", "curative", "coL1L2", "VL3", 375., 395.);
 
-        when(raoResult.getActivatedNetworkActionsDuringState(crac.getState(crac.getContingency("coL1"), "curative"))).thenReturn(Set.of(naCloseL1));
-        when(raoResult.getActivatedNetworkActionsDuringState(crac.getState(crac.getContingency("coL2"), "curative"))).thenReturn(Set.of(naCloseL2));
-        when(raoResult.getActivatedNetworkActionsDuringState(crac.getState(crac.getContingency("coL1L2"), "curative"))).thenReturn(Set.of(naCloseL1, naCloseL2));
+        when(raoResult.getActivatedNetworkActionsDuringState(crac.getState(crac.getContingency("coL1"), curativeInstant))).thenReturn(Set.of(naCloseL1));
+        when(raoResult.getActivatedNetworkActionsDuringState(crac.getState(crac.getContingency("coL2"), curativeInstant))).thenReturn(Set.of(naCloseL2));
+        when(raoResult.getActivatedNetworkActionsDuringState(crac.getState(crac.getContingency("coL1L2"), curativeInstant))).thenReturn(Set.of(naCloseL1, naCloseL2));
 
         runVoltageMonitoring();
         assertEquals(SECURE, voltageMonitoringResult.getStatus());
@@ -322,7 +324,7 @@ class VoltageMonitoringTest {
 
         VoltageCnec vc = addVoltageCnec("vc", "curative", "co3", "VL2", 375., 395.);
 
-        State state = crac.getState(crac.getContingency("co3"), "curative");
+        State state = crac.getState(crac.getContingency("co3"), curativeInstant);
         when(raoResult.getActivatedRangeActionsDuringState(state)).thenReturn(Set.of(pst));
         when(raoResult.getOptimizedSetPointOnState(state, pst)).thenReturn(-20.);
 
@@ -366,6 +368,7 @@ class VoltageMonitoringTest {
             .newInstant("outage", InstantKind.OUTAGE)
             .newInstant("auto", InstantKind.AUTO)
             .newInstant("curative", InstantKind.CURATIVE);
+        curativeInstant = crac.getInstant("curative");
     }
 
     public void mockPreventiveState() {
@@ -462,7 +465,7 @@ class VoltageMonitoringTest {
         runVoltageMonitoring();
 
         assertEquals(1, voltageMonitoringResult.getAppliedRas().size());
-        assertEquals(Set.of(networkAction), voltageMonitoringResult.getAppliedRas().get(crac.getState("co", "curative")));
+        assertEquals(Set.of(networkAction), voltageMonitoringResult.getAppliedRas().get(crac.getState("co", curativeInstant)));
         assertEquals(HIGH_VOLTAGE_CONSTRAINT, voltageMonitoringResult.getStatus());
     }
 
@@ -488,7 +491,7 @@ class VoltageMonitoringTest {
         runVoltageMonitoring();
 
         assertEquals(1, voltageMonitoringResult.getAppliedRas().size());
-        assertEquals(Set.of(networkAction), voltageMonitoringResult.getAppliedRas().get(crac.getState("co", "curative")));
+        assertEquals(Set.of(networkAction), voltageMonitoringResult.getAppliedRas().get(crac.getState("co", curativeInstant)));
         assertEquals(LOW_VOLTAGE_CONSTRAINT, voltageMonitoringResult.getStatus());
     }
 
@@ -509,7 +512,7 @@ class VoltageMonitoringTest {
 
         assertEquals(SECURE, voltageMonitoringResult.getStatus());
         assertEquals(1, voltageMonitoringResult.getAppliedRas().size());
-        assertEquals(Set.of(networkAction), voltageMonitoringResult.getAppliedRas().get(crac.getState("co", "curative")));
+        assertEquals(Set.of(networkAction), voltageMonitoringResult.getAppliedRas().get(crac.getState("co", curativeInstant)));
     }
 
     @Test
@@ -529,7 +532,7 @@ class VoltageMonitoringTest {
 
         assertEquals(SECURE, voltageMonitoringResult.getStatus());
         assertEquals(1, voltageMonitoringResult.getAppliedRas().size());
-        assertEquals(Set.of(networkAction), voltageMonitoringResult.getAppliedRas().get(crac.getState("co", "curative")));
+        assertEquals(Set.of(networkAction), voltageMonitoringResult.getAppliedRas().get(crac.getState("co", curativeInstant)));
     }
 }
 

@@ -9,6 +9,7 @@ package com.farao_community.farao.data.crac_impl;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Crac;
+import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.InstantKind;
 import com.farao_community.farao.data.crac_api.RemedialAction;
 import com.farao_community.farao.data.crac_api.cnec.AngleCnecAdder;
@@ -29,6 +30,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class OnAngleConstraintAdderImplTest {
     private Crac crac;
     private NetworkActionAdder remedialActionAdder;
+    private Instant curativeInstant;
 
     @BeforeEach
     public void setUp() {
@@ -37,6 +39,7 @@ class OnAngleConstraintAdderImplTest {
             .newInstant("outage", InstantKind.OUTAGE)
             .newInstant("auto", InstantKind.AUTO)
             .newInstant("curative", InstantKind.CURATIVE);
+        curativeInstant = crac.getInstant("curative");
 
         crac.newContingency()
             .withId("Contingency FR1 FR3")
@@ -76,7 +79,7 @@ class OnAngleConstraintAdderImplTest {
         assertEquals("preventive", onAngleConstraint.getInstant().getId());
         assertEquals(UsageMethod.TO_BE_EVALUATED, onAngleConstraint.getUsageMethod());
         assertEquals(UsageMethod.TO_BE_EVALUATED, onAngleConstraint.getUsageMethod(crac.getPreventiveState()));
-        assertEquals(UsageMethod.UNDEFINED, onAngleConstraint.getUsageMethod(crac.getState(crac.getContingency("Contingency FR1 FR3"), "curative")));
+        assertEquals(UsageMethod.UNDEFINED, onAngleConstraint.getUsageMethod(crac.getState(crac.getContingency("Contingency FR1 FR3"), curativeInstant)));
         assertEquals(2, crac.getStates().size());
         assertNotNull(crac.getPreventiveState());
     }
@@ -95,7 +98,7 @@ class OnAngleConstraintAdderImplTest {
         OnAngleConstraint onAngleConstraint = (OnAngleConstraint) usageRule;
         assertEquals("curative", onAngleConstraint.getInstant().getId());
         assertEquals(UsageMethod.TO_BE_EVALUATED, onAngleConstraint.getUsageMethod());
-        assertEquals(UsageMethod.TO_BE_EVALUATED, onAngleConstraint.getUsageMethod(crac.getState(crac.getContingency("Contingency FR1 FR3"), "curative")));
+        assertEquals(UsageMethod.TO_BE_EVALUATED, onAngleConstraint.getUsageMethod(crac.getState(crac.getContingency("Contingency FR1 FR3"), curativeInstant)));
         assertEquals(1, crac.getStates().size());
     }
 

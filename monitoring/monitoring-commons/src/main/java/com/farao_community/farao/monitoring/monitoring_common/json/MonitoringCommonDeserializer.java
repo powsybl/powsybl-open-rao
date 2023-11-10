@@ -66,7 +66,7 @@ public final class MonitoringCommonDeserializer {
                 throw new FaraoException(String.format("No contingency defined with instant %s", instant));
             }
         }
-        State state = crac.getState(contingencyId, instant.getId());
+        State state = crac.getState(contingencyId, instant);
         if (state == null) {
             throw new FaraoException(String.format("State with instant %s and contingency %s does not exist in CRAC", instant, contingencyId));
         }

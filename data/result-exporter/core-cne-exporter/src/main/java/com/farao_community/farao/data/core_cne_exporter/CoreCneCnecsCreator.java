@@ -130,9 +130,10 @@ public final class CoreCneCnecsCreator {
         constraintSeriesB57.getMonitoredSeries().add(newMonitoredSeries(nativeCnecId, outageCnec.getName() + contingencySuffix, monitoredRegisteredResourceB57));
         constraintSeriesOfCnec.add(constraintSeriesB57);
 
+        Instant curativeInstant = cneHelper.getCrac().getInstant(InstantKind.CURATIVE);
         if (optionalContingency.isPresent() &&
-            (!cneHelper.getRaoResult().getActivatedNetworkActionsDuringState(cneHelper.getCrac().getState(optionalContingency.get(), "curative")).isEmpty()
-                || !cneHelper.getRaoResult().getActivatedRangeActionsDuringState(cneHelper.getCrac().getState(optionalContingency.get(), "curative")).isEmpty())) {
+            (!cneHelper.getRaoResult().getActivatedNetworkActionsDuringState(cneHelper.getCrac().getState(optionalContingency.get(), curativeInstant)).isEmpty()
+                || !cneHelper.getRaoResult().getActivatedRangeActionsDuringState(cneHelper.getCrac().getState(optionalContingency.get(), curativeInstant)).isEmpty())) {
             // B54
             // TODO : remove the 'if' condition when we go back to exporting B54 series even if no CRAs are applied
             List<Analog> measurementsB54 = createB54MeasurementsOfCnec(curativeCnec, asMnec, shouldInvertBranchDirection);

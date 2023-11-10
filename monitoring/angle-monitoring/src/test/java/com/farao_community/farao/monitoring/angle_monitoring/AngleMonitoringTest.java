@@ -255,7 +255,7 @@ class AngleMonitoringTest {
         assertFalse(angleMonitoringResult.isSecure());
         assertFalse(angleMonitoringResult.isUnknown());
         // Applied cras
-        State state = crac.getState("Co-1", "curative");
+        State state = crac.getState("Co-1", crac.getInstant("curative"));
         assertEquals(1, angleMonitoringResult.getAppliedCras(state).size());
         assertTrue(angleMonitoringResult.getAppliedCras(state).contains(crac.getNetworkAction("RA-1")));
         assertEquals(1, angleMonitoringResult.getAppliedCras("Co-1 - curative").size());

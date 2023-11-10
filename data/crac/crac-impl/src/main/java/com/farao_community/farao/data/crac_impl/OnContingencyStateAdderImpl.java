@@ -72,7 +72,7 @@ public class OnContingencyStateAdderImpl<T extends AbstractRemedialActionAdder<T
             if (contingency == null) {
                 throw new FaraoException(String.format("Contingency %s of OnContingencyState usage rule does not exist in the crac. Use crac.newContingency() first.", contingencyId));
             }
-            state = owner.getCrac().addState(contingency, instantId);
+            state = owner.getCrac().addState(contingency, instant);
         }
 
         owner.addUsageRule(new OnContingencyStateImpl(usageMethod, state));

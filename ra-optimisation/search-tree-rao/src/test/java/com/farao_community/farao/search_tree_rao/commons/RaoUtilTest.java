@@ -195,7 +195,8 @@ class RaoUtilTest {
 
     @Test
     void testIsOnFlowConstraintAvailable() {
-        State optimizedState = crac.getState("Contingency FR1 FR3", "curative");
+        Instant curativeInstant = crac.getInstant("curative");
+        State optimizedState = crac.getState("Contingency FR1 FR3", curativeInstant);
 
         FlowCnec flowCnec = crac.getFlowCnec("cnec1stateCurativeContingency1");
         FlowResult flowResult = mock(FlowResult.class);

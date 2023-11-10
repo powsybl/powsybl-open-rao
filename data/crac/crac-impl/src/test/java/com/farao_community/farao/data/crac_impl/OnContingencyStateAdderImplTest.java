@@ -7,10 +7,7 @@
 package com.farao_community.farao.data.crac_impl;
 
 import com.farao_community.farao.commons.FaraoException;
-import com.farao_community.farao.data.crac_api.Contingency;
-import com.farao_community.farao.data.crac_api.Crac;
-import com.farao_community.farao.data.crac_api.InstantKind;
-import com.farao_community.farao.data.crac_api.RemedialAction;
+import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_api.network_action.ActionType;
 import com.farao_community.farao.data.crac_api.network_action.NetworkActionAdder;
 import com.farao_community.farao.data.crac_api.usage_rule.OnContingencyState;
@@ -30,6 +27,7 @@ class OnContingencyStateAdderImplTest {
     private Crac crac;
     private Contingency contingency;
     private NetworkActionAdder remedialActionAdder;
+    private Instant curativeInstant;
 
     @BeforeEach
     public void setUp() {
@@ -38,6 +36,7 @@ class OnContingencyStateAdderImplTest {
             .newInstant("outage", InstantKind.OUTAGE)
             .newInstant("auto", InstantKind.AUTO)
             .newInstant("curative", InstantKind.CURATIVE);
+        curativeInstant = crac.getInstant("curative");
 
         contingency = crac.newContingency()
             .withId("contingencyId")
@@ -67,7 +66,7 @@ class OnContingencyStateAdderImplTest {
         assertEquals(contingency, ((OnContingencyState) usageRule).getState().getContingency().orElse(null));
         assertEquals(UsageMethod.AVAILABLE, usageRule.getUsageMethod());
         assertEquals(1, crac.getStates().size());
-        assertNotNull(crac.getState("contingencyId", "curative"));
+        assertNotNull(crac.getState("contingencyId", curativeInstant));
     }
 
     @Test

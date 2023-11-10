@@ -8,6 +8,7 @@ package com.farao_community.farao.data.rao_result_impl.utils;
 
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Crac;
+import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.cnec.AngleCnec;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.cnec.Side;
@@ -108,6 +109,8 @@ public final class ExhaustiveRaoResultCreation {
         // --- NetworkAction results ---
         // -----------------------------
 
+        Instant autoInstant = crac.getInstant("auto");
+        Instant curativeInstant = crac.getInstant("curative");
         for (NetworkAction networkAction : crac.getNetworkActions()) {
             NetworkActionResult nar = raoResult.getAndCreateIfAbsentNetworkActionResult(networkAction);
 
@@ -118,11 +121,11 @@ public final class ExhaustiveRaoResultCreation {
                     break;
                 case "injectionSetpointRaId":
                     // automaton, activated
-                    nar.addActivationForState(crac.getState("contingency2Id", "auto"));
+                    nar.addActivationForState(crac.getState("contingency2Id", autoInstant));
                     break;
                 case "pstSetpointRaId":
                     // forced in curative, activated
-                    nar.addActivationForState(crac.getState("contingency1Id", "curative"));
+                    nar.addActivationForState(crac.getState("contingency1Id", curativeInstant));
                     break;
                 case "switchPairRaId":
                     // available in curative, not activated
@@ -174,8 +177,8 @@ public final class ExhaustiveRaoResultCreation {
                 case "hvdcRange2Id":
                     // activated for two curative states
                     hrar.setInitialSetpoint(-100);
-                    hrar.addActivationForState(crac.getState("contingency1Id", "curative"), 100);
-                    hrar.addActivationForState(crac.getState("contingency2Id", "curative"), 400);
+                    hrar.addActivationForState(crac.getState("contingency1Id", curativeInstant), 100);
+                    hrar.addActivationForState(crac.getState("contingency2Id", curativeInstant), 400);
                     break;
                 default:
                     // do nothing
@@ -187,7 +190,7 @@ public final class ExhaustiveRaoResultCreation {
         // ------------------------------------
         RangeActionResult irar = raoResult.getAndCreateIfAbsentRangeActionResult(crac.getInjectionRangeAction("injectionRange1Id"));
         irar.setInitialSetpoint(100);
-        irar.addActivationForState(crac.getState("contingency1Id", "curative"), -300);
+        irar.addActivationForState(crac.getState("contingency1Id", curativeInstant), -300);
 
         return raoResult;
     }

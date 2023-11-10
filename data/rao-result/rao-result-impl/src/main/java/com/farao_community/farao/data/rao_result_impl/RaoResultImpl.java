@@ -323,7 +323,7 @@ public class RaoResultImpl implements RaoResult {
     }
 
     private State lookupState(String contingencyId, Instant instant) {
-        return crac.getStates(instant.getId()).stream()
+        return crac.getStates(instant).stream()
             .filter(state -> state.getContingency().isPresent() && state.getContingency().get().getId().equals(contingencyId))
             .findAny()
             .orElse(null);

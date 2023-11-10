@@ -239,16 +239,16 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
     }
 
     @Override
-    public Set<State> getStates(String instantId) {
+    public Set<State> getStates(Instant instant) {
         return states.values().stream()
-            .filter(state -> state.getInstant().getId().equals(instantId))
+            .filter(state -> state.getInstant().equals(instant))
             .collect(Collectors.toSet());
     }
 
     @Override
-    public State getState(Contingency contingency, String instantId) {
+    public State getState(Contingency contingency, Instant instant) {
         Objects.requireNonNull(contingency, "Contingency must not be null when getting a state.");
-        return states.get(contingency.getId() + " - " + instantId);
+        return states.get(contingency.getId() + " - " + instant);
     }
 
     State addPreventiveState(String instantId) {
@@ -261,14 +261,13 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
         }
     }
 
-    State addState(Contingency contingency, String instantId) {
+    State addState(Contingency contingency, Instant instant) {
         Objects.requireNonNull(contingency, "Contingency must not be null when adding a state.");
-        Instant instant = getInstant(instantId);
         if (instant.isPreventive()) {
             throw new FaraoException("Impossible to add a preventive state with a contingency.");
         }
-        if (getState(contingency, instantId) != null) {
-            return getState(contingency, instantId);
+        if (getState(contingency, instant) != null) {
+            return getState(contingency, instant);
         } else {
             if (!contingencies.containsKey(contingency.getId())) {
                 throw new FaraoException(format(ADD_ELEMENT_TO_CRAC_ERROR_MESSAGE, contingency.getId()));

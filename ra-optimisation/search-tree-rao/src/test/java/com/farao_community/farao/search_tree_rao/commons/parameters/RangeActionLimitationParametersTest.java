@@ -7,6 +7,7 @@
 package com.farao_community.farao.search_tree_rao.commons.parameters;
 
 import com.farao_community.farao.data.crac_api.Crac;
+import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_impl.utils.ExhaustiveCracCreation;
 import org.junit.jupiter.api.BeforeEach;
@@ -33,8 +34,9 @@ class RangeActionLimitationParametersTest {
     public void setUp() {
         Crac crac = ExhaustiveCracCreation.create();
         state0 = crac.getPreventiveState();
-        state1 = crac.getState("contingency1Id", "curative");
-        state2 = crac.getState("contingency2Id", "curative");
+        Instant curativeInstant = crac.getInstant("curative");
+        state1 = crac.getState("contingency1Id", curativeInstant);
+        state2 = crac.getState("contingency2Id", curativeInstant);
     }
 
     @Test

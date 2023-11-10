@@ -947,10 +947,10 @@ class CimCracCreatorTest {
         assertEquals(14, importedCrac.getFlowCnecs().size());
 
         assertCnecImported("TUU_MR_31", Set.of(
-            "GHIOL_QSDFGH_1_220 - Co-one-1 - auto", "GHIOL_QSDFGH_1_220 - preventive", "GHIOL_QSDFGH_1_220 - Co-one-1 - outage",
-            "GHIOL_QSDFGH_1_220 - Co-one-3 - outage", "GHIOL_QSDFGH_1_220 - Co-one-3 - curative", "GHIOL_QSDFGH_1_220 - Co-one-2 - curative",
-            "GHIOL_QSDFGH_1_220 - Co-one-3 - auto", "GHIOL_QSDFGH_1_220 - Co-one-1 - curative", "GHIOL_QSDFGH_1_220 - Co-one-2 - auto",
-            "GHIOL_QSDFGH_1_220 - Co-one-2 - outage"
+                "GHIOL_QSDFGH_1_220 - Co-one-1 - auto", "GHIOL_QSDFGH_1_220 - preventive", "GHIOL_QSDFGH_1_220 - Co-one-1 - outage",
+                "GHIOL_QSDFGH_1_220 - Co-one-3 - outage", "GHIOL_QSDFGH_1_220 - Co-one-3 - curative", "GHIOL_QSDFGH_1_220 - Co-one-2 - curative",
+                "GHIOL_QSDFGH_1_220 - Co-one-3 - auto", "GHIOL_QSDFGH_1_220 - Co-one-1 - curative", "GHIOL_QSDFGH_1_220 - Co-one-2 - auto",
+                "GHIOL_QSDFGH_1_220 - Co-one-2 - outage"
         ));
         assertHasOneThreshold("GHIOL_QSDFGH_1_220 - preventive", Side.LEFT, Unit.PERCENT_IMAX, -1, 1);
         assertHasOneThreshold("GHIOL_QSDFGH_1_220 - Co-one-1 - outage", Side.LEFT, Unit.PERCENT_IMAX, -1.15, 1.15);
@@ -958,8 +958,8 @@ class CimCracCreatorTest {
         assertHasOneThreshold("GHIOL_QSDFGH_1_220 - Co-one-3 - curative", Side.LEFT, Unit.PERCENT_IMAX, -1.05, 1.05);
 
         assertCnecImported("TUU_MR_56", Set.of(
-            "GHIOL_QSRBJH_1_400 - Co-one-1 - auto", "GHIOL_QSRBJH_1_400 - preventive", "GHIOL_QSRBJH_1_400 - Co-one-1 - outage",
-            "GHIOL_QSRBJH_1_400 - Co-one-1 - curative"
+                "GHIOL_QSRBJH_1_400 - Co-one-1 - auto", "GHIOL_QSRBJH_1_400 - preventive", "GHIOL_QSRBJH_1_400 - Co-one-1 - outage",
+                "GHIOL_QSRBJH_1_400 - Co-one-1 - curative"
         ));
         assertHasOneThreshold("GHIOL_QSRBJH_1_400 - preventive", Side.LEFT, Unit.PERCENT_IMAX, -1, 1);
         assertHasOneThreshold("GHIOL_QSRBJH_1_400 - Co-one-1 - outage", Side.LEFT, Unit.PERCENT_IMAX, -1.5, 1.5);

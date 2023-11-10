@@ -13,10 +13,7 @@ import com.farao_community.farao.data.cne_exporter_commons.CneExporterParameters
 import com.farao_community.farao.data.cne_exporter_commons.CneHelper;
 import com.farao_community.farao.data.cne_exporter_commons.CneUtil;
 import com.farao_community.farao.data.core_cne_exporter.xsd.*;
-import com.farao_community.farao.data.crac_api.Contingency;
-import com.farao_community.farao.data.crac_api.Crac;
-import com.farao_community.farao.data.crac_api.CracFactory;
-import com.farao_community.farao.data.crac_api.InstantKind;
+import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
@@ -47,6 +44,7 @@ class CoreCneCnecsCreatorTest {
     private RaoResult raoResult;
     private RaoParameters raoParameters;
     private CneExporterParameters exporterParameters;
+    private Instant curativeInstant;
 
     @BeforeEach
     public void setUp() {
@@ -57,6 +55,7 @@ class CoreCneCnecsCreatorTest {
             .newInstant("outage", InstantKind.OUTAGE)
             .newInstant("auto", InstantKind.AUTO)
             .newInstant("curative", InstantKind.CURATIVE);
+        curativeInstant = crac.getInstant("curative");
         raoResult = Mockito.mock(RaoResult.class);
         raoParameters = new RaoParameters();
         exporterParameters = new CneExporterParameters("22XCORESO------S-20211115-F299v1", 2, "10YDOM-REGION-1V", CneExporterParameters.ProcessType.DAY_AHEAD_CC,
@@ -334,7 +333,7 @@ class CoreCneCnecsCreatorTest {
         mockCnecResult(cnecCur, 85, 18, 28, 108, 208, .1);
 
         raoParameters.getObjectiveFunctionParameters().setType(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT);
-        when(raoResult.getActivatedNetworkActionsDuringState(crac.getState(cnecCur.getState().getContingency().orElseThrow(), "curative"))).thenReturn(Set.of(Mockito.mock(NetworkAction.class)));
+        when(raoResult.getActivatedNetworkActionsDuringState(crac.getState(cnecCur.getState().getContingency().orElseThrow(), curativeInstant))).thenReturn(Set.of(Mockito.mock(NetworkAction.class)));
         CneHelper cneHelper = new CneHelper(crac, network, raoResult, raoParameters, exporterParameters);
         CoreCneCnecsCreator cneCnecsCreator = new CoreCneCnecsCreator(cneHelper, new MockCracCreationContext(crac));
 

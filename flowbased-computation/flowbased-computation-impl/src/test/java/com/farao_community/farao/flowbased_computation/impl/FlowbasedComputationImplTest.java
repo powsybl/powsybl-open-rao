@@ -7,6 +7,7 @@
 package com.farao_community.farao.flowbased_computation.impl;
 
 import com.farao_community.farao.data.crac_api.Crac;
+import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
@@ -283,7 +284,8 @@ class FlowbasedComputationImplTest {
             elementaryFlowCnecResult.setPtdfZonalSum(Side.LEFT, 0.1);
         });
 
-        raoResult.getAndCreateIfAbsentNetworkActionResult(na).addActivationForState(crac.getState("N-1 FR-BE", "curative"));
+        Instant curativeInstant = crac.getInstant("curative");
+        raoResult.getAndCreateIfAbsentNetworkActionResult(na).addActivationForState(crac.getState("N-1 FR-BE", curativeInstant));
 
         raoResult.setComputationStatus(ComputationStatus.DEFAULT);
 

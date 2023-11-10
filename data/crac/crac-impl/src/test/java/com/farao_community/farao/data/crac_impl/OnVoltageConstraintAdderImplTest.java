@@ -9,6 +9,7 @@ package com.farao_community.farao.data.crac_impl;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Crac;
+import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.InstantKind;
 import com.farao_community.farao.data.crac_api.RemedialAction;
 import com.farao_community.farao.data.crac_api.cnec.VoltageCnecAdder;
@@ -28,6 +29,7 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 class OnVoltageConstraintAdderImplTest {
     private Crac crac;
+    private Instant curativeInstant;
     private NetworkActionAdder remedialActionAdder;
 
     @BeforeEach
@@ -37,6 +39,7 @@ class OnVoltageConstraintAdderImplTest {
             .newInstant("outage", InstantKind.OUTAGE)
             .newInstant("auto", InstantKind.AUTO)
             .newInstant("curative", InstantKind.CURATIVE);
+        curativeInstant = crac.getInstant("curative");
 
         crac.newContingency()
             .withId("Contingency FR1 FR3")
@@ -77,7 +80,7 @@ class OnVoltageConstraintAdderImplTest {
         assertEquals("preventive", onVoltageConstraint.getInstant().getId());
         assertEquals(UsageMethod.TO_BE_EVALUATED, onVoltageConstraint.getUsageMethod());
         assertEquals(UsageMethod.TO_BE_EVALUATED, onVoltageConstraint.getUsageMethod(crac.getPreventiveState()));
-        assertEquals(UsageMethod.UNDEFINED, onVoltageConstraint.getUsageMethod(crac.getState(crac.getContingency("Contingency FR1 FR3"), "curative")));
+        assertEquals(UsageMethod.UNDEFINED, onVoltageConstraint.getUsageMethod(crac.getState(crac.getContingency("Contingency FR1 FR3"), curativeInstant)));
         assertEquals(2, crac.getStates().size());
         assertNotNull(crac.getPreventiveState());
     }
@@ -94,9 +97,9 @@ class OnVoltageConstraintAdderImplTest {
         assertEquals(1, networkAction.getUsageRules().size());
         assertTrue(usageRule instanceof OnVoltageConstraint);
         OnVoltageConstraint onVoltageConstraint = (OnVoltageConstraint) usageRule;
-        assertEquals("curative", onVoltageConstraint.getInstant().getId());
+        assertEquals(curativeInstant, onVoltageConstraint.getInstant());
         assertEquals(UsageMethod.TO_BE_EVALUATED, onVoltageConstraint.getUsageMethod());
-        assertEquals(UsageMethod.TO_BE_EVALUATED, onVoltageConstraint.getUsageMethod(crac.getState(crac.getContingency("Contingency FR1 FR3"), "curative")));
+        assertEquals(UsageMethod.TO_BE_EVALUATED, onVoltageConstraint.getUsageMethod(crac.getState(crac.getContingency("Contingency FR1 FR3"), curativeInstant)));
         assertEquals(1, crac.getStates().size());
     }
 

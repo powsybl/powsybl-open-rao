@@ -50,6 +50,7 @@ class RaoResultRoundTripTest {
         // get exhaustive CRAC and RaoResult
         Crac crac = ExhaustiveCracCreation.create();
         Instant prevInstant = crac.getInstant("preventive");
+        Instant outageInstant = crac.getInstant("outage");
         Instant autoInstant = crac.getInstant("auto");
         Instant curativeInstant = crac.getInstant("curative");
 
@@ -71,10 +72,10 @@ class RaoResultRoundTripTest {
         // --------------------------
         assertEquals(ComputationStatus.DEFAULT, importedRaoResult.getComputationStatus());
         assertEquals(ComputationStatus.DEFAULT, raoResult.getComputationStatus(crac.getPreventiveState()));
-        assertEquals(ComputationStatus.DEFAULT, importedRaoResult.getComputationStatus(crac.getState("contingency1Id", "outage")));
-        assertEquals(ComputationStatus.DEFAULT, importedRaoResult.getComputationStatus(crac.getState("contingency1Id", "curative")));
-        assertEquals(ComputationStatus.DEFAULT, importedRaoResult.getComputationStatus(crac.getState("contingency2Id", "auto")));
-        assertEquals(ComputationStatus.DEFAULT, importedRaoResult.getComputationStatus(crac.getState("contingency2Id", "curative")));
+        assertEquals(ComputationStatus.DEFAULT, importedRaoResult.getComputationStatus(crac.getState("contingency1Id", outageInstant)));
+        assertEquals(ComputationStatus.DEFAULT, importedRaoResult.getComputationStatus(crac.getState("contingency1Id", curativeInstant)));
+        assertEquals(ComputationStatus.DEFAULT, importedRaoResult.getComputationStatus(crac.getState("contingency2Id", autoInstant)));
+        assertEquals(ComputationStatus.DEFAULT, importedRaoResult.getComputationStatus(crac.getState("contingency2Id", curativeInstant)));
 
         // --------------------------
         // --- test Costs results ---
@@ -238,10 +239,10 @@ class RaoResultRoundTripTest {
         // -----------------------------
 
         State pState = crac.getPreventiveState();
-        State oState2 = crac.getState("contingency2Id", "outage");
-        State aState2 = crac.getState("contingency2Id", "auto");
-        State cState1 = crac.getState("contingency1Id", "curative");
-        State cState2 = crac.getState("contingency2Id", "curative");
+        State oState2 = crac.getState("contingency2Id", outageInstant);
+        State aState2 = crac.getState("contingency2Id", autoInstant);
+        State cState1 = crac.getState("contingency1Id", curativeInstant);
+        State cState2 = crac.getState("contingency2Id", curativeInstant);
 
         /*
         complexNetworkActionId, activated in preventive
@@ -389,6 +390,9 @@ class RaoResultRoundTripTest {
             .newInstant("outage", InstantKind.OUTAGE)
             .newInstant("auto", InstantKind.AUTO)
             .newInstant("curative", InstantKind.CURATIVE);
+        Instant outageInstant = crac.getInstant("outage");
+        Instant autoInstant = crac.getInstant("auto");
+        Instant curativeInstant = crac.getInstant("curative");
         PstRangeAction pstPrev = (PstRangeAction) crac.newPstRangeAction().withId("pst-prev").withNetworkElement("pst").withInitialTap(-1)
                 .withTapToAngleConversionMap(Map.of(-1, -10., 0, 0., 1, 10., 2, 20., 3, 30.))
                 .withSpeed(1)
@@ -419,9 +423,9 @@ class RaoResultRoundTripTest {
                 .newThreshold().withMax(1.).withSide(Side.LEFT).withUnit(Unit.MEGAWATT).add()
                 .add();
 
-        State outageState = crac.getState("contingency", "outage");
-        State autoState = crac.getState("contingency", "auto");
-        State curativeState = crac.getState("contingency", "curative");
+        State outageState = crac.getState("contingency", outageInstant);
+        State autoState = crac.getState("contingency", autoInstant);
+        State curativeState = crac.getState("contingency", curativeInstant);
 
         RaoResultImpl raoResult = new RaoResultImpl(crac);
         raoResult.getAndCreateIfAbsentRangeActionResult(pstPrev).setInitialSetpoint(-10.);

@@ -8,6 +8,7 @@ package com.farao_community.farao.data.crac_creation.creator.cse;
 
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Crac;
+import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.RemedialAction;
 import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
@@ -304,8 +305,10 @@ class CseCracCreatorTest {
         setUp("/cracs/cse_crac_onConstraint.xml");
 
         State preventiveState = importedCrac.getPreventiveState();
-        State outageState = importedCrac.getState(importedCrac.getContingency("outage_1"), "outage");
-        State curativeState = importedCrac.getState(importedCrac.getContingency("outage_1"), "curative");
+        Instant outageInstant = importedCrac.getInstant("outage");
+        Instant curativeInstant = importedCrac.getInstant("curative");
+        State outageState = importedCrac.getState(importedCrac.getContingency("outage_1"), outageInstant);
+        State curativeState = importedCrac.getState(importedCrac.getContingency("outage_1"), curativeInstant);
 
         FlowCnec outageCnec = importedCrac.getFlowCnec("French line 1 - FFR1AA1 ->FFR2AA1   - outage_1 - outage");
         FlowCnec curativeCnec = importedCrac.getFlowCnec("French line 1 - FFR1AA1 ->FFR2AA1   - outage_1 - curative");
