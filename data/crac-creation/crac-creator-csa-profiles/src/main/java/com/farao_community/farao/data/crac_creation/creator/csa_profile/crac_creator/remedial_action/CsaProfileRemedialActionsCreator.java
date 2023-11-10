@@ -118,7 +118,7 @@ public class CsaProfileRemedialActionsCreator {
                 RemedialActionAdder<?> remedialActionAdder;
                 String nativeRaName = parentRemedialActionPropertyBag.get(CsaProfileConstants.REMEDIAL_ACTION_NAME);
                 String tsoName = parentRemedialActionPropertyBag.get(CsaProfileConstants.TSO);
-                Optional<String> targetRemedialActionNameOpt = CsaProfileCracUtils.createRemedialActionName(nativeRaName, tsoName);
+                Optional<String> targetRemedialActionNameOpt = CsaProfileCracUtils.createElementName(nativeRaName, tsoName);
                 Optional<Integer> speedOpt = getSpeedOpt(parentRemedialActionPropertyBag.get(CsaProfileConstants.TIME_TO_IMPLEMENT));
 
                 if (remedialActionType.equals(RemedialActionType.NETWORK_ACTION)) {
@@ -428,7 +428,7 @@ public class CsaProfileRemedialActionsCreator {
 
                 String nativeRaName = schemeRemedialActionsPropertyBag.get(CsaProfileConstants.REMEDIAL_ACTION_NAME);
                 String tsoName = schemeRemedialActionsPropertyBag.get(CsaProfileConstants.TSO);
-                Optional<String> targetAutoRemedialActionNameOpt = CsaProfileCracUtils.createRemedialActionName(nativeRaName, tsoName);
+                Optional<String> targetAutoRemedialActionNameOpt = CsaProfileCracUtils.createElementName(nativeRaName, tsoName);
                 Optional<Integer> speedOpt = getSpeedOpt(schemeRemedialActionsPropertyBag.get(CsaProfileConstants.TIME_TO_IMPLEMENT));
 
                 String remedialActionSchemeKind = remedialActionSchemePropertyBag.get(CsaProfileConstants.RA_KIND);

@@ -71,7 +71,8 @@ public class CsaProfileContingencyCreator {
 
         String nativeContingencyName = contingencyPropertyBag.get(CsaProfileConstants.REQUEST_CONTINGENCIES_NAME);
         String equipmentOperator = contingencyPropertyBag.getId(CsaProfileConstants.REQUEST_CONTINGENCIES_EQUIPMENT_OPERATOR);
-        String contingencyName = CsaProfileCracUtils.getUniqueName(equipmentOperator, nativeContingencyName);
+        Optional<String> contingencyNameOpt = CsaProfileCracUtils.createElementName(nativeContingencyName, equipmentOperator);
+        String contingencyName = contingencyNameOpt.orElse(contingencyId);
 
         ContingencyAdder contingencyAdder = crac.newContingency()
             .withId(contingencyId)
@@ -172,7 +173,8 @@ public class CsaProfileContingencyCreator {
                 if (optionalTieLine.isPresent()) {
                     networkElementId = optionalTieLine.get().getId();
                 }
-            } catch (Exception ignored) { } // NOSONAR
+            } catch (Exception ignored) {
+            } // NOSONAR
         }
         return networkElementId;
     }
