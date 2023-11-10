@@ -102,18 +102,10 @@ class RaoResultJsonConstantsTest {
     void testCompareStates() {
         State state1 = Mockito.spy(State.class);
         State state2 = Mockito.spy(State.class);
-        Instant prevInstant = Mockito.mock(Instant.class);
-        Instant outageInstant = Mockito.mock(Instant.class);
-        Instant autoInstant = Mockito.mock(Instant.class);
-        Instant curativeInstant = Mockito.mock(Instant.class);
-        when(prevInstant.getOrder()).thenReturn(0);
-        when(outageInstant.getOrder()).thenReturn(1);
-        when(autoInstant.getOrder()).thenReturn(2);
-        when(curativeInstant.getOrder()).thenReturn(3);
-        when(prevInstant.getInstantKind()).thenReturn(InstantKind.PREVENTIVE);
-        when(outageInstant.getInstantKind()).thenReturn(InstantKind.OUTAGE);
-        when(autoInstant.getInstantKind()).thenReturn(InstantKind.AUTO);
-        when(curativeInstant.getInstantKind()).thenReturn(InstantKind.CURATIVE);
+        Instant prevInstant = new InstantImpl("preventive", InstantKind.PREVENTIVE, null);
+        Instant outageInstant = new InstantImpl("outage", InstantKind.OUTAGE, prevInstant);
+        Instant autoInstant = new InstantImpl("auto", InstantKind.AUTO, outageInstant);
+        Instant curativeInstant = new InstantImpl("curative", InstantKind.CURATIVE, autoInstant);
 
         when(state1.getInstant()).thenReturn(outageInstant);
         when(state2.getInstant()).thenReturn(autoInstant);

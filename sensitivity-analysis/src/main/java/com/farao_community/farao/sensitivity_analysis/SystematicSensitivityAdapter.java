@@ -9,7 +9,6 @@ package com.farao_community.farao.sensitivity_analysis;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.RandomizedString;
 import com.farao_community.farao.data.crac_api.Instant;
-import com.farao_community.farao.data.crac_api.InstantKind;
 import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.cnec.Cnec;
 import com.powsybl.contingency.Contingency;

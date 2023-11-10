@@ -19,6 +19,7 @@ import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
+import com.farao_community.farao.data.crac_impl.InstantImpl;
 import com.farao_community.farao.rao_api.parameters.ObjectiveFunctionParameters;
 import com.farao_community.farao.search_tree_rao.castor.algorithm.BasecaseScenario;
 import com.farao_community.farao.search_tree_rao.castor.algorithm.ContingencyScenario;
@@ -64,10 +65,14 @@ class RaoLoggerTest {
         objectiveFunctionResult = mock(ObjectiveFunctionResult.class);
         flowResult = mock(FlowResult.class);
         basecaseOptimResult = mock(OptimizationResult.class);
-        statePreventive = mockState("preventive", InstantKind.PREVENTIVE);
-        stateCo1Auto = mockState("co1 - auto", InstantKind.AUTO);
-        stateCo1Curative = mockState("co1 - curative", InstantKind.CURATIVE);
-        stateCo2Curative = mockState("co2 - curative", InstantKind.CURATIVE);
+        Instant prevInstant = new InstantImpl("preventive", InstantKind.PREVENTIVE, null);
+        Instant outageInstant = new InstantImpl("outage", InstantKind.OUTAGE, prevInstant);
+        Instant autoInstant = new InstantImpl("auto", InstantKind.AUTO, outageInstant);
+        Instant curativeInstant = new InstantImpl("curative", InstantKind.CURATIVE, autoInstant);
+        statePreventive = mockState("preventive", prevInstant);
+        stateCo1Auto = mockState("co1 - auto", autoInstant);
+        stateCo1Curative = mockState("co1 - curative", curativeInstant);
+        stateCo2Curative = mockState("co2 - curative", curativeInstant);
 
         cnec1 = mockCnec("ne1", stateCo1Curative, -10, -10, 30, 300, 0.1);
         cnec2 = mockCnec("ne2", statePreventive, 0, 0, -10, -10, 0.2);
@@ -76,10 +81,8 @@ class RaoLoggerTest {
         cnec5 = mockCnec("ne5", stateCo1Curative, 30, 300, 20, 100, 0.5);
     }
 
-    private State mockState(String stateId, InstantKind instantKind) {
+    private State mockState(String stateId, Instant instant) {
         State state = mock(State.class);
-        Instant instant = mock(Instant.class);
-        when(instant.getInstantKind()).thenReturn(instantKind);
         when(state.getId()).thenReturn(stateId);
         when(state.getInstant()).thenReturn(instant);
         return state;

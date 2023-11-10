@@ -46,6 +46,7 @@ abstract class AbstractOptimizationPerimeterTest {
             .newInstant("outage", InstantKind.OUTAGE)
             .newInstant("auto", InstantKind.AUTO)
             .newInstant("curative", InstantKind.CURATIVE);
+        crac.newContingency().withId("outage-1").withNetworkElement("FFR1AA1  FFR3AA1  1").add();
         crac.newContingency().withId("outage-2").withNetworkElement("FFR2AA1  DDE3AA1  1").add();
 
         // one preventive CNEC

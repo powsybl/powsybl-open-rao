@@ -11,6 +11,7 @@ import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.InstantKind;
 import com.farao_community.farao.data.crac_api.State;
+import com.farao_community.farao.data.crac_impl.InstantImpl;
 import com.farao_community.farao.data.rao_result_json.deserializers.StateDeserializer;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -32,14 +33,12 @@ class StateDeserializerTest {
         Mockito.when(crac.getPreventiveState()).thenReturn(preventiveState);
         Mockito.when(crac.getState(contingencyId, "curative")).thenReturn(curativeState);
         Mockito.when(crac.getState(contingencyId, "outage")).thenReturn(outageState);
-        Instant prevInstant = Mockito.mock(Instant.class);
-        Mockito.when(prevInstant.getInstantKind()).thenReturn(InstantKind.PREVENTIVE);
+        Instant prevInstant = new InstantImpl("preventive", InstantKind.PREVENTIVE, null);
+        Instant outageInstant = new InstantImpl("outage", InstantKind.OUTAGE, prevInstant);
+        Instant autoInstant = new InstantImpl("auto", InstantKind.AUTO, outageInstant);
+        Instant curativeInstant = new InstantImpl("curative", InstantKind.CURATIVE, autoInstant);
         Mockito.when(crac.getInstant("preventive")).thenReturn(prevInstant);
-        Instant outageInstant = Mockito.mock(Instant.class);
-        Mockito.when(outageInstant.getInstantKind()).thenReturn(InstantKind.OUTAGE);
         Mockito.when(crac.getInstant("outage")).thenReturn(outageInstant);
-        Instant curativeInstant = Mockito.mock(Instant.class);
-        Mockito.when(curativeInstant.getInstantKind()).thenReturn(InstantKind.CURATIVE);
         Mockito.when(crac.getInstant("curative")).thenReturn(curativeInstant);
 
         FaraoException exception = assertThrows(FaraoException.class, () -> StateDeserializer.getState(null, contingencyId, crac, "type"));
