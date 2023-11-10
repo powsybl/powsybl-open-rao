@@ -14,6 +14,7 @@ import com.farao_community.farao.data.crac_api.cnec.VoltageCnec;
 import com.farao_community.farao.data.crac_api.network_action.*;
 import com.farao_community.farao.data.crac_api.range.StandardRange;
 import com.farao_community.farao.data.crac_api.range.TapRange;
+import com.farao_community.farao.data.crac_api.range_action.CounterTradeRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.HvdcRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.InjectionRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
@@ -39,6 +40,7 @@ public class CracJsonSerializerModule extends SimpleModule {
         this.addSerializer(PstRangeAction.class, new PstRangeActionSerializer());
         this.addSerializer(HvdcRangeAction.class, new HvdcRangeActionSerializer());
         this.addSerializer(InjectionRangeAction.class, new InjectionRangeActionSerializer());
+        this.addSerializer(CounterTradeRangeAction.class, new CounterTradeRangeActionSerializer());
         this.addSerializer(OnInstant.class, new OnInstantSerializer());
         this.addSerializer(OnContingencyState.class, new OnStateSerializer());
         this.addSerializer(OnFlowConstraint.class, new OnFlowConstraintSerializer());
