@@ -326,3 +326,142 @@ WHERE {
         nc:GridStateAlteration.normalEnabled ?normalEnabled ;
         nc:TapPositionAction.TapChanger ?tapChangerId ;
 }
+
+# query: remedialActionSchedule
+PREFIX cim: <http://iec.ch/TC57/CIM100#>
+PREFIX nc: <http://entsoe.eu/ns/nc#>
+PREFIX dcat: <http://www.w3.org/ns/dcat#>
+
+SELECT *
+{
+    GRAPH <%s> {
+        ?fullModel
+            dcat:Model.startDate ?startDate ;
+            dcat:Model.endDate ?endDate ;
+            dcat:Model.keyword ?keyword .
+        ?remedialActionSchedule
+            rdf:type nc:RemedialActionSchedule ;
+            cim:IdentifiedObject.mRID ?mRID ;
+    }
+}
+
+# query: schemeRemedialAction
+PREFIX nc: <http://entsoe.eu/ns/nc#>
+PREFIX cim: <http://iec.ch/TC57/CIM100#>
+SELECT *
+WHERE {
+    ?schemeRemedialAction
+        rdf:type nc:SchemeRemedialAction ;
+        cim:IdentifiedObject.mRID ?mRID ;
+        nc:SchemeRemedialAction.RemedialActionScheme ?remedialActionScheme ;
+        nc:RemedialAction.kind ?kind ;
+        nc:RemedialAction.normalAvailable ?normalAvailable .
+        OPTIONAL {
+            ?schemeRemedialAction cim:IdentifiedObject.name ?name .
+        }
+        OPTIONAL {
+            ?schemeRemedialAction nc:RemedialAction.timeToImplement ?timeToImplement .
+        }
+        OPTIONAL {
+            ?schemeRemedialAction nc:RemedialAction.RemedialActionSystemOperator ?tso .
+        }
+}
+
+# query: remedialActionScheme
+PREFIX nc: <http://entsoe.eu/ns/nc#>
+PREFIX cim: <http://iec.ch/TC57/CIM100#>
+SELECT *
+WHERE {
+        ?remedialActionScheme
+            rdf:type nc:RemedialActionScheme ;
+            cim:IdentifiedObject.mRID ?mRID ;
+            nc:RemedialActionScheme.kind ?kind;
+            nc:RemedialActionScheme.normalArmed ?normalArmed;
+}
+
+# query: stage
+PREFIX nc: <http://entsoe.eu/ns/nc#>
+PREFIX cim: <http://iec.ch/TC57/CIM100#>
+SELECT *
+WHERE {
+        ?stage
+            rdf:type nc:Stage ;
+            cim:IdentifiedObject.mRID ?mRID ;
+            nc:Stage.GridStateAlterationCollection ?gridStateAlterationCollection;
+            nc:Stage.RemedialActionScheme ?remedialActionScheme;
+}
+
+# query: gridStateAlterationCollection
+PREFIX nc: <http://entsoe.eu/ns/nc#>
+PREFIX cim: <http://iec.ch/TC57/CIM100#>
+SELECT *
+WHERE {
+        ?gridStateAlterationCollection
+            rdf:type nc:GridStateAlterationCollection ;
+            cim:IdentifiedObject.mRID ?mRID ;
+
+}
+
+
+# query: topologyActionAuto
+PREFIX nc: <http://entsoe.eu/ns/nc#>
+PREFIX cim: <http://iec.ch/TC57/CIM100#>
+SELECT *
+WHERE {
+    ?topologyActionAuto
+        rdf:type nc:TopologyAction ;
+        cim:IdentifiedObject.mRID ?mRID ;
+        nc:GridStateAlteration.GridStateAlterationCollection ?gridStateAlterationCollection ;
+        nc:GridStateAlteration.PropertyReference ?propertyReference ;
+        nc:TopologyAction.Switch ?switchId ;
+            OPTIONAL {
+                ?topologyActionAuto nc:GridStateAlteration.normalEnabled ?normalEnabled .
+            }
+}
+
+# query: rotatingMachineActionAuto
+PREFIX nc: <http://entsoe.eu/ns/nc#>
+PREFIX cim: <http://iec.ch/TC57/CIM100#>
+SELECT *
+WHERE {
+    ?rotatingMachineActionAuto
+        rdf:type nc:RotatingMachineAction ;
+        cim:IdentifiedObject.mRID ?mRID ;
+        nc:GridStateAlteration.PropertyReference ?propertyReference ;
+        nc:GridStateAlteration.GridStateAlterationCollection ?gridStateAlterationCollection ;
+        nc:RotatingMachineAction.RotatingMachine ?rotatingMachineId ;
+
+            OPTIONAL {
+                ?rotatingMachineActionAuto nc:GridStateAlteration.normalEnabled ?normalEnabled .
+            }
+}
+
+# query: shuntCompensatorModificationAuto
+PREFIX nc: <http://entsoe.eu/ns/nc#>
+PREFIX cim: <http://iec.ch/TC57/CIM100#>
+SELECT *
+WHERE {
+    ?shuntCompensatorModificationAuto
+        rdf:type nc:ShuntCompensatorModification ;
+        cim:IdentifiedObject.mRID ?mRID ;
+        nc:GridStateAlteration.PropertyReference ?propertyReference ;
+        nc:GridStateAlteration.GridStateAlterationCollection ?gridStateAlterationCollection ;
+        nc:ShuntCompensatorModification.ShuntCompensator ?shuntCompensatorId ;
+    OPTIONAL {
+        ?shuntCompensatorModificationAuto nc:RemedialAction.normalEnabled ?normalEnabled .
+    }
+}
+
+# query: tapPositionActionAuto
+PREFIX nc: <http://entsoe.eu/ns/nc#>
+PREFIX cim: <http://iec.ch/TC57/CIM100#>
+SELECT *
+WHERE {
+    ?tapPositionActionAuto
+        rdf:type nc:TapPositionAction ;
+        cim:IdentifiedObject.mRID ?mRID ;
+        nc:GridStateAlteration.PropertyReference ?propertyReference;
+        nc:GridStateAlteration.GridStateAlterationCollection ?gridStateAlterationCollection ;
+        nc:TapPositionAction.TapChanger ?tapChangerId ;
+
+}

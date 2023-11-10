@@ -10,6 +10,7 @@ import com.farao_community.farao.data.crac_impl.OnContingencyStateImpl;
 import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Load;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.ShuntCompensator;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
@@ -133,15 +134,14 @@ class InjectionSetPointActionCreationTest {
 
     @Test
     void testImportShuntCompensatorModifications() {
-        Network network = Mockito.mock(Network.class);
-        Branch networkElementMock = Mockito.mock(Branch.class);
-        Mockito.when(networkElementMock.getId()).thenReturn("726c5cfa-d197-4e98-95a1-7dd357dd9353");
-        Mockito.when(network.getIdentifiable("726c5cfa-d197-4e98-95a1-7dd357dd9353")).thenReturn(networkElementMock);
-
-        Load loadMock = Mockito.mock(Load.class);
+        ShuntCompensator loadMock = Mockito.mock(ShuntCompensator.class);
         Mockito.when(loadMock.getId()).thenReturn("726c5cfa-d197-4e98-95a1-7dd357dd9353");
-        Mockito.when(network.getLoadStream()).thenAnswer(invocation -> {
-            Stream<Load> loadStream = Stream.of(loadMock);
+
+        Network network = Mockito.mock(Network.class);
+        Mockito.when(network.getShuntCompensator("726c5cfa-d197-4e98-95a1-7dd357dd9353")).thenReturn(loadMock);
+
+        Mockito.when(network.getShuntCompensatorStream()).thenAnswer(invocation -> {
+            Stream<ShuntCompensator> loadStream = Stream.of(loadMock);
             return loadStream.filter(load ->
                 load.getId().equals("726c5cfa-d197-4e98-95a1-7dd357dd9353")
             );
@@ -157,7 +157,7 @@ class InjectionSetPointActionCreationTest {
         CsaProfileCracCreationTestUtil.assertRaNotImported(cracCreationContext, "e3eb8875-79a7-42d6-8bc2-9ae81e9265c9", ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action e3eb8875-79a7-42d6-8bc2-9ae81e9265c9 will not be imported because StaticPropertyRange has a non integer-castable normalValue so no set-point value was retrieved");
         CsaProfileCracCreationTestUtil.assertRaNotImported(cracCreationContext, "6206f03a-9db7-4c46-86aa-03f8aec9d0f2", ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action 6206f03a-9db7-4c46-86aa-03f8aec9d0f2 will not be imported because there is no StaticPropertyRange linked to that RA");
         CsaProfileCracCreationTestUtil.assertRaNotImported(cracCreationContext, "43f38f8b-b81e-4f23-aa0a-44cdd508642e", ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action 43f38f8b-b81e-4f23-aa0a-44cdd508642e will not be imported because StaticPropertyRange has wrong values of valueKind and direction, the only allowed combination is absolute + none");
-        CsaProfileCracCreationTestUtil.assertRaNotImported(cracCreationContext, "c5c666d1-cc87-4652-ae81-1694a3849a07", ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK, "Remedial action c5c666d1-cc87-4652-ae81-1694a3849a07 will not be imported because Network model does not contain a generator, neither a load with id of ShuntCompensator: f8cf2bf7-c100-40e6-8c7c-c2bfc7099606");
+        CsaProfileCracCreationTestUtil.assertRaNotImported(cracCreationContext, "c5c666d1-cc87-4652-ae81-1694a3849a07", ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK, "Remedial action c5c666d1-cc87-4652-ae81-1694a3849a07 will not be imported because Network model does not contain a shunt compensator with id of ShuntCompensator: f8cf2bf7-c100-40e6-8c7c-c2bfc7099606");
 
         assertEquals(2, cracCreationContext.getCrac().getRemedialActions().size());
         NetworkAction ra1 = cracCreationContext.getCrac().getNetworkAction("d6247efe-3317-4c75-a752-c2a3a9f03aed");

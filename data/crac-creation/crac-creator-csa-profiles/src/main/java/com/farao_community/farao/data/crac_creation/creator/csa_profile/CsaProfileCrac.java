@@ -87,7 +87,7 @@ public class CsaProfileCrac implements NativeCrac {
     }
 
     public PropertyBags getTapPositionAction() {
-        return this.queryTripleStore(CsaProfileConstants.TAP_POSITION_ACTION);
+        return this.queryTripleStore(CsaProfileConstants.TAP_POSITION_ACTION, tripleStoreCsaProfileCrac.contextNames());
     }
 
     public PropertyBags getStaticPropertyRanges() {
@@ -96,6 +96,42 @@ public class CsaProfileCrac implements NativeCrac {
 
     public PropertyBags getContingencyWithRemedialAction() {
         return this.queryTripleStore(CsaProfileConstants.CONTINGENCY_WITH_REMEDIAL_ACTION);
+    }
+
+    public PropertyBags getShuntCompensatorModificationAuto() {
+        return this.queryTripleStore(CsaProfileConstants.SHUNT_COMPENSATOR_MODIFICATION_AUTO);
+    }
+
+    public PropertyBags getRotatingMachineActionAuto() {
+        return this.queryTripleStore(CsaProfileConstants.ROTATING_MACHINE_ACTION_AUTO);
+    }
+
+    public PropertyBags getTopologyActionAuto() {
+        return this.queryTripleStore(CsaProfileConstants.TOPOLOGY_ACTION_AUTO);
+    }
+
+    public PropertyBags getTapPositionActionAuto() {
+        return this.queryTripleStore(CsaProfileConstants.TAP_POSITION_ACTION_AUTO);
+    }
+
+    public PropertyBags getStage() {
+        return this.queryTripleStore(CsaProfileConstants.STAGE);
+    }
+
+    public PropertyBags getGridStateAlterationCollection() {
+        return this.queryTripleStore(CsaProfileConstants.GRID_STATE_ALTERATION_COLLECTION);
+    }
+
+    public PropertyBags getRemedialActionScheme() {
+        return this.queryTripleStore(CsaProfileConstants.REMEDIAL_ACTION_SCHEME, tripleStoreCsaProfileCrac.contextNames());
+    }
+
+    public PropertyBags getSchemeRemedialActions() {
+        return this.queryTripleStore(CsaProfileConstants.SCHEME_REMEDIAL_ACTION);
+    }
+
+    public PropertyBags getRemedialActionsSchedule() {
+        return this.queryTripleStore(CsaProfileConstants.REMEDIAL_ACTION_SCHEDULE, tripleStoreCsaProfileCrac.contextNames());
     }
 
     private PropertyBags queryTripleStore(String queryKey) {

@@ -35,28 +35,28 @@ public class PstRangeActionCreator {
         this.network = network;
     }
 
-    public PstRangeActionAdder getPstRangeActionAdder(Map<String, Set<PropertyBag>> linkedTapPositionActions, Map<String, Set<PropertyBag>> linkedStaticPropertyRanges, String remedialActionId) {
-        PstRangeActionAdder pstRangeActionAdder = crac.newPstRangeAction().withId(remedialActionId);
-        if (linkedTapPositionActions.containsKey(remedialActionId)) {
-            for (PropertyBag tapPositionActionPropertyBag : linkedTapPositionActions.get(remedialActionId)) {
+    public PstRangeActionAdder getPstRangeActionAdder(Map<String, Set<PropertyBag>> linkedTapPositionActions, Map<String, Set<PropertyBag>> linkedStaticPropertyRanges, String gridStateAlterationId, String targetRaId) {
+        PstRangeActionAdder pstRangeActionAdder = crac.newPstRangeAction().withId(targetRaId);
+        if (linkedTapPositionActions.containsKey(gridStateAlterationId)) {
+            for (PropertyBag tapPositionActionPropertyBag : linkedTapPositionActions.get(gridStateAlterationId)) {
                 Set<PropertyBag> linkedStaticPropertyRangesFoTapPositionAction = new HashSet<>();
                 if (linkedStaticPropertyRanges.containsKey(tapPositionActionPropertyBag.getId("mRID"))) {
                     linkedStaticPropertyRangesFoTapPositionAction = linkedStaticPropertyRanges.get(tapPositionActionPropertyBag.getId("mRID"));
                 }
-                addTapPositionElementaryAction(linkedStaticPropertyRangesFoTapPositionAction, remedialActionId, pstRangeActionAdder, tapPositionActionPropertyBag);
+                addTapPositionElementaryAction(linkedStaticPropertyRangesFoTapPositionAction, gridStateAlterationId, targetRaId, pstRangeActionAdder, tapPositionActionPropertyBag);
             }
         }
         return pstRangeActionAdder;
     }
 
-    private void addTapPositionElementaryAction(Set<PropertyBag> linkedStaticPropertyRangesFoTapPositionAction, String remedialActionId, PstRangeActionAdder pstRangeActionAdder, PropertyBag tapPositionActionPropertyBag) {
-        CsaProfileCracUtils.checkNormalEnabled(tapPositionActionPropertyBag, remedialActionId, "TapPositionAction");
-        CsaProfileCracUtils.checkPropertyReference(tapPositionActionPropertyBag, remedialActionId, "TapPositionAction", CsaProfileConstants.PropertyReference.TAP_CHANGER.toString());
+    private void addTapPositionElementaryAction(Set<PropertyBag> linkedStaticPropertyRangesFoTapPositionAction, String gridStateAlterationId, String targetRaId, PstRangeActionAdder pstRangeActionAdder, PropertyBag tapPositionActionPropertyBag) {
+        CsaProfileCracUtils.checkNormalEnabled(tapPositionActionPropertyBag, gridStateAlterationId, "TapPositionAction");
+        CsaProfileCracUtils.checkPropertyReference(tapPositionActionPropertyBag, gridStateAlterationId, "TapPositionAction", CsaProfileConstants.PropertyReference.TAP_CHANGER.toString());
         String rawId = tapPositionActionPropertyBag.get(CsaProfileConstants.TAP_CHANGER);
-        String tapChangerId = rawId.substring(rawId.lastIndexOf("_") + 1);
+        String tapChangerId = rawId.substring(rawId.lastIndexOf("_") + 1).replace("+", " ");
         IidmPstHelper iidmPstHelper = new IidmPstHelper(tapChangerId, network);
         if (!iidmPstHelper.isValid()) {
-            throw new FaraoImportException(ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK, CsaProfileConstants.REMEDIAL_ACTION_MESSAGE + remedialActionId + " will not be imported because " + iidmPstHelper.getInvalidReason());
+            throw new FaraoImportException(ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK, CsaProfileConstants.REMEDIAL_ACTION_MESSAGE + targetRaId + " will not be imported because " + iidmPstHelper.getInvalidReason());
         }
 
         pstRangeActionAdder
@@ -68,11 +68,11 @@ public class PstRangeActionCreator {
             Optional<Integer> normalValueUp = Optional.empty();
             Optional<Integer> normalValueDown = Optional.empty();
             for (PropertyBag staticPropertyRangePropertyBag : linkedStaticPropertyRangesFoTapPositionAction) {
-                CsaProfileCracUtils.checkPropertyReference(staticPropertyRangePropertyBag, remedialActionId, "StaticPropertyRange", CsaProfileConstants.PropertyReference.TAP_CHANGER.toString());
+                CsaProfileCracUtils.checkPropertyReference(staticPropertyRangePropertyBag, gridStateAlterationId, "StaticPropertyRange", CsaProfileConstants.PropertyReference.TAP_CHANGER.toString());
                 String valueKind = staticPropertyRangePropertyBag.get(CsaProfileConstants.STATIC_PROPERTY_RANGE_VALUE_KIND);
 
                 if (!valueKind.equals(CsaProfileConstants.ValueOffsetKind.ABSOLUTE.toString())) {
-                    throw new FaraoImportException(ImportStatus.NOT_YET_HANDLED_BY_FARAO, CsaProfileConstants.REMEDIAL_ACTION_MESSAGE + remedialActionId + " will not be imported because StaticPropertyRange has wrong value of valueKind, the only allowed value is 'absolute'");
+                    throw new FaraoImportException(ImportStatus.NOT_YET_HANDLED_BY_FARAO, CsaProfileConstants.REMEDIAL_ACTION_MESSAGE + targetRaId + " will not be imported because StaticPropertyRange has wrong value of valueKind, the only allowed value is 'absolute'");
                 } else {
                     String direction = staticPropertyRangePropertyBag.get(CsaProfileConstants.STATIC_PROPERTY_RANGE_DIRECTION);
                     int normalValue = (int) Float.parseFloat(staticPropertyRangePropertyBag.get(CsaProfileConstants.NORMAL_VALUE));
@@ -81,7 +81,7 @@ public class PstRangeActionCreator {
                     } else if (direction.equals(CsaProfileConstants.RelativeDirectionKind.UP.toString())) {
                         normalValueUp = Optional.of(normalValue);
                     } else {
-                        throw new FaraoImportException(ImportStatus.NOT_YET_HANDLED_BY_FARAO, CsaProfileConstants.REMEDIAL_ACTION_MESSAGE + remedialActionId + " will not be imported because StaticPropertyRange has wrong value of direction, the only allowed values are RelativeDirectionKind.up and RelativeDirectionKind.down");
+                        throw new FaraoImportException(ImportStatus.NOT_YET_HANDLED_BY_FARAO, CsaProfileConstants.REMEDIAL_ACTION_MESSAGE + targetRaId + " will not be imported because StaticPropertyRange has wrong value of direction, the only allowed values are RelativeDirectionKind.up and RelativeDirectionKind.down");
                     }
                 }
             }
