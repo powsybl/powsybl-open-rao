@@ -29,9 +29,13 @@ GRAPH <%s> {
         dcat:Model.keyword ?keyword .
     ?contingency
         rdf:type nc:OrdinaryContingency ;
-        cim:IdentifiedObject.name ?name ;
-        nc:Contingency.EquipmentOperator ?idEquipmentOperator ;
         nc:Contingency.normalMustStudy ?normalMustStudy ;
+    OPTIONAL {
+            ?contingency cim:IdentifiedObject.name ?name .
+            }
+    OPTIONAL {
+            ?contingency nc:Contingency.EquipmentOperator ?idEquipmentOperator .
+            }
 }
 }
 
@@ -48,9 +52,13 @@ GRAPH <%s> {
         dcat:Model.keyword ?keyword .
     ?contingency
         rdf:type nc:ExceptionalContingency ;
-        cim:IdentifiedObject.name ?name ;
-        nc:Contingency.EquipmentOperator ?idEquipmentOperator ;
         nc:Contingency.normalMustStudy ?normalMustStudy ;
+    OPTIONAL {
+            ?contingency cim:IdentifiedObject.name ?name .
+            }
+    OPTIONAL {
+            ?contingency nc:Contingency.EquipmentOperator ?idEquipmentOperator .
+            }
 }
 }
 
@@ -67,9 +75,13 @@ GRAPH <%s> {
         dcat:Model.keyword ?keyword .
     ?contingency
         rdf:type nc:OutOfRangeContingency ;
-        cim:IdentifiedObject.name ?name ;
-        nc:Contingency.EquipmentOperator ?idEquipmentOperator ;
         nc:Contingency.normalMustStudy ?normalMustStudy ;
+    OPTIONAL {
+            ?contingency cim:IdentifiedObject.name ?name .
+            }
+    OPTIONAL {
+            ?contingency nc:Contingency.EquipmentOperator ?idEquipmentOperator .
+            }
 }
 }
 

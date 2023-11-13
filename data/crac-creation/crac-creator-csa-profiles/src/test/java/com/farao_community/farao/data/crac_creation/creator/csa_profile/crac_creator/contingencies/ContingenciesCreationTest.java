@@ -150,4 +150,23 @@ class ContingenciesCreationTest {
             "c0a25fd7-eee0-4191-98a5-71a74469d36e", "TENNET_TSO_CO1",
             1, List.of("b18cd1aa-7808-49b9-a7cf-605eaf07b006 + e8acf6b6-99cb-45ad-b8dc-16c7866a4ddc"));
     }
+
+    @Test
+    void testCSA76ContingenciesWithoutTsoOrName() {
+        CsaProfileCracCreationContext cracCreationContext = getCsaCracCreationContext("/CSA_76_ContingenciesWithoutTSOorName.zip");
+
+        assertNotNull(cracCreationContext);
+        assertTrue(cracCreationContext.isCreationSuccessful());
+        assertEquals(1, cracCreationContext.getCreationReport().getReport().size());
+        assertEquals(2, cracCreationContext.getCrac().getContingencies().size());
+        List<Contingency> listContingencies = cracCreationContext.getCrac().getContingencies()
+            .stream().sorted(Comparator.comparing(Contingency::getId)).toList();
+
+        CsaProfileCracCreationTestUtil.assertContingencyEquality(listContingencies.iterator().next(),
+            "493480ba-93c3-426e-bee5-347d8dda3749", "CO1",
+            1, List.of("17086487-56ba-4979-b8de-064025a6b4da + 8fdc7abd-3746-481a-a65e-3df56acd8b13"));
+        CsaProfileCracCreationTestUtil.assertContingencyEquality(listContingencies.get(1),
+            "c0a25fd7-eee0-4191-98a5-71a74469d36e", "c0a25fd7-eee0-4191-98a5-71a74469d36e",
+            1, List.of("b18cd1aa-7808-49b9-a7cf-605eaf07b006 + e8acf6b6-99cb-45ad-b8dc-16c7866a4ddc"));
+    }
 }

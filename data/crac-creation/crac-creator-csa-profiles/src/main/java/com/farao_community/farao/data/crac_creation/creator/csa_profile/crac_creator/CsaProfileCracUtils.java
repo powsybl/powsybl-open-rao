@@ -50,12 +50,12 @@ public final class CsaProfileCracUtils {
         return TsoEICode.fromEICode(prefixUrl.substring(prefixUrl.lastIndexOf('/') + 1)).getDisplayName().concat("_").concat(suffix);
     }
 
-    public static Optional<String> createRemedialActionName(String nativeRemedialActionName, String tsoNameUrl) {
-        if (nativeRemedialActionName != null) {
+    public static Optional<String> createElementName(String nativeElementName, String tsoNameUrl) {
+        if (nativeElementName != null) {
             if (tsoNameUrl != null) {
-                return Optional.of(getUniqueName(tsoNameUrl, nativeRemedialActionName));
+                return Optional.of(getUniqueName(tsoNameUrl, nativeElementName));
             }
-            return Optional.of(nativeRemedialActionName);
+            return Optional.of(nativeElementName);
         } else {
             return Optional.empty();
         }
