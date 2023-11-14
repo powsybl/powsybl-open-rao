@@ -289,8 +289,11 @@ WHERE {
         cim:IdentifiedObject.mRID ?mRID ;
         nc:GridStateAlteration.PropertyReference ?propertyReference ;
         nc:GridStateAlteration.GridStateAlterationRemedialAction ?gridStateAlterationRemedialAction ;
-        nc:GridStateAlteration.normalEnabled ?normalEnabled ;
         nc:RotatingMachineAction.RotatingMachine ?rotatingMachineId ;
+
+        OPTIONAL {
+            ?rotatingMachineAction nc:GridStateAlteration.normalEnabled ?normalEnabled .
+        }
 }
 
 # query: shuntCompensatorModification
@@ -305,8 +308,7 @@ WHERE {
         nc:GridStateAlteration.GridStateAlterationRemedialAction ?gridStateAlterationRemedialAction ;
         nc:ShuntCompensatorModification.ShuntCompensator ?shuntCompensatorId ;
     OPTIONAL {
-        ?shuntCompensatorModification
-            nc:RemedialAction.normalEnabled ?normalEnabled .
+        ?shuntCompensatorModification nc:RemedialAction.normalEnabled ?normalEnabled .
     }
 }
 
@@ -335,8 +337,11 @@ WHERE {
         cim:IdentifiedObject.mRID ?mRID ;
         nc:GridStateAlteration.PropertyReference ?propertyReference;
         nc:GridStateAlteration.GridStateAlterationRemedialAction ?gridStateAlterationRemedialAction ;
-        nc:GridStateAlteration.normalEnabled ?normalEnabled ;
         nc:TapPositionAction.TapChanger ?tapChangerId ;
+
+        OPTIONAL {
+                ?tapPositionAction nc:GridStateAlteration.normalEnabled ?normalEnabled .
+            }
 }
 
 # query: remedialActionSchedule
