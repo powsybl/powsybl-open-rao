@@ -53,7 +53,7 @@ public class PstRangeActionCreator {
         CsaProfileCracUtils.checkNormalEnabled(tapPositionActionPropertyBag, gridStateAlterationId, "TapPositionAction");
         CsaProfileCracUtils.checkPropertyReference(tapPositionActionPropertyBag, gridStateAlterationId, "TapPositionAction", CsaProfileConstants.PropertyReference.TAP_CHANGER.toString());
         String rawId = tapPositionActionPropertyBag.get(CsaProfileConstants.TAP_CHANGER);
-        String tapChangerId = rawId.substring(rawId.lastIndexOf("_") + 1).replace("+", " ");
+        String tapChangerId = rawId.substring(rawId.lastIndexOf("#_") + 2).replace("+", " ");
         IidmPstHelper iidmPstHelper = new IidmPstHelper(tapChangerId, network);
         if (!iidmPstHelper.isValid()) {
             throw new FaraoImportException(ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK, CsaProfileConstants.REMEDIAL_ACTION_MESSAGE + targetRaId + " will not be imported because " + iidmPstHelper.getInvalidReason());
