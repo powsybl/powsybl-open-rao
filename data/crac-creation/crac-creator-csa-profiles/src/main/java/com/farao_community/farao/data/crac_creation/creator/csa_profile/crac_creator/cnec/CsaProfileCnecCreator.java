@@ -217,19 +217,31 @@ public class CsaProfileCnecCreator {
                 }
             }
 
-            // newThreshold().withSide(side)
-            //         .withUnit(Unit.AMPERE)
-            //         .withMax(normalValue)
-            //         .withMin(-normalValue).add();
-
             if (inBaseCase) {
                 String cnecName = assessedElementName + " - preventive";
+                for (Side side : sidesToCheck) {
+                    if (patlThresholds.containsKey(side.iidmSide())) {
+                        double threshold = patlThresholds.get(side.iidmSide());
+                        addCurrentLimitThreshold((FlowCnecAdder) cnecAdder, side, threshold);
+                    }
+                }
                 this.addCnec(cnecAdder, limitType, null, assessedElementId, cnecName, Instant.PREVENTIVE, rejectedLinksAssessedElementContingency);
             }
 
             for (Contingency contingency : combinableContingencies) {
-                String cnecName = assessedElementName + " - " + contingency.getName() + " - " + cnecInstant.toString();
-                this.addCnec(cnecAdder, limitType, contingency.getId(), assessedElementId, cnecName, cnecInstant, rejectedLinksAssessedElementContingency);
+                // Add PATL
+                String cnecName = assessedElementName + " - curative";
+                for (Side side : sidesToCheck) {
+                    if (patlThresholds.containsKey(side.iidmSide())) {
+                        double threshold = patlThresholds.get(side.iidmSide());
+                        addCurrentLimitThreshold((FlowCnecAdder) cnecAdder, side, threshold);
+                    }
+                }
+                this.addCnec(cnecAdder, limitType, contingency.getId(), assessedElementId, cnecName, Instant.CURATIVE, rejectedLinksAssessedElementContingency);
+
+                // Add TATLs
+                //String cnecName = assessedElementName + " - " + contingency.getName() + " - " + cnecInstant.toString();
+                //this.addCnec(cnecAdder, limitType, contingency.getId(), assessedElementId, cnecName, cnecInstant, rejectedLinksAssessedElementContingency);
             }
 
         }
@@ -615,6 +627,13 @@ public class CsaProfileCnecCreator {
             return false;
         }
         return true;
+    }
+
+    private void addCurrentLimitThreshold(FlowCnecAdder flowCnecAdder, Side side, double threshold) {
+        flowCnecAdder.newThreshold().withSide(side)
+                .withUnit(Unit.AMPERE)
+                .withMax(threshold)
+                .withMin(-threshold).add();
     }
 
     private Side getSideFromNetworkElement(Identifiable<?> networkElement, String terminalId) {
