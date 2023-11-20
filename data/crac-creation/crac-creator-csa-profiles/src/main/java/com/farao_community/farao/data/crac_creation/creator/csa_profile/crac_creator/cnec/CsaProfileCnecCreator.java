@@ -92,7 +92,6 @@ public class CsaProfileCnecCreator {
             return;
         }
 
-
         String isCombinableWithContingencyStr = assessedElementPropertyBag.get(CsaProfileConstants.REQUEST_ASSESSED_ELEMENT_IS_COMBINABLE_WITH_CONTINGENCY);
         boolean isCombinableWithContingency = Boolean.parseBoolean(isCombinableWithContingencyStr);
         Set<Contingency> combinableContingencies;
@@ -115,7 +114,7 @@ public class CsaProfileCnecCreator {
             }
         }
 
-        CnecAdder cnecAdder;
+        CnecAdder<?> cnecAdder;
         CsaProfileConstants.LimitType limitType;
 
         if (cnecDefinitionMode == CnecDefinitionMode.OPERATIONAL_LIMIT) {
@@ -162,13 +161,12 @@ public class CsaProfileCnecCreator {
                 String cnecName = assessedElementName + " - preventive";
                 this.addCnec(cnecAdder, limitType, null, assessedElementId, cnecName, Instant.PREVENTIVE, rejectedLinksAssessedElementContingency);
             }
-        } else {
-            // Only FlowCNECs are defined with ConductingEquipments
-            limitType = CsaProfileConstants.LimitType.CURRENT;
+        } else { // Only FlowCNECs are defined with ConductingEquipments
             cnecAdder = crac.newFlowCnec()
                     .withMonitored(false)
                     .withOptimized(true)
                     .withReliabilityMargin(0);
+
             String conductingEquipment = assessedElementPropertyBag.getId(CsaProfileConstants.REQUEST_ASSESSED_ELEMENT_CONDUCTING_EQUIPMENT);
             Branch<?> networkElement = network.getBranch(conductingEquipment);
             if (networkElement == null) {
@@ -176,77 +174,45 @@ public class CsaProfileCnecCreator {
                 return;
             }
 
-            // TODO: TieLines
-
-            Map<Branch.Side, Double> patlThresholds = new HashMap<>();
-            Map<Integer, Map<Branch.Side, Double>> tatlThresholds = new HashMap<>();
-
-            Map<Side, Optional<CurrentLimits>> currentLimits = Map.of(
-                    Side.LEFT, networkElement.getCurrentLimits1(),
-                    Side.RIGHT, networkElement.getCurrentLimits2()
-            );
-
             // If only one default monitored side but no current limit, we look at the other side
             Set<Side> sidesToCheck = new HashSet<>();
             if (defaultMonitoredSides.size() == 2) {
                 sidesToCheck.add(Side.LEFT);
                 sidesToCheck.add(Side.RIGHT);
-            } else { // Only one side in the set
+            } else {
+                // Only one side in the set
                 Side defaultSide = defaultMonitoredSides.stream().toList().get(0);
                 Side otherSide = defaultSide == Side.LEFT ? Side.RIGHT : Side.LEFT;
-                sidesToCheck.add(currentLimits.get(defaultSide).isPresent() ? defaultSide : otherSide);
+                sidesToCheck.add(networkElement.getCurrentLimits(defaultSide.iidmSide()).isPresent() ? defaultSide : otherSide);
             }
 
-            for (Side side : sidesToCheck) {
-                if (currentLimits.get(side).isPresent()) {
-                    // Retrieve PATL
-                    Double threshold = currentLimits.get(side).get().getPermanentLimit();
-                    patlThresholds.put(side.iidmSide(), threshold);
+            // TODO: TieLines
 
+            EnumMap<Branch.Side, Double> patlThresholds = new EnumMap<>(Branch.Side.class);
+            Map<Integer, EnumMap<Branch.Side, Double>> tatlThresholds = new HashMap<>();
+
+            for (Side side : sidesToCheck) {
+                Optional<CurrentLimits> currentLimits = networkElement.getCurrentLimits(side.iidmSide());
+                if (currentLimits.isPresent()) {
+                    // Retrieve PATL
+                    Double threshold = currentLimits.get().getPermanentLimit();
+                    patlThresholds.put(side.iidmSide(), threshold);
                     // Retrieve TATLs
-                    List<LoadingLimits.TemporaryLimit> temporaryLimits = currentLimits.get(side).get().getTemporaryLimits().stream().toList();
+                    List<LoadingLimits.TemporaryLimit> temporaryLimits = currentLimits.get().getTemporaryLimits().stream().toList();
                     for (LoadingLimits.TemporaryLimit temporaryLimit : temporaryLimits) {
                         int acceptableDuration = temporaryLimit.getAcceptableDuration();
                         double temporaryThreshold = temporaryLimit.getValue();
                         if (tatlThresholds.containsKey(acceptableDuration)) {
                             tatlThresholds.get(acceptableDuration).put(side.iidmSide(), temporaryThreshold);
                         } else {
-                            tatlThresholds.put(acceptableDuration, Map.of(side.iidmSide(), temporaryThreshold));
+                            tatlThresholds.put(acceptableDuration, new EnumMap<>(Map.of(side.iidmSide(), temporaryThreshold)));
                         }
                     }
                 }
             }
 
-            if (inBaseCase) {
-                String cnecName = assessedElementName + " - preventive";
-                for (Side side : sidesToCheck) {
-                    if (patlThresholds.containsKey(side.iidmSide())) {
-                        double threshold = patlThresholds.get(side.iidmSide());
-                        addCurrentLimitThreshold((FlowCnecAdder) cnecAdder, side, threshold);
-                    }
-                }
-                this.addCnec(cnecAdder, limitType, null, assessedElementId, cnecName, Instant.PREVENTIVE, rejectedLinksAssessedElementContingency);
-            }
-
-            for (Contingency contingency : combinableContingencies) {
-                // Add PATL
-                String cnecName = assessedElementName + " - curative";
-                for (Side side : sidesToCheck) {
-                    if (patlThresholds.containsKey(side.iidmSide())) {
-                        double threshold = patlThresholds.get(side.iidmSide());
-                        addCurrentLimitThreshold((FlowCnecAdder) cnecAdder, side, threshold);
-                    }
-                }
-                this.addCnec(cnecAdder, limitType, contingency.getId(), assessedElementId, cnecName, Instant.CURATIVE, rejectedLinksAssessedElementContingency);
-
-                // Add TATLs
-                //String cnecName = assessedElementName + " - " + contingency.getName() + " - " + cnecInstant.toString();
-                //this.addCnec(cnecAdder, limitType, contingency.getId(), assessedElementId, cnecName, cnecInstant, rejectedLinksAssessedElementContingency);
-            }
-
+            addAllFlowCnecsFromConductingEquipment(cnecAdder, assessedElementId, assessedElementName, inBaseCase, patlThresholds, tatlThresholds, combinableContingencies, rejectedLinksAssessedElementContingency);
         }
-
-
     }
 
     private void addCnec(CnecAdder cnecAdder, CsaProfileConstants.LimitType limitType, String contingencyId, String assessedElementId, String cnecName, Instant instant, String rejectedLinksAssessedElementContingency) {
@@ -760,5 +726,40 @@ public class CsaProfileCnecCreator {
 
     private String writeAssessedElementIgnoredReasonMessage(String assessedElementId, String reason) {
         return "Assessed Element " + assessedElementId + " ignored because " + reason + ".";
+    }
+
+    private Instant getCnecInstant(int acceptableDuration) {
+        if (0 < acceptableDuration && acceptableDuration <= 60) {
+            return Instant.OUTAGE;
+        }
+        if (60 < acceptableDuration && acceptableDuration <= 900) {
+            return Instant.AUTO;
+        }
+        return Instant.CURATIVE;
+    }
+
+    private void addFlowCnec(CnecAdder<?> cnecAdder, String assessedElementId, String assessedElementName, Contingency contingency, Instant instant, EnumMap<Branch.Side, Double> thresholds, String rejectedLinksAssessedElementContingency) {
+        String cnecName = assessedElementName + " - " + instant;
+        for (Branch.Side side : thresholds.keySet()) {
+            double threshold = thresholds.get(side);
+            addCurrentLimitThreshold((FlowCnecAdder) cnecAdder, side == Branch.Side.ONE ? Side.LEFT : Side.RIGHT, threshold);
+        }
+        this.addCnec(cnecAdder, CsaProfileConstants.LimitType.CURRENT, contingency == null ? null : contingency.getId(), assessedElementId, cnecName, instant, rejectedLinksAssessedElementContingency);
+    }
+
+    private void addAllFlowCnecsFromConductingEquipment(CnecAdder<?> cnecAdder, String assessedElementId, String assessedElementName, boolean inBaseCase, EnumMap<Branch.Side, Double> patlThresholds, Map<Integer, EnumMap<Branch.Side, Double>> tatlThresholds, Set<Contingency> combinableContingencies, String rejectedLinksAssessedElementContingency) {
+        if (inBaseCase) {
+            addFlowCnec(cnecAdder, assessedElementId, assessedElementName, null, Instant.PREVENTIVE, patlThresholds, rejectedLinksAssessedElementContingency);
+        }
+
+        for (Contingency contingency : combinableContingencies) {
+            // Add PATL
+            addFlowCnec(cnecAdder, assessedElementId, assessedElementName, contingency, Instant.CURATIVE, patlThresholds, rejectedLinksAssessedElementContingency);
+            // Add TATLs
+            for (int acceptableDuration : tatlThresholds.keySet()) {
+                Instant instant = getCnecInstant(acceptableDuration);
+                addFlowCnec(cnecAdder, assessedElementId, assessedElementName, contingency, instant, tatlThresholds.get(acceptableDuration), rejectedLinksAssessedElementContingency);
+            }
+        }
     }
 }
