@@ -20,6 +20,7 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.sensitivity.*;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 /**
@@ -64,7 +65,7 @@ public class SystematicSensitivityResult {
     private final StateResult nStateResult = new StateResult();
     private final Map<Instant, Map<String, StateResult>> postContingencyResults = new EnumMap<>(Instant.class);
 
-    private final Map<Cnec, StateResult> memoizedStateResultPerCnec = new HashMap<>();
+    private final Map<Cnec, StateResult> memoizedStateResultPerCnec = new ConcurrentHashMap<>();
 
     public SystematicSensitivityResult() {
         this.status = SensitivityComputationStatus.SUCCESS;

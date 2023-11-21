@@ -79,7 +79,7 @@
           "open-load-flow-parameters" : {
             "slackBusSelectionMode" : "MOST_MESHED",
             "slackBusesIds" : [ ],
-            "throwsExceptionInCaseOfSlackDistributionFailure" : false,
+            "slackDistributionFailureBehavior" : "LEAVE_ON_SLACK_BUS",
             "lowImpedanceBranchMode" : "REPLACE_BY_ZERO_IMPEDANCE_LINE",
             "loadPowerFactorConstant" : false,
             "plausibleActivePowerLimit" : 10000.0,
