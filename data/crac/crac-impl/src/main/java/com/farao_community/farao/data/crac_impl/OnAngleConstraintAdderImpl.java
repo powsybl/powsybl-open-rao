@@ -59,7 +59,7 @@ public class OnAngleConstraintAdderImpl<T extends AbstractRemedialActionAdder<T>
             throw new FaraoException(String.format("AngleCnec %s does not exist in crac. Consider adding it first.", angleCnecId));
         }
 
-        AbstractRemedialActionAdder.checkOnConstraintUsageRules(instant.getInstantKind(), angleCnec);
+        AbstractRemedialActionAdder.checkOnConstraintUsageRules(instant, angleCnec);
 
         OnAngleConstraint onAngleConstraint = new OnAngleConstraintImpl(instant, angleCnec);
         owner.addUsageRule(onAngleConstraint);

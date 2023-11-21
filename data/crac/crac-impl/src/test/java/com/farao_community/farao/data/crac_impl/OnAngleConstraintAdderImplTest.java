@@ -160,31 +160,31 @@ class OnAngleConstraintAdderImplTest {
         remedialActionAdder.newOnAngleConstraintUsageRule().withInstant("preventive").withAngleCnec("cnec-out").add(); // ok
         adder = remedialActionAdder.newOnAngleConstraintUsageRule().withInstant("preventive").withAngleCnec("cnec-auto"); // nok
         FaraoException exception = assertThrows(FaraoException.class, adder::add);
-        assertEquals("Remedial actions available at instant PREVENTIVE on a CNEC constraint at instant AUTO are not allowed.", exception.getMessage());
+        assertEquals("Remedial actions available at instant 'preventive' on a CNEC constraint at instant 'auto' are not allowed.", exception.getMessage());
         remedialActionAdder.newOnAngleConstraintUsageRule().withInstant("preventive").withAngleCnec("cnec-cur").add(); // ok
 
         // AUTO RA
         adder = remedialActionAdder.newOnAngleConstraintUsageRule().withInstant("auto").withAngleCnec("cnec-prev"); // nok
         exception = assertThrows(FaraoException.class, adder::add);
-        assertEquals("Remedial actions available at instant AUTO on a CNEC constraint at instant PREVENTIVE are not allowed.", exception.getMessage());
+        assertEquals("Remedial actions available at instant 'auto' on a CNEC constraint at instant 'preventive' are not allowed.", exception.getMessage());
         adder = remedialActionAdder.newOnAngleConstraintUsageRule().withInstant("auto").withAngleCnec("cnec-out"); // nok
         exception = assertThrows(FaraoException.class, adder::add);
-        assertEquals("Remedial actions available at instant AUTO on a CNEC constraint at instant OUTAGE are not allowed.", exception.getMessage());
+        assertEquals("Remedial actions available at instant 'auto' on a CNEC constraint at instant 'outage' are not allowed.", exception.getMessage());
         remedialActionAdder.newOnAngleConstraintUsageRule().withInstant("auto").withAngleCnec("cnec-auto").add(); // ok
         adder = remedialActionAdder.newOnAngleConstraintUsageRule().withInstant("auto").withAngleCnec("cnec-cur"); // nok
         exception = assertThrows(FaraoException.class, adder::add);
-        assertEquals("Remedial actions available at instant AUTO on a CNEC constraint at instant CURATIVE are not allowed.", exception.getMessage());
+        assertEquals("Remedial actions available at instant 'auto' on a CNEC constraint at instant 'curative' are not allowed.", exception.getMessage());
 
         // CURATIVE RA
         adder = remedialActionAdder.newOnAngleConstraintUsageRule().withInstant("curative").withAngleCnec("cnec-prev"); // nok
         exception = assertThrows(FaraoException.class, adder::add);
-        assertEquals("Remedial actions available at instant CURATIVE on a CNEC constraint at instant PREVENTIVE are not allowed.", exception.getMessage());
+        assertEquals("Remedial actions available at instant 'curative' on a CNEC constraint at instant 'preventive' are not allowed.", exception.getMessage());
         adder = remedialActionAdder.newOnAngleConstraintUsageRule().withInstant("curative").withAngleCnec("cnec-out"); // nok
         exception = assertThrows(FaraoException.class, adder::add);
-        assertEquals("Remedial actions available at instant CURATIVE on a CNEC constraint at instant OUTAGE are not allowed.", exception.getMessage());
+        assertEquals("Remedial actions available at instant 'curative' on a CNEC constraint at instant 'outage' are not allowed.", exception.getMessage());
         adder = remedialActionAdder.newOnAngleConstraintUsageRule().withInstant("curative").withAngleCnec("cnec-auto"); // nok
         exception = assertThrows(FaraoException.class, adder::add);
-        assertEquals("Remedial actions available at instant CURATIVE on a CNEC constraint at instant AUTO are not allowed.", exception.getMessage());
+        assertEquals("Remedial actions available at instant 'curative' on a CNEC constraint at instant 'auto' are not allowed.", exception.getMessage());
         remedialActionAdder.newOnAngleConstraintUsageRule().withInstant("curative").withAngleCnec("cnec-cur").add(); // ok
     }
 }

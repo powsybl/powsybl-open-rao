@@ -424,7 +424,7 @@ public class RemedialActionSeriesCreator {
                 break;
             case AUTO:
                 if (contingencies.isEmpty() && invalidContingencies.isEmpty()) {
-                    throw new FaraoImportException(ImportStatus.INCONSISTENCY_IN_DATA, "Cannot create a free-to-use remedial action at instant AUTO");
+                    throw new FaraoImportException(ImportStatus.INCONSISTENCY_IN_DATA, "Cannot create a free-to-use remedial action at instant 'auto'");
                 }
                 if (contingencies.isEmpty()) {
                     throw new FaraoImportException(ImportStatus.INCONSISTENCY_IN_DATA, "Contingencies are all invalid, and usage rule is on AUTO instant");
@@ -458,8 +458,8 @@ public class RemedialActionSeriesCreator {
 
     private static void addOnFlowConstraintUsageRule(RemedialActionAdder<?> adder, FlowCnec flowCnec, Instant instant) {
         // Only allow PRAs with usage method OnFlowConstraint/OnAngleConstraint, for CNECs of instants PREVENTIVE & OUTAGE & CURATIVE
-        // Only allow ARAs with usage method OnFlowConstraint/OnAngleConstraint, for CNECs of instant AUTO
-        //  Only allow CRAs with usage method OnFlowConstraint/OnAngleConstraint, for CNECs of instant CURATIVE
+        // Only allow ARAs with usage method OnFlowConstraint/OnAngleConstraint, for CNECs of instant 'auto'
+        //  Only allow CRAs with usage method OnFlowConstraint/OnAngleConstraint, for CNECs of instant 'curative'
         Map<InstantKind, Set<InstantKind>> allowedCnecInstantKindPerRaInstantKind = Map.of(
             InstantKind.PREVENTIVE, Set.of(InstantKind.PREVENTIVE, InstantKind.OUTAGE, InstantKind.CURATIVE),
             InstantKind.AUTO, Set.of(InstantKind.AUTO),

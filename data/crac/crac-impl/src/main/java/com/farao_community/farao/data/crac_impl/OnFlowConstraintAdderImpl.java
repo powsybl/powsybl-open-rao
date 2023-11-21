@@ -59,7 +59,7 @@ public class OnFlowConstraintAdderImpl<T extends AbstractRemedialActionAdder<T>>
             throw new FaraoException(String.format("FlowCnec %s does not exist in crac. Consider adding it first.", flowCnecId));
         }
 
-        AbstractRemedialActionAdder.checkOnConstraintUsageRules(instant.getInstantKind(), flowCnec);
+        AbstractRemedialActionAdder.checkOnConstraintUsageRules(instant, flowCnec);
 
         //TODO : you'll need the order to get the correct instant once we have more than one curative/auto instant
 

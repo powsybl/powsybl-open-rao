@@ -7,7 +7,6 @@
 
 package com.farao_community.farao.data.crac_impl;
 
-import com.farao_community.farao.data.crac_api.InstantKind;
 import com.farao_community.farao.data.crac_api.RemedialAction;
 import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.cnec.Cnec;
@@ -16,7 +15,10 @@ import com.farao_community.farao.data.crac_api.usage_rule.*;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
 
-import java.util.*;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -122,13 +124,9 @@ public abstract class AbstractRemedialAction<I extends RemedialAction<I>> extend
         List<OnFlowConstraintInCountry> onFlowConstraintInCountryUsageRules = getUsageRules().stream().filter(OnFlowConstraintInCountry.class::isInstance).map(OnFlowConstraintInCountry.class::cast)
                 .filter(ofc -> ofc.getUsageMethod(optimizedState).equals(UsageMethod.TO_BE_EVALUATED)).toList();
         onFlowConstraintInCountryUsageRules.forEach(onFlowConstraintInCountry -> {
-            Map<InstantKind, Set<InstantKind>> allowedCnecInstantPerRaInstant = Map.of(
-                InstantKind.PREVENTIVE, Set.of(InstantKind.PREVENTIVE, InstantKind.OUTAGE, InstantKind.CURATIVE),
-                InstantKind.AUTO, Set.of(InstantKind.AUTO),
-                InstantKind.CURATIVE, Set.of(InstantKind.CURATIVE)
-            );
+            // TODO : is this change OK?
             toBeConsideredCnecs.addAll(perimeterCnecs.stream()
-                    .filter(cnec -> allowedCnecInstantPerRaInstant.get(onFlowConstraintInCountry.getInstant().getInstantKind()).contains(cnec.getState().getInstant().getInstantKind()))
+                    .filter(cnec -> onFlowConstraintInCountry.getInstant().isPreventive() || !cnec.getState().getInstant().comesBefore(onFlowConstraintInCountry.getInstant()))
                     .filter(cnec -> isCnecInCountry(cnec, onFlowConstraintInCountry.getCountry(), network))
                     .collect(Collectors.toSet()));
         });

@@ -59,7 +59,7 @@ public class OnVoltageConstraintAdderImpl<T extends AbstractRemedialActionAdder<
             throw new FaraoException(String.format("VoltageCnec %s does not exist in crac. Consider adding it first.", voltageCnecId));
         }
 
-        AbstractRemedialActionAdder.checkOnConstraintUsageRules(instant.getInstantKind(), voltageCnec);
+        AbstractRemedialActionAdder.checkOnConstraintUsageRules(instant, voltageCnec);
 
         OnVoltageConstraint onVoltageConstraint = new OnVoltageConstraintImpl(instant, voltageCnec);
         owner.addUsageRule(onVoltageConstraint);
