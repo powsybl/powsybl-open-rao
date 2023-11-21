@@ -30,7 +30,7 @@ public final class CsaProfileCracUtils {
 
     public static Map<String, UsageMethod> getConstraintToUsageMethodMap() {
         Map<String, UsageMethod> constraintToUsageMethodMap = new HashMap<>();
-        constraintToUsageMethodMap.put(CsaProfileConstants.ElementCombinationConstraintKind.INCLUDED.toString(), UsageMethod.FORCED);
+        constraintToUsageMethodMap.put(CsaProfileConstants.ElementCombinationConstraintKind.INCLUDED.toString(), UsageMethod.AVAILABLE);
         constraintToUsageMethodMap.put(CsaProfileConstants.ElementCombinationConstraintKind.CONSIDERED.toString(), UsageMethod.AVAILABLE);
         constraintToUsageMethodMap.put(CsaProfileConstants.ElementCombinationConstraintKind.EXCLUDED.toString(), UsageMethod.UNAVAILABLE);
         return constraintToUsageMethodMap;
