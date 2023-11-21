@@ -175,43 +175,45 @@ public class CsaProfileCnecCreator {
             }
 
             // If only one default monitored side but no current limit, we look at the other side
-            Set<Side> sidesToCheck = new HashSet<>();
-            if (defaultMonitoredSides.size() == 2) {
-                sidesToCheck.add(Side.LEFT);
-                sidesToCheck.add(Side.RIGHT);
-            } else {
-                // Only one side in the set
-                Side defaultSide = defaultMonitoredSides.stream().toList().get(0);
-                Side otherSide = defaultSide == Side.LEFT ? Side.RIGHT : Side.LEFT;
-                sidesToCheck.add(((Branch<?>) networkElement).getCurrentLimits(defaultSide.iidmSide()).isPresent() ? defaultSide : otherSide);
-            }
+            if (networkElement instanceof Branch<?>) {
+                Set<Side> sidesToCheck = new HashSet<>();
+                if (defaultMonitoredSides.size() == 2) {
+                    sidesToCheck.add(Side.LEFT);
+                    sidesToCheck.add(Side.RIGHT);
+                } else {
+                    // Only one side in the set
+                    Side defaultSide = defaultMonitoredSides.stream().toList().get(0);
+                    Side otherSide = defaultSide == Side.LEFT ? Side.RIGHT : Side.LEFT;
+                    sidesToCheck.add(((Branch<?>) networkElement).getCurrentLimits(defaultSide.iidmSide()).isPresent() ? defaultSide : otherSide);
+                }
 
-            // TODO: TieLines
+                // TODO: TieLines
 
-            EnumMap<Branch.Side, Double> patlThresholds = new EnumMap<>(Branch.Side.class);
-            Map<Integer, EnumMap<Branch.Side, Double>> tatlThresholds = new HashMap<>();
+                EnumMap<Branch.Side, Double> patlThresholds = new EnumMap<>(Branch.Side.class);
+                Map<Integer, EnumMap<Branch.Side, Double>> tatlThresholds = new HashMap<>();
 
-            for (Side side : sidesToCheck) {
-                Optional<CurrentLimits> currentLimits = ((Branch<?>) networkElement).getCurrentLimits(side.iidmSide());
-                if (currentLimits.isPresent()) {
-                    // Retrieve PATL
-                    Double threshold = currentLimits.get().getPermanentLimit();
-                    patlThresholds.put(side.iidmSide(), threshold);
-                    // Retrieve TATLs
-                    List<LoadingLimits.TemporaryLimit> temporaryLimits = currentLimits.get().getTemporaryLimits().stream().toList();
-                    for (LoadingLimits.TemporaryLimit temporaryLimit : temporaryLimits) {
-                        int acceptableDuration = temporaryLimit.getAcceptableDuration();
-                        double temporaryThreshold = temporaryLimit.getValue();
-                        if (tatlThresholds.containsKey(acceptableDuration)) {
-                            tatlThresholds.get(acceptableDuration).put(side.iidmSide(), temporaryThreshold);
-                        } else {
-                            tatlThresholds.put(acceptableDuration, new EnumMap<>(Map.of(side.iidmSide(), temporaryThreshold)));
+                for (Side side : sidesToCheck) {
+                    Optional<CurrentLimits> currentLimits = ((Branch<?>) networkElement).getCurrentLimits(side.iidmSide());
+                    if (currentLimits.isPresent()) {
+                        // Retrieve PATL
+                        Double threshold = currentLimits.get().getPermanentLimit();
+                        patlThresholds.put(side.iidmSide(), threshold);
+                        // Retrieve TATLs
+                        List<LoadingLimits.TemporaryLimit> temporaryLimits = currentLimits.get().getTemporaryLimits().stream().toList();
+                        for (LoadingLimits.TemporaryLimit temporaryLimit : temporaryLimits) {
+                            int acceptableDuration = temporaryLimit.getAcceptableDuration();
+                            double temporaryThreshold = temporaryLimit.getValue();
+                            if (tatlThresholds.containsKey(acceptableDuration)) {
+                                tatlThresholds.get(acceptableDuration).put(side.iidmSide(), temporaryThreshold);
+                            } else {
+                                tatlThresholds.put(acceptableDuration, new EnumMap<>(Map.of(side.iidmSide(), temporaryThreshold)));
+                            }
                         }
                     }
                 }
-            }
 
-            addAllFlowCnecsFromConductingEquipment(cnecAdder, assessedElementId, assessedElementName, (Branch<?>) networkElement, inBaseCase, patlThresholds, tatlThresholds, combinableContingencies, rejectedLinksAssessedElementContingency);
+                addAllFlowCnecsFromConductingEquipment(cnecAdder, assessedElementId, assessedElementName, (Branch<?>) networkElement, inBaseCase, patlThresholds, tatlThresholds, combinableContingencies, rejectedLinksAssessedElementContingency);
+            }
         }
     }
 
