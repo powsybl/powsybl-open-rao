@@ -211,7 +211,7 @@ public class CsaProfileCnecCreator {
                 }
             }
 
-            addAllFlowCnecsFromConductingEquipment(cnecAdder, assessedElementId, assessedElementName, inBaseCase, patlThresholds, tatlThresholds, combinableContingencies, rejectedLinksAssessedElementContingency);
+            addAllFlowCnecsFromConductingEquipment(cnecAdder, assessedElementId, assessedElementName, networkElement, inBaseCase, patlThresholds, tatlThresholds, combinableContingencies, rejectedLinksAssessedElementContingency);
         }
     }
 
@@ -236,6 +236,10 @@ public class CsaProfileCnecCreator {
                     .add();
         }
 
+        handleRejectedLinksAssessedElementContingency(assessedElementId, cnecName, rejectedLinksAssessedElementContingency);
+    }
+
+    private void handleRejectedLinksAssessedElementContingency(String assessedElementId, String cnecName, String rejectedLinksAssessedElementContingency) {
         if (rejectedLinksAssessedElementContingency.isEmpty()) {
             csaProfileCnecCreationContexts.add(CsaProfileElementaryCreationContext.imported(assessedElementId, cnecName, cnecName, "", false));
         } else {
@@ -599,7 +603,8 @@ public class CsaProfileCnecCreator {
         flowCnecAdder.newThreshold().withSide(side)
                 .withUnit(Unit.AMPERE)
                 .withMax(threshold)
-                .withMin(-threshold).add();
+                .withMin(-threshold)
+                .add();
     }
 
     private Side getSideFromNetworkElement(Identifiable<?> networkElement, String terminalId) {
@@ -738,27 +743,39 @@ public class CsaProfileCnecCreator {
         return Instant.CURATIVE;
     }
 
-    private void addFlowCnec(CnecAdder<?> cnecAdder, String assessedElementId, String assessedElementName, Contingency contingency, Instant instant, EnumMap<Branch.Side, Double> thresholds, String rejectedLinksAssessedElementContingency) {
-        String cnecName = assessedElementName + " - " + instant;
+    private void addFlowCnec(FlowCnecAdder cnecAdder, String assessedElementId, String assessedElementName, Branch<?> networkElement, Contingency contingency, Instant instant, EnumMap<Branch.Side, Double> thresholds, String rejectedLinksAssessedElementContingency) {
+        String cnecName = assessedElementName + " (" + assessedElementId + ")" + " - " + instant;
         for (Branch.Side side : thresholds.keySet()) {
             double threshold = thresholds.get(side);
-            addCurrentLimitThreshold((FlowCnecAdder) cnecAdder, side == Branch.Side.ONE ? Side.LEFT : Side.RIGHT, threshold);
+            addCurrentLimitThreshold(cnecAdder, side == Branch.Side.ONE ? Side.LEFT : Side.RIGHT, threshold);
         }
-        this.addCnec(cnecAdder, CsaProfileConstants.LimitType.CURRENT, contingency == null ? null : contingency.getId(), assessedElementId, cnecName, instant, rejectedLinksAssessedElementContingency);
+        cnecAdder.withNetworkElement(networkElement.getId())
+                .withContingency(contingency == null ? null : contingency.getId())
+                .withId(cnecName)
+                .withName(cnecName)
+                .withInstant(instant);
+        if (networkElement.getTerminal(Branch.Side.ONE) != null) {
+            cnecAdder.withNominalVoltage(networkElement.getTerminal(Branch.Side.ONE).getVoltageLevel().getNominalV(), Side.LEFT);
+        }
+        if (networkElement.getTerminal(Branch.Side.TWO) != null) {
+            cnecAdder.withNominalVoltage(networkElement.getTerminal(Branch.Side.TWO).getVoltageLevel().getNominalV(), Side.RIGHT);
+        }
+        cnecAdder.add();
+        handleRejectedLinksAssessedElementContingency(assessedElementId, cnecName, rejectedLinksAssessedElementContingency);
     }
 
-    private void addAllFlowCnecsFromConductingEquipment(CnecAdder<?> cnecAdder, String assessedElementId, String assessedElementName, boolean inBaseCase, EnumMap<Branch.Side, Double> patlThresholds, Map<Integer, EnumMap<Branch.Side, Double>> tatlThresholds, Set<Contingency> combinableContingencies, String rejectedLinksAssessedElementContingency) {
+    private void addAllFlowCnecsFromConductingEquipment(CnecAdder<?> cnecAdder, String assessedElementId, String assessedElementName, Branch<?> networkElement, boolean inBaseCase, EnumMap<Branch.Side, Double> patlThresholds, Map<Integer, EnumMap<Branch.Side, Double>> tatlThresholds, Set<Contingency> combinableContingencies, String rejectedLinksAssessedElementContingency) {
         if (inBaseCase) {
-            addFlowCnec(cnecAdder, assessedElementId, assessedElementName, null, Instant.PREVENTIVE, patlThresholds, rejectedLinksAssessedElementContingency);
+            addFlowCnec((FlowCnecAdder) cnecAdder, assessedElementId, assessedElementName, networkElement, null, Instant.PREVENTIVE, patlThresholds, rejectedLinksAssessedElementContingency);
         }
 
         for (Contingency contingency : combinableContingencies) {
             // Add PATL
-            addFlowCnec(cnecAdder, assessedElementId, assessedElementName, contingency, Instant.CURATIVE, patlThresholds, rejectedLinksAssessedElementContingency);
+            addFlowCnec((FlowCnecAdder) cnecAdder, assessedElementId, assessedElementName, networkElement, contingency, Instant.CURATIVE, patlThresholds, rejectedLinksAssessedElementContingency);
             // Add TATLs
             for (int acceptableDuration : tatlThresholds.keySet()) {
                 Instant instant = getCnecInstant(acceptableDuration);
-                addFlowCnec(cnecAdder, assessedElementId, assessedElementName, contingency, instant, tatlThresholds.get(acceptableDuration), rejectedLinksAssessedElementContingency);
+                addFlowCnec((FlowCnecAdder) cnecAdder, assessedElementId, assessedElementName, networkElement, contingency, instant, tatlThresholds.get(acceptableDuration), rejectedLinksAssessedElementContingency);
             }
         }
     }
