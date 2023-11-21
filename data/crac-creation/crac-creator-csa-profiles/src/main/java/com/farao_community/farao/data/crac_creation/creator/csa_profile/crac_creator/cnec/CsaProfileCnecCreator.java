@@ -168,9 +168,9 @@ public class CsaProfileCnecCreator {
                     .withReliabilityMargin(0);
 
             String conductingEquipment = assessedElementPropertyBag.getId(CsaProfileConstants.REQUEST_ASSESSED_ELEMENT_CONDUCTING_EQUIPMENT);
-            Branch<?> networkElement = network.getBranch(conductingEquipment);
+            Identifiable<?> networkElement = getNetworkElementInNetwork(conductingEquipment);
             if (networkElement == null) {
-                csaProfileCnecCreationContexts.add(CsaProfileElementaryCreationContext.notImported(assessedElementId, ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK, writeAssessedElementIgnoredReasonMessage(assessedElementId, "no branch with mRID " + conductingEquipment + " exists in the network")));
+                csaProfileCnecCreationContexts.add(CsaProfileElementaryCreationContext.notImported(assessedElementId, ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK, writeAssessedElementIgnoredReasonMessage(assessedElementId, "no branch or dangling line with mRID " + conductingEquipment + " exists in the network")));
                 return;
             }
 
@@ -183,7 +183,7 @@ public class CsaProfileCnecCreator {
                 // Only one side in the set
                 Side defaultSide = defaultMonitoredSides.stream().toList().get(0);
                 Side otherSide = defaultSide == Side.LEFT ? Side.RIGHT : Side.LEFT;
-                sidesToCheck.add(networkElement.getCurrentLimits(defaultSide.iidmSide()).isPresent() ? defaultSide : otherSide);
+                sidesToCheck.add(((Branch<?>) networkElement).getCurrentLimits(defaultSide.iidmSide()).isPresent() ? defaultSide : otherSide);
             }
 
             // TODO: TieLines
@@ -192,7 +192,7 @@ public class CsaProfileCnecCreator {
             Map<Integer, EnumMap<Branch.Side, Double>> tatlThresholds = new HashMap<>();
 
             for (Side side : sidesToCheck) {
-                Optional<CurrentLimits> currentLimits = networkElement.getCurrentLimits(side.iidmSide());
+                Optional<CurrentLimits> currentLimits = ((Branch<?>) networkElement).getCurrentLimits(side.iidmSide());
                 if (currentLimits.isPresent()) {
                     // Retrieve PATL
                     Double threshold = currentLimits.get().getPermanentLimit();
@@ -211,11 +211,11 @@ public class CsaProfileCnecCreator {
                 }
             }
 
-            addAllFlowCnecsFromConductingEquipment(cnecAdder, assessedElementId, assessedElementName, networkElement, inBaseCase, patlThresholds, tatlThresholds, combinableContingencies, rejectedLinksAssessedElementContingency);
+            addAllFlowCnecsFromConductingEquipment(cnecAdder, assessedElementId, assessedElementName, (Branch<?>) networkElement, inBaseCase, patlThresholds, tatlThresholds, combinableContingencies, rejectedLinksAssessedElementContingency);
         }
     }
 
-    private void addCnec(CnecAdder cnecAdder, CsaProfileConstants.LimitType limitType, String contingencyId, String assessedElementId, String cnecName, Instant instant, String rejectedLinksAssessedElementContingency) {
+    private void addCnec(CnecAdder<?> cnecAdder, CsaProfileConstants.LimitType limitType, String contingencyId, String assessedElementId, String cnecName, Instant instant, String rejectedLinksAssessedElementContingency) {
         if (CsaProfileConstants.LimitType.CURRENT.equals(limitType)) {
             ((FlowCnecAdder) cnecAdder).withContingency(contingencyId)
                     .withId(cnecName)

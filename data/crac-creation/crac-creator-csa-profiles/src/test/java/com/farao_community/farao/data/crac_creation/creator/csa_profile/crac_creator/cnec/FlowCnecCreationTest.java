@@ -252,7 +252,7 @@ class FlowCnecCreationTest {
 
         assertNotNull(cracCreationContext);
         assertTrue(cracCreationContext.isCreationSuccessful());
-        assertEquals(38, cracCreationContext.getCreationReport().getReport().size());
+        assertEquals(34, cracCreationContext.getCreationReport().getReport().size());
         assertEquals(15, cracCreationContext.getCrac().getContingencies().size());
         // TODO: Should be 4 but ConductingEquipments are not branches
         assertEquals(0, cracCreationContext.getCrac().getFlowCnecs().size());
@@ -340,7 +340,7 @@ class FlowCnecCreationTest {
 
         assertNotNull(cracCreationContext);
         assertTrue(cracCreationContext.isCreationSuccessful());
-        assertEquals(49, cracCreationContext.getCreationReport().getReport().size());
+        assertEquals(47, cracCreationContext.getCreationReport().getReport().size());
         assertEquals(7, cracCreationContext.getCrac().getContingencies().size());
         // TODO: Should be 4 but ConductingEquipments are not branches
         assertEquals(0, cracCreationContext.getCrac().getFlowCnecs().size());
