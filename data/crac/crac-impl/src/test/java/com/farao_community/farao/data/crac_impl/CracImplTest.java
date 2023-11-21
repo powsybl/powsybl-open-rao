@@ -951,4 +951,39 @@ class CracImplTest {
         FaraoException exception = assertThrows(FaraoException.class, () -> crac.getInstant(InstantKind.CURATIVE));
         assertEquals("Crac does not contain exactly one instant of kind 'CURATIVE'. It contains 2 instants of kind 'CURATIVE'", exception.getMessage());
     }
+
+    @Test
+    void testGetPreviousInstant() {
+        assertNull(crac.getPreviousInstant(preventiveInstant));
+        assertEquals(preventiveInstant, crac.getPreviousInstant(outageInstant));
+        assertEquals(outageInstant, crac.getPreviousInstant(autoInstant));
+        assertEquals(autoInstant, crac.getPreviousInstant(curativeInstant));
+    }
+
+    @Test
+    void testGetPreviousInstantFromInvalidInstants() {
+        assertThrows(NullPointerException.class, () -> crac.getPreviousInstant((Instant) null));
+
+        InstantImpl instantNotDefinedInTheCrac = new InstantImpl("instantNotDefinedInTheCrac", InstantKind.PREVENTIVE, null);
+        FaraoException exception = assertThrows(FaraoException.class, () -> crac.getPreviousInstant(instantNotDefinedInTheCrac));
+        assertEquals("Provided instant is not defined in the CRAC", exception.getMessage());
+
+        InstantImpl anotherInstanceOfInstantDefinedInTheCrac = new InstantImpl("preventive", InstantKind.PREVENTIVE, null);
+        exception = assertThrows(FaraoException.class, () -> crac.getPreviousInstant(anotherInstanceOfInstantDefinedInTheCrac));
+        assertEquals("Provided instant is not defined in the CRAC", exception.getMessage());
+    }
+
+    @Test
+    void testGetPreviousInstantWithId() {
+        assertNull(crac.getPreviousInstant("preventive"));
+        assertEquals(preventiveInstant, crac.getPreviousInstant("outage"));
+        assertEquals(outageInstant, crac.getPreviousInstant("auto"));
+        assertEquals(autoInstant, crac.getPreviousInstant("curative"));
+    }
+
+    @Test
+    void testGetPreviousInstantFromInvalidInstantId() {
+        FaraoException exception = assertThrows(FaraoException.class, () -> crac.getPreviousInstant("never defined"));
+        assertEquals("Instant 'never defined' has not been defined", exception.getMessage());
+    }
 }

@@ -148,7 +148,7 @@ public class CastorFullOptimization {
         if (raoParameters.getObjectiveFunctionParameters().getPreventiveStopCriterion().equals(ObjectiveFunctionParameters.PreventiveStopCriterion.SECURE)
             && preventiveOptimalCost > 0) {
             BUSINESS_LOGS.info("Preventive perimeter could not be secured; there is no point in optimizing post-contingency perimeters. The RAO will be interrupted here.");
-            mergedRaoResults = new PreventiveAndCurativesRaoResultImpl(raoInput.getCrac().getPreventiveState(), initialOutput, preventiveResult, preCurativeSensitivityAnalysisOutput);
+            mergedRaoResults = new PreventiveAndCurativesRaoResultImpl(raoInput.getCrac().getPreventiveState(), initialOutput, preventiveResult, preCurativeSensitivityAnalysisOutput, raoInput.getCrac());
             // log results
             RaoLogger.logMostLimitingElementsResults(BUSINESS_LOGS, preCurativeSensitivityAnalysisOutput, raoParameters.getObjectiveFunctionParameters().getType(), NUMBER_LOGGED_ELEMENTS_END_RAO);
 
@@ -160,7 +160,7 @@ public class CastorFullOptimization {
         BUSINESS_LOGS.info("----- Post-contingency perimeters optimization [end]");
 
         // ----- SECOND PREVENTIVE PERIMETER OPTIMIZATION -----
-        mergedRaoResults = new PreventiveAndCurativesRaoResultImpl(stateTree, initialOutput, preventiveResult, preCurativeSensitivityAnalysisOutput, postContingencyResults);
+        mergedRaoResults = new PreventiveAndCurativesRaoResultImpl(stateTree, initialOutput, preventiveResult, preCurativeSensitivityAnalysisOutput, postContingencyResults, raoInput.getCrac());
         boolean logFinalResultsOutsideOfSecondPreventive = true;
         // Run second preventive when necessary
         if (shouldRunSecondPreventiveRao(raoParameters, preventiveResult, postContingencyResults.values(), mergedRaoResults, targetEndInstant, preventiveRaoTime)) {
@@ -515,7 +515,8 @@ public class CastorFullOptimization {
             secondPreventiveRaoResult.remedialActionsExcluded,
             secondPreventiveRaoResult.postPraSensitivityAnalysisOutput,
             newPostContingencyResults,
-            postCraSensitivityAnalysisOutput);
+            postCraSensitivityAnalysisOutput,
+            raoInput.getCrac());
     }
 
     private static class SecondPreventiveRaoResult {

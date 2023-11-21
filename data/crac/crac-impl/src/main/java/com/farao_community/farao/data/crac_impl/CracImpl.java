@@ -198,6 +198,34 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
             .collect(Collectors.toSet());
     }
 
+    @Override
+    public Instant getPreviousInstant(Instant providedInstant) {
+        Objects.requireNonNull(providedInstant);
+        if (!instants.containsKey(providedInstant.getId()) || instants.get(providedInstant.getId()) != providedInstant) {
+            throw new FaraoException("Provided instant is not defined in the CRAC");
+        }
+        return getPreviousOptionalInstant(providedInstant);
+    }
+
+    private Instant getPreviousOptionalInstant(Instant providedInstant) {
+        return instants.values().stream()
+            .filter(potentialPreviousInstant ->
+                potentialPreviousInstant.getOrder() == providedInstant.getOrder() - 1
+            )
+            .reduce((a, b) -> {
+                throw new AssertionError("Instants in the crac cannot have the same order");
+            })
+            .orElse(null);
+    }
+
+    @Override
+    public Instant getPreviousInstant(String providedInstantId) {
+        if (!instants.containsKey(providedInstantId)) {
+            throw new FaraoException(String.format("Instant '%s' has not been defined", providedInstantId));
+        }
+        return getPreviousOptionalInstant(instants.get(providedInstantId));
+    }
+
     void addContingency(Contingency contingency) {
         contingencies.put(contingency.getId(), contingency);
     }

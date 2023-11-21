@@ -25,13 +25,12 @@ import java.util.Objects;
 public class InstantImpl extends AbstractIdentifiable<InstantImpl> implements Instant<InstantImpl> {
 
     private final InstantKind instantKind;
-    private final Instant previous;
     private final int order;
 
     public InstantImpl(String id, InstantKind instantKind, Instant previous) {
         super(id);
         if (Objects.equals(id, "initial")) {
-            throw new FaraoException("Instant with id \"initial\" cannont be defined");
+            throw new FaraoException("Instant with id 'initial' can't be defined");
         }
         if (previous == null) {
             // TODO should first instant always be a preventive one ?
@@ -40,7 +39,6 @@ public class InstantImpl extends AbstractIdentifiable<InstantImpl> implements In
             this.order = previous.getOrder() + 1;
         }
         this.instantKind = instantKind;
-        this.previous = previous;
     }
 
     public int getOrder() {
@@ -58,10 +56,6 @@ public class InstantImpl extends AbstractIdentifiable<InstantImpl> implements In
 
     public boolean comesBefore(Instant otherInstant) {
         return this.order < otherInstant.getOrder();
-    }
-
-    public Instant getPreviousInstant() {
-        return previous;
     }
 
     @Override

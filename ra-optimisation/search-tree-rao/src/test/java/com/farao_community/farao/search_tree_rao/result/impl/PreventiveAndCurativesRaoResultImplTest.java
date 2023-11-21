@@ -17,7 +17,7 @@ import com.farao_community.farao.data.crac_api.cnec.VoltageCnec;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
-import com.farao_community.farao.data.crac_impl.InstantImpl;
+import com.farao_community.farao.data.crac_impl.CracImpl;
 import com.farao_community.farao.data.rao_result_api.ComputationStatus;
 import com.farao_community.farao.data.rao_result_api.OptimizationStepsExecuted;
 import com.farao_community.farao.search_tree_rao.castor.algorithm.BasecaseScenario;
@@ -38,9 +38,7 @@ import static com.farao_community.farao.commons.Unit.MEGAWATT;
 import static com.farao_community.farao.data.crac_api.cnec.Side.LEFT;
 import static com.farao_community.farao.data.crac_api.cnec.Side.RIGHT;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -49,10 +47,11 @@ import static org.mockito.Mockito.when;
  */
 class PreventiveAndCurativesRaoResultImplTest {
     private static final double DOUBLE_TOLERANCE = 1e-3;
-    private static final Instant INSTANT_PREV = new InstantImpl("preventive", InstantKind.PREVENTIVE, null);
-    private static final Instant INSTANT_OUTAGE = new InstantImpl("outage", InstantKind.OUTAGE, INSTANT_PREV);
-    private static final Instant INSTANT_AUTO = new InstantImpl("auto", InstantKind.AUTO, INSTANT_OUTAGE);
-    private static final Instant INSTANT_CURATIVE = new InstantImpl("curative", InstantKind.CURATIVE, INSTANT_AUTO);
+    private CracImpl crac;
+    private Instant preventiveInstant;
+    private Instant outageInstant;
+    private Instant autoInstant;
+    private Instant curativeInstant;
     private PrePerimeterResult initialResult;
     private PerimeterResult postPrevResult;
     private PrePerimeterResult preCurativeResult;
@@ -78,6 +77,15 @@ class PreventiveAndCurativesRaoResultImplTest {
 
     @BeforeEach
     public void setUp() {
+        crac = new CracImpl("test-crac")
+            .newInstant("preventive", InstantKind.PREVENTIVE)
+            .newInstant("outage", InstantKind.OUTAGE)
+            .newInstant("auto", InstantKind.AUTO)
+            .newInstant("curative", InstantKind.CURATIVE);
+        preventiveInstant = crac.getInstant("preventive");
+        outageInstant = crac.getInstant("outage");
+        autoInstant = crac.getInstant("auto");
+        curativeInstant = crac.getInstant("curative");
         cnec1 = mock(FlowCnec.class);
         cnec1auto = mock(FlowCnec.class);
         cnec2 = mock(FlowCnec.class);
@@ -93,18 +101,18 @@ class PreventiveAndCurativesRaoResultImplTest {
         when(cnec1auto.getState()).thenReturn(autoState1);
         when(cnec2.getState()).thenReturn(curativeState2);
         when(cnec4.getState()).thenReturn(outageState);
-        when(preventiveState.getInstant()).thenReturn(INSTANT_PREV);
+        when(preventiveState.getInstant()).thenReturn(preventiveInstant);
         Contingency contingency1 = mock(Contingency.class);
         Contingency contingency2 = mock(Contingency.class);
-        when(outageState.getInstant()).thenReturn(INSTANT_OUTAGE);
+        when(outageState.getInstant()).thenReturn(outageInstant);
         when(outageState.getContingency()).thenReturn(Optional.of(contingency1));
-        when(autoState1.getInstant()).thenReturn(INSTANT_AUTO);
+        when(autoState1.getInstant()).thenReturn(autoInstant);
         when(autoState1.getContingency()).thenReturn(Optional.of(contingency1));
-        when(curativeState1.getInstant()).thenReturn(INSTANT_CURATIVE);
+        when(curativeState1.getInstant()).thenReturn(curativeInstant);
         when(curativeState1.getContingency()).thenReturn(Optional.of(contingency1));
-        when(curativeState2.getInstant()).thenReturn(INSTANT_CURATIVE);
+        when(curativeState2.getInstant()).thenReturn(curativeInstant);
         when(curativeState2.getContingency()).thenReturn(Optional.of(contingency2));
-        when(curativeState3.getInstant()).thenReturn(INSTANT_CURATIVE);
+        when(curativeState3.getInstant()).thenReturn(curativeInstant);
 
         initialResult = mock(PrePerimeterResult.class);
         postPrevResult = mock(PerimeterResult.class);
@@ -212,7 +220,7 @@ class PreventiveAndCurativesRaoResultImplTest {
             initialResult,
             postPrevResult,
             preCurativeResult,
-            Map.of(autoState1, autoResult1, curativeState1, curativeResult1, curativeState2, curativeResult2));
+            Map.of(autoState1, autoResult1, curativeState1, curativeResult1, curativeState2, curativeResult2), crac);
     }
 
     private void mockCnecResults(FlowResult flowResult, FlowCnec cnec, double marginMw, double marginA, double relMarginMw, double relMarginA) {
@@ -268,13 +276,13 @@ class PreventiveAndCurativesRaoResultImplTest {
     @Test
     void testGetFunctionalCost() {
         assertEquals(1000., output.getFunctionalCost(null), DOUBLE_TOLERANCE);
-        assertEquals(-1050., output.getFunctionalCost(INSTANT_PREV), DOUBLE_TOLERANCE);
-        assertEquals(-1020., output.getFunctionalCost(INSTANT_AUTO), DOUBLE_TOLERANCE);
-        assertEquals(-1020., output.getFunctionalCost(INSTANT_CURATIVE), DOUBLE_TOLERANCE);
+        assertEquals(-1050., output.getFunctionalCost(preventiveInstant), DOUBLE_TOLERANCE);
+        assertEquals(-1020., output.getFunctionalCost(autoInstant), DOUBLE_TOLERANCE);
+        assertEquals(-1020., output.getFunctionalCost(curativeInstant), DOUBLE_TOLERANCE);
 
         when(postPrevResult.getFunctionalCost()).thenReturn(-2020.);
-        assertEquals(-1025., output.getFunctionalCost(INSTANT_AUTO), DOUBLE_TOLERANCE);
-        assertEquals(-1025., output.getFunctionalCost(INSTANT_CURATIVE), DOUBLE_TOLERANCE);
+        assertEquals(-1025., output.getFunctionalCost(autoInstant), DOUBLE_TOLERANCE);
+        assertEquals(-1025., output.getFunctionalCost(curativeInstant), DOUBLE_TOLERANCE);
     }
 
     @Test
@@ -285,17 +293,17 @@ class PreventiveAndCurativesRaoResultImplTest {
     @Test
     void testGetVirtualCost() {
         assertEquals(100., output.getVirtualCost(null), DOUBLE_TOLERANCE);
-        assertEquals(-150., output.getVirtualCost(INSTANT_PREV), DOUBLE_TOLERANCE);
-        assertEquals(-125., output.getVirtualCost(INSTANT_AUTO), DOUBLE_TOLERANCE);
-        assertEquals(-270., output.getVirtualCost(INSTANT_CURATIVE), DOUBLE_TOLERANCE);
+        assertEquals(-150., output.getVirtualCost(preventiveInstant), DOUBLE_TOLERANCE);
+        assertEquals(-125., output.getVirtualCost(autoInstant), DOUBLE_TOLERANCE);
+        assertEquals(-270., output.getVirtualCost(curativeInstant), DOUBLE_TOLERANCE);
     }
 
     @Test
     void testGetCost() {
         assertEquals(1100., output.getCost(null), DOUBLE_TOLERANCE);
-        assertEquals(-1200., output.getCost(INSTANT_PREV), DOUBLE_TOLERANCE);
-        assertEquals(-1145., output.getCost(INSTANT_AUTO), DOUBLE_TOLERANCE);
-        assertEquals(-1290., output.getCost(INSTANT_CURATIVE), DOUBLE_TOLERANCE);
+        assertEquals(-1200., output.getCost(preventiveInstant), DOUBLE_TOLERANCE);
+        assertEquals(-1145., output.getCost(autoInstant), DOUBLE_TOLERANCE);
+        assertEquals(-1290., output.getCost(curativeInstant), DOUBLE_TOLERANCE);
     }
 
     @Test
@@ -307,12 +315,12 @@ class PreventiveAndCurativesRaoResultImplTest {
     void testGetVirtualCostByName() {
         assertEquals(20., output.getVirtualCost(null, "mnec"), DOUBLE_TOLERANCE);
         assertEquals(80., output.getVirtualCost(null, "lf"), DOUBLE_TOLERANCE);
-        assertEquals(-70., output.getVirtualCost(INSTANT_PREV, "mnec"), DOUBLE_TOLERANCE);
-        assertEquals(-130., output.getVirtualCost(INSTANT_PREV, "lf"), DOUBLE_TOLERANCE);
-        assertEquals(-45., output.getVirtualCost(INSTANT_AUTO, "mnec"), DOUBLE_TOLERANCE);
-        assertEquals(-105., output.getVirtualCost(INSTANT_AUTO, "lf"), DOUBLE_TOLERANCE);
-        assertEquals(-110., output.getVirtualCost(INSTANT_CURATIVE, "mnec"), DOUBLE_TOLERANCE);
-        assertEquals(-230., output.getVirtualCost(INSTANT_CURATIVE, "lf"), DOUBLE_TOLERANCE);
+        assertEquals(-70., output.getVirtualCost(preventiveInstant, "mnec"), DOUBLE_TOLERANCE);
+        assertEquals(-130., output.getVirtualCost(preventiveInstant, "lf"), DOUBLE_TOLERANCE);
+        assertEquals(-45., output.getVirtualCost(autoInstant, "mnec"), DOUBLE_TOLERANCE);
+        assertEquals(-105., output.getVirtualCost(autoInstant, "lf"), DOUBLE_TOLERANCE);
+        assertEquals(-110., output.getVirtualCost(curativeInstant, "mnec"), DOUBLE_TOLERANCE);
+        assertEquals(-230., output.getVirtualCost(curativeInstant, "lf"), DOUBLE_TOLERANCE);
     }
 
     @Test
@@ -320,14 +328,14 @@ class PreventiveAndCurativesRaoResultImplTest {
         assertEquals(List.of(cnec2), output.getCostlyElements(null, "mnec", 5));
         assertEquals(List.of(cnec1), output.getCostlyElements(null, "lf", 15));
 
-        assertEquals(List.of(cnec3, cnec2), output.getCostlyElements(INSTANT_PREV, "mnec", 5));
-        assertEquals(List.of(cnec1, cnec4), output.getCostlyElements(INSTANT_PREV, "lf", 15));
+        assertEquals(List.of(cnec3, cnec2), output.getCostlyElements(preventiveInstant, "mnec", 5));
+        assertEquals(List.of(cnec1, cnec4), output.getCostlyElements(preventiveInstant, "lf", 15));
 
-        assertNull(output.getCostlyElements(INSTANT_AUTO, "mnec", 5));
-        assertNull(output.getCostlyElements(INSTANT_AUTO, "lf", 15));
+        assertTrue(output.getCostlyElements(autoInstant, "mnec", 5).isEmpty());
+        assertTrue(output.getCostlyElements(autoInstant, "lf", 15).isEmpty());
 
-        assertNull(output.getCostlyElements(INSTANT_CURATIVE, "mnec", 5));
-        assertNull(output.getCostlyElements(INSTANT_CURATIVE, "lf", 15));
+        assertTrue(output.getCostlyElements(curativeInstant, "mnec", 5).isEmpty());
+        assertTrue(output.getCostlyElements(curativeInstant, "lf", 15).isEmpty());
     }
 
     @Test
@@ -490,8 +498,8 @@ class PreventiveAndCurativesRaoResultImplTest {
         when(postPrevResult.getFlow(cnec3, RIGHT, MEGAWATT)).thenReturn(30.);
         when(cnec3.getState()).thenReturn(curativeState3);
         assertEquals(10., output.getFlow(null, cnec1, LEFT, MEGAWATT), DOUBLE_TOLERANCE);
-        assertEquals(20., output.getFlow(INSTANT_PREV, cnec2, RIGHT, AMPERE), DOUBLE_TOLERANCE);
-        assertEquals(30., output.getFlow(INSTANT_CURATIVE, cnec3, RIGHT, MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(20., output.getFlow(preventiveInstant, cnec2, RIGHT, AMPERE), DOUBLE_TOLERANCE);
+        assertEquals(30., output.getFlow(curativeInstant, cnec3, RIGHT, MEGAWATT), DOUBLE_TOLERANCE);
     }
 
     @Test
@@ -501,8 +509,8 @@ class PreventiveAndCurativesRaoResultImplTest {
         when(postPrevResult.getMargin(cnec3, MEGAWATT)).thenReturn(30.);
         when(cnec3.getState()).thenReturn(curativeState3);
         assertEquals(10., output.getMargin(null, cnec1, MEGAWATT), DOUBLE_TOLERANCE);
-        assertEquals(20., output.getMargin(INSTANT_PREV, cnec2, AMPERE), DOUBLE_TOLERANCE);
-        assertEquals(30., output.getMargin(INSTANT_CURATIVE, cnec3, MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(20., output.getMargin(preventiveInstant, cnec2, AMPERE), DOUBLE_TOLERANCE);
+        assertEquals(30., output.getMargin(curativeInstant, cnec3, MEGAWATT), DOUBLE_TOLERANCE);
     }
 
     @Test
@@ -512,8 +520,8 @@ class PreventiveAndCurativesRaoResultImplTest {
         when(postPrevResult.getRelativeMargin(cnec3, MEGAWATT)).thenReturn(30.);
         when(cnec3.getState()).thenReturn(curativeState3);
         assertEquals(10., output.getRelativeMargin(null, cnec1, MEGAWATT), DOUBLE_TOLERANCE);
-        assertEquals(20., output.getRelativeMargin(INSTANT_PREV, cnec2, AMPERE), DOUBLE_TOLERANCE);
-        assertEquals(30., output.getRelativeMargin(INSTANT_CURATIVE, cnec3, MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(20., output.getRelativeMargin(preventiveInstant, cnec2, AMPERE), DOUBLE_TOLERANCE);
+        assertEquals(30., output.getRelativeMargin(curativeInstant, cnec3, MEGAWATT), DOUBLE_TOLERANCE);
     }
 
     @Test
@@ -523,8 +531,8 @@ class PreventiveAndCurativesRaoResultImplTest {
         when(curativeResult1.getCommercialFlow(cnec3, RIGHT, MEGAWATT)).thenReturn(30.);
         when(cnec3.getState()).thenReturn(curativeState1);
         //assertEquals(10., output.getCommercialFlow(null, cnec1, LEFT, MEGAWATT), DOUBLE_TOLERANCE);
-        //assertEquals(20., output.getCommercialFlow(INSTANT_PREV, cnec2, RIGHT, AMPERE), DOUBLE_TOLERANCE);
-        assertEquals(30., output.getCommercialFlow(INSTANT_CURATIVE, cnec3, RIGHT, MEGAWATT), DOUBLE_TOLERANCE);
+        //assertEquals(20., output.getCommercialFlow(preventiveInstant, cnec2, RIGHT, AMPERE), DOUBLE_TOLERANCE);
+        assertEquals(30., output.getCommercialFlow(curativeInstant, cnec3, RIGHT, MEGAWATT), DOUBLE_TOLERANCE);
     }
 
     @Test
@@ -535,8 +543,8 @@ class PreventiveAndCurativesRaoResultImplTest {
         when(curativeResult2.getCommercialFlow(cnec3, RIGHT, MEGAWATT)).thenReturn(60.);
         when(cnec3.getState()).thenReturn(curativeState2);
         assertEquals(10., output.getLoopFlow(null, cnec1, LEFT, MEGAWATT), DOUBLE_TOLERANCE);
-        assertEquals(20., output.getLoopFlow(INSTANT_PREV, cnec2, RIGHT, AMPERE), DOUBLE_TOLERANCE);
-        assertEquals(30., output.getLoopFlow(INSTANT_CURATIVE, cnec3, RIGHT, MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(20., output.getLoopFlow(preventiveInstant, cnec2, RIGHT, AMPERE), DOUBLE_TOLERANCE);
+        assertEquals(30., output.getLoopFlow(curativeInstant, cnec3, RIGHT, MEGAWATT), DOUBLE_TOLERANCE);
     }
 
     @Test
@@ -547,21 +555,21 @@ class PreventiveAndCurativesRaoResultImplTest {
         when(curativeResult2.getPtdfZonalSum(cnec3, RIGHT)).thenReturn(30.);
         when(cnec3.getState()).thenReturn(curativeState2);
         assertEquals(10., output.getPtdfZonalSum(null, cnec1, LEFT), DOUBLE_TOLERANCE);
-        assertEquals(20., output.getPtdfZonalSum(INSTANT_PREV, cnec2, RIGHT), DOUBLE_TOLERANCE);
-        assertEquals(30., output.getPtdfZonalSum(INSTANT_CURATIVE, cnec3, RIGHT), DOUBLE_TOLERANCE);
+        assertEquals(20., output.getPtdfZonalSum(preventiveInstant, cnec2, RIGHT), DOUBLE_TOLERANCE);
+        assertEquals(30., output.getPtdfZonalSum(curativeInstant, cnec3, RIGHT), DOUBLE_TOLERANCE);
     }
 
     @Test
     void testGetFlowResult() {
-        flowResultThrows(INSTANT_AUTO, cnec4);
-        flowResultThrows(INSTANT_CURATIVE, cnec4);
-        flowResultThrows(INSTANT_CURATIVE, cnec1auto);
+        flowResultThrows(autoInstant, cnec4);
+        flowResultThrows(curativeInstant, cnec4);
+        flowResultThrows(curativeInstant, cnec1auto);
     }
 
     @Test
     void testGetPerimeter() {
         State outageState = mock(State.class);
-        when(outageState.getInstant()).thenReturn(INSTANT_OUTAGE);
+        when(outageState.getInstant()).thenReturn(outageInstant);
 
         when(initialResult.getPtdfZonalSum(cnec1, LEFT)).thenReturn(1.);
         when(postPrevResult.getPtdfZonalSum(cnec1, LEFT)).thenReturn(2.);
@@ -585,39 +593,39 @@ class PreventiveAndCurativesRaoResultImplTest {
         exception = assertThrows(FaraoException.class, () -> output.getPerimeterResult(null, curativeState2));
         assertEquals("No PerimeterResult for INITIAL optimization state", exception.getMessage());
 
-        // INSTANT_PREV
-        perimeterResult = output.getPerimeterResult(INSTANT_PREV, preventiveState);
+        // preventiveInstant
+        perimeterResult = output.getPerimeterResult(preventiveInstant, preventiveState);
         assertEquals(2., perimeterResult.getPtdfZonalSum(cnec1, LEFT), DOUBLE_TOLERANCE);
-        perimeterResult = output.getPerimeterResult(INSTANT_PREV, outageState);
+        perimeterResult = output.getPerimeterResult(preventiveInstant, outageState);
         assertEquals(2., perimeterResult.getPtdfZonalSum(cnec1, LEFT), DOUBLE_TOLERANCE);
-        perimeterResult = output.getPerimeterResult(INSTANT_PREV, autoState1);
+        perimeterResult = output.getPerimeterResult(preventiveInstant, autoState1);
         assertEquals(2., perimeterResult.getPtdfZonalSum(cnec1, LEFT), DOUBLE_TOLERANCE);
-        perimeterResult = output.getPerimeterResult(INSTANT_PREV, curativeState1);
+        perimeterResult = output.getPerimeterResult(preventiveInstant, curativeState1);
         assertEquals(2., perimeterResult.getPtdfZonalSum(cnec1, LEFT), DOUBLE_TOLERANCE);
-        perimeterResult = output.getPerimeterResult(INSTANT_PREV, curativeState2);
+        perimeterResult = output.getPerimeterResult(preventiveInstant, curativeState2);
         assertEquals(2., perimeterResult.getPtdfZonalSum(cnec1, LEFT), DOUBLE_TOLERANCE);
 
-        // INSTANT_AUTO
-        exception = assertThrows(FaraoException.class, () -> output.getPerimeterResult(INSTANT_AUTO, preventiveState));
+        // autoInstant
+        exception = assertThrows(FaraoException.class, () -> output.getPerimeterResult(autoInstant, preventiveState));
         assertEquals("Trying to access results for instant preventive at optimization state auto is not allowed", exception.getMessage());
-        exception = assertThrows(FaraoException.class, () -> output.getPerimeterResult(INSTANT_AUTO, outageState));
+        exception = assertThrows(FaraoException.class, () -> output.getPerimeterResult(autoInstant, outageState));
         assertEquals("Trying to access results for instant outage at optimization state auto is not allowed", exception.getMessage());
-        perimeterResult = output.getPerimeterResult(INSTANT_AUTO, autoState1);
+        perimeterResult = output.getPerimeterResult(autoInstant, autoState1);
         assertEquals(3., perimeterResult.getPtdfZonalSum(cnec1, LEFT), DOUBLE_TOLERANCE);
-        perimeterResult = output.getPerimeterResult(INSTANT_AUTO, curativeState1);
+        perimeterResult = output.getPerimeterResult(autoInstant, curativeState1);
         assertEquals(3., perimeterResult.getPtdfZonalSum(cnec1, LEFT), DOUBLE_TOLERANCE);
-        assertNull(output.getPerimeterResult(INSTANT_AUTO, curativeState2));
+        assertNull(output.getPerimeterResult(autoInstant, curativeState2));
 
-        // INSTANT_CURATIVE
-        exception = assertThrows(FaraoException.class, () -> output.getPerimeterResult(INSTANT_CURATIVE, preventiveState));
+        // curativeInstant
+        exception = assertThrows(FaraoException.class, () -> output.getPerimeterResult(curativeInstant, preventiveState));
         assertEquals("Trying to access results for instant preventive at optimization state curative is not allowed", exception.getMessage());
-        exception = assertThrows(FaraoException.class, () -> output.getPerimeterResult(INSTANT_CURATIVE, outageState));
+        exception = assertThrows(FaraoException.class, () -> output.getPerimeterResult(curativeInstant, outageState));
         assertEquals("Trying to access results for instant outage at optimization state curative is not allowed", exception.getMessage());
-        exception = assertThrows(FaraoException.class, () -> output.getPerimeterResult(INSTANT_CURATIVE, autoState1));
+        exception = assertThrows(FaraoException.class, () -> output.getPerimeterResult(curativeInstant, autoState1));
         assertEquals("Trying to access results for instant auto at optimization state curative is not allowed", exception.getMessage());
-        perimeterResult = output.getPerimeterResult(INSTANT_CURATIVE, curativeState1);
+        perimeterResult = output.getPerimeterResult(curativeInstant, curativeState1);
         assertEquals(4., perimeterResult.getPtdfZonalSum(cnec1, LEFT), DOUBLE_TOLERANCE);
-        perimeterResult = output.getPerimeterResult(INSTANT_CURATIVE, curativeState2);
+        perimeterResult = output.getPerimeterResult(curativeInstant, curativeState2);
         assertEquals(5., perimeterResult.getPtdfZonalSum(cnec1, LEFT), DOUBLE_TOLERANCE);
 
         assertEquals(ComputationStatus.DEFAULT, output.getComputationStatus(curativeState2));
@@ -626,13 +634,13 @@ class PreventiveAndCurativesRaoResultImplTest {
     @Test
     void testNoPostContingencyResultGetters() {
         // Test if only preventive RAO has been conducted
-        output = new PreventiveAndCurativesRaoResultImpl(preventiveState, initialResult, postPrevResult, preCurativeResult);
+        output = new PreventiveAndCurativesRaoResultImpl(preventiveState, initialResult, postPrevResult, preCurativeResult, crac);
 
         // Test get functional cost
         assertEquals(1000., output.getFunctionalCost(null), DOUBLE_TOLERANCE);
-        assertEquals(-1050., output.getFunctionalCost(INSTANT_PREV), DOUBLE_TOLERANCE);
-        assertEquals(-1050., output.getFunctionalCost(INSTANT_AUTO), DOUBLE_TOLERANCE);
-        assertEquals(-1050., output.getFunctionalCost(INSTANT_CURATIVE), DOUBLE_TOLERANCE);
+        assertEquals(-1050., output.getFunctionalCost(preventiveInstant), DOUBLE_TOLERANCE);
+        assertEquals(-1050., output.getFunctionalCost(autoInstant), DOUBLE_TOLERANCE);
+        assertEquals(-1050., output.getFunctionalCost(curativeInstant), DOUBLE_TOLERANCE);
 
         // Test get most limiting elements
         assertTrue(output.getMostLimitingElements().isEmpty());
@@ -642,9 +650,9 @@ class PreventiveAndCurativesRaoResultImplTest {
 
         // Test get virtual cost
         assertEquals(100., output.getVirtualCost(null), DOUBLE_TOLERANCE);
-        assertEquals(-150., output.getVirtualCost(INSTANT_PREV), DOUBLE_TOLERANCE);
-        assertEquals(-150., output.getVirtualCost(INSTANT_AUTO), DOUBLE_TOLERANCE);
-        assertEquals(-150., output.getVirtualCost(INSTANT_CURATIVE), DOUBLE_TOLERANCE);
+        assertEquals(-150., output.getVirtualCost(preventiveInstant), DOUBLE_TOLERANCE);
+        assertEquals(-150., output.getVirtualCost(autoInstant), DOUBLE_TOLERANCE);
+        assertEquals(-150., output.getVirtualCost(curativeInstant), DOUBLE_TOLERANCE);
 
         // Test get virtual cost names
         assertEquals(Set.of("mnec", "lf"), output.getVirtualCostNames());
@@ -652,22 +660,22 @@ class PreventiveAndCurativesRaoResultImplTest {
         // Test get virtual cost by name
         assertEquals(20., output.getVirtualCost(null, "mnec"), DOUBLE_TOLERANCE);
         assertEquals(80., output.getVirtualCost(null, "lf"), DOUBLE_TOLERANCE);
-        assertEquals(-70., output.getVirtualCost(INSTANT_PREV, "mnec"), DOUBLE_TOLERANCE);
-        assertEquals(-130., output.getVirtualCost(INSTANT_PREV, "lf"), DOUBLE_TOLERANCE);
-        assertEquals(-70., output.getVirtualCost(INSTANT_AUTO, "mnec"), DOUBLE_TOLERANCE);
-        assertEquals(-130., output.getVirtualCost(INSTANT_AUTO, "lf"), DOUBLE_TOLERANCE);
-        assertEquals(-70., output.getVirtualCost(INSTANT_CURATIVE, "mnec"), DOUBLE_TOLERANCE);
-        assertEquals(-130., output.getVirtualCost(INSTANT_CURATIVE, "lf"), DOUBLE_TOLERANCE);
+        assertEquals(-70., output.getVirtualCost(preventiveInstant, "mnec"), DOUBLE_TOLERANCE);
+        assertEquals(-130., output.getVirtualCost(preventiveInstant, "lf"), DOUBLE_TOLERANCE);
+        assertEquals(-70., output.getVirtualCost(autoInstant, "mnec"), DOUBLE_TOLERANCE);
+        assertEquals(-130., output.getVirtualCost(autoInstant, "lf"), DOUBLE_TOLERANCE);
+        assertEquals(-70., output.getVirtualCost(curativeInstant, "mnec"), DOUBLE_TOLERANCE);
+        assertEquals(-130., output.getVirtualCost(curativeInstant, "lf"), DOUBLE_TOLERANCE);
 
         // Test get costly elements
         assertEquals(List.of(cnec2), output.getCostlyElements(null, "mnec", 5));
         assertEquals(List.of(cnec1), output.getCostlyElements(null, "lf", 15));
-        assertEquals(List.of(cnec3, cnec2), output.getCostlyElements(INSTANT_PREV, "mnec", 5));
-        assertEquals(List.of(cnec1, cnec4), output.getCostlyElements(INSTANT_PREV, "lf", 15));
-        assertEquals(List.of(cnec3, cnec2), output.getCostlyElements(INSTANT_AUTO, "mnec", 5));
-        assertEquals(List.of(cnec1, cnec4), output.getCostlyElements(INSTANT_AUTO, "lf", 15));
-        assertEquals(List.of(cnec3, cnec2), output.getCostlyElements(INSTANT_CURATIVE, "mnec", 5));
-        assertEquals(List.of(cnec1, cnec4), output.getCostlyElements(INSTANT_CURATIVE, "lf", 15));
+        assertEquals(List.of(cnec3, cnec2), output.getCostlyElements(preventiveInstant, "mnec", 5));
+        assertEquals(List.of(cnec1, cnec4), output.getCostlyElements(preventiveInstant, "lf", 15));
+        assertEquals(List.of(cnec3, cnec2), output.getCostlyElements(autoInstant, "mnec", 5));
+        assertEquals(List.of(cnec1, cnec4), output.getCostlyElements(autoInstant, "lf", 15));
+        assertEquals(List.of(cnec3, cnec2), output.getCostlyElements(curativeInstant, "mnec", 5));
+        assertEquals(List.of(cnec1, cnec4), output.getCostlyElements(curativeInstant, "lf", 15));
 
         // Test was activated before state
         assertFalse(output.wasActivatedBeforeState(preventiveState, networkAction));
@@ -767,8 +775,8 @@ class PreventiveAndCurativesRaoResultImplTest {
         when(preCurativeResult.getFlow(cnec3, RIGHT, MEGAWATT)).thenReturn(30.);
         when(cnec3.getState()).thenReturn(curativeState3);
         assertEquals(10., output.getFlow(null, cnec1, LEFT, MEGAWATT), DOUBLE_TOLERANCE);
-        assertEquals(20., output.getFlow(INSTANT_PREV, cnec2, RIGHT, AMPERE), DOUBLE_TOLERANCE);
-        assertEquals(30., output.getFlow(INSTANT_CURATIVE, cnec3, RIGHT, MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(20., output.getFlow(preventiveInstant, cnec2, RIGHT, AMPERE), DOUBLE_TOLERANCE);
+        assertEquals(30., output.getFlow(curativeInstant, cnec3, RIGHT, MEGAWATT), DOUBLE_TOLERANCE);
 
         // Test get margin
         when(initialResult.getMargin(cnec1, MEGAWATT)).thenReturn(10.);
@@ -776,8 +784,8 @@ class PreventiveAndCurativesRaoResultImplTest {
         when(preCurativeResult.getMargin(cnec3, MEGAWATT)).thenReturn(30.);
         when(cnec3.getState()).thenReturn(curativeState3);
         assertEquals(10., output.getMargin(null, cnec1, MEGAWATT), DOUBLE_TOLERANCE);
-        assertEquals(20., output.getMargin(INSTANT_PREV, cnec2, AMPERE), DOUBLE_TOLERANCE);
-        assertEquals(30., output.getMargin(INSTANT_CURATIVE, cnec3, MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(20., output.getMargin(preventiveInstant, cnec2, AMPERE), DOUBLE_TOLERANCE);
+        assertEquals(30., output.getMargin(curativeInstant, cnec3, MEGAWATT), DOUBLE_TOLERANCE);
 
         // Test get relative margin
         when(initialResult.getRelativeMargin(cnec1, MEGAWATT)).thenReturn(10.);
@@ -785,8 +793,8 @@ class PreventiveAndCurativesRaoResultImplTest {
         when(preCurativeResult.getRelativeMargin(cnec3, MEGAWATT)).thenReturn(30.);
         when(cnec3.getState()).thenReturn(curativeState3);
         assertEquals(10., output.getRelativeMargin(null, cnec1, MEGAWATT), DOUBLE_TOLERANCE);
-        assertEquals(20., output.getRelativeMargin(INSTANT_PREV, cnec2, AMPERE), DOUBLE_TOLERANCE);
-        assertEquals(30., output.getRelativeMargin(INSTANT_CURATIVE, cnec3, MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(20., output.getRelativeMargin(preventiveInstant, cnec2, AMPERE), DOUBLE_TOLERANCE);
+        assertEquals(30., output.getRelativeMargin(curativeInstant, cnec3, MEGAWATT), DOUBLE_TOLERANCE);
 
         // Test get commercial flow
         when(initialResult.getCommercialFlow(cnec1, LEFT, MEGAWATT)).thenReturn(10.);
@@ -794,8 +802,8 @@ class PreventiveAndCurativesRaoResultImplTest {
         when(preCurativeResult.getCommercialFlow(cnec3, RIGHT, MEGAWATT)).thenReturn(25.);
         when(cnec3.getState()).thenReturn(curativeState1);
         assertEquals(10., output.getCommercialFlow(null, cnec1, LEFT, MEGAWATT), DOUBLE_TOLERANCE);
-        assertEquals(20., output.getCommercialFlow(INSTANT_PREV, cnec2, RIGHT, AMPERE), DOUBLE_TOLERANCE);
-        assertEquals(25., output.getCommercialFlow(INSTANT_CURATIVE, cnec3, RIGHT, MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(20., output.getCommercialFlow(preventiveInstant, cnec2, RIGHT, AMPERE), DOUBLE_TOLERANCE);
+        assertEquals(25., output.getCommercialFlow(curativeInstant, cnec3, RIGHT, MEGAWATT), DOUBLE_TOLERANCE);
 
         // Test get loopflow
         when(initialResult.getLoopFlow(cnec1, LEFT, MEGAWATT)).thenReturn(10.);
@@ -803,8 +811,8 @@ class PreventiveAndCurativesRaoResultImplTest {
         when(preCurativeResult.getLoopFlow(cnec3, RIGHT, MEGAWATT)).thenReturn(25.);
         when(cnec3.getState()).thenReturn(curativeState2);
         assertEquals(10., output.getLoopFlow(null, cnec1, LEFT, MEGAWATT), DOUBLE_TOLERANCE);
-        assertEquals(20., output.getLoopFlow(INSTANT_PREV, cnec2, RIGHT, AMPERE), DOUBLE_TOLERANCE);
-        assertEquals(25., output.getLoopFlow(INSTANT_CURATIVE, cnec3, RIGHT, MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(20., output.getLoopFlow(preventiveInstant, cnec2, RIGHT, AMPERE), DOUBLE_TOLERANCE);
+        assertEquals(25., output.getLoopFlow(curativeInstant, cnec3, RIGHT, MEGAWATT), DOUBLE_TOLERANCE);
 
         // Test get ptdf zonal sum
         when(initialResult.getPtdfZonalSum(cnec1, LEFT)).thenReturn(10.);
@@ -812,17 +820,17 @@ class PreventiveAndCurativesRaoResultImplTest {
         when(preCurativeResult.getPtdfZonalSum(cnec3, RIGHT)).thenReturn(30.);
         when(cnec3.getState()).thenReturn(curativeState2);
         assertEquals(10., output.getPtdfZonalSum(null, cnec1, LEFT), DOUBLE_TOLERANCE);
-        assertEquals(20., output.getPtdfZonalSum(INSTANT_PREV, cnec2, RIGHT), DOUBLE_TOLERANCE);
-        assertEquals(30., output.getPtdfZonalSum(INSTANT_CURATIVE, cnec3, RIGHT), DOUBLE_TOLERANCE);
+        assertEquals(20., output.getPtdfZonalSum(preventiveInstant, cnec2, RIGHT), DOUBLE_TOLERANCE);
+        assertEquals(30., output.getPtdfZonalSum(curativeInstant, cnec3, RIGHT), DOUBLE_TOLERANCE);
     }
 
     @Test
     void testNoPostContingencyResultGetPerimeterResult() {
         // Test if only preventive RAO has been conducted
-        output = new PreventiveAndCurativesRaoResultImpl(preventiveState, initialResult, postPrevResult, preCurativeResult);
+        output = new PreventiveAndCurativesRaoResultImpl(preventiveState, initialResult, postPrevResult, preCurativeResult, crac);
 
         State outageState = mock(State.class);
-        when(outageState.getInstant()).thenReturn(INSTANT_OUTAGE);
+        when(outageState.getInstant()).thenReturn(outageInstant);
 
         when(initialResult.getPtdfZonalSum(cnec1, LEFT)).thenReturn(1.);
         when(postPrevResult.getPtdfZonalSum(cnec1, LEFT)).thenReturn(2.);
@@ -844,34 +852,34 @@ class PreventiveAndCurativesRaoResultImplTest {
         exception = assertThrows(FaraoException.class, () -> output.getPerimeterResult(null, curativeState2));
         assertEquals("No PerimeterResult for INITIAL optimization state", exception.getMessage());
 
-        // INSTANT_PREV
-        perimeterResult = output.getPerimeterResult(INSTANT_PREV, preventiveState);
+        // preventiveInstant
+        perimeterResult = output.getPerimeterResult(preventiveInstant, preventiveState);
         assertEquals(2., perimeterResult.getPtdfZonalSum(cnec1, LEFT), DOUBLE_TOLERANCE);
-        perimeterResult = output.getPerimeterResult(INSTANT_PREV, outageState);
+        perimeterResult = output.getPerimeterResult(preventiveInstant, outageState);
         assertEquals(2., perimeterResult.getPtdfZonalSum(cnec1, LEFT), DOUBLE_TOLERANCE);
-        perimeterResult = output.getPerimeterResult(INSTANT_PREV, autoState1);
+        perimeterResult = output.getPerimeterResult(preventiveInstant, autoState1);
         assertEquals(2., perimeterResult.getPtdfZonalSum(cnec1, LEFT), DOUBLE_TOLERANCE);
-        perimeterResult = output.getPerimeterResult(INSTANT_PREV, curativeState1);
+        perimeterResult = output.getPerimeterResult(preventiveInstant, curativeState1);
         assertEquals(2., perimeterResult.getPtdfZonalSum(cnec1, LEFT), DOUBLE_TOLERANCE);
-        perimeterResult = output.getPerimeterResult(INSTANT_PREV, curativeState2);
+        perimeterResult = output.getPerimeterResult(preventiveInstant, curativeState2);
         assertEquals(2., perimeterResult.getPtdfZonalSum(cnec1, LEFT), DOUBLE_TOLERANCE);
 
-        // INSTANT_AUTO
-        exception = assertThrows(FaraoException.class, () -> output.getPerimeterResult(INSTANT_AUTO, preventiveState));
+        // autoInstant
+        exception = assertThrows(FaraoException.class, () -> output.getPerimeterResult(autoInstant, preventiveState));
         assertEquals("Trying to access results for instant preventive at optimization state auto is not allowed", exception.getMessage());
-        exception = assertThrows(FaraoException.class, () -> output.getPerimeterResult(INSTANT_AUTO, outageState));
+        exception = assertThrows(FaraoException.class, () -> output.getPerimeterResult(autoInstant, outageState));
         assertEquals("Trying to access results for instant outage at optimization state auto is not allowed", exception.getMessage());
-        assertNull(output.getPerimeterResult(INSTANT_AUTO, autoState1));
+        assertNull(output.getPerimeterResult(autoInstant, autoState1));
 
-        // INSTANT_CURATIVE
-        exception = assertThrows(FaraoException.class, () -> output.getPerimeterResult(INSTANT_CURATIVE, preventiveState));
+        // curativeInstant
+        exception = assertThrows(FaraoException.class, () -> output.getPerimeterResult(curativeInstant, preventiveState));
         assertEquals("Trying to access results for instant preventive at optimization state curative is not allowed", exception.getMessage());
-        exception = assertThrows(FaraoException.class, () -> output.getPerimeterResult(INSTANT_CURATIVE, outageState));
+        exception = assertThrows(FaraoException.class, () -> output.getPerimeterResult(curativeInstant, outageState));
         assertEquals("Trying to access results for instant outage at optimization state curative is not allowed", exception.getMessage());
-        exception = assertThrows(FaraoException.class, () -> output.getPerimeterResult(INSTANT_CURATIVE, autoState1));
+        exception = assertThrows(FaraoException.class, () -> output.getPerimeterResult(curativeInstant, autoState1));
         assertEquals("Trying to access results for instant auto at optimization state curative is not allowed", exception.getMessage());
-        assertNull(output.getPerimeterResult(INSTANT_CURATIVE, curativeState1));
-        assertNull(output.getPerimeterResult(INSTANT_CURATIVE, curativeState2));
+        assertNull(output.getPerimeterResult(curativeInstant, curativeState1));
+        assertNull(output.getPerimeterResult(curativeInstant, curativeState2));
     }
 
     @Test
@@ -886,7 +894,7 @@ class PreventiveAndCurativesRaoResultImplTest {
             secondPreventivePerimeterResult,
             remedialActionsExcludedFromSecondPreventive,
             preCurativeResult,
-            Map.of(autoState1, autoResult1, curativeState1, curativeResult1, curativeState2, curativeResult2));
+            Map.of(autoState1, autoResult1, curativeState1, curativeResult1, curativeState2, curativeResult2), crac);
 
         when(secondPreventivePerimeterResult.getActivatedRangeActions(preventiveState)).thenReturn(Set.of(rangeAction));
         when(secondPreventivePerimeterResult.getActivatedNetworkActions()).thenReturn(Set.of(networkAction));
@@ -924,18 +932,18 @@ class PreventiveAndCurativesRaoResultImplTest {
             remedialActionsExcludedFromSecondPreventive,
             preCurativeResult,
             Map.of(autoState1, autoResult1, curativeState1, curativeResult1, curativeState2, curativeResult2),
-            postSecondAraoResults);
+            postSecondAraoResults, crac);
 
         when(postSecondAraoResults.getFunctionalCost()).thenReturn(123.);
         mockVirtualCosts(postSecondAraoResults, 456., 400., List.of(cnec2, cnec4), 56., List.of(cnec1, cnec4));
 
-        assertEquals(123., output.getFunctionalCost(INSTANT_CURATIVE), DOUBLE_TOLERANCE);
-        assertEquals(456., output.getVirtualCost(INSTANT_CURATIVE), DOUBLE_TOLERANCE);
-        assertEquals(579., output.getCost(INSTANT_CURATIVE), DOUBLE_TOLERANCE);
-        assertEquals(400., output.getVirtualCost(INSTANT_CURATIVE, "mnec"), DOUBLE_TOLERANCE);
-        assertEquals(56., output.getVirtualCost(INSTANT_CURATIVE, "lf"), DOUBLE_TOLERANCE);
-        assertEquals(List.of(cnec2, cnec4), output.getCostlyElements(INSTANT_CURATIVE, "mnec", 100));
-        assertEquals(List.of(cnec1, cnec4), output.getCostlyElements(INSTANT_CURATIVE, "lf", 100));
+        assertEquals(123., output.getFunctionalCost(curativeInstant), DOUBLE_TOLERANCE);
+        assertEquals(456., output.getVirtualCost(curativeInstant), DOUBLE_TOLERANCE);
+        assertEquals(579., output.getCost(curativeInstant), DOUBLE_TOLERANCE);
+        assertEquals(400., output.getVirtualCost(curativeInstant, "mnec"), DOUBLE_TOLERANCE);
+        assertEquals(56., output.getVirtualCost(curativeInstant, "lf"), DOUBLE_TOLERANCE);
+        assertEquals(List.of(cnec2, cnec4), output.getCostlyElements(curativeInstant, "mnec", 100));
+        assertEquals(List.of(cnec1, cnec4), output.getCostlyElements(curativeInstant, "lf", 100));
     }
 
     @Test

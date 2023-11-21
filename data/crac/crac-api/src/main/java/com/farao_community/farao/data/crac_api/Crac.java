@@ -13,10 +13,7 @@ import com.farao_community.farao.data.crac_api.network_action.NetworkActionAdder
 import com.farao_community.farao.data.crac_api.range_action.*;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 
-import java.util.Objects;
-import java.util.Set;
-import java.util.SortedSet;
-import java.util.TreeSet;
+import java.util.*;
 
 import static java.lang.String.format;
 
@@ -91,6 +88,18 @@ public interface Crac extends Identifiable<Crac> {
      * Gather all the instants present in the Crac with the correct instantKind.
      */
     Set<Instant> getInstants(InstantKind instantKind);
+
+    /**
+     * Returns the previous instant of an instant.
+     * Optional is empty if no previous instant is defined.
+     */
+    Instant getPreviousInstant(Instant providedInstant);
+
+    /**
+     * Returns the previous instant of an instant.
+     * Optional is empty if no previous instant is defined.
+     */
+    Instant getPreviousInstant(String providedInstantId); // not sure which one should we keep
 
     // States management
 

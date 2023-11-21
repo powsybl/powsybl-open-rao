@@ -41,11 +41,6 @@ class InstantImplTest {
         assertEquals(2, autoInstant.getOrder());
         assertEquals(3, curativeInstant.getOrder());
 
-        assertNull(prevInstant.getPreviousInstant());
-        assertEquals("preventive", outageInstant.getPreviousInstant().getId());
-        assertEquals(outageInstant, autoInstant.getPreviousInstant());
-        assertEquals(autoInstant, curativeInstant.getPreviousInstant());
-
         assertFalse(autoInstant.comesBefore(autoInstant));
         assertTrue(outageInstant.comesBefore(curativeInstant));
         assertFalse(outageInstant.comesBefore(prevInstant));
@@ -54,6 +49,6 @@ class InstantImplTest {
     @Test
     void testInitialInstantIsProtected() {
         FaraoException exception = assertThrows(FaraoException.class, () -> new InstantImpl("initial", InstantKind.PREVENTIVE, null));
-        assertEquals("Instant with id \"initial\" cannont be defined", exception.getMessage());
+        assertEquals("Instant with id 'initial' can't be defined", exception.getMessage());
     }
 }

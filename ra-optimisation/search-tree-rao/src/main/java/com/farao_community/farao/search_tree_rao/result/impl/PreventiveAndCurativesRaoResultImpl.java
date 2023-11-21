@@ -37,6 +37,7 @@ public class PreventiveAndCurativesRaoResultImpl implements RaoResult {
     private final PrePerimeterResult resultsWithPrasForAllCnecs;
     private final Map<State, PerimeterResult> postContingencyResults;
     private final ObjectiveFunctionResult finalCostEvaluator;
+    private final Crac crac;
     private OptimizationStepsExecuted optimizationStepsExecuted = OptimizationStepsExecuted.FIRST_PREVENTIVE_ONLY;
 
     /**
@@ -46,8 +47,9 @@ public class PreventiveAndCurativesRaoResultImpl implements RaoResult {
     public PreventiveAndCurativesRaoResultImpl(State preventiveState,
                                                PrePerimeterResult initialResult,
                                                PerimeterResult preventivePerimeterResult,
-                                               PrePerimeterResult resultsWithPrasForAllCnecs) {
-        this(preventiveState, initialResult, preventivePerimeterResult, preventivePerimeterResult, new HashSet<>(), resultsWithPrasForAllCnecs, new HashMap<>(), null);
+                                               PrePerimeterResult resultsWithPrasForAllCnecs,
+                                               Crac crac) {
+        this(preventiveState, initialResult, preventivePerimeterResult, preventivePerimeterResult, new HashSet<>(), resultsWithPrasForAllCnecs, new HashMap<>(), null, crac);
     }
 
     /**
@@ -57,8 +59,9 @@ public class PreventiveAndCurativesRaoResultImpl implements RaoResult {
                                                PrePerimeterResult initialResult,
                                                PerimeterResult preventivePerimeterResult,
                                                PrePerimeterResult resultsWithPrasForAllCnecs,
-                                               Map<State, OptimizationResult> postContingencyResults) {
-        this(stateTree.getBasecaseScenario().getBasecaseState(), initialResult, preventivePerimeterResult, preventivePerimeterResult, new HashSet<>(), resultsWithPrasForAllCnecs, buildPostContingencyResults(stateTree, resultsWithPrasForAllCnecs, postContingencyResults), null);
+                                               Map<State, OptimizationResult> postContingencyResults,
+                                               Crac crac) {
+        this(stateTree.getBasecaseScenario().getBasecaseState(), initialResult, preventivePerimeterResult, preventivePerimeterResult, new HashSet<>(), resultsWithPrasForAllCnecs, buildPostContingencyResults(stateTree, resultsWithPrasForAllCnecs, postContingencyResults), null, crac);
         excludeContingencies(getContingenciesToExclude(stateTree));
     }
 
@@ -71,8 +74,9 @@ public class PreventiveAndCurativesRaoResultImpl implements RaoResult {
                                                PerimeterResult secondPreventivePerimeterResult,
                                                Set<RemedialAction<?>> remedialActionsExcludedFromSecondPreventive,
                                                PrePerimeterResult resultsWithPrasForAllCnecs,
-                                               Map<State, OptimizationResult> postContingencyResults) {
-        this(stateTree.getBasecaseScenario().getBasecaseState(), initialResult, firstPreventivePerimeterResult, secondPreventivePerimeterResult, remedialActionsExcludedFromSecondPreventive, resultsWithPrasForAllCnecs, buildPostContingencyResults(stateTree, resultsWithPrasForAllCnecs, postContingencyResults), secondPreventivePerimeterResult);
+                                               Map<State, OptimizationResult> postContingencyResults,
+                                               Crac crac) {
+        this(stateTree.getBasecaseScenario().getBasecaseState(), initialResult, firstPreventivePerimeterResult, secondPreventivePerimeterResult, remedialActionsExcludedFromSecondPreventive, resultsWithPrasForAllCnecs, buildPostContingencyResults(stateTree, resultsWithPrasForAllCnecs, postContingencyResults), secondPreventivePerimeterResult, crac);
         excludeContingencies(getContingenciesToExclude(stateTree));
     }
 
@@ -86,8 +90,9 @@ public class PreventiveAndCurativesRaoResultImpl implements RaoResult {
                                                Set<RemedialAction<?>> remedialActionsExcludedFromSecondPreventive,
                                                PrePerimeterResult resultsWithPrasForAllCnecs,
                                                Map<State, OptimizationResult> postContingencyResults,
-                                               ObjectiveFunctionResult postSecondAraoResults) {
-        this(stateTree.getBasecaseScenario().getBasecaseState(), initialResult, firstPreventivePerimeterResult, secondPreventivePerimeterResult, remedialActionsExcludedFromSecondPreventive, resultsWithPrasForAllCnecs, buildPostContingencyResults(stateTree, resultsWithPrasForAllCnecs, postContingencyResults), postSecondAraoResults);
+                                               ObjectiveFunctionResult postSecondAraoResults,
+                                               Crac crac) {
+        this(stateTree.getBasecaseScenario().getBasecaseState(), initialResult, firstPreventivePerimeterResult, secondPreventivePerimeterResult, remedialActionsExcludedFromSecondPreventive, resultsWithPrasForAllCnecs, buildPostContingencyResults(stateTree, resultsWithPrasForAllCnecs, postContingencyResults), postSecondAraoResults, crac);
         excludeContingencies(getContingenciesToExclude(stateTree));
     }
 
@@ -98,7 +103,8 @@ public class PreventiveAndCurativesRaoResultImpl implements RaoResult {
                                                 Set<RemedialAction<?>> remedialActionsExcludedFromSecondPreventive,
                                                 PrePerimeterResult resultsWithPrasForAllCnecs,
                                                 Map<State, PerimeterResult> postContingencyPerimeterResults,
-                                                ObjectiveFunctionResult finalCostEvaluator) {
+                                                ObjectiveFunctionResult finalCostEvaluator,
+                                                Crac crac) {
         this.preventiveState = preventiveState;
         this.initialResult = initialResult;
         this.firstPreventivePerimeterResult = firstPreventivePerimeterResult;
@@ -107,6 +113,7 @@ public class PreventiveAndCurativesRaoResultImpl implements RaoResult {
         this.resultsWithPrasForAllCnecs = resultsWithPrasForAllCnecs;
         this.postContingencyResults = postContingencyPerimeterResults;
         this.finalCostEvaluator = finalCostEvaluator;
+        this.crac = crac;
     }
 
     private static Map<State, PerimeterResult> buildPostContingencyResults(StateTree stateTree, PrePerimeterResult preContingencyResult, Map<State, OptimizationResult> postContingencyResults) {
@@ -183,7 +190,7 @@ public class PreventiveAndCurativesRaoResultImpl implements RaoResult {
             if (Objects.nonNull(perimeterResult)) {
                 return perimeterResult.getSensitivityStatus(state);
             }
-            instant = instant.getPreviousInstant();
+            instant = crac.getPreviousInstant(instant);
         }
         return FAILURE;
     }
@@ -401,7 +408,7 @@ public class PreventiveAndCurativesRaoResultImpl implements RaoResult {
             return finalCostEvaluator.getCostlyElements(virtualCostName, number);
         } else {
             // TODO : for other cases, store values to be able to merge easily
-            return null;
+            return Collections.emptyList();
         }
     }
 
