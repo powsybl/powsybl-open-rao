@@ -19,6 +19,7 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.sensitivity.*;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 /**
@@ -27,11 +28,11 @@ import java.util.stream.Collectors;
 public class SystematicSensitivityResult {
 
     private static class StateResult {
+        private SensitivityComputationStatus status;
         private final Map<String, Map<Side, Double>> referenceFlows = new HashMap<>();
         private final Map<String, Map<Side, Double>> referenceIntensities = new HashMap<>();
         private final Map<String, Map<String, Map<Side, Double>>> flowSensitivities = new HashMap<>();
         private final Map<String, Map<String, Map<Side, Double>>> intensitySensitivities = new HashMap<>();
-        private SensitivityComputationStatus status;
 
         private SensitivityComputationStatus getSensitivityComputationStatus() {
             return status;
@@ -59,10 +60,11 @@ public class SystematicSensitivityResult {
         FAILURE
     }
 
+    private SensitivityComputationStatus status;
     private final StateResult nStateResult = new StateResult();
     private final Map<Integer, Map<String, StateResult>> postContingencyResults = new HashMap<>();
-    private final Map<Cnec, StateResult> memoizedStateResultPerCnec = new HashMap<>();
-    private SensitivityComputationStatus status;
+
+    private final Map<Cnec, StateResult> memoizedStateResultPerCnec = new ConcurrentHashMap<>();
 
     public SystematicSensitivityResult() {
         this.status = SensitivityComputationStatus.SUCCESS;
@@ -204,10 +206,6 @@ public class SystematicSensitivityResult {
         return status;
     }
 
-    public void setStatus(SensitivityComputationStatus status) {
-        this.status = status;
-    }
-
     public SensitivityComputationStatus getStatus(State state) {
         Optional<Contingency> optionalContingency = state.getContingency();
         if (optionalContingency.isPresent()) {
@@ -225,6 +223,10 @@ public class SystematicSensitivityResult {
         } else {
             return nStateResult.getSensitivityComputationStatus();
         }
+    }
+
+    public void setStatus(SensitivityComputationStatus status) {
+        this.status = status;
     }
 
     public Set<String> getContingencies() {
