@@ -10,6 +10,7 @@ import com.farao_community.farao.data.crac_impl.OnContingencyStateImpl;
 import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Load;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.ShuntCompensator;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
@@ -121,27 +122,26 @@ class InjectionSetPointActionCreationTest {
         CsaProfileCracCreationTestUtil.assertRaNotImported(cracCreationContext, "parent-remedial-action-8", ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action parent-remedial-action-8 will not be imported because there is no StaticPropertyRange linked to that RA");
         CsaProfileCracCreationTestUtil.assertRaNotImported(cracCreationContext, "parent-remedial-action-9", ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action 'parent-remedial-action-9' will not be imported because 'StaticPropertyRange' must have a property reference with 'http://energy.referencedata.eu/PropertyReference/RotatingMachine.p' value, but it was: 'http://energy.referencedata.eu/PropertyReference/RotatingMachine.q'");
         CsaProfileCracCreationTestUtil.assertRaNotImported(cracCreationContext, "parent-remedial-action-10", ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action parent-remedial-action-10 will not be imported because there is no StaticPropertyRange linked to that RA");
-        CsaProfileCracCreationTestUtil.assertRaNotImported(cracCreationContext, "parent-remedial-action-11", ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action parent-remedial-action-11 will not be imported because StaticPropertyRange has wrong values of valueKind and direction, the only allowed combination is absolute + none");
-        CsaProfileCracCreationTestUtil.assertRaNotImported(cracCreationContext, "parent-remedial-action-12", ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action parent-remedial-action-12 will not be imported because StaticPropertyRange has wrong values of valueKind and direction, the only allowed combination is absolute + none");
-        CsaProfileCracCreationTestUtil.assertRaNotImported(cracCreationContext, "parent-remedial-action-13", ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action parent-remedial-action-13 will not be imported because StaticPropertyRange has wrong values of valueKind and direction, the only allowed combination is absolute + none");
-        CsaProfileCracCreationTestUtil.assertRaNotImported(cracCreationContext, "parent-remedial-action-14", ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action parent-remedial-action-14 will not be imported because StaticPropertyRange has wrong values of valueKind and direction, the only allowed combination is absolute + none");
+        CsaProfileCracCreationTestUtil.assertRaNotImported(cracCreationContext, "parent-remedial-action-11", ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action parent-remedial-action-11 will not be imported because StaticPropertyRange has wrong values of valueKind and direction");
+        CsaProfileCracCreationTestUtil.assertRaNotImported(cracCreationContext, "parent-remedial-action-12", ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action parent-remedial-action-12 will not be imported because StaticPropertyRange has wrong values of valueKind and direction");
+        CsaProfileCracCreationTestUtil.assertRaNotImported(cracCreationContext, "parent-remedial-action-13", ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action parent-remedial-action-13 will not be imported because StaticPropertyRange has wrong values of valueKind and direction");
+        CsaProfileCracCreationTestUtil.assertRaNotImported(cracCreationContext, "parent-remedial-action-14", ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action parent-remedial-action-14 will not be imported because StaticPropertyRange has wrong values of valueKind and direction");
         CsaProfileCracCreationTestUtil.assertRaNotImported(cracCreationContext, "parent-remedial-action-15", ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action parent-remedial-action-15 will not be imported because there is no StaticPropertyRange linked to that RA");
-        CsaProfileCracCreationTestUtil.assertRaNotImported(cracCreationContext, "parent-remedial-action-16", ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action parent-remedial-action-16 will not be imported because StaticPropertyRange has wrong values of valueKind and direction, the only allowed combination is absolute + none");
+        CsaProfileCracCreationTestUtil.assertRaNotImported(cracCreationContext, "parent-remedial-action-16", ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action parent-remedial-action-16 will not be imported because StaticPropertyRange has wrong values of valueKind and direction");
         CsaProfileCracCreationTestUtil.assertRaNotImported(cracCreationContext, "parent-remedial-action-17", ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action parent-remedial-action-17 will not be imported because there is no StaticPropertyRange linked to that RA");
         CsaProfileCracCreationTestUtil.assertRaNotImported(cracCreationContext, "parent-remedial-action-18", ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action parent-remedial-action-18 will not be imported because several conflictual StaticPropertyRanges are linked to that RA's injection set point action");
     }
 
     @Test
     void testImportShuntCompensatorModifications() {
-        Network network = Mockito.mock(Network.class);
-        Branch networkElementMock = Mockito.mock(Branch.class);
-        Mockito.when(networkElementMock.getId()).thenReturn("726c5cfa-d197-4e98-95a1-7dd357dd9353");
-        Mockito.when(network.getIdentifiable("726c5cfa-d197-4e98-95a1-7dd357dd9353")).thenReturn(networkElementMock);
-
-        Load loadMock = Mockito.mock(Load.class);
+        ShuntCompensator loadMock = Mockito.mock(ShuntCompensator.class);
         Mockito.when(loadMock.getId()).thenReturn("726c5cfa-d197-4e98-95a1-7dd357dd9353");
-        Mockito.when(network.getLoadStream()).thenAnswer(invocation -> {
-            Stream<Load> loadStream = Stream.of(loadMock);
+
+        Network network = Mockito.mock(Network.class);
+        Mockito.when(network.getShuntCompensator("726c5cfa-d197-4e98-95a1-7dd357dd9353")).thenReturn(loadMock);
+
+        Mockito.when(network.getShuntCompensatorStream()).thenAnswer(invocation -> {
+            Stream<ShuntCompensator> loadStream = Stream.of(loadMock);
             return loadStream.filter(load ->
                 load.getId().equals("726c5cfa-d197-4e98-95a1-7dd357dd9353")
             );
@@ -151,15 +151,14 @@ class InjectionSetPointActionCreationTest {
 
         assertNotNull(cracCreationContext);
 
-        assertEquals(6, cracCreationContext.getCreationReport().getReport().size());
+        assertEquals(5, cracCreationContext.getCreationReport().getReport().size());
         CsaProfileCracCreationTestUtil.assertRaNotImported(cracCreationContext, "dabf1e87-a0d7-4046-a237-9a25b5bbb0d8", ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action 'dabf1e87-a0d7-4046-a237-9a25b5bbb0d8' will not be imported because 'ShuntCompensatorModification' must have a property reference with 'http://energy.referencedata.eu/PropertyReference/ShuntCompensator.sections' value, but it was: 'http://energy.referencedata.eu/PropertyReference/RotatingMachine.p'");
-        CsaProfileCracCreationTestUtil.assertRaNotImported(cracCreationContext, "4a0b07a9-0a33-4926-a0ef-b3ebf7c9eb17", ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action 4a0b07a9-0a33-4926-a0ef-b3ebf7c9eb17 will not be imported because StaticPropertyRange has a negative integer normalValue so no set-point value was retrieved");
+        CsaProfileCracCreationTestUtil.assertRaNotImported(cracCreationContext, "4a0b07a9-0a33-4926-a0ef-b3ebf7c9eb17", ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action 4a0b07a9-0a33-4926-a0ef-b3ebf7c9eb17 will not be imported because StaticPropertyRange has a negative normalValue so no set-point value was retrieved");
         CsaProfileCracCreationTestUtil.assertRaNotImported(cracCreationContext, "e3eb8875-79a7-42d6-8bc2-9ae81e9265c9", ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action e3eb8875-79a7-42d6-8bc2-9ae81e9265c9 will not be imported because StaticPropertyRange has a non integer-castable normalValue so no set-point value was retrieved");
         CsaProfileCracCreationTestUtil.assertRaNotImported(cracCreationContext, "6206f03a-9db7-4c46-86aa-03f8aec9d0f2", ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action 6206f03a-9db7-4c46-86aa-03f8aec9d0f2 will not be imported because there is no StaticPropertyRange linked to that RA");
-        CsaProfileCracCreationTestUtil.assertRaNotImported(cracCreationContext, "43f38f8b-b81e-4f23-aa0a-44cdd508642e", ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action 43f38f8b-b81e-4f23-aa0a-44cdd508642e will not be imported because StaticPropertyRange has wrong values of valueKind and direction, the only allowed combination is absolute + none");
-        CsaProfileCracCreationTestUtil.assertRaNotImported(cracCreationContext, "c5c666d1-cc87-4652-ae81-1694a3849a07", ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK, "Remedial action c5c666d1-cc87-4652-ae81-1694a3849a07 will not be imported because Network model does not contain a generator, neither a load with id of ShuntCompensator: f8cf2bf7-c100-40e6-8c7c-c2bfc7099606");
+        CsaProfileCracCreationTestUtil.assertRaNotImported(cracCreationContext, "c5c666d1-cc87-4652-ae81-1694a3849a07", ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK, "Remedial action c5c666d1-cc87-4652-ae81-1694a3849a07 will not be imported because Network model does not contain a shunt compensator with id of ShuntCompensator: f8cf2bf7-c100-40e6-8c7c-c2bfc7099606");
 
-        assertEquals(2, cracCreationContext.getCrac().getRemedialActions().size());
+        assertEquals(3, cracCreationContext.getCrac().getRemedialActions().size());
         NetworkAction ra1 = cracCreationContext.getCrac().getNetworkAction("d6247efe-3317-4c75-a752-c2a3a9f03aed");
         assertEquals("d6247efe-3317-4c75-a752-c2a3a9f03aed", ra1.getName());
         assertEquals(PREVENTIVE, ra1.getUsageRules().iterator().next().getInstant());
@@ -173,5 +172,66 @@ class InjectionSetPointActionCreationTest {
         assertEquals(UsageMethod.AVAILABLE, ra2.getUsageRules().iterator().next().getUsageMethod());
         assertEquals("726c5cfa-d197-4e98-95a1-7dd357dd9353", ((InjectionSetpoint) ra2.getElementaryActions().iterator().next()).getNetworkElement().getId());
         assertEquals(3, ((InjectionSetpoint) ra2.getElementaryActions().iterator().next()).getSetpoint(), 0.1);
+
+        NetworkAction ra3 = cracCreationContext.getCrac().getNetworkAction("43f38f8b-b81e-4f23-aa0a-44cdd508642e");
+        assertEquals("43f38f8b-b81e-4f23-aa0a-44cdd508642e", ra3.getName());
+        assertEquals(PREVENTIVE, ra3.getUsageRules().iterator().next().getInstant());
+        assertEquals(UsageMethod.AVAILABLE, ra3.getUsageRules().iterator().next().getUsageMethod());
+        assertEquals("726c5cfa-d197-4e98-95a1-7dd357dd9353", ((InjectionSetpoint) ra3.getElementaryActions().iterator().next()).getNetworkElement().getId());
+        assertEquals(2, ((InjectionSetpoint) ra3.getElementaryActions().iterator().next()).getSetpoint(), 0.1);
+    }
+
+    @Test
+    void testImportSetPointIncrementalValues() {
+        Network network = Mockito.mock(Network.class);
+        Load loadMock = Mockito.mock(Load.class);
+        Mockito.when(loadMock.getId()).thenReturn("606a1624-2be7-4c5b-8957-62126b8f38ad");
+        Mockito.when(loadMock.getP0()).thenReturn(150.0);
+        Mockito.when(network.getLoadStream()).thenAnswer(invocation -> {
+            Stream<Load> loadStream = Stream.of(loadMock);
+            return loadStream.filter(load ->
+                load.getId().equals("606a1624-2be7-4c5b-8957-62126b8f38ad")
+            );
+        });
+
+        CsaProfileCracCreationContext cracCreationContext = getCsaCracCreationContext("/CSA_33_TestExample.zip", network);
+
+        assertNotNull(cracCreationContext);
+        assertEquals(5, cracCreationContext.getCrac().getRemedialActions().size());
+
+        NetworkAction ra1 = cracCreationContext.getCrac().getNetworkAction("9cfbe895-d7f3-4396-9405-d28a37d8a6bf");
+        assertEquals("RTE_Relatively decreasing set-point RA in percent", ra1.getName());
+        assertEquals(PREVENTIVE, ra1.getUsageRules().iterator().next().getInstant());
+        assertEquals(UsageMethod.AVAILABLE, ra1.getUsageRules().iterator().next().getUsageMethod());
+        assertEquals("606a1624-2be7-4c5b-8957-62126b8f38ad", ((InjectionSetpoint) ra1.getElementaryActions().iterator().next()).getNetworkElement().getId());
+        assertEquals(90, ((InjectionSetpoint) ra1.getElementaryActions().iterator().next()).getSetpoint());
+
+        NetworkAction ra2 = cracCreationContext.getCrac().getNetworkAction("a5ebfb06-3e6b-4397-85d4-3158a5952372");
+        assertEquals("RTE_Absolute set-point RA", ra2.getName());
+        assertEquals(PREVENTIVE, ra2.getUsageRules().iterator().next().getInstant());
+        assertEquals(UsageMethod.AVAILABLE, ra2.getUsageRules().iterator().next().getUsageMethod());
+        assertEquals("606a1624-2be7-4c5b-8957-62126b8f38ad", ((InjectionSetpoint) ra2.getElementaryActions().iterator().next()).getNetworkElement().getId());
+        assertEquals(100, ((InjectionSetpoint) ra2.getElementaryActions().iterator().next()).getSetpoint());
+
+        NetworkAction ra3 = cracCreationContext.getCrac().getNetworkAction("9346a870-47b0-4a70-8ab5-bac72ed83280");
+        assertEquals("RTE_Relatively increasing set-point RA in percent", ra3.getName());
+        assertEquals(PREVENTIVE, ra3.getUsageRules().iterator().next().getInstant());
+        assertEquals(UsageMethod.AVAILABLE, ra3.getUsageRules().iterator().next().getUsageMethod());
+        assertEquals("606a1624-2be7-4c5b-8957-62126b8f38ad", ((InjectionSetpoint) ra3.getElementaryActions().iterator().next()).getNetworkElement().getId());
+        assertEquals(195, ((InjectionSetpoint) ra3.getElementaryActions().iterator().next()).getSetpoint());
+
+        NetworkAction ra4 = cracCreationContext.getCrac().getNetworkAction("3bf50d11-f507-46c9-ae98-cd3e66020dde");
+        assertEquals("RTE_Relatively increasing set-point RA", ra4.getName());
+        assertEquals(PREVENTIVE, ra4.getUsageRules().iterator().next().getInstant());
+        assertEquals(UsageMethod.AVAILABLE, ra4.getUsageRules().iterator().next().getUsageMethod());
+        assertEquals("606a1624-2be7-4c5b-8957-62126b8f38ad", ((InjectionSetpoint) ra4.getElementaryActions().iterator().next()).getNetworkElement().getId());
+        assertEquals(170, ((InjectionSetpoint) ra4.getElementaryActions().iterator().next()).getSetpoint());
+
+        NetworkAction ra5 = cracCreationContext.getCrac().getNetworkAction("c96947f6-0c3d-4cf1-9331-937529fef6e9");
+        assertEquals("RTE_Relatively decreasing set-point RA", ra5.getName());
+        assertEquals(PREVENTIVE, ra5.getUsageRules().iterator().next().getInstant());
+        assertEquals(UsageMethod.AVAILABLE, ra5.getUsageRules().iterator().next().getUsageMethod());
+        assertEquals("606a1624-2be7-4c5b-8957-62126b8f38ad", ((InjectionSetpoint) ra5.getElementaryActions().iterator().next()).getNetworkElement().getId());
+        assertEquals(135, ((InjectionSetpoint) ra5.getElementaryActions().iterator().next()).getSetpoint());
     }
 }
