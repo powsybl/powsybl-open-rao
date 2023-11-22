@@ -37,7 +37,7 @@ public class RaoResultWithVoltageMonitoringTest {
 
         Crac crac = new JsonImport().importCrac(cracFile);
         RaoResult raoResult = new RaoResultImporter().importRaoResult(raoResultFile, crac);
-        VoltageMonitoringResult voltageMonitoringResult = new VoltageMonitoringResultImporter().importVoltageMonitoringResult(getClass().getResourceAsStream("/voltage-m-result.json"), crac);
+        VoltageMonitoringResult voltageMonitoringResult = new VoltageMonitoringResultImporter().importVoltageMonitoringResult(getClass().getResourceAsStream("/voltage-monitoring-result.json"), crac);
         RaoResult raoResultWithVoltageMonitoring = new RaoResultWithVoltageMonitoring(raoResult, voltageMonitoringResult);
 
         assertEquals(144.38, raoResultWithVoltageMonitoring.getVoltage(Instant.CURATIVE, crac.getVoltageCnec("voltageCnecId"), Unit.KILOVOLT), DOUBLE_TOLERANCE);
@@ -45,19 +45,13 @@ public class RaoResultWithVoltageMonitoringTest {
         assertEquals(Set.of("pstSetpointRaId", "complexNetworkActionId"), raoResultWithVoltageMonitoring.getActivatedNetworkActionsDuringState(crac.getState("contingency1Id", Instant.CURATIVE)).stream().map(Identifiable::getId).collect(Collectors.toSet()));
         assertTrue(raoResultWithVoltageMonitoring.isActivatedDuringState(crac.getState("contingency1Id", Instant.CURATIVE), crac.getNetworkAction("complexNetworkActionId")));
         assertEquals(ComputationStatus.FAILURE, raoResultWithVoltageMonitoring.getComputationStatus());
+
+        VoltageMonitoringResult voltageMonitoringResult2 = new VoltageMonitoringResultImporter().importVoltageMonitoringResult(getClass().getResourceAsStream("/voltage-monitoring-result2.json"), crac);
+        RaoResult raoResultWithVoltageMonitoring2 = new RaoResultWithVoltageMonitoring(raoResult, voltageMonitoringResult2);
+
+        assertEquals(398., raoResultWithVoltageMonitoring2.getVoltage(Instant.CURATIVE, crac.getVoltageCnec("voltageCnecId"), Unit.KILOVOLT), DOUBLE_TOLERANCE);
+        assertEquals(1., raoResultWithVoltageMonitoring2.getMargin(Instant.CURATIVE, crac.getVoltageCnec("voltageCnecId"), Unit.KILOVOLT), DOUBLE_TOLERANCE);
+        assertEquals(ComputationStatus.DEFAULT, raoResultWithVoltageMonitoring2.getComputationStatus());
     }
 
-    @Test
-    void testRaoResultWithVoltageMonitoring2() {
-        InputStream raoResultFile = getClass().getResourceAsStream("/rao-result-v1.4.json");
-        InputStream cracFile = getClass().getResourceAsStream("/crac-for-rao-result-v1.4.json");
-        Crac crac = new JsonImport().importCrac(cracFile);
-        RaoResult raoResult = new RaoResultImporter().importRaoResult(raoResultFile, crac);
-        VoltageMonitoringResult voltageMonitoringResult = new VoltageMonitoringResultImporter().importVoltageMonitoringResult(getClass().getResourceAsStream("/voltage-m-result2.json"), crac);
-        RaoResult raoResultWithVoltageMonitoring = new RaoResultWithVoltageMonitoring(raoResult, voltageMonitoringResult);
-
-        assertEquals(398., raoResultWithVoltageMonitoring.getVoltage(Instant.CURATIVE, crac.getVoltageCnec("voltageCnecId"), Unit.KILOVOLT), DOUBLE_TOLERANCE);
-        assertEquals(1., raoResultWithVoltageMonitoring.getMargin(Instant.CURATIVE, crac.getVoltageCnec("voltageCnecId"), Unit.KILOVOLT), DOUBLE_TOLERANCE);
-        assertEquals(ComputationStatus.DEFAULT, raoResultWithVoltageMonitoring.getComputationStatus());
-    }
 }

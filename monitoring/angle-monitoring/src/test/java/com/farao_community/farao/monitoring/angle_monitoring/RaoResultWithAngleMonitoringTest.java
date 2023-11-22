@@ -34,10 +34,9 @@ public class RaoResultWithAngleMonitoringTest {
     void testRaoResultWithAngleMonitoring() {
         InputStream raoResultFile = getClass().getResourceAsStream("/rao-result-v1.4.json");
         InputStream cracFile = getClass().getResourceAsStream("/crac-for-rao-result-v1.4.json");
-
         Crac crac = new JsonImport().importCrac(cracFile);
         RaoResult raoResult = new RaoResultImporter().importRaoResult(raoResultFile, crac);
-        AngleMonitoringResult angleMonitoringResult = new AngleMonitoringResultImporter().importAngleMonitoringResult(getClass().getResourceAsStream("/angle-m-result.json"), crac);
+        AngleMonitoringResult angleMonitoringResult = new AngleMonitoringResultImporter().importAngleMonitoringResult(getClass().getResourceAsStream("/angle-monitoring-result.json"), crac);
         RaoResult raoResultWithAngleMonitoring = new RaoResultWithAngleMonitoring(raoResult, angleMonitoringResult);
 
         assertEquals(4.6, raoResultWithAngleMonitoring.getAngle(Instant.CURATIVE, crac.getAngleCnec("angleCnecId"), Unit.DEGREE), DOUBLE_TOLERANCE);
@@ -45,17 +44,10 @@ public class RaoResultWithAngleMonitoringTest {
         assertEquals(Set.of("pstSetpointRaId", "complexNetworkActionId"), raoResultWithAngleMonitoring.getActivatedNetworkActionsDuringState(crac.getState("contingency1Id", Instant.CURATIVE)).stream().map(Identifiable::getId).collect(Collectors.toSet()));
         assertTrue(raoResultWithAngleMonitoring.isActivatedDuringState(crac.getState("contingency1Id", Instant.CURATIVE), crac.getNetworkAction("complexNetworkActionId")));
         assertEquals(ComputationStatus.DEFAULT, raoResultWithAngleMonitoring.getComputationStatus());
+
+        AngleMonitoringResult angleMonitoringResult2 = new AngleMonitoringResultImporter().importAngleMonitoringResult(getClass().getResourceAsStream("/angle-monitoring-result2.json"), crac);
+        RaoResult raoResultWithAngleMonitoring2 = new RaoResultWithAngleMonitoring(raoResult, angleMonitoringResult2);
+        assertEquals(ComputationStatus.FAILURE, raoResultWithAngleMonitoring2.getComputationStatus());
     }
 
-    @Test
-    void testRaoResultWithAngleMonitoring2() {
-        InputStream raoResultFile = getClass().getResourceAsStream("/rao-result-v1.4.json");
-        InputStream cracFile = getClass().getResourceAsStream("/crac-for-rao-result-v1.4.json");
-        Crac crac = new JsonImport().importCrac(cracFile);
-        RaoResult raoResult = new RaoResultImporter().importRaoResult(raoResultFile, crac);
-        assertEquals(ComputationStatus.DEFAULT, raoResult.getComputationStatus());
-        AngleMonitoringResult angleMonitoringResult = new AngleMonitoringResultImporter().importAngleMonitoringResult(getClass().getResourceAsStream("/angle-m-result2.json"), crac);
-        RaoResult raoResultWithAngleMonitoring = new RaoResultWithAngleMonitoring(raoResult, angleMonitoringResult);
-        assertEquals(ComputationStatus.FAILURE, raoResultWithAngleMonitoring.getComputationStatus());
-    }
 }
