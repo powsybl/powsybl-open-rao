@@ -22,17 +22,10 @@ import com.farao_community.farao.data.crac_impl.CracImpl;
 import com.powsybl.iidm.network.Country;
 import org.junit.jupiter.api.Test;
 
-import java.util.Objects;
 import java.util.Optional;
 
-import static com.farao_community.farao.data.crac_io_json.JsonSerializationConstants.ThresholdComparator;
-import static com.farao_community.farao.data.crac_io_json.JsonSerializationConstants.UsageRuleComparator;
-import static com.farao_community.farao.data.crac_io_json.JsonSerializationConstants.getPrimaryVersionNumber;
-import static com.farao_community.farao.data.crac_io_json.JsonSerializationConstants.getSubVersionNumber;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
+import static com.farao_community.farao.data.crac_io_json.JsonSerializationConstants.*;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 

@@ -11,7 +11,7 @@ import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.InstantKind;
 import com.farao_community.farao.data.crac_api.State;
-import com.farao_community.farao.data.crac_impl.InstantImpl;
+import com.farao_community.farao.data.crac_impl.CracImpl;
 import com.farao_community.farao.data.rao_result_json.deserializers.StateDeserializer;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -31,10 +31,14 @@ class StateDeserializerTest {
         State outageState = Mockito.mock(State.class);
         String contingencyId = "contingency";
         Mockito.when(crac.getPreventiveState()).thenReturn(preventiveState);
-        Instant preventiveInstant = new InstantImpl("preventive", InstantKind.PREVENTIVE, null);
-        Instant outageInstant = new InstantImpl("outage", InstantKind.OUTAGE, preventiveInstant);
-        Instant autoInstant = new InstantImpl("auto", InstantKind.AUTO, outageInstant);
-        Instant curativeInstant = new InstantImpl("curative", InstantKind.CURATIVE, autoInstant);
+        Crac cracForInstants = new CracImpl("test-cracForInstants")
+            .newInstant("preventive", InstantKind.PREVENTIVE)
+            .newInstant("outage", InstantKind.OUTAGE)
+            .newInstant("auto", InstantKind.AUTO)
+            .newInstant("curative", InstantKind.CURATIVE);
+        Instant preventiveInstant = cracForInstants.getInstant("preventive");
+        Instant outageInstant = cracForInstants.getInstant("outage");
+        Instant curativeInstant = cracForInstants.getInstant("curative");
         Mockito.when(crac.getState(contingencyId, curativeInstant)).thenReturn(curativeState);
         Mockito.when(crac.getState(contingencyId, outageInstant)).thenReturn(outageState);
         Mockito.when(crac.getInstant("preventive")).thenReturn(preventiveInstant);

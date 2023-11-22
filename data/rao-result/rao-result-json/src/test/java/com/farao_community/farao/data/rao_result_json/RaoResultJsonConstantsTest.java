@@ -9,7 +9,6 @@ package com.farao_community.farao.data.rao_result_json;
 
 import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_impl.CracImpl;
-import com.farao_community.farao.data.crac_impl.InstantImpl;
 import com.farao_community.farao.data.rao_result_api.OptimizationStepsExecuted;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;

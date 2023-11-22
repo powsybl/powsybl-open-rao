@@ -15,7 +15,7 @@ import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.CimCracCreationContext;
 import com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.remedial_action.PstRangeActionSeriesCreationContext;
 import com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.remedial_action.RemedialActionSeriesCreationContext;
-import com.farao_community.farao.data.crac_impl.InstantImpl;
+import com.farao_community.farao.data.crac_impl.CracImpl;
 import com.farao_community.farao.data.rao_result_api.RaoResult;
 import com.farao_community.farao.data.swe_cne_exporter.xsd.RemedialActionSeries;
 import org.junit.jupiter.api.BeforeEach;
@@ -45,10 +45,15 @@ class SweRemedialActionSeriesCreatorTest {
 
         Mockito.when(cneHelper.getCrac()).thenReturn(crac);
         Mockito.when(cneHelper.getRaoResult()).thenReturn(raoResult);
-        Instant preventiveInstant = new InstantImpl("preventive", InstantKind.PREVENTIVE, null);
-        Instant outageInstant = new InstantImpl("outage", InstantKind.OUTAGE, preventiveInstant);
-        Instant autoInstant = new InstantImpl("auto", InstantKind.AUTO, outageInstant);
-        Instant curativeInstant = new InstantImpl("curative", InstantKind.CURATIVE, autoInstant);
+        Crac cracForInstants = new CracImpl("test-cracForInstants")
+            .newInstant("preventive", InstantKind.PREVENTIVE)
+            .newInstant("outage", InstantKind.OUTAGE)
+            .newInstant("auto", InstantKind.AUTO)
+            .newInstant("curative", InstantKind.CURATIVE);
+        Instant preventiveInstant = cracForInstants.getInstant("preventive");
+        Instant outageInstant = cracForInstants.getInstant("outage");
+        Instant autoInstant = cracForInstants.getInstant("auto");
+        Instant curativeInstant = cracForInstants.getInstant("curative");
         Mockito.when(crac.getInstant("preventive")).thenReturn(preventiveInstant);
         Mockito.when(crac.getInstant("outage")).thenReturn(outageInstant);
         Mockito.when(crac.getInstant("auto")).thenReturn(autoInstant);

@@ -17,7 +17,6 @@ import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import com.farao_community.farao.data.crac_impl.CracImpl;
-import com.farao_community.farao.data.crac_impl.InstantImpl;
 import com.farao_community.farao.data.crac_impl.utils.CommonCracCreation;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
 import com.farao_community.farao.rao_api.RaoInput;
@@ -229,13 +228,13 @@ class RaoUtilTest {
 
     @Test
     void testIsOnFlowConstraintInCountryAvailable() {
-        Crac crac = new CracImpl("test-crac")
+        Crac cracForInstants = new CracImpl("test-cracForInstants")
             .newInstant("preventive", InstantKind.PREVENTIVE)
             .newInstant("outage", InstantKind.OUTAGE)
             .newInstant("auto", InstantKind.AUTO)
             .newInstant("curative", InstantKind.CURATIVE);
-        Instant preventiveInstant = crac.getInstant("preventive");
-        Instant curativeInstant = crac.getInstant("curative");
+        Instant preventiveInstant = cracForInstants.getInstant("preventive");
+        Instant curativeInstant = cracForInstants.getInstant("curative");
         State optimizedState = Mockito.mock(State.class);
         when(optimizedState.getInstant()).thenReturn(curativeInstant);
 

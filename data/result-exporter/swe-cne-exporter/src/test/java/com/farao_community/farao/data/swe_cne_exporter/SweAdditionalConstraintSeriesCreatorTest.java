@@ -12,7 +12,7 @@ import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_api.cnec.AngleCnec;
 import com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.CimCracCreationContext;
 import com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.cnec.AngleCnecCreationContext;
-import com.farao_community.farao.data.crac_impl.InstantImpl;
+import com.farao_community.farao.data.crac_impl.CracImpl;
 import com.farao_community.farao.data.swe_cne_exporter.xsd.AdditionalConstraintSeries;
 import com.farao_community.farao.monitoring.angle_monitoring.AngleMonitoringResult;
 import org.junit.jupiter.api.BeforeEach;
@@ -34,18 +34,23 @@ class SweAdditionalConstraintSeriesCreatorTest {
     private Crac crac;
     private AngleMonitoringResult angleMonitoringResult;
     private CimCracCreationContext cracCreationContext;
-    private InstantImpl preventiveInstant;
-    private InstantImpl outageInstant;
-    private InstantImpl autoInstant;
-    private InstantImpl curativeInstant;
+    private Instant preventiveInstant;
+    private Instant outageInstant;
+    private Instant autoInstant;
+    private Instant curativeInstant;
 
     @BeforeEach
     public void setup() {
         this.crac = Mockito.mock(Crac.class);
-        preventiveInstant = new InstantImpl("preventive", InstantKind.PREVENTIVE, null);
-        outageInstant = new InstantImpl("outage", InstantKind.OUTAGE, preventiveInstant);
-        autoInstant = new InstantImpl("auto", InstantKind.AUTO, outageInstant);
-        curativeInstant = new InstantImpl("curative", InstantKind.CURATIVE, autoInstant);
+        Crac cracForInstants = new CracImpl("test-cracForInstants")
+            .newInstant("preventive", InstantKind.PREVENTIVE)
+            .newInstant("outage", InstantKind.OUTAGE)
+            .newInstant("auto", InstantKind.AUTO)
+            .newInstant("curative", InstantKind.CURATIVE);
+        preventiveInstant = cracForInstants.getInstant("preventive");
+        outageInstant = cracForInstants.getInstant("outage");
+        autoInstant = cracForInstants.getInstant("auto");
+        curativeInstant = cracForInstants.getInstant("curative");
         this.angleMonitoringResult = Mockito.mock(AngleMonitoringResult.class);
         this.cracCreationContext = Mockito.mock(CimCracCreationContext.class);
         this.sweCneHelper = Mockito.mock(SweCneHelper.class);
