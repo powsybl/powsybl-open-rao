@@ -47,7 +47,7 @@ class FlowCnecCreationTest {
         CsaProfileCracCreationContext cracCreationContext = getCsaCracCreationContext("/CSA_TestConfiguration_TC2_27Apr2023.zip");
 
         cracCreationContext.getCrac().getRemedialActions()
-            .forEach(ra -> assertTrue(ra.getUsageRules().stream().noneMatch(usageRule -> usageRule instanceof OnFlowConstraintImpl)));
+                .forEach(ra -> assertTrue(ra.getUsageRules().stream().noneMatch(usageRule -> usageRule instanceof OnFlowConstraintImpl)));
     }
 
     @Test
@@ -110,44 +110,44 @@ class FlowCnecCreationTest {
         // Check Flow Cnecs
         assertEquals(4, cracCreationContext.getCrac().getFlowCnecs().size());
         CsaProfileCracCreationTestUtil.assertFlowCnecEquality(cracCreationContext.getCrac().getFlowCnec("RTE_AE1 - RTE_CO1 - curative"),
-            "RTE_AE1 - RTE_CO1 - curative",
-            "RTE_AE1 - RTE_CO1 - curative",
-            "60038442-5c02-21a9-22ad-f0554a65a466",
-            CURATIVE,
-            "6c9656a6-84c2-4967-aabc-51f63a7abdf1",
-            1000.,
-            -1000.,
-            Side.LEFT);
+                "RTE_AE1 - RTE_CO1 - curative",
+                "RTE_AE1 - RTE_CO1 - curative",
+                "60038442-5c02-21a9-22ad-f0554a65a466",
+                CURATIVE,
+                "6c9656a6-84c2-4967-aabc-51f63a7abdf1",
+                1000.,
+                -1000.,
+                Side.LEFT);
 
         CsaProfileCracCreationTestUtil.assertFlowCnecEquality(cracCreationContext.getCrac().getFlowCnec("RTE_AE1 - preventive"),
-            "RTE_AE1 - preventive",
-            "RTE_AE1 - preventive",
-            "60038442-5c02-21a9-22ad-f0554a65a466",
-            PREVENTIVE,
-            null,
-            1000.,
-            -1000.,
-            Side.LEFT);
+                "RTE_AE1 - preventive",
+                "RTE_AE1 - preventive",
+                "60038442-5c02-21a9-22ad-f0554a65a466",
+                PREVENTIVE,
+                null,
+                1000.,
+                -1000.,
+                Side.LEFT);
 
         CsaProfileCracCreationTestUtil.assertFlowCnecEquality(cracCreationContext.getCrac().getFlowCnec("RTE_AE2 - RTE_CO2 - curative"),
-            "RTE_AE2 - RTE_CO2 - curative",
-            "RTE_AE2 - RTE_CO2 - curative",
-            "65e9a6a7-8488-7b17-6344-cb7d61b7920b",
-            CURATIVE,
-            "410a7075-51df-4c5c-aa80-0bb1bbe41190",
-            1000.,
-            -1000.,
-            Side.RIGHT);
+                "RTE_AE2 - RTE_CO2 - curative",
+                "RTE_AE2 - RTE_CO2 - curative",
+                "65e9a6a7-8488-7b17-6344-cb7d61b7920b",
+                CURATIVE,
+                "410a7075-51df-4c5c-aa80-0bb1bbe41190",
+                1000.,
+                -1000.,
+                Side.RIGHT);
 
         CsaProfileCracCreationTestUtil.assertFlowCnecEquality(cracCreationContext.getCrac().getFlowCnec("RTE_AE2 - preventive"),
-            "RTE_AE2 - preventive",
-            "RTE_AE2 - preventive",
-            "65e9a6a7-8488-7b17-6344-cb7d61b7920b",
-            PREVENTIVE,
-            null,
-            1000.,
-            -1000.,
-            Side.RIGHT);
+                "RTE_AE2 - preventive",
+                "RTE_AE2 - preventive",
+                "65e9a6a7-8488-7b17-6344-cb7d61b7920b",
+                PREVENTIVE,
+                null,
+                1000.,
+                -1000.,
+                Side.RIGHT);
 
         //4 remedial actions and a total of 8 onFlowConstraint usage rules.
         assertEquals(4, cracCreationContext.getCrac().getRemedialActions().size());
@@ -177,32 +177,32 @@ class FlowCnecCreationTest {
         assertTrue(cracCreationContext.isCreationSuccessful());
         assertEquals(4, cracCreationContext.getCrac().getFlowCnecs().size());
         List<FlowCnec> listFlowCnecs = cracCreationContext.getCrac().getFlowCnecs()
-            .stream().sorted(Comparator.comparing(FlowCnec::getId)).toList();
+                .stream().sorted(Comparator.comparing(FlowCnec::getId)).toList();
 
         CsaProfileCracCreationTestUtil.assertFlowCnecEquality(listFlowCnecs.iterator().next(),
-            "RTE_AE - RTE_CO1 - curative",
-            "RTE_AE - RTE_CO1 - curative",
-            "FFR3AA1--FFR5AA1--1",
-            CURATIVE, "0451f8be-83d7-45da-b80b-4014259ff624",
-            +1000., -1000., Side.RIGHT);
+                "RTE_AE - RTE_CO1 - curative",
+                "RTE_AE - RTE_CO1 - curative",
+                "FFR3AA1--FFR5AA1--1",
+                CURATIVE, "0451f8be-83d7-45da-b80b-4014259ff624",
+                +1000., -1000., Side.RIGHT);
         CsaProfileCracCreationTestUtil.assertFlowCnecEquality(listFlowCnecs.get(1),
-            "RTE_AE - RTE_CO3 - curative",
-            "RTE_AE - RTE_CO3 - curative",
-            "FFR3AA1--FFR5AA1--1",
-            CURATIVE, "4491d904-93c4-41d4-a509-57f9fed2e31c",
-            +1000., -1000., Side.RIGHT);
+                "RTE_AE - RTE_CO3 - curative",
+                "RTE_AE - RTE_CO3 - curative",
+                "FFR3AA1--FFR5AA1--1",
+                CURATIVE, "4491d904-93c4-41d4-a509-57f9fed2e31c",
+                +1000., -1000., Side.RIGHT);
         CsaProfileCracCreationTestUtil.assertFlowCnecEquality(listFlowCnecs.get(2),
-            "RTE_AE - preventive",
-            "RTE_AE - preventive",
-            "FFR3AA1--FFR5AA1--1",
-            PREVENTIVE, null,
-            +1000., -1000., Side.RIGHT);
+                "RTE_AE - preventive",
+                "RTE_AE - preventive",
+                "FFR3AA1--FFR5AA1--1",
+                PREVENTIVE, null,
+                +1000., -1000., Side.RIGHT);
         CsaProfileCracCreationTestUtil.assertFlowCnecEquality(listFlowCnecs.get(3),
-            "RTE_AE2 - preventive",
-            "RTE_AE2 - preventive",
-            "FFR3AA1--FFR5AA1--1",
-            PREVENTIVE, null,
-            +1000., -1000., Side.RIGHT);
+                "RTE_AE2 - preventive",
+                "RTE_AE2 - preventive",
+                "FFR3AA1--FFR5AA1--1",
+                PREVENTIVE, null,
+                +1000., -1000., Side.RIGHT);
     }
 
     @Test
@@ -215,32 +215,32 @@ class FlowCnecCreationTest {
         assertEquals(2, cracCreationContext.getCrac().getContingencies().size());
         assertEquals(4, cracCreationContext.getCrac().getFlowCnecs().size());
         List<FlowCnec> listFlowCnecs = cracCreationContext.getCrac().getFlowCnecs()
-            .stream().sorted(Comparator.comparing(FlowCnec::getId)).toList();
+                .stream().sorted(Comparator.comparing(FlowCnec::getId)).toList();
 
         CsaProfileCracCreationTestUtil.assertFlowCnecEquality(listFlowCnecs.iterator().next(),
-            "ELIA_AE1 - ELIA_CO1 - curative",
-            "ELIA_AE1 - ELIA_CO1 - curative",
-            "ffbabc27-1ccd-4fdc-b037-e341706c8d29",
-            CURATIVE, "493480ba-93c3-426e-bee5-347d8dda3749",
-            +1312., -1312., Side.LEFT);
+                "ELIA_AE1 - ELIA_CO1 - curative",
+                "ELIA_AE1 - ELIA_CO1 - curative",
+                "ffbabc27-1ccd-4fdc-b037-e341706c8d29",
+                CURATIVE, "493480ba-93c3-426e-bee5-347d8dda3749",
+                +1312., -1312., Side.LEFT);
         CsaProfileCracCreationTestUtil.assertFlowCnecEquality(listFlowCnecs.get(1),
-            "ELIA_AE1 - preventive",
-            "ELIA_AE1 - preventive",
-            "ffbabc27-1ccd-4fdc-b037-e341706c8d29",
-            PREVENTIVE, null,
-            +1312., -1312., Side.LEFT);
+                "ELIA_AE1 - preventive",
+                "ELIA_AE1 - preventive",
+                "ffbabc27-1ccd-4fdc-b037-e341706c8d29",
+                PREVENTIVE, null,
+                +1312., -1312., Side.LEFT);
         CsaProfileCracCreationTestUtil.assertFlowCnecEquality(listFlowCnecs.get(2),
-            "TENNET_TSO_AE1NL - TENNET_TSO_CO1 - curative",
-            "TENNET_TSO_AE1NL - TENNET_TSO_CO1 - curative",
-            "b18cd1aa-7808-49b9-a7cf-605eaf07b006 + e8acf6b6-99cb-45ad-b8dc-16c7866a4ddc",
-            CURATIVE, "c0a25fd7-eee0-4191-98a5-71a74469d36e",
-            +1876., -1876., Side.RIGHT);
+                "TENNET_TSO_AE1NL - TENNET_TSO_CO1 - curative",
+                "TENNET_TSO_AE1NL - TENNET_TSO_CO1 - curative",
+                "b18cd1aa-7808-49b9-a7cf-605eaf07b006 + e8acf6b6-99cb-45ad-b8dc-16c7866a4ddc",
+                CURATIVE, "c0a25fd7-eee0-4191-98a5-71a74469d36e",
+                +1876., -1876., Side.RIGHT);
         CsaProfileCracCreationTestUtil.assertFlowCnecEquality(listFlowCnecs.get(3),
-            "TENNET_TSO_AE1NL - preventive",
-            "TENNET_TSO_AE1NL - preventive",
-            "b18cd1aa-7808-49b9-a7cf-605eaf07b006 + e8acf6b6-99cb-45ad-b8dc-16c7866a4ddc",
-            PREVENTIVE, null,
-            +1876., -1876., Side.RIGHT);
+                "TENNET_TSO_AE1NL - preventive",
+                "TENNET_TSO_AE1NL - preventive",
+                "b18cd1aa-7808-49b9-a7cf-605eaf07b006 + e8acf6b6-99cb-45ad-b8dc-16c7866a4ddc",
+                PREVENTIVE, null,
+                +1876., -1876., Side.RIGHT);
 
         // csa-9-1
         assertTrue(cracCreationContext.getCrac().getNetworkActions().isEmpty());
@@ -385,31 +385,137 @@ class FlowCnecCreationTest {
         assertEquals(4, cracCreationContext.getCrac().getFlowCnecs().size());
 
         List<FlowCnec> listFlowCnecs = cracCreationContext.getCrac().getFlowCnecs()
-            .stream().sorted(Comparator.comparing(FlowCnec::getId)).toList();
+                .stream().sorted(Comparator.comparing(FlowCnec::getId)).toList();
 
         CsaProfileCracCreationTestUtil.assertFlowCnecEquality(listFlowCnecs.get(0),
-            "ELIA_AE1 - ELIA_CO1 - curative",
-            "ELIA_AE1 - ELIA_CO1 - curative",
-            "ffbabc27-1ccd-4fdc-b037-e341706c8d29",
-            CURATIVE, "493480ba-93c3-426e-bee5-347d8dda3749",
-            +1312d, -1312d, Side.LEFT);
+                "ELIA_AE1 - ELIA_CO1 - curative",
+                "ELIA_AE1 - ELIA_CO1 - curative",
+                "ffbabc27-1ccd-4fdc-b037-e341706c8d29",
+                CURATIVE, "493480ba-93c3-426e-bee5-347d8dda3749",
+                +1312d, -1312d, Side.LEFT);
         CsaProfileCracCreationTestUtil.assertFlowCnecEquality(listFlowCnecs.get(1),
-            "ELIA_AE1 - preventive",
-            "ELIA_AE1 - preventive",
-            "ffbabc27-1ccd-4fdc-b037-e341706c8d29",
-            PREVENTIVE, null,
-            +1312d, -1312d, Side.LEFT);
+                "ELIA_AE1 - preventive",
+                "ELIA_AE1 - preventive",
+                "ffbabc27-1ccd-4fdc-b037-e341706c8d29",
+                PREVENTIVE, null,
+                +1312d, -1312d, Side.LEFT);
         CsaProfileCracCreationTestUtil.assertFlowCnecEquality(listFlowCnecs.get(2),
-            "TENNET_TSO_AE1NL - TENNET_TSO_CO1 - curative",
-            "TENNET_TSO_AE1NL - TENNET_TSO_CO1 - curative",
-            "b18cd1aa-7808-49b9-a7cf-605eaf07b006 + e8acf6b6-99cb-45ad-b8dc-16c7866a4ddc",
-            CURATIVE, "c0a25fd7-eee0-4191-98a5-71a74469d36e",
-            +1876d, -1876d, Side.RIGHT);
+                "TENNET_TSO_AE1NL - TENNET_TSO_CO1 - curative",
+                "TENNET_TSO_AE1NL - TENNET_TSO_CO1 - curative",
+                "b18cd1aa-7808-49b9-a7cf-605eaf07b006 + e8acf6b6-99cb-45ad-b8dc-16c7866a4ddc",
+                CURATIVE, "c0a25fd7-eee0-4191-98a5-71a74469d36e",
+                +1876d, -1876d, Side.RIGHT);
         CsaProfileCracCreationTestUtil.assertFlowCnecEquality(listFlowCnecs.get(3),
-            "TENNET_TSO_AE1NL - preventive",
-            "TENNET_TSO_AE1NL - preventive",
-            "b18cd1aa-7808-49b9-a7cf-605eaf07b006 + e8acf6b6-99cb-45ad-b8dc-16c7866a4ddc",
-            PREVENTIVE, null,
-            +1876d, -1876d, Side.RIGHT);
+                "TENNET_TSO_AE1NL - preventive",
+                "TENNET_TSO_AE1NL - preventive",
+                "b18cd1aa-7808-49b9-a7cf-605eaf07b006 + e8acf6b6-99cb-45ad-b8dc-16c7866a4ddc",
+                PREVENTIVE, null,
+                +1876d, -1876d, Side.RIGHT);
+    }
+
+    @Test
+    void createFlowCnecsFromAssessedElementsWithConductingEquipment() {
+        CsaProfileCracCreationContext cracCreationContext = getCsaCracCreationContext("/CSA_79_1.zip");
+        List<FlowCnec> importedFlowCnecs = cracCreationContext.getCrac().getFlowCnecs()
+                .stream().sorted(Comparator.comparing(FlowCnec::getId)).toList();
+        assertEquals(7, importedFlowCnecs.size());
+
+        CsaProfileCracCreationTestUtil.assertFlowCnecEquality(
+                importedFlowCnecs.get(0),
+                "RTE_AE1 (183829bd-5c60-4c04-ad57-c72a15a75047) - RTE_CO1 - auto",
+                "RTE_AE1 (183829bd-5c60-4c04-ad57-c72a15a75047) - RTE_CO1 - auto",
+                "b58bf21a-096a-4dae-9a01-3f03b60c24c7",
+                AUTO,
+                "bbda9fe0-77e0-4f8e-b9d9-4402a539f2b7",
+                +500d,
+                -500d,
+                +500d,
+                -500d,
+                Set.of(Side.RIGHT, Side.LEFT)
+        );
+
+        CsaProfileCracCreationTestUtil.assertFlowCnecEquality(
+                importedFlowCnecs.get(1),
+                "RTE_AE1 (183829bd-5c60-4c04-ad57-c72a15a75047) - RTE_CO1 - curative",
+                "RTE_AE1 (183829bd-5c60-4c04-ad57-c72a15a75047) - RTE_CO1 - curative",
+                "b58bf21a-096a-4dae-9a01-3f03b60c24c7",
+                CURATIVE,
+                "bbda9fe0-77e0-4f8e-b9d9-4402a539f2b7",
+                +1574d,
+                -1574d,
+                +1574d,
+                -1574d,
+                Set.of(Side.RIGHT, Side.LEFT)
+        );
+
+        CsaProfileCracCreationTestUtil.assertFlowCnecEquality(
+                importedFlowCnecs.get(2),
+                "RTE_AE1 (183829bd-5c60-4c04-ad57-c72a15a75047) - preventive",
+                "RTE_AE1 (183829bd-5c60-4c04-ad57-c72a15a75047) - preventive",
+                "b58bf21a-096a-4dae-9a01-3f03b60c24c7",
+                PREVENTIVE,
+                null,
+                +1574d,
+                -1574d,
+                +1574d,
+                -1574d,
+                Set.of(Side.RIGHT, Side.LEFT)
+        );
+
+        CsaProfileCracCreationTestUtil.assertFlowCnecEquality(
+                importedFlowCnecs.get(3),
+                "RTE_AE2 (de5b6775-b8d7-4ac4-9619-ecc30d98f3db) - RTE_CO1 - curative",
+                "RTE_AE2 (de5b6775-b8d7-4ac4-9619-ecc30d98f3db) - RTE_CO1 - curative",
+                "3852b69e-22d2-41cb-b370-fb372ddcde19",
+                CURATIVE,
+                "bbda9fe0-77e0-4f8e-b9d9-4402a539f2b7",
+                +1283d,
+                -1283d,
+                +10188.5,
+                -10188.5,
+                Set.of(Side.RIGHT, Side.LEFT)
+        );
+
+        CsaProfileCracCreationTestUtil.assertFlowCnecEquality(
+                importedFlowCnecs.get(4),
+                "RTE_AE2 (de5b6775-b8d7-4ac4-9619-ecc30d98f3db) - preventive",
+                "RTE_AE2 (de5b6775-b8d7-4ac4-9619-ecc30d98f3db) - preventive",
+                "3852b69e-22d2-41cb-b370-fb372ddcde19",
+                PREVENTIVE,
+                null,
+                +1283d,
+                -1283d,
+                +10188.5,
+                -10188.5,
+                Set.of(Side.RIGHT, Side.LEFT)
+        );
+
+        CsaProfileCracCreationTestUtil.assertFlowCnecEquality(
+                importedFlowCnecs.get(5),
+                "RTE_AE3 (08d0622e-02c7-4c20-8dbd-992ef4e6be0a) - RTE_CO1 - curative",
+                "RTE_AE3 (08d0622e-02c7-4c20-8dbd-992ef4e6be0a) - RTE_CO1 - curative",
+                "4c390dab-3499-4a9f-9cee-5877081479ab + edf1af97-de49-45bb-a7ef-31f96d486712",
+                CURATIVE,
+                "bbda9fe0-77e0-4f8e-b9d9-4402a539f2b7",
+                +1233.9,
+                -1233.9,
+                +1000d,
+                -1000d,
+                Set.of(Side.RIGHT, Side.LEFT)
+        );
+
+        CsaProfileCracCreationTestUtil.assertFlowCnecEquality(
+                importedFlowCnecs.get(6),
+                "RTE_AE3 (08d0622e-02c7-4c20-8dbd-992ef4e6be0a) - preventive",
+                "RTE_AE3 (08d0622e-02c7-4c20-8dbd-992ef4e6be0a) - preventive",
+                "4c390dab-3499-4a9f-9cee-5877081479ab + edf1af97-de49-45bb-a7ef-31f96d486712",
+                PREVENTIVE,
+                null,
+                +1233.9,
+                -1233.9,
+                +1000d,
+                -1000d,
+                Set.of(Side.RIGHT, Side.LEFT)
+        );
     }
 }
