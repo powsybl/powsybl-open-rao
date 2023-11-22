@@ -162,10 +162,10 @@ public class CsaProfileRemedialActionsCreator {
                 } else { // no contingency linked to RA --> on instant usage rule
                     String kind = parentRemedialActionPropertyBag.get(CsaProfileConstants.RA_KIND);
                     if (kind.equals(CsaProfileConstants.RemedialActionKind.PREVENTIVE.toString())) {
-                        Instant prevInstant = crac.getInstant(InstantKind.PREVENTIVE);
-                        boolean hasAtLeastOneOnConstraintUsageRule = addOnConstraintUsageRules(prevInstant, remedialActionAdder, remedialActionId, alterations);
+                        Instant preventiveInstant = crac.getInstant(InstantKind.PREVENTIVE);
+                        boolean hasAtLeastOneOnConstraintUsageRule = addOnConstraintUsageRules(preventiveInstant, remedialActionAdder, remedialActionId, alterations);
                         if (!hasAtLeastOneOnConstraintUsageRule) {
-                            remedialActionAdder.newOnInstantUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withInstant(prevInstant.getId()).add();
+                            remedialActionAdder.newOnInstantUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withInstant(preventiveInstant.getId()).add();
                         }
                     } else {
                         Instant curativeInstant = crac.getInstant(InstantKind.CURATIVE);

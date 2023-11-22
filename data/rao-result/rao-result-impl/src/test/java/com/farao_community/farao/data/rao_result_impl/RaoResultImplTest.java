@@ -38,13 +38,13 @@ class RaoResultImplTest {
     private FlowCnec cnec;
     private PstRangeAction pst;
     private NetworkAction na;
-    private Instant prevInstant;
+    private Instant preventiveInstant;
     private Instant autoInstant;
     private Instant curativeInstant;
 
     private void setUp() {
         crac = CommonCracCreation.createWithPreventiveAndCurativePstRange();
-        prevInstant = crac.getInstant("preventive");
+        preventiveInstant = crac.getInstant("preventive");
         autoInstant = crac.getInstant("auto");
         curativeInstant = crac.getInstant("curative");
         cnec = crac.getFlowCnec("cnec1basecase");
@@ -148,7 +148,7 @@ class RaoResultImplTest {
         assertEquals(0.1, raoResult.getPtdfZonalSum(null, cnec, Side.LEFT), DOUBLE_TOLERANCE);
 
         // should always return after pra results because the cnec is Preventive
-        getResultAtAGivenState(prevInstant);
+        getResultAtAGivenState(preventiveInstant);
         getResultAtAGivenState(autoInstant);
         getResultAtAGivenState(curativeInstant);
     }

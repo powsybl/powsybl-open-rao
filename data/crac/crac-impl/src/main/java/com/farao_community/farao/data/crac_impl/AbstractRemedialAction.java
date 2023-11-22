@@ -125,6 +125,7 @@ public abstract class AbstractRemedialAction<I extends RemedialAction<I>> extend
                 .filter(ofc -> ofc.getUsageMethod(optimizedState).equals(UsageMethod.TO_BE_EVALUATED)).toList();
         onFlowConstraintInCountryUsageRules.forEach(onFlowConstraintInCountry -> {
             // TODO : is this change OK?
+            // instant must be before or equals to cnec instant !
             toBeConsideredCnecs.addAll(perimeterCnecs.stream()
                     .filter(cnec -> onFlowConstraintInCountry.getInstant().isPreventive() || !cnec.getState().getInstant().comesBefore(onFlowConstraintInCountry.getInstant()))
                     .filter(cnec -> isCnecInCountry(cnec, onFlowConstraintInCountry.getCountry(), network))

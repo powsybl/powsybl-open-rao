@@ -68,7 +68,7 @@ class CastorFullOptimizationTest {
     private RangeAction<?> ra10;
     private NetworkAction na1;
     private CastorFullOptimization castorFullOptimization;
-    private Instant prevInstant;
+    private Instant preventiveInstant;
     private Instant autoInstant;
     private Instant curativeInstant;
 
@@ -76,7 +76,7 @@ class CastorFullOptimizationTest {
     public void setup() {
         network = Network.read("network_with_alegro_hub.xiidm", getClass().getResourceAsStream("/network/network_with_alegro_hub.xiidm"));
         crac = CracImporters.importCrac("crac/small-crac.json", getClass().getResourceAsStream("/crac/small-crac.json"));
-        prevInstant = crac.getInstant("preventive");
+        preventiveInstant = crac.getInstant("preventive");
         autoInstant = crac.getInstant("auto");
         curativeInstant = crac.getInstant("curative");
         RaoInput inputs = Mockito.mock(RaoInput.class);
@@ -216,7 +216,7 @@ class CastorFullOptimizationTest {
 
         RaoResult postFirstRaoResult = Mockito.mock(RaoResult.class);
         when(postFirstRaoResult.getCost(null)).thenReturn(-100.);
-        when(postFirstRaoResult.getCost(prevInstant)).thenReturn(-10.);
+        when(postFirstRaoResult.getCost(preventiveInstant)).thenReturn(-10.);
         when(postFirstRaoResult.getCost(curativeInstant)).thenReturn(-120.);
 
         assertFalse(castorFullOptimization.shouldRunSecondPreventiveRao(parameters, preventiveResult, curativeResults, postFirstRaoResult, null, 0));
@@ -582,7 +582,7 @@ class CastorFullOptimizationTest {
         // Run RAO
         RaoResult raoResult = new CastorFullOptimization(raoInput, raoParameters, null).run().join();
         assertEquals(371.88, raoResult.getFunctionalCost(null), 1.);
-        assertEquals(493.56, raoResult.getFunctionalCost(prevInstant), 1.);
+        assertEquals(493.56, raoResult.getFunctionalCost(preventiveInstant), 1.);
         assertEquals(256.78, raoResult.getFunctionalCost(curativeInstant), 1.);
         assertEquals(Set.of(crac.getNetworkAction("close_de3_de4"), crac.getNetworkAction("close_fr1_fr5")), raoResult.getActivatedNetworkActionsDuringState(crac.getPreventiveState()));
         assertEquals(Set.of(crac.getNetworkAction("open_fr1_fr3")), raoResult.getActivatedNetworkActionsDuringState(crac.getState(crac.getContingency("co1_fr2_fr3_1"), curativeInstant)));
@@ -604,7 +604,7 @@ class CastorFullOptimizationTest {
         // Run RAO
         RaoResult raoResult = new CastorFullOptimization(raoInput, raoParameters, null).run().join();
         assertEquals(371.88, raoResult.getFunctionalCost(null), 1.);
-        assertEquals(674.6, raoResult.getFunctionalCost(prevInstant), 1.);
+        assertEquals(674.6, raoResult.getFunctionalCost(preventiveInstant), 1.);
         assertEquals(-555.91, raoResult.getFunctionalCost(curativeInstant), 1.);
         assertEquals(Set.of(crac.getNetworkAction("close_de3_de4"), crac.getNetworkAction("open_fr1_fr2")), raoResult.getActivatedNetworkActionsDuringState(crac.getPreventiveState()));
         assertEquals(Set.of(crac.getNetworkAction("open_fr1_fr3")), raoResult.getActivatedNetworkActionsDuringState(crac.getState(crac.getContingency("co1_fr2_fr3_1"), curativeInstant)));
@@ -629,7 +629,7 @@ class CastorFullOptimizationTest {
         // Run RAO
         RaoResult raoResult = new CastorFullOptimization(raoInput, raoParameters, null).run().join();
         assertEquals(371.88, raoResult.getFunctionalCost(null), 1.);
-        assertEquals(674.6, raoResult.getFunctionalCost(prevInstant), 1.);
+        assertEquals(674.6, raoResult.getFunctionalCost(preventiveInstant), 1.);
         assertEquals(-555.91, raoResult.getFunctionalCost(curativeInstant), 1.);
         assertEquals(Set.of(crac.getNetworkAction("close_de3_de4"), crac.getNetworkAction("open_fr1_fr2")), raoResult.getActivatedNetworkActionsDuringState(crac.getPreventiveState()));
         assertEquals(Set.of(crac.getNetworkAction("open_fr1_fr3")), raoResult.getActivatedNetworkActionsDuringState(crac.getState(crac.getContingency("co1_fr2_fr3_1"), curativeInstant)));

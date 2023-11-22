@@ -31,19 +31,19 @@ class InstantImplTest {
 
     @Test
     void testCombineInstants() {
-        Instant prevInstant = new InstantImpl("preventive", InstantKind.PREVENTIVE, null);
-        Instant outageInstant = new InstantImpl("outage", InstantKind.OUTAGE, prevInstant);
+        Instant preventiveInstant = new InstantImpl("preventive", InstantKind.PREVENTIVE, null);
+        Instant outageInstant = new InstantImpl("outage", InstantKind.OUTAGE, preventiveInstant);
         Instant autoInstant = new InstantImpl("auto", InstantKind.AUTO, outageInstant);
         Instant curativeInstant = new InstantImpl("curative", InstantKind.CURATIVE, autoInstant);
 
-        assertEquals(0, prevInstant.getOrder());
+        assertEquals(0, preventiveInstant.getOrder());
         assertEquals(1, outageInstant.getOrder());
         assertEquals(2, autoInstant.getOrder());
         assertEquals(3, curativeInstant.getOrder());
 
         assertFalse(autoInstant.comesBefore(autoInstant));
         assertTrue(outageInstant.comesBefore(curativeInstant));
-        assertFalse(outageInstant.comesBefore(prevInstant));
+        assertFalse(outageInstant.comesBefore(preventiveInstant));
     }
 
     @Test

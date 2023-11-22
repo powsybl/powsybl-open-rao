@@ -7,10 +7,8 @@
 
 package com.farao_community.farao.data.rao_result_json;
 
-import com.farao_community.farao.data.crac_api.Contingency;
-import com.farao_community.farao.data.crac_api.Instant;
-import com.farao_community.farao.data.crac_api.InstantKind;
-import com.farao_community.farao.data.crac_api.State;
+import com.farao_community.farao.data.crac_api.*;
+import com.farao_community.farao.data.crac_impl.CracImpl;
 import com.farao_community.farao.data.crac_impl.InstantImpl;
 import com.farao_community.farao.data.rao_result_api.OptimizationStepsExecuted;
 import org.junit.jupiter.api.Test;
@@ -56,11 +54,16 @@ class RaoResultJsonConstantsTest {
     @Test
     void testSerializeInstantId() {
         assertEquals("initial", serializeInstantId(null));
-        InstantImpl prevInstant = new InstantImpl("preventive", InstantKind.PREVENTIVE, null);
-        InstantImpl outageInstant = new InstantImpl("outage", InstantKind.OUTAGE, prevInstant);
-        InstantImpl autoInstant = new InstantImpl("auto", InstantKind.AUTO, outageInstant);
-        InstantImpl curativeInstant = new InstantImpl("curative", InstantKind.CURATIVE, autoInstant);
-        assertEquals("preventive", serializeInstantId(prevInstant));
+        Crac crac = new CracImpl("test-crac")
+            .newInstant("preventive", InstantKind.PREVENTIVE)
+            .newInstant("outage", InstantKind.OUTAGE)
+            .newInstant("auto", InstantKind.AUTO)
+            .newInstant("curative", InstantKind.CURATIVE);
+        Instant preventiveInstant = crac.getInstant("preventive");
+        Instant outageInstant = crac.getInstant("outage");
+        Instant autoInstant = crac.getInstant("auto");
+        Instant curativeInstant = crac.getInstant("curative");
+        assertEquals("preventive", serializeInstantId(preventiveInstant));
         assertEquals("outage", serializeInstantId(outageInstant));
         assertEquals("auto", serializeInstantId(autoInstant));
         assertEquals("curative", serializeInstantId(curativeInstant));
@@ -102,18 +105,23 @@ class RaoResultJsonConstantsTest {
     void testCompareStates() {
         State state1 = Mockito.spy(State.class);
         State state2 = Mockito.spy(State.class);
-        Instant prevInstant = new InstantImpl("preventive", InstantKind.PREVENTIVE, null);
-        Instant outageInstant = new InstantImpl("outage", InstantKind.OUTAGE, prevInstant);
-        Instant autoInstant = new InstantImpl("auto", InstantKind.AUTO, outageInstant);
-        Instant curativeInstant = new InstantImpl("curative", InstantKind.CURATIVE, autoInstant);
+        Crac crac = new CracImpl("test-crac")
+            .newInstant("preventive", InstantKind.PREVENTIVE)
+            .newInstant("outage", InstantKind.OUTAGE)
+            .newInstant("auto", InstantKind.AUTO)
+            .newInstant("curative", InstantKind.CURATIVE);
+        Instant preventiveInstant = crac.getInstant("preventive");
+        Instant outageInstant = crac.getInstant("outage");
+        Instant autoInstant = crac.getInstant("auto");
+        Instant curativeInstant = crac.getInstant("curative");
 
         when(state1.getInstant()).thenReturn(outageInstant);
         when(state2.getInstant()).thenReturn(autoInstant);
         assertEquals(-1, STATE_COMPARATOR.compare(state1, state2));
         assertEquals(1, STATE_COMPARATOR.compare(state2, state1));
 
-        when(state1.getInstant()).thenReturn(prevInstant);
-        when(state2.getInstant()).thenReturn(prevInstant);
+        when(state1.getInstant()).thenReturn(preventiveInstant);
+        when(state2.getInstant()).thenReturn(preventiveInstant);
         assertEquals(0, STATE_COMPARATOR.compare(state1, state2));
         assertEquals(0, STATE_COMPARATOR.compare(state2, state1));
 

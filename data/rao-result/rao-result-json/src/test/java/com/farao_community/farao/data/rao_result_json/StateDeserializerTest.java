@@ -31,13 +31,13 @@ class StateDeserializerTest {
         State outageState = Mockito.mock(State.class);
         String contingencyId = "contingency";
         Mockito.when(crac.getPreventiveState()).thenReturn(preventiveState);
-        Instant prevInstant = new InstantImpl("preventive", InstantKind.PREVENTIVE, null);
-        Instant outageInstant = new InstantImpl("outage", InstantKind.OUTAGE, prevInstant);
+        Instant preventiveInstant = new InstantImpl("preventive", InstantKind.PREVENTIVE, null);
+        Instant outageInstant = new InstantImpl("outage", InstantKind.OUTAGE, preventiveInstant);
         Instant autoInstant = new InstantImpl("auto", InstantKind.AUTO, outageInstant);
         Instant curativeInstant = new InstantImpl("curative", InstantKind.CURATIVE, autoInstant);
         Mockito.when(crac.getState(contingencyId, curativeInstant)).thenReturn(curativeState);
         Mockito.when(crac.getState(contingencyId, outageInstant)).thenReturn(outageState);
-        Mockito.when(crac.getInstant("preventive")).thenReturn(prevInstant);
+        Mockito.when(crac.getInstant("preventive")).thenReturn(preventiveInstant);
         Mockito.when(crac.getInstant("outage")).thenReturn(outageInstant);
         Mockito.when(crac.getInstant("curative")).thenReturn(curativeInstant);
 

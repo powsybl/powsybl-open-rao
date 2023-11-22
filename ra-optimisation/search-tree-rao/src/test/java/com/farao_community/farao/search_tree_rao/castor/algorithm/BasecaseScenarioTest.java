@@ -8,9 +8,11 @@
 package com.farao_community.farao.search_tree_rao.castor.algorithm;
 
 import com.farao_community.farao.commons.FaraoException;
+import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.InstantKind;
 import com.farao_community.farao.data.crac_api.State;
+import com.farao_community.farao.data.crac_impl.CracImpl;
 import com.farao_community.farao.data.crac_impl.InstantImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -31,13 +33,17 @@ class BasecaseScenarioTest {
 
     @BeforeEach
     public void setUp() {
-        Instant prevInstant = new InstantImpl("preventive", InstantKind.PREVENTIVE, null);
-        Instant outageInstant = new InstantImpl("outage", InstantKind.OUTAGE, prevInstant);
-        Instant autoInstant = new InstantImpl("auto", InstantKind.AUTO, outageInstant);
-        Instant curativeInstant = new InstantImpl("curative", InstantKind.CURATIVE, autoInstant);
+        Crac crac = new CracImpl("test-crac")
+            .newInstant("preventive", InstantKind.PREVENTIVE)
+            .newInstant("outage", InstantKind.OUTAGE)
+            .newInstant("auto", InstantKind.AUTO)
+            .newInstant("curative", InstantKind.CURATIVE);
+        Instant preventiveInstant = crac.getInstant("preventive");
+        Instant outageInstant = crac.getInstant("outage");
+        Instant curativeInstant = crac.getInstant("curative");
 
         basecaseState = Mockito.mock(State.class);
-        Mockito.when(basecaseState.getInstant()).thenReturn(prevInstant);
+        Mockito.when(basecaseState.getInstant()).thenReturn(preventiveInstant);
         otherState1 = Mockito.mock(State.class);
         Mockito.when(otherState1.getInstant()).thenReturn(outageInstant);
         Mockito.when(otherState1.toString()).thenReturn("Other state 1");

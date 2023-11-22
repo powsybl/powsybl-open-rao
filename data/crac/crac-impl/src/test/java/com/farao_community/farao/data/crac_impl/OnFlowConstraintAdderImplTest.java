@@ -175,22 +175,18 @@ class OnFlowConstraintAdderImplTest {
         // PREVENTIVE RA
         remedialActionAdder.newOnFlowConstraintUsageRule().withInstant("preventive").withFlowCnec("cnec-prev").add(); // ok
         remedialActionAdder.newOnFlowConstraintUsageRule().withInstant("preventive").withFlowCnec("cnec-out").add(); // ok
-        adder = remedialActionAdder.newOnFlowConstraintUsageRule().withInstant("preventive").withFlowCnec("cnec-auto"); // nok
-        FaraoException exception = assertThrows(FaraoException.class, adder::add);
-        assertEquals("Remedial actions available at instant 'preventive' on a CNEC constraint at instant 'auto' are not allowed.", exception.getMessage());
+        remedialActionAdder.newOnFlowConstraintUsageRule().withInstant("preventive").withFlowCnec("cnec-auto").add(); // ok
         remedialActionAdder.newOnFlowConstraintUsageRule().withInstant("preventive").withFlowCnec("cnec-cur").add(); // ok
 
         // AUTO RA
         adder = remedialActionAdder.newOnFlowConstraintUsageRule().withInstant("auto").withFlowCnec("cnec-prev"); // nok
-        exception = assertThrows(FaraoException.class, adder::add);
+        Exception exception = assertThrows(FaraoException.class, adder::add);
         assertEquals("Remedial actions available at instant 'auto' on a CNEC constraint at instant 'preventive' are not allowed.", exception.getMessage());
         adder = remedialActionAdder.newOnFlowConstraintUsageRule().withInstant("auto").withFlowCnec("cnec-out"); // nok
         exception = assertThrows(FaraoException.class, adder::add);
         assertEquals("Remedial actions available at instant 'auto' on a CNEC constraint at instant 'outage' are not allowed.", exception.getMessage());
         remedialActionAdder.newOnFlowConstraintUsageRule().withInstant("auto").withFlowCnec("cnec-auto").add(); // ok
-        adder = remedialActionAdder.newOnFlowConstraintUsageRule().withInstant("auto").withFlowCnec("cnec-cur"); // nok
-        exception = assertThrows(FaraoException.class, adder::add);
-        assertEquals("Remedial actions available at instant 'auto' on a CNEC constraint at instant 'curative' are not allowed.", exception.getMessage());
+        remedialActionAdder.newOnFlowConstraintUsageRule().withInstant("auto").withFlowCnec("cnec-cur").add(); // ok
 
         // CURATIVE RA
         adder = remedialActionAdder.newOnFlowConstraintUsageRule().withInstant("curative").withFlowCnec("cnec-prev"); // nok

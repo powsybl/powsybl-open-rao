@@ -8,6 +8,7 @@ package com.farao_community.farao.data.crac_io_json;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
+import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.InstantKind;
 import com.farao_community.farao.data.crac_api.State;
@@ -17,10 +18,11 @@ import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_api.cnec.VoltageCnec;
 import com.farao_community.farao.data.crac_api.threshold.BranchThreshold;
 import com.farao_community.farao.data.crac_api.usage_rule.*;
-import com.farao_community.farao.data.crac_impl.InstantImpl;
+import com.farao_community.farao.data.crac_impl.CracImpl;
 import com.powsybl.iidm.network.Country;
 import org.junit.jupiter.api.Test;
 
+import java.util.Objects;
 import java.util.Optional;
 
 import static com.farao_community.farao.data.crac_io_json.JsonSerializationConstants.ThresholdComparator;
@@ -30,6 +32,7 @@ import static com.farao_community.farao.data.crac_io_json.JsonSerializationConst
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -37,11 +40,6 @@ import static org.mockito.Mockito.when;
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 class JsonSerializationConstantsTest {
-    private static final Instant INSTANT_PREV = new InstantImpl("preventive", InstantKind.PREVENTIVE, null);
-    private static final Instant INSTANT_OUTAGE = new InstantImpl("outage", InstantKind.OUTAGE, INSTANT_PREV);
-    private static final Instant INSTANT_AUTO = new InstantImpl("auto", InstantKind.AUTO, INSTANT_OUTAGE);
-    private static final Instant INSTANT_CURATIVE = new InstantImpl("curative", InstantKind.CURATIVE, INSTANT_AUTO);
-
     @Test
     void versionNumberOkTest() {
         assertEquals(1, getPrimaryVersionNumber("1.2"));
@@ -137,11 +135,18 @@ class JsonSerializationConstantsTest {
 
     @Test
     void testUsageRuleComparatorOnInstant() {
+        Crac crac = new CracImpl("test-crac")
+            .newInstant("preventive", InstantKind.PREVENTIVE)
+            .newInstant("outage", InstantKind.OUTAGE)
+            .newInstant("auto", InstantKind.AUTO)
+            .newInstant("curative", InstantKind.CURATIVE);
+        Instant preventiveInstant = crac.getInstant("preventive");
+        Instant curativeInstant = crac.getInstant("curative");
         UsageRuleComparator comparator = new UsageRuleComparator();
 
-        UsageRule onInstant1 = mockUsageRule(INSTANT_PREV, UsageMethod.AVAILABLE, null, null, null, null, null);
-        UsageRule onInstant2 = mockUsageRule(INSTANT_PREV, UsageMethod.FORCED, null, null, null, null, null);
-        UsageRule onInstant3 = mockUsageRule(INSTANT_CURATIVE, UsageMethod.AVAILABLE, null, null, null, null, null);
+        UsageRule onInstant1 = mockUsageRule(preventiveInstant, UsageMethod.AVAILABLE, null, null, null, null, null);
+        UsageRule onInstant2 = mockUsageRule(preventiveInstant, UsageMethod.FORCED, null, null, null, null, null);
+        UsageRule onInstant3 = mockUsageRule(curativeInstant, UsageMethod.AVAILABLE, null, null, null, null, null);
 
         assertEquals(0, comparator.compare(onInstant1, onInstant1));
         assertEquals(0, comparator.compare(onInstant2, onInstant2));
@@ -156,32 +161,40 @@ class JsonSerializationConstantsTest {
 
     @Test
     void testUsageRuleComparatorMix() {
+        Crac crac = new CracImpl("test-crac")
+            .newInstant("preventive", InstantKind.PREVENTIVE)
+            .newInstant("outage", InstantKind.OUTAGE)
+            .newInstant("auto", InstantKind.AUTO)
+            .newInstant("curative", InstantKind.CURATIVE);
+        Instant preventiveInstant = crac.getInstant("preventive");
+        Instant autoInstant = crac.getInstant("auto");
+        Instant curativeInstant = crac.getInstant("curative");
         UsageRuleComparator comparator = new UsageRuleComparator();
 
-        UsageRule oi1 = mockUsageRule(INSTANT_PREV, UsageMethod.AVAILABLE, null, null, null, null, null);
+        UsageRule oi1 = mockUsageRule(preventiveInstant, UsageMethod.AVAILABLE, null, null, null, null, null);
 
-        UsageRule ocs1 = mockUsageRule(INSTANT_CURATIVE, UsageMethod.AVAILABLE, "state1", null, null, null, null);
-        UsageRule ocs2 = mockUsageRule(INSTANT_CURATIVE, UsageMethod.AVAILABLE, "state2", null, null, null, null);
+        UsageRule ocs1 = mockUsageRule(curativeInstant, UsageMethod.AVAILABLE, "state1", null, null, null, null);
+        UsageRule ocs2 = mockUsageRule(curativeInstant, UsageMethod.AVAILABLE, "state2", null, null, null, null);
         assertTrue(comparator.compare(ocs1, ocs2) < 0);
         assertTrue(comparator.compare(ocs2, ocs1) > 0);
 
-        UsageRule ofc1 = mockUsageRule(INSTANT_PREV, UsageMethod.AVAILABLE, null, "fc1", null, null, null);
-        UsageRule ofc2 = mockUsageRule(INSTANT_PREV, UsageMethod.AVAILABLE, null, "fc2", null, null, null);
+        UsageRule ofc1 = mockUsageRule(preventiveInstant, UsageMethod.AVAILABLE, null, "fc1", null, null, null);
+        UsageRule ofc2 = mockUsageRule(preventiveInstant, UsageMethod.AVAILABLE, null, "fc2", null, null, null);
         assertTrue(comparator.compare(ofc1, ofc2) < 0);
         assertTrue(comparator.compare(ofc2, ofc1) > 0);
 
-        UsageRule ofcc1 = mockUsageRule(INSTANT_PREV, UsageMethod.AVAILABLE, null, null, Country.FR, null, null);
-        UsageRule ofcc2 = mockUsageRule(INSTANT_PREV, UsageMethod.AVAILABLE, null, null, Country.ES, null, null);
+        UsageRule ofcc1 = mockUsageRule(preventiveInstant, UsageMethod.AVAILABLE, null, null, Country.FR, null, null);
+        UsageRule ofcc2 = mockUsageRule(preventiveInstant, UsageMethod.AVAILABLE, null, null, Country.ES, null, null);
         assertTrue(comparator.compare(ofcc1, ofcc2) > 0);
         assertTrue(comparator.compare(ofcc2, ofcc1) < 0);
 
-        UsageRule oac1 = mockUsageRule(INSTANT_AUTO, UsageMethod.AVAILABLE, null, null, null, "BBB", null);
-        UsageRule oac2 = mockUsageRule(INSTANT_AUTO, UsageMethod.AVAILABLE, null, null, null, "AAA", null);
+        UsageRule oac1 = mockUsageRule(autoInstant, UsageMethod.AVAILABLE, null, null, null, "BBB", null);
+        UsageRule oac2 = mockUsageRule(autoInstant, UsageMethod.AVAILABLE, null, null, null, "AAA", null);
         assertTrue(comparator.compare(oac1, oac2) > 0);
         assertTrue(comparator.compare(oac2, oac1) < 0);
 
-        UsageRule ovc1 = mockUsageRule(INSTANT_CURATIVE, UsageMethod.FORCED, null, null, null, null, "z");
-        UsageRule ovc2 = mockUsageRule(INSTANT_CURATIVE, UsageMethod.FORCED, null, null, null, null, "x");
+        UsageRule ovc1 = mockUsageRule(curativeInstant, UsageMethod.FORCED, null, null, null, null, "z");
+        UsageRule ovc2 = mockUsageRule(curativeInstant, UsageMethod.FORCED, null, null, null, null, "x");
         assertTrue(comparator.compare(ovc1, ovc2) > 0);
         assertTrue(comparator.compare(ovc2, ovc1) < 0);
 

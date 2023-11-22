@@ -7,12 +7,10 @@
 
 package com.farao_community.farao.search_tree_rao.result.impl;
 
-import com.farao_community.farao.data.crac_api.Instant;
-import com.farao_community.farao.data.crac_api.InstantKind;
-import com.farao_community.farao.data.crac_api.NetworkElement;
-import com.farao_community.farao.data.crac_api.State;
+import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
+import com.farao_community.farao.data.crac_impl.CracImpl;
 import com.farao_community.farao.data.crac_impl.InstantImpl;
 import com.farao_community.farao.search_tree_rao.commons.optimization_perimeters.CurativeOptimizationPerimeter;
 import com.farao_community.farao.search_tree_rao.commons.optimization_perimeters.GlobalOptimizationPerimeter;
@@ -50,12 +48,15 @@ class LinearProblemResultTest {
 
     @BeforeEach
     public void setUp() {
-        Instant prevInstant = new InstantImpl("preventive", InstantKind.PREVENTIVE, null);
-        Instant outageInstant = new InstantImpl("outage", InstantKind.OUTAGE, prevInstant);
-        Instant autoInstant = new InstantImpl("auto", InstantKind.AUTO, outageInstant);
-        Instant curativeInstant = new InstantImpl("curative", InstantKind.CURATIVE, autoInstant);
+        Crac crac = new CracImpl("test-crac")
+            .newInstant("preventive", InstantKind.PREVENTIVE)
+            .newInstant("outage", InstantKind.OUTAGE)
+            .newInstant("auto", InstantKind.AUTO)
+            .newInstant("curative", InstantKind.CURATIVE);
+        Instant preventiveInstant = crac.getInstant("preventive");
+        Instant curativeInstant = crac.getInstant("curative");
         preventiveState = Mockito.mock(State.class);
-        Mockito.when(preventiveState.getInstant()).thenReturn(prevInstant);
+        Mockito.when(preventiveState.getInstant()).thenReturn(preventiveInstant);
         Mockito.when(preventiveState.isPreventive()).thenReturn(true);
         Mockito.when(preventiveState.getId()).thenReturn("pState");
         aCurativeState = Mockito.mock(State.class);

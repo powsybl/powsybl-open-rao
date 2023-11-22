@@ -16,6 +16,7 @@ import com.farao_community.farao.data.crac_api.network_action.ActionType;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
+import com.farao_community.farao.data.crac_impl.CracImpl;
 import com.farao_community.farao.data.crac_impl.InstantImpl;
 import com.farao_community.farao.data.crac_impl.utils.CommonCracCreation;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
@@ -228,10 +229,13 @@ class RaoUtilTest {
 
     @Test
     void testIsOnFlowConstraintInCountryAvailable() {
-        Instant prevInstant = new InstantImpl("preventive", InstantKind.PREVENTIVE, null);
-        Instant outageInstant = new InstantImpl("outage", InstantKind.OUTAGE, prevInstant);
-        Instant autoInstant = new InstantImpl("auto", InstantKind.AUTO, outageInstant);
-        Instant curativeInstant = new InstantImpl("curative", InstantKind.CURATIVE, autoInstant);
+        Crac crac = new CracImpl("test-crac")
+            .newInstant("preventive", InstantKind.PREVENTIVE)
+            .newInstant("outage", InstantKind.OUTAGE)
+            .newInstant("auto", InstantKind.AUTO)
+            .newInstant("curative", InstantKind.CURATIVE);
+        Instant preventiveInstant = crac.getInstant("preventive");
+        Instant curativeInstant = crac.getInstant("curative");
         State optimizedState = Mockito.mock(State.class);
         when(optimizedState.getInstant()).thenReturn(curativeInstant);
 
@@ -278,7 +282,7 @@ class RaoUtilTest {
         assertIsOnFlowInCountryAvailable(na3, optimizedState, flowResult, true);
 
         when(flowResult.getMargin(eq(cnecFrBe), any())).thenReturn(-150.);
-        when(optimizedState.getInstant()).thenReturn(prevInstant);
+        when(optimizedState.getInstant()).thenReturn(preventiveInstant);
         assertIsOnFlowInCountryAvailable(na1, optimizedState, flowResult, false);
         assertIsOnFlowInCountryAvailable(na2, optimizedState, flowResult, false);
         assertIsOnFlowInCountryAvailable(na3, optimizedState, flowResult, false);
