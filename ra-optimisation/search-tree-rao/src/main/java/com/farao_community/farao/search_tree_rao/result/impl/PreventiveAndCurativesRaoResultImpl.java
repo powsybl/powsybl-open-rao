@@ -190,7 +190,7 @@ public class PreventiveAndCurativesRaoResultImpl implements RaoResult {
             if (Objects.nonNull(perimeterResult)) {
                 return perimeterResult.getSensitivityStatus(state);
             }
-            instant = crac.getPreviousInstant(instant);
+            instant = crac.getInstantBefore(instant);
         }
         return FAILURE;
     }

@@ -51,4 +51,57 @@ class InstantImplTest {
         FaraoException exception = assertThrows(FaraoException.class, () -> new InstantImpl("initial", InstantKind.PREVENTIVE, null));
         assertEquals("Instant with id 'initial' can't be defined", exception.getMessage());
     }
+
+    @Test
+    void testIsPreventive() {
+        Instant instant = new InstantImpl("my instant", InstantKind.PREVENTIVE, null);
+        assertTrue(instant.isPreventive());
+        assertFalse(instant.isOutage());
+        assertFalse(instant.isAuto());
+        assertFalse(instant.isCurative());
+    }
+
+    @Test
+    void testIsOutage() {
+        Instant instant = new InstantImpl("my instant", InstantKind.OUTAGE, null);
+        assertFalse(instant.isPreventive());
+        assertTrue(instant.isOutage());
+        assertFalse(instant.isAuto());
+        assertFalse(instant.isCurative());
+    }
+
+    @Test
+    void testIsAuto() {
+        Instant instant = new InstantImpl("my instant", InstantKind.AUTO, null);
+        assertFalse(instant.isPreventive());
+        assertFalse(instant.isOutage());
+        assertTrue(instant.isAuto());
+        assertFalse(instant.isCurative());
+    }
+
+    @Test
+    void testIsCurative() {
+        Instant instant = new InstantImpl("my instant", InstantKind.CURATIVE, null);
+        assertFalse(instant.isPreventive());
+        assertFalse(instant.isOutage());
+        assertFalse(instant.isAuto());
+        assertTrue(instant.isCurative());
+    }
+
+    @Test
+    void testEqualsAndHashCode() {
+        Instant instant1 = new InstantImpl("my instant", InstantKind.PREVENTIVE, null);
+        Instant instant2 = new InstantImpl("my instant", InstantKind.PREVENTIVE, null);
+        Instant instantWithDifferentName = new InstantImpl("my other instant", InstantKind.PREVENTIVE, null);
+        Instant instantWithDifferentKind = new InstantImpl("my instant", InstantKind.OUTAGE, null);
+        Instant instantWithDifferentParent = new InstantImpl("my instant", InstantKind.OUTAGE, instant1);
+        assertEquals(instant1, instant1);
+        assertNotEquals(instant1, null);
+        assertEquals(instant1, instant2);
+        assertNotEquals(instant1, instantWithDifferentName);
+        assertNotEquals(instant1, instantWithDifferentKind);
+        assertNotEquals(instant1, instantWithDifferentParent);
+
+        assertEquals(instant1.hashCode(), instant2.hashCode());
+    }
 }

@@ -956,36 +956,45 @@ class CracImplTest {
 
     @Test
     void testGetPreviousInstant() {
-        assertNull(crac.getPreviousInstant(preventiveInstant));
-        assertEquals(preventiveInstant, crac.getPreviousInstant(outageInstant));
-        assertEquals(outageInstant, crac.getPreviousInstant(autoInstant));
-        assertEquals(autoInstant, crac.getPreviousInstant(curativeInstant));
+        assertNull(crac.getInstantBefore(preventiveInstant));
+        assertEquals(preventiveInstant, crac.getInstantBefore(outageInstant));
+        assertEquals(outageInstant, crac.getInstantBefore(autoInstant));
+        assertEquals(autoInstant, crac.getInstantBefore(curativeInstant));
+    }
+
+    @Test
+    void testGetPreviousInstantWorksWithOtherInstance() {
+        InstantImpl anotherInstanceOfInstantDefinedInTheCrac = new InstantImpl("preventive", InstantKind.PREVENTIVE, null);
+        assertNull(crac.getInstantBefore(anotherInstanceOfInstantDefinedInTheCrac));
+
+        anotherInstanceOfInstantDefinedInTheCrac = new InstantImpl("auto", InstantKind.AUTO, outageInstant);
+        assertEquals(outageInstant, crac.getInstantBefore(anotherInstanceOfInstantDefinedInTheCrac));
     }
 
     @Test
     void testGetPreviousInstantFromInvalidInstants() {
-        assertThrows(NullPointerException.class, () -> crac.getPreviousInstant((Instant) null));
+        assertThrows(NullPointerException.class, () -> crac.getInstantBefore((Instant) null));
 
         InstantImpl instantNotDefinedInTheCrac = new InstantImpl("instantNotDefinedInTheCrac", InstantKind.PREVENTIVE, null);
-        FaraoException exception = assertThrows(FaraoException.class, () -> crac.getPreviousInstant(instantNotDefinedInTheCrac));
-        assertEquals("Provided instant 'instantNotDefinedInTheCrac' is not defined or not the same in the CRAC", exception.getMessage());
+        FaraoException exception = assertThrows(FaraoException.class, () -> crac.getInstantBefore(instantNotDefinedInTheCrac));
+        assertEquals("Provided instant 'instantNotDefinedInTheCrac' is not defined in the CRAC", exception.getMessage());
 
-        InstantImpl anotherInstanceOfInstantDefinedInTheCrac = new InstantImpl("preventive", InstantKind.PREVENTIVE, null);
-        exception = assertThrows(FaraoException.class, () -> crac.getPreviousInstant(anotherInstanceOfInstantDefinedInTheCrac));
-        assertEquals("Provided instant 'preventive' is not defined or not the same in the CRAC", exception.getMessage());
+        InstantImpl anotherInstantNotDefinedInTheCrac = new InstantImpl("outage", InstantKind.PREVENTIVE, preventiveInstant);
+        exception = assertThrows(FaraoException.class, () -> crac.getInstantBefore(anotherInstantNotDefinedInTheCrac));
+        assertEquals("Provided instant {id:'outage', kind:'PREVENTIVE', order:1} is not the same {id: 'outage', kind:'OUTAGE', order:1} in the CRAC", exception.getMessage());
     }
 
     @Test
     void testGetPreviousInstantWithId() {
-        assertNull(crac.getPreviousInstant("preventive"));
-        assertEquals(preventiveInstant, crac.getPreviousInstant("outage"));
-        assertEquals(outageInstant, crac.getPreviousInstant("auto"));
-        assertEquals(autoInstant, crac.getPreviousInstant("curative"));
+        assertNull(crac.getInstantBefore("preventive"));
+        assertEquals(preventiveInstant, crac.getInstantBefore("outage"));
+        assertEquals(outageInstant, crac.getInstantBefore("auto"));
+        assertEquals(autoInstant, crac.getInstantBefore("curative"));
     }
 
     @Test
     void testGetPreviousInstantFromInvalidInstantId() {
-        FaraoException exception = assertThrows(FaraoException.class, () -> crac.getPreviousInstant("never defined"));
+        FaraoException exception = assertThrows(FaraoException.class, () -> crac.getInstantBefore("never defined"));
         assertEquals("Instant 'never defined' has not been defined", exception.getMessage());
     }
 }

@@ -81,7 +81,7 @@ public class RaoResultImpl implements RaoResult {
             instant = flowCnec.getState().getInstant();
         }
         if (instant.isOutage()) {
-            instant = crac.getPreviousInstant(instant);
+            instant = crac.getInstantBefore(instant);
         }
         return instant.getId();
     }
@@ -314,11 +314,11 @@ public class RaoResultImpl implements RaoResult {
         if (instant.isPreventive() || instant.isOutage()) {
             return crac.getPreventiveState();
         }
-        State stateBefore = lookupState(contingencyId, crac.getPreviousInstant(instant));
+        State stateBefore = lookupState(contingencyId, crac.getInstantBefore(instant));
         if (Objects.nonNull(stateBefore)) {
             return stateBefore;
         } else {
-            return stateBefore(contingencyId, crac.getPreviousInstant(instant));
+            return stateBefore(contingencyId, crac.getInstantBefore(instant));
         }
     }
 

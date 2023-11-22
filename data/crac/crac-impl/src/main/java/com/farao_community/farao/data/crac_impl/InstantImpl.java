@@ -27,7 +27,7 @@ public class InstantImpl extends AbstractIdentifiable<InstantImpl> implements In
     private final InstantKind instantKind;
     private final int order;
 
-    public InstantImpl(String id, InstantKind instantKind, Instant previous) {
+    InstantImpl(String id, InstantKind instantKind, Instant previous) {
         super(id);
         if (Objects.equals(id, "initial")) {
             throw new FaraoException("Instant with id 'initial' can't be defined");
@@ -76,5 +76,25 @@ public class InstantImpl extends AbstractIdentifiable<InstantImpl> implements In
     @Override
     public boolean isCurative() {
         return instantKind == InstantKind.CURATIVE;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        if (!super.equals(o)) {
+            return false;
+        }
+        InstantImpl instant = (InstantImpl) o;
+        return order == instant.order && instantKind == instant.instantKind;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), instantKind, order);
     }
 }
