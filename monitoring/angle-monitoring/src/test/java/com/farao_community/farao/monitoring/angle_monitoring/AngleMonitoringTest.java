@@ -18,7 +18,11 @@ import com.farao_community.farao.data.crac_creation.creator.cim.CimCrac;
 import com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.CimCracCreationContext;
 import com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.CimCracCreator;
 import com.farao_community.farao.data.crac_creation.creator.cim.importer.CimCracImporter;
+import com.farao_community.farao.data.crac_io_json.JsonImport;
+import com.farao_community.farao.data.rao_result_api.ComputationStatus;
 import com.farao_community.farao.data.rao_result_api.RaoResult;
+import com.farao_community.farao.data.rao_result_json.RaoResultImporter;
+import com.farao_community.farao.monitoring.angle_monitoring.json.AngleMonitoringResultImporter;
 import com.google.common.base.Suppliers;
 import com.powsybl.computation.local.LocalComputationManager;
 import com.powsybl.glsk.cim.CimGlskDocument;
@@ -263,4 +267,30 @@ class AngleMonitoringTest {
             "AngleCnec AngleCnec1 (with importing network element _d77b61ef-61aa-4b22-95f6-b56ca080788d and exporting network element _8d8a82ba-b5b0-4e94-861a-192af055f2b8) at state Co-1 - curative has an angle of 5°."
         ));
     }
+
+    @Test
+    void testRaoResultWithAngleMonitoring() {
+        InputStream raoResultFile = getClass().getResourceAsStream("/rao-result-v1.4.json");
+        InputStream cracFile = getClass().getResourceAsStream("/crac-for-rao-result-v1.4.json");
+
+        Crac crac = new JsonImport().importCrac(cracFile);
+        RaoResult raoResult = new RaoResultImporter().importRaoResult(raoResultFile, crac);
+        assertEquals(ComputationStatus.DEFAULT, raoResult.getComputationStatus());
+
+        assertEquals(3435., raoResult.getAngle(Instant.CURATIVE, crac.getAngleCnec("angleCnecId"), Unit.DEGREE));
+        assertEquals(3431., raoResult.getMargin(Instant.CURATIVE, crac.getAngleCnec("angleCnecId"), Unit.DEGREE));
+        assertEquals(1, raoResult.getActivatedNetworkActionsDuringState(crac.getState("contingency1Id", Instant.CURATIVE)).size());
+        assertFalse(raoResult.isActivatedDuringState(crac.getState("contingency1Id", Instant.CURATIVE), crac.getNetworkAction("complexNetworkActionId")));
+
+        AngleMonitoringResult angleMonitoringResult =
+            new AngleMonitoringResultImporter().importAngleMonitoringResult(getClass().getResourceAsStream("/angle-m-result-.json"), crac);
+
+        RaoResult raoResultWithAngleMonitoring = new RaoResultWithAngleMonitoring(raoResult, angleMonitoringResult);
+        assertEquals(4.6, raoResultWithAngleMonitoring.getAngle(Instant.CURATIVE, crac.getAngleCnec("angleCnecId"), Unit.DEGREE));
+        assertEquals(85.4, raoResultWithAngleMonitoring.getMargin(Instant.CURATIVE, crac.getAngleCnec("angleCnecId"), Unit.DEGREE));
+        assertEquals(2, raoResultWithAngleMonitoring.getActivatedNetworkActionsDuringState(crac.getState("contingency1Id", Instant.CURATIVE)).size());
+        assertTrue(raoResultWithAngleMonitoring.isActivatedDuringState(crac.getState("contingency1Id", Instant.CURATIVE), crac.getNetworkAction("complexNetworkActionId")));
+        assertEquals(ComputationStatus.DEFAULT, raoResultWithAngleMonitoring.getComputationStatus());
+    }
+
 }

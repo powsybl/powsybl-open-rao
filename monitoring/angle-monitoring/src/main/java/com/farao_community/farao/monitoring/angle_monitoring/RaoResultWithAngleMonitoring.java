@@ -1,5 +1,6 @@
 package com.farao_community.farao.monitoring.angle_monitoring;
 
+import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.RemedialAction;
@@ -34,14 +35,20 @@ public class RaoResultWithAngleMonitoring extends AbstractRaoResultClone {
     }
 
     @Override
-    public double getAngle(Instant optimizationState, AngleCnec angleCnec, Unit unit) {
+    public double getAngle(Instant optimizationInstant, AngleCnec angleCnec, Unit unit) {
+        if (!unit.equals(Unit.DEGREE)) {
+            throw new FaraoException("Unexpected unit for angle monitoring result : " + unit);
+        }
+        if (!optimizationInstant.equals(Instant.CURATIVE)) {
+            throw new FaraoException("Unexpected optimization instant for angle monitoring result : " + optimizationInstant);
+        }
         return angleMonitoringResult.getAngle(angleCnec, unit);
     }
 
     @Override
-    public double getMargin(Instant optimizationState, AngleCnec angleCnec, Unit unit) {
-        return Math.min(angleCnec.getUpperBound(unit).orElse(Double.MAX_VALUE) - getAngle(optimizationState, angleCnec, unit),
-            getAngle(optimizationState, angleCnec, unit) - angleCnec.getLowerBound(unit).orElse(-Double.MAX_VALUE));
+    public double getMargin(Instant optimizationInstant, AngleCnec angleCnec, Unit unit) {
+        return Math.min(angleCnec.getUpperBound(unit).orElse(Double.MAX_VALUE) - getAngle(optimizationInstant, angleCnec, unit),
+            getAngle(optimizationInstant, angleCnec, unit) - angleCnec.getLowerBound(unit).orElse(-Double.MAX_VALUE));
     }
 
     @Override
@@ -53,7 +60,12 @@ public class RaoResultWithAngleMonitoring extends AbstractRaoResultClone {
 
     @Override
     public boolean isActivatedDuringState(State state, RemedialAction<?> remedialAction) {
-        return raoResult.isActivatedDuringState(state, remedialAction) || angleMonitoringResult.getAppliedCras(state).contains(remedialAction);
+        return angleMonitoringResult.getAppliedCras(state).contains(remedialAction) || raoResult.isActivatedDuringState(state, remedialAction);
+    }
+
+    @Override
+    public boolean isActivatedDuringState(State state, NetworkAction networkAction) {
+        return isActivatedDuringState(state, (RemedialAction<?>) networkAction);
     }
 
 }
