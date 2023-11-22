@@ -334,7 +334,7 @@ public class CsaProfileRemedialActionsCreator {
     private Function<String, Boolean> addOnConstraintUsageRuleForCnec(Instant remedialActionInstant, RemedialActionAdder remedialActionAdder, UsageMethod usageMethod) {
         return cnecId -> {
             Cnec cnec = crac.getCnec(cnecId);
-            if (isOnConstraintInstantCoherent(cnec.getState().getInstant().getInstantKind(), remedialActionInstant)) {
+            if (isOnConstraintInstantCoherent(cnec.getState().getInstant(), remedialActionInstant)) {
                 if (cnec instanceof FlowCnec) {
                     remedialActionAdder.newOnFlowConstraintUsageRule()
                         .withInstant(remedialActionInstant.getId())
@@ -364,17 +364,9 @@ public class CsaProfileRemedialActionsCreator {
         };
     }
 
-    private static boolean isOnConstraintInstantCoherent(InstantKind cnecInstantKind, Instant remedialInstant) {
-        switch (remedialInstant.getInstantKind()) {
-            case PREVENTIVE:
-                return cnecInstantKind == InstantKind.PREVENTIVE || cnecInstantKind == InstantKind.OUTAGE || cnecInstantKind == InstantKind.CURATIVE;
-            case AUTO:
-                return cnecInstantKind == InstantKind.AUTO;
-            case CURATIVE:
-                return cnecInstantKind == InstantKind.CURATIVE;
-            default:
-                return false;
-        }
+    private static boolean isOnConstraintInstantCoherent(Instant cnecInstant, Instant remedialInstant) {
+        // TODO check if this is ok ?
+        return !cnecInstant.comesBefore(remedialInstant);
     }
 
     private void checkProfileHeader(PropertyBags propertyBags, CsaProfileConstants.CsaProfile profileKeyword) {
