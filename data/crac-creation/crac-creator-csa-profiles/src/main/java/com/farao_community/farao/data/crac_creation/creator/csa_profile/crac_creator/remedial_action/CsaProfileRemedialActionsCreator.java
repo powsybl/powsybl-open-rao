@@ -152,7 +152,7 @@ public class CsaProfileRemedialActionsCreator {
                     boolean hasAtLeastOneOnConstraintUsageRule = addOnConstraintUsageRules(Instant.CURATIVE, remedialActionAdder, remedialActionId, alterations);
                     if (!hasAtLeastOneOnConstraintUsageRule) {
                         if (!randomCombinationConstraintKind.equals(CsaProfileConstants.ElementCombinationConstraintKind.EXCLUDED.toString())) {
-                            addOnContingencyStateUsageRules(remedialActionAdder, faraoContingenciesIds, randomCombinationConstraintKind, Instant.CURATIVE);
+                            addOnContingencyStateUsageRules(remedialActionAdder, faraoContingenciesIds, Instant.CURATIVE, UsageMethod.AVAILABLE);
                         } else {
                             alterations.add(String.format("The association 'RemedialAction'/'Contingencies' '%s'/'%s' will be ignored because 'excluded' combination constraint kind is not supported", remedialActionId, String.join(". ", faraoContingenciesIds)));
                         }
@@ -185,8 +185,7 @@ public class CsaProfileRemedialActionsCreator {
         this.cracCreationContext.setRemedialActionCreationContexts(csaProfileRemedialActionCreationContexts);
     }
 
-    private void addOnContingencyStateUsageRules(RemedialActionAdder<?> remedialActionAdder, List<String> faraoContingenciesIds, String randomCombinationConstraintKind, Instant instant) {
-        UsageMethod usageMethod = CsaProfileCracUtils.getConstraintToUsageMethodMap().get(randomCombinationConstraintKind);
+    private void addOnContingencyStateUsageRules(RemedialActionAdder<?> remedialActionAdder, List<String> faraoContingenciesIds, Instant instant, UsageMethod usageMethod) {
         faraoContingenciesIds.forEach(faraoContingencyId -> remedialActionAdder.newOnContingencyStateUsageRule()
             .withInstant(instant)
             .withContingency(faraoContingencyId)
@@ -491,7 +490,7 @@ public class CsaProfileRemedialActionsCreator {
 
                     boolean hasAtLeastOneOnConstraintUsageRule = addOnConstraintUsageRules(Instant.CURATIVE, remedialActionAdder, autoRemedialActionId, new ArrayList<>());
                     if (!hasAtLeastOneOnConstraintUsageRule) {
-                        addOnContingencyStateUsageRules(remedialActionAdder, faraoContingenciesIds, CsaProfileConstants.ElementCombinationConstraintKind.INCLUDED.toString(), Instant.AUTO);
+                        addOnContingencyStateUsageRules(remedialActionAdder, faraoContingenciesIds, Instant.AUTO, UsageMethod.FORCED);
                     }
                 } else {
                     throw new FaraoImportException(ImportStatus.INCONSISTENCY_IN_DATA, CsaProfileConstants.AUTO_REMEDIAL_ACTION_MESSAGE + autoRemedialActionId + " will not be imported because no contingency is linked to the remedial action");
