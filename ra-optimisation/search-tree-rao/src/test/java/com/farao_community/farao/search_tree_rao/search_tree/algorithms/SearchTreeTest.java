@@ -72,6 +72,7 @@ import static org.mockito.Mockito.when;
 class SearchTreeTest {
 
     private static final double DOUBLE_TOLERANCE = 1e-3;
+    private static final String PREVENTIVE_INSTANT_ID = "preventive";
     private final State optimizedState = Mockito.mock(State.class);
     private final List<NetworkActionCombination> availableNaCombinations = new ArrayList<>();
     private SearchTree searchTree;
@@ -151,7 +152,7 @@ class SearchTreeTest {
         when(optimizedState.getContingency()).thenReturn(Optional.empty());
         Instant preventiveInstant = Mockito.mock(Instant.class);
         when(preventiveInstant.getInstantKind()).thenReturn(InstantKind.PREVENTIVE);
-        when(preventiveInstant.toString()).thenReturn("preventive");
+        when(preventiveInstant.toString()).thenReturn(PREVENTIVE_INSTANT_ID);
         when(optimizedState.getInstant()).thenReturn(preventiveInstant);
         rootLeaf = Mockito.mock(Leaf.class);
         when(searchTreeInput.getToolProvider()).thenReturn(Mockito.mock(ToolProvider.class));

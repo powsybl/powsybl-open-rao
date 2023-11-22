@@ -28,6 +28,9 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class CsaProfileCracCreatorTest {
+    private static final String PREVENTIVE_INSTANT_ID = "preventive";
+    private static final String OUTAGE_INSTANT_ID = "outage";
+    private static final String CURATIVE_INSTANT_ID = "curative";
 
     @Test
     void testCustomImportCase() {
@@ -43,33 +46,33 @@ class CsaProfileCracCreatorTest {
         // Check Flow Cnecs
         assertEquals(6, importedCrac.getFlowCnecs().size());
         CsaProfileCracCreationTestUtil.assertFlowCnecEquality(importedCrac.getFlowCnec("RTE_FFR2AA1--FFR3AA1--2 - RTE_co1_fr2_fr3_1 - curative"), "RTE_FFR2AA1--FFR3AA1--2 - RTE_co1_fr2_fr3_1 - curative", "RTE_FFR2AA1--FFR3AA1--2 - RTE_co1_fr2_fr3_1 - curative",
-                "FFR2AA1--FFR3AA1--2", "curative", "co1_fr2_fr3_1", 2500., -2500., Side.RIGHT);
+                "FFR2AA1--FFR3AA1--2", CURATIVE_INSTANT_ID, "co1_fr2_fr3_1", 2500., -2500., Side.RIGHT);
         CsaProfileCracCreationTestUtil.assertFlowCnecEquality(importedCrac.getFlowCnec("RTE_FFR3AA1--FFR5AA1--1 - RTE_co1_fr2_fr3_1 - outage"), "RTE_FFR3AA1--FFR5AA1--1 - RTE_co1_fr2_fr3_1 - outage", "RTE_FFR3AA1--FFR5AA1--1 - RTE_co1_fr2_fr3_1 - outage",
-                "FFR3AA1--FFR5AA1--1", "outage", "co1_fr2_fr3_1", 1500., -1500., Side.RIGHT);
+                "FFR3AA1--FFR5AA1--1", OUTAGE_INSTANT_ID, "co1_fr2_fr3_1", 1500., -1500., Side.RIGHT);
         CsaProfileCracCreationTestUtil.assertFlowCnecEquality(importedCrac.getFlowCnec("RTE_FFR2AA1--DDE3AA1--1 - preventive"), "RTE_FFR2AA1--DDE3AA1--1 - preventive", "RTE_FFR2AA1--DDE3AA1--1 - preventive",
-                "FFR2AA1--DDE3AA1--1", "preventive", null, 1000., -1000., Side.RIGHT);
+                "FFR2AA1--DDE3AA1--1", PREVENTIVE_INSTANT_ID, null, 1000., -1000., Side.RIGHT);
         CsaProfileCracCreationTestUtil.assertFlowCnecEquality(importedCrac.getFlowCnec("RTE_FFR3AA1--FFR5AA1--1 - RTE_co1_fr2_fr3_1 - curative"), "RTE_FFR3AA1--FFR5AA1--1 - RTE_co1_fr2_fr3_1 - curative", "RTE_FFR3AA1--FFR5AA1--1 - RTE_co1_fr2_fr3_1 - curative",
-                "FFR3AA1--FFR5AA1--1", "curative", "co1_fr2_fr3_1", 1000., -1000., Side.RIGHT);
+                "FFR3AA1--FFR5AA1--1", CURATIVE_INSTANT_ID, "co1_fr2_fr3_1", 1000., -1000., Side.RIGHT);
         CsaProfileCracCreationTestUtil.assertFlowCnecEquality(importedCrac.getFlowCnec("TENNET_TSO_NNL2AA1--BBE3AA1--1 - preventive"), "TENNET_TSO_NNL2AA1--BBE3AA1--1 - preventive", "TENNET_TSO_NNL2AA1--BBE3AA1--1 - preventive",
-                "NNL2AA1--BBE3AA1--1", "preventive", null, 5000., -5000., Side.RIGHT);
+                "NNL2AA1--BBE3AA1--1", PREVENTIVE_INSTANT_ID, null, 5000., -5000., Side.RIGHT);
         CsaProfileCracCreationTestUtil.assertFlowCnecEquality(importedCrac.getFlowCnec("RTE_FFR2AA1--DDE3AA1--1 - RTE_co1_fr2_fr3_1 - outage"), "RTE_FFR2AA1--DDE3AA1--1 - RTE_co1_fr2_fr3_1 - outage", "RTE_FFR2AA1--DDE3AA1--1 - RTE_co1_fr2_fr3_1 - outage",
-                "FFR2AA1--DDE3AA1--1", "outage", "co1_fr2_fr3_1", 1200., -1200., Side.RIGHT);
+                "FFR2AA1--DDE3AA1--1", OUTAGE_INSTANT_ID, "co1_fr2_fr3_1", 1200., -1200., Side.RIGHT);
 
         // Check PST RAs
         assertPstRangeActionImported(cracCreationContext, "pst_be", "BBE2AA1--BBE3AA1--1", false, 1);
-        assertHasOnInstantUsageRule(cracCreationContext, "pst_be", "curative", UsageMethod.AVAILABLE);
+        assertHasOnInstantUsageRule(cracCreationContext, "pst_be", CURATIVE_INSTANT_ID, UsageMethod.AVAILABLE);
         assertPstRangeActionImported(cracCreationContext, "pst_fr_cra", "FFR2AA1--FFR4AA1--1", false, 1);
-        assertHasOnInstantUsageRule(cracCreationContext, "pst_fr_cra", "curative", UsageMethod.AVAILABLE);
+        assertHasOnInstantUsageRule(cracCreationContext, "pst_fr_cra", CURATIVE_INSTANT_ID, UsageMethod.AVAILABLE);
         assertPstRangeActionImported(cracCreationContext, "pst_fr_pra", "FFR2AA1--FFR4AA1--1", false, 1);
-        assertHasOnInstantUsageRule(cracCreationContext, "pst_fr_pra", "preventive", UsageMethod.AVAILABLE);
+        assertHasOnInstantUsageRule(cracCreationContext, "pst_fr_pra", PREVENTIVE_INSTANT_ID, UsageMethod.AVAILABLE);
 
         // Check topo RAs
         CsaProfileCracCreationTestUtil.assertNetworkActionImported(cracCreationContext, "close_fr1_fr5", Set.of("FFR1AA1Z-FFR1AA1--1"), false, 1);
-        CsaProfileCracCreationTestUtil.assertHasOnInstantUsageRule(cracCreationContext, "close_fr1_fr5", "curative", UsageMethod.AVAILABLE);
+        CsaProfileCracCreationTestUtil.assertHasOnInstantUsageRule(cracCreationContext, "close_fr1_fr5", CURATIVE_INSTANT_ID, UsageMethod.AVAILABLE);
         CsaProfileCracCreationTestUtil.assertNetworkActionImported(cracCreationContext, "open_fr1_fr2", Set.of("FFR1AA1Y-FFR1AA1--1"), false, 1);
-        CsaProfileCracCreationTestUtil.assertHasOnInstantUsageRule(cracCreationContext, "open_fr1_fr2", "preventive", UsageMethod.AVAILABLE);
+        CsaProfileCracCreationTestUtil.assertHasOnInstantUsageRule(cracCreationContext, "open_fr1_fr2", PREVENTIVE_INSTANT_ID, UsageMethod.AVAILABLE);
         CsaProfileCracCreationTestUtil.assertNetworkActionImported(cracCreationContext, "open_fr1_fr3", Set.of("FFR1AA1X-FFR1AA1--1"), false, 1);
-        CsaProfileCracCreationTestUtil.assertHasOnInstantUsageRule(cracCreationContext, "open_fr1_fr3", "preventive", UsageMethod.AVAILABLE);
+        CsaProfileCracCreationTestUtil.assertHasOnInstantUsageRule(cracCreationContext, "open_fr1_fr3", PREVENTIVE_INSTANT_ID, UsageMethod.AVAILABLE);
     }
 
     @Test
@@ -147,11 +150,11 @@ class CsaProfileCracCreatorTest {
         CsaProfileCracCreationTestUtil.assertNetworkActionImported(cracCreationContext, "4b6f26d2-887e-4bb5-b4a0-d9dbfbca0c7d", Set.of("d1db384f-3a27-434b-93f5-5afa3ab23b00"), false, 2);
         CsaProfileCracCreationTestUtil.assertNetworkActionImported(cracCreationContext, "6dccb771-921c-4025-8079-f55590868704", Set.of("d1db384f-3a27-434b-93f5-5afa3ab23b00"), false, 1);
 
-        CsaProfileCracCreationTestUtil.assertHasOnAngleConstraintUsageRule(cracCreationContext, "ac60186a-8ee9-4379-8ce2-48fe335b0357", "RTE_AE1 - RTE_CO1 - curative", "curative", UsageMethod.TO_BE_EVALUATED); // TODO change TO_BE_EVALUATED by FORCED
-        CsaProfileCracCreationTestUtil.assertHasOnAngleConstraintUsageRule(cracCreationContext, "ac60186a-8ee9-4379-8ce2-48fe335b0357", "RTE_AE2 - RTE_CO3 - curative", "curative", UsageMethod.TO_BE_EVALUATED); // TODO change TO_BE_EVALUATED by AVAILABLE
-        CsaProfileCracCreationTestUtil.assertHasOnAngleConstraintUsageRule(cracCreationContext, "4b6f26d2-887e-4bb5-b4a0-d9dbfbca0c7d", "RTE_AE1 - RTE_CO1 - curative", "curative", UsageMethod.TO_BE_EVALUATED); // TODO change TO_BE_EVALUATED by FORCED
-        CsaProfileCracCreationTestUtil.assertHasOnAngleConstraintUsageRule(cracCreationContext, "4b6f26d2-887e-4bb5-b4a0-d9dbfbca0c7d", "RTE_AE2 - RTE_CO3 - curative", "curative", UsageMethod.TO_BE_EVALUATED); // TODO change TO_BE_EVALUATED by AVAILABLE
-        CsaProfileCracCreationTestUtil.assertHasOnAngleConstraintUsageRule(cracCreationContext, "6dccb771-921c-4025-8079-f55590868704", "RTE_AE2 - RTE_CO3 - curative", "curative", UsageMethod.TO_BE_EVALUATED); // TODO change TO_BE_EVALUATED by AVAILABLE
+        CsaProfileCracCreationTestUtil.assertHasOnAngleConstraintUsageRule(cracCreationContext, "ac60186a-8ee9-4379-8ce2-48fe335b0357", "RTE_AE1 - RTE_CO1 - curative", CURATIVE_INSTANT_ID, UsageMethod.TO_BE_EVALUATED); // TODO change TO_BE_EVALUATED by FORCED
+        CsaProfileCracCreationTestUtil.assertHasOnAngleConstraintUsageRule(cracCreationContext, "ac60186a-8ee9-4379-8ce2-48fe335b0357", "RTE_AE2 - RTE_CO3 - curative", CURATIVE_INSTANT_ID, UsageMethod.TO_BE_EVALUATED); // TODO change TO_BE_EVALUATED by AVAILABLE
+        CsaProfileCracCreationTestUtil.assertHasOnAngleConstraintUsageRule(cracCreationContext, "4b6f26d2-887e-4bb5-b4a0-d9dbfbca0c7d", "RTE_AE1 - RTE_CO1 - curative", CURATIVE_INSTANT_ID, UsageMethod.TO_BE_EVALUATED); // TODO change TO_BE_EVALUATED by FORCED
+        CsaProfileCracCreationTestUtil.assertHasOnAngleConstraintUsageRule(cracCreationContext, "4b6f26d2-887e-4bb5-b4a0-d9dbfbca0c7d", "RTE_AE2 - RTE_CO3 - curative", CURATIVE_INSTANT_ID, UsageMethod.TO_BE_EVALUATED); // TODO change TO_BE_EVALUATED by AVAILABLE
+        CsaProfileCracCreationTestUtil.assertHasOnAngleConstraintUsageRule(cracCreationContext, "6dccb771-921c-4025-8079-f55590868704", "RTE_AE2 - RTE_CO3 - curative", CURATIVE_INSTANT_ID, UsageMethod.TO_BE_EVALUATED); // TODO change TO_BE_EVALUATED by AVAILABLE
 
         assertRaNotImported(cracCreationContext, "fb21c59d-4268-4ba2-aa1b-ae2767799a36", ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action fb21c59d-4268-4ba2-aa1b-ae2767799a36 will not be imported because of an illegal EXCLUDED ElementCombinationConstraintKind");
     }

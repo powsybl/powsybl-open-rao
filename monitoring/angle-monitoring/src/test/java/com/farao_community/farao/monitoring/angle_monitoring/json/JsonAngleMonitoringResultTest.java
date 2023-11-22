@@ -35,6 +35,10 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 class JsonAngleMonitoringResultTest {
     private static final double ANGLE_TOLERANCE = 0.5;
+    private static final String PREVENTIVE_INSTANT_ID = "preventive";
+    private static final String OUTAGE_INSTANT_ID = "outage";
+    private static final String AUTO_INSTANT_ID = "auto";
+    private static final String CURATIVE_INSTANT_ID = "curative";
 
     Crac crac;
     AngleCnec ac1;
@@ -72,23 +76,23 @@ class JsonAngleMonitoringResultTest {
     @BeforeEach
     public void setUp() {
         crac = CracFactory.findDefault().create("test-crac")
-            .newInstant("preventive", InstantKind.PREVENTIVE)
-            .newInstant("outage", InstantKind.OUTAGE)
-            .newInstant("auto", InstantKind.AUTO)
-            .newInstant("curative", InstantKind.CURATIVE);
+            .newInstant(PREVENTIVE_INSTANT_ID, InstantKind.PREVENTIVE)
+            .newInstant(OUTAGE_INSTANT_ID, InstantKind.OUTAGE)
+            .newInstant(AUTO_INSTANT_ID, InstantKind.AUTO)
+            .newInstant(CURATIVE_INSTANT_ID, InstantKind.CURATIVE);
         co1 = crac.newContingency().withId("co1").withNetworkElement("co1-ne").add();
-        ac1 = addAngleCnec("ac1", "impNe1", "expNe1", "preventive", null, 145., 150.);
-        ac2 = addAngleCnec("ac2", "impNe2", "expNe2", "curative", co1.getId(), 140., 145.);
+        ac1 = addAngleCnec("ac1", "impNe1", "expNe1", PREVENTIVE_INSTANT_ID, null, 145., 150.);
+        ac2 = addAngleCnec("ac2", "impNe2", "expNe2", CURATIVE_INSTANT_ID, co1.getId(), 140., 145.);
         preventiveState = crac.getPreventiveState();
         na1 = (NetworkAction) crac.newNetworkAction()
                 .withId("na1")
                 .newInjectionSetPoint().withNetworkElement("ne1").withSetpoint(50.).withUnit(Unit.MEGAWATT).add()
-                .newOnAngleConstraintUsageRule().withInstant("preventive").withAngleCnec(ac1.getId()).add()
+                .newOnAngleConstraintUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withAngleCnec(ac1.getId()).add()
                 .add();
         na2 = (NetworkAction) crac.newNetworkAction()
                 .withId("na2")
                 .newInjectionSetPoint().withNetworkElement("ne2").withSetpoint(150.).withUnit(Unit.MEGAWATT).add()
-                .newOnAngleConstraintUsageRule().withInstant("curative").withAngleCnec(ac2.getId()).add()
+                .newOnAngleConstraintUsageRule().withInstant(CURATIVE_INSTANT_ID).withAngleCnec(ac2.getId()).add()
                 .add();
         angleMonitoringResultImporter = new AngleMonitoringResultImporter();
     }
@@ -124,7 +128,7 @@ class JsonAngleMonitoringResultTest {
         assertEquals(Set.of("na1"), angleMonitoringResult.getAppliedCras(preventiveState).stream().map(NetworkAction::getId).collect(Collectors.toSet()));
         assertEquals(2, angleMonitoringResult.getAppliedCras().keySet().size());
         assertEquals(1, angleMonitoringResult.getAppliedCras().get(preventiveState).size());
-        assertEquals(1, angleMonitoringResult.getAppliedCras().get(crac.getState(co1.getId(), crac.getInstant("curative"))).size());
+        assertEquals(1, angleMonitoringResult.getAppliedCras().get(crac.getState(co1.getId(), crac.getInstant(CURATIVE_INSTANT_ID))).size());
         assertEquals(2, angleMonitoringResult.getAngleCnecsWithAngle().size());
         Set<AngleMonitoringResult.AngleResult> expectedResult = Set.of(new AngleMonitoringResult.AngleResult(ac1, 2.3), new AngleMonitoringResult.AngleResult(ac2, 4.6));
         angleMonitoringResult.getAngleCnecsWithAngle().forEach(angleResult ->

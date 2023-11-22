@@ -26,6 +26,10 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 class AngleCnecAdderImplTest {
     private static final double DOUBLE_TOLERANCE = 1e-6;
+    private static final String PREVENTIVE_INSTANT_ID = "preventive";
+    private static final String OUTAGE_INSTANT_ID = "outage";
+    private static final String AUTO_INSTANT_ID = "auto";
+    private static final String CURATIVE_INSTANT_ID = "curative";
     private final String contingency1Id = "condId1";
     private CracImpl crac;
     private Contingency contingency1;
@@ -35,10 +39,10 @@ class AngleCnecAdderImplTest {
     @BeforeEach
     public void setUp() {
         crac = new CracImpl("test-crac")
-            .newInstant("preventive", InstantKind.PREVENTIVE)
-            .newInstant("outage", InstantKind.OUTAGE)
-            .newInstant("auto", InstantKind.AUTO)
-            .newInstant("curative", InstantKind.CURATIVE);
+            .newInstant(PREVENTIVE_INSTANT_ID, InstantKind.PREVENTIVE)
+            .newInstant(OUTAGE_INSTANT_ID, InstantKind.OUTAGE)
+            .newInstant(AUTO_INSTANT_ID, InstantKind.AUTO)
+            .newInstant(CURATIVE_INSTANT_ID, InstantKind.CURATIVE);
         contingency1 = crac.newContingency().withId(contingency1Id).add();
     }
 
@@ -46,7 +50,7 @@ class AngleCnecAdderImplTest {
         cnec1 = crac.newAngleCnec()
                 .withId("cnecId1")
                 .withName("cnecName1")
-                .withInstant("outage")
+                .withInstant(OUTAGE_INSTANT_ID)
                 .withContingency(contingency1Id)
                 .withOperator("cnec1Operator")
                 .withExportingNetworkElement("eneId1", "eneName1")
@@ -55,7 +59,7 @@ class AngleCnecAdderImplTest {
                 .add();
         cnec2 = crac.newAngleCnec()
                 .withId("cnecId2")
-                .withInstant("preventive")
+                .withInstant(PREVENTIVE_INSTANT_ID)
                 .withOperator("cnec2Operator")
                 .withExportingNetworkElement("eneId2")
                 .withImportingNetworkElement("ineId2")
@@ -72,7 +76,7 @@ class AngleCnecAdderImplTest {
         assertEquals(cnec1, crac.getAngleCnec("cnecId1"));
         assertEquals("cnecName1", cnec1.getName());
         assertEquals(contingency1, cnec1.getState().getContingency().orElseThrow());
-        assertEquals("outage", cnec1.getState().getInstant().getId());
+        assertEquals(OUTAGE_INSTANT_ID, cnec1.getState().getInstant().getId());
         assertEquals("cnec1Operator", cnec1.getOperator());
         assertEquals("eneName1", cnec1.getExportingNetworkElement().getName());
         assertEquals("ineName1", cnec1.getImportingNetworkElement().getName());
@@ -82,7 +86,7 @@ class AngleCnecAdderImplTest {
         // Verify 2nd cnec content
         assertEquals(cnec2, crac.getAngleCnec("cnecId2"));
         assertEquals("cnecId2", cnec2.getName());
-        assertEquals("preventive", cnec2.getState().getInstant().getId());
+        assertEquals(PREVENTIVE_INSTANT_ID, cnec2.getState().getInstant().getId());
         assertEquals("cnec2Operator", cnec2.getOperator());
         assertEquals(Optional.empty(), cnec2.getState().getContingency());
         assertEquals("eneId2", cnec2.getExportingNetworkElement().getName());
@@ -97,7 +101,7 @@ class AngleCnecAdderImplTest {
         // Verify that network elements were created
         crac.newAngleCnec()
             .withId("cnecId3")
-            .withInstant("preventive")
+            .withInstant(PREVENTIVE_INSTANT_ID)
             .withOperator("cnec2Operator")
             .withExportingNetworkElement("eneId2") // same as cnec2
             .withImportingNetworkElement("ineId2") // same as cnec2
@@ -112,7 +116,7 @@ class AngleCnecAdderImplTest {
         // Verify states were created
         assertEquals(2, crac.getStates().size());
         assertNotNull(crac.getPreventiveState());
-        assertNotNull(crac.getState(contingency1Id, crac.getInstant("outage")));
+        assertNotNull(crac.getState(contingency1Id, crac.getInstant(OUTAGE_INSTANT_ID)));
     }
 
     @Test
@@ -120,7 +124,7 @@ class AngleCnecAdderImplTest {
         double maxValue = 100.0;
         double reliabilityMargin = 5.0;
         AngleCnec cnec = crac.newAngleCnec().withId("Cnec ID")
-            .withInstant("outage")
+            .withInstant(OUTAGE_INSTANT_ID)
             .withContingency(contingency1Id)
             .withExportingNetworkElement("eneId")
             .withImportingNetworkElement("ineId")
@@ -134,7 +138,7 @@ class AngleCnecAdderImplTest {
     @Test
     void testNotOptimizedMonitored() {
         AngleCnec cnec = crac.newAngleCnec().withId("Cnec ID")
-            .withInstant("outage")
+            .withInstant(OUTAGE_INSTANT_ID)
             .withContingency(contingency1Id)
             .withExportingNetworkElement("eneId")
             .withImportingNetworkElement("ineId")
@@ -148,7 +152,7 @@ class AngleCnecAdderImplTest {
     @Test
     void testOptimizedNotMonitored() {
         AngleCnecAdder angleCnecAdder = crac.newAngleCnec().withId("Cnec ID")
-            .withInstant("outage")
+            .withInstant(OUTAGE_INSTANT_ID)
             .withContingency(contingency1Id)
             .withExportingNetworkElement("eneId")
             .withImportingNetworkElement("ineId")
@@ -161,7 +165,7 @@ class AngleCnecAdderImplTest {
     @Test
     void testNotOptimizedNotMonitored() {
         AngleCnec cnec = crac.newAngleCnec().withId("Cnec ID")
-            .withInstant("outage")
+            .withInstant(OUTAGE_INSTANT_ID)
             .withContingency(contingency1Id)
             .withExportingNetworkElement("eneId")
             .withImportingNetworkElement("ineId")
@@ -174,7 +178,7 @@ class AngleCnecAdderImplTest {
     @Test
     void testNotOptimizedNotMonitored2() {
         AngleCnec cnec = crac.newAngleCnec().withId("Cnec ID")
-            .withInstant("outage")
+            .withInstant(OUTAGE_INSTANT_ID)
             .withContingency(contingency1Id)
             .withExportingNetworkElement("eneId")
             .withImportingNetworkElement("ineId")
@@ -202,7 +206,7 @@ class AngleCnecAdderImplTest {
     void testNoIdFail() {
         AngleCnecAdder angleCnecAdder = crac.newAngleCnec()
             .withName("cnecName")
-            .withInstant("outage")
+            .withInstant(OUTAGE_INSTANT_ID)
             .withContingency(contingency1Id)
             .withExportingNetworkElement("eneId")
             .withImportingNetworkElement("ineId")
@@ -227,7 +231,7 @@ class AngleCnecAdderImplTest {
     void testNoExportingNetworkElementFail() {
         AngleCnecAdder angleCnecAdder = crac.newAngleCnec()
             .withId("cnecId")
-            .withInstant("outage")
+            .withInstant(OUTAGE_INSTANT_ID)
             .withContingency(contingency1Id)
             .withImportingNetworkElement("ineId")
             .newThreshold().withUnit(Unit.DEGREE).withMax(100.0).withMin(-100.0).add();
@@ -239,7 +243,7 @@ class AngleCnecAdderImplTest {
     void testNoImportingNetworkElementFail() {
         AngleCnecAdder angleCnecAdder = crac.newAngleCnec()
             .withId("cnecId")
-            .withInstant("outage")
+            .withInstant(OUTAGE_INSTANT_ID)
             .withContingency(contingency1Id)
             .withExportingNetworkElement("eneId")
             .newThreshold().withUnit(Unit.DEGREE).withMax(100.0).withMin(-100.0).add();
@@ -251,7 +255,7 @@ class AngleCnecAdderImplTest {
     void testNoThresholdFail() {
         AngleCnecAdder angleCnecAdder = crac.newAngleCnec()
             .withId("cnecId")
-            .withInstant("outage")
+            .withInstant(OUTAGE_INSTANT_ID)
             .withContingency(contingency1Id)
             .withExportingNetworkElement("eneId")
             .withImportingNetworkElement("ineId");
@@ -263,7 +267,7 @@ class AngleCnecAdderImplTest {
     void testAddTwiceError() {
         crac.newAngleCnec()
             .withId("cnecId")
-            .withInstant("outage")
+            .withInstant(OUTAGE_INSTANT_ID)
             .withContingency(contingency1Id)
             .withExportingNetworkElement("eneId")
             .withImportingNetworkElement("ineId")
@@ -271,7 +275,7 @@ class AngleCnecAdderImplTest {
             .add();
         AngleCnecAdder angleCnecAdder = crac.newAngleCnec()
             .withId("cnecId")
-            .withInstant("outage")
+            .withInstant(OUTAGE_INSTANT_ID)
             .withContingency(contingency1Id)
             .withExportingNetworkElement("eneId")
             .withImportingNetworkElement("ineId")
@@ -284,7 +288,7 @@ class AngleCnecAdderImplTest {
     void testAddPreventiveCnecWithContingencyError() {
         AngleCnecAdder angleCnecAdder = crac.newAngleCnec()
             .withId("cnecId")
-            .withInstant("preventive")
+            .withInstant(PREVENTIVE_INSTANT_ID)
             .withContingency(contingency1Id)
             .withExportingNetworkElement("eneId")
             .withImportingNetworkElement("ineId")
@@ -297,7 +301,7 @@ class AngleCnecAdderImplTest {
     void testAddOutageCnecWithNoContingencyError() {
         AngleCnecAdder angleCnecAdder = crac.newAngleCnec()
             .withId("cnecId")
-            .withInstant("outage")
+            .withInstant(OUTAGE_INSTANT_ID)
             .withExportingNetworkElement("eneId")
             .withImportingNetworkElement("ineId")
             .newThreshold().withUnit(Unit.DEGREE).withMax(100.0).withMin(-100.0).add();
@@ -309,7 +313,7 @@ class AngleCnecAdderImplTest {
     void testAddAutoCnecWithNoContingencyError() {
         AngleCnecAdder angleCnecAdder = crac.newAngleCnec()
             .withId("cnecId")
-            .withInstant("auto")
+            .withInstant(AUTO_INSTANT_ID)
             .withExportingNetworkElement("eneId")
             .withImportingNetworkElement("ineId")
             .newThreshold().withUnit(Unit.DEGREE).withMax(100.0).withMin(-100.0).add();
@@ -321,7 +325,7 @@ class AngleCnecAdderImplTest {
     void testAddCurativeCnecWithNoContingencyError() {
         AngleCnecAdder angleCnecAdder = crac.newAngleCnec()
             .withId("cnecId")
-            .withInstant("curative")
+            .withInstant(CURATIVE_INSTANT_ID)
             .withExportingNetworkElement("eneId")
             .withImportingNetworkElement("ineId")
             .newThreshold().withUnit(Unit.DEGREE).withMax(100.0).withMin(-100.0).add();
@@ -333,7 +337,7 @@ class AngleCnecAdderImplTest {
     void testAddCurativeCnecWithAbsentContingencyError() {
         AngleCnecAdder angleCnecAdder = crac.newAngleCnec()
             .withId("cnecId")
-            .withInstant("curative")
+            .withInstant(CURATIVE_INSTANT_ID)
             .withContingency("absent-from-crac")
             .withExportingNetworkElement("eneId")
             .withImportingNetworkElement("ineId")
@@ -346,7 +350,7 @@ class AngleCnecAdderImplTest {
     void testThresholdWithUnitKiloVolt() {
         AngleThresholdAdder angleThresholdAdder = crac.newAngleCnec()
             .withId("cnecId")
-            .withInstant("outage")
+            .withInstant(OUTAGE_INSTANT_ID)
             .withContingency(contingency1Id)
             .withExportingNetworkElement("eneId")
             .withImportingNetworkElement("ineId")

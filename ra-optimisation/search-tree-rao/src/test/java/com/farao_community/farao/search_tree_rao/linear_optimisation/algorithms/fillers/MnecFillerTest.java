@@ -41,6 +41,7 @@ import static org.mockito.Mockito.when;
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
 class MnecFillerTest extends AbstractFillerTest {
+    private static final String PREVENTIVE_INSTANT_ID = "preventive";
     private LinearProblem linearProblem;
     private CoreProblemFiller coreProblemFiller;
     private FlowCnec mnec1;
@@ -62,7 +63,7 @@ class MnecFillerTest extends AbstractFillerTest {
                 .withNominalVoltage(380.)
                 .withOptimized(true)
                 .withMonitored(true)
-                .withInstant("preventive")
+                .withInstant(PREVENTIVE_INSTANT_ID)
                 .add();
 
         mnec2 = crac.newFlowCnec()
@@ -77,7 +78,7 @@ class MnecFillerTest extends AbstractFillerTest {
                 .withNominalVoltage(380.)
                 .withOptimized(true)
                 .withMonitored(true)
-                .withInstant("preventive")
+                .withInstant(PREVENTIVE_INSTANT_ID)
                 .add();
 
         mnec3 = crac.newFlowCnec()
@@ -88,7 +89,7 @@ class MnecFillerTest extends AbstractFillerTest {
                 .withNominalVoltage(380.)
                 .withOptimized(true)
                 .withMonitored(true)
-                .withInstant("preventive")
+                .withInstant(PREVENTIVE_INSTANT_ID)
                 .add();
 
         RangeActionSetpointResult initialRangeActionSetpointResult = new RangeActionSetpointResultImpl(Collections.emptyMap());

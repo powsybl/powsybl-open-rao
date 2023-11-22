@@ -28,6 +28,8 @@ import static org.junit.jupiter.api.Assertions.*;
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 class AppliedRemedialActionsTest {
+    private static final String AUTO_INSTANT_ID = "auto";
+    private static final String CURATIVE_INSTANT_ID = "curative";
 
     private Network network;
     private Crac crac;
@@ -41,18 +43,18 @@ class AppliedRemedialActionsTest {
     public void setUp() {
         network = NetworkImportsUtil.import12NodesNetwork();
         crac = CommonCracCreation.createWithCurativePstRange();
-        autoInstant = crac.getInstant("auto");
-        curativeInstant = crac.getInstant("curative");
+        autoInstant = crac.getInstant(AUTO_INSTANT_ID);
+        curativeInstant = crac.getInstant(CURATIVE_INSTANT_ID);
         pstRangeAction = crac.getPstRangeAction("pst");
         networkAction = (NetworkAction) crac.newNetworkAction()
                 .withId("na-id")
                 .newTopologicalAction().withActionType(ActionType.OPEN).withNetworkElement("BBE2AA1  FFR3AA1  1").add()
-                .newOnInstantUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withInstant("curative").add()
+                .newOnInstantUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withInstant(CURATIVE_INSTANT_ID).add()
                 .add();
         autoNetworkAction = (NetworkAction) crac.newNetworkAction()
             .withId("na-auto-id")
             .newTopologicalAction().withActionType(ActionType.OPEN).withNetworkElement("BBE2AA1  FFR3AA1  1").add()
-            .newOnInstantUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withInstant("auto").add()
+            .newOnInstantUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withInstant(AUTO_INSTANT_ID).add()
             .add();
     }
 
@@ -149,7 +151,7 @@ class AppliedRemedialActionsTest {
         crac.newFlowCnec()
             .withId("autoCnec")
             .withNetworkElement("BBE2AA1  FFR3AA1  1")
-            .withInstant("auto")
+            .withInstant(AUTO_INSTANT_ID)
             .withContingency("Contingency FR1 FR3")
             .withOptimized(true)
             .withOperator("operator1")
@@ -165,7 +167,7 @@ class AppliedRemedialActionsTest {
         crac.newFlowCnec()
             .withId("autoCnec2")
             .withNetworkElement("BBE2AA1  FFR3AA1  1")
-            .withInstant("auto")
+            .withInstant(AUTO_INSTANT_ID)
             .withContingency("Contingency FR1 FR2")
             .withOptimized(true)
             .withOperator("operator1")

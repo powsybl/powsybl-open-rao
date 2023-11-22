@@ -22,15 +22,18 @@ import static org.junit.jupiter.api.Assertions.*;
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
  */
 class HvdcRangeActionAdderImplTest {
+    private static final String PREVENTIVE_INSTANT_ID = "preventive";
+    private static final String OUTAGE_INSTANT_ID = "outage";
+    private static final String AUTO_INSTANT_ID = "auto";
     private CracImpl crac;
     private String networkElementId;
 
     @BeforeEach
     public void setUp() {
         crac = new CracImpl("test-crac")
-            .newInstant("preventive", InstantKind.PREVENTIVE)
-            .newInstant("outage", InstantKind.OUTAGE)
-            .newInstant("auto", InstantKind.AUTO);
+            .newInstant(PREVENTIVE_INSTANT_ID, InstantKind.PREVENTIVE)
+            .newInstant(OUTAGE_INSTANT_ID, InstantKind.OUTAGE)
+            .newInstant(AUTO_INSTANT_ID, InstantKind.AUTO);
         networkElementId = "BBE2AA11 FFR3AA11 1";
     }
 
@@ -43,7 +46,7 @@ class HvdcRangeActionAdderImplTest {
                 .withGroupId("groupId1")
                 .newRange().withMin(-5).withMax(10).add()
                 .newOnInstantUsageRule()
-                .withInstant("preventive")
+                .withInstant(PREVENTIVE_INSTANT_ID)
                 .withUsageMethod(UsageMethod.AVAILABLE)
                 .add()
                 .add();
@@ -68,7 +71,7 @@ class HvdcRangeActionAdderImplTest {
                 .withInitialSetpoint(1)
                 .newRange().withMin(-5).withMax(10).add()
                 .newOnInstantUsageRule()
-                .withInstant("auto")
+                .withInstant(AUTO_INSTANT_ID)
                 .withUsageMethod(UsageMethod.FORCED)
                 .add()
                 .add();
@@ -94,7 +97,7 @@ class HvdcRangeActionAdderImplTest {
             .withInitialSetpoint(1)
             .newRange().withMin(-5).withMax(10).add()
             .newOnInstantUsageRule()
-            .withInstant("auto")
+            .withInstant(AUTO_INSTANT_ID)
             .withUsageMethod(UsageMethod.FORCED)
             .add();
         FaraoException exception = assertThrows(FaraoException.class, hvdcRangeActionAdder::add);
@@ -109,7 +112,7 @@ class HvdcRangeActionAdderImplTest {
                 .withNetworkElement(networkElementId)
                 .newRange().withMin(-5).withMax(10).add()
                 .newOnInstantUsageRule()
-                .withInstant("preventive")
+                .withInstant(PREVENTIVE_INSTANT_ID)
                 .withUsageMethod(UsageMethod.AVAILABLE)
                 .add()
                 .add();
@@ -150,7 +153,7 @@ class HvdcRangeActionAdderImplTest {
                 .withNetworkElement(networkElementId)
                 .newRange().withMin(-5).withMax(10).add()
                 .newOnInstantUsageRule()
-                .withInstant("preventive")
+                .withInstant(PREVENTIVE_INSTANT_ID)
                 .withUsageMethod(UsageMethod.AVAILABLE)
                 .add()
                 .add();

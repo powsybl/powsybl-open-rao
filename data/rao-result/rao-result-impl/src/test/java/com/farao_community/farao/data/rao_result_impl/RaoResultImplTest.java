@@ -32,6 +32,9 @@ import static org.junit.jupiter.api.Assertions.*;
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
 class RaoResultImplTest {
+    private static final String PREVENTIVE_INSTANT_ID = "preventive";
+    private static final String AUTO_INSTANT_ID = "auto";
+    private static final String CURATIVE_INSTANT_ID = "curative";
     private static final double DOUBLE_TOLERANCE = 1e-6;
     private RaoResultImpl raoResult;
     private Crac crac;
@@ -44,17 +47,17 @@ class RaoResultImplTest {
 
     private void setUp() {
         crac = CommonCracCreation.createWithPreventiveAndCurativePstRange();
-        preventiveInstant = crac.getInstant("preventive");
-        autoInstant = crac.getInstant("auto");
-        curativeInstant = crac.getInstant("curative");
+        preventiveInstant = crac.getInstant(PREVENTIVE_INSTANT_ID);
+        autoInstant = crac.getInstant(AUTO_INSTANT_ID);
+        curativeInstant = crac.getInstant(CURATIVE_INSTANT_ID);
         cnec = crac.getFlowCnec("cnec1basecase");
         pst = crac.getPstRangeAction("pst");
         na = (NetworkAction) crac.newNetworkAction().withId("na-id")
             .newTopologicalAction().withNetworkElement("any").withActionType(ActionType.OPEN).add()
-            .newOnInstantUsageRule().withInstant("preventive").withUsageMethod(UsageMethod.AVAILABLE).add()
-            .newOnContingencyStateUsageRule().withContingency("Contingency FR1 FR3").withInstant("auto").withUsageMethod(UsageMethod.FORCED).add()
-            .newOnContingencyStateUsageRule().withContingency("Contingency FR1 FR2").withInstant("auto").withUsageMethod(UsageMethod.UNAVAILABLE).add()
-            .newOnInstantUsageRule().withInstant("curative").withUsageMethod(UsageMethod.AVAILABLE).add()
+            .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add()
+            .newOnContingencyStateUsageRule().withContingency("Contingency FR1 FR3").withInstant(AUTO_INSTANT_ID).withUsageMethod(UsageMethod.FORCED).add()
+            .newOnContingencyStateUsageRule().withContingency("Contingency FR1 FR2").withInstant(AUTO_INSTANT_ID).withUsageMethod(UsageMethod.UNAVAILABLE).add()
+            .newOnInstantUsageRule().withInstant(CURATIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add()
             .add();
 
         raoResult = new RaoResultImpl(crac);
@@ -78,8 +81,8 @@ class RaoResultImplTest {
 
         elementaryFlowCnecResult.setPtdfZonalSum(Side.LEFT, 0.1);
 
-        flowCnecResult.getAndCreateIfAbsentResultForOptimizationState("preventive");
-        elementaryFlowCnecResult = flowCnecResult.getResult("preventive");
+        flowCnecResult.getAndCreateIfAbsentResultForOptimizationState(PREVENTIVE_INSTANT_ID);
+        elementaryFlowCnecResult = flowCnecResult.getResult(PREVENTIVE_INSTANT_ID);
 
         elementaryFlowCnecResult.setFlow(Side.LEFT, 200., MEGAWATT);
         elementaryFlowCnecResult.setMargin(201., MEGAWATT);
@@ -105,7 +108,7 @@ class RaoResultImplTest {
         costResult.setVirtualCost("loopFlow", 0.);
         costResult.setVirtualCost("MNEC", 0.);
 
-        costResult = raoResult.getAndCreateIfAbsentCostResult("curative");
+        costResult = raoResult.getAndCreateIfAbsentCostResult(CURATIVE_INSTANT_ID);
         costResult.setFunctionalCost(-50.);
         costResult.setVirtualCost("loopFlow", 10.);
         costResult.setVirtualCost("MNEC", 2.);

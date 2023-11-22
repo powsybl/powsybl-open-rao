@@ -30,6 +30,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 class NetworkActionParametersTest {
+    private static final String PREVENTIVE_INSTANT_ID = "preventive";
     private Crac crac;
 
     @BeforeEach
@@ -77,27 +78,27 @@ class NetworkActionParametersTest {
     void testNetworkActionCombinations() {
 
         Crac crac = CracFactory.findDefault().create("crac")
-            .newInstant("preventive", InstantKind.PREVENTIVE);
+            .newInstant(PREVENTIVE_INSTANT_ID, InstantKind.PREVENTIVE);
 
         crac.newNetworkAction()
                 .withId("topological-action-1")
                 .withOperator("operator-1")
                 .newTopologicalAction().withActionType(ActionType.OPEN).withNetworkElement("any-network-element").add()
-                .newOnInstantUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withInstant("preventive").add()
+                .newOnInstantUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withInstant(PREVENTIVE_INSTANT_ID).add()
                 .add();
 
         crac.newNetworkAction()
                 .withId("topological-action-2")
                 .withOperator("operator-2")
                 .newTopologicalAction().withActionType(ActionType.CLOSE).withNetworkElement("any-other-network-element").add()
-                .newOnInstantUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withInstant("preventive").add()
+                .newOnInstantUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withInstant(PREVENTIVE_INSTANT_ID).add()
                 .add();
 
         crac.newNetworkAction()
                 .withId("pst-setpoint")
                 .withOperator("operator-2")
                 .newPstSetPoint().withSetpoint(10).withNetworkElement("any-other-network-element").add()
-                .newOnInstantUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withInstant("preventive").add()
+                .newOnInstantUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withInstant(PREVENTIVE_INSTANT_ID).add()
                 .add();
 
         // test list

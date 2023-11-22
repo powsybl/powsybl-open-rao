@@ -22,6 +22,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 class InjectionSetPointActionCreationTest {
+    private static final String PREVENTIVE_INSTANT_ID = "preventive";
+    private static final String CURATIVE_INSTANT_ID = "curative";
 
     @Test
     void testImportInjectionSetPointActions() {
@@ -45,7 +47,7 @@ class InjectionSetPointActionCreationTest {
         // RA1 (on instant)
         NetworkAction ra1 = cracCreationContext.getCrac().getNetworkAction("on-instant-preventive-remedial-action");
         assertEquals("RA1", ra1.getName());
-        assertEquals("preventive", ra1.getUsageRules().iterator().next().getInstant().getId());
+        assertEquals(PREVENTIVE_INSTANT_ID, ra1.getUsageRules().iterator().next().getInstant().getId());
         assertEquals(UsageMethod.AVAILABLE, ra1.getUsageRules().iterator().next().getUsageMethod());
         assertEquals("rotating-machine", ((InjectionSetpoint) ra1.getElementaryActions().iterator().next()).getNetworkElement().getId());
         assertEquals(75., ((InjectionSetpoint) ra1.getElementaryActions().iterator().next()).getSetpoint());
@@ -53,7 +55,7 @@ class InjectionSetPointActionCreationTest {
         // RA2 (on instant)
         NetworkAction ra2 = cracCreationContext.getCrac().getNetworkAction("on-instant-curative-remedial-action");
         assertEquals("RA2", ra2.getName());
-        assertEquals("curative", ra2.getUsageRules().iterator().next().getInstant().getId());
+        assertEquals(CURATIVE_INSTANT_ID, ra2.getUsageRules().iterator().next().getInstant().getId());
         assertEquals(UsageMethod.AVAILABLE, ra2.getUsageRules().iterator().next().getUsageMethod());
         assertEquals("rotating-machine", ((InjectionSetpoint) ra2.getElementaryActions().iterator().next()).getNetworkElement().getId());
         assertEquals(17.3, ((InjectionSetpoint) ra2.getElementaryActions().iterator().next()).getSetpoint(), 0.1);
@@ -61,7 +63,7 @@ class InjectionSetPointActionCreationTest {
         // on-instant-preventive-nameless-remedial-action-with-speed (on instant)
         NetworkAction namelessRa = cracCreationContext.getCrac().getNetworkAction("on-instant-preventive-nameless-remedial-action-with-speed");
         assertEquals("on-instant-preventive-nameless-remedial-action-with-speed", namelessRa.getName());
-        assertEquals("preventive", namelessRa.getUsageRules().iterator().next().getInstant().getId());
+        assertEquals(PREVENTIVE_INSTANT_ID, namelessRa.getUsageRules().iterator().next().getInstant().getId());
         assertEquals(UsageMethod.AVAILABLE, namelessRa.getUsageRules().iterator().next().getUsageMethod());
         assertEquals("rotating-machine", ((InjectionSetpoint) namelessRa.getElementaryActions().iterator().next()).getNetworkElement().getId());
         assertEquals(22.4, ((InjectionSetpoint) namelessRa.getElementaryActions().iterator().next()).getSetpoint(), 0.1);
@@ -70,7 +72,7 @@ class InjectionSetPointActionCreationTest {
         // RTE_RA7 (on instant)
         NetworkAction ra7 = cracCreationContext.getCrac().getNetworkAction("on-instant-preventive-remedial-with-tso-name");
         assertEquals("RTE_RA7", ra7.getName());
-        assertEquals("preventive", ra7.getUsageRules().iterator().next().getInstant().getId());
+        assertEquals(PREVENTIVE_INSTANT_ID, ra7.getUsageRules().iterator().next().getInstant().getId());
         assertEquals(UsageMethod.AVAILABLE, ra7.getUsageRules().iterator().next().getUsageMethod());
         assertEquals("rotating-machine", ((InjectionSetpoint) ra7.getElementaryActions().iterator().next()).getNetworkElement().getId());
         assertEquals(100., ((InjectionSetpoint) ra7.getElementaryActions().iterator().next()).getSetpoint(), 0.1);
@@ -79,7 +81,7 @@ class InjectionSetPointActionCreationTest {
         // on-instant-nameless-preventive-remedial-with-tso-name (on instant)
         NetworkAction namelessRa2 = cracCreationContext.getCrac().getNetworkAction("on-instant-nameless-preventive-remedial-with-tso-name");
         assertEquals("on-instant-nameless-preventive-remedial-with-tso-name", namelessRa2.getName());
-        assertEquals("preventive", namelessRa2.getUsageRules().iterator().next().getInstant().getId());
+        assertEquals(PREVENTIVE_INSTANT_ID, namelessRa2.getUsageRules().iterator().next().getInstant().getId());
         assertEquals(UsageMethod.AVAILABLE, namelessRa2.getUsageRules().iterator().next().getUsageMethod());
         assertEquals("rotating-machine", ((InjectionSetpoint) namelessRa2.getElementaryActions().iterator().next()).getNetworkElement().getId());
         assertEquals(98., ((InjectionSetpoint) namelessRa2.getElementaryActions().iterator().next()).getSetpoint(), 0.1);
@@ -89,7 +91,7 @@ class InjectionSetPointActionCreationTest {
         NetworkAction ra3 = cracCreationContext.getCrac().getNetworkAction("on-state-included-curative-remedial-action");
         assertEquals("RA3", ra3.getName());
         assertEquals(UsageMethod.FORCED, ra3.getUsageRules().iterator().next().getUsageMethod());
-        assertEquals("curative", ra3.getUsageRules().iterator().next().getInstant().getId());
+        assertEquals(CURATIVE_INSTANT_ID, ra3.getUsageRules().iterator().next().getInstant().getId());
         assertEquals("contingency", ((OnContingencyStateImpl) ra3.getUsageRules().iterator().next()).getContingency().getId());
         assertEquals("rotating-machine", ra3.getNetworkElements().iterator().next().getId());
         assertEquals(2.8, ((InjectionSetpoint) ra3.getElementaryActions().iterator().next()).getSetpoint(), 0.1);
@@ -98,7 +100,7 @@ class InjectionSetPointActionCreationTest {
         NetworkAction ra4 = cracCreationContext.getCrac().getNetworkAction("on-state-considered-curative-remedial-action");
         assertEquals("RA4", ra4.getName());
         assertEquals(UsageMethod.AVAILABLE, ra4.getUsageRules().iterator().next().getUsageMethod());
-        assertEquals("curative", ra4.getUsageRules().iterator().next().getInstant().getId());
+        assertEquals(CURATIVE_INSTANT_ID, ra4.getUsageRules().iterator().next().getInstant().getId());
         assertEquals("contingency", ((OnContingencyStateImpl) ra4.getUsageRules().iterator().next()).getContingency().getId());
         assertEquals("rotating-machine", ra4.getNetworkElements().iterator().next().getId());
         assertEquals(15.6, ((InjectionSetpoint) ra4.getElementaryActions().iterator().next()).getSetpoint(), 0.1);

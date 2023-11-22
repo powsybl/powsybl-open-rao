@@ -23,6 +23,11 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
 class StateDeserializerTest {
+    private static final String PREVENTIVE_INSTANT_ID = "preventive";
+    private static final String OUTAGE_INSTANT_ID = "outage";
+    private static final String AUTO_INSTANT_ID = "auto";
+    private static final String CURATIVE_INSTANT_ID = "curative";
+
     @Test
     void testGetState() {
         Crac crac = Mockito.mock(Crac.class);
@@ -32,27 +37,27 @@ class StateDeserializerTest {
         String contingencyId = "contingency";
         Mockito.when(crac.getPreventiveState()).thenReturn(preventiveState);
         Crac cracForInstants = new CracImpl("test-cracForInstants")
-            .newInstant("preventive", InstantKind.PREVENTIVE)
-            .newInstant("outage", InstantKind.OUTAGE)
-            .newInstant("auto", InstantKind.AUTO)
-            .newInstant("curative", InstantKind.CURATIVE);
-        Instant preventiveInstant = cracForInstants.getInstant("preventive");
-        Instant outageInstant = cracForInstants.getInstant("outage");
-        Instant curativeInstant = cracForInstants.getInstant("curative");
+            .newInstant(PREVENTIVE_INSTANT_ID, InstantKind.PREVENTIVE)
+            .newInstant(OUTAGE_INSTANT_ID, InstantKind.OUTAGE)
+            .newInstant(AUTO_INSTANT_ID, InstantKind.AUTO)
+            .newInstant(CURATIVE_INSTANT_ID, InstantKind.CURATIVE);
+        Instant preventiveInstant = cracForInstants.getInstant(PREVENTIVE_INSTANT_ID);
+        Instant outageInstant = cracForInstants.getInstant(OUTAGE_INSTANT_ID);
+        Instant curativeInstant = cracForInstants.getInstant(CURATIVE_INSTANT_ID);
         Mockito.when(crac.getState(contingencyId, curativeInstant)).thenReturn(curativeState);
         Mockito.when(crac.getState(contingencyId, outageInstant)).thenReturn(outageState);
-        Mockito.when(crac.getInstant("preventive")).thenReturn(preventiveInstant);
-        Mockito.when(crac.getInstant("outage")).thenReturn(outageInstant);
-        Mockito.when(crac.getInstant("curative")).thenReturn(curativeInstant);
+        Mockito.when(crac.getInstant(PREVENTIVE_INSTANT_ID)).thenReturn(preventiveInstant);
+        Mockito.when(crac.getInstant(OUTAGE_INSTANT_ID)).thenReturn(outageInstant);
+        Mockito.when(crac.getInstant(CURATIVE_INSTANT_ID)).thenReturn(curativeInstant);
 
         FaraoException exception = assertThrows(FaraoException.class, () -> StateDeserializer.getState(null, contingencyId, crac, "type"));
         assertEquals("Cannot deserialize RaoResult: no instant defined in activated states of type", exception.getMessage());
-        assertEquals(preventiveState, StateDeserializer.getState("preventive", null, crac, null));
-        exception = assertThrows(FaraoException.class, () -> StateDeserializer.getState("outage", null, crac, "type"));
+        assertEquals(preventiveState, StateDeserializer.getState(PREVENTIVE_INSTANT_ID, null, crac, null));
+        exception = assertThrows(FaraoException.class, () -> StateDeserializer.getState(OUTAGE_INSTANT_ID, null, crac, "type"));
         assertEquals("Cannot deserialize RaoResult: no contingency defined in N-k activated states of type", exception.getMessage());
-        exception = assertThrows(FaraoException.class, () -> StateDeserializer.getState("outage", "wrongContingencyId", crac, "type"));
+        exception = assertThrows(FaraoException.class, () -> StateDeserializer.getState(OUTAGE_INSTANT_ID, "wrongContingencyId", crac, "type"));
         assertEquals("Cannot deserialize RaoResult: State at instant outage with contingency wrongContingencyId not found in Crac", exception.getMessage());
-        assertEquals(outageState, StateDeserializer.getState("outage", contingencyId, crac, "type"));
-        assertEquals(curativeState, StateDeserializer.getState("curative", contingencyId, crac, "type"));
+        assertEquals(outageState, StateDeserializer.getState(OUTAGE_INSTANT_ID, contingencyId, crac, "type"));
+        assertEquals(curativeState, StateDeserializer.getState(CURATIVE_INSTANT_ID, contingencyId, crac, "type"));
     }
 }

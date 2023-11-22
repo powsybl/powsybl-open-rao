@@ -25,6 +25,10 @@ import static org.junit.jupiter.api.Assertions.*;
  * @author Martin Belthle {@literal <martin.belthle at rte-france.com>}
  */
 class CseCracCreatorWithMneTest {
+    private static final String PREVENTIVE_INSTANT_ID = "preventive";
+    private static final String OUTAGE_INSTANT_ID = "outage";
+    private static final String AUTO_INSTANT_ID = "auto";
+    private static final String CURATIVE_INSTANT_ID = "curative";
     private final OffsetDateTime offsetDateTime = null;
     private final CracCreationParameters parameters = new CracCreationParameters();
     private CseCracCreationContext cracCreationContext;
@@ -39,27 +43,27 @@ class CseCracCreatorWithMneTest {
     }
 
     private void assertMneWithContingencyInCriticalBranchCreationContexts(String name, String contingencyId, String fromNode, String toNode, String suffix, boolean inverted) {
-        String cnecOutageId = String.format("%s - %s->%s  - %s - %s", name, fromNode, toNode, contingencyId, "outage");
-        String cnecCurativeId = String.format("%s - %s->%s  - %s - %s", name, fromNode, toNode, contingencyId, "curative");
-        String cnecAutoId = String.format("%s - %s->%s  - %s - %s", name, fromNode, toNode, contingencyId, "auto");
+        String cnecOutageId = String.format("%s - %s->%s  - %s - %s", name, fromNode, toNode, contingencyId, OUTAGE_INSTANT_ID);
+        String cnecCurativeId = String.format("%s - %s->%s  - %s - %s", name, fromNode, toNode, contingencyId, CURATIVE_INSTANT_ID);
+        String cnecAutoId = String.format("%s - %s->%s  - %s - %s", name, fromNode, toNode, contingencyId, AUTO_INSTANT_ID);
         String nameCnec = String.format("%s - %s - %s - %s", name, fromNode, toNode, contingencyId);
         CseCriticalBranchCreationContext cseCriticalBranchCreationContext = (CseCriticalBranchCreationContext) cracCreationContext.getBranchCnecCreationContext(nameCnec);
         assertNotNull(cseCriticalBranchCreationContext);
         assertFalse(cseCriticalBranchCreationContext.isSelected());
         assertTrue(cseCriticalBranchCreationContext.isImported());
-        assertNotNull(cseCriticalBranchCreationContext.getCreatedCnecsIds().get("outage"));
-        assertNotNull(cseCriticalBranchCreationContext.getCreatedCnecsIds().get("curative"));
-        assertNotNull(cseCriticalBranchCreationContext.getCreatedCnecsIds().get("auto"));
-        assertNull(cseCriticalBranchCreationContext.getCreatedCnecsIds().get("preventive"));
+        assertNotNull(cseCriticalBranchCreationContext.getCreatedCnecsIds().get(OUTAGE_INSTANT_ID));
+        assertNotNull(cseCriticalBranchCreationContext.getCreatedCnecsIds().get(CURATIVE_INSTANT_ID));
+        assertNotNull(cseCriticalBranchCreationContext.getCreatedCnecsIds().get(AUTO_INSTANT_ID));
+        assertNull(cseCriticalBranchCreationContext.getCreatedCnecsIds().get(PREVENTIVE_INSTANT_ID));
         assertEquals(ImportStatus.IMPORTED, cseCriticalBranchCreationContext.getImportStatus());
         assertFalse(cseCriticalBranchCreationContext.isBaseCase());
         assertEquals(contingencyId, cseCriticalBranchCreationContext.getContingencyId().orElseThrow());
         assertEquals(fromNode, cseCriticalBranchCreationContext.getNativeBranch().getFrom());
         assertEquals(toNode, cseCriticalBranchCreationContext.getNativeBranch().getTo());
         assertEquals(suffix, cseCriticalBranchCreationContext.getNativeBranch().getSuffix());
-        assertEquals(cnecOutageId, cseCriticalBranchCreationContext.getCreatedCnecsIds().get("outage"));
-        assertEquals(cnecCurativeId, cseCriticalBranchCreationContext.getCreatedCnecsIds().get("curative"));
-        assertEquals(cnecAutoId, cseCriticalBranchCreationContext.getCreatedCnecsIds().get("auto"));
+        assertEquals(cnecOutageId, cseCriticalBranchCreationContext.getCreatedCnecsIds().get(OUTAGE_INSTANT_ID));
+        assertEquals(cnecCurativeId, cseCriticalBranchCreationContext.getCreatedCnecsIds().get(CURATIVE_INSTANT_ID));
+        assertEquals(cnecAutoId, cseCriticalBranchCreationContext.getCreatedCnecsIds().get(AUTO_INSTANT_ID));
         assertEquals(inverted, cseCriticalBranchCreationContext.isDirectionInvertedInNetwork());
     }
 
@@ -74,22 +78,22 @@ class CseCracCreatorWithMneTest {
     }
 
     private void assertMneBaseCaseInCriticalBranchCreationContexts(String name, String fromNode, String toNode, String suffix, boolean inverted) {
-        String cnecPreventiveId = String.format("%s - %s->%s - %s", name, fromNode, toNode, "preventive");
+        String cnecPreventiveId = String.format("%s - %s->%s - %s", name, fromNode, toNode, PREVENTIVE_INSTANT_ID);
         String nameCnec = String.format("%s - %s - %s - %s", name, fromNode, toNode, "basecase");
         CseCriticalBranchCreationContext cseCriticalBranchCreationContext = (CseCriticalBranchCreationContext) cracCreationContext.getBranchCnecCreationContext(nameCnec);
         assertNotNull(cseCriticalBranchCreationContext);
         assertFalse(cseCriticalBranchCreationContext.isSelected());
         assertTrue(cseCriticalBranchCreationContext.isImported());
-        assertNotNull(cseCriticalBranchCreationContext.getCreatedCnecsIds().get("preventive"));
-        assertNull(cseCriticalBranchCreationContext.getCreatedCnecsIds().get("outage"));
-        assertNull(cseCriticalBranchCreationContext.getCreatedCnecsIds().get("auto"));
-        assertNull(cseCriticalBranchCreationContext.getCreatedCnecsIds().get("curative"));
+        assertNotNull(cseCriticalBranchCreationContext.getCreatedCnecsIds().get(PREVENTIVE_INSTANT_ID));
+        assertNull(cseCriticalBranchCreationContext.getCreatedCnecsIds().get(OUTAGE_INSTANT_ID));
+        assertNull(cseCriticalBranchCreationContext.getCreatedCnecsIds().get(AUTO_INSTANT_ID));
+        assertNull(cseCriticalBranchCreationContext.getCreatedCnecsIds().get(CURATIVE_INSTANT_ID));
         assertTrue(cseCriticalBranchCreationContext.isBaseCase());
         assertTrue(cseCriticalBranchCreationContext.getContingencyId().isEmpty());
         assertEquals(fromNode, cseCriticalBranchCreationContext.getNativeBranch().getFrom());
         assertEquals(toNode, cseCriticalBranchCreationContext.getNativeBranch().getTo());
         assertEquals(suffix, cseCriticalBranchCreationContext.getNativeBranch().getSuffix());
-        assertEquals(cnecPreventiveId, cseCriticalBranchCreationContext.getCreatedCnecsIds().get("preventive"));
+        assertEquals(cnecPreventiveId, cseCriticalBranchCreationContext.getCreatedCnecsIds().get(PREVENTIVE_INSTANT_ID));
         assertEquals(inverted, cseCriticalBranchCreationContext.isDirectionInvertedInNetwork());
     }
 
@@ -170,13 +174,13 @@ class CseCracCreatorWithMneTest {
     }
 
     public void assertAllMneCorrectlyImportedInCrac() {
-        assertMneWithContingencyInCrac("mne_test", "NNL2AA1", "NNL3AA1", "1", "DIRECT", "outage_1", "outage", 5000, 1.1, Unit.PERCENT_IMAX, 380);
-        assertMneWithContingencyInCrac("mne_test", "NNL2AA1", "NNL3AA1", "1", "DIRECT", "outage_1", "auto", 5000, 6000, Unit.AMPERE, 380);
-        assertMneWithContingencyInCrac("mne_test", "NNL2AA1", "NNL3AA1", "1", "DIRECT", "outage_1", "curative", 5000, 6500, Unit.AMPERE, 380);
-        assertMneWithContingencyInCrac("mne_test", "NNL2AA1", "NNL3AA1", "1", "DIRECT", "outage_2", "outage", 5000, 1.1, Unit.PERCENT_IMAX, 380);
-        assertMneWithContingencyInCrac("mne_test", "NNL2AA1", "NNL3AA1", "1", "DIRECT", "outage_2", "auto", 5000, 6000, Unit.AMPERE, 380);
-        assertMneWithContingencyInCrac("mne_test", "NNL2AA1", "NNL3AA1", "1", "DIRECT", "outage_2", "curative", 5000, 6500, Unit.AMPERE, 380);
-        assertMneBaseCaseInCrac("mne_test", "NNL2AA1", "NNL3AA1", "1", "DIRECT", "preventive", 5000, 1, Unit.PERCENT_IMAX, 380);
+        assertMneWithContingencyInCrac("mne_test", "NNL2AA1", "NNL3AA1", "1", "DIRECT", "outage_1", OUTAGE_INSTANT_ID, 5000, 1.1, Unit.PERCENT_IMAX, 380);
+        assertMneWithContingencyInCrac("mne_test", "NNL2AA1", "NNL3AA1", "1", "DIRECT", "outage_1", AUTO_INSTANT_ID, 5000, 6000, Unit.AMPERE, 380);
+        assertMneWithContingencyInCrac("mne_test", "NNL2AA1", "NNL3AA1", "1", "DIRECT", "outage_1", CURATIVE_INSTANT_ID, 5000, 6500, Unit.AMPERE, 380);
+        assertMneWithContingencyInCrac("mne_test", "NNL2AA1", "NNL3AA1", "1", "DIRECT", "outage_2", OUTAGE_INSTANT_ID, 5000, 1.1, Unit.PERCENT_IMAX, 380);
+        assertMneWithContingencyInCrac("mne_test", "NNL2AA1", "NNL3AA1", "1", "DIRECT", "outage_2", AUTO_INSTANT_ID, 5000, 6000, Unit.AMPERE, 380);
+        assertMneWithContingencyInCrac("mne_test", "NNL2AA1", "NNL3AA1", "1", "DIRECT", "outage_2", CURATIVE_INSTANT_ID, 5000, 6500, Unit.AMPERE, 380);
+        assertMneBaseCaseInCrac("mne_test", "NNL2AA1", "NNL3AA1", "1", "DIRECT", PREVENTIVE_INSTANT_ID, 5000, 1, Unit.PERCENT_IMAX, 380);
     }
 
     public void assertAllMneCorrectlyImportedInCriticalBranchesCreationContext() {

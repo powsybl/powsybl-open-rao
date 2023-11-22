@@ -41,6 +41,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  */
 class FlowbasedComputationImplTest {
     private static final double EPSILON = 1e-3;
+    private static final String OUTAGE_INSTANT_ID = "outage";
+    private static final String CURATIVE_INSTANT_ID = "curative";
     private FlowbasedComputationProvider flowBasedComputationProvider;
     private Network network;
     private Crac crac;
@@ -132,7 +134,7 @@ class FlowbasedComputationImplTest {
         assertEquals(0.375, getPreventivePtdf(result, "DE-NL - N - preventive", "10YCB-GERMANY--8"), EPSILON);
         assertEquals(-0.375, getPreventivePtdf(result, "DE-NL - N - preventive", "10YNL----------L"), EPSILON);
 
-        String onOutageId = "outage";
+        String onOutageId = OUTAGE_INSTANT_ID;
         assertEquals(0., getCurativeFref(result, "N-1 FR-BE", "FR-BE - N-1 - N-1 FR-BE", onOutageId), EPSILON);
         assertEquals(100, getCurativeFmax(result, "N-1 FR-BE", "FR-BE - N-1 - N-1 FR-BE", onOutageId), EPSILON);
         assertEquals(0., getCurativePtdf(result, "N-1 FR-BE", "FR-BE - N-1 - N-1 FR-BE", "10YFR-RTE------C", onOutageId), EPSILON);
@@ -163,7 +165,7 @@ class FlowbasedComputationImplTest {
     }
 
     private void checkCurativeAssertions(FlowbasedComputationResult result) {
-        String afterCraId = "curative";
+        String afterCraId = CURATIVE_INSTANT_ID;
         assertEquals(0., getCurativeFref(result, "N-1 FR-BE", "FR-BE - AfterCra - N-1 FR-BE", afterCraId), EPSILON);
         assertEquals(100, getCurativeFmax(result, "N-1 FR-BE", "FR-BE - AfterCra - N-1 FR-BE", afterCraId), EPSILON);
         assertEquals(0., getCurativePtdf(result, "N-1 FR-BE", "FR-BE - AfterCra - N-1 FR-BE", "10YFR-RTE------C", afterCraId), EPSILON);
@@ -268,8 +270,8 @@ class FlowbasedComputationImplTest {
 
             elementaryFlowCnecResult.setPtdfZonalSum(Side.LEFT, 0.1);
 
-            flowCnecResult.getAndCreateIfAbsentResultForOptimizationState("curative");
-            elementaryFlowCnecResult = flowCnecResult.getResult("curative");
+            flowCnecResult.getAndCreateIfAbsentResultForOptimizationState(CURATIVE_INSTANT_ID);
+            elementaryFlowCnecResult = flowCnecResult.getResult(CURATIVE_INSTANT_ID);
 
             elementaryFlowCnecResult.setFlow(Side.LEFT, 200., MEGAWATT);
             elementaryFlowCnecResult.setMargin(201., MEGAWATT);
@@ -284,7 +286,7 @@ class FlowbasedComputationImplTest {
             elementaryFlowCnecResult.setPtdfZonalSum(Side.LEFT, 0.1);
         });
 
-        Instant curativeInstant = crac.getInstant("curative");
+        Instant curativeInstant = crac.getInstant(CURATIVE_INSTANT_ID);
         raoResult.getAndCreateIfAbsentNetworkActionResult(na).addActivationForState(crac.getState("N-1 FR-BE", curativeInstant));
 
         raoResult.setComputationStatus(ComputationStatus.DEFAULT);

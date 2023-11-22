@@ -27,15 +27,17 @@ import static org.junit.jupiter.api.Assertions.*;
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 class JsonLoopFlowThresholdImplImportExportTest {
+    private static final String PREVENTIVE_INSTANT_ID = "preventive";
+
     @Test
     void roundTripTest() {
         Crac crac = new CracImpl("cracId")
-            .newInstant("preventive", InstantKind.PREVENTIVE);
+            .newInstant(PREVENTIVE_INSTANT_ID, InstantKind.PREVENTIVE);
 
         crac.newFlowCnec()
                 .withId("cnec1")
                 .withNetworkElement("ne1")
-                .withInstant("preventive")
+                .withInstant(PREVENTIVE_INSTANT_ID)
                 .newThreshold().withSide(Side.LEFT).withUnit(Unit.AMPERE).withMin(-500.).add()
                 .withNominalVoltage(380.)
                 .add()
@@ -44,7 +46,7 @@ class JsonLoopFlowThresholdImplImportExportTest {
         crac.newFlowCnec()
                 .withId("cnec2")
                 .withNetworkElement("ne2")
-                .withInstant("preventive")
+                .withInstant(PREVENTIVE_INSTANT_ID)
                 .newThreshold().withSide(Side.LEFT).withUnit(Unit.PERCENT_IMAX).withMin(-0.3).add()
                 .withNominalVoltage(380.)
                 .withIMax(5000.)
@@ -54,7 +56,7 @@ class JsonLoopFlowThresholdImplImportExportTest {
         crac.newFlowCnec()
                 .withId("cnec3")
                 .withNetworkElement("ne3")
-                .withInstant("preventive")
+                .withInstant(PREVENTIVE_INSTANT_ID)
                 .newThreshold().withSide(Side.LEFT).withUnit(Unit.MEGAWATT).withMin(-700.).withMax(700.).add()
                 .add();
 

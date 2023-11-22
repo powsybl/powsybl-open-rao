@@ -29,6 +29,10 @@ import static org.mockito.Mockito.when;
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
 class RaoResultJsonConstantsTest {
+    private static final String PREVENTIVE_INSTANT_ID = "preventive";
+    private static final String OUTAGE_INSTANT_ID = "outage";
+    private static final String AUTO_INSTANT_ID = "auto";
+    private static final String CURATIVE_INSTANT_ID = "curative";
 
     @Test
     void testSerializeUnit() {
@@ -54,38 +58,38 @@ class RaoResultJsonConstantsTest {
     void testSerializeInstantId() {
         assertEquals("initial", serializeInstantId(null));
         Crac crac = new CracImpl("test-crac")
-            .newInstant("preventive", InstantKind.PREVENTIVE)
-            .newInstant("outage", InstantKind.OUTAGE)
-            .newInstant("auto", InstantKind.AUTO)
-            .newInstant("curative", InstantKind.CURATIVE);
-        Instant preventiveInstant = crac.getInstant("preventive");
-        Instant outageInstant = crac.getInstant("outage");
-        Instant autoInstant = crac.getInstant("auto");
-        Instant curativeInstant = crac.getInstant("curative");
-        assertEquals("preventive", serializeInstantId(preventiveInstant));
-        assertEquals("outage", serializeInstantId(outageInstant));
-        assertEquals("auto", serializeInstantId(autoInstant));
-        assertEquals("curative", serializeInstantId(curativeInstant));
+            .newInstant(PREVENTIVE_INSTANT_ID, InstantKind.PREVENTIVE)
+            .newInstant(OUTAGE_INSTANT_ID, InstantKind.OUTAGE)
+            .newInstant(AUTO_INSTANT_ID, InstantKind.AUTO)
+            .newInstant(CURATIVE_INSTANT_ID, InstantKind.CURATIVE);
+        Instant preventiveInstant = crac.getInstant(PREVENTIVE_INSTANT_ID);
+        Instant outageInstant = crac.getInstant(OUTAGE_INSTANT_ID);
+        Instant autoInstant = crac.getInstant(AUTO_INSTANT_ID);
+        Instant curativeInstant = crac.getInstant(CURATIVE_INSTANT_ID);
+        assertEquals(PREVENTIVE_INSTANT_ID, serializeInstantId(preventiveInstant));
+        assertEquals(OUTAGE_INSTANT_ID, serializeInstantId(outageInstant));
+        assertEquals(AUTO_INSTANT_ID, serializeInstantId(autoInstant));
+        assertEquals(CURATIVE_INSTANT_ID, serializeInstantId(curativeInstant));
     }
 
     @Test
     void testDeserializeInstant() {
         // TODO remove this test ?
         assertNull(deserializeInstantId("initial"));
-        assertEquals("preventive", deserializeInstantId("preventive"));
-        assertEquals("outage", deserializeInstantId("outage"));
-        assertEquals("auto", deserializeInstantId("auto"));
-        assertEquals("curative", deserializeInstantId("curative"));
+        assertEquals(PREVENTIVE_INSTANT_ID, deserializeInstantId(PREVENTIVE_INSTANT_ID));
+        assertEquals(OUTAGE_INSTANT_ID, deserializeInstantId(OUTAGE_INSTANT_ID));
+        assertEquals(AUTO_INSTANT_ID, deserializeInstantId(AUTO_INSTANT_ID));
+        assertEquals(CURATIVE_INSTANT_ID, deserializeInstantId(CURATIVE_INSTANT_ID));
     }
 
     @Test
     void testDeserializeOptimizedInstant() {
         // TODO remove this test ?
         assertNull(deserializeOptimizedInstantId("initial", "1.4"));
-        assertEquals("preventive", deserializeOptimizedInstantId("preventive", "1.4"));
-        assertEquals("outage", deserializeOptimizedInstantId("outage", "1.4"));
-        assertEquals("auto", deserializeOptimizedInstantId("auto", "1.4"));
-        assertEquals("curative", deserializeOptimizedInstantId("curative", "1.4"));
+        assertEquals(PREVENTIVE_INSTANT_ID, deserializeOptimizedInstantId(PREVENTIVE_INSTANT_ID, "1.4"));
+        assertEquals(OUTAGE_INSTANT_ID, deserializeOptimizedInstantId(OUTAGE_INSTANT_ID, "1.4"));
+        assertEquals(AUTO_INSTANT_ID, deserializeOptimizedInstantId(AUTO_INSTANT_ID, "1.4"));
+        assertEquals(CURATIVE_INSTANT_ID, deserializeOptimizedInstantId(CURATIVE_INSTANT_ID, "1.4"));
     }
 
     @Test
@@ -105,14 +109,14 @@ class RaoResultJsonConstantsTest {
         State state1 = Mockito.spy(State.class);
         State state2 = Mockito.spy(State.class);
         Crac crac = new CracImpl("test-crac")
-            .newInstant("preventive", InstantKind.PREVENTIVE)
-            .newInstant("outage", InstantKind.OUTAGE)
-            .newInstant("auto", InstantKind.AUTO)
-            .newInstant("curative", InstantKind.CURATIVE);
-        Instant preventiveInstant = crac.getInstant("preventive");
-        Instant outageInstant = crac.getInstant("outage");
-        Instant autoInstant = crac.getInstant("auto");
-        Instant curativeInstant = crac.getInstant("curative");
+            .newInstant(PREVENTIVE_INSTANT_ID, InstantKind.PREVENTIVE)
+            .newInstant(OUTAGE_INSTANT_ID, InstantKind.OUTAGE)
+            .newInstant(AUTO_INSTANT_ID, InstantKind.AUTO)
+            .newInstant(CURATIVE_INSTANT_ID, InstantKind.CURATIVE);
+        Instant preventiveInstant = crac.getInstant(PREVENTIVE_INSTANT_ID);
+        Instant outageInstant = crac.getInstant(OUTAGE_INSTANT_ID);
+        Instant autoInstant = crac.getInstant(AUTO_INSTANT_ID);
+        Instant curativeInstant = crac.getInstant(CURATIVE_INSTANT_ID);
 
         when(state1.getInstant()).thenReturn(outageInstant);
         when(state2.getInstant()).thenReturn(autoInstant);

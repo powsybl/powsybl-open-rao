@@ -25,6 +25,9 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
 class JsonVoltageCnecsCreationParametersTest {
+    private static final String PREVENTIVE_INSTANT_ID = "preventive";
+    private static final String CURATIVE_INSTANT_ID = "curative";
+
     public static Stream<Arguments> provideParameters() {
         return Stream.of(
             Arguments.of("nok1", "When monitoring the preventive instant, no contingency can be defined."),
@@ -51,17 +54,17 @@ class JsonVoltageCnecsCreationParametersTest {
         assertEquals(Set.of("ne1", "ne2"), vParams.getMonitoredNetworkElements());
         assertEquals(2, vParams.getMonitoredStatesAndThresholds().size());
 
-        assertNotNull(vParams.getMonitoredStatesAndThresholds().get("preventive"));
-        assertNull(vParams.getMonitoredStatesAndThresholds().get("preventive").getContingencyNames());
-        assertEquals(2, vParams.getMonitoredStatesAndThresholds().get("preventive").getThresholdPerNominalV().size());
-        assertEquals(new VoltageThreshold(Unit.KILOVOLT, 180., null), vParams.getMonitoredStatesAndThresholds().get("preventive").getThresholdPerNominalV().get(200.));
-        assertEquals(new VoltageThreshold(Unit.KILOVOLT, 395., 430.), vParams.getMonitoredStatesAndThresholds().get("preventive").getThresholdPerNominalV().get(400.));
+        assertNotNull(vParams.getMonitoredStatesAndThresholds().get(PREVENTIVE_INSTANT_ID));
+        assertNull(vParams.getMonitoredStatesAndThresholds().get(PREVENTIVE_INSTANT_ID).getContingencyNames());
+        assertEquals(2, vParams.getMonitoredStatesAndThresholds().get(PREVENTIVE_INSTANT_ID).getThresholdPerNominalV().size());
+        assertEquals(new VoltageThreshold(Unit.KILOVOLT, 180., null), vParams.getMonitoredStatesAndThresholds().get(PREVENTIVE_INSTANT_ID).getThresholdPerNominalV().get(200.));
+        assertEquals(new VoltageThreshold(Unit.KILOVOLT, 395., 430.), vParams.getMonitoredStatesAndThresholds().get(PREVENTIVE_INSTANT_ID).getThresholdPerNominalV().get(400.));
 
-        assertNotNull(vParams.getMonitoredStatesAndThresholds().get("curative"));
-        assertEquals(Set.of("N-1 ONE", "N-1 TWO"), vParams.getMonitoredStatesAndThresholds().get("curative").getContingencyNames());
-        assertEquals(2, vParams.getMonitoredStatesAndThresholds().get("curative").getThresholdPerNominalV().size());
-        assertEquals(new VoltageThreshold(Unit.KILOVOLT, null, 230.), vParams.getMonitoredStatesAndThresholds().get("curative").getThresholdPerNominalV().get(210.));
-        assertEquals(new VoltageThreshold(Unit.KILOVOLT, 380., 430.), vParams.getMonitoredStatesAndThresholds().get("curative").getThresholdPerNominalV().get(400.));
+        assertNotNull(vParams.getMonitoredStatesAndThresholds().get(CURATIVE_INSTANT_ID));
+        assertEquals(Set.of("N-1 ONE", "N-1 TWO"), vParams.getMonitoredStatesAndThresholds().get(CURATIVE_INSTANT_ID).getContingencyNames());
+        assertEquals(2, vParams.getMonitoredStatesAndThresholds().get(CURATIVE_INSTANT_ID).getThresholdPerNominalV().size());
+        assertEquals(new VoltageThreshold(Unit.KILOVOLT, null, 230.), vParams.getMonitoredStatesAndThresholds().get(CURATIVE_INSTANT_ID).getThresholdPerNominalV().get(210.));
+        assertEquals(new VoltageThreshold(Unit.KILOVOLT, 380., 430.), vParams.getMonitoredStatesAndThresholds().get(CURATIVE_INSTANT_ID).getThresholdPerNominalV().get(400.));
     }
 
     @Test

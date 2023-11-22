@@ -23,6 +23,10 @@ import static org.junit.jupiter.api.Assertions.*;
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 class OnContingencyStateAdderImplTest {
+    private static final String PREVENTIVE_INSTANT_ID = "preventive";
+    private static final String OUTAGE_INSTANT_ID = "outage";
+    private static final String AUTO_INSTANT_ID = "auto";
+    private static final String CURATIVE_INSTANT_ID = "curative";
 
     private Crac crac;
     private Contingency contingency;
@@ -32,11 +36,11 @@ class OnContingencyStateAdderImplTest {
     @BeforeEach
     public void setUp() {
         crac = new CracImplFactory().create("cracId")
-            .newInstant("preventive", InstantKind.PREVENTIVE)
-            .newInstant("outage", InstantKind.OUTAGE)
-            .newInstant("auto", InstantKind.AUTO)
-            .newInstant("curative", InstantKind.CURATIVE);
-        curativeInstant = crac.getInstant("curative");
+            .newInstant(PREVENTIVE_INSTANT_ID, InstantKind.PREVENTIVE)
+            .newInstant(OUTAGE_INSTANT_ID, InstantKind.OUTAGE)
+            .newInstant(AUTO_INSTANT_ID, InstantKind.AUTO)
+            .newInstant(CURATIVE_INSTANT_ID, InstantKind.CURATIVE);
+        curativeInstant = crac.getInstant(CURATIVE_INSTANT_ID);
 
         contingency = crac.newContingency()
             .withId("contingencyId")
@@ -53,7 +57,7 @@ class OnContingencyStateAdderImplTest {
     @Test
     void testOk() {
         RemedialAction<?> remedialAction = remedialActionAdder.newOnContingencyStateUsageRule()
-            .withInstant("curative")
+            .withInstant(CURATIVE_INSTANT_ID)
             .withContingency("contingencyId")
             .withUsageMethod(UsageMethod.AVAILABLE)
             .add()
@@ -62,7 +66,7 @@ class OnContingencyStateAdderImplTest {
 
         assertEquals(1, remedialAction.getUsageRules().size());
         assertTrue(usageRule instanceof OnContingencyState);
-        assertEquals("curative", ((OnContingencyState) usageRule).getState().getInstant().getId());
+        assertEquals(CURATIVE_INSTANT_ID, ((OnContingencyState) usageRule).getState().getInstant().getId());
         assertEquals(contingency, ((OnContingencyState) usageRule).getState().getContingency().orElse(null));
         assertEquals(UsageMethod.AVAILABLE, usageRule.getUsageMethod());
         assertEquals(1, crac.getStates().size());
@@ -72,7 +76,7 @@ class OnContingencyStateAdderImplTest {
     @Test
     void testOkPreventive() {
         RemedialAction<?> remedialAction = remedialActionAdder.newOnContingencyStateUsageRule()
-            .withInstant("preventive")
+            .withInstant(PREVENTIVE_INSTANT_ID)
             .withUsageMethod(UsageMethod.FORCED)
             .add()
             .add();
@@ -80,7 +84,7 @@ class OnContingencyStateAdderImplTest {
 
         assertEquals(1, remedialAction.getUsageRules().size());
         assertTrue(usageRule instanceof OnContingencyState);
-        assertEquals("preventive", ((OnContingencyState) usageRule).getState().getInstant().getId());
+        assertEquals(PREVENTIVE_INSTANT_ID, ((OnContingencyState) usageRule).getState().getInstant().getId());
         assertEquals(UsageMethod.FORCED, usageRule.getUsageMethod());
     }
 
@@ -96,7 +100,7 @@ class OnContingencyStateAdderImplTest {
     @Test
     void testNoContingency() {
         OnContingencyStateAdder<NetworkActionAdder> onContingencyStateAdder = remedialActionAdder.newOnContingencyStateUsageRule()
-            .withInstant("curative")
+            .withInstant(CURATIVE_INSTANT_ID)
             .withUsageMethod(UsageMethod.AVAILABLE);
         FaraoException exception = assertThrows(FaraoException.class, onContingencyStateAdder::add);
         assertEquals("Cannot add OnContingencyState without a contingency. Please use withContingency() with a non null value", exception.getMessage());
@@ -105,7 +109,7 @@ class OnContingencyStateAdderImplTest {
     @Test
     void testNoUsageMethod() {
         OnContingencyStateAdder<NetworkActionAdder> onContingencyStateAdder = remedialActionAdder.newOnContingencyStateUsageRule()
-            .withInstant("curative")
+            .withInstant(CURATIVE_INSTANT_ID)
             .withContingency("contingencyId");
         FaraoException exception = assertThrows(FaraoException.class, onContingencyStateAdder::add);
         assertEquals("Cannot add OnContingencyState without a usage method. Please use withUsageMethod() with a non null value", exception.getMessage());
@@ -114,7 +118,7 @@ class OnContingencyStateAdderImplTest {
     @Test
     void testUnknownContingency() {
         OnContingencyStateAdder<NetworkActionAdder> onContingencyStateAdder = remedialActionAdder.newOnContingencyStateUsageRule()
-            .withInstant("curative")
+            .withInstant(CURATIVE_INSTANT_ID)
             .withContingency("unknownContingencyId")
             .withUsageMethod(UsageMethod.AVAILABLE);
         FaraoException exception = assertThrows(FaraoException.class, onContingencyStateAdder::add);
@@ -124,7 +128,7 @@ class OnContingencyStateAdderImplTest {
     @Test
     void testPreventiveInstant() {
         OnContingencyStateAdder<NetworkActionAdder> onContingencyStateAdder = remedialActionAdder.newOnContingencyStateUsageRule()
-            .withInstant("preventive")
+            .withInstant(PREVENTIVE_INSTANT_ID)
             .withContingency("contingencyId")
             .withUsageMethod(UsageMethod.AVAILABLE);
         FaraoException exception = assertThrows(FaraoException.class, onContingencyStateAdder::add);
@@ -134,7 +138,7 @@ class OnContingencyStateAdderImplTest {
     @Test
     void testOutageInstant() {
         OnContingencyStateAdder<NetworkActionAdder> onContingencyStateAdder = remedialActionAdder.newOnContingencyStateUsageRule()
-            .withInstant("outage")
+            .withInstant(OUTAGE_INSTANT_ID)
             .withContingency("contingencyId")
             .withUsageMethod(UsageMethod.AVAILABLE);
         FaraoException exception = assertThrows(FaraoException.class, onContingencyStateAdder::add);

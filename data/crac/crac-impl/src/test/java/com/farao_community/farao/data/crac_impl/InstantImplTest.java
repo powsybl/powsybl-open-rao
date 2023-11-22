@@ -20,21 +20,25 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 
 class InstantImplTest {
+    private static final String PREVENTIVE_INSTANT_ID = "preventive";
+    private static final String OUTAGE_INSTANT_ID = "outage";
+    private static final String AUTO_INSTANT_ID = "auto";
+    private static final String CURATIVE_INSTANT_ID = "curative";
 
     @Test
     void testPreventive() {
-        Instant instant = new InstantImpl("preventive", InstantKind.PREVENTIVE, null);
+        Instant instant = new InstantImpl(PREVENTIVE_INSTANT_ID, InstantKind.PREVENTIVE, null);
         assertEquals(0, instant.getOrder());
-        assertEquals("preventive", instant.toString());
+        assertEquals(PREVENTIVE_INSTANT_ID, instant.toString());
         assertEquals(InstantKind.PREVENTIVE, instant.getInstantKind());
     }
 
     @Test
     void testCombineInstants() {
-        Instant preventiveInstant = new InstantImpl("preventive", InstantKind.PREVENTIVE, null);
-        Instant outageInstant = new InstantImpl("outage", InstantKind.OUTAGE, preventiveInstant);
-        Instant autoInstant = new InstantImpl("auto", InstantKind.AUTO, outageInstant);
-        Instant curativeInstant = new InstantImpl("curative", InstantKind.CURATIVE, autoInstant);
+        Instant preventiveInstant = new InstantImpl(PREVENTIVE_INSTANT_ID, InstantKind.PREVENTIVE, null);
+        Instant outageInstant = new InstantImpl(OUTAGE_INSTANT_ID, InstantKind.OUTAGE, preventiveInstant);
+        Instant autoInstant = new InstantImpl(AUTO_INSTANT_ID, InstantKind.AUTO, outageInstant);
+        Instant curativeInstant = new InstantImpl(CURATIVE_INSTANT_ID, InstantKind.CURATIVE, autoInstant);
 
         assertEquals(0, preventiveInstant.getOrder());
         assertEquals(1, outageInstant.getOrder());

@@ -25,21 +25,23 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
  */
 class AngleThresholdAdderImplTest {
     private static final double DOUBLE_TOLERANCE = 1e-6;
+    private static final String PREVENTIVE_INSTANT_ID = "preventive";
+    private static final String OUTAGE_INSTANT_ID = "outage";
     private Crac crac;
     private Contingency contingency;
 
     @BeforeEach
     public void setUp() {
         crac = new CracImplFactory().create("test-crac")
-            .newInstant("preventive", InstantKind.PREVENTIVE)
-            .newInstant("outage", InstantKind.OUTAGE);
+            .newInstant(PREVENTIVE_INSTANT_ID, InstantKind.PREVENTIVE)
+            .newInstant(OUTAGE_INSTANT_ID, InstantKind.OUTAGE);
         contingency = crac.newContingency().withId("conId").add();
     }
 
     @Test
     void testAddThresholdInDegree() {
         AngleCnec cnec = crac.newAngleCnec()
-            .withId("test-cnec").withInstant("outage").withContingency(contingency.getId())
+            .withId("test-cnec").withInstant(OUTAGE_INSTANT_ID).withContingency(contingency.getId())
             .withExportingNetworkElement("eneID")
             .withImportingNetworkElement("ineID")
             .newThreshold().withUnit(Unit.DEGREE).withMin(-250.0).withMax(1000.0).add()

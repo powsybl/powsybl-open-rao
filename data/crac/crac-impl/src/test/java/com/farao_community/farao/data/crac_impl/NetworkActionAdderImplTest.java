@@ -24,16 +24,20 @@ import static org.junit.jupiter.api.Assertions.*;
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 class NetworkActionAdderImplTest {
+    private static final String PREVENTIVE_INSTANT_ID = "preventive";
+    private static final String OUTAGE_INSTANT_ID = "outage";
+    private static final String AUTO_INSTANT_ID = "auto";
+    private static final String CURATIVE_INSTANT_ID = "curative";
 
     private Crac crac;
 
     @BeforeEach
     public void setUp() {
         crac = new CracImplFactory().create("cracId")
-            .newInstant("preventive", InstantKind.PREVENTIVE)
-            .newInstant("outage", InstantKind.OUTAGE)
-            .newInstant("auto", InstantKind.AUTO)
-            .newInstant("curative", InstantKind.CURATIVE);
+            .newInstant(PREVENTIVE_INSTANT_ID, InstantKind.PREVENTIVE)
+            .newInstant(OUTAGE_INSTANT_ID, InstantKind.OUTAGE)
+            .newInstant(AUTO_INSTANT_ID, InstantKind.AUTO)
+            .newInstant(CURATIVE_INSTANT_ID, InstantKind.CURATIVE);
 
         crac.newContingency()
             .withId("contingencyId")
@@ -52,7 +56,7 @@ class NetworkActionAdderImplTest {
                 .withSetpoint(6)
                 .add()
             .newOnInstantUsageRule()
-                .withInstant("preventive")
+                .withInstant(PREVENTIVE_INSTANT_ID)
                 .withUsageMethod(UsageMethod.AVAILABLE)
                 .add()
             .add();
@@ -100,11 +104,11 @@ class NetworkActionAdderImplTest {
                 .withSetpoint(6)
                 .add()
             .newOnInstantUsageRule()
-                .withInstant("preventive")
+                .withInstant(PREVENTIVE_INSTANT_ID)
                 .withUsageMethod(UsageMethod.AVAILABLE)
                 .add()
             .newOnContingencyStateUsageRule()
-                .withInstant("curative")
+                .withInstant(CURATIVE_INSTANT_ID)
                 .withContingency("contingencyId")
                 .withUsageMethod(UsageMethod.AVAILABLE)
             .add()

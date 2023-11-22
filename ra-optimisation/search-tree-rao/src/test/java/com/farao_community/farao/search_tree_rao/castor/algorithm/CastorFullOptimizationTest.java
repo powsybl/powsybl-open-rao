@@ -52,6 +52,10 @@ import static org.mockito.Mockito.when;
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
 class CastorFullOptimizationTest {
+    private static final String PREVENTIVE_INSTANT_ID = "preventive";
+    private static final String OUTAGE_INSTANT_ID = "outage";
+    private static final String AUTO_INSTANT_ID = "auto";
+    private static final String CURATIVE_INSTANT_ID = "curative";
     private Crac crac;
     private Network network;
     private State state1;
@@ -76,9 +80,9 @@ class CastorFullOptimizationTest {
     public void setup() {
         network = Network.read("network_with_alegro_hub.xiidm", getClass().getResourceAsStream("/network/network_with_alegro_hub.xiidm"));
         crac = CracImporters.importCrac("crac/small-crac.json", getClass().getResourceAsStream("/crac/small-crac.json"));
-        preventiveInstant = crac.getInstant("preventive");
-        autoInstant = crac.getInstant("auto");
-        curativeInstant = crac.getInstant("curative");
+        preventiveInstant = crac.getInstant(PREVENTIVE_INSTANT_ID);
+        autoInstant = crac.getInstant(AUTO_INSTANT_ID);
+        curativeInstant = crac.getInstant(CURATIVE_INSTANT_ID);
         RaoInput inputs = Mockito.mock(RaoInput.class);
         when(inputs.getNetwork()).thenReturn(network);
         when(inputs.getNetworkVariantId()).thenReturn(network.getVariantManager().getWorkingVariantId());
@@ -230,10 +234,10 @@ class CastorFullOptimizationTest {
 
     private void setUpCracWithRAs() {
         crac = CracFactory.findDefault().create("test-crac")
-            .newInstant("preventive", InstantKind.PREVENTIVE)
-            .newInstant("outage", InstantKind.OUTAGE)
-            .newInstant("auto", InstantKind.AUTO)
-            .newInstant("curative", InstantKind.CURATIVE);
+            .newInstant(PREVENTIVE_INSTANT_ID, InstantKind.PREVENTIVE)
+            .newInstant(OUTAGE_INSTANT_ID, InstantKind.OUTAGE)
+            .newInstant(AUTO_INSTANT_ID, InstantKind.AUTO)
+            .newInstant(CURATIVE_INSTANT_ID, InstantKind.CURATIVE);
         Contingency contingency1 = crac.newContingency()
                 .withId("contingency1")
                 .withNetworkElement("contingency1-ne")
@@ -246,7 +250,7 @@ class CastorFullOptimizationTest {
                 .withId("cnec")
                 .withNetworkElement("cnec-ne")
                 .withContingency("contingency1")
-                .withInstant("curative")
+                .withInstant(CURATIVE_INSTANT_ID)
                 .withNominalVoltage(220.)
                 .newThreshold().withSide(Side.RIGHT).withMax(1000.).withUnit(Unit.AMPERE).add()
                 .add();
@@ -254,24 +258,24 @@ class CastorFullOptimizationTest {
         ra1 = (RangeAction<?>) crac.newPstRangeAction()
                 .withId("ra1")
                 .withNetworkElement("ra1-ne")
-                .newOnInstantUsageRule().withInstant("preventive").withUsageMethod(UsageMethod.AVAILABLE).add()
-                .newOnContingencyStateUsageRule().withContingency("contingency1").withInstant("curative").withUsageMethod(UsageMethod.UNDEFINED).add()
+                .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add()
+                .newOnContingencyStateUsageRule().withContingency("contingency1").withInstant(CURATIVE_INSTANT_ID).withUsageMethod(UsageMethod.UNDEFINED).add()
                 .withInitialTap(0).withTapToAngleConversionMap(Map.of(0, -100., 1, 100.))
                 .add();
         // ra2 : preventive and curative
         ra2 = (RangeAction<?>) crac.newPstRangeAction()
                 .withId("ra2")
                 .withNetworkElement("ra2-ne")
-                .newOnInstantUsageRule().withInstant("preventive").withUsageMethod(UsageMethod.UNAVAILABLE).add()
-                .newOnContingencyStateUsageRule().withContingency("contingency2").withInstant("curative").withUsageMethod(UsageMethod.AVAILABLE).add()
+                .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withUsageMethod(UsageMethod.UNAVAILABLE).add()
+                .newOnContingencyStateUsageRule().withContingency("contingency2").withInstant(CURATIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add()
                 .withInitialTap(0).withTapToAngleConversionMap(Map.of(0, -100., 1, 100.))
                 .add();
         // ra3 : preventive and curative
         ra3 = (RangeAction<?>) crac.newPstRangeAction()
                 .withId("ra3")
                 .withNetworkElement("ra3-ne")
-                .newOnInstantUsageRule().withInstant("preventive").withUsageMethod(UsageMethod.AVAILABLE).add()
-                .newOnContingencyStateUsageRule().withContingency("contingency1").withInstant("curative").withUsageMethod(UsageMethod.AVAILABLE).add()
+                .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add()
+                .newOnContingencyStateUsageRule().withContingency("contingency1").withInstant(CURATIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add()
                 .withInitialTap(0).withTapToAngleConversionMap(Map.of(0, -100., 1, 100.))
                 .add();
         // ra4 : preventive only, but with same NetworkElement as ra5
@@ -279,7 +283,7 @@ class CastorFullOptimizationTest {
                 .withId("ra4")
                 .withNetworkElement("ra4-ne1")
                 .withNetworkElement("ra4-ne2")
-                .newOnInstantUsageRule().withInstant("preventive").withUsageMethod(UsageMethod.AVAILABLE).add()
+                .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add()
                 .withInitialTap(0).withTapToAngleConversionMap(Map.of(0, -100., 1, 100.))
                 .add();
         // ra5 : curative only, but with same NetworkElement as ra4
@@ -287,22 +291,22 @@ class CastorFullOptimizationTest {
                 .withId("ra5")
                 .withNetworkElement("ra4-ne1")
                 .withNetworkElement("ra4-ne2")
-                .newOnContingencyStateUsageRule().withContingency("contingency2").withInstant("curative").withUsageMethod(UsageMethod.AVAILABLE).add()
+                .newOnContingencyStateUsageRule().withContingency("contingency2").withInstant(CURATIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add()
                 .withInitialTap(0).withTapToAngleConversionMap(Map.of(0, -100., 1, 100.))
                 .add();
         // ra6 : preventive and curative (onFlowConstraint)
         ra6 = (RangeAction<?>) crac.newPstRangeAction()
                 .withId("ra6")
                 .withNetworkElement("ra6-ne")
-                .newOnInstantUsageRule().withInstant("preventive").withUsageMethod(UsageMethod.AVAILABLE).add()
-                .newOnFlowConstraintUsageRule().withFlowCnec("cnec").withInstant("curative").add()
+                .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add()
+                .newOnFlowConstraintUsageRule().withFlowCnec("cnec").withInstant(CURATIVE_INSTANT_ID).add()
                 .withInitialTap(0).withTapToAngleConversionMap(Map.of(0, -100., 1, 100.))
                 .add();
         // ra7 : auto only
         ra7 = (RangeAction<?>) crac.newPstRangeAction()
                 .withId("ra7")
                 .withNetworkElement("ra7-ne")
-                .newOnContingencyStateUsageRule().withContingency("contingency2").withInstant("auto").withUsageMethod(UsageMethod.FORCED).add()
+                .newOnContingencyStateUsageRule().withContingency("contingency2").withInstant(AUTO_INSTANT_ID).withUsageMethod(UsageMethod.FORCED).add()
                 .withInitialTap(0).withTapToAngleConversionMap(Map.of(0, -100., 1, 100.))
                 .withSpeed(1)
                 .add();
@@ -310,8 +314,8 @@ class CastorFullOptimizationTest {
         ra8 = (RangeAction<?>) crac.newPstRangeAction()
                 .withId("ra8")
                 .withNetworkElement("ra8-ne")
-                .newOnInstantUsageRule().withInstant("preventive").withUsageMethod(UsageMethod.AVAILABLE).add()
-                .newOnContingencyStateUsageRule().withContingency("contingency1").withInstant("auto").withUsageMethod(UsageMethod.FORCED).add()
+                .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add()
+                .newOnContingencyStateUsageRule().withContingency("contingency1").withInstant(AUTO_INSTANT_ID).withUsageMethod(UsageMethod.FORCED).add()
                 .withInitialTap(0).withTapToAngleConversionMap(Map.of(0, -100., 1, 100.))
                 .withSpeed(2)
                 .add();
@@ -319,7 +323,7 @@ class CastorFullOptimizationTest {
         ra9 = (RangeAction<?>) crac.newPstRangeAction()
                 .withId("ra9")
                 .withNetworkElement("ra8-ne")
-                .newOnInstantUsageRule().withInstant("preventive").withUsageMethod(UsageMethod.AVAILABLE).add()
+                .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add()
                 .withInitialTap(0).withTapToAngleConversionMap(Map.of(0, -100., 1, 100.))
                 .add();
         // ra10 : preventive only, counter trade
@@ -327,8 +331,8 @@ class CastorFullOptimizationTest {
                 .withId("ra10")
                 .withExportingCountry(Country.FR)
                 .withImportingCountry(Country.DE)
-                .newOnInstantUsageRule().withInstant("preventive").withUsageMethod(UsageMethod.AVAILABLE).add()
-                .newOnContingencyStateUsageRule().withContingency("contingency1").withInstant("curative").withUsageMethod(UsageMethod.UNDEFINED).add()
+                .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add()
+                .newOnContingencyStateUsageRule().withContingency("contingency1").withInstant(CURATIVE_INSTANT_ID).withUsageMethod(UsageMethod.UNDEFINED).add()
                 .newRange().withMin(-1000).withMax(1000).add()
                 .add();
 
@@ -336,8 +340,8 @@ class CastorFullOptimizationTest {
         na1 = (NetworkAction) crac.newNetworkAction()
                 .withId("na1")
                 .newTopologicalAction().withNetworkElement("na1-ne").withActionType(ActionType.OPEN).add()
-                .newOnInstantUsageRule().withInstant("preventive").withUsageMethod(UsageMethod.AVAILABLE).add()
-                .newOnContingencyStateUsageRule().withContingency("contingency1").withInstant("curative").withUsageMethod(UsageMethod.AVAILABLE).add()
+                .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add()
+                .newOnContingencyStateUsageRule().withContingency("contingency1").withInstant(CURATIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add()
                 .add();
 
         state1 = crac.getState(contingency1, curativeInstant);
@@ -452,10 +456,10 @@ class CastorFullOptimizationTest {
         HashMap<Integer, Double> tapToAngleConversionMap = new HashMap<>();
         phaseTapChanger.getAllSteps().forEach((stepInt, step) -> tapToAngleConversionMap.put(stepInt, step.getAlpha()));
         crac = CracFactory.findDefault().create("test-crac")
-            .newInstant("preventive", InstantKind.PREVENTIVE)
-            .newInstant("outage", InstantKind.OUTAGE)
-            .newInstant("auto", InstantKind.AUTO)
-            .newInstant("curative", InstantKind.CURATIVE);
+            .newInstant(PREVENTIVE_INSTANT_ID, InstantKind.PREVENTIVE)
+            .newInstant(OUTAGE_INSTANT_ID, InstantKind.OUTAGE)
+            .newInstant(AUTO_INSTANT_ID, InstantKind.AUTO)
+            .newInstant(CURATIVE_INSTANT_ID, InstantKind.CURATIVE);
         Contingency contingency1 = crac.newContingency()
                 .withId("contingency1")
                 .withNetworkElement("contingency1-ne")
@@ -469,17 +473,17 @@ class CastorFullOptimizationTest {
                 .withId("ra1")
                 .withNetworkElement("BBE2AA1  BBE3AA1  1")
                 .withInitialTap(0).withTapToAngleConversionMap(tapToAngleConversionMap)
-                .newOnInstantUsageRule().withInstant("preventive").withUsageMethod(UsageMethod.AVAILABLE).add();
+                .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add();
         if (curative) {
-            adder.newOnContingencyStateUsageRule().withContingency("contingency1").withInstant("curative").withUsageMethod(UsageMethod.AVAILABLE).add();
+            adder.newOnContingencyStateUsageRule().withContingency("contingency1").withInstant(CURATIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add();
         }
         ra1 = (RangeAction<?>) adder.add();
         // na1 : preventive + curative
         na1 = (NetworkAction) crac.newNetworkAction()
                 .withId("na1")
                 .newTopologicalAction().withNetworkElement("BBE1AA1  BBE2AA1  1").withActionType(ActionType.OPEN).add()
-                .newOnInstantUsageRule().withInstant("preventive").withUsageMethod(UsageMethod.AVAILABLE).add()
-                .newOnContingencyStateUsageRule().withContingency("contingency2").withInstant("curative").withUsageMethod(UsageMethod.AVAILABLE).add()
+                .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add()
+                .newOnContingencyStateUsageRule().withContingency("contingency2").withInstant(CURATIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add()
                 .add();
 
         state1 = crac.getState(contingency1, curativeInstant);

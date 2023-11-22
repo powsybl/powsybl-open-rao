@@ -46,6 +46,10 @@ import static org.mockito.Mockito.when;
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
 class RaoLoggerTest {
+    private static final String PREVENTIVE_INSTANT_ID = "preventive";
+    private static final String OUTAGE_INSTANT_ID = "outage";
+    private static final String AUTO_INSTANT_ID = "auto";
+    private static final String CURATIVE_INSTANT_ID = "curative";
 
     private ObjectiveFunctionResult objectiveFunctionResult;
     private FlowResult flowResult;
@@ -66,14 +70,14 @@ class RaoLoggerTest {
         flowResult = mock(FlowResult.class);
         basecaseOptimResult = mock(OptimizationResult.class);
         Crac crac = new CracImpl("test-crac")
-            .newInstant("preventive", InstantKind.PREVENTIVE)
-            .newInstant("outage", InstantKind.OUTAGE)
-            .newInstant("auto", InstantKind.AUTO)
-            .newInstant("curative", InstantKind.CURATIVE);
-        Instant preventiveInstant = crac.getInstant("preventive");
-        Instant autoInstant = crac.getInstant("auto");
-        Instant curativeInstant = crac.getInstant("curative");
-        statePreventive = mockState("preventive", preventiveInstant);
+            .newInstant(PREVENTIVE_INSTANT_ID, InstantKind.PREVENTIVE)
+            .newInstant(OUTAGE_INSTANT_ID, InstantKind.OUTAGE)
+            .newInstant(AUTO_INSTANT_ID, InstantKind.AUTO)
+            .newInstant(CURATIVE_INSTANT_ID, InstantKind.CURATIVE);
+        Instant preventiveInstant = crac.getInstant(PREVENTIVE_INSTANT_ID);
+        Instant autoInstant = crac.getInstant(AUTO_INSTANT_ID);
+        Instant curativeInstant = crac.getInstant(CURATIVE_INSTANT_ID);
+        statePreventive = mockState(PREVENTIVE_INSTANT_ID, preventiveInstant);
         stateCo1Auto = mockState("co1 - auto", autoInstant);
         stateCo1Curative = mockState("co1 - curative", curativeInstant);
         stateCo2Curative = mockState("co2 - curative", curativeInstant);
@@ -300,12 +304,12 @@ class RaoLoggerTest {
         State preventive = Mockito.mock(State.class);
         Instant preventiveInstant = Mockito.mock(Instant.class);
         when(preventiveInstant.getInstantKind()).thenReturn(InstantKind.PREVENTIVE);
-        when(preventiveInstant.toString()).thenReturn("preventive");
+        when(preventiveInstant.toString()).thenReturn(PREVENTIVE_INSTANT_ID);
         when(preventive.getInstant()).thenReturn(preventiveInstant);
         State curative = Mockito.mock(State.class);
         Instant curativeInstant = Mockito.mock(Instant.class);
         when(curativeInstant.getInstantKind()).thenReturn(InstantKind.CURATIVE);
-        when(curativeInstant.toString()).thenReturn("curative");
+        when(curativeInstant.toString()).thenReturn(CURATIVE_INSTANT_ID);
         when(curative.getInstant()).thenReturn(curativeInstant);
         Contingency contingency = Mockito.mock(Contingency.class);
         when(contingency.getName()).thenReturn("contingency");

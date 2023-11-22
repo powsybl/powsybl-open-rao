@@ -17,7 +17,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
 class PreventiveStateTest {
-    private static final Instant INSTANT_PREV = new InstantImpl("preventive", InstantKind.PREVENTIVE, null);
+    private static final String PREVENTIVE_INSTANT_ID = "preventive";
+    private static final Instant INSTANT_PREV = new InstantImpl(PREVENTIVE_INSTANT_ID, InstantKind.PREVENTIVE, null);
 
     @Test
     void testEqualsForPreventive() {
@@ -30,12 +31,12 @@ class PreventiveStateTest {
     @Test
     void testHashCodeForPreventive() {
         PreventiveState state = new PreventiveState(INSTANT_PREV);
-        assertEquals("preventive".hashCode(), state.hashCode());
+        assertEquals(PREVENTIVE_INSTANT_ID.hashCode(), state.hashCode());
     }
 
     @Test
     void testToStringForPreventive() {
         PreventiveState state = new PreventiveState(INSTANT_PREV);
-        assertEquals("preventive", state.toString());
+        assertEquals(PREVENTIVE_INSTANT_ID, state.toString());
     }
 }

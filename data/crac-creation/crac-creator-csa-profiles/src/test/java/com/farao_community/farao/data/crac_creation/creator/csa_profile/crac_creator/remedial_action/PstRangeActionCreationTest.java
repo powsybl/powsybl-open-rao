@@ -12,6 +12,7 @@ import static com.farao_community.farao.data.crac_creation.creator.csa_profile.c
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class PstRangeActionCreationTest {
+    private static final String CURATIVE_INSTANT_ID = "curative";
 
     @Test
     void testTC1ImportPstRangeActions() {
@@ -27,7 +28,7 @@ class PstRangeActionCreationTest {
         assertEquals(5., eliaRa1.getRanges().iterator().next().getMinTap());
         assertEquals(20., eliaRa1.getRanges().iterator().next().getMaxTap());
         assertEquals(1, eliaRa1.getUsageRules().size());
-        assertEquals("curative", eliaRa1.getUsageRules().iterator().next().getInstant().getId());
+        assertEquals(CURATIVE_INSTANT_ID, eliaRa1.getUsageRules().iterator().next().getInstant().getId());
         // TODO waiting for PO to check US, after implementation of CSA11 behaviour changed, assertEquals("493480ba-93c3-426e-bee5-347d8dda3749", ((OnContingencyStateImpl) eliaRa1.getUsageRules().iterator().next()).getState().getContingency().get().getId());
         Map<Integer, Double> expectedTapToAngleMap = Map.ofEntries(
                 Map.entry(1, 4.926567934889113),
@@ -69,7 +70,7 @@ class PstRangeActionCreationTest {
         assertEquals(13, reeRa1.getInitialTap());
         assertEquals(0, reeRa1.getRanges().size());
         assertEquals(1, reeRa1.getUsageRules().size());
-        assertEquals("curative", reeRa1.getUsageRules().iterator().next().getInstant().getId());
+        assertEquals(CURATIVE_INSTANT_ID, reeRa1.getUsageRules().iterator().next().getInstant().getId());
         assertEquals("8cdec4c6-10c3-40c1-9eeb-7f6ae8d9b3fe", ((OnContingencyStateImpl) reeRa1.getUsageRules().iterator().next()).getState().getContingency().orElseThrow().getId());
         Map<Integer, Double> expectedTapToAngleMap = Map.ofEntries(
                 Map.entry(-1, -2.0),

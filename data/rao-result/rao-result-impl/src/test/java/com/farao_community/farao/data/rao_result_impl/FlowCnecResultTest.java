@@ -16,16 +16,20 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 class FlowCnecResultTest {
+    private static final String PREVENTIVE_INSTANT_ID = "preventive";
+    private static final String OUTAGE_INSTANT_ID = "outage";
+    private static final String AUTO_INSTANT_ID = "auto";
+    private static final String CURATIVE_INSTANT_ID = "curative";
 
     @Test
     void defaultValuesTest() {
         FlowCnecResult defaultFlowCnecResult = new FlowCnecResult();
         assertEquals(Double.NaN, defaultFlowCnecResult.getResult(null).getCommercialFlow(Side.LEFT, Unit.MEGAWATT), 1e-3);
         assertEquals(Double.NaN, defaultFlowCnecResult.getResult(null).getFlow(Side.RIGHT, Unit.AMPERE), 1e-3);
-        assertEquals(Double.NaN, defaultFlowCnecResult.getResult("preventive").getMargin(Unit.MEGAWATT), 1e-3);
-        assertEquals(Double.NaN, defaultFlowCnecResult.getResult("preventive").getRelativeMargin(Unit.AMPERE), 1e-3);
-        assertEquals(Double.NaN, defaultFlowCnecResult.getResult("curative").getLoopFlow(Side.LEFT, Unit.MEGAWATT), 1e-3);
-        assertEquals(Double.NaN, defaultFlowCnecResult.getResult("curative").getPtdfZonalSum(Side.RIGHT), 1e-3);
+        assertEquals(Double.NaN, defaultFlowCnecResult.getResult(PREVENTIVE_INSTANT_ID).getMargin(Unit.MEGAWATT), 1e-3);
+        assertEquals(Double.NaN, defaultFlowCnecResult.getResult(PREVENTIVE_INSTANT_ID).getRelativeMargin(Unit.AMPERE), 1e-3);
+        assertEquals(Double.NaN, defaultFlowCnecResult.getResult(CURATIVE_INSTANT_ID).getLoopFlow(Side.LEFT, Unit.MEGAWATT), 1e-3);
+        assertEquals(Double.NaN, defaultFlowCnecResult.getResult(CURATIVE_INSTANT_ID).getPtdfZonalSum(Side.RIGHT), 1e-3);
     }
 
     @Test

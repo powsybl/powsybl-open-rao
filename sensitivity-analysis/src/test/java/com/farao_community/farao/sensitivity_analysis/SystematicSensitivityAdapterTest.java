@@ -28,12 +28,14 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class SystematicSensitivityAdapterTest {
 
     public static final double DOUBLE_TOLERANCE = 1e-6;
+    private static final String OUTAGE_INSTANT_ID = "outage";
+    private static final String CURATIVE_INSTANT_ID = "curative";
 
     @Test
     void testWithoutAppliedRa() {
         Network network = NetworkImportsUtil.import12NodesNetwork();
         Crac crac = CommonCracCreation.createWithPreventivePstRange(Set.of(LEFT, RIGHT));
-        Instant outageInstant = crac.getInstant("outage");
+        Instant outageInstant = crac.getInstant(OUTAGE_INSTANT_ID);
         RangeActionSensitivityProvider factorProvider = new RangeActionSensitivityProvider(crac.getRangeActions(), crac.getFlowCnecs(), Set.of(Unit.MEGAWATT, Unit.AMPERE));
 
         SystematicSensitivityResult result = SystematicSensitivityAdapter.runSensitivity(network, factorProvider, new SensitivityAnalysisParameters(), "MockSensi", outageInstant);
@@ -67,7 +69,7 @@ class SystematicSensitivityAdapterTest {
     void testWithoutAppliedRaLeftSideOnly() {
         Network network = NetworkImportsUtil.import12NodesNetwork();
         Crac crac = CommonCracCreation.createWithPreventivePstRange(Set.of(LEFT));
-        Instant outageInstant = crac.getInstant("outage");
+        Instant outageInstant = crac.getInstant(OUTAGE_INSTANT_ID);
         RangeActionSensitivityProvider factorProvider = new RangeActionSensitivityProvider(crac.getRangeActions(), crac.getFlowCnecs(), Set.of(Unit.MEGAWATT, Unit.AMPERE));
 
         SystematicSensitivityResult result = SystematicSensitivityAdapter.runSensitivity(network, factorProvider, new SensitivityAnalysisParameters(), "MockSensi", outageInstant);
@@ -101,11 +103,11 @@ class SystematicSensitivityAdapterTest {
     void testWithAppliedRa() {
         Network network = NetworkImportsUtil.import12NodesNetwork();
         Crac crac = CommonCracCreation.createWithPreventivePstRange(Set.of(LEFT, RIGHT));
-        Instant curativeInstant = crac.getInstant("curative");
+        Instant curativeInstant = crac.getInstant(CURATIVE_INSTANT_ID);
         crac.newFlowCnec()
             .withId("cnec2stateOutageContingency1")
             .withNetworkElement("FFR2AA1  DDE3AA1  1")
-            .withInstant("outage")
+            .withInstant(OUTAGE_INSTANT_ID)
             .withContingency("Contingency FR1 FR3")
             .withOptimized(true)
             .withOperator("operator2")

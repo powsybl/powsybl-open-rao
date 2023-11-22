@@ -27,6 +27,9 @@ import static org.junit.jupiter.api.Assertions.*;
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 class PstRangeActionAdderImplTest {
+    private static final String PREVENTIVE_INSTANT_ID = "preventive";
+    private static final String OUTAGE_INSTANT_ID = "outage";
+    private static final String AUTO_INSTANT_ID = "auto";
     private CracImpl crac;
     private String networkElementId;
     private Map<Integer, Double> validTapToAngleConversionMap;
@@ -34,9 +37,9 @@ class PstRangeActionAdderImplTest {
     @BeforeEach
     public void setUp() {
         crac = new CracImpl("test-crac")
-            .newInstant("preventive", InstantKind.PREVENTIVE)
-            .newInstant("outage", InstantKind.OUTAGE)
-            .newInstant("auto", InstantKind.AUTO);
+            .newInstant(PREVENTIVE_INSTANT_ID, InstantKind.PREVENTIVE)
+            .newInstant(OUTAGE_INSTANT_ID, InstantKind.OUTAGE)
+            .newInstant(AUTO_INSTANT_ID, InstantKind.AUTO);
         networkElementId = "BBE2AA1  BBE3AA1  1";
         validTapToAngleConversionMap = Map.of(-2, -20., -1, -10., 0, 0., 1, 10., 2, 20.);
     }
@@ -54,7 +57,7 @@ class PstRangeActionAdderImplTest {
                 .withRangeType(RangeType.ABSOLUTE)
                 .add()
             .newOnInstantUsageRule()
-                .withInstant("preventive")
+                .withInstant(PREVENTIVE_INSTANT_ID)
                 .withUsageMethod(UsageMethod.AVAILABLE)
                 .add()
             .withInitialTap(1)
@@ -83,7 +86,7 @@ class PstRangeActionAdderImplTest {
             .withRangeType(RangeType.ABSOLUTE)
             .add()
             .newOnInstantUsageRule()
-            .withInstant("auto")
+            .withInstant(AUTO_INSTANT_ID)
             .withUsageMethod(UsageMethod.AVAILABLE)
             .add()
             .withInitialTap(1)
@@ -106,7 +109,7 @@ class PstRangeActionAdderImplTest {
                 .withRangeType(RangeType.ABSOLUTE)
                 .add()
                 .newOnInstantUsageRule()
-                .withInstant("auto")
+                .withInstant(AUTO_INSTANT_ID)
                 .withUsageMethod(UsageMethod.AVAILABLE)
                 .add()
                 .withInitialTap(1)
@@ -128,7 +131,7 @@ class PstRangeActionAdderImplTest {
                 .withRangeType(RangeType.ABSOLUTE)
                 .add()
             .newOnInstantUsageRule()
-                .withInstant("preventive")
+                .withInstant(PREVENTIVE_INSTANT_ID)
                 .withUsageMethod(UsageMethod.AVAILABLE)
                 .add()
             .withInitialTap(0)
@@ -177,7 +180,7 @@ class PstRangeActionAdderImplTest {
                 .withRangeType(RangeType.ABSOLUTE)
                 .add()
             .newOnInstantUsageRule()
-                .withInstant("preventive")
+                .withInstant(PREVENTIVE_INSTANT_ID)
                 .withUsageMethod(UsageMethod.AVAILABLE)
                 .add()
             .withInitialTap(-2)
@@ -308,7 +311,7 @@ class PstRangeActionAdderImplTest {
             .withNetworkElement(networkElementId)
             .newTapRange()
             .withMinTap(-10).withMaxTap(10).withRangeType(RangeType.RELATIVE_TO_PREVIOUS_INSTANT).add()
-            .newOnInstantUsageRule().withInstant("preventive").withUsageMethod(UsageMethod.AVAILABLE).add()
+            .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add()
             .withInitialTap(-2)
             .withTapToAngleConversionMap(validTapToAngleConversionMap)
             .add();

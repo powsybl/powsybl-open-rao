@@ -39,6 +39,7 @@ import static org.mockito.Mockito.mock;
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 class SearchTreeBloomerTest {
+    private static final String PREVENTIVE_INSTANT_ID = "preventive";
 
     private Crac crac;
     private Network network;
@@ -76,7 +77,7 @@ class SearchTreeBloomerTest {
         crac.newFlowCnec()
             .withId("cnecBe")
             .withNetworkElement("BBE1AA1  BBE2AA1  1")
-            .withInstant("preventive").withOptimized(true)
+            .withInstant(PREVENTIVE_INSTANT_ID).withOptimized(true)
             .withOperator("operator1").newThreshold()
             .withUnit(Unit.MEGAWATT)
             .withSide(Side.LEFT)
@@ -425,7 +426,7 @@ class SearchTreeBloomerTest {
 
     @Test
     void testIsNetworkActionCloseToLocations() {
-        NetworkAction na1 = (NetworkAction) crac.newNetworkAction().withId("na").newTopologicalAction().withNetworkElement("BBE2AA1  FFR3AA1  1").withActionType(ActionType.OPEN).add().newOnInstantUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withInstant("preventive").add().add();
+        NetworkAction na1 = (NetworkAction) crac.newNetworkAction().withId("na").newTopologicalAction().withNetworkElement("BBE2AA1  FFR3AA1  1").withActionType(ActionType.OPEN).add().newOnInstantUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withInstant(PREVENTIVE_INSTANT_ID).add().add();
         NetworkAction na2 = mock(NetworkAction.class);
         Mockito.when(na2.getLocation(network)).thenReturn(Set.of(Optional.of(Country.FR), Optional.empty()));
 
@@ -495,7 +496,7 @@ class SearchTreeBloomerTest {
         Map<Integer, Double> conversionMap = new HashMap<>();
         conversionMap.put(0, 0.);
         conversionMap.put(1, 1.);
-        return (PstRangeAction) crac.newPstRangeAction().withId("pst - " + networkElementId).withOperator(operator).withNetworkElement(networkElementId).newOnInstantUsageRule().withInstant("preventive").withUsageMethod(UsageMethod.AVAILABLE).add().newTapRange().withRangeType(RangeType.ABSOLUTE).withMinTap(-16).withMaxTap(16).add().withInitialTap(0).withTapToAngleConversionMap(conversionMap).add();
+        return (PstRangeAction) crac.newPstRangeAction().withId("pst - " + networkElementId).withOperator(operator).withNetworkElement(networkElementId).newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add().newTapRange().withRangeType(RangeType.ABSOLUTE).withMinTap(-16).withMaxTap(16).add().withInitialTap(0).withTapToAngleConversionMap(conversionMap).add();
     }
 
     @Test

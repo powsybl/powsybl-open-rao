@@ -33,6 +33,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  */
 class LinearProblemResultTest {
     private static final double DOUBLE_TOLERANCE = 0.01;
+    private static final String PREVENTIVE_INSTANT_ID = "preventive";
+    private static final String OUTAGE_INSTANT_ID = "outage";
+    private static final String AUTO_INSTANT_ID = "auto";
+    private static final String CURATIVE_INSTANT_ID = "curative";
 
     private LinearProblem linearProblem;
     private LinearProblemResult linearProblemResult;
@@ -48,12 +52,12 @@ class LinearProblemResultTest {
     @BeforeEach
     public void setUp() {
         Crac crac = new CracImpl("test-crac")
-            .newInstant("preventive", InstantKind.PREVENTIVE)
-            .newInstant("outage", InstantKind.OUTAGE)
-            .newInstant("auto", InstantKind.AUTO)
-            .newInstant("curative", InstantKind.CURATIVE);
-        Instant preventiveInstant = crac.getInstant("preventive");
-        Instant curativeInstant = crac.getInstant("curative");
+            .newInstant(PREVENTIVE_INSTANT_ID, InstantKind.PREVENTIVE)
+            .newInstant(OUTAGE_INSTANT_ID, InstantKind.OUTAGE)
+            .newInstant(AUTO_INSTANT_ID, InstantKind.AUTO)
+            .newInstant(CURATIVE_INSTANT_ID, InstantKind.CURATIVE);
+        Instant preventiveInstant = crac.getInstant(PREVENTIVE_INSTANT_ID);
+        Instant curativeInstant = crac.getInstant(CURATIVE_INSTANT_ID);
         preventiveState = Mockito.mock(State.class);
         Mockito.when(preventiveState.getInstant()).thenReturn(preventiveInstant);
         Mockito.when(preventiveState.isPreventive()).thenReturn(true);

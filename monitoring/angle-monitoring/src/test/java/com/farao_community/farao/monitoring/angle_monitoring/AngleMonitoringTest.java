@@ -47,6 +47,10 @@ import static org.mockito.Mockito.when;
  */
 class AngleMonitoringTest {
     private static final double ANGLE_TOLERANCE = 0.5;
+    private static final String PREVENTIVE_INSTANT_ID = "preventive";
+    private static final String OUTAGE_INSTANT_ID = "outage";
+    private static final String AUTO_INSTANT_ID = "auto";
+    private static final String CURATIVE_INSTANT_ID = "curative";
     private OffsetDateTime glskOffsetDateTime;
     private Network network;
     private Crac crac;
@@ -86,20 +90,20 @@ class AngleMonitoringTest {
     public void setUpCracFactory(String networkFileName) {
         network = Network.read(networkFileName, getClass().getResourceAsStream("/" + networkFileName));
         crac = CracFactory.findDefault().create("test-crac")
-            .newInstant("preventive", InstantKind.PREVENTIVE)
-            .newInstant("outage", InstantKind.OUTAGE)
-            .newInstant("auto", InstantKind.AUTO)
-            .newInstant("curative", InstantKind.CURATIVE);
+            .newInstant(PREVENTIVE_INSTANT_ID, InstantKind.PREVENTIVE)
+            .newInstant(OUTAGE_INSTANT_ID, InstantKind.OUTAGE)
+            .newInstant(AUTO_INSTANT_ID, InstantKind.AUTO)
+            .newInstant(CURATIVE_INSTANT_ID, InstantKind.CURATIVE);
         cimGlskDocument = CimGlskDocument.importGlsk(getClass().getResourceAsStream("/GlskB45test.xml"));
         glskOffsetDateTime = OffsetDateTime.parse("2017-04-12T02:30Z");
     }
 
     public void mockPreventiveState() {
-        acPrev = addAngleCnec("acPrev", "preventive", null, "VL1", "VL2", -2., 500.);
+        acPrev = addAngleCnec("acPrev", PREVENTIVE_INSTANT_ID, null, "VL1", "VL2", -2., 500.);
         crac.newNetworkAction()
                 .withId("Open L1 - 1")
                 .newTopologicalAction().withNetworkElement("L1").withActionType(ActionType.OPEN).add()
-                .newOnAngleConstraintUsageRule().withInstant("preventive").withAngleCnec(acPrev.getId()).add()
+                .newOnAngleConstraintUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withAngleCnec(acPrev.getId()).add()
                 .add();
     }
 
@@ -107,14 +111,14 @@ class AngleMonitoringTest {
         crac.newContingency().withId("coL1").withNetworkElement("L1").add();
         crac.newContingency().withId("coL2").withNetworkElement("L2").add();
         crac.newContingency().withId("coL1L2").withNetworkElement("L1").withNetworkElement("L2").add();
-        acCur1 = addAngleCnec("acCur1", "curative", "coL1", "VL1", "VL2", -3., null);
+        acCur1 = addAngleCnec("acCur1", CURATIVE_INSTANT_ID, "coL1", "VL1", "VL2", -3., null);
     }
 
     public void mockCurativeStatesSecure() {
         crac.newContingency().withId("coL1").withNetworkElement("L1").add();
         crac.newContingency().withId("coL2").withNetworkElement("L2").add();
         crac.newContingency().withId("coL1L2").withNetworkElement("L1").withNetworkElement("L2").add();
-        acCur1 = addAngleCnec("acCur1", "curative", "coL1", "VL1", "VL2", -6., null);
+        acCur1 = addAngleCnec("acCur1", CURATIVE_INSTANT_ID, "coL1", "VL1", "VL2", -6., null);
     }
 
     private AngleCnec addAngleCnec(String id, String instantId, String contingency, String importingNetworkElement, String exportingNetworkElement, Double min, Double max) {
@@ -186,7 +190,7 @@ class AngleMonitoringTest {
         naL1Cur = (NetworkAction) crac.newNetworkAction()
                 .withId("Open L1 - 2")
                 .newTopologicalAction().withNetworkElement("L1").withActionType(ActionType.OPEN).add()
-                .newOnAngleConstraintUsageRule().withInstant("curative").withAngleCnec(acCur1.getId()).add()
+                .newOnAngleConstraintUsageRule().withInstant(CURATIVE_INSTANT_ID).withAngleCnec(acCur1.getId()).add()
                 .add();
         runAngleMonitoring();
         assertTrue(angleMonitoringResult.isUnsecure());
@@ -204,7 +208,7 @@ class AngleMonitoringTest {
         naL1Cur = (NetworkAction) crac.newNetworkAction()
                 .withId("Injection L1 - 2")
                 .newInjectionSetPoint().withNetworkElement("LD2").withSetpoint(50.).withUnit(Unit.MEGAWATT).add()
-                .newOnAngleConstraintUsageRule().withInstant("curative").withAngleCnec(acCur1.getId()).add()
+                .newOnAngleConstraintUsageRule().withInstant(CURATIVE_INSTANT_ID).withAngleCnec(acCur1.getId()).add()
                 .add();
         runAngleMonitoring();
         assertTrue(angleMonitoringResult.isSecure());
@@ -235,7 +239,7 @@ class AngleMonitoringTest {
     void testAngleCnecOnBus() {
         setUpCracFactory("network.xiidm");
         crac.newContingency().withId("coL1").withNetworkElement("L2").add();
-        acCur1 = addAngleCnec("acCur1", "curative", "coL1", network.getBusView().getBus("VL1_0").getId(), "VL2", -8., null);
+        acCur1 = addAngleCnec("acCur1", CURATIVE_INSTANT_ID, "coL1", network.getBusView().getBus("VL1_0").getId(), "VL2", -8., null);
 
         runAngleMonitoring();
         assertEquals(1, angleMonitoringResult.getAngleCnecsWithAngle().size());
@@ -255,7 +259,7 @@ class AngleMonitoringTest {
         assertFalse(angleMonitoringResult.isSecure());
         assertFalse(angleMonitoringResult.isUnknown());
         // Applied cras
-        State state = crac.getState("Co-1", crac.getInstant("curative"));
+        State state = crac.getState("Co-1", crac.getInstant(CURATIVE_INSTANT_ID));
         assertEquals(1, angleMonitoringResult.getAppliedCras(state).size());
         assertTrue(angleMonitoringResult.getAppliedCras(state).contains(crac.getNetworkAction("RA-1")));
         assertEquals(1, angleMonitoringResult.getAppliedCras("Co-1 - curative").size());

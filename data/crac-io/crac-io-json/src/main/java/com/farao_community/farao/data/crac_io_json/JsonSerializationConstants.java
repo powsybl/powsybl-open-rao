@@ -127,12 +127,6 @@ public final class JsonSerializationConstants {
 
     public static final String COUNTRY = "country";
 
-    // instants
-    public static final String PREVENTIVE_INSTANT = "preventive"; // TODO use this
-    public static final String OUTAGE_INSTANT = "outage";
-    public static final String AUTO_INSTANT = "auto";
-    public static final String CURATIVE_INSTANT = "curative";
-
     // units
     public static final String AMPERE_UNIT = "ampere";
     public static final String MEGAWATT_UNIT = "megawatt";

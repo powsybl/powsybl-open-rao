@@ -25,6 +25,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 class RangeActionLimitationParametersTest {
+    private static final String CURATIVE_INSTANT_ID = "curative";
 
     private State state0;
     private State state1;
@@ -34,7 +35,7 @@ class RangeActionLimitationParametersTest {
     public void setUp() {
         Crac crac = ExhaustiveCracCreation.create();
         state0 = crac.getPreventiveState();
-        Instant curativeInstant = crac.getInstant("curative");
+        Instant curativeInstant = crac.getInstant(CURATIVE_INSTANT_ID);
         state1 = crac.getState("contingency1Id", curativeInstant);
         state2 = crac.getState("contingency2Id", curativeInstant);
     }

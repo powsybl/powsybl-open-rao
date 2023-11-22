@@ -27,12 +27,13 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 class VoltageCnecImplTest {
     private final static double DOUBLE_TOLERANCE = 1e-3;
+    private static final String PREVENTIVE_INSTANT_ID = "preventive";
     private Crac crac;
 
     @BeforeEach
     public void setUp() {
         crac = new CracImplFactory().create("cracId")
-            .newInstant("preventive", InstantKind.PREVENTIVE);
+            .newInstant(PREVENTIVE_INSTANT_ID, InstantKind.PREVENTIVE);
     }
 
     private VoltageCnecAdder initPreventiveCnecAdder() {
@@ -41,7 +42,7 @@ class VoltageCnecImplTest {
             .withName("voltage-cnec-name")
             .withNetworkElement("networkElement")
             .withOperator("FR")
-            .withInstant("preventive")
+            .withInstant(PREVENTIVE_INSTANT_ID)
             .withOptimized(false);
     }
 
@@ -53,14 +54,14 @@ class VoltageCnecImplTest {
         VoltageCnec cnec1 = crac.newVoltageCnec()
             .withId("cnec-1-id")
             .withNetworkElement("BBE1AA1")
-            .withInstant("preventive")
+            .withInstant(PREVENTIVE_INSTANT_ID)
             .newThreshold().withUnit(Unit.KILOVOLT).withMax(1000.).add()
             .add();
 
         VoltageCnec cnec2 = crac.newVoltageCnec()
             .withId("cnec-2-id")
             .withNetworkElement("DDE2AA1")
-            .withInstant("preventive")
+            .withInstant(PREVENTIVE_INSTANT_ID)
             .newThreshold().withUnit(Unit.KILOVOLT).withMax(1000.).add()
             .add();
 

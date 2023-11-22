@@ -36,6 +36,10 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
  */
 class JsonVoltageMonitoringResultTest {
     private static final double VOLTAGE_TOLERANCE = 0.5;
+    private static final String PREVENTIVE_INSTANT_ID = "preventive";
+    private static final String OUTAGE_INSTANT_ID = "outage";
+    private static final String AUTO_INSTANT_ID = "auto";
+    private static final String CURATIVE_INSTANT_ID = "curative";
 
     Crac crac;
     VoltageCnec vc1;
@@ -61,23 +65,23 @@ class JsonVoltageMonitoringResultTest {
     @BeforeEach
     public void setUp() {
         crac = CracFactory.findDefault().create("test-crac")
-            .newInstant("preventive", InstantKind.PREVENTIVE)
-            .newInstant("outage", InstantKind.OUTAGE)
-            .newInstant("auto", InstantKind.AUTO)
-            .newInstant("curative", InstantKind.CURATIVE);
+            .newInstant(PREVENTIVE_INSTANT_ID, InstantKind.PREVENTIVE)
+            .newInstant(OUTAGE_INSTANT_ID, InstantKind.OUTAGE)
+            .newInstant(AUTO_INSTANT_ID, InstantKind.AUTO)
+            .newInstant(CURATIVE_INSTANT_ID, InstantKind.CURATIVE);
         co1 = crac.newContingency().withId("co1").withNetworkElement("co1-ne").add();
-        vc1 = addVoltageCnec("VL45", "VL45", 145., 150., "preventive", null);
-        vc2 = addVoltageCnec("VL46", "VL46", 140., 145., "curative", co1.getId());
+        vc1 = addVoltageCnec("VL45", "VL45", 145., 150., PREVENTIVE_INSTANT_ID, null);
+        vc2 = addVoltageCnec("VL46", "VL46", 140., 145., CURATIVE_INSTANT_ID, co1.getId());
         preventiveState = crac.getPreventiveState();
         crac.newNetworkAction()
                 .withId("na1")
                 .newInjectionSetPoint().withNetworkElement("ne1").withSetpoint(50.).withUnit(Unit.MEGAWATT).add()
-                .newOnVoltageConstraintUsageRule().withInstant("preventive").withVoltageCnec(vc1.getId()).add()
+                .newOnVoltageConstraintUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withVoltageCnec(vc1.getId()).add()
                 .add();
         crac.newNetworkAction()
                 .withId("na2")
                 .newInjectionSetPoint().withNetworkElement("ne2").withSetpoint(150.).withUnit(Unit.MEGAWATT).add()
-                .newOnVoltageConstraintUsageRule().withInstant("curative").withVoltageCnec(vc2.getId()).add()
+                .newOnVoltageConstraintUsageRule().withInstant(CURATIVE_INSTANT_ID).withVoltageCnec(vc2.getId()).add()
                 .add();
         voltageMonitoringResultImporter = new VoltageMonitoringResultImporter();
     }

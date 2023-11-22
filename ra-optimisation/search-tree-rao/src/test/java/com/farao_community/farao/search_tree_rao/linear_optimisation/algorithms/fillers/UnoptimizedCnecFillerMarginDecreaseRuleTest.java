@@ -44,6 +44,7 @@ import static org.mockito.Mockito.when;
  */
 class UnoptimizedCnecFillerMarginDecreaseRuleTest extends AbstractFillerTest {
     private static final double MAX_ABS_THRESHOLD = 1000;
+    private static final String PREVENTIVE_INSTANT_ID = "preventive";
 
     private LinearProblem linearProblem;
     private CoreProblemFiller coreProblemFiller;
@@ -64,7 +65,7 @@ class UnoptimizedCnecFillerMarginDecreaseRuleTest extends AbstractFillerTest {
                 .withNetworkElement("NNL1AA1  NNL2AA1  1")
                 .newThreshold().withSide(Side.RIGHT).withMax(800.0).withMin(-1000.).withUnit(Unit.MEGAWATT).add()
                 .withOptimized(true)
-                .withInstant("preventive")
+                .withInstant(PREVENTIVE_INSTANT_ID)
                 .withOperator("NL")
                 .add();
 

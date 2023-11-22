@@ -42,6 +42,10 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 class SystematicSensitivityResultTest {
     private static final double EPSILON = 1e-2;
+    private static final String PREVENTIVE_INSTANT_ID = "preventive";
+    private static final String OUTAGE_INSTANT_ID = "outage";
+    private static final String AUTO_INSTANT_ID = "auto";
+    private static final String CURATIVE_INSTANT_ID = "curative";
 
     private Network network;
     private FlowCnec nStateCnec;
@@ -58,7 +62,7 @@ class SystematicSensitivityResultTest {
         network = NetworkImportsUtil.import12NodesNetwork();
         //TODO remove this
         Crac crac = CommonCracCreation.createWithPreventivePstRange(Set.of(Side.LEFT, Side.RIGHT));
-        outageInstantOrder = crac.getInstant("curative").getOrder();
+        outageInstantOrder = crac.getInstant(CURATIVE_INSTANT_ID).getOrder();
 
         ZonalData<SensitivityVariableSet> glskProvider = UcteGlskDocument.importGlsk(getClass().getResourceAsStream("/glsk_proportional_12nodes.xml"))
             .getZonalGlsks(network, Instant.parse("2016-07-28T22:30:00Z"));
@@ -173,10 +177,10 @@ class SystematicSensitivityResultTest {
 
     private void setUpForHvdc() {
         Crac crac = CracFactory.findDefault().create("test-crac")
-            .newInstant("preventive", InstantKind.PREVENTIVE)
-            .newInstant("outage", InstantKind.OUTAGE)
-            .newInstant("auto", InstantKind.AUTO)
-            .newInstant("curative", InstantKind.CURATIVE);
+            .newInstant(PREVENTIVE_INSTANT_ID, InstantKind.PREVENTIVE)
+            .newInstant(OUTAGE_INSTANT_ID, InstantKind.OUTAGE)
+            .newInstant(AUTO_INSTANT_ID, InstantKind.AUTO)
+            .newInstant(CURATIVE_INSTANT_ID, InstantKind.CURATIVE);
         crac.newContingency()
             .withId("co")
             .withNetworkElement("NNL2AA11 BBE3AA11 1")
@@ -184,14 +188,14 @@ class SystematicSensitivityResultTest {
         nStateCnec = crac.newFlowCnec()
             .withId("cnec-prev")
             .withNetworkElement("BBE1AA11 FFR5AA11 1")
-            .withInstant("preventive")
+            .withInstant(PREVENTIVE_INSTANT_ID)
             .newThreshold().withMax(1000.).withUnit(Unit.MEGAWATT).withSide(Side.LEFT).add()
             .add();
         contingencyCnec = crac.newFlowCnec()
             .withId("cnec-cur")
             .withNetworkElement("BBE1AA11 FFR5AA11 1")
             .withContingency("co")
-            .withInstant("outage")
+            .withInstant(OUTAGE_INSTANT_ID)
             .newThreshold().withMax(1000.).withUnit(Unit.MEGAWATT).withSide(Side.RIGHT).add()
             .add();
         hvdcRangeAction = (HvdcRangeAction) crac.newHvdcRangeAction()

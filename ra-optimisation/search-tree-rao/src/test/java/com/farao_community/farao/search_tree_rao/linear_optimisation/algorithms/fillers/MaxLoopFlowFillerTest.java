@@ -42,6 +42,7 @@ import static org.mockito.Mockito.when;
  * @author Baptiste Seguinot{@literal <baptiste.seguinot at rte-france.com>}
  */
 class MaxLoopFlowFillerTest extends AbstractFillerTest {
+    private static final String PREVENTIVE_INSTANT_ID = "preventive";
     private LinearProblem linearProblem;
     private CoreProblemFiller coreProblemFiller;
     private MaxLoopFlowFiller maxLoopFlowFiller;
@@ -55,7 +56,7 @@ class MaxLoopFlowFillerTest extends AbstractFillerTest {
         cnecOn2sides = crac.newFlowCnec()
             .withId("cnec-2-sides")
             .withNetworkElement("BBE2AA1  FFR3AA1  1")
-            .withInstant("preventive")
+            .withInstant(PREVENTIVE_INSTANT_ID)
             .newThreshold().withUnit(Unit.MEGAWATT).withMax(1000.).withSide(Side.LEFT).add()
             .newThreshold().withUnit(Unit.MEGAWATT).withMax(1000.).withSide(Side.RIGHT).add()
             .add();

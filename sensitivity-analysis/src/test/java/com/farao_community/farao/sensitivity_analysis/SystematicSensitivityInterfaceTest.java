@@ -35,6 +35,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 class SystematicSensitivityInterfaceTest {
 
     private static final double FLOW_TOLERANCE = 0.1;
+    private static final String OUTAGE_INSTANT_ID = "outage";
 
     private Crac crac;
     private Network network;
@@ -77,7 +78,7 @@ class SystematicSensitivityInterfaceTest {
             .withParameters(defaultParameters)
             .withSensitivityProvider(Mockito.mock(CnecSensitivityProvider.class))
             .build();
-        SystematicSensitivityResult systematicSensitivityAnalysisResult = systematicSensitivityInterface.run(network, crac.getInstant("outage"));
+        SystematicSensitivityResult systematicSensitivityAnalysisResult = systematicSensitivityInterface.run(network, crac.getInstant(OUTAGE_INSTANT_ID));
 
         // assert results
         assertNotNull(systematicSensitivityAnalysisResult);
@@ -109,7 +110,7 @@ class SystematicSensitivityInterfaceTest {
             .build();
 
         // run - expected failure
-        SystematicSensitivityResult result = systematicSensitivityInterface.run(network, crac.getInstant("outage"));
+        SystematicSensitivityResult result = systematicSensitivityInterface.run(network, crac.getInstant(OUTAGE_INSTANT_ID));
         assertFalse(result.isSuccess());
     }
 

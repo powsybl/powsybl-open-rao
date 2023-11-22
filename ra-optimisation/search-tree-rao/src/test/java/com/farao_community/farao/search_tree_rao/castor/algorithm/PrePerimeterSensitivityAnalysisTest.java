@@ -44,6 +44,7 @@ import static org.mockito.Mockito.when;
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
 class PrePerimeterSensitivityAnalysisTest {
+    private static final String OUTAGE_INSTANT_ID = "outage";
     private static final double DOUBLE_TOLERANCE = 0.01;
 
     private Network network;
@@ -80,7 +81,7 @@ class PrePerimeterSensitivityAnalysisTest {
     private void mockSystematicSensitivityInterface(boolean withPtdf, boolean withLf) {
         SystematicSensitivityResult sensitivityResult = Mockito.mock(SystematicSensitivityResult.class);
         SystematicSensitivityInterface sensitivityInterface = Mockito.mock(SystematicSensitivityInterface.class);
-        when(sensitivityInterface.run(network, crac.getInstant("outage"))).thenReturn(sensitivityResult);
+        when(sensitivityInterface.run(network, crac.getInstant(OUTAGE_INSTANT_ID))).thenReturn(sensitivityResult);
         when(sensitivityResult.getStatus()).thenReturn(SystematicSensitivityResult.SensitivityComputationStatus.SUCCESS);
         when(toolProvider.getSystematicSensitivityInterface(any(), any(), eq(withPtdf), eq(withLf), any())).thenReturn(sensitivityInterface);
     }

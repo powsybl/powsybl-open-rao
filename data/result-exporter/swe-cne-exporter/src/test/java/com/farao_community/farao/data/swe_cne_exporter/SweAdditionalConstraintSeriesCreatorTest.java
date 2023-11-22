@@ -29,6 +29,10 @@ import static org.junit.jupiter.api.Assertions.assertNull;
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
  */
 class SweAdditionalConstraintSeriesCreatorTest {
+    private static final String PREVENTIVE_INSTANT_ID = "preventive";
+    private static final String OUTAGE_INSTANT_ID = "outage";
+    private static final String AUTO_INSTANT_ID = "auto";
+    private static final String CURATIVE_INSTANT_ID = "curative";
 
     private SweCneHelper sweCneHelper;
     private Crac crac;
@@ -43,14 +47,14 @@ class SweAdditionalConstraintSeriesCreatorTest {
     public void setup() {
         this.crac = Mockito.mock(Crac.class);
         Crac cracForInstants = new CracImpl("test-cracForInstants")
-            .newInstant("preventive", InstantKind.PREVENTIVE)
-            .newInstant("outage", InstantKind.OUTAGE)
-            .newInstant("auto", InstantKind.AUTO)
-            .newInstant("curative", InstantKind.CURATIVE);
-        preventiveInstant = cracForInstants.getInstant("preventive");
-        outageInstant = cracForInstants.getInstant("outage");
-        autoInstant = cracForInstants.getInstant("auto");
-        curativeInstant = cracForInstants.getInstant("curative");
+            .newInstant(PREVENTIVE_INSTANT_ID, InstantKind.PREVENTIVE)
+            .newInstant(OUTAGE_INSTANT_ID, InstantKind.OUTAGE)
+            .newInstant(AUTO_INSTANT_ID, InstantKind.AUTO)
+            .newInstant(CURATIVE_INSTANT_ID, InstantKind.CURATIVE);
+        preventiveInstant = cracForInstants.getInstant(PREVENTIVE_INSTANT_ID);
+        outageInstant = cracForInstants.getInstant(OUTAGE_INSTANT_ID);
+        autoInstant = cracForInstants.getInstant(AUTO_INSTANT_ID);
+        curativeInstant = cracForInstants.getInstant(CURATIVE_INSTANT_ID);
         this.angleMonitoringResult = Mockito.mock(AngleMonitoringResult.class);
         this.cracCreationContext = Mockito.mock(CimCracCreationContext.class);
         this.sweCneHelper = Mockito.mock(SweCneHelper.class);

@@ -30,6 +30,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
  */
 class SweRemedialActionSeriesCreatorTest {
+    private static final String PREVENTIVE_INSTANT_ID = "preventive";
+    private static final String OUTAGE_INSTANT_ID = "outage";
+    private static final String AUTO_INSTANT_ID = "auto";
+    private static final String CURATIVE_INSTANT_ID = "curative";
 
     private SweCneHelper cneHelper;
     private Crac crac;
@@ -46,18 +50,18 @@ class SweRemedialActionSeriesCreatorTest {
         Mockito.when(cneHelper.getCrac()).thenReturn(crac);
         Mockito.when(cneHelper.getRaoResult()).thenReturn(raoResult);
         Crac cracForInstants = new CracImpl("test-cracForInstants")
-            .newInstant("preventive", InstantKind.PREVENTIVE)
-            .newInstant("outage", InstantKind.OUTAGE)
-            .newInstant("auto", InstantKind.AUTO)
-            .newInstant("curative", InstantKind.CURATIVE);
-        Instant preventiveInstant = cracForInstants.getInstant("preventive");
-        Instant outageInstant = cracForInstants.getInstant("outage");
-        Instant autoInstant = cracForInstants.getInstant("auto");
-        Instant curativeInstant = cracForInstants.getInstant("curative");
-        Mockito.when(crac.getInstant("preventive")).thenReturn(preventiveInstant);
-        Mockito.when(crac.getInstant("outage")).thenReturn(outageInstant);
-        Mockito.when(crac.getInstant("auto")).thenReturn(autoInstant);
-        Mockito.when(crac.getInstant("curative")).thenReturn(curativeInstant);
+            .newInstant(PREVENTIVE_INSTANT_ID, InstantKind.PREVENTIVE)
+            .newInstant(OUTAGE_INSTANT_ID, InstantKind.OUTAGE)
+            .newInstant(AUTO_INSTANT_ID, InstantKind.AUTO)
+            .newInstant(CURATIVE_INSTANT_ID, InstantKind.CURATIVE);
+        Instant preventiveInstant = cracForInstants.getInstant(PREVENTIVE_INSTANT_ID);
+        Instant outageInstant = cracForInstants.getInstant(OUTAGE_INSTANT_ID);
+        Instant autoInstant = cracForInstants.getInstant(AUTO_INSTANT_ID);
+        Instant curativeInstant = cracForInstants.getInstant(CURATIVE_INSTANT_ID);
+        Mockito.when(crac.getInstant(PREVENTIVE_INSTANT_ID)).thenReturn(preventiveInstant);
+        Mockito.when(crac.getInstant(OUTAGE_INSTANT_ID)).thenReturn(outageInstant);
+        Mockito.when(crac.getInstant(AUTO_INSTANT_ID)).thenReturn(autoInstant);
+        Mockito.when(crac.getInstant(CURATIVE_INSTANT_ID)).thenReturn(curativeInstant);
         Mockito.when(crac.getInstant(InstantKind.PREVENTIVE)).thenReturn(preventiveInstant);
         Mockito.when(crac.getInstant(InstantKind.OUTAGE)).thenReturn(outageInstant);
         Mockito.when(crac.getInstant(InstantKind.AUTO)).thenReturn(autoInstant);
@@ -86,11 +90,11 @@ class SweRemedialActionSeriesCreatorTest {
         addRemedialActionToCrac("hvdcPtEs + hvdcEsPt - 1", "hvdcPtEs1", HvdcRangeAction.class);
         addRemedialActionToCrac("hvdcPtEs + hvdcEsPt - 2", "hvdcPtEs2", HvdcRangeAction.class);
 
-        State preventiveState = addStateToCrac(crac.getInstant("preventive"), null);
+        State preventiveState = addStateToCrac(crac.getInstant(PREVENTIVE_INSTANT_ID), null);
         Contingency contingency = Mockito.mock(Contingency.class);
         Mockito.when(contingency.getId()).thenReturn("contingency");
-        State autoState = addStateToCrac(crac.getInstant("auto"), contingency);
-        State curativeState = addStateToCrac(crac.getInstant("curative"), contingency);
+        State autoState = addStateToCrac(crac.getInstant(AUTO_INSTANT_ID), contingency);
+        State curativeState = addStateToCrac(crac.getInstant(CURATIVE_INSTANT_ID), contingency);
 
         addNetworkActionToRaoResult(preventiveState, "networkActionCreatedId");
         addNetworkActionToRaoResult(preventiveState, "na_missing");

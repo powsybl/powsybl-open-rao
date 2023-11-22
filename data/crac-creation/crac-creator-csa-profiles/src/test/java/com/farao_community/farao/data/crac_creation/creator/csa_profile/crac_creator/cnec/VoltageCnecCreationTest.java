@@ -13,6 +13,8 @@ import static com.farao_community.farao.data.crac_creation.creator.csa_profile.c
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class VoltageCnecCreationTest {
+    private static final String PREVENTIVE_INSTANT_ID = "preventive";
+    private static final String CURATIVE_INSTANT_ID = "curative";
 
     @Test
     void checkOnConstraintWith4VoltageCnecs() {
@@ -47,7 +49,7 @@ class VoltageCnecCreationTest {
                 "RTE_AE1 - RTE_CO1 - curative",
                 "RTE_AE1 - RTE_CO1 - curative",
                 "60038442-5c02-21a9-22ad-f0554a65a466",
-                "curative",
+                CURATIVE_INSTANT_ID,
                 "6c9656a6-84c2-4967-aabc-51f63a7abdf1",
                 817.,
                 null,
@@ -57,7 +59,7 @@ class VoltageCnecCreationTest {
                 "RTE_AE1 - preventive",
                 "RTE_AE1 - preventive",
                 "60038442-5c02-21a9-22ad-f0554a65a466",
-                "preventive",
+                PREVENTIVE_INSTANT_ID,
                 null,
                 817.,
                 null,
@@ -67,7 +69,7 @@ class VoltageCnecCreationTest {
                 "RTE_AE2 - RTE_CO2 - curative",
                 "RTE_AE2 - RTE_CO2 - curative",
                 "65e9a6a7-8488-7b17-6344-cb7d61b7920b",
-                "curative",
+                CURATIVE_INSTANT_ID,
                 "410a7075-51df-4c5c-aa80-0bb1bbe41190",
                 null,
                 520.,
@@ -77,7 +79,7 @@ class VoltageCnecCreationTest {
                 "RTE_AE2 - preventive",
                 "RTE_AE2 - preventive",
                 "65e9a6a7-8488-7b17-6344-cb7d61b7920b",
-                "preventive",
+                PREVENTIVE_INSTANT_ID,
                 null,
                 null,
                 520.,
@@ -90,17 +92,17 @@ class VoltageCnecCreationTest {
         CsaProfileCracCreationTestUtil.assertNetworkActionImported(cracCreationContext, "f17a745b-60a1-4acd-887f-ebc8349b4597", Set.of("50719289-6406-4d69-9dd7-6de60aecd2d4"), true, 2);
         CsaProfileCracCreationTestUtil.assertNetworkActionImported(cracCreationContext, "a8f21a9a-49dc-4c2a-9745-405392f0d87b", Set.of("468fdb4a-49d6-4ea9-b216-928d057b65f0"), false, 2);
 
-        CsaProfileCracCreationTestUtil.assertHasOnVoltageConstraintUsageRule(cracCreationContext, "6c283463-9aac-4d9b-9d0b-6710c5b2aa00", "RTE_AE1 - preventive", "preventive", UsageMethod.TO_BE_EVALUATED); // TODO change TO_BE_EVALUATED by AVAILABLE
-        CsaProfileCracCreationTestUtil.assertHasOnVoltageConstraintUsageRule(cracCreationContext, "6c283463-9aac-4d9b-9d0b-6710c5b2aa00", "RTE_AE1 - RTE_CO1 - curative", "preventive", UsageMethod.TO_BE_EVALUATED);
+        CsaProfileCracCreationTestUtil.assertHasOnVoltageConstraintUsageRule(cracCreationContext, "6c283463-9aac-4d9b-9d0b-6710c5b2aa00", "RTE_AE1 - preventive", PREVENTIVE_INSTANT_ID, UsageMethod.TO_BE_EVALUATED); // TODO change TO_BE_EVALUATED by AVAILABLE
+        CsaProfileCracCreationTestUtil.assertHasOnVoltageConstraintUsageRule(cracCreationContext, "6c283463-9aac-4d9b-9d0b-6710c5b2aa00", "RTE_AE1 - RTE_CO1 - curative", PREVENTIVE_INSTANT_ID, UsageMethod.TO_BE_EVALUATED);
 
-        CsaProfileCracCreationTestUtil.assertHasOnVoltageConstraintUsageRule(cracCreationContext, "0af9ce7e-8013-4362-96a0-40ac0a970eb6", "RTE_AE2 - preventive", "preventive", UsageMethod.TO_BE_EVALUATED); // TODO change TO_BE_EVALUATED by AVAILABLE
-        CsaProfileCracCreationTestUtil.assertHasOnVoltageConstraintUsageRule(cracCreationContext, "0af9ce7e-8013-4362-96a0-40ac0a970eb6", "RTE_AE2 - RTE_CO2 - curative", "preventive", UsageMethod.TO_BE_EVALUATED);
+        CsaProfileCracCreationTestUtil.assertHasOnVoltageConstraintUsageRule(cracCreationContext, "0af9ce7e-8013-4362-96a0-40ac0a970eb6", "RTE_AE2 - preventive", PREVENTIVE_INSTANT_ID, UsageMethod.TO_BE_EVALUATED); // TODO change TO_BE_EVALUATED by AVAILABLE
+        CsaProfileCracCreationTestUtil.assertHasOnVoltageConstraintUsageRule(cracCreationContext, "0af9ce7e-8013-4362-96a0-40ac0a970eb6", "RTE_AE2 - RTE_CO2 - curative", PREVENTIVE_INSTANT_ID, UsageMethod.TO_BE_EVALUATED);
 
-        CsaProfileCracCreationTestUtil.assertHasOnVoltageConstraintUsageRule(cracCreationContext, "f17a745b-60a1-4acd-887f-ebc8349b4597", "RTE_AE2 - preventive", "preventive", UsageMethod.TO_BE_EVALUATED); // TODO change TO_BE_EVALUATED by AVAILABLE
-        CsaProfileCracCreationTestUtil.assertHasOnVoltageConstraintUsageRule(cracCreationContext, "f17a745b-60a1-4acd-887f-ebc8349b4597", "RTE_AE2 - RTE_CO2 - curative", "preventive", UsageMethod.TO_BE_EVALUATED);
+        CsaProfileCracCreationTestUtil.assertHasOnVoltageConstraintUsageRule(cracCreationContext, "f17a745b-60a1-4acd-887f-ebc8349b4597", "RTE_AE2 - preventive", PREVENTIVE_INSTANT_ID, UsageMethod.TO_BE_EVALUATED); // TODO change TO_BE_EVALUATED by AVAILABLE
+        CsaProfileCracCreationTestUtil.assertHasOnVoltageConstraintUsageRule(cracCreationContext, "f17a745b-60a1-4acd-887f-ebc8349b4597", "RTE_AE2 - RTE_CO2 - curative", PREVENTIVE_INSTANT_ID, UsageMethod.TO_BE_EVALUATED);
 
-        CsaProfileCracCreationTestUtil.assertHasOnVoltageConstraintUsageRule(cracCreationContext, "a8f21a9a-49dc-4c2a-9745-405392f0d87b", "RTE_AE1 - RTE_CO1 - curative", "curative", UsageMethod.TO_BE_EVALUATED); // TODO change TO_BE_EVALUATED by AVAILABLE
-        CsaProfileCracCreationTestUtil.assertHasOnVoltageConstraintUsageRule(cracCreationContext, "a8f21a9a-49dc-4c2a-9745-405392f0d87b", "RTE_AE2 - RTE_CO2 - curative", "curative", UsageMethod.TO_BE_EVALUATED);
+        CsaProfileCracCreationTestUtil.assertHasOnVoltageConstraintUsageRule(cracCreationContext, "a8f21a9a-49dc-4c2a-9745-405392f0d87b", "RTE_AE1 - RTE_CO1 - curative", CURATIVE_INSTANT_ID, UsageMethod.TO_BE_EVALUATED); // TODO change TO_BE_EVALUATED by AVAILABLE
+        CsaProfileCracCreationTestUtil.assertHasOnVoltageConstraintUsageRule(cracCreationContext, "a8f21a9a-49dc-4c2a-9745-405392f0d87b", "RTE_AE2 - RTE_CO2 - curative", CURATIVE_INSTANT_ID, UsageMethod.TO_BE_EVALUATED);
     }
 
 }

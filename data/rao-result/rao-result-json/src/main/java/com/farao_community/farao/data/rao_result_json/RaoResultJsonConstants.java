@@ -80,11 +80,11 @@ public final class RaoResultJsonConstants {
 
     // instants
     public static final String INSTANT = "instant";
-    public static final String INITIAL_INSTANT = "initial";
-    public static final String PREVENTIVE_INSTANT = "preventive";
-    public static final String OUTAGE_INSTANT = "outage";
-    public static final String AUTO_INSTANT = "auto";
-    public static final String CURATIVE_INSTANT = "curative";
+    public static final String INITIAL_INSTANT_ID = "initial";
+    public static final String PREVENTIVE_INSTANT_ID = "preventive";
+    public static final String OUTAGE_INSTANT_ID = "outage";
+    public static final String AUTO_INSTANT_ID = "auto";
+    public static final String CURATIVE_INSTANT_ID = "curative";
 
     // units
     public static final String AMPERE_UNIT = "ampere";
@@ -199,14 +199,14 @@ public final class RaoResultJsonConstants {
 
     public static String serializeInstantId(Instant instant) {
         if (instant == null) {
-            return INITIAL_INSTANT;
+            return INITIAL_INSTANT_ID;
         }
         // TODO review this
         return instant.getId();
     }
 
     public static String deserializeInstantId(String stringValue) {
-        if (stringValue.equals("") || stringValue.equals(INITIAL_INSTANT)) { // TODO review this "" test (see RaoResultRoundTripTest)
+        if (stringValue.equals("") || stringValue.equals(INITIAL_INSTANT_ID)) { // TODO review this "" test (see RaoResultRoundTripTest)
             return null;
         }
         return stringValue;
@@ -219,11 +219,11 @@ public final class RaoResultJsonConstants {
                 case INITIAL_OPT_STATE:
                     return null;
                 case AFTER_PRA_OPT_STATE:
-                    return PREVENTIVE_INSTANT;
+                    return PREVENTIVE_INSTANT_ID;
                 case AFTER_ARA_OPT_STATE:
-                    return AUTO_INSTANT;
+                    return AUTO_INSTANT_ID;
                 case AFTER_CRA_OPT_STATE:
-                    return CURATIVE_INSTANT;
+                    return CURATIVE_INSTANT_ID;
                 default:
                     throw new FaraoException(String.format("Unrecognized optimization instant %s", stringValue));
             }

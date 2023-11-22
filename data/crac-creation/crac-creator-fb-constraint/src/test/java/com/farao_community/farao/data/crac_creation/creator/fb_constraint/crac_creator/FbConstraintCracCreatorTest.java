@@ -41,6 +41,9 @@ import static org.junit.jupiter.api.Assertions.*;
  * @author Baptiste Seguinot{@literal <baptiste.seguinot at rte-france.com>}
  */
 class FbConstraintCracCreatorTest {
+    private static final String PREVENTIVE_INSTANT_ID = "preventive";
+    private static final String OUTAGE_INSTANT_ID = "outage";
+    private static final String CURATIVE_INSTANT_ID = "curative";
 
     private CracCreationParameters parameters;
     private FbConstraintCreationContext creationContext;
@@ -102,7 +105,7 @@ class FbConstraintCracCreatorTest {
         assertTrue(creationContext.getBranchCnecCreationContext("BE_CBCO_000001").isImported());
         assertTrue(creationContext.getBranchCnecCreationContext("BE_CBCO_000001").isBaseCase());
         assertEquals(1, creationContext.getBranchCnecCreationContext("BE_CBCO_000001").getCreatedCnecsIds().size());
-        assertEquals("BE_CBCO_000001 - preventive", creationContext.getBranchCnecCreationContext("BE_CBCO_000001").getCreatedCnecsIds().get("preventive"));
+        assertEquals("BE_CBCO_000001 - preventive", creationContext.getBranchCnecCreationContext("BE_CBCO_000001").getCreatedCnecsIds().get(PREVENTIVE_INSTANT_ID));
 
         assertNotNull(crac.getFlowCnec("BE_CBCO_000001 - preventive"));
         assertEquals("[BE-BE] BBE1 - BBE2 [DIR]", crac.getFlowCnec("BE_CBCO_000001 - preventive").getName());
@@ -115,15 +118,15 @@ class FbConstraintCracCreatorTest {
         assertTrue(creationContext.getBranchCnecCreationContext("BE_CBCO_000003").isImported());
         assertFalse(creationContext.getBranchCnecCreationContext("BE_CBCO_000003").isBaseCase());
         assertEquals(2, creationContext.getBranchCnecCreationContext("BE_CBCO_000003").getCreatedCnecsIds().size());
-        assertEquals("BE_CBCO_000003 - outage", creationContext.getBranchCnecCreationContext("BE_CBCO_000003").getCreatedCnecsIds().get("outage"));
-        assertEquals("BE_CBCO_000003 - curative", creationContext.getBranchCnecCreationContext("BE_CBCO_000003").getCreatedCnecsIds().get("curative"));
+        assertEquals("BE_CBCO_000003 - outage", creationContext.getBranchCnecCreationContext("BE_CBCO_000003").getCreatedCnecsIds().get(OUTAGE_INSTANT_ID));
+        assertEquals("BE_CBCO_000003 - curative", creationContext.getBranchCnecCreationContext("BE_CBCO_000003").getCreatedCnecsIds().get(CURATIVE_INSTANT_ID));
 
         assertNotNull(crac.getFlowCnec("BE_CBCO_000003 - outage"));
         assertEquals("[BE-BE] BBE3 - BBE2 [DIR]", crac.getFlowCnec("BE_CBCO_000003 - outage").getName());
         assertEquals("BE", crac.getFlowCnec("BE_CBCO_000003 - outage").getOperator());
         assertEquals("BBE2AA1  BBE3AA1  1", crac.getFlowCnec("BE_CBCO_000003 - outage").getNetworkElement().getId());
         assertEquals(150., crac.getFlowCnec("BE_CBCO_000003 - outage").getReliabilityMargin(), 1e-6);
-        assertEquals("outage", crac.getFlowCnec("BE_CBCO_000003 - outage").getState().getInstant().toString());
+        assertEquals(OUTAGE_INSTANT_ID, crac.getFlowCnec("BE_CBCO_000003 - outage").getState().getInstant().toString());
         assertEquals("BE_CO_00001", crac.getFlowCnec("BE_CBCO_000003 - outage").getState().getContingency().orElseThrow().getId());
 
         assertNotNull(crac.getFlowCnec("BE_CBCO_000003 - curative"));
@@ -131,7 +134,7 @@ class FbConstraintCracCreatorTest {
         assertEquals("BE", crac.getFlowCnec("BE_CBCO_000003 - curative").getOperator());
         assertEquals("BBE2AA1  BBE3AA1  1", crac.getFlowCnec("BE_CBCO_000003 - curative").getNetworkElement().getId());
         assertEquals(150., crac.getFlowCnec("BE_CBCO_000003 - curative").getReliabilityMargin(), 1e-6);
-        assertEquals("curative", crac.getFlowCnec("BE_CBCO_000003 - curative").getState().getInstant().toString());
+        assertEquals(CURATIVE_INSTANT_ID, crac.getFlowCnec("BE_CBCO_000003 - curative").getState().getInstant().toString());
         assertEquals("BE_CO_00001", crac.getFlowCnec("BE_CBCO_000003 - curative").getState().getContingency().orElseThrow().getId());
 
         // number of critical branches vs. number of Cnecs
