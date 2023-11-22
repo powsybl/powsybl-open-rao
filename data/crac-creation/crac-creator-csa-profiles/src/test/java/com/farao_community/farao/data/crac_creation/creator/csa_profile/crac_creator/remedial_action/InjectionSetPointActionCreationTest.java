@@ -89,7 +89,7 @@ class InjectionSetPointActionCreationTest {
         // on-state-included-curative-remedial-action (on state)
         NetworkAction ra3 = cracCreationContext.getCrac().getNetworkAction("on-state-included-curative-remedial-action");
         assertEquals("RA3", ra3.getName());
-        assertEquals(UsageMethod.FORCED, ra3.getUsageRules().iterator().next().getUsageMethod());
+        assertEquals(UsageMethod.AVAILABLE, ra3.getUsageRules().iterator().next().getUsageMethod());
         assertEquals(CURATIVE, ra3.getUsageRules().iterator().next().getInstant());
         assertEquals("contingency", ((OnContingencyStateImpl) ra3.getUsageRules().iterator().next()).getContingency().getId());
         assertEquals("rotating-machine", ra3.getNetworkElements().iterator().next().getId());
