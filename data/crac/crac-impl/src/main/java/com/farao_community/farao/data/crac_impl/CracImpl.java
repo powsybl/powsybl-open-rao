@@ -175,9 +175,9 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
     }
 
     @Override
-    public Set<Instant> getInstants() {
+    public List<Instant> getInstants() {
         // TODO : is it really used ?
-        return new HashSet<>(instants.values());
+        return instants.values().stream().sorted(Comparator.comparingInt(Instant::getOrder)).toList();
     }
 
     @Override
@@ -202,7 +202,7 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
     public Instant getPreviousInstant(Instant providedInstant) {
         Objects.requireNonNull(providedInstant);
         if (!instants.containsKey(providedInstant.getId()) || instants.get(providedInstant.getId()) != providedInstant) {
-            throw new FaraoException("Provided instant is not defined in the CRAC");
+            throw new FaraoException(String.format("Provided instant '%s' is not defined or not the same in the CRAC", providedInstant));
         }
         return getPreviousOptionalInstant(providedInstant);
     }

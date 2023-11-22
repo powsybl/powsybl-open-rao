@@ -27,10 +27,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-import java.util.Collections;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 import static com.farao_community.farao.data.crac_api.usage_rule.UsageMethod.*;
 import static org.junit.jupiter.api.Assertions.*;
@@ -928,6 +925,11 @@ class CracImplTest {
     }
 
     @Test
+    void testGetInstants() {
+        assertEquals(List.of(preventiveInstant, outageInstant, autoInstant, curativeInstant), crac.getInstants());
+    }
+
+    @Test
     void testGetInstantsByKindWithTwoInstantsPerInstantKind() {
         crac.newInstant("preventive 2", InstantKind.PREVENTIVE)
             .newInstant("outage 2", InstantKind.OUTAGE)
@@ -966,11 +968,11 @@ class CracImplTest {
 
         InstantImpl instantNotDefinedInTheCrac = new InstantImpl("instantNotDefinedInTheCrac", InstantKind.PREVENTIVE, null);
         FaraoException exception = assertThrows(FaraoException.class, () -> crac.getPreviousInstant(instantNotDefinedInTheCrac));
-        assertEquals("Provided instant is not defined in the CRAC", exception.getMessage());
+        assertEquals("Provided instant 'instantNotDefinedInTheCrac' is not defined or not the same in the CRAC", exception.getMessage());
 
         InstantImpl anotherInstanceOfInstantDefinedInTheCrac = new InstantImpl("preventive", InstantKind.PREVENTIVE, null);
         exception = assertThrows(FaraoException.class, () -> crac.getPreviousInstant(anotherInstanceOfInstantDefinedInTheCrac));
-        assertEquals("Provided instant is not defined in the CRAC", exception.getMessage());
+        assertEquals("Provided instant 'preventive' is not defined or not the same in the CRAC", exception.getMessage());
     }
 
     @Test

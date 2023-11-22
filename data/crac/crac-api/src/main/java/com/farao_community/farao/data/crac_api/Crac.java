@@ -73,9 +73,9 @@ public interface Crac extends Identifiable<Crac> {
     Instant getInstant(String instantId);
 
     /**
-     * Gather all the instants present in the Crac. It returns a set of unordred instants
+     * Gather all the instants present in the Crac. It returns a list of ordered instants
      */
-    Set<Instant> getInstants();
+    List<Instant> getInstants();
 
     /**
      * Get instant based on a kind. Throws exception :
