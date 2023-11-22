@@ -61,12 +61,16 @@ public class AngleMonitoring {
 
     /**
      * Main function : runs AngleMonitoring computation on all AngleCnecs defined in the CRAC.
-     * Returns an AngleMonitoringResult
+     * Returns an RaoResult enhanced with AngleMonitoringResult
      */
-
     public RaoResult runAndUpdateRaoResult(String loadFlowProvider, LoadFlowParameters loadFlowParameters, int numberOfLoadFlowsInParallel, OffsetDateTime glskOffsetDateTime) throws FaraoException {
         return new RaoResultWithAngleMonitoring(raoResult, run(loadFlowProvider, loadFlowParameters, numberOfLoadFlowsInParallel, glskOffsetDateTime));
     }
+
+    /**
+     * Main function : runs AngleMonitoring computation on all AngleCnecs defined in the CRAC.
+     * Returns an AngleMonitoringResult
+     */
 
     @Deprecated
     public AngleMonitoringResult run(String loadFlowProvider, LoadFlowParameters loadFlowParameters, int numberOfLoadFlowsInParallel, OffsetDateTime glskOffsetDateTime) throws FaraoException {

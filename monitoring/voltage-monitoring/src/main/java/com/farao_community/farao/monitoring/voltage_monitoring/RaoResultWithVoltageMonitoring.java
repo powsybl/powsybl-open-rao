@@ -15,15 +15,16 @@ import com.farao_community.farao.data.crac_api.cnec.VoltageCnec;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.rao_result_api.ComputationStatus;
 import com.farao_community.farao.data.rao_result_api.RaoResult;
-import com.farao_community.farao.data.rao_result_api.AbstractRaoResultClone;
+import com.farao_community.farao.data.rao_result_api.RaoResultClone;
 
 import java.util.HashSet;
 import java.util.Set;
 
 /**
+ * class that enhances rao result with voltage monitoring results
  * @author Mohamed Ben Rejeb {@literal <mohamed.ben-rejeb at rte-france.com>}
  */
-public class RaoResultWithVoltageMonitoring extends AbstractRaoResultClone {
+public class RaoResultWithVoltageMonitoring extends RaoResultClone {
 
     private final RaoResult raoResult;
     private final VoltageMonitoringResult voltageMonitoringResult;
@@ -37,7 +38,7 @@ public class RaoResultWithVoltageMonitoring extends AbstractRaoResultClone {
     @Override
     public ComputationStatus getComputationStatus() {
         if (!voltageMonitoringResult.getStatus().equals(VoltageMonitoringResult.Status.UNKNOWN)) {
-            return ComputationStatus.DEFAULT;
+            return raoResult.getComputationStatus();
         } else {
             return ComputationStatus.FAILURE;
         }
@@ -49,13 +50,13 @@ public class RaoResultWithVoltageMonitoring extends AbstractRaoResultClone {
             throw new FaraoException("Unexpected unit for voltage monitoring result :  " + unit);
         }
         if (!optimizationInstant.equals(Instant.CURATIVE)) {
-            throw new FaraoException("Unexpected optimization instant for voltage monitoring result : " + optimizationInstant);
+            throw new FaraoException("Unexpected optimization instant for voltage monitoring result (only curative instant is supported currently) : " + optimizationInstant);
         }
-        double upperBound = voltageCnec.getUpperBound(unit).orElseThrow();
-        double lowerBound = voltageCnec.getLowerBound(unit).orElseThrow();
+        double upperBound = voltageCnec.getUpperBound(unit).orElse(Double.MAX_VALUE);
+        double lowerBound = voltageCnec.getLowerBound(unit).orElse(-Double.MAX_VALUE);
         double maxVoltage = voltageMonitoringResult.getMaxVoltage(voltageCnec);
         double minVoltage = voltageMonitoringResult.getMinVoltage(voltageCnec);
-        if (Math.abs(upperBound - maxVoltage) < Math.abs(minVoltage - lowerBound)) {
+        if (upperBound - maxVoltage < minVoltage - lowerBound) {
             return maxVoltage;
         } else {
             return minVoltage;
@@ -64,8 +65,11 @@ public class RaoResultWithVoltageMonitoring extends AbstractRaoResultClone {
 
     @Override
     public double getMargin(Instant optimizationInstant, VoltageCnec voltageCnec, Unit unit) {
-        return Math.min(voltageCnec.getUpperBound(unit).orElse(Double.MAX_VALUE) - getVoltage(optimizationInstant, voltageCnec, unit),
-            getVoltage(optimizationInstant, voltageCnec, unit) - voltageCnec.getLowerBound(unit).orElse(-Double.MAX_VALUE));
+        if (!optimizationInstant.equals(Instant.CURATIVE)) {
+            throw new FaraoException("Unexpected optimization instant for voltage monitoring result (only curative instant is supported currently): " + optimizationInstant);
+        }
+        return Math.min(voltageCnec.getUpperBound(unit).orElse(Double.MAX_VALUE) - voltageMonitoringResult.getMaxVoltage(voltageCnec),
+            voltageMonitoringResult.getMinVoltage(voltageCnec) - voltageCnec.getLowerBound(unit).orElse(-Double.MAX_VALUE));
     }
 
     @Override

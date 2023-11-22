@@ -15,15 +15,16 @@ import com.farao_community.farao.data.crac_api.cnec.AngleCnec;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.rao_result_api.ComputationStatus;
 import com.farao_community.farao.data.rao_result_api.RaoResult;
-import com.farao_community.farao.data.rao_result_api.AbstractRaoResultClone;
+import com.farao_community.farao.data.rao_result_api.RaoResultClone;
 
 import java.util.HashSet;
 import java.util.Set;
 
 /**
+ * class that enhances rao result with angle monitoring results
  * @author Mohamed Ben Rejeb {@literal <mohamed.ben-rejeb at rte-france.com>}
  */
-public class RaoResultWithAngleMonitoring extends AbstractRaoResultClone {
+public class RaoResultWithAngleMonitoring extends RaoResultClone {
 
     private final RaoResult raoResult;
     private final AngleMonitoringResult angleMonitoringResult;
@@ -37,7 +38,7 @@ public class RaoResultWithAngleMonitoring extends AbstractRaoResultClone {
     @Override
     public ComputationStatus getComputationStatus() {
         if (angleMonitoringResult.isSecure() || angleMonitoringResult.isUnsecure()) {
-            return ComputationStatus.DEFAULT;
+            return raoResult.getComputationStatus();
         } else {
             return ComputationStatus.FAILURE;
         }
@@ -49,7 +50,7 @@ public class RaoResultWithAngleMonitoring extends AbstractRaoResultClone {
             throw new FaraoException("Unexpected unit for angle monitoring result : " + unit);
         }
         if (!optimizationInstant.equals(Instant.CURATIVE)) {
-            throw new FaraoException("Unexpected optimization instant for angle monitoring result : " + optimizationInstant);
+            throw new FaraoException("Unexpected optimization instant for angle monitoring result (only curative instant is supported currently) : " + optimizationInstant);
         }
         return angleMonitoringResult.getAngle(angleCnec, unit);
     }

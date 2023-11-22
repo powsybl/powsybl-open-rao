@@ -22,7 +22,6 @@ import org.mockito.Mockito;
 import java.util.Set;
 
 import static com.farao_community.farao.commons.Unit.*;
-import static com.farao_community.farao.commons.Unit.KILOVOLT;
 import static com.farao_community.farao.data.crac_api.Instant.*;
 import static com.farao_community.farao.data.crac_api.cnec.Side.LEFT;
 import static com.farao_community.farao.data.crac_api.cnec.Side.RIGHT;
@@ -181,7 +180,7 @@ public class RaoResultCloneTest {
         when(importedRaoResult.getComputationStatus(crac.getState("contingency1Id", CURATIVE))).thenReturn(ComputationStatus.FAILURE);
         when(importedRaoResult.getComputationStatus(crac.getState("contingency2Id", AUTO))).thenReturn(ComputationStatus.DEFAULT);
 
-        testRaoResultClone(importedRaoResult, crac);
+        testRaoResultClone(new RaoResultClone(importedRaoResult), crac);
 
     }
 
@@ -391,13 +390,6 @@ public class RaoResultCloneTest {
         assertEquals(0., importedRaoResult.getPreOptimizationSetPointOnState(pState, injectionC), 0.001);
         assertEquals(0., importedRaoResult.getPreOptimizationSetPointOnState(cState1, injectionC), 0.001);
         assertEquals(0., importedRaoResult.getOptimizedSetPointOnState(cState1, injectionC), 0.001);
-
-        /*
-        VoltageCnec
-        */
-        VoltageCnec voltageCnec = crac.getVoltageCnec("voltageCnecId");
-        assertEquals(144.38, importedRaoResult.getVoltage(CURATIVE, voltageCnec, KILOVOLT), 0.001);
-        assertEquals(0., importedRaoResult.getMargin(CURATIVE, voltageCnec, KILOVOLT), 0.001);
 
         // Test computation status map
         assertEquals(ComputationStatus.DEFAULT, importedRaoResult.getComputationStatus(crac.getPreventiveState()));

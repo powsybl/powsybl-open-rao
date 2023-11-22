@@ -48,6 +48,10 @@ public class VoltageMonitoring {
         this.raoResult = raoResult;
     }
 
+    /**
+     * Main function : runs VoltageMonitoring computation on all VoltageCnecs defined in the CRAC.
+     * Returns an RaoResult enhanced with VoltageMonitoringResult
+     */
     public RaoResult runAndUpdateRaoResult(String loadFlowProvider, LoadFlowParameters loadFlowParameters, int numberOfLoadFlowsInParallel) {
         return new RaoResultWithVoltageMonitoring(raoResult, run(loadFlowProvider, loadFlowParameters, numberOfLoadFlowsInParallel));
     }

@@ -19,11 +19,15 @@ import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 
 import java.util.*;
 
-public abstract class AbstractRaoResultClone implements RaoResult {
+/**
+ * clone that reproduces the results obtained by RaoResultImpl in order to override some methods without rewriting all the implementations
+ * @author Mohamed Ben Rejeb {@literal <mohamed.ben-rejeb at rte-france.com>}
+ */
+public class RaoResultClone implements RaoResult {
 
     private final RaoResult raoResult;
 
-    protected AbstractRaoResultClone(RaoResult raoResult) {
+    protected RaoResultClone(RaoResult raoResult) {
         this.raoResult = raoResult;
     }
 
