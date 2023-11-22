@@ -1,3 +1,9 @@
+/*
+ * Copyright (c) 2023, RTE (http://www.rte-france.com)
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
 package com.farao_community.farao.monitoring.angle_monitoring;
 
 import com.farao_community.farao.commons.FaraoException;
@@ -14,6 +20,9 @@ import com.farao_community.farao.data.rao_result_api.AbstractRaoResultClone;
 import java.util.HashSet;
 import java.util.Set;
 
+/**
+ * @author Mohamed Ben Rejeb {@literal <mohamed.ben-rejeb at rte-france.com>}
+ */
 public class RaoResultWithAngleMonitoring extends AbstractRaoResultClone {
 
     private final RaoResult raoResult;
