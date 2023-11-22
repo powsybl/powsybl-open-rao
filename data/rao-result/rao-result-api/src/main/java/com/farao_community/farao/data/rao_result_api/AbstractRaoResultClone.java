@@ -129,7 +129,7 @@ public abstract class AbstractRaoResultClone implements RaoResult {
 
     @Override
     public double getPreOptimizationSetPointOnState(State state, RangeAction<?> rangeAction) {
-        return getPreOptimizationSetPointOnState(state, rangeAction);
+        return raoResult.getPreOptimizationSetPointOnState(state, rangeAction);
     }
 
     @Override
