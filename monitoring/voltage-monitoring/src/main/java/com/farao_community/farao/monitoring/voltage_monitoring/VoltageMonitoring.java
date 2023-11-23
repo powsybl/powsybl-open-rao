@@ -50,8 +50,17 @@ public class VoltageMonitoring {
 
     /**
      * Main function : runs VoltageMonitoring computation on all VoltageCnecs defined in the CRAC.
+     * Returns an RaoResult enhanced with VoltageMonitoringResult
+     */
+    public RaoResult runAndUpdateRaoResult(String loadFlowProvider, LoadFlowParameters loadFlowParameters, int numberOfLoadFlowsInParallel) {
+        return new RaoResultWithVoltageMonitoring(raoResult, run(loadFlowProvider, loadFlowParameters, numberOfLoadFlowsInParallel));
+    }
+
+    /**
+     * Main function : runs VoltageMonitoring computation on all VoltageCnecs defined in the CRAC.
      * Returns an VoltageMonitoringResult
      */
+    @Deprecated
     public VoltageMonitoringResult run(String loadFlowProvider, LoadFlowParameters loadFlowParameters, int numberOfLoadFlowsInParallel) {
         BUSINESS_LOGS.info("----- Voltage monitoring [start]");
         stateSpecificResults = new ArrayList<>();
