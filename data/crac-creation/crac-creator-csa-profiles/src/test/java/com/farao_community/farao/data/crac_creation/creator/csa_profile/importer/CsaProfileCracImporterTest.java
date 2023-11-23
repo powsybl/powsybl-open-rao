@@ -19,7 +19,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * @author Jean-Pierre Arnould {@literal <jean-pierre.arnould at rte-france.com>}
  */
-public class CsaProfileCracImporterTest {
+class CsaProfileCracImporterTest {
 
     @Test
     void getFormat() {
@@ -51,8 +51,8 @@ public class CsaProfileCracImporterTest {
         PropertyBags contingencyEquipmentsPb = csaProfileCrac.getContingencyEquipments();
         assertNotNull(contingencyEquipmentsPb);
         assertEquals(2, contingencyEquipmentsPb.size());
-        assertEquals("ef11f9bd-5da0-43e3-921b-7e92d2896136", contingencyEquipmentsPb.get(0).getId(CsaProfileConstants.REQUEST_CONTINGENCY_EQUIPMENT));
-        assertEquals("f19925fa-b114-48c5-97a4-42ef84372115", contingencyEquipmentsPb.get(1).getId(CsaProfileConstants.REQUEST_CONTINGENCY_EQUIPMENT));
+        assertEquals("ef11f9bd-5da0-43e3-921b-7e92d2896136", contingencyEquipmentsPb.get(1).getId(CsaProfileConstants.REQUEST_CONTINGENCY_EQUIPMENT));
+        assertEquals("f19925fa-b114-48c5-97a4-42ef84372115", contingencyEquipmentsPb.get(0).getId(CsaProfileConstants.REQUEST_CONTINGENCY_EQUIPMENT));
         assertEquals(2, csaProfileCrac.getRemedialActions().size());
     }
 
