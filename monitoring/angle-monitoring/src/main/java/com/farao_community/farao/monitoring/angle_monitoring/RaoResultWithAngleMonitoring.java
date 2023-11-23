@@ -37,10 +37,10 @@ public class RaoResultWithAngleMonitoring extends RaoResultClone {
 
     @Override
     public ComputationStatus getComputationStatus() {
-        if (angleMonitoringResult.isSecure() || angleMonitoringResult.isUnsecure()) {
-            return raoResult.getComputationStatus();
-        } else {
+        if (angleMonitoringResult.isDivergent() || angleMonitoringResult.isUnknown()) {
             return ComputationStatus.FAILURE;
+        } else {
+            return raoResult.getComputationStatus();
         }
     }
 
