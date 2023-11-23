@@ -24,9 +24,9 @@ SELECT *
 {
 GRAPH <%s> {
     ?fullModel
-        dcat:Model.startDate ?startDate ;
-        dcat:Model.endDate ?endDate ;
-        dcat:Model.keyword ?keyword .
+        dcat:startDate ?startDate ;
+        dcat:endDate ?endDate ;
+        dcat:keyword ?keyword .
     ?contingency
         rdf:type nc:OrdinaryContingency ;
         nc:Contingency.normalMustStudy ?normalMustStudy ;
@@ -47,9 +47,9 @@ SELECT *
 {
 GRAPH <%s> {
     ?fullModel
-        dcat:Model.startDate ?startDate ;
-        dcat:Model.endDate ?endDate ;
-        dcat:Model.keyword ?keyword .
+        dcat:startDate ?startDate ;
+        dcat:endDate ?endDate ;
+        dcat:keyword ?keyword .
     ?contingency
         rdf:type nc:ExceptionalContingency ;
         nc:Contingency.normalMustStudy ?normalMustStudy ;
@@ -70,9 +70,9 @@ SELECT *
 {
 GRAPH <%s> {
     ?fullModel
-        dcat:Model.startDate ?startDate ;
-        dcat:Model.endDate ?endDate ;
-        dcat:Model.keyword ?keyword .
+        dcat:startDate ?startDate ;
+        dcat:endDate ?endDate ;
+        dcat:keyword ?keyword .
     ?contingency
         rdf:type nc:OutOfRangeContingency ;
         nc:Contingency.normalMustStudy ?normalMustStudy ;
@@ -93,9 +93,9 @@ SELECT *
 {
 GRAPH <%s> {
     ?fullModel
-        dcat:Model.startDate ?startDate ;
-        dcat:Model.endDate ?endDate ;
-        dcat:Model.keyword ?keyword .
+        dcat:startDate ?startDate ;
+        dcat:endDate ?endDate ;
+        dcat:keyword ?keyword .
     ?assessedElement
         rdf:type nc:AssessedElement ;
         nc:AssessedElement.inBaseCase ?inBaseCase ;
@@ -201,9 +201,9 @@ SELECT *
 {
     GRAPH <%s> {
         ?fullModel
-            dcat:Model.startDate ?startDate ;
-            dcat:Model.endDate ?endDate ;
-            dcat:Model.keyword ?keyword .
+            dcat:startDate ?startDate ;
+            dcat:endDate ?endDate ;
+            dcat:keyword ?keyword .
         ?angleLimit
             rdf:type nc:VoltageAngleLimit ;
             nc:VoltageAngleLimit.normalValue ?normalValue ;
@@ -233,9 +233,9 @@ SELECT *
 {
     GRAPH <%s> {
         ?fullModel
-            dcat:Model.startDate ?startDate ;
-            dcat:Model.endDate ?endDate ;
-            dcat:Model.keyword ?keyword .
+            dcat:startDate ?startDate ;
+            dcat:endDate ?endDate ;
+            dcat:keyword ?keyword .
         ?gridStateAlterationRemedialAction
             rdf:type nc:GridStateAlterationRemedialAction ;
             cim:IdentifiedObject.mRID ?mRID ;
@@ -353,9 +353,9 @@ SELECT *
 {
     GRAPH <%s> {
         ?fullModel
-            dcat:Model.startDate ?startDate ;
-            dcat:Model.endDate ?endDate ;
-            dcat:Model.keyword ?keyword .
+            dcat:startDate ?startDate ;
+            dcat:endDate ?endDate ;
+            dcat:keyword ?keyword .
         ?remedialActionSchedule
             rdf:type nc:RemedialActionSchedule ;
             cim:IdentifiedObject.mRID ?mRID ;
