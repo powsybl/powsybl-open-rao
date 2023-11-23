@@ -1,1 +1,9 @@
-DisclaimerThe test configurations (models), documents and application profiles are owned by ENTSO-E and are provided by ENTSO-E “as it is”.To the fullest extent permitted by law, ENTSO-E shall not be liable for any damages of any kind arising out of the use of the test configurations (models),documents and application profiles (including any of their subsequent modifications).ENTSO-E neither warrants, nor represents that the use of the test configurations (models),documents and application profiles will not infringe the rights of third parties.Any use of the test configurations (models), documents and application profiles shall include a reference to ENTSO-E.ENTSO-E web site is the only official source of information related to these test configurations (models), documents and application profiles.
+Disclaimer
+
+The test configurations (models), documents and application profiles are owned by ENTSO-E and are provided by ENTSO-E “as it is”.
+To the fullest extent permitted by law, ENTSO-E shall not be liable for any damages of any kind arising out of the use of the test configurations (models),
+documents and application profiles (including any of their subsequent modifications).
+ENTSO-E neither warrants, nor represents that the use of the test configurations (models),
+documents and application profiles will not infringe the rights of third parties.
+Any use of the test configurations (models), documents and application profiles shall include a reference to ENTSO-E.
+ENTSO-E web site is the only official source of information related to these test configurations (models), documents and application profiles.
