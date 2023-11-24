@@ -9,14 +9,16 @@ package com.farao_community.farao.search_tree_rao.commons;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
-import com.farao_community.farao.data.crac_api.*;
+import com.farao_community.farao.data.crac_api.Crac;
+import com.farao_community.farao.data.crac_api.Instant;
+import com.farao_community.farao.data.crac_api.RemedialAction;
+import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_api.network_action.ActionType;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
-import com.farao_community.farao.data.crac_impl.CracImpl;
 import com.farao_community.farao.data.crac_impl.utils.CommonCracCreation;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
 import com.farao_community.farao.rao_api.RaoInput;
@@ -34,7 +36,6 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.sensitivity.SensitivityVariableSet;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 
 import java.util.*;
 
@@ -51,8 +52,6 @@ import static org.mockito.Mockito.when;
 class RaoUtilTest {
     private static final double DOUBLE_TOLERANCE = 0.1;
     private static final String PREVENTIVE_INSTANT_ID = "preventive";
-    private static final String OUTAGE_INSTANT_ID = "outage";
-    private static final String AUTO_INSTANT_ID = "auto";
     private static final String CURATIVE_INSTANT_ID = "curative";
     private RaoParameters raoParameters;
     private RaoInput raoInput;
@@ -125,9 +124,9 @@ class RaoUtilTest {
 
     @Test
     void testGetBranchFlowUnitMultiplier() {
-        FlowCnec cnec = Mockito.mock(FlowCnec.class);
-        Mockito.when(cnec.getNominalVoltage(Side.LEFT)).thenReturn(400.);
-        Mockito.when(cnec.getNominalVoltage(Side.RIGHT)).thenReturn(200.);
+        FlowCnec cnec = mock(FlowCnec.class);
+        when(cnec.getNominalVoltage(Side.LEFT)).thenReturn(400.);
+        when(cnec.getNominalVoltage(Side.RIGHT)).thenReturn(200.);
 
         assertEquals(1., RaoUtil.getFlowUnitMultiplier(cnec, Side.LEFT, Unit.MEGAWATT, Unit.MEGAWATT), DOUBLE_TOLERANCE);
         assertEquals(1., RaoUtil.getFlowUnitMultiplier(cnec, Side.RIGHT, Unit.MEGAWATT, Unit.MEGAWATT), DOUBLE_TOLERANCE);
@@ -171,22 +170,22 @@ class RaoUtilTest {
 
     @Test
     void testGetLargestCnecThreshold() {
-        FlowCnec cnecA = Mockito.mock(FlowCnec.class);
-        FlowCnec cnecB = Mockito.mock(FlowCnec.class);
-        FlowCnec cnecC = Mockito.mock(FlowCnec.class);
-        FlowCnec cnecD = Mockito.mock(FlowCnec.class);
-        Mockito.when(cnecA.isOptimized()).thenReturn(true);
-        Mockito.when(cnecB.isOptimized()).thenReturn(true);
-        Mockito.when(cnecC.isOptimized()).thenReturn(true);
-        Mockito.when(cnecD.isOptimized()).thenReturn(false);
-        Mockito.when(cnecA.getUpperBound(Side.LEFT, Unit.MEGAWATT)).thenReturn(Optional.of(1000.));
-        Mockito.when(cnecA.getLowerBound(Side.LEFT, Unit.MEGAWATT)).thenReturn(Optional.empty());
-        Mockito.when(cnecB.getUpperBound(Side.LEFT, Unit.MEGAWATT)).thenReturn(Optional.empty());
-        Mockito.when(cnecB.getLowerBound(Side.LEFT, Unit.MEGAWATT)).thenReturn(Optional.of(-1500.));
-        Mockito.when(cnecC.getUpperBound(Side.LEFT, Unit.MEGAWATT)).thenReturn(Optional.empty());
-        Mockito.when(cnecC.getLowerBound(Side.LEFT, Unit.MEGAWATT)).thenReturn(Optional.empty());
-        Mockito.when(cnecD.getUpperBound(Side.LEFT, Unit.MEGAWATT)).thenReturn(Optional.of(-16000.));
-        Mockito.when(cnecD.getLowerBound(Side.LEFT, Unit.MEGAWATT)).thenReturn(Optional.of(-16000.));
+        FlowCnec cnecA = mock(FlowCnec.class);
+        FlowCnec cnecB = mock(FlowCnec.class);
+        FlowCnec cnecC = mock(FlowCnec.class);
+        FlowCnec cnecD = mock(FlowCnec.class);
+        when(cnecA.isOptimized()).thenReturn(true);
+        when(cnecB.isOptimized()).thenReturn(true);
+        when(cnecC.isOptimized()).thenReturn(true);
+        when(cnecD.isOptimized()).thenReturn(false);
+        when(cnecA.getUpperBound(Side.LEFT, Unit.MEGAWATT)).thenReturn(Optional.of(1000.));
+        when(cnecA.getLowerBound(Side.LEFT, Unit.MEGAWATT)).thenReturn(Optional.empty());
+        when(cnecB.getUpperBound(Side.LEFT, Unit.MEGAWATT)).thenReturn(Optional.empty());
+        when(cnecB.getLowerBound(Side.LEFT, Unit.MEGAWATT)).thenReturn(Optional.of(-1500.));
+        when(cnecC.getUpperBound(Side.LEFT, Unit.MEGAWATT)).thenReturn(Optional.empty());
+        when(cnecC.getLowerBound(Side.LEFT, Unit.MEGAWATT)).thenReturn(Optional.empty());
+        when(cnecD.getUpperBound(Side.LEFT, Unit.MEGAWATT)).thenReturn(Optional.of(-16000.));
+        when(cnecD.getLowerBound(Side.LEFT, Unit.MEGAWATT)).thenReturn(Optional.of(-16000.));
         Set.of(cnecA, cnecB, cnecC, cnecD).forEach(cnec -> when(cnec.getMonitoredSides()).thenReturn(Set.of(Side.LEFT)));
 
         assertEquals(1000., RaoUtil.getLargestCnecThreshold(Set.of(cnecA), Unit.MEGAWATT), DOUBLE_TOLERANCE);
@@ -232,14 +231,9 @@ class RaoUtilTest {
 
     @Test
     void testIsOnFlowConstraintInCountryAvailable() {
-        Crac cracForInstants = new CracImpl("test-cracForInstants")
-            .newInstant(PREVENTIVE_INSTANT_ID, InstantKind.PREVENTIVE)
-            .newInstant(OUTAGE_INSTANT_ID, InstantKind.OUTAGE)
-            .newInstant(AUTO_INSTANT_ID, InstantKind.AUTO)
-            .newInstant(CURATIVE_INSTANT_ID, InstantKind.CURATIVE);
-        Instant preventiveInstant = cracForInstants.getInstant(PREVENTIVE_INSTANT_ID);
-        Instant curativeInstant = cracForInstants.getInstant(CURATIVE_INSTANT_ID);
-        State optimizedState = Mockito.mock(State.class);
+        Instant preventiveInstant = crac.getInstant(PREVENTIVE_INSTANT_ID);
+        Instant curativeInstant = crac.getInstant(CURATIVE_INSTANT_ID);
+        State optimizedState = mock(State.class);
         when(optimizedState.getInstant()).thenReturn(curativeInstant);
 
         FlowCnec cnecFrBe = crac.getFlowCnec("cnec1stateCurativeContingency1");
