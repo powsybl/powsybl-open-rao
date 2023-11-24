@@ -69,6 +69,7 @@ public interface Crac extends Identifiable<Crac> {
 
     /**
      * Get instant based on Id
+     * If the ID is null, this will return a null instant
      */
     Instant getInstant(String instantId);
 

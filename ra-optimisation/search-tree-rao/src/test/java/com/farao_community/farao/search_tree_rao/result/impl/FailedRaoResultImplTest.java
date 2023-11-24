@@ -83,17 +83,17 @@ class FailedRaoResultImplTest {
 
     @Test
     void testAngleAndVoltageCnec() {
-        String optInstantId = "instant";
+        Instant optInstant = mock(Instant.class);
         FailedRaoResultImpl failedRaoResultImpl = new FailedRaoResultImpl();
         AngleCnec angleCnec = mock(AngleCnec.class);
         VoltageCnec voltageCnec = mock(VoltageCnec.class);
-        FaraoException exception = assertThrows(FaraoException.class, () -> failedRaoResultImpl.getMargin(optInstantId, angleCnec, MEGAWATT));
+        FaraoException exception = assertThrows(FaraoException.class, () -> failedRaoResultImpl.getMargin(optInstant, angleCnec, MEGAWATT));
         assertEquals("Angle cnecs are not computed in the rao", exception.getMessage());
-        exception = assertThrows(FaraoException.class, () -> failedRaoResultImpl.getMargin(optInstantId, voltageCnec, MEGAWATT));
+        exception = assertThrows(FaraoException.class, () -> failedRaoResultImpl.getMargin(optInstant, voltageCnec, MEGAWATT));
         assertEquals("Voltage cnecs are not computed in the rao", exception.getMessage());
-        exception = assertThrows(FaraoException.class, () -> failedRaoResultImpl.getVoltage(optInstantId, voltageCnec, MEGAWATT));
+        exception = assertThrows(FaraoException.class, () -> failedRaoResultImpl.getVoltage(optInstant, voltageCnec, MEGAWATT));
         assertEquals("Voltage cnecs are not computed in the rao", exception.getMessage());
-        exception = assertThrows(FaraoException.class, () -> failedRaoResultImpl.getAngle(optInstantId, angleCnec, MEGAWATT));
+        exception = assertThrows(FaraoException.class, () -> failedRaoResultImpl.getAngle(optInstant, angleCnec, MEGAWATT));
         assertEquals("Angle cnecs are not computed in the rao", exception.getMessage());
     }
 

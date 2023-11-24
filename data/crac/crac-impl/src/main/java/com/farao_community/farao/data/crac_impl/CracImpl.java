@@ -168,6 +168,9 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
 
     @Override
     public Instant getInstant(String instantId) {
+        if (instantId == null) {
+            return null;
+        }
         if (!instants.containsKey(instantId)) {
             throw new FaraoException(String.format("Instant '%s' has not been defined", instantId));
         }

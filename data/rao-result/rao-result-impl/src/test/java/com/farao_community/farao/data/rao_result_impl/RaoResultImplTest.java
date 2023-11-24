@@ -81,8 +81,8 @@ class RaoResultImplTest {
 
         elementaryFlowCnecResult.setPtdfZonalSum(Side.LEFT, 0.1);
 
-        flowCnecResult.getAndCreateIfAbsentResultForOptimizationState(PREVENTIVE_INSTANT_ID);
-        elementaryFlowCnecResult = flowCnecResult.getResult(PREVENTIVE_INSTANT_ID);
+        flowCnecResult.getAndCreateIfAbsentResultForOptimizationState(preventiveInstant);
+        elementaryFlowCnecResult = flowCnecResult.getResult(preventiveInstant);
 
         elementaryFlowCnecResult.setFlow(Side.LEFT, 200., MEGAWATT);
         elementaryFlowCnecResult.setMargin(201., MEGAWATT);

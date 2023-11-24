@@ -915,6 +915,11 @@ class CracImplTest {
     }
 
     @Test
+    void testGetInstantWithNullId() {
+        assertNull(crac.getInstant((String) null));
+    }
+
+    @Test
     void testGetInstantNeverDefined() {
         FaraoException exception = assertThrows(FaraoException.class, () -> crac.getInstant("never defined"));
         assertEquals("Instant 'never defined' has not been defined", exception.getMessage());

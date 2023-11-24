@@ -10,6 +10,7 @@ package com.farao_community.farao.data.rao_result_json.deserializers;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Crac;
+import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.rao_result_impl.ElementaryFlowCnecResult;
@@ -46,16 +47,16 @@ final class FlowCnecResultArrayDeserializer {
                 throw new FaraoException(String.format("Cannot deserialize RaoResult: flowCnec with id %s does not exist in the Crac", flowCnecId));
             }
             FlowCnecResult flowCnecResult = raoResult.getAndCreateIfAbsentFlowCnecResult(flowCnec);
-            deserializeFlowCnecResult(jsonParser, flowCnecResult, jsonFileVersion);
+            deserializeFlowCnecResult(jsonParser, flowCnecResult, jsonFileVersion, crac);
         }
     }
 
-    private static void deserializeFlowCnecResult(JsonParser jsonParser, FlowCnecResult flowCnecResult, String jsonFileVersion) throws IOException {
+    private static void deserializeFlowCnecResult(JsonParser jsonParser, FlowCnecResult flowCnecResult, String jsonFileVersion, Crac crac) throws IOException {
         while (!jsonParser.nextToken().isStructEnd()) {
             ElementaryFlowCnecResult eFlowCnecResult;
-            String optimizedInstantId = deserializeOptimizedInstantId(jsonParser.getCurrentName(), jsonFileVersion);
+            Instant optimizedInstant = crac.getInstant(deserializeOptimizedInstantId(jsonParser.getCurrentName(), jsonFileVersion));
             jsonParser.nextToken();
-            eFlowCnecResult = flowCnecResult.getAndCreateIfAbsentResultForOptimizationState(optimizedInstantId);
+            eFlowCnecResult = flowCnecResult.getAndCreateIfAbsentResultForOptimizationState(optimizedInstant);
             deserializeElementaryFlowCnecResult(jsonParser, eFlowCnecResult, jsonFileVersion);
         }
     }

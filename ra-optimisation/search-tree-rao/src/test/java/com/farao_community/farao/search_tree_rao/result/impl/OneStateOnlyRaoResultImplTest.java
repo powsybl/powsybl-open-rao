@@ -448,25 +448,25 @@ class OneStateOnlyRaoResultImplTest {
     void testAngleAndVoltageCnec() {
         AngleCnec angleCnec = mock(AngleCnec.class);
         VoltageCnec voltageCnec = mock(VoltageCnec.class);
-        String optInstantId = "instant";
+        Instant optInstant = mock(Instant.class);
 
-        FaraoException exception = assertThrows(FaraoException.class, () -> output.getMargin(optInstantId, angleCnec, MEGAWATT));
+        FaraoException exception = assertThrows(FaraoException.class, () -> output.getMargin(optInstant, angleCnec, MEGAWATT));
         assertEquals("Angle cnecs are not computed in the rao", exception.getMessage());
-        exception = assertThrows(FaraoException.class, () -> output.getMargin(optInstantId, angleCnec, AMPERE));
+        exception = assertThrows(FaraoException.class, () -> output.getMargin(optInstant, angleCnec, AMPERE));
         assertEquals("Angle cnecs are not computed in the rao", exception.getMessage());
-        exception = assertThrows(FaraoException.class, () -> output.getMargin(optInstantId, voltageCnec, MEGAWATT));
+        exception = assertThrows(FaraoException.class, () -> output.getMargin(optInstant, voltageCnec, MEGAWATT));
         assertEquals("Voltage cnecs are not computed in the rao", exception.getMessage());
-        exception = assertThrows(FaraoException.class, () -> output.getMargin(optInstantId, voltageCnec, AMPERE));
-        assertEquals("Voltage cnecs are not computed in the rao", exception.getMessage());
-
-        exception = assertThrows(FaraoException.class, () -> output.getVoltage(optInstantId, voltageCnec, MEGAWATT));
-        assertEquals("Voltage cnecs are not computed in the rao", exception.getMessage());
-        exception = assertThrows(FaraoException.class, () -> output.getVoltage(optInstantId, voltageCnec, AMPERE));
+        exception = assertThrows(FaraoException.class, () -> output.getMargin(optInstant, voltageCnec, AMPERE));
         assertEquals("Voltage cnecs are not computed in the rao", exception.getMessage());
 
-        exception = assertThrows(FaraoException.class, () -> output.getAngle(optInstantId, angleCnec, MEGAWATT));
+        exception = assertThrows(FaraoException.class, () -> output.getVoltage(optInstant, voltageCnec, MEGAWATT));
+        assertEquals("Voltage cnecs are not computed in the rao", exception.getMessage());
+        exception = assertThrows(FaraoException.class, () -> output.getVoltage(optInstant, voltageCnec, AMPERE));
+        assertEquals("Voltage cnecs are not computed in the rao", exception.getMessage());
+
+        exception = assertThrows(FaraoException.class, () -> output.getAngle(optInstant, angleCnec, MEGAWATT));
         assertEquals("Angle cnecs are not computed in the rao", exception.getMessage());
-        exception = assertThrows(FaraoException.class, () -> output.getMargin(optInstantId, angleCnec, AMPERE));
+        exception = assertThrows(FaraoException.class, () -> output.getMargin(optInstant, angleCnec, AMPERE));
         assertEquals("Angle cnecs are not computed in the rao", exception.getMessage());
     }
 }

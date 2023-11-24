@@ -10,6 +10,7 @@ package com.farao_community.farao.data.rao_result_json.deserializers;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Crac;
+import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.cnec.AngleCnec;
 import com.farao_community.farao.data.rao_result_impl.AngleCnecResult;
 import com.farao_community.farao.data.rao_result_impl.ElementaryAngleCnecResult;
@@ -43,16 +44,16 @@ final class AngleCnecResultArrayDeserializer {
                 throw new FaraoException(String.format("Cannot deserialize RaoResult: angleCnec with id %s does not exist in the Crac", angleCnecId));
             }
             AngleCnecResult angleCnecResult = raoResult.getAndCreateIfAbsentAngleCnecResult(angleCnec);
-            deserializeAngleCnecResult(jsonParser, angleCnecResult, jsonFileVersion);
+            deserializeAngleCnecResult(jsonParser, angleCnecResult, jsonFileVersion, crac);
         }
     }
 
-    private static void deserializeAngleCnecResult(JsonParser jsonParser, AngleCnecResult angleCnecResult, String jsonFileVersion) throws IOException {
+    private static void deserializeAngleCnecResult(JsonParser jsonParser, AngleCnecResult angleCnecResult, String jsonFileVersion, Crac crac) throws IOException {
         while (!jsonParser.nextToken().isStructEnd()) {
             ElementaryAngleCnecResult eAngleCnecResult;
-            String optimizedInstantId = deserializeOptimizedInstantId(jsonParser.getCurrentName(), jsonFileVersion);
+            Instant optimizedInstant = crac.getInstant(deserializeOptimizedInstantId(jsonParser.getCurrentName(), jsonFileVersion));
             jsonParser.nextToken();
-            eAngleCnecResult = angleCnecResult.getAndCreateIfAbsentResultForOptimizationState(optimizedInstantId);
+            eAngleCnecResult = angleCnecResult.getAndCreateIfAbsentResultForOptimizationState(optimizedInstant);
             deserializeElementaryAngleCnecResult(jsonParser, eAngleCnecResult);
         }
     }

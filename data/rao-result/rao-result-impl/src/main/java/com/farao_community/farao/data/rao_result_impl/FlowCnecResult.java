@@ -6,6 +6,8 @@
  */
 package com.farao_community.farao.data.rao_result_impl;
 
+import com.farao_community.farao.data.crac_api.Instant;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -15,18 +17,18 @@ import java.util.Map;
 public class FlowCnecResult {
 
     private static final ElementaryFlowCnecResult DEFAULT_RESULT = new ElementaryFlowCnecResult();
-    private final Map<String, ElementaryFlowCnecResult> results;
+    private final Map<Instant, ElementaryFlowCnecResult> results;
 
     FlowCnecResult() {
         results = new HashMap<>();
     }
 
-    public ElementaryFlowCnecResult getResult(String optimizedInstantId) {
-        return results.getOrDefault(optimizedInstantId, DEFAULT_RESULT);
+    public ElementaryFlowCnecResult getResult(Instant optimizedInstant) {
+        return results.getOrDefault(optimizedInstant, DEFAULT_RESULT);
     }
 
-    public ElementaryFlowCnecResult getAndCreateIfAbsentResultForOptimizationState(String optimizedInstantId) {
-        results.putIfAbsent(optimizedInstantId, new ElementaryFlowCnecResult());
-        return results.get(optimizedInstantId);
+    public ElementaryFlowCnecResult getAndCreateIfAbsentResultForOptimizationState(Instant optimizedInstant) {
+        results.putIfAbsent(optimizedInstant, new ElementaryFlowCnecResult());
+        return results.get(optimizedInstant);
     }
 }

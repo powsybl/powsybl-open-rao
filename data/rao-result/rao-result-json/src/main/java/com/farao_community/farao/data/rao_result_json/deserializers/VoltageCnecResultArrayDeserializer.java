@@ -10,6 +10,7 @@ package com.farao_community.farao.data.rao_result_json.deserializers;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Crac;
+import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.cnec.VoltageCnec;
 import com.farao_community.farao.data.rao_result_impl.ElementaryVoltageCnecResult;
 import com.farao_community.farao.data.rao_result_impl.RaoResultImpl;
@@ -43,16 +44,16 @@ final class VoltageCnecResultArrayDeserializer {
                 throw new FaraoException(String.format("Cannot deserialize RaoResult: voltageCnec with id %s does not exist in the Crac", voltageCnecId));
             }
             VoltageCnecResult voltageCnecResult = raoResult.getAndCreateIfAbsentVoltageCnecResult(voltageCnec);
-            deserializeVoltageCnecResult(jsonParser, voltageCnecResult, jsonFileVersion);
+            deserializeVoltageCnecResult(jsonParser, voltageCnecResult, jsonFileVersion, crac);
         }
     }
 
-    private static void deserializeVoltageCnecResult(JsonParser jsonParser, VoltageCnecResult voltageCnecResult, String jsonFileVersion) throws IOException {
+    private static void deserializeVoltageCnecResult(JsonParser jsonParser, VoltageCnecResult voltageCnecResult, String jsonFileVersion, Crac crac) throws IOException {
         while (!jsonParser.nextToken().isStructEnd()) {
             ElementaryVoltageCnecResult eVoltageCnecResult;
-            String optimizedInstantId = deserializeOptimizedInstantId(jsonParser.getCurrentName(), jsonFileVersion);
+            Instant optimizedInstant = crac.getInstant(deserializeOptimizedInstantId(jsonParser.getCurrentName(), jsonFileVersion));
             jsonParser.nextToken();
-            eVoltageCnecResult = voltageCnecResult.getAndCreateIfAbsentResultForOptimizationState(optimizedInstantId);
+            eVoltageCnecResult = voltageCnecResult.getAndCreateIfAbsentResultForOptimizationState(optimizedInstant);
             deserializeElementaryVoltageCnecResult(jsonParser, eVoltageCnecResult);
         }
     }
