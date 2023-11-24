@@ -22,6 +22,7 @@ import com.farao_community.farao.data.crac_creation.util.cgmes.CgmesBranchHelper
 import com.powsybl.iidm.network.*;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
+import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.*;
 
@@ -40,7 +41,7 @@ public class CsaProfileCnecCreator {
     private final CsaProfileCracCreationContext cracCreationContext;
     private Instant cnecInstant;
     private PropertyBag cnecLimit;
-    private Set<Side> defaultMonitoredSides;
+    private final Set<Side> defaultMonitoredSides;
 
     private enum CnecDefinitionMode {
         CONDUCTING_EQUIPMENT,
@@ -94,6 +95,7 @@ public class CsaProfileCnecCreator {
 
         String isCombinableWithContingencyStr = assessedElementPropertyBag.get(CsaProfileConstants.REQUEST_ASSESSED_ELEMENT_IS_COMBINABLE_WITH_CONTINGENCY);
         boolean isCombinableWithContingency = Boolean.parseBoolean(isCombinableWithContingencyStr);
+
         Set<Contingency> combinableContingencies;
         if (isCombinableWithContingency) {
             combinableContingencies = cracCreationContext.getCrac().getContingencies();
@@ -122,13 +124,14 @@ public class CsaProfileCnecCreator {
             if (limitType == null) {
                 return;
             }
+            // TODO: use addFlowCnec
             if (CsaProfileConstants.LimitType.CURRENT.equals(limitType)) {
                 cnecAdder = crac.newFlowCnec()
                         .withMonitored(false)
                         .withOptimized(true)
                         .withReliabilityMargin(0);
 
-                if (!this.addCurrentLimit(assessedElementId, (FlowCnecAdder) cnecAdder, isCombinableWithContingency)) {
+                if (!this.addCurrentLimit(assessedElementId, (FlowCnecAdder) cnecAdder)) {
                     return;
                 }
             } else if (CsaProfileConstants.LimitType.VOLTAGE.equals(limitType)) {
@@ -172,40 +175,9 @@ public class CsaProfileCnecCreator {
 
             // If only one default monitored side but no current limit, we look at the other side
             if (networkElement instanceof Branch<?>) {
-                Set<Side> sidesToCheck = new HashSet<>();
-                if (defaultMonitoredSides.size() == 2) {
-                    sidesToCheck.add(Side.LEFT);
-                    sidesToCheck.add(Side.RIGHT);
-                } else {
-                    // Only one side in the set
-                    Side defaultSide = defaultMonitoredSides.stream().toList().get(0);
-                    Side otherSide = defaultSide == Side.LEFT ? Side.RIGHT : Side.LEFT;
-                    sidesToCheck.add(((Branch<?>) networkElement).getCurrentLimits(defaultSide.iidmSide()).isPresent() ? defaultSide : otherSide);
-                }
-
-                EnumMap<Branch.Side, Double> patlThresholds = new EnumMap<>(Branch.Side.class);
-                Map<Integer, EnumMap<Branch.Side, Double>> tatlThresholds = new HashMap<>();
-
-                for (Side side : sidesToCheck) {
-                    Optional<CurrentLimits> currentLimits = ((Branch<?>) networkElement).getCurrentLimits(side.iidmSide());
-                    if (currentLimits.isPresent()) {
-                        // Retrieve PATL
-                        Double threshold = currentLimits.get().getPermanentLimit();
-                        patlThresholds.put(side.iidmSide(), threshold);
-                        // Retrieve TATLs
-                        List<LoadingLimits.TemporaryLimit> temporaryLimits = currentLimits.get().getTemporaryLimits().stream().toList();
-                        for (LoadingLimits.TemporaryLimit temporaryLimit : temporaryLimits) {
-                            int acceptableDuration = temporaryLimit.getAcceptableDuration();
-                            double temporaryThreshold = temporaryLimit.getValue();
-                            if (tatlThresholds.containsKey(acceptableDuration)) {
-                                tatlThresholds.get(acceptableDuration).put(side.iidmSide(), temporaryThreshold);
-                            } else {
-                                tatlThresholds.put(acceptableDuration, new EnumMap<>(Map.of(side.iidmSide(), temporaryThreshold)));
-                            }
-                        }
-                    }
-                }
-
+                Pair<EnumMap<Branch.Side, Double>, Map<Integer, EnumMap<Branch.Side, Double>>> branchLimits = getPermanentAndTemporaryLimitsOfBranch((Branch<?>) networkElement);
+                EnumMap<Branch.Side, Double> patlThresholds = branchLimits.getLeft();
+                Map<Integer, EnumMap<Branch.Side, Double>> tatlThresholds = branchLimits.getRight();
                 addAllFlowCnecsFromConductingEquipment(assessedElementId, assessedElementName, (Branch<?>) networkElement, inBaseCase, patlThresholds, tatlThresholds, combinableContingencies, rejectedLinksAssessedElementContingency);
             }
         }
@@ -376,7 +348,7 @@ public class CsaProfileCnecCreator {
         return false;
     }
 
-    private boolean addCurrentLimit(String assessedElementId, FlowCnecAdder flowCnecAdder, boolean inBaseCase) {
+    private boolean addCurrentLimit(String assessedElementId, FlowCnecAdder flowCnecAdder) {
         String terminalId = cnecLimit.getId(CsaProfileConstants.REQUEST_OPERATIONAL_LIMIT_TERMINAL);
         Identifiable<?> networkElement = this.getNetworkElementInNetwork(terminalId);
         if (networkElement == null) {
@@ -409,7 +381,7 @@ public class CsaProfileCnecCreator {
             return false;
         }
 
-        return this.addCurrentLimitThreshold(assessedElementId, flowCnecAdder, cnecLimit, networkElement, this.getSideFromNetworkElement(networkElement, terminalId));
+        return this.addFlowCnecThreshold(assessedElementId, flowCnecAdder, cnecLimit, networkElement, this.getSideFromNetworkElement(networkElement, terminalId));
     }
 
     private boolean addVoltageLimit(String assessedElementId, VoltageCnecAdder voltageCnecAdder, boolean inBaseCase) {
@@ -571,7 +543,7 @@ public class CsaProfileCnecCreator {
         return true;
     }
 
-    private boolean addCurrentLimitThreshold(String assessedElementId, FlowCnecAdder flowCnecAdder, PropertyBag currentLimit, Identifiable<?> networkElement, Side side) {
+    private boolean addFlowCnecThreshold(String assessedElementId, FlowCnecAdder flowCnecAdder, PropertyBag currentLimit, Identifiable<?> networkElement, Side side) {
         if (side == null) {
             csaProfileCnecCreationContexts.add(CsaProfileElementaryCreationContext.notImported(assessedElementId, ImportStatus.INCONSISTENCY_IN_DATA, "could not find side of threshold with network element : " + networkElement.getId()));
             return false;
@@ -595,7 +567,7 @@ public class CsaProfileCnecCreator {
         return true;
     }
 
-    private void addCurrentLimitThreshold(FlowCnecAdder flowCnecAdder, Side side, double threshold) {
+    private void addFlowCnecThreshold(FlowCnecAdder flowCnecAdder, Side side, double threshold) {
         flowCnecAdder.newThreshold().withSide(side)
                 .withUnit(Unit.AMPERE)
                 .withMax(threshold)
@@ -740,28 +712,34 @@ public class CsaProfileCnecCreator {
     }
 
     private void addFlowCnec(String assessedElementId, String assessedElementName, Branch<?> networkElement, Contingency contingency, Instant instant, EnumMap<Branch.Side, Double> thresholds, String rejectedLinksAssessedElementContingency) {
-        FlowCnecAdder cnecAdder = crac.newFlowCnec()
-                .withMonitored(false)
-                .withOptimized(true)
-                .withReliabilityMargin(0);
+        if (thresholds.isEmpty()) {
+            return;
+        }
+        FlowCnecAdder cnecAdder = initFlowCnec();
         String cnecName = assessedElementName + " (" + assessedElementId + ")" + (contingency != null ? " - " + contingency.getName() : "") + " - " + instant;
         for (Branch.Side side : thresholds.keySet()) {
             double threshold = thresholds.get(side);
-            addCurrentLimitThreshold(cnecAdder, side == Branch.Side.ONE ? Side.LEFT : Side.RIGHT, threshold);
+            addFlowCnecThreshold(cnecAdder, side == Branch.Side.ONE ? Side.LEFT : Side.RIGHT, threshold);
         }
+        addFlowCnecData(cnecAdder, cnecName, networkElement, contingency, instant);
+        setNominalVoltage(assessedElementId, cnecAdder, networkElement);
+        cnecAdder.add();
+        handleRejectedLinksAssessedElementContingency(assessedElementId, cnecName, rejectedLinksAssessedElementContingency);
+    }
+
+    private FlowCnecAdder initFlowCnec() {
+        return crac.newFlowCnec()
+                .withMonitored(false)
+                .withOptimized(true)
+                .withReliabilityMargin(0);
+    }
+
+    private static void addFlowCnecData(FlowCnecAdder cnecAdder, String cnecName, Branch<?> networkElement, Contingency contingency, Instant instant) {
         cnecAdder.withNetworkElement(networkElement.getId())
                 .withContingency(contingency == null ? null : contingency.getId())
                 .withId(cnecName)
                 .withName(cnecName)
                 .withInstant(instant);
-        if (networkElement.getTerminal(Branch.Side.ONE) != null) {
-            cnecAdder.withNominalVoltage(networkElement.getTerminal(Branch.Side.ONE).getVoltageLevel().getNominalV(), Side.LEFT);
-        }
-        if (networkElement.getTerminal(Branch.Side.TWO) != null) {
-            cnecAdder.withNominalVoltage(networkElement.getTerminal(Branch.Side.TWO).getVoltageLevel().getNominalV(), Side.RIGHT);
-        }
-        cnecAdder.add();
-        handleRejectedLinksAssessedElementContingency(assessedElementId, cnecName, rejectedLinksAssessedElementContingency);
     }
 
     private void addAllFlowCnecsFromConductingEquipment(String assessedElementId, String assessedElementName, Branch<?> networkElement, boolean inBaseCase, EnumMap<Branch.Side, Double> patlThresholds, Map<Integer, EnumMap<Branch.Side, Double>> tatlThresholds, Set<Contingency> combinableContingencies, String rejectedLinksAssessedElementContingency) {
@@ -778,5 +756,48 @@ public class CsaProfileCnecCreator {
                 addFlowCnec(assessedElementId, assessedElementName, networkElement, contingency, instant, tatlThresholds.get(acceptableDuration), rejectedLinksAssessedElementContingency);
             }
         }
+    }
+
+    private Pair<EnumMap<Branch.Side, Double>, Map<Integer, EnumMap<Branch.Side, Double>>> getPermanentAndTemporaryLimitsOfBranch(Branch<?> branch) {
+        Set<Side> sidesToCheck = getSidesToCheck(branch);
+
+        EnumMap<Branch.Side, Double> patlThresholds = new EnumMap<>(Branch.Side.class);
+        Map<Integer, EnumMap<Branch.Side, Double>> tatlThresholds = new HashMap<>();
+
+        for (Side side : sidesToCheck) {
+            Optional<CurrentLimits> currentLimits = branch.getCurrentLimits(side.iidmSide());
+            if (currentLimits.isPresent()) {
+                // Retrieve PATL
+                Double threshold = currentLimits.get().getPermanentLimit();
+                patlThresholds.put(side.iidmSide(), threshold);
+                // Retrieve TATLs
+                List<LoadingLimits.TemporaryLimit> temporaryLimits = currentLimits.get().getTemporaryLimits().stream().toList();
+                for (LoadingLimits.TemporaryLimit temporaryLimit : temporaryLimits) {
+                    int acceptableDuration = temporaryLimit.getAcceptableDuration();
+                    double temporaryThreshold = temporaryLimit.getValue();
+                    if (tatlThresholds.containsKey(acceptableDuration)) {
+                        tatlThresholds.get(acceptableDuration).put(side.iidmSide(), temporaryThreshold);
+                    } else {
+                        tatlThresholds.put(acceptableDuration, new EnumMap<>(Map.of(side.iidmSide(), temporaryThreshold)));
+                    }
+                }
+            }
+        }
+        return Pair.of(patlThresholds, tatlThresholds);
+    }
+
+    private Set<Side> getSidesToCheck(Branch<?> branch) {
+        Set<Side> sidesToCheck = new HashSet<>();
+        if (defaultMonitoredSides.size() == 2) {
+            sidesToCheck.add(Side.LEFT);
+            sidesToCheck.add(Side.RIGHT);
+        } else {
+            // Only one side in the set -> check the default side.
+            // If no limit for the default side, check the other side.
+            Side defaultSide = defaultMonitoredSides.stream().toList().get(0);
+            Side otherSide = defaultSide == Side.LEFT ? Side.RIGHT : Side.LEFT;
+            sidesToCheck.add(branch.getCurrentLimits(defaultSide.iidmSide()).isPresent() ? defaultSide : otherSide);
+        }
+        return sidesToCheck;
     }
 }
