@@ -9,6 +9,7 @@ package com.farao_community.farao.monitoring.voltage_monitoring;
 
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.*;
+
 import com.farao_community.farao.data.crac_api.cnec.VoltageCnec;
 import com.farao_community.farao.data.crac_api.network_action.ActionType;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
@@ -28,8 +29,7 @@ import java.util.Map;
 import java.util.Set;
 
 import static com.farao_community.farao.monitoring.voltage_monitoring.VoltageMonitoringResult.Status.*;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.when;
 
@@ -290,9 +290,9 @@ class VoltageMonitoringTest {
         assertEquals(400., voltageMonitoringResult.getMinVoltage(vc2b), VOLTAGE_TOLERANCE);
         assertEquals(400., voltageMonitoringResult.getMaxVoltage(vc2b), VOLTAGE_TOLERANCE);
         assertEquals(List.of("Some voltage CNECs are not secure:",
-            "Network element VL2 at state coL1 - curative has a voltage of 368 - 368 kV.",
-            "Network element VL3 at state coL2 - curative has a voltage of 400 - 400 kV.",
-            "Network element VL3 at state coL1L2 - curative has a voltage of 400 - 400 kV."),
+                "Network element VL2 at state coL1 - curative has a voltage of 368 - 368 kV.",
+                "Network element VL3 at state coL2 - curative has a voltage of 400 - 400 kV.",
+                "Network element VL3 at state coL1L2 - curative has a voltage of 400 - 400 kV."),
             voltageMonitoringResult.printConstraints());
     }
 
@@ -359,9 +359,9 @@ class VoltageMonitoringTest {
         assertEquals(143.1, voltageMonitoringResult.getMinVoltage(vc2), VOLTAGE_TOLERANCE);
         assertEquals(147.7, voltageMonitoringResult.getMaxVoltage(vc2), VOLTAGE_TOLERANCE);
         assertEquals(List.of(
-            "Some voltage CNECs are not secure:",
-            "Network element VL45 at state preventive has a voltage of 144 - 148 kV.",
-            "Network element VL46 at state preventive has a voltage of 143 - 148 kV."),
+                "Some voltage CNECs are not secure:",
+                "Network element VL45 at state preventive has a voltage of 144 - 148 kV.",
+                "Network element VL46 at state preventive has a voltage of 143 - 148 kV."),
             voltageMonitoringResult.printConstraints());
     }
 
@@ -378,10 +378,10 @@ class VoltageMonitoringTest {
     public void mockPreventiveState() {
         vcPrev = addVoltageCnec("vcPrev", PREVENTIVE_INSTANT_ID, null, "VL45", 145., 150.);
         crac.newNetworkAction()
-                .withId("Open L1 - 1")
-                .newTopologicalAction().withNetworkElement("L1").withActionType(ActionType.OPEN).add()
-                .newOnVoltageConstraintUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withVoltageCnec(vcPrev.getId()).add()
-                .add();
+            .withId("Open L1 - 1")
+            .newTopologicalAction().withNetworkElement("L1").withActionType(ActionType.OPEN).add()
+            .newOnVoltageConstraintUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withVoltageCnec(vcPrev.getId()).add()
+            .add();
     }
 
     @Test
@@ -425,10 +425,10 @@ class VoltageMonitoringTest {
         crac.newContingency().withId("coL3").withNetworkElement("L3").add();
         VoltageCnec vc = addVoltageCnec("vcCur1", CURATIVE_INSTANT_ID, "coL3", "VL3", 375., 395.);
         crac.newNetworkAction()
-                .withId("Open L1 - 2")
-                .newTopologicalAction().withNetworkElement("L1").withActionType(ActionType.OPEN).add()
-                .newOnVoltageConstraintUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withVoltageCnec(vc.getId()).add()
-                .add();
+            .withId("Open L1 - 2")
+            .newTopologicalAction().withNetworkElement("L1").withActionType(ActionType.OPEN).add()
+            .newOnVoltageConstraintUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withVoltageCnec(vc.getId()).add()
+            .add();
 
         runVoltageMonitoring();
 
@@ -461,10 +461,10 @@ class VoltageMonitoringTest {
         VoltageCnec vc = addVoltageCnec("vc", CURATIVE_INSTANT_ID, "co", "VL1", 390., 399.);
         String networkActionName = "Open L1 - 2";
         RemedialAction<?> networkAction = crac.newNetworkAction()
-                .withId(networkActionName)
-                .newTopologicalAction().withNetworkElement("L1").withActionType(ActionType.OPEN).add()
-                .newOnVoltageConstraintUsageRule().withInstant(CURATIVE_INSTANT_ID).withVoltageCnec(vc.getId()).add()
-                .add();
+            .withId(networkActionName)
+            .newTopologicalAction().withNetworkElement("L1").withActionType(ActionType.OPEN).add()
+            .newOnVoltageConstraintUsageRule().withInstant(CURATIVE_INSTANT_ID).withVoltageCnec(vc.getId()).add()
+            .add();
 
         runVoltageMonitoring();
 
@@ -478,19 +478,19 @@ class VoltageMonitoringTest {
         setUpCracFactory("network.xiidm");
         vcPrev = addVoltageCnec("vcPrev", PREVENTIVE_INSTANT_ID, null, "VL1", 440., 450.);
         crac.newNetworkAction()
-                .withId("Open L1 - 1")
-                .newTopologicalAction().withNetworkElement("L1").withActionType(ActionType.OPEN).add()
-                .newOnVoltageConstraintUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withVoltageCnec(vcPrev.getId()).add()
-                .add();
+            .withId("Open L1 - 1")
+            .newTopologicalAction().withNetworkElement("L1").withActionType(ActionType.OPEN).add()
+            .newOnVoltageConstraintUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withVoltageCnec(vcPrev.getId()).add()
+            .add();
 
         crac.newContingency().withId("co").withNetworkElement("L1").add();
         VoltageCnec vc = addVoltageCnec("vc", CURATIVE_INSTANT_ID, "co", "VL1", 440., 450.);
         String networkActionName = "Open L1 - 2";
         RemedialAction<?> networkAction = crac.newNetworkAction()
-                .withId(networkActionName)
-                .newTopologicalAction().withNetworkElement("L1").withActionType(ActionType.OPEN).add()
-                .newOnVoltageConstraintUsageRule().withInstant(CURATIVE_INSTANT_ID).withVoltageCnec(vc.getId()).add()
-                .add();
+            .withId(networkActionName)
+            .newTopologicalAction().withNetworkElement("L1").withActionType(ActionType.OPEN).add()
+            .newOnVoltageConstraintUsageRule().withInstant(CURATIVE_INSTANT_ID).withVoltageCnec(vc.getId()).add()
+            .add();
 
         runVoltageMonitoring();
 
@@ -507,10 +507,10 @@ class VoltageMonitoringTest {
         VoltageCnec vc = addVoltageCnec("vc", CURATIVE_INSTANT_ID, "co", "VL2", 385., 400.);
         String networkActionName = "Close L1 - 1";
         RemedialAction<?> networkAction = crac.newNetworkAction()
-                .withId(networkActionName)
-                .newTopologicalAction().withNetworkElement("L1").withActionType(ActionType.CLOSE).add()
-                .newOnVoltageConstraintUsageRule().withInstant(CURATIVE_INSTANT_ID).withVoltageCnec(vc.getId()).add()
-                .add();
+            .withId(networkActionName)
+            .newTopologicalAction().withNetworkElement("L1").withActionType(ActionType.CLOSE).add()
+            .newOnVoltageConstraintUsageRule().withInstant(CURATIVE_INSTANT_ID).withVoltageCnec(vc.getId()).add()
+            .add();
 
         runVoltageMonitoring();
 
@@ -527,10 +527,10 @@ class VoltageMonitoringTest {
         VoltageCnec vc = addVoltageCnec("vc", CURATIVE_INSTANT_ID, "co", "VL2", 340., 350.);
         String networkActionName = "Close L1 - 1";
         RemedialAction<?> networkAction = crac.newNetworkAction()
-                .withId(networkActionName)
-                .newTopologicalAction().withNetworkElement("L2").withActionType(ActionType.OPEN).add()
-                .newOnVoltageConstraintUsageRule().withInstant(CURATIVE_INSTANT_ID).withVoltageCnec(vc.getId()).add()
-                .add();
+            .withId(networkActionName)
+            .newTopologicalAction().withNetworkElement("L2").withActionType(ActionType.OPEN).add()
+            .newOnVoltageConstraintUsageRule().withInstant(CURATIVE_INSTANT_ID).withVoltageCnec(vc.getId()).add()
+            .add();
 
         runVoltageMonitoring();
 
@@ -538,5 +538,6 @@ class VoltageMonitoringTest {
         assertEquals(1, voltageMonitoringResult.getAppliedRas().size());
         assertEquals(Set.of(networkAction), voltageMonitoringResult.getAppliedRas().get(crac.getState("co", curativeInstant)));
     }
+
 }
 
