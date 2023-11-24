@@ -59,9 +59,9 @@ public interface RaoResult {
      * It gives the angle on an {@link AngleCnec} at a given {@link Instant} and in a
      * given {@link Unit}.
      *
-     * @param optimizedInstant : The optimized instant to be studied (set to null to access initial results)
-     * @param angleCnec        : The angle cnec to be studied.
-     * @param unit             : The unit in which the flow is queried. Only accepted value for now is DEGREE.
+     * @param optimizedInstant: The optimized instant to be studied (set to null to access initial results)
+     * @param angleCnec: The angle cnec to be studied.
+     * @param unit: The unit in which the flow is queried. Only accepted value for now is DEGREE.
      * @return The angle on the cnec at the optimization state in the given unit.
      */
     default double getAngle(Instant optimizedInstant, AngleCnec angleCnec, Unit unit) {
@@ -72,9 +72,9 @@ public interface RaoResult {
      * It gives the voltage on a {@link VoltageCnec} at a given {@link Instant} and in a
      * given {@link Unit}.
      *
-     * @param optimizedInstant : The optimized instant to be studied (set to null to access initial results)
-     * @param voltageCnec      : The voltage cnec to be studied.
-     * @param unit             : The unit in which the flow is queried. Only accepted value for now is KILOVOLT.
+     * @param optimizedInstant: The optimized instant to be studied (set to null to access initial results)
+     * @param voltageCnec: The voltage cnec to be studied.
+     * @param unit: The unit in which the flow is queried. Only accepted value for now is KILOVOLT.
      * @return The voltage on the cnec at the optimization state in the given unit.
      */
     default double getVoltage(Instant optimizedInstant, VoltageCnec voltageCnec, Unit unit) {
@@ -98,9 +98,9 @@ public interface RaoResult {
      * given {@link Unit}. It is basically the difference between the angle and the most constraining threshold in the
      * angle direction of the given branch. If it is negative the cnec is under constraint.
      *
-     * @param optimizedInstant : The optimized instant to be studied (set to null to access initial results)
-     * @param angleCnec        : The angle cnec to be studied.
-     * @param unit             : The unit in which the margin is queried. Only accepted for now is DEGREE.
+     * @param optimizedInstant: The optimized instant to be studied (set to null to access initial results)
+     * @param angleCnec: The angle cnec to be studied.
+     * @param unit: The unit in which the margin is queried. Only accepted for now is DEGREE.
      * @return The margin on the angle cnec at the optimization state in the given unit.
      */
     default double getMargin(Instant optimizedInstant, AngleCnec angleCnec, Unit unit) {
@@ -112,9 +112,9 @@ public interface RaoResult {
      * given {@link Unit}. It is basically the difference between the voltage and the most constraining threshold in the
      * of the given voltage level. If it is negative the cnec is under constraint.
      *
-     * @param optimizedInstant : The optimized instant to be studied (set to null to access initial results)
-     * @param voltageCnec      : The voltage cnec to be studied.
-     * @param unit             : The unit in which the margin is queried. Only accepted for now is KILOVOLT.
+     * @param optimizedInstant: The optimized instant to be studied (set to null to access initial results)
+     * @param voltageCnec: The voltage cnec to be studied.
+     * @param unit: The unit in which the margin is queried. Only accepted for now is KILOVOLT.
      * @return The margin on the voltage cnec at the optimization state in the given unit.
      */
     default double getMargin(Instant optimizedInstant, VoltageCnec voltageCnec, Unit unit) {

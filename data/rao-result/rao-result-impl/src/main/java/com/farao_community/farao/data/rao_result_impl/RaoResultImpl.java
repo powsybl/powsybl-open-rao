@@ -8,10 +8,7 @@ package com.farao_community.farao.data.rao_result_impl;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
-import com.farao_community.farao.data.crac_api.Crac;
-import com.farao_community.farao.data.crac_api.Instant;
-import com.farao_community.farao.data.crac_api.RemedialAction;
-import com.farao_community.farao.data.crac_api.State;
+import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_api.cnec.AngleCnec;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.cnec.Side;
@@ -188,11 +185,9 @@ public class RaoResultImpl implements RaoResult {
     @Override
     public boolean isActivatedDuringState(State state, RemedialAction<?> remedialAction) {
         if (remedialAction instanceof NetworkAction) {
-            NetworkAction networkAction = (NetworkAction) remedialAction;
-            return isActivatedDuringState(state, networkAction);
+            return isActivatedDuringState(state, (NetworkAction) remedialAction);
         } else if (remedialAction instanceof RangeAction<?>) {
-            RangeAction<?> rangeAction = (RangeAction<?>) remedialAction;
-            return isActivatedDuringState(state, rangeAction);
+            return isActivatedDuringState(state, (RangeAction<?>) remedialAction);
         } else {
             throw new FaraoException("Unrecognized remedial action type");
         }
@@ -311,7 +306,7 @@ public class RaoResultImpl implements RaoResult {
     }
 
     private State stateBefore(String contingencyId, Instant instant) {
-        if (instant.isPreventive() || instant.isOutage()) {
+        if (instant.comesBefore(crac.getInstant(InstantKind.AUTO))) {
             return crac.getPreventiveState();
         }
         State stateBefore = lookupState(contingencyId, crac.getInstantBefore(instant));
@@ -324,14 +319,9 @@ public class RaoResultImpl implements RaoResult {
 
     private State lookupState(String contingencyId, Instant instant) {
         return crac.getStates(instant).stream()
-            .filter(state -> state.getContingency().isPresent() && state.getContingency().get().getId().equals(contingencyId))
-            .findAny()
-            .orElse(null);
-    }
-
-    @Override
-    public OptimizationStepsExecuted getOptimizationStepsExecuted() {
-        return optimizationStepsExecuted;
+                .filter(state -> state.getContingency().isPresent() && state.getContingency().get().getId().equals(contingencyId))
+                .findAny()
+                .orElse(null);
     }
 
     @Override
@@ -341,5 +331,10 @@ public class RaoResultImpl implements RaoResult {
         } else {
             throw new FaraoException("The RaoResult object should not be modified outside of its usual routine");
         }
+    }
+
+    @Override
+    public OptimizationStepsExecuted getOptimizationStepsExecuted() {
+        return optimizationStepsExecuted;
     }
 }

@@ -192,9 +192,9 @@ public class CsaProfileRemedialActionsCreator {
     private void addOnContingencyStateUsageRules(RemedialActionAdder<?> remedialActionAdder, List<String> faraoContingenciesIds, String randomCombinationConstraintKind, String instantId) {
         UsageMethod usageMethod = CsaProfileCracUtils.getConstraintToUsageMethodMap().get(randomCombinationConstraintKind);
         faraoContingenciesIds.forEach(faraoContingencyId -> remedialActionAdder.newOnContingencyStateUsageRule()
-                .withInstant(instantId)
-                .withContingency(faraoContingencyId)
-                .withUsageMethod(usageMethod).add());
+            .withInstant(instantId)
+            .withContingency(faraoContingencyId)
+            .withUsageMethod(usageMethod).add());
     }
 
     private void checkElementCombinationConstraintKindsCoherence(String remedialActionId, Map<String, Set<PropertyBag>> linkedContingencyWithRAs) {
@@ -485,11 +485,9 @@ public class CsaProfileRemedialActionsCreator {
                         )
                         .toList();
 
-                    Instant curativeInstant = crac.getInstant(InstantKind.CURATIVE);
-                    boolean hasAtLeastOneOnConstraintUsageRule = addOnConstraintUsageRules(curativeInstant, remedialActionAdder, autoRemedialActionId, new ArrayList<>());
+                    boolean hasAtLeastOneOnConstraintUsageRule = addOnConstraintUsageRules(crac.getInstant(InstantKind.CURATIVE), remedialActionAdder, autoRemedialActionId, new ArrayList<>());
                     if (!hasAtLeastOneOnConstraintUsageRule) {
-                        Instant autoInstant = crac.getInstant(InstantKind.AUTO);
-                        addOnContingencyStateUsageRules(remedialActionAdder, faraoContingenciesIds, CsaProfileConstants.ElementCombinationConstraintKind.INCLUDED.toString(), autoInstant.getId());
+                        addOnContingencyStateUsageRules(remedialActionAdder, faraoContingenciesIds, CsaProfileConstants.ElementCombinationConstraintKind.INCLUDED.toString(), crac.getInstant(InstantKind.AUTO).getId());
                     }
                 } else {
                     throw new FaraoImportException(ImportStatus.INCONSISTENCY_IN_DATA, CsaProfileConstants.AUTO_REMEDIAL_ACTION_MESSAGE + autoRemedialActionId + " will not be imported because no contingency is linked to the remedial action");

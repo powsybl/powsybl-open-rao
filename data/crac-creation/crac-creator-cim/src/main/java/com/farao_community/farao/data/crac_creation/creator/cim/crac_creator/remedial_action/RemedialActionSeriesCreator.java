@@ -424,19 +424,19 @@ public class RemedialActionSeriesCreator {
                 break;
             case AUTO:
                 if (contingencies.isEmpty() && invalidContingencies.isEmpty()) {
-                    throw new FaraoImportException(ImportStatus.INCONSISTENCY_IN_DATA, "Cannot create a free-to-use remedial action at instant 'auto'");
+                    throw new FaraoImportException(ImportStatus.INCONSISTENCY_IN_DATA, String.format("Cannot create a free-to-use remedial action at instant '%s'", instant));
                 }
                 if (contingencies.isEmpty()) {
-                    throw new FaraoImportException(ImportStatus.INCONSISTENCY_IN_DATA, "Contingencies are all invalid, and usage rule is on AUTO instant");
+                    throw new FaraoImportException(ImportStatus.INCONSISTENCY_IN_DATA, String.format("Contingencies are all invalid, and usage rule is on instant '%s'", instant));
                 }
                 break;
             case CURATIVE:
                 if (contingencies.isEmpty() && !invalidContingencies.isEmpty()) {
-                    throw new FaraoImportException(ImportStatus.INCONSISTENCY_IN_DATA, "Contingencies are all invalid, and usage rule is on curative instant");
+                    throw new FaraoImportException(ImportStatus.INCONSISTENCY_IN_DATA, String.format("Contingencies are all invalid, and usage rule is on instant '%s'", instant));
                 }
                 break;
             default:
-                throw new FaraoImportException(ImportStatus.INCONSISTENCY_IN_DATA, String.format("Cannot add usage rule on instant %s", instant));
+                throw new FaraoImportException(ImportStatus.INCONSISTENCY_IN_DATA, String.format("Cannot add usage rule on instant '%s'", instant));
         }
     }
 
@@ -458,14 +458,11 @@ public class RemedialActionSeriesCreator {
 
     private static void addOnFlowConstraintUsageRule(RemedialActionAdder<?> adder, FlowCnec flowCnec, Instant instant) {
         // Only allow PRAs with usage method OnFlowConstraint/OnAngleConstraint, for CNECs of instants PREVENTIVE & OUTAGE & CURATIVE
-        // Only allow ARAs with usage method OnFlowConstraint/OnAngleConstraint, for CNECs of instant 'auto'
-        //  Only allow CRAs with usage method OnFlowConstraint/OnAngleConstraint, for CNECs of instant 'curative'
-        Map<InstantKind, Set<InstantKind>> allowedCnecInstantKindPerRaInstantKind = Map.of(
-            InstantKind.PREVENTIVE, Set.of(InstantKind.PREVENTIVE, InstantKind.OUTAGE, InstantKind.CURATIVE),
-            InstantKind.AUTO, Set.of(InstantKind.AUTO),
-            InstantKind.CURATIVE, Set.of(InstantKind.CURATIVE)
-        );
-        if (!allowedCnecInstantKindPerRaInstantKind.get(instant.getInstantKind()).contains(flowCnec.getState().getInstant().getInstantKind())) {
+        // Only allow ARAs with usage method OnFlowConstraint/OnAngleConstraint, for CNECs of instant AUTO
+        // Only allow CRAs with usage method OnFlowConstraint/OnAngleConstraint, for CNECs of instant CURATIVE
+
+        // instant must be before or equals to cnec instant !
+        if (flowCnec.getState().getInstant().comesBefore(instant)) {
             return;
         }
         adder.newOnFlowConstraintUsageRule()

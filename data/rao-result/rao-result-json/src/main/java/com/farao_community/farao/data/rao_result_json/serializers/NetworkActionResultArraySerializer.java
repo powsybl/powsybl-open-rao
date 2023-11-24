@@ -45,9 +45,9 @@ final class NetworkActionResultArraySerializer {
     private static void serializeNetworkActionResult(NetworkAction networkAction, RaoResult raoResult, Crac crac, JsonGenerator jsonGenerator) throws IOException {
 
         List<State> statesWhenNetworkActionIsActivated = crac.getStates().stream()
-            .filter(state -> safeIsActivatedDuringState(raoResult, state, networkAction))
-            .sorted(STATE_COMPARATOR)
-            .toList();
+                .filter(state -> safeIsActivatedDuringState(raoResult, state, networkAction))
+                .sorted(STATE_COMPARATOR)
+                .toList();
 
         if (statesWhenNetworkActionIsActivated.isEmpty()) {
             return;
