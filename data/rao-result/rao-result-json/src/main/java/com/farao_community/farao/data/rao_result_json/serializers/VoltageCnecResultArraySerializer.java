@@ -18,6 +18,8 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import java.io.IOException;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 
 import static com.farao_community.farao.data.rao_result_json.RaoResultJsonConstants.*;
 
@@ -108,7 +110,8 @@ final class VoltageCnecResultArraySerializer {
     private static double safeGetVoltage(RaoResult raoResult, VoltageCnec voltageCnec, Instant optInstant, Unit unit) {
         // methods getVoltage can return an exception if RAO is executed on one state only
         try {
-            return raoResult.getVoltage(optInstant.getId(), voltageCnec, unit);
+            String instantId = Objects.isNull(optInstant) ? INITIAL_INSTANT_ID : optInstant.getId();
+            return raoResult.getVoltage(instantId, voltageCnec, unit);
         } catch (FaraoException e) {
             return Double.NaN;
         }
@@ -117,7 +120,8 @@ final class VoltageCnecResultArraySerializer {
     private static double safeGetMargin(RaoResult raoResult, VoltageCnec voltageCnec, Instant optInstant, Unit unit) {
         // methods getMargin can return an exception if RAO is executed on one state only
         try {
-            return raoResult.getMargin(optInstant.getId(), voltageCnec, unit);
+            String instantId = Objects.isNull(optInstant) ? INITIAL_INSTANT_ID : optInstant.getId();
+            return raoResult.getMargin(instantId, voltageCnec, unit);
         } catch (FaraoException e) {
             return Double.NaN;
         }

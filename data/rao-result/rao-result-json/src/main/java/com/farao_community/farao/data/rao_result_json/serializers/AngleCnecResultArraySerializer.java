@@ -18,6 +18,7 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import java.io.IOException;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 
 import static com.farao_community.farao.data.rao_result_json.RaoResultJsonConstants.*;
 
@@ -111,7 +112,8 @@ final class AngleCnecResultArraySerializer {
     private static double safeGetAngle(RaoResult raoResult, AngleCnec angleCnec, Instant optInstant, Unit unit) {
         // methods getAngle can return an exception if RAO is executed on one state only
         try {
-            return raoResult.getAngle(optInstant.getId(), angleCnec, unit);
+            String instantId = Objects.isNull(optInstant) ? INITIAL_INSTANT_ID : optInstant.getId();
+            return raoResult.getAngle(instantId, angleCnec, unit);
         } catch (FaraoException e) {
             return Double.NaN;
         }
@@ -120,7 +122,8 @@ final class AngleCnecResultArraySerializer {
     private static double safeGetMargin(RaoResult raoResult, AngleCnec angleCnec, Instant optInstant, Unit unit) {
         // methods getMargin can return an exception if RAO is executed on one state only
         try {
-            return raoResult.getMargin(optInstant.getId(), angleCnec, unit);
+            String instantId = Objects.isNull(optInstant) ? INITIAL_INSTANT_ID : optInstant.getId();
+            return raoResult.getMargin(instantId, angleCnec, unit);
         } catch (FaraoException e) {
             return Double.NaN;
         }
