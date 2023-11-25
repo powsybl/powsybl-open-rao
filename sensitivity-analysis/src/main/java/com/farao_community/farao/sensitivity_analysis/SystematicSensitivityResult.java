@@ -12,11 +12,8 @@ import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.cnec.Cnec;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.cnec.Side;
-import com.farao_community.farao.data.crac_api.range_action.HvdcRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.sensitivity_analysis.ra_sensi_handler.RangeActionSensiHandler;
-import com.powsybl.iidm.network.HvdcLine;
-import com.powsybl.iidm.network.Network;
 import com.powsybl.sensitivity.*;
 
 import java.util.*;
@@ -33,7 +30,6 @@ public class SystematicSensitivityResult {
         private final Map<String, Map<Side, Double>> referenceFlows = new HashMap<>();
         private final Map<String, Map<Side, Double>> referenceIntensities = new HashMap<>();
         private final Map<String, Map<String, Map<Side, Double>>> flowSensitivities = new HashMap<>();
-        private final Map<String, Map<String, Map<Side, Double>>> intensitySensitivities = new HashMap<>();
 
         private SensitivityComputationStatus getSensitivityComputationStatus() {
             return status;
@@ -49,10 +45,6 @@ public class SystematicSensitivityResult {
 
         private Map<String, Map<String, Map<Side, Double>>> getFlowSensitivities() {
             return flowSensitivities;
-        }
-
-        private Map<String, Map<String, Map<Side, Double>>> getIntensitySensitivities() {
-            return intensitySensitivities;
         }
     }
 
@@ -81,29 +73,67 @@ public class SystematicSensitivityResult {
         this.postContingencyResults.put(Instant.CURATIVE, new HashMap<>());
     }
 
-    public SystematicSensitivityResult completeData(SensitivityAnalysisResult results, Instant instant) {
+    protected static SensitivityResultWriter getSensitivityResultWriter(List<SensitivityFactor> factors, SystematicSensitivityResult result, Instant instant, List<com.powsybl.contingency.Contingency> contingencies, Set<String> hvdcsToInvert) {
+        return new SensitivityResultWriter() {
+            @Override
+            public void writeSensitivityValue(int factorIndex, int contingencyIndex, double value, double functionReference) {
+                if (contingencyIndex == -1) {
+                    fillIndividualValue(functionReference, value, factors.get(factorIndex), hvdcsToInvert, result.nStateResult);
+                } else {
+                    StateResult contingencyStateResult = result.postContingencyResults.get(instant).getOrDefault(contingencies.get(contingencyIndex).getId(), new StateResult());
+                    fillIndividualValue(functionReference, value, factors.get(factorIndex), hvdcsToInvert, contingencyStateResult);
+                    result.postContingencyResults.get(instant).put(contingencies.get(contingencyIndex).getId(), contingencyStateResult);
+                }
 
-        if (results == null) {
-            this.status = SensitivityComputationStatus.FAILURE;
-            return this;
-        }
-        // status set to failure initially, and set to success if we find at least one non NaN value
-        this.status = SensitivityComputationStatus.FAILURE;
+                // status set to failure initially, and set to success if we find at least one non NaN value
+                if (result.getStatus().equals(SensitivityComputationStatus.FAILURE) && (!Double.isNaN(functionReference) && !Double.isNaN(value))) {
+                        result.setStatus(SensitivityComputationStatus.SUCCESS);
+                }
+            }
 
-        results.getPreContingencyValues().forEach(sensitivityValue -> fillIndividualValue(sensitivityValue, nStateResult, results.getFactors(), SensitivityAnalysisResult.Status.SUCCESS));
-        for (SensitivityAnalysisResult.SensitivityContingencyStatus contingencyStatus : results.getContingencyStatuses()) {
-            StateResult contingencyStateResult = new StateResult();
-            contingencyStateResult.status = contingencyStatus.getStatus().equals(SensitivityAnalysisResult.Status.FAILURE) ? SensitivityComputationStatus.FAILURE : SensitivityComputationStatus.SUCCESS;
-            results.getValues(contingencyStatus.getContingencyId()).forEach(sensitivityValue ->
-                fillIndividualValue(sensitivityValue, contingencyStateResult, results.getFactors(), contingencyStatus.getStatus())
-            );
-            postContingencyResults.get(instant).put(contingencyStatus.getContingencyId(), contingencyStateResult);
-        }
-        nStateResult.status = this.status;
-        return this;
+            @Override
+            public void writeContingencyStatus(int contingencyIndex, SensitivityAnalysisResult.Status status) {
+                    StateResult contingencyStateResult = result.postContingencyResults.get(instant).getOrDefault(contingencies.get(contingencyIndex).getId(), new StateResult());
+                    contingencyStateResult.status = status.equals(SensitivityAnalysisResult.Status.FAILURE) ? SensitivityComputationStatus.FAILURE : SensitivityComputationStatus.SUCCESS;
+                    result.postContingencyResults.get(instant).put(contingencies.get(contingencyIndex).getId(), contingencyStateResult);
+            }
+        };
     }
 
-    public SystematicSensitivityResult postTreatIntensities() {
+    private static void fillIndividualValue(double reference, double sensitivity, SensitivityFactor factor, Set<String> hvdcsToInvert, StateResult stateResult) {
+        double functionReference = reference;
+        if (Double.isNaN(reference)) {
+            functionReference = 0;
+        }
+
+        Side side = null;
+        double activePowerCoefficient = 0;
+        SensitivityFunctionType functionType = factor.getFunctionType();
+        if (functionType.equals(SensitivityFunctionType.BRANCH_ACTIVE_POWER_1) || functionType.equals(SensitivityFunctionType.BRANCH_CURRENT_1)) {
+            side = Side.LEFT;
+            activePowerCoefficient = 1;
+        } else if (functionType.equals(SensitivityFunctionType.BRANCH_ACTIVE_POWER_2) || functionType.equals(SensitivityFunctionType.BRANCH_CURRENT_2)) {
+            side = Side.RIGHT;
+            activePowerCoefficient = -1; // FARAO always considers flows as seen from Side 1. Sensitivity providers invert side flows.
+        }
+
+        if (functionType.equals(SensitivityFunctionType.BRANCH_ACTIVE_POWER_1) || functionType.equals(SensitivityFunctionType.BRANCH_ACTIVE_POWER_2)) {
+            stateResult.getReferenceFlows()
+                .computeIfAbsent(factor.getFunctionId(), k -> new EnumMap<>(Side.class))
+                .putIfAbsent(side, functionReference * activePowerCoefficient);
+            stateResult.getFlowSensitivities()
+                .computeIfAbsent(factor.getFunctionId(), k -> new HashMap<>())
+                .computeIfAbsent(factor.getVariableId(), k -> new EnumMap<>(Side.class))
+                .putIfAbsent(side, Double.isNaN(reference) ? 0 : sensitivity * activePowerCoefficient * ((hvdcsToInvert.contains(factor.getVariableId())) ? -1 : 1));
+        } else if (functionType.equals(SensitivityFunctionType.BRANCH_CURRENT_1) || functionType.equals(SensitivityFunctionType.BRANCH_CURRENT_2)) {
+            stateResult.getReferenceIntensities()
+                .computeIfAbsent(factor.getFunctionId(), k -> new EnumMap<>(Side.class))
+                .putIfAbsent(side, functionReference);
+        }
+    }
+
+    public SystematicSensitivityResult postTreatIntensitiesAndStatus() {
+        nStateResult.status = this.getStatus();
         postTreatIntensitiesOnState(nStateResult);
         postContingencyResults.values().forEach(map -> map.values().forEach(this::postTreatIntensitiesOnState));
         return this;
@@ -123,85 +153,7 @@ public class SystematicSensitivityResult {
                         }
                     });
                 }
-                if (stateResult.getIntensitySensitivities().containsKey(neId)) {
-                    sideAndFlow.forEach((side, flow) -> {
-                        if (flow < 0) {
-                            Map<String, Map<Side, Double>> sensitivities = stateResult.getIntensitySensitivities().get(neId);
-                            sensitivities.forEach((actionId, sideToSensi) -> sensitivities.get(actionId).put(side, -sideToSensi.get(side)));
-                        }
-                    });
-                }
             });
-    }
-
-    public SystematicSensitivityResult postTreatHvdcs(Network network, Map<String, HvdcRangeAction> hvdcRangeActions) {
-        postTreatHvdcsOnState(network, hvdcRangeActions, nStateResult);
-        postContingencyResults.get(Instant.OUTAGE).values().forEach(stateResult -> postTreatHvdcsOnState(network, hvdcRangeActions, stateResult));
-        postContingencyResults.get(Instant.AUTO).values().forEach(stateResult -> postTreatHvdcsOnState(network, hvdcRangeActions, stateResult));
-        postContingencyResults.get(Instant.CURATIVE).values().forEach(stateResult -> postTreatHvdcsOnState(network, hvdcRangeActions, stateResult));
-        return this;
-    }
-
-    private void postTreatHvdcsOnState(Network network, Map<String, HvdcRangeAction> hvdcRangeActions, StateResult stateResult) {
-        hvdcRangeActions.forEach((networkElementId, hvdcRangeAction) -> {
-            HvdcLine hvdcLine = network.getHvdcLine(networkElementId);
-            if (hvdcLine.getConvertersMode() == HvdcLine.ConvertersMode.SIDE_1_INVERTER_SIDE_2_RECTIFIER) {
-                stateResult.getFlowSensitivities().forEach((cnecId, cnecFlowSensis) -> {
-                    if (cnecFlowSensis.containsKey(networkElementId)) {
-                        cnecFlowSensis.put(networkElementId, invertMapValues(cnecFlowSensis.get(networkElementId)));
-                    }
-                });
-                stateResult.getIntensitySensitivities().forEach((cnecId, cnecIntensitySensis) -> {
-                    if (cnecIntensitySensis.containsKey(networkElementId)) {
-                        cnecIntensitySensis.put(networkElementId, invertMapValues(cnecIntensitySensis.get(networkElementId)));
-                    }
-                });
-            }
-        });
-    }
-
-    private Map<Side, Double> invertMapValues(Map<Side, Double> map) {
-        Map<Side, Double> invertedMap = new EnumMap<>(Side.class);
-        map.forEach((key, value) -> invertedMap.put(key, -value));
-        return invertedMap;
-    }
-
-    private void fillIndividualValue(SensitivityValue value, StateResult stateResult, List<SensitivityFactor> factors, SensitivityAnalysisResult.Status status) {
-        double reference = status.equals(SensitivityAnalysisResult.Status.FAILURE) ? Double.NaN : value.getFunctionReference();
-        double sensitivity = status.equals(SensitivityAnalysisResult.Status.FAILURE) ? Double.NaN : value.getValue();
-        SensitivityFactor factor = factors.get(value.getFactorIndex());
-
-        if (!Double.isNaN(reference) && !Double.isNaN(sensitivity)) {
-            this.status = SensitivityComputationStatus.SUCCESS;
-        }
-        if (Double.isNaN(reference) && status != SensitivityAnalysisResult.Status.FAILURE) {
-            reference = 0;
-            sensitivity = 0;
-        }
-
-        Side side = null;
-        double activePowerCoefficient = 0;
-        if (factor.getFunctionType().equals(SensitivityFunctionType.BRANCH_ACTIVE_POWER_1) || factor.getFunctionType().equals(SensitivityFunctionType.BRANCH_CURRENT_1)) {
-            side = Side.LEFT;
-            activePowerCoefficient = 1;
-        } else if (factor.getFunctionType().equals(SensitivityFunctionType.BRANCH_ACTIVE_POWER_2) || factor.getFunctionType().equals(SensitivityFunctionType.BRANCH_CURRENT_2)) {
-            side = Side.RIGHT;
-            activePowerCoefficient = -1; // FARAO always considers flows as seen from Side 1. Sensitivity providers invert side flows.
-        }
-
-        if (factor.getFunctionType().equals(SensitivityFunctionType.BRANCH_ACTIVE_POWER_1) || factor.getFunctionType().equals(SensitivityFunctionType.BRANCH_ACTIVE_POWER_2)) {
-            stateResult.getReferenceFlows()
-                .computeIfAbsent(factor.getFunctionId(), k -> new EnumMap<>(Side.class))
-                .putIfAbsent(side, reference * activePowerCoefficient);
-            stateResult.getFlowSensitivities()
-                .computeIfAbsent(factor.getFunctionId(), k -> new HashMap<>())
-                .computeIfAbsent(factor.getVariableId(), k -> new EnumMap<>(Side.class))
-                .putIfAbsent(side, sensitivity * activePowerCoefficient);
-        } else if (factor.getFunctionType().equals(SensitivityFunctionType.BRANCH_CURRENT_1) || factor.getFunctionType().equals(SensitivityFunctionType.BRANCH_CURRENT_2)) {
-            stateResult.getReferenceIntensities()
-                .computeIfAbsent(factor.getFunctionId(), k -> new EnumMap<>(Side.class))
-                .putIfAbsent(side, reference);
-        }
     }
 
     public boolean isSuccess() {
