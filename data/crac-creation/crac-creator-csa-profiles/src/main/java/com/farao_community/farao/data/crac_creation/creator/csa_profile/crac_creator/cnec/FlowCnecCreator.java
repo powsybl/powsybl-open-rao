@@ -234,8 +234,8 @@ public class FlowCnecCreator extends AbstractCnecCreator {
             if (!patlThresholds.isEmpty()) {
                 addFlowCnec(networkElement, null, Instant.PREVENTIVE, patlThresholds, useMaxAndMinThresholds, false);
             } else {
-                int longestAcceptableDuration = tatlThresholds.keySet().stream().max(Integer::compareTo).get();
-                addFlowCnec(networkElement, null, Instant.PREVENTIVE, tatlThresholds.get(longestAcceptableDuration), useMaxAndMinThresholds, true);
+                Optional<Integer> longestAcceptableDuration = tatlThresholds.keySet().stream().max(Integer::compareTo);
+                longestAcceptableDuration.ifPresent(integer -> addFlowCnec(networkElement, null, Instant.PREVENTIVE, tatlThresholds.get(integer), useMaxAndMinThresholds, true));
             }
         }
 
