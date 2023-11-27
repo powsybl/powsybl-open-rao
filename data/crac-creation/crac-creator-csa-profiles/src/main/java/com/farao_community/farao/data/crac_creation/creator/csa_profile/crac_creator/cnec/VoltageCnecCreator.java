@@ -17,10 +17,10 @@ import com.powsybl.triplestore.api.PropertyBag;
 import java.util.List;
 import java.util.Set;
 
-public class VoltageCnecCreator extends CnecCreator {
+public class VoltageCnecCreator extends AbstractCnecCreator {
 
-    public VoltageCnecCreator(Crac crac, Network network, String assessedElementId, String nativeAssessedElementName, String assessedElementOperator, boolean inBaseCase, PropertyBag voltageLimitPropertyBag, List<Contingency> linkedContingencies, Set<CsaProfileElementaryCreationContext> csaProfileCnecCreationContexts, CsaProfileCracCreationContext cracCreationContext) {
-        super(crac, network, assessedElementId, nativeAssessedElementName, assessedElementOperator, inBaseCase, voltageLimitPropertyBag, linkedContingencies, csaProfileCnecCreationContexts, cracCreationContext);
+    public VoltageCnecCreator(Crac crac, Network network, String assessedElementId, String nativeAssessedElementName, String assessedElementOperator, boolean inBaseCase, PropertyBag voltageLimitPropertyBag, List<Contingency> linkedContingencies, Set<CsaProfileElementaryCreationContext> csaProfileCnecCreationContexts, CsaProfileCracCreationContext cracCreationContext, String rejectedLinksAssessedElementContingency) {
+        super(crac, network, assessedElementId, nativeAssessedElementName, assessedElementOperator, inBaseCase, voltageLimitPropertyBag, linkedContingencies, csaProfileCnecCreationContexts, cracCreationContext, rejectedLinksAssessedElementContingency);
     }
 
     public void addVoltageCnecs() {
@@ -37,6 +37,7 @@ public class VoltageCnecCreator extends CnecCreator {
         if (addVoltageLimit(voltageCnecAdder)) {
             addCnecData(voltageCnecAdder, contingency, instant);
             voltageCnecAdder.add();
+            markCnecAsImportedAndHandleRejectedContingencies(instant, contingency);
         }
     }
 
@@ -51,12 +52,12 @@ public class VoltageCnecCreator extends CnecCreator {
         String terminalId = operationalLimitPropertyBag.getId(CsaProfileConstants.REQUEST_OPERATIONAL_LIMIT_TERMINAL);
         Identifiable<?> networkElement = this.getNetworkElementInNetwork(terminalId);
         if (networkElement == null) {
-            csaProfileCnecCreationContexts.add(CsaProfileElementaryCreationContext.notImported(assessedElementId, ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK, "current limit equipment is missing in network : " + terminalId));
+            csaProfileCnecCreationContexts.add(CsaProfileElementaryCreationContext.notImported(assessedElementId, ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK, writeAssessedElementIgnoredReasonMessage("the following current limit equipment is missing in network : " + terminalId)));
             return false;
         }
 
         if (!(networkElement instanceof BusbarSection)) {
-            csaProfileCnecCreationContexts.add(CsaProfileElementaryCreationContext.notImported(assessedElementId, ImportStatus.INCONSISTENCY_IN_DATA, "network element " + networkElement.getId() + " is not a bus bar section"));
+            csaProfileCnecCreationContexts.add(CsaProfileElementaryCreationContext.notImported(assessedElementId, ImportStatus.INCONSISTENCY_IN_DATA, writeAssessedElementIgnoredReasonMessage("the network element " + networkElement.getId() + " is not a bus bar section")));
             return false;
         }
 
@@ -83,7 +84,7 @@ public class VoltageCnecCreator extends CnecCreator {
                     .withUnit(Unit.KILOVOLT)
                     .withMin(normalValue).add();
         } else if (CsaProfileConstants.OperationalLimitDirectionKind.ABSOLUTE.toString().equals(direction)) {
-            csaProfileCnecCreationContexts.add(CsaProfileElementaryCreationContext.notImported(assessedElementId, ImportStatus.NOT_YET_HANDLED_BY_FARAO, "Only high and low voltage threshold values are handled for now (OperationalLimitType.direction is absolute)"));
+            csaProfileCnecCreationContexts.add(CsaProfileElementaryCreationContext.notImported(assessedElementId, ImportStatus.NOT_YET_HANDLED_BY_FARAO, writeAssessedElementIgnoredReasonMessage("only 'high' and 'low' voltage threshold values are handled for now (OperationalLimitType.direction is absolute)")));
             return false;
         }
         return true;
@@ -93,7 +94,7 @@ public class VoltageCnecCreator extends CnecCreator {
         String isInfiniteDurationStr = operationalLimitPropertyBag.get(CsaProfileConstants.REQUEST_VOLTAGE_LIMIT_IS_INFINITE_DURATION);
         boolean isInfiniteDuration = Boolean.parseBoolean(isInfiniteDurationStr);
         if (!isInfiniteDuration) {
-            csaProfileCnecCreationContexts.add(CsaProfileElementaryCreationContext.notImported(assessedElementId, ImportStatus.NOT_YET_HANDLED_BY_FARAO, "Only permanent voltage limits are handled for now (isInfiniteDuration is 'false')"));
+            csaProfileCnecCreationContexts.add(CsaProfileElementaryCreationContext.notImported(assessedElementId, ImportStatus.NOT_YET_HANDLED_BY_FARAO, writeAssessedElementIgnoredReasonMessage("only permanent voltage limits are handled for now (isInfiniteDuration is 'false')")));
             return false;
         }
         return true;

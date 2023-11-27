@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-public abstract class CnecCreator {
+public abstract class AbstractCnecCreator {
     protected final Crac crac;
     protected final Network network;
     protected final String assessedElementId;
@@ -30,8 +30,9 @@ public abstract class CnecCreator {
     protected final PropertyBag operationalLimitPropertyBag;
     protected Set<CsaProfileElementaryCreationContext> csaProfileCnecCreationContexts;
     protected final CsaProfileCracCreationContext cracCreationContext;
+    protected final String rejectedLinksAssessedElementContingency;
 
-    protected CnecCreator(Crac crac, Network network, String assessedElementId, String nativeAssessedElementName, String assessedElementOperator, boolean inBaseCase, PropertyBag operationalLimitPropertyBag, List<Contingency> linkedContingencies, Set<CsaProfileElementaryCreationContext> csaProfileCnecCreationContexts, CsaProfileCracCreationContext cracCreationContext) {
+    protected AbstractCnecCreator(Crac crac, Network network, String assessedElementId, String nativeAssessedElementName, String assessedElementOperator, boolean inBaseCase, PropertyBag operationalLimitPropertyBag, List<Contingency> linkedContingencies, Set<CsaProfileElementaryCreationContext> csaProfileCnecCreationContexts, CsaProfileCracCreationContext cracCreationContext, String rejectedLinksAssessedElementContingency) {
         this.crac = crac;
         this.network = network;
         this.assessedElementId = assessedElementId;
@@ -43,6 +44,7 @@ public abstract class CnecCreator {
         this.linkedContingencies = linkedContingencies;
         this.csaProfileCnecCreationContexts = csaProfileCnecCreationContexts;
         this.cracCreationContext = cracCreationContext;
+        this.rejectedLinksAssessedElementContingency = rejectedLinksAssessedElementContingency;
     }
 
     protected Identifiable<?> getNetworkElementInNetwork(String networkElementId) {
@@ -63,21 +65,25 @@ public abstract class CnecCreator {
         return networkElement;
     }
 
-    // TODO: return rejected co
+    protected String writeAssessedElementIgnoredReasonMessage(String reason) {
+        return "Assessed Element " + assessedElementId + " ignored because " + reason + ".";
+    }
 
-    protected String getCnecName(Instant instant) {
-        return assessedElementName + " - " + instant;
+    protected String getCnecName(Instant instant, Contingency contingency) {
+        // Need to include the mRID in the name in case the AssessedElement's name is not unique
+        return assessedElementName + " (" + assessedElementId + ") - " + (contingency == null ? "" : contingency.getName() + " - ") + instant;
     }
 
     protected void addCnecData(CnecAdder<?> cnecAdder, Contingency contingency, Instant instant) {
-        String cnecName = getCnecName(instant);
+        String cnecName = getCnecName(instant, contingency);
         cnecAdder.withContingency(contingency == null ? null : contingency.getId())
                     .withId(cnecName)
                     .withName(cnecName)
                     .withInstant(instant);
     }
 
-    protected void handleRejectedLinksAssessedElementContingency(String assessedElementId, String cnecName, String rejectedLinksAssessedElementContingency) {
+    protected void markCnecAsImportedAndHandleRejectedContingencies(Instant instant, Contingency contingency) {
+        String cnecName = getCnecName(instant, contingency);
         if (rejectedLinksAssessedElementContingency.isEmpty()) {
             csaProfileCnecCreationContexts.add(CsaProfileElementaryCreationContext.imported(assessedElementId, cnecName, cnecName, "", false));
         } else {

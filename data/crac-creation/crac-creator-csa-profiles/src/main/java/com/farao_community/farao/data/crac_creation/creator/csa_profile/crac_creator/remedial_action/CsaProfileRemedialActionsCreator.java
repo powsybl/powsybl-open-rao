@@ -329,7 +329,7 @@ public class CsaProfileRemedialActionsCreator {
 
     private Function<String, Boolean> addOnConstraintUsageRuleForCnec(Instant remedialActionInstant, RemedialActionAdder remedialActionAdder, UsageMethod usageMethod) {
         return cnecId -> {
-            Cnec cnec = crac.getCnec(cnecId);
+            Cnec<?> cnec = crac.getCnec(cnecId);
             if (isOnConstraintInstantCoherent(cnec.getState().getInstant(), remedialActionInstant)) {
                 if (cnec instanceof FlowCnec) {
                     remedialActionAdder.newOnFlowConstraintUsageRule()
