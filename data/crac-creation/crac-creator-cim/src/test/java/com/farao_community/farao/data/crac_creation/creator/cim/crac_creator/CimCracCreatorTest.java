@@ -590,9 +590,9 @@ class CimCracCreatorTest {
         assertNetworkActionImported("RA_1", Set.of("_2844585c-0d35-488d-a449-685bcd57afbf", "_ffbabc27-1ccd-4fdc-b037-e341706c8d29"), false);
         NetworkAction ra1 = importedCrac.getNetworkAction("RA_1");
         assertEquals(1, ra1.getUsageRules().size());
-        assertTrue(ra1.getUsageRules().get(0) instanceof OnFlowConstraintInCountry);
-        assertEquals(Instant.PREVENTIVE, ((OnFlowConstraintInCountry) ra1.getUsageRules().get(0)).getInstant());
-        assertEquals(Country.PT, ((OnFlowConstraintInCountry) ra1.getUsageRules().get(0)).getCountry());
+        assertTrue(ra1.getUsageRules().iterator().next() instanceof OnFlowConstraintInCountry);
+        assertEquals(Instant.PREVENTIVE, ((OnFlowConstraintInCountry) ra1.getUsageRules().iterator().next()).getInstant());
+        assertEquals(Country.PT, ((OnFlowConstraintInCountry) ra1.getUsageRules().iterator().next()).getCountry());
         assertEquals(2, ra1.getElementaryActions().size());
         assertTrue(ra1.getElementaryActions().stream()
             .filter(InjectionSetpoint.class::isInstance)
@@ -609,9 +609,9 @@ class CimCracCreatorTest {
         assertNetworkActionImported("RA_2", Set.of("_e8a7eaec-51d6-4571-b3d9-c36d52073c33", "_b58bf21a-096a-4dae-9a01-3f03b60c24c7"), false);
         NetworkAction ra2 = importedCrac.getNetworkAction("RA_2");
         assertEquals(1, ra2.getUsageRules().size());
-        assertTrue(ra2.getUsageRules().get(0) instanceof OnFlowConstraintInCountry);
-        assertEquals(Instant.CURATIVE, ((OnFlowConstraintInCountry) ra2.getUsageRules().get(0)).getInstant());
-        assertEquals(Country.ES, ((OnFlowConstraintInCountry) ra2.getUsageRules().get(0)).getCountry());
+        assertTrue(ra2.getUsageRules().iterator().next() instanceof OnFlowConstraintInCountry);
+        assertEquals(Instant.CURATIVE, ((OnFlowConstraintInCountry) ra2.getUsageRules().iterator().next()).getInstant());
+        assertEquals(Country.ES, ((OnFlowConstraintInCountry) ra2.getUsageRules().iterator().next()).getCountry());
         assertEquals(2, ra2.getElementaryActions().size());
         assertTrue(ra2.getElementaryActions().stream()
             .filter(PstSetpoint.class::isInstance)

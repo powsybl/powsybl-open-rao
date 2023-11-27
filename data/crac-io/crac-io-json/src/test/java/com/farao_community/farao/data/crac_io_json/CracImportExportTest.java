@@ -53,7 +53,7 @@ class CracImportExportTest {
         assertEquals(7, importedCrac.getFlowCnecs().size());
         assertEquals(1, importedCrac.getAngleCnecs().size());
         assertEquals(1, importedCrac.getVoltageCnecs().size());
-        assertEquals(8, importedCrac.getRangeActions().size());
+        assertEquals(9, importedCrac.getRangeActions().size());
         assertEquals(4, importedCrac.getNetworkActions().size());
 
         // --------------------------

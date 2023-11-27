@@ -279,7 +279,7 @@ public final class ExhaustiveCracCreation {
                 .withImportingCountry(Country.DE)
                 .newRange().withMin(-500).withMax(500).add()
                 .newRange().withMin(-1000).withMax(1000).add()
-                .newOnFlowConstraintInCountryUsageRule().withInstant(Instant.CURATIVE).withCountry(Country.ES).add()
+                .newOnFlowConstraintInCountryUsageRule().withInstant(Instant.CURATIVE).withCountry(Country.ES).withUsageMethod(UsageMethod.AVAILABLE).add()
                 .newOnContingencyStateUsageRule().withContingency("contingency1Id").withInstant(Instant.CURATIVE).withUsageMethod(UsageMethod.AVAILABLE).add()
                 .add();
 

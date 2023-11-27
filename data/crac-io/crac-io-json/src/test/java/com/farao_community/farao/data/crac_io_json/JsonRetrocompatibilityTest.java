@@ -27,7 +27,6 @@ import com.powsybl.iidm.network.Country;
 import org.junit.jupiter.api.Test;
 
 import java.io.InputStream;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -345,8 +344,8 @@ class JsonRetrocompatibilityTest {
 
         // check onInstant usage rule
         assertEquals(1, crac.getNetworkAction("complexNetworkActionId").getUsageRules().size());
-        assertTrue(crac.getNetworkAction("complexNetworkActionId").getUsageRules().get(0) instanceof OnInstant);
-        OnInstant onInstant = (OnInstant) crac.getNetworkAction("complexNetworkActionId").getUsageRules().get(0);
+        assertTrue(crac.getNetworkAction("complexNetworkActionId").getUsageRules().iterator().next() instanceof OnInstant);
+        OnInstant onInstant = (OnInstant) crac.getNetworkAction("complexNetworkActionId").getUsageRules().iterator().next();
         assertEquals(PREVENTIVE, onInstant.getInstant());
         assertEquals(AVAILABLE, onInstant.getUsageMethod());
 
@@ -593,8 +592,9 @@ class JsonRetrocompatibilityTest {
         assertEquals(2, crac.getCounterTradeRangeAction("counterTradeRange1Id").getRanges().size());
         assertEquals(Country.FR, crac.getCounterTradeRangeAction("counterTradeRange1Id").getExportingCountry());
         assertEquals(Country.DE, crac.getCounterTradeRangeAction("counterTradeRange1Id").getImportingCountry());
-        assertEquals(1, crac.getRemedialActions().stream().map(RemedialAction::getUsageRules).flatMap(List::stream).filter(OnVoltageConstraint.class::isInstance).count());
+
         // test usage methods for voltage/angle/onflow constraint usage rules
+        assertEquals(1, crac.getRemedialActions().stream().filter(ra -> ra.getUsageRules().stream().anyMatch(usageRule -> usageRule instanceof OnVoltageConstraint)).count());
         assertEquals(AVAILABLE, crac.getRangeAction("pstRange2Id").getUsageMethod(crac.getFlowCnec("cnec1prevId").getState()));
         assertEquals(FORCED, crac.getNetworkAction("injectionSetpointRaId").getUsageMethod(crac.getFlowCnec("cnec3autoId").getState()));
     }

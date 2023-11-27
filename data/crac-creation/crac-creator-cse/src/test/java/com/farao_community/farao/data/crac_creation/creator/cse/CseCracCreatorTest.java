@@ -428,9 +428,9 @@ class CseCracCreatorTest {
         // cra_2
         RemedialAction<?> cra2 = importedCrac.getNetworkAction("cra_2");
         assertEquals(2, cra2.getUsageRules().size()); // one OnInstant, one OnConstraint on CNEC 1
-        List<UsageRule> usageRules2List = cra2.getUsageRules().stream().sorted(Comparator.comparing(UsageRule::getUsageMethod)).toList();
-        assertTrue(usageRules2List.get(0) instanceof OnInstant);
-        assertTrue(usageRules2List.get(1) instanceof OnFlowConstraint);
+        List<UsageRule> usageRules2List = cra2.getUsageRules().stream().sorted(Comparator.comparing(ur -> ur.getClass().getName())).toList();
+        assertTrue(usageRules2List.get(0) instanceof OnFlowConstraint);
+        assertTrue(usageRules2List.get(1) instanceof OnInstant);
         // cra_3
         RemedialAction<?> cra3 = importedCrac.getNetworkAction("cra_3");
         assertEquals(2, cra3.getUsageRules().size()); // 1 OnConstraint on CNEC 1 and 1 on country FR
