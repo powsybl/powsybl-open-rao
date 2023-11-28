@@ -85,18 +85,12 @@ final class SystematicSensitivityAdapter {
         SystematicSensitivityResult result = new SystematicSensitivityResult();
         List<SensitivityFactor> allFactorsWithoutRa = cnecSensitivityProvider.getBasecaseFactors(network);
         allFactorsWithoutRa.addAll(cnecSensitivityProvider.getContingencyFactors(network, contingenciesWithoutRa));
-        OptionalInt instantOrderClosestToPreventiveWithoutRa = statesWithoutRa.stream().map(State::getInstant)
-            .filter(instant -> !instant.isPreventive())
-            .mapToInt(Instant::getOrder)
-            .min();
-        if (instantOrderClosestToPreventiveWithoutRa.isPresent()) {
-            result.completeData(SensitivityAnalysis.find(sensitivityProvider).run(network,
-                network.getVariantManager().getWorkingVariantId(),
-                allFactorsWithoutRa,
-                contingenciesWithoutRa,
-                cnecSensitivityProvider.getVariableSets(),
-                sensitivityComputationParameters), instantOrderClosestToPreventiveWithoutRa.getAsInt());
-        }
+        result.completeData(SensitivityAnalysis.find(sensitivityProvider).run(network,
+            network.getVariantManager().getWorkingVariantId(),
+            allFactorsWithoutRa,
+            contingenciesWithoutRa,
+            cnecSensitivityProvider.getVariableSets(),
+            sensitivityComputationParameters), outageInstant.getOrder());
 
         // systematic analyses for states with RA
         cnecSensitivityProvider.disableFactorsForBaseCaseSituation();
