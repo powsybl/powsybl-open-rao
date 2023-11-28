@@ -137,7 +137,7 @@ public final class RaoUtil {
      * For other states, the remedial action is available if and only if the usage method is "AVAILABLE" or "FORCED".
      */
     public static boolean isRemedialActionAvailable(RemedialAction<?> remedialAction, State state, PrePerimeterResult prePerimeterResult, Set<FlowCnec> flowCnecs, Network network, RaoParameters raoParameters) {
-        List<UsageRule> usageRules = remedialAction.getUsageRules();
+        Set<UsageRule> usageRules = remedialAction.getUsageRules();
         if (usageRules.isEmpty()) {
             FaraoLoggerProvider.BUSINESS_WARNS.warn(format("The remedial action %s has no usage rule and therefore will not be available.", remedialAction.getName()));
             return false;

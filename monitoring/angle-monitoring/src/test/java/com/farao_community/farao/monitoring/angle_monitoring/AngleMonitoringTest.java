@@ -96,7 +96,7 @@ class AngleMonitoringTest {
         crac.newNetworkAction()
                 .withId("Open L1 - 1")
                 .newTopologicalAction().withNetworkElement("L1").withActionType(ActionType.OPEN).add()
-                .newOnAngleConstraintUsageRule().withInstant(Instant.PREVENTIVE).withAngleCnec(acPrev.getId()).add()
+                .newOnAngleConstraintUsageRule().withInstant(Instant.PREVENTIVE).withAngleCnec(acPrev.getId()).withUsageMethod(UsageMethod.AVAILABLE).add()
                 .add();
     }
 
@@ -183,7 +183,7 @@ class AngleMonitoringTest {
         naL1Cur = (NetworkAction) crac.newNetworkAction()
                 .withId("Open L1 - 2")
                 .newTopologicalAction().withNetworkElement("L1").withActionType(ActionType.OPEN).add()
-                .newOnAngleConstraintUsageRule().withInstant(Instant.CURATIVE).withAngleCnec(acCur1.getId()).add()
+                .newOnAngleConstraintUsageRule().withInstant(Instant.CURATIVE).withAngleCnec(acCur1.getId()).withUsageMethod(UsageMethod.AVAILABLE).add()
                 .add();
         runAngleMonitoring();
         assertTrue(angleMonitoringResult.isUnsecure());

@@ -335,22 +335,22 @@ public class CsaProfileRemedialActionsCreator {
                     remedialActionAdder.newOnFlowConstraintUsageRule()
                         .withInstant(remedialActionInstant)
                         .withFlowCnec(cnecId)
+                        .withUsageMethod(usageMethod)
                         .add();
-                    // TODO add .withUsageMethod(usageMethod) when API of OnFlowConstraintAdder is ready
                     return true;
                 } else if (cnec instanceof VoltageCnec) {
                     remedialActionAdder.newOnVoltageConstraintUsageRule()
                         .withInstant(remedialActionInstant)
                         .withVoltageCnec(cnecId)
+                        .withUsageMethod(usageMethod)
                         .add();
-                    // TODO add .withUsageMethod(usageMethod) when API of OnFlowConstraintAdder is ready
                     return true;
                 } else if (cnec instanceof AngleCnec) {
                     remedialActionAdder.newOnAngleConstraintUsageRule()
                         .withInstant(remedialActionInstant)
                         .withAngleCnec(cnecId)
+                        .withUsageMethod(usageMethod)
                         .add();
-                    // TODO add .withUsageMethod(usageMethod) when API of OnFlowConstraintAdder is ready
                     return true;
                 } else {
                     throw new FaraoException(String.format("Unsupported cnec type %s", cnec.getClass().toString()));

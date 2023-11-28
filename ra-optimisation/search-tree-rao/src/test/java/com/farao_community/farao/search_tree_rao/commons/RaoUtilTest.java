@@ -210,7 +210,6 @@ class RaoUtilTest {
             .newTopologicalAction().withNetworkElement("ne2").withActionType(ActionType.OPEN).add()
             .newOnFlowConstraintUsageRule().withInstant(Instant.CURATIVE).withFlowCnec(flowCnec.getId()).withUsageMethod(UsageMethod.AVAILABLE).add()
             .add();
-        OnFlowConstraint onFlowConstraint = (OnFlowConstraint) na2.getUsageRules().iterator().next();
 
         when(flowResult.getMargin(eq(flowCnec), any())).thenReturn(10.);
         when(prePerimeterResult.getMargin(eq(flowCnec), any())).thenReturn(10.);
@@ -230,7 +229,7 @@ class RaoUtilTest {
 
         // asserts that a remedial action with no usage rule cannot be available
         NetworkAction networkActionWhithoutUsageRule = Mockito.mock(NetworkAction.class);
-        when(networkActionWhithoutUsageRule.getUsageRules()).thenReturn(List.of());
+        when(networkActionWhithoutUsageRule.getUsageRules()).thenReturn(Set.of());
         assertFalse(isRemedialActionAvailable(networkActionWhithoutUsageRule, optimizedState, prePerimeterResult, crac.getFlowCnecs(), network, raoParameters));
 
         // mock AUTO state for the next assertions
@@ -241,14 +240,14 @@ class RaoUtilTest {
         when(automatonState.getInstant()).thenReturn(Instant.AUTO);
 
         // remedial action with OnInstant Usage Rule
-        when(automatonRa.getUsageRules()).thenReturn(List.of(onInstant));
+        when(automatonRa.getUsageRules()).thenReturn(Set.of(onInstant));
         when(onInstant.getUsageMethod(automatonState)).thenReturn(UsageMethod.FORCED);
         assertTrue(isRemedialActionAvailable(automatonRa, automatonState, prePerimeterResult, crac.getFlowCnecs(), network, raoParameters));
         when(onInstant.getUsageMethod(automatonState)).thenReturn(UsageMethod.AVAILABLE);
         assertFalse(isRemedialActionAvailable(automatonRa, automatonState, prePerimeterResult, crac.getFlowCnecs(), network, raoParameters));
 
         // remedial action with OnFlowConstraint Usage Rule
-        when(automatonRa.getUsageRules()).thenReturn(List.of(onFlowConstraint));
+        when(automatonRa.getUsageRules()).thenReturn(Set.of(onFlowConstraint));
         when(onFlowConstraint.getUsageMethod(automatonState)).thenReturn(UsageMethod.AVAILABLE);
         assertFalse(isRemedialActionAvailable(automatonRa, automatonState, prePerimeterResult, crac.getFlowCnecs(), network, raoParameters));
         when(onFlowConstraint.getUsageMethod(automatonState)).thenReturn(UsageMethod.FORCED);
