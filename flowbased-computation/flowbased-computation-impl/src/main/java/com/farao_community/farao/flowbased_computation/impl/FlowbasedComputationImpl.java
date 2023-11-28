@@ -112,7 +112,7 @@ public class FlowbasedComputationImpl implements FlowbasedComputationProvider {
             TECHNICAL_LOGS.debug("RAO result is null: applying all network actions from CRAC.");
             crac.getNetworkActions().forEach(na -> {
                 UsageMethod usageMethod = na.getUsageMethod(crac.getPreventiveState());
-                if (usageMethod.equals(UsageMethod.AVAILABLE) || usageMethod.equals(UsageMethod.FORCED)) {
+                if (usageMethod.equals(UsageMethod.AVAILABLE)) {
                     BUSINESS_WARNS.warn("Remedial action may be available only on constraint. Condition is not checked but remedial action is applied");
                     na.apply(network);
                 }

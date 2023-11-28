@@ -134,7 +134,7 @@ public final class RaoUtil {
      * 3) Otherwise :
      * We compute the "strongest" usage method.
      * For automatonState, the remedial action is available if and only if the usage method is "FORCED".
-     * For other states, the remedial action is available if and only if the usage method is "AVAILABLE" or "FORCED".
+     * For other states, the remedial action is available if and only if the usage method is "AVAILABLE".
      */
     public static boolean isRemedialActionAvailable(RemedialAction<?> remedialAction, State state, PrePerimeterResult prePerimeterResult, Set<FlowCnec> flowCnecs, Network network, RaoParameters raoParameters) {
         Set<UsageRule> usageRules = remedialAction.getUsageRules();
@@ -159,7 +159,7 @@ public final class RaoUtil {
         }
         onInstantUsageMethods.addAll(onFlowUsageMethods);
         UsageMethod finalUsageMethod = UsageMethod.getStrongestUsageMethod(onInstantUsageMethods);
-        return state.getInstant().equals(Instant.AUTO) ? finalUsageMethod.equals(UsageMethod.FORCED) : finalUsageMethod.equals(UsageMethod.AVAILABLE) || finalUsageMethod.equals(UsageMethod.FORCED);
+        return state.getInstant().equals(Instant.AUTO) ? finalUsageMethod.equals(UsageMethod.FORCED) : finalUsageMethod.equals(UsageMethod.AVAILABLE);
     }
 
     /**

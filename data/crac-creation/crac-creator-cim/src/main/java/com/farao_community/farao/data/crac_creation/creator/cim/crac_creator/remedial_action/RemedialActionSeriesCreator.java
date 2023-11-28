@@ -402,8 +402,9 @@ public class RemedialActionSeriesCreator {
             addOnAngleConstraintUsageRule(remedialActionAdder, angleCnec, instant);
             return;
         }
+        UsageMethod usageMethod = instant.equals(Instant.AUTO) ? UsageMethod.FORCED : UsageMethod.AVAILABLE;
         if (!Objects.isNull(sharedDomain)) {
-            remedialActionAdder.newOnFlowConstraintInCountryUsageRule().withInstant(instant).withCountry(sharedDomain).withUsageMethod(instant.equals(Instant.AUTO) ? UsageMethod.FORCED : UsageMethod.AVAILABLE).add();
+            remedialActionAdder.newOnFlowConstraintInCountryUsageRule().withInstant(instant).withCountry(sharedDomain).withUsageMethod(usageMethod).add();
             return;
         }
 
@@ -412,7 +413,6 @@ public class RemedialActionSeriesCreator {
         if (instant.equals(Instant.PREVENTIVE) || (instant.equals(Instant.CURATIVE) && (contingencies == null || contingencies.isEmpty()))) {
             addOnInstantUsageRules(remedialActionAdder, instant);
         } else {
-            UsageMethod usageMethod = instant.equals(Instant.CURATIVE) ? UsageMethod.AVAILABLE : UsageMethod.FORCED;
             RemedialActionSeriesCreator.addOnStateUsageRules(remedialActionAdder, instant, usageMethod, contingencies);
         }
     }
@@ -461,7 +461,7 @@ public class RemedialActionSeriesCreator {
     private static void addOnFlowConstraintUsageRule(RemedialActionAdder<?> adder, FlowCnec flowCnec, Instant instant) {
         // Only allow PRAs with usage method OnFlowConstraint/OnAngleConstraint, for CNECs of instants PREVENTIVE & OUTAGE & CURATIVE
         // Only allow ARAs with usage method OnFlowConstraint/OnAngleConstraint, for CNECs of instant AUTO
-        //  Only allow CRAs with usage method OnFlowConstraint/OnAngleConstraint, for CNECs of instant CURATIVE
+        // Only allow CRAs with usage method OnFlowConstraint/OnAngleConstraint, for CNECs of instant CURATIVE
         Map<Instant, Set<Instant>> allowedCnecInstantPerRaInstant = Map.of(
             Instant.PREVENTIVE, Set.of(Instant.PREVENTIVE, Instant.OUTAGE, Instant.CURATIVE),
             Instant.AUTO, Set.of(Instant.AUTO),

@@ -28,19 +28,13 @@ import java.util.stream.Collectors;
 public abstract class AbstractRemedialAction<I extends RemedialAction<I>> extends AbstractIdentifiable<I> implements RemedialAction<I> {
     protected String operator;
     protected Set<UsageRule> usageRules;
-    protected Integer speed = null;
+    protected Integer speed;
 
     protected AbstractRemedialAction(String id, String name, String operator, Set<UsageRule> usageRules, Integer speed) {
         super(id, name);
         this.operator = operator;
         this.usageRules = usageRules;
         this.speed = speed;
-    }
-
-    protected AbstractRemedialAction(String id, String name, String operator, Set<UsageRule> usageRules) {
-        super(id, name);
-        this.operator = operator;
-        this.usageRules = usageRules;
     }
 
     void addUsageRule(UsageRule usageRule) {
@@ -81,9 +75,7 @@ public abstract class AbstractRemedialAction<I extends RemedialAction<I>> extend
 
     public Set<FlowCnec> getFlowCnecsConstrainingUsageRules(Set<FlowCnec> perimeterCnecs, Network network, State optimizedState) {
         Set<FlowCnec> toBeConsideredCnecs = new HashSet<>();
-        Set<UsageRule> usageRulesOnFlowConstraint = new HashSet<>();
-        usageRulesOnFlowConstraint.addAll(getUsageRules(OnFlowConstraint.class, optimizedState));
-        usageRulesOnFlowConstraint.addAll(getUsageRules(OnFlowConstraintInCountry.class, optimizedState));
+        Set<UsageRule> usageRulesOnFlowConstraint = new HashSet<>(getUsageRules(Set.of(OnFlowConstraint.class, OnFlowConstraintInCountry.class), optimizedState));
         usageRulesOnFlowConstraint.forEach(usageRule -> toBeConsideredCnecs.addAll(getFlowCnecsConstrainingForOneUsageRule(usageRule, perimeterCnecs, network)));
         return toBeConsideredCnecs;
     }
@@ -105,12 +97,11 @@ public abstract class AbstractRemedialAction<I extends RemedialAction<I>> extend
         }
     }
 
-    private <T extends UsageRule> List<T> getUsageRules(Class<T> usageRuleClass, State state) {
-        return getUsageRules().stream().filter(usageRuleClass::isInstance).map(usageRuleClass::cast)
+    private Collection<? extends UsageRule> getUsageRules(Set<Class<? extends UsageRule>> usageRuleClasses, State state) {
+        return getUsageRules().stream().filter(usageRule -> usageRuleClasses.contains(usageRule.getClass()))
             .filter(ofc -> state.getInstant().equals(Instant.AUTO) ?
                 ofc.getUsageMethod(state).equals(UsageMethod.FORCED) :
-                ofc.getUsageMethod(state).equals(UsageMethod.AVAILABLE) || ofc.getUsageMethod(state).equals(UsageMethod.FORCED))
-            .collect(Collectors.toList());
+                ofc.getUsageMethod(state).equals(UsageMethod.AVAILABLE)).toList();
     }
 
     private static boolean isCnecInCountry(Cnec<?> cnec, Country country, Network network) {
