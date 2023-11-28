@@ -37,8 +37,8 @@ class FlowCnecCreationTest {
 
         assertEquals(CURATIVE, usageRule1.getInstant());
         assertEquals("ELIA_AE1 - ELIA_CO1 - curative", ((OnFlowConstraintImpl) usageRule1).getFlowCnec().getId());
-        // TODO assert that UsageMethod.FORCED
-        // assertEquals(UsageMethod.FORCED, usageRule1.getUsageMethod());
+        // TODO assert that UsageMethod.AVAILABLE
+        // assertEquals(UsageMethod.AVAILABLE, usageRule1.getUsageMethod());
         assertEquals("5c1e945b-4598-437f-b8ae-7c6d4b475a6c", cracCreationContext.getRemedialActionCreationContexts().stream().filter(raC -> !raC.isImported()).findAny().get().getNativeId());
 
     }
