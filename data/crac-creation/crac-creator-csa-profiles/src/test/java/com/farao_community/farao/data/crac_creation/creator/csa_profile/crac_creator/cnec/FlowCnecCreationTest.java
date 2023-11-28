@@ -39,8 +39,7 @@ class FlowCnecCreationTest {
 
         assertEquals(CURATIVE, usageRule1.getInstant());
         assertEquals("ELIA_AE1 (dd5247a7-3cb1-43f8-8ce1-12f285653f06) - ELIA_CO1 - curative", ((OnFlowConstraintImpl) usageRule1).getFlowCnec().getId());
-        // TODO assert that UsageMethod.FORCED
-        // assertEquals(UsageMethod.FORCED, usageRule1.getUsageMethod());
+        assertEquals(UsageMethod.AVAILABLE, usageRule1.getUsageMethod());
         assertEquals("5c1e945b-4598-437f-b8ae-7c6d4b475a6c", cracCreationContext.getRemedialActionCreationContexts().stream().filter(raC -> !raC.isImported()).findAny().get().getNativeId());
 
     }
@@ -50,7 +49,7 @@ class FlowCnecCreationTest {
         CsaProfileCracCreationContext cracCreationContext = getCsaCracCreationContext("/CSA_TestConfiguration_TC2_27Apr2023.zip");
 
         cracCreationContext.getCrac().getRemedialActions()
-                .forEach(ra -> assertTrue(ra.getUsageRules().stream().noneMatch(usageRule -> usageRule instanceof OnFlowConstraintImpl)));
+            .forEach(ra -> assertTrue(ra.getUsageRules().stream().noneMatch(usageRule -> usageRule instanceof OnFlowConstraintImpl)));
     }
 
     @Test
