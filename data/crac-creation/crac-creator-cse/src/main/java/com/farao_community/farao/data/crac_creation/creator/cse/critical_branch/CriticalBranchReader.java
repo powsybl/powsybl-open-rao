@@ -32,7 +32,7 @@ import java.util.stream.Collectors;
 public class CriticalBranchReader {
     private final String criticalBranchName;
     private final NativeBranch nativeBranch;
-    private final Map<Instant, String> createdCnecIds = new HashMap<>();
+    private final Map<String, String> createdCnecIds = new HashMap<>();
     private final boolean isImported;
     private final Set<String> remedialActionIds = new HashSet<>();
     private final ImportStatus criticalBranchImportStatus;
@@ -55,7 +55,7 @@ public class CriticalBranchReader {
         return isBaseCase;
     }
 
-    public Map<Instant, String> getCreatedCnecIds() {
+    public Map<String, String> getCreatedCnecIds() {
         return Collections.unmodifiableMap(createdCnecIds);
     }
 
@@ -172,7 +172,7 @@ public class CriticalBranchReader {
         }
         addThreshold(cnecAdder, tImax.getV(), unit, tBranch.getDirection().getV(), isDirectionInverted, monitoredSidesForThreshold);
         cnecAdder.add();
-        createdCnecIds.put(instant, cnecId);
+        createdCnecIds.put(instant.getId(), cnecId);
         if (!isMonitored) {
             storeRemedialActions(tBranch);
         }

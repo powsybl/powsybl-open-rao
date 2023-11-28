@@ -69,11 +69,11 @@ public final class CoreCneCnecsCreator {
         String outageBranchCnecId;
         String curativeBranchCnecId;
         if (branchCnecCreationContext.isBaseCase()) {
-            outageBranchCnecId = branchCnecCreationContext.getCreatedCnecsIds().get(cneHelper.getCrac().getInstant("preventive"));
+            outageBranchCnecId = branchCnecCreationContext.getCreatedCnecsIds().get(cneHelper.getCrac().getInstant(InstantKind.PREVENTIVE).getId());
             curativeBranchCnecId = outageBranchCnecId;
         } else {
-            outageBranchCnecId = branchCnecCreationContext.getCreatedCnecsIds().get(cneHelper.getCrac().getInstant("outage"));
-            curativeBranchCnecId = branchCnecCreationContext.getCreatedCnecsIds().get(cneHelper.getCrac().getInstant("curative"));
+            outageBranchCnecId = branchCnecCreationContext.getCreatedCnecsIds().get(cneHelper.getCrac().getInstant(InstantKind.OUTAGE).getId());
+            curativeBranchCnecId = branchCnecCreationContext.getCreatedCnecsIds().get(cneHelper.getCrac().getInstant(InstantKind.CURATIVE).getId());
         }
 
         // A52 (CNEC)

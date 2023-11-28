@@ -8,7 +8,6 @@
 package com.farao_community.farao.data.swe_cne_exporter;
 
 import com.farao_community.farao.data.crac_api.Crac;
-import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.NetworkElement;
 import com.farao_community.farao.data.crac_api.RemedialAction;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
@@ -104,7 +103,7 @@ public class MockCracCreationContext implements UcteCracCreationContext {
         boolean isBaseCase;
         boolean isImported;
         NativeBranch nativeBranch;
-        Map<Instant, String> createdCnecsIds;
+        Map<String, String> createdCnecsIds;
 
         MockCnecCreationContext(FlowCnec flowCnec, Crac crac) {
             this.flowCnec = flowCnec;
@@ -114,9 +113,9 @@ public class MockCracCreationContext implements UcteCracCreationContext {
             this.createdCnecsIds = buildCreatedCnecsIds(flowCnec, crac);
         }
 
-        private Map<Instant, String> buildCreatedCnecsIds(FlowCnec flowCnec, Crac crac) {
-            Map<Instant, String> map = new HashMap<>();
-            map.put(flowCnec.getState().getInstant(), flowCnec.getId());
+        private Map<String, String> buildCreatedCnecsIds(FlowCnec flowCnec, Crac crac) {
+            Map<String, String> map = new HashMap<>();
+            map.put(flowCnec.getState().getInstant().getId(), flowCnec.getId());
             if (!isBaseCase) {
                 crac.getInstants().stream()
                     .filter(instant -> !instant.isPreventive())
@@ -126,7 +125,7 @@ public class MockCracCreationContext implements UcteCracCreationContext {
                             .filter(flowCnec1 -> flowCnec1.getNetworkElements().equals(flowCnec.getNetworkElements()))
                             .findFirst()
                             .orElse(flowCnec);
-                        map.put(instant, otherBranchCnec.getId());
+                        map.put(instant.getId(), otherBranchCnec.getId());
                     });
             }
             return map;
@@ -185,7 +184,7 @@ public class MockCracCreationContext implements UcteCracCreationContext {
         }
 
         @Override
-        public Map<Instant, String> getCreatedCnecsIds() {
+        public Map<String, String> getCreatedCnecsIds() {
             return createdCnecsIds;
         }
 
@@ -199,7 +198,7 @@ public class MockCracCreationContext implements UcteCracCreationContext {
         }
 
         void addCreatedCnec(FlowCnec flowCnec) {
-            createdCnecsIds.put(flowCnec.getState().getInstant(), flowCnec.getId());
+            createdCnecsIds.put(flowCnec.getState().getInstant().getId(), flowCnec.getId());
         }
     }
 

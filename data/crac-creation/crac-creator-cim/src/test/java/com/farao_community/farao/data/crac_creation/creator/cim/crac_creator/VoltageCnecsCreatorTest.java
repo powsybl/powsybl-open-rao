@@ -62,13 +62,13 @@ class VoltageCnecsCreatorTest {
     public void setUp() {
         Properties importParams = new Properties();
         importParams.put("iidm.import.cgmes.source-for-iidm-id", "rdfID");
-        network = Network.read(Paths.get(new File(Objects.requireNonNull(CimCracCreatorTest.class.getResource("/networks/MicroGrid.zip")).getFile()).toString()), LocalComputationManager.getDefault(), Suppliers.memoize(ImportConfig::load).get(), importParams);
+        network = Network.read(Paths.get(new File(CimCracCreatorTest.class.getResource("/networks/MicroGrid.zip").getFile()).toString()), LocalComputationManager.getDefault(), Suppliers.memoize(ImportConfig::load).get(), importParams);
 
         InputStream is = getClass().getResourceAsStream("/cracs/CIM_21_1_1.xml");
         CimCracImporter cracImporter = new CimCracImporter();
         CimCrac cimCrac = cracImporter.importNativeCrac(is);
         CimCracCreator cimCracCreator = new CimCracCreator();
-        cracCreationContext = cimCracCreator.createCrac(cimCrac, network, OffsetDateTime.parse("2021-04-01T23:00Z"), new CracCreationParameters());
+        cracCreationContext = cimCracCreator.createCrac(cimCrac, network,  OffsetDateTime.parse("2021-04-01T23:00Z"), new CracCreationParameters());
         crac = cracCreationContext.getCrac();
         preventiveInstant = crac.getInstant(PREVENTIVE_INSTANT_ID);
         outageInstant = crac.getInstant(OUTAGE_INSTANT_ID);

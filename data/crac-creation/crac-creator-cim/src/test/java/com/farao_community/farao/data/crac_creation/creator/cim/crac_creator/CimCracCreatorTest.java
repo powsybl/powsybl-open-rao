@@ -56,10 +56,11 @@ class CimCracCreatorTest {
     private static final String AUTO_INSTANT_ID = "auto";
     private static final String CURATIVE_INSTANT_ID = "curative";
     private static final double DOUBLE_TOLERANCE = 1e-6;
-    private static Network baseNetwork;
-    private static Network hvdcNetwork;
+
     private Crac importedCrac;
     private CimCracCreationContext cracCreationContext;
+    private static Network baseNetwork;
+    private static Network hvdcNetwork;
     private Instant preventiveInstant;
     private Instant autoInstant;
     private Instant curativeInstant;
@@ -75,7 +76,7 @@ class CimCracCreatorTest {
     public static void loadHvdcNetwork() {
         Properties importParams = new Properties();
         importParams.put("iidm.import.cgmes.source-for-iidm-id", "rdfID");
-        hvdcNetwork = Network.read(Paths.get(new File(Objects.requireNonNull(CimCracCreatorTest.class.getResource("/networks/TestCase16NodesWith2Hvdc.xiidm")).getFile()).toString()), LocalComputationManager.getDefault(), Suppliers.memoize(ImportConfig::load).get(), importParams);
+        hvdcNetwork = Network.read(Paths.get(new File(CimCracCreatorTest.class.getResource("/networks/TestCase16NodesWith2Hvdc.xiidm").getFile()).toString()), LocalComputationManager.getDefault(), Suppliers.memoize(ImportConfig::load).get(), importParams);
     }
 
     private void setUp(String fileName, Network network, OffsetDateTime parametrableOffsetDateTime, CracCreationParameters cracCreationParameters) {
