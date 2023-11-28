@@ -197,7 +197,7 @@ class CseCracCreatorTest {
         assertFalse(cnec1context.isDirectionInvertedInNetwork());
         assertTrue(cnec1context.getContingencyId().isEmpty());
         assertEquals(1, cnec1context.getCreatedCnecsIds().size());
-        assertEquals("basecase_branch_1 - NNL2AA1 ->NNL3AA1  - preventive", cnec1context.getCreatedCnecsIds().get(preventiveInstant));
+        assertEquals("basecase_branch_1 - NNL2AA1 ->NNL3AA1  - preventive", cnec1context.getCreatedCnecsIds().get(PREVENTIVE_INSTANT_ID));
     }
 
     @Test
@@ -209,9 +209,9 @@ class CseCracCreatorTest {
         assertFalse(((CseCriticalBranchCreationContext) cnec1context).isSelected());
         assertTrue(((CseCriticalBranchCreationContext) cnec2context).isSelected());
         assertTrue(((CseCriticalBranchCreationContext) cnec3context).isSelected());
-        assertFalse(importedCrac.getCnec(cnec1context.getCreatedCnecsIds().get(preventiveInstant)).isOptimized());
-        assertTrue(importedCrac.getCnec(cnec2context.getCreatedCnecsIds().get(preventiveInstant)).isOptimized());
-        assertTrue(importedCrac.getCnec(cnec3context.getCreatedCnecsIds().get(preventiveInstant)).isOptimized());
+        assertFalse(importedCrac.getCnec(cnec1context.getCreatedCnecsIds().get(PREVENTIVE_INSTANT_ID)).isOptimized());
+        assertTrue(importedCrac.getCnec(cnec2context.getCreatedCnecsIds().get(PREVENTIVE_INSTANT_ID)).isOptimized());
+        assertTrue(importedCrac.getCnec(cnec3context.getCreatedCnecsIds().get(PREVENTIVE_INSTANT_ID)).isOptimized());
     }
 
     @Test
@@ -223,8 +223,8 @@ class CseCracCreatorTest {
         assertFalse(cnec2context.isDirectionInvertedInNetwork());
         assertEquals("outage_1", cnec2context.getContingencyId().orElseThrow());
         assertEquals(2, cnec2context.getCreatedCnecsIds().size());
-        assertEquals("French line 1 - FFR1AA1 ->FFR2AA1   - outage_1 - outage", cnec2context.getCreatedCnecsIds().get(outageInstant));
-        assertEquals("French line 1 - FFR1AA1 ->FFR2AA1   - outage_1 - curative", cnec2context.getCreatedCnecsIds().get(curativeInstant));
+        assertEquals("French line 1 - FFR1AA1 ->FFR2AA1   - outage_1 - outage", cnec2context.getCreatedCnecsIds().get(OUTAGE_INSTANT_ID));
+        assertEquals("French line 1 - FFR1AA1 ->FFR2AA1   - outage_1 - curative", cnec2context.getCreatedCnecsIds().get(CURATIVE_INSTANT_ID));
     }
 
     @Test

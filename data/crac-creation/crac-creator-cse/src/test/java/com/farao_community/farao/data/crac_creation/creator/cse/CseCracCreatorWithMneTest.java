@@ -60,19 +60,19 @@ class CseCracCreatorWithMneTest {
         assertNotNull(cseCriticalBranchCreationContext);
         assertFalse(cseCriticalBranchCreationContext.isSelected());
         assertTrue(cseCriticalBranchCreationContext.isImported());
-        assertNotNull(cseCriticalBranchCreationContext.getCreatedCnecsIds().get(outageInstant));
-        assertNotNull(cseCriticalBranchCreationContext.getCreatedCnecsIds().get(curativeInstant));
-        assertNotNull(cseCriticalBranchCreationContext.getCreatedCnecsIds().get(autoInstant));
-        assertNull(cseCriticalBranchCreationContext.getCreatedCnecsIds().get(preventiveInstant));
+        assertNotNull(cseCriticalBranchCreationContext.getCreatedCnecsIds().get(OUTAGE_INSTANT_ID));
+        assertNotNull(cseCriticalBranchCreationContext.getCreatedCnecsIds().get(CURATIVE_INSTANT_ID));
+        assertNotNull(cseCriticalBranchCreationContext.getCreatedCnecsIds().get(AUTO_INSTANT_ID));
+        assertNull(cseCriticalBranchCreationContext.getCreatedCnecsIds().get(PREVENTIVE_INSTANT_ID));
         assertEquals(ImportStatus.IMPORTED, cseCriticalBranchCreationContext.getImportStatus());
         assertFalse(cseCriticalBranchCreationContext.isBaseCase());
         assertEquals(contingencyId, cseCriticalBranchCreationContext.getContingencyId().orElseThrow());
         assertEquals(fromNode, cseCriticalBranchCreationContext.getNativeBranch().getFrom());
         assertEquals(toNode, cseCriticalBranchCreationContext.getNativeBranch().getTo());
         assertEquals(suffix, cseCriticalBranchCreationContext.getNativeBranch().getSuffix());
-        assertEquals(cnecOutageId, cseCriticalBranchCreationContext.getCreatedCnecsIds().get(outageInstant));
-        assertEquals(cnecCurativeId, cseCriticalBranchCreationContext.getCreatedCnecsIds().get(curativeInstant));
-        assertEquals(cnecAutoId, cseCriticalBranchCreationContext.getCreatedCnecsIds().get(autoInstant));
+        assertEquals(cnecOutageId, cseCriticalBranchCreationContext.getCreatedCnecsIds().get(OUTAGE_INSTANT_ID));
+        assertEquals(cnecCurativeId, cseCriticalBranchCreationContext.getCreatedCnecsIds().get(CURATIVE_INSTANT_ID));
+        assertEquals(cnecAutoId, cseCriticalBranchCreationContext.getCreatedCnecsIds().get(AUTO_INSTANT_ID));
         assertEquals(inverted, cseCriticalBranchCreationContext.isDirectionInvertedInNetwork());
     }
 
@@ -93,16 +93,16 @@ class CseCracCreatorWithMneTest {
         assertNotNull(cseCriticalBranchCreationContext);
         assertFalse(cseCriticalBranchCreationContext.isSelected());
         assertTrue(cseCriticalBranchCreationContext.isImported());
-        assertNotNull(cseCriticalBranchCreationContext.getCreatedCnecsIds().get(preventiveInstant));
-        assertNull(cseCriticalBranchCreationContext.getCreatedCnecsIds().get(outageInstant));
-        assertNull(cseCriticalBranchCreationContext.getCreatedCnecsIds().get(autoInstant));
-        assertNull(cseCriticalBranchCreationContext.getCreatedCnecsIds().get(curativeInstant));
+        assertNotNull(cseCriticalBranchCreationContext.getCreatedCnecsIds().get(PREVENTIVE_INSTANT_ID));
+        assertNull(cseCriticalBranchCreationContext.getCreatedCnecsIds().get(OUTAGE_INSTANT_ID));
+        assertNull(cseCriticalBranchCreationContext.getCreatedCnecsIds().get(AUTO_INSTANT_ID));
+        assertNull(cseCriticalBranchCreationContext.getCreatedCnecsIds().get(CURATIVE_INSTANT_ID));
         assertTrue(cseCriticalBranchCreationContext.isBaseCase());
         assertTrue(cseCriticalBranchCreationContext.getContingencyId().isEmpty());
         assertEquals(fromNode, cseCriticalBranchCreationContext.getNativeBranch().getFrom());
         assertEquals(toNode, cseCriticalBranchCreationContext.getNativeBranch().getTo());
         assertEquals(suffix, cseCriticalBranchCreationContext.getNativeBranch().getSuffix());
-        assertEquals(cnecPreventiveId, cseCriticalBranchCreationContext.getCreatedCnecsIds().get(preventiveInstant));
+        assertEquals(cnecPreventiveId, cseCriticalBranchCreationContext.getCreatedCnecsIds().get(PREVENTIVE_INSTANT_ID));
         assertEquals(inverted, cseCriticalBranchCreationContext.isDirectionInvertedInNetwork());
     }
 
