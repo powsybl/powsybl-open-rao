@@ -8,6 +8,7 @@ package com.farao_community.farao.data.crac_impl;
 
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Crac;
+import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.InstantKind;
 import com.farao_community.farao.data.crac_api.cnec.AngleCnec;
 import com.farao_community.farao.data.crac_api.cnec.AngleCnecAdder;
@@ -30,11 +31,13 @@ class AngleCnecImplTest {
     private static final String PREVENTIVE_INSTANT_ID = "preventive";
 
     private Crac crac;
+    private Instant preventiveInstant;
 
     @BeforeEach
     public void setUp() {
         crac = new CracImplFactory().create("cracId")
             .newInstant(PREVENTIVE_INSTANT_ID, InstantKind.PREVENTIVE);
+        preventiveInstant = crac.getInstant(PREVENTIVE_INSTANT_ID);
     }
 
     private AngleCnecAdder initPreventiveCnecAdder() {
@@ -44,7 +47,7 @@ class AngleCnecImplTest {
             .withExportingNetworkElement("exportingNetworkElement")
             .withImportingNetworkElement("importingNetworkElement")
             .withOperator("FR")
-            .withInstant(PREVENTIVE_INSTANT_ID)
+            .withInstant(preventiveInstant)
             .withOptimized(false);
     }
 
@@ -57,7 +60,7 @@ class AngleCnecImplTest {
             .withId("cnec-1-id")
             .withExportingNetworkElement("BBE1AA1")
             .withImportingNetworkElement("BBE2AA1")
-            .withInstant(PREVENTIVE_INSTANT_ID)
+            .withInstant(preventiveInstant)
             .newThreshold().withUnit(Unit.DEGREE).withMax(1000.).add()
             .add();
 
@@ -65,7 +68,7 @@ class AngleCnecImplTest {
             .withId("cnec-2-id")
             .withExportingNetworkElement("DDE2AA1")
             .withImportingNetworkElement("NNL3AA1")
-            .withInstant(PREVENTIVE_INSTANT_ID)
+            .withInstant(preventiveInstant)
             .newThreshold().withUnit(Unit.DEGREE).withMax(1000.).add()
             .add();
 

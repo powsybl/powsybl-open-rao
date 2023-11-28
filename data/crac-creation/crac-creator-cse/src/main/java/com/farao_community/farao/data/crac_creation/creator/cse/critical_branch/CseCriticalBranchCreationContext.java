@@ -6,6 +6,7 @@
  */
 package com.farao_community.farao.data.crac_creation.creator.cse.critical_branch;
 
+import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_creation.creator.api.ImportStatus;
 import com.farao_community.farao.data.crac_creation.creator.api.std_creation_context.BranchCnecCreationContext;
 import com.farao_community.farao.data.crac_creation.creator.api.std_creation_context.NativeBranch;
@@ -23,7 +24,7 @@ public class CseCriticalBranchCreationContext implements BranchCnecCreationConte
     private final boolean isBaseCase;
     private final String contingencyId;
     private final boolean isImported;
-    private final Map<String, String> createdCnecIds;
+    private final Map<Instant, String> createdCnecIds;
     private final boolean isDirectionInverted;
     private final boolean selected;
     private final String invalidBranchReason;
@@ -75,7 +76,7 @@ public class CseCriticalBranchCreationContext implements BranchCnecCreationConte
     }
 
     @Override
-    public Map<String, String> getCreatedCnecsIds() {
+    public Map<Instant, String> getCreatedCnecsIds() {
         return createdCnecIds;
     }
 

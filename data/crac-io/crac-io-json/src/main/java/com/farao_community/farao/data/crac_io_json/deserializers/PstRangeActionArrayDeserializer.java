@@ -46,43 +46,43 @@ public final class PstRangeActionArrayDeserializer {
                         break;
                     case ON_INSTANT_USAGE_RULES:
                         jsonParser.nextToken();
-                        OnInstantArrayDeserializer.deserialize(jsonParser, version, pstRangeActionAdder);
+                        OnInstantArrayDeserializer.deserialize(jsonParser, version, pstRangeActionAdder, crac);
                         break;
                     case FREE_TO_USE_USAGE_RULES:
                         if (getPrimaryVersionNumber(version) > 1 || getSubVersionNumber(version) > 5) {
                             throw new FaraoException("FreeToUse has been renamed to OnInstant since CRAC version 1.6");
                         } else {
                             jsonParser.nextToken();
-                            OnInstantArrayDeserializer.deserialize(jsonParser, version, pstRangeActionAdder);
+                            OnInstantArrayDeserializer.deserialize(jsonParser, version, pstRangeActionAdder, crac);
                         }
                         break;
                     case ON_CONTINGENCY_STATE_USAGE_RULES:
                         jsonParser.nextToken();
-                        OnStateArrayDeserializer.deserialize(jsonParser, version, pstRangeActionAdder);
+                        OnStateArrayDeserializer.deserialize(jsonParser, version, pstRangeActionAdder, crac);
                         break;
                     case ON_STATE_USAGE_RULES:
                         if (getPrimaryVersionNumber(version) > 1 || getSubVersionNumber(version) > 5) {
                             throw new FaraoException("OnState has been renamed to OnContingencyState since CRAC version 1.6");
                         } else {
                             jsonParser.nextToken();
-                            OnStateArrayDeserializer.deserialize(jsonParser, version, pstRangeActionAdder);
+                            OnStateArrayDeserializer.deserialize(jsonParser, version, pstRangeActionAdder, crac);
                         }
                         break;
                     case ON_FLOW_CONSTRAINT_USAGE_RULES:
                         jsonParser.nextToken();
-                        OnFlowConstraintArrayDeserializer.deserialize(jsonParser, pstRangeActionAdder);
+                        OnFlowConstraintArrayDeserializer.deserialize(jsonParser, pstRangeActionAdder, crac);
                         break;
                     case ON_ANGLE_CONSTRAINT_USAGE_RULES:
                         jsonParser.nextToken();
-                        OnAngleConstraintArrayDeserializer.deserialize(jsonParser, pstRangeActionAdder);
+                        OnAngleConstraintArrayDeserializer.deserialize(jsonParser, pstRangeActionAdder, crac);
                         break;
                     case ON_VOLTAGE_CONSTRAINT_USAGE_RULES:
                         jsonParser.nextToken();
-                        OnVoltageConstraintArrayDeserializer.deserialize(jsonParser, pstRangeActionAdder);
+                        OnVoltageConstraintArrayDeserializer.deserialize(jsonParser, pstRangeActionAdder, crac);
                         break;
                     case ON_FLOW_CONSTRAINT_IN_COUNTRY_USAGE_RULES:
                         jsonParser.nextToken();
-                        OnFlowConstraintInCountryArrayDeserializer.deserialize(jsonParser, pstRangeActionAdder);
+                        OnFlowConstraintInCountryArrayDeserializer.deserialize(jsonParser, pstRangeActionAdder, crac);
                         break;
                     case NETWORK_ELEMENT_ID:
                         String networkElementId = jsonParser.nextTextValue();

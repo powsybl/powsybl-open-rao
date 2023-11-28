@@ -6,6 +6,7 @@
  */
 package com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.cnec;
 
+import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_creation.creator.api.ImportStatus;
 
 /**
@@ -13,35 +14,35 @@ import com.farao_community.farao.data.crac_creation.creator.api.ImportStatus;
  */
 public final class VoltageCnecCreationContext {
     private final String nativeNetworkElementId;
-    private final String instantId;
+    private final Instant instant;
     private final String nativeContingencyName;
     private final ImportStatus importStatus;
     private final String importStatusDetail;
     private final String createdCnecId;
 
-    private VoltageCnecCreationContext(String nativeNetworkElementId, String instantId, String nativeContingencyName, ImportStatus importStatus, String importStatusDetail, String createdCnecId) {
+    private VoltageCnecCreationContext(String nativeNetworkElementId, Instant instant, String nativeContingencyName, ImportStatus importStatus, String importStatusDetail, String createdCnecId) {
         this.nativeNetworkElementId = nativeNetworkElementId;
-        this.instantId = instantId;
+        this.instant = instant;
         this.nativeContingencyName = nativeContingencyName;
         this.importStatus = importStatus;
         this.importStatusDetail = importStatusDetail;
         this.createdCnecId = createdCnecId;
     }
 
-    public static VoltageCnecCreationContext imported(String nativeNetworkElementId, String instantId, String nativeContingencyName, String createdCnecId) {
-        return new VoltageCnecCreationContext(nativeNetworkElementId, instantId, nativeContingencyName, ImportStatus.IMPORTED, null, createdCnecId);
+    public static VoltageCnecCreationContext imported(String nativeNetworkElementId, Instant instant, String nativeContingencyName, String createdCnecId) {
+        return new VoltageCnecCreationContext(nativeNetworkElementId, instant, nativeContingencyName, ImportStatus.IMPORTED, null, createdCnecId);
     }
 
-    public static VoltageCnecCreationContext notImported(String nativeNetworkElementId, String instantId, String nativeContingencyName, ImportStatus importStatus, String importStatusDetail) {
-        return new VoltageCnecCreationContext(nativeNetworkElementId, instantId, nativeContingencyName, importStatus, importStatusDetail, null);
+    public static VoltageCnecCreationContext notImported(String nativeNetworkElementId, Instant instant, String nativeContingencyName, ImportStatus importStatus, String importStatusDetail) {
+        return new VoltageCnecCreationContext(nativeNetworkElementId, instant, nativeContingencyName, importStatus, importStatusDetail, null);
     }
 
     public String getNativeNetworkElementId() {
         return nativeNetworkElementId;
     }
 
-    public String getInstantId() {
-        return instantId;
+    public Instant getInstant() {
+        return instant;
     }
 
     public String getNativeContingencyName() {

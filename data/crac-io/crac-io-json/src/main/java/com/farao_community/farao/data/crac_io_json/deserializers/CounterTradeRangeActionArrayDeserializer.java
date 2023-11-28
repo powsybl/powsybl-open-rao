@@ -33,7 +33,7 @@ public final class CounterTradeRangeActionArrayDeserializer {
             CounterTradeRangeActionAdder counterTradeRangeActionAdder = crac.newCounterTradeRangeAction();
 
             while (!jsonParser.nextToken().isStructEnd()) {
-                addElement(counterTradeRangeActionAdder, jsonParser, version);
+                addElement(counterTradeRangeActionAdder, jsonParser, version, crac);
             }
             if (getPrimaryVersionNumber(version) <= 1 && getSubVersionNumber(version) < 3) {
                 // initial setpoint was not exported then, set default value to 0 to avoid errors
@@ -43,7 +43,7 @@ public final class CounterTradeRangeActionArrayDeserializer {
         }
     }
 
-    private static void addElement(CounterTradeRangeActionAdder counterTradeRangeActionAdder, JsonParser jsonParser, String version) throws IOException {
+    private static void addElement(CounterTradeRangeActionAdder counterTradeRangeActionAdder, JsonParser jsonParser, String version, Crac crac) throws IOException {
         switch (jsonParser.getCurrentName()) {
             case ID:
                 counterTradeRangeActionAdder.withId(jsonParser.nextTextValue());
@@ -56,43 +56,43 @@ public final class CounterTradeRangeActionArrayDeserializer {
                 break;
             case ON_INSTANT_USAGE_RULES:
                 jsonParser.nextToken();
-                OnInstantArrayDeserializer.deserialize(jsonParser, version, counterTradeRangeActionAdder);
+                OnInstantArrayDeserializer.deserialize(jsonParser, version, counterTradeRangeActionAdder, crac);
                 break;
             case FREE_TO_USE_USAGE_RULES:
                 if (getPrimaryVersionNumber(version) > 1 || getSubVersionNumber(version) > 5) {
                     throw new FaraoException("FreeToUse has been renamed to OnInstant since CRAC version 1.6");
                 } else {
                     jsonParser.nextToken();
-                    OnInstantArrayDeserializer.deserialize(jsonParser, version, counterTradeRangeActionAdder);
+                    OnInstantArrayDeserializer.deserialize(jsonParser, version, counterTradeRangeActionAdder, crac);
                 }
                 break;
             case ON_CONTINGENCY_STATE_USAGE_RULES:
                 jsonParser.nextToken();
-                OnStateArrayDeserializer.deserialize(jsonParser, version, counterTradeRangeActionAdder);
+                OnStateArrayDeserializer.deserialize(jsonParser, version, counterTradeRangeActionAdder, crac);
                 break;
             case ON_STATE_USAGE_RULES:
                 if (getPrimaryVersionNumber(version) > 1 || getSubVersionNumber(version) > 5) {
                     throw new FaraoException("OnState has been renamed to OnContingencyState since CRAC version 1.6");
                 } else {
                     jsonParser.nextToken();
-                    OnStateArrayDeserializer.deserialize(jsonParser, version, counterTradeRangeActionAdder);
+                    OnStateArrayDeserializer.deserialize(jsonParser, version, counterTradeRangeActionAdder, crac);
                 }
                 break;
             case ON_FLOW_CONSTRAINT_USAGE_RULES:
                 jsonParser.nextToken();
-                OnFlowConstraintArrayDeserializer.deserialize(jsonParser, counterTradeRangeActionAdder);
+                OnFlowConstraintArrayDeserializer.deserialize(jsonParser, counterTradeRangeActionAdder, crac);
                 break;
             case ON_ANGLE_CONSTRAINT_USAGE_RULES:
                 jsonParser.nextToken();
-                OnAngleConstraintArrayDeserializer.deserialize(jsonParser, counterTradeRangeActionAdder);
+                OnAngleConstraintArrayDeserializer.deserialize(jsonParser, counterTradeRangeActionAdder, crac);
                 break;
             case ON_VOLTAGE_CONSTRAINT_USAGE_RULES:
                 jsonParser.nextToken();
-                OnVoltageConstraintArrayDeserializer.deserialize(jsonParser, counterTradeRangeActionAdder);
+                OnVoltageConstraintArrayDeserializer.deserialize(jsonParser, counterTradeRangeActionAdder, crac);
                 break;
             case ON_FLOW_CONSTRAINT_IN_COUNTRY_USAGE_RULES:
                 jsonParser.nextToken();
-                OnFlowConstraintInCountryArrayDeserializer.deserialize(jsonParser, counterTradeRangeActionAdder);
+                OnFlowConstraintInCountryArrayDeserializer.deserialize(jsonParser, counterTradeRangeActionAdder, crac);
                 break;
             case EXPORTING_COUNTRY:
                 counterTradeRangeActionAdder.withExportingCountry(Country.valueOf(jsonParser.nextTextValue()));

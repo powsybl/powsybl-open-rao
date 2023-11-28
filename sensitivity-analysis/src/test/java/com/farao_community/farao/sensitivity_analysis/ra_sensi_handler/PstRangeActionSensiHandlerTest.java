@@ -8,6 +8,7 @@ package com.farao_community.farao.sensitivity_analysis.ra_sensi_handler;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Crac;
+import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_api.range.RangeType;
@@ -56,10 +57,11 @@ class PstRangeActionSensiHandlerTest {
     void checkConsistencyNotAPst() {
         Network network = NetworkImportsUtil.import12NodesNetwork();
         Crac crac = CommonCracCreation.createWithPreventivePstRange();
+        Instant preventiveInstant = crac.getInstant(PREVENTIVE_INSTANT_ID);
         PstRangeAction pstRangeAction = (PstRangeAction) crac.newPstRangeAction()
                 .withId("pstOnBranch")
                 .withNetworkElement("BBE1AA1  BB23AA1  1")
-                .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add()
+                .newOnInstantUsageRule().withInstant(preventiveInstant).withUsageMethod(UsageMethod.AVAILABLE).add()
                 .newTapRange().withRangeType(RangeType.ABSOLUTE).withMinTap(-16).withMaxTap(16).add()
                 .withInitialTap(0)
                 .withTapToAngleConversionMap(crac.getPstRangeAction("pst").getTapToAngleConversionMap())
@@ -74,10 +76,11 @@ class PstRangeActionSensiHandlerTest {
     void checkConsistencyNotANetworkElement() {
         Network network = NetworkImportsUtil.import12NodesNetwork();
         Crac crac = CommonCracCreation.createWithPreventivePstRange();
+        Instant preventiveInstant = crac.getInstant(PREVENTIVE_INSTANT_ID);
         PstRangeAction pstRangeAction = (PstRangeAction) crac.newPstRangeAction()
                 .withId("pstOnNonExistingElement")
                 .withNetworkElement("unknown")
-                .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add()
+                .newOnInstantUsageRule().withInstant(preventiveInstant).withUsageMethod(UsageMethod.AVAILABLE).add()
                 .newTapRange().withRangeType(RangeType.ABSOLUTE).withMinTap(-16).withMaxTap(16).add()
                 .withInitialTap(0)
                 .withTapToAngleConversionMap(crac.getPstRangeAction("pst").getTapToAngleConversionMap())

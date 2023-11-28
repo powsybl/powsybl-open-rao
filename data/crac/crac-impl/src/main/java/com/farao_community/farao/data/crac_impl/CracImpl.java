@@ -289,11 +289,11 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
         return states.get(contingency.getId() + " - " + instant);
     }
 
-    State addPreventiveState(String instantId) {
+    State addPreventiveState(Instant instant) {
         if (getPreventiveState() != null) {
             return getPreventiveState();
         } else {
-            State state = new PreventiveState(getInstant(instantId));
+            State state = new PreventiveState(instant);
             states.put(state.getId(), state);
             return state;
         }

@@ -10,6 +10,7 @@ package com.farao_community.farao.data.crac_creation.creator.csa_profile.crac_cr
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Contingency;
 import com.farao_community.farao.data.crac_api.Crac;
+import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.InstantKind;
 import com.farao_community.farao.data.crac_api.cnec.*;
 import com.farao_community.farao.data.crac_creation.creator.api.ImportStatus;
@@ -38,7 +39,7 @@ public class CsaProfileCnecCreator {
     private final Map<String, Set<PropertyBag>> angleLimitsPropertyBags;
     private final CsaProfileCracCreationContext cracCreationContext;
     private Set<CsaProfileElementaryCreationContext> csaProfileCnecCreationContexts;
-    private String cnecInstantId;
+    private Instant cnecInstant;
     private PropertyBag cnecLimit;
 
     public CsaProfileCnecCreator(Crac crac, Network network, PropertyBags assessedElementsPropertyBags, PropertyBags assessedElementsWithContingenciesPropertyBags, PropertyBags currentLimitsPropertyBags, PropertyBags voltageLimitsPropertyBags, PropertyBags angleLimitsPropertyBags, CsaProfileCracCreationContext cracCreationContext) {
@@ -140,34 +141,33 @@ public class CsaProfileCnecCreator {
         }
 
         for (Contingency contingency : combinableContingencies) {
-            String cnecName = assessedElementName + " - " + contingency.getName() + " - " + cnecInstantId;
-            addCnec(cnecAdder, limitType, contingency.getId(), assessedElementId, cnecName, cnecInstantId, rejectedLinksAssessedElementContingency);
+            String cnecName = assessedElementName + " - " + contingency.getName() + " - " + cnecInstant;
+            addCnec(cnecAdder, limitType, contingency.getId(), assessedElementId, cnecName, cnecInstant, rejectedLinksAssessedElementContingency);
         }
         if (inBaseCase) {
             String cnecName = assessedElementName + " - preventive";
-            String preventiveInstantId = crac.getInstant(InstantKind.PREVENTIVE).getId();
-            addCnec(cnecAdder, limitType, null, assessedElementId, cnecName, preventiveInstantId, rejectedLinksAssessedElementContingency);
+            addCnec(cnecAdder, limitType, null, assessedElementId, cnecName, crac.getInstant(InstantKind.PREVENTIVE), rejectedLinksAssessedElementContingency);
         }
     }
 
-    private void addCnec(CnecAdder cnecAdder, CsaProfileConstants.LimitType limitType, String contingencyId, String assessedElementId, String cnecName, String instantId, String rejectedLinksAssessedElementContingency) {
+    private void addCnec(CnecAdder cnecAdder, CsaProfileConstants.LimitType limitType, String contingencyId, String assessedElementId, String cnecName, Instant instant, String rejectedLinksAssessedElementContingency) {
         if (CsaProfileConstants.LimitType.CURRENT.equals(limitType)) {
             ((FlowCnecAdder) cnecAdder).withContingency(contingencyId)
                 .withId(cnecName)
                 .withName(cnecName)
-                .withInstant(instantId)
+                .withInstant(instant)
                 .add();
         } else if (CsaProfileConstants.LimitType.VOLTAGE.equals(limitType)) {
             ((VoltageCnecAdder) cnecAdder).withContingency(contingencyId)
                 .withId(cnecName)
                 .withName(cnecName)
-                .withInstant(instantId)
+                .withInstant(instant)
                 .add();
         } else {
             ((AngleCnecAdder) cnecAdder).withContingency(contingencyId)
                 .withId(cnecName)
                 .withName(cnecName)
-                .withInstant(instantId)
+                .withInstant(instant)
                 .add();
         }
 
@@ -486,7 +486,7 @@ public class CsaProfileCnecCreator {
     }
 
     private boolean addCurrentLimitInstant(String assessedElementId, FlowCnecAdder flowCnecAdder, PropertyBag currentLimit) {
-        cnecInstantId = null;
+        cnecInstant = null;
         String kind = currentLimit.get(CsaProfileConstants.REQUEST_OPERATIONAL_LIMIT_KIND);
         InstantKind instantKind;
 
@@ -503,15 +503,15 @@ public class CsaProfileCnecCreator {
             } else {
                 instantKind = InstantKind.CURATIVE;
             }
-            flowCnecAdder.withInstant(cnecInstantId);
+            flowCnecAdder.withInstant(cnecInstant);
         } else if (CsaProfileConstants.LimitKind.PATL.toString().equals(kind)) {
             instantKind = InstantKind.CURATIVE;
-            flowCnecAdder.withInstant(crac.getInstant(instantKind).getId());
+            flowCnecAdder.withInstant(crac.getInstant(instantKind));
         } else {
             csaProfileCnecCreationContexts.add(CsaProfileElementaryCreationContext.notImported(assessedElementId, ImportStatus.INCONSISTENCY_IN_DATA, "OperationalLimitType.kind is incorrect : " + kind));
             return false;
         }
-        cnecInstantId = crac.getInstant(instantKind).getId();
+        cnecInstant = crac.getInstant(instantKind);
         return true;
     }
 
@@ -572,7 +572,7 @@ public class CsaProfileCnecCreator {
     }
 
     private boolean addVoltageLimitInstant(String assessedElementId, VoltageCnecAdder voltageCnecAdder, PropertyBag voltageLimit, boolean inBaseCase) {
-        cnecInstantId = null;
+        cnecInstant = null;
 
         String isInfiniteDurationStr = voltageLimit.get(CsaProfileConstants.REQUEST_VOLTAGE_LIMIT_IS_INFINITE_DURATION);
         boolean isInfiniteDuration = Boolean.parseBoolean(isInfiniteDurationStr);
@@ -581,8 +581,8 @@ public class CsaProfileCnecCreator {
             return false;
         }
 
-        cnecInstantId = inBaseCase ? crac.getInstant(InstantKind.PREVENTIVE).getId() : crac.getInstant(InstantKind.CURATIVE).getId();
-        voltageCnecAdder.withInstant(cnecInstantId);
+        cnecInstant = inBaseCase ? crac.getInstant(InstantKind.PREVENTIVE) : crac.getInstant(InstantKind.CURATIVE);
+        voltageCnecAdder.withInstant(cnecInstant);
         return true;
     }
 
@@ -607,8 +607,8 @@ public class CsaProfileCnecCreator {
     }
 
     private void addAngleLimitInstant(AngleCnecAdder angleCnecAdder, boolean inBaseCase) {
-        cnecInstantId = crac.getInstant(inBaseCase ? InstantKind.PREVENTIVE : InstantKind.CURATIVE).getId();
-        angleCnecAdder.withInstant(cnecInstantId);
+        cnecInstant = crac.getInstant(inBaseCase ? InstantKind.PREVENTIVE : InstantKind.CURATIVE);
+        angleCnecAdder.withInstant(cnecInstant);
     }
 
     private boolean addAngleLimitThreshold(String assessedElementId, AngleCnecAdder angleCnecAdder, PropertyBag angleLimit, boolean isFlowToRefTerminalIsNull) {

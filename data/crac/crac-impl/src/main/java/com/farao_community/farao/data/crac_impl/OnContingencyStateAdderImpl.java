@@ -26,7 +26,7 @@ public class OnContingencyStateAdderImpl<T extends AbstractRemedialActionAdder<T
 
     private static final String CLASS_NAME = "OnContingencyState";
     private final T owner;
-    private String instantId;
+    private Instant instant;
     private String contingencyId;
     private UsageMethod usageMethod;
 
@@ -41,8 +41,8 @@ public class OnContingencyStateAdderImpl<T extends AbstractRemedialActionAdder<T
     }
 
     @Override
-    public OnContingencyStateAdder<T> withInstant(String instantId) {
-        this.instantId = instantId;
+    public OnContingencyStateAdder<T> withInstant(Instant instant) {
+        this.instant = instant;
         return this;
     }
 
@@ -54,16 +54,15 @@ public class OnContingencyStateAdderImpl<T extends AbstractRemedialActionAdder<T
 
     @Override
     public T add() {
-        assertAttributeNotNull(instantId, CLASS_NAME, "instant", "withInstant()");
+        assertAttributeNotNull(instant, CLASS_NAME, "instant", "withInstant()");
         assertAttributeNotNull(usageMethod, CLASS_NAME, "usage method", "withUsageMethod()");
 
         State state;
-        Instant instant = owner.getCrac().getInstant(instantId);
         if (instant.isPreventive()) {
             if (usageMethod != UsageMethod.FORCED) {
                 throw new FaraoException("OnContingencyState usage rules are not allowed for PREVENTIVE instant, except when FORCED. Please use newOnInstantUsageRule() instead.");
             }
-            state = owner.getCrac().addPreventiveState(instantId);
+            state = owner.getCrac().addPreventiveState(instant);
         } else if (instant.isOutage()) {
             throw new FaraoException("OnContingencyState usage rules are not allowed for OUTAGE instant.");
         } else {

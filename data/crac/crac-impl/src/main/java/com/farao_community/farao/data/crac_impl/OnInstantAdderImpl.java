@@ -21,7 +21,7 @@ import static com.farao_community.farao.data.crac_impl.AdderUtils.assertAttribut
 public class OnInstantAdderImpl<T extends AbstractRemedialActionAdder<T>> implements OnInstantAdder<T> {
 
     private final T owner;
-    private String instantId;
+    private Instant instant;
     private UsageMethod usageMethod;
 
     OnInstantAdderImpl(AbstractRemedialActionAdder<T> owner) {
@@ -29,8 +29,8 @@ public class OnInstantAdderImpl<T extends AbstractRemedialActionAdder<T>> implem
     }
 
     @Override
-    public OnInstantAdder<T> withInstant(String instantId) {
-        this.instantId = instantId;
+    public OnInstantAdder<T> withInstant(Instant instant) {
+        this.instant = instant;
         return this;
     }
 
@@ -42,15 +42,14 @@ public class OnInstantAdderImpl<T extends AbstractRemedialActionAdder<T>> implem
 
     @Override
     public T add() {
-        assertAttributeNotNull(instantId, "OnInstant", "instant", "withInstant()");
+        assertAttributeNotNull(instant, "OnInstant", "instant", "withInstant()");
         assertAttributeNotNull(usageMethod, "OnInstant", "usage method", "withUsageMethod()");
 
-        Instant instant = owner.getCrac().getInstant(instantId);
         if (instant.isOutage()) {
             throw new FaraoException("OnInstant usage rules are not allowed for OUTAGE instant.");
         }
         if (instant.isPreventive()) {
-            owner.getCrac().addPreventiveState(instantId);
+            owner.getCrac().addPreventiveState(instant);
         }
 
         OnInstant onInstant = new OnInstantImpl(usageMethod, instant);

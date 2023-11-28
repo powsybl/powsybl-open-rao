@@ -10,6 +10,7 @@ import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Contingency;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.CracFactory;
+import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
@@ -100,12 +101,15 @@ class FbConstraintCracCreatorTest {
         OffsetDateTime timestamp = OffsetDateTime.parse("2019-01-08T10:30Z");
         creationContext = new FbConstraintCracCreator().createCrac(fbConstraint, network, timestamp, parameters);
         Crac crac = creationContext.getCrac();
+        Instant preventiveInstant = crac.getInstant(PREVENTIVE_INSTANT_ID);
+        Instant outageInstant = crac.getInstant(OUTAGE_INSTANT_ID);
+        Instant curativeInstant = crac.getInstant(CURATIVE_INSTANT_ID);
 
         // BE_CBCO_000001
         assertTrue(creationContext.getBranchCnecCreationContext("BE_CBCO_000001").isImported());
         assertTrue(creationContext.getBranchCnecCreationContext("BE_CBCO_000001").isBaseCase());
         assertEquals(1, creationContext.getBranchCnecCreationContext("BE_CBCO_000001").getCreatedCnecsIds().size());
-        assertEquals("BE_CBCO_000001 - preventive", creationContext.getBranchCnecCreationContext("BE_CBCO_000001").getCreatedCnecsIds().get(PREVENTIVE_INSTANT_ID));
+        assertEquals("BE_CBCO_000001 - preventive", creationContext.getBranchCnecCreationContext("BE_CBCO_000001").getCreatedCnecsIds().get(preventiveInstant));
 
         assertNotNull(crac.getFlowCnec("BE_CBCO_000001 - preventive"));
         assertEquals("[BE-BE] BBE1 - BBE2 [DIR]", crac.getFlowCnec("BE_CBCO_000001 - preventive").getName());
@@ -118,8 +122,8 @@ class FbConstraintCracCreatorTest {
         assertTrue(creationContext.getBranchCnecCreationContext("BE_CBCO_000003").isImported());
         assertFalse(creationContext.getBranchCnecCreationContext("BE_CBCO_000003").isBaseCase());
         assertEquals(2, creationContext.getBranchCnecCreationContext("BE_CBCO_000003").getCreatedCnecsIds().size());
-        assertEquals("BE_CBCO_000003 - outage", creationContext.getBranchCnecCreationContext("BE_CBCO_000003").getCreatedCnecsIds().get(OUTAGE_INSTANT_ID));
-        assertEquals("BE_CBCO_000003 - curative", creationContext.getBranchCnecCreationContext("BE_CBCO_000003").getCreatedCnecsIds().get(CURATIVE_INSTANT_ID));
+        assertEquals("BE_CBCO_000003 - outage", creationContext.getBranchCnecCreationContext("BE_CBCO_000003").getCreatedCnecsIds().get(outageInstant));
+        assertEquals("BE_CBCO_000003 - curative", creationContext.getBranchCnecCreationContext("BE_CBCO_000003").getCreatedCnecsIds().get(curativeInstant));
 
         assertNotNull(crac.getFlowCnec("BE_CBCO_000003 - outage"));
         assertEquals("[BE-BE] BBE3 - BBE2 [DIR]", crac.getFlowCnec("BE_CBCO_000003 - outage").getName());

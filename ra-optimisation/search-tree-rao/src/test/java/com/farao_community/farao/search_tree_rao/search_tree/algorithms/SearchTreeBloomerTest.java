@@ -10,6 +10,7 @@ import com.farao_community.farao.commons.CountryBoundary;
 import com.farao_community.farao.commons.CountryGraph;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Crac;
+import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_api.network_action.ActionType;
@@ -67,17 +68,19 @@ class SearchTreeBloomerTest {
     private NetworkActionCombination comb2FrNl;
     private NetworkActionCombination comb2FrDeBe;
     private NetworkActionCombination comb3FrNlBe;
+    private Instant preventiveInstant;
 
     @BeforeEach
     public void setUp() {
         network = NetworkImportsUtil.import12NodesNetwork();
         crac = CommonCracCreation.create();
+        preventiveInstant = crac.getInstant(PREVENTIVE_INSTANT_ID);
         pState = crac.getPreventiveState();
 
         crac.newFlowCnec()
             .withId("cnecBe")
             .withNetworkElement("BBE1AA1  BBE2AA1  1")
-            .withInstant(PREVENTIVE_INSTANT_ID).withOptimized(true)
+            .withInstant(preventiveInstant).withOptimized(true)
             .withOperator("operator1").newThreshold()
             .withUnit(Unit.MEGAWATT)
             .withSide(Side.LEFT)
@@ -426,7 +429,7 @@ class SearchTreeBloomerTest {
 
     @Test
     void testIsNetworkActionCloseToLocations() {
-        NetworkAction na1 = (NetworkAction) crac.newNetworkAction().withId("na").newTopologicalAction().withNetworkElement("BBE2AA1  FFR3AA1  1").withActionType(ActionType.OPEN).add().newOnInstantUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withInstant(PREVENTIVE_INSTANT_ID).add().add();
+        NetworkAction na1 = (NetworkAction) crac.newNetworkAction().withId("na").newTopologicalAction().withNetworkElement("BBE2AA1  FFR3AA1  1").withActionType(ActionType.OPEN).add().newOnInstantUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withInstant(preventiveInstant).add().add();
         NetworkAction na2 = mock(NetworkAction.class);
         Mockito.when(na2.getLocation(network)).thenReturn(Set.of(Optional.of(Country.FR), Optional.empty()));
 
@@ -496,7 +499,7 @@ class SearchTreeBloomerTest {
         Map<Integer, Double> conversionMap = new HashMap<>();
         conversionMap.put(0, 0.);
         conversionMap.put(1, 1.);
-        return (PstRangeAction) crac.newPstRangeAction().withId("pst - " + networkElementId).withOperator(operator).withNetworkElement(networkElementId).newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add().newTapRange().withRangeType(RangeType.ABSOLUTE).withMinTap(-16).withMaxTap(16).add().withInitialTap(0).withTapToAngleConversionMap(conversionMap).add();
+        return (PstRangeAction) crac.newPstRangeAction().withId("pst - " + networkElementId).withOperator(operator).withNetworkElement(networkElementId).newOnInstantUsageRule().withInstant(preventiveInstant).withUsageMethod(UsageMethod.AVAILABLE).add().newTapRange().withRangeType(RangeType.ABSOLUTE).withMinTap(-16).withMaxTap(16).add().withInitialTap(0).withTapToAngleConversionMap(conversionMap).add();
     }
 
     @Test

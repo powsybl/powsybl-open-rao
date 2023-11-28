@@ -8,6 +8,7 @@ package com.farao_community.farao.data.crac_impl;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Crac;
+import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.InstantKind;
 import com.farao_community.farao.data.crac_api.RemedialAction;
 import com.farao_community.farao.data.crac_api.network_action.ActionType;
@@ -31,6 +32,9 @@ class OnInstantAdderImplTest {
     private static final String CURATIVE_INSTANT_ID = "curative";
     private Crac crac;
     private NetworkActionAdder remedialActionAdder;
+    private Instant preventiveInstant;
+    private Instant outageInstant;
+    private Instant curativeInstant;
 
     @BeforeEach
     public void setUp() {
@@ -39,6 +43,10 @@ class OnInstantAdderImplTest {
             .newInstant(OUTAGE_INSTANT_ID, InstantKind.OUTAGE)
             .newInstant(AUTO_INSTANT_ID, InstantKind.AUTO)
             .newInstant(CURATIVE_INSTANT_ID, InstantKind.CURATIVE);
+        preventiveInstant = crac.getInstant(PREVENTIVE_INSTANT_ID);
+        outageInstant = crac.getInstant(OUTAGE_INSTANT_ID);
+        curativeInstant = crac.getInstant(CURATIVE_INSTANT_ID);
+
         crac.newContingency()
                 .withId("contingencyId")
                 .withNetworkElement("networkElementId")
@@ -53,7 +61,7 @@ class OnInstantAdderImplTest {
     @Test
     void testOkPreventive() {
         RemedialAction remedialAction = remedialActionAdder.newOnInstantUsageRule()
-            .withInstant(PREVENTIVE_INSTANT_ID)
+            .withInstant(preventiveInstant)
             .withUsageMethod(UsageMethod.AVAILABLE)
             .add()
             .add();
@@ -70,7 +78,7 @@ class OnInstantAdderImplTest {
     @Test
     void testOkCurative() {
         RemedialAction remedialAction = remedialActionAdder.newOnInstantUsageRule()
-                .withInstant(CURATIVE_INSTANT_ID)
+                .withInstant(curativeInstant)
                 .withUsageMethod(UsageMethod.AVAILABLE)
                 .add()
                 .add();
@@ -94,7 +102,7 @@ class OnInstantAdderImplTest {
     @Test
     void testNoUsageMethod() {
         OnInstantAdder<NetworkActionAdder> onInstantAdder = remedialActionAdder.newOnInstantUsageRule()
-            .withInstant(PREVENTIVE_INSTANT_ID);
+            .withInstant(preventiveInstant);
         FaraoException exception = assertThrows(FaraoException.class, onInstantAdder::add);
         assertEquals("Cannot add OnInstant without a usage method. Please use withUsageMethod() with a non null value", exception.getMessage());
     }
@@ -102,7 +110,7 @@ class OnInstantAdderImplTest {
     @Test
     void testOutageInstant() {
         OnInstantAdder<NetworkActionAdder> onInstantAdder = remedialActionAdder.newOnInstantUsageRule()
-            .withInstant(OUTAGE_INSTANT_ID)
+            .withInstant(outageInstant)
             .withUsageMethod(UsageMethod.AVAILABLE);
         FaraoException exception = assertThrows(FaraoException.class, onInstantAdder::add);
         assertEquals("OnInstant usage rules are not allowed for OUTAGE instant.", exception.getMessage());

@@ -8,6 +8,7 @@
 package com.farao_community.farao.data.crac_impl;
 
 import com.farao_community.farao.commons.FaraoException;
+import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.InstantKind;
 import com.farao_community.farao.data.crac_api.network_action.ActionType;
 import com.farao_community.farao.data.crac_api.range_action.HvdcRangeAction;
@@ -27,6 +28,8 @@ class HvdcRangeActionAdderImplTest {
     private static final String AUTO_INSTANT_ID = "auto";
     private CracImpl crac;
     private String networkElementId;
+    private Instant preventiveInstant;
+    private Instant autoInstant;
 
     @BeforeEach
     public void setUp() {
@@ -34,6 +37,8 @@ class HvdcRangeActionAdderImplTest {
             .newInstant(PREVENTIVE_INSTANT_ID, InstantKind.PREVENTIVE)
             .newInstant(OUTAGE_INSTANT_ID, InstantKind.OUTAGE)
             .newInstant(AUTO_INSTANT_ID, InstantKind.AUTO);
+        preventiveInstant = crac.getInstant(PREVENTIVE_INSTANT_ID);
+        autoInstant = crac.getInstant(AUTO_INSTANT_ID);
         networkElementId = "BBE2AA11 FFR3AA11 1";
     }
 
@@ -46,7 +51,7 @@ class HvdcRangeActionAdderImplTest {
                 .withGroupId("groupId1")
                 .newRange().withMin(-5).withMax(10).add()
                 .newOnInstantUsageRule()
-                .withInstant(PREVENTIVE_INSTANT_ID)
+                .withInstant(preventiveInstant)
                 .withUsageMethod(UsageMethod.AVAILABLE)
                 .add()
                 .add();
@@ -71,7 +76,7 @@ class HvdcRangeActionAdderImplTest {
                 .withInitialSetpoint(1)
                 .newRange().withMin(-5).withMax(10).add()
                 .newOnInstantUsageRule()
-                .withInstant(AUTO_INSTANT_ID)
+                .withInstant(autoInstant)
                 .withUsageMethod(UsageMethod.FORCED)
                 .add()
                 .add();
@@ -97,7 +102,7 @@ class HvdcRangeActionAdderImplTest {
             .withInitialSetpoint(1)
             .newRange().withMin(-5).withMax(10).add()
             .newOnInstantUsageRule()
-            .withInstant(AUTO_INSTANT_ID)
+            .withInstant(autoInstant)
             .withUsageMethod(UsageMethod.FORCED)
             .add();
         FaraoException exception = assertThrows(FaraoException.class, hvdcRangeActionAdder::add);
@@ -112,7 +117,7 @@ class HvdcRangeActionAdderImplTest {
                 .withNetworkElement(networkElementId)
                 .newRange().withMin(-5).withMax(10).add()
                 .newOnInstantUsageRule()
-                .withInstant(PREVENTIVE_INSTANT_ID)
+                .withInstant(preventiveInstant)
                 .withUsageMethod(UsageMethod.AVAILABLE)
                 .add()
                 .add();
@@ -153,7 +158,7 @@ class HvdcRangeActionAdderImplTest {
                 .withNetworkElement(networkElementId)
                 .newRange().withMin(-5).withMax(10).add()
                 .newOnInstantUsageRule()
-                .withInstant(PREVENTIVE_INSTANT_ID)
+                .withInstant(preventiveInstant)
                 .withUsageMethod(UsageMethod.AVAILABLE)
                 .add()
                 .add();

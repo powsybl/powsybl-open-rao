@@ -9,6 +9,7 @@ package com.farao_community.farao.search_tree_rao.commons.parameters;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.CracFactory;
+import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.InstantKind;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.cnec.Side;
@@ -73,10 +74,12 @@ class UnoptimizedCnecParametersTest {
             .newInstant(OUTAGE_INSTANT_ID, InstantKind.OUTAGE)
             .newInstant(AUTO_INSTANT_ID, InstantKind.AUTO)
             .newInstant(CURATIVE_INSTANT_ID, InstantKind.CURATIVE);
+        Instant preventiveInstant = crac.getInstant(PREVENTIVE_INSTANT_ID);
+        Instant curativeInstant = crac.getInstant(CURATIVE_INSTANT_ID);
 
         crac.newFlowCnec().withId("flowCnec-1")
                 .withNetworkElement("ne1Id")
-                .withInstant(PREVENTIVE_INSTANT_ID)
+                .withInstant(preventiveInstant)
                 .withOperator("operator1")
                 .withOptimized()
                 .newThreshold().withSide(Side.RIGHT).withUnit(Unit.AMPERE).withMin(-500.).add()
@@ -88,7 +91,7 @@ class UnoptimizedCnecParametersTest {
 
         crac.newFlowCnec().withId("flowCnec-2")
                 .withNetworkElement("ne2Id")
-                .withInstant(CURATIVE_INSTANT_ID)
+                .withInstant(curativeInstant)
                 .withContingency("co2")
                 .withOperator("operator1")
                 .withOptimized()
@@ -105,7 +108,7 @@ class UnoptimizedCnecParametersTest {
                 .withTapToAngleConversionMap(Map.of(-3, 0., -2, .5, -1, 1., 0, 1.5, 1, 2., 2, 2.5, 3, 3.))
                 .newTapRange().withRangeType(RangeType.ABSOLUTE).withMinTap(1).withMaxTap(7).add()
                 .newTapRange().withRangeType(RangeType.RELATIVE_TO_INITIAL_NETWORK).withMinTap(-3).withMaxTap(3).add()
-                .newOnInstantUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withInstant(PREVENTIVE_INSTANT_ID).add()
+                .newOnInstantUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withInstant(preventiveInstant).add()
                 .add();
 
         crac.newPstRangeAction().withId("pstRange2Id")

@@ -8,6 +8,7 @@ package com.farao_community.farao.data.crac_impl;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Crac;
+import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.InstantKind;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.crac_api.network_action.NetworkActionAdder;
@@ -30,6 +31,8 @@ class NetworkActionAdderImplTest {
     private static final String CURATIVE_INSTANT_ID = "curative";
 
     private Crac crac;
+    private Instant preventiveInstant;
+    private Instant curativeInstant;
 
     @BeforeEach
     public void setUp() {
@@ -38,6 +41,8 @@ class NetworkActionAdderImplTest {
             .newInstant(OUTAGE_INSTANT_ID, InstantKind.OUTAGE)
             .newInstant(AUTO_INSTANT_ID, InstantKind.AUTO)
             .newInstant(CURATIVE_INSTANT_ID, InstantKind.CURATIVE);
+        preventiveInstant = crac.getInstant(PREVENTIVE_INSTANT_ID);
+        curativeInstant = crac.getInstant(CURATIVE_INSTANT_ID);
 
         crac.newContingency()
             .withId("contingencyId")
@@ -56,7 +61,7 @@ class NetworkActionAdderImplTest {
                 .withSetpoint(6)
                 .add()
             .newOnInstantUsageRule()
-                .withInstant(PREVENTIVE_INSTANT_ID)
+                .withInstant(preventiveInstant)
                 .withUsageMethod(UsageMethod.AVAILABLE)
                 .add()
             .add();
@@ -104,11 +109,11 @@ class NetworkActionAdderImplTest {
                 .withSetpoint(6)
                 .add()
             .newOnInstantUsageRule()
-                .withInstant(PREVENTIVE_INSTANT_ID)
+                .withInstant(preventiveInstant)
                 .withUsageMethod(UsageMethod.AVAILABLE)
                 .add()
             .newOnContingencyStateUsageRule()
-                .withInstant(CURATIVE_INSTANT_ID)
+                .withInstant(curativeInstant)
                 .withContingency("contingencyId")
                 .withUsageMethod(UsageMethod.AVAILABLE)
             .add()

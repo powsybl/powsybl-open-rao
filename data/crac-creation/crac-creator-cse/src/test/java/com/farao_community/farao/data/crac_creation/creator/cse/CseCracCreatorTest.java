@@ -58,6 +58,9 @@ class CseCracCreatorTest {
     private CracCreationParameters parameters = new CracCreationParameters();
     private Crac importedCrac;
     private CseCracCreationContext cracCreationContext;
+    private Instant preventiveInstant;
+    private Instant outageInstant;
+    private Instant curativeInstant;
 
     private void setUp(String cracFileName, String networkFileName) {
         InputStream is = getClass().getResourceAsStream(cracFileName);
@@ -67,6 +70,9 @@ class CseCracCreatorTest {
         CseCracCreator cseCracCreator = new CseCracCreator();
         cracCreationContext = cseCracCreator.createCrac(cseCrac, network, offsetDateTime, parameters);
         importedCrac = cracCreationContext.getCrac();
+        preventiveInstant = importedCrac.getInstant(PREVENTIVE_INSTANT_ID);
+        outageInstant = importedCrac.getInstant(OUTAGE_INSTANT_ID);
+        curativeInstant = importedCrac.getInstant(CURATIVE_INSTANT_ID);
     }
 
     private void setUp(String cracFileName) {
@@ -191,7 +197,7 @@ class CseCracCreatorTest {
         assertFalse(cnec1context.isDirectionInvertedInNetwork());
         assertTrue(cnec1context.getContingencyId().isEmpty());
         assertEquals(1, cnec1context.getCreatedCnecsIds().size());
-        assertEquals("basecase_branch_1 - NNL2AA1 ->NNL3AA1  - preventive", cnec1context.getCreatedCnecsIds().get(PREVENTIVE_INSTANT_ID));
+        assertEquals("basecase_branch_1 - NNL2AA1 ->NNL3AA1  - preventive", cnec1context.getCreatedCnecsIds().get(preventiveInstant));
     }
 
     @Test
@@ -203,9 +209,9 @@ class CseCracCreatorTest {
         assertFalse(((CseCriticalBranchCreationContext) cnec1context).isSelected());
         assertTrue(((CseCriticalBranchCreationContext) cnec2context).isSelected());
         assertTrue(((CseCriticalBranchCreationContext) cnec3context).isSelected());
-        assertFalse(importedCrac.getCnec(cnec1context.getCreatedCnecsIds().get(PREVENTIVE_INSTANT_ID)).isOptimized());
-        assertTrue(importedCrac.getCnec(cnec2context.getCreatedCnecsIds().get(PREVENTIVE_INSTANT_ID)).isOptimized());
-        assertTrue(importedCrac.getCnec(cnec3context.getCreatedCnecsIds().get(PREVENTIVE_INSTANT_ID)).isOptimized());
+        assertFalse(importedCrac.getCnec(cnec1context.getCreatedCnecsIds().get(preventiveInstant)).isOptimized());
+        assertTrue(importedCrac.getCnec(cnec2context.getCreatedCnecsIds().get(preventiveInstant)).isOptimized());
+        assertTrue(importedCrac.getCnec(cnec3context.getCreatedCnecsIds().get(preventiveInstant)).isOptimized());
     }
 
     @Test
@@ -217,8 +223,8 @@ class CseCracCreatorTest {
         assertFalse(cnec2context.isDirectionInvertedInNetwork());
         assertEquals("outage_1", cnec2context.getContingencyId().orElseThrow());
         assertEquals(2, cnec2context.getCreatedCnecsIds().size());
-        assertEquals("French line 1 - FFR1AA1 ->FFR2AA1   - outage_1 - outage", cnec2context.getCreatedCnecsIds().get(OUTAGE_INSTANT_ID));
-        assertEquals("French line 1 - FFR1AA1 ->FFR2AA1   - outage_1 - curative", cnec2context.getCreatedCnecsIds().get(CURATIVE_INSTANT_ID));
+        assertEquals("French line 1 - FFR1AA1 ->FFR2AA1   - outage_1 - outage", cnec2context.getCreatedCnecsIds().get(outageInstant));
+        assertEquals("French line 1 - FFR1AA1 ->FFR2AA1   - outage_1 - curative", cnec2context.getCreatedCnecsIds().get(curativeInstant));
     }
 
     @Test
@@ -308,8 +314,6 @@ class CseCracCreatorTest {
         setUp("/cracs/cse_crac_onConstraint.xml");
 
         State preventiveState = importedCrac.getPreventiveState();
-        Instant outageInstant = importedCrac.getInstant(OUTAGE_INSTANT_ID);
-        Instant curativeInstant = importedCrac.getInstant(CURATIVE_INSTANT_ID);
         State outageState = importedCrac.getState(importedCrac.getContingency("outage_1"), outageInstant);
         State curativeState = importedCrac.getState(importedCrac.getContingency("outage_1"), curativeInstant);
 
@@ -325,8 +329,8 @@ class CseCracCreatorTest {
         UsageRule usageRule2 = usageRuleList.get(1);
         assertTrue(usageRule1 instanceof OnFlowConstraint);
         assertTrue(usageRule2 instanceof OnFlowConstraint);
-        assertEquals(PREVENTIVE_INSTANT_ID, usageRule1.getInstant().getId());
-        assertEquals(PREVENTIVE_INSTANT_ID, usageRule2.getInstant().getId());
+        assertEquals(preventiveInstant, usageRule1.getInstant());
+        assertEquals(preventiveInstant, usageRule2.getInstant());
         assertTrue(((OnFlowConstraint) usageRule1).getFlowCnec().equals(outageCnec) || ((OnFlowConstraint) usageRule2).getFlowCnec().equals(outageCnec));
         assertTrue(((OnFlowConstraint) usageRule1).getFlowCnec().equals(curativeCnec) || ((OnFlowConstraint) usageRule2).getFlowCnec().equals(curativeCnec));
         assertEquals(UsageMethod.TO_BE_EVALUATED, usageRule1.getUsageMethod(preventiveState));

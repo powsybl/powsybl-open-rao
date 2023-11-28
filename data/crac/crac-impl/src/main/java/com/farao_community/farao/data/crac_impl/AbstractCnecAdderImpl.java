@@ -25,7 +25,7 @@ public abstract class AbstractCnecAdderImpl<J extends CnecAdder<J>> extends Abst
 
     protected final CracImpl owner;
     protected final Map<String, String> networkElementsIdAndName = new HashMap<>();
-    protected String instantId;
+    protected Instant instant;
     protected String contingencyId;
     protected boolean optimized = false;
     protected boolean monitored = false;
@@ -40,9 +40,9 @@ public abstract class AbstractCnecAdderImpl<J extends CnecAdder<J>> extends Abst
     protected void checkCnec() {
         checkId();
         AdderUtils.assertAttributeNotEmpty(networkElementsIdAndName.entrySet(), "Cnec", "network element", "withNetworkElement()");
-        AdderUtils.assertAttributeNotNull(instantId, "Cnec", "instant", "withInstant()");
+        AdderUtils.assertAttributeNotNull(instant, "Cnec", "instant", "withInstant()");
 
-        if (owner.getInstant(instantId).isPreventive()) {
+        if (instant.isPreventive()) {
             if (contingencyId != null) {
                 throw new FaraoException("You cannot define a contingency for a preventive cnec.");
             }
@@ -62,18 +62,17 @@ public abstract class AbstractCnecAdderImpl<J extends CnecAdder<J>> extends Abst
 
     protected State getState() {
         State state;
-        Instant instant = owner.getInstant(instantId);
         if (!instant.isPreventive()) {
             state = owner.addState(owner.getContingency(contingencyId), instant);
         } else {
-            state = owner.addPreventiveState(instantId);
+            state = owner.addPreventiveState(instant);
         }
         return state;
     }
 
     @Override
-    public J withInstant(String instantId) {
-        this.instantId = instantId;
+    public J withInstant(Instant instant) {
+        this.instant = instant;
         return (J) this;
     }
 

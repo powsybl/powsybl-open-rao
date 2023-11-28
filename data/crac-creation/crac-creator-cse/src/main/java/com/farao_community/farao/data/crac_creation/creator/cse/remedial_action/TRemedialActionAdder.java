@@ -338,14 +338,14 @@ public class TRemedialActionAdder {
             if (raApplicationInstant.isAuto()) {
                 throw new FaraoException("Cannot import automatons from CSE CRAC yet");
             } else {
-                addOnInstantUsageRules(remedialActionAdder, raApplicationInstant.getId());
+                addOnInstantUsageRules(remedialActionAdder, raApplicationInstant);
             }
         } else {
-            addOnFlowConstraintUsageRulesAfterSpecificCountry(remedialActionAdder, tRemedialAction, raApplicationInstant.getId(), sharedWithId);
+            addOnFlowConstraintUsageRulesAfterSpecificCountry(remedialActionAdder, tRemedialAction, raApplicationInstant, sharedWithId);
         }
     }
 
-    private void addOnFlowConstraintUsageRulesAfterSpecificCountry(RemedialActionAdder<?> remedialActionAdder, TRemedialAction tRemedialAction, String raApplicationInstantId, String sharedWithId) {
+    private void addOnFlowConstraintUsageRulesAfterSpecificCountry(RemedialActionAdder<?> remedialActionAdder, TRemedialAction tRemedialAction, Instant raApplicationInstant, String sharedWithId) {
         // Check that sharedWithID is a UCTE country
         if (sharedWithId.equals("None")) {
             return;
@@ -361,15 +361,15 @@ public class TRemedialActionAdder {
 
         // RA is available for specific UCTE country
         remedialActionAdder.newOnFlowConstraintInCountryUsageRule()
-            .withInstant(raApplicationInstantId)
+            .withInstant(raApplicationInstant)
             .withCountry(country)
             .add();
     }
 
-    private void addOnInstantUsageRules(RemedialActionAdder<?> remedialActionAdder, String raApplicationInstantId) {
+    private void addOnInstantUsageRules(RemedialActionAdder<?> remedialActionAdder, Instant raApplicationInstant) {
         // RA is available for all countries
         remedialActionAdder.newOnInstantUsageRule()
-            .withInstant(raApplicationInstantId)
+            .withInstant(raApplicationInstant)
             .withUsageMethod(UsageMethod.AVAILABLE)
             .add();
     }
@@ -380,7 +380,7 @@ public class TRemedialActionAdder {
                 // Only add the usage rule if the RemedialAction can be applied before or during CNEC instant
                 if (raApplicationInstant.getOrder() <= crac.getFlowCnec(flowCnecId).getState().getInstant().getOrder()) {
                     remedialActionAdder.newOnFlowConstraintUsageRule()
-                        .withInstant(raApplicationInstant.getId())
+                        .withInstant(raApplicationInstant)
                         .withFlowCnec(flowCnecId)
                         .add();
                 }

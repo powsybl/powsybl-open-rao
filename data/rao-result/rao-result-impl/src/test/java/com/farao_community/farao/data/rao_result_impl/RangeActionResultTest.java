@@ -41,7 +41,7 @@ class RangeActionResultTest {
                 .withId("cnec-outage-co1")
                 .withNetworkElement("anyNetworkElement")
                 .withContingency("Contingency FR1 FR2")
-                .withInstant(OUTAGE_INSTANT_ID)
+                .withInstant(outageInstant)
                 .newThreshold().withSide(Side.LEFT).withUnit(Unit.MEGAWATT).withMax(1000.).add()
                 .add();
 
@@ -49,7 +49,7 @@ class RangeActionResultTest {
                 .withId("cnec-outage-co2")
                 .withNetworkElement("anyNetworkElement")
                 .withContingency("Contingency FR1 FR3")
-                .withInstant(OUTAGE_INSTANT_ID)
+                .withInstant(outageInstant)
                 .newThreshold().withSide(Side.LEFT).withUnit(Unit.MEGAWATT).withMax(1000.).add()
                 .add();
     }
@@ -153,7 +153,7 @@ class RangeActionResultTest {
         RangeActionResult rangeActionResult = new RangeActionResult();
 
         // Add dummy flow cnec to create auto state
-        crac.newFlowCnec().withId("dummy").withContingency("Contingency FR1 FR2").withInstant(AUTO_INSTANT_ID).withNetworkElement("ne")
+        crac.newFlowCnec().withId("dummy").withContingency("Contingency FR1 FR2").withInstant(autoInstant).withNetworkElement("ne")
                 .newThreshold().withMax(1.).withSide(Side.LEFT).withUnit(Unit.MEGAWATT).add()
                 .add();
 

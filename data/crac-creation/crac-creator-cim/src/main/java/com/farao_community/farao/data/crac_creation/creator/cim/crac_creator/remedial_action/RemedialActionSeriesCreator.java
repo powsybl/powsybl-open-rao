@@ -369,19 +369,19 @@ public class RemedialActionSeriesCreator {
                                      Set<FlowCnec> flowCnecs,
                                      AngleCnec angleCnec,
                                      Country sharedDomain) {
-        String curativeInstantId = crac.getInstant(InstantKind.CURATIVE).getId();
+        Instant curativeInstant = crac.getInstant(InstantKind.CURATIVE);
         if (applicationModeMarketObjectStatus.equals(ApplicationModeMarketObjectStatus.PRA.getStatus())) {
-            addUsageRulesAtInstant(remedialActionAdder, contingencies, invalidContingencies, flowCnecs, angleCnec, sharedDomain, curativeInstantId, crac.getInstant(InstantKind.PREVENTIVE));
+            addUsageRulesAtInstant(remedialActionAdder, contingencies, invalidContingencies, flowCnecs, angleCnec, sharedDomain, curativeInstant, crac.getInstant(InstantKind.PREVENTIVE));
         }
         if (applicationModeMarketObjectStatus.equals(ApplicationModeMarketObjectStatus.CRA.getStatus())) {
-            addUsageRulesAtInstant(remedialActionAdder, contingencies, invalidContingencies, flowCnecs, angleCnec, sharedDomain, curativeInstantId, crac.getInstant(InstantKind.CURATIVE));
+            addUsageRulesAtInstant(remedialActionAdder, contingencies, invalidContingencies, flowCnecs, angleCnec, sharedDomain, curativeInstant, crac.getInstant(InstantKind.CURATIVE));
         }
         if (applicationModeMarketObjectStatus.equals(ApplicationModeMarketObjectStatus.PRA_AND_CRA.getStatus())) {
-            addUsageRulesAtInstant(remedialActionAdder, null, null, flowCnecs, angleCnec, sharedDomain, curativeInstantId, crac.getInstant(InstantKind.PREVENTIVE));
-            addUsageRulesAtInstant(remedialActionAdder, contingencies, invalidContingencies, flowCnecs, angleCnec, sharedDomain, curativeInstantId, crac.getInstant(InstantKind.CURATIVE));
+            addUsageRulesAtInstant(remedialActionAdder, null, null, flowCnecs, angleCnec, sharedDomain, curativeInstant, crac.getInstant(InstantKind.PREVENTIVE));
+            addUsageRulesAtInstant(remedialActionAdder, contingencies, invalidContingencies, flowCnecs, angleCnec, sharedDomain, curativeInstant, crac.getInstant(InstantKind.CURATIVE));
         }
         if (applicationModeMarketObjectStatus.equals(ApplicationModeMarketObjectStatus.AUTO.getStatus())) {
-            addUsageRulesAtInstant(remedialActionAdder, contingencies, invalidContingencies, flowCnecs, angleCnec, sharedDomain, curativeInstantId, crac.getInstant(InstantKind.AUTO));
+            addUsageRulesAtInstant(remedialActionAdder, contingencies, invalidContingencies, flowCnecs, angleCnec, sharedDomain, curativeInstant, crac.getInstant(InstantKind.AUTO));
         }
     }
 
@@ -391,17 +391,17 @@ public class RemedialActionSeriesCreator {
                                                Set<FlowCnec> flowCnecs,
                                                AngleCnec angleCnec,
                                                Country sharedDomain,
-                                               String curativeInstantId, Instant instant) {
+                                               Instant curativeInstant, Instant instant) {
         if (!flowCnecs.isEmpty()) {
             flowCnecs.forEach(flowCnec -> addOnFlowConstraintUsageRule(remedialActionAdder, flowCnec, instant));
             return;
         }
         if (Objects.nonNull(angleCnec)) {
-            addOnAngleConstraintUsageRule(remedialActionAdder, angleCnec, curativeInstantId);
+            addOnAngleConstraintUsageRule(remedialActionAdder, angleCnec, curativeInstant);
             return;
         }
         if (!Objects.isNull(sharedDomain)) {
-            remedialActionAdder.newOnFlowConstraintInCountryUsageRule().withInstant(instant.getId()).withCountry(sharedDomain).add();
+            remedialActionAdder.newOnFlowConstraintInCountryUsageRule().withInstant(instant).withCountry(sharedDomain).add();
             return;
         }
 
@@ -442,7 +442,7 @@ public class RemedialActionSeriesCreator {
 
     private static void addOnInstantUsageRules(RemedialActionAdder<?> adder, Instant raApplicationInstant) {
         adder.newOnInstantUsageRule()
-            .withInstant(raApplicationInstant.getId())
+            .withInstant(raApplicationInstant)
             .withUsageMethod(UsageMethod.AVAILABLE)
             .add();
     }
@@ -450,7 +450,7 @@ public class RemedialActionSeriesCreator {
     private static void addOnStateUsageRules(RemedialActionAdder<?> adder, Instant raApplicationInstant, UsageMethod usageMethod, List<Contingency> contingencies) {
         contingencies.forEach(contingency ->
             adder.newOnContingencyStateUsageRule()
-                .withInstant(raApplicationInstant.getId())
+                .withInstant(raApplicationInstant)
                 .withUsageMethod(usageMethod)
                 .withContingency(contingency.getId())
                 .add());
@@ -467,14 +467,14 @@ public class RemedialActionSeriesCreator {
         }
         adder.newOnFlowConstraintUsageRule()
             .withFlowCnec(flowCnec.getId())
-            .withInstant(instant.getId())
+            .withInstant(instant)
             .add();
     }
 
-    private static void addOnAngleConstraintUsageRule(RemedialActionAdder<?> adder, AngleCnec angleCnec, String curativeInstantId) {
+    private static void addOnAngleConstraintUsageRule(RemedialActionAdder<?> adder, AngleCnec angleCnec, Instant curativeInstant) {
         adder.newOnAngleConstraintUsageRule()
             .withAngleCnec(angleCnec.getId())
-            .withInstant(curativeInstantId)
+            .withInstant(curativeInstant)
             .add();
     }
 

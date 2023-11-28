@@ -47,6 +47,8 @@ class JsonVoltageMonitoringResultTest {
     State preventiveState;
     Contingency co1;
     VoltageMonitoringResultImporter voltageMonitoringResultImporter;
+    private Instant preventiveInstant;
+    private Instant curativeInstant;
 
     public static Stream<Arguments> provideParameters() {
         return Stream.of(
@@ -69,27 +71,29 @@ class JsonVoltageMonitoringResultTest {
             .newInstant(OUTAGE_INSTANT_ID, InstantKind.OUTAGE)
             .newInstant(AUTO_INSTANT_ID, InstantKind.AUTO)
             .newInstant(CURATIVE_INSTANT_ID, InstantKind.CURATIVE);
+        preventiveInstant = crac.getInstant(PREVENTIVE_INSTANT_ID);
+        curativeInstant = crac.getInstant(CURATIVE_INSTANT_ID);
         co1 = crac.newContingency().withId("co1").withNetworkElement("co1-ne").add();
-        vc1 = addVoltageCnec("VL45", "VL45", 145., 150., PREVENTIVE_INSTANT_ID, null);
-        vc2 = addVoltageCnec("VL46", "VL46", 140., 145., CURATIVE_INSTANT_ID, co1.getId());
+        vc1 = addVoltageCnec("VL45", "VL45", 145., 150., preventiveInstant, null);
+        vc2 = addVoltageCnec("VL46", "VL46", 140., 145., curativeInstant, co1.getId());
         preventiveState = crac.getPreventiveState();
         crac.newNetworkAction()
                 .withId("na1")
                 .newInjectionSetPoint().withNetworkElement("ne1").withSetpoint(50.).withUnit(Unit.MEGAWATT).add()
-                .newOnVoltageConstraintUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withVoltageCnec(vc1.getId()).add()
+                .newOnVoltageConstraintUsageRule().withInstant(preventiveInstant).withVoltageCnec(vc1.getId()).add()
                 .add();
         crac.newNetworkAction()
                 .withId("na2")
                 .newInjectionSetPoint().withNetworkElement("ne2").withSetpoint(150.).withUnit(Unit.MEGAWATT).add()
-                .newOnVoltageConstraintUsageRule().withInstant(CURATIVE_INSTANT_ID).withVoltageCnec(vc2.getId()).add()
+                .newOnVoltageConstraintUsageRule().withInstant(curativeInstant).withVoltageCnec(vc2.getId()).add()
                 .add();
         voltageMonitoringResultImporter = new VoltageMonitoringResultImporter();
     }
 
-    private VoltageCnec addVoltageCnec(String id, String networkElement, Double min, Double max, String instantId, String contingencyId) {
+    private VoltageCnec addVoltageCnec(String id, String networkElement, Double min, Double max, Instant instant, String contingencyId) {
         return crac.newVoltageCnec()
             .withId(id)
-            .withInstant(instantId)
+            .withInstant(instant)
             .withNetworkElement(networkElement)
             .withMonitored()
             .newThreshold().withUnit(Unit.KILOVOLT).withMin(min).withMax(max).add()
