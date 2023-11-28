@@ -36,17 +36,17 @@ public class RemedialActionSeriesCreator {
     private final Crac crac;
     private final Network network;
     private final List<TimeSeries> cimTimeSeries;
-    private final CimCracCreationContext cracCreationContext;
-    private final CimCracCreationParameters cimCracCreationParameters;
-    private final Map<String, PstRangeActionCreator> pstRangeActionCreators = new HashMap<>();
-    private final Map<String, NetworkActionCreator> networkActionCreators = new HashMap<>();
-    private final Set<HvdcRangeActionCreator> hvdcRangeActionCreators = new HashSet<>();
     private Set<RemedialActionSeriesCreationContext> remedialActionSeriesCreationContexts;
+    private final CimCracCreationContext cracCreationContext;
     private List<Contingency> contingencies;
     private List<String> invalidContingencies;
     private HvdcRangeActionCreator hvdcRangeActionCreator = null;
     private Set<FlowCnec> flowCnecs;
     private AngleCnec angleCnec;
+    private CimCracCreationParameters cimCracCreationParameters;
+    private Map<String, PstRangeActionCreator> pstRangeActionCreators = new HashMap<>();
+    private Map<String, NetworkActionCreator> networkActionCreators = new HashMap<>();
+    private Set<HvdcRangeActionCreator> hvdcRangeActionCreators = new HashSet<>();
     private Country sharedDomain;
 
     public RemedialActionSeriesCreator(List<TimeSeries> cimTimeSeries, Crac crac, Network network, CimCracCreationContext cracCreationContext, CimCracCreationParameters cimCracCreationParameters) {

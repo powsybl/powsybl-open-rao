@@ -37,9 +37,9 @@ public class MonitoredSeriesCreator {
     private final Crac crac;
     private final Network network;
     private final List<TimeSeries> cimTimeSeries;
+    private Map<String, MonitoredSeriesCreationContext> monitoredSeriesCreationContexts;
     private final CimCracCreationContext cracCreationContext;
     private final Set<Side> defaultMonitoredSides;
-    private Map<String, MonitoredSeriesCreationContext> monitoredSeriesCreationContexts;
 
     public MonitoredSeriesCreator(List<TimeSeries> cimTimeSeries, Network network, CimCracCreationContext cracCreationContext, Set<Side> defaultMonitoredSides) {
         this.cimTimeSeries = cimTimeSeries;
@@ -157,7 +157,7 @@ public class MonitoredSeriesCreator {
             );
             // TSO can define multiple Monitored_Series with same mRID. Add information from new one to old one
             MonitoredSeriesCreationContext mscc2 = monitoredSeriesCreationContexts.get(nativeId);
-            ImportStatus importStatus;
+            ImportStatus importStatus = null;
             boolean isAltered = false;
             if (mscc.isImported() == mscc2.isImported()) {
                 importStatus = mscc.getImportStatus();
@@ -167,7 +167,7 @@ public class MonitoredSeriesCreator {
             }
             String importStatusDetail =
                 mscc.getImportStatusDetail()
-                    + (!mscc.getImportStatusDetail().isEmpty() && !mscc2.getImportStatusDetail().isEmpty() ? " - " : "")
+                    + (mscc.getImportStatusDetail().length() > 0 && mscc2.getImportStatusDetail().length() > 0 ? " - " : "")
                     + mscc2.getImportStatusDetail();
             newMscc = new MonitoredSeriesCreationContext(
                 mscc.getNativeId(),
@@ -265,7 +265,7 @@ public class MonitoredSeriesCreator {
 
         flowCnecAdder.withNetworkElement(branchHelper.getBranch().getId());
 
-        String cnecId;
+        String cnecId = null;
 
         try {
             cnecId = addThreshold(flowCnecAdder, unit, branchHelper, cnecNativeId, direction, threshold);
@@ -312,7 +312,7 @@ public class MonitoredSeriesCreator {
 
         Set<Side> monitoredSides = defaultMonitoredSides;
         if (branchHelper.isHalfLine()) {
-            modifiedCnecId += " - " + (branchHelper.getTieLineSide() == Branch.Side.ONE ? "LEFT" : "RIGHT");
+            modifiedCnecId += " - " + (branchHelper.getTieLineSide() == Branch.Side.ONE ?  "LEFT" : "RIGHT");
             monitoredSides = Set.of(Side.fromIidmSide(branchHelper.getTieLineSide()));
         } else if (unit.equals(Unit.AMPERE) &&
             Math.abs(branchHelper.getBranch().getTerminal1().getVoltageLevel().getNominalV() - branchHelper.getBranch().getTerminal2().getVoltageLevel().getNominalV()) > 1.) {

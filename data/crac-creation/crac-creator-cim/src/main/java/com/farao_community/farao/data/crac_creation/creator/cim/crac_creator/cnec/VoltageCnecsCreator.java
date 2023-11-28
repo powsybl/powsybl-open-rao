@@ -36,7 +36,7 @@ public class VoltageCnecsCreator {
     private final VoltageCnecsCreationParameters voltageCnecsCreationParameters;
     private final CimCracCreationContext cracCreationContext;
     private final Network network;
-    private final Map<String, String> networkElementNativeIdPerId = new HashMap<>();
+    private Map<String, String> networkElementNativeIdPerId = new HashMap<>();
     private Map<String, String> contingencyNativeNamePerId = new HashMap<>();
 
     public VoltageCnecsCreator(VoltageCnecsCreationParameters voltageCnecsCreationParameters, CimCracCreationContext cracCreationContext, Network network) {

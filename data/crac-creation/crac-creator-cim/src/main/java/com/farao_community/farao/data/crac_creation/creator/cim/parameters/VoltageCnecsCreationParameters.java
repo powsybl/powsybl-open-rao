@@ -20,8 +20,8 @@ import java.util.Set;
  */
 public class VoltageCnecsCreationParameters {
 
-    private final Map<String, VoltageMonitoredContingenciesAndThresholds> monitoredStatesAndThresholds;
-    private final Set<String> monitoredNetworkElements;
+    private Map<String, VoltageMonitoredContingenciesAndThresholds> monitoredStatesAndThresholds;
+    private Set<String> monitoredNetworkElements;
 
     public VoltageCnecsCreationParameters(Map<String, VoltageMonitoredContingenciesAndThresholds> monitoredStatesAndThresholds, Set<String> monitoredNetworkElements) {
         Objects.requireNonNull(monitoredStatesAndThresholds);

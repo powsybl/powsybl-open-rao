@@ -27,10 +27,10 @@ import java.util.Objects;
 public class AdditionalConstraintSeriesCreator {
     private final Crac crac;
     private final Network network;
-    private final AdditionalConstraintSeries additionalConstraintSerie;
-    private final CimCracCreationContext cracCreationContext;
-    private final String contingencyId;
-    private final String cimSerieId;
+    private AdditionalConstraintSeries additionalConstraintSerie;
+    private CimCracCreationContext cracCreationContext;
+    private String contingencyId;
+    private String cimSerieId;
 
     public AdditionalConstraintSeriesCreator(Crac crac, Network network, AdditionalConstraintSeries additionalConstraintSerie, String contingencyId, String cimSerieId, CimCracCreationContext cracCreationContext) {
         this.crac = crac;

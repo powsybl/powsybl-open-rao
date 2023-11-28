@@ -17,9 +17,9 @@ import com.farao_community.farao.data.crac_api.range_action.PstRangeActionAdder;
 import com.farao_community.farao.data.crac_creation.creator.api.ImportStatus;
 import com.farao_community.farao.data.crac_creation.creator.api.parameters.RangeActionGroup;
 import com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.CimConstants;
+import com.farao_community.farao.data.crac_creation.util.FaraoImportException;
 import com.farao_community.farao.data.crac_creation.creator.cim.parameters.CimCracCreationParameters;
 import com.farao_community.farao.data.crac_creation.creator.cim.xsd.RemedialActionRegisteredResource;
-import com.farao_community.farao.data.crac_creation.util.FaraoImportException;
 import com.farao_community.farao.data.crac_creation.util.PstHelper;
 import com.farao_community.farao.data.crac_creation.util.iidm.IidmPstHelper;
 import com.powsybl.iidm.network.Country;
@@ -29,6 +29,7 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
@@ -39,14 +40,14 @@ public class PstRangeActionCreator {
     private final String createdRemedialActionId;
     private final String createdRemedialActionName;
     private final String applicationModeMarketObjectStatus;
+    private RemedialActionSeriesCreationContext pstRangeActionCreationContext;
     private final RemedialActionRegisteredResource pstRegisteredResource;
     private final List<Contingency> contingencies;
     private final List<String> invalidContingencies;
     private final Set<FlowCnec> flowCnecs;
     private final AngleCnec angleCnec;
-    private final Country sharedDomain;
-    private RemedialActionSeriesCreationContext pstRangeActionCreationContext;
     private PstRangeActionAdder pstRangeActionAdder;
+    private final Country sharedDomain;
 
     public PstRangeActionCreator(Crac crac, Network network, String createdRemedialActionId, String createdRemedialActionName, String applicationModeMarketObjectStatus, RemedialActionRegisteredResource pstRegisteredResource, List<Contingency> contingencies, List<String> invalidContingencies, Set<FlowCnec> flowCnecs, AngleCnec angleCnec, Country sharedDomain) {
         this.crac = crac;
@@ -96,7 +97,7 @@ public class PstRangeActionCreator {
                 List<String> raGroups = cimCracCreationParameters.getRangeActionGroups().stream()
                     .filter(rangeActionGroup -> rangeActionGroup.getRangeActionsIds().contains(createdRemedialActionId))
                     .map(RangeActionGroup::toString)
-                    .toList();
+                    .collect(Collectors.toList());
                 if (raGroups.size() > 1) {
                     this.pstRangeActionCreationContext = RemedialActionSeriesCreationContext.notImported(createdRemedialActionId, ImportStatus.INCONSISTENCY_IN_DATA, String.format("Multiple (%s) groups defined for range action %s", raGroups.size(), createdRemedialActionId));
                     return;

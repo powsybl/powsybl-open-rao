@@ -15,11 +15,11 @@ import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.range_action.HvdcRangeActionAdder;
 import com.farao_community.farao.data.crac_creation.creator.api.ImportStatus;
 import com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.CimConstants;
+import com.farao_community.farao.data.crac_creation.util.FaraoImportException;
 import com.farao_community.farao.data.crac_creation.creator.cim.parameters.CimCracCreationParameters;
 import com.farao_community.farao.data.crac_creation.creator.cim.parameters.RangeActionSpeed;
 import com.farao_community.farao.data.crac_creation.creator.cim.xsd.RemedialActionRegisteredResource;
 import com.farao_community.farao.data.crac_creation.creator.cim.xsd.RemedialActionSeries;
-import com.farao_community.farao.data.crac_creation.util.FaraoImportException;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.HvdcLine;
 import com.powsybl.iidm.network.Network;
@@ -60,7 +60,7 @@ public class HvdcRangeActionCreator {
         this.flowCnecs = flowCnecs;
         this.angleCnec = angleCnec;
         this.sharedDomain = sharedDomain;
-        this.cimCracCreationParameters = cimCracCreationParameters;
+        this.cimCracCreationParameters =  cimCracCreationParameters;
     }
 
     public void addDirection(RemedialActionSeries remedialActionSeries) {
