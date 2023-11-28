@@ -75,7 +75,9 @@ public abstract class AbstractRemedialAction<I extends RemedialAction<I>> extend
 
     public Set<FlowCnec> getFlowCnecsConstrainingUsageRules(Set<FlowCnec> perimeterCnecs, Network network, State optimizedState) {
         Set<FlowCnec> toBeConsideredCnecs = new HashSet<>();
-        Set<UsageRule> usageRulesOnFlowConstraint = new HashSet<>(getUsageRules(Set.of(OnFlowConstraint.class, OnFlowConstraintInCountry.class), optimizedState));
+        Set<UsageRule> usageRulesOnFlowConstraint = new HashSet<>();
+        usageRulesOnFlowConstraint.addAll(getUsageRules(OnFlowConstraint.class, optimizedState));
+        usageRulesOnFlowConstraint.addAll(getUsageRules(OnFlowConstraintInCountry.class, optimizedState));
         usageRulesOnFlowConstraint.forEach(usageRule -> toBeConsideredCnecs.addAll(getFlowCnecsConstrainingForOneUsageRule(usageRule, perimeterCnecs, network)));
         return toBeConsideredCnecs;
     }
@@ -97,11 +99,12 @@ public abstract class AbstractRemedialAction<I extends RemedialAction<I>> extend
         }
     }
 
-    private Collection<? extends UsageRule> getUsageRules(Set<Class<? extends UsageRule>> usageRuleClasses, State state) {
-        return getUsageRules().stream().filter(usageRule -> usageRuleClasses.contains(usageRule.getClass()))
+    private <T extends UsageRule> List<T> getUsageRules(Class<T> usageRuleClass, State state) {
+        return getUsageRules().stream().filter(usageRuleClass::isInstance).map(usageRuleClass::cast)
             .filter(ofc -> state.getInstant().equals(Instant.AUTO) ?
                 ofc.getUsageMethod(state).equals(UsageMethod.FORCED) :
-                ofc.getUsageMethod(state).equals(UsageMethod.AVAILABLE)).toList();
+                ofc.getUsageMethod(state).equals(UsageMethod.AVAILABLE) || ofc.getUsageMethod(state).equals(UsageMethod.FORCED))
+            .toList();
     }
 
     private static boolean isCnecInCountry(Cnec<?> cnec, Country country, Network network) {
