@@ -163,7 +163,7 @@ public class CastorFullOptimization {
         mergedRaoResults = new PreventiveAndCurativesRaoResultImpl(stateTree, initialOutput, preventiveResult, preCurativeSensitivityAnalysisOutput, postContingencyResults, raoInput.getCrac());
         boolean logFinalResultsOutsideOfSecondPreventive = true;
         // Run second preventive when necessary
-        if (shouldRunSecondPreventiveRao(raoParameters, preventiveResult, postContingencyResults.values(), mergedRaoResults, targetEndInstant, preventiveRaoTime)) {
+        if (shouldRunSecondPreventiveRao(raoParameters, preventiveResult, postContingencyResults.values(), mergedRaoResults, targetEndInstant, preventiveRaoTime, raoInput.getCrac().getInstant(InstantKind.CURATIVE))) {
             RaoResult secondPreventiveRaoResults = runSecondPreventiveAndAutoRao(raoInput, raoParameters, stateTree, toolProvider, prePerimeterSensitivityAnalysis, initialOutput, preventiveResult, postContingencyResults);
             if (secondPreventiveImprovesResults(secondPreventiveRaoResults, mergedRaoResults)) {
                 mergedRaoResults = secondPreventiveRaoResults;
@@ -194,13 +194,13 @@ public class CastorFullOptimization {
             BUSINESS_LOGS.info("RAO has succeeded thanks to second preventive step when first preventive step had failed");
             return true;
         }
-        Instant instantCurative = raoInput.getCrac().getInstant(InstantKind.CURATIVE);
-        double firstPreventiveCost = mergedRaoResults.getCost(instantCurative);
-        double secondPreventiveCost = secondPreventiveRaoResults.getCost(instantCurative);
+        Instant curativeInstant = raoInput.getCrac().getInstant(InstantKind.CURATIVE);
+        double firstPreventiveCost = mergedRaoResults.getCost(curativeInstant);
+        double secondPreventiveCost = secondPreventiveRaoResults.getCost(curativeInstant);
         if (secondPreventiveCost > firstPreventiveCost) {
             BUSINESS_LOGS.info("Second preventive step has increased the overall cost from {} (functional: {}, virtual: {}) to {} (functional: {}, virtual: {}). Falling back to previous solution:",
-                    formatDouble(firstPreventiveCost), formatDouble(mergedRaoResults.getFunctionalCost(instantCurative)), formatDouble(mergedRaoResults.getVirtualCost(instantCurative)),
-                    formatDouble(secondPreventiveCost), formatDouble(secondPreventiveRaoResults.getFunctionalCost(instantCurative)), formatDouble(secondPreventiveRaoResults.getVirtualCost(instantCurative)));
+                    formatDouble(firstPreventiveCost), formatDouble(mergedRaoResults.getFunctionalCost(curativeInstant)), formatDouble(mergedRaoResults.getVirtualCost(curativeInstant)),
+                    formatDouble(secondPreventiveCost), formatDouble(secondPreventiveRaoResults.getFunctionalCost(curativeInstant)), formatDouble(secondPreventiveRaoResults.getVirtualCost(curativeInstant)));
             return false;
         }
         return true;
@@ -215,10 +215,10 @@ public class CastorFullOptimization {
         double initialCost = initialResult.getCost();
         double initialFunctionalCost = initialResult.getFunctionalCost();
         double initialVirtualCost = initialResult.getVirtualCost();
-        Instant instantCurative = raoInput.getCrac().getInstant(InstantKind.CURATIVE);
-        double finalCost = finalRaoResult.getCost(instantCurative);
-        double finalFunctionalCost = finalRaoResult.getFunctionalCost(instantCurative);
-        double finalVirtualCost = finalRaoResult.getVirtualCost(instantCurative);
+        Instant curativeInstant = raoInput.getCrac().getInstant(InstantKind.CURATIVE);
+        double finalCost = finalRaoResult.getCost(curativeInstant);
+        double finalFunctionalCost = finalRaoResult.getFunctionalCost(curativeInstant);
+        double finalVirtualCost = finalRaoResult.getVirtualCost(curativeInstant);
 
         if (objectiveFunctionParameters.getForbidCostIncrease() && finalCost > initialCost) {
             BUSINESS_LOGS.info("RAO has increased the overall cost from {} (functional: {}, virtual: {}) to {} (functional: {}, virtual: {}). Falling back to initial solution:",
@@ -392,7 +392,7 @@ public class CastorFullOptimization {
      * This function decides if a 2nd preventive RAO should be run. It checks the user parameter first, then takes the
      * decision depending on the curative RAO results and the curative RAO stop criterion.
      */
-    boolean shouldRunSecondPreventiveRao(RaoParameters raoParameters, OptimizationResult firstPreventiveResult, Collection<OptimizationResult> curativeRaoResults, RaoResult postFirstRaoResult, java.time.Instant targetEndInstant, long estimatedPreventiveRaoTimeInSeconds) {
+    static boolean shouldRunSecondPreventiveRao(RaoParameters raoParameters, OptimizationResult firstPreventiveResult, Collection<OptimizationResult> curativeRaoResults, RaoResult postFirstRaoResult, java.time.Instant targetEndInstant, long estimatedPreventiveRaoTimeInSeconds, Instant curativeInstant) {
         if (raoParameters.getSecondPreventiveRaoParameters().getExecutionCondition().equals(SecondPreventiveRaoParameters.ExecutionCondition.DISABLED)) {
             return false;
         }
@@ -400,9 +400,8 @@ public class CastorFullOptimization {
             BUSINESS_LOGS.info("There is not enough time to run a 2nd preventive RAO (target end time: {}, estimated time needed based on first preventive RAO: {} seconds)", targetEndInstant, estimatedPreventiveRaoTimeInSeconds);
             return false;
         }
-        Instant curativeInstant = raoInput.getCrac().getInstant(InstantKind.CURATIVE);
         if (raoParameters.getSecondPreventiveRaoParameters().getExecutionCondition().equals(SecondPreventiveRaoParameters.ExecutionCondition.COST_INCREASE)
-            && postFirstRaoResult.getCost(curativeInstant) <= postFirstRaoResult.getCost(null)) {
+                && postFirstRaoResult.getCost(curativeInstant) <= postFirstRaoResult.getCost(null)) {
             BUSINESS_LOGS.info("Cost has not increased during RAO, there is no need to run a 2nd preventive RAO.");
             // it is not necessary to compare initial & post-preventive costs since the preventive RAO cannot increase its own cost
             // only compare initial cost with the curative costs
@@ -418,10 +417,10 @@ public class CastorFullOptimization {
                 return isAnyResultUnsecure(curativeRaoResults);
             case PREVENTIVE_OBJECTIVE:
                 // Run 2nd preventive RAO if the final result has a worse cost than the preventive perimeter
-                return isFinalCostWorseThanPreventive(raoParameters.getObjectiveFunctionParameters().getCurativeMinObjImprovement(), firstPreventiveResult, postFirstRaoResult);
+                return isFinalCostWorseThanPreventive(raoParameters.getObjectiveFunctionParameters().getCurativeMinObjImprovement(), firstPreventiveResult, postFirstRaoResult, curativeInstant);
             case PREVENTIVE_OBJECTIVE_AND_SECURE:
                 // Run 2nd preventive RAO if the final result has a worse cost than the preventive perimeter or is unsecure
-                return isAnyResultUnsecure(curativeRaoResults) || isFinalCostWorseThanPreventive(raoParameters.getObjectiveFunctionParameters().getCurativeMinObjImprovement(), firstPreventiveResult, postFirstRaoResult);
+                return isAnyResultUnsecure(curativeRaoResults) || isFinalCostWorseThanPreventive(raoParameters.getObjectiveFunctionParameters().getCurativeMinObjImprovement(), firstPreventiveResult, postFirstRaoResult, curativeInstant);
             default:
                 throw new FaraoException(String.format("Unknown curative RAO stop criterion: %s", curativeStopCriterion));
         }
@@ -437,8 +436,7 @@ public class CastorFullOptimization {
     /**
      * Returns true if final cost (after PRAO + ARAO + CRAO) is worse than the cost at the end of the preventive perimeter
      */
-    private boolean isFinalCostWorseThanPreventive(double curativeMinObjImprovement, OptimizationResult preventiveResult, RaoResult postFirstRaoResult) {
-        Instant curativeInstant = raoInput.getCrac().getInstant(InstantKind.CURATIVE);
+    private static boolean isFinalCostWorseThanPreventive(double curativeMinObjImprovement, OptimizationResult preventiveResult, RaoResult postFirstRaoResult, Instant curativeInstant) {
         return postFirstRaoResult.getCost(curativeInstant) > preventiveResult.getCost() - curativeMinObjImprovement;
     }
 
@@ -552,10 +550,10 @@ public class CastorFullOptimization {
 
         // Get the applied network actions for every contingency perimeter
         AppliedRemedialActions appliedArasAndCras = new AppliedRemedialActions();
-        Instant instantCurative = raoInput.getCrac().getInstant(InstantKind.CURATIVE);
+        Instant curativeInstant = raoInput.getCrac().getInstant(InstantKind.CURATIVE);
         Instant autoInstant = raoInput.getCrac().getInstant(InstantKind.AUTO);
         addAppliedNetworkActionsPostContingency(autoInstant, appliedArasAndCras, postContingencyResults);
-        addAppliedNetworkActionsPostContingency(instantCurative, appliedArasAndCras, postContingencyResults);
+        addAppliedNetworkActionsPostContingency(curativeInstant, appliedArasAndCras, postContingencyResults);
         // Get the applied range actions for every auto contingency perimeter
         addAppliedRangeActionsPostContingency(autoInstant, appliedArasAndCras, postContingencyResults);
 
@@ -566,7 +564,7 @@ public class CastorFullOptimization {
         if (!parameters.getSecondPreventiveRaoParameters().getReOptimizeCurativeRangeActions()) { // keep old behaviour
             remedialActionsExcluded = new HashSet<>(getRangeActionsExcludedFromSecondPreventive(raoInput.getCrac()));
             applyPreventiveResultsForAutoOrCurativeRangeActions(network, firstPreventiveResult, raoInput.getCrac());
-            addAppliedRangeActionsPostContingency(instantCurative, appliedArasAndCras, postContingencyResults);
+            addAppliedRangeActionsPostContingency(curativeInstant, appliedArasAndCras, postContingencyResults);
         }
 
         // Run a first sensitivity computation using initial network and applied CRAs

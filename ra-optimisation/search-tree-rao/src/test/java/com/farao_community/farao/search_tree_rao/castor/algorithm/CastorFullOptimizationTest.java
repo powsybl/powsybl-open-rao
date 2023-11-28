@@ -71,7 +71,6 @@ class CastorFullOptimizationTest {
     private RangeAction<?> ra9;
     private RangeAction<?> ra10;
     private NetworkAction na1;
-    private CastorFullOptimization castorFullOptimization;
     private Instant preventiveInstant;
     private Instant autoInstant;
     private Instant curativeInstant;
@@ -87,9 +86,6 @@ class CastorFullOptimizationTest {
         when(inputs.getNetwork()).thenReturn(network);
         when(inputs.getNetworkVariantId()).thenReturn(network.getVariantManager().getWorkingVariantId());
         when(inputs.getCrac()).thenReturn(crac);
-        RaoParameters raoParameters = new RaoParameters();
-        java.time.Instant instant = Mockito.mock(java.time.Instant.class);
-        castorFullOptimization = new CastorFullOptimization(inputs, raoParameters, instant);
     }
 
     @Test
@@ -101,16 +97,16 @@ class CastorFullOptimizationTest {
         Collection<OptimizationResult> curativeResults = Set.of(optimizationResult1, optimizationResult2);
 
         // No SearchTreeRaoParameters extension
-        assertFalse(castorFullOptimization.shouldRunSecondPreventiveRao(parameters, preventiveResult, curativeResults, null, null, 0));
+        assertFalse(CastorFullOptimization.shouldRunSecondPreventiveRao(parameters, preventiveResult, curativeResults, null, null, 0, crac.getInstant(InstantKind.CURATIVE)));
 
         // Deactivated in parameters
         parameters.getSecondPreventiveRaoParameters().setExecutionCondition(SecondPreventiveRaoParameters.ExecutionCondition.DISABLED);
-        assertFalse(castorFullOptimization.shouldRunSecondPreventiveRao(parameters, preventiveResult, curativeResults, null, null, 0));
+        assertFalse(CastorFullOptimization.shouldRunSecondPreventiveRao(parameters, preventiveResult, curativeResults, null, null, 0, crac.getInstant(InstantKind.CURATIVE)));
 
         // CurativeStopCriterion.MIN_OBJECTIVE
         parameters.getSecondPreventiveRaoParameters().setExecutionCondition(SecondPreventiveRaoParameters.ExecutionCondition.POSSIBLE_CURATIVE_IMPROVEMENT);
         parameters.getObjectiveFunctionParameters().setCurativeStopCriterion(ObjectiveFunctionParameters.CurativeStopCriterion.MIN_OBJECTIVE);
-        assertTrue(castorFullOptimization.shouldRunSecondPreventiveRao(parameters, preventiveResult, curativeResults, null, null, 0));
+        assertTrue(CastorFullOptimization.shouldRunSecondPreventiveRao(parameters, preventiveResult, curativeResults, null, null, 0, crac.getInstant(InstantKind.CURATIVE)));
 
         // CurativeStopCriterion.SECURE, secure case
         parameters.getObjectiveFunctionParameters().setCurativeStopCriterion(ObjectiveFunctionParameters.CurativeStopCriterion.SECURE);
@@ -118,17 +114,17 @@ class CastorFullOptimizationTest {
         Mockito.doReturn(-10.).when(optimizationResult2).getFunctionalCost();
         Mockito.doReturn(0.).when(optimizationResult1).getVirtualCost();
         Mockito.doReturn(0.).when(optimizationResult2).getVirtualCost();
-        assertFalse(castorFullOptimization.shouldRunSecondPreventiveRao(parameters, preventiveResult, curativeResults, null, null, 0));
+        assertFalse(CastorFullOptimization.shouldRunSecondPreventiveRao(parameters, preventiveResult, curativeResults, null, null, 0, crac.getInstant(InstantKind.CURATIVE)));
         // CurativeStopCriterion.SECURE, unsecure case 1
         Mockito.doReturn(0.).when(optimizationResult1).getFunctionalCost();
-        assertTrue(castorFullOptimization.shouldRunSecondPreventiveRao(parameters, preventiveResult, curativeResults, null, null, 0));
+        assertTrue(CastorFullOptimization.shouldRunSecondPreventiveRao(parameters, preventiveResult, curativeResults, null, null, 0, crac.getInstant(InstantKind.CURATIVE)));
         // CurativeStopCriterion.SECURE, unsecure case 2
         Mockito.doReturn(5.).when(optimizationResult1).getFunctionalCost();
-        assertTrue(castorFullOptimization.shouldRunSecondPreventiveRao(parameters, preventiveResult, curativeResults, null, null, 0));
+        assertTrue(CastorFullOptimization.shouldRunSecondPreventiveRao(parameters, preventiveResult, curativeResults, null, null, 0, crac.getInstant(InstantKind.CURATIVE)));
         // CurativeStopCriterion.SECURE, unsecure case 3
         Mockito.doReturn(-10.).when(optimizationResult1).getFunctionalCost();
         Mockito.doReturn(9.).when(optimizationResult1).getVirtualCost();
-        assertTrue(castorFullOptimization.shouldRunSecondPreventiveRao(parameters, preventiveResult, curativeResults, null, null, 0));
+        assertTrue(CastorFullOptimization.shouldRunSecondPreventiveRao(parameters, preventiveResult, curativeResults, null, null, 0, crac.getInstant(InstantKind.CURATIVE)));
     }
 
     private void setCost(OptimizationResult optimizationResultMock, double cost) {
@@ -154,13 +150,13 @@ class CastorFullOptimizationTest {
         setCost(preventiveResult, -100.);
         // case 1 : final cost is better than preventive (cost < preventive cost - minObjImprovement)
         when(postFirstPreventiveRaoResult.getCost(curativeInstant)).thenReturn(-200.);
-        assertFalse(castorFullOptimization.shouldRunSecondPreventiveRao(parameters, preventiveResult, curativeResults, postFirstPreventiveRaoResult, null, 0));
+        assertFalse(CastorFullOptimization.shouldRunSecondPreventiveRao(parameters, preventiveResult, curativeResults, postFirstPreventiveRaoResult, null, 0, crac.getInstant(InstantKind.CURATIVE)));
         // case 2 : final cost = preventive cost - minObjImprovement
         when(postFirstPreventiveRaoResult.getCost(curativeInstant)).thenReturn(-110.);
-        assertFalse(castorFullOptimization.shouldRunSecondPreventiveRao(parameters, preventiveResult, curativeResults, postFirstPreventiveRaoResult, null, 0));
+        assertFalse(CastorFullOptimization.shouldRunSecondPreventiveRao(parameters, preventiveResult, curativeResults, postFirstPreventiveRaoResult, null, 0, crac.getInstant(InstantKind.CURATIVE)));
         // case 3 : final cost > preventive cost - minObjImprovement
         when(postFirstPreventiveRaoResult.getCost(curativeInstant)).thenReturn(-109.);
-        assertTrue(castorFullOptimization.shouldRunSecondPreventiveRao(parameters, preventiveResult, curativeResults, postFirstPreventiveRaoResult, null, 0));
+        assertTrue(CastorFullOptimization.shouldRunSecondPreventiveRao(parameters, preventiveResult, curativeResults, postFirstPreventiveRaoResult, null, 0, crac.getInstant(InstantKind.CURATIVE)));
 
         // CurativeStopCriterion.PREVENTIVE_OBJECTIVE_AND_SECURE
         parameters.getObjectiveFunctionParameters().setCurativeStopCriterion(ObjectiveFunctionParameters.CurativeStopCriterion.PREVENTIVE_OBJECTIVE_AND_SECURE);
@@ -168,23 +164,23 @@ class CastorFullOptimizationTest {
         setCost(optimizationResult1, -200.);
         setCost(optimizationResult2, -300.);
         when(postFirstPreventiveRaoResult.getCost(curativeInstant)).thenReturn(-200.);
-        assertFalse(castorFullOptimization.shouldRunSecondPreventiveRao(parameters, preventiveResult, curativeResults, postFirstPreventiveRaoResult, null, 0));
+        assertFalse(CastorFullOptimization.shouldRunSecondPreventiveRao(parameters, preventiveResult, curativeResults, postFirstPreventiveRaoResult, null, 0, crac.getInstant(InstantKind.CURATIVE)));
         setCost(optimizationResult1, -110.);
         when(postFirstPreventiveRaoResult.getCost(curativeInstant)).thenReturn(-110.);
-        assertFalse(castorFullOptimization.shouldRunSecondPreventiveRao(parameters, preventiveResult, curativeResults, postFirstPreventiveRaoResult, null, 0));
+        assertFalse(CastorFullOptimization.shouldRunSecondPreventiveRao(parameters, preventiveResult, curativeResults, postFirstPreventiveRaoResult, null, 0, crac.getInstant(InstantKind.CURATIVE)));
         // case 2 : all curatives are better than preventive (cost < preventive cost - minObjImprovement), UNSECURE
         setCost(preventiveResult, 1000.);
         setCost(optimizationResult1, 0.);
         when(postFirstPreventiveRaoResult.getCost(curativeInstant)).thenReturn(0.);
-        assertTrue(castorFullOptimization.shouldRunSecondPreventiveRao(parameters, preventiveResult, curativeResults, postFirstPreventiveRaoResult, null, 0));
+        assertTrue(CastorFullOptimization.shouldRunSecondPreventiveRao(parameters, preventiveResult, curativeResults, postFirstPreventiveRaoResult, null, 0, crac.getInstant(InstantKind.CURATIVE)));
         setCost(optimizationResult1, 10.);
         when(postFirstPreventiveRaoResult.getCost(curativeInstant)).thenReturn(10.);
-        assertTrue(castorFullOptimization.shouldRunSecondPreventiveRao(parameters, preventiveResult, curativeResults, postFirstPreventiveRaoResult, null, 0));
+        assertTrue(CastorFullOptimization.shouldRunSecondPreventiveRao(parameters, preventiveResult, curativeResults, postFirstPreventiveRaoResult, null, 0, crac.getInstant(InstantKind.CURATIVE)));
         // case 3 : one curative has cost > preventive cost - minObjImprovement, SECURE
         setCost(preventiveResult, -100.);
         setCost(optimizationResult1, -109.);
         when(postFirstPreventiveRaoResult.getCost(curativeInstant)).thenReturn(-109.);
-        assertTrue(castorFullOptimization.shouldRunSecondPreventiveRao(parameters, preventiveResult, curativeResults, postFirstPreventiveRaoResult, null, 0));
+        assertTrue(CastorFullOptimization.shouldRunSecondPreventiveRao(parameters, preventiveResult, curativeResults, postFirstPreventiveRaoResult, null, 0, crac.getInstant(InstantKind.CURATIVE)));
     }
 
     @Test
@@ -199,12 +195,12 @@ class CastorFullOptimizationTest {
         parameters.getObjectiveFunctionParameters().setCurativeStopCriterion(ObjectiveFunctionParameters.CurativeStopCriterion.MIN_OBJECTIVE);
 
         // Enough time
-        assertTrue(castorFullOptimization.shouldRunSecondPreventiveRao(parameters, preventiveResult, curativeResults, null, java.time.Instant.now().plusSeconds(200), 100));
-        assertTrue(castorFullOptimization.shouldRunSecondPreventiveRao(parameters, preventiveResult, curativeResults, null, java.time.Instant.now().plusSeconds(200), 199));
+        assertTrue(CastorFullOptimization.shouldRunSecondPreventiveRao(parameters, preventiveResult, curativeResults, null, java.time.Instant.now().plusSeconds(200), 100, crac.getInstant(InstantKind.CURATIVE)));
+        assertTrue(CastorFullOptimization.shouldRunSecondPreventiveRao(parameters, preventiveResult, curativeResults, null, java.time.Instant.now().plusSeconds(200), 199, crac.getInstant(InstantKind.CURATIVE)));
 
         // Not enough time
-        assertFalse(castorFullOptimization.shouldRunSecondPreventiveRao(parameters, preventiveResult, curativeResults, null, java.time.Instant.now().plusSeconds(200), 201));
-        assertFalse(castorFullOptimization.shouldRunSecondPreventiveRao(parameters, preventiveResult, curativeResults, null, java.time.Instant.now().plusSeconds(200), 400));
+        assertFalse(CastorFullOptimization.shouldRunSecondPreventiveRao(parameters, preventiveResult, curativeResults, null, java.time.Instant.now().plusSeconds(200), 201, crac.getInstant(InstantKind.CURATIVE)));
+        assertFalse(CastorFullOptimization.shouldRunSecondPreventiveRao(parameters, preventiveResult, curativeResults, null, java.time.Instant.now().plusSeconds(200), 400, crac.getInstant(InstantKind.CURATIVE)));
     }
 
     @Test
@@ -223,13 +219,13 @@ class CastorFullOptimizationTest {
         when(postFirstRaoResult.getCost(preventiveInstant)).thenReturn(-10.);
         when(postFirstRaoResult.getCost(curativeInstant)).thenReturn(-120.);
 
-        assertFalse(castorFullOptimization.shouldRunSecondPreventiveRao(parameters, preventiveResult, curativeResults, postFirstRaoResult, null, 0));
+        assertFalse(CastorFullOptimization.shouldRunSecondPreventiveRao(parameters, preventiveResult, curativeResults, postFirstRaoResult, null, 0, crac.getInstant(InstantKind.CURATIVE)));
 
         when(postFirstRaoResult.getCost(curativeInstant)).thenReturn(-100.);
-        assertFalse(castorFullOptimization.shouldRunSecondPreventiveRao(parameters, preventiveResult, curativeResults, postFirstRaoResult, null, 0));
+        assertFalse(CastorFullOptimization.shouldRunSecondPreventiveRao(parameters, preventiveResult, curativeResults, postFirstRaoResult, null, 0, crac.getInstant(InstantKind.CURATIVE)));
 
         when(postFirstRaoResult.getCost(curativeInstant)).thenReturn(-95.);
-        assertTrue(castorFullOptimization.shouldRunSecondPreventiveRao(parameters, preventiveResult, curativeResults, postFirstRaoResult, null, 0));
+        assertTrue(CastorFullOptimization.shouldRunSecondPreventiveRao(parameters, preventiveResult, curativeResults, postFirstRaoResult, null, 0, crac.getInstant(InstantKind.CURATIVE)));
     }
 
     private void setUpCracWithRAs() {
