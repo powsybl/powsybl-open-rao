@@ -17,8 +17,7 @@ import com.powsybl.iidm.network.Country;
 
 import java.io.IOException;
 
-import static com.farao_community.farao.data.crac_io_json.JsonSerializationConstants.COUNTRY;
-import static com.farao_community.farao.data.crac_io_json.JsonSerializationConstants.INSTANT;
+import static com.farao_community.farao.data.crac_io_json.JsonSerializationConstants.*;
 
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}

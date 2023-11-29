@@ -58,12 +58,12 @@ class CsaProfileCracCreatorTest {
                 "FFR2AA1--DDE3AA1--1", outageInstant, "co1_fr2_fr3_1", 1200., -1200., Side.RIGHT);
 
         // Check PST RAs
-        assertPstRangeActionImported(cracCreationContext, "pst_be", "BBE2AA1--BBE3AA1--1", false, 1);
-        assertHasOnInstantUsageRule(cracCreationContext, "pst_be", curativeInstant, UsageMethod.AVAILABLE);
-        assertPstRangeActionImported(cracCreationContext, "pst_fr_cra", "FFR2AA1--FFR4AA1--1", false, 1);
-        assertHasOnInstantUsageRule(cracCreationContext, "pst_fr_cra", curativeInstant, UsageMethod.AVAILABLE);
-        assertPstRangeActionImported(cracCreationContext, "pst_fr_pra", "FFR2AA1--FFR4AA1--1", false, 1);
-        assertHasOnInstantUsageRule(cracCreationContext, "pst_fr_pra", preventiveInstant, UsageMethod.AVAILABLE);
+        CsaProfileCracCreationTestUtil.assertPstRangeActionImported(cracCreationContext, "pst_be", "BBE2AA1--BBE3AA1--1", false, 1);
+        CsaProfileCracCreationTestUtil.assertHasOnInstantUsageRule(cracCreationContext, "pst_be", curativeInstant, UsageMethod.AVAILABLE);
+        CsaProfileCracCreationTestUtil.assertPstRangeActionImported(cracCreationContext, "pst_fr_cra", "FFR2AA1--FFR4AA1--1", false, 1);
+        CsaProfileCracCreationTestUtil.assertHasOnInstantUsageRule(cracCreationContext, "pst_fr_cra", curativeInstant, UsageMethod.AVAILABLE);
+        CsaProfileCracCreationTestUtil.assertPstRangeActionImported(cracCreationContext, "pst_fr_pra", "FFR2AA1--FFR4AA1--1", false, 1);
+        CsaProfileCracCreationTestUtil.assertHasOnInstantUsageRule(cracCreationContext, "pst_fr_pra", preventiveInstant, UsageMethod.AVAILABLE);
 
         // Check topo RAs
         CsaProfileCracCreationTestUtil.assertNetworkActionImported(cracCreationContext, "close_fr1_fr5", Set.of("FFR1AA1Z-FFR1AA1--1"), false, 1);

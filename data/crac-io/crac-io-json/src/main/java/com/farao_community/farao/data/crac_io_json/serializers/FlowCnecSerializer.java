@@ -8,6 +8,7 @@
 package com.farao_community.farao.data.crac_io_json.serializers;
 
 import com.farao_community.farao.data.crac_api.Contingency;
+import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_api.threshold.BranchThreshold;
@@ -35,7 +36,8 @@ public class FlowCnecSerializer<I extends FlowCnec> extends AbstractJsonSerializ
         gen.writeStringField(NAME, flowCnec.getName());
         gen.writeStringField(NETWORK_ELEMENT_ID, flowCnec.getNetworkElement().getId());
         gen.writeStringField(OPERATOR, flowCnec.getOperator());
-        gen.writeStringField(INSTANT, serializeInstant(flowCnec.getState().getInstant()));
+        Instant instant = flowCnec.getState().getInstant();
+        gen.writeStringField(INSTANT, instant.getId());
         Optional<Contingency> optContingency = flowCnec.getState().getContingency();
         if (optContingency.isPresent()) {
             gen.writeStringField(CONTINGENCY_ID, optContingency.get().getId());

@@ -9,7 +9,6 @@ package com.farao_community.farao.data.crac_io_json;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
-import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_api.network_action.ActionType;
 import com.farao_community.farao.data.crac_api.range.RangeType;
@@ -42,6 +41,7 @@ public final class JsonSerializationConstants {
     v1.8: addition of ShuntCompensator set-point action
     v1.9: addition of counterTradeRangeAction
      */
+
     // headers
     public static final String TYPE = "type";
     public static final String VERSION = "version";
@@ -182,10 +182,6 @@ public final class JsonSerializationConstants {
 
     // serialization of enums
 
-    public static String serializeInstant(Instant instant) {
-        return instant.getId(); // TODO review this
-    }
-
     public static String serializeUnit(Unit unit) {
         switch (unit) {
             case AMPERE:
@@ -203,7 +199,7 @@ public final class JsonSerializationConstants {
             case SECTION_COUNT:
                 return SECTION_COUNT_UNIT;
             default:
-                throw new FaraoException(String.format("Unrecognized unit %s", unit));
+                throw new FaraoException(String.format("Unsupported unit %s", unit));
         }
     }
 
@@ -326,7 +322,7 @@ public final class JsonSerializationConstants {
             case RELATIVE_TO_INITIAL_NETWORK:
                 return RELATIVE_TO_INITIAL_NETWORK_RANGE;
             default:
-                throw new FaraoException(String.format("Unrecognized range type %s", rangeType));
+                throw new FaraoException(String.format("Unsupported range type %s", rangeType));
         }
     }
 

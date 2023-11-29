@@ -16,8 +16,7 @@ import com.fasterxml.jackson.core.JsonToken;
 
 import java.io.IOException;
 
-import static com.farao_community.farao.data.crac_io_json.JsonSerializationConstants.INSTANT;
-import static com.farao_community.farao.data.crac_io_json.JsonSerializationConstants.VOLTAGE_CNEC_ID;
+import static com.farao_community.farao.data.crac_io_json.JsonSerializationConstants.*;
 
 /**
  * @author Fabrice Buscaylet {@literal <fabrice.buscaylet at artelys.com>}

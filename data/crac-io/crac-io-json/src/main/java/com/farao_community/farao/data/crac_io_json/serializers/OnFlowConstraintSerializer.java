@@ -7,6 +7,7 @@
 
 package com.farao_community.farao.data.crac_io_json.serializers;
 
+import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.usage_rule.OnFlowConstraint;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
@@ -22,7 +23,8 @@ public class OnFlowConstraintSerializer extends AbstractJsonSerializer<OnFlowCon
     @Override
     public void serialize(OnFlowConstraint value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
         gen.writeStartObject();
-        gen.writeStringField(INSTANT, serializeInstant(value.getInstant()));
+        Instant instant = value.getInstant();
+        gen.writeStringField(INSTANT, instant.getId());
         gen.writeStringField(FLOW_CNEC_ID, value.getFlowCnec().getId());
         gen.writeEndObject();
     }

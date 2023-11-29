@@ -218,7 +218,7 @@ class CseCracCreatorTest {
         assertFalse(cnec2context.isBaseCase());
         assertTrue(cnec2context.isImported());
         assertFalse(cnec2context.isDirectionInvertedInNetwork());
-        assertEquals("outage_1", cnec2context.getContingencyId().orElseThrow());
+        assertEquals("outage_1", cnec2context.getContingencyId().get());
         assertEquals(2, cnec2context.getCreatedCnecsIds().size());
         assertEquals("French line 1 - FFR1AA1 ->FFR2AA1   - outage_1 - outage", cnec2context.getCreatedCnecsIds().get(OUTAGE_INSTANT_ID));
         assertEquals("French line 1 - FFR1AA1 ->FFR2AA1   - outage_1 - curative", cnec2context.getCreatedCnecsIds().get(CURATIVE_INSTANT_ID));
