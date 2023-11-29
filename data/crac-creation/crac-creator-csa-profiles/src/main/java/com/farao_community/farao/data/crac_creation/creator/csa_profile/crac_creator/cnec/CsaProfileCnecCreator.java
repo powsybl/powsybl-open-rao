@@ -60,7 +60,7 @@ public class CsaProfileCnecCreator {
         for (PropertyBag assessedElementPropertyBag : assessedElementsPropertyBags) {
             this.addCnec(assessedElementPropertyBag);
         }
-        cracCreationContext.setCnecCreationContexts(csaProfileCnecCreationContexts);
+        this.cracCreationContext.setCnecCreationContexts(this.csaProfileCnecCreationContexts);
     }
 
     private void addCnec(PropertyBag assessedElementPropertyBag) {
@@ -133,7 +133,7 @@ public class CsaProfileCnecCreator {
 
         if (assessedElementsWithContingencies != null) {
             for (PropertyBag assessedElementWithContingencies : assessedElementsWithContingencies) {
-                boolean isCheckLinkOk = checkLinkAssessedElementContingency(assessedElementId, assessedElementWithContingencies, combinableContingencies, isCombinableWithContingency);
+                boolean isCheckLinkOk = this.checkLinkAssessedElementContingency(assessedElementId, assessedElementWithContingencies, combinableContingencies, isCombinableWithContingency);
                 if (!isCheckLinkOk) {
                     rejectedLinksAssessedElementContingency = rejectedLinksAssessedElementContingency.concat(assessedElementWithContingencies.getId(CsaProfileConstants.REQUEST_ASSESSED_ELEMENT_WITH_CONTINGENCY) + " ");
                 }
@@ -146,7 +146,7 @@ public class CsaProfileCnecCreator {
         }
         if (inBaseCase) {
             String cnecName = assessedElementName + " - preventive";
-            addCnec(cnecAdder, limitType, null, assessedElementId, cnecName, crac.getInstant(InstantKind.PREVENTIVE), rejectedLinksAssessedElementContingency);
+            this.addCnec(cnecAdder, limitType, null, assessedElementId, cnecName, crac.getInstant(InstantKind.PREVENTIVE), rejectedLinksAssessedElementContingency);
         }
     }
 
@@ -377,11 +377,11 @@ public class CsaProfileCnecCreator {
             return false;
         }
 
-        return addVoltageLimitThreshold(assessedElementId, voltageCnecAdder, cnecLimit);
+        return this.addVoltageLimitThreshold(assessedElementId, voltageCnecAdder, cnecLimit);
     }
 
     private boolean addAngleLimit(String assessedElementId, AngleCnecAdder angleCnecAdder, boolean inBaseCase) {
-        boolean isErProfileDataCheckOk = erProfileDataCheck(assessedElementId, cnecLimit);
+        boolean isErProfileDataCheckOk = this.erProfileDataCheck(assessedElementId, cnecLimit);
 
         if (!isErProfileDataCheckOk) {
             return false;
