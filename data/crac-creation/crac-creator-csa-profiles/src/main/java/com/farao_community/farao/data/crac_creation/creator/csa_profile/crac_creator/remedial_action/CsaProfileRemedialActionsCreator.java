@@ -36,7 +36,6 @@ import java.util.function.Function;
  * @author Mohamed Ben-rejeb {@literal <mohamed.ben-rejeb at rte-france.com>}
  */
 public class CsaProfileRemedialActionsCreator {
-    final Set<CsaProfileElementaryCreationContext> csaProfileRemedialActionCreationContexts = new HashSet<>();
     private final Crac crac;
     private final Network network;
     private final PropertyBags gridStateAlterationRemedialActionPropertyBags;
@@ -48,6 +47,7 @@ public class CsaProfileRemedialActionsCreator {
     private final PropertyBags contingencyWithRemedialActionsPropertyBags;
     private final OnConstraintUsageRuleHelper onConstraintUsageRuleHelper;
     private final CsaProfileCracCreationContext cracCreationContext;
+    Set<CsaProfileElementaryCreationContext> csaProfileRemedialActionCreationContexts = new HashSet<>();
 
     private final PropertyBags remedialActionsSchedulePropertyBags;
     private final PropertyBags schemeRemedialActionsPropertyBags;
@@ -261,7 +261,7 @@ public class CsaProfileRemedialActionsCreator {
         for (PropertyBag injectionSetPointAction : injectionSetPointActionsForOneRa) {
             Set<PropertyBag> staticPropertyRangePropertyBags = staticPropertyRangesLinkedToInjectionSetPointActions.get(injectionSetPointAction.getId("mRID"));
             if (staticPropertyRangePropertyBags != null) {
-                if (staticPropertyRangePropertyBags.isEmpty()) {
+                if (staticPropertyRangePropertyBags.size() == 0) {
                     throw new FaraoImportException(ImportStatus.INCONSISTENCY_IN_DATA, CsaProfileConstants.REMEDIAL_ACTION_MESSAGE + remedialActionId + " will not be imported because there is no StaticPropertyRange linked to that RA");
                 } else if (staticPropertyRangePropertyBags.size() > 1) {
                     throw new FaraoImportException(ImportStatus.INCONSISTENCY_IN_DATA, CsaProfileConstants.REMEDIAL_ACTION_MESSAGE + remedialActionId + " will not be imported because several conflictual StaticPropertyRanges are linked to that RA's injection set point action");
@@ -357,7 +357,7 @@ public class CsaProfileRemedialActionsCreator {
                     // TODO add .withUsageMethod(usageMethod) when API of OnFlowConstraintAdder is ready
                     return true;
                 } else {
-                    throw new FaraoException(String.format("Unsupported cnec type %s", cnec.getClass()));
+                    throw new FaraoException(String.format("Unsupported cnec type %s", cnec.getClass().toString()));
                 }
             }
             return false;

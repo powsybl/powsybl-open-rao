@@ -28,9 +28,9 @@ import java.time.OffsetDateTime;
 @AutoService(CracCreator.class)
 public class CsaProfileCracCreator implements CracCreator<CsaProfileCrac, CsaProfileCracCreationContext> {
 
-    CsaProfileCracCreationContext creationContext;
     private Crac crac;
     private Network network;
+    CsaProfileCracCreationContext creationContext;
 
     @Override
     public String getNativeCracFormat() {

@@ -1,6 +1,7 @@
 package com.farao_community.farao.data.crac_creation.creator.csa_profile.crac_creator;
 
 import com.farao_community.farao.data.crac_api.Contingency;
+import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.NetworkElement;
 import com.farao_community.farao.data.crac_api.cnec.AngleCnec;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
@@ -46,11 +47,11 @@ public final class CsaProfileCracCreationTestUtil {
     }
 
     public static void assertFlowCnecEquality(FlowCnec fc, String expectedFlowCnecId, String expectedFlowCnecName, String expectedNetworkElementId,
-                                              String expectedInstantId, String expectedContingencyId, Double expectedThresholdMax, Double expectedThresholdMin, Side expectedThresholdSide) {
+                                              Instant expectedInstant, String expectedContingencyId, Double expectedThresholdMax, Double expectedThresholdMin, Side expectedThresholdSide) {
         assertEquals(expectedFlowCnecId, fc.getId());
         assertEquals(expectedFlowCnecName, fc.getName());
         assertEquals(expectedNetworkElementId, fc.getNetworkElement().getId());
-        assertEquals(expectedInstantId, fc.getState().getInstant().getId());
+        assertEquals(expectedInstant, fc.getState().getInstant());
         if (expectedContingencyId == null) {
             assertFalse(fc.getState().getContingency().isPresent());
         } else {
@@ -64,12 +65,12 @@ public final class CsaProfileCracCreationTestUtil {
     }
 
     public static void assertAngleCnecEquality(AngleCnec angleCnec, String expectedFlowCnecId, String expectedFlowCnecName, String expectedImportingNetworkElementId, String expectedExportingNetworkElementId,
-                                               String expectedInstantId, String expectedContingencyId, Double expectedThresholdMax, Double expectedThresholdMin, boolean isMonitored) {
+                                               Instant expectedInstant, String expectedContingencyId, Double expectedThresholdMax, Double expectedThresholdMin, boolean isMonitored) {
         assertEquals(expectedFlowCnecId, angleCnec.getId());
         assertEquals(expectedFlowCnecName, angleCnec.getName());
         assertEquals(expectedImportingNetworkElementId, angleCnec.getImportingNetworkElement().getId());
         assertEquals(expectedExportingNetworkElementId, angleCnec.getExportingNetworkElement().getId());
-        assertEquals(expectedInstantId, angleCnec.getState().getInstant().getId());
+        assertEquals(expectedInstant, angleCnec.getState().getInstant());
         if (expectedContingencyId == null) {
             assertFalse(angleCnec.getState().getContingency().isPresent());
         } else {
@@ -83,11 +84,11 @@ public final class CsaProfileCracCreationTestUtil {
     }
 
     public static void assertVoltageCnecEquality(VoltageCnec voltageCnec, String expectedVoltageCnecId, String expectedFlowCnecName, String expectedNetworkElementId,
-                                                 String expectedInstantId, String expectedContingencyId, Double expectedThresholdMax, Double expectedThresholdMin, boolean isMonitored) {
+                                                 Instant expectedInstant, String expectedContingencyId, Double expectedThresholdMax, Double expectedThresholdMin, boolean isMonitored) {
         assertEquals(expectedVoltageCnecId, voltageCnec.getId());
         assertEquals(expectedFlowCnecName, voltageCnec.getName());
         assertEquals(expectedNetworkElementId, voltageCnec.getNetworkElement().getId());
-        assertEquals(expectedInstantId, voltageCnec.getState().getInstant().getId());
+        assertEquals(expectedInstant, voltageCnec.getState().getInstant());
         if (expectedContingencyId == null) {
             assertFalse(voltageCnec.getState().getContingency().isPresent());
         } else {
@@ -122,43 +123,43 @@ public final class CsaProfileCracCreationTestUtil {
         assertEquals(numberOfUsageRules, cracCreationContext.getCrac().getNetworkAction(id).getUsageRules().size());
     }
 
-    public static void assertHasOnInstantUsageRule(CsaProfileCracCreationContext cracCreationContext, String raId, String instantId, UsageMethod usageMethod) {
+    public static void assertHasOnInstantUsageRule(CsaProfileCracCreationContext cracCreationContext, String raId, Instant instant, UsageMethod usageMethod) {
         assertTrue(
                 cracCreationContext.getCrac().getRemedialAction(raId).getUsageRules().stream().filter(OnInstant.class::isInstance)
                         .map(OnInstant.class::cast)
-                        .anyMatch(ur -> ur.getInstant().getId().equals(instantId) && ur.getUsageMethod().equals(usageMethod))
+                        .anyMatch(ur -> ur.getInstant().equals(instant) && ur.getUsageMethod().equals(usageMethod))
         );
     }
 
-    public static void assertHasOnContingencyStateUsageRule(CsaProfileCracCreationContext cracCreationContext, String raId, String contingencyId, String instantId, UsageMethod usageMethod) {
+    public static void assertHasOnContingencyStateUsageRule(CsaProfileCracCreationContext cracCreationContext, String raId, String contingencyId, Instant instant, UsageMethod usageMethod) {
         assertTrue(
                 cracCreationContext.getCrac().getRemedialAction(raId).getUsageRules().stream().filter(OnContingencyState.class::isInstance)
                         .map(OnContingencyState.class::cast)
-                        .anyMatch(ur -> ur.getContingency().getId().equals(contingencyId) && ur.getInstant().getId().equals(instantId) && ur.getUsageMethod().equals(usageMethod))
+                        .anyMatch(ur -> ur.getContingency().getId().equals(contingencyId) && ur.getInstant().equals(instant) && ur.getUsageMethod().equals(usageMethod))
         );
     }
 
-    public static void assertHasOnFlowConstraintUsageRule(CsaProfileCracCreationContext cracCreationContext, String raId, String flowCnecId, String instantId, UsageMethod usageMethod) {
+    public static void assertHasOnFlowConstraintUsageRule(CsaProfileCracCreationContext cracCreationContext, String raId, String flowCnecId, Instant instant, UsageMethod usageMethod) {
         assertTrue(
                 cracCreationContext.getCrac().getRemedialAction(raId).getUsageRules().stream().filter(OnFlowConstraint.class::isInstance)
                         .map(OnFlowConstraint.class::cast)
-                        .anyMatch(ur -> ur.getFlowCnec().getId().equals(flowCnecId) && ur.getInstant().getId().equals(instantId) && ur.getUsageMethod().equals(usageMethod))
+                        .anyMatch(ur -> ur.getFlowCnec().getId().equals(flowCnecId) && ur.getInstant().equals(instant) && ur.getUsageMethod().equals(usageMethod))
         );
     }
 
-    public static void assertHasOnAngleConstraintUsageRule(CsaProfileCracCreationContext cracCreationContext, String raId, String angleCnecId, String instantId, UsageMethod usageMethod) {
+    public static void assertHasOnAngleConstraintUsageRule(CsaProfileCracCreationContext cracCreationContext, String raId, String angleCnecId, Instant instant, UsageMethod usageMethod) {
         assertTrue(
                 cracCreationContext.getCrac().getRemedialAction(raId).getUsageRules().stream().filter(OnAngleConstraint.class::isInstance)
                         .map(OnAngleConstraint.class::cast)
-                        .anyMatch(ur -> ur.getAngleCnec().getId().equals(angleCnecId) && ur.getInstant().getId().equals(instantId) && ur.getUsageMethod().equals(usageMethod))
+                        .anyMatch(ur -> ur.getAngleCnec().getId().equals(angleCnecId) && ur.getInstant().equals(instant) && ur.getUsageMethod().equals(usageMethod))
         );
     }
 
-    public static void assertHasOnVoltageConstraintUsageRule(CsaProfileCracCreationContext cracCreationContext, String raId, String voltageCnecId, String instantId, UsageMethod usageMethod) {
+    public static void assertHasOnVoltageConstraintUsageRule(CsaProfileCracCreationContext cracCreationContext, String raId, String voltageCnecId, Instant instant, UsageMethod usageMethod) {
         assertTrue(
                 cracCreationContext.getCrac().getRemedialAction(raId).getUsageRules().stream().filter(OnVoltageConstraint.class::isInstance)
                         .map(OnVoltageConstraint.class::cast)
-                        .anyMatch(ur -> ur.getVoltageCnec().getId().equals(voltageCnecId) && ur.getInstant().getId().equals(instantId) && ur.getUsageMethod().equals(usageMethod))
+                        .anyMatch(ur -> ur.getVoltageCnec().getId().equals(voltageCnecId) && ur.getInstant().equals(instant) && ur.getUsageMethod().equals(usageMethod))
         );
     }
 
@@ -180,7 +181,7 @@ public final class CsaProfileCracCreationTestUtil {
         assertTopologicalActionImported(cracCreationContext, raId, raName, switchId);
         Optional<Integer> importedSpeed = cracCreationContext.getCrac().getNetworkAction(raId).getSpeed();
         assertNotNull(importedSpeed);
-        assertEquals(speed, importedSpeed.orElseThrow());
+        assertEquals(speed, importedSpeed.get());
     }
 
     public static CsaProfileCracCreationContext getCsaCracCreationContext(String csaProfilesArchive, Network network) {
@@ -197,6 +198,6 @@ public final class CsaProfileCracCreationTestUtil {
     }
 
     public static Network getNetworkFromResource(String filename) {
-        return Network.read(Paths.get(new File(Objects.requireNonNull(CsaProfileCracCreatorTest.class.getResource(filename)).getFile()).toString()), LocalComputationManager.getDefault(), Suppliers.memoize(ImportConfig::load).get(), new Properties());
+        return Network.read(Paths.get(new File(CsaProfileCracCreatorTest.class.getResource(filename).getFile()).toString()), LocalComputationManager.getDefault(), Suppliers.memoize(ImportConfig::load).get(), new Properties());
     }
 }
