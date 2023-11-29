@@ -144,7 +144,19 @@ public final class RaoUtil {
         Set<UsageMethod> usageMethods = getAllUsageMethods(usageRules, remedialAction, state, prePerimeterResult, flowCnecs, network, raoParameters);
         UsageMethod finalUsageMethod = UsageMethod.getStrongestUsageMethod(usageMethods);
 
-        return state.getInstant().equals(Instant.AUTO) ? finalUsageMethod.equals(UsageMethod.FORCED) : finalUsageMethod.equals(UsageMethod.AVAILABLE);
+        if (state.getInstant().equals(Instant.AUTO)) {
+            if (finalUsageMethod.equals(UsageMethod.AVAILABLE)) {
+                FaraoLoggerProvider.BUSINESS_WARNS.warn(format("The RAO only knows how to interpret 'forced' usage method for automatons. Therefore, %s will be ignored for this state: %s", remedialAction.getName(), state.getId()));
+                return false;
+            }
+            return finalUsageMethod.equals(UsageMethod.FORCED);
+        } else {
+            if (finalUsageMethod.equals(UsageMethod.FORCED)) {
+                FaraoLoggerProvider.BUSINESS_WARNS.warn(format("The 'forced' usage method is for automatons only. Therefore, %s will be ignored for this state: %s", remedialAction.getName(), state.getId()));
+                return false;
+            }
+            return finalUsageMethod.equals(UsageMethod.AVAILABLE);
+        }
     }
 
     /**

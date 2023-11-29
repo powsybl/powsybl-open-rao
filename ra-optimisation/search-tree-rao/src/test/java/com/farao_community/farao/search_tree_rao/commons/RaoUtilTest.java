@@ -227,17 +227,27 @@ class RaoUtilTest {
         assertFalse(isRemedialActionAvailable(na1, optimizedState, prePerimeterResult, crac.getFlowCnecs(), network, raoParameters));
         assertFalse(isRemedialActionAvailable(na2, optimizedState, prePerimeterResult, crac.getFlowCnecs(), network, raoParameters));
 
+        // asserts that a preventive remedial action with forced usage rule cannot be available
+        RemedialAction<?> na3 = crac.newNetworkAction().withId("na3")
+            .newTopologicalAction().withNetworkElement("ne2").withActionType(ActionType.CLOSE).add()
+            .newOnInstantUsageRule().withInstant(Instant.PREVENTIVE).withUsageMethod(UsageMethod.FORCED).add()
+            .add();
+        assertFalse(isRemedialActionAvailable(na3, optimizedState, prePerimeterResult, crac.getFlowCnecs(), network, raoParameters));
+
         // asserts that a remedial action with no usage rule cannot be available
         NetworkAction networkActionWhithoutUsageRule = Mockito.mock(NetworkAction.class);
+        when(networkActionWhithoutUsageRule.getName()).thenReturn("ra without usage rule");
         when(networkActionWhithoutUsageRule.getUsageRules()).thenReturn(Set.of());
         assertFalse(isRemedialActionAvailable(networkActionWhithoutUsageRule, optimizedState, prePerimeterResult, crac.getFlowCnecs(), network, raoParameters));
 
         // mock AUTO state for the next assertions
         NetworkAction automatonRa = Mockito.mock(NetworkAction.class);
+        when(automatonRa.getName()).thenReturn("fake automaton");
         OnInstant onInstant = Mockito.mock(OnInstant.class);
         OnFlowConstraint onFlowConstraint = Mockito.mock(OnFlowConstraint.class);
         State automatonState = Mockito.mock(State.class);
         when(automatonState.getInstant()).thenReturn(Instant.AUTO);
+        when(automatonState.getId()).thenReturn("fake automaton state");
 
         // remedial action with OnInstant Usage Rule
         when(automatonRa.getUsageRules()).thenReturn(Set.of(onInstant));
