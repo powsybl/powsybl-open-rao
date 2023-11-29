@@ -16,7 +16,6 @@ import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import com.farao_community.farao.data.crac_creation.creator.api.ImportStatus;
 import com.powsybl.iidm.network.*;
-import org.eclipse.rdf4j.query.algebra.In;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
