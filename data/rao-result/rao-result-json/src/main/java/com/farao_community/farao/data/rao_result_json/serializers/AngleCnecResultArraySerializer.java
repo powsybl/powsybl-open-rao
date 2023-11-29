@@ -18,6 +18,7 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import java.io.IOException;
 import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static com.farao_community.farao.data.rao_result_json.RaoResultJsonConstants.*;
 
@@ -33,7 +34,7 @@ final class AngleCnecResultArraySerializer {
 
         List<AngleCnec> sortedListOfAngleCnecs = crac.getAngleCnecs().stream()
             .sorted(Comparator.comparing(AngleCnec::getId))
-            .toList();
+            .collect(Collectors.toList());
 
         jsonGenerator.writeArrayFieldStart(ANGLECNEC_RESULTS);
         for (AngleCnec angleCnec : sortedListOfAngleCnecs) {
@@ -93,13 +94,10 @@ final class AngleCnecResultArraySerializer {
             return containsAnyResultForOptimizationState(raoResult, angleCnec, null) ||
                 containsAnyResultForOptimizationState(raoResult, angleCnec, angleCnec.getState().getInstant());
         } else {
-            Instant preventiveInstant = crac.getInstant(InstantKind.PREVENTIVE);
-            Instant autoInstant = crac.getInstant(InstantKind.AUTO);
-            Instant curativeInstant = crac.getInstant(InstantKind.CURATIVE);
             return containsAnyResultForOptimizationState(raoResult, angleCnec, null) ||
-                containsAnyResultForOptimizationState(raoResult, angleCnec, preventiveInstant) ||
-                containsAnyResultForOptimizationState(raoResult, angleCnec, autoInstant) ||
-                containsAnyResultForOptimizationState(raoResult, angleCnec, curativeInstant);
+                containsAnyResultForOptimizationState(raoResult, angleCnec, crac.getInstant(InstantKind.PREVENTIVE)) ||
+                containsAnyResultForOptimizationState(raoResult, angleCnec, crac.getInstant(InstantKind.AUTO)) ||
+                containsAnyResultForOptimizationState(raoResult, angleCnec, crac.getInstant(InstantKind.CURATIVE));
         }
     }
 

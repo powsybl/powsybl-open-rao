@@ -12,8 +12,8 @@ import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.cnec.AngleCnec;
-import com.farao_community.farao.data.rao_result_impl.AngleCnecResult;
 import com.farao_community.farao.data.rao_result_impl.ElementaryAngleCnecResult;
+import com.farao_community.farao.data.rao_result_impl.AngleCnecResult;
 import com.farao_community.farao.data.rao_result_impl.RaoResultImpl;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
@@ -60,11 +60,13 @@ final class AngleCnecResultArrayDeserializer {
 
     private static void deserializeElementaryAngleCnecResult(JsonParser jsonParser, ElementaryAngleCnecResult eAngleCnecResult) throws IOException {
         while (!jsonParser.nextToken().isStructEnd()) {
-            if (jsonParser.getCurrentName().equals(DEGREE_UNIT)) {
-                jsonParser.nextToken();
-                deserializeElementaryAngleCnecResultForUnit(jsonParser, eAngleCnecResult, Unit.DEGREE);
-            } else {
-                throw new FaraoException(String.format("Cannot deserialize RaoResult: unexpected field in %s (%s)", ANGLECNEC_RESULTS, jsonParser.getCurrentName()));
+            switch (jsonParser.getCurrentName()) {
+                case DEGREE_UNIT:
+                    jsonParser.nextToken();
+                    deserializeElementaryAngleCnecResultForUnit(jsonParser, eAngleCnecResult, Unit.DEGREE);
+                    break;
+                default:
+                    throw new FaraoException(String.format("Cannot deserialize RaoResult: unexpected field in %s (%s)", ANGLECNEC_RESULTS, jsonParser.getCurrentName()));
             }
         }
     }

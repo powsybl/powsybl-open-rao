@@ -20,11 +20,8 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 
 import static com.farao_community.farao.data.rao_result_json.RaoResultJsonConstants.*;
-import static com.farao_community.farao.data.rao_result_json.deserializers.DeprecatedRaoResultJsonConstants.HVDCRANGEACTION_ID;
-import static com.farao_community.farao.data.rao_result_json.deserializers.DeprecatedRaoResultJsonConstants.HVDCRANGEACTION_RESULTS;
-import static com.farao_community.farao.data.rao_result_json.deserializers.DeprecatedRaoResultJsonConstants.HVDC_NETWORKELEMENT_ID;
-import static com.farao_community.farao.data.rao_result_json.deserializers.DeprecatedRaoResultJsonConstants.PST_NETWORKELEMENT_ID;
-import static com.farao_community.farao.data.rao_result_json.deserializers.Utils.checkDeprecatedField;
+import static com.farao_community.farao.data.rao_result_json.deserializers.DeprecatedRaoResultJsonConstants.*;
+import static com.farao_community.farao.data.rao_result_json.deserializers.Utils.*;
 
 /**
  * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}

@@ -13,10 +13,7 @@ import com.fasterxml.jackson.core.JsonParser;
 
 import java.io.IOException;
 
-import static com.farao_community.farao.data.rao_result_json.RaoResultJsonConstants.COST_RESULTS;
-import static com.farao_community.farao.data.rao_result_json.RaoResultJsonConstants.FUNCTIONAL_COST;
-import static com.farao_community.farao.data.rao_result_json.RaoResultJsonConstants.VIRTUAL_COSTS;
-import static com.farao_community.farao.data.rao_result_json.RaoResultJsonConstants.deserializeOptimizedInstantId;
+import static com.farao_community.farao.data.rao_result_json.RaoResultJsonConstants.*;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}

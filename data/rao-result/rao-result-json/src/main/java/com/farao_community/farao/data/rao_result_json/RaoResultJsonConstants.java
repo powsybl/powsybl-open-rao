@@ -239,7 +239,7 @@ public final class RaoResultJsonConstants {
             case FAILURE:
                 return FAILURE_STATUS;
             default:
-                throw new IllegalArgumentException();
+                throw new FaraoException(String.format("Unsupported computation status %s", computationStatus));
         }
     }
 
@@ -289,14 +289,14 @@ public final class RaoResultJsonConstants {
     }
 
     // state comparator
-    public static final Comparator<State> STATE_COMPARATOR = (s1, s2) -> { // TODO redo this
+    public static final Comparator<State> STATE_COMPARATOR = (s1, s2) -> {
         if (s1.getInstant().getOrder() != s2.getInstant().getOrder()) {
             return s1.compareTo(s2);
         } else if (s1.getInstant().isPreventive()) {
             return 0;
         } else {
             // Since instant is not preventive, there is a contingency for sure
-            return s1.getContingency().orElseThrow().getId().compareTo(s2.getContingency().orElseThrow().getId());
+            return s1.getContingency().get().getId().compareTo(s2.getContingency().get().getId());
         }
     };
 }

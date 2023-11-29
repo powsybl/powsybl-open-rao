@@ -6,7 +6,6 @@
  */
 package com.farao_community.farao.data.rao_result_impl.utils;
 
-import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.cnec.AngleCnec;
@@ -21,6 +20,8 @@ import com.farao_community.farao.data.rao_result_api.RaoResult;
 import com.farao_community.farao.data.rao_result_impl.*;
 
 import java.util.Set;
+
+import static com.farao_community.farao.commons.Unit.*;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
@@ -115,19 +116,19 @@ public final class ExhaustiveRaoResultCreation {
             NetworkActionResult nar = raoResult.getAndCreateIfAbsentNetworkActionResult(networkAction);
 
             switch (networkAction.getId()) {
-                case "complexNetworkActionId":
+                case "complexNetworkActionId" :
                     // free to use preventive, activated
                     nar.addActivationForState(crac.getPreventiveState());
                     break;
-                case "injectionSetpointRaId":
+                case "injectionSetpointRaId" :
                     // automaton, activated
                     nar.addActivationForState(crac.getState("contingency2Id", autoInstant));
                     break;
-                case "pstSetpointRaId":
+                case "pstSetpointRaId" :
                     // forced in curative, activated
                     nar.addActivationForState(crac.getState("contingency1Id", curativeInstant));
                     break;
-                case "switchPairRaId":
+                case "switchPairRaId" :
                     // available in curative, not activated
                     break;
                 default:
@@ -140,7 +141,7 @@ public final class ExhaustiveRaoResultCreation {
         // ------------------------------
 
         for (PstRangeAction pstRangeAction : crac.getPstRangeActions()) {
-            RangeActionResult prar = raoResult.getAndCreateIfAbsentRangeActionResult(pstRangeAction);
+            RangeActionResult prar = (RangeActionResult) raoResult.getAndCreateIfAbsentRangeActionResult(pstRangeAction);
 
             switch (pstRangeAction.getId()) {
                 case "pstRange1Id":
@@ -261,32 +262,32 @@ public final class ExhaustiveRaoResultCreation {
     private static void fillElementaryResult(ElementaryFlowCnecResult elementaryFlowCnecResult, double x, double y, boolean hasLoopFlow, boolean isPureMnec, Side side) {
         double perturb = side.equals(Side.LEFT) ? 0 : 0.5;
 
-        elementaryFlowCnecResult.setFlow(side, perturb + x + y + 10, Unit.MEGAWATT);
-        elementaryFlowCnecResult.setFlow(side, perturb + x + y + 20, Unit.AMPERE);
+        elementaryFlowCnecResult.setFlow(side, perturb + x + y + 10, MEGAWATT);
+        elementaryFlowCnecResult.setFlow(side, perturb + x + y + 20, AMPERE);
 
-        elementaryFlowCnecResult.setMargin(x + y + 11, Unit.MEGAWATT);
-        elementaryFlowCnecResult.setMargin(x + y + 21, Unit.AMPERE);
+        elementaryFlowCnecResult.setMargin(x + y + 11, MEGAWATT);
+        elementaryFlowCnecResult.setMargin(x + y + 21, AMPERE);
 
         if (!isPureMnec) {
-            elementaryFlowCnecResult.setRelativeMargin(x + y + 12, Unit.MEGAWATT);
-            elementaryFlowCnecResult.setRelativeMargin(x + y + 22, Unit.AMPERE);
+            elementaryFlowCnecResult.setRelativeMargin(x + y + 12, MEGAWATT);
+            elementaryFlowCnecResult.setRelativeMargin(x + y + 22, AMPERE);
             elementaryFlowCnecResult.setPtdfZonalSum(side, perturb + x / 10000);
         }
         if (hasLoopFlow) {
-            elementaryFlowCnecResult.setLoopFlow(side, perturb + x + y + 13., Unit.MEGAWATT);
-            elementaryFlowCnecResult.setLoopFlow(side, perturb + x + y + 23., Unit.AMPERE);
-            elementaryFlowCnecResult.setCommercialFlow(side, perturb + x + y + 14, Unit.MEGAWATT);
-            elementaryFlowCnecResult.setCommercialFlow(side, perturb + x + y + 24, Unit.AMPERE);
+            elementaryFlowCnecResult.setLoopFlow(side, perturb + x + y + 13., MEGAWATT);
+            elementaryFlowCnecResult.setLoopFlow(side, perturb + x + y + 23., AMPERE);
+            elementaryFlowCnecResult.setCommercialFlow(side, perturb + x + y + 14, MEGAWATT);
+            elementaryFlowCnecResult.setCommercialFlow(side, perturb + x + y + 24, AMPERE);
         }
     }
 
     private static void fillElementaryResult(ElementaryAngleCnecResult elementaryAngleCnecResult, double x, double y) {
-        elementaryAngleCnecResult.setAngle(x + y + 35, Unit.DEGREE);
-        elementaryAngleCnecResult.setMargin(x + y + 31, Unit.DEGREE);
+        elementaryAngleCnecResult.setAngle(x + y + 35, DEGREE);
+        elementaryAngleCnecResult.setMargin(x + y + 31, DEGREE);
     }
 
     private static void fillElementaryResult(ElementaryVoltageCnecResult elementaryVoltageCnecResult, double x, double y) {
-        elementaryVoltageCnecResult.setVoltage(x + y + 46, Unit.KILOVOLT);
-        elementaryVoltageCnecResult.setMargin(x + y + 41, Unit.KILOVOLT);
+        elementaryVoltageCnecResult.setVoltage(x + y + 46, KILOVOLT);
+        elementaryVoltageCnecResult.setMargin(x + y + 41, KILOVOLT);
     }
 }

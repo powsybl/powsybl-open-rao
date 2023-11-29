@@ -34,7 +34,7 @@ class VoltageCnecAdderImplTest {
     private static final String CURATIVE_INSTANT_ID = "curative";
 
     private CracImpl crac;
-    private final String contingency1Id = "condId1";
+    private String contingency1Id = "condId1";
     private Contingency contingency1;
     private VoltageCnec cnec1;
     private VoltageCnec cnec2;

@@ -31,9 +31,9 @@ class OnVoltageConstraintImplTest {
     private static final Instant AUTO_INSTANT = new InstantImpl(AUTO_INSTANT_ID, InstantKind.AUTO, OUTAGE_INSTANT);
     private static final Instant CURATIVE_INSTANT = new InstantImpl(CURATIVE_INSTANT_ID, InstantKind.CURATIVE, AUTO_INSTANT);
 
-    private VoltageCnec voltageCnec;
-    private State preventiveState;
-    private State curativeState;
+    VoltageCnec voltageCnec;
+    State preventiveState;
+    State curativeState;
 
     @BeforeEach
     public void setUp() {

@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static com.farao_community.farao.commons.Unit.AMPERE;
 import static com.farao_community.farao.commons.Unit.MEGAWATT;
@@ -37,7 +38,7 @@ final class FlowCnecResultArraySerializer {
 
         List<FlowCnec> sortedListOfFlowCnecs = crac.getFlowCnecs().stream()
             .sorted(Comparator.comparing(FlowCnec::getId))
-            .toList();
+            .collect(Collectors.toList());
 
         jsonGenerator.writeArrayFieldStart(FLOWCNEC_RESULTS);
         for (FlowCnec flowCnec : sortedListOfFlowCnecs) {
@@ -55,8 +56,8 @@ final class FlowCnecResultArraySerializer {
 
         serializeFlowCnecResultForOptimizationState(null, flowCnec, raoResult, crac, flowUnits, jsonGenerator);
         serializeFlowCnecResultForOptimizationState(crac.getInstant(InstantKind.PREVENTIVE), flowCnec, raoResult, crac, flowUnits, jsonGenerator);
-        InstantKind flowCnecInstantKind = flowCnec.getState().getInstant().getInstantKind();
-        if (flowCnecInstantKind.equals(InstantKind.CURATIVE) || flowCnecInstantKind.equals(InstantKind.AUTO)) {
+        Instant instant = flowCnec.getState().getInstant();
+        if (instant.isCurative() || instant.isAuto()) {
             serializeFlowCnecResultForOptimizationState(crac.getInstant(InstantKind.AUTO), flowCnec, raoResult, crac, flowUnits, jsonGenerator);
             serializeFlowCnecResultForOptimizationState(crac.getInstant(InstantKind.CURATIVE), flowCnec, raoResult, crac, flowUnits, jsonGenerator);
         }
@@ -80,7 +81,7 @@ final class FlowCnecResultArraySerializer {
         }
         jsonGenerator.writeObjectFieldStart(serializeUnit(unit));
         serializeFlowCnecMargin(optInstant, unit, flowCnec, raoResult, jsonGenerator);
-        for (Side side : flowCnec.getMonitoredSides().stream().sorted(Comparator.comparing(Side::toString)).toList()) {
+        for (Side side : flowCnec.getMonitoredSides().stream().sorted(Comparator.comparing(Side::toString)).collect(Collectors.toList())) {
             serializeFlowCnecFlows(optInstant, unit, flowCnec, side, raoResult, jsonGenerator);
         }
         jsonGenerator.writeEndObject();
@@ -130,7 +131,7 @@ final class FlowCnecResultArraySerializer {
     private static boolean containsAnyResultForFlowCnec(RaoResult raoResult, FlowCnec flowCnec, Crac crac, Unit unit) {
         if (flowCnec.getState().isPreventive()) {
             return containsAnyResultForOptimizationState(raoResult, flowCnec, null, unit) ||
-                containsAnyResultForOptimizationState(raoResult, flowCnec, crac.getInstant(InstantKind.PREVENTIVE), unit);
+                containsAnyResultForOptimizationState(raoResult, flowCnec, flowCnec.getState().getInstant(), unit);
         } else {
             return containsAnyResultForOptimizationState(raoResult, flowCnec, null, unit) ||
                 containsAnyResultForOptimizationState(raoResult, flowCnec, crac.getInstant(InstantKind.PREVENTIVE), unit) ||

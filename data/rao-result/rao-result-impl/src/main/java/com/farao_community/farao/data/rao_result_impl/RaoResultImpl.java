@@ -17,8 +17,8 @@ import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.data.rao_result_api.ComputationStatus;
-import com.farao_community.farao.data.rao_result_api.OptimizationStepsExecuted;
 import com.farao_community.farao.data.rao_result_api.RaoResult;
+import com.farao_community.farao.data.rao_result_api.OptimizationStepsExecuted;
 
 import java.util.*;
 import java.util.function.Function;
@@ -46,6 +46,7 @@ public class RaoResultImpl implements RaoResult {
     private final Map<NetworkAction, NetworkActionResult> networkActionResults = new HashMap<>();
     private final Map<RangeAction<?>, RangeActionResult> rangeActionResults = new HashMap<>();
     private final Map<String, CostResult> costResults = new HashMap<>();
+
     private OptimizationStepsExecuted optimizationStepsExecuted = OptimizationStepsExecuted.FIRST_PREVENTIVE_ONLY;
 
     public RaoResultImpl(Crac crac) {
@@ -156,19 +157,19 @@ public class RaoResultImpl implements RaoResult {
 
     @Override
     public double getCost(Instant optimizedInstant) {
-        String id = optimizedInstant == null ? null : optimizedInstant.getId();
+        String id = getIdFromNullableInstant(optimizedInstant);
         return costResults.getOrDefault(id, DEFAULT_COST_RESULT).getCost();
     }
 
     @Override
     public double getFunctionalCost(Instant optimizedInstant) {
-        String id = optimizedInstant == null ? null : optimizedInstant.getId();
+        String id = getIdFromNullableInstant(optimizedInstant);
         return costResults.getOrDefault(id, DEFAULT_COST_RESULT).getFunctionalCost();
     }
 
     @Override
     public double getVirtualCost(Instant optimizedInstant) {
-        String id = optimizedInstant == null ? null : optimizedInstant.getId();
+        String id = getIdFromNullableInstant(optimizedInstant);
         return costResults.getOrDefault(id, DEFAULT_COST_RESULT).getVirtualCost();
     }
 
@@ -179,8 +180,12 @@ public class RaoResultImpl implements RaoResult {
 
     @Override
     public double getVirtualCost(Instant optimizedInstant, String virtualCostName) {
-        String id = optimizedInstant == null ? null : optimizedInstant.getId();
+        String id = getIdFromNullableInstant(optimizedInstant);
         return costResults.getOrDefault(id, DEFAULT_COST_RESULT).getVirtualCost(virtualCostName);
+    }
+
+    private static String getIdFromNullableInstant(Instant optimizedInstant) {
+        return optimizedInstant == null ? null : optimizedInstant.getId();
     }
 
     @Override
