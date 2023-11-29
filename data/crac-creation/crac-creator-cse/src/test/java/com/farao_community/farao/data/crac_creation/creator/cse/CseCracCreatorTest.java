@@ -343,7 +343,7 @@ class CseCracCreatorTest {
         usageRule1 = ra.getUsageRules().iterator().next();
         assertTrue(usageRule1 instanceof OnFlowConstraint);
         assertSame(curativeCnec, ((OnFlowConstraint) usageRule1).getFlowCnec());
-        assertEquals(CURATIVE_INSTANT_ID, usageRule1.getInstant().getId());
+        assertEquals(curativeInstant, usageRule1.getInstant());
         assertEquals(UsageMethod.UNDEFINED, usageRule1.getUsageMethod(preventiveState));
         assertEquals(UsageMethod.UNDEFINED, usageRule1.getUsageMethod(outageState));
         assertEquals(UsageMethod.TO_BE_EVALUATED, usageRule1.getUsageMethod(curativeState));
@@ -451,7 +451,7 @@ class CseCracCreatorTest {
         Iterator<UsageRule> iterator4 = cra4.getUsageRules().iterator();
         UsageRule crac4UsageRule0 = iterator4.next();
         assertTrue(crac4UsageRule0 instanceof OnFlowConstraintInCountry);
-        assertEquals(CURATIVE_INSTANT_ID, crac4UsageRule0.getInstant().getId());
+        assertEquals(curativeInstant, crac4UsageRule0.getInstant());
         assertEquals(Country.NL, ((OnFlowConstraintInCountry) crac4UsageRule0).getCountry());
         // cra_5
         RemedialAction<?> cra5 = importedCrac.getNetworkAction("cra_5");
@@ -459,7 +459,7 @@ class CseCracCreatorTest {
         Iterator<UsageRule> iterator5 = cra5.getUsageRules().iterator();
         UsageRule crac5UsageRule0 = iterator5.next();
         assertTrue(crac5UsageRule0 instanceof OnFlowConstraintInCountry);
-        assertEquals(CURATIVE_INSTANT_ID, crac5UsageRule0.getInstant().getId());
+        assertEquals(curativeInstant, crac5UsageRule0.getInstant());
         assertEquals(Country.FR, ((OnFlowConstraintInCountry) crac5UsageRule0).getCountry());
         // cra_6
         assertTrue(importedCrac.getNetworkAction("cra_6").getUsageRules().isEmpty());

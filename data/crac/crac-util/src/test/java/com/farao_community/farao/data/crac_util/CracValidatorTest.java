@@ -35,6 +35,7 @@ class CracValidatorTest {
 
     private Crac crac;
     private Network network;
+    private Instant outageInstant;
     private Instant autoInstant;
 
     @BeforeEach
@@ -45,6 +46,7 @@ class CracValidatorTest {
             .newInstant(PREVENTIVE_INSTANT_ID, InstantKind.PREVENTIVE)
             .newInstant(OUTAGE_INSTANT_ID, InstantKind.OUTAGE)
             .newInstant(AUTO_INSTANT_ID, InstantKind.AUTO);
+        outageInstant = crac.getInstant(OUTAGE_INSTANT_ID);
         autoInstant = crac.getInstant(AUTO_INSTANT_ID);
         crac.newContingency().withId("co-1").withNetworkElement("BBE1AA1  BBE2AA1  1").add();
         crac.newContingency().withId("co-2").withNetworkElement("BBE1AA1  BBE3AA1  1").add();
@@ -97,7 +99,7 @@ class CracValidatorTest {
         assertNotNull(duplicate);
         assertEquals(flowCnec.getNetworkElement().getId(), duplicate.getNetworkElement().getId());
         assertEquals(flowCnec.getState().getContingency(), duplicate.getState().getContingency());
-        assertEquals(OUTAGE_INSTANT_ID, duplicate.getState().getInstant().getId());
+        assertEquals(outageInstant, duplicate.getState().getInstant());
         assertEquals(flowCnec.isOptimized(), duplicate.isOptimized());
         assertEquals(flowCnec.isMonitored(), duplicate.isMonitored());
         assertEquals(flowCnec.getReliabilityMargin(), duplicate.getReliabilityMargin(), 1e-6);

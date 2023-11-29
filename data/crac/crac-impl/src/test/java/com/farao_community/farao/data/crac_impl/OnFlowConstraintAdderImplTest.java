@@ -101,7 +101,7 @@ class OnFlowConstraintAdderImplTest {
         assertEquals(1, remedialAction.getUsageRules().size());
         assertTrue(usageRule instanceof OnFlowConstraint);
         OnFlowConstraint onFlowConstraint = (OnFlowConstraint) usageRule;
-        assertEquals(PREVENTIVE_INSTANT_ID, onFlowConstraint.getInstant().getId());
+        assertEquals(preventiveInstant, onFlowConstraint.getInstant());
         assertEquals(UsageMethod.TO_BE_EVALUATED, onFlowConstraint.getUsageMethod());
         assertEquals(UsageMethod.TO_BE_EVALUATED, onFlowConstraint.getUsageMethod(crac.getPreventiveState()));
         assertEquals(UsageMethod.UNDEFINED, onFlowConstraint.getUsageMethod(crac.getState(crac.getContingency("Contingency FR1 FR3"), curativeInstant)));
@@ -121,7 +121,7 @@ class OnFlowConstraintAdderImplTest {
         assertEquals(1, remedialAction.getUsageRules().size());
         assertTrue(usageRule instanceof OnFlowConstraint);
         OnFlowConstraint onFlowConstraint = (OnFlowConstraint) usageRule;
-        assertEquals(CURATIVE_INSTANT_ID, onFlowConstraint.getInstant().getId());
+        assertEquals(curativeInstant, onFlowConstraint.getInstant());
         assertEquals(UsageMethod.TO_BE_EVALUATED, onFlowConstraint.getUsageMethod());
         assertEquals(UsageMethod.TO_BE_EVALUATED, onFlowConstraint.getUsageMethod(crac.getState(crac.getContingency("Contingency FR1 FR3"), curativeInstant)));
         assertEquals(1, crac.getStates().size());

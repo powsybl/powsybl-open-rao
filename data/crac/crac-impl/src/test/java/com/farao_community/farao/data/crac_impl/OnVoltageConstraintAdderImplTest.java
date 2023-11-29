@@ -88,7 +88,7 @@ class OnVoltageConstraintAdderImplTest {
         assertEquals(1, networkAction.getUsageRules().size());
         assertTrue(usageRule instanceof OnVoltageConstraint);
         OnVoltageConstraint onVoltageConstraint = (OnVoltageConstraint) usageRule;
-        assertEquals(PREVENTIVE_INSTANT_ID, onVoltageConstraint.getInstant().getId());
+        assertEquals(preventiveInstant, onVoltageConstraint.getInstant());
         assertEquals(UsageMethod.TO_BE_EVALUATED, onVoltageConstraint.getUsageMethod());
         assertEquals(UsageMethod.TO_BE_EVALUATED, onVoltageConstraint.getUsageMethod(crac.getPreventiveState()));
         assertEquals(UsageMethod.UNDEFINED, onVoltageConstraint.getUsageMethod(crac.getState(crac.getContingency("Contingency FR1 FR3"), curativeInstant)));
