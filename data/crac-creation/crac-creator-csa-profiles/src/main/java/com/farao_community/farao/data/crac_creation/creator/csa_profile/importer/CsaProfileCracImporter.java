@@ -17,6 +17,8 @@ import com.powsybl.triplestore.api.TripleStoreFactory;
 import org.apache.commons.io.FilenameUtils;
 
 import java.io.*;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
@@ -59,6 +61,11 @@ public class CsaProfileCracImporter implements NativeCracImporter<CsaProfileCrac
                     if (tempFileOk) {
                         boolean isKeywordFound = false;
                         boolean isFullModelOver = false;
+                        boolean isStartDateFound = false;
+                        boolean isEndDateFound = false;
+                        boolean isValid = true;
+                        LocalDateTime startDate = null;
+                        LocalDateTime endDate = null;
 
                         InputStream in = new BufferedInputStream(zipInputStream);
                         try (OutputStream out = new BufferedOutputStream(new FileOutputStream(tempFile))) {
@@ -67,6 +74,8 @@ public class CsaProfileCracImporter implements NativeCracImporter<CsaProfileCrac
 
                             Pattern keywordPattern = Pattern.compile("<dcat:keyword>[A-Z]{2,3}</dcat:keyword>");
                             Pattern fullModelPattern = Pattern.compile("</md:FullModel>");
+                            Pattern startDatePattern = Pattern.compile("<dcat:startDate>\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}Z</dcat:startDate>");
+                            Pattern endDatePattern = Pattern.compile("<dcat:endDate>\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}Z</dcat:endDate>");
 
                             while ((nBytes = in.read(buffer)) > 0 && currentSizeEntry < maxSizeEntry) {
                                 out.write(buffer, 0, nBytes);
@@ -81,12 +90,36 @@ public class CsaProfileCracImporter implements NativeCracImporter<CsaProfileCrac
                                     if (fullModelMatcher.find()) {
                                         isFullModelOver = true;
                                     }
-                                } else if (!isKeywordFound) {
-                                    break;
+                                    Matcher startDateMatcher = startDatePattern.matcher(bufferContent);
+                                    if (startDateMatcher.find()) {
+                                        String dateAsString = startDateMatcher.group(0).replaceAll("<[^>]*>", "");
+                                        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ssX");
+                                        startDate = LocalDateTime.parse(dateAsString, formatter);
+                                        isStartDateFound = true;
+                                    }
+                                    Matcher endDateMatcher = endDatePattern.matcher(bufferContent);
+                                    if (endDateMatcher.find()) {
+                                        String dateAsString = startDateMatcher.group(0).replaceAll("<[^>]*>", "");
+                                        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ssX");
+                                        endDate = LocalDateTime.parse(dateAsString, formatter);
+                                        isEndDateFound = true;
+                                    }
+                                } else if (isKeywordFound) {
+                                    if (isStartDateFound && isEndDateFound) {
+                                        if (!startDate.isBefore(endDate)) {
+                                            isValid = false;
+                                            break;
+                                        } else {
+
+                                        }
+                                    } else {
+                                        isValid = false;
+                                        break;
+                                    }
                                 }
                             }
                         }
-                        if (isKeywordFound) {
+                        if (isValid) {
                             FileInputStream fileInputStream = new FileInputStream(tempFile);
                             tripleStoreCsaProfile.read(fileInputStream, CsaProfileConstants.RDF_BASE_URL, zipEntry.getName());
                         } else {
