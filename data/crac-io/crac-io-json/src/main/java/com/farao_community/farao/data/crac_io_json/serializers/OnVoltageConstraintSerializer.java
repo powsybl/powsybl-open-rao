@@ -7,7 +7,6 @@
 
 package com.farao_community.farao.data.crac_io_json.serializers;
 
-import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.usage_rule.OnVoltageConstraint;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
@@ -23,8 +22,7 @@ public class OnVoltageConstraintSerializer extends AbstractJsonSerializer<OnVolt
     @Override
     public void serialize(OnVoltageConstraint value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
         gen.writeStartObject();
-        Instant instant = value.getInstant();
-        gen.writeStringField(INSTANT, instant.getId());
+        gen.writeStringField(INSTANT, value.getInstant().getId());
         gen.writeStringField(VOLTAGE_CNEC_ID, value.getVoltageCnec().getId());
         gen.writeEndObject();
     }

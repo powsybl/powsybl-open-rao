@@ -8,7 +8,6 @@
 package com.farao_community.farao.data.crac_io_json.serializers;
 
 import com.farao_community.farao.data.crac_api.Contingency;
-import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.cnec.AngleCnec;
 import com.farao_community.farao.data.crac_api.threshold.Threshold;
 import com.farao_community.farao.data.crac_io_json.ExtensionsHandler;
@@ -36,8 +35,7 @@ public class AngleCnecSerializer<I extends AngleCnec> extends AbstractJsonSerial
         gen.writeStringField(EXPORTING_NETWORK_ELEMENT_ID, angleCnec.getExportingNetworkElement().getId());
         gen.writeStringField(IMPORTING_NETWORK_ELEMENT_ID, angleCnec.getImportingNetworkElement().getId());
         gen.writeStringField(OPERATOR, angleCnec.getOperator());
-        Instant instant = angleCnec.getState().getInstant();
-        gen.writeStringField(INSTANT, instant.getId());
+        gen.writeStringField(INSTANT, angleCnec.getState().getInstant().getId());
         Optional<Contingency> optContingency = angleCnec.getState().getContingency();
         if (optContingency.isPresent()) {
             gen.writeStringField(CONTINGENCY_ID, optContingency.get().getId());

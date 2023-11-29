@@ -94,7 +94,7 @@ class JsonSerializationConstantsTest {
     }
 
     private UsageRule mockUsageRule(Instant instant, UsageMethod usageMethod, String stateId, String flowCnecId, Country country, String angleCnecId, String voltageCnecId) {
-        UsageRule usageRule;
+        UsageRule usageRule = null;
         if (stateId != null) {
             OnContingencyState ur = mock(OnContingencyState.class);
             State state = mock(State.class);

@@ -286,9 +286,9 @@ class JsonRetrocompatibilityTest {
         assertEquals(PREVENTIVE_INSTANT_ID, crac.getFlowCnec("cnec1prevId").getState().getInstant().getId());
         assertTrue(crac.getFlowCnec("cnec1prevId").getState().getContingency().isEmpty());
         assertEquals(CURATIVE_INSTANT_ID, crac.getFlowCnec("cnec3curId").getState().getInstant().getId());
-        assertEquals("contingency2Id", crac.getFlowCnec("cnec3curId").getState().getContingency().orElseThrow().getId());
+        assertEquals("contingency2Id", crac.getFlowCnec("cnec3curId").getState().getContingency().get().getId());
         assertEquals(AUTO_INSTANT_ID, crac.getFlowCnec("cnec3autoId").getState().getInstant().getId());
-        assertEquals("contingency2Id", crac.getFlowCnec("cnec3autoId").getState().getContingency().orElseThrow().getId());
+        assertEquals("contingency2Id", crac.getFlowCnec("cnec3autoId").getState().getContingency().get().getId());
 
         // check monitored and optimized
         assertFalse(crac.getFlowCnec("cnec3prevId").isOptimized());
@@ -510,7 +510,7 @@ class JsonRetrocompatibilityTest {
         assertEquals("eneId", angleCnec.getExportingNetworkElement().getId());
         assertEquals("ineId", angleCnec.getImportingNetworkElement().getId());
         assertEquals(CURATIVE_INSTANT_ID, angleCnec.getState().getInstant().getId());
-        assertEquals("contingency1Id", angleCnec.getState().getContingency().orElseThrow().getId());
+        assertEquals("contingency1Id", angleCnec.getState().getContingency().get().getId());
         assertFalse(angleCnec.isOptimized());
         assertTrue(angleCnec.isMonitored());
         assertEquals("operator1", angleCnec.getOperator());
@@ -544,7 +544,7 @@ class JsonRetrocompatibilityTest {
 
         assertEquals("voltageCnecNeId", voltageCnec.getNetworkElement().getId());
         assertEquals(CURATIVE_INSTANT_ID, voltageCnec.getState().getInstant().getId());
-        assertEquals("contingency1Id", voltageCnec.getState().getContingency().orElseThrow().getId());
+        assertEquals("contingency1Id", voltageCnec.getState().getContingency().get().getId());
         assertFalse(voltageCnec.isOptimized());
         assertTrue(voltageCnec.isMonitored());
         assertEquals("operator1", voltageCnec.getOperator());
@@ -564,10 +564,10 @@ class JsonRetrocompatibilityTest {
         assertEquals(3, (int) crac.getRemedialActions().stream().map(RemedialAction::getUsageRules).flatMap(Set::stream).filter(OnFlowConstraint.class::isInstance).count());
         assertEquals(1, (int) crac.getRemedialActions().stream().map(RemedialAction::getUsageRules).flatMap(Set::stream).filter(OnAngleConstraint.class::isInstance).count());
         // test speed
-        assertEquals(10, crac.getPstRangeAction("pstRange1Id").getSpeed().orElseThrow().intValue());
-        assertEquals(20, crac.getHvdcRangeAction("hvdcRange1Id").getSpeed().orElseThrow().intValue());
-        assertEquals(30, crac.getInjectionRangeAction("injectionRange1Id").getSpeed().orElseThrow().intValue());
-        assertEquals(40, crac.getNetworkAction("complexNetworkActionId").getSpeed().orElseThrow().intValue());
+        assertEquals(10, crac.getPstRangeAction("pstRange1Id").getSpeed().get().intValue());
+        assertEquals(20, crac.getHvdcRangeAction("hvdcRange1Id").getSpeed().get().intValue());
+        assertEquals(30, crac.getInjectionRangeAction("injectionRange1Id").getSpeed().get().intValue());
+        assertEquals(40, crac.getNetworkAction("complexNetworkActionId").getSpeed().get().intValue());
     }
 
     void testContentOfV1Point7Crac(Crac crac) {

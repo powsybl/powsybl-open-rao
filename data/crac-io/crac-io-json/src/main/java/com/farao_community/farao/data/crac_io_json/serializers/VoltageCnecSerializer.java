@@ -8,7 +8,6 @@
 package com.farao_community.farao.data.crac_io_json.serializers;
 
 import com.farao_community.farao.data.crac_api.Contingency;
-import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.cnec.VoltageCnec;
 import com.farao_community.farao.data.crac_api.threshold.Threshold;
 import com.farao_community.farao.data.crac_io_json.ExtensionsHandler;
@@ -35,8 +34,7 @@ public class VoltageCnecSerializer<I extends VoltageCnec> extends AbstractJsonSe
         gen.writeStringField(NAME, voltageCnec.getName());
         gen.writeStringField(NETWORK_ELEMENT_ID, voltageCnec.getNetworkElement().getId());
         gen.writeStringField(OPERATOR, voltageCnec.getOperator());
-        Instant instant = voltageCnec.getState().getInstant();
-        gen.writeStringField(INSTANT, instant.getId());
+        gen.writeStringField(INSTANT, voltageCnec.getState().getInstant().getId());
         Optional<Contingency> optContingency = voltageCnec.getState().getContingency();
         if (optContingency.isPresent()) {
             gen.writeStringField(CONTINGENCY_ID, optContingency.get().getId());
