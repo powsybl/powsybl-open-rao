@@ -11,7 +11,6 @@ import com.farao_community.farao.commons.FaraoException;
 import com.google.common.base.Suppliers;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.util.ServiceLoaderCache;
-
 import java.util.List;
 
 /**
@@ -22,10 +21,11 @@ import java.util.List;
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
 public interface CracFactory {
+
     /**
      * Create a {@code Crac} object.
      *
-     * @param id:   ID to assign to the created Crac.
+     * @param id: ID to assign to the created Crac.
      * @param name: Name to assign to the created Crac.
      * @return the created {@code Crac} instance.
      */

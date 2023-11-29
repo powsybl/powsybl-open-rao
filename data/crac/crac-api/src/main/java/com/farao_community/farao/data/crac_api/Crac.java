@@ -20,7 +20,7 @@ import static java.lang.String.format;
 /**
  * Interface to manage CRAC.
  * CRAC stands for Contingency list, Remedial Actions and additional Constraints
- * <p>
+ *
  * It involves:
  * <ul>
  *     <li>{@link Instant} objects</li>
@@ -79,7 +79,7 @@ public interface Crac extends Identifiable<Crac> {
     List<Instant> getInstants();
 
     /**
-     * Get instant based on a kind. Throws exception :
+     * Get instant based on a kind. Throws exception:
      * - if crac does not contain such instant Kind or
      * - if multiple instants of this kind are defined in the crac
      */
@@ -132,7 +132,7 @@ public interface Crac extends Identifiable<Crac> {
      * because states must not be duplicated and there is no defined order for states selected by
      * instants. Can return null if no matching instant is found.
      *
-     * @param instant : The instant at which we want to gather states.
+     * @param instant: The instant at which we want to gather states.
      * @return Unordered set of states at the same specified instant.
      */
     Set<State> getStates(Instant instant);
@@ -141,8 +141,8 @@ public interface Crac extends Identifiable<Crac> {
      * Select a unique state after a contingency and at a specific instant.
      * Can return null if no matching state or contingency are found.
      *
-     * @param contingency : The contingency after which we want to select the state.
-     * @param instant     :     The instant at which we want to select the state.
+     * @param contingency: The contingency after which we want to select the state.
+     * @param instant: The instant at which we want to select the state.
      * @return State after a contingency and at a specific instant.
      */
     State getState(Contingency contingency, Instant instant);
@@ -153,7 +153,7 @@ public interface Crac extends Identifiable<Crac> {
      * because states must not be duplicated and there is no defined order for states selected by
      * instants. Can return null if no matching instant is found.
      *
-     * @param instant : The instant at which we want to gather states.
+     * @param instant: The instant at which we want to gather states.
      * @return Unordered set of states at the same specified instant.
      */
     default Set<State> getStatesFromInstant(Instant instant) {
@@ -179,8 +179,8 @@ public interface Crac extends Identifiable<Crac> {
     /**
      * Select a unique state after a contingency and at a specific instant, specified by their ids.
      *
-     * @param contingencyId : The contingency id after which we want to select the state.
-     * @param instant       :       The instant at which we want to select the state.
+     * @param contingencyId: The contingency id after which we want to select the state.
+     * @param instant: The instant at which we want to select the state.
      * @return State after a contingency and at a specific instant. Can return null if no matching
      * state or contingency are found.
      */
@@ -234,7 +234,7 @@ public interface Crac extends Identifiable<Crac> {
      * @deprecated consider using getCnecs() or getFlowCnecs() instead
      */
     // keep the method (might be useful when we will have other BranchCnec than FlowCnec)
-    @Deprecated(since = "3.0.0")
+    @Deprecated (since = "3.0.0")
     Set<BranchCnec> getBranchCnecs();
 
     /**
@@ -244,7 +244,7 @@ public interface Crac extends Identifiable<Crac> {
      * @deprecated consider using getCnecs() or getFlowCnecs() instead
      */
     // keep the method (might be useful when we will have other BranchCnec than FlowCnec)
-    @Deprecated(since = "3.0.0")
+    @Deprecated (since = "3.0.0")
     Set<BranchCnec> getBranchCnecs(State state);
 
     /**
@@ -253,7 +253,7 @@ public interface Crac extends Identifiable<Crac> {
      * @deprecated consider using getCnec() or getFlowCnec() instead
      */
     // keep the method (might be usefuls when we will have other BranchCnec than FlowCnec)
-    @Deprecated(since = "3.0.0")
+    @Deprecated (since = "3.0.0")
     BranchCnec getBranchCnec(String branchCnecId);
 
     /**
@@ -397,7 +397,7 @@ public interface Crac extends Identifiable<Crac> {
     /**
      * Gather all the network actions of a specified state that are potentially available
      */
-    Set<RangeAction<?>> getPotentiallyAvailableRangeActions(State state);
+    Set<RangeAction<?>>  getPotentiallyAvailableRangeActions(State state);
 
     /**
      * Find a range action by its id, returns null if the range action does not exists
