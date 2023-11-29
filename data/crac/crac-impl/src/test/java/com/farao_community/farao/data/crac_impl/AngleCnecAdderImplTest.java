@@ -85,7 +85,7 @@ class AngleCnecAdderImplTest {
         assertEquals(cnec1, crac.getAngleCnec("cnecId1"));
         assertEquals("cnecName1", cnec1.getName());
         assertEquals(contingency1, cnec1.getState().getContingency().orElseThrow());
-        assertEquals(OUTAGE_INSTANT_ID, cnec1.getState().getInstant().getId());
+        assertEquals(outageInstant, cnec1.getState().getInstant());
         assertEquals("cnec1Operator", cnec1.getOperator());
         assertEquals("eneName1", cnec1.getExportingNetworkElement().getName());
         assertEquals("ineName1", cnec1.getImportingNetworkElement().getName());
@@ -95,7 +95,7 @@ class AngleCnecAdderImplTest {
         // Verify 2nd cnec content
         assertEquals(cnec2, crac.getAngleCnec("cnecId2"));
         assertEquals("cnecId2", cnec2.getName());
-        assertEquals(PREVENTIVE_INSTANT_ID, cnec2.getState().getInstant().getId());
+        assertEquals(preventiveInstant, cnec2.getState().getInstant());
         assertEquals("cnec2Operator", cnec2.getOperator());
         assertEquals(Optional.empty(), cnec2.getState().getContingency());
         assertEquals("eneId2", cnec2.getExportingNetworkElement().getName());
@@ -125,7 +125,7 @@ class AngleCnecAdderImplTest {
         // Verify states were created
         assertEquals(2, crac.getStates().size());
         assertNotNull(crac.getPreventiveState());
-        assertNotNull(crac.getState(contingency1Id, crac.getInstant(OUTAGE_INSTANT_ID)));
+        assertNotNull(crac.getState(contingency1Id, outageInstant));
     }
 
     @Test

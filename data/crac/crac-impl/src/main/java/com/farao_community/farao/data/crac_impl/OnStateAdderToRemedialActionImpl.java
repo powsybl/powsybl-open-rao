@@ -25,7 +25,7 @@ public class OnStateAdderToRemedialActionImpl<T extends AbstractRemedialAction<T
     private T owner;
     private UsageMethod usageMethod;
     private State state;
-    private static final String CLASS_NAME = "OnContingencyState";
+    private static final String CLASS_NAME = "OnState";
 
     OnStateAdderToRemedialActionImpl(RemedialAction<T> owner) {
         this.owner = (T) owner;

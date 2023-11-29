@@ -317,7 +317,6 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
     /**
      * Removes State objects from the Crac, if they are not used within other objects of the Crac
      * Only State objects that are not referenced are removed.
-     *
      * @param stateIds: IDs of the States to remove
      */
     void safeRemoveStates(Set<String> stateIds) {

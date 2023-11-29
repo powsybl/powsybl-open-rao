@@ -23,6 +23,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
 class ContingencyAdderImplTest {
+
     private Crac crac;
 
     @BeforeEach

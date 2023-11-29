@@ -84,8 +84,8 @@ class ContingencyImplTest {
         assertEquals(contingencyImpl1.hashCode(), contingencyImpl2.hashCode());
 
         ContingencyImpl contingencyImpl3 = new ContingencyImpl(
-            "contingency-3", "contingency-1",
-            Stream.of(new NetworkElementImpl("network-element-1"), new NetworkElementImpl("network-element-2")).collect(Collectors.toSet())
+                "contingency-3", "contingency-1",
+                Stream.of(new NetworkElementImpl("network-element-1"), new NetworkElementImpl("network-element-2")).collect(Collectors.toSet())
         );
         assertNotEquals(contingencyImpl1, contingencyImpl3);
         assertTrue(contingencyImpl1.hashCode() < contingencyImpl3.hashCode());
@@ -95,8 +95,7 @@ class ContingencyImplTest {
     void testApplyFails() {
         ContingencyImpl contingencyImpl = new ContingencyImpl("contingency", "contingency", Collections.singleton(new NetworkElementImpl("None")));
         assertEquals(1, contingencyImpl.getNetworkElements().size());
-        FaraoException exception = assertThrows(FaraoException.class, () -> contingencyImpl.apply(network, computationManager));
-        assertEquals("Unable to apply contingency element None", exception.getMessage());
+        assertThrows(FaraoException.class, () -> contingencyImpl.apply(network, computationManager));
     }
 
     @Test

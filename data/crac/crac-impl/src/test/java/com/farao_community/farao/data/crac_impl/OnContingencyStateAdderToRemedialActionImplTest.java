@@ -89,7 +89,7 @@ class OnContingencyStateAdderToRemedialActionImplTest {
         OnContingencyStateAdderToRemedialAction<?> onStateAdderToRemedialAction = remedialAction.newOnStateUsageRule()
             .withUsageMethod(UsageMethod.FORCED);
         FaraoException exception = assertThrows(FaraoException.class, onStateAdderToRemedialAction::add);
-        assertEquals("Cannot add OnContingencyState without a state. Please use withState() with a non null value", exception.getMessage());
+        assertEquals("Cannot add OnState without a state. Please use withState() with a non null value", exception.getMessage());
     }
 
     @Test
@@ -97,7 +97,7 @@ class OnContingencyStateAdderToRemedialActionImplTest {
         OnContingencyStateAdderToRemedialAction<?> onStateAdderToRemedialAction = remedialAction.newOnStateUsageRule()
             .withState(crac.getState(contingency, curativeInstant));
         FaraoException exception = assertThrows(FaraoException.class, onStateAdderToRemedialAction::add);
-        assertEquals("Cannot add OnContingencyState without a usage method. Please use withUsageMethod() with a non null value", exception.getMessage());
+        assertEquals("Cannot add OnState without a usage method. Please use withUsageMethod() with a non null value", exception.getMessage());
     }
 
     @Test
