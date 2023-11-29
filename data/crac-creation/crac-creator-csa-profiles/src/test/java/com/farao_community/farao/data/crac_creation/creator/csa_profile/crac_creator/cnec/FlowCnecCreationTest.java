@@ -41,7 +41,7 @@ class FlowCnecCreationTest {
         Iterator<UsageRule> usageRuleIterator = eliaRa1.getUsageRules().iterator();
         UsageRule usageRule1 = usageRuleIterator.next();
 
-        assertEquals(curativeInstant, usageRule1.getInstant().getId());
+        assertEquals(curativeInstant, usageRule1.getInstant());
         assertEquals("ELIA_AE1 - ELIA_CO1 - curative", ((OnFlowConstraintImpl) usageRule1).getFlowCnec().getId());
         // TODO assert that UsageMethod.FORCED
         // assertEquals(UsageMethod.FORCED, usageRule1.getUsageMethod());
