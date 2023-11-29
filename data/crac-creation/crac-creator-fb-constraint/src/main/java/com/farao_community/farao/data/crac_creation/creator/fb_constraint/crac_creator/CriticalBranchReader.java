@@ -23,9 +23,7 @@ import com.farao_community.farao.data.crac_loopflow_extension.LoopFlowThresholdA
 import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Country;
 
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.regex.Pattern;
 
 /**
@@ -36,9 +34,11 @@ class CriticalBranchReader {
 
     private static final List<String> DIRECT = List.of("DIRECT", "MONODIR");
     private static final List<String> OPPOSITE = List.of("OPPOSITE");
-    private final CriticalBranchType criticalBranch;
+
     private String importStatusDetail = null;
     private ImportStatus importStatus;
+
+    private final CriticalBranchType criticalBranch;
     private Set<Side> monitoredSides;
     private boolean isBaseCase;
     private boolean isInvertedInNetwork;
@@ -68,21 +68,21 @@ class CriticalBranchReader {
 
     String getBaseCaseCnecId() {
         if (isBaseCase) {
-            return criticalBranch.getId().concat(" - preventive"); // TODO change this
+            return criticalBranch.getId().concat(" - ").concat(InstantKind.PREVENTIVE.toString()); // TODO change this
         }
         return null;
     }
 
     String getOutageCnecId() {
         if (!isBaseCase) {
-            return criticalBranch.getId().concat(" - outage"); // TODO change this
+            return criticalBranch.getId().concat(" - ").concat(InstantKind.OUTAGE.toString()); // TODO change this
         }
         return null;
     }
 
     String getCurativeCnecId() {
         if (!isBaseCase) {
-            return criticalBranch.getId().concat(" - curative"); // TODO change this
+            return criticalBranch.getId().concat(" - ").concat(InstantKind.CURATIVE.toString()); // TODO change this
         }
         return null;
     }
@@ -307,4 +307,5 @@ class CriticalBranchReader {
 
         return false;
     }
+
 }

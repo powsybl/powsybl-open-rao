@@ -12,8 +12,8 @@ import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_creation.creator.api.CracCreator;
 import com.farao_community.farao.data.crac_creation.creator.api.ImportStatus;
 import com.farao_community.farao.data.crac_creation.creator.api.parameters.CracCreationParameters;
-import com.farao_community.farao.data.crac_creation.creator.fb_constraint.FbConstraint;
 import com.farao_community.farao.data.crac_creation.creator.fb_constraint.xsd.CriticalBranchType;
+import com.farao_community.farao.data.crac_creation.creator.fb_constraint.FbConstraint;
 import com.farao_community.farao.data.crac_creation.creator.fb_constraint.xsd.FlowBasedConstraintDocument;
 import com.farao_community.farao.data.crac_creation.creator.fb_constraint.xsd.IndependantComplexVariant;
 import com.farao_community.farao.data.crac_creation.util.ucte.UcteNetworkAnalyzer;
@@ -22,10 +22,7 @@ import com.google.auto.service.AutoService;
 import com.powsybl.iidm.network.Network;
 
 import java.time.OffsetDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.farao_community.farao.data.crac_creation.util.ucte.UcteNetworkAnalyzerProperties.BusIdMatchPolicy.COMPLETE_WITH_WILDCARDS;
@@ -98,7 +95,7 @@ public class FbConstraintCracCreator implements CracCreator<FbConstraint, FbCons
                 .filter(CriticalBranchReader::isCriticialBranchValid)
                 .filter(cbr -> !cbr.isBaseCase())
                 .map(CriticalBranchReader::getOutageReader)
-                .toList());
+                .collect(Collectors.toList()));
 
             createContingencies(crac, outageReaders);
             createCnecs(crac, criticalBranchReaders, creationContext);
@@ -163,7 +160,7 @@ public class FbConstraintCracCreator implements CracCreator<FbConstraint, FbCons
 
     private void createRaTimestampFilteringInformation(FbConstraint fbConstraintDocument, OffsetDateTime timestamp, FbConstraintCreationContext creationContext) {
         fbConstraintDocument.getDocument().getComplexVariants().getComplexVariant().stream()
-            .filter(complexVariant -> !isInTimeInterval(timestamp, complexVariant.getTimeInterval().getV()))
+             .filter(complexVariant -> !isInTimeInterval(timestamp, complexVariant.getTimeInterval().getV()))
             .filter(complexVariant -> creationContext.getRemedialActionCreationContext(complexVariant.getId()) == null)
             .forEach(complexVariant -> creationContext.addComplexVariantCreationContext(
                 new ComplexVariantCreationContext(complexVariant.getId(), ImportStatus.NOT_FOR_REQUESTED_TIMESTAMP, null, "ComplexVariant is not valid for the requested timestamp")
@@ -211,7 +208,7 @@ public class FbConstraintCracCreator implements CracCreator<FbConstraint, FbCons
         }
 
         if (!isInTimeInterval(offsetDateTime, fbConstraintDocumentTimeInterval)) {
-            creationContext.getCreationReport().error(String.format("timestamp %s is not in the time interval of the flow-based constraint document: %s", offsetDateTime, fbConstraintDocumentTimeInterval));
+            creationContext.getCreationReport().error(String.format("timestamp %s is not in the time interval of the flow-based constraint document: %s", offsetDateTime.toString(), fbConstraintDocumentTimeInterval));
             return false;
         }
 

@@ -8,25 +8,20 @@
 package com.farao_community.farao.data.crac_creation.creator.csa_profile.crac_creator;
 
 import com.farao_community.farao.commons.Unit;
-import com.farao_community.farao.data.crac_api.Contingency;
-import com.farao_community.farao.data.crac_api.Crac;
-import com.farao_community.farao.data.crac_api.Instant;
+import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_api.cnec.AngleCnec;
 import com.farao_community.farao.data.crac_api.cnec.Side;
-import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
+import com.farao_community.farao.data.crac_api.usage_rule.*;
 import com.farao_community.farao.data.crac_creation.creator.api.ImportStatus;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.Identifiable;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-import java.util.Comparator;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import static com.farao_community.farao.data.crac_creation.creator.csa_profile.crac_creator.CsaProfileCracCreationTestUtil.*;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 class CsaProfileCracCreatorTest {
     private static final String PREVENTIVE_INSTANT_ID = "preventive";

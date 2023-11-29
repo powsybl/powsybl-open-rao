@@ -14,11 +14,10 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static com.farao_community.farao.data.crac_creation.creator.csa_profile.crac_creator.CsaProfileCracCreationTestUtil.getCsaCracCreationContext;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 class FlowCnecCreationTest {
     private static final String PREVENTIVE_INSTANT_ID = "preventive";
@@ -273,7 +272,7 @@ class FlowCnecCreationTest {
         assertEquals(12, cracCreationContext.getCrac().getFlowCnecs().size());
 
         List<FlowCnec> listFlowCnecs = cracCreationContext.getCrac().getFlowCnecs()
-            .stream().sorted(Comparator.comparing(FlowCnec::getId)).toList();
+            .stream().sorted(Comparator.comparing(FlowCnec::getId)).collect(Collectors.toList());
 
         CsaProfileCracCreationTestUtil.assertFlowCnecEquality(listFlowCnecs.get(0),
             "ELIA_AE2 - preventive",

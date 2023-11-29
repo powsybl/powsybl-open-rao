@@ -14,15 +14,15 @@ import com.farao_community.farao.data.crac_api.InstantKind;
 import com.farao_community.farao.data.crac_api.RemedialActionAdder;
 import com.farao_community.farao.data.crac_api.network_action.ActionType;
 import com.farao_community.farao.data.crac_api.network_action.NetworkActionAdder;
-import com.farao_community.farao.data.crac_api.range.RangeType;
 import com.farao_community.farao.data.crac_api.range_action.InjectionRangeActionAdder;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeActionAdder;
+import com.farao_community.farao.data.crac_api.range.RangeType;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import com.farao_community.farao.data.crac_creation.creator.api.ImportStatus;
-import com.farao_community.farao.data.crac_creation.creator.api.parameters.RangeActionGroup;
-import com.farao_community.farao.data.crac_creation.creator.cse.CseCracCreationContext;
+import com.farao_community.farao.data.crac_creation.creator.cse.*;
 import com.farao_community.farao.data.crac_creation.creator.cse.parameters.BusBarChangeSwitches;
 import com.farao_community.farao.data.crac_creation.creator.cse.parameters.CseCracCreationParameters;
+import com.farao_community.farao.data.crac_creation.creator.api.parameters.RangeActionGroup;
 import com.farao_community.farao.data.crac_creation.creator.cse.xsd.*;
 import com.farao_community.farao.data.crac_creation.util.ucte.UcteNetworkAnalyzer;
 import com.farao_community.farao.data.crac_creation.util.ucte.UctePstHelper;
@@ -32,14 +32,13 @@ import com.powsybl.iidm.network.Network;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * @author Alexandre Montigny {@literal <alexandre.montigny at rte-france.com>}
  */
 public class TRemedialActionAdder {
-    private static final String ABSOLUTE_VARIATION_TYPE = "ABSOLUTE";
     private final TCRACSeries tcracSeries;
     private final Crac crac;
     private final Network network;
@@ -47,6 +46,8 @@ public class TRemedialActionAdder {
     private final CseCracCreationContext cseCracCreationContext;
     private final Map<String, Set<String>> remedialActionsForCnecsMap;
     private final CseCracCreationParameters cseCracCreationParameters;
+
+    private static final String ABSOLUTE_VARIATION_TYPE = "ABSOLUTE";
 
     public TRemedialActionAdder(TCRACSeries tcracSeries, Crac crac, Network network, UcteNetworkAnalyzer ucteNetworkAnalyzer, Map<String, Set<String>> remedialActionsForCnecsMap, CseCracCreationContext cseCracCreationContext, CseCracCreationParameters cseCracCreationParameters) {
         this.tcracSeries = tcracSeries;
@@ -130,7 +131,7 @@ public class TRemedialActionAdder {
             .withOperator(tRemedialAction.getOperator().getV());
 
         boolean isAltered = false;
-        StringBuilder alteringDetail = null;
+        String alteringDetail = null;
         for (TNode tNode : tRemedialAction.getGeneration().getNode()) {
             if (!tNode.getVariationType().getV().equals(ABSOLUTE_VARIATION_TYPE)) {
                 cseCracCreationContext.addRemedialActionCreationContext(
@@ -146,9 +147,9 @@ public class TRemedialActionAdder {
             } else if (generatorHelper.isAltered()) {
                 isAltered = true;
                 if (alteringDetail == null) {
-                    alteringDetail = new StringBuilder(generatorHelper.getDetail());
+                    alteringDetail = generatorHelper.getDetail();
                 } else {
-                    alteringDetail.append(", ").append(generatorHelper.getDetail());
+                    alteringDetail += ", " + generatorHelper.getDetail();
                 }
             }
             try {
@@ -166,7 +167,7 @@ public class TRemedialActionAdder {
         // After looping on all nodes
         addUsageRules(networkActionAdder, tRemedialAction);
         networkActionAdder.add();
-        cseCracCreationContext.addRemedialActionCreationContext(CseRemedialActionCreationContext.imported(tRemedialAction, createdRAId, isAltered, alteringDetail != null ? alteringDetail.toString() : ""));
+        cseCracCreationContext.addRemedialActionCreationContext(CseRemedialActionCreationContext.imported(tRemedialAction, createdRAId, isAltered, alteringDetail));
     }
 
     private void importPstRangeAction(TRemedialAction tRemedialAction) {
@@ -284,7 +285,7 @@ public class TRemedialActionAdder {
         if (cseCracCreationParameters != null && cseCracCreationParameters.getRangeActionGroups() != null) {
             List<RangeActionGroup> groups = cseCracCreationParameters.getRangeActionGroups().stream()
                 .filter(rangeActionGroup -> rangeActionGroup.getRangeActionsIds().contains(raId))
-                .toList();
+                .collect(Collectors.toList());
             if (groups.size() == 1) {
                 injectionRangeActionAdder.withGroupId(groups.get(0).toString());
             } else if (groups.size() > 1) {
@@ -304,7 +305,13 @@ public class TRemedialActionAdder {
     }
 
     private static ActionType convertActionType(TStatusType tStatusType) {
-        return (Objects.equals(tStatusType.getV(), "CLOSE")) ? ActionType.CLOSE : ActionType.OPEN;
+        switch (tStatusType.getV()) {
+            case "CLOSE":
+                return ActionType.CLOSE;
+            case "OPEN":
+            default:
+                return ActionType.OPEN;
+        }
     }
 
     private static RangeType convertRangeType(TVariationType tVariationType) {
@@ -378,7 +385,7 @@ public class TRemedialActionAdder {
         if (remedialActionsForCnecsMap.containsKey(tRemedialAction.getName().getV())) {
             for (String flowCnecId : remedialActionsForCnecsMap.get(tRemedialAction.getName().getV())) {
                 // Only add the usage rule if the RemedialAction can be applied before or during CNEC instant
-                if (raApplicationInstant.getOrder() <= crac.getFlowCnec(flowCnecId).getState().getInstant().getOrder()) {
+                if (!crac.getFlowCnec(flowCnecId).getState().getInstant().comesBefore(raApplicationInstant)) {
                     remedialActionAdder.newOnFlowConstraintUsageRule()
                         .withInstant(raApplicationInstant)
                         .withFlowCnec(flowCnecId)

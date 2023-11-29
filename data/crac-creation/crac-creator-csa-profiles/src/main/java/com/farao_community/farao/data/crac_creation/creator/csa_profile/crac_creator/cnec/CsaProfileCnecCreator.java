@@ -141,7 +141,7 @@ public class CsaProfileCnecCreator {
         }
 
         for (Contingency contingency : combinableContingencies) {
-            String cnecName = assessedElementName + " - " + contingency.getName() + " - " + cnecInstant.toString();
+            String cnecName = assessedElementName + " - " + contingency.getName() + " - " + cnecInstant.getId();
             this.addCnec(cnecAdder, limitType, contingency.getId(), assessedElementId, cnecName, cnecInstant, rejectedLinksAssessedElementContingency);
         }
         if (inBaseCase) {

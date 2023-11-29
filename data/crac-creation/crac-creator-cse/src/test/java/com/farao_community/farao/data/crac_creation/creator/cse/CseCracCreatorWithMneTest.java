@@ -119,7 +119,7 @@ class CseCracCreatorWithMneTest {
         assertEquals(expectedIMax, flowCnec.getIMax(Side.RIGHT), 0.00001);
         assertTrue(hasThreshold(nativeId, expectedThreshold, expectedThresholdUnit, flowCnec, direction, Side.LEFT));
         assertTrue(hasThreshold(nativeId, expectedThreshold, expectedThresholdUnit, flowCnec, direction, Side.RIGHT));
-        assertEquals(contingencyId, flowCnec.getState().getContingency().orElseThrow().getId());
+        assertEquals(contingencyId, flowCnec.getState().getContingency().get().getId());
         assertEquals(instant, flowCnec.getState().getInstant());
         assertEquals(flowCnec.getNetworkElement().getId(), crac.getFlowCnec(createdCnecId).getNetworkElement().getName());
         boolean directionInvertedInNetwork = cracCreationContext.getBranchCnecCreationContext(nativeId).isDirectionInvertedInNetwork();

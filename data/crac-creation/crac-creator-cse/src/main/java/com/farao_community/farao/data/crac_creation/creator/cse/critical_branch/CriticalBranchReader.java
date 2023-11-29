@@ -32,15 +32,15 @@ import java.util.stream.Collectors;
 public class CriticalBranchReader {
     private final String criticalBranchName;
     private final NativeBranch nativeBranch;
-    private final Map<String, String> createdCnecIds = new HashMap<>();
-    private final boolean isImported;
-    private final Set<String> remedialActionIds = new HashSet<>();
-    private final ImportStatus criticalBranchImportStatus;
     private boolean isBaseCase;
+    private final Map<String, String> createdCnecIds = new HashMap<>();
     private String contingencyId;
+    private final boolean isImported;
     private String invalidBranchReason;
     private boolean isDirectionInverted;
     private boolean selected;
+    private final Set<String> remedialActionIds = new HashSet<>();
+    private final ImportStatus criticalBranchImportStatus;
     private Set<Side> monitoredSides;
 
     public String getCriticalBranchName() {
@@ -216,7 +216,13 @@ public class CriticalBranchReader {
     }
 
     private static Unit convertUnit(String unit) {
-        return (Objects.equals(unit, "Pct")) ? Unit.PERCENT_IMAX : Unit.AMPERE;
+        switch (unit) {
+            case "Pct":
+                return Unit.PERCENT_IMAX;
+            case "A":
+            default:
+                return Unit.AMPERE;
+        }
     }
 
     // In case it is not specified we consider it as selected

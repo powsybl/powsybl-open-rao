@@ -3,10 +3,7 @@ package com.farao_community.farao.data.crac_creation.creator.csa_profile.crac_cr
 import com.farao_community.farao.data.crac_api.InstantKind;
 import com.farao_community.farao.data.crac_api.NetworkElement;
 import com.farao_community.farao.data.crac_api.RemedialAction;
-import com.farao_community.farao.data.crac_api.network_action.ActionType;
-import com.farao_community.farao.data.crac_api.network_action.InjectionSetpoint;
-import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
-import com.farao_community.farao.data.crac_api.network_action.TopologicalAction;
+import com.farao_community.farao.data.crac_api.network_action.*;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageRule;
@@ -31,10 +28,10 @@ import static com.farao_community.farao.data.crac_creation.creator.csa_profile.c
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-class AutoRemedialActionTest {
+public class AutoRemedialActionTest {
 
     @Test
-    void importAutoRemedialActionTC2() {
+    public void importAutoRemedialActionTC2() {
         CsaProfileCracCreationContext cracCreationContext = getCsaCracCreationContext("/CSA_TestConfiguration_TC2_27Apr2023.zip");
         List<RemedialAction> autoRemedialActionList = cracCreationContext.getCrac().getRemedialActions().stream().filter(ra -> ra.getUsageRules().stream().anyMatch(usageRule -> usageRule.getInstant().isAuto())).collect(Collectors.toList());
         assertEquals(1, autoRemedialActionList.size());
@@ -51,7 +48,7 @@ class AutoRemedialActionTest {
     }
 
     @Test
-    void importAutoRemedialActionSps2() {
+    public void importAutoRemedialActionSps2() {
         CsaProfileCracCreationContext cracCreationContext = getCsaCracCreationContext("/SPS_with_shunt_compensator_and_pst.zip");
 
         List<RemedialAction> autoRemedialActionList = cracCreationContext.getCrac().getRemedialActions().stream().filter(ra -> ra.getUsageRules().stream().anyMatch(usageRule -> usageRule.getInstant().isAuto())).collect(Collectors.toList());
@@ -94,7 +91,7 @@ class AutoRemedialActionTest {
     }
 
     @Test
-    void importInvalidRasProfilesSps3() {
+    public void importInvalidRasProfilesSps3() {
         Network network = Mockito.mock(Network.class);
         CsaProfileCracImporter cracImporter = new CsaProfileCracImporter();
         InputStream inputStream = getClass().getResourceAsStream("/CSA_SPS_3_InvalidProflies.zip");

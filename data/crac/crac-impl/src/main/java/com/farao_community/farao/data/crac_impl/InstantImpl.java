@@ -90,7 +90,7 @@ public class InstantImpl extends AbstractIdentifiable<InstantImpl> implements In
             return false;
         }
         InstantImpl instant = (InstantImpl) o;
-        return order == instant.order && instantKind == instant.instantKind;
+        return order == instant.order && instantKind == instant.instantKind; // TODO: I don't know if this is a good idea to compare order ?
     }
 
     @Override
