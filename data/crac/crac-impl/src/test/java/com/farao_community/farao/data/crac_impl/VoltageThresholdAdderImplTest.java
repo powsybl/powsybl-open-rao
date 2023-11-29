@@ -28,6 +28,7 @@ class VoltageThresholdAdderImplTest {
     private static final double DOUBLE_TOLERANCE = 1e-6;
     private static final String PREVENTIVE_INSTANT_ID = "preventive";
     private static final String OUTAGE_INSTANT_ID = "outage";
+
     private Crac crac;
     private Contingency contingency;
     private Instant outageInstant;

@@ -23,6 +23,7 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 class InjectionRangeActionAdderImplTest {
     private static final String PREVENTIVE_INSTANT_ID = "preventive";
+
     private CracImpl crac;
     private String injectionId1;
     private String injectionId2;

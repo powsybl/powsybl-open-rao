@@ -33,6 +33,7 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 class HvdcRangeActionImplTest {
     private static final String PREVENTIVE_INSTANT_ID = "preventive";
+
     private HvdcRangeActionAdder hvdcRangeActionAdder;
     private Network network;
     private Network networkWithAngleDroop;

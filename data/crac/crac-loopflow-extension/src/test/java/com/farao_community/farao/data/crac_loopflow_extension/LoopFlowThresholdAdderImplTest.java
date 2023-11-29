@@ -15,6 +15,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class LoopFlowThresholdAdderImplTest {
     private static final String PREVENTIVE_INSTANT_ID = "preventive";
+
     private FlowCnec flowCnec;
 
     @BeforeEach

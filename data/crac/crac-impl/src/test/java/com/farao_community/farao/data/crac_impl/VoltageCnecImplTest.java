@@ -29,6 +29,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class VoltageCnecImplTest {
     private final static double DOUBLE_TOLERANCE = 1e-3;
     private static final String PREVENTIVE_INSTANT_ID = "preventive";
+
     private Crac crac;
     private Instant preventiveInstant;
 

@@ -73,6 +73,7 @@ class SearchTreeTest {
 
     private static final double DOUBLE_TOLERANCE = 1e-3;
     private static final String PREVENTIVE_INSTANT_ID = "preventive";
+
     private final State optimizedState = Mockito.mock(State.class);
     private final List<NetworkActionCombination> availableNaCombinations = new ArrayList<>();
     private SearchTree searchTree;

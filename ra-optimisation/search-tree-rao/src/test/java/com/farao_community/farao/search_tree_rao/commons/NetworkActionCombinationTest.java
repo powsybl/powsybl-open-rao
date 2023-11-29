@@ -26,6 +26,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  */
 class NetworkActionCombinationTest {
     private static final String PREVENTIVE_INSTANT_ID = "preventive";
+
     private NetworkAction networkAction1;
     private NetworkAction networkAction2;
     private NetworkAction networkAction3;

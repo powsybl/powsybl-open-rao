@@ -32,6 +32,7 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 class NetworkActionParametersTest {
     private static final String PREVENTIVE_INSTANT_ID = "preventive";
+
     private Crac crac;
     private Instant preventiveInstant;
 
