@@ -43,6 +43,7 @@ class FlowbasedComputationImplTest {
     private static final double EPSILON = 1e-3;
     private static final String OUTAGE_INSTANT_ID = "outage";
     private static final String CURATIVE_INSTANT_ID = "curative";
+
     private FlowbasedComputationProvider flowBasedComputationProvider;
     private Network network;
     private ZonalData<SensitivityVariableSet> glsk;

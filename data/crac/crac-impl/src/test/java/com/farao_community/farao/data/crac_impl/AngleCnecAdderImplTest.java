@@ -31,8 +31,9 @@ class AngleCnecAdderImplTest {
     private static final String OUTAGE_INSTANT_ID = "outage";
     private static final String AUTO_INSTANT_ID = "auto";
     private static final String CURATIVE_INSTANT_ID = "curative";
-    private final String contingency1Id = "condId1";
+
     private CracImpl crac;
+    private String contingency1Id = "condId1";
     private Contingency contingency1;
     private AngleCnec cnec1;
     private AngleCnec cnec2;

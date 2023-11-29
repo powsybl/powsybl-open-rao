@@ -42,6 +42,7 @@ class CracImplTest {
     private static final String OUTAGE_INSTANT_ID = "outage";
     private static final String AUTO_INSTANT_ID = "auto";
     private static final String CURATIVE_INSTANT_ID = "curative";
+
     private CracImpl crac;
     private Instant preventiveInstant;
     private Instant outageInstant;
@@ -365,7 +366,7 @@ class CracImplTest {
         crac.addPreventiveState(preventiveInstant);
         State state = crac.getPreventiveState();
         assertNotNull(state);
-        assertEquals(PREVENTIVE_INSTANT_ID, state.getInstant().getId());
+        assertEquals(preventiveInstant, state.getInstant());
         assertTrue(state.getContingency().isEmpty());
         crac.addPreventiveState(preventiveInstant);
         assertSame(state, crac.getPreventiveState());

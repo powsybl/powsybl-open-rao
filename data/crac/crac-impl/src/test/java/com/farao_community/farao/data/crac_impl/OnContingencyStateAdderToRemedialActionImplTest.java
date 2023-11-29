@@ -16,9 +16,7 @@ import com.farao_community.farao.data.crac_api.usage_rule.UsageRule;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
@@ -32,6 +30,7 @@ class OnContingencyStateAdderToRemedialActionImplTest {
     private Crac crac;
     private Contingency contingency;
     private RemedialAction<?> remedialAction = null;
+    private Instant preventiveInstant;
     private Instant outageInstant;
     private Instant curativeInstant;
 
@@ -42,6 +41,7 @@ class OnContingencyStateAdderToRemedialActionImplTest {
             .newInstant(OUTAGE_INSTANT_ID, InstantKind.OUTAGE)
             .newInstant(AUTO_INSTANT_ID, InstantKind.AUTO)
             .newInstant(CURATIVE_INSTANT_ID, InstantKind.CURATIVE);
+        preventiveInstant = crac.getInstant(PREVENTIVE_INSTANT_ID);
         outageInstant = crac.getInstant(OUTAGE_INSTANT_ID);
         curativeInstant = crac.getInstant(CURATIVE_INSTANT_ID);
         ((CracImpl) crac).addPreventiveState(crac.getInstant(PREVENTIVE_INSTANT_ID));
@@ -80,7 +80,7 @@ class OnContingencyStateAdderToRemedialActionImplTest {
 
         assertEquals(1, remedialAction.getUsageRules().size());
         assertTrue(usageRule instanceof OnContingencyState);
-        assertEquals(PREVENTIVE_INSTANT_ID, ((OnContingencyState) usageRule).getState().getInstant().getId());
+        assertEquals(preventiveInstant, ((OnContingencyState) usageRule).getState().getInstant());
         assertEquals(UsageMethod.FORCED, usageRule.getUsageMethod());
     }
 

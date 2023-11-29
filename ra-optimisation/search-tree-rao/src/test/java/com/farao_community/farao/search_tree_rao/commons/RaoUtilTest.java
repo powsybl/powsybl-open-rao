@@ -53,6 +53,7 @@ class RaoUtilTest {
     private static final double DOUBLE_TOLERANCE = 0.1;
     private static final String PREVENTIVE_INSTANT_ID = "preventive";
     private static final String CURATIVE_INSTANT_ID = "curative";
+
     private RaoParameters raoParameters;
     private RaoInput raoInput;
     private Network network;

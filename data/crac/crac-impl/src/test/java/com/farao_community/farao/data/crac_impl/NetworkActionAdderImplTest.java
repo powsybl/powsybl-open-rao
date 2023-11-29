@@ -116,7 +116,7 @@ class NetworkActionAdderImplTest {
                 .withInstant(curativeInstant)
                 .withContingency("contingencyId")
                 .withUsageMethod(UsageMethod.AVAILABLE)
-            .add()
+                .add()
             .add();
 
         assertEquals("networkActionId", networkAction.getId());
@@ -229,7 +229,7 @@ class NetworkActionAdderImplTest {
                 .add()
                 .add();
 
-        assertEquals(123, networkAction.getSpeed().orElseThrow().intValue());
+        assertEquals(123, networkAction.getSpeed().get().intValue());
     }
 
 }

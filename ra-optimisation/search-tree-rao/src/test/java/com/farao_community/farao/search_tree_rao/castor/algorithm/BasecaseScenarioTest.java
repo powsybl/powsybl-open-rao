@@ -30,6 +30,7 @@ class BasecaseScenarioTest {
     private static final String OUTAGE_INSTANT_ID = "outage";
     private static final String AUTO_INSTANT_ID = "auto";
     private static final String CURATIVE_INSTANT_ID = "curative";
+
     private State basecaseState;
     private State otherState1;
     private State otherState2;

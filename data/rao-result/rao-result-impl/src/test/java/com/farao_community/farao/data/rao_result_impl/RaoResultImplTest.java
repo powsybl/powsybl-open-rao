@@ -32,10 +32,11 @@ import static org.junit.jupiter.api.Assertions.*;
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
 class RaoResultImplTest {
+    private static final double DOUBLE_TOLERANCE = 1e-6;
     private static final String PREVENTIVE_INSTANT_ID = "preventive";
     private static final String AUTO_INSTANT_ID = "auto";
     private static final String CURATIVE_INSTANT_ID = "curative";
-    private static final double DOUBLE_TOLERANCE = 1e-6;
+
     private RaoResultImpl raoResult;
     private Crac crac;
     private FlowCnec cnec;

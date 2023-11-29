@@ -70,7 +70,7 @@ class OnContingencyStateAdderImplTest {
 
         assertEquals(1, remedialAction.getUsageRules().size());
         assertTrue(usageRule instanceof OnContingencyState);
-        assertEquals(CURATIVE_INSTANT_ID, ((OnContingencyState) usageRule).getState().getInstant().getId());
+        assertEquals(curativeInstant, ((OnContingencyState) usageRule).getState().getInstant());
         assertEquals(contingency, ((OnContingencyState) usageRule).getState().getContingency().orElse(null));
         assertEquals(UsageMethod.AVAILABLE, usageRule.getUsageMethod());
         assertEquals(1, crac.getStates().size());
@@ -88,7 +88,7 @@ class OnContingencyStateAdderImplTest {
 
         assertEquals(1, remedialAction.getUsageRules().size());
         assertTrue(usageRule instanceof OnContingencyState);
-        assertEquals(PREVENTIVE_INSTANT_ID, ((OnContingencyState) usageRule).getState().getInstant().getId());
+        assertEquals(preventiveInstant, ((OnContingencyState) usageRule).getState().getInstant());
         assertEquals(UsageMethod.FORCED, usageRule.getUsageMethod());
     }
 

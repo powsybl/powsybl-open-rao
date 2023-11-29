@@ -30,6 +30,7 @@ class CseCracCreatorWithMneTest {
     private static final String OUTAGE_INSTANT_ID = "outage";
     private static final String AUTO_INSTANT_ID = "auto";
     private static final String CURATIVE_INSTANT_ID = "curative";
+
     private final OffsetDateTime offsetDateTime = null;
     private final CracCreationParameters parameters = new CracCreationParameters();
     private CseCracCreationContext cracCreationContext;

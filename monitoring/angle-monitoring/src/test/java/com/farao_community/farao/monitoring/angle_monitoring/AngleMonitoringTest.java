@@ -51,6 +51,7 @@ class AngleMonitoringTest {
     private static final String OUTAGE_INSTANT_ID = "outage";
     private static final String AUTO_INSTANT_ID = "auto";
     private static final String CURATIVE_INSTANT_ID = "curative";
+
     private OffsetDateTime glskOffsetDateTime;
     private Network network;
     private Crac crac;

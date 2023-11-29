@@ -33,8 +33,9 @@ class FlowCnecAdderImplTest {
     private static final String OUTAGE_INSTANT_ID = "outage";
     private static final String AUTO_INSTANT_ID = "auto";
     private static final String CURATIVE_INSTANT_ID = "curative";
-    private final String contingency1Id = "condId1";
+
     private CracImpl crac;
+    private final String contingency1Id = "condId1";
     private Contingency contingency1;
     private Instant preventiveInstant;
     private Instant autoInstant;
@@ -79,7 +80,7 @@ class FlowCnecAdderImplTest {
         assertEquals(cnec1, crac.getFlowCnec("cnecId1"));
         assertEquals("cnecName1", cnec1.getName());
         assertEquals(contingency1, cnec1.getState().getContingency().orElseThrow());
-        assertEquals(OUTAGE_INSTANT_ID, cnec1.getState().getInstant().getId());
+        assertEquals(outageInstant, cnec1.getState().getInstant());
         assertEquals("cnec1Operator", cnec1.getOperator());
         assertEquals("neName1", cnec1.getNetworkElement().getName());
         assertEquals(1000.0, cnec1.getUpperBound(LEFT, Unit.MEGAWATT).orElseThrow(), DOUBLE_TOLERANCE);
@@ -88,7 +89,7 @@ class FlowCnecAdderImplTest {
         // Verify 2nd cnec content
         assertEquals(cnec2, crac.getFlowCnec("cnecId2"));
         assertEquals("cnecId2", cnec2.getName());
-        assertEquals(PREVENTIVE_INSTANT_ID, cnec2.getState().getInstant().getId());
+        assertEquals(preventiveInstant, cnec2.getState().getInstant());
         assertEquals("cnec2Operator", cnec2.getOperator());
         assertEquals(Optional.empty(), cnec2.getState().getContingency());
         assertEquals("neId2", cnec2.getNetworkElement().getName());
@@ -110,7 +111,7 @@ class FlowCnecAdderImplTest {
         // Verify states were created
         assertEquals(2, crac.getStates().size());
         assertNotNull(crac.getPreventiveState());
-        assertNotNull(crac.getState(contingency1Id, crac.getInstant(OUTAGE_INSTANT_ID)));
+        assertNotNull(crac.getState(contingency1Id, outageInstant));
     }
 
     @Test

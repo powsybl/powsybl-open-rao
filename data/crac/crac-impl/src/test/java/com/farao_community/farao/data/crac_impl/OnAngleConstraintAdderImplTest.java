@@ -32,6 +32,7 @@ class OnAngleConstraintAdderImplTest {
     private static final String OUTAGE_INSTANT_ID = "outage";
     private static final String AUTO_INSTANT_ID = "auto";
     private static final String CURATIVE_INSTANT_ID = "curative";
+
     private Crac crac;
     private NetworkActionAdder remedialActionAdder;
     private Instant preventiveInstant;
@@ -86,7 +87,7 @@ class OnAngleConstraintAdderImplTest {
         assertEquals(1, networkAction.getUsageRules().size());
         assertTrue(usageRule instanceof OnAngleConstraint);
         OnAngleConstraint onAngleConstraint = (OnAngleConstraint) usageRule;
-        assertEquals(PREVENTIVE_INSTANT_ID, onAngleConstraint.getInstant().getId());
+        assertEquals(preventiveInstant, onAngleConstraint.getInstant());
         assertEquals(UsageMethod.TO_BE_EVALUATED, onAngleConstraint.getUsageMethod());
         assertEquals(UsageMethod.TO_BE_EVALUATED, onAngleConstraint.getUsageMethod(crac.getPreventiveState()));
         assertEquals(UsageMethod.UNDEFINED, onAngleConstraint.getUsageMethod(crac.getState(crac.getContingency("Contingency FR1 FR3"), curativeInstant)));
@@ -106,7 +107,7 @@ class OnAngleConstraintAdderImplTest {
         assertEquals(1, networkAction.getUsageRules().size());
         assertTrue(usageRule instanceof OnAngleConstraint);
         OnAngleConstraint onAngleConstraint = (OnAngleConstraint) usageRule;
-        assertEquals(CURATIVE_INSTANT_ID, onAngleConstraint.getInstant().getId());
+        assertEquals(curativeInstant, onAngleConstraint.getInstant());
         assertEquals(UsageMethod.TO_BE_EVALUATED, onAngleConstraint.getUsageMethod());
         assertEquals(UsageMethod.TO_BE_EVALUATED, onAngleConstraint.getUsageMethod(crac.getState(crac.getContingency("Contingency FR1 FR3"), curativeInstant)));
         assertEquals(1, crac.getStates().size());

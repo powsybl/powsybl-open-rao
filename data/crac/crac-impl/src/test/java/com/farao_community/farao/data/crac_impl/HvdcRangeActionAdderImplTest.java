@@ -88,7 +88,7 @@ class HvdcRangeActionAdderImplTest {
         assertEquals(1, hvdcRangeAction.getUsageRules().size());
         assertEquals(1, crac.getNetworkElements().size());
         assertNotNull(crac.getNetworkElement(networkElementId));
-        assertEquals(1, hvdcRangeAction.getSpeed().orElseThrow().intValue());
+        assertEquals(1, hvdcRangeAction.getSpeed().get().intValue());
         assertEquals(1.0, hvdcRangeAction.getInitialSetpoint());
     }
 
