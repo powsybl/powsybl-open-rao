@@ -8,18 +8,17 @@
 package com.farao_community.farao.data.crac_impl;
 
 import com.farao_community.farao.commons.FaraoException;
-import com.farao_community.farao.data.crac_api.NetworkElement;
+import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_api.range.RangeType;
 import com.farao_community.farao.data.crac_api.range.TapRange;
 import com.farao_community.farao.data.crac_api.range.TapRangeAdder;
-import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
-import com.farao_community.farao.data.crac_api.range_action.PstRangeActionAdder;
+import com.farao_community.farao.data.crac_api.range_action.*;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageRule;
 
 import java.util.*;
 
-import static com.farao_community.farao.commons.logs.FaraoLoggerProvider.BUSINESS_WARNS;
 import static com.farao_community.farao.data.crac_impl.AdderUtils.assertAttributeNotNull;
+import static com.farao_community.farao.commons.logs.FaraoLoggerProvider.BUSINESS_WARNS;
 
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
@@ -27,21 +26,21 @@ import static com.farao_community.farao.data.crac_impl.AdderUtils.assertAttribut
  */
 public class PstRangeActionAdderImpl extends AbstractRemedialActionAdder<PstRangeActionAdder> implements PstRangeActionAdder {
     public static final String PST_RANGE_ACTION = "PstRangeAction";
-    private final List<TapRange> ranges;
     private String networkElementId;
     private String networkElementName;
+    private List<TapRange> ranges;
     private String groupId = null;
     private Integer initialTap = null;
     private Map<Integer, Double> tapToAngleConversionMap;
 
-    PstRangeActionAdderImpl(CracImpl owner) {
-        super(owner);
-        this.ranges = new ArrayList<>();
-    }
-
     @Override
     protected String getTypeDescription() {
         return PST_RANGE_ACTION;
+    }
+
+    PstRangeActionAdderImpl(CracImpl owner) {
+        super(owner);
+        this.ranges = new ArrayList<>();
     }
 
     @Override

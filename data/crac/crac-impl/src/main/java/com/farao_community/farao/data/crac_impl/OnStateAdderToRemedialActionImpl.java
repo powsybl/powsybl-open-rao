@@ -22,10 +22,10 @@ import static com.farao_community.farao.data.crac_impl.AdderUtils.assertAttribut
  */
 public class OnStateAdderToRemedialActionImpl<T extends AbstractRemedialAction<T>> implements OnContingencyStateAdderToRemedialAction<T> {
 
-    private static final String CLASS_NAME = "OnContingencyState";
-    private final T owner;
+    private T owner;
     private UsageMethod usageMethod;
     private State state;
+    private static final String CLASS_NAME = "OnContingencyState";
 
     OnStateAdderToRemedialActionImpl(RemedialAction<T> owner) {
         this.owner = (T) owner;

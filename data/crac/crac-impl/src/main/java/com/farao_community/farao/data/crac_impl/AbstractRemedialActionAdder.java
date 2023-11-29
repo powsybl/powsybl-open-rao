@@ -20,10 +20,10 @@ import java.util.*;
  */
 public abstract class AbstractRemedialActionAdder<T extends RemedialActionAdder<T>> extends AbstractIdentifiableAdder<T> implements RemedialActionAdder<T> {
 
-    protected final Set<UsageRule> usageRules = new HashSet<>();
-    private final CracImpl crac;
     protected String operator;
     protected Integer speed;
+    protected Set<UsageRule> usageRules = new HashSet<>();
+    private final CracImpl crac;
 
     AbstractRemedialActionAdder(CracImpl crac) {
         Objects.requireNonNull(crac);

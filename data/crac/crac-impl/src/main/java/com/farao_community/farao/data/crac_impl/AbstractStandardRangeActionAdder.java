@@ -18,7 +18,7 @@ import java.util.Objects;
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-public abstract class AbstractStandardRangeActionAdder<T extends StandardRangeActionAdder<T>> extends AbstractRemedialActionAdder<T> implements StandardRangeActionAdder<T> {
+public abstract class AbstractStandardRangeActionAdder<T extends StandardRangeActionAdder<T>>  extends AbstractRemedialActionAdder<T> implements StandardRangeActionAdder<T> {
 
     protected String groupId;
     protected double initialSetpoint;

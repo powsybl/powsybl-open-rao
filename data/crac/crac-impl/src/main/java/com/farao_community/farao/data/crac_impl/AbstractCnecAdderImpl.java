@@ -8,8 +8,7 @@
 package com.farao_community.farao.data.crac_impl;
 
 import com.farao_community.farao.commons.FaraoException;
-import com.farao_community.farao.data.crac_api.Instant;
-import com.farao_community.farao.data.crac_api.State;
+import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_api.cnec.CnecAdder;
 
 import java.util.HashMap;
@@ -23,8 +22,8 @@ import static java.lang.String.format;
  */
 public abstract class AbstractCnecAdderImpl<J extends CnecAdder<J>> extends AbstractIdentifiableAdder<J> implements CnecAdder<J> {
 
-    protected final CracImpl owner;
-    protected final Map<String, String> networkElementsIdAndName = new HashMap<>();
+    protected CracImpl owner;
+    protected Map<String, String> networkElementsIdAndName = new HashMap<>();
     protected Instant instant;
     protected String contingencyId;
     protected boolean optimized = false;
@@ -53,7 +52,7 @@ public abstract class AbstractCnecAdderImpl<J extends CnecAdder<J>> extends Abst
                 throw new FaraoException(String.format("Contingency %s of Cnec %s does not exist in the crac. Use crac.newContingency() first.", contingencyId, id));
             }
         }
-        networkElementsIdAndName.forEach(this.owner::addNetworkElement);
+        networkElementsIdAndName.entrySet().forEach(entry -> this.owner.addNetworkElement(entry.getKey(), entry.getValue()));
 
         if (owner.getCnec(id) != null) {
             throw new FaraoException(format("Cannot add a cnec with an already existing ID - %s.", id));

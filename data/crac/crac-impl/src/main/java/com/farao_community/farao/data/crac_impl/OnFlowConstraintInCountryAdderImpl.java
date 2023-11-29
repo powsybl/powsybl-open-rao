@@ -19,7 +19,7 @@ import static com.farao_community.farao.data.crac_impl.AdderUtils.assertAttribut
  */
 public class OnFlowConstraintInCountryAdderImpl<T extends AbstractRemedialActionAdder<T>> implements OnFlowConstraintInCountryAdder<T> {
 
-    private final T owner;
+    private T owner;
     private Instant instant;
     private Country country;
 

@@ -10,8 +10,7 @@ import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Contingency;
 import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.State;
-import com.farao_community.farao.data.crac_api.usage_rule.OnContingencyStateAdder;
-import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
+import com.farao_community.farao.data.crac_api.usage_rule.*;
 
 import static com.farao_community.farao.data.crac_impl.AdderUtils.assertAttributeNotNull;
 
@@ -24,11 +23,11 @@ import static com.farao_community.farao.data.crac_impl.AdderUtils.assertAttribut
  */
 public class OnContingencyStateAdderImpl<T extends AbstractRemedialActionAdder<T>> implements OnContingencyStateAdder<T> {
 
-    private static final String CLASS_NAME = "OnContingencyState";
-    private final T owner;
+    private T owner;
     private Instant instant;
     private String contingencyId;
     private UsageMethod usageMethod;
+    private static final String CLASS_NAME = "OnContingencyState";
 
     OnContingencyStateAdderImpl(AbstractRemedialActionAdder<T> owner) {
         this.owner = (T) owner;

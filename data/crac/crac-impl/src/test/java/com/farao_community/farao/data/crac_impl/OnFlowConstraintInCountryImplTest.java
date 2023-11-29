@@ -28,26 +28,26 @@ class OnFlowConstraintInCountryImplTest {
     private static final String OUTAGE_INSTANT_ID = "outage";
     private static final String AUTO_INSTANT_ID = "auto";
     private static final String CURATIVE_INSTANT_ID = "curative";
-    private static final Instant INSTANT_PREV = new InstantImpl(PREVENTIVE_INSTANT_ID, InstantKind.PREVENTIVE, null);
-    private static final Instant INSTANT_OUTAGE = new InstantImpl(OUTAGE_INSTANT_ID, InstantKind.OUTAGE, INSTANT_PREV);
-    private static final Instant INSTANT_AUTO = new InstantImpl(AUTO_INSTANT_ID, InstantKind.AUTO, INSTANT_OUTAGE);
-    private static final Instant INSTANT_CURATIVE = new InstantImpl(CURATIVE_INSTANT_ID, InstantKind.CURATIVE, INSTANT_AUTO);
+    private static final Instant PREVENTIVE_INSTANT = new InstantImpl(PREVENTIVE_INSTANT_ID, InstantKind.PREVENTIVE, null);
+    private static final Instant OUTAGE_INSTANT = new InstantImpl(OUTAGE_INSTANT_ID, InstantKind.OUTAGE, PREVENTIVE_INSTANT);
+    private static final Instant AUTO_INSTANT = new InstantImpl(AUTO_INSTANT_ID, InstantKind.AUTO, OUTAGE_INSTANT);
+    private static final Instant CURATIVE_INSTANT = new InstantImpl(CURATIVE_INSTANT_ID, InstantKind.CURATIVE, AUTO_INSTANT);
     State preventiveState;
     State curativeState;
 
     @BeforeEach
     public void setUp() {
         preventiveState = Mockito.mock(State.class);
-        Mockito.when(preventiveState.getInstant()).thenReturn(INSTANT_PREV);
+        Mockito.when(preventiveState.getInstant()).thenReturn(PREVENTIVE_INSTANT);
         curativeState = Mockito.mock(State.class);
-        Mockito.when(curativeState.getInstant()).thenReturn(INSTANT_CURATIVE);
+        Mockito.when(curativeState.getInstant()).thenReturn(CURATIVE_INSTANT);
     }
 
     @Test
     void testConstructor() {
-        OnFlowConstraintInCountry onFlowConstraint = new OnFlowConstraintInCountryImpl(INSTANT_PREV, Country.EC);
+        OnFlowConstraintInCountry onFlowConstraint = new OnFlowConstraintInCountryImpl(PREVENTIVE_INSTANT, Country.EC);
 
-        assertEquals(INSTANT_PREV, onFlowConstraint.getInstant());
+        assertEquals(PREVENTIVE_INSTANT, onFlowConstraint.getInstant());
         assertEquals(Country.EC, onFlowConstraint.getCountry());
         assertEquals(UsageMethod.TO_BE_EVALUATED, onFlowConstraint.getUsageMethod());
         assertEquals(UsageMethod.TO_BE_EVALUATED, onFlowConstraint.getUsageMethod(preventiveState));
@@ -56,22 +56,22 @@ class OnFlowConstraintInCountryImplTest {
 
     @Test
     void testEquals() {
-        OnFlowConstraintInCountry onFlowConstraint1 = new OnFlowConstraintInCountryImpl(INSTANT_PREV, Country.ES);
+        OnFlowConstraintInCountry onFlowConstraint1 = new OnFlowConstraintInCountryImpl(PREVENTIVE_INSTANT, Country.ES);
         assertEquals(onFlowConstraint1, onFlowConstraint1);
         assertEquals(onFlowConstraint1.hashCode(), onFlowConstraint1.hashCode());
 
         assertNotNull(onFlowConstraint1);
         assertNotEquals(onFlowConstraint1, Mockito.mock(OnInstantImpl.class));
 
-        OnFlowConstraintInCountry onFlowConstraint2 = new OnFlowConstraintInCountryImpl(INSTANT_PREV, Country.ES);
+        OnFlowConstraintInCountry onFlowConstraint2 = new OnFlowConstraintInCountryImpl(PREVENTIVE_INSTANT, Country.ES);
         assertEquals(onFlowConstraint1, onFlowConstraint2);
         assertEquals(onFlowConstraint1.hashCode(), onFlowConstraint2.hashCode());
 
-        onFlowConstraint2 = new OnFlowConstraintInCountryImpl(INSTANT_CURATIVE, Country.ES);
+        onFlowConstraint2 = new OnFlowConstraintInCountryImpl(CURATIVE_INSTANT, Country.ES);
         assertNotEquals(onFlowConstraint1, onFlowConstraint2);
         assertNotEquals(onFlowConstraint1.hashCode(), onFlowConstraint2.hashCode());
 
-        onFlowConstraint2 = new OnFlowConstraintInCountryImpl(INSTANT_PREV, Country.FR);
+        onFlowConstraint2 = new OnFlowConstraintInCountryImpl(PREVENTIVE_INSTANT, Country.FR);
         assertNotEquals(onFlowConstraint1, onFlowConstraint2);
         assertNotEquals(onFlowConstraint1.hashCode(), onFlowConstraint2.hashCode());
     }

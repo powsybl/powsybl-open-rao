@@ -22,7 +22,7 @@ public class PreventiveState implements State {
     private final Instant instant;
 
     PreventiveState(Instant instant) {
-        if (!instant.isPreventive()) { // TODO test this
+        if (!instant.isPreventive()) {
             throw new FaraoException("Instant must be preventive");
         }
         this.instant = instant;

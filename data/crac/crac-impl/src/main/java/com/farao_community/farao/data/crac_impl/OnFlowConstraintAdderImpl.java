@@ -21,7 +21,7 @@ import static com.farao_community.farao.data.crac_impl.AdderUtils.assertAttribut
  */
 public class OnFlowConstraintAdderImpl<T extends AbstractRemedialActionAdder<T>> implements OnFlowConstraintAdder<T> {
 
-    private final T owner;
+    private T owner;
     private Instant instant;
     private String flowCnecId;
 

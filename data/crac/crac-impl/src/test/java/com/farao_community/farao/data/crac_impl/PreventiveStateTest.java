@@ -7,36 +7,44 @@
 
 package com.farao_community.farao.data.crac_impl;
 
+import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.InstantKind;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
 class PreventiveStateTest {
     private static final String PREVENTIVE_INSTANT_ID = "preventive";
-    private static final Instant INSTANT_PREV = new InstantImpl(PREVENTIVE_INSTANT_ID, InstantKind.PREVENTIVE, null);
+    private static final Instant PREVENTIVE_INSTANT = new InstantImpl(PREVENTIVE_INSTANT_ID, InstantKind.PREVENTIVE, null);
 
     @Test
     void testEqualsForPreventive() {
-        PreventiveState state1 = new PreventiveState(INSTANT_PREV);
-        PreventiveState state2 = new PreventiveState(INSTANT_PREV);
+        PreventiveState state1 = new PreventiveState(PREVENTIVE_INSTANT);
+        PreventiveState state2 = new PreventiveState(PREVENTIVE_INSTANT);
 
         assertEquals(state1, state2);
     }
 
     @Test
     void testHashCodeForPreventive() {
-        PreventiveState state = new PreventiveState(INSTANT_PREV);
+        PreventiveState state = new PreventiveState(PREVENTIVE_INSTANT);
         assertEquals(PREVENTIVE_INSTANT_ID.hashCode(), state.hashCode());
     }
 
     @Test
     void testToStringForPreventive() {
-        PreventiveState state = new PreventiveState(INSTANT_PREV);
+        PreventiveState state = new PreventiveState(PREVENTIVE_INSTANT);
         assertEquals(PREVENTIVE_INSTANT_ID, state.toString());
+    }
+
+    @Test
+    void testCannotCreatePreventiveStateWithNonPreventiveInstant() {
+        Instant instant = new InstantImpl("my instant", InstantKind.OUTAGE, PREVENTIVE_INSTANT);
+        FaraoException exception = assertThrows(FaraoException.class, () -> new PreventiveState(instant));
+        assertEquals("Instant must be preventive", exception.getMessage());
     }
 }

@@ -30,8 +30,8 @@ public class OnVoltageConstraintAdderImpl<T extends AbstractRemedialActionAdder<
     }
 
     @Override
-    public OnVoltageConstraintAdder<T> withInstant(Instant instantId) {
-        this.instant = instantId;
+    public OnVoltageConstraintAdder<T> withInstant(Instant instant) {
+        this.instant = instant;
         return this;
     }
 

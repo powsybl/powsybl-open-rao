@@ -23,27 +23,27 @@ class OnInstantImplTest {
     private static final String OUTAGE_INSTANT_ID = "outage";
     private static final String AUTO_INSTANT_ID = "auto";
     private static final String CURATIVE_INSTANT_ID = "curative";
-    private static final Instant INSTANT_PREV = new InstantImpl(PREVENTIVE_INSTANT_ID, InstantKind.PREVENTIVE, null);
-    private static final Instant INSTANT_OUTAGE = new InstantImpl(OUTAGE_INSTANT_ID, InstantKind.OUTAGE, INSTANT_PREV);
-    private static final Instant INSTANT_AUTO = new InstantImpl(AUTO_INSTANT_ID, InstantKind.AUTO, INSTANT_OUTAGE);
-    private static final Instant INSTANT_CURATIVE = new InstantImpl(CURATIVE_INSTANT_ID, InstantKind.CURATIVE, INSTANT_AUTO);
+    private static final Instant PREVENTIVE_INSTANT = new InstantImpl(PREVENTIVE_INSTANT_ID, InstantKind.PREVENTIVE, null);
+    private static final Instant OUTAGE_INSTANT = new InstantImpl(OUTAGE_INSTANT_ID, InstantKind.OUTAGE, PREVENTIVE_INSTANT);
+    private static final Instant AUTO_INSTANT = new InstantImpl(AUTO_INSTANT_ID, InstantKind.AUTO, OUTAGE_INSTANT);
+    private static final Instant CURATIVE_INSTANT = new InstantImpl(CURATIVE_INSTANT_ID, InstantKind.CURATIVE, AUTO_INSTANT);
 
     @Test
     void testGetterSetter() {
-        OnInstantImpl onInstant = new OnInstantImpl(UsageMethod.AVAILABLE, INSTANT_PREV);
-        assertEquals(INSTANT_PREV, onInstant.getInstant());
+        OnInstantImpl onInstant = new OnInstantImpl(UsageMethod.AVAILABLE, PREVENTIVE_INSTANT);
+        assertEquals(PREVENTIVE_INSTANT, onInstant.getInstant());
     }
 
     @Test
     void testEqualsSameObject() {
-        OnInstantImpl rule1 = new OnInstantImpl(UsageMethod.AVAILABLE, INSTANT_PREV);
+        OnInstantImpl rule1 = new OnInstantImpl(UsageMethod.AVAILABLE, PREVENTIVE_INSTANT);
         assertEquals(rule1, rule1);
     }
 
     @Test
     void testEqualsTrue() {
-        OnInstantImpl rule1 = new OnInstantImpl(UsageMethod.AVAILABLE, INSTANT_PREV);
-        OnInstantImpl rule2 = new OnInstantImpl(UsageMethod.AVAILABLE, INSTANT_PREV);
+        OnInstantImpl rule1 = new OnInstantImpl(UsageMethod.AVAILABLE, PREVENTIVE_INSTANT);
+        OnInstantImpl rule2 = new OnInstantImpl(UsageMethod.AVAILABLE, PREVENTIVE_INSTANT);
 
         assertEquals(rule1, rule2);
         assertEquals(rule1.hashCode(), rule2.hashCode());
@@ -51,8 +51,8 @@ class OnInstantImplTest {
 
     @Test
     void testEqualsFalseForUsageMethod() {
-        OnInstantImpl rule1 = new OnInstantImpl(UsageMethod.AVAILABLE, INSTANT_PREV);
-        OnInstantImpl rule2 = new OnInstantImpl(UsageMethod.FORCED, INSTANT_PREV);
+        OnInstantImpl rule1 = new OnInstantImpl(UsageMethod.AVAILABLE, PREVENTIVE_INSTANT);
+        OnInstantImpl rule2 = new OnInstantImpl(UsageMethod.FORCED, PREVENTIVE_INSTANT);
 
         assertNotEquals(rule1, rule2);
         assertNotEquals(rule1.hashCode(), rule2.hashCode());
@@ -60,8 +60,8 @@ class OnInstantImplTest {
 
     @Test
     void testEqualsFalseForInstant() {
-        OnInstantImpl rule1 = new OnInstantImpl(UsageMethod.AVAILABLE, INSTANT_PREV);
-        OnInstantImpl rule2 = new OnInstantImpl(UsageMethod.AVAILABLE, INSTANT_CURATIVE);
+        OnInstantImpl rule1 = new OnInstantImpl(UsageMethod.AVAILABLE, PREVENTIVE_INSTANT);
+        OnInstantImpl rule2 = new OnInstantImpl(UsageMethod.AVAILABLE, CURATIVE_INSTANT);
 
         assertNotEquals(rule1, rule2);
         assertNotEquals(rule1.hashCode(), rule2.hashCode());

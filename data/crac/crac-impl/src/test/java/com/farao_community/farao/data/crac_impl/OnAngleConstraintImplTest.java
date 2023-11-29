@@ -29,10 +29,10 @@ class OnAngleConstraintImplTest {
     private static final String OUTAGE_INSTANT_ID = "outage";
     private static final String AUTO_INSTANT_ID = "auto";
     private static final String CURATIVE_INSTANT_ID = "curative";
-    private static final Instant INSTANT_PREV = new InstantImpl(PREVENTIVE_INSTANT_ID, InstantKind.PREVENTIVE, null);
-    private static final Instant INSTANT_OUTAGE = new InstantImpl(OUTAGE_INSTANT_ID, InstantKind.OUTAGE, INSTANT_PREV);
-    private static final Instant INSTANT_AUTO = new InstantImpl(AUTO_INSTANT_ID, InstantKind.AUTO, INSTANT_OUTAGE);
-    private static final Instant INSTANT_CURATIVE = new InstantImpl(CURATIVE_INSTANT_ID, InstantKind.CURATIVE, INSTANT_AUTO);
+    private static final Instant PREVENTIVE_INSTANT = new InstantImpl(PREVENTIVE_INSTANT_ID, InstantKind.PREVENTIVE, null);
+    private static final Instant OUTAGE_INSTANT = new InstantImpl(OUTAGE_INSTANT_ID, InstantKind.OUTAGE, PREVENTIVE_INSTANT);
+    private static final Instant AUTO_INSTANT = new InstantImpl(AUTO_INSTANT_ID, InstantKind.AUTO, OUTAGE_INSTANT);
+    private static final Instant CURATIVE_INSTANT = new InstantImpl(CURATIVE_INSTANT_ID, InstantKind.CURATIVE, AUTO_INSTANT);
     private AngleCnec angleCnec;
     private State preventiveState;
     private State curativeState;
@@ -41,18 +41,18 @@ class OnAngleConstraintImplTest {
     public void setUp() {
         angleCnec = Mockito.mock(AngleCnec.class);
         preventiveState = Mockito.mock(State.class);
-        Mockito.when(preventiveState.getInstant()).thenReturn(INSTANT_PREV);
+        Mockito.when(preventiveState.getInstant()).thenReturn(PREVENTIVE_INSTANT);
         Mockito.when(preventiveState.isPreventive()).thenReturn(true);
         curativeState = Mockito.mock(State.class);
-        Mockito.when(curativeState.getInstant()).thenReturn(INSTANT_CURATIVE);
+        Mockito.when(curativeState.getInstant()).thenReturn(CURATIVE_INSTANT);
         Mockito.when(curativeState.isPreventive()).thenReturn(false);
     }
 
     @Test
     void testConstructor() {
-        OnAngleConstraint onAngleConstraint = new OnAngleConstraintImpl(INSTANT_PREV, angleCnec);
+        OnAngleConstraint onAngleConstraint = new OnAngleConstraintImpl(PREVENTIVE_INSTANT, angleCnec);
 
-        assertEquals(INSTANT_PREV, onAngleConstraint.getInstant());
+        assertEquals(PREVENTIVE_INSTANT, onAngleConstraint.getInstant());
         assertSame(angleCnec, onAngleConstraint.getAngleCnec());
         assertEquals(UsageMethod.TO_BE_EVALUATED, onAngleConstraint.getUsageMethod());
         assertEquals(UsageMethod.TO_BE_EVALUATED, onAngleConstraint.getUsageMethod(preventiveState));
@@ -61,22 +61,22 @@ class OnAngleConstraintImplTest {
 
     @Test
     void testEquals() {
-        OnAngleConstraint onAngleConstraint1 = new OnAngleConstraintImpl(INSTANT_PREV, angleCnec);
+        OnAngleConstraint onAngleConstraint1 = new OnAngleConstraintImpl(PREVENTIVE_INSTANT, angleCnec);
         assertEquals(onAngleConstraint1, onAngleConstraint1);
         assertEquals(onAngleConstraint1.hashCode(), onAngleConstraint1.hashCode());
 
         assertNotNull(onAngleConstraint1);
         assertNotEquals(onAngleConstraint1, Mockito.mock(OnInstantImpl.class));
 
-        OnAngleConstraint onAngleConstraint2 = new OnAngleConstraintImpl(INSTANT_PREV, angleCnec);
+        OnAngleConstraint onAngleConstraint2 = new OnAngleConstraintImpl(PREVENTIVE_INSTANT, angleCnec);
         assertEquals(onAngleConstraint1, onAngleConstraint2);
         assertEquals(onAngleConstraint1.hashCode(), onAngleConstraint2.hashCode());
 
-        onAngleConstraint2 = new OnAngleConstraintImpl(INSTANT_CURATIVE, angleCnec);
+        onAngleConstraint2 = new OnAngleConstraintImpl(CURATIVE_INSTANT, angleCnec);
         assertNotEquals(onAngleConstraint1, onAngleConstraint2);
         assertNotEquals(onAngleConstraint1.hashCode(), onAngleConstraint2.hashCode());
 
-        onAngleConstraint2 = new OnAngleConstraintImpl(INSTANT_PREV, Mockito.mock(AngleCnec.class));
+        onAngleConstraint2 = new OnAngleConstraintImpl(PREVENTIVE_INSTANT, Mockito.mock(AngleCnec.class));
         assertNotEquals(onAngleConstraint1, onAngleConstraint2);
         assertNotEquals(onAngleConstraint1.hashCode(), onAngleConstraint2.hashCode());
     }
@@ -84,16 +84,16 @@ class OnAngleConstraintImplTest {
     @Test
     void testGetUsageMethod() {
         State curativeState2 = Mockito.mock(State.class);
-        Mockito.when(curativeState2.getInstant()).thenReturn(INSTANT_CURATIVE);
+        Mockito.when(curativeState2.getInstant()).thenReturn(CURATIVE_INSTANT);
         Mockito.when(curativeState2.isPreventive()).thenReturn(false);
 
-        OnAngleConstraint onAngleConstraint = new OnAngleConstraintImpl(INSTANT_PREV, angleCnec);
+        OnAngleConstraint onAngleConstraint = new OnAngleConstraintImpl(PREVENTIVE_INSTANT, angleCnec);
         assertEquals(UsageMethod.TO_BE_EVALUATED, onAngleConstraint.getUsageMethod(preventiveState));
         assertEquals(UsageMethod.UNDEFINED, onAngleConstraint.getUsageMethod(curativeState));
         assertEquals(UsageMethod.UNDEFINED, onAngleConstraint.getUsageMethod(curativeState2));
 
         Mockito.when(angleCnec.getState()).thenReturn(curativeState);
-        onAngleConstraint = new OnAngleConstraintImpl(INSTANT_CURATIVE, angleCnec);
+        onAngleConstraint = new OnAngleConstraintImpl(CURATIVE_INSTANT, angleCnec);
         assertEquals(UsageMethod.UNDEFINED, onAngleConstraint.getUsageMethod(preventiveState));
         assertEquals(UsageMethod.TO_BE_EVALUATED, onAngleConstraint.getUsageMethod(curativeState));
         assertEquals(UsageMethod.UNDEFINED, onAngleConstraint.getUsageMethod(curativeState2));

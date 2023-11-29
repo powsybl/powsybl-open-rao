@@ -15,10 +15,7 @@ import com.farao_community.farao.data.crac_api.usage_rule.*;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -27,9 +24,9 @@ import java.util.stream.Collectors;
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
 public abstract class AbstractRemedialAction<I extends RemedialAction<I>> extends AbstractIdentifiable<I> implements RemedialAction<I> {
-    protected final String operator;
-    protected final Set<UsageRule> usageRules;
-    protected final Integer speed;
+    protected String operator;
+    protected Set<UsageRule> usageRules;
+    protected Integer speed = null;
 
     protected AbstractRemedialAction(String id, String name, String operator, Set<UsageRule> usageRules, Integer speed) {
         super(id, name);
@@ -39,7 +36,9 @@ public abstract class AbstractRemedialAction<I extends RemedialAction<I>> extend
     }
 
     protected AbstractRemedialAction(String id, String name, String operator, Set<UsageRule> usageRules) {
-        this(id, name, operator, usageRules, null);
+        super(id, name);
+        this.operator = operator;
+        this.usageRules = usageRules;
     }
 
     void addUsageRule(UsageRule usageRule) {
@@ -117,12 +116,12 @@ public abstract class AbstractRemedialAction<I extends RemedialAction<I>> extend
         Set<FlowCnec> toBeConsideredCnecs = new HashSet<>();
         // OnFlowConstraint
         List<OnFlowConstraint> onFlowConstraintUsageRules = getUsageRules().stream().filter(OnFlowConstraint.class::isInstance).map(OnFlowConstraint.class::cast)
-                .filter(ofc -> ofc.getUsageMethod(optimizedState).equals(UsageMethod.TO_BE_EVALUATED)).toList();
+                .filter(ofc -> ofc.getUsageMethod(optimizedState).equals(UsageMethod.TO_BE_EVALUATED)).collect(Collectors.toList());
         onFlowConstraintUsageRules.forEach(onFlowConstraint -> toBeConsideredCnecs.add(onFlowConstraint.getFlowCnec()));
 
         // OnFlowConstraintInCountry
         List<OnFlowConstraintInCountry> onFlowConstraintInCountryUsageRules = getUsageRules().stream().filter(OnFlowConstraintInCountry.class::isInstance).map(OnFlowConstraintInCountry.class::cast)
-                .filter(ofc -> ofc.getUsageMethod(optimizedState).equals(UsageMethod.TO_BE_EVALUATED)).toList();
+                .filter(ofc -> ofc.getUsageMethod(optimizedState).equals(UsageMethod.TO_BE_EVALUATED)).collect(Collectors.toList());
         onFlowConstraintInCountryUsageRules.forEach(onFlowConstraintInCountry -> {
             // TODO : is this change OK?
             // instant must be before or equals to cnec instant !

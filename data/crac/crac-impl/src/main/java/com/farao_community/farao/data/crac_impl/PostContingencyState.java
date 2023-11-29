@@ -7,6 +7,7 @@
 
 package com.farao_community.farao.data.crac_impl;
 
+import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Contingency;
 import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.State;
@@ -19,11 +20,14 @@ import java.util.Optional;
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
 public class PostContingencyState implements State {
-    private final String id;
-    private final Contingency contingency;
-    private final Instant instant;
+    private String id;
+    private Contingency contingency;
+    private Instant instant;
 
     PostContingencyState(Contingency contingency, Instant instant) {
+        if (instant.isPreventive()) {
+            throw new FaraoException("Instant cannot be preventive");
+        }
         this.id = contingency.getId() + " - " + instant.getId();
         this.contingency = contingency;
         this.instant = instant;
