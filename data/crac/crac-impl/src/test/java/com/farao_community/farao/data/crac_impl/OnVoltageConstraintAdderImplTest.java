@@ -143,14 +143,14 @@ class OnVoltageConstraintAdderImplTest {
         assertEquals("Cannot add OnInstant without a instant. Please use withInstant() with a non null value", exception.getMessage());
     }
 
-    private void addCnec(String id, String instantId) {
+    private void addCnec(String id, Instant instant) {
         VoltageCnecAdder adder = crac.newVoltageCnec()
             .withId(id)
-            .withInstant(crac.getInstant(instantId))
+            .withInstant(instant)
             .withOperator("operator2")
             .withNetworkElement(id)
             .newThreshold().withUnit(Unit.KILOVOLT).withMin(-1500.).withMax(1500.).add();
-        if (!instantId.equals(PREVENTIVE_INSTANT_ID)) {
+        if (!instant.isPreventive()) {
             adder.withContingency("Contingency FR1 FR3");
         }
         adder.add();
@@ -159,10 +159,10 @@ class OnVoltageConstraintAdderImplTest {
     @Test
     void testOnConstraintInstantCheck() {
 
-        addCnec("cnec-prev", PREVENTIVE_INSTANT_ID);
-        addCnec("cnec-out", OUTAGE_INSTANT_ID);
-        addCnec("cnec-auto", AUTO_INSTANT_ID);
-        addCnec("cnec-cur", CURATIVE_INSTANT_ID);
+        addCnec("cnec-prev", preventiveInstant);
+        addCnec("cnec-out", outageInstant);
+        addCnec("cnec-auto", autoInstant);
+        addCnec("cnec-cur", curativeInstant);
 
         OnVoltageConstraintAdder<NetworkActionAdder> adder;
 

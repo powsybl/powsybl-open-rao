@@ -37,6 +37,8 @@ public class RaoResultImpl implements RaoResult {
     private static final CostResult DEFAULT_COST_RESULT = new CostResult();
 
     private final Crac crac;
+
+    private ComputationStatus sensitivityStatus;
     private final Map<State, ComputationStatus> sensitivityStatusPerState = new HashMap<>();
     private final Map<FlowCnec, FlowCnecResult> flowCnecResults = new HashMap<>();
     private final Map<AngleCnec, AngleCnecResult> angleCnecResults = new HashMap<>();
@@ -44,11 +46,14 @@ public class RaoResultImpl implements RaoResult {
     private final Map<NetworkAction, NetworkActionResult> networkActionResults = new HashMap<>();
     private final Map<RangeAction<?>, RangeActionResult> rangeActionResults = new HashMap<>();
     private final Map<String, CostResult> costResults = new HashMap<>();
-    private ComputationStatus sensitivityStatus;
     private OptimizationStepsExecuted optimizationStepsExecuted = OptimizationStepsExecuted.FIRST_PREVENTIVE_ONLY;
 
     public RaoResultImpl(Crac crac) {
         this.crac = crac;
+    }
+
+    public void setComputationStatus(ComputationStatus computationStatus) {
+        this.sensitivityStatus = computationStatus;
     }
 
     public void setComputationStatus(State state, ComputationStatus computationStatus) {
@@ -58,10 +63,6 @@ public class RaoResultImpl implements RaoResult {
     @Override
     public ComputationStatus getComputationStatus() {
         return sensitivityStatus;
-    }
-
-    public void setComputationStatus(ComputationStatus computationStatus) {
-        this.sensitivityStatus = computationStatus;
     }
 
     @Override

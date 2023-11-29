@@ -8,24 +8,19 @@
 package com.farao_community.farao.data.crac_util;
 
 import com.farao_community.farao.commons.Unit;
-import com.farao_community.farao.data.crac_api.Crac;
-import com.farao_community.farao.data.crac_api.CracFactory;
-import com.farao_community.farao.data.crac_api.Instant;
-import com.farao_community.farao.data.crac_api.InstantKind;
+import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_api.network_action.ActionType;
 import com.farao_community.farao.data.crac_api.range.RangeType;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
-import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
 import com.powsybl.iidm.network.Network;
+import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
@@ -108,10 +103,10 @@ class CracCleanerTest {
             .withOptimized(true)
             .withMonitored(true)
             .newThreshold()
-            .withUnit(Unit.AMPERE)
-            .withSide(Side.LEFT)
-            .withMin(-800.)
-            .add()
+                .withUnit(Unit.AMPERE)
+                .withSide(Side.LEFT)
+                .withMin(-800.)
+                .add()
             .withIMax(5000.)
             .withNominalVoltage(380.)
             .add();

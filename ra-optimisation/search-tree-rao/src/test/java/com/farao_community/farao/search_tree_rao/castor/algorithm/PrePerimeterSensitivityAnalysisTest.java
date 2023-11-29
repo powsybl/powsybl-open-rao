@@ -9,6 +9,7 @@ package com.farao_community.farao.search_tree_rao.castor.algorithm;
 
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Crac;
+import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_impl.utils.CommonCracCreation;
@@ -55,11 +56,13 @@ class PrePerimeterSensitivityAnalysisTest {
     private PrePerimeterSensitivityAnalysis prePerimeterSensitivityAnalysis;
     private OptimizationResult optimizationResult;
     private RangeActionSetpointResult rangeActionSetpointResult;
+    private Instant outageInstant;
 
     @BeforeEach
     public void setUp() {
         network = NetworkImportsUtil.import12NodesNetwork();
         crac = CommonCracCreation.create();
+        outageInstant = crac.getInstant(OUTAGE_INSTANT_ID);
         raoParameters = new RaoParameters();
         cnec = Mockito.mock(FlowCnec.class);
 
@@ -81,7 +84,7 @@ class PrePerimeterSensitivityAnalysisTest {
     private void mockSystematicSensitivityInterface(boolean withPtdf, boolean withLf) {
         SystematicSensitivityResult sensitivityResult = Mockito.mock(SystematicSensitivityResult.class);
         SystematicSensitivityInterface sensitivityInterface = Mockito.mock(SystematicSensitivityInterface.class);
-        when(sensitivityInterface.run(network, crac.getInstant(OUTAGE_INSTANT_ID))).thenReturn(sensitivityResult);
+        when(sensitivityInterface.run(network, outageInstant)).thenReturn(sensitivityResult);
         when(sensitivityResult.getStatus()).thenReturn(SystematicSensitivityResult.SensitivityComputationStatus.SUCCESS);
         when(toolProvider.getSystematicSensitivityInterface(any(), any(), eq(withPtdf), eq(withLf), any())).thenReturn(sensitivityInterface);
     }

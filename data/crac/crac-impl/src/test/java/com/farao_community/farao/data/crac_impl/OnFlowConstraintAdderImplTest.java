@@ -156,18 +156,18 @@ class OnFlowConstraintAdderImplTest {
         assertEquals("Cannot add OnFlowConstraint without a instant. Please use withInstant() with a non null value", exception.getMessage());
     }
 
-    private void addCnec(String id, String instantId) {
+    private void addCnec(String id, Instant instant) {
         FlowCnecAdder adder = crac.newFlowCnec()
             .withId(id)
             .withNetworkElement(id)
-            .withInstant(crac.getInstant(instantId))
+            .withInstant(instant)
             .withOptimized(true)
             .withOperator("operator2")
             .newThreshold().withUnit(Unit.MEGAWATT).withSide(Side.LEFT).withMin(-1500.).withMax(1500.).add()
             .newThreshold().withUnit(Unit.PERCENT_IMAX).withSide(Side.LEFT).withMin(-0.3).withMax(0.3).add()
             .withNominalVoltage(380.)
             .withIMax(5000.);
-        if (!instantId.equals(PREVENTIVE_INSTANT_ID)) {
+        if (!instant.isPreventive()) {
             adder.withContingency("Contingency FR1 FR3");
         }
         adder.add();
@@ -176,10 +176,10 @@ class OnFlowConstraintAdderImplTest {
     @Test
     void testOnConstraintInstantCheck() {
         // todo : mm chose pour on flow constraint in country, dans le code
-        addCnec("cnec-prev", PREVENTIVE_INSTANT_ID);
-        addCnec("cnec-out", OUTAGE_INSTANT_ID);
-        addCnec("cnec-auto", AUTO_INSTANT_ID);
-        addCnec("cnec-cur", CURATIVE_INSTANT_ID);
+        addCnec("cnec-prev", preventiveInstant);
+        addCnec("cnec-out", outageInstant);
+        addCnec("cnec-auto", autoInstant);
+        addCnec("cnec-cur", curativeInstant);
 
         OnFlowConstraintAdder<NetworkActionAdder> adder;
 

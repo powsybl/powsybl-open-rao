@@ -33,8 +33,8 @@ class VoltageCnecAdderImplTest {
     private static final String AUTO_INSTANT_ID = "auto";
     private static final String CURATIVE_INSTANT_ID = "curative";
 
-    private final String contingency1Id = "condId1";
     private CracImpl crac;
+    private final String contingency1Id = "condId1";
     private Contingency contingency1;
     private VoltageCnec cnec1;
     private VoltageCnec cnec2;
@@ -59,21 +59,21 @@ class VoltageCnecAdderImplTest {
 
     private void createVoltageCnecs() {
         cnec1 = crac.newVoltageCnec()
-            .withId("cnecId1")
-            .withName("cnecName1")
-            .withInstant(outageInstant)
-            .withContingency(contingency1Id)
-            .withOperator("cnec1Operator")
-            .withNetworkElement("neId1", "neName1")
-            .newThreshold().withUnit(Unit.KILOVOLT).withMax(1000.0).withMin(-1000.0).add()
-            .add();
+                .withId("cnecId1")
+                .withName("cnecName1")
+                .withInstant(outageInstant)
+                .withContingency(contingency1Id)
+                .withOperator("cnec1Operator")
+                .withNetworkElement("neId1", "neName1")
+                .newThreshold().withUnit(Unit.KILOVOLT).withMax(1000.0).withMin(-1000.0).add()
+                .add();
         cnec2 = crac.newVoltageCnec()
-            .withId("cnecId2")
-            .withInstant(preventiveInstant)
-            .withOperator("cnec2Operator")
-            .withNetworkElement("neId2")
-            .newThreshold().withUnit(Unit.KILOVOLT).withMax(500.0).add()
-            .add();
+                .withId("cnecId2")
+                .withInstant(preventiveInstant)
+                .withOperator("cnec2Operator")
+                .withNetworkElement("neId2")
+                .newThreshold().withUnit(Unit.KILOVOLT).withMax(500.0).add()
+                .add();
     }
 
     @Test
@@ -121,7 +121,7 @@ class VoltageCnecAdderImplTest {
         // Verify states were created
         assertEquals(2, crac.getStates().size());
         assertNotNull(crac.getPreventiveState());
-        assertNotNull(crac.getState(contingency1Id, crac.getInstant(OUTAGE_INSTANT_ID)));
+        assertNotNull(crac.getState(contingency1Id, outageInstant));
     }
 
     @Test

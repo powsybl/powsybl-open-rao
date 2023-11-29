@@ -43,7 +43,7 @@ class JsonLoopFlowThresholdImplImportExportTest {
                 .newThreshold().withSide(Side.LEFT).withUnit(Unit.AMPERE).withMin(-500.).add()
                 .withNominalVoltage(380.)
                 .add()
-            .newExtension(LoopFlowThresholdAdder.class).withValue(100).withUnit(Unit.AMPERE).add();
+                .newExtension(LoopFlowThresholdAdder.class).withValue(100).withUnit(Unit.AMPERE).add();
 
         crac.newFlowCnec()
                 .withId("cnec2")
@@ -53,7 +53,7 @@ class JsonLoopFlowThresholdImplImportExportTest {
                 .withNominalVoltage(380.)
                 .withIMax(5000.)
                 .add()
-            .newExtension(LoopFlowThresholdAdder.class).withValue(.3).withUnit(Unit.PERCENT_IMAX).add();
+                .newExtension(LoopFlowThresholdAdder.class).withValue(.3).withUnit(Unit.PERCENT_IMAX).add();
 
         crac.newFlowCnec()
                 .withId("cnec3")

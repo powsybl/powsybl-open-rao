@@ -233,7 +233,7 @@ public class RaoResultCloneTest {
 
         /*
         cnec4prevId: preventive, no loop-flows, optimized
-        - contains result in null and in preventiveInstant. Results in autoInstant and curativeInstant are the same as preventiveInstant because the CNEC is preventive
+        - contains result in null and in PREVENTIVE. Results in AUTO and CURATIVE are the same as PREVENTIVE because the CNEC is preventive
         - contains result relative margin and PTDF sum but not for loop and commercial flows
          */
         FlowCnec cnecP = crac.getFlowCnec("cnec4prevId");
@@ -265,7 +265,7 @@ public class RaoResultCloneTest {
 
         /*
         cnec1outageId: outage, with loop-flows, optimized
-        - contains result in null and in preventiveInstant. Results in autoInstant and curativeInstant are the same as preventiveInstant because the CNEC is preventive
+        - contains result in null and in PREVENTIVE. Results in AUTO and CURATIVE are the same as PREVENTIVE because the CNEC is preventive
         - contains result for loop-flows, commercial flows, relative margin and PTDF sum
          */
 

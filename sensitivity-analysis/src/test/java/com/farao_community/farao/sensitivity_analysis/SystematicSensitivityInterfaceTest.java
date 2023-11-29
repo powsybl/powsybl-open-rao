@@ -8,6 +8,7 @@
 package com.farao_community.farao.sensitivity_analysis;
 
 import com.farao_community.farao.data.crac_api.Crac;
+import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_impl.utils.CommonCracCreation;
@@ -44,12 +45,14 @@ class SystematicSensitivityInterfaceTest {
     private SensitivityAnalysisParameters defaultParameters;
 
     private MockedStatic<SystematicSensitivityAdapter> systematicSensitivityAdapterMockedStatic;
+    private Instant outageInstant;
 
     @BeforeEach
     public void setUp() {
 
         network = NetworkImportsUtil.import12NodesNetwork();
         crac = CommonCracCreation.create();
+        outageInstant = crac.getInstant(OUTAGE_INSTANT_ID);
         systematicAnalysisResultOk = buildSystematicAnalysisResultOk();
         systematicAnalysisResultFailed = buildSystematicAnalysisResultFailed();
 
@@ -78,7 +81,7 @@ class SystematicSensitivityInterfaceTest {
             .withParameters(defaultParameters)
             .withSensitivityProvider(Mockito.mock(CnecSensitivityProvider.class))
             .build();
-        SystematicSensitivityResult systematicSensitivityAnalysisResult = systematicSensitivityInterface.run(network, crac.getInstant(OUTAGE_INSTANT_ID));
+        SystematicSensitivityResult systematicSensitivityAnalysisResult = systematicSensitivityInterface.run(network, outageInstant);
 
         // assert results
         assertNotNull(systematicSensitivityAnalysisResult);
@@ -110,7 +113,7 @@ class SystematicSensitivityInterfaceTest {
             .build();
 
         // run - expected failure
-        SystematicSensitivityResult result = systematicSensitivityInterface.run(network, crac.getInstant(OUTAGE_INSTANT_ID));
+        SystematicSensitivityResult result = systematicSensitivityInterface.run(network, outageInstant);
         assertFalse(result.isSuccess());
     }
 

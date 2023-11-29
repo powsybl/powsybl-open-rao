@@ -44,7 +44,7 @@ class OnContingencyStateAdderToRemedialActionImplTest {
         preventiveInstant = crac.getInstant(PREVENTIVE_INSTANT_ID);
         outageInstant = crac.getInstant(OUTAGE_INSTANT_ID);
         curativeInstant = crac.getInstant(CURATIVE_INSTANT_ID);
-        ((CracImpl) crac).addPreventiveState(crac.getInstant(PREVENTIVE_INSTANT_ID));
+        ((CracImpl) crac).addPreventiveState(preventiveInstant);
 
         contingency = crac.newContingency()
             .withId("contingencyId")

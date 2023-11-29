@@ -11,9 +11,9 @@ import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.InstantKind;
 import com.farao_community.farao.data.crac_api.network_action.ActionType;
-import com.farao_community.farao.data.crac_api.range.RangeType;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeActionAdder;
+import com.farao_community.farao.data.crac_api.range.RangeType;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -122,7 +122,7 @@ class PstRangeActionAdderImplTest {
                 .withTapToAngleConversionMap(validTapToAngleConversionMap)
                 .add();
 
-        assertEquals(123, pstRangeAction.getSpeed().orElseThrow().intValue());
+        assertEquals(123, pstRangeAction.getSpeed().get().intValue());
     }
 
     @Test
