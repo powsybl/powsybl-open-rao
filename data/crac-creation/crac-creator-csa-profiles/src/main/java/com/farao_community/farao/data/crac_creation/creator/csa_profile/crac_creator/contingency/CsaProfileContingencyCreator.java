@@ -134,9 +134,6 @@ public class CsaProfileContingencyCreator {
         if (headerValidity == CsaProfileConstants.HeaderValidity.INVALID_KEYWORD) {
             csaProfileContingencyCreationContexts.add(CsaProfileElementaryCreationContext.notImported(contingencyId, ImportStatus.INCONSISTENCY_IN_DATA, "Model.keyword must be " + CsaProfileConstants.CsaProfile.CONTINGENCY));
             return new HashSet<>();
-        } else if (headerValidity == CsaProfileConstants.HeaderValidity.INVALID_INTERVAL) {
-            csaProfileContingencyCreationContexts.add(CsaProfileElementaryCreationContext.notImported(contingencyId, ImportStatus.NOT_FOR_REQUESTED_TIMESTAMP, "Required timestamp does not fall between Model.startDate and Model.endDate"));
-            return new HashSet<>();
         }
 
         Boolean mustStudy = Boolean.parseBoolean(contingencyPropertyBag.get(CsaProfileConstants.REQUEST_CONTINGENCIES_MUST_STUDY));

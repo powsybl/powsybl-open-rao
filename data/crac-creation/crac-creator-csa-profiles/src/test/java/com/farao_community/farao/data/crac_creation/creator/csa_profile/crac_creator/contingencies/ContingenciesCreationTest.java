@@ -1,5 +1,8 @@
 package com.farao_community.farao.data.crac_creation.creator.csa_profile.crac_creator.contingencies;
 
+import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.core.read.ListAppender;
+import com.farao_community.farao.commons.logs.RaoBusinessWarns;
 import com.farao_community.farao.data.crac_api.Contingency;
 import com.farao_community.farao.data.crac_creation.creator.csa_profile.crac_creator.CsaProfileCracCreationContext;
 import com.farao_community.farao.data.crac_creation.creator.csa_profile.crac_creator.CsaProfileCracCreationTestUtil;
@@ -9,6 +12,7 @@ import java.util.Comparator;
 import java.util.List;
 
 import static com.farao_community.farao.data.crac_creation.creator.csa_profile.crac_creator.CsaProfileCracCreationTestUtil.getCsaCracCreationContext;
+import static com.farao_community.farao.data.crac_creation.creator.csa_profile.crac_creator.CsaProfileCracUtilsTest.getLogs;
 import static org.junit.jupiter.api.Assertions.*;
 
 class ContingenciesCreationTest {
@@ -97,7 +101,13 @@ class ContingenciesCreationTest {
 
     @Test
     void testCreateCracCSATestWithRejectedFiles() {
+        ListAppender<ILoggingEvent> listAppender = getLogs(RaoBusinessWarns.class);
+        List<ILoggingEvent> logsList = listAppender.list;
+
         CsaProfileCracCreationContext cracCreationContext = getCsaCracCreationContext("/CSA_Test_With_Rejected_Files.zip");
+
+        assertEquals("[WARN] [REMOVED] The file : contexts:REE_CO.xml will be ignored. Its dates are not consistent with the current date : 2023-03-29T12:00Z", logsList.get(0).toString());
+        assertEquals("[WARN] [REMOVED] The file : contexts:ELIA_AE.xml will be ignored. Its dates are not consistent with the current date : 2023-03-29T12:00Z", logsList.get(1).toString());
 
         assertNotNull(cracCreationContext);
         assertTrue(cracCreationContext.isCreationSuccessful());

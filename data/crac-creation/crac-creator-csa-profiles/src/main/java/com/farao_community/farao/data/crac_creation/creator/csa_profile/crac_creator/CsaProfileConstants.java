@@ -320,7 +320,6 @@ public final class CsaProfileConstants {
 
     public enum HeaderValidity {
         OK,
-        INVALID_KEYWORD,
-        INVALID_INTERVAL;
+        INVALID_KEYWORD
     }
 }

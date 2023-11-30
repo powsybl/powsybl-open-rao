@@ -63,7 +63,7 @@ public class CsaProfileCracCreator implements CracCreator<CsaProfileCrac, CsaPro
             if (!properties.isEmpty()) {
                 PropertyBag property = properties.get(0);
                 if (!checkTimeCoherence(property, offsetDateTime)) {
-                    FaraoLoggerProvider.BUSINESS_WARNS.warn("The file %s will be ignored. Its dates are not consistent with the current date %s", contextName, offsetDateTime);
+                    FaraoLoggerProvider.BUSINESS_WARNS.warn(String.format("[REMOVED] The file : %s will be ignored. Its dates are not consistent with the current date : %s", contextName, offsetDateTime));
                     nativeCrac.clearContext(contextName);
                 } else {
                     String keyword = property.getId(CsaProfileConstants.REQUEST_HEADER_KEYWORD);

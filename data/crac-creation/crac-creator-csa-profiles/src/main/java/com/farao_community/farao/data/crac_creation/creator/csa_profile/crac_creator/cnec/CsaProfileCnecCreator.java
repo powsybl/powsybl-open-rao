@@ -125,9 +125,6 @@ public class CsaProfileCnecCreator {
         if (headerValidity == CsaProfileConstants.HeaderValidity.INVALID_KEYWORD) {
             csaProfileCnecCreationContexts.add(CsaProfileElementaryCreationContext.notImported(assessedElementId, ImportStatus.INCONSISTENCY_IN_DATA, "Model.keyword must be " + CsaProfileConstants.CsaProfile.ASSESSED_ELEMENT));
             return false;
-        } else if (headerValidity == CsaProfileConstants.HeaderValidity.INVALID_INTERVAL) {
-            csaProfileCnecCreationContexts.add(CsaProfileElementaryCreationContext.notImported(assessedElementId, ImportStatus.NOT_FOR_REQUESTED_TIMESTAMP, "Required timestamp does not fall between Model.startDate and Model.endDate"));
-            return false;
         }
 
         String isCritical = assessedElementPropertyBag.get(CsaProfileConstants.REQUEST_ASSESSED_ELEMENT_IS_CRITICAL);
@@ -141,6 +138,15 @@ public class CsaProfileCnecCreator {
 
         if (normalEnabled != null && !Boolean.parseBoolean(normalEnabled)) {
             csaProfileCnecCreationContexts.add(CsaProfileElementaryCreationContext.notImported(assessedElementId, ImportStatus.NOT_FOR_RAO, "AssessedElement.normalEnabled is false"));
+            return false;
+        }
+        return true;
+    }
+
+    private boolean erProfileDataCheck(String assessedElementId, PropertyBag angleLimitsPropertyBag) {
+        CsaProfileConstants.HeaderValidity headerValidity = CsaProfileCracUtils.checkProfileHeader(angleLimitsPropertyBag, CsaProfileConstants.CsaProfile.EQUIPMENT_RELIABILITY, cracCreationContext.getTimeStamp());
+        if (headerValidity == CsaProfileConstants.HeaderValidity.INVALID_KEYWORD) {
+            csaProfileCnecCreationContexts.add(CsaProfileElementaryCreationContext.notImported(assessedElementId, ImportStatus.INCONSISTENCY_IN_DATA, "Model.keyword must be " + CsaProfileConstants.CsaProfile.EQUIPMENT_RELIABILITY));
             return false;
         }
         return true;

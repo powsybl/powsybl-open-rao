@@ -227,8 +227,6 @@ public class CsaProfileRemedialActionsCreator {
         CsaProfileConstants.HeaderValidity headerValidity = CsaProfileCracUtils.checkProfileHeader(remedialActionPropertyBag, profileKeyword, cracCreationContext.getTimeStamp());
         if (headerValidity == CsaProfileConstants.HeaderValidity.INVALID_KEYWORD) {
             throw new FaraoImportException(ImportStatus.INCONSISTENCY_IN_DATA, "Model.keyword must be " + profileKeyword.getKeyword());
-        } else if (headerValidity == CsaProfileConstants.HeaderValidity.INVALID_INTERVAL) {
-            throw new FaraoImportException(ImportStatus.NOT_FOR_REQUESTED_TIMESTAMP, "Required timestamp does not fall between Model.startDate and Model.endDate");
         }
 
         if (!normalAvailable) {
@@ -379,8 +377,6 @@ public class CsaProfileRemedialActionsCreator {
             CsaProfileConstants.HeaderValidity headerValidity = CsaProfileCracUtils.checkProfileHeader(remedialActionsSchedulePropertyBag, profileKeyword, cracCreationContext.getTimeStamp());
             if (headerValidity == CsaProfileConstants.HeaderValidity.INVALID_KEYWORD) {
                 throw new FaraoImportException(ImportStatus.INCONSISTENCY_IN_DATA, "Model.keyword must be " + CsaProfileConstants.CsaProfile.REMEDIAL_ACTION_SCHEDULE);
-            } else if (headerValidity == CsaProfileConstants.HeaderValidity.INVALID_INTERVAL) {
-                throw new FaraoImportException(ImportStatus.NOT_FOR_REQUESTED_TIMESTAMP, "Required timestamp does not fall between Model.startDate and Model.endDate");
             }
         });
     }
