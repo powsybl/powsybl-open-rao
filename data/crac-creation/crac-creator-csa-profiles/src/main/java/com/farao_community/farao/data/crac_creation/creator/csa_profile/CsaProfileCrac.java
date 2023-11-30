@@ -185,4 +185,3 @@ public class CsaProfileCrac implements NativeCrac {
         return multiContextsPropertyBags;
     }
 }
-
