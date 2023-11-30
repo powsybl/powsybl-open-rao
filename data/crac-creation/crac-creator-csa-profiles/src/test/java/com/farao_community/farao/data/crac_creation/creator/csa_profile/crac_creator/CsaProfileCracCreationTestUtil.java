@@ -1,5 +1,8 @@
 package com.farao_community.farao.data.crac_creation.creator.csa_profile.crac_creator;
 
+import ch.qos.logback.classic.Logger;
+import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.core.read.ListAppender;
 import com.farao_community.farao.data.crac_api.Contingency;
 import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.NetworkElement;
@@ -20,6 +23,7 @@ import com.google.common.base.Suppliers;
 import com.powsybl.computation.local.LocalComputationManager;
 import com.powsybl.iidm.network.ImportConfig;
 import com.powsybl.iidm.network.Network;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.InputStream;
@@ -34,6 +38,14 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 public final class CsaProfileCracCreationTestUtil {
 
     private CsaProfileCracCreationTestUtil() {
+    }
+
+    public static ListAppender<ILoggingEvent> getLogs(Class<?> logsClass) {
+        Logger logger = (Logger) LoggerFactory.getLogger(logsClass);
+        ListAppender<ILoggingEvent> listAppender = new ListAppender<>();
+        listAppender.start();
+        logger.addAppender(listAppender);
+        return listAppender;
     }
 
     public static void assertContingencyEquality(Contingency c, String expectedContingencyId, String expectedContingencyName, int expectedNetworkElementsSize, List<String> expectedNetworkElementsIds) {

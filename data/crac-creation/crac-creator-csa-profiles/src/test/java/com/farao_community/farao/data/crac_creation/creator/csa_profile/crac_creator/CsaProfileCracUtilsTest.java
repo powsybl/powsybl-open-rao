@@ -7,27 +7,15 @@
 
 package com.farao_community.farao.data.crac_creation.creator.csa_profile.crac_creator;
 
-import ch.qos.logback.classic.Logger;
-import ch.qos.logback.classic.spi.ILoggingEvent;
-import ch.qos.logback.core.read.ListAppender;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
 import org.junit.jupiter.api.Test;
-import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 public class CsaProfileCracUtilsTest {
-
-    public static ListAppender<ILoggingEvent> getLogs(Class<?> logsClass) {
-        Logger logger = (Logger) LoggerFactory.getLogger(logsClass);
-        ListAppender<ILoggingEvent> listAppender = new ListAppender<>();
-        listAppender.start();
-        logger.addAppender(listAppender);
-        return listAppender;
-    }
 
     @Test
     void testGetLinkedPropertyBags() {

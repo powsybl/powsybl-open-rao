@@ -12,7 +12,7 @@ import java.util.Comparator;
 import java.util.List;
 
 import static com.farao_community.farao.data.crac_creation.creator.csa_profile.crac_creator.CsaProfileCracCreationTestUtil.getCsaCracCreationContext;
-import static com.farao_community.farao.data.crac_creation.creator.csa_profile.crac_creator.CsaProfileCracUtilsTest.getLogs;
+import static com.farao_community.farao.data.crac_creation.creator.csa_profile.crac_creator.CsaProfileCracCreationTestUtil.getLogs;
 import static org.junit.jupiter.api.Assertions.*;
 
 class ContingenciesCreationTest {
