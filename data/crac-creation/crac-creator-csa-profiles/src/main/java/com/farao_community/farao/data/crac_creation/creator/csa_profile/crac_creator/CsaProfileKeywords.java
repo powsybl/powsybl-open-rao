@@ -20,4 +20,3 @@ public enum CsaProfileKeywords {
         return keyword;
     }
 }
-

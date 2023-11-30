@@ -58,22 +58,23 @@ public class CsaProfileCracCreator implements CracCreator<CsaProfileCrac, CsaPro
 
     private void clearNativeCracContextAndFillItsMap(CsaProfileCrac nativeCrac, OffsetDateTime offsetDateTime) {
         Map<String, Set<String>> keywordAndCorrespondingFiles = new HashMap<>();
-        nativeCrac.getHeaders().forEach((contextName, property) -> {
-            if (!property.isEmpty()) {
-                if (!checkTimeCoherence(property.get(0), offsetDateTime)) {
+        nativeCrac.getHeaders().forEach((contextName, properties) -> {
+            if (!properties.isEmpty()) {
+                PropertyBag property = properties.get(0);
+                if (!checkTimeCoherence(property, offsetDateTime)) {
                     nativeCrac.clearContext(contextName);
                 } else {
-                    Set<String> newFilesSet = addFileToSet(keywordAndCorrespondingFiles, contextName, property);
-                    keywordAndCorrespondingFiles.put(contextName, newFilesSet);
+                    String keyword = property.getId(CsaProfileConstants.REQUEST_HEADER_KEYWORD);
+                    Set<String> newFilesSet = addFileToSet(keywordAndCorrespondingFiles, contextName, keyword);
+                    keywordAndCorrespondingFiles.put(keyword, newFilesSet);
                 }
             }
         });
         nativeCrac.fillKeywordMap(keywordAndCorrespondingFiles);
     }
 
-    private Set<String> addFileToSet(Map<String, Set<String>> map, String contextName, PropertyBags property) {
-        String keyword = property.get(0).getId(CsaProfileConstants.REQUEST_HEADER_KEYWORD);
-        Set<String> returnSet = map.computeIfAbsent(keyword, k -> new HashSet<>());
+    private Set<String> addFileToSet(Map<String, Set<String>> map, String contextName, String keyword) {
+        Set<String> returnSet = map.getOrDefault(keyword, new HashSet<>());
         returnSet.add(contextName);
         return returnSet;
     }
