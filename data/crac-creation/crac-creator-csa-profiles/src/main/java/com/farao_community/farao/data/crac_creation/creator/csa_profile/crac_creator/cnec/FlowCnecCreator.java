@@ -13,7 +13,6 @@ import com.farao_community.farao.data.crac_creation.creator.csa_profile.crac_cre
 import com.farao_community.farao.data.crac_creation.creator.csa_profile.crac_creator.CsaProfileElementaryCreationContext;
 import com.powsybl.iidm.network.*;
 import com.powsybl.triplestore.api.PropertyBag;
-import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.*;
 
@@ -46,11 +45,10 @@ public class FlowCnecCreator extends AbstractCnecCreator {
             return;
         }
 
-        Pair<EnumMap<Branch.Side, Double>, Map<Integer, EnumMap<Branch.Side, Double>>> thresholds = definitionMode == FlowCnecDefinitionMode.CONDUCTING_EQUIPMENT ? getPermanentAndTemporaryLimitsOfBranch((Branch<?>) branch) : getPermanentAndTemporaryLimitsOfOperationalLimit(branch, networkElementId);
-        EnumMap<Branch.Side, Double> patlThresholds = thresholds.getLeft();
-        Map<Integer, EnumMap<Branch.Side, Double>> tatlThresholds = thresholds.getRight();
-
-        if (patlThresholds.isEmpty() && tatlThresholds.isEmpty()) {
+        // The thresholds are a map of acceptable durations to thresholds (per branch side)
+        // Integer.MAX_VALUE is used for the PATL's acceptable duration
+        Map<Integer, EnumMap<Branch.Side, Double>> thresholds = definitionMode == FlowCnecDefinitionMode.CONDUCTING_EQUIPMENT ? getPermanentAndTemporaryLimitsOfBranch((Branch<?>) branch) : getPermanentAndTemporaryLimitsOfOperationalLimit(branch, networkElementId);
+        if (thresholds.isEmpty()) {
             csaProfileCnecCreationContexts.add(CsaProfileElementaryCreationContext.notImported(assessedElementId, ImportStatus.INCOMPLETE_DATA, writeAssessedElementIgnoredReasonMessage("no PATL or TATLs could be retrieved for the branch " + branch.getId())));
             return;
         }
@@ -67,7 +65,7 @@ public class FlowCnecCreator extends AbstractCnecCreator {
             }
         }
 
-        addAllFlowCnecs((Branch<?>) branch, patlThresholds, tatlThresholds, useMaxAndMinThresholds);
+        addAllFlowCnecsFromBranchAndOperationalLimits((Branch<?>) branch, thresholds, useMaxAndMinThresholds);
     }
 
     private FlowCnecAdder initFlowCnec() {
@@ -205,11 +203,12 @@ public class FlowCnecCreator extends AbstractCnecCreator {
             return;
         }
         FlowCnecAdder cnecAdder = initFlowCnec();
+        addCnecBaseInformation(cnecAdder, contingency, instant);
         for (Branch.Side side : thresholds.keySet()) {
             double threshold = thresholds.get(side);
             addFlowCnecThreshold(cnecAdder, side == Branch.Side.ONE ? Side.LEFT : Side.RIGHT, threshold, useMaxAndMinThresholds);
         }
-        addFlowCnecData(cnecAdder, networkElement, contingency, instant);
+        cnecAdder.withNetworkElement(networkElement.getId());
         if (!setNominalVoltage(cnecAdder, networkElement) || !setCurrentLimitsFromBranch(cnecAdder, networkElement)) {
             return;
         }
@@ -222,41 +221,43 @@ public class FlowCnecCreator extends AbstractCnecCreator {
         markCnecAsImportedAndHandleRejectedContingencies(instant, contingency);
     }
 
-    private void addFlowCnecData(FlowCnecAdder cnecAdder, Branch<?> networkElement, Contingency contingency, Instant instant) {
-        cnecAdder.withNetworkElement(networkElement.getId());
-        addCnecData(cnecAdder, contingency, instant);
-    }
+    private void addAllFlowCnecsFromBranchAndOperationalLimits(Branch<?> networkElement, Map<Integer, EnumMap<Branch.Side, Double>> thresholds, boolean useMaxAndMinThresholds) {
+        EnumMap<Branch.Side, Double> patlThresholds = thresholds.get(Integer.MAX_VALUE);
+        boolean hasPatl = thresholds.get(Integer.MAX_VALUE) != null;
 
-    private void addAllFlowCnecs(Branch<?> networkElement, EnumMap<Branch.Side, Double> patlThresholds, Map<Integer, EnumMap<Branch.Side, Double>> tatlThresholds, boolean useMaxAndMinThresholds) {
         if (inBaseCase) {
             // If no PATL, we use the lowest TATL instead (as in PowSyBl).
             // Only happens when the AssessedElement is defined with an OperationalLimit
-            if (!patlThresholds.isEmpty()) {
+            if (hasPatl) {
                 addFlowCnec(networkElement, null, Instant.PREVENTIVE, patlThresholds, useMaxAndMinThresholds, false);
             } else {
-                Optional<Integer> longestAcceptableDuration = tatlThresholds.keySet().stream().max(Integer::compareTo);
-                longestAcceptableDuration.ifPresent(integer -> addFlowCnec(networkElement, null, Instant.PREVENTIVE, tatlThresholds.get(integer), useMaxAndMinThresholds, true));
+                // No PATL thus the longest acceptable duration is strictly lower than Integer.MAX_VALUE
+                Optional<Integer> longestAcceptableDuration = thresholds.keySet().stream().max(Integer::compareTo);
+                longestAcceptableDuration.ifPresent(integer -> addFlowCnec(networkElement, null, Instant.PREVENTIVE, thresholds.get(integer), useMaxAndMinThresholds, true));
             }
         }
 
         for (Contingency contingency : linkedContingencies) {
             // Add PATL
-            addFlowCnec(networkElement, contingency, Instant.CURATIVE, patlThresholds, useMaxAndMinThresholds, false);
+            if (hasPatl) {
+                addFlowCnec(networkElement, contingency, Instant.CURATIVE, patlThresholds, useMaxAndMinThresholds, false);
+            }
             // Add TATLs
-            for (int acceptableDuration : tatlThresholds.keySet()) {
-                Instant instant = getCnecInstant(acceptableDuration);
-                if (instant == null) {
-                    csaProfileCnecCreationContexts.add(CsaProfileElementaryCreationContext.notImported(assessedElementId, ImportStatus.INCONSISTENCY_IN_DATA, writeAssessedElementIgnoredReasonMessage("TATL acceptable duration is negative: " + acceptableDuration)));
-                    return;
+            for (int acceptableDuration : thresholds.keySet()) {
+                if (acceptableDuration != Integer.MAX_VALUE) {
+                    Instant instant = getCnecInstant(acceptableDuration);
+                    if (instant == null) {
+                        csaProfileCnecCreationContexts.add(CsaProfileElementaryCreationContext.notImported(assessedElementId, ImportStatus.INCONSISTENCY_IN_DATA, writeAssessedElementIgnoredReasonMessage("TATL acceptable duration is negative: " + acceptableDuration)));
+                        return;
+                    }
+                    addFlowCnec(networkElement, contingency, instant, thresholds.get(acceptableDuration), useMaxAndMinThresholds, false);
                 }
-                addFlowCnec(networkElement, contingency, instant, tatlThresholds.get(acceptableDuration), useMaxAndMinThresholds, false);
             }
         }
     }
 
-    private Pair<EnumMap<Branch.Side, Double>, Map<Integer, EnumMap<Branch.Side, Double>>> getPermanentAndTemporaryLimitsOfOperationalLimit(Identifiable<?> branch, String terminalId) {
-        EnumMap<Branch.Side, Double> patlThresholds = new EnumMap<>(Branch.Side.class);
-        Map<Integer, EnumMap<Branch.Side, Double>> tatlThresholds = new HashMap<>();
+    private Map<Integer, EnumMap<Branch.Side, Double>> getPermanentAndTemporaryLimitsOfOperationalLimit(Identifiable<?> branch, String terminalId) {
+        Map<Integer, EnumMap<Branch.Side, Double>> thresholds = new HashMap<>();
 
         String limitKind = operationalLimitPropertyBag.get(CsaProfileConstants.REQUEST_OPERATIONAL_LIMIT_KIND);
         Side side = getSideFromNetworkElement(branch, terminalId);
@@ -264,44 +265,50 @@ public class FlowCnecCreator extends AbstractCnecCreator {
         Double normalValue = Double.valueOf(normalValueStr);
 
         if (side != null) {
+            int acceptableDuration;
             if (CsaProfileConstants.LimitKind.PATL.toString().equals(limitKind)) {
-                patlThresholds.put(side.iidmSide(), normalValue);
+                acceptableDuration = Integer.MAX_VALUE;
             } else if (CsaProfileConstants.LimitKind.TATL.toString().equals(limitKind)) {
                 String acceptableDurationStr = operationalLimitPropertyBag.get(CsaProfileConstants.REQUEST_OPERATIONAL_LIMIT_ACCEPTABLE_DURATION);
-                int acceptableDuration = Integer.parseInt(acceptableDurationStr);
-                tatlThresholds.put(acceptableDuration, new EnumMap<>(Map.of(side.iidmSide(), normalValue)));
+                acceptableDuration = Integer.parseInt(acceptableDurationStr);
+            } else {
+                return thresholds;
             }
+            thresholds.put(acceptableDuration, new EnumMap<>(Map.of(side.iidmSide(), normalValue)));
         }
 
-        return Pair.of(patlThresholds, tatlThresholds);
+        return thresholds;
     }
 
-    private Pair<EnumMap<Branch.Side, Double>, Map<Integer, EnumMap<Branch.Side, Double>>> getPermanentAndTemporaryLimitsOfBranch(Branch<?> branch) {
+    private Map<Integer, EnumMap<Branch.Side, Double>> getPermanentAndTemporaryLimitsOfBranch(Branch<?> branch) {
         Set<Side> sidesToCheck = getSidesToCheck(branch);
 
-        EnumMap<Branch.Side, Double> patlThresholds = new EnumMap<>(Branch.Side.class);
-        Map<Integer, EnumMap<Branch.Side, Double>> tatlThresholds = new HashMap<>();
+        Map<Integer, EnumMap<Branch.Side, Double>> thresholds = new HashMap<>();
 
         for (Side side : sidesToCheck) {
             Optional<CurrentLimits> currentLimits = branch.getCurrentLimits(side.iidmSide());
             if (currentLimits.isPresent()) {
                 // Retrieve PATL
-                Double threshold = currentLimits.get().getPermanentLimit();
-                patlThresholds.put(side.iidmSide(), threshold);
+                double permanentThreshold = currentLimits.get().getPermanentLimit();
+                addLimitThreshold(thresholds, Integer.MAX_VALUE, permanentThreshold, side);
                 // Retrieve TATLs
                 List<LoadingLimits.TemporaryLimit> temporaryLimits = currentLimits.get().getTemporaryLimits().stream().toList();
                 for (LoadingLimits.TemporaryLimit temporaryLimit : temporaryLimits) {
                     int acceptableDuration = temporaryLimit.getAcceptableDuration();
                     double temporaryThreshold = temporaryLimit.getValue();
-                    if (tatlThresholds.containsKey(acceptableDuration)) {
-                        tatlThresholds.get(acceptableDuration).put(side.iidmSide(), temporaryThreshold);
-                    } else {
-                        tatlThresholds.put(acceptableDuration, new EnumMap<>(Map.of(side.iidmSide(), temporaryThreshold)));
-                    }
+                    addLimitThreshold(thresholds, acceptableDuration, temporaryThreshold, side);
                 }
             }
         }
-        return Pair.of(patlThresholds, tatlThresholds);
+        return thresholds;
+    }
+
+    private static void addLimitThreshold(Map<Integer, EnumMap<Branch.Side, Double>> thresholds, int acceptableDuration, double threshold, Side side) {
+        if (thresholds.containsKey(acceptableDuration)) {
+            thresholds.get(acceptableDuration).put(side.iidmSide(), threshold);
+        } else {
+            thresholds.put(acceptableDuration, new EnumMap<>(Map.of(side.iidmSide(), threshold)));
+        }
     }
 
     private Set<Side> getSidesToCheck(Branch<?> branch) {

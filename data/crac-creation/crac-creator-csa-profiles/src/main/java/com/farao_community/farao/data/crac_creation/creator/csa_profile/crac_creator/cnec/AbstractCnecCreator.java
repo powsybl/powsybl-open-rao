@@ -74,7 +74,7 @@ public abstract class AbstractCnecCreator {
         return assessedElementName + " (" + assessedElementId + ") - " + (contingency == null ? "" : contingency.getName() + " - ") + instant;
     }
 
-    protected void addCnecData(CnecAdder<?> cnecAdder, Contingency contingency, Instant instant) {
+    protected void addCnecBaseInformation(CnecAdder<?> cnecAdder, Contingency contingency, Instant instant) {
         String cnecName = getCnecName(instant, contingency);
         cnecAdder.withContingency(contingency == null ? null : contingency.getId())
                     .withId(cnecName)

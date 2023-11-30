@@ -35,7 +35,7 @@ public class VoltageCnecCreator extends AbstractCnecCreator {
     private void addVoltageCnec(Instant instant, Contingency contingency) {
         VoltageCnecAdder voltageCnecAdder = initVoltageCnec();
         if (addVoltageLimit(voltageCnecAdder)) {
-            addCnecData(voltageCnecAdder, contingency, instant);
+            addCnecBaseInformation(voltageCnecAdder, contingency, instant);
             voltageCnecAdder.add();
             markCnecAsImportedAndHandleRejectedContingencies(instant, contingency);
         }

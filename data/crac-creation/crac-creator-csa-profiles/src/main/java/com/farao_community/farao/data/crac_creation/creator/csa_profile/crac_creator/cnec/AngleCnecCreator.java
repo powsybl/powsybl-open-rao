@@ -37,7 +37,7 @@ public class AngleCnecCreator extends AbstractCnecCreator {
     private void addAngleCnec(Instant instant, Contingency contingency) {
         AngleCnecAdder angleCnecAdder = initAngleCnec();
         if (addAngleLimit(angleCnecAdder)) {
-            addCnecData(angleCnecAdder, contingency, instant);
+            addCnecBaseInformation(angleCnecAdder, contingency, instant);
             angleCnecAdder.add();
             markCnecAsImportedAndHandleRejectedContingencies(instant, contingency);
         }
