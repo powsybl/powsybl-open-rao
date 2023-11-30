@@ -32,78 +32,13 @@ public final class HvdcRangeActionArrayDeserializer {
         while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
             HvdcRangeActionAdder hvdcRangeActionAdder = crac.newHvdcRangeAction();
             while (!jsonParser.nextToken().isStructEnd()) {
-                switch (jsonParser.getCurrentName()) {
-                    case ID:
-                        hvdcRangeActionAdder.withId(jsonParser.nextTextValue());
-                        break;
-                    case NAME:
-                        hvdcRangeActionAdder.withName(jsonParser.nextTextValue());
-                        break;
-                    case OPERATOR:
-                        hvdcRangeActionAdder.withOperator(jsonParser.nextTextValue());
-                        break;
-                    case ON_INSTANT_USAGE_RULES:
-                        jsonParser.nextToken();
-                        OnInstantArrayDeserializer.deserialize(jsonParser, version, hvdcRangeActionAdder);
-                        break;
-                    case FREE_TO_USE_USAGE_RULES:
-                        if (getPrimaryVersionNumber(version) > 1 || getSubVersionNumber(version) > 5) {
-                            throw new FaraoException("FreeToUse has been renamed to OnInstant since CRAC version 1.6");
-                        } else {
-                            jsonParser.nextToken();
-                            OnInstantArrayDeserializer.deserialize(jsonParser, version, hvdcRangeActionAdder);
-                        }
-                        break;
-                    case ON_CONTINGENCY_STATE_USAGE_RULES:
-                        jsonParser.nextToken();
-                        OnStateArrayDeserializer.deserialize(jsonParser, version, hvdcRangeActionAdder);
-                        break;
-                    case ON_STATE_USAGE_RULES:
-                        if (getPrimaryVersionNumber(version) > 1 || getSubVersionNumber(version) > 5) {
-                            throw new FaraoException("OnState has been renamed to OnContingencyState since CRAC version 1.6");
-                        } else {
-                            jsonParser.nextToken();
-                            OnStateArrayDeserializer.deserialize(jsonParser, version, hvdcRangeActionAdder);
-                        }
-                        break;
-                    case ON_FLOW_CONSTRAINT_USAGE_RULES:
-                        jsonParser.nextToken();
-                        OnFlowConstraintArrayDeserializer.deserialize(jsonParser, hvdcRangeActionAdder);
-                        break;
-                    case ON_ANGLE_CONSTRAINT_USAGE_RULES:
-                        jsonParser.nextToken();
-                        OnAngleConstraintArrayDeserializer.deserialize(jsonParser, hvdcRangeActionAdder);
-                        break;
-                    case ON_VOLTAGE_CONSTRAINT_USAGE_RULES:
-                        jsonParser.nextToken();
-                        OnVoltageConstraintArrayDeserializer.deserialize(jsonParser, hvdcRangeActionAdder);
-                        break;
-                    case ON_FLOW_CONSTRAINT_IN_COUNTRY_USAGE_RULES:
-                        jsonParser.nextToken();
-                        OnFlowConstraintInCountryArrayDeserializer.deserialize(jsonParser, hvdcRangeActionAdder);
-                        break;
-                    case NETWORK_ELEMENT_ID:
-                        readNetworkElementId(jsonParser, networkElementsNamesPerId, hvdcRangeActionAdder);
-                        break;
-                    case GROUP_ID:
-                        hvdcRangeActionAdder.withGroupId(jsonParser.nextTextValue());
-                        break;
-                    case INITIAL_SETPOINT:
-                        jsonParser.nextToken();
-                        hvdcRangeActionAdder.withInitialSetpoint(jsonParser.getDoubleValue());
-                        break;
-                    case RANGES:
-                        jsonParser.nextToken();
-                        StandardRangeArrayDeserializer.deserialize(jsonParser, hvdcRangeActionAdder);
-                        break;
-                    case EXTENSIONS:
-                        throw new FaraoException("Extensions are deprecated since CRAC version 1.7");
-                    case SPEED:
-                        jsonParser.nextToken();
-                        hvdcRangeActionAdder.withSpeed(jsonParser.getIntValue());
-                        break;
-                    default:
-                        throw new FaraoException("Unexpected field in HvdcRangeAction: " + jsonParser.getCurrentName());
+                if (StandardRangeActionDeserializerUtils.addCommonElement(hvdcRangeActionAdder, jsonParser, version)) {
+                    continue;
+                }
+                if (jsonParser.getCurrentName().equals(NETWORK_ELEMENT_ID)) {
+                    readNetworkElementId(jsonParser, networkElementsNamesPerId, hvdcRangeActionAdder);
+                } else {
+                    throw new FaraoException("Unexpected field in HvdcRangeAction: " + jsonParser.getCurrentName());
                 }
             }
             if (getPrimaryVersionNumber(version) <= 1 && getSubVersionNumber(version) < 3) {

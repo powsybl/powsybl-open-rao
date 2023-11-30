@@ -33,79 +33,14 @@ public final class InjectionRangeActionArrayDeserializer {
             InjectionRangeActionAdder injectionRangeActionAdder = crac.newInjectionRangeAction();
 
             while (!jsonParser.nextToken().isStructEnd()) {
-                switch (jsonParser.getCurrentName()) {
-                    case ID:
-                        injectionRangeActionAdder.withId(jsonParser.nextTextValue());
-                        break;
-                    case NAME:
-                        injectionRangeActionAdder.withName(jsonParser.nextTextValue());
-                        break;
-                    case OPERATOR:
-                        injectionRangeActionAdder.withOperator(jsonParser.nextTextValue());
-                        break;
-                    case ON_INSTANT_USAGE_RULES:
-                        jsonParser.nextToken();
-                        OnInstantArrayDeserializer.deserialize(jsonParser, version, injectionRangeActionAdder);
-                        break;
-                    case FREE_TO_USE_USAGE_RULES:
-                        if (getPrimaryVersionNumber(version) > 1 || getSubVersionNumber(version) > 5) {
-                            throw new FaraoException("FreeToUse has been renamed to OnInstant since CRAC version 1.6");
-                        } else {
-                            jsonParser.nextToken();
-                            OnInstantArrayDeserializer.deserialize(jsonParser, version, injectionRangeActionAdder);
-                        }
-                        break;
-                    case ON_CONTINGENCY_STATE_USAGE_RULES:
-                        jsonParser.nextToken();
-                        OnStateArrayDeserializer.deserialize(jsonParser, version, injectionRangeActionAdder);
-                        break;
-                    case ON_STATE_USAGE_RULES:
-                        if (getPrimaryVersionNumber(version) > 1 || getSubVersionNumber(version) > 5) {
-                            throw new FaraoException("OnState has been renamed to OnContingencyState since CRAC version 1.6");
-                        } else {
-                            jsonParser.nextToken();
-                            OnStateArrayDeserializer.deserialize(jsonParser, version, injectionRangeActionAdder);
-                        }
-                        break;
-                    case ON_FLOW_CONSTRAINT_USAGE_RULES:
-                        jsonParser.nextToken();
-                        OnFlowConstraintArrayDeserializer.deserialize(jsonParser, injectionRangeActionAdder);
-                        break;
-                    case ON_ANGLE_CONSTRAINT_USAGE_RULES:
-                        jsonParser.nextToken();
-                        OnAngleConstraintArrayDeserializer.deserialize(jsonParser, injectionRangeActionAdder);
-                        break;
-                    case ON_VOLTAGE_CONSTRAINT_USAGE_RULES:
-                        jsonParser.nextToken();
-                        OnVoltageConstraintArrayDeserializer.deserialize(jsonParser, injectionRangeActionAdder);
-                        break;
-                    case ON_FLOW_CONSTRAINT_IN_COUNTRY_USAGE_RULES:
-                        jsonParser.nextToken();
-                        OnFlowConstraintInCountryArrayDeserializer.deserialize(jsonParser, injectionRangeActionAdder);
-                        break;
-                    case NETWORK_ELEMENT_IDS_AND_KEYS:
-                        jsonParser.nextToken();
-                        deserializeInjectionDistributionKeys(jsonParser, injectionRangeActionAdder, networkElementsNamesPerId);
-                        break;
-                    case GROUP_ID:
-                        injectionRangeActionAdder.withGroupId(jsonParser.nextTextValue());
-                        break;
-                    case INITIAL_SETPOINT:
-                        jsonParser.nextToken();
-                        injectionRangeActionAdder.withInitialSetpoint(jsonParser.getDoubleValue());
-                        break;
-                    case RANGES:
-                        jsonParser.nextToken();
-                        StandardRangeArrayDeserializer.deserialize(jsonParser, injectionRangeActionAdder);
-                        break;
-                    case EXTENSIONS:
-                        throw new FaraoException("Extensions are deprecated since CRAC version 1.7");
-                    case SPEED:
-                        jsonParser.nextToken();
-                        injectionRangeActionAdder.withSpeed(jsonParser.getIntValue());
-                        break;
-                    default:
-                        throw new FaraoException("Unexpected field in InjectionRangeAction: " + jsonParser.getCurrentName());
+                if (StandardRangeActionDeserializerUtils.addCommonElement(injectionRangeActionAdder, jsonParser, version)) {
+                    continue;
+                }
+                if (jsonParser.getCurrentName().equals(NETWORK_ELEMENT_IDS_AND_KEYS)) {
+                    jsonParser.nextToken();
+                    deserializeInjectionDistributionKeys(jsonParser, injectionRangeActionAdder, networkElementsNamesPerId);
+                } else {
+                    throw new FaraoException("Unexpected field in InjectionRangeAction: " + jsonParser.getCurrentName());
                 }
             }
             if (getPrimaryVersionNumber(version) <= 1 && getSubVersionNumber(version) < 3) {
