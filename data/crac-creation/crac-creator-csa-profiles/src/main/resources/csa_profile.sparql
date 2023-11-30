@@ -16,6 +16,18 @@ WHERE {
         cim:ContingencyEquipment.contingentStatus ?contingentStatus ;
 }
 
+# query: header
+PREFIX dcat: <http://www.w3.org/ns/dcat#>
+SELECT *
+{
+GRAPH <%s> {
+    ?fullModel
+        dcat:startDate ?startDate ;
+        dcat:endDate ?endDate ;
+        dcat:keyword ?keyword .
+}
+}
+
 # query: ordinaryContingency
 PREFIX cim: <http://iec.ch/TC57/CIM100#>
 PREFIX nc: <http://entsoe.eu/ns/nc#>

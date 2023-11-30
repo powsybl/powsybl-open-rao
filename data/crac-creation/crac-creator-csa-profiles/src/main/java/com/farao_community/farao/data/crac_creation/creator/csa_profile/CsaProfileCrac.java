@@ -14,10 +14,7 @@ import com.powsybl.triplestore.api.PropertyBags;
 import com.powsybl.triplestore.api.QueryCatalog;
 import com.powsybl.triplestore.api.TripleStore;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * @author Jean-Pierre Arnould {@literal <jean-pierre.arnould at rte-france.com>}
@@ -28,9 +25,12 @@ public class CsaProfileCrac implements NativeCrac {
 
     private final QueryCatalog queryCatalogCsaProfileCrac;
 
+    private Map<String, List<String>> keywordMap;
+
     public CsaProfileCrac(TripleStore tripleStoreCsaProfileCrac) {
         this.tripleStoreCsaProfileCrac = tripleStoreCsaProfileCrac;
         this.queryCatalogCsaProfileCrac = new QueryCatalog(CsaProfileConstants.SPARQL_FILE_CSA_PROFILE);
+        this.keywordMap = new HashMap<>();
     }
 
     @Override
@@ -39,7 +39,21 @@ public class CsaProfileCrac implements NativeCrac {
     }
 
     public PropertyBags getContingencies() {
-        return this.queryTripleStore(Arrays.asList(CsaProfileConstants.REQUEST_ORDINARY_CONTINGENCY, CsaProfileConstants.REQUEST_EXCEPTIONAL_CONTINGENCY, CsaProfileConstants.REQUEST_OUT_OF_RANGE_CONTINGENCY), tripleStoreCsaProfileCrac.contextNames());
+        return queryTripleStore(Arrays.asList(CsaProfileConstants.REQUEST_ORDINARY_CONTINGENCY, CsaProfileConstants.REQUEST_EXCEPTIONAL_CONTINGENCY, CsaProfileConstants.REQUEST_OUT_OF_RANGE_CONTINGENCY), tripleStoreCsaProfileCrac.contextNames());
+    }
+
+    public Map<String, PropertyBags> getHeaders() {
+        Map<String, PropertyBags> returnMap = new HashMap<>();
+        tripleStoreCsaProfileCrac.contextNames().forEach(context -> returnMap.put(context, queryTripleStore(CsaProfileConstants.REQUEST_HEADER, context)));
+        return returnMap;
+    }
+
+    public void clearContext(String context) {
+        tripleStoreCsaProfileCrac.clear(context);
+    }
+
+    public void fillKeywordMap(Map<String, List<String>> keywordMap) {
+        this.keywordMap = keywordMap;
     }
 
     public PropertyBags getContingencyEquipments() {
@@ -144,6 +158,21 @@ public class CsaProfileCrac implements NativeCrac {
             mergedPropertyBags.addAll(queryTripleStore(queryKey, contexts));
         }
         return mergedPropertyBags;
+    }
+
+    /**
+     * execute query on a specific context
+     *
+     * @param queryKey : query name in the sparql file
+     * @param context : context where the query will be executed
+     * */
+    private PropertyBags queryTripleStore(String queryKey, String context) {
+        String query = queryCatalogCsaProfileCrac.get(queryKey);
+        if (query == null) {
+            FaraoLoggerProvider.TECHNICAL_LOGS.warn("Query [{}] not found in catalog", queryKey);
+            return new PropertyBags();
+        }
+        return tripleStoreCsaProfileCrac.query(String.format(query, context));
     }
 
     /**

@@ -68,6 +68,8 @@ public final class CsaProfileConstants {
      * requests for contingencies
      */
 
+    public static final String REQUEST_HEADER = "header";
+
     public static final String REQUEST_CONTINGENCY = "contingency";
 
     public static final String REQUEST_ORDINARY_CONTINGENCY = "ordinaryContingency";

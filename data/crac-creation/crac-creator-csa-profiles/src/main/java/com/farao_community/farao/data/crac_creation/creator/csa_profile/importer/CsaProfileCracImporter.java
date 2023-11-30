@@ -17,10 +17,6 @@ import com.powsybl.triplestore.api.TripleStoreFactory;
 import org.apache.commons.io.FilenameUtils;
 
 import java.io.*;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -59,75 +55,22 @@ public class CsaProfileCracImporter implements NativeCracImporter<CsaProfileCrac
                     boolean tempFileOk = tempFile.setReadable(true, true) &&
                         tempFile.setWritable(true, true);
                     if (tempFileOk) {
-                        boolean isKeywordFound = false;
-                        boolean isFullModelOver = false;
-                        boolean isStartDateFound = false;
-                        boolean isEndDateFound = false;
-                        boolean isValid = true;
-                        LocalDateTime startDate = null;
-                        LocalDateTime endDate = null;
-
                         InputStream in = new BufferedInputStream(zipInputStream);
                         try (OutputStream out = new BufferedOutputStream(new FileOutputStream(tempFile))) {
-                            int nBytes;
+                            int nBytes = -1;
                             byte[] buffer = new byte[2048];
-
-                            Pattern keywordPattern = Pattern.compile("<dcat:keyword>[A-Z]{2,3}</dcat:keyword>");
-                            Pattern fullModelPattern = Pattern.compile("</md:FullModel>");
-                            Pattern startDatePattern = Pattern.compile("<dcat:startDate>\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}Z</dcat:startDate>");
-                            Pattern endDatePattern = Pattern.compile("<dcat:endDate>\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}Z</dcat:endDate>");
 
                             while ((nBytes = in.read(buffer)) > 0 && currentSizeEntry < maxSizeEntry) {
                                 out.write(buffer, 0, nBytes);
                                 currentSizeEntry += nBytes;
-                                if (!isFullModelOver) {
-                                    String bufferContent = new String(buffer, 0, nBytes);
-                                    Matcher keywordMatcher = keywordPattern.matcher(bufferContent);
-                                    if (keywordMatcher.find()) {
-                                        isKeywordFound = true;
-                                    }
-                                    Matcher fullModelMatcher = fullModelPattern.matcher(bufferContent);
-                                    if (fullModelMatcher.find()) {
-                                        isFullModelOver = true;
-                                    }
-                                    Matcher startDateMatcher = startDatePattern.matcher(bufferContent);
-                                    if (startDateMatcher.find()) {
-                                        String dateAsString = startDateMatcher.group(0).replaceAll("<[^>]*>", "");
-                                        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ssX");
-                                        startDate = LocalDateTime.parse(dateAsString, formatter);
-                                        isStartDateFound = true;
-                                    }
-                                    Matcher endDateMatcher = endDatePattern.matcher(bufferContent);
-                                    if (endDateMatcher.find()) {
-                                        String dateAsString = startDateMatcher.group(0).replaceAll("<[^>]*>", "");
-                                        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ssX");
-                                        endDate = LocalDateTime.parse(dateAsString, formatter);
-                                        isEndDateFound = true;
-                                    }
-                                } else if (isKeywordFound) {
-                                    if (isStartDateFound && isEndDateFound) {
-                                        if (!startDate.isBefore(endDate)) {
-                                            isValid = false;
-                                            break;
-                                        } else {
 
-                                        }
-                                    } else {
-                                        isValid = false;
-                                        break;
-                                    }
-                                }
                             }
                         }
-                        if (isValid) {
-                            FileInputStream fileInputStream = new FileInputStream(tempFile);
-                            tripleStoreCsaProfile.read(fileInputStream, CsaProfileConstants.RDF_BASE_URL, zipEntry.getName());
-                        } else {
-                            FaraoLoggerProvider.TECHNICAL_LOGS.warn("temporary file for csa profile crac import can't be deleted");
-                        }
+                        FileInputStream fileInputStream = new FileInputStream(tempFile);
+                        tripleStoreCsaProfile.read(fileInputStream, CsaProfileConstants.RDF_BASE_URL, zipEntry.getName());
                     }
                     if (!tempFile.delete()) {
-                        FaraoLoggerProvider.TECHNICAL_LOGS.warn("%s is not a valid CSA profile", zipEntry.getName());
+                        FaraoLoggerProvider.TECHNICAL_LOGS.warn("temporary file for csa profile crac import can't be deleted");
                         tempFile.deleteOnExit();
                     }
                 }

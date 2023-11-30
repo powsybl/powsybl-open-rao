@@ -18,10 +18,13 @@ import com.farao_community.farao.data.crac_creation.creator.csa_profile.crac_cre
 import com.farao_community.farao.data.crac_creation.creator.csa_profile.crac_creator.remedial_action.OnConstraintUsageRuleHelper;
 import com.google.auto.service.AutoService;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
 
 import java.time.OffsetDateTime;
-import java.util.Set;
+import java.util.*;
+
+import static com.farao_community.farao.data.crac_creation.creator.csa_profile.crac_creator.CsaProfileCracUtils.isValidInterval;
 
 /**
  * @author Jean-Pierre Arnould {@literal <jean-pierre.arnould at rte-france.com>}
@@ -43,6 +46,7 @@ public class CsaProfileCracCreator implements CracCreator<CsaProfileCrac, CsaPro
         this.network = network;
         this.creationContext = new CsaProfileCracCreationContext(crac, offsetDateTime, network.getNameOrId());
 
+        clearNativeCracContextAndFillItsMap(nativeCrac, offsetDateTime);
         createContingencies(nativeCrac.getContingencies(), nativeCrac.getContingencyEquipments());
         createCnecs(nativeCrac.getAssessedElements(), nativeCrac.getAssessedElementsWithContingencies(), nativeCrac.getCurrentLimits(), nativeCrac.getVoltageLimits(), nativeCrac.getAngleLimits(), cracCreationParameters.getDefaultMonitoredSides());
         OnConstraintUsageRuleHelper onConstraintUsageRuleAdder = new OnConstraintUsageRuleHelper(creationContext.getCnecCreationContexts(), nativeCrac.getAssessedElements(), nativeCrac.getAssessedElementsWithRemedialAction());
@@ -50,6 +54,34 @@ public class CsaProfileCracCreator implements CracCreator<CsaProfileCrac, CsaPro
             nativeCrac.getRemedialActionsSchedule(), nativeCrac.getSchemeRemedialActions(), nativeCrac.getRemedialActionScheme(), nativeCrac.getStage(), nativeCrac.getGridStateAlterationCollection(), nativeCrac.getTopologyActionAuto(), nativeCrac.getRotatingMachineActionAuto(), nativeCrac.getShuntCompensatorModificationAuto(), nativeCrac.getTapPositionActionAuto());
         creationContext.buildCreationReport();
         return creationContext.creationSuccess(crac);
+    }
+
+    private void clearNativeCracContextAndFillItsMap(CsaProfileCrac nativeCrac, OffsetDateTime offsetDateTime) {
+        Map<String, List<String>> keywordAndCorrespondingFiles = new HashMap<>();
+        nativeCrac.getHeaders().forEach((contextName, property) -> {
+            if (!property.isEmpty()) {
+                if (!checkTimeCoherence(property.get(0), offsetDateTime)) {
+                    nativeCrac.clearContext(contextName);
+                } else {
+                    List<String> newFilesList = addFileToList(keywordAndCorrespondingFiles, contextName, property);
+                    keywordAndCorrespondingFiles.put(contextName, newFilesList);
+                }
+            }
+        });
+        nativeCrac.fillKeywordMap(keywordAndCorrespondingFiles);
+    }
+
+    private List<String> addFileToList(Map<String, List<String>> map, String contextName, PropertyBags property) {
+        String keyword = property.get(0).getId(CsaProfileConstants.REQUEST_HEADER_KEYWORD);
+        List<String> returnList = map.computeIfAbsent(keyword, k -> new ArrayList<>());
+        returnList.add(contextName);
+        return returnList;
+    }
+
+    private boolean checkTimeCoherence(PropertyBag header, OffsetDateTime offsetDateTime) {
+        String startTime = header.getId(CsaProfileConstants.REQUEST_HEADER_START_DATE);
+        String endTime = header.getId(CsaProfileConstants.REQUEST_HEADER_END_DATE);
+        return isValidInterval(offsetDateTime, startTime, endTime);
     }
 
     private void createRemedialActions(PropertyBags remedialActionsPropertyBags, PropertyBags topologyActionsPropertyBags, PropertyBags rotatingMachineActionPropertyBags, PropertyBags shuntCompensatorModificationPropertyBags, PropertyBags tapPositionPropertyBags, PropertyBags staticPropertyRanges, PropertyBags contingencyWithRemedialActionsPropertyBags, OnConstraintUsageRuleHelper onConstraintUsageRuleAdder,
