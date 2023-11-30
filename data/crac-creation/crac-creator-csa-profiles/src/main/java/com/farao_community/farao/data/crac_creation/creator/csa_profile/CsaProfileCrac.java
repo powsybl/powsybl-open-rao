@@ -44,7 +44,7 @@ public class CsaProfileCrac implements NativeCrac {
 
     public Map<String, PropertyBags> getHeaders() {
         Map<String, PropertyBags> returnMap = new HashMap<>();
-        tripleStoreCsaProfileCrac.contextNames().forEach(context -> returnMap.put(context, queryTripleStore(CsaProfileConstants.REQUEST_HEADER, context)));
+        tripleStoreCsaProfileCrac.contextNames().forEach(context -> returnMap.put(context, queryTripleStore(CsaProfileConstants.REQUEST_HEADER, Set.of(context))));
         return returnMap;
     }
 
@@ -158,21 +158,6 @@ public class CsaProfileCrac implements NativeCrac {
             mergedPropertyBags.addAll(queryTripleStore(queryKey, contexts));
         }
         return mergedPropertyBags;
-    }
-
-    /**
-     * execute query on a specific context
-     *
-     * @param queryKey : query name in the sparql file
-     * @param context : context where the query will be executed
-     * */
-    private PropertyBags queryTripleStore(String queryKey, String context) {
-        String query = queryCatalogCsaProfileCrac.get(queryKey);
-        if (query == null) {
-            FaraoLoggerProvider.TECHNICAL_LOGS.warn("Query [{}] not found in catalog", queryKey);
-            return new PropertyBags();
-        }
-        return tripleStoreCsaProfileCrac.query(String.format(query, context));
     }
 
     /**
