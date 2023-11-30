@@ -25,7 +25,7 @@ public class CsaProfileCrac implements NativeCrac {
 
     private final QueryCatalog queryCatalogCsaProfileCrac;
 
-    private Map<String, List<String>> keywordMap;
+    private Map<String, Set<String>> keywordMap;
 
     public CsaProfileCrac(TripleStore tripleStoreCsaProfileCrac) {
         this.tripleStoreCsaProfileCrac = tripleStoreCsaProfileCrac;
@@ -52,7 +52,7 @@ public class CsaProfileCrac implements NativeCrac {
         tripleStoreCsaProfileCrac.clear(context);
     }
 
-    public void fillKeywordMap(Map<String, List<String>> keywordMap) {
+    public void fillKeywordMap(Map<String, Set<String>> keywordMap) {
         this.keywordMap = keywordMap;
     }
 
@@ -180,7 +180,6 @@ public class CsaProfileCrac implements NativeCrac {
      *
      * @param queryKey : query name in the sparql file
      * @param contexts : list of contexts where the query will be executed (if empty, the query is executed on the whole tripleStore
-     * @return
      */
     private PropertyBags queryTripleStore(String queryKey, Set<String> contexts) {
         String query = queryCatalogCsaProfileCrac.get(queryKey);

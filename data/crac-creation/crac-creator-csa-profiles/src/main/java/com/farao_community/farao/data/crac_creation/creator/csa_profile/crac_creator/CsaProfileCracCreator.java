@@ -57,25 +57,25 @@ public class CsaProfileCracCreator implements CracCreator<CsaProfileCrac, CsaPro
     }
 
     private void clearNativeCracContextAndFillItsMap(CsaProfileCrac nativeCrac, OffsetDateTime offsetDateTime) {
-        Map<String, List<String>> keywordAndCorrespondingFiles = new HashMap<>();
+        Map<String, Set<String>> keywordAndCorrespondingFiles = new HashMap<>();
         nativeCrac.getHeaders().forEach((contextName, property) -> {
             if (!property.isEmpty()) {
                 if (!checkTimeCoherence(property.get(0), offsetDateTime)) {
                     nativeCrac.clearContext(contextName);
                 } else {
-                    List<String> newFilesList = addFileToList(keywordAndCorrespondingFiles, contextName, property);
-                    keywordAndCorrespondingFiles.put(contextName, newFilesList);
+                    Set<String> newFilesSet = addFileToSet(keywordAndCorrespondingFiles, contextName, property);
+                    keywordAndCorrespondingFiles.put(contextName, newFilesSet);
                 }
             }
         });
         nativeCrac.fillKeywordMap(keywordAndCorrespondingFiles);
     }
 
-    private List<String> addFileToList(Map<String, List<String>> map, String contextName, PropertyBags property) {
+    private Set<String> addFileToSet(Map<String, Set<String>> map, String contextName, PropertyBags property) {
         String keyword = property.get(0).getId(CsaProfileConstants.REQUEST_HEADER_KEYWORD);
-        List<String> returnList = map.computeIfAbsent(keyword, k -> new ArrayList<>());
-        returnList.add(contextName);
-        return returnList;
+        Set<String> returnSet = map.computeIfAbsent(keyword, k -> new HashSet<>());
+        returnSet.add(contextName);
+        return returnSet;
     }
 
     private boolean checkTimeCoherence(PropertyBag header, OffsetDateTime offsetDateTime) {
