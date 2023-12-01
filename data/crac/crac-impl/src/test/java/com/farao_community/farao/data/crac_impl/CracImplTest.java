@@ -31,6 +31,7 @@ import java.util.*;
 
 import static com.farao_community.farao.data.crac_api.usage_rule.UsageMethod.*;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * General test file
