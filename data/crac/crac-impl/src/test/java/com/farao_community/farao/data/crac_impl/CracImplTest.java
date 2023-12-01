@@ -157,9 +157,6 @@ class CracImplTest {
         PstRangeAction rangeAction = Mockito.mock(PstRangeAction.class);
         Mockito.when(rangeAction.getId()).thenReturn("rangeAction");
         State state = Mockito.mock(State.class);
-        Instant instant = Mockito.mock(Instant.class);
-        Mockito.when(instant.toString()).thenReturn(PREVENTIVE_INSTANT_ID);
-        Mockito.when(state.getInstant()).thenReturn(instant);
         Mockito.when(state.getContingency()).thenReturn(Optional.empty());
 
         assertEquals(0, crac.getPstRangeActions().size());
@@ -177,9 +174,6 @@ class CracImplTest {
         HvdcRangeAction rangeAction = Mockito.mock(HvdcRangeAction.class);
         Mockito.when(rangeAction.getId()).thenReturn("rangeAction");
         State state = Mockito.mock(State.class);
-        Instant instant = Mockito.mock(Instant.class);
-        Mockito.when(instant.toString()).thenReturn(PREVENTIVE_INSTANT_ID);
-        Mockito.when(state.getInstant()).thenReturn(instant);
         Mockito.when(state.getContingency()).thenReturn(Optional.empty());
 
         assertEquals(0, crac.getHvdcRangeActions().size());

@@ -98,7 +98,6 @@ class SearchTreeTest {
         when(searchTreeParameters.getObjectiveFunction()).thenReturn(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_MARGIN_IN_MEGAWATT);
         mockNetworkPool(network);
         outageInstant = Mockito.mock(Instant.class);
-        Mockito.when(outageInstant.getOrder()).thenReturn(1);
     }
 
     private void setSearchTreeParameters() {
