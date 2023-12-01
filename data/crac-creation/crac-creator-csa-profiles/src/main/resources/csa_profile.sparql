@@ -22,9 +22,12 @@ SELECT *
 {
 GRAPH <%s> {
     ?fullModel
-        dcat:startDate ?startDate ;
-        dcat:endDate ?endDate ;
-        dcat:keyword ?keyword .
+        dcat:keyword ?keyword ;
+    OPTIONAL {
+        ?fullModel
+            dcat:startDate ?startDate ;
+            dcat:endDate ?endDate ;
+        }
 }
 }
 
