@@ -36,16 +36,11 @@ import org.apache.commons.lang3.NotImplementedException;
 
 import java.nio.charset.StandardCharsets;
 import java.util.*;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ForkJoinTask;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
-import static com.farao_community.farao.commons.logs.FaraoLoggerProvider.BUSINESS_LOGS;
-import static com.farao_community.farao.commons.logs.FaraoLoggerProvider.BUSINESS_WARNS;
-import static com.farao_community.farao.commons.logs.FaraoLoggerProvider.TECHNICAL_LOGS;
+import static com.farao_community.farao.commons.logs.FaraoLoggerProvider.*;
 import static com.farao_community.farao.search_tree_rao.castor.algorithm.AutomatonSimulator.getRangeActionsAndTheirTapsAppliedOnState;
 
 /**
@@ -300,7 +295,7 @@ public class SearchTree {
                 networkPool.releaseUsedNetwork(networkClone);
                 return null; // we need to return null, in order for the compiler to know that this statement must be reached in normal cases
             })
-        ).toList();
+        ).collect(Collectors.toList());
         for (ForkJoinTask<Object> task : tasks) {
             try {
                 task.get();

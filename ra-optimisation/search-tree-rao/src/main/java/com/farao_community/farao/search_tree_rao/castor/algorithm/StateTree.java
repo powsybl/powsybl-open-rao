@@ -43,8 +43,7 @@ public class StateTree {
      * Else, the state is optimized in basecase RAO.
      */
     private void processOutageInstant(Contingency contingency, Crac crac) {
-        Instant outageInstant = crac.getInstant(InstantKind.OUTAGE);
-        State outageState = crac.getState(contingency.getId(), outageInstant);
+        State outageState = crac.getState(contingency.getId(), crac.getInstant(InstantKind.OUTAGE));
         if (outageState != null) {
             if (anyAvailableRemedialAction(crac, outageState)) {
                 throw new FaraoException(String.format("Outage state %s has available RAs. This is not supported.", outageState));
@@ -64,10 +63,8 @@ public class StateTree {
      * If AUTO or CURATIVE state does not exist, it will not be optimized.
      */
     private void processAutoAndCurativeInstants(Contingency contingency, Crac crac) {
-        Instant autoInstant = crac.getInstant(InstantKind.AUTO);
-        Instant curativeInstant = crac.getInstant(InstantKind.CURATIVE);
-        State automatonState = crac.getState(contingency.getId(), autoInstant);
-        State curativeState = crac.getState(contingency.getId(), curativeInstant);
+        State automatonState = crac.getState(contingency.getId(), crac.getInstant(InstantKind.AUTO));
+        State curativeState = crac.getState(contingency.getId(), crac.getInstant(InstantKind.CURATIVE));
         boolean autoRasExist = (automatonState != null) && anyAvailableRemedialAction(crac, automatonState);
         boolean curativeRasExist = (curativeState != null) && anyAvailableRemedialAction(crac, curativeState);
 
@@ -104,7 +101,7 @@ public class StateTree {
 
     private static boolean anyAvailableRemedialAction(Crac crac, State state) {
         return !crac.getPotentiallyAvailableNetworkActions(state).isEmpty() ||
-            !crac.getPotentiallyAvailableRangeActions(state).isEmpty();
+                !crac.getPotentiallyAvailableRangeActions(state).isEmpty();
     }
 
     static Set<String> findOperatorsNotSharingCras(Crac crac, Set<State> optimizedCurativeStates) {
@@ -116,7 +113,7 @@ public class StateTree {
 
     static boolean tsoHasCra(String tso, Crac crac, Set<State> optimizedCurativeStates) {
         return optimizedCurativeStates.stream().anyMatch(state ->
-            crac.getPotentiallyAvailableNetworkActions(state).stream().map(RemedialAction::getOperator).anyMatch(raTso -> raTso.equals(tso)) ||
+           crac.getPotentiallyAvailableNetworkActions(state).stream().map(RemedialAction::getOperator).anyMatch(raTso -> raTso.equals(tso)) ||
                 crac.getPotentiallyAvailableRangeActions(state).stream().map(RemedialAction::getOperator).anyMatch(raTso -> raTso.equals(tso))
         );
     }

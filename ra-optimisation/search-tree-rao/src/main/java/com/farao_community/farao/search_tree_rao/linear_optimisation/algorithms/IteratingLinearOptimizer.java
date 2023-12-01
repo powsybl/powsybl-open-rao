@@ -26,9 +26,7 @@ import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.Locale;
 
-import static com.farao_community.farao.commons.logs.FaraoLoggerProvider.BUSINESS_LOGS;
-import static com.farao_community.farao.commons.logs.FaraoLoggerProvider.BUSINESS_WARNS;
-import static com.farao_community.farao.commons.logs.FaraoLoggerProvider.TECHNICAL_LOGS;
+import static com.farao_community.farao.commons.logs.FaraoLoggerProvider.*;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}

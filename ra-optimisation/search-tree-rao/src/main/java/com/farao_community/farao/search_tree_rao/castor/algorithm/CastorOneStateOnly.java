@@ -6,7 +6,6 @@
  */
 package com.farao_community.farao.search_tree_rao.castor.algorithm;
 
-import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.InstantKind;
 import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
@@ -88,8 +87,7 @@ public class CastorOneStateOnly {
 
         if (raoInput.getOptimizedState().getInstant().isAuto()) {
             perimeterFlowCnecs = raoInput.getCrac().getFlowCnecs(raoInput.getOptimizedState());
-            Instant curativeInstant = raoInput.getCrac().getInstant(InstantKind.CURATIVE);
-            State curativeState = raoInput.getCrac().getState(raoInput.getOptimizedState().getContingency().orElseThrow(), curativeInstant);
+            State curativeState = raoInput.getCrac().getState(raoInput.getOptimizedState().getContingency().orElseThrow(), raoInput.getCrac().getInstant(InstantKind.CURATIVE));
             AutomatonSimulator automatonSimulator = new AutomatonSimulator(raoInput.getCrac(), raoParameters, toolProvider, initialResults, initialResults, initialResults, stateTree.getOperatorsNotSharingCras(), 2);
             optimizationResult = automatonSimulator.simulateAutomatonState(raoInput.getOptimizedState(), curativeState, raoInput.getNetwork());
         } else {

@@ -143,8 +143,8 @@ public final class RaoUtil {
 
             if (preventiveState.isPreventive()) {
                 Optional<RangeAction<?>> correspondingRa = optimizationContext.getRangeActionsPerState().get(preventiveState).stream()
-                    .filter(ra -> ra.getId().equals(rangeAction.getId()) || ra.getNetworkElements().equals(rangeAction.getNetworkElements()))
-                    .findAny();
+                        .filter(ra -> ra.getId().equals(rangeAction.getId()) || ra.getNetworkElements().equals(rangeAction.getNetworkElements()))
+                        .findAny();
 
                 if (correspondingRa.isPresent()) {
                     return Pair.of(correspondingRa.get(), preventiveState);

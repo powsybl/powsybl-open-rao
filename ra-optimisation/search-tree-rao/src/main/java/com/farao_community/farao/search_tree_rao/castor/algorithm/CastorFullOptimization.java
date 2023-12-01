@@ -29,9 +29,7 @@ import com.farao_community.farao.search_tree_rao.commons.optimization_perimeters
 import com.farao_community.farao.search_tree_rao.commons.optimization_perimeters.PreventiveOptimizationPerimeter;
 import com.farao_community.farao.search_tree_rao.commons.parameters.TreeParameters;
 import com.farao_community.farao.search_tree_rao.commons.parameters.UnoptimizedCnecParameters;
-import com.farao_community.farao.search_tree_rao.result.api.OptimizationResult;
-import com.farao_community.farao.search_tree_rao.result.api.PerimeterResult;
-import com.farao_community.farao.search_tree_rao.result.api.PrePerimeterResult;
+import com.farao_community.farao.search_tree_rao.result.api.*;
 import com.farao_community.farao.search_tree_rao.result.impl.*;
 import com.farao_community.farao.search_tree_rao.search_tree.algorithms.SearchTree;
 import com.farao_community.farao.search_tree_rao.search_tree.inputs.SearchTreeInput;
@@ -335,7 +333,7 @@ public class CastorFullOptimization {
                     networkPool.releaseUsedNetwork(networkClone);
                     return null;
                 })
-            ).toList();
+            ).collect(Collectors.toList());
             for (ForkJoinTask<Object> task : tasks) {
                 try {
                     task.get();

@@ -11,6 +11,7 @@ import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_api.cnec.AngleCnec;
+
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.monitoring.angle_monitoring.AngleMonitoringResult;
 import org.junit.jupiter.api.BeforeEach;
@@ -23,8 +24,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -138,7 +138,7 @@ class JsonAngleMonitoringResultTest {
                 assertTrue(expectedResult.stream().anyMatch(exRes -> compareAngleResults(exRes, angleResult))));
         OutputStream os = new ByteArrayOutputStream();
         new AngleMonitoringResultExporter().export(angleMonitoringResult, os);
-        String expected = new String(Objects.requireNonNull(getClass().getResourceAsStream("/result-roundTrip.json")).readAllBytes());
+        String expected = new String(getClass().getResourceAsStream("/result-roundTrip.json").readAllBytes());
         assertEquals(expected.replaceAll("\r", ""), os.toString().replaceAll("\r", ""));
     }
 

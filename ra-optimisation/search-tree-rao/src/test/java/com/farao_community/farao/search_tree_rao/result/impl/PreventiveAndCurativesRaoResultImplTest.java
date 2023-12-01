@@ -292,7 +292,7 @@ class PreventiveAndCurativesRaoResultImplTest {
 
     @Test
     void testGetMostLimitingElements() {
-        assertTrue(output.getMostLimitingElements().isEmpty());
+        assertNull(output.getMostLimitingElements());
     }
 
     @Test
@@ -336,11 +336,11 @@ class PreventiveAndCurativesRaoResultImplTest {
         assertEquals(List.of(cnec3, cnec2), output.getCostlyElements(preventiveInstant, "mnec", 5));
         assertEquals(List.of(cnec1, cnec4), output.getCostlyElements(preventiveInstant, "lf", 15));
 
-        assertTrue(output.getCostlyElements(autoInstant, "mnec", 5).isEmpty());
-        assertTrue(output.getCostlyElements(autoInstant, "lf", 15).isEmpty());
+        assertNull(output.getCostlyElements(autoInstant, "mnec", 5));
+        assertNull(output.getCostlyElements(autoInstant, "lf", 15));
 
-        assertTrue(output.getCostlyElements(curativeInstant, "mnec", 5).isEmpty());
-        assertTrue(output.getCostlyElements(curativeInstant, "lf", 15).isEmpty());
+        assertNull(output.getCostlyElements(curativeInstant, "mnec", 5));
+        assertNull(output.getCostlyElements(curativeInstant, "lf", 15));
     }
 
     @Test
@@ -648,10 +648,10 @@ class PreventiveAndCurativesRaoResultImplTest {
         assertEquals(-1050., output.getFunctionalCost(curativeInstant), DOUBLE_TOLERANCE);
 
         // Test get most limiting elements
-        assertTrue(output.getMostLimitingElements().isEmpty());
-        assertTrue(output.getMostLimitingElements().isEmpty());
-        assertTrue(output.getMostLimitingElements().isEmpty());
-        assertTrue(output.getMostLimitingElements().isEmpty());
+        assertNull(output.getMostLimitingElements());
+        assertNull(output.getMostLimitingElements());
+        assertNull(output.getMostLimitingElements());
+        assertNull(output.getMostLimitingElements());
 
         // Test get virtual cost
         assertEquals(100., output.getVirtualCost(null), DOUBLE_TOLERANCE);

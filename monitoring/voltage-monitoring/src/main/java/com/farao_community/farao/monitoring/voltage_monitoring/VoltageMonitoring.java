@@ -8,10 +8,7 @@
 package com.farao_community.farao.monitoring.voltage_monitoring;
 
 import com.farao_community.farao.commons.FaraoException;
-import com.farao_community.farao.data.crac_api.Contingency;
-import com.farao_community.farao.data.crac_api.Crac;
-import com.farao_community.farao.data.crac_api.RemedialAction;
-import com.farao_community.farao.data.crac_api.State;
+import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_api.cnec.Cnec;
 import com.farao_community.farao.data.crac_api.cnec.VoltageCnec;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
@@ -330,7 +327,7 @@ public class VoltageMonitoring {
         BUSINESS_WARNS.warn("Load-flow computation failed at state {}. Skipping this state.", state);
         Map<VoltageCnec, ExtremeVoltageValues> voltagePerCnec = new HashMap<>();
         crac.getVoltageCnecs(state).forEach(vc -> {
-            voltagePerCnec.put(vc, new ExtremeVoltageValues(new HashSet<>(List.of(Double.NaN))));
+            voltagePerCnec.put(vc, new ExtremeVoltageValues(new HashSet<>(Arrays.asList(Double.NaN))));
         });
         return new VoltageMonitoringResult(voltagePerCnec, new HashMap<>(), securityStatus);
     }

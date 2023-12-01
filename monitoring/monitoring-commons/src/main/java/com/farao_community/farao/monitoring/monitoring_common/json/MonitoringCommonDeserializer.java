@@ -51,7 +51,7 @@ public final class MonitoringCommonDeserializer {
             // Get network Actions from string
             State state = getState(instant, contingencyId, crac);
             if (appliedRas.containsKey(state)) {
-                throw new FaraoException(String.format("State with instant %s and contingency %s has previously been defined in %s", instant, contingencyId, REMEDIAL_ACTIONS));
+                throw new FaraoException(String.format("State with instant %s and contingency %s has previously been defined in %s", instant.getId(), contingencyId, REMEDIAL_ACTIONS));
             } else {
                 appliedRas.put(state, getNetworkActions(remedialActionIds, crac));
             }
@@ -68,7 +68,7 @@ public final class MonitoringCommonDeserializer {
         }
         State state = crac.getState(contingencyId, instant);
         if (state == null) {
-            throw new FaraoException(String.format("State with instant %s and contingency %s does not exist in CRAC", instant, contingencyId));
+            throw new FaraoException(String.format("State with instant %s and contingency %s does not exist in CRAC", instant.getId(), contingencyId));
         }
         return state;
     }

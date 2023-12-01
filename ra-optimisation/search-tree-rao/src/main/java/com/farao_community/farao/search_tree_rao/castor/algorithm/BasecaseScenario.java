@@ -27,9 +27,8 @@ public class BasecaseScenario {
 
     /**
      * Construct a basecase scenario
-     *
      * @param basecaseState the basecase state (required)
-     * @param otherStates   the other states to optimize in preventive (can be empty or null)
+     * @param otherStates the other states to optimize in preventive (can be empty or null)
      */
     public BasecaseScenario(State basecaseState, Set<State> otherStates) {
         Objects.requireNonNull(basecaseState);

@@ -68,9 +68,9 @@ public class Leaf implements OptimizationResult {
     private final OptimizationPerimeter optimizationPerimeter;
     private final Set<NetworkAction> appliedNetworkActionsInPrimaryState;
     private final AppliedRemedialActions appliedRemedialActionsInSecondaryStates; // for 2nd prev
+    private Network network;
     private final RangeActionActivationResult raActivationResultFromParentLeaf;
     private final RangeActionSetpointResult prePerimeterSetpoints;
-    private Network network;
     /**
      * Status of the leaf's Network Action evaluation
      */
@@ -79,6 +79,7 @@ public class Leaf implements OptimizationResult {
     private SensitivityResult preOptimSensitivityResult;
     private ObjectiveFunctionResult preOptimObjectiveFunctionResult;
     private LinearOptimizationResult postOptimResult;
+
     /**
      * Flag indicating whether the data needed for optimization is present
      * It is assumed that data is present initially and that it can be deleted afterwards

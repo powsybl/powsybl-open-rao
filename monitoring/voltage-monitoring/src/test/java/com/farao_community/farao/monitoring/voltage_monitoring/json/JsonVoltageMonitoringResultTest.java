@@ -23,7 +23,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.List;
-import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Stream;
 
@@ -120,7 +119,7 @@ class JsonVoltageMonitoringResultTest {
 
         OutputStream os = new ByteArrayOutputStream();
         new VoltageMonitoringResultExporter().export(voltageMonitoringResult, os);
-        String expected = new String(Objects.requireNonNull(getClass().getResourceAsStream("/result.json")).readAllBytes());
+        String expected = new String(getClass().getResourceAsStream("/result.json").readAllBytes());
         assertEquals(expected.replaceAll("\r", ""), os.toString().replaceAll("\r", ""));
     }
 

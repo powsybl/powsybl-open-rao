@@ -18,8 +18,8 @@ import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.data.rao_result_api.ComputationStatus;
 import com.farao_community.farao.data.rao_result_api.OptimizationStepsExecuted;
 import com.farao_community.farao.data.rao_result_api.RaoResult;
-import com.farao_community.farao.search_tree_rao.castor.algorithm.StateTree;
 import com.farao_community.farao.search_tree_rao.result.api.*;
+import com.farao_community.farao.search_tree_rao.castor.algorithm.StateTree;
 
 import java.util.*;
 
@@ -256,7 +256,7 @@ public class PreventiveAndCurativesRaoResultImpl implements RaoResult {
 
     @Override
     public double getFlow(Instant optimizedInstant, FlowCnec flowCnec, Side side, Unit unit) {
-        FlowResult flowResult = getFlowResult(optimizedInstant, flowCnec);
+        FlowResult flowResult =  getFlowResult(optimizedInstant, flowCnec);
         if (Objects.nonNull(flowResult)) {
             return flowResult.getFlow(flowCnec, side, unit);
         } else {
@@ -340,7 +340,7 @@ public class PreventiveAndCurativesRaoResultImpl implements RaoResult {
 
     public List<FlowCnec> getMostLimitingElements() {
         //TODO : store values to be able to merge easily
-        return Collections.emptyList();
+        return null;
     }
 
     @Override
@@ -408,7 +408,7 @@ public class PreventiveAndCurativesRaoResultImpl implements RaoResult {
             return finalCostEvaluator.getCostlyElements(virtualCostName, number);
         } else {
             // TODO : for other cases, store values to be able to merge easily
-            return Collections.emptyList();
+            return null;
         }
     }
 

@@ -21,8 +21,7 @@ import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityInter
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityResult;
 import com.powsybl.iidm.network.Network;
 
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}

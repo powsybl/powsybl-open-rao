@@ -26,10 +26,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import static com.farao_community.farao.monitoring.angle_monitoring.json.JsonAngleMonitoringResultConstants.ANGLE_MONITORING_RESULT;
-import static com.farao_community.farao.monitoring.angle_monitoring.json.JsonAngleMonitoringResultConstants.ANGLE_VALUES;
-import static com.farao_community.farao.monitoring.angle_monitoring.json.JsonAngleMonitoringResultConstants.APPLIED_CRAS;
-import static com.farao_community.farao.monitoring.angle_monitoring.json.JsonAngleMonitoringResultConstants.QUANTITY;
+import static com.farao_community.farao.monitoring.angle_monitoring.json.JsonAngleMonitoringResultConstants.*;
 import static com.farao_community.farao.monitoring.monitoring_common.json.JsonCommonMonitoringResultConstants.*;
 import static com.farao_community.farao.monitoring.monitoring_common.json.MonitoringCommonDeserializer.getState;
 
@@ -55,7 +52,7 @@ public class AngleMonitoringResultDeserializer extends JsonDeserializer<AngleMon
         if (!firstFieldName.equals(TYPE) || !jsonParser.nextTextValue().equals(ANGLE_MONITORING_RESULT)) {
             throw new FaraoException(String.format("Type of document must be specified at the beginning as %s", ANGLE_MONITORING_RESULT));
         }
-        AngleMonitoringResult.Status status;
+        AngleMonitoringResult.Status status = null;
         String secondFieldName = jsonParser.nextFieldName();
         if (!secondFieldName.equals(STATUS)) {
             throw new FaraoException("Status must be specified right after type of document.");
@@ -123,7 +120,7 @@ public class AngleMonitoringResultDeserializer extends JsonDeserializer<AngleMon
             State state = getState(instant, contingencyId, crac);
             if (angleResults.stream().anyMatch(angleResult -> angleResult.getAngleCnec().equals(angleCnec) &&
                     angleResult.getState().equals(state))) {
-                throw new FaraoException(String.format("Angle values for AngleCnec %s, instant %s and contingency %s are defined more than once", cnecId, instant, contingencyId));
+                throw new FaraoException(String.format("Angle values for AngleCnec %s, instant %s and contingency %s are defined more than once", cnecId, instant.getId(), contingencyId));
             }
             angleResults.add(new AngleMonitoringResult.AngleResult(angleCnec, quantity));
         }

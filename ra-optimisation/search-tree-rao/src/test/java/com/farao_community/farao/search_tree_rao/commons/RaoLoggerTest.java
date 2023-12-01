@@ -21,11 +21,11 @@ import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.data.crac_impl.CracImpl;
 import com.farao_community.farao.rao_api.parameters.ObjectiveFunctionParameters;
-import com.farao_community.farao.search_tree_rao.castor.algorithm.BasecaseScenario;
-import com.farao_community.farao.search_tree_rao.castor.algorithm.ContingencyScenario;
 import com.farao_community.farao.search_tree_rao.result.api.FlowResult;
 import com.farao_community.farao.search_tree_rao.result.api.ObjectiveFunctionResult;
 import com.farao_community.farao.search_tree_rao.result.api.OptimizationResult;
+import com.farao_community.farao.search_tree_rao.castor.algorithm.BasecaseScenario;
+import com.farao_community.farao.search_tree_rao.castor.algorithm.ContingencyScenario;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -33,14 +33,15 @@ import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
-import static com.farao_community.farao.commons.Unit.AMPERE;
-import static com.farao_community.farao.commons.Unit.MEGAWATT;
 import static java.lang.String.format;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static com.farao_community.farao.commons.Unit.AMPERE;
+import static com.farao_community.farao.commons.Unit.MEGAWATT;
 
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
@@ -303,12 +304,10 @@ class RaoLoggerTest {
     void testLogOptimizationSummary() {
         State preventive = Mockito.mock(State.class);
         Instant preventiveInstant = Mockito.mock(Instant.class);
-        when(preventiveInstant.getInstantKind()).thenReturn(InstantKind.PREVENTIVE);
         when(preventiveInstant.toString()).thenReturn(PREVENTIVE_INSTANT_ID);
         when(preventive.getInstant()).thenReturn(preventiveInstant);
         State curative = Mockito.mock(State.class);
         Instant curativeInstant = Mockito.mock(Instant.class);
-        when(curativeInstant.getInstantKind()).thenReturn(InstantKind.CURATIVE);
         when(curativeInstant.toString()).thenReturn(CURATIVE_INSTANT_ID);
         when(curative.getInstant()).thenReturn(curativeInstant);
         Contingency contingency = Mockito.mock(Contingency.class);
@@ -383,13 +382,7 @@ class RaoLoggerTest {
     @Test
     void testLogFailedOptimizationSummary() {
         State preventive = Mockito.mock(State.class);
-        Instant preventiveInstant = Mockito.mock(Instant.class);
-        when(preventiveInstant.getInstantKind()).thenReturn(InstantKind.PREVENTIVE);
-        when(preventive.getInstant()).thenReturn(preventiveInstant);
         State curative = Mockito.mock(State.class);
-        Instant curativeInstant = Mockito.mock(Instant.class);
-        when(curativeInstant.getInstantKind()).thenReturn(InstantKind.CURATIVE);
-        when(curative.getInstant()).thenReturn(curativeInstant);
         Contingency contingency = Mockito.mock(Contingency.class);
         when(contingency.getName()).thenReturn("contingency");
         when(curative.getContingency()).thenReturn(Optional.of(contingency));

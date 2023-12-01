@@ -47,7 +47,6 @@ import static org.mockito.Mockito.*;
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
 class AutomatonSimulatorTest {
-    private static final double DOUBLE_TOLERANCE = 0.01;
     private static final String PREVENTIVE_INSTANT_ID = "preventive";
     private static final String OUTAGE_INSTANT_ID = "outage";
     private static final String AUTO_INSTANT_ID = "auto";
@@ -77,6 +76,8 @@ class AutomatonSimulatorTest {
     private ToolProvider toolProvider;
     private Instant preventiveInstant;
     private Instant autoInstant;
+
+    private static final double DOUBLE_TOLERANCE = 0.01;
 
     @BeforeEach
     public void setup() {
