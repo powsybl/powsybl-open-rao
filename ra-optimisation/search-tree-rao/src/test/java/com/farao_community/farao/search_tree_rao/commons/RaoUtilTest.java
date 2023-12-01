@@ -18,6 +18,7 @@ import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_api.network_action.ActionType;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
+import com.farao_community.farao.data.crac_api.usage_rule.OnFlowConstraint;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import com.farao_community.farao.data.crac_impl.utils.CommonCracCreation;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
@@ -216,6 +217,7 @@ class RaoUtilTest {
             .newTopologicalAction().withNetworkElement("ne2").withActionType(ActionType.OPEN).add()
             .newOnFlowConstraintUsageRule().withInstant(curativeInstant).withFlowCnec(flowCnec.getId()).add()
             .add();
+        OnFlowConstraint onFlowConstraint = (OnFlowConstraint) na2.getUsageRules().iterator().next();
 
         when(flowResult.getMargin(eq(flowCnec), any())).thenReturn(10.);
         assertFalse(na2.isRemedialActionAvailable(optimizedState, RaoUtil.isAnyMarginNegative(flowResult, na2.getFlowCnecsConstrainingUsageRules(crac.getFlowCnecs(), network, optimizedState), raoParameters.getObjectiveFunctionParameters().getType().getUnit())));

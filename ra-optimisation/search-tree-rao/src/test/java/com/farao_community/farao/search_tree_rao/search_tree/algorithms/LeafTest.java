@@ -102,7 +102,6 @@ class LeafTest {
         virtualCostName = "VirtualCost";
         linearProblemMockedStatic = mockStatic(LinearProblem.class);
         iteratingLinearOptimizerMockedStatic = mockStatic(IteratingLinearOptimizer.class);
-
         outageInstant = Mockito.mock(Instant.class);
     }
 
