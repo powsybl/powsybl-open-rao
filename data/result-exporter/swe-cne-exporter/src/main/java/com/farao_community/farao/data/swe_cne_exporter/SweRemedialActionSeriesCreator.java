@@ -16,16 +16,13 @@ import com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.Cim
 import com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.remedial_action.PstRangeActionSeriesCreationContext;
 import com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.remedial_action.RemedialActionSeriesCreationContext;
 import com.farao_community.farao.data.rao_result_api.RaoResult;
-import com.farao_community.farao.data.swe_cne_exporter.xsd.RemedialActionRegisteredResource;
-import com.farao_community.farao.data.swe_cne_exporter.xsd.RemedialActionSeries;
+import com.farao_community.farao.data.swe_cne_exporter.xsd.*;
 import com.farao_community.farao.monitoring.angle_monitoring.AngleMonitoringResult;
 import org.apache.commons.lang3.NotImplementedException;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import static com.farao_community.farao.data.cne_exporter_commons.CneConstants.*;
 
@@ -49,7 +46,7 @@ public class SweRemedialActionSeriesCreator {
         List<RemedialActionSeriesCreationContext> sortedRas = cracCreationContext.getRemedialActionSeriesCreationContexts().stream()
             .filter(RemedialActionSeriesCreationContext::isImported)
             .sorted(Comparator.comparing(RemedialActionSeriesCreationContext::getNativeId))
-            .toList();
+            .collect(Collectors.toList());
         if (Objects.isNull(contingency)) {
             //PREVENTIVE
             sortedRas.forEach(
@@ -88,7 +85,7 @@ public class SweRemedialActionSeriesCreator {
         List<RemedialActionSeriesCreationContext> sortedRas = cracCreationContext.getRemedialActionSeriesCreationContexts().stream()
             .filter(RemedialActionSeriesCreationContext::isImported)
             .sorted(Comparator.comparing(RemedialActionSeriesCreationContext::getNativeId))
-            .toList();
+            .collect(Collectors.toList());
         if (Objects.isNull(contingency)) {
             //PREVENTIVE
             sortedRas.forEach(

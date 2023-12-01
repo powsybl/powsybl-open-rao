@@ -17,10 +17,8 @@ import com.farao_community.farao.data.swe_cne_exporter.xsd.AdditionalConstraintS
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import static com.farao_community.farao.commons.logs.FaraoLoggerProvider.BUSINESS_WARNS;
 
@@ -47,7 +45,7 @@ public class SweAdditionalConstraintSeriesCreator {
         List<AngleCnecCreationContext> sortedAngleCnecs = cracCreationContext.getAngleCnecCreationContexts().stream()
                 .filter(AngleCnecCreationContext::isImported)
                 .sorted(Comparator.comparing(AngleCnecCreationContext::getCreatedCnecId))
-                .toList();
+                .collect(Collectors.toList());
         if (Objects.isNull(contingency)) {
             sortedAngleCnecs.stream().filter(angleCnecCreationContext -> Objects.isNull(angleCnecCreationContext.getContingencyId()))
                     .forEach(angleCnecCreationContext ->
@@ -55,9 +53,9 @@ public class SweAdditionalConstraintSeriesCreator {
         } else {
             sortedAngleCnecs.stream()
                     .filter(angleCnecCreationContext -> angleCnecCreationContext.getContingencyId().equals(contingency.getId()))
-                        .map(this::generateAdditionalConstraintSeries)
-                            .filter(Objects::nonNull)
-                                .forEach(additionalConstraintSeriesList::add);
+                            .map(this::generateAdditionalConstraintSeries)
+                                    .filter(Objects::nonNull)
+                                            .forEach(additionalConstraintSeriesList::add);
         }
         return additionalConstraintSeriesList;
     }

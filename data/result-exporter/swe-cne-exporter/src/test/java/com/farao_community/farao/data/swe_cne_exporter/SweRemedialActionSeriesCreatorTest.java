@@ -19,12 +19,11 @@ import com.farao_community.farao.data.rao_result_api.RaoResult;
 import com.farao_community.farao.data.swe_cne_exporter.xsd.RemedialActionSeries;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 
 import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 /**
  * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
@@ -41,29 +40,29 @@ class SweRemedialActionSeriesCreatorTest {
 
     @BeforeEach
     public void setup() {
-        this.crac = mock(Crac.class);
-        this.raoResult = mock(RaoResult.class);
-        this.cracCreationContext = mock(CimCracCreationContext.class);
-        this.cneHelper = mock(SweCneHelper.class);
+        this.crac = Mockito.mock(Crac.class);
+        this.raoResult = Mockito.mock(RaoResult.class);
+        this.cracCreationContext = Mockito.mock(CimCracCreationContext.class);
+        this.cneHelper = Mockito.mock(SweCneHelper.class);
 
-        when(cneHelper.getCrac()).thenReturn(crac);
-        when(cneHelper.getRaoResult()).thenReturn(raoResult);
+        Mockito.when(cneHelper.getCrac()).thenReturn(crac);
+        Mockito.when(cneHelper.getRaoResult()).thenReturn(raoResult);
         Instant preventiveInstant = getMockInstant(true, false, false);
         Instant autoInstant = getMockInstant(false, true, false);
         Instant curativeInstant = getMockInstant(false, false, true);
-        when(crac.getInstant(PREVENTIVE_INSTANT_ID)).thenReturn(preventiveInstant);
-        when(crac.getInstant(AUTO_INSTANT_ID)).thenReturn(autoInstant);
-        when(crac.getInstant(CURATIVE_INSTANT_ID)).thenReturn(curativeInstant);
-        when(crac.getInstant(InstantKind.PREVENTIVE)).thenReturn(preventiveInstant);
-        when(crac.getInstant(InstantKind.AUTO)).thenReturn(autoInstant);
-        when(crac.getInstant(InstantKind.CURATIVE)).thenReturn(curativeInstant);
+        Mockito.when(crac.getInstant(PREVENTIVE_INSTANT_ID)).thenReturn(preventiveInstant);
+        Mockito.when(crac.getInstant(AUTO_INSTANT_ID)).thenReturn(autoInstant);
+        Mockito.when(crac.getInstant(CURATIVE_INSTANT_ID)).thenReturn(curativeInstant);
+        Mockito.when(crac.getInstant(InstantKind.PREVENTIVE)).thenReturn(preventiveInstant);
+        Mockito.when(crac.getInstant(InstantKind.AUTO)).thenReturn(autoInstant);
+        Mockito.when(crac.getInstant(InstantKind.CURATIVE)).thenReturn(curativeInstant);
     }
 
     private static Instant getMockInstant(boolean isPreventive, boolean isAuto, boolean isCurative) {
-        Instant instant = mock(Instant.class);
-        when(instant.isPreventive()).thenReturn(isPreventive);
-        when(instant.isAuto()).thenReturn(isAuto);
-        when(instant.isCurative()).thenReturn(isCurative);
+        Instant instant = Mockito.mock(Instant.class);
+        Mockito.when(instant.isPreventive()).thenReturn(isPreventive);
+        Mockito.when(instant.isAuto()).thenReturn(isAuto);
+        Mockito.when(instant.isCurative()).thenReturn(isCurative);
         return instant;
     }
 
@@ -78,7 +77,7 @@ class SweRemedialActionSeriesCreatorTest {
         rasccList.add(createRascc("hvdcEsFr", true, Set.of("hvdcFrEs + hvdcEsFr - 1", "hvdcFrEs + hvdcEsFr - 2"), false, "", "", true));
         rasccList.add(createRascc("hvdcPtEs", true, Set.of("hvdcPtEs + hvdcEsPt - 1", "hvdcPtEs + hvdcEsPt - 2"), false, "", "", false));
         rasccList.add(createRascc("hvdcEsPt", true, Set.of("hvdcPtEs + hvdcEsPt - 1", "hvdcPtEs + hvdcEsPt - 2"), false, "", "", true));
-        when(cracCreationContext.getRemedialActionSeriesCreationContexts()).thenReturn(rasccList);
+        Mockito.when(cracCreationContext.getRemedialActionSeriesCreationContexts()).thenReturn(rasccList);
 
         addRemedialActionToCrac("networkActionCreatedId", "networkActionName", NetworkAction.class);
         addRemedialActionToCrac("na_missing", "networkActionName", NetworkAction.class);
@@ -90,8 +89,8 @@ class SweRemedialActionSeriesCreatorTest {
         addRemedialActionToCrac("hvdcPtEs + hvdcEsPt - 2", "hvdcPtEs2", HvdcRangeAction.class);
 
         State preventiveState = addStateToCrac(crac.getInstant(PREVENTIVE_INSTANT_ID), null);
-        Contingency contingency = mock(Contingency.class);
-        when(contingency.getId()).thenReturn("contingency");
+        Contingency contingency = Mockito.mock(Contingency.class);
+        Mockito.when(contingency.getId()).thenReturn("contingency");
         State autoState = addStateToCrac(crac.getInstant(AUTO_INSTANT_ID), contingency);
         State curativeState = addStateToCrac(crac.getInstant(CURATIVE_INSTANT_ID), contingency);
 
@@ -124,29 +123,29 @@ class SweRemedialActionSeriesCreatorTest {
     private RemedialActionSeriesCreationContext createRascc(String nativeId, boolean isImported, Set<String> createdIds, boolean isPst, String pstElementMrid, String pstElementName, boolean isInverted) {
         RemedialActionSeriesCreationContext rascc;
         if (isPst) {
-            rascc = mock(PstRangeActionSeriesCreationContext.class);
-            when(((PstRangeActionSeriesCreationContext) rascc).getNetworkElementNativeMrid()).thenReturn(pstElementMrid);
-            when(((PstRangeActionSeriesCreationContext) rascc).getNetworkElementNativeName()).thenReturn(pstElementName);
+            rascc = Mockito.mock(PstRangeActionSeriesCreationContext.class);
+            Mockito.when(((PstRangeActionSeriesCreationContext) rascc).getNetworkElementNativeMrid()).thenReturn(pstElementMrid);
+            Mockito.when(((PstRangeActionSeriesCreationContext) rascc).getNetworkElementNativeName()).thenReturn(pstElementName);
         } else {
-            rascc = mock(RemedialActionSeriesCreationContext.class);
+            rascc = Mockito.mock(RemedialActionSeriesCreationContext.class);
         }
-        when(rascc.getNativeId()).thenReturn(nativeId);
-        when(rascc.getCreatedIds()).thenReturn(createdIds);
-        when(rascc.isInverted()).thenReturn(isInverted);
-        when(rascc.isImported()).thenReturn(isImported);
+        Mockito.when(rascc.getNativeId()).thenReturn(nativeId);
+        Mockito.when(rascc.getCreatedIds()).thenReturn(createdIds);
+        Mockito.when(rascc.isInverted()).thenReturn(isInverted);
+        Mockito.when(rascc.isImported()).thenReturn(isImported);
         return rascc;
     }
 
     private State addStateToCrac(Instant instant, Contingency contingency) {
-        State state = mock(State.class);
-        when(state.getInstant()).thenReturn(instant);
-        when(state.getContingency()).thenReturn(Objects.isNull(contingency) ? Optional.empty() : Optional.of(contingency));
-        when(crac.getState(contingency, instant)).thenReturn(state);
+        State state = Mockito.mock(State.class);
+        Mockito.when(state.getInstant()).thenReturn(instant);
+        Mockito.when(state.getContingency()).thenReturn(Objects.isNull(contingency) ? Optional.empty() : Optional.of(contingency));
+        Mockito.when(crac.getState(contingency, instant)).thenReturn(state);
         if (instant.isPreventive()) {
-            when(state.isPreventive()).thenReturn(true);
-            when(crac.getPreventiveState()).thenReturn(state);
+            Mockito.when(state.isPreventive()).thenReturn(true);
+            Mockito.when(crac.getPreventiveState()).thenReturn(state);
         } else {
-            when(state.isPreventive()).thenReturn(false);
+            Mockito.when(state.isPreventive()).thenReturn(false);
         }
         return state;
     }
@@ -154,35 +153,35 @@ class SweRemedialActionSeriesCreatorTest {
     private RemedialAction<?> addRemedialActionToCrac(String raId, String raName, Class clazz) {
         RemedialAction remedialAction;
         if (clazz.equals(NetworkAction.class)) {
-            remedialAction = mock(NetworkAction.class);
+            remedialAction = Mockito.mock(NetworkAction.class);
         } else if (clazz.equals(PstRangeAction.class)) {
-            remedialAction = mock(PstRangeAction.class);
+            remedialAction = Mockito.mock(PstRangeAction.class);
         } else if (clazz.equals(HvdcRangeAction.class)) {
-            remedialAction = mock(HvdcRangeAction.class);
+            remedialAction = Mockito.mock(HvdcRangeAction.class);
         } else {
             throw new FaraoException("unrecognized remedial action");
         }
-        when(remedialAction.getId()).thenReturn(raId);
-        when(remedialAction.getName()).thenReturn(raName);
-        when(crac.getRemedialAction(raId)).thenReturn(remedialAction);
+        Mockito.when(remedialAction.getId()).thenReturn(raId);
+        Mockito.when(remedialAction.getName()).thenReturn(raName);
+        Mockito.when(crac.getRemedialAction(raId)).thenReturn(remedialAction);
         return remedialAction;
     }
 
     private void addNetworkActionToRaoResult(State state, String remedialActionId) {
         RemedialAction<?> remedialAction = crac.getRemedialAction(remedialActionId);
-        when(raoResult.isActivatedDuringState(state, remedialAction)).thenReturn(true);
+        Mockito.when(raoResult.isActivatedDuringState(state, remedialAction)).thenReturn(true);
     }
 
     private void addPstRangeActionToRaoResult(State state, String remedialActionId, double setpoint, int tap) {
         RemedialAction<?> remedialAction = crac.getRemedialAction(remedialActionId);
-        when(raoResult.isActivatedDuringState(state, remedialAction)).thenReturn(true);
-        when(raoResult.getOptimizedSetPointOnState(state, (PstRangeAction) remedialAction)).thenReturn(setpoint);
-        when(raoResult.getOptimizedTapOnState(state, (PstRangeAction) remedialAction)).thenReturn(tap);
+        Mockito.when(raoResult.isActivatedDuringState(state, remedialAction)).thenReturn(true);
+        Mockito.when(raoResult.getOptimizedSetPointOnState(state, (PstRangeAction) remedialAction)).thenReturn(setpoint);
+        Mockito.when(raoResult.getOptimizedTapOnState(state, (PstRangeAction) remedialAction)).thenReturn(tap);
     }
 
     private void addHvdcRangeActionToRaoResult(State state, String remedialActionId, double setpoint) {
         RemedialAction<?> remedialAction = crac.getRemedialAction(remedialActionId);
-        when(raoResult.isActivatedDuringState(state, remedialAction)).thenReturn(true);
-        when(raoResult.getOptimizedSetPointOnState(state, (HvdcRangeAction) remedialAction)).thenReturn(setpoint);
+        Mockito.when(raoResult.isActivatedDuringState(state, remedialAction)).thenReturn(true);
+        Mockito.when(raoResult.getOptimizedSetPointOnState(state, (HvdcRangeAction) remedialAction)).thenReturn(setpoint);
     }
 }

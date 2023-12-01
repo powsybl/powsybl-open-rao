@@ -24,13 +24,13 @@ import static com.farao_community.farao.data.cne_exporter_commons.CneConstants.T
  */
 public class CneHelper {
 
-    private final Crac crac;
-    private final Network network;
-    private final boolean relativePositiveMargins;
-    private final boolean withLoopflows;
-    private final RaoResult raoResult;
-    private final CneExporterParameters exporterParameters;
-    private final double mnecAcceptableMarginDiminution;
+    private Crac crac;
+    private Network network;
+    private boolean relativePositiveMargins;
+    private boolean withLoopflows;
+    private RaoResult raoResult;
+    private CneExporterParameters exporterParameters;
+    private double mnecAcceptableMarginDiminution;
 
     public CneHelper(Crac crac, Network network, RaoResult raoResult, RaoParameters raoParameters, CneExporterParameters exporterParameters) {
         this.crac = crac;

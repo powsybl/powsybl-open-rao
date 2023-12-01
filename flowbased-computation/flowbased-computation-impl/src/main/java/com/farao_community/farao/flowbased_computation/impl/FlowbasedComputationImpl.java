@@ -8,6 +8,7 @@ package com.farao_community.farao.flowbased_computation.impl;
 
 import com.farao_community.farao.commons.RandomizedString;
 import com.farao_community.farao.commons.Unit;
+import com.powsybl.glsk.commons.ZonalData;
 import com.farao_community.farao.data.crac_api.Contingency;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.InstantKind;
@@ -27,7 +28,6 @@ import com.farao_community.farao.sensitivity_analysis.AppliedRemedialActions;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityInterface;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityResult;
 import com.google.auto.service.AutoService;
-import com.powsybl.glsk.commons.ZonalData;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.sensitivity.SensitivityVariableSet;
 import com.powsybl.sensitivity.WeightedSensitivityVariable;
@@ -202,13 +202,13 @@ public class FlowbasedComputationImpl implements FlowbasedComputationProvider {
                                 glsk.getId(),
                                 zeroIfNaN(result.getSensitivityOnFlow(glsk.getId(), cnec, Side.LEFT)) // TODO : handle both sides if needed
                         )
-                ).toList();
+                ).collect(Collectors.toList());
     }
 
     /**
      * Find all remedial actions saved in CRAC, on a given network, at a given state.
      *
-     * @param crac  CRAC that should contain result extension
+     * @param crac CRAC that should contain result extension
      * @param state State for which the RAs should be applied
      */
     public static Set<NetworkAction> findAllAvailableRemedialActionsForState(Crac crac, State state) {
@@ -236,8 +236,8 @@ public class FlowbasedComputationImpl implements FlowbasedComputationProvider {
     /**
      * Find network actions saved in CRAC result extension on current working variant of given network, at a given state.
      *
-     * @param raoResult      Result of Rao computation
-     * @param state          State for which the RAs should be applied
+     * @param raoResult Result of Rao computation
+     * @param state State for which the RAs should be applied
      * @param networkActions All network actions
      */
     public static Set<NetworkAction> findAppliedNetworkActionsForState(RaoResult raoResult, State state, Set<NetworkAction> networkActions) {
@@ -255,7 +255,7 @@ public class FlowbasedComputationImpl implements FlowbasedComputationProvider {
      * Find range actions saved in CRAC result extension on current working variant of given network, at a given state.
      *
      * @param raoResult Result of Rao computation
-     * @param state     State for which the RAs should be applied
+     * @param state State for which the RAs should be applied
      */
     public static Map<RangeAction<?>, Double> findAppliedRangeActionsForState(RaoResult raoResult, State state) {
         return new HashMap<>(raoResult.getOptimizedSetPointsOnState(state));

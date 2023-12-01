@@ -116,7 +116,7 @@ class RaoResultRoundTripTest {
 
         /*
         cnec4prevId: preventive, no loop-flows, optimized
-        - contains result in null and in preventiveInstant. Results in autoInstant and curativeInstant are the same as preventiveInstant because the CNEC is preventive
+        - contains result in null and in PREVENTIVE. Results in AUTO and CURATIVE are the same as PREVENTIVE because the CNEC is preventive
         - contains result relative margin and PTDF sum but not for loop and commercial flows
          */
         FlowCnec cnecP = crac.getFlowCnec("cnec4prevId");
@@ -148,7 +148,7 @@ class RaoResultRoundTripTest {
 
         /*
         cnec1outageId: outage, with loop-flows, optimized
-        - contains result in null and in preventiveInstant. Results in autoInstant and curativeInstant are the same as preventiveInstant because the CNEC is preventive
+        - contains result in null and in PREVENTIVE. Results in AUTO and curativeInstant are the same as PREVENTIVE because the CNEC is preventive
         - contains result for loop-flows, commercial flows, relative margin and PTDF sum
          */
 
@@ -181,7 +181,7 @@ class RaoResultRoundTripTest {
 
         /*
         cnec3autoId: auto, without loop-flows, pureMNEC
-        - contains result in null, preventiveInstant, and autoInstant. Results in curativeInstant are the same as autoInstant because the CNEC is auto
+        - contains result in null, PREVENTIVE, and AUTO. Results in CURATIVE are the same as AUTO because the CNEC is auto
         - do not contain results for loop-flows, or relative margin
          */
 
@@ -210,7 +210,7 @@ class RaoResultRoundTripTest {
 
          /*
         cnec3curId: curative, without loop-flows, pureMNEC
-        - contains result in null, preventiveInstant, and autoInstant and in curativeInstant
+        - contains result in null, PREVENTIVE, and AUTO and in CURATIVE
         - do not contain results for loop-flows, or relative margin
          */
 
@@ -520,23 +520,19 @@ class RaoResultRoundTripTest {
         RaoResultExporter raoResultExporter = new RaoResultExporter();
 
         // Empty set
-        Set<Unit> emptyUnitSet = Collections.emptySet();
-        Exception exception = assertThrows(FaraoException.class, () -> raoResultExporter.export(raoResult, crac, emptyUnitSet, outputStream));
+        Exception exception = assertThrows(FaraoException.class, () -> raoResultExporter.export(raoResult, crac, Collections.emptySet(), outputStream));
         assertEquals("At least one flow unit should be defined", exception.getMessage());
 
         // "TAP" unit
-        Set<Unit> tapUnit = Set.of(TAP);
-        exception = assertThrows(FaraoException.class, () -> raoResultExporter.export(raoResult, crac, tapUnit, outputStream));
+        exception = assertThrows(FaraoException.class, () -> raoResultExporter.export(raoResult, crac, Set.of(TAP), outputStream));
         assertEquals("Flow unit should be AMPERE and/or MEGAWATT", exception.getMessage());
 
         // "DEGREE" unit
-        Set<Unit> degreeUnit = Set.of(DEGREE);
-        exception = assertThrows(FaraoException.class, () -> raoResultExporter.export(raoResult, crac, degreeUnit, outputStream));
+        exception = assertThrows(FaraoException.class, () -> raoResultExporter.export(raoResult, crac, Set.of(DEGREE), outputStream));
         assertEquals("Flow unit should be AMPERE and/or MEGAWATT", exception.getMessage());
 
         // "KILOVOLT" + "AMPERE" units
-        Set<Unit> powerUnits = Set.of(KILOVOLT, AMPERE);
-        exception = assertThrows(FaraoException.class, () -> raoResultExporter.export(raoResult, crac, powerUnits, outputStream));
+        exception = assertThrows(FaraoException.class, () -> raoResultExporter.export(raoResult, crac, Set.of(KILOVOLT, AMPERE), outputStream));
         assertEquals("Flow unit should be AMPERE and/or MEGAWATT", exception.getMessage());
     }
 

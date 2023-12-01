@@ -46,6 +46,7 @@ class ImporterRetrocompatibilityTest {
     private static final String CURATIVE_INSTANT_ID = "curative";
 
     private Instant preventiveInstant;
+    private Instant outageInstant;
     private Instant autoInstant;
     private Instant curativeInstant;
 
@@ -71,6 +72,7 @@ class ImporterRetrocompatibilityTest {
             .newInstant(AUTO_INSTANT_ID, InstantKind.AUTO)
             .newInstant(CURATIVE_INSTANT_ID, InstantKind.CURATIVE);
         preventiveInstant = crac.getInstant(PREVENTIVE_INSTANT_ID);
+        outageInstant = crac.getInstant(OUTAGE_INSTANT_ID);
         autoInstant = crac.getInstant(AUTO_INSTANT_ID);
         curativeInstant = crac.getInstant(CURATIVE_INSTANT_ID);
     }
@@ -322,9 +324,6 @@ class ImporterRetrocompatibilityTest {
         // --- NetworkAction results ---
         // -----------------------------
 
-        Instant outageInstant = crac.getInstant(OUTAGE_INSTANT_ID);
-        Instant autoInstant = crac.getInstant(AUTO_INSTANT_ID);
-        Instant curativeInstant = crac.getInstant(CURATIVE_INSTANT_ID);
         State pState = crac.getPreventiveState();
         State oState2 = crac.getState("contingency2Id", outageInstant);
         State aState2 = crac.getState("contingency2Id", autoInstant);
@@ -628,9 +627,6 @@ class ImporterRetrocompatibilityTest {
         // --- NetworkAction results ---
         // -----------------------------
 
-        Instant outageInstant = crac.getInstant(OUTAGE_INSTANT_ID);
-        Instant autoInstant = crac.getInstant(AUTO_INSTANT_ID);
-        Instant curativeInstant = crac.getInstant(CURATIVE_INSTANT_ID);
         State pState = crac.getPreventiveState();
         State oState2 = crac.getState("contingency2Id", outageInstant);
         State aState2 = crac.getState("contingency2Id", autoInstant);
@@ -780,8 +776,6 @@ class ImporterRetrocompatibilityTest {
         testBaseContentOfV1Point2RaoResult(importedRaoResult, crac);
         // Test computation status map
         assertEquals(ComputationStatus.DEFAULT, importedRaoResult.getComputationStatus(crac.getPreventiveState()));
-        Instant autoInstant = crac.getInstant(AUTO_INSTANT_ID);
-        Instant curativeInstant = crac.getInstant(CURATIVE_INSTANT_ID);
         assertEquals(ComputationStatus.FAILURE, importedRaoResult.getComputationStatus(crac.getState("contingency1Id", curativeInstant)));
         assertEquals(ComputationStatus.DEFAULT, importedRaoResult.getComputationStatus(crac.getState("contingency2Id", autoInstant)));
     }

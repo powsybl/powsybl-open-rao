@@ -29,6 +29,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 import static com.farao_community.farao.data.cne_exporter_commons.CneConstants.*;
 import static com.farao_community.farao.data.cne_exporter_commons.CneUtil.cutString;
@@ -41,10 +42,10 @@ import static com.farao_community.farao.data.core_cne_exporter.CoreCneClassCreat
  */
 public final class CoreCneRemedialActionsCreator {
 
-    private static final String RA_SERIES = "RAseries";
     private CneHelper cneHelper;
     private UcteCracCreationContext cracCreationContext;
     private List<ConstraintSeries> cnecsConstraintSeries;
+    private static final String RA_SERIES = "RAseries";
 
     public CoreCneRemedialActionsCreator(CneHelper cneHelper, UcteCracCreationContext cracCreationContext, List<ConstraintSeries> cnecsConstraintSeries) {
         this.cneHelper = cneHelper;
@@ -70,15 +71,15 @@ public final class CoreCneRemedialActionsCreator {
                 .sorted(Comparator.comparing(RemedialActionCreationContext::getNativeId))
                 .map(raCreationContext -> cneHelper.getCrac().getPstRangeAction(raCreationContext.getCreatedRAId()))
                 .filter(ra -> !Objects.isNull(ra))
-                .toList();
+                .collect(Collectors.toList());
         List<NetworkAction> sortedNetworkActions = cracCreationContext.getRemedialActionCreationContexts().stream()
                 .sorted(Comparator.comparing(RemedialActionCreationContext::getNativeId))
                 .map(raCreationContext -> cneHelper.getCrac().getNetworkAction(raCreationContext.getCreatedRAId()))
                 .filter(ra -> !Objects.isNull(ra))
-                .toList();
+                .collect(Collectors.toList());
 
         logMissingRangeActions();
-        List<PstRangeAction> usedRangeActions = sortedRangeActions.stream().filter(this::isRangeActionUsedInRao).toList();
+        List<PstRangeAction> usedRangeActions = sortedRangeActions.stream().filter(this::isRangeActionUsedInRao).collect(Collectors.toList());
         if (!usedRangeActions.isEmpty()) {
             constraintSeries.add(createPreOptimRaConstraintSeries(usedRangeActions));
         }
@@ -130,7 +131,7 @@ public final class CoreCneRemedialActionsCreator {
         // Add the remedial action series to B54 and B57
         List<ConstraintSeries> basecaseConstraintSeriesList = cnecsConstraintSeries.stream()
                 .filter(constraintSeries -> constraintSeries.getBusinessType().equals(B54_BUSINESS_TYPE) || constraintSeries.getBusinessType().equals(B57_BUSINESS_TYPE))
-                .toList();
+                .collect(Collectors.toList());
         addRemedialActionsToOtherConstraintSeries(preventiveB56.getRemedialActionSeries(), basecaseConstraintSeriesList);
         return preventiveB56;
     }
@@ -152,7 +153,7 @@ public final class CoreCneRemedialActionsCreator {
                 List<ConstraintSeries> contingencyConstraintSeriesList = cnecsConstraintSeries.stream()
                         .filter(constraintSeries -> constraintSeries.getBusinessType().equals(B54_BUSINESS_TYPE)
                                 && constraintSeries.getContingencySeries().stream().anyMatch(series -> series.getName().equals(contingency.getName())))
-                        .toList();
+                        .collect(Collectors.toList());
                 addRemedialActionsToOtherConstraintSeries(curativeB56.getRemedialActionSeries(), contingencyConstraintSeriesList);
                 // Add B56 to document
                 constraintSeriesList.add(curativeB56);
@@ -239,7 +240,7 @@ public final class CoreCneRemedialActionsCreator {
     public void addRemedialActionsToOtherConstraintSeries(List<RemedialActionSeries> remedialActionSeriesList, List<ConstraintSeries> constraintSeriesList) {
         remedialActionSeriesList.forEach(remedialActionSeries -> {
             RemedialActionSeries shortPostOptimRemedialActionSeries = newRemedialActionSeries(remedialActionSeries.getMRID(), remedialActionSeries.getName(), remedialActionSeries.getApplicationModeMarketObjectStatusStatus());
-            constraintSeriesList.forEach(constraintSeries -> constraintSeries.getRemedialActionSeries().add(shortPostOptimRemedialActionSeries));
+            constraintSeriesList.stream().forEach(constraintSeries -> constraintSeries.getRemedialActionSeries().add(shortPostOptimRemedialActionSeries));
         });
     }
 }
