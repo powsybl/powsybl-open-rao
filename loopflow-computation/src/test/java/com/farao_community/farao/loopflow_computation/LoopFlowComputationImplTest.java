@@ -7,13 +7,13 @@
 package com.farao_community.farao.loopflow_computation;
 
 import com.farao_community.farao.commons.FaraoException;
+import com.farao_community.farao.data.crac_api.cnec.Side;
+import com.powsybl.glsk.commons.ZonalData;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.InstantKind;
-import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_loopflow_extension.LoopFlowThresholdImpl;
 import com.farao_community.farao.data.refprog.reference_program.ReferenceProgram;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityResult;
-import com.powsybl.glsk.commons.ZonalData;
 import com.powsybl.iidm.network.*;
 import com.powsybl.sensitivity.SensitivityAnalysisParameters;
 import com.powsybl.sensitivity.SensitivityVariableSet;
@@ -25,10 +25,7 @@ import org.mockito.Mockito;
 import java.util.Map;
 import java.util.Set;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 
 /**
@@ -110,9 +107,9 @@ class LoopFlowComputationImplTest {
         assertEquals("gen1 is neither a generator nor a load nor a dangling line in the network. It is not a valid GLSK.", exception.getMessage());
 
         Mockito.doReturn(Map.of(
-                    "gen1", new WeightedSensitivityVariable("gen1", 5f),
-                    "load1", new WeightedSensitivityVariable("load1", 6f),
-                    "dl1", new WeightedSensitivityVariable("dl1", 6f)))
+            "gen1", new WeightedSensitivityVariable("gen1", 5f),
+            "load1", new WeightedSensitivityVariable("load1", 6f),
+            "dl1", new WeightedSensitivityVariable("dl1", 6f)))
             .when(linearGlsk).getVariablesById();
         Generator gen1 = Mockito.mock(Generator.class);
         Load load1 = Mockito.mock(Load.class);
@@ -170,8 +167,8 @@ class LoopFlowComputationImplTest {
         Mockito.doReturn(busView).when(terminal).getBusView();
 
         Mockito.doReturn(Set.of(
-                    new WeightedSensitivityVariable("gen1", 5f),
-                    new WeightedSensitivityVariable("load1", 6f)))
+            new WeightedSensitivityVariable("gen1", 5f),
+            new WeightedSensitivityVariable("load1", 6f)))
             .when(linearGlsk).getVariables();
         Generator gen1 = Mockito.mock(Generator.class);
         Load load1 = Mockito.mock(Load.class);

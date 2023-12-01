@@ -6,18 +6,17 @@
  */
 package com.farao_community.farao.loopflow_computation;
 
-import com.farao_community.farao.commons.EICode;
-import com.farao_community.farao.data.crac_api.Crac;
-import com.farao_community.farao.data.crac_api.Instant;
-import com.farao_community.farao.data.crac_api.InstantKind;
 import com.farao_community.farao.data.crac_api.cnec.Side;
+import com.powsybl.glsk.commons.ZonalData;
+import com.powsybl.glsk.commons.ZonalDataImpl;
+import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_impl.CracImplFactory;
 import com.farao_community.farao.data.refprog.reference_program.ReferenceExchangeData;
 import com.farao_community.farao.data.refprog.reference_program.ReferenceProgram;
+import com.farao_community.farao.commons.EICode;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityResult;
-import com.powsybl.glsk.commons.ZonalData;
-import com.powsybl.glsk.commons.ZonalDataImpl;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.sensitivity.SensitivityVariableSet;
 import com.powsybl.sensitivity.WeightedSensitivityVariable;
 import org.mockito.Mockito;
@@ -25,6 +24,7 @@ import org.mockito.Mockito;
 import java.util.*;
 
 import static com.farao_community.farao.commons.Unit.MEGAWATT;
+
 /**
  * Test case is a network with 5 nodes and 1 xnode (in 4 countries).
  *

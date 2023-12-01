@@ -22,9 +22,9 @@ public class LoopFlowResult {
     private final Map<BranchCnec<?>, Map<Side, LoopFlow>> loopFlowMap;
 
     private static class LoopFlow {
-        final double loopFlowValue;
-        final double commercialFlowValue;
-        final double totalFlowValue;
+        double loopFlowValue;
+        double commercialFlowValue;
+        double totalFlowValue;
 
         LoopFlow(double loopFlow, double commercialFlow, double totalFlow) {
             this.loopFlowValue = loopFlow;

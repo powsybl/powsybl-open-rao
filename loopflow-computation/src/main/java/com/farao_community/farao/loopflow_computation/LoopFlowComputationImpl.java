@@ -9,24 +9,18 @@ package com.farao_community.farao.loopflow_computation;
 import com.farao_community.farao.commons.EICode;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
+import com.powsybl.glsk.commons.ZonalData;
 import com.farao_community.farao.commons.logs.FaraoLoggerProvider;
 import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.refprog.reference_program.ReferenceProgram;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityInterface;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityResult;
-import com.powsybl.glsk.commons.ZonalData;
-import com.powsybl.iidm.network.Generator;
-import com.powsybl.iidm.network.Injection;
-import com.powsybl.iidm.network.Load;
-import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.*;
 import com.powsybl.sensitivity.SensitivityAnalysisParameters;
 import com.powsybl.sensitivity.SensitivityVariableSet;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Stream;
 
 import static java.util.Objects.requireNonNull;
@@ -36,9 +30,9 @@ import static java.util.Objects.requireNonNull;
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 public class LoopFlowComputationImpl implements LoopFlowComputation {
-    protected final ZonalData<SensitivityVariableSet> glsk;
-    protected final ReferenceProgram referenceProgram;
-    protected final Map<EICode, SensitivityVariableSet> glskMap;
+    protected ZonalData<SensitivityVariableSet> glsk;
+    protected ReferenceProgram referenceProgram;
+    protected Map<EICode, SensitivityVariableSet> glskMap;
 
     public LoopFlowComputationImpl(ZonalData<SensitivityVariableSet> glsk, ReferenceProgram referenceProgram) {
         this.glsk = requireNonNull(glsk, "glskProvider should not be null");
@@ -83,7 +77,7 @@ public class LoopFlowComputationImpl implements LoopFlowComputation {
 
     static boolean isInMainComponent(SensitivityVariableSet linearGlsk, Network network) {
         boolean atLeastOneGlskConnected = false;
-        for (String glsk : linearGlsk.getVariablesById().keySet().stream().sorted().toList()) {
+        for (String glsk : linearGlsk.getVariablesById().keySet()) {
             Injection<?> injection = getInjection(glsk, network);
             if (injection == null) {
                 throw new FaraoException(String.format("%s is neither a generator nor a load nor a dangling line in the network. It is not a valid GLSK.", glsk));
@@ -99,7 +93,7 @@ public class LoopFlowComputationImpl implements LoopFlowComputation {
     static Injection<?> getInjection(String injectionId, Network network) {
         Generator generator = network.getGenerator(injectionId);
         if (generator != null) {
-            return generator;
+            return  generator;
         }
         Load load = network.getLoad(injectionId);
         if (load != null) {
