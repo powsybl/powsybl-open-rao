@@ -326,7 +326,7 @@ class RaoUtilTest {
         // Not enough taps left
         assertTrue(RaoUtil.cnecShouldBeOptimized(map, flowResult, cnec, Side.LEFT, Map.of(pst, -5.22), prePerimeterRangeActionSetpointResult, sensitivityResult, Unit.AMPERE));
         // Sensi < 0
-        Mockito.when(sensitivityResult.getSensitivityValue(cnec, Side.LEFT, pst, Unit.MEGAWATT)).thenReturn(-33.); // = -50 A
+        when(sensitivityResult.getSensitivityValue(cnec, Side.LEFT, pst, Unit.MEGAWATT)).thenReturn(-33.); // = -50 A
         // Some taps left (PST at set-point 4.22, can go up to 6.2)
         assertFalse(RaoUtil.cnecShouldBeOptimized(map, flowResult, cnec, Side.LEFT, Map.of(pst, 4.22), prePerimeterRangeActionSetpointResult, sensitivityResult, Unit.AMPERE));
         // Not enough taps left

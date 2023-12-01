@@ -45,6 +45,7 @@ import static org.mockito.Mockito.when;
  */
 class UnoptimizedCnecFillerPstLimitationRuleTest extends AbstractFillerTest {
     private static final double MAX_ABS_THRESHOLD = 1000;
+
     private LinearProblem linearProblem;
     private CoreProblemFiller coreProblemFiller;
     private UnoptimizedCnecFiller unoptimizedCnecFiller;

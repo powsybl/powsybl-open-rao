@@ -47,8 +47,8 @@ import static org.mockito.Mockito.*;
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
 class AutomatonSimulatorTest {
-
     private AutomatonSimulator automatonSimulator;
+
     private Crac crac;
     private Network network;
     private State autoState;
@@ -549,9 +549,6 @@ class AutomatonSimulatorTest {
     @Test
     void testSimulateRangeAutomatons() {
         State curativeState = mock(State.class);
-        Instant curativeInstant = Mockito.mock(Instant.class);
-        Mockito.when(curativeInstant.getInstantKind()).thenReturn(InstantKind.CURATIVE);
-        when(curativeState.getInstant()).thenReturn(curativeInstant);
         when(curativeState.getContingency()).thenReturn(Optional.of(crac.getContingency("contingency1")));
 
         when(mockedPreAutoPerimeterSensitivityAnalysis.runBasedOnInitialResults(any(), any(), any(), any(), any(), any())).thenReturn(mockedPrePerimeterResult);
@@ -612,7 +609,6 @@ class AutomatonSimulatorTest {
     void testSimulateAutomatonState() {
         State curativeState = mock(State.class);
         Instant curativeInstant = Mockito.mock(Instant.class);
-        Mockito.when(curativeInstant.getInstantKind()).thenReturn(InstantKind.CURATIVE);
         when(curativeState.getInstant()).thenReturn(curativeInstant);
         when(curativeState.getContingency()).thenReturn(Optional.of(crac.getContingency("contingency1")));
 
@@ -653,7 +649,6 @@ class AutomatonSimulatorTest {
         when(mockedPrePerimeterResult.getSensitivityStatus(autoState)).thenReturn(ComputationStatus.FAILURE);
         State curativeState = mock(State.class);
         Instant curativeInstant = Mockito.mock(Instant.class);
-        Mockito.when(curativeInstant.getInstantKind()).thenReturn(InstantKind.CURATIVE);
         when(curativeState.getInstant()).thenReturn(curativeInstant);
         when(curativeState.getContingency()).thenReturn(Optional.of(crac.getContingency("contingency1")));
         AutomatonPerimeterResultImpl result = automatonSimulator.simulateAutomatonState(autoState, curativeState, network);
