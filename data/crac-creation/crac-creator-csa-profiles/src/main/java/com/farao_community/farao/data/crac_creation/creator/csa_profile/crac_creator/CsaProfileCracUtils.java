@@ -62,9 +62,13 @@ public final class CsaProfileCracUtils {
     }
 
     public static boolean isValidInterval(OffsetDateTime dateTime, String startTime, String endTime) {
-        OffsetDateTime startDateTime = OffsetDateTime.parse(startTime);
-        OffsetDateTime endDateTime = OffsetDateTime.parse(endTime);
-        return !dateTime.isBefore(startDateTime) && !dateTime.isAfter(endDateTime);
+        try {
+            OffsetDateTime startDateTime = OffsetDateTime.parse(startTime);
+            OffsetDateTime endDateTime = OffsetDateTime.parse(endTime);
+            return !dateTime.isBefore(startDateTime) && !dateTime.isAfter(endDateTime);
+        } catch (Exception e) {
+            return false;
+        }
     }
 
     public static int convertDurationToSeconds(String duration) {
