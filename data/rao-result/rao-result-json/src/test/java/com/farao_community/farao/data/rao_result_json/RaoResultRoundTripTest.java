@@ -148,7 +148,7 @@ class RaoResultRoundTripTest {
 
         /*
         cnec1outageId: outage, with loop-flows, optimized
-        - contains result in null and in PREVENTIVE. Results in AUTO and curativeInstant are the same as PREVENTIVE because the CNEC is preventive
+        - contains result in null and in PREVENTIVE. Results in AUTO and CURATIVE are the same as PREVENTIVE because the CNEC is preventive
         - contains result for loop-flows, commercial flows, relative margin and PTDF sum
          */
 

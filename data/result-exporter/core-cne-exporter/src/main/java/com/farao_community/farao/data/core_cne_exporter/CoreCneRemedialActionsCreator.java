@@ -45,6 +45,7 @@ public final class CoreCneRemedialActionsCreator {
     private CneHelper cneHelper;
     private UcteCracCreationContext cracCreationContext;
     private List<ConstraintSeries> cnecsConstraintSeries;
+
     private static final String RA_SERIES = "RAseries";
 
     public CoreCneRemedialActionsCreator(CneHelper cneHelper, UcteCracCreationContext cracCreationContext, List<ConstraintSeries> cnecsConstraintSeries) {
