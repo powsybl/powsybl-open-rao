@@ -146,7 +146,7 @@ class ContingenciesCreationTest {
 
         assertNotNull(cracCreationContext);
         assertTrue(cracCreationContext.isCreationSuccessful());
-        assertEquals(6, cracCreationContext.getCreationReport().getReport().size());
+        assertEquals(5, cracCreationContext.getCreationReport().getReport().size());
         assertEquals(2, cracCreationContext.getCrac().getContingencies().size());
         assertEquals(4, cracCreationContext.getCrac().getFlowCnecs().size());
 
