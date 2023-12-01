@@ -130,7 +130,7 @@ public class CsaProfileContingencyCreator {
     }
 
     private Set<PropertyBag> dataCheck(PropertyBag contingencyPropertyBag, String contingencyId) {
-        CsaProfileConstants.HeaderValidity headerValidity = CsaProfileCracUtils.checkProfileHeader(contingencyPropertyBag, CsaProfileConstants.CsaProfile.CONTINGENCY, cracCreationContext.getTimeStamp());
+        CsaProfileConstants.HeaderValidity headerValidity = CsaProfileCracUtils.checkProfileHeader(contingencyPropertyBag, CsaProfileConstants.CsaProfile.CONTINGENCY);
         if (headerValidity == CsaProfileConstants.HeaderValidity.INVALID_KEYWORD) {
             csaProfileContingencyCreationContexts.add(CsaProfileElementaryCreationContext.notImported(contingencyId, ImportStatus.INCONSISTENCY_IN_DATA, "Model.keyword must be " + CsaProfileConstants.CsaProfile.CONTINGENCY));
             return new HashSet<>();

@@ -114,7 +114,7 @@ public final class CsaProfileCracUtils {
         }
     }
 
-    public static CsaProfileConstants.HeaderValidity checkProfileHeader(PropertyBag propertyBag, CsaProfileConstants.CsaProfile csaProfileKeyword, OffsetDateTime importTimestamp) {
+    public static CsaProfileConstants.HeaderValidity checkProfileHeader(PropertyBag propertyBag, CsaProfileConstants.CsaProfile csaProfileKeyword) {
         if (!checkProfileKeyword(propertyBag, csaProfileKeyword)) {
             return CsaProfileConstants.HeaderValidity.INVALID_KEYWORD;
         }

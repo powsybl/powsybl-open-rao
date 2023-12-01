@@ -121,7 +121,7 @@ public class CsaProfileCnecCreator {
     }
 
     private boolean aeProfileDataCheck(String assessedElementId, PropertyBag assessedElementPropertyBag) {
-        CsaProfileConstants.HeaderValidity headerValidity = CsaProfileCracUtils.checkProfileHeader(assessedElementPropertyBag, CsaProfileConstants.CsaProfile.ASSESSED_ELEMENT, cracCreationContext.getTimeStamp());
+        CsaProfileConstants.HeaderValidity headerValidity = CsaProfileCracUtils.checkProfileHeader(assessedElementPropertyBag, CsaProfileConstants.CsaProfile.ASSESSED_ELEMENT);
         if (headerValidity == CsaProfileConstants.HeaderValidity.INVALID_KEYWORD) {
             csaProfileCnecCreationContexts.add(CsaProfileElementaryCreationContext.notImported(assessedElementId, ImportStatus.INCONSISTENCY_IN_DATA, "Model.keyword must be " + CsaProfileConstants.CsaProfile.ASSESSED_ELEMENT));
             return false;
@@ -144,7 +144,7 @@ public class CsaProfileCnecCreator {
     }
 
     private boolean erProfileDataCheck(String assessedElementId, PropertyBag angleLimitsPropertyBag) {
-        CsaProfileConstants.HeaderValidity headerValidity = CsaProfileCracUtils.checkProfileHeader(angleLimitsPropertyBag, CsaProfileConstants.CsaProfile.EQUIPMENT_RELIABILITY, cracCreationContext.getTimeStamp());
+        CsaProfileConstants.HeaderValidity headerValidity = CsaProfileCracUtils.checkProfileHeader(angleLimitsPropertyBag, CsaProfileConstants.CsaProfile.EQUIPMENT_RELIABILITY);
         if (headerValidity == CsaProfileConstants.HeaderValidity.INVALID_KEYWORD) {
             csaProfileCnecCreationContexts.add(CsaProfileElementaryCreationContext.notImported(assessedElementId, ImportStatus.INCONSISTENCY_IN_DATA, "Model.keyword must be " + CsaProfileConstants.CsaProfile.EQUIPMENT_RELIABILITY));
             return false;
