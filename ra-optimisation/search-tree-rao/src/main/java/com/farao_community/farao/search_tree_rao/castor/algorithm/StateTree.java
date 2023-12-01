@@ -113,8 +113,8 @@ public class StateTree {
 
     static boolean tsoHasCra(String tso, Crac crac, Set<State> optimizedCurativeStates) {
         return optimizedCurativeStates.stream().anyMatch(state ->
-           crac.getPotentiallyAvailableNetworkActions(state).stream().map(RemedialAction::getOperator).anyMatch(raTso -> raTso.equals(tso)) ||
-                crac.getPotentiallyAvailableRangeActions(state).stream().map(RemedialAction::getOperator).anyMatch(raTso -> raTso.equals(tso))
+           crac.getPotentiallyAvailableNetworkActions(state).stream().map(RemedialAction::getOperator).anyMatch(tso::equals) ||
+                crac.getPotentiallyAvailableRangeActions(state).stream().map(RemedialAction::getOperator).anyMatch(tso::equals)
         );
     }
 }
