@@ -36,7 +36,7 @@ class StandardRangeAdderImplTest {
 
     @Test
     void testOk() {
-        HvdcRangeAction hvdcRangeAction = (HvdcRangeAction) hvdcRangeActionAdder.newRange().withMin(-5).withMax(10).add()
+        HvdcRangeAction hvdcRangeAction = hvdcRangeActionAdder.newRange().withMin(-5).withMax(10).add()
                 .add();
 
         assertEquals(1, hvdcRangeAction.getRanges().size());

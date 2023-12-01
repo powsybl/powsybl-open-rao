@@ -35,28 +35,28 @@ class NetworkActionCombinationTest {
 
         Crac crac = CracFactory.findDefault().create("crac");
 
-        networkAction1 = (NetworkAction) crac.newNetworkAction()
+        networkAction1 = crac.newNetworkAction()
             .withId("topological-action-1")
             .withOperator("operator-1")
             .newTopologicalAction().withActionType(ActionType.OPEN).withNetworkElement("any-network-element").add()
             .newOnInstantUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withInstant(Instant.PREVENTIVE).add()
             .add();
 
-        networkAction2 = (NetworkAction) crac.newNetworkAction()
+        networkAction2 = crac.newNetworkAction()
             .withId("topological-action-2")
             .withOperator("operator-2")
             .newTopologicalAction().withActionType(ActionType.CLOSE).withNetworkElement("any-other-network-element").add()
             .newOnInstantUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withInstant(Instant.PREVENTIVE).add()
             .add();
 
-        networkAction3 = (NetworkAction) crac.newNetworkAction()
+        networkAction3 = crac.newNetworkAction()
             .withId("pst-setpoint")
             .withOperator("operator-2")
             .newPstSetPoint().withSetpoint(10).withNetworkElement("any-other-network-element").add()
             .newOnInstantUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withInstant(Instant.PREVENTIVE).add()
             .add();
 
-        networkAction4 = (NetworkAction) crac.newNetworkAction()
+        networkAction4 = crac.newNetworkAction()
             .withId("no-operator")
             .newPstSetPoint().withSetpoint(10).withNetworkElement("any-other-network-element").add()
             .newOnInstantUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withInstant(Instant.PREVENTIVE).add()

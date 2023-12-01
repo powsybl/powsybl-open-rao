@@ -38,7 +38,7 @@ class SwitchPairAdderImplTest {
 
     @Test
     void testOk() {
-        NetworkAction networkAction = (NetworkAction) networkActionAdder.newSwitchPair()
+        NetworkAction networkAction = networkActionAdder.newSwitchPair()
             .withSwitchToOpen("open-id", "open-name")
             .withSwitchToClose("close-id", "close-name")
             .add()
@@ -60,7 +60,7 @@ class SwitchPairAdderImplTest {
 
     @Test
     void testNoName() {
-        NetworkAction networkAction = (NetworkAction) networkActionAdder.newSwitchPair()
+        NetworkAction networkAction = networkActionAdder.newSwitchPair()
             .withSwitchToOpen("open-id")
             .withSwitchToClose("close-id")
             .add()
