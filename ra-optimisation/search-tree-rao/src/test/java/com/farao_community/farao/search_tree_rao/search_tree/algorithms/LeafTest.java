@@ -12,7 +12,6 @@ import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.read.ListAppender;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
-import com.farao_community.farao.commons.logs.FaraoLoggerProvider;
 import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.NetworkElement;
 import com.farao_community.farao.data.crac_api.State;
@@ -24,12 +23,12 @@ import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
 import com.farao_community.farao.data.rao_result_api.ComputationStatus;
 import com.farao_community.farao.rao_api.parameters.ObjectiveFunctionParameters;
-import com.farao_community.farao.search_tree_rao.commons.NetworkActionCombination;
 import com.farao_community.farao.search_tree_rao.commons.SensitivityComputer;
-import com.farao_community.farao.search_tree_rao.commons.objective_function_evaluator.ObjectiveFunction;
 import com.farao_community.farao.search_tree_rao.commons.optimization_perimeters.OptimizationPerimeter;
 import com.farao_community.farao.search_tree_rao.commons.parameters.TreeParameters;
 import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.IteratingLinearOptimizer;
+import com.farao_community.farao.search_tree_rao.commons.objective_function_evaluator.ObjectiveFunction;
+import com.farao_community.farao.search_tree_rao.commons.NetworkActionCombination;
 import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.linear_problem.LinearProblem;
 import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.linear_problem.LinearProblemBuilder;
 import com.farao_community.farao.search_tree_rao.result.api.*;
@@ -37,6 +36,7 @@ import com.farao_community.farao.search_tree_rao.result.impl.IteratingLinearOpti
 import com.farao_community.farao.search_tree_rao.search_tree.inputs.SearchTreeInput;
 import com.farao_community.farao.search_tree_rao.search_tree.parameters.SearchTreeParameters;
 import com.farao_community.farao.sensitivity_analysis.AppliedRemedialActions;
+import com.farao_community.farao.commons.logs.FaraoLoggerProvider;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.sensitivity.SensitivityVariableSet;
 import org.junit.jupiter.api.AfterEach;
@@ -48,17 +48,12 @@ import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
-import static com.farao_community.farao.commons.Unit.MEGAWATT;
-import static com.farao_community.farao.data.crac_api.cnec.Side.LEFT;
-import static com.farao_community.farao.data.crac_api.cnec.Side.RIGHT;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mockStatic;
-import static org.mockito.Mockito.when;
+import static com.farao_community.farao.data.crac_api.cnec.Side.RIGHT;
+import static com.farao_community.farao.data.crac_api.cnec.Side.LEFT;
+import static com.farao_community.farao.commons.Unit.*;
+import static org.mockito.Mockito.*;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
@@ -70,6 +65,7 @@ class LeafTest {
     private NetworkAction na2;
 
     private Network network;
+    private IteratingLinearOptimizer iteratingLinearOptimizer;
     private ObjectiveFunction costEvaluatorMock;
     private SensitivityComputer sensitivityComputer;
     private OptimizationPerimeter optimizationPerimeter;
@@ -94,7 +90,7 @@ class LeafTest {
         when(na1.apply(any())).thenReturn(true);
         when(na2.apply(any())).thenReturn(true);
 
-        IteratingLinearOptimizer iteratingLinearOptimizer = Mockito.mock(IteratingLinearOptimizer.class);
+        iteratingLinearOptimizer = Mockito.mock(IteratingLinearOptimizer.class);
         sensitivityComputer = Mockito.mock(SensitivityComputer.class);
         costEvaluatorMock = Mockito.mock(ObjectiveFunction.class);
         optimizationPerimeter = Mockito.mock(OptimizationPerimeter.class);
@@ -108,7 +104,6 @@ class LeafTest {
         iteratingLinearOptimizerMockedStatic = mockStatic(IteratingLinearOptimizer.class);
 
         outageInstant = Mockito.mock(Instant.class);
-        Mockito.when(outageInstant.getOrder()).thenReturn(1);
     }
 
     @AfterEach
@@ -849,5 +844,6 @@ class LeafTest {
         when(linearOptimizationResult.getVirtualCost("mnec-violation-cost")).thenReturn(0.);
         when(linearOptimizationResult.getVirtualCost("loopflow-violation-cost")).thenReturn(0.);
         assertEquals("Root leaf, no range action(s) activated, cost: -160.00 (functional: -160.00, virtual: 0.00)", leaf.toString());
+
     }
 }

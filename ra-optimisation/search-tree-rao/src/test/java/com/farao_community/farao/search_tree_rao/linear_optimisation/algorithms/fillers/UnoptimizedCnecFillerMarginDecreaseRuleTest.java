@@ -15,12 +15,12 @@ import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.rao_api.parameters.RangeActionsOptimizationParameters;
 import com.farao_community.farao.rao_api.parameters.RaoParameters;
 import com.farao_community.farao.rao_api.parameters.extensions.RelativeMarginsParametersExtension;
-import com.farao_community.farao.search_tree_rao.commons.RaoUtil;
 import com.farao_community.farao.search_tree_rao.commons.optimization_perimeters.OptimizationPerimeter;
 import com.farao_community.farao.search_tree_rao.commons.parameters.UnoptimizedCnecParameters;
 import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.linear_problem.FaraoMPConstraint;
 import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.linear_problem.FaraoMPVariable;
 import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.linear_problem.LinearProblem;
+import com.farao_community.farao.search_tree_rao.commons.RaoUtil;
 import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.linear_problem.LinearProblemBuilder;
 import com.farao_community.farao.search_tree_rao.result.api.FlowResult;
 import com.farao_community.farao.search_tree_rao.result.api.RangeActionSetpointResult;
@@ -30,10 +30,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import static com.farao_community.farao.commons.Unit.MEGAWATT;
 import static org.junit.jupiter.api.Assertions.*;

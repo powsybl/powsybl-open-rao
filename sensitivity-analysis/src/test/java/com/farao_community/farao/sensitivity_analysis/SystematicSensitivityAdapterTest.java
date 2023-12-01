@@ -13,14 +13,14 @@ import com.farao_community.farao.data.crac_api.InstantKind;
 import com.farao_community.farao.data.crac_impl.utils.CommonCracCreation;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.sensitivity.SensitivityAnalysisParameters;
+import com.powsybl.sensitivity.*;
 import org.junit.jupiter.api.Test;
 
 import java.util.Set;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static com.farao_community.farao.data.crac_api.cnec.Side.LEFT;
 import static com.farao_community.farao.data.crac_api.cnec.Side.RIGHT;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}

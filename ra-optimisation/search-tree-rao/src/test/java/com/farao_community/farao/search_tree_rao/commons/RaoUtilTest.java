@@ -43,6 +43,8 @@ import java.util.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
@@ -186,7 +188,7 @@ class RaoUtilTest {
         Mockito.when(cnecC.getLowerBound(Side.LEFT, Unit.MEGAWATT)).thenReturn(Optional.empty());
         Mockito.when(cnecD.getUpperBound(Side.LEFT, Unit.MEGAWATT)).thenReturn(Optional.of(-16000.));
         Mockito.when(cnecD.getLowerBound(Side.LEFT, Unit.MEGAWATT)).thenReturn(Optional.of(-16000.));
-        Set.of(cnecA, cnecB, cnecC, cnecD).forEach(cnec -> Mockito.when(cnec.getMonitoredSides()).thenReturn(Set.of(Side.LEFT)));
+        Set.of(cnecA, cnecB, cnecC, cnecD).forEach(cnec -> when(cnec.getMonitoredSides()).thenReturn(Set.of(Side.LEFT)));
 
         assertEquals(1000., RaoUtil.getLargestCnecThreshold(Set.of(cnecA), Unit.MEGAWATT), DOUBLE_TOLERANCE);
         assertEquals(1500., RaoUtil.getLargestCnecThreshold(Set.of(cnecB), Unit.MEGAWATT), DOUBLE_TOLERANCE);
@@ -202,7 +204,7 @@ class RaoUtilTest {
         State optimizedState = crac.getState("Contingency FR1 FR3", curativeInstant);
 
         FlowCnec flowCnec = crac.getFlowCnec("cnec1stateCurativeContingency1");
-        FlowResult flowResult = Mockito.mock(FlowResult.class);
+        FlowResult flowResult = mock(FlowResult.class);
 
         RemedialAction<?> na1 = crac.newNetworkAction().withId("na1")
             .newTopologicalAction().withNetworkElement("ne1").withActionType(ActionType.OPEN).add()
@@ -215,13 +217,13 @@ class RaoUtilTest {
             .newOnFlowConstraintUsageRule().withInstant(curativeInstant).withFlowCnec(flowCnec.getId()).add()
             .add();
 
-        Mockito.when(flowResult.getMargin(eq(flowCnec), any())).thenReturn(10.);
+        when(flowResult.getMargin(eq(flowCnec), any())).thenReturn(10.);
         assertFalse(na2.isRemedialActionAvailable(optimizedState, RaoUtil.isAnyMarginNegative(flowResult, na2.getFlowCnecsConstrainingUsageRules(crac.getFlowCnecs(), network, optimizedState), raoParameters.getObjectiveFunctionParameters().getType().getUnit())));
 
-        Mockito.when(flowResult.getMargin(eq(flowCnec), any())).thenReturn(-10.);
+        when(flowResult.getMargin(eq(flowCnec), any())).thenReturn(-10.);
         assertTrue(na2.isRemedialActionAvailable(optimizedState, RaoUtil.isAnyMarginNegative(flowResult, na2.getFlowCnecsConstrainingUsageRules(crac.getFlowCnecs(), network, optimizedState), raoParameters.getObjectiveFunctionParameters().getType().getUnit())));
 
-        Mockito.when(flowResult.getMargin(eq(flowCnec), any())).thenReturn(0.);
+        when(flowResult.getMargin(eq(flowCnec), any())).thenReturn(0.);
         assertTrue(na2.isRemedialActionAvailable(optimizedState, RaoUtil.isAnyMarginNegative(flowResult, na2.getFlowCnecsConstrainingUsageRules(crac.getFlowCnecs(), network, optimizedState), raoParameters.getObjectiveFunctionParameters().getType().getUnit())));
 
         optimizedState = crac.getPreventiveState();
@@ -234,11 +236,11 @@ class RaoUtilTest {
         Instant preventiveInstant = crac.getInstant(PREVENTIVE_INSTANT_ID);
         Instant curativeInstant = crac.getInstant(CURATIVE_INSTANT_ID);
         State optimizedState = Mockito.mock(State.class);
-        Mockito.when(optimizedState.getInstant()).thenReturn(curativeInstant);
+        when(optimizedState.getInstant()).thenReturn(curativeInstant);
 
         FlowCnec cnecFrBe = crac.getFlowCnec("cnec1stateCurativeContingency1");
         FlowCnec cnecFrDe = crac.getFlowCnec("cnec2stateCurativeContingency2");
-        FlowResult flowResult = Mockito.mock(FlowResult.class);
+        FlowResult flowResult = mock(FlowResult.class);
 
         RemedialAction<?> na1 = crac.newNetworkAction().withId("na1")
             .newTopologicalAction().withNetworkElement("ne1").withActionType(ActionType.OPEN).add()
@@ -255,31 +257,31 @@ class RaoUtilTest {
             .newOnFlowConstraintInCountryUsageRule().withInstant(curativeInstant).withCountry(Country.DE).add()
             .add();
 
-        Mockito.when(flowResult.getMargin(any(), any())).thenReturn(100.);
+        when(flowResult.getMargin(any(), any())).thenReturn(100.);
 
-        Mockito.when(flowResult.getMargin(eq(cnecFrBe), any())).thenReturn(10.);
+        when(flowResult.getMargin(eq(cnecFrBe), any())).thenReturn(10.);
         assertIsOnFlowInCountryAvailable(na1, optimizedState, flowResult, false);
         assertIsOnFlowInCountryAvailable(na2, optimizedState, flowResult, false);
         assertIsOnFlowInCountryAvailable(na3, optimizedState, flowResult, false);
 
-        Mockito.when(flowResult.getMargin(eq(cnecFrBe), any())).thenReturn(-10.);
+        when(flowResult.getMargin(eq(cnecFrBe), any())).thenReturn(-10.);
         assertIsOnFlowInCountryAvailable(na1, optimizedState, flowResult, true);
         assertIsOnFlowInCountryAvailable(na2, optimizedState, flowResult, true);
         assertIsOnFlowInCountryAvailable(na3, optimizedState, flowResult, false);
 
-        Mockito.when(flowResult.getMargin(eq(cnecFrBe), any())).thenReturn(0.);
+        when(flowResult.getMargin(eq(cnecFrBe), any())).thenReturn(0.);
         assertIsOnFlowInCountryAvailable(na1, optimizedState, flowResult, true);
         assertIsOnFlowInCountryAvailable(na2, optimizedState, flowResult, true);
         assertIsOnFlowInCountryAvailable(na3, optimizedState, flowResult, false);
 
-        Mockito.when(flowResult.getMargin(eq(cnecFrBe), any())).thenReturn(150.);
-        Mockito.when(flowResult.getMargin(eq(cnecFrDe), any())).thenReturn(0.);
+        when(flowResult.getMargin(eq(cnecFrBe), any())).thenReturn(150.);
+        when(flowResult.getMargin(eq(cnecFrDe), any())).thenReturn(0.);
         assertIsOnFlowInCountryAvailable(na1, optimizedState, flowResult, true);
         assertIsOnFlowInCountryAvailable(na2, optimizedState, flowResult, false);
         assertIsOnFlowInCountryAvailable(na3, optimizedState, flowResult, true);
 
-        Mockito.when(flowResult.getMargin(eq(cnecFrBe), any())).thenReturn(-150.);
-        Mockito.when(optimizedState.getInstant()).thenReturn(preventiveInstant);
+        when(flowResult.getMargin(eq(cnecFrBe), any())).thenReturn(-150.);
+        when(optimizedState.getInstant()).thenReturn(preventiveInstant);
         assertIsOnFlowInCountryAvailable(na1, optimizedState, flowResult, false);
         assertIsOnFlowInCountryAvailable(na2, optimizedState, flowResult, false);
         assertIsOnFlowInCountryAvailable(na3, optimizedState, flowResult, false);
@@ -293,15 +295,15 @@ class RaoUtilTest {
     void testCnecShouldBeOptimizedBasic() {
         FlowCnec cnec = crac.getFlowCnec("cnec1basecase");
         PstRangeAction pst = crac.getPstRangeAction("pst");
-        FlowResult flowResult = Mockito.mock(FlowResult.class);
-        RangeActionSetpointResult prePerimeterRangeActionSetpointResult = Mockito.mock(PrePerimeterResult.class);
-        SensitivityResult sensitivityResult = Mockito.mock(SensitivityResult.class);
+        FlowResult flowResult = mock(FlowResult.class);
+        RangeActionSetpointResult prePerimeterRangeActionSetpointResult = mock(PrePerimeterResult.class);
+        SensitivityResult sensitivityResult = mock(SensitivityResult.class);
 
         // Cnec not in map
         assertTrue(RaoUtil.cnecShouldBeOptimized(Map.of(), flowResult, cnec, Side.LEFT, Map.of(), prePerimeterRangeActionSetpointResult, sensitivityResult, Unit.MEGAWATT));
 
         // Margins > 0
-        Mockito.when(flowResult.getFlow(cnec, Side.LEFT, Unit.MEGAWATT)).thenReturn(0.);
+        when(flowResult.getFlow(cnec, Side.LEFT, Unit.MEGAWATT)).thenReturn(0.);
         assertFalse(RaoUtil.cnecShouldBeOptimized(Map.of(cnec, pst), flowResult, cnec, Side.LEFT, Map.of(), prePerimeterRangeActionSetpointResult, sensitivityResult, Unit.MEGAWATT));
     }
 
@@ -309,16 +311,16 @@ class RaoUtilTest {
     void testCnecShouldBeOptimizedUpper() {
         FlowCnec cnec = crac.getFlowCnec("cnec1basecase");
         PstRangeAction pst = crac.getPstRangeAction("pst");
-        FlowResult flowResult = Mockito.mock(FlowResult.class);
-        RangeActionSetpointResult prePerimeterRangeActionSetpointResult = Mockito.mock(PrePerimeterResult.class);
-        SensitivityResult sensitivityResult = Mockito.mock(SensitivityResult.class);
+        FlowResult flowResult = mock(FlowResult.class);
+        RangeActionSetpointResult prePerimeterRangeActionSetpointResult = mock(PrePerimeterResult.class);
+        SensitivityResult sensitivityResult = mock(SensitivityResult.class);
         Map<FlowCnec, RangeAction<?>> map = Map.of(cnec, pst);
 
         // Upper margin < 0 (max threshold is 2279 A)
-        Mockito.when(flowResult.getFlow(cnec, Side.LEFT, Unit.AMPERE)).thenReturn(2379.);
+        when(flowResult.getFlow(cnec, Side.LEFT, Unit.AMPERE)).thenReturn(2379.);
 
         // Sensi > 0
-        Mockito.when(sensitivityResult.getSensitivityValue(cnec, Side.LEFT, pst, Unit.MEGAWATT)).thenReturn(33.); // = 50 A
+        when(sensitivityResult.getSensitivityValue(cnec, Side.LEFT, pst, Unit.MEGAWATT)).thenReturn(33.); // = 50 A
         // Some taps left (PST at set-point -4.22, can go down to -6.2)
         assertFalse(RaoUtil.cnecShouldBeOptimized(map, flowResult, cnec, Side.LEFT, Map.of(pst, -4.22), prePerimeterRangeActionSetpointResult, sensitivityResult, Unit.AMPERE));
         // Not enough taps left
@@ -335,29 +337,29 @@ class RaoUtilTest {
     void testCnecShouldBeOptimizedLower() {
         FlowCnec cnec = crac.getFlowCnec("cnec1basecase");
         PstRangeAction pst = crac.getPstRangeAction("pst");
-        FlowResult flowResult = Mockito.mock(FlowResult.class);
-        RangeActionSetpointResult prePerimeterRangeActionSetpointResult = Mockito.mock(PrePerimeterResult.class);
-        SensitivityResult sensitivityResult = Mockito.mock(SensitivityResult.class);
+        FlowResult flowResult = mock(FlowResult.class);
+        RangeActionSetpointResult prePerimeterRangeActionSetpointResult = mock(PrePerimeterResult.class);
+        SensitivityResult sensitivityResult = mock(SensitivityResult.class);
         Map<FlowCnec, RangeAction<?>> map = Map.of(cnec, pst);
 
         // Lower margin < 0 (min threshold is -1500 MW)
-        Mockito.when(flowResult.getFlow(cnec, Side.LEFT, Unit.MEGAWATT)).thenReturn(-1700.);
+        when(flowResult.getFlow(cnec, Side.LEFT, Unit.MEGAWATT)).thenReturn(-1700.);
 
         // Sensi > 0
-        Mockito.when(sensitivityResult.getSensitivityValue(cnec, Side.LEFT, pst, Unit.MEGAWATT)).thenReturn(50.);
+        when(sensitivityResult.getSensitivityValue(cnec, Side.LEFT, pst, Unit.MEGAWATT)).thenReturn(50.);
         // Some taps left (PST at set-point 2.22, can go up to 6.2)
-        Mockito.when(prePerimeterRangeActionSetpointResult.getSetpoint(pst)).thenReturn(2.22);
+        when(prePerimeterRangeActionSetpointResult.getSetpoint(pst)).thenReturn(2.22);
         assertFalse(RaoUtil.cnecShouldBeOptimized(map, flowResult, cnec, Side.LEFT, Map.of(), prePerimeterRangeActionSetpointResult, sensitivityResult, Unit.MEGAWATT));
         // Not enough taps left
-        Mockito.when(prePerimeterRangeActionSetpointResult.getSetpoint(pst)).thenReturn(3.22);
+        when(prePerimeterRangeActionSetpointResult.getSetpoint(pst)).thenReturn(3.22);
         assertTrue(RaoUtil.cnecShouldBeOptimized(map, flowResult, cnec, Side.LEFT, Map.of(), prePerimeterRangeActionSetpointResult, sensitivityResult, Unit.MEGAWATT));
         // Sensi < 0
-        Mockito.when(sensitivityResult.getSensitivityValue(cnec, Side.LEFT, pst, Unit.MEGAWATT)).thenReturn(-50.);
+        when(sensitivityResult.getSensitivityValue(cnec, Side.LEFT, pst, Unit.MEGAWATT)).thenReturn(-50.);
         // Some taps left (PST at set-point -2.22, can go down to -6.2)
-        Mockito.when(prePerimeterRangeActionSetpointResult.getSetpoint(pst)).thenReturn(-2.22);
+        when(prePerimeterRangeActionSetpointResult.getSetpoint(pst)).thenReturn(-2.22);
         assertFalse(RaoUtil.cnecShouldBeOptimized(map, flowResult, cnec, Side.LEFT, Map.of(), prePerimeterRangeActionSetpointResult, sensitivityResult, Unit.MEGAWATT));
         // Not enough taps left
-        Mockito.when(prePerimeterRangeActionSetpointResult.getSetpoint(pst)).thenReturn(-3.22);
+        when(prePerimeterRangeActionSetpointResult.getSetpoint(pst)).thenReturn(-3.22);
         assertTrue(RaoUtil.cnecShouldBeOptimized(map, flowResult, cnec, Side.LEFT, Map.of(), prePerimeterRangeActionSetpointResult, sensitivityResult, Unit.MEGAWATT));
     }
 }

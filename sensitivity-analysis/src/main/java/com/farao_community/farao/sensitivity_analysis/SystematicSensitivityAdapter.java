@@ -21,8 +21,8 @@ import com.powsybl.sensitivity.SensitivityFactor;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.farao_community.farao.commons.logs.FaraoLoggerProvider.TECHNICAL_LOGS;
 import static com.farao_community.farao.sensitivity_analysis.SensitivityAnalysisUtil.convertCracContingencyToPowsybl;
+import static com.farao_community.farao.commons.logs.FaraoLoggerProvider.TECHNICAL_LOGS;
 
 /**
  * @author Pengbo Wang {@literal <pengbo.wang at rte-international.com>}
@@ -80,7 +80,7 @@ final class SystematicSensitivityAdapter {
             .filter(state -> state.getContingency().isPresent())
             .map(state -> convertCracContingencyToPowsybl(state.getContingency().get(), network))
             .distinct()
-            .toList();
+            .collect(Collectors.toList());
 
         SystematicSensitivityResult result = new SystematicSensitivityResult();
         List<SensitivityFactor> allFactorsWithoutRa = cnecSensitivityProvider.getBasecaseFactors(network);

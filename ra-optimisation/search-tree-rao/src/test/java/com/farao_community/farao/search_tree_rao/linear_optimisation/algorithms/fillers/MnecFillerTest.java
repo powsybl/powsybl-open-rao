@@ -29,10 +29,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
@@ -112,7 +109,7 @@ class MnecFillerTest extends AbstractFillerTest {
                 new RangeActionActivationResultImpl(initialRangeActionSetpointResult),
                 rangeActionParameters,
                 Unit.MEGAWATT,
-                false);
+            false);
     }
 
     private void fillProblemWithFiller(Unit unit) {

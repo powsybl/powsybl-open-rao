@@ -7,31 +7,28 @@
 package com.farao_community.farao.sensitivity_analysis;
 
 import com.farao_community.farao.commons.Unit;
-import com.farao_community.farao.data.crac_api.Crac;
+import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_api.CracFactory;
+import com.farao_community.farao.data.crac_api.range_action.HvdcRangeAction;
+import com.powsybl.glsk.commons.ZonalData;
+import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.InstantKind;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
-import com.farao_community.farao.data.crac_api.cnec.Side;
-import com.farao_community.farao.data.crac_api.range_action.HvdcRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.data.crac_impl.utils.CommonCracCreation;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
-import com.powsybl.glsk.commons.ZonalData;
 import com.powsybl.glsk.ucte.UcteGlskDocument;
 import com.powsybl.iidm.network.HvdcLine;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.sensitivity.SensitivityAnalysis;
-import com.powsybl.sensitivity.SensitivityAnalysisParameters;
-import com.powsybl.sensitivity.SensitivityAnalysisResult;
-import com.powsybl.sensitivity.SensitivityVariableSet;
+import com.powsybl.sensitivity.*;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Map;
 import java.util.Set;
+import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -60,7 +57,6 @@ class SystematicSensitivityResultTest {
 
     public void setUp() {
         network = NetworkImportsUtil.import12NodesNetwork();
-        //TODO remove this
         Crac crac = CommonCracCreation.createWithPreventivePstRange(Set.of(Side.LEFT, Side.RIGHT));
         outageInstantOrder = crac.getInstant(CURATIVE_INSTANT_ID).getOrder();
 

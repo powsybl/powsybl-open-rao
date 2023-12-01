@@ -60,6 +60,7 @@ public class Leaf implements OptimizationResult {
         EVALUATED,
         OPTIMIZED
     }
+
     /**
      * Network Actions which will be tested (including the
      * network actions from the parent leaves as well as from
@@ -71,6 +72,7 @@ public class Leaf implements OptimizationResult {
     private Network network;
     private final RangeActionActivationResult raActivationResultFromParentLeaf;
     private final RangeActionSetpointResult prePerimeterSetpoints;
+
     /**
      * Status of the leaf's Network Action evaluation
      */

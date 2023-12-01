@@ -154,7 +154,7 @@ public class FailedRaoResultImpl implements RaoResult {
     }
 
     @Override
-        public OptimizationStepsExecuted getOptimizationStepsExecuted() {
+    public OptimizationStepsExecuted getOptimizationStepsExecuted() {
         throw new FaraoException(SHOULD_NOT_BE_USED);
     }
 }

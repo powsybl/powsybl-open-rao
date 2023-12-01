@@ -26,29 +26,27 @@ import org.mockito.Mockito;
 
 import java.util.Set;
 
-import static com.farao_community.farao.commons.Unit.AMPERE;
-import static com.farao_community.farao.commons.Unit.MEGAWATT;
-import static com.farao_community.farao.data.crac_api.cnec.Side.LEFT;
-import static com.farao_community.farao.data.crac_api.cnec.Side.RIGHT;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
+import static com.farao_community.farao.data.crac_api.cnec.Side.LEFT;
+import static com.farao_community.farao.data.crac_api.cnec.Side.RIGHT;
+import static com.farao_community.farao.commons.Unit.*;
 
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
 class UnoptimizedRaoResultImplTest {
-    private static final double DOUBLE_TOLERANCE = 1e-6;
-    private static final String PREVENTIVE_INSTANT_ID = "preventive";
-    private static final String OUTAGE_INSTANT_ID = "outage";
-    private static final String AUTO_INSTANT_ID = "auto";
-    private static final String CURATIVE_INSTANT_ID = "curative";
-
     private PrePerimeterResult initialResult;
     private UnoptimizedRaoResultImpl output;
     private FlowCnec flowCnec;
     private Instant preventiveInstant;
     private Instant autoInstant;
     private Instant curativeInstant;
+    private static final double DOUBLE_TOLERANCE = 1e-6;
+    private static final String PREVENTIVE_INSTANT_ID = "preventive";
+    private static final String OUTAGE_INSTANT_ID = "outage";
+    private static final String AUTO_INSTANT_ID = "auto";
+    private static final String CURATIVE_INSTANT_ID = "curative";
 
     @BeforeEach
     public void setUp() {

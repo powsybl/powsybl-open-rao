@@ -122,10 +122,10 @@ class InjectionRangeActionSensiHandlerTest {
             .newInstant(PREVENTIVE_INSTANT_ID, InstantKind.PREVENTIVE);
         Instant preventiveInstant = crac.getInstant(PREVENTIVE_INSTANT_ID);
         InjectionRangeAction injectionRangeAction = (InjectionRangeAction) crac.newInjectionRangeAction().withId("injectionRangeId")
-            .withNetworkElementAndKey(1, "unknown")
-            .newRange().withMin(-1000).withMax(1000).add()
-            .newOnInstantUsageRule().withInstant(preventiveInstant).withUsageMethod(UsageMethod.AVAILABLE).add()
-            .add();
+                .withNetworkElementAndKey(1, "unknown")
+                .newRange().withMin(-1000).withMax(1000).add()
+                .newOnInstantUsageRule().withInstant(preventiveInstant).withUsageMethod(UsageMethod.AVAILABLE).add()
+                .add();
 
         InjectionRangeActionSensiHandler sensiHandler = new InjectionRangeActionSensiHandler(injectionRangeAction);
 

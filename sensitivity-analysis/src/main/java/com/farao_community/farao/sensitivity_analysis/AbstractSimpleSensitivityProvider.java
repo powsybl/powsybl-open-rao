@@ -22,7 +22,7 @@ import java.util.stream.Collectors;
  */
 public abstract class AbstractSimpleSensitivityProvider implements CnecSensitivityProvider {
     protected Set<FlowCnec> cnecs;
-    protected Map<String, ArrayList<FlowCnec>> cnecsPerContingencyId = new HashMap<>();
+    protected Map<String, ArrayList<FlowCnec> > cnecsPerContingencyId = new HashMap<>();
     protected boolean factorsInMegawatt = false;
     protected boolean factorsInAmpere = false;
     protected boolean afterContingencyOnly = false;

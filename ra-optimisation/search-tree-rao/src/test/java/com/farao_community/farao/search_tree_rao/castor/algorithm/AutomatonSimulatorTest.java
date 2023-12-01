@@ -47,10 +47,6 @@ import static org.mockito.Mockito.*;
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
 class AutomatonSimulatorTest {
-    private static final String PREVENTIVE_INSTANT_ID = "preventive";
-    private static final String OUTAGE_INSTANT_ID = "outage";
-    private static final String AUTO_INSTANT_ID = "auto";
-    private static final String CURATIVE_INSTANT_ID = "curative";
 
     private AutomatonSimulator automatonSimulator;
     private Crac crac;
@@ -78,6 +74,9 @@ class AutomatonSimulatorTest {
     private Instant autoInstant;
 
     private static final double DOUBLE_TOLERANCE = 0.01;
+    private static final String PREVENTIVE_INSTANT_ID = "preventive";
+    private static final String OUTAGE_INSTANT_ID = "outage";
+    private static final String AUTO_INSTANT_ID = "auto";
 
     @BeforeEach
     public void setup() {
@@ -99,8 +98,7 @@ class AutomatonSimulatorTest {
         crac = CracFactory.findDefault().create("test-crac")
             .newInstant(PREVENTIVE_INSTANT_ID, InstantKind.PREVENTIVE)
             .newInstant(OUTAGE_INSTANT_ID, InstantKind.OUTAGE)
-            .newInstant(AUTO_INSTANT_ID, InstantKind.AUTO)
-            .newInstant(CURATIVE_INSTANT_ID, InstantKind.CURATIVE);
+            .newInstant(AUTO_INSTANT_ID, InstantKind.AUTO);
         preventiveInstant = crac.getInstant(PREVENTIVE_INSTANT_ID);
         autoInstant = crac.getInstant(AUTO_INSTANT_ID);
         Contingency contingency1 = crac.newContingency()

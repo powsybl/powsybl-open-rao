@@ -45,7 +45,6 @@ import static org.mockito.Mockito.when;
  */
 class UnoptimizedCnecFillerPstLimitationRuleTest extends AbstractFillerTest {
     private static final double MAX_ABS_THRESHOLD = 1000;
-    private final Map<FlowCnec, RangeAction<?>> flowCnecRangeActionMap = new HashMap<>();
     private LinearProblem linearProblem;
     private CoreProblemFiller coreProblemFiller;
     private UnoptimizedCnecFiller unoptimizedCnecFiller;
@@ -53,6 +52,7 @@ class UnoptimizedCnecFillerPstLimitationRuleTest extends AbstractFillerTest {
     private FlowCnec classicCnec;
     private PstRangeAction pstRangeActionInSeries;
     private OptimizationPerimeter optimizationPerimeter;
+    private Map<FlowCnec, RangeAction<?>> flowCnecRangeActionMap = new HashMap<>();
     private double constraintCoeff;
     private RangeActionsOptimizationParameters rangeActionParameters;
 
@@ -205,7 +205,7 @@ class UnoptimizedCnecFillerPstLimitationRuleTest extends AbstractFillerTest {
         );
         double relMarginCoef = Math.max(initialFlowResult.getPtdfZonalSum(classicCnec, Side.LEFT), maxMinRelativeMarginParameters.getPtdfSumLowerBound());
         double unitConversionCoefficient = RaoUtil.getFlowUnitMultiplier(classicCnec, Side.LEFT, MEGAWATT, MEGAWATT);
-        constraintCoeff = 5 * RaoUtil.getLargestCnecThreshold(Set.of(cnecInSeries, classicCnec), MEGAWATT) / maxMinRelativeMarginParameters.getPtdfSumLowerBound() * unitConversionCoefficient * relMarginCoef;
+        constraintCoeff =  5 * RaoUtil.getLargestCnecThreshold(Set.of(cnecInSeries, classicCnec), MEGAWATT) / maxMinRelativeMarginParameters.getPtdfSumLowerBound() * unitConversionCoefficient * relMarginCoef;
 
         unoptimizedCnecFiller = new UnoptimizedCnecFiller(
                 optimizationPerimeter,

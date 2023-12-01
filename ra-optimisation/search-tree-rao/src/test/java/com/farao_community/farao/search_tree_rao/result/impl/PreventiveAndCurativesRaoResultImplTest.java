@@ -33,14 +33,13 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
-import static com.farao_community.farao.commons.Unit.AMPERE;
-import static com.farao_community.farao.commons.Unit.MEGAWATT;
-import static com.farao_community.farao.data.crac_api.cnec.Side.LEFT;
-import static com.farao_community.farao.data.crac_api.cnec.Side.RIGHT;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static com.farao_community.farao.data.crac_api.cnec.Side.LEFT;
+import static com.farao_community.farao.data.crac_api.cnec.Side.RIGHT;
+import static com.farao_community.farao.commons.Unit.*;
 
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}

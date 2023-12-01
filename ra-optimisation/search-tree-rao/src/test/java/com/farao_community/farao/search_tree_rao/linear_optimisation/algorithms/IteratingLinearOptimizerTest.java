@@ -39,16 +39,11 @@ import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
@@ -72,6 +67,7 @@ class IteratingLinearOptimizerTest {
 
     private MockedStatic<LinearProblem> linearProblemMockedStatic;
     private MockedStatic<SensitivityComputer> sensitivityComputerMockedStatic;
+    private Instant outageInstant;
 
     @BeforeEach
     public void setUp() {
@@ -80,7 +76,6 @@ class IteratingLinearOptimizerTest {
         when(rangeAction.getNetworkElements()).thenReturn(Set.of(Mockito.mock(NetworkElement.class)));
         optimizedState = Mockito.mock(State.class);
         Instant preventiveInstant = Mockito.mock(Instant.class);
-        Mockito.when(preventiveInstant.getInstantKind()).thenReturn(InstantKind.PREVENTIVE);
         when(optimizedState.getInstant()).thenReturn(preventiveInstant);
 
         objectiveFunction = Mockito.mock(ObjectiveFunction.class);
@@ -119,8 +114,7 @@ class IteratingLinearOptimizerTest {
         BranchResultAdapter branchResultAdapter = Mockito.mock(BranchResultAdapter.class);
         sensitivityComputer = Mockito.mock(SensitivityComputer.class);
 
-        Instant outageInstant = Mockito.mock(Instant.class);
-        Mockito.when(outageInstant.getOrder()).thenReturn(1);
+        outageInstant = Mockito.mock(Instant.class);
         SystematicSensitivityResult sensi = Mockito.mock(SystematicSensitivityResult.class, "only sensi computation");
         when(systematicSensitivityInterface.run(network, outageInstant)).thenReturn(sensi);
         FlowResult flowResult = Mockito.mock(FlowResult.class);
@@ -189,8 +183,6 @@ class IteratingLinearOptimizerTest {
 
     @Test
     void firstOptimizationFails() {
-        Instant outageInstant = Mockito.mock(Instant.class);
-        Mockito.when(outageInstant.getOrder()).thenReturn(1);
         mockLinearProblem(List.of(LinearProblemStatus.INFEASIBLE), Collections.emptyList());
         mockFunctionalCost(100.);
         prepareLinearProblemBuilder();
@@ -201,7 +193,6 @@ class IteratingLinearOptimizerTest {
 
     @Test
     void firstLinearProblemDoesNotChangeSetPoint() {
-        Instant outageInstant = Mockito.mock(Instant.class);
         Mockito.when(outageInstant.getOrder()).thenReturn(1);
         mockLinearProblem(List.of(LinearProblemStatus.OPTIMAL), List.of(0.));
         mockFunctionalCost(100.);
@@ -217,8 +208,6 @@ class IteratingLinearOptimizerTest {
 
     @Test
     void secondLinearProblemDoesNotChangeSetPoint() {
-        Instant outageInstant = Mockito.mock(Instant.class);
-        Mockito.when(outageInstant.getOrder()).thenReturn(1);
         mockLinearProblem(Collections.nCopies(2, LinearProblemStatus.OPTIMAL), List.of(1., 1.));
         mockFunctionalCost(100., 50.);
         prepareLinearProblemBuilder();
@@ -233,8 +222,6 @@ class IteratingLinearOptimizerTest {
 
     @Test
     void linearProblemDegradesTheSolutionButKeepsBestIteration() {
-        Instant outageInstant = Mockito.mock(Instant.class);
-        Mockito.when(outageInstant.getOrder()).thenReturn(1);
         when(parameters.getRaRangeShrinking()).thenReturn(true);
         mockLinearProblem(Collections.nCopies(5, LinearProblemStatus.OPTIMAL), List.of(1., 2., 3., 4., 5.));
         mockFunctionalCost(100., 150., 140., 130., 120., 110.);
@@ -250,8 +237,6 @@ class IteratingLinearOptimizerTest {
 
     @Test
     void linearProblemDegradesTheSolution() {
-        Instant outageInstant = Mockito.mock(Instant.class);
-        Mockito.when(outageInstant.getOrder()).thenReturn(1);
         mockLinearProblem(Collections.nCopies(5, LinearProblemStatus.OPTIMAL), List.of(1., 2., 3., 4., 5.));
         mockFunctionalCost(100., 150., 140., 130., 120., 110.);
         prepareLinearProblemBuilder();
@@ -266,8 +251,6 @@ class IteratingLinearOptimizerTest {
 
     @Test
     void linearProblemFluctuatesButKeepsBestIteration() {
-        Instant outageInstant = Mockito.mock(Instant.class);
-        Mockito.when(outageInstant.getOrder()).thenReturn(1);
         when(parameters.getRaRangeShrinking()).thenReturn(true);
         mockLinearProblem(Collections.nCopies(5, LinearProblemStatus.OPTIMAL), List.of(1., 2., 3., 4., 5.));
         mockFunctionalCost(100., 120., 105., 90., 100., 95.);
@@ -283,8 +266,6 @@ class IteratingLinearOptimizerTest {
 
     @Test
     void reachMaxIterations() {
-        Instant outageInstant = Mockito.mock(Instant.class);
-        Mockito.when(outageInstant.getOrder()).thenReturn(1);
         mockLinearProblem(Collections.nCopies(5, LinearProblemStatus.OPTIMAL), List.of(1., 2., 3., 4., 5.));
         mockFunctionalCost(100., 90., 80., 70., 60., 50.);
         prepareLinearProblemBuilder();
@@ -299,8 +280,6 @@ class IteratingLinearOptimizerTest {
 
     @Test
     void optimizeWithInfeasibility() {
-        Instant outageInstant = Mockito.mock(Instant.class);
-        Mockito.when(outageInstant.getOrder()).thenReturn(1);
         mockLinearProblem(List.of(LinearProblemStatus.OPTIMAL, LinearProblemStatus.INFEASIBLE), List.of(1.));
         mockFunctionalCost(100., 50.);
         prepareLinearProblemBuilder();
@@ -315,8 +294,6 @@ class IteratingLinearOptimizerTest {
 
     @Test
     void optimizeWithSensitivityComputationFailure() {
-        Instant outageInstant = Mockito.mock(Instant.class);
-        Mockito.when(outageInstant.getOrder()).thenReturn(1);
         SensitivityResult sensitivityResult = Mockito.mock(SensitivityResult.class);
         Mockito.when(sensitivityComputer.getSensitivityResult()).thenReturn(sensitivityResult);
         Mockito.when(sensitivityResult.getSensitivityStatus()).thenReturn(ComputationStatus.FAILURE);
@@ -335,8 +312,6 @@ class IteratingLinearOptimizerTest {
 
     @Test
     void testUnapplyRangeAction() {
-        Instant outageInstant = Mockito.mock(Instant.class);
-        Mockito.when(outageInstant.getOrder()).thenReturn(1);
         when(parameters.getRaRangeShrinking()).thenReturn(true);
         network = NetworkImportsUtil.import12NodesNetwork();
         when(input.getNetwork()).thenReturn(network);

@@ -25,9 +25,7 @@ import org.mockito.Mockito;
 import java.io.IOException;
 import java.util.Random;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
