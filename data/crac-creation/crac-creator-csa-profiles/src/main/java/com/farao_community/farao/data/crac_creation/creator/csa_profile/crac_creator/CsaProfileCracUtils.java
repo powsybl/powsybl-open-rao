@@ -114,15 +114,6 @@ public final class CsaProfileCracUtils {
         }
     }
 
-    public static boolean checkProfileHeader(PropertyBag propertyBag, CsaProfileConstants.CsaProfile csaProfileKeyword) {
-        return checkProfileKeyword(propertyBag, csaProfileKeyword);
-    }
-
-    private static boolean checkProfileKeyword(PropertyBag propertyBag, CsaProfileConstants.CsaProfile csaProfileKeyword) {
-        String keyword = propertyBag.get(CsaProfileConstants.REQUEST_HEADER_KEYWORD);
-        return csaProfileKeyword.getKeyword().equals(keyword);
-    }
-
     public static String removePrefix(String mridWithPrefix) {
         return mridWithPrefix.substring(mridWithPrefix.lastIndexOf("_") + 1);
     }

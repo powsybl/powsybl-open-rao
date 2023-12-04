@@ -38,10 +38,6 @@ PREFIX dcat: <http://www.w3.org/ns/dcat#>
 SELECT *
 {
 GRAPH <%s> {
-    ?fullModel
-        dcat:startDate ?startDate ;
-        dcat:endDate ?endDate ;
-        dcat:keyword ?keyword .
     ?contingency
         rdf:type nc:OrdinaryContingency ;
         nc:Contingency.normalMustStudy ?normalMustStudy ;
@@ -61,10 +57,6 @@ PREFIX dcat: <http://www.w3.org/ns/dcat#>
 SELECT *
 {
 GRAPH <%s> {
-    ?fullModel
-        dcat:startDate ?startDate ;
-        dcat:endDate ?endDate ;
-        dcat:keyword ?keyword .
     ?contingency
         rdf:type nc:ExceptionalContingency ;
         nc:Contingency.normalMustStudy ?normalMustStudy ;
@@ -84,10 +76,6 @@ PREFIX dcat: <http://www.w3.org/ns/dcat#>
 SELECT *
 {
 GRAPH <%s> {
-    ?fullModel
-        dcat:startDate ?startDate ;
-        dcat:endDate ?endDate ;
-        dcat:keyword ?keyword .
     ?contingency
         rdf:type nc:OutOfRangeContingency ;
         nc:Contingency.normalMustStudy ?normalMustStudy ;
@@ -107,10 +95,6 @@ PREFIX dcat: <http://www.w3.org/ns/dcat#>
 SELECT *
 {
 GRAPH <%s> {
-    ?fullModel
-        dcat:startDate ?startDate ;
-        dcat:endDate ?endDate ;
-        dcat:keyword ?keyword .
     ?assessedElement
         rdf:type nc:AssessedElement ;
         nc:AssessedElement.inBaseCase ?inBaseCase ;
@@ -220,10 +204,6 @@ PREFIX dcat: <http://www.w3.org/ns/dcat#>
 SELECT *
 {
     GRAPH <%s> {
-        ?fullModel
-            dcat:startDate ?startDate ;
-            dcat:endDate ?endDate ;
-            dcat:keyword ?keyword .
         ?angleLimit
             rdf:type nc:VoltageAngleLimit ;
             nc:VoltageAngleLimit.normalValue ?normalValue ;
@@ -252,10 +232,6 @@ PREFIX dcat: <http://www.w3.org/ns/dcat#>
 SELECT *
 {
     GRAPH <%s> {
-        ?fullModel
-            dcat:startDate ?startDate ;
-            dcat:endDate ?endDate ;
-            dcat:keyword ?keyword .
         ?gridStateAlterationRemedialAction
             rdf:type nc:GridStateAlterationRemedialAction ;
             cim:IdentifiedObject.mRID ?mRID ;
@@ -372,10 +348,6 @@ PREFIX dcat: <http://www.w3.org/ns/dcat#>
 SELECT *
 {
     GRAPH <%s> {
-        ?fullModel
-            dcat:startDate ?startDate ;
-            dcat:endDate ?endDate ;
-            dcat:keyword ?keyword .
         ?remedialActionSchedule
             rdf:type nc:RemedialActionSchedule ;
             cim:IdentifiedObject.mRID ?mRID ;

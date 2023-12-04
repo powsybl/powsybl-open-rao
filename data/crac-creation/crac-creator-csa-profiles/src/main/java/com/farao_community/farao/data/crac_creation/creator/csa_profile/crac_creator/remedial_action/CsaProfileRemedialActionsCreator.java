@@ -224,10 +224,6 @@ public class CsaProfileRemedialActionsCreator {
 
         boolean normalAvailable = Boolean.parseBoolean(remedialActionPropertyBag.get(CsaProfileConstants.NORMAL_AVAILABLE));
 
-        if (!CsaProfileCracUtils.checkProfileHeader(remedialActionPropertyBag, profileKeyword)) {
-            throw new FaraoImportException(ImportStatus.INCONSISTENCY_IN_DATA, "Model.keyword must be " + profileKeyword.getKeyword());
-        }
-
         if (!normalAvailable) {
             throw new FaraoImportException(ImportStatus.NOT_FOR_RAO, CsaProfileConstants.REMEDIAL_ACTION_MESSAGE + remedialActionId + " will not be imported because RemedialAction.normalAvailable must be 'true' to be imported");
         }
@@ -371,14 +367,6 @@ public class CsaProfileRemedialActionsCreator {
         }
     }
 
-    private void checkProfileHeader(PropertyBags propertyBags, CsaProfileConstants.CsaProfile profileKeyword) {
-        propertyBags.forEach(remedialActionsSchedulePropertyBag -> {
-            if (!CsaProfileCracUtils.checkProfileHeader(remedialActionsSchedulePropertyBag, profileKeyword)) {
-                throw new FaraoImportException(ImportStatus.INCONSISTENCY_IN_DATA, "Model.keyword must be " + CsaProfileConstants.CsaProfile.REMEDIAL_ACTION_SCHEDULE);
-            }
-        });
-    }
-
     private void createAutoRemedialActions() {
         NetworkActionCreator networkActionCreator = new NetworkActionCreator(crac, network);
         PstRangeActionCreator pstRangeActionCreator = new PstRangeActionCreator(crac, network);
@@ -388,8 +376,6 @@ public class CsaProfileRemedialActionsCreator {
         Map<String, Set<PropertyBag>> linkedRotatingMachineActionsAuto = CsaProfileCracUtils.getMappedPropertyBagsSet(rotatingMachineActionAutoPropertyBags, CsaProfileConstants.GRID_STATE_ALTERATION_COLLECTION);
         Map<String, Set<PropertyBag>> linkedShuntCompensatorModificationAuto = CsaProfileCracUtils.getMappedPropertyBagsSet(shuntCompensatorModificationAutoPropertyBags, CsaProfileConstants.GRID_STATE_ALTERATION_COLLECTION);
         Map<String, Set<PropertyBag>> linkedTapPositionActionsAuto = CsaProfileCracUtils.getMappedPropertyBagsSet(tapPositionActionsAutoPropertyBags, CsaProfileConstants.GRID_STATE_ALTERATION_COLLECTION);
-
-        checkProfileHeader(remedialActionsSchedulePropertyBags, CsaProfileConstants.CsaProfile.REMEDIAL_ACTION_SCHEDULE);
 
         Map<PropertyBag, PropertyBag> schemeRemedialActionToRemedialActionSchemeMap = associateTwoPropertyBags(new HashSet<>(schemeRemedialActionsPropertyBags),
             new HashSet<>(remedialActionSchemePropertyBags),

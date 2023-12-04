@@ -130,12 +130,6 @@ public class CsaProfileContingencyCreator {
     }
 
     private Set<PropertyBag> dataCheck(PropertyBag contingencyPropertyBag, String contingencyId) {
-        boolean headerValidity = CsaProfileCracUtils.checkProfileHeader(contingencyPropertyBag, CsaProfileConstants.CsaProfile.CONTINGENCY);
-        if (!headerValidity) {
-            csaProfileContingencyCreationContexts.add(CsaProfileElementaryCreationContext.notImported(contingencyId, ImportStatus.INCONSISTENCY_IN_DATA, "Model.keyword must be " + CsaProfileConstants.CsaProfile.CONTINGENCY));
-            return new HashSet<>();
-        }
-
         Boolean mustStudy = Boolean.parseBoolean(contingencyPropertyBag.get(CsaProfileConstants.REQUEST_CONTINGENCIES_MUST_STUDY));
         if (!Boolean.TRUE.equals(mustStudy)) {
             csaProfileContingencyCreationContexts.add(CsaProfileElementaryCreationContext.notImported(contingencyId, ImportStatus.NOT_FOR_RAO, "contingency.mustStudy is false"));
