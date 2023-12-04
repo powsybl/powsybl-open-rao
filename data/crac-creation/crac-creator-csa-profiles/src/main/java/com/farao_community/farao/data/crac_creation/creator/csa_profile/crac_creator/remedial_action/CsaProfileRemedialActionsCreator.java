@@ -224,8 +224,7 @@ public class CsaProfileRemedialActionsCreator {
 
         boolean normalAvailable = Boolean.parseBoolean(remedialActionPropertyBag.get(CsaProfileConstants.NORMAL_AVAILABLE));
 
-        CsaProfileConstants.HeaderValidity headerValidity = CsaProfileCracUtils.checkProfileHeader(remedialActionPropertyBag, profileKeyword);
-        if (headerValidity == CsaProfileConstants.HeaderValidity.INVALID_KEYWORD) {
+        if (!CsaProfileCracUtils.checkProfileHeader(remedialActionPropertyBag, profileKeyword)) {
             throw new FaraoImportException(ImportStatus.INCONSISTENCY_IN_DATA, "Model.keyword must be " + profileKeyword.getKeyword());
         }
 
@@ -374,8 +373,7 @@ public class CsaProfileRemedialActionsCreator {
 
     private void checkProfileHeader(PropertyBags propertyBags, CsaProfileConstants.CsaProfile profileKeyword) {
         propertyBags.forEach(remedialActionsSchedulePropertyBag -> {
-            CsaProfileConstants.HeaderValidity headerValidity = CsaProfileCracUtils.checkProfileHeader(remedialActionsSchedulePropertyBag, profileKeyword);
-            if (headerValidity == CsaProfileConstants.HeaderValidity.INVALID_KEYWORD) {
+            if (!CsaProfileCracUtils.checkProfileHeader(remedialActionsSchedulePropertyBag, profileKeyword)) {
                 throw new FaraoImportException(ImportStatus.INCONSISTENCY_IN_DATA, "Model.keyword must be " + CsaProfileConstants.CsaProfile.REMEDIAL_ACTION_SCHEDULE);
             }
         });

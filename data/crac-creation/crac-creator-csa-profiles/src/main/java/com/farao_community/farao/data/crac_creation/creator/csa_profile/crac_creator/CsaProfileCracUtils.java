@@ -114,11 +114,8 @@ public final class CsaProfileCracUtils {
         }
     }
 
-    public static CsaProfileConstants.HeaderValidity checkProfileHeader(PropertyBag propertyBag, CsaProfileConstants.CsaProfile csaProfileKeyword) {
-        if (!checkProfileKeyword(propertyBag, csaProfileKeyword)) {
-            return CsaProfileConstants.HeaderValidity.INVALID_KEYWORD;
-        }
-        return CsaProfileConstants.HeaderValidity.OK;
+    public static boolean checkProfileHeader(PropertyBag propertyBag, CsaProfileConstants.CsaProfile csaProfileKeyword) {
+        return checkProfileKeyword(propertyBag, csaProfileKeyword);
     }
 
     private static boolean checkProfileKeyword(PropertyBag propertyBag, CsaProfileConstants.CsaProfile csaProfileKeyword) {

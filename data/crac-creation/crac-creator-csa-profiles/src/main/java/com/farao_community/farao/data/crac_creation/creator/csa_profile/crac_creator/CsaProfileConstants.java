@@ -317,9 +317,4 @@ public final class CsaProfileConstants {
             return this.type;
         }
     }
-
-    public enum HeaderValidity {
-        OK,
-        INVALID_KEYWORD
-    }
 }
