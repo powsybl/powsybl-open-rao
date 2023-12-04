@@ -40,7 +40,13 @@ public class NetworkActionCreator {
         NetworkActionAdder networkActionAdder = crac.newNetworkAction().withId(targetRaId);
         if (linkedTopologyActions.containsKey(gridStateAlterationId)) {
             for (PropertyBag topologyActionPropertyBag : linkedTopologyActions.get(gridStateAlterationId)) {
-                addTopologicalElementaryAction(networkActionAdder, topologyActionPropertyBag, gridStateAlterationId);
+                if (staticPropertyRanges.containsKey(topologyActionPropertyBag.getId(CsaProfileConstants.MRID))) {
+                    addTopologicalElementaryAction(staticPropertyRanges.get(topologyActionPropertyBag.getId(CsaProfileConstants.MRID)),
+                        networkActionAdder, topologyActionPropertyBag, gridStateAlterationId);
+                } else {
+                    throw new FaraoImportException(ImportStatus.INCONSISTENCY_IN_DATA, CsaProfileConstants.REMEDIAL_ACTION_MESSAGE + targetRaId + " will not be imported because there is no StaticPropertyRange linked to that RA");
+                }
+
             }
         }
 
@@ -178,16 +184,31 @@ public class NetworkActionCreator {
         return network.getLoadStream().filter(load -> load.getId().equals(injectionSetPointId)).findAny();
     }
 
-    private void addTopologicalElementaryAction(NetworkActionAdder networkActionAdder, PropertyBag
-        topologyActionPropertyBag, String remedialActionId) {
+    private void addTopologicalElementaryAction(Set<PropertyBag> staticPropertyRangesLinkedToTopologicalElementaryAction, NetworkActionAdder networkActionAdder, PropertyBag topologyActionPropertyBag, String remedialActionId) {
         String switchId = topologyActionPropertyBag.getId(CsaProfileConstants.SWITCH);
         if (network.getSwitch(switchId) == null) {
             throw new FaraoImportException(ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK, CsaProfileConstants.REMEDIAL_ACTION_MESSAGE + remedialActionId + " will not be imported because network model does not contain a switch with id: " + switchId);
         }
         CsaProfileCracUtils.checkPropertyReference(topologyActionPropertyBag, remedialActionId, "TopologyAction", CsaProfileConstants.PropertyReference.SWITCH.toString());
+
+        PropertyBag staticPropertyRangePropertyBag = staticPropertyRangesLinkedToTopologicalElementaryAction.iterator().next();
+        String normalValue = staticPropertyRangePropertyBag.get(CsaProfileConstants.NORMAL_VALUE);
+        if (!"0".equals(normalValue) && !"1".equals(normalValue)) {
+            throw new FaraoImportException(ImportStatus.INCONSISTENCY_IN_DATA, CsaProfileConstants.REMEDIAL_ACTION_MESSAGE + remedialActionId + " will not be imported because the normalValue is " + normalValue + " which does not define a proper action type (open 1 / close 0)");
+        }
+
+        String valueKind = staticPropertyRangePropertyBag.get(CsaProfileConstants.STATIC_PROPERTY_RANGE_VALUE_KIND);
+        if (!CsaProfileConstants.ValueOffsetKind.ABSOLUTE.toString().equals(valueKind)) {
+            throw new FaraoImportException(ImportStatus.INCONSISTENCY_IN_DATA, CsaProfileConstants.REMEDIAL_ACTION_MESSAGE + remedialActionId + " will not be imported because the ValueOffsetKind is " + valueKind + " but should be none.");
+        }
+
+        String direction = staticPropertyRangePropertyBag.get(CsaProfileConstants.STATIC_PROPERTY_RANGE_DIRECTION);
+        if (!CsaProfileConstants.RelativeDirectionKind.NONE.toString().equals(direction)) {
+            throw new FaraoImportException(ImportStatus.INCONSISTENCY_IN_DATA, CsaProfileConstants.REMEDIAL_ACTION_MESSAGE + remedialActionId + " will not be imported because the RelativeDirectionKind is " + direction + " but should be absolute.");
+        }
+
         networkActionAdder.newTopologicalAction()
             .withNetworkElement(switchId)
-            // todo this is a temporary behaviour closing switch will be implemented in a later version
-            .withActionType(ActionType.OPEN).add();
+            .withActionType("0".equals(normalValue) ? ActionType.CLOSE : ActionType.OPEN).add();
     }
 }
