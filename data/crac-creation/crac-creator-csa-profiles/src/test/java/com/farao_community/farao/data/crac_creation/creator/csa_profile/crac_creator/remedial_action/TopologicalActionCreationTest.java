@@ -1,7 +1,6 @@
 package com.farao_community.farao.data.crac_creation.creator.csa_profile.crac_creator.remedial_action;
 
 import com.farao_community.farao.data.crac_api.network_action.ActionType;
-import com.farao_community.farao.data.crac_api.network_action.ElementaryAction;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.crac_api.network_action.TopologicalAction;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
@@ -10,7 +9,6 @@ import com.farao_community.farao.data.crac_creation.creator.csa_profile.crac_cre
 import com.farao_community.farao.data.crac_impl.OnContingencyStateImpl;
 import org.junit.jupiter.api.Test;
 
-import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
@@ -173,9 +171,17 @@ class TopologicalActionCreationTest {
         assertNotNull(cracCreationContext);
         assertEquals(1, cracCreationContext.getCrac().getRemedialActions().size());
         assertNetworkActionImported(cracCreationContext, "topology-action", Set.of("BBE1AA1  BBE4AA1  1", "DDE3AA1  DDE4AA1  1"), false, 1);
-        Iterator it = cracCreationContext.getCrac().getNetworkAction("topology-action").getElementaryActions().stream().sorted(Comparator.comparing(ElementaryAction::hashCode)).iterator();
-        assertEquals(ActionType.OPEN, ((TopologicalAction) it.next()).getActionType());
-        assertEquals(ActionType.CLOSE, ((TopologicalAction) it.next()).getActionType());
+        cracCreationContext.getCrac().getNetworkAction("topology-action").getElementaryActions();
+        Iterator it = cracCreationContext.getCrac().getNetworkAction("topology-action").getElementaryActions().iterator();
+        TopologicalAction ta1 = (TopologicalAction) it.next();
+        TopologicalAction ta2 = (TopologicalAction) it.next();
+        if ("BBE1AA1  BBE4AA1  1".equals(ta1.getNetworkElement().getName())) {
+            assertEquals(ActionType.OPEN, ta1.getActionType());
+            assertEquals(ActionType.CLOSE, ta2.getActionType());
+        } else {
+            assertEquals(ActionType.OPEN, ta2.getActionType());
+            assertEquals(ActionType.CLOSE, ta1.getActionType());
+        }
         assertRaNotImported(cracCreationContext, "no-static-property-range", ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action no-static-property-range will not be imported because there is no StaticPropertyRange linked to that RA");
         assertRaNotImported(cracCreationContext, "wrong-value-offset-kind", ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action wrong-value-offset-kind will not be imported because the ValueOffsetKind is http://entsoe.eu/ns/nc#ValueOffsetKind.incremental but should be none.");
         assertRaNotImported(cracCreationContext, "wrong-direction", ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action wrong-direction will not be imported because the RelativeDirectionKind is http://entsoe.eu/ns/nc#RelativeDirectionKind.up but should be absolute.");
