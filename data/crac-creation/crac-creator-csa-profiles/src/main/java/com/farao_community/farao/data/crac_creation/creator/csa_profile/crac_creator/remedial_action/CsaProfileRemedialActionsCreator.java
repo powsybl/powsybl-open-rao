@@ -64,7 +64,6 @@ public class CsaProfileRemedialActionsCreator {
                                             PropertyBags tapPositionPropertyBags,
                                             PropertyBags staticPropertyRangesPropertyBags,
                                             OnConstraintUsageRuleHelper onConstraintUsageRuleHelper,
-                                            PropertyBags remedialActionsSchedulePropertyBags,
                                             PropertyBags schemeRemedialActionsPropertyBags,
                                             PropertyBags remedialActionSchemePropertyBags,
                                             PropertyBags stagePropertyBags,
