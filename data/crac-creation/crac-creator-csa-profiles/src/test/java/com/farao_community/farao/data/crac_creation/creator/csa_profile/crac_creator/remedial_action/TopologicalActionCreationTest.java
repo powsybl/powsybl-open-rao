@@ -173,9 +173,9 @@ class TopologicalActionCreationTest {
         assertNotNull(cracCreationContext);
         assertEquals(1, cracCreationContext.getCrac().getRemedialActions().size());
         assertNetworkActionImported(cracCreationContext, "topology-action", Set.of("BBE1AA1  BBE4AA1  1", "DDE3AA1  DDE4AA1  1"), false, 1);
-        Iterator it = cracCreationContext.getCrac().getNetworkAction("topology-action").getElementaryActions().stream().sorted(Comparator.comparing(ElementaryAction::toString)).iterator();
-        assertEquals(ActionType.CLOSE, ((TopologicalAction) it.next()).getActionType());
+        Iterator it = cracCreationContext.getCrac().getNetworkAction("topology-action").getElementaryActions().stream().sorted(Comparator.comparing(ElementaryAction::hashCode)).iterator();
         assertEquals(ActionType.OPEN, ((TopologicalAction) it.next()).getActionType());
+        assertEquals(ActionType.CLOSE, ((TopologicalAction) it.next()).getActionType());
         assertRaNotImported(cracCreationContext, "no-static-property-range", ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action no-static-property-range will not be imported because there is no StaticPropertyRange linked to that RA");
         assertRaNotImported(cracCreationContext, "wrong-value-offset-kind", ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action wrong-value-offset-kind will not be imported because the ValueOffsetKind is http://entsoe.eu/ns/nc#ValueOffsetKind.incremental but should be none.");
         assertRaNotImported(cracCreationContext, "wrong-direction", ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action wrong-direction will not be imported because the RelativeDirectionKind is http://entsoe.eu/ns/nc#RelativeDirectionKind.up but should be absolute.");
