@@ -259,7 +259,7 @@ class FlowCnecCreationTest {
 
         assertNotNull(cracCreationContext);
         assertTrue(cracCreationContext.isCreationSuccessful());
-        assertEquals(23, cracCreationContext.getCreationReport().getReport().size());
+        assertEquals(36, cracCreationContext.getCreationReport().getReport().size());
         assertEquals(15, cracCreationContext.getCrac().getContingencies().size());
         assertEquals(0, cracCreationContext.getCrac().getFlowCnecs().size());
     }
@@ -369,7 +369,7 @@ class FlowCnecCreationTest {
 
         assertNotNull(cracCreationContext);
         assertTrue(cracCreationContext.isCreationSuccessful());
-        assertEquals(52, cracCreationContext.getCreationReport().getReport().size());
+        assertEquals(39, cracCreationContext.getCreationReport().getReport().size());
         assertEquals(7, cracCreationContext.getCrac().getContingencies().size());
         assertEquals(0, cracCreationContext.getCrac().getFlowCnecs().size());
     }
@@ -380,7 +380,7 @@ class FlowCnecCreationTest {
 
         assertNotNull(cracCreationContext);
         assertTrue(cracCreationContext.isCreationSuccessful());
-        assertEquals(51, cracCreationContext.getCreationReport().getReport().size());
+        assertEquals(38, cracCreationContext.getCreationReport().getReport().size());
         assertEquals(7, cracCreationContext.getCrac().getContingencies().size());
         assertEquals(4, cracCreationContext.getCrac().getFlowCnecs().size());
 
@@ -419,7 +419,7 @@ class FlowCnecCreationTest {
 
         assertNotNull(cracCreationContext);
         assertTrue(cracCreationContext.isCreationSuccessful());
-        assertEquals(6, cracCreationContext.getCreationReport().getReport().size());
+        assertEquals(5, cracCreationContext.getCreationReport().getReport().size());
         assertEquals(2, cracCreationContext.getCrac().getContingencies().size());
         assertEquals(4, cracCreationContext.getCrac().getFlowCnecs().size());
 
