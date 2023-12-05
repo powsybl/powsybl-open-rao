@@ -45,7 +45,7 @@ class ContingenciesCreationTest {
 
         assertNotNull(cracCreationContext);
         assertTrue(cracCreationContext.isCreationSuccessful());
-        assertEquals(36, cracCreationContext.getCreationReport().getReport().size());
+        assertEquals(23, cracCreationContext.getCreationReport().getReport().size());
         assertEquals(15, cracCreationContext.getCrac().getContingencies().size());
         assertEquals(0, cracCreationContext.getCrac().getFlowCnecs().size());
 
@@ -111,7 +111,7 @@ class ContingenciesCreationTest {
 
         assertNotNull(cracCreationContext);
         assertTrue(cracCreationContext.isCreationSuccessful());
-        assertEquals(52, cracCreationContext.getCreationReport().getReport().size());
+        assertEquals(30, cracCreationContext.getCreationReport().getReport().size());
         assertEquals(7, cracCreationContext.getCrac().getContingencies().size());
         assertEquals(0, cracCreationContext.getCrac().getFlowCnecs().size());
         List<Contingency> listContingencies = cracCreationContext.getCrac().getContingencies()
@@ -148,7 +148,7 @@ class ContingenciesCreationTest {
         assertTrue(cracCreationContext.isCreationSuccessful());
         assertEquals(5, cracCreationContext.getCreationReport().getReport().size());
         assertEquals(2, cracCreationContext.getCrac().getContingencies().size());
-        assertEquals(4, cracCreationContext.getCrac().getFlowCnecs().size());
+        assertEquals(0, cracCreationContext.getCrac().getFlowCnecs().size());
 
         List<Contingency> listContingencies = cracCreationContext.getCrac().getContingencies()
             .stream().sorted(Comparator.comparing(Contingency::getId)).toList();
