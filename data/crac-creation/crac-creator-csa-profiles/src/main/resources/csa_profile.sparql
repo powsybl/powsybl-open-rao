@@ -100,8 +100,13 @@ GRAPH <%s> {
         rdf:type nc:AssessedElement ;
         nc:AssessedElement.inBaseCase ?inBaseCase ;
         cim:IdentifiedObject.name ?name ;
-        nc:AssessedElement.AssessedSystemOperator ?assessedSystemOperator ;
-        nc:AssessedElement.OperationalLimit ?operationalLimit .
+        nc:AssessedElement.AssessedSystemOperator ?assessedSystemOperator .
+    OPTIONAL {
+                ?assessedElement nc:AssessedElement.ConductingEquipment ?conductingEquipment .
+                }
+    OPTIONAL {
+                ?assessedElement nc:AssessedElement.OperationalLimit ?operationalLimit .
+                }
     OPTIONAL {
             ?assessedElement nc:AssessedElement.isCombinableWithContingency ?isCombinableWithContingency .
             }
