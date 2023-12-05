@@ -49,6 +49,11 @@ public final class CsaProfileCracCreationTestUtil {
 
     public static void assertFlowCnecEquality(FlowCnec fc, String expectedFlowCnecId, String expectedFlowCnecName, String expectedNetworkElementId,
                                               Instant expectedInstant, String expectedContingencyId, Double expectedThresholdMax, Double expectedThresholdMin, Side expectedThresholdSide) {
+        assertFlowCnecEquality(fc, expectedFlowCnecId, expectedFlowCnecName, expectedNetworkElementId, expectedInstant, expectedContingencyId, expectedThresholdMax, expectedThresholdMin, expectedThresholdMax, expectedThresholdMin, Set.of(expectedThresholdSide));
+    }
+
+    public static void assertFlowCnecEquality(FlowCnec fc, String expectedFlowCnecId, String expectedFlowCnecName, String expectedNetworkElementId,
+                                              Instant expectedInstant, String expectedContingencyId, Double expectedThresholdMaxLeft, Double expectedThresholdMinLeft, Double expectedThresholdMaxRight, Double expectedThresholdMinRight, Set<Side> expectedThresholdSides) {
         assertEquals(expectedFlowCnecId, fc.getId());
         assertEquals(expectedFlowCnecName, fc.getName());
         assertEquals(expectedNetworkElementId, fc.getNetworkElement().getId());
@@ -59,10 +64,14 @@ public final class CsaProfileCracCreationTestUtil {
             assertEquals(expectedContingencyId, fc.getState().getContingency().get().getId());
         }
 
-        BranchThreshold threshold = fc.getThresholds().stream().toList().iterator().next();
-        assertEquals(expectedThresholdMax, threshold.max().orElse(null));
-        assertEquals(expectedThresholdMin, threshold.min().orElse(null));
-        assertEquals(Set.of(expectedThresholdSide), fc.getMonitoredSides());
+        List<BranchThreshold> thresholds = fc.getThresholds().stream().sorted(Comparator.comparing(BranchThreshold::getSide)).toList();
+        for (BranchThreshold threshold : thresholds) {
+            Side side = threshold.getSide();
+            assertEquals(side == Side.LEFT ? expectedThresholdMaxLeft : expectedThresholdMaxRight, threshold.max().orElse(null));
+            assertEquals(side == Side.LEFT ? expectedThresholdMinLeft : expectedThresholdMinRight, threshold.min().orElse(null));
+        }
+
+        assertEquals(expectedThresholdSides, fc.getMonitoredSides());
     }
 
     public static void assertAngleCnecEquality(AngleCnec angleCnec, String expectedFlowCnecId, String expectedFlowCnecName, String expectedImportingNetworkElementId, String expectedExportingNetworkElementId,
