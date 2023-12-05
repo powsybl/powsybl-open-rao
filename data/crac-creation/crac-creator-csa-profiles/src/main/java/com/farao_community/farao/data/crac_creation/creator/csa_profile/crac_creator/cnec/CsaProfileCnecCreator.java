@@ -9,7 +9,6 @@ package com.farao_community.farao.data.crac_creation.creator.csa_profile.crac_cr
 
 import com.farao_community.farao.data.crac_api.Contingency;
 import com.farao_community.farao.data.crac_api.Crac;
-import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.cnec.*;
 import com.farao_community.farao.data.crac_creation.creator.api.ImportStatus;
 import com.farao_community.farao.data.crac_creation.creator.csa_profile.crac_creator.CsaProfileConstants;
@@ -108,34 +107,6 @@ public class CsaProfileCnecCreator {
         }
     }
 
-    private void addCnec(CnecAdder cnecAdder, CsaProfileConstants.LimitType limitType, String contingencyId, String assessedElementId, String cnecName, Instant instant, String rejectedLinksAssessedElementContingency) {
-        if (CsaProfileConstants.LimitType.CURRENT.equals(limitType)) {
-            ((FlowCnecAdder) cnecAdder).withContingency(contingencyId)
-                .withId(cnecName)
-                .withName(cnecName)
-                .withInstant(instant)
-                .add();
-        } else if (CsaProfileConstants.LimitType.VOLTAGE.equals(limitType)) {
-            ((VoltageCnecAdder) cnecAdder).withContingency(contingencyId)
-                .withId(cnecName)
-                .withName(cnecName)
-                .withInstant(instant)
-                .add();
-        } else {
-            ((AngleCnecAdder) cnecAdder).withContingency(contingencyId)
-                .withId(cnecName)
-                .withName(cnecName)
-                .withInstant(instant)
-                .add();
-        }
-
-        if (rejectedLinksAssessedElementContingency.isEmpty()) {
-            csaProfileCnecCreationContexts.add(CsaProfileElementaryCreationContext.imported(assessedElementId, cnecName, cnecName, "", false));
-        } else {
-            csaProfileCnecCreationContexts.add(CsaProfileElementaryCreationContext.imported(assessedElementId, cnecName, cnecName, "some cnec for the same assessed element are not imported because of incorrect data for assessed elements for contingencies : " + rejectedLinksAssessedElementContingency, true));
-        }
-    }
-
     private boolean aeProfileDataCheck(String assessedElementId, PropertyBag assessedElementPropertyBag) {
         String isCritical = assessedElementPropertyBag.get(CsaProfileConstants.REQUEST_ASSESSED_ELEMENT_IS_CRITICAL);
 
@@ -228,5 +199,4 @@ public class CsaProfileCnecCreator {
                 + combinationConstraintKind + " and AssessedElement.isCombinableWithContingency = " + isCombinableWithContingency + " have inconsistent values"));
         return false;
     }
-
 }
