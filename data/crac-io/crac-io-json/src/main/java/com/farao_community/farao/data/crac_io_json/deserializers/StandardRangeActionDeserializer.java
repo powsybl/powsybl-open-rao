@@ -17,9 +17,9 @@ import static com.farao_community.farao.data.crac_io_json.JsonSerializationConst
 /**
  * @author Gabriel Plante {@literal <gabriel.plante_externe at rte-france.com>}
  */
-public final class StandardRangeActionDeserializerUtils {
+public final class StandardRangeActionDeserializer {
 
-    private StandardRangeActionDeserializerUtils() {
+    private StandardRangeActionDeserializer() {
     }
 
     /**

@@ -32,7 +32,7 @@ public final class HvdcRangeActionArrayDeserializer {
         while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
             HvdcRangeActionAdder hvdcRangeActionAdder = crac.newHvdcRangeAction();
             while (!jsonParser.nextToken().isStructEnd()) {
-                if (StandardRangeActionDeserializerUtils.addCommonElement(hvdcRangeActionAdder, jsonParser, version)) {
+                if (StandardRangeActionDeserializer.addCommonElement(hvdcRangeActionAdder, jsonParser, version)) {
                     continue;
                 }
                 if (jsonParser.getCurrentName().equals(NETWORK_ELEMENT_ID)) {

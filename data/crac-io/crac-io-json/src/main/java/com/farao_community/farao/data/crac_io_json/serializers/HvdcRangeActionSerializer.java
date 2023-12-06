@@ -24,10 +24,6 @@ public class HvdcRangeActionSerializer extends AbstractJsonSerializer<HvdcRangeA
         gen.writeStartObject();
         StandardRangeActionSerializerUtils.serializeCommon(value, gen);
         gen.writeStringField(NETWORK_ELEMENT_ID, value.getNetworkElement().getId());
-        //Optional<String> groupId = value.getGroupId();
-        //if (groupId.isPresent()) {
-        //    gen.writeStringField(GROUP_ID, groupId.get());
-        //}
         serializeRemedialActionSpeed(value, gen);
         gen.writeEndObject();
     }
