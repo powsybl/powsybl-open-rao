@@ -23,7 +23,7 @@ public final class StandardRangeActionDeserializerUtils {
     }
 
     /**
-     *
+     * De-serializes common elements in StandardRangeAction implementations
      * @return true if the element was found
      * @throws IOException
      */
