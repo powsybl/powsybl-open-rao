@@ -8,16 +8,16 @@
 package com.farao_community.farao.data.crac_io_json.serializers;
 
 import com.farao_community.farao.data.crac_api.NetworkElement;
-import com.farao_community.farao.data.crac_api.range.StandardRange;
 import com.farao_community.farao.data.crac_api.range_action.InjectionRangeAction;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.Comparator;
+import java.util.List;
 import java.util.stream.Collectors;
 
-import static com.farao_community.farao.data.crac_io_json.JsonSerializationConstants.*;
+import static com.farao_community.farao.data.crac_io_json.JsonSerializationConstants.NETWORK_ELEMENT_IDS_AND_KEYS;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
@@ -27,15 +27,9 @@ public class InjectionRangeActionSerializer extends AbstractJsonSerializer<Injec
     @Override
     public void serialize(InjectionRangeAction value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
         gen.writeStartObject();
-        gen.writeStringField(ID, value.getId());
-        gen.writeStringField(NAME, value.getName());
-        gen.writeStringField(OPERATOR, value.getOperator());
-        UsageRulesSerializer.serializeUsageRules(value, gen);
+        StandardRangeActionSerializer.serializeCommon(value, gen);
         serializeInjectionDistributionKeys(value, gen);
-        serializeGroupId(value, gen);
-        gen.writeNumberField(INITIAL_SETPOINT, value.getInitialSetpoint());
         serializeRemedialActionSpeed(value, gen);
-        serializeRanges(value, gen);
         gen.writeEndObject();
     }
 
@@ -49,20 +43,5 @@ public class InjectionRangeActionSerializer extends AbstractJsonSerializer<Injec
             gen.writeNumberField(networkElement.getId(), value.getInjectionDistributionKeys().get(networkElement));
         }
         gen.writeEndObject();
-    }
-
-    private void serializeGroupId(InjectionRangeAction value, JsonGenerator gen) throws IOException {
-        Optional<String> groupId = value.getGroupId();
-        if (groupId.isPresent()) {
-            gen.writeStringField(GROUP_ID, groupId.get());
-        }
-    }
-
-    private void serializeRanges(InjectionRangeAction value, JsonGenerator gen) throws IOException {
-        gen.writeArrayFieldStart(RANGES);
-        for (StandardRange range : value.getRanges()) {
-            gen.writeObject(range);
-        }
-        gen.writeEndArray();
     }
 }
