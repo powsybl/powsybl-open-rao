@@ -27,7 +27,7 @@ public class InjectionRangeActionSerializer extends AbstractJsonSerializer<Injec
     @Override
     public void serialize(InjectionRangeAction value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
         gen.writeStartObject();
-        StandardRangeActionSerializerUtils.serializeCommon(value, gen);
+        StandardRangeActionSerializer.serializeCommon(value, gen);
         serializeInjectionDistributionKeys(value, gen);
         serializeRemedialActionSpeed(value, gen);
         gen.writeEndObject();

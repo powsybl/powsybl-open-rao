@@ -21,7 +21,7 @@ import static com.farao_community.farao.data.crac_io_json.JsonSerializationConst
  */
 public final class StandardRangeActionSerializer {
 
-    private StandardRangeActionSerializerUtils() {
+    private StandardRangeActionSerializer() {
     }
 
     public static void serializeCommon(StandardRangeAction<?> value, JsonGenerator gen) throws IOException {
