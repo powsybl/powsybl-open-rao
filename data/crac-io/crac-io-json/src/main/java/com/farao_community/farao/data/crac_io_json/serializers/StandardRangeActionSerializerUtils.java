@@ -16,9 +16,10 @@ import java.util.Optional;
 import static com.farao_community.farao.data.crac_io_json.JsonSerializationConstants.*;
 
 /**
+ * Serializes common elements in StandardRaneAction implementations
  * @author Gabriel Plante {@literal <gabriel.plante_externe at rte-france.com>}
  */
-public final class StandardRangeActionSerializerUtils {
+public final class StandardRangeActionSerializer {
 
     private StandardRangeActionSerializerUtils() {
     }
