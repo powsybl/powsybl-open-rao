@@ -8,7 +8,7 @@
     <sender_MarketParticipant.marketRole.type>A04</sender_MarketParticipant.marketRole.type>
     <receiver_MarketParticipant.mRID codingScheme="A01">receiverId</receiver_MarketParticipant.mRID>
     <receiver_MarketParticipant.marketRole.type>A36</receiver_MarketParticipant.marketRole.type>
-    <createdDateTime>2022-06-08T09:22:09Z</createdDateTime>
+    <createdDateTime>2023-12-06T10:42:43Z</createdDateTime>
     <time_Period.timeInterval>
         <start>2021-08-27T15:22Z</start>
         <end>2021-08-27T16:22Z</end>
@@ -26,7 +26,7 @@
             <Point>
                 <position>1</position>
                 <Constraint_Series>
-                    <mRID>bb80b4c-b51b-4b77-8fb6-ed39520133ab</mRID>
+                    <mRID>fb46ace-95f2-4b1e-b157-8ef7f7036de2</mRID>
                     <businessType>B56</businessType>
                     <RemedialAction_Series>
                         <mRID>PRA_1@-7@</mRID>
@@ -48,7 +48,7 @@
                     </RemedialAction_Series>
                 </Constraint_Series>
                 <Constraint_Series>
-                    <mRID>33378a0-9f48-4397-836f-d4facae1c04e</mRID>
+                    <mRID>b700b9d-a598-47d1-8d8a-88f1b08e0ac6</mRID>
                     <businessType>B56</businessType>
                     <Contingency_Series>
                         <mRID>Co-1</mRID>
@@ -85,9 +85,14 @@
                             <resourceCapacity.unitSymbol>C62</resourceCapacity.unitSymbol>
                         </RegisteredResource>
                     </RemedialAction_Series>
+                    <RemedialAction_Series>
+                        <mRID>na1</mRID>
+                        <name>na1-name</name>
+                        <applicationMode_MarketObjectStatus.status>A19</applicationMode_MarketObjectStatus.status>
+                    </RemedialAction_Series>
                 </Constraint_Series>
                 <Constraint_Series>
-                    <mRID>b207176-7d9b-4fa0-ae5d-cd8a869ae491</mRID>
+                    <mRID>a1eb50d-5242-4038-a531-59bde78ca0f2</mRID>
                     <businessType>B56</businessType>
                     <Contingency_Series>
                         <mRID>Co-2</mRID>
@@ -113,7 +118,7 @@
                     </RemedialAction_Series>
                 </Constraint_Series>
                 <Constraint_Series>
-                    <mRID>f1863fc-aac4-449b-8ee9-663bc4355f29</mRID>
+                    <mRID>1f54ef1-b0d2-4b43-9670-134b9c0d0972</mRID>
                     <businessType>B57</businessType>
                     <Monitored_Series>
                         <mRID>CNEC-1</mRID>
@@ -171,7 +176,7 @@
                     </RemedialAction_Series>
                 </Constraint_Series>
                 <Constraint_Series>
-                    <mRID>53c404b-8a90-4830-8f92-78956ce4469f</mRID>
+                    <mRID>cd0bec2-d24d-48ae-a498-d57e4fbf849f</mRID>
                     <businessType>B57</businessType>
                     <AdditionalConstraint_Series>
                         <mRID>ac1</mRID>
@@ -279,9 +284,14 @@
                         <name>PRA_1</name>
                         <applicationMode_MarketObjectStatus.status>A19</applicationMode_MarketObjectStatus.status>
                     </RemedialAction_Series>
+                    <RemedialAction_Series>
+                        <mRID>na1</mRID>
+                        <name>na1-name</name>
+                        <applicationMode_MarketObjectStatus.status>A19</applicationMode_MarketObjectStatus.status>
+                    </RemedialAction_Series>
                 </Constraint_Series>
                 <Constraint_Series>
-                    <mRID>98bcd13-e1b2-4b7b-a692-00125f17d542</mRID>
+                    <mRID>43061aa-34fb-4286-a8d1-bbcb82946bb9</mRID>
                     <businessType>B57</businessType>
                     <Contingency_Series>
                         <mRID>Co-2</mRID>
@@ -388,4 +398,3 @@
         </Period>
     </TimeSeries>
 </CriticalNetworkElement_MarketDocument>
-
