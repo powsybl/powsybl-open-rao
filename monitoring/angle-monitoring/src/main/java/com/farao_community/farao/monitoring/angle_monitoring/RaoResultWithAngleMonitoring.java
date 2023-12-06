@@ -18,6 +18,7 @@ import com.farao_community.farao.data.rao_result_api.RaoResult;
 import com.farao_community.farao.data.rao_result_api.RaoResultClone;
 
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -41,11 +42,10 @@ public class RaoResultWithAngleMonitoring extends RaoResultClone {
 
     @Override
     public ComputationStatus getComputationStatus() {
-        if (angleMonitoringResult.isDivergent() || angleMonitoringResult.isUnknown()) {
-            return ComputationStatus.FAILURE;
-        } else {
+        if (Objects.isNull(angleMonitoringResult) || (!angleMonitoringResult.isDivergent() && !angleMonitoringResult.isUnknown())) {
             return raoResult.getComputationStatus();
         }
+        return ComputationStatus.FAILURE;
     }
 
     @Override
@@ -56,7 +56,10 @@ public class RaoResultWithAngleMonitoring extends RaoResultClone {
         if (!optimizationInstant.equals(Instant.CURATIVE)) {
             throw new FaraoException("Unexpected optimization instant for angle monitoring result (only curative instant is supported currently) : " + optimizationInstant);
         }
-        return angleMonitoringResult.getAngle(angleCnec, unit);
+        if (!Objects.isNull(angleMonitoringResult)) {
+            return angleMonitoringResult.getAngle(angleCnec, unit);
+        }
+        throw new FaraoException("The AngleMonitoringResult is empty");
     }
 
     @Override
@@ -68,12 +71,17 @@ public class RaoResultWithAngleMonitoring extends RaoResultClone {
     @Override
     public Set<NetworkAction> getActivatedNetworkActionsDuringState(State state) {
         Set<NetworkAction> concatenatedActions = new HashSet<>(raoResult.getActivatedNetworkActionsDuringState(state));
-        concatenatedActions.addAll(angleMonitoringResult.getAppliedCras(state));
+        if (!Objects.isNull(angleMonitoringResult)) {
+            concatenatedActions.addAll(angleMonitoringResult.getAppliedCras(state));
+        }
         return concatenatedActions;
     }
 
     @Override
     public boolean isActivatedDuringState(State state, RemedialAction<?> remedialAction) {
+        if (Objects.isNull(angleMonitoringResult)) {
+            return raoResult.isActivatedDuringState(state, remedialAction);
+        }
         return angleMonitoringResult.getAppliedCras(state).contains(remedialAction) || raoResult.isActivatedDuringState(state, remedialAction);
     }
 
