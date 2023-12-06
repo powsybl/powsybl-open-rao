@@ -35,6 +35,10 @@ public class RaoResultWithAngleMonitoring extends RaoResultClone {
         this.angleMonitoringResult = angleMonitoringResult;
     }
 
+    public AngleMonitoringResult getAngleMonitoringResult() {
+        return angleMonitoringResult;
+    }
+
     @Override
     public ComputationStatus getComputationStatus() {
         if (angleMonitoringResult.isDivergent() || angleMonitoringResult.isUnknown()) {
