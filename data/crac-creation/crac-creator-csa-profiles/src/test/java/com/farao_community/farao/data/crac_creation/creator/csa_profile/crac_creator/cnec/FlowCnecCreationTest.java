@@ -462,6 +462,10 @@ class FlowCnecCreationTest {
     @Test
     void createFlowCnecsFromAssessedElementsWithConductingEquipment() {
         CsaProfileCracCreationContext cracCreationContext = getCsaCracCreationContext("/CSA_79_1.zip");
+        Instant preventiveInstant = cracCreationContext.getCrac().getInstant(PREVENTIVE_INSTANT_ID);
+        Instant autoInstant = cracCreationContext.getCrac().getInstant(AUTO_INSTANT_ID);
+        Instant curativeInstant = cracCreationContext.getCrac().getInstant(CURATIVE_INSTANT_ID);
+
         List<FlowCnec> importedFlowCnecs = cracCreationContext.getCrac().getFlowCnecs()
                 .stream().sorted(Comparator.comparing(FlowCnec::getId)).toList();
         assertEquals(7, importedFlowCnecs.size());
@@ -471,7 +475,7 @@ class FlowCnecCreationTest {
                 "RTE_AE1 (183829bd-5c60-4c04-ad57-c72a15a75047) - RTE_CO1 - auto",
                 "RTE_AE1 (183829bd-5c60-4c04-ad57-c72a15a75047) - RTE_CO1 - auto",
                 "b58bf21a-096a-4dae-9a01-3f03b60c24c7",
-                AUTO,
+                autoInstant,
                 "bbda9fe0-77e0-4f8e-b9d9-4402a539f2b7",
                 +500d,
                 -500d,
@@ -485,7 +489,7 @@ class FlowCnecCreationTest {
                 "RTE_AE1 (183829bd-5c60-4c04-ad57-c72a15a75047) - RTE_CO1 - curative",
                 "RTE_AE1 (183829bd-5c60-4c04-ad57-c72a15a75047) - RTE_CO1 - curative",
                 "b58bf21a-096a-4dae-9a01-3f03b60c24c7",
-                CURATIVE,
+                curativeInstant,
                 "bbda9fe0-77e0-4f8e-b9d9-4402a539f2b7",
                 +1574d,
                 -1574d,
@@ -499,7 +503,7 @@ class FlowCnecCreationTest {
                 "RTE_AE1 (183829bd-5c60-4c04-ad57-c72a15a75047) - preventive",
                 "RTE_AE1 (183829bd-5c60-4c04-ad57-c72a15a75047) - preventive",
                 "b58bf21a-096a-4dae-9a01-3f03b60c24c7",
-                PREVENTIVE,
+                preventiveInstant,
                 null,
                 +1574d,
                 -1574d,
@@ -513,7 +517,7 @@ class FlowCnecCreationTest {
                 "RTE_AE2 (de5b6775-b8d7-4ac4-9619-ecc30d98f3db) - RTE_CO1 - curative",
                 "RTE_AE2 (de5b6775-b8d7-4ac4-9619-ecc30d98f3db) - RTE_CO1 - curative",
                 "3852b69e-22d2-41cb-b370-fb372ddcde19",
-                CURATIVE,
+                curativeInstant,
                 "bbda9fe0-77e0-4f8e-b9d9-4402a539f2b7",
                 +1283d,
                 -1283d,
@@ -527,7 +531,7 @@ class FlowCnecCreationTest {
                 "RTE_AE2 (de5b6775-b8d7-4ac4-9619-ecc30d98f3db) - preventive",
                 "RTE_AE2 (de5b6775-b8d7-4ac4-9619-ecc30d98f3db) - preventive",
                 "3852b69e-22d2-41cb-b370-fb372ddcde19",
-                PREVENTIVE,
+                preventiveInstant,
                 null,
                 +1283d,
                 -1283d,
@@ -541,7 +545,7 @@ class FlowCnecCreationTest {
                 "RTE_AE3 (08d0622e-02c7-4c20-8dbd-992ef4e6be0a) - RTE_CO1 - curative",
                 "RTE_AE3 (08d0622e-02c7-4c20-8dbd-992ef4e6be0a) - RTE_CO1 - curative",
                 "4c390dab-3499-4a9f-9cee-5877081479ab + edf1af97-de49-45bb-a7ef-31f96d486712",
-                CURATIVE,
+                curativeInstant,
                 "bbda9fe0-77e0-4f8e-b9d9-4402a539f2b7",
                 +1233.9,
                 -1233.9,
@@ -555,7 +559,7 @@ class FlowCnecCreationTest {
                 "RTE_AE3 (08d0622e-02c7-4c20-8dbd-992ef4e6be0a) - preventive",
                 "RTE_AE3 (08d0622e-02c7-4c20-8dbd-992ef4e6be0a) - preventive",
                 "4c390dab-3499-4a9f-9cee-5877081479ab + edf1af97-de49-45bb-a7ef-31f96d486712",
-                PREVENTIVE,
+                preventiveInstant,
                 null,
                 +1233.9,
                 -1233.9,

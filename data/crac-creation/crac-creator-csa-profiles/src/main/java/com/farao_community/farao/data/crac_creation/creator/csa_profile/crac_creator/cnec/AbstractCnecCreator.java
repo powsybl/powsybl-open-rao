@@ -71,7 +71,7 @@ public abstract class AbstractCnecCreator {
 
     protected String getCnecName(Instant instant, Contingency contingency) {
         // Need to include the mRID in the name in case the AssessedElement's name is not unique
-        return assessedElementName + " (" + assessedElementId + ") - " + (contingency == null ? "" : contingency.getName() + " - ") + instant;
+        return assessedElementName + " (" + assessedElementId + ") - " + (contingency == null ? "" : contingency.getName() + " - ") + instant.getId();
     }
 
     protected void addCnecBaseInformation(CnecAdder<?> cnecAdder, Contingency contingency, Instant instant) {

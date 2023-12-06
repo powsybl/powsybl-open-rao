@@ -4,6 +4,7 @@ import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Contingency;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.Instant;
+import com.farao_community.farao.data.crac_api.InstantKind;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnecAdder;
 import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_api.threshold.BranchThresholdAdder;
@@ -190,12 +191,12 @@ public class FlowCnecCreator extends AbstractCnecCreator {
             return null;
         }
         if (0 < acceptableDuration && acceptableDuration <= 60) {
-            return Instant.OUTAGE;
+            return crac.getInstant(InstantKind.OUTAGE);
         }
         if (60 < acceptableDuration && acceptableDuration <= 900) {
-            return Instant.AUTO;
+            return crac.getInstant(InstantKind.AUTO);
         }
-        return Instant.CURATIVE;
+        return crac.getInstant(InstantKind.CURATIVE);
     }
 
     private void addFlowCnec(Branch<?> networkElement, Contingency contingency, Instant instant, EnumMap<Branch.Side, Double> thresholds, boolean useMaxAndMinThresholds, boolean hasNoPatl) {
@@ -229,18 +230,18 @@ public class FlowCnecCreator extends AbstractCnecCreator {
             // If no PATL, we use the lowest TATL instead (as in PowSyBl).
             // Only happens when the AssessedElement is defined with an OperationalLimit
             if (hasPatl) {
-                addFlowCnec(networkElement, null, Instant.PREVENTIVE, patlThresholds, useMaxAndMinThresholds, false);
+                addFlowCnec(networkElement, null, crac.getInstant(InstantKind.PREVENTIVE), patlThresholds, useMaxAndMinThresholds, false);
             } else {
                 // No PATL thus the longest acceptable duration is strictly lower than Integer.MAX_VALUE
                 Optional<Integer> longestAcceptableDuration = thresholds.keySet().stream().max(Integer::compareTo);
-                longestAcceptableDuration.ifPresent(integer -> addFlowCnec(networkElement, null, Instant.PREVENTIVE, thresholds.get(integer), useMaxAndMinThresholds, true));
+                longestAcceptableDuration.ifPresent(integer -> addFlowCnec(networkElement, null, crac.getInstant(InstantKind.PREVENTIVE), thresholds.get(integer), useMaxAndMinThresholds, true));
             }
         }
 
         for (Contingency contingency : linkedContingencies) {
             // Add PATL
             if (hasPatl) {
-                addFlowCnec(networkElement, contingency, Instant.CURATIVE, patlThresholds, useMaxAndMinThresholds, false);
+                addFlowCnec(networkElement, contingency, crac.getInstant(InstantKind.CURATIVE), patlThresholds, useMaxAndMinThresholds, false);
             }
             // Add TATLs
             for (int acceptableDuration : thresholds.keySet()) {

@@ -4,6 +4,7 @@ import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Contingency;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.Instant;
+import com.farao_community.farao.data.crac_api.InstantKind;
 import com.farao_community.farao.data.crac_api.cnec.VoltageCnecAdder;
 import com.farao_community.farao.data.crac_creation.creator.api.ImportStatus;
 import com.farao_community.farao.data.crac_creation.creator.csa_profile.crac_creator.CsaProfileConstants;
@@ -25,10 +26,10 @@ public class VoltageCnecCreator extends AbstractCnecCreator {
 
     public void addVoltageCnecs() {
         if (inBaseCase) {
-            addVoltageCnec(Instant.PREVENTIVE, null);
+            addVoltageCnec(crac.getInstant(InstantKind.PREVENTIVE), null);
         }
         for (Contingency contingency : linkedContingencies) {
-            addVoltageCnec(Instant.CURATIVE, contingency);
+            addVoltageCnec(crac.getInstant(InstantKind.CURATIVE), contingency);
         }
     }
 
