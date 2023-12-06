@@ -125,8 +125,8 @@ class AngleMonitoringTest {
     }
 
     private AngleMonitoringResult runAngleMonitoring() {
-        RaoResult intermediaitRaoResult = new AngleMonitoring(crac, network, raoResult, cimGlskDocument).runAndUpdateRaoResult("OpenLoadFlow", loadFlowParameters, 2, glskOffsetDateTime);
-        return ((RaoResultWithAngleMonitoring) intermediaitRaoResult).getAngleMonitoringResult();
+        RaoResult intermediateRaoResult = new AngleMonitoring(crac, network, raoResult, cimGlskDocument).runAndUpdateRaoResult("OpenLoadFlow", loadFlowParameters, 2, glskOffsetDateTime);
+        return ((RaoResultWithAngleMonitoring) intermediateRaoResult).getAngleMonitoringResult();
     }
 
     @Test
