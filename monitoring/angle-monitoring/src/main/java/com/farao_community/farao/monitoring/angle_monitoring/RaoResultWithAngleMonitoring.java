@@ -50,16 +50,16 @@ public class RaoResultWithAngleMonitoring extends RaoResultClone {
 
     @Override
     public double getAngle(Instant optimizationInstant, AngleCnec angleCnec, Unit unit) {
+        if (Objects.isNull(angleMonitoringResult)) {
+            throw new FaraoException("The AngleMonitoringResult is empty");
+        }
         if (!unit.equals(Unit.DEGREE)) {
             throw new FaraoException("Unexpected unit for angle monitoring result : " + unit);
         }
         if (!optimizationInstant.equals(Instant.CURATIVE)) {
             throw new FaraoException("Unexpected optimization instant for angle monitoring result (only curative instant is supported currently) : " + optimizationInstant);
         }
-        if (!Objects.isNull(angleMonitoringResult)) {
-            return angleMonitoringResult.getAngle(angleCnec, unit);
-        }
-        throw new FaraoException("The AngleMonitoringResult is empty");
+        return angleMonitoringResult.getAngle(angleCnec, unit);
     }
 
     @Override
