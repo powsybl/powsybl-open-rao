@@ -42,9 +42,9 @@ public class SweCne {
     private final SweCneHelper sweCneHelper;
     private final CimCracCreationContext cracCreationContext;
 
-    public SweCne(Crac crac, Network network, CimCracCreationContext cracCreationContext, RaoResult raoResult, AngleMonitoringResult angleMonitoringResult, RaoParameters raoParameters, CneExporterParameters exporterParameters) {
+    public SweCne(Crac crac, Network network, CimCracCreationContext cracCreationContext, RaoResult raoResult, RaoParameters raoParameters, CneExporterParameters exporterParameters) {
         marketDocument = new CriticalNetworkElementMarketDocument();
-        sweCneHelper = new SweCneHelper(crac, network, raoResult, angleMonitoringResult, raoParameters, exporterParameters);
+        sweCneHelper = new SweCneHelper(crac, network, raoResult, raoParameters, exporterParameters);
         this.cracCreationContext = cracCreationContext;
     }
 
