@@ -65,6 +65,7 @@ public class CsaProfileCracImporter implements NativeCracImporter<CsaProfileCrac
                     boolean tempFileOk = tempFile.setReadable(true, true) &&
                         tempFile.setWritable(true, true);
                     if (tempFileOk) {
+                        boolean isKeywordInFile = false;
                         InputStream in = new BufferedInputStream(zipInputStream);
                         try (OutputStream out = new BufferedOutputStream(new FileOutputStream(tempFile))) {
                             int nBytes = -1;
@@ -79,8 +80,14 @@ public class CsaProfileCracImporter implements NativeCracImporter<CsaProfileCrac
                                     String keyword = matcher.group(1);
                                     Set<String> newFilesSet = addFileToSet(keywordMap, "contexts:" + zipEntry.getName(), keyword);
                                     keywordMap.put(keyword, newFilesSet);
+                                    isKeywordInFile = true;
                                 }
                             }
+                        }
+                        if (!isKeywordInFile) {
+                            String keyword = CsaProfileConstants.CGMES;
+                            Set<String> newFilesSet = addFileToSet(keywordMap, "contexts:" + zipEntry.getName(), keyword);
+                            keywordMap.put(keyword, newFilesSet);
                         }
                         FileInputStream fileInputStream = new FileInputStream(tempFile);
                         tripleStoreCsaProfile.read(fileInputStream, CsaProfileConstants.RDF_BASE_URL, zipEntry.getName());

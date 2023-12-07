@@ -162,7 +162,8 @@ GRAPH <%s> {
 PREFIX cim: <http://iec.ch/TC57/CIM100#>
 PREFIX eu: <http://iec.ch/TC57/CIM100-European#>
 SELECT *
-WHERE {
+{
+GRAPH <%s> {
     ?currentLimit
         rdf:type cim:CurrentLimit ;
         cim:CurrentLimit.normalValue ?normalValue ;
@@ -180,11 +181,13 @@ WHERE {
                 cim:OperationalLimitType.acceptableDuration ?acceptableDuration .
         }
 }
+}
 
 # query: voltageLimit
 PREFIX cim: <http://iec.ch/TC57/CIM100#>
 SELECT *
-WHERE {
+{
+GRAPH <%s> {
     ?voltageLimit
         rdf:type cim:VoltageLimit ;
         cim:VoltageLimit.normalValue ?normalValue ;
@@ -200,6 +203,7 @@ WHERE {
             ?operationalLimitType
                 cim:OperationalLimitType.isInfiniteDuration ?isInfiniteDuration .
         }
+}
 }
 
 # query: angleLimit

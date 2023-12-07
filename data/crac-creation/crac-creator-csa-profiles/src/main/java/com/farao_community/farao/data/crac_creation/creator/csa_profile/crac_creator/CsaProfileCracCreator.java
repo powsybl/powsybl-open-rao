@@ -58,7 +58,6 @@ public class CsaProfileCracCreator implements CracCreator<CsaProfileCrac, CsaPro
     }
 
     private void clearNativeCracContextAndFillItsMap(CsaProfileCrac nativeCrac, OffsetDateTime offsetDateTime) {
-        Map<String, Set<String>> keywordAndCorrespondingFiles = new HashMap<>();
         nativeCrac.getHeaders().forEach((contextName, properties) -> {
             if (!properties.isEmpty()) {
                 PropertyBag property = properties.get(0);
@@ -69,7 +68,6 @@ public class CsaProfileCracCreator implements CracCreator<CsaProfileCrac, CsaPro
                 }
             }
         });
-        nativeCrac.fillKeywordMap(keywordAndCorrespondingFiles);
     }
 
     private boolean checkTimeCoherence(PropertyBag header, OffsetDateTime offsetDateTime) {
