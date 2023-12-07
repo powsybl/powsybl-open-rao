@@ -47,7 +47,7 @@ public class CsaProfileCracCreator implements CracCreator<CsaProfileCrac, CsaPro
         this.network = network;
         this.creationContext = new CsaProfileCracCreationContext(crac, offsetDateTime, network.getNameOrId());
 
-        clearNativeCracContextAndFillItsMap(nativeCrac, offsetDateTime);
+        clearNativeCracContextsAndMap(nativeCrac, offsetDateTime);
         createContingencies(nativeCrac.getContingencies(), nativeCrac.getContingencyEquipments());
         createCnecs(nativeCrac.getAssessedElements(), nativeCrac.getAssessedElementsWithContingencies(), nativeCrac.getCurrentLimits(), nativeCrac.getVoltageLimits(), nativeCrac.getAngleLimits(), cracCreationParameters.getDefaultMonitoredSides());
         OnConstraintUsageRuleHelper onConstraintUsageRuleAdder = new OnConstraintUsageRuleHelper(creationContext.getCnecCreationContexts(), nativeCrac.getAssessedElements(), nativeCrac.getAssessedElementsWithRemedialAction());
@@ -57,7 +57,7 @@ public class CsaProfileCracCreator implements CracCreator<CsaProfileCrac, CsaPro
         return creationContext.creationSuccess(crac);
     }
 
-    private void clearNativeCracContextAndFillItsMap(CsaProfileCrac nativeCrac, OffsetDateTime offsetDateTime) {
+    private void clearNativeCracContextsAndMap(CsaProfileCrac nativeCrac, OffsetDateTime offsetDateTime) {
         nativeCrac.getHeaders().forEach((contextName, properties) -> {
             if (!properties.isEmpty()) {
                 PropertyBag property = properties.get(0);

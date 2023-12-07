@@ -25,7 +25,7 @@ public class CsaProfileCrac implements NativeCrac {
 
     private final QueryCatalog queryCatalogCsaProfileCrac;
 
-    private Map<String, Set<String>> keywordMap;
+    private final Map<String, Set<String>> keywordMap;
 
     public CsaProfileCrac(TripleStore tripleStoreCsaProfileCrac, Map<String, Set<String>> keywordMap) {
         this.tripleStoreCsaProfileCrac = tripleStoreCsaProfileCrac;
@@ -43,12 +43,15 @@ public class CsaProfileCrac implements NativeCrac {
     }
 
     public void clearKeywordMap(String context) {
-        // todo clear map
-        return;
-    }
-
-    public void fillKeywordMap(Map<String, Set<String>> keywordMap) {
-        this.keywordMap = keywordMap;
+        for (Map.Entry<String, Set<String>> entry : keywordMap.entrySet()) {
+            String keyword = entry.getKey();
+            Set<String> contextNames = entry.getValue();
+            if (contextNames.contains(context)) {
+                contextNames.remove(context);
+                keywordMap.put(keyword, contextNames);
+                break;
+            }
+        }
     }
 
     private Set<String> getContextNamesToRequest(String keyword) {
