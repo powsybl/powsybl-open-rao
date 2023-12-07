@@ -23,7 +23,7 @@ import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
 
 import java.time.OffsetDateTime;
-import java.util.*;
+import java.util.Set;
 
 import static com.farao_community.farao.data.crac_creation.creator.csa_profile.crac_creator.CsaProfileCracUtils.isValidInterval;
 
