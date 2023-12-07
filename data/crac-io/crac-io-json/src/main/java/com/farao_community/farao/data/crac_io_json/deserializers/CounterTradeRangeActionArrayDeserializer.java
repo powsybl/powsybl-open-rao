@@ -43,8 +43,8 @@ public final class CounterTradeRangeActionArrayDeserializer {
         }
     }
 
-    private static void addElement(CounterTradeRangeActionAdder counterTradeRangeActionAdder, JsonParser jsonParser, String version) throws IOException {
-        if (StandardRangeActionDeserializer.addCommonElement(counterTradeRangeActionAdder, jsonParser, version)) {
+    private static void addElement(CounterTradeRangeActionAdder counterTradeRangeActionAdder, JsonParser jsonParser, String version, Crac crac) throws IOException {
+        if (StandardRangeActionDeserializer.addCommonElement(counterTradeRangeActionAdder, jsonParser, version, crac)) {
             return;
         }
         switch (jsonParser.getCurrentName()) {
