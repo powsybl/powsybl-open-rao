@@ -118,5 +118,9 @@ public final class CsaProfileCracUtils {
         return mridWithPrefix.substring(mridWithPrefix.lastIndexOf("_") + 1);
     }
 
+    public static Set<String> addFileToSet(Map<String, Set<String>> map, String contextName, String keyword) {
+        Set<String> returnSet = map.getOrDefault(keyword, new HashSet<>());
+        returnSet.add(contextName);
+        return returnSet;
+    }
 }
-

@@ -65,20 +65,11 @@ public class CsaProfileCracCreator implements CracCreator<CsaProfileCrac, CsaPro
                 if (!checkTimeCoherence(property, offsetDateTime)) {
                     FaraoLoggerProvider.BUSINESS_WARNS.warn(String.format("[REMOVED] The file : %s will be ignored. Its dates are not consistent with the import date : %s", contextName, offsetDateTime));
                     nativeCrac.clearContext(contextName);
-                } else {
-                    String keyword = property.getId(CsaProfileConstants.REQUEST_HEADER_KEYWORD);
-                    Set<String> newFilesSet = addFileToSet(keywordAndCorrespondingFiles, contextName, keyword);
-                    keywordAndCorrespondingFiles.put(keyword, newFilesSet);
+                    nativeCrac.clearKeywordMap(contextName);
                 }
             }
         });
         nativeCrac.fillKeywordMap(keywordAndCorrespondingFiles);
-    }
-
-    private Set<String> addFileToSet(Map<String, Set<String>> map, String contextName, String keyword) {
-        Set<String> returnSet = map.getOrDefault(keyword, new HashSet<>());
-        returnSet.add(contextName);
-        return returnSet;
     }
 
     private boolean checkTimeCoherence(PropertyBag header, OffsetDateTime offsetDateTime) {
