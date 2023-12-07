@@ -120,13 +120,13 @@ public final class CsaProfileCracUtils {
         return CsaProfileConstants.HeaderValidity.OK;
     }
 
-    private static boolean checkProfileValidityInterval(PropertyBag propertyBag, OffsetDateTime importTimestamp) {
+    public static boolean checkProfileValidityInterval(PropertyBag propertyBag, OffsetDateTime importTimestamp) {
         String startTime = propertyBag.get(CsaProfileConstants.REQUEST_HEADER_START_DATE);
         String endTime = propertyBag.get(CsaProfileConstants.REQUEST_HEADER_END_DATE);
         return isValidInterval(importTimestamp, startTime, endTime);
     }
 
-    private static boolean checkProfileKeyword(PropertyBag propertyBag, CsaProfileConstants.CsaProfile csaProfileKeyword) {
+    public static boolean checkProfileKeyword(PropertyBag propertyBag, CsaProfileConstants.CsaProfile csaProfileKeyword) {
         String keyword = propertyBag.get(CsaProfileConstants.REQUEST_HEADER_KEYWORD);
         return csaProfileKeyword.getKeyword().equals(keyword);
     }
@@ -135,5 +135,15 @@ public final class CsaProfileCracUtils {
         return mridWithPrefix.substring(mridWithPrefix.lastIndexOf("_") + 1);
     }
 
-}
+    public static PropertyBags overrideData(PropertyBags propertyBags, Map<String, String> dataMap, CsaProfileConstants.OverridingObjectsFields overridingObjectsFields) {
+        for (PropertyBag propertyBag : propertyBags) {
+            String id = propertyBag.getId(overridingObjectsFields.getObjectName());
+            String data = dataMap.get(id);
+            if (data != null) {
+                propertyBag.put(overridingObjectsFields.getInitialFieldName(), data);
+            }
+        }
+        return propertyBags;
+    }
 
+}

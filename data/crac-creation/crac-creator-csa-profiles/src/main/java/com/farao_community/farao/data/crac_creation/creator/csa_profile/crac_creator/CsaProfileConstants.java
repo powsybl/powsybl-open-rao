@@ -25,7 +25,9 @@ public final class CsaProfileConstants {
         CONTINGENCY("CO"),
         EQUIPMENT_RELIABILITY("ER"),
         REMEDIAL_ACTION("RA"),
-        REMEDIAL_ACTION_SCHEDULE("RAS");
+        REMEDIAL_ACTION_SCHEDULE("RAS"),
+        SSI("SSI"),
+        SSH("SSH");
 
         CsaProfile(String keyword) {
             this.keyword = keyword;
@@ -320,4 +322,60 @@ public final class CsaProfileConstants {
         INVALID_KEYWORD,
         INVALID_INTERVAL;
     }
+
+    public enum HeaderType {
+        START_END_DATE,
+        SCENARIO_TIME;
+    }
+
+    public enum OverridingObjectsFields {
+        CONTINGENCY("contingencyOverriding", "contingency", "normalMustStudy", "mustStudy", HeaderType.START_END_DATE),
+        ASSESSED_ELEMENT("assessedElementOverriding", "assessedElement", "normalEnabled", "enabled", HeaderType.START_END_DATE),
+        ASSESSED_ELEMENT_WITH_CONTINGENCY("assessedElementWithContingencyOverriding", "assessedElementWithContingency", "normalEnabled", "enabled", HeaderType.START_END_DATE),
+        ASSESSED_ELEMENT_WITH_REMEDIAL_ACTION("assessedElementWithRemedialActionOverriding", "assessedElementWithRemedialAction", "normalEnabled", "enabled", HeaderType.START_END_DATE),
+        CONTINGENCY_WITH_REMEDIAL_ACTION("contingencyWithRemedialActionOverriding", "contingencyWithRemedialAction", "normalEnabled", "enabled", HeaderType.START_END_DATE),
+        REMEDIAL_ACTION("remedialActionOverriding", "remedialAction", "normalAvailable", "available", HeaderType.START_END_DATE),
+        GRID_STATE_ALTERATION("gridStateAlterationOverriding", "gridStateAlteration", "normalEnabled", "enabled", HeaderType.START_END_DATE),
+        RANGE_CONSTRAINT("rangeConstraintOverriding", "rangeConstraint", "normalValue", "value", HeaderType.START_END_DATE),
+        REMEDIAL_ACTION_SCHEME("remedialActionSchemeOverriding", "remedialActionScheme", "normalArmed", "armed", HeaderType.START_END_DATE),
+        VOLTAGE_ANGLE_LIMIT("voltageAngleLimitOverriding", "voltageAngleLimit", "normalValue", "value", HeaderType.START_END_DATE),
+        CURRENT_LIMIT("currentLimitOverriding", "currentLimit", "normalValue", "value", HeaderType.SCENARIO_TIME),
+        VOLTAGE_LIMIT("voltageLimitOverriding", "voltageLimit", "normalValue", "value", HeaderType.SCENARIO_TIME);
+
+        String requestName;
+        String objectName;
+        String initialFieldName;
+        String overridedFieldName;
+        HeaderType headerType;
+
+        OverridingObjectsFields(String requestName, String objectName, String initialFieldName, String overridedFieldName, HeaderType headerType) {
+            this.requestName = requestName;
+            this.objectName = objectName;
+            this.initialFieldName = initialFieldName;
+            this.overridedFieldName = overridedFieldName;
+            this.headerType = headerType;
+        }
+
+        public String getRequestName() {
+            return this.requestName;
+        }
+
+        public String getObjectName() {
+            return this.objectName;
+        }
+
+        public String getInitialFieldName() {
+            return this.initialFieldName;
+        }
+
+        public String getOverridedFieldName() {
+            return this.overridedFieldName;
+        }
+
+        public HeaderType getHeaderType() {
+            return this.headerType;
+        }
+    }
+
+    public static final String SCENARIO_TIME = "scenarioTime";
 }
