@@ -130,12 +130,13 @@ public class SweRemedialActionSeriesCreator {
         RaoResult raoResult = sweCneHelper.getRaoResult();
         Crac crac = sweCneHelper.getCrac();
         List<RemedialAction<?>> usedRas = new ArrayList<>();
-        if (Objects.nonNull(raoResult)) {
-            context.getCreatedIds().stream().sorted()
-                    .map(crac::getRemedialAction)
-                    .filter(ra -> raoResult.isActivatedDuringState(state, ra))
-                            .forEach(usedRas::add);
+        if (Objects.isNull(raoResult)) {
+            return null;
         }
+        context.getCreatedIds().stream().sorted()
+                .map(crac::getRemedialAction)
+                .filter(ra -> raoResult.isActivatedDuringState(state, ra))
+                        .forEach(usedRas::add);
         if (!raoResult.getComputationStatus().equals(ComputationStatus.FAILURE)) {
             context.getCreatedIds().stream().sorted()
                 .map(crac::getRemedialAction).filter(ra ->
@@ -149,9 +150,6 @@ public class SweRemedialActionSeriesCreator {
             } else if (usedRa instanceof PstRangeAction) {
                 return generatePstRaSeries((PstRangeAction) usedRa, state, context, onlyReference);
             } else if (usedRa instanceof HvdcRangeAction) {
-                if (Objects.isNull(raoResult)) {
-                    throw new FaraoException(String.format("Rao result is null. Cannot retrieve HvdcRangeAction %s's optimized setpoint on state %s", usedRa.getId(), state.getId()));
-                }
                 // In case of an HVDC, the native crac has one series per direction, we select the one that corresponds to the sign of the setpoint
                 if (context.isInverted() == (raoResult.getOptimizedSetPointOnState(state, (HvdcRangeAction) usedRa) < 0)) {
                     return generateHvdcRaSeries((HvdcRangeAction) usedRa, state, context);
