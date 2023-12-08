@@ -15,9 +15,9 @@ import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.CimCracCreationContext;
 import com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.remedial_action.PstRangeActionSeriesCreationContext;
 import com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.remedial_action.RemedialActionSeriesCreationContext;
+import com.farao_community.farao.data.rao_result_api.ComputationStatus;
 import com.farao_community.farao.data.rao_result_api.RaoResult;
 import com.farao_community.farao.data.swe_cne_exporter.xsd.*;
-import com.farao_community.farao.monitoring.angle_monitoring.AngleMonitoringResult;
 import org.apache.commons.lang3.NotImplementedException;
 
 import java.math.BigDecimal;
@@ -128,7 +128,6 @@ public class SweRemedialActionSeriesCreator {
 
     private RemedialActionSeries generateRaSeries(State state, RemedialActionSeriesCreationContext context, boolean onlyReference) {
         RaoResult raoResult = sweCneHelper.getRaoResult();
-        AngleMonitoringResult angleMonitoringResult = sweCneHelper.getAngleMonitoringResult();
         Crac crac = sweCneHelper.getCrac();
         List<RemedialAction<?>> usedRas = new ArrayList<>();
         if (Objects.nonNull(raoResult)) {
@@ -137,11 +136,12 @@ public class SweRemedialActionSeriesCreator {
                     .filter(ra -> raoResult.isActivatedDuringState(state, ra))
                             .forEach(usedRas::add);
         }
-        if (Objects.nonNull(angleMonitoringResult) && !angleMonitoringResult.isDivergent()) {
+        if (!raoResult.getComputationStatus().equals(ComputationStatus.FAILURE)) {
             context.getCreatedIds().stream().sorted()
-                    .map(crac::getRemedialAction)
-                    .filter(ra -> angleMonitoringResult.getAppliedCras(state).stream().anyMatch(cra -> cra.getId().equals(ra.getId())))
-                            .forEach(usedRas::add);
+                .map(crac::getRemedialAction).filter(ra ->
+                    raoResult.getActivatedRangeActionsDuringState(state).stream().anyMatch(cra -> cra.getId().equals(ra.getId())) ||
+                        raoResult.getActivatedNetworkActionsDuringState(state).stream().anyMatch(cra -> cra.getId().equals(ra.getId()))
+                ).forEach(usedRas::add);
         }
         for (RemedialAction<?> usedRa : usedRas) {
             if (usedRa instanceof NetworkAction) {

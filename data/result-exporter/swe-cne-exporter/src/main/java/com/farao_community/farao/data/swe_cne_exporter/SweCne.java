@@ -8,6 +8,7 @@
 package com.farao_community.farao.data.swe_cne_exporter;
 
 import com.farao_community.farao.commons.FaraoException;
+import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.cne_exporter_commons.CneExporterParameters;
 import com.farao_community.farao.data.cne_exporter_commons.CneUtil;
 import com.farao_community.farao.data.crac_api.Instant;
@@ -16,7 +17,6 @@ import com.farao_community.farao.data.rao_result_api.ComputationStatus;
 import com.farao_community.farao.data.swe_cne_exporter.xsd.*;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.rao_result_api.RaoResult;
-import com.farao_community.farao.monitoring.angle_monitoring.AngleMonitoringResult;
 import com.farao_community.farao.rao_api.parameters.RaoParameters;
 import com.powsybl.iidm.network.Network;
 
@@ -106,16 +106,15 @@ public class SweCne {
         point.getConstraintSeries().addAll(constraintSeriesList);
     }
 
+    private boolean isAngleMonitoringUnsecure() {
+        return cracCreationContext.getCrac().getAngleCnecs().stream().anyMatch(angleCnec -> sweCneHelper.getRaoResult().getMargin(Instant.CURATIVE, angleCnec, Unit.DEGREE) < 0);
+    }
+
     private void addReason(Point point) {
         Reason reason = new Reason();
         RaoResult raoResult = sweCneHelper.getRaoResult();
-        AngleMonitoringResult angleMonitoringResult = sweCneHelper.getAngleMonitoringResult();
         boolean isDivergent = sweCneHelper.isAnyContingencyInFailure() || raoResult.getComputationStatus() == ComputationStatus.FAILURE;
-        boolean isUnsecure = raoResult.getFunctionalCost(Instant.CURATIVE) > 0;
-        if (Objects.nonNull(angleMonitoringResult)) {
-            isDivergent = isDivergent || angleMonitoringResult.isDivergent();
-            isUnsecure = isUnsecure || angleMonitoringResult.isUnsecure();
-        }
+        boolean isUnsecure = raoResult.getFunctionalCost(Instant.CURATIVE) > 0 || isAngleMonitoringUnsecure();
         if (isDivergent) {
             reason.setCode(DIVERGENCE_CODE);
             reason.setText(DIVERGENCE_TEXT);

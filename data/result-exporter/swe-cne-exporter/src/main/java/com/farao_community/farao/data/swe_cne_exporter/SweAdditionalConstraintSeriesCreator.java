@@ -14,7 +14,9 @@ import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.cnec.AngleCnec;
 import com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.CimCracCreationContext;
 import com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.cnec.AngleCnecCreationContext;
+import com.farao_community.farao.data.rao_result_api.ComputationStatus;
 import com.farao_community.farao.data.swe_cne_exporter.xsd.AdditionalConstraintSeries;
+import com.farao_community.farao.monitoring.angle_monitoring.RaoResultWithAngleMonitoring;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -40,7 +42,7 @@ public class SweAdditionalConstraintSeriesCreator {
 
     public List<AdditionalConstraintSeries> generateAdditionalConstraintSeries(Contingency contingency) {
         List<AdditionalConstraintSeries> additionalConstraintSeriesList = new ArrayList<>();
-        if (Objects.isNull(sweCneHelper.getAngleMonitoringResult())) {
+        if (!(sweCneHelper.getRaoResult() instanceof RaoResultWithAngleMonitoring)) {
             return additionalConstraintSeriesList;
         }
         List<AngleCnecCreationContext> sortedAngleCnecs = cracCreationContext.getAngleCnecCreationContexts().stream()
@@ -72,8 +74,8 @@ public class SweAdditionalConstraintSeriesCreator {
         additionalConstraintSeries.setMRID(angleCnecCreationContext.getCreatedCnecId());
         additionalConstraintSeries.setBusinessType(ANGLE_CNEC_BUSINESS_TYPE);
         additionalConstraintSeries.setName(angleCnec.getName());
-        if (!sweCneHelper.getAngleMonitoringResult().isDivergent()) {
-            additionalConstraintSeries.setQuantityQuantity(BigDecimal.valueOf(sweCneHelper.getAngleMonitoringResult().getAngle(angleCnec, Unit.DEGREE)).setScale(1, RoundingMode.HALF_UP));
+        if (!sweCneHelper.getRaoResult().getComputationStatus().equals(ComputationStatus.FAILURE)) {
+            additionalConstraintSeries.setQuantityQuantity(BigDecimal.valueOf(sweCneHelper.getRaoResult().getAngle(Instant.CURATIVE, angleCnec, Unit.DEGREE)).setScale(1, RoundingMode.HALF_UP));
         }
         return additionalConstraintSeries;
     }

@@ -11,7 +11,6 @@ import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.Identifiable;
 import com.farao_community.farao.data.crac_api.Instant;
-import com.farao_community.farao.data.crac_api.cnec.AngleCnec;
 import com.farao_community.farao.data.crac_io_json.JsonImport;
 import com.farao_community.farao.data.rao_result_api.ComputationStatus;
 import com.farao_community.farao.data.rao_result_api.RaoResult;
@@ -60,11 +59,7 @@ class RaoResultWithAngleMonitoringTest {
 
     @Test
     void testRaoResultWithNullAngleMonitoring() {
-        RaoResultWithAngleMonitoring raoResultWithAngleMonitoring = new RaoResultWithAngleMonitoring(raoResult, null);
-        assertNull(raoResultWithAngleMonitoring.getAngleMonitoringResult());
-        AngleCnec angleCnec = crac.getAngleCnec("angleCnecId");
-        FaraoException exception = assertThrows(FaraoException.class, () -> raoResultWithAngleMonitoring.getAngle(Instant.CURATIVE, angleCnec, Unit.DEGREE));
-        assertEquals("The AngleMonitoringResult is empty", exception.getMessage());
-        assertEquals(Set.of("pstSetpointRaId"), raoResultWithAngleMonitoring.getActivatedNetworkActionsDuringState(crac.getState("contingency1Id", Instant.CURATIVE)).stream().map(Identifiable::getId).collect(Collectors.toSet()));
+        FaraoException exception =  assertThrows(FaraoException.class, () -> new RaoResultWithAngleMonitoring(raoResult, null));
+        assertEquals("The AngleMonitoringResult is null", exception.getMessage());
     }
 }

@@ -42,7 +42,7 @@ class SweCneDivergentAngleMonitoringTest {
     private Crac crac;
     private CracCreationContext cracCreationContext;
     private Network network;
-    private RaoResult raoResultWithAngleMonitoring;
+    private RaoResultWithAngleMonitoring raoResultWithAngleMonitoring;
 
     @BeforeEach
     public void setUp() {

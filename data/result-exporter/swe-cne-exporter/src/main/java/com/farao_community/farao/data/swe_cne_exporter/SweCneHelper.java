@@ -13,8 +13,6 @@ import com.farao_community.farao.data.crac_api.Contingency;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.rao_result_api.ComputationStatus;
 import com.farao_community.farao.data.rao_result_api.RaoResult;
-import com.farao_community.farao.monitoring.angle_monitoring.AngleMonitoringResult;
-import com.farao_community.farao.monitoring.angle_monitoring.RaoResultWithAngleMonitoring;
 import com.farao_community.farao.rao_api.parameters.RaoParameters;
 import com.powsybl.iidm.network.Network;
 
@@ -27,17 +25,11 @@ import java.util.stream.Collectors;
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
  */
 public class SweCneHelper extends CneHelper {
-    private final AngleMonitoringResult angleMonitoringResult;
     private Map<Contingency, Boolean> contingencyFailureMap = new HashMap<>();
 
     public SweCneHelper(Crac crac, Network network, RaoResult raoResult, RaoParameters raoParameters, CneExporterParameters exporterParameters) {
         super(crac, network, raoResult, raoParameters, exporterParameters);
-        this.angleMonitoringResult = ((RaoResultWithAngleMonitoring) raoResult).getAngleMonitoringResult();
         defineContingencyFailureMap();
-    }
-
-    public AngleMonitoringResult getAngleMonitoringResult() {
-        return angleMonitoringResult;
     }
 
     public boolean isContingencyDivergent(Contingency contingency) {
