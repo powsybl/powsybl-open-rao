@@ -8,7 +8,6 @@ import com.farao_community.farao.data.crac_api.cnec.AngleCnecAdder;
 import com.farao_community.farao.data.crac_creation.creator.api.ImportStatus;
 import com.farao_community.farao.data.crac_creation.creator.csa_profile.crac_creator.CsaProfileConstants;
 import com.farao_community.farao.data.crac_creation.creator.csa_profile.crac_creator.CsaProfileCracCreationContext;
-import com.farao_community.farao.data.crac_creation.creator.csa_profile.crac_creator.CsaProfileCracUtils;
 import com.farao_community.farao.data.crac_creation.creator.csa_profile.crac_creator.CsaProfileElementaryCreationContext;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.IdentifiableType;
@@ -51,12 +50,6 @@ public class AngleCnecCreator extends AbstractCnecCreator {
     }
 
     private boolean addAngleLimit(AngleCnecAdder angleCnecAdder) {
-        boolean isErProfileDataCheckOk = this.erProfileDataCheck();
-
-        if (!isErProfileDataCheckOk) {
-            return false;
-        }
-
         String isFlowToRefTerminalStr = operationalLimitPropertyBag.get(CsaProfileConstants.REQUEST_IS_FLOW_TO_REF_TERMINAL);
         boolean isFlowToRefTerminalIsNull = isFlowToRefTerminalStr == null;
         boolean isFlowToRefTerminal = isFlowToRefTerminalIsNull || Boolean.parseBoolean(isFlowToRefTerminalStr);
@@ -142,18 +135,5 @@ public class AngleCnecCreator extends AbstractCnecCreator {
         String exportingElement = isFlowToRefTerminal ? networkElement2Id : networkElement1Id;
         angleCnecAdder.withImportingNetworkElement(importingElement).withExportingNetworkElement(exportingElement);
         return true;
-    }
-
-    private boolean erProfileDataCheck() {
-        CsaProfileConstants.HeaderValidity headerValidity = CsaProfileCracUtils.checkProfileHeader(operationalLimitPropertyBag, CsaProfileConstants.CsaProfile.EQUIPMENT_RELIABILITY, cracCreationContext.getTimeStamp());
-        if (headerValidity == CsaProfileConstants.HeaderValidity.INVALID_KEYWORD) {
-            csaProfileCnecCreationContexts.add(CsaProfileElementaryCreationContext.notImported(assessedElementId, ImportStatus.INCONSISTENCY_IN_DATA, writeAssessedElementIgnoredReasonMessage("Model.keyword must be " + CsaProfileConstants.CsaProfile.EQUIPMENT_RELIABILITY)));
-            return false;
-        } else if (headerValidity == CsaProfileConstants.HeaderValidity.INVALID_INTERVAL) {
-            csaProfileCnecCreationContexts.add(CsaProfileElementaryCreationContext.notImported(assessedElementId, ImportStatus.NOT_FOR_REQUESTED_TIMESTAMP, writeAssessedElementIgnoredReasonMessage("the required timestamp does not fall between Model.startDate and Model.endDate")));
-            return false;
-        } else {
-            return true;
-        }
     }
 }

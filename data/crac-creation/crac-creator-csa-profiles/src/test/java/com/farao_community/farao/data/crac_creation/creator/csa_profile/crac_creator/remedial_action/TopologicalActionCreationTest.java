@@ -146,9 +146,6 @@ class TopologicalActionCreationTest {
 
         assertEquals(0, cracCreationContext.getCrac().getRemedialActions().size());
 
-        assertRaNotImported(cracCreationContext, "wrong-keyword-topological-remedial-action", ImportStatus.INCONSISTENCY_IN_DATA, "Model.keyword must be RA");
-        assertRaNotImported(cracCreationContext, "not-yet-valid-topological-remedial-action", ImportStatus.NOT_FOR_REQUESTED_TIMESTAMP, "Required timestamp does not fall between Model.startDate and Model.endDate");
-        assertRaNotImported(cracCreationContext, "outdated-topological-remedial-action", ImportStatus.NOT_FOR_REQUESTED_TIMESTAMP, "Required timestamp does not fall between Model.startDate and Model.endDate");
         assertRaNotImported(cracCreationContext, "unavailable-topological-remedial-action", ImportStatus.NOT_FOR_RAO, "Remedial action unavailable-topological-remedial-action will not be imported because RemedialAction.normalAvailable must be 'true' to be imported");
         assertRaNotImported(cracCreationContext, "undefined-topological-remedial-action", ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action undefined-topological-remedial-action will not be imported because there is no topology actions, no Set point actions, nor tap position action linked to that RA");
         assertRaNotImported(cracCreationContext, "topological-remedial-action-with-not-existing-switch", ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK, "Remedial action topological-remedial-action-with-not-existing-switch will not be imported because network model does not contain a switch with id: unknown-switch");

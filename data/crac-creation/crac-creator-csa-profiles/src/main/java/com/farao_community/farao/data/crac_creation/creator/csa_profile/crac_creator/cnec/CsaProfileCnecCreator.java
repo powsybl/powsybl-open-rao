@@ -121,15 +121,6 @@ public class CsaProfileCnecCreator {
     }
 
     private boolean aeProfileDataCheck(String assessedElementId, PropertyBag assessedElementPropertyBag) {
-        CsaProfileConstants.HeaderValidity headerValidity = CsaProfileCracUtils.checkProfileHeader(assessedElementPropertyBag, CsaProfileConstants.CsaProfile.ASSESSED_ELEMENT, cracCreationContext.getTimeStamp());
-        if (headerValidity == CsaProfileConstants.HeaderValidity.INVALID_KEYWORD) {
-            csaProfileCnecCreationContexts.add(CsaProfileElementaryCreationContext.notImported(assessedElementId, ImportStatus.INCONSISTENCY_IN_DATA, "Model.keyword must be " + CsaProfileConstants.CsaProfile.ASSESSED_ELEMENT));
-            return false;
-        } else if (headerValidity == CsaProfileConstants.HeaderValidity.INVALID_INTERVAL) {
-            csaProfileCnecCreationContexts.add(CsaProfileElementaryCreationContext.notImported(assessedElementId, ImportStatus.NOT_FOR_REQUESTED_TIMESTAMP, "Required timestamp does not fall between Model.startDate and Model.endDate"));
-            return false;
-        }
-
         String isCritical = assessedElementPropertyBag.get(CsaProfileConstants.REQUEST_ASSESSED_ELEMENT_IS_CRITICAL);
 
         if (isCritical != null && !Boolean.parseBoolean(isCritical)) {
@@ -221,5 +212,4 @@ public class CsaProfileCnecCreator {
                 + combinationConstraintKind + " and AssessedElement.isCombinableWithContingency = " + isCombinableWithContingency + " have inconsistent values"));
         return false;
     }
-
 }
