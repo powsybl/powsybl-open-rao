@@ -109,7 +109,7 @@ public class SweCne {
         Reason reason = new Reason();
         RaoResult raoResult = sweCneHelper.getRaoResult();
         boolean isDivergent = sweCneHelper.isAnyContingencyInFailure() || raoResult.getComputationStatus() == ComputationStatus.FAILURE;
-        boolean isUnsecure = raoResult.getFunctionalCost(Instant.CURATIVE) > 0 || !isAngleMonitoringSecure(sweCneHelper.getCrac(), sweCneHelper.getRaoResult());
+        boolean isUnsecure = raoResult.getFunctionalCost(Instant.CURATIVE) > 0 || isAngleMonitoringUnsecure(sweCneHelper.getCrac(), sweCneHelper.getRaoResult());
         if (isDivergent) {
             reason.setCode(DIVERGENCE_CODE);
             reason.setText(DIVERGENCE_TEXT);

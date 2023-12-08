@@ -34,8 +34,8 @@ public final class SweCneUtil {
     private SweCneUtil() {
     }
 
-    public static boolean isAngleMonitoringSecure(Crac crac, RaoResult raoResult) {
-        return crac.getAngleCnecs().stream().anyMatch(angleCnec -> raoResult.getMargin(Instant.CURATIVE, angleCnec, Unit.DEGREE) > 0);
+    public static boolean isAngleMonitoringUnsecure(Crac crac, RaoResult raoResult) {
+        return crac.getAngleCnecs().stream().anyMatch(angleCnec -> raoResult.getMargin(Instant.CURATIVE, angleCnec, Unit.DEGREE) < 0);
     }
 
     // Creation of time interval
