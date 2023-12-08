@@ -15,6 +15,7 @@ import com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.cne
 import com.farao_community.farao.data.rao_result_api.ComputationStatus;
 import com.farao_community.farao.data.rao_result_api.RaoResult;
 import com.farao_community.farao.data.swe_cne_exporter.xsd.AdditionalConstraintSeries;
+import com.farao_community.farao.monitoring.angle_monitoring.RaoResultWithAngleMonitoring;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -37,7 +38,7 @@ class SweAdditionalConstraintSeriesCreatorTest {
     @BeforeEach
     public void setup() {
         this.crac = Mockito.mock(Crac.class);
-        this.raoResult = Mockito.mock(RaoResult.class);
+        this.raoResult = Mockito.mock(RaoResultWithAngleMonitoring.class);
         this.cracCreationContext = Mockito.mock(CimCracCreationContext.class);
         this.sweCneHelper = Mockito.mock(SweCneHelper.class);
 
