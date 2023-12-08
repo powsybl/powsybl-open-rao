@@ -220,6 +220,7 @@ public final class CsaProfileConstants {
     public static final String REQUEST_ASSESSED_ELEMENT_NAME = "name";
     public static final String REQUEST_ASSESSED_ELEMENT_OPERATOR = "assessedSystemOperator";
     public static final String REQUEST_ASSESSED_ELEMENT_OPERATIONAL_LIMIT = "operationalLimit";
+    public static final String REQUEST_ASSESSED_ELEMENT_CONDUCTING_EQUIPMENT = "conductingEquipment";
     public static final String REQUEST_ASSESSED_ELEMENT_IS_CRITICAL = "isCritical";
     public static final String REQUEST_ASSESSED_ELEMENT_NORMAL_ENABLED = "normalEnabled";
     public static final String REQUEST_ASSESSED_ELEMENT_IS_COMBINABLE_WITH_CONTINGENCY = "isCombinableWithContingency";
