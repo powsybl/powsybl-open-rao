@@ -82,4 +82,7 @@ public class RaoResultWithAngleMonitoring extends RaoResultClone {
         return isActivatedDuringState(state, (RemedialAction<?>) networkAction);
     }
 
+    public boolean isActivatedDuringStateButNotByAngleMonitoring(State state, RemedialAction<?> remedialAction) {
+        return raoResult.isActivatedDuringState(state, remedialAction);
+    }
 }

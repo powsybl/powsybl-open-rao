@@ -17,7 +17,9 @@ import com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.rem
 import com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.remedial_action.RemedialActionSeriesCreationContext;
 import com.farao_community.farao.data.rao_result_api.ComputationStatus;
 import com.farao_community.farao.data.rao_result_api.RaoResult;
+import com.farao_community.farao.data.rao_result_impl.RaoResultImpl;
 import com.farao_community.farao.data.swe_cne_exporter.xsd.*;
+import com.farao_community.farao.monitoring.angle_monitoring.RaoResultWithAngleMonitoring;
 import org.apache.commons.lang3.NotImplementedException;
 
 import java.math.BigDecimal;
@@ -135,8 +137,14 @@ public class SweRemedialActionSeriesCreator {
         }
         context.getCreatedIds().stream().sorted()
                 .map(crac::getRemedialAction)
-                .filter(ra -> raoResult.isActivatedDuringState(state, ra))
-                        .forEach(usedRas::add);
+                .filter(ra -> {
+                    if (raoResult instanceof RaoResultImpl) {
+                        return raoResult.isActivatedDuringState(state, ra);
+                    } else if (raoResult instanceof RaoResultWithAngleMonitoring) {
+                        return ((RaoResultWithAngleMonitoring) raoResult).isActivatedDuringStateButNotByAngleMonitoring(state, ra);
+                    }
+                    return false;
+                }).forEach(usedRas::add);
         if (!raoResult.getComputationStatus().equals(ComputationStatus.FAILURE)) {
             context.getCreatedIds().stream().sorted()
                 .map(crac::getRemedialAction).filter(ra ->
