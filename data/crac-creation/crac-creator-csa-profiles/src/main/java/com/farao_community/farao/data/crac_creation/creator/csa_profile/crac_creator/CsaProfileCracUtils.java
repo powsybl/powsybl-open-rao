@@ -62,9 +62,13 @@ public final class CsaProfileCracUtils {
     }
 
     public static boolean isValidInterval(OffsetDateTime dateTime, String startTime, String endTime) {
-        OffsetDateTime startDateTime = OffsetDateTime.parse(startTime);
-        OffsetDateTime endDateTime = OffsetDateTime.parse(endTime);
-        return !dateTime.isBefore(startDateTime) && !dateTime.isAfter(endDateTime);
+        try {
+            OffsetDateTime startDateTime = OffsetDateTime.parse(startTime);
+            OffsetDateTime endDateTime = OffsetDateTime.parse(endTime);
+            return !dateTime.isBefore(startDateTime) && !dateTime.isAfter(endDateTime);
+        } catch (Exception e) {
+            return false;
+        }
     }
 
     public static int convertDurationToSeconds(String duration) {
@@ -110,30 +114,13 @@ public final class CsaProfileCracUtils {
         }
     }
 
-    public static CsaProfileConstants.HeaderValidity checkProfileHeader(PropertyBag propertyBag, CsaProfileConstants.CsaProfile csaProfileKeyword, OffsetDateTime importTimestamp) {
-        if (!checkProfileKeyword(propertyBag, csaProfileKeyword)) {
-            return CsaProfileConstants.HeaderValidity.INVALID_KEYWORD;
-        }
-        if (!checkProfileValidityInterval(propertyBag, importTimestamp)) {
-            return CsaProfileConstants.HeaderValidity.INVALID_INTERVAL;
-        }
-        return CsaProfileConstants.HeaderValidity.OK;
-    }
-
-    private static boolean checkProfileValidityInterval(PropertyBag propertyBag, OffsetDateTime importTimestamp) {
-        String startTime = propertyBag.get(CsaProfileConstants.REQUEST_HEADER_START_DATE);
-        String endTime = propertyBag.get(CsaProfileConstants.REQUEST_HEADER_END_DATE);
-        return isValidInterval(importTimestamp, startTime, endTime);
-    }
-
-    private static boolean checkProfileKeyword(PropertyBag propertyBag, CsaProfileConstants.CsaProfile csaProfileKeyword) {
-        String keyword = propertyBag.get(CsaProfileConstants.REQUEST_HEADER_KEYWORD);
-        return csaProfileKeyword.getKeyword().equals(keyword);
-    }
-
     public static String removePrefix(String mridWithPrefix) {
         return mridWithPrefix.substring(mridWithPrefix.lastIndexOf("_") + 1);
     }
 
+    public static Set<String> addFileToSet(Map<String, Set<String>> map, String contextName, String keyword) {
+        Set<String> returnSet = map.getOrDefault(keyword, new HashSet<>());
+        returnSet.add(contextName);
+        return returnSet;
+    }
 }
-

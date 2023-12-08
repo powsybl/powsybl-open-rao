@@ -20,21 +20,21 @@ public final class CsaProfileConstants {
     /**
      * CSA Profiles keywords
      */
-    public enum CsaProfile {
+    public enum CsaProfileKeywords {
         ASSESSED_ELEMENT("AE"),
         CONTINGENCY("CO"),
         EQUIPMENT_RELIABILITY("ER"),
-        REMEDIAL_ACTION("RA"),
-        REMEDIAL_ACTION_SCHEDULE("RAS");
-
-        CsaProfile(String keyword) {
-            this.keyword = keyword;
-        }
+        REMEDIAL_ACTION("RA");
 
         private final String keyword;
 
-        public String getKeyword() {
-            return this.keyword;
+        CsaProfileKeywords(String keyword) {
+            this.keyword = keyword;
+        }
+
+        @Override
+        public String toString() {
+            return keyword;
         }
     }
 
@@ -67,6 +67,8 @@ public final class CsaProfileConstants {
     /**
      * requests for contingencies
      */
+
+    public static final String REQUEST_HEADER = "header";
 
     public static final String REQUEST_CONTINGENCY = "contingency";
 
@@ -227,6 +229,7 @@ public final class CsaProfileConstants {
     public static final String REQUEST_ASSESSED_ELEMENT_WITH_CONTINGENCY_NORMAL_ENABLED = "normalEnabled";
     public static final String REQUEST_CURRENT_LIMIT = "currentLimit";
     public static final String REQUEST_VOLTAGE_LIMIT = "voltageLimit";
+    public static final String CGMES = "CGMES";
     public static final String REQUEST_OPERATIONAL_LIMIT_NORMAL_VALUE = "normalValue";
     public static final String REQUEST_OPERATIONAL_LIMIT_TERMINAL = "terminal";
     public static final String REQUEST_OPERATIONAL_LIMIT_KIND = "kind";
@@ -314,11 +317,5 @@ public final class CsaProfileConstants {
         public String toString() {
             return this.type;
         }
-    }
-
-    public enum HeaderValidity {
-        OK,
-        INVALID_KEYWORD,
-        INVALID_INTERVAL;
     }
 }

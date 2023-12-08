@@ -1,5 +1,8 @@
 package com.farao_community.farao.data.crac_creation.creator.csa_profile.crac_creator.cnec;
 
+import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.core.read.ListAppender;
+import com.farao_community.farao.commons.logs.RaoBusinessWarns;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
@@ -19,6 +22,7 @@ import java.util.stream.Collectors;
 
 import static com.farao_community.farao.data.crac_api.Instant.*;
 import static com.farao_community.farao.data.crac_creation.creator.csa_profile.crac_creator.CsaProfileCracCreationTestUtil.getCsaCracCreationContext;
+import static com.farao_community.farao.data.crac_creation.creator.csa_profile.crac_creator.CsaProfileCracCreationTestUtil.getLogs;
 import static org.junit.jupiter.api.Assertions.*;
 
 class FlowCnecCreationTest {
@@ -214,8 +218,6 @@ class FlowCnecCreationTest {
 
         assertNotNull(cracCreationContext);
         assertTrue(cracCreationContext.isCreationSuccessful());
-        assertEquals(1, cracCreationContext.getCreationReport().getReport().size());
-        assertEquals(2, cracCreationContext.getCrac().getContingencies().size());
         assertEquals(4, cracCreationContext.getCrac().getFlowCnecs().size());
         List<FlowCnec> listFlowCnecs = cracCreationContext.getCrac().getFlowCnecs()
                 .stream().sorted(Comparator.comparing(FlowCnec::getId)).toList();
@@ -255,9 +257,7 @@ class FlowCnecCreationTest {
 
         assertNotNull(cracCreationContext);
         assertTrue(cracCreationContext.isCreationSuccessful());
-        assertEquals(36, cracCreationContext.getCreationReport().getReport().size());
-        assertEquals(15, cracCreationContext.getCrac().getContingencies().size());
-        assertEquals(0, cracCreationContext.getCrac().getFlowCnecs().size());
+        assertTrue(cracCreationContext.getCrac().getFlowCnecs().isEmpty());
     }
 
     @Test
@@ -266,7 +266,6 @@ class FlowCnecCreationTest {
 
         assertNotNull(cracCreationContext);
         assertTrue(cracCreationContext.isCreationSuccessful());
-        assertEquals(30, cracCreationContext.getCreationReport().getReport().size());
         assertEquals(15, cracCreationContext.getCrac().getContingencies().size());
         assertEquals(12, cracCreationContext.getCrac().getFlowCnecs().size());
 
@@ -355,13 +354,19 @@ class FlowCnecCreationTest {
 
     @Test
     void testCreateCracCSATestWithRejectedFiles() {
+        ListAppender<ILoggingEvent> listAppender = getLogs(RaoBusinessWarns.class);
+        List<ILoggingEvent> logsList = listAppender.list;
+
         CsaProfileCracCreationContext cracCreationContext = getCsaCracCreationContext("/CSA_Test_With_Rejected_Files.zip");
+
+        List<ILoggingEvent> logListSorted  = logsList.stream().filter(log -> log.getFormattedMessage().contains("Its dates are not consistent")).sorted(Comparator.comparing(ILoggingEvent::getMessage)).toList();
+        assertEquals(2, logListSorted.size());
+        assertEquals("[WARN] [REMOVED] The file : contexts:ELIA_AE.xml will be ignored. Its dates are not consistent with the import date : 2023-03-29T12:00Z", logListSorted.get(0).toString());
+        assertEquals("[WARN] [REMOVED] The file : contexts:REE_CO.xml will be ignored. Its dates are not consistent with the import date : 2023-03-29T12:00Z", logListSorted.get(1).toString());
 
         assertNotNull(cracCreationContext);
         assertTrue(cracCreationContext.isCreationSuccessful());
-        assertEquals(52, cracCreationContext.getCreationReport().getReport().size());
-        assertEquals(7, cracCreationContext.getCrac().getContingencies().size());
-        assertEquals(0, cracCreationContext.getCrac().getFlowCnecs().size());
+        assertTrue(cracCreationContext.getCrac().getFlowCnecs().isEmpty());
     }
 
     @Test
@@ -370,7 +375,6 @@ class FlowCnecCreationTest {
 
         assertNotNull(cracCreationContext);
         assertTrue(cracCreationContext.isCreationSuccessful());
-        assertEquals(51, cracCreationContext.getCreationReport().getReport().size());
         assertEquals(7, cracCreationContext.getCrac().getContingencies().size());
         assertEquals(4, cracCreationContext.getCrac().getFlowCnecs().size());
 
@@ -409,8 +413,6 @@ class FlowCnecCreationTest {
 
         assertNotNull(cracCreationContext);
         assertTrue(cracCreationContext.isCreationSuccessful());
-        assertEquals(6, cracCreationContext.getCreationReport().getReport().size());
-        assertEquals(2, cracCreationContext.getCrac().getContingencies().size());
         assertEquals(4, cracCreationContext.getCrac().getFlowCnecs().size());
 
         List<FlowCnec> listFlowCnecs = cracCreationContext.getCrac().getFlowCnecs()
