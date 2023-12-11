@@ -22,8 +22,6 @@ import com.farao_community.farao.data.crac_creation.creator.csa_profile.crac_cre
 import com.farao_community.farao.data.crac_creation.creator.csa_profile.crac_creator.CsaProfileCracUtils;
 import com.farao_community.farao.data.crac_creation.creator.csa_profile.crac_creator.CsaProfileElementaryCreationContext;
 import com.farao_community.farao.data.crac_creation.util.FaraoImportException;
-import com.google.common.collect.BiMap;
-import com.google.common.collect.HashBiMap;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
@@ -48,7 +46,8 @@ public class CsaProfileRemedialActionsCreator {
     private final CsaProfileCracCreationContext cracCreationContext;
     Set<CsaProfileElementaryCreationContext> csaProfileRemedialActionCreationContexts = new HashSet<>();
 
-    private final PropertyBags schemeRemedialActionsPropertyBags;
+    private final PropertyBags schemeRemedialActionsRaPropertyBags;
+    private final PropertyBags schemeRemedialActionsRasPropertyBags;
     private final PropertyBags remedialActionSchemePropertyBags;
     private final PropertyBags stagePropertyBags;
     private final PropertyBags gridStateAlterationCollectionPropertyBags;
@@ -64,7 +63,8 @@ public class CsaProfileRemedialActionsCreator {
                                             PropertyBags tapPositionPropertyBags,
                                             PropertyBags staticPropertyRangesPropertyBags,
                                             OnConstraintUsageRuleHelper onConstraintUsageRuleHelper,
-                                            PropertyBags schemeRemedialActionsPropertyBags,
+                                            PropertyBags schemeRemedialActionsRaPropertyBags,
+                                            PropertyBags schemeRemedialActionsRasPropertyBags,
                                             PropertyBags remedialActionSchemePropertyBags,
                                             PropertyBags stagePropertyBags,
                                             PropertyBags gridStateAlterationCollectionPropertyBags,
@@ -83,7 +83,8 @@ public class CsaProfileRemedialActionsCreator {
         this.staticPropertyRangesPropertyBags = staticPropertyRangesPropertyBags;
         this.cracCreationContext = cracCreationContext;
         this.onConstraintUsageRuleHelper = onConstraintUsageRuleHelper;
-        this.schemeRemedialActionsPropertyBags = schemeRemedialActionsPropertyBags;
+        this.schemeRemedialActionsRaPropertyBags = schemeRemedialActionsRaPropertyBags;
+        this.schemeRemedialActionsRasPropertyBags = schemeRemedialActionsRasPropertyBags;
         this.remedialActionSchemePropertyBags = remedialActionSchemePropertyBags;
         this.stagePropertyBags = stagePropertyBags;
         this.gridStateAlterationCollectionPropertyBags = gridStateAlterationCollectionPropertyBags;
@@ -116,7 +117,7 @@ public class CsaProfileRemedialActionsCreator {
                 String nativeRaName = parentRemedialActionPropertyBag.get(CsaProfileConstants.REMEDIAL_ACTION_NAME);
                 String tsoName = parentRemedialActionPropertyBag.get(CsaProfileConstants.TSO);
                 Optional<String> targetRemedialActionNameOpt = CsaProfileCracUtils.createElementName(nativeRaName, tsoName);
-                Optional<Integer> speedOpt = getSpeedOpt(parentRemedialActionPropertyBag.get(CsaProfileConstants.TIME_TO_IMPLEMENT));
+                Optional<Integer> speedOpt = getSpeedOpt(parentRemedialActionPropertyBag.get(CsaProfileConstants.TIME_TO_IMPLEMENT), remedialActionId, false);
 
                 if (remedialActionType.equals(RemedialActionType.NETWORK_ACTION)) {
                     remedialActionAdder = networkActionCreator.getNetworkActionAdder(linkedTopologyActions, linkedRotatingMachineActions, linkedShuntCompensatorModifications, linkedStaticPropertyRanges, remedialActionId, remedialActionId);
@@ -136,15 +137,15 @@ public class CsaProfileRemedialActionsCreator {
                     checkElementCombinationConstraintKindsCoherence(remedialActionId, linkedContingencyWithRAs);
 
                     List<String> faraoContingenciesIds = linkedContingencyWithRAs.get(remedialActionId).stream()
-                        .map(contingencyWithRemedialActionPropertyBag ->
-                            checkContingencyAndGetFaraoId(
-                                contingencyWithRemedialActionPropertyBag,
-                                parentRemedialActionPropertyBag.get(CsaProfileConstants.RA_KIND),
-                                remedialActionId,
-                                randomCombinationConstraintKind
+                            .map(contingencyWithRemedialActionPropertyBag ->
+                                    checkContingencyAndGetFaraoId(
+                                            contingencyWithRemedialActionPropertyBag,
+                                            parentRemedialActionPropertyBag.get(CsaProfileConstants.RA_KIND),
+                                            remedialActionId,
+                                            randomCombinationConstraintKind
+                                    )
                             )
-                        )
-                        .toList();
+                            .toList();
 
                     boolean hasAtLeastOneOnConstraintUsageRule = addOnConstraintUsageRules(Instant.CURATIVE, remedialActionAdder, remedialActionId, alterations);
                     if (!hasAtLeastOneOnConstraintUsageRule) {
@@ -185,9 +186,9 @@ public class CsaProfileRemedialActionsCreator {
     private void addOnContingencyStateUsageRules(RemedialActionAdder<?> remedialActionAdder, List<String> faraoContingenciesIds, String randomCombinationConstraintKind, Instant instant) {
         UsageMethod usageMethod = CsaProfileCracUtils.getConstraintToUsageMethodMap().get(randomCombinationConstraintKind);
         faraoContingenciesIds.forEach(faraoContingencyId -> remedialActionAdder.newOnContingencyStateUsageRule()
-            .withInstant(instant)
-            .withContingency(faraoContingencyId)
-            .withUsageMethod(usageMethod).add());
+                .withInstant(instant)
+                .withContingency(faraoContingencyId)
+                .withUsageMethod(usageMethod).add());
     }
 
     private void checkElementCombinationConstraintKindsCoherence(String remedialActionId, Map<String, Set<PropertyBag>> linkedContingencyWithRAs) {
@@ -248,7 +249,7 @@ public class CsaProfileRemedialActionsCreator {
         for (PropertyBag injectionSetPointAction : injectionSetPointActionsForOneRa) {
             Set<PropertyBag> staticPropertyRangePropertyBags = staticPropertyRangesLinkedToInjectionSetPointActions.get(injectionSetPointAction.getId("mRID"));
             if (staticPropertyRangePropertyBags != null) {
-                if (staticPropertyRangePropertyBags.size() == 0) {
+                if (staticPropertyRangePropertyBags.isEmpty()) {
                     throw new FaraoImportException(ImportStatus.INCONSISTENCY_IN_DATA, CsaProfileConstants.REMEDIAL_ACTION_MESSAGE + remedialActionId + " will not be imported because there is no StaticPropertyRange linked to that RA");
                 } else if (staticPropertyRangePropertyBags.size() > 1) {
                     throw new FaraoImportException(ImportStatus.INCONSISTENCY_IN_DATA, CsaProfileConstants.REMEDIAL_ACTION_MESSAGE + remedialActionId + " will not be imported because several conflictual StaticPropertyRanges are linked to that RA's injection set point action");
@@ -258,7 +259,7 @@ public class CsaProfileRemedialActionsCreator {
     }
 
     private String checkContingencyAndGetFaraoId(PropertyBag contingencyWithRemedialActionPropertyBag, String raKind, String
-        remedialActionId, String combinationConstraintKind) {
+            remedialActionId, String combinationConstraintKind) {
         if (!raKind.equals(CsaProfileConstants.RemedialActionKind.CURATIVE.toString())) {
             throw new FaraoImportException(ImportStatus.INCONSISTENCY_IN_DATA, CsaProfileConstants.REMEDIAL_ACTION_MESSAGE + remedialActionId + " will not be imported because it is linked to a contingency but it's kind is not curative");
         }
@@ -278,9 +279,14 @@ public class CsaProfileRemedialActionsCreator {
         }
     }
 
-    private Optional<Integer> getSpeedOpt(String timeToImplement) {
+    private Optional<Integer> getSpeedOpt(String timeToImplement, String remedialActionId, boolean isAuto) {
         if (timeToImplement != null) {
-            return Optional.of(CsaProfileCracUtils.convertDurationToSeconds(timeToImplement));
+            try {
+                return Optional.of(CsaProfileCracUtils.convertDurationToSeconds(timeToImplement));
+            } catch (RuntimeException e) {
+                throw new FaraoImportException(ImportStatus.INCONSISTENCY_IN_DATA, (isAuto ? CsaProfileConstants.AUTO_REMEDIAL_ACTION_MESSAGE : CsaProfileConstants.REMEDIAL_ACTION_MESSAGE) + remedialActionId + " will not be imported because of an irregular timeToImplement pattern");
+            }
+
         } else {
             return Optional.empty();
         }
@@ -291,7 +297,7 @@ public class CsaProfileRemedialActionsCreator {
         NETWORK_ACTION
     }
 
-    private boolean addOnConstraintUsageRules(Instant remedialActionInstant, RemedialActionAdder remedialActionAdder, String importableRemedialActionId, List<String> alterations) {
+    private boolean addOnConstraintUsageRules(Instant remedialActionInstant, RemedialActionAdder<?> remedialActionAdder, String importableRemedialActionId, List<String> alterations) {
         boolean flag1 = false;
         boolean flag2;
         boolean flag3;
@@ -305,12 +311,12 @@ public class CsaProfileRemedialActionsCreator {
         return flag1 || flag2 || flag3;
     }
 
-    private boolean processAvailableAssessedElementsCombinableWithRemedialActions(Instant remedialActionInstant, RemedialActionAdder remedialActionAdder, UsageMethod usageMethod) {
+    private boolean processAvailableAssessedElementsCombinableWithRemedialActions(Instant remedialActionInstant, RemedialActionAdder<?> remedialActionAdder, UsageMethod usageMethod) {
         List<Boolean> flags = onConstraintUsageRuleHelper.getImportedCnecsCombinableWithRas().stream().map(addOnConstraintUsageRuleForCnec(remedialActionInstant, remedialActionAdder, usageMethod)).toList();
         return flags.contains(true);
     }
 
-    private boolean processAssessedElementsWithRemedialActions(Instant remedialActionInstant, RemedialActionAdder remedialActionAdder, String importableRemedialActionId, UsageMethod usageMethod, Map<String, Set<String>> cnecsByRemedialAction) {
+    private boolean processAssessedElementsWithRemedialActions(Instant remedialActionInstant, RemedialActionAdder<?> remedialActionAdder, String importableRemedialActionId, UsageMethod usageMethod, Map<String, Set<String>> cnecsByRemedialAction) {
         if (cnecsByRemedialAction.containsKey(importableRemedialActionId)) {
             List<Boolean> flags = cnecsByRemedialAction.get(importableRemedialActionId).stream().map(addOnConstraintUsageRuleForCnec(remedialActionInstant, remedialActionAdder, usageMethod)).toList();
             return flags.contains(true);
@@ -318,29 +324,29 @@ public class CsaProfileRemedialActionsCreator {
         return false;
     }
 
-    private Function<String, Boolean> addOnConstraintUsageRuleForCnec(Instant remedialActionInstant, RemedialActionAdder remedialActionAdder, UsageMethod usageMethod) {
+    private Function<String, Boolean> addOnConstraintUsageRuleForCnec(Instant remedialActionInstant, RemedialActionAdder<?> remedialActionAdder, UsageMethod usageMethod) {
         return cnecId -> {
             Cnec<?> cnec = crac.getCnec(cnecId);
             if (isOnConstraintInstantCoherent(cnec.getState().getInstant(), remedialActionInstant)) {
                 if (cnec instanceof FlowCnec) {
                     remedialActionAdder.newOnFlowConstraintUsageRule()
-                        .withInstant(remedialActionInstant)
-                        .withFlowCnec(cnecId)
-                        .add();
+                            .withInstant(remedialActionInstant)
+                            .withFlowCnec(cnecId)
+                            .add();
                     // TODO add .withUsageMethod(usageMethod) when API of OnFlowConstraintAdder is ready
                     return true;
                 } else if (cnec instanceof VoltageCnec) {
                     remedialActionAdder.newOnVoltageConstraintUsageRule()
-                        .withInstant(remedialActionInstant)
-                        .withVoltageCnec(cnecId)
-                        .add();
+                            .withInstant(remedialActionInstant)
+                            .withVoltageCnec(cnecId)
+                            .add();
                     // TODO add .withUsageMethod(usageMethod) when API of OnFlowConstraintAdder is ready
                     return true;
                 } else if (cnec instanceof AngleCnec) {
                     remedialActionAdder.newOnAngleConstraintUsageRule()
-                        .withInstant(remedialActionInstant)
-                        .withAngleCnec(cnecId)
-                        .add();
+                            .withInstant(remedialActionInstant)
+                            .withAngleCnec(cnecId)
+                            .add();
                     // TODO add .withUsageMethod(usageMethod) when API of OnFlowConstraintAdder is ready
                     return true;
                 } else {
@@ -374,29 +380,40 @@ public class CsaProfileRemedialActionsCreator {
         Map<String, Set<PropertyBag>> linkedShuntCompensatorModificationAuto = CsaProfileCracUtils.getMappedPropertyBagsSet(shuntCompensatorModificationAutoPropertyBags, CsaProfileConstants.GRID_STATE_ALTERATION_COLLECTION);
         Map<String, Set<PropertyBag>> linkedTapPositionActionsAuto = CsaProfileCracUtils.getMappedPropertyBagsSet(tapPositionActionsAutoPropertyBags, CsaProfileConstants.GRID_STATE_ALTERATION_COLLECTION);
 
-        Map<PropertyBag, PropertyBag> schemeRemedialActionToRemedialActionSchemeMap = associateTwoPropertyBags(new HashSet<>(schemeRemedialActionsPropertyBags),
-            new HashSet<>(remedialActionSchemePropertyBags),
-            CsaProfileConstants.REMEDIAL_ACTION_SCHEME,
-            CsaProfileConstants.MRID,
-            "SchemeRemedialAction must have exactly one associated RemedialActionScheme");
+        Map<PropertyBag, PropertyBag> schemeRemedialActionToschemeRemedialActionMap = associateTwoPropertyBags(new HashSet<>(schemeRemedialActionsRaPropertyBags),
+                new HashSet<>(schemeRemedialActionsRasPropertyBags),
+                CsaProfileConstants.MRID,
+                CsaProfileConstants.MRID,
+                CsaProfileConstants.SCHEME_REMEDIAL_ACTION
+        );
 
-        Map<PropertyBag, PropertyBag> remedialActionSchemeToStageMap = associateTwoPropertyBags((Set<PropertyBag>) schemeRemedialActionToRemedialActionSchemeMap.values(),
-            new HashSet<>(stagePropertyBags),
-            CsaProfileConstants.MRID,
-            CsaProfileConstants.REMEDIAL_ACTION_SCHEME,
-            "RemedialActionScheme must have exactly one associated Stage");
+        Map<PropertyBag, PropertyBag> schemeRemedialActionToRemedialActionSchemeMap = associateTwoPropertyBags(new HashSet<>(schemeRemedialActionsRasPropertyBags),
+                new HashSet<>(remedialActionSchemePropertyBags),
+                CsaProfileConstants.REMEDIAL_ACTION_SCHEME,
+                CsaProfileConstants.MRID
+        );
 
-        Map<PropertyBag, PropertyBag> stageToGridStateAlterationCollectionMap = associateTwoPropertyBags((Set<PropertyBag>) remedialActionSchemeToStageMap.values(),
-            new HashSet<>(gridStateAlterationCollectionPropertyBags),
-            CsaProfileConstants.GRID_STATE_ALTERATION_COLLECTION,
-            CsaProfileConstants.MRID,
-            "Stage must have exactly one associated GridStateAlterationCollection");
+        Map<PropertyBag, PropertyBag> remedialActionSchemeToStageMap = associateTwoPropertyBags(new HashSet<>(schemeRemedialActionToRemedialActionSchemeMap.values()),
+                new HashSet<>(stagePropertyBags),
+                CsaProfileConstants.MRID,
+                CsaProfileConstants.REMEDIAL_ACTION_SCHEME
+        );
 
-        schemeRemedialActionToRemedialActionSchemeMap.forEach((schemeRemedialActionsPropertyBag, remedialActionSchemePropertyBag) -> {
-            String autoRemedialActionId = schemeRemedialActionsPropertyBag.get(CsaProfileConstants.MRID);
+        Map<PropertyBag, PropertyBag> stageToGridStateAlterationCollectionMap = associateTwoPropertyBags(new HashSet<>(remedialActionSchemeToStageMap.values()),
+                new HashSet<>(gridStateAlterationCollectionPropertyBags),
+                CsaProfileConstants.GRID_STATE_ALTERATION_COLLECTION,
+                CsaProfileConstants.MRID
+        );
+
+        schemeRemedialActionToschemeRemedialActionMap.forEach((schemeRemedialActionsRaPropertyBag, schemeRemedialActionsRasPropertyBag) -> {
+            String autoRemedialActionId = schemeRemedialActionsRaPropertyBag.get(CsaProfileConstants.MRID);
             try {
-                String raKind = schemeRemedialActionsPropertyBag.get(CsaProfileConstants.RA_KIND);
-                boolean normalAvailable = Boolean.parseBoolean(schemeRemedialActionsPropertyBag.get(CsaProfileConstants.NORMAL_AVAILABLE));
+                PropertyBag remedialActionSchemePropertyBag = schemeRemedialActionToRemedialActionSchemeMap.get(schemeRemedialActionsRasPropertyBag);
+                if (remedialActionSchemePropertyBag == null) {
+                    throw new FaraoImportException(ImportStatus.INCONSISTENCY_IN_DATA, CsaProfileConstants.AUTO_REMEDIAL_ACTION_MESSAGE + autoRemedialActionId + " will not be imported because it has no associated RemedialActionScheme");
+                }
+                String raKind = schemeRemedialActionsRaPropertyBag.get(CsaProfileConstants.RA_KIND);
+                boolean normalAvailable = Boolean.parseBoolean(schemeRemedialActionsRaPropertyBag.get(CsaProfileConstants.NORMAL_AVAILABLE));
                 if (!normalAvailable) {
                     throw new FaraoImportException(ImportStatus.NOT_FOR_RAO, CsaProfileConstants.AUTO_REMEDIAL_ACTION_MESSAGE + autoRemedialActionId + " will not be imported because RemedialAction.normalAvailable must be 'true' to be imported");
                 }
@@ -404,10 +421,10 @@ public class CsaProfileRemedialActionsCreator {
                     throw new FaraoImportException(ImportStatus.INCONSISTENCY_IN_DATA, CsaProfileConstants.AUTO_REMEDIAL_ACTION_MESSAGE + autoRemedialActionId + " will not be imported because auto remedial action musty be of curative kind");
                 }
 
-                String nativeRaName = schemeRemedialActionsPropertyBag.get(CsaProfileConstants.REMEDIAL_ACTION_NAME);
-                String tsoName = schemeRemedialActionsPropertyBag.get(CsaProfileConstants.TSO);
+                String nativeRaName = schemeRemedialActionsRaPropertyBag.get(CsaProfileConstants.REMEDIAL_ACTION_NAME);
+                String tsoName = schemeRemedialActionsRaPropertyBag.get(CsaProfileConstants.TSO);
                 Optional<String> targetAutoRemedialActionNameOpt = CsaProfileCracUtils.createElementName(nativeRaName, tsoName);
-                Optional<Integer> speedOpt = getSpeedOpt(schemeRemedialActionsPropertyBag.get(CsaProfileConstants.TIME_TO_IMPLEMENT));
+                Optional<Integer> speedOpt = getSpeedOpt(schemeRemedialActionsRaPropertyBag.get(CsaProfileConstants.TIME_TO_IMPLEMENT), autoRemedialActionId, false);
 
                 String remedialActionSchemeKind = remedialActionSchemePropertyBag.get(CsaProfileConstants.RA_KIND);
                 if (!remedialActionSchemeKind.equals(CsaProfileConstants.SIPS)) {
@@ -419,7 +436,13 @@ public class CsaProfileRemedialActionsCreator {
                 }
 
                 PropertyBag stage = remedialActionSchemeToStageMap.get(remedialActionSchemePropertyBag);
+                if (stage == null) {
+                    throw new FaraoImportException(ImportStatus.INCONSISTENCY_IN_DATA, CsaProfileConstants.AUTO_REMEDIAL_ACTION_MESSAGE + autoRemedialActionId + " will not be imported because it has no associated Stage");
+                }
                 PropertyBag gridStateAlterationCollection = stageToGridStateAlterationCollectionMap.get(stage);
+                if (gridStateAlterationCollection == null) {
+                    throw new FaraoImportException(ImportStatus.INCONSISTENCY_IN_DATA, CsaProfileConstants.AUTO_REMEDIAL_ACTION_MESSAGE + autoRemedialActionId + " will not be imported because it has no associated GridStateAlterationCollection");
+                }
 
                 String collectionId = gridStateAlterationCollection.get(CsaProfileConstants.MRID);
 
@@ -457,15 +480,15 @@ public class CsaProfileRemedialActionsCreator {
                     checkElementCombinationConstraintKindsCoherence(autoRemedialActionId, linkedContingencyWithRAs);
 
                     List<String> faraoContingenciesIds = linkedContingencyWithRAs.get(autoRemedialActionId).stream()
-                        .map(contingencyWithRemedialActionPropertyBag ->
-                            checkContingencyAndGetFaraoId(
-                                contingencyWithRemedialActionPropertyBag,
-                                raKind,
-                                autoRemedialActionId,
-                                CsaProfileConstants.ElementCombinationConstraintKind.INCLUDED.toString()
+                            .map(contingencyWithRemedialActionPropertyBag ->
+                                    checkContingencyAndGetFaraoId(
+                                            contingencyWithRemedialActionPropertyBag,
+                                            raKind,
+                                            autoRemedialActionId,
+                                            CsaProfileConstants.ElementCombinationConstraintKind.INCLUDED.toString()
+                                    )
                             )
-                        )
-                        .toList();
+                            .toList();
 
                     boolean hasAtLeastOneOnConstraintUsageRule = addOnConstraintUsageRules(Instant.CURATIVE, remedialActionAdder, autoRemedialActionId, new ArrayList<>());
                     if (!hasAtLeastOneOnConstraintUsageRule) {
@@ -484,32 +507,36 @@ public class CsaProfileRemedialActionsCreator {
         this.cracCreationContext.setRemedialActionCreationContexts(csaProfileRemedialActionCreationContexts);
     }
 
-    private BiMap<PropertyBag, PropertyBag> associateTwoPropertyBags(Set<PropertyBag> propertyBags1, Set<PropertyBag> propertyBags2, String key1, String key2, String errorMessage) {
+    private Map<PropertyBag, PropertyBag> associateTwoPropertyBags(Set<PropertyBag> propertyBags1, Set<PropertyBag> propertyBags2, String key1, String key2, String fieldToJoinOn) {
         Map<String, PropertyBag> propertyBags2ByIdMap = new HashMap<>();
-        BiMap<PropertyBag, PropertyBag> propertyBags1ToPropertyBags2BiMap = HashBiMap.create();
+        Map<PropertyBag, PropertyBag> propertyBags1ToPropertyBags2BiMap = new HashMap<>();
 
         propertyBags2.forEach(propertyBag -> propertyBags2ByIdMap.put(CsaProfileCracUtils.removePrefix(propertyBag.get(key2)), propertyBag));
 
         propertyBags1.forEach(propertyBag -> {
             if (propertyBags2ByIdMap.containsKey(CsaProfileCracUtils.removePrefix(propertyBag.get(key1)))) {
                 PropertyBag testedPropertyBag = propertyBags2ByIdMap.get(CsaProfileCracUtils.removePrefix(propertyBag.get(key1)));
-                if (isAssociatedWithOnlyOneScheme(propertyBags1ToPropertyBags2BiMap, testedPropertyBag)) {
+                if (oneToOneAssociationCheck(propertyBags1ToPropertyBags2BiMap, testedPropertyBag, fieldToJoinOn) && !propertyBags1ToPropertyBags2BiMap.containsKey(propertyBag)) {
                     propertyBags1ToPropertyBags2BiMap.put(propertyBag, testedPropertyBag);
                 } else {
-                    // more than 1 element associated
-                    throw new FaraoImportException(ImportStatus.INCONSISTENCY_IN_DATA, errorMessage);
+                    // more than 1 element associated -> ignore
+                    // throw new FaraoImportException(ImportStatus.INCONSISTENCY_IN_DATA, ">1");
                 }
             } else {
-                // 0 element associated
-                throw new FaraoImportException(ImportStatus.INCONSISTENCY_IN_DATA, errorMessage);
+                // 0 element associated -> ignore
+                // throw new FaraoImportException(ImportStatus.INCONSISTENCY_IN_DATA, "none");
             }
         });
         return propertyBags1ToPropertyBags2BiMap;
     }
 
-    // Helper method to check if RemedialActionScheme is associated with only one SchemeRemedialAction
-    private boolean isAssociatedWithOnlyOneScheme(Map<PropertyBag, PropertyBag> schemeRaToRaScheme, PropertyBag testedRemedialActionScheme) {
-        return schemeRaToRaScheme.keySet().stream().noneMatch(schemeRa -> schemeRa.get(CsaProfileConstants.REMEDIAL_ACTION_SCHEME).equals(testedRemedialActionScheme.get(CsaProfileConstants.MRID)));
+    private Map<PropertyBag, PropertyBag> associateTwoPropertyBags(Set<PropertyBag> propertyBags1, Set<PropertyBag> propertyBags2, String key1, String key2) {
+        return associateTwoPropertyBags(propertyBags1, propertyBags2, key1, key2, CsaProfileConstants.REMEDIAL_ACTION_SCHEME);
+    }
+
+    // Helper method to check if there is a 1-to-1 association between property bags
+    private boolean oneToOneAssociationCheck(Map<PropertyBag, PropertyBag> schemeRaToRaScheme, PropertyBag testedRemedialActionScheme, String fieldToJoinOn) {
+        return schemeRaToRaScheme.keySet().stream().noneMatch(schemeRa -> schemeRa.get(fieldToJoinOn).equals(testedRemedialActionScheme.get(CsaProfileConstants.MRID)));
     }
 
 }

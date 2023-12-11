@@ -372,7 +372,7 @@ SELECT *
     }
 }
 
-# query: schemeRemedialAction
+# query: schemeRemedialActionRA
 PREFIX nc: <http://entsoe.eu/ns/nc#>
 PREFIX cim: <http://iec.ch/TC57/CIM100#>
 SELECT *
@@ -380,7 +380,6 @@ WHERE {
     ?schemeRemedialAction
         rdf:type nc:SchemeRemedialAction ;
         cim:IdentifiedObject.mRID ?mRID ;
-        nc:SchemeRemedialAction.RemedialActionScheme ?remedialActionScheme ;
         nc:RemedialAction.kind ?kind ;
         nc:RemedialAction.normalAvailable ?normalAvailable .
         OPTIONAL {
@@ -392,6 +391,17 @@ WHERE {
         OPTIONAL {
             ?schemeRemedialAction nc:RemedialAction.RemedialActionSystemOperator ?tso .
         }
+}
+
+# query: schemeRemedialActionRAS
+PREFIX nc: <http://entsoe.eu/ns/nc#>
+PREFIX cim: <http://iec.ch/TC57/CIM100#>
+SELECT *
+WHERE {
+    ?schemeRemedialAction
+        rdf:type nc:SchemeRemedialAction ;
+        cim:IdentifiedObject.mRID ?mRID ;
+        nc:SchemeRemedialAction.RemedialActionScheme ?remedialActionScheme ;
 }
 
 # query: remedialActionScheme
