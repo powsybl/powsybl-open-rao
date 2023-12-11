@@ -8,12 +8,29 @@
 # query: contingencyEquipment
 PREFIX cim: <http://iec.ch/TC57/CIM100#>
 SELECT *
-WHERE {
+{
+GRAPH <%s> {
     ?contingencyEquipment
         rdf:type cim:ContingencyEquipment ;
         cim:ContingencyEquipment.Equipment ?contingencyEquipmentId ;
         cim:ContingencyElement.Contingency ?contingency ;
         cim:ContingencyEquipment.contingentStatus ?contingentStatus ;
+}
+}
+
+# query: header
+PREFIX dcat: <http://www.w3.org/ns/dcat#>
+SELECT *
+{
+GRAPH <%s> {
+    ?fullModel
+        dcat:keyword ?keyword ;
+    OPTIONAL {
+        ?fullModel
+            dcat:startDate ?startDate ;
+            dcat:endDate ?endDate ;
+        }
+}
 }
 
 # query: ordinaryContingency
@@ -23,10 +40,6 @@ PREFIX dcat: <http://www.w3.org/ns/dcat#>
 SELECT *
 {
 GRAPH <%s> {
-    ?fullModel
-        dcat:startDate ?startDate ;
-        dcat:endDate ?endDate ;
-        dcat:keyword ?keyword .
     ?contingency
         rdf:type nc:OrdinaryContingency ;
         nc:Contingency.normalMustStudy ?normalMustStudy ;
@@ -46,10 +59,6 @@ PREFIX dcat: <http://www.w3.org/ns/dcat#>
 SELECT *
 {
 GRAPH <%s> {
-    ?fullModel
-        dcat:startDate ?startDate ;
-        dcat:endDate ?endDate ;
-        dcat:keyword ?keyword .
     ?contingency
         rdf:type nc:ExceptionalContingency ;
         nc:Contingency.normalMustStudy ?normalMustStudy ;
@@ -69,10 +78,6 @@ PREFIX dcat: <http://www.w3.org/ns/dcat#>
 SELECT *
 {
 GRAPH <%s> {
-    ?fullModel
-        dcat:startDate ?startDate ;
-        dcat:endDate ?endDate ;
-        dcat:keyword ?keyword .
     ?contingency
         rdf:type nc:OutOfRangeContingency ;
         nc:Contingency.normalMustStudy ?normalMustStudy ;
@@ -92,16 +97,17 @@ PREFIX dcat: <http://www.w3.org/ns/dcat#>
 SELECT *
 {
 GRAPH <%s> {
-    ?fullModel
-        dcat:startDate ?startDate ;
-        dcat:endDate ?endDate ;
-        dcat:keyword ?keyword .
     ?assessedElement
         rdf:type nc:AssessedElement ;
         nc:AssessedElement.inBaseCase ?inBaseCase ;
         cim:IdentifiedObject.name ?name ;
-        nc:AssessedElement.AssessedSystemOperator ?assessedSystemOperator ;
-        nc:AssessedElement.OperationalLimit ?operationalLimit .
+        nc:AssessedElement.AssessedSystemOperator ?assessedSystemOperator .
+    OPTIONAL {
+                ?assessedElement nc:AssessedElement.ConductingEquipment ?conductingEquipment .
+                }
+    OPTIONAL {
+                ?assessedElement nc:AssessedElement.OperationalLimit ?operationalLimit .
+                }
     OPTIONAL {
             ?assessedElement nc:AssessedElement.isCombinableWithContingency ?isCombinableWithContingency .
             }
@@ -121,7 +127,8 @@ GRAPH <%s> {
 # query: assessedElementWithRemedialAction
 PREFIX nc: <http://entsoe.eu/ns/nc#>
 SELECT *
-WHERE {
+{
+GRAPH <%s> {
     ?assessedElementWithRemedialAction
         rdf:type nc:AssessedElementWithRemedialAction ;
         nc:AssessedElementWithRemedialAction.RemedialAction ?remedialAction ;
@@ -132,11 +139,13 @@ WHERE {
             nc:AssessedElementWithRemedialAction.normalEnabled ?normalEnabled .
     }
 }
+}
 
 # query: assessedElementWithContingency
 PREFIX nc: <http://entsoe.eu/ns/nc#>
 SELECT *
-WHERE {
+{
+GRAPH <%s> {
     ?assessedElementWithContingency
         rdf:type nc:AssessedElementWithContingency ;
         nc:AssessedElementWithContingency.Contingency ?contingency ;
@@ -147,12 +156,14 @@ WHERE {
             nc:AssessedElementWithContingency.normalEnabled ?normalEnabled .
     }
 }
+}
 
 # query: currentLimit
 PREFIX cim: <http://iec.ch/TC57/CIM100#>
 PREFIX eu: <http://iec.ch/TC57/CIM100-European#>
 SELECT *
-WHERE {
+{
+GRAPH <%s> {
     ?currentLimit
         rdf:type cim:CurrentLimit ;
         cim:CurrentLimit.normalValue ?normalValue ;
@@ -170,11 +181,13 @@ WHERE {
                 cim:OperationalLimitType.acceptableDuration ?acceptableDuration .
         }
 }
+}
 
 # query: voltageLimit
 PREFIX cim: <http://iec.ch/TC57/CIM100#>
 SELECT *
-WHERE {
+{
+GRAPH <%s> {
     ?voltageLimit
         rdf:type cim:VoltageLimit ;
         cim:VoltageLimit.normalValue ?normalValue ;
@@ -191,6 +204,7 @@ WHERE {
                 cim:OperationalLimitType.isInfiniteDuration ?isInfiniteDuration .
         }
 }
+}
 
 # query: angleLimit
 PREFIX cim: <http://iec.ch/TC57/CIM100#>
@@ -200,10 +214,6 @@ PREFIX dcat: <http://www.w3.org/ns/dcat#>
 SELECT *
 {
     GRAPH <%s> {
-        ?fullModel
-            dcat:startDate ?startDate ;
-            dcat:endDate ?endDate ;
-            dcat:keyword ?keyword .
         ?angleLimit
             rdf:type nc:VoltageAngleLimit ;
             nc:VoltageAngleLimit.normalValue ?normalValue ;
@@ -232,10 +242,6 @@ PREFIX dcat: <http://www.w3.org/ns/dcat#>
 SELECT *
 {
     GRAPH <%s> {
-        ?fullModel
-            dcat:startDate ?startDate ;
-            dcat:endDate ?endDate ;
-            dcat:keyword ?keyword .
         ?gridStateAlterationRemedialAction
             rdf:type nc:GridStateAlterationRemedialAction ;
             cim:IdentifiedObject.mRID ?mRID ;
@@ -257,7 +263,8 @@ SELECT *
 # query: contingencyWithRemedialAction
 PREFIX nc: <http://entsoe.eu/ns/nc#>
 SELECT *
-WHERE {
+{
+GRAPH <%s> {
     ?contingencyWithRemedialAction
         rdf:type nc:ContingencyWithRemedialAction ;
         nc:ContingencyWithRemedialAction.mRID ?mRID ;
@@ -265,18 +272,21 @@ WHERE {
         nc:ContingencyWithRemedialAction.Contingency ?contingency ;
         nc:ContingencyWithRemedialAction.combinationConstraintKind ?combinationConstraintKind ;
 }
+}
 
 # query: topologyAction
 PREFIX nc: <http://entsoe.eu/ns/nc#>
 PREFIX cim: <http://iec.ch/TC57/CIM100#>
 SELECT *
-WHERE {
+{
+GRAPH <%s> {
     ?topologyAction
         rdf:type nc:TopologyAction ;
         cim:IdentifiedObject.mRID ?mRID ;
         nc:GridStateAlteration.GridStateAlterationRemedialAction ?gridStateAlterationRemedialAction ;
         nc:TopologyAction.Switch ?switchId ;
         nc:GridStateAlteration.PropertyReference ?propertyReference ;
+}
 }
 
 # query: rotatingMachineAction
@@ -316,7 +326,8 @@ WHERE {
 PREFIX nc: <http://entsoe.eu/ns/nc#>
 PREFIX cim: <http://iec.ch/TC57/CIM100#>
 SELECT *
-WHERE {
+{
+GRAPH <%s> {
     ?staticPropertyRange
         rdf:type nc:StaticPropertyRange ;
         cim:IdentifiedObject.mRID ?mRID ;
@@ -326,12 +337,14 @@ WHERE {
         nc:RangeConstraint.GridStateAlteration ?gridStateAlterationRemedialAction ;
         nc:StaticPropertyRange.PropertyReference ?propertyReference;
 }
+}
 
 # query: tapPositionAction
 PREFIX nc: <http://entsoe.eu/ns/nc#>
 PREFIX cim: <http://iec.ch/TC57/CIM100#>
 SELECT *
-WHERE {
+{
+GRAPH <%s> {
     ?tapPositionAction
         rdf:type nc:TapPositionAction ;
         cim:IdentifiedObject.mRID ?mRID ;
@@ -343,6 +356,7 @@ WHERE {
                 ?tapPositionAction nc:GridStateAlteration.normalEnabled ?normalEnabled .
             }
 }
+}
 
 # query: remedialActionSchedule
 PREFIX cim: <http://iec.ch/TC57/CIM100#>
@@ -352,10 +366,6 @@ PREFIX dcat: <http://www.w3.org/ns/dcat#>
 SELECT *
 {
     GRAPH <%s> {
-        ?fullModel
-            dcat:startDate ?startDate ;
-            dcat:endDate ?endDate ;
-            dcat:keyword ?keyword .
         ?remedialActionSchedule
             rdf:type nc:RemedialActionSchedule ;
             cim:IdentifiedObject.mRID ?mRID ;
@@ -388,35 +398,41 @@ WHERE {
 PREFIX nc: <http://entsoe.eu/ns/nc#>
 PREFIX cim: <http://iec.ch/TC57/CIM100#>
 SELECT *
-WHERE {
+{
+GRAPH <%s> {
         ?remedialActionScheme
             rdf:type nc:RemedialActionScheme ;
             cim:IdentifiedObject.mRID ?mRID ;
             nc:RemedialActionScheme.kind ?kind;
             nc:RemedialActionScheme.normalArmed ?normalArmed;
 }
+}
 
 # query: stage
 PREFIX nc: <http://entsoe.eu/ns/nc#>
 PREFIX cim: <http://iec.ch/TC57/CIM100#>
 SELECT *
-WHERE {
+{
+GRAPH <%s> {
         ?stage
             rdf:type nc:Stage ;
             cim:IdentifiedObject.mRID ?mRID ;
             nc:Stage.GridStateAlterationCollection ?gridStateAlterationCollection;
             nc:Stage.RemedialActionScheme ?remedialActionScheme;
 }
+}
 
 # query: gridStateAlterationCollection
 PREFIX nc: <http://entsoe.eu/ns/nc#>
 PREFIX cim: <http://iec.ch/TC57/CIM100#>
 SELECT *
-WHERE {
+{
+GRAPH <%s> {
         ?gridStateAlterationCollection
             rdf:type nc:GridStateAlterationCollection ;
             cim:IdentifiedObject.mRID ?mRID ;
 
+}
 }
 
 
@@ -424,7 +440,8 @@ WHERE {
 PREFIX nc: <http://entsoe.eu/ns/nc#>
 PREFIX cim: <http://iec.ch/TC57/CIM100#>
 SELECT *
-WHERE {
+{
+GRAPH <%s> {
     ?topologyActionAuto
         rdf:type nc:TopologyAction ;
         cim:IdentifiedObject.mRID ?mRID ;
@@ -435,12 +452,14 @@ WHERE {
                 ?topologyActionAuto nc:GridStateAlteration.normalEnabled ?normalEnabled .
             }
 }
+}
 
 # query: rotatingMachineActionAuto
 PREFIX nc: <http://entsoe.eu/ns/nc#>
 PREFIX cim: <http://iec.ch/TC57/CIM100#>
 SELECT *
-WHERE {
+{
+GRAPH <%s> {
     ?rotatingMachineActionAuto
         rdf:type nc:RotatingMachineAction ;
         cim:IdentifiedObject.mRID ?mRID ;
@@ -452,12 +471,14 @@ WHERE {
                 ?rotatingMachineActionAuto nc:GridStateAlteration.normalEnabled ?normalEnabled .
             }
 }
+}
 
 # query: shuntCompensatorModificationAuto
 PREFIX nc: <http://entsoe.eu/ns/nc#>
 PREFIX cim: <http://iec.ch/TC57/CIM100#>
 SELECT *
-WHERE {
+{
+GRAPH <%s> {
     ?shuntCompensatorModificationAuto
         rdf:type nc:ShuntCompensatorModification ;
         cim:IdentifiedObject.mRID ?mRID ;
@@ -468,12 +489,14 @@ WHERE {
         ?shuntCompensatorModificationAuto nc:RemedialAction.normalEnabled ?normalEnabled .
     }
 }
+}
 
 # query: tapPositionActionAuto
 PREFIX nc: <http://entsoe.eu/ns/nc#>
 PREFIX cim: <http://iec.ch/TC57/CIM100#>
 SELECT *
-WHERE {
+{
+GRAPH <%s> {
     ?tapPositionActionAuto
         rdf:type nc:TapPositionAction ;
         cim:IdentifiedObject.mRID ?mRID ;
@@ -481,4 +504,5 @@ WHERE {
         nc:GridStateAlteration.GridStateAlterationCollection ?gridStateAlterationCollection ;
         nc:TapPositionAction.TapChanger ?tapChangerId ;
 
+}
 }

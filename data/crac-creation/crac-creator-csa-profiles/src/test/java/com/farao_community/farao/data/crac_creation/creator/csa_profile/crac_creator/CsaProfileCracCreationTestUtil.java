@@ -1,5 +1,8 @@
 package com.farao_community.farao.data.crac_creation.creator.csa_profile.crac_creator;
 
+import ch.qos.logback.classic.Logger;
+import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.core.read.ListAppender;
 import com.farao_community.farao.data.crac_api.Contingency;
 import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.NetworkElement;
@@ -20,6 +23,7 @@ import com.google.common.base.Suppliers;
 import com.powsybl.computation.local.LocalComputationManager;
 import com.powsybl.iidm.network.ImportConfig;
 import com.powsybl.iidm.network.Network;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.InputStream;
@@ -36,6 +40,14 @@ public final class CsaProfileCracCreationTestUtil {
     private CsaProfileCracCreationTestUtil() {
     }
 
+    public static ListAppender<ILoggingEvent> getLogs(Class<?> logsClass) {
+        Logger logger = (Logger) LoggerFactory.getLogger(logsClass);
+        ListAppender<ILoggingEvent> listAppender = new ListAppender<>();
+        listAppender.start();
+        logger.addAppender(listAppender);
+        return listAppender;
+    }
+
     public static void assertContingencyEquality(Contingency c, String expectedContingencyId, String expectedContingencyName, int expectedNetworkElementsSize, List<String> expectedNetworkElementsIds) {
         assertEquals(expectedContingencyId, c.getId());
         assertEquals(expectedContingencyName, c.getName());
@@ -49,6 +61,11 @@ public final class CsaProfileCracCreationTestUtil {
 
     public static void assertFlowCnecEquality(FlowCnec fc, String expectedFlowCnecId, String expectedFlowCnecName, String expectedNetworkElementId,
                                               Instant expectedInstant, String expectedContingencyId, Double expectedThresholdMax, Double expectedThresholdMin, Side expectedThresholdSide) {
+        assertFlowCnecEquality(fc, expectedFlowCnecId, expectedFlowCnecName, expectedNetworkElementId, expectedInstant, expectedContingencyId, expectedThresholdMax, expectedThresholdMin, expectedThresholdMax, expectedThresholdMin, Set.of(expectedThresholdSide));
+    }
+
+    public static void assertFlowCnecEquality(FlowCnec fc, String expectedFlowCnecId, String expectedFlowCnecName, String expectedNetworkElementId,
+                                              Instant expectedInstant, String expectedContingencyId, Double expectedThresholdMaxLeft, Double expectedThresholdMinLeft, Double expectedThresholdMaxRight, Double expectedThresholdMinRight, Set<Side> expectedThresholdSides) {
         assertEquals(expectedFlowCnecId, fc.getId());
         assertEquals(expectedFlowCnecName, fc.getName());
         assertEquals(expectedNetworkElementId, fc.getNetworkElement().getId());
@@ -59,10 +76,14 @@ public final class CsaProfileCracCreationTestUtil {
             assertEquals(expectedContingencyId, fc.getState().getContingency().get().getId());
         }
 
-        BranchThreshold threshold = fc.getThresholds().stream().toList().iterator().next();
-        assertEquals(expectedThresholdMax, threshold.max().orElse(null));
-        assertEquals(expectedThresholdMin, threshold.min().orElse(null));
-        assertEquals(Set.of(expectedThresholdSide), fc.getMonitoredSides());
+        List<BranchThreshold> thresholds = fc.getThresholds().stream().sorted(Comparator.comparing(BranchThreshold::getSide)).toList();
+        for (BranchThreshold threshold : thresholds) {
+            Side side = threshold.getSide();
+            assertEquals(side == Side.LEFT ? expectedThresholdMaxLeft : expectedThresholdMaxRight, threshold.max().orElse(null));
+            assertEquals(side == Side.LEFT ? expectedThresholdMinLeft : expectedThresholdMinRight, threshold.min().orElse(null));
+        }
+
+        assertEquals(expectedThresholdSides, fc.getMonitoredSides());
     }
 
     public static void assertAngleCnecEquality(AngleCnec angleCnec, String expectedFlowCnecId, String expectedFlowCnecName, String expectedImportingNetworkElementId, String expectedExportingNetworkElementId,

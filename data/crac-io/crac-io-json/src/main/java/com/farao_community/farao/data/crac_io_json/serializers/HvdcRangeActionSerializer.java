@@ -7,15 +7,13 @@
 
 package com.farao_community.farao.data.crac_io_json.serializers;
 
-import com.farao_community.farao.data.crac_api.range.StandardRange;
 import com.farao_community.farao.data.crac_api.range_action.HvdcRangeAction;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
 
 import java.io.IOException;
-import java.util.Optional;
 
-import static com.farao_community.farao.data.crac_io_json.JsonSerializationConstants.*;
+import static com.farao_community.farao.data.crac_io_json.JsonSerializationConstants.NETWORK_ELEMENT_ID;
 
 /**
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
@@ -24,27 +22,9 @@ public class HvdcRangeActionSerializer extends AbstractJsonSerializer<HvdcRangeA
     @Override
     public void serialize(HvdcRangeAction value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
         gen.writeStartObject();
-
-        gen.writeStringField(ID, value.getId());
-        gen.writeStringField(NAME, value.getName());
-        gen.writeStringField(OPERATOR, value.getOperator());
-        UsageRulesSerializer.serializeUsageRules(value, gen);
+        StandardRangeActionSerializer.serializeCommon(value, gen);
         gen.writeStringField(NETWORK_ELEMENT_ID, value.getNetworkElement().getId());
-        Optional<String> groupId = value.getGroupId();
-        if (groupId.isPresent()) {
-            gen.writeStringField(GROUP_ID, groupId.get());
-        }
-        gen.writeNumberField(INITIAL_SETPOINT, value.getInitialSetpoint());
         serializeRemedialActionSpeed(value, gen);
-        serializeRanges(value, gen);
         gen.writeEndObject();
-    }
-
-    private void serializeRanges(HvdcRangeAction hvdcRangeAction, JsonGenerator gen) throws IOException {
-        gen.writeArrayFieldStart(RANGES);
-        for (StandardRange range : hvdcRangeAction.getRanges()) {
-            gen.writeObject(range);
-        }
-        gen.writeEndArray();
     }
 }
