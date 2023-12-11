@@ -30,7 +30,6 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.farao_community.farao.commons.Unit.MEGAWATT;
-import static java.lang.Math.abs;
 
 /**
  * This filler adds variables and constraints allowing the RAO to ignore some
@@ -268,9 +267,9 @@ public class UnoptimizedCnecFiller implements ProblemFiller {
                 extendSetpointBounds.setCoefficient(optimizeCnecBinaryVariable, bigM);
                 double lb =  -maxFlow.get();
                 if (sensitivity >= 0) {
-                    lb += minSetpoint * abs(sensitivity);
+                    lb += minSetpoint * sensitivity;
                 } else {
-                    lb += maxSetpoint * abs(sensitivity);
+                    lb += maxSetpoint * sensitivity;
                 }
                 extendSetpointBounds.setLb(lb);
             }
