@@ -8,9 +8,7 @@ package com.farao_community.farao.data.crac_io_json;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
-import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.Instant;
-import com.farao_community.farao.data.crac_api.InstantKind;
 import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.cnec.AngleCnec;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
@@ -18,7 +16,6 @@ import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_api.cnec.VoltageCnec;
 import com.farao_community.farao.data.crac_api.threshold.BranchThreshold;
 import com.farao_community.farao.data.crac_api.usage_rule.*;
-import com.farao_community.farao.data.crac_impl.CracImpl;
 import com.powsybl.iidm.network.Country;
 import org.junit.jupiter.api.Test;
 
@@ -26,6 +23,7 @@ import java.util.Optional;
 
 import static com.farao_community.farao.data.crac_io_json.JsonSerializationConstants.*;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -33,10 +31,6 @@ import static org.mockito.Mockito.when;
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 class JsonSerializationConstantsTest {
-    private static final String PREVENTIVE_INSTANT_ID = "preventive";
-    private static final String OUTAGE_INSTANT_ID = "outage";
-    private static final String AUTO_INSTANT_ID = "auto";
-    private static final String CURATIVE_INSTANT_ID = "curative";
 
     @Test
     void versionNumberOkTest() {
@@ -133,13 +127,9 @@ class JsonSerializationConstantsTest {
 
     @Test
     void testUsageRuleComparatorOnInstant() {
-        Crac crac = new CracImpl("test-crac")
-            .newInstant(PREVENTIVE_INSTANT_ID, InstantKind.PREVENTIVE)
-            .newInstant(OUTAGE_INSTANT_ID, InstantKind.OUTAGE)
-            .newInstant(AUTO_INSTANT_ID, InstantKind.AUTO)
-            .newInstant(CURATIVE_INSTANT_ID, InstantKind.CURATIVE);
-        Instant preventiveInstant = crac.getInstant(PREVENTIVE_INSTANT_ID);
-        Instant curativeInstant = crac.getInstant(CURATIVE_INSTANT_ID);
+        Instant preventiveInstant = mock(Instant.class);
+        Instant curativeInstant = mock(Instant.class);
+        when(preventiveInstant.comesBefore(any())).thenReturn(true);
         UsageRuleComparator comparator = new UsageRuleComparator();
 
         UsageRule onInstant1 = mockUsageRule(preventiveInstant, UsageMethod.AVAILABLE, null, null, null, null, null);
@@ -159,14 +149,9 @@ class JsonSerializationConstantsTest {
 
     @Test
     void testUsageRuleComparatorMix() {
-        Crac crac = new CracImpl("test-crac")
-            .newInstant(PREVENTIVE_INSTANT_ID, InstantKind.PREVENTIVE)
-            .newInstant(OUTAGE_INSTANT_ID, InstantKind.OUTAGE)
-            .newInstant(AUTO_INSTANT_ID, InstantKind.AUTO)
-            .newInstant(CURATIVE_INSTANT_ID, InstantKind.CURATIVE);
-        Instant preventiveInstant = crac.getInstant(PREVENTIVE_INSTANT_ID);
-        Instant autoInstant = crac.getInstant(AUTO_INSTANT_ID);
-        Instant curativeInstant = crac.getInstant(CURATIVE_INSTANT_ID);
+        Instant preventiveInstant = mock(Instant.class);
+        Instant autoInstant = mock(Instant.class);
+        Instant curativeInstant = mock(Instant.class);
         UsageRuleComparator comparator = new UsageRuleComparator();
 
         UsageRule oi1 = mockUsageRule(preventiveInstant, UsageMethod.AVAILABLE, null, null, null, null, null);

@@ -36,16 +36,13 @@ import static org.junit.jupiter.api.Assertions.*;
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
 class CracImportExportTest {
-    private static final String PREVENTIVE_INSTANT_ID = "preventive";
-    private static final String AUTO_INSTANT_ID = "auto";
-    private static final String CURATIVE_INSTANT_ID = "curative";
 
     @Test
     void roundTripTest() {
         Crac crac = ExhaustiveCracCreation.create();
-        Instant preventiveInstant = crac.getInstant(PREVENTIVE_INSTANT_ID);
-        Instant autoInstant = crac.getInstant(AUTO_INSTANT_ID);
-        Instant curativeInstant = crac.getInstant(CURATIVE_INSTANT_ID);
+        Instant preventiveInstant = crac.getInstant("preventive");
+        Instant autoInstant = crac.getInstant("auto");
+        Instant curativeInstant = crac.getInstant("curative");
 
         Crac importedCrac = RoundTripUtil.roundTrip(crac);
 

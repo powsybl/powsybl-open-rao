@@ -96,12 +96,6 @@ public interface Crac extends Identifiable<Crac> {
      */
     Instant getInstantBefore(Instant providedInstant);
 
-    /**
-     * Returns the previous instant of an instant.
-     * Optional is empty if no previous instant is defined.
-     */
-    Instant getInstantBefore(String providedInstantId); // not sure which one should we keep
-
     // States management
 
     /**

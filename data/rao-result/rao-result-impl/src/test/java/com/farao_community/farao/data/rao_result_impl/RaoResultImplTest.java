@@ -19,6 +19,7 @@ import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import com.farao_community.farao.data.crac_impl.utils.CommonCracCreation;
 import com.farao_community.farao.data.rao_result_api.ComputationStatus;
 import com.farao_community.farao.data.rao_result_api.OptimizationStepsExecuted;
+import com.farao_community.farao.data.rao_result_api.RaoResult;
 import org.junit.jupiter.api.Test;
 
 import java.util.Map;
@@ -55,10 +56,10 @@ class RaoResultImplTest {
         pst = crac.getPstRangeAction("pst");
         na = (NetworkAction) crac.newNetworkAction().withId("na-id")
             .newTopologicalAction().withNetworkElement("any").withActionType(ActionType.OPEN).add()
-            .newOnInstantUsageRule().withInstant(preventiveInstant).withUsageMethod(UsageMethod.AVAILABLE).add()
-            .newOnContingencyStateUsageRule().withContingency("Contingency FR1 FR3").withInstant(autoInstant).withUsageMethod(UsageMethod.FORCED).add()
-            .newOnContingencyStateUsageRule().withContingency("Contingency FR1 FR2").withInstant(autoInstant).withUsageMethod(UsageMethod.UNAVAILABLE).add()
-            .newOnInstantUsageRule().withInstant(curativeInstant).withUsageMethod(UsageMethod.AVAILABLE).add()
+            .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add()
+            .newOnContingencyStateUsageRule().withContingency("Contingency FR1 FR3").withInstant(AUTO_INSTANT_ID).withUsageMethod(UsageMethod.FORCED).add()
+            .newOnContingencyStateUsageRule().withContingency("Contingency FR1 FR2").withInstant(AUTO_INSTANT_ID).withUsageMethod(UsageMethod.UNAVAILABLE).add()
+            .newOnInstantUsageRule().withInstant(CURATIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add()
             .add();
 
         raoResult = new RaoResultImpl(crac);
@@ -104,7 +105,7 @@ class RaoResultImplTest {
         pstRangeActionResult.setInitialSetpoint(2.3); // tap = 6
         pstRangeActionResult.addActivationForState(crac.getPreventiveState(), -3.1); // tap = -8
 
-        CostResult costResult = raoResult.getAndCreateIfAbsentCostResult(null);
+        CostResult costResult = raoResult.getAndCreateIfAbsentCostResult(RaoResult.INITIAL_INSTANT_ID);
         costResult.setFunctionalCost(100.);
         costResult.setVirtualCost("loopFlow", 0.);
         costResult.setVirtualCost("MNEC", 0.);

@@ -50,7 +50,6 @@ abstract class AbstractOptimizationPerimeterTest {
             .newInstant(OUTAGE_INSTANT_ID, InstantKind.OUTAGE)
             .newInstant(AUTO_INSTANT_ID, InstantKind.AUTO)
             .newInstant(CURATIVE_INSTANT_ID, InstantKind.CURATIVE);
-        Instant preventiveInstant = crac.getInstant(PREVENTIVE_INSTANT_ID);
         Instant outageInstant = crac.getInstant(OUTAGE_INSTANT_ID);
         Instant curativeInstant = crac.getInstant(CURATIVE_INSTANT_ID);
         crac.newContingency().withId("outage-1").withNetworkElement("FFR1AA1  FFR3AA1  1").add();
@@ -60,7 +59,7 @@ abstract class AbstractOptimizationPerimeterTest {
         pCnec = crac.newFlowCnec()
             .withId("cnec-prev")
             .withNetworkElement("BBE2AA1  FFR3AA1  1")
-            .withInstant(preventiveInstant)
+            .withInstant(PREVENTIVE_INSTANT_ID)
             .withOptimized(true)
             .newThreshold().withUnit(Unit.MEGAWATT).withMax(500.).withMin(-500.).withSide(Side.LEFT).add()
             .add();
@@ -69,7 +68,7 @@ abstract class AbstractOptimizationPerimeterTest {
         oCnec1 = crac.newFlowCnec()
             .withId("cnec-co-outage-1")
             .withNetworkElement("FFR2AA1  FFR3AA1  1")
-            .withInstant(outageInstant)
+            .withInstant(OUTAGE_INSTANT_ID)
             .withContingency("outage-1")
             .withMonitored(true)
             .newThreshold().withUnit(Unit.MEGAWATT).withMax(500.).withMin(-500.).withSide(Side.LEFT).add()
@@ -79,7 +78,7 @@ abstract class AbstractOptimizationPerimeterTest {
         oCnec2 = crac.newFlowCnec()
             .withId("cnec-co-outage-2")
             .withNetworkElement("FFR2AA1  FFR3AA1  1")
-            .withInstant(outageInstant)
+            .withInstant(OUTAGE_INSTANT_ID)
             .withContingency("outage-2")
             .withOptimized(true).withMonitored(true)
             .newThreshold().withUnit(Unit.MEGAWATT).withMax(500.).withMin(-500.).withSide(Side.LEFT).add()
@@ -88,7 +87,7 @@ abstract class AbstractOptimizationPerimeterTest {
         cCnec1 = crac.newFlowCnec()
             .withId("cnec-co-curative-1")
             .withNetworkElement("BBE2AA1  FFR3AA1  1")
-            .withInstant(curativeInstant)
+            .withInstant(CURATIVE_INSTANT_ID)
             .withContingency("outage-1")
             .withMonitored(true)
             .newThreshold().withUnit(Unit.MEGAWATT).withMax(500.).withMin(-500.).withSide(Side.LEFT).add()
@@ -97,7 +96,7 @@ abstract class AbstractOptimizationPerimeterTest {
         cCnec2 = crac.newFlowCnec()
             .withId("cnec-co-curative-2")
             .withNetworkElement("BBE2AA1  FFR3AA1  1")
-            .withInstant(curativeInstant)
+            .withInstant(CURATIVE_INSTANT_ID)
             .withContingency("outage-2")
             .withOptimized(true)
             .newThreshold().withUnit(Unit.MEGAWATT).withMax(500.).withMin(-500.).withSide(Side.LEFT).add()
@@ -108,25 +107,25 @@ abstract class AbstractOptimizationPerimeterTest {
         pRA = (RangeAction<?>) crac.newInjectionRangeAction().withId("preventive-ra")
             .withNetworkElementAndKey(1, "BBE2AA1 _generator")
             .newRange().withMin(-1000).withMax(1000).add()
-            .newOnInstantUsageRule().withInstant(preventiveInstant).withUsageMethod(UsageMethod.AVAILABLE).add()
+            .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add()
             .add();
 
         cRA = (RangeAction<?>) crac.newInjectionRangeAction().withId("curative-ra")
             .withNetworkElementAndKey(1, "BBE2AA1 _generator")
             .newRange().withMin(-1000).withMax(1000).add()
-            .newOnContingencyStateUsageRule().withInstant(curativeInstant).withContingency("outage-1").withUsageMethod(UsageMethod.AVAILABLE).add()
+            .newOnContingencyStateUsageRule().withInstant(CURATIVE_INSTANT_ID).withContingency("outage-1").withUsageMethod(UsageMethod.AVAILABLE).add()
             .add();
 
         // one preventive network action and one curative
         pNA = crac.newNetworkAction().withId("preventive-na")
-            .newOnInstantUsageRule().withInstant(preventiveInstant).withUsageMethod(UsageMethod.AVAILABLE).add()
+            .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add()
             .newTopologicalAction().withActionType(ActionType.OPEN).withNetworkElement("BBE2AA1  FFR3AA1  1").add()
             .add();
 
         cNA = crac.newNetworkAction().withId("curative-na")
             .withName("complexNetworkActionName")
             .newTopologicalAction().withActionType(ActionType.OPEN).withNetworkElement("BBE2AA1  FFR3AA1  1").add()
-            .newOnContingencyStateUsageRule().withInstant(curativeInstant).withContingency("outage-1").withUsageMethod(UsageMethod.AVAILABLE).add()
+            .newOnContingencyStateUsageRule().withInstant(CURATIVE_INSTANT_ID).withContingency("outage-1").withUsageMethod(UsageMethod.AVAILABLE).add()
             .add();
 
         pState = crac.getPreventiveState();

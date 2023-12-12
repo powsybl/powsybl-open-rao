@@ -114,7 +114,7 @@ public class CastorOneStateOnly {
                     .withObjectiveFunction(ObjectiveFunction.create().build(optPerimeter.getFlowCnecs(), optPerimeter.getLoopFlowCnecs(), initialResults, initialResults, initialResults, raoInput.getCrac(), operatorsNotToOptimize, raoParameters))
                     .withToolProvider(toolProvider)
                     .build();
-            optimizationResult = new SearchTree(searchTreeInput, searchTreeParameters, true).run(raoInput.getCrac().getInstant(InstantKind.OUTAGE)).join();
+            optimizationResult = new SearchTree(searchTreeInput, searchTreeParameters, true).run().join();
 
             // apply RAs and return results
             optimizationResult.getRangeActions().forEach(rangeAction -> rangeAction.apply(raoInput.getNetwork(), optimizationResult.getOptimizedSetpoint(rangeAction, raoInput.getOptimizedState())));

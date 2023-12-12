@@ -22,7 +22,6 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 class NetworkActionResultTest {
-    private static final String CURATIVE_INSTANT_ID = "curative";
 
     private Crac crac;
     private Instant curativeInstant;
@@ -30,7 +29,7 @@ class NetworkActionResultTest {
     @BeforeEach
     public void setUp() {
         crac = CommonCracCreation.create();
-        curativeInstant = crac.getInstant(CURATIVE_INSTANT_ID);
+        curativeInstant = crac.getInstant("curative");
     }
 
     @Test

@@ -8,7 +8,6 @@ package com.farao_community.farao.data.crac_creation.creator.cim.crac_creator;
 
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Crac;
-import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.cnec.VoltageCnec;
 import com.farao_community.farao.data.crac_creation.creator.api.ImportStatus;
 import com.farao_community.farao.data.crac_creation.creator.api.parameters.CracCreationParameters;
@@ -34,10 +33,7 @@ import java.nio.file.Paths;
 import java.time.OffsetDateTime;
 import java.util.*;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
@@ -54,10 +50,6 @@ class VoltageCnecsCreatorTest {
     private VoltageCnecsCreationParameters voltageCnecsCreationParameters;
     private Set<String> monitoredElements;
     private Map<String, VoltageMonitoredContingenciesAndThresholds> monitoredStatesAndThresholds;
-    private Instant preventiveInstant;
-    private Instant outageInstant;
-    private Instant autoInstant;
-    private Instant curativeInstant;
 
     @BeforeEach
     public void setUp() {
@@ -71,10 +63,6 @@ class VoltageCnecsCreatorTest {
         CimCracCreator cimCracCreator = new CimCracCreator();
         cracCreationContext = cimCracCreator.createCrac(cimCrac, network,  OffsetDateTime.parse("2021-04-01T23:00Z"), new CracCreationParameters());
         crac = cracCreationContext.getCrac();
-        preventiveInstant = crac.getInstant(PREVENTIVE_INSTANT_ID);
-        outageInstant = crac.getInstant(OUTAGE_INSTANT_ID);
-        autoInstant = crac.getInstant(AUTO_INSTANT_ID);
-        curativeInstant = crac.getInstant(CURATIVE_INSTANT_ID);
 
         // Imported contingencies (name -> id):
         // Co-1-name -> Co-1
@@ -209,21 +197,21 @@ class VoltageCnecsCreatorTest {
         assertEquals(ImportStatus.INCONSISTENCY_IN_DATA, cracCreationContext.getVoltageCnecCreationContextsForNetworkElement("VL2-alias").iterator().next().getImportStatus());
     }
 
-    private void assertVoltageCnecImported(String nativeNetworkElementId, String networkElementId, Instant instant, String nativeContingencyName, String contingencyId, Double thresholdMin, Double thresholdMax) {
-        VoltageCnecCreationContext context = cracCreationContext.getVoltageCnecCreationContext(nativeNetworkElementId, instant, nativeContingencyName);
+    private void assertVoltageCnecImported(String nativeNetworkElementId, String networkElementId, String instantId, String nativeContingencyName, String contingencyId, Double thresholdMin, Double thresholdMax) {
+        VoltageCnecCreationContext context = cracCreationContext.getVoltageCnecCreationContext(nativeNetworkElementId, instantId, nativeContingencyName);
         assertNotNull(context);
 
         String cnecId;
         if (contingencyId != null) {
-            cnecId = String.format("[VC] %s - %s - %s", networkElementId, contingencyId, instant);
+            cnecId = String.format("[VC] %s - %s - %s", networkElementId, contingencyId, instantId);
         } else {
-            cnecId = String.format("[VC] %s - %s", networkElementId, instant);
+            cnecId = String.format("[VC] %s - %s", networkElementId, instantId);
         }
 
         assertEquals(cnecId, context.getCreatedCnecId());
         VoltageCnec cnec = crac.getVoltageCnec(cnecId);
         assertNotNull(cnec);
-        assertEquals(instant, cnec.getState().getInstant());
+        assertEquals(instantId, cnec.getState().getInstant().getId());
         assertEquals(contingencyId, cnec.getState().getContingency().isPresent() ? cnec.getState().getContingency().get().getId() : null);
         assertEquals(1, cnec.getThresholds().size());
         assertEquals(Optional.ofNullable(thresholdMin), cnec.getThresholds().iterator().next().min());
@@ -238,18 +226,18 @@ class VoltageCnecsCreatorTest {
         assertEquals(12, cracCreationContext.getVoltageCnecCreationContexts().size());
         assertTrue(cracCreationContext.getVoltageCnecCreationContexts().stream().allMatch(VoltageCnecCreationContext::isImported));
 
-        assertVoltageCnecImported("_b7998ae6-0cc6-4dfe-8fec-0b549b07b6c3", "_b7998ae6-0cc6-4dfe-8fec-0b549b07b6c3", preventiveInstant, null, null, 390., 410.);
-        assertVoltageCnecImported("_b7998ae6-0cc6-4dfe-8fec-0b549b07b6c3", "_b7998ae6-0cc6-4dfe-8fec-0b549b07b6c3", curativeInstant, "Co-1-name", "Co-1", null, 450.);
-        assertVoltageCnecImported("_b7998ae6-0cc6-4dfe-8fec-0b549b07b6c3", "_b7998ae6-0cc6-4dfe-8fec-0b549b07b6c3", curativeInstant, "Co-2-name", "Co-2", null, 450.);
-        assertVoltageCnecImported("_b7998ae6-0cc6-4dfe-8fec-0b549b07b6c3", "_b7998ae6-0cc6-4dfe-8fec-0b549b07b6c3", curativeInstant, "Co-3-name", "Co-3", null, 450.);
-        assertVoltageCnecImported("_b7998ae6-0cc6-4dfe-8fec-0b549b07b6c3", "_b7998ae6-0cc6-4dfe-8fec-0b549b07b6c3", outageInstant, "Co-3-name", "Co-3", 380., 420.);
-        assertVoltageCnecImported("_b7998ae6-0cc6-4dfe-8fec-0b549b07b6c3", "_b7998ae6-0cc6-4dfe-8fec-0b549b07b6c3", autoInstant, "Co-1-name", "Co-1", 370., null);
+        assertVoltageCnecImported("_b7998ae6-0cc6-4dfe-8fec-0b549b07b6c3", "_b7998ae6-0cc6-4dfe-8fec-0b549b07b6c3", PREVENTIVE_INSTANT_ID, null, null, 390., 410.);
+        assertVoltageCnecImported("_b7998ae6-0cc6-4dfe-8fec-0b549b07b6c3", "_b7998ae6-0cc6-4dfe-8fec-0b549b07b6c3", CURATIVE_INSTANT_ID, "Co-1-name", "Co-1", null, 450.);
+        assertVoltageCnecImported("_b7998ae6-0cc6-4dfe-8fec-0b549b07b6c3", "_b7998ae6-0cc6-4dfe-8fec-0b549b07b6c3", CURATIVE_INSTANT_ID, "Co-2-name", "Co-2", null, 450.);
+        assertVoltageCnecImported("_b7998ae6-0cc6-4dfe-8fec-0b549b07b6c3", "_b7998ae6-0cc6-4dfe-8fec-0b549b07b6c3", CURATIVE_INSTANT_ID, "Co-3-name", "Co-3", null, 450.);
+        assertVoltageCnecImported("_b7998ae6-0cc6-4dfe-8fec-0b549b07b6c3", "_b7998ae6-0cc6-4dfe-8fec-0b549b07b6c3", OUTAGE_INSTANT_ID, "Co-3-name", "Co-3", 380., 420.);
+        assertVoltageCnecImported("_b7998ae6-0cc6-4dfe-8fec-0b549b07b6c3", "_b7998ae6-0cc6-4dfe-8fec-0b549b07b6c3", AUTO_INSTANT_ID, "Co-1-name", "Co-1", 370., null);
 
-        assertVoltageCnecImported("VL2-alias", "_d77b61ef-61aa-4b22-95f6-b56ca080788d", preventiveInstant, null, null, 215., 225.);
-        assertVoltageCnecImported("VL2-alias", "_d77b61ef-61aa-4b22-95f6-b56ca080788d", curativeInstant, "Co-1-name", "Co-1", 210., 240.);
-        assertVoltageCnecImported("VL2-alias", "_d77b61ef-61aa-4b22-95f6-b56ca080788d", curativeInstant, "Co-2-name", "Co-2", 210., 240.);
-        assertVoltageCnecImported("VL2-alias", "_d77b61ef-61aa-4b22-95f6-b56ca080788d", curativeInstant, "Co-3-name", "Co-3", 210., 240.);
-        assertVoltageCnecImported("VL2-alias", "_d77b61ef-61aa-4b22-95f6-b56ca080788d", outageInstant, "Co-3-name", "Co-3", 200., null);
-        assertVoltageCnecImported("VL2-alias", "_d77b61ef-61aa-4b22-95f6-b56ca080788d", autoInstant, "Co-1-name", "Co-1", null, 250.);
+        assertVoltageCnecImported("VL2-alias", "_d77b61ef-61aa-4b22-95f6-b56ca080788d", PREVENTIVE_INSTANT_ID, null, null, 215., 225.);
+        assertVoltageCnecImported("VL2-alias", "_d77b61ef-61aa-4b22-95f6-b56ca080788d", CURATIVE_INSTANT_ID, "Co-1-name", "Co-1", 210., 240.);
+        assertVoltageCnecImported("VL2-alias", "_d77b61ef-61aa-4b22-95f6-b56ca080788d", CURATIVE_INSTANT_ID, "Co-2-name", "Co-2", 210., 240.);
+        assertVoltageCnecImported("VL2-alias", "_d77b61ef-61aa-4b22-95f6-b56ca080788d", CURATIVE_INSTANT_ID, "Co-3-name", "Co-3", 210., 240.);
+        assertVoltageCnecImported("VL2-alias", "_d77b61ef-61aa-4b22-95f6-b56ca080788d", OUTAGE_INSTANT_ID, "Co-3-name", "Co-3", 200., null);
+        assertVoltageCnecImported("VL2-alias", "_d77b61ef-61aa-4b22-95f6-b56ca080788d", AUTO_INSTANT_ID, "Co-1-name", "Co-1", null, 250.);
     }
 }

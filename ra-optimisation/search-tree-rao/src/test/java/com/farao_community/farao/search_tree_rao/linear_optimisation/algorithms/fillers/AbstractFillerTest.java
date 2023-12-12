@@ -8,7 +8,6 @@ package com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms
 
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Crac;
-import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_api.range.RangeType;
@@ -32,7 +31,7 @@ import static org.mockito.Mockito.when;
 abstract class AbstractFillerTest {
     static final double DOUBLE_TOLERANCE = 1e-4;
 
-    private static final String PREVENTIVE_INSTANT_ID = "preventive";
+    static final String PREVENTIVE_INSTANT_ID = "preventive";
 
     // data related to the two Cnecs
     static final double MIN_FLOW_1 = -750.0;
@@ -65,13 +64,11 @@ abstract class AbstractFillerTest {
     SensitivityResult sensitivityResult;
     Crac crac;
     Network network;
-    Instant preventiveInstant;
 
     void init() {
         // arrange some data for all fillers test
         // crac and network
         crac = CracImporters.importCrac("crac/small-crac.json", getClass().getResourceAsStream("/crac/small-crac.json"));
-        preventiveInstant = crac.getInstant(PREVENTIVE_INSTANT_ID);
         network = NetworkImportsUtil.import12NodesNetwork();
 
         // get cnec and rangeAction

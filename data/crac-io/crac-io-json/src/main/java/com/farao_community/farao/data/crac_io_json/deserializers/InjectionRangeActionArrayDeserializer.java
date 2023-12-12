@@ -33,7 +33,7 @@ public final class InjectionRangeActionArrayDeserializer {
             InjectionRangeActionAdder injectionRangeActionAdder = crac.newInjectionRangeAction();
 
             while (!jsonParser.nextToken().isStructEnd()) {
-                if (StandardRangeActionDeserializer.addCommonElement(injectionRangeActionAdder, jsonParser, version, crac)) {
+                if (StandardRangeActionDeserializer.addCommonElement(injectionRangeActionAdder, jsonParser, version)) {
                     continue;
                 }
                 if (jsonParser.getCurrentName().equals(NETWORK_ELEMENT_IDS_AND_KEYS)) {

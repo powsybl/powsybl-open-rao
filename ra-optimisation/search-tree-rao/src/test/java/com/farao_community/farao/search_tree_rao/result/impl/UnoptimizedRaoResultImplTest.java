@@ -8,15 +8,12 @@
 package com.farao_community.farao.search_tree_rao.result.impl;
 
 import com.farao_community.farao.commons.FaraoException;
-import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.Instant;
-import com.farao_community.farao.data.crac_api.InstantKind;
 import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
-import com.farao_community.farao.data.crac_impl.CracImpl;
 import com.farao_community.farao.data.rao_result_api.ComputationStatus;
 import com.farao_community.farao.data.rao_result_api.OptimizationStepsExecuted;
 import com.farao_community.farao.search_tree_rao.result.api.PrePerimeterResult;
@@ -43,21 +40,12 @@ class UnoptimizedRaoResultImplTest {
     private Instant autoInstant;
     private Instant curativeInstant;
     private static final double DOUBLE_TOLERANCE = 1e-6;
-    private static final String PREVENTIVE_INSTANT_ID = "preventive";
-    private static final String OUTAGE_INSTANT_ID = "outage";
-    private static final String AUTO_INSTANT_ID = "auto";
-    private static final String CURATIVE_INSTANT_ID = "curative";
 
     @BeforeEach
     public void setUp() {
-        Crac crac = new CracImpl("test-crac")
-            .newInstant(PREVENTIVE_INSTANT_ID, InstantKind.PREVENTIVE)
-            .newInstant(OUTAGE_INSTANT_ID, InstantKind.OUTAGE)
-            .newInstant(AUTO_INSTANT_ID, InstantKind.AUTO)
-            .newInstant(CURATIVE_INSTANT_ID, InstantKind.CURATIVE);
-        preventiveInstant = crac.getInstant(PREVENTIVE_INSTANT_ID);
-        autoInstant = crac.getInstant(AUTO_INSTANT_ID);
-        curativeInstant = crac.getInstant(CURATIVE_INSTANT_ID);
+        preventiveInstant = Mockito.mock(Instant.class);
+        autoInstant = Mockito.mock(Instant.class);
+        curativeInstant = Mockito.mock(Instant.class);
         initialResult = Mockito.mock(PrePerimeterResult.class);
         output = new UnoptimizedRaoResultImpl(initialResult);
         flowCnec = Mockito.mock(FlowCnec.class);

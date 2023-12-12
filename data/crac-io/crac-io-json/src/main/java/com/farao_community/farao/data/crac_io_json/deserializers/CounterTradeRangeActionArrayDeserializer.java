@@ -33,7 +33,7 @@ public final class CounterTradeRangeActionArrayDeserializer {
             CounterTradeRangeActionAdder counterTradeRangeActionAdder = crac.newCounterTradeRangeAction();
 
             while (!jsonParser.nextToken().isStructEnd()) {
-                addElement(counterTradeRangeActionAdder, jsonParser, version, crac);
+                addElement(counterTradeRangeActionAdder, jsonParser, version);
             }
             if (getPrimaryVersionNumber(version) <= 1 && getSubVersionNumber(version) < 3) {
                 // initial setpoint was not exported then, set default value to 0 to avoid errors
@@ -43,8 +43,8 @@ public final class CounterTradeRangeActionArrayDeserializer {
         }
     }
 
-    private static void addElement(CounterTradeRangeActionAdder counterTradeRangeActionAdder, JsonParser jsonParser, String version, Crac crac) throws IOException {
-        if (StandardRangeActionDeserializer.addCommonElement(counterTradeRangeActionAdder, jsonParser, version, crac)) {
+    private static void addElement(CounterTradeRangeActionAdder counterTradeRangeActionAdder, JsonParser jsonParser, String version) throws IOException {
+        if (StandardRangeActionDeserializer.addCommonElement(counterTradeRangeActionAdder, jsonParser, version)) {
             return;
         }
         switch (jsonParser.getCurrentName()) {

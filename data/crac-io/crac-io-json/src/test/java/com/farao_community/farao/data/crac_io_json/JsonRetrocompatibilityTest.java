@@ -40,9 +40,6 @@ import static org.junit.jupiter.api.Assertions.*;
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
 class JsonRetrocompatibilityTest {
-    private static final String PREVENTIVE_INSTANT_ID = "preventive";
-    private static final String AUTO_INSTANT_ID = "auto";
-    private static final String CURATIVE_INSTANT_ID = "curative";
 
     /*
     The goal of this test class is to ensure that former JSON CRAC files are still
@@ -250,9 +247,9 @@ class JsonRetrocompatibilityTest {
     }
 
     private void testContentOfV1Point0Crac(Crac crac) {
-        Instant preventiveInstant = crac.getInstant(PREVENTIVE_INSTANT_ID);
-        Instant autoInstant = crac.getInstant(AUTO_INSTANT_ID);
-        Instant curativeInstant = crac.getInstant(CURATIVE_INSTANT_ID);
+        Instant preventiveInstant = crac.getInstant("preventive");
+        Instant autoInstant = crac.getInstant("auto");
+        Instant curativeInstant = crac.getInstant("curative");
 
         // --------------------------
         // --- test Contingencies ---
@@ -504,7 +501,7 @@ class JsonRetrocompatibilityTest {
     }
 
     void testContentOfV1Point4Crac(Crac crac) {
-        Instant curativeInstant = crac.getInstant(CURATIVE_INSTANT_ID);
+        Instant curativeInstant = crac.getInstant("curative");
 
         testContentOfV1Point3Crac(crac);
 
@@ -540,7 +537,7 @@ class JsonRetrocompatibilityTest {
     }
 
     void testContentOfV1Point5Crac(Crac crac) {
-        Instant curativeInstant = crac.getInstant(CURATIVE_INSTANT_ID);
+        Instant curativeInstant = crac.getInstant("curative");
 
         testContentOfV1Point4Crac(crac);
 

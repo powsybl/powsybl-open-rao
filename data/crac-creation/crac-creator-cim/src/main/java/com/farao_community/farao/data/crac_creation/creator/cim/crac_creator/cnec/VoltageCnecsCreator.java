@@ -7,8 +7,6 @@
 package com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.cnec;
 
 import com.farao_community.farao.commons.FaraoException;
-import com.farao_community.farao.data.crac_api.Instant;
-import com.farao_community.farao.data.crac_api.InstantKind;
 import com.farao_community.farao.data.crac_api.cnec.VoltageCnecAdder;
 import com.farao_community.farao.data.crac_creation.creator.api.ImportStatus;
 import com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.CimCracCreationContext;
@@ -102,48 +100,47 @@ public class VoltageCnecsCreator {
     }
 
     private void createAndAddCnecs(Map<String, Double> elementsAndNominalV, String instantId, Set<String> filteredContingencies, Map<Double, VoltageThreshold> thresholdPerNominalV) {
-        Instant instant = cracCreationContext.getCrac().getInstant(instantId);
-        if (!instant.isPreventive() && filteredContingencies.isEmpty()) {
+        if (!cracCreationContext.getCrac().getInstant(instantId).isPreventive() && filteredContingencies.isEmpty()) {
             return;
         }
         elementsAndNominalV.forEach((key, value) -> {
             VoltageThreshold threshold = thresholdPerNominalV.get(value);
             if (threshold == null) {
                 cracCreationContext.addVoltageCnecCreationContext(
-                    VoltageCnecCreationContext.notImported(networkElementNativeIdPerId.get(key), instant, null, ImportStatus.INCOMPLETE_DATA, String.format("the threshold for its nominalV (%.2f) was not defined.", value))
+                    VoltageCnecCreationContext.notImported(networkElementNativeIdPerId.get(key), instantId, null, ImportStatus.INCOMPLETE_DATA, String.format("the threshold for its nominalV (%.2f) was not defined.", value))
                 );
                 return;
             }
             if (!filteredContingencies.isEmpty()) {
-                filteredContingencies.forEach(coId -> createAndAddVoltageCnecs(key, instant, coId, threshold));
+                filteredContingencies.forEach(coId -> createAndAddVoltageCnecs(key, instantId, coId, threshold));
             } else {
-                createAndAddVoltageCnecs(key, instant, null, threshold);
+                createAndAddVoltageCnecs(key, instantId, null, threshold);
             }
         });
     }
 
-    private void createAndAddVoltageCnecs(String networkElementId, Instant instant, String contingencyId, VoltageThreshold threshold) {
+    private void createAndAddVoltageCnecs(String networkElementId, String instantId, String contingencyId, VoltageThreshold threshold) {
         VoltageCnecAdder adder = cracCreationContext.getCrac().newVoltageCnec();
         String cnecId;
         if (contingencyId != null) {
-            cnecId = String.format("[VC] %s - %s - %s", networkElementId, contingencyId, instant);
+            cnecId = String.format("[VC] %s - %s - %s", networkElementId, contingencyId, instantId);
             adder.withContingency(contingencyId);
         } else {
-            cnecId = String.format("[VC] %s - %s", networkElementId, instant);
+            cnecId = String.format("[VC] %s - %s", networkElementId, instantId);
         }
         try {
             adder.withId(cnecId)
                 .withNetworkElement(networkElementId)
-                .withInstant(instant)
+                .withInstant(instantId)
                 .withMonitored()
                 .newThreshold().withUnit(threshold.getUnit()).withMin(threshold.getMin()).withMax(threshold.getMax()).add()
                 .add();
             cracCreationContext.addVoltageCnecCreationContext(
-                VoltageCnecCreationContext.imported(networkElementNativeIdPerId.get(networkElementId), instant, contingencyNativeNamePerId.get(contingencyId), cnecId)
+                VoltageCnecCreationContext.imported(networkElementNativeIdPerId.get(networkElementId), instantId, contingencyNativeNamePerId.get(contingencyId), cnecId)
             );
         } catch (FaraoException e) {
             cracCreationContext.addVoltageCnecCreationContext(
-                VoltageCnecCreationContext.notImported(networkElementNativeIdPerId.get(networkElementId), instant, contingencyNativeNamePerId.get(contingencyId), ImportStatus.INCONSISTENCY_IN_DATA, e.getMessage())
+                VoltageCnecCreationContext.notImported(networkElementNativeIdPerId.get(networkElementId), instantId, contingencyNativeNamePerId.get(contingencyId), ImportStatus.INCONSISTENCY_IN_DATA, e.getMessage())
             );
         }
     }

@@ -17,13 +17,13 @@ import com.farao_community.farao.data.crac_api.cnec.VoltageCnec;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
-import com.farao_community.farao.data.crac_impl.CracImpl;
 import com.farao_community.farao.data.rao_result_api.ComputationStatus;
 import com.farao_community.farao.data.rao_result_api.OptimizationStepsExecuted;
 import com.farao_community.farao.search_tree_rao.result.api.OptimizationResult;
 import com.farao_community.farao.search_tree_rao.result.api.PrePerimeterResult;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 
 import java.util.*;
 
@@ -40,11 +40,6 @@ import static org.mockito.Mockito.when;
  */
 class OneStateOnlyRaoResultImplTest {
     private static final double DOUBLE_TOLERANCE = 1e-3;
-    private static final String PREVENTIVE_INSTANT_ID = "preventive";
-    private static final String OUTAGE_INSTANT_ID = "outage";
-    private static final String AUTO_INSTANT_ID = "auto";
-    private static final String CURATIVE_INSTANT_ID = "curative";
-
     private State optimizedState;
     private PrePerimeterResult initialResult;
     private OptimizationResult postOptimizationResult;
@@ -61,13 +56,10 @@ class OneStateOnlyRaoResultImplTest {
 
     @BeforeEach
     public void setUp() {
-        Crac crac = new CracImpl("test-crac")
-            .newInstant(PREVENTIVE_INSTANT_ID, InstantKind.PREVENTIVE)
-            .newInstant(OUTAGE_INSTANT_ID, InstantKind.OUTAGE)
-            .newInstant(AUTO_INSTANT_ID, InstantKind.AUTO)
-            .newInstant(CURATIVE_INSTANT_ID, InstantKind.CURATIVE);
-        preventiveInstant = crac.getInstant(PREVENTIVE_INSTANT_ID);
-        curativeInstant = crac.getInstant(CURATIVE_INSTANT_ID);
+        preventiveInstant = Mockito.mock(Instant.class);
+        Mockito.when(preventiveInstant.isPreventive()).thenReturn(true);
+        curativeInstant = Mockito.mock(Instant.class);
+        Mockito.when(curativeInstant.isCurative()).thenReturn(true);
         optimizedState = mock(State.class);
 
         initialResult = mock(PrePerimeterResult.class);

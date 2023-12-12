@@ -7,6 +7,7 @@
 
 package com.farao_community.farao.search_tree_rao.search_tree.inputs;
 
+import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.search_tree_rao.commons.ToolProvider;
 import com.farao_community.farao.search_tree_rao.commons.objective_function_evaluator.ObjectiveFunction;
 import com.farao_community.farao.search_tree_rao.commons.optimization_perimeters.OptimizationPerimeter;
@@ -30,6 +31,7 @@ public final class SearchTreeInput {
 
     private final ObjectiveFunction objectiveFunction;
     private final ToolProvider toolProvider;
+    private final Crac crac;
 
     private SearchTreeInput(Network network,
                             OptimizationPerimeter optimizationPerimeter,
@@ -37,7 +39,8 @@ public final class SearchTreeInput {
                             PrePerimeterResult prePerimeterResult,
                             AppliedRemedialActions preOptimizationAppliedRemedialActions,
                             ObjectiveFunction objectiveFunction,
-                            ToolProvider toolProvider) {
+                            ToolProvider toolProvider,
+                            Crac crac) {
         this.network = network;
         this.optimizationPerimeter = optimizationPerimeter;
         this.initialFlowResult = initialFlowResult;
@@ -45,6 +48,7 @@ public final class SearchTreeInput {
         this.preOptimizationAppliedRemedialActions = preOptimizationAppliedRemedialActions;
         this.objectiveFunction = objectiveFunction;
         this.toolProvider = toolProvider;
+        this.crac = crac;
     }
 
     public Network getNetwork() {
@@ -75,6 +79,10 @@ public final class SearchTreeInput {
         return toolProvider;
     }
 
+    public Crac getCrac() {
+        return crac;
+    }
+
     public static SearchTreeInputBuilder create() {
         return new SearchTreeInputBuilder();
     }
@@ -88,6 +96,7 @@ public final class SearchTreeInput {
         private AppliedRemedialActions preOptimizationAppliedNetworkActions;
         private ObjectiveFunction objectiveFunction;
         private ToolProvider toolProvider;
+        private Crac crac;
 
         public SearchTreeInputBuilder withNetwork(Network network) {
             this.network = network;
@@ -124,6 +133,11 @@ public final class SearchTreeInput {
             return this;
         }
 
+        public SearchTreeInputBuilder withCrac(Crac crac) {
+            this.crac = crac;
+            return this;
+        }
+
         public SearchTreeInput build() {
             return new SearchTreeInput(network,
                 optimizationPerimeter,
@@ -131,7 +145,8 @@ public final class SearchTreeInput {
                 prePerimeterResult,
                 preOptimizationAppliedNetworkActions,
                 objectiveFunction,
-                toolProvider);
+                toolProvider,
+                crac);
         }
     }
 }

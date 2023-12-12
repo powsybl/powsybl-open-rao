@@ -77,7 +77,7 @@ public final class CracValidator {
             .withNominalVoltage(cnec.getNominalVoltage(Side.LEFT), Side.LEFT)
             .withNominalVoltage(cnec.getNominalVoltage(Side.RIGHT), Side.RIGHT)
             .withReliabilityMargin(cnec.getReliabilityMargin())
-            .withInstant(outageInstant).withContingency(cnec.getState().getContingency().orElseThrow().getId())
+            .withInstant(outageInstant.getId()).withContingency(cnec.getState().getContingency().orElseThrow().getId())
             .withOptimized(cnec.isOptimized())
             .withMonitored(cnec.isMonitored());
         copyThresholds(cnec, adder);

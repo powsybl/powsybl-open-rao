@@ -19,10 +19,6 @@ import static org.junit.jupiter.api.Assertions.assertNotEquals;
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
 class OnContingencyStateImplTest {
-    private static final String PREVENTIVE_INSTANT_ID = "preventive";
-    private static final String OUTAGE_INSTANT_ID = "outage";
-    private static final String AUTO_INSTANT_ID = "auto";
-    private static final String CURATIVE_INSTANT_ID = "curative";
 
     private State initialState;
     private State curativeState1;
@@ -33,12 +29,12 @@ class OnContingencyStateImplTest {
     @BeforeEach
     public void setUp() {
         Crac crac = new CracImplFactory().create("cracId")
-            .newInstant(PREVENTIVE_INSTANT_ID, InstantKind.PREVENTIVE)
-            .newInstant(OUTAGE_INSTANT_ID, InstantKind.OUTAGE)
-            .newInstant(AUTO_INSTANT_ID, InstantKind.AUTO)
-            .newInstant(CURATIVE_INSTANT_ID, InstantKind.CURATIVE);
-        preventiveInstant = crac.getInstant(PREVENTIVE_INSTANT_ID);
-        curativeInstant = crac.getInstant(CURATIVE_INSTANT_ID);
+            .newInstant("preventive", InstantKind.PREVENTIVE)
+            .newInstant("outage", InstantKind.OUTAGE)
+            .newInstant("auto", InstantKind.AUTO)
+            .newInstant("curative", InstantKind.CURATIVE);
+        preventiveInstant = crac.getInstant("preventive");
+        curativeInstant = crac.getInstant("curative");
         Contingency contingency1 = crac.newContingency()
             .withId("contingency1")
             .withNetworkElement("anyNetworkElement")

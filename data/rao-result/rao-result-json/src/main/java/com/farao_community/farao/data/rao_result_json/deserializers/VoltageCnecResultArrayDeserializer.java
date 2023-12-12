@@ -51,7 +51,7 @@ final class VoltageCnecResultArrayDeserializer {
     private static void deserializeVoltageCnecResult(JsonParser jsonParser, VoltageCnecResult voltageCnecResult, String jsonFileVersion, Crac crac) throws IOException {
         while (!jsonParser.nextToken().isStructEnd()) {
             ElementaryVoltageCnecResult eVoltageCnecResult;
-            Instant optimizedInstant = crac.getInstant(deserializeOptimizedInstantId(jsonParser.getCurrentName(), jsonFileVersion));
+            Instant optimizedInstant = deserializeOptimizedInstant(jsonParser.getCurrentName(), jsonFileVersion, crac);
             jsonParser.nextToken();
             eVoltageCnecResult = voltageCnecResult.getAndCreateIfAbsentResultForOptimizationState(optimizedInstant);
             deserializeElementaryVoltageCnecResult(jsonParser, eVoltageCnecResult);

@@ -3,7 +3,6 @@ package com.farao_community.farao.data.crac_creation.creator.csa_profile.crac_cr
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Contingency;
 import com.farao_community.farao.data.crac_api.Crac;
-import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.InstantKind;
 import com.farao_community.farao.data.crac_api.cnec.AngleCnecAdder;
 import com.farao_community.farao.data.crac_creation.creator.api.ImportStatus;
@@ -27,19 +26,19 @@ public class AngleCnecCreator extends AbstractCnecCreator {
 
     public void addAngleCnecs() {
         if (inBaseCase) {
-            addAngleCnec(crac.getInstant(InstantKind.PREVENTIVE), null);
+            addAngleCnec(crac.getInstant(InstantKind.PREVENTIVE).getId(), null);
         }
         for (Contingency contingency : linkedContingencies) {
-            addAngleCnec(crac.getInstant(InstantKind.CURATIVE), contingency);
+            addAngleCnec(crac.getInstant(InstantKind.CURATIVE).getId(), contingency);
         }
     }
 
-    private void addAngleCnec(Instant instant, Contingency contingency) {
+    private void addAngleCnec(String instantId, Contingency contingency) {
         AngleCnecAdder angleCnecAdder = initAngleCnec();
         if (addAngleLimit(angleCnecAdder)) {
-            addCnecBaseInformation(angleCnecAdder, contingency, instant);
+            addCnecBaseInformation(angleCnecAdder, contingency, instantId);
             angleCnecAdder.add();
-            markCnecAsImportedAndHandleRejectedContingencies(instant, contingency);
+            markCnecAsImportedAndHandleRejectedContingencies(instantId, contingency);
         }
     }
 

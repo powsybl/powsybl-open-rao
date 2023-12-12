@@ -37,8 +37,6 @@ class OnFlowConstraintAdderImplTest {
     private Crac crac;
     private NetworkActionAdder remedialActionAdder;
     private Instant preventiveInstant;
-    private Instant outageInstant;
-    private Instant autoInstant;
     private Instant curativeInstant;
 
     @BeforeEach
@@ -49,8 +47,6 @@ class OnFlowConstraintAdderImplTest {
             .newInstant(AUTO_INSTANT_ID, InstantKind.AUTO)
             .newInstant(CURATIVE_INSTANT_ID, InstantKind.CURATIVE);
         preventiveInstant = crac.getInstant(PREVENTIVE_INSTANT_ID);
-        outageInstant = crac.getInstant(OUTAGE_INSTANT_ID);
-        autoInstant = crac.getInstant(AUTO_INSTANT_ID);
         curativeInstant = crac.getInstant(CURATIVE_INSTANT_ID);
 
         crac.newContingency()
@@ -62,7 +58,7 @@ class OnFlowConstraintAdderImplTest {
         crac.newFlowCnec()
             .withId("cnec2stateCurativeContingency1")
             .withNetworkElement("FFR2AA1  DDE3AA1  1")
-            .withInstant(curativeInstant)
+            .withInstant(CURATIVE_INSTANT_ID)
             .withContingency("Contingency FR1 FR3")
             .withOptimized(true)
             .withOperator("operator2")
@@ -92,7 +88,7 @@ class OnFlowConstraintAdderImplTest {
     @Test
     void testOkPreventive() {
         RemedialAction remedialAction = remedialActionAdder.newOnFlowConstraintUsageRule()
-            .withInstant(preventiveInstant)
+            .withInstant(PREVENTIVE_INSTANT_ID)
             .withFlowCnec("cnec2stateCurativeContingency1")
             .add()
             .add();
@@ -112,7 +108,7 @@ class OnFlowConstraintAdderImplTest {
     @Test
     void testOkCurative() {
         RemedialAction remedialAction = remedialActionAdder.newOnFlowConstraintUsageRule()
-            .withInstant(curativeInstant)
+            .withInstant(CURATIVE_INSTANT_ID)
             .withFlowCnec("cnec2stateCurativeContingency1")
             .add()
             .add();
@@ -129,14 +125,14 @@ class OnFlowConstraintAdderImplTest {
 
     @Test
     void testOutageException() {
-        OnFlowConstraintAdder adder = remedialActionAdder.newOnFlowConstraintUsageRule().withInstant(outageInstant).withFlowCnec("cnec2stateCurativeContingency1");
+        OnFlowConstraintAdder adder = remedialActionAdder.newOnFlowConstraintUsageRule().withInstant(OUTAGE_INSTANT_ID).withFlowCnec("cnec2stateCurativeContingency1");
         FaraoException exception = assertThrows(FaraoException.class, adder::add);
         assertEquals("OnFlowConstraint usage rules are not allowed for OUTAGE instant.", exception.getMessage());
     }
 
     @Test
     void testAbsentCnecException() {
-        OnFlowConstraintAdder adder = remedialActionAdder.newOnFlowConstraintUsageRule().withInstant(preventiveInstant)
+        OnFlowConstraintAdder adder = remedialActionAdder.newOnFlowConstraintUsageRule().withInstant(PREVENTIVE_INSTANT_ID)
             .withFlowCnec("fake_cnec");
         FaraoException exception = assertThrows(FaraoException.class, adder::add);
         assertEquals("FlowCnec fake_cnec does not exist in crac. Consider adding it first.", exception.getMessage());
@@ -144,7 +140,7 @@ class OnFlowConstraintAdderImplTest {
 
     @Test
     void testNoCnecException() {
-        OnFlowConstraintAdder adder = remedialActionAdder.newOnFlowConstraintUsageRule().withInstant(preventiveInstant);
+        OnFlowConstraintAdder adder = remedialActionAdder.newOnFlowConstraintUsageRule().withInstant(PREVENTIVE_INSTANT_ID);
         FaraoException exception = assertThrows(FaraoException.class, adder::add);
         assertEquals("Cannot add OnFlowConstraint without a flow cnec. Please use withFlowCnec() with a non null value", exception.getMessage());
     }
@@ -153,21 +149,21 @@ class OnFlowConstraintAdderImplTest {
     void testNoInstantException() {
         OnFlowConstraintAdder adder = remedialActionAdder.newOnFlowConstraintUsageRule().withFlowCnec("cnec2stateCurativeContingency1");
         FaraoException exception = assertThrows(FaraoException.class, adder::add);
-        assertEquals("Cannot add OnFlowConstraint without a instant. Please use withInstant() with a non null value", exception.getMessage());
+        assertEquals("Cannot add OnInstant without a instant. Please use withInstant() with a non null value", exception.getMessage());
     }
 
-    private void addCnec(String id, Instant instant) {
+    private void addCnec(String id, String instantId) {
         FlowCnecAdder adder = crac.newFlowCnec()
             .withId(id)
             .withNetworkElement(id)
-            .withInstant(instant)
+            .withInstant(instantId)
             .withOptimized(true)
             .withOperator("operator2")
             .newThreshold().withUnit(Unit.MEGAWATT).withSide(Side.LEFT).withMin(-1500.).withMax(1500.).add()
             .newThreshold().withUnit(Unit.PERCENT_IMAX).withSide(Side.LEFT).withMin(-0.3).withMax(0.3).add()
             .withNominalVoltage(380.)
             .withIMax(5000.);
-        if (!instant.isPreventive()) {
+        if (!crac.getInstant(instantId).isPreventive()) {
             adder.withContingency("Contingency FR1 FR3");
         }
         adder.add();
@@ -176,39 +172,39 @@ class OnFlowConstraintAdderImplTest {
     @Test
     void testOnConstraintInstantCheck() {
         // todo : mm chose pour on flow constraint in country, dans le code
-        addCnec("cnec-prev", preventiveInstant);
-        addCnec("cnec-out", outageInstant);
-        addCnec("cnec-auto", autoInstant);
-        addCnec("cnec-cur", curativeInstant);
+        addCnec("cnec-prev", PREVENTIVE_INSTANT_ID);
+        addCnec("cnec-out", OUTAGE_INSTANT_ID);
+        addCnec("cnec-auto", AUTO_INSTANT_ID);
+        addCnec("cnec-cur", CURATIVE_INSTANT_ID);
 
         OnFlowConstraintAdder<NetworkActionAdder> adder;
 
         // PREVENTIVE RA
-        remedialActionAdder.newOnFlowConstraintUsageRule().withInstant(preventiveInstant).withFlowCnec("cnec-prev").add(); // ok
-        remedialActionAdder.newOnFlowConstraintUsageRule().withInstant(preventiveInstant).withFlowCnec("cnec-out").add(); // ok
-        remedialActionAdder.newOnFlowConstraintUsageRule().withInstant(preventiveInstant).withFlowCnec("cnec-auto").add(); // ok
-        remedialActionAdder.newOnFlowConstraintUsageRule().withInstant(preventiveInstant).withFlowCnec("cnec-cur").add(); // ok
+        remedialActionAdder.newOnFlowConstraintUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withFlowCnec("cnec-prev").add(); // ok
+        remedialActionAdder.newOnFlowConstraintUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withFlowCnec("cnec-out").add(); // ok
+        remedialActionAdder.newOnFlowConstraintUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withFlowCnec("cnec-auto").add(); // ok
+        remedialActionAdder.newOnFlowConstraintUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withFlowCnec("cnec-cur").add(); // ok
 
         // AUTO RA
-        adder = remedialActionAdder.newOnFlowConstraintUsageRule().withInstant(autoInstant).withFlowCnec("cnec-prev"); // nok
+        adder = remedialActionAdder.newOnFlowConstraintUsageRule().withInstant(AUTO_INSTANT_ID).withFlowCnec("cnec-prev"); // nok
         Exception exception = assertThrows(FaraoException.class, adder::add);
         assertEquals("Remedial actions available at instant 'auto' on a CNEC constraint at instant 'preventive' are not allowed.", exception.getMessage());
-        adder = remedialActionAdder.newOnFlowConstraintUsageRule().withInstant(autoInstant).withFlowCnec("cnec-out"); // nok
+        adder = remedialActionAdder.newOnFlowConstraintUsageRule().withInstant(AUTO_INSTANT_ID).withFlowCnec("cnec-out"); // nok
         exception = assertThrows(FaraoException.class, adder::add);
         assertEquals("Remedial actions available at instant 'auto' on a CNEC constraint at instant 'outage' are not allowed.", exception.getMessage());
-        remedialActionAdder.newOnFlowConstraintUsageRule().withInstant(autoInstant).withFlowCnec("cnec-auto").add(); // ok
-        remedialActionAdder.newOnFlowConstraintUsageRule().withInstant(autoInstant).withFlowCnec("cnec-cur").add(); // ok
+        remedialActionAdder.newOnFlowConstraintUsageRule().withInstant(AUTO_INSTANT_ID).withFlowCnec("cnec-auto").add(); // ok
+        remedialActionAdder.newOnFlowConstraintUsageRule().withInstant(AUTO_INSTANT_ID).withFlowCnec("cnec-cur").add(); // ok
 
         // CURATIVE RA
-        adder = remedialActionAdder.newOnFlowConstraintUsageRule().withInstant(curativeInstant).withFlowCnec("cnec-prev"); // nok
+        adder = remedialActionAdder.newOnFlowConstraintUsageRule().withInstant(CURATIVE_INSTANT_ID).withFlowCnec("cnec-prev"); // nok
         exception = assertThrows(FaraoException.class, adder::add);
         assertEquals("Remedial actions available at instant 'curative' on a CNEC constraint at instant 'preventive' are not allowed.", exception.getMessage());
-        adder = remedialActionAdder.newOnFlowConstraintUsageRule().withInstant(curativeInstant).withFlowCnec("cnec-out"); // nok
+        adder = remedialActionAdder.newOnFlowConstraintUsageRule().withInstant(CURATIVE_INSTANT_ID).withFlowCnec("cnec-out"); // nok
         exception = assertThrows(FaraoException.class, adder::add);
         assertEquals("Remedial actions available at instant 'curative' on a CNEC constraint at instant 'outage' are not allowed.", exception.getMessage());
-        adder = remedialActionAdder.newOnFlowConstraintUsageRule().withInstant(curativeInstant).withFlowCnec("cnec-auto"); // nok
+        adder = remedialActionAdder.newOnFlowConstraintUsageRule().withInstant(CURATIVE_INSTANT_ID).withFlowCnec("cnec-auto"); // nok
         exception = assertThrows(FaraoException.class, adder::add);
         assertEquals("Remedial actions available at instant 'curative' on a CNEC constraint at instant 'auto' are not allowed.", exception.getMessage());
-        remedialActionAdder.newOnFlowConstraintUsageRule().withInstant(curativeInstant).withFlowCnec("cnec-cur").add(); // ok
+        remedialActionAdder.newOnFlowConstraintUsageRule().withInstant(CURATIVE_INSTANT_ID).withFlowCnec("cnec-cur").add(); // ok
     }
 }

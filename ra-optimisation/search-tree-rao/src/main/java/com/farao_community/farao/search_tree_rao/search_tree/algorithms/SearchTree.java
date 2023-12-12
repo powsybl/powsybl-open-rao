@@ -9,7 +9,7 @@ package com.farao_community.farao.search_tree_rao.search_tree.algorithms;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.commons.logs.FaraoLogger;
-import com.farao_community.farao.data.crac_api.Instant;
+import com.farao_community.farao.data.crac_api.InstantKind;
 import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.cnec.Side;
@@ -121,14 +121,14 @@ public class SearchTree {
         }
     }
 
-    public CompletableFuture<OptimizationResult> run(Instant outageInstant) {
+    public CompletableFuture<OptimizationResult> run() {
 
         initLeaves(input);
 
         applyForcedNetworkActionsOnRootLeaf();
 
         TECHNICAL_LOGS.debug("Evaluating root leaf");
-        rootLeaf.evaluate(input.getObjectiveFunction(), getSensitivityComputerForEvaluation(true), outageInstant);
+        rootLeaf.evaluate(input.getObjectiveFunction(), getSensitivityComputerForEvaluation(true));
         if (rootLeaf.getStatus().equals(Leaf.Status.ERROR)) {
             topLevelLogger.info("Could not evaluate leaf: {}", rootLeaf);
             logOptimizationSummary(rootLeaf);
@@ -144,7 +144,7 @@ public class SearchTree {
         RaoLogger.logMostLimitingElementsResults(TECHNICAL_LOGS, rootLeaf, parameters.getObjectiveFunction(), NUMBER_LOGGED_ELEMENTS_DURING_TREE);
 
         TECHNICAL_LOGS.info("Linear optimization on root leaf");
-        optimizeLeaf(rootLeaf, outageInstant);
+        optimizeLeaf(rootLeaf);
 
         topLevelLogger.info("{}", rootLeaf);
         RaoLogger.logRangeActions(TECHNICAL_LOGS, optimalLeaf, input.getOptimizationPerimeter(), null);
@@ -156,7 +156,7 @@ public class SearchTree {
             return CompletableFuture.completedFuture(rootLeaf);
         }
 
-        iterateOnTree(outageInstant);
+        iterateOnTree();
 
         TECHNICAL_LOGS.info("Search-tree RAO completed with status {}", optimalLeaf.getSensitivityStatus());
 
@@ -209,7 +209,7 @@ public class SearchTree {
         logVirtualCostInformation(optimalLeaf, "");
     }
 
-    private void iterateOnTree(Instant outageInstant) {
+    private void iterateOnTree() {
         int depth = 0;
         boolean hasImproved = true;
         if (input.getOptimizationPerimeter().getNetworkActions().isEmpty()) {
@@ -223,7 +223,7 @@ public class SearchTree {
             while (depth < parameters.getTreeParameters().getMaximumSearchDepth() && hasImproved && !stopCriterionReached(optimalLeaf)) {
                 TECHNICAL_LOGS.info("Search depth {} [start]", depth + 1);
                 previousDepthOptimalLeaf = optimalLeaf;
-                updateOptimalLeafWithNextDepthBestLeaf(networkPool, outageInstant);
+                updateOptimalLeafWithNextDepthBestLeaf(networkPool);
                 hasImproved = previousDepthOptimalLeaf != optimalLeaf; // It means this depth evaluation has improved the global cost
                 if (hasImproved) {
                     TECHNICAL_LOGS.info("Search depth {} [end]", depth + 1);
@@ -249,7 +249,7 @@ public class SearchTree {
     /**
      * Evaluate all the leaves. We use FaraoNetworkPool to parallelize the computation
      */
-    private void updateOptimalLeafWithNextDepthBestLeaf(AbstractNetworkPool networkPool, Instant outageInstant) throws InterruptedException {
+    private void updateOptimalLeafWithNextDepthBestLeaf(AbstractNetworkPool networkPool) throws InterruptedException {
 
         TreeMap<NetworkActionCombination, Boolean> naCombinationsSorted = new TreeMap<>(this::deterministicNetworkActionCombinationComparison);
         naCombinationsSorted.putAll(bloomer.bloom(optimalLeaf, input.getOptimizationPerimeter().getNetworkActions()));
@@ -283,7 +283,7 @@ public class SearchTree {
                                     ra.apply(networkClone, previousDepthOptimalLeaf.getOptimizedSetpoint(ra, input.getOptimizationPerimeter().getMainOptimizationState()))
                                 );
                         }
-                        optimizeNextLeafAndUpdate(naCombination, shouldRangeActionBeRemoved, networkClone, outageInstant);
+                        optimizeNextLeafAndUpdate(naCombination, shouldRangeActionBeRemoved, networkClone);
 
                     } else {
                         topLevelLogger.info("Skipping {} optimization because earlier combination fulfills stop criterion.", naCombination.getConcatenatedId());
@@ -355,7 +355,7 @@ public class SearchTree {
         return AbstractNetworkPool.create(network, network.getVariantManager().getWorkingVariantId(), leavesInParallel, false);
     }
 
-    void optimizeNextLeafAndUpdate(NetworkActionCombination naCombination, boolean shouldRangeActionBeRemoved, Network network, Instant outageInstant) {
+    void optimizeNextLeafAndUpdate(NetworkActionCombination naCombination, boolean shouldRangeActionBeRemoved, Network network) {
         Leaf leaf;
         try {
             // We get initial range action results from the previous optimal leaf
@@ -369,7 +369,7 @@ public class SearchTree {
             throw e;
         }
         // We evaluate the leaf with taking the results of the previous optimal leaf if we do not want to update some results
-        leaf.evaluate(input.getObjectiveFunction(), getSensitivityComputerForEvaluation(shouldRangeActionBeRemoved), outageInstant);
+        leaf.evaluate(input.getObjectiveFunction(), getSensitivityComputerForEvaluation(shouldRangeActionBeRemoved));
 
         topLevelLogger.info("Evaluated {}", leaf);
         if (!leaf.getStatus().equals(Leaf.Status.ERROR)) {
@@ -377,7 +377,7 @@ public class SearchTree {
                 if (combinationFulfillingStopCriterion.isPresent() && deterministicNetworkActionCombinationComparison(naCombination, combinationFulfillingStopCriterion.get()) > 0) {
                     topLevelLogger.info("Skipping {} optimization because earlier combination fulfills stop criterion.", naCombination.getConcatenatedId());
                 } else {
-                    optimizeLeaf(leaf, outageInstant);
+                    optimizeLeaf(leaf);
 
                     topLevelLogger.info("Optimized {}", leaf);
                     logVirtualCostInformation(leaf, "Optimized ");
@@ -402,9 +402,9 @@ public class SearchTree {
             shouldRangeActionBeRemoved ? input.getPreOptimizationAppliedRemedialActions() : getPreviousDepthAppliedRemedialActionsBeforeNewLeafEvaluation(previousDepthOptimalLeaf));
     }
 
-    private void optimizeLeaf(Leaf leaf, Instant outageInstant) {
+    private void optimizeLeaf(Leaf leaf) {
         if (!input.getOptimizationPerimeter().getRangeActions().isEmpty()) {
-            leaf.optimize(input, parameters, outageInstant);
+            leaf.optimize(input, parameters);
             if (!leaf.getStatus().equals(Leaf.Status.OPTIMIZED)) {
                 topLevelLogger.info("Failed to optimize leaf: {}", leaf);
             }
@@ -419,7 +419,8 @@ public class SearchTree {
         SensitivityComputer.SensitivityComputerBuilder sensitivityComputerBuilder = SensitivityComputer.create()
             .withToolProvider(input.getToolProvider())
             .withCnecs(input.getOptimizationPerimeter().getFlowCnecs())
-            .withRangeActions(input.getOptimizationPerimeter().getRangeActions());
+            .withRangeActions(input.getOptimizationPerimeter().getRangeActions())
+            .withOutageInstant(input.getCrac().getInstant(InstantKind.OUTAGE));
 
         if (isRootLeaf) {
             sensitivityComputerBuilder.withAppliedRemedialActions(input.getPreOptimizationAppliedRemedialActions());

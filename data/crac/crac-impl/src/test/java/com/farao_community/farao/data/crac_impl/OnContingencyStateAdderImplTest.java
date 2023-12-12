@@ -32,7 +32,6 @@ class OnContingencyStateAdderImplTest {
     private Contingency contingency;
     private NetworkActionAdder remedialActionAdder;
     private Instant preventiveInstant;
-    private Instant outageInstant;
     private Instant curativeInstant;
 
     @BeforeEach
@@ -43,7 +42,6 @@ class OnContingencyStateAdderImplTest {
             .newInstant(AUTO_INSTANT_ID, InstantKind.AUTO)
             .newInstant(CURATIVE_INSTANT_ID, InstantKind.CURATIVE);
         preventiveInstant = crac.getInstant(PREVENTIVE_INSTANT_ID);
-        outageInstant = crac.getInstant(OUTAGE_INSTANT_ID);
         curativeInstant = crac.getInstant(CURATIVE_INSTANT_ID);
 
         contingency = crac.newContingency()
@@ -61,7 +59,7 @@ class OnContingencyStateAdderImplTest {
     @Test
     void testOk() {
         RemedialAction<?> remedialAction = remedialActionAdder.newOnContingencyStateUsageRule()
-            .withInstant(curativeInstant)
+            .withInstant(CURATIVE_INSTANT_ID)
             .withContingency("contingencyId")
             .withUsageMethod(UsageMethod.AVAILABLE)
             .add()
@@ -80,7 +78,7 @@ class OnContingencyStateAdderImplTest {
     @Test
     void testOkPreventive() {
         RemedialAction<?> remedialAction = remedialActionAdder.newOnContingencyStateUsageRule()
-            .withInstant(preventiveInstant)
+            .withInstant(PREVENTIVE_INSTANT_ID)
             .withUsageMethod(UsageMethod.FORCED)
             .add()
             .add();
@@ -104,7 +102,7 @@ class OnContingencyStateAdderImplTest {
     @Test
     void testNoContingency() {
         OnContingencyStateAdder<NetworkActionAdder> onContingencyStateAdder = remedialActionAdder.newOnContingencyStateUsageRule()
-            .withInstant(curativeInstant)
+            .withInstant(CURATIVE_INSTANT_ID)
             .withUsageMethod(UsageMethod.AVAILABLE);
         FaraoException exception = assertThrows(FaraoException.class, onContingencyStateAdder::add);
         assertEquals("Cannot add OnContingencyState without a contingency. Please use withContingency() with a non null value", exception.getMessage());
@@ -113,7 +111,7 @@ class OnContingencyStateAdderImplTest {
     @Test
     void testNoUsageMethod() {
         OnContingencyStateAdder<NetworkActionAdder> onContingencyStateAdder = remedialActionAdder.newOnContingencyStateUsageRule()
-            .withInstant(curativeInstant)
+            .withInstant(CURATIVE_INSTANT_ID)
             .withContingency("contingencyId");
         FaraoException exception = assertThrows(FaraoException.class, onContingencyStateAdder::add);
         assertEquals("Cannot add OnContingencyState without a usage method. Please use withUsageMethod() with a non null value", exception.getMessage());
@@ -122,7 +120,7 @@ class OnContingencyStateAdderImplTest {
     @Test
     void testUnknownContingency() {
         OnContingencyStateAdder<NetworkActionAdder> onContingencyStateAdder = remedialActionAdder.newOnContingencyStateUsageRule()
-            .withInstant(curativeInstant)
+            .withInstant(CURATIVE_INSTANT_ID)
             .withContingency("unknownContingencyId")
             .withUsageMethod(UsageMethod.AVAILABLE);
         FaraoException exception = assertThrows(FaraoException.class, onContingencyStateAdder::add);
@@ -132,7 +130,7 @@ class OnContingencyStateAdderImplTest {
     @Test
     void testPreventiveInstant() {
         OnContingencyStateAdder<NetworkActionAdder> onContingencyStateAdder = remedialActionAdder.newOnContingencyStateUsageRule()
-            .withInstant(preventiveInstant)
+            .withInstant(PREVENTIVE_INSTANT_ID)
             .withContingency("contingencyId")
             .withUsageMethod(UsageMethod.AVAILABLE);
         FaraoException exception = assertThrows(FaraoException.class, onContingencyStateAdder::add);
@@ -142,7 +140,7 @@ class OnContingencyStateAdderImplTest {
     @Test
     void testOutageInstant() {
         OnContingencyStateAdder<NetworkActionAdder> onContingencyStateAdder = remedialActionAdder.newOnContingencyStateUsageRule()
-            .withInstant(outageInstant)
+            .withInstant(OUTAGE_INSTANT_ID)
             .withContingency("contingencyId")
             .withUsageMethod(UsageMethod.AVAILABLE);
         FaraoException exception = assertThrows(FaraoException.class, onContingencyStateAdder::add);

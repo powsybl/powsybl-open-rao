@@ -7,7 +7,6 @@
 package com.farao_community.farao.search_tree_rao.castor.algorithm;
 
 import com.farao_community.farao.data.crac_api.Crac;
-import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.InstantKind;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
@@ -55,7 +54,8 @@ public class PrePerimeterSensitivityAnalysis {
     }
 
     public PrePerimeterResult runInitialSensitivityAnalysis(Network network, Crac crac) {
-        SensitivityComputer.SensitivityComputerBuilder sensitivityComputerBuilder = buildSensiBuilder();
+        SensitivityComputer.SensitivityComputerBuilder sensitivityComputerBuilder = buildSensiBuilder()
+            .withOutageInstant(crac.getInstant(InstantKind.OUTAGE));
         if (raoParameters.hasExtension(LoopFlowParametersExtension.class)) {
             sensitivityComputerBuilder.withCommercialFlowsResults(toolProvider.getLoopFlowComputation(), toolProvider.getLoopFlowCnecs(flowCnecs));
         }
@@ -66,7 +66,7 @@ public class PrePerimeterSensitivityAnalysis {
         sensitivityComputer = sensitivityComputerBuilder.build();
         objectiveFunction = ObjectiveFunction.create().buildForInitialSensitivityComputation(flowCnecs, raoParameters, crac, RangeActionSetpointResultImpl.buildWithSetpointsFromNetwork(network, rangeActions));
 
-        return runAndGetResult(network, objectiveFunction, crac.getInstant(InstantKind.OUTAGE));
+        return runAndGetResult(network, objectiveFunction);
     }
 
     public PrePerimeterResult runBasedOnInitialResults(Network network,
@@ -76,7 +76,8 @@ public class PrePerimeterSensitivityAnalysis {
                                                        Set<String> operatorsNotSharingCras,
                                                        AppliedRemedialActions appliedCurativeRemedialActions) {
 
-        SensitivityComputer.SensitivityComputerBuilder sensitivityComputerBuilder = buildSensiBuilder();
+        SensitivityComputer.SensitivityComputerBuilder sensitivityComputerBuilder = buildSensiBuilder()
+            .withOutageInstant(crac.getInstant(InstantKind.OUTAGE));
         if (raoParameters.hasExtension(LoopFlowParametersExtension.class)) {
             if (raoParameters.getExtension(LoopFlowParametersExtension.class).getApproximation().shouldUpdatePtdfWithTopologicalChange()) {
                 sensitivityComputerBuilder.withCommercialFlowsResults(toolProvider.getLoopFlowComputation(), toolProvider.getLoopFlowCnecs(flowCnecs));
@@ -95,7 +96,7 @@ public class PrePerimeterSensitivityAnalysis {
 
         objectiveFunction = ObjectiveFunction.create().build(flowCnecs, toolProvider.getLoopFlowCnecs(flowCnecs), initialFlowResult, initialFlowResult, initialRangeActionSetpointResult, crac, operatorsNotSharingCras, raoParameters);
 
-        return runAndGetResult(network, objectiveFunction, crac.getInstant(InstantKind.OUTAGE));
+        return runAndGetResult(network, objectiveFunction);
     }
 
     public ObjectiveFunction getObjectiveFunction() {
@@ -109,8 +110,8 @@ public class PrePerimeterSensitivityAnalysis {
                 .withRangeActions(rangeActions);
     }
 
-    private PrePerimeterResult runAndGetResult(Network network, ObjectiveFunction objectiveFunction, Instant outageInstant) {
-        sensitivityComputer.compute(network, outageInstant);
+    private PrePerimeterResult runAndGetResult(Network network, ObjectiveFunction objectiveFunction) {
+        sensitivityComputer.compute(network);
         FlowResult flowResult = sensitivityComputer.getBranchResult(network);
         SensitivityResult sensitivityResult = sensitivityComputer.getSensitivityResult();
         RangeActionSetpointResult rangeActionSetpointResult = RangeActionSetpointResultImpl.buildWithSetpointsFromNetwork(network, rangeActions);

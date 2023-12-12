@@ -266,9 +266,10 @@ public class CastorFullOptimization {
             .withPreOptimizationAppliedNetworkActions(new AppliedRemedialActions()) //no remedial Action applied
             .withObjectiveFunction(ObjectiveFunction.create().build(optPerimeter.getFlowCnecs(), optPerimeter.getLoopFlowCnecs(), initialResult, initialResult, initialResult, raoInput.getCrac(), Collections.emptySet(), raoParameters))
             .withToolProvider(toolProvider)
+            .withCrac(raoInput.getCrac())
             .build();
 
-        OptimizationResult optResult = new SearchTree(searchTreeInput, searchTreeParameters, true).run(raoInput.getCrac().getInstant(InstantKind.OUTAGE)).join();
+        OptimizationResult optResult = new SearchTree(searchTreeInput, searchTreeParameters, true).run().join();
         applyRemedialActions(raoInput.getNetwork(), optResult, raoInput.getCrac().getPreventiveState());
         return new OneStateOnlyRaoResultImpl(raoInput.getCrac().getPreventiveState(), initialResult, optResult, searchTreeInput.getOptimizationPerimeter().getFlowCnecs());
     }
@@ -375,9 +376,10 @@ public class CastorFullOptimization {
             .withPreOptimizationAppliedNetworkActions(new AppliedRemedialActions()) //no remedial Action applied
             .withObjectiveFunction(ObjectiveFunction.create().build(optPerimeter.getFlowCnecs(), optPerimeter.getLoopFlowCnecs(), initialSensitivityOutput, prePerimeterSensitivityOutput, prePerimeterSensitivityOutput, raoInput.getCrac(), stateTree.getOperatorsNotSharingCras(), raoParameters))
             .withToolProvider(toolProvider)
+            .withCrac(crac)
             .build();
 
-        OptimizationResult result = new SearchTree(searchTreeInput, searchTreeParameters, false).run(crac.getInstant(InstantKind.OUTAGE)).join();
+        OptimizationResult result = new SearchTree(searchTreeInput, searchTreeParameters, false).run().join();
         TECHNICAL_LOGS.info("Curative state {} has been optimized.", curativeState.getId());
         return result;
     }
@@ -641,9 +643,10 @@ public class CastorFullOptimization {
             .withPreOptimizationAppliedNetworkActions(appliedCras) //no remedial Action applied
             .withObjectiveFunction(ObjectiveFunction.create().build(optPerimeter.getFlowCnecs(), optPerimeter.getLoopFlowCnecs(), initialOutput, prePerimeterResult, prePerimeterResult, raoInput.getCrac(), new HashSet<>(), raoParameters))
             .withToolProvider(toolProvider)
+            .withCrac(raoInput.getCrac())
             .build();
 
-        OptimizationResult result = new SearchTree(searchTreeInput, searchTreeParameters, true).run(raoInput.getCrac().getInstant(InstantKind.OUTAGE)).join();
+        OptimizationResult result = new SearchTree(searchTreeInput, searchTreeParameters, true).run().join();
 
         // apply PRAs
         result.getActivatedRangeActions(raoInput.getCrac().getPreventiveState()).forEach(rangeAction -> rangeAction.apply(raoInput.getNetwork(), result.getOptimizedSetpoint(rangeAction, raoInput.getCrac().getPreventiveState())));

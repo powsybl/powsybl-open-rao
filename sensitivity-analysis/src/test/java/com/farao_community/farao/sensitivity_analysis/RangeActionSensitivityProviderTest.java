@@ -46,7 +46,6 @@ class RangeActionSensitivityProviderTest {
         network.getVoltageLevel("BBE1AA2").getNodeBreakerView().newBusbarSection().setId("BB1").setNode(1).add();
 
         Crac crac = CommonCracCreation.createWithPreventivePstRange();
-        Instant curativeInstant = crac.getInstant(CURATIVE_INSTANT_ID);
 
         crac.newContingency()
             .withId("contingency-generator")
@@ -73,7 +72,7 @@ class RangeActionSensitivityProviderTest {
             .withMax(10.)
             .add()
             .withNominalVoltage(380.)
-            .withInstant(curativeInstant)
+            .withInstant(CURATIVE_INSTANT_ID)
             .withContingency("contingency-generator")
             .add();
 
@@ -87,7 +86,7 @@ class RangeActionSensitivityProviderTest {
             .withMax(10.)
             .add()
             .withNominalVoltage(380.)
-            .withInstant(curativeInstant)
+            .withInstant(CURATIVE_INSTANT_ID)
             .withContingency("contingency-hvdc")
             .add();
 
@@ -101,7 +100,7 @@ class RangeActionSensitivityProviderTest {
             .withMax(10.)
             .add()
             .withNominalVoltage(380.)
-            .withInstant(curativeInstant)
+            .withInstant(CURATIVE_INSTANT_ID)
             .withContingency("contingency-busbar-section")
             .add();
 
@@ -138,7 +137,6 @@ class RangeActionSensitivityProviderTest {
     void testFailureOnContingency() {
         Network network = NetworkImportsUtil.import12NodesNetwork();
         Crac crac = CommonCracCreation.createWithPreventivePstRange();
-        Instant curativeInstant = crac.getInstant(CURATIVE_INSTANT_ID);
 
         crac.newContingency()
             .withId("contingency-fail")
@@ -154,7 +152,7 @@ class RangeActionSensitivityProviderTest {
             .withMin(-10.)
             .withMax(10.)
             .add()
-            .withInstant(curativeInstant)
+            .withInstant(CURATIVE_INSTANT_ID)
             .withContingency("contingency-fail")
             .withNominalVoltage(380.)
             .add();
@@ -236,11 +234,10 @@ class RangeActionSensitivityProviderTest {
     void testHvdcSensi() {
         Crac crac = CracFactory.findDefault().create("test-crac")
             .newInstant(PREVENTIVE_INSTANT_ID, InstantKind.PREVENTIVE);
-        Instant preventiveInstant = crac.getInstant(PREVENTIVE_INSTANT_ID);
         FlowCnec flowCnec = crac.newFlowCnec()
             .withId("cnec")
             .withNetworkElement("BBE1AA11 FFR5AA11 1")
-            .withInstant(preventiveInstant)
+            .withInstant(PREVENTIVE_INSTANT_ID)
             .newThreshold().withMax(1000.).withUnit(Unit.MEGAWATT).withSide(Side.LEFT).add()
             .newThreshold().withMax(1000.).withUnit(Unit.MEGAWATT).withSide(Side.RIGHT).add()
             .add();
@@ -287,11 +284,10 @@ class RangeActionSensitivityProviderTest {
     void testUnhandledElement() {
         Crac crac = CracFactory.findDefault().create("test-crac")
             .newInstant(PREVENTIVE_INSTANT_ID, InstantKind.PREVENTIVE);
-        Instant preventiveInstant = crac.getInstant(PREVENTIVE_INSTANT_ID);
         FlowCnec flowCnec = crac.newFlowCnec()
             .withId("cnec")
             .withNetworkElement("BBE1AA11 FFR5AA11 1")
-            .withInstant(preventiveInstant)
+            .withInstant(PREVENTIVE_INSTANT_ID)
             .newThreshold().withMax(1000.).withUnit(Unit.MEGAWATT).withSide(Side.LEFT).add()
             .add();
 

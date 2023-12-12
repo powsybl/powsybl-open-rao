@@ -59,7 +59,7 @@ class MnecFillerTest extends AbstractFillerTest {
                 .withNominalVoltage(380.)
                 .withOptimized(true)
                 .withMonitored(true)
-                .withInstant(preventiveInstant)
+                .withInstant(PREVENTIVE_INSTANT_ID)
                 .add();
 
         mnec2 = crac.newFlowCnec()
@@ -74,7 +74,7 @@ class MnecFillerTest extends AbstractFillerTest {
                 .withNominalVoltage(380.)
                 .withOptimized(true)
                 .withMonitored(true)
-                .withInstant(preventiveInstant)
+                .withInstant(PREVENTIVE_INSTANT_ID)
                 .add();
 
         mnec3 = crac.newFlowCnec()
@@ -85,7 +85,7 @@ class MnecFillerTest extends AbstractFillerTest {
                 .withNominalVoltage(380.)
                 .withOptimized(true)
                 .withMonitored(true)
-                .withInstant(preventiveInstant)
+                .withInstant(PREVENTIVE_INSTANT_ID)
                 .add();
 
         RangeActionSetpointResult initialRangeActionSetpointResult = new RangeActionSetpointResultImpl(Collections.emptyMap());

@@ -7,8 +7,10 @@
 
 package com.farao_community.farao.sensitivity_analysis;
 
+import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.Instant;
+import com.farao_community.farao.data.crac_api.InstantKind;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_impl.utils.CommonCracCreation;
@@ -78,8 +80,9 @@ class SystematicSensitivityInterfaceTest {
             .withSensitivityProviderName("default-impl-name")
             .withParameters(defaultParameters)
             .withSensitivityProvider(Mockito.mock(CnecSensitivityProvider.class))
+            .withOutageInstant(outageInstant)
             .build();
-        SystematicSensitivityResult systematicSensitivityAnalysisResult = systematicSensitivityInterface.run(network, outageInstant);
+        SystematicSensitivityResult systematicSensitivityAnalysisResult = systematicSensitivityInterface.run(network);
 
         // assert results
         assertNotNull(systematicSensitivityAnalysisResult);
@@ -108,10 +111,11 @@ class SystematicSensitivityInterfaceTest {
             .withSensitivityProviderName("default-impl-name")
             .withParameters(defaultParameters)
             .withSensitivityProvider(Mockito.mock(CnecSensitivityProvider.class))
+            .withOutageInstant(outageInstant)
             .build();
 
         // run - expected failure
-        SystematicSensitivityResult result = systematicSensitivityInterface.run(network, outageInstant);
+        SystematicSensitivityResult result = systematicSensitivityInterface.run(network);
         assertFalse(result.isSuccess());
     }
 
@@ -140,5 +144,22 @@ class SystematicSensitivityInterfaceTest {
         SystematicSensitivityResult result = Mockito.mock(SystematicSensitivityResult.class);
         Mockito.when(result.isSuccess()).thenReturn(false);
         return result;
+    }
+
+    @Test
+    void testCannotBuildSystematicInterfaceWithoutOutageInstant() {
+        SystematicSensitivityInterface.SystematicSensitivityInterfaceBuilder systematicSensitivityInterfaceBuilder = SystematicSensitivityInterface.builder()
+            .withSensitivityProviderName("default-impl-name")
+            .withParameters(defaultParameters)
+            .withSensitivityProvider(Mockito.mock(CnecSensitivityProvider.class));
+
+        FaraoException exception = assertThrows(FaraoException.class, () -> systematicSensitivityInterfaceBuilder.build());
+        assertEquals("Outage instant has not been defined in the systematic sensitivity interface", exception.getMessage());
+    }
+
+    @Test
+    void testCannotUseANonOutageInstantInSystematicInterfaceBuilder() {
+        FaraoException exception = assertThrows(FaraoException.class, () -> SystematicSensitivityInterface.builder().withOutageInstant(crac.getInstant(InstantKind.PREVENTIVE)));
+        assertEquals("Instant provided in the systematic sensitivity builder has to be an outage", exception.getMessage());
     }
 }

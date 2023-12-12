@@ -3,7 +3,6 @@ package com.farao_community.farao.data.crac_creation.creator.csa_profile.crac_cr
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Contingency;
 import com.farao_community.farao.data.crac_api.Crac;
-import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.InstantKind;
 import com.farao_community.farao.data.crac_api.cnec.VoltageCnecAdder;
 import com.farao_community.farao.data.crac_creation.creator.api.ImportStatus;
@@ -26,19 +25,19 @@ public class VoltageCnecCreator extends AbstractCnecCreator {
 
     public void addVoltageCnecs() {
         if (inBaseCase) {
-            addVoltageCnec(crac.getInstant(InstantKind.PREVENTIVE), null);
+            addVoltageCnec(crac.getInstant(InstantKind.PREVENTIVE).getId(), null);
         }
         for (Contingency contingency : linkedContingencies) {
-            addVoltageCnec(crac.getInstant(InstantKind.CURATIVE), contingency);
+            addVoltageCnec(crac.getInstant(InstantKind.CURATIVE).getId(), contingency);
         }
     }
 
-    private void addVoltageCnec(Instant instant, Contingency contingency) {
+    private void addVoltageCnec(String instantId, Contingency contingency) {
         VoltageCnecAdder voltageCnecAdder = initVoltageCnec();
         if (addVoltageLimit(voltageCnecAdder)) {
-            addCnecBaseInformation(voltageCnecAdder, contingency, instant);
+            addCnecBaseInformation(voltageCnecAdder, contingency, instantId);
             voltageCnecAdder.add();
-            markCnecAsImportedAndHandleRejectedContingencies(instant, contingency);
+            markCnecAsImportedAndHandleRejectedContingencies(instantId, contingency);
         }
     }
 

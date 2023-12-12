@@ -22,10 +22,6 @@ import static org.junit.jupiter.api.Assertions.*;
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
 class OnContingencyStateAdderToRemedialActionImplTest {
-    private static final String PREVENTIVE_INSTANT_ID = "preventive";
-    private static final String OUTAGE_INSTANT_ID = "outage";
-    private static final String AUTO_INSTANT_ID = "auto";
-    private static final String CURATIVE_INSTANT_ID = "curative";
 
     private Crac crac;
     private Contingency contingency;
@@ -37,14 +33,14 @@ class OnContingencyStateAdderToRemedialActionImplTest {
     @BeforeEach
     public void setUp() {
         crac = new CracImplFactory().create("cracId")
-            .newInstant(PREVENTIVE_INSTANT_ID, InstantKind.PREVENTIVE)
-            .newInstant(OUTAGE_INSTANT_ID, InstantKind.OUTAGE)
-            .newInstant(AUTO_INSTANT_ID, InstantKind.AUTO)
-            .newInstant(CURATIVE_INSTANT_ID, InstantKind.CURATIVE);
-        preventiveInstant = crac.getInstant(PREVENTIVE_INSTANT_ID);
-        outageInstant = crac.getInstant(OUTAGE_INSTANT_ID);
-        curativeInstant = crac.getInstant(CURATIVE_INSTANT_ID);
-        ((CracImpl) crac).addPreventiveState(preventiveInstant);
+            .newInstant("preventive", InstantKind.PREVENTIVE)
+            .newInstant("outage", InstantKind.OUTAGE)
+            .newInstant("auto", InstantKind.AUTO)
+            .newInstant("curative", InstantKind.CURATIVE);
+        preventiveInstant = crac.getInstant("preventive");
+        outageInstant = crac.getInstant("outage");
+        curativeInstant = crac.getInstant("curative");
+        ((CracImpl) crac).addPreventiveState();
 
         contingency = crac.newContingency()
             .withId("contingencyId")

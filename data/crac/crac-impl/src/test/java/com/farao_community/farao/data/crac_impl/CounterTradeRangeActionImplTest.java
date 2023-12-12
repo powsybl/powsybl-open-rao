@@ -8,7 +8,6 @@ package com.farao_community.farao.data.crac_impl;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Crac;
-import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.InstantKind;
 import com.farao_community.farao.data.crac_api.range_action.CounterTradeRangeAction;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
@@ -25,14 +24,12 @@ class CounterTradeRangeActionImplTest {
 
     private Network network;
     private Crac crac;
-    private Instant preventiveInstant;
 
     @BeforeEach
     public void setUp() {
         network = NetworkImportsUtil.import12NodesNetwork();
-        crac = new CracImpl("test-crac")
+        crac = new CracImplFactory().create("test-crac")
             .newInstant(PREVENTIVE_INSTANT_ID, InstantKind.PREVENTIVE);
-        preventiveInstant = crac.getInstant(PREVENTIVE_INSTANT_ID);
     }
 
     @Test
@@ -40,7 +37,7 @@ class CounterTradeRangeActionImplTest {
         CounterTradeRangeAction counterTradeRangeAction = (CounterTradeRangeAction) crac.newCounterTradeRangeAction()
                 .withId("counterTradeRangeAction")
                 .newRange().withMin(-1000).withMax(1000).add()
-                .newOnInstantUsageRule().withInstant(preventiveInstant).withUsageMethod(UsageMethod.AVAILABLE).add()
+                .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add()
                 .withExportingCountry(Country.FR)
                 .withImportingCountry(Country.DE)
                 .add();
@@ -56,7 +53,7 @@ class CounterTradeRangeActionImplTest {
                 .newRange().withMin(-1300).withMax(400).add()
                 .withExportingCountry(Country.FR)
                 .withImportingCountry(Country.DE)
-                .newOnInstantUsageRule().withInstant(preventiveInstant).withUsageMethod(UsageMethod.AVAILABLE).add()
+                .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add()
                 .add();
 
         assertEquals(-1000, counterTradeRangeAction.getMinAdmissibleSetpoint(0.0), 1e-3);
@@ -71,7 +68,7 @@ class CounterTradeRangeActionImplTest {
                 .newRange().withMin(-1300).withMax(400).add()
                 .withExportingCountry(Country.FR)
                 .withImportingCountry(Country.DE)
-                .newOnInstantUsageRule().withInstant(preventiveInstant).withUsageMethod(UsageMethod.AVAILABLE).add()
+                .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add()
                 .add();
         assertEquals(0, counterTradeRangeAction.getCurrentSetpoint(network));
 

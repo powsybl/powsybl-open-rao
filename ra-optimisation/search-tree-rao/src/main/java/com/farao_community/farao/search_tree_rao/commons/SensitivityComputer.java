@@ -7,6 +7,7 @@
 
 package com.farao_community.farao.search_tree_rao.commons;
 
+import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
@@ -35,8 +36,8 @@ public final class SensitivityComputer {
         // Should not be used
     }
 
-    public void compute(Network network, Instant outageInstant) {
-        result = systematicSensitivityInterface.run(network, outageInstant);
+    public void compute(Network network) {
+        result = systematicSensitivityInterface.run(network);
     }
 
     public FlowResult getBranchResult(Network network) {
@@ -61,6 +62,7 @@ public final class SensitivityComputer {
         private LoopFlowComputation loopFlowComputation;
         private Set<FlowCnec> loopFlowCnecs;
         private AppliedRemedialActions appliedRemedialActions;
+        private Instant outageInstant;
 
         public SensitivityComputerBuilder withToolProvider(ToolProvider toolProvider) {
             this.toolProvider = toolProvider;
@@ -104,10 +106,19 @@ public final class SensitivityComputer {
             return this;
         }
 
+        public SensitivityComputerBuilder withOutageInstant(Instant outageInstant) {
+            if (!outageInstant.isOutage()) {
+                throw new FaraoException("The provided instant must be an outage");
+            }
+            this.outageInstant = outageInstant;
+            return this;
+        }
+
         public SensitivityComputer build() {
             Objects.requireNonNull(toolProvider);
             Objects.requireNonNull(flowCnecs);
             Objects.requireNonNull(rangeActions);
+            Objects.requireNonNull(outageInstant);
             SensitivityComputer sensitivityComputer = new SensitivityComputer();
             boolean computePtdfs = absolutePtdfSumsComputation != null;
             boolean computeLoopFlows = loopFlowComputation != null;
@@ -116,8 +127,8 @@ public final class SensitivityComputer {
                     rangeActions,
                     computePtdfs,
                     computeLoopFlows,
-                    appliedRemedialActions
-            );
+                    appliedRemedialActions,
+                    outageInstant);
             BranchResultAdapterImpl.BranchResultAdpaterBuilder builder = BranchResultAdapterImpl.create();
             if (loopFlowComputation != null) {
                 builder.withCommercialFlowsResults(loopFlowComputation, loopFlowCnecs);

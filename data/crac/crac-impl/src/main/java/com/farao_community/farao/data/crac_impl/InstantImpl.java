@@ -25,6 +25,7 @@ import java.util.Objects;
 public class InstantImpl extends AbstractIdentifiable<InstantImpl> implements Instant<InstantImpl> {
 
     private final InstantKind instantKind;
+    private final Instant previous;
     private final int order;
 
     InstantImpl(String id, InstantKind instantKind, Instant previous) {
@@ -32,13 +33,16 @@ public class InstantImpl extends AbstractIdentifiable<InstantImpl> implements In
         if (Objects.equals(id, "initial")) {
             throw new FaraoException("Instant with id 'initial' can't be defined");
         }
+        this.previous = previous;
+        this.instantKind = instantKind;
         if (previous == null) {
-            // TODO should first instant always be a preventive one ?
+            if (instantKind != InstantKind.PREVENTIVE) {
+                throw new FaraoException("The first instant must be preventive");
+            }
             this.order = 0;
         } else {
             this.order = previous.getOrder() + 1;
         }
-        this.instantKind = instantKind;
     }
 
     public int getOrder() {
@@ -90,11 +94,15 @@ public class InstantImpl extends AbstractIdentifiable<InstantImpl> implements In
             return false;
         }
         InstantImpl instant = (InstantImpl) o;
-        return order == instant.order && instantKind == instant.instantKind; // TODO: I don't know if this is a good idea to compare order ?
+        return order == instant.order && instantKind == instant.instantKind;
     }
 
     @Override
     public int hashCode() {
         return Objects.hash(super.hashCode(), instantKind, order);
+    }
+
+    Instant getInstantBefore() {
+        return previous;
     }
 }

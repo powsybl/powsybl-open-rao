@@ -209,13 +209,13 @@ class RaoUtilTest {
 
         RemedialAction<?> na1 = crac.newNetworkAction().withId("na1")
             .newTopologicalAction().withNetworkElement("ne1").withActionType(ActionType.OPEN).add()
-            .newOnInstantUsageRule().withInstant(curativeInstant).withUsageMethod(UsageMethod.AVAILABLE).add()
+            .newOnInstantUsageRule().withInstant(CURATIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add()
             .add();
         assertTrue(na1.isRemedialActionAvailable(optimizedState, RaoUtil.isAnyMarginNegative(flowResult, na1.getFlowCnecsConstrainingUsageRules(crac.getFlowCnecs(), network, optimizedState), raoParameters.getObjectiveFunctionParameters().getType().getUnit())));
 
         RemedialAction<?> na2 = crac.newNetworkAction().withId("na2")
             .newTopologicalAction().withNetworkElement("ne2").withActionType(ActionType.OPEN).add()
-            .newOnFlowConstraintUsageRule().withInstant(curativeInstant).withFlowCnec(flowCnec.getId()).add()
+            .newOnFlowConstraintUsageRule().withInstant(CURATIVE_INSTANT_ID).withFlowCnec(flowCnec.getId()).add()
             .add();
         OnFlowConstraint onFlowConstraint = (OnFlowConstraint) na2.getUsageRules().iterator().next();
 
@@ -246,17 +246,17 @@ class RaoUtilTest {
 
         RemedialAction<?> na1 = crac.newNetworkAction().withId("na1")
             .newTopologicalAction().withNetworkElement("ne1").withActionType(ActionType.OPEN).add()
-            .newOnFlowConstraintInCountryUsageRule().withInstant(curativeInstant).withCountry(Country.FR).add()
+            .newOnFlowConstraintInCountryUsageRule().withInstant(CURATIVE_INSTANT_ID).withCountry(Country.FR).add()
             .add();
 
         RemedialAction<?> na2 = crac.newNetworkAction().withId("na2")
             .newTopologicalAction().withNetworkElement("ne2").withActionType(ActionType.OPEN).add()
-            .newOnFlowConstraintInCountryUsageRule().withInstant(curativeInstant).withCountry(Country.BE).add()
+            .newOnFlowConstraintInCountryUsageRule().withInstant(CURATIVE_INSTANT_ID).withCountry(Country.BE).add()
             .add();
 
         RemedialAction<?> na3 = crac.newNetworkAction().withId("na3")
             .newTopologicalAction().withNetworkElement("ne3").withActionType(ActionType.OPEN).add()
-            .newOnFlowConstraintInCountryUsageRule().withInstant(curativeInstant).withCountry(Country.DE).add()
+            .newOnFlowConstraintInCountryUsageRule().withInstant(CURATIVE_INSTANT_ID).withCountry(Country.DE).add()
             .add();
 
         when(flowResult.getMargin(any(), any())).thenReturn(100.);

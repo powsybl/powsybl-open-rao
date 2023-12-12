@@ -47,7 +47,7 @@ public final class ExhaustiveRaoResultCreation {
         // --------------------
 
         // CostResult at initial state
-        CostResult costResult = raoResult.getAndCreateIfAbsentCostResult(null);
+        CostResult costResult = raoResult.getAndCreateIfAbsentCostResult("initial");
         costResult.setFunctionalCost(100.);
         costResult.setVirtualCost("loopFlow", 0.);
         costResult.setVirtualCost("MNEC", 0.);

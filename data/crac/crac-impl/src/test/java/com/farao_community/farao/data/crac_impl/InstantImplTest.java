@@ -57,6 +57,12 @@ class InstantImplTest {
     }
 
     @Test
+    void testFirstInstantHasToBePreventive() {
+        FaraoException exception = assertThrows(FaraoException.class, () -> new InstantImpl("instant", InstantKind.AUTO, null));
+        assertEquals("The first instant must be preventive", exception.getMessage());
+    }
+
+    @Test
     void testIsPreventive() {
         Instant instant = new InstantImpl("my instant", InstantKind.PREVENTIVE, null);
         assertTrue(instant.isPreventive());
@@ -67,7 +73,8 @@ class InstantImplTest {
 
     @Test
     void testIsOutage() {
-        Instant instant = new InstantImpl("my instant", InstantKind.OUTAGE, null);
+        Instant preventiveInstant = new InstantImpl(PREVENTIVE_INSTANT_ID, InstantKind.PREVENTIVE, null);
+        Instant instant = new InstantImpl("my instant", InstantKind.OUTAGE, preventiveInstant);
         assertFalse(instant.isPreventive());
         assertTrue(instant.isOutage());
         assertFalse(instant.isAuto());
@@ -76,7 +83,8 @@ class InstantImplTest {
 
     @Test
     void testIsAuto() {
-        Instant instant = new InstantImpl("my instant", InstantKind.AUTO, null);
+        Instant preventiveInstant = new InstantImpl(PREVENTIVE_INSTANT_ID, InstantKind.PREVENTIVE, null);
+        Instant instant = new InstantImpl("my instant", InstantKind.AUTO, preventiveInstant);
         assertFalse(instant.isPreventive());
         assertFalse(instant.isOutage());
         assertTrue(instant.isAuto());
@@ -85,7 +93,8 @@ class InstantImplTest {
 
     @Test
     void testIsCurative() {
-        Instant instant = new InstantImpl("my instant", InstantKind.CURATIVE, null);
+        Instant preventiveInstant = new InstantImpl(PREVENTIVE_INSTANT_ID, InstantKind.PREVENTIVE, null);
+        Instant instant = new InstantImpl("my instant", InstantKind.CURATIVE, preventiveInstant);
         assertFalse(instant.isPreventive());
         assertFalse(instant.isOutage());
         assertFalse(instant.isAuto());
@@ -97,15 +106,28 @@ class InstantImplTest {
         Instant instant1 = new InstantImpl("my instant", InstantKind.PREVENTIVE, null);
         Instant instant2 = new InstantImpl("my instant", InstantKind.PREVENTIVE, null);
         Instant instantWithDifferentName = new InstantImpl("my other instant", InstantKind.PREVENTIVE, null);
-        Instant instantWithDifferentKind = new InstantImpl("my instant", InstantKind.OUTAGE, null);
-        Instant instantWithDifferentParent = new InstantImpl("my instant", InstantKind.OUTAGE, instant1);
+        Instant instantWithDifferentParent = new InstantImpl("my instant", InstantKind.PREVENTIVE, instant1);
+        Instant instantWithDifferentKind = new InstantImpl("my instant", InstantKind.OUTAGE, instant1);
         assertEquals(instant1, instant1);
         assertNotEquals(instant1, null);
         assertEquals(instant1, instant2);
         assertNotEquals(instant1, instantWithDifferentName);
-        assertNotEquals(instant1, instantWithDifferentKind);
         assertNotEquals(instant1, instantWithDifferentParent);
+        assertNotEquals(instantWithDifferentParent, instantWithDifferentKind);
 
         assertEquals(instant1.hashCode(), instant2.hashCode());
+    }
+
+    @Test
+    void testGetInstantBefore() {
+        InstantImpl preventiveInstant = new InstantImpl(PREVENTIVE_INSTANT_ID, InstantKind.PREVENTIVE, null);
+        InstantImpl outageInstant = new InstantImpl(OUTAGE_INSTANT_ID, InstantKind.OUTAGE, preventiveInstant);
+        InstantImpl autoInstant = new InstantImpl(AUTO_INSTANT_ID, InstantKind.AUTO, outageInstant);
+        InstantImpl curativeInstant = new InstantImpl(CURATIVE_INSTANT_ID, InstantKind.CURATIVE, autoInstant);
+
+        assertEquals(null, preventiveInstant.getInstantBefore());
+        assertEquals(preventiveInstant, outageInstant.getInstantBefore());
+        assertEquals(outageInstant, autoInstant.getInstantBefore());
+        assertEquals(autoInstant, curativeInstant.getInstantBefore());
     }
 }

@@ -9,7 +9,6 @@ package com.farao_community.farao.data.rao_result_json;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.Instant;
-import com.farao_community.farao.data.crac_api.InstantKind;
 import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.cnec.AngleCnec;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
@@ -19,11 +18,9 @@ import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.crac_api.range_action.HvdcRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.InjectionRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
-import com.farao_community.farao.data.crac_impl.CracImpl;
 import com.farao_community.farao.data.crac_io_json.JsonImport;
 import com.farao_community.farao.data.rao_result_api.ComputationStatus;
 import com.farao_community.farao.data.rao_result_api.RaoResult;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.InputStream;
@@ -45,11 +42,6 @@ class ImporterRetrocompatibilityTest {
     private static final String AUTO_INSTANT_ID = "auto";
     private static final String CURATIVE_INSTANT_ID = "curative";
 
-    private Instant preventiveInstant;
-    private Instant outageInstant;
-    private Instant autoInstant;
-    private Instant curativeInstant;
-
     /*
     The goal of this test class is to ensure that former JSON RaoResult files are
     still importable, even when modifications are brought to the JSON importer.
@@ -64,18 +56,6 @@ class ImporterRetrocompatibilityTest {
     Instead, we need to ensure that the JSON RaoResult files used in this class can
     still be imported as is. Using versioning of the importer if needed.
      */
-    @BeforeEach
-    void setUp() {
-        Crac crac = new CracImpl("test-crac")
-            .newInstant(PREVENTIVE_INSTANT_ID, InstantKind.PREVENTIVE)
-            .newInstant(OUTAGE_INSTANT_ID, InstantKind.OUTAGE)
-            .newInstant(AUTO_INSTANT_ID, InstantKind.AUTO)
-            .newInstant(CURATIVE_INSTANT_ID, InstantKind.CURATIVE);
-        preventiveInstant = crac.getInstant(PREVENTIVE_INSTANT_ID);
-        outageInstant = crac.getInstant(OUTAGE_INSTANT_ID);
-        autoInstant = crac.getInstant(AUTO_INSTANT_ID);
-        curativeInstant = crac.getInstant(CURATIVE_INSTANT_ID);
-    }
 
     @Test
     void importV1Point0Test() {
@@ -189,6 +169,10 @@ class ImporterRetrocompatibilityTest {
     }
 
     private void testBaseContentOfV1RaoResult(RaoResult importedRaoResult, Crac crac) {
+        Instant preventiveInstant = crac.getInstant(PREVENTIVE_INSTANT_ID);
+        Instant outageInstant = crac.getInstant(OUTAGE_INSTANT_ID);
+        Instant autoInstant = crac.getInstant(AUTO_INSTANT_ID);
+        Instant curativeInstant = crac.getInstant(CURATIVE_INSTANT_ID);
 
         // --------------------------
         // --- Computation status ---
@@ -433,6 +417,10 @@ class ImporterRetrocompatibilityTest {
     }
 
     private void testExtraContentOfV1Point1RaoResult(RaoResult importedRaoResult, Crac crac) {
+        Instant preventiveInstant = crac.getInstant(PREVENTIVE_INSTANT_ID);
+        Instant autoInstant = crac.getInstant(AUTO_INSTANT_ID);
+        Instant curativeInstant = crac.getInstant(CURATIVE_INSTANT_ID);
+
         assertEquals(-1, importedRaoResult.getOptimizedTapOnState(crac.getPreventiveState(), crac.getPstRangeAction("pstRange3Id")));
 
         InjectionRangeAction rangeAction = crac.getInjectionRangeAction("injectionRange1Id");
@@ -461,6 +449,11 @@ class ImporterRetrocompatibilityTest {
     }
 
     private void testBaseContentOfV1Point2RaoResult(RaoResult importedRaoResult, Crac crac) {
+        Instant preventiveInstant = crac.getInstant(PREVENTIVE_INSTANT_ID);
+        Instant outageInstant = crac.getInstant(OUTAGE_INSTANT_ID);
+        Instant autoInstant = crac.getInstant(AUTO_INSTANT_ID);
+        Instant curativeInstant = crac.getInstant(CURATIVE_INSTANT_ID);
+
         // --------------------------
         // --- Computation status ---
         // --------------------------
@@ -773,6 +766,9 @@ class ImporterRetrocompatibilityTest {
     }
 
     private void testBaseContentOfV1Point3RaoResult(RaoResult importedRaoResult, Crac crac) {
+        Instant autoInstant = crac.getInstant(AUTO_INSTANT_ID);
+        Instant curativeInstant = crac.getInstant(CURATIVE_INSTANT_ID);
+
         testBaseContentOfV1Point2RaoResult(importedRaoResult, crac);
         // Test computation status map
         assertEquals(ComputationStatus.DEFAULT, importedRaoResult.getComputationStatus(crac.getPreventiveState()));

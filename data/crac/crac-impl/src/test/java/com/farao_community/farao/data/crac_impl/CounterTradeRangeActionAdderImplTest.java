@@ -7,7 +7,7 @@
 package com.farao_community.farao.data.crac_impl;
 
 import com.farao_community.farao.commons.FaraoException;
-import com.farao_community.farao.data.crac_api.Instant;
+import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.InstantKind;
 import com.farao_community.farao.data.crac_api.range_action.CounterTradeRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.CounterTradeRangeActionAdder;
@@ -21,14 +21,12 @@ import static org.junit.jupiter.api.Assertions.*;
 class CounterTradeRangeActionAdderImplTest {
     private static final String PREVENTIVE_INSTANT_ID = "preventive";
 
-    private CracImpl crac;
-    private Instant preventiveInstant;
+    private Crac crac;
 
     @BeforeEach
     public void setUp() {
-        crac = new CracImpl("test-crac")
+        crac = new CracImplFactory().create("test-crac")
             .newInstant(PREVENTIVE_INSTANT_ID, InstantKind.PREVENTIVE);
-        preventiveInstant = crac.getInstant(PREVENTIVE_INSTANT_ID);
     }
 
     @Test
@@ -38,7 +36,7 @@ class CounterTradeRangeActionAdderImplTest {
                 .withOperator("BE")
                 .withGroupId("groupId1")
                 .newRange().withMin(-5).withMax(10).add()
-                .newOnInstantUsageRule().withInstant(preventiveInstant).withUsageMethod(UsageMethod.AVAILABLE).add()
+                .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add()
                 .withExportingCountry(Country.FR)
                 .withImportingCountry(Country.DE)
                 .add();
@@ -64,7 +62,7 @@ class CounterTradeRangeActionAdderImplTest {
                 .withExportingCountry(Country.FR)
                 .withImportingCountry(Country.DE)
                 .newRange().withMin(-5).withMax(10).add()
-                .newOnInstantUsageRule().withInstant(preventiveInstant).withUsageMethod(UsageMethod.AVAILABLE).add()
+                .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add()
                 .add();
 
         assertEquals("id1", counterTradeRangeAction.getId());
@@ -110,7 +108,7 @@ class CounterTradeRangeActionAdderImplTest {
                 .withId("id1")
                 .withGroupId("groupId1")
                 .newRange().withMin(-5).withMax(10).add()
-                .newOnInstantUsageRule().withInstant(preventiveInstant).withUsageMethod(UsageMethod.AVAILABLE).add()
+                .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add()
                 .withExportingCountry(Country.FR)
                 .withImportingCountry(Country.DE)
                 .add();
@@ -133,7 +131,7 @@ class CounterTradeRangeActionAdderImplTest {
                 .withExportingCountry(Country.FR)
                 .withImportingCountry(Country.DE)
                 .newRange().withMin(-5).withMax(10).add()
-                .newOnInstantUsageRule().withInstant(preventiveInstant).withUsageMethod(UsageMethod.AVAILABLE).add();
+                .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add();
         Exception e = assertThrows(FaraoException.class, counterTradeRangeActionAdder::add);
         assertEquals("Cannot add a CounterTradeRangeAction object with no specified id. Please use withId()", e.getMessage());
     }
@@ -146,7 +144,7 @@ class CounterTradeRangeActionAdderImplTest {
                 .withGroupId("groupId1")
                 .withImportingCountry(Country.DE)
                 .newRange().withMin(-5).withMax(10).add()
-                .newOnInstantUsageRule().withInstant(preventiveInstant).withUsageMethod(UsageMethod.AVAILABLE).add();
+                .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add();
         Exception e = assertThrows(FaraoException.class, counterTradeRangeActionAdder::add);
         assertEquals("Cannot add CounterTradeRangeAction without a exporting country. Please use withExportingCountry() with a non null value", e.getMessage());
     }
@@ -159,7 +157,7 @@ class CounterTradeRangeActionAdderImplTest {
                 .withGroupId("groupId1")
                 .withExportingCountry(Country.FR)
                 .newRange().withMin(-5).withMax(10).add()
-                .newOnInstantUsageRule().withInstant(preventiveInstant).withUsageMethod(UsageMethod.AVAILABLE).add();
+                .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add();
         Exception e = assertThrows(FaraoException.class, counterTradeRangeActionAdder::add);
         assertEquals("Cannot add CounterTradeRangeAction without a importing country. Please use withImportingCountry() with a non null value", e.getMessage());
     }
@@ -171,7 +169,7 @@ class CounterTradeRangeActionAdderImplTest {
                 .withOperator("BE")
                 .withExportingCountry(Country.FR)
                 .withImportingCountry(Country.DE)
-                .newOnInstantUsageRule().withInstant(preventiveInstant).withUsageMethod(UsageMethod.AVAILABLE).add();
+                .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add();
         Exception e = assertThrows(FaraoException.class, counterTradeRangeActionAdder::add);
         assertEquals("Cannot add CounterTradeRangeAction without a range. Please use newRange()", e.getMessage());
     }
@@ -183,14 +181,14 @@ class CounterTradeRangeActionAdderImplTest {
                 .withExportingCountry(Country.FR)
                 .withImportingCountry(Country.DE)
                 .newRange().withMin(-5).withMax(10).add()
-                .newOnInstantUsageRule().withInstant(preventiveInstant).withUsageMethod(UsageMethod.AVAILABLE).add()
+                .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add()
                 .add();
         CounterTradeRangeActionAdder counterTradeRangeActionAdder = crac.newCounterTradeRangeAction()
                 .withId("sameId")
                 .withExportingCountry(Country.FR)
                 .withImportingCountry(Country.DE)
                 .newRange().withMin(-5).withMax(10).add()
-                .newOnInstantUsageRule().withInstant(preventiveInstant).withUsageMethod(UsageMethod.AVAILABLE).add();
+                .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add();
         Exception e = assertThrows(FaraoException.class, counterTradeRangeActionAdder::add);
         assertEquals("A remedial action with id sameId already exists", e.getMessage());
     }

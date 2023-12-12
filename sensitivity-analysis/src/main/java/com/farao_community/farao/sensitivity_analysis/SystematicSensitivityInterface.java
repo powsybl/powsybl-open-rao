@@ -49,6 +49,7 @@ public final class SystematicSensitivityInterface {
      * The remedialActions that are applied in the initial network or after some contingencies
      */
     private AppliedRemedialActions appliedRemedialActions;
+    private Instant outageInstant;
 
     /**
      * Builder
@@ -59,6 +60,7 @@ public final class SystematicSensitivityInterface {
         private final MultipleSensitivityProvider multipleSensitivityProvider = new MultipleSensitivityProvider();
         private AppliedRemedialActions appliedRemedialActions;
         private boolean providerInitialised = false;
+        private Instant outageInstant;
 
         private SystematicSensitivityInterfaceBuilder() {
 
@@ -100,6 +102,14 @@ public final class SystematicSensitivityInterface {
             return this;
         }
 
+        public SystematicSensitivityInterfaceBuilder withOutageInstant(Instant outageInstant) {
+            if (!outageInstant.isOutage()) {
+                throw new FaraoException("Instant provided in the systematic sensitivity builder has to be an outage");
+            }
+            this.outageInstant = outageInstant;
+            return this;
+        }
+
         public SystematicSensitivityInterface build() {
             if (Objects.isNull(sensitivityProvider)) {
                 throw new FaraoException("Please provide a sensitivity provider implementation name when building a SystematicSensitivityInterface");
@@ -110,11 +120,15 @@ public final class SystematicSensitivityInterface {
             if (Objects.isNull(defaultParameters)) {
                 defaultParameters = new SensitivityAnalysisParameters();
             }
+            if (Objects.isNull(outageInstant)) {
+                throw new FaraoException("Outage instant has not been defined in the systematic sensitivity interface");
+            }
             SystematicSensitivityInterface systematicSensitivityInterface = new SystematicSensitivityInterface();
             systematicSensitivityInterface.sensitivityProvider = sensitivityProvider;
             systematicSensitivityInterface.parameters = defaultParameters;
             systematicSensitivityInterface.cnecSensitivityProvider = multipleSensitivityProvider;
             systematicSensitivityInterface.appliedRemedialActions = appliedRemedialActions;
+            systematicSensitivityInterface.outageInstant = outageInstant;
             return systematicSensitivityInterface;
         }
     }
@@ -131,8 +145,8 @@ public final class SystematicSensitivityInterface {
      * Run the systematic sensitivity analysis on the given network and crac, and associates the
      * SystematicSensitivityResult to the given network variant.
      */
-    public SystematicSensitivityResult run(Network network, Instant outageInstant) {
-        SystematicSensitivityResult result = runWithConfig(network, parameters, outageInstant);
+    public SystematicSensitivityResult run(Network network) {
+        SystematicSensitivityResult result = runWithConfig(network);
         if (!result.isSuccess()) {
             BUSINESS_WARNS.warn("Sensitivity analysis failed.");
         }
@@ -143,9 +157,9 @@ public final class SystematicSensitivityInterface {
      * Run the systematic sensitivity analysis with given SensitivityComputationParameters, throw a
      * SensitivityComputationException is the computation fails.
      */
-    private SystematicSensitivityResult runWithConfig(Network network, SensitivityAnalysisParameters sensitivityAnalysisParameters, Instant outageInstant) {
+    private SystematicSensitivityResult runWithConfig(Network network) {
         SystematicSensitivityResult tempSystematicSensitivityAnalysisResult = SystematicSensitivityAdapter
-                .runSensitivity(network, cnecSensitivityProvider, appliedRemedialActions, sensitivityAnalysisParameters, sensitivityProvider, outageInstant);
+                .runSensitivity(network, cnecSensitivityProvider, appliedRemedialActions, parameters, sensitivityProvider, outageInstant);
 
         if (!tempSystematicSensitivityAnalysisResult.isSuccess()) {
             TECHNICAL_LOGS.error("Sensitivity analysis failed: no output data available.");

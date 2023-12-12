@@ -8,7 +8,6 @@
 package com.farao_community.farao.data.rao_result_json;
 
 import com.farao_community.farao.data.crac_api.*;
-import com.farao_community.farao.data.crac_impl.CracImpl;
 import com.farao_community.farao.data.rao_result_api.OptimizationStepsExecuted;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -57,15 +56,14 @@ class RaoResultJsonConstantsTest {
     @Test
     void testSerializeInstantId() {
         assertEquals("initial", serializeInstantId(null));
-        Crac crac = new CracImpl("test-crac")
-            .newInstant(PREVENTIVE_INSTANT_ID, InstantKind.PREVENTIVE)
-            .newInstant(OUTAGE_INSTANT_ID, InstantKind.OUTAGE)
-            .newInstant(AUTO_INSTANT_ID, InstantKind.AUTO)
-            .newInstant(CURATIVE_INSTANT_ID, InstantKind.CURATIVE);
-        Instant preventiveInstant = crac.getInstant(PREVENTIVE_INSTANT_ID);
-        Instant outageInstant = crac.getInstant(OUTAGE_INSTANT_ID);
-        Instant autoInstant = crac.getInstant(AUTO_INSTANT_ID);
-        Instant curativeInstant = crac.getInstant(CURATIVE_INSTANT_ID);
+        Instant preventiveInstant = mock(Instant.class);
+        Instant outageInstant = mock(Instant.class);
+        Instant autoInstant = mock(Instant.class);
+        Instant curativeInstant = mock(Instant.class);
+        when(preventiveInstant.getId()).thenReturn(PREVENTIVE_INSTANT_ID);
+        when(outageInstant.getId()).thenReturn(OUTAGE_INSTANT_ID);
+        when(autoInstant.getId()).thenReturn(AUTO_INSTANT_ID);
+        when(curativeInstant.getId()).thenReturn(CURATIVE_INSTANT_ID);
         assertEquals(PREVENTIVE_INSTANT_ID, serializeInstantId(preventiveInstant));
         assertEquals(OUTAGE_INSTANT_ID, serializeInstantId(outageInstant));
         assertEquals(AUTO_INSTANT_ID, serializeInstantId(autoInstant));
@@ -73,9 +71,8 @@ class RaoResultJsonConstantsTest {
     }
 
     @Test
-    void testDeserializeInstant() {
-        // TODO remove this test ?
-        assertNull(deserializeInstantId("initial"));
+    void testDeserializeInstantId() {
+        assertEquals(INITIAL_INSTANT_ID, deserializeInstantId(INITIAL_INSTANT_ID));
         assertEquals(PREVENTIVE_INSTANT_ID, deserializeInstantId(PREVENTIVE_INSTANT_ID));
         assertEquals(OUTAGE_INSTANT_ID, deserializeInstantId(OUTAGE_INSTANT_ID));
         assertEquals(AUTO_INSTANT_ID, deserializeInstantId(AUTO_INSTANT_ID));
@@ -84,12 +81,25 @@ class RaoResultJsonConstantsTest {
 
     @Test
     void testDeserializeOptimizedInstant() {
-        // TODO remove this test ?
-        assertNull(deserializeOptimizedInstantId("initial", "1.4"));
+        assertEquals(INITIAL_INSTANT_ID, deserializeOptimizedInstantId(INITIAL_INSTANT_ID, "1.4"));
         assertEquals(PREVENTIVE_INSTANT_ID, deserializeOptimizedInstantId(PREVENTIVE_INSTANT_ID, "1.4"));
         assertEquals(OUTAGE_INSTANT_ID, deserializeOptimizedInstantId(OUTAGE_INSTANT_ID, "1.4"));
         assertEquals(AUTO_INSTANT_ID, deserializeOptimizedInstantId(AUTO_INSTANT_ID, "1.4"));
         assertEquals(CURATIVE_INSTANT_ID, deserializeOptimizedInstantId(CURATIVE_INSTANT_ID, "1.4"));
+        Instant preventiveInstant = mock(Instant.class);
+        Instant outageInstant = mock(Instant.class);
+        Instant autoInstant = mock(Instant.class);
+        Instant curativeInstant = mock(Instant.class);
+        Crac crac = mock(Crac.class);
+        when(crac.getInstant(PREVENTIVE_INSTANT_ID)).thenReturn(preventiveInstant);
+        when(crac.getInstant(OUTAGE_INSTANT_ID)).thenReturn(outageInstant);
+        when(crac.getInstant(AUTO_INSTANT_ID)).thenReturn(autoInstant);
+        when(crac.getInstant(CURATIVE_INSTANT_ID)).thenReturn(curativeInstant);
+        assertNull(deserializeOptimizedInstant(INITIAL_INSTANT_ID, "1.4", crac));
+        assertEquals(preventiveInstant, deserializeOptimizedInstant(PREVENTIVE_INSTANT_ID, "1.4", crac));
+        assertEquals(outageInstant, deserializeOptimizedInstant(OUTAGE_INSTANT_ID, "1.4", crac));
+        assertEquals(autoInstant, deserializeOptimizedInstant(AUTO_INSTANT_ID, "1.4", crac));
+        assertEquals(curativeInstant, deserializeOptimizedInstant(CURATIVE_INSTANT_ID, "1.4", crac));
     }
 
     @Test
@@ -108,15 +118,13 @@ class RaoResultJsonConstantsTest {
     void testCompareStates() {
         State state1 = Mockito.spy(State.class);
         State state2 = Mockito.spy(State.class);
-        Crac crac = new CracImpl("test-crac")
-            .newInstant(PREVENTIVE_INSTANT_ID, InstantKind.PREVENTIVE)
-            .newInstant(OUTAGE_INSTANT_ID, InstantKind.OUTAGE)
-            .newInstant(AUTO_INSTANT_ID, InstantKind.AUTO)
-            .newInstant(CURATIVE_INSTANT_ID, InstantKind.CURATIVE);
-        Instant preventiveInstant = crac.getInstant(PREVENTIVE_INSTANT_ID);
-        Instant outageInstant = crac.getInstant(OUTAGE_INSTANT_ID);
-        Instant autoInstant = crac.getInstant(AUTO_INSTANT_ID);
-        Instant curativeInstant = crac.getInstant(CURATIVE_INSTANT_ID);
+        Instant preventiveInstant = mock(Instant.class);
+        Instant outageInstant = mock(Instant.class);
+        Instant autoInstant = mock(Instant.class);
+        Instant curativeInstant = mock(Instant.class);
+        when(preventiveInstant.isPreventive()).thenReturn(true);
+        when(outageInstant.getOrder()).thenReturn(1);
+        when(autoInstant.getOrder()).thenReturn(2);
 
         when(state1.getInstant()).thenReturn(outageInstant);
         when(state2.getInstant()).thenReturn(autoInstant);

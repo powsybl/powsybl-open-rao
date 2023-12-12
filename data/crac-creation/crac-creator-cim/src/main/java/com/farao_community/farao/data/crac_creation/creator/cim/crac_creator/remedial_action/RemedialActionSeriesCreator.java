@@ -401,7 +401,7 @@ public class RemedialActionSeriesCreator {
             return;
         }
         if (!Objects.isNull(sharedDomain)) {
-            remedialActionAdder.newOnFlowConstraintInCountryUsageRule().withInstant(instant).withCountry(sharedDomain).add();
+            remedialActionAdder.newOnFlowConstraintInCountryUsageRule().withInstant(instant.getId()).withCountry(sharedDomain).add();
             return;
         }
 
@@ -442,7 +442,7 @@ public class RemedialActionSeriesCreator {
 
     private static void addOnInstantUsageRules(RemedialActionAdder<?> adder, Instant raApplicationInstant) {
         adder.newOnInstantUsageRule()
-            .withInstant(raApplicationInstant)
+            .withInstant(raApplicationInstant.getId())
             .withUsageMethod(UsageMethod.AVAILABLE)
             .add();
     }
@@ -450,7 +450,7 @@ public class RemedialActionSeriesCreator {
     private static void addOnStateUsageRules(RemedialActionAdder<?> adder, Instant raApplicationInstant, UsageMethod usageMethod, List<Contingency> contingencies) {
         contingencies.forEach(contingency ->
             adder.newOnContingencyStateUsageRule()
-                .withInstant(raApplicationInstant)
+                .withInstant(raApplicationInstant.getId())
                 .withUsageMethod(usageMethod)
                 .withContingency(contingency.getId())
                 .add());
@@ -467,14 +467,14 @@ public class RemedialActionSeriesCreator {
         }
         adder.newOnFlowConstraintUsageRule()
             .withFlowCnec(flowCnec.getId())
-            .withInstant(instant)
+            .withInstant(instant.getId())
             .add();
     }
 
     private static void addOnAngleConstraintUsageRule(RemedialActionAdder<?> adder, AngleCnec angleCnec, Instant curativeInstant) {
         adder.newOnAngleConstraintUsageRule()
             .withAngleCnec(angleCnec.getId())
-            .withInstant(curativeInstant)
+            .withInstant(curativeInstant.getId())
             .add();
     }
 

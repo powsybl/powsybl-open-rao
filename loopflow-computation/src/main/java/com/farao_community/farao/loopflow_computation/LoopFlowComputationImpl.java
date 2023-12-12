@@ -46,9 +46,10 @@ public class LoopFlowComputationImpl implements LoopFlowComputation {
                 .withSensitivityProviderName(sensitivityProvider)
                 .withParameters(sensitivityAnalysisParameters)
                 .withPtdfSensitivities(glsk, flowCnecs, Collections.singleton(Unit.MEGAWATT))
+                .withOutageInstant(outageInstant)
                 .build();
 
-        SystematicSensitivityResult ptdfsAndRefFlows = systematicSensitivityInterface.run(network, outageInstant);
+        SystematicSensitivityResult ptdfsAndRefFlows = systematicSensitivityInterface.run(network);
 
         return buildLoopFlowsFromReferenceFlowAndPtdf(ptdfsAndRefFlows, flowCnecs, network);
     }
@@ -77,8 +78,7 @@ public class LoopFlowComputationImpl implements LoopFlowComputation {
 
     static boolean isInMainComponent(SensitivityVariableSet linearGlsk, Network network) {
         boolean atLeastOneGlskConnected = false;
-        for (String glsk : linearGlsk.getVariablesById().keySet().stream().sorted().toList()) {
-            // GLSKs are sorted for consistency in the tests
+        for (String glsk : linearGlsk.getVariablesById().keySet()) {
             Injection<?> injection = getInjection(glsk, network);
             if (injection == null) {
                 throw new FaraoException(String.format("%s is neither a generator nor a load nor a dangling line in the network. It is not a valid GLSK.", glsk));

@@ -10,7 +10,6 @@ package com.farao_community.farao.search_tree_rao.result.impl;
 import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
-import com.farao_community.farao.data.crac_impl.CracImpl;
 import com.farao_community.farao.search_tree_rao.commons.optimization_perimeters.CurativeOptimizationPerimeter;
 import com.farao_community.farao.search_tree_rao.commons.optimization_perimeters.GlobalOptimizationPerimeter;
 import com.farao_community.farao.search_tree_rao.commons.optimization_perimeters.OptimizationPerimeter;
@@ -33,10 +32,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  */
 class LinearProblemResultTest {
     private static final double DOUBLE_TOLERANCE = 0.01;
-    private static final String PREVENTIVE_INSTANT_ID = "preventive";
-    private static final String OUTAGE_INSTANT_ID = "outage";
-    private static final String AUTO_INSTANT_ID = "auto";
-    private static final String CURATIVE_INSTANT_ID = "curative";
 
     private LinearProblem linearProblem;
     private LinearProblemResult linearProblemResult;
@@ -51,13 +46,12 @@ class LinearProblemResultTest {
 
     @BeforeEach
     public void setUp() {
-        Crac crac = new CracImpl("test-crac")
-            .newInstant(PREVENTIVE_INSTANT_ID, InstantKind.PREVENTIVE)
-            .newInstant(OUTAGE_INSTANT_ID, InstantKind.OUTAGE)
-            .newInstant(AUTO_INSTANT_ID, InstantKind.AUTO)
-            .newInstant(CURATIVE_INSTANT_ID, InstantKind.CURATIVE);
-        Instant preventiveInstant = crac.getInstant(PREVENTIVE_INSTANT_ID);
-        Instant curativeInstant = crac.getInstant(CURATIVE_INSTANT_ID);
+        Instant preventiveInstant = Mockito.mock(Instant.class);
+        Mockito.when(preventiveInstant.comesBefore(Mockito.any())).thenReturn(true);
+        Mockito.when(preventiveInstant.comesBefore(preventiveInstant)).thenReturn(false);
+        Instant curativeInstant = Mockito.mock(Instant.class);
+        Mockito.when(curativeInstant.isCurative()).thenReturn(true);
+        Mockito.when(curativeInstant.getOrder()).thenReturn(3);
         preventiveState = Mockito.mock(State.class);
         Mockito.when(preventiveState.getInstant()).thenReturn(preventiveInstant);
         Mockito.when(preventiveState.isPreventive()).thenReturn(true);

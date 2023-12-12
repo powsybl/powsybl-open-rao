@@ -9,8 +9,7 @@ package com.farao_community.farao.data.crac_io_json.deserializers;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Crac;
-import com.farao_community.farao.data.crac_api.cnec.AngleCnec;
-import com.farao_community.farao.data.crac_api.cnec.AngleCnecAdder;
+import com.farao_community.farao.data.crac_api.cnec.*;
 import com.farao_community.farao.data.crac_io_json.ExtensionsHandler;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
@@ -58,7 +57,7 @@ public final class AngleCnecArrayDeserializer {
                         angleCnecAdder.withOperator(jsonParser.nextTextValue());
                         break;
                     case INSTANT:
-                        angleCnecAdder.withInstant(crac.getInstant(jsonParser.nextTextValue()));
+                        angleCnecAdder.withInstant(jsonParser.nextTextValue());
                         break;
                     case CONTINGENCY_ID:
                         angleCnecAdder.withContingency(jsonParser.nextTextValue());

@@ -8,7 +8,6 @@
 package com.farao_community.farao.data.crac_io_json.deserializers;
 
 import com.farao_community.farao.commons.FaraoException;
-import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.RemedialActionAdder;
 import com.farao_community.farao.data.crac_api.usage_rule.OnFlowConstraintAdder;
 import com.fasterxml.jackson.core.JsonParser;
@@ -25,13 +24,13 @@ public final class OnFlowConstraintArrayDeserializer {
     private OnFlowConstraintArrayDeserializer() {
     }
 
-    public static void deserialize(JsonParser jsonParser, RemedialActionAdder<?> ownerAdder, Crac crac) throws IOException {
+    public static void deserialize(JsonParser jsonParser, RemedialActionAdder<?> ownerAdder) throws IOException {
         while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
             OnFlowConstraintAdder<?> adder = ownerAdder.newOnFlowConstraintUsageRule();
             while (!jsonParser.nextToken().isStructEnd()) {
                 switch (jsonParser.getCurrentName()) {
                     case INSTANT:
-                        adder.withInstant(crac.getInstant(jsonParser.nextTextValue()));
+                        adder.withInstant(jsonParser.nextTextValue());
                         break;
                     case FLOW_CNEC_ID:
                         adder.withFlowCnec(jsonParser.nextTextValue());

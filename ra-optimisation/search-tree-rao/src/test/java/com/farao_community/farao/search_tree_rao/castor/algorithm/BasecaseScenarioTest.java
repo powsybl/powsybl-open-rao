@@ -8,11 +8,8 @@
 package com.farao_community.farao.search_tree_rao.castor.algorithm;
 
 import com.farao_community.farao.commons.FaraoException;
-import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.Instant;
-import com.farao_community.farao.data.crac_api.InstantKind;
 import com.farao_community.farao.data.crac_api.State;
-import com.farao_community.farao.data.crac_impl.CracImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -26,25 +23,16 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
 class BasecaseScenarioTest {
-    private static final String PREVENTIVE_INSTANT_ID = "preventive";
-    private static final String OUTAGE_INSTANT_ID = "outage";
-    private static final String AUTO_INSTANT_ID = "auto";
-    private static final String CURATIVE_INSTANT_ID = "curative";
-
     private State basecaseState;
     private State otherState1;
     private State otherState2;
 
     @BeforeEach
     public void setUp() {
-        Crac crac = new CracImpl("test-crac")
-            .newInstant(PREVENTIVE_INSTANT_ID, InstantKind.PREVENTIVE)
-            .newInstant(OUTAGE_INSTANT_ID, InstantKind.OUTAGE)
-            .newInstant(AUTO_INSTANT_ID, InstantKind.AUTO)
-            .newInstant(CURATIVE_INSTANT_ID, InstantKind.CURATIVE);
-        Instant preventiveInstant = crac.getInstant(PREVENTIVE_INSTANT_ID);
-        Instant outageInstant = crac.getInstant(OUTAGE_INSTANT_ID);
-        Instant curativeInstant = crac.getInstant(CURATIVE_INSTANT_ID);
+        Instant preventiveInstant = Mockito.mock(Instant.class);
+        Mockito.when(preventiveInstant.isPreventive()).thenReturn(true);
+        Instant outageInstant = Mockito.mock(Instant.class);
+        Instant curativeInstant = Mockito.mock(Instant.class);
 
         basecaseState = Mockito.mock(State.class);
         Mockito.when(basecaseState.getInstant()).thenReturn(preventiveInstant);

@@ -7,7 +7,6 @@
 package com.farao_community.farao.data.crac_io_json.deserializers;
 
 import com.farao_community.farao.commons.FaraoException;
-import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.range_action.StandardRangeActionAdder;
 import com.fasterxml.jackson.core.JsonParser;
 
@@ -28,7 +27,7 @@ public final class StandardRangeActionDeserializer {
      * @return true if the element was found
      * @throws IOException
      */
-    public static boolean addCommonElement(StandardRangeActionAdder<?> standardRangeActionAdder, JsonParser jsonParser, String version, Crac crac) throws IOException {
+    public static boolean addCommonElement(StandardRangeActionAdder<?> standardRangeActionAdder, JsonParser jsonParser, String version) throws IOException {
         switch (jsonParser.getCurrentName()) {
             case ID:
                 standardRangeActionAdder.withId(jsonParser.nextTextValue());
@@ -41,43 +40,43 @@ public final class StandardRangeActionDeserializer {
                 break;
             case ON_INSTANT_USAGE_RULES:
                 jsonParser.nextToken();
-                OnInstantArrayDeserializer.deserialize(jsonParser, version, standardRangeActionAdder, crac);
+                OnInstantArrayDeserializer.deserialize(jsonParser, version, standardRangeActionAdder);
                 break;
             case FREE_TO_USE_USAGE_RULES:
                 if (getPrimaryVersionNumber(version) > 1 || getSubVersionNumber(version) > 5) {
                     throw new FaraoException("FreeToUse has been renamed to OnInstant since CRAC version 1.6");
                 } else {
                     jsonParser.nextToken();
-                    OnInstantArrayDeserializer.deserialize(jsonParser, version, standardRangeActionAdder, crac);
+                    OnInstantArrayDeserializer.deserialize(jsonParser, version, standardRangeActionAdder);
                 }
                 break;
             case ON_CONTINGENCY_STATE_USAGE_RULES:
                 jsonParser.nextToken();
-                OnStateArrayDeserializer.deserialize(jsonParser, version, standardRangeActionAdder, crac);
+                OnStateArrayDeserializer.deserialize(jsonParser, version, standardRangeActionAdder);
                 break;
             case ON_STATE_USAGE_RULES:
                 if (getPrimaryVersionNumber(version) > 1 || getSubVersionNumber(version) > 5) {
                     throw new FaraoException("OnState has been renamed to OnContingencyState since CRAC version 1.6");
                 } else {
                     jsonParser.nextToken();
-                    OnStateArrayDeserializer.deserialize(jsonParser, version, standardRangeActionAdder, crac);
+                    OnStateArrayDeserializer.deserialize(jsonParser, version, standardRangeActionAdder);
                 }
                 break;
             case ON_FLOW_CONSTRAINT_USAGE_RULES:
                 jsonParser.nextToken();
-                OnFlowConstraintArrayDeserializer.deserialize(jsonParser, standardRangeActionAdder, crac);
+                OnFlowConstraintArrayDeserializer.deserialize(jsonParser, standardRangeActionAdder);
                 break;
             case ON_ANGLE_CONSTRAINT_USAGE_RULES:
                 jsonParser.nextToken();
-                OnAngleConstraintArrayDeserializer.deserialize(jsonParser, standardRangeActionAdder, crac);
+                OnAngleConstraintArrayDeserializer.deserialize(jsonParser, standardRangeActionAdder);
                 break;
             case ON_VOLTAGE_CONSTRAINT_USAGE_RULES:
                 jsonParser.nextToken();
-                OnVoltageConstraintArrayDeserializer.deserialize(jsonParser, standardRangeActionAdder, crac);
+                OnVoltageConstraintArrayDeserializer.deserialize(jsonParser, standardRangeActionAdder);
                 break;
             case ON_FLOW_CONSTRAINT_IN_COUNTRY_USAGE_RULES:
                 jsonParser.nextToken();
-                OnFlowConstraintInCountryArrayDeserializer.deserialize(jsonParser, standardRangeActionAdder, crac);
+                OnFlowConstraintInCountryArrayDeserializer.deserialize(jsonParser, standardRangeActionAdder);
                 break;
             case GROUP_ID:
                 standardRangeActionAdder.withGroupId(jsonParser.nextTextValue());

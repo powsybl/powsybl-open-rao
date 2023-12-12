@@ -19,7 +19,6 @@ import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
-import com.farao_community.farao.data.crac_impl.CracImpl;
 import com.farao_community.farao.rao_api.parameters.ObjectiveFunctionParameters;
 import com.farao_community.farao.search_tree_rao.result.api.FlowResult;
 import com.farao_community.farao.search_tree_rao.result.api.ObjectiveFunctionResult;
@@ -40,16 +39,14 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static com.farao_community.farao.commons.Unit.AMPERE;
 import static com.farao_community.farao.commons.Unit.MEGAWATT;
+import static com.farao_community.farao.commons.Unit.AMPERE;
 
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
 class RaoLoggerTest {
     private static final String PREVENTIVE_INSTANT_ID = "preventive";
-    private static final String OUTAGE_INSTANT_ID = "outage";
-    private static final String AUTO_INSTANT_ID = "auto";
     private static final String CURATIVE_INSTANT_ID = "curative";
 
     private ObjectiveFunctionResult objectiveFunctionResult;
@@ -70,14 +67,10 @@ class RaoLoggerTest {
         objectiveFunctionResult = mock(ObjectiveFunctionResult.class);
         flowResult = mock(FlowResult.class);
         basecaseOptimResult = mock(OptimizationResult.class);
-        Crac crac = new CracImpl("test-crac")
-            .newInstant(PREVENTIVE_INSTANT_ID, InstantKind.PREVENTIVE)
-            .newInstant(OUTAGE_INSTANT_ID, InstantKind.OUTAGE)
-            .newInstant(AUTO_INSTANT_ID, InstantKind.AUTO)
-            .newInstant(CURATIVE_INSTANT_ID, InstantKind.CURATIVE);
-        Instant preventiveInstant = crac.getInstant(PREVENTIVE_INSTANT_ID);
-        Instant autoInstant = crac.getInstant(AUTO_INSTANT_ID);
-        Instant curativeInstant = crac.getInstant(CURATIVE_INSTANT_ID);
+        Instant preventiveInstant = mock(Instant.class);
+        Instant autoInstant = mock(Instant.class);
+        Instant curativeInstant = mock(Instant.class);
+        when(preventiveInstant.isPreventive()).thenReturn(true);
         statePreventive = mockState(PREVENTIVE_INSTANT_ID, preventiveInstant);
         stateCo1Auto = mockState("co1 - auto", autoInstant);
         stateCo1Curative = mockState("co1 - curative", curativeInstant);

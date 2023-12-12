@@ -17,7 +17,6 @@ import com.farao_community.farao.data.crac_api.cnec.VoltageCnec;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
-import com.farao_community.farao.data.crac_impl.CracImpl;
 import com.farao_community.farao.data.rao_result_api.ComputationStatus;
 import com.farao_community.farao.data.rao_result_api.OptimizationStepsExecuted;
 import com.farao_community.farao.search_tree_rao.result.api.FlowResult;
@@ -55,7 +54,7 @@ class PreventiveAndCurativesRaoResultImplTest {
     private static final String AUTO_INSTANT_ID = "auto";
     private static final String CURATIVE_INSTANT_ID = "curative";
 
-    private CracImpl crac;
+    private Crac crac;
     private Instant preventiveInstant;
     private Instant outageInstant;
     private Instant autoInstant;
@@ -85,15 +84,31 @@ class PreventiveAndCurativesRaoResultImplTest {
 
     @BeforeEach
     public void setUp() {
-        crac = new CracImpl("test-crac")
-            .newInstant(PREVENTIVE_INSTANT_ID, InstantKind.PREVENTIVE)
-            .newInstant(OUTAGE_INSTANT_ID, InstantKind.OUTAGE)
-            .newInstant(AUTO_INSTANT_ID, InstantKind.AUTO)
-            .newInstant(CURATIVE_INSTANT_ID, InstantKind.CURATIVE);
-        preventiveInstant = crac.getInstant(PREVENTIVE_INSTANT_ID);
-        outageInstant = crac.getInstant(OUTAGE_INSTANT_ID);
-        autoInstant = crac.getInstant(AUTO_INSTANT_ID);
-        curativeInstant = crac.getInstant(CURATIVE_INSTANT_ID);
+        crac = mock(Crac.class);
+        preventiveInstant = mock(Instant.class);
+        when(preventiveInstant.isPreventive()).thenReturn(true);
+        when(preventiveInstant.getOrder()).thenReturn(0);
+        when(preventiveInstant.toString()).thenReturn(PREVENTIVE_INSTANT_ID);
+        when(preventiveInstant.getId()).thenReturn(PREVENTIVE_INSTANT_ID);
+        outageInstant = mock(Instant.class);
+        when(outageInstant.isOutage()).thenReturn(true);
+        when(outageInstant.getOrder()).thenReturn(1);
+        when(outageInstant.toString()).thenReturn(OUTAGE_INSTANT_ID);
+        when(outageInstant.getId()).thenReturn(OUTAGE_INSTANT_ID);
+        autoInstant = mock(Instant.class);
+        when(autoInstant.isAuto()).thenReturn(true);
+        when(autoInstant.getOrder()).thenReturn(2);
+        when(autoInstant.toString()).thenReturn(AUTO_INSTANT_ID);
+        when(autoInstant.getId()).thenReturn(AUTO_INSTANT_ID);
+        when(preventiveInstant.comesBefore(autoInstant)).thenReturn(true);
+        when(outageInstant.comesBefore(autoInstant)).thenReturn(true);
+        curativeInstant = mock(Instant.class);
+        when(curativeInstant.isCurative()).thenReturn(true);
+        when(curativeInstant.getOrder()).thenReturn(3);
+        when(curativeInstant.toString()).thenReturn(CURATIVE_INSTANT_ID);
+        when(preventiveInstant.comesBefore(curativeInstant)).thenReturn(true);
+        when(outageInstant.comesBefore(curativeInstant)).thenReturn(true);
+        when(autoInstant.comesBefore(curativeInstant)).thenReturn(true);
         cnec1 = mock(FlowCnec.class);
         cnec1auto = mock(FlowCnec.class);
         cnec2 = mock(FlowCnec.class);
@@ -538,8 +553,8 @@ class PreventiveAndCurativesRaoResultImplTest {
         when(preCurativeResult.getCommercialFlow(cnec2, RIGHT, AMPERE)).thenReturn(20.);
         when(curativeResult1.getCommercialFlow(cnec3, RIGHT, MEGAWATT)).thenReturn(30.);
         when(cnec3.getState()).thenReturn(curativeState1);
-        //assertEquals(10., output.getCommercialFlow(null, cnec1, LEFT, MEGAWATT), DOUBLE_TOLERANCE);
-        //assertEquals(20., output.getCommercialFlow(preventiveInstant, cnec2, RIGHT, AMPERE), DOUBLE_TOLERANCE);
+        assertEquals(10., output.getCommercialFlow(null, cnec1, LEFT, MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(20., output.getCommercialFlow(preventiveInstant, cnec2, RIGHT, AMPERE), DOUBLE_TOLERANCE);
         assertEquals(30., output.getCommercialFlow(curativeInstant, cnec3, RIGHT, MEGAWATT), DOUBLE_TOLERANCE);
     }
 
@@ -601,7 +616,7 @@ class PreventiveAndCurativesRaoResultImplTest {
         exception = assertThrows(FaraoException.class, () -> output.getPerimeterResult(null, curativeState2));
         assertEquals("No PerimeterResult for INITIAL optimization state", exception.getMessage());
 
-        // preventiveInstant
+        // PREVENTIVE
         perimeterResult = output.getPerimeterResult(preventiveInstant, preventiveState);
         assertEquals(2., perimeterResult.getPtdfZonalSum(cnec1, LEFT), DOUBLE_TOLERANCE);
         perimeterResult = output.getPerimeterResult(preventiveInstant, outageState);
@@ -613,7 +628,7 @@ class PreventiveAndCurativesRaoResultImplTest {
         perimeterResult = output.getPerimeterResult(preventiveInstant, curativeState2);
         assertEquals(2., perimeterResult.getPtdfZonalSum(cnec1, LEFT), DOUBLE_TOLERANCE);
 
-        // autoInstant
+        // AUTO
         exception = assertThrows(FaraoException.class, () -> output.getPerimeterResult(autoInstant, preventiveState));
         assertEquals("Trying to access results for instant preventive at optimization state auto is not allowed", exception.getMessage());
         exception = assertThrows(FaraoException.class, () -> output.getPerimeterResult(autoInstant, outageState));
@@ -624,7 +639,7 @@ class PreventiveAndCurativesRaoResultImplTest {
         assertEquals(3., perimeterResult.getPtdfZonalSum(cnec1, LEFT), DOUBLE_TOLERANCE);
         assertNull(output.getPerimeterResult(autoInstant, curativeState2));
 
-        // curativeInstant
+        // CURATIVE
         exception = assertThrows(FaraoException.class, () -> output.getPerimeterResult(curativeInstant, preventiveState));
         assertEquals("Trying to access results for instant preventive at optimization state curative is not allowed", exception.getMessage());
         exception = assertThrows(FaraoException.class, () -> output.getPerimeterResult(curativeInstant, outageState));
@@ -860,7 +875,7 @@ class PreventiveAndCurativesRaoResultImplTest {
         exception = assertThrows(FaraoException.class, () -> output.getPerimeterResult(null, curativeState2));
         assertEquals("No PerimeterResult for INITIAL optimization state", exception.getMessage());
 
-        // preventiveInstant
+        // PREVENTIVE
         perimeterResult = output.getPerimeterResult(preventiveInstant, preventiveState);
         assertEquals(2., perimeterResult.getPtdfZonalSum(cnec1, LEFT), DOUBLE_TOLERANCE);
         perimeterResult = output.getPerimeterResult(preventiveInstant, outageState);
@@ -872,14 +887,14 @@ class PreventiveAndCurativesRaoResultImplTest {
         perimeterResult = output.getPerimeterResult(preventiveInstant, curativeState2);
         assertEquals(2., perimeterResult.getPtdfZonalSum(cnec1, LEFT), DOUBLE_TOLERANCE);
 
-        // autoInstant
+        // AUTO
         exception = assertThrows(FaraoException.class, () -> output.getPerimeterResult(autoInstant, preventiveState));
         assertEquals("Trying to access results for instant preventive at optimization state auto is not allowed", exception.getMessage());
         exception = assertThrows(FaraoException.class, () -> output.getPerimeterResult(autoInstant, outageState));
         assertEquals("Trying to access results for instant outage at optimization state auto is not allowed", exception.getMessage());
         assertNull(output.getPerimeterResult(autoInstant, autoState1));
 
-        // curativeInstant
+        // CURATIVE
         exception = assertThrows(FaraoException.class, () -> output.getPerimeterResult(curativeInstant, preventiveState));
         assertEquals("Trying to access results for instant preventive at optimization state curative is not allowed", exception.getMessage());
         exception = assertThrows(FaraoException.class, () -> output.getPerimeterResult(curativeInstant, outageState));

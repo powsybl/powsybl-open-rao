@@ -4,7 +4,6 @@ import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.CracFactory;
-import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.InstantKind;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.cnec.Side;
@@ -23,12 +22,11 @@ class LoopFlowThresholdAdderImplTest {
 
         Crac crac = CracFactory.findDefault().create("cracId", "cracName")
             .newInstant(PREVENTIVE_INSTANT_ID, InstantKind.PREVENTIVE);
-        Instant preventiveInstant = crac.getInstant(PREVENTIVE_INSTANT_ID);
         flowCnec = crac.newFlowCnec()
             .withId("flowCnecId")
             .withName("flowCnecName")
             .withNetworkElement("networkElementId")
-            .withInstant(preventiveInstant)
+            .withInstant(PREVENTIVE_INSTANT_ID)
             .withOperator("operator")
             .withOptimized(true)
             .newThreshold()

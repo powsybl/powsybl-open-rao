@@ -168,7 +168,7 @@ class ComplexVariantReader {
 
         if (actionsSetType.isPreventive()) {
             remedialActionAdder.newOnInstantUsageRule()
-                    .withInstant(crac.getInstant(InstantKind.PREVENTIVE))
+                    .withInstant(crac.getInstant(InstantKind.PREVENTIVE).getId())
                     .withUsageMethod(AVAILABLE)
                     .add();
         }
@@ -177,7 +177,7 @@ class ComplexVariantReader {
             for (String co : afterCoList) {
                 remedialActionAdder.newOnContingencyStateUsageRule()
                         .withContingency(co)
-                        .withInstant(crac.getInstant(InstantKind.CURATIVE))
+                        .withInstant(crac.getInstant(InstantKind.CURATIVE).getId())
                         .withUsageMethod(AVAILABLE)
                         .add();
             }

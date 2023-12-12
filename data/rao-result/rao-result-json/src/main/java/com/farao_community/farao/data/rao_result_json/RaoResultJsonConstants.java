@@ -8,6 +8,7 @@ package com.farao_community.farao.data.rao_result_json;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
+import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.cnec.Side;
@@ -17,6 +18,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.Objects;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
@@ -201,23 +203,26 @@ public final class RaoResultJsonConstants {
         if (instant == null) {
             return INITIAL_INSTANT_ID;
         }
-        // TODO review this
         return instant.getId();
     }
 
     public static String deserializeInstantId(String stringValue) {
-        if (stringValue.equals("") || stringValue.equals(INITIAL_INSTANT_ID)) { // TODO review this "" test (see RaoResultRoundTripTest)
-            return null;
-        }
         return stringValue;
     }
 
+    public static Instant deserializeOptimizedInstant(String stringValue, String jsonFileVersion, Crac crac) {
+        String instantId = deserializeOptimizedInstantId(stringValue, jsonFileVersion);
+        if (Objects.equals(instantId, INITIAL_INSTANT_ID)) {
+            return null;
+        }
+        return crac.getInstant(instantId);
+    }
+
     public static String deserializeOptimizedInstantId(String stringValue, String jsonFileVersion) {
-        // TODO review this
         if (getPrimaryVersionNumber(jsonFileVersion) <= 1 && getSubVersionNumber(jsonFileVersion) <= 3) {
             switch (stringValue) {
                 case INITIAL_OPT_STATE:
-                    return null;
+                    return INITIAL_INSTANT_ID;
                 case AFTER_PRA_OPT_STATE:
                     return PREVENTIVE_INSTANT_ID;
                 case AFTER_ARA_OPT_STATE:
@@ -225,7 +230,7 @@ public final class RaoResultJsonConstants {
                 case AFTER_CRA_OPT_STATE:
                     return CURATIVE_INSTANT_ID;
                 default:
-                    throw new FaraoException(String.format("Unrecognized optimization instant %s", stringValue));
+                    throw new FaraoException(String.format("Unrecognized optimization state %s", stringValue));
             }
         } else {
             return deserializeInstantId(stringValue);
@@ -299,4 +304,5 @@ public final class RaoResultJsonConstants {
             return s1.getContingency().get().getId().compareTo(s2.getContingency().get().getId());
         }
     };
+
 }

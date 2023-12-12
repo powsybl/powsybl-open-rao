@@ -24,6 +24,7 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static com.farao_community.farao.data.crac_io_json.JsonSerializationConstants.*;
 
@@ -70,7 +71,7 @@ public class CracDeserializer extends JsonDeserializer<Crac> {
         }
         String name = jsonParser.nextTextValue();
         Crac crac = cracFactory.create(id, name);
-        if (getSubVersionNumber(version) <= 9) {
+        if (getPrimaryVersionNumber(version) <= 1 && getSubVersionNumber(version) <= 9) {
             crac.newInstant("preventive", InstantKind.PREVENTIVE)
                 .newInstant("outage", InstantKind.OUTAGE)
                 .newInstant("auto", InstantKind.AUTO)
@@ -82,7 +83,7 @@ public class CracDeserializer extends JsonDeserializer<Crac> {
             // TODO implement this
         }
 
-        HashMap<String, String> deserializedNetworkElementsNamesPerId = null;
+        Map<String, String> deserializedNetworkElementsNamesPerId = null;
 
         // deserialize the following lines of the Crac
         while (jsonParser.nextToken() != JsonToken.END_OBJECT) {

@@ -80,7 +80,7 @@ public class RaoResultImpl implements RaoResult {
             instant = flowCnec.getState().getInstant();
         }
         if (instant.isOutage()) {
-            instant = crac.getInstantBefore(instant);
+            instant = crac.getInstant(InstantKind.PREVENTIVE);
         }
         return instant;
     }
@@ -185,7 +185,7 @@ public class RaoResultImpl implements RaoResult {
     }
 
     private static String getIdFromNullableInstant(Instant optimizedInstant) {
-        return optimizedInstant == null ? null : optimizedInstant.getId();
+        return optimizedInstant == null ? INITIAL_INSTANT_ID : optimizedInstant.getId();
     }
 
     @Override

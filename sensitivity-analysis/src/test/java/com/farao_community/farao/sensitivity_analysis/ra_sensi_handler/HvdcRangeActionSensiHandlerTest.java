@@ -9,7 +9,6 @@ package com.farao_community.farao.sensitivity_analysis.ra_sensi_handler;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.CracFactory;
-import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.InstantKind;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.cnec.Side;
@@ -35,11 +34,10 @@ class HvdcRangeActionSensiHandlerTest {
         Network network = Network.read("TestCase16NodesWithHvdc.xiidm", getClass().getResourceAsStream("/TestCase16NodesWithHvdc.xiidm"));
         Crac crac = CracFactory.findDefault().create("test-crac")
             .newInstant(PREVENTIVE_INSTANT_ID, InstantKind.PREVENTIVE);
-        Instant preventiveInstant = crac.getInstant(PREVENTIVE_INSTANT_ID);
         HvdcRangeAction hvdcRangeAction = (HvdcRangeAction) crac.newHvdcRangeAction().withId("hvdcRangeId")
                 .withNetworkElement("BBE2AA11 FFR3AA11 1")
                 .newRange().withMin(-1000).withMax(1000).add()
-                .newOnInstantUsageRule().withInstant(preventiveInstant).withUsageMethod(UsageMethod.AVAILABLE).add()
+                .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add()
                 .add();
 
         HvdcRangeActionSensiHandler sensiHandler = new HvdcRangeActionSensiHandler(hvdcRangeAction);
@@ -50,12 +48,11 @@ class HvdcRangeActionSensiHandlerTest {
     @Test
     void getSensitivityOnFlowTest() {
         Crac crac = CommonCracCreation.create();
-        Instant preventiveInstant = crac.getInstant(PREVENTIVE_INSTANT_ID);
         FlowCnec flowCnec = crac.getFlowCnec("cnec1basecase");
         HvdcRangeAction hvdcRangeAction = (HvdcRangeAction) crac.newHvdcRangeAction().withId("hvdcRangeId")
                 .withNetworkElement("BBE2AA11 FFR3AA11 1")
                 .newRange().withMin(-1000).withMax(1000).add()
-                .newOnInstantUsageRule().withInstant(preventiveInstant).withUsageMethod(UsageMethod.AVAILABLE).add()
+                .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add()
                 .add();
 
         HvdcRangeActionSensiHandler sensiHandler = new HvdcRangeActionSensiHandler(hvdcRangeAction);
@@ -73,12 +70,11 @@ class HvdcRangeActionSensiHandlerTest {
         Network network = Network.read("TestCase16NodesWithHvdc.xiidm", getClass().getResourceAsStream("/TestCase16NodesWithHvdc.xiidm"));
         Crac crac = CracFactory.findDefault().create("test-crac")
             .newInstant(PREVENTIVE_INSTANT_ID, InstantKind.PREVENTIVE);
-        Instant preventiveInstant = crac.getInstant(PREVENTIVE_INSTANT_ID);
 
         HvdcRangeAction hvdcRangeAction = (HvdcRangeAction) crac.newHvdcRangeAction().withId("hvdcRangeId")
                 .withNetworkElement("BBE1AA11 BBE2AA11 1")
                 .newRange().withMin(-1000).withMax(1000).add()
-                .newOnInstantUsageRule().withInstant(preventiveInstant).withUsageMethod(UsageMethod.AVAILABLE).add()
+                .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add()
                 .add();
 
         HvdcRangeActionSensiHandler sensiHandler = new HvdcRangeActionSensiHandler(hvdcRangeAction);
@@ -92,12 +88,11 @@ class HvdcRangeActionSensiHandlerTest {
         Network network = Network.read("TestCase16NodesWithHvdc.xiidm", getClass().getResourceAsStream("/TestCase16NodesWithHvdc.xiidm"));
         Crac crac = CracFactory.findDefault().create("test-crac")
             .newInstant(PREVENTIVE_INSTANT_ID, InstantKind.PREVENTIVE);
-        Instant preventiveInstant = crac.getInstant(PREVENTIVE_INSTANT_ID);
 
         HvdcRangeAction hvdcRangeAction = (HvdcRangeAction) crac.newHvdcRangeAction().withId("hvdcRangeId")
                 .withNetworkElement("unknownNetworkElement")
                 .newRange().withMin(-1000).withMax(1000).add()
-                .newOnInstantUsageRule().withInstant(preventiveInstant).withUsageMethod(UsageMethod.AVAILABLE).add()
+                .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add()
                 .add();
 
         HvdcRangeActionSensiHandler sensiHandler = new HvdcRangeActionSensiHandler(hvdcRangeAction);

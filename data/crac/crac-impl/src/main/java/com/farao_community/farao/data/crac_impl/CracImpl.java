@@ -153,12 +153,9 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
     @Override
     public CracImpl newInstant(String instantId, InstantKind instantKind) {
         if (instants.containsKey(instantId)) {
-            Instant oldInstant = instants.get(instantId);
-            if (instantKind != oldInstant.getKind()) {
-                throw new FaraoException(format("Instant '%s' is already defined with other arguments", instantId));
-            }
+            throw new FaraoException(format("Instant '%s' is already defined with other arguments", instantId));
         }
-        Instant instant = new InstantImpl(instantId, instantKind, lastInstantAdded);
+        InstantImpl instant = new InstantImpl(instantId, instantKind, lastInstantAdded);
         lastInstantAdded = instant;
         instants.put(instantId, instant);
         return this;
@@ -166,9 +163,6 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
 
     @Override
     public Instant getInstant(String instantId) {
-        if (instantId == null) {
-            return null;
-        }
         if (!instants.containsKey(instantId)) {
             throw new FaraoException(String.format("Instant '%s' has not been defined", instantId));
         }
@@ -177,7 +171,6 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
 
     @Override
     public List<Instant> getInstants() {
-        // TODO : is it really used ?
         return instants.values().stream().sorted(Comparator.comparingInt(Instant::getOrder)).toList();
     }
 
@@ -187,7 +180,7 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
         if (instantsOfKind.size() != 1) {
             throw new FaraoException(String.format("Crac does not contain exactly one instant of kind '%s'. It contains %d instants of kind '%s'", instantKind.toString(), instantsOfKind.size(), instantKind));
         }
-        return instantsOfKind.stream().findFirst().orElseThrow(
+        return instantsOfKind.stream().findAny().orElseThrow(
             () -> new FaraoException(String.format("Should not occur as there is only one '%s' instant", instantKind))
         );
     }
@@ -202,36 +195,31 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
     @Override
     public Instant getInstantBefore(Instant providedInstant) {
         Objects.requireNonNull(providedInstant);
+        checkCracContainsProvidedInstantId(providedInstant);
+        checkCracInstantAndProvidedInstantAreTheSame(providedInstant);
+
+        if (providedInstant instanceof InstantImpl) {
+            return ((InstantImpl) providedInstant).getInstantBefore();
+        }
+        throw new FaraoException("This should not happen thanks to the equality ckeck. " +
+            "Method getInstantBefore might not have been defined as a package-private method " +
+            "in the implementation of the Instant interface");
+    }
+
+    private void checkCracContainsProvidedInstantId(Instant providedInstant) {
         if (!instants.containsKey(providedInstant.getId())) {
             throw new FaraoException(String.format("Provided instant '%s' is not defined in the CRAC", providedInstant));
         }
-        Instant instant = getInstant(providedInstant.getId());
-        if (!Objects.equals(instant, providedInstant)) {
+    }
+
+    private void checkCracInstantAndProvidedInstantAreTheSame(Instant providedInstant) {
+        Instant instantInsideCracWithSameId = getInstant(providedInstant.getId());
+        if (!Objects.equals(instantInsideCracWithSameId, providedInstant)) {
             throw new FaraoException(String.format(
                 "Provided instant {id:'%s', kind:'%s', order:%d} is not the same {id: '%s', kind:'%s', order:%d} in the CRAC",
                 providedInstant.getId(), providedInstant.getKind(), providedInstant.getOrder(),
-                instant.getId(), instant.getKind(), instant.getOrder()));
+                instantInsideCracWithSameId.getId(), instantInsideCracWithSameId.getKind(), instantInsideCracWithSameId.getOrder()));
         }
-        return getPreviousOptionalInstant(providedInstant);
-    }
-
-    private Instant getPreviousOptionalInstant(Instant providedInstant) {
-        return instants.values().stream()
-            .filter(potentialPreviousInstant ->
-                potentialPreviousInstant.getOrder() == providedInstant.getOrder() - 1
-            )
-            .reduce((a, b) -> {
-                throw new AssertionError("Instants in the crac cannot have the same order");
-            })
-            .orElse(null);
-    }
-
-    @Override
-    public Instant getInstantBefore(String providedInstantId) {
-        if (!instants.containsKey(providedInstantId)) {
-            throw new FaraoException(String.format("Instant '%s' has not been defined", providedInstantId));
-        }
-        return getPreviousOptionalInstant(instants.get(providedInstantId));
     }
 
     void addContingency(Contingency contingency) {
@@ -287,11 +275,11 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
         return states.get(contingency.getId() + " - " + instant.getId());
     }
 
-    State addPreventiveState(Instant instant) {
+    State addPreventiveState() {
         if (getPreventiveState() != null) {
             return getPreventiveState();
         } else {
-            State state = new PreventiveState(instant);
+            State state = new PreventiveState(getInstant(InstantKind.PREVENTIVE));
             states.put(state.getId(), state);
             return state;
         }

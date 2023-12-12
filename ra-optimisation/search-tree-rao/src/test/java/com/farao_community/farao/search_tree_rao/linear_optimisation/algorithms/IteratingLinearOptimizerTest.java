@@ -116,7 +116,7 @@ class IteratingLinearOptimizerTest {
 
         outageInstant = Mockito.mock(Instant.class);
         SystematicSensitivityResult sensi = Mockito.mock(SystematicSensitivityResult.class, "only sensi computation");
-        when(systematicSensitivityInterface.run(network, outageInstant)).thenReturn(sensi);
+        when(systematicSensitivityInterface.run(network)).thenReturn(sensi);
         FlowResult flowResult = Mockito.mock(FlowResult.class);
         when(branchResultAdapter.getResult(sensi, network)).thenReturn(flowResult);
         when(sensitivityComputer.getBranchResult(network)).thenReturn(flowResult);
@@ -297,7 +297,7 @@ class IteratingLinearOptimizerTest {
         SensitivityResult sensitivityResult = Mockito.mock(SensitivityResult.class);
         Mockito.when(sensitivityComputer.getSensitivityResult()).thenReturn(sensitivityResult);
         Mockito.when(sensitivityResult.getSensitivityStatus()).thenReturn(ComputationStatus.FAILURE);
-        Mockito.doNothing().when(sensitivityComputer).compute(network, outageInstant);
+        Mockito.doNothing().when(sensitivityComputer).compute(network);
         mockLinearProblem(List.of(LinearProblemStatus.OPTIMAL), List.of(1.));
         mockFunctionalCost(100.);
         prepareLinearProblemBuilder();

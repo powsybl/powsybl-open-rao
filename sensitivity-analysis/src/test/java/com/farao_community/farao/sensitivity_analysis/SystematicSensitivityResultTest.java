@@ -177,8 +177,6 @@ class SystematicSensitivityResultTest {
             .newInstant(OUTAGE_INSTANT_ID, InstantKind.OUTAGE)
             .newInstant(AUTO_INSTANT_ID, InstantKind.AUTO)
             .newInstant(CURATIVE_INSTANT_ID, InstantKind.CURATIVE);
-        com.farao_community.farao.data.crac_api.Instant preventiveInstant = crac.getInstant(PREVENTIVE_INSTANT_ID);
-        com.farao_community.farao.data.crac_api.Instant outageInstant = crac.getInstant(OUTAGE_INSTANT_ID);
         crac.newContingency()
             .withId("co")
             .withNetworkElement("NNL2AA11 BBE3AA11 1")
@@ -186,14 +184,14 @@ class SystematicSensitivityResultTest {
         nStateCnec = crac.newFlowCnec()
             .withId("cnec-prev")
             .withNetworkElement("BBE1AA11 FFR5AA11 1")
-            .withInstant(preventiveInstant)
+            .withInstant(PREVENTIVE_INSTANT_ID)
             .newThreshold().withMax(1000.).withUnit(Unit.MEGAWATT).withSide(Side.LEFT).add()
             .add();
         contingencyCnec = crac.newFlowCnec()
             .withId("cnec-cur")
             .withNetworkElement("BBE1AA11 FFR5AA11 1")
             .withContingency("co")
-            .withInstant(outageInstant)
+            .withInstant(OUTAGE_INSTANT_ID)
             .newThreshold().withMax(1000.).withUnit(Unit.MEGAWATT).withSide(Side.RIGHT).add()
             .add();
         hvdcRangeAction = (HvdcRangeAction) crac.newHvdcRangeAction()

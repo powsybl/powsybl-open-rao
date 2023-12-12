@@ -119,7 +119,7 @@ public final class IteratingLinearOptimizer {
                 tmpSensitivityComputer = createSensitivityComputer(input.getPreOptimizationAppliedRemedialActions(), input, parameters);
             }
         }
-        runSensitivityAnalysis(tmpSensitivityComputer, input.getNetwork(), iteration, outageInstant);
+        runSensitivityAnalysis(tmpSensitivityComputer, input.getNetwork(), iteration);
         return tmpSensitivityComputer;
     }
 
@@ -198,8 +198,8 @@ public final class IteratingLinearOptimizer {
         return builder.build();
     }
 
-    private static void runSensitivityAnalysis(SensitivityComputer sensitivityComputer, Network network, int iteration, Instant outageInstant) {
-        sensitivityComputer.compute(network, outageInstant);
+    private static void runSensitivityAnalysis(SensitivityComputer sensitivityComputer, Network network, int iteration) {
+        sensitivityComputer.compute(network);
         if (sensitivityComputer.getSensitivityResult().getSensitivityStatus() == ComputationStatus.FAILURE) {
             BUSINESS_WARNS.warn("Systematic sensitivity computation failed at iteration {}", iteration);
         }

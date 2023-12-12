@@ -90,6 +90,7 @@ public class FlowbasedComputationImpl implements FlowbasedComputationProvider {
                 .withParameters(parameters.getSensitivityAnalysisParameters())
                 .withPtdfSensitivities(glsk, crac.getFlowCnecs(), Collections.singleton(Unit.MEGAWATT))
                 .withAppliedRemedialActions(appliedRemedialActions)
+                .withOutageInstant(crac.getInstant(InstantKind.OUTAGE))
                 .build();
 
         // Preventive perimeter
@@ -97,7 +98,7 @@ public class FlowbasedComputationImpl implements FlowbasedComputationProvider {
         network.getVariantManager().cloneVariant(initialNetworkId, INITIAL_STATE_WITH_PRA);
         network.getVariantManager().setWorkingVariant(INITIAL_STATE_WITH_PRA);
         applyPreventiveRemedialActions(raoResult, crac, network);
-        SystematicSensitivityResult result = systematicSensitivityInterface.run(network, crac.getInstant(InstantKind.OUTAGE));
+        SystematicSensitivityResult result = systematicSensitivityInterface.run(network);
         FlowbasedComputationResult flowBasedComputationResult = new FlowbasedComputationResultImpl(FlowbasedComputationResult.Status.SUCCESS, buildFlowbasedDomain(crac, glsk, result));
 
         // Restore initial variant at the end of the computation
