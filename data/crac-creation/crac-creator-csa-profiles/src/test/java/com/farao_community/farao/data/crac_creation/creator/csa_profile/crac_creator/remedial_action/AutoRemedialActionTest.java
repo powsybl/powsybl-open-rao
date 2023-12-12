@@ -8,19 +8,10 @@ import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageRule;
 import com.farao_community.farao.data.crac_creation.creator.api.ImportStatus;
-import com.farao_community.farao.data.crac_creation.creator.api.parameters.CracCreationParameters;
-import com.farao_community.farao.data.crac_creation.creator.csa_profile.CsaProfileCrac;
 import com.farao_community.farao.data.crac_creation.creator.csa_profile.crac_creator.CsaProfileCracCreationContext;
-import com.farao_community.farao.data.crac_creation.creator.csa_profile.crac_creator.CsaProfileCracCreator;
-import com.farao_community.farao.data.crac_creation.creator.csa_profile.importer.CsaProfileCracImporter;
-import com.farao_community.farao.data.crac_creation.util.FaraoImportException;
 import com.farao_community.farao.data.crac_impl.OnContingencyStateImpl;
-import com.powsybl.iidm.network.Network;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 
-import java.io.InputStream;
-import java.time.OffsetDateTime;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -29,12 +20,12 @@ import static com.farao_community.farao.data.crac_creation.creator.csa_profile.c
 import static com.farao_community.farao.data.crac_creation.creator.csa_profile.crac_creator.CsaProfileCracCreationTestUtil.getCsaCracCreationContext;
 import static org.junit.jupiter.api.Assertions.*;
 
-public class AutoRemedialActionTest {
+class AutoRemedialActionTest {
 
     @Test
-    public void importAutoRemedialActionTC2() {
+    void importAutoRemedialActionTC2() {
         CsaProfileCracCreationContext cracCreationContext = getCsaCracCreationContext("/CSA_TestConfiguration_TC2_27Apr2023.zip");
-        List<RemedialAction> autoRemedialActionList = cracCreationContext.getCrac().getRemedialActions().stream().filter(ra -> ra.getUsageRules().stream().anyMatch(usageRule -> usageRule.getInstant().equals(Instant.AUTO))).collect(Collectors.toList());
+        List<RemedialAction<?>> autoRemedialActionList = cracCreationContext.getCrac().getRemedialActions().stream().filter(ra -> ra.getUsageRules().stream().anyMatch(usageRule -> usageRule.getInstant().equals(Instant.AUTO))).collect(Collectors.toList());
         assertEquals(1, autoRemedialActionList.size());
         NetworkAction autoRa = (NetworkAction) autoRemedialActionList.get(0);
         assertEquals("31d41e36-11c8-417b-bafb-c410d4391898", autoRa.getId());
@@ -49,10 +40,10 @@ public class AutoRemedialActionTest {
     }
 
     @Test
-    public void importAutoRemedialActionSps2() {
+    void importAutoRemedialActionSps2() {
         CsaProfileCracCreationContext cracCreationContext = getCsaCracCreationContext("/SPS_with_shunt_compensator_and_pst.zip");
 
-        List<RemedialAction> autoRemedialActionList = cracCreationContext.getCrac().getRemedialActions().stream().filter(ra -> ra.getUsageRules().stream().anyMatch(usageRule -> usageRule.getInstant().equals(Instant.AUTO))).collect(Collectors.toList());
+        List<RemedialAction<?>> autoRemedialActionList = cracCreationContext.getCrac().getRemedialActions().stream().filter(ra -> ra.getUsageRules().stream().anyMatch(usageRule -> usageRule.getInstant().equals(Instant.AUTO))).collect(Collectors.toList());
         assertEquals(4, autoRemedialActionList.size());
 
         NetworkAction ara2 = cracCreationContext.getCrac().getNetworkAction("auto-topological-action");
@@ -92,25 +83,21 @@ public class AutoRemedialActionTest {
     }
 
     @Test
-    public void importInvalidRasProfilesSps3() {
+    void importInvalidRasProfilesSps3() {
         CsaProfileCracCreationContext cracCreationContext = getCsaCracCreationContext("/CSA_SPS_3_InvalidProfiles.zip");
 
         assertEquals(12, cracCreationContext.getRemedialActionCreationContexts().size());
-        assertRaNotImported(cracCreationContext, "scheme-remedial-action-with-multiple-stages", ImportStatus.INCONSISTENCY_IN_DATA, "Auto Remedial action scheme-remedial-action-with-multiple-stages will not be imported because it has no associated GridStateAlterationCollection");
+        assertRaNotImported(cracCreationContext, "scheme-remedial-action-with-multiple-stages", ImportStatus.INCONSISTENCY_IN_DATA, "Auto Remedial action scheme-remedial-action-with-multiple-stages will not be imported because it has several associated Stages");
         assertRaNotImported(cracCreationContext, "unavailable-scheme-remedial-action", ImportStatus.NOT_FOR_RAO, "Auto Remedial action unavailable-scheme-remedial-action will not be imported because RemedialAction.normalAvailable must be 'true' to be imported");
         assertRaNotImported(cracCreationContext, "scheme-remedial-action-with-unknown-grid-state-alteration-collection", ImportStatus.INCONSISTENCY_IN_DATA, "Auto Remedial action scheme-remedial-action-with-unknown-grid-state-alteration-collection will not be imported because it has no associated GridStateAlterationCollection");
         assertRaNotImported(cracCreationContext, "scheme-remedial-action-with-unknown-remedial-action-scheme", ImportStatus.INCONSISTENCY_IN_DATA, "Auto Remedial action scheme-remedial-action-with-unknown-remedial-action-scheme will not be imported because it has no associated RemedialActionScheme");
-        assertRaNotImported(cracCreationContext, "scheme-remedial-action-with-invalid-time-to-implement", ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action scheme-remedial-action-with-invalid-time-to-implement will not be imported because of an irregular timeToImplement pattern");
-        // TODO: wtf
-        assertRaNotImported(cracCreationContext, "scheme-remedial-action-linked-to-unknown-contingency", ImportStatus.INCONSISTENCY_IN_DATA, "Auto Remedial action scheme-remedial-action-linked-to-unknown-contingency will not be imported because it has no associated GridStateAlterationCollection");
-        assertRaNotImported(cracCreationContext, "scheme-remedial-action-with-empty-grid-state-alteration-collection", ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action empty-grid-state-alteration-collection will not be imported because there is no elementary action for that ARA");
-        // TODO: wtf
-        assertRaNotImported(cracCreationContext, "considered-scheme-remedial-action", ImportStatus.INCONSISTENCY_IN_DATA, "Auto Remedial action considered-scheme-remedial-action will not be imported because it has no associated GridStateAlterationCollection");
+        assertRaNotImported(cracCreationContext, "scheme-remedial-action-with-invalid-time-to-implement", ImportStatus.INCONSISTENCY_IN_DATA, "Auto Remedial action scheme-remedial-action-with-invalid-time-to-implement will not be imported because of an irregular timeToImplement pattern");
+        assertRaNotImported(cracCreationContext, "scheme-remedial-action-linked-to-unknown-contingency", ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action scheme-remedial-action-linked-to-unknown-contingency will not be imported because contingency unknown-contingency linked to that remedial action does not exist or was not imported by farao");
+        assertRaNotImported(cracCreationContext, "scheme-remedial-action-with-empty-grid-state-alteration-collection", ImportStatus.INCONSISTENCY_IN_DATA, "Auto Remedial action scheme-remedial-action-with-empty-grid-state-alteration-collection will not be imported because there is no elementary action for that ARA");
+        assertRaNotImported(cracCreationContext, "considered-scheme-remedial-action", ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action considered-scheme-remedial-action will not be imported because it must be linked to the contingency contingency with an 'included' ElementCombinationConstraintKind");
         assertRaNotImported(cracCreationContext, "preventive-scheme-remedial-action", ImportStatus.INCONSISTENCY_IN_DATA, "Auto Remedial action preventive-scheme-remedial-action will not be imported because auto remedial action musty be of curative kind");
-        // TODO: wtf
-        assertRaNotImported(cracCreationContext, "scheme-remedial-action-with-disabled-link-contingency", ImportStatus.INCONSISTENCY_IN_DATA, "Auto Remedial action scheme-remedial-action-with-disabled-link-contingency will not be imported because it has no associated GridStateAlterationCollection");
-        assertRaNotImported(cracCreationContext, "scheme-remedial-action-with-not-armed-remedial-action-scheme", ImportStatus.INCONSISTENCY_IN_DATA, "Auto Remedial action scheme-remedial-action-with-not-armed-remedial-action-scheme will not be imported because normalArmed must be set to true");
-        // TODO: wtf
-        assertRaNotImported(cracCreationContext, "excluded-scheme-remedial-action", ImportStatus.INCONSISTENCY_IN_DATA, "Auto Remedial action excluded-scheme-remedial-action will not be imported because it has no associated GridStateAlterationCollection");
+        assertRaNotImported(cracCreationContext, "scheme-remedial-action-with-disabled-link-contingency", ImportStatus.NOT_FOR_RAO, "Remedial action 'scheme-remedial-action-with-disabled-link-contingency' will not be imported because field 'normalEnabled' in 'ContingencyWithRemedialAction' must be true or empty");
+        assertRaNotImported(cracCreationContext, "scheme-remedial-action-with-not-armed-remedial-action-scheme", ImportStatus.INCONSISTENCY_IN_DATA, "Auto Remedial action scheme-remedial-action-with-not-armed-remedial-action-scheme will not be imported because RemedialActionScheme not-armed-remedial-action-scheme is not armed");
+        assertRaNotImported(cracCreationContext, "excluded-scheme-remedial-action", ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action excluded-scheme-remedial-action will not be imported because of an illegal EXCLUDED ElementCombinationConstraintKind");
     }
 }

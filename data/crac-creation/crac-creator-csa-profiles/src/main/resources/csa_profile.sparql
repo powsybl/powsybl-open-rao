@@ -271,6 +271,10 @@ GRAPH <%s> {
         nc:ContingencyWithRemedialAction.RemedialAction ?gridStateAlterationRemedialAction ;
         nc:ContingencyWithRemedialAction.Contingency ?contingency ;
         nc:ContingencyWithRemedialAction.combinationConstraintKind ?combinationConstraintKind ;
+
+        OPTIONAL {
+                ?contingencyWithRemedialAction nc:ContingencyWithRemedialAction.normalEnabled ?normalEnabled .
+            }
 }
 }
 
@@ -376,7 +380,8 @@ SELECT *
 PREFIX nc: <http://entsoe.eu/ns/nc#>
 PREFIX cim: <http://iec.ch/TC57/CIM100#>
 SELECT *
-WHERE {
+{
+    GRAPH <%s> {
     ?schemeRemedialAction
         rdf:type nc:SchemeRemedialAction ;
         cim:IdentifiedObject.mRID ?mRID ;
@@ -392,16 +397,19 @@ WHERE {
             ?schemeRemedialAction nc:RemedialAction.RemedialActionSystemOperator ?tso .
         }
 }
+}
 
 # query: schemeRemedialActionRAS
 PREFIX nc: <http://entsoe.eu/ns/nc#>
 PREFIX cim: <http://iec.ch/TC57/CIM100#>
 SELECT *
-WHERE {
+{
+    GRAPH <%s> {
     ?schemeRemedialAction
         rdf:type nc:SchemeRemedialAction ;
         cim:IdentifiedObject.mRID ?mRID ;
         nc:SchemeRemedialAction.RemedialActionScheme ?remedialActionScheme ;
+}
 }
 
 # query: remedialActionScheme
