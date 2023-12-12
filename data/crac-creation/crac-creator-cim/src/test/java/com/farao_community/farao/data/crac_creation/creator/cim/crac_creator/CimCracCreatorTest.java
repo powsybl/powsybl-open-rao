@@ -941,7 +941,7 @@ class CimCracCreatorTest {
         assertNotNull(duplicate);
         assertEquals(flowCnec.getNetworkElement().getId(), duplicate.getNetworkElement().getId());
         assertEquals(flowCnec.getState().getContingency(), duplicate.getState().getContingency());
-        assertEquals(InstantKind.OUTAGE, duplicate.getState().getInstant().getInstantKind());
+        assertEquals(InstantKind.OUTAGE, duplicate.getState().getInstant().getKind());
         assertEquals(flowCnec.isOptimized(), duplicate.isOptimized());
         assertEquals(flowCnec.isMonitored(), duplicate.isMonitored());
         assertEquals(flowCnec.getReliabilityMargin(), duplicate.getReliabilityMargin(), 1e-6);

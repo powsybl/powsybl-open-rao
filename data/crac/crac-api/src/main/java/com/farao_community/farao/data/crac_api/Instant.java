@@ -20,7 +20,7 @@ public interface Instant<T extends Instant<T>> extends Identifiable<T> {
 
     int getOrder();
 
-    InstantKind getInstantKind();
+    InstantKind getKind();
 
     @Override
     String toString();

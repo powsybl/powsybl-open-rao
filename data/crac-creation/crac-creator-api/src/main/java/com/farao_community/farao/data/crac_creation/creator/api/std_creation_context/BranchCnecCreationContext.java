@@ -37,7 +37,7 @@ public interface BranchCnecCreationContext extends ElementaryCreationContext {
     /**
      * Get a map of created CNECs id, whose key is the instant id on which the created CNEC is monitored
      */
-    Map<String, String> getCreatedCnecsIds(); // TODO Cannot use instant instead of instant ID because equal operator compares the order and it might not be the same
+    Map<String, String> getCreatedCnecsIds();
 
     /**
      * Get a boolean indicating whether the direction of created CNECs is inverted compared

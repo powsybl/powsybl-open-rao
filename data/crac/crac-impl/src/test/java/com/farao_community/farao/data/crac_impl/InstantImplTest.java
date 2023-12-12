@@ -30,7 +30,7 @@ class InstantImplTest {
         Instant instant = new InstantImpl(PREVENTIVE_INSTANT_ID, InstantKind.PREVENTIVE, null);
         assertEquals(0, instant.getOrder());
         assertEquals(PREVENTIVE_INSTANT_ID, instant.toString());
-        assertEquals(InstantKind.PREVENTIVE, instant.getInstantKind());
+        assertEquals(InstantKind.PREVENTIVE, instant.getKind());
     }
 
     @Test

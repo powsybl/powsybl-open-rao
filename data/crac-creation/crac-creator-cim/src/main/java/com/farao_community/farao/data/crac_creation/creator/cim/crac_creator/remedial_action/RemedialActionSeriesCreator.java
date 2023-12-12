@@ -416,7 +416,7 @@ public class RemedialActionSeriesCreator {
     }
 
     private static void checkUsageRulesContingencies(Instant instant, List<Contingency> contingencies, List<String> invalidContingencies) {
-        switch (instant.getInstantKind()) {
+        switch (instant.getKind()) {
             case PREVENTIVE:
                 if ((Objects.nonNull(contingencies) && !contingencies.isEmpty()) || (Objects.nonNull(invalidContingencies) && !invalidContingencies.isEmpty())) {
                     throw new FaraoImportException(ImportStatus.INCONSISTENCY_IN_DATA, "Cannot create a preventive remedial action associated to a contingency");

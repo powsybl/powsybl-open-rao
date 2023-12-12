@@ -45,7 +45,7 @@ public class InstantImpl extends AbstractIdentifiable<InstantImpl> implements In
         return order;
     }
 
-    public InstantKind getInstantKind() {
+    public InstantKind getKind() {
         return instantKind;
     }
 

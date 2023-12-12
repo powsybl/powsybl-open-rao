@@ -154,7 +154,7 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
     public CracImpl newInstant(String instantId, InstantKind instantKind) {
         if (instants.containsKey(instantId)) {
             Instant oldInstant = instants.get(instantId);
-            if (instantKind != oldInstant.getInstantKind()) {
+            if (instantKind != oldInstant.getKind()) {
                 throw new FaraoException(format("Instant '%s' is already defined with other arguments", instantId));
             }
         }
@@ -195,7 +195,7 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
     @Override
     public Set<Instant> getInstants(InstantKind instantKind) {
         return instants.values().stream()
-            .filter(instant -> instant.getInstantKind().equals(instantKind))
+            .filter(instant -> instant.getKind().equals(instantKind))
             .collect(Collectors.toSet());
     }
 
@@ -209,8 +209,8 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
         if (!Objects.equals(instant, providedInstant)) {
             throw new FaraoException(String.format(
                 "Provided instant {id:'%s', kind:'%s', order:%d} is not the same {id: '%s', kind:'%s', order:%d} in the CRAC",
-                providedInstant.getId(), providedInstant.getInstantKind(), providedInstant.getOrder(),
-                instant.getId(), instant.getInstantKind(), instant.getOrder()));
+                providedInstant.getId(), providedInstant.getKind(), providedInstant.getOrder(),
+                instant.getId(), instant.getKind(), instant.getOrder()));
         }
         return getPreviousOptionalInstant(providedInstant);
     }

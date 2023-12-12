@@ -71,7 +71,7 @@ class SweMonitoredSeriesCreatorTest {
         Instant instant = Mockito.mock(Instant.class);
         Mockito.when(instant.isPreventive()).thenReturn(isPreventive);
         Mockito.when(instant.toString()).thenReturn(instantId);
-        Mockito.when(instant.getInstantKind()).thenReturn(instantKind);
+        Mockito.when(instant.getKind()).thenReturn(instantKind);
         return instant;
     }
 

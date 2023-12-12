@@ -70,12 +70,17 @@ public class CracDeserializer extends JsonDeserializer<Crac> {
         }
         String name = jsonParser.nextTextValue();
         Crac crac = cracFactory.create(id, name);
-        // TODO check version before add instants
-        // if this is a new version, deserialize instants instead
-        crac.newInstant("preventive", InstantKind.PREVENTIVE)
-            .newInstant("outage", InstantKind.OUTAGE)
-            .newInstant("auto", InstantKind.AUTO)
-            .newInstant("curative", InstantKind.CURATIVE);
+        if (getSubVersionNumber(version) <= 9) {
+            crac.newInstant("preventive", InstantKind.PREVENTIVE)
+                .newInstant("outage", InstantKind.OUTAGE)
+                .newInstant("auto", InstantKind.AUTO)
+                .newInstant("curative", InstantKind.CURATIVE);
+        } else {
+            // TODO deserialize instants instead of creating new ones
+            throw new FaraoException("Crac version > 1.9 has not been defined yet");
+            // TODO test this
+            // TODO implement this
+        }
 
         HashMap<String, String> deserializedNetworkElementsNamesPerId = null;
 

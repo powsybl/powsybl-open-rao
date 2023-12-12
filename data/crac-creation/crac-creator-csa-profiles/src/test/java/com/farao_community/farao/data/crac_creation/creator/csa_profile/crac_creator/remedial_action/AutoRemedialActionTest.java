@@ -40,7 +40,7 @@ public class AutoRemedialActionTest {
         assertEquals("CRA", autoRa.getName());
         assertEquals(1, autoRa.getUsageRules().size());
         UsageRule onStateUsageRule = autoRa.getUsageRules().iterator().next();
-        assertEquals(InstantKind.AUTO, onStateUsageRule.getInstant().getInstantKind());
+        assertEquals(InstantKind.AUTO, onStateUsageRule.getInstant().getKind());
         assertEquals(UsageMethod.FORCED, onStateUsageRule.getUsageMethod());
         assertEquals("e05bbe20-9d4a-40da-9777-8424d216785d", ((OnContingencyStateImpl) onStateUsageRule).getContingency().getId());
         assertEquals("2db971f1-ed3d-4ea6-acf5-983c4289d51b", autoRa.getNetworkElements().iterator().next().getId());
@@ -57,7 +57,7 @@ public class AutoRemedialActionTest {
         NetworkAction ara2 = cracCreationContext.getCrac().getNetworkAction("auto-topological-action");
         assertEquals("ARA2", ara2.getName());
         UsageRule ur1 = ara2.getUsageRules().iterator().next();
-        assertEquals(InstantKind.AUTO, ur1.getInstant().getInstantKind());
+        assertEquals(InstantKind.AUTO, ur1.getInstant().getKind());
         assertEquals(UsageMethod.FORCED, ur1.getUsageMethod());
         assertEquals("contingency-2", ((OnContingencyStateImpl) ur1).getContingency().getId());
         assertEquals("BBE1AA1  BBE4AA1  1", ara2.getNetworkElements().iterator().next().getId());
@@ -67,7 +67,7 @@ public class AutoRemedialActionTest {
         assertEquals("ARA3", ara3.getName());
         assertEquals(10, ara3.getSpeed().get());
         UsageRule ur3 = ara3.getUsageRules().iterator().next();
-        assertEquals(InstantKind.AUTO, ur3.getInstant().getInstantKind());
+        assertEquals(InstantKind.AUTO, ur3.getInstant().getKind());
         assertEquals(UsageMethod.FORCED, ur3.getUsageMethod());
         assertEquals("contingency-3", ((OnContingencyStateImpl) ur3).getContingency().getId());
         List<NetworkElement> networkElements = ara3.getNetworkElements().stream().sorted(Comparator.comparing(NetworkElement::getId)).toList();
@@ -77,7 +77,7 @@ public class AutoRemedialActionTest {
         NetworkAction ara4 = cracCreationContext.getCrac().getNetworkAction("auto-shunt-compensator-action");
         assertEquals("ARA4", ara4.getName());
         UsageRule ur4 = ara4.getUsageRules().iterator().next();
-        assertEquals(InstantKind.AUTO, ur4.getInstant().getInstantKind());
+        assertEquals(InstantKind.AUTO, ur4.getInstant().getKind());
         assertEquals(UsageMethod.FORCED, ur4.getUsageMethod());
         assertEquals(3, ((InjectionSetpoint) ara4.getElementaryActions().iterator().next()).getSetpoint());
 
