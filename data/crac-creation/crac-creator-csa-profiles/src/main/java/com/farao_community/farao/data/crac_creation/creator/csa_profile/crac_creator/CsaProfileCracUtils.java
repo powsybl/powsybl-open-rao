@@ -114,16 +114,6 @@ public final class CsaProfileCracUtils {
         }
     }
 
-    public static CsaProfileConstants.HeaderValidity checkProfileHeader(PropertyBag propertyBag, CsaProfileConstants.CsaProfileKeywords csaProfileKeyword, OffsetDateTime importTimestamp) {
-        if (!checkProfileKeyword(propertyBag, csaProfileKeyword)) {
-            return CsaProfileConstants.HeaderValidity.INVALID_KEYWORD;
-        }
-        if (!checkProfileValidityInterval(propertyBag, importTimestamp)) {
-            return CsaProfileConstants.HeaderValidity.INVALID_INTERVAL;
-        }
-        return CsaProfileConstants.HeaderValidity.OK;
-    }
-
     public static boolean checkProfileValidityInterval(PropertyBag propertyBag, OffsetDateTime importTimestamp) {
         String startTime = propertyBag.get(CsaProfileConstants.REQUEST_HEADER_START_DATE);
         String endTime = propertyBag.get(CsaProfileConstants.REQUEST_HEADER_END_DATE);
