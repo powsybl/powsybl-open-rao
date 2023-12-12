@@ -15,8 +15,11 @@ import com.powsybl.triplestore.api.QueryCatalog;
 import com.powsybl.triplestore.api.TripleStore;
 
 import java.util.Arrays;
-import java.util.HashSet;
+import java.util.Collections;
 import java.util.List;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -28,9 +31,12 @@ public class CsaProfileCrac implements NativeCrac {
 
     private final QueryCatalog queryCatalogCsaProfileCrac;
 
-    public CsaProfileCrac(TripleStore tripleStoreCsaProfileCrac) {
+    private final Map<String, Set<String>> keywordMap;
+
+    public CsaProfileCrac(TripleStore tripleStoreCsaProfileCrac, Map<String, Set<String>> keywordMap) {
         this.tripleStoreCsaProfileCrac = tripleStoreCsaProfileCrac;
         this.queryCatalogCsaProfileCrac = new QueryCatalog(CsaProfileConstants.SPARQL_FILE_CSA_PROFILE);
+        this.keywordMap = keywordMap;
     }
 
     @Override
@@ -38,104 +44,141 @@ public class CsaProfileCrac implements NativeCrac {
         return "CsaProfileCrac";
     }
 
+    public void clearContext(String context) {
+        tripleStoreCsaProfileCrac.clear(context);
+    }
+
+    public void clearKeywordMap(String context) {
+        for (Map.Entry<String, Set<String>> entry : keywordMap.entrySet()) {
+            String keyword = entry.getKey();
+            Set<String> contextNames = entry.getValue();
+            if (contextNames.contains(context)) {
+                contextNames.remove(context);
+                keywordMap.put(keyword, contextNames);
+                break;
+            }
+        }
+    }
+
+    private Set<String> getContextNamesToRequest(String keyword) {
+        if (keywordMap.containsKey(keyword)) {
+            return keywordMap.get(keyword);
+        }
+        return Collections.emptySet();
+    }
+
+    public Map<String, PropertyBags> getHeaders() {
+        Map<String, PropertyBags> returnMap = new HashMap<>();
+        tripleStoreCsaProfileCrac.contextNames().forEach(context -> returnMap.put(context, queryTripleStore(CsaProfileConstants.REQUEST_HEADER, Set.of(context))));
+        return returnMap;
+    }
+
+    public PropertyBags getPropertyBags(String csaProfileConstant, String keyword) {
+        Set<String> namesToRequest =  getContextNamesToRequest(keyword);
+        if (namesToRequest.isEmpty()) {
+            return new PropertyBags();
+        }
+        return this.queryTripleStore(csaProfileConstant, namesToRequest);
+    }
+
+    public PropertyBags getPropertyBags(List<String> csaProfileConstants, String keyword) {
+        Set<String> namesToRequest =  getContextNamesToRequest(keyword);
+        if (namesToRequest.isEmpty()) {
+            return new PropertyBags();
+        }
+        return this.queryTripleStore(csaProfileConstants, namesToRequest);
+    }
+
     public PropertyBags getContingencies() {
-        return this.queryTripleStore(Arrays.asList(CsaProfileConstants.REQUEST_ORDINARY_CONTINGENCY, CsaProfileConstants.REQUEST_EXCEPTIONAL_CONTINGENCY, CsaProfileConstants.REQUEST_OUT_OF_RANGE_CONTINGENCY), tripleStoreCsaProfileCrac.contextNames());
+        return getPropertyBags(Arrays.asList(CsaProfileConstants.REQUEST_ORDINARY_CONTINGENCY, CsaProfileConstants.REQUEST_EXCEPTIONAL_CONTINGENCY, CsaProfileConstants.REQUEST_OUT_OF_RANGE_CONTINGENCY), CsaProfileConstants.CsaProfileKeywords.CONTINGENCY.toString());
     }
 
     public PropertyBags getContingencyEquipments() {
-        return this.queryTripleStore(CsaProfileConstants.REQUEST_CONTINGENCY_EQUIPMENT);
+        return getPropertyBags(CsaProfileConstants.REQUEST_CONTINGENCY_EQUIPMENT, CsaProfileConstants.CsaProfileKeywords.CONTINGENCY.toString());
     }
 
     public PropertyBags getAssessedElements() {
-        return this.queryTripleStore(CsaProfileConstants.REQUEST_ASSESSED_ELEMENT, tripleStoreCsaProfileCrac.contextNames());
+        return getPropertyBags(CsaProfileConstants.REQUEST_ASSESSED_ELEMENT, CsaProfileConstants.CsaProfileKeywords.ASSESSED_ELEMENT.toString());
     }
 
     public PropertyBags getAssessedElementsWithContingencies() {
-        return this.queryTripleStore(CsaProfileConstants.REQUEST_ASSESSED_ELEMENT_WITH_CONTINGENCY);
+        return getPropertyBags(CsaProfileConstants.REQUEST_ASSESSED_ELEMENT_WITH_CONTINGENCY, CsaProfileConstants.CsaProfileKeywords.ASSESSED_ELEMENT.toString());
     }
 
     public PropertyBags getAssessedElementsWithRemedialAction() {
-        return this.queryTripleStore(CsaProfileConstants.REQUEST_ASSESSED_ELEMENT_WITH_REMEDIAL_ACTION);
+        return getPropertyBags(CsaProfileConstants.REQUEST_ASSESSED_ELEMENT_WITH_REMEDIAL_ACTION, CsaProfileConstants.CsaProfileKeywords.ASSESSED_ELEMENT.toString());
     }
 
     public PropertyBags getCurrentLimits() {
-        return this.queryTripleStore(CsaProfileConstants.REQUEST_CURRENT_LIMIT);
+        return getPropertyBags(CsaProfileConstants.REQUEST_CURRENT_LIMIT, CsaProfileConstants.CGMES);
     }
 
     public PropertyBags getVoltageLimits() {
-        return this.queryTripleStore(CsaProfileConstants.REQUEST_VOLTAGE_LIMIT);
+        return getPropertyBags(CsaProfileConstants.REQUEST_VOLTAGE_LIMIT, CsaProfileConstants.CGMES);
     }
 
     public PropertyBags getAngleLimits() {
-        return this.queryTripleStore(CsaProfileConstants.REQUEST_ANGLE_LIMIT, tripleStoreCsaProfileCrac.contextNames());
+        return getPropertyBags(CsaProfileConstants.REQUEST_ANGLE_LIMIT, CsaProfileConstants.CsaProfileKeywords.EQUIPMENT_RELIABILITY.toString());
     }
 
     public PropertyBags getRemedialActions() {
-        return this.queryTripleStore(CsaProfileConstants.GRID_STATE_ALTERATION_REMEDIAL_ACTION, tripleStoreCsaProfileCrac.contextNames());
+        return getPropertyBags(CsaProfileConstants.GRID_STATE_ALTERATION_REMEDIAL_ACTION, CsaProfileConstants.CsaProfileKeywords.REMEDIAL_ACTION.toString());
     }
 
     public PropertyBags getTopologyAction() {
-        return this.queryTripleStore(CsaProfileConstants.TOPOLOGY_ACTION);
+        return getPropertyBags(CsaProfileConstants.TOPOLOGY_ACTION, CsaProfileConstants.CsaProfileKeywords.REMEDIAL_ACTION.toString());
     }
 
     public PropertyBags getRotatingMachineAction() {
-        return this.queryTripleStore(CsaProfileConstants.ROTATING_MACHINE_ACTION);
+        return getPropertyBags(CsaProfileConstants.ROTATING_MACHINE_ACTION, CsaProfileConstants.CsaProfileKeywords.REMEDIAL_ACTION.toString());
     }
 
     public PropertyBags getShuntCompensatorModifications() {
-        return this.queryTripleStore(CsaProfileConstants.SHUNT_COMPENSATOR_MODIFICATION);
+        return getPropertyBags(CsaProfileConstants.SHUNT_COMPENSATOR_MODIFICATION, CsaProfileConstants.CsaProfileKeywords.REMEDIAL_ACTION.toString());
     }
 
     public PropertyBags getTapPositionAction() {
-        return this.queryTripleStore(CsaProfileConstants.TAP_POSITION_ACTION, tripleStoreCsaProfileCrac.contextNames());
+        return getPropertyBags(CsaProfileConstants.TAP_POSITION_ACTION, CsaProfileConstants.CsaProfileKeywords.REMEDIAL_ACTION.toString());
     }
 
     public PropertyBags getStaticPropertyRanges() {
-        return this.queryTripleStore(CsaProfileConstants.STATIC_PROPERTY_RANGE);
+        return getPropertyBags(CsaProfileConstants.STATIC_PROPERTY_RANGE, CsaProfileConstants.CsaProfileKeywords.REMEDIAL_ACTION.toString());
     }
 
     public PropertyBags getContingencyWithRemedialAction() {
-        return this.queryTripleStore(CsaProfileConstants.CONTINGENCY_WITH_REMEDIAL_ACTION);
+        return getPropertyBags(CsaProfileConstants.CONTINGENCY_WITH_REMEDIAL_ACTION, CsaProfileConstants.CsaProfileKeywords.REMEDIAL_ACTION.toString());
     }
 
     public PropertyBags getShuntCompensatorModificationAuto() {
-        return this.queryTripleStore(CsaProfileConstants.SHUNT_COMPENSATOR_MODIFICATION_AUTO);
+        return getPropertyBags(CsaProfileConstants.SHUNT_COMPENSATOR_MODIFICATION_AUTO, CsaProfileConstants.CsaProfileKeywords.REMEDIAL_ACTION.toString());
     }
 
     public PropertyBags getRotatingMachineActionAuto() {
-        return this.queryTripleStore(CsaProfileConstants.ROTATING_MACHINE_ACTION_AUTO);
+        return getPropertyBags(CsaProfileConstants.ROTATING_MACHINE_ACTION_AUTO, CsaProfileConstants.CsaProfileKeywords.REMEDIAL_ACTION.toString());
     }
 
     public PropertyBags getTopologyActionAuto() {
-        return this.queryTripleStore(CsaProfileConstants.TOPOLOGY_ACTION_AUTO);
+        return getPropertyBags(CsaProfileConstants.TOPOLOGY_ACTION_AUTO, CsaProfileConstants.CsaProfileKeywords.REMEDIAL_ACTION.toString());
     }
 
     public PropertyBags getTapPositionActionAuto() {
-        return this.queryTripleStore(CsaProfileConstants.TAP_POSITION_ACTION_AUTO);
+        return getPropertyBags(CsaProfileConstants.TAP_POSITION_ACTION_AUTO, CsaProfileConstants.CsaProfileKeywords.REMEDIAL_ACTION.toString());
     }
 
     public PropertyBags getStage() {
-        return this.queryTripleStore(CsaProfileConstants.STAGE);
+        return getPropertyBags(CsaProfileConstants.STAGE, CsaProfileConstants.CsaProfileKeywords.REMEDIAL_ACTION.toString());
     }
 
     public PropertyBags getGridStateAlterationCollection() {
-        return this.queryTripleStore(CsaProfileConstants.GRID_STATE_ALTERATION_COLLECTION);
+        return getPropertyBags(CsaProfileConstants.GRID_STATE_ALTERATION_COLLECTION, CsaProfileConstants.CsaProfileKeywords.REMEDIAL_ACTION.toString());
     }
 
     public PropertyBags getRemedialActionScheme() {
-        return this.queryTripleStore(CsaProfileConstants.REMEDIAL_ACTION_SCHEME, tripleStoreCsaProfileCrac.contextNames());
+        return getPropertyBags(CsaProfileConstants.REMEDIAL_ACTION_SCHEME, CsaProfileConstants.CsaProfileKeywords.REMEDIAL_ACTION.toString());
     }
 
     public PropertyBags getSchemeRemedialActions() {
-        return this.queryTripleStore(CsaProfileConstants.SCHEME_REMEDIAL_ACTION);
-    }
-
-    public PropertyBags getRemedialActionsSchedule() {
-        return this.queryTripleStore(CsaProfileConstants.REMEDIAL_ACTION_SCHEDULE, tripleStoreCsaProfileCrac.contextNames());
-    }
-
-    private PropertyBags queryTripleStore(String queryKey) {
-        return this.queryTripleStore(queryKey, new HashSet<>());
+        return this.queryTripleStore(CsaProfileConstants.SCHEME_REMEDIAL_ACTION, new HashSet<>());
     }
 
     private PropertyBags queryTripleStore(List<String> queryKeys, Set<String> contexts) {
@@ -151,7 +194,6 @@ public class CsaProfileCrac implements NativeCrac {
      *
      * @param queryKey : query name in the sparql file
      * @param contexts : list of contexts where the query will be executed (if empty, the query is executed on the whole tripleStore
-     * @return
      */
     private PropertyBags queryTripleStore(String queryKey, Set<String> contexts) {
         String query = queryCatalogCsaProfileCrac.get(queryKey);
@@ -172,4 +214,3 @@ public class CsaProfileCrac implements NativeCrac {
         return multiContextsPropertyBags;
     }
 }
-
