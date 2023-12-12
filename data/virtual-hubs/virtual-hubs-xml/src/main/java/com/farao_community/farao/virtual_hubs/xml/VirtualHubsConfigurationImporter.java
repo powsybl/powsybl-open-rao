@@ -32,6 +32,7 @@ class VirtualHubsConfigurationImporter {
         Objects.requireNonNull(inputStream, "Cannot import configuration from null input stream");
         try {
             DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+            factory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
             DocumentBuilder builder = factory.newDocumentBuilder();
             Document document = builder.parse(inputStream);
             Element configurationEl = document.getDocumentElement();
