@@ -25,5 +25,6 @@
         <module>rao-result</module>
         <module>result-exporter</module>
         <module>refprog</module>
+        <module>virtual-hubs</module>
     </modules>
 </project>

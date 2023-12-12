@@ -2,46 +2,42 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <parent>
-        <artifactId>farao-glsk</artifactId>
-        <groupId>com.farao-community.farao</groupId>
-        <version>4.7.0-SNAPSHOT</version>
-    </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>farao-glsk-virtual-hubs</artifactId>
-    <packaging>jar</packaging>
-    <name>GLSKs of virtual hubs</name>
-    <description>Package dedicated to creation of GLSKs from virtual hubs</description>
+    <parent>
+        <groupId>com.farao-community.farao</groupId>
+        <artifactId>farao-virtual-hubs</artifactId>
+        <version>4.7.0-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>farao-virtual-hubs-network-assigner</artifactId>
 
     <dependencies>
         <!-- Compile dependencies -->
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>farao-commons</artifactId>
+            <artifactId>farao-virtual-hubs-api</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>farao-reference-program</artifactId>
+            <artifactId>farao-virtual-hubs-network-extension</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>com.powsybl</groupId>
-            <artifactId>powsybl-glsk-commons</artifactId>
-            <version>${powsybl.glsk.version}</version>
+            <artifactId>powsybl-commons</artifactId>
         </dependency>
         <dependency>
             <groupId>com.powsybl</groupId>
-            <artifactId>powsybl-sensitivity-analysis-api</artifactId>
+            <artifactId>powsybl-iidm-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
         </dependency>
 
         <!-- Test dependencies -->
-        <dependency>
-            <groupId>ch.qos.logback</groupId>
-            <artifactId>logback-classic</artifactId>
-            <scope>test</scope>
-        </dependency>
         <dependency>
             <groupId>com.powsybl</groupId>
             <artifactId>powsybl-config-test</artifactId>
@@ -62,12 +58,6 @@
             <artifactId>junit-jupiter</artifactId>
             <scope>test</scope>
         </dependency>
-        <dependency>
-            <groupId>com.farao-community.farao</groupId>
-            <artifactId>farao-virtual-hubs-api</artifactId>
-            <version>4.7.0-SNAPSHOT</version>
-            <scope>compile</scope>
-        </dependency>
     </dependencies>
-
+    
 </project>
