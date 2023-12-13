@@ -56,6 +56,17 @@ public class CsaProfileRemedialActionsCreator {
     private final PropertyBags shuntCompensatorModificationAutoPropertyBags;
     private final PropertyBags tapPositionActionsAutoPropertyBags;
 
+    /*
+    TODO: refactor query to include both GridStateAlterationRemedialAction
+        and GridStateAlterationCollection -> mutualize GridStateAlteration
+        property bags and possibly adders
+
+
+     TODO: mutualize availability and type of RA
+
+     TODO: remove call to RAS profile and replace with ArmedRemedialAction
+     */
+
     public CsaProfileRemedialActionsCreator(Crac crac, Network network, CsaProfileCracCreationContext cracCreationContext, PropertyBags gridStateAlterationRemedialActionPropertyBags, PropertyBags contingencyWithRemedialActionsPropertyBags,
                                             PropertyBags topologyActionsPropertyBags,
                                             PropertyBags rotatingMachineActionsPropertyBags,
@@ -370,6 +381,10 @@ public class CsaProfileRemedialActionsCreator {
         }
     }
 
+    /*
+    Auto Remedial Actions (aka SPS)
+     */
+
     private void createAutoRemedialActions() {
         NetworkActionCreator networkActionCreator = new NetworkActionCreator(crac, network);
         PstRangeActionCreator pstRangeActionCreator = new PstRangeActionCreator(crac, network);
@@ -384,83 +399,16 @@ public class CsaProfileRemedialActionsCreator {
             String spsId = schemeRemedialActionPropertyBag.get(CsaProfileConstants.MRID);
 
             try {
-                String spsKind = schemeRemedialActionPropertyBag.get(CsaProfileConstants.RA_KIND);
-                if (!spsKind.equals(CsaProfileConstants.RemedialActionKind.CURATIVE.toString())) {
-                    throw new FaraoImportException(ImportStatus.INCONSISTENCY_IN_DATA, CsaProfileConstants.AUTO_REMEDIAL_ACTION_MESSAGE + spsId + " will not be imported because auto remedial action musty be of curative kind");
-                }
-
-                boolean normalAvailable = Boolean.parseBoolean(schemeRemedialActionPropertyBag.get(CsaProfileConstants.NORMAL_AVAILABLE));
-                if (!normalAvailable) {
-                    throw new FaraoImportException(ImportStatus.NOT_FOR_RAO, CsaProfileConstants.AUTO_REMEDIAL_ACTION_MESSAGE + spsId + " will not be imported because RemedialAction.normalAvailable must be 'true' to be imported");
-                }
-
+                checkSpsKind(schemeRemedialActionPropertyBag, spsId);
+                checkSpsAvailability(schemeRemedialActionPropertyBag, spsId);
                 String nativeSpsName = schemeRemedialActionPropertyBag.get(CsaProfileConstants.REMEDIAL_ACTION_NAME);
                 String spsTsoName = schemeRemedialActionPropertyBag.get(CsaProfileConstants.TSO);
                 Optional<String> spsName = CsaProfileCracUtils.createElementName(nativeSpsName, spsTsoName);
                 Optional<Integer> spsSpeed = getSpeedOpt(schemeRemedialActionPropertyBag.get(CsaProfileConstants.TIME_TO_IMPLEMENT), spsId, true);
 
-                // Method 1: getAssociatedSchemeRemedialActionInRasProfile
-                List<PropertyBag> linkedSchemeRemedialActionsRasProfilePropertyBags = schemeRemedialActionsRasPropertyBags.stream().filter(pb -> pb.get(CsaProfileConstants.MRID).equals(spsId)).toList();
-                if (linkedSchemeRemedialActionsRasProfilePropertyBags.isEmpty()) {
-                    throw new FaraoImportException(ImportStatus.INCONSISTENCY_IN_DATA, CsaProfileConstants.AUTO_REMEDIAL_ACTION_MESSAGE + spsId + " will not be imported because auto remedial action has no reference in RAS profile(s)");
-                } else if (linkedSchemeRemedialActionsRasProfilePropertyBags.size() > 1) {
-                    throw new FaraoImportException(ImportStatus.INCONSISTENCY_IN_DATA, CsaProfileConstants.AUTO_REMEDIAL_ACTION_MESSAGE + spsId + " will not be imported because auto remedial action has several conflictual references in RAS profile(s)");
-                }
-                PropertyBag schemeRemedialActionRasProfilePropertyBag = linkedSchemeRemedialActionsRasProfilePropertyBags.get(0);
-                String remedialActionScheme = schemeRemedialActionRasProfilePropertyBag.get(CsaProfileConstants.REMEDIAL_ACTION_SCHEME);
+                String gridStateAlterationCollection = getGridStateAlterationCollection(spsId);
 
-                // Method 2: getAssociatedRemedialActionScheme
-                List<PropertyBag> linkedRemedialActionSchemePropertyBags = remedialActionSchemePropertyBags.stream().filter(pb -> remedialActionScheme.substring(19).equals(pb.get(CsaProfileConstants.MRID))).toList();
-                if (linkedRemedialActionSchemePropertyBags.isEmpty()) {
-                    throw new FaraoImportException(ImportStatus.INCONSISTENCY_IN_DATA, CsaProfileConstants.AUTO_REMEDIAL_ACTION_MESSAGE + spsId + " will not be imported because it has no associated RemedialActionScheme");
-                } else if (linkedRemedialActionSchemePropertyBags.size() > 1) {
-                    throw new FaraoImportException(ImportStatus.INCONSISTENCY_IN_DATA, CsaProfileConstants.AUTO_REMEDIAL_ACTION_MESSAGE + spsId + " will not be imported because it has several conflictual RemedialActionSchemes");
-                }
-                PropertyBag remedialActionSchemePropertyBag = linkedRemedialActionSchemePropertyBags.get(0);
-                String remedialActionSchemeKind = remedialActionSchemePropertyBag.get(CsaProfileConstants.RA_KIND);
-                if (!remedialActionSchemeKind.equals(CsaProfileConstants.SIPS)) {
-                    throw new FaraoImportException(ImportStatus.INCONSISTENCY_IN_DATA, CsaProfileConstants.AUTO_REMEDIAL_ACTION_MESSAGE + spsId + " will not be imported because of an unsupported kind for remedial action schedule (only SIPS allowed)");
-                }
-                String remedialActionSchemeNormalArmed = remedialActionSchemePropertyBag.get(CsaProfileConstants.NORMAL_ARMED);
-                if (!Boolean.parseBoolean(remedialActionSchemeNormalArmed)) {
-                    throw new FaraoImportException(ImportStatus.INCONSISTENCY_IN_DATA, CsaProfileConstants.AUTO_REMEDIAL_ACTION_MESSAGE + spsId + " will not be imported because RemedialActionScheme " + remedialActionScheme.substring(19) + " is not armed");
-                }
-
-                // Method 3: getAssociatedStage
-                List<PropertyBag> linkedStagePropertyBags = stagePropertyBags.stream().filter(pb -> remedialActionScheme.equals(pb.get(CsaProfileConstants.REMEDIAL_ACTION_SCHEME))).toList();
-                if (linkedStagePropertyBags.isEmpty()) {
-                    throw new FaraoImportException(ImportStatus.INCONSISTENCY_IN_DATA, CsaProfileConstants.AUTO_REMEDIAL_ACTION_MESSAGE + spsId + " will not be imported because it has no associated Stage");
-                } else if (linkedStagePropertyBags.size() > 1) {
-                    throw new FaraoImportException(ImportStatus.INCONSISTENCY_IN_DATA, CsaProfileConstants.AUTO_REMEDIAL_ACTION_MESSAGE + spsId + " will not be imported because it has several associated Stages");
-                }
-                PropertyBag stagePropertyBag = linkedStagePropertyBags.get(0);
-                String gridStateAlterationCollection = stagePropertyBag.get(CsaProfileConstants.GRID_STATE_ALTERATION_COLLECTION).substring(19);
-
-                // Method 4: getAssociatedGridStateAlterationCollection
-                List<PropertyBag> linkedGridStateAlterationCollectionPropertyBags = gridStateAlterationCollectionPropertyBags.stream().filter(pb -> gridStateAlterationCollection.equals(pb.get(CsaProfileConstants.MRID))).toList();
-                if (linkedGridStateAlterationCollectionPropertyBags.isEmpty()) {
-                    throw new FaraoImportException(ImportStatus.INCONSISTENCY_IN_DATA, CsaProfileConstants.AUTO_REMEDIAL_ACTION_MESSAGE + spsId + " will not be imported because it has no associated GridStateAlterationCollection");
-                } else if (linkedGridStateAlterationCollectionPropertyBags.size() > 1) {
-                    throw new FaraoImportException(ImportStatus.INCONSISTENCY_IN_DATA, CsaProfileConstants.AUTO_REMEDIAL_ACTION_MESSAGE + spsId + " will not be imported because it has several conflictual GridStateAlterationCollections");
-                }
-
-                // Method 5: getRemedialActionTyoe
-                RemedialActionType remedialActionType;
-                if (linkedTopologyActionsAuto.containsKey(gridStateAlterationCollection)) {
-                    remedialActionType = RemedialActionType.NETWORK_ACTION;
-                } else if (linkedRotatingMachineActionsAuto.containsKey(gridStateAlterationCollection)) {
-                    checkEachInjectionSetPointActionHasExactlyOneStaticPropertyRangeElseThrowException(spsId, linkedRotatingMachineActionsAuto.get(gridStateAlterationCollection), linkedStaticPropertyRanges);
-                    remedialActionType = RemedialActionType.NETWORK_ACTION;
-                } else if (linkedShuntCompensatorModificationAuto.containsKey(gridStateAlterationCollection)) {
-                    checkEachInjectionSetPointActionHasExactlyOneStaticPropertyRangeElseThrowException(spsId, linkedShuntCompensatorModificationAuto.get(gridStateAlterationCollection), linkedStaticPropertyRanges);
-                    remedialActionType = RemedialActionType.NETWORK_ACTION;
-                } else if (linkedTapPositionActionsAuto.containsKey(gridStateAlterationCollection)) {
-                    // StaticPropertyRanges not mandatory in case of tapPositionsActions
-                    remedialActionType = RemedialActionType.PST_RANGE_ACTION;
-                } else {
-                    throw new FaraoImportException(ImportStatus.INCONSISTENCY_IN_DATA, CsaProfileConstants.AUTO_REMEDIAL_ACTION_MESSAGE + spsId + " will not be imported because there is no elementary action for that ARA");
-                }
-
+                RemedialActionType remedialActionType = getRemedialActionType(linkedStaticPropertyRanges, linkedTopologyActionsAuto, linkedRotatingMachineActionsAuto, linkedShuntCompensatorModificationAuto, linkedTapPositionActionsAuto, spsId, gridStateAlterationCollection);
                 RemedialActionAdder<?> remedialActionAdder;
 
                 if (remedialActionType.equals(RemedialActionType.NETWORK_ACTION)) {
@@ -512,6 +460,94 @@ public class CsaProfileRemedialActionsCreator {
                 csaProfileRemedialActionCreationContexts.add(CsaProfileElementaryCreationContext.notImported(spsId, e.getImportStatus(), e.getMessage()));
             }
         }
+    }
+
+    private static void checkSpsKind(PropertyBag schemeRemedialActionPropertyBag, String spsId) {
+        String spsKind = schemeRemedialActionPropertyBag.get(CsaProfileConstants.RA_KIND);
+        if (!spsKind.equals(CsaProfileConstants.RemedialActionKind.CURATIVE.toString())) {
+            throw new FaraoImportException(ImportStatus.INCONSISTENCY_IN_DATA, CsaProfileConstants.AUTO_REMEDIAL_ACTION_MESSAGE + spsId + " will not be imported because auto remedial action musty be of curative kind");
+        }
+    }
+
+    private static void checkSpsAvailability(PropertyBag schemeRemedialActionPropertyBag, String spsId) {
+        boolean normalAvailable = Boolean.parseBoolean(schemeRemedialActionPropertyBag.get(CsaProfileConstants.NORMAL_AVAILABLE));
+        if (!normalAvailable) {
+            throw new FaraoImportException(ImportStatus.NOT_FOR_RAO, CsaProfileConstants.AUTO_REMEDIAL_ACTION_MESSAGE + spsId + " will not be imported because RemedialAction.normalAvailable must be 'true' to be imported");
+        }
+    }
+
+    private String getAssociatedRemedialActionScheme(String spsId) {
+        List<PropertyBag> linkedSchemeRemedialActionsRasProfilePropertyBags = schemeRemedialActionsRasPropertyBags.stream().filter(pb -> pb.get(CsaProfileConstants.MRID).equals(spsId)).toList();
+        if (linkedSchemeRemedialActionsRasProfilePropertyBags.isEmpty()) {
+            throw new FaraoImportException(ImportStatus.INCONSISTENCY_IN_DATA, CsaProfileConstants.AUTO_REMEDIAL_ACTION_MESSAGE + spsId + " will not be imported because auto remedial action has no reference in RAS profile(s)");
+        } else if (linkedSchemeRemedialActionsRasProfilePropertyBags.size() > 1) {
+            throw new FaraoImportException(ImportStatus.INCONSISTENCY_IN_DATA, CsaProfileConstants.AUTO_REMEDIAL_ACTION_MESSAGE + spsId + " will not be imported because auto remedial action has several conflictual references in RAS profile(s)");
+        }
+        PropertyBag schemeRemedialActionRasProfilePropertyBag = linkedSchemeRemedialActionsRasProfilePropertyBags.get(0);
+        String remedialActionScheme = schemeRemedialActionRasProfilePropertyBag.get(CsaProfileConstants.REMEDIAL_ACTION_SCHEME);
+
+        List<PropertyBag> linkedRemedialActionSchemePropertyBags = remedialActionSchemePropertyBags.stream().filter(pb -> remedialActionScheme.substring(19).equals(pb.get(CsaProfileConstants.MRID))).toList();
+        if (linkedRemedialActionSchemePropertyBags.isEmpty()) {
+            throw new FaraoImportException(ImportStatus.INCONSISTENCY_IN_DATA, CsaProfileConstants.AUTO_REMEDIAL_ACTION_MESSAGE + spsId + " will not be imported because it has no associated RemedialActionScheme");
+        } else if (linkedRemedialActionSchemePropertyBags.size() > 1) {
+            throw new FaraoImportException(ImportStatus.INCONSISTENCY_IN_DATA, CsaProfileConstants.AUTO_REMEDIAL_ACTION_MESSAGE + spsId + " will not be imported because it has several conflictual RemedialActionSchemes");
+        }
+        PropertyBag remedialActionSchemePropertyBag = linkedRemedialActionSchemePropertyBags.get(0);
+        String remedialActionSchemeKind = remedialActionSchemePropertyBag.get(CsaProfileConstants.RA_KIND);
+        if (!remedialActionSchemeKind.equals(CsaProfileConstants.SIPS)) {
+            throw new FaraoImportException(ImportStatus.INCONSISTENCY_IN_DATA, CsaProfileConstants.AUTO_REMEDIAL_ACTION_MESSAGE + spsId + " will not be imported because of an unsupported kind for remedial action schedule (only SIPS allowed)");
+        }
+        String remedialActionSchemeNormalArmed = remedialActionSchemePropertyBag.get(CsaProfileConstants.NORMAL_ARMED);
+        if (!Boolean.parseBoolean(remedialActionSchemeNormalArmed)) {
+            throw new FaraoImportException(ImportStatus.INCONSISTENCY_IN_DATA, CsaProfileConstants.AUTO_REMEDIAL_ACTION_MESSAGE + spsId + " will not be imported because RemedialActionScheme " + remedialActionScheme.substring(19) + " is not armed");
+        }
+        return remedialActionScheme;
+    }
+
+    private PropertyBag getAssociatedStagePropertyBag(String spsId, String remedialActionScheme) {
+        List<PropertyBag> linkedStagePropertyBags = stagePropertyBags.stream().filter(pb -> remedialActionScheme.equals(pb.get(CsaProfileConstants.REMEDIAL_ACTION_SCHEME))).toList();
+        if (linkedStagePropertyBags.isEmpty()) {
+            throw new FaraoImportException(ImportStatus.INCONSISTENCY_IN_DATA, CsaProfileConstants.AUTO_REMEDIAL_ACTION_MESSAGE + spsId + " will not be imported because it has no associated Stage");
+        } else if (linkedStagePropertyBags.size() > 1) {
+            throw new FaraoImportException(ImportStatus.INCONSISTENCY_IN_DATA, CsaProfileConstants.AUTO_REMEDIAL_ACTION_MESSAGE + spsId + " will not be imported because it has several associated Stages");
+        }
+        return linkedStagePropertyBags.get(0);
+    }
+
+    private String getAssociatedGridStateAlterationCollectionUsingStage(String spsId, String remedialActionScheme) {
+        PropertyBag stagePropertyBag = getAssociatedStagePropertyBag(spsId, remedialActionScheme);
+        String gridStateAlterationCollection = stagePropertyBag.get(CsaProfileConstants.GRID_STATE_ALTERATION_COLLECTION).substring(19);
+        List<PropertyBag> linkedGridStateAlterationCollectionPropertyBags = gridStateAlterationCollectionPropertyBags.stream().filter(pb -> gridStateAlterationCollection.equals(pb.get(CsaProfileConstants.MRID))).toList();
+        if (linkedGridStateAlterationCollectionPropertyBags.isEmpty()) {
+            throw new FaraoImportException(ImportStatus.INCONSISTENCY_IN_DATA, CsaProfileConstants.AUTO_REMEDIAL_ACTION_MESSAGE + spsId + " will not be imported because it has no associated GridStateAlterationCollection");
+        } else if (linkedGridStateAlterationCollectionPropertyBags.size() > 1) {
+            throw new FaraoImportException(ImportStatus.INCONSISTENCY_IN_DATA, CsaProfileConstants.AUTO_REMEDIAL_ACTION_MESSAGE + spsId + " will not be imported because it has several conflictual GridStateAlterationCollections");
+        }
+        return gridStateAlterationCollection;
+    }
+
+    private String getGridStateAlterationCollection(String spsId) {
+        String remedialActionScheme = getAssociatedRemedialActionScheme(spsId);
+        return getAssociatedGridStateAlterationCollectionUsingStage(spsId, remedialActionScheme);
+    }
+
+    private RemedialActionType getRemedialActionType(Map<String, Set<PropertyBag>> linkedStaticPropertyRanges, Map<String, Set<PropertyBag>> linkedTopologyActionsAuto, Map<String, Set<PropertyBag>> linkedRotatingMachineActionsAuto, Map<String, Set<PropertyBag>> linkedShuntCompensatorModificationAuto, Map<String, Set<PropertyBag>> linkedTapPositionActionsAuto, String spsId, String gridStateAlterationCollection) {
+        RemedialActionType remedialActionType;
+        if (linkedTopologyActionsAuto.containsKey(gridStateAlterationCollection)) {
+            remedialActionType = RemedialActionType.NETWORK_ACTION;
+        } else if (linkedRotatingMachineActionsAuto.containsKey(gridStateAlterationCollection)) {
+            checkEachInjectionSetPointActionHasExactlyOneStaticPropertyRangeElseThrowException(spsId, linkedRotatingMachineActionsAuto.get(gridStateAlterationCollection), linkedStaticPropertyRanges);
+            remedialActionType = RemedialActionType.NETWORK_ACTION;
+        } else if (linkedShuntCompensatorModificationAuto.containsKey(gridStateAlterationCollection)) {
+            checkEachInjectionSetPointActionHasExactlyOneStaticPropertyRangeElseThrowException(spsId, linkedShuntCompensatorModificationAuto.get(gridStateAlterationCollection), linkedStaticPropertyRanges);
+            remedialActionType = RemedialActionType.NETWORK_ACTION;
+        } else if (linkedTapPositionActionsAuto.containsKey(gridStateAlterationCollection)) {
+            // StaticPropertyRanges not mandatory in case of tapPositionsActions
+            remedialActionType = RemedialActionType.PST_RANGE_ACTION;
+        } else {
+            throw new FaraoImportException(ImportStatus.INCONSISTENCY_IN_DATA, CsaProfileConstants.AUTO_REMEDIAL_ACTION_MESSAGE + spsId + " will not be imported because there is no elementary action for that ARA");
+        }
+        return remedialActionType;
     }
 
 }
