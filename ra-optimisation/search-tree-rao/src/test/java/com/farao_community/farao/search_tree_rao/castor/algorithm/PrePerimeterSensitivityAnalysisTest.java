@@ -48,7 +48,6 @@ import static org.mockito.Mockito.when;
  */
 class PrePerimeterSensitivityAnalysisTest {
     private static final double DOUBLE_TOLERANCE = 0.01;
-    private static final String OUTAGE_INSTANT_ID = "outage";
 
     private Network network;
     private Crac crac;
@@ -64,7 +63,7 @@ class PrePerimeterSensitivityAnalysisTest {
     public void setUp() {
         network = NetworkImportsUtil.import12NodesNetwork();
         crac = CommonCracCreation.create();
-        outageInstant = crac.getInstant(OUTAGE_INSTANT_ID);
+        outageInstant = crac.getInstant("outage");
         raoParameters = new RaoParameters();
         cnec = Mockito.mock(FlowCnec.class);
 

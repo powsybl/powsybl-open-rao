@@ -203,6 +203,7 @@ public class Leaf implements OptimizationResult {
                     .withRaActivationFromParentLeaf(raActivationResultFromParentLeaf)
                     .withObjectiveFunction(searchTreeInput.getObjectiveFunction())
                     .withToolProvider(searchTreeInput.getToolProvider())
+                    .withCrac(searchTreeInput.getCrac())
                     .build();
 
             // build parameters

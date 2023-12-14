@@ -6,6 +6,7 @@
  */
 package com.farao_community.farao.search_tree_rao.linear_optimisation.inputs;
 
+import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.search_tree_rao.commons.ToolProvider;
 import com.farao_community.farao.search_tree_rao.commons.objective_function_evaluator.ObjectiveFunction;
 import com.farao_community.farao.search_tree_rao.commons.optimization_perimeters.OptimizationPerimeter;
@@ -39,6 +40,7 @@ public class IteratingLinearOptimizerInput {
     private final ObjectiveFunction objectiveFunction;
 
     private final ToolProvider toolProvider;
+    private final Crac crac;
 
     public IteratingLinearOptimizerInput(Network network,
                                          OptimizationPerimeter optimizationPerimeter,
@@ -50,7 +52,8 @@ public class IteratingLinearOptimizerInput {
                                          AppliedRemedialActions preOptimizationAppliedRemedialActions,
                                          RangeActionActivationResult raActivationFromParentLeaf,
                                          ObjectiveFunction objectiveFunction,
-                                         ToolProvider toolProvider) {
+                                         ToolProvider toolProvider,
+                                         Crac crac) {
         this.network = network;
         this.optimizationPerimeter = optimizationPerimeter;
         this.initialFlowResult = initialFlowResult;
@@ -62,6 +65,7 @@ public class IteratingLinearOptimizerInput {
         this.raActivationFromParentLeaf = raActivationFromParentLeaf;
         this.objectiveFunction = objectiveFunction;
         this.toolProvider = toolProvider;
+        this.crac = crac;
     }
 
     public Network getNetwork() {
@@ -108,6 +112,10 @@ public class IteratingLinearOptimizerInput {
         return toolProvider;
     }
 
+    public Crac getCrac() {
+        return crac;
+    }
+
     public static IteratingLinearOptimizerInputBuilder create() {
         return new IteratingLinearOptimizerInputBuilder();
     }
@@ -124,6 +132,7 @@ public class IteratingLinearOptimizerInput {
         private RangeActionActivationResult raActivationFromParentLeaf;
         private ObjectiveFunction objectiveFunction;
         private ToolProvider toolProvider;
+        private Crac crac;
 
         public IteratingLinearOptimizerInputBuilder withNetwork(Network network) {
             this.network = network;
@@ -180,6 +189,11 @@ public class IteratingLinearOptimizerInput {
             return this;
         }
 
+        public IteratingLinearOptimizerInputBuilder withCrac(Crac crac) {
+            this.crac = crac;
+            return this;
+        }
+
         public IteratingLinearOptimizerInput build() {
             return new IteratingLinearOptimizerInput(network,
                 optimizationPerimeter,
@@ -191,7 +205,8 @@ public class IteratingLinearOptimizerInput {
                 preOptimizationAppliedRemedialActions,
                 raActivationFromParentLeaf,
                 objectiveFunction,
-                toolProvider);
+                toolProvider,
+                crac);
         }
     }
 }

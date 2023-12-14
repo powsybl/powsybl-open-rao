@@ -24,17 +24,14 @@ import static com.farao_community.farao.data.crac_creation.creator.csa_profile.c
 import static org.junit.jupiter.api.Assertions.*;
 
 class CsaProfileCracCreatorTest {
-    private static final String PREVENTIVE_INSTANT_ID = "preventive";
-    private static final String OUTAGE_INSTANT_ID = "outage";
-    private static final String CURATIVE_INSTANT_ID = "curative";
 
     @Test
     void testCustomImportCase() {
         CsaProfileCracCreationContext cracCreationContext = getCsaCracCreationContext("/TestCase_13_5_4.zip");
         Crac importedCrac = cracCreationContext.getCrac();
-        Instant preventiveInstant = importedCrac.getInstant(PREVENTIVE_INSTANT_ID);
-        Instant outageInstant = importedCrac.getInstant(OUTAGE_INSTANT_ID);
-        Instant curativeInstant = importedCrac.getInstant(CURATIVE_INSTANT_ID);
+        Instant preventiveInstant = importedCrac.getInstant("preventive");
+        Instant outageInstant = importedCrac.getInstant("outage");
+        Instant curativeInstant = importedCrac.getInstant("curative");
 
         assertTrue(cracCreationContext.isCreationSuccessful());
 
@@ -105,7 +102,7 @@ class CsaProfileCracCreatorTest {
         Mockito.when(network.getIdentifiable("ff3c8013-d3f9-4198-a1f2-98d3ebdf30c4")).thenReturn(networkElementMock);
 
         CsaProfileCracCreationContext cracCreationContext = getCsaCracCreationContext("/CSA_63_1_ValidationTest.zip", network);
-        Instant curativeInstant = cracCreationContext.getCrac().getInstant(CURATIVE_INSTANT_ID);
+        Instant curativeInstant = cracCreationContext.getCrac().getInstant("curative");
 
         assertNotNull(cracCreationContext);
         assertTrue(cracCreationContext.isCreationSuccessful());

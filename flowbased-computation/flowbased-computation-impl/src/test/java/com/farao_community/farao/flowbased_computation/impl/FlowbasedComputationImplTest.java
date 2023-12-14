@@ -40,8 +40,6 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 class FlowbasedComputationImplTest {
     private static final double EPSILON = 1e-3;
-    private static final String OUTAGE_INSTANT_ID = "outage";
-    private static final String CURATIVE_INSTANT_ID = "curative";
 
     private FlowbasedComputationProvider flowBasedComputationProvider;
     private Network network;
@@ -133,7 +131,7 @@ class FlowbasedComputationImplTest {
         assertEquals(0.375, getPreventivePtdf(result, "DE-NL - N - preventive", "10YCB-GERMANY--8"), EPSILON);
         assertEquals(-0.375, getPreventivePtdf(result, "DE-NL - N - preventive", "10YNL----------L"), EPSILON);
 
-        String onOutageId = OUTAGE_INSTANT_ID;
+        String onOutageId = "outage";
         assertEquals(0., getCurativeFref(result, "N-1 FR-BE", "FR-BE - N-1 - N-1 FR-BE", onOutageId), EPSILON);
         assertEquals(100, getCurativeFmax(result, "N-1 FR-BE", "FR-BE - N-1 - N-1 FR-BE", onOutageId), EPSILON);
         assertEquals(0., getCurativePtdf(result, "N-1 FR-BE", "FR-BE - N-1 - N-1 FR-BE", "10YFR-RTE------C", onOutageId), EPSILON);
@@ -164,7 +162,7 @@ class FlowbasedComputationImplTest {
     }
 
     private void checkCurativeAssertions(FlowbasedComputationResult result) {
-        String afterCraId = CURATIVE_INSTANT_ID;
+        String afterCraId = "curative";
         assertEquals(0., getCurativeFref(result, "N-1 FR-BE", "FR-BE - AfterCra - N-1 FR-BE", afterCraId), EPSILON);
         assertEquals(100, getCurativeFmax(result, "N-1 FR-BE", "FR-BE - AfterCra - N-1 FR-BE", afterCraId), EPSILON);
         assertEquals(0., getCurativePtdf(result, "N-1 FR-BE", "FR-BE - AfterCra - N-1 FR-BE", "10YFR-RTE------C", afterCraId), EPSILON);
@@ -246,7 +244,7 @@ class FlowbasedComputationImplTest {
 
     private RaoResult createRaoResult(Crac crac, Set<FlowCnec> flowCnecs, NetworkAction na) {
         RaoResultImpl raoResult = new RaoResultImpl(crac);
-        Instant curativeInstant = crac.getInstant(CURATIVE_INSTANT_ID);
+        Instant curativeInstant = crac.getInstant("curative");
 
         // Warning: these results on cnecs are not relevant, and maybe not coherent with
         // the hardcoded results of FlowbasedComputationProviderMock, used in this test class.

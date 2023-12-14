@@ -36,7 +36,6 @@ import static org.junit.jupiter.api.Assertions.*;
 class SystematicSensitivityInterfaceTest {
 
     private static final double FLOW_TOLERANCE = 0.1;
-    private static final String OUTAGE_INSTANT_ID = "outage";
 
     private Crac crac;
     private Network network;
@@ -52,7 +51,7 @@ class SystematicSensitivityInterfaceTest {
 
         network = NetworkImportsUtil.import12NodesNetwork();
         crac = CommonCracCreation.create();
-        outageInstant = crac.getInstant(OUTAGE_INSTANT_ID);
+        outageInstant = crac.getInstant("outage");
         systematicAnalysisResultOk = buildSystematicAnalysisResultOk();
         systematicAnalysisResultFailed = buildSystematicAnalysisResultFailed();
 
@@ -86,7 +85,7 @@ class SystematicSensitivityInterfaceTest {
 
         // assert results
         assertNotNull(systematicSensitivityAnalysisResult);
-        for (FlowCnec cnec : crac.getFlowCnecs()) {
+        for (FlowCnec cnec: crac.getFlowCnecs()) {
             if (cnec.getId().equals("cnec2basecase")) {
                 assertEquals(1400., systematicSensitivityAnalysisResult.getReferenceFlow(cnec, Side.LEFT), FLOW_TOLERANCE);
                 assertEquals(2800., systematicSensitivityAnalysisResult.getReferenceFlow(cnec, Side.RIGHT), FLOW_TOLERANCE);

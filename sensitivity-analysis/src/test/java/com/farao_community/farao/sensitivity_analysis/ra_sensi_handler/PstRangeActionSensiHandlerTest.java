@@ -27,7 +27,6 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 class PstRangeActionSensiHandlerTest {
-    private static final String PREVENTIVE_INSTANT_ID = "preventive";
 
     @Test
     void checkConsistencyOKTest() {
@@ -59,7 +58,7 @@ class PstRangeActionSensiHandlerTest {
         PstRangeAction pstRangeAction = crac.newPstRangeAction()
                 .withId("pstOnBranch")
                 .withNetworkElement("BBE1AA1  BB23AA1  1")
-                .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add()
+                .newOnInstantUsageRule().withInstant("preventive").withUsageMethod(UsageMethod.AVAILABLE).add()
                 .newTapRange().withRangeType(RangeType.ABSOLUTE).withMinTap(-16).withMaxTap(16).add()
                 .withInitialTap(0)
                 .withTapToAngleConversionMap(crac.getPstRangeAction("pst").getTapToAngleConversionMap())
@@ -77,7 +76,7 @@ class PstRangeActionSensiHandlerTest {
         PstRangeAction pstRangeAction = crac.newPstRangeAction()
                 .withId("pstOnNonExistingElement")
                 .withNetworkElement("unknown")
-                .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add()
+                .newOnInstantUsageRule().withInstant("preventive").withUsageMethod(UsageMethod.AVAILABLE).add()
                 .newTapRange().withRangeType(RangeType.ABSOLUTE).withMinTap(-16).withMaxTap(16).add()
                 .withInitialTap(0)
                 .withTapToAngleConversionMap(crac.getPstRangeAction("pst").getTapToAngleConversionMap())

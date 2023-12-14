@@ -7,10 +7,7 @@
 package com.farao_community.farao.data.crac_io_json;
 
 import com.farao_community.farao.commons.Unit;
-import com.farao_community.farao.data.crac_api.Crac;
-import com.farao_community.farao.data.crac_api.Instant;
-import com.farao_community.farao.data.crac_api.NetworkElement;
-import com.farao_community.farao.data.crac_api.RemedialAction;
+import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_api.cnec.AngleCnec;
 import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_api.cnec.VoltageCnec;
@@ -28,6 +25,7 @@ import com.powsybl.iidm.network.Country;
 import org.junit.jupiter.api.Test;
 
 import java.io.InputStream;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -244,6 +242,26 @@ class JsonRetrocompatibilityTest {
         assertEquals(1, crac.getInjectionRangeActions().size());
         assertEquals(1, crac.getCounterTradeRangeActions().size());
         testContentOfV1Point9Crac(crac);
+    }
+
+    @Test
+    void importV1Point10Test() {
+        // Add support for user-defined Instants
+        InputStream cracFile = getClass().getResourceAsStream("/retrocompatibility/v1/crac-v1.10.json");
+
+        Crac crac = new JsonImport().importCrac(cracFile);
+
+        assertEquals(2, crac.getContingencies().size());
+        assertEquals(7, crac.getFlowCnecs().size());
+        assertEquals(1, crac.getAngleCnecs().size());
+        assertEquals(1, crac.getVoltageCnecs().size());
+        assertEquals(4, crac.getNetworkActions().size());
+        assertEquals(4, crac.getPstRangeActions().size());
+        assertEquals(2, crac.getHvdcRangeActions().size());
+        assertEquals(1, crac.getInjectionRangeActions().size());
+        assertEquals(1, crac.getCounterTradeRangeActions().size());
+        assertEquals(5, crac.getInstants().size());
+        testContentOfV1Point10Crac(crac);
     }
 
     private void testContentOfV1Point0Crac(Crac crac) {
@@ -599,5 +617,26 @@ class JsonRetrocompatibilityTest {
         assertEquals(2, crac.getCounterTradeRangeAction("counterTradeRange1Id").getRanges().size());
         assertEquals(Country.FR, crac.getCounterTradeRangeAction("counterTradeRange1Id").getExportingCountry());
         assertEquals(Country.DE, crac.getCounterTradeRangeAction("counterTradeRange1Id").getImportingCountry());
+    }
+
+    private void testContentOfV1Point10Crac(Crac crac) {
+        testContentOfV1Point9Crac(crac);
+        // test instants are well-defined
+        List<Instant> instants = crac.getInstants();
+        assertEquals("preventive", instants.get(0).getId());
+        assertEquals(InstantKind.PREVENTIVE, instants.get(0).getKind());
+        assertEquals(0, instants.get(0).getOrder());
+        assertEquals("outage", instants.get(1).getId());
+        assertEquals(InstantKind.OUTAGE, instants.get(1).getKind());
+        assertEquals(1, instants.get(1).getOrder());
+        assertEquals("auto", instants.get(2).getId());
+        assertEquals(InstantKind.AUTO, instants.get(2).getKind());
+        assertEquals(2, instants.get(2).getOrder());
+        assertEquals("toto", instants.get(3).getId());
+        assertEquals(InstantKind.CURATIVE, instants.get(3).getKind());
+        assertEquals(3, instants.get(3).getOrder());
+        assertEquals("curative", instants.get(4).getId());
+        assertEquals(InstantKind.CURATIVE, instants.get(4).getKind());
+        assertEquals(4, instants.get(4).getOrder());
     }
 }

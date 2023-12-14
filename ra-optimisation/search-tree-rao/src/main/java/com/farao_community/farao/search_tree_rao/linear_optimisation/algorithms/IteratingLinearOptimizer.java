@@ -8,6 +8,7 @@
 package com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms;
 
 import com.farao_community.farao.data.crac_api.Instant;
+import com.farao_community.farao.data.crac_api.InstantKind;
 import com.farao_community.farao.data.rao_result_api.ComputationStatus;
 import com.farao_community.farao.rao_api.parameters.RangeActionsOptimizationParameters;
 import com.farao_community.farao.search_tree_rao.commons.SensitivityComputer;
@@ -184,7 +185,8 @@ public final class IteratingLinearOptimizer {
                 .withCnecs(input.getOptimizationPerimeter().getFlowCnecs())
                 .withRangeActions(input.getOptimizationPerimeter().getRangeActions())
                 .withAppliedRemedialActions(appliedRemedialActions)
-                .withToolProvider(input.getToolProvider());
+                .withToolProvider(input.getToolProvider())
+                .withOutageInstant(input.getCrac().getInstant(InstantKind.OUTAGE));
 
         if (parameters.isRaoWithLoopFlowLimitation() && parameters.getLoopFlowParameters().getPtdfApproximation().shouldUpdatePtdfWithPstChange()) {
             builder.withCommercialFlowsResults(input.getToolProvider().getLoopFlowComputation(), input.getOptimizationPerimeter().getLoopFlowCnecs());

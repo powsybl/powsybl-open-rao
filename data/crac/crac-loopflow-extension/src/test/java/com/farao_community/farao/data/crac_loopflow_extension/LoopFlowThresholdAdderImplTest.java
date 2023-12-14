@@ -13,7 +13,6 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 class LoopFlowThresholdAdderImplTest {
-    private static final String PREVENTIVE_INSTANT_ID = "preventive";
 
     private FlowCnec flowCnec;
 
@@ -21,12 +20,12 @@ class LoopFlowThresholdAdderImplTest {
     public void setUp() {
 
         Crac crac = CracFactory.findDefault().create("cracId", "cracName")
-            .newInstant(PREVENTIVE_INSTANT_ID, InstantKind.PREVENTIVE);
+            .newInstant("preventive", InstantKind.PREVENTIVE);
         flowCnec = crac.newFlowCnec()
             .withId("flowCnecId")
             .withName("flowCnecName")
             .withNetworkElement("networkElementId")
-            .withInstant(PREVENTIVE_INSTANT_ID)
+            .withInstant("preventive")
             .withOperator("operator")
             .withOptimized(true)
             .newThreshold()

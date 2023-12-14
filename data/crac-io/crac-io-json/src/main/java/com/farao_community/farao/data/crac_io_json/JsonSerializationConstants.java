@@ -30,7 +30,7 @@ public final class JsonSerializationConstants {
     private JsonSerializationConstants() {
     }
 
-    public static final String CRAC_IO_VERSION = "1.9";
+    public static final String CRAC_IO_VERSION = "1.10";
     /*
     v1.1: addition of switchPairs
     v1.2: addition of injectionRangeAction
@@ -40,6 +40,7 @@ public final class JsonSerializationConstants {
     v1.7: addition of VoltageConstraints usage rules
     v1.8: addition of ShuntCompensator set-point action
     v1.9: addition of counterTradeRangeAction
+    v1.10: addition of instants
      */
 
     // headers
@@ -65,7 +66,9 @@ public final class JsonSerializationConstants {
     public static final String CONTINGENCIES = "contingencies";
     public static final String CONTINGENCY_ID = "contingencyId";
 
+    public static final String INSTANTS = "instants";
     public static final String INSTANT = "instant";
+    public static final String INSTANT_KIND = "kind";
 
     public static final String FLOW_CNECS = "flowCnecs";
     public static final String FLOW_CNEC_ID = "flowCnecId";

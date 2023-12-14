@@ -29,14 +29,13 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  */
 public class RaoResultWithAngleMonitoringTest {
     private static final double DOUBLE_TOLERANCE = 0.1;
-    private static final String CURATIVE_INSTANT_ID = "curative";
 
     @Test
     void testRaoResultWithAngleMonitoring() {
         InputStream raoResultFile = getClass().getResourceAsStream("/rao-result-v1.4.json");
         InputStream cracFile = getClass().getResourceAsStream("/crac-for-rao-result-v1.4.json");
         Crac crac = new JsonImport().importCrac(cracFile);
-        Instant curativeInstant = crac.getInstant(CURATIVE_INSTANT_ID);
+        Instant curativeInstant = crac.getInstant("curative");
         RaoResult raoResult = new RaoResultImporter().importRaoResult(raoResultFile, crac);
         AngleMonitoringResult angleMonitoringResult = new AngleMonitoringResultImporter().importAngleMonitoringResult(getClass().getResourceAsStream("/angle-monitoring-result.json"), crac);
         RaoResult raoResultWithAngleMonitoring = new RaoResultWithAngleMonitoring(raoResult, angleMonitoringResult);

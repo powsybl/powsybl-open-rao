@@ -29,7 +29,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  */
 public class RaoResultWithVoltageMonitoringTest {
     private static final double DOUBLE_TOLERANCE = 0.1;
-    private static final String CURATIVE_INSTANT_ID = "curative";
 
     @Test
     void testRaoResultWithVoltageMonitoring() {
@@ -37,7 +36,7 @@ public class RaoResultWithVoltageMonitoringTest {
         InputStream cracFile = getClass().getResourceAsStream("/crac-for-rao-result-v1.4.json");
 
         Crac crac = new JsonImport().importCrac(cracFile);
-        Instant curativeInstant = crac.getInstant(CURATIVE_INSTANT_ID);
+        Instant curativeInstant = crac.getInstant("curative");
         RaoResult raoResult = new RaoResultImporter().importRaoResult(raoResultFile, crac);
         VoltageMonitoringResult voltageMonitoringResult = new VoltageMonitoringResultImporter().importVoltageMonitoringResult(getClass().getResourceAsStream("/voltage-monitoring-result.json"), crac);
         RaoResult raoResultWithVoltageMonitoring = new RaoResultWithVoltageMonitoring(raoResult, voltageMonitoringResult);

@@ -23,8 +23,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 class InjectionSetPointActionCreationTest {
-    private static final String PREVENTIVE_INSTANT_ID = "preventive";
-    private static final String CURATIVE_INSTANT_ID = "curative";
 
     @Test
     void testImportInjectionSetPointActions() {
@@ -43,8 +41,8 @@ class InjectionSetPointActionCreationTest {
         });
 
         CsaProfileCracCreationContext cracCreationContext = getCsaCracCreationContext("/csa-23/CSA_23_1_ValidProfiles.zip", network);
-        Instant preventiveInstant = cracCreationContext.getCrac().getInstant(PREVENTIVE_INSTANT_ID);
-        Instant curativeInstant = cracCreationContext.getCrac().getInstant(CURATIVE_INSTANT_ID);
+        Instant preventiveInstant = cracCreationContext.getCrac().getInstant("preventive");
+        Instant curativeInstant = cracCreationContext.getCrac().getInstant("curative");
 
         assertEquals(7, cracCreationContext.getCrac().getRemedialActions().size());
         // RA1 (on instant)

@@ -76,11 +76,6 @@ public class CracDeserializer extends JsonDeserializer<Crac> {
                 .newInstant("outage", InstantKind.OUTAGE)
                 .newInstant("auto", InstantKind.AUTO)
                 .newInstant("curative", InstantKind.CURATIVE);
-        } else {
-            // TODO deserialize instants instead of creating new ones
-            throw new FaraoException("Crac version > 1.9 has not been defined yet");
-            // TODO test this
-            // TODO implement this
         }
 
         Map<String, String> deserializedNetworkElementsNamesPerId = null;
@@ -141,6 +136,11 @@ public class CracDeserializer extends JsonDeserializer<Crac> {
                     jsonParser.nextToken();
                     List<Extension<Crac>> extensions = JsonUtil.readExtensions(jsonParser, deserializationContext, ExtensionsHandler.getExtensionsSerializers());
                     ExtensionsHandler.getExtensionsSerializers().addExtensions(crac, extensions);
+                    break;
+
+                case INSTANTS:
+                    jsonParser.nextToken();
+                    InstantArrayDeserializer.deserialize(jsonParser, crac);
                     break;
 
                 default:

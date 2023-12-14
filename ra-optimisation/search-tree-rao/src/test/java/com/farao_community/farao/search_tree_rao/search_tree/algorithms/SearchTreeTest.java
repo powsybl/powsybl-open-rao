@@ -58,7 +58,6 @@ import static org.mockito.Mockito.*;
 class SearchTreeTest {
 
     private static final double DOUBLE_TOLERANCE = 1e-3;
-    private static final String PREVENTIVE_INSTANT_ID = "preventive";
 
     private SearchTree searchTree;
 
@@ -137,7 +136,7 @@ class SearchTreeTest {
         when(searchTreeInput.getObjectiveFunction()).thenReturn(objectiveFunction);
         when(optimizedState.getContingency()).thenReturn(Optional.empty());
         Instant preventiveInstant = Mockito.mock(Instant.class);
-        when(preventiveInstant.toString()).thenReturn(PREVENTIVE_INSTANT_ID);
+        when(preventiveInstant.toString()).thenReturn("preventive");
         when(optimizedState.getInstant()).thenReturn(preventiveInstant);
         rootLeaf = Mockito.mock(Leaf.class);
         when(searchTreeInput.getToolProvider()).thenReturn(Mockito.mock(ToolProvider.class));

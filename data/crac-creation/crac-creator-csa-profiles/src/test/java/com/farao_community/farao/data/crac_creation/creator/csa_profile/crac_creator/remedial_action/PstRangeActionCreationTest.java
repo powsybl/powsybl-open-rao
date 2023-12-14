@@ -13,12 +13,11 @@ import static com.farao_community.farao.data.crac_creation.creator.csa_profile.c
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class PstRangeActionCreationTest {
-    private static final String CURATIVE_INSTANT_ID = "curative";
 
     @Test
     void testTC1ImportPstRangeActions() {
         CsaProfileCracCreationContext cracCreationContext = getCsaCracCreationContext("/TestConfiguration_TC1_v29Mar2023.zip");
-        Instant curativeInstant = cracCreationContext.getCrac().getInstant(CURATIVE_INSTANT_ID);
+        Instant curativeInstant = cracCreationContext.getCrac().getInstant("curative");
 
         // ELIA_RA1 (on instant)
         PstRangeAction eliaRa1 = cracCreationContext.getCrac().getPstRangeAction("7fc2fc14-eea6-4e69-b8d9-a3edc218e687");
@@ -65,7 +64,7 @@ class PstRangeActionCreationTest {
     @Test
     void testTC2ImportPstRangeActions() {
         CsaProfileCracCreationContext cracCreationContext = getCsaCracCreationContext("/CSA_TestConfiguration_TC2_Draft_v14Apr2023.zip");
-        Instant curativeInstant = cracCreationContext.getCrac().getInstant(CURATIVE_INSTANT_ID);
+        Instant curativeInstant = cracCreationContext.getCrac().getInstant("curative");
 
         PstRangeAction reeRa1 = cracCreationContext.getCrac().getPstRangeAction("5898c268-9b32-4ab5-9cfc-64546135a337");
         assertEquals("RA1", reeRa1.getName());

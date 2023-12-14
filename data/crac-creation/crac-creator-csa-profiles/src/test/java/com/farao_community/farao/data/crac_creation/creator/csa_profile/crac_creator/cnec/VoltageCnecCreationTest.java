@@ -14,8 +14,6 @@ import static com.farao_community.farao.data.crac_creation.creator.csa_profile.c
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class VoltageCnecCreationTest {
-    private static final String PREVENTIVE_INSTANT_ID = "preventive";
-    private static final String CURATIVE_INSTANT_ID = "curative";
 
     @Test
     void checkOnConstraintWith4VoltageCnecs() {
@@ -45,8 +43,8 @@ class VoltageCnecCreationTest {
         Mockito.when(network.getIdentifiable("3a88a6a7-66fe-4988-9019-b3b288fd54ee")).thenReturn(networkElementMock);
 
         CsaProfileCracCreationContext cracCreationContext = getCsaCracCreationContext("/csa-11/CSA_11_5_OnVoltageConstraint.zip", network);
-        Instant preventiveInstant = cracCreationContext.getCrac().getInstant(PREVENTIVE_INSTANT_ID);
-        Instant curativeInstant = cracCreationContext.getCrac().getInstant(CURATIVE_INSTANT_ID);
+        Instant preventiveInstant = cracCreationContext.getCrac().getInstant("preventive");
+        Instant curativeInstant = cracCreationContext.getCrac().getInstant("curative");
 
         CsaProfileCracCreationTestUtil.assertVoltageCnecEquality(cracCreationContext.getCrac().getVoltageCnec("RTE_AE1 (e2b71e64-ce03-4aa3-9adc-7ff910adae36) - RTE_CO1 - curative"),
                 "RTE_AE1 (e2b71e64-ce03-4aa3-9adc-7ff910adae36) - RTE_CO1 - curative",

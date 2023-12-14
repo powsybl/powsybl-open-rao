@@ -46,8 +46,6 @@ import static com.farao_community.farao.commons.Unit.AMPERE;
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
 class RaoLoggerTest {
-    private static final String PREVENTIVE_INSTANT_ID = "preventive";
-    private static final String CURATIVE_INSTANT_ID = "curative";
 
     private ObjectiveFunctionResult objectiveFunctionResult;
     private FlowResult flowResult;
@@ -71,7 +69,7 @@ class RaoLoggerTest {
         Instant autoInstant = mock(Instant.class);
         Instant curativeInstant = mock(Instant.class);
         when(preventiveInstant.isPreventive()).thenReturn(true);
-        statePreventive = mockState(PREVENTIVE_INSTANT_ID, preventiveInstant);
+        statePreventive = mockState("preventive", preventiveInstant);
         stateCo1Auto = mockState("co1 - auto", autoInstant);
         stateCo1Curative = mockState("co1 - curative", curativeInstant);
         stateCo2Curative = mockState("co2 - curative", curativeInstant);
@@ -297,11 +295,11 @@ class RaoLoggerTest {
     void testLogOptimizationSummary() {
         State preventive = Mockito.mock(State.class);
         Instant preventiveInstant = Mockito.mock(Instant.class);
-        when(preventiveInstant.toString()).thenReturn(PREVENTIVE_INSTANT_ID);
+        when(preventiveInstant.toString()).thenReturn("preventive");
         when(preventive.getInstant()).thenReturn(preventiveInstant);
         State curative = Mockito.mock(State.class);
         Instant curativeInstant = Mockito.mock(Instant.class);
-        when(curativeInstant.toString()).thenReturn(CURATIVE_INSTANT_ID);
+        when(curativeInstant.toString()).thenReturn("curative");
         when(curative.getInstant()).thenReturn(curativeInstant);
         Contingency contingency = Mockito.mock(Contingency.class);
         when(contingency.getName()).thenReturn("contingency");

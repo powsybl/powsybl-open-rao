@@ -18,14 +18,12 @@ import static com.farao_community.farao.data.crac_creation.creator.csa_profile.c
 import static org.junit.jupiter.api.Assertions.*;
 
 class TopologicalActionCreationTest {
-    private static final String PREVENTIVE_INSTANT_ID = "preventive";
-    private static final String CURATIVE_INSTANT_ID = "curative";
 
     @Test
     void testTC2ImportNetworkActions() {
         CsaProfileCracCreationContext cracCreationContext = getCsaCracCreationContext("/CSA_TestConfiguration_TC2_27Apr2023.zip");
-        Instant preventiveInstant = cracCreationContext.getCrac().getInstant(PREVENTIVE_INSTANT_ID);
-        Instant curativeInstant = cracCreationContext.getCrac().getInstant(CURATIVE_INSTANT_ID);
+        Instant preventiveInstant = cracCreationContext.getCrac().getInstant("preventive");
+        Instant curativeInstant = cracCreationContext.getCrac().getInstant("curative");
 
         assertNotNull(cracCreationContext);
         assertEquals(10, cracCreationContext.getCrac().getNetworkActions().size());
@@ -112,8 +110,8 @@ class TopologicalActionCreationTest {
     @Test
     void testImportNetworkActions() {
         CsaProfileCracCreationContext cracCreationContext = getCsaCracCreationContext("/csa-9/CSA_9_4_ValidProfiles.zip");
-        Instant preventiveInstant = cracCreationContext.getCrac().getInstant(PREVENTIVE_INSTANT_ID);
-        Instant curativeInstant = cracCreationContext.getCrac().getInstant(CURATIVE_INSTANT_ID);
+        Instant preventiveInstant = cracCreationContext.getCrac().getInstant("preventive");
+        Instant curativeInstant = cracCreationContext.getCrac().getInstant("curative");
 
         assertEquals(7, cracCreationContext.getCrac().getRemedialActions().size());
 

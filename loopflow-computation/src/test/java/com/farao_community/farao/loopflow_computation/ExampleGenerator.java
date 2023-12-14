@@ -47,7 +47,6 @@ import static com.farao_community.farao.commons.Unit.MEGAWATT;
 final class ExampleGenerator {
     private static final String PREVENTIVE_INSTANT_ID = "preventive";
     private static final String OUTAGE_INSTANT_ID = "outage";
-    private static final String AUTO_INSTANT_ID = "auto";
 
     private ExampleGenerator() {
         throw new AssertionError("Utility class should not be instantiated");

@@ -117,6 +117,7 @@ class IteratingLinearOptimizerTest {
         sensitivityComputer = Mockito.mock(SensitivityComputer.class);
 
         outageInstant = Mockito.mock(Instant.class);
+        when(outageInstant.isOutage()).thenReturn(true);
         SystematicSensitivityResult sensi = Mockito.mock(SystematicSensitivityResult.class, "only sensi computation");
         when(systematicSensitivityInterface.run(network)).thenReturn(sensi);
         FlowResult flowResult = Mockito.mock(FlowResult.class);
@@ -132,6 +133,10 @@ class IteratingLinearOptimizerTest {
         SensitivityComputer.SensitivityComputerBuilder sensitivityComputerBuilder = Mockito.spy(SensitivityComputer.SensitivityComputerBuilder.class);
         doReturn(sensitivityComputer).when(sensitivityComputerBuilder).build();
         sensitivityComputerMockedStatic.when(SensitivityComputer::create).thenReturn(sensitivityComputerBuilder);
+
+        Crac crac = Mockito.mock(Crac.class);
+        when(input.getCrac()).thenReturn(crac);
+        when(crac.getInstant(InstantKind.OUTAGE)).thenReturn(outageInstant);
     }
 
     @AfterEach
