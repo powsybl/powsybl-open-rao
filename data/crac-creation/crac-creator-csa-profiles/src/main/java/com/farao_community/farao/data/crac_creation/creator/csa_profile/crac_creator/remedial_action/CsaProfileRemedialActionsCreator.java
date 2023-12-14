@@ -48,7 +48,6 @@ public class CsaProfileRemedialActionsCreator {
     private final CsaProfileCracCreationContext cracCreationContext;
     Set<CsaProfileElementaryCreationContext> csaProfileRemedialActionCreationContexts = new HashSet<>();
 
-    private final PropertyBags remedialActionsSchedulePropertyBags;
     private final PropertyBags schemeRemedialActionsPropertyBags;
     private final PropertyBags remedialActionSchemePropertyBags;
     private final PropertyBags stagePropertyBags;
@@ -65,7 +64,6 @@ public class CsaProfileRemedialActionsCreator {
                                             PropertyBags tapPositionPropertyBags,
                                             PropertyBags staticPropertyRangesPropertyBags,
                                             OnConstraintUsageRuleHelper onConstraintUsageRuleHelper,
-                                            PropertyBags remedialActionsSchedulePropertyBags,
                                             PropertyBags schemeRemedialActionsPropertyBags,
                                             PropertyBags remedialActionSchemePropertyBags,
                                             PropertyBags stagePropertyBags,
@@ -85,7 +83,6 @@ public class CsaProfileRemedialActionsCreator {
         this.staticPropertyRangesPropertyBags = staticPropertyRangesPropertyBags;
         this.cracCreationContext = cracCreationContext;
         this.onConstraintUsageRuleHelper = onConstraintUsageRuleHelper;
-        this.remedialActionsSchedulePropertyBags = remedialActionsSchedulePropertyBags;
         this.schemeRemedialActionsPropertyBags = schemeRemedialActionsPropertyBags;
         this.remedialActionSchemePropertyBags = remedialActionSchemePropertyBags;
         this.stagePropertyBags = stagePropertyBags;
@@ -114,7 +111,7 @@ public class CsaProfileRemedialActionsCreator {
 
             try {
                 List<String> alterations = new ArrayList<>();
-                RemedialActionType remedialActionType = checkRemedialActionCanBeImportedAndIdentifyType(parentRemedialActionPropertyBag, linkedTopologyActions, linkedRotatingMachineActions, linkedShuntCompensatorModifications, linkedTapPositionActions, linkedStaticPropertyRanges, CsaProfileConstants.CsaProfile.REMEDIAL_ACTION);
+                RemedialActionType remedialActionType = checkRemedialActionCanBeImportedAndIdentifyType(parentRemedialActionPropertyBag, linkedTopologyActions, linkedRotatingMachineActions, linkedShuntCompensatorModifications, linkedTapPositionActions, linkedStaticPropertyRanges);
                 RemedialActionAdder<?> remedialActionAdder;
                 String nativeRaName = parentRemedialActionPropertyBag.get(CsaProfileConstants.REMEDIAL_ACTION_NAME);
                 String tsoName = parentRemedialActionPropertyBag.get(CsaProfileConstants.TSO);
@@ -217,28 +214,22 @@ public class CsaProfileRemedialActionsCreator {
         }
     }
 
-    private RemedialActionType checkRemedialActionCanBeImportedAndIdentifyType(PropertyBag remedialActionPropertyBag, Map<String, Set<PropertyBag>> linkedTopologyActions, Map<String, Set<PropertyBag>> linkedRotatingMachineActions, Map<String, Set<PropertyBag>> linkedShuntCompensatorModifications, Map<String, Set<PropertyBag>> linkedTapPositionActions, Map<String, Set<PropertyBag>> linkedStaticPropertyRanges, CsaProfileConstants.CsaProfile profileKeyword) {
+    private RemedialActionType checkRemedialActionCanBeImportedAndIdentifyType(PropertyBag remedialActionPropertyBag, Map<String, Set<PropertyBag>> linkedTopologyActions, Map<String, Set<PropertyBag>> linkedRotatingMachineActions, Map<String, Set<PropertyBag>> linkedShuntCompensatorModifications, Map<String, Set<PropertyBag>> linkedTapPositionActions, Map<String, Set<PropertyBag>> linkedStaticPropertyRanges) {
         String remedialActionId = remedialActionPropertyBag.getId(CsaProfileConstants.GRID_STATE_ALTERATION_REMEDIAL_ACTION);
 
         String kind = remedialActionPropertyBag.get(CsaProfileConstants.RA_KIND);
 
         boolean normalAvailable = Boolean.parseBoolean(remedialActionPropertyBag.get(CsaProfileConstants.NORMAL_AVAILABLE));
 
-        CsaProfileConstants.HeaderValidity headerValidity = CsaProfileCracUtils.checkProfileHeader(remedialActionPropertyBag, profileKeyword, cracCreationContext.getTimeStamp());
-        if (headerValidity == CsaProfileConstants.HeaderValidity.INVALID_KEYWORD) {
-            throw new FaraoImportException(ImportStatus.INCONSISTENCY_IN_DATA, "Model.keyword must be " + profileKeyword.getKeyword());
-        } else if (headerValidity == CsaProfileConstants.HeaderValidity.INVALID_INTERVAL) {
-            throw new FaraoImportException(ImportStatus.NOT_FOR_REQUESTED_TIMESTAMP, "Required timestamp does not fall between Model.startDate and Model.endDate");
-        }
-
         if (!normalAvailable) {
             throw new FaraoImportException(ImportStatus.NOT_FOR_RAO, CsaProfileConstants.REMEDIAL_ACTION_MESSAGE + remedialActionId + " will not be imported because RemedialAction.normalAvailable must be 'true' to be imported");
         }
         if (!kind.equals(CsaProfileConstants.RemedialActionKind.CURATIVE.toString()) && !kind.equals(CsaProfileConstants.RemedialActionKind.PREVENTIVE.toString())) {
-            throw new FaraoImportException(ImportStatus.INCONSISTENCY_IN_DATA, CsaProfileConstants.REMEDIAL_ACTION_MESSAGE + remedialActionId + " will not be imported because Unsupported kind for remedial action" + remedialActionId);
+            throw new FaraoImportException(ImportStatus.INCONSISTENCY_IN_DATA, CsaProfileConstants.REMEDIAL_ACTION_MESSAGE + remedialActionId + " will not be imported because Unsupported kind for remedial action " + remedialActionId);
         }
 
         if (linkedTopologyActions.containsKey(remedialActionId)) {
+            checkEachInjectionSetPointActionHasExactlyOneStaticPropertyRangeElseThrowException(remedialActionId, linkedTopologyActions.get(remedialActionId), linkedStaticPropertyRanges);
             return RemedialActionType.NETWORK_ACTION;
         } else if (linkedRotatingMachineActions.containsKey(remedialActionId)) {
             checkEachInjectionSetPointActionHasExactlyOneStaticPropertyRangeElseThrowException(remedialActionId, linkedRotatingMachineActions.get(remedialActionId), linkedStaticPropertyRanges);
@@ -329,7 +320,7 @@ public class CsaProfileRemedialActionsCreator {
 
     private Function<String, Boolean> addOnConstraintUsageRuleForCnec(Instant remedialActionInstant, RemedialActionAdder remedialActionAdder, UsageMethod usageMethod) {
         return cnecId -> {
-            Cnec cnec = crac.getCnec(cnecId);
+            Cnec<?> cnec = crac.getCnec(cnecId);
             if (isOnConstraintInstantCoherent(cnec.getState().getInstant(), remedialActionInstant)) {
                 if (cnec instanceof FlowCnec) {
                     remedialActionAdder.newOnFlowConstraintUsageRule()
@@ -373,17 +364,6 @@ public class CsaProfileRemedialActionsCreator {
         }
     }
 
-    private void checkProfileHeader(PropertyBags propertyBags, CsaProfileConstants.CsaProfile profileKeyword) {
-        propertyBags.forEach(remedialActionsSchedulePropertyBag -> {
-            CsaProfileConstants.HeaderValidity headerValidity = CsaProfileCracUtils.checkProfileHeader(remedialActionsSchedulePropertyBag, profileKeyword, cracCreationContext.getTimeStamp());
-            if (headerValidity == CsaProfileConstants.HeaderValidity.INVALID_KEYWORD) {
-                throw new FaraoImportException(ImportStatus.INCONSISTENCY_IN_DATA, "Model.keyword must be " + CsaProfileConstants.CsaProfile.REMEDIAL_ACTION_SCHEDULE);
-            } else if (headerValidity == CsaProfileConstants.HeaderValidity.INVALID_INTERVAL) {
-                throw new FaraoImportException(ImportStatus.NOT_FOR_REQUESTED_TIMESTAMP, "Required timestamp does not fall between Model.startDate and Model.endDate");
-            }
-        });
-    }
-
     private void createAutoRemedialActions() {
         NetworkActionCreator networkActionCreator = new NetworkActionCreator(crac, network);
         PstRangeActionCreator pstRangeActionCreator = new PstRangeActionCreator(crac, network);
@@ -393,8 +373,6 @@ public class CsaProfileRemedialActionsCreator {
         Map<String, Set<PropertyBag>> linkedRotatingMachineActionsAuto = CsaProfileCracUtils.getMappedPropertyBagsSet(rotatingMachineActionAutoPropertyBags, CsaProfileConstants.GRID_STATE_ALTERATION_COLLECTION);
         Map<String, Set<PropertyBag>> linkedShuntCompensatorModificationAuto = CsaProfileCracUtils.getMappedPropertyBagsSet(shuntCompensatorModificationAutoPropertyBags, CsaProfileConstants.GRID_STATE_ALTERATION_COLLECTION);
         Map<String, Set<PropertyBag>> linkedTapPositionActionsAuto = CsaProfileCracUtils.getMappedPropertyBagsSet(tapPositionActionsAutoPropertyBags, CsaProfileConstants.GRID_STATE_ALTERATION_COLLECTION);
-
-        checkProfileHeader(remedialActionsSchedulePropertyBags, CsaProfileConstants.CsaProfile.REMEDIAL_ACTION_SCHEDULE);
 
         Map<PropertyBag, PropertyBag> schemeRemedialActionToRemedialActionSchemeMap = associateTwoPropertyBags(new HashSet<>(schemeRemedialActionsPropertyBags),
             new HashSet<>(remedialActionSchemePropertyBags),

@@ -18,7 +18,7 @@ import static org.junit.jupiter.api.Assertions.*;
 public class CsaProfileCracUtilsTest {
 
     @Test
-    public void testGetLinkedPropertyBags() {
+    void testGetLinkedPropertyBags() {
         List<String> listPropDest = Arrays.asList("destProperty1", "destProperty2", "destProperty3", "destProperty4");
         List<String> listPropSource = Arrays.asList("sourceProperty1", "sourceProperty2", "sourceProperty3", "sourceProperty4");
         PropertyBag destPb = new PropertyBag(listPropDest, false);

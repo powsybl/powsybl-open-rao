@@ -9,17 +9,20 @@ package com.farao_community.farao.data.crac_creation.creator.csa_profile.importe
 
 import com.farao_community.farao.data.crac_creation.creator.csa_profile.CsaProfileCrac;
 import com.farao_community.farao.data.crac_creation.creator.csa_profile.crac_creator.CsaProfileConstants;
+import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
 import org.junit.jupiter.api.Test;
 
 import java.io.InputStream;
+import java.util.Comparator;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Jean-Pierre Arnould {@literal <jean-pierre.arnould at rte-france.com>}
  */
-public class CsaProfileCracImporterTest {
+class CsaProfileCracImporterTest {
 
     @Test
     void getFormat() {
@@ -42,17 +45,18 @@ public class CsaProfileCracImporterTest {
         assertNotNull(csaProfileCrac);
 
         //contingencies
-        PropertyBags contingenciesPb = csaProfileCrac.getContingencies();
+        List<PropertyBag> contingenciesPb = csaProfileCrac.getContingencies().stream().sorted(Comparator.comparing(PropertyBag::hashCode)).toList();
+
         assertNotNull(contingenciesPb);
         assertEquals(2, contingenciesPb.size());
         assertEquals("493480ba-93c3-426e-bee5-347d8dda3749", contingenciesPb.get(0).getId(CsaProfileConstants.REQUEST_CONTINGENCY));
         assertEquals("c0a25fd7-eee0-4191-98a5-71a74469d36e", contingenciesPb.get(1).getId(CsaProfileConstants.REQUEST_CONTINGENCY));
         // contingencies equipments
-        PropertyBags contingencyEquipmentsPb = csaProfileCrac.getContingencyEquipments();
+        List<PropertyBag> contingencyEquipmentsPb = csaProfileCrac.getContingencyEquipments().stream().sorted(Comparator.comparing(PropertyBag::hashCode)).toList();
         assertNotNull(contingencyEquipmentsPb);
         assertEquals(2, contingencyEquipmentsPb.size());
-        assertEquals("ef11f9bd-5da0-43e3-921b-7e92d2896136", contingencyEquipmentsPb.get(0).getId(CsaProfileConstants.REQUEST_CONTINGENCY_EQUIPMENT));
-        assertEquals("f19925fa-b114-48c5-97a4-42ef84372115", contingencyEquipmentsPb.get(1).getId(CsaProfileConstants.REQUEST_CONTINGENCY_EQUIPMENT));
+        assertEquals("ef11f9bd-5da0-43e3-921b-7e92d2896136", contingencyEquipmentsPb.get(1).getId(CsaProfileConstants.REQUEST_CONTINGENCY_EQUIPMENT));
+        assertEquals("f19925fa-b114-48c5-97a4-42ef84372115", contingencyEquipmentsPb.get(0).getId(CsaProfileConstants.REQUEST_CONTINGENCY_EQUIPMENT));
         assertEquals(2, csaProfileCrac.getRemedialActions().size());
     }
 
