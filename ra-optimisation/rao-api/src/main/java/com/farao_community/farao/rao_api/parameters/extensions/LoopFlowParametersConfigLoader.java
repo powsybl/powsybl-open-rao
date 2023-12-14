@@ -14,7 +14,7 @@ import com.powsybl.commons.config.PlatformConfig;
 import java.util.ArrayList;
 import java.util.Objects;
 
-import static com.farao_community.farao.rao_api.RaoParametersConstants.*;
+import static com.farao_community.farao.rao_api.RaoParametersCommons.*;
 /**
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
  */
@@ -28,8 +28,7 @@ public class LoopFlowParametersConfigLoader implements RaoParameters.ConfigLoade
         platformConfig.getOptionalModuleConfig(LOOP_FLOW_PARAMETERS_SECTION)
                 .ifPresent(config -> {
                     parameters.setAcceptableIncrease(config.getDoubleProperty(ACCEPTABLE_INCREASE, LoopFlowParametersExtension.DEFAULT_ACCEPTABLE_INCREASE));
-                    parameters.setApproximation(config.getEnumProperty(APPROXIMATION, LoopFlowParametersExtension.Approximation.class,
-                            LoopFlowParametersExtension.DEFAULT_APPROXIMATION));
+                    parameters.setPtdfApproximation(config.getEnumProperty(PTDF_APPROXIMATION, PtdfApproximation.class, LoopFlowParametersExtension.DEFAULT_PTDF_APPROXIMATION));
                     parameters.setConstraintAdjustmentCoefficient(config.getDoubleProperty(CONSTRAINT_ADJUSTMENT_COEFFICIENT, LoopFlowParametersExtension.DEFAULT_CONSTRAINT_ADJUSTMENT_COEFFICIENT));
                     parameters.setViolationCost(config.getDoubleProperty(VIOLATION_COST, LoopFlowParametersExtension.DEFAULT_VIOLATION_COST));
                     parameters.setCountries(ParametersUtil.convertToCountrySet(config.getStringListProperty(COUNTRIES, new ArrayList<>())));

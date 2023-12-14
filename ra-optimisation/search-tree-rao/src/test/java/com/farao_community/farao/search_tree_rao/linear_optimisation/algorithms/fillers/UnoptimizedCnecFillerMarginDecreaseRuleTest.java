@@ -7,6 +7,7 @@
 
 package com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.fillers;
 
+import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
@@ -154,7 +155,8 @@ class UnoptimizedCnecFillerMarginDecreaseRuleTest extends AbstractFillerTest {
         buildLinearProblemWithMaxMinMargin();
 
         // Verify existence of margin_decrease binary variable
-        assertNull(linearProblem.getOptimizeCnecBinaryVariable(cnecFr, Side.LEFT));
+        Exception e = assertThrows(FaraoException.class, () -> linearProblem.getOptimizeCnecBinaryVariable(cnecFr, Side.LEFT));
+        assertEquals("Variable Tieline BE FR - N - preventive_left_optimizecnec_variable has not been created yet", e.getMessage());
         FaraoMPVariable binaryVar = linearProblem.getOptimizeCnecBinaryVariable(cnecNl, Side.RIGHT);
         assertNotNull(binaryVar);
 
@@ -162,8 +164,10 @@ class UnoptimizedCnecFillerMarginDecreaseRuleTest extends AbstractFillerTest {
         FaraoMPVariable flowVar = linearProblem.getFlowVariable(cnecNl, Side.RIGHT);
 
         // Verify existence of margin_decrease definition constraints
-        assertNull(linearProblem.getDontOptimizeCnecConstraint(cnecFr, Side.LEFT, LinearProblem.MarginExtension.BELOW_THRESHOLD));
-        assertNull(linearProblem.getDontOptimizeCnecConstraint(cnecFr, Side.LEFT, LinearProblem.MarginExtension.ABOVE_THRESHOLD));
+        e = assertThrows(FaraoException.class, () -> linearProblem.getDontOptimizeCnecConstraint(cnecFr, Side.LEFT, LinearProblem.MarginExtension.BELOW_THRESHOLD));
+        assertEquals("Constraint Tieline BE FR - N - preventive_left_optimizecnecbelow_threshold_constraint has not been created yet", e.getMessage());
+        e = assertThrows(FaraoException.class, () -> linearProblem.getDontOptimizeCnecConstraint(cnecFr, Side.LEFT, LinearProblem.MarginExtension.ABOVE_THRESHOLD));
+        assertEquals("Constraint Tieline BE FR - N - preventive_left_optimizecnecabove_threshold_constraint has not been created yet", e.getMessage());
 
         FaraoMPConstraint marginDecreaseConstraintMin = linearProblem.getDontOptimizeCnecConstraint(cnecNl, Side.RIGHT, LinearProblem.MarginExtension.BELOW_THRESHOLD);
         assertNotNull(marginDecreaseConstraintMin);
@@ -203,7 +207,8 @@ class UnoptimizedCnecFillerMarginDecreaseRuleTest extends AbstractFillerTest {
         buildLinearProblemWithMaxMinRelativeMargin();
 
         // Verify existence of margin_decrease binary variable
-        assertNull(linearProblem.getOptimizeCnecBinaryVariable(cnecFr, Side.LEFT));
+        Exception e = assertThrows(FaraoException.class, () -> linearProblem.getOptimizeCnecBinaryVariable(cnecFr, Side.LEFT));
+        assertEquals("Variable Tieline BE FR - N - preventive_left_optimizecnec_variable has not been created yet", e.getMessage());
         FaraoMPVariable binaryVar = linearProblem.getOptimizeCnecBinaryVariable(cnecNl, Side.RIGHT);
         assertNotNull(binaryVar);
 
@@ -211,8 +216,10 @@ class UnoptimizedCnecFillerMarginDecreaseRuleTest extends AbstractFillerTest {
         FaraoMPVariable flowVar = linearProblem.getFlowVariable(cnecNl, Side.RIGHT);
 
         // Verify existence of margin_decrease definition constraints
-        assertNull(linearProblem.getDontOptimizeCnecConstraint(cnecFr, Side.LEFT, LinearProblem.MarginExtension.BELOW_THRESHOLD));
-        assertNull(linearProblem.getDontOptimizeCnecConstraint(cnecFr, Side.LEFT, LinearProblem.MarginExtension.ABOVE_THRESHOLD));
+        e = assertThrows(FaraoException.class, () -> linearProblem.getDontOptimizeCnecConstraint(cnecFr, Side.LEFT, LinearProblem.MarginExtension.BELOW_THRESHOLD));
+        assertEquals("Constraint Tieline BE FR - N - preventive_left_optimizecnecbelow_threshold_constraint has not been created yet", e.getMessage());
+        e = assertThrows(FaraoException.class, () -> linearProblem.getDontOptimizeCnecConstraint(cnecFr, Side.LEFT, LinearProblem.MarginExtension.ABOVE_THRESHOLD));
+        assertEquals("Constraint Tieline BE FR - N - preventive_left_optimizecnecabove_threshold_constraint has not been created yet", e.getMessage());
 
         FaraoMPConstraint marginDecreaseConstraintMin = linearProblem.getDontOptimizeCnecConstraint(cnecNl, Side.RIGHT, LinearProblem.MarginExtension.BELOW_THRESHOLD);
         assertNotNull(marginDecreaseConstraintMin);

@@ -7,6 +7,7 @@
 
 package com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.fillers;
 
+import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.cnec.Cnec;
@@ -17,10 +18,7 @@ import com.farao_community.farao.rao_api.parameters.RangeActionsOptimizationPara
 import com.farao_community.farao.rao_api.parameters.RaoParameters;
 import com.farao_community.farao.rao_api.parameters.extensions.MnecParametersExtension;
 import com.farao_community.farao.search_tree_rao.commons.optimization_perimeters.OptimizationPerimeter;
-import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.linear_problem.FaraoMPConstraint;
-import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.linear_problem.FaraoMPVariable;
-import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.linear_problem.LinearProblem;
-import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.linear_problem.LinearProblemBuilder;
+import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.linear_problem.*;
 import com.farao_community.farao.search_tree_rao.result.api.FlowResult;
 import com.farao_community.farao.search_tree_rao.result.api.RangeActionSetpointResult;
 import com.farao_community.farao.search_tree_rao.result.impl.RangeActionActivationResultImpl;
@@ -139,13 +137,14 @@ class MnecFillerTest extends AbstractFillerTest {
     void testAddMnecViolationVariables() {
         fillProblemWithFiller(Unit.MEGAWATT);
         crac.getFlowCnecs().forEach(cnec -> cnec.getMonitoredSides().forEach(side -> {
-            FaraoMPVariable variable = linearProblem.getMnecViolationVariable(cnec, side);
             if (cnec.isMonitored()) {
+                FaraoMPVariable variable = linearProblem.getMnecViolationVariable(cnec, side);
                 assertNotNull(variable);
                 assertEquals(0, variable.lb(), DOUBLE_TOLERANCE);
                 assertEquals(LinearProblem.infinity(), variable.ub(), DOUBLE_TOLERANCE);
             } else {
-                assertNull(variable);
+                Exception e = assertThrows(FaraoException.class, () -> linearProblem.getMnecViolationVariable(cnec, side));
+                assertEquals(String.format("Variable %s has not been created yet", LinearProblemIdGenerator.mnecViolationVariableId(cnec, side)), e.getMessage());
             }
         }));
     }
@@ -154,8 +153,10 @@ class MnecFillerTest extends AbstractFillerTest {
     void testAddMnecMinFlowConstraints() {
         fillProblemWithFiller(Unit.MEGAWATT);
 
-        crac.getFlowCnecs().stream().filter(cnec -> !cnec.isMonitored()).forEach(cnec -> cnec.getMonitoredSides().forEach(side ->
-                assertNull(linearProblem.getMnecFlowConstraint(cnec, side, LinearProblem.MarginExtension.BELOW_THRESHOLD))));
+        crac.getFlowCnecs().stream().filter(cnec -> !cnec.isMonitored()).forEach(cnec -> cnec.getMonitoredSides().forEach(side -> {
+            Exception e = assertThrows(FaraoException.class, () -> linearProblem.getMnecFlowConstraint(cnec, side, LinearProblem.MarginExtension.BELOW_THRESHOLD));
+            assertEquals(String.format("Constraint %s has not been created yet", LinearProblemIdGenerator.mnecFlowConstraintId(cnec, side, LinearProblem.MarginExtension.BELOW_THRESHOLD)), e.getMessage());
+        }));
 
         FaraoMPConstraint ct1Max = linearProblem.getMnecFlowConstraint(mnec1, Side.RIGHT, LinearProblem.MarginExtension.BELOW_THRESHOLD);
         assertNotNull(ct1Max);

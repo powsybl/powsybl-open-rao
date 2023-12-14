@@ -6,14 +6,17 @@
  */
 package com.farao_community.farao.rao_api;
 
+import com.farao_community.farao.commons.FaraoException;
+import com.farao_community.farao.rao_api.parameters.extensions.PtdfApproximation;
+
 /**
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
  */
-public final class RaoParametersConstants {
-    private RaoParametersConstants() {
+public final class RaoParametersCommons {
+    private RaoParametersCommons() {
     }
 
-    public static final String RAO_PARAMETERS_VERSION = "2.0";
+    public static final String RAO_PARAMETERS_VERSION = "2.1";
 
     // header
     public static final String VERSION = "version";
@@ -97,12 +100,12 @@ public final class RaoParametersConstants {
     // EXTENSIONS
     public static final String CONSTRAINT_ADJUSTMENT_COEFFICIENT = "constraint-adjustment-coefficient";
     public static final String VIOLATION_COST = "violation-cost";
+    public static final String PTDF_APPROXIMATION = "ptdf-approximation";
     // -- LoopFlow parameters
     public static final String LOOP_FLOW_PARAMETERS = "loop-flow-parameters";
     public static final String LOOP_FLOW_PARAMETERS_SECTION = "rao-loop-flow-parameters";
 
     public static final String ACCEPTABLE_INCREASE = "acceptable-increase";
-    public static final String APPROXIMATION = "approximation";
     public static final String COUNTRIES = "countries";
 
     // -- Mnec parameters
@@ -117,4 +120,11 @@ public final class RaoParametersConstants {
     public static final String PTDF_BOUNDARIES = "ptdf-boundaries";
     public static final String PTDF_SUM_LOWER_BOUND = "ptdf-sum-lower-bound";
 
+    public static PtdfApproximation stringToPtdfApproximation(String string) {
+        try {
+            return PtdfApproximation.valueOf(string);
+        } catch (IllegalArgumentException e) {
+            throw new FaraoException(String.format("Unknown approximation value: %s", string));
+        }
+    }
 }
