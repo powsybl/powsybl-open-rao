@@ -44,7 +44,7 @@ class RaoResultImplTest {
         crac = CommonCracCreation.createWithPreventiveAndCurativePstRange();
         cnec = crac.getFlowCnec("cnec1basecase");
         pst = crac.getPstRangeAction("pst");
-        na = (NetworkAction) crac.newNetworkAction().withId("na-id")
+        na = crac.newNetworkAction().withId("na-id")
             .newTopologicalAction().withNetworkElement("any").withActionType(ActionType.OPEN).add()
             .newOnInstantUsageRule().withInstant(Instant.PREVENTIVE).withUsageMethod(UsageMethod.AVAILABLE).add()
             .newOnContingencyStateUsageRule().withContingency("Contingency FR1 FR3").withInstant(Instant.AUTO).withUsageMethod(UsageMethod.FORCED).add()

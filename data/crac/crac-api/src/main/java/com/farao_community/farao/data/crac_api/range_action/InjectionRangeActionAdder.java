@@ -20,4 +20,6 @@ public interface InjectionRangeActionAdder extends StandardRangeActionAdder<Inje
     InjectionRangeActionAdder withInitialSetpoint(double initialSetpoint);
 
     StandardRangeAdder<InjectionRangeActionAdder> newRange();
+
+    InjectionRangeAction add();
 }

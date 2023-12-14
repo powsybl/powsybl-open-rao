@@ -179,7 +179,7 @@ class AngleMonitoringTest {
     void testCurativeStateOnlyWithAvailableTopoRa() {
         setUpCracFactory("network.xiidm");
         mockCurativeStates();
-        naL1Cur = (NetworkAction) crac.newNetworkAction()
+        naL1Cur = crac.newNetworkAction()
                 .withId("Open L1 - 2")
                 .newTopologicalAction().withNetworkElement("L1").withActionType(ActionType.OPEN).add()
                 .newOnAngleConstraintUsageRule().withInstant(Instant.CURATIVE).withAngleCnec(acCur1.getId()).add()
@@ -197,7 +197,7 @@ class AngleMonitoringTest {
     void testCurativeStateOnlyWithAvailableInjectionRa() {
         setUpCracFactory("network.xiidm");
         mockCurativeStatesSecure();
-        naL1Cur = (NetworkAction) crac.newNetworkAction()
+        naL1Cur = crac.newNetworkAction()
                 .withId("Injection L1 - 2")
                 .newInjectionSetPoint().withNetworkElement("LD2").withSetpoint(50.).withUnit(Unit.MEGAWATT).add()
                 .newOnAngleConstraintUsageRule().withInstant(Instant.CURATIVE).withAngleCnec(acCur1.getId()).add()

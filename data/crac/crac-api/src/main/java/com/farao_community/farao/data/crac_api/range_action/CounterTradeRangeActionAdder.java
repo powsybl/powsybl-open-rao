@@ -16,4 +16,6 @@ public interface CounterTradeRangeActionAdder extends StandardRangeActionAdder<c
     CounterTradeRangeActionAdder withExportingCountry(Country exportingCountry);
 
     CounterTradeRangeActionAdder withImportingCountry(Country importingCountry);
+
+    CounterTradeRangeAction add();
 }

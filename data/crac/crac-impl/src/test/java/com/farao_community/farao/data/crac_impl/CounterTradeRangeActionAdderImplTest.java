@@ -28,7 +28,7 @@ class CounterTradeRangeActionAdderImplTest {
 
     @Test
     void testAdd() {
-        CounterTradeRangeAction counterTradeRangeAction = (CounterTradeRangeAction) crac.newCounterTradeRangeAction()
+        CounterTradeRangeAction counterTradeRangeAction = crac.newCounterTradeRangeAction()
                 .withId("id1")
                 .withOperator("BE")
                 .withGroupId("groupId1")
@@ -53,7 +53,7 @@ class CounterTradeRangeActionAdderImplTest {
 
     @Test
     void testAddWithoutGroupId() {
-        CounterTradeRangeAction counterTradeRangeAction = (CounterTradeRangeAction) crac.newCounterTradeRangeAction()
+        CounterTradeRangeAction counterTradeRangeAction = crac.newCounterTradeRangeAction()
                 .withId("id1")
                 .withOperator("BE")
                 .withExportingCountry(Country.FR)
@@ -81,7 +81,7 @@ class CounterTradeRangeActionAdderImplTest {
 
         This test should however issue a warning
          */
-        CounterTradeRangeAction counterTradeRangeAction = (CounterTradeRangeAction) crac.newCounterTradeRangeAction()
+        CounterTradeRangeAction counterTradeRangeAction = crac.newCounterTradeRangeAction()
                 .withId("id1")
                 .withOperator("BE")
                 .withExportingCountry(Country.FR)
@@ -101,7 +101,7 @@ class CounterTradeRangeActionAdderImplTest {
 
     @Test
     void testAddWithoutOperator() {
-        CounterTradeRangeAction counterTradeRangeAction = (CounterTradeRangeAction) crac.newCounterTradeRangeAction()
+        CounterTradeRangeAction counterTradeRangeAction = crac.newCounterTradeRangeAction()
                 .withId("id1")
                 .withGroupId("groupId1")
                 .newRange().withMin(-5).withMax(10).add()

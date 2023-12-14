@@ -33,7 +33,7 @@ class TopologicalActionAdderImplTest {
 
     @Test
     void testOk() {
-        NetworkAction networkAction = (NetworkAction) networkActionAdder.newTopologicalAction()
+        NetworkAction networkAction = networkActionAdder.newTopologicalAction()
             .withNetworkElement("branchNetworkElementId")
             .withActionType(ActionType.OPEN)
             .add()
