@@ -11,6 +11,7 @@ import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.rao_api.parameters.RaoParameters;
 import com.farao_community.farao.rao_api.parameters.extensions.LoopFlowParametersExtension;
+import com.farao_community.farao.rao_api.parameters.extensions.RelativeMarginsParametersExtension;
 import com.farao_community.farao.search_tree_rao.result.api.*;
 import com.farao_community.farao.search_tree_rao.result.impl.PrePerimeterSensitivityResultImpl;
 import com.farao_community.farao.search_tree_rao.commons.SensitivityComputer;
@@ -76,14 +77,18 @@ public class PrePerimeterSensitivityAnalysis {
 
         SensitivityComputer.SensitivityComputerBuilder sensitivityComputerBuilder = buildSensiBuilder();
         if (raoParameters.hasExtension(LoopFlowParametersExtension.class)) {
-            if (raoParameters.getExtension(LoopFlowParametersExtension.class).getApproximation().shouldUpdatePtdfWithTopologicalChange()) {
+            if (raoParameters.getExtension(LoopFlowParametersExtension.class).getPtdfApproximation().shouldUpdatePtdfWithTopologicalChange()) {
                 sensitivityComputerBuilder.withCommercialFlowsResults(toolProvider.getLoopFlowComputation(), toolProvider.getLoopFlowCnecs(flowCnecs));
             } else {
                 sensitivityComputerBuilder.withCommercialFlowsResults(initialFlowResult);
             }
         }
         if (raoParameters.getObjectiveFunctionParameters().getType().relativePositiveMargins()) {
-            sensitivityComputerBuilder.withPtdfsResults(initialFlowResult);
+            if (raoParameters.getExtension(RelativeMarginsParametersExtension.class).getPtdfApproximation().shouldUpdatePtdfWithTopologicalChange()) {
+                sensitivityComputerBuilder.withPtdfsResults(toolProvider.getAbsolutePtdfSumsComputation(), flowCnecs);
+            } else {
+                sensitivityComputerBuilder.withPtdfsResults(initialFlowResult);
+            }
         }
         if (appliedCurativeRemedialActions != null) {
             // for 2nd preventive initial sensi
