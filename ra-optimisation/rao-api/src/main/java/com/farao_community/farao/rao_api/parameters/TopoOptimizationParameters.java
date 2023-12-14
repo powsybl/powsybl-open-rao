@@ -12,7 +12,7 @@ import com.powsybl.commons.config.PlatformConfig;
 import java.util.*;
 
 import static com.farao_community.farao.commons.logs.FaraoLoggerProvider.BUSINESS_WARNS;
-import static com.farao_community.farao.rao_api.RaoParametersConstants.*;
+import static com.farao_community.farao.rao_api.RaoParametersCommons.*;
 
 /**
  * Topological actions optimization parameters for RAO

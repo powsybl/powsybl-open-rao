@@ -13,7 +13,7 @@ import com.powsybl.iidm.network.Country;
 
 import java.util.*;
 
-import static com.farao_community.farao.rao_api.RaoParametersConstants.*;
+import static com.farao_community.farao.rao_api.RaoParametersCommons.*;
 
 /**
  * Extension : loopFlow parameters for RAO
@@ -22,30 +22,16 @@ import static com.farao_community.farao.rao_api.RaoParametersConstants.*;
  */
 public class LoopFlowParametersExtension extends AbstractExtension<RaoParameters> {
     static final double DEFAULT_ACCEPTABLE_INCREASE = 0.0;
-    static final Approximation DEFAULT_APPROXIMATION = Approximation.FIXED_PTDF;
+    static final PtdfApproximation DEFAULT_PTDF_APPROXIMATION = PtdfApproximation.FIXED_PTDF;
     static final double DEFAULT_CONSTRAINT_ADJUSTMENT_COEFFICIENT = 0.0;
     static final double DEFAULT_VIOLATION_COST = 0.0;
     static final Set<Country> DEFAULT_COUNTRIES = new HashSet<>(); //Empty by default
     private double acceptableIncrease = DEFAULT_ACCEPTABLE_INCREASE;
-    private Approximation approximation = DEFAULT_APPROXIMATION;
+    private PtdfApproximation ptdfApproximation = DEFAULT_PTDF_APPROXIMATION;
 
     private double constraintAdjustmentCoefficient = DEFAULT_CONSTRAINT_ADJUSTMENT_COEFFICIENT;
     private double violationCost = DEFAULT_VIOLATION_COST;
     private Set<Country> countries = DEFAULT_COUNTRIES;
-
-    public enum Approximation {
-        FIXED_PTDF, // compute PTDFs only once at beginning of RAO (best performance, worst accuracy)
-        UPDATE_PTDF_WITH_TOPO, // recompute PTDFs after every topological change in the network (worst performance, better accuracy for AC, best accuracy for DC)
-        UPDATE_PTDF_WITH_TOPO_AND_PST; // recompute PTDFs after every topological or PST change in the network (worst performance, best accuracy for AC)
-
-        public boolean shouldUpdatePtdfWithTopologicalChange() {
-            return !this.equals(FIXED_PTDF);
-        }
-
-        public boolean shouldUpdatePtdfWithPstChange() {
-            return this.equals(UPDATE_PTDF_WITH_TOPO_AND_PST);
-        }
-    }
 
     // Getters and setters
     public double getAcceptableIncrease() {
@@ -56,12 +42,12 @@ public class LoopFlowParametersExtension extends AbstractExtension<RaoParameters
         this.acceptableIncrease = acceptableIncrease;
     }
 
-    public Approximation getApproximation() {
-        return approximation;
+    public PtdfApproximation getPtdfApproximation() {
+        return ptdfApproximation;
     }
 
-    public void setApproximation(Approximation approximation) {
-        this.approximation = approximation;
+    public void setPtdfApproximation(PtdfApproximation ptdfApproximation) {
+        this.ptdfApproximation = ptdfApproximation;
     }
 
     public double getConstraintAdjustmentCoefficient() {
