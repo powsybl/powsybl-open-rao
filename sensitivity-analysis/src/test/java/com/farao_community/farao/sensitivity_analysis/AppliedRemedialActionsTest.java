@@ -46,12 +46,12 @@ class AppliedRemedialActionsTest {
         autoInstant = crac.getInstant(AUTO_INSTANT_ID);
         curativeInstant = crac.getInstant(CURATIVE_INSTANT_ID);
         pstRangeAction = crac.getPstRangeAction("pst");
-        networkAction = (NetworkAction) crac.newNetworkAction()
+        networkAction = crac.newNetworkAction()
                 .withId("na-id")
                 .newTopologicalAction().withActionType(ActionType.OPEN).withNetworkElement("BBE2AA1  FFR3AA1  1").add()
                 .newOnInstantUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withInstant(CURATIVE_INSTANT_ID).add()
                 .add();
-        autoNetworkAction = (NetworkAction) crac.newNetworkAction()
+        autoNetworkAction = crac.newNetworkAction()
             .withId("na-auto-id")
             .newTopologicalAction().withActionType(ActionType.OPEN).withNetworkElement("BBE2AA1  FFR3AA1  1").add()
             .newOnInstantUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withInstant(AUTO_INSTANT_ID).add()

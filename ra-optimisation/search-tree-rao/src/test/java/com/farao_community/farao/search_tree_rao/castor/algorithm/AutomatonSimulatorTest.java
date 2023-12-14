@@ -126,21 +126,21 @@ class AutomatonSimulatorTest {
             .add();
         Instant autoInstant = crac.getInstant(AUTO_INSTANT_ID);
         autoState = crac.getState(contingency1, autoInstant);
-        ra2 = (RangeAction<?>) crac.newPstRangeAction()
+        ra2 = crac.newPstRangeAction()
             .withId("ra2")
             .withNetworkElement("ra2-ne")
             .withSpeed(2)
             .newOnInstantUsageRule().withInstant(AUTO_INSTANT_ID).withUsageMethod(UsageMethod.FORCED).add()
             .withInitialTap(0).withTapToAngleConversionMap(Map.of(0, -100., 1, 100.))
             .add();
-        ra3 = (RangeAction<?>) crac.newPstRangeAction()
+        ra3 = crac.newPstRangeAction()
             .withId("ra3")
             .withNetworkElement("ra3-ne")
             .withSpeed(4)
             .newOnFlowConstraintUsageRule().withInstant(AUTO_INSTANT_ID).withFlowCnec("cnec1").add()
             .withInitialTap(0).withTapToAngleConversionMap(Map.of(0, -100., 1, 100.))
             .add();
-        ra4 = (RangeAction<?>) crac.newPstRangeAction()
+        ra4 = crac.newPstRangeAction()
             .withId("ra4")
             .withNetworkElement("ra4-ne")
             .withSpeed(4)
@@ -149,7 +149,7 @@ class AutomatonSimulatorTest {
             .add();
 
         // Add 2 aligned range actions
-        ara1 = (PstRangeAction) crac.newPstRangeAction()
+        ara1 = crac.newPstRangeAction()
             .withId("ara1")
             .withGroupId("group1")
             .withNetworkElement("BBE2AA11 BBE3AA11 1")
@@ -157,7 +157,7 @@ class AutomatonSimulatorTest {
             .newOnFlowConstraintUsageRule().withInstant(AUTO_INSTANT_ID).withFlowCnec("cnec1").add()
             .withInitialTap(0).withTapToAngleConversionMap(Map.of(0, 0.1, 1, 1.1, 2, 2.1, 3, 3.1, -1, -1.1, -2, -2.1, -3, -3.1))
             .add();
-        ara2 = (RangeAction<?>) crac.newPstRangeAction()
+        ara2 = crac.newPstRangeAction()
             .withId("ara2")
             .withGroupId("group1")
             .withNetworkElement("FFR2AA11 FFR4AA11 1")
@@ -167,7 +167,7 @@ class AutomatonSimulatorTest {
             .add();
 
         // Add 2 aligned range actions of different types
-        ara3 = (RangeAction<?>) crac.newPstRangeAction()
+        ara3 = crac.newPstRangeAction()
             .withId("ara3")
             .withGroupId("group2")
             .withNetworkElement("ra2-ne")
@@ -175,7 +175,7 @@ class AutomatonSimulatorTest {
             .newOnInstantUsageRule().withInstant(AUTO_INSTANT_ID).withUsageMethod(UsageMethod.FORCED).add()
             .withInitialTap(0).withTapToAngleConversionMap(Map.of(0, -100., 1, 100.))
             .add();
-        ara4 = (RangeAction<?>) crac.newHvdcRangeAction()
+        ara4 = crac.newHvdcRangeAction()
             .withId("ara4")
             .withNetworkElement("ra1-ne")
             .withGroupId("group2")
@@ -184,7 +184,7 @@ class AutomatonSimulatorTest {
             .add();
 
         // Add 2 aligned range actions with different usage methods
-        ara5 = (RangeAction<?>) crac.newPstRangeAction()
+        ara5 = crac.newPstRangeAction()
             .withId("ara5")
             .withGroupId("group3")
             .withNetworkElement("ra2-ne")
@@ -192,7 +192,7 @@ class AutomatonSimulatorTest {
             .newOnInstantUsageRule().withInstant(AUTO_INSTANT_ID).withUsageMethod(UsageMethod.FORCED).add()
             .withInitialTap(0).withTapToAngleConversionMap(Map.of(0, -100., 1, 100.))
             .add();
-        ara6 = (RangeAction<?>) crac.newPstRangeAction()
+        ara6 = crac.newPstRangeAction()
             .withId("ara6")
             .withGroupId("group3")
             .withNetworkElement("ra3-ne")
@@ -202,14 +202,14 @@ class AutomatonSimulatorTest {
             .add();
 
         // Add a network action
-        na = (NetworkAction) crac.newNetworkAction()
+        na = crac.newNetworkAction()
             .withId("na")
             .newTopologicalAction().withActionType(ActionType.CLOSE).withNetworkElement("DDE3AA11 DDE4AA11 1").add()
             .newOnFlowConstraintUsageRule().withInstant(AUTO_INSTANT_ID).withFlowCnec("cnec2").add()
             .add();
 
         // Add HVDC range actions
-        hvdcRa1 = (HvdcRangeAction) crac.newHvdcRangeAction()
+        hvdcRa1 = crac.newHvdcRangeAction()
             .withId("hvdc-ra1")
             .withGroupId("hvdcGroup")
             .withNetworkElement("BBE2AA11 FFR3AA11 1")
@@ -217,7 +217,7 @@ class AutomatonSimulatorTest {
             .newRange().withMax(3000).withMin(-3000).add()
             .newOnInstantUsageRule().withInstant(AUTO_INSTANT_ID).withUsageMethod(UsageMethod.FORCED).add()
             .add();
-        hvdcRa2 = (HvdcRangeAction) crac.newHvdcRangeAction()
+        hvdcRa2 = crac.newHvdcRangeAction()
             .withId("hvdc-ra2")
             .withGroupId("hvdcGroup")
             .withNetworkElement("BBE2AA12 FFR3AA12 1")
@@ -379,7 +379,7 @@ class AutomatonSimulatorTest {
     @Test
     void testDisableHvdcAngleDroopControl6() {
         // Initial setpoint is out of RA's allowed range. Do not disable HvdcAngleDroopControl
-        hvdcRa1 = (HvdcRangeAction) crac.newHvdcRangeAction()
+        hvdcRa1 = crac.newHvdcRangeAction()
             .withId("hvdc-ra3")
             .withGroupId("hvdcGroup")
             .withNetworkElement("BBE2AA11 FFR3AA11 1")

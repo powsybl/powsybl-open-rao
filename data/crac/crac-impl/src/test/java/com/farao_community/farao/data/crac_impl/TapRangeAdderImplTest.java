@@ -42,7 +42,7 @@ class TapRangeAdderImplTest {
 
     @Test
     void testOk() {
-        PstRangeAction pstRangeAction = (PstRangeAction) pstRangeActionAdder.newTapRange()
+        PstRangeAction pstRangeAction = pstRangeActionAdder.newTapRange()
             .withRangeType(RangeType.ABSOLUTE)
             .withMinTap(-5)
             .withMaxTap(10)
@@ -58,7 +58,7 @@ class TapRangeAdderImplTest {
 
     @Test
     void testNoMin() {
-        PstRangeAction pstRangeAction = (PstRangeAction) pstRangeActionAdder.newTapRange()
+        PstRangeAction pstRangeAction = pstRangeActionAdder.newTapRange()
             .withRangeType(RangeType.RELATIVE_TO_INITIAL_NETWORK)
             .withMaxTap(16)
             .add()
@@ -81,7 +81,7 @@ class TapRangeAdderImplTest {
 
     @Test
     void testNoTapConventionInRelative() {
-        PstRangeAction pstRangeAction = (PstRangeAction) pstRangeActionAdder.newTapRange()
+        PstRangeAction pstRangeAction = pstRangeActionAdder.newTapRange()
             .withRangeType(RangeType.RELATIVE_TO_INITIAL_NETWORK)
             .withMinTap(-5)
             .withMaxTap(10)

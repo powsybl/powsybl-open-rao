@@ -86,12 +86,12 @@ class JsonAngleMonitoringResultTest {
         ac1 = addAngleCnec("ac1", "impNe1", "expNe1", PREVENTIVE_INSTANT_ID, null, 145., 150.);
         ac2 = addAngleCnec("ac2", "impNe2", "expNe2", CURATIVE_INSTANT_ID, co1.getId(), 140., 145.);
         preventiveState = crac.getPreventiveState();
-        na1 = (NetworkAction) crac.newNetworkAction()
+        na1 = crac.newNetworkAction()
                 .withId("na1")
                 .newInjectionSetPoint().withNetworkElement("ne1").withSetpoint(50.).withUnit(Unit.MEGAWATT).add()
                 .newOnAngleConstraintUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withAngleCnec(ac1.getId()).add()
                 .add();
-        na2 = (NetworkAction) crac.newNetworkAction()
+        na2 = crac.newNetworkAction()
                 .withId("na2")
                 .newInjectionSetPoint().withNetworkElement("ne2").withSetpoint(150.).withUnit(Unit.MEGAWATT).add()
                 .newOnAngleConstraintUsageRule().withInstant(CURATIVE_INSTANT_ID).withAngleCnec(ac2.getId()).add()

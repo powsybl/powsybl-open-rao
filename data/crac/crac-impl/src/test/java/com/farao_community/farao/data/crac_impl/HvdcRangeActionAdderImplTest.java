@@ -40,7 +40,7 @@ class HvdcRangeActionAdderImplTest {
 
     @Test
     void testAdd() {
-        HvdcRangeAction hvdcRangeAction = (HvdcRangeAction) crac.newHvdcRangeAction()
+        HvdcRangeAction hvdcRangeAction = crac.newHvdcRangeAction()
                 .withId("id1")
                 .withOperator("BE")
                 .withNetworkElement(networkElementId)
@@ -63,7 +63,7 @@ class HvdcRangeActionAdderImplTest {
 
     @Test
     void testAddAuto() {
-        HvdcRangeAction hvdcRangeAction = (HvdcRangeAction) crac.newHvdcRangeAction()
+        HvdcRangeAction hvdcRangeAction = crac.newHvdcRangeAction()
                 .withId("id1")
                 .withOperator("BE")
                 .withNetworkElement(networkElementId)
@@ -107,7 +107,7 @@ class HvdcRangeActionAdderImplTest {
 
     @Test
     void testAddWithoutGroupId() {
-        HvdcRangeAction hvdcRangeAction = (HvdcRangeAction) crac.newHvdcRangeAction()
+        HvdcRangeAction hvdcRangeAction = crac.newHvdcRangeAction()
                 .withId("id1")
                 .withOperator("BE")
                 .withNetworkElement(networkElementId)
@@ -133,7 +133,7 @@ class HvdcRangeActionAdderImplTest {
 
         This test should however return two warnings
          */
-        HvdcRangeAction hvdcRangeAction = (HvdcRangeAction) crac.newHvdcRangeAction()
+        HvdcRangeAction hvdcRangeAction = crac.newHvdcRangeAction()
                 .withId("id1")
                 .withOperator("BE")
                 .withNetworkElement(networkElementId)
@@ -149,7 +149,7 @@ class HvdcRangeActionAdderImplTest {
 
     @Test
     void testAddWithoutOperator() {
-        HvdcRangeAction hvdcRangeAction = (HvdcRangeAction) crac.newHvdcRangeAction()
+        HvdcRangeAction hvdcRangeAction = crac.newHvdcRangeAction()
                 .withId("id1")
                 .withNetworkElement(networkElementId)
                 .newRange().withMin(-5).withMax(10).add()

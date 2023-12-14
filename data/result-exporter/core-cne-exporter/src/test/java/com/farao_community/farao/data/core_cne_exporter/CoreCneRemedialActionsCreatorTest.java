@@ -105,7 +105,7 @@ class CoreCneRemedialActionsCreatorTest {
 
     @Test
     void testPstInitialSetpoint() {
-        PstRangeAction pstRangeAction = (PstRangeAction) crac.newPstRangeAction()
+        PstRangeAction pstRangeAction = crac.newPstRangeAction()
                 .withId("ra-id")
                 .withNetworkElement("BBE2AA1  BBE3AA1  1")
                 .withInitialTap(5)
@@ -141,7 +141,7 @@ class CoreCneRemedialActionsCreatorTest {
 
     @Test
     void testPstInitialSetpointUnused() {
-        PstRangeAction pstRangeAction = (PstRangeAction) crac.newPstRangeAction()
+        PstRangeAction pstRangeAction = crac.newPstRangeAction()
             .withId("ra-id")
             .withNetworkElement("BBE2AA1  BBE3AA1  1")
             .withInitialTap(5)
@@ -162,7 +162,7 @@ class CoreCneRemedialActionsCreatorTest {
 
     @Test
     void testIgnorePstWithNoUsageRule() {
-        PstRangeAction pstRangeAction = (PstRangeAction) crac.newPstRangeAction()
+        PstRangeAction pstRangeAction = crac.newPstRangeAction()
                 .withId("ra-id")
                 .withNetworkElement("BBE2AA1  BBE3AA1  1")
                 .withInitialTap(5)
@@ -186,7 +186,7 @@ class CoreCneRemedialActionsCreatorTest {
 
     @Test
     void testPstUsedInPreventive() {
-        PstRangeAction pstRangeAction = (PstRangeAction) crac.newPstRangeAction()
+        PstRangeAction pstRangeAction = crac.newPstRangeAction()
                 .withId("ra-id")
                 .withNetworkElement("BBE2AA1  BBE3AA1  1")
                 .withInitialTap(5)
@@ -237,7 +237,7 @@ class CoreCneRemedialActionsCreatorTest {
 
     @Test
     void testPstUsedInCurative() {
-        PstRangeAction pstRangeAction = (PstRangeAction) crac.newPstRangeAction()
+        PstRangeAction pstRangeAction = crac.newPstRangeAction()
                 .withId("ra-id")
                 .withNetworkElement("BBE2AA1  BBE3AA1  1")
                 .withInitialTap(5)
@@ -292,7 +292,7 @@ class CoreCneRemedialActionsCreatorTest {
 
     @Test
     void testIgnoreNetworkActionWithNoUsageRule() {
-        NetworkAction networkAction = (NetworkAction) crac.newNetworkAction()
+        NetworkAction networkAction = crac.newNetworkAction()
                 .withId("ra-id")
                 .newTopologicalAction().withNetworkElement("BBE2AA1  BBE3AA1  1").withActionType(ActionType.CLOSE).add()
                 .withOperator("BE")
@@ -311,7 +311,7 @@ class CoreCneRemedialActionsCreatorTest {
 
     @Test
     void testNetworkActionUsedInPreventive() {
-        NetworkAction networkAction = (NetworkAction) crac.newNetworkAction()
+        NetworkAction networkAction = crac.newNetworkAction()
                 .withId("ra-id")
                 .newTopologicalAction().withNetworkElement("BBE2AA1  BBE3AA1  1").withActionType(ActionType.CLOSE).add()
                 .withOperator("BE")
@@ -353,7 +353,7 @@ class CoreCneRemedialActionsCreatorTest {
 
     @Test
     void testNetworkActionUsedInCurative() {
-        NetworkAction networkAction = (NetworkAction) crac.newNetworkAction()
+        NetworkAction networkAction = crac.newNetworkAction()
                 .withId("ra-id")
                 .newTopologicalAction().withNetworkElement("BBE2AA1  BBE3AA1  1").withActionType(ActionType.CLOSE).add()
                 .withOperator("BE")
@@ -400,7 +400,7 @@ class CoreCneRemedialActionsCreatorTest {
 
     @Test
     void testPstInitialSetpointInverted() {
-        PstRangeAction pstRangeAction = (PstRangeAction) crac.newPstRangeAction()
+        PstRangeAction pstRangeAction = crac.newPstRangeAction()
             .withId("ra-id")
             .withNetworkElement("BBE2AA1  BBE3AA1  1")
             .withInitialTap(5)
@@ -441,7 +441,7 @@ class CoreCneRemedialActionsCreatorTest {
 
     @Test
     void testPstUsedInPreventiveInverted() {
-        PstRangeAction pstRangeAction = (PstRangeAction) crac.newPstRangeAction()
+        PstRangeAction pstRangeAction = crac.newPstRangeAction()
             .withId("ra-id")
             .withNetworkElement("BBE2AA1  BBE3AA1  1")
             .withInitialTap(5)
@@ -495,7 +495,7 @@ class CoreCneRemedialActionsCreatorTest {
 
     @Test
     void testPstUsedInCurativeInverted() {
-        PstRangeAction pstRangeAction = (PstRangeAction) crac.newPstRangeAction()
+        PstRangeAction pstRangeAction = crac.newPstRangeAction()
             .withId("ra-id")
             .withNetworkElement("BBE2AA1  BBE3AA1  1")
             .withInitialTap(5)

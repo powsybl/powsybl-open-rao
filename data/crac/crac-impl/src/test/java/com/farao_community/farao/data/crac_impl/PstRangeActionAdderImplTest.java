@@ -47,7 +47,7 @@ class PstRangeActionAdderImplTest {
 
     @Test
     void testAdd() {
-        PstRangeAction pstRangeAction = (PstRangeAction) crac.newPstRangeAction()
+        PstRangeAction pstRangeAction = crac.newPstRangeAction()
             .withId("id1")
             .withOperator("BE")
             .withNetworkElement(networkElementId)
@@ -98,7 +98,7 @@ class PstRangeActionAdderImplTest {
 
     @Test
     void testAddAutoWithSpeed() {
-        PstRangeAction pstRangeAction = (PstRangeAction) crac.newPstRangeAction()
+        PstRangeAction pstRangeAction = crac.newPstRangeAction()
                 .withId("id1")
                 .withOperator("BE")
                 .withNetworkElement(networkElementId)
@@ -122,7 +122,7 @@ class PstRangeActionAdderImplTest {
 
     @Test
     void testAddWithoutGroupId() {
-        PstRangeAction pstRangeAction = (PstRangeAction) crac.newPstRangeAction()
+        PstRangeAction pstRangeAction = crac.newPstRangeAction()
             .withId("id1")
             .withOperator("BE")
             .withNetworkElement(networkElementId)
@@ -155,7 +155,7 @@ class PstRangeActionAdderImplTest {
 
         This test should however return two warnings
          */
-        PstRangeAction pstRangeAction = (PstRangeAction) crac.newPstRangeAction()
+        PstRangeAction pstRangeAction = crac.newPstRangeAction()
             .withId("id1")
             .withOperator("BE")
             .withNetworkElement(networkElementId)
@@ -172,7 +172,7 @@ class PstRangeActionAdderImplTest {
 
     @Test
     void testAddWithoutOperator() {
-        PstRangeAction pstRangeAction = (PstRangeAction) crac.newPstRangeAction()
+        PstRangeAction pstRangeAction = crac.newPstRangeAction()
             .withId("id1")
             .withNetworkElement(networkElementId)
             .newTapRange()
@@ -307,7 +307,7 @@ class PstRangeActionAdderImplTest {
 
     @Test
     void testPraRelativeToPreviousInstantRange() {
-        PstRangeAction pstRangeAction = (PstRangeAction) crac.newPstRangeAction()
+        PstRangeAction pstRangeAction = crac.newPstRangeAction()
             .withId("id1")
             .withNetworkElement(networkElementId)
             .newTapRange()

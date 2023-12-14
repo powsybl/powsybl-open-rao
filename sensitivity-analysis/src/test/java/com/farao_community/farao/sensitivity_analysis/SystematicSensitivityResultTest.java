@@ -194,7 +194,7 @@ class SystematicSensitivityResultTest {
             .withInstant(OUTAGE_INSTANT_ID)
             .newThreshold().withMax(1000.).withUnit(Unit.MEGAWATT).withSide(Side.RIGHT).add()
             .add();
-        hvdcRangeAction = (HvdcRangeAction) crac.newHvdcRangeAction()
+        hvdcRangeAction = crac.newHvdcRangeAction()
             .withId("hvdc-ra")
             .withNetworkElement("BBE2AA11 FFR3AA11 1")
             .newRange().withMin(-1000.).withMax(1000.).add()
