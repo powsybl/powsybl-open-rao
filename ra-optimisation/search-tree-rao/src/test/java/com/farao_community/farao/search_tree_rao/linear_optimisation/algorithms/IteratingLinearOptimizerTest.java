@@ -8,7 +8,6 @@
 package com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms;
 
 import com.farao_community.farao.data.crac_api.*;
-import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
 import com.farao_community.farao.data.rao_result_api.ComputationStatus;
@@ -39,7 +38,10 @@ import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
@@ -314,7 +316,7 @@ class IteratingLinearOptimizerTest {
         mockLinearProblem(Collections.nCopies(5, LinearProblemStatus.OPTIMAL), List.of(1., 2., 3., 4., 5.));
         mockFunctionalCost(100., 120., 105., 90., 100., 95.);
         Crac crac = CracFactory.findDefault().create("test-crac");
-        rangeAction = (PstRangeAction) crac.newPstRangeAction().withId("test-pst").withNetworkElement("BBE2AA1  BBE3AA1  1")
+        rangeAction = crac.newPstRangeAction().withId("test-pst").withNetworkElement("BBE2AA1  BBE3AA1  1")
                 .withInitialTap(0)
                 .withTapToAngleConversionMap(Map.of(0, 0., 1, 1., 2, 2., 3, 3., 4, 4., 5, 5.)).add();
         when(optimizationPerimeter.getRangeActionsPerState()).thenReturn(Map.of(
