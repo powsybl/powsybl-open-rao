@@ -22,7 +22,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.farao_community.farao.rao_api.RaoParametersConstants.*;
+import static com.farao_community.farao.rao_api.RaoParametersCommons.*;
 
 /**
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
@@ -34,7 +34,7 @@ public class JsonLoopFlowParametersExtension implements JsonRaoParameters.Extens
     public void serialize(LoopFlowParametersExtension loopFlowParameters, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
         jsonGenerator.writeStartObject();
         jsonGenerator.writeNumberField(ACCEPTABLE_INCREASE, loopFlowParameters.getAcceptableIncrease());
-        jsonGenerator.writeObjectField(APPROXIMATION, loopFlowParameters.getApproximation());
+        jsonGenerator.writeObjectField(PTDF_APPROXIMATION, loopFlowParameters.getPtdfApproximation());
         jsonGenerator.writeNumberField(CONSTRAINT_ADJUSTMENT_COEFFICIENT, loopFlowParameters.getConstraintAdjustmentCoefficient());
         jsonGenerator.writeNumberField(VIOLATION_COST, loopFlowParameters.getViolationCost());
         jsonGenerator.writeFieldName(COUNTRIES);
@@ -63,8 +63,8 @@ public class JsonLoopFlowParametersExtension implements JsonRaoParameters.Extens
                     jsonParser.nextToken();
                     parameters.setAcceptableIncrease(jsonParser.getDoubleValue());
                     break;
-                case APPROXIMATION:
-                    parameters.setApproximation(stringToApproximation(jsonParser.nextTextValue()));
+                case PTDF_APPROXIMATION:
+                    parameters.setPtdfApproximation(stringToPtdfApproximation(jsonParser.nextTextValue()));
                     break;
                 case CONSTRAINT_ADJUSTMENT_COEFFICIENT:
                     jsonParser.nextToken();
@@ -101,13 +101,5 @@ public class JsonLoopFlowParametersExtension implements JsonRaoParameters.Extens
     @Override
     public Class<? super LoopFlowParametersExtension> getExtensionClass() {
         return LoopFlowParametersExtension.class;
-    }
-
-    private static LoopFlowParametersExtension.Approximation stringToApproximation(String string) {
-        try {
-            return LoopFlowParametersExtension.Approximation.valueOf(string);
-        } catch (IllegalArgumentException e) {
-            throw new FaraoException(String.format("Unknown approximation value: %s", string));
-        }
     }
 }

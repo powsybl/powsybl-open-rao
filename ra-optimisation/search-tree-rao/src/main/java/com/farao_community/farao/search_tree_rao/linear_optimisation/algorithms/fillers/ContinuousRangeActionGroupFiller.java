@@ -6,6 +6,7 @@
  */
 package com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.fillers;
 
+import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.linear_problem.FaraoMPConstraint;
@@ -53,7 +54,9 @@ public class ContinuousRangeActionGroupFiller implements ProblemFiller {
             if (optGroupId.isPresent()) {
                 String groupId = optGroupId.get();
                 // For the first time the group ID is encountered a common variable for set point has to be created
-                if (linearProblem.getRangeActionGroupSetpointVariable(groupId, state) == null) {
+                try {
+                    linearProblem.getRangeActionGroupSetpointVariable(groupId, state);
+                } catch (FaraoException ignored) {
                     linearProblem.addRangeActionGroupSetpointVariable(-LinearProblem.infinity(), LinearProblem.infinity(), groupId, state);
                 }
                 addRangeActionGroupConstraint(linearProblem, ra, groupId, state);

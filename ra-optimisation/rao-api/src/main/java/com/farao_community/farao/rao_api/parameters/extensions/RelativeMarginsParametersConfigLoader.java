@@ -13,7 +13,7 @@ import com.powsybl.commons.config.PlatformConfig;
 import java.util.ArrayList;
 import java.util.Objects;
 
-import static com.farao_community.farao.rao_api.RaoParametersConstants.*;
+import static com.farao_community.farao.rao_api.RaoParametersCommons.*;
 /**
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
  */
@@ -27,6 +27,7 @@ public class RelativeMarginsParametersConfigLoader implements RaoParameters.Conf
         platformConfig.getOptionalModuleConfig(RELATIVE_MARGINS_SECTION)
                 .ifPresent(config -> {
                     parameters.setPtdfBoundariesFromString(config.getStringListProperty(PTDF_BOUNDARIES, new ArrayList<>()));
+                    parameters.setPtdfApproximation(config.getEnumProperty(PTDF_APPROXIMATION, PtdfApproximation.class, RelativeMarginsParametersExtension.DEFAULT_PTDF_APPROXIMATION));
                     parameters.setPtdfSumLowerBound(config.getDoubleProperty(PTDF_SUM_LOWER_BOUND, RelativeMarginsParametersExtension.DEFAULT_PTDF_SUM_LOWER_BOUND));
                 });
         return parameters;

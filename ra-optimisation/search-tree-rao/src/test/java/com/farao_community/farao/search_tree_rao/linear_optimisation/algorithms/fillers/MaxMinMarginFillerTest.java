@@ -172,12 +172,8 @@ class MaxMinMarginFillerTest extends AbstractFillerTest {
 
         // AbsoluteRangeActionVariables present, but no the FlowVariables
         linearProblem.addAbsoluteRangeActionVariationVariable(0.0, 0.0, pstRangeAction, cnec1.getState());
-        try {
-            linearProblem.fill(flowResult, sensitivityResult);
-            fail();
-        } catch (FaraoException e) {
-            assertTrue(e.getMessage().contains("Flow variable"));
-        }
+        Exception e = assertThrows(FaraoException.class, () -> linearProblem.fill(flowResult, sensitivityResult));
+        assertEquals("Variable Tieline BE FR - N - preventive_left_flow_variable has not been created yet", e.getMessage());
     }
 
     @Test

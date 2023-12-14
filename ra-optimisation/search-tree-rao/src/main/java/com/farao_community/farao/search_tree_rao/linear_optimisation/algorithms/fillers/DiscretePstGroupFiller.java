@@ -7,6 +7,7 @@
 
 package com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.fillers;
 
+import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.linear_problem.FaraoMPConstraint;
@@ -61,7 +62,9 @@ public class DiscretePstGroupFiller implements ProblemFiller {
         if (optGroupId.isPresent()) {
             String groupId = optGroupId.get();
             // For the first time the group ID is encountered a common variable for the tap has to be created
-            if (linearProblem.getPstGroupTapVariable(groupId, state) == null) {
+            try {
+                linearProblem.getPstGroupTapVariable(groupId, state);
+            } catch (FaraoException ignored) {
                 linearProblem.addPstGroupTapVariable(-LinearProblem.infinity(), LinearProblem.infinity(), groupId, state);
             }
             addRangeActionGroupConstraint(linearProblem, pstRangeAction, groupId, state);

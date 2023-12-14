@@ -11,7 +11,7 @@ import com.farao_community.farao.commons.FaraoException;
 import com.powsybl.commons.config.PlatformConfig;
 
 import java.util.*;
-import static com.farao_community.farao.rao_api.RaoParametersConstants.*;
+import static com.farao_community.farao.rao_api.RaoParametersCommons.*;
 /**
  * Not optimized cnecs parameters for RAO
  *

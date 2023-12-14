@@ -9,6 +9,7 @@ package com.farao_community.farao.rao_api.parameters;
 import com.farao_community.farao.rao_api.json.JsonRaoParameters;
 import com.farao_community.farao.rao_api.parameters.extensions.LoopFlowParametersExtension;
 import com.farao_community.farao.rao_api.parameters.extensions.MnecParametersExtension;
+import com.farao_community.farao.rao_api.parameters.extensions.PtdfApproximation;
 import com.farao_community.farao.rao_api.parameters.extensions.RelativeMarginsParametersExtension;
 import com.powsybl.commons.config.*;
 import com.powsybl.commons.test.AbstractConverterTest;
@@ -105,7 +106,7 @@ class RaoParametersYamlConfigTest extends AbstractConverterTest {
         LoopFlowParametersExtension loopFlowParameters = parameters.getExtension(LoopFlowParametersExtension.class);
         assertNotNull(loopFlowParameters);
         assertEquals(11, loopFlowParameters.getAcceptableIncrease(), DOUBLE_TOLERANCE);
-        assertEquals(LoopFlowParametersExtension.Approximation.UPDATE_PTDF_WITH_TOPO, loopFlowParameters.getApproximation());
+        assertEquals(PtdfApproximation.UPDATE_PTDF_WITH_TOPO, loopFlowParameters.getPtdfApproximation());
         assertEquals(12, loopFlowParameters.getConstraintAdjustmentCoefficient(), DOUBLE_TOLERANCE);
         assertEquals(13, loopFlowParameters.getViolationCost(), DOUBLE_TOLERANCE);
         Set<Country> expectedCountries = Set.of(Country.FR, Country.ES, Country.PT);
@@ -120,6 +121,7 @@ class RaoParametersYamlConfigTest extends AbstractConverterTest {
         RelativeMarginsParametersExtension relativeMarginsParametersExtension = parameters.getExtension(RelativeMarginsParametersExtension.class);
         assertNotNull(relativeMarginsParametersExtension);
         List<String> expectedBoundaries = List.of("{FR}-{BE}", "{FR}-{DE}");
+        assertEquals(PtdfApproximation.UPDATE_PTDF_WITH_TOPO_AND_PST, relativeMarginsParametersExtension.getPtdfApproximation());
         assertEquals(0.02, relativeMarginsParametersExtension.getPtdfSumLowerBound(), DOUBLE_TOLERANCE);
         assertEquals(expectedBoundaries, relativeMarginsParametersExtension.getPtdfBoundariesAsString());
 
@@ -275,7 +277,7 @@ class RaoParametersYamlConfigTest extends AbstractConverterTest {
         LoopFlowParametersExtension loopFlowParameters = parameters.getExtension(LoopFlowParametersExtension.class);
         assertNotNull(loopFlowParameters);
         assertEquals(0, loopFlowParameters.getAcceptableIncrease(), DOUBLE_TOLERANCE);
-        assertEquals(LoopFlowParametersExtension.Approximation.UPDATE_PTDF_WITH_TOPO, loopFlowParameters.getApproximation());
+        assertEquals(PtdfApproximation.UPDATE_PTDF_WITH_TOPO, loopFlowParameters.getPtdfApproximation());
         assertEquals(12, loopFlowParameters.getConstraintAdjustmentCoefficient(), DOUBLE_TOLERANCE);
         assertEquals(13, loopFlowParameters.getViolationCost(), DOUBLE_TOLERANCE);
         Set<Country> expectedCountries = Set.of(Country.FR, Country.ES, Country.PT);
@@ -287,6 +289,7 @@ class RaoParametersYamlConfigTest extends AbstractConverterTest {
         RelativeMarginsParametersExtension relativeMarginsParametersExtension = parameters.getExtension(RelativeMarginsParametersExtension.class);
         assertNotNull(relativeMarginsParametersExtension);
         List<String> expectedBoundaries = Collections.emptyList();
+        assertEquals(PtdfApproximation.UPDATE_PTDF_WITH_TOPO_AND_PST, relativeMarginsParametersExtension.getPtdfApproximation());
         assertEquals(0.02, relativeMarginsParametersExtension.getPtdfSumLowerBound(), DOUBLE_TOLERANCE);
         assertEquals(expectedBoundaries, relativeMarginsParametersExtension.getPtdfBoundariesAsString());
 

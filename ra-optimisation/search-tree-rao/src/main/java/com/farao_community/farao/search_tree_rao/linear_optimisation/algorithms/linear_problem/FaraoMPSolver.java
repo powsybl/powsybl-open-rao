@@ -56,11 +56,19 @@ public class FaraoMPSolver {
     }
 
     public FaraoMPConstraint getConstraint(String name) {
-        return constraints.get(name);
+        if (constraints.containsKey(name)) {
+            return constraints.get(name);
+        } else {
+            throw new FaraoException(String.format("Constraint %s has not been created yet", name));
+        }
     }
 
     public FaraoMPVariable getVariable(String name) {
-        return variables.get(name);
+        if (variables.containsKey(name)) {
+            return variables.get(name);
+        } else {
+            throw new FaraoException(String.format("Variable %s has not been created yet", name));
+        }
     }
 
     public FaraoMPObjective getObjective() {

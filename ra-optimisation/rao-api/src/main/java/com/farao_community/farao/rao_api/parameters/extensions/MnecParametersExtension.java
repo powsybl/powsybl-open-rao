@@ -10,7 +10,7 @@ package com.farao_community.farao.rao_api.parameters.extensions;
 import com.farao_community.farao.rao_api.parameters.RaoParameters;
 import com.powsybl.commons.extensions.AbstractExtension;
 
-import static com.farao_community.farao.rao_api.RaoParametersConstants.MNEC_PARAMETERS;
+import static com.farao_community.farao.rao_api.RaoParametersCommons.MNEC_PARAMETERS;
 /**
  * Extension : MNEC parameters for RAO
  *

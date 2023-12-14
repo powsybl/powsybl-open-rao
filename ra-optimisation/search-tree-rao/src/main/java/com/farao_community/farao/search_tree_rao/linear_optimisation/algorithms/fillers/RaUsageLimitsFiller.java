@@ -7,7 +7,6 @@
 
 package com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.fillers;
 
-import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.RemedialAction;
 import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
@@ -25,8 +24,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
-
-import static java.lang.String.format;
 
 /**
  * Handles constraints for maximum number od RAs to activate (ma-ra), maximum number of TSOs that can activate RAs (max-tso),
@@ -111,9 +108,6 @@ public class RaUsageLimitsFiller implements ProblemFiller {
         FaraoMPVariable isVariationVariable = linearProblem.addRangeActionVariationBinary(rangeAction, state);
 
         FaraoMPVariable absoluteVariationVariable = linearProblem.getAbsoluteRangeActionVariationVariable(rangeAction, state);
-        if (absoluteVariationVariable == null) {
-            throw new FaraoException(format("Range action absolute variation variable for %s has not been defined yet.", rangeAction.getId()));
-        }
 
         double initialSetpointRelaxation = getInitialSetpointRelaxation(rangeAction);
 

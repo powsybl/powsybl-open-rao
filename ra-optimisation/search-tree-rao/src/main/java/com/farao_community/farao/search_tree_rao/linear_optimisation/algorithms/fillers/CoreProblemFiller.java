@@ -33,8 +33,6 @@ import org.apache.commons.lang3.tuple.Pair;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static java.lang.String.format;
-
 /**
  * @author Pengbo Wang {@literal <pengbo.wang at rte-international.com>}
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
@@ -144,10 +142,6 @@ public class CoreProblemFiller implements ProblemFiller {
             FaraoMPConstraint flowConstraint = linearProblem.addFlowConstraint(referenceFlow, referenceFlow, cnec, side);
 
             FaraoMPVariable flowVariable = linearProblem.getFlowVariable(cnec, side);
-            if (flowVariable == null) {
-                throw new FaraoException(format("Flow variable on %s (side %s) has not been defined yet.", cnec.getId(), side));
-            }
-
             flowConstraint.setCoefficient(flowVariable, 1);
 
             // add sensitivity coefficients
@@ -163,9 +157,6 @@ public class CoreProblemFiller implements ProblemFiller {
         flowCnecs.forEach(cnec -> cnec.getMonitoredSides().forEach(side -> {
             double referenceFlow = flowResult.getFlow(cnec, side, unit) * RaoUtil.getFlowUnitMultiplier(cnec, side, unit, Unit.MEGAWATT);
             FaraoMPConstraint flowConstraint = linearProblem.getFlowConstraint(cnec, side);
-            if (flowConstraint == null) {
-                throw new FaraoException(format("Flow constraint on %s (side %s) has not been defined yet.", cnec.getId(), side));
-            }
 
             //reset bounds
             flowConstraint.setUb(referenceFlow);
@@ -179,10 +170,6 @@ public class CoreProblemFiller implements ProblemFiller {
     private void addImpactOfRangeActionOnCnec(LinearProblem linearProblem, SensitivityResult sensitivityResult, FlowCnec cnec, Side side, RangeActionActivationResult rangeActionActivationResult) {
         FaraoMPVariable flowVariable = linearProblem.getFlowVariable(cnec, side);
         FaraoMPConstraint flowConstraint = linearProblem.getFlowConstraint(cnec, side);
-
-        if (flowVariable == null || flowConstraint == null) {
-            throw new FaraoException(format("Flow variable and/or constraint on %s has not been defined yet.", cnec.getId()));
-        }
 
         List<State> statesBeforeCnec = FillersUtil.getPreviousStates(cnec.getState(), optimizationContext).stream()
             .sorted((s1, s2) -> Integer.compare(s2.getInstant().getOrder(), s1.getInstant().getOrder())) // start with curative state
@@ -205,9 +192,6 @@ public class CoreProblemFiller implements ProblemFiller {
 
     private void addImpactOfRangeActionOnCnec(LinearProblem linearProblem, SensitivityResult sensitivityResult, RangeAction<?> rangeAction, State state, FlowCnec cnec, Side side, FaraoMPConstraint flowConstraint, RangeActionActivationResult rangeActionActivationResult) {
         FaraoMPVariable setPointVariable = linearProblem.getRangeActionSetpointVariable(rangeAction, state);
-        if (setPointVariable == null) {
-            throw new FaraoException(format("Range action variable for %s has not been defined yet.", rangeAction.getId()));
-        }
 
         double sensitivity = sensitivityResult.getSensitivityValue(cnec, side, rangeAction, Unit.MEGAWATT);
 
@@ -260,18 +244,16 @@ public class CoreProblemFiller implements ProblemFiller {
         double minAbsoluteSetpoint = Math.max(minAndMaxAbsoluteAndRelativeSetpoints.get(0), -LinearProblem.infinity());
         double maxAbsoluteSetpoint = Math.min(minAndMaxAbsoluteAndRelativeSetpoints.get(1), LinearProblem.infinity());
         double constrainedSetPointRange = (maxAbsoluteSetpoint - minAbsoluteSetpoint) * Math.pow(RANGE_SHRINK_RATE, iteration);
-        FaraoMPConstraint iterativeShrink = linearProblem.getRangeActionRelativeSetpointConstraint(rangeAction, state, LinearProblem.RaRangeShrinking.TRUE);
         double lb = previousSetPointValue - constrainedSetPointRange;
         double ub = previousSetPointValue + constrainedSetPointRange;
-        if (iterativeShrink != null) {
+        try {
+            FaraoMPConstraint iterativeShrink = linearProblem.getRangeActionRelativeSetpointConstraint(rangeAction, state, LinearProblem.RaRangeShrinking.TRUE);
             iterativeShrink.setLb(lb);
             iterativeShrink.setUb(ub);
-        } else {
+        } catch (FaraoException ignored) {
+            // Constraint iterativeShrink has not yet been created
             FaraoMPVariable setPointVariable = linearProblem.getRangeActionSetpointVariable(rangeAction, state);
-            if (setPointVariable == null) {
-                throw new FaraoException(format("Range action variable for %s has not been defined yet.", rangeAction.getId()));
-            }
-            iterativeShrink = linearProblem.addRangeActionRelativeSetpointConstraint(lb, ub, rangeAction, state, LinearProblem.RaRangeShrinking.TRUE);
+            FaraoMPConstraint iterativeShrink = linearProblem.addRangeActionRelativeSetpointConstraint(lb, ub, rangeAction, state, LinearProblem.RaRangeShrinking.TRUE);
             iterativeShrink.setCoefficient(setPointVariable, 1);
         }
     }

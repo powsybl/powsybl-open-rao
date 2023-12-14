@@ -1,5 +1,5 @@
 {
-  "version" : "2.1",
+  "version" : "2.0",
   "objective-function" : {
     "type" : "MAX_MIN_MARGIN_IN_MEGAWATT",
     "forbid-cost-increase" : false,
@@ -10,12 +10,12 @@
   "range-actions-optimization" : {
     "max-mip-iterations" : 10,
     "pst-penalty-cost" : 0.01,
-    "pst-sensitivity-threshold" : 1.0E-6,
+    "pst-sensitivity-threshold" : 0.0,
     "pst-model" : "CONTINUOUS",
     "hvdc-penalty-cost" : 0.001,
-    "hvdc-sensitivity-threshold" : 1.0E-6,
+    "hvdc-sensitivity-threshold" : 0.0,
     "injection-ra-penalty-cost" : 0.001,
-    "injection-ra-sensitivity-threshold" : 1.0E-6,
+    "injection-ra-sensitivity-threshold" : 0.0,
     "ra-range-shrinking" : "DISABLED",
     "linear-optimization-solver" : {
       "solver" : "CBC",
@@ -82,8 +82,5 @@
     "contingency-scenarios-in-parallel" : 1,
     "preventive-leaves-in-parallel" : 1,
     "curative-leaves-in-parallel" : 1
-  },
-  "extensions" : {
-    "dummy-extension" : { }
   }
 }

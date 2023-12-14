@@ -185,13 +185,17 @@ public final class IteratingLinearOptimizer {
                 .withAppliedRemedialActions(appliedRemedialActions)
                 .withToolProvider(input.getToolProvider());
 
-        if (parameters.isRaoWithLoopFlowLimitation() && parameters.getLoopFlowParameters().getApproximation().shouldUpdatePtdfWithPstChange()) {
+        if (parameters.isRaoWithLoopFlowLimitation() && parameters.getLoopFlowParameters().getPtdfApproximation().shouldUpdatePtdfWithPstChange()) {
             builder.withCommercialFlowsResults(input.getToolProvider().getLoopFlowComputation(), input.getOptimizationPerimeter().getLoopFlowCnecs());
         } else if (parameters.isRaoWithLoopFlowLimitation()) {
             builder.withCommercialFlowsResults(input.getPreOptimizationFlowResult());
         }
         if (parameters.getObjectiveFunction().relativePositiveMargins()) {
-            builder.withPtdfsResults(input.getInitialFlowResult());
+            if (parameters.getMaxMinRelativeMarginParameters().getPtdfApproximation().shouldUpdatePtdfWithPstChange()) {
+                builder.withPtdfsResults(input.getToolProvider().getAbsolutePtdfSumsComputation(), input.getOptimizationPerimeter().getFlowCnecs());
+            } else {
+                builder.withPtdfsResults(input.getPreOptimizationFlowResult());
+            }
         }
 
         return builder.build();

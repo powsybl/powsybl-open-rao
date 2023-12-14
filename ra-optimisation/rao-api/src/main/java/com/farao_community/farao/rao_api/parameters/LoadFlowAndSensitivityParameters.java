@@ -11,7 +11,7 @@ import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.sensitivity.SensitivityAnalysisParameters;
 
 import java.util.Objects;
-import static com.farao_community.farao.rao_api.RaoParametersConstants.*;
+import static com.farao_community.farao.rao_api.RaoParametersCommons.*;
 
 /**
  * LoadFlow and sensitivity computation parameters for RAO

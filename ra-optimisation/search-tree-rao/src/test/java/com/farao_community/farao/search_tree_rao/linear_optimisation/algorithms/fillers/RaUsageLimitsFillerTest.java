@@ -7,6 +7,7 @@
 
 package com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.fillers;
 
+import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.range_action.HvdcRangeAction;
@@ -17,10 +18,7 @@ import com.farao_community.farao.rao_api.parameters.RangeActionsOptimizationPara
 import com.farao_community.farao.rao_api.parameters.RaoParameters;
 import com.farao_community.farao.search_tree_rao.commons.optimization_perimeters.OptimizationPerimeter;
 import com.farao_community.farao.search_tree_rao.commons.parameters.RangeActionLimitationParameters;
-import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.linear_problem.FaraoMPConstraint;
-import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.linear_problem.FaraoMPVariable;
-import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.linear_problem.LinearProblem;
-import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.linear_problem.LinearProblemBuilder;
+import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.linear_problem.*;
 import com.farao_community.farao.search_tree_rao.result.api.RangeActionActivationResult;
 import com.farao_community.farao.search_tree_rao.result.api.RangeActionSetpointResult;
 import com.farao_community.farao.search_tree_rao.result.impl.RangeActionActivationResultImpl;
@@ -134,7 +132,10 @@ class RaUsageLimitsFillerTest extends AbstractFillerTest {
             .build();
         linearProblem.fill(flowResult, sensitivityResult);
 
-        rangeActionsPerState.get(state).forEach(ra -> assertNull(linearProblem.getRangeActionVariationBinary(ra, state)));
+        rangeActionsPerState.get(state).forEach(ra -> {
+            Exception e = assertThrows(FaraoException.class, () -> linearProblem.getRangeActionVariationBinary(ra, state));
+            assertEquals(String.format("Variable %s has not been created yet", LinearProblemIdGenerator.rangeActionBinaryVariableId(ra, state)), e.getMessage());
+        });
     }
 
     @Test
@@ -225,13 +226,20 @@ class RaUsageLimitsFillerTest extends AbstractFillerTest {
             .build();
         linearProblem.fill(flowResult, sensitivityResult);
 
-        assertNull(linearProblem.getMaxTsoConstraint(state));
-        assertNull(linearProblem.getMaxPstPerTsoConstraint("opA", state));
-        assertNull(linearProblem.getMaxPstPerTsoConstraint("opB", state));
-        assertNull(linearProblem.getMaxPstPerTsoConstraint("opC", state));
-        assertNull(linearProblem.getMaxRaPerTsoConstraint("opA", state));
-        assertNull(linearProblem.getMaxRaPerTsoConstraint("opB", state));
-        assertNull(linearProblem.getMaxRaPerTsoConstraint("opC", state));
+        Exception e = assertThrows(FaraoException.class, () -> linearProblem.getMaxTsoConstraint(state));
+        assertEquals("Constraint maxtso_preventive_constraint has not been created yet", e.getMessage());
+        e = assertThrows(FaraoException.class, () -> linearProblem.getMaxPstPerTsoConstraint("opA", state));
+        assertEquals("Constraint maxpstpertso_opA_preventive_constraint has not been created yet", e.getMessage());
+        e = assertThrows(FaraoException.class, () -> linearProblem.getMaxPstPerTsoConstraint("opB", state));
+        assertEquals("Constraint maxpstpertso_opB_preventive_constraint has not been created yet", e.getMessage());
+        e = assertThrows(FaraoException.class, () -> linearProblem.getMaxPstPerTsoConstraint("opC", state));
+        assertEquals("Constraint maxpstpertso_opC_preventive_constraint has not been created yet", e.getMessage());
+        e = assertThrows(FaraoException.class, () -> linearProblem.getMaxRaPerTsoConstraint("opA", state));
+        assertEquals("Constraint maxrapertso_opA_preventive_constraint has not been created yet", e.getMessage());
+        e = assertThrows(FaraoException.class, () -> linearProblem.getMaxRaPerTsoConstraint("opB", state));
+        assertEquals("Constraint maxrapertso_opB_preventive_constraint has not been created yet", e.getMessage());
+        e = assertThrows(FaraoException.class, () -> linearProblem.getMaxRaPerTsoConstraint("opC", state));
+        assertEquals("Constraint maxrapertso_opC_preventive_constraint has not been created yet", e.getMessage());
     }
 
     @Test
@@ -250,7 +258,8 @@ class RaUsageLimitsFillerTest extends AbstractFillerTest {
             .build();
         linearProblem.fill(flowResult, sensitivityResult);
 
-        assertNull(linearProblem.getMaxRaConstraint(state));
+        Exception e = assertThrows(FaraoException.class, () -> linearProblem.getMaxRaConstraint(state));
+        assertEquals("Constraint maxra_preventive_constraint has not been created yet", e.getMessage());
     }
 
     @Test
@@ -341,7 +350,8 @@ class RaUsageLimitsFillerTest extends AbstractFillerTest {
         assertEquals(1, constraint.ub(), DOUBLE_TOLERANCE);
         assertEquals(1, constraint.getCoefficient(linearProblem.getTsoRaUsedVariable("opA", state)), DOUBLE_TOLERANCE);
         assertEquals(1, constraint.getCoefficient(linearProblem.getTsoRaUsedVariable("opB", state)), DOUBLE_TOLERANCE);
-        assertNull(linearProblem.getTsoRaUsedVariable("opC", state));
+        Exception e = assertThrows(FaraoException.class, () -> linearProblem.getTsoRaUsedVariable("opC", state));
+        assertEquals("Variable tsoraused_opC_preventive_variable has not been created yet", e.getMessage());
     }
 
     @Test
@@ -381,7 +391,7 @@ class RaUsageLimitsFillerTest extends AbstractFillerTest {
         assertEquals(0, constraintC.getCoefficient(linearProblem.getRangeActionVariationBinary(hvdc, state)), DOUBLE_TOLERANCE);
         assertEquals(1, constraintC.getCoefficient(linearProblem.getRangeActionVariationBinary(injection, state)), DOUBLE_TOLERANCE);
 
-        assertNull(linearProblem.getMaxPstPerTsoConstraint("opB", state));
+        assertThrows(FaraoException.class, () -> linearProblem.getMaxPstPerTsoConstraint("opB", state));
     }
 
     @Test
@@ -421,6 +431,7 @@ class RaUsageLimitsFillerTest extends AbstractFillerTest {
         assertEquals(0, constraintC.getCoefficient(linearProblem.getRangeActionVariationBinary(hvdc, state)), DOUBLE_TOLERANCE);
         assertEquals(0, constraintC.getCoefficient(linearProblem.getRangeActionVariationBinary(injection, state)), DOUBLE_TOLERANCE);
 
-        assertNull(linearProblem.getMaxPstPerTsoConstraint("opB", state));
+        Exception e = assertThrows(FaraoException.class, () -> linearProblem.getMaxPstPerTsoConstraint("opB", state));
+        assertEquals("Constraint maxpstpertso_opB_preventive_constraint has not been created yet", e.getMessage());
     }
 }
