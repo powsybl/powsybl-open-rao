@@ -17,6 +17,7 @@ import com.farao_community.farao.data.crac_loopflow_extension.LoopFlowThresholdA
 import com.farao_community.farao.rao_api.parameters.RangeActionsOptimizationParameters;
 import com.farao_community.farao.rao_api.parameters.RaoParameters;
 import com.farao_community.farao.rao_api.parameters.extensions.LoopFlowParametersExtension;
+import com.farao_community.farao.rao_api.parameters.extensions.PtdfApproximation;
 import com.farao_community.farao.search_tree_rao.commons.optimization_perimeters.OptimizationPerimeter;
 import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.linear_problem.FaraoMPConstraint;
 import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.linear_problem.FaraoMPVariable;
@@ -114,7 +115,7 @@ class MaxLoopFlowFillerTest extends AbstractFillerTest {
     @Test
     void testFill1() {
         loopFlowParameters = new LoopFlowParametersExtension();
-        loopFlowParameters.setApproximation(LoopFlowParametersExtension.Approximation.FIXED_PTDF);
+        loopFlowParameters.setPtdfApproximation(PtdfApproximation.FIXED_PTDF);
         loopFlowParameters.setAcceptableIncrease(13);
         loopFlowParameters.setViolationCost(10);
         loopFlowParameters.setConstraintAdjustmentCoefficient(5);
@@ -144,7 +145,7 @@ class MaxLoopFlowFillerTest extends AbstractFillerTest {
     @Test
     void testFill2() {
         loopFlowParameters = new LoopFlowParametersExtension();
-        loopFlowParameters.setApproximation(LoopFlowParametersExtension.Approximation.FIXED_PTDF);
+        loopFlowParameters.setPtdfApproximation(PtdfApproximation.FIXED_PTDF);
         loopFlowParameters.setAcceptableIncrease(30);
         loopFlowParameters.setViolationCost(10);
         loopFlowParameters.setConstraintAdjustmentCoefficient(5);
@@ -171,7 +172,7 @@ class MaxLoopFlowFillerTest extends AbstractFillerTest {
     @Test
     void testShouldUpdate() {
         loopFlowParameters = new LoopFlowParametersExtension();
-        loopFlowParameters.setApproximation(LoopFlowParametersExtension.Approximation.UPDATE_PTDF_WITH_TOPO_AND_PST);
+        loopFlowParameters.setPtdfApproximation(PtdfApproximation.UPDATE_PTDF_WITH_TOPO_AND_PST);
         loopFlowParameters.setAcceptableIncrease(0);
         loopFlowParameters.setViolationCost(10);
         loopFlowParameters.setConstraintAdjustmentCoefficient(5);
@@ -199,7 +200,7 @@ class MaxLoopFlowFillerTest extends AbstractFillerTest {
     @Test
     void testShouldNotUpdate() {
         loopFlowParameters = new LoopFlowParametersExtension();
-        loopFlowParameters.setApproximation(LoopFlowParametersExtension.Approximation.UPDATE_PTDF_WITH_TOPO);
+        loopFlowParameters.setPtdfApproximation(PtdfApproximation.UPDATE_PTDF_WITH_TOPO);
         loopFlowParameters.setAcceptableIncrease(0);
         loopFlowParameters.setViolationCost(10);
         loopFlowParameters.setConstraintAdjustmentCoefficient(5);
@@ -223,7 +224,7 @@ class MaxLoopFlowFillerTest extends AbstractFillerTest {
     @Test
     void testFill2Sides() {
         loopFlowParameters = new LoopFlowParametersExtension();
-        loopFlowParameters.setApproximation(LoopFlowParametersExtension.Approximation.FIXED_PTDF);
+        loopFlowParameters.setPtdfApproximation(PtdfApproximation.FIXED_PTDF);
         loopFlowParameters.setAcceptableIncrease(13);
         loopFlowParameters.setViolationCost(10);
         loopFlowParameters.setConstraintAdjustmentCoefficient(5);
