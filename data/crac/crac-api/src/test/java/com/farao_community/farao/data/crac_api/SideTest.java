@@ -8,7 +8,7 @@
 package com.farao_community.farao.data.crac_api;
 
 import com.farao_community.farao.data.crac_api.cnec.Side;
-import com.powsybl.iidm.network.Branch;
+import com.powsybl.iidm.network.TwoSides;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -19,9 +19,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class SideTest {
     @Test
     void basicTests() {
-        assertEquals(Branch.Side.ONE, Side.LEFT.iidmSide());
-        assertEquals(Branch.Side.TWO, Side.RIGHT.iidmSide());
-        assertEquals(Side.LEFT, Side.fromIidmSide(Branch.Side.ONE));
-        assertEquals(Side.RIGHT, Side.fromIidmSide(Branch.Side.TWO));
+        assertEquals(TwoSides.ONE, Side.LEFT.iidmSide());
+        assertEquals(TwoSides.TWO, Side.RIGHT.iidmSide());
+        assertEquals(Side.LEFT, Side.fromIidmSide(TwoSides.ONE));
+        assertEquals(Side.RIGHT, Side.fromIidmSide(TwoSides.TWO));
     }
 }

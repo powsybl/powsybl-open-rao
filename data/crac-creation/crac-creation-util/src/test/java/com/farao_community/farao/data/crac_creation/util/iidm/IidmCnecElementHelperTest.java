@@ -7,8 +7,8 @@
 
 package com.farao_community.farao.data.crac_creation.util.iidm;
 
-import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.TwoSides;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -33,10 +33,10 @@ class IidmCnecElementHelperTest {
         IidmCnecElementHelper cnecHelper = new IidmCnecElementHelper("BBE1AA1  BBE2AA1  1", network);
         assertTrue(cnecHelper.isValid());
         assertEquals("BBE1AA1  BBE2AA1  1", cnecHelper.getIdInNetwork());
-        assertEquals(380., cnecHelper.getNominalVoltage(Branch.Side.ONE), DOUBLE_TOLERANCE);
-        assertEquals(380., cnecHelper.getNominalVoltage(Branch.Side.TWO), DOUBLE_TOLERANCE);
-        assertEquals(5000., cnecHelper.getCurrentLimit(Branch.Side.ONE), DOUBLE_TOLERANCE);
-        assertEquals(5000., cnecHelper.getCurrentLimit(Branch.Side.TWO), DOUBLE_TOLERANCE);
+        assertEquals(380., cnecHelper.getNominalVoltage(TwoSides.ONE), DOUBLE_TOLERANCE);
+        assertEquals(380., cnecHelper.getNominalVoltage(TwoSides.TWO), DOUBLE_TOLERANCE);
+        assertEquals(5000., cnecHelper.getCurrentLimit(TwoSides.ONE), DOUBLE_TOLERANCE);
+        assertEquals(5000., cnecHelper.getCurrentLimit(TwoSides.TWO), DOUBLE_TOLERANCE);
         assertFalse(cnecHelper.isHalfLine());
         assertFalse(cnecHelper.isInvertedInNetwork());
 
@@ -44,10 +44,10 @@ class IidmCnecElementHelperTest {
         cnecHelper = new IidmCnecElementHelper("FFR3AA1  XBEFR11  1 + XBEFR11  BBE2AA1  1", network);
         assertTrue(cnecHelper.isValid());
         assertEquals("FFR3AA1  XBEFR11  1 + XBEFR11  BBE2AA1  1", cnecHelper.getIdInNetwork());
-        assertEquals(380., cnecHelper.getNominalVoltage(Branch.Side.ONE), DOUBLE_TOLERANCE);
-        assertEquals(380., cnecHelper.getNominalVoltage(Branch.Side.TWO), DOUBLE_TOLERANCE);
-        assertEquals(5000., cnecHelper.getCurrentLimit(Branch.Side.ONE), DOUBLE_TOLERANCE);
-        assertEquals(5000., cnecHelper.getCurrentLimit(Branch.Side.TWO), DOUBLE_TOLERANCE);
+        assertEquals(380., cnecHelper.getNominalVoltage(TwoSides.ONE), DOUBLE_TOLERANCE);
+        assertEquals(380., cnecHelper.getNominalVoltage(TwoSides.TWO), DOUBLE_TOLERANCE);
+        assertEquals(5000., cnecHelper.getCurrentLimit(TwoSides.ONE), DOUBLE_TOLERANCE);
+        assertEquals(5000., cnecHelper.getCurrentLimit(TwoSides.TWO), DOUBLE_TOLERANCE);
         assertFalse(cnecHelper.isHalfLine());
         assertFalse(cnecHelper.isInvertedInNetwork());
     }
@@ -79,26 +79,26 @@ class IidmCnecElementHelperTest {
         IidmCnecElementHelper cnecHelper = new IidmCnecElementHelper("BBE2AA1  BBE3AA1  1", network);
         assertTrue(cnecHelper.isValid());
         assertEquals("BBE2AA1  BBE3AA1  1", cnecHelper.getIdInNetwork());
-        assertEquals(380., cnecHelper.getNominalVoltage(Branch.Side.ONE), DOUBLE_TOLERANCE);
-        assertEquals(380., cnecHelper.getNominalVoltage(Branch.Side.TWO), DOUBLE_TOLERANCE);
-        assertEquals(4500., cnecHelper.getCurrentLimit(Branch.Side.ONE), DOUBLE_TOLERANCE);
-        assertEquals(4500., cnecHelper.getCurrentLimit(Branch.Side.TWO), DOUBLE_TOLERANCE);
+        assertEquals(380., cnecHelper.getNominalVoltage(TwoSides.ONE), DOUBLE_TOLERANCE);
+        assertEquals(380., cnecHelper.getNominalVoltage(TwoSides.TWO), DOUBLE_TOLERANCE);
+        assertEquals(4500., cnecHelper.getCurrentLimit(TwoSides.ONE), DOUBLE_TOLERANCE);
+        assertEquals(4500., cnecHelper.getCurrentLimit(TwoSides.TWO), DOUBLE_TOLERANCE);
 
         cnecHelper = new IidmCnecElementHelper("FFR1AA2  FFR1AA1  5", network);
         assertTrue(cnecHelper.isValid());
         assertEquals("FFR1AA2  FFR1AA1  5", cnecHelper.getIdInNetwork());
-        assertEquals(380., cnecHelper.getNominalVoltage(Branch.Side.ONE), DOUBLE_TOLERANCE);
-        assertEquals(220., cnecHelper.getNominalVoltage(Branch.Side.TWO), DOUBLE_TOLERANCE);
-        assertEquals(1500. * 220 / 380, cnecHelper.getCurrentLimit(Branch.Side.ONE), DOUBLE_TOLERANCE);
-        assertEquals(1500., cnecHelper.getCurrentLimit(Branch.Side.TWO), DOUBLE_TOLERANCE);
+        assertEquals(380., cnecHelper.getNominalVoltage(TwoSides.ONE), DOUBLE_TOLERANCE);
+        assertEquals(220., cnecHelper.getNominalVoltage(TwoSides.TWO), DOUBLE_TOLERANCE);
+        assertEquals(1500. * 220 / 380, cnecHelper.getCurrentLimit(TwoSides.ONE), DOUBLE_TOLERANCE);
+        assertEquals(1500., cnecHelper.getCurrentLimit(TwoSides.TWO), DOUBLE_TOLERANCE);
 
         cnecHelper = new IidmCnecElementHelper("BBE2AA2  BBE2AA1  2", network);
         assertTrue(cnecHelper.isValid());
         assertEquals("BBE2AA2  BBE2AA1  2", cnecHelper.getIdInNetwork());
-        assertEquals(380., cnecHelper.getNominalVoltage(Branch.Side.ONE), DOUBLE_TOLERANCE);
-        assertEquals(220., cnecHelper.getNominalVoltage(Branch.Side.TWO), DOUBLE_TOLERANCE);
-        assertEquals(1200. * 220 / 380, cnecHelper.getCurrentLimit(Branch.Side.ONE), DOUBLE_TOLERANCE);
-        assertEquals(1200., cnecHelper.getCurrentLimit(Branch.Side.TWO), DOUBLE_TOLERANCE);
+        assertEquals(380., cnecHelper.getNominalVoltage(TwoSides.ONE), DOUBLE_TOLERANCE);
+        assertEquals(220., cnecHelper.getNominalVoltage(TwoSides.TWO), DOUBLE_TOLERANCE);
+        assertEquals(1200. * 220 / 380, cnecHelper.getCurrentLimit(TwoSides.ONE), DOUBLE_TOLERANCE);
+        assertEquals(1200., cnecHelper.getCurrentLimit(TwoSides.TWO), DOUBLE_TOLERANCE);
     }
 
     @Test
@@ -118,10 +118,10 @@ class IidmCnecElementHelperTest {
         IidmCnecElementHelper cnecHelper = new IidmCnecElementHelper("BBE2AA1  XBE2AL1  1", network);
         assertTrue(cnecHelper.isValid());
         assertEquals("BBE2AA1  XBE2AL1  1", cnecHelper.getIdInNetwork());
-        assertEquals(380., cnecHelper.getNominalVoltage(Branch.Side.ONE), DOUBLE_TOLERANCE);
-        assertEquals(380., cnecHelper.getNominalVoltage(Branch.Side.TWO), DOUBLE_TOLERANCE);
-        assertEquals(1250, cnecHelper.getCurrentLimit(Branch.Side.ONE), DOUBLE_TOLERANCE);
-        assertEquals(1250, cnecHelper.getCurrentLimit(Branch.Side.TWO), DOUBLE_TOLERANCE);
+        assertEquals(380., cnecHelper.getNominalVoltage(TwoSides.ONE), DOUBLE_TOLERANCE);
+        assertEquals(380., cnecHelper.getNominalVoltage(TwoSides.TWO), DOUBLE_TOLERANCE);
+        assertEquals(1250, cnecHelper.getCurrentLimit(TwoSides.ONE), DOUBLE_TOLERANCE);
+        assertEquals(1250, cnecHelper.getCurrentLimit(TwoSides.TWO), DOUBLE_TOLERANCE);
 
         cnecHelper = new IidmCnecElementHelper("BBE2AA1  XBE2AL1  1", network);
         assertTrue(cnecHelper.isValid());
@@ -141,20 +141,20 @@ class IidmCnecElementHelperTest {
         IidmCnecElementHelper cnecHelper = new IidmCnecElementHelper("FFR3AA1  XBEFR11  1", network);
         assertTrue(cnecHelper.isValid());
         assertEquals("FFR3AA1  XBEFR11  1 + XBEFR11  BBE2AA1  1", cnecHelper.getIdInNetwork());
-        assertEquals(380., cnecHelper.getNominalVoltage(Branch.Side.ONE), DOUBLE_TOLERANCE);
-        assertEquals(380., cnecHelper.getNominalVoltage(Branch.Side.TWO), DOUBLE_TOLERANCE);
-        assertEquals(5000., cnecHelper.getCurrentLimit(Branch.Side.ONE), DOUBLE_TOLERANCE);
-        assertEquals(5000., cnecHelper.getCurrentLimit(Branch.Side.TWO), DOUBLE_TOLERANCE);
+        assertEquals(380., cnecHelper.getNominalVoltage(TwoSides.ONE), DOUBLE_TOLERANCE);
+        assertEquals(380., cnecHelper.getNominalVoltage(TwoSides.TWO), DOUBLE_TOLERANCE);
+        assertEquals(5000., cnecHelper.getCurrentLimit(TwoSides.ONE), DOUBLE_TOLERANCE);
+        assertEquals(5000., cnecHelper.getCurrentLimit(TwoSides.TWO), DOUBLE_TOLERANCE);
         assertTrue(cnecHelper.isHalfLine());
         assertFalse(cnecHelper.isInvertedInNetwork());
 
         cnecHelper = new IidmCnecElementHelper("XBEFR11  BBE2AA1  1", network);
         assertTrue(cnecHelper.isValid());
         assertEquals("FFR3AA1  XBEFR11  1 + XBEFR11  BBE2AA1  1", cnecHelper.getIdInNetwork());
-        assertEquals(380., cnecHelper.getNominalVoltage(Branch.Side.ONE), DOUBLE_TOLERANCE);
-        assertEquals(380., cnecHelper.getNominalVoltage(Branch.Side.TWO), DOUBLE_TOLERANCE);
-        assertEquals(5000., cnecHelper.getCurrentLimit(Branch.Side.ONE), DOUBLE_TOLERANCE);
-        assertEquals(5000., cnecHelper.getCurrentLimit(Branch.Side.TWO), DOUBLE_TOLERANCE);
+        assertEquals(380., cnecHelper.getNominalVoltage(TwoSides.ONE), DOUBLE_TOLERANCE);
+        assertEquals(380., cnecHelper.getNominalVoltage(TwoSides.TWO), DOUBLE_TOLERANCE);
+        assertEquals(5000., cnecHelper.getCurrentLimit(TwoSides.ONE), DOUBLE_TOLERANCE);
+        assertEquals(5000., cnecHelper.getCurrentLimit(TwoSides.TWO), DOUBLE_TOLERANCE);
         assertTrue(cnecHelper.isHalfLine());
         assertFalse(cnecHelper.isInvertedInNetwork());
     }
