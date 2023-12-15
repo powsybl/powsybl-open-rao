@@ -85,7 +85,6 @@ public abstract class AbstractRemedialActionAdder<T extends RemedialActionAdder<
         // Only allow ARAs with usage method OnFlowConstraint/OnAngleConstraint/OnVoltageConstraint, for CNECs of instant AUTO
         // Only allow CRAs with usage method OnFlowConstraint/OnAngleConstraint/OnVoltageConstraint, for CNECs of instant CURATIVE
 
-        // instant must be before or equals to cnec instant !
         if (cnec.getState().getInstant().comesBefore(instant)) {
             throw new FaraoException(String.format("Remedial actions available at instant '%s' on a CNEC constraint at instant '%s' are not allowed.", instant, cnec.getState().getInstant()));
         }

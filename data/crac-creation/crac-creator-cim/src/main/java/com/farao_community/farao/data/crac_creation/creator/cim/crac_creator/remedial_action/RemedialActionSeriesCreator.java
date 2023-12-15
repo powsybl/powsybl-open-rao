@@ -461,7 +461,6 @@ public class RemedialActionSeriesCreator {
         // Only allow ARAs with usage method OnFlowConstraint/OnAngleConstraint, for CNECs of instant AUTO
         // Only allow CRAs with usage method OnFlowConstraint/OnAngleConstraint, for CNECs of instant CURATIVE
 
-        // instant must be before or equals to cnec instant !
         if (flowCnec.getState().getInstant().comesBefore(instant)) {
             return;
         }
