@@ -8,7 +8,6 @@ package com.farao_community.farao.data.crac_creation.creator.csa_profile.crac_cr
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_creation.creator.csa_profile.crac_creator.CsaProfileConstants;
-import com.farao_community.farao.data.crac_creation.creator.csa_profile.crac_creator.CsaProfileCracUtils;
 import com.farao_community.farao.data.crac_creation.creator.csa_profile.crac_creator.CsaProfileElementaryCreationContext;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
@@ -36,17 +35,17 @@ public class OnConstraintUsageRuleHelper {
     private void readAssessedElementsCombinableWithRemedialActions(PropertyBags assessedElements) {
         List<String> nativeIdsOfCnecsCombinableWithRas = assessedElements.stream()
             .filter(element -> element.getId(CsaProfileConstants.REQUEST_ASSESSED_ELEMENT_IS_COMBINABLE_WITH_REMEDIAL_ACTION) != null && Boolean.parseBoolean(element.getId(CsaProfileConstants.REQUEST_ASSESSED_ELEMENT_IS_COMBINABLE_WITH_REMEDIAL_ACTION)))
-            .map(element -> CsaProfileCracUtils.removePrefix(element.get(CsaProfileConstants.REQUEST_ASSESSED_ELEMENT))).collect(Collectors.toList());
+            .map(element -> element.getId(CsaProfileConstants.REQUEST_ASSESSED_ELEMENT)).collect(Collectors.toList());
         Map<String, Set<String>> nativeToFaraoCnecIdsCombinableWithRas = getImportedCnecsNativeIdsToFaraoIds();
         nativeToFaraoCnecIdsCombinableWithRas.keySet().retainAll(nativeIdsOfCnecsCombinableWithRas);
         nativeToFaraoCnecIdsCombinableWithRas.values().stream().flatMap(Set::stream).forEach(importedCnecsCombinableWithRas::add);
     }
 
     private void readAssessedElementsWithRemedialAction(PropertyBags assessedElementsWithRemedialAction) {
-        assessedElementsWithRemedialAction.stream().filter(this::checkNormalEnabled).filter(propertyBag -> getImportedCnecsNativeIdsToFaraoIds().containsKey(CsaProfileCracUtils.removePrefix(propertyBag.get(CsaProfileConstants.REQUEST_ASSESSED_ELEMENT)))).forEach(propertyBag -> {
+        assessedElementsWithRemedialAction.stream().filter(this::checkNormalEnabled).filter(propertyBag -> getImportedCnecsNativeIdsToFaraoIds().containsKey(propertyBag.getId(CsaProfileConstants.REQUEST_ASSESSED_ELEMENT))).forEach(propertyBag -> {
             String combinationConstraintKind = propertyBag.get(CsaProfileConstants.COMBINATION_CONSTRAINT_KIND);
-            String remedialActionId = CsaProfileCracUtils.removePrefix(propertyBag.get(CsaProfileConstants.REQUEST_REMEDIAL_ACTION));
-            String assessedElementId = CsaProfileCracUtils.removePrefix(propertyBag.get(CsaProfileConstants.REQUEST_ASSESSED_ELEMENT));
+            String remedialActionId = propertyBag.getId(CsaProfileConstants.REQUEST_REMEDIAL_ACTION);
+            String assessedElementId = propertyBag.getId(CsaProfileConstants.REQUEST_ASSESSED_ELEMENT);
 
             Set<String> faraoCnecIds = getImportedCnecsNativeIdsToFaraoIds().get(assessedElementId);
 

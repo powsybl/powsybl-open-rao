@@ -33,7 +33,6 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public final class CsaProfileCracCreationTestUtil {
 
@@ -52,7 +51,7 @@ public final class CsaProfileCracCreationTestUtil {
         assertEquals(expectedContingencyId, c.getId());
         assertEquals(expectedContingencyName, c.getName());
         List<NetworkElement> networkElements = c.getNetworkElements().stream()
-                .sorted(Comparator.comparing(NetworkElement::getId)).toList();
+            .sorted(Comparator.comparing(NetworkElement::getId)).toList();
         assertEquals(expectedNetworkElementsSize, networkElements.size());
         for (int i = 0; i < expectedNetworkElementsSize; i++) {
             assertEquals(expectedNetworkElementsIds.get(i), networkElements.get(i).getId());
@@ -147,41 +146,41 @@ public final class CsaProfileCracCreationTestUtil {
 
     public static void assertHasOnInstantUsageRule(CsaProfileCracCreationContext cracCreationContext, String raId, Instant instant, UsageMethod usageMethod) {
         assertTrue(
-                cracCreationContext.getCrac().getRemedialAction(raId).getUsageRules().stream().filter(OnInstant.class::isInstance)
-                        .map(OnInstant.class::cast)
-                        .anyMatch(ur -> ur.getInstant().equals(instant) && ur.getUsageMethod().equals(usageMethod))
+            cracCreationContext.getCrac().getRemedialAction(raId).getUsageRules().stream().filter(OnInstant.class::isInstance)
+                .map(OnInstant.class::cast)
+                .anyMatch(ur -> ur.getInstant().equals(instant) && ur.getUsageMethod().equals(usageMethod))
         );
     }
 
     public static void assertHasOnContingencyStateUsageRule(CsaProfileCracCreationContext cracCreationContext, String raId, String contingencyId, Instant instant, UsageMethod usageMethod) {
         assertTrue(
-                cracCreationContext.getCrac().getRemedialAction(raId).getUsageRules().stream().filter(OnContingencyState.class::isInstance)
-                        .map(OnContingencyState.class::cast)
-                        .anyMatch(ur -> ur.getContingency().getId().equals(contingencyId) && ur.getInstant().equals(instant) && ur.getUsageMethod().equals(usageMethod))
+            cracCreationContext.getCrac().getRemedialAction(raId).getUsageRules().stream().filter(OnContingencyState.class::isInstance)
+                .map(OnContingencyState.class::cast)
+                .anyMatch(ur -> ur.getContingency().getId().equals(contingencyId) && ur.getInstant().equals(instant) && ur.getUsageMethod().equals(usageMethod))
         );
     }
 
     public static void assertHasOnFlowConstraintUsageRule(CsaProfileCracCreationContext cracCreationContext, String raId, String flowCnecId, Instant instant, UsageMethod usageMethod) {
         assertTrue(
-                cracCreationContext.getCrac().getRemedialAction(raId).getUsageRules().stream().filter(OnFlowConstraint.class::isInstance)
-                        .map(OnFlowConstraint.class::cast)
-                        .anyMatch(ur -> ur.getFlowCnec().getId().equals(flowCnecId) && ur.getInstant().equals(instant) && ur.getUsageMethod().equals(usageMethod))
+            cracCreationContext.getCrac().getRemedialAction(raId).getUsageRules().stream().filter(OnFlowConstraint.class::isInstance)
+                .map(OnFlowConstraint.class::cast)
+                .anyMatch(ur -> ur.getFlowCnec().getId().equals(flowCnecId) && ur.getInstant().equals(instant) && ur.getUsageMethod().equals(usageMethod))
         );
     }
 
     public static void assertHasOnAngleConstraintUsageRule(CsaProfileCracCreationContext cracCreationContext, String raId, String angleCnecId, Instant instant, UsageMethod usageMethod) {
         assertTrue(
-                cracCreationContext.getCrac().getRemedialAction(raId).getUsageRules().stream().filter(OnAngleConstraint.class::isInstance)
-                        .map(OnAngleConstraint.class::cast)
-                        .anyMatch(ur -> ur.getAngleCnec().getId().equals(angleCnecId) && ur.getInstant().equals(instant) && ur.getUsageMethod().equals(usageMethod))
+            cracCreationContext.getCrac().getRemedialAction(raId).getUsageRules().stream().filter(OnAngleConstraint.class::isInstance)
+                .map(OnAngleConstraint.class::cast)
+                .anyMatch(ur -> ur.getAngleCnec().getId().equals(angleCnecId) && ur.getInstant().equals(instant) && ur.getUsageMethod().equals(usageMethod))
         );
     }
 
     public static void assertHasOnVoltageConstraintUsageRule(CsaProfileCracCreationContext cracCreationContext, String raId, String voltageCnecId, Instant instant, UsageMethod usageMethod) {
         assertTrue(
-                cracCreationContext.getCrac().getRemedialAction(raId).getUsageRules().stream().filter(OnVoltageConstraint.class::isInstance)
-                        .map(OnVoltageConstraint.class::cast)
-                        .anyMatch(ur -> ur.getVoltageCnec().getId().equals(voltageCnecId) && ur.getInstant().equals(instant) && ur.getUsageMethod().equals(usageMethod))
+            cracCreationContext.getCrac().getRemedialAction(raId).getUsageRules().stream().filter(OnVoltageConstraint.class::isInstance)
+                .map(OnVoltageConstraint.class::cast)
+                .anyMatch(ur -> ur.getVoltageCnec().getId().equals(voltageCnecId) && ur.getInstant().equals(instant) && ur.getUsageMethod().equals(usageMethod))
         );
     }
 
@@ -206,17 +205,21 @@ public final class CsaProfileCracCreationTestUtil {
         assertEquals(speed, importedSpeed.get());
     }
 
+    public static CsaProfileCracCreationContext getCsaCracCreationContext(String csaProfilesArchive) {
+        Network network = getNetworkFromResource(csaProfilesArchive);
+        return getCsaCracCreationContext(csaProfilesArchive, network);
+    }
+
     public static CsaProfileCracCreationContext getCsaCracCreationContext(String csaProfilesArchive, Network network) {
+        return getCsaCracCreationContext(csaProfilesArchive, network, OffsetDateTime.parse("2023-03-29T12:00Z"));
+    }
+
+    public static CsaProfileCracCreationContext getCsaCracCreationContext(String csaProfilesArchive, Network network, OffsetDateTime offsetDateTime) {
         CsaProfileCracImporter cracImporter = new CsaProfileCracImporter();
         InputStream inputStream = CsaProfileCracCreationTestUtil.class.getResourceAsStream(csaProfilesArchive);
         CsaProfileCrac nativeCrac = cracImporter.importNativeCrac(inputStream);
         CsaProfileCracCreator cracCreator = new CsaProfileCracCreator();
-        return cracCreator.createCrac(nativeCrac, network, OffsetDateTime.parse("2023-03-29T12:00Z"), new CracCreationParameters());
-    }
-
-    public static CsaProfileCracCreationContext getCsaCracCreationContext(String csaProfilesArchive) {
-        Network network = getNetworkFromResource(csaProfilesArchive);
-        return getCsaCracCreationContext(csaProfilesArchive, network);
+        return cracCreator.createCrac(nativeCrac, network, offsetDateTime, new CracCreationParameters());
     }
 
     public static Network getNetworkFromResource(String filename) {

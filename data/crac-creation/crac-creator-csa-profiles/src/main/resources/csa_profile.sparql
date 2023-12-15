@@ -503,6 +503,195 @@ GRAPH <%s> {
         nc:GridStateAlteration.PropertyReference ?propertyReference;
         nc:GridStateAlteration.GridStateAlterationCollection ?gridStateAlterationCollection ;
         nc:TapPositionAction.TapChanger ?tapChangerId ;
+}
+}
 
+# query: contingencyOverriding
+PREFIX nc: <http://entsoe.eu/ns/nc#>
+PREFIX dcat: <http://www.w3.org/ns/dcat#>
+SELECT *
+{
+GRAPH <%s> {
+    ?fullModel
+        dcat:startDate ?startDate ;
+        dcat:endDate ?endDate ;
+        dcat:keyword ?keyword .
+    ?contingency
+        rdf:type nc:Contingency ;
+        nc:Contingency.mustStudy ?mustStudy ;
+}
+}
+
+# query: assessedElementOverriding
+PREFIX nc: <http://entsoe.eu/ns/nc#>
+PREFIX dcat: <http://www.w3.org/ns/dcat#>
+SELECT *
+{
+GRAPH <%s> {
+    ?fullModel
+        dcat:startDate ?startDate ;
+        dcat:endDate ?endDate ;
+        dcat:keyword ?keyword .
+    ?assessedElement
+        rdf:type nc:AssessedElement ;
+        nc:AssessedElement.enabled ?enabled .
+}
+}
+
+# query: assessedElementWithContingencyOverriding
+PREFIX nc: <http://entsoe.eu/ns/nc#>
+PREFIX dcat: <http://www.w3.org/ns/dcat#>
+SELECT *
+{
+GRAPH <%s> {
+    ?fullModel
+        dcat:startDate ?startDate ;
+        dcat:endDate ?endDate ;
+        dcat:keyword ?keyword .
+    ?assessedElementWithContingency
+        rdf:type nc:AssessedElementWithContingency;
+        nc:AssessedElementWithContingency.enabled ?enabled .
+}
+}
+
+# query: assessedElementWithRemedialActionOverriding
+PREFIX nc: <http://entsoe.eu/ns/nc#>
+PREFIX dcat: <http://www.w3.org/ns/dcat#>
+SELECT *
+{
+GRAPH <%s> {
+    ?fullModel
+        dcat:startDate ?startDate ;
+        dcat:endDate ?endDate ;
+        dcat:keyword ?keyword .
+    ?assessedElementWithRemedialAction
+        rdf:type nc:AssessedElementWithRemedialAction ;
+        nc:AssessedElementWithRemedialAction.enabled ?enabled .
+}
+}
+
+# query: contingencyWithRemedialActionOverriding
+PREFIX nc: <http://entsoe.eu/ns/nc#>
+PREFIX dcat: <http://www.w3.org/ns/dcat#>
+SELECT *
+{
+GRAPH <%s> {
+    ?fullModel
+        dcat:startDate ?startDate ;
+        dcat:endDate ?endDate ;
+        dcat:keyword ?keyword .
+    ?contingencyWithRemedialAction
+        rdf:type nc:ContingencyWithRemedialAction ;
+        nc:ContingencyWithRemedialAction.enabled ?enabled .
+}
+}
+
+# query: remedialActionOverriding
+PREFIX nc: <http://entsoe.eu/ns/nc#>
+PREFIX dcat: <http://www.w3.org/ns/dcat#>
+SELECT *
+{
+GRAPH <%s> {
+    ?fullModel
+        dcat:startDate ?startDate ;
+        dcat:endDate ?endDate ;
+        dcat:keyword ?keyword .
+    ?remedialAction
+        rdf:type nc:RemedialAction ;
+        nc:RemedialAction.available ?available .
+}
+}
+
+# query: gridStateAlterationOverriding
+PREFIX nc: <http://entsoe.eu/ns/nc#>
+PREFIX dcat: <http://www.w3.org/ns/dcat#>
+SELECT *
+{
+GRAPH <%s> {
+    ?fullModel
+        dcat:startDate ?startDate ;
+        dcat:endDate ?endDate ;
+        dcat:keyword ?keyword .
+    ?gridStateAlteration
+        rdf:type nc:GridStateAlteration ;
+        nc:GridStateAlteration.enabled ?enabled .
+}
+}
+
+# query: rangeConstraintOverriding
+PREFIX nc: <http://entsoe.eu/ns/nc#>
+PREFIX dcat: <http://www.w3.org/ns/dcat#>
+SELECT *
+{
+GRAPH <%s> {
+    ?fullModel
+        dcat:startDate ?startDate ;
+        dcat:endDate ?endDate ;
+        dcat:keyword ?keyword .
+    ?rangeConstraint
+        rdf:type nc:RangeConstraint ;
+        nc:RangeConstraint.value ?value .
+}
+}
+
+# query: remedialActionSchemeOverriding
+PREFIX nc: <http://entsoe.eu/ns/nc#>
+PREFIX dcat: <http://www.w3.org/ns/dcat#>
+SELECT *
+{
+GRAPH <%s> {
+    ?fullModel
+        dcat:startDate ?startDate ;
+        dcat:endDate ?endDate ;
+        dcat:keyword ?keyword .
+    ?remedialActionScheme
+        rdf:type nc:RemedialActionScheme ;
+        nc:RemedialActionScheme.armed ?armed .
+}
+}
+
+# query: voltageAngleLimitOverriding
+PREFIX nc: <http://entsoe.eu/ns/nc#>
+PREFIX dcat: <http://www.w3.org/ns/dcat#>
+SELECT *
+{
+GRAPH <%s> {
+    ?fullModel
+        dcat:startDate ?startDate ;
+        dcat:endDate ?endDate ;
+        dcat:keyword ?keyword .
+    ?voltageAngleLimit
+        rdf:type nc:VoltageAngleLimit ;
+        nc:VoltageAngleLimit.value ?value .
+}
+}
+
+# query: currentLimitOverriding
+PREFIX nc: <http://entsoe.eu/ns/nc#>
+PREFIX md: <http://iec.ch/TC57/61970-552/ModelDescription/1#>
+SELECT *
+{
+GRAPH <%s> {
+    ?fullModel
+        md:Model.scenarioTime ?scenarioTime ;
+        md:Model.profile ?profile .
+    ?currentLimit
+        rdf:type nc:CurrentLimit ;
+        nc:CurrentLimit.value ?value .
+}
+}
+
+# query: voltageLimitOverriding
+PREFIX nc: <http://entsoe.eu/ns/nc#>
+PREFIX md: <http://iec.ch/TC57/61970-552/ModelDescription/1#>
+SELECT *
+{
+GRAPH <%s> {
+    ?fullModel
+        md:Model.scenarioTime ?scenarioTime ;
+        md:Model.profile ?profile .
+    ?voltageLimit
+        rdf:type nc:VoltageLimit ;
+        nc:VoltageLimit.value ?value .
 }
 }
