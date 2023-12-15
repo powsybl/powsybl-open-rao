@@ -11,7 +11,7 @@ import com.farao_community.farao.rao_api.parameters.extensions.LoopFlowParameter
 import com.farao_community.farao.rao_api.parameters.extensions.MnecParametersExtension;
 import com.farao_community.farao.rao_api.parameters.extensions.RelativeMarginsParametersExtension;
 import com.powsybl.commons.config.*;
-import com.powsybl.commons.test.AbstractConverterTest;
+import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.openloadflow.OpenLoadFlowParameters;
 import org.junit.jupiter.api.Test;
@@ -26,7 +26,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
  */
-class RaoParametersYamlConfigTest extends AbstractConverterTest {
+class RaoParametersYamlConfigTest extends AbstractSerDeTest {
     static double DOUBLE_TOLERANCE = 1e-6;
 
     public RaoParameters loadRaoParameters(String configFile) {
