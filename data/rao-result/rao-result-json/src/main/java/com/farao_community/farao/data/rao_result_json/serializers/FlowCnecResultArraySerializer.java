@@ -137,7 +137,7 @@ final class FlowCnecResultArraySerializer {
         } else {
             return containsAnyResultForOptimizationState(raoResult, flowCnec, null, unit) ||
                 containsAnyResultForOptimizationState(raoResult, flowCnec, crac.getPreventiveInstant(), unit) ||
-                containsAnyResultForOptimizationState(raoResult, flowCnec, crac.getInstant(InstantKind.AUTO), unit) ||
+                (crac.hasAutoInstant() && containsAnyResultForOptimizationState(raoResult, flowCnec, crac.getInstant(InstantKind.AUTO), unit)) ||
                 containsAnyResultForOptimizationState(raoResult, flowCnec, crac.getInstant(InstantKind.CURATIVE), unit);
         }
     }

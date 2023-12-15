@@ -374,11 +374,11 @@ public class RemedialActionSeriesCreator {
             addUsageRulesAtInstant(remedialActionAdder, contingencies, invalidContingencies, flowCnecs, angleCnec, sharedDomain, curativeInstant, crac.getPreventiveInstant());
         }
         if (applicationModeMarketObjectStatus.equals(ApplicationModeMarketObjectStatus.CRA.getStatus())) {
-            addUsageRulesAtInstant(remedialActionAdder, contingencies, invalidContingencies, flowCnecs, angleCnec, sharedDomain, curativeInstant, crac.getInstant(InstantKind.CURATIVE));
+            addUsageRulesAtInstant(remedialActionAdder, contingencies, invalidContingencies, flowCnecs, angleCnec, sharedDomain, curativeInstant, curativeInstant);
         }
         if (applicationModeMarketObjectStatus.equals(ApplicationModeMarketObjectStatus.PRA_AND_CRA.getStatus())) {
             addUsageRulesAtInstant(remedialActionAdder, null, null, flowCnecs, angleCnec, sharedDomain, curativeInstant, crac.getPreventiveInstant());
-            addUsageRulesAtInstant(remedialActionAdder, contingencies, invalidContingencies, flowCnecs, angleCnec, sharedDomain, curativeInstant, crac.getInstant(InstantKind.CURATIVE));
+            addUsageRulesAtInstant(remedialActionAdder, contingencies, invalidContingencies, flowCnecs, angleCnec, sharedDomain, curativeInstant, curativeInstant);
         }
         if (applicationModeMarketObjectStatus.equals(ApplicationModeMarketObjectStatus.AUTO.getStatus())) {
             addUsageRulesAtInstant(remedialActionAdder, contingencies, invalidContingencies, flowCnecs, angleCnec, sharedDomain, curativeInstant, crac.getInstant(InstantKind.AUTO));

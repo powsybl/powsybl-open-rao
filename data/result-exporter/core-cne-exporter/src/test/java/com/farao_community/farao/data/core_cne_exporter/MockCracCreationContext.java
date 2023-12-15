@@ -22,7 +22,6 @@ import java.util.stream.Collectors;
 /**
  * Dummy class that has no real use, but allows the CRAC exporters
  * to function with cracs that were created in the code or using a json file
- *
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
 public class MockCracCreationContext implements UcteCracCreationContext {

@@ -356,7 +356,6 @@ public class CsaProfileRemedialActionsCreator {
     }
 
     private static boolean isOnConstraintInstantCoherent(Instant cnecInstant, Instant remedialInstant) {
-        // TODO check if this is ok ?
         return !cnecInstant.comesBefore(remedialInstant);
     }
 

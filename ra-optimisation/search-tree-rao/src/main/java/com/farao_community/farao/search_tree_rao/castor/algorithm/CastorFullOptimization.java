@@ -550,34 +550,38 @@ public class CastorFullOptimization {
 
         // Get the applied network actions for every contingency perimeter
         AppliedRemedialActions appliedArasAndCras = new AppliedRemedialActions();
-        Instant curativeInstant = raoInput.getCrac().getInstant(InstantKind.CURATIVE);
-        Instant autoInstant = raoInput.getCrac().getInstant(InstantKind.AUTO);
-        addAppliedNetworkActionsPostContingency(autoInstant, appliedArasAndCras, postContingencyResults);
+        Crac crac = raoInput.getCrac();
+        Instant curativeInstant = crac.getInstant(InstantKind.CURATIVE);
+        if (crac.hasAutoInstant()) {
+            addAppliedNetworkActionsPostContingency(crac.getInstant(InstantKind.AUTO), appliedArasAndCras, postContingencyResults);
+        }
         addAppliedNetworkActionsPostContingency(curativeInstant, appliedArasAndCras, postContingencyResults);
         // Get the applied range actions for every auto contingency perimeter
-        addAppliedRangeActionsPostContingency(autoInstant, appliedArasAndCras, postContingencyResults);
+        if (crac.hasAutoInstant()) {
+            addAppliedRangeActionsPostContingency(crac.getInstant(InstantKind.AUTO), appliedArasAndCras, postContingencyResults);
+        }
 
         // Apply 1st preventive results for range actions that are both preventive and auto or curative. This way we are sure
         // that the optimal setpoints of the curative results stay coherent with their allowed range and close to
         // optimality in their perimeters. These range actions will be excluded from 2nd preventive RAO.
         Set<RemedialAction<?>> remedialActionsExcluded = new HashSet<>();
         if (!parameters.getSecondPreventiveRaoParameters().getReOptimizeCurativeRangeActions()) { // keep old behaviour
-            remedialActionsExcluded = new HashSet<>(getRangeActionsExcludedFromSecondPreventive(raoInput.getCrac()));
-            applyPreventiveResultsForAutoOrCurativeRangeActions(network, firstPreventiveResult, raoInput.getCrac());
+            remedialActionsExcluded = new HashSet<>(getRangeActionsExcludedFromSecondPreventive(crac));
+            applyPreventiveResultsForAutoOrCurativeRangeActions(network, firstPreventiveResult, crac);
             addAppliedRangeActionsPostContingency(curativeInstant, appliedArasAndCras, postContingencyResults);
         }
 
         // Run a first sensitivity computation using initial network and applied CRAs
         // Do not exclude contingencies with failed sensi : by including them in second preventive optimization,
         // the RAO will try to apply PRAs that prevent divergence on these perimeters
-        PrePerimeterResult sensiWithPostContingencyRemedialActions = prePerimeterSensitivityAnalysis.runBasedOnInitialResults(network, raoInput.getCrac(), initialOutput, initialOutput, stateTree.getOperatorsNotSharingCras(), appliedArasAndCras);
+        PrePerimeterResult sensiWithPostContingencyRemedialActions = prePerimeterSensitivityAnalysis.runBasedOnInitialResults(network, crac, initialOutput, initialOutput, stateTree.getOperatorsNotSharingCras(), appliedArasAndCras);
         if (sensiWithPostContingencyRemedialActions.getSensitivityStatus() == ComputationStatus.FAILURE) {
             BUSINESS_LOGS.error("Systematic sensitivity analysis after curative remedial actions before second preventive optimization failed");
             return new SecondPreventiveRaoResult(null, sensiWithPostContingencyRemedialActions, remedialActionsExcluded, appliedArasAndCras);
         }
         RaoLogger.logSensitivityAnalysisResults("Systematic sensitivity analysis after curative remedial actions before second preventive optimization: ",
             prePerimeterSensitivityAnalysis.getObjectiveFunction(),
-            new RangeActionActivationResultImpl(RangeActionSetpointResultImpl.buildWithSetpointsFromNetwork(raoInput.getNetwork(), raoInput.getCrac().getRangeActions())),
+            new RangeActionActivationResultImpl(RangeActionSetpointResultImpl.buildWithSetpointsFromNetwork(raoInput.getNetwork(), crac.getRangeActions())),
             sensiWithPostContingencyRemedialActions,
             parameters,
             NUMBER_LOGGED_ELEMENTS_DURING_RAO);
@@ -585,9 +589,9 @@ public class CastorFullOptimization {
         // Run second preventive RAO
         BUSINESS_LOGS.info("----- Second preventive perimeter optimization [start]");
         PerimeterResult secondPreventiveResult = optimizeSecondPreventivePerimeter(raoInput, parameters, stateTree, toolProvider, initialOutput, sensiWithPostContingencyRemedialActions, firstPreventiveResult.getActivatedNetworkActions(), appliedArasAndCras)
-                .join().getPerimeterResult(raoInput.getCrac().getPreventiveState());
+                .join().getPerimeterResult(crac.getPreventiveState());
         // Re-run sensitivity computation based on PRAs without CRAs, to access after PRA results
-        PrePerimeterResult postPraSensitivityAnalysisOutput = prePerimeterSensitivityAnalysis.runBasedOnInitialResults(network, raoInput.getCrac(), initialOutput, initialOutput, stateTree.getOperatorsNotSharingCras(), null);
+        PrePerimeterResult postPraSensitivityAnalysisOutput = prePerimeterSensitivityAnalysis.runBasedOnInitialResults(network, crac, initialOutput, initialOutput, stateTree.getOperatorsNotSharingCras(), null);
         if (postPraSensitivityAnalysisOutput.getSensitivityStatus() == ComputationStatus.FAILURE) {
             BUSINESS_LOGS.error("Systematic sensitivity analysis after preventive remedial actions after second preventive optimization failed");
         }

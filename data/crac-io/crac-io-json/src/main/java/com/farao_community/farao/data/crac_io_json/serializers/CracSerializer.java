@@ -68,7 +68,6 @@ public class CracSerializer extends AbstractJsonSerializer<Crac> {
             gen.writeObject(instant);
         }
         gen.writeEndArray();
-
     }
 
     private void serializeNetworkElements(Crac crac, JsonGenerator gen) throws IOException {

@@ -281,10 +281,10 @@ public final class CoreCneCnecsCreator {
      * Returns a map containing all threshold for a given cnec and the associated margins
      * If the CNEC is also a MNEC, extra thresholds corresponding to the MNEc constraints are returned
      *
-     * @param cnec             the FlowCnec
+     * @param cnec              the FlowCnec
      * @param optimizedInstant the Instant for computing margins
-     * @param asMnec           true if it should be treated as a MNEC
-     * @param unit             the unit of the threshold and margin
+     * @param asMnec            true if it should be treated as a MNEC
+     * @param unit              the unit of the threshold and margin
      */
     private Map<Double, Double> getThresholdToMarginMap(FlowCnec cnec, Instant optimizedInstant, boolean asMnec, Unit unit, boolean deductFrmFromThreshold) {
         Map<Double, Double> thresholdToMarginMap = new HashMap<>();

@@ -312,7 +312,8 @@ public class RaoResultImpl implements RaoResult {
     }
 
     private State stateBefore(String contingencyId, Instant instant) {
-        if (instant.comesBefore(crac.getInstant(InstantKind.AUTO))) {
+        Instant otherInstant = crac.hasAutoInstant() ? crac.getInstant(InstantKind.AUTO) : crac.getInstant(InstantKind.CURATIVE);
+        if (instant.comesBefore(otherInstant)) {
             return crac.getPreventiveState();
         }
         State stateBefore = lookupState(contingencyId, crac.getInstantBefore(instant));
