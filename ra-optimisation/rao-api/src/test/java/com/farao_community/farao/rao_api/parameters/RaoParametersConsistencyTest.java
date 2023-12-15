@@ -8,7 +8,6 @@ package com.farao_community.farao.rao_api.parameters;
 
 import com.farao_community.farao.commons.EICode;
 import com.farao_community.farao.commons.FaraoException;
-import com.farao_community.farao.rao_api.parameters.extensions.LoopFlowParametersExtension;
 import com.farao_community.farao.rao_api.parameters.extensions.RelativeMarginsParametersExtension;
 import com.powsybl.iidm.network.Country;
 import org.junit.jupiter.api.Test;
@@ -20,20 +19,6 @@ import static org.junit.jupiter.api.Assertions.*;
  @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
  */
 class RaoParametersConsistencyTest {
-    @Test
-    void testUpdatePtdfWithTopo() {
-        assertFalse(LoopFlowParametersExtension.Approximation.FIXED_PTDF.shouldUpdatePtdfWithTopologicalChange());
-        assertTrue(LoopFlowParametersExtension.Approximation.UPDATE_PTDF_WITH_TOPO.shouldUpdatePtdfWithTopologicalChange());
-        assertTrue(LoopFlowParametersExtension.Approximation.UPDATE_PTDF_WITH_TOPO_AND_PST.shouldUpdatePtdfWithTopologicalChange());
-    }
-
-    @Test
-    void testUpdatePtdfWithPst() {
-        assertFalse(LoopFlowParametersExtension.Approximation.FIXED_PTDF.shouldUpdatePtdfWithPstChange());
-        assertFalse(LoopFlowParametersExtension.Approximation.UPDATE_PTDF_WITH_TOPO.shouldUpdatePtdfWithPstChange());
-        assertTrue(LoopFlowParametersExtension.Approximation.UPDATE_PTDF_WITH_TOPO_AND_PST.shouldUpdatePtdfWithPstChange());
-    }
-
     @Test
     void testSetBoundariesFromCountryCodes() {
         RaoParameters parameters = new RaoParameters();

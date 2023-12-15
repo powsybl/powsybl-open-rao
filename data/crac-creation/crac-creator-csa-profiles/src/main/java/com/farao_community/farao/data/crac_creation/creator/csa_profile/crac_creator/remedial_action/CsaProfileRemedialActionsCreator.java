@@ -488,11 +488,11 @@ public class CsaProfileRemedialActionsCreator {
         Map<String, PropertyBag> propertyBags2ByIdMap = new HashMap<>();
         BiMap<PropertyBag, PropertyBag> propertyBags1ToPropertyBags2BiMap = HashBiMap.create();
 
-        propertyBags2.forEach(propertyBag -> propertyBags2ByIdMap.put(CsaProfileCracUtils.removePrefix(propertyBag.get(key2)), propertyBag));
+        propertyBags2.forEach(propertyBag -> propertyBags2ByIdMap.put(propertyBag.getId(key2), propertyBag));
 
         propertyBags1.forEach(propertyBag -> {
-            if (propertyBags2ByIdMap.containsKey(CsaProfileCracUtils.removePrefix(propertyBag.get(key1)))) {
-                PropertyBag testedPropertyBag = propertyBags2ByIdMap.get(CsaProfileCracUtils.removePrefix(propertyBag.get(key1)));
+            if (propertyBags2ByIdMap.containsKey(propertyBag.getId(key1))) {
+                PropertyBag testedPropertyBag = propertyBags2ByIdMap.get(propertyBag.getId(key1));
                 if (isAssociatedWithOnlyOneScheme(propertyBags1ToPropertyBags2BiMap, testedPropertyBag)) {
                     propertyBags1ToPropertyBags2BiMap.put(propertyBag, testedPropertyBag);
                 } else {

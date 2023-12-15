@@ -7,6 +7,7 @@
 
 package com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms;
 
+import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.cnec.Side;
@@ -61,7 +62,8 @@ class LinearProblemTest {
 
     @Test
     void flowVariableTest() {
-        assertNull(linearProblem.getFlowVariable(cnec, Side.LEFT));
+        Exception e = assertThrows(FaraoException.class, () -> linearProblem.getFlowVariable(cnec, Side.LEFT));
+        assertEquals("Variable cnec_id_left_flow_variable has not been created yet", e.getMessage());
         linearProblem.addFlowVariable(LB, UB, cnec, Side.LEFT);
         assertNotNull(linearProblem.getFlowVariable(cnec, Side.LEFT));
         assertEquals(LB, linearProblem.getFlowVariable(cnec, Side.LEFT).lb(), DOUBLE_TOLERANCE);
@@ -70,7 +72,8 @@ class LinearProblemTest {
 
     @Test
     void flowConstraintTest() {
-        assertNull(linearProblem.getFlowConstraint(cnec, Side.LEFT));
+        Exception e = assertThrows(FaraoException.class, () -> linearProblem.getFlowConstraint(cnec, Side.LEFT));
+        assertEquals("Constraint cnec_id_left_flow_constraint has not been created yet", e.getMessage());
         linearProblem.addFlowConstraint(LB, UB, cnec, Side.LEFT);
         assertNotNull(linearProblem.getFlowConstraint(cnec, Side.LEFT));
         assertEquals(LB, linearProblem.getFlowConstraint(cnec, Side.LEFT).lb(), DOUBLE_TOLERANCE);
@@ -79,7 +82,8 @@ class LinearProblemTest {
 
     @Test
     void rangeActionSetPointVariableTest() {
-        assertNull(linearProblem.getRangeActionSetpointVariable(rangeAction, state));
+        Exception e = assertThrows(FaraoException.class, () -> linearProblem.getRangeActionSetpointVariable(rangeAction, state));
+        assertEquals("Variable rangeaction_id_null_setpoint_variable has not been created yet", e.getMessage());
         linearProblem.addRangeActionSetpointVariable(LB, UB, rangeAction, state);
         assertNotNull(linearProblem.getRangeActionSetpointVariable(rangeAction, state));
         assertEquals(LB, linearProblem.getRangeActionSetpointVariable(rangeAction, state).lb(), DOUBLE_TOLERANCE);
@@ -88,7 +92,8 @@ class LinearProblemTest {
 
     @Test
     void rangeActionAbsoluteVariationVariableTest() {
-        assertNull(linearProblem.getAbsoluteRangeActionVariationVariable(rangeAction, state));
+        Exception e = assertThrows(FaraoException.class, () -> linearProblem.getAbsoluteRangeActionVariationVariable(rangeAction, state));
+        assertEquals("Variable rangeaction_id_null_absolutevariation_variable has not been created yet", e.getMessage());
         linearProblem.addAbsoluteRangeActionVariationVariable(LB, UB, rangeAction, state);
         assertNotNull(linearProblem.getAbsoluteRangeActionVariationVariable(rangeAction, state));
         assertEquals(LB, linearProblem.getAbsoluteRangeActionVariationVariable(rangeAction, state).lb(), DOUBLE_TOLERANCE);
@@ -97,8 +102,10 @@ class LinearProblemTest {
 
     @Test
     void rangeActionAbsoluteVariationConstraintTest() {
-        assertNull(linearProblem.getAbsoluteRangeActionVariationConstraint(rangeAction, state, LinearProblem.AbsExtension.NEGATIVE));
-        assertNull(linearProblem.getAbsoluteRangeActionVariationConstraint(rangeAction, state, LinearProblem.AbsExtension.POSITIVE));
+        Exception e = assertThrows(FaraoException.class, () -> linearProblem.getAbsoluteRangeActionVariationConstraint(rangeAction, state, LinearProblem.AbsExtension.NEGATIVE));
+        assertEquals("Constraint rangeaction_id_null_absolutevariationnegative_constraint has not been created yet", e.getMessage());
+        e = assertThrows(FaraoException.class, () -> linearProblem.getAbsoluteRangeActionVariationConstraint(rangeAction, state, LinearProblem.AbsExtension.POSITIVE));
+        assertEquals("Constraint rangeaction_id_null_absolutevariationpositive_constraint has not been created yet", e.getMessage());
         linearProblem.addAbsoluteRangeActionVariationConstraint(LB, UB, rangeAction, state, LinearProblem.AbsExtension.NEGATIVE);
         linearProblem.addAbsoluteRangeActionVariationConstraint(LB, UB, rangeAction, state, LinearProblem.AbsExtension.POSITIVE);
         assertNotNull(linearProblem.getAbsoluteRangeActionVariationConstraint(rangeAction, state, LinearProblem.AbsExtension.NEGATIVE));
@@ -109,10 +116,14 @@ class LinearProblemTest {
 
     @Test
     void pstTapVariationIntegerAndBinaryVariablesTest() {
-        assertNull(linearProblem.getPstTapVariationVariable(rangeAction, state, UPWARD));
-        assertNull(linearProblem.getPstTapVariationVariable(rangeAction, state, DOWNWARD));
-        assertNull(linearProblem.getPstTapVariationBinary(rangeAction, state, UPWARD));
-        assertNull(linearProblem.getPstTapVariationBinary(rangeAction, state, DOWNWARD));
+        Exception e = assertThrows(FaraoException.class, () -> linearProblem.getPstTapVariationVariable(rangeAction, state, UPWARD));
+        assertEquals("Variable rangeaction_id_null_tapvariationupward_variable has not been created yet", e.getMessage());
+        e = assertThrows(FaraoException.class, () -> linearProblem.getPstTapVariationVariable(rangeAction, state, DOWNWARD));
+        assertEquals("Variable rangeaction_id_null_tapvariationdownward_variable has not been created yet", e.getMessage());
+        e = assertThrows(FaraoException.class, () -> linearProblem.getPstTapVariationBinary(rangeAction, state, UPWARD));
+        assertEquals("Variable rangeaction_id_null_isvariationupward_variable has not been created yet", e.getMessage());
+        e = assertThrows(FaraoException.class, () -> linearProblem.getPstTapVariationBinary(rangeAction, state, DOWNWARD));
+        assertEquals("Variable rangeaction_id_null_isvariationdownward_variable has not been created yet", e.getMessage());
 
         linearProblem.addPstTapVariationVariable(LB, UB, rangeAction, state, UPWARD);
         linearProblem.addPstTapVariationVariable(LB, UB, rangeAction, state, DOWNWARD);
@@ -129,10 +140,14 @@ class LinearProblemTest {
 
     @Test
     void pstTapConstraintsTest() {
-        assertNull(linearProblem.getIsVariationInDirectionConstraint(rangeAction, state, PREVIOUS_ITERATION, UPWARD));
-        assertNull(linearProblem.getIsVariationInDirectionConstraint(rangeAction, state, PREVIOUS_ITERATION, DOWNWARD));
-        assertNull(linearProblem.getUpOrDownPstVariationConstraint(rangeAction, state));
-        assertNull(linearProblem.getTapToAngleConversionConstraint(rangeAction, state));
+        Exception e = assertThrows(FaraoException.class, () -> linearProblem.getIsVariationInDirectionConstraint(rangeAction, state, PREVIOUS_ITERATION, UPWARD));
+        assertEquals("Constraint rangeaction_id_null_isvariation_previous_iteration_upward_constraint has not been created yet", e.getMessage());
+        e = assertThrows(FaraoException.class, () -> linearProblem.getIsVariationInDirectionConstraint(rangeAction, state, PREVIOUS_ITERATION, DOWNWARD));
+        assertEquals("Constraint rangeaction_id_null_isvariation_previous_iteration_downward_constraint has not been created yet", e.getMessage());
+        e = assertThrows(FaraoException.class, () -> linearProblem.getUpOrDownPstVariationConstraint(rangeAction, state));
+        assertEquals("Constraint rangeaction_id_null_upordownvariation_constraint has not been created yet", e.getMessage());
+        e = assertThrows(FaraoException.class, () -> linearProblem.getTapToAngleConversionConstraint(rangeAction, state));
+        assertEquals("Constraint rangeaction_id_null_taptoangleconversion_constraint has not been created yet", e.getMessage());
 
         linearProblem.addIsVariationInDirectionConstraint(-Double.MAX_VALUE, 0, rangeAction, state, PREVIOUS_ITERATION, UPWARD);
         linearProblem.addIsVariationInDirectionConstraint(-Double.MAX_VALUE, 0, rangeAction, state, PREVIOUS_ITERATION, DOWNWARD);
@@ -147,8 +162,10 @@ class LinearProblemTest {
 
     @Test
     void pstGroupVariablesAndConstraintsTest() {
-        assertNull(linearProblem.getPstGroupTapVariable(GROUP_ID, state));
-        assertNull(linearProblem.getPstGroupTapConstraint(rangeAction, state));
+        Exception e = assertThrows(FaraoException.class, () -> linearProblem.getPstGroupTapVariable(GROUP_ID, state));
+        assertEquals("Variable group_id_null_virtualtap_variable has not been created yet", e.getMessage());
+        e = assertThrows(FaraoException.class, () -> linearProblem.getPstGroupTapConstraint(rangeAction, state));
+        assertEquals("Constraint rangeaction_id_null_group_id_virtualtap_constraint has not been created yet", e.getMessage());
 
         linearProblem.addPstGroupTapVariable(LB, UB, GROUP_ID, state);
         linearProblem.addPstGroupTapConstraint(LB, UB, rangeAction, state);
@@ -161,8 +178,10 @@ class LinearProblemTest {
 
     @Test
     void minimumMarginConstraintTest() {
-        assertNull(linearProblem.getMinimumMarginConstraint(cnec, Side.LEFT, LinearProblem.MarginExtension.ABOVE_THRESHOLD));
-        assertNull(linearProblem.getMinimumMarginConstraint(cnec, Side.LEFT, LinearProblem.MarginExtension.BELOW_THRESHOLD));
+        Exception e = assertThrows(FaraoException.class, () -> linearProblem.getMinimumMarginConstraint(cnec, Side.LEFT, LinearProblem.MarginExtension.ABOVE_THRESHOLD));
+        assertEquals("Constraint cnec_id_left_minmargin_above_threshold_constraint has not been created yet", e.getMessage());
+        e = assertThrows(FaraoException.class, () -> linearProblem.getMinimumMarginConstraint(cnec, Side.LEFT, LinearProblem.MarginExtension.BELOW_THRESHOLD));
+        assertEquals("Constraint cnec_id_left_minmargin_below_threshold_constraint has not been created yet", e.getMessage());
         linearProblem.addMinimumMarginConstraint(LB, UB, cnec, Side.LEFT, LinearProblem.MarginExtension.ABOVE_THRESHOLD);
         linearProblem.addMinimumMarginConstraint(LB, UB, cnec, Side.LEFT, LinearProblem.MarginExtension.BELOW_THRESHOLD);
         assertNotNull(linearProblem.getMinimumMarginConstraint(cnec, Side.LEFT, LinearProblem.MarginExtension.ABOVE_THRESHOLD));
@@ -173,7 +192,8 @@ class LinearProblemTest {
 
     @Test
     void minimumMarginVariableTest() {
-        assertNull(linearProblem.getMinimumMarginVariable());
+        Exception e = assertThrows(FaraoException.class, () -> linearProblem.getMinimumMarginVariable());
+        assertEquals("Variable minmargin_variable has not been created yet", e.getMessage());
         linearProblem.addMinimumMarginVariable(LB, UB);
         assertNotNull(linearProblem.getMinimumMarginVariable());
         assertEquals(LB, linearProblem.getMinimumMarginVariable().lb(), DOUBLE_TOLERANCE);
@@ -182,29 +202,34 @@ class LinearProblemTest {
 
     @Test
     void minimumRelativeMarginSignBinaryVariableTest() {
-        assertNull(linearProblem.getMinimumRelativeMarginSignBinaryVariable());
+        Exception e = assertThrows(FaraoException.class, () -> linearProblem.getMinimumRelativeMarginSignBinaryVariable());
+        assertEquals("Variable minrelmarginispositive_variable has not been created yet", e.getMessage());
         linearProblem.addMinimumRelativeMarginSignBinaryVariable();
         assertNotNull(linearProblem.getMinimumRelativeMarginSignBinaryVariable());
     }
 
     @Test
     void minimumRelMarginSignDefinitionConstraintTest() {
-        assertNull(linearProblem.getMinimumRelMarginSignDefinitionConstraint());
+        Exception e = assertThrows(FaraoException.class, () -> linearProblem.getMinimumRelMarginSignDefinitionConstraint());
+        assertEquals("Constraint minrelmarginispositive_constraint has not been created yet", e.getMessage());
         linearProblem.addMinimumRelMarginSignDefinitionConstraint(LB, UB);
         assertNotNull(linearProblem.getMinimumRelMarginSignDefinitionConstraint());
     }
 
     @Test
     void minimumRelMarginSetToZeroConstraintTest() {
-        assertNull(linearProblem.getMinimumRelMarginSetToZeroConstraint());
+        Exception e = assertThrows(FaraoException.class, () -> linearProblem.getMinimumRelMarginSetToZeroConstraint());
+        assertEquals("Constraint minrelmargin_constraint has not been created yet", e.getMessage());
         linearProblem.addMinimumRelMarginSetToZeroConstraint(LB, UB);
         assertNotNull(linearProblem.getMinimumRelMarginSetToZeroConstraint());
     }
 
     @Test
     void maxLoopFlowConstraintTest() {
-        assertNull(linearProblem.getMaxLoopFlowConstraint(cnec, Side.LEFT, LinearProblem.BoundExtension.UPPER_BOUND));
-        assertNull(linearProblem.getMaxLoopFlowConstraint(cnec, Side.LEFT, LinearProblem.BoundExtension.LOWER_BOUND));
+        Exception e = assertThrows(FaraoException.class, () -> linearProblem.getMaxLoopFlowConstraint(cnec, Side.LEFT, LinearProblem.BoundExtension.UPPER_BOUND));
+        assertEquals("Constraint cnec_id_left_maxloopflow_upper_bound_constraint has not been created yet", e.getMessage());
+        e = assertThrows(FaraoException.class, () -> linearProblem.getMaxLoopFlowConstraint(cnec, Side.LEFT, LinearProblem.BoundExtension.LOWER_BOUND));
+        assertEquals("Constraint cnec_id_left_maxloopflow_lower_bound_constraint has not been created yet", e.getMessage());
 
         linearProblem.addMaxLoopFlowConstraint(LB, UB, cnec, Side.LEFT, LinearProblem.BoundExtension.UPPER_BOUND);
         linearProblem.addMaxLoopFlowConstraint(LB, UB, cnec, Side.LEFT, LinearProblem.BoundExtension.LOWER_BOUND);

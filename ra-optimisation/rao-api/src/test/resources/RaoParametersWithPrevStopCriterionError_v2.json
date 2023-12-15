@@ -1,5 +1,5 @@
 {
-  "version" : "2.0",
+  "version" : "2.1",
   "objective-function" : {
     "type" : "MAX_MIN_MARGIN_IN_MEGAWATT",
     "forbid-cost-increase" : false,
@@ -80,7 +80,7 @@
   "extensions" : {
     "loop-flow-parameters" : {
       "acceptable-increase" : 0.0,
-      "approximation" : "FIXED_PTDF",
+      "ptdf-approximation" : "FIXED_PTDF",
       "constraint-adjustment-coefficient" : 0.0,
       "violation-cost" : 0.0,
       "countries" : [ ]
