@@ -1,5 +1,5 @@
 {
-  "version" : "2.0",
+  "version" : "2.1",
   "objective-function" : {
     "type" : "MAX_MIN_MARGIN_IN_MEGAWATT",
     "forbid-cost-increase" : true,
@@ -161,11 +161,12 @@
   "extensions" : {
     "relative-margins-parameters" : {
       "ptdf-boundaries" : [ ],
+      "ptdf-approximation" : "UPDATE_PTDF_WITH_TOPO_AND_PST",
       "ptdf-sum-lower-bound" : 0.02
     },
     "loop-flow-parameters" : {
       "acceptable-increase" : 0.0,
-      "approximation" : "UPDATE_PTDF_WITH_TOPO",
+      "ptdf-approximation" : "UPDATE_PTDF_WITH_TOPO",
       "constraint-adjustment-coefficient" : 12.0,
       "violation-cost" : 13.0,
       "countries" : [ "ES", "FR", "PT" ]

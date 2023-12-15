@@ -5,7 +5,6 @@ import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_api.network_action.ActionType;
-import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
@@ -96,25 +95,25 @@ abstract class AbstractOptimizationPerimeterTest {
         cCnec2.newExtension(LoopFlowThresholdAdder.class).withUnit(Unit.MEGAWATT).withValue(100.).add();
 
         // one preventive range action and one curative
-        pRA = (RangeAction<?>) crac.newInjectionRangeAction().withId("preventive-ra")
+        pRA = crac.newInjectionRangeAction().withId("preventive-ra")
             .withNetworkElementAndKey(1, "BBE2AA1 _generator")
             .newRange().withMin(-1000).withMax(1000).add()
             .newOnInstantUsageRule().withInstant(Instant.PREVENTIVE).withUsageMethod(UsageMethod.AVAILABLE).add()
             .add();
 
-        cRA = (RangeAction<?>) crac.newInjectionRangeAction().withId("curative-ra")
+        cRA = crac.newInjectionRangeAction().withId("curative-ra")
             .withNetworkElementAndKey(1, "BBE2AA1 _generator")
             .newRange().withMin(-1000).withMax(1000).add()
             .newOnContingencyStateUsageRule().withInstant(Instant.CURATIVE).withContingency("outage-1").withUsageMethod(UsageMethod.AVAILABLE).add()
             .add();
 
         // one preventive network action and one curative
-        pNA = (NetworkAction) crac.newNetworkAction().withId("preventive-na")
+        pNA = crac.newNetworkAction().withId("preventive-na")
             .newOnInstantUsageRule().withInstant(Instant.PREVENTIVE).withUsageMethod(UsageMethod.AVAILABLE).add()
             .newTopologicalAction().withActionType(ActionType.OPEN).withNetworkElement("BBE2AA1  FFR3AA1  1").add()
             .add();
 
-        cNA = (NetworkAction) crac.newNetworkAction().withId("curative-na")
+        cNA = crac.newNetworkAction().withId("curative-na")
             .withName("complexNetworkActionName")
             .newTopologicalAction().withActionType(ActionType.OPEN).withNetworkElement("BBE2AA1  FFR3AA1  1").add()
             .newOnContingencyStateUsageRule().withInstant(Instant.CURATIVE).withContingency("outage-1").withUsageMethod(UsageMethod.AVAILABLE).add()
