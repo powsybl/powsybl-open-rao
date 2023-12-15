@@ -76,7 +76,7 @@ public interface Crac extends Identifiable<Crac> {
     /**
      * Gather all the instants present in the Crac. It returns a list of ordered instants
      */
-    List<Instant> getInstants();
+    List<Instant> getSortedInstants();
 
     /**
      * Get instant based on a kind. Throws exception:
@@ -95,6 +95,21 @@ public interface Crac extends Identifiable<Crac> {
      * Optional is empty if no previous instant is defined.
      */
     Instant getInstantBefore(Instant providedInstant);
+
+    /**
+     * Returns the unique preventive instant
+     */
+    Instant getPreventiveInstant();
+
+    /**
+     * Returns the unique outage instant
+     */
+    Instant getOutageInstant();
+
+    /**
+     * Returns whether a crac has an auto instant
+     */
+    boolean hasAutoInstant();
 
     // States management
 

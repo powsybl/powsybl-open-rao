@@ -36,9 +36,6 @@ public class InstantImpl extends AbstractIdentifiable<InstantImpl> implements In
         this.previous = previous;
         this.instantKind = instantKind;
         if (previous == null) {
-            if (instantKind != InstantKind.PREVENTIVE) {
-                throw new FaraoException("The first instant must be preventive");
-            }
             this.order = 0;
         } else {
             this.order = previous.getOrder() + 1;

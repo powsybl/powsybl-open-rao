@@ -11,7 +11,6 @@ import com.farao_community.farao.commons.Unit;
 import com.powsybl.glsk.commons.ZonalData;
 import com.farao_community.farao.data.crac_api.Contingency;
 import com.farao_community.farao.data.crac_api.Crac;
-import com.farao_community.farao.data.crac_api.InstantKind;
 import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.cnec.Side;
@@ -90,7 +89,7 @@ public class FlowbasedComputationImpl implements FlowbasedComputationProvider {
                 .withParameters(parameters.getSensitivityAnalysisParameters())
                 .withPtdfSensitivities(glsk, crac.getFlowCnecs(), Collections.singleton(Unit.MEGAWATT))
                 .withAppliedRemedialActions(appliedRemedialActions)
-                .withOutageInstant(crac.getInstant(InstantKind.OUTAGE))
+                .withOutageInstant(crac.getOutageInstant())
                 .build();
 
         // Preventive perimeter

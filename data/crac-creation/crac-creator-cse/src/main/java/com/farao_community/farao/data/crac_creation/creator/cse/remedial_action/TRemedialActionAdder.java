@@ -325,7 +325,7 @@ public class TRemedialActionAdder {
     private Instant getInstant(TApplication tApplication) {
         switch (tApplication.getV()) {
             case "PREVENTIVE":
-                return crac.getInstant(InstantKind.PREVENTIVE);
+                return crac.getPreventiveInstant();
             case "SPS":
                 return crac.getInstant(InstantKind.AUTO);
             case "CURATIVE":

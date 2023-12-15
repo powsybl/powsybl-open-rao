@@ -156,6 +156,12 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
             throw new FaraoException(format("Instant '%s' is already defined with other arguments", instantId));
         }
         InstantImpl instant = new InstantImpl(instantId, instantKind, lastInstantAdded);
+        if (instant.getOrder() == 0 && !instant.isPreventive()) {
+            throw new FaraoException("The first instant in the CRAC must be preventive");
+        }
+        if (instant.getOrder() == 1 && !instant.isOutage()) {
+            throw new FaraoException("The second instant in the CRAC must be an outage");
+        }
         lastInstantAdded = instant;
         instants.put(instantId, instant);
         return this;
@@ -170,7 +176,7 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
     }
 
     @Override
-    public List<Instant> getInstants() {
+    public List<Instant> getSortedInstants() {
         return instants.values().stream().sorted(Comparator.comparingInt(Instant::getOrder)).toList();
     }
 
@@ -204,6 +210,21 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
         throw new FaraoException("This should not happen thanks to the equality ckeck. " +
             "Method getInstantBefore might not have been defined as a package-private method " +
             "in the implementation of the Instant interface");
+    }
+
+    @Override
+    public Instant getPreventiveInstant() {
+        return getInstant(InstantKind.PREVENTIVE);
+    }
+
+    @Override
+    public Instant getOutageInstant() {
+        return getInstant(InstantKind.OUTAGE);
+    }
+
+    @Override
+    public boolean hasAutoInstant() {
+        return getInstants(InstantKind.AUTO).size() == 1;
     }
 
     private void checkCracContainsProvidedInstantId(Instant providedInstant) {
@@ -279,7 +300,7 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
         if (getPreventiveState() != null) {
             return getPreventiveState();
         } else {
-            State state = new PreventiveState(getInstant(InstantKind.PREVENTIVE));
+            State state = new PreventiveState(getPreventiveInstant());
             states.put(state.getId(), state);
             return state;
         }

@@ -26,7 +26,7 @@ public class AngleCnecCreator extends AbstractCnecCreator {
 
     public void addAngleCnecs() {
         if (inBaseCase) {
-            addAngleCnec(crac.getInstant(InstantKind.PREVENTIVE).getId(), null);
+            addAngleCnec(crac.getPreventiveInstant().getId(), null);
         }
         for (Contingency contingency : linkedContingencies) {
             addAngleCnec(crac.getInstant(InstantKind.CURATIVE).getId(), contingency);

@@ -57,12 +57,6 @@ class InstantImplTest {
     }
 
     @Test
-    void testFirstInstantHasToBePreventive() {
-        FaraoException exception = assertThrows(FaraoException.class, () -> new InstantImpl("instant", InstantKind.AUTO, null));
-        assertEquals("The first instant must be preventive", exception.getMessage());
-    }
-
-    @Test
     void testIsPreventive() {
         Instant instant = new InstantImpl("my instant", InstantKind.PREVENTIVE, null);
         assertTrue(instant.isPreventive());

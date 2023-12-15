@@ -117,7 +117,7 @@ public class MockCracCreationContext implements UcteCracCreationContext {
             Map<String, String> map = new HashMap<>();
             map.put(flowCnec.getState().getInstant().getId(), flowCnec.getId());
             if (!isBaseCase) {
-                crac.getInstants().stream()
+                crac.getSortedInstants().stream()
                     .filter(instant -> !instant.isPreventive())
                     .filter(instant -> instant != flowCnec.getState().getInstant())
                     .forEach(instant -> {

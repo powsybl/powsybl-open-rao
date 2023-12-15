@@ -371,13 +371,13 @@ public class RemedialActionSeriesCreator {
                                      Country sharedDomain) {
         Instant curativeInstant = crac.getInstant(InstantKind.CURATIVE);
         if (applicationModeMarketObjectStatus.equals(ApplicationModeMarketObjectStatus.PRA.getStatus())) {
-            addUsageRulesAtInstant(remedialActionAdder, contingencies, invalidContingencies, flowCnecs, angleCnec, sharedDomain, curativeInstant, crac.getInstant(InstantKind.PREVENTIVE));
+            addUsageRulesAtInstant(remedialActionAdder, contingencies, invalidContingencies, flowCnecs, angleCnec, sharedDomain, curativeInstant, crac.getPreventiveInstant());
         }
         if (applicationModeMarketObjectStatus.equals(ApplicationModeMarketObjectStatus.CRA.getStatus())) {
             addUsageRulesAtInstant(remedialActionAdder, contingencies, invalidContingencies, flowCnecs, angleCnec, sharedDomain, curativeInstant, crac.getInstant(InstantKind.CURATIVE));
         }
         if (applicationModeMarketObjectStatus.equals(ApplicationModeMarketObjectStatus.PRA_AND_CRA.getStatus())) {
-            addUsageRulesAtInstant(remedialActionAdder, null, null, flowCnecs, angleCnec, sharedDomain, curativeInstant, crac.getInstant(InstantKind.PREVENTIVE));
+            addUsageRulesAtInstant(remedialActionAdder, null, null, flowCnecs, angleCnec, sharedDomain, curativeInstant, crac.getPreventiveInstant());
             addUsageRulesAtInstant(remedialActionAdder, contingencies, invalidContingencies, flowCnecs, angleCnec, sharedDomain, curativeInstant, crac.getInstant(InstantKind.CURATIVE));
         }
         if (applicationModeMarketObjectStatus.equals(ApplicationModeMarketObjectStatus.AUTO.getStatus())) {

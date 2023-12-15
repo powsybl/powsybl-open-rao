@@ -136,7 +136,7 @@ class IteratingLinearOptimizerTest {
 
         Crac crac = Mockito.mock(Crac.class);
         when(input.getCrac()).thenReturn(crac);
-        when(crac.getInstant(InstantKind.OUTAGE)).thenReturn(outageInstant);
+        when(crac.getOutageInstant()).thenReturn(outageInstant);
     }
 
     @AfterEach

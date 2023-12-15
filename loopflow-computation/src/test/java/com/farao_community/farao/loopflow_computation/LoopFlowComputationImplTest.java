@@ -10,7 +10,6 @@ import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.powsybl.glsk.commons.ZonalData;
 import com.farao_community.farao.data.crac_api.Crac;
-import com.farao_community.farao.data.crac_api.InstantKind;
 import com.farao_community.farao.data.crac_loopflow_extension.LoopFlowThresholdImpl;
 import com.farao_community.farao.data.refprog.reference_program.ReferenceProgram;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityResult;
@@ -249,7 +248,7 @@ class LoopFlowComputationImplTest {
         Network network = ExampleGenerator.network();
         SensitivityAnalysisParameters sensitivityAnalysisParameters = new SensitivityAnalysisParameters();
         sensitivityAnalysisParameters.getLoadFlowParameters().setDc(true);
-        LoopFlowResult loopFlowResult = new LoopFlowComputationImpl(glsk, referenceProgram).calculateLoopFlows(network, "OpenLoadFlow", sensitivityAnalysisParameters, crac.getFlowCnecs(), crac.getInstant(InstantKind.OUTAGE));
+        LoopFlowResult loopFlowResult = new LoopFlowComputationImpl(glsk, referenceProgram).calculateLoopFlows(network, "OpenLoadFlow", sensitivityAnalysisParameters, crac.getFlowCnecs(), crac.getOutageInstant());
 
         assertEquals(-20., loopFlowResult.getLoopFlow(crac.getFlowCnec("FR-BE1"), Side.LEFT), DOUBLE_TOLERANCE);
         assertEquals(80., loopFlowResult.getLoopFlow(crac.getFlowCnec("BE1-BE2"), Side.LEFT), DOUBLE_TOLERANCE);

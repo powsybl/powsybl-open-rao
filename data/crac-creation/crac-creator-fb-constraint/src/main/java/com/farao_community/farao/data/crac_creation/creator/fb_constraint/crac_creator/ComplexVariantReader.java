@@ -168,7 +168,7 @@ class ComplexVariantReader {
 
         if (actionsSetType.isPreventive()) {
             remedialActionAdder.newOnInstantUsageRule()
-                    .withInstant(crac.getInstant(InstantKind.PREVENTIVE).getId())
+                    .withInstant(crac.getPreventiveInstant().getId())
                     .withUsageMethod(AVAILABLE)
                     .add();
         }

@@ -9,7 +9,6 @@ package com.farao_community.farao.search_tree_rao.search_tree.algorithms;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.commons.logs.FaraoLogger;
-import com.farao_community.farao.data.crac_api.InstantKind;
 import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.cnec.Side;
@@ -420,7 +419,7 @@ public class SearchTree {
             .withToolProvider(input.getToolProvider())
             .withCnecs(input.getOptimizationPerimeter().getFlowCnecs())
             .withRangeActions(input.getOptimizationPerimeter().getRangeActions())
-            .withOutageInstant(input.getCrac().getInstant(InstantKind.OUTAGE));
+            .withOutageInstant(input.getCrac().getOutageInstant());
 
         if (isRootLeaf) {
             sensitivityComputerBuilder.withAppliedRemedialActions(input.getPreOptimizationAppliedRemedialActions());

@@ -63,7 +63,7 @@ public class CracSerializer extends AbstractJsonSerializer<Crac> {
 
     private void serializeInstants(Crac crac, JsonGenerator gen) throws IOException {
         gen.writeArrayFieldStart(INSTANTS);
-        List<Instant> instants = crac.getInstants();
+        List<Instant> instants = crac.getSortedInstants();
         for (Instant instant: instants) {
             gen.writeObject(instant);
         }

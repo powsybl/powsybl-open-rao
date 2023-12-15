@@ -191,7 +191,7 @@ public class FlowCnecCreator extends AbstractCnecCreator {
             return null;
         }
         if (0 < acceptableDuration && acceptableDuration <= 60) {
-            return crac.getInstant(InstantKind.OUTAGE);
+            return crac.getOutageInstant();
         }
         if (60 < acceptableDuration && acceptableDuration <= 900) {
             return crac.getInstant(InstantKind.AUTO);
@@ -230,11 +230,11 @@ public class FlowCnecCreator extends AbstractCnecCreator {
             // If no PATL, we use the lowest TATL instead (as in PowSyBl).
             // Only happens when the AssessedElement is defined with an OperationalLimit
             if (hasPatl) {
-                addFlowCnec(networkElement, null, crac.getInstant(InstantKind.PREVENTIVE).getId(), patlThresholds, useMaxAndMinThresholds, false);
+                addFlowCnec(networkElement, null, crac.getPreventiveInstant().getId(), patlThresholds, useMaxAndMinThresholds, false);
             } else {
                 // No PATL thus the longest acceptable duration is strictly lower than Integer.MAX_VALUE
                 Optional<Integer> longestAcceptableDuration = thresholds.keySet().stream().max(Integer::compareTo);
-                longestAcceptableDuration.ifPresent(integer -> addFlowCnec(networkElement, null, crac.getInstant(InstantKind.PREVENTIVE).getId(), thresholds.get(integer), useMaxAndMinThresholds, true));
+                longestAcceptableDuration.ifPresent(integer -> addFlowCnec(networkElement, null, crac.getPreventiveInstant().getId(), thresholds.get(integer), useMaxAndMinThresholds, true));
             }
         }
 

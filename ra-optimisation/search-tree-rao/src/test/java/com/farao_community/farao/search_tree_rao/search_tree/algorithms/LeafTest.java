@@ -307,7 +307,7 @@ class LeafTest {
         when(searchTreeInput.getObjectiveFunction()).thenReturn(Mockito.mock(ObjectiveFunction.class));
         Instant outageInstant = Mockito.mock(Instant.class);
         Crac crac = mock(Crac.class);
-        when(crac.getInstant(InstantKind.OUTAGE)).thenReturn(outageInstant);
+        when(crac.getOutageInstant()).thenReturn(outageInstant);
         when(searchTreeInput.getCrac()).thenReturn(crac);
         SearchTreeParameters searchTreeParameters = Mockito.mock(SearchTreeParameters.class);
         when(searchTreeParameters.getObjectiveFunction()).thenReturn(Mockito.mock(ObjectiveFunctionParameters.ObjectiveFunctionType.class));
@@ -357,7 +357,7 @@ class LeafTest {
         when(searchTreeInput.getObjectiveFunction()).thenReturn(Mockito.mock(ObjectiveFunction.class));
         Instant outageInstant = Mockito.mock(Instant.class);
         Crac crac = mock(Crac.class);
-        when(crac.getInstant(InstantKind.OUTAGE)).thenReturn(outageInstant);
+        when(crac.getOutageInstant()).thenReturn(outageInstant);
         when(searchTreeInput.getCrac()).thenReturn(crac);
         SearchTreeParameters searchTreeParameters = Mockito.mock(SearchTreeParameters.class);
         when(searchTreeParameters.getObjectiveFunction()).thenReturn(Mockito.mock(ObjectiveFunctionParameters.ObjectiveFunctionType.class));
@@ -434,7 +434,7 @@ class LeafTest {
         when(searchTreeInput.getObjectiveFunction()).thenReturn(Mockito.mock(ObjectiveFunction.class));
         Instant outageInstant = Mockito.mock(Instant.class);
         Crac crac = mock(Crac.class);
-        when(crac.getInstant(InstantKind.OUTAGE)).thenReturn(outageInstant);
+        when(crac.getOutageInstant()).thenReturn(outageInstant);
         when(searchTreeInput.getCrac()).thenReturn(crac);
         SearchTreeParameters searchTreeParameters = Mockito.mock(SearchTreeParameters.class);
         when(searchTreeParameters.getObjectiveFunction()).thenReturn(Mockito.mock(ObjectiveFunctionParameters.ObjectiveFunctionType.class));
@@ -474,7 +474,7 @@ class LeafTest {
         when(searchTreeInput.getObjectiveFunction()).thenReturn(Mockito.mock(ObjectiveFunction.class));
         Instant outageInstant = Mockito.mock(Instant.class);
         Crac crac = mock(Crac.class);
-        when(crac.getInstant(InstantKind.OUTAGE)).thenReturn(outageInstant);
+        when(crac.getOutageInstant()).thenReturn(outageInstant);
         when(searchTreeInput.getCrac()).thenReturn(crac);
         SearchTreeParameters searchTreeParameters = Mockito.mock(SearchTreeParameters.class);
         when(searchTreeParameters.getObjectiveFunction()).thenReturn(Mockito.mock(ObjectiveFunctionParameters.ObjectiveFunctionType.class));
@@ -524,7 +524,7 @@ class LeafTest {
         when(searchTreeInput.getObjectiveFunction()).thenReturn(Mockito.mock(ObjectiveFunction.class));
         Instant outageInstant = Mockito.mock(Instant.class);
         Crac crac = mock(Crac.class);
-        when(crac.getInstant(InstantKind.OUTAGE)).thenReturn(outageInstant);
+        when(crac.getOutageInstant()).thenReturn(outageInstant);
         when(searchTreeInput.getCrac()).thenReturn(crac);
         SearchTreeParameters searchTreeParameters = Mockito.mock(SearchTreeParameters.class);
         when(searchTreeParameters.getObjectiveFunction()).thenReturn(Mockito.mock(ObjectiveFunctionParameters.ObjectiveFunctionType.class));
@@ -608,7 +608,7 @@ class LeafTest {
         when(searchTreeInput.getObjectiveFunction()).thenReturn(Mockito.mock(ObjectiveFunction.class));
         Instant outageInstant = Mockito.mock(Instant.class);
         Crac crac = mock(Crac.class);
-        when(crac.getInstant(InstantKind.OUTAGE)).thenReturn(outageInstant);
+        when(crac.getOutageInstant()).thenReturn(outageInstant);
         when(searchTreeInput.getCrac()).thenReturn(crac);
         SearchTreeParameters searchTreeParameters = Mockito.mock(SearchTreeParameters.class);
         when(searchTreeParameters.getObjectiveFunction()).thenReturn(Mockito.mock(ObjectiveFunctionParameters.ObjectiveFunctionType.class));
@@ -710,7 +710,7 @@ class LeafTest {
         when(searchTreeInput.getObjectiveFunction()).thenReturn(Mockito.mock(ObjectiveFunction.class));
         Instant outageInstant = Mockito.mock(Instant.class);
         Crac crac = mock(Crac.class);
-        when(crac.getInstant(InstantKind.OUTAGE)).thenReturn(outageInstant);
+        when(crac.getOutageInstant()).thenReturn(outageInstant);
         when(searchTreeInput.getCrac()).thenReturn(crac);
         SearchTreeParameters searchTreeParameters = Mockito.mock(SearchTreeParameters.class);
         when(searchTreeParameters.getObjectiveFunction()).thenReturn(Mockito.mock(ObjectiveFunctionParameters.ObjectiveFunctionType.class));
@@ -751,7 +751,7 @@ class LeafTest {
         when(searchTreeInput.getObjectiveFunction()).thenReturn(Mockito.mock(ObjectiveFunction.class));
         Instant outageInstant = Mockito.mock(Instant.class);
         Crac crac = mock(Crac.class);
-        when(crac.getInstant(InstantKind.OUTAGE)).thenReturn(outageInstant);
+        when(crac.getOutageInstant()).thenReturn(outageInstant);
         when(searchTreeInput.getCrac()).thenReturn(crac);
         SearchTreeParameters searchTreeParameters = Mockito.mock(SearchTreeParameters.class);
         when(searchTreeParameters.getObjectiveFunction()).thenReturn(Mockito.mock(ObjectiveFunctionParameters.ObjectiveFunctionType.class));
@@ -805,7 +805,7 @@ class LeafTest {
         when(searchTreeInput.getObjectiveFunction()).thenReturn(Mockito.mock(ObjectiveFunction.class));
         Instant outageInstant = Mockito.mock(Instant.class);
         Crac crac = mock(Crac.class);
-        when(crac.getInstant(InstantKind.OUTAGE)).thenReturn(outageInstant);
+        when(crac.getOutageInstant()).thenReturn(outageInstant);
         when(searchTreeInput.getCrac()).thenReturn(crac);
         SearchTreeParameters searchTreeParameters = Mockito.mock(SearchTreeParameters.class);
         when(searchTreeParameters.getObjectiveFunction()).thenReturn(Mockito.mock(ObjectiveFunctionParameters.ObjectiveFunctionType.class));
@@ -828,7 +828,7 @@ class LeafTest {
         when(searchTreeInput.getObjectiveFunction()).thenReturn(Mockito.mock(ObjectiveFunction.class));
         Instant outageInstant = Mockito.mock(Instant.class);
         Crac crac = mock(Crac.class);
-        when(crac.getInstant(InstantKind.OUTAGE)).thenReturn(outageInstant);
+        when(crac.getOutageInstant()).thenReturn(outageInstant);
         when(searchTreeInput.getCrac()).thenReturn(crac);
         SearchTreeParameters searchTreeParameters = Mockito.mock(SearchTreeParameters.class);
         when(searchTreeParameters.getObjectiveFunction()).thenReturn(Mockito.mock(ObjectiveFunctionParameters.ObjectiveFunctionType.class));
@@ -863,7 +863,7 @@ class LeafTest {
         when(searchTreeInput.getObjectiveFunction()).thenReturn(Mockito.mock(ObjectiveFunction.class));
         Instant outageInstant = Mockito.mock(Instant.class);
         Crac crac = mock(Crac.class);
-        when(crac.getInstant(InstantKind.OUTAGE)).thenReturn(outageInstant);
+        when(crac.getOutageInstant()).thenReturn(outageInstant);
         when(searchTreeInput.getCrac()).thenReturn(crac);
         SearchTreeParameters searchTreeParameters = Mockito.mock(SearchTreeParameters.class);
         when(searchTreeParameters.getObjectiveFunction()).thenReturn(Mockito.mock(ObjectiveFunctionParameters.ObjectiveFunctionType.class));

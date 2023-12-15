@@ -50,7 +50,7 @@ final class AngleCnecResultArraySerializer {
             jsonGenerator.writeStringField(ANGLECNEC_ID, angleCnec.getId());
 
             serializeAngleCnecResultForOptimizationState(null, angleCnec, raoResult, jsonGenerator);
-            serializeAngleCnecResultForOptimizationState(crac.getInstant(InstantKind.PREVENTIVE), angleCnec, raoResult, jsonGenerator);
+            serializeAngleCnecResultForOptimizationState(crac.getPreventiveInstant(), angleCnec, raoResult, jsonGenerator);
 
             if (!angleCnec.getState().isPreventive()) {
                 serializeAngleCnecResultForOptimizationState(crac.getInstant(InstantKind.AUTO), angleCnec, raoResult, jsonGenerator);
@@ -95,7 +95,7 @@ final class AngleCnecResultArraySerializer {
                 containsAnyResultForOptimizationState(raoResult, angleCnec, angleCnec.getState().getInstant());
         } else {
             return containsAnyResultForOptimizationState(raoResult, angleCnec, null) ||
-                containsAnyResultForOptimizationState(raoResult, angleCnec, crac.getInstant(InstantKind.PREVENTIVE)) ||
+                containsAnyResultForOptimizationState(raoResult, angleCnec, crac.getPreventiveInstant()) ||
                 containsAnyResultForOptimizationState(raoResult, angleCnec, crac.getInstant(InstantKind.AUTO)) ||
                 containsAnyResultForOptimizationState(raoResult, angleCnec, crac.getInstant(InstantKind.CURATIVE));
         }

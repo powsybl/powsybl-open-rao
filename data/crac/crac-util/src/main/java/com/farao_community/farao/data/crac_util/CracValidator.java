@@ -68,7 +68,7 @@ public final class CracValidator {
     }
 
     private static void duplicateCnecOnOutageInstant(Crac crac, FlowCnec cnec) {
-        Instant outageInstant = crac.getInstant(InstantKind.OUTAGE);
+        Instant outageInstant = crac.getOutageInstant();
         FlowCnecAdder adder = crac.newFlowCnec()
             .withId(cnec.getId() + " - OUTAGE DUPLICATE")
             .withNetworkElement(cnec.getNetworkElement().getId())

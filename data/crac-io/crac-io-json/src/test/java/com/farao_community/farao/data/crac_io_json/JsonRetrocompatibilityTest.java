@@ -260,7 +260,7 @@ class JsonRetrocompatibilityTest {
         assertEquals(2, crac.getHvdcRangeActions().size());
         assertEquals(1, crac.getInjectionRangeActions().size());
         assertEquals(1, crac.getCounterTradeRangeActions().size());
-        assertEquals(5, crac.getInstants().size());
+        assertEquals(5, crac.getSortedInstants().size());
         testContentOfV1Point10Crac(crac);
     }
 
@@ -622,7 +622,7 @@ class JsonRetrocompatibilityTest {
     private void testContentOfV1Point10Crac(Crac crac) {
         testContentOfV1Point9Crac(crac);
         // test instants are well-defined
-        List<Instant> instants = crac.getInstants();
+        List<Instant> instants = crac.getSortedInstants();
         assertEquals("preventive", instants.get(0).getId());
         assertEquals(InstantKind.PREVENTIVE, instants.get(0).getKind());
         assertEquals(0, instants.get(0).getOrder());

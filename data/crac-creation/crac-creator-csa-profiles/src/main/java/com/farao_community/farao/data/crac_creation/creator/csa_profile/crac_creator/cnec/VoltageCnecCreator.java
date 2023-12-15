@@ -25,7 +25,7 @@ public class VoltageCnecCreator extends AbstractCnecCreator {
 
     public void addVoltageCnecs() {
         if (inBaseCase) {
-            addVoltageCnec(crac.getInstant(InstantKind.PREVENTIVE).getId(), null);
+            addVoltageCnec(crac.getPreventiveInstant().getId(), null);
         }
         for (Contingency contingency : linkedContingencies) {
             addVoltageCnec(crac.getInstant(InstantKind.CURATIVE).getId(), contingency);

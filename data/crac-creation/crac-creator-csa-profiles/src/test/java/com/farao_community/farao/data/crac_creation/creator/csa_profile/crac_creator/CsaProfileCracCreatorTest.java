@@ -10,6 +10,7 @@ package com.farao_community.farao.data.crac_creation.creator.csa_profile.crac_cr
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Contingency;
 import com.farao_community.farao.data.crac_api.Crac;
+import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.cnec.AngleCnec;
 import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
@@ -190,6 +191,8 @@ class CsaProfileCracCreatorTest {
 
         CsaProfileCracCreationContext cracCreationContext = getCsaCracCreationContext("/CSA_36_3_CustomExample.zip", network, OffsetDateTime.parse("2023-01-01T21:30Z"));
         assertNotNull(cracCreationContext);
+        Instant preventiveInstant = cracCreationContext.getCrac().getInstant("preventive");
+        Instant curativeInstant = cracCreationContext.getCrac().getInstant("curative");
 
         assertEquals(1, cracCreationContext.getCrac().getContingencies().size());
         List<Contingency> listContingencies = cracCreationContext.getCrac().getContingencies()
@@ -204,7 +207,7 @@ class CsaProfileCracCreatorTest {
             "RTE_AE1 (d0c771ba-523a-480a-96b3-29fa358536df) - preventive",
             "1fee928b-5093-4c24-9042-940a9ba3d229",
             "6b1d5995-bb88-4e04-b7d8-c292431003dc",
-            PREVENTIVE,
+            preventiveInstant,
             null,
             100.,
             -100.,
@@ -214,7 +217,7 @@ class CsaProfileCracCreatorTest {
             "RTE_AE1 (d0c771ba-523a-480a-96b3-29fa358536df) - RTE_CO1 - curative",
             "1fee928b-5093-4c24-9042-940a9ba3d229",
             "6b1d5995-bb88-4e04-b7d8-c292431003dc",
-            CURATIVE,
+            curativeInstant,
             "e39724a0-853e-498d-96b9-4c9fe15aea3c",
             100.,
             -100.,
@@ -224,7 +227,7 @@ class CsaProfileCracCreatorTest {
             "RTE_AE2 (698091e7-8661-4f75-acc3-419164d9c4ed) - preventive",
             "6b1d5995-bb88-4e04-b7d8-c292431003dc",
             "1fee928b-5093-4c24-9042-940a9ba3d229",
-            PREVENTIVE,
+            preventiveInstant,
             null,
             75.,
             null,
@@ -261,6 +264,7 @@ class CsaProfileCracCreatorTest {
 
         CsaProfileCracCreationContext cracCreationContext = getCsaCracCreationContext("/CSA_36_3_CustomExample.zip", network, OffsetDateTime.parse("2023-01-01T22:30Z"));
         assertNotNull(cracCreationContext);
+        Instant preventiveInstant = cracCreationContext.getCrac().getInstant("preventive");
 
         assertEquals(1, cracCreationContext.getCrac().getContingencies().size());
         List<Contingency> listContingencies = cracCreationContext.getCrac().getContingencies()
@@ -275,7 +279,7 @@ class CsaProfileCracCreatorTest {
             "RTE_AE1 (d0c771ba-523a-480a-96b3-29fa358536df) - preventive",
             "1fee928b-5093-4c24-9042-940a9ba3d229",
             "6b1d5995-bb88-4e04-b7d8-c292431003dc",
-            PREVENTIVE,
+            preventiveInstant,
             null,
             100.,
             -100.,

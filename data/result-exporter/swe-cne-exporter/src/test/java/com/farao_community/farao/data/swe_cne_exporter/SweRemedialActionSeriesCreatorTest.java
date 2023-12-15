@@ -53,7 +53,7 @@ class SweRemedialActionSeriesCreatorTest {
         Mockito.when(crac.getInstant(PREVENTIVE_INSTANT_ID)).thenReturn(preventiveInstant);
         Mockito.when(crac.getInstant(AUTO_INSTANT_ID)).thenReturn(autoInstant);
         Mockito.when(crac.getInstant(CURATIVE_INSTANT_ID)).thenReturn(curativeInstant);
-        Mockito.when(crac.getInstant(InstantKind.PREVENTIVE)).thenReturn(preventiveInstant);
+        Mockito.when(crac.getPreventiveInstant()).thenReturn(preventiveInstant);
         Mockito.when(crac.getInstant(InstantKind.AUTO)).thenReturn(autoInstant);
         Mockito.when(crac.getInstant(InstantKind.CURATIVE)).thenReturn(curativeInstant);
     }

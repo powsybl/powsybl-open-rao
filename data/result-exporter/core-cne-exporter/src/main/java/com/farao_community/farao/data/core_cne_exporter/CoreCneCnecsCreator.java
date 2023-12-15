@@ -69,10 +69,10 @@ public final class CoreCneCnecsCreator {
         String outageBranchCnecId;
         String curativeBranchCnecId;
         if (branchCnecCreationContext.isBaseCase()) {
-            outageBranchCnecId = branchCnecCreationContext.getCreatedCnecsIds().get(cneHelper.getCrac().getInstant(InstantKind.PREVENTIVE).getId());
+            outageBranchCnecId = branchCnecCreationContext.getCreatedCnecsIds().get(cneHelper.getCrac().getPreventiveInstant().getId());
             curativeBranchCnecId = outageBranchCnecId;
         } else {
-            outageBranchCnecId = branchCnecCreationContext.getCreatedCnecsIds().get(cneHelper.getCrac().getInstant(InstantKind.OUTAGE).getId());
+            outageBranchCnecId = branchCnecCreationContext.getCreatedCnecsIds().get(cneHelper.getCrac().getOutageInstant().getId());
             curativeBranchCnecId = branchCnecCreationContext.getCreatedCnecsIds().get(cneHelper.getCrac().getInstant(InstantKind.CURATIVE).getId());
         }
 
@@ -167,8 +167,8 @@ public final class CoreCneCnecsCreator {
 
     private List<Analog> createB57MeasurementsOfCnec(FlowCnec cnec, boolean asMnec, boolean shouldInvertBranchDirection) {
         List<Analog> measurements = new ArrayList<>();
-        measurements.addAll(createFlowMeasurementsOfFlowCnec(cnec, cracCreationContext.getCrac().getInstant(InstantKind.PREVENTIVE), true, shouldInvertBranchDirection)); // TODO : replace true with !asMnec when we go back to proper implementation
-        measurements.addAll(createMarginMeasurementsOfFlowCnec(cnec, cracCreationContext.getCrac().getInstant(InstantKind.PREVENTIVE), asMnec, true, shouldInvertBranchDirection));
+        measurements.addAll(createFlowMeasurementsOfFlowCnec(cnec, cracCreationContext.getCrac().getPreventiveInstant(), true, shouldInvertBranchDirection)); // TODO : replace true with !asMnec when we go back to proper implementation
+        measurements.addAll(createMarginMeasurementsOfFlowCnec(cnec, cracCreationContext.getCrac().getPreventiveInstant(), asMnec, true, shouldInvertBranchDirection));
         measurements.sort(new AnalogComparator());
         return measurements;
     }
@@ -220,7 +220,7 @@ public final class CoreCneCnecsCreator {
     private double getCnecFlow(FlowCnec cnec, Side side, Instant optimizedInstant) {
         Instant resultState = optimizedInstant;
         if (resultState != null && resultState.isCurative() && cnec.getState().getInstant().isPreventive()) {
-            resultState = cracCreationContext.getCrac().getInstant(InstantKind.PREVENTIVE);
+            resultState = cracCreationContext.getCrac().getPreventiveInstant();
         }
         return cneHelper.getRaoResult().getFlow(resultState, cnec, side, Unit.MEGAWATT);
     }
@@ -228,7 +228,7 @@ public final class CoreCneCnecsCreator {
     private double getCnecMargin(FlowCnec cnec, Instant optimizedInstant, boolean asMnec, Unit unit, boolean deductFrmFromThreshold) {
         Instant resultState = optimizedInstant;
         if (resultState != null && resultState.isCurative() && cnec.getState().getInstant().isPreventive()) {
-            resultState = cracCreationContext.getCrac().getInstant(InstantKind.PREVENTIVE);
+            resultState = cracCreationContext.getCrac().getPreventiveInstant();
         }
         return getThresholdToMarginMap(cnec, resultState, asMnec, unit, deductFrmFromThreshold).values().stream().min(Double::compareTo).orElseThrow();
     }
@@ -237,7 +237,7 @@ public final class CoreCneCnecsCreator {
         double absoluteMargin = getCnecMargin(cnec, optimizedInstant, asMnec, unit, true);
         Instant resultState = optimizedInstant;
         if (resultState != null && resultState.isCurative() && cnec.getState().getInstant().isPreventive()) {
-            resultState = cracCreationContext.getCrac().getInstant(InstantKind.PREVENTIVE);
+            resultState = cracCreationContext.getCrac().getPreventiveInstant();
         }
         return absoluteMargin > 0 ? absoluteMargin / cneHelper.getRaoResult().getPtdfZonalSum(resultState, cnec, getMonitoredSide(cnec)) : absoluteMargin;
     }
@@ -342,7 +342,7 @@ public final class CoreCneCnecsCreator {
     private List<Analog> createLoopflowMeasurements(FlowCnec cnec, Instant optimizedInstant, boolean shouldInvertBranchDirection) {
         Instant resultOptimState = optimizedInstant;
         if (resultOptimState != null && optimizedInstant.isCurative() && cnec.getState().isPreventive()) {
-            resultOptimState = cracCreationContext.getCrac().getInstant(InstantKind.PREVENTIVE);
+            resultOptimState = cracCreationContext.getCrac().getPreventiveInstant();
         }
         List<Analog> measurements = new ArrayList<>();
         try {

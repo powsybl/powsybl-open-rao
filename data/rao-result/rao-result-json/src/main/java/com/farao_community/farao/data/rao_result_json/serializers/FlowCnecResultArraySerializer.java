@@ -55,10 +55,12 @@ final class FlowCnecResultArraySerializer {
         jsonGenerator.writeStringField(FLOWCNEC_ID, flowCnec.getId());
 
         serializeFlowCnecResultForOptimizationState(null, flowCnec, raoResult, crac, flowUnits, jsonGenerator);
-        serializeFlowCnecResultForOptimizationState(crac.getInstant(InstantKind.PREVENTIVE), flowCnec, raoResult, crac, flowUnits, jsonGenerator);
+        serializeFlowCnecResultForOptimizationState(crac.getPreventiveInstant(), flowCnec, raoResult, crac, flowUnits, jsonGenerator);
         Instant instant = flowCnec.getState().getInstant();
         if (instant.isCurative() || instant.isAuto()) {
-            serializeFlowCnecResultForOptimizationState(crac.getInstant(InstantKind.AUTO), flowCnec, raoResult, crac, flowUnits, jsonGenerator);
+            if (crac.hasAutoInstant()) {
+                serializeFlowCnecResultForOptimizationState(crac.getInstant(InstantKind.AUTO), flowCnec, raoResult, crac, flowUnits, jsonGenerator);
+            }
             serializeFlowCnecResultForOptimizationState(crac.getInstant(InstantKind.CURATIVE), flowCnec, raoResult, crac, flowUnits, jsonGenerator);
         }
         jsonGenerator.writeEndObject();
@@ -134,7 +136,7 @@ final class FlowCnecResultArraySerializer {
                 containsAnyResultForOptimizationState(raoResult, flowCnec, flowCnec.getState().getInstant(), unit);
         } else {
             return containsAnyResultForOptimizationState(raoResult, flowCnec, null, unit) ||
-                containsAnyResultForOptimizationState(raoResult, flowCnec, crac.getInstant(InstantKind.PREVENTIVE), unit) ||
+                containsAnyResultForOptimizationState(raoResult, flowCnec, crac.getPreventiveInstant(), unit) ||
                 containsAnyResultForOptimizationState(raoResult, flowCnec, crac.getInstant(InstantKind.AUTO), unit) ||
                 containsAnyResultForOptimizationState(raoResult, flowCnec, crac.getInstant(InstantKind.CURATIVE), unit);
         }

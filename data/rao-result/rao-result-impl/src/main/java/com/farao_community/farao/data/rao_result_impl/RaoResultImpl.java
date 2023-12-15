@@ -80,7 +80,7 @@ public class RaoResultImpl implements RaoResult {
             instant = flowCnec.getState().getInstant();
         }
         if (instant.isOutage()) {
-            instant = crac.getInstant(InstantKind.PREVENTIVE);
+            instant = crac.getPreventiveInstant();
         }
         return instant;
     }

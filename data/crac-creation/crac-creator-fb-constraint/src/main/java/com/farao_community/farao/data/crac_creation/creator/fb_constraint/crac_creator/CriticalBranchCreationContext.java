@@ -92,11 +92,11 @@ public class CriticalBranchCreationContext implements BranchCnecCreationContext 
 
         if (criticalBranchReader.isCriticialBranchValid() && criticalBranchReader.isBaseCase()) {
             this.isDirectionInverted = criticalBranchReader.isInvertedInNetwork();
-            this.createdCnecIds.put(crac.getInstant(InstantKind.PREVENTIVE).getId(), criticalBranchReader.getBaseCaseCnecId());
+            this.createdCnecIds.put(crac.getPreventiveInstant().getId(), criticalBranchReader.getBaseCaseCnecId());
             this.contingencyId = null;
         } else if (criticalBranchReader.isCriticialBranchValid() && !criticalBranchReader.isBaseCase()) {
             this.isDirectionInverted = criticalBranchReader.isInvertedInNetwork();
-            this.createdCnecIds.put(crac.getInstant(InstantKind.OUTAGE).getId(), criticalBranchReader.getOutageCnecId());
+            this.createdCnecIds.put(crac.getOutageInstant().getId(), criticalBranchReader.getOutageCnecId());
             this.createdCnecIds.put(crac.getInstant(InstantKind.CURATIVE).getId(), criticalBranchReader.getCurativeCnecId());
             this.contingencyId = criticalBranchReader.getOutageReader().getOutage().getId();
         } else {

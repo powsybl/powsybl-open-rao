@@ -917,15 +917,15 @@ class CracImplTest {
 
     @Test
     void testGetInstantByKindWithOneInstantPerInstantKind() {
-        assertEquals(preventiveInstant, crac.getInstant(InstantKind.PREVENTIVE));
-        assertEquals(outageInstant, crac.getInstant(InstantKind.OUTAGE));
+        assertEquals(preventiveInstant, crac.getPreventiveInstant());
+        assertEquals(outageInstant, crac.getOutageInstant());
         assertEquals(autoInstant, crac.getInstant(InstantKind.AUTO));
         assertEquals(curativeInstant, crac.getInstant(InstantKind.CURATIVE));
     }
 
     @Test
     void testGetInstants() {
-        assertEquals(List.of(preventiveInstant, outageInstant, autoInstant, curativeInstant), crac.getInstants());
+        assertEquals(List.of(preventiveInstant, outageInstant, autoInstant, curativeInstant), crac.getSortedInstants());
     }
 
     @Test
@@ -981,5 +981,28 @@ class CracImplTest {
         Instant anotherInstantNotDefinedInTheCrac = new InstantImpl(OUTAGE_INSTANT_ID, InstantKind.PREVENTIVE, preventiveInstant);
         exception = assertThrows(FaraoException.class, () -> crac.getInstantBefore(anotherInstantNotDefinedInTheCrac));
         assertEquals("Provided instant {id:'outage', kind:'PREVENTIVE', order:1} is not the same {id: 'outage', kind:'OUTAGE', order:1} in the CRAC", exception.getMessage());
+    }
+
+    @Test
+    void testFirstInstantHasToBePreventive() {
+        CracImpl cracThatFails = new CracImpl("test-crac");
+        FaraoException exception = assertThrows(FaraoException.class, () -> cracThatFails.newInstant("instant", InstantKind.AUTO));
+        assertEquals("The first instant in the CRAC must be preventive", exception.getMessage());
+
+        cracThatFails.newInstant("titi", InstantKind.PREVENTIVE);
+        exception = assertThrows(FaraoException.class, () -> cracThatFails.newInstant("instant", InstantKind.CURATIVE));
+        assertEquals("The second instant in the CRAC must be an outage", exception.getMessage());
+    }
+
+    @Test
+    void testGetUniqueInstants() {
+        assertEquals(preventiveInstant, crac.getPreventiveInstant());
+        assertEquals(outageInstant, crac.getOutageInstant());
+    }
+
+    @Test
+    void testCracHasAutoInstant() {
+        assertTrue(crac.hasAutoInstant());
+        assertFalse(new CracImpl("test-crac").hasAutoInstant());
     }
 }

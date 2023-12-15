@@ -10,7 +10,6 @@ package com.farao_community.farao.sensitivity_analysis;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.Instant;
-import com.farao_community.farao.data.crac_api.InstantKind;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_impl.utils.CommonCracCreation;
@@ -158,7 +157,7 @@ class SystematicSensitivityInterfaceTest {
 
     @Test
     void testCannotUseANonOutageInstantInSystematicInterfaceBuilder() {
-        FaraoException exception = assertThrows(FaraoException.class, () -> SystematicSensitivityInterface.builder().withOutageInstant(crac.getInstant(InstantKind.PREVENTIVE)));
+        FaraoException exception = assertThrows(FaraoException.class, () -> SystematicSensitivityInterface.builder().withOutageInstant(crac.getPreventiveInstant()));
         assertEquals("Instant provided in the systematic sensitivity builder has to be an outage", exception.getMessage());
     }
 }
