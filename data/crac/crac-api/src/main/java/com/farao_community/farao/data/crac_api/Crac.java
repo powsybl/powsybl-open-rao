@@ -406,7 +406,7 @@ public interface Crac extends Identifiable<Crac> {
     /**
      * Gather all the network actions of a specified state that are potentially available
      */
-    Set<RangeAction<?>>  getPotentiallyAvailableRangeActions(State state);
+    Set<RangeAction<?>> getPotentiallyAvailableRangeActions(State state);
 
     /**
      * Find a range action by its id, returns null if the range action does not exists

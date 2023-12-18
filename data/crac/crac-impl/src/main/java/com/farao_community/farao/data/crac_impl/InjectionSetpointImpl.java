@@ -47,14 +47,14 @@ public final class InjectionSetpointImpl implements InjectionSetpoint {
     @Override
     public boolean hasImpactOnNetwork(Network network) {
         Identifiable<?> identifiable = network.getIdentifiable(networkElement.getId());
-        if (identifiable instanceof Generator) {
-            return Math.abs(((Generator) identifiable).getTargetP() - setpoint) >= EPSILON;
-        } else if (identifiable instanceof Load) {
-            return Math.abs(((Load) identifiable).getP0() - setpoint) >= EPSILON;
-        } else if (identifiable instanceof DanglingLine) {
-            return Math.abs(((DanglingLine) identifiable).getP0() - setpoint) >= EPSILON;
-        } else if (identifiable instanceof ShuntCompensator) {
-            return Math.abs(((ShuntCompensator) identifiable).getSectionCount() - setpoint) >= EPSILON;
+        if (identifiable instanceof Generator generator) {
+            return Math.abs(generator.getTargetP() - setpoint) >= EPSILON;
+        } else if (identifiable instanceof Load load) {
+            return Math.abs(load.getP0() - setpoint) >= EPSILON;
+        } else if (identifiable instanceof DanglingLine danglingLine) {
+            return Math.abs(danglingLine.getP0() - setpoint) >= EPSILON;
+        } else if (identifiable instanceof ShuntCompensator shuntCompensator) {
+            return Math.abs(shuntCompensator.getSectionCount() - setpoint) >= EPSILON;
         } else {
             throw new NotImplementedException("Injection setpoint only handled for generators, loads, dangling lines or shunt compensator");
         }
@@ -73,17 +73,13 @@ public final class InjectionSetpointImpl implements InjectionSetpoint {
     @Override
     public void apply(Network network) {
         Identifiable<?> identifiable = network.getIdentifiable(networkElement.getId());
-        if (identifiable instanceof Generator) {
-            Generator generator = (Generator) identifiable;
+        if (identifiable instanceof Generator generator) {
             generator.setTargetP(setpoint);
-        } else if (identifiable instanceof Load) {
-            Load load = (Load) identifiable;
+        } else if (identifiable instanceof Load load) {
             load.setP0(setpoint);
-        } else if (identifiable instanceof DanglingLine) {
-            DanglingLine danglingLine = (DanglingLine) identifiable;
+        } else if (identifiable instanceof DanglingLine danglingLine) {
             danglingLine.setP0(setpoint);
-        } else if (identifiable instanceof ShuntCompensator) {
-            ShuntCompensator shuntCompensator = (ShuntCompensator) identifiable;
+        } else if (identifiable instanceof ShuntCompensator shuntCompensator) {;
             shuntCompensator.setSectionCount((int) setpoint);
         } else {
             throw new NotImplementedException("Injection setpoint only handled for generators, loads, dangling lines or shunt compensators");
@@ -108,7 +104,7 @@ public final class InjectionSetpointImpl implements InjectionSetpoint {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        InjectionSetpointImpl oInjectionSetPoint =  (InjectionSetpointImpl) o;
+        InjectionSetpointImpl oInjectionSetPoint = (InjectionSetpointImpl) o;
         return oInjectionSetPoint.getNetworkElement().equals(this.networkElement)
             && oInjectionSetPoint.getSetpoint() == this.setpoint;
     }

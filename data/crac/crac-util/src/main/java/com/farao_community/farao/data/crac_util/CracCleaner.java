@@ -63,7 +63,7 @@ public class CracCleaner {
 
         // remove RangeAction whose NetworkElement is absent from the network
         ArrayList<RangeAction<?>> absentFromNetworkRangeActions = new ArrayList<>();
-        for (RangeAction<?> rangeAction: crac.getRangeActions()) {
+        for (RangeAction<?> rangeAction : crac.getRangeActions()) {
             rangeAction.getNetworkElements().forEach(networkElement -> {
                 if (network.getIdentifiable(networkElement.getId()) == null) {
                     absentFromNetworkRangeActions.add(rangeAction);
@@ -75,7 +75,7 @@ public class CracCleaner {
 
         // remove NetworkAction whose NetworkElement is absent from the network
         ArrayList<NetworkAction> absentFromNetworkNetworkActions = new ArrayList<>();
-        for (NetworkAction networkAction: crac.getNetworkActions()) {
+        for (NetworkAction networkAction : crac.getNetworkActions()) {
             networkAction.getNetworkElements().forEach(networkElement -> {
                 if (network.getIdentifiable(networkElement.getId()) == null) {
                     absentFromNetworkNetworkActions.add(networkAction);
@@ -157,10 +157,10 @@ public class CracCleaner {
     private static void cleanUsageRules(RemedialAction<?> remedialAction, Set<State> removedStates, List<String> report) {
         Set<UsageRule> removedUr = new HashSet<>();
         remedialAction.getUsageRules().forEach(usageRule -> {
-            if (usageRule instanceof OnContingencyState && removedStates.contains(((OnContingencyState) usageRule).getState())) {
+            if (usageRule instanceof OnContingencyState onContingencyState && removedStates.contains(onContingencyState.getState())) {
                 report.add(String.format("[REMOVED] OnContingencyState usage rule of RA %s is removed because its associated Contingency [%s] has been removed",
                     remedialAction.getId(),
-                    ((OnContingencyState) usageRule).getState().getContingency().get().getId()));
+                    onContingencyState.getState().getContingency().get().getId()));
                 removedUr.add(usageRule);
             }
         });

@@ -32,7 +32,7 @@ public class ContingencySerializer extends AbstractJsonSerializer<Contingency> {
         }
 
         gen.writeArrayFieldStart(NETWORK_ELEMENTS_IDS);
-        for (NetworkElement networkElement: value.getNetworkElements()) {
+        for (NetworkElement networkElement : value.getNetworkElements()) {
             gen.writeString(networkElement.getId());
         }
         gen.writeEndArray();

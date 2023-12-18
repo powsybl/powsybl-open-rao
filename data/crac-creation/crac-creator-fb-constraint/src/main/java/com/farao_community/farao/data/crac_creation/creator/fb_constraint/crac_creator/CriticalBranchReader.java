@@ -261,13 +261,13 @@ class CriticalBranchReader {
     }
 
     private void addLimitsGivenDirection(double positiveLimit, BranchThresholdAdder branchThresholdAdder) {
-        if ((DIRECT.contains(criticalBranch.getDirection()) && !ucteFlowElementHelper.isInvertedInNetwork())
-            || (OPPOSITE.contains(criticalBranch.getDirection()) && ucteFlowElementHelper.isInvertedInNetwork())) {
+        if (DIRECT.contains(criticalBranch.getDirection()) && !ucteFlowElementHelper.isInvertedInNetwork()
+            || OPPOSITE.contains(criticalBranch.getDirection()) && ucteFlowElementHelper.isInvertedInNetwork()) {
             branchThresholdAdder.withMax(positiveLimit);
         }
 
-        if ((DIRECT.contains(criticalBranch.getDirection()) && ucteFlowElementHelper.isInvertedInNetwork())
-            || (OPPOSITE.contains(criticalBranch.getDirection()) && !ucteFlowElementHelper.isInvertedInNetwork())) {
+        if (DIRECT.contains(criticalBranch.getDirection()) && ucteFlowElementHelper.isInvertedInNetwork()
+            || OPPOSITE.contains(criticalBranch.getDirection()) && !ucteFlowElementHelper.isInvertedInNetwork()) {
             branchThresholdAdder.withMin(-positiveLimit);
         }
     }

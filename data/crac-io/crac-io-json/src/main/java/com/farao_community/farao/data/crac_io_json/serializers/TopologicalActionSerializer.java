@@ -18,7 +18,7 @@ import static com.farao_community.farao.data.crac_io_json.JsonSerializationConst
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
-public class TopologicalActionSerializer extends AbstractJsonSerializer<TopologicalAction>  {
+public class TopologicalActionSerializer extends AbstractJsonSerializer<TopologicalAction> {
     @Override
     public void serialize(TopologicalAction value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
         gen.writeStartObject();

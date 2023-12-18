@@ -125,7 +125,7 @@ public class AppliedRemedialActions {
     }
 
     public AppliedRemedialActions copyCurative() {
-        Map<State, AppliedRemedialActionsPerState> curativeMap =  appliedRa.entrySet().stream().filter(entry -> entry.getKey().getInstant().isCurative())
+        Map<State, AppliedRemedialActionsPerState> curativeMap = appliedRa.entrySet().stream().filter(entry -> entry.getKey().getInstant().isCurative())
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
         AppliedRemedialActions ara = new AppliedRemedialActions();
         curativeMap.forEach((state, appliedRaOnState) -> {

@@ -153,8 +153,8 @@ public class PstRangeActionAdderImpl extends AbstractRemedialActionAdder<PstRang
             if (!tapToAngleConversionMap.containsKey(tap)) {
                 throw new FaraoException(String.format("TapToAngleConversionMap of PST %s should contain all the consecutive taps between %d and %d", id, minTap, maxTap));
             }
-            if ((!isInverted && tapToAngleConversionMap.get(tap) < previousTapAngle)
-                || (isInverted && tapToAngleConversionMap.get(tap) > previousTapAngle)) {
+            if (!isInverted && tapToAngleConversionMap.get(tap) < previousTapAngle
+                || isInverted && tapToAngleConversionMap.get(tap) > previousTapAngle) {
                 throw new FaraoException(String.format("TapToAngleConversionMap of PST %s should be increasing or decreasing", id));
             }
             previousTapAngle = tapToAngleConversionMap.get(tap);

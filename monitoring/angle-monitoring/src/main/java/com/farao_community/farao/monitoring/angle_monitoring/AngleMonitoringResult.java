@@ -54,7 +54,7 @@ public class AngleMonitoringResult {
             return angleCnec.getState();
         }
 
-        public String getId()  {
+        public String getId() {
             return angleCnec.getId();
         }
 

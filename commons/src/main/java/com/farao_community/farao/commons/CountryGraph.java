@@ -74,8 +74,8 @@ public class CountryGraph {
         }
 
         for (CountryBoundary boundary : boundaries) {
-            if ((boundary.getCountryLeft().equals(country1) && areNeighbors(boundary.getCountryRight(), country2, maxNumberOfBoundaries - 1))
-                || (boundary.getCountryRight().equals(country1) && areNeighbors(boundary.getCountryLeft(), country2, maxNumberOfBoundaries - 1))) {
+            if (boundary.getCountryLeft().equals(country1) && areNeighbors(boundary.getCountryRight(), country2, maxNumberOfBoundaries - 1)
+                || boundary.getCountryRight().equals(country1) && areNeighbors(boundary.getCountryLeft(), country2, maxNumberOfBoundaries - 1)) {
                 return true;
             }
         }

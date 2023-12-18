@@ -4,7 +4,13 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.farao-community.farao</groupId>
+    <parent>
+        <groupId>com.powsybl</groupId>
+        <artifactId>powsybl-parent</artifactId>
+        <version>13</version>
+        <relativePath/>
+    </parent>
+
     <artifactId>farao-core</artifactId>
     <version>4.7.0-SNAPSHOT</version>
     <packaging>pom</packaging>
@@ -95,7 +101,6 @@
         <logback.version>1.2.3</logback.version>
         <lombok.version>1.18.28</lombok.version>
         <maven.buildnumber.version>1.4</maven.buildnumber.version>
-        <maven.checkstyle.version>3.1.1</maven.checkstyle.version>
         <maven.compiler.version>3.8.1</maven.compiler.version>
         <maven.dependency.version>3.2.0</maven.dependency.version>
         <maven.deploy.version>2.8.2</maven.deploy.version>
@@ -116,99 +121,8 @@
     </properties>
 
     <build>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>${maven.compiler.version}</version>
-                <configuration>
-                    <release>${java.version}</release>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-dependency-plugin</artifactId>
-                <version>${maven.dependency.version}</version>
-                <executions>
-                    <execution>
-                        <id>analyze</id>
-                        <phase>generate-sources</phase>
-                        <goals>
-                            <goal>analyze-report</goal>
-                            <goal>analyze-dep-mgt</goal>
-                            <goal>analyze-duplicate</goal>
-                        </goals>
-                        <configuration>
-                            <ignoreNonCompile>true</ignoreNonCompile>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-        </plugins>
         <pluginManagement>
             <plugins>
-                <plugin>
-                    <groupId>com.powsybl</groupId>
-                    <artifactId>powsybl-itools-packager-maven-plugin</artifactId>
-                    <version>${powsybl.core.version}</version>
-                </plugin>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-deploy-plugin</artifactId>
-                    <version>${maven.deploy.version}</version>
-                </plugin>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-jar-plugin</artifactId>
-                    <version>${maven.jar.version}</version>
-                </plugin>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-javadoc-plugin</artifactId>
-                    <version>${maven.javadoc.version}</version>
-                    <configuration>
-                        <source>${maven.compiler.source}</source>
-                        <detectJavaApiLink>false</detectJavaApiLink>
-                        <tags>
-                            <tag>
-                                <name>TODO</name>
-                                <placement>a</placement>
-                                <head>To do:</head>
-                            </tag>
-                        </tags>
-                        <excludePackageNames>xsd.*:eu.entsoe.*</excludePackageNames>
-                    </configuration>
-                </plugin>
-                <plugin>
-                    <groupId>org.codehaus.mojo</groupId>
-                    <artifactId>buildnumber-maven-plugin</artifactId>
-                    <version>${maven.buildnumber.version}</version>
-                    <executions>
-                        <execution>
-                            <phase>validate</phase>
-                            <goals>
-                                <goal>create</goal>
-                            </goals>
-                        </execution>
-                    </executions>
-                    <configuration>
-                        <doCheck>false</doCheck>
-                        <doUpdate>false</doUpdate>
-                    </configuration>
-                </plugin>
-                <plugin>
-                    <groupId>org.codehaus.mojo</groupId>
-                    <artifactId>templating-maven-plugin</artifactId>
-                    <version>${maven.templating.version}</version>
-                    <executions>
-                        <execution>
-                            <id>filter-src</id>
-                            <goals>
-                                <goal>filter-sources</goal>
-                            </goals>
-                        </execution>
-                    </executions>
-                </plugin>
                 <plugin>
                     <groupId>org.jvnet.jaxb2_commons</groupId>
                     <artifactId>jaxb2-basics</artifactId>
@@ -253,68 +167,6 @@
 
     <profiles>
         <profile>
-            <id>checks</id>
-            <activation>
-                <activeByDefault>true</activeByDefault>
-            </activation>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-checkstyle-plugin</artifactId>
-                        <version>${maven.checkstyle.version}</version>
-                        <executions>
-                            <execution>
-                                <phase>validate</phase>
-                                <goals>
-                                    <goal>check</goal>
-                                </goals>
-                                <configuration>
-                                    <configLocation>checkstyle.xml</configLocation>
-                                    <suppressionsLocation>checkstyle-suppressions.xml</suppressionsLocation>
-                                    <consoleOutput>true</consoleOutput>
-                                    <failsOnError>true</failsOnError>
-                                    <includeTestSourceDirectory>true</includeTestSourceDirectory>
-                                </configuration>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-        <profile>
-            <id>coverage</id>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.jacoco</groupId>
-                        <artifactId>jacoco-maven-plugin</artifactId>
-                        <version>${maven.jacoco.version}</version>
-                        <configuration>
-                            <excludes>
-                                <!-- exclude generated classes -->
-                                <exclude>**/generated/**/*</exclude>
-                            </excludes>
-                        </configuration>
-                        <executions>
-                            <execution>
-                                <id>prepare-agent</id>
-                                <goals>
-                                    <goal>prepare-agent</goal>
-                                </goals>
-                            </execution>
-                            <execution>
-                                <id>report</id>
-                                <goals>
-                                    <goal>report</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-        <profile>
             <id>release</id>
             <activation>
                 <activeByDefault>false</activeByDefault>
@@ -323,55 +175,40 @@
                 <plugins>
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-gpg-plugin</artifactId>
-                        <version>${maven.gpg.version}</version>
-                        <executions>
-                            <execution>
-                                <phase>verify</phase>
-                                <goals>
-                                    <goal>sign</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-javadoc-plugin</artifactId>
-                        <version>${maven.javadoc.version}</version>
                         <executions>
                             <execution>
-                                <goals>
-                                    <goal>jar</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-source-plugin</artifactId>
-                        <version>${maven.source.version}</version>
-                        <executions>
-                            <execution>
+                                <id>javadoc-aggregate-jar</id>
                                 <phase>package</phase>
+                                <inherited>false</inherited>
                                 <goals>
-                                    <goal>jar-no-fork</goal>
-                                    <goal>test-jar-no-fork</goal>
+                                    <goal>aggregate-jar</goal>
                                 </goals>
                             </execution>
                         </executions>
                     </plugin>
                 </plugins>
             </build>
-            <distributionManagement>
-                <snapshotRepository>
-                    <id>ossrh</id>
-                    <url>https://oss.sonatype.org/content/repositories/snapshots</url>
-                </snapshotRepository>
-                <repository>
-                    <id>ossrh</id>
-                    <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
-                </repository>
-            </distributionManagement>
+        </profile>
+        <profile>
+            <id>docker-unit-tests</id>
+            <activation>
+                <property>
+                    <name>powsybl.docker-unit-tests.skip</name>
+                    <value>!false</value>
+                </property>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-surefire-plugin</artifactId>
+                        <configuration>
+                            <excludedGroups>dockerTests</excludedGroups>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
         </profile>
     </profiles>
 
@@ -430,7 +267,7 @@
             </dependency>
             <dependency>
                 <groupId>com.powsybl</groupId>
-                <artifactId>powsybl-iidm-xml-converter</artifactId>
+                <artifactId>powsybl-iidm-serde</artifactId>
                 <version>${powsybl.core.version}</version>
             </dependency>
             <dependency>
@@ -462,6 +299,11 @@
                 <groupId>com.powsybl</groupId>
                 <artifactId>powsybl-glsk-document-cim</artifactId>
                 <version>${powsybl.glsk.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>jakarta.xml.bind</groupId>
+                <artifactId>jakarta.xml.bind-api</artifactId>
+                <version>${jakarta.xml.bind.version}</version>
             </dependency>
             <dependency>
                 <groupId>javax.validation</groupId>
@@ -570,6 +412,12 @@
             <dependency>
                 <groupId>org.junit.jupiter</groupId>
                 <artifactId>junit-jupiter-api</artifactId>
+                <version>${junit-jupiter.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.junit.jupiter</groupId>
+                <artifactId>junit-jupiter-engine</artifactId>
                 <version>${junit-jupiter.version}</version>
                 <scope>test</scope>
             </dependency>

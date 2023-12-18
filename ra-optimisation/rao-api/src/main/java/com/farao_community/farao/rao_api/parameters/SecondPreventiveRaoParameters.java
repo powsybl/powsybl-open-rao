@@ -21,7 +21,7 @@ public class SecondPreventiveRaoParameters {
     private static final boolean DEFAULT_RE_OPTIMIZE_CURATIVE_RANGE_ACTIONS = false;
     private static final boolean DEFAULT_HINT_FROM_FIRST_PREVENTIVE_RAO = false;
 
-    private ExecutionCondition executionCondition =  DEFAULT_EXECUTION_CONDITION;
+    private ExecutionCondition executionCondition = DEFAULT_EXECUTION_CONDITION;
     private boolean reOptimizeCurativeRangeActions = DEFAULT_RE_OPTIMIZE_CURATIVE_RANGE_ACTIONS;
     private boolean hintFromFirstPreventiveRao = DEFAULT_HINT_FROM_FIRST_PREVENTIVE_RAO;
 

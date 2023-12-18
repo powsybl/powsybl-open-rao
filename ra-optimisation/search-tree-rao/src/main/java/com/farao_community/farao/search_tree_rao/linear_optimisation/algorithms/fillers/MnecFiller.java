@@ -82,7 +82,7 @@ public class MnecFiller implements ProblemFiller {
 
                 Optional<Double> maxFlow = mnec.getUpperBound(side, MEGAWATT);
                 if (maxFlow.isPresent()) {
-                    double ub = Math.max(maxFlow.get(),  mnecInitialFlowInMW + mnecAcceptableMarginDecrease) - mnecConstraintAdjustmentCoefficient;
+                    double ub = Math.max(maxFlow.get(), mnecInitialFlowInMW + mnecAcceptableMarginDecrease) - mnecConstraintAdjustmentCoefficient;
                     FaraoMPConstraint maxConstraint = linearProblem.addMnecFlowConstraint(-LinearProblem.infinity(), ub, mnec, side, LinearProblem.MarginExtension.BELOW_THRESHOLD);
                     maxConstraint.setCoefficient(flowVariable, 1);
                     maxConstraint.setCoefficient(mnecViolationVariable, -1);

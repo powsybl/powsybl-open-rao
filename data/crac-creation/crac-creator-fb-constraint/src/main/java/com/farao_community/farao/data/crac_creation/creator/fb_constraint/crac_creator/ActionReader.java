@@ -161,7 +161,7 @@ class ActionReader {
         this.type = Type.PST;
         this.uctePstHelper = new UctePstHelper(branch.getFrom(), branch.getTo(), branch.getOrder(), branch.getElementName(), ucteNetworkAnalyzer);
 
-        if (!uctePstHelper.isValid())  {
+        if (!uctePstHelper.isValid()) {
             invalidate(uctePstHelper.getInvalidReason());
             return;
         }

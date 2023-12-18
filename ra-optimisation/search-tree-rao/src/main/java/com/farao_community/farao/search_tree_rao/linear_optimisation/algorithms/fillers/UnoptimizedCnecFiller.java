@@ -229,7 +229,7 @@ public class UnoptimizedCnecFiller implements ProblemFiller {
                 }
                 extendSetpointBounds.setCoefficient(setPointVariable, -sensitivity);
                 extendSetpointBounds.setCoefficient(optimizeCnecBinaryVariable, bigM);
-                double lb =  minFlow.get();
+                double lb = minFlow.get();
                 if (sensitivity >= 0) {
                     lb += -maxSetpoint * sensitivity;
                 } else {
@@ -250,7 +250,7 @@ public class UnoptimizedCnecFiller implements ProblemFiller {
                 }
                 extendSetpointBounds.setCoefficient(setPointVariable, sensitivity);
                 extendSetpointBounds.setCoefficient(optimizeCnecBinaryVariable, bigM);
-                double lb =  -maxFlow.get();
+                double lb = -maxFlow.get();
                 if (sensitivity >= 0) {
                     lb += minSetpoint * sensitivity;
                 } else {

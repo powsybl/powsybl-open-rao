@@ -197,9 +197,11 @@ public class CriticalBranchReader {
         if (direction.equals("BIDIR")) {
             branchThresholdAdder.withMax(convertedPositiveLimit);
             branchThresholdAdder.withMin(-convertedPositiveLimit);
-        } else if ((direction.equals("DIRECT") && !invert) || (direction.equals("OPPOSITE") && invert)) {
+        } else if (direction.equals("DIRECT") && !invert
+            || direction.equals("OPPOSITE") && invert) {
             branchThresholdAdder.withMax(convertedPositiveLimit);
-        } else if ((direction.equals("DIRECT") && invert) || (direction.equals("OPPOSITE") && !invert)) {
+        } else if (direction.equals("DIRECT") && invert
+            || direction.equals("OPPOSITE") && !invert) {
             branchThresholdAdder.withMin(-convertedPositiveLimit);
         } else {
             throw new IllegalArgumentException(String.format("%s is not a recognized direction", direction));

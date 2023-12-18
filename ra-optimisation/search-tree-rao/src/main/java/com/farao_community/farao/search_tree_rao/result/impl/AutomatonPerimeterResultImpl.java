@@ -41,7 +41,7 @@ public class AutomatonPerimeterResultImpl implements PerimeterResult {
         this.postAutomatonSensitivityAnalysisOutput = postAutomatonSensitivityAnalysisOutput;
         this.activatedNetworkActions = activatedNetworkActions;
         this.activatedRangeActions = activatedRangeActions;
-        this.rangeActionsWithSetpoint =  rangeActionsWithSetpoint;
+        this.rangeActionsWithSetpoint = rangeActionsWithSetpoint;
         this.optimizedState = optimizedState;
     }
 

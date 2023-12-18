@@ -129,7 +129,8 @@ public class FlowCnecImpl extends AbstractBranchCnec<FlowCnec> implements FlowCn
     }
 
     private double changeValueUnit(double value, Unit oldUnit, Unit newUnit, Side side) {
-        if (oldUnit.equals(newUnit) || (oldUnit.equals(Unit.PERCENT_IMAX) && newUnit.equals(Unit.AMPERE))) {
+        if (oldUnit.equals(newUnit) ||
+            oldUnit.equals(Unit.PERCENT_IMAX) && newUnit.equals(Unit.AMPERE)) {
             return value;
         } else {
             double conversionFactor = Math.sqrt(3) * getNominalVoltage(side) / 1000; // Conversion from A to MW

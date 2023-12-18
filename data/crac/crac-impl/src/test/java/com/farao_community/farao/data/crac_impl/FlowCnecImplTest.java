@@ -29,7 +29,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 class FlowCnecImplTest {
-    private final static double DOUBLE_TOLERANCE = 1; // high tolerance for conversion AMPERE <-> MEGAWATT
+    private static final double DOUBLE_TOLERANCE = 1; // high tolerance for conversion AMPERE <-> MEGAWATT
     private static final String PREVENTIVE_INSTANT_ID = "preventive";
 
     private Crac crac;

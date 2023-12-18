@@ -618,7 +618,7 @@ public final class AutomatonSimulator {
             }
             // Compare direction with previous shift
             // If direction == 0, then the RA is at one of its bounds
-            if (direction == 0 || (direction != safeDiffSignum(optimalSetpoint, currentSetpoint)) || iteration > MAX_NUMBER_OF_SENSI_IN_AUTO_SETPOINT_SHIFT) {
+            if (direction == 0 || direction != safeDiffSignum(optimalSetpoint, currentSetpoint) || iteration > MAX_NUMBER_OF_SENSI_IN_AUTO_SETPOINT_SHIFT) {
                 return new RangeAutomatonSimulationResult(automatonRangeActionOptimizationSensitivityAnalysisOutput, activatedRangeActionsWithSetpoint.keySet(), activatedRangeActionsWithSetpoint);
             }
 

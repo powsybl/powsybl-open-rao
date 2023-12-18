@@ -18,7 +18,7 @@ import static com.farao_community.farao.data.crac_io_json.JsonSerializationConst
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
-public class SwitchPairSerializer extends AbstractJsonSerializer<SwitchPair>  {
+public class SwitchPairSerializer extends AbstractJsonSerializer<SwitchPair> {
     @Override
     public void serialize(SwitchPair value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
         gen.writeStartObject();

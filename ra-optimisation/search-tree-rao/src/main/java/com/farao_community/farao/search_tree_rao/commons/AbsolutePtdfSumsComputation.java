@@ -35,7 +35,7 @@ public class AbsolutePtdfSumsComputation {
 
     public Map<FlowCnec, Map<Side, Double>> computeAbsolutePtdfSums(Set<FlowCnec> flowCnecs, SystematicSensitivityResult sensitivityResult) {
         Map<FlowCnec, Map<Side, Double>> ptdfSums = new HashMap<>();
-        List<EICode> eiCodesInPtdfs = zTozPtdfs.stream().flatMap(zToz -> zToz.getEiCodes().stream()).collect(Collectors.toList());
+        List<EICode> eiCodesInPtdfs = zTozPtdfs.stream().flatMap(zToz -> zToz.getEiCodes().stream()).toList();
 
         for (FlowCnec flowCnec : flowCnecs) {
             flowCnec.getMonitoredSides().forEach(side -> {
@@ -60,10 +60,10 @@ public class AbsolutePtdfSumsComputation {
 
     private double computeZToZPtdf(ZoneToZonePtdfDefinition zToz, Map<EICode, Double> zToSlackPtdfMap) {
 
-        List<Double> zoneToSlackPtdf =  zToz.getZoneToSlackPtdfs().stream()
+        List<Double> zoneToSlackPtdf = zToz.getZoneToSlackPtdfs().stream()
             .filter(zToS -> zToSlackPtdfMap.containsKey(zToS.getEiCode()))
             .map(zToS -> zToS.getWeight() * zToSlackPtdfMap.get(zToS.getEiCode()))
-            .collect(Collectors.toList());
+            .toList();
 
         if (zoneToSlackPtdf.size() < 2) {
             // the boundary should at least contains two zoneToSlack PTDFs

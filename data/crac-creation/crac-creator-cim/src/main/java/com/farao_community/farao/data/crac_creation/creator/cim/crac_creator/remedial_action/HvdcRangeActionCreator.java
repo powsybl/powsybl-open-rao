@@ -60,7 +60,7 @@ public class HvdcRangeActionCreator {
         this.flowCnecs = flowCnecs;
         this.angleCnec = angleCnec;
         this.sharedDomain = sharedDomain;
-        this.cimCracCreationParameters =  cimCracCreationParameters;
+        this.cimCracCreationParameters = cimCracCreationParameters;
     }
 
     public void addDirection(RemedialActionSeries remedialActionSeries) {

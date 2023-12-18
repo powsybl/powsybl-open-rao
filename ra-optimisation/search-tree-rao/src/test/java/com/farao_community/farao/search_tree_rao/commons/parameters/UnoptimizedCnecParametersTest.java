@@ -127,7 +127,7 @@ class UnoptimizedCnecParametersTest {
         UnoptimizedCnecParameters.build(raoParameters.getNotOptimizedCnecsParameters(), Set.of("BE"), crac);
 
         Map<FlowCnec, RangeAction<?>> map = UnoptimizedCnecParameters.getDoNotOptimizeCnecsSecuredByTheirPst(raoParameters.getNotOptimizedCnecsParameters(), crac);
-        assertEquals(3,  raoParameters.getNotOptimizedCnecsParameters().getDoNotOptimizeCnecsSecuredByTheirPst().size());
+        assertEquals(3, raoParameters.getNotOptimizedCnecsParameters().getDoNotOptimizeCnecsSecuredByTheirPst().size());
         assertEquals(1, map.size());
         assertTrue(map.containsKey(crac.getFlowCnec("flowCnec-1")));
         assertEquals(crac.getPstRangeAction("pstRange1Id"), map.get(crac.getFlowCnec("flowCnec-1")));

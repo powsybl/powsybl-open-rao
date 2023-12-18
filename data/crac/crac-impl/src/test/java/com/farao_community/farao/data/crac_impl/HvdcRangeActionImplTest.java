@@ -41,7 +41,7 @@ class HvdcRangeActionImplTest {
         Crac crac = new CracImplFactory().create("cracId")
             .newInstant("preventive", InstantKind.PREVENTIVE);
         network = NetworkImportsUtil.import16NodesNetworkWithHvdc();
-        networkWithAngleDroop =  NetworkImportsUtil.import16NodesNetworkWithAngleDroopHvdcs();
+        networkWithAngleDroop = NetworkImportsUtil.import16NodesNetworkWithAngleDroopHvdcs();
         String networkElementId = "BBE2AA11 FFR3AA11 1";
 
         hvdcRangeActionAdder = crac.newHvdcRangeAction()

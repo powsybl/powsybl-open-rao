@@ -18,7 +18,6 @@ import java.io.IOException;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import static com.farao_community.farao.data.rao_result_json.RaoResultJsonConstants.*;
 
@@ -34,7 +33,7 @@ final class NetworkActionResultArraySerializer {
 
         List<NetworkAction> sortedListOfNetworkActions = crac.getNetworkActions().stream()
             .sorted(Comparator.comparing(NetworkAction::getId))
-            .collect(Collectors.toList());
+            .toList();
 
         jsonGenerator.writeArrayFieldStart(NETWORKACTION_RESULTS);
         for (NetworkAction networkAction : sortedListOfNetworkActions) {
@@ -48,7 +47,7 @@ final class NetworkActionResultArraySerializer {
         List<State> statesWhenNetworkActionIsActivated = crac.getStates().stream()
                 .filter(state -> safeIsActivatedDuringState(raoResult, state, networkAction))
                 .sorted(STATE_COMPARATOR)
-                .collect(Collectors.toList());
+                .toList();
 
         if (statesWhenNetworkActionIsActivated.isEmpty()) {
             return;
@@ -57,7 +56,7 @@ final class NetworkActionResultArraySerializer {
         jsonGenerator.writeStartObject();
         jsonGenerator.writeStringField(NETWORKACTION_ID, networkAction.getId());
         jsonGenerator.writeArrayFieldStart(STATES_ACTIVATED);
-        for (State state: statesWhenNetworkActionIsActivated) {
+        for (State state : statesWhenNetworkActionIsActivated) {
             jsonGenerator.writeStartObject();
             jsonGenerator.writeStringField(INSTANT, serializeInstantId(state.getInstant()));
             Optional<Contingency> optContingency = state.getContingency();

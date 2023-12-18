@@ -67,7 +67,8 @@ public class FlowCnecAdderImpl extends AbstractCnecAdderImpl<FlowCnecAdder> impl
     public FlowCnecAdder withNominalVoltage(double nominalVoltageInKiloVolt) {
         this.nominalVLeft = nominalVoltageInKiloVolt;
         this.nominalVRight = nominalVoltageInKiloVolt;
-        return this;    }
+        return this;
+    }
 
     @Override
     public FlowCnecAdder withNominalVoltage(double nominalVoltageInKiloVolt, Side side) {
@@ -76,7 +77,8 @@ public class FlowCnecAdderImpl extends AbstractCnecAdderImpl<FlowCnecAdder> impl
         } else if (side.equals(Side.RIGHT)) {
             this.nominalVRight = nominalVoltageInKiloVolt;
         }
-        return this;    }
+        return this;
+    }
 
     @Override
     public BranchThresholdAdder newThreshold() {

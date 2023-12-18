@@ -58,8 +58,7 @@ public class NetworkElementImpl extends AbstractIdentifiable<NetworkElement> imp
         Identifiable<?> ne = network.getIdentifiable(this.getId());
         if (Objects.isNull(ne)) {
             throw new FaraoException("Network element " + this.getId() + " was not found in the network.");
-        } else if (ne instanceof Branch) {
-            Branch<?> branch = (Branch) ne;
+        } else if (ne instanceof Branch<?> branch) {
             Optional<Country> country1 = getSubstationCountry(branch.getTerminal1().getVoltageLevel().getSubstation());
             Optional<Country> country2 = getSubstationCountry(branch.getTerminal2().getVoltageLevel().getSubstation());
             if (country1.equals(country2)) {
@@ -67,19 +66,19 @@ public class NetworkElementImpl extends AbstractIdentifiable<NetworkElement> imp
             } else {
                 return Set.of(country1, country2);
             }
-        } else if (ne instanceof Switch) {
-            return Set.of(getSubstationCountry(((Switch) ne).getVoltageLevel().getSubstation()));
-        } else if (ne instanceof Injection) {
-            return Set.of(getSubstationCountry(((Injection<?>) ne).getTerminal().getVoltageLevel().getSubstation()));
-        } else if (ne instanceof  Bus) {
-            return Set.of(getSubstationCountry(((Bus) ne).getVoltageLevel().getSubstation()));
-        } else if (ne instanceof VoltageLevel) {
-            return Set.of(getSubstationCountry(((VoltageLevel) ne).getSubstation()));
-        } else if (ne instanceof Substation) {
-            return Set.of(((Substation) ne).getCountry());
-        } else if (ne instanceof HvdcLine) {
-            return Set.of(getSubstationCountry(((HvdcLine) ne).getConverterStation1().getTerminal().getVoltageLevel().getSubstation()), getSubstationCountry(((HvdcLine) ne).getConverterStation2().getTerminal().getVoltageLevel().getSubstation()));
-        }  else {
+        } else if (ne instanceof Switch sw) {
+            return Set.of(getSubstationCountry(sw.getVoltageLevel().getSubstation()));
+        } else if (ne instanceof Injection<?> injection) {
+            return Set.of(getSubstationCountry(injection.getTerminal().getVoltageLevel().getSubstation()));
+        } else if (ne instanceof Bus bus) {
+            return Set.of(getSubstationCountry(bus.getVoltageLevel().getSubstation()));
+        } else if (ne instanceof VoltageLevel voltageLevel) {
+            return Set.of(getSubstationCountry(voltageLevel.getSubstation()));
+        } else if (ne instanceof Substation substation) {
+            return Set.of(substation.getCountry());
+        } else if (ne instanceof HvdcLine hvdcLine) {
+            return Set.of(getSubstationCountry(hvdcLine.getConverterStation1().getTerminal().getVoltageLevel().getSubstation()), getSubstationCountry(hvdcLine.getConverterStation2().getTerminal().getVoltageLevel().getSubstation()));
+        } else {
             throw new NotImplementedException("Don't know how to figure out the location of " + ne.getId() + " of type " + ne.getClass());
         }
     }

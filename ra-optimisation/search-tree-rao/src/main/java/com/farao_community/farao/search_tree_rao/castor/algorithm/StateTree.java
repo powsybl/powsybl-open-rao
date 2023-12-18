@@ -65,8 +65,8 @@ public class StateTree {
     private void processAutoAndCurativeInstants(Contingency contingency, Crac crac) {
         State automatonState = crac.hasAutoInstant() ? crac.getState(contingency.getId(), crac.getInstant(InstantKind.AUTO)) : null;
         State curativeState = crac.getState(contingency.getId(), crac.getInstant(InstantKind.CURATIVE));
-        boolean autoRasExist = (automatonState != null) && anyAvailableRemedialAction(crac, automatonState);
-        boolean curativeRasExist = (curativeState != null) && anyAvailableRemedialAction(crac, curativeState);
+        boolean autoRasExist = automatonState != null && anyAvailableRemedialAction(crac, automatonState);
+        boolean curativeRasExist = curativeState != null && anyAvailableRemedialAction(crac, curativeState);
 
         if (autoRasExist && !curativeRasExist) {
             throw new FaraoException(String.format("Automaton state %s has RAs, but curative state %s doesn't. This is not supported.", automatonState, curativeState));

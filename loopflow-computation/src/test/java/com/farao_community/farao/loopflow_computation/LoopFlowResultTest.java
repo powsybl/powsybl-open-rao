@@ -21,7 +21,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
  */
 class LoopFlowResultTest {
 
-    private final static double DOUBLE_TOLERANCE = 0.01;
+    private static final double DOUBLE_TOLERANCE = 0.01;
     private BranchCnec<?> cnec;
 
     @BeforeEach

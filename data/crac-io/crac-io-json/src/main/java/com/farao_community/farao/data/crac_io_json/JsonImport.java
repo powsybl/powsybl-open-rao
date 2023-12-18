@@ -15,8 +15,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.google.auto.service.AutoService;
 import org.apache.commons.io.FilenameUtils;
+import org.checkerframework.checker.nullness.qual.NonNull;
 
-import javax.annotation.Nonnull;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;
@@ -32,7 +32,7 @@ public class JsonImport implements CracImporter {
     private static final String JSON_EXTENSION = "json";
 
     @Override
-    public Crac importCrac(InputStream inputStream, @Nonnull CracFactory cracFactory) {
+    public Crac importCrac(InputStream inputStream, @NonNull CracFactory cracFactory) {
         try {
             ObjectMapper objectMapper = createObjectMapper();
             SimpleModule module = new SimpleModule();
