@@ -211,22 +211,24 @@ public final class RaoResultJsonConstants {
     }
 
     public static Instant deserializeOptimizedInstant(String stringValue, String jsonFileVersion, Crac crac) {
-        String instantId = deserializeOptimizedInstantId(stringValue, jsonFileVersion);
+        String instantId = deserializeOptimizedInstantId(stringValue, jsonFileVersion, crac);
         if (Objects.equals(instantId, INITIAL_INSTANT_ID)) {
             return null;
         }
         return crac.getInstant(instantId);
     }
 
-    public static String deserializeOptimizedInstantId(String stringValue, String jsonFileVersion) {
-        if (getPrimaryVersionNumber(jsonFileVersion) <= 1 && getSubVersionNumber(jsonFileVersion) <= 3) {
+    public static String deserializeOptimizedInstantId(String stringValue, String jsonFileVersion, Crac crac) {
+        int primaryVersionNumber = getPrimaryVersionNumber(jsonFileVersion);
+        int subVersionNumber = getSubVersionNumber(jsonFileVersion);
+        if (primaryVersionNumber <= 1 && subVersionNumber <= 3) {
             switch (stringValue) {
                 case INITIAL_OPT_STATE:
                     return INITIAL_INSTANT_ID;
                 case AFTER_PRA_OPT_STATE:
                     return PREVENTIVE_INSTANT_ID;
                 case AFTER_ARA_OPT_STATE:
-                    return AUTO_INSTANT_ID;
+                    return (primaryVersionNumber == 1 && subVersionNumber == 1 && cracDoesNotContainAutoRemedialAction(crac)) ? PREVENTIVE_INSTANT_ID : AUTO_INSTANT_ID;
                 case AFTER_CRA_OPT_STATE:
                     return CURATIVE_INSTANT_ID;
                 default:
@@ -235,6 +237,10 @@ public final class RaoResultJsonConstants {
         } else {
             return deserializeInstantId(stringValue);
         }
+    }
+
+    private static boolean cracDoesNotContainAutoRemedialAction(Crac crac) {
+        return crac.getRemedialActions().stream().filter(remedialAction -> remedialAction.getUsageRules().stream().filter(usageRule -> usageRule.getInstant().isAuto()).findAny().isPresent()).findAny().isEmpty();
     }
 
     public static String serializeStatus(ComputationStatus computationStatus) {
