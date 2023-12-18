@@ -7,7 +7,7 @@
 
 package com.powsybl.open_rao.data.crac_impl;
 
-import com.powsybl.open_rao.commons.FaraoException;
+import com.powsybl.open_rao.commons.OpenRaoException;
 import com.powsybl.open_rao.commons.Unit;
 import com.powsybl.open_rao.data.crac_api.*;
 import com.powsybl.open_rao.data.crac_api.range.TapRangeAdder;
@@ -76,7 +76,7 @@ class TapRangeAdderImplTest {
         TapRangeAdder tapRangeAdder = pstRangeActionAdder.newTapRange()
             .withMinTap(-5)
             .withMaxTap(10);
-        assertThrows(FaraoException.class, tapRangeAdder::add);
+        assertThrows(OpenRaoException.class, tapRangeAdder::add);
     }
 
     @Test
@@ -97,6 +97,6 @@ class TapRangeAdderImplTest {
             .withRangeType(RangeType.ABSOLUTE)
             .withMinTap(5)
             .withMaxTap(-10);
-        assertThrows(FaraoException.class, tapRangeAdder::add);
+        assertThrows(OpenRaoException.class, tapRangeAdder::add);
     }
 }

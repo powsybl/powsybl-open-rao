@@ -7,7 +7,7 @@
 
 package com.powsybl.open_rao.data.crac_impl;
 
-import com.powsybl.open_rao.commons.FaraoException;
+import com.powsybl.open_rao.commons.OpenRaoException;
 import com.powsybl.open_rao.data.crac_api.range.StandardRange;
 import com.powsybl.open_rao.data.crac_api.range.StandardRangeAdder;
 import com.powsybl.open_rao.data.crac_api.range_action.*;
@@ -48,13 +48,13 @@ public class StandardRangeAdderImpl<T extends StandardRangeActionAdder<T>> imple
         AdderUtils.assertAttributeNotNull(max, CLASS_NAME, "max value", "withMax()");
 
         if (max == Double.MAX_VALUE) {
-            throw new FaraoException("StandardRange max value was not defined.");
+            throw new OpenRaoException("StandardRange max value was not defined.");
         }
         if (min == Double.MIN_VALUE) {
-            throw new FaraoException("StandardRange min value was not defined.");
+            throw new OpenRaoException("StandardRange min value was not defined.");
         }
         if (max < min) {
-            throw new FaraoException("Max value of StandardRange must be equal or greater than min value.");
+            throw new OpenRaoException("Max value of StandardRange must be equal or greater than min value.");
         }
 
         StandardRange standardRange = new StandardRangeImpl(min, max);

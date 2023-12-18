@@ -7,7 +7,7 @@
 
 package com.powsybl.open_rao.data.crac_impl;
 
-import com.powsybl.open_rao.commons.FaraoException;
+import com.powsybl.open_rao.commons.OpenRaoException;
 import com.powsybl.open_rao.data.crac_api.*;
 import com.powsybl.open_rao.data.crac_api.cnec.CnecAdder;
 
@@ -43,19 +43,19 @@ public abstract class AbstractCnecAdderImpl<J extends CnecAdder<J>> extends Abst
 
         if (owner.getInstant(instantId).isPreventive()) {
             if (contingencyId != null) {
-                throw new FaraoException("You cannot define a contingency for a preventive cnec.");
+                throw new OpenRaoException("You cannot define a contingency for a preventive cnec.");
             }
         } else {
             if (contingencyId == null) {
-                throw new FaraoException("You must define a contingency for a non-preventive cnec.");
+                throw new OpenRaoException("You must define a contingency for a non-preventive cnec.");
             } else if (owner.getContingency(contingencyId) == null) {
-                throw new FaraoException(String.format("Contingency %s of Cnec %s does not exist in the crac. Use crac.newContingency() first.", contingencyId, id));
+                throw new OpenRaoException(String.format("Contingency %s of Cnec %s does not exist in the crac. Use crac.newContingency() first.", contingencyId, id));
             }
         }
         networkElementsIdAndName.entrySet().forEach(entry -> this.owner.addNetworkElement(entry.getKey(), entry.getValue()));
 
         if (owner.getCnec(id) != null) {
-            throw new FaraoException(format("Cannot add a cnec with an already existing ID - %s.", id));
+            throw new OpenRaoException(format("Cannot add a cnec with an already existing ID - %s.", id));
         }
     }
 

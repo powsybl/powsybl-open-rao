@@ -7,7 +7,7 @@
 
 package com.powsybl.open_rao.data.crac_impl;
 
-import com.powsybl.open_rao.commons.FaraoException;
+import com.powsybl.open_rao.commons.OpenRaoException;
 import com.powsybl.open_rao.commons.Unit;
 import com.powsybl.open_rao.data.crac_api.Crac;
 import com.powsybl.open_rao.data.crac_api.range.RangeType;
@@ -49,18 +49,18 @@ class StandardRangeAdderImplTest {
     @Test
     void testNoMin() {
         StandardRangeAdder<HvdcRangeActionAdder> standardRangeAdder = hvdcRangeActionAdder.newRange().withMax(16);
-        assertThrows(FaraoException.class, standardRangeAdder::add);
+        assertThrows(OpenRaoException.class, standardRangeAdder::add);
     }
 
     @Test
     void testNoMax() {
         StandardRangeAdder<HvdcRangeActionAdder> standardRangeAdder = hvdcRangeActionAdder.newRange().withMin(16);
-        assertThrows(FaraoException.class, standardRangeAdder::add);
+        assertThrows(OpenRaoException.class, standardRangeAdder::add);
     }
 
     @Test
     void testMinGreaterThanMax() {
         StandardRangeAdder<HvdcRangeActionAdder> standardRangeAdder = hvdcRangeActionAdder.newRange().withMin(10).withMax(-5);
-        assertThrows(FaraoException.class, standardRangeAdder::add);
+        assertThrows(OpenRaoException.class, standardRangeAdder::add);
     }
 }

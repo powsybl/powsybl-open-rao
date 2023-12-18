@@ -6,7 +6,7 @@
  */
 package com.powsybl.open_rao.data.crac_api;
 
-import com.powsybl.open_rao.commons.FaraoException;
+import com.powsybl.open_rao.commons.OpenRaoException;
 import com.powsybl.open_rao.commons.PhysicalParameter;
 import com.powsybl.open_rao.commons.Unit;
 import org.junit.jupiter.api.Test;
@@ -32,28 +32,28 @@ class UnitTest {
         try {
             Unit.AMPERE.checkPhysicalParameter(PhysicalParameter.ANGLE);
             fail();
-        } catch (FaraoException e) {
+        } catch (OpenRaoException e) {
             // should throw
         }
 
         try {
             Unit.DEGREE.checkPhysicalParameter(PhysicalParameter.VOLTAGE);
             fail();
-        } catch (FaraoException e) {
+        } catch (OpenRaoException e) {
             // should throw
         }
 
         try {
             Unit.KILOVOLT.checkPhysicalParameter(PhysicalParameter.FLOW);
             fail();
-        } catch (FaraoException e) {
+        } catch (OpenRaoException e) {
             // should throw
         }
 
         try {
             Unit.MEGAWATT.checkPhysicalParameter(PhysicalParameter.VOLTAGE);
             fail();
-        } catch (FaraoException e) {
+        } catch (OpenRaoException e) {
             // should throw
         }
     }

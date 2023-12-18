@@ -7,7 +7,7 @@
 
 package com.powsybl.open_rao.data.crac_impl;
 
-import com.powsybl.open_rao.commons.FaraoException;
+import com.powsybl.open_rao.commons.OpenRaoException;
 import com.powsybl.open_rao.data.crac_api.NetworkElement;
 import com.powsybl.open_rao.data.crac_api.range.StandardRange;
 import com.powsybl.open_rao.data.crac_api.range_action.HvdcRangeAction;
@@ -99,7 +99,7 @@ public class HvdcRangeActionImpl extends AbstractRangeAction<HvdcRangeAction> im
     private HvdcLine getHvdcLine(Network network) {
         HvdcLine hvdcLine = network.getHvdcLine(networkElement.getId());
         if (hvdcLine == null) {
-            throw new FaraoException(String.format("HvdcLine %s does not exist in the current network.", networkElement.getId()));
+            throw new OpenRaoException(String.format("HvdcLine %s does not exist in the current network.", networkElement.getId()));
         }
         return hvdcLine;
     }

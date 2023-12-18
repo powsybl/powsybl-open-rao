@@ -6,7 +6,7 @@
  */
 package com.powsybl.open_rao.data.crac_impl;
 
-import com.powsybl.open_rao.commons.FaraoException;
+import com.powsybl.open_rao.commons.OpenRaoException;
 import com.powsybl.open_rao.data.crac_api.NetworkElement;
 import com.powsybl.iidm.network.*;
 import org.apache.commons.lang3.NotImplementedException;
@@ -57,7 +57,7 @@ public class NetworkElementImpl extends AbstractIdentifiable<NetworkElement> imp
     public Set<Optional<Country>> getLocation(Network network) {
         Identifiable<?> ne = network.getIdentifiable(this.getId());
         if (Objects.isNull(ne)) {
-            throw new FaraoException("Network element " + this.getId() + " was not found in the network.");
+            throw new OpenRaoException("Network element " + this.getId() + " was not found in the network.");
         } else if (ne instanceof Branch<?> branch) {
             Optional<Country> country1 = getSubstationCountry(branch.getTerminal1().getVoltageLevel().getSubstation());
             Optional<Country> country2 = getSubstationCountry(branch.getTerminal2().getVoltageLevel().getSubstation());

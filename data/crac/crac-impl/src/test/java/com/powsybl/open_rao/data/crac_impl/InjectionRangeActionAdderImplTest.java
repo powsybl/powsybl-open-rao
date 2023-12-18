@@ -7,7 +7,7 @@
 
 package com.powsybl.open_rao.data.crac_impl;
 
-import com.powsybl.open_rao.commons.FaraoException;
+import com.powsybl.open_rao.commons.OpenRaoException;
 import com.powsybl.open_rao.data.crac_api.InstantKind;
 import com.powsybl.open_rao.data.crac_api.range_action.InjectionRangeAction;
 import com.powsybl.open_rao.data.crac_api.range_action.InjectionRangeActionAdder;
@@ -179,7 +179,7 @@ class InjectionRangeActionAdderImplTest {
             .withNetworkElementAndKey(-1., injectionId2, injectionName2)
             .newRange().withMin(-5).withMax(10).add()
             .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add();
-        FaraoException exception = assertThrows(FaraoException.class, injectionRangeActionAdder::add);
+        OpenRaoException exception = assertThrows(OpenRaoException.class, injectionRangeActionAdder::add);
         assertEquals("Cannot add a InjectionRangeAction object with no specified id. Please use withId()", exception.getMessage());
     }
 
@@ -191,7 +191,7 @@ class InjectionRangeActionAdderImplTest {
             .withGroupId("groupId1")
             .newRange().withMin(-5).withMax(10).add()
             .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add();
-        FaraoException exception = assertThrows(FaraoException.class, injectionRangeActionAdder::add);
+        OpenRaoException exception = assertThrows(OpenRaoException.class, injectionRangeActionAdder::add);
         assertEquals("Cannot add InjectionRangeAction without a injection distribution key. Please use withNetworkElementAndKey()", exception.getMessage());
     }
 
@@ -203,7 +203,7 @@ class InjectionRangeActionAdderImplTest {
             .withNetworkElementAndKey(1., injectionId1)
             .withNetworkElementAndKey(-1., injectionId2, injectionName2)
             .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add();
-        FaraoException exception = assertThrows(FaraoException.class, injectionRangeActionAdder::add);
+        OpenRaoException exception = assertThrows(OpenRaoException.class, injectionRangeActionAdder::add);
         assertEquals("Cannot add InjectionRangeAction without a range. Please use newRange()", exception.getMessage());
     }
 
@@ -220,7 +220,7 @@ class InjectionRangeActionAdderImplTest {
             .withNetworkElementAndKey(1., injectionId1)
             .newRange().withMin(-5).withMax(10).add()
             .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add();
-        FaraoException exception = assertThrows(FaraoException.class, injectionRangeActionAdder::add);
+        OpenRaoException exception = assertThrows(OpenRaoException.class, injectionRangeActionAdder::add);
         assertEquals("A remedial action with id sameId already exists", exception.getMessage());
     }
 }

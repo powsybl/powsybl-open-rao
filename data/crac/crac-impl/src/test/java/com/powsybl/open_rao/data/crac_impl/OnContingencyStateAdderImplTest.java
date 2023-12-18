@@ -6,7 +6,7 @@
  */
 package com.powsybl.open_rao.data.crac_impl;
 
-import com.powsybl.open_rao.commons.FaraoException;
+import com.powsybl.open_rao.commons.OpenRaoException;
 import com.powsybl.open_rao.data.crac_api.*;
 import com.powsybl.open_rao.data.crac_api.network_action.ActionType;
 import com.powsybl.open_rao.data.crac_api.network_action.NetworkActionAdder;
@@ -95,7 +95,7 @@ class OnContingencyStateAdderImplTest {
         OnContingencyStateAdder<NetworkActionAdder> onContingencyStateAdder = remedialActionAdder.newOnContingencyStateUsageRule()
             .withContingency("contingencyId")
             .withUsageMethod(UsageMethod.AVAILABLE);
-        FaraoException exception = assertThrows(FaraoException.class, onContingencyStateAdder::add);
+        OpenRaoException exception = assertThrows(OpenRaoException.class, onContingencyStateAdder::add);
         assertEquals("Cannot add OnContingencyState without a instant. Please use withInstant() with a non null value", exception.getMessage());
     }
 
@@ -104,7 +104,7 @@ class OnContingencyStateAdderImplTest {
         OnContingencyStateAdder<NetworkActionAdder> onContingencyStateAdder = remedialActionAdder.newOnContingencyStateUsageRule()
             .withInstant(CURATIVE_INSTANT_ID)
             .withUsageMethod(UsageMethod.AVAILABLE);
-        FaraoException exception = assertThrows(FaraoException.class, onContingencyStateAdder::add);
+        OpenRaoException exception = assertThrows(OpenRaoException.class, onContingencyStateAdder::add);
         assertEquals("Cannot add OnContingencyState without a contingency. Please use withContingency() with a non null value", exception.getMessage());
     }
 
@@ -113,7 +113,7 @@ class OnContingencyStateAdderImplTest {
         OnContingencyStateAdder<NetworkActionAdder> onContingencyStateAdder = remedialActionAdder.newOnContingencyStateUsageRule()
             .withInstant(CURATIVE_INSTANT_ID)
             .withContingency("contingencyId");
-        FaraoException exception = assertThrows(FaraoException.class, onContingencyStateAdder::add);
+        OpenRaoException exception = assertThrows(OpenRaoException.class, onContingencyStateAdder::add);
         assertEquals("Cannot add OnContingencyState without a usage method. Please use withUsageMethod() with a non null value", exception.getMessage());
     }
 
@@ -123,7 +123,7 @@ class OnContingencyStateAdderImplTest {
             .withInstant(CURATIVE_INSTANT_ID)
             .withContingency("unknownContingencyId")
             .withUsageMethod(UsageMethod.AVAILABLE);
-        FaraoException exception = assertThrows(FaraoException.class, onContingencyStateAdder::add);
+        OpenRaoException exception = assertThrows(OpenRaoException.class, onContingencyStateAdder::add);
         assertEquals("Contingency unknownContingencyId of OnContingencyState usage rule does not exist in the crac. Use crac.newContingency() first.", exception.getMessage());
     }
 
@@ -133,7 +133,7 @@ class OnContingencyStateAdderImplTest {
             .withInstant(PREVENTIVE_INSTANT_ID)
             .withContingency("contingencyId")
             .withUsageMethod(UsageMethod.AVAILABLE);
-        FaraoException exception = assertThrows(FaraoException.class, onContingencyStateAdder::add);
+        OpenRaoException exception = assertThrows(OpenRaoException.class, onContingencyStateAdder::add);
         assertEquals("OnContingencyState usage rules are not allowed for PREVENTIVE instant, except when FORCED. Please use newOnInstantUsageRule() instead.", exception.getMessage());
     }
 
@@ -143,7 +143,7 @@ class OnContingencyStateAdderImplTest {
             .withInstant(OUTAGE_INSTANT_ID)
             .withContingency("contingencyId")
             .withUsageMethod(UsageMethod.AVAILABLE);
-        FaraoException exception = assertThrows(FaraoException.class, onContingencyStateAdder::add);
+        OpenRaoException exception = assertThrows(OpenRaoException.class, onContingencyStateAdder::add);
         assertEquals("OnContingencyState usage rules are not allowed for OUTAGE instant.", exception.getMessage());
     }
 }

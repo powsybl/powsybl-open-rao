@@ -7,7 +7,7 @@
 
 package com.powsybl.open_rao.data.crac_impl;
 
-import com.powsybl.open_rao.commons.FaraoException;
+import com.powsybl.open_rao.commons.OpenRaoException;
 import com.powsybl.open_rao.data.crac_api.Instant;
 import com.powsybl.open_rao.data.crac_api.InstantKind;
 import org.junit.jupiter.api.Test;
@@ -43,7 +43,7 @@ class PreventiveStateTest {
     @Test
     void testCannotCreatePreventiveStateWithNonPreventiveInstant() {
         Instant instant = new InstantImpl("my instant", InstantKind.OUTAGE, PREVENTIVE_INSTANT);
-        FaraoException exception = assertThrows(FaraoException.class, () -> new PreventiveState(instant));
+        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> new PreventiveState(instant));
         assertEquals("Instant must be preventive", exception.getMessage());
     }
 }

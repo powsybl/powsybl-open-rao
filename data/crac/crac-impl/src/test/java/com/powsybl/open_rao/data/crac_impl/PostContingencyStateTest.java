@@ -7,7 +7,7 @@
 
 package com.powsybl.open_rao.data.crac_impl;
 
-import com.powsybl.open_rao.commons.FaraoException;
+import com.powsybl.open_rao.commons.OpenRaoException;
 import com.powsybl.open_rao.data.crac_api.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -85,7 +85,7 @@ class PostContingencyStateTest {
 
     @Test
     void testCannotCreatePostContingencyStateWithPreventiveInstant() {
-        FaraoException exception = assertThrows(FaraoException.class, () -> new PostContingencyState(contingency1, preventiveInstant));
+        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> new PostContingencyState(contingency1, preventiveInstant));
         assertEquals("Instant cannot be preventive", exception.getMessage());
     }
 }

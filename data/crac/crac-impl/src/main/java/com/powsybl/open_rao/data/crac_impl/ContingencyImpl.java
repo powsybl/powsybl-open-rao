@@ -7,7 +7,7 @@
 
 package com.powsybl.open_rao.data.crac_impl;
 
-import com.powsybl.open_rao.commons.FaraoException;
+import com.powsybl.open_rao.commons.OpenRaoException;
 import com.powsybl.open_rao.data.crac_api.Contingency;
 import com.powsybl.open_rao.data.crac_api.NetworkElement;
 import com.powsybl.computation.ComputationManager;
@@ -56,7 +56,7 @@ public class ContingencyImpl extends AbstractIdentifiable<Contingency> implement
             } else if (element instanceof DanglingLine) {
                 contingency.addElement(new DanglingLineContingency(contingencyElement.getId()));
             } else {
-                throw new FaraoException("Unable to apply contingency element " + contingencyElement.getId());
+                throw new OpenRaoException("Unable to apply contingency element " + contingencyElement.getId());
             }
         });
         com.powsybl.contingency.Contingency.checkValidity(Collections.singletonList(contingency), network);

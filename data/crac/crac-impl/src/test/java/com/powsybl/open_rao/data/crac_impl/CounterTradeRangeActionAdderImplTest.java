@@ -6,7 +6,7 @@
  */
 package com.powsybl.open_rao.data.crac_impl;
 
-import com.powsybl.open_rao.commons.FaraoException;
+import com.powsybl.open_rao.commons.OpenRaoException;
 import com.powsybl.open_rao.data.crac_api.Crac;
 import com.powsybl.open_rao.data.crac_api.InstantKind;
 import com.powsybl.open_rao.data.crac_api.range_action.CounterTradeRangeAction;
@@ -132,7 +132,7 @@ class CounterTradeRangeActionAdderImplTest {
                 .withImportingCountry(Country.DE)
                 .newRange().withMin(-5).withMax(10).add()
                 .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add();
-        Exception e = assertThrows(FaraoException.class, counterTradeRangeActionAdder::add);
+        Exception e = assertThrows(OpenRaoException.class, counterTradeRangeActionAdder::add);
         assertEquals("Cannot add a CounterTradeRangeAction object with no specified id. Please use withId()", e.getMessage());
     }
 
@@ -145,7 +145,7 @@ class CounterTradeRangeActionAdderImplTest {
                 .withImportingCountry(Country.DE)
                 .newRange().withMin(-5).withMax(10).add()
                 .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add();
-        Exception e = assertThrows(FaraoException.class, counterTradeRangeActionAdder::add);
+        Exception e = assertThrows(OpenRaoException.class, counterTradeRangeActionAdder::add);
         assertEquals("Cannot add CounterTradeRangeAction without a exporting country. Please use withExportingCountry() with a non null value", e.getMessage());
     }
 
@@ -158,7 +158,7 @@ class CounterTradeRangeActionAdderImplTest {
                 .withExportingCountry(Country.FR)
                 .newRange().withMin(-5).withMax(10).add()
                 .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add();
-        Exception e = assertThrows(FaraoException.class, counterTradeRangeActionAdder::add);
+        Exception e = assertThrows(OpenRaoException.class, counterTradeRangeActionAdder::add);
         assertEquals("Cannot add CounterTradeRangeAction without a importing country. Please use withImportingCountry() with a non null value", e.getMessage());
     }
 
@@ -170,7 +170,7 @@ class CounterTradeRangeActionAdderImplTest {
                 .withExportingCountry(Country.FR)
                 .withImportingCountry(Country.DE)
                 .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add();
-        Exception e = assertThrows(FaraoException.class, counterTradeRangeActionAdder::add);
+        Exception e = assertThrows(OpenRaoException.class, counterTradeRangeActionAdder::add);
         assertEquals("Cannot add CounterTradeRangeAction without a range. Please use newRange()", e.getMessage());
     }
 
@@ -189,7 +189,7 @@ class CounterTradeRangeActionAdderImplTest {
                 .withImportingCountry(Country.DE)
                 .newRange().withMin(-5).withMax(10).add()
                 .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add();
-        Exception e = assertThrows(FaraoException.class, counterTradeRangeActionAdder::add);
+        Exception e = assertThrows(OpenRaoException.class, counterTradeRangeActionAdder::add);
         assertEquals("A remedial action with id sameId already exists", e.getMessage());
     }
 }

@@ -6,7 +6,7 @@
  */
 package com.powsybl.open_rao.data.crac_impl;
 
-import com.powsybl.open_rao.commons.FaraoException;
+import com.powsybl.open_rao.commons.OpenRaoException;
 import com.powsybl.open_rao.data.crac_api.Crac;
 import com.powsybl.open_rao.data.crac_api.network_action.*;
 import org.junit.jupiter.api.BeforeEach;
@@ -52,13 +52,13 @@ class TopologicalActionAdderImplTest {
     void testNoNetworkElement() {
         TopologicalActionAdder topologicalActionAdder = networkActionAdder.newTopologicalAction()
             .withActionType(ActionType.OPEN);
-        assertThrows(FaraoException.class, topologicalActionAdder::add);
+        assertThrows(OpenRaoException.class, topologicalActionAdder::add);
     }
 
     @Test
     void testNoActionType() {
         TopologicalActionAdder topologicalActionAdder = networkActionAdder.newTopologicalAction()
             .withNetworkElement("branchNetworkElementId");
-        assertThrows(FaraoException.class, topologicalActionAdder::add);
+        assertThrows(OpenRaoException.class, topologicalActionAdder::add);
     }
 }

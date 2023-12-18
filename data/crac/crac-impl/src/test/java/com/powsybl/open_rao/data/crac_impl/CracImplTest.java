@@ -7,7 +7,7 @@
 
 package com.powsybl.open_rao.data.crac_impl;
 
-import com.powsybl.open_rao.commons.FaraoException;
+import com.powsybl.open_rao.commons.OpenRaoException;
 import com.powsybl.open_rao.commons.Unit;
 import com.powsybl.open_rao.data.crac_api.*;
 import com.powsybl.open_rao.data.crac_api.cnec.FlowCnec;
@@ -77,7 +77,7 @@ class CracImplTest {
         try {
             crac.addNetworkElement("neID", "neName-fail");
             fail();
-        } catch (FaraoException e) {
+        } catch (OpenRaoException e) {
             assertEquals("A network element with the same ID (neID) but a different name already exists.", e.getMessage());
         }
     }
@@ -119,7 +119,7 @@ class CracImplTest {
 
     @Test
     void testGetStateWithNotExistingContingencyId() {
-        FaraoException exception = assertThrows(FaraoException.class, () -> crac.getState("fail-contingency", curativeInstant));
+        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> crac.getState("fail-contingency", curativeInstant));
         assertEquals("Contingency fail-contingency does not exist, as well as the related state.", exception.getMessage());
     }
 
@@ -323,7 +323,7 @@ class CracImplTest {
         try {
             crac.removeContingency("co1");
             fail();
-        } catch (FaraoException e) {
+        } catch (OpenRaoException e) {
             // expected behaviour
         }
         assertEquals(1, crac.getContingencies().size());
@@ -348,7 +348,7 @@ class CracImplTest {
         try {
             crac.removeContingency("co1");
             fail();
-        } catch (FaraoException e) {
+        } catch (OpenRaoException e) {
             // expected behaviour
         }
         assertEquals(1, crac.getContingencies().size());
@@ -412,7 +412,7 @@ class CracImplTest {
     void testAddStateWithPreventiveError() {
         Contingency contingency1 = new ContingencyImpl("co1", "co1", Collections.singleton(Mockito.mock(NetworkElement.class)));
         crac.addContingency(contingency1);
-        FaraoException exception = assertThrows(FaraoException.class, () -> crac.addState(contingency1, preventiveInstant));
+        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> crac.addState(contingency1, preventiveInstant));
         assertEquals("Impossible to add a preventive state with a contingency.", exception.getMessage());
     }
 
@@ -428,7 +428,7 @@ class CracImplTest {
     @Test
     void testAddStateBeforecontingencyError() {
         Contingency contingency1 = new ContingencyImpl("co1", "co1", Collections.singleton(Mockito.mock(NetworkElement.class)));
-        FaraoException exception = assertThrows(FaraoException.class, () -> crac.addState(contingency1, curativeInstant));
+        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> crac.addState(contingency1, curativeInstant));
         assertEquals("Please add co1 to crac first.", exception.getMessage());
     }
 
@@ -905,13 +905,13 @@ class CracImplTest {
 
     @Test
     void testNewInstantAlreadyDefined() {
-        FaraoException exception = assertThrows(FaraoException.class, () -> crac.newInstant(OUTAGE_INSTANT_ID, InstantKind.PREVENTIVE));
+        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> crac.newInstant(OUTAGE_INSTANT_ID, InstantKind.PREVENTIVE));
         assertEquals("Instant 'outage' is already defined with other arguments", exception.getMessage());
     }
 
     @Test
     void testGetInstantNeverDefined() {
-        FaraoException exception = assertThrows(FaraoException.class, () -> crac.getInstant("never defined"));
+        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> crac.getInstant("never defined"));
         assertEquals("Instant 'never defined' has not been defined", exception.getMessage());
     }
 
@@ -949,7 +949,7 @@ class CracImplTest {
     void testGetInstantByKindDoesNotWorkWithTwoInstantsPerInstantKind() {
         crac.newInstant("curative 2", InstantKind.CURATIVE);
 
-        FaraoException exception = assertThrows(FaraoException.class, () -> crac.getInstant(InstantKind.CURATIVE));
+        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> crac.getInstant(InstantKind.CURATIVE));
         assertEquals("Crac does not contain exactly one instant of kind 'CURATIVE'. It contains 2 instants of kind 'CURATIVE'", exception.getMessage());
     }
 
@@ -975,22 +975,22 @@ class CracImplTest {
         assertThrows(NullPointerException.class, () -> crac.getInstantBefore(null));
 
         Instant instantNotDefinedInTheCrac = new InstantImpl("instantNotDefinedInTheCrac", InstantKind.PREVENTIVE, null);
-        FaraoException exception = assertThrows(FaraoException.class, () -> crac.getInstantBefore(instantNotDefinedInTheCrac));
+        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> crac.getInstantBefore(instantNotDefinedInTheCrac));
         assertEquals("Provided instant 'instantNotDefinedInTheCrac' is not defined in the CRAC", exception.getMessage());
 
         Instant anotherInstantNotDefinedInTheCrac = new InstantImpl(OUTAGE_INSTANT_ID, InstantKind.PREVENTIVE, preventiveInstant);
-        exception = assertThrows(FaraoException.class, () -> crac.getInstantBefore(anotherInstantNotDefinedInTheCrac));
+        exception = assertThrows(OpenRaoException.class, () -> crac.getInstantBefore(anotherInstantNotDefinedInTheCrac));
         assertEquals("Provided instant {id:'outage', kind:'PREVENTIVE', order:1} is not the same {id: 'outage', kind:'OUTAGE', order:1} in the CRAC", exception.getMessage());
     }
 
     @Test
     void testFirstInstantHasToBePreventive() {
         CracImpl cracThatFails = new CracImpl("test-crac");
-        FaraoException exception = assertThrows(FaraoException.class, () -> cracThatFails.newInstant("instant", InstantKind.AUTO));
+        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> cracThatFails.newInstant("instant", InstantKind.AUTO));
         assertEquals("The first instant in the CRAC must be preventive", exception.getMessage());
 
         cracThatFails.newInstant("titi", InstantKind.PREVENTIVE);
-        exception = assertThrows(FaraoException.class, () -> cracThatFails.newInstant("instant", InstantKind.CURATIVE));
+        exception = assertThrows(OpenRaoException.class, () -> cracThatFails.newInstant("instant", InstantKind.CURATIVE));
         assertEquals("The second instant in the CRAC must be an outage", exception.getMessage());
     }
 

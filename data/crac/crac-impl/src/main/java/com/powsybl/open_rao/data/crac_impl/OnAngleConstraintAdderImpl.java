@@ -6,7 +6,7 @@
  */
 package com.powsybl.open_rao.data.crac_impl;
 
-import com.powsybl.open_rao.commons.FaraoException;
+import com.powsybl.open_rao.commons.OpenRaoException;
 import com.powsybl.open_rao.data.crac_api.Instant;
 import com.powsybl.open_rao.data.crac_api.cnec.AngleCnec;
 import com.powsybl.open_rao.data.crac_api.usage_rule.OnAngleConstraint;
@@ -48,7 +48,7 @@ public class OnAngleConstraintAdderImpl<T extends AbstractRemedialActionAdder<T>
 
         Instant instant = owner.getCrac().getInstant(instantId);
         if (instant.isOutage()) {
-            throw new FaraoException("OnAngleConstraint usage rules are not allowed for OUTAGE instant.");
+            throw new OpenRaoException("OnAngleConstraint usage rules are not allowed for OUTAGE instant.");
         }
         if (instant.isPreventive()) {
             owner.getCrac().addPreventiveState();
@@ -56,7 +56,7 @@ public class OnAngleConstraintAdderImpl<T extends AbstractRemedialActionAdder<T>
 
         AngleCnec angleCnec = owner.getCrac().getAngleCnec(angleCnecId);
         if (Objects.isNull(angleCnec)) {
-            throw new FaraoException(String.format("AngleCnec %s does not exist in crac. Consider adding it first.", angleCnecId));
+            throw new OpenRaoException(String.format("AngleCnec %s does not exist in crac. Consider adding it first.", angleCnecId));
         }
 
         AbstractRemedialActionAdder.checkOnConstraintUsageRules(instant, angleCnec);

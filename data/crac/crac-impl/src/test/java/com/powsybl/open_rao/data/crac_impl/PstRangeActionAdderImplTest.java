@@ -7,7 +7,7 @@
 
 package com.powsybl.open_rao.data.crac_impl;
 
-import com.powsybl.open_rao.commons.FaraoException;
+import com.powsybl.open_rao.commons.OpenRaoException;
 import com.powsybl.open_rao.data.crac_api.InstantKind;
 import com.powsybl.open_rao.data.crac_api.network_action.ActionType;
 import com.powsybl.open_rao.data.crac_api.range_action.PstRangeAction;
@@ -92,7 +92,7 @@ class PstRangeActionAdderImplTest {
             .add()
             .withInitialTap(1)
             .withTapToAngleConversionMap(validTapToAngleConversionMap);
-        FaraoException exception = assertThrows(FaraoException.class, pstRangeActionAdder::add);
+        OpenRaoException exception = assertThrows(OpenRaoException.class, pstRangeActionAdder::add);
         assertEquals("Cannot create an AUTO Pst range action without speed defined", exception.getMessage());
     }
 
@@ -202,7 +202,7 @@ class PstRangeActionAdderImplTest {
             .withNetworkElement(networkElementId)
             .withInitialTap(1)
             .withTapToAngleConversionMap(validTapToAngleConversionMap);
-        FaraoException exception = assertThrows(FaraoException.class, pstRangeActionAdder::add);
+        OpenRaoException exception = assertThrows(OpenRaoException.class, pstRangeActionAdder::add);
         assertEquals("Cannot add a PstRangeAction object with no specified id. Please use withId()", exception.getMessage());
     }
 
@@ -213,7 +213,7 @@ class PstRangeActionAdderImplTest {
             .withOperator("BE")
             .withInitialTap(1)
             .withTapToAngleConversionMap(validTapToAngleConversionMap);
-        FaraoException exception = assertThrows(FaraoException.class, pstRangeActionAdder::add);
+        OpenRaoException exception = assertThrows(OpenRaoException.class, pstRangeActionAdder::add);
         assertEquals("Cannot add PstRangeAction without a network element. Please use withNetworkElement() with a non null value", exception.getMessage());
     }
 
@@ -231,7 +231,7 @@ class PstRangeActionAdderImplTest {
             .withNetworkElement("networkElementId")
             .withInitialTap(1)
             .withTapToAngleConversionMap(validTapToAngleConversionMap);
-        FaraoException exception = assertThrows(FaraoException.class, adder::add);
+        OpenRaoException exception = assertThrows(OpenRaoException.class, adder::add);
         assertEquals("A remedial action with id sameId already exists", exception.getMessage());
     }
 
@@ -242,7 +242,7 @@ class PstRangeActionAdderImplTest {
             .withNetworkElement(networkElementId)
             .withOperator("BE")
             .withTapToAngleConversionMap(validTapToAngleConversionMap);
-        FaraoException exception = assertThrows(FaraoException.class, pstRangeActionAdder::add);
+        OpenRaoException exception = assertThrows(OpenRaoException.class, pstRangeActionAdder::add);
         assertEquals("Cannot add PstRangeAction without a initial tap. Please use withInitialTap() with a non null value", exception.getMessage());
     }
 
@@ -253,7 +253,7 @@ class PstRangeActionAdderImplTest {
             .withNetworkElement(networkElementId)
             .withOperator("BE")
             .withInitialTap(0);
-        FaraoException exception = assertThrows(FaraoException.class, pstRangeActionAdder::add);
+        OpenRaoException exception = assertThrows(OpenRaoException.class, pstRangeActionAdder::add);
         assertEquals("Cannot add PstRangeAction without a tap to angle conversion map. Please use withTapToAngleConversionMap() with a non null value", exception.getMessage());
     }
 
@@ -265,7 +265,7 @@ class PstRangeActionAdderImplTest {
             .withOperator("BE")
             .withInitialTap(0)
             .withTapToAngleConversionMap(new HashMap<>());
-        FaraoException exception = assertThrows(FaraoException.class, pstRangeActionAdder::add);
+        OpenRaoException exception = assertThrows(OpenRaoException.class, pstRangeActionAdder::add);
         assertEquals("TapToAngleConversionMap of PST id1 should at least contain 2 entries.", exception.getMessage());
     }
 
@@ -277,7 +277,7 @@ class PstRangeActionAdderImplTest {
             .withOperator("BE")
             .withInitialTap(0)
             .withTapToAngleConversionMap(Map.of(-2, -20., 2, 20.));
-        FaraoException exception = assertThrows(FaraoException.class, pstRangeActionAdder::add);
+        OpenRaoException exception = assertThrows(OpenRaoException.class, pstRangeActionAdder::add);
         assertEquals("TapToAngleConversionMap of PST id1 should contain all the consecutive taps between -2 and 2", exception.getMessage());
     }
 
@@ -289,7 +289,7 @@ class PstRangeActionAdderImplTest {
             .withOperator("BE")
             .withInitialTap(0)
             .withTapToAngleConversionMap(Map.of(-2, -20., -1, -15., 0, 0., 1, -10., 2, 20.));
-        FaraoException exception = assertThrows(FaraoException.class, pstRangeActionAdder::add);
+        OpenRaoException exception = assertThrows(OpenRaoException.class, pstRangeActionAdder::add);
         assertEquals("TapToAngleConversionMap of PST id1 should be increasing or decreasing", exception.getMessage());
     }
 
@@ -301,7 +301,7 @@ class PstRangeActionAdderImplTest {
             .withOperator("BE")
             .withInitialTap(10)
             .withTapToAngleConversionMap(validTapToAngleConversionMap);
-        FaraoException exception = assertThrows(FaraoException.class, pstRangeActionAdder::add);
+        OpenRaoException exception = assertThrows(OpenRaoException.class, pstRangeActionAdder::add);
         assertEquals("initialTap of PST id1 must be included into its tapToAngleConversionMap", exception.getMessage());
     }
 

@@ -6,7 +6,7 @@
  */
 package com.powsybl.open_rao.data.crac_impl;
 
-import com.powsybl.open_rao.commons.FaraoException;
+import com.powsybl.open_rao.commons.OpenRaoException;
 import com.powsybl.open_rao.commons.Unit;
 import com.powsybl.open_rao.data.crac_api.Crac;
 import com.powsybl.open_rao.data.crac_api.Instant;
@@ -112,7 +112,7 @@ class OnAngleConstraintAdderImplTest {
     @Test
     void testOutageException() {
         OnAngleConstraintAdder<NetworkActionAdder> adder = remedialActionAdder.newOnAngleConstraintUsageRule().withInstant(OUTAGE_INSTANT_ID).withAngleCnec("cnec2stateCurativeContingency1");
-        FaraoException exception = assertThrows(FaraoException.class, adder::add);
+        OpenRaoException exception = assertThrows(OpenRaoException.class, adder::add);
         assertEquals("OnAngleConstraint usage rules are not allowed for OUTAGE instant.", exception.getMessage());
     }
 
@@ -120,21 +120,21 @@ class OnAngleConstraintAdderImplTest {
     void testAbsentCnecException() {
         OnAngleConstraintAdder<NetworkActionAdder> adder = remedialActionAdder.newOnAngleConstraintUsageRule().withInstant(PREVENTIVE_INSTANT_ID)
             .withAngleCnec("fake_cnec");
-        FaraoException exception = assertThrows(FaraoException.class, adder::add);
+        OpenRaoException exception = assertThrows(OpenRaoException.class, adder::add);
         assertEquals("AngleCnec fake_cnec does not exist in crac. Consider adding it first.", exception.getMessage());
     }
 
     @Test
     void testNoCnecException() {
         OnAngleConstraintAdder<NetworkActionAdder> adder = remedialActionAdder.newOnAngleConstraintUsageRule().withInstant(PREVENTIVE_INSTANT_ID);
-        FaraoException exception = assertThrows(FaraoException.class, adder::add);
+        OpenRaoException exception = assertThrows(OpenRaoException.class, adder::add);
         assertEquals("Cannot add OnAngleConstraint without a angle cnec. Please use withAngleCnec() with a non null value", exception.getMessage());
     }
 
     @Test
     void testNoInstantException() {
         OnAngleConstraintAdder<NetworkActionAdder> adder = remedialActionAdder.newOnAngleConstraintUsageRule().withAngleCnec("cnec2stateCurativeContingency1");
-        FaraoException exception = assertThrows(FaraoException.class, adder::add);
+        OpenRaoException exception = assertThrows(OpenRaoException.class, adder::add);
         assertEquals("Cannot add OnInstant without a instant. Please use withInstant() with a non null value", exception.getMessage());
     }
 
@@ -170,23 +170,23 @@ class OnAngleConstraintAdderImplTest {
 
         // AUTO RA
         adder = remedialActionAdder.newOnAngleConstraintUsageRule().withInstant(AUTO_INSTANT_ID).withAngleCnec("cnec-prev"); // nok
-        Exception exception = assertThrows(FaraoException.class, adder::add);
+        Exception exception = assertThrows(OpenRaoException.class, adder::add);
         assertEquals("Remedial actions available at instant 'auto' on a CNEC constraint at instant 'preventive' are not allowed.", exception.getMessage());
         adder = remedialActionAdder.newOnAngleConstraintUsageRule().withInstant(AUTO_INSTANT_ID).withAngleCnec("cnec-out"); // nok
-        exception = assertThrows(FaraoException.class, adder::add);
+        exception = assertThrows(OpenRaoException.class, adder::add);
         assertEquals("Remedial actions available at instant 'auto' on a CNEC constraint at instant 'outage' are not allowed.", exception.getMessage());
         remedialActionAdder.newOnAngleConstraintUsageRule().withInstant(AUTO_INSTANT_ID).withAngleCnec("cnec-auto").add(); // ok
         remedialActionAdder.newOnAngleConstraintUsageRule().withInstant(AUTO_INSTANT_ID).withAngleCnec("cnec-cur").add(); // ok
 
         // CURATIVE RA
         adder = remedialActionAdder.newOnAngleConstraintUsageRule().withInstant(CURATIVE_INSTANT_ID).withAngleCnec("cnec-prev"); // nok
-        exception = assertThrows(FaraoException.class, adder::add);
+        exception = assertThrows(OpenRaoException.class, adder::add);
         assertEquals("Remedial actions available at instant 'curative' on a CNEC constraint at instant 'preventive' are not allowed.", exception.getMessage());
         adder = remedialActionAdder.newOnAngleConstraintUsageRule().withInstant(CURATIVE_INSTANT_ID).withAngleCnec("cnec-out"); // nok
-        exception = assertThrows(FaraoException.class, adder::add);
+        exception = assertThrows(OpenRaoException.class, adder::add);
         assertEquals("Remedial actions available at instant 'curative' on a CNEC constraint at instant 'outage' are not allowed.", exception.getMessage());
         adder = remedialActionAdder.newOnAngleConstraintUsageRule().withInstant(CURATIVE_INSTANT_ID).withAngleCnec("cnec-auto"); // nok
-        exception = assertThrows(FaraoException.class, adder::add);
+        exception = assertThrows(OpenRaoException.class, adder::add);
         assertEquals("Remedial actions available at instant 'curative' on a CNEC constraint at instant 'auto' are not allowed.", exception.getMessage());
         remedialActionAdder.newOnAngleConstraintUsageRule().withInstant(CURATIVE_INSTANT_ID).withAngleCnec("cnec-cur").add(); // ok
     }

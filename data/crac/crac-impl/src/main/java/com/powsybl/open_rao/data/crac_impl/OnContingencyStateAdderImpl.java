@@ -6,7 +6,7 @@
  */
 package com.powsybl.open_rao.data.crac_impl;
 
-import com.powsybl.open_rao.commons.FaraoException;
+import com.powsybl.open_rao.commons.OpenRaoException;
 import com.powsybl.open_rao.data.crac_api.Contingency;
 import com.powsybl.open_rao.data.crac_api.Instant;
 import com.powsybl.open_rao.data.crac_api.State;
@@ -60,16 +60,16 @@ public class OnContingencyStateAdderImpl<T extends AbstractRemedialActionAdder<T
         Instant instant = owner.getCrac().getInstant(instantId);
         if (instant.isPreventive()) {
             if (usageMethod != UsageMethod.FORCED) {
-                throw new FaraoException("OnContingencyState usage rules are not allowed for PREVENTIVE instant, except when FORCED. Please use newOnInstantUsageRule() instead.");
+                throw new OpenRaoException("OnContingencyState usage rules are not allowed for PREVENTIVE instant, except when FORCED. Please use newOnInstantUsageRule() instead.");
             }
             state = owner.getCrac().addPreventiveState();
         } else if (instant.isOutage()) {
-            throw new FaraoException("OnContingencyState usage rules are not allowed for OUTAGE instant.");
+            throw new OpenRaoException("OnContingencyState usage rules are not allowed for OUTAGE instant.");
         } else {
             assertAttributeNotNull(contingencyId, CLASS_NAME, "contingency", "withContingency()");
             Contingency contingency = owner.getCrac().getContingency(contingencyId);
             if (contingency == null) {
-                throw new FaraoException(String.format("Contingency %s of OnContingencyState usage rule does not exist in the crac. Use crac.newContingency() first.", contingencyId));
+                throw new OpenRaoException(String.format("Contingency %s of OnContingencyState usage rule does not exist in the crac. Use crac.newContingency() first.", contingencyId));
             }
             state = owner.getCrac().addState(contingency, instant);
         }

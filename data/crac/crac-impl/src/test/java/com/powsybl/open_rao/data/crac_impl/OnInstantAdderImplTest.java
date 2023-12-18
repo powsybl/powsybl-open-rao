@@ -6,7 +6,7 @@
  */
 package com.powsybl.open_rao.data.crac_impl;
 
-import com.powsybl.open_rao.commons.FaraoException;
+import com.powsybl.open_rao.commons.OpenRaoException;
 import com.powsybl.open_rao.data.crac_api.Crac;
 import com.powsybl.open_rao.data.crac_api.Instant;
 import com.powsybl.open_rao.data.crac_api.InstantKind;
@@ -94,7 +94,7 @@ class OnInstantAdderImplTest {
     void testNoInstant() {
         OnInstantAdder<NetworkActionAdder> onInstantAdder = remedialActionAdder.newOnInstantUsageRule()
             .withUsageMethod(UsageMethod.AVAILABLE);
-        FaraoException exception = assertThrows(FaraoException.class, onInstantAdder::add);
+        OpenRaoException exception = assertThrows(OpenRaoException.class, onInstantAdder::add);
         assertEquals("Cannot add OnInstant without a instant. Please use withInstant() with a non null value", exception.getMessage());
     }
 
@@ -102,7 +102,7 @@ class OnInstantAdderImplTest {
     void testNoUsageMethod() {
         OnInstantAdder<NetworkActionAdder> onInstantAdder = remedialActionAdder.newOnInstantUsageRule()
             .withInstant(PREVENTIVE_INSTANT_ID);
-        FaraoException exception = assertThrows(FaraoException.class, onInstantAdder::add);
+        OpenRaoException exception = assertThrows(OpenRaoException.class, onInstantAdder::add);
         assertEquals("Cannot add OnInstant without a usage method. Please use withUsageMethod() with a non null value", exception.getMessage());
     }
 
@@ -111,7 +111,7 @@ class OnInstantAdderImplTest {
         OnInstantAdder<NetworkActionAdder> onInstantAdder = remedialActionAdder.newOnInstantUsageRule()
             .withInstant(OUTAGE_INSTANT_ID)
             .withUsageMethod(UsageMethod.AVAILABLE);
-        FaraoException exception = assertThrows(FaraoException.class, onInstantAdder::add);
+        OpenRaoException exception = assertThrows(OpenRaoException.class, onInstantAdder::add);
         assertEquals("OnInstant usage rules are not allowed for OUTAGE instant.", exception.getMessage());
     }
 }

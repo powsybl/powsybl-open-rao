@@ -6,7 +6,7 @@
  */
 package com.powsybl.open_rao.data.crac_api;
 
-import com.powsybl.open_rao.commons.FaraoException;
+import com.powsybl.open_rao.commons.OpenRaoException;
 import com.powsybl.open_rao.data.crac_api.cnec.*;
 import com.powsybl.open_rao.data.crac_api.network_action.NetworkAction;
 import com.powsybl.open_rao.data.crac_api.network_action.NetworkActionAdder;
@@ -197,7 +197,7 @@ public interface Crac extends Identifiable<Crac> {
         Objects.requireNonNull(contingencyId, "Contingency ID should be defined.");
         Objects.requireNonNull(instant, "Instant should be defined.");
         if (getContingency(contingencyId) == null) {
-            throw new FaraoException(format("Contingency %s does not exist, as well as the related state.", contingencyId));
+            throw new OpenRaoException(format("Contingency %s does not exist, as well as the related state.", contingencyId));
         }
         return getState(getContingency(contingencyId), instant);
     }

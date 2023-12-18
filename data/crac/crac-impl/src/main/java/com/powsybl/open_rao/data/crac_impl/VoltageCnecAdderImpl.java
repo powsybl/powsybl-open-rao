@@ -7,7 +7,7 @@
 
 package com.powsybl.open_rao.data.crac_impl;
 
-import com.powsybl.open_rao.commons.FaraoException;
+import com.powsybl.open_rao.commons.OpenRaoException;
 import com.powsybl.open_rao.commons.Unit;
 import com.powsybl.open_rao.data.crac_api.State;
 import com.powsybl.open_rao.data.crac_api.cnec.VoltageCnec;
@@ -35,7 +35,7 @@ public class VoltageCnecAdderImpl extends AbstractCnecAdderImpl<VoltageCnecAdder
     @Override
     public VoltageCnecAdder withNetworkElement(String networkElementId, String networkElementName) {
         if (!this.networkElementsIdAndName.entrySet().isEmpty()) {
-            throw new FaraoException("Cannot add multiple network elements for a voltage cnec.");
+            throw new OpenRaoException("Cannot add multiple network elements for a voltage cnec.");
         }
         super.withNetworkElement(networkElementId, networkElementName);
         return this;
@@ -60,7 +60,7 @@ public class VoltageCnecAdderImpl extends AbstractCnecAdderImpl<VoltageCnecAdder
         checkCnec();
 
         if (optimized) {
-            throw new FaraoException(format("Error while adding cnec %s : Farao does not allow the optimization of VoltageCnecs.", id));
+            throw new OpenRaoException(format("Error while adding cnec %s : Farao does not allow the optimization of VoltageCnecs.", id));
         }
 
         checkAndInitThresholds();
@@ -83,11 +83,11 @@ public class VoltageCnecAdderImpl extends AbstractCnecAdderImpl<VoltageCnecAdder
          */
 
         if (this.thresholds.isEmpty()) {
-            throw new FaraoException("Cannot add an VoltageCnec without a threshold. Please use newThreshold");
+            throw new OpenRaoException("Cannot add an VoltageCnec without a threshold. Please use newThreshold");
         }
 
         if (this.thresholds.stream().anyMatch(th -> !th.getUnit().equals(Unit.KILOVOLT))) {
-            throw new FaraoException("VoltageCnec threshold must be in KILOVOLT");
+            throw new OpenRaoException("VoltageCnec threshold must be in KILOVOLT");
         }
     }
 }

@@ -7,7 +7,7 @@
 
 package com.powsybl.open_rao.data.crac_api;
 
-import com.powsybl.open_rao.commons.FaraoException;
+import com.powsybl.open_rao.commons.OpenRaoException;
 import com.google.common.base.Suppliers;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.util.ServiceLoaderCache;
@@ -53,7 +53,7 @@ public interface CracFactory {
      *
      * @param factoryName: The name of the {@code CracFactory} implementation.
      * @return An instance of the {@code CracFactory} implementation.
-     * @throws FaraoException if the factory name is not recognized as an existent implementation.
+     * @throws OpenRaoException if the factory name is not recognized as an existent implementation.
      */
     static CracFactory find(String factoryName) {
         List<CracFactory> providers = Suppliers.memoize(() -> new ServiceLoaderCache<>(CracFactory.class).getServices()).get();
@@ -65,9 +65,9 @@ public interface CracFactory {
                     return provider;
                 }
             }
-            throw new FaraoException("Crac factory '" + factoryName + "' not found");
+            throw new OpenRaoException("Crac factory '" + factoryName + "' not found");
         } else {
-            throw new FaraoException("No CracFactory implementation found, or no default implementation set and multiple implementation found.");
+            throw new OpenRaoException("No CracFactory implementation found, or no default implementation set and multiple implementation found.");
         }
     }
 
@@ -75,7 +75,7 @@ public interface CracFactory {
      * Get an instance of the default {@code CracFactory} implementation
      *
      * @return An instance of the default {@code CracFactory} implementation.
-     * @throws FaraoException if no default has been set and multiple {@code CracFactory} implementations exist.
+     * @throws OpenRaoException if no default has been set and multiple {@code CracFactory} implementations exist.
      */
     static CracFactory findDefault() {
         String factoryName = PlatformConfig.defaultConfig().getOptionalModuleConfig("crac")

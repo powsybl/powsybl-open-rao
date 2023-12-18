@@ -7,7 +7,7 @@
 
 package com.powsybl.open_rao.data.crac_impl;
 
-import com.powsybl.open_rao.commons.FaraoException;
+import com.powsybl.open_rao.commons.OpenRaoException;
 import com.powsybl.open_rao.commons.PhysicalParameter;
 import com.powsybl.open_rao.commons.Unit;
 import com.powsybl.open_rao.data.crac_api.State;
@@ -40,7 +40,7 @@ public class FlowCnecAdderImpl extends AbstractCnecAdderImpl<FlowCnecAdder> impl
     @Override
     public FlowCnecAdder withNetworkElement(String networkElementId, String networkElementName) {
         if (!this.networkElementsIdAndName.entrySet().isEmpty()) {
-            throw new FaraoException("Cannot add multiple network elements for a flow cnec.");
+            throw new OpenRaoException("Cannot add multiple network elements for a flow cnec.");
         }
         super.withNetworkElement(networkElementId, networkElementName);
         return this;
@@ -122,11 +122,11 @@ public class FlowCnecAdderImpl extends AbstractCnecAdderImpl<FlowCnecAdder> impl
          */
 
         if (this.thresholds.isEmpty()) {
-            throw new FaraoException("Cannot add a cnec without a threshold. Please use newThreshold");
+            throw new OpenRaoException("Cannot add a cnec without a threshold. Please use newThreshold");
         }
 
         if (this.thresholds.stream().anyMatch(th -> !th.getUnit().getPhysicalParameter().equals(PhysicalParameter.FLOW))) {
-            throw new FaraoException("FlowCnec threshold must be in a flow unit (Unit.AMPERE, Unit.MEGAWATT or Unit.PERCENT_IMAX)");
+            throw new OpenRaoException("FlowCnec threshold must be in a flow unit (Unit.AMPERE, Unit.MEGAWATT or Unit.PERCENT_IMAX)");
         }
 
         if ((this.thresholds.stream().anyMatch(th -> th.getUnit().equals(Unit.AMPERE) || th.getUnit().equals(Unit.PERCENT_IMAX)))
@@ -138,7 +138,7 @@ public class FlowCnecAdderImpl extends AbstractCnecAdderImpl<FlowCnecAdder> impl
 
             I do not think that nominalVoltage are absolutely required with thresholds in MEGAWATT, but I'm not 100% sure.
              */
-            throw new FaraoException(String.format("nominal voltages on both side of FlowCnec %s must be defined, as one of its threshold is on PERCENT_IMAX or AMPERE. Please use withNominalVoltage()", id));
+            throw new OpenRaoException(String.format("nominal voltages on both side of FlowCnec %s must be defined, as one of its threshold is on PERCENT_IMAX or AMPERE. Please use withNominalVoltage()", id));
         }
 
         for (BranchThresholdImpl branchThreshold : thresholds) {
@@ -151,13 +151,13 @@ public class FlowCnecAdderImpl extends AbstractCnecAdderImpl<FlowCnecAdder> impl
         if (branchThreshold.getUnit().equals(Unit.PERCENT_IMAX)
             && branchThreshold.getSide().equals(Side.LEFT)
             && (iMaxLeft == null || Double.isNaN(iMaxLeft))) {
-            throw new FaraoException(String.format("iMax on left side of FlowCnec %s must be defined, as one of its threshold is on PERCENT_IMAX on the left side. Please use withIMax()", id));
+            throw new OpenRaoException(String.format("iMax on left side of FlowCnec %s must be defined, as one of its threshold is on PERCENT_IMAX on the left side. Please use withIMax()", id));
         }
 
         if (branchThreshold.getUnit().equals(Unit.PERCENT_IMAX)
             && branchThreshold.getSide().equals(Side.RIGHT)
             && (iMaxRight == null || Double.isNaN(iMaxRight))) {
-            throw new FaraoException(String.format("iMax on right side of FlowCnec %s must be defined, as one of its threshold is on PERCENT_IMAX on the right side. Please use withIMax()", id));
+            throw new OpenRaoException(String.format("iMax on right side of FlowCnec %s must be defined, as one of its threshold is on PERCENT_IMAX on the right side. Please use withIMax()", id));
         }
     }
 }

@@ -7,7 +7,7 @@
 
 package com.powsybl.open_rao.data.crac_impl;
 
-import com.powsybl.open_rao.commons.FaraoException;
+import com.powsybl.open_rao.commons.OpenRaoException;
 import com.powsybl.open_rao.data.crac_api.range_action.PstRangeActionAdder;
 import com.powsybl.open_rao.data.crac_api.range.RangeType;
 import com.powsybl.open_rao.data.crac_api.range.TapRange;
@@ -57,7 +57,7 @@ public class TapRangeAdderImpl implements TapRangeAdder {
         AdderUtils.assertAttributeNotNull(rangeType, CLASS_NAME, "range type", "withRangeType()");
 
         if (maxTap < minTap) {
-            throw new FaraoException("Max tap of TapRange must be equal or greater than min tap.");
+            throw new OpenRaoException("Max tap of TapRange must be equal or greater than min tap.");
         }
 
         TapRange pstRange = new TapRangeImpl(minTap, maxTap, rangeType);

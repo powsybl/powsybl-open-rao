@@ -6,7 +6,7 @@
  */
 package com.powsybl.open_rao.data.crac_impl;
 
-import com.powsybl.open_rao.commons.FaraoException;
+import com.powsybl.open_rao.commons.OpenRaoException;
 import com.powsybl.open_rao.data.crac_api.NetworkElement;
 import com.powsybl.open_rao.data.crac_api.network_action.*;
 
@@ -56,7 +56,7 @@ public class SwitchPairAdderImpl implements SwitchPairAdder {
         assertAttributeNotNull(switchToOpenId, "SwitchPair", "switch to open", "withSwitchToOpen()");
         assertAttributeNotNull(switchToCloseId, "SwitchPair", "switch to close", "withSwitchToClose()");
         if (switchToOpenId.equals(switchToCloseId)) {
-            throw new FaraoException("A switch pair cannot be created with the same switch to open & close!");
+            throw new OpenRaoException("A switch pair cannot be created with the same switch to open & close!");
         }
         NetworkElement switchToOpen = this.ownerAdder.getCrac().addNetworkElement(switchToOpenId, switchToOpenName);
         NetworkElement switchToClose = this.ownerAdder.getCrac().addNetworkElement(switchToCloseId, switchToCloseName);

@@ -6,7 +6,7 @@
  */
 package com.powsybl.open_rao.data.crac_impl;
 
-import com.powsybl.open_rao.commons.FaraoException;
+import com.powsybl.open_rao.commons.OpenRaoException;
 import com.powsybl.open_rao.commons.Unit;
 import com.powsybl.open_rao.data.crac_api.NetworkElement;
 import com.powsybl.open_rao.data.crac_api.network_action.InjectionSetpoint;
@@ -61,7 +61,7 @@ public class InjectionSetpointAdderImpl implements InjectionSetpointAdder {
         assertAttributeNotNull(setpoint, "InjectionSetPoint", "setpoint", "withSetPoint()");
         assertAttributeNotNull(unit, "InjectionSetPoint", "unit", "withUnit()");
         if (unit == Unit.SECTION_COUNT && (setpoint < 0 || Math.abs(setpoint - Math.floor(setpoint)) > 1e-6)) {
-            throw new FaraoException("With a SECTION_COUNT unit, setpoint should be a positive integer");
+            throw new OpenRaoException("With a SECTION_COUNT unit, setpoint should be a positive integer");
         }
 
         NetworkElement networkElement = this.ownerAdder.getCrac().addNetworkElement(networkElementId, networkElementName);

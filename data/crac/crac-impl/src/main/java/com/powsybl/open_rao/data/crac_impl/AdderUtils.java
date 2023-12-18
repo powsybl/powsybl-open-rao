@@ -6,7 +6,7 @@
  */
 package com.powsybl.open_rao.data.crac_impl;
 
-import com.powsybl.open_rao.commons.FaraoException;
+import com.powsybl.open_rao.commons.OpenRaoException;
 
 import java.util.Collection;
 import java.util.Objects;
@@ -21,14 +21,14 @@ public final class AdderUtils {
 
     static void assertAttributeNotNull(Object attribute, String className, String attributeDescription, String methodName) {
         if (Objects.isNull(attribute)) {
-            throw new FaraoException(String.format("Cannot add %s without a %s. Please use %s with a non null value", className, attributeDescription, methodName));
+            throw new OpenRaoException(String.format("Cannot add %s without a %s. Please use %s with a non null value", className, attributeDescription, methodName));
             // example: "Cannot add a PstRangeAction without a maximum value. Please use setMaxValue()."
         }
     }
 
     static void assertAttributeNotEmpty(Collection<?> attribute, String className, String attributeDescription, String methodName) {
         if (attribute.isEmpty()) {
-            throw new FaraoException(String.format("Cannot add %s without a %s. Please use %s", className, attributeDescription, methodName));
+            throw new OpenRaoException(String.format("Cannot add %s without a %s. Please use %s", className, attributeDescription, methodName));
             // example: "Cannot add a InjectionShiftRangeAction without an injectionShiftKey. Please use withNetworkElementAndKey()."
         }
     }

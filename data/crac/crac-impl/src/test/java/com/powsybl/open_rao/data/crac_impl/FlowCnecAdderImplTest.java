@@ -7,7 +7,7 @@
 
 package com.powsybl.open_rao.data.crac_impl;
 
-import com.powsybl.open_rao.commons.FaraoException;
+import com.powsybl.open_rao.commons.OpenRaoException;
 import com.powsybl.open_rao.commons.Unit;
 import com.powsybl.open_rao.data.crac_api.Contingency;
 import com.powsybl.open_rao.data.crac_api.Instant;
@@ -121,8 +121,8 @@ class FlowCnecAdderImplTest {
             .newThreshold().withUnit(Unit.MEGAWATT).withSide(LEFT).withMax(maxValueInMw).withMin(-maxValueInMw).add()
             .withReliabilityMargin(frmInMw)
             .add();
-        assertEquals(maxValueInMw - frmInMw, cnec.getUpperBound(LEFT, Unit.MEGAWATT).orElseThrow(FaraoException::new), 0.0);
-        assertEquals(frmInMw - maxValueInMw, cnec.getLowerBound(LEFT, Unit.MEGAWATT).orElseThrow(FaraoException::new), 0.0);
+        assertEquals(maxValueInMw - frmInMw, cnec.getUpperBound(LEFT, Unit.MEGAWATT).orElseThrow(OpenRaoException::new), 0.0);
+        assertEquals(frmInMw - maxValueInMw, cnec.getLowerBound(LEFT, Unit.MEGAWATT).orElseThrow(OpenRaoException::new), 0.0);
     }
 
     @Test
@@ -229,7 +229,7 @@ class FlowCnecAdderImplTest {
     void testUniqueNetworkElement() {
         FlowCnecAdder flowCnecAdder = crac.newFlowCnec()
             .withNetworkElement("neId1", "neName1");
-        FaraoException exception = assertThrows(FaraoException.class, () -> flowCnecAdder.withNetworkElement("neId2", "neName2"));
+        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> flowCnecAdder.withNetworkElement("neId2", "neName2"));
         assertEquals("Cannot add multiple network elements for a flow cnec.", exception.getMessage());
     }
 
@@ -243,7 +243,7 @@ class FlowCnecAdderImplTest {
             .newThreshold().withUnit(Unit.MEGAWATT).withSide(LEFT).withMax(1000.0).add()
             .withNominalVoltage(220)
             .withIMax(2000.);
-        FaraoException exception = assertThrows(FaraoException.class, flowCnecAdder::add);
+        OpenRaoException exception = assertThrows(OpenRaoException.class, flowCnecAdder::add);
         assertEquals("Cannot add a FlowCnec object with no specified id. Please use withId()", exception.getMessage());
     }
 
@@ -257,7 +257,7 @@ class FlowCnecAdderImplTest {
             .withNetworkElement("neId1", "neName1")
             .withNominalVoltage(220)
             .withIMax(2000.);
-        FaraoException exception = assertThrows(FaraoException.class, flowCnecAdder::add);
+        OpenRaoException exception = assertThrows(OpenRaoException.class, flowCnecAdder::add);
         assertEquals("Cannot add Cnec without a instant. Please use withInstant() with a non null value", exception.getMessage());
     }
 
@@ -271,7 +271,7 @@ class FlowCnecAdderImplTest {
             .newThreshold().withSide(LEFT).withUnit(Unit.MEGAWATT).withMax(1000.0).add()
             .withNominalVoltage(220)
             .withIMax(2000.);
-        FaraoException exception = assertThrows(FaraoException.class, flowCnecAdder::add);
+        OpenRaoException exception = assertThrows(OpenRaoException.class, flowCnecAdder::add);
         assertEquals("Cannot add Cnec without a network element. Please use withNetworkElement()", exception.getMessage());
     }
 
@@ -285,7 +285,7 @@ class FlowCnecAdderImplTest {
             .withNetworkElement("neId1", "neName1")
             .withNominalVoltage(220)
             .withIMax(2000.);
-        FaraoException exception = assertThrows(FaraoException.class, flowCnecAdder::add);
+        OpenRaoException exception = assertThrows(OpenRaoException.class, flowCnecAdder::add);
         assertEquals("Cannot add a cnec without a threshold. Please use newThreshold", exception.getMessage());
     }
 
@@ -304,7 +304,7 @@ class FlowCnecAdderImplTest {
             .newThreshold().withUnit(Unit.MEGAWATT).withSide(LEFT).withMax(100.0).withMin(-100.0).add()
             .withNominalVoltage(220)
             .withIMax(2000.);
-        FaraoException exception = assertThrows(FaraoException.class, flowCnecAdder::add);
+        OpenRaoException exception = assertThrows(OpenRaoException.class, flowCnecAdder::add);
         assertEquals("Cannot add a cnec with an already existing ID - Cnec ID.", exception.getMessage());
     }
 
@@ -317,7 +317,7 @@ class FlowCnecAdderImplTest {
             .newThreshold().withUnit(Unit.MEGAWATT).withSide(LEFT).withMax(100.0).withMin(-100.0).add()
             .withNominalVoltage(220)
             .withIMax(2000.);
-        FaraoException exception = assertThrows(FaraoException.class, flowCnecAdder::add);
+        OpenRaoException exception = assertThrows(OpenRaoException.class, flowCnecAdder::add);
         assertEquals("You cannot define a contingency for a preventive cnec.", exception.getMessage());
     }
 
@@ -329,7 +329,7 @@ class FlowCnecAdderImplTest {
             .newThreshold().withUnit(Unit.MEGAWATT).withSide(LEFT).withMax(100.0).withMin(-100.0).add()
             .withNominalVoltage(220)
             .withIMax(2000.);
-        FaraoException exception = assertThrows(FaraoException.class, flowCnecAdder::add);
+        OpenRaoException exception = assertThrows(OpenRaoException.class, flowCnecAdder::add);
         assertEquals("You must define a contingency for a non-preventive cnec.", exception.getMessage());
     }
 
@@ -341,7 +341,7 @@ class FlowCnecAdderImplTest {
             .newThreshold().withUnit(Unit.MEGAWATT).withSide(LEFT).withMax(100.0).withMin(-100.0).add()
             .withNominalVoltage(220)
             .withIMax(2000.);
-        FaraoException exception = assertThrows(FaraoException.class, flowCnecAdder::add);
+        OpenRaoException exception = assertThrows(OpenRaoException.class, flowCnecAdder::add);
         assertEquals("You must define a contingency for a non-preventive cnec.", exception.getMessage());
     }
 
@@ -353,7 +353,7 @@ class FlowCnecAdderImplTest {
             .newThreshold().withUnit(Unit.MEGAWATT).withSide(LEFT).withMax(100.0).withMin(-100.0).add()
             .withNominalVoltage(220)
             .withIMax(2000.);
-        FaraoException exception = assertThrows(FaraoException.class, flowCnecAdder::add);
+        OpenRaoException exception = assertThrows(OpenRaoException.class, flowCnecAdder::add);
         assertEquals("You must define a contingency for a non-preventive cnec.", exception.getMessage());
     }
 
@@ -366,7 +366,7 @@ class FlowCnecAdderImplTest {
             .newThreshold().withUnit(Unit.MEGAWATT).withSide(LEFT).withMax(100.0).withMin(-100.0).add()
             .withNominalVoltage(220)
             .withIMax(2000.);
-        FaraoException exception = assertThrows(FaraoException.class, flowCnecAdder::add);
+        OpenRaoException exception = assertThrows(OpenRaoException.class, flowCnecAdder::add);
         assertEquals("Contingency absent-from-crac-contingency of Cnec Cnec ID does not exist in the crac. Use crac.newContingency() first.", exception.getMessage());
     }
 
@@ -377,7 +377,7 @@ class FlowCnecAdderImplTest {
             .withNetworkElement("Network Element ID")
             .newThreshold().withUnit(Unit.PERCENT_IMAX).withSide(LEFT).withMax(1.).withMin(-1.).add()
             .withNominalVoltage(220.);
-        FaraoException exception = assertThrows(FaraoException.class, flowCnecAdder::add);
+        OpenRaoException exception = assertThrows(OpenRaoException.class, flowCnecAdder::add);
         assertEquals("iMax on left side of FlowCnec Cnec ID must be defined, as one of its threshold is on PERCENT_IMAX on the left side. Please use withIMax()", exception.getMessage());
     }
 
@@ -389,7 +389,7 @@ class FlowCnecAdderImplTest {
             .newThreshold().withUnit(Unit.PERCENT_IMAX).withSide(LEFT).withMax(1.).withMin(-1.).add()
             .withNominalVoltage(220.)
             .withIMax(1000., RIGHT); // threshold on left side cannot be interpreted
-        FaraoException exception = assertThrows(FaraoException.class, flowCnecAdder::add);
+        OpenRaoException exception = assertThrows(OpenRaoException.class, flowCnecAdder::add);
         assertEquals("iMax on left side of FlowCnec Cnec ID must be defined, as one of its threshold is on PERCENT_IMAX on the left side. Please use withIMax()", exception.getMessage());
     }
 
@@ -400,7 +400,7 @@ class FlowCnecAdderImplTest {
             .withNetworkElement("Network Element ID")
             .newThreshold().withUnit(Unit.AMPERE).withSide(LEFT).withMax(1000.).add()
             .withIMax(1000.);
-        FaraoException exception = assertThrows(FaraoException.class, flowCnecAdder::add);
+        OpenRaoException exception = assertThrows(OpenRaoException.class, flowCnecAdder::add);
         assertEquals("nominal voltages on both side of FlowCnec Cnec ID must be defined, as one of its threshold is on PERCENT_IMAX or AMPERE. Please use withNominalVoltage()", exception.getMessage());
     }
 
@@ -412,7 +412,7 @@ class FlowCnecAdderImplTest {
             .newThreshold().withUnit(Unit.PERCENT_IMAX).withSide(LEFT).withMax(1000.).add()
             .withNominalVoltage(220., LEFT) // should be defined on both side
             .withIMax(1000.);
-        FaraoException exception = assertThrows(FaraoException.class, flowCnecAdder::add);
+        OpenRaoException exception = assertThrows(OpenRaoException.class, flowCnecAdder::add);
         assertEquals("nominal voltages on both side of FlowCnec Cnec ID must be defined, as one of its threshold is on PERCENT_IMAX or AMPERE. Please use withNominalVoltage()", exception.getMessage());
     }
 
@@ -422,7 +422,7 @@ class FlowCnecAdderImplTest {
             .withInstant(PREVENTIVE_INSTANT_ID)
             .withNetworkElement("Network Element ID")
             .newThreshold();
-        FaraoException exception = assertThrows(FaraoException.class, () -> branchThresholdAdder.withUnit(Unit.KILOVOLT));
+        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> branchThresholdAdder.withUnit(Unit.KILOVOLT));
         assertEquals("kV Unit is not suited to measure a FLOW value.", exception.getMessage());
     }
 }

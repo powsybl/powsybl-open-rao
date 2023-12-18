@@ -6,7 +6,7 @@
  */
 package com.powsybl.open_rao.data.crac_impl;
 
-import com.powsybl.open_rao.commons.FaraoException;
+import com.powsybl.open_rao.commons.OpenRaoException;
 import com.powsybl.open_rao.data.crac_api.range.StandardRange;
 import com.powsybl.open_rao.data.crac_api.range.StandardRangeAdder;
 import com.powsybl.open_rao.data.crac_api.range_action.StandardRangeActionAdder;
@@ -53,7 +53,7 @@ public abstract class AbstractStandardRangeActionAdder<T extends StandardRangeAc
     protected void checkAutoUsageRules() {
         usageRules.forEach(usageRule -> {
             if (usageRule.getInstant().isAuto() && Objects.isNull(speed)) {
-                throw new FaraoException("Cannot create an AUTO standard range action without speed defined");
+                throw new OpenRaoException("Cannot create an AUTO standard range action without speed defined");
             }
         });
     }

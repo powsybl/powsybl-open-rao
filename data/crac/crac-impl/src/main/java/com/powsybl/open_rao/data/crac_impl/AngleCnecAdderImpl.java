@@ -7,7 +7,7 @@
 
 package com.powsybl.open_rao.data.crac_impl;
 
-import com.powsybl.open_rao.commons.FaraoException;
+import com.powsybl.open_rao.commons.OpenRaoException;
 import com.powsybl.open_rao.commons.Unit;
 import com.powsybl.open_rao.data.crac_api.State;
 import com.powsybl.open_rao.data.crac_api.cnec.AngleCnec;
@@ -36,12 +36,12 @@ public class AngleCnecAdderImpl extends AbstractCnecAdderImpl<AngleCnecAdder> im
 
     @Override
     public AngleCnecAdder withNetworkElement(String networkElementId) {
-        throw new FaraoException("For an angle cnec, use withExportingNetworkElement() and withImportingNetworkElement().");
+        throw new OpenRaoException("For an angle cnec, use withExportingNetworkElement() and withImportingNetworkElement().");
     }
 
     @Override
     public AngleCnecAdder withNetworkElement(String networkElementId, String networkElementName) {
-        throw new FaraoException("For an angle cnec, use withExportingNetworkElement() and withImportingNetworkElement().");
+        throw new OpenRaoException("For an angle cnec, use withExportingNetworkElement() and withImportingNetworkElement().");
     }
 
     @Override
@@ -89,7 +89,7 @@ public class AngleCnecAdderImpl extends AbstractCnecAdderImpl<AngleCnecAdder> im
         checkCnec();
 
         if (optimized) {
-            throw new FaraoException(format("Error while adding cnec %s : Farao does not allow the optimization of AngleCnecs.", id));
+            throw new OpenRaoException(format("Error while adding cnec %s : Farao does not allow the optimization of AngleCnecs.", id));
         }
 
         checkAndInitThresholds();
@@ -113,11 +113,11 @@ public class AngleCnecAdderImpl extends AbstractCnecAdderImpl<AngleCnecAdder> im
          */
 
         if (this.thresholds.isEmpty()) {
-            throw new FaraoException("Cannot add an AngleCnec without a threshold. Please use newThreshold");
+            throw new OpenRaoException("Cannot add an AngleCnec without a threshold. Please use newThreshold");
         }
 
         if (this.thresholds.stream().anyMatch(th -> !th.getUnit().equals(Unit.DEGREE))) {
-            throw new FaraoException("AngleCnec threshold must be in DEGREE");
+            throw new OpenRaoException("AngleCnec threshold must be in DEGREE");
         }
     }
 

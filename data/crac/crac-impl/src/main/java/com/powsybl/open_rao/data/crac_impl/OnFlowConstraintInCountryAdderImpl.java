@@ -6,7 +6,7 @@
  */
 package com.powsybl.open_rao.data.crac_impl;
 
-import com.powsybl.open_rao.commons.FaraoException;
+import com.powsybl.open_rao.commons.OpenRaoException;
 import com.powsybl.open_rao.data.crac_api.Instant;
 import com.powsybl.open_rao.data.crac_api.usage_rule.OnFlowConstraintInCountry;
 import com.powsybl.open_rao.data.crac_api.usage_rule.OnFlowConstraintInCountryAdder;
@@ -46,7 +46,7 @@ public class OnFlowConstraintInCountryAdderImpl<T extends AbstractRemedialAction
 
         Instant instant = owner.getCrac().getInstant(instantId);
         if (instant.isOutage()) {
-            throw new FaraoException("OnFlowConstraintInCountry usage rules are not allowed for OUTAGE instant.");
+            throw new OpenRaoException("OnFlowConstraintInCountry usage rules are not allowed for OUTAGE instant.");
         }
         if (instant.isPreventive()) {
             owner.getCrac().addPreventiveState();

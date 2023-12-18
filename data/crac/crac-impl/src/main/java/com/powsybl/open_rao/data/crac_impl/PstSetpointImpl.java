@@ -7,7 +7,7 @@
 
 package com.powsybl.open_rao.data.crac_impl;
 
-import com.powsybl.open_rao.commons.FaraoException;
+import com.powsybl.open_rao.commons.OpenRaoException;
 import com.powsybl.open_rao.data.crac_api.NetworkElement;
 import com.powsybl.open_rao.data.crac_api.network_action.PstSetpoint;
 import com.powsybl.iidm.network.Network;
@@ -64,7 +64,7 @@ public final class PstSetpointImpl implements PstSetpoint {
         if (normalizedSetPoint >= phaseTapChanger.getLowTapPosition() && normalizedSetPoint <= phaseTapChanger.getHighTapPosition()) {
             phaseTapChanger.setTapPosition(normalizedSetPoint);
         } else {
-            throw new FaraoException(String.format(
+            throw new OpenRaoException(String.format(
                     "Tap value %d not in the range of high and low tap positions [%d,%d] of the phase tap changer %s steps",
                     normalizedSetPoint,
                     phaseTapChanger.getLowTapPosition(),

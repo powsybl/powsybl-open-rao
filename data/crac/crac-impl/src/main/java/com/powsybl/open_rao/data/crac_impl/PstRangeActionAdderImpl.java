@@ -7,7 +7,7 @@
 
 package com.powsybl.open_rao.data.crac_impl;
 
-import com.powsybl.open_rao.commons.FaraoException;
+import com.powsybl.open_rao.commons.OpenRaoException;
 import com.powsybl.open_rao.data.crac_api.*;
 import com.powsybl.open_rao.data.crac_api.range.RangeType;
 import com.powsybl.open_rao.data.crac_api.range.TapRange;
@@ -87,7 +87,7 @@ public class PstRangeActionAdderImpl extends AbstractRemedialActionAdder<PstRang
         assertAttributeNotNull(tapToAngleConversionMap, PST_RANGE_ACTION, "tap to angle conversion map", "withTapToAngleConversionMap()");
 
         if (!Objects.isNull(getCrac().getRemedialAction(id))) {
-            throw new FaraoException(String.format("A remedial action with id %s already exists", id));
+            throw new OpenRaoException(String.format("A remedial action with id %s already exists", id));
         }
 
         List<TapRange> validRanges = checkRanges();
@@ -137,10 +137,10 @@ public class PstRangeActionAdderImpl extends AbstractRemedialActionAdder<PstRang
     private void checkTapToAngleConversionMap() {
 
         if (tapToAngleConversionMap.size() < 2) {
-            throw new FaraoException(String.format("TapToAngleConversionMap of PST %s should at least contain 2 entries.", id));
+            throw new OpenRaoException(String.format("TapToAngleConversionMap of PST %s should at least contain 2 entries.", id));
         }
         if (tapToAngleConversionMap.keySet().stream().anyMatch(Objects::isNull) || tapToAngleConversionMap.values().stream().anyMatch(Objects::isNull)) {
-            throw new FaraoException(String.format("TapToAngleConversionMap of PST %s cannot contain null values", id));
+            throw new OpenRaoException(String.format("TapToAngleConversionMap of PST %s cannot contain null values", id));
         }
 
         int minTap = Collections.min(tapToAngleConversionMap.keySet());
@@ -151,24 +151,24 @@ public class PstRangeActionAdderImpl extends AbstractRemedialActionAdder<PstRang
 
         for (int tap = minTap + 1; tap < maxTap; tap++) {
             if (!tapToAngleConversionMap.containsKey(tap)) {
-                throw new FaraoException(String.format("TapToAngleConversionMap of PST %s should contain all the consecutive taps between %d and %d", id, minTap, maxTap));
+                throw new OpenRaoException(String.format("TapToAngleConversionMap of PST %s should contain all the consecutive taps between %d and %d", id, minTap, maxTap));
             }
             if (!isInverted && tapToAngleConversionMap.get(tap) < previousTapAngle
                 || isInverted && tapToAngleConversionMap.get(tap) > previousTapAngle) {
-                throw new FaraoException(String.format("TapToAngleConversionMap of PST %s should be increasing or decreasing", id));
+                throw new OpenRaoException(String.format("TapToAngleConversionMap of PST %s should be increasing or decreasing", id));
             }
             previousTapAngle = tapToAngleConversionMap.get(tap);
         }
 
         if (initialTap > maxTap || initialTap < minTap) {
-            throw new FaraoException(String.format("initialTap of PST %s must be included into its tapToAngleConversionMap", id));
+            throw new OpenRaoException(String.format("initialTap of PST %s must be included into its tapToAngleConversionMap", id));
         }
     }
 
     void checkAutoUsageRules() {
         usageRules.forEach(usageRule -> {
             if (usageRule.getInstant().isAuto() && Objects.isNull(speed)) {
-                throw new FaraoException("Cannot create an AUTO Pst range action without speed defined");
+                throw new OpenRaoException("Cannot create an AUTO Pst range action without speed defined");
             }
         });
     }

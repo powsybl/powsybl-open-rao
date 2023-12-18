@@ -21,7 +21,7 @@ public class CountryBoundary {
 
     public CountryBoundary(Country country1, Country country2) {
         if (country1.equals(country2)) {
-            throw new FaraoException("Boundary should delimit two different countries");
+            throw new OpenRaoException("Boundary should delimit two different countries");
         }
         this.country1 = country1;
         this.country2 = country2;

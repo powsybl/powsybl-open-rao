@@ -7,7 +7,7 @@
 
 package com.powsybl.open_rao.data.crac_impl;
 
-import com.powsybl.open_rao.commons.FaraoException;
+import com.powsybl.open_rao.commons.OpenRaoException;
 import com.powsybl.open_rao.data.crac_api.Instant;
 import com.powsybl.open_rao.data.crac_api.InstantKind;
 import org.junit.jupiter.api.Test;
@@ -52,7 +52,7 @@ class InstantImplTest {
 
     @Test
     void testInitialInstantIsProtected() {
-        FaraoException exception = assertThrows(FaraoException.class, () -> new InstantImpl("initial", InstantKind.PREVENTIVE, null));
+        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> new InstantImpl("initial", InstantKind.PREVENTIVE, null));
         assertEquals("Instant with id 'initial' can't be defined", exception.getMessage());
     }
 

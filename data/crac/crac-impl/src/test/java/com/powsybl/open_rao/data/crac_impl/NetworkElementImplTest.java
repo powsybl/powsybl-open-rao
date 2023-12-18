@@ -7,7 +7,7 @@
 
 package com.powsybl.open_rao.data.crac_impl;
 
-import com.powsybl.open_rao.commons.FaraoException;
+import com.powsybl.open_rao.commons.OpenRaoException;
 import com.powsybl.iidm.network.*;
 import org.apache.commons.lang3.NotImplementedException;
 import org.junit.jupiter.api.Test;
@@ -131,7 +131,7 @@ class NetworkElementImplTest {
     void testGetLocationAbsent() {
         Network network = Network.read("TestCase12NodesWithSwitch.uct", getClass().getResourceAsStream("/TestCase12NodesWithSwitch.uct"));
         NetworkElementImpl networkElement = new NetworkElementImpl("non-existent");
-        assertThrows(FaraoException.class, () -> networkElement.getLocation(network));
+        assertThrows(OpenRaoException.class, () -> networkElement.getLocation(network));
     }
 
     @Test

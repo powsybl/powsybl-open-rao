@@ -7,7 +7,7 @@
 
 package com.powsybl.open_rao.data.crac_impl;
 
-import com.powsybl.open_rao.commons.FaraoException;
+import com.powsybl.open_rao.commons.OpenRaoException;
 import com.powsybl.open_rao.commons.Unit;
 import com.powsybl.open_rao.data.crac_api.threshold.ThresholdAdder;
 
@@ -38,7 +38,7 @@ public abstract class AbstractThresholdAdderImpl<I extends ThresholdAdder<I>> im
     protected void checkThreshold() {
         AdderUtils.assertAttributeNotNull(this.unit, "Threshold", "Unit", "withUnit()");
         if (min == null && max == null) {
-            throw new FaraoException("Cannot add a threshold without min nor max values. Please use withMin() or withMax().");
+            throw new OpenRaoException("Cannot add a threshold without min nor max values. Please use withMin() or withMax().");
         }
     }
 }

@@ -6,7 +6,7 @@
  */
 package com.powsybl.open_rao.data.crac_impl;
 
-import com.powsybl.open_rao.commons.FaraoException;
+import com.powsybl.open_rao.commons.OpenRaoException;
 import com.powsybl.open_rao.data.crac_api.Crac;
 import com.powsybl.open_rao.data.crac_api.network_action.NetworkAction;
 import com.powsybl.open_rao.data.crac_api.network_action.NetworkActionAdder;
@@ -77,14 +77,14 @@ class SwitchPairAdderImplTest {
     void testNoSwitchToOpen() {
         SwitchPairAdder switchPairAdder = networkActionAdder.newSwitchPair()
             .withSwitchToClose("test");
-        assertThrows(FaraoException.class, switchPairAdder::add);
+        assertThrows(OpenRaoException.class, switchPairAdder::add);
     }
 
     @Test
     void testNoSwitchToClose() {
         SwitchPairAdder switchPairAdder = networkActionAdder.newSwitchPair()
             .withSwitchToOpen("test");
-        assertThrows(FaraoException.class, switchPairAdder::add);
+        assertThrows(OpenRaoException.class, switchPairAdder::add);
     }
 
     @Test
@@ -92,6 +92,6 @@ class SwitchPairAdderImplTest {
         SwitchPairAdder switchPairAdder = networkActionAdder.newSwitchPair()
             .withSwitchToOpen("test")
             .withSwitchToClose("test");
-        assertThrows(FaraoException.class, switchPairAdder::add);
+        assertThrows(OpenRaoException.class, switchPairAdder::add);
     }
 }

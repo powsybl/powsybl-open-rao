@@ -6,7 +6,7 @@
  */
 package com.powsybl.open_rao.data.crac_impl;
 
-import com.powsybl.open_rao.commons.FaraoException;
+import com.powsybl.open_rao.commons.OpenRaoException;
 import com.powsybl.open_rao.data.crac_api.Crac;
 import com.powsybl.open_rao.data.crac_api.InstantKind;
 import com.powsybl.open_rao.data.crac_api.network_action.NetworkAction;
@@ -166,7 +166,7 @@ class NetworkActionAdderImplTest {
                     .withNetworkElement("pstNetworkElementId")
                     .withSetpoint(6)
                     .add();
-        FaraoException exception = assertThrows(FaraoException.class, networkActionAdder::add);
+        OpenRaoException exception = assertThrows(OpenRaoException.class, networkActionAdder::add);
         assertEquals("Cannot add a NetworkAction object with no specified id. Please use withId()", exception.getMessage());
     }
 
@@ -182,7 +182,7 @@ class NetworkActionAdderImplTest {
         NetworkActionAdder networkActionAdder = crac.newNetworkAction()
             .withId("sameId")
             .withOperator("BE");
-        FaraoException exception = assertThrows(FaraoException.class, networkActionAdder::add);
+        OpenRaoException exception = assertThrows(OpenRaoException.class, networkActionAdder::add);
         assertEquals("A remedial action with id sameId already exists", exception.getMessage());
     }
 
@@ -192,7 +192,7 @@ class NetworkActionAdderImplTest {
             .withId("networkActionName")
             .withName("networkActionName")
             .withOperator("operator");
-        FaraoException exception = assertThrows(FaraoException.class, networkActionAdder::add);
+        OpenRaoException exception = assertThrows(OpenRaoException.class, networkActionAdder::add);
         assertEquals("NetworkAction networkActionName has to have at least one ElementaryAction.", exception.getMessage());
     }
 

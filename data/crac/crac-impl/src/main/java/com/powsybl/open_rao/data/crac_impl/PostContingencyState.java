@@ -7,7 +7,7 @@
 
 package com.powsybl.open_rao.data.crac_impl;
 
-import com.powsybl.open_rao.commons.FaraoException;
+import com.powsybl.open_rao.commons.OpenRaoException;
 import com.powsybl.open_rao.data.crac_api.Contingency;
 import com.powsybl.open_rao.data.crac_api.Instant;
 import com.powsybl.open_rao.data.crac_api.State;
@@ -26,7 +26,7 @@ public class PostContingencyState implements State {
 
     PostContingencyState(Contingency contingency, Instant instant) {
         if (instant.isPreventive()) {
-            throw new FaraoException("Instant cannot be preventive");
+            throw new OpenRaoException("Instant cannot be preventive");
         }
         this.id = contingency.getId() + " - " + instant.getId();
         this.contingency = contingency;

@@ -7,7 +7,7 @@
 
 package com.powsybl.open_rao.data.crac_impl;
 
-import com.powsybl.open_rao.commons.FaraoException;
+import com.powsybl.open_rao.commons.OpenRaoException;
 import com.powsybl.open_rao.data.crac_api.NetworkElement;
 import com.powsybl.open_rao.data.crac_api.network_action.PstSetpoint;
 import com.powsybl.open_rao.data.crac_impl.utils.NetworkImportsUtil;
@@ -75,7 +75,7 @@ class PstSetpointImplTest {
         try {
             pstSetpoint.apply(network);
             fail();
-        } catch (FaraoException e) {
+        } catch (OpenRaoException e) {
             assertEquals("Tap value 17 not in the range of high and low tap positions [-16,16] of the phase tap changer BBE2AA1  BBE3AA1  1 steps", e.getMessage());
         }
     }
@@ -89,7 +89,7 @@ class PstSetpointImplTest {
         try {
             pstSetpoint.apply(network);
             fail();
-        } catch (FaraoException e) {
+        } catch (OpenRaoException e) {
             assertEquals("Tap value 50 not in the range of high and low tap positions [-16,16] of the phase tap changer BBE2AA1  BBE3AA1  1 steps", e.getMessage());
         }
     }

@@ -6,7 +6,7 @@
  */
 package com.powsybl.open_rao.data.crac_impl;
 
-import com.powsybl.open_rao.commons.FaraoException;
+import com.powsybl.open_rao.commons.OpenRaoException;
 import com.powsybl.open_rao.data.crac_api.RemedialAction;
 import com.powsybl.open_rao.data.crac_api.State;
 import com.powsybl.open_rao.data.crac_api.usage_rule.OnContingencyStateAdderToRemedialAction;
@@ -48,9 +48,9 @@ public class OnStateAdderToRemedialActionImpl<T extends AbstractRemedialAction<T
         assertAttributeNotNull(state, CLASS_NAME, "state", "withState()");
         assertAttributeNotNull(usageMethod, CLASS_NAME, "usage method", "withUsageMethod()");
         if (state.isPreventive() && usageMethod != UsageMethod.FORCED) {
-            throw new FaraoException("OnContingencyState usage rules are not allowed for PREVENTIVE instant except when FORCED. Please use newOnInstantUsageRule() instead.");
+            throw new OpenRaoException("OnContingencyState usage rules are not allowed for PREVENTIVE instant except when FORCED. Please use newOnInstantUsageRule() instead.");
         } else if (state.getInstant().isOutage()) {
-            throw new FaraoException("OnContingencyState usage rules are not allowed for OUTAGE instant.");
+            throw new OpenRaoException("OnContingencyState usage rules are not allowed for OUTAGE instant.");
         }
         owner.addUsageRule(new OnContingencyStateImpl(usageMethod, state));
         return owner;

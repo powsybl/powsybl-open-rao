@@ -7,7 +7,7 @@
 
 package com.powsybl.open_rao.data.crac_impl;
 
-import com.powsybl.open_rao.commons.FaraoException;
+import com.powsybl.open_rao.commons.OpenRaoException;
 import com.powsybl.open_rao.data.crac_api.IdentifiableAdder;
 
 /**
@@ -22,7 +22,7 @@ public abstract class AbstractIdentifiableAdder<T extends IdentifiableAdder<T>> 
 
     protected void checkId() {
         if (this.id == null) {
-            throw new FaraoException(String.format("Cannot add a %s object with no specified id. Please use withId()", getTypeDescription()));
+            throw new OpenRaoException(String.format("Cannot add a %s object with no specified id. Please use withId()", getTypeDescription()));
         } else if (this.name == null) {
             this.name = this.id;
         }

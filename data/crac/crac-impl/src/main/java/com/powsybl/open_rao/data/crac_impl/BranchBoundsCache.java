@@ -7,7 +7,7 @@
 
 package com.powsybl.open_rao.data.crac_impl;
 
-import com.powsybl.open_rao.commons.FaraoException;
+import com.powsybl.open_rao.commons.OpenRaoException;
 import com.powsybl.open_rao.commons.Unit;
 import com.powsybl.open_rao.data.crac_api.cnec.Side;
 
@@ -67,7 +67,7 @@ public class BranchBoundsCache {
 
     public Double getLowerBound(Side side, Unit unit) {
         if (!isLowerBoundComputed(side, unit)) {
-            throw new FaraoException("Trying to access not computed bound");
+            throw new OpenRaoException("Trying to access not computed bound");
         }
         return boundValues.get(getIndex(side, unit, Bound.LOWER));
     }
@@ -79,7 +79,7 @@ public class BranchBoundsCache {
 
     public Double getUpperBound(Side side, Unit unit) {
         if (!isUpperBoundComputed(side, unit)) {
-            throw new FaraoException("Trying to access not computed bound");
+            throw new OpenRaoException("Trying to access not computed bound");
         }
         return boundValues.get(getIndex(side, unit, Bound.UPPER));
     }

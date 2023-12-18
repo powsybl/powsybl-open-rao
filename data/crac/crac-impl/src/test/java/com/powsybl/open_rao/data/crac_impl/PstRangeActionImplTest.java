@@ -7,7 +7,7 @@
 
 package com.powsybl.open_rao.data.crac_impl;
 
-import com.powsybl.open_rao.commons.FaraoException;
+import com.powsybl.open_rao.commons.OpenRaoException;
 import com.powsybl.open_rao.data.crac_api.*;
 import com.powsybl.open_rao.data.crac_api.range_action.PstRangeAction;
 import com.powsybl.open_rao.data.crac_api.range_action.PstRangeActionAdder;
@@ -80,7 +80,7 @@ class PstRangeActionImplTest {
     @Test
     void applyOutOfBound() {
         PstRangeAction pstRa = pstRangeActionAdder.add();
-        FaraoException exception = assertThrows(FaraoException.class, () -> pstRa.apply(network, 50));
+        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> pstRa.apply(network, 50));
         assertEquals("Angle value 50.0000 is not in the range of minimum and maximum angle values [-6.2276;6.2276] of the phase tap changer BBE2AA1  BBE3AA1  1 steps",
             exception.getMessage().replace(DecimalFormatSymbols.getInstance().getDecimalSeparator(), '.'));
     }
@@ -88,7 +88,7 @@ class PstRangeActionImplTest {
     @Test
     void applyOnUnknownPst() {
         PstRangeAction pstRa = pstRangeActionAdder.withNetworkElement("unknownNetworkElement").add();
-        FaraoException exception = assertThrows(FaraoException.class, () -> pstRa.apply(network, 50));
+        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> pstRa.apply(network, 50));
         assertEquals("PST unknownNetworkElement does not exist in the current network", exception.getMessage());
     }
 
@@ -96,7 +96,7 @@ class PstRangeActionImplTest {
     void applyOnTransformerWithNoPhaseShifter() {
         Network network = Network.read("TestCase12Nodes_no_pst.uct", getClass().getResourceAsStream("/TestCase12Nodes_no_pst.uct"));
         PstRangeAction pstRa = pstRangeActionAdder.add();
-        FaraoException exception = assertThrows(FaraoException.class, () -> pstRa.apply(network, 50));
+        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> pstRa.apply(network, 50));
         assertEquals("Transformer BBE2AA1  BBE3AA1  1 is not a PST but is defined as a TapRange", exception.getMessage());
     }
 

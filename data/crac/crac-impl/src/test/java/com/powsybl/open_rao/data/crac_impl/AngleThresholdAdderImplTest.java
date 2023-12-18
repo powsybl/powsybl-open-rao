@@ -7,7 +7,7 @@
 
 package com.powsybl.open_rao.data.crac_impl;
 
-import com.powsybl.open_rao.commons.FaraoException;
+import com.powsybl.open_rao.commons.OpenRaoException;
 import com.powsybl.open_rao.commons.Unit;
 import com.powsybl.open_rao.data.crac_api.Contingency;
 import com.powsybl.open_rao.data.crac_api.Crac;
@@ -57,7 +57,7 @@ class AngleThresholdAdderImplTest {
     @Test
     void testUnsupportedUnitFail() {
         AngleThresholdAdder angleThresholdAdder = crac.newAngleCnec().newThreshold();
-        FaraoException exception = assertThrows(FaraoException.class, () -> angleThresholdAdder.withUnit(Unit.MEGAWATT));
+        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> angleThresholdAdder.withUnit(Unit.MEGAWATT));
         assertEquals("MW Unit is not suited to measure a ANGLE value.", exception.getMessage());
     }
 
@@ -65,14 +65,14 @@ class AngleThresholdAdderImplTest {
     void testNoUnitFail() {
         AngleThresholdAdder angleThresholdAdder = crac.newAngleCnec().newThreshold()
             .withMax(1000.0);
-        FaraoException exception = assertThrows(FaraoException.class, angleThresholdAdder::add);
+        OpenRaoException exception = assertThrows(OpenRaoException.class, angleThresholdAdder::add);
         assertEquals("Cannot add Threshold without a Unit. Please use withUnit() with a non null value", exception.getMessage());
     }
 
     @Test
     void testNoValueFail() {
         AngleThresholdAdder angleThresholdAdder = crac.newAngleCnec().newThreshold();
-        FaraoException exception = assertThrows(FaraoException.class, () -> angleThresholdAdder.withUnit(Unit.AMPERE));
+        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> angleThresholdAdder.withUnit(Unit.AMPERE));
         assertEquals("A Unit is not suited to measure a ANGLE value.", exception.getMessage());
     }
 }

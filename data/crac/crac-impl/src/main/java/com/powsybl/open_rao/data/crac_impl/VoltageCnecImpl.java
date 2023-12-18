@@ -7,7 +7,7 @@
 
 package com.powsybl.open_rao.data.crac_impl;
 
-import com.powsybl.open_rao.commons.FaraoException;
+import com.powsybl.open_rao.commons.OpenRaoException;
 import com.powsybl.open_rao.commons.PhysicalParameter;
 import com.powsybl.open_rao.commons.Unit;
 import com.powsybl.open_rao.data.crac_api.NetworkElement;
@@ -51,7 +51,7 @@ public class VoltageCnecImpl extends AbstractCnec<VoltageCnec> implements Voltag
     @Override
     public Optional<Double> getLowerBound(Unit requestedUnit) {
         if (!requestedUnit.equals(Unit.KILOVOLT)) {
-            throw new FaraoException("VoltageCnec lowerBound can only be requested in KILOVOLT");
+            throw new OpenRaoException("VoltageCnec lowerBound can only be requested in KILOVOLT");
         }
 
         Set<Threshold> limitingThresholds = thresholds.stream()
@@ -74,7 +74,7 @@ public class VoltageCnecImpl extends AbstractCnec<VoltageCnec> implements Voltag
     @Override
     public Optional<Double> getUpperBound(Unit requestedUnit) {
         if (!requestedUnit.equals(Unit.KILOVOLT)) {
-            throw new FaraoException("VoltageCnec upperBound can only be requested in KILOVOLT");
+            throw new OpenRaoException("VoltageCnec upperBound can only be requested in KILOVOLT");
         }
 
         Set<Threshold> limitingThresholds = thresholds.stream()
@@ -96,7 +96,7 @@ public class VoltageCnecImpl extends AbstractCnec<VoltageCnec> implements Voltag
     @Override
     public double computeMargin(double actualValue, Unit unit) {
         if (!unit.equals(Unit.KILOVOLT)) {
-            throw new FaraoException("VoltageCnec margin can only be requested in KILOVOLT");
+            throw new OpenRaoException("VoltageCnec margin can only be requested in KILOVOLT");
         }
 
         double marginOnLowerBound = actualValue - getLowerBound(unit).orElse(Double.NEGATIVE_INFINITY);

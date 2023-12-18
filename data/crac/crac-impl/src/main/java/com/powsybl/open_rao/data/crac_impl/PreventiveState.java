@@ -7,7 +7,7 @@
 
 package com.powsybl.open_rao.data.crac_impl;
 
-import com.powsybl.open_rao.commons.FaraoException;
+import com.powsybl.open_rao.commons.OpenRaoException;
 import com.powsybl.open_rao.data.crac_api.Contingency;
 import com.powsybl.open_rao.data.crac_api.Instant;
 import com.powsybl.open_rao.data.crac_api.State;
@@ -23,7 +23,7 @@ public class PreventiveState implements State {
 
     PreventiveState(Instant instant) {
         if (!instant.isPreventive()) {
-            throw new FaraoException("Instant must be preventive");
+            throw new OpenRaoException("Instant must be preventive");
         }
         this.instant = instant;
     }

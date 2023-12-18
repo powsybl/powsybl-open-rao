@@ -7,7 +7,7 @@
 
 package com.powsybl.open_rao.data.crac_impl;
 
-import com.powsybl.open_rao.commons.FaraoException;
+import com.powsybl.open_rao.commons.OpenRaoException;
 import com.powsybl.open_rao.data.crac_api.Contingency;
 import com.powsybl.open_rao.data.crac_api.ContingencyAdder;
 import com.powsybl.open_rao.data.crac_api.NetworkElement;
@@ -62,7 +62,7 @@ public class ContingencyAdderImpl extends AbstractIdentifiableAdder<ContingencyA
                 // If the same contingency exists in the crac
                 return owner.getContingency(id);
             } else {
-                throw new FaraoException(format("A contingency with the same ID (%s) but a different name or network elements already exists.", this.id));
+                throw new OpenRaoException(format("A contingency with the same ID (%s) but a different name or network elements already exists.", this.id));
             }
         } else {
             owner.addContingency(contingency);

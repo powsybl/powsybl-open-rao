@@ -7,7 +7,7 @@
 
 package com.powsybl.open_rao.data.crac_impl;
 
-import com.powsybl.open_rao.commons.FaraoException;
+import com.powsybl.open_rao.commons.OpenRaoException;
 import com.powsybl.open_rao.commons.Unit;
 import com.powsybl.open_rao.data.crac_api.Contingency;
 import com.powsybl.open_rao.data.crac_api.Instant;
@@ -131,8 +131,8 @@ class VoltageCnecAdderImplTest {
             .newThreshold().withUnit(Unit.KILOVOLT).withMax(maxValue).withMin(-maxValue).add()
             .withReliabilityMargin(reliabilityMargin)
             .add();
-        assertEquals(maxValue - reliabilityMargin, cnec.getUpperBound(Unit.KILOVOLT).orElseThrow(FaraoException::new), DOUBLE_TOLERANCE);
-        assertEquals(reliabilityMargin - maxValue, cnec.getLowerBound(Unit.KILOVOLT).orElseThrow(FaraoException::new), DOUBLE_TOLERANCE);
+        assertEquals(maxValue - reliabilityMargin, cnec.getUpperBound(Unit.KILOVOLT).orElseThrow(OpenRaoException::new), DOUBLE_TOLERANCE);
+        assertEquals(reliabilityMargin - maxValue, cnec.getLowerBound(Unit.KILOVOLT).orElseThrow(OpenRaoException::new), DOUBLE_TOLERANCE);
     }
 
     @Test
@@ -156,7 +156,7 @@ class VoltageCnecAdderImplTest {
             .withNetworkElement("neId")
             .newThreshold().withUnit(Unit.KILOVOLT).withMax(100.0).withMin(-100.0).add()
             .withOptimized();
-        FaraoException exception = assertThrows(FaraoException.class, voltageCnecAdder::add);
+        OpenRaoException exception = assertThrows(OpenRaoException.class, voltageCnecAdder::add);
         assertEquals("Error while adding cnec Cnec ID : Farao does not allow the optimization of VoltageCnecs.", exception.getMessage());
     }
 
@@ -199,7 +199,7 @@ class VoltageCnecAdderImplTest {
             .withContingency(contingency1Id)
             .withNetworkElement("neId")
             .newThreshold().withUnit(Unit.KILOVOLT).withMax(100.0).withMin(-100.0).add();
-        FaraoException exception = assertThrows(FaraoException.class, voltageCnecAdder::add);
+        OpenRaoException exception = assertThrows(OpenRaoException.class, voltageCnecAdder::add);
         assertEquals("Cannot add a VoltageCnec object with no specified id. Please use withId()", exception.getMessage());
     }
 
@@ -210,7 +210,7 @@ class VoltageCnecAdderImplTest {
             .withContingency(contingency1Id)
             .withNetworkElement("neId")
             .newThreshold().withUnit(Unit.KILOVOLT).withMax(100.0).withMin(-100.0).add();
-        FaraoException exception = assertThrows(FaraoException.class, voltageCnecAdder::add);
+        OpenRaoException exception = assertThrows(OpenRaoException.class, voltageCnecAdder::add);
         assertEquals("Cannot add Cnec without a instant. Please use withInstant() with a non null value", exception.getMessage());
     }
 
@@ -221,7 +221,7 @@ class VoltageCnecAdderImplTest {
             .withInstant(OUTAGE_INSTANT_ID)
             .withContingency(contingency1Id)
             .newThreshold().withUnit(Unit.KILOVOLT).withMax(100.0).withMin(-100.0).add();
-        FaraoException exception = assertThrows(FaraoException.class, voltageCnecAdder::add);
+        OpenRaoException exception = assertThrows(OpenRaoException.class, voltageCnecAdder::add);
         assertEquals("Cannot add Cnec without a network element. Please use withNetworkElement()", exception.getMessage());
     }
 
@@ -232,7 +232,7 @@ class VoltageCnecAdderImplTest {
             .withInstant(OUTAGE_INSTANT_ID)
             .withContingency(contingency1Id)
             .withNetworkElement("neId");
-        FaraoException exception = assertThrows(FaraoException.class, voltageCnecAdder::add);
+        OpenRaoException exception = assertThrows(OpenRaoException.class, voltageCnecAdder::add);
         assertEquals("Cannot add an VoltageCnec without a threshold. Please use newThreshold", exception.getMessage());
     }
 
@@ -251,7 +251,7 @@ class VoltageCnecAdderImplTest {
             .withContingency(contingency1Id)
             .withNetworkElement("neId")
             .newThreshold().withUnit(Unit.KILOVOLT).withMax(100.0).withMin(-100.0).add();
-        FaraoException exception = assertThrows(FaraoException.class, voltageCnecAdder::add);
+        OpenRaoException exception = assertThrows(OpenRaoException.class, voltageCnecAdder::add);
         assertEquals("Cannot add a cnec with an already existing ID - cnecId.", exception.getMessage());
     }
 
@@ -263,7 +263,7 @@ class VoltageCnecAdderImplTest {
             .withContingency(contingency1Id)
             .withNetworkElement("neId")
             .newThreshold().withUnit(Unit.KILOVOLT).withMax(100.0).withMin(-100.0).add();
-        FaraoException exception = assertThrows(FaraoException.class, voltageCnecAdder::add);
+        OpenRaoException exception = assertThrows(OpenRaoException.class, voltageCnecAdder::add);
         assertEquals("You cannot define a contingency for a preventive cnec.", exception.getMessage());
     }
 
@@ -274,7 +274,7 @@ class VoltageCnecAdderImplTest {
             .withInstant(OUTAGE_INSTANT_ID)
             .withNetworkElement("neId")
             .newThreshold().withUnit(Unit.KILOVOLT).withMax(100.0).withMin(-100.0).add();
-        FaraoException exception = assertThrows(FaraoException.class, voltageCnecAdder::add);
+        OpenRaoException exception = assertThrows(OpenRaoException.class, voltageCnecAdder::add);
         assertEquals("You must define a contingency for a non-preventive cnec.", exception.getMessage());
     }
 
@@ -285,7 +285,7 @@ class VoltageCnecAdderImplTest {
             .withInstant(AUTO_INSTANT_ID)
             .withNetworkElement("neId")
             .newThreshold().withUnit(Unit.KILOVOLT).withMax(100.0).withMin(-100.0).add();
-        FaraoException exception = assertThrows(FaraoException.class, voltageCnecAdder::add);
+        OpenRaoException exception = assertThrows(OpenRaoException.class, voltageCnecAdder::add);
         assertEquals("You must define a contingency for a non-preventive cnec.", exception.getMessage());
     }
 
@@ -296,7 +296,7 @@ class VoltageCnecAdderImplTest {
             .withInstant(CURATIVE_INSTANT_ID)
             .withNetworkElement("neId")
             .newThreshold().withUnit(Unit.KILOVOLT).withMax(100.0).withMin(-100.0).add();
-        FaraoException exception = assertThrows(FaraoException.class, voltageCnecAdder::add);
+        OpenRaoException exception = assertThrows(OpenRaoException.class, voltageCnecAdder::add);
         assertEquals("You must define a contingency for a non-preventive cnec.", exception.getMessage());
     }
 
@@ -308,7 +308,7 @@ class VoltageCnecAdderImplTest {
             .withContingency("absent-from-crac")
             .withNetworkElement("neId")
             .newThreshold().withUnit(Unit.KILOVOLT).withMax(100.0).withMin(-100.0).add();
-        FaraoException exception = assertThrows(FaraoException.class, voltageCnecAdder::add);
+        OpenRaoException exception = assertThrows(OpenRaoException.class, voltageCnecAdder::add);
         assertEquals("Contingency absent-from-crac of Cnec cnecId does not exist in the crac. Use crac.newContingency() first.", exception.getMessage());
     }
 
@@ -320,7 +320,7 @@ class VoltageCnecAdderImplTest {
             .withContingency(contingency1Id)
             .withNetworkElement("neId")
             .newThreshold();
-        FaraoException exception = assertThrows(FaraoException.class, () -> thresholdAdder.withUnit(Unit.AMPERE));
+        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> thresholdAdder.withUnit(Unit.AMPERE));
         assertEquals("A Unit is not suited to measure a VOLTAGE value.", exception.getMessage());
     }
 }

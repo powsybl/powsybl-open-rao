@@ -7,7 +7,7 @@
 
 package com.powsybl.open_rao.data.crac_impl;
 
-import com.powsybl.open_rao.commons.FaraoException;
+import com.powsybl.open_rao.commons.OpenRaoException;
 import com.powsybl.open_rao.data.crac_api.Contingency;
 import com.powsybl.open_rao.data.crac_api.ContingencyAdder;
 import com.powsybl.open_rao.data.crac_api.Crac;
@@ -82,7 +82,7 @@ class ContingencyAdderImplTest {
         ContingencyAdder contingencyAdder = crac.newContingency()
             .withName("conName1")
             .withNetworkElement("neId1", "neName1");
-        assertThrows(FaraoException.class, contingencyAdder::add);
+        assertThrows(OpenRaoException.class, contingencyAdder::add);
     }
 
     @Test
@@ -125,6 +125,6 @@ class ContingencyAdderImplTest {
             .withId("conId1")
             .withName("conName1")
             .withNetworkElement("neId2", "neName1");
-        assertThrows(FaraoException.class, contingencyAdder::add);
+        assertThrows(OpenRaoException.class, contingencyAdder::add);
     }
 }

@@ -53,6 +53,6 @@ public final class RandomizedString {
             }
         }
         FaraoLoggerProvider.TECHNICAL_LOGS.error("Failed to create a randomized string with prefix '{}' in {} {}.", prefix, maxTry, maxTry > 1 ? "tries" : "try");
-        throw new FaraoException(String.format("Failed to create a randomized string with prefix '%s' in %d %s.", prefix, maxTry, maxTry > 1 ? "tries" : "try"));
+        throw new OpenRaoException(String.format("Failed to create a randomized string with prefix '%s' in %d %s.", prefix, maxTry, maxTry > 1 ? "tries" : "try"));
     }
 }

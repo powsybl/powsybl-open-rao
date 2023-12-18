@@ -7,7 +7,7 @@
 
 package com.powsybl.open_rao.data.crac_impl;
 
-import com.powsybl.open_rao.commons.FaraoException;
+import com.powsybl.open_rao.commons.OpenRaoException;
 import com.powsybl.open_rao.data.crac_api.InstantKind;
 import com.powsybl.open_rao.data.crac_api.network_action.ActionType;
 import com.powsybl.open_rao.data.crac_api.range_action.HvdcRangeAction;
@@ -101,7 +101,7 @@ class HvdcRangeActionAdderImplTest {
             .withInstant(AUTO_INSTANT_ID)
             .withUsageMethod(UsageMethod.FORCED)
             .add();
-        FaraoException exception = assertThrows(FaraoException.class, hvdcRangeActionAdder::add);
+        OpenRaoException exception = assertThrows(OpenRaoException.class, hvdcRangeActionAdder::add);
         assertEquals("Cannot create an AUTO standard range action without speed defined", exception.getMessage());
     }
 
@@ -171,7 +171,7 @@ class HvdcRangeActionAdderImplTest {
         HvdcRangeActionAdder hvdcRangeActionAdder = crac.newHvdcRangeAction()
             .withOperator("BE")
             .withNetworkElement(networkElementId);
-        FaraoException exception = assertThrows(FaraoException.class, hvdcRangeActionAdder::add);
+        OpenRaoException exception = assertThrows(OpenRaoException.class, hvdcRangeActionAdder::add);
         assertEquals("Cannot add a HvdcRangeAction object with no specified id. Please use withId()", exception.getMessage());
     }
 
@@ -180,7 +180,7 @@ class HvdcRangeActionAdderImplTest {
         HvdcRangeActionAdder hvdcRangeActionAdder = crac.newHvdcRangeAction()
             .withId("id1")
             .withOperator("BE");
-        FaraoException exception = assertThrows(FaraoException.class, hvdcRangeActionAdder::add);
+        OpenRaoException exception = assertThrows(OpenRaoException.class, hvdcRangeActionAdder::add);
         assertEquals("Cannot add HvdcRangeAction without a network element. Please use withNetworkElement() with a non null value", exception.getMessage());
     }
 
@@ -195,7 +195,7 @@ class HvdcRangeActionAdderImplTest {
             .withId("sameId")
             .withOperator("BE")
             .withNetworkElement("networkElementId");
-        FaraoException exception = assertThrows(FaraoException.class, hvdcRangeActionAdder::add);
+        OpenRaoException exception = assertThrows(OpenRaoException.class, hvdcRangeActionAdder::add);
         assertEquals("Cannot add HvdcRangeAction without a range. Please use newRange()", exception.getMessage());
     }
 }

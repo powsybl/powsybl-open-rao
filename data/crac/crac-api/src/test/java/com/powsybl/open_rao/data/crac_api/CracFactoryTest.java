@@ -7,7 +7,7 @@
 
 package com.powsybl.open_rao.data.crac_api;
 
-import com.powsybl.open_rao.commons.FaraoException;
+import com.powsybl.open_rao.commons.OpenRaoException;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -29,12 +29,12 @@ class CracFactoryTest {
 
     @Test
     void mustThrowIfImplemNotFound() {
-        assertThrows(FaraoException.class, () -> CracFactory.find("SimpleCracFactory"));
+        assertThrows(OpenRaoException.class, () -> CracFactory.find("SimpleCracFactory"));
     }
 
     @Test
     void mustThrowIfNameNullAndMultipleImplem() {
-        assertThrows(FaraoException.class, () -> CracFactory.find(null));
+        assertThrows(OpenRaoException.class, () -> CracFactory.find(null));
     }
 
     @Test

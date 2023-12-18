@@ -7,7 +7,7 @@
 
 package com.powsybl.open_rao.data.crac_impl;
 
-import com.powsybl.open_rao.commons.FaraoException;
+import com.powsybl.open_rao.commons.OpenRaoException;
 import com.powsybl.open_rao.commons.PhysicalParameter;
 import com.powsybl.open_rao.commons.Unit;
 import com.powsybl.open_rao.data.crac_api.NetworkElement;
@@ -63,7 +63,7 @@ public class FlowCnecImpl extends AbstractBranchCnec<FlowCnec> implements FlowCn
     public Optional<Double> getLowerBound(Side side, Unit requestedUnit) {
 
         if (!requestedUnit.equals(Unit.AMPERE) && !requestedUnit.equals(Unit.MEGAWATT)) {
-            throw new FaraoException("FlowCnec lowerBound can only be requested in AMPERE or MEGAWATT");
+            throw new OpenRaoException("FlowCnec lowerBound can only be requested in AMPERE or MEGAWATT");
         }
         if (!bounds.isLowerBoundComputed(side, requestedUnit)) {
             Set<BranchThreshold> limitingThresholds = thresholds.stream()
@@ -93,7 +93,7 @@ public class FlowCnecImpl extends AbstractBranchCnec<FlowCnec> implements FlowCn
     public Optional<Double> getUpperBound(Side side, Unit requestedUnit) {
 
         if (!requestedUnit.equals(Unit.AMPERE) && !requestedUnit.equals(Unit.MEGAWATT)) {
-            throw new FaraoException("FlowCnec upperBound can only be requested in AMPERE or MEGAWATT");
+            throw new OpenRaoException("FlowCnec upperBound can only be requested in AMPERE or MEGAWATT");
         }
 
         requestedUnit.checkPhysicalParameter(getPhysicalParameter());

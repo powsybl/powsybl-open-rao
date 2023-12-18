@@ -44,7 +44,7 @@ public enum Unit {
 
     public void checkPhysicalParameter(PhysicalParameter requestedPhysicalParameter) {
         if (!requestedPhysicalParameter.equals(physicalParameter)) {
-            throw new FaraoException(String.format("%s Unit is not suited to measure a %s value.", this.toString(), requestedPhysicalParameter.toString()));
+            throw new OpenRaoException(String.format("%s Unit is not suited to measure a %s value.", this.toString(), requestedPhysicalParameter.toString()));
         }
     }
 }

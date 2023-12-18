@@ -7,7 +7,7 @@
 
 package com.powsybl.open_rao.data.crac_impl;
 
-import com.powsybl.open_rao.commons.FaraoException;
+import com.powsybl.open_rao.commons.OpenRaoException;
 import com.powsybl.open_rao.data.crac_api.Instant;
 import com.powsybl.open_rao.data.crac_api.InstantKind;
 import com.powsybl.open_rao.data.crac_api.RemedialAction;
@@ -31,7 +31,7 @@ public class InstantImpl extends AbstractIdentifiable<InstantImpl> implements In
     InstantImpl(String id, InstantKind instantKind, Instant previous) {
         super(id);
         if (Objects.equals(id, "initial")) {
-            throw new FaraoException("Instant with id 'initial' can't be defined");
+            throw new OpenRaoException("Instant with id 'initial' can't be defined");
         }
         this.previous = previous;
         this.instantKind = instantKind;

@@ -6,7 +6,7 @@
  */
 package com.powsybl.open_rao.data.crac_impl;
 
-import com.powsybl.open_rao.commons.FaraoException;
+import com.powsybl.open_rao.commons.OpenRaoException;
 import com.powsybl.open_rao.data.crac_api.Instant;
 import com.powsybl.open_rao.data.crac_api.cnec.FlowCnec;
 import com.powsybl.open_rao.data.crac_api.usage_rule.OnFlowConstraint;
@@ -48,7 +48,7 @@ public class OnFlowConstraintAdderImpl<T extends AbstractRemedialActionAdder<T>>
 
         Instant instant = owner.getCrac().getInstant(instantId);
         if (instant.isOutage()) {
-            throw new FaraoException("OnFlowConstraint usage rules are not allowed for OUTAGE instant.");
+            throw new OpenRaoException("OnFlowConstraint usage rules are not allowed for OUTAGE instant.");
         }
         if (instant.isPreventive()) {
             owner.getCrac().addPreventiveState();
@@ -56,7 +56,7 @@ public class OnFlowConstraintAdderImpl<T extends AbstractRemedialActionAdder<T>>
 
         FlowCnec flowCnec = owner.getCrac().getFlowCnec(flowCnecId);
         if (Objects.isNull(flowCnec)) {
-            throw new FaraoException(String.format("FlowCnec %s does not exist in crac. Consider adding it first.", flowCnecId));
+            throw new OpenRaoException(String.format("FlowCnec %s does not exist in crac. Consider adding it first.", flowCnecId));
         }
 
         AbstractRemedialActionAdder.checkOnConstraintUsageRules(instant, flowCnec);

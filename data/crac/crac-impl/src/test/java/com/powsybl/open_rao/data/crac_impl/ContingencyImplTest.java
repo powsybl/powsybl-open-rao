@@ -7,7 +7,7 @@
 
 package com.powsybl.open_rao.data.crac_impl;
 
-import com.powsybl.open_rao.commons.FaraoException;
+import com.powsybl.open_rao.commons.OpenRaoException;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.computation.local.LocalComputationManager;
 import com.powsybl.iidm.network.Network;
@@ -95,7 +95,7 @@ class ContingencyImplTest {
     void testApplyFails() {
         ContingencyImpl contingencyImpl = new ContingencyImpl("contingency", "contingency", Collections.singleton(new NetworkElementImpl("None")));
         assertEquals(1, contingencyImpl.getNetworkElements().size());
-        assertThrows(FaraoException.class, () -> contingencyImpl.apply(network, computationManager));
+        assertThrows(OpenRaoException.class, () -> contingencyImpl.apply(network, computationManager));
     }
 
     @Test

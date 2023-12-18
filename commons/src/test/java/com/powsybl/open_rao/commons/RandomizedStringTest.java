@@ -65,7 +65,7 @@ class RandomizedStringTest {
         uuidMock.when(UUID::randomUUID).thenReturn(uuid, otherUuid);
 
         List<String> usedStrings = Collections.singletonList("RANDOMIZED_STRING_" + uuid);
-        assertThrows(FaraoException.class, () -> RandomizedString.getRandomizedString("RANDOMIZED_STRING_", usedStrings, 1));
+        assertThrows(OpenRaoException.class, () -> RandomizedString.getRandomizedString("RANDOMIZED_STRING_", usedStrings, 1));
     }
 
     @Test

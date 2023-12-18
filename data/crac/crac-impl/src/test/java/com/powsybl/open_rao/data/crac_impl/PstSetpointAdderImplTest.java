@@ -6,7 +6,7 @@
  */
 package com.powsybl.open_rao.data.crac_impl;
 
-import com.powsybl.open_rao.commons.FaraoException;
+import com.powsybl.open_rao.commons.OpenRaoException;
 import com.powsybl.open_rao.data.crac_api.Crac;
 import com.powsybl.open_rao.data.crac_api.network_action.NetworkAction;
 import com.powsybl.open_rao.data.crac_api.network_action.NetworkActionAdder;
@@ -56,13 +56,13 @@ class PstSetpointAdderImplTest {
     void testNoNetworkElement() {
         PstSetpointAdder pstSetpointAdder = networkActionAdder.newPstSetPoint()
             .withSetpoint(0);
-        assertThrows(FaraoException.class, pstSetpointAdder::add);
+        assertThrows(OpenRaoException.class, pstSetpointAdder::add);
     }
 
     @Test
     void testNoSetpoint() {
         PstSetpointAdder pstSetpointAdder = networkActionAdder.newPstSetPoint()
             .withNetworkElement("pstNetworkElementId");
-        assertThrows(FaraoException.class, pstSetpointAdder::add);
+        assertThrows(OpenRaoException.class, pstSetpointAdder::add);
     }
 }

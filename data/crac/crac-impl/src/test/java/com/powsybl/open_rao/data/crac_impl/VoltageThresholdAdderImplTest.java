@@ -7,7 +7,7 @@
 
 package com.powsybl.open_rao.data.crac_impl;
 
-import com.powsybl.open_rao.commons.FaraoException;
+import com.powsybl.open_rao.commons.OpenRaoException;
 import com.powsybl.open_rao.commons.Unit;
 import com.powsybl.open_rao.data.crac_api.Contingency;
 import com.powsybl.open_rao.data.crac_api.Crac;
@@ -55,7 +55,7 @@ class VoltageThresholdAdderImplTest {
     @Test
     void testUnsupportedUnitFail() {
         VoltageThresholdAdder voltageThresholdAdder = crac.newVoltageCnec().newThreshold();
-        FaraoException exception = assertThrows(FaraoException.class, () -> voltageThresholdAdder.withUnit(Unit.MEGAWATT));
+        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> voltageThresholdAdder.withUnit(Unit.MEGAWATT));
         assertEquals("MW Unit is not suited to measure a VOLTAGE value.", exception.getMessage());
     }
 
@@ -64,7 +64,7 @@ class VoltageThresholdAdderImplTest {
         VoltageThresholdAdder voltageThresholdAdder =
             crac.newVoltageCnec().newThreshold()
                 .withMax(1000.0);
-        FaraoException exception = assertThrows(FaraoException.class, voltageThresholdAdder::add);
+        OpenRaoException exception = assertThrows(OpenRaoException.class, voltageThresholdAdder::add);
         assertEquals("Cannot add Threshold without a Unit. Please use withUnit() with a non null value", exception.getMessage());
     }
 
@@ -72,7 +72,7 @@ class VoltageThresholdAdderImplTest {
     void testNoValueFail() {
         VoltageThresholdAdder voltageThresholdAdder = crac.newVoltageCnec().newThreshold()
             .withUnit(Unit.KILOVOLT);
-        FaraoException exception = assertThrows(FaraoException.class, voltageThresholdAdder::add);
+        OpenRaoException exception = assertThrows(OpenRaoException.class, voltageThresholdAdder::add);
         assertEquals("Cannot add a threshold without min nor max values. Please use withMin() or withMax().", exception.getMessage());
     }
 }

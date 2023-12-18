@@ -7,7 +7,7 @@
 
 package com.powsybl.open_rao.data.crac_impl;
 
-import com.powsybl.open_rao.commons.FaraoException;
+import com.powsybl.open_rao.commons.OpenRaoException;
 import com.powsybl.open_rao.commons.Unit;
 import com.powsybl.open_rao.data.crac_api.Contingency;
 import com.powsybl.open_rao.data.crac_api.Crac;
@@ -86,7 +86,7 @@ class BranchThresholdAdderImplTest {
     @Test
     void testUnsupportedUnitFail() {
         BranchThresholdAdder branchThresholdAdder = crac.newFlowCnec().newThreshold();
-        FaraoException exception = assertThrows(FaraoException.class, () -> branchThresholdAdder.withUnit(Unit.KILOVOLT));
+        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> branchThresholdAdder.withUnit(Unit.KILOVOLT));
         assertEquals("kV Unit is not suited to measure a FLOW value.", exception.getMessage());
     }
 
@@ -95,7 +95,7 @@ class BranchThresholdAdderImplTest {
         BranchThresholdAdder branchThresholdAdder = crac.newFlowCnec().newThreshold()
             .withMax(1000.0)
             .withSide(Side.LEFT);
-        FaraoException exception = assertThrows(FaraoException.class, branchThresholdAdder::add);
+        OpenRaoException exception = assertThrows(OpenRaoException.class, branchThresholdAdder::add);
         assertEquals("Cannot add Threshold without a Unit. Please use withUnit() with a non null value", exception.getMessage());
     }
 
@@ -104,7 +104,7 @@ class BranchThresholdAdderImplTest {
         BranchThresholdAdder branchThresholdAdder = crac.newFlowCnec().newThreshold()
             .withUnit(Unit.AMPERE)
             .withSide(Side.LEFT);
-        FaraoException exception = assertThrows(FaraoException.class, branchThresholdAdder::add);
+        OpenRaoException exception = assertThrows(OpenRaoException.class, branchThresholdAdder::add);
         assertEquals("Cannot add a threshold without min nor max values. Please use withMin() or withMax().", exception.getMessage());
     }
 
@@ -113,7 +113,7 @@ class BranchThresholdAdderImplTest {
         BranchThresholdAdder branchThresholdAdder = crac.newFlowCnec().newThreshold()
             .withUnit(Unit.AMPERE)
             .withMax(1000.0);
-        FaraoException exception = assertThrows(FaraoException.class, branchThresholdAdder::add);
+        OpenRaoException exception = assertThrows(OpenRaoException.class, branchThresholdAdder::add);
         assertEquals("Cannot add BranchThreshold without a Side. Please use withSide() with a non null value", exception.getMessage());
     }
 }

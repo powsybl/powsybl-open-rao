@@ -7,7 +7,7 @@
 
 package com.powsybl.open_rao.data.crac_impl;
 
-import com.powsybl.open_rao.commons.FaraoException;
+import com.powsybl.open_rao.commons.OpenRaoException;
 import com.powsybl.open_rao.data.crac_api.NetworkElement;
 import com.powsybl.open_rao.data.crac_api.range_action.*;
 
@@ -51,7 +51,7 @@ public class InjectionRangeActionAdderImpl extends AbstractStandardRangeActionAd
         checkId();
         checkAutoUsageRules();
         if (!Objects.isNull(getCrac().getRemedialAction(id))) {
-            throw new FaraoException(String.format("A remedial action with id %s already exists", id));
+            throw new OpenRaoException(String.format("A remedial action with id %s already exists", id));
         }
 
         // check network elements

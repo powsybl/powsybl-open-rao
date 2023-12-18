@@ -6,7 +6,7 @@
  */
 package com.powsybl.open_rao.data.crac_impl;
 
-import com.powsybl.open_rao.commons.FaraoException;
+import com.powsybl.open_rao.commons.OpenRaoException;
 import com.powsybl.open_rao.data.crac_api.NetworkElement;
 import com.powsybl.open_rao.data.crac_api.range.StandardRange;
 import com.powsybl.open_rao.data.crac_api.range_action.CounterTradeRangeAction;
@@ -74,7 +74,7 @@ public class CounterTradeRangeActionImpl extends AbstractRangeAction<CounterTrad
 
     @Override
     public void apply(Network network, double setpoint) {
-        throw new FaraoException("Can't apply a counter trade range action on a network");
+        throw new OpenRaoException("Can't apply a counter trade range action on a network");
     }
 
     @Override

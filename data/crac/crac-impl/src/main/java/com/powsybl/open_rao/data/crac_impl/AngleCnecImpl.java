@@ -7,7 +7,7 @@
 
 package com.powsybl.open_rao.data.crac_impl;
 
-import com.powsybl.open_rao.commons.FaraoException;
+import com.powsybl.open_rao.commons.OpenRaoException;
 import com.powsybl.open_rao.commons.PhysicalParameter;
 import com.powsybl.open_rao.commons.Unit;
 import com.powsybl.open_rao.data.crac_api.NetworkElement;
@@ -61,7 +61,7 @@ public class AngleCnecImpl extends AbstractCnec<AngleCnec> implements AngleCnec 
     @Override
     public Optional<Double> getLowerBound(Unit requestedUnit) {
         if (!requestedUnit.equals(Unit.DEGREE)) {
-            throw new FaraoException("AngleCnec lowerBound can only be requested in DEGREE");
+            throw new OpenRaoException("AngleCnec lowerBound can only be requested in DEGREE");
         }
 
         Set<Threshold> limitingThresholds = thresholds.stream()
@@ -84,7 +84,7 @@ public class AngleCnecImpl extends AbstractCnec<AngleCnec> implements AngleCnec 
     @Override
     public Optional<Double> getUpperBound(Unit requestedUnit) {
         if (!requestedUnit.equals(Unit.DEGREE)) {
-            throw new FaraoException("AngleCnec upperBound can only be requested in DEGREE");
+            throw new OpenRaoException("AngleCnec upperBound can only be requested in DEGREE");
         }
 
         Set<Threshold> limitingThresholds = thresholds.stream()
@@ -106,7 +106,7 @@ public class AngleCnecImpl extends AbstractCnec<AngleCnec> implements AngleCnec 
     @Override
     public double computeMargin(double actualValue, Unit unit) {
         if (!unit.equals(Unit.DEGREE)) {
-            throw new FaraoException("AngleCnec margin can only be requested in DEGREE");
+            throw new OpenRaoException("AngleCnec margin can only be requested in DEGREE");
         }
 
         double marginOnLowerBound = actualValue - getLowerBound(unit).orElse(Double.NEGATIVE_INFINITY);

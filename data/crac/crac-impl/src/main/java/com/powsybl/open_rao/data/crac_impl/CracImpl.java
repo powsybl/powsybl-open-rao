@@ -7,7 +7,7 @@
 
 package com.powsybl.open_rao.data.crac_impl;
 
-import com.powsybl.open_rao.commons.FaraoException;
+import com.powsybl.open_rao.commons.OpenRaoException;
 import com.powsybl.open_rao.data.crac_api.*;
 import com.powsybl.open_rao.data.crac_api.cnec.*;
 import com.powsybl.open_rao.data.crac_api.network_action.NetworkAction;
@@ -110,7 +110,7 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
         if (cracNetworkElement == null) {
             cracNetworkElement = new NetworkElementImpl(networkElementId, name);
         } else if (!cracNetworkElement.getName().equals(name)) {
-            throw new FaraoException(format(SAME_ELEMENT_ID_DIFFERENT_NAME_ERROR_MESSAGE, networkElementId));
+            throw new OpenRaoException(format(SAME_ELEMENT_ID_DIFFERENT_NAME_ERROR_MESSAGE, networkElementId));
         }
         networkElements.put(networkElementId, cracNetworkElement);
         return cracNetworkElement;
@@ -139,7 +139,7 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
     @Override
     public void removeContingency(String id) {
         if (isContingencyUsedWithinCrac(id)) {
-            throw new FaraoException(format("Contingency %s is used within a CNEC or an OnContingencyState UsageRule. Please remove all references to the contingency first.", id));
+            throw new OpenRaoException(format("Contingency %s is used within a CNEC or an OnContingencyState UsageRule. Please remove all references to the contingency first.", id));
         } else {
             Contingency contingency = contingencies.get(id);
             if (contingency != null) {
@@ -153,14 +153,14 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
     @Override
     public CracImpl newInstant(String instantId, InstantKind instantKind) {
         if (instants.containsKey(instantId)) {
-            throw new FaraoException(format("Instant '%s' is already defined with other arguments", instantId));
+            throw new OpenRaoException(format("Instant '%s' is already defined with other arguments", instantId));
         }
         InstantImpl instant = new InstantImpl(instantId, instantKind, lastInstantAdded);
         if (instant.getOrder() == 0 && !instant.isPreventive()) {
-            throw new FaraoException("The first instant in the CRAC must be preventive");
+            throw new OpenRaoException("The first instant in the CRAC must be preventive");
         }
         if (instant.getOrder() == 1 && !instant.isOutage()) {
-            throw new FaraoException("The second instant in the CRAC must be an outage");
+            throw new OpenRaoException("The second instant in the CRAC must be an outage");
         }
         lastInstantAdded = instant;
         instants.put(instantId, instant);
@@ -170,7 +170,7 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
     @Override
     public Instant getInstant(String instantId) {
         if (!instants.containsKey(instantId)) {
-            throw new FaraoException(String.format("Instant '%s' has not been defined", instantId));
+            throw new OpenRaoException(String.format("Instant '%s' has not been defined", instantId));
         }
         return instants.get(instantId);
     }
@@ -184,10 +184,10 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
     public Instant getInstant(InstantKind instantKind) {
         Set<Instant> instantsOfKind = getInstants(instantKind);
         if (instantsOfKind.size() != 1) {
-            throw new FaraoException(String.format("Crac does not contain exactly one instant of kind '%s'. It contains %d instants of kind '%s'", instantKind.toString(), instantsOfKind.size(), instantKind));
+            throw new OpenRaoException(String.format("Crac does not contain exactly one instant of kind '%s'. It contains %d instants of kind '%s'", instantKind.toString(), instantsOfKind.size(), instantKind));
         }
         return instantsOfKind.stream().findAny().orElseThrow(
-            () -> new FaraoException(String.format("Should not occur as there is only one '%s' instant", instantKind))
+            () -> new OpenRaoException(String.format("Should not occur as there is only one '%s' instant", instantKind))
         );
     }
 
@@ -207,7 +207,7 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
         if (providedInstant instanceof InstantImpl) {
             return ((InstantImpl) providedInstant).getInstantBefore();
         }
-        throw new FaraoException("This should not happen thanks to the equality ckeck. " +
+        throw new OpenRaoException("This should not happen thanks to the equality ckeck. " +
             "Method getInstantBefore might not have been defined as a package-private method " +
             "in the implementation of the Instant interface");
     }
@@ -229,14 +229,14 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
 
     private void checkCracContainsProvidedInstantId(Instant providedInstant) {
         if (!instants.containsKey(providedInstant.getId())) {
-            throw new FaraoException(String.format("Provided instant '%s' is not defined in the CRAC", providedInstant));
+            throw new OpenRaoException(String.format("Provided instant '%s' is not defined in the CRAC", providedInstant));
         }
     }
 
     private void checkCracInstantAndProvidedInstantAreTheSame(Instant providedInstant) {
         Instant instantInsideCracWithSameId = getInstant(providedInstant.getId());
         if (!Objects.equals(instantInsideCracWithSameId, providedInstant)) {
-            throw new FaraoException(String.format(
+            throw new OpenRaoException(String.format(
                 "Provided instant {id:'%s', kind:'%s', order:%d} is not the same {id: '%s', kind:'%s', order:%d} in the CRAC",
                 providedInstant.getId(), providedInstant.getKind(), providedInstant.getOrder(),
                 instantInsideCracWithSameId.getId(), instantInsideCracWithSameId.getKind(), instantInsideCracWithSameId.getOrder()));
@@ -325,13 +325,13 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
     State addState(Contingency contingency, Instant instant) {
         Objects.requireNonNull(contingency, "Contingency must not be null when adding a state.");
         if (instant.isPreventive()) {
-            throw new FaraoException("Impossible to add a preventive state with a contingency.");
+            throw new OpenRaoException("Impossible to add a preventive state with a contingency.");
         }
         if (getState(contingency, instant) != null) {
             return getState(contingency, instant);
         } else {
             if (!contingencies.containsKey(contingency.getId())) {
-                throw new FaraoException(format(ADD_ELEMENT_TO_CRAC_ERROR_MESSAGE, contingency.getId()));
+                throw new OpenRaoException(format(ADD_ELEMENT_TO_CRAC_ERROR_MESSAGE, contingency.getId()));
             }
             State state = new PostContingencyState(getContingency(contingency.getId()), instant);
             states.put(state.getId(), state);

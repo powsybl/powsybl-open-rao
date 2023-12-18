@@ -7,7 +7,7 @@
 
 package com.powsybl.open_rao.data.crac_impl;
 
-import com.powsybl.open_rao.commons.FaraoException;
+import com.powsybl.open_rao.commons.OpenRaoException;
 import com.powsybl.open_rao.data.crac_api.Crac;
 import com.powsybl.open_rao.data.crac_api.InstantKind;
 import com.powsybl.open_rao.data.crac_api.range_action.InjectionRangeAction;
@@ -96,14 +96,14 @@ class InjectionRangeActionImplTest {
         try {
             ira.apply(network, 100.);
             fail();
-        } catch (FaraoException e) {
+        } catch (OpenRaoException e) {
             // should throw;
         }
 
         try {
             ira.getCurrentSetpoint(network);
             fail();
-        } catch (FaraoException e) {
+        } catch (OpenRaoException e) {
             // should throw;
         }
     }
@@ -120,14 +120,14 @@ class InjectionRangeActionImplTest {
         try {
             ira.apply(network, 100.);
             fail();
-        } catch (FaraoException e) {
+        } catch (OpenRaoException e) {
             // should throw;
         }
 
         try {
             ira.getCurrentSetpoint(network);
             fail();
-        } catch (FaraoException e) {
+        } catch (OpenRaoException e) {
             // should throw;
         }
     }
@@ -156,7 +156,7 @@ class InjectionRangeActionImplTest {
         try {
             ira.getCurrentSetpoint(network);
             fail();
-        } catch (FaraoException e) {
+        } catch (OpenRaoException e) {
             // should throw because setpoint cannot be interpreted
         }
     }

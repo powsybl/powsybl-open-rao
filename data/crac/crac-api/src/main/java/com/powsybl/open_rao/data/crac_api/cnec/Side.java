@@ -7,7 +7,7 @@
 
 package com.powsybl.open_rao.data.crac_api.cnec;
 
-import com.powsybl.open_rao.commons.FaraoException;
+import com.powsybl.open_rao.commons.OpenRaoException;
 import com.powsybl.iidm.network.TwoSides;
 
 /**
@@ -36,7 +36,7 @@ public enum Side {
             case TWO:
                 return RIGHT;
             default:
-                throw new FaraoException(String.format("Unhandled iidm side: %s", side));
+                throw new OpenRaoException(String.format("Unhandled iidm side: %s", side));
         }
     }
 }

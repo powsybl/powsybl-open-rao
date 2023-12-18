@@ -6,7 +6,7 @@
  */
 package com.powsybl.open_rao.data.crac_impl;
 
-import com.powsybl.open_rao.commons.FaraoException;
+import com.powsybl.open_rao.commons.OpenRaoException;
 import com.powsybl.open_rao.data.crac_api.Instant;
 import com.powsybl.open_rao.data.crac_api.usage_rule.OnInstant;
 import com.powsybl.open_rao.data.crac_api.usage_rule.OnInstantAdder;
@@ -47,7 +47,7 @@ public class OnInstantAdderImpl<T extends AbstractRemedialActionAdder<T>> implem
 
         Instant instant = owner.getCrac().getInstant(instantId);
         if (instant.isOutage()) {
-            throw new FaraoException("OnInstant usage rules are not allowed for OUTAGE instant.");
+            throw new OpenRaoException("OnInstant usage rules are not allowed for OUTAGE instant.");
         }
         if (instant.isPreventive()) {
             owner.getCrac().addPreventiveState();

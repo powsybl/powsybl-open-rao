@@ -6,7 +6,7 @@
  */
 package com.powsybl.open_rao.data.crac_impl;
 
-import com.powsybl.open_rao.commons.FaraoException;
+import com.powsybl.open_rao.commons.OpenRaoException;
 import com.powsybl.open_rao.data.crac_api.Crac;
 import com.powsybl.open_rao.data.crac_api.InstantKind;
 import com.powsybl.open_rao.data.crac_api.range_action.CounterTradeRangeAction;
@@ -41,7 +41,7 @@ class CounterTradeRangeActionImplTest {
                 .withExportingCountry(Country.FR)
                 .withImportingCountry(Country.DE)
                 .add();
-        Exception e = assertThrows(FaraoException.class, () -> counterTradeRangeAction.apply(network, 100.));
+        Exception e = assertThrows(OpenRaoException.class, () -> counterTradeRangeAction.apply(network, 100.));
         assertEquals("Can't apply a counter trade range action on a network", e.getMessage());
     }
 

@@ -6,7 +6,7 @@
  */
 package com.powsybl.open_rao.data.crac_impl;
 
-import com.powsybl.open_rao.commons.FaraoException;
+import com.powsybl.open_rao.commons.OpenRaoException;
 import com.powsybl.open_rao.data.crac_api.NetworkElement;
 import com.powsybl.open_rao.data.crac_api.range.StandardRange;
 import com.powsybl.open_rao.data.crac_api.range_action.InjectionRangeAction;
@@ -87,9 +87,9 @@ public class InjectionRangeActionImpl extends AbstractRangeAction<InjectionRange
         }
 
         if (network.getIdentifiable(injectionId) == null) {
-            throw new FaraoException(String.format("Injection %s not found in network", injectionId));
+            throw new OpenRaoException(String.format("Injection %s not found in network", injectionId));
         } else {
-            throw new FaraoException(String.format("%s refers to an object of the network which is not an handled Injection (not a Load, not a Generator)", injectionId));
+            throw new OpenRaoException(String.format("%s refers to an object of the network which is not an handled Injection (not a Load, not a Generator)", injectionId));
         }
     }
 
@@ -106,7 +106,7 @@ public class InjectionRangeActionImpl extends AbstractRangeAction<InjectionRange
             if (Math.abs(currentSetpoints.get(0) - currentSetpoints.get(currentSetpoints.size() - 1)) < 1) {
                 return currentSetpoints.get(0);
             } else {
-                throw new FaraoException(String.format("Cannot evaluate reference setpoint of InjectionRangeAction %s, as the injections are not distributed according to their key", this.getId()));
+                throw new OpenRaoException(String.format("Cannot evaluate reference setpoint of InjectionRangeAction %s, as the injections are not distributed according to their key", this.getId()));
             }
         }
     }
@@ -123,9 +123,9 @@ public class InjectionRangeActionImpl extends AbstractRangeAction<InjectionRange
         }
 
         if (network.getIdentifiable(injectionId) == null) {
-            throw new FaraoException(String.format("Injection %s not found in network", injectionId));
+            throw new OpenRaoException(String.format("Injection %s not found in network", injectionId));
         } else {
-            throw new FaraoException(String.format("%s refers to an object of the network which is not an handled Injection (not a Load, not a Generator)", injectionId));
+            throw new OpenRaoException(String.format("%s refers to an object of the network which is not an handled Injection (not a Load, not a Generator)", injectionId));
         }
     }
 

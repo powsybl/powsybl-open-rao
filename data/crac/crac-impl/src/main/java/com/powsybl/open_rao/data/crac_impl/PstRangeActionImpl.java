@@ -7,7 +7,7 @@
 
 package com.powsybl.open_rao.data.crac_impl;
 
-import com.powsybl.open_rao.commons.FaraoException;
+import com.powsybl.open_rao.commons.OpenRaoException;
 import com.powsybl.open_rao.data.crac_api.*;
 import com.powsybl.open_rao.data.crac_api.range_action.PstRangeAction;
 import com.powsybl.open_rao.data.crac_api.range.RangeType;
@@ -128,7 +128,7 @@ public final class PstRangeActionImpl extends AbstractRangeAction<PstRangeAction
         if (tapToAngleConversionMap.containsKey(tap)) {
             return tapToAngleConversionMap.get(tap);
         } else {
-            throw new FaraoException(String.format("Pst of Range Action %s does not have a tap %d", getId(), tap));
+            throw new OpenRaoException(String.format("Pst of Range Action %s does not have a tap %d", getId(), tap));
         }
     }
 
@@ -155,7 +155,7 @@ public final class PstRangeActionImpl extends AbstractRangeAction<PstRangeAction
 
         // Modification of the range limitation control allowing the final angle to exceed of an EPSILON value the limitation.
         if (angle < minAngle && Math.abs(angle - minAngle) > EPSILON || angle > maxAngle && Math.abs(angle - maxAngle) > EPSILON) {
-            throw new FaraoException(String.format("Angle value %.4f is not in the range of minimum and maximum angle values [%.4f;%.4f] of the phase tap changer %s steps", angle, minAngle, maxAngle, networkElement.getId()));
+            throw new OpenRaoException(String.format("Angle value %.4f is not in the range of minimum and maximum angle values [%.4f;%.4f] of the phase tap changer %s steps", angle, minAngle, maxAngle, networkElement.getId()));
         }
     }
 
@@ -191,18 +191,18 @@ public final class PstRangeActionImpl extends AbstractRangeAction<PstRangeAction
             case RELATIVE_TO_PREVIOUS_INSTANT:
                 return prePerimeterTapPosition + tap;
             default:
-                throw new FaraoException(String.format("Unknown Range Type %s", initialRangeType));
+                throw new OpenRaoException(String.format("Unknown Range Type %s", initialRangeType));
         }
     }
 
     private PhaseTapChanger getPhaseTapChanger(Network network) {
         TwoWindingsTransformer transformer = network.getTwoWindingsTransformer(networkElement.getId());
         if (transformer == null) {
-            throw new FaraoException(String.format("PST %s does not exist in the current network", networkElement.getId()));
+            throw new OpenRaoException(String.format("PST %s does not exist in the current network", networkElement.getId()));
         }
         PhaseTapChanger phaseTapChangerFromNetwork = transformer.getPhaseTapChanger();
         if (phaseTapChangerFromNetwork == null) {
-            throw new FaraoException(String.format("Transformer %s is not a PST but is defined as a TapRange", networkElement.getId()));
+            throw new OpenRaoException(String.format("Transformer %s is not a PST but is defined as a TapRange", networkElement.getId()));
         }
         return phaseTapChangerFromNetwork;
     }

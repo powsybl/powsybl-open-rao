@@ -7,7 +7,7 @@
 
 package com.powsybl.open_rao.data.crac_impl;
 
-import com.powsybl.open_rao.commons.FaraoException;
+import com.powsybl.open_rao.commons.OpenRaoException;
 import com.powsybl.open_rao.data.crac_api.Crac;
 import com.powsybl.open_rao.data.crac_api.InstantKind;
 import com.powsybl.open_rao.data.crac_api.range.StandardRangeAdder;
@@ -107,13 +107,13 @@ class HvdcRangeActionImplTest {
     void applyOnUnknownHvdc() {
         HvdcRangeAction hvdcRa = hvdcRangeActionAdder.newRange().withMin(-5).withMax(10).add()
                 .withNetworkElement("unknownNetworkElement").add();
-        FaraoException exception = assertThrows(FaraoException.class, () -> hvdcRa.apply(network, 50));
+        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> hvdcRa.apply(network, 50));
         assertEquals("HvdcLine unknownNetworkElement does not exist in the current network.", exception.getMessage());
     }
 
     @Test
     void hvdcWithoutSpecificRange() {
-        FaraoException exception = assertThrows(FaraoException.class, () -> hvdcRangeActionAdder.add());
+        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> hvdcRangeActionAdder.add());
         assertEquals("Cannot add HvdcRangeAction without a range. Please use newRange()", exception.getMessage());
     }
 
@@ -129,14 +129,14 @@ class HvdcRangeActionImplTest {
     @Test
     void hvdcWithNoMin() {
         StandardRangeAdder<HvdcRangeActionAdder> standardRangeAdder = hvdcRangeActionAdder.newRange().withMax(10);
-        FaraoException exception = assertThrows(FaraoException.class, standardRangeAdder::add);
+        OpenRaoException exception = assertThrows(OpenRaoException.class, standardRangeAdder::add);
         assertEquals("StandardRange min value was not defined.", exception.getMessage());
     }
 
     @Test
     void hvdcWithNoMax() {
         StandardRangeAdder<HvdcRangeActionAdder> standardRangeAdder = hvdcRangeActionAdder.newRange().withMin(10);
-        FaraoException exception = assertThrows(FaraoException.class, standardRangeAdder::add);
+        OpenRaoException exception = assertThrows(OpenRaoException.class, standardRangeAdder::add);
         assertEquals("StandardRange max value was not defined.", exception.getMessage());
     }
 
