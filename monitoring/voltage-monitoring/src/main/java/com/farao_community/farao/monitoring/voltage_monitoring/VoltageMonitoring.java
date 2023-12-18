@@ -26,6 +26,7 @@ import com.powsybl.loadflow.LoadFlowResult;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ForkJoinTask;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
 import static com.farao_community.farao.commons.logs.FaraoLoggerProvider.*;
@@ -304,23 +305,47 @@ public class VoltageMonitoring {
             extremeVoltageValuesMap.putAll(s.getExtremeVoltageValues());
             appliedRas.putAll(s.getAppliedRas());
         });
-        if (stateSpecificResults.isEmpty()) {
-            securityStatus = VoltageMonitoringResult.Status.UNKNOWN;
-        } else if (stateSpecificResults.stream().anyMatch(s -> s.getStatus() == VoltageMonitoringResult.Status.HIGH_AND_LOW_VOLTAGE_CONSTRAINTS)
-            || (stateSpecificResults.stream().anyMatch(s -> s.getStatus() == VoltageMonitoringResult.Status.HIGH_VOLTAGE_CONSTRAINT)
-            && stateSpecificResults.stream().anyMatch(s -> s.getStatus() == VoltageMonitoringResult.Status.LOW_VOLTAGE_CONSTRAINT))) {
-            securityStatus = VoltageMonitoringResult.Status.HIGH_AND_LOW_VOLTAGE_CONSTRAINTS;
-        } else if (stateSpecificResults.stream().anyMatch(s -> s.getStatus() == VoltageMonitoringResult.Status.HIGH_VOLTAGE_CONSTRAINT)) {
-            securityStatus = VoltageMonitoringResult.Status.HIGH_VOLTAGE_CONSTRAINT;
-        } else if (stateSpecificResults.stream().anyMatch(s -> s.getStatus() == VoltageMonitoringResult.Status.LOW_VOLTAGE_CONSTRAINT)) {
-            securityStatus = VoltageMonitoringResult.Status.LOW_VOLTAGE_CONSTRAINT;
-        } else if (stateSpecificResults.stream().anyMatch(s -> s.getStatus() == VoltageMonitoringResult.Status.UNKNOWN)) {
-            securityStatus = VoltageMonitoringResult.Status.UNKNOWN;
-        }
+        securityStatus = concatenateSpecificResults();
         VoltageMonitoringResult result = new VoltageMonitoringResult(extremeVoltageValuesMap, appliedRas, securityStatus);
         result.printConstraints().forEach(BUSINESS_LOGS::info);
         BUSINESS_LOGS.info("----- Voltage monitoring [end]");
         return result;
+    }
+
+    private VoltageMonitoringResult.Status concatenateSpecificResults() {
+        if (stateSpecificResults.isEmpty()) {
+            return VoltageMonitoringResult.Status.UNKNOWN;
+        }
+        AtomicBoolean atLeastOneHigh = new AtomicBoolean(false);
+        AtomicBoolean atLeastOneLow = new AtomicBoolean(false);
+        AtomicBoolean atLeastOneUnknown = new AtomicBoolean(false);
+
+        stateSpecificResults.forEach(result -> {
+                switch (result.getStatus()) {
+                    case HIGH_VOLTAGE_CONSTRAINT -> atLeastOneHigh.set(true);
+                    case LOW_VOLTAGE_CONSTRAINT -> atLeastOneLow.set(true);
+                    case HIGH_AND_LOW_VOLTAGE_CONSTRAINTS -> {
+                        atLeastOneHigh.set(true);
+                        atLeastOneLow.set(true);
+                    }
+                    case UNKNOWN -> atLeastOneUnknown.set(true);
+                }
+            }
+        );
+
+        if (atLeastOneHigh.get() && atLeastOneLow.get()) {
+            return VoltageMonitoringResult.Status.HIGH_AND_LOW_VOLTAGE_CONSTRAINTS;
+        }
+        if (atLeastOneHigh.get()) {
+            return VoltageMonitoringResult.Status.HIGH_VOLTAGE_CONSTRAINT;
+        }
+        if (atLeastOneLow.get()) {
+            return VoltageMonitoringResult.Status.LOW_VOLTAGE_CONSTRAINT;
+        }
+        if (atLeastOneUnknown.get()) {
+            return VoltageMonitoringResult.Status.UNKNOWN;
+        }
+        return VoltageMonitoringResult.Status.SECURE;
     }
 
     private VoltageMonitoringResult catchVoltageMonitoringResult(State state, VoltageMonitoringResult.Status securityStatus) {
