@@ -82,7 +82,6 @@
         <!-- Dependencies versions -->
         <apache.commons.lang3>3.13.0</apache.commons.lang3>
         <commons-io.version>2.11.0</commons-io.version>
-        <farao.virtualhubs.version>0.0.9</farao.virtualhubs.version>
         <google.autoservice.version>1.1.1</google.autoservice.version>
         <google.guava.version>32.0.0-jre</google.guava.version>
         <google.ortools.version>9.5.2237</google.ortools.version>
@@ -393,16 +392,6 @@
                 <groupId>com.google.guava</groupId>
                 <artifactId>guava</artifactId>
                 <version>${google.guava.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>${project.groupId}</groupId>
-                <artifactId>farao-virtual-hubs-network-extension</artifactId>
-                <version>${farao.virtualhubs.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>${project.groupId}</groupId>
-                <artifactId>farao-virtual-hubs-api</artifactId>
-                <version>${farao.virtualhubs.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.google.ortools</groupId>

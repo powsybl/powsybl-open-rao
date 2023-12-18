@@ -6,18 +6,15 @@
 
     <parent>
         <groupId>com.farao-community.farao</groupId>
-        <artifactId>farao-data</artifactId>
+        <artifactId>farao-virtual-hubs</artifactId>
         <version>4.7.0-SNAPSHOT</version>
     </parent>
+    <artifactId>farao-virtual-hubs-api</artifactId>
+    <dependencies>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+        </dependency>
+    </dependencies>
 
-    <artifactId>farao-crac-io</artifactId>
-    <version>4.7.0-SNAPSHOT</version>
-    <packaging>pom</packaging>
-    <name>CRAC import/export related modules</name>
-    <description>Module that gathers all the CRAC importers and exporters modules</description>
-
-    <modules>
-        <module>crac-io-api</module>
-        <module>crac-io-json</module>
-    </modules>
 </project>
