@@ -58,13 +58,13 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>com.farao-community.farao</groupId>
+            <groupId>com.powsybl</groupId>
             <artifactId>farao-crac-io-json</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>com.farao-community.farao</groupId>
+            <groupId>com.powsybl</groupId>
             <artifactId>farao-rao-result-json</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>

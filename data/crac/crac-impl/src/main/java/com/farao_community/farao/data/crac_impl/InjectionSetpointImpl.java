@@ -79,7 +79,7 @@ public final class InjectionSetpointImpl implements InjectionSetpoint {
             load.setP0(setpoint);
         } else if (identifiable instanceof DanglingLine danglingLine) {
             danglingLine.setP0(setpoint);
-        } else if (identifiable instanceof ShuntCompensator shuntCompensator) {;
+        } else if (identifiable instanceof ShuntCompensator shuntCompensator) {
             shuntCompensator.setSectionCount((int) setpoint);
         } else {
             throw new NotImplementedException("Injection setpoint only handled for generators, loads, dangling lines or shunt compensators");

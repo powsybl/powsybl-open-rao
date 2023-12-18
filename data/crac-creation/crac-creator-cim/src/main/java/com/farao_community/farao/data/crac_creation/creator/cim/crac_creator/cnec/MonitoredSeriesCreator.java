@@ -21,6 +21,7 @@ import com.farao_community.farao.data.crac_creation.creator.cim.xsd.*;
 import com.farao_community.farao.data.crac_creation.util.cgmes.CgmesBranchHelper;
 import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.TwoSides;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.*;
@@ -312,7 +313,7 @@ public class MonitoredSeriesCreator {
 
         Set<Side> monitoredSides = defaultMonitoredSides;
         if (branchHelper.isHalfLine()) {
-            modifiedCnecId += " - " + (branchHelper.getTieLineSide() == Branch.Side.ONE ? "LEFT" : "RIGHT");
+            modifiedCnecId += " - " + (branchHelper.getTieLineSide() == TwoSides.ONE ? "LEFT" : "RIGHT");
             monitoredSides = Set.of(Side.fromIidmSide(branchHelper.getTieLineSide()));
         } else if (unit.equals(Unit.AMPERE) &&
             Math.abs(branchHelper.getBranch().getTerminal1().getVoltageLevel().getNominalV() - branchHelper.getBranch().getTerminal2().getVoltageLevel().getNominalV()) > 1.) {
@@ -364,8 +365,8 @@ public class MonitoredSeriesCreator {
     }
 
     private void setCurrentsLimit(FlowCnecAdder flowCnecAdder, CgmesBranchHelper branchHelper) {
-        Double currentLimitLeft = getCurrentLimit(branchHelper.getBranch(), Branch.Side.ONE);
-        Double currentLimitRight = getCurrentLimit(branchHelper.getBranch(), Branch.Side.TWO);
+        Double currentLimitLeft = getCurrentLimit(branchHelper.getBranch(), TwoSides.ONE);
+        Double currentLimitRight = getCurrentLimit(branchHelper.getBranch(), TwoSides.TWO);
         if (Objects.nonNull(currentLimitLeft) && Objects.nonNull(currentLimitRight)) {
             flowCnecAdder.withIMax(currentLimitLeft, Side.LEFT);
             flowCnecAdder.withIMax(currentLimitRight, Side.RIGHT);
@@ -375,24 +376,24 @@ public class MonitoredSeriesCreator {
     }
 
     // This uses the same logic as the UcteCnecElementHelper which is used for CBCO cnec import for instance
-    private Double getCurrentLimit(Branch<?> branch, Branch.Side side) {
+    private Double getCurrentLimit(Branch<?> branch, TwoSides side) {
 
         if (hasCurrentLimit(branch, side)) {
             return branch.getCurrentLimits(side).orElseThrow().getPermanentLimit();
         }
 
-        if (side == Branch.Side.ONE && hasCurrentLimit(branch, Branch.Side.TWO)) {
-            return branch.getCurrentLimits(Branch.Side.TWO).orElseThrow().getPermanentLimit() * branch.getTerminal1().getVoltageLevel().getNominalV() / branch.getTerminal2().getVoltageLevel().getNominalV();
+        if (side == TwoSides.ONE && hasCurrentLimit(branch, TwoSides.TWO)) {
+            return branch.getCurrentLimits(TwoSides.TWO).orElseThrow().getPermanentLimit() * branch.getTerminal1().getVoltageLevel().getNominalV() / branch.getTerminal2().getVoltageLevel().getNominalV();
         }
 
-        if (side == Branch.Side.TWO && hasCurrentLimit(branch, Branch.Side.ONE)) {
-            return branch.getCurrentLimits(Branch.Side.ONE).orElseThrow().getPermanentLimit() * branch.getTerminal2().getVoltageLevel().getNominalV() / branch.getTerminal1().getVoltageLevel().getNominalV();
+        if (side == TwoSides.TWO && hasCurrentLimit(branch, TwoSides.ONE)) {
+            return branch.getCurrentLimits(TwoSides.ONE).orElseThrow().getPermanentLimit() * branch.getTerminal2().getVoltageLevel().getNominalV() / branch.getTerminal1().getVoltageLevel().getNominalV();
         }
 
         return null;
     }
 
-    private boolean hasCurrentLimit(Branch<?> branch, Branch.Side side) {
+    private boolean hasCurrentLimit(Branch<?> branch, TwoSides side) {
         return branch.getCurrentLimits(side).isPresent();
     }
 }
