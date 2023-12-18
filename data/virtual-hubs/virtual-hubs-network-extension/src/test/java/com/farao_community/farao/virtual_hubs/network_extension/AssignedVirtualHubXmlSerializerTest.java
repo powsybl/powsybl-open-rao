@@ -9,7 +9,7 @@ package com.farao_community.farao.virtual_hubs.network_extension;
 import com.powsybl.iidm.network.DanglingLine;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.xml.NetworkXml;
+import com.powsybl.iidm.serde.NetworkSerDe;
 import org.junit.jupiter.api.Test;
 
 import java.io.*;
@@ -50,9 +50,9 @@ class AssignedVirtualHubXmlSerializerTest {
 
         // round trip
         ByteArrayOutputStream os = new ByteArrayOutputStream();
-        NetworkXml.write(originalNetwork, os);
+        NetworkSerDe.write(originalNetwork, os);
         ByteArrayInputStream is = new ByteArrayInputStream(os.toByteArray());
-        Network roundTripedNetwork = NetworkXml.read(is);
+        Network roundTripedNetwork = NetworkSerDe.read(is);
 
         // check results
         AssignedVirtualHub<DanglingLine> avh1 = roundTripedNetwork.getDanglingLine("FFR1AA1  X_GBFR1  1").getExtension(AssignedVirtualHub.class);
