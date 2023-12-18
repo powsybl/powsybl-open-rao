@@ -137,7 +137,7 @@ final class FlowCnecResultArraySerializer {
         } else {
             return containsAnyResultForOptimizationState(raoResult, flowCnec, null, unit) ||
                 containsAnyResultForOptimizationState(raoResult, flowCnec, crac.getPreventiveInstant(), unit) ||
-                (crac.hasAutoInstant() && containsAnyResultForOptimizationState(raoResult, flowCnec, crac.getInstant(InstantKind.AUTO), unit)) ||
+                crac.hasAutoInstant() && containsAnyResultForOptimizationState(raoResult, flowCnec, crac.getInstant(InstantKind.AUTO), unit) ||
                 containsAnyResultForOptimizationState(raoResult, flowCnec, crac.getInstant(InstantKind.CURATIVE), unit);
         }
     }
@@ -153,7 +153,7 @@ final class FlowCnecResultArraySerializer {
         return !Double.isNaN(safeGetFlow(raoResult, flowCnec, side, optInstant, unit)) ||
             !Double.isNaN(safeGetLoopFlow(raoResult, flowCnec, side, optInstant, unit)) ||
             !Double.isNaN(safeGetCommercialFlow(raoResult, flowCnec, side, optInstant, unit)) ||
-            (!Double.isNaN(safeGetPtdfZonalSum(raoResult, flowCnec, side, optInstant)) && unit.equals(MEGAWATT));
+            !Double.isNaN(safeGetPtdfZonalSum(raoResult, flowCnec, side, optInstant)) && unit.equals(MEGAWATT);
     }
 
     private static double safeGetFlow(RaoResult raoResult, FlowCnec flowCnec, Side side, Instant optInstant, Unit unit) {

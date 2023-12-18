@@ -32,7 +32,7 @@ class JsonVoltageCnecsCreationParametersTest {
         return Stream.of(
             Arguments.of("nok1", "When monitoring the preventive instant, no contingency can be defined."),
             Arguments.of("nok2", "A threshold is already defined for instant curative."),
-            Arguments.of("nok3", "Multiple thresholds for same nominalV (400.0) defined"),
+            Arguments.of("nok3", "Multiple thresholds for same nominalV (400,0) defined"),
             Arguments.of("nok4", "Unhandled unit in voltage monitoring: ampere"),
             Arguments.of("nok5", "At least one monitored element and one monitored state with thresholds should be defined."),
             Arguments.of("nok6", "At least one monitored element and one monitored state with thresholds should be defined."),

@@ -170,7 +170,7 @@ class SweCneTest {
             // For the following fields, mRID is generated randomly as per the CNE specifications
             // We should not compare them with the test file
             return !node.getParentNode().getNodeName().equals("TimeSeries")
-                && (!node.getParentNode().getNodeName().equals("Constraint_Series"));
+                && !node.getParentNode().getNodeName().equals("Constraint_Series");
         } else {
             return !(node.getNodeName().equals("createdDateTime"));
         }

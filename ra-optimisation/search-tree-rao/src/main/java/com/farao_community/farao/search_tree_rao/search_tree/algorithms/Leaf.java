@@ -581,7 +581,7 @@ public class Leaf implements OptimizationResult {
     @Override
     public double getSensitivityValue(FlowCnec flowCnec, Side side, RangeAction<?> rangeAction, Unit unit) {
         if (status == Status.EVALUATED ||
-                (status == Status.OPTIMIZED && !postOptimResult.getRangeActions().contains(rangeAction))) {
+                status == Status.OPTIMIZED && !postOptimResult.getRangeActions().contains(rangeAction)) {
             return preOptimSensitivityResult.getSensitivityValue(flowCnec, side, rangeAction, unit);
         } else if (status == Status.OPTIMIZED) {
             return postOptimResult.getSensitivityValue(flowCnec, side, rangeAction, unit);

@@ -143,7 +143,7 @@ class JsonAngleMonitoringResultTest {
 
     private boolean compareAngleResults(AngleMonitoringResult.AngleResult ar1, AngleMonitoringResult.AngleResult ar2) {
         return ar1.getAngleCnec().equals(ar2.getAngleCnec()) && ar1.getState().equals(ar2.getState())
-                && (Math.abs(ar1.getAngle() - ar2.getAngle()) < ANGLE_TOLERANCE);
+                && Math.abs(ar1.getAngle() - ar2.getAngle()) < ANGLE_TOLERANCE;
     }
 
     @ParameterizedTest

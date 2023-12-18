@@ -362,9 +362,9 @@ public class UnoptimizedCnecFiller implements ProblemFiller {
         if (rangeAction instanceof PstRangeAction) {
             threshold = rangeActionParameters.getPstSensitivityThreshold();
         } else if (rangeAction instanceof HvdcRangeAction) {
-            threshold =  rangeActionParameters.getHvdcSensitivityThreshold();
+            threshold = rangeActionParameters.getHvdcSensitivityThreshold();
         } else if (rangeAction instanceof InjectionRangeAction) {
-            threshold =  rangeActionParameters.getInjectionRaSensitivityThreshold();
+            threshold = rangeActionParameters.getInjectionRaSensitivityThreshold();
         } else {
             throw new FaraoException("Type of RangeAction not yet handled by the LinearRao.");
         }

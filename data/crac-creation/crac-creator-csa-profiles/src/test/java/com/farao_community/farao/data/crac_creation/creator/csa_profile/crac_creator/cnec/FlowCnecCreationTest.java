@@ -373,7 +373,7 @@ class FlowCnecCreationTest {
 
         CsaProfileCracCreationContext cracCreationContext = getCsaCracCreationContext("/CSA_Test_With_Rejected_Files.zip");
 
-        List<ILoggingEvent> logListSorted  = logsList.stream().filter(log -> log.getFormattedMessage().contains("Its dates are not consistent")).sorted(Comparator.comparing(ILoggingEvent::getMessage)).toList();
+        List<ILoggingEvent> logListSorted = logsList.stream().filter(log -> log.getFormattedMessage().contains("Its dates are not consistent")).sorted(Comparator.comparing(ILoggingEvent::getMessage)).toList();
         assertEquals(2, logListSorted.size());
         assertEquals("[WARN] [REMOVED] The file : contexts:ELIA_AE.xml will be ignored. Its dates are not consistent with the import date : 2023-03-29T12:00Z", logListSorted.get(0).toString());
         assertEquals("[WARN] [REMOVED] The file : contexts:REE_CO.xml will be ignored. Its dates are not consistent with the import date : 2023-03-29T12:00Z", logListSorted.get(1).toString());

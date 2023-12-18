@@ -211,7 +211,7 @@ public class MockCracCreationContext implements UcteCracCreationContext {
 
         public MockRemedialActionCreationContext(RemedialAction remedialAction, Crac crac) {
             this.remedialAction = remedialAction;
-            this.isImported = (crac.getRangeAction(remedialAction.getId()) != null) || (crac.getNetworkAction(remedialAction.getId()) != null);
+            this.isImported = crac.getRangeAction(remedialAction.getId()) != null || crac.getNetworkAction(remedialAction.getId()) != null;
             this.isInverted = false;
             this.nativeNetworkElementId = ((NetworkElement) remedialAction.getNetworkElements().iterator().next()).getId();
         }

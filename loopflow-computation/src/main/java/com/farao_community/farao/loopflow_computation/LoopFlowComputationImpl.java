@@ -94,7 +94,7 @@ public class LoopFlowComputationImpl implements LoopFlowComputation {
     static Injection<?> getInjection(String injectionId, Network network) {
         Generator generator = network.getGenerator(injectionId);
         if (generator != null) {
-            return  generator;
+            return generator;
         }
         Load load = network.getLoad(injectionId);
         if (load != null) {

@@ -155,7 +155,7 @@ public final class PstRangeActionImpl extends AbstractRangeAction<PstRangeAction
 
         // Modification of the range limitation control allowing the final angle to exceed of an EPSILON value the limitation.
         if (angle < minAngle && Math.abs(angle - minAngle) > EPSILON || angle > maxAngle && Math.abs(angle - maxAngle) > EPSILON) {
-            throw new FaraoException(String.format("Angle value %.4f is not in the range of minimum and maximum angle values [%.4f,%.4f] of the phase tap changer %s steps", angle, minAngle, maxAngle, networkElement.getId()));
+            throw new FaraoException(String.format("Angle value %.4f is not in the range of minimum and maximum angle values [%.4f;%.4f] of the phase tap changer %s steps", angle, minAngle, maxAngle, networkElement.getId()));
         }
     }
 

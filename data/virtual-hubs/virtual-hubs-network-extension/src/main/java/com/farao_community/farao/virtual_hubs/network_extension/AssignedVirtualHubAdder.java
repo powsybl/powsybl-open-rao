@@ -21,11 +21,11 @@ public interface AssignedVirtualHubAdder<T extends Injection<T>> extends Extensi
 
     AssignedVirtualHubAdder<T> withCode(String code);
 
-    AssignedVirtualHubAdder<T>  withEic(String eic);
+    AssignedVirtualHubAdder<T> withEic(String eic);
 
-    AssignedVirtualHubAdder<T>  withMcParticipant(boolean isMcParticipant);
+    AssignedVirtualHubAdder<T> withMcParticipant(boolean isMcParticipant);
 
-    AssignedVirtualHubAdder<T>  withNodeName(String nodeName);
+    AssignedVirtualHubAdder<T> withNodeName(String nodeName);
 
-    AssignedVirtualHubAdder<T>  withRelatedMa(String relatedMa);
+    AssignedVirtualHubAdder<T> withRelatedMa(String relatedMa);
 }

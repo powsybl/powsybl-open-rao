@@ -15,7 +15,6 @@ import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityResul
 import com.powsybl.sensitivity.SensitivityVariableSet;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  *  This class computes the absolute PTDF sums on a given set of CNECs

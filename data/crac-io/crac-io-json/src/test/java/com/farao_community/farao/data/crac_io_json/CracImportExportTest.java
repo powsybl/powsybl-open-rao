@@ -209,7 +209,7 @@ class CracImportExportTest {
 
         // check automaton OnFlowConstraint usage rule
         assertEquals(1, crac.getNetworkAction("injectionSetpointRaId").getUsageRules().size());
-        UsageRule injectionSetpointRaUsageRule =  crac.getNetworkAction("injectionSetpointRaId").getUsageRules().iterator().next();
+        UsageRule injectionSetpointRaUsageRule = crac.getNetworkAction("injectionSetpointRaId").getUsageRules().iterator().next();
 
         assertTrue(injectionSetpointRaUsageRule instanceof OnFlowConstraint);
         OnFlowConstraint onFlowConstraint1 = (OnFlowConstraint) injectionSetpointRaUsageRule;
@@ -267,7 +267,7 @@ class CracImportExportTest {
 
         // check OnFlowConstraint usage rule
         assertEquals(1, crac.getPstRangeAction("pstRange2Id").getUsageRules().size());
-        UsageRule pstRange2UsageRule =  crac.getPstRangeAction("pstRange2Id").getUsageRules().iterator().next();
+        UsageRule pstRange2UsageRule = crac.getPstRangeAction("pstRange2Id").getUsageRules().iterator().next();
 
         assertTrue(pstRange2UsageRule instanceof OnFlowConstraint);
         OnFlowConstraint onFlowConstraint2 = (OnFlowConstraint) pstRange2UsageRule;
@@ -276,7 +276,7 @@ class CracImportExportTest {
 
         // check OnAngleConstraint usage rule
         assertEquals(1, crac.getPstRangeAction("pstRange3Id").getUsageRules().size());
-        UsageRule pstRange3UsageRule =  crac.getPstRangeAction("pstRange3Id").getUsageRules().iterator().next();
+        UsageRule pstRange3UsageRule = crac.getPstRangeAction("pstRange3Id").getUsageRules().iterator().next();
 
         assertTrue(pstRange3UsageRule instanceof OnAngleConstraint);
         OnAngleConstraint onAngleConstraint = (OnAngleConstraint) pstRange3UsageRule;
@@ -319,7 +319,7 @@ class CracImportExportTest {
         // Check OnFlowConstraintInCountry usage rules
         Set<UsageRule> usageRules = crac.getHvdcRangeAction("hvdcRange1Id").getUsageRules();
         assertEquals(1, usageRules.size());
-        UsageRule hvdcRange1UsageRule =  usageRules.iterator().next();
+        UsageRule hvdcRange1UsageRule = usageRules.iterator().next();
 
         assertTrue(hvdcRange1UsageRule instanceof OnFlowConstraintInCountry);
         OnFlowConstraintInCountry ur = (OnFlowConstraintInCountry) hvdcRange1UsageRule;
