@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    Copyright (c) 2020, RTE (http://www.rte-france.com)
+    This Source Code Form is subject to the terms of the Mozilla Public
+    License, v. 2.0. If a copy of the MPL was not distributed with this
+    file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
+-->
+<xs:schema version="1.0"
+           xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           targetNamespace="https://farao-community.github.io/schema/iidm/ext/virtual_hub_extension/1_0"
+           elementFormDefault="qualified">
+    <xs:import namespace="http://www.powsybl.org/schema/iidm/1_4" schemaLocation="iidm_V1_4.xsd"/>
+    <xs:complexType name="assignedVirtualHub">
+        <xs:attribute name="code" type="xs:string"/>
+        <xs:attribute name="eic" use="required" type="xs:string"/>
+        <xs:attribute name="isMcParticipant" type="xs:boolean"/>
+        <xs:attribute name="nodeName" type="xs:string"/>
+        <xs:attribute name="relatedMa" type="xs:string"/>
+    </xs:complexType>
+</xs:schema>

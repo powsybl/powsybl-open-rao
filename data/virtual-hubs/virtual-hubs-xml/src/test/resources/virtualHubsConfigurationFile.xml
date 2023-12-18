@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Configuration>
+    <MarketAreas>
+        <MarketArea Code="BE" Eic="10YBE----------2" MCParticipant="false"/>
+        <MarketArea Code="ES" Eic="10YES-REE------0" MCParticipant="true"/>
+        <MarketArea Code="FR" Eic="10YFR-RTE------C" MCParticipant="true"/>
+    </MarketAreas>
+    <VirtualHubs>
+        <VirtualHub Eic="17Y000000930814J" Code="Virtual_Hub_FR_1" RelatedMA="FR"
+                    MCParticipant="true" NodeName="XFR_ES11"/>
+        <VirtualHub Eic="17Y000000930814E" Code="Virtual_Hub_FR_2" RelatedMA="FR"
+                    MCParticipant="false" NodeName="XFR_BE11"/>
+        <VirtualHub Eic="17Y000000930808E" Code="Virtual_Hub_ES_FR" RelatedMA="ES"
+                    MCParticipant="true" NodeName="EFR_ES11"/>
+        <VirtualHub Eic="17Y0000009308082" Code="Virtual_Hub_ES_MA" RelatedMA="ES"
+                    MCParticipant="false" NodeName="XMA_ES11"/>
+    </VirtualHubs>
+</Configuration>
