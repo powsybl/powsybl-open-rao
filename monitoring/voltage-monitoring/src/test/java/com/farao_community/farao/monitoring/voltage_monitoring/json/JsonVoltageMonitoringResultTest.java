@@ -22,6 +22,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.text.DecimalFormatSymbols;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Stream;
@@ -124,6 +125,6 @@ class JsonVoltageMonitoringResultTest {
     void importNokTest(String source, String message) {
         InputStream inputStream = getClass().getResourceAsStream("/result-" + source + ".json");
         FaraoException exception = assertThrows(FaraoException.class, () -> voltageMonitoringResultImporter.importVoltageMonitoringResult(inputStream, crac));
-        assertEquals(message, exception.getMessage());
+        assertEquals(message, exception.getMessage().replace(DecimalFormatSymbols.getInstance().getDecimalSeparator(), '.'));
     }
 }

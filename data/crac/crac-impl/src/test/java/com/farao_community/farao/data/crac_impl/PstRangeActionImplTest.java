@@ -20,6 +20,7 @@ import com.powsybl.iidm.network.PhaseTapChanger;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.text.DecimalFormatSymbols;
 import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -80,8 +81,8 @@ class PstRangeActionImplTest {
     void applyOutOfBound() {
         PstRangeAction pstRa = pstRangeActionAdder.add();
         FaraoException exception = assertThrows(FaraoException.class, () -> pstRa.apply(network, 50));
-        assertTrue(exception.getMessage().equals("Angle value 50.0000 is not in the range of minimum and maximum angle values [-6.2276;6.2276] of the phase tap changer BBE2AA1  BBE3AA1  1 steps")
-                || exception.getMessage().replace(",", ".").equals("Angle value 50.0000 is not in the range of minimum and maximum angle values [-6.2276;6.2276] of the phase tap changer BBE2AA1  BBE3AA1  1 steps"));
+        assertEquals("Angle value 50.0000 is not in the range of minimum and maximum angle values [-6.2276;6.2276] of the phase tap changer BBE2AA1  BBE3AA1  1 steps",
+            exception.getMessage().replace(DecimalFormatSymbols.getInstance().getDecimalSeparator(), '.'));
     }
 
     @Test
