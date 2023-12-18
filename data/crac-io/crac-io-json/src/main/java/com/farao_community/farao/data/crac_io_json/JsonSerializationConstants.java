@@ -5,16 +5,16 @@
  *  file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.farao_community.farao.data.crac_io_json;
+package com.powsybl.open_rao.data.crac_io_json;
 
-import com.farao_community.farao.commons.FaraoException;
-import com.farao_community.farao.commons.Unit;
-import com.farao_community.farao.data.crac_api.cnec.Side;
-import com.farao_community.farao.data.crac_api.network_action.ActionType;
-import com.farao_community.farao.data.crac_api.range.RangeType;
-import com.farao_community.farao.data.crac_api.threshold.BranchThreshold;
-import com.farao_community.farao.data.crac_api.threshold.Threshold;
-import com.farao_community.farao.data.crac_api.usage_rule.*;
+import com.powsybl.open_rao.commons.FaraoException;
+import com.powsybl.open_rao.commons.Unit;
+import com.powsybl.open_rao.data.crac_api.cnec.Side;
+import com.powsybl.open_rao.data.crac_api.network_action.ActionType;
+import com.powsybl.open_rao.data.crac_api.range.RangeType;
+import com.powsybl.open_rao.data.crac_api.threshold.BranchThreshold;
+import com.powsybl.open_rao.data.crac_api.threshold.Threshold;
+import com.powsybl.open_rao.data.crac_api.usage_rule.*;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 

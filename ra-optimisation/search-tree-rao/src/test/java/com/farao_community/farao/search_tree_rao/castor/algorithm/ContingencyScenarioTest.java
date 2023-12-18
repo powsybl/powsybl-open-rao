@@ -5,11 +5,11 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.farao_community.farao.search_tree_rao.castor.algorithm;
+package com.powsybl.open_rao.search_tree_rao.castor.algorithm;
 
-import com.farao_community.farao.commons.FaraoException;
-import com.farao_community.farao.data.crac_api.Contingency;
-import com.farao_community.farao.data.crac_api.State;
+import com.powsybl.open_rao.commons.FaraoException;
+import com.powsybl.open_rao.data.crac_api.Contingency;
+import com.powsybl.open_rao.data.crac_api.State;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;

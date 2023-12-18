@@ -5,15 +5,15 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.farao_community.farao.monitoring.angle_monitoring.json;
+package com.powsybl.open_rao.monitoring.angle_monitoring.json;
 
-import com.farao_community.farao.commons.FaraoException;
-import com.farao_community.farao.commons.Unit;
-import com.farao_community.farao.data.crac_api.*;
-import com.farao_community.farao.data.crac_api.cnec.AngleCnec;
+import com.powsybl.open_rao.commons.FaraoException;
+import com.powsybl.open_rao.commons.Unit;
+import com.powsybl.open_rao.data.crac_api.*;
+import com.powsybl.open_rao.data.crac_api.cnec.AngleCnec;
 
-import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
-import com.farao_community.farao.monitoring.angle_monitoring.AngleMonitoringResult;
+import com.powsybl.open_rao.data.crac_api.network_action.NetworkAction;
+import com.powsybl.open_rao.monitoring.angle_monitoring.AngleMonitoringResult;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;

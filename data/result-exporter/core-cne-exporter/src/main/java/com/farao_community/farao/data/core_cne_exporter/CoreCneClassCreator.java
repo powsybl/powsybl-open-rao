@@ -5,12 +5,12 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.farao_community.farao.data.core_cne_exporter;
+package com.powsybl.open_rao.data.core_cne_exporter;
 
-import com.farao_community.farao.commons.FaraoException;
-import com.farao_community.farao.commons.TsoEICode;
-import com.farao_community.farao.commons.Unit;
-import com.farao_community.farao.data.core_cne_exporter.xsd.*;
+import com.powsybl.open_rao.commons.FaraoException;
+import com.powsybl.open_rao.commons.TsoEICode;
+import com.powsybl.open_rao.commons.Unit;
+import com.powsybl.open_rao.data.core_cne_exporter.xsd.*;
 
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
@@ -19,10 +19,10 @@ import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Objects;
 
-import static com.farao_community.farao.data.cne_exporter_commons.CneConstants.*;
-import static com.farao_community.farao.data.cne_exporter_commons.CneUtil.cutString;
-import static com.farao_community.farao.data.cne_exporter_commons.CneUtil.limitFloatInterval;
-import static com.farao_community.farao.data.core_cne_exporter.CoreCneUtil.*;
+import static com.powsybl.open_rao.data.cne_exporter_commons.CneConstants.*;
+import static com.powsybl.open_rao.data.cne_exporter_commons.CneUtil.cutString;
+import static com.powsybl.open_rao.data.cne_exporter_commons.CneUtil.limitFloatInterval;
+import static com.powsybl.open_rao.data.core_cne_exporter.CoreCneUtil.*;
 
 /**
  * Creates the classes that constitute the CNE file structure

@@ -1,8 +1,8 @@
-package com.farao_community.farao.monitoring.monitoring_common.json;
+package com.powsybl.open_rao.monitoring.monitoring_common.json;
 
-import com.farao_community.farao.data.crac_api.Contingency;
-import com.farao_community.farao.data.crac_api.State;
-import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
+import com.powsybl.open_rao.data.crac_api.Contingency;
+import com.powsybl.open_rao.data.crac_api.State;
+import com.powsybl.open_rao.data.crac_api.network_action.NetworkAction;
 import com.fasterxml.jackson.core.JsonGenerator;
 
 import java.io.IOException;

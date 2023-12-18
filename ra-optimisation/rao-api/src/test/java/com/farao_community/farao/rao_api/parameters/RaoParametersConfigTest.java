@@ -4,10 +4,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.farao_community.farao.rao_api.parameters;
+package com.powsybl.open_rao.rao_api.parameters;
 
-import com.farao_community.farao.commons.FaraoException;
-import com.farao_community.farao.rao_api.parameters.extensions.*;
+import com.powsybl.open_rao.commons.FaraoException;
+import com.powsybl.open_rao.rao_api.parameters.extensions.*;
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
 import com.powsybl.commons.config.*;

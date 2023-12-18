@@ -4,26 +4,26 @@
  *  License, v. 2.0. If a copy of the MPL was not distributed with this
  *  file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.farao_community.farao.data.rao_result_json;
+package com.powsybl.open_rao.data.rao_result_json;
 
-import com.farao_community.farao.commons.FaraoException;
-import com.farao_community.farao.commons.Unit;
-import com.farao_community.farao.data.crac_api.*;
-import com.farao_community.farao.data.crac_api.cnec.AngleCnec;
-import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
-import com.farao_community.farao.data.crac_api.cnec.Side;
-import com.farao_community.farao.data.crac_api.cnec.VoltageCnec;
-import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
-import com.farao_community.farao.data.crac_api.range_action.HvdcRangeAction;
-import com.farao_community.farao.data.crac_api.range_action.InjectionRangeAction;
-import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
-import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
-import com.farao_community.farao.data.crac_impl.utils.ExhaustiveCracCreation;
-import com.farao_community.farao.data.crac_io_json.JsonExport;
-import com.farao_community.farao.data.rao_result_api.ComputationStatus;
-import com.farao_community.farao.data.rao_result_api.RaoResult;
-import com.farao_community.farao.data.rao_result_impl.RaoResultImpl;
-import com.farao_community.farao.data.rao_result_impl.utils.ExhaustiveRaoResultCreation;
+import com.powsybl.open_rao.commons.FaraoException;
+import com.powsybl.open_rao.commons.Unit;
+import com.powsybl.open_rao.data.crac_api.*;
+import com.powsybl.open_rao.data.crac_api.cnec.AngleCnec;
+import com.powsybl.open_rao.data.crac_api.cnec.FlowCnec;
+import com.powsybl.open_rao.data.crac_api.cnec.Side;
+import com.powsybl.open_rao.data.crac_api.cnec.VoltageCnec;
+import com.powsybl.open_rao.data.crac_api.network_action.NetworkAction;
+import com.powsybl.open_rao.data.crac_api.range_action.HvdcRangeAction;
+import com.powsybl.open_rao.data.crac_api.range_action.InjectionRangeAction;
+import com.powsybl.open_rao.data.crac_api.range_action.PstRangeAction;
+import com.powsybl.open_rao.data.crac_api.usage_rule.UsageMethod;
+import com.powsybl.open_rao.data.crac_impl.utils.ExhaustiveCracCreation;
+import com.powsybl.open_rao.data.crac_io_json.JsonExport;
+import com.powsybl.open_rao.data.rao_result_api.ComputationStatus;
+import com.powsybl.open_rao.data.rao_result_api.RaoResult;
+import com.powsybl.open_rao.data.rao_result_impl.RaoResultImpl;
+import com.powsybl.open_rao.data.rao_result_impl.utils.ExhaustiveRaoResultCreation;
 import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayInputStream;
@@ -32,9 +32,9 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 
-import static com.farao_community.farao.commons.Unit.*;
-import static com.farao_community.farao.data.crac_api.cnec.Side.LEFT;
-import static com.farao_community.farao.data.crac_api.cnec.Side.RIGHT;
+import static com.powsybl.open_rao.commons.Unit.*;
+import static com.powsybl.open_rao.data.crac_api.cnec.Side.LEFT;
+import static com.powsybl.open_rao.data.crac_api.cnec.Side.RIGHT;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**

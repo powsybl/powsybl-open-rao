@@ -1,19 +1,19 @@
-package com.farao_community.farao.data.crac_creation.creator.csa_profile.crac_creator.remedial_action;
+package com.powsybl.open_rao.data.crac_creation.creator.csa_profile.crac_creator.remedial_action;
 
-import com.farao_community.farao.data.crac_api.InstantKind;
-import com.farao_community.farao.data.crac_api.NetworkElement;
-import com.farao_community.farao.data.crac_api.RemedialAction;
-import com.farao_community.farao.data.crac_api.network_action.*;
-import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
-import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
-import com.farao_community.farao.data.crac_api.usage_rule.UsageRule;
-import com.farao_community.farao.data.crac_creation.creator.api.parameters.CracCreationParameters;
-import com.farao_community.farao.data.crac_creation.creator.csa_profile.CsaProfileCrac;
-import com.farao_community.farao.data.crac_creation.creator.csa_profile.crac_creator.CsaProfileCracCreationContext;
-import com.farao_community.farao.data.crac_creation.creator.csa_profile.crac_creator.CsaProfileCracCreator;
-import com.farao_community.farao.data.crac_creation.creator.csa_profile.importer.CsaProfileCracImporter;
-import com.farao_community.farao.data.crac_creation.util.FaraoImportException;
-import com.farao_community.farao.data.crac_impl.OnContingencyStateImpl;
+import com.powsybl.open_rao.data.crac_api.InstantKind;
+import com.powsybl.open_rao.data.crac_api.NetworkElement;
+import com.powsybl.open_rao.data.crac_api.RemedialAction;
+import com.powsybl.open_rao.data.crac_api.network_action.*;
+import com.powsybl.open_rao.data.crac_api.range_action.PstRangeAction;
+import com.powsybl.open_rao.data.crac_api.usage_rule.UsageMethod;
+import com.powsybl.open_rao.data.crac_api.usage_rule.UsageRule;
+import com.powsybl.open_rao.data.crac_creation.creator.api.parameters.CracCreationParameters;
+import com.powsybl.open_rao.data.crac_creation.creator.csa_profile.CsaProfileCrac;
+import com.powsybl.open_rao.data.crac_creation.creator.csa_profile.crac_creator.CsaProfileCracCreationContext;
+import com.powsybl.open_rao.data.crac_creation.creator.csa_profile.crac_creator.CsaProfileCracCreator;
+import com.powsybl.open_rao.data.crac_creation.creator.csa_profile.importer.CsaProfileCracImporter;
+import com.powsybl.open_rao.data.crac_creation.util.FaraoImportException;
+import com.powsybl.open_rao.data.crac_impl.OnContingencyStateImpl;
 import com.powsybl.iidm.network.Network;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -24,7 +24,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static com.farao_community.farao.data.crac_creation.creator.csa_profile.crac_creator.CsaProfileCracCreationTestUtil.getCsaCracCreationContext;
+import static com.powsybl.open_rao.data.crac_creation.creator.csa_profile.crac_creator.CsaProfileCracCreationTestUtil.getCsaCracCreationContext;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 

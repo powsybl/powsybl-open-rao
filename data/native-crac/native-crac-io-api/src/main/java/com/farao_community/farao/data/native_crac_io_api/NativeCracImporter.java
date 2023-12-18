@@ -5,9 +5,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.farao_community.farao.data.native_crac_io_api;
+package com.powsybl.open_rao.data.native_crac_io_api;
 
-import com.farao_community.farao.data.native_crac_api.NativeCrac;
+import com.powsybl.open_rao.data.native_crac_api.NativeCrac;
 
 import java.io.InputStream;
 

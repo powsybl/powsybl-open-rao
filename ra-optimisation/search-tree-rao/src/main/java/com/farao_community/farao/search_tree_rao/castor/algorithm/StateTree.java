@@ -5,11 +5,11 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.farao_community.farao.search_tree_rao.castor.algorithm;
+package com.powsybl.open_rao.search_tree_rao.castor.algorithm;
 
-import com.farao_community.farao.commons.FaraoException;
-import com.farao_community.farao.data.crac_api.*;
-import com.farao_community.farao.data.crac_api.cnec.Cnec;
+import com.powsybl.open_rao.commons.FaraoException;
+import com.powsybl.open_rao.data.crac_api.*;
+import com.powsybl.open_rao.data.crac_api.cnec.Cnec;
 
 import java.util.HashSet;
 import java.util.Objects;

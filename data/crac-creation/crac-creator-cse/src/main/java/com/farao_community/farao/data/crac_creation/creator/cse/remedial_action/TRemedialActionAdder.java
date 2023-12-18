@@ -4,29 +4,29 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.farao_community.farao.data.crac_creation.creator.cse.remedial_action;
+package com.powsybl.open_rao.data.crac_creation.creator.cse.remedial_action;
 
-import com.farao_community.farao.commons.FaraoException;
-import com.farao_community.farao.commons.Unit;
-import com.farao_community.farao.data.crac_api.Crac;
-import com.farao_community.farao.data.crac_api.Instant;
-import com.farao_community.farao.data.crac_api.InstantKind;
-import com.farao_community.farao.data.crac_api.RemedialActionAdder;
-import com.farao_community.farao.data.crac_api.network_action.ActionType;
-import com.farao_community.farao.data.crac_api.network_action.NetworkActionAdder;
-import com.farao_community.farao.data.crac_api.range_action.InjectionRangeActionAdder;
-import com.farao_community.farao.data.crac_api.range_action.PstRangeActionAdder;
-import com.farao_community.farao.data.crac_api.range.RangeType;
-import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
-import com.farao_community.farao.data.crac_creation.creator.api.ImportStatus;
-import com.farao_community.farao.data.crac_creation.creator.cse.*;
-import com.farao_community.farao.data.crac_creation.creator.cse.parameters.BusBarChangeSwitches;
-import com.farao_community.farao.data.crac_creation.creator.cse.parameters.CseCracCreationParameters;
-import com.farao_community.farao.data.crac_creation.creator.api.parameters.RangeActionGroup;
-import com.farao_community.farao.data.crac_creation.creator.cse.xsd.*;
-import com.farao_community.farao.data.crac_creation.util.ucte.UcteNetworkAnalyzer;
-import com.farao_community.farao.data.crac_creation.util.ucte.UctePstHelper;
-import com.farao_community.farao.data.crac_creation.util.ucte.UcteTopologicalElementHelper;
+import com.powsybl.open_rao.commons.FaraoException;
+import com.powsybl.open_rao.commons.Unit;
+import com.powsybl.open_rao.data.crac_api.Crac;
+import com.powsybl.open_rao.data.crac_api.Instant;
+import com.powsybl.open_rao.data.crac_api.InstantKind;
+import com.powsybl.open_rao.data.crac_api.RemedialActionAdder;
+import com.powsybl.open_rao.data.crac_api.network_action.ActionType;
+import com.powsybl.open_rao.data.crac_api.network_action.NetworkActionAdder;
+import com.powsybl.open_rao.data.crac_api.range_action.InjectionRangeActionAdder;
+import com.powsybl.open_rao.data.crac_api.range_action.PstRangeActionAdder;
+import com.powsybl.open_rao.data.crac_api.range.RangeType;
+import com.powsybl.open_rao.data.crac_api.usage_rule.UsageMethod;
+import com.powsybl.open_rao.data.crac_creation.creator.api.ImportStatus;
+import com.powsybl.open_rao.data.crac_creation.creator.cse.*;
+import com.powsybl.open_rao.data.crac_creation.creator.cse.parameters.BusBarChangeSwitches;
+import com.powsybl.open_rao.data.crac_creation.creator.cse.parameters.CseCracCreationParameters;
+import com.powsybl.open_rao.data.crac_creation.creator.api.parameters.RangeActionGroup;
+import com.powsybl.open_rao.data.crac_creation.creator.cse.xsd.*;
+import com.powsybl.open_rao.data.crac_creation.util.ucte.UcteNetworkAnalyzer;
+import com.powsybl.open_rao.data.crac_creation.util.ucte.UctePstHelper;
+import com.powsybl.open_rao.data.crac_creation.util.ucte.UcteTopologicalElementHelper;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
 

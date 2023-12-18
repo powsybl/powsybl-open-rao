@@ -4,10 +4,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.farao_community.farao.data.crac_creation.creator.fb_constraint.crac_creator;
+package com.powsybl.open_rao.data.crac_creation.creator.fb_constraint.crac_creator;
 
-import com.farao_community.farao.data.crac_api.network_action.ActionType;
-import com.farao_community.farao.data.crac_creation.creator.fb_constraint.xsd.ActionsSetType;
+import com.powsybl.open_rao.data.crac_api.network_action.ActionType;
+import com.powsybl.open_rao.data.crac_creation.creator.fb_constraint.xsd.ActionsSetType;
 
 import java.util.*;
 import java.util.stream.Collectors;

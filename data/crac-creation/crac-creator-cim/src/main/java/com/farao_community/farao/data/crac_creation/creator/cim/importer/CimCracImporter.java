@@ -5,13 +5,13 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.farao_community.farao.data.crac_creation.creator.cim.importer;
+package com.powsybl.open_rao.data.crac_creation.creator.cim.importer;
 
-import com.farao_community.farao.commons.FaraoException;
-import com.farao_community.farao.data.native_crac_io_api.NativeCracImporter;
+import com.powsybl.open_rao.commons.FaraoException;
+import com.powsybl.open_rao.data.native_crac_io_api.NativeCracImporter;
 import com.google.auto.service.AutoService;
-import com.farao_community.farao.data.crac_creation.creator.cim.xsd.CRACMarketDocument;
-import com.farao_community.farao.data.crac_creation.creator.cim.CimCrac;
+import com.powsybl.open_rao.data.crac_creation.creator.cim.xsd.CRACMarketDocument;
+import com.powsybl.open_rao.data.crac_creation.creator.cim.CimCrac;
 import org.apache.commons.io.FilenameUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,8 +28,8 @@ import java.io.*;
 import java.net.MalformedURLException;
 import java.util.Objects;
 
-import static com.farao_community.farao.commons.logs.FaraoLoggerProvider.BUSINESS_LOGS;
-import static com.farao_community.farao.commons.logs.FaraoLoggerProvider.TECHNICAL_LOGS;
+import static com.powsybl.open_rao.commons.logs.FaraoLoggerProvider.BUSINESS_LOGS;
+import static com.powsybl.open_rao.commons.logs.FaraoLoggerProvider.TECHNICAL_LOGS;
 
 /**
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}

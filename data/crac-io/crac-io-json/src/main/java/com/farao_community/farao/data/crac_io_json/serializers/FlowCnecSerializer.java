@@ -5,13 +5,13 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.farao_community.farao.data.crac_io_json.serializers;
+package com.powsybl.open_rao.data.crac_io_json.serializers;
 
-import com.farao_community.farao.data.crac_api.Contingency;
-import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
-import com.farao_community.farao.data.crac_api.cnec.Side;
-import com.farao_community.farao.data.crac_api.threshold.BranchThreshold;
-import com.farao_community.farao.data.crac_io_json.ExtensionsHandler;
+import com.powsybl.open_rao.data.crac_api.Contingency;
+import com.powsybl.open_rao.data.crac_api.cnec.FlowCnec;
+import com.powsybl.open_rao.data.crac_api.cnec.Side;
+import com.powsybl.open_rao.data.crac_api.threshold.BranchThreshold;
+import com.powsybl.open_rao.data.crac_io_json.ExtensionsHandler;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.powsybl.commons.json.JsonUtil;
@@ -20,7 +20,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 
-import static com.farao_community.farao.data.crac_io_json.JsonSerializationConstants.*;
+import static com.powsybl.open_rao.data.crac_io_json.JsonSerializationConstants.*;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}

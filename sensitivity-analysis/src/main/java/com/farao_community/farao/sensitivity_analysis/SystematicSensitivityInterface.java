@@ -5,14 +5,14 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.farao_community.farao.sensitivity_analysis;
+package com.powsybl.open_rao.sensitivity_analysis;
 
-import com.farao_community.farao.commons.FaraoException;
-import com.farao_community.farao.commons.Unit;
+import com.powsybl.open_rao.commons.FaraoException;
+import com.powsybl.open_rao.commons.Unit;
 import com.powsybl.glsk.commons.ZonalData;
-import com.farao_community.farao.data.crac_api.Instant;
-import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
-import com.farao_community.farao.data.crac_api.range_action.RangeAction;
+import com.powsybl.open_rao.data.crac_api.Instant;
+import com.powsybl.open_rao.data.crac_api.cnec.FlowCnec;
+import com.powsybl.open_rao.data.crac_api.range_action.RangeAction;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.sensitivity.SensitivityAnalysisParameters;
 import com.powsybl.sensitivity.SensitivityVariableSet;
@@ -20,7 +20,7 @@ import com.powsybl.sensitivity.SensitivityVariableSet;
 import java.util.Objects;
 import java.util.Set;
 
-import static com.farao_community.farao.commons.logs.FaraoLoggerProvider.*;
+import static com.powsybl.open_rao.commons.logs.FaraoLoggerProvider.*;
 
 /**
  * An interface with the engine that computes sensitivities and flows needed in the RAO.

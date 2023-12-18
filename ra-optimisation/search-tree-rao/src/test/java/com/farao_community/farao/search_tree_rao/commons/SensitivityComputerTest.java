@@ -5,12 +5,12 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.farao_community.farao.search_tree_rao.commons;
+package com.powsybl.open_rao.search_tree_rao.commons;
 
-import com.farao_community.farao.commons.FaraoException;
-import com.farao_community.farao.data.crac_api.Instant;
-import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
-import com.farao_community.farao.data.crac_api.range_action.RangeAction;
+import com.powsybl.open_rao.commons.FaraoException;
+import com.powsybl.open_rao.data.crac_api.Instant;
+import com.powsybl.open_rao.data.crac_api.cnec.FlowCnec;
+import com.powsybl.open_rao.data.crac_api.range_action.RangeAction;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 

@@ -5,14 +5,14 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.contingency;
+package com.powsybl.open_rao.data.crac_creation.creator.cim.crac_creator.contingency;
 
-import com.farao_community.farao.data.crac_api.ContingencyAdder;
-import com.farao_community.farao.data.crac_api.Crac;
-import com.farao_community.farao.data.crac_creation.creator.api.ImportStatus;
-import com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.CimCracCreationContext;
-import com.farao_community.farao.data.crac_creation.creator.cim.xsd.*;
-import com.farao_community.farao.data.crac_creation.util.cgmes.CgmesBranchHelper;
+import com.powsybl.open_rao.data.crac_api.ContingencyAdder;
+import com.powsybl.open_rao.data.crac_api.Crac;
+import com.powsybl.open_rao.data.crac_creation.creator.api.ImportStatus;
+import com.powsybl.open_rao.data.crac_creation.creator.cim.crac_creator.CimCracCreationContext;
+import com.powsybl.open_rao.data.crac_creation.creator.cim.xsd.*;
+import com.powsybl.open_rao.data.crac_creation.util.cgmes.CgmesBranchHelper;
 import com.powsybl.iidm.network.DanglingLine;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.Network;
@@ -24,7 +24,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.CimConstants.*;
+import static com.powsybl.open_rao.data.crac_creation.creator.cim.crac_creator.CimConstants.*;
 
 /**
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}

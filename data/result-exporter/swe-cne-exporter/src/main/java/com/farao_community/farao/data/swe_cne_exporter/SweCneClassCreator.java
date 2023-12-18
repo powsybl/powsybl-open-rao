@@ -5,17 +5,17 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.farao_community.farao.data.swe_cne_exporter;
+package com.powsybl.open_rao.data.swe_cne_exporter;
 
-import com.farao_community.farao.data.swe_cne_exporter.xsd.Point;
-import com.farao_community.farao.data.swe_cne_exporter.xsd.SeriesPeriod;
-import com.farao_community.farao.data.swe_cne_exporter.xsd.TimeSeries;
+import com.powsybl.open_rao.data.swe_cne_exporter.xsd.Point;
+import com.powsybl.open_rao.data.swe_cne_exporter.xsd.SeriesPeriod;
+import com.powsybl.open_rao.data.swe_cne_exporter.xsd.TimeSeries;
 
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import java.time.OffsetDateTime;
 
-import static com.farao_community.farao.data.swe_cne_exporter.SweCneUtil.createEsmpDateTimeInterval;
+import static com.powsybl.open_rao.data.swe_cne_exporter.SweCneUtil.createEsmpDateTimeInterval;
 
 /**
  * Creates the classes that constitute the CNE file structure

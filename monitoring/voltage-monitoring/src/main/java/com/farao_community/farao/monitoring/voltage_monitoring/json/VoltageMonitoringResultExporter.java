@@ -5,13 +5,13 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.farao_community.farao.monitoring.voltage_monitoring.json;
+package com.powsybl.open_rao.monitoring.voltage_monitoring.json;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.powsybl.commons.json.JsonUtil;
-import com.farao_community.farao.monitoring.voltage_monitoring.VoltageMonitoringResult;
+import com.powsybl.open_rao.monitoring.voltage_monitoring.VoltageMonitoringResult;
 
 import java.io.IOException;
 import java.io.OutputStream;

@@ -4,7 +4,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.farao_community.farao.data.crac_creation.creator.api.parameters;
+package com.powsybl.open_rao.data.crac_creation.creator.api.parameters;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
@@ -24,7 +24,7 @@ import java.util.function.Supplier;
 import java.util.Objects;
 
 
-import static com.farao_community.farao.data.crac_creation.creator.api.parameters.CracCreationParameters.MODULE_NAME;
+import static com.powsybl.open_rao.data.crac_creation.creator.api.parameters.CracCreationParameters.MODULE_NAME;
 
 /**
  * Provides methods to read and write CracCreatorParameters from and to JSON.

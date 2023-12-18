@@ -4,20 +4,20 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.farao_community.farao.data.crac_creation.creator.fb_constraint.crac_creator;
+package com.powsybl.open_rao.data.crac_creation.creator.fb_constraint.crac_creator;
 
-import com.farao_community.farao.data.crac_api.Crac;
-import com.farao_community.farao.data.crac_api.InstantKind;
-import com.farao_community.farao.data.crac_api.cnec.Side;
-import com.farao_community.farao.data.crac_creation.creator.api.CracCreator;
-import com.farao_community.farao.data.crac_creation.creator.api.ImportStatus;
-import com.farao_community.farao.data.crac_creation.creator.api.parameters.CracCreationParameters;
-import com.farao_community.farao.data.crac_creation.creator.fb_constraint.xsd.CriticalBranchType;
-import com.farao_community.farao.data.crac_creation.creator.fb_constraint.FbConstraint;
-import com.farao_community.farao.data.crac_creation.creator.fb_constraint.xsd.FlowBasedConstraintDocument;
-import com.farao_community.farao.data.crac_creation.creator.fb_constraint.xsd.IndependantComplexVariant;
-import com.farao_community.farao.data.crac_creation.util.ucte.UcteNetworkAnalyzer;
-import com.farao_community.farao.data.crac_creation.util.ucte.UcteNetworkAnalyzerProperties;
+import com.powsybl.open_rao.data.crac_api.Crac;
+import com.powsybl.open_rao.data.crac_api.InstantKind;
+import com.powsybl.open_rao.data.crac_api.cnec.Side;
+import com.powsybl.open_rao.data.crac_creation.creator.api.CracCreator;
+import com.powsybl.open_rao.data.crac_creation.creator.api.ImportStatus;
+import com.powsybl.open_rao.data.crac_creation.creator.api.parameters.CracCreationParameters;
+import com.powsybl.open_rao.data.crac_creation.creator.fb_constraint.xsd.CriticalBranchType;
+import com.powsybl.open_rao.data.crac_creation.creator.fb_constraint.FbConstraint;
+import com.powsybl.open_rao.data.crac_creation.creator.fb_constraint.xsd.FlowBasedConstraintDocument;
+import com.powsybl.open_rao.data.crac_creation.creator.fb_constraint.xsd.IndependantComplexVariant;
+import com.powsybl.open_rao.data.crac_creation.util.ucte.UcteNetworkAnalyzer;
+import com.powsybl.open_rao.data.crac_creation.util.ucte.UcteNetworkAnalyzerProperties;
 import com.google.auto.service.AutoService;
 import com.powsybl.iidm.network.Network;
 
@@ -25,7 +25,7 @@ import java.time.OffsetDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.farao_community.farao.data.crac_creation.util.ucte.UcteNetworkAnalyzerProperties.BusIdMatchPolicy.COMPLETE_WITH_WILDCARDS;
+import static com.powsybl.open_rao.data.crac_creation.util.ucte.UcteNetworkAnalyzerProperties.BusIdMatchPolicy.COMPLETE_WITH_WILDCARDS;
 import static com.google.common.collect.Iterables.isEmpty;
 
 /**

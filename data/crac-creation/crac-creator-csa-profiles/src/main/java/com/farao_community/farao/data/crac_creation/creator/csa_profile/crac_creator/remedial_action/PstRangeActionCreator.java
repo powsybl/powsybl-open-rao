@@ -4,17 +4,17 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.farao_community.farao.data.crac_creation.creator.csa_profile.crac_creator.remedial_action;
+package com.powsybl.open_rao.data.crac_creation.creator.csa_profile.crac_creator.remedial_action;
 
-import com.farao_community.farao.data.crac_api.Crac;
-import com.farao_community.farao.data.crac_api.range.RangeType;
-import com.farao_community.farao.data.crac_api.range.TapRangeAdder;
-import com.farao_community.farao.data.crac_api.range_action.PstRangeActionAdder;
-import com.farao_community.farao.data.crac_creation.creator.api.ImportStatus;
-import com.farao_community.farao.data.crac_creation.creator.csa_profile.crac_creator.CsaProfileConstants;
-import com.farao_community.farao.data.crac_creation.creator.csa_profile.crac_creator.CsaProfileCracUtils;
-import com.farao_community.farao.data.crac_creation.util.FaraoImportException;
-import com.farao_community.farao.data.crac_creation.util.iidm.IidmPstHelper;
+import com.powsybl.open_rao.data.crac_api.Crac;
+import com.powsybl.open_rao.data.crac_api.range.RangeType;
+import com.powsybl.open_rao.data.crac_api.range.TapRangeAdder;
+import com.powsybl.open_rao.data.crac_api.range_action.PstRangeActionAdder;
+import com.powsybl.open_rao.data.crac_creation.creator.api.ImportStatus;
+import com.powsybl.open_rao.data.crac_creation.creator.csa_profile.crac_creator.CsaProfileConstants;
+import com.powsybl.open_rao.data.crac_creation.creator.csa_profile.crac_creator.CsaProfileCracUtils;
+import com.powsybl.open_rao.data.crac_creation.util.FaraoImportException;
+import com.powsybl.open_rao.data.crac_creation.util.iidm.IidmPstHelper;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.triplestore.api.PropertyBag;
 

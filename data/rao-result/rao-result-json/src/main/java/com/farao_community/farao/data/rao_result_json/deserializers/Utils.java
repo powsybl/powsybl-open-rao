@@ -5,14 +5,14 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.farao_community.farao.data.rao_result_json.deserializers;
+package com.powsybl.open_rao.data.rao_result_json.deserializers;
 
-import com.farao_community.farao.commons.FaraoException;
+import com.powsybl.open_rao.commons.FaraoException;
 import com.fasterxml.jackson.core.JsonParser;
 import java.io.IOException;
 
-import static com.farao_community.farao.data.rao_result_json.RaoResultJsonConstants.getPrimaryVersionNumber;
-import static com.farao_community.farao.data.rao_result_json.RaoResultJsonConstants.getSubVersionNumber;
+import static com.powsybl.open_rao.data.rao_result_json.RaoResultJsonConstants.getPrimaryVersionNumber;
+import static com.powsybl.open_rao.data.rao_result_json.RaoResultJsonConstants.getSubVersionNumber;
 
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}

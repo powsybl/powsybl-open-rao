@@ -1,15 +1,15 @@
-package com.farao_community.farao.data.crac_creation.creator.csa_profile.crac_creator.remedial_action;
+package com.powsybl.open_rao.data.crac_creation.creator.csa_profile.crac_creator.remedial_action;
 
-import com.farao_community.farao.data.crac_api.Instant;
-import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
-import com.farao_community.farao.data.crac_creation.creator.api.ImportStatus;
-import com.farao_community.farao.data.crac_creation.creator.csa_profile.crac_creator.CsaProfileCracCreationContext;
-import com.farao_community.farao.data.crac_impl.OnContingencyStateImpl;
+import com.powsybl.open_rao.data.crac_api.Instant;
+import com.powsybl.open_rao.data.crac_api.range_action.PstRangeAction;
+import com.powsybl.open_rao.data.crac_creation.creator.api.ImportStatus;
+import com.powsybl.open_rao.data.crac_creation.creator.csa_profile.crac_creator.CsaProfileCracCreationContext;
+import com.powsybl.open_rao.data.crac_impl.OnContingencyStateImpl;
 import org.junit.jupiter.api.Test;
 
 import java.util.Map;
 
-import static com.farao_community.farao.data.crac_creation.creator.csa_profile.crac_creator.CsaProfileCracCreationTestUtil.getCsaCracCreationContext;
+import static com.powsybl.open_rao.data.crac_creation.creator.csa_profile.crac_creator.CsaProfileCracCreationTestUtil.getCsaCracCreationContext;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class PstRangeActionCreationTest {

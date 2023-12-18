@@ -5,12 +5,12 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.farao_community.farao.data.core_cne_exporter;
+package com.powsybl.open_rao.data.core_cne_exporter;
 
-import com.farao_community.farao.data.core_cne_exporter.xsd.AreaIDString;
-import com.farao_community.farao.data.core_cne_exporter.xsd.ESMPDateTimeInterval;
-import com.farao_community.farao.data.core_cne_exporter.xsd.PartyIDString;
-import com.farao_community.farao.data.core_cne_exporter.xsd.ResourceIDString;
+import com.powsybl.open_rao.data.core_cne_exporter.xsd.AreaIDString;
+import com.powsybl.open_rao.data.core_cne_exporter.xsd.ESMPDateTimeInterval;
+import com.powsybl.open_rao.data.core_cne_exporter.xsd.PartyIDString;
+import com.powsybl.open_rao.data.core_cne_exporter.xsd.ResourceIDString;
 import org.threeten.extra.Interval;
 
 import java.time.OffsetDateTime;
@@ -18,7 +18,7 @@ import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 
-import static com.farao_community.farao.data.cne_exporter_commons.CneUtil.cutString;
+import static com.powsybl.open_rao.data.cne_exporter_commons.CneUtil.cutString;
 
 /**
  * Auxiliary methods

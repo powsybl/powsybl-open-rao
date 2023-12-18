@@ -5,14 +5,14 @@
  *  file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.farao_community.farao.data.crac_util;
+package com.powsybl.open_rao.data.crac_util;
 
-import com.farao_community.farao.data.crac_api.*;
-import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
-import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
-import com.farao_community.farao.data.crac_api.range_action.RangeAction;
-import com.farao_community.farao.data.crac_api.usage_rule.OnContingencyState;
-import com.farao_community.farao.data.crac_api.usage_rule.UsageRule;
+import com.powsybl.open_rao.data.crac_api.*;
+import com.powsybl.open_rao.data.crac_api.network_action.NetworkAction;
+import com.powsybl.open_rao.data.crac_api.cnec.BranchCnec;
+import com.powsybl.open_rao.data.crac_api.range_action.RangeAction;
+import com.powsybl.open_rao.data.crac_api.usage_rule.OnContingencyState;
+import com.powsybl.open_rao.data.crac_api.usage_rule.UsageRule;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.Identifiable;
 import org.slf4j.Logger;
@@ -20,8 +20,8 @@ import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
-import static com.farao_community.farao.data.crac_util.CracCleaningFeature.CHECK_CNEC_MNEC;
-import static com.farao_community.farao.data.crac_util.CracCleaningFeature.REMOVE_UNHANDLED_CONTINGENCIES;
+import static com.powsybl.open_rao.data.crac_util.CracCleaningFeature.CHECK_CNEC_MNEC;
+import static com.powsybl.open_rao.data.crac_util.CracCleaningFeature.REMOVE_UNHANDLED_CONTINGENCIES;
 
 /**
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}

@@ -5,14 +5,14 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.farao_community.farao.rao_api.parameters;
+package com.powsybl.open_rao.rao_api.parameters;
 
 import com.powsybl.commons.config.PlatformConfig;
 
 import java.util.*;
 
-import static com.farao_community.farao.commons.logs.FaraoLoggerProvider.BUSINESS_WARNS;
-import static com.farao_community.farao.rao_api.RaoParametersCommons.*;
+import static com.powsybl.open_rao.commons.logs.FaraoLoggerProvider.BUSINESS_WARNS;
+import static com.powsybl.open_rao.rao_api.RaoParametersCommons.*;
 
 /**
  * Topological actions optimization parameters for RAO

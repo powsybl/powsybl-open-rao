@@ -4,11 +4,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.farao_community.farao.data.refprog.refprog_xml_importer;
+package com.powsybl.open_rao.data.refprog.refprog_xml_importer;
 
-import com.farao_community.farao.commons.FaraoException;
-import com.farao_community.farao.data.refprog.reference_program.ReferenceProgram;
-import com.farao_community.farao.commons.EICode;
+import com.powsybl.open_rao.commons.FaraoException;
+import com.powsybl.open_rao.data.refprog.reference_program.ReferenceProgram;
+import com.powsybl.open_rao.commons.EICode;
 import com.powsybl.iidm.network.Country;
 import org.junit.jupiter.api.Test;
 

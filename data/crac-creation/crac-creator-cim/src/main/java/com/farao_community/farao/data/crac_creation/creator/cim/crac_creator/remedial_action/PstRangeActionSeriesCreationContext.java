@@ -1,6 +1,6 @@
-package com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.remedial_action;
+package com.powsybl.open_rao.data.crac_creation.creator.cim.crac_creator.remedial_action;
 
-import com.farao_community.farao.data.crac_creation.creator.api.ImportStatus;
+import com.powsybl.open_rao.data.crac_creation.creator.api.ImportStatus;
 
 import java.util.Set;
 

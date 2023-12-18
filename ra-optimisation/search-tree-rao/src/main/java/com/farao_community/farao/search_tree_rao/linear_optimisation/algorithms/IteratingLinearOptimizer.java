@@ -5,28 +5,28 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms;
+package com.powsybl.open_rao.search_tree_rao.linear_optimisation.algorithms;
 
-import com.farao_community.farao.data.crac_api.Instant;
-import com.farao_community.farao.data.rao_result_api.ComputationStatus;
-import com.farao_community.farao.rao_api.parameters.RangeActionsOptimizationParameters;
-import com.farao_community.farao.search_tree_rao.commons.SensitivityComputer;
-import com.farao_community.farao.search_tree_rao.commons.objective_function_evaluator.ObjectiveFunction;
-import com.farao_community.farao.search_tree_rao.commons.optimization_perimeters.GlobalOptimizationPerimeter;
-import com.farao_community.farao.search_tree_rao.commons.optimization_perimeters.OptimizationPerimeter;
-import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.linear_problem.LinearProblem;
-import com.farao_community.farao.search_tree_rao.linear_optimisation.inputs.IteratingLinearOptimizerInput;
-import com.farao_community.farao.search_tree_rao.linear_optimisation.parameters.IteratingLinearOptimizerParameters;
-import com.farao_community.farao.search_tree_rao.result.api.*;
-import com.farao_community.farao.search_tree_rao.result.impl.IteratingLinearOptimizationResultImpl;
-import com.farao_community.farao.search_tree_rao.result.impl.LinearProblemResult;
-import com.farao_community.farao.sensitivity_analysis.AppliedRemedialActions;
+import com.powsybl.open_rao.data.crac_api.Instant;
+import com.powsybl.open_rao.data.rao_result_api.ComputationStatus;
+import com.powsybl.open_rao.rao_api.parameters.RangeActionsOptimizationParameters;
+import com.powsybl.open_rao.search_tree_rao.commons.SensitivityComputer;
+import com.powsybl.open_rao.search_tree_rao.commons.objective_function_evaluator.ObjectiveFunction;
+import com.powsybl.open_rao.search_tree_rao.commons.optimization_perimeters.GlobalOptimizationPerimeter;
+import com.powsybl.open_rao.search_tree_rao.commons.optimization_perimeters.OptimizationPerimeter;
+import com.powsybl.open_rao.search_tree_rao.linear_optimisation.algorithms.linear_problem.LinearProblem;
+import com.powsybl.open_rao.search_tree_rao.linear_optimisation.inputs.IteratingLinearOptimizerInput;
+import com.powsybl.open_rao.search_tree_rao.linear_optimisation.parameters.IteratingLinearOptimizerParameters;
+import com.powsybl.open_rao.search_tree_rao.result.api.*;
+import com.powsybl.open_rao.search_tree_rao.result.impl.IteratingLinearOptimizationResultImpl;
+import com.powsybl.open_rao.search_tree_rao.result.impl.LinearProblemResult;
+import com.powsybl.open_rao.sensitivity_analysis.AppliedRemedialActions;
 import com.powsybl.iidm.network.Network;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.Locale;
 
-import static com.farao_community.farao.commons.logs.FaraoLoggerProvider.*;
+import static com.powsybl.open_rao.commons.logs.FaraoLoggerProvider.*;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}

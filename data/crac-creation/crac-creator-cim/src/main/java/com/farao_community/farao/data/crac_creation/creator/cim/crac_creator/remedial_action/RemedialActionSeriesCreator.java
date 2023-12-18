@@ -5,18 +5,18 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.remedial_action;
+package com.powsybl.open_rao.data.crac_creation.creator.cim.crac_creator.remedial_action;
 
-import com.farao_community.farao.data.crac_api.*;
-import com.farao_community.farao.data.crac_api.cnec.AngleCnec;
-import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
-import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
-import com.farao_community.farao.data.crac_creation.creator.api.ImportStatus;
-import com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.CimCracCreationContext;
-import com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.cnec.AdditionalConstraintSeriesCreator;
-import com.farao_community.farao.data.crac_creation.creator.cim.parameters.CimCracCreationParameters;
-import com.farao_community.farao.data.crac_creation.creator.cim.xsd.*;
-import com.farao_community.farao.data.crac_creation.util.FaraoImportException;
+import com.powsybl.open_rao.data.crac_api.*;
+import com.powsybl.open_rao.data.crac_api.cnec.AngleCnec;
+import com.powsybl.open_rao.data.crac_api.cnec.FlowCnec;
+import com.powsybl.open_rao.data.crac_api.usage_rule.UsageMethod;
+import com.powsybl.open_rao.data.crac_creation.creator.api.ImportStatus;
+import com.powsybl.open_rao.data.crac_creation.creator.cim.crac_creator.CimCracCreationContext;
+import com.powsybl.open_rao.data.crac_creation.creator.cim.crac_creator.cnec.AdditionalConstraintSeriesCreator;
+import com.powsybl.open_rao.data.crac_creation.creator.cim.parameters.CimCracCreationParameters;
+import com.powsybl.open_rao.data.crac_creation.creator.cim.xsd.*;
+import com.powsybl.open_rao.data.crac_creation.util.FaraoImportException;
 import com.powsybl.glsk.commons.CountryEICode;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
@@ -25,9 +25,9 @@ import org.apache.commons.lang3.StringUtils;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.CimConstants.*;
-import static com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.CimCracUtils.getContingencyFromCrac;
-import static com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.CimCracUtils.getFlowCnecsFromCrac;
+import static com.powsybl.open_rao.data.crac_creation.creator.cim.crac_creator.CimConstants.*;
+import static com.powsybl.open_rao.data.crac_creation.creator.cim.crac_creator.CimCracUtils.getContingencyFromCrac;
+import static com.powsybl.open_rao.data.crac_creation.creator.cim.crac_creator.CimCracUtils.getFlowCnecsFromCrac;
 
 /**
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}

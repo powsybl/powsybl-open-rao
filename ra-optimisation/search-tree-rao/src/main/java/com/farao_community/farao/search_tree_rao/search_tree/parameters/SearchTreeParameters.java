@@ -4,16 +4,16 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.farao_community.farao.search_tree_rao.search_tree.parameters;
+package com.powsybl.open_rao.search_tree_rao.search_tree.parameters;
 
-import com.farao_community.farao.data.crac_api.Crac;
-import com.farao_community.farao.rao_api.parameters.ObjectiveFunctionParameters;
-import com.farao_community.farao.rao_api.parameters.RangeActionsOptimizationParameters;
-import com.farao_community.farao.rao_api.parameters.RaoParameters;
-import com.farao_community.farao.rao_api.parameters.extensions.LoopFlowParametersExtension;
-import com.farao_community.farao.rao_api.parameters.extensions.MnecParametersExtension;
-import com.farao_community.farao.rao_api.parameters.extensions.RelativeMarginsParametersExtension;
-import com.farao_community.farao.search_tree_rao.commons.parameters.*;
+import com.powsybl.open_rao.data.crac_api.Crac;
+import com.powsybl.open_rao.rao_api.parameters.ObjectiveFunctionParameters;
+import com.powsybl.open_rao.rao_api.parameters.RangeActionsOptimizationParameters;
+import com.powsybl.open_rao.rao_api.parameters.RaoParameters;
+import com.powsybl.open_rao.rao_api.parameters.extensions.LoopFlowParametersExtension;
+import com.powsybl.open_rao.rao_api.parameters.extensions.MnecParametersExtension;
+import com.powsybl.open_rao.rao_api.parameters.extensions.RelativeMarginsParametersExtension;
+import com.powsybl.open_rao.search_tree_rao.commons.parameters.*;
 
 /**
  * @author Baptiste Seguinot {@literal <joris.mancini at rte-france.com>}

@@ -5,15 +5,15 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.farao_community.farao.data.crac_creation.util.ucte;
+package com.powsybl.open_rao.data.crac_creation.util.ucte;
 
-import com.farao_community.farao.data.crac_creation.util.CnecElementHelper;
+import com.powsybl.open_rao.data.crac_creation.util.CnecElementHelper;
 import com.powsybl.iidm.network.*;
 
 import java.util.Objects;
 import java.util.Optional;
 
-import static com.farao_community.farao.data.crac_creation.util.ucte.UcteConnectable.Side.TWO;
+import static com.powsybl.open_rao.data.crac_creation.util.ucte.UcteConnectable.Side.TWO;
 import static java.lang.String.format;
 
 /**

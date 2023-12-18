@@ -5,16 +5,16 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.farao_community.farao.search_tree_rao.linear_optimisation.parameters;
+package com.powsybl.open_rao.search_tree_rao.linear_optimisation.parameters;
 
-import com.farao_community.farao.commons.FaraoException;
-import com.farao_community.farao.commons.Unit;
-import com.farao_community.farao.rao_api.parameters.ObjectiveFunctionParameters;
-import com.farao_community.farao.rao_api.parameters.RangeActionsOptimizationParameters;
-import com.farao_community.farao.rao_api.parameters.extensions.LoopFlowParametersExtension;
-import com.farao_community.farao.rao_api.parameters.extensions.MnecParametersExtension;
-import com.farao_community.farao.rao_api.parameters.extensions.RelativeMarginsParametersExtension;
-import com.farao_community.farao.search_tree_rao.commons.parameters.*;
+import com.powsybl.open_rao.commons.FaraoException;
+import com.powsybl.open_rao.commons.Unit;
+import com.powsybl.open_rao.rao_api.parameters.ObjectiveFunctionParameters;
+import com.powsybl.open_rao.rao_api.parameters.RangeActionsOptimizationParameters;
+import com.powsybl.open_rao.rao_api.parameters.extensions.LoopFlowParametersExtension;
+import com.powsybl.open_rao.rao_api.parameters.extensions.MnecParametersExtension;
+import com.powsybl.open_rao.rao_api.parameters.extensions.RelativeMarginsParametersExtension;
+import com.powsybl.open_rao.search_tree_rao.commons.parameters.*;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}

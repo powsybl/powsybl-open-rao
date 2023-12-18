@@ -5,9 +5,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.linear_problem;
+package com.powsybl.open_rao.search_tree_rao.linear_optimisation.algorithms.linear_problem;
 
-import com.farao_community.farao.search_tree_rao.commons.RaoUtil;
+import com.powsybl.open_rao.search_tree_rao.commons.RaoUtil;
 import com.google.ortools.linearsolver.MPVariable;
 
 /**

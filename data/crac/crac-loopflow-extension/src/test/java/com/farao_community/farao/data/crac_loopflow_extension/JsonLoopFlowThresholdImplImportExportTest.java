@@ -5,15 +5,15 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.farao_community.farao.data.crac_loopflow_extension;
+package com.powsybl.open_rao.data.crac_loopflow_extension;
 
-import com.farao_community.farao.commons.Unit;
-import com.farao_community.farao.data.crac_api.Crac;
-import com.farao_community.farao.data.crac_api.InstantKind;
-import com.farao_community.farao.data.crac_api.cnec.Side;
-import com.farao_community.farao.data.crac_impl.CracImplFactory;
-import com.farao_community.farao.data.crac_io_api.CracExporters;
-import com.farao_community.farao.data.crac_io_api.CracImporters;
+import com.powsybl.open_rao.commons.Unit;
+import com.powsybl.open_rao.data.crac_api.Crac;
+import com.powsybl.open_rao.data.crac_api.InstantKind;
+import com.powsybl.open_rao.data.crac_api.cnec.Side;
+import com.powsybl.open_rao.data.crac_impl.CracImplFactory;
+import com.powsybl.open_rao.data.crac_io_api.CracExporters;
+import com.powsybl.open_rao.data.crac_io_api.CracImporters;
 import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayInputStream;

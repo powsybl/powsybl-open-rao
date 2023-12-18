@@ -5,9 +5,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.farao_community.farao.data.refprog.reference_program;
+package com.powsybl.open_rao.data.refprog.reference_program;
 
-import com.farao_community.farao.commons.EICode;
+import com.powsybl.open_rao.commons.EICode;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.loadflow.LoadFlow;
@@ -18,7 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import static com.farao_community.farao.commons.logs.FaraoLoggerProvider.BUSINESS_WARNS;
+import static com.powsybl.open_rao.commons.logs.FaraoLoggerProvider.BUSINESS_WARNS;
 
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}

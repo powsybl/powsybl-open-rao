@@ -5,25 +5,25 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.farao_community.farao.data.core_cne_exporter;
+package com.powsybl.open_rao.data.core_cne_exporter;
 
-import com.farao_community.farao.commons.FaraoException;
-import com.farao_community.farao.commons.TsoEICode;
-import com.farao_community.farao.commons.logs.FaraoLoggerProvider;
-import com.farao_community.farao.data.cne_exporter_commons.CneHelper;
-import com.farao_community.farao.data.core_cne_exporter.xsd.ConstraintSeries;
-import com.farao_community.farao.data.core_cne_exporter.xsd.ContingencySeries;
-import com.farao_community.farao.data.core_cne_exporter.xsd.RemedialActionRegisteredResource;
-import com.farao_community.farao.data.core_cne_exporter.xsd.RemedialActionSeries;
-import com.farao_community.farao.data.crac_api.Identifiable;
-import com.farao_community.farao.data.crac_api.InstantKind;
-import com.farao_community.farao.data.crac_api.State;
-import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
-import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
-import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
-import com.farao_community.farao.data.crac_creation.creator.api.std_creation_context.PstRangeActionCreationContext;
-import com.farao_community.farao.data.crac_creation.creator.api.std_creation_context.RemedialActionCreationContext;
-import com.farao_community.farao.data.crac_creation.creator.api.std_creation_context.UcteCracCreationContext;
+import com.powsybl.open_rao.commons.FaraoException;
+import com.powsybl.open_rao.commons.TsoEICode;
+import com.powsybl.open_rao.commons.logs.FaraoLoggerProvider;
+import com.powsybl.open_rao.data.cne_exporter_commons.CneHelper;
+import com.powsybl.open_rao.data.core_cne_exporter.xsd.ConstraintSeries;
+import com.powsybl.open_rao.data.core_cne_exporter.xsd.ContingencySeries;
+import com.powsybl.open_rao.data.core_cne_exporter.xsd.RemedialActionRegisteredResource;
+import com.powsybl.open_rao.data.core_cne_exporter.xsd.RemedialActionSeries;
+import com.powsybl.open_rao.data.crac_api.Identifiable;
+import com.powsybl.open_rao.data.crac_api.InstantKind;
+import com.powsybl.open_rao.data.crac_api.State;
+import com.powsybl.open_rao.data.crac_api.network_action.NetworkAction;
+import com.powsybl.open_rao.data.crac_api.range_action.PstRangeAction;
+import com.powsybl.open_rao.data.crac_api.usage_rule.UsageMethod;
+import com.powsybl.open_rao.data.crac_creation.creator.api.std_creation_context.PstRangeActionCreationContext;
+import com.powsybl.open_rao.data.crac_creation.creator.api.std_creation_context.RemedialActionCreationContext;
+import com.powsybl.open_rao.data.crac_creation.creator.api.std_creation_context.UcteCracCreationContext;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -31,10 +31,10 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-import static com.farao_community.farao.data.cne_exporter_commons.CneConstants.*;
-import static com.farao_community.farao.data.cne_exporter_commons.CneUtil.cutString;
-import static com.farao_community.farao.data.cne_exporter_commons.CneUtil.randomizeString;
-import static com.farao_community.farao.data.core_cne_exporter.CoreCneClassCreator.*;
+import static com.powsybl.open_rao.data.cne_exporter_commons.CneConstants.*;
+import static com.powsybl.open_rao.data.cne_exporter_commons.CneUtil.cutString;
+import static com.powsybl.open_rao.data.cne_exporter_commons.CneUtil.randomizeString;
+import static com.powsybl.open_rao.data.core_cne_exporter.CoreCneClassCreator.*;
 
 /**
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}

@@ -5,13 +5,13 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.farao_community.farao.data.rao_result_json.deserializers;
+package com.powsybl.open_rao.data.rao_result_json.deserializers;
 
-import com.farao_community.farao.commons.FaraoException;
-import com.farao_community.farao.data.crac_api.Crac;
-import com.farao_community.farao.data.crac_api.range_action.RangeAction;
-import com.farao_community.farao.data.rao_result_impl.RangeActionResult;
-import com.farao_community.farao.data.rao_result_impl.RaoResultImpl;
+import com.powsybl.open_rao.commons.FaraoException;
+import com.powsybl.open_rao.data.crac_api.Crac;
+import com.powsybl.open_rao.data.crac_api.range_action.RangeAction;
+import com.powsybl.open_rao.data.rao_result_impl.RangeActionResult;
+import com.powsybl.open_rao.data.rao_result_impl.RaoResultImpl;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import org.slf4j.Logger;
@@ -19,9 +19,9 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 
-import static com.farao_community.farao.data.rao_result_json.RaoResultJsonConstants.*;
-import static com.farao_community.farao.data.rao_result_json.deserializers.DeprecatedRaoResultJsonConstants.*;
-import static com.farao_community.farao.data.rao_result_json.deserializers.Utils.*;
+import static com.powsybl.open_rao.data.rao_result_json.RaoResultJsonConstants.*;
+import static com.powsybl.open_rao.data.rao_result_json.deserializers.DeprecatedRaoResultJsonConstants.*;
+import static com.powsybl.open_rao.data.rao_result_json.deserializers.Utils.*;
 
 /**
  * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}

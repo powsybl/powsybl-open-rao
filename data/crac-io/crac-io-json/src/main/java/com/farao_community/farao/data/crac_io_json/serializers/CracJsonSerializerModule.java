@@ -4,24 +4,24 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.farao_community.farao.data.crac_io_json.serializers;
+package com.powsybl.open_rao.data.crac_io_json.serializers;
 
-import com.farao_community.farao.data.crac_api.Contingency;
-import com.farao_community.farao.data.crac_api.Crac;
-import com.farao_community.farao.data.crac_api.Instant;
-import com.farao_community.farao.data.crac_api.cnec.AngleCnec;
-import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
-import com.farao_community.farao.data.crac_api.cnec.VoltageCnec;
-import com.farao_community.farao.data.crac_api.network_action.*;
-import com.farao_community.farao.data.crac_api.range.StandardRange;
-import com.farao_community.farao.data.crac_api.range.TapRange;
-import com.farao_community.farao.data.crac_api.range_action.CounterTradeRangeAction;
-import com.farao_community.farao.data.crac_api.range_action.HvdcRangeAction;
-import com.farao_community.farao.data.crac_api.range_action.InjectionRangeAction;
-import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
-import com.farao_community.farao.data.crac_api.threshold.BranchThreshold;
-import com.farao_community.farao.data.crac_api.threshold.Threshold;
-import com.farao_community.farao.data.crac_api.usage_rule.*;
+import com.powsybl.open_rao.data.crac_api.Contingency;
+import com.powsybl.open_rao.data.crac_api.Crac;
+import com.powsybl.open_rao.data.crac_api.Instant;
+import com.powsybl.open_rao.data.crac_api.cnec.AngleCnec;
+import com.powsybl.open_rao.data.crac_api.cnec.FlowCnec;
+import com.powsybl.open_rao.data.crac_api.cnec.VoltageCnec;
+import com.powsybl.open_rao.data.crac_api.network_action.*;
+import com.powsybl.open_rao.data.crac_api.range.StandardRange;
+import com.powsybl.open_rao.data.crac_api.range.TapRange;
+import com.powsybl.open_rao.data.crac_api.range_action.CounterTradeRangeAction;
+import com.powsybl.open_rao.data.crac_api.range_action.HvdcRangeAction;
+import com.powsybl.open_rao.data.crac_api.range_action.InjectionRangeAction;
+import com.powsybl.open_rao.data.crac_api.range_action.PstRangeAction;
+import com.powsybl.open_rao.data.crac_api.threshold.BranchThreshold;
+import com.powsybl.open_rao.data.crac_api.threshold.Threshold;
+import com.powsybl.open_rao.data.crac_api.usage_rule.*;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 
 /**

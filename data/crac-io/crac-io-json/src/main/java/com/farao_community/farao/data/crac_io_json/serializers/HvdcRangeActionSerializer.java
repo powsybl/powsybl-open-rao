@@ -5,15 +5,15 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.farao_community.farao.data.crac_io_json.serializers;
+package com.powsybl.open_rao.data.crac_io_json.serializers;
 
-import com.farao_community.farao.data.crac_api.range_action.HvdcRangeAction;
+import com.powsybl.open_rao.data.crac_api.range_action.HvdcRangeAction;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
 
 import java.io.IOException;
 
-import static com.farao_community.farao.data.crac_io_json.JsonSerializationConstants.NETWORK_ELEMENT_ID;
+import static com.powsybl.open_rao.data.crac_io_json.JsonSerializationConstants.NETWORK_ELEMENT_ID;
 
 /**
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}

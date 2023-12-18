@@ -4,12 +4,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.farao_community.farao.search_tree_rao.commons.parameters;
+package com.powsybl.open_rao.search_tree_rao.commons.parameters;
 
-import com.farao_community.farao.commons.FaraoException;
-import com.farao_community.farao.rao_api.parameters.ObjectiveFunctionParameters;
-import com.farao_community.farao.rao_api.parameters.RangeActionsOptimizationParameters;
-import com.farao_community.farao.rao_api.parameters.RaoParameters;
+import com.powsybl.open_rao.commons.FaraoException;
+import com.powsybl.open_rao.rao_api.parameters.ObjectiveFunctionParameters;
+import com.powsybl.open_rao.rao_api.parameters.RangeActionsOptimizationParameters;
+import com.powsybl.open_rao.rao_api.parameters.RaoParameters;
 
 /**
  * This class contains internal FARAO parameters used in the SearchTree algorithm.

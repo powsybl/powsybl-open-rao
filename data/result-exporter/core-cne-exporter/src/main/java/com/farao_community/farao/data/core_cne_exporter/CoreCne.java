@@ -5,20 +5,20 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.farao_community.farao.data.core_cne_exporter;
+package com.powsybl.open_rao.data.core_cne_exporter;
 
-import com.farao_community.farao.commons.FaraoException;
-import com.farao_community.farao.data.cne_exporter_commons.CneExporterParameters;
-import com.farao_community.farao.data.cne_exporter_commons.CneHelper;
-import com.farao_community.farao.data.cne_exporter_commons.CneUtil;
-import com.farao_community.farao.data.core_cne_exporter.xsd.ConstraintSeries;
-import com.farao_community.farao.data.core_cne_exporter.xsd.CriticalNetworkElementMarketDocument;
-import com.farao_community.farao.data.core_cne_exporter.xsd.Point;
-import com.farao_community.farao.data.core_cne_exporter.xsd.SeriesPeriod;
-import com.farao_community.farao.data.crac_api.Crac;
-import com.farao_community.farao.data.crac_creation.creator.api.std_creation_context.UcteCracCreationContext;
-import com.farao_community.farao.data.rao_result_api.RaoResult;
-import com.farao_community.farao.rao_api.parameters.RaoParameters;
+import com.powsybl.open_rao.commons.FaraoException;
+import com.powsybl.open_rao.data.cne_exporter_commons.CneExporterParameters;
+import com.powsybl.open_rao.data.cne_exporter_commons.CneHelper;
+import com.powsybl.open_rao.data.cne_exporter_commons.CneUtil;
+import com.powsybl.open_rao.data.core_cne_exporter.xsd.ConstraintSeries;
+import com.powsybl.open_rao.data.core_cne_exporter.xsd.CriticalNetworkElementMarketDocument;
+import com.powsybl.open_rao.data.core_cne_exporter.xsd.Point;
+import com.powsybl.open_rao.data.core_cne_exporter.xsd.SeriesPeriod;
+import com.powsybl.open_rao.data.crac_api.Crac;
+import com.powsybl.open_rao.data.crac_creation.creator.api.std_creation_context.UcteCracCreationContext;
+import com.powsybl.open_rao.data.rao_result_api.RaoResult;
+import com.powsybl.open_rao.rao_api.parameters.RaoParameters;
 import com.powsybl.iidm.network.Network;
 
 import javax.xml.datatype.DatatypeConfigurationException;
@@ -27,10 +27,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-import static com.farao_community.farao.data.cne_exporter_commons.CneConstants.*;
-import static com.farao_community.farao.data.cne_exporter_commons.CneUtil.createXMLGregorianCalendarNow;
-import static com.farao_community.farao.data.core_cne_exporter.CoreCneClassCreator.*;
-import static com.farao_community.farao.data.core_cne_exporter.CoreCneUtil.*;
+import static com.powsybl.open_rao.data.cne_exporter_commons.CneConstants.*;
+import static com.powsybl.open_rao.data.cne_exporter_commons.CneUtil.createXMLGregorianCalendarNow;
+import static com.powsybl.open_rao.data.core_cne_exporter.CoreCneClassCreator.*;
+import static com.powsybl.open_rao.data.core_cne_exporter.CoreCneUtil.*;
 
 /**
  * Fills the classes that constitute the CNE file structure

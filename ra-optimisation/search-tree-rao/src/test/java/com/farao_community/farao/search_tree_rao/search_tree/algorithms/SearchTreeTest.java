@@ -5,38 +5,38 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.farao_community.farao.search_tree_rao.search_tree.algorithms;
+package com.powsybl.open_rao.search_tree_rao.search_tree.algorithms;
 
 import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.read.ListAppender;
-import com.farao_community.farao.commons.FaraoException;
-import com.farao_community.farao.commons.Unit;
-import com.farao_community.farao.commons.logs.RaoBusinessLogs;
-import com.farao_community.farao.commons.logs.TechnicalLogs;
-import com.farao_community.farao.data.crac_api.*;
-import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
-import com.farao_community.farao.data.crac_api.cnec.Side;
-import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
-import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
-import com.farao_community.farao.data.crac_api.range_action.RangeAction;
-import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
-import com.farao_community.farao.data.rao_result_api.ComputationStatus;
-import com.farao_community.farao.rao_api.parameters.ObjectiveFunctionParameters;
-import com.farao_community.farao.search_tree_rao.commons.NetworkActionCombination;
-import com.farao_community.farao.search_tree_rao.commons.SensitivityComputer;
-import com.farao_community.farao.search_tree_rao.commons.ToolProvider;
-import com.farao_community.farao.search_tree_rao.commons.objective_function_evaluator.ObjectiveFunction;
-import com.farao_community.farao.search_tree_rao.commons.optimization_perimeters.OptimizationPerimeter;
-import com.farao_community.farao.search_tree_rao.commons.parameters.GlobalRemedialActionLimitationParameters;
-import com.farao_community.farao.search_tree_rao.commons.parameters.NetworkActionParameters;
-import com.farao_community.farao.search_tree_rao.commons.parameters.TreeParameters;
-import com.farao_community.farao.search_tree_rao.result.api.*;
-import com.farao_community.farao.search_tree_rao.result.impl.RangeActionActivationResultImpl;
-import com.farao_community.farao.search_tree_rao.search_tree.inputs.SearchTreeInput;
-import com.farao_community.farao.search_tree_rao.search_tree.parameters.SearchTreeParameters;
-import com.farao_community.farao.sensitivity_analysis.AppliedRemedialActions;
-import com.farao_community.farao.util.AbstractNetworkPool;
+import com.powsybl.open_rao.commons.FaraoException;
+import com.powsybl.open_rao.commons.Unit;
+import com.powsybl.open_rao.commons.logs.RaoBusinessLogs;
+import com.powsybl.open_rao.commons.logs.TechnicalLogs;
+import com.powsybl.open_rao.data.crac_api.*;
+import com.powsybl.open_rao.data.crac_api.cnec.FlowCnec;
+import com.powsybl.open_rao.data.crac_api.cnec.Side;
+import com.powsybl.open_rao.data.crac_api.network_action.NetworkAction;
+import com.powsybl.open_rao.data.crac_api.range_action.PstRangeAction;
+import com.powsybl.open_rao.data.crac_api.range_action.RangeAction;
+import com.powsybl.open_rao.data.crac_api.usage_rule.UsageMethod;
+import com.powsybl.open_rao.data.rao_result_api.ComputationStatus;
+import com.powsybl.open_rao.rao_api.parameters.ObjectiveFunctionParameters;
+import com.powsybl.open_rao.search_tree_rao.commons.NetworkActionCombination;
+import com.powsybl.open_rao.search_tree_rao.commons.SensitivityComputer;
+import com.powsybl.open_rao.search_tree_rao.commons.ToolProvider;
+import com.powsybl.open_rao.search_tree_rao.commons.objective_function_evaluator.ObjectiveFunction;
+import com.powsybl.open_rao.search_tree_rao.commons.optimization_perimeters.OptimizationPerimeter;
+import com.powsybl.open_rao.search_tree_rao.commons.parameters.GlobalRemedialActionLimitationParameters;
+import com.powsybl.open_rao.search_tree_rao.commons.parameters.NetworkActionParameters;
+import com.powsybl.open_rao.search_tree_rao.commons.parameters.TreeParameters;
+import com.powsybl.open_rao.search_tree_rao.result.api.*;
+import com.powsybl.open_rao.search_tree_rao.result.impl.RangeActionActivationResultImpl;
+import com.powsybl.open_rao.search_tree_rao.search_tree.inputs.SearchTreeInput;
+import com.powsybl.open_rao.search_tree_rao.search_tree.parameters.SearchTreeParameters;
+import com.powsybl.open_rao.sensitivity_analysis.AppliedRemedialActions;
+import com.powsybl.open_rao.util.AbstractNetworkPool;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.VariantManager;
 import org.junit.jupiter.api.BeforeEach;
@@ -46,8 +46,8 @@ import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
-import static com.farao_community.farao.commons.logs.FaraoLoggerProvider.TECHNICAL_LOGS;
-import static com.farao_community.farao.search_tree_rao.commons.RaoLogger.logRangeActions;
+import static com.powsybl.open_rao.commons.logs.FaraoLoggerProvider.TECHNICAL_LOGS;
+import static com.powsybl.open_rao.search_tree_rao.commons.RaoLogger.logRangeActions;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;

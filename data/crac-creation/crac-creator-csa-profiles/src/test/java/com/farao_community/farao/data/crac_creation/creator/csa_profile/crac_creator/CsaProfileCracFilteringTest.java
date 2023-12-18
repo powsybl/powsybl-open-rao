@@ -1,16 +1,16 @@
-package com.farao_community.farao.data.crac_creation.creator.csa_profile.crac_creator;
+package com.powsybl.open_rao.data.crac_creation.creator.csa_profile.crac_creator;
 
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.read.ListAppender;
-import com.farao_community.farao.commons.logs.RaoBusinessWarns;
-import com.farao_community.farao.data.crac_api.Crac;
+import com.powsybl.open_rao.commons.logs.RaoBusinessWarns;
+import com.powsybl.open_rao.data.crac_api.Crac;
 import org.junit.jupiter.api.Test;
 
 import java.util.Comparator;
 import java.util.List;
 
-import static com.farao_community.farao.data.crac_creation.creator.csa_profile.crac_creator.CsaProfileCracCreationTestUtil.getCsaCracCreationContext;
-import static com.farao_community.farao.data.crac_creation.creator.csa_profile.crac_creator.CsaProfileCracCreationTestUtil.getLogs;
+import static com.powsybl.open_rao.data.crac_creation.creator.csa_profile.crac_creator.CsaProfileCracCreationTestUtil.getCsaCracCreationContext;
+import static com.powsybl.open_rao.data.crac_creation.creator.csa_profile.crac_creator.CsaProfileCracCreationTestUtil.getLogs;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 

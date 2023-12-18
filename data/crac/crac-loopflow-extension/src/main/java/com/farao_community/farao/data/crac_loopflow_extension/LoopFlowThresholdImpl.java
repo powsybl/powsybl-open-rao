@@ -4,13 +4,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.farao_community.farao.data.crac_loopflow_extension;
+package com.powsybl.open_rao.data.crac_loopflow_extension;
 
-import com.farao_community.farao.commons.FaraoException;
-import com.farao_community.farao.commons.PhysicalParameter;
-import com.farao_community.farao.commons.Unit;
-import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
-import com.farao_community.farao.data.crac_api.cnec.Side;
+import com.powsybl.open_rao.commons.FaraoException;
+import com.powsybl.open_rao.commons.PhysicalParameter;
+import com.powsybl.open_rao.commons.Unit;
+import com.powsybl.open_rao.data.crac_api.cnec.FlowCnec;
+import com.powsybl.open_rao.data.crac_api.cnec.Side;
 import com.powsybl.commons.extensions.AbstractExtension;
 
 /**

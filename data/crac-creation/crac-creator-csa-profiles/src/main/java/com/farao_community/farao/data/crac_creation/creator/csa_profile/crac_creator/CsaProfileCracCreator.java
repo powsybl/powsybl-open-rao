@@ -5,19 +5,19 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.farao_community.farao.data.crac_creation.creator.csa_profile.crac_creator;
+package com.powsybl.open_rao.data.crac_creation.creator.csa_profile.crac_creator;
 
-import com.farao_community.farao.commons.logs.FaraoLoggerProvider;
-import com.farao_community.farao.data.crac_api.Crac;
-import com.farao_community.farao.data.crac_api.InstantKind;
-import com.farao_community.farao.data.crac_api.cnec.Side;
-import com.farao_community.farao.data.crac_creation.creator.api.CracCreator;
-import com.farao_community.farao.data.crac_creation.creator.api.parameters.CracCreationParameters;
-import com.farao_community.farao.data.crac_creation.creator.csa_profile.CsaProfileCrac;
-import com.farao_community.farao.data.crac_creation.creator.csa_profile.crac_creator.cnec.CsaProfileCnecCreator;
-import com.farao_community.farao.data.crac_creation.creator.csa_profile.crac_creator.contingency.CsaProfileContingencyCreator;
-import com.farao_community.farao.data.crac_creation.creator.csa_profile.crac_creator.remedial_action.CsaProfileRemedialActionsCreator;
-import com.farao_community.farao.data.crac_creation.creator.csa_profile.crac_creator.remedial_action.OnConstraintUsageRuleHelper;
+import com.powsybl.open_rao.commons.logs.FaraoLoggerProvider;
+import com.powsybl.open_rao.data.crac_api.Crac;
+import com.powsybl.open_rao.data.crac_api.InstantKind;
+import com.powsybl.open_rao.data.crac_api.cnec.Side;
+import com.powsybl.open_rao.data.crac_creation.creator.api.CracCreator;
+import com.powsybl.open_rao.data.crac_creation.creator.api.parameters.CracCreationParameters;
+import com.powsybl.open_rao.data.crac_creation.creator.csa_profile.CsaProfileCrac;
+import com.powsybl.open_rao.data.crac_creation.creator.csa_profile.crac_creator.cnec.CsaProfileCnecCreator;
+import com.powsybl.open_rao.data.crac_creation.creator.csa_profile.crac_creator.contingency.CsaProfileContingencyCreator;
+import com.powsybl.open_rao.data.crac_creation.creator.csa_profile.crac_creator.remedial_action.CsaProfileRemedialActionsCreator;
+import com.powsybl.open_rao.data.crac_creation.creator.csa_profile.crac_creator.remedial_action.OnConstraintUsageRuleHelper;
 import com.google.auto.service.AutoService;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.triplestore.api.PropertyBag;
@@ -27,7 +27,7 @@ import java.time.OffsetDateTime;
 import java.util.Map;
 import java.util.Set;
 
-import static com.farao_community.farao.data.crac_creation.creator.csa_profile.crac_creator.CsaProfileCracUtils.isValidInterval;
+import static com.powsybl.open_rao.data.crac_creation.creator.csa_profile.crac_creator.CsaProfileCracUtils.isValidInterval;
 
 /**
  * @author Jean-Pierre Arnould {@literal <jean-pierre.arnould at rte-france.com>}

@@ -5,13 +5,13 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.farao_community.farao.search_tree_rao.result.impl;
+package com.powsybl.open_rao.search_tree_rao.result.impl;
 
-import com.farao_community.farao.data.crac_api.State;
-import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
-import com.farao_community.farao.data.crac_api.range_action.RangeAction;
-import com.farao_community.farao.search_tree_rao.result.api.RangeActionActivationResult;
-import com.farao_community.farao.search_tree_rao.result.api.RangeActionSetpointResult;
+import com.powsybl.open_rao.data.crac_api.State;
+import com.powsybl.open_rao.data.crac_api.range_action.PstRangeAction;
+import com.powsybl.open_rao.data.crac_api.range_action.RangeAction;
+import com.powsybl.open_rao.search_tree_rao.result.api.RangeActionActivationResult;
+import com.powsybl.open_rao.search_tree_rao.result.api.RangeActionSetpointResult;
 import com.powsybl.iidm.network.Network;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

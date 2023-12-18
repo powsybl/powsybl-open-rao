@@ -5,13 +5,13 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.farao_community.farao.data.rao_result_json;
+package com.powsybl.open_rao.data.rao_result_json;
 
-import com.farao_community.farao.commons.FaraoException;
-import com.farao_community.farao.commons.Unit;
-import com.farao_community.farao.data.crac_api.Crac;
-import com.farao_community.farao.data.rao_result_api.RaoResult;
-import com.farao_community.farao.data.rao_result_json.serializers.RaoResultJsonSerializerModule;
+import com.powsybl.open_rao.commons.FaraoException;
+import com.powsybl.open_rao.commons.Unit;
+import com.powsybl.open_rao.data.crac_api.Crac;
+import com.powsybl.open_rao.data.rao_result_api.RaoResult;
+import com.powsybl.open_rao.data.rao_result_json.serializers.RaoResultJsonSerializerModule;
 import com.powsybl.commons.json.JsonUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;

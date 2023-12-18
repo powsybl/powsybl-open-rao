@@ -5,18 +5,18 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.farao_community.farao.monitoring.angle_monitoring;
+package com.powsybl.open_rao.monitoring.angle_monitoring;
 
-import com.farao_community.farao.commons.FaraoException;
-import com.farao_community.farao.data.crac_api.*;
-import com.farao_community.farao.data.crac_api.cnec.AngleCnec;
-import com.farao_community.farao.data.crac_api.cnec.Cnec;
-import com.farao_community.farao.data.crac_api.network_action.ElementaryAction;
-import com.farao_community.farao.data.crac_api.network_action.InjectionSetpoint;
-import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
-import com.farao_community.farao.data.crac_api.usage_rule.OnAngleConstraint;
-import com.farao_community.farao.data.rao_result_api.RaoResult;
-import com.farao_community.farao.util.AbstractNetworkPool;
+import com.powsybl.open_rao.commons.FaraoException;
+import com.powsybl.open_rao.data.crac_api.*;
+import com.powsybl.open_rao.data.crac_api.cnec.AngleCnec;
+import com.powsybl.open_rao.data.crac_api.cnec.Cnec;
+import com.powsybl.open_rao.data.crac_api.network_action.ElementaryAction;
+import com.powsybl.open_rao.data.crac_api.network_action.InjectionSetpoint;
+import com.powsybl.open_rao.data.crac_api.network_action.NetworkAction;
+import com.powsybl.open_rao.data.crac_api.usage_rule.OnAngleConstraint;
+import com.powsybl.open_rao.data.rao_result_api.RaoResult;
+import com.powsybl.open_rao.util.AbstractNetworkPool;
 import com.powsybl.glsk.api.GlskPoint;
 import com.powsybl.glsk.cim.CimGlskDocument;
 import com.powsybl.glsk.cim.CimGlskPoint;
@@ -33,7 +33,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ForkJoinTask;
 import java.util.stream.Collectors;
 
-import static com.farao_community.farao.commons.logs.FaraoLoggerProvider.*;
+import static com.powsybl.open_rao.commons.logs.FaraoLoggerProvider.*;
 
 /**
  * Monitors AngleCnecs' angles.
@@ -300,7 +300,7 @@ public class AngleMonitoring {
                 powerToBeRedispatched.putAll(tempPowerToBeRedispatched);
             }
         }
-        BUSINESS_LOGS.info("Applying the following remedial action(s) in order to reduce constraints on CNEC \"{}\": {}", angleCnecId, appliedNetworkActions.stream().map(com.farao_community.farao.data.crac_api.Identifiable::getId).collect(Collectors.joining(", ")));
+        BUSINESS_LOGS.info("Applying the following remedial action(s) in order to reduce constraints on CNEC \"{}\": {}", angleCnecId, appliedNetworkActions.stream().map(com.powsybl.open_rao.data.crac_api.Identifiable::getId).collect(Collectors.joining(", ")));
         return appliedNetworkActions;
     }
 

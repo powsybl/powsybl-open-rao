@@ -10,13 +10,13 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <artifactId>farao-crac-creation</artifactId>
+        <artifactId>open-rao-crac-creation</artifactId>
         <groupId>com.powsybl</groupId>
         <version>4.7.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>farao-crac-creator-fb-constraint</artifactId>
+    <artifactId>open-rao-crac-creator-fb-constraint</artifactId>
     <packaging>jar</packaging>
     <name>Flow-based constraint document management</name>
     <description>Object model, importer and CRAC creator of a flow-based constraint document</description>
@@ -46,7 +46,7 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
                 <configuration>
-                    <excludePackageNames>com.farao_community.farao.data.crac_creation.creator.fb_constraint.xsd:com.farao_community.farao.data.crac_creation.creator.fb_constraint.xsd.*</excludePackageNames>
+                    <excludePackageNames>com.powsybl.open_rao.data.crac_creation.creator.fb_constraint.xsd:com.powsybl.open_rao.data.crac_creation.creator.fb_constraint.xsd.*</excludePackageNames>
                 </configuration>
             </plugin>
         </plugins>
@@ -56,17 +56,17 @@
         <!-- Compile dependencies -->
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>farao-crac-creation-util</artifactId>
+            <artifactId>open-rao-crac-creation-util</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>farao-crac-creator-api</artifactId>
+            <artifactId>open-rao-crac-creator-api</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>farao-crac-loopflow-extension</artifactId>
+            <artifactId>open-rao-crac-loopflow-extension</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
@@ -92,7 +92,7 @@
         <!-- Test dependencies -->
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>farao-crac-impl</artifactId>
+            <artifactId>open-rao-crac-impl</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>

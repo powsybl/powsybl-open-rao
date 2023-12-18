@@ -4,11 +4,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
-package com.farao_community.farao.virtual_hubs.network_extension_builder;
+package com.powsybl.open_rao.virtual_hubs.network_extension_builder;
 
-import com.farao_community.farao.virtual_hubs.MarketArea;
-import com.farao_community.farao.virtual_hubs.VirtualHub;
-import com.farao_community.farao.virtual_hubs.network_extension.AssignedVirtualHub;
+import com.powsybl.open_rao.virtual_hubs.MarketArea;
+import com.powsybl.open_rao.virtual_hubs.VirtualHub;
+import com.powsybl.open_rao.virtual_hubs.network_extension.AssignedVirtualHub;
 import com.powsybl.iidm.network.Load;
 import com.powsybl.iidm.network.Network;
 import org.junit.jupiter.api.BeforeEach;

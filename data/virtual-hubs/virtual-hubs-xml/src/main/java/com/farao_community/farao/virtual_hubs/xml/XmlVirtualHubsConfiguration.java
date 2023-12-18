@@ -4,9 +4,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
-package com.farao_community.farao.virtual_hubs.xml;
+package com.powsybl.open_rao.virtual_hubs.xml;
 
-import com.farao_community.farao.virtual_hubs.VirtualHubsConfiguration;
+import com.powsybl.open_rao.virtual_hubs.VirtualHubsConfiguration;
 
 import java.io.InputStream;
 import java.util.Objects;

@@ -4,14 +4,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.farao_community.farao.rao_api.rao_mock;
+package com.powsybl.open_rao.rao_api.rao_mock;
 
-import com.farao_community.farao.data.rao_result_api.ComputationStatus;
-import com.farao_community.farao.data.rao_result_api.RaoResult;
-import com.farao_community.farao.data.rao_result_impl.RaoResultImpl;
-import com.farao_community.farao.rao_api.RaoInput;
-import com.farao_community.farao.rao_api.parameters.RaoParameters;
-import com.farao_community.farao.rao_api.RaoProvider;
+import com.powsybl.open_rao.data.rao_result_api.ComputationStatus;
+import com.powsybl.open_rao.data.rao_result_api.RaoResult;
+import com.powsybl.open_rao.data.rao_result_impl.RaoResultImpl;
+import com.powsybl.open_rao.rao_api.RaoInput;
+import com.powsybl.open_rao.rao_api.parameters.RaoParameters;
+import com.powsybl.open_rao.rao_api.RaoProvider;
 import com.google.auto.service.AutoService;
 
 import java.time.Instant;

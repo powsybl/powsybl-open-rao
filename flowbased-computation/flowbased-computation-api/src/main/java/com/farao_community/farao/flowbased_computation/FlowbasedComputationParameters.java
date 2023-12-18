@@ -4,7 +4,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.farao_community.farao.flowbased_computation;
+package com.powsybl.open_rao.flowbased_computation;
 
 import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;

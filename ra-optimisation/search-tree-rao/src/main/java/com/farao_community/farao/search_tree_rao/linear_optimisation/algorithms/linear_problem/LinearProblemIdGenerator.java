@@ -5,12 +5,12 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.linear_problem;
+package com.powsybl.open_rao.search_tree_rao.linear_optimisation.algorithms.linear_problem;
 
-import com.farao_community.farao.data.crac_api.State;
-import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
-import com.farao_community.farao.data.crac_api.cnec.Side;
-import com.farao_community.farao.data.crac_api.range_action.RangeAction;
+import com.powsybl.open_rao.data.crac_api.State;
+import com.powsybl.open_rao.data.crac_api.cnec.FlowCnec;
+import com.powsybl.open_rao.data.crac_api.cnec.Side;
+import com.powsybl.open_rao.data.crac_api.range_action.RangeAction;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}

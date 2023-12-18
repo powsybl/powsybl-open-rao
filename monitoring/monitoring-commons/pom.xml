@@ -3,13 +3,13 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <artifactId>farao-monitoring</artifactId>
+        <artifactId>open-rao-monitoring</artifactId>
         <groupId>com.powsybl</groupId>
         <version>4.7.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>farao-monitoring-commons</artifactId>
+    <artifactId>open-rao-monitoring-commons</artifactId>
     <packaging>jar</packaging>
     <name>Monitoring commons</name>
     <description>Common voltage and angle monitoring features</description>
@@ -18,7 +18,7 @@
         <!-- Compile dependencies -->
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>farao-crac-api</artifactId>
+            <artifactId>open-rao-crac-api</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>

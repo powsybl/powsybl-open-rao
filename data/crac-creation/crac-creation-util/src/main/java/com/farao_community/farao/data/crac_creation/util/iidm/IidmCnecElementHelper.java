@@ -5,9 +5,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.farao_community.farao.data.crac_creation.util.iidm;
+package com.powsybl.open_rao.data.crac_creation.util.iidm;
 
-import com.farao_community.farao.data.crac_creation.util.CnecElementHelper;
+import com.powsybl.open_rao.data.crac_creation.util.CnecElementHelper;
 import com.powsybl.iidm.network.*;
 
 import java.util.Objects;

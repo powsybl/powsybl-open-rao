@@ -1,7 +1,7 @@
-package com.farao_community.farao.sensitivity_analysis;
+package com.powsybl.open_rao.sensitivity_analysis;
 
-import com.farao_community.farao.commons.FaraoException;
-import com.farao_community.farao.data.crac_api.NetworkElement;
+import com.powsybl.open_rao.commons.FaraoException;
+import com.powsybl.open_rao.data.crac_api.NetworkElement;
 import com.powsybl.contingency.*;
 import com.powsybl.iidm.network.*;
 
@@ -12,7 +12,7 @@ final class SensitivityAnalysisUtil {
 
     private SensitivityAnalysisUtil() { }
 
-    static Contingency convertCracContingencyToPowsybl(com.farao_community.farao.data.crac_api.Contingency cracContingency, Network network) {
+    static Contingency convertCracContingencyToPowsybl(com.powsybl.open_rao.data.crac_api.Contingency cracContingency, Network network) {
         String id = cracContingency.getId();
         List<ContingencyElement> contingencyElements = cracContingency.getNetworkElements().stream()
             .map(element -> convertCracContingencyElementToPowsybl(element, network))

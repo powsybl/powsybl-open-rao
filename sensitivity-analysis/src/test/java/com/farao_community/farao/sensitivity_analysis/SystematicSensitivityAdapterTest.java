@@ -4,13 +4,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.farao_community.farao.sensitivity_analysis;
+package com.powsybl.open_rao.sensitivity_analysis;
 
-import com.farao_community.farao.commons.Unit;
-import com.farao_community.farao.data.crac_api.Crac;
-import com.farao_community.farao.data.crac_api.Instant;
-import com.farao_community.farao.data.crac_impl.utils.CommonCracCreation;
-import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
+import com.powsybl.open_rao.commons.Unit;
+import com.powsybl.open_rao.data.crac_api.Crac;
+import com.powsybl.open_rao.data.crac_api.Instant;
+import com.powsybl.open_rao.data.crac_impl.utils.CommonCracCreation;
+import com.powsybl.open_rao.data.crac_impl.utils.NetworkImportsUtil;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.sensitivity.*;
 import org.junit.jupiter.api.Test;
@@ -18,8 +18,8 @@ import org.junit.jupiter.api.Test;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static com.farao_community.farao.data.crac_api.cnec.Side.LEFT;
-import static com.farao_community.farao.data.crac_api.cnec.Side.RIGHT;
+import static com.powsybl.open_rao.data.crac_api.cnec.Side.LEFT;
+import static com.powsybl.open_rao.data.crac_api.cnec.Side.RIGHT;
 
 /**
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}

@@ -5,7 +5,7 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-package com.farao_community.farao.virtual_hubs.network_extension;
+package com.powsybl.open_rao.virtual_hubs.network_extension;
 
 import com.google.auto.service.AutoService;
 import com.powsybl.commons.extensions.ExtensionAdderProvider;

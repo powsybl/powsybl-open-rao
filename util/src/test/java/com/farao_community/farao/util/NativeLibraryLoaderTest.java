@@ -4,9 +4,9 @@
  *  License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.farao_community.farao.util;
+package com.powsybl.open_rao.util;
 
-import com.farao_community.farao.commons.FaraoException;
+import com.powsybl.open_rao.commons.FaraoException;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;

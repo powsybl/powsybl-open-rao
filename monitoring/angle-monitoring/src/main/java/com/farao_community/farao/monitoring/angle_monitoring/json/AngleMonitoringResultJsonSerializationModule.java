@@ -5,9 +5,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.farao_community.farao.monitoring.angle_monitoring.json;
+package com.powsybl.open_rao.monitoring.angle_monitoring.json;
 
-import com.farao_community.farao.monitoring.angle_monitoring.AngleMonitoringResult;
+import com.powsybl.open_rao.monitoring.angle_monitoring.AngleMonitoringResult;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 
 /**

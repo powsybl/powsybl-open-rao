@@ -5,9 +5,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.farao_community.farao.data.swe_cne_exporter;
+package com.powsybl.open_rao.data.swe_cne_exporter;
 
-import com.farao_community.farao.data.swe_cne_exporter.xsd.ESMPDateTimeInterval;
+import com.powsybl.open_rao.data.swe_cne_exporter.xsd.ESMPDateTimeInterval;
 import org.junit.jupiter.api.Test;
 
 import java.time.OffsetDateTime;

@@ -4,16 +4,16 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.farao_community.farao.data.crac_creation.creator.fb_constraint.crac_creator;
+package com.powsybl.open_rao.data.crac_creation.creator.fb_constraint.crac_creator;
 
-import com.farao_community.farao.commons.FaraoException;
-import com.farao_community.farao.data.crac_api.network_action.NetworkActionAdder;
-import com.farao_community.farao.data.crac_api.range_action.PstRangeActionAdder;
-import com.farao_community.farao.data.crac_creation.creator.fb_constraint.xsd.ActionType;
-import com.farao_community.farao.data.crac_creation.creator.fb_constraint.xsd.RangeType;
-import com.farao_community.farao.data.crac_creation.util.ucte.UcteNetworkAnalyzer;
-import com.farao_community.farao.data.crac_creation.util.ucte.UctePstHelper;
-import com.farao_community.farao.data.crac_creation.util.ucte.UcteTopologicalElementHelper;
+import com.powsybl.open_rao.commons.FaraoException;
+import com.powsybl.open_rao.data.crac_api.network_action.NetworkActionAdder;
+import com.powsybl.open_rao.data.crac_api.range_action.PstRangeActionAdder;
+import com.powsybl.open_rao.data.crac_creation.creator.fb_constraint.xsd.ActionType;
+import com.powsybl.open_rao.data.crac_creation.creator.fb_constraint.xsd.RangeType;
+import com.powsybl.open_rao.data.crac_creation.util.ucte.UcteNetworkAnalyzer;
+import com.powsybl.open_rao.data.crac_creation.util.ucte.UctePstHelper;
+import com.powsybl.open_rao.data.crac_creation.util.ucte.UcteTopologicalElementHelper;
 
 import javax.xml.bind.JAXBElement;
 import java.util.ArrayList;
@@ -47,7 +47,7 @@ class ActionReader {
     private String inversionMessage = null;
 
     // useful only for topo
-    private com.farao_community.farao.data.crac_api.network_action.ActionType topologicalActionType;
+    private com.powsybl.open_rao.data.crac_api.network_action.ActionType topologicalActionType;
 
     enum Type {
         TOPO,
@@ -57,7 +57,7 @@ class ActionReader {
     private static class Range {
         private int minTap;
         private int maxTap;
-        private com.farao_community.farao.data.crac_api.range.RangeType relativeOrAbsolute;
+        private com.powsybl.open_rao.data.crac_api.range.RangeType relativeOrAbsolute;
     }
 
     Type getType() {
@@ -133,7 +133,7 @@ class ActionReader {
         return groupId;
     }
 
-    com.farao_community.farao.data.crac_api.network_action.ActionType getActionType() {
+    com.powsybl.open_rao.data.crac_api.network_action.ActionType getActionType() {
         return topologicalActionType;
     }
 
@@ -212,9 +212,9 @@ class ActionReader {
         range.minTap = shouldInvert ? -rangeType.getMax().intValue() : rangeType.getMin().intValue();
         range.maxTap = shouldInvert ? -rangeType.getMin().intValue() : rangeType.getMax().intValue();
         if (rangeCategory.equals("relativeRange")) {
-            range.relativeOrAbsolute = com.farao_community.farao.data.crac_api.range.RangeType.RELATIVE_TO_PREVIOUS_INSTANT;
+            range.relativeOrAbsolute = com.powsybl.open_rao.data.crac_api.range.RangeType.RELATIVE_TO_PREVIOUS_INSTANT;
         } else if (rangeCategory.equals("range")) {
-            range.relativeOrAbsolute = com.farao_community.farao.data.crac_api.range.RangeType.ABSOLUTE;
+            range.relativeOrAbsolute = com.powsybl.open_rao.data.crac_api.range.RangeType.ABSOLUTE;
         } else {
             invalidate(String.format("unknown type of range category %s", rangeCategory));
         }
@@ -228,7 +228,7 @@ class ActionReader {
             invalidate(String.format("unknown topological action: %s", actionAsString));
         }
 
-        topologicalActionType = com.farao_community.farao.data.crac_api.network_action.ActionType.valueOf(actionAsString);
+        topologicalActionType = com.powsybl.open_rao.data.crac_api.network_action.ActionType.valueOf(actionAsString);
     }
 
     private void invalidate(String reason) {

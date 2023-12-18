@@ -5,7 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.farao_community.farao.data.crac_creation.creator.cim.crac_creator;
+package com.powsybl.open_rao.data.crac_creation.creator.cim.crac_creator;
 
 import java.util.List;
 import java.util.Objects;

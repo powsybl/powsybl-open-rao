@@ -5,9 +5,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.farao_community.farao.data.cne_exporter_commons;
+package com.powsybl.open_rao.data.cne_exporter_commons;
 
-import com.farao_community.farao.commons.FaraoException;
+import com.powsybl.open_rao.commons.FaraoException;
 
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;

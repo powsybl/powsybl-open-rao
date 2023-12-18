@@ -5,12 +5,12 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.farao_community.farao.data.crac_creation.creator.api;
+package com.powsybl.open_rao.data.crac_creation.creator.api;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.farao_community.farao.commons.logs.FaraoLoggerProvider.*;
+import static com.powsybl.open_rao.commons.logs.FaraoLoggerProvider.*;
 
 /**
  * Common methods used in CRAC creation reports

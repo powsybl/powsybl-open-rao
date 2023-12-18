@@ -5,12 +5,12 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.farao_community.farao.monitoring.voltage_monitoring;
+package com.powsybl.open_rao.monitoring.voltage_monitoring;
 
-import com.farao_community.farao.commons.FaraoException;
-import com.farao_community.farao.data.crac_api.State;
-import com.farao_community.farao.data.crac_api.cnec.VoltageCnec;
-import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
+import com.powsybl.open_rao.commons.FaraoException;
+import com.powsybl.open_rao.data.crac_api.State;
+import com.powsybl.open_rao.data.crac_api.cnec.VoltageCnec;
+import com.powsybl.open_rao.data.crac_api.network_action.NetworkAction;
 
 import java.util.*;
 import java.util.stream.Collectors;

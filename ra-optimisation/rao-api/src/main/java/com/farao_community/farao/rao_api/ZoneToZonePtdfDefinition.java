@@ -5,10 +5,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.farao_community.farao.rao_api;
+package com.powsybl.open_rao.rao_api;
 
-import com.farao_community.farao.commons.EICode;
-import com.farao_community.farao.commons.FaraoException;
+import com.powsybl.open_rao.commons.EICode;
+import com.powsybl.open_rao.commons.FaraoException;
 import com.powsybl.iidm.network.Country;
 import org.apache.commons.lang3.NotImplementedException;
 import org.apache.commons.lang3.StringUtils;

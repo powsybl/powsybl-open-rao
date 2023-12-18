@@ -6,11 +6,11 @@
 
     <parent>
         <groupId>com.powsybl</groupId>
-        <artifactId>farao-data</artifactId>
+        <artifactId>open-rao-data</artifactId>
         <version>4.7.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>farao-crac</artifactId>
+    <artifactId>open-rao-crac</artifactId>
     <version>4.7.0-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>CRAC related modules</name>

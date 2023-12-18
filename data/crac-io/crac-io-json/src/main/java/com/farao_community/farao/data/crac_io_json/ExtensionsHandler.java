@@ -6,9 +6,9 @@
  *
  */
 
-package com.farao_community.farao.data.crac_io_json;
+package com.powsybl.open_rao.data.crac_io_json;
 
-import com.farao_community.farao.data.crac_api.Identifiable;
+import com.powsybl.open_rao.data.crac_api.Identifiable;
 import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
 import com.powsybl.commons.extensions.Extension;

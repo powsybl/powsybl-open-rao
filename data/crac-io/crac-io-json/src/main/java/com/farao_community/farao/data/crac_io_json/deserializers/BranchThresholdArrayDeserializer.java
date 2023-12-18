@@ -5,18 +5,18 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.farao_community.farao.data.crac_io_json.deserializers;
+package com.powsybl.open_rao.data.crac_io_json.deserializers;
 
-import com.farao_community.farao.commons.FaraoException;
-import com.farao_community.farao.data.crac_api.cnec.FlowCnecAdder;
-import com.farao_community.farao.data.crac_api.threshold.BranchThresholdAdder;
+import com.powsybl.open_rao.commons.FaraoException;
+import com.powsybl.open_rao.data.crac_api.cnec.FlowCnecAdder;
+import com.powsybl.open_rao.data.crac_api.threshold.BranchThresholdAdder;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.io.IOException;
 
-import static com.farao_community.farao.data.crac_io_json.JsonSerializationConstants.*;
+import static com.powsybl.open_rao.data.crac_io_json.JsonSerializationConstants.*;
 
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}

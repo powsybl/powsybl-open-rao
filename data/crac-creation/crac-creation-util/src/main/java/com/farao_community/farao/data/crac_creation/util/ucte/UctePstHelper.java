@@ -5,9 +5,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.farao_community.farao.data.crac_creation.util.ucte;
+package com.powsybl.open_rao.data.crac_creation.util.ucte;
 
-import com.farao_community.farao.data.crac_creation.util.PstHelper;
+import com.powsybl.open_rao.data.crac_creation.util.PstHelper;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.PhaseTapChanger;
 import com.powsybl.iidm.network.TwoWindingsTransformer;

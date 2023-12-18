@@ -5,13 +5,13 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.farao_community.farao.monitoring.voltage_monitoring.json;
+package com.powsybl.open_rao.monitoring.voltage_monitoring.json;
 
-import com.farao_community.farao.commons.FaraoException;
-import com.farao_community.farao.commons.Unit;
-import com.farao_community.farao.data.crac_api.*;
-import com.farao_community.farao.data.crac_api.cnec.VoltageCnec;
-import com.farao_community.farao.monitoring.voltage_monitoring.VoltageMonitoringResult;
+import com.powsybl.open_rao.commons.FaraoException;
+import com.powsybl.open_rao.commons.Unit;
+import com.powsybl.open_rao.data.crac_api.*;
+import com.powsybl.open_rao.data.crac_api.cnec.VoltageCnec;
+import com.powsybl.open_rao.monitoring.voltage_monitoring.VoltageMonitoringResult;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -27,7 +27,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Stream;
 
-import static com.farao_community.farao.monitoring.voltage_monitoring.VoltageMonitoringResult.Status.UNKNOWN;
+import static com.powsybl.open_rao.monitoring.voltage_monitoring.VoltageMonitoringResult.Status.UNKNOWN;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 

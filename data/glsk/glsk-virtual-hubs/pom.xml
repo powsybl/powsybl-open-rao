@@ -3,13 +3,13 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <artifactId>farao-glsk</artifactId>
+        <artifactId>open-rao-glsk</artifactId>
         <groupId>com.powsybl</groupId>
         <version>4.7.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>farao-glsk-virtual-hubs</artifactId>
+    <artifactId>open-rao-glsk-virtual-hubs</artifactId>
     <packaging>jar</packaging>
     <name>GLSKs of virtual hubs</name>
     <description>Package dedicated to creation of GLSKs from virtual hubs</description>
@@ -18,17 +18,17 @@
         <!-- Compile dependencies -->
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>farao-commons</artifactId>
+            <artifactId>open-rao-commons</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>farao-reference-program</artifactId>
+            <artifactId>open-rao-reference-program</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>farao-virtual-hubs-api</artifactId>
+            <artifactId>open-rao-virtual-hubs-api</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>

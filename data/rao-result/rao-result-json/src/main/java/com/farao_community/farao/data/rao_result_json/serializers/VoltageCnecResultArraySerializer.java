@@ -4,15 +4,15 @@
  *  License, v. 2.0. If a copy of the MPL was not distributed with this
  *  file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.farao_community.farao.data.rao_result_json.serializers;
+package com.powsybl.open_rao.data.rao_result_json.serializers;
 
-import com.farao_community.farao.commons.FaraoException;
-import com.farao_community.farao.commons.Unit;
-import com.farao_community.farao.data.crac_api.Crac;
-import com.farao_community.farao.data.crac_api.Instant;
-import com.farao_community.farao.data.crac_api.InstantKind;
-import com.farao_community.farao.data.crac_api.cnec.VoltageCnec;
-import com.farao_community.farao.data.rao_result_api.RaoResult;
+import com.powsybl.open_rao.commons.FaraoException;
+import com.powsybl.open_rao.commons.Unit;
+import com.powsybl.open_rao.data.crac_api.Crac;
+import com.powsybl.open_rao.data.crac_api.Instant;
+import com.powsybl.open_rao.data.crac_api.InstantKind;
+import com.powsybl.open_rao.data.crac_api.cnec.VoltageCnec;
+import com.powsybl.open_rao.data.rao_result_api.RaoResult;
 import com.fasterxml.jackson.core.JsonGenerator;
 
 import java.io.IOException;
@@ -20,7 +20,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static com.farao_community.farao.data.rao_result_json.RaoResultJsonConstants.*;
+import static com.powsybl.open_rao.data.rao_result_json.RaoResultJsonConstants.*;
 
 /**
  * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}

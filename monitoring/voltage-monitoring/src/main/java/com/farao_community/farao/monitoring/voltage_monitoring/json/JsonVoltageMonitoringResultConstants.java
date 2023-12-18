@@ -5,7 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.farao_community.farao.monitoring.voltage_monitoring.json;
+package com.powsybl.open_rao.monitoring.voltage_monitoring.json;
 
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}

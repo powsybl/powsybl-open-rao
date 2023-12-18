@@ -1,7 +1,7 @@
-package com.farao_community.farao.data.crac_creation.creator.csa_profile.crac_creator;
+package com.powsybl.open_rao.data.crac_creation.creator.csa_profile.crac_creator;
 
-import com.farao_community.farao.data.crac_creation.creator.api.ElementaryCreationContext;
-import com.farao_community.farao.data.crac_creation.creator.api.ImportStatus;
+import com.powsybl.open_rao.data.crac_creation.creator.api.ElementaryCreationContext;
+import com.powsybl.open_rao.data.crac_creation.creator.api.ImportStatus;
 
 public final class CsaProfileElementaryCreationContext implements ElementaryCreationContext {
     private final String nativeId;

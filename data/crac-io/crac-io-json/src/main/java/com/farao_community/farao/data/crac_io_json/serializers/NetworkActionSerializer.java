@@ -5,10 +5,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.farao_community.farao.data.crac_io_json.serializers;
+package com.powsybl.open_rao.data.crac_io_json.serializers;
 
-import com.farao_community.farao.data.crac_api.Identifiable;
-import com.farao_community.farao.data.crac_api.network_action.*;
+import com.powsybl.open_rao.data.crac_api.Identifiable;
+import com.powsybl.open_rao.data.crac_api.network_action.*;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
 
@@ -17,7 +17,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static com.farao_community.farao.data.crac_io_json.JsonSerializationConstants.*;
+import static com.powsybl.open_rao.data.crac_io_json.JsonSerializationConstants.*;
 
 public class NetworkActionSerializer extends AbstractJsonSerializer<NetworkAction> {
     @Override

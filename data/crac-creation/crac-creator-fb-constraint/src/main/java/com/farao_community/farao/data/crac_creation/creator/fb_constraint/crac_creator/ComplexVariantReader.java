@@ -4,20 +4,20 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.farao_community.farao.data.crac_creation.creator.fb_constraint.crac_creator;
+package com.powsybl.open_rao.data.crac_creation.creator.fb_constraint.crac_creator;
 
-import com.farao_community.farao.data.crac_api.*;
-import com.farao_community.farao.data.crac_api.network_action.NetworkActionAdder;
-import com.farao_community.farao.data.crac_api.range_action.PstRangeActionAdder;
-import com.farao_community.farao.data.crac_creation.creator.api.ImportStatus;
-import com.farao_community.farao.data.crac_creation.creator.fb_constraint.xsd.ActionsSetType;
-import com.farao_community.farao.data.crac_creation.creator.fb_constraint.xsd.IndependantComplexVariant;
-import com.farao_community.farao.data.crac_creation.util.ucte.UcteNetworkAnalyzer;
+import com.powsybl.open_rao.data.crac_api.*;
+import com.powsybl.open_rao.data.crac_api.network_action.NetworkActionAdder;
+import com.powsybl.open_rao.data.crac_api.range_action.PstRangeActionAdder;
+import com.powsybl.open_rao.data.crac_creation.creator.api.ImportStatus;
+import com.powsybl.open_rao.data.crac_creation.creator.fb_constraint.xsd.ActionsSetType;
+import com.powsybl.open_rao.data.crac_creation.creator.fb_constraint.xsd.IndependantComplexVariant;
+import com.powsybl.open_rao.data.crac_creation.util.ucte.UcteNetworkAnalyzer;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.farao_community.farao.data.crac_api.usage_rule.UsageMethod.AVAILABLE;
+import static com.powsybl.open_rao.data.crac_api.usage_rule.UsageMethod.AVAILABLE;
 
 /**
  * @author Baptiste Seguinot{@literal <baptiste.seguinot at rte-france.com>}

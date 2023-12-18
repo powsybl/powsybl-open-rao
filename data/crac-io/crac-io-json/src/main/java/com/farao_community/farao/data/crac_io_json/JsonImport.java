@@ -5,12 +5,12 @@
  *  file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.farao_community.farao.data.crac_io_json;
+package com.powsybl.open_rao.data.crac_io_json;
 
-import com.farao_community.farao.data.crac_api.Crac;
-import com.farao_community.farao.data.crac_api.CracFactory;
-import com.farao_community.farao.data.crac_io_api.CracImporter;
-import com.farao_community.farao.data.crac_io_json.deserializers.CracDeserializer;
+import com.powsybl.open_rao.data.crac_api.Crac;
+import com.powsybl.open_rao.data.crac_api.CracFactory;
+import com.powsybl.open_rao.data.crac_io_api.CracImporter;
+import com.powsybl.open_rao.data.crac_io_json.deserializers.CracDeserializer;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.google.auto.service.AutoService;

@@ -5,7 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.farao_community.farao.monitoring.angle_monitoring;
+package com.powsybl.open_rao.monitoring.angle_monitoring;
 
 import com.powsybl.glsk.api.GlskPoint;
 import com.powsybl.glsk.api.GlskRegisteredResource;
@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
-import static com.farao_community.farao.commons.logs.FaraoLoggerProvider.BUSINESS_WARNS;
+import static com.powsybl.open_rao.commons.logs.FaraoLoggerProvider.BUSINESS_WARNS;
 
 /**
  * A redispatch action collects a quantity of power to be redispatched (powerToBeRedispatched) in country (countryName)

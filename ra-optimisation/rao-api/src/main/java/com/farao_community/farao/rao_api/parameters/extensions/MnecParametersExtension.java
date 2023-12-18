@@ -5,12 +5,12 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.farao_community.farao.rao_api.parameters.extensions;
+package com.powsybl.open_rao.rao_api.parameters.extensions;
 
-import com.farao_community.farao.rao_api.parameters.RaoParameters;
+import com.powsybl.open_rao.rao_api.parameters.RaoParameters;
 import com.powsybl.commons.extensions.AbstractExtension;
 
-import static com.farao_community.farao.rao_api.RaoParametersCommons.MNEC_PARAMETERS;
+import static com.powsybl.open_rao.rao_api.RaoParametersCommons.MNEC_PARAMETERS;
 /**
  * Extension : MNEC parameters for RAO
  *

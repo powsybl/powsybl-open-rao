@@ -5,7 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.farao_community.farao.rao_api.parameters;
+package com.powsybl.open_rao.rao_api.parameters;
 
 import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;

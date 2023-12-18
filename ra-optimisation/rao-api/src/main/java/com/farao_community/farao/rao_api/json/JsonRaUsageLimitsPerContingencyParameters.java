@@ -4,10 +4,10 @@
  *  License, v. 2.0. If a copy of the MPL was not distributed with this
  *  file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.farao_community.farao.rao_api.json;
+package com.powsybl.open_rao.rao_api.json;
 
-import com.farao_community.farao.commons.FaraoException;
-import com.farao_community.farao.rao_api.parameters.RaoParameters;
+import com.powsybl.open_rao.commons.FaraoException;
+import com.powsybl.open_rao.rao_api.parameters.RaoParameters;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 
@@ -16,7 +16,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
 
-import static com.farao_community.farao.rao_api.RaoParametersCommons.*;
+import static com.powsybl.open_rao.rao_api.RaoParametersCommons.*;
 
 /**
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}

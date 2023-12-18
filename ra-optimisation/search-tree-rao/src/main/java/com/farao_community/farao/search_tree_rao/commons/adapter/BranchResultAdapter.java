@@ -5,10 +5,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.farao_community.farao.search_tree_rao.commons.adapter;
+package com.powsybl.open_rao.search_tree_rao.commons.adapter;
 
-import com.farao_community.farao.search_tree_rao.result.api.FlowResult;
-import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityResult;
+import com.powsybl.open_rao.search_tree_rao.result.api.FlowResult;
+import com.powsybl.open_rao.sensitivity_analysis.SystematicSensitivityResult;
 import com.powsybl.iidm.network.Network;
 
 /**

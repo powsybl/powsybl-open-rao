@@ -1,4 +1,4 @@
-package com.farao_community.farao.util;
+package com.powsybl.open_rao.util;
 
 import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.spi.ILoggingEvent;

@@ -3,13 +3,13 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <artifactId>farao-monitoring</artifactId>
+        <artifactId>open-rao-monitoring</artifactId>
         <groupId>com.powsybl</groupId>
         <version>4.7.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>farao-angle-monitoring</artifactId>
+    <artifactId>open-rao-angle-monitoring</artifactId>
     <packaging>jar</packaging>
     <name>Angle monitoring</name>
     <description>Angle monitoring features</description>
@@ -18,22 +18,22 @@
         <!-- Compile dependencies -->
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>farao-monitoring-commons</artifactId>
+            <artifactId>open-rao-monitoring-commons</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>farao-crac-api</artifactId>
+            <artifactId>open-rao-crac-api</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>farao-rao-result-api</artifactId>
+            <artifactId>open-rao-rao-result-api</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>farao-util</artifactId>
+            <artifactId>open-rao-util</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
@@ -57,7 +57,7 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>farao-crac-impl</artifactId>
+            <artifactId>open-rao-crac-impl</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
@@ -93,19 +93,19 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>farao-crac-creator-cim</artifactId>
+            <artifactId>open-rao-crac-creator-cim</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>com.powsybl</groupId>
-            <artifactId>farao-crac-io-json</artifactId>
+            <artifactId>open-rao-crac-io-json</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>com.powsybl</groupId>
-            <artifactId>farao-rao-result-json</artifactId>
+            <artifactId>open-rao-rao-result-json</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>

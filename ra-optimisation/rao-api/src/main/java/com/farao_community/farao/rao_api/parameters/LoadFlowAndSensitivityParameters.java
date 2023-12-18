@@ -5,13 +5,13 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.farao_community.farao.rao_api.parameters;
+package com.powsybl.open_rao.rao_api.parameters;
 
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.sensitivity.SensitivityAnalysisParameters;
 
 import java.util.Objects;
-import static com.farao_community.farao.rao_api.RaoParametersCommons.*;
+import static com.powsybl.open_rao.rao_api.RaoParametersCommons.*;
 
 /**
  * LoadFlow and sensitivity computation parameters for RAO

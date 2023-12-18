@@ -4,10 +4,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
-package com.farao_community.farao.virtual_hubs.network_extension_builder;
+package com.powsybl.open_rao.virtual_hubs.network_extension_builder;
 
-import com.farao_community.farao.virtual_hubs.VirtualHub;
-import com.farao_community.farao.virtual_hubs.network_extension.AssignedVirtualHubAdder;
+import com.powsybl.open_rao.virtual_hubs.VirtualHub;
+import com.powsybl.open_rao.virtual_hubs.network_extension.AssignedVirtualHubAdder;
 import com.powsybl.iidm.network.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

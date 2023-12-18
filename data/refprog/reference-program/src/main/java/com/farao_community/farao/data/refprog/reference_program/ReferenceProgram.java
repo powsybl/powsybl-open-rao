@@ -6,9 +6,9 @@
  */
 
 
-package com.farao_community.farao.data.refprog.reference_program;
+package com.powsybl.open_rao.data.refprog.reference_program;
 
-import com.farao_community.farao.commons.EICode;
+import com.powsybl.open_rao.commons.EICode;
 
 import java.util.*;
 import java.util.stream.Collectors;

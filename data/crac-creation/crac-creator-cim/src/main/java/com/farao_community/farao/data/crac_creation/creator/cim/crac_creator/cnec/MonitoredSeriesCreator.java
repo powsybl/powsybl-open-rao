@@ -5,20 +5,20 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.cnec;
+package com.powsybl.open_rao.data.crac_creation.creator.cim.crac_creator.cnec;
 
-import com.farao_community.farao.commons.FaraoException;
-import com.farao_community.farao.commons.Unit;
-import com.farao_community.farao.data.crac_api.Contingency;
-import com.farao_community.farao.data.crac_api.Crac;
-import com.farao_community.farao.data.crac_api.Instant;
-import com.farao_community.farao.data.crac_api.InstantKind;
-import com.farao_community.farao.data.crac_api.cnec.FlowCnecAdder;
-import com.farao_community.farao.data.crac_api.cnec.Side;
-import com.farao_community.farao.data.crac_creation.creator.api.ImportStatus;
-import com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.CimCracCreationContext;
-import com.farao_community.farao.data.crac_creation.creator.cim.xsd.*;
-import com.farao_community.farao.data.crac_creation.util.cgmes.CgmesBranchHelper;
+import com.powsybl.open_rao.commons.FaraoException;
+import com.powsybl.open_rao.commons.Unit;
+import com.powsybl.open_rao.data.crac_api.Contingency;
+import com.powsybl.open_rao.data.crac_api.Crac;
+import com.powsybl.open_rao.data.crac_api.Instant;
+import com.powsybl.open_rao.data.crac_api.InstantKind;
+import com.powsybl.open_rao.data.crac_api.cnec.FlowCnecAdder;
+import com.powsybl.open_rao.data.crac_api.cnec.Side;
+import com.powsybl.open_rao.data.crac_creation.creator.api.ImportStatus;
+import com.powsybl.open_rao.data.crac_creation.creator.cim.crac_creator.CimCracCreationContext;
+import com.powsybl.open_rao.data.crac_creation.creator.cim.xsd.*;
+import com.powsybl.open_rao.data.crac_creation.util.cgmes.CgmesBranchHelper;
 import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.TwoSides;
@@ -27,8 +27,8 @@ import org.apache.commons.lang3.StringUtils;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.CimConstants.*;
-import static com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.CimCracUtils.getContingencyFromCrac;
+import static com.powsybl.open_rao.data.crac_creation.creator.cim.crac_creator.CimConstants.*;
+import static com.powsybl.open_rao.data.crac_creation.creator.cim.crac_creator.CimCracUtils.getContingencyFromCrac;
 
 /**
  * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}

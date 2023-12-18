@@ -4,7 +4,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.farao_community.farao.data.crac_creation.creator.api.parameters;
+package com.powsybl.open_rao.data.crac_creation.creator.api.parameters;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
@@ -13,7 +13,7 @@ import com.powsybl.commons.json.JsonUtil;
 
 import java.io.IOException;
 
-import static com.farao_community.farao.data.crac_creation.creator.api.parameters.JsonCracCreationParametersConstants.*;
+import static com.powsybl.open_rao.data.crac_creation.creator.api.parameters.JsonCracCreationParametersConstants.*;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}

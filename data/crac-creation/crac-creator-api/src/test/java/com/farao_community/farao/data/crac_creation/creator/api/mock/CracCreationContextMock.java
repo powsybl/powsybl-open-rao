@@ -4,11 +4,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.farao_community.farao.data.crac_creation.creator.api.mock;
+package com.powsybl.open_rao.data.crac_creation.creator.api.mock;
 
-import com.farao_community.farao.data.crac_api.Crac;
-import com.farao_community.farao.data.crac_creation.creator.api.CracCreationContext;
-import com.farao_community.farao.data.crac_creation.creator.api.CracCreationReport;
+import com.powsybl.open_rao.data.crac_api.Crac;
+import com.powsybl.open_rao.data.crac_creation.creator.api.CracCreationContext;
+import com.powsybl.open_rao.data.crac_creation.creator.api.CracCreationReport;
 
 import java.time.OffsetDateTime;
 

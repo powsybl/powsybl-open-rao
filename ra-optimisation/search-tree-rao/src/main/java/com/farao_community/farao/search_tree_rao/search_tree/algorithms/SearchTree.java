@@ -4,31 +4,31 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.farao_community.farao.search_tree_rao.search_tree.algorithms;
+package com.powsybl.open_rao.search_tree_rao.search_tree.algorithms;
 
-import com.farao_community.farao.commons.FaraoException;
-import com.farao_community.farao.commons.Unit;
-import com.farao_community.farao.commons.logs.FaraoLogger;
-import com.farao_community.farao.data.crac_api.State;
-import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
-import com.farao_community.farao.data.crac_api.cnec.Side;
-import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
-import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
-import com.farao_community.farao.search_tree_rao.commons.NetworkActionCombination;
-import com.farao_community.farao.search_tree_rao.commons.RaoLogger;
-import com.farao_community.farao.search_tree_rao.commons.SensitivityComputer;
-import com.farao_community.farao.search_tree_rao.commons.optimization_perimeters.CurativeOptimizationPerimeter;
-import com.farao_community.farao.search_tree_rao.commons.optimization_perimeters.GlobalOptimizationPerimeter;
-import com.farao_community.farao.search_tree_rao.commons.optimization_perimeters.OptimizationPerimeter;
-import com.farao_community.farao.search_tree_rao.commons.parameters.TreeParameters;
-import com.farao_community.farao.search_tree_rao.result.api.OptimizationResult;
-import com.farao_community.farao.search_tree_rao.result.api.PrePerimeterResult;
-import com.farao_community.farao.search_tree_rao.result.api.RangeActionActivationResult;
-import com.farao_community.farao.search_tree_rao.result.impl.RangeActionActivationResultImpl;
-import com.farao_community.farao.search_tree_rao.search_tree.inputs.SearchTreeInput;
-import com.farao_community.farao.search_tree_rao.search_tree.parameters.SearchTreeParameters;
-import com.farao_community.farao.sensitivity_analysis.AppliedRemedialActions;
-import com.farao_community.farao.util.AbstractNetworkPool;
+import com.powsybl.open_rao.commons.FaraoException;
+import com.powsybl.open_rao.commons.Unit;
+import com.powsybl.open_rao.commons.logs.FaraoLogger;
+import com.powsybl.open_rao.data.crac_api.State;
+import com.powsybl.open_rao.data.crac_api.cnec.FlowCnec;
+import com.powsybl.open_rao.data.crac_api.cnec.Side;
+import com.powsybl.open_rao.data.crac_api.network_action.NetworkAction;
+import com.powsybl.open_rao.data.crac_api.usage_rule.UsageMethod;
+import com.powsybl.open_rao.search_tree_rao.commons.NetworkActionCombination;
+import com.powsybl.open_rao.search_tree_rao.commons.RaoLogger;
+import com.powsybl.open_rao.search_tree_rao.commons.SensitivityComputer;
+import com.powsybl.open_rao.search_tree_rao.commons.optimization_perimeters.CurativeOptimizationPerimeter;
+import com.powsybl.open_rao.search_tree_rao.commons.optimization_perimeters.GlobalOptimizationPerimeter;
+import com.powsybl.open_rao.search_tree_rao.commons.optimization_perimeters.OptimizationPerimeter;
+import com.powsybl.open_rao.search_tree_rao.commons.parameters.TreeParameters;
+import com.powsybl.open_rao.search_tree_rao.result.api.OptimizationResult;
+import com.powsybl.open_rao.search_tree_rao.result.api.PrePerimeterResult;
+import com.powsybl.open_rao.search_tree_rao.result.api.RangeActionActivationResult;
+import com.powsybl.open_rao.search_tree_rao.result.impl.RangeActionActivationResultImpl;
+import com.powsybl.open_rao.search_tree_rao.search_tree.inputs.SearchTreeInput;
+import com.powsybl.open_rao.search_tree_rao.search_tree.parameters.SearchTreeParameters;
+import com.powsybl.open_rao.sensitivity_analysis.AppliedRemedialActions;
+import com.powsybl.open_rao.util.AbstractNetworkPool;
 import com.google.common.hash.Hashing;
 import com.powsybl.iidm.network.Network;
 import org.apache.commons.lang3.NotImplementedException;
@@ -39,8 +39,8 @@ import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
-import static com.farao_community.farao.commons.logs.FaraoLoggerProvider.*;
-import static com.farao_community.farao.search_tree_rao.castor.algorithm.AutomatonSimulator.getRangeActionsAndTheirTapsAppliedOnState;
+import static com.powsybl.open_rao.commons.logs.FaraoLoggerProvider.*;
+import static com.powsybl.open_rao.search_tree_rao.castor.algorithm.AutomatonSimulator.getRangeActionsAndTheirTapsAppliedOnState;
 
 /**
  * The "tree" is one of the core object of the search-tree algorithm.

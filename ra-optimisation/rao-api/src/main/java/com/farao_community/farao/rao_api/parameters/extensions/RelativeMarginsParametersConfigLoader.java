@@ -4,16 +4,16 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.farao_community.farao.rao_api.parameters.extensions;
+package com.powsybl.open_rao.rao_api.parameters.extensions;
 
-import com.farao_community.farao.rao_api.parameters.RaoParameters;
+import com.powsybl.open_rao.rao_api.parameters.RaoParameters;
 import com.google.auto.service.AutoService;
 import com.powsybl.commons.config.PlatformConfig;
 
 import java.util.ArrayList;
 import java.util.Objects;
 
-import static com.farao_community.farao.rao_api.RaoParametersCommons.*;
+import static com.powsybl.open_rao.rao_api.RaoParametersCommons.*;
 /**
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
  */

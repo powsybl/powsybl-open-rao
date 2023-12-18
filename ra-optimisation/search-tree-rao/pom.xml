@@ -3,13 +3,13 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <artifactId>farao-ra-optimisation</artifactId>
+        <artifactId>open-rao-ra-optimisation</artifactId>
         <groupId>com.powsybl</groupId>
         <version>4.7.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>farao-search-tree-rao</artifactId>
+    <artifactId>open-rao-search-tree-rao</artifactId>
     <packaging>jar</packaging>
     <name>Modular search tree RAO implementation</name>
     <description>Implementation of search tree remedial action optimisation with modular approach</description>
@@ -18,17 +18,17 @@
         <!-- compile -->
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>farao-crac-loopflow-extension</artifactId>
+            <artifactId>open-rao-crac-loopflow-extension</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>farao-loopflow-computation</artifactId>
+            <artifactId>open-rao-loopflow-computation</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>farao-rao-api</artifactId>
+            <artifactId>open-rao-rao-api</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
@@ -39,27 +39,27 @@
         <!-- test -->
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>farao-commons</artifactId>
+            <artifactId>open-rao-commons</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
             <type>test-jar</type>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>farao-crac-impl</artifactId>
+            <artifactId>open-rao-crac-impl</artifactId>
             <version>${project.version}</version>
             <type>test-jar</type>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>farao-crac-impl</artifactId>
+            <artifactId>open-rao-crac-impl</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>farao-crac-util</artifactId>
+            <artifactId>open-rao-crac-util</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>

@@ -5,14 +5,14 @@
  *  file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.farao_community.farao.data.glsk.virtual.hubs;
+package com.powsybl.open_rao.data.glsk.virtual.hubs;
 
-import com.farao_community.farao.commons.EICode;
-import com.farao_community.farao.commons.FaraoException;
-import com.farao_community.farao.commons.logs.FaraoLoggerProvider;
-import com.farao_community.farao.data.refprog.reference_program.ReferenceProgram;
-import com.farao_community.farao.virtual_hubs.VirtualHub;
-import com.farao_community.farao.virtual_hubs.VirtualHubsConfiguration;
+import com.powsybl.open_rao.commons.EICode;
+import com.powsybl.open_rao.commons.FaraoException;
+import com.powsybl.open_rao.commons.logs.FaraoLoggerProvider;
+import com.powsybl.open_rao.data.refprog.reference_program.ReferenceProgram;
+import com.powsybl.open_rao.virtual_hubs.VirtualHub;
+import com.powsybl.open_rao.virtual_hubs.VirtualHubsConfiguration;
 import com.powsybl.glsk.commons.ZonalData;
 import com.powsybl.glsk.commons.ZonalDataImpl;
 import com.powsybl.iidm.network.*;

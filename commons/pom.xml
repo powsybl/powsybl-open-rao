@@ -6,10 +6,10 @@
 
     <parent>
         <groupId>com.powsybl</groupId>
-        <artifactId>farao-core</artifactId>
+        <artifactId>open-rao-core</artifactId>
         <version>4.7.0-SNAPSHOT</version>
     </parent>
-    <artifactId>farao-commons</artifactId>
+    <artifactId>open-rao-commons</artifactId>
     <packaging>jar</packaging>
     <name>Commons</name>
 
@@ -31,7 +31,7 @@
                 <configuration>
                     <archive>
                         <manifestEntries>
-                            <Automatic-Module-Name>com.farao_community.farao.commons</Automatic-Module-Name>
+                            <Automatic-Module-Name>com.powsybl.open_rao.commons</Automatic-Module-Name>
                         </manifestEntries>
                     </archive>
                 </configuration>

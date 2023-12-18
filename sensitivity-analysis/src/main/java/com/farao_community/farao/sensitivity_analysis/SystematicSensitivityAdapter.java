@@ -4,13 +4,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.farao_community.farao.sensitivity_analysis;
+package com.powsybl.open_rao.sensitivity_analysis;
 
-import com.farao_community.farao.commons.FaraoException;
-import com.farao_community.farao.commons.RandomizedString;
-import com.farao_community.farao.data.crac_api.Instant;
-import com.farao_community.farao.data.crac_api.State;
-import com.farao_community.farao.data.crac_api.cnec.Cnec;
+import com.powsybl.open_rao.commons.FaraoException;
+import com.powsybl.open_rao.commons.RandomizedString;
+import com.powsybl.open_rao.data.crac_api.Instant;
+import com.powsybl.open_rao.data.crac_api.State;
+import com.powsybl.open_rao.data.crac_api.cnec.Cnec;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.sensitivity.SensitivityAnalysis;
@@ -21,8 +21,8 @@ import com.powsybl.sensitivity.SensitivityFactor;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.farao_community.farao.sensitivity_analysis.SensitivityAnalysisUtil.convertCracContingencyToPowsybl;
-import static com.farao_community.farao.commons.logs.FaraoLoggerProvider.TECHNICAL_LOGS;
+import static com.powsybl.open_rao.sensitivity_analysis.SensitivityAnalysisUtil.convertCracContingencyToPowsybl;
+import static com.powsybl.open_rao.commons.logs.FaraoLoggerProvider.TECHNICAL_LOGS;
 
 /**
  * @author Pengbo Wang {@literal <pengbo.wang at rte-international.com>}
@@ -98,7 +98,7 @@ final class SystematicSensitivityAdapter {
         int counterForLogs = 2;
         for (State state : statesWithRa) {
 
-            Optional<com.farao_community.farao.data.crac_api.Contingency> optContingency = state.getContingency();
+            Optional<com.powsybl.open_rao.data.crac_api.Contingency> optContingency = state.getContingency();
 
             if (optContingency.isEmpty()) {
                 throw new FaraoException("Sensitivity analysis with applied RA does not handle preventive RA.");

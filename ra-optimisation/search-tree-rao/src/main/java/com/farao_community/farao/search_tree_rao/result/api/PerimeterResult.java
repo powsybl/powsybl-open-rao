@@ -5,7 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.farao_community.farao.search_tree_rao.result.api;
+package com.powsybl.open_rao.search_tree_rao.result.api;
 
 /**
  * This interface gives a perimeter result. It represents a unique state optimization with full network and range actions.

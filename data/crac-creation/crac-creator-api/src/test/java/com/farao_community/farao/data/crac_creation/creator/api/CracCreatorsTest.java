@@ -4,11 +4,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.farao_community.farao.data.crac_creation.creator.api;
+package com.powsybl.open_rao.data.crac_creation.creator.api;
 
-import com.farao_community.farao.data.crac_creation.creator.api.mock.CracCreatorMock;
-import com.farao_community.farao.data.crac_creation.creator.api.mock.NativeCracMock;
-import com.farao_community.farao.data.crac_creation.creator.api.parameters.CracCreationParameters;
+import com.powsybl.open_rao.data.crac_creation.creator.api.mock.CracCreatorMock;
+import com.powsybl.open_rao.data.crac_creation.creator.api.mock.NativeCracMock;
+import com.powsybl.open_rao.data.crac_creation.creator.api.parameters.CracCreationParameters;
 import com.powsybl.iidm.network.Network;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -18,7 +18,7 @@ import java.io.File;
 import java.nio.file.Paths;
 import java.time.OffsetDateTime;
 
-import static com.farao_community.farao.data.crac_creation.creator.api.CracCreators.*;
+import static com.powsybl.open_rao.data.crac_creation.creator.api.CracCreators.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**

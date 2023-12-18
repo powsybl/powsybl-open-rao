@@ -1,4 +1,4 @@
-package com.farao_community.farao.monitoring.monitoring_common.json;
+package com.powsybl.open_rao.monitoring.monitoring_common.json;
 
 public final class JsonCommonMonitoringResultConstants {
     private JsonCommonMonitoringResultConstants() {

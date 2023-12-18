@@ -1,4 +1,4 @@
-package com.farao_community.farao.monitoring.voltage_monitoring;
+package com.powsybl.open_rao.monitoring.voltage_monitoring;
 
 import java.util.Set;
 

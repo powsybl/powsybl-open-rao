@@ -5,16 +5,16 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.farao_community.farao.data.swe_cne_exporter;
+package com.powsybl.open_rao.data.swe_cne_exporter;
 
-import com.farao_community.farao.data.cne_exporter_commons.CneUtil;
-import com.farao_community.farao.data.crac_api.Contingency;
-import com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.CimCracCreationContext;
-import com.farao_community.farao.data.swe_cne_exporter.xsd.*;
+import com.powsybl.open_rao.data.cne_exporter_commons.CneUtil;
+import com.powsybl.open_rao.data.crac_api.Contingency;
+import com.powsybl.open_rao.data.crac_creation.creator.cim.crac_creator.CimCracCreationContext;
+import com.powsybl.open_rao.data.swe_cne_exporter.xsd.*;
 
 import java.util.*;
 
-import static com.farao_community.farao.data.cne_exporter_commons.CneConstants.*;
+import static com.powsybl.open_rao.data.cne_exporter_commons.CneConstants.*;
 
 /**
  * Structures the chaining of RASeriesCreator and MonitoredSeriesCreator for SWE CNE format

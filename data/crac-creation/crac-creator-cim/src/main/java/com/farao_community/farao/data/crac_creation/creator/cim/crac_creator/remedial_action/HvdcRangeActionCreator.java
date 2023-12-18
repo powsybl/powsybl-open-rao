@@ -5,21 +5,21 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.remedial_action;
+package com.powsybl.open_rao.data.crac_creation.creator.cim.crac_creator.remedial_action;
 
-import com.farao_community.farao.commons.FaraoException;
-import com.farao_community.farao.data.crac_api.Contingency;
-import com.farao_community.farao.data.crac_api.Crac;
-import com.farao_community.farao.data.crac_api.cnec.AngleCnec;
-import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
-import com.farao_community.farao.data.crac_api.range_action.HvdcRangeActionAdder;
-import com.farao_community.farao.data.crac_creation.creator.api.ImportStatus;
-import com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.CimConstants;
-import com.farao_community.farao.data.crac_creation.util.FaraoImportException;
-import com.farao_community.farao.data.crac_creation.creator.cim.parameters.CimCracCreationParameters;
-import com.farao_community.farao.data.crac_creation.creator.cim.parameters.RangeActionSpeed;
-import com.farao_community.farao.data.crac_creation.creator.cim.xsd.RemedialActionRegisteredResource;
-import com.farao_community.farao.data.crac_creation.creator.cim.xsd.RemedialActionSeries;
+import com.powsybl.open_rao.commons.FaraoException;
+import com.powsybl.open_rao.data.crac_api.Contingency;
+import com.powsybl.open_rao.data.crac_api.Crac;
+import com.powsybl.open_rao.data.crac_api.cnec.AngleCnec;
+import com.powsybl.open_rao.data.crac_api.cnec.FlowCnec;
+import com.powsybl.open_rao.data.crac_api.range_action.HvdcRangeActionAdder;
+import com.powsybl.open_rao.data.crac_creation.creator.api.ImportStatus;
+import com.powsybl.open_rao.data.crac_creation.creator.cim.crac_creator.CimConstants;
+import com.powsybl.open_rao.data.crac_creation.util.FaraoImportException;
+import com.powsybl.open_rao.data.crac_creation.creator.cim.parameters.CimCracCreationParameters;
+import com.powsybl.open_rao.data.crac_creation.creator.cim.parameters.RangeActionSpeed;
+import com.powsybl.open_rao.data.crac_creation.creator.cim.xsd.RemedialActionRegisteredResource;
+import com.powsybl.open_rao.data.crac_creation.creator.cim.xsd.RemedialActionSeries;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.HvdcLine;
 import com.powsybl.iidm.network.Network;
@@ -30,7 +30,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.CimConstants.MEGAWATT_UNIT_SYMBOL;
+import static com.powsybl.open_rao.data.crac_creation.creator.cim.crac_creator.CimConstants.MEGAWATT_UNIT_SYMBOL;
 
 /**
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}

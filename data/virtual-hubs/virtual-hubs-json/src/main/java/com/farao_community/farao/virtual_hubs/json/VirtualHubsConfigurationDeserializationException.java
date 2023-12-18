@@ -4,7 +4,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
-package com.farao_community.farao.virtual_hubs.json;
+package com.powsybl.open_rao.virtual_hubs.json;
 
 /**
  * @author Sebastien Murgey {@literal <sebastien.murgey@rte-france.com>}

@@ -5,7 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.farao_community.farao.data.rao_result_api;
+package com.powsybl.open_rao.data.rao_result_api;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}

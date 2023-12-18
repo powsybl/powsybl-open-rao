@@ -5,16 +5,16 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.farao_community.farao.data.crac_util;
+package com.powsybl.open_rao.data.crac_util;
 
-import com.farao_community.farao.data.crac_api.*;
-import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
-import com.farao_community.farao.data.crac_api.cnec.FlowCnecAdder;
-import com.farao_community.farao.data.crac_api.cnec.Side;
-import com.farao_community.farao.data.crac_api.threshold.BranchThresholdAdder;
-import com.farao_community.farao.data.crac_api.usage_rule.OnFlowConstraint;
-import com.farao_community.farao.data.crac_api.usage_rule.OnFlowConstraintInCountry;
-import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
+import com.powsybl.open_rao.data.crac_api.*;
+import com.powsybl.open_rao.data.crac_api.cnec.FlowCnec;
+import com.powsybl.open_rao.data.crac_api.cnec.FlowCnecAdder;
+import com.powsybl.open_rao.data.crac_api.cnec.Side;
+import com.powsybl.open_rao.data.crac_api.threshold.BranchThresholdAdder;
+import com.powsybl.open_rao.data.crac_api.usage_rule.OnFlowConstraint;
+import com.powsybl.open_rao.data.crac_api.usage_rule.OnFlowConstraintInCountry;
+import com.powsybl.open_rao.data.crac_api.usage_rule.UsageMethod;
 import com.powsybl.iidm.network.Network;
 
 import java.util.ArrayList;

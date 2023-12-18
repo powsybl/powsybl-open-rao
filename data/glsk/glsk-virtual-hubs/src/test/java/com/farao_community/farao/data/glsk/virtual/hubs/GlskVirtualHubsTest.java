@@ -4,11 +4,11 @@
  *  License, v. 2.0. If a copy of the MPL was not distributed with this
  *  file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.farao_community.farao.data.glsk.virtual.hubs;
+package com.powsybl.open_rao.data.glsk.virtual.hubs;
 
-import com.farao_community.farao.virtual_hubs.MarketArea;
-import com.farao_community.farao.virtual_hubs.VirtualHub;
-import com.farao_community.farao.virtual_hubs.VirtualHubsConfiguration;
+import com.powsybl.open_rao.virtual_hubs.MarketArea;
+import com.powsybl.open_rao.virtual_hubs.VirtualHub;
+import com.powsybl.open_rao.virtual_hubs.VirtualHubsConfiguration;
 import com.powsybl.glsk.commons.ZonalData;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.sensitivity.SensitivityVariableSet;

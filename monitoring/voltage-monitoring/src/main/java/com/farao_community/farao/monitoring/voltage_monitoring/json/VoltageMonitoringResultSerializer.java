@@ -5,12 +5,12 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.farao_community.farao.monitoring.voltage_monitoring.json;
+package com.powsybl.open_rao.monitoring.voltage_monitoring.json;
 
-import com.farao_community.farao.data.crac_api.cnec.VoltageCnec;
-import com.farao_community.farao.monitoring.monitoring_common.json.MonitoringCommonSerializer;
-import com.farao_community.farao.monitoring.voltage_monitoring.ExtremeVoltageValues;
-import com.farao_community.farao.monitoring.voltage_monitoring.VoltageMonitoringResult;
+import com.powsybl.open_rao.data.crac_api.cnec.VoltageCnec;
+import com.powsybl.open_rao.monitoring.monitoring_common.json.MonitoringCommonSerializer;
+import com.powsybl.open_rao.monitoring.voltage_monitoring.ExtremeVoltageValues;
+import com.powsybl.open_rao.monitoring.voltage_monitoring.VoltageMonitoringResult;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
@@ -20,8 +20,8 @@ import java.util.Comparator;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static com.farao_community.farao.monitoring.monitoring_common.json.JsonCommonMonitoringResultConstants.*;
-import static com.farao_community.farao.monitoring.voltage_monitoring.json.JsonVoltageMonitoringResultConstants.*;
+import static com.powsybl.open_rao.monitoring.monitoring_common.json.JsonCommonMonitoringResultConstants.*;
+import static com.powsybl.open_rao.monitoring.voltage_monitoring.json.JsonVoltageMonitoringResultConstants.*;
 
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}

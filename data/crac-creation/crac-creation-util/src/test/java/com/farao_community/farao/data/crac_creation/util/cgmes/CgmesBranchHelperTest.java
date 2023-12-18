@@ -5,7 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.farao_community.farao.data.crac_creation.util.cgmes;
+package com.powsybl.open_rao.data.crac_creation.util.cgmes;
 
 import com.google.common.base.Suppliers;
 import com.powsybl.computation.local.LocalComputationManager;

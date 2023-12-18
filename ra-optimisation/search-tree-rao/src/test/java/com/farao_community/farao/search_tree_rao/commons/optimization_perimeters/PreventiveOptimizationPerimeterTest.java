@@ -4,11 +4,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.farao_community.farao.search_tree_rao.commons.optimization_perimeters;
+package com.powsybl.open_rao.search_tree_rao.commons.optimization_perimeters;
 
-import com.farao_community.farao.data.rao_result_api.ComputationStatus;
-import com.farao_community.farao.rao_api.parameters.extensions.LoopFlowParametersExtension;
-import com.farao_community.farao.search_tree_rao.castor.algorithm.BasecaseScenario;
+import com.powsybl.open_rao.data.rao_result_api.ComputationStatus;
+import com.powsybl.open_rao.rao_api.parameters.extensions.LoopFlowParametersExtension;
+import com.powsybl.open_rao.search_tree_rao.castor.algorithm.BasecaseScenario;
 import com.powsybl.iidm.network.Country;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

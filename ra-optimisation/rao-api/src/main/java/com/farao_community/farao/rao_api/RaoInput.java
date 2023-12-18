@@ -5,12 +5,12 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.farao_community.farao.rao_api;
+package com.powsybl.open_rao.rao_api;
 
 import com.powsybl.glsk.commons.ZonalData;
-import com.farao_community.farao.data.crac_api.Crac;
-import com.farao_community.farao.data.crac_api.State;
-import com.farao_community.farao.data.refprog.reference_program.ReferenceProgram;
+import com.powsybl.open_rao.data.crac_api.Crac;
+import com.powsybl.open_rao.data.crac_api.State;
+import com.powsybl.open_rao.data.refprog.reference_program.ReferenceProgram;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.sensitivity.SensitivityVariableSet;
 

@@ -6,10 +6,10 @@
 
     <parent>
         <groupId>com.powsybl</groupId>
-        <artifactId>farao-virtual-hubs</artifactId>
+        <artifactId>open-rao-virtual-hubs</artifactId>
         <version>4.7.0-SNAPSHOT</version>
     </parent>
-    <artifactId>farao-virtual-hubs-api</artifactId>
+    <artifactId>open-rao-virtual-hubs-api</artifactId>
     <dependencies>
         <dependency>
             <groupId>org.junit.jupiter</groupId>

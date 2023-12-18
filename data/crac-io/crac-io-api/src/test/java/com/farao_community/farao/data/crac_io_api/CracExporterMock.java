@@ -1,6 +1,6 @@
-package com.farao_community.farao.data.crac_io_api;
+package com.powsybl.open_rao.data.crac_io_api;
 
-import com.farao_community.farao.data.crac_api.Crac;
+import com.powsybl.open_rao.data.crac_api.Crac;
 import com.google.auto.service.AutoService;
 import com.powsybl.iidm.network.Network;
 import org.apache.commons.lang3.NotImplementedException;

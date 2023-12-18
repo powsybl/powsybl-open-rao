@@ -5,20 +5,20 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.farao_community.farao.search_tree_rao.search_tree.algorithms;
+package com.powsybl.open_rao.search_tree_rao.search_tree.algorithms;
 
-import com.farao_community.farao.commons.CountryGraph;
-import com.farao_community.farao.data.crac_api.RemedialAction;
-import com.farao_community.farao.data.crac_api.State;
-import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
-import com.farao_community.farao.search_tree_rao.commons.NetworkActionCombination;
+import com.powsybl.open_rao.commons.CountryGraph;
+import com.powsybl.open_rao.data.crac_api.RemedialAction;
+import com.powsybl.open_rao.data.crac_api.State;
+import com.powsybl.open_rao.data.crac_api.network_action.NetworkAction;
+import com.powsybl.open_rao.search_tree_rao.commons.NetworkActionCombination;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.farao_community.farao.commons.logs.FaraoLoggerProvider.TECHNICAL_LOGS;
+import static com.powsybl.open_rao.commons.logs.FaraoLoggerProvider.TECHNICAL_LOGS;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
