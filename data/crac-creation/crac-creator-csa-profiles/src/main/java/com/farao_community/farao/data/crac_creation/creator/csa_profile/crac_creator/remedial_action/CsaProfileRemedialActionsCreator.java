@@ -46,7 +46,7 @@ public class CsaProfileRemedialActionsCreator {
     private final CsaProfileCracCreationContext cracCreationContext;
     Set<CsaProfileElementaryCreationContext> csaProfileRemedialActionCreationContexts = new HashSet<>();
 
-    private final PropertyBags schemeRemedialActionsRaPropertyBags;
+    private final PropertyBags schemeRemedialActionsPropertyBags;
     private final PropertyBags remedialActionSchemePropertyBags;
     private final PropertyBags stagePropertyBags;
     private final PropertyBags gridStateAlterationCollectionPropertyBags;
@@ -81,7 +81,7 @@ public class CsaProfileRemedialActionsCreator {
         this.staticPropertyRangesPropertyBags = staticPropertyRangesPropertyBags;
         this.cracCreationContext = cracCreationContext;
         this.onConstraintUsageRuleHelper = onConstraintUsageRuleHelper;
-        this.schemeRemedialActionsRaPropertyBags = schemeRemedialActionsPropertyBags;
+        this.schemeRemedialActionsPropertyBags = schemeRemedialActionsPropertyBags;
         this.remedialActionSchemePropertyBags = remedialActionSchemePropertyBags;
         this.stagePropertyBags = stagePropertyBags;
         this.gridStateAlterationCollectionPropertyBags = gridStateAlterationCollectionPropertyBags;
@@ -368,7 +368,7 @@ public class CsaProfileRemedialActionsCreator {
     }
 
     /*
-    Auto Remedial Actions (aka SPS)
+    Auto Remedial Actions (SPS)
      */
 
     private void createAutoRemedialActions() {
@@ -381,7 +381,7 @@ public class CsaProfileRemedialActionsCreator {
         Map<String, Set<PropertyBag>> linkedShuntCompensatorModificationAuto = CsaProfileCracUtils.getMappedPropertyBagsSet(shuntCompensatorModificationAutoPropertyBags, CsaProfileConstants.GRID_STATE_ALTERATION_COLLECTION);
         Map<String, Set<PropertyBag>> linkedTapPositionActionsAuto = CsaProfileCracUtils.getMappedPropertyBagsSet(tapPositionActionsAutoPropertyBags, CsaProfileConstants.GRID_STATE_ALTERATION_COLLECTION);
 
-        for (PropertyBag schemeRemedialActionPropertyBag : schemeRemedialActionsRaPropertyBags) {
+        for (PropertyBag schemeRemedialActionPropertyBag : schemeRemedialActionsPropertyBags) {
             String spsId = schemeRemedialActionPropertyBag.get(CsaProfileConstants.MRID);
 
             try {
