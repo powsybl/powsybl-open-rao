@@ -417,13 +417,14 @@ PREFIX nc: <http://entsoe.eu/ns/nc#>
 PREFIX cim: <http://iec.ch/TC57/CIM100#>
 SELECT *
 {
-GRAPH <%s> {
-        ?remedialActionScheme
-            rdf:type nc:RemedialActionScheme ;
-            cim:IdentifiedObject.mRID ?mRID ;
-            nc:RemedialActionScheme.kind ?kind;
-            nc:RemedialActionScheme.normalArmed ?normalArmed;
-}
+    GRAPH <%s> {
+            ?remedialActionScheme
+                rdf:type nc:RemedialActionScheme ;
+                cim:IdentifiedObject.mRID ?mRID ;
+                nc:RemedialActionScheme.kind ?kind ;
+                nc:RemedialActionScheme.normalArmed ?normalArmed ;
+                nc:RemedialActionScheme.ArmedRemedialAction ?schemeRemedialAction .
+    }
 }
 
 # query: stage
