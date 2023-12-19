@@ -24,8 +24,7 @@ public final class CsaProfileConstants {
         ASSESSED_ELEMENT("AE"),
         CONTINGENCY("CO"),
         EQUIPMENT_RELIABILITY("ER"),
-        REMEDIAL_ACTION("RA"),
-        REMEDIAL_ACTION_SCHEDULE("RAS");
+        REMEDIAL_ACTION("RA");
 
         private final String keyword;
 
@@ -129,8 +128,7 @@ public final class CsaProfileConstants {
     public static final String GRID_ALTERATION_PROPERTY_REFERENCE = "propertyReference";
     public static final String SHUNT_COMPENSATOR_MODIFICATION = "shuntCompensatorModification";
     public static final String SHUNT_COMPENSATOR_ID = "shuntCompensatorId";
-    public static final String REQUEST_SCHEME_REMEDIAL_ACTION_RA = "schemeRemedialActionRA";
-    public static final String REQUEST_SCHEME_REMEDIAL_ACTION_RAS = "schemeRemedialActionRAS";
+    public static final String REQUEST_SCHEME_REMEDIAL_ACTION = "schemeRemedialAction";
 
     public enum PropertyReference {
         SWITCH("Switch.open"),

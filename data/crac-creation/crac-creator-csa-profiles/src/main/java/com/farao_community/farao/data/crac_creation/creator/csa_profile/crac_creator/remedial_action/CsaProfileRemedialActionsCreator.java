@@ -47,7 +47,6 @@ public class CsaProfileRemedialActionsCreator {
     Set<CsaProfileElementaryCreationContext> csaProfileRemedialActionCreationContexts = new HashSet<>();
 
     private final PropertyBags schemeRemedialActionsRaPropertyBags;
-    private final PropertyBags schemeRemedialActionsRasPropertyBags;
     private final PropertyBags remedialActionSchemePropertyBags;
     private final PropertyBags stagePropertyBags;
     private final PropertyBags gridStateAlterationCollectionPropertyBags;
@@ -56,38 +55,6 @@ public class CsaProfileRemedialActionsCreator {
     private final PropertyBags shuntCompensatorModificationAutoPropertyBags;
     private final PropertyBags tapPositionActionsAutoPropertyBags;
 
-    /*
-    TODO: refactor query to include both GridStateAlterationRemedialAction
-        and GridStateAlterationCollection -> mutualize GridStateAlteration
-        property bags and possibly adders -> maybe not
-
-     TODO: mutualize availability and type of RA
-
-     TODO: remove call to RAS profile and replace with ArmedRemedialAction
-
-     TODO: test cases
-        1. Valid SPS
-            1.1. Auto PST RA with speed
-            1.2. Auto with topology action + injection set-point (no speed)
-        2. Invalid SPS
-            2.1. Multiple conflictual data
-                2.1.1. Multiple RemedialActionScheme
-                2.1.2. Multiple Stages
-            2.2. Incoherent data
-                2.2.1. Auto PST RA without speed
-                2.2.2. Preventive ARA
-                2.2.3. Considered contingency
-                2.3.4. Disabled link to contingency
-                2.3.5. Unarmed RemedialActionScheme
-                2.3.6. Not SIPS RemedialActionScheme
-            2.3. Missing data
-                2.3.1. Missing RemedialActionScheme
-                2.3.2. Missing Stage
-                2.3.3. Missing GridStateAlterationCollection
-                2.3.4. Empty GridStateAlterationCollection
-                2.3.5. Missing contingency
-     */
-
     public CsaProfileRemedialActionsCreator(Crac crac, Network network, CsaProfileCracCreationContext cracCreationContext, PropertyBags gridStateAlterationRemedialActionPropertyBags, PropertyBags contingencyWithRemedialActionsPropertyBags,
                                             PropertyBags topologyActionsPropertyBags,
                                             PropertyBags rotatingMachineActionsPropertyBags,
@@ -95,8 +62,7 @@ public class CsaProfileRemedialActionsCreator {
                                             PropertyBags tapPositionPropertyBags,
                                             PropertyBags staticPropertyRangesPropertyBags,
                                             OnConstraintUsageRuleHelper onConstraintUsageRuleHelper,
-                                            PropertyBags schemeRemedialActionsRaPropertyBags,
-                                            PropertyBags schemeRemedialActionsRasPropertyBags,
+                                            PropertyBags schemeRemedialActionsPropertyBags,
                                             PropertyBags remedialActionSchemePropertyBags,
                                             PropertyBags stagePropertyBags,
                                             PropertyBags gridStateAlterationCollectionPropertyBags,
@@ -115,8 +81,7 @@ public class CsaProfileRemedialActionsCreator {
         this.staticPropertyRangesPropertyBags = staticPropertyRangesPropertyBags;
         this.cracCreationContext = cracCreationContext;
         this.onConstraintUsageRuleHelper = onConstraintUsageRuleHelper;
-        this.schemeRemedialActionsRaPropertyBags = schemeRemedialActionsRaPropertyBags;
-        this.schemeRemedialActionsRasPropertyBags = schemeRemedialActionsRasPropertyBags;
+        this.schemeRemedialActionsRaPropertyBags = schemeRemedialActionsPropertyBags;
         this.remedialActionSchemePropertyBags = remedialActionSchemePropertyBags;
         this.stagePropertyBags = stagePropertyBags;
         this.gridStateAlterationCollectionPropertyBags = gridStateAlterationCollectionPropertyBags;

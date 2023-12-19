@@ -376,7 +376,7 @@ SELECT *
     }
 }
 
-# query: schemeRemedialActionRA
+# query: schemeRemedialAction
 PREFIX nc: <http://entsoe.eu/ns/nc#>
 PREFIX cim: <http://iec.ch/TC57/CIM100#>
 SELECT *
@@ -396,19 +396,6 @@ SELECT *
         OPTIONAL {
             ?schemeRemedialAction nc:RemedialAction.RemedialActionSystemOperator ?tso .
         }
-}
-}
-
-# query: schemeRemedialActionRAS
-PREFIX nc: <http://entsoe.eu/ns/nc#>
-PREFIX cim: <http://iec.ch/TC57/CIM100#>
-SELECT *
-{
-    GRAPH <%s> {
-    ?schemeRemedialAction
-        rdf:type nc:SchemeRemedialAction ;
-        cim:IdentifiedObject.mRID ?mRID ;
-        nc:SchemeRemedialAction.RemedialActionScheme ?remedialActionScheme ;
 }
 }
 
