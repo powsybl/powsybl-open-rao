@@ -39,9 +39,9 @@ import static com.farao_community.farao.data.core_cne_exporter.CoreCneUtil.*;
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
 public class CoreCne {
-    private CriticalNetworkElementMarketDocument marketDocument;
-    private CneHelper cneHelper;
-    private UcteCracCreationContext cracCreationContext;
+    private final CriticalNetworkElementMarketDocument marketDocument;
+    private final CneHelper cneHelper;
+    private final UcteCracCreationContext cracCreationContext;
 
     public CoreCne(Crac crac, Network network, UcteCracCreationContext cracCreationContext, RaoResult raoResult, RaoParameters raoParameters, CneExporterParameters exporterParameters) {
         marketDocument = new CriticalNetworkElementMarketDocument();

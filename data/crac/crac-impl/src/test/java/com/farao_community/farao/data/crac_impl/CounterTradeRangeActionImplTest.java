@@ -32,7 +32,7 @@ class CounterTradeRangeActionImplTest {
 
     @Test
     void applyTest() {
-        CounterTradeRangeAction counterTradeRangeAction = (CounterTradeRangeAction) crac.newCounterTradeRangeAction()
+        CounterTradeRangeAction counterTradeRangeAction = crac.newCounterTradeRangeAction()
                 .withId("counterTradeRangeAction")
                 .newRange().withMin(-1000).withMax(1000).add()
                 .newOnInstantUsageRule().withInstant(Instant.PREVENTIVE).withUsageMethod(UsageMethod.AVAILABLE).add()
@@ -45,7 +45,7 @@ class CounterTradeRangeActionImplTest {
 
     @Test
     void getMinMaxAdmissibleSetpointTest() {
-        CounterTradeRangeAction counterTradeRangeAction = (CounterTradeRangeActionImpl) crac.newCounterTradeRangeAction()
+        CounterTradeRangeAction counterTradeRangeAction = crac.newCounterTradeRangeAction()
                 .withId("injectionRangeActionId")
                 .newRange().withMin(-1000).withMax(1000).add()
                 .newRange().withMin(-1300).withMax(400).add()
@@ -60,7 +60,7 @@ class CounterTradeRangeActionImplTest {
 
     @Test
     void getCurrentSetpointTest() {
-        CounterTradeRangeAction counterTradeRangeAction = (CounterTradeRangeActionImpl) crac.newCounterTradeRangeAction()
+        CounterTradeRangeAction counterTradeRangeAction = crac.newCounterTradeRangeAction()
                 .withId("injectionRangeActionId")
                 .newRange().withMin(-1000).withMax(1000).add()
                 .newRange().withMin(-1300).withMax(400).add()

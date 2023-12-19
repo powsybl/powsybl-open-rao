@@ -7,7 +7,6 @@
 
 package com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.fillers;
 
-import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Identifiable;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
@@ -96,16 +95,9 @@ public class MaxMinMarginFiller implements ProblemFiller {
      */
     private void buildMinimumMarginConstraints(LinearProblem linearProblem) {
         FaraoMPVariable minimumMarginVariable = linearProblem.getMinimumMarginVariable();
-        if (minimumMarginVariable == null) {
-            throw new FaraoException("Minimum margin variable has not yet been created");
-        }
 
         optimizedCnecs.forEach(cnec -> cnec.getMonitoredSides().forEach(side -> {
             FaraoMPVariable flowVariable = linearProblem.getFlowVariable(cnec, side);
-
-            if (flowVariable == null) {
-                throw new FaraoException(String.format("Flow variable has not yet been created for Cnec %s (side %s)", cnec.getId(), side));
-            }
 
             Optional<Double> minFlow;
             Optional<Double> maxFlow;
@@ -134,11 +126,6 @@ public class MaxMinMarginFiller implements ProblemFiller {
      */
     private void fillObjectiveWithMinMargin(LinearProblem linearProblem) {
         FaraoMPVariable minimumMarginVariable = linearProblem.getMinimumMarginVariable();
-
-        if (minimumMarginVariable == null) {
-            throw new FaraoException("Minimum margin variable has not yet been created");
-        }
-
         linearProblem.getObjective().setCoefficient(minimumMarginVariable, -1);
     }
 

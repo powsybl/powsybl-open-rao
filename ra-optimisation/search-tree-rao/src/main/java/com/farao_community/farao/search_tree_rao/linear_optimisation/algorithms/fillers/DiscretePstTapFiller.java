@@ -7,7 +7,6 @@
 
 package com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.fillers;
 
-import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.linear_problem.FaraoMPConstraint;
@@ -21,8 +20,6 @@ import com.powsybl.iidm.network.Network;
 
 import java.util.Map;
 import java.util.Set;
-
-import static java.lang.String.format;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
@@ -87,10 +84,6 @@ public class DiscretePstTapFiller implements ProblemFiller {
 
         FaraoMPVariable setPointVariable = linearProblem.getRangeActionSetpointVariable(pstRangeAction, state);
 
-        if (setPointVariable == null) {
-            throw new FaraoException(format("PST Range action variable for %s has not been defined yet.", pstRangeAction.getId()));
-        }
-
         // create constraints
         // tap to angle conversion constraint
 
@@ -153,12 +146,6 @@ public class DiscretePstTapFiller implements ProblemFiller {
         FaraoMPConstraint upAuthorizationConstraint = linearProblem.getIsVariationInDirectionConstraint(pstRangeAction, state, LinearProblem.VariationReferenceExtension.PREVIOUS_ITERATION, LinearProblem.VariationDirectionExtension.UPWARD);
         FaraoMPVariable pstTapDownwardVariationBinary = linearProblem.getPstTapVariationBinary(pstRangeAction, state, LinearProblem.VariationDirectionExtension.DOWNWARD);
         FaraoMPVariable pstTapUpwardVariationBinary = linearProblem.getPstTapVariationBinary(pstRangeAction, state, LinearProblem.VariationDirectionExtension.UPWARD);
-
-        if (tapToAngleConversionConstraint == null || pstTapUpwardVariationVariable == null || pstTapDownwardVariationVariable == null
-                || downAuthorizationConstraint == null || upAuthorizationConstraint == null || pstTapDownwardVariationBinary == null
-                || pstTapUpwardVariationBinary == null) {
-            throw new FaraoException(format("PST Range action tap variables and/or constraints for %s has not been defined yet.", pstRangeAction.getId()));
-        }
 
         // update second member of the tap-to-angle conversion constraint with the new current angle
         tapToAngleConversionConstraint.setUb(newAngle);
