@@ -23,6 +23,7 @@ import com.powsybl.open_rao.data.crac_creation.creator.cse.*;
 import com.powsybl.open_rao.data.crac_creation.creator.cse.parameters.BusBarChangeSwitches;
 import com.powsybl.open_rao.data.crac_creation.creator.cse.parameters.CseCracCreationParameters;
 import com.powsybl.open_rao.data.crac_creation.creator.api.parameters.RangeActionGroup;
+import com.powsybl.open_rao.data.crac_creation.creator.cse.xsd.*;
 import com.powsybl.open_rao.data.crac_creation.util.ucte.UcteNetworkAnalyzer;
 import com.powsybl.open_rao.data.crac_creation.util.ucte.UctePstHelper;
 import com.powsybl.open_rao.data.crac_creation.util.ucte.UcteTopologicalElementHelper;
