@@ -25,7 +25,7 @@ class TopologicalActionCreationTest {
         CsaProfileCracCreationContext cracCreationContext = getCsaCracCreationContext("/CSA_TestConfiguration_TC2_27Apr2023.zip");
 
         assertNotNull(cracCreationContext);
-        assertEquals(10, cracCreationContext.getCrac().getNetworkActions().size());
+        assertEquals(9, cracCreationContext.getCrac().getNetworkActions().size());
         // RA17 (on instant)
         NetworkAction ra17 = cracCreationContext.getCrac().getNetworkAction("cfabf356-c5e1-4391-b91b-3330bc24f0c9");
         assertEquals("RA17", ra17.getName());
