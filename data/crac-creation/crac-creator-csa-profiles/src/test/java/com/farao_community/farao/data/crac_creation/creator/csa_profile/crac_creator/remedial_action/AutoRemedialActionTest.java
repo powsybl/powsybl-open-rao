@@ -2,7 +2,9 @@ package com.farao_community.farao.data.crac_creation.creator.csa_profile.crac_cr
 
 import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.RemedialAction;
-import com.farao_community.farao.data.crac_api.network_action.*;
+import com.farao_community.farao.data.crac_api.network_action.ActionType;
+import com.farao_community.farao.data.crac_api.network_action.ElementaryAction;
+import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import com.farao_community.farao.data.crac_creation.creator.api.ImportStatus;
@@ -13,11 +15,12 @@ import com.farao_community.farao.data.crac_impl.OnContingencyStateImpl;
 import com.farao_community.farao.data.crac_impl.TopologicalActionImpl;
 import org.junit.jupiter.api.Test;
 
+import java.util.Comparator;
 import java.util.List;
 
 import static com.farao_community.farao.data.crac_creation.creator.csa_profile.crac_creator.CsaProfileCracCreationTestUtil.assertRaNotImported;
 import static com.farao_community.farao.data.crac_creation.creator.csa_profile.crac_creator.CsaProfileCracCreationTestUtil.getCsaCracCreationContext;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class AutoRemedialActionTest {
 
@@ -50,9 +53,9 @@ class AutoRemedialActionTest {
 
         NetworkAction networkSps = cracCreationContext.getCrac().getNetworkAction("network-sps");
         OnContingencyStateImpl networkSpsUsageRule = (OnContingencyStateImpl) networkSps.getUsageRules().iterator().next();
-        List<ElementaryAction> elementaryActions = networkSps.getElementaryActions().stream().toList();
-        TopologicalActionImpl topologicalAction = (TopologicalActionImpl) elementaryActions.get(0);
-        InjectionSetpointImpl injectionSetpoint = (InjectionSetpointImpl) elementaryActions.get(1);
+        List<ElementaryAction> elementaryActions = networkSps.getElementaryActions().stream().sorted(Comparator.comparing(ElementaryAction::toString)).toList();
+        InjectionSetpointImpl injectionSetpoint = (InjectionSetpointImpl) elementaryActions.get(0);
+        TopologicalActionImpl topologicalAction = (TopologicalActionImpl) elementaryActions.get(1);
         assertEquals("Network SPS", networkSps.getName());
         assertEquals(2, elementaryActions.size());
         assertEquals("BBE1AA1  BBE4AA1  1", topologicalAction.getNetworkElement().getId());
