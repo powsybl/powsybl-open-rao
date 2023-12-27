@@ -266,7 +266,7 @@ public class CastorFullOptimization {
             .withPreOptimizationAppliedNetworkActions(new AppliedRemedialActions()) //no remedial Action applied
             .withObjectiveFunction(ObjectiveFunction.create().build(optPerimeter.getFlowCnecs(), optPerimeter.getLoopFlowCnecs(), initialResult, initialResult, initialResult, raoInput.getCrac(), Collections.emptySet(), raoParameters))
             .withToolProvider(toolProvider)
-            .withCrac(raoInput.getCrac())
+            .withOutageInstant(raoInput.getCrac().getOutageInstant())
             .build();
 
         OptimizationResult optResult = new SearchTree(searchTreeInput, searchTreeParameters, true).run().join();
@@ -376,7 +376,7 @@ public class CastorFullOptimization {
             .withPreOptimizationAppliedNetworkActions(new AppliedRemedialActions()) //no remedial Action applied
             .withObjectiveFunction(ObjectiveFunction.create().build(optPerimeter.getFlowCnecs(), optPerimeter.getLoopFlowCnecs(), initialSensitivityOutput, prePerimeterSensitivityOutput, prePerimeterSensitivityOutput, raoInput.getCrac(), stateTree.getOperatorsNotSharingCras(), raoParameters))
             .withToolProvider(toolProvider)
-            .withCrac(crac)
+            .withOutageInstant(crac.getOutageInstant())
             .build();
 
         OptimizationResult result = new SearchTree(searchTreeInput, searchTreeParameters, false).run().join();
@@ -647,7 +647,7 @@ public class CastorFullOptimization {
             .withPreOptimizationAppliedNetworkActions(appliedCras) //no remedial Action applied
             .withObjectiveFunction(ObjectiveFunction.create().build(optPerimeter.getFlowCnecs(), optPerimeter.getLoopFlowCnecs(), initialOutput, prePerimeterResult, prePerimeterResult, raoInput.getCrac(), new HashSet<>(), raoParameters))
             .withToolProvider(toolProvider)
-            .withCrac(raoInput.getCrac())
+            .withOutageInstant(raoInput.getCrac().getOutageInstant())
             .build();
 
         OptimizationResult result = new SearchTree(searchTreeInput, searchTreeParameters, true).run().join();

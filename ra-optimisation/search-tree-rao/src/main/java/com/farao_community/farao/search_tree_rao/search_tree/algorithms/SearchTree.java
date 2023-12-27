@@ -419,7 +419,7 @@ public class SearchTree {
             .withToolProvider(input.getToolProvider())
             .withCnecs(input.getOptimizationPerimeter().getFlowCnecs())
             .withRangeActions(input.getOptimizationPerimeter().getRangeActions())
-            .withOutageInstant(input.getCrac().getOutageInstant());
+            .withOutageInstant(input.getOutageInstant());
 
         if (isRootLeaf) {
             sensitivityComputerBuilder.withAppliedRemedialActions(input.getPreOptimizationAppliedRemedialActions());

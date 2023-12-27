@@ -245,9 +245,9 @@ class JsonRetrocompatibilityTest {
     }
 
     @Test
-    void importV1Point10Test() {
+    void importV2Point0Test() {
         // Add support for user-defined Instants
-        InputStream cracFile = getClass().getResourceAsStream("/retrocompatibility/v1/crac-v1.10.json");
+        InputStream cracFile = getClass().getResourceAsStream("/retrocompatibility/v2/crac-v2.0.json");
 
         Crac crac = new JsonImport().importCrac(cracFile);
 
@@ -261,7 +261,7 @@ class JsonRetrocompatibilityTest {
         assertEquals(1, crac.getInjectionRangeActions().size());
         assertEquals(1, crac.getCounterTradeRangeActions().size());
         assertEquals(5, crac.getSortedInstants().size());
-        testContentOfV1Point10Crac(crac);
+        testContentOfV2Point0Crac(crac);
     }
 
     private void testContentOfV1Point0Crac(Crac crac) {
@@ -619,7 +619,7 @@ class JsonRetrocompatibilityTest {
         assertEquals(Country.DE, crac.getCounterTradeRangeAction("counterTradeRange1Id").getImportingCountry());
     }
 
-    private void testContentOfV1Point10Crac(Crac crac) {
+    private void testContentOfV2Point0Crac(Crac crac) {
         testContentOfV1Point9Crac(crac);
         // test instants are well-defined
         List<Instant> instants = crac.getSortedInstants();

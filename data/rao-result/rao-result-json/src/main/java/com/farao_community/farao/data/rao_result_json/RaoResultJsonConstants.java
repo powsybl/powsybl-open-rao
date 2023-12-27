@@ -206,10 +206,6 @@ public final class RaoResultJsonConstants {
         return instant.getId();
     }
 
-    public static String deserializeInstantId(String stringValue) {
-        return stringValue;
-    }
-
     public static Instant deserializeOptimizedInstant(String stringValue, String jsonFileVersion, Crac crac) {
         String instantId = deserializeOptimizedInstantId(stringValue, jsonFileVersion, crac);
         if (Objects.equals(instantId, INITIAL_INSTANT_ID)) {
@@ -228,14 +224,14 @@ public final class RaoResultJsonConstants {
                 case AFTER_PRA_OPT_STATE:
                     return PREVENTIVE_INSTANT_ID;
                 case AFTER_ARA_OPT_STATE:
-                    return (primaryVersionNumber == 1 && subVersionNumber == 1 && cracDoesNotContainAutoRemedialAction(crac)) ? PREVENTIVE_INSTANT_ID : AUTO_INSTANT_ID;
+                    return (primaryVersionNumber == 1 && subVersionNumber == 1 && !crac.hasAutoInstant()) ? PREVENTIVE_INSTANT_ID : AUTO_INSTANT_ID;
                 case AFTER_CRA_OPT_STATE:
                     return CURATIVE_INSTANT_ID;
                 default:
                     throw new FaraoException(String.format("Unrecognized optimization state %s", stringValue));
             }
         } else {
-            return deserializeInstantId(stringValue);
+            return stringValue;
         }
     }
 

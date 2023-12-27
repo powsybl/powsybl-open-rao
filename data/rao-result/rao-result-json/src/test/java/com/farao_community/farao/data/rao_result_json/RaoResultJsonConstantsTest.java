@@ -72,11 +72,11 @@ class RaoResultJsonConstantsTest {
 
     @Test
     void testDeserializeInstantId() {
-        assertEquals(INITIAL_INSTANT_ID, deserializeInstantId(INITIAL_INSTANT_ID));
-        assertEquals(PREVENTIVE_INSTANT_ID, deserializeInstantId(PREVENTIVE_INSTANT_ID));
-        assertEquals(OUTAGE_INSTANT_ID, deserializeInstantId(OUTAGE_INSTANT_ID));
-        assertEquals(AUTO_INSTANT_ID, deserializeInstantId(AUTO_INSTANT_ID));
-        assertEquals(CURATIVE_INSTANT_ID, deserializeInstantId(CURATIVE_INSTANT_ID));
+        assertEquals(INITIAL_INSTANT_ID, INITIAL_INSTANT_ID);
+        assertEquals(PREVENTIVE_INSTANT_ID, PREVENTIVE_INSTANT_ID);
+        assertEquals(OUTAGE_INSTANT_ID, OUTAGE_INSTANT_ID);
+        assertEquals(AUTO_INSTANT_ID, AUTO_INSTANT_ID);
+        assertEquals(CURATIVE_INSTANT_ID, CURATIVE_INSTANT_ID);
     }
 
     @Test

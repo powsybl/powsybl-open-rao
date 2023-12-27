@@ -9,6 +9,7 @@ package com.farao_community.farao.data.crac_io_json;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Instant;
+import com.farao_community.farao.data.crac_api.InstantKind;
 import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.cnec.AngleCnec;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
@@ -186,5 +187,23 @@ class JsonSerializationConstantsTest {
         assertTrue(comparator.compare(ofc2, ofcc1) < 0);
         assertTrue(comparator.compare(oac1, ocs2) < 0);
         assertTrue(comparator.compare(oac1, ovc2) < 0);
+    }
+
+    @Test
+    void testSerializeInstantKind() {
+        assertEquals("PREVENTIVE", seralizeInstantKind(InstantKind.PREVENTIVE));
+        assertEquals("OUTAGE", seralizeInstantKind(InstantKind.OUTAGE));
+        assertEquals("AUTO", seralizeInstantKind(InstantKind.AUTO));
+        assertEquals("CURATIVE", seralizeInstantKind(InstantKind.CURATIVE));
+    }
+
+    @Test
+    void testDeserializeInstantKind() {
+        assertEquals(InstantKind.PREVENTIVE, deseralizeInstantKind("PREVENTIVE"));
+        assertEquals(InstantKind.OUTAGE, deseralizeInstantKind("OUTAGE"));
+        assertEquals(InstantKind.AUTO, deseralizeInstantKind("AUTO"));
+        assertEquals(InstantKind.CURATIVE, deseralizeInstantKind("CURATIVE"));
+        FaraoException exception = assertThrows(FaraoException.class, () -> deseralizeInstantKind("toto"));
+        assertEquals("Unrecognized instant kind toto", exception.getMessage());
     }
 }

@@ -134,9 +134,7 @@ class IteratingLinearOptimizerTest {
         doReturn(sensitivityComputer).when(sensitivityComputerBuilder).build();
         sensitivityComputerMockedStatic.when(SensitivityComputer::create).thenReturn(sensitivityComputerBuilder);
 
-        Crac crac = Mockito.mock(Crac.class);
-        when(input.getCrac()).thenReturn(crac);
-        when(crac.getOutageInstant()).thenReturn(outageInstant);
+        when(input.getOutageInstant()).thenReturn(outageInstant);
     }
 
     @AfterEach
