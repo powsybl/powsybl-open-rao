@@ -175,11 +175,7 @@ public class CsaProfileCrac implements NativeCrac {
     }
 
     public PropertyBags getSchemeRemedialActions() {
-        return this.queryTripleStore(CsaProfileConstants.SCHEME_REMEDIAL_ACTION, new HashSet<>());
-    }
-
-    public PropertyBags getRemedialActionsSchedule() {
-        return this.queryTripleStore(CsaProfileConstants.REMEDIAL_ACTION_SCHEDULE, tripleStoreCsaProfileCrac.contextNames());
+        return getPropertyBags(CsaProfileConstants.REQUEST_SCHEME_REMEDIAL_ACTION, CsaProfileConstants.CsaProfileKeywords.REMEDIAL_ACTION.toString());
     }
 
     public Map<String, String> getOverridingCracData(OffsetDateTime importTimestamp) {
