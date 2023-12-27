@@ -162,8 +162,7 @@ public class CracDeserializer extends JsonDeserializer<Crac> {
     private void checkVersion(String cracVersion) {
 
         if (getPrimaryVersionNumber(CRAC_IO_VERSION) > getPrimaryVersionNumber(cracVersion)) {
-            LOGGER.warn("CRAC importer {} might not be longer compatible with json CRAC version {}", CRAC_IO_VERSION, cracVersion);
-            // TODO review this
+            LOGGER.warn("CRAC importer {} might not be longer compatible with json CRAC version {}, consider updating your json CRAC file", CRAC_IO_VERSION, cracVersion);
         }
         if (getPrimaryVersionNumber(CRAC_IO_VERSION) < getPrimaryVersionNumber(cracVersion)) {
             throw new FaraoException(String.format("CRAC importer %s cannot handle json CRAC version %s, consider upgrading farao-core version", CRAC_IO_VERSION, cracVersion));
