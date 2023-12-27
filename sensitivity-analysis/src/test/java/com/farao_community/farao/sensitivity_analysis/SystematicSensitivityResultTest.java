@@ -55,7 +55,7 @@ class SystematicSensitivityResultTest {
     private PtdfSensitivityProvider ptdfSensitivityProvider;
     private int outageInstantOrder;
 
-    public void setUp() {
+    public void setUpWith12Nodes() {
         network = NetworkImportsUtil.import12NodesNetwork();
         Crac crac = CommonCracCreation.createWithPreventivePstRange(Set.of(Side.LEFT, Side.RIGHT));
         outageInstantOrder = crac.getInstant(CURATIVE_INSTANT_ID).getOrder();
@@ -77,7 +77,7 @@ class SystematicSensitivityResultTest {
 
     @Test
     void testPostTreatIntensities() {
-        setUp();
+        setUpWith12Nodes();
         // When
         SensitivityAnalysisResult sensitivityAnalysisResult = SensitivityAnalysis.find().run(network,
             rangeActionSensitivityProvider.getAllFactors(network),
@@ -102,7 +102,7 @@ class SystematicSensitivityResultTest {
 
     @Test
     void testPstResultManipulation() {
-        setUp();
+        setUpWith12Nodes();
         // When
         SensitivityAnalysisResult sensitivityAnalysisResult = SensitivityAnalysis.find().run(network,
             rangeActionSensitivityProvider.getAllFactors(network),
@@ -134,7 +134,7 @@ class SystematicSensitivityResultTest {
 
     @Test
     void testPtdfResultManipulation() {
-        setUp();
+        setUpWith12Nodes();
         // When
         SensitivityAnalysisResult sensitivityAnalysisResult = SensitivityAnalysis.find().run(network,
             ptdfSensitivityProvider.getAllFactors(network),
@@ -161,7 +161,7 @@ class SystematicSensitivityResultTest {
 
     @Test
     void testFailureSensiResult() {
-        setUp();
+        setUpWith12Nodes();
         // When
         SensitivityAnalysisResult sensitivityAnalysisResult = Mockito.mock(SensitivityAnalysisResult.class);
         SystematicSensitivityResult result = new SystematicSensitivityResult().completeData(sensitivityAnalysisResult, outageInstantOrder).postTreatIntensities();

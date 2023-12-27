@@ -71,15 +71,6 @@ class RaoResultJsonConstantsTest {
     }
 
     @Test
-    void testDeserializeInstantId() {
-        assertEquals(INITIAL_INSTANT_ID, INITIAL_INSTANT_ID);
-        assertEquals(PREVENTIVE_INSTANT_ID, PREVENTIVE_INSTANT_ID);
-        assertEquals(OUTAGE_INSTANT_ID, OUTAGE_INSTANT_ID);
-        assertEquals(AUTO_INSTANT_ID, AUTO_INSTANT_ID);
-        assertEquals(CURATIVE_INSTANT_ID, CURATIVE_INSTANT_ID);
-    }
-
-    @Test
     void testDeserializeOptimizedInstant() {
         Crac crac = mock(Crac.class);
         assertEquals(INITIAL_INSTANT_ID, deserializeOptimizedInstantId(INITIAL_INSTANT_ID, "1.4", crac));

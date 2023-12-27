@@ -88,7 +88,7 @@ public final class JsonVoltageCnecsCreationParameters {
                 }
             }
             Objects.requireNonNull(instantId);
-            if (instantId.equals(InstantKind.PREVENTIVE.toString().toLowerCase()) && !Objects.isNull(contingencyNames) && !contingencyNames.isEmpty()) { // TODO change instantId.equals("preventive") to get this from CRAC  OR disable this exception ?
+            if (instantId.equals(InstantKind.PREVENTIVE.toString().toLowerCase()) && !Objects.isNull(contingencyNames) && !contingencyNames.isEmpty()) {
                 throw new FaraoException("When monitoring the preventive instant, no contingency can be defined.");
             }
             if (statesAndThresholds.containsKey(instantId)) {
