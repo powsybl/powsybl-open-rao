@@ -10,6 +10,7 @@ import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.Instant;
+import com.farao_community.farao.data.crac_api.InstantKind;
 import com.farao_community.farao.data.crac_api.cnec.VoltageCnec;
 import com.farao_community.farao.data.rao_result_api.RaoResult;
 import com.fasterxml.jackson.core.JsonGenerator;
@@ -37,23 +38,23 @@ final class VoltageCnecResultArraySerializer {
 
         jsonGenerator.writeArrayFieldStart(VOLTAGECNEC_RESULTS);
         for (VoltageCnec voltageCnec : sortedListOfVoltageCnecs) {
-            serializeVoltageCnecResult(voltageCnec, raoResult, jsonGenerator);
+            serializeVoltageCnecResult(voltageCnec, raoResult, crac, jsonGenerator);
         }
         jsonGenerator.writeEndArray();
     }
 
-    private static void serializeVoltageCnecResult(VoltageCnec voltageCnec, RaoResult raoResult, JsonGenerator jsonGenerator) throws IOException {
+    private static void serializeVoltageCnecResult(VoltageCnec voltageCnec, RaoResult raoResult, Crac crac, JsonGenerator jsonGenerator) throws IOException {
 
-        if (containsAnyResultForVoltageCnec(raoResult, voltageCnec)) {
+        if (containsAnyResultForVoltageCnec(raoResult, crac, voltageCnec)) {
             jsonGenerator.writeStartObject();
             jsonGenerator.writeStringField(VOLTAGECNEC_ID, voltageCnec.getId());
 
             serializeVoltageCnecResultForOptimizationState(null, voltageCnec, raoResult, jsonGenerator);
-            serializeVoltageCnecResultForOptimizationState(Instant.PREVENTIVE, voltageCnec, raoResult, jsonGenerator);
+            serializeVoltageCnecResultForOptimizationState(crac.getPreventiveInstant(), voltageCnec, raoResult, jsonGenerator);
 
             if (!voltageCnec.getState().isPreventive()) {
-                serializeVoltageCnecResultForOptimizationState(Instant.AUTO, voltageCnec, raoResult, jsonGenerator);
-                serializeVoltageCnecResultForOptimizationState(Instant.CURATIVE, voltageCnec, raoResult, jsonGenerator);
+                serializeVoltageCnecResultForOptimizationState(crac.getInstant(InstantKind.AUTO), voltageCnec, raoResult, jsonGenerator);
+                serializeVoltageCnecResultForOptimizationState(crac.getInstant(InstantKind.CURATIVE), voltageCnec, raoResult, jsonGenerator);
             }
             jsonGenerator.writeEndObject();
         }
@@ -62,7 +63,7 @@ final class VoltageCnecResultArraySerializer {
     private static void serializeVoltageCnecResultForOptimizationState(Instant optInstant, VoltageCnec voltageCnec, RaoResult raoResult, JsonGenerator jsonGenerator) throws IOException {
 
         if (containsAnyResultForOptimizationState(raoResult, voltageCnec, optInstant)) {
-            jsonGenerator.writeObjectFieldStart(serializeInstant(optInstant));
+            jsonGenerator.writeObjectFieldStart(serializeInstantId(optInstant));
             serializeVoltageCnecResultForOptimizationStateAndUnit(optInstant, Unit.KILOVOLT, voltageCnec, raoResult, jsonGenerator);
             jsonGenerator.writeEndObject();
         }
@@ -87,16 +88,16 @@ final class VoltageCnecResultArraySerializer {
         jsonGenerator.writeEndObject();
     }
 
-    private static boolean containsAnyResultForVoltageCnec(RaoResult raoResult, VoltageCnec voltageCnec) {
+    private static boolean containsAnyResultForVoltageCnec(RaoResult raoResult, Crac crac, VoltageCnec voltageCnec) {
 
         if (voltageCnec.getState().isPreventive()) {
             return containsAnyResultForOptimizationState(raoResult, voltageCnec, null) ||
-                containsAnyResultForOptimizationState(raoResult, voltageCnec, Instant.PREVENTIVE);
+                containsAnyResultForOptimizationState(raoResult, voltageCnec, voltageCnec.getState().getInstant());
         } else {
             return containsAnyResultForOptimizationState(raoResult, voltageCnec, null) ||
-                containsAnyResultForOptimizationState(raoResult, voltageCnec, Instant.PREVENTIVE) ||
-                containsAnyResultForOptimizationState(raoResult, voltageCnec, Instant.AUTO) ||
-                containsAnyResultForOptimizationState(raoResult, voltageCnec, Instant.CURATIVE);
+                containsAnyResultForOptimizationState(raoResult, voltageCnec, crac.getPreventiveInstant()) ||
+                containsAnyResultForOptimizationState(raoResult, voltageCnec, crac.getInstant(InstantKind.AUTO)) ||
+                containsAnyResultForOptimizationState(raoResult, voltageCnec, crac.getInstant(InstantKind.CURATIVE));
         }
     }
 

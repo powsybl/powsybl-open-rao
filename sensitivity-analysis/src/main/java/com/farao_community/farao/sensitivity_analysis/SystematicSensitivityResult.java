@@ -7,7 +7,6 @@
 package com.farao_community.farao.sensitivity_analysis;
 
 import com.farao_community.farao.data.crac_api.Contingency;
-import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.cnec.Cnec;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
@@ -63,25 +62,20 @@ public class SystematicSensitivityResult {
 
     private SensitivityComputationStatus status;
     private final StateResult nStateResult = new StateResult();
-    private final Map<Instant, Map<String, StateResult>> postContingencyResults = new EnumMap<>(Instant.class);
+    private final Map<Integer, Map<String, StateResult>> postContingencyResults = new HashMap<>();
 
     private final Map<Cnec, StateResult> memoizedStateResultPerCnec = new ConcurrentHashMap<>();
 
     public SystematicSensitivityResult() {
         this.status = SensitivityComputationStatus.SUCCESS;
-        this.postContingencyResults.put(Instant.OUTAGE, new HashMap<>());
-        this.postContingencyResults.put(Instant.AUTO, new HashMap<>());
-        this.postContingencyResults.put(Instant.CURATIVE, new HashMap<>());
     }
 
     public SystematicSensitivityResult(SensitivityComputationStatus status) {
         this.status = status;
-        this.postContingencyResults.put(Instant.OUTAGE, new HashMap<>());
-        this.postContingencyResults.put(Instant.AUTO, new HashMap<>());
-        this.postContingencyResults.put(Instant.CURATIVE, new HashMap<>());
     }
 
-    public SystematicSensitivityResult completeData(SensitivityAnalysisResult results, Instant instant) {
+    public SystematicSensitivityResult completeData(SensitivityAnalysisResult results, Integer instantOrder) {
+        postContingencyResults.putIfAbsent(instantOrder, new HashMap<>());
 
         if (results == null) {
             this.status = SensitivityComputationStatus.FAILURE;
@@ -97,7 +91,7 @@ public class SystematicSensitivityResult {
             results.getValues(contingencyStatus.getContingencyId()).forEach(sensitivityValue ->
                 fillIndividualValue(sensitivityValue, contingencyStateResult, results.getFactors(), contingencyStatus.getStatus())
             );
-            postContingencyResults.get(instant).put(contingencyStatus.getContingencyId(), contingencyStateResult);
+            postContingencyResults.get(instantOrder).put(contingencyStatus.getContingencyId(), contingencyStateResult);
         }
         nStateResult.status = this.status;
         return this;
@@ -136,9 +130,9 @@ public class SystematicSensitivityResult {
 
     public SystematicSensitivityResult postTreatHvdcs(Network network, Map<String, HvdcRangeAction> hvdcRangeActions) {
         postTreatHvdcsOnState(network, hvdcRangeActions, nStateResult);
-        postContingencyResults.get(Instant.OUTAGE).values().forEach(stateResult -> postTreatHvdcsOnState(network, hvdcRangeActions, stateResult));
-        postContingencyResults.get(Instant.AUTO).values().forEach(stateResult -> postTreatHvdcsOnState(network, hvdcRangeActions, stateResult));
-        postContingencyResults.get(Instant.CURATIVE).values().forEach(stateResult -> postTreatHvdcsOnState(network, hvdcRangeActions, stateResult));
+        postContingencyResults.values().forEach(stringStateResultMap ->
+            stringStateResultMap.values().forEach(stateResult -> postTreatHvdcsOnState(network, hvdcRangeActions, stateResult))
+        );
         return this;
     }
 
@@ -215,14 +209,14 @@ public class SystematicSensitivityResult {
     public SensitivityComputationStatus getStatus(State state) {
         Optional<Contingency> optionalContingency = state.getContingency();
         if (optionalContingency.isPresent()) {
-            List<Instant> possibleInstants = postContingencyResults.keySet().stream()
-                    .filter(instant -> instant.comesBefore(state.getInstant()) || instant.equals(state.getInstant()))
-                    .sorted(Comparator.comparingInt(instant -> -instant.getOrder()))
-                    .collect(Collectors.toList());
-            for (Instant instant : possibleInstants) {
+            List<Integer> possibleInstants = postContingencyResults.keySet().stream()
+                    .filter(instantOrder -> instantOrder <= state.getInstant().getOrder())
+                    .sorted(Comparator.reverseOrder())
+                    .toList();
+            for (Integer instantOrder : possibleInstants) {
                 // Use latest sensi computed on state
-                if (postContingencyResults.get(instant).containsKey(optionalContingency.get().getId())) {
-                    return postContingencyResults.get(instant).get(optionalContingency.get().getId()).getSensitivityComputationStatus();
+                if (postContingencyResults.get(instantOrder).containsKey(optionalContingency.get().getId())) {
+                    return postContingencyResults.get(instantOrder).get(optionalContingency.get().getId()).getSensitivityComputationStatus();
                 }
             }
             return SensitivityComputationStatus.FAILURE;
@@ -284,15 +278,15 @@ public class SystematicSensitivityResult {
         }
         Optional<Contingency> optionalContingency = cnec.getState().getContingency();
         if (optionalContingency.isPresent()) {
-            List<Instant> possibleInstants = postContingencyResults.keySet().stream()
-                    .filter(instant -> instant.comesBefore(cnec.getState().getInstant()) || instant.equals(cnec.getState().getInstant()))
-                    .sorted(Comparator.comparingInt(instant -> -instant.getOrder()))
-                    .collect(Collectors.toList());
-            for (Instant instant : possibleInstants) {
+            List<Integer> possibleInstants = postContingencyResults.keySet().stream()
+                    .filter(instantOrder -> instantOrder <= cnec.getState().getInstant().getOrder())
+                    .sorted(Comparator.reverseOrder())
+                    .toList();
+            for (Integer instantOrder : possibleInstants) {
                 // Use latest sensi computed on the cnec's contingency amidst the last instants before cnec state.
                 String contingencyId = optionalContingency.get().getId();
-                if (postContingencyResults.get(instant).containsKey(contingencyId)) {
-                    memoizedStateResultPerCnec.put(cnec, postContingencyResults.get(instant).get(contingencyId));
+                if (postContingencyResults.get(instantOrder).containsKey(contingencyId)) {
+                    memoizedStateResultPerCnec.put(cnec, postContingencyResults.get(instantOrder).get(contingencyId));
                     return memoizedStateResultPerCnec.get(cnec);
                 }
             }

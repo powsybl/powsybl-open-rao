@@ -9,6 +9,7 @@ package com.farao_community.farao.data.crac_creation.creator.csa_profile.crac_cr
 
 import com.farao_community.farao.commons.logs.FaraoLoggerProvider;
 import com.farao_community.farao.data.crac_api.Crac;
+import com.farao_community.farao.data.crac_api.InstantKind;
 import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_creation.creator.api.CracCreator;
 import com.farao_community.farao.data.crac_creation.creator.api.parameters.CracCreationParameters;
@@ -45,6 +46,7 @@ public class CsaProfileCracCreator implements CracCreator<CsaProfileCrac, CsaPro
 
     public CsaProfileCracCreationContext createCrac(CsaProfileCrac nativeCrac, Network network, OffsetDateTime offsetDateTime, CracCreationParameters cracCreationParameters) {
         this.crac = cracCreationParameters.getCracFactory().create(nativeCrac.toString());
+        addCsaInstants();
         this.network = network;
         this.creationContext = new CsaProfileCracCreationContext(crac, offsetDateTime, network.getNameOrId());
         clearNativeCracContextsAndMap(nativeCrac, offsetDateTime);
@@ -70,6 +72,14 @@ public class CsaProfileCracCreator implements CracCreator<CsaProfileCrac, CsaPro
             nativeCrac.getTapPositionActionAuto());
         creationContext.buildCreationReport();
         return creationContext.creationSuccess(crac);
+    }
+
+    private void addCsaInstants() {
+        crac.newInstant("preventive", InstantKind.PREVENTIVE)
+            .newInstant("outage", InstantKind.OUTAGE)
+            .newInstant("auto", InstantKind.AUTO)
+            .newInstant("curative", InstantKind.CURATIVE);
+        // TODO : add other curative instants here
     }
 
     private void clearNativeCracContextsAndMap(CsaProfileCrac nativeCrac, OffsetDateTime offsetDateTime) {

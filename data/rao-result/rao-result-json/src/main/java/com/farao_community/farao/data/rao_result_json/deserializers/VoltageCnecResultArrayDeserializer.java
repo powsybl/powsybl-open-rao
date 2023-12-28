@@ -44,14 +44,14 @@ final class VoltageCnecResultArrayDeserializer {
                 throw new FaraoException(String.format("Cannot deserialize RaoResult: voltageCnec with id %s does not exist in the Crac", voltageCnecId));
             }
             VoltageCnecResult voltageCnecResult = raoResult.getAndCreateIfAbsentVoltageCnecResult(voltageCnec);
-            deserializeVoltageCnecResult(jsonParser, voltageCnecResult, jsonFileVersion);
+            deserializeVoltageCnecResult(jsonParser, voltageCnecResult, jsonFileVersion, crac);
         }
     }
 
-    private static void deserializeVoltageCnecResult(JsonParser jsonParser, VoltageCnecResult voltageCnecResult, String jsonFileVersion) throws IOException {
+    private static void deserializeVoltageCnecResult(JsonParser jsonParser, VoltageCnecResult voltageCnecResult, String jsonFileVersion, Crac crac) throws IOException {
         while (!jsonParser.nextToken().isStructEnd()) {
             ElementaryVoltageCnecResult eVoltageCnecResult;
-            Instant optimizedInstant = deserializeOptimizedInstant(jsonParser.getCurrentName(), jsonFileVersion);
+            Instant optimizedInstant = deserializeOptimizedInstant(jsonParser.getCurrentName(), jsonFileVersion, crac);
             jsonParser.nextToken();
             eVoltageCnecResult = voltageCnecResult.getAndCreateIfAbsentResultForOptimizationState(optimizedInstant);
             deserializeElementaryVoltageCnecResult(jsonParser, eVoltageCnecResult);

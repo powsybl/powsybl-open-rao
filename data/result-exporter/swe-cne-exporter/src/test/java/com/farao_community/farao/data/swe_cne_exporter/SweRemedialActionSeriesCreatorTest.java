@@ -31,6 +31,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
  */
 class SweRemedialActionSeriesCreatorTest {
+    private static final String PREVENTIVE_INSTANT_ID = "preventive";
+    private static final String AUTO_INSTANT_ID = "auto";
+    private static final String CURATIVE_INSTANT_ID = "curative";
 
     private SweCneHelper cneHelper;
     private Crac crac;
@@ -40,13 +43,30 @@ class SweRemedialActionSeriesCreatorTest {
     @BeforeEach
     public void setup() {
         this.crac = Mockito.mock(Crac.class);
-        this.raoResult = Mockito.mock(RaoResultImpl.class);
+        this.raoResult = Mockito.mock(RaoResult.class);
         this.cracCreationContext = Mockito.mock(CimCracCreationContext.class);
         this.cneHelper = Mockito.mock(SweCneHelper.class);
 
         Mockito.when(cneHelper.getCrac()).thenReturn(crac);
         Mockito.when(cneHelper.getRaoResult()).thenReturn(raoResult);
         Mockito.when(raoResult.getComputationStatus()).thenReturn(ComputationStatus.DEFAULT);
+        Instant preventiveInstant = getMockInstant(true, false, false);
+        Instant autoInstant = getMockInstant(false, true, false);
+        Instant curativeInstant = getMockInstant(false, false, true);
+        Mockito.when(crac.getInstant(PREVENTIVE_INSTANT_ID)).thenReturn(preventiveInstant);
+        Mockito.when(crac.getInstant(AUTO_INSTANT_ID)).thenReturn(autoInstant);
+        Mockito.when(crac.getInstant(CURATIVE_INSTANT_ID)).thenReturn(curativeInstant);
+        Mockito.when(crac.getPreventiveInstant()).thenReturn(preventiveInstant);
+        Mockito.when(crac.getInstant(InstantKind.AUTO)).thenReturn(autoInstant);
+        Mockito.when(crac.getInstant(InstantKind.CURATIVE)).thenReturn(curativeInstant);
+    }
+
+    private static Instant getMockInstant(boolean isPreventive, boolean isAuto, boolean isCurative) {
+        Instant instant = Mockito.mock(Instant.class);
+        Mockito.when(instant.isPreventive()).thenReturn(isPreventive);
+        Mockito.when(instant.isAuto()).thenReturn(isAuto);
+        Mockito.when(instant.isCurative()).thenReturn(isCurative);
+        return instant;
     }
 
     @Test
@@ -71,11 +91,11 @@ class SweRemedialActionSeriesCreatorTest {
         addRemedialActionToCrac("hvdcPtEs + hvdcEsPt - 1", "hvdcPtEs1", HvdcRangeAction.class);
         addRemedialActionToCrac("hvdcPtEs + hvdcEsPt - 2", "hvdcPtEs2", HvdcRangeAction.class);
 
-        State preventiveState = addStateToCrac(Instant.PREVENTIVE, null);
+        State preventiveState = addStateToCrac(crac.getInstant(PREVENTIVE_INSTANT_ID), null);
         Contingency contingency = Mockito.mock(Contingency.class);
         Mockito.when(contingency.getId()).thenReturn("contingency");
-        State autoState = addStateToCrac(Instant.AUTO, contingency);
-        State curativeState = addStateToCrac(Instant.CURATIVE, contingency);
+        State autoState = addStateToCrac(crac.getInstant(AUTO_INSTANT_ID), contingency);
+        State curativeState = addStateToCrac(crac.getInstant(CURATIVE_INSTANT_ID), contingency);
 
         addNetworkActionToRaoResult(preventiveState, "networkActionCreatedId");
         addNetworkActionToRaoResult(preventiveState, "na_missing");
@@ -124,7 +144,7 @@ class SweRemedialActionSeriesCreatorTest {
         Mockito.when(state.getInstant()).thenReturn(instant);
         Mockito.when(state.getContingency()).thenReturn(Objects.isNull(contingency) ? Optional.empty() : Optional.of(contingency));
         Mockito.when(crac.getState(contingency, instant)).thenReturn(state);
-        if (instant.equals(Instant.PREVENTIVE)) {
+        if (instant.isPreventive()) {
             Mockito.when(state.isPreventive()).thenReturn(true);
             Mockito.when(crac.getPreventiveState()).thenReturn(state);
         } else {
