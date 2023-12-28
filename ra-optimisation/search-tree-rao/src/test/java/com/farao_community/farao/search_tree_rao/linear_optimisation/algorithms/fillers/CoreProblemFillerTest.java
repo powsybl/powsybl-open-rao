@@ -130,12 +130,12 @@ class CoreProblemFillerTest extends AbstractFillerTest {
         assertEquals(-SENSI_CNEC1_IT1, flowConstraint.getCoefficient(setPointVariable), DOUBLE_TOLERANCE);
 
         // check flow variable for cnec2 does not exist
-        FaraoMPVariable flowVariable2 = linearProblem.getFlowVariable(cnec2, Side.RIGHT);
-        assertNull(flowVariable2);
+        Exception e = assertThrows(FaraoException.class, () -> linearProblem.getFlowVariable(cnec2, Side.RIGHT));
+        assertEquals("Variable Tieline BE FR - Defaut - N-1 NL1-NL3_right_flow_variable has not been created yet", e.getMessage());
 
         // check flow constraint for cnec2 does not exist
-        FaraoMPConstraint flowConstraint2 = linearProblem.getFlowConstraint(cnec2, Side.RIGHT);
-        assertNull(flowConstraint2);
+        e = assertThrows(FaraoException.class, () -> linearProblem.getFlowConstraint(cnec2, Side.RIGHT));
+        assertEquals("Constraint Tieline BE FR - Defaut - N-1 NL1-NL3_right_flow_constraint has not been created yet", e.getMessage());
 
         // check absolute variation constraints
         FaraoMPConstraint absoluteVariationConstraint1 = linearProblem.getAbsoluteRangeActionVariationConstraint(pstRangeAction, state, LinearProblem.AbsExtension.NEGATIVE);
@@ -190,12 +190,12 @@ class CoreProblemFillerTest extends AbstractFillerTest {
         assertEquals(0, flowConstraint.getCoefficient(setPointVariable), DOUBLE_TOLERANCE); // sensitivity filtered (= 0)
 
         // check flow variable for cnec2 does not exist
-        FaraoMPVariable flowVariable2 = linearProblem.getFlowVariable(cnec2, Side.RIGHT);
-        assertNull(flowVariable2);
+        Exception e = assertThrows(FaraoException.class, () -> linearProblem.getFlowVariable(cnec2, Side.RIGHT));
+        assertEquals("Variable Tieline BE FR - Defaut - N-1 NL1-NL3_right_flow_variable has not been created yet", e.getMessage());
 
         // check flow constraint for cnec2 does not exist
-        FaraoMPConstraint flowConstraint2 = linearProblem.getFlowConstraint(cnec2, Side.RIGHT);
-        assertNull(flowConstraint2);
+        e = assertThrows(FaraoException.class, () -> linearProblem.getFlowConstraint(cnec2, Side.RIGHT));
+        assertEquals("Constraint Tieline BE FR - Defaut - N-1 NL1-NL3_right_flow_constraint has not been created yet", e.getMessage());
 
         // check absolute variation constraints
         FaraoMPConstraint absoluteVariationConstraint1 = linearProblem.getAbsoluteRangeActionVariationConstraint(pstRangeAction, state, LinearProblem.AbsExtension.NEGATIVE);
@@ -236,12 +236,12 @@ class CoreProblemFillerTest extends AbstractFillerTest {
         assertEquals(LinearProblem.infinity(), absoluteVariationVariable.ub(), DOUBLE_TOLERANCE);
 
         // check flow variable for cnec1 does not exist
-        FaraoMPVariable flowVariable = linearProblem.getFlowVariable(cnec1, Side.LEFT);
-        assertNull(flowVariable);
+        Exception e = assertThrows(FaraoException.class, () -> linearProblem.getFlowVariable(cnec1, Side.LEFT));
+        assertEquals("Variable Tieline BE FR - N - preventive_left_flow_variable has not been created yet", e.getMessage());
 
         // check flow constraint for cnec1 does not exist
-        FaraoMPConstraint flowConstraint = linearProblem.getFlowConstraint(cnec1, Side.LEFT);
-        assertNull(flowConstraint);
+        e = assertThrows(FaraoException.class, () -> linearProblem.getFlowConstraint(cnec1, Side.LEFT));
+        assertEquals("Constraint Tieline BE FR - N - preventive_left_flow_constraint has not been created yet", e.getMessage());
 
         // check flow variable for cnec2
         FaraoMPVariable flowVariable2 = linearProblem.getFlowVariable(cnec2, Side.RIGHT);
@@ -414,12 +414,12 @@ class CoreProblemFillerTest extends AbstractFillerTest {
         assertEquals(-SENSI_CNEC1_IT2, flowConstraint.getCoefficient(setPointVariable), DOUBLE_TOLERANCE);
 
         // check flow variable for cnec2 does not exist
-        FaraoMPVariable flowVariable2 = linearProblem.getFlowVariable(cnec2, Side.RIGHT);
-        assertNull(flowVariable2);
+        Exception e = assertThrows(FaraoException.class, () -> linearProblem.getFlowVariable(cnec2, Side.RIGHT));
+        assertEquals("Variable Tieline BE FR - Defaut - N-1 NL1-NL3_right_flow_variable has not been created yet", e.getMessage());
 
         // check flow constraint for cnec2 does not exist
-        FaraoMPConstraint flowConstraint2 = linearProblem.getFlowConstraint(cnec2, Side.RIGHT);
-        assertNull(flowConstraint2);
+        e = assertThrows(FaraoException.class, () -> linearProblem.getFlowConstraint(cnec2, Side.RIGHT));
+        assertEquals("Constraint Tieline BE FR - Defaut - N-1 NL1-NL3_right_flow_constraint has not been created yet", e.getMessage());
 
         // check the number of variables and constraints
         // No iterative relative variation constraint should be created since CoreProblemFiller.raRangeShrinking = false
@@ -447,12 +447,12 @@ class CoreProblemFillerTest extends AbstractFillerTest {
         FaraoMPVariable setPointVariable = linearProblem.getRangeActionSetpointVariable(pstRangeAction, state);
 
         // check flow variable for cnec1 does not exist
-        FaraoMPVariable flowVariable = linearProblem.getFlowVariable(cnec1, Side.LEFT);
-        assertNull(flowVariable);
+        Exception e = assertThrows(FaraoException.class, () -> linearProblem.getFlowVariable(cnec1, Side.LEFT));
+        assertEquals("Variable Tieline BE FR - N - preventive_left_flow_variable has not been created yet", e.getMessage());
 
         // check flow constraint for cnec1 does not exist
-        FaraoMPConstraint flowConstraint = linearProblem.getFlowConstraint(cnec1, Side.LEFT);
-        assertNull(flowConstraint);
+        e = assertThrows(FaraoException.class, () -> linearProblem.getFlowConstraint(cnec1, Side.LEFT));
+        assertEquals("Constraint Tieline BE FR - N - preventive_left_flow_constraint has not been created yet", e.getMessage());
 
         // check flow variable for cnec2
         FaraoMPVariable flowVariable2 = linearProblem.getFlowVariable(cnec2, Side.RIGHT);

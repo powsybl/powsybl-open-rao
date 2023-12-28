@@ -23,6 +23,7 @@ import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
 
 import java.time.OffsetDateTime;
+import java.util.Map;
 import java.util.Set;
 
 import static com.farao_community.farao.data.crac_creation.creator.csa_profile.crac_creator.CsaProfileCracUtils.isValidInterval;
@@ -46,13 +47,27 @@ public class CsaProfileCracCreator implements CracCreator<CsaProfileCrac, CsaPro
         this.crac = cracCreationParameters.getCracFactory().create(nativeCrac.toString());
         this.network = network;
         this.creationContext = new CsaProfileCracCreationContext(crac, offsetDateTime, network.getNameOrId());
-
         clearNativeCracContextsAndMap(nativeCrac, offsetDateTime);
-        createContingencies(nativeCrac.getContingencies(), nativeCrac.getContingencyEquipments());
-        createCnecs(nativeCrac.getAssessedElements(), nativeCrac.getAssessedElementsWithContingencies(), nativeCrac.getCurrentLimits(), nativeCrac.getVoltageLimits(), nativeCrac.getAngleLimits(), cracCreationParameters.getDefaultMonitoredSides());
-        OnConstraintUsageRuleHelper onConstraintUsageRuleAdder = new OnConstraintUsageRuleHelper(creationContext.getCnecCreationContexts(), nativeCrac.getAssessedElements(), nativeCrac.getAssessedElementsWithRemedialAction());
-        createRemedialActions(nativeCrac.getRemedialActions(), nativeCrac.getTopologyAction(), nativeCrac.getRotatingMachineAction(), nativeCrac.getShuntCompensatorModifications(), nativeCrac.getTapPositionAction(), nativeCrac.getStaticPropertyRanges(), nativeCrac.getContingencyWithRemedialAction(), onConstraintUsageRuleAdder,
-            nativeCrac.getSchemeRemedialActions(), nativeCrac.getRemedialActionScheme(), nativeCrac.getStage(), nativeCrac.getGridStateAlterationCollection(), nativeCrac.getTopologyActionAuto(), nativeCrac.getRotatingMachineActionAuto(), nativeCrac.getShuntCompensatorModificationAuto(), nativeCrac.getTapPositionActionAuto());
+        Map<String, String> overridingData = nativeCrac.getOverridingCracData(offsetDateTime);
+        PropertyBags contingencies = CsaProfileCracUtils.overrideData(nativeCrac.getContingencies(), overridingData, CsaProfileConstants.OverridingObjectsFields.CONTINGENCY);
+        PropertyBags assessedElements = CsaProfileCracUtils.overrideData(nativeCrac.getAssessedElements(), overridingData, CsaProfileConstants.OverridingObjectsFields.ASSESSED_ELEMENT);
+        PropertyBags assessedElementsWithContingencies = CsaProfileCracUtils.overrideData(nativeCrac.getAssessedElementsWithContingencies(), overridingData, CsaProfileConstants.OverridingObjectsFields.ASSESSED_ELEMENT_WITH_CONTINGENCY);
+        PropertyBags currentLimits = CsaProfileCracUtils.overrideData(nativeCrac.getCurrentLimits(), overridingData, CsaProfileConstants.OverridingObjectsFields.CURRENT_LIMIT);
+        PropertyBags voltageLimits = CsaProfileCracUtils.overrideData(nativeCrac.getVoltageLimits(), overridingData, CsaProfileConstants.OverridingObjectsFields.VOLTAGE_LIMIT);
+        PropertyBags angleLimits = CsaProfileCracUtils.overrideData(nativeCrac.getAngleLimits(), overridingData, CsaProfileConstants.OverridingObjectsFields.VOLTAGE_ANGLE_LIMIT);
+        PropertyBags assessedElementsWithRemedialAction = CsaProfileCracUtils.overrideData(nativeCrac.getAssessedElementsWithRemedialAction(), overridingData, CsaProfileConstants.OverridingObjectsFields.ASSESSED_ELEMENT_WITH_REMEDIAL_ACTION);
+        PropertyBags contingenciesWithRemedialAction = CsaProfileCracUtils.overrideData(nativeCrac.getContingencyWithRemedialAction(), overridingData, CsaProfileConstants.OverridingObjectsFields.CONTINGENCY_WITH_REMEDIAL_ACTION);
+        PropertyBags remedialActions = CsaProfileCracUtils.overrideData(nativeCrac.getRemedialActions(), overridingData, CsaProfileConstants.OverridingObjectsFields.REMEDIAL_ACTION);
+        PropertyBags remedialActionSchemes = CsaProfileCracUtils.overrideData(nativeCrac.getRemedialActionScheme(), overridingData, CsaProfileConstants.OverridingObjectsFields.REMEDIAL_ACTION_SCHEME);
+        PropertyBags gridStateAlterations = CsaProfileCracUtils.overrideData(nativeCrac.getGridStateAlterationCollection(), overridingData, CsaProfileConstants.OverridingObjectsFields.GRID_STATE_ALTERATION);
+        PropertyBags staticPropertyRanges = CsaProfileCracUtils.overrideData(nativeCrac.getStaticPropertyRanges(), overridingData, CsaProfileConstants.OverridingObjectsFields.RANGE_CONSTRAINT);
+
+        createContingencies(contingencies, nativeCrac.getContingencyEquipments());
+        createCnecs(assessedElements, assessedElementsWithContingencies, currentLimits, voltageLimits, angleLimits, cracCreationParameters.getDefaultMonitoredSides());
+        OnConstraintUsageRuleHelper onConstraintUsageRuleAdder = new OnConstraintUsageRuleHelper(creationContext.getCnecCreationContexts(), assessedElements, assessedElementsWithRemedialAction);
+        createRemedialActions(remedialActions, nativeCrac.getTopologyAction(), nativeCrac.getRotatingMachineAction(), nativeCrac.getShuntCompensatorModifications(), nativeCrac.getTapPositionAction(), staticPropertyRanges, contingenciesWithRemedialAction, onConstraintUsageRuleAdder,
+            nativeCrac.getSchemeRemedialActions(), remedialActionSchemes, nativeCrac.getStage(), gridStateAlterations, nativeCrac.getTopologyActionAuto(), nativeCrac.getRotatingMachineActionAuto(), nativeCrac.getShuntCompensatorModificationAuto(),
+            nativeCrac.getTapPositionActionAuto());
         creationContext.buildCreationReport();
         return creationContext.creationSuccess(crac);
     }
@@ -79,7 +94,7 @@ public class CsaProfileCracCreator implements CracCreator<CsaProfileCrac, CsaPro
     private void createRemedialActions(PropertyBags remedialActionsPropertyBags, PropertyBags topologyActionsPropertyBags, PropertyBags rotatingMachineActionPropertyBags, PropertyBags shuntCompensatorModificationPropertyBags, PropertyBags tapPositionPropertyBags, PropertyBags staticPropertyRanges, PropertyBags contingencyWithRemedialActionsPropertyBags, OnConstraintUsageRuleHelper onConstraintUsageRuleAdder,
                                        PropertyBags schemeRemedialActionsPropertyBags, PropertyBags remedialActionSchemePropertyBags, PropertyBags stagePropertyBags, PropertyBags gridStateAlterationCollectionPropertyBags, PropertyBags topologyActionAuto, PropertyBags rotatingMachineActionAuto, PropertyBags shuntCompensatorModificationAuto, PropertyBags tapPositionActionAuto) {
         new CsaProfileRemedialActionsCreator(crac, network, creationContext, remedialActionsPropertyBags, contingencyWithRemedialActionsPropertyBags, topologyActionsPropertyBags, rotatingMachineActionPropertyBags, shuntCompensatorModificationPropertyBags, tapPositionPropertyBags, staticPropertyRanges, onConstraintUsageRuleAdder,
-            schemeRemedialActionsPropertyBags, remedialActionSchemePropertyBags, stagePropertyBags, gridStateAlterationCollectionPropertyBags, topologyActionAuto, rotatingMachineActionAuto, shuntCompensatorModificationAuto, tapPositionActionAuto);
+                schemeRemedialActionsPropertyBags, remedialActionSchemePropertyBags, stagePropertyBags, gridStateAlterationCollectionPropertyBags, topologyActionAuto, rotatingMachineActionAuto, shuntCompensatorModificationAuto, tapPositionActionAuto);
     }
 
     private void createContingencies(PropertyBags contingenciesPropertyBags, PropertyBags contingencyEquipmentsPropertyBags) {

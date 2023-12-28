@@ -143,7 +143,7 @@ public final class CoreCneCnecsCreator {
         return constraintSeriesOfCnec;
     }
 
-    private class AnalogComparator implements Comparator<Analog> {
+    private static class AnalogComparator implements Comparator<Analog> {
         @Override
         public int compare(Analog o1, Analog o2) {
             if (o1.getMeasurementType().equals(o2.getMeasurementType())) {

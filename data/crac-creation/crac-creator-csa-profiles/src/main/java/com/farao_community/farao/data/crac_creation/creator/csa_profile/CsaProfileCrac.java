@@ -9,18 +9,15 @@ package com.farao_community.farao.data.crac_creation.creator.csa_profile;
 
 import com.farao_community.farao.commons.logs.FaraoLoggerProvider;
 import com.farao_community.farao.data.crac_creation.creator.csa_profile.crac_creator.CsaProfileConstants;
+import com.farao_community.farao.data.crac_creation.creator.csa_profile.crac_creator.CsaProfileCracUtils;
 import com.farao_community.farao.data.native_crac_api.NativeCrac;
+import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
 import com.powsybl.triplestore.api.QueryCatalog;
 import com.powsybl.triplestore.api.TripleStore;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.time.OffsetDateTime;
+import java.util.*;
 
 /**
  * @author Jean-Pierre Arnould {@literal <jean-pierre.arnould at rte-france.com>}
@@ -74,7 +71,7 @@ public class CsaProfileCrac implements NativeCrac {
     }
 
     public PropertyBags getPropertyBags(String csaProfileConstant, String keyword) {
-        Set<String> namesToRequest =  getContextNamesToRequest(keyword);
+        Set<String> namesToRequest = getContextNamesToRequest(keyword);
         if (namesToRequest.isEmpty()) {
             return new PropertyBags();
         }
@@ -82,7 +79,7 @@ public class CsaProfileCrac implements NativeCrac {
     }
 
     public PropertyBags getPropertyBags(List<String> csaProfileConstants, String keyword) {
-        Set<String> namesToRequest =  getContextNamesToRequest(keyword);
+        Set<String> namesToRequest = getContextNamesToRequest(keyword);
         if (namesToRequest.isEmpty()) {
             return new PropertyBags();
         }
@@ -178,7 +175,42 @@ public class CsaProfileCrac implements NativeCrac {
     }
 
     public PropertyBags getSchemeRemedialActions() {
-        return this.queryTripleStore(CsaProfileConstants.SCHEME_REMEDIAL_ACTION, new HashSet<>());
+        return getPropertyBags(CsaProfileConstants.REQUEST_SCHEME_REMEDIAL_ACTION, CsaProfileConstants.CsaProfileKeywords.REMEDIAL_ACTION.toString());
+    }
+
+    public Map<String, String> getOverridingCracData(OffsetDateTime importTimestamp) {
+        Map<String, String> overridingData = new HashMap<>();
+        for (CsaProfileConstants.OverridingObjectsFields overridingObject : CsaProfileConstants.OverridingObjectsFields.values()) {
+            addDataFromTripleStoreToMap(overridingData, overridingObject.getRequestName(), overridingObject.getObjectName(), overridingObject.getOverridedFieldName(), overridingObject.getHeaderType(), importTimestamp);
+        }
+        return overridingData;
+    }
+
+    private void addDataFromTripleStoreToMap(Map<String, String> dataMap, String queryName, String queryObjectName, String queryFieldName, CsaProfileConstants.HeaderType headerType, OffsetDateTime importTimestamp) {
+        PropertyBags propertyBagsResult = queryTripleStore(queryName, tripleStoreCsaProfileCrac.contextNames());
+        for (PropertyBag propertyBag : propertyBagsResult) {
+            if (CsaProfileConstants.HeaderType.START_END_DATE.equals(headerType)) {
+                if (CsaProfileCracUtils.checkProfileKeyword(propertyBag, CsaProfileConstants.CsaProfileKeywords.SSI) && CsaProfileCracUtils.checkProfileValidityInterval(propertyBag, importTimestamp)) {
+                    String id = propertyBag.getId(queryObjectName);
+                    String overridedValue = propertyBag.get(queryFieldName);
+                    dataMap.put(id, overridedValue);
+                }
+            } else {
+                if (CsaProfileCracUtils.checkProfileKeyword(propertyBag, CsaProfileConstants.CsaProfileKeywords.SSH)) {
+                    OffsetDateTime scenarioTime = OffsetDateTime.parse(propertyBag.get(CsaProfileConstants.SCENARIO_TIME));
+                    if (importTimestamp.isEqual(scenarioTime)) {
+                        String id = propertyBag.getId(queryObjectName);
+                        String overridedValue = propertyBag.get(queryFieldName);
+                        dataMap.put(id, overridedValue);
+                    }
+                }
+            }
+
+        }
+    }
+
+    private PropertyBags queryTripleStore(String queryKey) {
+        return this.queryTripleStore(queryKey, new HashSet<>());
     }
 
     private PropertyBags queryTripleStore(List<String> queryKeys, Set<String> contexts) {

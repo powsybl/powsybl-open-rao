@@ -57,7 +57,7 @@ class PstRangeActionImplTest {
 
     @Test
     void apply() {
-        PstRangeAction pstRa = (PstRangeAction) pstRangeActionAdder.add();
+        PstRangeAction pstRa = pstRangeActionAdder.add();
         assertEquals(0, network.getTwoWindingsTransformer(networkElementId).getPhaseTapChanger().getTapPosition());
         assertEquals(0, pstRa.getCurrentTapPosition(network));
 
@@ -69,26 +69,26 @@ class PstRangeActionImplTest {
 
     @Test
     void applyOutOfBound() {
-        PstRangeAction pstRa = (PstRangeAction) pstRangeActionAdder.add();
+        PstRangeAction pstRa = pstRangeActionAdder.add();
         assertThrows(FaraoException.class, () -> pstRa.apply(network, 50));
     }
 
     @Test
     void applyOnUnknownPst() {
-        PstRangeAction pstRa = (PstRangeAction) pstRangeActionAdder.withNetworkElement("unknownNetworkElement").add();
+        PstRangeAction pstRa = pstRangeActionAdder.withNetworkElement("unknownNetworkElement").add();
         assertThrows(FaraoException.class, () -> pstRa.apply(network, 50));
     }
 
     @Test
     void applyOnTransformerWithNoPhaseShifter() {
         Network network = Network.read("TestCase12Nodes_no_pst.uct", getClass().getResourceAsStream("/TestCase12Nodes_no_pst.uct"));
-        PstRangeAction pstRa = (PstRangeAction) pstRangeActionAdder.add();
+        PstRangeAction pstRa = pstRangeActionAdder.add();
         assertThrows(FaraoException.class, () -> pstRa.apply(network, 50));
     }
 
     @Test
     void pstWithoutSpecificRange() {
-        PstRangeAction pstRa = (PstRangeAction) pstRangeActionAdder.add();
+        PstRangeAction pstRa = pstRangeActionAdder.add();
 
         double minAngleInNetwork = phaseTapChanger.getStep(phaseTapChanger.getLowTapPosition()).getAlpha();
         double maxAngleInNetwork = phaseTapChanger.getStep(phaseTapChanger.getHighTapPosition()).getAlpha();
@@ -99,7 +99,7 @@ class PstRangeActionImplTest {
 
     @Test
     void pstWithAbsoluteCenteredZeroRange() {
-        PstRangeAction pstRa = (PstRangeAction) pstRangeActionAdder
+        PstRangeAction pstRa = pstRangeActionAdder
             .newTapRange().withMinTap(-3).withMaxTap(3).withRangeType(RangeType.ABSOLUTE).add()
             .add();
 
@@ -114,7 +114,7 @@ class PstRangeActionImplTest {
     @Test
     void pstWithRelativeToPreviousInstantRange() {
 
-        PstRangeAction pstRa = (PstRangeAction) pstRangeActionAdder
+        PstRangeAction pstRa = pstRangeActionAdder
             .newOnInstantUsageRule().withInstant(Instant.CURATIVE).withUsageMethod(UsageMethod.AVAILABLE).add()
             .newTapRange().withMinTap(-3).withMaxTap(3).withRangeType(RangeType.RELATIVE_TO_PREVIOUS_INSTANT).add()
             .add();
@@ -136,7 +136,7 @@ class PstRangeActionImplTest {
     @Test
     void pstWithRelativeToInitialNetworkRange() {
 
-        PstRangeAction pstRa = (PstRangeAction) pstRangeActionAdder
+        PstRangeAction pstRa = pstRangeActionAdder
             .newTapRange().withMinTap(-3).withMaxTap(3).withRangeType(RangeType.RELATIVE_TO_INITIAL_NETWORK).add()
             .add();
 
@@ -151,7 +151,7 @@ class PstRangeActionImplTest {
     @Test
     void computeCurrentValue() {
 
-        PstRangeAction pstRa = (PstRangeAction) pstRangeActionAdder.add();
+        PstRangeAction pstRa = pstRangeActionAdder.add();
 
         pstRa.apply(network, 0.0); // tap 0 (CENTERED_ON_ZERO)
         assertEquals(0, pstRa.getCurrentTapPosition(network), 0);
@@ -162,7 +162,7 @@ class PstRangeActionImplTest {
     @Test
     void getCurrentSetpointTest() {
 
-        PstRangeAction pstRa = (PstRangeAction) pstRangeActionAdder.add();
+        PstRangeAction pstRa = pstRangeActionAdder.add();
 
         assertEquals(0, pstRa.getCurrentSetpoint(network), 1e-3);
         pstRa.apply(network, 3.8946); // tap 10 (CENTERED_ON_ZERO)
@@ -173,7 +173,7 @@ class PstRangeActionImplTest {
     @Test
     void handleDecreasingAnglesMinMax() {
         // First test case where deltaU is negative
-        PstRangeAction pstRa1 = (PstRangeAction) pstRangeActionAdder
+        PstRangeAction pstRa1 = pstRangeActionAdder
             .newTapRange().withMinTap(-10).withMaxTap(10).withRangeType(RangeType.ABSOLUTE).add()
             .add();
 
@@ -184,7 +184,7 @@ class PstRangeActionImplTest {
         Map<Integer, Double> tapToAngleConversionMap2 = new HashMap<>();
         network2.getTwoWindingsTransformer(networkElementId).getPhaseTapChanger().getAllSteps().forEach((stepInt, step) -> tapToAngleConversionMap2.put(stepInt, step.getAlpha()));
 
-        PstRangeAction pstRa2 = (PstRangeAction) crac.newPstRangeAction()
+        PstRangeAction pstRa2 = crac.newPstRangeAction()
             .withId("pst-range-action-id-2")
             .withName("pst-range-action-name-2")
             .withNetworkElement("BBE2AA1  BBE3AA1  1")
@@ -200,7 +200,7 @@ class PstRangeActionImplTest {
 
     @Test
     void testGetLocation() {
-        PstRangeAction pstRa = (PstRangeAction) pstRangeActionAdder.add();
+        PstRangeAction pstRa = pstRangeActionAdder.add();
         Set<Optional<Country>> countries = pstRa.getLocation(network);
         assertEquals(1, countries.size());
         assertTrue(countries.contains(Optional.of(Country.BE)));
@@ -209,8 +209,8 @@ class PstRangeActionImplTest {
     @Test
     void pstEquals() {
 
-        PstRangeAction pstRa1 = (PstRangeAction) pstRangeActionAdder.withGroupId("g1").add();
-        PstRangeAction pstRa2 = (PstRangeAction) pstRangeActionAdder.withId("anotherId").withGroupId("g1").add();
+        PstRangeAction pstRa1 = pstRangeActionAdder.withGroupId("g1").add();
+        PstRangeAction pstRa2 = pstRangeActionAdder.withId("anotherId").withGroupId("g1").add();
 
         assertEquals(pstRa1.hashCode(), pstRa1.hashCode());
         assertEquals(pstRa1, pstRa1);
