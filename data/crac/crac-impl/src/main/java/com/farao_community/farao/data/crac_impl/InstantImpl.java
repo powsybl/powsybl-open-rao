@@ -22,7 +22,7 @@ import java.util.Objects;
  * @author Hugo Schindler {@literal <hugo.schindler at rte-france.com>}
  * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
  */
-public class InstantImpl extends AbstractIdentifiable<InstantImpl> implements Instant<InstantImpl> {
+public class InstantImpl extends AbstractIdentifiable<Instant> implements Instant {
 
     private final InstantKind instantKind;
     private final Instant previous;
