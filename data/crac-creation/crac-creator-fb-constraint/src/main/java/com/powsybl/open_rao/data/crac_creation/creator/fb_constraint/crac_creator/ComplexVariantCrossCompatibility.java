@@ -94,12 +94,8 @@ public final class ComplexVariantCrossCompatibility {
             return true;
         }
 
-        if (ast1.isCurative() && ast2.isCurative()
-                && !Collections.disjoint(ast1.getAfterCOList().getAfterCOId(), ast2.getAfterCOList().getAfterCOId())) {
-            return true;
-        }
-
-        return false;
+        return ast1.isCurative() && ast2.isCurative()
+            && !Collections.disjoint(ast1.getAfterCOList().getAfterCOId(), ast2.getAfterCOList().getAfterCOId());
     }
 
     private static void invalidateAllButOne(List<ComplexVariantReader> overlappingComplexVariants) {

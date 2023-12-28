@@ -15,7 +15,6 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 import java.io.IOException;
 import java.util.Comparator;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static com.powsybl.open_rao.data.crac_io_json.JsonSerializationConstants.NETWORK_ELEMENT_IDS_AND_KEYS;
 
@@ -38,7 +37,7 @@ public class InjectionRangeActionSerializer extends AbstractJsonSerializer<Injec
         gen.writeStartObject();
         List<NetworkElement> sortedNetworkElementList = value.getInjectionDistributionKeys().keySet().stream()
                 .sorted(Comparator.comparing(NetworkElement::getId))
-                .collect(Collectors.toList());
+                .toList();
         for (NetworkElement networkElement : sortedNetworkElementList) {
             gen.writeNumberField(networkElement.getId(), value.getInjectionDistributionKeys().get(networkElement));
         }

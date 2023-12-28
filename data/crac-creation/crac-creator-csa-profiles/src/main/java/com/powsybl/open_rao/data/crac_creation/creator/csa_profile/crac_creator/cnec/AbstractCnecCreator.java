@@ -55,8 +55,8 @@ public abstract class AbstractCnecCreator {
             }
         }
 
-        if (networkElement instanceof DanglingLine) {
-            Optional<TieLine> optionalTieLine = ((DanglingLine) networkElement).getTieLine();
+        if (networkElement instanceof DanglingLine danglingLine) {
+            Optional<TieLine> optionalTieLine = danglingLine.getTieLine();
             if (optionalTieLine.isPresent()) {
                 networkElement = optionalTieLine.get();
             }

@@ -143,7 +143,7 @@ public class CsaProfileCrac implements NativeCrac {
     }
 
     public PropertyBags getContingencyWithRemedialAction() {
-        return getPropertyBags(CsaProfileConstants.CONTINGENCY_WITH_REMEDIAL_ACTION, CsaProfileConstants.CsaProfileKeywords.REMEDIAL_ACTION.toString());
+        return getPropertyBags(CsaProfileConstants.REQUEST_CONTINGENCY_WITH_REMEDIAL_ACTION, CsaProfileConstants.CsaProfileKeywords.REMEDIAL_ACTION.toString());
     }
 
     public PropertyBags getShuntCompensatorModificationAuto() {
@@ -207,10 +207,6 @@ public class CsaProfileCrac implements NativeCrac {
             }
 
         }
-    }
-
-    private PropertyBags queryTripleStore(String queryKey) {
-        return this.queryTripleStore(queryKey, new HashSet<>());
     }
 
     private PropertyBags queryTripleStore(List<String> queryKeys, Set<String> contexts) {

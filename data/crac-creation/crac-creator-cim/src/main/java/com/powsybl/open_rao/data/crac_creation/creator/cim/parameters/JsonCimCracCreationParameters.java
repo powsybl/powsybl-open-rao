@@ -17,7 +17,6 @@ import com.google.auto.service.AutoService;
 
 import java.io.IOException;
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
@@ -92,7 +91,7 @@ public class JsonCimCracCreationParameters implements JsonCracCreationParameters
 
     private void serializeTimeseriesMrids(Set<String> timeseriesMrids, JsonGenerator jsonGenerator) throws IOException {
         if (!timeseriesMrids.isEmpty()) {
-            serializeStringArray(TIMESERIES_MRIDS, timeseriesMrids.stream().sorted(String::compareTo).collect(Collectors.toList()), jsonGenerator);
+            serializeStringArray(TIMESERIES_MRIDS, timeseriesMrids.stream().sorted(String::compareTo).toList(), jsonGenerator);
         }
     }
 

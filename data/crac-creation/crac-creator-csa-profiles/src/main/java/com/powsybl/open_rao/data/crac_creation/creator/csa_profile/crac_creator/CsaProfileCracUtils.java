@@ -7,6 +7,7 @@
 
 package com.powsybl.open_rao.data.crac_creation.creator.csa_profile.crac_creator;
 
+import com.powsybl.open_rao.commons.OpenRaoException;
 import com.powsybl.open_rao.commons.TsoEICode;
 import com.powsybl.open_rao.data.crac_api.usage_rule.UsageMethod;
 import com.powsybl.open_rao.data.crac_creation.creator.api.ImportStatus;
@@ -82,7 +83,7 @@ public final class CsaProfileCracUtils {
         Matcher matcher = pattern.matcher(duration);
 
         if (!matcher.matches()) {
-            throw new RuntimeException("Error occurred while converting time to implement to seconds, unknown pattern: " + duration);
+            throw new OpenRaoException("Error occurred while converting time to implement to seconds, unknown pattern: " + duration);
         }
 
         int seconds = 0;

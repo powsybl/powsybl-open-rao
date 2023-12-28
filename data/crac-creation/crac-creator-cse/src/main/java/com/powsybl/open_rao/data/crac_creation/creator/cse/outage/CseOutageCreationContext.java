@@ -24,7 +24,7 @@ public class CseOutageCreationContext implements ElementaryCreationContext {
     }
 
     public String getName() {
-        return outageID;
+        return getNativeId();
     }
 
     @Override

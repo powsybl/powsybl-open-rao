@@ -19,7 +19,6 @@ import com.powsybl.iidm.network.Network;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 /**
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
@@ -63,7 +62,7 @@ public final class CracExporters {
             if (cracExporters.size() > 1 && name == null) {
                 // several crac exporters and no information to select which one to choose, we can only throw
                 // an exception
-                List<String> exportersNames = cracExporters.stream().map(CracExporter::getFormat).collect(Collectors.toList());
+                List<String> exportersNames = cracExporters.stream().map(CracExporter::getFormat).toList();
                 throw new OpenRaoException("Several crac exporters implementations found (" + exportersNames
                     + "), you must specify an explicit exporter name");
             }

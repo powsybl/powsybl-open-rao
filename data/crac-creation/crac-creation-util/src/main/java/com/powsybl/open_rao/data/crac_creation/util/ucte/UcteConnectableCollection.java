@@ -104,7 +104,7 @@ class UcteConnectableCollection {
 
             List<UcteConnectable> ucteElements = connectables.asMap().subMap(beforeFrom, afterFrom).values().stream()
                 .flatMap(Collection::stream)
-                .collect(Collectors.toList());
+                .toList();
 
             return lookForMatchWithinCollection(fromNodeId, toNodeId, suffix, ucteElements, types);
         }
@@ -118,7 +118,7 @@ class UcteConnectableCollection {
             List<UcteMatchingResult> matchedConnectables = ucteConnectables.stream()
                 .filter(ucteConnectable -> ucteConnectable.doesMatch(fromNodeId, toNodeId, suffix, connectableTypes))
                 .map(ucteConnectable -> ucteConnectable.getUcteMatchingResult(fromNodeId, toNodeId, suffix, connectableTypes))
-                .collect(Collectors.toList());
+                .toList();
 
             if (matchedConnectables.size() == 1) {
                 return matchedConnectables.get(0);
@@ -143,7 +143,7 @@ class UcteConnectableCollection {
         network.getBranchStream().forEach(branch -> {
             String from = getNodeName(branch.getTerminal1().getBusBreakerView().getConnectableBus().getId());
             String to = getNodeName(branch.getTerminal2().getBusBreakerView().getConnectableBus().getId());
-            if (branch instanceof TieLine) {
+            if (branch instanceof TieLine tieLine) {
                 /*
                  in UCTE import, the two Half Lines of an interconnection are merged into a TieLine
                  For instance, the TieLine "UCTNODE1 X___NODE 1 + UCTNODE2 X___NODE 1" is imported by PowSybl,
@@ -156,7 +156,7 @@ class UcteConnectableCollection {
                   - if a criticial branch is defined with from = "UCTNODE2" and to = "X___NODE", the threshold
                     should be inverted as "UCTNODE2" is in the second half of the TieLine
                 */
-                String xnode = ((TieLine) branch).getPairingKey();
+                String xnode = tieLine.getPairingKey();
                 connectables.put(from, new UcteConnectable(from, xnode, getOrderCode(branch, TwoSides.ONE), getElementNames(branch), branch, false, UcteConnectable.Side.ONE));
                 connectables.put(xnode, new UcteConnectable(xnode, to, getOrderCode(branch, TwoSides.TWO), getElementNames(branch), branch, false, UcteConnectable.Side.TWO));
             } else if (branch instanceof TwoWindingsTransformer) {

@@ -137,13 +137,13 @@ public class UcteFlowElementHelper extends AbstractUcteConnectableHelper impleme
         Identifiable<?> networkElement = ucteMatchingResult.getIidmIdentifiable();
         this.connectableIdInNetwork = networkElement.getId();
 
-        if (networkElement instanceof TieLine) {
-            interpretTieLine((TieLine) networkElement, ucteMatchingResult.getSide() == TWO ? TwoSides.TWO : TwoSides.ONE);
-        } else if (networkElement instanceof Branch) {
-            checkBranchNominalVoltage((Branch<?>) networkElement);
-            checkBranchCurrentLimits((Branch<?>) networkElement);
-        } else if (networkElement instanceof DanglingLine) {
-            interpretDanglingLine((DanglingLine) networkElement);
+        if (networkElement instanceof TieLine tieLine) {
+            interpretTieLine(tieLine, ucteMatchingResult.getSide() == TWO ? TwoSides.TWO : TwoSides.ONE);
+        } else if (networkElement instanceof Branch<?> branch) {
+            checkBranchNominalVoltage(branch);
+            checkBranchCurrentLimits(branch);
+        } else if (networkElement instanceof DanglingLine danglingLine) {
+            interpretDanglingLine(danglingLine);
         }
     }
 

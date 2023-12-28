@@ -8,9 +8,10 @@
 
 package com.powsybl.open_rao.data.crac_io_json;
 
-import com.powsybl.open_rao.data.crac_api.Identifiable;
-import com.google.common.base.Supplier;
+import java.util.function.Supplier;
+
 import com.google.common.base.Suppliers;
+import com.powsybl.open_rao.data.crac_api.Identifiable;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.extensions.ExtensionJsonSerializer;
 import com.powsybl.commons.extensions.ExtensionProviders;

@@ -18,6 +18,7 @@ import org.apache.commons.io.FilenameUtils;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -59,49 +60,55 @@ public class CsaProfileCracImporter implements NativeCracImporter<CsaProfileCrac
             while ((zipEntry = zipInputStream.getNextEntry()) != null && countEntries < maxNbEntries) {
                 countEntries++;
                 if (!zipEntry.isDirectory()) {
-                    OpenRaoLoggerProvider.BUSINESS_LOGS.info("csa profile crac import : import of file {}", zipEntry.getName());
-                    int currentSizeEntry = 0;
-                    File tempFile = File.createTempFile("openRaoCsaProfile", ".tmp");
-                    boolean tempFileOk = tempFile.setReadable(true, true) &&
-                        tempFile.setWritable(true, true);
-                    if (tempFileOk) {
-                        boolean isKeywordInFile = false;
-                        InputStream in = new BufferedInputStream(zipInputStream);
-                        try (OutputStream out = new BufferedOutputStream(new FileOutputStream(tempFile))) {
-                            int nBytes = -1;
-                            byte[] buffer = new byte[2048];
-
-                            while ((nBytes = in.read(buffer)) > 0 && currentSizeEntry < maxSizeEntry) {
-                                out.write(buffer, 0, nBytes);
-                                currentSizeEntry += nBytes;
-                                String stringBuffer = new String(buffer, StandardCharsets.UTF_8);
-                                Matcher matcher = keywordPattern.matcher(stringBuffer);
-                                if (matcher.find()) {
-                                    String keyword = matcher.group(1);
-                                    Set<String> newFilesSet = addFileToSet(keywordMap, "contexts:" + zipEntry.getName(), keyword);
-                                    keywordMap.put(keyword, newFilesSet);
-                                    isKeywordInFile = true;
-                                }
-                            }
-                        }
-                        if (!isKeywordInFile) {
-                            String keyword = CsaProfileConstants.CGMES;
-                            Set<String> newFilesSet = addFileToSet(keywordMap, "contexts:" + zipEntry.getName(), keyword);
-                            keywordMap.put(keyword, newFilesSet);
-                        }
-                        FileInputStream fileInputStream = new FileInputStream(tempFile);
-                        tripleStoreCsaProfile.read(fileInputStream, CsaProfileConstants.RDF_BASE_URL, zipEntry.getName());
-                    }
-                    if (!tempFile.delete()) {
-                        OpenRaoLoggerProvider.TECHNICAL_LOGS.warn("temporary file for csa profile crac import can't be deleted");
-                        tempFile.deleteOnExit();
-                    }
+                    importZipEntry(zipEntry, zipInputStream, maxSizeEntry, keywordPattern, keywordMap, tripleStoreCsaProfile);
                 }
             }
         } catch (IOException e) {
             OpenRaoLoggerProvider.TECHNICAL_LOGS.error("csa profile crac import interrupted, cause : {}", e.getMessage());
         }
         return new CsaProfileCrac(tripleStoreCsaProfile, keywordMap);
+    }
+
+    private static void importZipEntry(ZipEntry zipEntry, ZipInputStream zipInputStream, int maxSizeEntry, Pattern keywordPattern, Map<String, Set<String>> keywordMap, TripleStore tripleStoreCsaProfile) throws IOException {
+        OpenRaoLoggerProvider.BUSINESS_LOGS.info("csa profile crac import : import of file {}", zipEntry.getName());
+        int currentSizeEntry = 0;
+        File tempFile = File.createTempFile("openRaoCsaProfile", ".tmp");
+        boolean tempFileOk = tempFile.setReadable(true, true) &&
+            tempFile.setWritable(true, true);
+        if (tempFileOk) {
+            boolean isKeywordInFile = false;
+            InputStream in = new BufferedInputStream(zipInputStream);
+            try (OutputStream out = new BufferedOutputStream(new FileOutputStream(tempFile))) {
+                int nBytes = -1;
+                byte[] buffer = new byte[2048];
+
+                while ((nBytes = in.read(buffer)) > 0 && currentSizeEntry < maxSizeEntry) {
+                    out.write(buffer, 0, nBytes);
+                    currentSizeEntry += nBytes;
+                    String stringBuffer = new String(buffer, StandardCharsets.UTF_8);
+                    Matcher matcher = keywordPattern.matcher(stringBuffer);
+                    if (matcher.find()) {
+                        String keyword = matcher.group(1);
+                        Set<String> newFilesSet = addFileToSet(keywordMap, "contexts:" + zipEntry.getName(), keyword);
+                        keywordMap.put(keyword, newFilesSet);
+                        isKeywordInFile = true;
+                    }
+                }
+            }
+            if (!isKeywordInFile) {
+                String keyword = CsaProfileConstants.CGMES;
+                Set<String> newFilesSet = addFileToSet(keywordMap, "contexts:" + zipEntry.getName(), keyword);
+                keywordMap.put(keyword, newFilesSet);
+            }
+            FileInputStream fileInputStream = new FileInputStream(tempFile);
+            tripleStoreCsaProfile.read(fileInputStream, CsaProfileConstants.RDF_BASE_URL, zipEntry.getName());
+        }
+        try {
+            Files.delete(tempFile.toPath());
+        } catch (IOException ioException) {
+            OpenRaoLoggerProvider.TECHNICAL_LOGS.warn("temporary file for csa profile crac import can't be deleted");
+            tempFile.deleteOnExit();
+        }
     }
 
     @Override

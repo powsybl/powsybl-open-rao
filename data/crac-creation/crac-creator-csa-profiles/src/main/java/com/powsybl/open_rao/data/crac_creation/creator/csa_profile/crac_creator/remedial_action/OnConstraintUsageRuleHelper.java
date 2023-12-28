@@ -35,7 +35,7 @@ public class OnConstraintUsageRuleHelper {
     private void readAssessedElementsCombinableWithRemedialActions(PropertyBags assessedElements) {
         List<String> nativeIdsOfCnecsCombinableWithRas = assessedElements.stream()
             .filter(element -> element.getId(CsaProfileConstants.REQUEST_ASSESSED_ELEMENT_IS_COMBINABLE_WITH_REMEDIAL_ACTION) != null && Boolean.parseBoolean(element.getId(CsaProfileConstants.REQUEST_ASSESSED_ELEMENT_IS_COMBINABLE_WITH_REMEDIAL_ACTION)))
-            .map(element -> element.getId(CsaProfileConstants.REQUEST_ASSESSED_ELEMENT)).collect(Collectors.toList());
+            .map(element -> element.getId(CsaProfileConstants.REQUEST_ASSESSED_ELEMENT)).toList();
         Map<String, Set<String>> nativeToOpenRaoCnecIdsCombinableWithRas = getImportedCnecsNativeIdsToOpenRaoIds();
         nativeToOpenRaoCnecIdsCombinableWithRas.keySet().retainAll(nativeIdsOfCnecsCombinableWithRas);
         nativeToOpenRaoCnecIdsCombinableWithRas.values().stream().flatMap(Set::stream).forEach(importedCnecsCombinableWithRas::add);

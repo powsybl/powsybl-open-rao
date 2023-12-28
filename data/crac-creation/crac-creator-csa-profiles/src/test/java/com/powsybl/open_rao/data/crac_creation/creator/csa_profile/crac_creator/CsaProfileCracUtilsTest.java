@@ -15,7 +15,7 @@ import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class CsaProfileCracUtilsTest {
+class CsaProfileCracUtilsTest {
 
     @Test
     void testGetLinkedPropertyBags() {

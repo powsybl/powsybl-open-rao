@@ -19,6 +19,8 @@ import com.powsybl.open_rao.data.crac_api.threshold.BranchThreshold;
 import com.powsybl.open_rao.data.crac_api.usage_rule.*;
 import com.powsybl.iidm.network.Country;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import java.util.Optional;
 
@@ -41,21 +43,10 @@ class JsonSerializationConstantsTest {
         assertEquals(51, getSubVersionNumber("2.51"));
     }
 
-    @Test
-    void versionNumberNok1Test() {
-        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> getPrimaryVersionNumber("v1.2"));
-        assertEquals("json CRAC version number must be of the form vX.Y", exception.getMessage());
-    }
-
-    @Test
-    void versionNumberNok2Test() {
-        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> getPrimaryVersionNumber("1.3.1"));
-        assertEquals("json CRAC version number must be of the form vX.Y", exception.getMessage());
-    }
-
-    @Test
-    void versionNumberNok3Test() {
-        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> getPrimaryVersionNumber("1.2b"));
+    @ParameterizedTest
+    @ValueSource(strings = {"v1.2", "1.3.1", "1.2b"})
+    void versionNumberNokTest(String version) {
+        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> getPrimaryVersionNumber(version));
         assertEquals("json CRAC version number must be of the form vX.Y", exception.getMessage());
     }
 

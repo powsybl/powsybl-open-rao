@@ -15,7 +15,6 @@ import com.powsybl.open_rao.data.crac_creation.creator.fb_constraint.xsd.Indepen
 import com.powsybl.open_rao.data.crac_creation.util.ucte.UcteNetworkAnalyzer;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static com.powsybl.open_rao.data.crac_api.usage_rule.UsageMethod.AVAILABLE;
 
@@ -110,7 +109,7 @@ class ComplexVariantReader {
         // interpret actions
         actionReaders = complexVariant.getActionsSet().get(0).getAction().stream()
                 .map(actionType -> new ActionReader(actionType, ucteNetworkAnalyzer))
-                .collect(Collectors.toList());
+                .toList();
 
         Optional<ActionReader> invalidAction = actionReaders.stream().filter(actionReader -> !actionReader.isActionValid()).findAny();
 
@@ -155,7 +154,7 @@ class ComplexVariantReader {
                 return;
             }
 
-            afterCoList = actionsSet.getAfterCOList().getAfterCOId().stream().filter(validCoIds::contains).collect(Collectors.toList());
+            afterCoList = actionsSet.getAfterCOList().getAfterCOId().stream().filter(validCoIds::contains).toList();
             if (afterCoList.isEmpty()) {
                 this.importStatus = ImportStatus.INCONSISTENCY_IN_DATA;
                 this.importStatusDetail = String.format("complex variant %s was removed as all its 'afterCO' are invalid", complexVariant.getId());

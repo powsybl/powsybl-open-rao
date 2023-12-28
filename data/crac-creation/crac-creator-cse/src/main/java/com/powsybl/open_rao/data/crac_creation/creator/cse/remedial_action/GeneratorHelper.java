@@ -15,7 +15,6 @@ import com.powsybl.iidm.network.Identifiable;
 
 import java.util.Comparator;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * Utility to look for a generator using a bus name
@@ -74,7 +73,7 @@ public class GeneratorHelper {
                 importStatus = ImportStatus.IMPORTED;
                 isAltered = true;
                 detail = String.format("More than 1 generator associated to %s. First generator is selected.", busIdInCrac);
-                generator = bus.getGeneratorStream().sorted(Comparator.comparing(Identifiable::getId)).collect(Collectors.toList()).get(0);
+                generator = bus.getGeneratorStream().min(Comparator.comparing(Identifiable::getId)).orElseThrow();
             }
         }
 

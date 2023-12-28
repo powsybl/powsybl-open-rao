@@ -24,7 +24,7 @@ public final class OnInstantArrayDeserializer {
     private OnInstantArrayDeserializer() {
     }
 
-    public static void deserialize(JsonParser jsonParser, String version, RemedialActionAdder<?> ownerAdder) throws IOException {
+    public static void deserialize(JsonParser jsonParser, RemedialActionAdder<?> ownerAdder) throws IOException {
         while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
             OnInstantAdder<?> adder = ownerAdder.newOnInstantUsageRule();
             while (!jsonParser.nextToken().isStructEnd()) {
@@ -33,7 +33,7 @@ public final class OnInstantArrayDeserializer {
                         adder.withInstant(jsonParser.nextTextValue());
                         break;
                     case USAGE_METHOD:
-                        adder.withUsageMethod(deserializeUsageMethod(jsonParser.nextTextValue(), version));
+                        adder.withUsageMethod(deserializeUsageMethod(jsonParser.nextTextValue()));
                         break;
                     default:
                         throw new OpenRaoException("Unexpected field in OnInstant: " + jsonParser.getCurrentName());

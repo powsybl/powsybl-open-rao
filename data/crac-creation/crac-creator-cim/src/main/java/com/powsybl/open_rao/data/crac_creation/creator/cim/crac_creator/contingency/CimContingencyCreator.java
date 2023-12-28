@@ -22,7 +22,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import static com.powsybl.open_rao.data.crac_creation.creator.cim.crac_creator.CimConstants.*;
 
@@ -53,7 +52,7 @@ public class CimContingencyCreator {
         for (TimeSeries cimTimeSerie : cimTimeSeries) {
             for (SeriesPeriod cimPeriodInTimeSerie : cimTimeSerie.getPeriod()) {
                 for (Point cimPointInPeriodInTimeSerie : cimPeriodInTimeSerie.getPoint()) {
-                    for (Series cimSerie : cimPointInPeriodInTimeSerie.getSeries().stream().filter(this::describesContingencyToImport).collect(Collectors.toList())) {
+                    for (Series cimSerie : cimPointInPeriodInTimeSerie.getSeries().stream().filter(this::describesContingencyToImport).toList()) {
                         for (ContingencySeries cimContingency : cimSerie.getContingencySeries()) {
                             addContingency(cimContingency);
                         }
@@ -81,7 +80,7 @@ public class CimContingencyCreator {
 
         boolean anyRegisteredResourceOk = false;
         boolean allRegisteredResourcesOk = true;
-        String missingNetworkElements = null;
+        StringBuilder missingNetworkElements = null;
         for (ContingencyRegisteredResource registeredResource : cimContingency.getRegisteredResource()) {
             String networkElementId = getNetworkElementIdInNetwork(registeredResource.getMRID().getValue());
             if (networkElementId != null) {
@@ -90,15 +89,15 @@ public class CimContingencyCreator {
             } else {
                 allRegisteredResourcesOk = false;
                 if (missingNetworkElements == null) {
-                    missingNetworkElements = registeredResource.getMRID().getValue();
+                    missingNetworkElements = new StringBuilder(registeredResource.getMRID().getValue());
                 } else {
-                    missingNetworkElements += ", " + registeredResource.getMRID().getValue();
+                    missingNetworkElements.append(", ").append(registeredResource.getMRID().getValue());
                 }
             }
         }
         if (anyRegisteredResourceOk) {
             contingencyAdder.add();
-            String message = allRegisteredResourcesOk ? null : String.format("Some network elements were not found in the network: %s", missingNetworkElements);
+            String message = allRegisteredResourcesOk ? null : String.format("Some network elements were not found in the network: %s", missingNetworkElements.toString());
             cimContingencyCreationContexts.add(CimContingencyCreationContext.imported(createdContingencyId, cimContingency.getName(), createdContingencyId, !allRegisteredResourcesOk, message));
         } else {
             cimContingencyCreationContexts.add(CimContingencyCreationContext.notImported(createdContingencyId, cimContingency.getName(), ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK, "None of the contingency's registered resources was found in network"));
@@ -118,8 +117,8 @@ public class CimContingencyCreator {
             networkElementId = networkElement.getId();
         }
 
-        if (networkElement instanceof DanglingLine) {
-            Optional<TieLine> optionalTieLine = ((DanglingLine) networkElement).getTieLine();
+        if (networkElement instanceof DanglingLine danglingLine) {
+            Optional<TieLine> optionalTieLine = danglingLine.getTieLine();
             if (optionalTieLine.isPresent()) {
                 networkElementId = optionalTieLine.get().getId();
             }

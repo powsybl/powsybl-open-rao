@@ -89,7 +89,9 @@ public final class CsaProfileConstants {
 
     public static final String REQUEST_CONTINGENCIES_EQUIPMENT_ID = "contingencyEquipmentId";
 
-    public static final String REQUEST_CONTINGENCIES_MUST_STUDY = "normalMustStudy";
+    public static final String REQUEST_CONTINGENCIES_NORMAL_MUST_STUDY = "normalMustStudy";
+
+    public static final String REQUEST_CONTINGENCIES_OVERRIDE_MUST_STUDY = "mustStudy";
 
     public static final String REQUEST_CONTINGENCIES_CONTINGENT_STATUS = "contingentStatus";
 
@@ -108,6 +110,7 @@ public final class CsaProfileConstants {
     public static final String STAGE = "stage";
     public static final String SIPS = "http://entsoe.eu/ns/nc#RemedialActionSchemeKind.sips";
     public static final String NORMAL_ARMED = "normalArmed";
+    public static final String OVERRIDE_ARMED = "armed";
     public static final String TOPOLOGY_ACTION_AUTO = "topologyActionAuto";
     public static final String ROTATING_MACHINE_ACTION_AUTO = "rotatingMachineActionAuto";
     public static final String TAP_POSITION_ACTION_AUTO = "tapPositionActionAuto";
@@ -119,15 +122,17 @@ public final class CsaProfileConstants {
     public static final String ROTATING_MACHINE_ACTION = "rotatingMachineAction";
     public static final String TAP_POSITION_ACTION = "tapPositionAction";
     public static final String STATIC_PROPERTY_RANGE = "staticPropertyRange";
-    public static final String CONTINGENCY_WITH_REMEDIAL_ACTION = "contingencyWithRemedialAction";
+    public static final String REQUEST_CONTINGENCY_WITH_REMEDIAL_ACTION = "contingencyWithRemedialAction";
     public static final String MRID = "mRID";
     public static final String TIME_TO_IMPLEMENT = "timeToImplement";
     public static final String TSO = "tso";
     public static final String NORMAL_AVAILABLE = "normalAvailable";
+    public static final String OVERRIDE_AVAILABLE = "available";
     public static final String RA_KIND = "kind";
     public static final String COMBINATION_CONSTRAINT_KIND = "combinationConstraintKind";
     public static final String SWITCH = "switchId";
     public static final String NORMAL_ENABLED = "normalEnabled";
+    public static final String OVERRIDE_ENABLED = "enabled";
     public static final String GRID_ALTERATION_PROPERTY_REFERENCE = "propertyReference";
     public static final String SHUNT_COMPENSATOR_MODIFICATION = "shuntCompensatorModification";
     public static final String SHUNT_COMPENSATOR_ID = "shuntCompensatorId";
@@ -155,6 +160,7 @@ public final class CsaProfileConstants {
     public static final String ROTATING_MACHINE = "rotatingMachineId";
     public static final String TAP_CHANGER = "tapChangerId";
     public static final String NORMAL_VALUE = "normalValue";
+    public static final String OVERRIDE_VALUE = "value";
     public static final String STATIC_PROPERTY_RANGE_VALUE_KIND = "valueKind";
     public static final String STATIC_PROPERTY_RANGE_DIRECTION = "direction";
 
@@ -335,18 +341,18 @@ public final class CsaProfileConstants {
     }
 
     public enum OverridingObjectsFields {
-        CONTINGENCY("contingencyOverriding", "contingency", "normalMustStudy", "mustStudy", HeaderType.START_END_DATE),
-        ASSESSED_ELEMENT("assessedElementOverriding", "assessedElement", "normalEnabled", "enabled", HeaderType.START_END_DATE),
-        ASSESSED_ELEMENT_WITH_CONTINGENCY("assessedElementWithContingencyOverriding", "assessedElementWithContingency", "normalEnabled", "enabled", HeaderType.START_END_DATE),
-        ASSESSED_ELEMENT_WITH_REMEDIAL_ACTION("assessedElementWithRemedialActionOverriding", "assessedElementWithRemedialAction", "normalEnabled", "enabled", HeaderType.START_END_DATE),
-        CONTINGENCY_WITH_REMEDIAL_ACTION("contingencyWithRemedialActionOverriding", "contingencyWithRemedialAction", "normalEnabled", "enabled", HeaderType.START_END_DATE),
-        REMEDIAL_ACTION("remedialActionOverriding", "remedialAction", "normalAvailable", "available", HeaderType.START_END_DATE),
-        GRID_STATE_ALTERATION("gridStateAlterationOverriding", "gridStateAlteration", "normalEnabled", "enabled", HeaderType.START_END_DATE),
-        RANGE_CONSTRAINT("rangeConstraintOverriding", "rangeConstraint", "normalValue", "value", HeaderType.START_END_DATE),
-        REMEDIAL_ACTION_SCHEME("remedialActionSchemeOverriding", "remedialActionScheme", "normalArmed", "armed", HeaderType.START_END_DATE),
-        VOLTAGE_ANGLE_LIMIT("voltageAngleLimitOverriding", "voltageAngleLimit", "normalValue", "value", HeaderType.START_END_DATE),
-        CURRENT_LIMIT("currentLimitOverriding", "currentLimit", "normalValue", "value", HeaderType.SCENARIO_TIME),
-        VOLTAGE_LIMIT("voltageLimitOverriding", "voltageLimit", "normalValue", "value", HeaderType.SCENARIO_TIME);
+        CONTINGENCY("contingencyOverriding", REQUEST_CONTINGENCY, REQUEST_CONTINGENCIES_NORMAL_MUST_STUDY, REQUEST_CONTINGENCIES_OVERRIDE_MUST_STUDY, HeaderType.START_END_DATE),
+        ASSESSED_ELEMENT("assessedElementOverriding", REQUEST_ASSESSED_ELEMENT, NORMAL_ENABLED, OVERRIDE_ENABLED, HeaderType.START_END_DATE),
+        ASSESSED_ELEMENT_WITH_CONTINGENCY("assessedElementWithContingencyOverriding", REQUEST_ASSESSED_ELEMENT_WITH_CONTINGENCY, NORMAL_ENABLED, OVERRIDE_ENABLED, HeaderType.START_END_DATE),
+        ASSESSED_ELEMENT_WITH_REMEDIAL_ACTION("assessedElementWithRemedialActionOverriding", REQUEST_ASSESSED_ELEMENT_WITH_REMEDIAL_ACTION, NORMAL_ENABLED, OVERRIDE_ENABLED, HeaderType.START_END_DATE),
+        CONTINGENCY_WITH_REMEDIAL_ACTION("contingencyWithRemedialActionOverriding", REQUEST_CONTINGENCY_WITH_REMEDIAL_ACTION, NORMAL_ENABLED, OVERRIDE_ENABLED, HeaderType.START_END_DATE),
+        REMEDIAL_ACTION("remedialActionOverriding", REQUEST_REMEDIAL_ACTION, NORMAL_AVAILABLE, OVERRIDE_AVAILABLE, HeaderType.START_END_DATE),
+        GRID_STATE_ALTERATION("gridStateAlterationOverriding", "gridStateAlteration", NORMAL_ENABLED, OVERRIDE_ENABLED, HeaderType.START_END_DATE),
+        RANGE_CONSTRAINT("rangeConstraintOverriding", "rangeConstraint", NORMAL_VALUE, OVERRIDE_VALUE, HeaderType.START_END_DATE),
+        REMEDIAL_ACTION_SCHEME("remedialActionSchemeOverriding", CsaProfileConstants.REMEDIAL_ACTION_SCHEME, NORMAL_ARMED, OVERRIDE_ARMED, HeaderType.START_END_DATE),
+        VOLTAGE_ANGLE_LIMIT("voltageAngleLimitOverriding", "voltageAngleLimit", NORMAL_VALUE, OVERRIDE_VALUE, HeaderType.START_END_DATE),
+        CURRENT_LIMIT("currentLimitOverriding", REQUEST_CURRENT_LIMIT, NORMAL_VALUE, OVERRIDE_VALUE, HeaderType.SCENARIO_TIME),
+        VOLTAGE_LIMIT("voltageLimitOverriding", REQUEST_VOLTAGE_LIMIT, NORMAL_VALUE, OVERRIDE_VALUE, HeaderType.SCENARIO_TIME);
 
         String requestName;
         String objectName;

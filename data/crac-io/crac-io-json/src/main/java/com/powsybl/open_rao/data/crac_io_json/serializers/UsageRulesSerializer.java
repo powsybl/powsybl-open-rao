@@ -13,7 +13,6 @@ import com.fasterxml.jackson.core.JsonGenerator;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static com.powsybl.open_rao.data.crac_io_json.JsonSerializationConstants.*;
 
@@ -37,7 +36,7 @@ public final class UsageRulesSerializer {
         List<UsageRule> usageRules = remedialAction.getUsageRules().stream()
                 .filter(usageRule -> usageRuleType.isAssignableFrom(usageRule.getClass()))
                 .sorted(new UsageRuleComparator())
-                .collect(Collectors.toList());
+                .toList();
         if (!usageRules.isEmpty()) {
             gen.writeArrayFieldStart(arrayName);
             for (UsageRule ea : usageRules) {

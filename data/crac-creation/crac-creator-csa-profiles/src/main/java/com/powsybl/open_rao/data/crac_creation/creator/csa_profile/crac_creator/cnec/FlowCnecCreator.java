@@ -102,34 +102,42 @@ public class FlowCnecCreator extends AbstractCnecCreator {
     }
 
     private Side getSideFromNetworkElement(Identifiable<?> networkElement, String terminalId) {
-        if (networkElement instanceof TieLine) {
-            for (String key : CsaProfileConstants.CURRENT_LIMIT_POSSIBLE_ALIASES_BY_TYPE_TIE_LINE) {
-                TieLine tieLine = (TieLine) networkElement;
-                Optional<String> oAlias = tieLine.getDanglingLine1().getAliasFromType(key);
-                if (oAlias.isPresent() && oAlias.get().equals(terminalId)) {
-                    return Side.LEFT;
-                }
-                oAlias = tieLine.getDanglingLine2().getAliasFromType(key);
-                if (oAlias.isPresent() && oAlias.get().equals(terminalId)) {
-                    return Side.RIGHT;
-                }
-
-            }
+        if (networkElement instanceof TieLine tieLine) {
+            return getSideFromTieLine(tieLine, terminalId);
         } else {
-            for (String key : CsaProfileConstants.CURRENT_LIMIT_POSSIBLE_ALIASES_BY_TYPE_LEFT) {
-                Optional<String> oAlias = networkElement.getAliasFromType(key);
-                if (oAlias.isPresent() && oAlias.get().equals(terminalId)) {
-                    return Side.LEFT;
-                }
-            }
+            return getSideFromNonTieLine(networkElement, terminalId);
+        }
+    }
 
-            for (String key : CsaProfileConstants.CURRENT_LIMIT_POSSIBLE_ALIASES_BY_TYPE_RIGHT) {
-                Optional<String> oAlias = networkElement.getAliasFromType(key);
-                if (oAlias.isPresent() && oAlias.get().equals(terminalId)) {
-                    return Side.RIGHT;
-                }
+    private Side getSideFromTieLine(TieLine tieLine, String terminalId) {
+        for (String key : CsaProfileConstants.CURRENT_LIMIT_POSSIBLE_ALIASES_BY_TYPE_TIE_LINE) {
+            Optional<String> oAlias = tieLine.getDanglingLine1().getAliasFromType(key);
+            if (oAlias.isPresent() && oAlias.get().equals(terminalId)) {
+                return Side.LEFT;
+            }
+            oAlias = tieLine.getDanglingLine2().getAliasFromType(key);
+            if (oAlias.isPresent() && oAlias.get().equals(terminalId)) {
+                return Side.RIGHT;
             }
         }
+        return null;
+    }
+
+    private Side getSideFromNonTieLine(Identifiable<?> networkElement, String terminalId) {
+        for (String key : CsaProfileConstants.CURRENT_LIMIT_POSSIBLE_ALIASES_BY_TYPE_LEFT) {
+            Optional<String> oAlias = networkElement.getAliasFromType(key);
+            if (oAlias.isPresent() && oAlias.get().equals(terminalId)) {
+                return Side.LEFT;
+            }
+        }
+
+        for (String key : CsaProfileConstants.CURRENT_LIMIT_POSSIBLE_ALIASES_BY_TYPE_RIGHT) {
+            Optional<String> oAlias = networkElement.getAliasFromType(key);
+            if (oAlias.isPresent() && oAlias.get().equals(terminalId)) {
+                return Side.RIGHT;
+            }
+        }
+
         return null;
     }
 
@@ -205,8 +213,9 @@ public class FlowCnecCreator extends AbstractCnecCreator {
         }
         FlowCnecAdder cnecAdder = initFlowCnec();
         addCnecBaseInformation(cnecAdder, contingency, instantId);
-        for (TwoSides side : thresholds.keySet()) {
-            double threshold = thresholds.get(side);
+        for (Map.Entry<TwoSides, Double> thresholdEntry : thresholds.entrySet()) {
+            TwoSides side = thresholdEntry.getKey();
+            double threshold = thresholdEntry.getValue();
             addFlowCnecThreshold(cnecAdder, side == TwoSides.ONE ? Side.LEFT : Side.RIGHT, threshold, useMaxAndMinThresholds);
         }
         cnecAdder.withNetworkElement(networkElement.getId());
@@ -244,14 +253,15 @@ public class FlowCnecCreator extends AbstractCnecCreator {
                 addFlowCnec(networkElement, contingency, crac.getInstant(InstantKind.CURATIVE).getId(), patlThresholds, useMaxAndMinThresholds, false);
             }
             // Add TATLs
-            for (int acceptableDuration : thresholds.keySet()) {
+            for (Map.Entry<Integer, EnumMap<TwoSides, Double>> thresholdEntry : thresholds.entrySet()) {
+                int acceptableDuration = thresholdEntry.getKey();
                 if (acceptableDuration != Integer.MAX_VALUE) {
                     Instant instant = getCnecInstant(acceptableDuration);
                     if (instant == null) {
                         csaProfileCnecCreationContexts.add(CsaProfileElementaryCreationContext.notImported(assessedElementId, ImportStatus.INCONSISTENCY_IN_DATA, writeAssessedElementIgnoredReasonMessage("TATL acceptable duration is negative: " + acceptableDuration)));
                         return;
                     }
-                    addFlowCnec(networkElement, contingency, instant.getId(), thresholds.get(acceptableDuration), useMaxAndMinThresholds, false);
+                    addFlowCnec(networkElement, contingency, instant.getId(), thresholdEntry.getValue(), useMaxAndMinThresholds, false);
                 }
             }
         }

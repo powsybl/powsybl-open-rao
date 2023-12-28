@@ -88,8 +88,7 @@ public class CimCracCreationContext implements CracCreationContext {
     }
 
     private void addToReport(Map<String, MonitoredSeriesCreationContext> monitoredSeriesCreationContexts) {
-        for (String monitoredSeriesId : monitoredSeriesCreationContexts.keySet()) {
-            MonitoredSeriesCreationContext monitoredSeriesCreationContext = monitoredSeriesCreationContexts.get(monitoredSeriesId);
+        for (MonitoredSeriesCreationContext monitoredSeriesCreationContext : monitoredSeriesCreationContexts.values()) {
             if (!monitoredSeriesCreationContext.isImported()) {
                 creationReport.removed(String.format("Monitored_Series \"%s\" was not imported: %s. %s.", monitoredSeriesCreationContext.getNativeId(),
                     monitoredSeriesCreationContext.getImportStatus(), monitoredSeriesCreationContext.getImportStatusDetail()));

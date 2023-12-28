@@ -15,7 +15,6 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 import java.io.IOException;
 import java.util.Comparator;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static com.powsybl.open_rao.data.crac_io_json.JsonSerializationConstants.*;
 
@@ -37,7 +36,7 @@ public class NetworkActionSerializer extends AbstractJsonSerializer<NetworkActio
 
     private void serializeElementaryActions(NetworkAction networkAction, Class<? extends ElementaryAction> elementaryActionType, String arrayName, JsonGenerator gen) throws IOException {
         List<ElementaryAction> actions = networkAction.getElementaryActions().stream().filter(action -> elementaryActionType.isAssignableFrom(action.getClass()))
-                .sorted(Comparator.comparing(this::buildElementaryActionId)).collect(Collectors.toList());
+                .sorted(Comparator.comparing(this::buildElementaryActionId)).toList();
         if (!actions.isEmpty()) {
             gen.writeArrayFieldStart(arrayName);
             for (ElementaryAction ea : actions) {
@@ -48,7 +47,7 @@ public class NetworkActionSerializer extends AbstractJsonSerializer<NetworkActio
     }
 
     private String buildElementaryActionId(ElementaryAction elementaryAction) {
-        List<String> sortedElements = elementaryAction.getNetworkElements().stream().map(Identifiable::getId).sorted(String::compareTo).collect(Collectors.toList());
+        List<String> sortedElements = elementaryAction.getNetworkElements().stream().map(Identifiable::getId).sorted(String::compareTo).toList();
         return String.join(" + ", sortedElements);
     }
 }

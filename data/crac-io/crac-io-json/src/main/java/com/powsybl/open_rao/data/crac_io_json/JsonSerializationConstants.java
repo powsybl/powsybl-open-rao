@@ -292,13 +292,9 @@ public final class JsonSerializationConstants {
      */
     public static Side convertBranchThresholdRuleToSide(String branchThresholdRule, Pair<Double, Double> nominalV) {
         switch (branchThresholdRule) {
-            case ON_LEFT_SIDE_RULE:
-            case ON_REGULATED_SIDE_RULE:
-                // This is true only when the network is in UCTE format.
+            case ON_LEFT_SIDE_RULE, ON_REGULATED_SIDE_RULE: // This is true only when the network is in UCTE format
                 return Side.LEFT;
-            case ON_RIGHT_SIDE_RULE:
-            case ON_NON_REGULATED_SIDE_RULE:
-                // This is true only when the network is in UCTE format.
+            case ON_RIGHT_SIDE_RULE, ON_NON_REGULATED_SIDE_RULE: // This is true only when the network is in UCTE format.
                 return Side.RIGHT;
             case ON_LOW_VOLTAGE_LEVEL_RULE:
                 if (Objects.isNull(nominalV) || Objects.isNull(nominalV.getLeft()) || Objects.isNull(nominalV.getRight()) || Double.isNaN(nominalV.getLeft()) || Double.isNaN(nominalV.getRight())) {
@@ -338,7 +334,7 @@ public final class JsonSerializationConstants {
         }
     }
 
-    public static UsageMethod deserializeUsageMethod(String stringValue, String version) {
+    public static UsageMethod deserializeUsageMethod(String stringValue) {
         switch (stringValue) {
             case UNAVAILABLE_USAGE_METHOD:
                 return UsageMethod.UNAVAILABLE;
@@ -436,20 +432,20 @@ public final class JsonSerializationConstants {
             if (o1 instanceof OnInstant) {
                 return 0;
             }
-            if (o1 instanceof OnContingencyState) {
-                return ((OnContingencyState) o1).getState().getId().compareTo(((OnContingencyState) o2).getState().getId());
+            if (o1 instanceof OnContingencyState ocs1) {
+                return ocs1.getState().getId().compareTo(((OnContingencyState) o2).getState().getId());
             }
-            if (o1 instanceof OnFlowConstraint) {
-                return ((OnFlowConstraint) o1).getFlowCnec().getId().compareTo(((OnFlowConstraint) o2).getFlowCnec().getId());
+            if (o1 instanceof OnFlowConstraint ofc1) {
+                return ofc1.getFlowCnec().getId().compareTo(((OnFlowConstraint) o2).getFlowCnec().getId());
             }
-            if (o1 instanceof OnFlowConstraintInCountry) {
-                return ((OnFlowConstraintInCountry) o1).getCountry().toString().compareTo(((OnFlowConstraintInCountry) o2).getCountry().toString());
+            if (o1 instanceof OnFlowConstraintInCountry ofcic1) {
+                return ofcic1.getCountry().toString().compareTo(((OnFlowConstraintInCountry) o2).getCountry().toString());
             }
-            if (o1 instanceof OnAngleConstraint) {
-                return ((OnAngleConstraint) o1).getAngleCnec().getId().compareTo(((OnAngleConstraint) o2).getAngleCnec().getId());
+            if (o1 instanceof OnAngleConstraint oac1) {
+                return oac1.getAngleCnec().getId().compareTo(((OnAngleConstraint) o2).getAngleCnec().getId());
             }
-            if (o1 instanceof OnVoltageConstraint) {
-                return ((OnVoltageConstraint) o1).getVoltageCnec().getId().compareTo(((OnVoltageConstraint) o2).getVoltageCnec().getId());
+            if (o1 instanceof OnVoltageConstraint ovc1) {
+                return ovc1.getVoltageCnec().getId().compareTo(((OnVoltageConstraint) o2).getVoltageCnec().getId());
             }
             throw new OpenRaoException(String.format("Unknown usage rule type: %s", o1.getClass()));
         }

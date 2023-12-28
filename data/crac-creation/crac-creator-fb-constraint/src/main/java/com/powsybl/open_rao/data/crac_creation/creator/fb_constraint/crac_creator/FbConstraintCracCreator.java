@@ -89,13 +89,13 @@ public class FbConstraintCracCreator implements CracCreator<FbConstraint, FbCons
         if (!isEmpty(criticalBranchForTimeStamp)) {
             List<CriticalBranchReader> criticalBranchReaders = criticalBranchForTimeStamp.stream()
                 .map(cb -> new CriticalBranchReader(cb, ucteNetworkAnalyzer, defaultMonitoredSides))
-                .collect(Collectors.toList());
+                .toList();
 
             outageReaders.addAll(criticalBranchReaders.stream()
                 .filter(CriticalBranchReader::isCriticialBranchValid)
                 .filter(cbr -> !cbr.isBaseCase())
                 .map(CriticalBranchReader::getOutageReader)
-                .collect(Collectors.toList()));
+                .toList());
 
             createContingencies(crac, outageReaders);
             createCnecs(crac, criticalBranchReaders, creationContext);
@@ -146,7 +146,7 @@ public class FbConstraintCracCreator implements CracCreator<FbConstraint, FbCons
 
         List<ComplexVariantReader> complexVariantReaders = independantComplexVariants.stream()
             .map(icv -> new ComplexVariantReader(icv, ucteNetworkAnalyzer, coIds))
-            .collect(Collectors.toList());
+            .toList();
 
         ComplexVariantCrossCompatibility.checkAndInvalidate(complexVariantReaders);
 

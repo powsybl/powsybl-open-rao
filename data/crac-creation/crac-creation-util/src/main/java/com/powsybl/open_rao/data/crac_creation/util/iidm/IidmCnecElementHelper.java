@@ -121,18 +121,18 @@ public class IidmCnecElementHelper implements CnecElementHelper {
         }
         this.branchIdInNetwork = cnecElement.getId();
 
-        if (cnecElement instanceof TieLine) {
-            checkBranchNominalVoltage((Branch<?>) cnecElement);
-            checkTieLineCurrentLimits((TieLine) cnecElement);
-        } else if (cnecElement instanceof Branch) {
-            checkBranchNominalVoltage((Branch<?>) cnecElement);
-            checkBranchCurrentLimits((Branch<?>) cnecElement);
-        } else if (cnecElement instanceof DanglingLine) {
-            if (((DanglingLine) cnecElement).isPaired()) {
+        if (cnecElement instanceof TieLine tieLine) {
+            checkBranchNominalVoltage(tieLine);
+            checkTieLineCurrentLimits(tieLine);
+        } else if (cnecElement instanceof Branch<?> branch) {
+            checkBranchNominalVoltage(branch);
+            checkBranchCurrentLimits(branch);
+        } else if (cnecElement instanceof DanglingLine danglingLine) {
+            if (danglingLine.isPaired()) {
                 return interpretAsHalfLine(network);
             }
-            checkDanglingLineNominalVoltage((DanglingLine) cnecElement);
-            checkDanglingLineCurrentLimits((DanglingLine) cnecElement);
+            checkDanglingLineNominalVoltage(danglingLine);
+            checkDanglingLineCurrentLimits(danglingLine);
         } else {
             invalidate(String.format("iidm element %s of class %s is not suited to be a Cnec", branchId, cnecElement.getClass()));
         }

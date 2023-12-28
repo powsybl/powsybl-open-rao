@@ -25,8 +25,8 @@ public enum ConnectableType {
             return ConnectableType.TIE_LINE;
         } else if (iidmConnectable instanceof DanglingLine) {
             return ConnectableType.DANGLING_LINE;
-        } else if (iidmConnectable instanceof TwoWindingsTransformer) {
-            if (((TwoWindingsTransformer) iidmConnectable).getPhaseTapChanger() != null) {
+        } else if (iidmConnectable instanceof TwoWindingsTransformer twt) {
+            if (twt.getPhaseTapChanger() != null) {
                 return ConnectableType.PST;
             }
             return ConnectableType.VOLTAGE_TRANSFORMER;

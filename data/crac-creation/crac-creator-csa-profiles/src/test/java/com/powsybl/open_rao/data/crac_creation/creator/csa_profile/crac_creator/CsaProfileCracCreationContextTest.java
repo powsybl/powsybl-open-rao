@@ -22,7 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  */
 class CsaProfileCracCreationContextTest {
     @Test
-    public void testCopyConstructor() {
+    void testCopyConstructor() {
         Crac crac = Mockito.mock(Crac.class);
         OffsetDateTime offsetDateTime = Mockito.mock(OffsetDateTime.class);
         CsaProfileCracCreationContext context = new CsaProfileCracCreationContext(crac, offsetDateTime, "network_name");

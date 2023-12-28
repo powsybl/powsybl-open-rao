@@ -130,7 +130,7 @@ public class CsaProfileContingencyCreator {
     }
 
     private Set<PropertyBag> dataCheck(PropertyBag contingencyPropertyBag, String contingencyId) {
-        Boolean mustStudy = Boolean.parseBoolean(contingencyPropertyBag.get(CsaProfileConstants.REQUEST_CONTINGENCIES_MUST_STUDY));
+        Boolean mustStudy = Boolean.parseBoolean(contingencyPropertyBag.get(CsaProfileConstants.REQUEST_CONTINGENCIES_NORMAL_MUST_STUDY));
         if (!Boolean.TRUE.equals(mustStudy)) {
             csaProfileContingencyCreationContexts.add(CsaProfileElementaryCreationContext.notImported(contingencyId, ImportStatus.NOT_FOR_RAO, "contingency.mustStudy is false"));
             return new HashSet<>();
@@ -158,14 +158,11 @@ public class CsaProfileContingencyCreator {
             networkElementId = networkElement.getId();
         }
 
-        if (networkElement != null) {
-            try {
-                Optional<TieLine> optionalTieLine = ((DanglingLine) networkElement).getTieLine();
-                if (optionalTieLine.isPresent()) {
-                    networkElementId = optionalTieLine.get().getId();
-                }
-            } catch (Exception ignored) {
-            } // NOSONAR
+        if (networkElement instanceof DanglingLine danglingLine) {
+            Optional<TieLine> optionalTieLine = danglingLine.getTieLine();
+            if (optionalTieLine.isPresent()) {
+                networkElementId = optionalTieLine.get().getId();
+            }
         }
         return networkElementId;
     }

@@ -13,8 +13,6 @@ import com.google.auto.service.AutoService;
 import com.powsybl.open_rao.data.crac_creation.creator.cim.xsd.CRACMarketDocument;
 import com.powsybl.open_rao.data.crac_creation.creator.cim.CimCrac;
 import org.apache.commons.io.FilenameUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
 
 import javax.xml.XMLConstants;
@@ -36,8 +34,6 @@ import static com.powsybl.open_rao.commons.logs.OpenRaoLoggerProvider.TECHNICAL_
  */
 @AutoService(NativeCracImporter.class)
 public class CimCracImporter implements NativeCracImporter<CimCrac> {
-    private static final Logger LOGGER = LoggerFactory
-            .getLogger(CimCracImporter.class);
     private static final String CRAC_CIM_SCHEMA_FILE_LOCATION = "/xsd/iec62325-451-n-crac_v2_3.xsd";
     private static final String ETSO_CODES_SCHEMA_FILE_LOCATION = "/xsd/urn-entsoe-eu-wgedi-codelists.xsd";
 

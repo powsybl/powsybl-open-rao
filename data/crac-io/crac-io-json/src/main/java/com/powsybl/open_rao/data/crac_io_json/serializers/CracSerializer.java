@@ -98,7 +98,7 @@ public class CracSerializer extends AbstractJsonSerializer<Crac> {
         gen.writeArrayFieldStart(CONTINGENCIES);
         List<Contingency> sortedListOfContingencies = crac.getContingencies().stream()
                 .sorted(Comparator.comparing(Contingency::getId))
-                .collect(Collectors.toList());
+                .toList();
         for (Contingency contingency : sortedListOfContingencies) {
             gen.writeObject(contingency);
         }
@@ -109,7 +109,7 @@ public class CracSerializer extends AbstractJsonSerializer<Crac> {
         gen.writeArrayFieldStart(FLOW_CNECS);
         List<FlowCnec> sortedListOfCnecs = crac.getFlowCnecs().stream()
                 .sorted(Comparator.comparing(FlowCnec::getId))
-                .collect(Collectors.toList());
+                .toList();
         for (FlowCnec flowCnec : sortedListOfCnecs) {
             gen.writeObject(flowCnec);
         }
@@ -120,7 +120,7 @@ public class CracSerializer extends AbstractJsonSerializer<Crac> {
         gen.writeArrayFieldStart(ANGLE_CNECS);
         List<AngleCnec> sortedListOfCnecs = crac.getAngleCnecs().stream()
             .sorted(Comparator.comparing(AngleCnec::getId))
-            .collect(Collectors.toList());
+            .toList();
         for (AngleCnec angleCnec : sortedListOfCnecs) {
             gen.writeObject(angleCnec);
         }
@@ -131,7 +131,7 @@ public class CracSerializer extends AbstractJsonSerializer<Crac> {
         gen.writeArrayFieldStart(VOLTAGE_CNECS);
         List<VoltageCnec> sortedListOfCnecs = crac.getVoltageCnecs().stream()
             .sorted(Comparator.comparing(VoltageCnec::getId))
-            .collect(Collectors.toList());
+            .toList();
         for (VoltageCnec voltageCnec : sortedListOfCnecs) {
             gen.writeObject(voltageCnec);
         }
@@ -142,7 +142,7 @@ public class CracSerializer extends AbstractJsonSerializer<Crac> {
         gen.writeArrayFieldStart(PST_RANGE_ACTIONS);
         List<PstRangeAction> sortedListPsts = crac.getPstRangeActions().stream()
                 .sorted(Comparator.comparing(PstRangeAction::getId))
-                .collect(Collectors.toList());
+                .toList();
         for (PstRangeAction pstRangeAction : sortedListPsts) {
             gen.writeObject(pstRangeAction);
         }
@@ -153,7 +153,7 @@ public class CracSerializer extends AbstractJsonSerializer<Crac> {
         gen.writeArrayFieldStart(HVDC_RANGE_ACTIONS);
         List<HvdcRangeAction> sortedListHvdcs = crac.getHvdcRangeActions().stream()
                 .sorted(Comparator.comparing(HvdcRangeAction::getId))
-                .collect(Collectors.toList());
+                .toList();
         for (HvdcRangeAction hvdcRangeAction : sortedListHvdcs) {
             gen.writeObject(hvdcRangeAction);
         }
@@ -164,7 +164,7 @@ public class CracSerializer extends AbstractJsonSerializer<Crac> {
         gen.writeArrayFieldStart(INJECTION_RANGE_ACTIONS);
         List<InjectionRangeAction> sortedInjectionRangeActionList = crac.getInjectionRangeActions().stream()
                 .sorted(Comparator.comparing(InjectionRangeAction::getId))
-                .collect(Collectors.toList());
+                .toList();
         for (InjectionRangeAction injectionRangeAction : sortedInjectionRangeActionList) {
             gen.writeObject(injectionRangeAction);
         }
@@ -186,7 +186,7 @@ public class CracSerializer extends AbstractJsonSerializer<Crac> {
         gen.writeArrayFieldStart(NETWORK_ACTIONS);
         List<NetworkAction> sortedList = crac.getNetworkActions().stream()
                 .sorted(Comparator.comparing(NetworkAction::getId))
-                .collect(Collectors.toList());
+                .toList();
         for (NetworkAction networkAction : sortedList) {
             gen.writeObject(networkAction);
         }

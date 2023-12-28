@@ -29,7 +29,6 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
@@ -97,7 +96,7 @@ public class PstRangeActionCreator {
                 List<String> raGroups = cimCracCreationParameters.getRangeActionGroups().stream()
                     .filter(rangeActionGroup -> rangeActionGroup.getRangeActionsIds().contains(createdRemedialActionId))
                     .map(RangeActionGroup::toString)
-                    .collect(Collectors.toList());
+                    .toList();
                 if (raGroups.size() > 1) {
                     this.pstRangeActionCreationContext = RemedialActionSeriesCreationContext.notImported(createdRemedialActionId, ImportStatus.INCONSISTENCY_IN_DATA, String.format("Multiple (%s) groups defined for range action %s", raGroups.size(), createdRemedialActionId));
                     return;

@@ -32,8 +32,8 @@ import com.powsybl.iidm.network.Network;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * @author Alexandre Montigny {@literal <alexandre.montigny at rte-france.com>}
@@ -131,7 +131,7 @@ public class TRemedialActionAdder {
             .withOperator(tRemedialAction.getOperator().getV());
 
         boolean isAltered = false;
-        String alteringDetail = null;
+        StringBuilder alteringDetail = null;
         for (TNode tNode : tRemedialAction.getGeneration().getNode()) {
             if (!tNode.getVariationType().getV().equals(ABSOLUTE_VARIATION_TYPE)) {
                 cseCracCreationContext.addRemedialActionCreationContext(
@@ -147,9 +147,9 @@ public class TRemedialActionAdder {
             } else if (generatorHelper.isAltered()) {
                 isAltered = true;
                 if (alteringDetail == null) {
-                    alteringDetail = generatorHelper.getDetail();
+                    alteringDetail = Optional.ofNullable(generatorHelper.getDetail()).map(StringBuilder::new).orElse(null);
                 } else {
-                    alteringDetail += ", " + generatorHelper.getDetail();
+                    alteringDetail.append(", ").append(generatorHelper.getDetail());
                 }
             }
             try {
@@ -167,7 +167,7 @@ public class TRemedialActionAdder {
         // After looping on all nodes
         addUsageRules(networkActionAdder, tRemedialAction);
         networkActionAdder.add();
-        cseCracCreationContext.addRemedialActionCreationContext(CseRemedialActionCreationContext.imported(tRemedialAction, createdRAId, isAltered, alteringDetail));
+        cseCracCreationContext.addRemedialActionCreationContext(CseRemedialActionCreationContext.imported(tRemedialAction, createdRAId, isAltered, alteringDetail == null ? null : alteringDetail.toString()));
     }
 
     private void importPstRangeAction(TRemedialAction tRemedialAction) {
@@ -285,7 +285,7 @@ public class TRemedialActionAdder {
         if (cseCracCreationParameters != null && cseCracCreationParameters.getRangeActionGroups() != null) {
             List<RangeActionGroup> groups = cseCracCreationParameters.getRangeActionGroups().stream()
                 .filter(rangeActionGroup -> rangeActionGroup.getRangeActionsIds().contains(raId))
-                .collect(Collectors.toList());
+                .toList();
             if (groups.size() == 1) {
                 injectionRangeActionAdder.withGroupId(groups.get(0).toString());
             } else if (groups.size() > 1) {
