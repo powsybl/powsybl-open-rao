@@ -60,6 +60,6 @@ class RaoResultWithAngleMonitoringTest {
     @Test
     void testRaoResultWithNullAngleMonitoring() {
         FaraoException exception =  assertThrows(FaraoException.class, () -> new RaoResultWithAngleMonitoring(raoResult, null));
-        assertEquals("The AngleMonitoringResult is null", exception.getMessage());
+        assertEquals("AngleMonitoringResult must not be null", exception.getMessage());
     }
 }
