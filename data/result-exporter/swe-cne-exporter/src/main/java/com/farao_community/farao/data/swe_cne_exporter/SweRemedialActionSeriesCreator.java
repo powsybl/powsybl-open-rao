@@ -61,7 +61,7 @@ public class SweRemedialActionSeriesCreator {
             //CURATIVE && AUTO
             sortedRas.forEach(
                 raSeriesCreationContext -> {
-                    RemedialActionSeries raSeries = generateRaSeries(crac.getState(contingency, Instant.AUTO), raSeriesCreationContext, false);
+                    RemedialActionSeries raSeries = generateRaSeries(crac.getState(contingency, crac.getInstant(InstantKind.AUTO)), raSeriesCreationContext, false);
                     if (Objects.nonNull(raSeries)) {
                         remedialActionSeriesList.add(raSeries);
                     }
@@ -69,7 +69,7 @@ public class SweRemedialActionSeriesCreator {
             );
             sortedRas.forEach(
                 raSeriesCreationContext -> {
-                    RemedialActionSeries raSeries = generateRaSeries(crac.getState(contingency, Instant.CURATIVE), raSeriesCreationContext, false);
+                    RemedialActionSeries raSeries = generateRaSeries(crac.getState(contingency, crac.getInstant(InstantKind.CURATIVE)), raSeriesCreationContext, false);
                     if (Objects.nonNull(raSeries)) {
                         remedialActionSeriesList.add(raSeries);
                     }
@@ -108,7 +108,7 @@ public class SweRemedialActionSeriesCreator {
             );
             sortedRas.forEach(
                 raSeriesCreationContext -> {
-                    RemedialActionSeries raSeries = generateRaSeries(crac.getState(contingency, Instant.AUTO), raSeriesCreationContext, true);
+                    RemedialActionSeries raSeries = generateRaSeries(crac.getState(contingency, crac.getInstant(InstantKind.AUTO)), raSeriesCreationContext, true);
                     if (Objects.nonNull(raSeries)) {
                         remedialActionSeriesList.add(raSeries);
                     }
@@ -116,7 +116,7 @@ public class SweRemedialActionSeriesCreator {
             );
             sortedRas.forEach(
                 raSeriesCreationContext -> {
-                    RemedialActionSeries raSeries = generateRaSeries(crac.getState(contingency, Instant.CURATIVE), raSeriesCreationContext, true);
+                    RemedialActionSeries raSeries = generateRaSeries(crac.getState(contingency, crac.getInstant(InstantKind.CURATIVE)), raSeriesCreationContext, true);
                     if (Objects.nonNull(raSeries)) {
                         remedialActionSeriesList.add(raSeries);
                     }
@@ -196,9 +196,9 @@ public class SweRemedialActionSeriesCreator {
     private String getApplicationModeMarketObjectStatusStatus(State state) {
         if (state.isPreventive()) {
             return PREVENTIVE_MARKET_OBJECT_STATUS;
-        } else if (state.getInstant().equals(Instant.AUTO)) {
+        } else if (state.getInstant().isAuto()) {
             return AUTO_MARKET_OBJECT_STATUS;
-        } else if (state.getInstant().equals(Instant.CURATIVE)) {
+        } else if (state.getInstant().isCurative()) {
             return CURATIVE_MARKET_OBJECT_STATUS;
         } else {
             throw new FaraoException(String.format("Unexpected instant for remedial action application : %s", state.getInstant().toString()));

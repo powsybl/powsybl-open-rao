@@ -53,6 +53,9 @@ import static org.mockito.Mockito.when;
 
 class RaoUtilTest {
     private static final double DOUBLE_TOLERANCE = 0.1;
+    private static final String PREVENTIVE_INSTANT_ID = "preventive";
+    private static final String CURATIVE_INSTANT_ID = "curative";
+
     private RaoParameters raoParameters;
     private RaoInput raoInput;
     private Network network;
@@ -84,21 +87,24 @@ class RaoUtilTest {
         raoParameters.addExtension(RelativeMarginsParametersExtension.class, new RelativeMarginsParametersExtension());
         raoParameters.getExtension(RelativeMarginsParametersExtension.class).setPtdfBoundariesFromString(new ArrayList<>(Arrays.asList("{FR}-{ES}", "{ES}-{PT}")));
         raoParameters.getObjectiveFunctionParameters().setType(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN_IN_AMPERE);
-        assertThrows(FaraoException.class, () -> RaoUtil.checkParameters(raoParameters, raoInput));
+        FaraoException exception = assertThrows(FaraoException.class, () -> RaoUtil.checkParameters(raoParameters, raoInput));
+        assertEquals("Objective function MAX_MIN_RELATIVE_MARGIN_IN_AMPERE requires glsks", exception.getMessage());
     }
 
     @Test
     void testExceptionForNoPtdfParametersOnRelativeMargin() {
         addGlskProvider();
         raoParameters.getObjectiveFunctionParameters().setType(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN_IN_AMPERE);
-        assertThrows(FaraoException.class, () -> RaoUtil.checkParameters(raoParameters, raoInput));
+        FaraoException exception = assertThrows(FaraoException.class, () -> RaoUtil.checkParameters(raoParameters, raoInput));
+        assertEquals("Objective function MAX_MIN_RELATIVE_MARGIN_IN_AMPERE requires a config with a non empty boundary set", exception.getMessage());
     }
 
     @Test
     void testExceptionForNullBoundariesOnRelativeMargin() {
         addGlskProvider();
         raoParameters.getObjectiveFunctionParameters().setType(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN_IN_AMPERE);
-        assertThrows(FaraoException.class, () -> RaoUtil.checkParameters(raoParameters, raoInput));
+        FaraoException exception = assertThrows(FaraoException.class, () -> RaoUtil.checkParameters(raoParameters, raoInput));
+        assertEquals("Objective function MAX_MIN_RELATIVE_MARGIN_IN_AMPERE requires a config with a non empty boundary set", exception.getMessage());
     }
 
     @Test
@@ -107,14 +113,16 @@ class RaoUtilTest {
         raoParameters.addExtension(RelativeMarginsParametersExtension.class, new RelativeMarginsParametersExtension());
         raoParameters.getExtension(RelativeMarginsParametersExtension.class).setPtdfBoundariesFromString(new ArrayList<>());
         raoParameters.getObjectiveFunctionParameters().setType(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT);
-        assertThrows(FaraoException.class, () -> RaoUtil.checkParameters(raoParameters, raoInput));
+        FaraoException exception = assertThrows(FaraoException.class, () -> RaoUtil.checkParameters(raoParameters, raoInput));
+        assertEquals("Objective function MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT requires a config with a non empty boundary set", exception.getMessage());
     }
 
     @Test
     void testAmpereWithDc() {
         raoParameters.getObjectiveFunctionParameters().setType(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN_IN_AMPERE);
         raoParameters.getLoadFlowAndSensitivityParameters().getSensitivityWithLoadFlowParameters().getLoadFlowParameters().setDc(true);
-        assertThrows(FaraoException.class, () -> RaoUtil.checkParameters(raoParameters, raoInput));
+        FaraoException exception = assertThrows(FaraoException.class, () -> RaoUtil.checkParameters(raoParameters, raoInput));
+        assertEquals("Objective function MAX_MIN_RELATIVE_MARGIN_IN_AMPERE cannot be calculated with a DC default sensitivity engine", exception.getMessage());
     }
 
     @Test
@@ -134,10 +142,14 @@ class RaoUtilTest {
         assertEquals(1000 / 200. / Math.sqrt(3), RaoUtil.getFlowUnitMultiplier(cnec, Side.RIGHT, Unit.MEGAWATT, Unit.AMPERE), DOUBLE_TOLERANCE);
         assertEquals(200 * Math.sqrt(3) / 1000., RaoUtil.getFlowUnitMultiplier(cnec, Side.RIGHT, Unit.AMPERE, Unit.MEGAWATT), DOUBLE_TOLERANCE);
 
-        assertThrows(FaraoException.class, () -> RaoUtil.getFlowUnitMultiplier(cnec, Side.LEFT, Unit.MEGAWATT, Unit.PERCENT_IMAX));
-        assertThrows(FaraoException.class, () -> RaoUtil.getFlowUnitMultiplier(cnec, Side.LEFT, Unit.KILOVOLT, Unit.MEGAWATT));
-        assertThrows(FaraoException.class, () -> RaoUtil.getFlowUnitMultiplier(cnec, Side.RIGHT, Unit.AMPERE, Unit.TAP));
-        assertThrows(FaraoException.class, () -> RaoUtil.getFlowUnitMultiplier(cnec, Side.RIGHT, Unit.DEGREE, Unit.AMPERE));
+        FaraoException exception = assertThrows(FaraoException.class, () -> RaoUtil.getFlowUnitMultiplier(cnec, Side.LEFT, Unit.MEGAWATT, Unit.PERCENT_IMAX));
+        assertEquals("Only conversions between MW and A are supported.", exception.getMessage());
+        exception = assertThrows(FaraoException.class, () -> RaoUtil.getFlowUnitMultiplier(cnec, Side.LEFT, Unit.KILOVOLT, Unit.MEGAWATT));
+        assertEquals("Only conversions between MW and A are supported.", exception.getMessage());
+        exception = assertThrows(FaraoException.class, () -> RaoUtil.getFlowUnitMultiplier(cnec, Side.RIGHT, Unit.AMPERE, Unit.TAP));
+        assertEquals("Only conversions between MW and A are supported.", exception.getMessage());
+        exception = assertThrows(FaraoException.class, () -> RaoUtil.getFlowUnitMultiplier(cnec, Side.RIGHT, Unit.DEGREE, Unit.AMPERE));
+        assertEquals("Only conversions between MW and A are supported.", exception.getMessage());
     }
 
     @Test
@@ -189,20 +201,21 @@ class RaoUtilTest {
 
     @Test
     void testIsOnFlowConstraintAvailable() {
-        State optimizedState = crac.getState("Contingency FR1 FR3", Instant.CURATIVE);
+        Instant curativeInstant = crac.getInstant(CURATIVE_INSTANT_ID);
+        State optimizedState = crac.getState("Contingency FR1 FR3", curativeInstant);
 
         FlowCnec flowCnec = crac.getFlowCnec("cnec1stateCurativeContingency1");
         FlowResult flowResult = mock(FlowResult.class);
 
         RemedialAction<?> na1 = crac.newNetworkAction().withId("na1")
             .newTopologicalAction().withNetworkElement("ne1").withActionType(ActionType.OPEN).add()
-            .newOnInstantUsageRule().withInstant(Instant.CURATIVE).withUsageMethod(UsageMethod.AVAILABLE).add()
+            .newOnInstantUsageRule().withInstant(CURATIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add()
             .add();
         assertTrue(na1.isRemedialActionAvailable(optimizedState, RaoUtil.isAnyMarginNegative(flowResult, na1.getFlowCnecsConstrainingUsageRules(crac.getFlowCnecs(), network, optimizedState), raoParameters.getObjectiveFunctionParameters().getType().getUnit())));
 
         RemedialAction<?> na2 = crac.newNetworkAction().withId("na2")
             .newTopologicalAction().withNetworkElement("ne2").withActionType(ActionType.OPEN).add()
-            .newOnFlowConstraintUsageRule().withInstant(Instant.CURATIVE).withFlowCnec(flowCnec.getId()).add()
+            .newOnFlowConstraintUsageRule().withInstant(CURATIVE_INSTANT_ID).withFlowCnec(flowCnec.getId()).add()
             .add();
         OnFlowConstraint onFlowConstraint = (OnFlowConstraint) na2.getUsageRules().iterator().next();
 
@@ -222,8 +235,10 @@ class RaoUtilTest {
 
     @Test
     void testIsOnFlowConstraintInCountryAvailable() {
+        Instant preventiveInstant = crac.getInstant(PREVENTIVE_INSTANT_ID);
+        Instant curativeInstant = crac.getInstant(CURATIVE_INSTANT_ID);
         State optimizedState = Mockito.mock(State.class);
-        when(optimizedState.getInstant()).thenReturn(Instant.CURATIVE);
+        when(optimizedState.getInstant()).thenReturn(curativeInstant);
 
         FlowCnec cnecFrBe = crac.getFlowCnec("cnec1stateCurativeContingency1");
         FlowCnec cnecFrDe = crac.getFlowCnec("cnec2stateCurativeContingency2");
@@ -231,17 +246,17 @@ class RaoUtilTest {
 
         RemedialAction<?> na1 = crac.newNetworkAction().withId("na1")
             .newTopologicalAction().withNetworkElement("ne1").withActionType(ActionType.OPEN).add()
-            .newOnFlowConstraintInCountryUsageRule().withInstant(Instant.CURATIVE).withCountry(Country.FR).add()
+            .newOnFlowConstraintInCountryUsageRule().withInstant(CURATIVE_INSTANT_ID).withCountry(Country.FR).add()
             .add();
 
         RemedialAction<?> na2 = crac.newNetworkAction().withId("na2")
             .newTopologicalAction().withNetworkElement("ne2").withActionType(ActionType.OPEN).add()
-            .newOnFlowConstraintInCountryUsageRule().withInstant(Instant.CURATIVE).withCountry(Country.BE).add()
+            .newOnFlowConstraintInCountryUsageRule().withInstant(CURATIVE_INSTANT_ID).withCountry(Country.BE).add()
             .add();
 
         RemedialAction<?> na3 = crac.newNetworkAction().withId("na3")
             .newTopologicalAction().withNetworkElement("ne3").withActionType(ActionType.OPEN).add()
-            .newOnFlowConstraintInCountryUsageRule().withInstant(Instant.CURATIVE).withCountry(Country.DE).add()
+            .newOnFlowConstraintInCountryUsageRule().withInstant(CURATIVE_INSTANT_ID).withCountry(Country.DE).add()
             .add();
 
         when(flowResult.getMargin(any(), any())).thenReturn(100.);
@@ -268,7 +283,7 @@ class RaoUtilTest {
         assertIsOnFlowInCountryAvailable(na3, optimizedState, flowResult, true);
 
         when(flowResult.getMargin(eq(cnecFrBe), any())).thenReturn(-150.);
-        when(optimizedState.getInstant()).thenReturn(Instant.PREVENTIVE);
+        when(optimizedState.getInstant()).thenReturn(preventiveInstant);
         assertIsOnFlowInCountryAvailable(na1, optimizedState, flowResult, false);
         assertIsOnFlowInCountryAvailable(na2, optimizedState, flowResult, false);
         assertIsOnFlowInCountryAvailable(na3, optimizedState, flowResult, false);

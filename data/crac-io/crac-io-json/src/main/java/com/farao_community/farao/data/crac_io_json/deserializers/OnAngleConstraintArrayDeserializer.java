@@ -30,7 +30,7 @@ public final class OnAngleConstraintArrayDeserializer {
             while (!jsonParser.nextToken().isStructEnd()) {
                 switch (jsonParser.getCurrentName()) {
                     case INSTANT:
-                        adder.withInstant(deserializeInstant(jsonParser.nextTextValue()));
+                        adder.withInstant(jsonParser.nextTextValue());
                         break;
                     case ANGLE_CNEC_ID:
                         adder.withAngleCnec(jsonParser.nextTextValue());

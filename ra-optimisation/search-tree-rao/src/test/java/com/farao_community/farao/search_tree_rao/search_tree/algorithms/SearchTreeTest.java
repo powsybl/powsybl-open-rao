@@ -14,9 +14,7 @@ import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.commons.logs.RaoBusinessLogs;
 import com.farao_community.farao.commons.logs.TechnicalLogs;
-import com.farao_community.farao.data.crac_api.Instant;
-import com.farao_community.farao.data.crac_api.NetworkElement;
-import com.farao_community.farao.data.crac_api.State;
+import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
@@ -137,9 +135,14 @@ class SearchTreeTest {
         ObjectiveFunction objectiveFunction = Mockito.mock(ObjectiveFunction.class);
         when(searchTreeInput.getObjectiveFunction()).thenReturn(objectiveFunction);
         when(optimizedState.getContingency()).thenReturn(Optional.empty());
-        when(optimizedState.getInstant()).thenReturn(Instant.PREVENTIVE);
+        Instant preventiveInstant = Mockito.mock(Instant.class);
+        when(preventiveInstant.toString()).thenReturn("preventive");
+        when(optimizedState.getInstant()).thenReturn(preventiveInstant);
         rootLeaf = Mockito.mock(Leaf.class);
         when(searchTreeInput.getToolProvider()).thenReturn(Mockito.mock(ToolProvider.class));
+        Instant outageInstant = Mockito.mock(Instant.class);
+        when(outageInstant.isOutage()).thenReturn(true);
+        when(searchTreeInput.getOutageInstant()).thenReturn(outageInstant);
     }
 
     @Test

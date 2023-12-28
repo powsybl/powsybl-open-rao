@@ -10,7 +10,6 @@ package com.farao_community.farao.data.swe_cne_exporter;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Contingency;
 import com.farao_community.farao.data.crac_api.Crac;
-import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.cnec.AngleCnec;
 import com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.CimCracCreationContext;
 import com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.cnec.AngleCnecCreationContext;
@@ -64,7 +63,7 @@ public class SweAdditionalConstraintSeriesCreator {
     private AdditionalConstraintSeries generateAdditionalConstraintSeries(AngleCnecCreationContext angleCnecCreationContext) {
         Crac crac = sweCneHelper.getCrac();
         AngleCnec angleCnec = crac.getAngleCnec(angleCnecCreationContext.getCreatedCnecId());
-        if (!angleCnec.getState().getInstant().equals(Instant.CURATIVE)) {
+        if (!angleCnec.getState().getInstant().isCurative()) {
             BUSINESS_WARNS.warn("{} angle cnec {} will not be added to CNE file", angleCnec.getState().getInstant(), angleCnecCreationContext.getNativeId());
             return null;
         }

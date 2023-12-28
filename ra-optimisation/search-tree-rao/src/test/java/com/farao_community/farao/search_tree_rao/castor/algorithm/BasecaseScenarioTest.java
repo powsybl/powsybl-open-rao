@@ -29,12 +29,18 @@ class BasecaseScenarioTest {
 
     @BeforeEach
     public void setUp() {
+        Instant preventiveInstant = Mockito.mock(Instant.class);
+        Mockito.when(preventiveInstant.isPreventive()).thenReturn(true);
+        Instant outageInstant = Mockito.mock(Instant.class);
+        Instant curativeInstant = Mockito.mock(Instant.class);
+
         basecaseState = Mockito.mock(State.class);
-        Mockito.when(basecaseState.getInstant()).thenReturn(Instant.PREVENTIVE);
+        Mockito.when(basecaseState.getInstant()).thenReturn(preventiveInstant);
         otherState1 = Mockito.mock(State.class);
-        Mockito.when(otherState1.getInstant()).thenReturn(Instant.OUTAGE);
+        Mockito.when(otherState1.getInstant()).thenReturn(outageInstant);
+        Mockito.when(otherState1.toString()).thenReturn("Other state 1");
         otherState2 = Mockito.mock(State.class);
-        Mockito.when(otherState2.getInstant()).thenReturn(Instant.CURATIVE);
+        Mockito.when(otherState2.getInstant()).thenReturn(curativeInstant);
     }
 
     @Test
@@ -62,13 +68,15 @@ class BasecaseScenarioTest {
     void testWrongBasecaseScenario() {
         Set<State> otherStates = Set.of(otherState2);
         assertThrows(NullPointerException.class, () -> new BasecaseScenario(null, otherStates));
-        assertThrows(FaraoException.class, () -> new BasecaseScenario(otherState1, otherStates));
+        FaraoException exception = assertThrows(FaraoException.class, () -> new BasecaseScenario(otherState1, otherStates));
+        assertEquals("Basecase state `Other state 1` is not preventive", exception.getMessage());
     }
 
     @Test
     void testWrongOtherScenario() {
         Set<State> otherStates = Set.of(basecaseState, otherState1);
-        assertThrows(FaraoException.class, () -> new BasecaseScenario(basecaseState, otherStates));
+        FaraoException exception = assertThrows(FaraoException.class, () -> new BasecaseScenario(basecaseState, otherStates));
+        assertEquals("OtherStates should not be preventive", exception.getMessage());
     }
 
     @Test
@@ -81,6 +89,7 @@ class BasecaseScenarioTest {
         assertEquals(Set.of(otherState1, otherState2), basecaseScenario.getOtherStates());
         basecaseScenario.addOtherState(otherState2);
         assertEquals(Set.of(otherState1, otherState2), basecaseScenario.getOtherStates());
-        assertThrows(FaraoException.class, () -> basecaseScenario.addOtherState(basecaseState));
+        FaraoException exception = assertThrows(FaraoException.class, () -> basecaseScenario.addOtherState(basecaseState));
+        assertEquals("OtherStates should not be preventive", exception.getMessage());
     }
 }
