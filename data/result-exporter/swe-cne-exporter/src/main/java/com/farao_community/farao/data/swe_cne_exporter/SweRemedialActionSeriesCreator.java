@@ -15,14 +15,17 @@ import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.CimCracCreationContext;
 import com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.remedial_action.PstRangeActionSeriesCreationContext;
 import com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.remedial_action.RemedialActionSeriesCreationContext;
+import com.farao_community.farao.data.rao_result_api.ComputationStatus;
 import com.farao_community.farao.data.rao_result_api.RaoResult;
-import com.farao_community.farao.data.swe_cne_exporter.xsd.*;
-import com.farao_community.farao.monitoring.angle_monitoring.AngleMonitoringResult;
+import com.farao_community.farao.data.swe_cne_exporter.xsd.RemedialActionRegisteredResource;
+import com.farao_community.farao.data.swe_cne_exporter.xsd.RemedialActionSeries;
 import org.apache.commons.lang3.NotImplementedException;
 
 import java.math.BigDecimal;
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Objects;
 
 import static com.farao_community.farao.data.cne_exporter_commons.CneConstants.*;
 
@@ -46,8 +49,8 @@ public class SweRemedialActionSeriesCreator {
         List<RemedialActionSeriesCreationContext> sortedRas = cracCreationContext.getRemedialActionSeriesCreationContexts().stream()
             .filter(RemedialActionSeriesCreationContext::isImported)
             .sorted(Comparator.comparing(RemedialActionSeriesCreationContext::getNativeId))
-            .collect(Collectors.toList());
-        if (Objects.isNull(contingency)) {
+            .toList();
+        if (contingency == null) {
             //PREVENTIVE
             sortedRas.forEach(
                 raSeriesCreationContext -> {
@@ -85,8 +88,8 @@ public class SweRemedialActionSeriesCreator {
         List<RemedialActionSeriesCreationContext> sortedRas = cracCreationContext.getRemedialActionSeriesCreationContexts().stream()
             .filter(RemedialActionSeriesCreationContext::isImported)
             .sorted(Comparator.comparing(RemedialActionSeriesCreationContext::getNativeId))
-            .collect(Collectors.toList());
-        if (Objects.isNull(contingency)) {
+            .toList();
+        if (contingency == null) {
             //PREVENTIVE
             sortedRas.forEach(
                 raSeriesCreationContext -> {
@@ -128,20 +131,20 @@ public class SweRemedialActionSeriesCreator {
 
     private RemedialActionSeries generateRaSeries(State state, RemedialActionSeriesCreationContext context, boolean onlyReference) {
         RaoResult raoResult = sweCneHelper.getRaoResult();
-        AngleMonitoringResult angleMonitoringResult = sweCneHelper.getAngleMonitoringResult();
         Crac crac = sweCneHelper.getCrac();
         List<RemedialAction<?>> usedRas = new ArrayList<>();
-        if (Objects.nonNull(raoResult)) {
-            context.getCreatedIds().stream().sorted()
-                    .map(crac::getRemedialAction)
-                    .filter(ra -> raoResult.isActivatedDuringState(state, ra))
-                            .forEach(usedRas::add);
+        if (raoResult == null) {
+            return null;
         }
-        if (Objects.nonNull(angleMonitoringResult) && !angleMonitoringResult.isDivergent()) {
+        context.getCreatedIds().stream().sorted()
+                .map(crac::getRemedialAction)
+                .filter(ra -> raoResult.isActivatedDuringState(state, ra)).forEach(usedRas::add);
+        if (!raoResult.getComputationStatus().equals(ComputationStatus.FAILURE)) {
             context.getCreatedIds().stream().sorted()
-                    .map(crac::getRemedialAction)
-                    .filter(ra -> angleMonitoringResult.getAppliedCras(state).stream().anyMatch(cra -> cra.getId().equals(ra.getId())))
-                            .forEach(usedRas::add);
+                .map(crac::getRemedialAction).filter(ra ->
+                    raoResult.getActivatedRangeActionsDuringState(state).stream().anyMatch(cra -> cra.getId().equals(ra.getId())) ||
+                        raoResult.getActivatedNetworkActionsDuringState(state).stream().anyMatch(cra -> cra.getId().equals(ra.getId()))
+                ).forEach(usedRas::add);
         }
         for (RemedialAction<?> usedRa : usedRas) {
             if (usedRa instanceof NetworkAction) {
@@ -149,9 +152,6 @@ public class SweRemedialActionSeriesCreator {
             } else if (usedRa instanceof PstRangeAction) {
                 return generatePstRaSeries((PstRangeAction) usedRa, state, context, onlyReference);
             } else if (usedRa instanceof HvdcRangeAction) {
-                if (Objects.isNull(raoResult)) {
-                    throw new FaraoException(String.format("Rao result is null. Cannot retrieve HvdcRangeAction %s's optimized setpoint on state %s", usedRa.getId(), state.getId()));
-                }
                 // In case of an HVDC, the native crac has one series per direction, we select the one that corresponds to the sign of the setpoint
                 if (context.isInverted() == (raoResult.getOptimizedSetPointOnState(state, (HvdcRangeAction) usedRa) < 0)) {
                     return generateHvdcRaSeries((HvdcRangeAction) usedRa, state, context);
