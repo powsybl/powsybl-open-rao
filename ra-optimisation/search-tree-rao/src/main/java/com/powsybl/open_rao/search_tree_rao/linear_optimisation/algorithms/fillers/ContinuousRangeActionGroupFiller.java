@@ -9,7 +9,7 @@ package com.powsybl.open_rao.search_tree_rao.linear_optimisation.algorithms.fill
 import com.powsybl.open_rao.commons.OpenRaoException;
 import com.powsybl.open_rao.data.crac_api.State;
 import com.powsybl.open_rao.data.crac_api.range_action.RangeAction;
-import com.powsybl.open_rao.search_tree_rao.linear_optimisation.algorithms.linear_problem.FaraoMPConstraint;
+import com.powsybl.open_rao.search_tree_rao.linear_optimisation.algorithms.linear_problem.OpenRaoMPConstraint;
 import com.powsybl.open_rao.search_tree_rao.linear_optimisation.algorithms.linear_problem.LinearProblem;
 import com.powsybl.open_rao.search_tree_rao.result.api.FlowResult;
 import com.powsybl.open_rao.search_tree_rao.result.api.RangeActionActivationResult;
@@ -67,7 +67,7 @@ public class ContinuousRangeActionGroupFiller implements ProblemFiller {
     }
 
     private void addRangeActionGroupConstraint(LinearProblem linearProblem, RangeAction<?> rangeAction, String groupId, State state) {
-        FaraoMPConstraint groupSetPointConstraint = linearProblem.addRangeActionGroupSetpointConstraint(0, 0, rangeAction, state);
+        OpenRaoMPConstraint groupSetPointConstraint = linearProblem.addRangeActionGroupSetpointConstraint(0, 0, rangeAction, state);
         groupSetPointConstraint.setCoefficient(linearProblem.getRangeActionSetpointVariable(rangeAction, state), 1);
         groupSetPointConstraint.setCoefficient(linearProblem.getRangeActionGroupSetpointVariable(groupId, state), -1);
     }

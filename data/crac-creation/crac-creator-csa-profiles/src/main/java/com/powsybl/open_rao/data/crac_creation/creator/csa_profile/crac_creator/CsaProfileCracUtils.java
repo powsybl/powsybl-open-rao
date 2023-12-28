@@ -10,7 +10,7 @@ package com.powsybl.open_rao.data.crac_creation.creator.csa_profile.crac_creator
 import com.powsybl.open_rao.commons.TsoEICode;
 import com.powsybl.open_rao.data.crac_api.usage_rule.UsageMethod;
 import com.powsybl.open_rao.data.crac_creation.creator.api.ImportStatus;
-import com.powsybl.open_rao.data.crac_creation.util.FaraoImportException;
+import com.powsybl.open_rao.data.crac_creation.util.OpenRaoImportException;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
 
@@ -103,14 +103,14 @@ public final class CsaProfileCracUtils {
     public static void checkPropertyReference(PropertyBag propertyBag, String remedialActionId, String propertyBagKind, String expectedPropertyReference) {
         String actualPropertyReference = propertyBag.get(CsaProfileConstants.GRID_ALTERATION_PROPERTY_REFERENCE);
         if (!actualPropertyReference.equals(expectedPropertyReference)) {
-            throw new FaraoImportException(ImportStatus.INCONSISTENCY_IN_DATA, String.format("Remedial action '%s' will not be imported because '%s' must have a property reference with '%s' value, but it was: '%s'", remedialActionId, propertyBagKind, expectedPropertyReference, actualPropertyReference));
+            throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, String.format("Remedial action '%s' will not be imported because '%s' must have a property reference with '%s' value, but it was: '%s'", remedialActionId, propertyBagKind, expectedPropertyReference, actualPropertyReference));
         }
     }
 
     public static void checkNormalEnabled(PropertyBag propertyBag, String remedialActionId, String propertyBagKind) {
         Optional<String> normalEnabledOpt = Optional.ofNullable(propertyBag.get(CsaProfileConstants.NORMAL_ENABLED));
         if (normalEnabledOpt.isPresent() && !Boolean.parseBoolean(normalEnabledOpt.get())) {
-            throw new FaraoImportException(ImportStatus.NOT_FOR_RAO, String.format("Remedial action '%s' will not be imported because field 'normalEnabled' in '%s' must be true or empty", remedialActionId, propertyBagKind));
+            throw new OpenRaoImportException(ImportStatus.NOT_FOR_RAO, String.format("Remedial action '%s' will not be imported because field 'normalEnabled' in '%s' must be true or empty", remedialActionId, propertyBagKind));
         }
     }
 

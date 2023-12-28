@@ -25,7 +25,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static com.powsybl.open_rao.commons.logs.FaraoLoggerProvider.*;
+import static com.powsybl.open_rao.commons.logs.OpenRaoLoggerProvider.*;
 
 /**
  * RefProg xml file importer

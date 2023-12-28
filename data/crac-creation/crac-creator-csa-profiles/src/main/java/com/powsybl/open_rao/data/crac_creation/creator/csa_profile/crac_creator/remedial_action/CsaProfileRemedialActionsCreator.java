@@ -22,7 +22,7 @@ import com.powsybl.open_rao.data.crac_creation.creator.csa_profile.crac_creator.
 import com.powsybl.open_rao.data.crac_creation.creator.csa_profile.crac_creator.CsaProfileCracCreationContext;
 import com.powsybl.open_rao.data.crac_creation.creator.csa_profile.crac_creator.CsaProfileCracUtils;
 import com.powsybl.open_rao.data.crac_creation.creator.csa_profile.crac_creator.CsaProfileElementaryCreationContext;
-import com.powsybl.open_rao.data.crac_creation.util.FaraoImportException;
+import com.powsybl.open_rao.data.crac_creation.util.OpenRaoImportException;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 import com.powsybl.iidm.network.Network;
@@ -136,9 +136,9 @@ public class CsaProfileRemedialActionsCreator {
                     String randomCombinationConstraintKind = linkedContingencyWithRAs.get(remedialActionId).iterator().next().get(CsaProfileConstants.COMBINATION_CONSTRAINT_KIND);
                     checkElementCombinationConstraintKindsCoherence(remedialActionId, linkedContingencyWithRAs);
 
-                    List<String> faraoContingenciesIds = linkedContingencyWithRAs.get(remedialActionId).stream()
+                    List<String> openRaoContingenciesIds = linkedContingencyWithRAs.get(remedialActionId).stream()
                         .map(contingencyWithRemedialActionPropertyBag ->
-                            checkContingencyAndGetFaraoId(
+                            checkContingencyAndGetOpenRaoId(
                                 contingencyWithRemedialActionPropertyBag,
                                 parentRemedialActionPropertyBag.get(CsaProfileConstants.RA_KIND),
                                 remedialActionId,
@@ -151,9 +151,9 @@ public class CsaProfileRemedialActionsCreator {
                     boolean hasAtLeastOneOnConstraintUsageRule = addOnConstraintUsageRules(curativeInstant, remedialActionAdder, remedialActionId, alterations);
                     if (!hasAtLeastOneOnConstraintUsageRule) {
                         if (!randomCombinationConstraintKind.equals(CsaProfileConstants.ElementCombinationConstraintKind.EXCLUDED.toString())) {
-                            addOnContingencyStateUsageRules(remedialActionAdder, faraoContingenciesIds, randomCombinationConstraintKind, curativeInstant.getId());
+                            addOnContingencyStateUsageRules(remedialActionAdder, openRaoContingenciesIds, randomCombinationConstraintKind, curativeInstant.getId());
                         } else {
-                            alterations.add(String.format("The association 'RemedialAction'/'Contingencies' '%s'/'%s' will be ignored because 'excluded' combination constraint kind is not supported", remedialActionId, String.join(". ", faraoContingenciesIds)));
+                            alterations.add(String.format("The association 'RemedialAction'/'Contingencies' '%s'/'%s' will be ignored because 'excluded' combination constraint kind is not supported", remedialActionId, String.join(". ", openRaoContingenciesIds)));
                         }
                     }
                 } else { // no contingency linked to RA --> on instant usage rule
@@ -179,7 +179,7 @@ public class CsaProfileRemedialActionsCreator {
                     csaProfileRemedialActionCreationContexts.add(CsaProfileElementaryCreationContext.imported(remedialActionId, remedialActionId, targetRemedialActionNameOpt.orElse(remedialActionId), String.join(". ", alterations), true));
                 }
 
-            } catch (FaraoImportException e) {
+            } catch (OpenRaoImportException e) {
                 csaProfileRemedialActionCreationContexts.add(CsaProfileElementaryCreationContext.notImported(remedialActionId, e.getImportStatus(), e.getMessage()));
             }
         }
@@ -208,12 +208,12 @@ public class CsaProfileRemedialActionsCreator {
             } else if (combinationKind.equals(CsaProfileConstants.ElementCombinationConstraintKind.CONSIDERED.toString())) {
                 contingenciesWithConsidered.add(contingencyId);
             } else if (combinationKind.equals(CsaProfileConstants.ElementCombinationConstraintKind.EXCLUDED.toString())) {
-                throw new FaraoImportException(ImportStatus.INCONSISTENCY_IN_DATA, CsaProfileConstants.REMEDIAL_ACTION_MESSAGE + remedialActionId + " will not be imported because of an illegal EXCLUDED ElementCombinationConstraintKind");
+                throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, CsaProfileConstants.REMEDIAL_ACTION_MESSAGE + remedialActionId + " will not be imported because of an illegal EXCLUDED ElementCombinationConstraintKind");
             } else {
-                throw new FaraoImportException(ImportStatus.INCONSISTENCY_IN_DATA, CsaProfileConstants.REMEDIAL_ACTION_MESSAGE + remedialActionId + " will not be imported because of an invalid Element Combination Constraint Kind");
+                throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, CsaProfileConstants.REMEDIAL_ACTION_MESSAGE + remedialActionId + " will not be imported because of an invalid Element Combination Constraint Kind");
             }
             if (contingenciesWithIncluded.contains(contingencyId) && contingenciesWithConsidered.contains(contingencyId)) {
-                throw new FaraoImportException(ImportStatus.INCONSISTENCY_IN_DATA, CsaProfileConstants.REMEDIAL_ACTION_MESSAGE + remedialActionId + " will not be imported because the ElementCombinationConstraintKinds that link the remedial action to the contingency " + contingencyId + " are different");
+                throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, CsaProfileConstants.REMEDIAL_ACTION_MESSAGE + remedialActionId + " will not be imported because the ElementCombinationConstraintKinds that link the remedial action to the contingency " + contingencyId + " are different");
             }
         }
     }
@@ -226,10 +226,10 @@ public class CsaProfileRemedialActionsCreator {
         boolean normalAvailable = Boolean.parseBoolean(remedialActionPropertyBag.get(CsaProfileConstants.NORMAL_AVAILABLE));
 
         if (!normalAvailable) {
-            throw new FaraoImportException(ImportStatus.NOT_FOR_RAO, CsaProfileConstants.REMEDIAL_ACTION_MESSAGE + remedialActionId + " will not be imported because RemedialAction.normalAvailable must be 'true' to be imported");
+            throw new OpenRaoImportException(ImportStatus.NOT_FOR_RAO, CsaProfileConstants.REMEDIAL_ACTION_MESSAGE + remedialActionId + " will not be imported because RemedialAction.normalAvailable must be 'true' to be imported");
         }
         if (!kind.equals(CsaProfileConstants.RemedialActionKind.CURATIVE.toString()) && !kind.equals(CsaProfileConstants.RemedialActionKind.PREVENTIVE.toString())) {
-            throw new FaraoImportException(ImportStatus.INCONSISTENCY_IN_DATA, CsaProfileConstants.REMEDIAL_ACTION_MESSAGE + remedialActionId + " will not be imported because Unsupported kind for remedial action " + remedialActionId);
+            throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, CsaProfileConstants.REMEDIAL_ACTION_MESSAGE + remedialActionId + " will not be imported because Unsupported kind for remedial action " + remedialActionId);
         }
 
         if (linkedTopologyActions.containsKey(remedialActionId)) {
@@ -244,7 +244,7 @@ public class CsaProfileRemedialActionsCreator {
         } else if (linkedTapPositionActions.containsKey(remedialActionId)) { // StaticPropertyRanges not mandatory in case of tapPositionsActions
             return RemedialActionType.PST_RANGE_ACTION;
         } else {
-            throw new FaraoImportException(ImportStatus.INCONSISTENCY_IN_DATA, CsaProfileConstants.REMEDIAL_ACTION_MESSAGE + remedialActionId + " will not be imported because there is no topology actions, no Set point actions, nor tap position action linked to that RA");
+            throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, CsaProfileConstants.REMEDIAL_ACTION_MESSAGE + remedialActionId + " will not be imported because there is no topology actions, no Set point actions, nor tap position action linked to that RA");
         }
     }
 
@@ -253,28 +253,28 @@ public class CsaProfileRemedialActionsCreator {
             Set<PropertyBag> staticPropertyRangePropertyBags = staticPropertyRangesLinkedToInjectionSetPointActions.get(injectionSetPointAction.getId("mRID"));
             if (staticPropertyRangePropertyBags != null) {
                 if (staticPropertyRangePropertyBags.size() == 0) {
-                    throw new FaraoImportException(ImportStatus.INCONSISTENCY_IN_DATA, CsaProfileConstants.REMEDIAL_ACTION_MESSAGE + remedialActionId + " will not be imported because there is no StaticPropertyRange linked to that RA");
+                    throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, CsaProfileConstants.REMEDIAL_ACTION_MESSAGE + remedialActionId + " will not be imported because there is no StaticPropertyRange linked to that RA");
                 } else if (staticPropertyRangePropertyBags.size() > 1) {
-                    throw new FaraoImportException(ImportStatus.INCONSISTENCY_IN_DATA, CsaProfileConstants.REMEDIAL_ACTION_MESSAGE + remedialActionId + " will not be imported because several conflictual StaticPropertyRanges are linked to that RA's injection set point action");
+                    throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, CsaProfileConstants.REMEDIAL_ACTION_MESSAGE + remedialActionId + " will not be imported because several conflictual StaticPropertyRanges are linked to that RA's injection set point action");
                 }
             }
         }
     }
 
-    private String checkContingencyAndGetFaraoId(PropertyBag contingencyWithRemedialActionPropertyBag, String raKind, String
+    private String checkContingencyAndGetOpenRaoId(PropertyBag contingencyWithRemedialActionPropertyBag, String raKind, String
         remedialActionId, String combinationConstraintKind) {
         if (!raKind.equals(CsaProfileConstants.RemedialActionKind.CURATIVE.toString())) {
-            throw new FaraoImportException(ImportStatus.INCONSISTENCY_IN_DATA, CsaProfileConstants.REMEDIAL_ACTION_MESSAGE + remedialActionId + " will not be imported because it is linked to a contingency but it's kind is not curative");
+            throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, CsaProfileConstants.REMEDIAL_ACTION_MESSAGE + remedialActionId + " will not be imported because it is linked to a contingency but it's kind is not curative");
         }
 
         if (!combinationConstraintKind.equals(CsaProfileConstants.ElementCombinationConstraintKind.INCLUDED.toString()) && !combinationConstraintKind.equals(CsaProfileConstants.ElementCombinationConstraintKind.EXCLUDED.toString()) && !combinationConstraintKind.equals(CsaProfileConstants.ElementCombinationConstraintKind.CONSIDERED.toString())) {
-            throw new FaraoImportException(ImportStatus.INCONSISTENCY_IN_DATA, CsaProfileConstants.REMEDIAL_ACTION_MESSAGE + remedialActionId + " will not be imported because combinationConstraintKind of a ContingencyWithRemedialAction must be 'included, 'excluded' or 'considered', but it was: " + combinationConstraintKind);
+            throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, CsaProfileConstants.REMEDIAL_ACTION_MESSAGE + remedialActionId + " will not be imported because combinationConstraintKind of a ContingencyWithRemedialAction must be 'included, 'excluded' or 'considered', but it was: " + combinationConstraintKind);
         }
 
         String contingencyId = contingencyWithRemedialActionPropertyBag.get(CsaProfileConstants.REQUEST_CONTINGENCY).substring(contingencyWithRemedialActionPropertyBag.get(CsaProfileConstants.REQUEST_CONTINGENCY).lastIndexOf("_") + 1);
         Optional<CsaProfileElementaryCreationContext> importedCsaProfileContingencyCreationContextOpt = cracCreationContext.getContingencyCreationContexts().stream().filter(co -> co.isImported() && co.getNativeId().equals(contingencyId)).findAny();
         if (importedCsaProfileContingencyCreationContextOpt.isEmpty()) {
-            throw new FaraoImportException(ImportStatus.INCONSISTENCY_IN_DATA, CsaProfileConstants.REMEDIAL_ACTION_MESSAGE + remedialActionId + " will not be imported because contingency" + contingencyId + " linked to that remedialAction does not exist or was not imported by farao");
+            throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, CsaProfileConstants.REMEDIAL_ACTION_MESSAGE + remedialActionId + " will not be imported because contingency" + contingencyId + " linked to that remedialAction does not exist or was not imported by farao");
         } else {
             String faraoContingencyId = importedCsaProfileContingencyCreationContextOpt.get().getElementId();
             CsaProfileCracUtils.checkNormalEnabled(contingencyWithRemedialActionPropertyBag, remedialActionId, "ContingencyWithRemedialAction");
@@ -393,10 +393,10 @@ public class CsaProfileRemedialActionsCreator {
                 String raKind = schemeRemedialActionsPropertyBag.get(CsaProfileConstants.RA_KIND);
                 boolean normalAvailable = Boolean.parseBoolean(schemeRemedialActionsPropertyBag.get(CsaProfileConstants.NORMAL_AVAILABLE));
                 if (!normalAvailable) {
-                    throw new FaraoImportException(ImportStatus.NOT_FOR_RAO, CsaProfileConstants.AUTO_REMEDIAL_ACTION_MESSAGE + autoRemedialActionId + " will not be imported because RemedialAction.normalAvailable must be 'true' to be imported");
+                    throw new OpenRaoImportException(ImportStatus.NOT_FOR_RAO, CsaProfileConstants.AUTO_REMEDIAL_ACTION_MESSAGE + autoRemedialActionId + " will not be imported because RemedialAction.normalAvailable must be 'true' to be imported");
                 }
                 if (!raKind.equals(CsaProfileConstants.RemedialActionKind.CURATIVE.toString())) {
-                    throw new FaraoImportException(ImportStatus.INCONSISTENCY_IN_DATA, CsaProfileConstants.AUTO_REMEDIAL_ACTION_MESSAGE + autoRemedialActionId + " will not be imported because auto remedial action musty be of curative kind");
+                    throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, CsaProfileConstants.AUTO_REMEDIAL_ACTION_MESSAGE + autoRemedialActionId + " will not be imported because auto remedial action musty be of curative kind");
                 }
 
                 String nativeRaName = schemeRemedialActionsPropertyBag.get(CsaProfileConstants.REMEDIAL_ACTION_NAME);
@@ -406,11 +406,11 @@ public class CsaProfileRemedialActionsCreator {
 
                 String remedialActionSchemeKind = remedialActionSchemePropertyBag.get(CsaProfileConstants.RA_KIND);
                 if (!remedialActionSchemeKind.equals(CsaProfileConstants.SIPS)) {
-                    throw new FaraoImportException(ImportStatus.INCONSISTENCY_IN_DATA, CsaProfileConstants.AUTO_REMEDIAL_ACTION_MESSAGE + autoRemedialActionId + " will not be imported because Unsupported kind for remedial action schedule");
+                    throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, CsaProfileConstants.AUTO_REMEDIAL_ACTION_MESSAGE + autoRemedialActionId + " will not be imported because Unsupported kind for remedial action schedule");
                 }
                 String remedialActionSchemeNormalArmed = remedialActionSchemePropertyBag.get(CsaProfileConstants.NORMAL_ARMED);
                 if (!Boolean.parseBoolean(remedialActionSchemeNormalArmed)) {
-                    throw new FaraoImportException(ImportStatus.INCONSISTENCY_IN_DATA, CsaProfileConstants.AUTO_REMEDIAL_ACTION_MESSAGE + autoRemedialActionId + " will not be imported because normalArmed must be set to true");
+                    throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, CsaProfileConstants.AUTO_REMEDIAL_ACTION_MESSAGE + autoRemedialActionId + " will not be imported because normalArmed must be set to true");
                 }
 
                 PropertyBag stage = remedialActionSchemeToStageMap.get(remedialActionSchemePropertyBag);
@@ -430,7 +430,7 @@ public class CsaProfileRemedialActionsCreator {
                 } else if (linkedTapPositionActionsAuto.containsKey(collectionId)) { // StaticPropertyRanges not mandatory in case of tapPositionsActions
                     remedialActionType = RemedialActionType.PST_RANGE_ACTION;
                 } else {
-                    throw new FaraoImportException(ImportStatus.INCONSISTENCY_IN_DATA, CsaProfileConstants.REMEDIAL_ACTION_MESSAGE + collectionId + " will not be imported because there is no elementary action for that ARA");
+                    throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, CsaProfileConstants.REMEDIAL_ACTION_MESSAGE + collectionId + " will not be imported because there is no elementary action for that ARA");
                 }
 
                 RemedialActionAdder<?> remedialActionAdder;
@@ -453,7 +453,7 @@ public class CsaProfileRemedialActionsCreator {
 
                     List<String> faraoContingenciesIds = linkedContingencyWithRAs.get(autoRemedialActionId).stream()
                         .map(contingencyWithRemedialActionPropertyBag ->
-                            checkContingencyAndGetFaraoId(
+                            checkContingencyAndGetOpenRaoId(
                                 contingencyWithRemedialActionPropertyBag,
                                 raKind,
                                 autoRemedialActionId,
@@ -467,12 +467,12 @@ public class CsaProfileRemedialActionsCreator {
                         addOnContingencyStateUsageRules(remedialActionAdder, faraoContingenciesIds, CsaProfileConstants.ElementCombinationConstraintKind.INCLUDED.toString(), crac.getInstant(InstantKind.AUTO).getId());
                     }
                 } else {
-                    throw new FaraoImportException(ImportStatus.INCONSISTENCY_IN_DATA, CsaProfileConstants.AUTO_REMEDIAL_ACTION_MESSAGE + autoRemedialActionId + " will not be imported because no contingency is linked to the remedial action");
+                    throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, CsaProfileConstants.AUTO_REMEDIAL_ACTION_MESSAGE + autoRemedialActionId + " will not be imported because no contingency is linked to the remedial action");
                 }
                 remedialActionAdder.add();
                 csaProfileRemedialActionCreationContexts.add(CsaProfileElementaryCreationContext.imported(autoRemedialActionId, autoRemedialActionId, targetAutoRemedialActionNameOpt.orElse(autoRemedialActionId), "", false));
 
-            } catch (FaraoImportException e) {
+            } catch (OpenRaoImportException e) {
                 csaProfileRemedialActionCreationContexts.add(CsaProfileElementaryCreationContext.notImported(autoRemedialActionId, e.getImportStatus(), e.getMessage()));
             }
         });
@@ -492,11 +492,11 @@ public class CsaProfileRemedialActionsCreator {
                     propertyBags1ToPropertyBags2BiMap.put(propertyBag, testedPropertyBag);
                 } else {
                     // more than 1 element associated
-                    throw new FaraoImportException(ImportStatus.INCONSISTENCY_IN_DATA, errorMessage);
+                    throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, errorMessage);
                 }
             } else {
                 // 0 element associated
-                throw new FaraoImportException(ImportStatus.INCONSISTENCY_IN_DATA, errorMessage);
+                throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, errorMessage);
             }
         });
         return propertyBags1ToPropertyBags2BiMap;

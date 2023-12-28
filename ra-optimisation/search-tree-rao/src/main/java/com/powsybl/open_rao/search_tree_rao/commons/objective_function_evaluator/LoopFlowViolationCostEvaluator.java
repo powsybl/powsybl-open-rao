@@ -6,7 +6,7 @@
  */
 package com.powsybl.open_rao.search_tree_rao.commons.objective_function_evaluator;
 
-import com.powsybl.open_rao.commons.logs.FaraoLoggerProvider;
+import com.powsybl.open_rao.commons.logs.OpenRaoLoggerProvider;
 import com.powsybl.open_rao.commons.Unit;
 import com.powsybl.open_rao.data.crac_api.cnec.FlowCnec;
 import com.powsybl.open_rao.data.crac_api.cnec.Side;
@@ -55,7 +55,7 @@ public class LoopFlowViolationCostEvaluator implements CostEvaluator {
             .sum();
 
         if (cost > 0) {
-            FaraoLoggerProvider.TECHNICAL_LOGS.info("Some loopflow constraints are not respected.");
+            OpenRaoLoggerProvider.TECHNICAL_LOGS.info("Some loopflow constraints are not respected.");
         }
 
         return Pair.of(cost, costlyElements);

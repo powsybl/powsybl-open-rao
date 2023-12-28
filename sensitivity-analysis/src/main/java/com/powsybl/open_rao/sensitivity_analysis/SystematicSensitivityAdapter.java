@@ -22,7 +22,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.powsybl.open_rao.sensitivity_analysis.SensitivityAnalysisUtil.convertCracContingencyToPowsybl;
-import static com.powsybl.open_rao.commons.logs.FaraoLoggerProvider.TECHNICAL_LOGS;
+import static com.powsybl.open_rao.commons.logs.OpenRaoLoggerProvider.TECHNICAL_LOGS;
 
 /**
  * @author Pengbo Wang {@literal <pengbo.wang at rte-international.com>}

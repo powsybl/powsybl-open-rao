@@ -41,8 +41,8 @@ public abstract class AbstractNetworkPool extends ForkJoinPool implements AutoCl
         super(parallelism);
         Objects.requireNonNull(network);
         this.targetVariant = Objects.requireNonNull(targetVariant);
-        this.stateSaveVariant = RandomizedString.getRandomizedString("FaraoNetworkPool state save ", network.getVariantManager().getVariantIds(), 5);
-        this.workingVariant = RandomizedString.getRandomizedString("FaraoNetworkPool working variant ", network.getVariantManager().getVariantIds(), 5);
+        this.stateSaveVariant = RandomizedString.getRandomizedString("OpenRaoNetworkPool state save ", network.getVariantManager().getVariantIds(), 5);
+        this.workingVariant = RandomizedString.getRandomizedString("OpenRaoNetworkPool working variant ", network.getVariantManager().getVariantIds(), 5);
         this.networksQueue = new ArrayBlockingQueue<>(getParallelism());
         this.networkInitialVariantId = network.getVariantManager().getWorkingVariantId();
         this.network = network;

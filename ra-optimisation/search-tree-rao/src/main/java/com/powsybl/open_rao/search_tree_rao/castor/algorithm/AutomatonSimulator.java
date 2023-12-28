@@ -42,7 +42,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.powsybl.open_rao.commons.Unit.MEGAWATT;
-import static com.powsybl.open_rao.commons.logs.FaraoLoggerProvider.*;
+import static com.powsybl.open_rao.commons.logs.OpenRaoLoggerProvider.*;
 
 /**
  * Automaton simulator

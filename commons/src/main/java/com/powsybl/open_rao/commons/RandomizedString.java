@@ -6,7 +6,7 @@
  */
 package com.powsybl.open_rao.commons;
 
-import com.powsybl.open_rao.commons.logs.FaraoLoggerProvider;
+import com.powsybl.open_rao.commons.logs.OpenRaoLoggerProvider;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -43,7 +43,7 @@ public final class RandomizedString {
     public static String getRandomizedString(String prefix, Collection<String> invalidStrings, int maxTry) {
         Objects.requireNonNull(prefix);
         if (maxTry < 1) {
-            FaraoLoggerProvider.TECHNICAL_LOGS.error("There should at least be one try to generate randomized string.");
+            OpenRaoLoggerProvider.TECHNICAL_LOGS.error("There should at least be one try to generate randomized string.");
             throw new IllegalArgumentException("There should at least be one try to generate randomized string.");
         }
         for (int tryNum = 0; tryNum < maxTry; tryNum++) {
@@ -52,7 +52,7 @@ public final class RandomizedString {
                 return randomizedString;
             }
         }
-        FaraoLoggerProvider.TECHNICAL_LOGS.error("Failed to create a randomized string with prefix '{}' in {} {}.", prefix, maxTry, maxTry > 1 ? "tries" : "try");
+        OpenRaoLoggerProvider.TECHNICAL_LOGS.error("Failed to create a randomized string with prefix '{}' in {} {}.", prefix, maxTry, maxTry > 1 ? "tries" : "try");
         throw new OpenRaoException(String.format("Failed to create a randomized string with prefix '%s' in %d %s.", prefix, maxTry, maxTry > 1 ? "tries" : "try"));
     }
 }

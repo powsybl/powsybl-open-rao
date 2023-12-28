@@ -13,8 +13,8 @@ import com.powsybl.open_rao.data.crac_api.range_action.RangeAction;
 import com.powsybl.open_rao.rao_api.parameters.RangeActionsOptimizationParameters;
 import com.powsybl.open_rao.rao_api.parameters.RaoParameters;
 import com.powsybl.open_rao.search_tree_rao.commons.optimization_perimeters.OptimizationPerimeter;
-import com.powsybl.open_rao.search_tree_rao.linear_optimisation.algorithms.linear_problem.FaraoMPConstraint;
-import com.powsybl.open_rao.search_tree_rao.linear_optimisation.algorithms.linear_problem.FaraoMPVariable;
+import com.powsybl.open_rao.search_tree_rao.linear_optimisation.algorithms.linear_problem.OpenRaoMPConstraint;
+import com.powsybl.open_rao.search_tree_rao.linear_optimisation.algorithms.linear_problem.OpenRaoMPVariable;
 import com.powsybl.open_rao.search_tree_rao.linear_optimisation.algorithms.linear_problem.LinearProblem;
 import com.powsybl.open_rao.search_tree_rao.linear_optimisation.algorithms.linear_problem.LinearProblemBuilder;
 import com.powsybl.open_rao.search_tree_rao.result.api.RangeActionSetpointResult;
@@ -79,12 +79,12 @@ class ContinuousRangeActionGroupFillerTest extends AbstractFillerTest {
         linearProblem.fill(flowResult, sensitivityResult);
 
         // check that all constraints and variables relate to discrete Pst Group filler exists
-        FaraoMPVariable groupSetpointV = linearProblem.getRangeActionGroupSetpointVariable(groupId, state);
-        FaraoMPVariable setpoint1V = linearProblem.getRangeActionSetpointVariable(pstRa1, state);
-        FaraoMPVariable setpoint2V = linearProblem.getRangeActionSetpointVariable(pstRa2, state);
+        OpenRaoMPVariable groupSetpointV = linearProblem.getRangeActionGroupSetpointVariable(groupId, state);
+        OpenRaoMPVariable setpoint1V = linearProblem.getRangeActionSetpointVariable(pstRa1, state);
+        OpenRaoMPVariable setpoint2V = linearProblem.getRangeActionSetpointVariable(pstRa2, state);
 
-        FaraoMPConstraint groupTap1C = linearProblem.getRangeActionGroupSetpointConstraint(pstRa1, state);
-        FaraoMPConstraint groupTap2C = linearProblem.getRangeActionGroupSetpointConstraint(pstRa2, state);
+        OpenRaoMPConstraint groupTap1C = linearProblem.getRangeActionGroupSetpointConstraint(pstRa1, state);
+        OpenRaoMPConstraint groupTap2C = linearProblem.getRangeActionGroupSetpointConstraint(pstRa2, state);
 
         assertNotNull(groupSetpointV);
         assertNotNull(groupTap1C);

@@ -13,7 +13,7 @@ package com.powsybl.open_rao.commons.logs;
  *
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
-public class RaoBusinessWarns extends AbstractFaraoLogger {
+public class RaoBusinessWarns extends AbstractOpenRaoLogger {
     private static final String LOG_LEVEL_NOT_ALLOWED = "Log level not allowed in this logger";
 
     public RaoBusinessWarns() {

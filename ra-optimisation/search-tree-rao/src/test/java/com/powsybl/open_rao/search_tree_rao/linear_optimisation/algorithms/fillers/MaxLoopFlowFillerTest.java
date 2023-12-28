@@ -18,8 +18,8 @@ import com.powsybl.open_rao.rao_api.parameters.RaoParameters;
 import com.powsybl.open_rao.rao_api.parameters.extensions.LoopFlowParametersExtension;
 import com.powsybl.open_rao.rao_api.parameters.extensions.PtdfApproximation;
 import com.powsybl.open_rao.search_tree_rao.commons.optimization_perimeters.OptimizationPerimeter;
-import com.powsybl.open_rao.search_tree_rao.linear_optimisation.algorithms.linear_problem.FaraoMPConstraint;
-import com.powsybl.open_rao.search_tree_rao.linear_optimisation.algorithms.linear_problem.FaraoMPVariable;
+import com.powsybl.open_rao.search_tree_rao.linear_optimisation.algorithms.linear_problem.OpenRaoMPConstraint;
+import com.powsybl.open_rao.search_tree_rao.linear_optimisation.algorithms.linear_problem.OpenRaoMPVariable;
 import com.powsybl.open_rao.search_tree_rao.linear_optimisation.algorithms.linear_problem.LinearProblem;
 import com.powsybl.open_rao.search_tree_rao.linear_optimisation.algorithms.linear_problem.LinearProblemBuilder;
 import com.powsybl.open_rao.search_tree_rao.result.api.FlowResult;
@@ -124,8 +124,8 @@ class MaxLoopFlowFillerTest extends AbstractFillerTest {
         buildLinearProblem();
 
         // check flow constraint for cnec1
-        FaraoMPConstraint loopFlowConstraintUb = linearProblem.getMaxLoopFlowConstraint(cnec1, Side.LEFT, LinearProblem.BoundExtension.UPPER_BOUND);
-        FaraoMPConstraint loopFlowConstraintLb = linearProblem.getMaxLoopFlowConstraint(cnec1, Side.LEFT, LinearProblem.BoundExtension.LOWER_BOUND);
+        OpenRaoMPConstraint loopFlowConstraintUb = linearProblem.getMaxLoopFlowConstraint(cnec1, Side.LEFT, LinearProblem.BoundExtension.UPPER_BOUND);
+        OpenRaoMPConstraint loopFlowConstraintLb = linearProblem.getMaxLoopFlowConstraint(cnec1, Side.LEFT, LinearProblem.BoundExtension.LOWER_BOUND);
 
         assertNotNull(loopFlowConstraintUb);
         assertNotNull(loopFlowConstraintLb);
@@ -133,7 +133,7 @@ class MaxLoopFlowFillerTest extends AbstractFillerTest {
         assertEquals(-(100 - 5.) + 49.0 - 0.01, loopFlowConstraintLb.lb(), DOUBLE_TOLERANCE);
         assertEquals((100 - 5.) + 49.0 + 0.01, loopFlowConstraintUb.ub(), DOUBLE_TOLERANCE);
 
-        FaraoMPVariable flowVariable = linearProblem.getFlowVariable(cnec1, Side.LEFT);
+        OpenRaoMPVariable flowVariable = linearProblem.getFlowVariable(cnec1, Side.LEFT);
         assertEquals(1, loopFlowConstraintUb.getCoefficient(flowVariable), 0.1);
         assertEquals(1, loopFlowConstraintLb.getCoefficient(flowVariable), 0.1);
 
@@ -154,8 +154,8 @@ class MaxLoopFlowFillerTest extends AbstractFillerTest {
         buildLinearProblem();
 
         // check flow constraint for cnec1
-        FaraoMPConstraint loopFlowConstraintUb = linearProblem.getMaxLoopFlowConstraint(cnec1, Side.LEFT, LinearProblem.BoundExtension.UPPER_BOUND);
-        FaraoMPConstraint loopFlowConstraintLb = linearProblem.getMaxLoopFlowConstraint(cnec1, Side.LEFT, LinearProblem.BoundExtension.LOWER_BOUND);
+        OpenRaoMPConstraint loopFlowConstraintUb = linearProblem.getMaxLoopFlowConstraint(cnec1, Side.LEFT, LinearProblem.BoundExtension.UPPER_BOUND);
+        OpenRaoMPConstraint loopFlowConstraintLb = linearProblem.getMaxLoopFlowConstraint(cnec1, Side.LEFT, LinearProblem.BoundExtension.LOWER_BOUND);
 
         assertNotNull(loopFlowConstraintUb);
         assertNotNull(loopFlowConstraintLb);
@@ -163,7 +163,7 @@ class MaxLoopFlowFillerTest extends AbstractFillerTest {
         assertEquals(-(110 - 5.) + 49.0 - 0.01, loopFlowConstraintLb.lb(), DOUBLE_TOLERANCE);
         assertEquals((110 - 5.) + 49.0 + 0.01, loopFlowConstraintUb.ub(), DOUBLE_TOLERANCE);
 
-        FaraoMPVariable flowVariable = linearProblem.getFlowVariable(cnec1, Side.LEFT);
+        OpenRaoMPVariable flowVariable = linearProblem.getFlowVariable(cnec1, Side.LEFT);
         assertEquals(1, loopFlowConstraintUb.getCoefficient(flowVariable), DOUBLE_TOLERANCE);
         assertEquals(1, loopFlowConstraintLb.getCoefficient(flowVariable), DOUBLE_TOLERANCE);
     }
@@ -185,13 +185,13 @@ class MaxLoopFlowFillerTest extends AbstractFillerTest {
         updateLinearProblem();
 
         // check flow constraint for cnec1
-        FaraoMPConstraint loopFlowConstraintUb = linearProblem.getMaxLoopFlowConstraint(cnec1, Side.LEFT, LinearProblem.BoundExtension.UPPER_BOUND);
-        FaraoMPConstraint loopFlowConstraintLb = linearProblem.getMaxLoopFlowConstraint(cnec1, Side.LEFT, LinearProblem.BoundExtension.LOWER_BOUND);
+        OpenRaoMPConstraint loopFlowConstraintUb = linearProblem.getMaxLoopFlowConstraint(cnec1, Side.LEFT, LinearProblem.BoundExtension.UPPER_BOUND);
+        OpenRaoMPConstraint loopFlowConstraintLb = linearProblem.getMaxLoopFlowConstraint(cnec1, Side.LEFT, LinearProblem.BoundExtension.LOWER_BOUND);
 
         assertEquals(-(100 - 5.) + 67.0 - 0.01, loopFlowConstraintLb.lb(), DOUBLE_TOLERANCE);
         assertEquals((100 - 5.) + 67.0 + 0.01, loopFlowConstraintUb.ub(), DOUBLE_TOLERANCE);
 
-        FaraoMPVariable flowVariable = linearProblem.getFlowVariable(cnec1, Side.LEFT);
+        OpenRaoMPVariable flowVariable = linearProblem.getFlowVariable(cnec1, Side.LEFT);
         assertEquals(1, loopFlowConstraintUb.getCoefficient(flowVariable), DOUBLE_TOLERANCE);
         assertEquals(1, loopFlowConstraintLb.getCoefficient(flowVariable), DOUBLE_TOLERANCE);
     }
@@ -213,8 +213,8 @@ class MaxLoopFlowFillerTest extends AbstractFillerTest {
         updateLinearProblem();
 
         // check flow constraint for cnec1
-        FaraoMPConstraint loopFlowConstraintUb = linearProblem.getMaxLoopFlowConstraint(cnec1, Side.LEFT, LinearProblem.BoundExtension.UPPER_BOUND);
-        FaraoMPConstraint loopFlowConstraintLb = linearProblem.getMaxLoopFlowConstraint(cnec1, Side.LEFT, LinearProblem.BoundExtension.LOWER_BOUND);
+        OpenRaoMPConstraint loopFlowConstraintUb = linearProblem.getMaxLoopFlowConstraint(cnec1, Side.LEFT, LinearProblem.BoundExtension.UPPER_BOUND);
+        OpenRaoMPConstraint loopFlowConstraintLb = linearProblem.getMaxLoopFlowConstraint(cnec1, Side.LEFT, LinearProblem.BoundExtension.LOWER_BOUND);
 
         assertEquals(-(100 - 5.) + 49.0 - 0.01, loopFlowConstraintLb.lb(), DOUBLE_TOLERANCE);
         assertEquals((100 - 5.) + 49.0 + 0.01, loopFlowConstraintUb.ub(), DOUBLE_TOLERANCE);
@@ -243,8 +243,8 @@ class MaxLoopFlowFillerTest extends AbstractFillerTest {
         buildLinearProblem();
 
         // Check left side
-        FaraoMPConstraint loopFlowConstraintUb = linearProblem.getMaxLoopFlowConstraint(cnecOn2sides, Side.LEFT, LinearProblem.BoundExtension.UPPER_BOUND);
-        FaraoMPConstraint loopFlowConstraintLb = linearProblem.getMaxLoopFlowConstraint(cnecOn2sides, Side.LEFT, LinearProblem.BoundExtension.LOWER_BOUND);
+        OpenRaoMPConstraint loopFlowConstraintUb = linearProblem.getMaxLoopFlowConstraint(cnecOn2sides, Side.LEFT, LinearProblem.BoundExtension.UPPER_BOUND);
+        OpenRaoMPConstraint loopFlowConstraintLb = linearProblem.getMaxLoopFlowConstraint(cnecOn2sides, Side.LEFT, LinearProblem.BoundExtension.LOWER_BOUND);
 
         assertNotNull(loopFlowConstraintUb);
         assertNotNull(loopFlowConstraintLb);
@@ -252,7 +252,7 @@ class MaxLoopFlowFillerTest extends AbstractFillerTest {
         assertEquals(-(100 - 5.) + 49.0 - 0.01, loopFlowConstraintLb.lb(), DOUBLE_TOLERANCE);
         assertEquals((100 - 5.) + 49.0 + 0.01, loopFlowConstraintUb.ub(), DOUBLE_TOLERANCE);
 
-        FaraoMPVariable flowVariable = linearProblem.getFlowVariable(cnecOn2sides, Side.LEFT);
+        OpenRaoMPVariable flowVariable = linearProblem.getFlowVariable(cnecOn2sides, Side.LEFT);
         assertEquals(1, loopFlowConstraintUb.getCoefficient(flowVariable), 0.1);
         assertEquals(1, loopFlowConstraintLb.getCoefficient(flowVariable), 0.1);
 

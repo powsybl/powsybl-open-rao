@@ -12,7 +12,7 @@ import java.util.Map;
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-public class MPConstraintMock extends FaraoMPConstraint {
+public class MPConstraintMock extends OpenRaoMPConstraint {
 
     private String name;
     private double lb;
@@ -43,7 +43,7 @@ public class MPConstraintMock extends FaraoMPConstraint {
     }
 
     @Override
-    public void setCoefficient(FaraoMPVariable var, double coeff) {
+    public void setCoefficient(OpenRaoMPVariable var, double coeff) {
         coefficients.put(var.name(), coeff);
     }
 
@@ -64,7 +64,7 @@ public class MPConstraintMock extends FaraoMPConstraint {
     }
 
     @Override
-    public double getCoefficient(FaraoMPVariable var) {
+    public double getCoefficient(OpenRaoMPVariable var) {
         return coefficients.getOrDefault(var.name(), 0.);
     }
 }

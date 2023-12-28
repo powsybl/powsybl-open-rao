@@ -138,7 +138,7 @@ class MnecFillerTest extends AbstractFillerTest {
         fillProblemWithFiller(Unit.MEGAWATT);
         crac.getFlowCnecs().forEach(cnec -> cnec.getMonitoredSides().forEach(side -> {
             if (cnec.isMonitored()) {
-                FaraoMPVariable variable = linearProblem.getMnecViolationVariable(cnec, side);
+                OpenRaoMPVariable variable = linearProblem.getMnecViolationVariable(cnec, side);
                 assertNotNull(variable);
                 assertEquals(0, variable.lb(), DOUBLE_TOLERANCE);
                 assertEquals(LinearProblem.infinity(), variable.ub(), DOUBLE_TOLERANCE);
@@ -158,7 +158,7 @@ class MnecFillerTest extends AbstractFillerTest {
             assertEquals(String.format("Constraint %s has not been created yet", LinearProblemIdGenerator.mnecFlowConstraintId(cnec, side, LinearProblem.MarginExtension.BELOW_THRESHOLD)), e.getMessage());
         }));
 
-        FaraoMPConstraint ct1Max = linearProblem.getMnecFlowConstraint(mnec1, Side.RIGHT, LinearProblem.MarginExtension.BELOW_THRESHOLD);
+        OpenRaoMPConstraint ct1Max = linearProblem.getMnecFlowConstraint(mnec1, Side.RIGHT, LinearProblem.MarginExtension.BELOW_THRESHOLD);
         assertNotNull(ct1Max);
         assertEquals(-LinearProblem.infinity(), ct1Max.lb(), DOUBLE_TOLERANCE);
         double mnec1MaxFlow = 1000 - 3.5;
@@ -166,7 +166,7 @@ class MnecFillerTest extends AbstractFillerTest {
         assertEquals(1, ct1Max.getCoefficient(linearProblem.getFlowVariable(mnec1, Side.RIGHT)), DOUBLE_TOLERANCE);
         assertEquals(-1, ct1Max.getCoefficient(linearProblem.getMnecViolationVariable(mnec1, Side.RIGHT)), DOUBLE_TOLERANCE);
 
-        FaraoMPConstraint ct1Min = linearProblem.getMnecFlowConstraint(mnec1, Side.RIGHT, LinearProblem.MarginExtension.ABOVE_THRESHOLD);
+        OpenRaoMPConstraint ct1Min = linearProblem.getMnecFlowConstraint(mnec1, Side.RIGHT, LinearProblem.MarginExtension.ABOVE_THRESHOLD);
         assertNotNull(ct1Min);
         double mnec1MinFlow = -1000 + 3.5;
         assertEquals(mnec1MinFlow, ct1Min.lb(), DOUBLE_TOLERANCE);
@@ -174,7 +174,7 @@ class MnecFillerTest extends AbstractFillerTest {
         assertEquals(1, ct1Min.getCoefficient(linearProblem.getFlowVariable(mnec1, Side.RIGHT)), DOUBLE_TOLERANCE);
         assertEquals(1, ct1Min.getCoefficient(linearProblem.getMnecViolationVariable(mnec1, Side.RIGHT)), DOUBLE_TOLERANCE);
 
-        FaraoMPConstraint ct2Max = linearProblem.getMnecFlowConstraint(mnec2, Side.LEFT, LinearProblem.MarginExtension.BELOW_THRESHOLD);
+        OpenRaoMPConstraint ct2Max = linearProblem.getMnecFlowConstraint(mnec2, Side.LEFT, LinearProblem.MarginExtension.BELOW_THRESHOLD);
         assertNotNull(ct2Max);
         assertEquals(-LinearProblem.infinity(), ct2Max.lb(), DOUBLE_TOLERANCE);
         double mnec2MaxFlow = 100 - 3.5;
@@ -182,7 +182,7 @@ class MnecFillerTest extends AbstractFillerTest {
         assertEquals(1, ct2Max.getCoefficient(linearProblem.getFlowVariable(mnec2, Side.LEFT)), DOUBLE_TOLERANCE);
         assertEquals(-1, ct2Max.getCoefficient(linearProblem.getMnecViolationVariable(mnec2, Side.LEFT)), DOUBLE_TOLERANCE);
 
-        FaraoMPConstraint ct2Min = linearProblem.getMnecFlowConstraint(mnec2, Side.LEFT, LinearProblem.MarginExtension.ABOVE_THRESHOLD);
+        OpenRaoMPConstraint ct2Min = linearProblem.getMnecFlowConstraint(mnec2, Side.LEFT, LinearProblem.MarginExtension.ABOVE_THRESHOLD);
         assertNotNull(ct2Min);
         double mnec2MinFlow = -250 + 3.5;
         assertEquals(mnec2MinFlow, ct2Min.lb(), DOUBLE_TOLERANCE);
@@ -195,7 +195,7 @@ class MnecFillerTest extends AbstractFillerTest {
     void testAddMnecPenaltyCostMW() {
         fillProblemWithFiller(Unit.MEGAWATT);
         crac.getFlowCnecs().stream().filter(Cnec::isMonitored).forEach(cnec -> cnec.getMonitoredSides().forEach(side -> {
-            FaraoMPVariable mnecViolationVariable = linearProblem.getMnecViolationVariable(cnec, side);
+            OpenRaoMPVariable mnecViolationVariable = linearProblem.getMnecViolationVariable(cnec, side);
             assertEquals(10.0 / cnec.getMonitoredSides().size(), linearProblem.getObjective().getCoefficient(mnecViolationVariable), DOUBLE_TOLERANCE);
         }));
     }
@@ -204,7 +204,7 @@ class MnecFillerTest extends AbstractFillerTest {
     void testAddMnecPenaltyCostA() {
         fillProblemWithFiller(Unit.AMPERE);
         crac.getFlowCnecs().stream().filter(Cnec::isMonitored).forEach(cnec -> cnec.getMonitoredSides().forEach(side -> {
-            FaraoMPVariable mnecViolationVariable = linearProblem.getMnecViolationVariable(cnec, side);
+            OpenRaoMPVariable mnecViolationVariable = linearProblem.getMnecViolationVariable(cnec, side);
             assertEquals(10.0 / 0.658179 / cnec.getMonitoredSides().size(), linearProblem.getObjective().getCoefficient(mnecViolationVariable), DOUBLE_TOLERANCE);
         }));
     }

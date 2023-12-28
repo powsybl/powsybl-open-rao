@@ -13,7 +13,7 @@ import com.powsybl.iidm.network.Country;
 
 import java.util.Objects;
 
-import static com.powsybl.open_rao.commons.logs.FaraoLoggerProvider.BUSINESS_WARNS;
+import static com.powsybl.open_rao.commons.logs.OpenRaoLoggerProvider.BUSINESS_WARNS;
 import static com.powsybl.open_rao.data.crac_impl.AdderUtils.assertAttributeNotEmpty;
 import static com.powsybl.open_rao.data.crac_impl.AdderUtils.assertAttributeNotNull;
 

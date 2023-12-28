@@ -17,7 +17,7 @@ import com.powsybl.open_rao.data.crac_api.range_action.PstRangeActionAdder;
 import com.powsybl.open_rao.data.crac_creation.creator.api.ImportStatus;
 import com.powsybl.open_rao.data.crac_creation.creator.api.parameters.RangeActionGroup;
 import com.powsybl.open_rao.data.crac_creation.creator.cim.crac_creator.CimConstants;
-import com.powsybl.open_rao.data.crac_creation.util.FaraoImportException;
+import com.powsybl.open_rao.data.crac_creation.util.OpenRaoImportException;
 import com.powsybl.open_rao.data.crac_creation.creator.cim.parameters.CimCracCreationParameters;
 import com.powsybl.open_rao.data.crac_creation.creator.cim.xsd.RemedialActionRegisteredResource;
 import com.powsybl.open_rao.data.crac_creation.util.PstHelper;
@@ -119,7 +119,7 @@ public class PstRangeActionCreator {
             RemedialActionSeriesCreator.addUsageRules(crac, applicationModeMarketObjectStatus, pstRangeActionAdder, contingencies, invalidContingencies, flowCnecs, angleCnec, sharedDomain);
 
             this.pstRangeActionCreationContext = RemedialActionSeriesCreator.importPstRaWithContingencies(createdRemedialActionId, pstRegisteredResource.getMRID().getValue(), pstRegisteredResource.getName(), invalidContingencies);
-        } catch (FaraoImportException e) {
+        } catch (OpenRaoImportException e) {
             this.pstRangeActionCreationContext = RemedialActionSeriesCreationContext.notImported(createdRemedialActionId, e.getImportStatus(), e.getMessage());
         }
     }
@@ -132,9 +132,9 @@ public class PstRangeActionCreator {
         } else if (marketObjectStatusStatus.equals(CimConstants.MarketObjectStatus.RELATIVE_TO_PREVIOUS_INSTANT1.getStatus()) || marketObjectStatusStatus.equals(CimConstants.MarketObjectStatus.RELATIVE_TO_PREVIOUS_INSTANT2.getStatus())) {
             return RangeType.RELATIVE_TO_PREVIOUS_INSTANT;
         } else if (marketObjectStatusStatus.equals(CimConstants.MarketObjectStatus.OPEN.getStatus()) || marketObjectStatusStatus.equals(CimConstants.MarketObjectStatus.CLOSE.getStatus())) {
-            throw new FaraoImportException(ImportStatus.INCONSISTENCY_IN_DATA, String.format("Wrong marketObjectStatusStatus: %s, PST can no longer be opened/closed (deprecated)", marketObjectStatusStatus));
+            throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, String.format("Wrong marketObjectStatusStatus: %s, PST can no longer be opened/closed (deprecated)", marketObjectStatusStatus));
         } else {
-            throw new FaraoImportException(ImportStatus.INCONSISTENCY_IN_DATA, String.format("Wrong marketObjectStatusStatus: %s", marketObjectStatusStatus));
+            throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, String.format("Wrong marketObjectStatusStatus: %s", marketObjectStatusStatus));
         }
     }
 

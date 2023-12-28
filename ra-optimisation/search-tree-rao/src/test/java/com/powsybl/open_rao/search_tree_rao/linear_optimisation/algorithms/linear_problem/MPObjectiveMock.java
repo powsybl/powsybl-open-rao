@@ -12,7 +12,7 @@ import java.util.Map;
 /**
  * @author Marc Erkol {@literal <marc.erkol at rte-france.com>}
  */
-public class MPObjectiveMock extends FaraoMPObjective {
+public class MPObjectiveMock extends OpenRaoMPObjective {
 
     private Map<String, Double> coefficients;
     private boolean isMinimization;
@@ -26,12 +26,12 @@ public class MPObjectiveMock extends FaraoMPObjective {
     }
 
     @Override
-    public void setCoefficient(FaraoMPVariable var, double coeff) {
+    public void setCoefficient(OpenRaoMPVariable var, double coeff) {
         coefficients.put(var.name(), coeff);
     }
 
     @Override
-    public double getCoefficient(FaraoMPVariable var) {
+    public double getCoefficient(OpenRaoMPVariable var) {
         return coefficients.get(var.name());
     }
 

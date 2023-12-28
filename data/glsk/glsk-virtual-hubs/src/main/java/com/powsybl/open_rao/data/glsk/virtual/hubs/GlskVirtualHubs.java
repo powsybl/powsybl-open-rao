@@ -9,7 +9,7 @@ package com.powsybl.open_rao.data.glsk.virtual.hubs;
 
 import com.powsybl.open_rao.commons.EICode;
 import com.powsybl.open_rao.commons.OpenRaoException;
-import com.powsybl.open_rao.commons.logs.FaraoLoggerProvider;
+import com.powsybl.open_rao.commons.logs.OpenRaoLoggerProvider;
 import com.powsybl.open_rao.data.refprog.reference_program.ReferenceProgram;
 import com.powsybl.open_rao.virtual_hubs.VirtualHub;
 import com.powsybl.open_rao.virtual_hubs.VirtualHubsConfiguration;
@@ -63,9 +63,9 @@ public final class GlskVirtualHubs {
         eiCodes.forEach(eiCode -> {
 
             if (!injections.containsKey(eiCode)) {
-                FaraoLoggerProvider.BUSINESS_WARNS.warn("No load found for virtual hub {}", eiCode);
+                OpenRaoLoggerProvider.BUSINESS_WARNS.warn("No load found for virtual hub {}", eiCode);
             } else {
-                FaraoLoggerProvider.TECHNICAL_LOGS.debug("Load {} found for virtual hub {}", injections.get(eiCode).getId(), eiCode);
+                OpenRaoLoggerProvider.TECHNICAL_LOGS.debug("Load {} found for virtual hub {}", injections.get(eiCode).getId(), eiCode);
                 Optional<SensitivityVariableSet> virtualHubGlsk = createGlskFromVirtualHub(eiCode, injections.get(eiCode));
                 virtualHubGlsk.ifPresent(linearGlsk -> glsks.put(eiCode, linearGlsk));
             }
@@ -102,7 +102,7 @@ public final class GlskVirtualHubs {
             // virtual hub is on a real network node
             Optional<Load> busLoad = bus.get().getLoadStream().findFirst();
             if (busLoad.isEmpty()) {
-                FaraoLoggerProvider.BUSINESS_WARNS.warn("Virtual hub {} cannot be assigned on node {} as it has no load in the network", virtualHub.getEic(), virtualHub.getNodeName());
+                OpenRaoLoggerProvider.BUSINESS_WARNS.warn("Virtual hub {} cannot be assigned on node {} as it has no load in the network", virtualHub.getEic(), virtualHub.getNodeName());
                 return null;
             }
             return busLoad.get();
@@ -113,7 +113,7 @@ public final class GlskVirtualHubs {
             return danglingLine.get();
         }
 
-        FaraoLoggerProvider.BUSINESS_WARNS.warn("Virtual hub {} cannot be assigned on node {} as it was not found in the network", virtualHub.getEic(), virtualHub.getNodeName());
+        OpenRaoLoggerProvider.BUSINESS_WARNS.warn("Virtual hub {} cannot be assigned on node {} as it was not found in the network", virtualHub.getEic(), virtualHub.getNodeName());
         return null;
     }
 

@@ -6,7 +6,7 @@
  */
 package com.powsybl.open_rao.commons;
 
-import com.powsybl.open_rao.commons.logs.FaraoLoggerProvider;
+import com.powsybl.open_rao.commons.logs.OpenRaoLoggerProvider;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Substation;
@@ -47,7 +47,7 @@ public class CountryGraph {
                         boundaries.add(new CountryBoundary(country1.get(), country2.get()));
                     }
                 } else {
-                    FaraoLoggerProvider.TECHNICAL_LOGS.debug("Countries are not defined in both sides of branch {}", branch.getId());
+                    OpenRaoLoggerProvider.TECHNICAL_LOGS.debug("Countries are not defined in both sides of branch {}", branch.getId());
                 }
             });
     }

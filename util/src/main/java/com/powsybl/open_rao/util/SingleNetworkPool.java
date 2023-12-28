@@ -6,7 +6,7 @@
  */
 package com.powsybl.open_rao.util;
 
-import com.powsybl.open_rao.commons.logs.FaraoLoggerProvider;
+import com.powsybl.open_rao.commons.logs.OpenRaoLoggerProvider;
 import com.powsybl.iidm.network.Network;
 
 import java.util.Arrays;
@@ -32,7 +32,7 @@ public class SingleNetworkPool extends AbstractNetworkPool {
         if (cloneInitialised) {
             return;
         }
-        FaraoLoggerProvider.TECHNICAL_LOGS.info("Using base network '{}' on variant '{}'", network.getId(), targetVariant);
+        OpenRaoLoggerProvider.TECHNICAL_LOGS.info("Using base network '{}' on variant '{}'", network.getId(), targetVariant);
         network.getVariantManager().setWorkingVariant(targetVariant);
         network.getVariantManager().cloneVariant(networkInitialVariantId, Arrays.asList(stateSaveVariant, workingVariant), true);
         boolean isSuccess = networksQueue.offer(network);

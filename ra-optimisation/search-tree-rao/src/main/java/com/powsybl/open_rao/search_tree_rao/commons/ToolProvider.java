@@ -8,7 +8,7 @@
 package com.powsybl.open_rao.search_tree_rao.commons;
 
 import com.powsybl.open_rao.commons.*;
-import com.powsybl.open_rao.commons.logs.FaraoLoggerProvider;
+import com.powsybl.open_rao.commons.logs.OpenRaoLoggerProvider;
 import com.powsybl.open_rao.data.crac_api.Instant;
 import com.powsybl.open_rao.data.crac_api.cnec.Cnec;
 import com.powsybl.open_rao.data.crac_api.cnec.FlowCnec;
@@ -137,7 +137,7 @@ public final class ToolProvider {
         for (String eiCode : listEicCode) {
             SensitivityVariableSet linearGlsk = glskProvider.getData(eiCode);
             if (Objects.isNull(linearGlsk)) {
-                FaraoLoggerProvider.TECHNICAL_LOGS.warn("No GLSK found for CountryEICode {}", eiCode);
+                OpenRaoLoggerProvider.TECHNICAL_LOGS.warn("No GLSK found for CountryEICode {}", eiCode);
             } else {
                 glskBoundaries.put(eiCode, linearGlsk);
             }

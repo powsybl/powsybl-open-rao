@@ -29,7 +29,7 @@ import java.util.concurrent.ForkJoinTask;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
-import static com.powsybl.open_rao.commons.logs.FaraoLoggerProvider.*;
+import static com.powsybl.open_rao.commons.logs.OpenRaoLoggerProvider.*;
 
 /**
  * Monitors voltage of VoltageCnecs

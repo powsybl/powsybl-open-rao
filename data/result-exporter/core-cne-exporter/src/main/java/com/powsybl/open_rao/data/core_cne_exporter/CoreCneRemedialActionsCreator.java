@@ -9,7 +9,7 @@ package com.powsybl.open_rao.data.core_cne_exporter;
 
 import com.powsybl.open_rao.commons.OpenRaoException;
 import com.powsybl.open_rao.commons.TsoEICode;
-import com.powsybl.open_rao.commons.logs.FaraoLoggerProvider;
+import com.powsybl.open_rao.commons.logs.OpenRaoLoggerProvider;
 import com.powsybl.open_rao.data.cne_exporter_commons.CneHelper;
 import com.powsybl.open_rao.data.core_cne_exporter.xsd.ConstraintSeries;
 import com.powsybl.open_rao.data.core_cne_exporter.xsd.ContingencySeries;
@@ -96,7 +96,7 @@ public final class CoreCneRemedialActionsCreator {
     private void logMissingRangeActions() {
         cracCreationContext.getRemedialActionCreationContexts().forEach(remedialActionCreationContext -> {
             if (!remedialActionCreationContext.isImported()) {
-                FaraoLoggerProvider.TECHNICAL_LOGS.warn("Remedial action {} was not imported into the RAO, it will be absent from the CNE file", remedialActionCreationContext.getNativeId());
+                OpenRaoLoggerProvider.TECHNICAL_LOGS.warn("Remedial action {} was not imported into the RAO, it will be absent from the CNE file", remedialActionCreationContext.getNativeId());
             }
         });
     }
@@ -201,7 +201,7 @@ public final class CoreCneRemedialActionsCreator {
                 remedialActionSeries.getPartyMarketParticipant().add(newPartyMarketParticipant(TsoEICode.fromShortId(operator).getEICode()));
             }
         } catch (IllegalArgumentException e) {
-            FaraoLoggerProvider.TECHNICAL_LOGS.warn(String.format("Operator %s is not a country id.", operator));
+            OpenRaoLoggerProvider.TECHNICAL_LOGS.warn(String.format("Operator %s is not a country id.", operator));
         }
 
         return remedialActionSeries;

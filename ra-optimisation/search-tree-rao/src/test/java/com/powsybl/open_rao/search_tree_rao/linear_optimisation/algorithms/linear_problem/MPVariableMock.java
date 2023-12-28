@@ -9,7 +9,7 @@ package com.powsybl.open_rao.search_tree_rao.linear_optimisation.algorithms.line
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-public class MPVariableMock extends FaraoMPVariable {
+public class MPVariableMock extends OpenRaoMPVariable {
 
     private String name;
     private double lb;

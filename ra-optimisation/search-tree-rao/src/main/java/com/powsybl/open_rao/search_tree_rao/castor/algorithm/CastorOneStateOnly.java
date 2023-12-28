@@ -35,7 +35,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 
-import static com.powsybl.open_rao.commons.logs.FaraoLoggerProvider.BUSINESS_LOGS;
+import static com.powsybl.open_rao.commons.logs.OpenRaoLoggerProvider.BUSINESS_LOGS;
 
 /**
  * Flow controller to compute a RAO taking into account only the cnecs and range actions

@@ -13,7 +13,7 @@ import com.powsybl.open_rao.data.crac_api.range_action.PstRangeActionAdder;
 import com.powsybl.open_rao.data.crac_creation.creator.api.ImportStatus;
 import com.powsybl.open_rao.data.crac_creation.creator.csa_profile.crac_creator.CsaProfileConstants;
 import com.powsybl.open_rao.data.crac_creation.creator.csa_profile.crac_creator.CsaProfileCracUtils;
-import com.powsybl.open_rao.data.crac_creation.util.FaraoImportException;
+import com.powsybl.open_rao.data.crac_creation.util.OpenRaoImportException;
 import com.powsybl.open_rao.data.crac_creation.util.iidm.IidmPstHelper;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.triplestore.api.PropertyBag;
@@ -56,7 +56,7 @@ public class PstRangeActionCreator {
         String tapChangerId = rawId.substring(rawId.lastIndexOf("#_") + 2).replace("+", " ");
         IidmPstHelper iidmPstHelper = new IidmPstHelper(tapChangerId, network);
         if (!iidmPstHelper.isValid()) {
-            throw new FaraoImportException(ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK, CsaProfileConstants.REMEDIAL_ACTION_MESSAGE + targetRaId + " will not be imported because " + iidmPstHelper.getInvalidReason());
+            throw new OpenRaoImportException(ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK, CsaProfileConstants.REMEDIAL_ACTION_MESSAGE + targetRaId + " will not be imported because " + iidmPstHelper.getInvalidReason());
         }
 
         pstRangeActionAdder
@@ -72,7 +72,7 @@ public class PstRangeActionCreator {
                 String valueKind = staticPropertyRangePropertyBag.get(CsaProfileConstants.STATIC_PROPERTY_RANGE_VALUE_KIND);
 
                 if (!valueKind.equals(CsaProfileConstants.ValueOffsetKind.ABSOLUTE.toString())) {
-                    throw new FaraoImportException(ImportStatus.NOT_YET_HANDLED_BY_FARAO, CsaProfileConstants.REMEDIAL_ACTION_MESSAGE + targetRaId + " will not be imported because StaticPropertyRange has wrong value of valueKind, the only allowed value is 'absolute'");
+                    throw new OpenRaoImportException(ImportStatus.NOT_YET_HANDLED_BY_FARAO, CsaProfileConstants.REMEDIAL_ACTION_MESSAGE + targetRaId + " will not be imported because StaticPropertyRange has wrong value of valueKind, the only allowed value is 'absolute'");
                 } else {
                     String direction = staticPropertyRangePropertyBag.get(CsaProfileConstants.STATIC_PROPERTY_RANGE_DIRECTION);
                     int normalValue = (int) Float.parseFloat(staticPropertyRangePropertyBag.get(CsaProfileConstants.NORMAL_VALUE));
@@ -81,7 +81,7 @@ public class PstRangeActionCreator {
                     } else if (direction.equals(CsaProfileConstants.RelativeDirectionKind.UP.toString())) {
                         normalValueUp = Optional.of(normalValue);
                     } else {
-                        throw new FaraoImportException(ImportStatus.NOT_YET_HANDLED_BY_FARAO, CsaProfileConstants.REMEDIAL_ACTION_MESSAGE + targetRaId + " will not be imported because StaticPropertyRange has wrong value of direction, the only allowed values are RelativeDirectionKind.up and RelativeDirectionKind.down");
+                        throw new OpenRaoImportException(ImportStatus.NOT_YET_HANDLED_BY_FARAO, CsaProfileConstants.REMEDIAL_ACTION_MESSAGE + targetRaId + " will not be imported because StaticPropertyRange has wrong value of direction, the only allowed values are RelativeDirectionKind.up and RelativeDirectionKind.down");
                     }
                 }
             }

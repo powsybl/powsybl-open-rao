@@ -6,7 +6,7 @@
  */
 package com.powsybl.open_rao.search_tree_rao.linear_optimisation.algorithms.linear_problem;
 
-import com.powsybl.open_rao.commons.logs.FaraoLoggerProvider;
+import com.powsybl.open_rao.commons.logs.OpenRaoLoggerProvider;
 import com.powsybl.open_rao.data.crac_api.State;
 import com.powsybl.open_rao.data.crac_api.range_action.PstRangeAction;
 import com.powsybl.open_rao.data.crac_api.range_action.RangeAction;
@@ -29,7 +29,7 @@ public class LinearProblemBuilder {
         try {
             NativeLibraryLoader.loadNativeLibrary("jniortools");
         } catch (Exception e) {
-            FaraoLoggerProvider.TECHNICAL_LOGS.error("Native library jniortools could not be loaded. You can ignore this message if it is not needed.");
+            OpenRaoLoggerProvider.TECHNICAL_LOGS.error("Native library jniortools could not be loaded. You can ignore this message if it is not needed.");
         }
     }
 

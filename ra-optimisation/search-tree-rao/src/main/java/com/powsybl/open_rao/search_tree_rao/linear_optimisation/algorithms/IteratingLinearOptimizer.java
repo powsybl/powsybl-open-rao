@@ -26,7 +26,7 @@ import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.Locale;
 
-import static com.powsybl.open_rao.commons.logs.FaraoLoggerProvider.*;
+import static com.powsybl.open_rao.commons.logs.OpenRaoLoggerProvider.*;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}

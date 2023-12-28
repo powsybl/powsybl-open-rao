@@ -44,7 +44,7 @@ import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
-import static com.powsybl.open_rao.commons.logs.FaraoLoggerProvider.*;
+import static com.powsybl.open_rao.commons.logs.OpenRaoLoggerProvider.*;
 import static com.powsybl.open_rao.search_tree_rao.commons.RaoLogger.formatDouble;
 
 /**

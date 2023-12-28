@@ -13,7 +13,7 @@ package com.powsybl.open_rao.commons.logs;
  *
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
-public class TechnicalLogs extends AbstractFaraoLogger {
+public class TechnicalLogs extends AbstractOpenRaoLogger {
     public TechnicalLogs() {
         // nothing to do
     }

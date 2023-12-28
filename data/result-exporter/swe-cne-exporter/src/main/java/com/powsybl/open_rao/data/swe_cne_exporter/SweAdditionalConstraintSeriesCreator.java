@@ -20,7 +20,7 @@ import java.math.RoundingMode;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.powsybl.open_rao.commons.logs.FaraoLoggerProvider.BUSINESS_WARNS;
+import static com.powsybl.open_rao.commons.logs.OpenRaoLoggerProvider.BUSINESS_WARNS;
 
 /**
  * Generates AdditionalConstraintSeries for SWE CNE format

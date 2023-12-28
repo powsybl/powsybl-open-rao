@@ -12,10 +12,10 @@ import com.powsybl.open_rao.data.crac_creation.creator.api.ImportStatus;
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
-public class FaraoImportException extends RuntimeException {
+public class OpenRaoImportException extends RuntimeException {
     private final ImportStatus importStatus;
 
-    public FaraoImportException(ImportStatus importStatus, String msg) {
+    public OpenRaoImportException(ImportStatus importStatus, String msg) {
         super(msg);
         this.importStatus = importStatus;
     }

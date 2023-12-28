@@ -18,7 +18,7 @@ import com.powsybl.open_rao.data.crac_api.usage_rule.UsageRule;
 import java.util.*;
 
 import static com.powsybl.open_rao.data.crac_impl.AdderUtils.assertAttributeNotNull;
-import static com.powsybl.open_rao.commons.logs.FaraoLoggerProvider.BUSINESS_WARNS;
+import static com.powsybl.open_rao.commons.logs.OpenRaoLoggerProvider.BUSINESS_WARNS;
 
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}

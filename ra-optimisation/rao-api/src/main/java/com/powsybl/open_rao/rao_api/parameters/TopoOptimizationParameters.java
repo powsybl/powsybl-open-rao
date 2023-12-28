@@ -11,7 +11,7 @@ import com.powsybl.commons.config.PlatformConfig;
 
 import java.util.*;
 
-import static com.powsybl.open_rao.commons.logs.FaraoLoggerProvider.BUSINESS_WARNS;
+import static com.powsybl.open_rao.commons.logs.OpenRaoLoggerProvider.BUSINESS_WARNS;
 import static com.powsybl.open_rao.rao_api.RaoParametersCommons.*;
 
 /**

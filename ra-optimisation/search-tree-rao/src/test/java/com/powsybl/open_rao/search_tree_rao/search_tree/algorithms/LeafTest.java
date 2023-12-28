@@ -34,7 +34,7 @@ import com.powsybl.open_rao.search_tree_rao.result.impl.IteratingLinearOptimizat
 import com.powsybl.open_rao.search_tree_rao.search_tree.inputs.SearchTreeInput;
 import com.powsybl.open_rao.search_tree_rao.search_tree.parameters.SearchTreeParameters;
 import com.powsybl.open_rao.sensitivity_analysis.AppliedRemedialActions;
-import com.powsybl.open_rao.commons.logs.FaraoLoggerProvider;
+import com.powsybl.open_rao.commons.logs.OpenRaoLoggerProvider;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.sensitivity.SensitivityVariableSet;
 import org.junit.jupiter.api.AfterEach;
@@ -247,11 +247,11 @@ class LeafTest {
     }
 
     private ListAppender<ILoggingEvent> getTechnicalLogs() {
-        return getLogs(FaraoLoggerProvider.TECHNICAL_LOGS.getClass());
+        return getLogs(OpenRaoLoggerProvider.TECHNICAL_LOGS.getClass());
     }
 
     private ListAppender<ILoggingEvent> getBusinessWarns() {
-        return getLogs(FaraoLoggerProvider.BUSINESS_WARNS.getClass());
+        return getLogs(OpenRaoLoggerProvider.BUSINESS_WARNS.getClass());
     }
 
     @Test

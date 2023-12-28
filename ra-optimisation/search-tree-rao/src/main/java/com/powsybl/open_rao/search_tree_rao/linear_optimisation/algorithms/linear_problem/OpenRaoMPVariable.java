@@ -13,11 +13,11 @@ import com.google.ortools.linearsolver.MPVariable;
 /**
  * @author Philippe Edwards {@literal <philippe.edwards at rte-international.com>}
  */
-public class FaraoMPVariable {
+public class OpenRaoMPVariable {
     private final MPVariable mpVariable;
     private final int numberOfBitsToRoundOff;
 
-    protected FaraoMPVariable(MPVariable mpVariable, int numberOfBitsToRoundOff) {
+    protected OpenRaoMPVariable(MPVariable mpVariable, int numberOfBitsToRoundOff) {
         this.mpVariable = mpVariable;
         this.numberOfBitsToRoundOff = numberOfBitsToRoundOff;
     }

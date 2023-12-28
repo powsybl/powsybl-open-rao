@@ -15,7 +15,7 @@ import com.powsybl.open_rao.data.crac_api.cnec.FlowCnec;
 import com.powsybl.open_rao.data.crac_api.range_action.HvdcRangeActionAdder;
 import com.powsybl.open_rao.data.crac_creation.creator.api.ImportStatus;
 import com.powsybl.open_rao.data.crac_creation.creator.cim.crac_creator.CimConstants;
-import com.powsybl.open_rao.data.crac_creation.util.FaraoImportException;
+import com.powsybl.open_rao.data.crac_creation.util.OpenRaoImportException;
 import com.powsybl.open_rao.data.crac_creation.creator.cim.parameters.CimCracCreationParameters;
 import com.powsybl.open_rao.data.crac_creation.creator.cim.parameters.RangeActionSpeed;
 import com.powsybl.open_rao.data.crac_creation.creator.cim.xsd.RemedialActionRegisteredResource;
@@ -50,7 +50,7 @@ public class HvdcRangeActionCreator {
     private final Map<String, List<Integer>> rangeMax = new HashMap<>();
     private final Map<String, Boolean> isDirectionInverted = new HashMap<>();
     private final List<String> raSeriesIds = new ArrayList<>();
-    private final Map<String, FaraoImportException> exceptions = new HashMap<>();
+    private final Map<String, OpenRaoImportException> exceptions = new HashMap<>();
 
     public HvdcRangeActionCreator(Crac crac, Network network, List<Contingency> contingencies, List<String> invalidContingencies, Set<FlowCnec> flowCnecs, AngleCnec angleCnec, Country sharedDomain, CimCracCreationParameters cimCracCreationParameters) {
         this.crac = crac;
@@ -68,7 +68,7 @@ public class HvdcRangeActionCreator {
 
         try {
             if (remedialActionSeries.getRegisteredResource().size() != 4) {
-                throw new FaraoImportException(ImportStatus.INCONSISTENCY_IN_DATA, String.format("%s registered resources were defined in HVDC instead of 4", remedialActionSeries.getRegisteredResource().size()));
+                throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, String.format("%s registered resources were defined in HVDC instead of 4", remedialActionSeries.getRegisteredResource().size()));
             }
 
             Set<String> networkElementIds = new HashSet<>();
@@ -84,7 +84,7 @@ public class HvdcRangeActionCreator {
 
                 String networkElementId = registeredResource.getMRID().getValue();
                 if (networkElementIds.contains(networkElementId)) {
-                    throw new FaraoImportException(ImportStatus.INCONSISTENCY_IN_DATA, "HVDC RemedialAction_Series contains multiple RegisteredResources with the same mRID");
+                    throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, "HVDC RemedialAction_Series contains multiple RegisteredResources with the same mRID");
                 }
                 networkElementIds.add(networkElementId);
 
@@ -98,7 +98,7 @@ public class HvdcRangeActionCreator {
                     registeredResource.getOutAggregateNodeMRID().getValue());
 
                 if (Objects.nonNull(isRemedialActionSeriesInverted) && !isRemedialActionSeriesInverted.equals(isRegisteredResourceInverted)) {
-                    throw new FaraoImportException(ImportStatus.INCONSISTENCY_IN_DATA, "HVDC registered resources reference lines in opposite directions");
+                    throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, "HVDC registered resources reference lines in opposite directions");
                 } else {
                     isRemedialActionSeriesInverted = isRegisteredResourceInverted;
                 }
@@ -106,11 +106,11 @@ public class HvdcRangeActionCreator {
 
             Boolean finalIsRemedialActionSeriesInverted = isRemedialActionSeriesInverted;
             if (isDirectionInverted.values().stream().anyMatch(inverted -> inverted.equals(finalIsRemedialActionSeriesInverted))) {
-                throw new FaraoImportException(ImportStatus.INCONSISTENCY_IN_DATA, "HVDC line should be defined in the opposite direction");
+                throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, "HVDC line should be defined in the opposite direction");
             } else {
                 isDirectionInverted.put(remedialActionSeries.getMRID(), isRemedialActionSeriesInverted);
             }
-        } catch (FaraoImportException e) {
+        } catch (OpenRaoImportException e) {
             exceptions.put(remedialActionSeries.getMRID(), e);
         }
     }
@@ -147,7 +147,7 @@ public class HvdcRangeActionCreator {
                     .newRange().withMin(minMax.getLeft()).withMax(minMax.getRight()).add()
                     .add();
                 createdRaIds.add(remedialActionId);
-            } catch (FaraoImportException e) {
+            } catch (OpenRaoImportException e) {
                 return raSeriesIds.stream().map(id ->
                     RemedialActionSeriesCreationContext.notImported(id, e.getImportStatus(), e.getMessage())
                 ).collect(Collectors.toSet());
@@ -192,13 +192,13 @@ public class HvdcRangeActionCreator {
     private Pair<Integer, Integer> concatenateHvdcRanges(List<Integer> min, List<Integer> max) {
         if (min.get(1) < min.get(0)) {
             if (max.get(1) < min.get(0)) {
-                throw new FaraoImportException(ImportStatus.INCONSISTENCY_IN_DATA, "HVDC range mismatch");
+                throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, "HVDC range mismatch");
             } else {
                 return Pair.of(min.get(1), Math.max(max.get(0), max.get(1)));
             }
         } else {
             if (min.get(1) > max.get(0)) {
-                throw new FaraoImportException(ImportStatus.INCONSISTENCY_IN_DATA, "HVDC range mismatch");
+                throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, "HVDC range mismatch");
             } else {
                 return Pair.of(min.get(0), Math.max(max.get(0), max.get(1)));
             }
@@ -210,22 +210,22 @@ public class HvdcRangeActionCreator {
         // Check MarketObjectStatus
         String marketObjectStatusStatus = registeredResource.getMarketObjectStatusStatus();
         if (Objects.isNull(marketObjectStatusStatus)) {
-            throw new FaraoImportException(ImportStatus.INCOMPLETE_DATA, "Missing marketObjectStatusStatus");
+            throw new OpenRaoImportException(ImportStatus.INCOMPLETE_DATA, "Missing marketObjectStatusStatus");
         }
         if (!marketObjectStatusStatus.equals(CimConstants.MarketObjectStatus.ABSOLUTE.getStatus())) {
-            throw new FaraoImportException(ImportStatus.INCONSISTENCY_IN_DATA, String.format("Wrong marketObjectStatusStatus: %s", marketObjectStatusStatus));
+            throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, String.format("Wrong marketObjectStatusStatus: %s", marketObjectStatusStatus));
         }
         // Check unit
         String unit = registeredResource.getResourceCapacityUnitSymbol();
         if (Objects.isNull(unit)) {
-            throw new FaraoImportException(ImportStatus.INCOMPLETE_DATA, "Missing unit");
+            throw new OpenRaoImportException(ImportStatus.INCOMPLETE_DATA, "Missing unit");
         }
         if (!registeredResource.getResourceCapacityUnitSymbol().equals(MEGAWATT_UNIT_SYMBOL)) {
-            throw new FaraoImportException(ImportStatus.INCONSISTENCY_IN_DATA, String.format("Wrong unit: %s", unit));
+            throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, String.format("Wrong unit: %s", unit));
         }
         // Check that min/max are defined
         if (Objects.isNull(registeredResource.getResourceCapacityMinimumCapacity()) || Objects.isNull(registeredResource.getResourceCapacityMaximumCapacity())) {
-            throw new FaraoImportException(ImportStatus.INCOMPLETE_DATA, "Missing min or max resource capacity");
+            throw new OpenRaoImportException(ImportStatus.INCOMPLETE_DATA, "Missing min or max resource capacity");
         }
     }
 
@@ -237,13 +237,13 @@ public class HvdcRangeActionCreator {
         int min;
         int max;
         if (Objects.isNull(hvdcLine)) {
-            throw new FaraoImportException(ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK, "Not a HVDC line");
+            throw new OpenRaoImportException(ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK, "Not a HVDC line");
         }
         String from = hvdcLine.getConverterStation1().getTerminal().getVoltageLevel().getId();
         String to = hvdcLine.getConverterStation2().getTerminal().getVoltageLevel().getId();
 
         if (Objects.isNull(inNode) || Objects.isNull(outNode)) {
-            throw new FaraoImportException(ImportStatus.INCOMPLETE_DATA, "Missing HVDC in or out aggregate nodes");
+            throw new OpenRaoImportException(ImportStatus.INCOMPLETE_DATA, "Missing HVDC in or out aggregate nodes");
         }
         if (inNode.equals(from) && outNode.equals(to)) {
             isInverted = false;
@@ -254,7 +254,7 @@ public class HvdcRangeActionCreator {
             min = -maxCapacity;
             max = -minCapacity;
         } else {
-            throw new FaraoImportException(ImportStatus.INCONSISTENCY_IN_DATA, "Wrong HVDC inAggregateNode/outAggregateNode");
+            throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, "Wrong HVDC inAggregateNode/outAggregateNode");
         }
 
         if (rangeMin.containsKey(networkElement)) {
@@ -277,13 +277,13 @@ public class HvdcRangeActionCreator {
 
     private void checkHvdcNetworkElement(String networkElement) {
         if (Objects.isNull(network.getHvdcLine(networkElement))) {
-            throw new FaraoImportException(ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK, "Not a HVDC line");
+            throw new OpenRaoImportException(ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK, "Not a HVDC line");
         }
         if (Objects.isNull(network.getHvdcLine(networkElement).getExtension(HvdcAngleDroopActivePowerControl.class))) {
-            throw new FaraoImportException(ImportStatus.INCONSISTENCY_IN_DATA, "HVDC does not have a HvdcAngleDroopActivePowerControl extension");
+            throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, "HVDC does not have a HvdcAngleDroopActivePowerControl extension");
         }
         if (!network.getHvdcLine(networkElement).getExtension(HvdcAngleDroopActivePowerControl.class).isEnabled()) {
-            throw new FaraoImportException(ImportStatus.INCONSISTENCY_IN_DATA, "HvdcAngleDroopActivePowerControl extension is not enabled");
+            throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, "HvdcAngleDroopActivePowerControl extension is not enabled");
         }
     }
 }

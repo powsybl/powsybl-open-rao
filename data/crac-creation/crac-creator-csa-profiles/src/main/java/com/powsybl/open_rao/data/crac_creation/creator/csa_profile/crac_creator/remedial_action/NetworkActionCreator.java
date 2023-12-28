@@ -13,7 +13,7 @@ import com.powsybl.open_rao.data.crac_api.network_action.NetworkActionAdder;
 import com.powsybl.open_rao.data.crac_creation.creator.api.ImportStatus;
 import com.powsybl.open_rao.data.crac_creation.creator.csa_profile.crac_creator.CsaProfileConstants;
 import com.powsybl.open_rao.data.crac_creation.creator.csa_profile.crac_creator.CsaProfileCracUtils;
-import com.powsybl.open_rao.data.crac_creation.util.FaraoImportException;
+import com.powsybl.open_rao.data.crac_creation.util.OpenRaoImportException;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Load;
 import com.powsybl.iidm.network.Network;
@@ -44,7 +44,7 @@ public class NetworkActionCreator {
                     addTopologicalElementaryAction(staticPropertyRanges.get(topologyActionPropertyBag.getId(CsaProfileConstants.MRID)),
                         networkActionAdder, topologyActionPropertyBag, gridStateAlterationId);
                 } else {
-                    throw new FaraoImportException(ImportStatus.INCONSISTENCY_IN_DATA, CsaProfileConstants.REMEDIAL_ACTION_MESSAGE + targetRaId + " will not be imported because there is no StaticPropertyRange linked to that RA");
+                    throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, CsaProfileConstants.REMEDIAL_ACTION_MESSAGE + targetRaId + " will not be imported because there is no StaticPropertyRange linked to that RA");
                 }
 
             }
@@ -57,7 +57,7 @@ public class NetworkActionCreator {
                         staticPropertyRanges.get(rotatingMachineActionPropertyBag.getId(CsaProfileConstants.MRID)),
                         gridStateAlterationId, networkActionAdder, rotatingMachineActionPropertyBag);
                 } else {
-                    throw new FaraoImportException(ImportStatus.INCONSISTENCY_IN_DATA, CsaProfileConstants.REMEDIAL_ACTION_MESSAGE + targetRaId + " will not be imported because there is no StaticPropertyRange linked to that RA");
+                    throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, CsaProfileConstants.REMEDIAL_ACTION_MESSAGE + targetRaId + " will not be imported because there is no StaticPropertyRange linked to that RA");
                 }
             }
         }
@@ -68,7 +68,7 @@ public class NetworkActionCreator {
                         staticPropertyRanges.get(shuntCompensatorModificationPropertyBag.getId(CsaProfileConstants.MRID)),
                         gridStateAlterationId, networkActionAdder, shuntCompensatorModificationPropertyBag);
                 } else {
-                    throw new FaraoImportException(ImportStatus.INCONSISTENCY_IN_DATA, CsaProfileConstants.REMEDIAL_ACTION_MESSAGE + targetRaId + " will not be imported because there is no StaticPropertyRange linked to that RA");
+                    throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, CsaProfileConstants.REMEDIAL_ACTION_MESSAGE + targetRaId + " will not be imported because there is no StaticPropertyRange linked to that RA");
                 }
             }
         }
@@ -115,7 +115,7 @@ public class NetworkActionCreator {
         Optional<Generator> optionalGenerator = network.getGeneratorStream().filter(gen -> gen.getId().equals(injectionSetPointActionId)).findAny();
         Optional<Load> optionalLoad = findLoad(injectionSetPointActionId);
         if (optionalGenerator.isEmpty() && optionalLoad.isEmpty()) {
-            throw new FaraoImportException(ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK, CsaProfileConstants.REMEDIAL_ACTION_MESSAGE + remedialActionId + " will not be imported because Network model does not contain a generator, neither a load with id of RotatingMachine: " + injectionSetPointActionId);
+            throw new OpenRaoImportException(ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK, CsaProfileConstants.REMEDIAL_ACTION_MESSAGE + remedialActionId + " will not be imported because Network model does not contain a generator, neither a load with id of RotatingMachine: " + injectionSetPointActionId);
         } else if (optionalGenerator.isPresent()) {
             initialSetPoint = (float) optionalGenerator.get().getTargetP();
         } else {
@@ -128,7 +128,7 @@ public class NetworkActionCreator {
         float initialSetPoint = 0f;
         ShuntCompensator shuntCompensator = network.getShuntCompensator(injectionSetPointActionId);
         if (shuntCompensator == null) {
-            throw new FaraoImportException(ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK, CsaProfileConstants.REMEDIAL_ACTION_MESSAGE + remedialActionId + " will not be imported because Network model does not contain a shunt compensator with id of ShuntCompensator: " + injectionSetPointActionId);
+            throw new OpenRaoImportException(ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK, CsaProfileConstants.REMEDIAL_ACTION_MESSAGE + remedialActionId + " will not be imported because Network model does not contain a shunt compensator with id of ShuntCompensator: " + injectionSetPointActionId);
         } else {
             initialSetPoint = (float) shuntCompensator.getSectionCount();
         }
@@ -141,7 +141,7 @@ public class NetworkActionCreator {
         if (CsaProfileConstants.ValueOffsetKind.ABSOLUTE.toString().equals(valueKind) && !CsaProfileConstants.RelativeDirectionKind.NONE.toString().equals(direction)
             || !CsaProfileConstants.ValueOffsetKind.ABSOLUTE.toString().equals(valueKind) && CsaProfileConstants.RelativeDirectionKind.NONE.toString().equals(direction)
             || CsaProfileConstants.RelativeDirectionKind.UP_AND_DOWN.toString().equals(direction)) {
-            throw new FaraoImportException(ImportStatus.INCONSISTENCY_IN_DATA, CsaProfileConstants.REMEDIAL_ACTION_MESSAGE + remedialActionId + " will not be imported because StaticPropertyRange has wrong values of valueKind and direction");
+            throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, CsaProfileConstants.REMEDIAL_ACTION_MESSAGE + remedialActionId + " will not be imported because StaticPropertyRange has wrong values of valueKind and direction");
         }
 
         float normalValue = 0f;
@@ -149,14 +149,14 @@ public class NetworkActionCreator {
         try {
             normalValue = Float.parseFloat(staticPropertyRangePropertyBag.get(CsaProfileConstants.NORMAL_VALUE));
         } catch (Exception e) {
-            throw new FaraoImportException(ImportStatus.INCONSISTENCY_IN_DATA, CsaProfileConstants.REMEDIAL_ACTION_MESSAGE + remedialActionId + " will not be imported because StaticPropertyRange has a non float-castable normalValue so no set-point value was retrieved");
+            throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, CsaProfileConstants.REMEDIAL_ACTION_MESSAGE + remedialActionId + " will not be imported because StaticPropertyRange has a non float-castable normalValue so no set-point value was retrieved");
         }
 
         if (CsaProfileConstants.ValueOffsetKind.ABSOLUTE.toString().equals(valueKind)) {
             setPointValue = normalValue;
         } else {
             if (normalValue < 0) {
-                throw new FaraoImportException(ImportStatus.INCONSISTENCY_IN_DATA, CsaProfileConstants.REMEDIAL_ACTION_MESSAGE + remedialActionId + " will not be imported because StaticPropertyRange has a negative normalValue so no set-point value was retrieved");
+                throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, CsaProfileConstants.REMEDIAL_ACTION_MESSAGE + remedialActionId + " will not be imported because StaticPropertyRange has a negative normalValue so no set-point value was retrieved");
             }
             if (CsaProfileConstants.ValueOffsetKind.INCREMENTAL.toString().equals(valueKind)) {
                 setPointValue = CsaProfileConstants.RelativeDirectionKind.UP.toString().equals(direction) ?
@@ -171,10 +171,10 @@ public class NetworkActionCreator {
 
         if (mustValueBePositiveInteger) {
             if (setPointValue < 0) {
-                throw new FaraoImportException(ImportStatus.INCONSISTENCY_IN_DATA, CsaProfileConstants.REMEDIAL_ACTION_MESSAGE + remedialActionId + " will not be imported because StaticPropertyRange has a negative normalValue so no set-point value was retrieved");
+                throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, CsaProfileConstants.REMEDIAL_ACTION_MESSAGE + remedialActionId + " will not be imported because StaticPropertyRange has a negative normalValue so no set-point value was retrieved");
             }
             if (setPointValue != (int) setPointValue) {
-                throw new FaraoImportException(ImportStatus.INCONSISTENCY_IN_DATA, CsaProfileConstants.REMEDIAL_ACTION_MESSAGE + remedialActionId + " will not be imported because StaticPropertyRange has a non integer-castable normalValue so no set-point value was retrieved");
+                throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, CsaProfileConstants.REMEDIAL_ACTION_MESSAGE + remedialActionId + " will not be imported because StaticPropertyRange has a non integer-castable normalValue so no set-point value was retrieved");
             }
         }
         return setPointValue;
@@ -187,24 +187,24 @@ public class NetworkActionCreator {
     private void addTopologicalElementaryAction(Set<PropertyBag> staticPropertyRangesLinkedToTopologicalElementaryAction, NetworkActionAdder networkActionAdder, PropertyBag topologyActionPropertyBag, String remedialActionId) {
         String switchId = topologyActionPropertyBag.getId(CsaProfileConstants.SWITCH);
         if (network.getSwitch(switchId) == null) {
-            throw new FaraoImportException(ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK, CsaProfileConstants.REMEDIAL_ACTION_MESSAGE + remedialActionId + " will not be imported because network model does not contain a switch with id: " + switchId);
+            throw new OpenRaoImportException(ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK, CsaProfileConstants.REMEDIAL_ACTION_MESSAGE + remedialActionId + " will not be imported because network model does not contain a switch with id: " + switchId);
         }
         CsaProfileCracUtils.checkPropertyReference(topologyActionPropertyBag, remedialActionId, "TopologyAction", CsaProfileConstants.PropertyReference.SWITCH.toString());
 
         PropertyBag staticPropertyRangePropertyBag = staticPropertyRangesLinkedToTopologicalElementaryAction.iterator().next();
         String normalValue = staticPropertyRangePropertyBag.get(CsaProfileConstants.NORMAL_VALUE);
         if (!"0".equals(normalValue) && !"1".equals(normalValue)) {
-            throw new FaraoImportException(ImportStatus.INCONSISTENCY_IN_DATA, CsaProfileConstants.REMEDIAL_ACTION_MESSAGE + remedialActionId + " will not be imported because the normalValue is " + normalValue + " which does not define a proper action type (open 1 / close 0)");
+            throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, CsaProfileConstants.REMEDIAL_ACTION_MESSAGE + remedialActionId + " will not be imported because the normalValue is " + normalValue + " which does not define a proper action type (open 1 / close 0)");
         }
 
         String valueKind = staticPropertyRangePropertyBag.get(CsaProfileConstants.STATIC_PROPERTY_RANGE_VALUE_KIND);
         if (!CsaProfileConstants.ValueOffsetKind.ABSOLUTE.toString().equals(valueKind)) {
-            throw new FaraoImportException(ImportStatus.INCONSISTENCY_IN_DATA, CsaProfileConstants.REMEDIAL_ACTION_MESSAGE + remedialActionId + " will not be imported because the ValueOffsetKind is " + valueKind + " but should be none.");
+            throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, CsaProfileConstants.REMEDIAL_ACTION_MESSAGE + remedialActionId + " will not be imported because the ValueOffsetKind is " + valueKind + " but should be none.");
         }
 
         String direction = staticPropertyRangePropertyBag.get(CsaProfileConstants.STATIC_PROPERTY_RANGE_DIRECTION);
         if (!CsaProfileConstants.RelativeDirectionKind.NONE.toString().equals(direction)) {
-            throw new FaraoImportException(ImportStatus.INCONSISTENCY_IN_DATA, CsaProfileConstants.REMEDIAL_ACTION_MESSAGE + remedialActionId + " will not be imported because the RelativeDirectionKind is " + direction + " but should be absolute.");
+            throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, CsaProfileConstants.REMEDIAL_ACTION_MESSAGE + remedialActionId + " will not be imported because the RelativeDirectionKind is " + direction + " but should be absolute.");
         }
 
         networkActionAdder.newTopologicalAction()

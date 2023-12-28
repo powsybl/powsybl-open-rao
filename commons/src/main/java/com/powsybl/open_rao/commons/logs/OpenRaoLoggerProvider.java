@@ -10,12 +10,12 @@ package com.powsybl.open_rao.commons.logs;
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
-public final class FaraoLoggerProvider {
-    public static final FaraoLogger BUSINESS_LOGS = new RaoBusinessLogs();
-    public static final FaraoLogger BUSINESS_WARNS = new RaoBusinessWarns();
-    public static final FaraoLogger TECHNICAL_LOGS = new TechnicalLogs();
+public final class OpenRaoLoggerProvider {
+    public static final OpenRaoLogger BUSINESS_LOGS = new RaoBusinessLogs();
+    public static final OpenRaoLogger BUSINESS_WARNS = new RaoBusinessWarns();
+    public static final OpenRaoLogger TECHNICAL_LOGS = new TechnicalLogs();
 
-    private FaraoLoggerProvider() {
+    private OpenRaoLoggerProvider() {
         // utility class
     }
 }

@@ -8,7 +8,7 @@
 package com.powsybl.open_rao.search_tree_rao.linear_optimisation.algorithms.linear_problem;
 
 import com.powsybl.open_rao.commons.OpenRaoException;
-import com.powsybl.open_rao.commons.logs.FaraoLoggerProvider;
+import com.powsybl.open_rao.commons.logs.OpenRaoLoggerProvider;
 import com.powsybl.open_rao.rao_api.parameters.RangeActionsOptimizationParameters;
 import com.powsybl.open_rao.search_tree_rao.commons.RaoUtil;
 import com.powsybl.open_rao.search_tree_rao.result.api.LinearProblemStatus;
@@ -29,9 +29,9 @@ public class OpenRaoMPSolver {
     private static final int NUMBER_OF_BITS_TO_ROUND_OFF = 30;
     private final MPSolver mpSolver;
     private MPSolverParameters solveConfiguration;
-    Map<String, FaraoMPConstraint> constraints = new HashMap<>();
-    Map<String, FaraoMPVariable> variables = new HashMap<>();
-    FaraoMPObjective objective;
+    Map<String, OpenRaoMPConstraint> constraints = new HashMap<>();
+    Map<String, OpenRaoMPVariable> variables = new HashMap<>();
+    OpenRaoMPObjective objective;
 
     // Only for tests
     protected OpenRaoMPSolver() {
@@ -55,7 +55,7 @@ public class OpenRaoMPSolver {
         solveConfiguration = new MPSolverParameters();
     }
 
-    public FaraoMPConstraint getConstraint(String name) {
+    public OpenRaoMPConstraint getConstraint(String name) {
         if (constraints.containsKey(name)) {
             return constraints.get(name);
         } else {
@@ -63,7 +63,7 @@ public class OpenRaoMPSolver {
         }
     }
 
-    public FaraoMPVariable getVariable(String name) {
+    public OpenRaoMPVariable getVariable(String name) {
         if (variables.containsKey(name)) {
             return variables.get(name);
         } else {
@@ -71,19 +71,19 @@ public class OpenRaoMPSolver {
         }
     }
 
-    public FaraoMPObjective getObjective() {
+    public OpenRaoMPObjective getObjective() {
         return this.objective;
     }
 
-    public FaraoMPObjective objective() {
+    public OpenRaoMPObjective objective() {
         if (this.objective == null) {
-            this.objective = new FaraoMPObjective(mpSolver.objective(), NUMBER_OF_BITS_TO_ROUND_OFF);
+            this.objective = new OpenRaoMPObjective(mpSolver.objective(), NUMBER_OF_BITS_TO_ROUND_OFF);
         }
         return this.objective;
     }
 
-    public FaraoMPVariable makeNumVar(double lb, double ub, String name) {
-        FaraoMPVariable mpVariable = new FaraoMPVariable(
+    public OpenRaoMPVariable makeNumVar(double lb, double ub, String name) {
+        OpenRaoMPVariable mpVariable = new OpenRaoMPVariable(
             mpSolver.makeNumVar(RaoUtil.roundDouble(lb, NUMBER_OF_BITS_TO_ROUND_OFF), RaoUtil.roundDouble(ub, NUMBER_OF_BITS_TO_ROUND_OFF), name),
             NUMBER_OF_BITS_TO_ROUND_OFF
         );
@@ -91,8 +91,8 @@ public class OpenRaoMPSolver {
         return mpVariable;
     }
 
-    public FaraoMPVariable makeIntVar(double lb, double ub, String name) {
-        FaraoMPVariable mpVariable = new FaraoMPVariable(
+    public OpenRaoMPVariable makeIntVar(double lb, double ub, String name) {
+        OpenRaoMPVariable mpVariable = new OpenRaoMPVariable(
             mpSolver.makeIntVar(RaoUtil.roundDouble(lb, NUMBER_OF_BITS_TO_ROUND_OFF), RaoUtil.roundDouble(ub, NUMBER_OF_BITS_TO_ROUND_OFF), name),
             NUMBER_OF_BITS_TO_ROUND_OFF
         );
@@ -100,14 +100,14 @@ public class OpenRaoMPSolver {
         return mpVariable;
     }
 
-    public FaraoMPVariable makeBoolVar(String name) {
-        FaraoMPVariable mpVariable = new FaraoMPVariable(mpSolver.makeBoolVar(name), NUMBER_OF_BITS_TO_ROUND_OFF);
+    public OpenRaoMPVariable makeBoolVar(String name) {
+        OpenRaoMPVariable mpVariable = new OpenRaoMPVariable(mpSolver.makeBoolVar(name), NUMBER_OF_BITS_TO_ROUND_OFF);
         variables.put(name, mpVariable);
         return mpVariable;
     }
 
-    public FaraoMPConstraint makeConstraint(double lb, double ub, String name) {
-        FaraoMPConstraint mpConstraint = new FaraoMPConstraint(
+    public OpenRaoMPConstraint makeConstraint(double lb, double ub, String name) {
+        OpenRaoMPConstraint mpConstraint = new OpenRaoMPConstraint(
             mpSolver.makeConstraint(RaoUtil.roundDouble(lb, NUMBER_OF_BITS_TO_ROUND_OFF), RaoUtil.roundDouble(ub, NUMBER_OF_BITS_TO_ROUND_OFF), name),
             NUMBER_OF_BITS_TO_ROUND_OFF
         );
@@ -115,8 +115,8 @@ public class OpenRaoMPSolver {
         return mpConstraint;
     }
 
-    public FaraoMPConstraint makeConstraint(String name) {
-        FaraoMPConstraint mpConstraint = new FaraoMPConstraint(mpSolver.makeConstraint(name), NUMBER_OF_BITS_TO_ROUND_OFF);
+    public OpenRaoMPConstraint makeConstraint(String name) {
+        OpenRaoMPConstraint mpConstraint = new OpenRaoMPConstraint(mpSolver.makeConstraint(name), NUMBER_OF_BITS_TO_ROUND_OFF);
         constraints.put(name, mpConstraint);
         return mpConstraint;
     }
@@ -134,7 +134,7 @@ public class OpenRaoMPSolver {
     }
 
     public LinearProblemStatus solve() {
-        if (FaraoLoggerProvider.TECHNICAL_LOGS.isTraceEnabled()) {
+        if (OpenRaoLoggerProvider.TECHNICAL_LOGS.isTraceEnabled()) {
             mpSolver.enableOutput();
         }
         return convertResultStatus(mpSolver.solve(solveConfiguration));

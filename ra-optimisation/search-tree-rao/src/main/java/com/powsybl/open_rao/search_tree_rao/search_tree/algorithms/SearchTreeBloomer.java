@@ -18,7 +18,7 @@ import com.powsybl.iidm.network.Network;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.powsybl.open_rao.commons.logs.FaraoLoggerProvider.TECHNICAL_LOGS;
+import static com.powsybl.open_rao.commons.logs.OpenRaoLoggerProvider.TECHNICAL_LOGS;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}

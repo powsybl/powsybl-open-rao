@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
-import static com.powsybl.open_rao.commons.logs.FaraoLoggerProvider.BUSINESS_WARNS;
+import static com.powsybl.open_rao.commons.logs.OpenRaoLoggerProvider.BUSINESS_WARNS;
 
 /**
  * A redispatch action collects a quantity of power to be redispatched (powerToBeRedispatched) in country (countryName)

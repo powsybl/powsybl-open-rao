@@ -29,7 +29,7 @@ import static com.powsybl.open_rao.commons.Unit.*;
 public final class ExhaustiveRaoResultCreation {
 
     /*
-    Small CRAC used in unit tests of farao-core
+    Small CRAC used in unit tests of open-rao-core
 
     The idea of this RaoResult is to be quite exhaustive regarding the diversity of its object.
     It contains numerous object to ensure that they are all covered when testing the RaoResult

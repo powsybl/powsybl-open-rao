@@ -69,7 +69,7 @@ public class TRemedialActionAdder {
                     } catch (OpenRaoException e) {
                         // unsupported remedial action type
                         cseCracCreationContext.addRemedialActionCreationContext(
-                            CseRemedialActionCreationContext.notImported(tRemedialAction, ImportStatus.NOT_YET_HANDLED_BY_FARAO, e.getMessage())
+                            CseRemedialActionCreationContext.notImported(tRemedialAction, ImportStatus.NOT_YET_HANDLED_BY_OPEN_RAO, e.getMessage())
                         );
                     }
                 });
@@ -135,7 +135,7 @@ public class TRemedialActionAdder {
         for (TNode tNode : tRemedialAction.getGeneration().getNode()) {
             if (!tNode.getVariationType().getV().equals(ABSOLUTE_VARIATION_TYPE)) {
                 cseCracCreationContext.addRemedialActionCreationContext(
-                    CseRemedialActionCreationContext.notImported(tRemedialAction, ImportStatus.NOT_YET_HANDLED_BY_FARAO, String.format("node %s is not defined as an ABSOLUTE injectionSetpoint (only ABSOLUTE is implemented).", tNode.getName().getV()))
+                    CseRemedialActionCreationContext.notImported(tRemedialAction, ImportStatus.NOT_YET_HANDLED_BY_OPEN_RAO, String.format("node %s is not defined as an ABSOLUTE injectionSetpoint (only ABSOLUTE is implemented).", tNode.getName().getV()))
                 );
                 return;
             }

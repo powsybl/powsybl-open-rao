@@ -12,7 +12,7 @@ package com.powsybl.open_rao.commons.logs;
  *
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
-public interface FaraoLogger {
+public interface OpenRaoLogger {
     void trace(String format, Object... arguments);
 
     void info(String format, Object... arguments);

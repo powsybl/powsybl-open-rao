@@ -7,7 +7,7 @@
 
 package com.powsybl.open_rao.data.crac_creation.creator.csa_profile;
 
-import com.powsybl.open_rao.commons.logs.FaraoLoggerProvider;
+import com.powsybl.open_rao.commons.logs.OpenRaoLoggerProvider;
 import com.powsybl.open_rao.data.crac_creation.creator.csa_profile.crac_creator.CsaProfileConstants;
 import com.powsybl.open_rao.data.crac_creation.creator.csa_profile.crac_creator.CsaProfileCracUtils;
 import com.powsybl.open_rao.data.native_crac_api.NativeCrac;
@@ -234,7 +234,7 @@ public class CsaProfileCrac implements NativeCrac {
     private PropertyBags queryTripleStore(String queryKey, Set<String> contexts) {
         String query = queryCatalogCsaProfileCrac.get(queryKey);
         if (query == null) {
-            FaraoLoggerProvider.TECHNICAL_LOGS.warn("Query [{}] not found in catalog", queryKey);
+            OpenRaoLoggerProvider.TECHNICAL_LOGS.warn("Query [{}] not found in catalog", queryKey);
             return new PropertyBags();
         }
 

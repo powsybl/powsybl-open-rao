@@ -33,7 +33,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ForkJoinTask;
 import java.util.stream.Collectors;
 
-import static com.powsybl.open_rao.commons.logs.FaraoLoggerProvider.*;
+import static com.powsybl.open_rao.commons.logs.OpenRaoLoggerProvider.*;
 
 /**
  * Monitors AngleCnecs' angles.

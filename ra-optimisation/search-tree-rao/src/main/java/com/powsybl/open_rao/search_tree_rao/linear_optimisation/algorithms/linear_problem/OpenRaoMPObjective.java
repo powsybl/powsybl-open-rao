@@ -13,20 +13,20 @@ import com.google.ortools.linearsolver.MPObjective;
 /**
  * @author Philippe Edwards {@literal <philippe.edwards at rte-international.com>}
  */
-public class FaraoMPObjective {
+public class OpenRaoMPObjective {
     private final MPObjective mpObjective;
     private final int numberOfBitsToRoundOff;
 
-    protected FaraoMPObjective(MPObjective mpObjective, int numberOfBitsToRoundOff) {
+    protected OpenRaoMPObjective(MPObjective mpObjective, int numberOfBitsToRoundOff) {
         this.mpObjective = mpObjective;
         this.numberOfBitsToRoundOff = numberOfBitsToRoundOff;
     }
 
-    public double getCoefficient(FaraoMPVariable variable) {
+    public double getCoefficient(OpenRaoMPVariable variable) {
         return mpObjective.getCoefficient(variable.getMPVariable());
     }
 
-    public void setCoefficient(FaraoMPVariable variable, double coeff) {
+    public void setCoefficient(OpenRaoMPVariable variable, double coeff) {
         mpObjective.setCoefficient(variable.getMPVariable(), RaoUtil.roundDouble(coeff, numberOfBitsToRoundOff));
     }
 

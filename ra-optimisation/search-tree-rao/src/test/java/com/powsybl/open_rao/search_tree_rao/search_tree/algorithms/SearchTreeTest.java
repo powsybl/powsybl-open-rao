@@ -46,7 +46,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
-import static com.powsybl.open_rao.commons.logs.FaraoLoggerProvider.TECHNICAL_LOGS;
+import static com.powsybl.open_rao.commons.logs.OpenRaoLoggerProvider.TECHNICAL_LOGS;
 import static com.powsybl.open_rao.search_tree_rao.commons.RaoLogger.logRangeActions;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
@@ -423,8 +423,8 @@ class SearchTreeTest {
         String workingVariantId = "ID";
         when(variantManager.getWorkingVariantId()).thenReturn(workingVariantId);
         when(network.getVariantManager()).thenReturn(variantManager);
-        AbstractNetworkPool faraoNetworkPool = AbstractNetworkPool.create(network, workingVariantId, leavesInParallel, true);
-        Mockito.doReturn(faraoNetworkPool).when(searchTree).makeFaraoNetworkPool(network, leavesInParallel);
+        AbstractNetworkPool openRaoNetworkPool = AbstractNetworkPool.create(network, workingVariantId, leavesInParallel, true);
+        Mockito.doReturn(openRaoNetworkPool).when(searchTree).makeOpenRaoNetworkPool(network, leavesInParallel);
     }
 
     private void searchTreeWithOneChildLeaf() {

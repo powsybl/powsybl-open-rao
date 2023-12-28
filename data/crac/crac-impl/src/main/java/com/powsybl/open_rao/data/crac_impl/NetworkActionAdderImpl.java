@@ -8,7 +8,7 @@
 package com.powsybl.open_rao.data.crac_impl;
 
 import com.powsybl.open_rao.commons.OpenRaoException;
-import com.powsybl.open_rao.commons.logs.FaraoLoggerProvider;
+import com.powsybl.open_rao.commons.logs.OpenRaoLoggerProvider;
 import com.powsybl.open_rao.data.crac_api.network_action.*;
 
 import java.util.HashSet;
@@ -61,7 +61,7 @@ public class NetworkActionAdderImpl extends AbstractRemedialActionAdder<NetworkA
             throw new OpenRaoException(String.format("A remedial action with id %s already exists", id));
         }
         if (usageRules.isEmpty()) {
-            FaraoLoggerProvider.BUSINESS_WARNS.warn("NetworkAction {} does not contain any usage rule, by default it will never be available", id);
+            OpenRaoLoggerProvider.BUSINESS_WARNS.warn("NetworkAction {} does not contain any usage rule, by default it will never be available", id);
         }
         if (elementaryActions.isEmpty()) {
             throw new OpenRaoException(String.format("NetworkAction %s has to have at least one ElementaryAction.", id));

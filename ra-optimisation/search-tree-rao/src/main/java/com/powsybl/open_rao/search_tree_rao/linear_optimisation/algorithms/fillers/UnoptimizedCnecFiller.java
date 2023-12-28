@@ -19,8 +19,8 @@ import com.powsybl.open_rao.rao_api.parameters.RangeActionsOptimizationParameter
 import com.powsybl.open_rao.search_tree_rao.commons.RaoUtil;
 import com.powsybl.open_rao.search_tree_rao.commons.optimization_perimeters.OptimizationPerimeter;
 import com.powsybl.open_rao.search_tree_rao.commons.parameters.UnoptimizedCnecParameters;
-import com.powsybl.open_rao.search_tree_rao.linear_optimisation.algorithms.linear_problem.FaraoMPConstraint;
-import com.powsybl.open_rao.search_tree_rao.linear_optimisation.algorithms.linear_problem.FaraoMPVariable;
+import com.powsybl.open_rao.search_tree_rao.linear_optimisation.algorithms.linear_problem.OpenRaoMPConstraint;
+import com.powsybl.open_rao.search_tree_rao.linear_optimisation.algorithms.linear_problem.OpenRaoMPVariable;
 import com.powsybl.open_rao.search_tree_rao.linear_optimisation.algorithms.linear_problem.LinearProblem;
 import com.powsybl.open_rao.search_tree_rao.result.api.FlowResult;
 import com.powsybl.open_rao.search_tree_rao.result.api.RangeActionActivationResult;
@@ -163,8 +163,8 @@ public class UnoptimizedCnecFiller implements ProblemFiller {
         getFlowCnecs().forEach(cnec -> cnec.getMonitoredSides().forEach(side -> {
             double prePerimeterMargin = prePerimeterFlowResult.getMargin(cnec, side, MEGAWATT);
 
-            FaraoMPVariable flowVariable = linearProblem.getFlowVariable(cnec, side);
-            FaraoMPVariable optimizeCnecBinaryVariable = linearProblem.getOptimizeCnecBinaryVariable(cnec, side);
+            OpenRaoMPVariable flowVariable = linearProblem.getFlowVariable(cnec, side);
+            OpenRaoMPVariable optimizeCnecBinaryVariable = linearProblem.getOptimizeCnecBinaryVariable(cnec, side);
 
             Optional<Double> minFlow;
             Optional<Double> maxFlow;
@@ -172,7 +172,7 @@ public class UnoptimizedCnecFiller implements ProblemFiller {
             maxFlow = cnec.getUpperBound(side, MEGAWATT);
 
             if (minFlow.isPresent()) {
-                FaraoMPConstraint decreaseMinmumThresholdMargin = linearProblem.addDontOptimizeCnecConstraint(
+                OpenRaoMPConstraint decreaseMinmumThresholdMargin = linearProblem.addDontOptimizeCnecConstraint(
                         prePerimeterMargin + minFlow.get(),
                         LinearProblem.infinity(), cnec, side,
                         LinearProblem.MarginExtension.BELOW_THRESHOLD
@@ -182,7 +182,7 @@ public class UnoptimizedCnecFiller implements ProblemFiller {
             }
 
             if (maxFlow.isPresent()) {
-                FaraoMPConstraint decreaseMinmumThresholdMargin = linearProblem.addDontOptimizeCnecConstraint(
+                OpenRaoMPConstraint decreaseMinmumThresholdMargin = linearProblem.addDontOptimizeCnecConstraint(
                         prePerimeterMargin - maxFlow.get(),
                         LinearProblem.infinity(), cnec, side,
                         LinearProblem.MarginExtension.ABOVE_THRESHOLD
@@ -196,16 +196,16 @@ public class UnoptimizedCnecFiller implements ProblemFiller {
     private void defineDontOptimizeCnecConstraintsForCnecsInSeriesWithPsts(LinearProblem linearProblem, SensitivityResult sensitivityResult, boolean buildConstraint) {
         getFlowCnecs().forEach(cnec -> cnec.getMonitoredSides().forEach(side -> {
             // Flow variable
-            FaraoMPVariable flowVariable = linearProblem.getFlowVariable(cnec, side);
+            OpenRaoMPVariable flowVariable = linearProblem.getFlowVariable(cnec, side);
 
             // Optimize cnec binary variable
-            FaraoMPVariable optimizeCnecBinaryVariable = linearProblem.getOptimizeCnecBinaryVariable(cnec, side);
+            OpenRaoMPVariable optimizeCnecBinaryVariable = linearProblem.getOptimizeCnecBinaryVariable(cnec, side);
 
             State state = getLastStateWithRangeActionAvailableForCnec(cnec);
             if (Objects.isNull(state)) {
                 return;
             }
-            FaraoMPVariable setPointVariable = linearProblem.getRangeActionSetpointVariable(flowCnecRangeActionMap.get(cnec), state);
+            OpenRaoMPVariable setPointVariable = linearProblem.getRangeActionSetpointVariable(flowCnecRangeActionMap.get(cnec), state);
 
             double maxSetpoint = setPointVariable.ub();
             double minSetpoint = setPointVariable.lb();
@@ -216,7 +216,7 @@ public class UnoptimizedCnecFiller implements ProblemFiller {
 
             double bigM = 20 * highestThresholdValue;
             if (minFlow.isPresent()) {
-                FaraoMPConstraint extendSetpointBounds;
+                OpenRaoMPConstraint extendSetpointBounds;
                 if (buildConstraint) {
                     extendSetpointBounds = linearProblem.addDontOptimizeCnecConstraint(
                             -LinearProblem.infinity(),
@@ -238,7 +238,7 @@ public class UnoptimizedCnecFiller implements ProblemFiller {
                 extendSetpointBounds.setLb(lb);
             }
             if (maxFlow.isPresent()) {
-                FaraoMPConstraint extendSetpointBounds;
+                OpenRaoMPConstraint extendSetpointBounds;
                 if (buildConstraint) {
                     extendSetpointBounds = linearProblem.addDontOptimizeCnecConstraint(
                             -LinearProblem.infinity(),
@@ -309,7 +309,7 @@ public class UnoptimizedCnecFiller implements ProblemFiller {
     private void updateMinimumMarginConstraints(LinearProblem linearProblem) {
         double bigM = 2 * highestThresholdValue;
         getFlowCnecs().forEach(cnec -> cnec.getMonitoredSides().forEach(side -> {
-            FaraoMPVariable optimizeCnecBinaryVariable = linearProblem.getOptimizeCnecBinaryVariable(cnec, side);
+            OpenRaoMPVariable optimizeCnecBinaryVariable = linearProblem.getOptimizeCnecBinaryVariable(cnec, side);
             try {
                 updateMinimumMarginConstraint(
                     linearProblem.getMinimumMarginConstraint(cnec, side, LinearProblem.MarginExtension.BELOW_THRESHOLD),
@@ -349,7 +349,7 @@ public class UnoptimizedCnecFiller implements ProblemFiller {
      * Add a big coefficient to the minimum margin definition constraint, allowing it to be relaxed if the
      * binary variable is equal to 1
      */
-    private void updateMinimumMarginConstraint(FaraoMPConstraint constraint, FaraoMPVariable optimizeCnecBinaryVariable, double bigM) {
+    private void updateMinimumMarginConstraint(OpenRaoMPConstraint constraint, OpenRaoMPVariable optimizeCnecBinaryVariable, double bigM) {
         constraint.setCoefficient(optimizeCnecBinaryVariable, bigM);
         constraint.setUb(constraint.ub() + bigM);
     }

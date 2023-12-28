@@ -12,7 +12,7 @@ import com.powsybl.open_rao.data.crac_creation.creator.csa_profile.CsaProfileCra
 import com.powsybl.open_rao.data.crac_creation.creator.csa_profile.crac_creator.CsaProfileCracCreationContext;
 import com.powsybl.open_rao.data.crac_creation.creator.csa_profile.crac_creator.CsaProfileCracCreator;
 import com.powsybl.open_rao.data.crac_creation.creator.csa_profile.importer.CsaProfileCracImporter;
-import com.powsybl.open_rao.data.crac_creation.util.FaraoImportException;
+import com.powsybl.open_rao.data.crac_creation.util.OpenRaoImportException;
 import com.powsybl.open_rao.data.crac_impl.OnContingencyStateImpl;
 import com.powsybl.iidm.network.Network;
 import org.junit.jupiter.api.Test;
@@ -97,6 +97,6 @@ public class AutoRemedialActionTest {
         InputStream inputStream = getClass().getResourceAsStream("/CSA_SPS_3_InvalidProflies.zip");
         CsaProfileCrac nativeCrac = cracImporter.importNativeCrac(inputStream);
         CsaProfileCracCreator cracCreator = new CsaProfileCracCreator();
-        assertThrows(FaraoImportException.class, () -> cracCreator.createCrac(nativeCrac, network, OffsetDateTime.parse("2023-04-27T12:00Z"), new CracCreationParameters()));
+        assertThrows(OpenRaoImportException.class, () -> cracCreator.createCrac(nativeCrac, network, OffsetDateTime.parse("2023-04-27T12:00Z"), new CracCreationParameters()));
     }
 }

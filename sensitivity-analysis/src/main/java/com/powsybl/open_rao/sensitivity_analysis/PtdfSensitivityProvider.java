@@ -7,7 +7,7 @@
 package com.powsybl.open_rao.sensitivity_analysis;
 
 import com.powsybl.open_rao.commons.Unit;
-import com.powsybl.open_rao.commons.logs.FaraoLoggerProvider;
+import com.powsybl.open_rao.commons.logs.OpenRaoLoggerProvider;
 import com.powsybl.open_rao.data.crac_api.NetworkElement;
 import com.powsybl.open_rao.data.crac_api.cnec.FlowCnec;
 import com.powsybl.open_rao.data.crac_api.cnec.Side;
@@ -36,7 +36,7 @@ public class PtdfSensitivityProvider extends AbstractSimpleSensitivityProvider {
 
         // todo : handle PTDFs in AMPERE
         if (factorsInAmpere || !factorsInMegawatt) {
-            FaraoLoggerProvider.TECHNICAL_LOGS.warn("PtdfSensitivity provider currently only handle Megawatt unit");
+            OpenRaoLoggerProvider.TECHNICAL_LOGS.warn("PtdfSensitivity provider currently only handle Megawatt unit");
             factorsInMegawatt = true;
             factorsInAmpere = false;
         }

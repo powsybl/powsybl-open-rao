@@ -10,7 +10,7 @@ package com.powsybl.open_rao.search_tree_rao.linear_optimisation.algorithms.fill
 import com.powsybl.open_rao.commons.OpenRaoException;
 import com.powsybl.open_rao.data.crac_api.State;
 import com.powsybl.open_rao.data.crac_api.range_action.PstRangeAction;
-import com.powsybl.open_rao.search_tree_rao.linear_optimisation.algorithms.linear_problem.FaraoMPConstraint;
+import com.powsybl.open_rao.search_tree_rao.linear_optimisation.algorithms.linear_problem.OpenRaoMPConstraint;
 import com.powsybl.open_rao.search_tree_rao.linear_optimisation.algorithms.linear_problem.LinearProblem;
 import com.powsybl.open_rao.search_tree_rao.result.api.FlowResult;
 import com.powsybl.open_rao.search_tree_rao.result.api.RangeActionActivationResult;
@@ -73,7 +73,7 @@ public class DiscretePstGroupFiller implements ProblemFiller {
 
     private void addRangeActionGroupConstraint(LinearProblem linearProblem, PstRangeAction pstRangeAction, String groupId, State state) {
         double currentTap = pstRangeAction.getCurrentTapPosition(network);
-        FaraoMPConstraint groupSetPointConstraint = linearProblem.addPstGroupTapConstraint(currentTap, currentTap, pstRangeAction, state);
+        OpenRaoMPConstraint groupSetPointConstraint = linearProblem.addPstGroupTapConstraint(currentTap, currentTap, pstRangeAction, state);
         groupSetPointConstraint.setCoefficient(linearProblem.getPstTapVariationVariable(pstRangeAction, state, LinearProblem.VariationDirectionExtension.UPWARD), -1);
         groupSetPointConstraint.setCoefficient(linearProblem.getPstTapVariationVariable(pstRangeAction, state, LinearProblem.VariationDirectionExtension.DOWNWARD), 1);
         groupSetPointConstraint.setCoefficient(linearProblem.getPstGroupTapVariable(groupId, state), 1);
@@ -83,7 +83,7 @@ public class DiscretePstGroupFiller implements ProblemFiller {
         Optional<String> optGroupId = pstRangeAction.getGroupId();
         if (optGroupId.isPresent()) {
             double newTap = rangeActionActivationResult.getOptimizedTap(pstRangeAction, optimizedState);
-            FaraoMPConstraint groupSetPointConstraint = linearProblem.getPstGroupTapConstraint(pstRangeAction, state);
+            OpenRaoMPConstraint groupSetPointConstraint = linearProblem.getPstGroupTapConstraint(pstRangeAction, state);
             groupSetPointConstraint.setLb(newTap);
             groupSetPointConstraint.setUb(newTap);
         }

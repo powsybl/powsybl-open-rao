@@ -9,8 +9,8 @@ package com.powsybl.open_rao.search_tree_rao.linear_optimisation.algorithms.fill
 
 import com.powsybl.open_rao.data.crac_api.State;
 import com.powsybl.open_rao.data.crac_api.range_action.PstRangeAction;
-import com.powsybl.open_rao.search_tree_rao.linear_optimisation.algorithms.linear_problem.FaraoMPConstraint;
-import com.powsybl.open_rao.search_tree_rao.linear_optimisation.algorithms.linear_problem.FaraoMPVariable;
+import com.powsybl.open_rao.search_tree_rao.linear_optimisation.algorithms.linear_problem.OpenRaoMPConstraint;
+import com.powsybl.open_rao.search_tree_rao.linear_optimisation.algorithms.linear_problem.OpenRaoMPVariable;
 import com.powsybl.open_rao.search_tree_rao.linear_optimisation.algorithms.linear_problem.LinearProblem;
 import com.powsybl.open_rao.search_tree_rao.result.api.FlowResult;
 import com.powsybl.open_rao.search_tree_rao.result.api.RangeActionActivationResult;
@@ -76,13 +76,13 @@ public class DiscretePstTapFiller implements ProblemFiller {
         int maxUpwardTapVariation = Math.max(0, maxAdmissibleTap - currentTap);
 
         // create and get variables
-        FaraoMPVariable pstTapDownwardVariationVariable = linearProblem.addPstTapVariationVariable(0, (double) maxDownwardTapVariation + maxUpwardTapVariation, pstRangeAction, state, LinearProblem.VariationDirectionExtension.DOWNWARD);
-        FaraoMPVariable pstTapUpwardVariationVariable = linearProblem.addPstTapVariationVariable(0, (double) maxDownwardTapVariation + maxUpwardTapVariation, pstRangeAction, state, LinearProblem.VariationDirectionExtension.UPWARD);
+        OpenRaoMPVariable pstTapDownwardVariationVariable = linearProblem.addPstTapVariationVariable(0, (double) maxDownwardTapVariation + maxUpwardTapVariation, pstRangeAction, state, LinearProblem.VariationDirectionExtension.DOWNWARD);
+        OpenRaoMPVariable pstTapUpwardVariationVariable = linearProblem.addPstTapVariationVariable(0, (double) maxDownwardTapVariation + maxUpwardTapVariation, pstRangeAction, state, LinearProblem.VariationDirectionExtension.UPWARD);
 
-        FaraoMPVariable pstTapDownwardVariationBinary = linearProblem.addPstTapVariationBinary(pstRangeAction, state, LinearProblem.VariationDirectionExtension.DOWNWARD);
-        FaraoMPVariable pstTapUpwardVariationBinary = linearProblem.addPstTapVariationBinary(pstRangeAction, state, LinearProblem.VariationDirectionExtension.UPWARD);
+        OpenRaoMPVariable pstTapDownwardVariationBinary = linearProblem.addPstTapVariationBinary(pstRangeAction, state, LinearProblem.VariationDirectionExtension.DOWNWARD);
+        OpenRaoMPVariable pstTapUpwardVariationBinary = linearProblem.addPstTapVariationBinary(pstRangeAction, state, LinearProblem.VariationDirectionExtension.UPWARD);
 
-        FaraoMPVariable setPointVariable = linearProblem.getRangeActionSetpointVariable(pstRangeAction, state);
+        OpenRaoMPVariable setPointVariable = linearProblem.getRangeActionSetpointVariable(pstRangeAction, state);
 
         // create constraints
         // tap to angle conversion constraint
@@ -95,7 +95,7 @@ public class DiscretePstTapFiller implements ProblemFiller {
         //
         // in the first MIP, we calibrate the 'constant tap to angle factor' with the extremities of the PST
         // when updating the MIP, the factors will be calibrated on a change of one tap (see update() method)
-        FaraoMPConstraint tapToAngleConversionConstraint = linearProblem.addTapToAngleConversionConstraint(currentAngle, currentAngle, pstRangeAction, state);
+        OpenRaoMPConstraint tapToAngleConversionConstraint = linearProblem.addTapToAngleConversionConstraint(currentAngle, currentAngle, pstRangeAction, state);
         tapToAngleConversionConstraint.setCoefficient(setPointVariable, 1);
 
         if (maxDownwardTapVariation > 0) {
@@ -108,17 +108,17 @@ public class DiscretePstTapFiller implements ProblemFiller {
         }
 
         // variation can only be upward or downward
-        FaraoMPConstraint upOrDownConstraint = linearProblem.addUpOrDownPstVariationConstraint(pstRangeAction, state);
+        OpenRaoMPConstraint upOrDownConstraint = linearProblem.addUpOrDownPstVariationConstraint(pstRangeAction, state);
         upOrDownConstraint.setCoefficient(pstTapDownwardVariationBinary, 1);
         upOrDownConstraint.setCoefficient(pstTapUpwardVariationBinary, 1);
         upOrDownConstraint.setUb(1);
 
         // variation can be made in one direction, only if it is authorized by the binary variable
-        FaraoMPConstraint downAuthorizationConstraint = linearProblem.addIsVariationInDirectionConstraint(-LinearProblem.infinity(), 0, pstRangeAction, state, LinearProblem.VariationReferenceExtension.PREVIOUS_ITERATION, LinearProblem.VariationDirectionExtension.DOWNWARD);
+        OpenRaoMPConstraint downAuthorizationConstraint = linearProblem.addIsVariationInDirectionConstraint(-LinearProblem.infinity(), 0, pstRangeAction, state, LinearProblem.VariationReferenceExtension.PREVIOUS_ITERATION, LinearProblem.VariationDirectionExtension.DOWNWARD);
         downAuthorizationConstraint.setCoefficient(pstTapDownwardVariationVariable, 1);
         downAuthorizationConstraint.setCoefficient(pstTapDownwardVariationBinary, -maxDownwardTapVariation);
 
-        FaraoMPConstraint upAuthorizationConstraint = linearProblem.addIsVariationInDirectionConstraint(-LinearProblem.infinity(), 0, pstRangeAction, state, LinearProblem.VariationReferenceExtension.PREVIOUS_ITERATION, LinearProblem.VariationDirectionExtension.UPWARD);
+        OpenRaoMPConstraint upAuthorizationConstraint = linearProblem.addIsVariationInDirectionConstraint(-LinearProblem.infinity(), 0, pstRangeAction, state, LinearProblem.VariationReferenceExtension.PREVIOUS_ITERATION, LinearProblem.VariationDirectionExtension.UPWARD);
         upAuthorizationConstraint.setCoefficient(pstTapUpwardVariationVariable, 1);
         upAuthorizationConstraint.setCoefficient(pstTapUpwardVariationBinary, -maxUpwardTapVariation);
     }
@@ -139,13 +139,13 @@ public class DiscretePstTapFiller implements ProblemFiller {
         Map<Integer, Double> tapToAngleConversionMap = pstRangeAction.getTapToAngleConversionMap();
 
         // get variables and constraints
-        FaraoMPConstraint tapToAngleConversionConstraint = linearProblem.getTapToAngleConversionConstraint(pstRangeAction, state);
-        FaraoMPVariable pstTapUpwardVariationVariable = linearProblem.getPstTapVariationVariable(pstRangeAction, state, LinearProblem.VariationDirectionExtension.UPWARD);
-        FaraoMPVariable pstTapDownwardVariationVariable = linearProblem.getPstTapVariationVariable(pstRangeAction, state, LinearProblem.VariationDirectionExtension.DOWNWARD);
-        FaraoMPConstraint downAuthorizationConstraint = linearProblem.getIsVariationInDirectionConstraint(pstRangeAction, state, LinearProblem.VariationReferenceExtension.PREVIOUS_ITERATION, LinearProblem.VariationDirectionExtension.DOWNWARD);
-        FaraoMPConstraint upAuthorizationConstraint = linearProblem.getIsVariationInDirectionConstraint(pstRangeAction, state, LinearProblem.VariationReferenceExtension.PREVIOUS_ITERATION, LinearProblem.VariationDirectionExtension.UPWARD);
-        FaraoMPVariable pstTapDownwardVariationBinary = linearProblem.getPstTapVariationBinary(pstRangeAction, state, LinearProblem.VariationDirectionExtension.DOWNWARD);
-        FaraoMPVariable pstTapUpwardVariationBinary = linearProblem.getPstTapVariationBinary(pstRangeAction, state, LinearProblem.VariationDirectionExtension.UPWARD);
+        OpenRaoMPConstraint tapToAngleConversionConstraint = linearProblem.getTapToAngleConversionConstraint(pstRangeAction, state);
+        OpenRaoMPVariable pstTapUpwardVariationVariable = linearProblem.getPstTapVariationVariable(pstRangeAction, state, LinearProblem.VariationDirectionExtension.UPWARD);
+        OpenRaoMPVariable pstTapDownwardVariationVariable = linearProblem.getPstTapVariationVariable(pstRangeAction, state, LinearProblem.VariationDirectionExtension.DOWNWARD);
+        OpenRaoMPConstraint downAuthorizationConstraint = linearProblem.getIsVariationInDirectionConstraint(pstRangeAction, state, LinearProblem.VariationReferenceExtension.PREVIOUS_ITERATION, LinearProblem.VariationDirectionExtension.DOWNWARD);
+        OpenRaoMPConstraint upAuthorizationConstraint = linearProblem.getIsVariationInDirectionConstraint(pstRangeAction, state, LinearProblem.VariationReferenceExtension.PREVIOUS_ITERATION, LinearProblem.VariationDirectionExtension.UPWARD);
+        OpenRaoMPVariable pstTapDownwardVariationBinary = linearProblem.getPstTapVariationBinary(pstRangeAction, state, LinearProblem.VariationDirectionExtension.DOWNWARD);
+        OpenRaoMPVariable pstTapUpwardVariationBinary = linearProblem.getPstTapVariationBinary(pstRangeAction, state, LinearProblem.VariationDirectionExtension.UPWARD);
 
         // update second member of the tap-to-angle conversion constraint with the new current angle
         tapToAngleConversionConstraint.setUb(newAngle);

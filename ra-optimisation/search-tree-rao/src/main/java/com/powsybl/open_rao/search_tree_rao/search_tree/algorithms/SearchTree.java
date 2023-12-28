@@ -8,7 +8,7 @@ package com.powsybl.open_rao.search_tree_rao.search_tree.algorithms;
 
 import com.powsybl.open_rao.commons.OpenRaoException;
 import com.powsybl.open_rao.commons.Unit;
-import com.powsybl.open_rao.commons.logs.FaraoLogger;
+import com.powsybl.open_rao.commons.logs.OpenRaoLogger;
 import com.powsybl.open_rao.data.crac_api.State;
 import com.powsybl.open_rao.data.crac_api.cnec.FlowCnec;
 import com.powsybl.open_rao.data.crac_api.cnec.Side;
@@ -39,7 +39,7 @@ import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
-import static com.powsybl.open_rao.commons.logs.FaraoLoggerProvider.*;
+import static com.powsybl.open_rao.commons.logs.OpenRaoLoggerProvider.*;
 import static com.powsybl.open_rao.search_tree_rao.castor.algorithm.AutomatonSimulator.getRangeActionsAndTheirTapsAppliedOnState;
 
 /**
@@ -67,7 +67,7 @@ public class SearchTree {
 
     private final SearchTreeInput input;
     private final SearchTreeParameters parameters;
-    private final FaraoLogger topLevelLogger;
+    private final OpenRaoLogger topLevelLogger;
 
     /**
      * attribute defined and used within the class
@@ -218,7 +218,7 @@ public class SearchTree {
 
         int leavesInParallel = Math.min(input.getOptimizationPerimeter().getNetworkActions().size(), parameters.getTreeParameters().getLeavesInParallel());
         TECHNICAL_LOGS.debug("Evaluating {} leaves in parallel", leavesInParallel);
-        try (AbstractNetworkPool networkPool = makeFaraoNetworkPool(input.getNetwork(), leavesInParallel)) {
+        try (AbstractNetworkPool networkPool = makeOpenRaoNetworkPool(input.getNetwork(), leavesInParallel)) {
             while (depth < parameters.getTreeParameters().getMaximumSearchDepth() && hasImproved && !stopCriterionReached(optimalLeaf)) {
                 TECHNICAL_LOGS.info("Search depth {} [start]", depth + 1);
                 previousDepthOptimalLeaf = optimalLeaf;
@@ -246,7 +246,7 @@ public class SearchTree {
     }
 
     /**
-     * Evaluate all the leaves. We use FaraoNetworkPool to parallelize the computation
+     * Evaluate all the leaves. We use OpenRaoNetworkPool to parallelize the computation
      */
     private void updateOptimalLeafWithNextDepthBestLeaf(AbstractNetworkPool networkPool) throws InterruptedException {
 
@@ -350,7 +350,7 @@ public class SearchTree {
         return networkActions.stream().map(NetworkAction::getId).collect(Collectors.joining(" + "));
     }
 
-    AbstractNetworkPool makeFaraoNetworkPool(Network network, int leavesInParallel) {
+    AbstractNetworkPool makeOpenRaoNetworkPool(Network network, int leavesInParallel) {
         return AbstractNetworkPool.create(network, network.getVariantManager().getWorkingVariantId(), leavesInParallel, false);
     }
 
@@ -542,7 +542,7 @@ public class SearchTree {
      * In all cases, this method also logs most costly elements for given virtual cost
      */
     void logVirtualCostDetails(Leaf leaf, String virtualCostName, String prefix) {
-        FaraoLogger logger = topLevelLogger;
+        OpenRaoLogger logger = topLevelLogger;
         if (!costSatisfiesStopCriterion(leaf.getCost())
                 && costSatisfiesStopCriterion(leaf.getCost() - leaf.getVirtualCost(virtualCostName))
                 && (leaf.isRoot() || !costSatisfiesStopCriterion(previousDepthOptimalLeaf.getFunctionalCost()))) {

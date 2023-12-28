@@ -13,11 +13,11 @@ import com.google.ortools.linearsolver.MPConstraint;
 /**
  * @author Philippe Edwards {@literal <philippe.edwards at rte-international.com>}
  */
-public class FaraoMPConstraint {
+public class OpenRaoMPConstraint {
     private final MPConstraint mpConstraint;
     private final int numberOfBitsToRoundOff;
 
-    protected FaraoMPConstraint(MPConstraint mpConstraint, int numberOfBitsToRoundOff) {
+    protected OpenRaoMPConstraint(MPConstraint mpConstraint, int numberOfBitsToRoundOff) {
         this.mpConstraint = mpConstraint;
         this.numberOfBitsToRoundOff = numberOfBitsToRoundOff;
     }
@@ -26,11 +26,11 @@ public class FaraoMPConstraint {
         return mpConstraint.name();
     }
 
-    public double getCoefficient(FaraoMPVariable variable) {
+    public double getCoefficient(OpenRaoMPVariable variable) {
         return mpConstraint.getCoefficient(variable.getMPVariable());
     }
 
-    public void setCoefficient(FaraoMPVariable variable, double coeff) {
+    public void setCoefficient(OpenRaoMPVariable variable, double coeff) {
         mpConstraint.setCoefficient(variable.getMPVariable(), RaoUtil.roundDouble(coeff, numberOfBitsToRoundOff));
     }
 

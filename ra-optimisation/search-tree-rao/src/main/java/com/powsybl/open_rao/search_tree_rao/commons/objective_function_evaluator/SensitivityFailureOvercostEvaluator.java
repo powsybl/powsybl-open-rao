@@ -21,7 +21,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.powsybl.open_rao.commons.logs.FaraoLoggerProvider.TECHNICAL_LOGS;
+import static com.powsybl.open_rao.commons.logs.OpenRaoLoggerProvider.TECHNICAL_LOGS;
 
 /**
  * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}

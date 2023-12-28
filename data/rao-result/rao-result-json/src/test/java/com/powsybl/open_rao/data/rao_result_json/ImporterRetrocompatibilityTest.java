@@ -60,7 +60,7 @@ class ImporterRetrocompatibilityTest {
     @Test
     void importV1Point0Test() {
 
-        // JSON file of farao-core v3.4.3
+        // JSON file of open-rao-core v3.4.3
         /*
          versioning was not yet in place, and version number does not explicitly appear
          in v1.0 files
@@ -77,7 +77,7 @@ class ImporterRetrocompatibilityTest {
     @Test
     void importV1Point1Test() {
 
-        // JSON file of farao-core v3.5.0
+        // JSON file of open-rao-core v3.5.0
         /*
          addition of versioning, no changes apart from the fact that version numbers
          are now added in the first lines of the json

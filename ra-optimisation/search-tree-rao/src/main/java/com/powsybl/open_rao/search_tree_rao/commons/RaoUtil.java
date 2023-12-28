@@ -9,7 +9,7 @@ package com.powsybl.open_rao.search_tree_rao.commons;
 
 import com.powsybl.open_rao.commons.OpenRaoException;
 import com.powsybl.open_rao.commons.Unit;
-import com.powsybl.open_rao.commons.logs.FaraoLoggerProvider;
+import com.powsybl.open_rao.commons.logs.OpenRaoLoggerProvider;
 import com.powsybl.open_rao.data.crac_api.State;
 import com.powsybl.open_rao.data.crac_api.cnec.Cnec;
 import com.powsybl.open_rao.data.crac_api.cnec.FlowCnec;
@@ -69,7 +69,7 @@ public final class RaoUtil {
         if ((raoParameters.hasExtension(LoopFlowParametersExtension.class)
                 || raoParameters.getObjectiveFunctionParameters().getType().relativePositiveMargins())
                 && (Objects.isNull(raoInput.getReferenceProgram()))) {
-            FaraoLoggerProvider.BUSINESS_WARNS.warn("No ReferenceProgram provided. A ReferenceProgram will be generated using information in the network file.");
+            OpenRaoLoggerProvider.BUSINESS_WARNS.warn("No ReferenceProgram provided. A ReferenceProgram will be generated using information in the network file.");
             raoInput.setReferenceProgram(ReferenceProgramBuilder.buildReferenceProgram(raoInput.getNetwork(), raoParameters.getLoadFlowAndSensitivityParameters().getLoadFlowProvider(), raoParameters.getLoadFlowAndSensitivityParameters().getSensitivityWithLoadFlowParameters().getLoadFlowParameters()));
         }
 
@@ -77,7 +77,7 @@ public final class RaoUtil {
             String msg = format(
                     "Loopflow computation cannot be performed on CRAC %s because it lacks a ReferenceProgram or a GlskProvider",
                     raoInput.getCrac().getId());
-            FaraoLoggerProvider.BUSINESS_LOGS.error(msg);
+            OpenRaoLoggerProvider.BUSINESS_LOGS.error(msg);
             throw new OpenRaoException(msg);
         }
     }

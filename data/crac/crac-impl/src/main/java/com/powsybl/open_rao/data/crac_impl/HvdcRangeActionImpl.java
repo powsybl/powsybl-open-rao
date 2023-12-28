@@ -20,7 +20,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
-import static com.powsybl.open_rao.commons.logs.FaraoLoggerProvider.TECHNICAL_LOGS;
+import static com.powsybl.open_rao.commons.logs.OpenRaoLoggerProvider.TECHNICAL_LOGS;
 
 /**
  * Elementary HVDC range remedial action.

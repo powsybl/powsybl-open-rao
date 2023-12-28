@@ -16,7 +16,7 @@ import com.powsybl.open_rao.data.crac_creation.creator.cim.crac_creator.CimCracC
 import com.powsybl.open_rao.data.crac_creation.creator.cim.crac_creator.cnec.AdditionalConstraintSeriesCreator;
 import com.powsybl.open_rao.data.crac_creation.creator.cim.parameters.CimCracCreationParameters;
 import com.powsybl.open_rao.data.crac_creation.creator.cim.xsd.*;
-import com.powsybl.open_rao.data.crac_creation.util.FaraoImportException;
+import com.powsybl.open_rao.data.crac_creation.util.OpenRaoImportException;
 import com.powsybl.glsk.commons.CountryEICode;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
@@ -290,7 +290,7 @@ public class RemedialActionSeriesCreator {
             RemedialActionSeriesCreator.addUsageRules(
                 crac, applicationModeMarketObjectStatus, adder, contingencies, invalidContingencies, flowCnecs, angleCnec, sharedDomain
             );
-        } catch (FaraoImportException e) {
+        } catch (OpenRaoImportException e) {
             cracCreationContext.getCreationReport().warn(String.format("Extra usage rules for RA %s could not be imported: %s", remedialActionId, e.getMessage()));
         }
     }
@@ -355,10 +355,10 @@ public class RemedialActionSeriesCreator {
 
     public static void checkPstUnit(String unitSymbol) {
         if (Objects.isNull(unitSymbol)) {
-            throw new FaraoImportException(ImportStatus.INCOMPLETE_DATA, "Missing unit symbol");
+            throw new OpenRaoImportException(ImportStatus.INCOMPLETE_DATA, "Missing unit symbol");
         }
         if (!unitSymbol.equals(PST_CAPACITY_UNIT_SYMBOL)) {
-            throw new FaraoImportException(ImportStatus.INCONSISTENCY_IN_DATA, String.format("Wrong unit symbol in its registered resource: %s", unitSymbol));
+            throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, String.format("Wrong unit symbol in its registered resource: %s", unitSymbol));
         }
     }
 
@@ -421,24 +421,24 @@ public class RemedialActionSeriesCreator {
             case PREVENTIVE:
                 if (Objects.nonNull(contingencies) && !contingencies.isEmpty()
                     || Objects.nonNull(invalidContingencies) && !invalidContingencies.isEmpty()) {
-                    throw new FaraoImportException(ImportStatus.INCONSISTENCY_IN_DATA, "Cannot create a preventive remedial action associated to a contingency");
+                    throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, "Cannot create a preventive remedial action associated to a contingency");
                 }
                 break;
             case AUTO:
                 if (contingencies.isEmpty() && invalidContingencies.isEmpty()) {
-                    throw new FaraoImportException(ImportStatus.INCONSISTENCY_IN_DATA, String.format("Cannot create a free-to-use remedial action at instant '%s'", instant));
+                    throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, String.format("Cannot create a free-to-use remedial action at instant '%s'", instant));
                 }
                 if (contingencies.isEmpty()) {
-                    throw new FaraoImportException(ImportStatus.INCONSISTENCY_IN_DATA, String.format("Contingencies are all invalid, and usage rule is on instant '%s'", instant));
+                    throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, String.format("Contingencies are all invalid, and usage rule is on instant '%s'", instant));
                 }
                 break;
             case CURATIVE:
                 if (contingencies.isEmpty() && !invalidContingencies.isEmpty()) {
-                    throw new FaraoImportException(ImportStatus.INCONSISTENCY_IN_DATA, String.format("Contingencies are all invalid, and usage rule is on instant '%s'", instant));
+                    throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, String.format("Contingencies are all invalid, and usage rule is on instant '%s'", instant));
                 }
                 break;
             default:
-                throw new FaraoImportException(ImportStatus.INCONSISTENCY_IN_DATA, String.format("Cannot add usage rule on instant '%s'", instant));
+                throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, String.format("Cannot add usage rule on instant '%s'", instant));
         }
     }
 

@@ -20,8 +20,8 @@ import com.powsybl.open_rao.data.crac_api.range_action.*;
 import com.powsybl.open_rao.rao_api.parameters.RangeActionsOptimizationParameters;
 import com.powsybl.open_rao.search_tree_rao.commons.RaoUtil;
 import com.powsybl.open_rao.search_tree_rao.commons.optimization_perimeters.OptimizationPerimeter;
-import com.powsybl.open_rao.search_tree_rao.linear_optimisation.algorithms.linear_problem.FaraoMPConstraint;
-import com.powsybl.open_rao.search_tree_rao.linear_optimisation.algorithms.linear_problem.FaraoMPVariable;
+import com.powsybl.open_rao.search_tree_rao.linear_optimisation.algorithms.linear_problem.OpenRaoMPConstraint;
+import com.powsybl.open_rao.search_tree_rao.linear_optimisation.algorithms.linear_problem.OpenRaoMPVariable;
 import com.powsybl.open_rao.search_tree_rao.linear_optimisation.algorithms.linear_problem.LinearProblem;
 import com.powsybl.open_rao.search_tree_rao.result.api.FlowResult;
 import com.powsybl.open_rao.search_tree_rao.result.api.RangeActionActivationResult;
@@ -139,9 +139,9 @@ public class CoreProblemFiller implements ProblemFiller {
         flowCnecs.forEach(cnec -> cnec.getMonitoredSides().forEach(side -> {
             // create constraint
             double referenceFlow = flowResult.getFlow(cnec, side, unit) * RaoUtil.getFlowUnitMultiplier(cnec, side, unit, Unit.MEGAWATT);
-            FaraoMPConstraint flowConstraint = linearProblem.addFlowConstraint(referenceFlow, referenceFlow, cnec, side);
+            OpenRaoMPConstraint flowConstraint = linearProblem.addFlowConstraint(referenceFlow, referenceFlow, cnec, side);
 
-            FaraoMPVariable flowVariable = linearProblem.getFlowVariable(cnec, side);
+            OpenRaoMPVariable flowVariable = linearProblem.getFlowVariable(cnec, side);
             flowConstraint.setCoefficient(flowVariable, 1);
 
             // add sensitivity coefficients
@@ -156,7 +156,7 @@ public class CoreProblemFiller implements ProblemFiller {
     private void updateFlowConstraints(LinearProblem linearProblem, FlowResult flowResult, SensitivityResult sensitivityResult, RangeActionActivationResult rangeActionActivationResult) {
         flowCnecs.forEach(cnec -> cnec.getMonitoredSides().forEach(side -> {
             double referenceFlow = flowResult.getFlow(cnec, side, unit) * RaoUtil.getFlowUnitMultiplier(cnec, side, unit, Unit.MEGAWATT);
-            FaraoMPConstraint flowConstraint = linearProblem.getFlowConstraint(cnec, side);
+            OpenRaoMPConstraint flowConstraint = linearProblem.getFlowConstraint(cnec, side);
 
             //reset bounds
             flowConstraint.setUb(referenceFlow);
@@ -168,8 +168,8 @@ public class CoreProblemFiller implements ProblemFiller {
     }
 
     private void addImpactOfRangeActionOnCnec(LinearProblem linearProblem, SensitivityResult sensitivityResult, FlowCnec cnec, Side side, RangeActionActivationResult rangeActionActivationResult) {
-        FaraoMPVariable flowVariable = linearProblem.getFlowVariable(cnec, side);
-        FaraoMPConstraint flowConstraint = linearProblem.getFlowConstraint(cnec, side);
+        OpenRaoMPVariable flowVariable = linearProblem.getFlowVariable(cnec, side);
+        OpenRaoMPConstraint flowConstraint = linearProblem.getFlowConstraint(cnec, side);
 
         List<State> statesBeforeCnec = FillersUtil.getPreviousStates(cnec.getState(), optimizationContext).stream()
             .sorted((s1, s2) -> Integer.compare(s2.getInstant().getOrder(), s1.getInstant().getOrder())) // start with curative state
@@ -190,8 +190,8 @@ public class CoreProblemFiller implements ProblemFiller {
         }
     }
 
-    private void addImpactOfRangeActionOnCnec(LinearProblem linearProblem, SensitivityResult sensitivityResult, RangeAction<?> rangeAction, State state, FlowCnec cnec, Side side, FaraoMPConstraint flowConstraint, RangeActionActivationResult rangeActionActivationResult) {
-        FaraoMPVariable setPointVariable = linearProblem.getRangeActionSetpointVariable(rangeAction, state);
+    private void addImpactOfRangeActionOnCnec(LinearProblem linearProblem, SensitivityResult sensitivityResult, RangeAction<?> rangeAction, State state, FlowCnec cnec, Side side, OpenRaoMPConstraint flowConstraint, RangeActionActivationResult rangeActionActivationResult) {
+        OpenRaoMPVariable setPointVariable = linearProblem.getRangeActionSetpointVariable(rangeAction, state);
 
         double sensitivity = sensitivityResult.getSensitivityValue(cnec, side, rangeAction, Unit.MEGAWATT);
 
@@ -247,13 +247,13 @@ public class CoreProblemFiller implements ProblemFiller {
         double lb = previousSetPointValue - constrainedSetPointRange;
         double ub = previousSetPointValue + constrainedSetPointRange;
         try {
-            FaraoMPConstraint iterativeShrink = linearProblem.getRangeActionRelativeSetpointConstraint(rangeAction, state, LinearProblem.RaRangeShrinking.TRUE);
+            OpenRaoMPConstraint iterativeShrink = linearProblem.getRangeActionRelativeSetpointConstraint(rangeAction, state, LinearProblem.RaRangeShrinking.TRUE);
             iterativeShrink.setLb(lb);
             iterativeShrink.setUb(ub);
         } catch (OpenRaoException ignored) {
             // Constraint iterativeShrink has not yet been created
-            FaraoMPVariable setPointVariable = linearProblem.getRangeActionSetpointVariable(rangeAction, state);
-            FaraoMPConstraint iterativeShrink = linearProblem.addRangeActionRelativeSetpointConstraint(lb, ub, rangeAction, state, LinearProblem.RaRangeShrinking.TRUE);
+            OpenRaoMPVariable setPointVariable = linearProblem.getRangeActionSetpointVariable(rangeAction, state);
+            OpenRaoMPConstraint iterativeShrink = linearProblem.addRangeActionRelativeSetpointConstraint(lb, ub, rangeAction, state, LinearProblem.RaRangeShrinking.TRUE);
             iterativeShrink.setCoefficient(setPointVariable, 1);
         }
     }
@@ -266,16 +266,16 @@ public class CoreProblemFiller implements ProblemFiller {
      * AV[r] >= initialSetPoint[r] - S[r]     (POSITIVE)
      */
     private void buildConstraintsForRangeActionAndState(LinearProblem linearProblem, RangeAction<?> rangeAction, State state) {
-        FaraoMPVariable setPointVariable = linearProblem.getRangeActionSetpointVariable(rangeAction, state);
-        FaraoMPVariable absoluteVariationVariable = linearProblem.getAbsoluteRangeActionVariationVariable(rangeAction, state);
-        FaraoMPConstraint varConstraintNegative = linearProblem.addAbsoluteRangeActionVariationConstraint(
+        OpenRaoMPVariable setPointVariable = linearProblem.getRangeActionSetpointVariable(rangeAction, state);
+        OpenRaoMPVariable absoluteVariationVariable = linearProblem.getAbsoluteRangeActionVariationVariable(rangeAction, state);
+        OpenRaoMPConstraint varConstraintNegative = linearProblem.addAbsoluteRangeActionVariationConstraint(
             -LinearProblem.infinity(),
             LinearProblem.infinity(),
             rangeAction,
             state,
             LinearProblem.AbsExtension.NEGATIVE
         );
-        FaraoMPConstraint varConstraintPositive = linearProblem.addAbsoluteRangeActionVariationConstraint(
+        OpenRaoMPConstraint varConstraintPositive = linearProblem.addAbsoluteRangeActionVariationConstraint(
             -LinearProblem.infinity(),
             LinearProblem.infinity(),
             rangeAction,
@@ -307,7 +307,7 @@ public class CoreProblemFiller implements ProblemFiller {
 
             // range action have been activated in a previous instant
             // getRangeActionSetpointVariable from previous instant
-            FaraoMPVariable previousSetpointVariable = linearProblem.getRangeActionSetpointVariable(lastAvailableRangeAction.getLeft(), lastAvailableRangeAction.getValue());
+            OpenRaoMPVariable previousSetpointVariable = linearProblem.getRangeActionSetpointVariable(lastAvailableRangeAction.getLeft(), lastAvailableRangeAction.getValue());
 
             List<Double> minAndMaxAbsoluteAndRelativeSetpoints = getMinAndMaxAbsoluteAndRelativeSetpoints(rangeAction);
             double minAbsoluteSetpoint = minAndMaxAbsoluteAndRelativeSetpoints.get(0);
@@ -320,7 +320,7 @@ public class CoreProblemFiller implements ProblemFiller {
             maxAbsoluteSetpoint = Math.min(maxAbsoluteSetpoint, LinearProblem.infinity());
             minRelativeSetpoint = Math.max(minRelativeSetpoint, -LinearProblem.infinity());
             maxRelativeSetpoint = Math.min(maxRelativeSetpoint, LinearProblem.infinity());
-            FaraoMPConstraint relSetpointConstraint = linearProblem.addRangeActionRelativeSetpointConstraint(minRelativeSetpoint, maxRelativeSetpoint, rangeAction, state, LinearProblem.RaRangeShrinking.FALSE);
+            OpenRaoMPConstraint relSetpointConstraint = linearProblem.addRangeActionRelativeSetpointConstraint(minRelativeSetpoint, maxRelativeSetpoint, rangeAction, state, LinearProblem.RaRangeShrinking.FALSE);
             relSetpointConstraint.setCoefficient(setPointVariable, 1);
             relSetpointConstraint.setCoefficient(previousSetpointVariable, -1);
 
@@ -429,7 +429,7 @@ public class CoreProblemFiller implements ProblemFiller {
      */
     private void fillObjectiveWithRangeActionPenaltyCost(LinearProblem linearProblem) {
         optimizationContext.getRangeActionsPerState().forEach((state, rangeActions) -> rangeActions.forEach(ra -> {
-                FaraoMPVariable absoluteVariationVariable = linearProblem.getAbsoluteRangeActionVariationVariable(ra, state);
+                OpenRaoMPVariable absoluteVariationVariable = linearProblem.getAbsoluteRangeActionVariationVariable(ra, state);
 
                 // If the range action has been filtered out, then absoluteVariationVariable is null
                 if (absoluteVariationVariable != null && ra instanceof PstRangeAction) {

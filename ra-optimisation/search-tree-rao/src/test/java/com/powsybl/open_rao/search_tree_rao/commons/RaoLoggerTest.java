@@ -11,8 +11,8 @@ import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.read.ListAppender;
 import com.powsybl.open_rao.commons.Unit;
-import com.powsybl.open_rao.commons.logs.FaraoLogger;
-import com.powsybl.open_rao.commons.logs.FaraoLoggerProvider;
+import com.powsybl.open_rao.commons.logs.OpenRaoLogger;
+import com.powsybl.open_rao.commons.logs.OpenRaoLoggerProvider;
 import com.powsybl.open_rao.commons.logs.RaoBusinessLogs;
 import com.powsybl.open_rao.data.crac_api.*;
 import com.powsybl.open_rao.data.crac_api.cnec.FlowCnec;
@@ -304,7 +304,7 @@ class RaoLoggerTest {
         Contingency contingency = Mockito.mock(Contingency.class);
         when(contingency.getName()).thenReturn("contingency");
         when(curative.getContingency()).thenReturn(Optional.of(contingency));
-        FaraoLogger logger = FaraoLoggerProvider.BUSINESS_LOGS;
+        OpenRaoLogger logger = OpenRaoLoggerProvider.BUSINESS_LOGS;
         List<ILoggingEvent> logsList = registerLogs(RaoBusinessLogs.class).list;
 
         // initial objective
@@ -377,7 +377,7 @@ class RaoLoggerTest {
         Contingency contingency = Mockito.mock(Contingency.class);
         when(contingency.getName()).thenReturn("contingency");
         when(curative.getContingency()).thenReturn(Optional.of(contingency));
-        FaraoLogger logger = FaraoLoggerProvider.BUSINESS_LOGS;
+        OpenRaoLogger logger = OpenRaoLoggerProvider.BUSINESS_LOGS;
         List<ILoggingEvent> logsList = registerLogs(RaoBusinessLogs.class).list;
 
         // Create Objective Function

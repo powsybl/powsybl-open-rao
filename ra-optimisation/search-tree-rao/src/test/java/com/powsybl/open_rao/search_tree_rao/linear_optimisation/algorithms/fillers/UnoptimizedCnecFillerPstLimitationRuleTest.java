@@ -21,8 +21,8 @@ import com.powsybl.open_rao.rao_api.parameters.extensions.RelativeMarginsParamet
 import com.powsybl.open_rao.search_tree_rao.commons.RaoUtil;
 import com.powsybl.open_rao.search_tree_rao.commons.optimization_perimeters.OptimizationPerimeter;
 import com.powsybl.open_rao.search_tree_rao.commons.parameters.UnoptimizedCnecParameters;
-import com.powsybl.open_rao.search_tree_rao.linear_optimisation.algorithms.linear_problem.FaraoMPConstraint;
-import com.powsybl.open_rao.search_tree_rao.linear_optimisation.algorithms.linear_problem.FaraoMPVariable;
+import com.powsybl.open_rao.search_tree_rao.linear_optimisation.algorithms.linear_problem.OpenRaoMPConstraint;
+import com.powsybl.open_rao.search_tree_rao.linear_optimisation.algorithms.linear_problem.OpenRaoMPVariable;
 import com.powsybl.open_rao.search_tree_rao.linear_optimisation.algorithms.linear_problem.LinearProblem;
 import com.powsybl.open_rao.search_tree_rao.linear_optimisation.algorithms.linear_problem.LinearProblemBuilder;
 import com.powsybl.open_rao.search_tree_rao.result.api.FlowResult;
@@ -232,12 +232,12 @@ class UnoptimizedCnecFillerPstLimitationRuleTest extends AbstractFillerTest {
         // Verify existence of optimize_cnec binary variable
         Exception e = assertThrows(OpenRaoException.class, () -> linearProblem.getOptimizeCnecBinaryVariable(classicCnec, Side.LEFT));
         assertEquals("Variable Tieline BE FR - N - preventive_left_optimizecnec_variable has not been created yet", e.getMessage());
-        FaraoMPVariable binaryVar = linearProblem.getOptimizeCnecBinaryVariable(cnecInSeries, Side.LEFT);
+        OpenRaoMPVariable binaryVar = linearProblem.getOptimizeCnecBinaryVariable(cnecInSeries, Side.LEFT);
         assertNotNull(binaryVar);
 
         // Get variables
-        FaraoMPVariable flowVar = linearProblem.getFlowVariable(cnecInSeries, Side.LEFT);
-        FaraoMPVariable setPointVar = linearProblem.getRangeActionSetpointVariable(pstRangeActionInSeries, crac.getPreventiveState());
+        OpenRaoMPVariable flowVar = linearProblem.getFlowVariable(cnecInSeries, Side.LEFT);
+        OpenRaoMPVariable setPointVar = linearProblem.getRangeActionSetpointVariable(pstRangeActionInSeries, crac.getPreventiveState());
 
         // Verify existence of optimize_cnec definition constraints
         e = assertThrows(OpenRaoException.class, () -> linearProblem.getDontOptimizeCnecConstraint(classicCnec, Side.LEFT, LinearProblem.MarginExtension.BELOW_THRESHOLD));
@@ -245,7 +245,7 @@ class UnoptimizedCnecFillerPstLimitationRuleTest extends AbstractFillerTest {
         e = assertThrows(OpenRaoException.class, () -> linearProblem.getDontOptimizeCnecConstraint(classicCnec, Side.LEFT, LinearProblem.MarginExtension.ABOVE_THRESHOLD));
         assertEquals("Constraint Tieline BE FR - N - preventive_left_optimizecnecabove_threshold_constraint has not been created yet", e.getMessage());
 
-        FaraoMPConstraint optimizeCnecConstraintBelowThreshold = linearProblem.getDontOptimizeCnecConstraint(cnecInSeries, Side.LEFT, LinearProblem.MarginExtension.BELOW_THRESHOLD);
+        OpenRaoMPConstraint optimizeCnecConstraintBelowThreshold = linearProblem.getDontOptimizeCnecConstraint(cnecInSeries, Side.LEFT, LinearProblem.MarginExtension.BELOW_THRESHOLD);
         assertNotNull(optimizeCnecConstraintBelowThreshold);
         assertEquals(LinearProblem.infinity(), optimizeCnecConstraintBelowThreshold.ub(), DOUBLE_TOLERANCE);
         assertEquals(-5 * 3 - 1000, optimizeCnecConstraintBelowThreshold.lb(), DOUBLE_TOLERANCE);
@@ -253,7 +253,7 @@ class UnoptimizedCnecFillerPstLimitationRuleTest extends AbstractFillerTest {
         assertEquals(-5., optimizeCnecConstraintBelowThreshold.getCoefficient(setPointVar), DOUBLE_TOLERANCE);
         assertEquals(20 * 1000., optimizeCnecConstraintBelowThreshold.getCoefficient(binaryVar), DOUBLE_TOLERANCE);
 
-        FaraoMPConstraint optimizeCnecConstraintAboveThreshold = linearProblem.getDontOptimizeCnecConstraint(cnecInSeries, Side.LEFT, LinearProblem.MarginExtension.ABOVE_THRESHOLD);
+        OpenRaoMPConstraint optimizeCnecConstraintAboveThreshold = linearProblem.getDontOptimizeCnecConstraint(cnecInSeries, Side.LEFT, LinearProblem.MarginExtension.ABOVE_THRESHOLD);
         assertNotNull(optimizeCnecConstraintAboveThreshold);
         assertEquals(LinearProblem.infinity(), optimizeCnecConstraintAboveThreshold.ub(), DOUBLE_TOLERANCE);
         assertEquals(-5 * -0.5 - 800, optimizeCnecConstraintAboveThreshold.lb(), DOUBLE_TOLERANCE);
@@ -269,12 +269,12 @@ class UnoptimizedCnecFillerPstLimitationRuleTest extends AbstractFillerTest {
         // Verify existence of optimize_cnec binary variable
         Exception e = assertThrows(OpenRaoException.class, () -> linearProblem.getOptimizeCnecBinaryVariable(classicCnec, Side.LEFT));
         assertEquals("Variable Tieline BE FR - N - preventive_left_optimizecnec_variable has not been created yet", e.getMessage());
-        FaraoMPVariable binaryVar = linearProblem.getOptimizeCnecBinaryVariable(cnecInSeries, Side.LEFT);
+        OpenRaoMPVariable binaryVar = linearProblem.getOptimizeCnecBinaryVariable(cnecInSeries, Side.LEFT);
         assertNotNull(binaryVar);
 
         // Get variables
-        FaraoMPVariable flowVar = linearProblem.getFlowVariable(cnecInSeries, Side.LEFT);
-        FaraoMPVariable setPointVar = linearProblem.getRangeActionSetpointVariable(pstRangeActionInSeries, crac.getPreventiveState());
+        OpenRaoMPVariable flowVar = linearProblem.getFlowVariable(cnecInSeries, Side.LEFT);
+        OpenRaoMPVariable setPointVar = linearProblem.getRangeActionSetpointVariable(pstRangeActionInSeries, crac.getPreventiveState());
 
         // Verify existence of optimize_cnec definition constraints
         e = assertThrows(OpenRaoException.class, () -> linearProblem.getDontOptimizeCnecConstraint(classicCnec, Side.LEFT, LinearProblem.MarginExtension.BELOW_THRESHOLD));
@@ -282,7 +282,7 @@ class UnoptimizedCnecFillerPstLimitationRuleTest extends AbstractFillerTest {
         e = assertThrows(OpenRaoException.class, () -> linearProblem.getDontOptimizeCnecConstraint(classicCnec, Side.LEFT, LinearProblem.MarginExtension.ABOVE_THRESHOLD));
         assertEquals("Constraint Tieline BE FR - N - preventive_left_optimizecnecabove_threshold_constraint has not been created yet", e.getMessage());
 
-        FaraoMPConstraint optimizeCnecConstraintBelowThreshold = linearProblem.getDontOptimizeCnecConstraint(cnecInSeries, Side.LEFT, LinearProblem.MarginExtension.BELOW_THRESHOLD);
+        OpenRaoMPConstraint optimizeCnecConstraintBelowThreshold = linearProblem.getDontOptimizeCnecConstraint(cnecInSeries, Side.LEFT, LinearProblem.MarginExtension.BELOW_THRESHOLD);
         assertNotNull(optimizeCnecConstraintBelowThreshold);
         assertEquals(LinearProblem.infinity(), optimizeCnecConstraintBelowThreshold.ub(), DOUBLE_TOLERANCE);
         assertEquals(-4 * -0.5 - 1000, optimizeCnecConstraintBelowThreshold.lb(), DOUBLE_TOLERANCE);
@@ -290,7 +290,7 @@ class UnoptimizedCnecFillerPstLimitationRuleTest extends AbstractFillerTest {
         assertEquals(4., optimizeCnecConstraintBelowThreshold.getCoefficient(setPointVar), DOUBLE_TOLERANCE);
         assertEquals(20 * 1000., optimizeCnecConstraintBelowThreshold.getCoefficient(binaryVar), DOUBLE_TOLERANCE);
 
-        FaraoMPConstraint optimizeCnecConstraintAboveThreshold = linearProblem.getDontOptimizeCnecConstraint(cnecInSeries, Side.LEFT, LinearProblem.MarginExtension.ABOVE_THRESHOLD);
+        OpenRaoMPConstraint optimizeCnecConstraintAboveThreshold = linearProblem.getDontOptimizeCnecConstraint(cnecInSeries, Side.LEFT, LinearProblem.MarginExtension.ABOVE_THRESHOLD);
         assertNotNull(optimizeCnecConstraintAboveThreshold);
         assertEquals(LinearProblem.infinity(), optimizeCnecConstraintAboveThreshold.ub(), DOUBLE_TOLERANCE);
         assertEquals(-4 * 3 - 800, optimizeCnecConstraintAboveThreshold.lb(), DOUBLE_TOLERANCE);
@@ -306,12 +306,12 @@ class UnoptimizedCnecFillerPstLimitationRuleTest extends AbstractFillerTest {
         // Verify existence of margin_decrease binary variable
         Exception e = assertThrows(OpenRaoException.class, () -> linearProblem.getOptimizeCnecBinaryVariable(classicCnec, Side.LEFT));
         assertEquals("Variable Tieline BE FR - N - preventive_left_optimizecnec_variable has not been created yet", e.getMessage());
-        FaraoMPVariable binaryVar = linearProblem.getOptimizeCnecBinaryVariable(cnecInSeries, Side.LEFT);
+        OpenRaoMPVariable binaryVar = linearProblem.getOptimizeCnecBinaryVariable(cnecInSeries, Side.LEFT);
         assertNotNull(binaryVar);
 
         // Get variables
-        FaraoMPVariable flowVar = linearProblem.getFlowVariable(cnecInSeries, Side.LEFT);
-        FaraoMPVariable setPointVar = linearProblem.getRangeActionSetpointVariable(pstRangeActionInSeries, crac.getPreventiveState());
+        OpenRaoMPVariable flowVar = linearProblem.getFlowVariable(cnecInSeries, Side.LEFT);
+        OpenRaoMPVariable setPointVar = linearProblem.getRangeActionSetpointVariable(pstRangeActionInSeries, crac.getPreventiveState());
 
         // Verify existence of margin_decrease definition constraints
         e = assertThrows(OpenRaoException.class, () -> linearProblem.getDontOptimizeCnecConstraint(classicCnec, Side.LEFT, LinearProblem.MarginExtension.BELOW_THRESHOLD));
@@ -319,7 +319,7 @@ class UnoptimizedCnecFillerPstLimitationRuleTest extends AbstractFillerTest {
         e = assertThrows(OpenRaoException.class, () -> linearProblem.getDontOptimizeCnecConstraint(classicCnec, Side.LEFT, LinearProblem.MarginExtension.ABOVE_THRESHOLD));
         assertEquals("Constraint Tieline BE FR - N - preventive_left_optimizecnecabove_threshold_constraint has not been created yet", e.getMessage());
 
-        FaraoMPConstraint optimizeCnecConstraintBelowThreshold = linearProblem.getDontOptimizeCnecConstraint(cnecInSeries, Side.LEFT, LinearProblem.MarginExtension.BELOW_THRESHOLD);
+        OpenRaoMPConstraint optimizeCnecConstraintBelowThreshold = linearProblem.getDontOptimizeCnecConstraint(cnecInSeries, Side.LEFT, LinearProblem.MarginExtension.BELOW_THRESHOLD);
         assertNotNull(optimizeCnecConstraintBelowThreshold);
         assertEquals(LinearProblem.infinity(), optimizeCnecConstraintBelowThreshold.ub(), DOUBLE_TOLERANCE);
         assertEquals(5 * -3 - 1000, optimizeCnecConstraintBelowThreshold.lb(), DOUBLE_TOLERANCE);
@@ -327,7 +327,7 @@ class UnoptimizedCnecFillerPstLimitationRuleTest extends AbstractFillerTest {
         assertEquals(-5., optimizeCnecConstraintBelowThreshold.getCoefficient(setPointVar), DOUBLE_TOLERANCE);
         assertEquals(20 * 1000., optimizeCnecConstraintBelowThreshold.getCoefficient(binaryVar), DOUBLE_TOLERANCE);
 
-        FaraoMPConstraint optimizeCnecConstraintAboveThreshold = linearProblem.getDontOptimizeCnecConstraint(cnecInSeries, Side.LEFT, LinearProblem.MarginExtension.ABOVE_THRESHOLD);
+        OpenRaoMPConstraint optimizeCnecConstraintAboveThreshold = linearProblem.getDontOptimizeCnecConstraint(cnecInSeries, Side.LEFT, LinearProblem.MarginExtension.ABOVE_THRESHOLD);
         assertNotNull(optimizeCnecConstraintAboveThreshold);
         assertEquals(LinearProblem.infinity(), optimizeCnecConstraintAboveThreshold.ub(), DOUBLE_TOLERANCE);
         assertEquals(-5 * -0.5 - 800, optimizeCnecConstraintAboveThreshold.lb(), DOUBLE_TOLERANCE);
@@ -343,12 +343,12 @@ class UnoptimizedCnecFillerPstLimitationRuleTest extends AbstractFillerTest {
         // Verify existence of margin_decrease binary variable
         Exception e = assertThrows(OpenRaoException.class, () -> linearProblem.getOptimizeCnecBinaryVariable(classicCnec, Side.LEFT));
         assertEquals("Variable Tieline BE FR - N - preventive_left_optimizecnec_variable has not been created yet", e.getMessage());
-        FaraoMPVariable binaryVar = linearProblem.getOptimizeCnecBinaryVariable(cnecInSeries, Side.LEFT);
+        OpenRaoMPVariable binaryVar = linearProblem.getOptimizeCnecBinaryVariable(cnecInSeries, Side.LEFT);
         assertNotNull(binaryVar);
 
         // Get variables
-        FaraoMPVariable flowVar = linearProblem.getFlowVariable(cnecInSeries, Side.LEFT);
-        FaraoMPVariable setPointVar = linearProblem.getRangeActionSetpointVariable(pstRangeActionInSeries, crac.getPreventiveState());
+        OpenRaoMPVariable flowVar = linearProblem.getFlowVariable(cnecInSeries, Side.LEFT);
+        OpenRaoMPVariable setPointVar = linearProblem.getRangeActionSetpointVariable(pstRangeActionInSeries, crac.getPreventiveState());
 
         // Verify existence of margin_decrease definition constraints
         e = assertThrows(OpenRaoException.class, () -> linearProblem.getDontOptimizeCnecConstraint(classicCnec, Side.LEFT, LinearProblem.MarginExtension.BELOW_THRESHOLD));
@@ -356,7 +356,7 @@ class UnoptimizedCnecFillerPstLimitationRuleTest extends AbstractFillerTest {
         e = assertThrows(OpenRaoException.class, () -> linearProblem.getDontOptimizeCnecConstraint(classicCnec, Side.LEFT, LinearProblem.MarginExtension.ABOVE_THRESHOLD));
         assertEquals("Constraint Tieline BE FR - N - preventive_left_optimizecnecabove_threshold_constraint has not been created yet", e.getMessage());
 
-        FaraoMPConstraint optimizeCnecConstraintBelowThreshold = linearProblem.getDontOptimizeCnecConstraint(cnecInSeries, Side.LEFT, LinearProblem.MarginExtension.BELOW_THRESHOLD);
+        OpenRaoMPConstraint optimizeCnecConstraintBelowThreshold = linearProblem.getDontOptimizeCnecConstraint(cnecInSeries, Side.LEFT, LinearProblem.MarginExtension.BELOW_THRESHOLD);
         assertNotNull(optimizeCnecConstraintBelowThreshold);
         assertEquals(LinearProblem.infinity(), optimizeCnecConstraintBelowThreshold.ub(), DOUBLE_TOLERANCE);
         assertEquals(-4 * -0.5 - 1000, optimizeCnecConstraintBelowThreshold.lb(), DOUBLE_TOLERANCE);
@@ -364,7 +364,7 @@ class UnoptimizedCnecFillerPstLimitationRuleTest extends AbstractFillerTest {
         assertEquals(4., optimizeCnecConstraintBelowThreshold.getCoefficient(setPointVar), DOUBLE_TOLERANCE);
         assertEquals(20 * 1000., optimizeCnecConstraintBelowThreshold.getCoefficient(binaryVar), DOUBLE_TOLERANCE);
 
-        FaraoMPConstraint optimizeCnecConstraintAboveThreshold = linearProblem.getDontOptimizeCnecConstraint(cnecInSeries, Side.LEFT, LinearProblem.MarginExtension.ABOVE_THRESHOLD);
+        OpenRaoMPConstraint optimizeCnecConstraintAboveThreshold = linearProblem.getDontOptimizeCnecConstraint(cnecInSeries, Side.LEFT, LinearProblem.MarginExtension.ABOVE_THRESHOLD);
         assertNotNull(optimizeCnecConstraintAboveThreshold);
         assertEquals(LinearProblem.infinity(), optimizeCnecConstraintAboveThreshold.ub(), DOUBLE_TOLERANCE);
         assertEquals(-4 * 3 - 800, optimizeCnecConstraintAboveThreshold.lb(), DOUBLE_TOLERANCE);
@@ -382,11 +382,11 @@ class UnoptimizedCnecFillerPstLimitationRuleTest extends AbstractFillerTest {
         assertEquals(750.0, linearProblem.getMinimumMarginConstraint(classicCnec, Side.LEFT, LinearProblem.MarginExtension.ABOVE_THRESHOLD).ub(), DOUBLE_TOLERANCE);
 
         // Test that cnecInSeries's constraint does have a bigM
-        FaraoMPVariable optimizeCnecBinaryVariable = linearProblem.getOptimizeCnecBinaryVariable(cnecInSeries, Side.LEFT);
-        FaraoMPConstraint minMarginDefMin = linearProblem.getMinimumMarginConstraint(cnecInSeries, Side.LEFT, LinearProblem.MarginExtension.BELOW_THRESHOLD);
+        OpenRaoMPVariable optimizeCnecBinaryVariable = linearProblem.getOptimizeCnecBinaryVariable(cnecInSeries, Side.LEFT);
+        OpenRaoMPConstraint minMarginDefMin = linearProblem.getMinimumMarginConstraint(cnecInSeries, Side.LEFT, LinearProblem.MarginExtension.BELOW_THRESHOLD);
         assertEquals(1000 + 2 * MAX_ABS_THRESHOLD, minMarginDefMin.ub(), DOUBLE_TOLERANCE);
         assertEquals(2 * MAX_ABS_THRESHOLD, minMarginDefMin.getCoefficient(optimizeCnecBinaryVariable), DOUBLE_TOLERANCE);
-        FaraoMPConstraint minMarginDefMax = linearProblem.getMinimumMarginConstraint(cnecInSeries, Side.LEFT, LinearProblem.MarginExtension.ABOVE_THRESHOLD);
+        OpenRaoMPConstraint minMarginDefMax = linearProblem.getMinimumMarginConstraint(cnecInSeries, Side.LEFT, LinearProblem.MarginExtension.ABOVE_THRESHOLD);
         assertEquals(800 + 2 * MAX_ABS_THRESHOLD, minMarginDefMax.ub(), DOUBLE_TOLERANCE);
         assertEquals(2 * MAX_ABS_THRESHOLD, minMarginDefMax.getCoefficient(optimizeCnecBinaryVariable), DOUBLE_TOLERANCE);
     }
@@ -403,11 +403,11 @@ class UnoptimizedCnecFillerPstLimitationRuleTest extends AbstractFillerTest {
         assertEquals(750.0 + constraintCoeff, linearProblem.getMinimumRelativeMarginConstraint(classicCnec, Side.LEFT, LinearProblem.MarginExtension.ABOVE_THRESHOLD).ub(), DOUBLE_TOLERANCE);
 
         // Test that cnecInSeries's constraint does have a bigM
-        FaraoMPVariable marginDecreaseVariable = linearProblem.getOptimizeCnecBinaryVariable(cnecInSeries, Side.LEFT);
-        FaraoMPConstraint minMarginDefMin = linearProblem.getMinimumMarginConstraint(cnecInSeries, Side.LEFT, LinearProblem.MarginExtension.BELOW_THRESHOLD);
+        OpenRaoMPVariable marginDecreaseVariable = linearProblem.getOptimizeCnecBinaryVariable(cnecInSeries, Side.LEFT);
+        OpenRaoMPConstraint minMarginDefMin = linearProblem.getMinimumMarginConstraint(cnecInSeries, Side.LEFT, LinearProblem.MarginExtension.BELOW_THRESHOLD);
         assertEquals(1000 + 2 * MAX_ABS_THRESHOLD, minMarginDefMin.ub(), DOUBLE_TOLERANCE);
         assertEquals(2 * MAX_ABS_THRESHOLD, minMarginDefMin.getCoefficient(marginDecreaseVariable), DOUBLE_TOLERANCE);
-        FaraoMPConstraint minMarginDefMax = linearProblem.getMinimumMarginConstraint(cnecInSeries, Side.LEFT, LinearProblem.MarginExtension.ABOVE_THRESHOLD);
+        OpenRaoMPConstraint minMarginDefMax = linearProblem.getMinimumMarginConstraint(cnecInSeries, Side.LEFT, LinearProblem.MarginExtension.ABOVE_THRESHOLD);
         assertEquals(800 + 2 * MAX_ABS_THRESHOLD, minMarginDefMax.ub(), DOUBLE_TOLERANCE);
         assertEquals(2 * MAX_ABS_THRESHOLD, minMarginDefMax.getCoefficient(marginDecreaseVariable), DOUBLE_TOLERANCE);
     }
@@ -420,12 +420,12 @@ class UnoptimizedCnecFillerPstLimitationRuleTest extends AbstractFillerTest {
         // Verify existence of optimize_cnec binary variable
         Exception e = assertThrows(OpenRaoException.class, () -> linearProblem.getOptimizeCnecBinaryVariable(classicCnec, Side.LEFT));
         assertEquals("Variable Tieline BE FR - N - preventive_left_optimizecnec_variable has not been created yet", e.getMessage());
-        FaraoMPVariable binaryVar = linearProblem.getOptimizeCnecBinaryVariable(cnecInSeries, Side.LEFT);
+        OpenRaoMPVariable binaryVar = linearProblem.getOptimizeCnecBinaryVariable(cnecInSeries, Side.LEFT);
         assertNotNull(binaryVar);
 
         // Get variables
-        FaraoMPVariable flowVar = linearProblem.getFlowVariable(cnecInSeries, Side.LEFT);
-        FaraoMPVariable setPointVar = linearProblem.getRangeActionSetpointVariable(pstRangeActionInSeries, crac.getPreventiveState());
+        OpenRaoMPVariable flowVar = linearProblem.getFlowVariable(cnecInSeries, Side.LEFT);
+        OpenRaoMPVariable setPointVar = linearProblem.getRangeActionSetpointVariable(pstRangeActionInSeries, crac.getPreventiveState());
 
         // Verify existence of optimize_cnec definition constraints
         e = assertThrows(OpenRaoException.class, () -> linearProblem.getDontOptimizeCnecConstraint(classicCnec, Side.LEFT, LinearProblem.MarginExtension.BELOW_THRESHOLD));
@@ -433,7 +433,7 @@ class UnoptimizedCnecFillerPstLimitationRuleTest extends AbstractFillerTest {
         e = assertThrows(OpenRaoException.class, () -> linearProblem.getDontOptimizeCnecConstraint(classicCnec, Side.LEFT, LinearProblem.MarginExtension.ABOVE_THRESHOLD));
         assertEquals("Constraint Tieline BE FR - N - preventive_left_optimizecnecabove_threshold_constraint has not been created yet", e.getMessage());
 
-        FaraoMPConstraint optimizeCnecConstraintBelowThreshold = linearProblem.getDontOptimizeCnecConstraint(cnecInSeries, Side.LEFT, LinearProblem.MarginExtension.BELOW_THRESHOLD);
+        OpenRaoMPConstraint optimizeCnecConstraintBelowThreshold = linearProblem.getDontOptimizeCnecConstraint(cnecInSeries, Side.LEFT, LinearProblem.MarginExtension.BELOW_THRESHOLD);
         assertNotNull(optimizeCnecConstraintBelowThreshold);
         assertEquals(LinearProblem.infinity(), optimizeCnecConstraintBelowThreshold.ub(), DOUBLE_TOLERANCE);
         assertEquals(-1000., optimizeCnecConstraintBelowThreshold.lb(), 1e-6);
@@ -441,7 +441,7 @@ class UnoptimizedCnecFillerPstLimitationRuleTest extends AbstractFillerTest {
         assertEquals(0., optimizeCnecConstraintBelowThreshold.getCoefficient(setPointVar), 1e-6);
         assertEquals(20 * 1000., optimizeCnecConstraintBelowThreshold.getCoefficient(binaryVar), 1e-6);
 
-        FaraoMPConstraint optimizeCnecConstraintAboveThreshold = linearProblem.getDontOptimizeCnecConstraint(cnecInSeries, Side.LEFT, LinearProblem.MarginExtension.ABOVE_THRESHOLD);
+        OpenRaoMPConstraint optimizeCnecConstraintAboveThreshold = linearProblem.getDontOptimizeCnecConstraint(cnecInSeries, Side.LEFT, LinearProblem.MarginExtension.ABOVE_THRESHOLD);
         assertNotNull(optimizeCnecConstraintAboveThreshold);
         assertEquals(LinearProblem.infinity(), optimizeCnecConstraintAboveThreshold.ub(), DOUBLE_TOLERANCE);
         assertEquals(-800., optimizeCnecConstraintAboveThreshold.lb(), 1e-6);

@@ -7,7 +7,7 @@
 package com.powsybl.open_rao.util;
 
 import com.powsybl.open_rao.commons.OpenRaoException;
-import com.powsybl.open_rao.commons.logs.FaraoLoggerProvider;
+import com.powsybl.open_rao.commons.logs.OpenRaoLoggerProvider;
 
 import java.util.Collections;
 import java.util.HashSet;
@@ -29,7 +29,7 @@ public final class NativeLibraryLoader {
     public static synchronized void loadNativeLibrary(String libraryName) {
         if (!alreadyLoaded(libraryName)) {
             try {
-                FaraoLoggerProvider.TECHNICAL_LOGS.info("Loading library '{}'", libraryName);
+                OpenRaoLoggerProvider.TECHNICAL_LOGS.info("Loading library '{}'", libraryName);
                 System.loadLibrary(libraryName);
                 NATIVE_LIBRARIES_LOADED.add(libraryName);
             } catch (UnsatisfiedLinkError e) {

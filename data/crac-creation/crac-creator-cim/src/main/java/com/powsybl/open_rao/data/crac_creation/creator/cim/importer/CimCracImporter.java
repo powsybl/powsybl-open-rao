@@ -28,8 +28,8 @@ import java.io.*;
 import java.net.MalformedURLException;
 import java.util.Objects;
 
-import static com.powsybl.open_rao.commons.logs.FaraoLoggerProvider.BUSINESS_LOGS;
-import static com.powsybl.open_rao.commons.logs.FaraoLoggerProvider.TECHNICAL_LOGS;
+import static com.powsybl.open_rao.commons.logs.OpenRaoLoggerProvider.BUSINESS_LOGS;
+import static com.powsybl.open_rao.commons.logs.OpenRaoLoggerProvider.TECHNICAL_LOGS;
 
 /**
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}

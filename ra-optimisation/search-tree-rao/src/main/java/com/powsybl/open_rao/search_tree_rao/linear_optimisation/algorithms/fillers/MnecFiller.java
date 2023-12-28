@@ -11,8 +11,8 @@ import com.powsybl.open_rao.data.crac_api.Identifiable;
 import com.powsybl.open_rao.data.crac_api.cnec.FlowCnec;
 import com.powsybl.open_rao.rao_api.parameters.extensions.MnecParametersExtension;
 import com.powsybl.open_rao.search_tree_rao.commons.RaoUtil;
-import com.powsybl.open_rao.search_tree_rao.linear_optimisation.algorithms.linear_problem.FaraoMPConstraint;
-import com.powsybl.open_rao.search_tree_rao.linear_optimisation.algorithms.linear_problem.FaraoMPVariable;
+import com.powsybl.open_rao.search_tree_rao.linear_optimisation.algorithms.linear_problem.OpenRaoMPConstraint;
+import com.powsybl.open_rao.search_tree_rao.linear_optimisation.algorithms.linear_problem.OpenRaoMPVariable;
 import com.powsybl.open_rao.search_tree_rao.linear_optimisation.algorithms.linear_problem.LinearProblem;
 import com.powsybl.open_rao.search_tree_rao.result.api.FlowResult;
 import com.powsybl.open_rao.search_tree_rao.result.api.RangeActionActivationResult;
@@ -77,13 +77,13 @@ public class MnecFiller implements ProblemFiller {
         getMonitoredCnecs().forEach(mnec -> mnec.getMonitoredSides().forEach(side -> {
                 double mnecInitialFlowInMW = initialFlowResult.getFlow(mnec, side, unit) * RaoUtil.getFlowUnitMultiplier(mnec, side, unit, MEGAWATT);
 
-                FaraoMPVariable flowVariable = linearProblem.getFlowVariable(mnec, side);
-                FaraoMPVariable mnecViolationVariable = linearProblem.getMnecViolationVariable(mnec, side);
+                OpenRaoMPVariable flowVariable = linearProblem.getFlowVariable(mnec, side);
+                OpenRaoMPVariable mnecViolationVariable = linearProblem.getMnecViolationVariable(mnec, side);
 
                 Optional<Double> maxFlow = mnec.getUpperBound(side, MEGAWATT);
                 if (maxFlow.isPresent()) {
                     double ub = Math.max(maxFlow.get(), mnecInitialFlowInMW + mnecAcceptableMarginDecrease) - mnecConstraintAdjustmentCoefficient;
-                    FaraoMPConstraint maxConstraint = linearProblem.addMnecFlowConstraint(-LinearProblem.infinity(), ub, mnec, side, LinearProblem.MarginExtension.BELOW_THRESHOLD);
+                    OpenRaoMPConstraint maxConstraint = linearProblem.addMnecFlowConstraint(-LinearProblem.infinity(), ub, mnec, side, LinearProblem.MarginExtension.BELOW_THRESHOLD);
                     maxConstraint.setCoefficient(flowVariable, 1);
                     maxConstraint.setCoefficient(mnecViolationVariable, -1);
                 }
@@ -91,7 +91,7 @@ public class MnecFiller implements ProblemFiller {
                 Optional<Double> minFlow = mnec.getLowerBound(side, MEGAWATT);
                 if (minFlow.isPresent()) {
                     double lb = Math.min(minFlow.get(), mnecInitialFlowInMW - mnecAcceptableMarginDecrease) + mnecConstraintAdjustmentCoefficient;
-                    FaraoMPConstraint maxConstraint = linearProblem.addMnecFlowConstraint(lb, LinearProblem.infinity(), mnec, side, LinearProblem.MarginExtension.ABOVE_THRESHOLD);
+                    OpenRaoMPConstraint maxConstraint = linearProblem.addMnecFlowConstraint(lb, LinearProblem.infinity(), mnec, side, LinearProblem.MarginExtension.ABOVE_THRESHOLD);
                     maxConstraint.setCoefficient(flowVariable, 1);
                     maxConstraint.setCoefficient(mnecViolationVariable, 1);
                 }

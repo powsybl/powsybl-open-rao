@@ -6,9 +6,9 @@
  */
 
 /**
- * Common utilities for FARAO
+ * Common utilities for Open Rao
  *
- * This package include utilities that could serve in all FARAO modules.
+ * This package include utilities that could serve in all Open Rao modules.
  *
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
  */

@@ -17,7 +17,7 @@ import com.google.auto.service.AutoService;
 import java.time.Instant;
 import java.util.concurrent.CompletableFuture;
 
-import static com.powsybl.open_rao.commons.logs.FaraoLoggerProvider.*;
+import static com.powsybl.open_rao.commons.logs.OpenRaoLoggerProvider.*;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}

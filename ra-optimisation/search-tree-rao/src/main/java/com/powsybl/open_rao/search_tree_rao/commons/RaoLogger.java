@@ -8,7 +8,7 @@
 package com.powsybl.open_rao.search_tree_rao.commons;
 
 import com.powsybl.open_rao.commons.Unit;
-import com.powsybl.open_rao.commons.logs.FaraoLogger;
+import com.powsybl.open_rao.commons.logs.OpenRaoLogger;
 import com.powsybl.open_rao.data.crac_api.Contingency;
 import com.powsybl.open_rao.data.crac_api.Identifiable;
 import com.powsybl.open_rao.data.crac_api.State;
@@ -32,7 +32,7 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import static com.powsybl.open_rao.commons.logs.FaraoLoggerProvider.BUSINESS_LOGS;
+import static com.powsybl.open_rao.commons.logs.OpenRaoLoggerProvider.BUSINESS_LOGS;
 import static java.lang.String.format;
 
 /**
@@ -68,7 +68,7 @@ public final class RaoLogger {
                 numberOfLoggedLimitingElements);
     }
 
-    public static void logRangeActions(FaraoLogger logger,
+    public static void logRangeActions(OpenRaoLogger logger,
                                        Leaf leaf,
                                        OptimizationPerimeter
                                                optimizationContext, String prefix) {
@@ -91,19 +91,19 @@ public final class RaoLogger {
         }
     }
 
-    public static void logMostLimitingElementsResults(FaraoLogger logger, OptimizationResult optimizationResult, ObjectiveFunctionParameters.ObjectiveFunctionType objectiveFunction, int numberOfLoggedElements) {
+    public static void logMostLimitingElementsResults(OpenRaoLogger logger, OptimizationResult optimizationResult, ObjectiveFunctionParameters.ObjectiveFunctionType objectiveFunction, int numberOfLoggedElements) {
         logMostLimitingElementsResults(logger, optimizationResult, optimizationResult, null, objectiveFunction, numberOfLoggedElements);
     }
 
-    public static void logMostLimitingElementsResults(FaraoLogger logger, PrePerimeterResult prePerimeterResult, Set<State> states, ObjectiveFunctionParameters.ObjectiveFunctionType objectiveFunction, int numberOfLoggedElements) {
+    public static void logMostLimitingElementsResults(OpenRaoLogger logger, PrePerimeterResult prePerimeterResult, Set<State> states, ObjectiveFunctionParameters.ObjectiveFunctionType objectiveFunction, int numberOfLoggedElements) {
         logMostLimitingElementsResults(logger, prePerimeterResult, prePerimeterResult, states, objectiveFunction, numberOfLoggedElements);
     }
 
-    public static void logMostLimitingElementsResults(FaraoLogger logger, PrePerimeterResult prePerimeterResult, ObjectiveFunctionParameters.ObjectiveFunctionType objectiveFunction, int numberOfLoggedElements) {
+    public static void logMostLimitingElementsResults(OpenRaoLogger logger, PrePerimeterResult prePerimeterResult, ObjectiveFunctionParameters.ObjectiveFunctionType objectiveFunction, int numberOfLoggedElements) {
         logMostLimitingElementsResults(logger, prePerimeterResult, prePerimeterResult, null, objectiveFunction, numberOfLoggedElements);
     }
 
-    private static void logMostLimitingElementsResults(FaraoLogger logger,
+    private static void logMostLimitingElementsResults(OpenRaoLogger logger,
                                                        ObjectiveFunctionResult objectiveFunctionResult,
                                                        FlowResult flowResult,
                                                        Set<State> states,
@@ -159,7 +159,7 @@ public final class RaoLogger {
         return marginRight < marginLeft ? Side.RIGHT : Side.LEFT;
     }
 
-    public static void logMostLimitingElementsResults(FaraoLogger logger,
+    public static void logMostLimitingElementsResults(OpenRaoLogger logger,
                                                       BasecaseScenario basecaseScenario,
                                                       OptimizationResult basecaseOptimResult,
                                                       Set<ContingencyScenario> contingencyScenarios,
@@ -245,13 +245,13 @@ public final class RaoLogger {
         return mostLimitingElementsAndMargins;
     }
 
-    public static void logFailedOptimizationSummary(FaraoLogger logger, State optimizedState, Set<NetworkAction> networkActions, Map<RangeAction<?>, java.lang.Double> rangeActions) {
+    public static void logFailedOptimizationSummary(OpenRaoLogger logger, State optimizedState, Set<NetworkAction> networkActions, Map<RangeAction<?>, java.lang.Double> rangeActions) {
         String scenarioName = getScenarioName(optimizedState);
         String raResult = getRaResult(networkActions, rangeActions);
         logger.info("Scenario \"{}\": {}", scenarioName, raResult);
     }
 
-    public static void logOptimizationSummary(FaraoLogger logger, State optimizedState, Set<NetworkAction> networkActions, Map<RangeAction<?>, java.lang.Double> rangeActions, ObjectiveFunctionResult preOptimObjectiveFunctionResult, ObjectiveFunctionResult finalObjective) {
+    public static void logOptimizationSummary(OpenRaoLogger logger, State optimizedState, Set<NetworkAction> networkActions, Map<RangeAction<?>, java.lang.Double> rangeActions, ObjectiveFunctionResult preOptimObjectiveFunctionResult, ObjectiveFunctionResult finalObjective) {
         String scenarioName = getScenarioName(optimizedState);
         String raResult = getRaResult(networkActions, rangeActions);
         Map<String, Double> finalVirtualCostDetailed = getVirtualCostDetailed(finalObjective);

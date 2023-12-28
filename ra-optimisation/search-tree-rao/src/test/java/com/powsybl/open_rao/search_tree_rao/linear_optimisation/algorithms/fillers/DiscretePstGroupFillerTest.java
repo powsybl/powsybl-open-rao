@@ -13,8 +13,8 @@ import com.powsybl.open_rao.data.crac_api.range_action.RangeAction;
 import com.powsybl.open_rao.rao_api.parameters.RangeActionsOptimizationParameters;
 import com.powsybl.open_rao.rao_api.parameters.RaoParameters;
 import com.powsybl.open_rao.search_tree_rao.commons.optimization_perimeters.OptimizationPerimeter;
-import com.powsybl.open_rao.search_tree_rao.linear_optimisation.algorithms.linear_problem.FaraoMPConstraint;
-import com.powsybl.open_rao.search_tree_rao.linear_optimisation.algorithms.linear_problem.FaraoMPVariable;
+import com.powsybl.open_rao.search_tree_rao.linear_optimisation.algorithms.linear_problem.OpenRaoMPConstraint;
+import com.powsybl.open_rao.search_tree_rao.linear_optimisation.algorithms.linear_problem.OpenRaoMPVariable;
 import com.powsybl.open_rao.search_tree_rao.linear_optimisation.algorithms.linear_problem.LinearProblem;
 import com.powsybl.open_rao.search_tree_rao.linear_optimisation.algorithms.linear_problem.LinearProblemBuilder;
 import com.powsybl.open_rao.search_tree_rao.result.api.RangeActionActivationResult;
@@ -91,14 +91,14 @@ class DiscretePstGroupFillerTest extends AbstractFillerTest {
         linearProblem.fill(flowResult, sensitivityResult);
 
         // check that all constraints and variables relate to discrete Pst Group filler exists
-        FaraoMPVariable groupTapV = linearProblem.getPstGroupTapVariable(groupId, state);
-        FaraoMPVariable variationUp1V = linearProblem.getPstTapVariationVariable(pstRa1, state, LinearProblem.VariationDirectionExtension.UPWARD);
-        FaraoMPVariable variationDown1V = linearProblem.getPstTapVariationVariable(pstRa1, state, LinearProblem.VariationDirectionExtension.DOWNWARD);
-        FaraoMPVariable variationUp2V = linearProblem.getPstTapVariationVariable(pstRa2, state, LinearProblem.VariationDirectionExtension.UPWARD);
-        FaraoMPVariable variationDown2V = linearProblem.getPstTapVariationVariable(pstRa2, state, LinearProblem.VariationDirectionExtension.DOWNWARD);
+        OpenRaoMPVariable groupTapV = linearProblem.getPstGroupTapVariable(groupId, state);
+        OpenRaoMPVariable variationUp1V = linearProblem.getPstTapVariationVariable(pstRa1, state, LinearProblem.VariationDirectionExtension.UPWARD);
+        OpenRaoMPVariable variationDown1V = linearProblem.getPstTapVariationVariable(pstRa1, state, LinearProblem.VariationDirectionExtension.DOWNWARD);
+        OpenRaoMPVariable variationUp2V = linearProblem.getPstTapVariationVariable(pstRa2, state, LinearProblem.VariationDirectionExtension.UPWARD);
+        OpenRaoMPVariable variationDown2V = linearProblem.getPstTapVariationVariable(pstRa2, state, LinearProblem.VariationDirectionExtension.DOWNWARD);
 
-        FaraoMPConstraint groupTap1C = linearProblem.getPstGroupTapConstraint(pstRa1, state);
-        FaraoMPConstraint groupTap2C = linearProblem.getPstGroupTapConstraint(pstRa2, state);
+        OpenRaoMPConstraint groupTap1C = linearProblem.getPstGroupTapConstraint(pstRa1, state);
+        OpenRaoMPConstraint groupTap2C = linearProblem.getPstGroupTapConstraint(pstRa2, state);
 
         assertNotNull(groupTapV);
         assertNotNull(groupTap1C);

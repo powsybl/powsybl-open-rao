@@ -13,7 +13,7 @@ import org.slf4j.LoggerFactory;
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
-public abstract class AbstractFaraoLogger implements FaraoLogger {
+public abstract class AbstractOpenRaoLogger implements OpenRaoLogger {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Override

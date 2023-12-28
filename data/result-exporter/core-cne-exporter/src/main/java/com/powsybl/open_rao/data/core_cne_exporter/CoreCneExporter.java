@@ -8,7 +8,7 @@
 package com.powsybl.open_rao.data.core_cne_exporter;
 
 import com.powsybl.open_rao.commons.OpenRaoException;
-import com.powsybl.open_rao.commons.logs.FaraoLoggerProvider;
+import com.powsybl.open_rao.commons.logs.OpenRaoLoggerProvider;
 import com.powsybl.open_rao.data.cne_exporter_commons.CneExporterParameters;
 import com.powsybl.open_rao.data.core_cne_exporter.xsd.CriticalNetworkElementMarketDocument;
 import com.powsybl.open_rao.data.crac_api.Crac;
@@ -70,7 +70,7 @@ public class CoreCneExporter {
             String result = stringWriter.toString().replace("xsi:" + CNE_TAG, CNE_TAG);
 
             if (!validateCNESchema(result)) {
-                FaraoLoggerProvider.TECHNICAL_LOGS.warn("CNE output doesn't fit the xsd.");
+                OpenRaoLoggerProvider.TECHNICAL_LOGS.warn("CNE output doesn't fit the xsd.");
             }
 
             outputStream.write(result.getBytes());
@@ -99,7 +99,7 @@ public class CoreCneExporter {
             Validator validator = schema.newValidator();
             validator.validate(new StreamSource(new StringReader(xmlContent)));
         } catch (IOException | SAXException e) {
-            FaraoLoggerProvider.TECHNICAL_LOGS.warn("Exception: %s", e.getMessage());
+            OpenRaoLoggerProvider.TECHNICAL_LOGS.warn("Exception: %s", e.getMessage());
             return false;
         }
         return true;

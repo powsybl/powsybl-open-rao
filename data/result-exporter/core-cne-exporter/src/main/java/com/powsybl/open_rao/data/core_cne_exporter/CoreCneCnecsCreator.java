@@ -9,7 +9,7 @@ package com.powsybl.open_rao.data.core_cne_exporter;
 
 import com.powsybl.open_rao.commons.OpenRaoException;
 import com.powsybl.open_rao.commons.Unit;
-import com.powsybl.open_rao.commons.logs.FaraoLoggerProvider;
+import com.powsybl.open_rao.commons.logs.OpenRaoLoggerProvider;
 import com.powsybl.open_rao.data.cne_exporter_commons.CneHelper;
 import com.powsybl.open_rao.data.core_cne_exporter.xsd.Analog;
 import com.powsybl.open_rao.data.core_cne_exporter.xsd.ConstraintSeries;
@@ -62,7 +62,7 @@ public final class CoreCneCnecsCreator {
 
     private List<ConstraintSeries> createConstraintSeriesOfACnec(BranchCnecCreationContext branchCnecCreationContext, CneHelper cneHelper) {
         if (!branchCnecCreationContext.isImported()) {
-            FaraoLoggerProvider.TECHNICAL_LOGS.warn("Cnec {} was not imported into the RAO, its results will be absent from the CNE file", branchCnecCreationContext.getNativeId());
+            OpenRaoLoggerProvider.TECHNICAL_LOGS.warn("Cnec {} was not imported into the RAO, its results will be absent from the CNE file", branchCnecCreationContext.getNativeId());
             return new ArrayList<>();
         }
         List<ConstraintSeries> constraintSeries = new ArrayList<>();

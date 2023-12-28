@@ -17,7 +17,7 @@ import com.powsybl.open_rao.data.crac_api.network_action.ActionType;
 import com.powsybl.open_rao.data.crac_api.network_action.NetworkActionAdder;
 import com.powsybl.open_rao.data.crac_creation.creator.api.ImportStatus;
 import com.powsybl.open_rao.data.crac_creation.creator.cim.crac_creator.CimConstants;
-import com.powsybl.open_rao.data.crac_creation.util.FaraoImportException;
+import com.powsybl.open_rao.data.crac_creation.util.OpenRaoImportException;
 import com.powsybl.open_rao.data.crac_creation.creator.cim.xsd.RemedialActionRegisteredResource;
 import com.powsybl.open_rao.data.crac_creation.util.PstHelper;
 import com.powsybl.open_rao.data.crac_creation.util.cgmes.CgmesBranchHelper;
@@ -101,7 +101,7 @@ public class NetworkActionCreator {
                 }
             }
             this.networkActionCreationContext = RemedialActionSeriesCreator.importWithContingencies(createdRemedialActionId, invalidContingencies);
-        } catch (FaraoImportException e) {
+        } catch (OpenRaoImportException e) {
             this.networkActionCreationContext = RemedialActionSeriesCreationContext.notImported(createdRemedialActionId, e.getImportStatus(), e.getMessage());
         }
     }
@@ -113,21 +113,21 @@ public class NetworkActionCreator {
         String networkElementId = remedialActionRegisteredResource.getMRID().getValue();
         IidmPstHelper pstHelper = new IidmPstHelper(networkElementId, network);
         if (!pstHelper.isValid()) {
-            throw new FaraoImportException(ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK, String.format("%s on elementary action %s", pstHelper.getInvalidReason(), elementaryActionId));
+            throw new OpenRaoImportException(ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK, String.format("%s on elementary action %s", pstHelper.getInvalidReason(), elementaryActionId));
         }
         // --- Market Object status: define RangeType
         String marketObjectStatusStatus = remedialActionRegisteredResource.getMarketObjectStatusStatus();
         int setpoint;
         if (Objects.isNull(marketObjectStatusStatus)) {
-            throw new FaraoImportException(ImportStatus.INCOMPLETE_DATA, String.format("Missing marketObjectStatus on elementary action %s", elementaryActionId));
+            throw new OpenRaoImportException(ImportStatus.INCOMPLETE_DATA, String.format("Missing marketObjectStatus on elementary action %s", elementaryActionId));
         } else if (marketObjectStatusStatus.equals(CimConstants.MarketObjectStatus.ABSOLUTE.getStatus())) {
             setpoint = pstHelper.normalizeTap(remedialActionRegisteredResource.getResourceCapacityDefaultCapacity().intValue(), PstHelper.TapConvention.STARTS_AT_ONE);
         } else if (marketObjectStatusStatus.equals(CimConstants.MarketObjectStatus.RELATIVE_TO_INITIAL_NETWORK.getStatus())) {
             setpoint = pstHelper.getInitialTap() + remedialActionRegisteredResource.getResourceCapacityDefaultCapacity().intValue();
         } else if (marketObjectStatusStatus.equals(CimConstants.MarketObjectStatus.OPEN.getStatus()) || marketObjectStatusStatus.equals(CimConstants.MarketObjectStatus.CLOSE.getStatus())) {
-            throw new FaraoImportException(ImportStatus.INCONSISTENCY_IN_DATA, String.format("Wrong marketObjectStatusStatus: %s, PST can no longer be opened/closed (deprecated) on elementary action %s", marketObjectStatusStatus, elementaryActionId));
+            throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, String.format("Wrong marketObjectStatusStatus: %s, PST can no longer be opened/closed (deprecated) on elementary action %s", marketObjectStatusStatus, elementaryActionId));
         } else {
-            throw new FaraoImportException(ImportStatus.INCONSISTENCY_IN_DATA, String.format("Wrong marketObjectStatusStatus: %s on elementary action %s", marketObjectStatusStatus, elementaryActionId));
+            throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, String.format("Wrong marketObjectStatusStatus: %s on elementary action %s", marketObjectStatusStatus, elementaryActionId));
         }
         networkActionAdder.newPstSetPoint()
             .withNetworkElement(networkElementId)
@@ -138,31 +138,31 @@ public class NetworkActionCreator {
     private void addInjectionSetpointElementaryAction(String elementaryActionId, RemedialActionRegisteredResource remedialActionRegisteredResource, NetworkActionAdder networkActionAdder) {
         // Injection range actions aren't handled
         if (Objects.nonNull(remedialActionRegisteredResource.getResourceCapacityMinimumCapacity()) || Objects.nonNull(remedialActionRegisteredResource.getResourceCapacityMaximumCapacity())) {
-            throw new FaraoImportException(ImportStatus.INCONSISTENCY_IN_DATA, String.format("Injection setpoint elementary action %s should not have a min or max capacity defined", elementaryActionId));
+            throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, String.format("Injection setpoint elementary action %s should not have a min or max capacity defined", elementaryActionId));
         }
         // Market object status
         String marketObjectStatusStatus = remedialActionRegisteredResource.getMarketObjectStatusStatus();
         if (Objects.isNull(marketObjectStatusStatus)) {
-            throw new FaraoImportException(ImportStatus.INCOMPLETE_DATA, String.format("Missing marketObjectStatus on injection setpoint elementary action %s", elementaryActionId));
+            throw new OpenRaoImportException(ImportStatus.INCOMPLETE_DATA, String.format("Missing marketObjectStatus on injection setpoint elementary action %s", elementaryActionId));
         }
         int setpoint;
         if (marketObjectStatusStatus.equals(CimConstants.MarketObjectStatus.ABSOLUTE.getStatus())) {
             if (Objects.isNull(remedialActionRegisteredResource.getResourceCapacityDefaultCapacity())
                 || Objects.isNull(remedialActionRegisteredResource.getResourceCapacityUnitSymbol())) {
-                throw new FaraoImportException(ImportStatus.INCOMPLETE_DATA, String.format("Injection setpoint elementary action %s with ABSOLUTE marketObjectStatus should have a defaultCapacity and a unitSymbol", elementaryActionId));
+                throw new OpenRaoImportException(ImportStatus.INCOMPLETE_DATA, String.format("Injection setpoint elementary action %s with ABSOLUTE marketObjectStatus should have a defaultCapacity and a unitSymbol", elementaryActionId));
             }
             if (!remedialActionRegisteredResource.getResourceCapacityUnitSymbol().equals(MEGAWATT_UNIT_SYMBOL)) {
-                throw new FaraoImportException(ImportStatus.INCONSISTENCY_IN_DATA, String.format("Wrong unit symbol for injection setpoint elementary action %s with ABSOLUTE marketObjectStatus : %s", elementaryActionId, remedialActionRegisteredResource.getResourceCapacityUnitSymbol()));
+                throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, String.format("Wrong unit symbol for injection setpoint elementary action %s with ABSOLUTE marketObjectStatus : %s", elementaryActionId, remedialActionRegisteredResource.getResourceCapacityUnitSymbol()));
             }
             setpoint = remedialActionRegisteredResource.getResourceCapacityDefaultCapacity().intValue();
         } else if (marketObjectStatusStatus.equals(CimConstants.MarketObjectStatus.STOP.getStatus())) {
             if (Objects.nonNull(remedialActionRegisteredResource.getResourceCapacityDefaultCapacity())
                 || Objects.nonNull(remedialActionRegisteredResource.getResourceCapacityUnitSymbol())) {
-                throw new FaraoImportException(ImportStatus.INCONSISTENCY_IN_DATA, String.format("Injection setpoint elementary action %s with STOP marketObjectStatus shouldn't have a defaultCapacity nor a unitSymbol", elementaryActionId));
+                throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, String.format("Injection setpoint elementary action %s with STOP marketObjectStatus shouldn't have a defaultCapacity nor a unitSymbol", elementaryActionId));
             }
             setpoint = 0;
         } else {
-            throw new FaraoImportException(ImportStatus.INCONSISTENCY_IN_DATA, String.format("Wrong marketObjectStatusStatus: %s on injection setpoint elementary action %s", marketObjectStatusStatus, elementaryActionId));
+            throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, String.format("Wrong marketObjectStatusStatus: %s on injection setpoint elementary action %s", marketObjectStatusStatus, elementaryActionId));
         }
 
         String networkElementId = remedialActionRegisteredResource.getMRID().getValue();
@@ -177,25 +177,25 @@ public class NetworkActionCreator {
 
     private void checkGeneratorOrLoad(String networkElementId) {
         if (Objects.isNull(network.getGenerator(networkElementId)) && Objects.isNull(network.getLoad(networkElementId))) {
-            throw new FaraoImportException(ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK, String.format("%s is neither a generator nor a load", networkElementId));
+            throw new OpenRaoImportException(ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK, String.format("%s is neither a generator nor a load", networkElementId));
         }
     }
 
     private void addTopologicalElementaryAction(String elementaryActionId, RemedialActionRegisteredResource remedialActionRegisteredResource, NetworkActionAdder networkActionAdder) {
         if (Objects.nonNull(remedialActionRegisteredResource.getResourceCapacityMinimumCapacity()) || Objects.nonNull(remedialActionRegisteredResource.getResourceCapacityMaximumCapacity()) || Objects.nonNull(remedialActionRegisteredResource.getResourceCapacityDefaultCapacity())) {
-            throw new FaraoImportException(ImportStatus.INCONSISTENCY_IN_DATA, String.format("Topological elementary action %s should not have any resource capacity defined", elementaryActionId));
+            throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, String.format("Topological elementary action %s should not have any resource capacity defined", elementaryActionId));
         }
         // Market object status
         String marketObjectStatusStatus = remedialActionRegisteredResource.getMarketObjectStatusStatus();
         ActionType actionType;
         if (Objects.isNull(marketObjectStatusStatus)) {
-            throw new FaraoImportException(ImportStatus.INCOMPLETE_DATA, String.format("Missing marketObjectStatus on topological elementary action %s", elementaryActionId));
+            throw new OpenRaoImportException(ImportStatus.INCOMPLETE_DATA, String.format("Missing marketObjectStatus on topological elementary action %s", elementaryActionId));
         } else if (marketObjectStatusStatus.equals(CimConstants.MarketObjectStatus.OPEN.getStatus())) {
             actionType = ActionType.OPEN;
         } else if (marketObjectStatusStatus.equals(CimConstants.MarketObjectStatus.CLOSE.getStatus())) {
             actionType = ActionType.CLOSE;
         } else {
-            throw new FaraoImportException(ImportStatus.INCONSISTENCY_IN_DATA, String.format("Wrong marketObjectStatusStatus: %s on topological elementary action %s", marketObjectStatusStatus, elementaryActionId));
+            throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, String.format("Wrong marketObjectStatusStatus: %s on topological elementary action %s", marketObjectStatusStatus, elementaryActionId));
         }
 
         String networkElementId = remedialActionRegisteredResource.getMRID().getValue();
@@ -204,13 +204,13 @@ public class NetworkActionCreator {
             // Check that network element is not half a tie line
             CgmesBranchHelper branchHelper = new CgmesBranchHelper(networkElementId, network);
             if (!branchHelper.isValid()) {
-                throw new FaraoImportException(ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK, String.format("%s not in network on topological elementary action %s", networkElementId, elementaryActionId));
+                throw new OpenRaoImportException(ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK, String.format("%s not in network on topological elementary action %s", networkElementId, elementaryActionId));
             }
             networkElementId = branchHelper.getIdInNetwork();
             element = branchHelper.getBranch();
         }
         if (!(element instanceof Branch) && !(element instanceof Switch)) {
-            throw new FaraoImportException(ImportStatus.INCONSISTENCY_IN_DATA, String.format("%s is nor a branch nor a switch on elementary action %s", networkElementId, elementaryActionId));
+            throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, String.format("%s is nor a branch nor a switch on elementary action %s", networkElementId, elementaryActionId));
         }
 
         networkActionAdder.newTopologicalAction()

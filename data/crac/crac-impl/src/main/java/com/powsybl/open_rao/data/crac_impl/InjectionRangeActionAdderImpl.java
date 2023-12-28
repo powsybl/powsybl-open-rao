@@ -13,7 +13,7 @@ import com.powsybl.open_rao.data.crac_api.range_action.*;
 
 import java.util.*;
 
-import static com.powsybl.open_rao.commons.logs.FaraoLoggerProvider.BUSINESS_WARNS;
+import static com.powsybl.open_rao.commons.logs.OpenRaoLoggerProvider.BUSINESS_WARNS;
 import static com.powsybl.open_rao.data.crac_impl.AdderUtils.assertAttributeNotEmpty;
 import static com.powsybl.open_rao.data.crac_impl.AdderUtils.assertAttributeNotNull;
 

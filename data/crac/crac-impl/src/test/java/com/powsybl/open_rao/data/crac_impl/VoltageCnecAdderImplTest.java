@@ -157,7 +157,7 @@ class VoltageCnecAdderImplTest {
             .newThreshold().withUnit(Unit.KILOVOLT).withMax(100.0).withMin(-100.0).add()
             .withOptimized();
         OpenRaoException exception = assertThrows(OpenRaoException.class, voltageCnecAdder::add);
-        assertEquals("Error while adding cnec Cnec ID : Farao does not allow the optimization of VoltageCnecs.", exception.getMessage());
+        assertEquals("Error while adding cnec Cnec ID : Open Rao does not allow the optimization of VoltageCnecs.", exception.getMessage());
     }
 
     @Test

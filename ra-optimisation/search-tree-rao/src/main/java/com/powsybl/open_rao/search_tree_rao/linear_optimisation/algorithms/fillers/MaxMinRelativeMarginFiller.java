@@ -13,8 +13,8 @@ import com.powsybl.open_rao.data.crac_api.cnec.Side;
 import com.powsybl.open_rao.rao_api.parameters.extensions.PtdfApproximation;
 import com.powsybl.open_rao.rao_api.parameters.extensions.RelativeMarginsParametersExtension;
 import com.powsybl.open_rao.search_tree_rao.commons.RaoUtil;
-import com.powsybl.open_rao.search_tree_rao.linear_optimisation.algorithms.linear_problem.FaraoMPConstraint;
-import com.powsybl.open_rao.search_tree_rao.linear_optimisation.algorithms.linear_problem.FaraoMPVariable;
+import com.powsybl.open_rao.search_tree_rao.linear_optimisation.algorithms.linear_problem.OpenRaoMPConstraint;
+import com.powsybl.open_rao.search_tree_rao.linear_optimisation.algorithms.linear_problem.OpenRaoMPVariable;
 import com.powsybl.open_rao.search_tree_rao.linear_optimisation.algorithms.linear_problem.LinearProblem;
 import com.powsybl.open_rao.search_tree_rao.result.api.FlowResult;
 import com.powsybl.open_rao.search_tree_rao.result.api.RangeActionActivationResult;
@@ -71,14 +71,14 @@ public class MaxMinRelativeMarginFiller extends MaxMinMarginFiller {
     }
 
     private void updateMinimumNegativeMarginDefinition(LinearProblem linearProblem) {
-        FaraoMPVariable minimumMarginVariable = linearProblem.getMinimumMarginVariable();
-        FaraoMPVariable minRelMarginSignBinaryVariable = linearProblem.getMinimumRelativeMarginSignBinaryVariable();
+        OpenRaoMPVariable minimumMarginVariable = linearProblem.getMinimumMarginVariable();
+        OpenRaoMPVariable minRelMarginSignBinaryVariable = linearProblem.getMinimumRelativeMarginSignBinaryVariable();
         double maxNegativeRam = 5 * highestThreshold;
 
         // Minimum Margin is negative or zero
         minimumMarginVariable.setUb(.0);
         // Forcing miminumRelativeMarginSignBinaryVariable to 0 when minimumMarginVariable is negative
-        FaraoMPConstraint minimumRelMarginSignDefinition = linearProblem.addMinimumRelMarginSignDefinitionConstraint(-LinearProblem.infinity(), maxNegativeRam);
+        OpenRaoMPConstraint minimumRelMarginSignDefinition = linearProblem.addMinimumRelMarginSignDefinitionConstraint(-LinearProblem.infinity(), maxNegativeRam);
         minimumRelMarginSignDefinition.setCoefficient(minRelMarginSignBinaryVariable, maxNegativeRam);
         minimumRelMarginSignDefinition.setCoefficient(minimumMarginVariable, -1);
     }
@@ -109,13 +109,13 @@ public class MaxMinRelativeMarginFiller extends MaxMinMarginFiller {
      * Define the minimum relative margin (like absolute margin but by dividing by sum of PTDFs)
      */
     private void buildMinimumRelativeMarginConstraints(LinearProblem linearProblem) {
-        FaraoMPVariable minRelMarginVariable = linearProblem.getMinimumRelativeMarginVariable();
-        FaraoMPVariable minRelMarginSignBinaryVariable = linearProblem.getMinimumRelativeMarginSignBinaryVariable();
+        OpenRaoMPVariable minRelMarginVariable = linearProblem.getMinimumRelativeMarginVariable();
+        OpenRaoMPVariable minRelMarginSignBinaryVariable = linearProblem.getMinimumRelativeMarginSignBinaryVariable();
 
         // Minimum Relative Margin is positive or null
         minRelMarginVariable.setLb(.0);
         // Forcing minRelMarginVariable to 0 when minimumMarginVariable is negative
-        FaraoMPConstraint minimumRelativeMarginSetToZero = linearProblem.addMinimumRelMarginSetToZeroConstraint(-LinearProblem.infinity(), 0);
+        OpenRaoMPConstraint minimumRelativeMarginSetToZero = linearProblem.addMinimumRelMarginSetToZeroConstraint(-LinearProblem.infinity(), 0);
         minimumRelativeMarginSetToZero.setCoefficient(minRelMarginSignBinaryVariable, -maxPositiveRelativeRam);
         minimumRelativeMarginSetToZero.setCoefficient(minRelMarginVariable, 1);
 
@@ -125,9 +125,9 @@ public class MaxMinRelativeMarginFiller extends MaxMinMarginFiller {
     }
 
     private void setOrUpdateRelativeMarginCoefficients(LinearProblem linearProblem, FlowResult flowResult, FlowCnec cnec, Side side) {
-        FaraoMPVariable minRelMarginVariable = linearProblem.getMinimumRelativeMarginVariable();
-        FaraoMPVariable minRelMarginSignBinaryVariable = linearProblem.getMinimumRelativeMarginSignBinaryVariable();
-        FaraoMPVariable flowVariable = linearProblem.getFlowVariable(cnec, side);
+        OpenRaoMPVariable minRelMarginVariable = linearProblem.getMinimumRelativeMarginVariable();
+        OpenRaoMPVariable minRelMarginSignBinaryVariable = linearProblem.getMinimumRelativeMarginSignBinaryVariable();
+        OpenRaoMPVariable flowVariable = linearProblem.getFlowVariable(cnec, side);
 
         double unitConversionCoefficient = RaoUtil.getFlowUnitMultiplier(cnec, side, unit, MEGAWATT);
         double relMarginCoef = Math.max(flowResult.getPtdfZonalSum(cnec, side), ptdfSumLowerBound);
@@ -136,7 +136,7 @@ public class MaxMinRelativeMarginFiller extends MaxMinMarginFiller {
         Optional<Double> maxFlow = cnec.getUpperBound(side, MEGAWATT);
 
         if (minFlow.isPresent()) {
-            FaraoMPConstraint minimumMarginNegative;
+            OpenRaoMPConstraint minimumMarginNegative;
             try {
                 minimumMarginNegative = linearProblem.getMinimumRelativeMarginConstraint(cnec, side, LinearProblem.MarginExtension.BELOW_THRESHOLD);
             } catch (OpenRaoException ignored) {
@@ -148,7 +148,7 @@ public class MaxMinRelativeMarginFiller extends MaxMinMarginFiller {
             minimumMarginNegative.setCoefficient(flowVariable, -1);
         }
         if (maxFlow.isPresent()) {
-            FaraoMPConstraint minimumMarginPositive;
+            OpenRaoMPConstraint minimumMarginPositive;
             try {
                 minimumMarginPositive = linearProblem.getMinimumRelativeMarginConstraint(cnec, side, LinearProblem.MarginExtension.ABOVE_THRESHOLD);
             } catch (OpenRaoException ignored) {
@@ -162,7 +162,7 @@ public class MaxMinRelativeMarginFiller extends MaxMinMarginFiller {
     }
 
     private void fillObjectiveWithMinRelMargin(LinearProblem linearProblem) {
-        FaraoMPVariable minRelMarginVariable = linearProblem.getMinimumRelativeMarginVariable();
+        OpenRaoMPVariable minRelMarginVariable = linearProblem.getMinimumRelativeMarginVariable();
         linearProblem.getObjective().setCoefficient(minRelMarginVariable, -1);
     }
 }

@@ -10,7 +10,7 @@ package com.powsybl.open_rao.data.crac_creation.creator.api;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.powsybl.open_rao.commons.logs.FaraoLoggerProvider.*;
+import static com.powsybl.open_rao.commons.logs.OpenRaoLoggerProvider.*;
 
 /**
  * Common methods used in CRAC creation reports

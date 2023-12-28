@@ -13,8 +13,8 @@ import com.powsybl.open_rao.data.crac_api.cnec.Side;
 import com.powsybl.open_rao.data.crac_loopflow_extension.LoopFlowThreshold;
 import com.powsybl.open_rao.rao_api.parameters.extensions.LoopFlowParametersExtension;
 import com.powsybl.open_rao.rao_api.parameters.extensions.PtdfApproximation;
-import com.powsybl.open_rao.search_tree_rao.linear_optimisation.algorithms.linear_problem.FaraoMPConstraint;
-import com.powsybl.open_rao.search_tree_rao.linear_optimisation.algorithms.linear_problem.FaraoMPVariable;
+import com.powsybl.open_rao.search_tree_rao.linear_optimisation.algorithms.linear_problem.OpenRaoMPConstraint;
+import com.powsybl.open_rao.search_tree_rao.linear_optimisation.algorithms.linear_problem.OpenRaoMPVariable;
 import com.powsybl.open_rao.search_tree_rao.linear_optimisation.algorithms.linear_problem.LinearProblem;
 import com.powsybl.open_rao.search_tree_rao.result.api.FlowResult;
 import com.powsybl.open_rao.search_tree_rao.result.api.RangeActionActivationResult;
@@ -65,7 +65,7 @@ public class MaxLoopFlowFiller implements ProblemFiller {
     }
 
     /**
-     * currentLoopflow = flowVariable - PTDF * NetPosition, where flowVariable a FaraoMPVariable
+     * currentLoopflow = flowVariable - PTDF * NetPosition, where flowVariable a OpenRaoMPVariable
      * Constraint for loopflow in optimization is: - MaxLoopFlow <= currentLoopFlow <= MaxLoopFlow,
      * where MaxLoopFlow is calculated as
      * max(Input TSO loopflow limit, Loopflow value computed from initial network)
@@ -76,7 +76,7 @@ public class MaxLoopFlowFiller implements ProblemFiller {
      * Loopflow limit may be tuned by a "Loopflow adjustment coefficient":
      * MaxLoopFlow = Loopflow constraint - Loopflow adjustment coefficient
      * <p>
-     * An additional FaraoMPVariable "loopflowViolationVariable" may be added when "Loopflow violation cost" is not zero:
+     * An additional OpenRaoMPVariable "loopflowViolationVariable" may be added when "Loopflow violation cost" is not zero:
      * - (MaxLoopFlow + loopflowViolationVariable) <= currentLoopFlow <= MaxLoopFlow + loopflowViolationVariable
      * equivalent to 2 constraints:
      * - MaxLoopFlow <= currentLoopFlow + loopflowViolationVariable
@@ -98,9 +98,9 @@ public class MaxLoopFlowFiller implements ProblemFiller {
                 }
 
                 // get loop-flow variable
-                FaraoMPVariable flowVariable = linearProblem.getFlowVariable(cnec, side);
+                OpenRaoMPVariable flowVariable = linearProblem.getFlowVariable(cnec, side);
 
-                FaraoMPVariable loopflowViolationVariable = linearProblem.addLoopflowViolationVariable(
+                OpenRaoMPVariable loopflowViolationVariable = linearProblem.addLoopflowViolationVariable(
                     0,
                     LinearProblem.infinity(),
                     cnec,
@@ -112,7 +112,7 @@ public class MaxLoopFlowFiller implements ProblemFiller {
                 // NEGATIVE_INF <= flowVariable - loopflowViolationVariable <= MaxLoopFlow + commercialFlow
                 // loopflowViolationVariable is divided by number of monitored sides to not increase its effect on the objective function
 
-                FaraoMPConstraint positiveLoopflowViolationConstraint = linearProblem.addMaxLoopFlowConstraint(
+                OpenRaoMPConstraint positiveLoopflowViolationConstraint = linearProblem.addMaxLoopFlowConstraint(
                     -loopFlowUpperBound + flowResult.getCommercialFlow(cnec, side, Unit.MEGAWATT),
                     LinearProblem.infinity(),
                     cnec,
@@ -122,7 +122,7 @@ public class MaxLoopFlowFiller implements ProblemFiller {
                 positiveLoopflowViolationConstraint.setCoefficient(flowVariable, 1);
                 positiveLoopflowViolationConstraint.setCoefficient(loopflowViolationVariable, 1.0);
 
-                FaraoMPConstraint negativeLoopflowViolationConstraint = linearProblem.addMaxLoopFlowConstraint(
+                OpenRaoMPConstraint negativeLoopflowViolationConstraint = linearProblem.addMaxLoopFlowConstraint(
                     -LinearProblem.infinity(),
                     loopFlowUpperBound + flowResult.getCommercialFlow(cnec, side, Unit.MEGAWATT),
                     cnec,
@@ -155,10 +155,10 @@ public class MaxLoopFlowFiller implements ProblemFiller {
                 }
                 double commercialFlow = flowResult.getCommercialFlow(loopFlowCnec, side, Unit.MEGAWATT);
 
-                FaraoMPConstraint positiveLoopflowViolationConstraint = linearProblem.getMaxLoopFlowConstraint(loopFlowCnec, side, LinearProblem.BoundExtension.LOWER_BOUND);
+                OpenRaoMPConstraint positiveLoopflowViolationConstraint = linearProblem.getMaxLoopFlowConstraint(loopFlowCnec, side, LinearProblem.BoundExtension.LOWER_BOUND);
                 positiveLoopflowViolationConstraint.setLb(-loopFlowUpperBound + commercialFlow);
 
-                FaraoMPConstraint negativeLoopflowViolationConstraint = linearProblem.getMaxLoopFlowConstraint(loopFlowCnec, side, LinearProblem.BoundExtension.UPPER_BOUND);
+                OpenRaoMPConstraint negativeLoopflowViolationConstraint = linearProblem.getMaxLoopFlowConstraint(loopFlowCnec, side, LinearProblem.BoundExtension.UPPER_BOUND);
                 negativeLoopflowViolationConstraint.setUb(loopFlowUpperBound + commercialFlow);
             }
         }

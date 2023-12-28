@@ -20,7 +20,7 @@ import com.powsybl.sensitivity.SensitivityVariableSet;
 import java.util.Objects;
 import java.util.Set;
 
-import static com.powsybl.open_rao.commons.logs.FaraoLoggerProvider.*;
+import static com.powsybl.open_rao.commons.logs.OpenRaoLoggerProvider.*;
 
 /**
  * An interface with the engine that computes sensitivities and flows needed in the RAO.

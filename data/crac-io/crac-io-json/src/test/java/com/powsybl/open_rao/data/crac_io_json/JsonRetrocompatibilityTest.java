@@ -47,7 +47,7 @@ class JsonRetrocompatibilityTest {
     /*
     CARE: the existing json file used in this test case SHOULD NOT BE MODIFIED. If
     the current tests do not pass, it means that formerly generated JSON CRAC will
-    not be compatible anymore with the next version of farao-core -> This is NOT
+    not be compatible anymore with the next version of open-rao-core -> This is NOT
     desirable.
 
     Instead, we need to ensure that the JSON CRAC files used in this class can still
@@ -57,7 +57,7 @@ class JsonRetrocompatibilityTest {
     @Test
     void importV1Point0Test() {
 
-        // JSON file of farao-core v3.4.3
+        // JSON file of open-rao-core v3.4.3
         InputStream cracFile = getClass().getResourceAsStream("/retrocompatibility/v1/crac-v1.0.json");
 
         Crac crac = new JsonImport().importCrac(cracFile);
@@ -73,7 +73,7 @@ class JsonRetrocompatibilityTest {
     @Test
     void importV1Point1Test() {
 
-        // JSON file of farao-core v3.5
+        // JSON file of open-rao-core v3.5
         // addition of switch pairs
         InputStream cracFile = getClass().getResourceAsStream("/retrocompatibility/v1/crac-v1.1.json");
 
@@ -90,7 +90,7 @@ class JsonRetrocompatibilityTest {
     @Test
     void importV1Point2Test() {
 
-        // JSON file of farao-core v3.6
+        // JSON file of open-rao-core v3.6
         // addition of injection range action
         InputStream cracFile = getClass().getResourceAsStream("/retrocompatibility/v1/crac-v1.2.json");
 
@@ -108,7 +108,7 @@ class JsonRetrocompatibilityTest {
     @Test
     void importV1Point3Test() {
 
-        // JSON file of farao-core v3.9
+        // JSON file of open-rao-core v3.9
         // addition of initial setpoints for InjectionRangeActions and HvdcRangeActions
         InputStream cracFile = getClass().getResourceAsStream("/retrocompatibility/v1/crac-v1.3.json");
 
@@ -126,7 +126,7 @@ class JsonRetrocompatibilityTest {
     @Test
     void importV1Point4Test() {
 
-        // JSON file of farao-core v4.0
+        // JSON file of open-rao-core v4.0
         // addition of angle cnecs
         InputStream cracFile = getClass().getResourceAsStream("/retrocompatibility/v1/crac-v1.4.json");
 
@@ -145,7 +145,7 @@ class JsonRetrocompatibilityTest {
     @Test
     void importV1Point5Test() {
 
-        // JSON file of farao-core v4.1
+        // JSON file of open-rao-core v4.1
         // addition of voltage cnecs
         InputStream cracFile = getClass().getResourceAsStream("/retrocompatibility/v1/crac-v1.5.json");
 

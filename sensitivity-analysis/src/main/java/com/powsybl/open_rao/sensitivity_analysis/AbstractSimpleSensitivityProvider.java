@@ -8,7 +8,7 @@ package com.powsybl.open_rao.sensitivity_analysis;
 
 import com.powsybl.open_rao.commons.OpenRaoException;
 import com.powsybl.open_rao.commons.Unit;
-import com.powsybl.open_rao.commons.logs.FaraoLoggerProvider;
+import com.powsybl.open_rao.commons.logs.OpenRaoLoggerProvider;
 import com.powsybl.open_rao.data.crac_api.cnec.FlowCnec;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.iidm.network.Network;
@@ -55,7 +55,7 @@ public abstract class AbstractSimpleSensitivityProvider implements CnecSensitivi
                     factorsInAmpere = true;
                     break;
                 default:
-                    FaraoLoggerProvider.TECHNICAL_LOGS.warn("Unit {} cannot be handled by the sensitivity provider as it is not a flow unit", unit);
+                    OpenRaoLoggerProvider.TECHNICAL_LOGS.warn("Unit {} cannot be handled by the sensitivity provider as it is not a flow unit", unit);
             }
         }
 

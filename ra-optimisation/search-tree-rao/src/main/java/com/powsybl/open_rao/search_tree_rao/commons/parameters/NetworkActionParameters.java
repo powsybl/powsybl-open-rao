@@ -13,7 +13,7 @@ import com.powsybl.open_rao.search_tree_rao.commons.NetworkActionCombination;
 
 import java.util.*;
 
-import static com.powsybl.open_rao.commons.logs.FaraoLoggerProvider.BUSINESS_WARNS;
+import static com.powsybl.open_rao.commons.logs.OpenRaoLoggerProvider.BUSINESS_WARNS;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}

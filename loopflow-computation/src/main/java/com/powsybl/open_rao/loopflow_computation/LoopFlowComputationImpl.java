@@ -10,7 +10,7 @@ import com.powsybl.open_rao.commons.EICode;
 import com.powsybl.open_rao.commons.OpenRaoException;
 import com.powsybl.open_rao.commons.Unit;
 import com.powsybl.glsk.commons.ZonalData;
-import com.powsybl.open_rao.commons.logs.FaraoLoggerProvider;
+import com.powsybl.open_rao.commons.logs.OpenRaoLoggerProvider;
 import com.powsybl.open_rao.data.crac_api.Instant;
 import com.powsybl.open_rao.data.crac_api.cnec.FlowCnec;
 import com.powsybl.open_rao.data.refprog.reference_program.ReferenceProgram;
@@ -114,7 +114,7 @@ public class LoopFlowComputationImpl implements LoopFlowComputation {
         for (EICode area : referenceProgram.getListOfAreas()) {
             SensitivityVariableSet glskForArea = glsk.getData(area.getAreaCode());
             if (glskForArea == null) {
-                FaraoLoggerProvider.BUSINESS_WARNS.warn("No GLSK found for reference area {}", area.getAreaCode());
+                OpenRaoLoggerProvider.BUSINESS_WARNS.warn("No GLSK found for reference area {}", area.getAreaCode());
             } else {
                 refProgGlskMap.put(area, glskForArea);
             }

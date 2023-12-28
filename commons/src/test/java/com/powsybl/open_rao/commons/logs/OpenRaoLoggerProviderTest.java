@@ -20,7 +20,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
-class FaraoLoggerProviderTest {
+class OpenRaoLoggerProviderTest {
     private ListAppender<ILoggingEvent> getLogs(Class clazz) {
         Logger logger = (Logger) LoggerFactory.getLogger(clazz);
         ListAppender<ILoggingEvent> listAppender = new ListAppender<>();
@@ -31,15 +31,15 @@ class FaraoLoggerProviderTest {
 
     @Test
     void testBusinessLogs() {
-        assertTrue(FaraoLoggerProvider.BUSINESS_LOGS.isInfoEnabled());
-        assertTrue(FaraoLoggerProvider.BUSINESS_LOGS.isTraceEnabled());
+        assertTrue(OpenRaoLoggerProvider.BUSINESS_LOGS.isInfoEnabled());
+        assertTrue(OpenRaoLoggerProvider.BUSINESS_LOGS.isTraceEnabled());
 
         ListAppender<ILoggingEvent> listAppender = getLogs(RaoBusinessLogs.class);
 
-        assertTrue(FaraoLoggerProvider.BUSINESS_LOGS instanceof RaoBusinessLogs);
+        assertTrue(OpenRaoLoggerProvider.BUSINESS_LOGS instanceof RaoBusinessLogs);
 
-        FaraoLoggerProvider.BUSINESS_LOGS.info("info");
-        FaraoLoggerProvider.BUSINESS_LOGS.error("error");
+        OpenRaoLoggerProvider.BUSINESS_LOGS.info("info");
+        OpenRaoLoggerProvider.BUSINESS_LOGS.error("error");
 
         List<ILoggingEvent> logsList = listAppender.list;
 
@@ -47,22 +47,22 @@ class FaraoLoggerProviderTest {
         assertEquals("[INFO] info", logsList.get(0).toString());
         assertEquals("[ERROR] error", logsList.get(1).toString());
 
-        assertThrows(IllegalCallerException.class, () -> FaraoLoggerProvider.BUSINESS_LOGS.trace("log"));
-        assertThrows(IllegalCallerException.class, () -> FaraoLoggerProvider.BUSINESS_LOGS.debug("log"));
-        assertThrows(IllegalCallerException.class, () -> FaraoLoggerProvider.BUSINESS_LOGS.warn("log"));
+        assertThrows(IllegalCallerException.class, () -> OpenRaoLoggerProvider.BUSINESS_LOGS.trace("log"));
+        assertThrows(IllegalCallerException.class, () -> OpenRaoLoggerProvider.BUSINESS_LOGS.debug("log"));
+        assertThrows(IllegalCallerException.class, () -> OpenRaoLoggerProvider.BUSINESS_LOGS.warn("log"));
     }
 
     @Test
     void testBusinessWarns() {
-        assertTrue(FaraoLoggerProvider.BUSINESS_WARNS.isInfoEnabled());
-        assertTrue(FaraoLoggerProvider.BUSINESS_WARNS.isTraceEnabled());
+        assertTrue(OpenRaoLoggerProvider.BUSINESS_WARNS.isInfoEnabled());
+        assertTrue(OpenRaoLoggerProvider.BUSINESS_WARNS.isTraceEnabled());
 
         ListAppender<ILoggingEvent> listAppender = getLogs(RaoBusinessWarns.class);
 
-        assertTrue(FaraoLoggerProvider.BUSINESS_WARNS instanceof RaoBusinessWarns);
+        assertTrue(OpenRaoLoggerProvider.BUSINESS_WARNS instanceof RaoBusinessWarns);
 
-        FaraoLoggerProvider.BUSINESS_WARNS.warn("warn1");
-        FaraoLoggerProvider.BUSINESS_WARNS.warn("warn2");
+        OpenRaoLoggerProvider.BUSINESS_WARNS.warn("warn1");
+        OpenRaoLoggerProvider.BUSINESS_WARNS.warn("warn2");
 
         List<ILoggingEvent> logsList = listAppender.list;
 
@@ -70,26 +70,26 @@ class FaraoLoggerProviderTest {
         assertEquals("[WARN] warn1", logsList.get(0).toString());
         assertEquals("[WARN] warn2", logsList.get(1).toString());
 
-        assertThrows(IllegalCallerException.class, () -> FaraoLoggerProvider.BUSINESS_WARNS.trace("log"));
-        assertThrows(IllegalCallerException.class, () -> FaraoLoggerProvider.BUSINESS_WARNS.debug("log"));
-        assertThrows(IllegalCallerException.class, () -> FaraoLoggerProvider.BUSINESS_WARNS.info("log"));
-        assertThrows(IllegalCallerException.class, () -> FaraoLoggerProvider.BUSINESS_WARNS.error("log"));
+        assertThrows(IllegalCallerException.class, () -> OpenRaoLoggerProvider.BUSINESS_WARNS.trace("log"));
+        assertThrows(IllegalCallerException.class, () -> OpenRaoLoggerProvider.BUSINESS_WARNS.debug("log"));
+        assertThrows(IllegalCallerException.class, () -> OpenRaoLoggerProvider.BUSINESS_WARNS.info("log"));
+        assertThrows(IllegalCallerException.class, () -> OpenRaoLoggerProvider.BUSINESS_WARNS.error("log"));
     }
 
     @Test
     void testTechnicalLogs() {
-        assertTrue(FaraoLoggerProvider.TECHNICAL_LOGS.isInfoEnabled());
-        assertTrue(FaraoLoggerProvider.TECHNICAL_LOGS.isTraceEnabled());
+        assertTrue(OpenRaoLoggerProvider.TECHNICAL_LOGS.isInfoEnabled());
+        assertTrue(OpenRaoLoggerProvider.TECHNICAL_LOGS.isTraceEnabled());
 
         ListAppender<ILoggingEvent> listAppender = getLogs(TechnicalLogs.class);
 
-        assertTrue(FaraoLoggerProvider.TECHNICAL_LOGS instanceof TechnicalLogs);
+        assertTrue(OpenRaoLoggerProvider.TECHNICAL_LOGS instanceof TechnicalLogs);
 
-        FaraoLoggerProvider.TECHNICAL_LOGS.info("info");
-        FaraoLoggerProvider.TECHNICAL_LOGS.warn("warn");
-        FaraoLoggerProvider.TECHNICAL_LOGS.error("error");
-        FaraoLoggerProvider.TECHNICAL_LOGS.debug("debug");
-        FaraoLoggerProvider.TECHNICAL_LOGS.trace("trace");
+        OpenRaoLoggerProvider.TECHNICAL_LOGS.info("info");
+        OpenRaoLoggerProvider.TECHNICAL_LOGS.warn("warn");
+        OpenRaoLoggerProvider.TECHNICAL_LOGS.error("error");
+        OpenRaoLoggerProvider.TECHNICAL_LOGS.debug("debug");
+        OpenRaoLoggerProvider.TECHNICAL_LOGS.trace("trace");
 
         List<ILoggingEvent> logsList = listAppender.list;
 

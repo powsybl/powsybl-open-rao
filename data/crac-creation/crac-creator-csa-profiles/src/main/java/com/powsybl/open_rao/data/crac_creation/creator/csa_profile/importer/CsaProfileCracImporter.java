@@ -7,7 +7,7 @@
 
 package com.powsybl.open_rao.data.crac_creation.creator.csa_profile.importer;
 
-import com.powsybl.open_rao.commons.logs.FaraoLoggerProvider;
+import com.powsybl.open_rao.commons.logs.OpenRaoLoggerProvider;
 import com.powsybl.open_rao.data.crac_creation.creator.csa_profile.CsaProfileCrac;
 import com.powsybl.open_rao.data.crac_creation.creator.csa_profile.crac_creator.CsaProfileConstants;
 import com.powsybl.open_rao.data.native_crac_io_api.NativeCracImporter;
@@ -59,9 +59,9 @@ public class CsaProfileCracImporter implements NativeCracImporter<CsaProfileCrac
             while ((zipEntry = zipInputStream.getNextEntry()) != null && countEntries < maxNbEntries) {
                 countEntries++;
                 if (!zipEntry.isDirectory()) {
-                    FaraoLoggerProvider.BUSINESS_LOGS.info("csa profile crac import : import of file {}", zipEntry.getName());
+                    OpenRaoLoggerProvider.BUSINESS_LOGS.info("csa profile crac import : import of file {}", zipEntry.getName());
                     int currentSizeEntry = 0;
-                    File tempFile = File.createTempFile("faraoCsaProfile", ".tmp");
+                    File tempFile = File.createTempFile("openRaoCsaProfile", ".tmp");
                     boolean tempFileOk = tempFile.setReadable(true, true) &&
                         tempFile.setWritable(true, true);
                     if (tempFileOk) {
@@ -93,13 +93,13 @@ public class CsaProfileCracImporter implements NativeCracImporter<CsaProfileCrac
                         tripleStoreCsaProfile.read(fileInputStream, CsaProfileConstants.RDF_BASE_URL, zipEntry.getName());
                     }
                     if (!tempFile.delete()) {
-                        FaraoLoggerProvider.TECHNICAL_LOGS.warn("temporary file for csa profile crac import can't be deleted");
+                        OpenRaoLoggerProvider.TECHNICAL_LOGS.warn("temporary file for csa profile crac import can't be deleted");
                         tempFile.deleteOnExit();
                     }
                 }
             }
         } catch (IOException e) {
-            FaraoLoggerProvider.TECHNICAL_LOGS.error("csa profile crac import interrupted, cause : {}", e.getMessage());
+            OpenRaoLoggerProvider.TECHNICAL_LOGS.error("csa profile crac import interrupted, cause : {}", e.getMessage());
         }
         return new CsaProfileCrac(tripleStoreCsaProfile, keywordMap);
     }

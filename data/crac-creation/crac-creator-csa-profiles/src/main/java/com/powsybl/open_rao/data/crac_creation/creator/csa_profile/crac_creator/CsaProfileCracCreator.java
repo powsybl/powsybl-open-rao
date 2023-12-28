@@ -7,7 +7,7 @@
 
 package com.powsybl.open_rao.data.crac_creation.creator.csa_profile.crac_creator;
 
-import com.powsybl.open_rao.commons.logs.FaraoLoggerProvider;
+import com.powsybl.open_rao.commons.logs.OpenRaoLoggerProvider;
 import com.powsybl.open_rao.data.crac_api.Crac;
 import com.powsybl.open_rao.data.crac_api.InstantKind;
 import com.powsybl.open_rao.data.crac_api.cnec.Side;
@@ -87,7 +87,7 @@ public class CsaProfileCracCreator implements CracCreator<CsaProfileCrac, CsaPro
             if (!properties.isEmpty()) {
                 PropertyBag property = properties.get(0);
                 if (!checkTimeCoherence(property, offsetDateTime)) {
-                    FaraoLoggerProvider.BUSINESS_WARNS.warn(String.format("[REMOVED] The file : %s will be ignored. Its dates are not consistent with the import date : %s", contextName, offsetDateTime));
+                    OpenRaoLoggerProvider.BUSINESS_WARNS.warn(String.format("[REMOVED] The file : %s will be ignored. Its dates are not consistent with the import date : %s", contextName, offsetDateTime));
                     nativeCrac.clearContext(contextName);
                     nativeCrac.clearKeywordMap(contextName);
                 }

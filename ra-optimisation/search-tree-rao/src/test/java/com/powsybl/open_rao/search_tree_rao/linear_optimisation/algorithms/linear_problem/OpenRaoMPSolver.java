@@ -22,7 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
  * This class is used to mock MPSolver objects in the unit test of this package.
  * It is necessary to bypass the JNI binding of the or-tools MPSolver object.
  * <p>
- * FaraoMPSolver handles the creation and browsing of the variables and constraints
+ * OpenRaoMPSolver handles the creation and browsing of the variables and constraints
  * usually defined within a MPSolver.
  *
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
@@ -47,7 +47,7 @@ public class OpenRaoMPSolver {
         return 1e10;
     }
 
-    public FaraoMPVariable makeNumVar(double lb, double ub, String name) {
+    public OpenRaoMPVariable makeNumVar(double lb, double ub, String name) {
         // check that variable does not already exists
         assertFalse(variables.stream().anyMatch(v -> v.name().equals(name)));
 
@@ -56,7 +56,7 @@ public class OpenRaoMPSolver {
         return newVariable;
     }
 
-    public FaraoMPConstraint makeConstraint(double lb, double ub, String name) {
+    public OpenRaoMPConstraint makeConstraint(double lb, double ub, String name) {
         // check that constraint does not already exist
         assertFalse(constraints.stream().anyMatch(v -> v.name().equals(name)));
 
@@ -65,7 +65,7 @@ public class OpenRaoMPSolver {
         return newConstraint;
     }
 
-    public FaraoMPVariable makeBoolVar(String name) {
+    public OpenRaoMPVariable makeBoolVar(String name) {
         // check that variable does not already exist
         assertFalse(variables.stream().anyMatch(v -> v.name().equals(name)));
 
@@ -74,7 +74,7 @@ public class OpenRaoMPSolver {
         return newVariable;
     }
 
-    public FaraoMPVariable makeIntVar(double lb, double ub, String name) {
+    public OpenRaoMPVariable makeIntVar(double lb, double ub, String name) {
         // check that variable does not already exist
         assertFalse(variables.stream().anyMatch(v -> v.name().equals(name)));
 
@@ -83,13 +83,13 @@ public class OpenRaoMPSolver {
         return newVariable;
     }
 
-    public FaraoMPConstraint makeConstraint(String name) {
+    public OpenRaoMPConstraint makeConstraint(String name) {
         MPConstraintMock newConstraint = new MPConstraintMock(name, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
         constraints.add(newConstraint);
         return newConstraint;
     }
 
-    public FaraoMPVariable getVariable(String varName) {
+    public OpenRaoMPVariable getVariable(String varName) {
         List<MPVariableMock> variablesWithSameName = variables.stream().filter(v -> v.name().equals(varName)).collect(Collectors.toList());
         if (variablesWithSameName.isEmpty()) {
             throw new OpenRaoException(String.format("Variable %s has not been created yet", varName));
@@ -97,15 +97,15 @@ public class OpenRaoMPSolver {
         return variablesWithSameName.get(0);
     }
 
-    public FaraoMPObjective objective() {
+    public OpenRaoMPObjective objective() {
         return objective;
     }
 
-    public FaraoMPObjective getObjective() {
+    public OpenRaoMPObjective getObjective() {
         return objective;
     }
 
-    public FaraoMPConstraint getConstraint(String constraintName) {
+    public OpenRaoMPConstraint getConstraint(String constraintName) {
         List<MPConstraintMock> constraintsWithSameName = constraints.stream().filter(v -> v.name().equals(constraintName)).collect(Collectors.toList());
         if (constraintsWithSameName.isEmpty()) {
             throw new OpenRaoException(String.format("Constraint %s has not been created yet", constraintName));

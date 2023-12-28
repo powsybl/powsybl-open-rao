@@ -461,7 +461,7 @@ class CimCracCreatorTest {
         assertRemedialActionNotImported("PRA_22", INCONSISTENCY_IN_DATA);
         assertRemedialActionNotImported("PRA_23", INCOMPLETE_DATA);
         assertRemedialActionNotImported("PRA_24", ELEMENT_NOT_FOUND_IN_NETWORK);
-        assertRemedialActionNotImported("PRA_25", NOT_YET_HANDLED_BY_FARAO);
+        assertRemedialActionNotImported("PRA_25", NOT_YET_HANDLED_BY_OPEN_RAO);
         // Mix
         assertNetworkActionImported("PRA_26", Set.of("_a708c3bc-465d-4fe7-b6ef-6fa6408a62b0", "_2844585c-0d35-488d-a449-685bcd57afbf", "_ffbabc27-1ccd-4fdc-b037-e341706c8d29"), false);
         assertRemedialActionNotImported("PRA_27", INCONSISTENCY_IN_DATA);

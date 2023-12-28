@@ -17,8 +17,8 @@ import com.powsybl.open_rao.rao_api.parameters.RaoParameters;
 import com.powsybl.open_rao.rao_api.parameters.extensions.PtdfApproximation;
 import com.powsybl.open_rao.rao_api.parameters.extensions.RelativeMarginsParametersExtension;
 import com.powsybl.open_rao.search_tree_rao.commons.optimization_perimeters.OptimizationPerimeter;
-import com.powsybl.open_rao.search_tree_rao.linear_optimisation.algorithms.linear_problem.FaraoMPConstraint;
-import com.powsybl.open_rao.search_tree_rao.linear_optimisation.algorithms.linear_problem.FaraoMPVariable;
+import com.powsybl.open_rao.search_tree_rao.linear_optimisation.algorithms.linear_problem.OpenRaoMPConstraint;
+import com.powsybl.open_rao.search_tree_rao.linear_optimisation.algorithms.linear_problem.OpenRaoMPVariable;
 import com.powsybl.open_rao.search_tree_rao.linear_optimisation.algorithms.linear_problem.LinearProblem;
 import com.powsybl.open_rao.search_tree_rao.linear_optimisation.algorithms.linear_problem.LinearProblemBuilder;
 import com.powsybl.open_rao.search_tree_rao.result.api.FlowResult;
@@ -117,21 +117,21 @@ class MaxMinRelativeMarginFillerTest extends AbstractFillerTest {
         createMaxMinRelativeMarginFiller(AMPERE, 0.005);
         buildLinearProblem();
 
-        FaraoMPVariable flowCnec1 = linearProblem.getFlowVariable(cnec1, Side.LEFT);
-        FaraoMPVariable absoluteVariation = linearProblem.getAbsoluteRangeActionVariationVariable(pstRangeAction, cnec1.getState());
+        OpenRaoMPVariable flowCnec1 = linearProblem.getFlowVariable(cnec1, Side.LEFT);
+        OpenRaoMPVariable absoluteVariation = linearProblem.getAbsoluteRangeActionVariationVariable(pstRangeAction, cnec1.getState());
 
         // check minimum margin variable
-        FaraoMPVariable minimumMargin = linearProblem.getMinimumMarginVariable();
+        OpenRaoMPVariable minimumMargin = linearProblem.getMinimumMarginVariable();
         assertNotNull(minimumMargin);
         assertEquals(0.0, minimumMargin.ub(), PRECISE_DOUBLE_TOLERANCE);
-        FaraoMPVariable minimumRelativeMargin = linearProblem.getMinimumRelativeMarginVariable();
+        OpenRaoMPVariable minimumRelativeMargin = linearProblem.getMinimumRelativeMarginVariable();
         assertNotNull(minimumRelativeMargin);
 
         // check minimum margin constraints
-        FaraoMPConstraint cnec1AboveThreshold = linearProblem.getMinimumMarginConstraint(cnec1, Side.LEFT, LinearProblem.MarginExtension.ABOVE_THRESHOLD);
-        FaraoMPConstraint cnec1BelowThreshold = linearProblem.getMinimumMarginConstraint(cnec1, Side.LEFT, LinearProblem.MarginExtension.BELOW_THRESHOLD);
-        FaraoMPConstraint cnec1AboveThresholdRelative = linearProblem.getMinimumRelativeMarginConstraint(cnec1, Side.LEFT, LinearProblem.MarginExtension.ABOVE_THRESHOLD);
-        FaraoMPConstraint cnec1BelowThresholdRelative = linearProblem.getMinimumRelativeMarginConstraint(cnec1, Side.LEFT, LinearProblem.MarginExtension.BELOW_THRESHOLD);
+        OpenRaoMPConstraint cnec1AboveThreshold = linearProblem.getMinimumMarginConstraint(cnec1, Side.LEFT, LinearProblem.MarginExtension.ABOVE_THRESHOLD);
+        OpenRaoMPConstraint cnec1BelowThreshold = linearProblem.getMinimumMarginConstraint(cnec1, Side.LEFT, LinearProblem.MarginExtension.BELOW_THRESHOLD);
+        OpenRaoMPConstraint cnec1AboveThresholdRelative = linearProblem.getMinimumRelativeMarginConstraint(cnec1, Side.LEFT, LinearProblem.MarginExtension.ABOVE_THRESHOLD);
+        OpenRaoMPConstraint cnec1BelowThresholdRelative = linearProblem.getMinimumRelativeMarginConstraint(cnec1, Side.LEFT, LinearProblem.MarginExtension.BELOW_THRESHOLD);
         assertNotNull(cnec1AboveThreshold);
         assertNotNull(cnec1BelowThreshold);
         assertEquals(-LinearProblem.infinity(), cnec1BelowThreshold.lb(), DOUBLE_TOLERANCE);
@@ -190,19 +190,19 @@ class MaxMinRelativeMarginFillerTest extends AbstractFillerTest {
     }
 
     private void checkFillerContentMw(double expectedPtdfSum) {
-        FaraoMPVariable flowCnec1 = linearProblem.getFlowVariable(cnec1, Side.LEFT);
-        FaraoMPVariable absoluteVariation = linearProblem.getAbsoluteRangeActionVariationVariable(pstRangeAction, cnec1.getState());
+        OpenRaoMPVariable flowCnec1 = linearProblem.getFlowVariable(cnec1, Side.LEFT);
+        OpenRaoMPVariable absoluteVariation = linearProblem.getAbsoluteRangeActionVariationVariable(pstRangeAction, cnec1.getState());
 
         // check minimum margin variable
-        FaraoMPVariable minimumMargin = linearProblem.getMinimumMarginVariable();
+        OpenRaoMPVariable minimumMargin = linearProblem.getMinimumMarginVariable();
         assertEquals(0.0, minimumMargin.ub(), PRECISE_DOUBLE_TOLERANCE);
-        FaraoMPVariable minimumRelativeMargin = linearProblem.getMinimumRelativeMarginVariable();
+        OpenRaoMPVariable minimumRelativeMargin = linearProblem.getMinimumRelativeMarginVariable();
 
         // check minimum margin constraints
-        FaraoMPConstraint cnec1AboveThreshold = linearProblem.getMinimumMarginConstraint(cnec1, Side.LEFT, LinearProblem.MarginExtension.ABOVE_THRESHOLD);
-        FaraoMPConstraint cnec1BelowThreshold = linearProblem.getMinimumMarginConstraint(cnec1, Side.LEFT, LinearProblem.MarginExtension.BELOW_THRESHOLD);
-        FaraoMPConstraint cnec1AboveThresholdRelative = linearProblem.getMinimumRelativeMarginConstraint(cnec1, Side.LEFT, LinearProblem.MarginExtension.ABOVE_THRESHOLD);
-        FaraoMPConstraint cnec1BelowThresholdRelative = linearProblem.getMinimumRelativeMarginConstraint(cnec1, Side.LEFT, LinearProblem.MarginExtension.BELOW_THRESHOLD);
+        OpenRaoMPConstraint cnec1AboveThreshold = linearProblem.getMinimumMarginConstraint(cnec1, Side.LEFT, LinearProblem.MarginExtension.ABOVE_THRESHOLD);
+        OpenRaoMPConstraint cnec1BelowThreshold = linearProblem.getMinimumMarginConstraint(cnec1, Side.LEFT, LinearProblem.MarginExtension.BELOW_THRESHOLD);
+        OpenRaoMPConstraint cnec1AboveThresholdRelative = linearProblem.getMinimumRelativeMarginConstraint(cnec1, Side.LEFT, LinearProblem.MarginExtension.ABOVE_THRESHOLD);
+        OpenRaoMPConstraint cnec1BelowThresholdRelative = linearProblem.getMinimumRelativeMarginConstraint(cnec1, Side.LEFT, LinearProblem.MarginExtension.BELOW_THRESHOLD);
         assertEquals(-LinearProblem.infinity(), cnec1BelowThreshold.lb(), DOUBLE_TOLERANCE);
         assertEquals(-MIN_FLOW_1, cnec1BelowThreshold.ub(), DOUBLE_TOLERANCE);
         assertEquals(-LinearProblem.infinity(), cnec1AboveThreshold.lb(), DOUBLE_TOLERANCE);
