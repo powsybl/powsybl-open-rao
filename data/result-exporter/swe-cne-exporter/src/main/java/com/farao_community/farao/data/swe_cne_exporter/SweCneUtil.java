@@ -35,6 +35,7 @@ public final class SweCneUtil {
     }
 
     public static boolean isAngleMonitoringUnsecure(Crac crac, RaoResult raoResult) {
+        // TODO : replace this with raoResult.isSecure(ANGLE) when ready
         return crac.getAngleCnecs().stream().anyMatch(angleCnec -> raoResult.getMargin(Instant.CURATIVE, angleCnec, Unit.DEGREE) < 0);
     }
 

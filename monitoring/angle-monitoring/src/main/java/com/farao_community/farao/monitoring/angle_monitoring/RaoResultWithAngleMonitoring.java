@@ -18,7 +18,6 @@ import com.farao_community.farao.data.rao_result_api.RaoResult;
 import com.farao_community.farao.data.rao_result_api.RaoResultClone;
 
 import java.util.HashSet;
-import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -33,8 +32,8 @@ public class RaoResultWithAngleMonitoring extends RaoResultClone {
     public RaoResultWithAngleMonitoring(RaoResult raoResult, AngleMonitoringResult angleMonitoringResult) {
         super(raoResult);
         this.raoResult = raoResult;
-        if (Objects.isNull(angleMonitoringResult)) {
-            throw new FaraoException("The AngleMonitoringResult is null");
+        if (angleMonitoringResult == null) {
+            throw new FaraoException("AngleMonitoringResult must not be null");
         }
         this.angleMonitoringResult = angleMonitoringResult;
     }
@@ -80,9 +79,5 @@ public class RaoResultWithAngleMonitoring extends RaoResultClone {
     @Override
     public boolean isActivatedDuringState(State state, NetworkAction networkAction) {
         return isActivatedDuringState(state, (RemedialAction<?>) networkAction);
-    }
-
-    public boolean isActivatedDuringStateButNotByAngleMonitoring(State state, RemedialAction<?> remedialAction) {
-        return raoResult.isActivatedDuringState(state, remedialAction);
     }
 }

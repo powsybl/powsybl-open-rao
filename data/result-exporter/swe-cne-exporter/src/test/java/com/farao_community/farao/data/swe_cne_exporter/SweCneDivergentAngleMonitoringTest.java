@@ -56,6 +56,7 @@ class SweCneDivergentAngleMonitoringTest {
         CimCracCreationParameters cimCracCreationParameters = new CimCracCreationParameters();
         cimCracCreationParameters.setRemedialActionSpeed(rangeActionSpeeds);
         CracCreationParameters cracCreationParameters = new CracCreationParameters();
+        cracCreationParameters.setCracFactoryName("CracImplFactory");
         cracCreationParameters.addExtension(CimCracCreationParameters.class, cimCracCreationParameters);
 
         cracCreationContext = cimCracCreator.createCrac(cimCrac, network, OffsetDateTime.of(2021, 4, 2, 12, 30, 0, 0, ZoneOffset.UTC), cracCreationParameters);
