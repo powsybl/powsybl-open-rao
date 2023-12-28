@@ -131,6 +131,7 @@ public final class CsaProfileConstants {
     public static final String GRID_ALTERATION_PROPERTY_REFERENCE = "propertyReference";
     public static final String SHUNT_COMPENSATOR_MODIFICATION = "shuntCompensatorModification";
     public static final String SHUNT_COMPENSATOR_ID = "shuntCompensatorId";
+    public static final String REQUEST_SCHEME_REMEDIAL_ACTION = "schemeRemedialAction";
 
     public enum PropertyReference {
         SWITCH("Switch.open"),

@@ -71,26 +71,17 @@ class RaoResultJsonConstantsTest {
     }
 
     @Test
-    void testDeserializeInstantId() {
-        assertEquals(INITIAL_INSTANT_ID, deserializeInstantId(INITIAL_INSTANT_ID));
-        assertEquals(PREVENTIVE_INSTANT_ID, deserializeInstantId(PREVENTIVE_INSTANT_ID));
-        assertEquals(OUTAGE_INSTANT_ID, deserializeInstantId(OUTAGE_INSTANT_ID));
-        assertEquals(AUTO_INSTANT_ID, deserializeInstantId(AUTO_INSTANT_ID));
-        assertEquals(CURATIVE_INSTANT_ID, deserializeInstantId(CURATIVE_INSTANT_ID));
-    }
-
-    @Test
     void testDeserializeOptimizedInstant() {
-        assertEquals(INITIAL_INSTANT_ID, deserializeOptimizedInstantId(INITIAL_INSTANT_ID, "1.4"));
-        assertEquals(PREVENTIVE_INSTANT_ID, deserializeOptimizedInstantId(PREVENTIVE_INSTANT_ID, "1.4"));
-        assertEquals(OUTAGE_INSTANT_ID, deserializeOptimizedInstantId(OUTAGE_INSTANT_ID, "1.4"));
-        assertEquals(AUTO_INSTANT_ID, deserializeOptimizedInstantId(AUTO_INSTANT_ID, "1.4"));
-        assertEquals(CURATIVE_INSTANT_ID, deserializeOptimizedInstantId(CURATIVE_INSTANT_ID, "1.4"));
+        Crac crac = mock(Crac.class);
+        assertEquals(INITIAL_INSTANT_ID, deserializeOptimizedInstantId(INITIAL_INSTANT_ID, "1.4", crac));
+        assertEquals(PREVENTIVE_INSTANT_ID, deserializeOptimizedInstantId(PREVENTIVE_INSTANT_ID, "1.4", crac));
+        assertEquals(OUTAGE_INSTANT_ID, deserializeOptimizedInstantId(OUTAGE_INSTANT_ID, "1.4", crac));
+        assertEquals(AUTO_INSTANT_ID, deserializeOptimizedInstantId(AUTO_INSTANT_ID, "1.4", crac));
+        assertEquals(CURATIVE_INSTANT_ID, deserializeOptimizedInstantId(CURATIVE_INSTANT_ID, "1.4", crac));
         Instant preventiveInstant = mock(Instant.class);
         Instant outageInstant = mock(Instant.class);
         Instant autoInstant = mock(Instant.class);
         Instant curativeInstant = mock(Instant.class);
-        Crac crac = mock(Crac.class);
         when(crac.getInstant(PREVENTIVE_INSTANT_ID)).thenReturn(preventiveInstant);
         when(crac.getInstant(OUTAGE_INSTANT_ID)).thenReturn(outageInstant);
         when(crac.getInstant(AUTO_INSTANT_ID)).thenReturn(autoInstant);

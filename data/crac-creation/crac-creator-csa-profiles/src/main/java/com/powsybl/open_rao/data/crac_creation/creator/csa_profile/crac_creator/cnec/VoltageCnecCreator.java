@@ -84,7 +84,7 @@ public class VoltageCnecCreator extends AbstractCnecCreator {
                     .withUnit(Unit.KILOVOLT)
                     .withMin(normalValue).add();
         } else if (CsaProfileConstants.OperationalLimitDirectionKind.ABSOLUTE.toString().equals(direction)) {
-            csaProfileCnecCreationContexts.add(CsaProfileElementaryCreationContext.notImported(assessedElementId, ImportStatus.NOT_YET_HANDLED_BY_FARAO, writeAssessedElementIgnoredReasonMessage("only 'high' and 'low' voltage threshold values are handled for now (OperationalLimitType.direction is absolute)")));
+            csaProfileCnecCreationContexts.add(CsaProfileElementaryCreationContext.notImported(assessedElementId, ImportStatus.NOT_YET_HANDLED_BY_OPEN_RAO, writeAssessedElementIgnoredReasonMessage("only 'high' and 'low' voltage threshold values are handled for now (OperationalLimitType.direction is absolute)")));
             return false;
         }
         return true;
@@ -94,7 +94,7 @@ public class VoltageCnecCreator extends AbstractCnecCreator {
         String isInfiniteDurationStr = operationalLimitPropertyBag.get(CsaProfileConstants.REQUEST_VOLTAGE_LIMIT_IS_INFINITE_DURATION);
         boolean isInfiniteDuration = Boolean.parseBoolean(isInfiniteDurationStr);
         if (!isInfiniteDuration) {
-            csaProfileCnecCreationContexts.add(CsaProfileElementaryCreationContext.notImported(assessedElementId, ImportStatus.NOT_YET_HANDLED_BY_FARAO, writeAssessedElementIgnoredReasonMessage("only permanent voltage limits are handled for now (isInfiniteDuration is 'false')")));
+            csaProfileCnecCreationContexts.add(CsaProfileElementaryCreationContext.notImported(assessedElementId, ImportStatus.NOT_YET_HANDLED_BY_OPEN_RAO, writeAssessedElementIgnoredReasonMessage("only permanent voltage limits are handled for now (isInfiniteDuration is 'false')")));
             return false;
         }
         return true;

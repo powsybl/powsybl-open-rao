@@ -153,7 +153,7 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
     @Override
     public CracImpl newInstant(String instantId, InstantKind instantKind) {
         if (instants.containsKey(instantId)) {
-            throw new OpenRaoException(format("Instant '%s' is already defined with other arguments", instantId));
+            throw new OpenRaoException(format("Instant '%s' is already defined", instantId));
         }
         InstantImpl instant = new InstantImpl(instantId, instantKind, lastInstantAdded);
         if (instant.getOrder() == 0 && !instant.isPreventive()) {
@@ -224,7 +224,7 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
 
     @Override
     public boolean hasAutoInstant() {
-        return getInstants(InstantKind.AUTO).size() == 1;
+        return getInstants(InstantKind.AUTO).size() >= 1;
     }
 
     private void checkCracContainsProvidedInstantId(Instant providedInstant) {

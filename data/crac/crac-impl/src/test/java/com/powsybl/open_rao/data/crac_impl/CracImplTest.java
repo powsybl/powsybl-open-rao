@@ -906,7 +906,7 @@ class CracImplTest {
     @Test
     void testNewInstantAlreadyDefined() {
         OpenRaoException exception = assertThrows(OpenRaoException.class, () -> crac.newInstant(OUTAGE_INSTANT_ID, InstantKind.PREVENTIVE));
-        assertEquals("Instant 'outage' is already defined with other arguments", exception.getMessage());
+        assertEquals("Instant 'outage' is already defined", exception.getMessage());
     }
 
     @Test

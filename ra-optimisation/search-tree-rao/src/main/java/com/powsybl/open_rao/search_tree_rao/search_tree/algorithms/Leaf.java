@@ -202,7 +202,7 @@ public class Leaf implements OptimizationResult {
                     .withRaActivationFromParentLeaf(raActivationResultFromParentLeaf)
                     .withObjectiveFunction(searchTreeInput.getObjectiveFunction())
                     .withToolProvider(searchTreeInput.getToolProvider())
-                    .withCrac(searchTreeInput.getCrac())
+                    .withOutageInstant(searchTreeInput.getOutageInstant())
                     .build();
 
             // build parameters
@@ -219,7 +219,7 @@ public class Leaf implements OptimizationResult {
                     .withRaRangeShrinking(parameters.getTreeParameters().getRaRangeShrinking())
                     .build();
 
-            postOptimResult = IteratingLinearOptimizer.optimize(linearOptimizerInput, linearOptimizerParameters, searchTreeInput.getCrac().getOutageInstant());
+            postOptimResult = IteratingLinearOptimizer.optimize(linearOptimizerInput, linearOptimizerParameters, searchTreeInput.getOutageInstant());
 
             status = Status.OPTIMIZED;
         } else if (status.equals(Status.ERROR)) {

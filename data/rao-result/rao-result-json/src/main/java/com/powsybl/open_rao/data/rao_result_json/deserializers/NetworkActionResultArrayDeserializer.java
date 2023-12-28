@@ -60,7 +60,8 @@ final class NetworkActionResultArrayDeserializer {
             while (!jsonParser.nextToken().isStructEnd()) {
                 switch (jsonParser.getCurrentName()) {
                     case INSTANT:
-                        instantId = deserializeInstantId(jsonParser.nextTextValue());
+                        String stringValue = jsonParser.nextTextValue();
+                        instantId = stringValue;
                         break;
                     case CONTINGENCY_ID:
                         contingencyId = jsonParser.nextTextValue();

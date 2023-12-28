@@ -13,8 +13,7 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 
 import java.io.IOException;
 
-import static com.powsybl.open_rao.data.crac_io_json.JsonSerializationConstants.ID;
-import static com.powsybl.open_rao.data.crac_io_json.JsonSerializationConstants.INSTANT_KIND;
+import static com.powsybl.open_rao.data.crac_io_json.JsonSerializationConstants.*;
 
 /**
  * @author Hugo Schindler {@literal <hugo.schindler at rte-france.com>}
@@ -27,7 +26,7 @@ public class InstantSerializer extends AbstractJsonSerializer<Instant> {
 
         gen.writeStringField(ID, value.getId());
 
-        gen.writeStringField(INSTANT_KIND, value.getKind().toString());
+        gen.writeStringField(INSTANT_KIND, seralizeInstantKind(value.getKind()));
 
         gen.writeEndObject();
     }

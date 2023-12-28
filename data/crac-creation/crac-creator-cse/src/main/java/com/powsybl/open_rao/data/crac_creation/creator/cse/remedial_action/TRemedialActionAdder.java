@@ -214,7 +214,7 @@ public class TRemedialActionAdder {
         if (!tRemedialAction.getHVDCRange().getVariationType().getV().equals(ABSOLUTE_VARIATION_TYPE)) {
             cseCracCreationContext.addRemedialActionCreationContext(
                 CseHvdcCreationContext.notImported(tRemedialAction,
-                    ImportStatus.NOT_YET_HANDLED_BY_FARAO,
+                    ImportStatus.NOT_YET_HANDLED_BY_OPEN_RAO,
                     String.format("HVDC %s is not defined with an ABSOLUTE variation type (only ABSOLUTE is handled)", raId),
                     hvdcNodes.getFromNode().getV(),
                     hvdcNodes.getToNode().getV()));

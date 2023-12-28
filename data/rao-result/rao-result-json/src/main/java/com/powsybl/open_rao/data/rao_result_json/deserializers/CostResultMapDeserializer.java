@@ -7,6 +7,7 @@
 package com.powsybl.open_rao.data.rao_result_json.deserializers;
 
 import com.powsybl.open_rao.commons.OpenRaoException;
+import com.powsybl.open_rao.data.crac_api.Crac;
 import com.powsybl.open_rao.data.rao_result_impl.CostResult;
 import com.powsybl.open_rao.data.rao_result_impl.RaoResultImpl;
 import com.fasterxml.jackson.core.JsonParser;
@@ -23,9 +24,9 @@ final class CostResultMapDeserializer {
     private CostResultMapDeserializer() {
     }
 
-    static void deserialize(JsonParser jsonParser, RaoResultImpl raoResult, String jsonFileVersion) throws IOException {
+    static void deserialize(JsonParser jsonParser, RaoResultImpl raoResult, String jsonFileVersion, Crac crac) throws IOException {
         while (!jsonParser.nextToken().isStructEnd()) {
-            String optimizedInstantId = deserializeOptimizedInstantId(jsonParser.getCurrentName(), jsonFileVersion);
+            String optimizedInstantId = deserializeOptimizedInstantId(jsonParser.getCurrentName(), jsonFileVersion, crac);
             jsonParser.nextToken();
             deserializeCostResult(jsonParser, raoResult, optimizedInstantId);
         }

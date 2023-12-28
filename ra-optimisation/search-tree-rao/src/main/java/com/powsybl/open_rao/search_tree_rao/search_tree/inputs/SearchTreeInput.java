@@ -7,7 +7,7 @@
 
 package com.powsybl.open_rao.search_tree_rao.search_tree.inputs;
 
-import com.powsybl.open_rao.data.crac_api.Crac;
+import com.powsybl.open_rao.data.crac_api.Instant;
 import com.powsybl.open_rao.search_tree_rao.commons.ToolProvider;
 import com.powsybl.open_rao.search_tree_rao.commons.objective_function_evaluator.ObjectiveFunction;
 import com.powsybl.open_rao.search_tree_rao.commons.optimization_perimeters.OptimizationPerimeter;
@@ -31,7 +31,7 @@ public final class SearchTreeInput {
 
     private final ObjectiveFunction objectiveFunction;
     private final ToolProvider toolProvider;
-    private final Crac crac;
+    private final Instant outageInstant;
 
     private SearchTreeInput(Network network,
                             OptimizationPerimeter optimizationPerimeter,
@@ -40,7 +40,7 @@ public final class SearchTreeInput {
                             AppliedRemedialActions preOptimizationAppliedRemedialActions,
                             ObjectiveFunction objectiveFunction,
                             ToolProvider toolProvider,
-                            Crac crac) {
+                            Instant outageInstant) {
         this.network = network;
         this.optimizationPerimeter = optimizationPerimeter;
         this.initialFlowResult = initialFlowResult;
@@ -48,7 +48,7 @@ public final class SearchTreeInput {
         this.preOptimizationAppliedRemedialActions = preOptimizationAppliedRemedialActions;
         this.objectiveFunction = objectiveFunction;
         this.toolProvider = toolProvider;
-        this.crac = crac;
+        this.outageInstant = outageInstant;
     }
 
     public Network getNetwork() {
@@ -79,8 +79,8 @@ public final class SearchTreeInput {
         return toolProvider;
     }
 
-    public Crac getCrac() {
-        return crac;
+    public Instant getOutageInstant() {
+        return outageInstant;
     }
 
     public static SearchTreeInputBuilder create() {
@@ -96,7 +96,7 @@ public final class SearchTreeInput {
         private AppliedRemedialActions preOptimizationAppliedNetworkActions;
         private ObjectiveFunction objectiveFunction;
         private ToolProvider toolProvider;
-        private Crac crac;
+        private Instant outageInstant;
 
         public SearchTreeInputBuilder withNetwork(Network network) {
             this.network = network;
@@ -133,8 +133,8 @@ public final class SearchTreeInput {
             return this;
         }
 
-        public SearchTreeInputBuilder withCrac(Crac crac) {
-            this.crac = crac;
+        public SearchTreeInputBuilder withOutageInstant(Instant outageInstant) {
+            this.outageInstant = outageInstant;
             return this;
         }
 
@@ -146,7 +146,7 @@ public final class SearchTreeInput {
                 preOptimizationAppliedNetworkActions,
                 objectiveFunction,
                 toolProvider,
-                crac);
+                outageInstant);
         }
     }
 }

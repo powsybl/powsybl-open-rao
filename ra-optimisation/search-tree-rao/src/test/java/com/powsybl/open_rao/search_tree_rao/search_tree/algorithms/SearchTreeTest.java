@@ -142,9 +142,7 @@ class SearchTreeTest {
         when(searchTreeInput.getToolProvider()).thenReturn(Mockito.mock(ToolProvider.class));
         Instant outageInstant = Mockito.mock(Instant.class);
         when(outageInstant.isOutage()).thenReturn(true);
-        Crac crac = Mockito.mock(Crac.class);
-        when(crac.getOutageInstant()).thenReturn(outageInstant);
-        when(searchTreeInput.getCrac()).thenReturn(crac);
+        when(searchTreeInput.getOutageInstant()).thenReturn(outageInstant);
     }
 
     @Test

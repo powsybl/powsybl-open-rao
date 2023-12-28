@@ -46,7 +46,7 @@ class NetworkPoolTest {
 
             assertNotNull(networkCopy);
             assertNotEquals(network, networkCopy);
-            assertTrue(networkCopy.getVariantManager().getWorkingVariantId().startsWith("FaraoNetworkPool working variant"));
+            assertTrue(networkCopy.getVariantManager().getWorkingVariantId().startsWith("OpenRaoNetworkPool working variant"));
 
             pool.initClones(1);
             assertNotEquals(network, pool.getAvailableNetwork());
@@ -66,7 +66,7 @@ class NetworkPoolTest {
         assertNotNull(networkCopy);
         assertEquals(network, networkCopy);
         assertEquals(4, network.getVariantManager().getVariantIds().size());
-        assertTrue(networkCopy.getVariantManager().getWorkingVariantId().startsWith("FaraoNetworkPool working variant"));
+        assertTrue(networkCopy.getVariantManager().getWorkingVariantId().startsWith("OpenRaoNetworkPool working variant"));
 
         pool.releaseUsedNetwork(networkCopy);
 

@@ -216,7 +216,7 @@ public class RemedialActionSeriesCreator {
         sharedDomain = null;
         if (shouldReadSharedDomain && !remedialActionSeries.getSharedDomain().isEmpty()) {
             if (remedialActionSeries.getSharedDomain().size() > 1) {
-                remedialActionSeriesCreationContexts.add(RemedialActionSeriesCreationContext.notImported(createdRemedialActionId, ImportStatus.NOT_YET_HANDLED_BY_FARAO, "RemedialActionSeries with multiple SharedDomain are not supported"));
+                remedialActionSeriesCreationContexts.add(RemedialActionSeriesCreationContext.notImported(createdRemedialActionId, ImportStatus.NOT_YET_HANDLED_BY_OPEN_RAO, "RemedialActionSeries with multiple SharedDomain are not supported"));
                 return;
             }
             sharedDomain = new CountryEICode(remedialActionSeries.getSharedDomain().get(0).getMRID().getValue()).getCountry();
@@ -528,7 +528,7 @@ public class RemedialActionSeriesCreator {
         }
         // A38 not handled by FARAO.
         if (availabilityMarketObjectStatus.equals(AvailabilityMarketObjectStatus.SHALL_BE_USED.getStatus())) {
-            remedialActionSeriesCreationContexts.add(RemedialActionSeriesCreationContext.notImported(createdRemedialActionId, ImportStatus.NOT_YET_HANDLED_BY_FARAO, String.format("Wrong availabilityMarketObjectStatus: %s", availabilityMarketObjectStatus)));
+            remedialActionSeriesCreationContexts.add(RemedialActionSeriesCreationContext.notImported(createdRemedialActionId, ImportStatus.NOT_YET_HANDLED_BY_OPEN_RAO, String.format("Wrong availabilityMarketObjectStatus: %s", availabilityMarketObjectStatus)));
             return false;
         }
         if (!availabilityMarketObjectStatus.equals(AvailabilityMarketObjectStatus.MIGHT_BE_USED.getStatus())) {

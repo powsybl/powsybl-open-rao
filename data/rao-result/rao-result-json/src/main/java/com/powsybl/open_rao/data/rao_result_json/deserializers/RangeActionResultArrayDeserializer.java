@@ -115,7 +115,8 @@ final class RangeActionResultArrayDeserializer {
                 switch (jsonParser.getCurrentName()) {
 
                     case INSTANT:
-                        instantId = deserializeInstantId(jsonParser.nextTextValue());
+                        String stringValue = jsonParser.nextTextValue();
+                        instantId = stringValue;
                         break;
 
                     case CONTINGENCY_ID:

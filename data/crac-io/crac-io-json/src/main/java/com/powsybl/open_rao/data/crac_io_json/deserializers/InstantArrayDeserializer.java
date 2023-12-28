@@ -15,8 +15,7 @@ import com.fasterxml.jackson.core.JsonToken;
 
 import java.io.IOException;
 
-import static com.powsybl.open_rao.data.crac_io_json.JsonSerializationConstants.ID;
-import static com.powsybl.open_rao.data.crac_io_json.JsonSerializationConstants.INSTANT_KIND;
+import static com.powsybl.open_rao.data.crac_io_json.JsonSerializationConstants.*;
 
 /**
  * @author Hugo Schindler {@literal <hugo.schindler at rte-france.com>}
@@ -37,7 +36,7 @@ public final class InstantArrayDeserializer {
                         instantId = jsonParser.nextTextValue();
                         break;
                     case INSTANT_KIND:
-                        instantKind = InstantKind.valueOf(jsonParser.nextTextValue());
+                        instantKind = deseralizeInstantKind(jsonParser.nextTextValue());
                         break;
                     default:
                         throw new OpenRaoException("Unexpected field in Instant: " + jsonParser.getCurrentName());

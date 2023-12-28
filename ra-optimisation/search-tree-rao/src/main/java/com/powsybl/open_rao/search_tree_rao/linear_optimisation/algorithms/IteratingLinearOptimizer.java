@@ -184,7 +184,7 @@ public final class IteratingLinearOptimizer {
                 .withRangeActions(input.getOptimizationPerimeter().getRangeActions())
                 .withAppliedRemedialActions(appliedRemedialActions)
                 .withToolProvider(input.getToolProvider())
-                .withOutageInstant(input.getCrac().getOutageInstant());
+                .withOutageInstant(input.getOutageInstant());
 
         if (parameters.isRaoWithLoopFlowLimitation() && parameters.getLoopFlowParameters().getPtdfApproximation().shouldUpdatePtdfWithPstChange()) {
             builder.withCommercialFlowsResults(input.getToolProvider().getLoopFlowComputation(), input.getOptimizationPerimeter().getLoopFlowCnecs());

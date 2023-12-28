@@ -9,6 +9,7 @@ package com.powsybl.open_rao.data.crac_io_json;
 import com.powsybl.open_rao.commons.OpenRaoException;
 import com.powsybl.open_rao.commons.Unit;
 import com.powsybl.open_rao.data.crac_api.Instant;
+import com.powsybl.open_rao.data.crac_api.InstantKind;
 import com.powsybl.open_rao.data.crac_api.State;
 import com.powsybl.open_rao.data.crac_api.cnec.AngleCnec;
 import com.powsybl.open_rao.data.crac_api.cnec.FlowCnec;
@@ -186,5 +187,23 @@ class JsonSerializationConstantsTest {
         assertTrue(comparator.compare(ofc2, ofcc1) < 0);
         assertTrue(comparator.compare(oac1, ocs2) < 0);
         assertTrue(comparator.compare(oac1, ovc2) < 0);
+    }
+
+    @Test
+    void testSerializeInstantKind() {
+        assertEquals("PREVENTIVE", seralizeInstantKind(InstantKind.PREVENTIVE));
+        assertEquals("OUTAGE", seralizeInstantKind(InstantKind.OUTAGE));
+        assertEquals("AUTO", seralizeInstantKind(InstantKind.AUTO));
+        assertEquals("CURATIVE", seralizeInstantKind(InstantKind.CURATIVE));
+    }
+
+    @Test
+    void testDeserializeInstantKind() {
+        assertEquals(InstantKind.PREVENTIVE, deseralizeInstantKind("PREVENTIVE"));
+        assertEquals(InstantKind.OUTAGE, deseralizeInstantKind("OUTAGE"));
+        assertEquals(InstantKind.AUTO, deseralizeInstantKind("AUTO"));
+        assertEquals(InstantKind.CURATIVE, deseralizeInstantKind("CURATIVE"));
+        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> deseralizeInstantKind("toto"));
+        assertEquals("Unrecognized instant kind toto", exception.getMessage());
     }
 }

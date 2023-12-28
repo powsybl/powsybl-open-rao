@@ -72,7 +72,7 @@ public class PstRangeActionCreator {
                 String valueKind = staticPropertyRangePropertyBag.get(CsaProfileConstants.STATIC_PROPERTY_RANGE_VALUE_KIND);
 
                 if (!valueKind.equals(CsaProfileConstants.ValueOffsetKind.ABSOLUTE.toString())) {
-                    throw new OpenRaoImportException(ImportStatus.NOT_YET_HANDLED_BY_FARAO, CsaProfileConstants.REMEDIAL_ACTION_MESSAGE + targetRaId + " will not be imported because StaticPropertyRange has wrong value of valueKind, the only allowed value is 'absolute'");
+                    throw new OpenRaoImportException(ImportStatus.NOT_YET_HANDLED_BY_OPEN_RAO, CsaProfileConstants.REMEDIAL_ACTION_MESSAGE + targetRaId + " will not be imported because StaticPropertyRange has wrong value of valueKind, the only allowed value is 'absolute'");
                 } else {
                     String direction = staticPropertyRangePropertyBag.get(CsaProfileConstants.STATIC_PROPERTY_RANGE_DIRECTION);
                     int normalValue = (int) Float.parseFloat(staticPropertyRangePropertyBag.get(CsaProfileConstants.NORMAL_VALUE));
@@ -81,7 +81,7 @@ public class PstRangeActionCreator {
                     } else if (direction.equals(CsaProfileConstants.RelativeDirectionKind.UP.toString())) {
                         normalValueUp = Optional.of(normalValue);
                     } else {
-                        throw new OpenRaoImportException(ImportStatus.NOT_YET_HANDLED_BY_FARAO, CsaProfileConstants.REMEDIAL_ACTION_MESSAGE + targetRaId + " will not be imported because StaticPropertyRange has wrong value of direction, the only allowed values are RelativeDirectionKind.up and RelativeDirectionKind.down");
+                        throw new OpenRaoImportException(ImportStatus.NOT_YET_HANDLED_BY_OPEN_RAO, CsaProfileConstants.REMEDIAL_ACTION_MESSAGE + targetRaId + " will not be imported because StaticPropertyRange has wrong value of direction, the only allowed values are RelativeDirectionKind.up and RelativeDirectionKind.down");
                     }
                 }
             }

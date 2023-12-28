@@ -138,7 +138,7 @@ class CseCracCreatorTest {
 
         assertOutageNotImported("fake_contingency_because_we_have_to", ELEMENT_NOT_FOUND_IN_NETWORK);
         assertCriticalBranchNotImported("fake_because_we_have_to - AAAAAA11 - BBBBBB11 - null", ELEMENT_NOT_FOUND_IN_NETWORK);
-        assertRemedialActionNotImported("CRA_HVDC_fake", NOT_YET_HANDLED_BY_FARAO);
+        assertRemedialActionNotImported("CRA_HVDC_fake", NOT_YET_HANDLED_BY_OPEN_RAO);
         assertRemedialActionNotImported("WEIRD_HVDC_WITH_2_HVDCNODES", INCONSISTENCY_IN_DATA);
         assertRemedialActionNotImported("HVDC_WITH_NON_OPPOSITE_GENERATORS", INCONSISTENCY_IN_DATA);
     }
@@ -604,7 +604,7 @@ class CseCracCreatorTest {
     @Test
     void createCracWithAuto() {
         setUp("/cracs/cse_crac_auto.xml");
-        assertRemedialActionNotImported("ara_1", NOT_YET_HANDLED_BY_FARAO);
+        assertRemedialActionNotImported("ara_1", NOT_YET_HANDLED_BY_OPEN_RAO);
         assertEquals(9, importedCrac.getFlowCnecs().size());
         assertFalse(cracCreationContext.getCreationReport().getReport().contains("[ADDED] CNEC \"French line 1 - FFR1AA1 ->FFR2AA1   - outage_1 - auto\" has no associated automaton. It will be cloned on the OUTAGE instant in order to be secured during preventive RAO."));
     }
