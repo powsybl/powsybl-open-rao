@@ -10,6 +10,7 @@ package com.farao_community.farao.data.swe_cne_exporter;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Contingency;
 import com.farao_community.farao.data.crac_api.Crac;
+import com.farao_community.farao.data.crac_api.InstantKind;
 import com.farao_community.farao.data.crac_api.cnec.AngleCnec;
 import com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.CimCracCreationContext;
 import com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.cnec.AngleCnecCreationContext;
@@ -71,7 +72,7 @@ public class SweAdditionalConstraintSeriesCreator {
         additionalConstraintSeries.setBusinessType(ANGLE_CNEC_BUSINESS_TYPE);
         additionalConstraintSeries.setName(angleCnec.getName());
         if (!sweCneHelper.getRaoResult().getComputationStatus().equals(ComputationStatus.FAILURE)) {
-            additionalConstraintSeries.setQuantityQuantity(BigDecimal.valueOf(sweCneHelper.getRaoResult().getAngle(Instant.CURATIVE, angleCnec, Unit.DEGREE)).setScale(1, RoundingMode.HALF_UP));
+            additionalConstraintSeries.setQuantityQuantity(BigDecimal.valueOf(sweCneHelper.getRaoResult().getAngle(crac.getInstant(InstantKind.CURATIVE), angleCnec, Unit.DEGREE)).setScale(1, RoundingMode.HALF_UP));
         }
         return additionalConstraintSeries;
     }

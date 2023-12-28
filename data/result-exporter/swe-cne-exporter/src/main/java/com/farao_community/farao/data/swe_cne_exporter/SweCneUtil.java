@@ -9,7 +9,7 @@ package com.farao_community.farao.data.swe_cne_exporter;
 
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Crac;
-import com.farao_community.farao.data.crac_api.Instant;
+import com.farao_community.farao.data.crac_api.InstantKind;
 import com.farao_community.farao.data.rao_result_api.RaoResult;
 import com.farao_community.farao.data.swe_cne_exporter.xsd.AreaIDString;
 import com.farao_community.farao.data.swe_cne_exporter.xsd.ESMPDateTimeInterval;
@@ -36,7 +36,7 @@ public final class SweCneUtil {
 
     public static boolean isAngleMonitoringUnsecure(Crac crac, RaoResult raoResult) {
         // TODO : replace this with raoResult.isSecure(ANGLE) when ready
-        return crac.getAngleCnecs().stream().anyMatch(angleCnec -> raoResult.getMargin(Instant.CURATIVE, angleCnec, Unit.DEGREE) < 0);
+        return crac.getAngleCnecs().stream().anyMatch(angleCnec -> raoResult.getMargin(crac.getInstant(InstantKind.CURATIVE), angleCnec, Unit.DEGREE) < 0);
     }
 
     // Creation of time interval

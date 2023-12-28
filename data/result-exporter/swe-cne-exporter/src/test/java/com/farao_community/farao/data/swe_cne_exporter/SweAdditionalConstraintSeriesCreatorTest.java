@@ -43,10 +43,15 @@ class SweAdditionalConstraintSeriesCreatorTest {
     public void setup() {
         this.crac = Mockito.mock(Crac.class);
         this.raoResult = Mockito.mock(RaoResultWithAngleMonitoring.class);
+        Mockito.when(raoResult.getComputationStatus()).thenReturn(ComputationStatus.DEFAULT);
         preventiveInstant = Mockito.mock(Instant.class);
         outageInstant = Mockito.mock(Instant.class);
         autoInstant = Mockito.mock(Instant.class);
         curativeInstant = Mockito.mock(Instant.class);
+        Mockito.when(crac.getInstant(InstantKind.PREVENTIVE)).thenReturn(preventiveInstant);
+        Mockito.when(crac.getInstant(InstantKind.OUTAGE)).thenReturn(outageInstant);
+        Mockito.when(crac.getInstant(InstantKind.AUTO)).thenReturn(autoInstant);
+        Mockito.when(crac.getInstant(InstantKind.CURATIVE)).thenReturn(curativeInstant);
         Mockito.when(curativeInstant.isCurative()).thenReturn(true);
         this.cracCreationContext = Mockito.mock(CimCracCreationContext.class);
         this.sweCneHelper = Mockito.mock(SweCneHelper.class);
