@@ -8,6 +8,7 @@ package com.farao_community.farao.data.crac_creation.creator.cse;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Crac;
+import com.farao_community.farao.data.crac_api.InstantKind;
 import com.farao_community.farao.data.crac_creation.creator.api.CracCreator;
 import com.farao_community.farao.data.crac_creation.creator.api.parameters.CracCreationParameters;
 import com.farao_community.farao.data.crac_creation.creator.cse.critical_branch.TCriticalBranchesAdder;
@@ -42,6 +43,7 @@ public class CseCracCreator implements CracCreator<CseCrac, CseCracCreationConte
     public CseCracCreationContext createCrac(CseCrac cseCrac, Network network, OffsetDateTime offsetDateTime, CracCreationParameters cracCreationParameters) {
         // Set attributes
         Crac crac = cracCreationParameters.getCracFactory().create(cseCrac.getCracDocument().getDocumentIdentification().getV());
+        addCseInstants(crac);
         this.creationContext = new CseCracCreationContext(crac, offsetDateTime, network.getNameOrId());
 
         // Check timestamp field
@@ -85,6 +87,13 @@ public class CseCracCreator implements CracCreator<CseCrac, CseCracCreationConte
             creationContext.getCreationReport().error(String.format("CRAC could not be created: %s", e.getMessage()));
             return creationContext.creationFailure();
         }
+    }
+
+    private static void addCseInstants(Crac crac) {
+        crac.newInstant("preventive", InstantKind.PREVENTIVE)
+            .newInstant("outage", InstantKind.OUTAGE)
+            .newInstant("auto", InstantKind.AUTO)
+            .newInstant("curative", InstantKind.CURATIVE);
     }
 
     public static TCRACSeries getCracSeries(CRACDocumentType cracDocumentType) {

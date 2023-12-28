@@ -72,7 +72,8 @@ class BestTapFinderTest {
         pstRangeAction = createPst();
         optimizedState = Mockito.mock(State.class);
         when(optimizedState.getContingency()).thenReturn(Optional.empty());
-        when(optimizedState.getInstant()).thenReturn(Instant.PREVENTIVE);
+        Instant preventiveInstant = Mockito.mock(Instant.class);
+        when(optimizedState.getInstant()).thenReturn(preventiveInstant);
         optimizationPerimeter = Mockito.mock(OptimizationPerimeter.class);
         when(optimizationPerimeter.getMainOptimizationState()).thenReturn(optimizedState);
         when(optimizationPerimeter.getRangeActionOptimizationStates()).thenReturn(Set.of(optimizedState));

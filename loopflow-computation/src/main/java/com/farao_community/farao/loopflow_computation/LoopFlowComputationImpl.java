@@ -11,6 +11,7 @@ import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
 import com.powsybl.glsk.commons.ZonalData;
 import com.farao_community.farao.commons.logs.FaraoLoggerProvider;
+import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.refprog.reference_program.ReferenceProgram;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityInterface;
@@ -40,11 +41,12 @@ public class LoopFlowComputationImpl implements LoopFlowComputation {
     }
 
     @Override
-    public LoopFlowResult calculateLoopFlows(Network network, String sensitivityProvider, SensitivityAnalysisParameters sensitivityAnalysisParameters, Set<FlowCnec> flowCnecs) {
+    public LoopFlowResult calculateLoopFlows(Network network, String sensitivityProvider, SensitivityAnalysisParameters sensitivityAnalysisParameters, Set<FlowCnec> flowCnecs, Instant outageInstant) {
         SystematicSensitivityInterface systematicSensitivityInterface = SystematicSensitivityInterface.builder()
                 .withSensitivityProviderName(sensitivityProvider)
                 .withParameters(sensitivityAnalysisParameters)
                 .withPtdfSensitivities(glsk, flowCnecs, Collections.singleton(Unit.MEGAWATT))
+                .withOutageInstant(outageInstant)
                 .build();
 
         SystematicSensitivityResult ptdfsAndRefFlows = systematicSensitivityInterface.run(network);

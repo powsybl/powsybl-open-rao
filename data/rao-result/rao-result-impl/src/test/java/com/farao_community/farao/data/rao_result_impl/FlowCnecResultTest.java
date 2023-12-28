@@ -12,6 +12,7 @@ import com.farao_community.farao.data.crac_api.cnec.Side;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.mock;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
@@ -20,13 +21,15 @@ class FlowCnecResultTest {
 
     @Test
     void defaultValuesTest() {
+        Instant preventiveInstant = mock(Instant.class);
+        Instant curativeInstant = mock(Instant.class);
         FlowCnecResult defaultFlowCnecResult = new FlowCnecResult();
         assertEquals(Double.NaN, defaultFlowCnecResult.getResult(null).getCommercialFlow(Side.LEFT, Unit.MEGAWATT), 1e-3);
         assertEquals(Double.NaN, defaultFlowCnecResult.getResult(null).getFlow(Side.RIGHT, Unit.AMPERE), 1e-3);
-        assertEquals(Double.NaN, defaultFlowCnecResult.getResult(Instant.PREVENTIVE).getMargin(Unit.MEGAWATT), 1e-3);
-        assertEquals(Double.NaN, defaultFlowCnecResult.getResult(Instant.PREVENTIVE).getRelativeMargin(Unit.AMPERE), 1e-3);
-        assertEquals(Double.NaN, defaultFlowCnecResult.getResult(Instant.CURATIVE).getLoopFlow(Side.LEFT, Unit.MEGAWATT), 1e-3);
-        assertEquals(Double.NaN, defaultFlowCnecResult.getResult(Instant.CURATIVE).getPtdfZonalSum(Side.RIGHT), 1e-3);
+        assertEquals(Double.NaN, defaultFlowCnecResult.getResult(preventiveInstant).getMargin(Unit.MEGAWATT), 1e-3);
+        assertEquals(Double.NaN, defaultFlowCnecResult.getResult(preventiveInstant).getRelativeMargin(Unit.AMPERE), 1e-3);
+        assertEquals(Double.NaN, defaultFlowCnecResult.getResult(curativeInstant).getLoopFlow(Side.LEFT, Unit.MEGAWATT), 1e-3);
+        assertEquals(Double.NaN, defaultFlowCnecResult.getResult(curativeInstant).getPtdfZonalSum(Side.RIGHT), 1e-3);
     }
 
     @Test

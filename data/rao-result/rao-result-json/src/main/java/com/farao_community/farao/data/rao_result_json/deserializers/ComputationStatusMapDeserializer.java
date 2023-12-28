@@ -8,7 +8,6 @@ package com.farao_community.farao.data.rao_result_json.deserializers;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Crac;
-import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.rao_result_api.ComputationStatus;
 import com.farao_community.farao.data.rao_result_impl.RaoResultImpl;
 import com.fasterxml.jackson.core.JsonParser;
@@ -35,12 +34,13 @@ final class ComputationStatusMapDeserializer {
             }
             String computationStatus = jsonParser.nextTextValue();
             // STATE
-            Instant instant = null;
+            String instantId = null;
             String contingencyId = null;
             while (!jsonParser.nextToken().isStructEnd()) {
                 switch (jsonParser.getCurrentName()) {
                     case INSTANT:
-                        instant = deserializeInstant(jsonParser.nextTextValue());
+                        String stringValue = jsonParser.nextTextValue();
+                        instantId = stringValue;
                         break;
                     case CONTINGENCY_ID:
                         contingencyId = jsonParser.nextTextValue();
@@ -49,7 +49,7 @@ final class ComputationStatusMapDeserializer {
                         throw new FaraoException(String.format("Cannot deserialize RaoResult: unexpected field in %s (%s)", COMPUTATION_STATUS_MAP, jsonParser.getCurrentName()));
                 }
             }
-            raoResult.setComputationStatus(StateDeserializer.getState(instant, contingencyId, crac, COMPUTATION_STATUS_MAP), ComputationStatus.valueOf(computationStatus));
+            raoResult.setComputationStatus(StateDeserializer.getState(instantId, contingencyId, crac, COMPUTATION_STATUS_MAP), ComputationStatus.valueOf(computationStatus));
         }
     }
 }

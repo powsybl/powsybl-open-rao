@@ -7,10 +7,7 @@
 
 package com.farao_community.farao.data.crac_impl;
 
-import com.farao_community.farao.data.crac_api.Contingency;
-import com.farao_community.farao.data.crac_api.Crac;
-import com.farao_community.farao.data.crac_api.Instant;
-import com.farao_community.farao.data.crac_api.State;
+import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -26,11 +23,18 @@ class OnContingencyStateImplTest {
     private State initialState;
     private State curativeState1;
     private State curativeState2;
+    private Instant preventiveInstant;
+    private Instant curativeInstant;
 
     @BeforeEach
     public void setUp() {
-        initialState = new PreventiveState();
-        Crac crac = new CracImplFactory().create("cracId");
+        Crac crac = new CracImplFactory().create("cracId")
+            .newInstant("preventive", InstantKind.PREVENTIVE)
+            .newInstant("outage", InstantKind.OUTAGE)
+            .newInstant("auto", InstantKind.AUTO)
+            .newInstant("curative", InstantKind.CURATIVE);
+        preventiveInstant = crac.getInstant("preventive");
+        curativeInstant = crac.getInstant("curative");
         Contingency contingency1 = crac.newContingency()
             .withId("contingency1")
             .withNetworkElement("anyNetworkElement")
@@ -39,8 +43,9 @@ class OnContingencyStateImplTest {
             .withId("contingency2")
             .withNetworkElement("anyNetworkElement")
             .add();
-        curativeState1 = new PostContingencyState(contingency1, Instant.CURATIVE);
-        curativeState2 = new PostContingencyState(contingency2, Instant.CURATIVE);
+        initialState = new PreventiveState(preventiveInstant);
+        curativeState1 = new PostContingencyState(contingency1, curativeInstant);
+        curativeState2 = new PostContingencyState(contingency2, curativeInstant);
     }
 
     @Test
@@ -48,7 +53,7 @@ class OnContingencyStateImplTest {
         OnContingencyStateImpl rule1 = new OnContingencyStateImpl(UsageMethod.AVAILABLE, curativeState1);
         assertEquals(curativeState1, rule1.getState());
         assertEquals("contingency1", rule1.getContingency().getId());
-        assertEquals(Instant.CURATIVE, rule1.getInstant());
+        assertEquals(curativeInstant, rule1.getInstant());
     }
 
     @Test
@@ -67,7 +72,7 @@ class OnContingencyStateImplTest {
     @Test
     void testEqualsFalseNotTheSameObject() {
         OnContingencyStateImpl rule1 = new OnContingencyStateImpl(UsageMethod.AVAILABLE, initialState);
-        assertNotEquals(Instant.PREVENTIVE, rule1);
+        assertNotEquals(preventiveInstant, rule1);
     }
 
     @Test

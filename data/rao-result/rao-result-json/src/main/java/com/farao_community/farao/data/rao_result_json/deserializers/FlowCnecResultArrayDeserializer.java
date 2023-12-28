@@ -47,14 +47,14 @@ final class FlowCnecResultArrayDeserializer {
                 throw new FaraoException(String.format("Cannot deserialize RaoResult: flowCnec with id %s does not exist in the Crac", flowCnecId));
             }
             FlowCnecResult flowCnecResult = raoResult.getAndCreateIfAbsentFlowCnecResult(flowCnec);
-            deserializeFlowCnecResult(jsonParser, flowCnecResult, jsonFileVersion);
+            deserializeFlowCnecResult(jsonParser, flowCnecResult, jsonFileVersion, crac);
         }
     }
 
-    private static void deserializeFlowCnecResult(JsonParser jsonParser, FlowCnecResult flowCnecResult, String jsonFileVersion) throws IOException {
+    private static void deserializeFlowCnecResult(JsonParser jsonParser, FlowCnecResult flowCnecResult, String jsonFileVersion, Crac crac) throws IOException {
         while (!jsonParser.nextToken().isStructEnd()) {
             ElementaryFlowCnecResult eFlowCnecResult;
-            Instant optimizedInstant = deserializeOptimizedInstant(jsonParser.getCurrentName(), jsonFileVersion);
+            Instant optimizedInstant = deserializeOptimizedInstant(jsonParser.getCurrentName(), jsonFileVersion, crac);
             jsonParser.nextToken();
             eFlowCnecResult = flowCnecResult.getAndCreateIfAbsentResultForOptimizationState(optimizedInstant);
             deserializeElementaryFlowCnecResult(jsonParser, eFlowCnecResult, jsonFileVersion);

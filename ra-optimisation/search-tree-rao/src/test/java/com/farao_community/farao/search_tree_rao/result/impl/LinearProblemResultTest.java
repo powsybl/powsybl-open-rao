@@ -7,9 +7,7 @@
 
 package com.farao_community.farao.search_tree_rao.result.impl;
 
-import com.farao_community.farao.data.crac_api.Instant;
-import com.farao_community.farao.data.crac_api.NetworkElement;
-import com.farao_community.farao.data.crac_api.State;
+import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.search_tree_rao.commons.optimization_perimeters.CurativeOptimizationPerimeter;
@@ -48,12 +46,18 @@ class LinearProblemResultTest {
 
     @BeforeEach
     public void setUp() {
+        Instant preventiveInstant = Mockito.mock(Instant.class);
+        Mockito.when(preventiveInstant.comesBefore(Mockito.any())).thenReturn(true);
+        Mockito.when(preventiveInstant.comesBefore(preventiveInstant)).thenReturn(false);
+        Instant curativeInstant = Mockito.mock(Instant.class);
+        Mockito.when(curativeInstant.isCurative()).thenReturn(true);
+        Mockito.when(curativeInstant.getOrder()).thenReturn(3);
         preventiveState = Mockito.mock(State.class);
-        Mockito.when(preventiveState.getInstant()).thenReturn(Instant.PREVENTIVE);
+        Mockito.when(preventiveState.getInstant()).thenReturn(preventiveInstant);
         Mockito.when(preventiveState.isPreventive()).thenReturn(true);
         Mockito.when(preventiveState.getId()).thenReturn("pState");
         aCurativeState = Mockito.mock(State.class);
-        Mockito.when(aCurativeState.getInstant()).thenReturn(Instant.CURATIVE);
+        Mockito.when(aCurativeState.getInstant()).thenReturn(curativeInstant);
         Mockito.when(aCurativeState.getId()).thenReturn("cState");
 
         pst1 = Mockito.mock(PstRangeAction.class);

@@ -54,7 +54,8 @@ public class PrePerimeterSensitivityAnalysis {
     }
 
     public PrePerimeterResult runInitialSensitivityAnalysis(Network network, Crac crac) {
-        SensitivityComputer.SensitivityComputerBuilder sensitivityComputerBuilder = buildSensiBuilder();
+        SensitivityComputer.SensitivityComputerBuilder sensitivityComputerBuilder = buildSensiBuilder()
+            .withOutageInstant(crac.getOutageInstant());
         if (raoParameters.hasExtension(LoopFlowParametersExtension.class)) {
             sensitivityComputerBuilder.withCommercialFlowsResults(toolProvider.getLoopFlowComputation(), toolProvider.getLoopFlowCnecs(flowCnecs));
         }
@@ -75,7 +76,8 @@ public class PrePerimeterSensitivityAnalysis {
                                                        Set<String> operatorsNotSharingCras,
                                                        AppliedRemedialActions appliedCurativeRemedialActions) {
 
-        SensitivityComputer.SensitivityComputerBuilder sensitivityComputerBuilder = buildSensiBuilder();
+        SensitivityComputer.SensitivityComputerBuilder sensitivityComputerBuilder = buildSensiBuilder()
+            .withOutageInstant(crac.getOutageInstant());
         if (raoParameters.hasExtension(LoopFlowParametersExtension.class)) {
             if (raoParameters.getExtension(LoopFlowParametersExtension.class).getPtdfApproximation().shouldUpdatePtdfWithTopologicalChange()) {
                 sensitivityComputerBuilder.withCommercialFlowsResults(toolProvider.getLoopFlowComputation(), toolProvider.getLoopFlowCnecs(flowCnecs));

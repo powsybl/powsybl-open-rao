@@ -20,7 +20,7 @@ import static com.farao_community.farao.data.crac_impl.AdderUtils.assertAttribut
 public class OnFlowConstraintInCountryAdderImpl<T extends AbstractRemedialActionAdder<T>> implements OnFlowConstraintInCountryAdder<T> {
 
     private T owner;
-    private Instant instant;
+    private String instantId;
     private Country country;
 
     OnFlowConstraintInCountryAdderImpl(AbstractRemedialActionAdder<T> owner) {
@@ -28,8 +28,8 @@ public class OnFlowConstraintInCountryAdderImpl<T extends AbstractRemedialAction
     }
 
     @Override
-    public OnFlowConstraintInCountryAdder<T> withInstant(Instant instant) {
-        this.instant = instant;
+    public OnFlowConstraintInCountryAdder<T> withInstant(String instantId) {
+        this.instantId = instantId;
         return this;
     }
 
@@ -41,13 +41,14 @@ public class OnFlowConstraintInCountryAdderImpl<T extends AbstractRemedialAction
 
     @Override
     public T add() {
-        assertAttributeNotNull(instant, "OnInstant", "instant", "withInstant()");
+        assertAttributeNotNull(instantId, "OnInstant", "instant", "withInstant()");
         assertAttributeNotNull(country, "OnFlowConstraintInCountry", "country", "withCountry()");
 
-        if (instant.equals(Instant.OUTAGE)) {
+        Instant instant = owner.getCrac().getInstant(instantId);
+        if (instant.isOutage()) {
             throw new FaraoException("OnFlowConstraintInCountry usage rules are not allowed for OUTAGE instant.");
         }
-        if (instant.equals(Instant.PREVENTIVE)) {
+        if (instant.isPreventive()) {
             owner.getCrac().addPreventiveState();
         }
 

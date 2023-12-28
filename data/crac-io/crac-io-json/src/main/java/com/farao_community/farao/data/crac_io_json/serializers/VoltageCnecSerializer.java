@@ -34,7 +34,7 @@ public class VoltageCnecSerializer<I extends VoltageCnec> extends AbstractJsonSe
         gen.writeStringField(NAME, voltageCnec.getName());
         gen.writeStringField(NETWORK_ELEMENT_ID, voltageCnec.getNetworkElement().getId());
         gen.writeStringField(OPERATOR, voltageCnec.getOperator());
-        gen.writeStringField(INSTANT, serializeInstant(voltageCnec.getState().getInstant()));
+        gen.writeStringField(INSTANT, voltageCnec.getState().getInstant().getId());
         Optional<Contingency> optContingency = voltageCnec.getState().getContingency();
         if (optContingency.isPresent()) {
             gen.writeStringField(CONTINGENCY_ID, optContingency.get().getId());

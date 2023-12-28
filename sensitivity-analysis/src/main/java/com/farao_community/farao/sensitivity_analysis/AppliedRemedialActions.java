@@ -7,7 +7,6 @@
 package com.farao_community.farao.sensitivity_analysis;
 
 import com.farao_community.farao.commons.FaraoException;
-import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
@@ -111,7 +110,7 @@ public class AppliedRemedialActions {
         AppliedRemedialActions ara = new AppliedRemedialActions();
         appliedRa.forEach((state, appliedRaOnState) -> ara.addAppliedNetworkActions(state, appliedRaOnState.networkActions));
         appliedRa.forEach((state, appliedRaOnState) -> {
-            if (state.getInstant().equals(Instant.AUTO)) {
+            if (state.getInstant().isAuto()) {
                 ara.addAppliedRangeActions(state, appliedRaOnState.rangeActions);
             }
         });
@@ -119,14 +118,14 @@ public class AppliedRemedialActions {
     }
 
     private void checkState(State state) {
-        if (!state.getInstant().equals(Instant.CURATIVE) && !state.getInstant().equals(Instant.AUTO)) {
+        if (!state.getInstant().isCurative() && !state.getInstant().isAuto()) {
             throw new FaraoException("Sensitivity analysis with applied remedial actions only work with CURATIVE and AUTO remedial actions.");
         }
         appliedRa.putIfAbsent(state, new AppliedRemedialActionsPerState());
     }
 
     public AppliedRemedialActions copyCurative() {
-        Map<State, AppliedRemedialActionsPerState> curativeMap =  appliedRa.entrySet().stream().filter(entry -> entry.getKey().getInstant().equals(Instant.CURATIVE))
+        Map<State, AppliedRemedialActionsPerState> curativeMap =  appliedRa.entrySet().stream().filter(entry -> entry.getKey().getInstant().isCurative())
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
         AppliedRemedialActions ara = new AppliedRemedialActions();
         curativeMap.forEach((state, appliedRaOnState) -> {

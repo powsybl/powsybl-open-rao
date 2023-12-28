@@ -9,7 +9,6 @@ package com.farao_community.farao.data.rao_result_json.deserializers;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Crac;
-import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.data.rao_result_impl.RangeActionResult;
 import com.farao_community.farao.data.rao_result_impl.RaoResultImpl;
@@ -108,7 +107,7 @@ final class RangeActionResultArrayDeserializer {
     }
 
     private static void deserializeResultsPerStates(JsonParser jsonParser, RangeActionResult rangeActionResult, Crac crac) throws IOException {
-        Instant instant = null;
+        String instantId = null;
         String contingencyId = null;
         Double setpoint = null;
         while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
@@ -116,7 +115,8 @@ final class RangeActionResultArrayDeserializer {
                 switch (jsonParser.getCurrentName()) {
 
                     case INSTANT:
-                        instant = deserializeInstant(jsonParser.nextTextValue());
+                        String stringValue = jsonParser.nextTextValue();
+                        instantId = stringValue;
                         break;
 
                     case CONTINGENCY_ID:
@@ -142,7 +142,7 @@ final class RangeActionResultArrayDeserializer {
             if (setpoint == null) {
                 throw new FaraoException(String.format("Cannot deserialize RaoResult: setpoint is required in %s", RANGEACTION_RESULTS));
             }
-            rangeActionResult.addActivationForState(StateDeserializer.getState(instant, contingencyId, crac, RANGEACTION_RESULTS), setpoint);
+            rangeActionResult.addActivationForState(StateDeserializer.getState(instantId, contingencyId, crac, RANGEACTION_RESULTS), setpoint);
         }
     }
 }

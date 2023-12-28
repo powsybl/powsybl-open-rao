@@ -16,7 +16,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.farao_community.farao.monitoring.monitoring_common.json.JsonCommonMonitoringResultConstants.*;
-import static com.farao_community.farao.monitoring.monitoring_common.json.JsonCommonMonitoringResultConstants.REMEDIAL_ACTIONS;
 
 public final class MonitoringCommonDeserializer {
     private static final String UNEXPECTED_FIELD_ERROR = "Unexpected field %s in %s";
@@ -32,7 +31,7 @@ public final class MonitoringCommonDeserializer {
             while (!jsonParser.nextToken().isStructEnd()) {
                 switch (jsonParser.currentName()) {
                     case INSTANT:
-                        instant = deserializeInstant(jsonParser.nextTextValue());
+                        instant = crac.getInstant(jsonParser.nextTextValue());
                         break;
                     case CONTINGENCY:
                         contingencyId = jsonParser.nextTextValue();
@@ -52,7 +51,7 @@ public final class MonitoringCommonDeserializer {
             // Get network Actions from string
             State state = getState(instant, contingencyId, crac);
             if (appliedRas.containsKey(state)) {
-                throw new FaraoException(String.format("State with instant %s and contingency %s has previously been defined in %s", instant.toString(), contingencyId, REMEDIAL_ACTIONS));
+                throw new FaraoException(String.format("State with instant %s and contingency %s has previously been defined in %s", instant.getId(), contingencyId, REMEDIAL_ACTIONS));
             } else {
                 appliedRas.put(state, getNetworkActions(remedialActionIds, crac));
             }
@@ -61,15 +60,15 @@ public final class MonitoringCommonDeserializer {
 
     public static State getState(Instant instant, String contingencyId, Crac crac) {
         if (contingencyId == null) {
-            if (instant.equals(Instant.PREVENTIVE)) {
+            if (instant.isPreventive()) {
                 return crac.getPreventiveState();
             } else {
-                throw new FaraoException(String.format("No contingency defined with instant %s", instant.toString()));
+                throw new FaraoException(String.format("No contingency defined with instant %s", instant));
             }
         }
         State state = crac.getState(contingencyId, instant);
         if (state == null) {
-            throw new FaraoException(String.format("State with instant %s and contingency %s does not exist in CRAC", instant.toString(), contingencyId));
+            throw new FaraoException(String.format("State with instant %s and contingency %s does not exist in CRAC", instant.getId(), contingencyId));
         }
         return state;
     }

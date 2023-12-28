@@ -19,11 +19,12 @@ public final class StateDeserializer {
 
     }
 
-    public static State getState(Instant instant, String contingencyId, Crac crac, String parentType) {
-        if (instant == null) {
+    public static State getState(String instantId, String contingencyId, Crac crac, String parentType) {
+        if (instantId == null) {
             throw new FaraoException(String.format("Cannot deserialize RaoResult: no instant defined in activated states of %s", parentType));
         }
-        if (instant == Instant.PREVENTIVE) {
+        Instant instant = crac.getInstant(instantId);
+        if (instant.isPreventive()) {
             return crac.getPreventiveState();
         } else {
             if (contingencyId == null) {
@@ -31,7 +32,7 @@ public final class StateDeserializer {
             }
             State state = crac.getState(contingencyId, instant);
             if (state == null) {
-                throw new FaraoException(String.format("Cannot deserialize RaoResult: State at instant %s with contingency %s not found in Crac", instant, contingencyId));
+                throw new FaraoException(String.format("Cannot deserialize RaoResult: State at instant %s with contingency %s not found in Crac", instantId, contingencyId));
             }
             return state;
         }

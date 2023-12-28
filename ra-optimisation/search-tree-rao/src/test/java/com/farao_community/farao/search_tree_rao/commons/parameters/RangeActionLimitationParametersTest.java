@@ -31,8 +31,9 @@ class RangeActionLimitationParametersTest {
     public void setUp() {
         Crac crac = ExhaustiveCracCreation.create();
         state0 = crac.getPreventiveState();
-        state1 = crac.getState("contingency1Id", Instant.CURATIVE);
-        state2 = crac.getState("contingency2Id", Instant.CURATIVE);
+        Instant curativeInstant = crac.getInstant("curative");
+        state1 = crac.getState("contingency1Id", curativeInstant);
+        state2 = crac.getState("contingency2Id", curativeInstant);
     }
 
     @Test

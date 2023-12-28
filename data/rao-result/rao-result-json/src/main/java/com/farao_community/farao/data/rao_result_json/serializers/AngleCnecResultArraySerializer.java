@@ -10,6 +10,7 @@ import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.Instant;
+import com.farao_community.farao.data.crac_api.InstantKind;
 import com.farao_community.farao.data.crac_api.cnec.AngleCnec;
 import com.farao_community.farao.data.rao_result_api.RaoResult;
 import com.fasterxml.jackson.core.JsonGenerator;
@@ -37,23 +38,23 @@ final class AngleCnecResultArraySerializer {
 
         jsonGenerator.writeArrayFieldStart(ANGLECNEC_RESULTS);
         for (AngleCnec angleCnec : sortedListOfAngleCnecs) {
-            serializeAngleCnecResult(angleCnec, raoResult, jsonGenerator);
+            serializeAngleCnecResult(angleCnec, raoResult, crac, jsonGenerator);
         }
         jsonGenerator.writeEndArray();
     }
 
-    private static void serializeAngleCnecResult(AngleCnec angleCnec, RaoResult raoResult, JsonGenerator jsonGenerator) throws IOException {
+    private static void serializeAngleCnecResult(AngleCnec angleCnec, RaoResult raoResult, Crac crac, JsonGenerator jsonGenerator) throws IOException {
 
-        if (containsAnyResultForAngleCnec(raoResult, angleCnec)) {
+        if (containsAnyResultForAngleCnec(angleCnec, raoResult, crac)) {
             jsonGenerator.writeStartObject();
             jsonGenerator.writeStringField(ANGLECNEC_ID, angleCnec.getId());
 
             serializeAngleCnecResultForOptimizationState(null, angleCnec, raoResult, jsonGenerator);
-            serializeAngleCnecResultForOptimizationState(Instant.PREVENTIVE, angleCnec, raoResult, jsonGenerator);
+            serializeAngleCnecResultForOptimizationState(crac.getPreventiveInstant(), angleCnec, raoResult, jsonGenerator);
 
             if (!angleCnec.getState().isPreventive()) {
-                serializeAngleCnecResultForOptimizationState(Instant.AUTO, angleCnec, raoResult, jsonGenerator);
-                serializeAngleCnecResultForOptimizationState(Instant.CURATIVE, angleCnec, raoResult, jsonGenerator);
+                serializeAngleCnecResultForOptimizationState(crac.getInstant(InstantKind.AUTO), angleCnec, raoResult, jsonGenerator);
+                serializeAngleCnecResultForOptimizationState(crac.getInstant(InstantKind.CURATIVE), angleCnec, raoResult, jsonGenerator);
             }
             jsonGenerator.writeEndObject();
         }
@@ -62,7 +63,7 @@ final class AngleCnecResultArraySerializer {
     private static void serializeAngleCnecResultForOptimizationState(Instant optInstant, AngleCnec angleCnec, RaoResult raoResult, JsonGenerator jsonGenerator) throws IOException {
 
         if (containsAnyResultForOptimizationState(raoResult, angleCnec, optInstant)) {
-            jsonGenerator.writeObjectFieldStart(serializeInstant(optInstant));
+            jsonGenerator.writeObjectFieldStart(serializeInstantId(optInstant));
             serializeAngleCnecResultForOptimizationStateAndUnit(optInstant, Unit.DEGREE, angleCnec, raoResult, jsonGenerator);
             jsonGenerator.writeEndObject();
         }
@@ -87,16 +88,16 @@ final class AngleCnecResultArraySerializer {
         jsonGenerator.writeEndObject();
     }
 
-    private static boolean containsAnyResultForAngleCnec(RaoResult raoResult, AngleCnec angleCnec) {
+    private static boolean containsAnyResultForAngleCnec(AngleCnec angleCnec, RaoResult raoResult, Crac crac) {
 
         if (angleCnec.getState().isPreventive()) {
             return containsAnyResultForOptimizationState(raoResult, angleCnec, null) ||
-                containsAnyResultForOptimizationState(raoResult, angleCnec, Instant.PREVENTIVE);
+                containsAnyResultForOptimizationState(raoResult, angleCnec, angleCnec.getState().getInstant());
         } else {
             return containsAnyResultForOptimizationState(raoResult, angleCnec, null) ||
-                containsAnyResultForOptimizationState(raoResult, angleCnec, Instant.PREVENTIVE) ||
-                containsAnyResultForOptimizationState(raoResult, angleCnec, Instant.AUTO) ||
-                containsAnyResultForOptimizationState(raoResult, angleCnec, Instant.CURATIVE);
+                containsAnyResultForOptimizationState(raoResult, angleCnec, crac.getPreventiveInstant()) ||
+                containsAnyResultForOptimizationState(raoResult, angleCnec, crac.getInstant(InstantKind.AUTO)) ||
+                containsAnyResultForOptimizationState(raoResult, angleCnec, crac.getInstant(InstantKind.CURATIVE));
         }
     }
 

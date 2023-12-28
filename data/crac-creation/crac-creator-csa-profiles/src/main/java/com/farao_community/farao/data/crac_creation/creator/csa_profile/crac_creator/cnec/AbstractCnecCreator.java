@@ -2,7 +2,6 @@ package com.farao_community.farao.data.crac_creation.creator.csa_profile.crac_cr
 
 import com.farao_community.farao.data.crac_api.Contingency;
 import com.farao_community.farao.data.crac_api.Crac;
-import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.cnec.CnecAdder;
 import com.farao_community.farao.data.crac_creation.creator.csa_profile.crac_creator.CsaProfileCracCreationContext;
 import com.farao_community.farao.data.crac_creation.creator.csa_profile.crac_creator.CsaProfileCracUtils;
@@ -69,21 +68,21 @@ public abstract class AbstractCnecCreator {
         return "Assessed Element " + assessedElementId + " ignored because " + reason + ".";
     }
 
-    protected String getCnecName(Instant instant, Contingency contingency) {
+    protected String getCnecName(String instantId, Contingency contingency) {
         // Need to include the mRID in the name in case the AssessedElement's name is not unique
-        return assessedElementName + " (" + assessedElementId + ") - " + (contingency == null ? "" : contingency.getName() + " - ") + instant;
+        return assessedElementName + " (" + assessedElementId + ") - " + (contingency == null ? "" : contingency.getName() + " - ") + instantId;
     }
 
-    protected void addCnecBaseInformation(CnecAdder<?> cnecAdder, Contingency contingency, Instant instant) {
-        String cnecName = getCnecName(instant, contingency);
+    protected void addCnecBaseInformation(CnecAdder<?> cnecAdder, Contingency contingency, String instantId) {
+        String cnecName = getCnecName(instantId, contingency);
         cnecAdder.withContingency(contingency == null ? null : contingency.getId())
                     .withId(cnecName)
                     .withName(cnecName)
-                    .withInstant(instant);
+                    .withInstant(instantId);
     }
 
-    protected void markCnecAsImportedAndHandleRejectedContingencies(Instant instant, Contingency contingency) {
-        String cnecName = getCnecName(instant, contingency);
+    protected void markCnecAsImportedAndHandleRejectedContingencies(String instantId, Contingency contingency) {
+        String cnecName = getCnecName(instantId, contingency);
         if (rejectedLinksAssessedElementContingency.isEmpty()) {
             csaProfileCnecCreationContexts.add(CsaProfileElementaryCreationContext.imported(assessedElementId, cnecName, cnecName, "", false));
         } else {

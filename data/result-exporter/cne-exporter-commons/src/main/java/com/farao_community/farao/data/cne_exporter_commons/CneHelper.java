@@ -64,7 +64,7 @@ public class CneHelper {
     }
 
     public String instantToCodeConverter(Instant instant) {
-        if (instant.equals(Instant.PREVENTIVE)) { // Before contingency
+        if (instant.isPreventive()) { // Before contingency
             return PATL_MEASUREMENT_TYPE;
         } else { // After contingency, before any post-contingency RA
             return TATL_MEASUREMENT_TYPE;

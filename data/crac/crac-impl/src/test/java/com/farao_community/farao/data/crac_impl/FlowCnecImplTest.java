@@ -7,7 +7,7 @@
 package com.farao_community.farao.data.crac_impl;
 
 import com.farao_community.farao.data.crac_api.Crac;
-import com.farao_community.farao.data.crac_api.Instant;
+import com.farao_community.farao.data.crac_api.InstantKind;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnecAdder;
 import com.farao_community.farao.data.crac_api.cnec.Side;
@@ -29,18 +29,19 @@ import static org.junit.jupiter.api.Assertions.*;
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 class FlowCnecImplTest {
-
     private final static double DOUBLE_TOLERANCE = 1; // high tolerance for conversion AMPERE <-> MEGAWATT
+    private static final String PREVENTIVE_INSTANT_ID = "preventive";
 
     private Crac crac;
 
     @BeforeEach
     public void setUp() {
-        crac = new CracImplFactory().create("cracId");
+        crac = new CracImplFactory().create("cracId")
+            .newInstant(PREVENTIVE_INSTANT_ID, InstantKind.PREVENTIVE);
     }
 
     private FlowCnecAdder initPreventiveCnecAdder() {
-        return crac.newFlowCnec().withId("line-cnec").withName("line-cnec-name").withNetworkElement("anyNetworkElement").withOperator("FR").withInstant(Instant.PREVENTIVE).withOptimized(true);
+        return crac.newFlowCnec().withId("line-cnec").withName("line-cnec-name").withNetworkElement("anyNetworkElement").withOperator("FR").withInstant(PREVENTIVE_INSTANT_ID).withOptimized(true);
     }
 
     @Test
@@ -48,9 +49,9 @@ class FlowCnecImplTest {
 
         Network network = NetworkImportsUtil.import12NodesNetwork();
 
-        FlowCnec cnec1 = crac.newFlowCnec().withId("cnec-1-id").withNetworkElement("BBE1AA1  BBE2AA1  1").withInstant(Instant.PREVENTIVE).newThreshold().withUnit(MEGAWATT).withMax(1000.).withSide(Side.LEFT).add().add();
+        FlowCnec cnec1 = crac.newFlowCnec().withId("cnec-1-id").withNetworkElement("BBE1AA1  BBE2AA1  1").withInstant(PREVENTIVE_INSTANT_ID).newThreshold().withUnit(MEGAWATT).withMax(1000.).withSide(Side.LEFT).add().add();
 
-        FlowCnec cnec2 = crac.newFlowCnec().withId("cnec-2-id").withNetworkElement("DDE2AA1  NNL3AA1  1").withInstant(Instant.PREVENTIVE).newThreshold().withUnit(MEGAWATT).withMax(1000.).withSide(Side.LEFT).add().add();
+        FlowCnec cnec2 = crac.newFlowCnec().withId("cnec-2-id").withNetworkElement("DDE2AA1  NNL3AA1  1").withInstant(PREVENTIVE_INSTANT_ID).newThreshold().withUnit(MEGAWATT).withMax(1000.).withSide(Side.LEFT).add().add();
 
         Set<Optional<Country>> countries = cnec1.getLocation(network);
         assertEquals(1, countries.size());
@@ -465,7 +466,7 @@ class FlowCnecImplTest {
         NetworkImportsUtil.addDanglingLine(network);
 
         // Branch
-        FlowCnec cnec1 = crac.newFlowCnec().withId("cnec-1-id").withNetworkElement("BBE1AA1  BBE2AA1  1").withInstant(Instant.PREVENTIVE).newThreshold().withUnit(MEGAWATT).withMax(1000.).withSide(LEFT).add().add();
+        FlowCnec cnec1 = crac.newFlowCnec().withId("cnec-1-id").withNetworkElement("BBE1AA1  BBE2AA1  1").withInstant(PREVENTIVE_INSTANT_ID).newThreshold().withUnit(MEGAWATT).withMax(1000.).withSide(LEFT).add().add();
         assertTrue(cnec1.isConnected(network));
 
         network.getBranch("BBE1AA1  BBE2AA1  1").getTerminal1().disconnect();
@@ -476,14 +477,14 @@ class FlowCnecImplTest {
         assertFalse(cnec1.isConnected(network));
 
         // DanglingLine
-        FlowCnec cnec2 = crac.newFlowCnec().withId("cnec-2-id").withNetworkElement("DL1").withInstant(Instant.PREVENTIVE).newThreshold().withUnit(MEGAWATT).withMax(1000.).withSide(LEFT).add().add();
+        FlowCnec cnec2 = crac.newFlowCnec().withId("cnec-2-id").withNetworkElement("DL1").withInstant(PREVENTIVE_INSTANT_ID).newThreshold().withUnit(MEGAWATT).withMax(1000.).withSide(LEFT).add().add();
         assertTrue(cnec2.isConnected(network));
 
         network.getDanglingLine("DL1").getTerminal().disconnect();
         assertFalse(cnec2.isConnected(network));
 
         // Generator
-        FlowCnec cnec3 = crac.newFlowCnec().withId("cnec-3-id").withNetworkElement("BBE2AA1 _generator").withInstant(Instant.PREVENTIVE).newThreshold().withUnit(MEGAWATT).withMax(1000.).withSide(LEFT).add().add();
+        FlowCnec cnec3 = crac.newFlowCnec().withId("cnec-3-id").withNetworkElement("BBE2AA1 _generator").withInstant(PREVENTIVE_INSTANT_ID).newThreshold().withUnit(MEGAWATT).withMax(1000.).withSide(LEFT).add().add();
         assertTrue(cnec3.isConnected(network));
 
         network.getGenerator("BBE2AA1 _generator").getTerminal().disconnect();

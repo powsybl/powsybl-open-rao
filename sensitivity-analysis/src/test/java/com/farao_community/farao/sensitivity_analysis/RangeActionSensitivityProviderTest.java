@@ -8,10 +8,7 @@ package com.farao_community.farao.sensitivity_analysis;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
-import com.farao_community.farao.data.crac_api.Crac;
-import com.farao_community.farao.data.crac_api.CracFactory;
-import com.farao_community.farao.data.crac_api.Instant;
-import com.farao_community.farao.data.crac_api.NetworkElement;
+import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_api.range_action.HvdcRangeAction;
@@ -37,6 +34,8 @@ import static org.junit.jupiter.api.Assertions.*;
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
  */
 class RangeActionSensitivityProviderTest {
+    private static final String PREVENTIVE_INSTANT_ID = "preventive";
+    private static final String CURATIVE_INSTANT_ID = "curative";
 
     @Test
     void contingenciesCracPstWithRange() {
@@ -73,7 +72,7 @@ class RangeActionSensitivityProviderTest {
             .withMax(10.)
             .add()
             .withNominalVoltage(380.)
-            .withInstant(Instant.CURATIVE)
+            .withInstant(CURATIVE_INSTANT_ID)
             .withContingency("contingency-generator")
             .add();
 
@@ -87,7 +86,7 @@ class RangeActionSensitivityProviderTest {
             .withMax(10.)
             .add()
             .withNominalVoltage(380.)
-            .withInstant(Instant.CURATIVE)
+            .withInstant(CURATIVE_INSTANT_ID)
             .withContingency("contingency-hvdc")
             .add();
 
@@ -101,7 +100,7 @@ class RangeActionSensitivityProviderTest {
             .withMax(10.)
             .add()
             .withNominalVoltage(380.)
-            .withInstant(Instant.CURATIVE)
+            .withInstant(CURATIVE_INSTANT_ID)
             .withContingency("contingency-busbar-section")
             .add();
 
@@ -153,14 +152,15 @@ class RangeActionSensitivityProviderTest {
             .withMin(-10.)
             .withMax(10.)
             .add()
-            .withInstant(Instant.CURATIVE)
+            .withInstant(CURATIVE_INSTANT_ID)
             .withContingency("contingency-fail")
             .withNominalVoltage(380.)
             .add();
 
         RangeActionSensitivityProvider provider = new RangeActionSensitivityProvider(new HashSet<>(),
             Set.of(crac.getFlowCnec("failureCnec")), Stream.of(Unit.MEGAWATT, Unit.AMPERE).collect(Collectors.toSet()));
-        assertThrows(FaraoException.class, () -> provider.getContingencies(network));
+        FaraoException exception = assertThrows(FaraoException.class, () -> provider.getContingencies(network));
+        assertEquals("Unable to apply contingency element FFR3AA1 while converting crac contingency to Powsybl format", exception.getMessage());
     }
 
     @Test
@@ -232,11 +232,12 @@ class RangeActionSensitivityProviderTest {
 
     @Test
     void testHvdcSensi() {
-        Crac crac = CracFactory.findDefault().create("test-crac");
+        Crac crac = CracFactory.findDefault().create("test-crac")
+            .newInstant(PREVENTIVE_INSTANT_ID, InstantKind.PREVENTIVE);
         FlowCnec flowCnec = crac.newFlowCnec()
             .withId("cnec")
             .withNetworkElement("BBE1AA11 FFR5AA11 1")
-            .withInstant(Instant.PREVENTIVE)
+            .withInstant(PREVENTIVE_INSTANT_ID)
             .newThreshold().withMax(1000.).withUnit(Unit.MEGAWATT).withSide(Side.LEFT).add()
             .newThreshold().withMax(1000.).withUnit(Unit.MEGAWATT).withSide(Side.RIGHT).add()
             .add();
@@ -281,11 +282,12 @@ class RangeActionSensitivityProviderTest {
 
     @Test
     void testUnhandledElement() {
-        Crac crac = CracFactory.findDefault().create("test-crac");
+        Crac crac = CracFactory.findDefault().create("test-crac")
+            .newInstant(PREVENTIVE_INSTANT_ID, InstantKind.PREVENTIVE);
         FlowCnec flowCnec = crac.newFlowCnec()
             .withId("cnec")
             .withNetworkElement("BBE1AA11 FFR5AA11 1")
-            .withInstant(Instant.PREVENTIVE)
+            .withInstant(PREVENTIVE_INSTANT_ID)
             .newThreshold().withMax(1000.).withUnit(Unit.MEGAWATT).withSide(Side.LEFT).add()
             .add();
 
@@ -298,6 +300,7 @@ class RangeActionSensitivityProviderTest {
 
         RangeActionSensitivityProvider provider = new RangeActionSensitivityProvider(Set.of(mockHvdcRangeAction), Set.of(flowCnec), Set.of(Unit.MEGAWATT, Unit.AMPERE));
 
-        assertThrows(FaraoException.class, () -> provider.getBasecaseFactors(network));
+        FaraoException exception = assertThrows(FaraoException.class, () -> provider.getBasecaseFactors(network));
+        assertEquals("Range action type of null not implemented yet", exception.getMessage());
     }
 }

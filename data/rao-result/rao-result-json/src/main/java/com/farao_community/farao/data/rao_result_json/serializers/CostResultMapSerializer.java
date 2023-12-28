@@ -6,6 +6,7 @@
  */
 package com.farao_community.farao.data.rao_result_json.serializers;
 
+import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.rao_result_api.RaoResult;
 import com.fasterxml.jackson.core.JsonGenerator;
@@ -23,13 +24,13 @@ final class CostResultMapSerializer {
     private CostResultMapSerializer() {
     }
 
-    static void serialize(RaoResult raoResult, JsonGenerator jsonGenerator) throws IOException {
+    static void serialize(RaoResult raoResult, Crac crac, JsonGenerator jsonGenerator) throws IOException {
 
         jsonGenerator.writeObjectFieldStart(COST_RESULTS);
         serializeCostResultForOptimizationState(null, raoResult, jsonGenerator);
-        serializeCostResultForOptimizationState(Instant.PREVENTIVE, raoResult, jsonGenerator);
-        serializeCostResultForOptimizationState(Instant.AUTO, raoResult, jsonGenerator);
-        serializeCostResultForOptimizationState(Instant.CURATIVE, raoResult, jsonGenerator);
+        for (Instant instant : crac.getSortedInstants()) {
+            serializeCostResultForOptimizationState(instant, raoResult, jsonGenerator);
+        }
         jsonGenerator.writeEndObject();
     }
 
@@ -41,7 +42,7 @@ final class CostResultMapSerializer {
             return;
         }
 
-        jsonGenerator.writeObjectFieldStart(serializeInstant(optInstant));
+        jsonGenerator.writeObjectFieldStart(serializeInstantId(optInstant));
         if (!isFunctionalCostNaN) {
             jsonGenerator.writeNumberField(FUNCTIONAL_COST, Math.round(100.0 * functionalCost) / 100.0);
         }

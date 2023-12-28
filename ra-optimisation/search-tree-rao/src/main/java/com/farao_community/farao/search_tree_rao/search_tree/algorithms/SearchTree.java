@@ -418,7 +418,8 @@ public class SearchTree {
         SensitivityComputer.SensitivityComputerBuilder sensitivityComputerBuilder = SensitivityComputer.create()
             .withToolProvider(input.getToolProvider())
             .withCnecs(input.getOptimizationPerimeter().getFlowCnecs())
-            .withRangeActions(input.getOptimizationPerimeter().getRangeActions());
+            .withRangeActions(input.getOptimizationPerimeter().getRangeActions())
+            .withOutageInstant(input.getOutageInstant());
 
         if (isRootLeaf) {
             sensitivityComputerBuilder.withAppliedRemedialActions(input.getPreOptimizationAppliedRemedialActions());

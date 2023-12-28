@@ -8,6 +8,7 @@
 package com.farao_community.farao.search_tree_rao.commons;
 
 import com.farao_community.farao.commons.EICode;
+import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.rao_api.parameters.extensions.LoopFlowParametersExtension;
 import com.farao_community.farao.rao_api.parameters.extensions.RelativeMarginsParametersExtension;
@@ -66,9 +67,10 @@ class ToolProviderTest {
         assertNull(toolProvider.getAbsolutePtdfSumsComputation());
         assertTrue(toolProvider.getLoopFlowCnecs(Set.of(cnec1, cnec2)).isEmpty());
 
+        Instant outageInstant = Mockito.mock(Instant.class);
+        Mockito.when(outageInstant.isOutage()).thenReturn(true);
         SystematicSensitivityInterface sensitivityInterface = toolProvider.getSystematicSensitivityInterface(
-                Set.of(cnec1, cnec2), Set.of(Mockito.mock(RangeAction.class)), false, false
-        );
+                Set.of(cnec1, cnec2), Set.of(Mockito.mock(RangeAction.class)), false, false, outageInstant);
         assertNotNull(sensitivityInterface);
     }
 

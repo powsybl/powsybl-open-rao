@@ -9,6 +9,7 @@ package com.farao_community.farao.search_tree_rao.commons;
 
 import com.farao_community.farao.commons.*;
 import com.farao_community.farao.commons.logs.FaraoLoggerProvider;
+import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.cnec.Cnec;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
@@ -78,21 +79,23 @@ public final class ToolProvider {
     public SystematicSensitivityInterface getSystematicSensitivityInterface(Set<FlowCnec> cnecs,
                                                                             Set<RangeAction<?>> rangeActions,
                                                                             boolean computePtdfs,
-                                                                            boolean computeLoopFlows) {
-        return getSystematicSensitivityInterface(cnecs, rangeActions, computePtdfs, computeLoopFlows, null);
+                                                                            boolean computeLoopFlows, Instant outageInstant) {
+        return getSystematicSensitivityInterface(cnecs, rangeActions, computePtdfs, computeLoopFlows, null, outageInstant);
     }
 
     public SystematicSensitivityInterface getSystematicSensitivityInterface(Set<FlowCnec> cnecs,
                                                                             Set<RangeAction<?>> rangeActions,
                                                                             boolean computePtdfs,
                                                                             boolean computeLoopFlows,
-                                                                            AppliedRemedialActions appliedRemedialActions) {
+                                                                            AppliedRemedialActions appliedRemedialActions,
+                                                                            Instant outageInstant) {
 
         SystematicSensitivityInterface.SystematicSensitivityInterfaceBuilder builder = SystematicSensitivityInterface.builder()
             .withSensitivityProviderName(raoParameters.getLoadFlowAndSensitivityParameters().getSensitivityProvider())
             .withParameters(raoParameters.getLoadFlowAndSensitivityParameters().getSensitivityWithLoadFlowParameters())
             .withRangeActionSensitivities(rangeActions, cnecs, Collections.singleton(Unit.MEGAWATT))
-            .withAppliedRemedialActions(appliedRemedialActions);
+            .withAppliedRemedialActions(appliedRemedialActions)
+            .withOutageInstant(outageInstant);
 
         if (!raoParameters.getLoadFlowAndSensitivityParameters().getSensitivityWithLoadFlowParameters().getLoadFlowParameters().isDc()) {
             builder.withLoadflow(cnecs, Collections.singleton(Unit.AMPERE));

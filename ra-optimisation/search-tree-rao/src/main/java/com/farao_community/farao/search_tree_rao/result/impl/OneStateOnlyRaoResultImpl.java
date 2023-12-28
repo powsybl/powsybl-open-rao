@@ -121,7 +121,7 @@ public class OneStateOnlyRaoResultImpl implements RaoResult {
     }
 
     public PerimeterResult getPostPreventivePerimeterResult() {
-        if (!optimizedState.getInstant().equals(Instant.PREVENTIVE)) {
+        if (!optimizedState.getInstant().isPreventive()) {
             // TODO : review this also
             throw new FaraoException(WRONG_STATE);
         }

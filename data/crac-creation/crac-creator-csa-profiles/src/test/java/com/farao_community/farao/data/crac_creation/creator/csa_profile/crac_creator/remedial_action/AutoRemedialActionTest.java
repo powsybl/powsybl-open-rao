@@ -1,6 +1,6 @@
 package com.farao_community.farao.data.crac_creation.creator.csa_profile.crac_creator.remedial_action;
 
-import com.farao_community.farao.data.crac_api.Instant;
+import com.farao_community.farao.data.crac_api.InstantKind;
 import com.farao_community.farao.data.crac_api.RemedialAction;
 import com.farao_community.farao.data.crac_api.network_action.ActionType;
 import com.farao_community.farao.data.crac_api.network_action.ElementaryAction;
@@ -27,7 +27,7 @@ class AutoRemedialActionTest {
     @Test
     void importAutoRemedialActionTC2() {
         CsaProfileCracCreationContext cracCreationContext = getCsaCracCreationContext("/CSA_TestConfiguration_TC2_27Apr2023.zip");
-        List<RemedialAction<?>> autoRemedialActionList = cracCreationContext.getCrac().getRemedialActions().stream().filter(ra -> ra.getUsageRules().stream().anyMatch(usageRule -> usageRule.getInstant().equals(Instant.AUTO))).toList();
+        List<RemedialAction<?>> autoRemedialActionList = cracCreationContext.getCrac().getRemedialActions().stream().filter(ra -> ra.getUsageRules().stream().anyMatch(usageRule -> usageRule.getInstant().isAuto())).toList();
         assertEquals(0, autoRemedialActionList.size());
         assertRaNotImported(cracCreationContext, "31d41e36-11c8-417b-bafb-c410d4391898", ImportStatus.INCONSISTENCY_IN_DATA, "Auto Remedial action 31d41e36-11c8-417b-bafb-c410d4391898 will not be imported because it has no associated RemedialActionScheme");
     }
@@ -38,7 +38,7 @@ class AutoRemedialActionTest {
 
         // Imported ARAs
 
-        List<RemedialAction<?>> importedSps = cracCreationContext.getCrac().getRemedialActions().stream().filter(ra -> ra.getUsageRules().size() == 1 && ra.getUsageRules().stream().toList().get(0).getInstant() == Instant.AUTO).toList();
+        List<RemedialAction<?>> importedSps = cracCreationContext.getCrac().getRemedialActions().stream().filter(ra -> ra.getUsageRules().size() == 1 && ra.getUsageRules().stream().toList().get(0).getInstant().isAuto()).toList();
         assertEquals(2, importedSps.size());
 
         PstRangeAction pstSps = cracCreationContext.getCrac().getPstRangeAction("pst-sps");
@@ -48,7 +48,7 @@ class AutoRemedialActionTest {
         assertEquals(-5, pstSps.getRanges().get(0).getMinTap());
         assertEquals(7, pstSps.getRanges().get(0).getMaxTap());
         assertEquals("contingency", pstSpsUsageRule.getContingency().getId());
-        assertEquals(Instant.AUTO, pstSpsUsageRule.getInstant());
+        assertEquals(InstantKind.AUTO, pstSpsUsageRule.getInstant().getKind());
         assertEquals(UsageMethod.FORCED, pstSpsUsageRule.getUsageMethod());
 
         NetworkAction networkSps = cracCreationContext.getCrac().getNetworkAction("network-sps");
@@ -63,7 +63,7 @@ class AutoRemedialActionTest {
         assertEquals("FFR1AA1 _generator", injectionSetpoint.getNetworkElement().getId());
         assertEquals(75.0, injectionSetpoint.getSetpoint());
         assertEquals("contingency", networkSpsUsageRule.getContingency().getId());
-        assertEquals(Instant.AUTO, networkSpsUsageRule.getInstant());
+        assertEquals(InstantKind.AUTO, networkSpsUsageRule.getInstant().getKind());
         assertEquals(UsageMethod.FORCED, networkSpsUsageRule.getUsageMethod());
 
         // Not imported ARAs

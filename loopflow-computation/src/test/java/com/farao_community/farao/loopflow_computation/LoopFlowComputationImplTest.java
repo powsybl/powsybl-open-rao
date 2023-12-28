@@ -102,7 +102,8 @@ class LoopFlowComputationImplTest {
         Mockito.doReturn(Map.of("gen1", new WeightedSensitivityVariable("gen1", 5f))).when(linearGlsk).getVariablesById();
         Mockito.doReturn(null).when(network).getGenerator("gen1");
         Mockito.doReturn(null).when(network).getLoad("gen1");
-        assertThrows(FaraoException.class, () -> LoopFlowComputationImpl.isInMainComponent(linearGlsk, network));
+        FaraoException exception = assertThrows(FaraoException.class, () -> LoopFlowComputationImpl.isInMainComponent(linearGlsk, network));
+        assertEquals("gen1 is neither a generator nor a load nor a dangling line in the network. It is not a valid GLSK.", exception.getMessage());
 
         Mockito.doReturn(Map.of(
             "gen1", new WeightedSensitivityVariable("gen1", 5f),
@@ -150,7 +151,10 @@ class LoopFlowComputationImplTest {
         Mockito.doReturn(null).when(network).getGenerator("dl1");
         Mockito.doReturn(null).when(network).getLoad("dl1");
         Mockito.doReturn(dl1).when(network).getDanglingLine("dl1");
-        assertThrows(FaraoException.class, () -> LoopFlowComputationImpl.isInMainComponent(linearGlsk, network));
+        exception = assertThrows(FaraoException.class, () -> LoopFlowComputationImpl.isInMainComponent(linearGlsk, network));
+        String message = exception.getMessage();
+        assertTrue(message.contains(" is neither a generator nor a load nor a dangling line in the network. It is not a valid GLSK."));
+        assertTrue(message.contains("gen1") || message.contains("load1"));
     }
 
     @Test
@@ -244,7 +248,7 @@ class LoopFlowComputationImplTest {
         Network network = ExampleGenerator.network();
         SensitivityAnalysisParameters sensitivityAnalysisParameters = new SensitivityAnalysisParameters();
         sensitivityAnalysisParameters.getLoadFlowParameters().setDc(true);
-        LoopFlowResult loopFlowResult = new LoopFlowComputationImpl(glsk, referenceProgram).calculateLoopFlows(network, "OpenLoadFlow", sensitivityAnalysisParameters, crac.getFlowCnecs());
+        LoopFlowResult loopFlowResult = new LoopFlowComputationImpl(glsk, referenceProgram).calculateLoopFlows(network, "OpenLoadFlow", sensitivityAnalysisParameters, crac.getFlowCnecs(), crac.getOutageInstant());
 
         assertEquals(-20., loopFlowResult.getLoopFlow(crac.getFlowCnec("FR-BE1"), Side.LEFT), DOUBLE_TOLERANCE);
         assertEquals(80., loopFlowResult.getLoopFlow(crac.getFlowCnec("BE1-BE2"), Side.LEFT), DOUBLE_TOLERANCE);

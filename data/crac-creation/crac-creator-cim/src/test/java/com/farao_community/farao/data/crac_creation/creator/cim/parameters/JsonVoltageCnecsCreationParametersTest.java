@@ -2,25 +2,46 @@ package com.farao_community.farao.data.crac_creation.creator.cim.parameters;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
-import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_creation.creator.api.parameters.CracCreationParameters;
 import com.farao_community.farao.data.crac_creation.creator.api.parameters.JsonCracCreationParameters;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.ValueSource;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Stream;
 
-import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
 class JsonVoltageCnecsCreationParametersTest {
+    private static final String PREVENTIVE_INSTANT_ID = "preventive";
+    private static final String CURATIVE_INSTANT_ID = "curative";
+
+    public static Stream<Arguments> provideParameters() {
+        return Stream.of(
+            Arguments.of("nok1", "When monitoring the preventive instant, no contingency can be defined."),
+            Arguments.of("nok2", "A threshold is already defined for instant curative."),
+            Arguments.of("nok3", "Multiple thresholds for same nominalV (400.0) defined"),
+            Arguments.of("nok4", "Unhandled unit in voltage monitoring: ampere"),
+            Arguments.of("nok5", "At least one monitored element and one monitored state with thresholds should be defined."),
+            Arguments.of("nok6", "At least one monitored element and one monitored state with thresholds should be defined."),
+            Arguments.of("nok7", "At least one threshold should be defined."),
+            Arguments.of("nok8", "Field nominalV for thresholds-per-nominal-v should be defined."),
+            Arguments.of("nok9", "Could not deserialize monitored-states-and-thresholds")
+        );
+    }
+
     @Test
     void testImportVoltageCnecs() {
         CracCreationParameters importedParameters = JsonCracCreationParameters.read(getClass().getResourceAsStream("/parameters/voltage-cnecs-creation-parameters.json"));
@@ -33,17 +54,17 @@ class JsonVoltageCnecsCreationParametersTest {
         assertEquals(Set.of("ne1", "ne2"), vParams.getMonitoredNetworkElements());
         assertEquals(2, vParams.getMonitoredStatesAndThresholds().size());
 
-        assertNotNull(vParams.getMonitoredStatesAndThresholds().get(Instant.PREVENTIVE));
-        assertNull(vParams.getMonitoredStatesAndThresholds().get(Instant.PREVENTIVE).getContingencyNames());
-        assertEquals(2, vParams.getMonitoredStatesAndThresholds().get(Instant.PREVENTIVE).getThresholdPerNominalV().size());
-        assertEquals(new VoltageThreshold(Unit.KILOVOLT, 180., null), vParams.getMonitoredStatesAndThresholds().get(Instant.PREVENTIVE).getThresholdPerNominalV().get(200.));
-        assertEquals(new VoltageThreshold(Unit.KILOVOLT, 395., 430.), vParams.getMonitoredStatesAndThresholds().get(Instant.PREVENTIVE).getThresholdPerNominalV().get(400.));
+        assertNotNull(vParams.getMonitoredStatesAndThresholds().get(PREVENTIVE_INSTANT_ID));
+        assertNull(vParams.getMonitoredStatesAndThresholds().get(PREVENTIVE_INSTANT_ID).getContingencyNames());
+        assertEquals(2, vParams.getMonitoredStatesAndThresholds().get(PREVENTIVE_INSTANT_ID).getThresholdPerNominalV().size());
+        assertEquals(new VoltageThreshold(Unit.KILOVOLT, 180., null), vParams.getMonitoredStatesAndThresholds().get(PREVENTIVE_INSTANT_ID).getThresholdPerNominalV().get(200.));
+        assertEquals(new VoltageThreshold(Unit.KILOVOLT, 395., 430.), vParams.getMonitoredStatesAndThresholds().get(PREVENTIVE_INSTANT_ID).getThresholdPerNominalV().get(400.));
 
-        assertNotNull(vParams.getMonitoredStatesAndThresholds().get(Instant.CURATIVE));
-        assertEquals(Set.of("N-1 ONE", "N-1 TWO"), vParams.getMonitoredStatesAndThresholds().get(Instant.CURATIVE).getContingencyNames());
-        assertEquals(2, vParams.getMonitoredStatesAndThresholds().get(Instant.CURATIVE).getThresholdPerNominalV().size());
-        assertEquals(new VoltageThreshold(Unit.KILOVOLT, null, 230.), vParams.getMonitoredStatesAndThresholds().get(Instant.CURATIVE).getThresholdPerNominalV().get(210.));
-        assertEquals(new VoltageThreshold(Unit.KILOVOLT, 380., 430.), vParams.getMonitoredStatesAndThresholds().get(Instant.CURATIVE).getThresholdPerNominalV().get(400.));
+        assertNotNull(vParams.getMonitoredStatesAndThresholds().get(CURATIVE_INSTANT_ID));
+        assertEquals(Set.of("N-1 ONE", "N-1 TWO"), vParams.getMonitoredStatesAndThresholds().get(CURATIVE_INSTANT_ID).getContingencyNames());
+        assertEquals(2, vParams.getMonitoredStatesAndThresholds().get(CURATIVE_INSTANT_ID).getThresholdPerNominalV().size());
+        assertEquals(new VoltageThreshold(Unit.KILOVOLT, null, 230.), vParams.getMonitoredStatesAndThresholds().get(CURATIVE_INSTANT_ID).getThresholdPerNominalV().get(210.));
+        assertEquals(new VoltageThreshold(Unit.KILOVOLT, 380., 430.), vParams.getMonitoredStatesAndThresholds().get(CURATIVE_INSTANT_ID).getThresholdPerNominalV().get(400.));
     }
 
     @Test
@@ -55,13 +76,14 @@ class JsonVoltageCnecsCreationParametersTest {
         String exportedString = os.toString();
 
         InputStream inputStream = getClass().getResourceAsStream("/parameters/voltage-cnecs-creation-parameters-for-round-trip.json");
-        assertEquals(new String(inputStream.readAllBytes()).replaceAll("\r", ""), exportedString.replaceAll("\r", ""));
+        assertEquals(new String(Objects.requireNonNull(inputStream).readAllBytes()), exportedString);
     }
 
     @ParameterizedTest
-    @ValueSource(strings = {"nok1", "nok2", "nok3", "nok4", "nok5", "nok6", "nok7", "nok8", "nok9"})
-    void importNokTest(String source) {
+    @MethodSource("provideParameters")
+    void importNokTest(String source, String message) {
         InputStream inputStream = getClass().getResourceAsStream("/parameters/voltage-cnecs-creation-parameters-" + source + ".json");
-        assertThrows(FaraoException.class, () -> JsonCracCreationParameters.read(inputStream));
+        FaraoException exception = assertThrows(FaraoException.class, () -> JsonCracCreationParameters.read(inputStream));
+        assertEquals(message, exception.getMessage());
     }
 }

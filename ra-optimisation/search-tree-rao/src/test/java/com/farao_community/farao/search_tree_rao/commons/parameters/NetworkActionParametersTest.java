@@ -8,7 +8,7 @@ package com.farao_community.farao.search_tree_rao.commons.parameters;
 
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.CracFactory;
-import com.farao_community.farao.data.crac_api.Instant;
+import com.farao_community.farao.data.crac_api.InstantKind;
 import com.farao_community.farao.data.crac_api.network_action.ActionType;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
@@ -30,6 +30,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 class NetworkActionParametersTest {
+    private static final String PREVENTIVE_INSTANT_ID = "preventive";
 
     private Crac crac;
 
@@ -77,27 +78,28 @@ class NetworkActionParametersTest {
     @Test
     void testNetworkActionCombinations() {
 
-        Crac crac = CracFactory.findDefault().create("crac");
+        Crac crac = CracFactory.findDefault().create("crac")
+            .newInstant(PREVENTIVE_INSTANT_ID, InstantKind.PREVENTIVE);
 
         crac.newNetworkAction()
                 .withId("topological-action-1")
                 .withOperator("operator-1")
                 .newTopologicalAction().withActionType(ActionType.OPEN).withNetworkElement("any-network-element").add()
-                .newOnInstantUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withInstant(Instant.PREVENTIVE).add()
+                .newOnInstantUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withInstant(PREVENTIVE_INSTANT_ID).add()
                 .add();
 
         crac.newNetworkAction()
                 .withId("topological-action-2")
                 .withOperator("operator-2")
                 .newTopologicalAction().withActionType(ActionType.CLOSE).withNetworkElement("any-other-network-element").add()
-                .newOnInstantUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withInstant(Instant.PREVENTIVE).add()
+                .newOnInstantUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withInstant(PREVENTIVE_INSTANT_ID).add()
                 .add();
 
         crac.newNetworkAction()
                 .withId("pst-setpoint")
                 .withOperator("operator-2")
                 .newPstSetPoint().withSetpoint(10).withNetworkElement("any-other-network-element").add()
-                .newOnInstantUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withInstant(Instant.PREVENTIVE).add()
+                .newOnInstantUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withInstant(PREVENTIVE_INSTANT_ID).add()
                 .add();
 
         // test list

@@ -30,7 +30,7 @@ public final class OnVoltageConstraintArrayDeserializer {
             while (!jsonParser.nextToken().isStructEnd()) {
                 switch (jsonParser.getCurrentName()) {
                     case INSTANT:
-                        adder.withInstant(deserializeInstant(jsonParser.nextTextValue()));
+                        adder.withInstant(jsonParser.nextTextValue());
                         break;
                     case VOLTAGE_CNEC_ID:
                         adder.withVoltageCnec(jsonParser.nextTextValue());

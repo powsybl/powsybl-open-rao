@@ -9,9 +9,9 @@ package com.farao_community.farao.data.crac_loopflow_extension;
 
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Crac;
-import com.farao_community.farao.data.crac_api.Instant;
+import com.farao_community.farao.data.crac_api.InstantKind;
 import com.farao_community.farao.data.crac_api.cnec.Side;
-import com.farao_community.farao.data.crac_impl.CracImpl;
+import com.farao_community.farao.data.crac_impl.CracImplFactory;
 import com.farao_community.farao.data.crac_io_api.CracExporters;
 import com.farao_community.farao.data.crac_io_api.CracImporters;
 import org.junit.jupiter.api.Test;
@@ -27,15 +27,17 @@ import static org.junit.jupiter.api.Assertions.*;
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 class JsonLoopFlowThresholdImplImportExportTest {
+    private static final String PREVENTIVE_INSTANT_ID = "preventive";
 
     @Test
     void roundTripTest() {
-        Crac crac = new CracImpl("cracId");
+        Crac crac = new CracImplFactory().create("test-crac")
+            .newInstant(PREVENTIVE_INSTANT_ID, InstantKind.PREVENTIVE);
 
         crac.newFlowCnec()
                 .withId("cnec1")
                 .withNetworkElement("ne1")
-                .withInstant(Instant.PREVENTIVE)
+                .withInstant(PREVENTIVE_INSTANT_ID)
                 .newThreshold().withSide(Side.LEFT).withUnit(Unit.AMPERE).withMin(-500.).add()
                 .withNominalVoltage(380.)
                 .add()
@@ -44,7 +46,7 @@ class JsonLoopFlowThresholdImplImportExportTest {
         crac.newFlowCnec()
                 .withId("cnec2")
                 .withNetworkElement("ne2")
-                .withInstant(Instant.PREVENTIVE)
+                .withInstant(PREVENTIVE_INSTANT_ID)
                 .newThreshold().withSide(Side.LEFT).withUnit(Unit.PERCENT_IMAX).withMin(-0.3).add()
                 .withNominalVoltage(380.)
                 .withIMax(5000.)
@@ -54,7 +56,7 @@ class JsonLoopFlowThresholdImplImportExportTest {
         crac.newFlowCnec()
                 .withId("cnec3")
                 .withNetworkElement("ne3")
-                .withInstant(Instant.PREVENTIVE)
+                .withInstant(PREVENTIVE_INSTANT_ID)
                 .newThreshold().withSide(Side.LEFT).withUnit(Unit.MEGAWATT).withMin(-700.).withMax(700.).add()
                 .add();
 

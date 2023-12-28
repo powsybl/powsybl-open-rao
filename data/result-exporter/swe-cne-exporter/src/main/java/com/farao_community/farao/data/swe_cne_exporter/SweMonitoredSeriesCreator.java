@@ -170,7 +170,7 @@ public class SweMonitoredSeriesCreator {
     }
 
     private String getThresholdMeasurementType(FlowCnec cnec) {
-        switch (cnec.getState().getInstant()) {
+        switch (cnec.getState().getInstant().getKind()) {
             case PREVENTIVE:
                 return PATL_MEASUREMENT_TYPE;
             case OUTAGE:

@@ -22,7 +22,7 @@ import static com.farao_community.farao.data.crac_impl.AdderUtils.assertAttribut
 public class OnFlowConstraintAdderImpl<T extends AbstractRemedialActionAdder<T>> implements OnFlowConstraintAdder<T> {
 
     private T owner;
-    private Instant instant;
+    private String instantId;
     private String flowCnecId;
 
     OnFlowConstraintAdderImpl(AbstractRemedialActionAdder<T> owner) {
@@ -30,8 +30,8 @@ public class OnFlowConstraintAdderImpl<T extends AbstractRemedialActionAdder<T>>
     }
 
     @Override
-    public OnFlowConstraintAdder<T> withInstant(Instant instant) {
-        this.instant = instant;
+    public OnFlowConstraintAdder<T> withInstant(String instantId) {
+        this.instantId = instantId;
         return this;
     }
 
@@ -43,13 +43,14 @@ public class OnFlowConstraintAdderImpl<T extends AbstractRemedialActionAdder<T>>
 
     @Override
     public T add() {
-        assertAttributeNotNull(instant, "OnInstant", "instant", "withInstant()");
+        assertAttributeNotNull(instantId, "OnInstant", "instant", "withInstant()");
         assertAttributeNotNull(flowCnecId, "OnFlowConstraint", "flow cnec", "withFlowCnec()");
 
-        if (instant.equals(Instant.OUTAGE)) {
+        Instant instant = owner.getCrac().getInstant(instantId);
+        if (instant.isOutage()) {
             throw new FaraoException("OnFlowConstraint usage rules are not allowed for OUTAGE instant.");
         }
-        if (instant.equals(Instant.PREVENTIVE)) {
+        if (instant.isPreventive()) {
             owner.getCrac().addPreventiveState();
         }
 
@@ -59,6 +60,8 @@ public class OnFlowConstraintAdderImpl<T extends AbstractRemedialActionAdder<T>>
         }
 
         AbstractRemedialActionAdder.checkOnConstraintUsageRules(instant, flowCnec);
+
+        //TODO : you'll need the order to get the correct instant once we have more than one curative/auto instant
 
         OnFlowConstraint onFlowConstraint = new OnFlowConstraintImpl(instant, flowCnec);
         owner.addUsageRule(onFlowConstraint);

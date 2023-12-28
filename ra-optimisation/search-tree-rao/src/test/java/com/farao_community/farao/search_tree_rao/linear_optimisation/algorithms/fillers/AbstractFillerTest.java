@@ -31,6 +31,8 @@ import static org.mockito.Mockito.when;
 abstract class AbstractFillerTest {
     static final double DOUBLE_TOLERANCE = 1e-4;
 
+    static final String PREVENTIVE_INSTANT_ID = "preventive";
+
     // data related to the two Cnecs
     static final double MIN_FLOW_1 = -750.0;
     static final double MAX_FLOW_1 = 750.0;

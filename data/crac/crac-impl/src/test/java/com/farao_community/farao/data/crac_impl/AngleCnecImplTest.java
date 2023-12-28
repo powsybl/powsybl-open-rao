@@ -8,8 +8,9 @@ package com.farao_community.farao.data.crac_impl;
 
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Crac;
-import com.farao_community.farao.data.crac_api.Instant;
-import com.farao_community.farao.data.crac_api.cnec.*;
+import com.farao_community.farao.data.crac_api.InstantKind;
+import com.farao_community.farao.data.crac_api.cnec.AngleCnec;
+import com.farao_community.farao.data.crac_api.cnec.AngleCnecAdder;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
@@ -26,12 +27,14 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 class AngleCnecImplTest {
     private final static double DOUBLE_TOLERANCE = 1e-3;
+    private static final String PREVENTIVE_INSTANT_ID = "preventive";
 
     private Crac crac;
 
     @BeforeEach
     public void setUp() {
-        crac = new CracImplFactory().create("cracId");
+        crac = new CracImplFactory().create("cracId")
+            .newInstant(PREVENTIVE_INSTANT_ID, InstantKind.PREVENTIVE);
     }
 
     private AngleCnecAdder initPreventiveCnecAdder() {
@@ -41,7 +44,7 @@ class AngleCnecImplTest {
             .withExportingNetworkElement("exportingNetworkElement")
             .withImportingNetworkElement("importingNetworkElement")
             .withOperator("FR")
-            .withInstant(Instant.PREVENTIVE)
+            .withInstant(PREVENTIVE_INSTANT_ID)
             .withOptimized(false);
     }
 
@@ -54,7 +57,7 @@ class AngleCnecImplTest {
             .withId("cnec-1-id")
             .withExportingNetworkElement("BBE1AA1")
             .withImportingNetworkElement("BBE2AA1")
-            .withInstant(Instant.PREVENTIVE)
+            .withInstant(PREVENTIVE_INSTANT_ID)
             .newThreshold().withUnit(Unit.DEGREE).withMax(1000.).add()
             .add();
 
@@ -62,7 +65,7 @@ class AngleCnecImplTest {
             .withId("cnec-2-id")
             .withExportingNetworkElement("DDE2AA1")
             .withImportingNetworkElement("NNL3AA1")
-            .withInstant(Instant.PREVENTIVE)
+            .withInstant(PREVENTIVE_INSTANT_ID)
             .newThreshold().withUnit(Unit.DEGREE).withMax(1000.).add()
             .add();
 

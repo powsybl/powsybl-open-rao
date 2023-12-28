@@ -8,7 +8,6 @@ package com.farao_community.farao.search_tree_rao.search_tree.algorithms;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
-import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.RemedialAction;
 import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
@@ -203,6 +202,7 @@ public class Leaf implements OptimizationResult {
                     .withRaActivationFromParentLeaf(raActivationResultFromParentLeaf)
                     .withObjectiveFunction(searchTreeInput.getObjectiveFunction())
                     .withToolProvider(searchTreeInput.getToolProvider())
+                    .withOutageInstant(searchTreeInput.getOutageInstant())
                     .build();
 
             // build parameters
@@ -219,7 +219,7 @@ public class Leaf implements OptimizationResult {
                     .withRaRangeShrinking(parameters.getTreeParameters().getRaRangeShrinking())
                     .build();
 
-            postOptimResult = IteratingLinearOptimizer.optimize(linearOptimizerInput, linearOptimizerParameters);
+            postOptimResult = IteratingLinearOptimizer.optimize(linearOptimizerInput, linearOptimizerParameters, searchTreeInput.getOutageInstant());
 
             status = Status.OPTIMIZED;
         } else if (status.equals(Status.ERROR)) {
@@ -263,7 +263,7 @@ public class Leaf implements OptimizationResult {
         } else if (context instanceof GlobalOptimizationPerimeter) {
 
             context.getRangeActionOptimizationStates().stream()
-                    .filter(state -> state.getInstant().equals(Instant.CURATIVE))
+                    .filter(state -> state.getInstant().isCurative())
                     .forEach(state -> {
                         int maxRa = parameters.getRaLimitationParameters().getMaxCurativeRa() - appliedRemedialActionsInSecondaryStates.getAppliedNetworkActions(state).size();
                         Set<String> tsoWithAlreadyActivatedRa = appliedRemedialActionsInSecondaryStates.getAppliedNetworkActions(state).stream().map(RemedialAction::getOperator).collect(Collectors.toSet());

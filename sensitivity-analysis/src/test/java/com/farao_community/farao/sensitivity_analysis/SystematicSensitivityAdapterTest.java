@@ -27,14 +27,17 @@ import static com.farao_community.farao.data.crac_api.cnec.Side.RIGHT;
 class SystematicSensitivityAdapterTest {
 
     public static final double DOUBLE_TOLERANCE = 1e-6;
+    private static final String OUTAGE_INSTANT_ID = "outage";
+    private static final String CURATIVE_INSTANT_ID = "curative";
 
     @Test
     void testWithoutAppliedRa() {
         Network network = NetworkImportsUtil.import12NodesNetwork();
         Crac crac = CommonCracCreation.createWithPreventivePstRange(Set.of(LEFT, RIGHT));
+        Instant outageInstant = crac.getInstant(OUTAGE_INSTANT_ID);
         RangeActionSensitivityProvider factorProvider = new RangeActionSensitivityProvider(crac.getRangeActions(), crac.getFlowCnecs(), Set.of(Unit.MEGAWATT, Unit.AMPERE));
 
-        SystematicSensitivityResult result = SystematicSensitivityAdapter.runSensitivity(network, factorProvider, new SensitivityAnalysisParameters(), "MockSensi");
+        SystematicSensitivityResult result = SystematicSensitivityAdapter.runSensitivity(network, factorProvider, new SensitivityAnalysisParameters(), "MockSensi", outageInstant);
 
         // "standard results" of the MockSensiProvider are expected
         assertEquals(10, result.getReferenceFlow(crac.getFlowCnec("cnec2basecase"), LEFT), DOUBLE_TOLERANCE);
@@ -65,9 +68,10 @@ class SystematicSensitivityAdapterTest {
     void testWithoutAppliedRaLeftSideOnly() {
         Network network = NetworkImportsUtil.import12NodesNetwork();
         Crac crac = CommonCracCreation.createWithPreventivePstRange(Set.of(LEFT));
+        Instant outageInstant = crac.getInstant(OUTAGE_INSTANT_ID);
         RangeActionSensitivityProvider factorProvider = new RangeActionSensitivityProvider(crac.getRangeActions(), crac.getFlowCnecs(), Set.of(Unit.MEGAWATT, Unit.AMPERE));
 
-        SystematicSensitivityResult result = SystematicSensitivityAdapter.runSensitivity(network, factorProvider, new SensitivityAnalysisParameters(), "MockSensi");
+        SystematicSensitivityResult result = SystematicSensitivityAdapter.runSensitivity(network, factorProvider, new SensitivityAnalysisParameters(), "MockSensi", outageInstant);
 
         // "standard results" of the MockSensiProvider are expected
         assertEquals(10, result.getReferenceFlow(crac.getFlowCnec("cnec2basecase"), LEFT), DOUBLE_TOLERANCE);
@@ -98,10 +102,11 @@ class SystematicSensitivityAdapterTest {
     void testWithAppliedRa() {
         Network network = NetworkImportsUtil.import12NodesNetwork();
         Crac crac = CommonCracCreation.createWithPreventivePstRange(Set.of(LEFT, RIGHT));
+        Instant curativeInstant = crac.getInstant(CURATIVE_INSTANT_ID);
         crac.newFlowCnec()
             .withId("cnec2stateOutageContingency1")
             .withNetworkElement("FFR2AA1  DDE3AA1  1")
-            .withInstant(Instant.OUTAGE)
+            .withInstant(OUTAGE_INSTANT_ID)
             .withContingency("Contingency FR1 FR3")
             .withOptimized(true)
             .withOperator("operator2")
@@ -114,9 +119,9 @@ class SystematicSensitivityAdapterTest {
             .add();
         RangeActionSensitivityProvider factorProvider = new RangeActionSensitivityProvider(crac.getRangeActions(), crac.getFlowCnecs(), Set.of(Unit.MEGAWATT, Unit.AMPERE));
         AppliedRemedialActions appliedRemedialActions = new AppliedRemedialActions();
-        appliedRemedialActions.addAppliedRangeAction(crac.getState("Contingency FR1 FR3", Instant.CURATIVE), crac.getPstRangeAction("pst"), -3.1);
+        appliedRemedialActions.addAppliedRangeAction(crac.getState("Contingency FR1 FR3", curativeInstant), crac.getPstRangeAction("pst"), -3.1);
 
-        SystematicSensitivityResult result = SystematicSensitivityAdapter.runSensitivity(network, factorProvider, appliedRemedialActions, new SensitivityAnalysisParameters(), "MockSensi");
+        SystematicSensitivityResult result = SystematicSensitivityAdapter.runSensitivity(network, factorProvider, appliedRemedialActions, new SensitivityAnalysisParameters(), "MockSensi", crac.getOutageInstant());
 
         // after initial state or contingency without CRA, "standard results" of the MockSensiProvider are expected
         assertEquals(10, result.getReferenceFlow(crac.getFlowCnec("cnec2basecase"), LEFT), DOUBLE_TOLERANCE);

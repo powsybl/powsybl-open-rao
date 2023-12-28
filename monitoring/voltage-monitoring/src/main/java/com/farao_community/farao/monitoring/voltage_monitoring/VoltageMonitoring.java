@@ -120,7 +120,7 @@ public class VoltageMonitoring {
      * For curative states, consider auto (when they exist) and curative states.
      */
     private void applyOptimalRemedialActionsOnContingencyState(State state, Network networkClone) {
-        if (state.getInstant().equals(Instant.CURATIVE)) {
+        if (state.getInstant().isCurative()) {
             Optional<Contingency> contingency = state.getContingency();
             if (contingency.isPresent()) {
                 crac.getStates(contingency.get()).forEach(contingencyState ->

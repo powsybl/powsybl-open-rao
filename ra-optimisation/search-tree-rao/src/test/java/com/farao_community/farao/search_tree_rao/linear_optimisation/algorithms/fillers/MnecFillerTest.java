@@ -9,7 +9,6 @@ package com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
-import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.cnec.Cnec;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
@@ -58,7 +57,7 @@ class MnecFillerTest extends AbstractFillerTest {
                 .withNominalVoltage(380.)
                 .withOptimized(true)
                 .withMonitored(true)
-                .withInstant(Instant.PREVENTIVE)
+                .withInstant(PREVENTIVE_INSTANT_ID)
                 .add();
 
         mnec2 = crac.newFlowCnec()
@@ -73,7 +72,7 @@ class MnecFillerTest extends AbstractFillerTest {
                 .withNominalVoltage(380.)
                 .withOptimized(true)
                 .withMonitored(true)
-                .withInstant(Instant.PREVENTIVE)
+                .withInstant(PREVENTIVE_INSTANT_ID)
                 .add();
 
         mnec3 = crac.newFlowCnec()
@@ -84,7 +83,7 @@ class MnecFillerTest extends AbstractFillerTest {
                 .withNominalVoltage(380.)
                 .withOptimized(true)
                 .withMonitored(true)
-                .withInstant(Instant.PREVENTIVE)
+                .withInstant(PREVENTIVE_INSTANT_ID)
                 .add();
 
         RangeActionSetpointResult initialRangeActionSetpointResult = new RangeActionSetpointResultImpl(Collections.emptyMap());

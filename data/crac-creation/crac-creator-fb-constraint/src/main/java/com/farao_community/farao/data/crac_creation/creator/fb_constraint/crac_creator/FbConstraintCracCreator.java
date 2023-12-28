@@ -7,6 +7,7 @@
 package com.farao_community.farao.data.crac_creation.creator.fb_constraint.crac_creator;
 
 import com.farao_community.farao.data.crac_api.Crac;
+import com.farao_community.farao.data.crac_api.InstantKind;
 import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_creation.creator.api.CracCreator;
 import com.farao_community.farao.data.crac_creation.creator.api.ImportStatus;
@@ -34,6 +35,12 @@ import static com.google.common.collect.Iterables.isEmpty;
 @AutoService(CracCreator.class)
 public class FbConstraintCracCreator implements CracCreator<FbConstraint, FbConstraintCreationContext> {
 
+    private static void addFbContraintInstants(Crac crac) {
+        crac.newInstant("preventive", InstantKind.PREVENTIVE)
+            .newInstant("outage", InstantKind.OUTAGE)
+            .newInstant("curative", InstantKind.CURATIVE);
+    }
+
     @Override
     public String getNativeCracFormat() {
         return "FlowBasedConstraintDocument";
@@ -43,6 +50,7 @@ public class FbConstraintCracCreator implements CracCreator<FbConstraint, FbCons
     public FbConstraintCreationContext createCrac(FbConstraint fbConstraintDocument, Network network, OffsetDateTime offsetDateTime, CracCreationParameters cracCreatorParameters) {
         FbConstraintCreationContext creationContext = new FbConstraintCreationContext(offsetDateTime, network.getNameOrId());
         Crac crac = cracCreatorParameters.getCracFactory().create(fbConstraintDocument.getDocument().getDocumentIdentification().getV());
+        addFbContraintInstants(crac);
 
         // check timestamp
         if (!checkTimeStamp(offsetDateTime, fbConstraintDocument.getDocument().getConstraintTimeInterval().getV(), creationContext)) {
@@ -100,7 +108,7 @@ public class FbConstraintCracCreator implements CracCreator<FbConstraint, FbCons
 
     private void createCnecs(Crac crac, List<CriticalBranchReader> criticalBranchReaders, FbConstraintCreationContext creationContext) {
         criticalBranchReaders.forEach(criticalBranchReader -> {
-            creationContext.addCriticalBranchCreationContext(new CriticalBranchCreationContext(criticalBranchReader));
+            creationContext.addCriticalBranchCreationContext(new CriticalBranchCreationContext(criticalBranchReader, crac));
             if (criticalBranchReader.isCriticialBranchValid()) {
                 criticalBranchReader.addCnecs(crac);
             }

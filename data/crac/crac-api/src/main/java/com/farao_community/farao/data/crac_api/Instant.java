@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019, RTE (http://www.rte-france.com)
+ * Copyright (c) 2023, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -7,55 +7,31 @@
 
 package com.farao_community.farao.data.crac_api;
 
-import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.cnec.Cnec;
 
 /**
- * Enum representing the instants at which {@link Cnec} can be monitored and
- * {@link RemedialAction} applied.
+ * Class representing the instants at which a {@link Cnec} can be monitored and
+ * a {@link RemedialAction} applied.
  *
- * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
- * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
+ * @author Hugo Schindler {@literal <hugo.schindler at rte-france.com>}
+ * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
  */
-public enum Instant {
-    PREVENTIVE(0, "preventive"),
-    OUTAGE(1, "outage"),
-    AUTO(2, "auto"),
-    CURATIVE(3, "curative");
+public interface Instant<T extends Instant<T>> extends Identifiable<T> {
 
-    private final int order;
-    private final String name;
+    int getOrder();
 
-    Instant(int order, String name) {
-        this.order = order;
-        this.name = name;
-    }
-
-    public int getOrder() {
-        return order;
-    }
+    InstantKind getKind();
 
     @Override
-    public String toString() {
-        return name;
-    }
+    String toString();
 
-    public boolean comesBefore(Instant otherInstant) {
-        return this.order < otherInstant.order;
-    }
+    boolean comesBefore(Instant otherInstant);
 
-    public Instant getPreviousInstant() {
-        switch (this) {
-            case PREVENTIVE:
-                return null;
-            case OUTAGE:
-                return PREVENTIVE;
-            case AUTO:
-                return OUTAGE;
-            case CURATIVE:
-                return AUTO;
-            default:
-                throw new FaraoException("Unknown instant");
-        }
-    }
+    boolean isPreventive();
+
+    boolean isOutage();
+
+    boolean isAuto();
+
+    boolean isCurative();
 }

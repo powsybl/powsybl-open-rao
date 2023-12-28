@@ -35,7 +35,7 @@ public class AngleCnecSerializer<I extends AngleCnec> extends AbstractJsonSerial
         gen.writeStringField(EXPORTING_NETWORK_ELEMENT_ID, angleCnec.getExportingNetworkElement().getId());
         gen.writeStringField(IMPORTING_NETWORK_ELEMENT_ID, angleCnec.getImportingNetworkElement().getId());
         gen.writeStringField(OPERATOR, angleCnec.getOperator());
-        gen.writeStringField(INSTANT, serializeInstant(angleCnec.getState().getInstant()));
+        gen.writeStringField(INSTANT, angleCnec.getState().getInstant().getId());
         Optional<Contingency> optContingency = angleCnec.getState().getContingency();
         if (optContingency.isPresent()) {
             gen.writeStringField(CONTINGENCY_ID, optContingency.get().getId());

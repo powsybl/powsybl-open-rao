@@ -118,7 +118,7 @@ final class RangeActionResultArraySerializer {
         jsonGenerator.writeArrayFieldStart(arrayName);
         for (Map.Entry<State, Pair<Integer, Double>> entry : stateToTapAndSetpoint.entrySet()) {
             jsonGenerator.writeStartObject();
-            jsonGenerator.writeStringField(INSTANT, serializeInstant(entry.getKey().getInstant()));
+            jsonGenerator.writeStringField(INSTANT, serializeInstantId(entry.getKey().getInstant()));
 
             Optional<Contingency> optContingency = entry.getKey().getContingency();
             if (optContingency.isPresent()) {

@@ -7,10 +7,10 @@
 
 package com.farao_community.farao.data.crac_impl;
 
+import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Contingency;
 import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.State;
-import com.fasterxml.jackson.annotation.*;
 
 import java.util.Optional;
 
@@ -25,7 +25,10 @@ public class PostContingencyState implements State {
     private Instant instant;
 
     PostContingencyState(Contingency contingency, Instant instant) {
-        this.id = contingency.getId() + " - " + instant.toString();
+        if (instant.isPreventive()) {
+            throw new FaraoException("Instant cannot be preventive");
+        }
+        this.id = contingency.getId() + " - " + instant.getId();
         this.contingency = contingency;
         this.instant = instant;
     }

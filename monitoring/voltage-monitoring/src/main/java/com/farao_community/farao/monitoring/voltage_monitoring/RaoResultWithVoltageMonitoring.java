@@ -49,7 +49,7 @@ public class RaoResultWithVoltageMonitoring extends RaoResultClone {
         if (!unit.equals(Unit.KILOVOLT)) {
             throw new FaraoException("Unexpected unit for voltage monitoring result :  " + unit);
         }
-        if (!optimizationInstant.equals(Instant.CURATIVE)) {
+        if (!optimizationInstant.isCurative()) {
             throw new FaraoException("Unexpected optimization instant for voltage monitoring result (only curative instant is supported currently) : " + optimizationInstant);
         }
         double upperBound = voltageCnec.getUpperBound(unit).orElse(Double.MAX_VALUE);
@@ -65,7 +65,7 @@ public class RaoResultWithVoltageMonitoring extends RaoResultClone {
 
     @Override
     public double getMargin(Instant optimizationInstant, VoltageCnec voltageCnec, Unit unit) {
-        if (!optimizationInstant.equals(Instant.CURATIVE)) {
+        if (!optimizationInstant.isCurative()) {
             throw new FaraoException("Unexpected optimization instant for voltage monitoring result (only curative instant is supported currently): " + optimizationInstant);
         }
         return Math.min(voltageCnec.getUpperBound(unit).orElse(Double.MAX_VALUE) - voltageMonitoringResult.getMaxVoltage(voltageCnec),

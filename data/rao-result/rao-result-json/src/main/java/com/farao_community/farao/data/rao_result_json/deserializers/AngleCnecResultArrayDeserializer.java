@@ -44,14 +44,14 @@ final class AngleCnecResultArrayDeserializer {
                 throw new FaraoException(String.format("Cannot deserialize RaoResult: angleCnec with id %s does not exist in the Crac", angleCnecId));
             }
             AngleCnecResult angleCnecResult = raoResult.getAndCreateIfAbsentAngleCnecResult(angleCnec);
-            deserializeAngleCnecResult(jsonParser, angleCnecResult, jsonFileVersion);
+            deserializeAngleCnecResult(jsonParser, angleCnecResult, jsonFileVersion, crac);
         }
     }
 
-    private static void deserializeAngleCnecResult(JsonParser jsonParser, AngleCnecResult angleCnecResult, String jsonFileVersion) throws IOException {
+    private static void deserializeAngleCnecResult(JsonParser jsonParser, AngleCnecResult angleCnecResult, String jsonFileVersion, Crac crac) throws IOException {
         while (!jsonParser.nextToken().isStructEnd()) {
             ElementaryAngleCnecResult eAngleCnecResult;
-            Instant optimizedInstant = deserializeOptimizedInstant(jsonParser.getCurrentName(), jsonFileVersion);
+            Instant optimizedInstant = deserializeOptimizedInstant(jsonParser.getCurrentName(), jsonFileVersion, crac);
             jsonParser.nextToken();
             eAngleCnecResult = angleCnecResult.getAndCreateIfAbsentResultForOptimizationState(optimizedInstant);
             deserializeElementaryAngleCnecResult(jsonParser, eAngleCnecResult);

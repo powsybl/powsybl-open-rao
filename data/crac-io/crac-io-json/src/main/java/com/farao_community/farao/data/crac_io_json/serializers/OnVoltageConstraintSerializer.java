@@ -22,7 +22,7 @@ public class OnVoltageConstraintSerializer extends AbstractJsonSerializer<OnVolt
     @Override
     public void serialize(OnVoltageConstraint value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
         gen.writeStartObject();
-        gen.writeStringField(INSTANT, serializeInstant(value.getInstant()));
+        gen.writeStringField(INSTANT, value.getInstant().getId());
         gen.writeStringField(VOLTAGE_CNEC_ID, value.getVoltageCnec().getId());
         gen.writeEndObject();
     }
