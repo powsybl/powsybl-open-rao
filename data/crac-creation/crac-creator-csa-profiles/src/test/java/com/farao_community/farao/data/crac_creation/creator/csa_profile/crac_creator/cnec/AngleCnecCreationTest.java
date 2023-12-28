@@ -1,6 +1,7 @@
 package com.farao_community.farao.data.crac_creation.creator.csa_profile.crac_creator.cnec;
 
 import com.farao_community.farao.commons.Unit;
+import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.cnec.AngleCnec;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import com.farao_community.farao.data.crac_creation.creator.csa_profile.crac_creator.CsaProfileCracCreationContext;
@@ -14,8 +15,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 
-import static com.farao_community.farao.data.crac_api.Instant.CURATIVE;
-import static com.farao_community.farao.data.crac_api.Instant.PREVENTIVE;
 import static com.farao_community.farao.data.crac_creation.creator.csa_profile.crac_creator.CsaProfileCracCreationTestUtil.getCsaCracCreationContext;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -159,13 +158,15 @@ class AngleCnecCreationTest {
         Mockito.when(network.getIdentifiable("3a88a6a7-66fe-4988-9019-b3b288fd54ee")).thenReturn(networkElementMock);
 
         CsaProfileCracCreationContext cracCreationContext = getCsaCracCreationContext("/csa-11/CSA_11_4_OnAngleConstraint.zip", network);
+        Instant preventiveInstant = cracCreationContext.getCrac().getInstant("preventive");
+        Instant curativeInstant = cracCreationContext.getCrac().getInstant("curative");
 
         CsaProfileCracCreationTestUtil.assertAngleCnecEquality(cracCreationContext.getCrac().getAngleCnec("RTE_AE1 (e2b71e64-ce03-4aa3-9adc-7ff910adae36) - RTE_CO1 - curative"),
                 "RTE_AE1 (e2b71e64-ce03-4aa3-9adc-7ff910adae36) - RTE_CO1 - curative",
                 "RTE_AE1 (e2b71e64-ce03-4aa3-9adc-7ff910adae36) - RTE_CO1 - curative",
                 "60038442-5c02-21a9-22ad-f0554a65a466",
                 "65e9a6a7-8488-7b17-6344-cb7d61b7920b",
-                CURATIVE,
+                curativeInstant,
                 "6c9656a6-84c2-4967-aabc-51f63a7abdf1",
                 30.,
                 -30.,
@@ -176,7 +177,7 @@ class AngleCnecCreationTest {
                 "RTE_AE1 (e2b71e64-ce03-4aa3-9adc-7ff910adae36) - preventive",
                 "60038442-5c02-21a9-22ad-f0554a65a466",
                 "65e9a6a7-8488-7b17-6344-cb7d61b7920b",
-                PREVENTIVE,
+                preventiveInstant,
                 null,
                 30.,
                 -30.,
@@ -187,7 +188,7 @@ class AngleCnecCreationTest {
                 "RTE_AE2 (a418e290-0d0c-4f40-b7fa-31fca1a2607d) - RTE_CO2 - curative",
                 "65e9a6a7-8488-7b17-6344-cb7d61b7920b",
                 "60038442-5c02-21a9-22ad-f0554a65a466",
-                CURATIVE,
+                curativeInstant,
                 "410a7075-51df-4c5c-aa80-0bb1bbe41190",
                 15.,
                 -15.,
@@ -198,7 +199,7 @@ class AngleCnecCreationTest {
                 "RTE_AE2 (a418e290-0d0c-4f40-b7fa-31fca1a2607d) - preventive",
                 "65e9a6a7-8488-7b17-6344-cb7d61b7920b",
                 "60038442-5c02-21a9-22ad-f0554a65a466",
-                PREVENTIVE,
+                preventiveInstant,
                 null,
                 15.,
                 -15.,
@@ -211,16 +212,17 @@ class AngleCnecCreationTest {
         CsaProfileCracCreationTestUtil.assertNetworkActionImported(cracCreationContext, "f17a745b-60a1-4acd-887f-ebc8349b4597", Set.of("f9c8d9ce-6c44-4293-b60e-93c658411d68"), true, 2);
         CsaProfileCracCreationTestUtil.assertNetworkActionImported(cracCreationContext, "a8f21a9a-49dc-4c2a-9745-405392f0d87b", Set.of("f9c8d9ce-6c44-4293-b60e-93c658411d68"), false, 2);
 
-        CsaProfileCracCreationTestUtil.assertHasOnAngleConstraintUsageRule(cracCreationContext, "6c283463-9aac-4d9b-9d0b-6710c5b2aa00", "RTE_AE1 (e2b71e64-ce03-4aa3-9adc-7ff910adae36) - preventive", PREVENTIVE, UsageMethod.AVAILABLE);
-        CsaProfileCracCreationTestUtil.assertHasOnAngleConstraintUsageRule(cracCreationContext, "6c283463-9aac-4d9b-9d0b-6710c5b2aa00", "RTE_AE1 (e2b71e64-ce03-4aa3-9adc-7ff910adae36) - RTE_CO1 - curative", PREVENTIVE, UsageMethod.AVAILABLE);
+        CsaProfileCracCreationTestUtil.assertHasOnAngleConstraintUsageRule(cracCreationContext, "6c283463-9aac-4d9b-9d0b-6710c5b2aa00", "RTE_AE1 (e2b71e64-ce03-4aa3-9adc-7ff910adae36) - preventive", preventiveInstant, UsageMethod.AVAILABLE);
+        CsaProfileCracCreationTestUtil.assertHasOnAngleConstraintUsageRule(cracCreationContext, "6c283463-9aac-4d9b-9d0b-6710c5b2aa00", "RTE_AE1 (e2b71e64-ce03-4aa3-9adc-7ff910adae36) - RTE_CO1 - curative", preventiveInstant, UsageMethod.AVAILABLE);
 
-        CsaProfileCracCreationTestUtil.assertHasOnAngleConstraintUsageRule(cracCreationContext, "0af9ce7e-8013-4362-96a0-40ac0a970eb6", "RTE_AE2 (a418e290-0d0c-4f40-b7fa-31fca1a2607d) - preventive", PREVENTIVE, UsageMethod.AVAILABLE);
-        CsaProfileCracCreationTestUtil.assertHasOnAngleConstraintUsageRule(cracCreationContext, "0af9ce7e-8013-4362-96a0-40ac0a970eb6", "RTE_AE2 (a418e290-0d0c-4f40-b7fa-31fca1a2607d) - RTE_CO2 - curative", PREVENTIVE, UsageMethod.AVAILABLE);
+        CsaProfileCracCreationTestUtil.assertHasOnAngleConstraintUsageRule(cracCreationContext, "0af9ce7e-8013-4362-96a0-40ac0a970eb6", "RTE_AE2 (a418e290-0d0c-4f40-b7fa-31fca1a2607d) - preventive", preventiveInstant, UsageMethod.AVAILABLE);
+        CsaProfileCracCreationTestUtil.assertHasOnAngleConstraintUsageRule(cracCreationContext, "0af9ce7e-8013-4362-96a0-40ac0a970eb6", "RTE_AE2 (a418e290-0d0c-4f40-b7fa-31fca1a2607d) - RTE_CO2 - curative", preventiveInstant, UsageMethod.AVAILABLE);
 
-        CsaProfileCracCreationTestUtil.assertHasOnAngleConstraintUsageRule(cracCreationContext, "f17a745b-60a1-4acd-887f-ebc8349b4597", "RTE_AE2 (a418e290-0d0c-4f40-b7fa-31fca1a2607d) - preventive", PREVENTIVE, UsageMethod.AVAILABLE);
-        CsaProfileCracCreationTestUtil.assertHasOnAngleConstraintUsageRule(cracCreationContext, "f17a745b-60a1-4acd-887f-ebc8349b4597", "RTE_AE2 (a418e290-0d0c-4f40-b7fa-31fca1a2607d) - RTE_CO2 - curative", PREVENTIVE, UsageMethod.AVAILABLE);
+        CsaProfileCracCreationTestUtil.assertHasOnAngleConstraintUsageRule(cracCreationContext, "f17a745b-60a1-4acd-887f-ebc8349b4597", "RTE_AE2 (a418e290-0d0c-4f40-b7fa-31fca1a2607d) - preventive", preventiveInstant, UsageMethod.AVAILABLE);
+        CsaProfileCracCreationTestUtil.assertHasOnAngleConstraintUsageRule(cracCreationContext, "f17a745b-60a1-4acd-887f-ebc8349b4597", "RTE_AE2 (a418e290-0d0c-4f40-b7fa-31fca1a2607d) - RTE_CO2 - curative", preventiveInstant, UsageMethod.AVAILABLE);
 
-        CsaProfileCracCreationTestUtil.assertHasOnAngleConstraintUsageRule(cracCreationContext, "a8f21a9a-49dc-4c2a-9745-405392f0d87b", "RTE_AE1 (e2b71e64-ce03-4aa3-9adc-7ff910adae36) - RTE_CO1 - curative", CURATIVE, UsageMethod.AVAILABLE);
-        CsaProfileCracCreationTestUtil.assertHasOnAngleConstraintUsageRule(cracCreationContext, "a8f21a9a-49dc-4c2a-9745-405392f0d87b", "RTE_AE2 (a418e290-0d0c-4f40-b7fa-31fca1a2607d) - RTE_CO2 - curative", CURATIVE, UsageMethod.AVAILABLE);
+        CsaProfileCracCreationTestUtil.assertHasOnAngleConstraintUsageRule(cracCreationContext, "a8f21a9a-49dc-4c2a-9745-405392f0d87b", "RTE_AE1 (e2b71e64-ce03-4aa3-9adc-7ff910adae36) - RTE_CO1 - curative", curativeInstant, UsageMethod.AVAILABLE);
+        CsaProfileCracCreationTestUtil.assertHasOnAngleConstraintUsageRule(cracCreationContext, "a8f21a9a-49dc-4c2a-9745-405392f0d87b", "RTE_AE2 (a418e290-0d0c-4f40-b7fa-31fca1a2607d) - RTE_CO2 - curative", curativeInstant, UsageMethod.AVAILABLE);
     }
+
 }

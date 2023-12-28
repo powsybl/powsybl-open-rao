@@ -22,8 +22,8 @@ import static com.farao_community.farao.data.crac_impl.AdderUtils.assertAttribut
  */
 public class OnFlowConstraintAdderImpl<T extends AbstractRemedialActionAdder<T>> implements OnFlowConstraintAdder<T> {
 
-    private final T owner;
-    private Instant instant;
+    private T owner;
+    private String instantId;
     private String flowCnecId;
     private UsageMethod usageMethod;
 
@@ -32,8 +32,8 @@ public class OnFlowConstraintAdderImpl<T extends AbstractRemedialActionAdder<T>>
     }
 
     @Override
-    public OnFlowConstraintAdder<T> withInstant(Instant instant) {
-        this.instant = instant;
+    public OnFlowConstraintAdder<T> withInstant(String instantId) {
+        this.instantId = instantId;
         return this;
     }
 
@@ -51,16 +51,17 @@ public class OnFlowConstraintAdderImpl<T extends AbstractRemedialActionAdder<T>>
 
     @Override
     public T add() {
-        assertAttributeNotNull(instant, "OnInstant", "instant", "withInstant()");
+        assertAttributeNotNull(instantId, "OnInstant", "instant", "withInstant()");
         assertAttributeNotNull(flowCnecId, "OnFlowConstraint", "flow cnec", "withFlowCnec()");
 
         if (Objects.isNull(usageMethod)) {
-            throw new FaraoException("Since CRAC version 1.7, the field usageMethod is required for OnFlowConstraint usage rules");
+            throw new FaraoException("Since CRAC version 2.0, the field usageMethod is required for OnFlowConstraint usage rules");
         }
-        if (instant.equals(Instant.OUTAGE)) {
+        Instant instant = owner.getCrac().getInstant(instantId);
+        if (instant.isOutage()) {
             throw new FaraoException("OnFlowConstraint usage rules are not allowed for OUTAGE instant.");
         }
-        if (instant.equals(Instant.PREVENTIVE)) {
+        if (instant.isPreventive()) {
             owner.getCrac().addPreventiveState();
         }
 
@@ -70,6 +71,8 @@ public class OnFlowConstraintAdderImpl<T extends AbstractRemedialActionAdder<T>>
         }
 
         AbstractRemedialActionAdder.checkOnConstraintUsageRules(instant, flowCnec);
+
+        //TODO : you'll need the order to get the correct instant once we have more than one curative/auto instant
 
         OnFlowConstraint onFlowConstraint = new OnFlowConstraintImpl(usageMethod, instant, flowCnec);
         owner.addUsageRule(onFlowConstraint);

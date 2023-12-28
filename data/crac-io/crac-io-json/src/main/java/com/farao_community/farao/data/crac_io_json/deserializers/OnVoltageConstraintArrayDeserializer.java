@@ -32,9 +32,9 @@ public final class OnVoltageConstraintArrayDeserializer {
             while (!jsonParser.nextToken().isStructEnd()) {
                 switch (jsonParser.getCurrentName()) {
                     case INSTANT:
-                        Instant instant = deserializeInstant(jsonParser.nextTextValue());
-                        adder.withInstant(instant);
-                        if (getPrimaryVersionNumber(version) < 2 && getSubVersionNumber(version) < 7) {
+                        String instantId = jsonParser.nextTextValue();
+                        adder.withInstant(instantId);
+                        if (getPrimaryVersionNumber(version) < 2) {
                             adder.withUsageMethod(instant.equals(Instant.AUTO) ? UsageMethod.FORCED : UsageMethod.AVAILABLE);
                         }
                         break;

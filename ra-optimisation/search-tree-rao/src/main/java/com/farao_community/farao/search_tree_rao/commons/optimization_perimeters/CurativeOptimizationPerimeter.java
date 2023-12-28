@@ -8,7 +8,6 @@ package com.farao_community.farao.search_tree_rao.commons.optimization_perimeter
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Crac;
-import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
@@ -35,7 +34,7 @@ public class CurativeOptimizationPerimeter extends AbstractOptimizationPerimeter
 
         super(curativeState, flowCnecs, looopFlowCnecs, availableNetworkActions, Map.of(curativeState, availableRangeActions));
 
-        if (!curativeState.getInstant().equals(Instant.CURATIVE) && !curativeState.getInstant().equals(Instant.OUTAGE)) {
+        if (!curativeState.getInstant().isCurative() && !curativeState.getInstant().isOutage()) {
             throw new FaraoException("a CurativeOptimizationContext must be based on a curative state");
         }
     }

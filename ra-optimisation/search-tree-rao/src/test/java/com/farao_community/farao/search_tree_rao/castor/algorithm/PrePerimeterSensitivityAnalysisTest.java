@@ -9,6 +9,7 @@ package com.farao_community.farao.search_tree_rao.castor.algorithm;
 
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Crac;
+import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_impl.utils.CommonCracCreation;
@@ -17,12 +18,13 @@ import com.farao_community.farao.loopflow_computation.LoopFlowComputation;
 import com.farao_community.farao.rao_api.parameters.ObjectiveFunctionParameters;
 import com.farao_community.farao.rao_api.parameters.RaoParameters;
 import com.farao_community.farao.rao_api.parameters.extensions.LoopFlowParametersExtension;
+import com.farao_community.farao.rao_api.parameters.extensions.PtdfApproximation;
+import com.farao_community.farao.rao_api.parameters.extensions.RelativeMarginsParametersExtension;
 import com.farao_community.farao.search_tree_rao.commons.AbsolutePtdfSumsComputation;
 import com.farao_community.farao.search_tree_rao.commons.ToolProvider;
 import com.farao_community.farao.search_tree_rao.result.api.OptimizationResult;
 import com.farao_community.farao.search_tree_rao.result.api.PrePerimeterResult;
 import com.farao_community.farao.search_tree_rao.result.api.RangeActionSetpointResult;
-import com.farao_community.farao.search_tree_rao.result.impl.PrePerimeterSensitivityResultImpl;
 import com.farao_community.farao.sensitivity_analysis.AppliedRemedialActions;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityInterface;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityResult;
@@ -55,11 +57,13 @@ class PrePerimeterSensitivityAnalysisTest {
     private PrePerimeterSensitivityAnalysis prePerimeterSensitivityAnalysis;
     private OptimizationResult optimizationResult;
     private RangeActionSetpointResult rangeActionSetpointResult;
+    private Instant outageInstant;
 
     @BeforeEach
     public void setUp() {
         network = NetworkImportsUtil.import12NodesNetwork();
         crac = CommonCracCreation.create();
+        outageInstant = crac.getInstant("outage");
         raoParameters = new RaoParameters();
         cnec = Mockito.mock(FlowCnec.class);
 
@@ -73,7 +77,9 @@ class PrePerimeterSensitivityAnalysisTest {
 
         toolProvider = Mockito.mock(ToolProvider.class);
         when(toolProvider.getLoopFlowComputation()).thenReturn(Mockito.mock(LoopFlowComputation.class));
-        when(toolProvider.getAbsolutePtdfSumsComputation()).thenReturn(Mockito.mock(AbsolutePtdfSumsComputation.class));
+        AbsolutePtdfSumsComputation absolutePtdfSumsComputation = Mockito.mock(AbsolutePtdfSumsComputation.class);
+        when(absolutePtdfSumsComputation.computeAbsolutePtdfSums(any(), any())).thenReturn(Map.of(cnec, Map.of(Side.LEFT, 0.987)));
+        when(toolProvider.getAbsolutePtdfSumsComputation()).thenReturn(absolutePtdfSumsComputation);
 
         prePerimeterSensitivityAnalysis = new PrePerimeterSensitivityAnalysis(crac.getFlowCnecs(), crac.getRangeActions(), raoParameters, toolProvider);
     }
@@ -83,7 +89,7 @@ class PrePerimeterSensitivityAnalysisTest {
         SystematicSensitivityInterface sensitivityInterface = Mockito.mock(SystematicSensitivityInterface.class);
         when(sensitivityInterface.run(network)).thenReturn(sensitivityResult);
         when(sensitivityResult.getStatus()).thenReturn(SystematicSensitivityResult.SensitivityComputationStatus.SUCCESS);
-        when(toolProvider.getSystematicSensitivityInterface(any(), any(), eq(withPtdf), eq(withLf), any())).thenReturn(sensitivityInterface);
+        when(toolProvider.getSystematicSensitivityInterface(any(), any(), eq(withPtdf), eq(withLf), any(), any())).thenReturn(sensitivityInterface);
     }
 
     @Test
@@ -93,10 +99,10 @@ class PrePerimeterSensitivityAnalysisTest {
         mockSystematicSensitivityInterface(false, false);
 
         PrePerimeterResult result = prePerimeterSensitivityAnalysis.runInitialSensitivityAnalysis(network, crac);
-        assertNotNull(((PrePerimeterSensitivityResultImpl) result).getSensitivityResult());
+        assertNotNull(result.getSensitivityResult());
 
         result = prePerimeterSensitivityAnalysis.runBasedOnInitialResults(network, crac, optimizationResult, rangeActionSetpointResult, Collections.emptySet(), new AppliedRemedialActions());
-        assertNotNull(((PrePerimeterSensitivityResultImpl) result).getSensitivityResult());
+        assertNotNull(result.getSensitivityResult());
     }
 
     @Test
@@ -104,53 +110,57 @@ class PrePerimeterSensitivityAnalysisTest {
         raoParameters.getObjectiveFunctionParameters().setType(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN_IN_AMPERE);
         mockSystematicSensitivityInterface(true, false);
         PrePerimeterResult result = prePerimeterSensitivityAnalysis.runInitialSensitivityAnalysis(network, crac);
-        assertNotNull(((PrePerimeterSensitivityResultImpl) result).getSensitivityResult());
+        assertNotNull(result.getSensitivityResult());
     }
 
     @Test
     void testRunWithLf() {
         raoParameters.addExtension(LoopFlowParametersExtension.class, new LoopFlowParametersExtension());
-        raoParameters.getExtension(LoopFlowParametersExtension.class).setApproximation(LoopFlowParametersExtension.Approximation.FIXED_PTDF);
+        raoParameters.getExtension(LoopFlowParametersExtension.class).setPtdfApproximation(PtdfApproximation.FIXED_PTDF);
         raoParameters.getObjectiveFunctionParameters().setType(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_MARGIN_IN_AMPERE);
         mockSystematicSensitivityInterface(false, true);
 
         PrePerimeterResult result = prePerimeterSensitivityAnalysis.runInitialSensitivityAnalysis(network, crac);
-        assertNotNull(((PrePerimeterSensitivityResultImpl) result).getSensitivityResult());
+        assertNotNull(result.getSensitivityResult());
     }
 
     @Test
     void testRunWithPtdfAndLf() {
         raoParameters.addExtension(LoopFlowParametersExtension.class, new LoopFlowParametersExtension());
-        raoParameters.getExtension(LoopFlowParametersExtension.class).setApproximation(LoopFlowParametersExtension.Approximation.FIXED_PTDF);
+        raoParameters.getExtension(LoopFlowParametersExtension.class).setPtdfApproximation(PtdfApproximation.FIXED_PTDF);
         raoParameters.getObjectiveFunctionParameters().setType(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN_IN_AMPERE);
         mockSystematicSensitivityInterface(true, true);
 
         PrePerimeterResult result = prePerimeterSensitivityAnalysis.runInitialSensitivityAnalysis(network, crac);
-        assertNotNull(((PrePerimeterSensitivityResultImpl) result).getSensitivityResult());
+        assertNotNull(result.getSensitivityResult());
     }
 
     @Test
     void testRunWithFixedPtdfAndLf() {
         raoParameters.addExtension(LoopFlowParametersExtension.class, new LoopFlowParametersExtension());
-        raoParameters.getExtension(LoopFlowParametersExtension.class).setApproximation(LoopFlowParametersExtension.Approximation.FIXED_PTDF);
+        raoParameters.getExtension(LoopFlowParametersExtension.class).setPtdfApproximation(PtdfApproximation.FIXED_PTDF);
+        raoParameters.addExtension(RelativeMarginsParametersExtension.class, new RelativeMarginsParametersExtension());
+        raoParameters.getExtension(RelativeMarginsParametersExtension.class).setPtdfApproximation(PtdfApproximation.FIXED_PTDF);
         raoParameters.getObjectiveFunctionParameters().setType(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN_IN_AMPERE);
         mockSystematicSensitivityInterface(false, false);
 
         PrePerimeterResult result = prePerimeterSensitivityAnalysis.runBasedOnInitialResults(network, crac, optimizationResult, rangeActionSetpointResult, Collections.emptySet(), new AppliedRemedialActions());
-        assertNotNull(((PrePerimeterSensitivityResultImpl) result).getSensitivityResult());
-        assertEquals(Map.of(cnec, Map.of(Side.LEFT, 0.1)), ((PrePerimeterSensitivityResultImpl) result).getFlowResult().getPtdfZonalSums());
-        assertEquals(150., ((PrePerimeterSensitivityResultImpl) result).getFlowResult().getCommercialFlow(cnec, Side.LEFT, Unit.MEGAWATT), DOUBLE_TOLERANCE);
+        assertNotNull(result.getSensitivityResult());
+        assertEquals(Map.of(cnec, Map.of(Side.LEFT, 0.1)), result.getFlowResult().getPtdfZonalSums());
+        assertEquals(150., result.getFlowResult().getCommercialFlow(cnec, Side.LEFT, Unit.MEGAWATT), DOUBLE_TOLERANCE);
     }
 
     @Test
-    void testRunWithFixedPtdf() {
+    void testRunAndRecomputePtdf() {
         raoParameters.addExtension(LoopFlowParametersExtension.class, new LoopFlowParametersExtension());
-        raoParameters.getExtension(LoopFlowParametersExtension.class).setApproximation(LoopFlowParametersExtension.Approximation.UPDATE_PTDF_WITH_TOPO);
+        raoParameters.getExtension(LoopFlowParametersExtension.class).setPtdfApproximation(PtdfApproximation.UPDATE_PTDF_WITH_TOPO);
+        raoParameters.addExtension(RelativeMarginsParametersExtension.class, new RelativeMarginsParametersExtension());
+        raoParameters.getExtension(RelativeMarginsParametersExtension.class).setPtdfApproximation(PtdfApproximation.UPDATE_PTDF_WITH_TOPO);
         raoParameters.getObjectiveFunctionParameters().setType(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN_IN_AMPERE);
-        mockSystematicSensitivityInterface(false, true);
+        mockSystematicSensitivityInterface(true, true);
 
         PrePerimeterResult result = prePerimeterSensitivityAnalysis.runBasedOnInitialResults(network, crac, optimizationResult, rangeActionSetpointResult, Collections.emptySet(), new AppliedRemedialActions());
-        assertNotNull(((PrePerimeterSensitivityResultImpl) result).getSensitivityResult());
-        assertEquals(Map.of(cnec, Map.of(Side.LEFT, 0.1)), ((PrePerimeterSensitivityResultImpl) result).getFlowResult().getPtdfZonalSums());
+        assertNotNull(result.getSensitivityResult());
+        assertEquals(Map.of(cnec, Map.of(Side.LEFT, 0.987)), result.getFlowResult().getPtdfZonalSums());
     }
 }

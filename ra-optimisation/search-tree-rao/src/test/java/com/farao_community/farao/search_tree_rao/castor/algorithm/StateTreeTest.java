@@ -9,10 +9,7 @@ package com.farao_community.farao.search_tree_rao.castor.algorithm;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
-import com.farao_community.farao.data.crac_api.Crac;
-import com.farao_community.farao.data.crac_api.CracFactory;
-import com.farao_community.farao.data.crac_api.Instant;
-import com.farao_community.farao.data.crac_api.State;
+import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
@@ -31,6 +28,11 @@ import static org.junit.jupiter.api.Assertions.*;
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
 class StateTreeTest {
+    private static final String PREVENTIVE_INSTANT_ID = "preventive";
+    private static final String OUTAGE_INSTANT_ID = "outage";
+    private static final String AUTO_INSTANT_ID = "auto";
+    private static final String CURATIVE_INSTANT_ID = "curative";
+
     private Crac crac;
     private StateTree stateTree;
     private State preventiveState;
@@ -38,6 +40,10 @@ class StateTreeTest {
     private State outageState;
     private State curativeState1;
     private State curativeState2;
+    private Instant preventiveInstant;
+    private Instant outageInstant;
+    private Instant autoInstant;
+    private Instant curativeInstant;
 
     private void setUpCommonCrac(boolean withCra) {
         if (withCra) {
@@ -45,9 +51,12 @@ class StateTreeTest {
         } else {
             crac = CommonCracCreation.create();
         }
+        outageInstant = crac.getInstant(OUTAGE_INSTANT_ID);
+        autoInstant = crac.getInstant(AUTO_INSTANT_ID);
+        curativeInstant = crac.getInstant(CURATIVE_INSTANT_ID);
         preventiveState = crac.getPreventiveState();
-        curativeState1 = crac.getState("Contingency FR1 FR2", Instant.CURATIVE);
-        curativeState2 = crac.getState("Contingency FR1 FR3", Instant.CURATIVE);
+        curativeState1 = crac.getState("Contingency FR1 FR2", curativeInstant);
+        curativeState2 = crac.getState("Contingency FR1 FR3", curativeInstant);
         stateTree = new StateTree(crac);
     }
 
@@ -79,19 +88,27 @@ class StateTreeTest {
     }
 
     private void setUpCustomCrac() {
-        crac = CracFactory.findDefault().create("crac-id");
+        crac = CracFactory.findDefault().create("crac-id")
+            .newInstant(PREVENTIVE_INSTANT_ID, InstantKind.PREVENTIVE)
+            .newInstant(OUTAGE_INSTANT_ID, InstantKind.OUTAGE)
+            .newInstant(AUTO_INSTANT_ID, InstantKind.AUTO)
+            .newInstant(CURATIVE_INSTANT_ID, InstantKind.CURATIVE);
+        preventiveInstant = crac.getInstant(PREVENTIVE_INSTANT_ID);
+        outageInstant = crac.getInstant(OUTAGE_INSTANT_ID);
+        autoInstant = crac.getInstant(AUTO_INSTANT_ID);
+        curativeInstant = crac.getInstant(CURATIVE_INSTANT_ID);
         crac.newContingency().withId("contingency-1").add();
         crac.newContingency().withId("contingency-2").add();
         crac.newContingency().withId("contingency-3").add();
         crac.newFlowCnec()
-            .withInstant(Instant.PREVENTIVE)
+            .withInstant(PREVENTIVE_INSTANT_ID)
             .withId("cnec1-preventive")
             .withNetworkElement("ne1")
             .newThreshold().withSide(Side.LEFT).withUnit(Unit.AMPERE).withMax(200.).withMin(-200.).add()
             .withNominalVoltage(400.)
             .add();
         crac.newFlowCnec()
-            .withInstant(Instant.OUTAGE)
+            .withInstant(OUTAGE_INSTANT_ID)
             .withContingency("contingency-1")
             .withId("cnec1-outage1")
             .withNetworkElement("ne1")
@@ -99,7 +116,7 @@ class StateTreeTest {
             .withNominalVoltage(400.)
             .add();
         crac.newFlowCnec()
-            .withInstant(Instant.CURATIVE)
+            .withInstant(CURATIVE_INSTANT_ID)
             .withContingency("contingency-1")
             .withId("cnec1-curative1")
             .withNetworkElement("ne1")
@@ -107,7 +124,7 @@ class StateTreeTest {
             .withNominalVoltage(400.)
             .add();
         crac.newFlowCnec()
-            .withInstant(Instant.OUTAGE)
+            .withInstant(OUTAGE_INSTANT_ID)
             .withContingency("contingency-2")
             .withId("cnec1-outage2")
             .withNetworkElement("ne1")
@@ -115,7 +132,7 @@ class StateTreeTest {
             .withNominalVoltage(400.)
             .add();
         crac.newFlowCnec()
-            .withInstant(Instant.CURATIVE)
+            .withInstant(CURATIVE_INSTANT_ID)
             .withContingency("contingency-2")
             .withId("cnec1-curative2")
             .withNetworkElement("ne1")
@@ -123,7 +140,7 @@ class StateTreeTest {
             .withNominalVoltage(400.)
             .add();
         crac.newFlowCnec()
-            .withInstant(Instant.OUTAGE)
+            .withInstant(OUTAGE_INSTANT_ID)
             .withContingency("contingency-3")
             .withId("cnec1-outage3")
             .withNetworkElement("ne1")
@@ -131,7 +148,7 @@ class StateTreeTest {
             .withNominalVoltage(400.)
             .add();
         crac.newFlowCnec()
-            .withInstant(Instant.CURATIVE)
+            .withInstant(CURATIVE_INSTANT_ID)
             .withContingency("contingency-3")
             .withId("cnec1-curative3")
             .withNetworkElement("ne1")
@@ -160,7 +177,7 @@ class StateTreeTest {
             .withNetworkElement("pst1")
             .withInitialTap(1)
             .withTapToAngleConversionMap(Map.of(1, 1., 2, 2.))
-            .newOnContingencyStateUsageRule().withContingency("contingency-1").withInstant(Instant.CURATIVE).withUsageMethod(UsageMethod.AVAILABLE).add()
+            .newOnContingencyStateUsageRule().withContingency("contingency-1").withInstant(CURATIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add()
             .add();
         stateTree = new StateTree(crac);
         assertEquals(6, stateTree.getBasecaseScenario().getAllStates().size());
@@ -169,7 +186,7 @@ class StateTreeTest {
         ContingencyScenario contingencyScenario = stateTree.getContingencyScenarios().iterator().next();
         assertEquals(crac.getContingency("contingency-1"), contingencyScenario.getContingency());
         assertTrue(contingencyScenario.getAutomatonState().isEmpty());
-        assertEquals(crac.getState("contingency-1", Instant.CURATIVE), contingencyScenario.getCurativeState());
+        assertEquals(crac.getState("contingency-1", curativeInstant), contingencyScenario.getCurativeState());
     }
 
     @Test
@@ -180,14 +197,14 @@ class StateTreeTest {
             .withNetworkElement("pst1")
             .withInitialTap(1)
             .withTapToAngleConversionMap(Map.of(1, 1., 2, 2.))
-            .newOnContingencyStateUsageRule().withContingency("contingency-1").withInstant(Instant.CURATIVE).withUsageMethod(UsageMethod.AVAILABLE).add()
+            .newOnContingencyStateUsageRule().withContingency("contingency-1").withInstant(CURATIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add()
             .add();
         crac.newPstRangeAction()
             .withId("pst-ra-2")
             .withNetworkElement("pst2")
             .withInitialTap(1)
             .withTapToAngleConversionMap(Map.of(1, 1., 2, 2.))
-            .newOnContingencyStateUsageRule().withContingency("contingency-2").withInstant(Instant.CURATIVE).withUsageMethod(UsageMethod.AVAILABLE).add()
+            .newOnContingencyStateUsageRule().withContingency("contingency-2").withInstant(CURATIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add()
             .add();
         stateTree = new StateTree(crac);
         assertEquals(5, stateTree.getBasecaseScenario().getAllStates().size());
@@ -202,14 +219,14 @@ class StateTreeTest {
             .withNetworkElement("pst1")
             .withInitialTap(1)
             .withTapToAngleConversionMap(Map.of(1, 1., 2, 2.))
-            .newOnContingencyStateUsageRule().withContingency("contingency-2").withInstant(Instant.CURATIVE).withUsageMethod(UsageMethod.AVAILABLE).add()
+            .newOnContingencyStateUsageRule().withContingency("contingency-2").withInstant(CURATIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add()
             .add();
         crac.newPstRangeAction()
             .withId("pst-ra-2")
             .withNetworkElement("pst2")
             .withInitialTap(1)
             .withTapToAngleConversionMap(Map.of(1, 1., 2, 2.))
-            .newOnContingencyStateUsageRule().withContingency("contingency-2").withInstant(Instant.CURATIVE).withUsageMethod(UsageMethod.AVAILABLE).add()
+            .newOnContingencyStateUsageRule().withContingency("contingency-2").withInstant(CURATIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add()
             .add();
         stateTree = new StateTree(crac);
         assertEquals(6, stateTree.getBasecaseScenario().getAllStates().size());
@@ -220,17 +237,26 @@ class StateTreeTest {
     void testErrorOnOutageRa() {
         setUpCustomCrac();
         Crac mockCrac = Mockito.spy(crac);
-        State outageState = crac.getState("contingency-1", Instant.OUTAGE);
+        State outageState = crac.getState("contingency-1", outageInstant);
         Mockito.when(mockCrac.getPotentiallyAvailableNetworkActions(outageState))
             .thenReturn(Set.of(Mockito.mock(NetworkAction.class)));
-        assertThrows(FaraoException.class, () -> new StateTree(mockCrac));
+        FaraoException exception = assertThrows(FaraoException.class, () -> new StateTree(mockCrac));
+        assertEquals("Outage state contingency-1 - outage has available RAs. This is not supported.", exception.getMessage());
     }
 
     private void setUpCustomCracWithAutoInstant(boolean withAutoState, boolean withAutoRa, boolean withCurativeState, boolean withCurativeRa) {
-        crac = CracFactory.findDefault().create("crac-id");
+        crac = CracFactory.findDefault().create("crac-id")
+            .newInstant(PREVENTIVE_INSTANT_ID, InstantKind.PREVENTIVE)
+            .newInstant(OUTAGE_INSTANT_ID, InstantKind.OUTAGE)
+            .newInstant(AUTO_INSTANT_ID, InstantKind.AUTO)
+            .newInstant(CURATIVE_INSTANT_ID, InstantKind.CURATIVE);
+        preventiveInstant = crac.getInstant(PREVENTIVE_INSTANT_ID);
+        outageInstant = crac.getInstant(OUTAGE_INSTANT_ID);
+        autoInstant = crac.getInstant(AUTO_INSTANT_ID);
+        curativeInstant = crac.getInstant(CURATIVE_INSTANT_ID);
         crac.newContingency().withId("contingency").add();
         crac.newFlowCnec()
-            .withInstant(Instant.PREVENTIVE)
+            .withInstant(PREVENTIVE_INSTANT_ID)
             .withId("cnec-preventive")
             .withNetworkElement("ne1")
             .newThreshold().withSide(Side.LEFT).withUnit(Unit.AMPERE).withMax(200.).withMin(-200.).add()
@@ -238,17 +264,17 @@ class StateTreeTest {
             .add();
         preventiveState = crac.getPreventiveState();
         crac.newFlowCnec()
-            .withInstant(Instant.OUTAGE)
+            .withInstant(OUTAGE_INSTANT_ID)
             .withContingency("contingency")
             .withId("cnec-outage")
             .withNetworkElement("ne1")
             .newThreshold().withSide(Side.LEFT).withUnit(Unit.AMPERE).withMax(400.).withMin(-400.).add()
             .withNominalVoltage(400.)
             .add();
-        outageState = crac.getState("contingency", Instant.OUTAGE);
+        outageState = crac.getState("contingency", outageInstant);
         if (withAutoState) {
             crac.newFlowCnec()
-                .withInstant(Instant.AUTO)
+                .withInstant(AUTO_INSTANT_ID)
                 .withContingency("contingency")
                 .withId("cnec-auto")
                 .withNetworkElement("ne1")
@@ -262,14 +288,14 @@ class StateTreeTest {
                     .withSpeed(1)
                     .withInitialTap(1)
                     .withTapToAngleConversionMap(Map.of(1, 1., 2, 2.))
-                    .newOnContingencyStateUsageRule().withContingency("contingency").withInstant(Instant.AUTO).withUsageMethod(UsageMethod.FORCED).add()
+                    .newOnContingencyStateUsageRule().withContingency("contingency").withInstant(AUTO_INSTANT_ID).withUsageMethod(UsageMethod.FORCED).add()
                     .add();
             }
         }
-        autoState = crac.getState("contingency", Instant.AUTO);
+        autoState = crac.getState("contingency", autoInstant);
         if (withCurativeState) {
             crac.newFlowCnec()
-                .withInstant(Instant.CURATIVE)
+                .withInstant(CURATIVE_INSTANT_ID)
                 .withContingency("contingency")
                 .withId("cnec-curative")
                 .withNetworkElement("ne1")
@@ -282,11 +308,11 @@ class StateTreeTest {
                     .withNetworkElement("pst")
                     .withInitialTap(1)
                     .withTapToAngleConversionMap(Map.of(1, 1., 2, 2.))
-                    .newOnContingencyStateUsageRule().withContingency("contingency").withInstant(Instant.CURATIVE).withUsageMethod(UsageMethod.AVAILABLE).add()
+                    .newOnContingencyStateUsageRule().withContingency("contingency").withInstant(CURATIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add()
                     .add();
             }
         }
-        curativeState1 = crac.getState("contingency", Instant.CURATIVE);
+        curativeState1 = crac.getState("contingency", curativeInstant);
     }
 
     @Test
@@ -310,7 +336,8 @@ class StateTreeTest {
 
         // 2.1 Only AUTO exists and has RAs
         setUpCustomCracWithAutoInstant(true, true, false, false);
-        assertThrows(FaraoException.class, () -> new StateTree(crac));
+        FaraoException exception = assertThrows(FaraoException.class, () -> new StateTree(crac));
+        assertEquals("Automaton state contingency - auto has RAs, but curative state null doesn't. This is not supported.", exception.getMessage());
     }
 
     @Test
@@ -346,7 +373,8 @@ class StateTreeTest {
 
         // 4.2 Both AUTO and CURATIVE exist, only AUTO has RAs
         setUpCustomCracWithAutoInstant(true, true, true, false);
-        assertThrows(FaraoException.class, () -> new StateTree(crac));
+        FaraoException exception = assertThrows(FaraoException.class, () -> new StateTree(crac));
+        assertEquals("Automaton state contingency - auto has RAs, but curative state contingency - curative doesn't. This is not supported.", exception.getMessage());
 
         // 4.3 Both AUTO and CURATIVE exist, only CURATIVE has RAs
         setUpCustomCracWithAutoInstant(true, false, true, true);

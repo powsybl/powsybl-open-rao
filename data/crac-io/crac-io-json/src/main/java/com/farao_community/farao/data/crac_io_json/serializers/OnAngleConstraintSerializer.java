@@ -22,7 +22,7 @@ public class OnAngleConstraintSerializer extends AbstractJsonSerializer<OnAngleC
     @Override
     public void serialize(OnAngleConstraint value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
         gen.writeStartObject();
-        gen.writeStringField(INSTANT, serializeInstant(value.getInstant()));
+        gen.writeStringField(INSTANT, value.getInstant().getId());
         gen.writeStringField(ANGLE_CNEC_ID, value.getAngleCnec().getId());
         gen.writeStringField(USAGE_METHOD, serializeUsageMethod(value.getUsageMethod()));
         gen.writeEndObject();

@@ -14,7 +14,7 @@ import com.powsybl.commons.json.JsonUtil;
 
 import java.io.IOException;
 
-import static com.farao_community.farao.rao_api.RaoParametersConstants.*;
+import static com.farao_community.farao.rao_api.RaoParametersCommons.*;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}

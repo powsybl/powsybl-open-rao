@@ -9,6 +9,7 @@ package com.farao_community.farao.data.crac_io_json;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Instant;
+import com.farao_community.farao.data.crac_api.InstantKind;
 import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.cnec.AngleCnec;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
@@ -23,6 +24,7 @@ import java.util.Optional;
 
 import static com.farao_community.farao.data.crac_io_json.JsonSerializationConstants.*;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -41,17 +43,20 @@ class JsonSerializationConstantsTest {
 
     @Test
     void versionNumberNok1Test() {
-        assertThrows(FaraoException.class, () -> getPrimaryVersionNumber("v1.2"));
+        FaraoException exception = assertThrows(FaraoException.class, () -> getPrimaryVersionNumber("v1.2"));
+        assertEquals("json CRAC version number must be of the form vX.Y", exception.getMessage());
     }
 
     @Test
     void versionNumberNok2Test() {
-        assertThrows(FaraoException.class, () -> getPrimaryVersionNumber("1.3.1"));
+        FaraoException exception = assertThrows(FaraoException.class, () -> getPrimaryVersionNumber("1.3.1"));
+        assertEquals("json CRAC version number must be of the form vX.Y", exception.getMessage());
     }
 
     @Test
     void versionNumberNok3Test() {
-        assertThrows(FaraoException.class, () -> getPrimaryVersionNumber("1.2b"));
+        FaraoException exception = assertThrows(FaraoException.class, () -> getPrimaryVersionNumber("1.2b"));
+        assertEquals("json CRAC version number must be of the form vX.Y", exception.getMessage());
     }
 
     private BranchThreshold mockBranchThreshold(Unit unit, Side side, Double min) {
@@ -123,15 +128,18 @@ class JsonSerializationConstantsTest {
 
     @Test
     void testUsageRuleComparatorOnInstant() {
+        Instant preventiveInstant = mock(Instant.class);
+        Instant curativeInstant = mock(Instant.class);
+        when(preventiveInstant.comesBefore(any())).thenReturn(true);
         UsageRuleComparator comparator = new UsageRuleComparator();
 
-        UsageRule onInstant1 = mockUsageRule(Instant.PREVENTIVE, UsageMethod.AVAILABLE, null, null, null, null, null);
-        UsageRule onInstant2 = mockUsageRule(Instant.PREVENTIVE, UsageMethod.FORCED, null, null, null, null, null);
-        UsageRule onInstant3 = mockUsageRule(Instant.CURATIVE, UsageMethod.AVAILABLE, null, null, null, null, null);
+        UsageRule onInstant1 = mockUsageRule(preventiveInstant, UsageMethod.AVAILABLE, null, null, null, null, null);
+        UsageRule onInstant2 = mockUsageRule(preventiveInstant, UsageMethod.FORCED, null, null, null, null, null);
+        UsageRule onInstant3 = mockUsageRule(curativeInstant, UsageMethod.AVAILABLE, null, null, null, null, null);
 
-        assertEquals(comparator.compare(onInstant1, onInstant1), 0);
-        assertEquals(comparator.compare(onInstant2, onInstant2), 0);
-        assertEquals(comparator.compare(onInstant3, onInstant3), 0);
+        assertEquals(0, comparator.compare(onInstant1, onInstant1));
+        assertEquals(0, comparator.compare(onInstant2, onInstant2));
+        assertEquals(0, comparator.compare(onInstant3, onInstant3));
         assertTrue(comparator.compare(onInstant1, onInstant2) < 0);
         assertTrue(comparator.compare(onInstant2, onInstant3) < 0);
         assertTrue(comparator.compare(onInstant1, onInstant3) < 0);
@@ -142,32 +150,35 @@ class JsonSerializationConstantsTest {
 
     @Test
     void testUsageRuleComparatorMix() {
+        Instant preventiveInstant = mock(Instant.class);
+        Instant autoInstant = mock(Instant.class);
+        Instant curativeInstant = mock(Instant.class);
         UsageRuleComparator comparator = new UsageRuleComparator();
 
-        UsageRule oi1 = mockUsageRule(Instant.PREVENTIVE, UsageMethod.AVAILABLE, null, null, null, null, null);
+        UsageRule oi1 = mockUsageRule(preventiveInstant, UsageMethod.AVAILABLE, null, null, null, null, null);
 
-        UsageRule ocs1 = mockUsageRule(Instant.CURATIVE, UsageMethod.AVAILABLE, "state1", null, null, null, null);
-        UsageRule ocs2 = mockUsageRule(Instant.CURATIVE, UsageMethod.AVAILABLE, "state2", null, null, null, null);
+        UsageRule ocs1 = mockUsageRule(curativeInstant, UsageMethod.AVAILABLE, "state1", null, null, null, null);
+        UsageRule ocs2 = mockUsageRule(curativeInstant, UsageMethod.AVAILABLE, "state2", null, null, null, null);
         assertTrue(comparator.compare(ocs1, ocs2) < 0);
         assertTrue(comparator.compare(ocs2, ocs1) > 0);
 
-        UsageRule ofc1 = mockUsageRule(Instant.PREVENTIVE, UsageMethod.AVAILABLE, null, "fc1", null, null, null);
-        UsageRule ofc2 = mockUsageRule(Instant.PREVENTIVE, UsageMethod.AVAILABLE, null, "fc2", null, null, null);
+        UsageRule ofc1 = mockUsageRule(preventiveInstant, UsageMethod.AVAILABLE, null, "fc1", null, null, null);
+        UsageRule ofc2 = mockUsageRule(preventiveInstant, UsageMethod.AVAILABLE, null, "fc2", null, null, null);
         assertTrue(comparator.compare(ofc1, ofc2) < 0);
         assertTrue(comparator.compare(ofc2, ofc1) > 0);
 
-        UsageRule ofcc1 = mockUsageRule(Instant.PREVENTIVE, UsageMethod.AVAILABLE, null, null, Country.FR, null, null);
-        UsageRule ofcc2 = mockUsageRule(Instant.PREVENTIVE, UsageMethod.AVAILABLE, null, null, Country.ES, null, null);
+        UsageRule ofcc1 = mockUsageRule(preventiveInstant, UsageMethod.AVAILABLE, null, null, Country.FR, null, null);
+        UsageRule ofcc2 = mockUsageRule(preventiveInstant, UsageMethod.AVAILABLE, null, null, Country.ES, null, null);
         assertTrue(comparator.compare(ofcc1, ofcc2) > 0);
         assertTrue(comparator.compare(ofcc2, ofcc1) < 0);
 
-        UsageRule oac1 = mockUsageRule(Instant.AUTO, UsageMethod.AVAILABLE, null, null, null, "BBB", null);
-        UsageRule oac2 = mockUsageRule(Instant.AUTO, UsageMethod.AVAILABLE, null, null, null, "AAA", null);
+        UsageRule oac1 = mockUsageRule(autoInstant, UsageMethod.AVAILABLE, null, null, null, "BBB", null);
+        UsageRule oac2 = mockUsageRule(autoInstant, UsageMethod.AVAILABLE, null, null, null, "AAA", null);
         assertTrue(comparator.compare(oac1, oac2) > 0);
         assertTrue(comparator.compare(oac2, oac1) < 0);
 
-        UsageRule ovc1 = mockUsageRule(Instant.CURATIVE, UsageMethod.FORCED, null, null, null, null, "z");
-        UsageRule ovc2 = mockUsageRule(Instant.CURATIVE, UsageMethod.FORCED, null, null, null, null, "x");
+        UsageRule ovc1 = mockUsageRule(curativeInstant, UsageMethod.FORCED, null, null, null, null, "z");
+        UsageRule ovc2 = mockUsageRule(curativeInstant, UsageMethod.FORCED, null, null, null, null, "x");
         assertTrue(comparator.compare(ovc1, ovc2) > 0);
         assertTrue(comparator.compare(ovc2, ovc1) < 0);
 
@@ -176,5 +187,23 @@ class JsonSerializationConstantsTest {
         assertTrue(comparator.compare(ofc2, ofcc1) < 0);
         assertTrue(comparator.compare(oac1, ocs2) < 0);
         assertTrue(comparator.compare(oac1, ovc2) < 0);
+    }
+
+    @Test
+    void testSerializeInstantKind() {
+        assertEquals("PREVENTIVE", seralizeInstantKind(InstantKind.PREVENTIVE));
+        assertEquals("OUTAGE", seralizeInstantKind(InstantKind.OUTAGE));
+        assertEquals("AUTO", seralizeInstantKind(InstantKind.AUTO));
+        assertEquals("CURATIVE", seralizeInstantKind(InstantKind.CURATIVE));
+    }
+
+    @Test
+    void testDeserializeInstantKind() {
+        assertEquals(InstantKind.PREVENTIVE, deseralizeInstantKind("PREVENTIVE"));
+        assertEquals(InstantKind.OUTAGE, deseralizeInstantKind("OUTAGE"));
+        assertEquals(InstantKind.AUTO, deseralizeInstantKind("AUTO"));
+        assertEquals(InstantKind.CURATIVE, deseralizeInstantKind("CURATIVE"));
+        FaraoException exception = assertThrows(FaraoException.class, () -> deseralizeInstantKind("toto"));
+        assertEquals("Unrecognized instant kind toto", exception.getMessage());
     }
 }

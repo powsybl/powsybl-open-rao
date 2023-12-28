@@ -8,7 +8,6 @@ package com.farao_community.farao.sensitivity_analysis.ra_sensi_handler;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Crac;
-import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_api.range.RangeType;
@@ -56,33 +55,35 @@ class PstRangeActionSensiHandlerTest {
     void checkConsistencyNotAPst() {
         Network network = NetworkImportsUtil.import12NodesNetwork();
         Crac crac = CommonCracCreation.createWithPreventivePstRange();
-        PstRangeAction pstRangeAction = (PstRangeAction) crac.newPstRangeAction()
+        PstRangeAction pstRangeAction = crac.newPstRangeAction()
                 .withId("pstOnBranch")
                 .withNetworkElement("BBE1AA1  BB23AA1  1")
-                .newOnInstantUsageRule().withInstant(Instant.PREVENTIVE).withUsageMethod(UsageMethod.AVAILABLE).add()
+                .newOnInstantUsageRule().withInstant("preventive").withUsageMethod(UsageMethod.AVAILABLE).add()
                 .newTapRange().withRangeType(RangeType.ABSOLUTE).withMinTap(-16).withMaxTap(16).add()
                 .withInitialTap(0)
                 .withTapToAngleConversionMap(crac.getPstRangeAction("pst").getTapToAngleConversionMap())
                 .add();
 
         PstRangeActionSensiHandler sensiHandler = new PstRangeActionSensiHandler(pstRangeAction);
-        assertThrows(FaraoException.class, () -> sensiHandler.checkConsistency(network));
+        FaraoException exception = assertThrows(FaraoException.class, () -> sensiHandler.checkConsistency(network));
+        assertEquals("Unable to create sensitivity variable for PstRangeAction pstOnBranch, on element BBE1AA1  BB23AA1  1", exception.getMessage());
     }
 
     @Test
     void checkConsistencyNotANetworkElement() {
         Network network = NetworkImportsUtil.import12NodesNetwork();
         Crac crac = CommonCracCreation.createWithPreventivePstRange();
-        PstRangeAction pstRangeAction = (PstRangeAction) crac.newPstRangeAction()
+        PstRangeAction pstRangeAction = crac.newPstRangeAction()
                 .withId("pstOnNonExistingElement")
                 .withNetworkElement("unknown")
-                .newOnInstantUsageRule().withInstant(Instant.PREVENTIVE).withUsageMethod(UsageMethod.AVAILABLE).add()
+                .newOnInstantUsageRule().withInstant("preventive").withUsageMethod(UsageMethod.AVAILABLE).add()
                 .newTapRange().withRangeType(RangeType.ABSOLUTE).withMinTap(-16).withMaxTap(16).add()
                 .withInitialTap(0)
                 .withTapToAngleConversionMap(crac.getPstRangeAction("pst").getTapToAngleConversionMap())
                 .add();
 
         PstRangeActionSensiHandler sensiHandler = new PstRangeActionSensiHandler(pstRangeAction);
-        assertThrows(FaraoException.class, () -> sensiHandler.checkConsistency(network));
+        FaraoException exception = assertThrows(FaraoException.class, () -> sensiHandler.checkConsistency(network));
+        assertEquals("Unable to create sensitivity variable for PstRangeAction pstOnNonExistingElement, on element unknown", exception.getMessage());
     }
 }

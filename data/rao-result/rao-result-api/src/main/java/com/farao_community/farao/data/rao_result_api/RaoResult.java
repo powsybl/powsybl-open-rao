@@ -32,6 +32,7 @@ import java.util.Set;
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
 public interface RaoResult {
+    String INITIAL_INSTANT_ID = "initial";
 
     /**
      * Get the overall sensitivity computation status of the RAO

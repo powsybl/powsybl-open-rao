@@ -390,7 +390,8 @@ public class SearchTree {
         SensitivityComputer.SensitivityComputerBuilder sensitivityComputerBuilder = SensitivityComputer.create()
             .withToolProvider(input.getToolProvider())
             .withCnecs(input.getOptimizationPerimeter().getFlowCnecs())
-            .withRangeActions(input.getOptimizationPerimeter().getRangeActions());
+            .withRangeActions(input.getOptimizationPerimeter().getRangeActions())
+            .withOutageInstant(input.getOutageInstant());
 
         if (isRootLeaf) {
             sensitivityComputerBuilder.withAppliedRemedialActions(input.getPreOptimizationAppliedRemedialActions());
@@ -399,10 +400,14 @@ public class SearchTree {
         }
 
         if (parameters.getObjectiveFunction().relativePositiveMargins()) {
-            sensitivityComputerBuilder.withPtdfsResults(input.getInitialFlowResult());
+            if (parameters.getMaxMinRelativeMarginParameters().getPtdfApproximation().shouldUpdatePtdfWithTopologicalChange()) {
+                sensitivityComputerBuilder.withPtdfsResults(input.getToolProvider().getAbsolutePtdfSumsComputation(), input.getOptimizationPerimeter().getFlowCnecs());
+            } else {
+                sensitivityComputerBuilder.withPtdfsResults(input.getInitialFlowResult());
+            }
         }
 
-        if (parameters.getLoopFlowParameters() != null && parameters.getLoopFlowParameters().getApproximation().shouldUpdatePtdfWithTopologicalChange()) {
+        if (parameters.getLoopFlowParameters() != null && parameters.getLoopFlowParameters().getPtdfApproximation().shouldUpdatePtdfWithTopologicalChange()) {
             sensitivityComputerBuilder.withCommercialFlowsResults(input.getToolProvider().getLoopFlowComputation(), input.getOptimizationPerimeter().getLoopFlowCnecs());
         } else if (parameters.getLoopFlowParameters() != null) {
             sensitivityComputerBuilder.withCommercialFlowsResults(input.getInitialFlowResult());

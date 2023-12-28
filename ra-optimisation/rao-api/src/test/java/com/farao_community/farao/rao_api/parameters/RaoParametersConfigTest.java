@@ -193,7 +193,7 @@ class RaoParametersConfigTest {
     void checkLoopFlowParametersConfig() {
         ModuleConfig loopFlowModuleConfig = Mockito.mock(ModuleConfig.class);
         Mockito.when(loopFlowModuleConfig.getDoubleProperty(eq("acceptable-increase"), anyDouble())).thenReturn(32.);
-        Mockito.when(loopFlowModuleConfig.getEnumProperty(eq("approximation"), eq(LoopFlowParametersExtension.Approximation.class), any())).thenReturn(LoopFlowParametersExtension.Approximation.UPDATE_PTDF_WITH_TOPO);
+        Mockito.when(loopFlowModuleConfig.getEnumProperty(eq("ptdf-approximation"), eq(PtdfApproximation.class), any())).thenReturn(PtdfApproximation.UPDATE_PTDF_WITH_TOPO);
         Mockito.when(loopFlowModuleConfig.getDoubleProperty(eq("violation-cost"), anyDouble())).thenReturn(43.);
         Mockito.when(loopFlowModuleConfig.getDoubleProperty(eq("constraint-adjustment-coefficient"), anyDouble())).thenReturn(45.);
         Mockito.when(loopFlowModuleConfig.getStringListProperty(eq("countries"), anyList())).thenReturn(List.of("FR", "ES", "PT"));
@@ -201,7 +201,7 @@ class RaoParametersConfigTest {
         LoopFlowParametersConfigLoader configLoader = new LoopFlowParametersConfigLoader();
         LoopFlowParametersExtension parameters = configLoader.load(mockedPlatformConfig);
         assertEquals(32, parameters.getAcceptableIncrease(), DOUBLE_TOLERANCE);
-        assertEquals(LoopFlowParametersExtension.Approximation.UPDATE_PTDF_WITH_TOPO, parameters.getApproximation());
+        assertEquals(PtdfApproximation.UPDATE_PTDF_WITH_TOPO, parameters.getPtdfApproximation());
         assertEquals(45, parameters.getConstraintAdjustmentCoefficient(), DOUBLE_TOLERANCE);
         assertEquals(43, parameters.getViolationCost(), DOUBLE_TOLERANCE);
         Set<Country> expectedCountries = Set.of(Country.FR, Country.ES, Country.PT);

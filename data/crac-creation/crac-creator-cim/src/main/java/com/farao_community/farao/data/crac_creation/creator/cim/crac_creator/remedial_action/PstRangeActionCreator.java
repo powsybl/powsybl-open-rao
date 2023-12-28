@@ -116,7 +116,7 @@ public class PstRangeActionCreator {
 
             // --- Resource capacity
             defineTapRange(pstRangeActionAdder, pstHelper, rangeType);
-            RemedialActionSeriesCreator.addUsageRules(applicationModeMarketObjectStatus, pstRangeActionAdder, contingencies, invalidContingencies, flowCnecs, angleCnec, sharedDomain);
+            RemedialActionSeriesCreator.addUsageRules(crac, applicationModeMarketObjectStatus, pstRangeActionAdder, contingencies, invalidContingencies, flowCnecs, angleCnec, sharedDomain);
 
             this.pstRangeActionCreationContext = RemedialActionSeriesCreator.importPstRaWithContingencies(createdRemedialActionId, pstRegisteredResource.getMRID().getValue(), pstRegisteredResource.getName(), invalidContingencies);
         } catch (FaraoImportException e) {

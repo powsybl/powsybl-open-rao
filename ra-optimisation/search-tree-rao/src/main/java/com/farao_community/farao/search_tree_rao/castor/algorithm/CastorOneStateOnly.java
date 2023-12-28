@@ -6,7 +6,7 @@
  */
 package com.farao_community.farao.search_tree_rao.castor.algorithm;
 
-import com.farao_community.farao.data.crac_api.Instant;
+import com.farao_community.farao.data.crac_api.InstantKind;
 import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
@@ -85,9 +85,9 @@ public class CastorOneStateOnly {
         OptimizationResult optimizationResult;
         Set<FlowCnec> perimeterFlowCnecs;
 
-        if (raoInput.getOptimizedState().getInstant().equals(Instant.AUTO)) {
+        if (raoInput.getOptimizedState().getInstant().isAuto()) {
             perimeterFlowCnecs = raoInput.getCrac().getFlowCnecs(raoInput.getOptimizedState());
-            State curativeState = raoInput.getCrac().getState(raoInput.getOptimizedState().getContingency().orElseThrow().getId(), Instant.CURATIVE);
+            State curativeState = raoInput.getCrac().getState(raoInput.getOptimizedState().getContingency().orElseThrow(), raoInput.getCrac().getInstant(InstantKind.CURATIVE));
             AutomatonSimulator automatonSimulator = new AutomatonSimulator(raoInput.getCrac(), raoParameters, toolProvider, initialResults, initialResults, initialResults, stateTree.getOperatorsNotSharingCras(), 2);
             optimizationResult = automatonSimulator.simulateAutomatonState(raoInput.getOptimizedState(), curativeState, raoInput.getNetwork());
         } else {
@@ -113,6 +113,7 @@ public class CastorOneStateOnly {
                     .withPreOptimizationAppliedNetworkActions(new AppliedRemedialActions()) //no remedial Action applied
                     .withObjectiveFunction(ObjectiveFunction.create().build(optPerimeter.getFlowCnecs(), optPerimeter.getLoopFlowCnecs(), initialResults, initialResults, initialResults, raoInput.getCrac(), operatorsNotToOptimize, raoParameters))
                     .withToolProvider(toolProvider)
+                    .withOutageInstant(raoInput.getCrac().getOutageInstant())
                     .build();
             optimizationResult = new SearchTree(searchTreeInput, searchTreeParameters, true).run().join();
 

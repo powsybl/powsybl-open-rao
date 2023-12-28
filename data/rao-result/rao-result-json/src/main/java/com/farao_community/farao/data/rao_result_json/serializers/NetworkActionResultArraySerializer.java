@@ -21,7 +21,6 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static com.farao_community.farao.data.rao_result_json.RaoResultJsonConstants.*;
-import static com.farao_community.farao.data.rao_result_json.RaoResultJsonConstants.CONTINGENCY_ID;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
@@ -60,7 +59,7 @@ final class NetworkActionResultArraySerializer {
         jsonGenerator.writeArrayFieldStart(STATES_ACTIVATED);
         for (State state: statesWhenNetworkActionIsActivated) {
             jsonGenerator.writeStartObject();
-            jsonGenerator.writeStringField(INSTANT, serializeInstant(state.getInstant()));
+            jsonGenerator.writeStringField(INSTANT, serializeInstantId(state.getInstant()));
             Optional<Contingency> optContingency = state.getContingency();
             if (optContingency.isPresent()) {
                 jsonGenerator.writeStringField(CONTINGENCY_ID, optContingency.get().getId());

@@ -9,7 +9,7 @@ package com.farao_community.farao.sensitivity_analysis.ra_sensi_handler;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.CracFactory;
-import com.farao_community.farao.data.crac_api.Instant;
+import com.farao_community.farao.data.crac_api.InstantKind;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_api.range_action.HvdcRangeAction;
@@ -27,15 +27,17 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 class HvdcRangeActionSensiHandlerTest {
+    private static final String PREVENTIVE_INSTANT_ID = "preventive";
 
     @Test
     void checkConsistencyOKTest() {
         Network network = Network.read("TestCase16NodesWithHvdc.xiidm", getClass().getResourceAsStream("/TestCase16NodesWithHvdc.xiidm"));
-        Crac crac = CracFactory.findDefault().create("test-crac");
-        HvdcRangeAction hvdcRangeAction = (HvdcRangeAction) crac.newHvdcRangeAction().withId("hvdcRangeId")
+        Crac crac = CracFactory.findDefault().create("test-crac")
+            .newInstant(PREVENTIVE_INSTANT_ID, InstantKind.PREVENTIVE);
+        HvdcRangeAction hvdcRangeAction = crac.newHvdcRangeAction().withId("hvdcRangeId")
                 .withNetworkElement("BBE2AA11 FFR3AA11 1")
                 .newRange().withMin(-1000).withMax(1000).add()
-                .newOnInstantUsageRule().withInstant(Instant.PREVENTIVE).withUsageMethod(UsageMethod.AVAILABLE).add()
+                .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add()
                 .add();
 
         HvdcRangeActionSensiHandler sensiHandler = new HvdcRangeActionSensiHandler(hvdcRangeAction);
@@ -47,10 +49,10 @@ class HvdcRangeActionSensiHandlerTest {
     void getSensitivityOnFlowTest() {
         Crac crac = CommonCracCreation.create();
         FlowCnec flowCnec = crac.getFlowCnec("cnec1basecase");
-        HvdcRangeAction hvdcRangeAction = (HvdcRangeAction) crac.newHvdcRangeAction().withId("hvdcRangeId")
+        HvdcRangeAction hvdcRangeAction = crac.newHvdcRangeAction().withId("hvdcRangeId")
                 .withNetworkElement("BBE2AA11 FFR3AA11 1")
                 .newRange().withMin(-1000).withMax(1000).add()
-                .newOnInstantUsageRule().withInstant(Instant.PREVENTIVE).withUsageMethod(UsageMethod.AVAILABLE).add()
+                .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add()
                 .add();
 
         HvdcRangeActionSensiHandler sensiHandler = new HvdcRangeActionSensiHandler(hvdcRangeAction);
@@ -66,32 +68,36 @@ class HvdcRangeActionSensiHandlerTest {
     @Test
     void checkConsistencyNotAHvdc() {
         Network network = Network.read("TestCase16NodesWithHvdc.xiidm", getClass().getResourceAsStream("/TestCase16NodesWithHvdc.xiidm"));
-        Crac crac = CracFactory.findDefault().create("test-crac");
+        Crac crac = CracFactory.findDefault().create("test-crac")
+            .newInstant(PREVENTIVE_INSTANT_ID, InstantKind.PREVENTIVE);
 
-        HvdcRangeAction hvdcRangeAction = (HvdcRangeAction) crac.newHvdcRangeAction().withId("hvdcRangeId")
+        HvdcRangeAction hvdcRangeAction = crac.newHvdcRangeAction().withId("hvdcRangeId")
                 .withNetworkElement("BBE1AA11 BBE2AA11 1")
                 .newRange().withMin(-1000).withMax(1000).add()
-                .newOnInstantUsageRule().withInstant(Instant.PREVENTIVE).withUsageMethod(UsageMethod.AVAILABLE).add()
+                .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add()
                 .add();
 
         HvdcRangeActionSensiHandler sensiHandler = new HvdcRangeActionSensiHandler(hvdcRangeAction);
 
-        assertThrows(FaraoException.class, () -> sensiHandler.checkConsistency(network));
+        FaraoException exception = assertThrows(FaraoException.class, () -> sensiHandler.checkConsistency(network));
+        assertEquals("Unable to create sensitivity variable for HvdcRangeAction hvdcRangeId, on element BBE1AA11 BBE2AA11 1", exception.getMessage());
     }
 
     @Test
     void checkConsistencyNotANetworkElement() {
         Network network = Network.read("TestCase16NodesWithHvdc.xiidm", getClass().getResourceAsStream("/TestCase16NodesWithHvdc.xiidm"));
-        Crac crac = CracFactory.findDefault().create("test-crac");
+        Crac crac = CracFactory.findDefault().create("test-crac")
+            .newInstant(PREVENTIVE_INSTANT_ID, InstantKind.PREVENTIVE);
 
-        HvdcRangeAction hvdcRangeAction = (HvdcRangeAction) crac.newHvdcRangeAction().withId("hvdcRangeId")
+        HvdcRangeAction hvdcRangeAction = crac.newHvdcRangeAction().withId("hvdcRangeId")
                 .withNetworkElement("unknownNetworkElement")
                 .newRange().withMin(-1000).withMax(1000).add()
-                .newOnInstantUsageRule().withInstant(Instant.PREVENTIVE).withUsageMethod(UsageMethod.AVAILABLE).add()
+                .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add()
                 .add();
 
         HvdcRangeActionSensiHandler sensiHandler = new HvdcRangeActionSensiHandler(hvdcRangeAction);
 
-        assertThrows(FaraoException.class, () -> sensiHandler.checkConsistency(network));
+        FaraoException exception = assertThrows(FaraoException.class, () -> sensiHandler.checkConsistency(network));
+        assertEquals("Unable to create sensitivity variable for HvdcRangeAction hvdcRangeId, on element unknownNetworkElement", exception.getMessage());
     }
 }

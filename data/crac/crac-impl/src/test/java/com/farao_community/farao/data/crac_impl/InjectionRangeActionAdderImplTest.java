@@ -8,7 +8,7 @@
 package com.farao_community.farao.data.crac_impl;
 
 import com.farao_community.farao.commons.FaraoException;
-import com.farao_community.farao.data.crac_api.Instant;
+import com.farao_community.farao.data.crac_api.InstantKind;
 import com.farao_community.farao.data.crac_api.range_action.InjectionRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.InjectionRangeActionAdder;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
@@ -21,6 +21,8 @@ import static org.junit.jupiter.api.Assertions.*;
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 class InjectionRangeActionAdderImplTest {
+    private static final String PREVENTIVE_INSTANT_ID = "preventive";
+
     private CracImpl crac;
     private String injectionId1;
     private String injectionId2;
@@ -28,7 +30,9 @@ class InjectionRangeActionAdderImplTest {
 
     @BeforeEach
     public void setUp() {
-        crac = new CracImpl("test-crac");
+        crac = new CracImpl("test-crac")
+            .newInstant(PREVENTIVE_INSTANT_ID, InstantKind.PREVENTIVE);
+
         injectionId1 = "BBE2AA11_Generator";
         injectionId2 = "FFR3AA11_Load";
         injectionName2 = "Load in FFR3AA11";
@@ -36,14 +40,14 @@ class InjectionRangeActionAdderImplTest {
 
     @Test
     void testAdd() {
-        InjectionRangeAction injectionRangeAction = (InjectionRangeAction) crac.newInjectionRangeAction()
+        InjectionRangeAction injectionRangeAction = crac.newInjectionRangeAction()
                 .withId("id1")
                 .withOperator("BE")
                 .withGroupId("groupId1")
                 .withNetworkElementAndKey(1., injectionId1)
                 .withNetworkElementAndKey(-1., injectionId2, injectionName2)
                 .newRange().withMin(-5).withMax(10).add()
-                .newOnInstantUsageRule().withInstant(Instant.PREVENTIVE).withUsageMethod(UsageMethod.AVAILABLE).add()
+                .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add()
                 .add();
 
         assertEquals("id1", injectionRangeAction.getId());
@@ -67,7 +71,7 @@ class InjectionRangeActionAdderImplTest {
 
     @Test
     void testAddWithSumOnSameInjection() {
-        InjectionRangeAction injectionRangeAction = (InjectionRangeAction) crac.newInjectionRangeAction()
+        InjectionRangeAction injectionRangeAction = crac.newInjectionRangeAction()
                 .withId("id1")
                 .withOperator("BE")
                 .withGroupId("groupId1")
@@ -75,7 +79,7 @@ class InjectionRangeActionAdderImplTest {
                 .withNetworkElementAndKey(4., injectionId1)
                 .withNetworkElementAndKey(-1., injectionId2, injectionName2)
                 .newRange().withMin(-5).withMax(10).add()
-                .newOnInstantUsageRule().withInstant(Instant.PREVENTIVE).withUsageMethod(UsageMethod.AVAILABLE).add()
+                .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add()
                 .add();
 
         assertEquals("id1", injectionRangeAction.getId());
@@ -100,13 +104,13 @@ class InjectionRangeActionAdderImplTest {
 
     @Test
     void testAddWithoutGroupId() {
-        InjectionRangeAction injectionRangeAction = (InjectionRangeAction) crac.newInjectionRangeAction()
+        InjectionRangeAction injectionRangeAction = crac.newInjectionRangeAction()
                 .withId("id1")
                 .withOperator("BE")
                 .withNetworkElementAndKey(1., injectionId1)
                 .withNetworkElementAndKey(-1., injectionId2, injectionName2)
                 .newRange().withMin(-5).withMax(10).add()
-                .newOnInstantUsageRule().withInstant(Instant.PREVENTIVE).withUsageMethod(UsageMethod.AVAILABLE).add()
+                .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add()
                 .add();
 
         assertEquals("id1", injectionRangeAction.getId());
@@ -128,7 +132,7 @@ class InjectionRangeActionAdderImplTest {
 
         This test should however warnings
          */
-        InjectionRangeAction injectionRangeAction = (InjectionRangeAction) crac.newInjectionRangeAction()
+        InjectionRangeAction injectionRangeAction = crac.newInjectionRangeAction()
                 .withId("id1")
                 .withOperator("BE")
                 .withNetworkElementAndKey(1., injectionId1)
@@ -147,13 +151,13 @@ class InjectionRangeActionAdderImplTest {
 
     @Test
     void testAddWithoutOperator() {
-        InjectionRangeAction injectionRangeAction = (InjectionRangeAction) crac.newInjectionRangeAction()
+        InjectionRangeAction injectionRangeAction = crac.newInjectionRangeAction()
                 .withId("id1")
                 .withGroupId("groupId1")
                 .withNetworkElementAndKey(1., injectionId1)
                 .withNetworkElementAndKey(-1., injectionId2, injectionName2)
                 .newRange().withMin(-5).withMax(10).add()
-                .newOnInstantUsageRule().withInstant(Instant.PREVENTIVE).withUsageMethod(UsageMethod.AVAILABLE).add()
+                .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add()
                 .add();
 
         assertEquals("id1", injectionRangeAction.getId());
@@ -174,8 +178,9 @@ class InjectionRangeActionAdderImplTest {
             .withNetworkElementAndKey(1., injectionId1)
             .withNetworkElementAndKey(-1., injectionId2, injectionName2)
             .newRange().withMin(-5).withMax(10).add()
-            .newOnInstantUsageRule().withInstant(Instant.PREVENTIVE).withUsageMethod(UsageMethod.AVAILABLE).add();
-        assertThrows(FaraoException.class, injectionRangeActionAdder::add);
+            .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add();
+        FaraoException exception = assertThrows(FaraoException.class, injectionRangeActionAdder::add);
+        assertEquals("Cannot add a InjectionRangeAction object with no specified id. Please use withId()", exception.getMessage());
     }
 
     @Test
@@ -185,8 +190,9 @@ class InjectionRangeActionAdderImplTest {
             .withOperator("BE")
             .withGroupId("groupId1")
             .newRange().withMin(-5).withMax(10).add()
-            .newOnInstantUsageRule().withInstant(Instant.PREVENTIVE).withUsageMethod(UsageMethod.AVAILABLE).add();
-        assertThrows(FaraoException.class, injectionRangeActionAdder::add);
+            .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add();
+        FaraoException exception = assertThrows(FaraoException.class, injectionRangeActionAdder::add);
+        assertEquals("Cannot add InjectionRangeAction without a injection distribution key. Please use withNetworkElementAndKey()", exception.getMessage());
     }
 
     @Test
@@ -196,8 +202,9 @@ class InjectionRangeActionAdderImplTest {
             .withOperator("BE")
             .withNetworkElementAndKey(1., injectionId1)
             .withNetworkElementAndKey(-1., injectionId2, injectionName2)
-            .newOnInstantUsageRule().withInstant(Instant.PREVENTIVE).withUsageMethod(UsageMethod.AVAILABLE).add();
-        assertThrows(FaraoException.class, injectionRangeActionAdder::add);
+            .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add();
+        FaraoException exception = assertThrows(FaraoException.class, injectionRangeActionAdder::add);
+        assertEquals("Cannot add InjectionRangeAction without a range. Please use newRange()", exception.getMessage());
     }
 
     @Test
@@ -206,13 +213,14 @@ class InjectionRangeActionAdderImplTest {
                 .withId("sameId")
                 .withNetworkElementAndKey(1., injectionId1)
                 .newRange().withMin(-5).withMax(10).add()
-                .newOnInstantUsageRule().withInstant(Instant.PREVENTIVE).withUsageMethod(UsageMethod.AVAILABLE).add()
+                .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add()
                 .add();
         InjectionRangeActionAdder injectionRangeActionAdder = crac.newInjectionRangeAction()
-                .withId("sameId")
-                .withNetworkElementAndKey(1., injectionId1)
-                .newRange().withMin(-5).withMax(10).add()
-                .newOnInstantUsageRule().withInstant(Instant.PREVENTIVE).withUsageMethod(UsageMethod.AVAILABLE).add();
-        assertThrows(FaraoException.class, injectionRangeActionAdder::add);
+            .withId("sameId")
+            .withNetworkElementAndKey(1., injectionId1)
+            .newRange().withMin(-5).withMax(10).add()
+            .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add();
+        FaraoException exception = assertThrows(FaraoException.class, injectionRangeActionAdder::add);
+        assertEquals("A remedial action with id sameId already exists", exception.getMessage());
     }
 }

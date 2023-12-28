@@ -181,7 +181,7 @@ public final class RaoUtil {
         if (state.isPreventive() || state.equals(optimizationContext.getMainOptimizationState())) {
             // no previous instant
             return null;
-        } else if (state.getInstant().equals(Instant.CURATIVE)) {
+        } else if (state.getInstant().isCurative()) {
 
             // look if a preventive range action acts on the same network elements
             State preventiveState = optimizationContext.getMainOptimizationState();

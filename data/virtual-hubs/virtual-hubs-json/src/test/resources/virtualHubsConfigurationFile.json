@@ -1,0 +1,49 @@
+{
+  "marketAreas" : [
+    {
+      "code" :  "BE",
+      "eic" : "10YBE----------2",
+      "isMcParticipant": false
+    },
+    {
+      "code" :  "ES",
+      "eic" : "10YES-REE------0",
+      "isMcParticipant": true
+    },
+    {
+      "code" :  "FR",
+      "eic" : "10YFR-RTE------C",
+      "isMcParticipant": true
+    }
+  ],
+  "virtualHubs" : [
+    {
+      "code" : "Virtual_Hub_FR_1",
+      "eic" : "17Y000000930814J",
+      "isMcParticipant" : true,
+      "nodeName" : "XFR_ES11",
+      "marketArea" : "FR"
+    },
+    {
+      "code" : "Virtual_Hub_FR_2",
+      "eic" : "17Y000000930814E",
+      "isMcParticipant" : false,
+      "nodeName" : "XFR_BE11",
+      "marketArea" : "FR"
+    },
+    {
+      "code" : "Virtual_Hub_ES_FR",
+      "eic" : "17Y000000930808E",
+      "isMcParticipant" : true,
+      "nodeName" : "EFR_ES11",
+      "marketArea" : "ES"
+    },
+    {
+      "code": "Virtual_Hub_ES_MA",
+      "eic": "17Y0000009308082",
+      "isMcParticipant": false,
+      "nodeName": "XMA_ES11",
+      "marketArea": "ES"
+    }
+  ]
+}

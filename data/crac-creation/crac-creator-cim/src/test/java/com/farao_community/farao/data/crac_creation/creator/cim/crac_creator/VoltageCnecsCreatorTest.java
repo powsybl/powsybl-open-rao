@@ -8,7 +8,6 @@ package com.farao_community.farao.data.crac_creation.creator.cim.crac_creator;
 
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Crac;
-import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.cnec.VoltageCnec;
 import com.farao_community.farao.data.crac_creation.creator.api.ImportStatus;
 import com.farao_community.farao.data.crac_creation.creator.api.parameters.CracCreationParameters;
@@ -32,10 +31,7 @@ import java.io.File;
 import java.io.InputStream;
 import java.nio.file.Paths;
 import java.time.OffsetDateTime;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Properties;
-import java.util.Set;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -43,12 +39,17 @@ import static org.junit.jupiter.api.Assertions.*;
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
 class VoltageCnecsCreatorTest {
+    private static final String PREVENTIVE_INSTANT_ID = "preventive";
+    private static final String OUTAGE_INSTANT_ID = "outage";
+    private static final String AUTO_INSTANT_ID = "auto";
+    private static final String CURATIVE_INSTANT_ID = "curative";
+
     private Crac crac;
     private CimCracCreationContext cracCreationContext;
     private Network network;
     private VoltageCnecsCreationParameters voltageCnecsCreationParameters;
     private Set<String> monitoredElements;
-    private Map<Instant, VoltageMonitoredContingenciesAndThresholds> monitoredStatesAndThresholds;
+    private Map<String, VoltageMonitoredContingenciesAndThresholds> monitoredStatesAndThresholds;
 
     @BeforeEach
     public void setUp() {
@@ -75,10 +76,10 @@ class VoltageCnecsCreatorTest {
         monitoredElements = Set.of("_b7998ae6-0cc6-4dfe-8fec-0b549b07b6c3", "VL2-alias");
 
         monitoredStatesAndThresholds = Map.of(
-            Instant.PREVENTIVE, new VoltageMonitoredContingenciesAndThresholds(null, Map.of(220., mockVoltageThreshold(215., 225.), 400., mockVoltageThreshold(390., 410.))),
-            Instant.CURATIVE, new VoltageMonitoredContingenciesAndThresholds(null, Map.of(220., mockVoltageThreshold(210., 240.), 400., mockVoltageThreshold(null, 450.))),
-            Instant.OUTAGE, new VoltageMonitoredContingenciesAndThresholds(Set.of("Co-3-name"), Map.of(220., mockVoltageThreshold(200., null), 400., mockVoltageThreshold(380., 420.))),
-            Instant.AUTO, new VoltageMonitoredContingenciesAndThresholds(Set.of("Co-1-name"), Map.of(220., mockVoltageThreshold(null, 250.), 400., mockVoltageThreshold(370., null)))
+            PREVENTIVE_INSTANT_ID, new VoltageMonitoredContingenciesAndThresholds(null, Map.of(220., mockVoltageThreshold(215., 225.), 400., mockVoltageThreshold(390., 410.))),
+            CURATIVE_INSTANT_ID, new VoltageMonitoredContingenciesAndThresholds(null, Map.of(220., mockVoltageThreshold(210., 240.), 400., mockVoltageThreshold(null, 450.))),
+            OUTAGE_INSTANT_ID, new VoltageMonitoredContingenciesAndThresholds(Set.of("Co-3-name"), Map.of(220., mockVoltageThreshold(200., null), 400., mockVoltageThreshold(380., 420.))),
+            AUTO_INSTANT_ID, new VoltageMonitoredContingenciesAndThresholds(Set.of("Co-1-name"), Map.of(220., mockVoltageThreshold(null, 250.), 400., mockVoltageThreshold(370., null)))
         );
 
         voltageCnecsCreationParameters = new VoltageCnecsCreationParameters(monitoredStatesAndThresholds, monitoredElements);
@@ -133,7 +134,7 @@ class VoltageCnecsCreatorTest {
     void testWrongContingencies() {
         // One contingency was not imported, one contingency does not even exist in CRAC
         monitoredStatesAndThresholds = Map.of(
-            Instant.CURATIVE, new VoltageMonitoredContingenciesAndThresholds(Set.of("Co-4-name", "co-missing"), Map.of(225., mockVoltageThreshold(360., 440.)))
+            CURATIVE_INSTANT_ID, new VoltageMonitoredContingenciesAndThresholds(Set.of("Co-4-name", "co-missing"), Map.of(225., mockVoltageThreshold(360., 440.)))
         );
         voltageCnecsCreationParameters = new VoltageCnecsCreationParameters(monitoredStatesAndThresholds, monitoredElements);
         new VoltageCnecsCreator(voltageCnecsCreationParameters, cracCreationContext, network).createAndAddCnecs();
@@ -156,7 +157,7 @@ class VoltageCnecsCreatorTest {
     void testNominalVNotDefinedInThreshold() {
         // Nominal V is 225, not defined in thresholds
         monitoredStatesAndThresholds = Map.of(
-            Instant.CURATIVE, new VoltageMonitoredContingenciesAndThresholds(Set.of("Co-3-name"), Map.of(100., mockVoltageThreshold(0., 1000.)))
+            CURATIVE_INSTANT_ID, new VoltageMonitoredContingenciesAndThresholds(Set.of("Co-3-name"), Map.of(100., mockVoltageThreshold(0., 1000.)))
         );
         voltageCnecsCreationParameters = new VoltageCnecsCreationParameters(monitoredStatesAndThresholds, monitoredElements);
         new VoltageCnecsCreator(voltageCnecsCreationParameters, cracCreationContext, network).createAndAddCnecs();
@@ -178,7 +179,7 @@ class VoltageCnecsCreatorTest {
     void testWrongThreshold() {
         // unacceptable threshold
         monitoredStatesAndThresholds = Map.of(
-            Instant.CURATIVE, new VoltageMonitoredContingenciesAndThresholds(Set.of("Co-3-name"), Map.of(220., mockVoltageThreshold(null, null), 400., mockVoltageThreshold(null, null)))
+            CURATIVE_INSTANT_ID, new VoltageMonitoredContingenciesAndThresholds(Set.of("Co-3-name"), Map.of(220., mockVoltageThreshold(null, null), 400., mockVoltageThreshold(null, null)))
         );
         voltageCnecsCreationParameters = new VoltageCnecsCreationParameters(monitoredStatesAndThresholds, monitoredElements);
         new VoltageCnecsCreator(voltageCnecsCreationParameters, cracCreationContext, network).createAndAddCnecs();
@@ -196,21 +197,21 @@ class VoltageCnecsCreatorTest {
         assertEquals(ImportStatus.INCONSISTENCY_IN_DATA, cracCreationContext.getVoltageCnecCreationContextsForNetworkElement("VL2-alias").iterator().next().getImportStatus());
     }
 
-    private void assertVoltageCnecImported(String nativeNetworkElementId, String networkElementId, Instant instant, String nativeContingencyName, String contingencyId, Double thresholdMin, Double thresholdMax) {
-        VoltageCnecCreationContext context = cracCreationContext.getVoltageCnecCreationContext(nativeNetworkElementId, instant, nativeContingencyName);
+    private void assertVoltageCnecImported(String nativeNetworkElementId, String networkElementId, String instantId, String nativeContingencyName, String contingencyId, Double thresholdMin, Double thresholdMax) {
+        VoltageCnecCreationContext context = cracCreationContext.getVoltageCnecCreationContext(nativeNetworkElementId, instantId, nativeContingencyName);
         assertNotNull(context);
 
         String cnecId;
         if (contingencyId != null) {
-            cnecId = String.format("[VC] %s - %s - %s", networkElementId, contingencyId, instant);
+            cnecId = String.format("[VC] %s - %s - %s", networkElementId, contingencyId, instantId);
         } else {
-            cnecId = String.format("[VC] %s - %s", networkElementId, instant);
+            cnecId = String.format("[VC] %s - %s", networkElementId, instantId);
         }
 
         assertEquals(cnecId, context.getCreatedCnecId());
         VoltageCnec cnec = crac.getVoltageCnec(cnecId);
         assertNotNull(cnec);
-        assertEquals(instant, cnec.getState().getInstant());
+        assertEquals(instantId, cnec.getState().getInstant().getId());
         assertEquals(contingencyId, cnec.getState().getContingency().isPresent() ? cnec.getState().getContingency().get().getId() : null);
         assertEquals(1, cnec.getThresholds().size());
         assertEquals(Optional.ofNullable(thresholdMin), cnec.getThresholds().iterator().next().min());
@@ -225,18 +226,18 @@ class VoltageCnecsCreatorTest {
         assertEquals(12, cracCreationContext.getVoltageCnecCreationContexts().size());
         assertTrue(cracCreationContext.getVoltageCnecCreationContexts().stream().allMatch(VoltageCnecCreationContext::isImported));
 
-        assertVoltageCnecImported("_b7998ae6-0cc6-4dfe-8fec-0b549b07b6c3", "_b7998ae6-0cc6-4dfe-8fec-0b549b07b6c3", Instant.PREVENTIVE, null, null, 390., 410.);
-        assertVoltageCnecImported("_b7998ae6-0cc6-4dfe-8fec-0b549b07b6c3", "_b7998ae6-0cc6-4dfe-8fec-0b549b07b6c3", Instant.CURATIVE, "Co-1-name", "Co-1", null, 450.);
-        assertVoltageCnecImported("_b7998ae6-0cc6-4dfe-8fec-0b549b07b6c3", "_b7998ae6-0cc6-4dfe-8fec-0b549b07b6c3", Instant.CURATIVE, "Co-2-name", "Co-2", null, 450.);
-        assertVoltageCnecImported("_b7998ae6-0cc6-4dfe-8fec-0b549b07b6c3", "_b7998ae6-0cc6-4dfe-8fec-0b549b07b6c3", Instant.CURATIVE, "Co-3-name", "Co-3", null, 450.);
-        assertVoltageCnecImported("_b7998ae6-0cc6-4dfe-8fec-0b549b07b6c3", "_b7998ae6-0cc6-4dfe-8fec-0b549b07b6c3", Instant.OUTAGE, "Co-3-name", "Co-3", 380., 420.);
-        assertVoltageCnecImported("_b7998ae6-0cc6-4dfe-8fec-0b549b07b6c3", "_b7998ae6-0cc6-4dfe-8fec-0b549b07b6c3", Instant.AUTO, "Co-1-name", "Co-1", 370., null);
+        assertVoltageCnecImported("_b7998ae6-0cc6-4dfe-8fec-0b549b07b6c3", "_b7998ae6-0cc6-4dfe-8fec-0b549b07b6c3", PREVENTIVE_INSTANT_ID, null, null, 390., 410.);
+        assertVoltageCnecImported("_b7998ae6-0cc6-4dfe-8fec-0b549b07b6c3", "_b7998ae6-0cc6-4dfe-8fec-0b549b07b6c3", CURATIVE_INSTANT_ID, "Co-1-name", "Co-1", null, 450.);
+        assertVoltageCnecImported("_b7998ae6-0cc6-4dfe-8fec-0b549b07b6c3", "_b7998ae6-0cc6-4dfe-8fec-0b549b07b6c3", CURATIVE_INSTANT_ID, "Co-2-name", "Co-2", null, 450.);
+        assertVoltageCnecImported("_b7998ae6-0cc6-4dfe-8fec-0b549b07b6c3", "_b7998ae6-0cc6-4dfe-8fec-0b549b07b6c3", CURATIVE_INSTANT_ID, "Co-3-name", "Co-3", null, 450.);
+        assertVoltageCnecImported("_b7998ae6-0cc6-4dfe-8fec-0b549b07b6c3", "_b7998ae6-0cc6-4dfe-8fec-0b549b07b6c3", OUTAGE_INSTANT_ID, "Co-3-name", "Co-3", 380., 420.);
+        assertVoltageCnecImported("_b7998ae6-0cc6-4dfe-8fec-0b549b07b6c3", "_b7998ae6-0cc6-4dfe-8fec-0b549b07b6c3", AUTO_INSTANT_ID, "Co-1-name", "Co-1", 370., null);
 
-        assertVoltageCnecImported("VL2-alias", "_d77b61ef-61aa-4b22-95f6-b56ca080788d", Instant.PREVENTIVE, null, null, 215., 225.);
-        assertVoltageCnecImported("VL2-alias", "_d77b61ef-61aa-4b22-95f6-b56ca080788d", Instant.CURATIVE, "Co-1-name", "Co-1", 210., 240.);
-        assertVoltageCnecImported("VL2-alias", "_d77b61ef-61aa-4b22-95f6-b56ca080788d", Instant.CURATIVE, "Co-2-name", "Co-2", 210., 240.);
-        assertVoltageCnecImported("VL2-alias", "_d77b61ef-61aa-4b22-95f6-b56ca080788d", Instant.CURATIVE, "Co-3-name", "Co-3", 210., 240.);
-        assertVoltageCnecImported("VL2-alias", "_d77b61ef-61aa-4b22-95f6-b56ca080788d", Instant.OUTAGE, "Co-3-name", "Co-3", 200., null);
-        assertVoltageCnecImported("VL2-alias", "_d77b61ef-61aa-4b22-95f6-b56ca080788d", Instant.AUTO, "Co-1-name", "Co-1", null, 250.);
+        assertVoltageCnecImported("VL2-alias", "_d77b61ef-61aa-4b22-95f6-b56ca080788d", PREVENTIVE_INSTANT_ID, null, null, 215., 225.);
+        assertVoltageCnecImported("VL2-alias", "_d77b61ef-61aa-4b22-95f6-b56ca080788d", CURATIVE_INSTANT_ID, "Co-1-name", "Co-1", 210., 240.);
+        assertVoltageCnecImported("VL2-alias", "_d77b61ef-61aa-4b22-95f6-b56ca080788d", CURATIVE_INSTANT_ID, "Co-2-name", "Co-2", 210., 240.);
+        assertVoltageCnecImported("VL2-alias", "_d77b61ef-61aa-4b22-95f6-b56ca080788d", CURATIVE_INSTANT_ID, "Co-3-name", "Co-3", 210., 240.);
+        assertVoltageCnecImported("VL2-alias", "_d77b61ef-61aa-4b22-95f6-b56ca080788d", OUTAGE_INSTANT_ID, "Co-3-name", "Co-3", 200., null);
+        assertVoltageCnecImported("VL2-alias", "_d77b61ef-61aa-4b22-95f6-b56ca080788d", AUTO_INSTANT_ID, "Co-1-name", "Co-1", null, 250.);
     }
 }

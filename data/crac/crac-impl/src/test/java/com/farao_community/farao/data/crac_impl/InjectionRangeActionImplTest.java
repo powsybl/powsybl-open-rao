@@ -9,7 +9,7 @@ package com.farao_community.farao.data.crac_impl;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Crac;
-import com.farao_community.farao.data.crac_api.Instant;
+import com.farao_community.farao.data.crac_api.InstantKind;
 import com.farao_community.farao.data.crac_api.range_action.InjectionRangeAction;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
@@ -23,6 +23,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 class InjectionRangeActionImplTest {
+    private static final String PREVENTIVE_INSTANT_ID = "preventive";
 
     private Network network;
     private Crac crac;
@@ -30,17 +31,18 @@ class InjectionRangeActionImplTest {
     @BeforeEach
     public void setUp() {
         network = NetworkImportsUtil.import12NodesNetwork();
-        crac = new CracImpl("test-crac");
+        crac = new CracImplFactory().create("test-crac")
+            .newInstant(PREVENTIVE_INSTANT_ID, InstantKind.PREVENTIVE);
     }
 
     @Test
     void applyOnTwoGeneratorsTest() {
-        InjectionRangeAction ira = (InjectionRangeAction) crac.newInjectionRangeAction()
+        InjectionRangeAction ira = crac.newInjectionRangeAction()
                 .withId("injectionRangeActionId")
                 .withNetworkElementAndKey(1., "BBE1AA1 _generator")
                 .withNetworkElementAndKey(-1., "DDE3AA1 _generator")
                 .newRange().withMin(-1000).withMax(1000).add()
-                .newOnInstantUsageRule().withInstant(Instant.PREVENTIVE).withUsageMethod(UsageMethod.AVAILABLE).add()
+                .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add()
                 .add();
 
         // set to 100 MW
@@ -58,13 +60,13 @@ class InjectionRangeActionImplTest {
 
     @Test
     void applyOnCombinationOfLoadAndGeneratorsTest() {
-        InjectionRangeAction ira = (InjectionRangeAction) crac.newInjectionRangeAction()
+        InjectionRangeAction ira = crac.newInjectionRangeAction()
                 .withId("injectionRangeActionId")
                 .withNetworkElementAndKey(0.2, "BBE3AA1 _load")
                 .withNetworkElementAndKey(0.3, "FFR2AA1 _generator")
                 .withNetworkElementAndKey(0.5, "NNL3AA1 _load")
                 .newRange().withMin(-1000).withMax(1000).add()
-                .newOnInstantUsageRule().withInstant(Instant.PREVENTIVE).withUsageMethod(UsageMethod.AVAILABLE).add()
+                .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add()
                 .add();
 
         // set to 100 MW
@@ -84,11 +86,11 @@ class InjectionRangeActionImplTest {
 
     @Test
     void rangeActionOnNonExistingElementTest() {
-        InjectionRangeAction ira = (InjectionRangeAction) crac.newInjectionRangeAction()
+        InjectionRangeAction ira = crac.newInjectionRangeAction()
                 .withId("injectionRangeActionId")
                 .withNetworkElementAndKey(1, "unknown _load")
                 .newRange().withMin(-1000).withMax(1000).add()
-                .newOnInstantUsageRule().withInstant(Instant.PREVENTIVE).withUsageMethod(UsageMethod.AVAILABLE).add()
+                .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add()
                 .add();
 
         try {
@@ -108,11 +110,11 @@ class InjectionRangeActionImplTest {
 
     @Test
     void rangeActionOnNotAnInjectionTest() {
-        InjectionRangeAction ira = (InjectionRangeAction) crac.newInjectionRangeAction()
+        InjectionRangeAction ira = crac.newInjectionRangeAction()
                 .withId("injectionRangeActionId")
                 .withNetworkElementAndKey(1, "BBE1AA1  BBE2AA1  1")
                 .newRange().withMin(-1000).withMax(1000).add()
-                .newOnInstantUsageRule().withInstant(Instant.PREVENTIVE).withUsageMethod(UsageMethod.AVAILABLE).add()
+                .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add()
                 .add();
 
         try {
@@ -132,12 +134,12 @@ class InjectionRangeActionImplTest {
 
     @Test
     void getCurrentSetpointTest() {
-        InjectionRangeAction ira = (InjectionRangeAction) crac.newInjectionRangeAction()
+        InjectionRangeAction ira = crac.newInjectionRangeAction()
                 .withId("injectionRangeActionId")
                 .withNetworkElementAndKey(1., "BBE1AA1 _load")
                 .withNetworkElementAndKey(1., "DDE3AA1 _generator")
                 .newRange().withMin(-1000).withMax(1000).add()
-                .newOnInstantUsageRule().withInstant(Instant.PREVENTIVE).withUsageMethod(UsageMethod.AVAILABLE).add()
+                .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add()
                 .add();
 
         network.getLoad("BBE1AA1 _load").setP0(-50);
@@ -161,12 +163,12 @@ class InjectionRangeActionImplTest {
 
     @Test
     void getMinMaxAdmissibleSetpointTest() {
-        InjectionRangeAction ira = (InjectionRangeAction) crac.newInjectionRangeAction()
+        InjectionRangeAction ira = crac.newInjectionRangeAction()
                 .withId("injectionRangeActionId")
                 .withNetworkElementAndKey(1., "BBE1AA1 _load")
                 .newRange().withMin(-1000).withMax(1000).add()
                 .newRange().withMin(-1300).withMax(400).add()
-                .newOnInstantUsageRule().withInstant(Instant.PREVENTIVE).withUsageMethod(UsageMethod.AVAILABLE).add()
+                .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add()
                 .add();
 
         assertEquals(-1000, ira.getMinAdmissibleSetpoint(0.0), 1e-3);

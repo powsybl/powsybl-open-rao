@@ -22,7 +22,7 @@ public class OnFlowConstraintSerializer extends AbstractJsonSerializer<OnFlowCon
     @Override
     public void serialize(OnFlowConstraint value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
         gen.writeStartObject();
-        gen.writeStringField(INSTANT, serializeInstant(value.getInstant()));
+        gen.writeStringField(INSTANT, value.getInstant().getId());
         gen.writeStringField(FLOW_CNEC_ID, value.getFlowCnec().getId());
         gen.writeStringField(USAGE_METHOD, serializeUsageMethod(value.getUsageMethod()));
         gen.writeEndObject();

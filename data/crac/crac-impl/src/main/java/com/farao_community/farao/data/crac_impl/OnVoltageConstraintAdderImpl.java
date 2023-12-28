@@ -23,7 +23,7 @@ import static com.farao_community.farao.data.crac_impl.AdderUtils.assertAttribut
 public class OnVoltageConstraintAdderImpl<T extends AbstractRemedialActionAdder<T>> implements OnVoltageConstraintAdder<T> {
 
     private final T owner;
-    private Instant instant;
+    private String instantId;
     private String voltageCnecId;
     private UsageMethod usageMethod;
 
@@ -32,8 +32,8 @@ public class OnVoltageConstraintAdderImpl<T extends AbstractRemedialActionAdder<
     }
 
     @Override
-    public OnVoltageConstraintAdder<T> withInstant(Instant instant) {
-        this.instant = instant;
+    public OnVoltageConstraintAdder<T> withInstant(String instantId) {
+        this.instantId = instantId;
         return this;
     }
 
@@ -51,16 +51,17 @@ public class OnVoltageConstraintAdderImpl<T extends AbstractRemedialActionAdder<
 
     @Override
     public T add() {
-        assertAttributeNotNull(instant, "OnInstant", "instant", "withInstant()");
+        assertAttributeNotNull(instantId, "OnInstant", "instant", "withInstant()");
         assertAttributeNotNull(voltageCnecId, "OnVoltageConstraint", "voltage cnec", "withVoltageCnec()");
 
         if (Objects.isNull(usageMethod)) {
-            throw new FaraoException("Since CRAC version 1.7, the field usageMethod is required for OnVoltageConstraint usage rules");
+            throw new FaraoException("Since CRAC version 2.0, the field usageMethod is required for OnVoltageConstraint usage rules");
         }
-        if (instant.equals(Instant.OUTAGE)) {
+        Instant instant = owner.getCrac().getInstant(instantId);
+        if (instant.isOutage()) {
             throw new FaraoException("OnVoltageConstraint usage rules are not allowed for OUTAGE instant.");
         }
-        if (instant.equals(Instant.PREVENTIVE)) {
+        if (instant.isPreventive()) {
             owner.getCrac().addPreventiveState();
         }
 
