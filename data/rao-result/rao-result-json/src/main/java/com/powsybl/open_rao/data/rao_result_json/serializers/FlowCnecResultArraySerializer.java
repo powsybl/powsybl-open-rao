@@ -20,7 +20,6 @@ import java.io.IOException;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import static com.powsybl.open_rao.commons.Unit.AMPERE;
 import static com.powsybl.open_rao.commons.Unit.MEGAWATT;
@@ -38,7 +37,7 @@ final class FlowCnecResultArraySerializer {
 
         List<FlowCnec> sortedListOfFlowCnecs = crac.getFlowCnecs().stream()
             .sorted(Comparator.comparing(FlowCnec::getId))
-            .collect(Collectors.toList());
+            .toList();
 
         jsonGenerator.writeArrayFieldStart(FLOWCNEC_RESULTS);
         for (FlowCnec flowCnec : sortedListOfFlowCnecs) {
@@ -83,7 +82,7 @@ final class FlowCnecResultArraySerializer {
         }
         jsonGenerator.writeObjectFieldStart(serializeUnit(unit));
         serializeFlowCnecMargin(optInstant, unit, flowCnec, raoResult, jsonGenerator);
-        for (Side side : flowCnec.getMonitoredSides().stream().sorted(Comparator.comparing(Side::toString)).collect(Collectors.toList())) {
+        for (Side side : flowCnec.getMonitoredSides().stream().sorted(Comparator.comparing(Side::toString)).toList()) {
             serializeFlowCnecFlows(optInstant, unit, flowCnec, side, raoResult, jsonGenerator);
         }
         jsonGenerator.writeEndObject();

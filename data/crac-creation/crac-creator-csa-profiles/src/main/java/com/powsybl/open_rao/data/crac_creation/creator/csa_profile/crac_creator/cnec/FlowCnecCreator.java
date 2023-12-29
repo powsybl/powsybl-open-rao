@@ -253,16 +253,21 @@ public class FlowCnecCreator extends AbstractCnecCreator {
                 addFlowCnec(networkElement, contingency, crac.getInstant(InstantKind.CURATIVE).getId(), patlThresholds, useMaxAndMinThresholds, false);
             }
             // Add TATLs
-            for (Map.Entry<Integer, EnumMap<TwoSides, Double>> thresholdEntry : thresholds.entrySet()) {
-                int acceptableDuration = thresholdEntry.getKey();
-                if (acceptableDuration != Integer.MAX_VALUE) {
-                    Instant instant = getCnecInstant(acceptableDuration);
-                    if (instant == null) {
-                        csaProfileCnecCreationContexts.add(CsaProfileElementaryCreationContext.notImported(assessedElementId, ImportStatus.INCONSISTENCY_IN_DATA, writeAssessedElementIgnoredReasonMessage("TATL acceptable duration is negative: " + acceptableDuration)));
-                        return;
-                    }
-                    addFlowCnec(networkElement, contingency, instant.getId(), thresholdEntry.getValue(), useMaxAndMinThresholds, false);
+            addTatls(networkElement, thresholds, useMaxAndMinThresholds, contingency);
+        }
+    }
+
+    private void addTatls(Branch<?> networkElement, Map<Integer, EnumMap<TwoSides, Double>> thresholds, boolean useMaxAndMinThresholds, Contingency contingency) {
+        for (Map.Entry<Integer, EnumMap<TwoSides, Double>> thresholdEntry : thresholds.entrySet()) {
+            int acceptableDuration = thresholdEntry.getKey();
+            if (acceptableDuration != Integer.MAX_VALUE) {
+                Instant instant = getCnecInstant(acceptableDuration);
+                if (instant == null) {
+                    csaProfileCnecCreationContexts.add(CsaProfileElementaryCreationContext.notImported(assessedElementId, ImportStatus.INCONSISTENCY_IN_DATA, writeAssessedElementIgnoredReasonMessage("TATL acceptable duration is negative: " + acceptableDuration)));
+                    //TODO : this most likely needs fixing, maybe continue is enough as a fix instead of return, but then the context wont be very clear since some will have been imported (can already be the case)
+                    continue;
                 }
+                addFlowCnec(networkElement, contingency, instant.getId(), thresholdEntry.getValue(), useMaxAndMinThresholds, false);
             }
         }
     }

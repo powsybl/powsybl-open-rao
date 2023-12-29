@@ -36,7 +36,7 @@ final class RangeActionResultArraySerializer {
 
         List<RangeAction<?>> sortedListOfRangeActions = crac.getRangeActions().stream()
                 .sorted(Comparator.comparing(RangeAction::getId))
-                .collect(Collectors.toList());
+                .toList();
 
         jsonGenerator.writeArrayFieldStart(RANGEACTION_RESULTS);
         for (RangeAction<?> rangeAction : sortedListOfRangeActions) {
@@ -58,7 +58,7 @@ final class RangeActionResultArraySerializer {
         List<State> statesWhenRangeActionIsActivated = crac.getStates().stream()
                 .filter(state -> safeIsActivatedDuringState(raoResult, state, rangeAction))
                 .sorted(STATE_COMPARATOR)
-                .collect(Collectors.toList());
+                .toList();
 
         Map<State, Pair<Integer, Double>> activatedSetpoints = statesWhenRangeActionIsActivated.stream().collect(Collectors.toMap(
                 Function.identity(), state -> Pair.of(safeGetOptimizedTap(raoResult, state, rangeAction), safeGetOptimizedSetpoint(raoResult, state, rangeAction))

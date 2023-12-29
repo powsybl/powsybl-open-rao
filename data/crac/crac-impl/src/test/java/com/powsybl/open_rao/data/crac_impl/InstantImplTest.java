@@ -103,7 +103,7 @@ class InstantImplTest {
         Instant instantWithDifferentParent = new InstantImpl("my instant", InstantKind.PREVENTIVE, instant1);
         Instant instantWithDifferentKind = new InstantImpl("my instant", InstantKind.OUTAGE, instant1);
         assertEquals(instant1, instant1);
-        assertNotEquals(instant1, null);
+        assertNotNull(instant1);
         assertEquals(instant1, instant2);
         assertNotEquals(instant1, instantWithDifferentName);
         assertNotEquals(instant1, instantWithDifferentParent);

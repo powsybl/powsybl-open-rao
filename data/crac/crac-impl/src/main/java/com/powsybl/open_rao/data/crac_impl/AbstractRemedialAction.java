@@ -115,19 +115,19 @@ public abstract class AbstractRemedialAction<I extends RemedialAction<I>> extend
     public Set<FlowCnec> getFlowCnecsConstrainingUsageRules(Set<FlowCnec> perimeterCnecs, Network network, State optimizedState) {
         Set<FlowCnec> toBeConsideredCnecs = new HashSet<>();
         // OnFlowConstraint
-        List<OnFlowConstraint> onFlowConstraintUsageRules = getUsageRules().stream().filter(OnFlowConstraint.class::isInstance).map(OnFlowConstraint.class::cast)
-                .filter(ofc -> ofc.getUsageMethod(optimizedState).equals(UsageMethod.TO_BE_EVALUATED)).collect(Collectors.toList());
-        onFlowConstraintUsageRules.forEach(onFlowConstraint -> toBeConsideredCnecs.add(onFlowConstraint.getFlowCnec()));
+        getUsageRules().stream().filter(OnFlowConstraint.class::isInstance).map(OnFlowConstraint.class::cast)
+            .filter(ofc -> ofc.getUsageMethod(optimizedState).equals(UsageMethod.TO_BE_EVALUATED))
+            .forEach(onFlowConstraint -> toBeConsideredCnecs.add(onFlowConstraint.getFlowCnec()));
 
         // OnFlowConstraintInCountry
-        List<OnFlowConstraintInCountry> onFlowConstraintInCountryUsageRules = getUsageRules().stream().filter(OnFlowConstraintInCountry.class::isInstance).map(OnFlowConstraintInCountry.class::cast)
-                .filter(ofc -> ofc.getUsageMethod(optimizedState).equals(UsageMethod.TO_BE_EVALUATED)).collect(Collectors.toList());
-        onFlowConstraintInCountryUsageRules.forEach(onFlowConstraintInCountry -> {
-            toBeConsideredCnecs.addAll(perimeterCnecs.stream()
+        getUsageRules().stream().filter(OnFlowConstraintInCountry.class::isInstance).map(OnFlowConstraintInCountry.class::cast)
+            .filter(ofc -> ofc.getUsageMethod(optimizedState).equals(UsageMethod.TO_BE_EVALUATED))
+            .forEach(onFlowConstraintInCountry ->
+                toBeConsideredCnecs.addAll(perimeterCnecs.stream()
                     .filter(cnec -> !cnec.getState().getInstant().comesBefore(onFlowConstraintInCountry.getInstant()))
                     .filter(cnec -> isCnecInCountry(cnec, onFlowConstraintInCountry.getCountry(), network))
-                    .collect(Collectors.toSet()));
-        });
+                    .collect(Collectors.toSet()))
+        );
         return toBeConsideredCnecs;
     }
 

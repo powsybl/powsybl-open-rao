@@ -11,7 +11,6 @@ package com.powsybl.open_rao.data.refprog.reference_program;
 import com.powsybl.open_rao.commons.EICode;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
@@ -62,7 +61,7 @@ public class ReferenceProgram {
     }
 
     public double getExchange(EICode areaOrigin, EICode areaExtremity) {
-        List<ReferenceExchangeData> entries = referenceExchangeDataList.stream().filter(referenceExchangeData -> referenceExchangeData.isAreaOutToAreaInExchange(areaOrigin, areaExtremity)).collect(Collectors.toList());
+        List<ReferenceExchangeData> entries = referenceExchangeDataList.stream().filter(referenceExchangeData -> referenceExchangeData.isAreaOutToAreaInExchange(areaOrigin, areaExtremity)).toList();
         if (!entries.isEmpty()) {
             return entries.stream().mapToDouble(ReferenceExchangeData::getFlow).sum();
         } else {

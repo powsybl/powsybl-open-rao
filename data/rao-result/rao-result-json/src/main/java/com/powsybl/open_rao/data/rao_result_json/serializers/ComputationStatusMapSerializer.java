@@ -16,7 +16,6 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import static com.powsybl.open_rao.data.rao_result_json.RaoResultJsonConstants.*;
 
@@ -32,7 +31,7 @@ final class ComputationStatusMapSerializer {
     static void serialize(RaoResult raoResult, Crac crac, JsonGenerator jsonGenerator) throws IOException {
         List<State> sortedListOfStates = crac.getStates().stream()
                 .sorted(STATE_COMPARATOR)
-                .collect(Collectors.toList());
+                .toList();
 
         jsonGenerator.writeArrayFieldStart(COMPUTATION_STATUS_MAP);
         for (State state : sortedListOfStates) {

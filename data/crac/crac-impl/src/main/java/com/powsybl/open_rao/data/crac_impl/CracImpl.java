@@ -82,13 +82,13 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
      */
     private boolean isNetworkElementUsedWithinCrac(String networkElementId) {
         return getContingencies().stream()
-            .flatMap(co -> co.getNetworkElements().stream())
-            .anyMatch(ne -> ne.getId().equals(networkElementId))
-                || getCnecs().stream()
+                .flatMap(co -> co.getNetworkElements().stream())
+                .anyMatch(ne -> ne.getId().equals(networkElementId))
+            || getCnecs().stream()
                 .map(Cnec::getNetworkElements)
                 .flatMap(Set::stream)
                 .anyMatch(ne -> ((NetworkElement) ne).getId().equals(networkElementId))
-                || getRemedialActions().stream()
+            || getRemedialActions().stream()
                 .map(RemedialAction::getNetworkElements)
                 .flatMap(Set::stream)
                 .anyMatch(ne -> ne.getId().equals(networkElementId));
@@ -204,8 +204,8 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
         checkCracContainsProvidedInstantId(providedInstant);
         checkCracInstantAndProvidedInstantAreTheSame(providedInstant);
 
-        if (providedInstant instanceof InstantImpl) {
-            return ((InstantImpl) providedInstant).getInstantBefore();
+        if (providedInstant instanceof InstantImpl instantImpl) {
+            return instantImpl.getInstantBefore();
         }
         throw new OpenRaoException("This should not happen thanks to the equality ckeck. " +
             "Method getInstantBefore might not have been defined as a package-private method " +
@@ -224,7 +224,7 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
 
     @Override
     public boolean hasAutoInstant() {
-        return getInstants(InstantKind.AUTO).size() >= 1;
+        return !getInstants(InstantKind.AUTO).isEmpty();
     }
 
     private void checkCracContainsProvidedInstantId(Instant providedInstant) {
@@ -361,7 +361,7 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
                 || getRemedialActions().stream()
                 .map(RemedialAction::getUsageRules)
                 .flatMap(Set::stream)
-                .anyMatch(ur -> ur instanceof OnContingencyState && ((OnContingencyState) ur).getState().getId().equals(stateId));
+                .anyMatch(ur -> ur instanceof OnContingencyState onContingencyState && onContingencyState.getState().getId().equals(stateId));
     }
 
     //endregion
@@ -845,4 +845,21 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
         networkActions.put(networkAction.getId(), networkAction);
     }
     // endregion
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        CracImpl other = (CracImpl) o;
+        return getId().equals(other.getId());
+    }
+
+    @Override
+    public int hashCode() {
+        return getId().hashCode();
+    }
 }

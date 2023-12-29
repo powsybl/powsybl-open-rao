@@ -235,10 +235,6 @@ public final class RaoResultJsonConstants {
         }
     }
 
-    private static boolean cracDoesNotContainAutoRemedialAction(Crac crac) {
-        return crac.getRemedialActions().stream().filter(remedialAction -> remedialAction.getUsageRules().stream().filter(usageRule -> usageRule.getInstant().isAuto()).findAny().isPresent()).findAny().isEmpty();
-    }
-
     public static String serializeStatus(ComputationStatus computationStatus) {
         switch (computationStatus) {
             case DEFAULT:

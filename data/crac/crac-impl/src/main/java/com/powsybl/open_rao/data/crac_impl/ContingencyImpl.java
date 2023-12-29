@@ -14,10 +14,7 @@ import com.powsybl.computation.ComputationManager;
 import com.powsybl.contingency.*;
 import com.powsybl.iidm.network.*;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Business object for a contingency in the CRAC file.
@@ -59,7 +56,9 @@ public class ContingencyImpl extends AbstractIdentifiable<Contingency> implement
                 throw new OpenRaoException("Unable to apply contingency element " + contingencyElement.getId());
             }
         });
-        com.powsybl.contingency.Contingency.checkValidity(Collections.singletonList(contingency), network);
+        if (!contingency.isValid(network)) {
+            throw new OpenRaoException("Unable to apply contingency " + getId());
+        }
         contingency.toModification().apply(network, computationManager);
     }
 

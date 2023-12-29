@@ -118,6 +118,5 @@ public final class NetworkActionArrayDeserializer {
             jsonParser.nextToken();
             OnInstantArrayDeserializer.deserialize(jsonParser, networkActionAdder);
         }
-        return;
     }
 }

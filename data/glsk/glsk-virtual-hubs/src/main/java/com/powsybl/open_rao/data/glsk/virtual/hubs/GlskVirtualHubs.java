@@ -20,7 +20,6 @@ import com.powsybl.sensitivity.SensitivityVariableSet;
 import com.powsybl.sensitivity.WeightedSensitivityVariable;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * @author Alexandre Montigny {@literal <alexandre.montigny at rte-france.com>}
@@ -43,7 +42,7 @@ public final class GlskVirtualHubs {
         List<String> countryCodes = referenceProgram.getListOfAreas().stream()
             .filter(eiCode -> !eiCode.isCountryCode())
             .map(EICode::getAreaCode)
-            .collect(Collectors.toList());
+            .toList();
         return getVirtualHubGlsks(virtualHubsConfiguration, network, countryCodes);
     }
 

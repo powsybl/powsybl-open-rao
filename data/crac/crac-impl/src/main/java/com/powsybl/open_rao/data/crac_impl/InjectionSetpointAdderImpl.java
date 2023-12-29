@@ -20,6 +20,7 @@ import static com.powsybl.open_rao.data.crac_impl.AdderUtils.assertAttributeNotN
  */
 public class InjectionSetpointAdderImpl implements InjectionSetpointAdder {
 
+    public static final String INJECTION_SET_POINT = "InjectionSetPoint";
     private NetworkActionAdderImpl ownerAdder;
     private String networkElementId;
     private String networkElementName;
@@ -57,9 +58,9 @@ public class InjectionSetpointAdderImpl implements InjectionSetpointAdder {
 
     @Override
     public NetworkActionAdder add() {
-        assertAttributeNotNull(networkElementId, "InjectionSetPoint", "network element", "withNetworkElement()");
-        assertAttributeNotNull(setpoint, "InjectionSetPoint", "setpoint", "withSetPoint()");
-        assertAttributeNotNull(unit, "InjectionSetPoint", "unit", "withUnit()");
+        assertAttributeNotNull(networkElementId, INJECTION_SET_POINT, "network element", "withNetworkElement()");
+        assertAttributeNotNull(setpoint, INJECTION_SET_POINT, "setpoint", "withSetPoint()");
+        assertAttributeNotNull(unit, INJECTION_SET_POINT, "unit", "withUnit()");
         if (unit == Unit.SECTION_COUNT && (setpoint < 0 || Math.abs(setpoint - Math.floor(setpoint)) > 1e-6)) {
             throw new OpenRaoException("With a SECTION_COUNT unit, setpoint should be a positive integer");
         }

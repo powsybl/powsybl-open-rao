@@ -32,7 +32,7 @@ import static org.mockito.Mockito.*;
 /**
  * @author Mohamed Ben Rejeb {@literal <mohamed.ben-rejeb at rte-france.com>}
  */
-public class RaoResultCloneTest {
+class RaoResultCloneTest {
     private Instant preventiveInstant;
     private Instant outageInstant;
     private Instant autoInstant;
@@ -148,8 +148,8 @@ public class RaoResultCloneTest {
         when(crac.getNetworkAction("pstSetpointRaId")).thenReturn(naC);
         when(crac.getNetworkAction("switchPairRaId")).thenReturn(naN);
 
-        when(raoResult.isActivatedDuringState(eq(pState), eq(naP))).thenReturn(true);
-        when(raoResult.isActivated(eq(pState), eq(naP))).thenReturn(true);
+        when(raoResult.isActivatedDuringState(pState, naP)).thenReturn(true);
+        when(raoResult.isActivated(pState, naP)).thenReturn(true);
         // Mock other methods for NetworkAction as needed
 
         // Mocking pstRangeAction results
@@ -159,21 +159,21 @@ public class RaoResultCloneTest {
         when(crac.getPstRangeAction("pstRange1Id")).thenReturn(pstP);
         when(crac.getPstRangeAction("pstRange2Id")).thenReturn(pstN);
 
-        when(raoResult.isActivatedDuringState(eq(pState), eq(pstP))).thenReturn(true);
+        when(raoResult.isActivatedDuringState(pState, pstP)).thenReturn(true);
         // Mock other methods for PstRangeAction as needed
 
         // Mocking hvdcRangeAction results
         HvdcRangeAction hvdcC = mock(HvdcRangeAction.class);
         when(crac.getHvdcRangeAction("hvdcRange2Id")).thenReturn(hvdcC);
 
-        when(raoResult.isActivatedDuringState(eq(pState), eq(hvdcC))).thenReturn(false);
+        when(raoResult.isActivatedDuringState(pState, hvdcC)).thenReturn(false);
         // Mock other methods for HvdcRangeAction as needed
 
         // Mocking injectionRangeAction results
         InjectionRangeAction injectionC = mock(InjectionRangeAction.class);
         when(crac.getInjectionRangeAction("injectionRange1Id")).thenReturn(injectionC);
 
-        when(raoResult.isActivatedDuringState(eq(pState), eq(injectionC))).thenReturn(false);
+        when(raoResult.isActivatedDuringState(pState, injectionC)).thenReturn(false);
         // Mock other methods for InjectionRangeAction as needed
 
         // Mocking voltageCnec results
@@ -184,9 +184,9 @@ public class RaoResultCloneTest {
         // Mock other methods for VoltageCnec as needed
 
         // Mocking computation status map
-        when(raoResult.getComputationStatus(eq(pState))).thenReturn(ComputationStatus.DEFAULT);
-        when(raoResult.getComputationStatus(eq(cState1))).thenReturn(ComputationStatus.FAILURE);
-        when(raoResult.getComputationStatus(eq(cState2))).thenReturn(ComputationStatus.DEFAULT);
+        when(raoResult.getComputationStatus(pState)).thenReturn(ComputationStatus.DEFAULT);
+        when(raoResult.getComputationStatus(cState1)).thenReturn(ComputationStatus.FAILURE);
+        when(raoResult.getComputationStatus(cState2)).thenReturn(ComputationStatus.DEFAULT);
 
         when(raoResult.getComputationStatus(crac.getPreventiveState())).thenReturn(ComputationStatus.DEFAULT);
         when(raoResult.getComputationStatus(crac.getState("contingency1Id", curativeInstant))).thenReturn(ComputationStatus.FAILURE);

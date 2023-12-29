@@ -63,8 +63,7 @@ public final class InjectionSetpointImpl implements InjectionSetpoint {
     @Override
     public boolean canBeApplied(Network network) {
         Identifiable<?> identifiable = network.getIdentifiable(networkElement.getId());
-        if (identifiable instanceof ShuntCompensator) {
-            ShuntCompensator shuntCompensator = (ShuntCompensator) identifiable;
+        if (identifiable instanceof ShuntCompensator shuntCompensator) {
             return shuntCompensator.getMaximumSectionCount() < setpoint;
         }
         return true;
