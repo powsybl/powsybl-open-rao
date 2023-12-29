@@ -18,7 +18,6 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 import java.io.IOException;
 import java.util.Comparator;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import static com.powsybl.open_rao.monitoring.monitoring_common.json.JsonCommonMonitoringResultConstants.*;
 import static com.powsybl.open_rao.monitoring.voltage_monitoring.json.JsonVoltageMonitoringResultConstants.*;
@@ -53,7 +52,7 @@ public class VoltageMonitoringResultSerializer extends JsonSerializer<VoltageMon
         for (Map.Entry<VoltageCnec, ExtremeVoltageValues> entry :
                 voltageMonitoringResult.getExtremeVoltageValues().entrySet()
                         .stream().sorted(Comparator.comparing(e -> e.getKey().getId()))
-                        .collect(Collectors.toList())) {
+                        .toList()) {
             jsonGenerator.writeStartObject();
             jsonGenerator.writeStringField(CNEC_ID, entry.getKey().getId());
             jsonGenerator.writeNumberField(MIN, entry.getValue().getMin());

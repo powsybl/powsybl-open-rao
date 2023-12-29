@@ -6,7 +6,6 @@ import com.powsybl.contingency.*;
 import com.powsybl.iidm.network.*;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 final class SensitivityAnalysisUtil {
 
@@ -16,7 +15,7 @@ final class SensitivityAnalysisUtil {
         String id = cracContingency.getId();
         List<ContingencyElement> contingencyElements = cracContingency.getNetworkElements().stream()
             .map(element -> convertCracContingencyElementToPowsybl(element, network))
-            .collect(Collectors.toList());
+            .toList();
         return new Contingency(id, contingencyElements);
     }
 

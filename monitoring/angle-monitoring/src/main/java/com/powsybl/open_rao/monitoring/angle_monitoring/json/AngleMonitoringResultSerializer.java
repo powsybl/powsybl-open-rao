@@ -17,7 +17,6 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 import java.io.IOException;
 import java.util.Comparator;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import static com.powsybl.open_rao.monitoring.angle_monitoring.json.JsonAngleMonitoringResultConstants.*;
 import static com.powsybl.open_rao.monitoring.monitoring_common.json.JsonCommonMonitoringResultConstants.*;
@@ -50,7 +49,7 @@ public class AngleMonitoringResultSerializer extends JsonSerializer<AngleMonitor
     }
 
     private void serializeAngleValues(AngleMonitoringResult angleMonitoringResult, JsonGenerator jsonGenerator) throws IOException {
-        for (AngleMonitoringResult.AngleResult angleResult : angleMonitoringResult.getAngleCnecsWithAngle().stream().sorted(Comparator.comparing(AngleMonitoringResult.AngleResult::getId)).collect(Collectors.toList())) {
+        for (AngleMonitoringResult.AngleResult angleResult : angleMonitoringResult.getAngleCnecsWithAngle().stream().sorted(Comparator.comparing(AngleMonitoringResult.AngleResult::getId)).toList()) {
             jsonGenerator.writeStartObject();
             jsonGenerator.writeStringField(INSTANT, angleResult.getState().getInstant().toString());
             Optional<Contingency> optContingency = angleResult.getState().getContingency();

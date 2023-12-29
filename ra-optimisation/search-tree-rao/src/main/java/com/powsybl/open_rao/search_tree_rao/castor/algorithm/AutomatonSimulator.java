@@ -346,7 +346,7 @@ public final class AutomatonSimulator {
         List<RangeAction<?>> rangeActionsOrderedBySpeed = availableRangeActions.stream()
                 .filter(rangeAction -> rangeAction.getSpeed().isPresent())
                 .sorted(Comparator.comparing(ra -> ra.getSpeed().get()))
-                .collect(Collectors.toList());
+                .toList();
 
         // 3) Gather aligned range actions : they will be simulated simultaneously in one shot
         // -- Create groups of aligned range actions
@@ -362,7 +362,7 @@ public final class AutomatonSimulator {
                 alignedRa = crac.getRangeActions().stream()
                         .filter(rangeAction -> groupId.get().equals(rangeAction.getGroupId().orElse(null)))
                         .sorted(Comparator.comparing(RangeAction::getId))
-                        .collect(Collectors.toList());
+                        .toList();
             } else {
                 alignedRa = List.of(availableRangeAction);
             }
@@ -582,24 +582,12 @@ public final class AutomatonSimulator {
         double sensitivityUnderestimator = 1;
         while (!flowCnecsWithNegativeMargin.isEmpty()) {
             FlowCnec toBeShiftedCnec = flowCnecsWithNegativeMargin.get(0).getLeft();
-            if (toBeShiftedCnec.equals(previouslyShiftedCnec)) {
-                sensitivityUnderestimator = Math.max(SENSI_UNDER_ESTIMATOR_MIN, sensitivityUnderestimator - SENSI_UNDER_ESTIMATOR_DECREMENT);
-            } else {
-                sensitivityUnderestimator = 1;
-            }
+
+            sensitivityUnderestimator = updateSensitivityUnderestimator(toBeShiftedCnec, previouslyShiftedCnec, sensitivityUnderestimator);
+
             Side side = flowCnecsWithNegativeMargin.get(0).getRight();
-            // Aligned range actions have the same set-point :
-            double currentSetpoint = alignedRangeActions.get(0).getCurrentSetpoint(network);
-            double optimalSetpoint = currentSetpoint;
-            double conversionToMegawatt = RaoUtil.getFlowUnitMultiplier(toBeShiftedCnec, side, flowUnit, MEGAWATT);
-            double cnecFlow = conversionToMegawatt * automatonRangeActionOptimizationSensitivityAnalysisOutput.getFlow(toBeShiftedCnec, side, flowUnit);
-            double cnecMargin = conversionToMegawatt * automatonRangeActionOptimizationSensitivityAnalysisOutput.getMargin(toBeShiftedCnec, side, flowUnit);
-            double sensitivityValue = 0;
-            // Under-estimate range action sensitivity if convergence to margin = 0 is slow (ie if multiple passes
-            // through this loop have been needed to secure the same CNEC)
-            for (RangeAction<?> rangeAction : alignedRangeActions) {
-                sensitivityValue += sensitivityUnderestimator * automatonRangeActionOptimizationSensitivityAnalysisOutput.getSensitivityValue(toBeShiftedCnec, side, rangeAction, MEGAWATT);
-            }
+            double sensitivityValue = computeTotalSensitivityValue(alignedRangeActions, sensitivityUnderestimator, automatonRangeActionOptimizationSensitivityAnalysisOutput, toBeShiftedCnec, side);
+
             // if sensitivity value is zero, CNEC cannot be secured. move on to the next CNEC with a negative margin
             if (Math.abs(sensitivityValue) < DOUBLE_NON_NULL) {
                 flowCnecsToBeExcluded.add(Pair.of(toBeShiftedCnec, side));
@@ -607,10 +595,12 @@ public final class AutomatonSimulator {
                 continue;
             }
 
-            double optimalSetpointForSide = computeOptimalSetpoint(currentSetpoint, cnecFlow, cnecMargin, sensitivityValue, alignedRangeActions.get(0), minSetpoint, maxSetpoint);
-            if (Math.abs(currentSetpoint - optimalSetpointForSide) > Math.abs(currentSetpoint - optimalSetpoint)) {
-                optimalSetpoint = optimalSetpointForSide;
-            }
+            // Aligned range actions have the same set-point :
+            double currentSetpoint = alignedRangeActions.get(0).getCurrentSetpoint(network);
+            double conversionToMegawatt = RaoUtil.getFlowUnitMultiplier(toBeShiftedCnec, side, flowUnit, MEGAWATT);
+            double cnecFlow = conversionToMegawatt * automatonRangeActionOptimizationSensitivityAnalysisOutput.getFlow(toBeShiftedCnec, side, flowUnit);
+            double cnecMargin = conversionToMegawatt * automatonRangeActionOptimizationSensitivityAnalysisOutput.getMargin(toBeShiftedCnec, side, flowUnit);
+            double optimalSetpoint = computeOptimalSetpoint(currentSetpoint, cnecFlow, cnecMargin, sensitivityValue, alignedRangeActions.get(0), minSetpoint, maxSetpoint);
 
             // On first iteration, define direction
             if (iteration == 0) {
@@ -643,6 +633,24 @@ public final class AutomatonSimulator {
             previouslyShiftedCnec = toBeShiftedCnec;
         }
         return new RangeAutomatonSimulationResult(automatonRangeActionOptimizationSensitivityAnalysisOutput, activatedRangeActionsWithSetpoint.keySet(), activatedRangeActionsWithSetpoint);
+    }
+
+    private double computeTotalSensitivityValue(List<RangeAction<?>> alignedRangeActions, double sensitivityUnderestimator, PrePerimeterResult automatonRangeActionOptimizationSensitivityAnalysisOutput, FlowCnec toBeShiftedCnec, Side side) {
+        double sensitivityValue = 0;
+        // Under-estimate range action sensitivity if convergence to margin = 0 is slow (ie if multiple passes
+        // through this loop have been needed to secure the same CNEC)
+        for (RangeAction<?> rangeAction : alignedRangeActions) {
+            sensitivityValue += sensitivityUnderestimator * automatonRangeActionOptimizationSensitivityAnalysisOutput.getSensitivityValue(toBeShiftedCnec, side, rangeAction, MEGAWATT);
+        }
+        return sensitivityValue;
+    }
+
+    private double updateSensitivityUnderestimator(FlowCnec toBeShiftedCnec, FlowCnec previouslyShiftedCnec, double previousUnderestimator) {
+        if (toBeShiftedCnec.equals(previouslyShiftedCnec)) {
+            return Math.max(SENSI_UNDER_ESTIMATOR_MIN, previousUnderestimator - SENSI_UNDER_ESTIMATOR_DECREMENT);
+        } else {
+            return 1;
+        }
     }
 
     /**
@@ -685,7 +693,7 @@ public final class AutomatonSimulator {
         return cnecsAndMargins.entrySet().stream()
             .sorted(Comparator.comparingDouble(Map.Entry::getValue))
             .map(Map.Entry::getKey)
-            .collect(Collectors.toList());
+            .toList();
     }
 
     /**
@@ -702,8 +710,8 @@ public final class AutomatonSimulator {
             optimalSetpoint = minSetpointInAlignedRa;
         }
 
-        if (rangeAction instanceof PstRangeAction) {
-            optimalSetpoint = roundUpAngleToTapWrtInitialSetpoint((PstRangeAction) rangeAction, optimalSetpoint, currentSetpoint);
+        if (rangeAction instanceof PstRangeAction pstRangeAction) {
+            optimalSetpoint = roundUpAngleToTapWrtInitialSetpoint(pstRangeAction, optimalSetpoint, currentSetpoint);
         }
         return optimalSetpoint;
     }

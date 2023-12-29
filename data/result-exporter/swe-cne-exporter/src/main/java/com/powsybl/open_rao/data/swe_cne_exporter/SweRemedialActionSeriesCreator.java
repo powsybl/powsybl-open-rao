@@ -22,7 +22,6 @@ import org.apache.commons.lang3.NotImplementedException;
 
 import java.math.BigDecimal;
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static com.powsybl.open_rao.data.cne_exporter_commons.CneConstants.*;
 
@@ -46,7 +45,7 @@ public class SweRemedialActionSeriesCreator {
         List<RemedialActionSeriesCreationContext> sortedRas = cracCreationContext.getRemedialActionSeriesCreationContexts().stream()
             .filter(RemedialActionSeriesCreationContext::isImported)
             .sorted(Comparator.comparing(RemedialActionSeriesCreationContext::getNativeId))
-            .collect(Collectors.toList());
+            .toList();
         if (Objects.isNull(contingency)) {
             //PREVENTIVE
             sortedRas.forEach(
@@ -85,7 +84,7 @@ public class SweRemedialActionSeriesCreator {
         List<RemedialActionSeriesCreationContext> sortedRas = cracCreationContext.getRemedialActionSeriesCreationContexts().stream()
             .filter(RemedialActionSeriesCreationContext::isImported)
             .sorted(Comparator.comparing(RemedialActionSeriesCreationContext::getNativeId))
-            .collect(Collectors.toList());
+            .toList();
         if (Objects.isNull(contingency)) {
             //PREVENTIVE
             sortedRas.forEach(
@@ -144,16 +143,16 @@ public class SweRemedialActionSeriesCreator {
                             .forEach(usedRas::add);
         }
         for (RemedialAction<?> usedRa : usedRas) {
-            if (usedRa instanceof NetworkAction) {
-                return generateNetworkRaSeries((NetworkAction) usedRa, state);
-            } else if (usedRa instanceof PstRangeAction) {
-                return generatePstRaSeries((PstRangeAction) usedRa, state, context, onlyReference);
-            } else if (usedRa instanceof HvdcRangeAction) {
+            if (usedRa instanceof NetworkAction networkAction) {
+                return generateNetworkRaSeries(networkAction, state);
+            } else if (usedRa instanceof PstRangeAction pstRangeAction) {
+                return generatePstRaSeries(pstRangeAction, state, context, onlyReference);
+            } else if (usedRa instanceof HvdcRangeAction hvdcRangeAction) {
                 if (Objects.isNull(raoResult)) {
                     throw new OpenRaoException(String.format("Rao result is null. Cannot retrieve HvdcRangeAction %s's optimized setpoint on state %s", usedRa.getId(), state.getId()));
                 }
                 // In case of an HVDC, the native crac has one series per direction, we select the one that corresponds to the sign of the setpoint
-                if (context.isInverted() == (raoResult.getOptimizedSetPointOnState(state, (HvdcRangeAction) usedRa) < 0)) {
+                if (context.isInverted() == (raoResult.getOptimizedSetPointOnState(state, hvdcRangeAction) < 0)) {
                     return generateHvdcRaSeries((HvdcRangeAction) usedRa, state, context);
                 }
             } else {
@@ -206,10 +205,9 @@ public class SweRemedialActionSeriesCreator {
     }
 
     private RemedialActionRegisteredResource generateRegisteredResource(PstRangeAction pstRangeAction, State state, RemedialActionSeriesCreationContext context) {
-        if (!(context instanceof PstRangeActionSeriesCreationContext)) {
+        if (!(context instanceof PstRangeActionSeriesCreationContext pstContext)) {
             throw new OpenRaoException("Expected a PstRangeActionSeriesCreationContext");
         }
-        PstRangeActionSeriesCreationContext pstContext = (PstRangeActionSeriesCreationContext) context;
 
         RemedialActionRegisteredResource registeredResource = new RemedialActionRegisteredResource();
         registeredResource.setMRID(SweCneUtil.createResourceIDString(A02_CODING_SCHEME, pstContext.getNetworkElementNativeMrid()));

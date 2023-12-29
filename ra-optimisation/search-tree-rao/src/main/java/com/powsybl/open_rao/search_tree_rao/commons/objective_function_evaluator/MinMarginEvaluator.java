@@ -18,7 +18,6 @@ import com.powsybl.open_rao.search_tree_rao.result.api.SensitivityResult;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
@@ -55,7 +54,7 @@ public class MinMarginEvaluator implements CostEvaluator {
         return margins.keySet().stream()
             .filter(Cnec::isOptimized)
             .sorted(Comparator.comparing(margins::get))
-            .collect(Collectors.toList());
+            .toList();
 
     }
 

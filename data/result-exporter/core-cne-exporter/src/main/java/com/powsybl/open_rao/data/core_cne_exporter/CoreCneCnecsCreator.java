@@ -25,7 +25,6 @@ import com.powsybl.open_rao.data.crac_creation.creator.api.std_creation_context.
 import com.powsybl.open_rao.data.crac_loopflow_extension.LoopFlowThreshold;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static com.powsybl.open_rao.data.cne_exporter_commons.CneConstants.*;
 import static com.powsybl.open_rao.data.core_cne_exporter.CoreCneClassCreator.*;
@@ -52,11 +51,9 @@ public final class CoreCneCnecsCreator {
 
     public List<ConstraintSeries> generate() {
         List<ConstraintSeries> constraintSeries = new ArrayList<>();
-        List<BranchCnecCreationContext> sortedCnecs = cracCreationContext.getBranchCnecCreationContexts().stream()
-            .sorted(Comparator.comparing(BranchCnecCreationContext::getNativeId)).collect(Collectors.toList());
-        for (BranchCnecCreationContext cnec : sortedCnecs) {
-            constraintSeries.addAll(createConstraintSeriesOfACnec(cnec, cneHelper));
-        }
+        cracCreationContext.getBranchCnecCreationContexts().stream()
+            .sorted(Comparator.comparing(BranchCnecCreationContext::getNativeId))
+            .forEach(cnec -> constraintSeries.addAll(createConstraintSeriesOfACnec(cnec, cneHelper)));
         return constraintSeries;
     }
 

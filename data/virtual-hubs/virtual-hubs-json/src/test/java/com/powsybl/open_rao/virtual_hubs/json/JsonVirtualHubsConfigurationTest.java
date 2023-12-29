@@ -12,6 +12,7 @@ import com.powsybl.open_rao.virtual_hubs.VirtualHubsConfiguration;
 import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
 import java.io.StringWriter;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -21,7 +22,7 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 class JsonVirtualHubsConfigurationTest {
     @Test
-    public void checkThatCorrectConfigurationFileImportsCorrectly() {
+    void checkThatCorrectConfigurationFileImportsCorrectly() {
         VirtualHubsConfiguration configuration = JsonVirtualHubsConfiguration.importConfiguration(getClass().getResourceAsStream("/virtualHubsConfigurationFile.json"));
 
         assertEquals(3, configuration.getMarketAreas().size());
@@ -29,7 +30,7 @@ class JsonVirtualHubsConfigurationTest {
     }
 
     @Test
-    public void checkThatConfigurationExportsCorrectlyOnOutputStream() {
+    void checkThatConfigurationExportsCorrectlyOnOutputStream() {
         VirtualHubsConfiguration configuration = new VirtualHubsConfiguration();
         MarketArea marketArea = new MarketArea("AreaCode", "AreaEic", true);
         configuration.addMarketArea(marketArea);
@@ -43,7 +44,7 @@ class JsonVirtualHubsConfigurationTest {
     }
 
     @Test
-    public void checkThatConfigurationExportsCorrectlyOnWriter() {
+    void checkThatConfigurationExportsCorrectlyOnWriter() {
         VirtualHubsConfiguration configuration = new VirtualHubsConfiguration();
         MarketArea marketArea = new MarketArea("AreaCode", "AreaEic", true);
         configuration.addMarketArea(marketArea);
@@ -57,20 +58,22 @@ class JsonVirtualHubsConfigurationTest {
     }
 
     @Test
-    public void checkThatIncorrectConfigurationImportThrows() {
+    void checkThatIncorrectConfigurationImportThrows() {
+        InputStream inputStream = getClass().getResourceAsStream("/invalidConfiguration.json");
         VirtualHubsConfigurationDeserializationException thrown = assertThrows(
             VirtualHubsConfigurationDeserializationException.class,
-            () -> JsonVirtualHubsConfiguration.importConfiguration(getClass().getResourceAsStream("/invalidConfiguration.json")),
+            () -> JsonVirtualHubsConfiguration.importConfiguration(inputStream),
             "Invalid parameter in configuration should throw"
         );
         assertEquals("Attribute 'brokenParam' invalid for configuration", thrown.getMessage());
     }
 
     @Test
-    public void checkThatIncorrectMarketAreaImportThrows() {
+    void checkThatIncorrectMarketAreaImportThrows() {
+        InputStream inputStream = getClass().getResourceAsStream("/invalidMarketArea.json");
         VirtualHubsConfigurationDeserializationException thrown = assertThrows(
             VirtualHubsConfigurationDeserializationException.class,
-            () -> JsonVirtualHubsConfiguration.importConfiguration(getClass().getResourceAsStream("/invalidMarketArea.json")),
+            () -> JsonVirtualHubsConfiguration.importConfiguration(inputStream),
             "Invalid parameter in market area should throw"
         );
         assertEquals("Attribute 'brokenParam' invalid for market area", thrown.getMessage());
@@ -78,10 +81,11 @@ class JsonVirtualHubsConfigurationTest {
     }
 
     @Test
-    public void checkThatIncorrectVirtualHubImportThrows() {
+    void checkThatIncorrectVirtualHubImportThrows() {
+        InputStream inputStream = getClass().getResourceAsStream("/invalidVirtualHub.json");
         VirtualHubsConfigurationDeserializationException thrown = assertThrows(
             VirtualHubsConfigurationDeserializationException.class,
-            () -> JsonVirtualHubsConfiguration.importConfiguration(getClass().getResourceAsStream("/invalidVirtualHub.json")),
+            () -> JsonVirtualHubsConfiguration.importConfiguration(inputStream),
             "Invalid parameter in virtual hub should throw"
         );
         assertEquals("Attribute 'brokenParam' invalid for virtual hub", thrown.getMessage());

@@ -157,7 +157,9 @@ class SystematicSensitivityInterfaceTest {
 
     @Test
     void testCannotUseANonOutageInstantInSystematicInterfaceBuilder() {
-        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> SystematicSensitivityInterface.builder().withOutageInstant(crac.getPreventiveInstant()));
+        SystematicSensitivityInterface.SystematicSensitivityInterfaceBuilder builder = SystematicSensitivityInterface.builder();
+        Instant preventiveInstant = crac.getPreventiveInstant();
+        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> builder.withOutageInstant(preventiveInstant));
         assertEquals("Instant provided in the systematic sensitivity builder has to be an outage", exception.getMessage());
     }
 }

@@ -107,10 +107,10 @@ public class UnoptimizedRaoResultImpl implements RaoResult {
 
     @Override
     public boolean isActivatedDuringState(State state, RemedialAction<?> remedialAction) {
-        if (remedialAction instanceof NetworkAction) {
-            return isActivatedDuringState(state, (NetworkAction) remedialAction);
-        } else if (remedialAction instanceof RangeAction<?>) {
-            return isActivatedDuringState(state, (RangeAction<?>) remedialAction);
+        if (remedialAction instanceof NetworkAction networkAction) {
+            return isActivatedDuringState(state, networkAction);
+        } else if (remedialAction instanceof RangeAction<?> rangeAction) {
+            return isActivatedDuringState(state, rangeAction);
         } else {
             throw new OpenRaoException("Unrecognized remedial action type");
         }
@@ -165,8 +165,8 @@ public class UnoptimizedRaoResultImpl implements RaoResult {
     public Map<PstRangeAction, Integer> getOptimizedTapsOnState(State state) {
         Map<PstRangeAction, Integer> tapPerPst = new HashMap<>();
         initialResult.getRangeActions().forEach(ra -> {
-            if (ra instanceof PstRangeAction) {
-                tapPerPst.put((PstRangeAction) ra, initialResult.getTap((PstRangeAction) ra));
+            if (ra instanceof PstRangeAction pstRangeAction) {
+                tapPerPst.put(pstRangeAction, initialResult.getTap(pstRangeAction));
             }
         });
         return tapPerPst;

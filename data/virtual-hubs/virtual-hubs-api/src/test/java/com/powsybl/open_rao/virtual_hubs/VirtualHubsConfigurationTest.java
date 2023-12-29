@@ -15,7 +15,7 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 class VirtualHubsConfigurationTest {
     @Test
-    public void checkThatConfigurationManipulationWorksAsExpected() {
+    void checkThatConfigurationManipulationWorksAsExpected() {
         VirtualHubsConfiguration configuration = new VirtualHubsConfiguration();
         MarketArea marketArea = new MarketArea("AreaCode", "AreaEic", true);
         configuration.addMarketArea(marketArea);
@@ -28,7 +28,7 @@ class VirtualHubsConfigurationTest {
     }
 
     @Test
-    public void checkThatAddingNullMarketAreaInConfigurationThrows() {
+    void checkThatAddingNullMarketAreaInConfigurationThrows() {
         VirtualHubsConfiguration configuration = new VirtualHubsConfiguration();
         NullPointerException thrown = assertThrows(
             NullPointerException.class,
@@ -39,7 +39,7 @@ class VirtualHubsConfigurationTest {
     }
 
     @Test
-    public void checkThatAddingNullVirtualHubInConfigurationThrows() {
+    void checkThatAddingNullVirtualHubInConfigurationThrows() {
         VirtualHubsConfiguration configuration = new VirtualHubsConfiguration();
         NullPointerException thrown = assertThrows(
             NullPointerException.class,

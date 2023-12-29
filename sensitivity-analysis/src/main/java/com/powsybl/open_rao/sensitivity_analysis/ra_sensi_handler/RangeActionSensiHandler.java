@@ -26,12 +26,12 @@ public interface RangeActionSensiHandler {
     void checkConsistency(Network network);
 
     static RangeActionSensiHandler get(RangeAction<?> rangeAction) {
-        if (rangeAction instanceof PstRangeAction) {
-            return new PstRangeActionSensiHandler((PstRangeAction) rangeAction);
-        } else if (rangeAction instanceof HvdcRangeAction) {
-            return new HvdcRangeActionSensiHandler((HvdcRangeAction) rangeAction);
-        } else if (rangeAction instanceof InjectionRangeAction) {
-            return new InjectionRangeActionSensiHandler((InjectionRangeAction) rangeAction);
+        if (rangeAction instanceof PstRangeAction pstRangeAction) {
+            return new PstRangeActionSensiHandler(pstRangeAction);
+        } else if (rangeAction instanceof HvdcRangeAction hvdcRangeAction) {
+            return new HvdcRangeActionSensiHandler(hvdcRangeAction);
+        } else if (rangeAction instanceof InjectionRangeAction injectionRangeAction) {
+            return new InjectionRangeActionSensiHandler(injectionRangeAction);
         } else {
             throw new OpenRaoException(String.format("RangeAction implementation %s not handled by sensitivity analysis", rangeAction.getClass()));
         }

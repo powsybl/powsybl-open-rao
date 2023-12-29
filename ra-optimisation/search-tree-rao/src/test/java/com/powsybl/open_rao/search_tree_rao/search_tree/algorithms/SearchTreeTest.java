@@ -86,7 +86,7 @@ class SearchTreeTest {
     private NetworkActionCombination predefinedNaCombination;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    void setUp() throws Exception {
         setSearchTreeInput();
         searchTreeParameters = Mockito.mock(SearchTreeParameters.class);
         setSearchTreeParameters();

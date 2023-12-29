@@ -15,7 +15,7 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 class VirtualHubTest {
     @Test
-    public void checkThatVirtualHubIsCorrectlyCreated() {
+    void checkThatVirtualHubIsCorrectlyCreated() {
         MarketArea marketArea = new MarketArea("AreaCode", "AreaEic", true);
         VirtualHub myVirtualHub = new VirtualHub("HubCode", "HubEic", true, "HubNodeName", marketArea);
         assertEquals("HubCode", myVirtualHub.getCode());
@@ -34,7 +34,7 @@ class VirtualHubTest {
     }
 
     @Test
-    public void checkThatVirtualHubCreationThrowsWhenCodeIsNull() {
+    void checkThatVirtualHubCreationThrowsWhenCodeIsNull() {
         MarketArea marketArea = new MarketArea("AreaCode", "AreaEic", true);
         NullPointerException thrown = assertThrows(
             NullPointerException.class,
@@ -45,7 +45,7 @@ class VirtualHubTest {
     }
 
     @Test
-    public void checkThatVirtualHubCreationThrowsWhenEicIsNull() {
+    void checkThatVirtualHubCreationThrowsWhenEicIsNull() {
         MarketArea marketArea = new MarketArea("AreaCode", "AreaEic", true);
         NullPointerException thrown = assertThrows(
             NullPointerException.class,
@@ -56,7 +56,7 @@ class VirtualHubTest {
     }
 
     @Test
-    public void checkThatVirtualHubCreationThrowsWhenNodeNameIsNull() {
+    void checkThatVirtualHubCreationThrowsWhenNodeNameIsNull() {
         MarketArea marketArea = new MarketArea("AreaCode", "AreaEic", true);
         NullPointerException thrown = assertThrows(
             NullPointerException.class,
@@ -67,7 +67,7 @@ class VirtualHubTest {
     }
 
     @Test
-    public void checkThatVirtualHubCreationThrowsWhenMarketAreaIsNull() {
+    void checkThatVirtualHubCreationThrowsWhenMarketAreaIsNull() {
         NullPointerException thrown = assertThrows(
             NullPointerException.class,
             () -> new VirtualHub("HubCode", "HubEic", true, "HubNodeName", null),

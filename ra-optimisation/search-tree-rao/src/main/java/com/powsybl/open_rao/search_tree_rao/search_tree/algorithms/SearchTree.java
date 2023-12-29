@@ -263,38 +263,8 @@ public class SearchTree {
         }
         AtomicInteger remainingLeaves = new AtomicInteger(amountOfCombinations);
         List<ForkJoinTask<Object>> tasks = naCombinationsSorted.keySet().stream().map(naCombination ->
-            networkPool.submit(() -> {
-                Network networkClone = networkPool.getAvailableNetwork(); //This is where the threads actually wait for available networks
-                try {
-                    if (combinationFulfillingStopCriterion.isEmpty() || deterministicNetworkActionCombinationComparison(naCombination, combinationFulfillingStopCriterion.get()) < 0) {
-                        boolean shouldRangeActionBeRemoved = naCombinationsSorted.get(naCombination);
-                        if (shouldRangeActionBeRemoved) {
-                            // Remove parentLeaf range actions to respect every maxRa or maxOperator limitation
-                            input.getOptimizationPerimeter().getRangeActions().forEach(ra ->
-                                ra.apply(networkClone, input.getPrePerimeterResult().getRangeActionSetpointResult().getSetpoint(ra))
-                            );
-                        } else {
-                            // Apply range actions that have been changed by the previous leaf on the network to start next depth leaves
-                            // from previous optimal leaf starting point
-                            // todo : Not sure previousDepthOptimalLeaf.getRangeActions() returns what we expect, this needs to be investigated
-                            previousDepthOptimalLeaf.getRangeActions()
-                                .forEach(ra ->
-                                    ra.apply(networkClone, previousDepthOptimalLeaf.getOptimizedSetpoint(ra, input.getOptimizationPerimeter().getMainOptimizationState()))
-                                );
-                        }
-                        optimizeNextLeafAndUpdate(naCombination, shouldRangeActionBeRemoved, networkClone);
-
-                    } else {
-                        topLevelLogger.info("Skipping {} optimization because earlier combination fulfills stop criterion.", naCombination.getConcatenatedId());
-                    }
-                } catch (Exception e) {
-                    BUSINESS_WARNS.warn("Cannot optimize remedial action combination {}: {}", naCombination.getConcatenatedId(), e.getMessage());
-                }
-                TECHNICAL_LOGS.info("Remaining leaves to evaluate: {}", remainingLeaves.decrementAndGet());
-                networkPool.releaseUsedNetwork(networkClone);
-                return null; // we need to return null, in order for the compiler to know that this statement must be reached in normal cases
-            })
-        ).collect(Collectors.toList());
+            networkPool.submit(() -> optimizeOneLeaf(networkPool, naCombination, naCombinationsSorted, remainingLeaves))
+        ).toList();
         for (ForkJoinTask<Object> task : tasks) {
             try {
                 task.get();
@@ -302,6 +272,38 @@ public class SearchTree {
                 throw new OpenRaoException(e);
             }
         }
+    }
+
+    private Object optimizeOneLeaf(AbstractNetworkPool networkPool, NetworkActionCombination naCombination, TreeMap<NetworkActionCombination, Boolean> naCombinationsSorted, AtomicInteger remainingLeaves) throws InterruptedException {
+        Network networkClone = networkPool.getAvailableNetwork(); //This is where the threads actually wait for available networks
+        try {
+            if (combinationFulfillingStopCriterion.isEmpty() || deterministicNetworkActionCombinationComparison(naCombination, combinationFulfillingStopCriterion.get()) < 0) {
+                boolean shouldRangeActionBeRemoved = naCombinationsSorted.get(naCombination);
+                if (shouldRangeActionBeRemoved) {
+                    // Remove parentLeaf range actions to respect every maxRa or maxOperator limitation
+                    input.getOptimizationPerimeter().getRangeActions().forEach(ra ->
+                        ra.apply(networkClone, input.getPrePerimeterResult().getRangeActionSetpointResult().getSetpoint(ra))
+                    );
+                } else {
+                    // Apply range actions that have been changed by the previous leaf on the network to start next depth leaves
+                    // from previous optimal leaf starting point
+                    // todo : Not sure previousDepthOptimalLeaf.getRangeActions() returns what we expect, this needs to be investigated
+                    previousDepthOptimalLeaf.getRangeActions()
+                        .forEach(ra ->
+                            ra.apply(networkClone, previousDepthOptimalLeaf.getOptimizedSetpoint(ra, input.getOptimizationPerimeter().getMainOptimizationState()))
+                        );
+                }
+                optimizeNextLeafAndUpdate(naCombination, shouldRangeActionBeRemoved, networkClone);
+
+            } else {
+                topLevelLogger.info("Skipping {} optimization because earlier combination fulfills stop criterion.", naCombination.getConcatenatedId());
+            }
+        } catch (Exception e) {
+            BUSINESS_WARNS.warn("Cannot optimize remedial action combination {}: {}", naCombination.getConcatenatedId(), e.getMessage());
+        }
+        TECHNICAL_LOGS.info("Remaining leaves to evaluate: {}", remainingLeaves.decrementAndGet());
+        networkPool.releaseUsedNetwork(networkClone);
+        return null;
     }
 
     int deterministicNetworkActionCombinationComparison(NetworkActionCombination ra1, NetworkActionCombination ra2) {

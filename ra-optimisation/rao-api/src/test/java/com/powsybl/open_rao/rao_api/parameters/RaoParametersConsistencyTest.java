@@ -214,11 +214,13 @@ class RaoParametersConsistencyTest {
 
         rulpcp.setMaxCurativeRaPerTso(Map.of("RTE", 5, "REE", 1));
 
-        Exception exception = assertThrows(OpenRaoException.class, () -> rulpcp.setMaxCurativeTopoPerTso(Map.of("RTE", 6)));
+        Map<String, Integer> fewerCrasThanTopos = Map.of("RTE", 6);
+        Exception exception = assertThrows(OpenRaoException.class, () -> rulpcp.setMaxCurativeTopoPerTso(fewerCrasThanTopos));
         assertEquals("TSO RTE has a maximum number of allowed CRAs smaller than the number of allowed topological CRAs. This is not supported.", exception.getMessage());
         assertTrue(rulpcp.getMaxCurativeTopoPerTso().isEmpty());
 
-        exception = assertThrows(OpenRaoException.class, () -> rulpcp.setMaxCurativePstPerTso(Map.of("REE", 2)));
+        Map<String, Integer> fewerCrasThanPsts = Map.of("REE", 2);
+        exception = assertThrows(OpenRaoException.class, () -> rulpcp.setMaxCurativePstPerTso(fewerCrasThanPsts));
         assertEquals("TSO REE has a maximum number of allowed CRAs smaller than the number of allowed PST CRAs. This is not supported.", exception.getMessage());
         assertTrue(rulpcp.getMaxCurativePstPerTso().isEmpty());
     }
@@ -226,14 +228,15 @@ class RaoParametersConsistencyTest {
     @Test
     void testFailsOnLowSensitivityThreshold() {
         RaoParameters parameters = new RaoParameters();
+        RangeActionsOptimizationParameters rangeActionsOptimizationParameters = parameters.getRangeActionsOptimizationParameters();
 
-        Exception e = assertThrows(OpenRaoException.class, () -> parameters.getRangeActionsOptimizationParameters().setPstSensitivityThreshold(0.));
+        Exception e = assertThrows(OpenRaoException.class, () -> rangeActionsOptimizationParameters.setPstSensitivityThreshold(0.));
         assertEquals("pstSensitivityThreshold should be greater than 1e-6, to avoid numerical issues.", e.getMessage());
 
-        e = assertThrows(OpenRaoException.class, () -> parameters.getRangeActionsOptimizationParameters().setHvdcSensitivityThreshold(1e-7));
+        e = assertThrows(OpenRaoException.class, () -> rangeActionsOptimizationParameters.setHvdcSensitivityThreshold(1e-7));
         assertEquals("hvdcSensitivityThreshold should be greater than 1e-6, to avoid numerical issues.", e.getMessage());
 
-        e = assertThrows(OpenRaoException.class, () -> parameters.getRangeActionsOptimizationParameters().setInjectionRaSensitivityThreshold(0.));
+        e = assertThrows(OpenRaoException.class, () -> rangeActionsOptimizationParameters.setInjectionRaSensitivityThreshold(0.));
         assertEquals("injectionRaSensitivityThreshold should be greater than 1e-6, to avoid numerical issues.", e.getMessage());
     }
 }

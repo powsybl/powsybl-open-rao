@@ -79,8 +79,7 @@ public final class BestTapFinder {
             Map<String, Integer> bestTapPerPstGroup = computeBestTapPerPstGroup(minMarginPerTap);
 
             for (RangeAction<?> rangeAction : optimizationContext.getRangeActionsPerState().get(state)) {
-                if (rangeAction instanceof PstRangeAction && linearProblemResult.getActivatedRangeActions(state).contains(rangeAction)) {
-                    PstRangeAction pstRangeAction = (PstRangeAction) rangeAction;
+                if (rangeAction instanceof PstRangeAction pstRangeAction && linearProblemResult.getActivatedRangeActions(state).contains(rangeAction)) {
                     Optional<String> optGroupId = pstRangeAction.getGroupId();
                     if (optGroupId.isPresent()) {
                         roundedResult.activate(pstRangeAction, state, pstRangeAction.convertTapToAngle(bestTapPerPstGroup.get(optGroupId.get())));

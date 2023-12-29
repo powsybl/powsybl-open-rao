@@ -12,7 +12,6 @@ import com.powsybl.iidm.serde.NetworkSerDe;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static com.powsybl.open_rao.commons.logs.OpenRaoLoggerProvider.TECHNICAL_LOGS;
 
@@ -35,7 +34,7 @@ public class MultipleNetworkPool extends AbstractNetworkPool {
         List<String> variantsToBeRemoved = networkClone.getVariantManager().getVariantIds().stream()
                 .filter(variantId -> !variantId.equals(VariantManagerConstants.INITIAL_VARIANT_ID))
                 .filter(variantId -> !variantId.equals(stateSaveVariant))
-                .collect(Collectors.toList());
+                .toList();
         variantsToBeRemoved.forEach(variantId -> networkClone.getVariantManager().removeVariant(variantId));
     }
 

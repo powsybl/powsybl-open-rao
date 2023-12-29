@@ -143,7 +143,7 @@ public class LoadflowProvider extends AbstractSimpleSensitivityProvider {
     private List<Pair<String, SensitivityFunctionType>> cnecToSensitivityFunctions(Network network, String networkElementId, Set<Side> sides) {
         Identifiable<?> networkIdentifiable = network.getIdentifiable(networkElementId);
         if (networkIdentifiable instanceof Branch || networkIdentifiable instanceof DanglingLine) {
-            return getSensitivityFunctionTypes(sides).stream().map(functionType -> Pair.of(networkElementId, functionType)).collect(Collectors.toList());
+            return getSensitivityFunctionTypes(sides).stream().map(functionType -> Pair.of(networkElementId, functionType)).toList();
         } else {
             throw new OpenRaoException("Unable to create sensitivity function for " + networkElementId);
         }

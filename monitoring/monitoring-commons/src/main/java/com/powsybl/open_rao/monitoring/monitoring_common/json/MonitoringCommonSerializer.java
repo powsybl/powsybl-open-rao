@@ -10,7 +10,6 @@ import java.util.Comparator;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 public final class MonitoringCommonSerializer {
     private MonitoringCommonSerializer() {
@@ -18,7 +17,7 @@ public final class MonitoringCommonSerializer {
 
     public static void serializeAppliedRas(Map<State, Set<NetworkAction>> appliedRas, JsonGenerator jsonGenerator) throws IOException {
         for (Map.Entry<State, Set<NetworkAction>> entry : appliedRas.entrySet().stream().sorted(Comparator.comparing(e -> e.getKey().getId()))
-                .collect(Collectors.toList())) {
+                .toList()) {
             jsonGenerator.writeStartObject();
             jsonGenerator.writeStringField(JsonCommonMonitoringResultConstants.INSTANT, entry.getKey().getInstant().toString());
             Optional<Contingency> optContingency = entry.getKey().getContingency();
@@ -26,7 +25,7 @@ public final class MonitoringCommonSerializer {
                 jsonGenerator.writeStringField(JsonCommonMonitoringResultConstants.CONTINGENCY, optContingency.get().getId());
             }
             jsonGenerator.writeArrayFieldStart(JsonCommonMonitoringResultConstants.REMEDIAL_ACTIONS);
-            for (String networkActionId : entry.getValue().stream().map(NetworkAction::getId).sorted().collect(Collectors.toList())) {
+            for (String networkActionId : entry.getValue().stream().map(NetworkAction::getId).sorted().toList()) {
                 jsonGenerator.writeString(networkActionId);
             }
             jsonGenerator.writeEndArray();

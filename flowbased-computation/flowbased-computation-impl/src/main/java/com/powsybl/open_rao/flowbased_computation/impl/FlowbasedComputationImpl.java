@@ -202,7 +202,7 @@ public class FlowbasedComputationImpl implements FlowbasedComputationProvider {
                                 glsk.getId(),
                                 zeroIfNaN(result.getSensitivityOnFlow(glsk.getId(), cnec, Side.LEFT)) // TODO : handle both sides if needed
                         )
-                ).collect(Collectors.toList());
+                ).toList();
     }
 
     /**

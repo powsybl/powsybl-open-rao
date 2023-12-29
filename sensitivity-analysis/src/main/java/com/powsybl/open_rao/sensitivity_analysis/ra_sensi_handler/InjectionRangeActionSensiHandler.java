@@ -67,7 +67,7 @@ public class InjectionRangeActionSensiHandler implements RangeActionSensiHandler
         if (keySum != 0) {
             glskMap.entrySet().forEach(e -> e.setValue(e.getValue() / keySum));
         }
-        return glskMap.entrySet().stream().map(e -> new WeightedSensitivityVariable(e.getKey(), e.getValue())).collect(Collectors.toList());
+        return glskMap.entrySet().stream().map(e -> new WeightedSensitivityVariable(e.getKey(), e.getValue())).toList();
     }
 
     private double getKeySum(Map<String, Float> glskMap) {

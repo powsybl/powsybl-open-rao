@@ -15,7 +15,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
-public class PtdfApproximationTest {
+class PtdfApproximationTest {
     @Test
     void testUpdatePtdfWithTopo() {
         assertFalse(PtdfApproximation.FIXED_PTDF.shouldUpdatePtdfWithTopologicalChange());

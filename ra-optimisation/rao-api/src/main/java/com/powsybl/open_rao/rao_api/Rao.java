@@ -19,7 +19,6 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
-import java.util.stream.Collectors;
 
 /**
  * RA optimisation main API. It is a utility class (so with only static methods) used as an entry point for running
@@ -146,7 +145,7 @@ public final class Rao {
             if (providers.size() > 1 && raOptimizerName == null) {
                 // several providers and no information to select which one to choose, we can only throw
                 // an exception
-                List<String> raOptimizerNames = providers.stream().map(RaoProvider::getName).collect(Collectors.toList());
+                List<String> raOptimizerNames = providers.stream().map(RaoProvider::getName).toList();
                 throw new OpenRaoException("Several RAO implementations found (" + raOptimizerNames
                         + "), you must add configuration to select the implementation");
             }

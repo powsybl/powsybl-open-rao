@@ -171,13 +171,15 @@ class JsonRaoParametersTest extends AbstractSerDeTest {
 
     @Test
     void readErrorUnexpectedExtension() {
-        OpenRaoException e = assertThrows(OpenRaoException.class, () -> JsonRaoParameters.read(getClass().getResourceAsStream("/RaoParametersError_v2.json")));
+        InputStream inputStream = getClass().getResourceAsStream("/RaoParametersError_v2.json");
+        OpenRaoException e = assertThrows(OpenRaoException.class, () -> JsonRaoParameters.read(inputStream));
         assertEquals("Unexpected field in rao parameters: unknownField", e.getMessage());
     }
 
     @Test
     void testFailOnOldVersion() {
-        OpenRaoException e = assertThrows(OpenRaoException.class, () -> JsonRaoParameters.read(getClass().getResourceAsStream("/RaoParameters_oldVersion.json")));
+        InputStream inputStream = getClass().getResourceAsStream("/RaoParameters_oldVersion.json");
+        OpenRaoException e = assertThrows(OpenRaoException.class, () -> JsonRaoParameters.read(inputStream));
         assertEquals("RaoParameters version '2.0' cannot be deserialized. The only supported version currently is '2.1'.", e.getMessage());
     }
 

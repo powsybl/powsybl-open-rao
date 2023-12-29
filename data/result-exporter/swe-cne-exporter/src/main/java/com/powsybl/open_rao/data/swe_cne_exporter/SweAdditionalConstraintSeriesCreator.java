@@ -18,7 +18,6 @@ import com.powsybl.open_rao.data.swe_cne_exporter.xsd.AdditionalConstraintSeries
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static com.powsybl.open_rao.commons.logs.OpenRaoLoggerProvider.BUSINESS_WARNS;
 
@@ -45,7 +44,7 @@ public class SweAdditionalConstraintSeriesCreator {
         List<AngleCnecCreationContext> sortedAngleCnecs = cracCreationContext.getAngleCnecCreationContexts().stream()
                 .filter(AngleCnecCreationContext::isImported)
                 .sorted(Comparator.comparing(AngleCnecCreationContext::getCreatedCnecId))
-                .collect(Collectors.toList());
+                .toList();
         if (Objects.isNull(contingency)) {
             sortedAngleCnecs.stream().filter(angleCnecCreationContext -> Objects.isNull(angleCnecCreationContext.getContingencyId()))
                     .forEach(angleCnecCreationContext ->

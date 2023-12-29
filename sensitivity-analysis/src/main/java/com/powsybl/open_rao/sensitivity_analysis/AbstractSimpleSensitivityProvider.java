@@ -85,7 +85,7 @@ public abstract class AbstractSimpleSensitivityProvider implements CnecSensitivi
             .collect(Collectors.toSet());
         return cracContingencies.stream()
             .map(contingency -> SensitivityAnalysisUtil.convertCracContingencyToPowsybl(contingency, network))
-            .collect(Collectors.toList());
+            .toList();
     }
 
     @Override

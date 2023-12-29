@@ -13,7 +13,6 @@ import com.powsybl.commons.extensions.AbstractExtension;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 import static com.powsybl.open_rao.rao_api.RaoParametersCommons.*;
 /**
  * Extension : relative margin parameters for RAO
@@ -37,13 +36,13 @@ public class RelativeMarginsParametersExtension extends AbstractExtension<RaoPar
     public List<String> getPtdfBoundariesAsString() {
         return ptdfBoundaries.stream()
                 .map(ZoneToZonePtdfDefinition::toString)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     public void setPtdfBoundariesFromString(List<String> boundaries) {
         this.ptdfBoundaries = boundaries.stream()
                 .map(ZoneToZonePtdfDefinition::new)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     public double getPtdfSumLowerBound() {

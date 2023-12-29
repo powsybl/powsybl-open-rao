@@ -80,7 +80,7 @@ final class SystematicSensitivityAdapter {
             .filter(state -> state.getContingency().isPresent())
             .map(state -> convertCracContingencyToPowsybl(state.getContingency().get(), network))
             .distinct()
-            .collect(Collectors.toList());
+            .toList();
 
         SystematicSensitivityResult result = new SystematicSensitivityResult();
         List<SensitivityFactor> allFactorsWithoutRa = cnecSensitivityProvider.getBasecaseFactors(network);

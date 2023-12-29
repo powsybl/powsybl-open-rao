@@ -11,7 +11,6 @@ import com.powsybl.iidm.network.Network;
 
 import java.util.*;
 import java.util.concurrent.*;
-import java.util.stream.Collectors;
 
 import static com.powsybl.open_rao.util.MCDContextWrapper.wrapWithMdcContext;
 
@@ -76,7 +75,7 @@ public abstract class AbstractNetworkPool extends ForkJoinPool implements AutoCl
         List<String> variantsToBeRemoved = networkClone.getVariantManager().getVariantIds().stream()
                 .filter(variantId -> !baseNetworkVariantIds.contains(variantId))
                 .filter(variantId -> !variantId.equals(stateSaveVariant))
-                .collect(Collectors.toList());
+                .toList();
         variantsToBeRemoved.forEach(variantId -> networkClone.getVariantManager().removeVariant(variantId));
     }
 

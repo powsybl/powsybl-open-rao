@@ -77,11 +77,11 @@ public final class RaoLogger {
 
         List<String> rangeActionSetpoints = optimizationContext.getRangeActionOptimizationStates().stream().flatMap(state ->
             leaf.getActivatedRangeActions(state).stream().map(rangeAction -> {
-                double rangeActionValue = rangeAction instanceof PstRangeAction ? leaf.getOptimizedTap((PstRangeAction) rangeAction, state) :
+                double rangeActionValue = rangeAction instanceof PstRangeAction pstRangeAction ? leaf.getOptimizedTap(pstRangeAction, state) :
                     leaf.getOptimizedSetpoint(rangeAction, state);
                 return globalPstOptimization ? format("%s@%s: %.0f", rangeAction.getName(), state.getId(), rangeActionValue) :
                     format("%s: %.0f", rangeAction.getName(), rangeActionValue);
-            })).collect(Collectors.toList());
+            })).toList();
 
         boolean isRangeActionSetPointEmpty = rangeActionSetpoints.isEmpty();
         if (isRangeActionSetPointEmpty) {
@@ -195,7 +195,7 @@ public final class RaoLogger {
 
         List<FlowCnec> sortedCnecs = mostLimitingElementsAndMargins.keySet().stream()
                 .sorted(Comparator.comparing(mostLimitingElementsAndMargins::get))
-                .collect(Collectors.toList());
+                .toList();
         sortedCnecs = sortedCnecs.subList(0, Math.min(sortedCnecs.size(), numberOfLoggedElements));
 
         for (int i = 0; i < sortedCnecs.size(); i++) {
@@ -225,7 +225,7 @@ public final class RaoLogger {
         } else {
             List<FlowCnec> cnecs = objectiveFunctionResult.getMostLimitingElements(Integer.MAX_VALUE)
                     .stream().filter(cnec -> states.contains(cnec.getState()))
-                    .collect(Collectors.toList());
+                    .toList();
             cnecs = cnecs.subList(0, Math.min(cnecs.size(), maxNumberOfElements));
             return cnecs;
         }

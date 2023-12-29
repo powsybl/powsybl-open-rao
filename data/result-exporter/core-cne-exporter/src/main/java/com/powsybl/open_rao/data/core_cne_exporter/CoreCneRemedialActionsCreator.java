@@ -29,7 +29,6 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 import static com.powsybl.open_rao.data.cne_exporter_commons.CneConstants.*;
 import static com.powsybl.open_rao.data.cne_exporter_commons.CneUtil.cutString;
@@ -72,15 +71,15 @@ public final class CoreCneRemedialActionsCreator {
                 .sorted(Comparator.comparing(RemedialActionCreationContext::getNativeId))
                 .map(raCreationContext -> cneHelper.getCrac().getPstRangeAction(raCreationContext.getCreatedRAId()))
                 .filter(ra -> !Objects.isNull(ra))
-                .collect(Collectors.toList());
+                .toList();
         List<NetworkAction> sortedNetworkActions = cracCreationContext.getRemedialActionCreationContexts().stream()
                 .sorted(Comparator.comparing(RemedialActionCreationContext::getNativeId))
                 .map(raCreationContext -> cneHelper.getCrac().getNetworkAction(raCreationContext.getCreatedRAId()))
                 .filter(ra -> !Objects.isNull(ra))
-                .collect(Collectors.toList());
+                .toList();
 
         logMissingRangeActions();
-        List<PstRangeAction> usedRangeActions = sortedRangeActions.stream().filter(this::isRangeActionUsedInRao).collect(Collectors.toList());
+        List<PstRangeAction> usedRangeActions = sortedRangeActions.stream().filter(this::isRangeActionUsedInRao).toList();
         if (!usedRangeActions.isEmpty()) {
             constraintSeries.add(createPreOptimRaConstraintSeries(usedRangeActions));
         }
@@ -132,7 +131,7 @@ public final class CoreCneRemedialActionsCreator {
         // Add the remedial action series to B54 and B57
         List<ConstraintSeries> basecaseConstraintSeriesList = cnecsConstraintSeries.stream()
                 .filter(constraintSeries -> constraintSeries.getBusinessType().equals(B54_BUSINESS_TYPE) || constraintSeries.getBusinessType().equals(B57_BUSINESS_TYPE))
-                .collect(Collectors.toList());
+                .toList();
         addRemedialActionsToOtherConstraintSeries(preventiveB56.getRemedialActionSeries(), basecaseConstraintSeriesList);
         return preventiveB56;
     }
@@ -154,7 +153,7 @@ public final class CoreCneRemedialActionsCreator {
                 List<ConstraintSeries> contingencyConstraintSeriesList = cnecsConstraintSeries.stream()
                         .filter(constraintSeries -> constraintSeries.getBusinessType().equals(B54_BUSINESS_TYPE)
                                 && constraintSeries.getContingencySeries().stream().anyMatch(series -> series.getName().equals(contingency.getName())))
-                        .collect(Collectors.toList());
+                        .toList();
                 addRemedialActionsToOtherConstraintSeries(curativeB56.getRemedialActionSeries(), contingencyConstraintSeriesList);
                 // Add B56 to document
                 constraintSeriesList.add(curativeB56);

@@ -11,6 +11,7 @@ import com.powsybl.open_rao.commons.OpenRaoException;
 import com.powsybl.open_rao.data.crac_api.Identifiable;
 import com.powsybl.open_rao.data.crac_api.State;
 import com.powsybl.open_rao.data.crac_api.cnec.FlowCnec;
+import com.powsybl.open_rao.data.crac_api.cnec.Side;
 import com.powsybl.open_rao.data.crac_api.range_action.HvdcRangeAction;
 import com.powsybl.open_rao.data.crac_api.range_action.InjectionRangeAction;
 import com.powsybl.open_rao.data.crac_api.range_action.PstRangeAction;
@@ -194,71 +195,74 @@ public class UnoptimizedCnecFiller implements ProblemFiller {
     }
 
     private void defineDontOptimizeCnecConstraintsForCnecsInSeriesWithPsts(LinearProblem linearProblem, SensitivityResult sensitivityResult, boolean buildConstraint) {
-        getFlowCnecs().forEach(cnec -> cnec.getMonitoredSides().forEach(side -> {
-            // Flow variable
-            OpenRaoMPVariable flowVariable = linearProblem.getFlowVariable(cnec, side);
+        getFlowCnecs().forEach(cnec -> cnec.getMonitoredSides()
+            .forEach(side -> defineDontOptimizeCnecConstraintsForCnecInSeriesWithPsts(linearProblem, sensitivityResult, buildConstraint, cnec, side)));
+    }
 
-            // Optimize cnec binary variable
-            OpenRaoMPVariable optimizeCnecBinaryVariable = linearProblem.getOptimizeCnecBinaryVariable(cnec, side);
+    private void defineDontOptimizeCnecConstraintsForCnecInSeriesWithPsts(LinearProblem linearProblem, SensitivityResult sensitivityResult, boolean buildConstraint, FlowCnec cnec, Side side) {
+        // Flow variable
+        OpenRaoMPVariable flowVariable = linearProblem.getFlowVariable(cnec, side);
 
-            State state = getLastStateWithRangeActionAvailableForCnec(cnec);
-            if (Objects.isNull(state)) {
-                return;
+        // Optimize cnec binary variable
+        OpenRaoMPVariable optimizeCnecBinaryVariable = linearProblem.getOptimizeCnecBinaryVariable(cnec, side);
+
+        State state = getLastStateWithRangeActionAvailableForCnec(cnec);
+        if (Objects.isNull(state)) {
+            return;
+        }
+        OpenRaoMPVariable setPointVariable = linearProblem.getRangeActionSetpointVariable(flowCnecRangeActionMap.get(cnec), state);
+
+        double maxSetpoint = setPointVariable.ub();
+        double minSetpoint = setPointVariable.lb();
+        double sensitivity = zeroIfSensitivityBelowThreshold(
+            flowCnecRangeActionMap.get(cnec), sensitivityResult.getSensitivityValue(cnec, side, flowCnecRangeActionMap.get(cnec), MEGAWATT));
+        Optional<Double> minFlow = cnec.getLowerBound(side, MEGAWATT);
+        Optional<Double> maxFlow = cnec.getUpperBound(side, MEGAWATT);
+
+        double bigM = 20 * highestThresholdValue;
+        if (minFlow.isPresent()) {
+            OpenRaoMPConstraint extendSetpointBounds;
+            if (buildConstraint) {
+                extendSetpointBounds = linearProblem.addDontOptimizeCnecConstraint(
+                        -LinearProblem.infinity(),
+                        LinearProblem.infinity(), cnec,
+                    side,
+                        LinearProblem.MarginExtension.BELOW_THRESHOLD);
+                extendSetpointBounds.setCoefficient(flowVariable, 1);
+            } else {
+                extendSetpointBounds = linearProblem.getDontOptimizeCnecConstraint(cnec, side, LinearProblem.MarginExtension.BELOW_THRESHOLD);
             }
-            OpenRaoMPVariable setPointVariable = linearProblem.getRangeActionSetpointVariable(flowCnecRangeActionMap.get(cnec), state);
-
-            double maxSetpoint = setPointVariable.ub();
-            double minSetpoint = setPointVariable.lb();
-            double sensitivity = zeroIfSensitivityBelowThreshold(
-                flowCnecRangeActionMap.get(cnec), sensitivityResult.getSensitivityValue(cnec, side, flowCnecRangeActionMap.get(cnec), MEGAWATT));
-            Optional<Double> minFlow = cnec.getLowerBound(side, MEGAWATT);
-            Optional<Double> maxFlow = cnec.getUpperBound(side, MEGAWATT);
-
-            double bigM = 20 * highestThresholdValue;
-            if (minFlow.isPresent()) {
-                OpenRaoMPConstraint extendSetpointBounds;
-                if (buildConstraint) {
-                    extendSetpointBounds = linearProblem.addDontOptimizeCnecConstraint(
-                            -LinearProblem.infinity(),
-                            LinearProblem.infinity(), cnec,
-                            side,
-                            LinearProblem.MarginExtension.BELOW_THRESHOLD);
-                    extendSetpointBounds.setCoefficient(flowVariable, 1);
-                } else {
-                    extendSetpointBounds = linearProblem.getDontOptimizeCnecConstraint(cnec, side, LinearProblem.MarginExtension.BELOW_THRESHOLD);
-                }
-                extendSetpointBounds.setCoefficient(setPointVariable, -sensitivity);
-                extendSetpointBounds.setCoefficient(optimizeCnecBinaryVariable, bigM);
-                double lb = minFlow.get();
-                if (sensitivity >= 0) {
-                    lb += -maxSetpoint * sensitivity;
-                } else {
-                    lb += -minSetpoint * sensitivity;
-                }
-                extendSetpointBounds.setLb(lb);
+            extendSetpointBounds.setCoefficient(setPointVariable, -sensitivity);
+            extendSetpointBounds.setCoefficient(optimizeCnecBinaryVariable, bigM);
+            double lb = minFlow.get();
+            if (sensitivity >= 0) {
+                lb += -maxSetpoint * sensitivity;
+            } else {
+                lb += -minSetpoint * sensitivity;
             }
-            if (maxFlow.isPresent()) {
-                OpenRaoMPConstraint extendSetpointBounds;
-                if (buildConstraint) {
-                    extendSetpointBounds = linearProblem.addDontOptimizeCnecConstraint(
-                            -LinearProblem.infinity(),
-                            LinearProblem.infinity(), cnec, side,
-                            LinearProblem.MarginExtension.ABOVE_THRESHOLD);
-                    extendSetpointBounds.setCoefficient(flowVariable, -1);
-                } else {
-                    extendSetpointBounds = linearProblem.getDontOptimizeCnecConstraint(cnec, side, LinearProblem.MarginExtension.ABOVE_THRESHOLD);
-                }
-                extendSetpointBounds.setCoefficient(setPointVariable, sensitivity);
-                extendSetpointBounds.setCoefficient(optimizeCnecBinaryVariable, bigM);
-                double lb = -maxFlow.get();
-                if (sensitivity >= 0) {
-                    lb += minSetpoint * sensitivity;
-                } else {
-                    lb += maxSetpoint * sensitivity;
-                }
-                extendSetpointBounds.setLb(lb);
+            extendSetpointBounds.setLb(lb);
+        }
+        if (maxFlow.isPresent()) {
+            OpenRaoMPConstraint extendSetpointBounds;
+            if (buildConstraint) {
+                extendSetpointBounds = linearProblem.addDontOptimizeCnecConstraint(
+                        -LinearProblem.infinity(),
+                        LinearProblem.infinity(), cnec, side,
+                        LinearProblem.MarginExtension.ABOVE_THRESHOLD);
+                extendSetpointBounds.setCoefficient(flowVariable, -1);
+            } else {
+                extendSetpointBounds = linearProblem.getDontOptimizeCnecConstraint(cnec, side, LinearProblem.MarginExtension.ABOVE_THRESHOLD);
             }
-        }));
+            extendSetpointBounds.setCoefficient(setPointVariable, sensitivity);
+            extendSetpointBounds.setCoefficient(optimizeCnecBinaryVariable, bigM);
+            double lb = -maxFlow.get();
+            if (sensitivity >= 0) {
+                lb += minSetpoint * sensitivity;
+            } else {
+                lb += maxSetpoint * sensitivity;
+            }
+            extendSetpointBounds.setLb(lb);
+        }
     }
 
     /**

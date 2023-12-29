@@ -10,6 +10,8 @@ import com.powsybl.open_rao.virtual_hubs.VirtualHubsConfiguration;
 import org.junit.jupiter.api.Test;
 import org.xml.sax.SAXException;
 
+import java.io.InputStream;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -17,7 +19,7 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 class VirtualHubsConfigurationImporterTest {
     @Test
-    public void checkThatConfigurationFileIsCorrectlyImported() {
+    void checkThatConfigurationFileIsCorrectlyImported() {
         VirtualHubsConfigurationImporter importer = new VirtualHubsConfigurationImporter();
         VirtualHubsConfiguration configuration = importer.importConfiguration(getClass().getResourceAsStream("/virtualHubsConfigurationFile.xml"));
 
@@ -26,7 +28,7 @@ class VirtualHubsConfigurationImporterTest {
     }
 
     @Test
-    public void checkThatConfigurationImportWithNullInputStreamThrows() {
+    void checkThatConfigurationImportWithNullInputStreamThrows() {
         VirtualHubsConfigurationImporter importer = new VirtualHubsConfigurationImporter();
         NullPointerException thrown = assertThrows(
             NullPointerException.class,
@@ -37,11 +39,12 @@ class VirtualHubsConfigurationImporterTest {
     }
 
     @Test
-    public void checkThatInvalidInputStreamThrowsException() {
+    void checkThatInvalidInputStreamThrowsException() {
         VirtualHubsConfigurationImporter importer = new VirtualHubsConfigurationImporter();
+        InputStream inputStream = getClass().getResourceAsStream("/truncatedFile.xml");
         VirtualHubsConfigProcessingException thrown = assertThrows(
             VirtualHubsConfigProcessingException.class,
-            () -> importer.importConfiguration(getClass().getResourceAsStream("/truncatedFile.xml")),
+            () -> importer.importConfiguration(inputStream),
             "Errors in XML processing should be thrown as VirtualHubsConfigProcessingException"
         );
         assertTrue(thrown.getCause() instanceof SAXException);

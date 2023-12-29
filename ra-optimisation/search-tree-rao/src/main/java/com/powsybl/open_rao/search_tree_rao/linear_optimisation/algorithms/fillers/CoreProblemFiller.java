@@ -31,7 +31,6 @@ import org.apache.commons.lang3.NotImplementedException;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * @author Pengbo Wang {@literal <pengbo.wang at rte-international.com>}
@@ -173,7 +172,7 @@ public class CoreProblemFiller implements ProblemFiller {
 
         List<State> statesBeforeCnec = FillersUtil.getPreviousStates(cnec.getState(), optimizationContext).stream()
             .sorted((s1, s2) -> Integer.compare(s2.getInstant().getOrder(), s1.getInstant().getOrder())) // start with curative state
-            .collect(Collectors.toList());
+            .toList();
 
         Set<RangeAction<?>> alreadyConsideredAction = new HashSet<>();
 
@@ -348,9 +347,9 @@ public class CoreProblemFiller implements ProblemFiller {
         double maxAbsoluteSetpoint = Double.POSITIVE_INFINITY;
         double minRelativeSetpoint = Double.NEGATIVE_INFINITY;
         double maxRelativeSetpoint = Double.POSITIVE_INFINITY;
-        if (rangeAction instanceof PstRangeAction) {
-            Map<Integer, Double> tapToAngleMap = ((PstRangeAction) rangeAction).getTapToAngleConversionMap();
-            List<TapRange> ranges = ((PstRangeAction) rangeAction).getRanges();
+        if (rangeAction instanceof PstRangeAction pstRangeAction) {
+            Map<Integer, Double> tapToAngleMap = pstRangeAction.getTapToAngleConversionMap();
+            List<TapRange> ranges = pstRangeAction.getRanges();
 
             int minAbsoluteTap = tapToAngleMap.keySet().stream().mapToInt(k -> k).min().orElseThrow();
             int maxAbsoluteTap = tapToAngleMap.keySet().stream().mapToInt(k -> k).max().orElseThrow();
@@ -364,8 +363,8 @@ public class CoreProblemFiller implements ProblemFiller {
                         maxAbsoluteTap = Math.min(maxAbsoluteTap, range.getMaxTap());
                         break;
                     case RELATIVE_TO_INITIAL_NETWORK:
-                        minAbsoluteTap = Math.max(minAbsoluteTap, ((PstRangeAction) rangeAction).getInitialTap() + range.getMinTap());
-                        maxAbsoluteTap = Math.min(maxAbsoluteTap, ((PstRangeAction) rangeAction).getInitialTap() + range.getMaxTap());
+                        minAbsoluteTap = Math.max(minAbsoluteTap, pstRangeAction.getInitialTap() + range.getMinTap());
+                        maxAbsoluteTap = Math.min(maxAbsoluteTap, pstRangeAction.getInitialTap() + range.getMaxTap());
                         break;
                     case RELATIVE_TO_PREVIOUS_INSTANT:
                         minRelativeTap = Math.max(minRelativeTap, range.getMinTap());
@@ -380,10 +379,10 @@ public class CoreProblemFiller implements ProblemFiller {
             maxAbsoluteSetpoint = Math.max(setPointMinAbsoluteTap, setPointMaxAbsoluteTap);
             // Make sure we stay in the range by multiplying the relative tap by the smallest angle between taps.
             // (As long as minRelativeTap is negative (or zero) and maxRelativeTap is positive (or zero).)
-            minRelativeSetpoint = minRelativeTap * ((PstRangeAction) rangeAction).getSmallestAngleStep();
-            maxRelativeSetpoint = maxRelativeTap * ((PstRangeAction) rangeAction).getSmallestAngleStep();
-        } else if (rangeAction instanceof StandardRangeAction<?>) {
-            List<StandardRange> ranges = ((StandardRangeAction<?>) rangeAction).getRanges();
+            minRelativeSetpoint = minRelativeTap * pstRangeAction.getSmallestAngleStep();
+            maxRelativeSetpoint = maxRelativeTap * pstRangeAction.getSmallestAngleStep();
+        } else if (rangeAction instanceof StandardRangeAction<?> standardRangeAction) {
+            List<StandardRange> ranges = standardRangeAction.getRanges();
             for (StandardRange range : ranges) {
                 RangeType rangeType = range.getRangeType();
                 switch (rangeType) {
@@ -392,8 +391,8 @@ public class CoreProblemFiller implements ProblemFiller {
                         maxAbsoluteSetpoint = Math.min(maxAbsoluteSetpoint, range.getMax());
                         break;
                     case RELATIVE_TO_INITIAL_NETWORK:
-                        minAbsoluteSetpoint = Math.max(minAbsoluteSetpoint, ((StandardRangeAction<?>) rangeAction).getInitialSetpoint() + range.getMin());
-                        maxAbsoluteSetpoint = Math.min(maxAbsoluteSetpoint, ((StandardRangeAction<?>) rangeAction).getInitialSetpoint() + range.getMax());
+                        minAbsoluteSetpoint = Math.max(minAbsoluteSetpoint, standardRangeAction.getInitialSetpoint() + range.getMin());
+                        maxAbsoluteSetpoint = Math.min(maxAbsoluteSetpoint, standardRangeAction.getInitialSetpoint() + range.getMax());
                         break;
                     case RELATIVE_TO_PREVIOUS_INSTANT:
                         minRelativeSetpoint = Math.max(minRelativeSetpoint, range.getMin());

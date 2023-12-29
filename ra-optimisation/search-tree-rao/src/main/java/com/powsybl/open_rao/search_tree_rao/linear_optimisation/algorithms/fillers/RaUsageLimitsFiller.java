@@ -96,9 +96,9 @@ public class RaUsageLimitsFiller implements ProblemFiller {
      *  a distance smaller then 0.3 * getAverageAbsoluteTapToAngleConversionFactor from a feasible setpoint in the MIP)
      */
     private double getInitialSetpointRelaxation(RangeAction rangeAction) {
-        if (rangeAction instanceof PstRangeAction && arePstSetpointsApproximated) {
+        if (rangeAction instanceof PstRangeAction pstRangeAction && arePstSetpointsApproximated) {
             // The BestTapFinder is accurate at 35% of the setpoint difference between 2 taps. Using 30% here to be safe.
-            return 0.3 * getAverageAbsoluteTapToAngleConversionFactor((PstRangeAction) rangeAction);
+            return 0.3 * getAverageAbsoluteTapToAngleConversionFactor(pstRangeAction);
         } else {
             return RANGE_ACTION_SETPOINT_EPSILON;
         }

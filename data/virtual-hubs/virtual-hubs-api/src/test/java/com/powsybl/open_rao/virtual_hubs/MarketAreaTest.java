@@ -15,7 +15,7 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 class MarketAreaTest {
     @Test
-    public void checkThatMarketAreaIsCorrectlyCreated() {
+    void checkThatMarketAreaIsCorrectlyCreated() {
         MarketArea myMarketArea = new MarketArea("AreaCode", "AreaEic", true);
         assertEquals("AreaCode", myMarketArea.getCode());
         assertEquals("AreaEic", myMarketArea.getEic());
@@ -28,7 +28,7 @@ class MarketAreaTest {
     }
 
     @Test
-    public void checkThatMarketAreaCreationThrowsWhenCodeIsNull() {
+    void checkThatMarketAreaCreationThrowsWhenCodeIsNull() {
         NullPointerException thrown = assertThrows(
             NullPointerException.class,
             () -> new MarketArea(null, "AreaEic", true),
@@ -38,7 +38,7 @@ class MarketAreaTest {
     }
 
     @Test
-    public void checkThatMarketAreaCreationThrowsWhenEicIsNull() {
+    void checkThatMarketAreaCreationThrowsWhenEicIsNull() {
         NullPointerException thrown = assertThrows(
             NullPointerException.class,
             () -> new MarketArea("AreaCode", null, true),

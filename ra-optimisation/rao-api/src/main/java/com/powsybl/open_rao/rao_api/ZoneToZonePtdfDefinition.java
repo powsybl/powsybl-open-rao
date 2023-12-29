@@ -83,7 +83,7 @@ public class ZoneToZonePtdfDefinition {
     }
 
     public List<EICode> getEiCodes() {
-        return zoneToSlackPtdfs.stream().map(WeightedZoneToSlackPtdf::getEiCode).collect(Collectors.toList());
+        return zoneToSlackPtdfs.stream().map(WeightedZoneToSlackPtdf::getEiCode).toList();
     }
 
     public double getWeight(EICode eiCode) {

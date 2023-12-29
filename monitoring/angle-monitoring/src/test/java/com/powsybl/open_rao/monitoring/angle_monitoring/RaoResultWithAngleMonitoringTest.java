@@ -27,7 +27,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 /**
  * @author Mohamed Ben Rejeb {@literal <mohamed.ben-rejeb at rte-france.com>}
  */
-public class RaoResultWithAngleMonitoringTest {
+class RaoResultWithAngleMonitoringTest {
     private static final double DOUBLE_TOLERANCE = 0.1;
 
     @Test
