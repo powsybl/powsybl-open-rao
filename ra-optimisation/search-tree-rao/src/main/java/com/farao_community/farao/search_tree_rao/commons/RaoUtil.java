@@ -10,7 +10,6 @@ package com.farao_community.farao.search_tree_rao.commons;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.commons.logs.FaraoLoggerProvider;
-import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.RemedialAction;
 import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.cnec.Cnec;
@@ -28,7 +27,10 @@ import com.farao_community.farao.search_tree_rao.result.api.*;
 import com.powsybl.iidm.network.Network;
 import org.apache.commons.lang3.tuple.Pair;
 
-import java.util.*;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static java.lang.String.format;
@@ -144,7 +146,7 @@ public final class RaoUtil {
         Set<UsageMethod> usageMethods = getAllUsageMethods(usageRules, remedialAction, state, prePerimeterResult, flowCnecs, network, raoParameters);
         UsageMethod finalUsageMethod = UsageMethod.getStrongestUsageMethod(usageMethods);
 
-        if (state.getInstant().equals(Instant.AUTO)) {
+        if (state.getInstant().isAuto()) {
             if (finalUsageMethod.equals(UsageMethod.AVAILABLE)) {
                 FaraoLoggerProvider.BUSINESS_WARNS.warn(format("The RAO only knows how to interpret 'forced' usage method for automatons. Therefore, %s will be ignored for this state: %s", remedialAction.getName(), state.getId()));
                 return false;

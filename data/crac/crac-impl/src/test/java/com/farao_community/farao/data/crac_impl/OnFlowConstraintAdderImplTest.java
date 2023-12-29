@@ -155,9 +155,9 @@ class OnFlowConstraintAdderImplTest {
 
     @Test
     void testNoUsageMethodException() {
-        OnFlowConstraintAdder<NetworkActionAdder> adder = remedialActionAdder.newOnFlowConstraintUsageRule().withInstant(Instant.PREVENTIVE).withFlowCnec("cnec2stateCurativeContingency1");
+        OnFlowConstraintAdder<NetworkActionAdder> adder = remedialActionAdder.newOnFlowConstraintUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withFlowCnec("cnec2stateCurativeContingency1");
         FaraoException exception = assertThrows(FaraoException.class, adder::add);
-        assertEquals("Cannot add OnInstant without a instant. Please use withInstant() with a non null value", exception.getMessage());
+        assertEquals("Cannot add OnFlowConstraint without a usage method. Please use withUsageMethod() with a non null value", exception.getMessage());
     }
 
     private void addCnec(String id, String instantId) {
@@ -190,9 +190,7 @@ class OnFlowConstraintAdderImplTest {
         // PREVENTIVE RA
         remedialActionAdder.newOnFlowConstraintUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withFlowCnec("cnec-prev").withUsageMethod(UsageMethod.AVAILABLE).add(); // ok
         remedialActionAdder.newOnFlowConstraintUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withFlowCnec("cnec-out").withUsageMethod(UsageMethod.AVAILABLE).add(); // ok
-        adder = remedialActionAdder.newOnFlowConstraintUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withFlowCnec("cnec-auto").withUsageMethod(UsageMethod.AVAILABLE); // nok
-        Exception exception = assertThrows(FaraoException.class, adder::add);
-        assertEquals("TODO Remedial actions available at instant 'auto' on a CNEC constraint at instant 'preventive' are not allowed.", exception.getMessage());
+        remedialActionAdder.newOnFlowConstraintUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withFlowCnec("cnec-auto").withUsageMethod(UsageMethod.AVAILABLE).add(); // ok
         remedialActionAdder.newOnFlowConstraintUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withFlowCnec("cnec-cur").withUsageMethod(UsageMethod.AVAILABLE).add(); // ok
 
         // AUTO RA

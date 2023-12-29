@@ -8,7 +8,6 @@
 package com.farao_community.farao.data.crac_impl;
 
 import com.farao_community.farao.commons.FaraoException;
-import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.RemedialAction;
 import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.cnec.Cnec;
@@ -17,7 +16,10 @@ import com.farao_community.farao.data.crac_api.usage_rule.*;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
 
-import java.util.*;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -86,13 +88,8 @@ public abstract class AbstractRemedialAction<I extends RemedialAction<I>> extend
         if (usageRule instanceof OnFlowConstraint) {
             return Set.of(((OnFlowConstraint) usageRule).getFlowCnec());
         } else if (usageRule instanceof OnFlowConstraintInCountry) {
-            Map<Instant, Set<Instant>> allowedCnecInstantPerRaInstant = Map.of(
-                Instant.PREVENTIVE, Set.of(Instant.PREVENTIVE, Instant.OUTAGE, Instant.CURATIVE),
-                Instant.AUTO, Set.of(Instant.AUTO),
-                Instant.CURATIVE, Set.of(Instant.CURATIVE)
-            );
             return perimeterCnecs.stream()
-                .filter(cnec -> allowedCnecInstantPerRaInstant.get(usageRule.getInstant()).contains(cnec.getState().getInstant()))
+                .filter(cnec -> !cnec.getState().getInstant().comesBefore(usageRule.getInstant()))
                 .filter(cnec -> isCnecInCountry(cnec, ((OnFlowConstraintInCountry) usageRule).getCountry(), network)).collect(Collectors.toSet());
         } else {
             throw new FaraoException(String.format("This method should only be used for Ofc Usage rules not for this type of UsageRule: %s", usageRule.getClass().getName()));
@@ -101,7 +98,7 @@ public abstract class AbstractRemedialAction<I extends RemedialAction<I>> extend
 
     private <T extends UsageRule> List<T> getUsageRules(Class<T> usageRuleClass, State state) {
         return getUsageRules().stream().filter(usageRuleClass::isInstance).map(usageRuleClass::cast)
-            .filter(ofc -> state.getInstant().equals(Instant.AUTO) ?
+            .filter(ofc -> state.getInstant().isAuto() ?
                 ofc.getUsageMethod(state).equals(UsageMethod.FORCED) :
                 ofc.getUsageMethod(state).equals(UsageMethod.AVAILABLE) || ofc.getUsageMethod(state).equals(UsageMethod.FORCED))
             .toList();

@@ -281,7 +281,7 @@ class CimCracCreatorTest {
                         .anyMatch(
                                 ur -> ur.getInstant().equals(instant)
                                         && ur.getFlowCnec().getId().equals(flowCnecId)
-                                        && ur.getUsageMethod().equals(instant.equals(Instant.AUTO) ? UsageMethod.FORCED : UsageMethod.AVAILABLE)
+                                        && ur.getUsageMethod().equals(instant.isAuto() ? UsageMethod.FORCED : UsageMethod.AVAILABLE)
                         ));
     }
 

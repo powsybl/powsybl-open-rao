@@ -51,12 +51,10 @@ public class OnVoltageConstraintAdderImpl<T extends AbstractRemedialActionAdder<
 
     @Override
     public T add() {
-        assertAttributeNotNull(instantId, "OnInstant", "instant", "withInstant()");
+        assertAttributeNotNull(instantId, "OnVoltageConstraint", "instant", "withInstant()");
         assertAttributeNotNull(voltageCnecId, "OnVoltageConstraint", "voltage cnec", "withVoltageCnec()");
+        assertAttributeNotNull(usageMethod, "OnVoltageConstraint", "usage method", "withUsageMethod()");
 
-        if (Objects.isNull(usageMethod)) {
-            throw new FaraoException("Since CRAC version 2.0, the field usageMethod is required for OnVoltageConstraint usage rules");
-        }
         Instant instant = owner.getCrac().getInstant(instantId);
         if (instant.isOutage()) {
             throw new FaraoException("OnVoltageConstraint usage rules are not allowed for OUTAGE instant.");

@@ -8,7 +8,7 @@
 package com.farao_community.farao.data.crac_io_json.deserializers;
 
 import com.farao_community.farao.commons.FaraoException;
-import com.farao_community.farao.data.crac_api.Instant;
+import com.farao_community.farao.data.crac_api.InstantKind;
 import com.farao_community.farao.data.crac_api.RemedialActionAdder;
 import com.farao_community.farao.data.crac_api.usage_rule.OnFlowConstraintInCountryAdder;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
@@ -35,8 +35,8 @@ public final class OnFlowConstraintInCountryArrayDeserializer {
                     case INSTANT:
                         String instantId = jsonParser.nextTextValue();
                         adder.withInstant(instantId);
-                        if (getPrimaryVersionNumber(version) < 2 ) {
-                            adder.withUsageMethod(instant.equals(Instant.AUTO) ? UsageMethod.FORCED : UsageMethod.AVAILABLE);
+                        if (getPrimaryVersionNumber(version) < 2) {
+                            adder.withUsageMethod(deseralizeInstantKind(instantId).equals(InstantKind.AUTO) ? UsageMethod.FORCED : UsageMethod.AVAILABLE);
                         }
                         break;
                     case USAGE_METHOD:

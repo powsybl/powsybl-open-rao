@@ -248,8 +248,8 @@ public final class ExhaustiveCracCreation {
             .withTapToAngleConversionMap(Map.of(-3, 0., -2, .5))
             .newTapRange().withRangeType(RangeType.ABSOLUTE).withMinTap(1).withMaxTap(7).add()
             .newTapRange().withRangeType(RangeType.RELATIVE_TO_INITIAL_NETWORK).withMinTap(-3).withMaxTap(3).add()
-            .newOnInstantUsageRule().withUsageMethod(UsageMethod.FORCED).withInstant(Instant.PREVENTIVE).add()
-            .newOnFlowConstraintUsageRule().withInstant(Instant.PREVENTIVE).withFlowCnec("cnec3curId").withUsageMethod(UsageMethod.AVAILABLE).add()
+            .newOnInstantUsageRule().withUsageMethod(UsageMethod.FORCED).withInstant(PREVENTIVE_INSTANT_ID).add()
+            .newOnFlowConstraintUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withFlowCnec("cnec3curId").withUsageMethod(UsageMethod.AVAILABLE).add()
             .add();
 
         crac.newHvdcRangeAction().withId("hvdcRange1Id")

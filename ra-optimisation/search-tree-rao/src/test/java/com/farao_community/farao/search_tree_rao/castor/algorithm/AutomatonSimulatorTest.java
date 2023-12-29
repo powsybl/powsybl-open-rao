@@ -250,10 +250,10 @@ class AutomatonSimulatorTest {
     @Test
     void testGatherCnecsError() {
         RangeAction<?> ra = Mockito.mock(RangeAction.class);
-        Mockito.when(ra.toString()).thenReturn("Range Action");
-        Mockito.when(ra.getUsageMethod(autoState)).thenReturn(UsageMethod.UNDEFINED);
+        Mockito.when(ra.toString()).thenReturn("RangeAction");
+        Mockito.when(ra.getUsageMethod(autoState)).thenReturn(UsageMethod.AVAILABLE);
         FaraoException exception = assertThrows(FaraoException.class, () -> automatonSimulator.gatherFlowCnecsForAutoRangeAction(ra, autoState, network));
-        assertEquals("Range action Range Action has usage method AVAILABLE although FORCED or TO_BE_EVALUATED were expected.", exception.getMessage());
+        assertEquals("Range action RangeAction has usage method AVAILABLE although FORCED was expected.", exception.getMessage());
     }
 
     @Test

@@ -58,6 +58,7 @@ class RaoUtilTest {
     private static final double DOUBLE_TOLERANCE = 0.1;
     private static final String PREVENTIVE_INSTANT_ID = "preventive";
     private static final String CURATIVE_INSTANT_ID = "curative";
+    private static final String AUTO_INSTANT_ID = "auto";
 
     private RaoParameters raoParameters;
     private RaoInput raoInput;
@@ -243,7 +244,7 @@ class RaoUtilTest {
         // asserts that a preventive remedial action with forced usage rule cannot be available
         RemedialAction<?> na3 = crac.newNetworkAction().withId("na3")
             .newTopologicalAction().withNetworkElement("ne2").withActionType(ActionType.CLOSE).add()
-            .newOnInstantUsageRule().withInstant(Instant.PREVENTIVE).withUsageMethod(UsageMethod.FORCED).add()
+            .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withUsageMethod(UsageMethod.FORCED).add()
             .add();
         assertFalse(isRemedialActionAvailable(na3, optimizedState, prePerimeterResult, crac.getFlowCnecs(), network, raoParameters));
 
@@ -259,7 +260,7 @@ class RaoUtilTest {
         OnInstant onInstant = Mockito.mock(OnInstant.class);
         OnFlowConstraint onFlowConstraint = Mockito.mock(OnFlowConstraint.class);
         State automatonState = Mockito.mock(State.class);
-        when(automatonState.getInstant()).thenReturn(Instant.AUTO);
+        when(automatonState.getInstant()).thenReturn(crac.getInstant(AUTO_INSTANT_ID));
         when(automatonState.getId()).thenReturn("fake automaton state");
 
         // remedial action with OnInstant Usage Rule

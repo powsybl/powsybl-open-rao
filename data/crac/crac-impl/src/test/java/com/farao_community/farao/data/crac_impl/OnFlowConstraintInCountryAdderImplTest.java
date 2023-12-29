@@ -126,8 +126,8 @@ class OnFlowConstraintInCountryAdderImplTest {
 
     @Test
     void testNoUsageMethodException() {
-        OnFlowConstraintInCountryAdder<NetworkActionAdder> adder = remedialActionAdder.newOnFlowConstraintInCountryUsageRule().withInstant(Instant.PREVENTIVE).withCountry(Country.FR);
+        OnFlowConstraintInCountryAdder<NetworkActionAdder> adder = remedialActionAdder.newOnFlowConstraintInCountryUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withCountry(Country.FR);
         FaraoException exception = assertThrows(FaraoException.class, adder::add);
-        assertEquals("Cannot add OnInstant without a instant. Please use withInstant() with a non null value", exception.getMessage());
+        assertEquals("Cannot add OnFlowConstraintInCountry without a usage method. Please use withUsageMethod() with a non null value", exception.getMessage());
     }
 }

@@ -142,9 +142,9 @@ class OnVoltageConstraintAdderImplTest {
 
     @Test
     void testNoUsageMethodException() {
-        OnVoltageConstraintAdder<NetworkActionAdder> adder = remedialActionAdder.newOnVoltageConstraintUsageRule().withInstant(Instant.PREVENTIVE).withVoltageCnec("cnec2stateCurativeContingency1");
+        OnVoltageConstraintAdder<NetworkActionAdder> adder = remedialActionAdder.newOnVoltageConstraintUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withVoltageCnec("cnec2stateCurativeContingency1");
         FaraoException exception = assertThrows(FaraoException.class, adder::add);
-        assertEquals("Cannot add OnInstant without a instant. Please use withInstant() with a non null value", exception.getMessage());
+        assertEquals("Cannot add OnVoltageConstraint without a usage method. Please use withUsageMethod() with a non null value", exception.getMessage());
     }
 
     private void addCnec(String id, String instantId) {
@@ -171,35 +171,31 @@ class OnVoltageConstraintAdderImplTest {
         OnVoltageConstraintAdder<NetworkActionAdder> adder;
 
         // PREVENTIVE RA
-        remedialActionAdder.newOnVoltageConstraintUsageRule().withInstant(Instant.PREVENTIVE).withVoltageCnec("cnec-prev").withUsageMethod(UsageMethod.AVAILABLE).add(); // ok
-        remedialActionAdder.newOnVoltageConstraintUsageRule().withInstant(Instant.PREVENTIVE).withVoltageCnec("cnec-out").withUsageMethod(UsageMethod.AVAILABLE).add(); // ok
-        adder = remedialActionAdder.newOnVoltageConstraintUsageRule().withInstant(Instant.PREVENTIVE).withVoltageCnec("cnec-auto").withUsageMethod(UsageMethod.AVAILABLE); // nok
-        Exception exception = assertThrows(FaraoException.class, adder::add);
-        assertEquals("TODO Remedial actions available at instant 'auto' on a CNEC constraint at instant 'outage' are not allowed.", exception.getMessage());
-        remedialActionAdder.newOnVoltageConstraintUsageRule().withInstant(Instant.PREVENTIVE).withVoltageCnec("cnec-cur").withUsageMethod(UsageMethod.AVAILABLE).add(); // ok
+        remedialActionAdder.newOnVoltageConstraintUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withVoltageCnec("cnec-prev").withUsageMethod(UsageMethod.AVAILABLE).add(); // ok
+        remedialActionAdder.newOnVoltageConstraintUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withVoltageCnec("cnec-out").withUsageMethod(UsageMethod.AVAILABLE).add(); // ok
+        remedialActionAdder.newOnVoltageConstraintUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withVoltageCnec("cnec-auto").withUsageMethod(UsageMethod.AVAILABLE).add(); // ok
+        remedialActionAdder.newOnVoltageConstraintUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withVoltageCnec("cnec-cur").withUsageMethod(UsageMethod.AVAILABLE).add(); // ok
 
         // AUTO RA
-        adder = remedialActionAdder.newOnVoltageConstraintUsageRule().withInstant(Instant.AUTO).withVoltageCnec("cnec-prev").withUsageMethod(UsageMethod.FORCED); // nok
+        adder = remedialActionAdder.newOnVoltageConstraintUsageRule().withInstant(AUTO_INSTANT_ID).withVoltageCnec("cnec-prev").withUsageMethod(UsageMethod.FORCED); // nok
+        Exception exception = assertThrows(FaraoException.class, adder::add);
+        assertEquals("Remedial actions available at instant 'auto' on a CNEC constraint at instant 'preventive' are not allowed.", exception.getMessage());
+        adder = remedialActionAdder.newOnVoltageConstraintUsageRule().withInstant(AUTO_INSTANT_ID).withVoltageCnec("cnec-out").withUsageMethod(UsageMethod.FORCED); // nok
         exception = assertThrows(FaraoException.class, adder::add);
-        assertEquals("TODO Remedial actions available at instant 'auto' on a CNEC constraint at instant 'outage' are not allowed.", exception.getMessage());
-        adder = remedialActionAdder.newOnVoltageConstraintUsageRule().withInstant(Instant.AUTO).withVoltageCnec("cnec-out").withUsageMethod(UsageMethod.FORCED); // nok
-        exception = assertThrows(FaraoException.class, adder::add);
-        assertEquals("TODO Remedial actions available at instant 'auto' on a CNEC constraint at instant 'outage' are not allowed.", exception.getMessage());
-        remedialActionAdder.newOnVoltageConstraintUsageRule().withInstant(Instant.AUTO).withVoltageCnec("cnec-auto").withUsageMethod(UsageMethod.FORCED).add(); // ok
-        adder = remedialActionAdder.newOnVoltageConstraintUsageRule().withInstant(Instant.AUTO).withVoltageCnec("cnec-cur").withUsageMethod(UsageMethod.FORCED); // nok
-        exception = assertThrows(FaraoException.class, adder::add);
-        assertEquals("TODO Remedial actions available at instant 'auto' on a CNEC constraint at instant 'outage' are not allowed.", exception.getMessage());
+        assertEquals("Remedial actions available at instant 'auto' on a CNEC constraint at instant 'outage' are not allowed.", exception.getMessage());
+        remedialActionAdder.newOnVoltageConstraintUsageRule().withInstant(AUTO_INSTANT_ID).withVoltageCnec("cnec-auto").withUsageMethod(UsageMethod.FORCED).add(); // ok
+        remedialActionAdder.newOnVoltageConstraintUsageRule().withInstant(AUTO_INSTANT_ID).withVoltageCnec("cnec-cur").withUsageMethod(UsageMethod.FORCED).add(); // ok
 
         // CURATIVE RA
-        adder = remedialActionAdder.newOnVoltageConstraintUsageRule().withInstant(Instant.CURATIVE).withVoltageCnec("cnec-prev").withUsageMethod(UsageMethod.AVAILABLE); // nok
+        adder = remedialActionAdder.newOnVoltageConstraintUsageRule().withInstant(CURATIVE_INSTANT_ID).withVoltageCnec("cnec-prev").withUsageMethod(UsageMethod.AVAILABLE); // nok
         exception = assertThrows(FaraoException.class, adder::add);
-        assertEquals("TODO Remedial actions available at instant 'auto' on a CNEC constraint at instant 'outage' are not allowed.", exception.getMessage());
-        adder = remedialActionAdder.newOnVoltageConstraintUsageRule().withInstant(Instant.CURATIVE).withVoltageCnec("cnec-out").withUsageMethod(UsageMethod.AVAILABLE); // nok
+        assertEquals("Remedial actions available at instant 'curative' on a CNEC constraint at instant 'preventive' are not allowed.", exception.getMessage());
+        adder = remedialActionAdder.newOnVoltageConstraintUsageRule().withInstant(CURATIVE_INSTANT_ID).withVoltageCnec("cnec-out").withUsageMethod(UsageMethod.AVAILABLE); // nok
         exception = assertThrows(FaraoException.class, adder::add);
-        assertEquals("TODO Remedial actions available at instant 'auto' on a CNEC constraint at instant 'outage' are not allowed.", exception.getMessage());
-        adder = remedialActionAdder.newOnVoltageConstraintUsageRule().withInstant(Instant.CURATIVE).withVoltageCnec("cnec-auto").withUsageMethod(UsageMethod.AVAILABLE); // nok
+        assertEquals("Remedial actions available at instant 'curative' on a CNEC constraint at instant 'outage' are not allowed.", exception.getMessage());
+        adder = remedialActionAdder.newOnVoltageConstraintUsageRule().withInstant(CURATIVE_INSTANT_ID).withVoltageCnec("cnec-auto").withUsageMethod(UsageMethod.AVAILABLE); // nok
         exception = assertThrows(FaraoException.class, adder::add);
-        assertEquals("TODO Remedial actions available at instant 'auto' on a CNEC constraint at instant 'outage' are not allowed.", exception.getMessage());
-        remedialActionAdder.newOnVoltageConstraintUsageRule().withInstant(Instant.CURATIVE).withVoltageCnec("cnec-cur").withUsageMethod(UsageMethod.AVAILABLE).add(); // ok
+        assertEquals("Remedial actions available at instant 'curative' on a CNEC constraint at instant 'auto' are not allowed.", exception.getMessage());
+        remedialActionAdder.newOnVoltageConstraintUsageRule().withInstant(CURATIVE_INSTANT_ID).withVoltageCnec("cnec-cur").withUsageMethod(UsageMethod.AVAILABLE).add(); // ok
     }
 }
