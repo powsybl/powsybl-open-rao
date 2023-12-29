@@ -211,8 +211,7 @@
     "operator" : "RTE",
     "onFlowConstraintUsageRules" : [ {
       "instant" : "preventive",
-      "flowCnecId" : "cnec3prevId",
-      "usageMethod" : "available"
+      "flowCnecId" : "cnec3prevId"
     } ],
     "networkElementId" : "pst2",
     "groupId" : "group-1-pst",
@@ -241,8 +240,7 @@
     "operator" : "RTE",
     "onAngleConstraintUsageRules" : [ {
       "instant" : "curative",
-      "angleCnecId" : "angleCnecId",
-      "usageMethod" : "available"
+      "angleCnecId" : "angleCnecId"
     } ],
     "networkElementId" : "pst3",
     "groupId" : "group-3-pst",
@@ -271,8 +269,7 @@
     "operator" : "RTE",
     "onVoltageConstraintUsageRules" : [ {
       "instant" : "curative",
-      "voltageCnecId" : "voltageCnecId",
-      "usageMethod" : "available"
+      "voltageCnecId" : "voltageCnecId"
     } ],
     "networkElementId" : "pst3",
     "groupId" : "group-3-pst",
@@ -317,8 +314,7 @@
     "operator" : "RTE",
     "onFlowConstraintUsageRules" : [ {
       "instant" : "preventive",
-      "flowCnecId" : "cnec3curId",
-      "usageMethod" : "available"
+      "flowCnecId" : "cnec3curId"
     } ],
     "networkElementId" : "hvdc2",
     "groupId" : "group-1-hvdc",
@@ -374,8 +370,7 @@
     "operator" : "RTE",
     "onFlowConstraintUsageRules" : [ {
       "instant" : "auto",
-      "flowCnecId" : "cnec3autoId",
-      "usageMethod" : "available"
+      "flowCnecId" : "cnec3autoId"
     } ],
     "injectionSetpoints" : [ {
       "networkElementId" : "injection",

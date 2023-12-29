@@ -74,7 +74,7 @@ public abstract class AbstractRemedialAction<I extends RemedialAction<I>> extend
     /**
      * Retrieves cnecs associated to the remedial action's OnFlowConstraint and OnFlowConstraintInCountry usage rules.
      */
-
+    // TODO: move this method to RaoUtil
     public Set<FlowCnec> getFlowCnecsConstrainingUsageRules(Set<FlowCnec> perimeterCnecs, Network network, State optimizedState) {
         Set<FlowCnec> toBeConsideredCnecs = new HashSet<>();
         Set<UsageRule> usageRulesOnFlowConstraint = new HashSet<>();
@@ -84,6 +84,7 @@ public abstract class AbstractRemedialAction<I extends RemedialAction<I>> extend
         return toBeConsideredCnecs;
     }
 
+    // TODO: move this method to RaoUtil
     public Set<FlowCnec> getFlowCnecsConstrainingForOneUsageRule(UsageRule usageRule, Set<FlowCnec> perimeterCnecs, Network network) {
         if (usageRule instanceof OnFlowConstraint) {
             return Set.of(((OnFlowConstraint) usageRule).getFlowCnec());
