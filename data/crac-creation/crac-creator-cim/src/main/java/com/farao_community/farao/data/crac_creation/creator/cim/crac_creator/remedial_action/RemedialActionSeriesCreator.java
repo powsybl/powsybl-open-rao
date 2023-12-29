@@ -397,7 +397,7 @@ public class RemedialActionSeriesCreator {
             return;
         }
         if (Objects.nonNull(angleCnec)) {
-            addOnAngleConstraintUsageRule(remedialActionAdder, angleCnec, instant);
+            addOnAngleConstraintUsageRule(remedialActionAdder, angleCnec, curativeInstant);
             return;
         }
         UsageMethod usageMethod = instant.isAuto() ? UsageMethod.FORCED : UsageMethod.AVAILABLE;
