@@ -19,49 +19,11 @@ import com.powsybl.open_rao.rao_api.parameters.RaoParameters;
  *
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
-public final class TreeParameters {
+public record TreeParameters(StopCriterion stopCriterion, double targetObjectiveValue, int maximumSearchDepth, int leavesInParallel, boolean raRangeShrinking) {
 
     public enum StopCriterion {
         MIN_OBJECTIVE,
         AT_TARGET_OBJECTIVE_VALUE
-    }
-
-    private final StopCriterion stopCriterion;
-    private final double targetObjectiveValue;
-    private final int maximumSearchDepth;
-    private final int leavesInParallel;
-    private final boolean raRangeShrinking;
-
-    public TreeParameters(StopCriterion stopCriterion,
-                          double targetObjectiveValue,
-                          int maximumSearchDepth,
-                          int leavesInParallel,
-                          boolean raRangeShrinking) {
-        this.stopCriterion = stopCriterion;
-        this.targetObjectiveValue = targetObjectiveValue;
-        this.maximumSearchDepth = maximumSearchDepth;
-        this.leavesInParallel = leavesInParallel;
-        this.raRangeShrinking = raRangeShrinking;
-    }
-
-    public StopCriterion getStopCriterion() {
-        return stopCriterion;
-    }
-
-    public double getTargetObjectiveValue() {
-        return targetObjectiveValue;
-    }
-
-    public int getMaximumSearchDepth() {
-        return maximumSearchDepth;
-    }
-
-    public int getLeavesInParallel() {
-        return leavesInParallel;
-    }
-
-    public boolean getRaRangeShrinking() {
-        return raRangeShrinking;
     }
 
     public static TreeParameters buildForPreventivePerimeter(RaoParameters parameters) {

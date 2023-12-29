@@ -81,7 +81,7 @@ public final class IteratingLinearOptimizer {
                 return bestResult;
             }
 
-            sensitivityComputer = runSensitivityAnalysis(sensitivityComputer, iteration, currentRangeActionActivationResult, input, parameters, outageInstant);
+            sensitivityComputer = runSensitivityAnalysis(sensitivityComputer, iteration, currentRangeActionActivationResult, input, parameters);
             if (sensitivityComputer.getSensitivityResult().getSensitivityStatus() == ComputationStatus.FAILURE) {
                 bestResult.setStatus(LinearProblemStatus.SENSITIVITY_COMPUTATION_FAILED);
                 return bestResult;
@@ -97,7 +97,7 @@ public final class IteratingLinearOptimizer {
             previousResult = currentResult;
 
             Pair<IteratingLinearOptimizationResultImpl, Boolean> mipShouldStop = updateBestResultAndCheckStopCondition(parameters.getRaRangeShrinking(), linearProblem, input, iteration, currentResult, bestResult);
-            if (mipShouldStop.getRight()) {
+            if (Boolean.TRUE.equals(mipShouldStop.getRight())) {
                 return bestResult;
             } else {
                 bestResult = mipShouldStop.getLeft();
@@ -107,7 +107,7 @@ public final class IteratingLinearOptimizer {
         return bestResult;
     }
 
-    private static SensitivityComputer runSensitivityAnalysis(SensitivityComputer sensitivityComputer, int iteration, RangeActionActivationResult currentRangeActionActivationResult, IteratingLinearOptimizerInput input, IteratingLinearOptimizerParameters parameters, Instant outageInstant) {
+    private static SensitivityComputer runSensitivityAnalysis(SensitivityComputer sensitivityComputer, int iteration, RangeActionActivationResult currentRangeActionActivationResult, IteratingLinearOptimizerInput input, IteratingLinearOptimizerParameters parameters) {
         SensitivityComputer tmpSensitivityComputer = sensitivityComputer;
         if (input.getOptimizationPerimeter() instanceof GlobalOptimizationPerimeter) {
             AppliedRemedialActions appliedRemedialActionsInSecondaryStates = applyRangeActions(currentRangeActionActivationResult, input);

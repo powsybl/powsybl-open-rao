@@ -10,7 +10,6 @@ import com.powsybl.open_rao.virtual_hubs.MarketArea;
 import com.powsybl.open_rao.virtual_hubs.VirtualHub;
 import com.powsybl.open_rao.virtual_hubs.VirtualHubsConfiguration;
 import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 
@@ -23,7 +22,7 @@ import java.util.Map;
  */
 class VirtualHubsConfigurationDeserializer extends JsonDeserializer<VirtualHubsConfiguration> {
     @Override
-    public VirtualHubsConfiguration deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException, JsonProcessingException {
+    public VirtualHubsConfiguration deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
         Map<String, MarketArea> marketAreas = new HashMap<>();
         VirtualHubsConfiguration configuration = new VirtualHubsConfiguration();
 

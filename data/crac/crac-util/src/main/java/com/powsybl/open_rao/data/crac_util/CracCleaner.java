@@ -33,9 +33,6 @@ public class CracCleaner {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CracCleaner.class);
 
-    public CracCleaner() {
-    }
-
     public List<String> cleanCrac(Crac crac, Network network) {
         List<String> report = new ArrayList<>();
 

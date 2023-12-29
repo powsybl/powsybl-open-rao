@@ -28,6 +28,7 @@ import static com.powsybl.open_rao.search_tree_rao.linear_optimisation.algorithm
  */
 public final class LinearProblem {
 
+    public static final double LP_INFINITY = 1e10;
     private final OpenRaoMPSolver solver;
     private final List<ProblemFiller> fillerList;
     private final double relativeMipGap;
@@ -410,7 +411,7 @@ public final class LinearProblem {
     }
 
     public static double infinity() {
-        return 1e10;
+        return LP_INFINITY;
     }
 
 }

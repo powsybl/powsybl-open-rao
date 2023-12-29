@@ -38,6 +38,7 @@ import static com.powsybl.open_rao.commons.logs.OpenRaoLoggerProvider.*;
  */
 public class VoltageMonitoring {
     public static final String CONTINGENCY_ERROR = "At least one contingency could not be monitored. This should not happen.";
+    public static final String VOLTAGE_MONITORING_END = "----- Voltage monitoring [end]";
     private final Crac crac;
     private final Network network;
     private final RaoResult raoResult;
@@ -69,7 +70,7 @@ public class VoltageMonitoring {
         if (crac.getVoltageCnecs().isEmpty()) {
             BUSINESS_WARNS.warn("No VoltageCnecs defined.");
             stateSpecificResults.add(new VoltageMonitoringResult(Collections.emptyMap(), Collections.emptyMap(), VoltageMonitoringResult.Status.SECURE));
-            BUSINESS_LOGS.info("----- Voltage monitoring [end]");
+            BUSINESS_LOGS.info(VOLTAGE_MONITORING_END);
             return assembleVoltageMonitoringResults();
         }
 
@@ -82,7 +83,7 @@ public class VoltageMonitoring {
         // II) Curative states
         Set<State> contingencyStates = crac.getVoltageCnecs().stream().map(Cnec::getState).filter(state -> !state.isPreventive()).collect(Collectors.toSet());
         if (contingencyStates.isEmpty()) {
-            BUSINESS_LOGS.info("----- Voltage monitoring [end]");
+            BUSINESS_LOGS.info(VOLTAGE_MONITORING_END);
             return assembleVoltageMonitoringResults();
         }
 
@@ -300,15 +301,14 @@ public class VoltageMonitoring {
     private VoltageMonitoringResult assembleVoltageMonitoringResults() {
         Map<VoltageCnec, ExtremeVoltageValues> extremeVoltageValuesMap = new HashMap<>();
         Map<State, Set<NetworkAction>> appliedRas = new HashMap<>();
-        VoltageMonitoringResult.Status securityStatus = VoltageMonitoringResult.Status.SECURE;
         stateSpecificResults.forEach(s -> {
             extremeVoltageValuesMap.putAll(s.getExtremeVoltageValues());
             appliedRas.putAll(s.getAppliedRas());
         });
-        securityStatus = concatenateSpecificResults();
+        VoltageMonitoringResult.Status securityStatus = concatenateSpecificResults();
         VoltageMonitoringResult result = new VoltageMonitoringResult(extremeVoltageValuesMap, appliedRas, securityStatus);
         result.printConstraints().forEach(BUSINESS_LOGS::info);
-        BUSINESS_LOGS.info("----- Voltage monitoring [end]");
+        BUSINESS_LOGS.info(VOLTAGE_MONITORING_END);
         return result;
     }
 
@@ -329,6 +329,7 @@ public class VoltageMonitoring {
                         atLeastOneLow.set(true);
                     }
                     case UNKNOWN -> atLeastOneUnknown.set(true);
+                    case SECURE -> { }
                 }
             }
         );
@@ -351,9 +352,9 @@ public class VoltageMonitoring {
     private VoltageMonitoringResult catchVoltageMonitoringResult(State state, VoltageMonitoringResult.Status securityStatus) {
         BUSINESS_WARNS.warn("Load-flow computation failed at state {}. Skipping this state.", state);
         Map<VoltageCnec, ExtremeVoltageValues> voltagePerCnec = new HashMap<>();
-        crac.getVoltageCnecs(state).forEach(vc -> {
-            voltagePerCnec.put(vc, new ExtremeVoltageValues(new HashSet<>(Arrays.asList(Double.NaN))));
-        });
+        crac.getVoltageCnecs(state).forEach(vc ->
+            voltagePerCnec.put(vc, new ExtremeVoltageValues(new HashSet<>(Arrays.asList(Double.NaN))))
+        );
         return new VoltageMonitoringResult(voltagePerCnec, new HashMap<>(), securityStatus);
     }
 }

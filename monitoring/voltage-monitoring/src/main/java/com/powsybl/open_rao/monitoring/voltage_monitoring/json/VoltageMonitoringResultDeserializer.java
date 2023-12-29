@@ -68,7 +68,7 @@ public class VoltageMonitoringResultDeserializer extends JsonDeserializer<Voltag
                 jsonParser.nextToken();
                 MonitoringCommonDeserializer.readAppliedRas(jsonParser, appliedRas, crac);
             } else {
-                throw new OpenRaoException(String.format("Unexpected field %s in %s", jsonParser.getCurrentName(), VOLTAGE_MONITORING_RESULT));
+                throw new OpenRaoException(String.format(UNEXPECTED_FIELD_ERROR, jsonParser.getCurrentName(), VOLTAGE_MONITORING_RESULT));
             }
         }
         return new VoltageMonitoringResult(extremeVoltageValues, appliedRas, status);
@@ -102,7 +102,7 @@ public class VoltageMonitoringResultDeserializer extends JsonDeserializer<Voltag
                         max = jsonParser.getDoubleValue();
                         break;
                     default:
-                        throw new OpenRaoException(String.format("Unexpected field %s in %s", jsonParser.currentName(), VOLTAGE_VALUES));
+                        throw new OpenRaoException(String.format(UNEXPECTED_FIELD_ERROR, jsonParser.currentName(), VOLTAGE_VALUES));
                 }
             }
             if (cnecId == null || min == null || max == null) {

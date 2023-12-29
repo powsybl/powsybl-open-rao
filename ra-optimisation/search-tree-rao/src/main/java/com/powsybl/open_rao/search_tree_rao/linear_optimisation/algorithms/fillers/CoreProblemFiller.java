@@ -167,7 +167,6 @@ public class CoreProblemFiller implements ProblemFiller {
     }
 
     private void addImpactOfRangeActionOnCnec(LinearProblem linearProblem, SensitivityResult sensitivityResult, FlowCnec cnec, Side side, RangeActionActivationResult rangeActionActivationResult) {
-        OpenRaoMPVariable flowVariable = linearProblem.getFlowVariable(cnec, side);
         OpenRaoMPConstraint flowConstraint = linearProblem.getFlowConstraint(cnec, side);
 
         List<State> statesBeforeCnec = FillersUtil.getPreviousStates(cnec.getState(), optimizationContext).stream()

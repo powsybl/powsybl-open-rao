@@ -618,10 +618,9 @@ public final class AutomatonSimulator {
                 alignedRangeActions.stream().map(Identifiable::getId).collect(Collectors.joining(", ")),
                 toBeShiftedCnec.getId(), side,
                 String.format(Locale.ENGLISH, "%.2f", cnecMargin));
-            for (RangeAction<?> rangeAction : alignedRangeActions) {
-                rangeAction.apply(network, optimalSetpoint);
-                activatedRangeActionsWithSetpoint.put(rangeAction, optimalSetpoint);
-            }
+
+            applyAllRangeActions(alignedRangeActions, network, optimalSetpoint, activatedRangeActionsWithSetpoint);
+
             automatonRangeActionOptimizationSensitivityAnalysisOutput = preAutoPerimeterSensitivityAnalysis.runBasedOnInitialResults(network, crac, initialFlowResult, prePerimeterRangeActionSetpointResult, operatorsNotSharingCras, null);
             // If sensitivity analysis fails, stop shifting and return all applied range actions
             if (automatonRangeActionOptimizationSensitivityAnalysisOutput.getSensitivityStatus(automatonState) == ComputationStatus.FAILURE) {
@@ -633,6 +632,13 @@ public final class AutomatonSimulator {
             previouslyShiftedCnec = toBeShiftedCnec;
         }
         return new RangeAutomatonSimulationResult(automatonRangeActionOptimizationSensitivityAnalysisOutput, activatedRangeActionsWithSetpoint.keySet(), activatedRangeActionsWithSetpoint);
+    }
+
+    private static void applyAllRangeActions(List<RangeAction<?>> alignedRangeActions, Network network, double optimalSetpoint, Map<RangeAction<?>, Double> activatedRangeActionsWithSetpoint) {
+        for (RangeAction<?> rangeAction : alignedRangeActions) {
+            rangeAction.apply(network, optimalSetpoint);
+            activatedRangeActionsWithSetpoint.put(rangeAction, optimalSetpoint);
+        }
     }
 
     private double computeTotalSensitivityValue(List<RangeAction<?>> alignedRangeActions, double sensitivityUnderestimator, PrePerimeterResult automatonRangeActionOptimizationSensitivityAnalysisOutput, FlowCnec toBeShiftedCnec, Side side) {

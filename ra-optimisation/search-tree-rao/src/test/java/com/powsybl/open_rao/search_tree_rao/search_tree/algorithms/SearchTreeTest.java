@@ -99,8 +99,8 @@ class SearchTreeTest {
         int maximumSearchDepth = 1;
         leavesInParallel = 1;
         treeParameters = Mockito.mock(TreeParameters.class);
-        when(treeParameters.getMaximumSearchDepth()).thenReturn(maximumSearchDepth);
-        when(treeParameters.getLeavesInParallel()).thenReturn(leavesInParallel);
+        when(treeParameters.maximumSearchDepth()).thenReturn(maximumSearchDepth);
+        when(treeParameters.leavesInParallel()).thenReturn(leavesInParallel);
         when(searchTreeParameters.getTreeParameters()).thenReturn(treeParameters);
         raLimitationParameters = Mockito.mock(GlobalRemedialActionLimitationParameters.class);
         when(raLimitationParameters.getMaxCurativeRa()).thenReturn(Integer.MAX_VALUE);
@@ -173,8 +173,8 @@ class SearchTreeTest {
     }
 
     private void setStopCriterionAtTargetObjectiveValue(double value) {
-        when(treeParameters.getStopCriterion()).thenReturn(TreeParameters.StopCriterion.AT_TARGET_OBJECTIVE_VALUE);
-        when(treeParameters.getTargetObjectiveValue()).thenReturn(value);
+        when(treeParameters.stopCriterion()).thenReturn(TreeParameters.StopCriterion.AT_TARGET_OBJECTIVE_VALUE);
+        when(treeParameters.targetObjectiveValue()).thenReturn(value);
     }
 
     @Test
@@ -337,8 +337,8 @@ class SearchTreeTest {
     @Test
     void runAndIterateOnTreeWithSlightlyBetterChildLeafAndStopCriterionReached() throws Exception {
         raoWithoutLoopFlowLimitation();
-        when(treeParameters.getStopCriterion()).thenReturn(TreeParameters.StopCriterion.AT_TARGET_OBJECTIVE_VALUE);
-        when(treeParameters.getTargetObjectiveValue()).thenReturn(0.0);
+        when(treeParameters.stopCriterion()).thenReturn(TreeParameters.StopCriterion.AT_TARGET_OBJECTIVE_VALUE);
+        when(treeParameters.targetObjectiveValue()).thenReturn(0.0);
         searchTreeWithOneChildLeaf();
         Leaf childLeaf = Mockito.mock(Leaf.class);
         when(searchTreeParameters.getNetworkActionParameters().getAbsoluteNetworkActionMinimumImpactThreshold()).thenReturn(10.);
@@ -435,7 +435,7 @@ class SearchTreeTest {
     }
 
     private void setStopCriterionAtMinObjective() {
-        when(treeParameters.getStopCriterion()).thenReturn(TreeParameters.StopCriterion.MIN_OBJECTIVE);
+        when(treeParameters.stopCriterion()).thenReturn(TreeParameters.StopCriterion.MIN_OBJECTIVE);
     }
 
     private void raoWithoutLoopFlowLimitation() {
@@ -538,7 +538,7 @@ class SearchTreeTest {
         setSearchTreeParameters();
 
         // MIN_OBJECTIVE
-        when(treeParameters.getStopCriterion()).thenReturn(TreeParameters.StopCriterion.MIN_OBJECTIVE);
+        when(treeParameters.stopCriterion()).thenReturn(TreeParameters.StopCriterion.MIN_OBJECTIVE);
         assertFalse(searchTree.costSatisfiesStopCriterion(-10));
         assertFalse(searchTree.costSatisfiesStopCriterion(-0.1));
         assertFalse(searchTree.costSatisfiesStopCriterion(0));
@@ -546,8 +546,8 @@ class SearchTreeTest {
         assertFalse(searchTree.costSatisfiesStopCriterion(10));
 
         // AT_TARGET_OBJECTIVE_VALUE
-        when(treeParameters.getStopCriterion()).thenReturn(TreeParameters.StopCriterion.AT_TARGET_OBJECTIVE_VALUE);
-        when(treeParameters.getTargetObjectiveValue()).thenReturn(0.);
+        when(treeParameters.stopCriterion()).thenReturn(TreeParameters.StopCriterion.AT_TARGET_OBJECTIVE_VALUE);
+        when(treeParameters.targetObjectiveValue()).thenReturn(0.);
         assertTrue(searchTree.costSatisfiesStopCriterion(-10));
         assertTrue(searchTree.costSatisfiesStopCriterion(-0.1));
         assertFalse(searchTree.costSatisfiesStopCriterion(0));
@@ -591,8 +591,8 @@ class SearchTreeTest {
     void testLogVirtualCostDetails() {
         setUpForVirtualLogs();
 
-        when(treeParameters.getStopCriterion()).thenReturn(TreeParameters.StopCriterion.AT_TARGET_OBJECTIVE_VALUE);
-        when(treeParameters.getTargetObjectiveValue()).thenReturn(0.);
+        when(treeParameters.stopCriterion()).thenReturn(TreeParameters.StopCriterion.AT_TARGET_OBJECTIVE_VALUE);
+        when(treeParameters.targetObjectiveValue()).thenReturn(0.);
         // functional cost = -100 (secure)
         // virtual cost = 200
         // overall cost = 100 (unsecure)
@@ -609,7 +609,7 @@ class SearchTreeTest {
     }
 
     @Test
-    public void testLogRangeActions() {
+    void testLogRangeActions() {
         setUpForVirtualLogs();
         List<ILoggingEvent> logsList = getLogs(TechnicalLogs.class).list;
         logRangeActions(TECHNICAL_LOGS, rootLeaf, searchTreeInput.getOptimizationPerimeter(), "");

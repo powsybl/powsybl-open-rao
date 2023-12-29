@@ -216,10 +216,10 @@ public class SearchTree {
             return;
         }
 
-        int leavesInParallel = Math.min(input.getOptimizationPerimeter().getNetworkActions().size(), parameters.getTreeParameters().getLeavesInParallel());
+        int leavesInParallel = Math.min(input.getOptimizationPerimeter().getNetworkActions().size(), parameters.getTreeParameters().leavesInParallel());
         TECHNICAL_LOGS.debug("Evaluating {} leaves in parallel", leavesInParallel);
         try (AbstractNetworkPool networkPool = makeOpenRaoNetworkPool(input.getNetwork(), leavesInParallel)) {
-            while (depth < parameters.getTreeParameters().getMaximumSearchDepth() && hasImproved && !stopCriterionReached(optimalLeaf)) {
+            while (depth < parameters.getTreeParameters().maximumSearchDepth() && hasImproved && !stopCriterionReached(optimalLeaf)) {
                 TECHNICAL_LOGS.info("Search depth {} [start]", depth + 1);
                 previousDepthOptimalLeaf = optimalLeaf;
                 updateOptimalLeafWithNextDepthBestLeaf(networkPool);
@@ -234,7 +234,7 @@ public class SearchTree {
                     topLevelLogger.info("No better result found in search depth {}, exiting search tree", depth + 1);
                 }
                 depth += 1;
-                if (depth >= parameters.getTreeParameters().getMaximumSearchDepth()) {
+                if (depth >= parameters.getTreeParameters().maximumSearchDepth()) {
                     topLevelLogger.info("maximum search depth has been reached, exiting search tree");
                 }
             }
@@ -487,12 +487,12 @@ public class SearchTree {
      * Returns true if a given cost value satisfies the stop criterion
      */
     boolean costSatisfiesStopCriterion(double cost) {
-        if (parameters.getTreeParameters().getStopCriterion().equals(TreeParameters.StopCriterion.MIN_OBJECTIVE)) {
+        if (parameters.getTreeParameters().stopCriterion().equals(TreeParameters.StopCriterion.MIN_OBJECTIVE)) {
             return false;
-        } else if (parameters.getTreeParameters().getStopCriterion().equals(TreeParameters.StopCriterion.AT_TARGET_OBJECTIVE_VALUE)) {
-            return cost < parameters.getTreeParameters().getTargetObjectiveValue();
+        } else if (parameters.getTreeParameters().stopCriterion().equals(TreeParameters.StopCriterion.AT_TARGET_OBJECTIVE_VALUE)) {
+            return cost < parameters.getTreeParameters().targetObjectiveValue();
         } else {
-            throw new OpenRaoException("Unexpected stop criterion: " + parameters.getTreeParameters().getStopCriterion());
+            throw new OpenRaoException("Unexpected stop criterion: " + parameters.getTreeParameters().stopCriterion());
         }
     }
 

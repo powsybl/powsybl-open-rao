@@ -60,7 +60,6 @@ public final class RaoLogger {
                 formatDouble(prePerimeterObjectiveFunctionResult.getCost()),
                 formatDouble(prePerimeterObjectiveFunctionResult.getFunctionalCost()),
                 formatDouble(prePerimeterObjectiveFunctionResult.getVirtualCost()));
-        Map<String, Double> virtualCosts = getVirtualCostDetailed(prePerimeterObjectiveFunctionResult);
 
         RaoLogger.logMostLimitingElementsResults(BUSINESS_LOGS,
                 sensitivityAnalysisResult,

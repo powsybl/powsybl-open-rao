@@ -61,7 +61,7 @@ public class LoopFlowComputationImpl implements LoopFlowComputation {
         for (FlowCnec flowCnec : flowCnecs) {
             flowCnec.getMonitoredSides().forEach(side -> {
                 double refFlow = alreadyCalculatedPtdfAndFlows.getReferenceFlow(flowCnec, side);
-                double commercialFLow = getGlskStream(flowCnec).filter(entry -> isInMainComponentMap.get(entry.getValue()))
+                double commercialFLow = getGlskStream().filter(entry -> isInMainComponentMap.get(entry.getValue()))
                     .mapToDouble(entry -> alreadyCalculatedPtdfAndFlows.getSensitivityOnFlow(entry.getValue(), flowCnec, side) * referenceProgram.getGlobalNetPosition(entry.getKey()))
                     .sum();
                 results.addCnecResult(flowCnec, side, refFlow - commercialFLow, commercialFLow, refFlow);
@@ -103,7 +103,7 @@ public class LoopFlowComputationImpl implements LoopFlowComputation {
         return network.getDanglingLine(injectionId);
     }
 
-    protected Stream<Map.Entry<EICode, SensitivityVariableSet>> getGlskStream(FlowCnec flowCnec) {
+    protected Stream<Map.Entry<EICode, SensitivityVariableSet>> getGlskStream() {
         return glskMap.entrySet().stream();
     }
 
