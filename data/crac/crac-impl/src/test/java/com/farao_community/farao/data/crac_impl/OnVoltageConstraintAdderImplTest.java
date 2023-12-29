@@ -137,7 +137,8 @@ class OnVoltageConstraintAdderImplTest {
     @Test
     void testNoInstantException() {
         OnVoltageConstraintAdder<NetworkActionAdder> adder = remedialActionAdder.newOnVoltageConstraintUsageRule().withVoltageCnec("cnec2stateCurativeContingency1").withUsageMethod(UsageMethod.AVAILABLE);
-        assertThrows(FaraoException.class, adder::add);
+        Exception exception = assertThrows(FaraoException.class, adder::add);
+        assertEquals("Cannot add OnVoltageConstraint without a instant. Please use withInstant() with a non null value", exception.getMessage());
     }
 
     @Test

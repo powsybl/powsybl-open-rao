@@ -121,7 +121,8 @@ class OnFlowConstraintInCountryAdderImplTest {
     @Test
     void testNoInstantException() {
         OnFlowConstraintInCountryAdder<NetworkActionAdder> adder = remedialActionAdder.newOnFlowConstraintInCountryUsageRule().withCountry(Country.FR).withUsageMethod(UsageMethod.AVAILABLE);
-        assertThrows(FaraoException.class, adder::add);
+        Exception exception = assertThrows(FaraoException.class, adder::add);
+        assertEquals("Cannot add OnFlowConstraintInCountry without a instant. Please use withInstant() with a non null value", exception.getMessage());
     }
 
     @Test
