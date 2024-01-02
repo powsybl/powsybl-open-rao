@@ -22,6 +22,7 @@ import static com.powsybl.open_rao.data.crac_impl.AdderUtils.assertAttributeNotN
  */
 public class OnVoltageConstraintAdderImpl<T extends AbstractRemedialActionAdder<T>> implements OnVoltageConstraintAdder<T> {
 
+    public static final String ON_VOLTAGE_CONSTRAINT = "OnVoltageConstraint";
     private final T owner;
     private String instantId;
     private String voltageCnecId;
@@ -51,9 +52,9 @@ public class OnVoltageConstraintAdderImpl<T extends AbstractRemedialActionAdder<
 
     @Override
     public T add() {
-        assertAttributeNotNull(instantId, "OnVoltageConstraint", "instant", "withInstant()");
-        assertAttributeNotNull(voltageCnecId, "OnVoltageConstraint", "voltage cnec", "withVoltageCnec()");
-        assertAttributeNotNull(usageMethod, "OnVoltageConstraint", "usage method", "withUsageMethod()");
+        assertAttributeNotNull(instantId, ON_VOLTAGE_CONSTRAINT, "instant", "withInstant()");
+        assertAttributeNotNull(voltageCnecId, ON_VOLTAGE_CONSTRAINT, "voltage cnec", "withVoltageCnec()");
+        assertAttributeNotNull(usageMethod, ON_VOLTAGE_CONSTRAINT, "usage method", "withUsageMethod()");
 
         Instant instant = owner.getCrac().getInstant(instantId);
         if (instant.isOutage()) {

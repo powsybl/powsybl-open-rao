@@ -20,6 +20,7 @@ import static com.powsybl.open_rao.data.crac_impl.AdderUtils.assertAttributeNotN
  */
 public class OnFlowConstraintInCountryAdderImpl<T extends AbstractRemedialActionAdder<T>> implements OnFlowConstraintInCountryAdder<T> {
 
+    public static final String ON_FLOW_CONSTRAINT_IN_COUNTRY = "OnFlowConstraintInCountry";
     private T owner;
     private String instantId;
     private Country country;
@@ -49,9 +50,9 @@ public class OnFlowConstraintInCountryAdderImpl<T extends AbstractRemedialAction
 
     @Override
     public T add() {
-        assertAttributeNotNull(instantId, "OnFlowConstraintInCountry", "instant", "withInstant()");
-        assertAttributeNotNull(country, "OnFlowConstraintInCountry", "country", "withCountry()");
-        assertAttributeNotNull(usageMethod, "OnFlowConstraintInCountry", "usage method", "withUsageMethod()");
+        assertAttributeNotNull(instantId, ON_FLOW_CONSTRAINT_IN_COUNTRY, "instant", "withInstant()");
+        assertAttributeNotNull(country, ON_FLOW_CONSTRAINT_IN_COUNTRY, "country", "withCountry()");
+        assertAttributeNotNull(usageMethod, ON_FLOW_CONSTRAINT_IN_COUNTRY, "usage method", "withUsageMethod()");
 
         Instant instant = owner.getCrac().getInstant(instantId);
         if (instant.isOutage()) {

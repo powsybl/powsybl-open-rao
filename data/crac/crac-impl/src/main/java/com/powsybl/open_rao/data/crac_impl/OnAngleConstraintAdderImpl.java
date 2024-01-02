@@ -22,6 +22,7 @@ import static com.powsybl.open_rao.data.crac_impl.AdderUtils.assertAttributeNotN
  */
 public class OnAngleConstraintAdderImpl<T extends AbstractRemedialActionAdder<T>> implements OnAngleConstraintAdder<T> {
 
+    public static final String ON_ANGLE_CONSTRAINT = "OnAngleConstraint";
     private T owner;
     private String instantId;
     private String angleCnecId;
@@ -51,9 +52,9 @@ public class OnAngleConstraintAdderImpl<T extends AbstractRemedialActionAdder<T>
 
     @Override
     public T add() {
-        assertAttributeNotNull(instantId, "OnAngleConstraint", "instant", "withInstant()");
-        assertAttributeNotNull(angleCnecId, "OnAngleConstraint", "angle cnec", "withAngleCnec()");
-        assertAttributeNotNull(usageMethod, "OnAngleConstraint", "usage method", "withUsageMethod()");
+        assertAttributeNotNull(instantId, ON_ANGLE_CONSTRAINT, "instant", "withInstant()");
+        assertAttributeNotNull(angleCnecId, ON_ANGLE_CONSTRAINT, "angle cnec", "withAngleCnec()");
+        assertAttributeNotNull(usageMethod, ON_ANGLE_CONSTRAINT, "usage method", "withUsageMethod()");
 
         Instant instant = owner.getCrac().getInstant(instantId);
         if (instant.isOutage()) {

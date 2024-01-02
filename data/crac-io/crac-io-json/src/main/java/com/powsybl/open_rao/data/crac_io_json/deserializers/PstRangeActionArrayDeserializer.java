@@ -49,24 +49,14 @@ public final class PstRangeActionArrayDeserializer {
                         OnInstantArrayDeserializer.deserialize(jsonParser, pstRangeActionAdder);
                         break;
                     case FREE_TO_USE_USAGE_RULES:
-                        if (getPrimaryVersionNumber(version) > 1 || getSubVersionNumber(version) > 5) {
-                            throw new OpenRaoException("FreeToUse has been renamed to OnInstant since CRAC version 1.6");
-                        } else {
-                            jsonParser.nextToken();
-                            OnInstantArrayDeserializer.deserialize(jsonParser, pstRangeActionAdder);
-                        }
+                        deserializeFreeToUseUsageRules(jsonParser, version, pstRangeActionAdder);
                         break;
                     case ON_CONTINGENCY_STATE_USAGE_RULES:
                         jsonParser.nextToken();
                         OnStateArrayDeserializer.deserialize(jsonParser, pstRangeActionAdder);
                         break;
                     case ON_STATE_USAGE_RULES:
-                        if (getPrimaryVersionNumber(version) > 1 || getSubVersionNumber(version) > 5) {
-                            throw new OpenRaoException("OnState has been renamed to OnContingencyState since CRAC version 1.6");
-                        } else {
-                            jsonParser.nextToken();
-                            OnStateArrayDeserializer.deserialize(jsonParser, pstRangeActionAdder);
-                        }
+                        deserializeOnStateUsageRules(jsonParser, version, pstRangeActionAdder);
                         break;
                     case ON_FLOW_CONSTRAINT_USAGE_RULES:
                         jsonParser.nextToken();

@@ -22,6 +22,7 @@ import static com.powsybl.open_rao.data.crac_impl.AdderUtils.assertAttributeNotN
  */
 public class OnFlowConstraintAdderImpl<T extends AbstractRemedialActionAdder<T>> implements OnFlowConstraintAdder<T> {
 
+    public static final String ON_FLOW_CONSTRAINT = "OnFlowConstraint";
     private T owner;
     private String instantId;
     private String flowCnecId;
@@ -51,9 +52,9 @@ public class OnFlowConstraintAdderImpl<T extends AbstractRemedialActionAdder<T>>
 
     @Override
     public T add() {
-        assertAttributeNotNull(instantId, "OnFlowConstraint", "instant", "withInstant()");
-        assertAttributeNotNull(flowCnecId, "OnFlowConstraint", "flow cnec", "withFlowCnec()");
-        assertAttributeNotNull(usageMethod, "OnFlowConstraint", "usage method", "withUsageMethod()");
+        assertAttributeNotNull(instantId, ON_FLOW_CONSTRAINT, "instant", "withInstant()");
+        assertAttributeNotNull(flowCnecId, ON_FLOW_CONSTRAINT, "flow cnec", "withFlowCnec()");
+        assertAttributeNotNull(usageMethod, ON_FLOW_CONSTRAINT, "usage method", "withUsageMethod()");
 
         Instant instant = owner.getCrac().getInstant(instantId);
         if (instant.isOutage()) {
