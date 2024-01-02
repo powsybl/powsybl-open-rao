@@ -7,6 +7,7 @@
 
 package com.powsybl.open_rao.data.rao_result_api;
 
+import com.powsybl.open_rao.commons.OpenRaoException;
 import com.powsybl.open_rao.commons.Unit;
 import com.powsybl.open_rao.data.crac_api.Instant;
 import com.powsybl.open_rao.data.crac_api.RemedialAction;
@@ -28,6 +29,9 @@ public class RaoResultClone implements RaoResult {
     private final RaoResult raoResult;
 
     protected RaoResultClone(RaoResult raoResult) {
+        if (raoResult == null) {
+            throw new OpenRaoException("RaoResult must not be null");
+        }
         this.raoResult = raoResult;
     }
 

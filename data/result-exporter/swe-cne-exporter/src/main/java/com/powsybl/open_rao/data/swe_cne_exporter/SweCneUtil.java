@@ -7,6 +7,10 @@
 
 package com.powsybl.open_rao.data.swe_cne_exporter;
 
+import com.powsybl.open_rao.commons.Unit;
+import com.powsybl.open_rao.data.crac_api.Crac;
+import com.powsybl.open_rao.data.crac_api.InstantKind;
+import com.powsybl.open_rao.data.rao_result_api.RaoResult;
 import com.powsybl.open_rao.data.swe_cne_exporter.xsd.AreaIDString;
 import com.powsybl.open_rao.data.swe_cne_exporter.xsd.ESMPDateTimeInterval;
 import com.powsybl.open_rao.data.swe_cne_exporter.xsd.PartyIDString;
@@ -28,6 +32,11 @@ import static com.powsybl.open_rao.data.cne_exporter_commons.CneUtil.cutString;
  */
 public final class SweCneUtil {
     private SweCneUtil() {
+    }
+
+    public static boolean isAngleMonitoringUnsecure(Crac crac, RaoResult raoResult) {
+        // TODO : replace this with raoResult.isSecure(ANGLE) when ready
+        return crac.getAngleCnecs().stream().anyMatch(angleCnec -> raoResult.getMargin(crac.getInstant(InstantKind.CURATIVE), angleCnec, Unit.DEGREE) < 0);
     }
 
     // Creation of time interval

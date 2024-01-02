@@ -702,7 +702,7 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
 
     @Override
     public Set<RangeAction<?>> getPotentiallyAvailableRangeActions(State state) {
-        return getRangeActions(state, UsageMethod.AVAILABLE, UsageMethod.FORCED, UsageMethod.TO_BE_EVALUATED);
+        return getRangeActions(state, UsageMethod.AVAILABLE, UsageMethod.FORCED);
     }
 
     @Override
@@ -812,7 +812,7 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
 
     @Override
     public Set<NetworkAction> getPotentiallyAvailableNetworkActions(State state) {
-        return getNetworkActions(state, UsageMethod.AVAILABLE, UsageMethod.FORCED, UsageMethod.TO_BE_EVALUATED);
+        return getNetworkActions(state, UsageMethod.AVAILABLE, UsageMethod.FORCED);
     }
 
     @Override

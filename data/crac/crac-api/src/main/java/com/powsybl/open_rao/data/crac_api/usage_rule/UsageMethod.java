@@ -7,6 +7,8 @@
 
 package com.powsybl.open_rao.data.crac_api.usage_rule;
 
+import java.util.Set;
+
 /**
  * Usage method of a remedial action.
  *
@@ -16,7 +18,19 @@ package com.powsybl.open_rao.data.crac_api.usage_rule;
 public enum UsageMethod {
     AVAILABLE,
     FORCED,
-    TO_BE_EVALUATED,
     UNAVAILABLE,
-    UNDEFINED
+    UNDEFINED;
+
+    public static UsageMethod getStrongestUsageMethod(Set<UsageMethod> usageMethods) {
+        if (usageMethods.contains(UNAVAILABLE)) {
+            return UNAVAILABLE;
+        } else if (usageMethods.contains(FORCED)) {
+            return FORCED;
+        } else if (usageMethods.contains(AVAILABLE)) {
+            return AVAILABLE;
+        } else if (usageMethods.contains(UNDEFINED)) {
+            return UNDEFINED;
+        }
+        return UNAVAILABLE;
+    }
 }

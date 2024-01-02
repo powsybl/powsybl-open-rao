@@ -32,6 +32,9 @@ public class RaoResultWithAngleMonitoring extends RaoResultClone {
     public RaoResultWithAngleMonitoring(RaoResult raoResult, AngleMonitoringResult angleMonitoringResult) {
         super(raoResult);
         this.raoResult = raoResult;
+        if (angleMonitoringResult == null) {
+            throw new OpenRaoException("AngleMonitoringResult must not be null");
+        }
         this.angleMonitoringResult = angleMonitoringResult;
     }
 
@@ -77,5 +80,4 @@ public class RaoResultWithAngleMonitoring extends RaoResultClone {
     public boolean isActivatedDuringState(State state, NetworkAction networkAction) {
         return isActivatedDuringState(state, (RemedialAction<?>) networkAction);
     }
-
 }

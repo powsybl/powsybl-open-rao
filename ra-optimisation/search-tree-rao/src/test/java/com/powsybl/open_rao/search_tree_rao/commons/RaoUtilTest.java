@@ -16,9 +16,11 @@ import com.powsybl.open_rao.data.crac_api.State;
 import com.powsybl.open_rao.data.crac_api.cnec.FlowCnec;
 import com.powsybl.open_rao.data.crac_api.cnec.Side;
 import com.powsybl.open_rao.data.crac_api.network_action.ActionType;
+import com.powsybl.open_rao.data.crac_api.network_action.NetworkAction;
 import com.powsybl.open_rao.data.crac_api.range_action.PstRangeAction;
 import com.powsybl.open_rao.data.crac_api.range_action.RangeAction;
 import com.powsybl.open_rao.data.crac_api.usage_rule.OnFlowConstraint;
+import com.powsybl.open_rao.data.crac_api.usage_rule.OnInstant;
 import com.powsybl.open_rao.data.crac_api.usage_rule.UsageMethod;
 import com.powsybl.open_rao.data.crac_impl.utils.CommonCracCreation;
 import com.powsybl.open_rao.data.crac_impl.utils.NetworkImportsUtil;
@@ -41,6 +43,7 @@ import org.mockito.Mockito;
 
 import java.util.*;
 
+import static com.powsybl.open_rao.search_tree_rao.commons.RaoUtil.isRemedialActionAvailable;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -55,6 +58,7 @@ class RaoUtilTest {
     private static final double DOUBLE_TOLERANCE = 0.1;
     private static final String PREVENTIVE_INSTANT_ID = "preventive";
     private static final String CURATIVE_INSTANT_ID = "curative";
+    private static final String AUTO_INSTANT_ID = "auto";
 
     private RaoParameters raoParameters;
     private RaoInput raoInput;
@@ -206,31 +210,72 @@ class RaoUtilTest {
 
         FlowCnec flowCnec = crac.getFlowCnec("cnec1stateCurativeContingency1");
         FlowResult flowResult = mock(FlowResult.class);
+        PrePerimeterResult prePerimeterResult = mock(PrePerimeterResult.class);
 
         RemedialAction<?> na1 = crac.newNetworkAction().withId("na1")
             .newTopologicalAction().withNetworkElement("ne1").withActionType(ActionType.OPEN).add()
             .newOnInstantUsageRule().withInstant(CURATIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add()
             .add();
-        assertTrue(na1.isRemedialActionAvailable(optimizedState, RaoUtil.isAnyMarginNegative(flowResult, na1.getFlowCnecsConstrainingUsageRules(crac.getFlowCnecs(), network, optimizedState), raoParameters.getObjectiveFunctionParameters().getType().getUnit())));
+
+        // Asserts that the method returns True when given an empty set
+        assertTrue(isRemedialActionAvailable(na1, optimizedState, prePerimeterResult, crac.getFlowCnecs(), network, raoParameters));
 
         RemedialAction<?> na2 = crac.newNetworkAction().withId("na2")
             .newTopologicalAction().withNetworkElement("ne2").withActionType(ActionType.OPEN).add()
-            .newOnFlowConstraintUsageRule().withInstant(CURATIVE_INSTANT_ID).withFlowCnec(flowCnec.getId()).add()
+            .newOnFlowConstraintUsageRule().withInstant(CURATIVE_INSTANT_ID).withFlowCnec(flowCnec.getId()).withUsageMethod(UsageMethod.AVAILABLE).add()
             .add();
-        OnFlowConstraint onFlowConstraint = (OnFlowConstraint) na2.getUsageRules().iterator().next();
 
         when(flowResult.getMargin(eq(flowCnec), any())).thenReturn(10.);
-        assertFalse(na2.isRemedialActionAvailable(optimizedState, RaoUtil.isAnyMarginNegative(flowResult, na2.getFlowCnecsConstrainingUsageRules(crac.getFlowCnecs(), network, optimizedState), raoParameters.getObjectiveFunctionParameters().getType().getUnit())));
+        when(prePerimeterResult.getMargin(eq(flowCnec), any())).thenReturn(10.);
+        assertFalse(isRemedialActionAvailable(na2, optimizedState, prePerimeterResult, crac.getFlowCnecs(), network, raoParameters));
 
         when(flowResult.getMargin(eq(flowCnec), any())).thenReturn(-10.);
-        assertTrue(na2.isRemedialActionAvailable(optimizedState, RaoUtil.isAnyMarginNegative(flowResult, na2.getFlowCnecsConstrainingUsageRules(crac.getFlowCnecs(), network, optimizedState), raoParameters.getObjectiveFunctionParameters().getType().getUnit())));
+        when(prePerimeterResult.getMargin(eq(flowCnec), any())).thenReturn(-10.);
+        assertTrue(isRemedialActionAvailable(na2, optimizedState, prePerimeterResult, crac.getFlowCnecs(), network, raoParameters));
 
         when(flowResult.getMargin(eq(flowCnec), any())).thenReturn(0.);
-        assertTrue(na2.isRemedialActionAvailable(optimizedState, RaoUtil.isAnyMarginNegative(flowResult, na2.getFlowCnecsConstrainingUsageRules(crac.getFlowCnecs(), network, optimizedState), raoParameters.getObjectiveFunctionParameters().getType().getUnit())));
+        when(prePerimeterResult.getMargin(eq(flowCnec), any())).thenReturn(0.);
+        assertTrue(isRemedialActionAvailable(na2, optimizedState, prePerimeterResult, crac.getFlowCnecs(), network, raoParameters));
 
         optimizedState = crac.getPreventiveState();
-        assertFalse(na1.isRemedialActionAvailable(optimizedState, RaoUtil.isAnyMarginNegative(flowResult, na1.getFlowCnecsConstrainingUsageRules(crac.getFlowCnecs(), network, optimizedState), raoParameters.getObjectiveFunctionParameters().getType().getUnit())));
-        assertFalse(na2.isRemedialActionAvailable(optimizedState, RaoUtil.isAnyMarginNegative(flowResult, na2.getFlowCnecsConstrainingUsageRules(crac.getFlowCnecs(), network, optimizedState), raoParameters.getObjectiveFunctionParameters().getType().getUnit())));
+        assertFalse(isRemedialActionAvailable(na1, optimizedState, prePerimeterResult, crac.getFlowCnecs(), network, raoParameters));
+        assertFalse(isRemedialActionAvailable(na2, optimizedState, prePerimeterResult, crac.getFlowCnecs(), network, raoParameters));
+
+        // asserts that a preventive remedial action with forced usage rule cannot be available
+        RemedialAction<?> na3 = crac.newNetworkAction().withId("na3")
+            .newTopologicalAction().withNetworkElement("ne2").withActionType(ActionType.CLOSE).add()
+            .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withUsageMethod(UsageMethod.FORCED).add()
+            .add();
+        assertFalse(isRemedialActionAvailable(na3, optimizedState, prePerimeterResult, crac.getFlowCnecs(), network, raoParameters));
+
+        // asserts that a remedial action with no usage rule cannot be available
+        NetworkAction networkActionWhithoutUsageRule = Mockito.mock(NetworkAction.class);
+        when(networkActionWhithoutUsageRule.getName()).thenReturn("ra without usage rule");
+        when(networkActionWhithoutUsageRule.getUsageRules()).thenReturn(Set.of());
+        assertFalse(isRemedialActionAvailable(networkActionWhithoutUsageRule, optimizedState, prePerimeterResult, crac.getFlowCnecs(), network, raoParameters));
+
+        // mock AUTO state for the next assertions
+        NetworkAction automatonRa = Mockito.mock(NetworkAction.class);
+        when(automatonRa.getName()).thenReturn("fake automaton");
+        OnInstant onInstant = Mockito.mock(OnInstant.class);
+        OnFlowConstraint onFlowConstraint = Mockito.mock(OnFlowConstraint.class);
+        State automatonState = Mockito.mock(State.class);
+        when(automatonState.getInstant()).thenReturn(crac.getInstant(AUTO_INSTANT_ID));
+        when(automatonState.getId()).thenReturn("fake automaton state");
+
+        // remedial action with OnInstant Usage Rule
+        when(automatonRa.getUsageRules()).thenReturn(Set.of(onInstant));
+        when(onInstant.getUsageMethod(automatonState)).thenReturn(UsageMethod.FORCED);
+        assertTrue(isRemedialActionAvailable(automatonRa, automatonState, prePerimeterResult, crac.getFlowCnecs(), network, raoParameters));
+        when(onInstant.getUsageMethod(automatonState)).thenReturn(UsageMethod.AVAILABLE);
+        assertFalse(isRemedialActionAvailable(automatonRa, automatonState, prePerimeterResult, crac.getFlowCnecs(), network, raoParameters));
+
+        // remedial action with OnFlowConstraint Usage Rule
+        when(automatonRa.getUsageRules()).thenReturn(Set.of(onFlowConstraint));
+        when(onFlowConstraint.getUsageMethod(automatonState)).thenReturn(UsageMethod.AVAILABLE);
+        assertFalse(isRemedialActionAvailable(automatonRa, automatonState, prePerimeterResult, crac.getFlowCnecs(), network, raoParameters));
+        when(onFlowConstraint.getUsageMethod(automatonState)).thenReturn(UsageMethod.FORCED);
+        assertFalse(isRemedialActionAvailable(automatonRa, automatonState, prePerimeterResult, crac.getFlowCnecs(), network, raoParameters));
     }
 
     @Test
@@ -242,21 +287,21 @@ class RaoUtilTest {
 
         FlowCnec cnecFrBe = crac.getFlowCnec("cnec1stateCurativeContingency1");
         FlowCnec cnecFrDe = crac.getFlowCnec("cnec2stateCurativeContingency2");
-        FlowResult flowResult = mock(FlowResult.class);
+        PrePerimeterResult flowResult = mock(PrePerimeterResult.class);
 
         RemedialAction<?> na1 = crac.newNetworkAction().withId("na1")
             .newTopologicalAction().withNetworkElement("ne1").withActionType(ActionType.OPEN).add()
-            .newOnFlowConstraintInCountryUsageRule().withInstant(CURATIVE_INSTANT_ID).withCountry(Country.FR).add()
+            .newOnFlowConstraintInCountryUsageRule().withInstant(CURATIVE_INSTANT_ID).withCountry(Country.FR).withUsageMethod(UsageMethod.AVAILABLE).add()
             .add();
 
         RemedialAction<?> na2 = crac.newNetworkAction().withId("na2")
             .newTopologicalAction().withNetworkElement("ne2").withActionType(ActionType.OPEN).add()
-            .newOnFlowConstraintInCountryUsageRule().withInstant(CURATIVE_INSTANT_ID).withCountry(Country.BE).add()
+            .newOnFlowConstraintInCountryUsageRule().withInstant(CURATIVE_INSTANT_ID).withCountry(Country.BE).withUsageMethod(UsageMethod.AVAILABLE).add()
             .add();
 
         RemedialAction<?> na3 = crac.newNetworkAction().withId("na3")
             .newTopologicalAction().withNetworkElement("ne3").withActionType(ActionType.OPEN).add()
-            .newOnFlowConstraintInCountryUsageRule().withInstant(CURATIVE_INSTANT_ID).withCountry(Country.DE).add()
+            .newOnFlowConstraintInCountryUsageRule().withInstant(CURATIVE_INSTANT_ID).withCountry(Country.DE).withUsageMethod(UsageMethod.AVAILABLE).add()
             .add();
 
         when(flowResult.getMargin(any(), any())).thenReturn(100.);
@@ -290,7 +335,7 @@ class RaoUtilTest {
     }
 
     private void assertIsOnFlowInCountryAvailable(RemedialAction<?> ra, State optimizedState, FlowResult flowResult, boolean available) {
-        assertEquals(available, ra.isRemedialActionAvailable(optimizedState, RaoUtil.isAnyMarginNegative(flowResult, ra.getFlowCnecsConstrainingUsageRules(crac.getFlowCnecs(), network, optimizedState), raoParameters.getObjectiveFunctionParameters().getType().getUnit())));
+        assertEquals(available, isRemedialActionAvailable(ra, optimizedState, (PrePerimeterResult) flowResult, ra.getFlowCnecsConstrainingUsageRules(crac.getFlowCnecs(), network, optimizedState), network, raoParameters));
     }
 
     @Test

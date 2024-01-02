@@ -9,7 +9,6 @@ package com.powsybl.open_rao.data.crac_creation.creator.csa_profile.crac_creator
 
 import com.powsybl.open_rao.commons.OpenRaoException;
 import com.powsybl.open_rao.commons.TsoEICode;
-import com.powsybl.open_rao.data.crac_api.usage_rule.UsageMethod;
 import com.powsybl.open_rao.data.crac_creation.creator.api.ImportStatus;
 import com.powsybl.open_rao.data.crac_creation.util.OpenRaoImportException;
 import com.powsybl.triplestore.api.PropertyBag;
@@ -27,14 +26,6 @@ public final class CsaProfileCracUtils {
 
     private CsaProfileCracUtils() {
 
-    }
-
-    public static Map<String, UsageMethod> getConstraintToUsageMethodMap() {
-        Map<String, UsageMethod> constraintToUsageMethodMap = new HashMap<>();
-        constraintToUsageMethodMap.put(CsaProfileConstants.ElementCombinationConstraintKind.INCLUDED.toString(), UsageMethod.FORCED);
-        constraintToUsageMethodMap.put(CsaProfileConstants.ElementCombinationConstraintKind.CONSIDERED.toString(), UsageMethod.AVAILABLE);
-        constraintToUsageMethodMap.put(CsaProfileConstants.ElementCombinationConstraintKind.EXCLUDED.toString(), UsageMethod.UNAVAILABLE);
-        return constraintToUsageMethodMap;
     }
 
     public static Map<String, Set<PropertyBag>> getMappedPropertyBagsSet(PropertyBags propertyBags, String property) {

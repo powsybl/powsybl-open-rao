@@ -12,9 +12,7 @@ import com.powsybl.open_rao.data.crac_api.cnec.FlowCnec;
 import com.powsybl.open_rao.data.crac_api.cnec.FlowCnecAdder;
 import com.powsybl.open_rao.data.crac_api.cnec.Side;
 import com.powsybl.open_rao.data.crac_api.threshold.BranchThresholdAdder;
-import com.powsybl.open_rao.data.crac_api.usage_rule.OnFlowConstraint;
-import com.powsybl.open_rao.data.crac_api.usage_rule.OnFlowConstraintInCountry;
-import com.powsybl.open_rao.data.crac_api.usage_rule.UsageMethod;
+import com.powsybl.open_rao.data.crac_api.usage_rule.*;
 import com.powsybl.iidm.network.Network;
 
 import java.util.ArrayList;
@@ -90,8 +88,12 @@ public final class CracValidator {
     }
 
     private static boolean hasGlobalRemedialActions(State state, Crac crac) {
-        return !crac.getRangeActions(state, UsageMethod.AVAILABLE, UsageMethod.FORCED).isEmpty()
-            || !crac.getNetworkActions(state, UsageMethod.AVAILABLE, UsageMethod.FORCED).isEmpty();
+        return hasOnInstantOrOnStateUsageRules(crac.getRangeActions(state, UsageMethod.FORCED)) ||
+            hasOnInstantOrOnStateUsageRules(crac.getNetworkActions(state, UsageMethod.FORCED));
+    }
+
+    private static <T extends RemedialAction<?>> boolean hasOnInstantOrOnStateUsageRules(Set<T> remedialActionSet) {
+        return remedialActionSet.stream().anyMatch(rangeAction -> rangeAction.getUsageRules().stream().anyMatch(usageRule -> usageRule instanceof OnInstant || usageRule instanceof OnContingencyState));
     }
 
     private static void copyThresholds(FlowCnec cnec, FlowCnecAdder adder) {
@@ -111,11 +113,12 @@ public final class CracValidator {
     }
 
     private static boolean isRaUsefulForCnec(RemedialAction<?> ra, FlowCnec cnec, Network network) {
-        if (Set.of(UsageMethod.AVAILABLE, UsageMethod.FORCED).contains(ra.getUsageMethod(cnec.getState()))) {
-            return true;
-        }
-        if (ra.getUsageMethod(cnec.getState()).equals(UsageMethod.TO_BE_EVALUATED)) {
+        if (ra.getUsageMethod(cnec.getState()).equals(UsageMethod.FORCED) || ra.getUsageMethod(cnec.getState()).equals(UsageMethod.AVAILABLE)) {
             return ra.getUsageRules().stream()
+                .filter(usageRule -> usageRule instanceof OnInstant || usageRule instanceof OnContingencyState)
+                .anyMatch(usageRule -> usageRule.getInstant().equals(cnec.getState().getInstant()))
+                ||
+                ra.getUsageRules().stream()
                 .filter(OnFlowConstraint.class::isInstance)
                 .map(OnFlowConstraint.class::cast)
                 .anyMatch(ofc -> isOfcUsefulForCnec(ofc, cnec))

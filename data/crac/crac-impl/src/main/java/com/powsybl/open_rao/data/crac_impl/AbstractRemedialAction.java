@@ -7,6 +7,7 @@
 
 package com.powsybl.open_rao.data.crac_impl;
 
+import com.powsybl.open_rao.commons.OpenRaoException;
 import com.powsybl.open_rao.data.crac_api.RemedialAction;
 import com.powsybl.open_rao.data.crac_api.State;
 import com.powsybl.open_rao.data.crac_api.cnec.Cnec;
@@ -15,7 +16,10 @@ import com.powsybl.open_rao.data.crac_api.usage_rule.*;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
 
-import java.util.*;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -26,19 +30,13 @@ import java.util.stream.Collectors;
 public abstract class AbstractRemedialAction<I extends RemedialAction<I>> extends AbstractIdentifiable<I> implements RemedialAction<I> {
     protected String operator;
     protected Set<UsageRule> usageRules;
-    protected Integer speed = null;
+    protected Integer speed;
 
     protected AbstractRemedialAction(String id, String name, String operator, Set<UsageRule> usageRules, Integer speed) {
         super(id, name);
         this.operator = operator;
         this.usageRules = usageRules;
         this.speed = speed;
-    }
-
-    protected AbstractRemedialAction(String id, String name, String operator, Set<UsageRule> usageRules) {
-        super(id, name);
-        this.operator = operator;
-        this.usageRules = usageRules;
     }
 
     void addUsageRule(UsageRule usageRule) {
@@ -70,65 +68,41 @@ public abstract class AbstractRemedialAction<I extends RemedialAction<I>> extend
         Set<UsageMethod> usageMethods = usageRules.stream()
             .map(usageRule -> usageRule.getUsageMethod(state))
             .collect(Collectors.toSet());
-
-        if (usageMethods.contains(UsageMethod.UNAVAILABLE)) {
-            return UsageMethod.UNAVAILABLE;
-        } else if (usageMethods.contains(UsageMethod.AVAILABLE)) {
-            return UsageMethod.AVAILABLE;
-        } else if (usageMethods.contains(UsageMethod.TO_BE_EVALUATED)) {
-            return UsageMethod.TO_BE_EVALUATED;
-        } else if (usageMethods.contains(UsageMethod.FORCED)) {
-            return UsageMethod.FORCED;
-        } else {
-            return UsageMethod.UNAVAILABLE;
-        }
-    }
-
-    /**
-     * Evaluates if the remedial action is available depending on its UsageMethod.
-     * If TO_BE_EVALUATED condition has not been evaluated, default behavior is false
-     */
-    @Override
-    public boolean isRemedialActionAvailable(State state) {
-        return isRemedialActionAvailable(state, false);
-    }
-
-    /**
-     * Evaluates if the remedial action is available depending on its UsageMethod.
-     * When UsageMethod is TO_BE_EVALUATED, condition has to have been evaluated previously
-     */
-    @Override
-    public boolean isRemedialActionAvailable(State state, boolean evaluatedCondition) {
-        switch (getUsageMethod(state)) {
-            case AVAILABLE:
-                return true;
-            case TO_BE_EVALUATED:
-                return evaluatedCondition;
-            default:
-                return false;
-        }
+        return UsageMethod.getStrongestUsageMethod(usageMethods);
     }
 
     /**
      * Retrieves cnecs associated to the remedial action's OnFlowConstraint and OnFlowConstraintInCountry usage rules.
      */
+    // TODO: move this method to RaoUtil
     public Set<FlowCnec> getFlowCnecsConstrainingUsageRules(Set<FlowCnec> perimeterCnecs, Network network, State optimizedState) {
         Set<FlowCnec> toBeConsideredCnecs = new HashSet<>();
-        // OnFlowConstraint
-        getUsageRules().stream().filter(OnFlowConstraint.class::isInstance).map(OnFlowConstraint.class::cast)
-            .filter(ofc -> ofc.getUsageMethod(optimizedState).equals(UsageMethod.TO_BE_EVALUATED))
-            .forEach(onFlowConstraint -> toBeConsideredCnecs.add(onFlowConstraint.getFlowCnec()));
-
-        // OnFlowConstraintInCountry
-        getUsageRules().stream().filter(OnFlowConstraintInCountry.class::isInstance).map(OnFlowConstraintInCountry.class::cast)
-            .filter(ofc -> ofc.getUsageMethod(optimizedState).equals(UsageMethod.TO_BE_EVALUATED))
-            .forEach(onFlowConstraintInCountry ->
-                toBeConsideredCnecs.addAll(perimeterCnecs.stream()
-                    .filter(cnec -> !cnec.getState().getInstant().comesBefore(onFlowConstraintInCountry.getInstant()))
-                    .filter(cnec -> isCnecInCountry(cnec, onFlowConstraintInCountry.getCountry(), network))
-                    .collect(Collectors.toSet()))
-        );
+        Set<UsageRule> usageRulesOnFlowConstraint = new HashSet<>();
+        usageRulesOnFlowConstraint.addAll(getUsageRules(OnFlowConstraint.class, optimizedState));
+        usageRulesOnFlowConstraint.addAll(getUsageRules(OnFlowConstraintInCountry.class, optimizedState));
+        usageRulesOnFlowConstraint.forEach(usageRule -> toBeConsideredCnecs.addAll(getFlowCnecsConstrainingForOneUsageRule(usageRule, perimeterCnecs, network)));
         return toBeConsideredCnecs;
+    }
+
+    // TODO: move this method to RaoUtil
+    public Set<FlowCnec> getFlowCnecsConstrainingForOneUsageRule(UsageRule usageRule, Set<FlowCnec> perimeterCnecs, Network network) {
+        if (usageRule instanceof OnFlowConstraint) {
+            return Set.of(((OnFlowConstraint) usageRule).getFlowCnec());
+        } else if (usageRule instanceof OnFlowConstraintInCountry) {
+            return perimeterCnecs.stream()
+                .filter(cnec -> !cnec.getState().getInstant().comesBefore(usageRule.getInstant()))
+                .filter(cnec -> isCnecInCountry(cnec, ((OnFlowConstraintInCountry) usageRule).getCountry(), network)).collect(Collectors.toSet());
+        } else {
+            throw new OpenRaoException(String.format("This method should only be used for Ofc Usage rules not for this type of UsageRule: %s", usageRule.getClass().getName()));
+        }
+    }
+
+    private <T extends UsageRule> List<T> getUsageRules(Class<T> usageRuleClass, State state) {
+        return getUsageRules().stream().filter(usageRuleClass::isInstance).map(usageRuleClass::cast)
+            .filter(ofc -> state.getInstant().isAuto() ?
+                ofc.getUsageMethod(state).equals(UsageMethod.FORCED) :
+                ofc.getUsageMethod(state).equals(UsageMethod.AVAILABLE) || ofc.getUsageMethod(state).equals(UsageMethod.FORCED))
+            .toList();
     }
 
     private static boolean isCnecInCountry(Cnec<?> cnec, Country country, Network network) {

@@ -137,14 +137,14 @@ class AutomatonSimulatorTest {
             .withId("ra3")
             .withNetworkElement("ra3-ne")
             .withSpeed(4)
-            .newOnFlowConstraintUsageRule().withInstant(AUTO_INSTANT_ID).withFlowCnec("cnec1").add()
+            .newOnFlowConstraintUsageRule().withInstant(AUTO_INSTANT_ID).withFlowCnec("cnec1").withUsageMethod(UsageMethod.FORCED).add()
             .withInitialTap(0).withTapToAngleConversionMap(Map.of(0, -100., 1, 100.))
             .add();
         ra4 = crac.newPstRangeAction()
             .withId("ra4")
             .withNetworkElement("ra4-ne")
             .withSpeed(4)
-            .newOnFlowConstraintUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withFlowCnec("cnec-prev").add()
+            .newOnFlowConstraintUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withFlowCnec("cnec-prev").withUsageMethod(UsageMethod.AVAILABLE).add()
             .withInitialTap(0).withTapToAngleConversionMap(Map.of(0, -100., 1, 100.))
             .add();
 
@@ -154,7 +154,7 @@ class AutomatonSimulatorTest {
             .withGroupId("group1")
             .withNetworkElement("BBE2AA11 BBE3AA11 1")
             .withSpeed(3)
-            .newOnFlowConstraintUsageRule().withInstant(AUTO_INSTANT_ID).withFlowCnec("cnec1").add()
+            .newOnFlowConstraintUsageRule().withInstant(AUTO_INSTANT_ID).withFlowCnec("cnec1").withUsageMethod(UsageMethod.FORCED).add()
             .withInitialTap(0).withTapToAngleConversionMap(Map.of(0, 0.1, 1, 1.1, 2, 2.1, 3, 3.1, -1, -1.1, -2, -2.1, -3, -3.1))
             .add();
         ara2 = crac.newPstRangeAction()
@@ -162,7 +162,7 @@ class AutomatonSimulatorTest {
             .withGroupId("group1")
             .withNetworkElement("FFR2AA11 FFR4AA11 1")
             .withSpeed(3)
-            .newOnFlowConstraintUsageRule().withInstant(AUTO_INSTANT_ID).withFlowCnec("cnec1").add()
+            .newOnFlowConstraintUsageRule().withInstant(AUTO_INSTANT_ID).withFlowCnec("cnec1").withUsageMethod(UsageMethod.FORCED).add()
             .withInitialTap(0).withTapToAngleConversionMap(Map.of(0, 0.1, 1, 1.1, 2, 2.1, 3, 3.1, -1, -1.1, -2, -2.1, -3, -3.1))
             .add();
 
@@ -197,7 +197,7 @@ class AutomatonSimulatorTest {
             .withGroupId("group3")
             .withNetworkElement("ra3-ne")
             .withSpeed(6)
-            .newOnFlowConstraintUsageRule().withInstant(AUTO_INSTANT_ID).withFlowCnec("cnec1").add()
+            .newOnFlowConstraintUsageRule().withInstant(AUTO_INSTANT_ID).withFlowCnec("cnec1").withUsageMethod(UsageMethod.FORCED).add()
             .withInitialTap(0).withTapToAngleConversionMap(Map.of(0, -100., 1, 100.))
             .add();
 
@@ -205,7 +205,7 @@ class AutomatonSimulatorTest {
         na = crac.newNetworkAction()
             .withId("na")
             .newTopologicalAction().withActionType(ActionType.CLOSE).withNetworkElement("DDE3AA11 DDE4AA11 1").add()
-            .newOnFlowConstraintUsageRule().withInstant(AUTO_INSTANT_ID).withFlowCnec("cnec2").add()
+            .newOnFlowConstraintUsageRule().withInstant(AUTO_INSTANT_ID).withFlowCnec("cnec2").withUsageMethod(UsageMethod.FORCED).add()
             .add();
 
         // Add HVDC range actions
@@ -250,32 +250,33 @@ class AutomatonSimulatorTest {
     @Test
     void testGatherCnecsError() {
         RangeAction<?> ra = Mockito.mock(RangeAction.class);
-        Mockito.when(ra.toString()).thenReturn("Range Action");
+        Mockito.when(ra.toString()).thenReturn("RangeAction");
         Mockito.when(ra.getUsageMethod(autoState)).thenReturn(UsageMethod.AVAILABLE);
         OpenRaoException exception = assertThrows(OpenRaoException.class, () -> automatonSimulator.gatherFlowCnecsForAutoRangeAction(ra, autoState, network));
-        assertEquals("Range action Range Action has usage method AVAILABLE although FORCED or TO_BE_EVALUATED were expected.", exception.getMessage());
+        assertEquals("Range action RangeAction has usage method AVAILABLE although FORCED was expected.", exception.getMessage());
     }
 
     @Test
     void testCheckAlignedRangeActions1() {
         // OK
-        assertTrue(AutomatonSimulator.checkAlignedRangeActions(autoState, List.of(ara1, ara2), List.of(ara1, ara2)));
-        assertTrue(AutomatonSimulator.checkAlignedRangeActions(autoState, List.of(ara2, ara1), List.of(ara1, ara2)));
+        assertTrue(AutomatonSimulator.checkAlignedRangeActions(List.of(ara1, ara2), List.of(ara1, ara2)));
+        assertTrue(AutomatonSimulator.checkAlignedRangeActions(List.of(ara2, ara1), List.of(ara1, ara2)));
+        assertTrue(AutomatonSimulator.checkAlignedRangeActions(List.of(ara5, ra4), List.of(ara5, ra3, ra4)));
+
         // different types
-        assertFalse(AutomatonSimulator.checkAlignedRangeActions(autoState, List.of(ara3, ara4), List.of(ara3, ara4)));
-        assertFalse(AutomatonSimulator.checkAlignedRangeActions(autoState, List.of(ara4, ara3), List.of(ara3, ara4)));
-        // different usage method
-        assertFalse(AutomatonSimulator.checkAlignedRangeActions(autoState, List.of(ara5, ara6), List.of(ara5, ara6)));
-        assertFalse(AutomatonSimulator.checkAlignedRangeActions(autoState, List.of(ara5, ra4), List.of(ara5, ra3, ra4)));
+        assertFalse(AutomatonSimulator.checkAlignedRangeActions(List.of(ara3, ara4), List.of(ara3, ara4)));
+        assertFalse(AutomatonSimulator.checkAlignedRangeActions(List.of(ara4, ara3), List.of(ara3, ara4)));
+
         // one unavailable RA
-        assertFalse(AutomatonSimulator.checkAlignedRangeActions(autoState, List.of(ara1, ara2), List.of(ara1)));
+        assertFalse(AutomatonSimulator.checkAlignedRangeActions(List.of(ara1, ara2), List.of(ara1)));
     }
 
     @Test
     void testBuildRangeActionsGroupsOrderedBySpeed() {
         PrePerimeterResult rangeActionSensitivity = Mockito.mock(PrePerimeterResult.class);
         List<List<RangeAction<?>>> result = automatonSimulator.buildRangeActionsGroupsOrderedBySpeed(rangeActionSensitivity, autoState, network);
-        assertEquals(List.of(List.of(hvdcRa1, hvdcRa2), List.of(ra2), List.of(ara1, ara2), List.of(ra3)), result);
+
+        assertEquals(List.of(List.of(hvdcRa1, hvdcRa2), List.of(ra2), List.of(ara1, ara2), List.of(ra3), List.of(ara5, ara6)), result);
     }
 
     @Test

@@ -15,13 +15,17 @@ import com.powsybl.open_rao.data.crac_api.range_action.PstRangeAction;
 import com.powsybl.open_rao.data.crac_creation.creator.cim.crac_creator.CimCracCreationContext;
 import com.powsybl.open_rao.data.crac_creation.creator.cim.crac_creator.remedial_action.PstRangeActionSeriesCreationContext;
 import com.powsybl.open_rao.data.crac_creation.creator.cim.crac_creator.remedial_action.RemedialActionSeriesCreationContext;
+import com.powsybl.open_rao.data.rao_result_api.ComputationStatus;
 import com.powsybl.open_rao.data.rao_result_api.RaoResult;
-import com.powsybl.open_rao.data.swe_cne_exporter.xsd.*;
-import com.powsybl.open_rao.monitoring.angle_monitoring.AngleMonitoringResult;
+import com.powsybl.open_rao.data.swe_cne_exporter.xsd.RemedialActionRegisteredResource;
+import com.powsybl.open_rao.data.swe_cne_exporter.xsd.RemedialActionSeries;
 import org.apache.commons.lang3.NotImplementedException;
 
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Objects;
 
 import static com.powsybl.open_rao.data.cne_exporter_commons.CneConstants.*;
 
@@ -46,7 +50,7 @@ public class SweRemedialActionSeriesCreator {
             .filter(RemedialActionSeriesCreationContext::isImported)
             .sorted(Comparator.comparing(RemedialActionSeriesCreationContext::getNativeId))
             .toList();
-        if (Objects.isNull(contingency)) {
+        if (contingency == null) {
             //PREVENTIVE
             sortedRas.forEach(
                 raSeriesCreationContext -> {
@@ -85,7 +89,7 @@ public class SweRemedialActionSeriesCreator {
             .filter(RemedialActionSeriesCreationContext::isImported)
             .sorted(Comparator.comparing(RemedialActionSeriesCreationContext::getNativeId))
             .toList();
-        if (Objects.isNull(contingency)) {
+        if (contingency == null) {
             //PREVENTIVE
             sortedRas.forEach(
                 raSeriesCreationContext -> {
@@ -127,20 +131,20 @@ public class SweRemedialActionSeriesCreator {
 
     private RemedialActionSeries generateRaSeries(State state, RemedialActionSeriesCreationContext context, boolean onlyReference) {
         RaoResult raoResult = sweCneHelper.getRaoResult();
-        AngleMonitoringResult angleMonitoringResult = sweCneHelper.getAngleMonitoringResult();
         Crac crac = sweCneHelper.getCrac();
         List<RemedialAction<?>> usedRas = new ArrayList<>();
-        if (Objects.nonNull(raoResult)) {
-            context.getCreatedIds().stream().sorted()
-                    .map(crac::getRemedialAction)
-                    .filter(ra -> raoResult.isActivatedDuringState(state, ra))
-                            .forEach(usedRas::add);
+        if (raoResult == null) {
+            return null;
         }
-        if (Objects.nonNull(angleMonitoringResult) && !angleMonitoringResult.isDivergent()) {
+        context.getCreatedIds().stream().sorted()
+                .map(crac::getRemedialAction)
+                .filter(ra -> raoResult.isActivatedDuringState(state, ra)).forEach(usedRas::add);
+        if (!raoResult.getComputationStatus().equals(ComputationStatus.FAILURE)) {
             context.getCreatedIds().stream().sorted()
-                    .map(crac::getRemedialAction)
-                    .filter(ra -> angleMonitoringResult.getAppliedCras(state).stream().anyMatch(cra -> cra.getId().equals(ra.getId())))
-                            .forEach(usedRas::add);
+                .map(crac::getRemedialAction).filter(ra ->
+                    raoResult.getActivatedRangeActionsDuringState(state).stream().anyMatch(cra -> cra.getId().equals(ra.getId())) ||
+                        raoResult.getActivatedNetworkActionsDuringState(state).stream().anyMatch(cra -> cra.getId().equals(ra.getId()))
+                ).forEach(usedRas::add);
         }
         for (RemedialAction<?> usedRa : usedRas) {
             if (usedRa instanceof NetworkAction networkAction) {
@@ -148,12 +152,9 @@ public class SweRemedialActionSeriesCreator {
             } else if (usedRa instanceof PstRangeAction pstRangeAction) {
                 return generatePstRaSeries(pstRangeAction, state, context, onlyReference);
             } else if (usedRa instanceof HvdcRangeAction hvdcRangeAction) {
-                if (Objects.isNull(raoResult)) {
-                    throw new OpenRaoException(String.format("Rao result is null. Cannot retrieve HvdcRangeAction %s's optimized setpoint on state %s", usedRa.getId(), state.getId()));
-                }
                 // In case of an HVDC, the native crac has one series per direction, we select the one that corresponds to the sign of the setpoint
                 if (context.isInverted() == (raoResult.getOptimizedSetPointOnState(state, hvdcRangeAction) < 0)) {
-                    return generateHvdcRaSeries((HvdcRangeAction) usedRa, state, context);
+                    return generateHvdcRaSeries(hvdcRangeAction, state, context);
                 }
             } else {
                 throw new NotImplementedException(String.format("Range action of type %s not supported yet.", usedRa.getClass().getName()));

@@ -11,6 +11,7 @@ import com.powsybl.open_rao.commons.OpenRaoException;
 import com.powsybl.open_rao.commons.Unit;
 import com.powsybl.open_rao.data.crac_api.*;
 import com.powsybl.open_rao.data.crac_api.cnec.VoltageCnec;
+import com.powsybl.open_rao.data.crac_api.usage_rule.UsageMethod;
 import com.powsybl.open_rao.monitoring.voltage_monitoring.VoltageMonitoringResult;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -76,12 +77,12 @@ class JsonVoltageMonitoringResultTest {
         crac.newNetworkAction()
                 .withId("na1")
                 .newInjectionSetPoint().withNetworkElement("ne1").withSetpoint(50.).withUnit(Unit.MEGAWATT).add()
-                .newOnVoltageConstraintUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withVoltageCnec(vc1.getId()).add()
+                .newOnVoltageConstraintUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withVoltageCnec(vc1.getId()).withUsageMethod(UsageMethod.AVAILABLE).add()
                 .add();
         crac.newNetworkAction()
                 .withId("na2")
                 .newInjectionSetPoint().withNetworkElement("ne2").withSetpoint(150.).withUnit(Unit.MEGAWATT).add()
-                .newOnVoltageConstraintUsageRule().withInstant(CURATIVE_INSTANT_ID).withVoltageCnec(vc2.getId()).add()
+                .newOnVoltageConstraintUsageRule().withInstant(CURATIVE_INSTANT_ID).withVoltageCnec(vc2.getId()).withUsageMethod(UsageMethod.AVAILABLE).add()
                 .add();
         voltageMonitoringResultImporter = new VoltageMonitoringResultImporter();
     }

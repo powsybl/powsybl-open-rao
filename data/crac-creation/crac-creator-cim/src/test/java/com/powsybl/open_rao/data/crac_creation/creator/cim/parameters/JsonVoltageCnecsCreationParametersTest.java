@@ -12,6 +12,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Locale;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Stream;
@@ -32,7 +33,7 @@ class JsonVoltageCnecsCreationParametersTest {
         return Stream.of(
             Arguments.of("nok1", "When monitoring the preventive instant, no contingency can be defined."),
             Arguments.of("nok2", "A threshold is already defined for instant curative."),
-            Arguments.of("nok3", String.format("Multiple thresholds for same nominalV (%.1f) defined", 400.)),
+            Arguments.of("nok3", String.format(Locale.ENGLISH, "Multiple thresholds for same nominalV (%.1f) defined", 400.)),
             Arguments.of("nok4", "Unhandled unit in voltage monitoring: ampere"),
             Arguments.of("nok5", "At least one monitored element and one monitored state with thresholds should be defined."),
             Arguments.of("nok6", "At least one monitored element and one monitored state with thresholds should be defined."),

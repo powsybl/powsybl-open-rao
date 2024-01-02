@@ -18,7 +18,7 @@ import com.powsybl.open_rao.data.crac_api.network_action.NetworkAction;
 import com.powsybl.open_rao.data.crac_api.range_action.HvdcRangeAction;
 import com.powsybl.open_rao.data.crac_api.range_action.PstRangeAction;
 import com.powsybl.open_rao.data.crac_api.range_action.RangeAction;
-import com.powsybl.open_rao.data.crac_api.usage_rule.UsageMethod;
+import com.powsybl.open_rao.data.crac_api.usage_rule.*;
 import com.powsybl.open_rao.data.rao_result_api.ComputationStatus;
 import com.powsybl.open_rao.rao_api.parameters.RaoParameters;
 import com.powsybl.open_rao.search_tree_rao.commons.RaoLogger;
@@ -142,8 +142,8 @@ public final class AutomatonSimulator {
         Set<FlowCnec> flowCnecsInSensi = crac.getFlowCnecs(automatonState);
         flowCnecsInSensi.addAll(crac.getFlowCnecs(curativeState));
         Set<RangeAction<?>> rangeActionsInSensi = new HashSet<>();
-        rangeActionsInSensi.addAll(crac.getRangeActions(automatonState, UsageMethod.FORCED, UsageMethod.TO_BE_EVALUATED));
-        rangeActionsInSensi.addAll(crac.getRangeActions(curativeState, UsageMethod.AVAILABLE, UsageMethod.FORCED, UsageMethod.TO_BE_EVALUATED));
+        rangeActionsInSensi.addAll(crac.getRangeActions(automatonState, UsageMethod.FORCED));
+        rangeActionsInSensi.addAll(crac.getRangeActions(curativeState, UsageMethod.AVAILABLE));
         return new PrePerimeterSensitivityAnalysis(flowCnecsInSensi, rangeActionsInSensi, raoParameters, toolProvider);
     }
 
@@ -198,13 +198,9 @@ public final class AutomatonSimulator {
     TopoAutomatonSimulationResult simulateTopologicalAutomatons(State automatonState, Network network, PrePerimeterSensitivityAnalysis preAutoPerimeterSensitivityAnalysis) {
         // -- Apply network actions
         // -- First get forced network actions
-        Set<NetworkAction> appliedNetworkActions = crac.getNetworkActions(automatonState, UsageMethod.FORCED);
-
-        // -- Then add those with TO_BE_EVALUATED usage method when evaluation condition is verified
-        // -- Evaluation condition is isAnyMarginNegative amongst network actions' flow cnecs associated to their usage rules
-        crac.getNetworkActions(automatonState, UsageMethod.TO_BE_EVALUATED).stream()
-                .filter(na -> na.isRemedialActionAvailable(automatonState, RaoUtil.isAnyMarginNegative(prePerimeterSensitivityOutput, na.getFlowCnecsConstrainingUsageRules(crac.getFlowCnecs(), network, automatonState), raoParameters.getObjectiveFunctionParameters().getType().getUnit())))
-                .forEach(appliedNetworkActions::add);
+        Set<NetworkAction> appliedNetworkActions = crac.getNetworkActions().stream()
+            .filter(ra -> RaoUtil.isRemedialActionAvailable(ra, automatonState, prePerimeterSensitivityOutput, crac.getFlowCnecs(), network, raoParameters))
+            .collect(Collectors.toSet());
 
         if (appliedNetworkActions.isEmpty()) {
             TECHNICAL_LOGS.info("Topological automaton state {} has been skipped as no topological automatons were activated.", automatonState.getId());
@@ -312,13 +308,16 @@ public final class AutomatonSimulator {
     Set<FlowCnec> gatherFlowCnecsForAutoRangeAction(RangeAction<?> availableRa,
                                                     State automatonState,
                                                     Network network) {
-        // UsageMethod is either FORCED or TO_BE_EVALUATED
+        // UsageMethod should be FORCED
         if (availableRa.getUsageMethod(automatonState).equals(UsageMethod.FORCED)) {
-            return crac.getFlowCnecs(automatonState);
-        } else if (availableRa.getUsageMethod(automatonState).equals(UsageMethod.TO_BE_EVALUATED)) {
-            return availableRa.getFlowCnecsConstrainingUsageRules(crac.getFlowCnecs(automatonState), network, automatonState);
+            if (availableRa.getUsageRules().stream().filter(usageRule -> usageRule instanceof OnInstant || usageRule instanceof OnContingencyState)
+                .anyMatch(usageRule -> usageRule.getUsageMethod(automatonState).equals(UsageMethod.FORCED))) {
+                return crac.getFlowCnecs(automatonState);
+            } else {
+                return availableRa.getFlowCnecsConstrainingUsageRules(crac.getFlowCnecs(automatonState), network, automatonState);
+            }
         } else {
-            throw new OpenRaoException(String.format("Range action %s has usage method %s although FORCED or TO_BE_EVALUATED were expected.", availableRa, availableRa.getUsageMethod(automatonState)));
+            throw new OpenRaoException(String.format("Range action %s has usage method %s although FORCED was expected.", availableRa, availableRa.getUsageMethod(automatonState)));
         }
     }
 
@@ -328,12 +327,9 @@ public final class AutomatonSimulator {
     List<List<RangeAction<?>>> buildRangeActionsGroupsOrderedBySpeed(PrePerimeterResult rangeActionSensitivity, State automatonState, Network network) {
         // 1) Get available range actions
         // -- First get forced range actions
-        Set<RangeAction<?>> availableRangeActions = crac.getRangeActions(automatonState, UsageMethod.FORCED);
-        // -- Then add those with TO_BE_EVALUATED usage method when evaluation condition is verified
-        // -- Evaluation condition is isAnyMarginNegative amongst network actions' flow cnecs associated to their usage rules
-        crac.getRangeActions(automatonState, UsageMethod.TO_BE_EVALUATED).stream()
-            .filter(na -> na.isRemedialActionAvailable(automatonState, RaoUtil.isAnyMarginNegative(rangeActionSensitivity, na.getFlowCnecsConstrainingUsageRules(crac.getFlowCnecs(), network, automatonState), raoParameters.getObjectiveFunctionParameters().getType().getUnit())))
-            .forEach(availableRangeActions::add);
+        Set<RangeAction<?>> availableRangeActions = crac.getRangeActions().stream()
+            .filter(ra -> RaoUtil.isRemedialActionAvailable(ra, automatonState, rangeActionSensitivity, crac.getFlowCnecs(), network, raoParameters))
+            .collect(Collectors.toSet());
 
         // 2) Sort range actions
         // -- Check that speed is defined
@@ -355,7 +351,7 @@ public final class AutomatonSimulator {
             if (rangeActionsOnAutomatonState.stream().anyMatch(l -> l.contains(availableRangeAction))) {
                 continue;
             }
-            // Look for aligned range actions in all range actions : they have the same groupId and the same usageMethod
+            // Look for aligned range actions in all range actions : they have the same groupId and should both be available
             Optional<String> groupId = availableRangeAction.getGroupId();
             List<RangeAction<?>> alignedRa;
             if (groupId.isPresent()) {
@@ -366,7 +362,7 @@ public final class AutomatonSimulator {
             } else {
                 alignedRa = List.of(availableRangeAction);
             }
-            if (!checkAlignedRangeActions(automatonState, alignedRa, rangeActionsOrderedBySpeed)) {
+            if (!checkAlignedRangeActions(alignedRa, rangeActionsOrderedBySpeed)) {
                 continue;
             }
             rangeActionsOnAutomatonState.add(alignedRa);
@@ -377,11 +373,10 @@ public final class AutomatonSimulator {
     /**
      * This function checks that the group of aligned range actions :
      * - contains same type range actions (PST, HVDC, or other) : all-or-none principle
-     * - contains range actions that share the same usage rule
      * - contains range actions that are all available at AUTO instant.
      * Returns true if checks are valid.
      */
-    static boolean checkAlignedRangeActions(State automatonState, List<RangeAction<?>> alignedRa, List<RangeAction<?>> rangeActionsOrderedBySpeed) {
+    static boolean checkAlignedRangeActions(List<RangeAction<?>> alignedRa, List<RangeAction<?>> rangeActionsOrderedBySpeed) {
         if (alignedRa.size() == 1) {
             // nothing to check
             return true;
@@ -389,11 +384,6 @@ public final class AutomatonSimulator {
         // Ignore aligned range actions with heterogeneous types
         if (alignedRa.stream().map(Object::getClass).distinct().count() > 1) {
             BUSINESS_WARNS.warn("Range action group {} contains range actions of different types; they are not simulated", alignedRa.get(0).getGroupId().orElseThrow());
-            return false;
-        }
-        // Ignore aligned range actions when one element of the group has a different usage method than the others
-        if (alignedRa.stream().map(rangeAction -> rangeAction.getUsageMethod(automatonState)).distinct().count() > 1) {
-            BUSINESS_WARNS.warn("Range action group {} contains range actions with different usage methods; they are not simulated", alignedRa.get(0).getGroupId().orElseThrow());
             return false;
         }
         // Ignore aligned range actions when one element of the group is not available at AUTO instant
@@ -412,7 +402,7 @@ public final class AutomatonSimulator {
     private PrePerimeterResult runPreCurativeSensitivityComputation(State automatonState, State curativeState, Network network) {
         // -- Run sensitivity computation before running curative RAO later
         // -- Get curative range actions
-        Set<RangeAction<?>> curativeRangeActions = crac.getRangeActions(curativeState, UsageMethod.AVAILABLE, UsageMethod.TO_BE_EVALUATED, UsageMethod.FORCED);
+        Set<RangeAction<?>> curativeRangeActions = crac.getRangeActions(curativeState, UsageMethod.AVAILABLE);
         // Get cnecs
         Set<FlowCnec> flowCnecs = crac.getFlowCnecs(automatonState);
         flowCnecs.addAll(crac.getFlowCnecs(curativeState));

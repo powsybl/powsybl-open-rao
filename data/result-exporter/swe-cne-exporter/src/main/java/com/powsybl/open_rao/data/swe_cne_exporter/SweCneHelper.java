@@ -13,7 +13,6 @@ import com.powsybl.open_rao.data.crac_api.Contingency;
 import com.powsybl.open_rao.data.crac_api.Crac;
 import com.powsybl.open_rao.data.rao_result_api.ComputationStatus;
 import com.powsybl.open_rao.data.rao_result_api.RaoResult;
-import com.powsybl.open_rao.monitoring.angle_monitoring.AngleMonitoringResult;
 import com.powsybl.open_rao.rao_api.parameters.RaoParameters;
 import com.powsybl.iidm.network.Network;
 
@@ -26,17 +25,11 @@ import java.util.stream.Collectors;
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
  */
 public class SweCneHelper extends CneHelper {
-    private final AngleMonitoringResult angleMonitoringResult;
     private Map<Contingency, Boolean> contingencyFailureMap = new HashMap<>();
 
-    public SweCneHelper(Crac crac, Network network, RaoResult raoResult, AngleMonitoringResult angleMonitoringResult, RaoParameters raoParameters, CneExporterParameters exporterParameters) {
+    public SweCneHelper(Crac crac, Network network, RaoResult raoResult, RaoParameters raoParameters, CneExporterParameters exporterParameters) {
         super(crac, network, raoResult, raoParameters, exporterParameters);
-        this.angleMonitoringResult = angleMonitoringResult;
         defineContingencyFailureMap();
-    }
-
-    public AngleMonitoringResult getAngleMonitoringResult() {
-        return angleMonitoringResult;
     }
 
     public boolean isContingencyDivergent(Contingency contingency) {

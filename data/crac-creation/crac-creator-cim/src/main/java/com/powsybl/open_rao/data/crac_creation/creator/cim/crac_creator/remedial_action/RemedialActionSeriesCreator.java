@@ -400,8 +400,9 @@ public class RemedialActionSeriesCreator {
             addOnAngleConstraintUsageRule(remedialActionAdder, angleCnec, curativeInstant);
             return;
         }
+        UsageMethod usageMethod = instant.isAuto() ? UsageMethod.FORCED : UsageMethod.AVAILABLE;
         if (!Objects.isNull(sharedDomain)) {
-            remedialActionAdder.newOnFlowConstraintInCountryUsageRule().withInstant(instant.getId()).withCountry(sharedDomain).add();
+            remedialActionAdder.newOnFlowConstraintInCountryUsageRule().withInstant(instant.getId()).withCountry(sharedDomain).withUsageMethod(usageMethod).add();
             return;
         }
 
@@ -411,7 +412,6 @@ public class RemedialActionSeriesCreator {
             instant.isCurative() && (contingencies == null || contingencies.isEmpty())) {
             addOnInstantUsageRules(remedialActionAdder, instant);
         } else {
-            UsageMethod usageMethod = instant.isCurative() ? UsageMethod.AVAILABLE : UsageMethod.FORCED;
             RemedialActionSeriesCreator.addOnStateUsageRules(remedialActionAdder, instant, usageMethod, contingencies);
         }
     }
@@ -468,14 +468,16 @@ public class RemedialActionSeriesCreator {
         }
         adder.newOnFlowConstraintUsageRule()
             .withFlowCnec(flowCnec.getId())
+            .withUsageMethod(instant.isAuto() ? UsageMethod.FORCED : UsageMethod.AVAILABLE)
             .withInstant(instant.getId())
             .add();
     }
 
-    private static void addOnAngleConstraintUsageRule(RemedialActionAdder<?> adder, AngleCnec angleCnec, Instant curativeInstant) {
+    private static void addOnAngleConstraintUsageRule(RemedialActionAdder<?> adder, AngleCnec angleCnec, Instant instant) {
         adder.newOnAngleConstraintUsageRule()
             .withAngleCnec(angleCnec.getId())
-            .withInstant(curativeInstant.getId())
+            .withUsageMethod(instant.isAuto() ? UsageMethod.FORCED : UsageMethod.AVAILABLE)
+            .withInstant(instant.getId())
             .add();
     }
 

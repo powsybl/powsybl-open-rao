@@ -8,8 +8,10 @@
 package com.powsybl.open_rao.data.crac_io_json.deserializers;
 
 import com.powsybl.open_rao.commons.OpenRaoException;
+import com.powsybl.open_rao.data.crac_api.InstantKind;
 import com.powsybl.open_rao.data.crac_api.RemedialActionAdder;
 import com.powsybl.open_rao.data.crac_api.usage_rule.OnFlowConstraintInCountryAdder;
+import com.powsybl.open_rao.data.crac_api.usage_rule.UsageMethod;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.powsybl.iidm.network.Country;
@@ -25,13 +27,20 @@ public final class OnFlowConstraintInCountryArrayDeserializer {
     private OnFlowConstraintInCountryArrayDeserializer() {
     }
 
-    public static void deserialize(JsonParser jsonParser, RemedialActionAdder<?> ownerAdder) throws IOException {
+    public static void deserialize(JsonParser jsonParser, RemedialActionAdder<?> ownerAdder, String version) throws IOException {
         while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
             OnFlowConstraintInCountryAdder<?> adder = ownerAdder.newOnFlowConstraintInCountryUsageRule();
             while (!jsonParser.nextToken().isStructEnd()) {
                 switch (jsonParser.getCurrentName()) {
                     case INSTANT:
-                        adder.withInstant(jsonParser.nextTextValue());
+                        String instantId = jsonParser.nextTextValue();
+                        adder.withInstant(instantId);
+                        if (getPrimaryVersionNumber(version) < 2) {
+                            adder.withUsageMethod(deseralizeInstantKind(instantId).equals(InstantKind.AUTO) ? UsageMethod.FORCED : UsageMethod.AVAILABLE);
+                        }
+                        break;
+                    case USAGE_METHOD:
+                        adder.withUsageMethod(deserializeUsageMethod(jsonParser.nextTextValue()));
                         break;
                     case COUNTRY:
                         adder.withCountry(Country.valueOf(jsonParser.nextTextValue()));

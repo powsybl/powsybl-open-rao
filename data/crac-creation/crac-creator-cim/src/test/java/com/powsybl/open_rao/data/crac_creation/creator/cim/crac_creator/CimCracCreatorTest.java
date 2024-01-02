@@ -281,7 +281,7 @@ class CimCracCreatorTest {
                         .anyMatch(
                                 ur -> ur.getInstant().equals(instant)
                                         && ur.getFlowCnec().getId().equals(flowCnecId)
-                                        && ur.getUsageMethod().equals(UsageMethod.TO_BE_EVALUATED)
+                                        && ur.getUsageMethod().equals(instant.isAuto() ? UsageMethod.FORCED : UsageMethod.AVAILABLE)
                         ));
     }
 
@@ -293,7 +293,7 @@ class CimCracCreatorTest {
                         .anyMatch(
                                 ur -> ((OnAngleConstraint) ur).getInstant().isCurative()
                                         && ((OnAngleConstraint) ur).getAngleCnec().getId().equals(angleCnecId)
-                                        && ((OnAngleConstraint) ur).getUsageMethod().equals(UsageMethod.TO_BE_EVALUATED)
+                                        && ((OnAngleConstraint) ur).getUsageMethod().equals(UsageMethod.AVAILABLE)
                         ));
     }
 
@@ -623,14 +623,14 @@ class CimCracCreatorTest {
         assertEquals(Country.PT, ((OnFlowConstraintInCountry) ra1.getUsageRules().iterator().next()).getCountry());
         assertEquals(2, ra1.getElementaryActions().size());
         assertTrue(ra1.getElementaryActions().stream()
-                .filter(InjectionSetpoint.class::isInstance)
-                .map(InjectionSetpoint.class::cast)
-                .anyMatch(is -> is.getNetworkElement().getId().equals("_2844585c-0d35-488d-a449-685bcd57afbf") && is.getSetpoint() == 380)
+            .filter(InjectionSetpoint.class::isInstance)
+            .map(InjectionSetpoint.class::cast)
+            .anyMatch(is -> is.getNetworkElement().getId().equals("_2844585c-0d35-488d-a449-685bcd57afbf") && is.getSetpoint() == 380)
         );
         assertTrue(ra1.getElementaryActions().stream()
-                .filter(TopologicalAction.class::isInstance)
-                .map(TopologicalAction.class::cast)
-                .anyMatch(ta -> ta.getNetworkElement().getId().equals("_ffbabc27-1ccd-4fdc-b037-e341706c8d29") && ta.getActionType().equals(ActionType.CLOSE))
+            .filter(TopologicalAction.class::isInstance)
+            .map(TopologicalAction.class::cast)
+            .anyMatch(ta -> ta.getNetworkElement().getId().equals("_ffbabc27-1ccd-4fdc-b037-e341706c8d29") && ta.getActionType().equals(ActionType.CLOSE))
         );
 
         // RA_2
@@ -642,14 +642,14 @@ class CimCracCreatorTest {
         assertEquals(Country.ES, ((OnFlowConstraintInCountry) ra2.getUsageRules().iterator().next()).getCountry());
         assertEquals(2, ra2.getElementaryActions().size());
         assertTrue(ra2.getElementaryActions().stream()
-                .filter(PstSetpoint.class::isInstance)
-                .map(PstSetpoint.class::cast)
-                .anyMatch(ps -> ps.getNetworkElement().getId().equals("_e8a7eaec-51d6-4571-b3d9-c36d52073c33") && ps.getSetpoint() == -19)
+            .filter(PstSetpoint.class::isInstance)
+            .map(PstSetpoint.class::cast)
+            .anyMatch(ps -> ps.getNetworkElement().getId().equals("_e8a7eaec-51d6-4571-b3d9-c36d52073c33") && ps.getSetpoint() == -19)
         );
         assertTrue(ra2.getElementaryActions().stream()
-                .filter(TopologicalAction.class::isInstance)
-                .map(TopologicalAction.class::cast)
-                .anyMatch(ta -> ta.getNetworkElement().getId().equals("_b58bf21a-096a-4dae-9a01-3f03b60c24c7") && ta.getActionType().equals(ActionType.OPEN))
+            .filter(TopologicalAction.class::isInstance)
+            .map(TopologicalAction.class::cast)
+            .anyMatch(ta -> ta.getNetworkElement().getId().equals("_b58bf21a-096a-4dae-9a01-3f03b60c24c7") && ta.getActionType().equals(ActionType.OPEN))
         );
 
         // RA_3
@@ -670,14 +670,14 @@ class CimCracCreatorTest {
         );
         assertEquals(2, ra3.getElementaryActions().size());
         assertTrue(ra3.getElementaryActions().stream()
-                .filter(PstSetpoint.class::isInstance)
-                .map(PstSetpoint.class::cast)
-                .anyMatch(ps -> ps.getNetworkElement().getId().equals("_b94318f6-6d24-4f56-96b9-df2531ad6543") && ps.getSetpoint() == 0)
+            .filter(PstSetpoint.class::isInstance)
+            .map(PstSetpoint.class::cast)
+            .anyMatch(ps -> ps.getNetworkElement().getId().equals("_b94318f6-6d24-4f56-96b9-df2531ad6543") && ps.getSetpoint() == 0)
         );
         assertTrue(ra3.getElementaryActions().stream()
-                .filter(InjectionSetpoint.class::isInstance)
-                .map(InjectionSetpoint.class::cast)
-                .anyMatch(is -> is.getNetworkElement().getId().equals("_1dc9afba-23b5-41a0-8540-b479ed8baf4b") && is.getSetpoint() == 480)
+            .filter(InjectionSetpoint.class::isInstance)
+            .map(InjectionSetpoint.class::cast)
+            .anyMatch(is -> is.getNetworkElement().getId().equals("_1dc9afba-23b5-41a0-8540-b479ed8baf4b") && is.getSetpoint() == 480)
         );
     }
 
@@ -767,8 +767,8 @@ class CimCracCreatorTest {
 
         // CNEC 4
         assertCnecImported("CNEC-4", Set.of("CNEC-4 - preventive", "CNEC-4 - Co-1 - curative", "CNEC-4 - Co-2 - curative",
-                "CNEC-5 - MONITORED - preventive", "CNEC-5 - MONITORED - Co-1 - curative",
-                "CNEC-6 - MONITORED - preventive", "CNEC-6 - MONITORED - Co-1 - outage"));
+            "CNEC-5 - MONITORED - preventive", "CNEC-5 - MONITORED - Co-1 - curative",
+            "CNEC-6 - MONITORED - preventive", "CNEC-6 - MONITORED - Co-1 - outage"));
         assertFalse(cracCreationContext.getMonitoredSeriesCreationContext("CNEC-4").isAltered());
     }
 
@@ -979,10 +979,10 @@ class CimCracCreatorTest {
         assertEquals(14, importedCrac.getFlowCnecs().size());
 
         assertCnecImported("TUU_MR_31", Set.of(
-                "GHIOL_QSDFGH_1_220 - Co-one-1 - auto", "GHIOL_QSDFGH_1_220 - preventive", "GHIOL_QSDFGH_1_220 - Co-one-1 - outage",
-                "GHIOL_QSDFGH_1_220 - Co-one-3 - outage", "GHIOL_QSDFGH_1_220 - Co-one-3 - curative", "GHIOL_QSDFGH_1_220 - Co-one-2 - curative",
-                "GHIOL_QSDFGH_1_220 - Co-one-3 - auto", "GHIOL_QSDFGH_1_220 - Co-one-1 - curative", "GHIOL_QSDFGH_1_220 - Co-one-2 - auto",
-                "GHIOL_QSDFGH_1_220 - Co-one-2 - outage"
+            "GHIOL_QSDFGH_1_220 - Co-one-1 - auto", "GHIOL_QSDFGH_1_220 - preventive", "GHIOL_QSDFGH_1_220 - Co-one-1 - outage",
+            "GHIOL_QSDFGH_1_220 - Co-one-3 - outage", "GHIOL_QSDFGH_1_220 - Co-one-3 - curative", "GHIOL_QSDFGH_1_220 - Co-one-2 - curative",
+            "GHIOL_QSDFGH_1_220 - Co-one-3 - auto", "GHIOL_QSDFGH_1_220 - Co-one-1 - curative", "GHIOL_QSDFGH_1_220 - Co-one-2 - auto",
+            "GHIOL_QSDFGH_1_220 - Co-one-2 - outage"
         ));
         assertHasOneThreshold("GHIOL_QSDFGH_1_220 - preventive", Side.LEFT, Unit.PERCENT_IMAX, -1, 1);
         assertHasOneThreshold("GHIOL_QSDFGH_1_220 - Co-one-1 - outage", Side.LEFT, Unit.PERCENT_IMAX, -1.15, 1.15);
@@ -990,8 +990,8 @@ class CimCracCreatorTest {
         assertHasOneThreshold("GHIOL_QSDFGH_1_220 - Co-one-3 - curative", Side.LEFT, Unit.PERCENT_IMAX, -1.05, 1.05);
 
         assertCnecImported("TUU_MR_56", Set.of(
-                "GHIOL_QSRBJH_1_400 - Co-one-1 - auto", "GHIOL_QSRBJH_1_400 - preventive", "GHIOL_QSRBJH_1_400 - Co-one-1 - outage",
-                "GHIOL_QSRBJH_1_400 - Co-one-1 - curative"
+            "GHIOL_QSRBJH_1_400 - Co-one-1 - auto", "GHIOL_QSRBJH_1_400 - preventive", "GHIOL_QSRBJH_1_400 - Co-one-1 - outage",
+            "GHIOL_QSRBJH_1_400 - Co-one-1 - curative"
         ));
         assertHasOneThreshold("GHIOL_QSRBJH_1_400 - preventive", Side.LEFT, Unit.PERCENT_IMAX, -1, 1);
         assertHasOneThreshold("GHIOL_QSRBJH_1_400 - Co-one-1 - outage", Side.LEFT, Unit.PERCENT_IMAX, -1.5, 1.5);

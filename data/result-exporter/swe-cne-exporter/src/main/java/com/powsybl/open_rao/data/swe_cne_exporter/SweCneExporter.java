@@ -11,10 +11,9 @@ import com.powsybl.open_rao.commons.OpenRaoException;
 import com.powsybl.open_rao.commons.logs.OpenRaoLoggerProvider;
 import com.powsybl.open_rao.data.cne_exporter_commons.CneExporterParameters;
 import com.powsybl.open_rao.data.crac_creation.creator.cim.crac_creator.CimCracCreationContext;
+import com.powsybl.open_rao.data.rao_result_api.RaoResult;
 import com.powsybl.open_rao.data.swe_cne_exporter.xsd.CriticalNetworkElementMarketDocument;
 import com.powsybl.open_rao.data.crac_api.Crac;
-import com.powsybl.open_rao.data.rao_result_api.RaoResult;
-import com.powsybl.open_rao.monitoring.angle_monitoring.AngleMonitoringResult;
 import com.powsybl.open_rao.rao_api.parameters.RaoParameters;
 import com.powsybl.iidm.network.Network;
 import org.xml.sax.SAXException;
@@ -48,9 +47,9 @@ public class SweCneExporter {
 
     public void exportCne(Crac crac, Network network,
                           CimCracCreationContext cracCreationContext,
-                          RaoResult raoResult, AngleMonitoringResult angleMonitoringResult, RaoParameters raoParameters,
+                          RaoResult raoResult, RaoParameters raoParameters,
                           CneExporterParameters exporterParameters, OutputStream outputStream) {
-        SweCne cne = new SweCne(crac, network, cracCreationContext, raoResult, angleMonitoringResult, raoParameters, exporterParameters);
+        SweCne cne = new SweCne(crac, network, cracCreationContext, raoResult, raoParameters, exporterParameters);
         cne.generate();
         CriticalNetworkElementMarketDocument marketDocument = cne.getMarketDocument();
         StringWriter stringWriter = new StringWriter();

@@ -10,21 +10,20 @@ package com.powsybl.open_rao.search_tree_rao.commons;
 import com.powsybl.open_rao.commons.OpenRaoException;
 import com.powsybl.open_rao.commons.Unit;
 import com.powsybl.open_rao.commons.logs.OpenRaoLoggerProvider;
+import com.powsybl.open_rao.data.crac_api.RemedialAction;
 import com.powsybl.open_rao.data.crac_api.State;
 import com.powsybl.open_rao.data.crac_api.cnec.Cnec;
 import com.powsybl.open_rao.data.crac_api.cnec.FlowCnec;
 import com.powsybl.open_rao.data.crac_api.cnec.Side;
 import com.powsybl.open_rao.data.crac_api.range_action.RangeAction;
+import com.powsybl.open_rao.data.crac_api.usage_rule.*;
 import com.powsybl.open_rao.data.refprog.reference_program.ReferenceProgramBuilder;
 import com.powsybl.open_rao.rao_api.RaoInput;
 import com.powsybl.open_rao.rao_api.parameters.RaoParameters;
 import com.powsybl.open_rao.rao_api.parameters.extensions.LoopFlowParametersExtension;
 import com.powsybl.open_rao.rao_api.parameters.extensions.RelativeMarginsParametersExtension;
 import com.powsybl.open_rao.search_tree_rao.commons.optimization_perimeters.OptimizationPerimeter;
-import com.powsybl.open_rao.search_tree_rao.result.api.FlowResult;
-import com.powsybl.open_rao.search_tree_rao.result.api.RangeActionActivationResult;
-import com.powsybl.open_rao.search_tree_rao.result.api.RangeActionSetpointResult;
-import com.powsybl.open_rao.search_tree_rao.result.api.SensitivityResult;
+import com.powsybl.open_rao.search_tree_rao.result.api.*;
 import com.powsybl.iidm.network.Network;
 import org.apache.commons.lang3.tuple.Pair;
 
@@ -32,6 +31,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static java.lang.String.format;
 
@@ -125,6 +125,53 @@ public final class RaoUtil {
      */
     public static boolean isAnyMarginNegative(FlowResult flowResult, Set<FlowCnec> flowCnecs, Unit marginUnit) {
         return flowCnecs.stream().anyMatch(flowCnec -> flowResult.getMargin(flowCnec, marginUnit) <= 0);
+    }
+
+    /**
+     * Evaluates if a remedial action is available.
+     * 1) The remedial action has no usage rule:
+     * It will not be available.
+     * 2) It gathers all the remedial action usageMethods and filters out the OnFlowConstraint(InCountry) with no negative margins on their associated cnecs.
+     * 3) It computes the "strongest" usage method.
+     * For automatonState, the remedial action is available if and only if the usage method is "FORCED".
+     * For other states, the remedial action is available if and only if the usage method is "AVAILABLE".
+     */
+    public static boolean isRemedialActionAvailable(RemedialAction<?> remedialAction, State state, PrePerimeterResult prePerimeterResult, Set<FlowCnec> flowCnecs, Network network, RaoParameters raoParameters) {
+        Set<UsageRule> usageRules = remedialAction.getUsageRules();
+        if (usageRules.isEmpty()) {
+            OpenRaoLoggerProvider.BUSINESS_WARNS.warn(format("The remedial action %s has no usage rule and therefore will not be available.", remedialAction.getName()));
+            return false;
+        }
+
+        Set<UsageMethod> usageMethods = getAllUsageMethods(usageRules, remedialAction, state, prePerimeterResult, flowCnecs, network, raoParameters);
+        UsageMethod finalUsageMethod = UsageMethod.getStrongestUsageMethod(usageMethods);
+
+        if (state.getInstant().isAuto()) {
+            if (finalUsageMethod.equals(UsageMethod.AVAILABLE)) {
+                OpenRaoLoggerProvider.BUSINESS_WARNS.warn(format("The RAO only knows how to interpret 'forced' usage method for automatons. Therefore, %s will be ignored for this state: %s", remedialAction.getName(), state.getId()));
+                return false;
+            }
+            return finalUsageMethod.equals(UsageMethod.FORCED);
+        } else {
+            if (finalUsageMethod.equals(UsageMethod.FORCED)) {
+                OpenRaoLoggerProvider.BUSINESS_WARNS.warn(format("The 'forced' usage method is for automatons only. Therefore, %s will be ignored for this state: %s", remedialAction.getName(), state.getId()));
+                return false;
+            }
+            return finalUsageMethod.equals(UsageMethod.AVAILABLE);
+        }
+    }
+
+    /**
+     * Returns a set of usageMethods corresponding to a remedialAction.
+     * It filters out every OnFlowConstraint(InCountry) that is not applicable due to positive margins.
+     */
+    private static Set<UsageMethod> getAllUsageMethods(Set<UsageRule> usageRules, RemedialAction<?> remedialAction, State state, PrePerimeterResult prePerimeterResult, Set<FlowCnec> flowCnecs, Network network, RaoParameters raoParameters) {
+        return usageRules.stream()
+            .filter(ur -> ur instanceof OnContingencyState || ur instanceof OnInstant
+                || (ur instanceof OnFlowConstraint || ur instanceof OnFlowConstraintInCountry)
+                && isAnyMarginNegative(prePerimeterResult, remedialAction.getFlowCnecsConstrainingForOneUsageRule(ur, flowCnecs, network), raoParameters.getObjectiveFunctionParameters().getType().getUnit()))
+            .map(ur -> ur.getUsageMethod(state))
+            .collect(Collectors.toSet());
     }
 
     /**

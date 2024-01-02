@@ -15,6 +15,7 @@ import com.powsybl.open_rao.data.crac_api.range_action.PstRangeAction;
 import com.powsybl.open_rao.data.crac_creation.creator.cim.crac_creator.CimCracCreationContext;
 import com.powsybl.open_rao.data.crac_creation.creator.cim.crac_creator.remedial_action.PstRangeActionSeriesCreationContext;
 import com.powsybl.open_rao.data.crac_creation.creator.cim.crac_creator.remedial_action.RemedialActionSeriesCreationContext;
+import com.powsybl.open_rao.data.rao_result_api.ComputationStatus;
 import com.powsybl.open_rao.data.rao_result_api.RaoResult;
 import com.powsybl.open_rao.data.swe_cne_exporter.xsd.RemedialActionSeries;
 import org.junit.jupiter.api.BeforeEach;
@@ -47,6 +48,7 @@ class SweRemedialActionSeriesCreatorTest {
 
         Mockito.when(cneHelper.getCrac()).thenReturn(crac);
         Mockito.when(cneHelper.getRaoResult()).thenReturn(raoResult);
+        Mockito.when(raoResult.getComputationStatus()).thenReturn(ComputationStatus.DEFAULT);
         Instant preventiveInstant = getMockInstant(true, false, false);
         Instant autoInstant = getMockInstant(false, true, false);
         Instant curativeInstant = getMockInstant(false, false, true);

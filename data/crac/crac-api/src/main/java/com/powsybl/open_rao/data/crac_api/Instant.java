@@ -16,7 +16,7 @@ import com.powsybl.open_rao.data.crac_api.cnec.Cnec;
  * @author Hugo Schindler {@literal <hugo.schindler at rte-france.com>}
  * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
  */
-public interface Instant<T extends Instant<T>> extends Identifiable<T> {
+public interface Instant extends Identifiable<Instant> {
 
     int getOrder();
 

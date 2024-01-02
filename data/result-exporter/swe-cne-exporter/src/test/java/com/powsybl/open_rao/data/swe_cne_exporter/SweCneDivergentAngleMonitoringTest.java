@@ -20,6 +20,7 @@ import com.powsybl.open_rao.data.crac_creation.creator.cim.parameters.RangeActio
 import com.powsybl.open_rao.data.rao_result_api.RaoResult;
 import com.powsybl.open_rao.data.rao_result_json.RaoResultImporter;
 import com.powsybl.open_rao.monitoring.angle_monitoring.AngleMonitoringResult;
+import com.powsybl.open_rao.monitoring.angle_monitoring.RaoResultWithAngleMonitoring;
 import com.powsybl.open_rao.monitoring.angle_monitoring.json.AngleMonitoringResultImporter;
 import com.powsybl.open_rao.rao_api.parameters.RaoParameters;
 import com.powsybl.iidm.network.Network;
@@ -41,8 +42,7 @@ class SweCneDivergentAngleMonitoringTest {
     private Crac crac;
     private CracCreationContext cracCreationContext;
     private Network network;
-    private RaoResult raoResult;
-    private AngleMonitoringResult angleMonitoringResult;
+    private RaoResultWithAngleMonitoring raoResultWithAngleMonitoring;
 
     @BeforeEach
     public void setUp() {
@@ -56,6 +56,7 @@ class SweCneDivergentAngleMonitoringTest {
         CimCracCreationParameters cimCracCreationParameters = new CimCracCreationParameters();
         cimCracCreationParameters.setRemedialActionSpeed(rangeActionSpeeds);
         CracCreationParameters cracCreationParameters = new CracCreationParameters();
+        cracCreationParameters.setCracFactoryName("CracImplFactory");
         cracCreationParameters.addExtension(CimCracCreationParameters.class, cimCracCreationParameters);
 
         cracCreationContext = cimCracCreator.createCrac(cimCrac, network, OffsetDateTime.of(2021, 4, 2, 12, 30, 0, 0, ZoneOffset.UTC), cracCreationParameters);
@@ -66,14 +67,15 @@ class SweCneDivergentAngleMonitoringTest {
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
-        raoResult = new RaoResultImporter().importRaoResult(inputStream, crac);
+        RaoResult raoResult = new RaoResultImporter().importRaoResult(inputStream, crac);
         InputStream inputStream2 = null;
         try {
             inputStream2 = new FileInputStream(SweCneDivergentAngleMonitoringTest.class.getResource("/AngleMonitoringDivergentResult.json").getFile());
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
-        angleMonitoringResult = new AngleMonitoringResultImporter().importAngleMonitoringResult(inputStream2, crac);
+        AngleMonitoringResult angleMonitoringResult = new AngleMonitoringResultImporter().importAngleMonitoringResult(inputStream2, crac);
+        raoResultWithAngleMonitoring = new RaoResultWithAngleMonitoring(raoResult, angleMonitoringResult);
     }
 
     @Test
@@ -84,7 +86,7 @@ class SweCneDivergentAngleMonitoringTest {
                 "receiverId", CneExporterParameters.RoleType.CAPACITY_COORDINATOR,
                 "2021-04-02T12:00:00Z/2021-04-02T13:00:00Z");
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        new SweCneExporter().exportCne(crac, network, (CimCracCreationContext) cracCreationContext, raoResult, angleMonitoringResult, new RaoParameters(), params, outputStream);
+        new SweCneExporter().exportCne(crac, network, (CimCracCreationContext) cracCreationContext, raoResultWithAngleMonitoring, new RaoParameters(), params, outputStream);
         try {
             InputStream inputStream = new FileInputStream(SweCneDivergentAngleMonitoringTest.class.getResource("/SweCNEDivergentAngleMonitoring_Z01.xml").getFile());
             compareCneFiles(inputStream, new ByteArrayInputStream(outputStream.toByteArray()));

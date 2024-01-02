@@ -47,30 +47,40 @@ public final class NetworkActionArrayDeserializer {
                         OnInstantArrayDeserializer.deserialize(jsonParser, networkActionAdder);
                         break;
                     case FREE_TO_USE_USAGE_RULES:
-                        deserializeFreeToUseUsageRules(jsonParser, version, networkActionAdder);
+                        if (getPrimaryVersionNumber(version) > 1 || getSubVersionNumber(version) > 5) {
+                            throw new OpenRaoException("FreeToUse has been renamed to OnInstant since CRAC version 1.6");
+                        } else {
+                            jsonParser.nextToken();
+                            OnInstantArrayDeserializer.deserialize(jsonParser, networkActionAdder);
+                        }
                         break;
                     case ON_CONTINGENCY_STATE_USAGE_RULES:
                         jsonParser.nextToken();
                         OnStateArrayDeserializer.deserialize(jsonParser, networkActionAdder);
                         break;
                     case ON_STATE_USAGE_RULES:
-                        deserializeOnStateUsageRules(jsonParser, version, networkActionAdder);
+                        if (getPrimaryVersionNumber(version) > 1 || getSubVersionNumber(version) > 5) {
+                            throw new OpenRaoException("OnState has been renamed to OnContingencyState since CRAC version 1.6");
+                        } else {
+                            jsonParser.nextToken();
+                            OnStateArrayDeserializer.deserialize(jsonParser, networkActionAdder);
+                        }
                         break;
                     case ON_FLOW_CONSTRAINT_USAGE_RULES:
                         jsonParser.nextToken();
-                        OnFlowConstraintArrayDeserializer.deserialize(jsonParser, networkActionAdder);
+                        OnFlowConstraintArrayDeserializer.deserialize(jsonParser, networkActionAdder, version);
                         break;
                     case ON_ANGLE_CONSTRAINT_USAGE_RULES:
                         jsonParser.nextToken();
-                        OnAngleConstraintArrayDeserializer.deserialize(jsonParser, networkActionAdder);
+                        OnAngleConstraintArrayDeserializer.deserialize(jsonParser, networkActionAdder, version);
                         break;
                     case ON_VOLTAGE_CONSTRAINT_USAGE_RULES:
                         jsonParser.nextToken();
-                        OnVoltageConstraintArrayDeserializer.deserialize(jsonParser, networkActionAdder);
+                        OnVoltageConstraintArrayDeserializer.deserialize(jsonParser, networkActionAdder, version);
                         break;
                     case ON_FLOW_CONSTRAINT_IN_COUNTRY_USAGE_RULES:
                         jsonParser.nextToken();
-                        OnFlowConstraintInCountryArrayDeserializer.deserialize(jsonParser, networkActionAdder);
+                        OnFlowConstraintInCountryArrayDeserializer.deserialize(jsonParser, networkActionAdder, version);
                         break;
                     case TOPOLOGICAL_ACTIONS:
                         jsonParser.nextToken();

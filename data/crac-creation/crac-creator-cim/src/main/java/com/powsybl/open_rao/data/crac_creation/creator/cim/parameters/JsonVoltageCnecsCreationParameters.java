@@ -131,7 +131,7 @@ public final class JsonVoltageCnecsCreationParameters {
             if (nominalV == null) {
                 throw new OpenRaoException(String.format("Field %s for %s should be defined.", NOMINAL_V, THRESHOLDS_PER_NOMINAL_V));
             } else if (map.containsKey(nominalV)) {
-                throw new OpenRaoException(String.format("Multiple thresholds for same nominalV (%.1f) defined", nominalV));
+                throw new OpenRaoException(String.format(Locale.ENGLISH, "Multiple thresholds for same nominalV (%.1f) defined", nominalV));
             } else {
                 Objects.requireNonNull(unit);
                 map.put(nominalV, new VoltageThreshold(unit, min, max));
