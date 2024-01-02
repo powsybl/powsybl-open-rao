@@ -41,7 +41,7 @@ public final class JsonSerializationConstants {
     v1.7: addition of VoltageConstraints usage rules
     v1.8: addition of ShuntCompensator set-point action
     v1.9: addition of counterTradeRangeAction
-    v2.0: addition of instants
+    v2.0: addition of instants and change in usage method logic
      */
 
     // headers
@@ -208,7 +208,7 @@ public final class JsonSerializationConstants {
     }
 
     public static InstantKind deseralizeInstantKind(String stringValue) {
-        switch (stringValue) {
+        switch (stringValue.toUpperCase()) {
             case PREVENTIVE_INSTANT_KIND:
                 return InstantKind.PREVENTIVE;
             case OUTAGE_INSTANT_KIND:
@@ -338,7 +338,7 @@ public final class JsonSerializationConstants {
         }
     }
 
-    public static UsageMethod deserializeUsageMethod(String stringValue, String version) {
+    public static UsageMethod deserializeUsageMethod(String stringValue) {
         switch (stringValue) {
             case UNAVAILABLE_USAGE_METHOD:
                 return UsageMethod.UNAVAILABLE;

@@ -17,5 +17,7 @@ public interface OnVoltageConstraintAdder<T extends RemedialActionAdder<T>> {
 
     OnVoltageConstraintAdder<T> withVoltageCnec(String voltageCnecId);
 
+    OnVoltageConstraintAdder<T> withUsageMethod(UsageMethod usageMethod);
+
     T add();
 }

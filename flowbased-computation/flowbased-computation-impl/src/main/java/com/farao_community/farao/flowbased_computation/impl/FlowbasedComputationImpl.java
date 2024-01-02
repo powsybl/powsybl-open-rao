@@ -112,17 +112,9 @@ public class FlowbasedComputationImpl implements FlowbasedComputationProvider {
             TECHNICAL_LOGS.debug("RAO result is null: applying all network actions from CRAC.");
             crac.getNetworkActions().forEach(na -> {
                 UsageMethod usageMethod = na.getUsageMethod(crac.getPreventiveState());
-                if (usageMethod.equals(UsageMethod.AVAILABLE) || usageMethod.equals(UsageMethod.FORCED)) {
+                if (usageMethod.equals(UsageMethod.AVAILABLE)) {
+                    BUSINESS_WARNS.warn("Remedial action may be available only on constraint. Condition is not checked but remedial action is applied");
                     na.apply(network);
-                } else if (usageMethod.equals(UsageMethod.TO_BE_EVALUATED)) {
-                    BUSINESS_WARNS.warn("Network action {} with usage method TO_BE_EVALUATED will not be applied, as we don't have access to the flow results.", na.getId());
-                    /*
-                     * This method is only used in FlowbasedComputation.
-                     * We do not assess the availability of such remedial actions: they're not supposed to exist.
-                     * If it is needed in the future, we will have to loop around a sensitivity computation, followed by a
-                     * re-assessment of additional available RAs and applying them, then re-running sensitivity, etc
-                     * until the list of applied remedial actions stops changing
-                     */
                 }
             });
         } else {
@@ -217,16 +209,8 @@ public class FlowbasedComputationImpl implements FlowbasedComputationProvider {
         crac.getNetworkActions().forEach(na -> {
             UsageMethod usageMethod = na.getUsageMethod(state);
             if (usageMethod.equals(UsageMethod.AVAILABLE) || usageMethod.equals(UsageMethod.FORCED)) {
+                BUSINESS_WARNS.warn("Remedial action may be available only on constraint. Condition is not checked but remedial action is applied");
                 networkActionsAppl.add(na);
-            } else if (usageMethod.equals(UsageMethod.TO_BE_EVALUATED)) {
-                BUSINESS_WARNS.warn("Network action {} with usage method TO_BE_EVALUATED will not be applied, as we don't have access to the flow results.", na.getId());
-                /*
-                 * This method is only used in FlowbasedComputation.
-                 * We do not assess the availability of such remedial actions: they're not supposed to exist.
-                 * If it is needed in the future, we will have to loop around a sensitivity computation, followed by a
-                 * re-assessment of additional available RAs and applying them, then re-running sensitivity, etc
-                 * until the list of applied remedial actions stops changing
-                 */
             }
         });
 

@@ -86,8 +86,8 @@ public class UnoptimizedCnecParameters {
 
             for (FlowCnec flowCnec : flowCnecs) {
                 Set<PstRangeAction> availablePstRangeActions = pstRangeActions.stream().filter(pstRangeAction ->
-                        pstRangeAction.getUsageMethod(flowCnec.getState()).equals(UsageMethod.AVAILABLE) ||
-                                pstRangeAction.getUsageMethod(flowCnec.getState()).equals(UsageMethod.TO_BE_EVALUATED)).collect(Collectors.toSet());
+                    pstRangeAction.getUsageMethod(flowCnec.getState()).equals(UsageMethod.AVAILABLE) ||
+                        pstRangeAction.getUsageMethod(flowCnec.getState()).equals(UsageMethod.FORCED)).collect(Collectors.toSet());
 
                 if (skipFlowCnec(availablePstRangeActions, pstId)) {
                     continue;

@@ -16,11 +16,11 @@ import com.powsybl.iidm.network.Country;
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
 public class OnFlowConstraintInCountryImpl extends AbstractUsageRule implements OnFlowConstraintInCountry {
-    private Instant instant;
-    private Country country;
+    private final Instant instant;
+    private final Country country;
 
-    OnFlowConstraintInCountryImpl(Instant instant, Country country) {
-        super(UsageMethod.TO_BE_EVALUATED);
+    OnFlowConstraintInCountryImpl(UsageMethod usageMethod, Instant instant, Country country) {
+        super(usageMethod);
         this.instant = instant;
         this.country = country;
     }
@@ -37,7 +37,7 @@ public class OnFlowConstraintInCountryImpl extends AbstractUsageRule implements 
 
     @Override
     public UsageMethod getUsageMethod(State state) {
-        return state.getInstant().equals(instant) ? UsageMethod.TO_BE_EVALUATED : UsageMethod.UNDEFINED;
+        return state.getInstant().equals(instant) ? usageMethod : UsageMethod.UNDEFINED;
     }
 
     @Override

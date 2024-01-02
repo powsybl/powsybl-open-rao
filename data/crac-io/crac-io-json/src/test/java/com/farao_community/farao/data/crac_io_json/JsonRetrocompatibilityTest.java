@@ -617,6 +617,11 @@ class JsonRetrocompatibilityTest {
         assertEquals(2, crac.getCounterTradeRangeAction("counterTradeRange1Id").getRanges().size());
         assertEquals(Country.FR, crac.getCounterTradeRangeAction("counterTradeRange1Id").getExportingCountry());
         assertEquals(Country.DE, crac.getCounterTradeRangeAction("counterTradeRange1Id").getImportingCountry());
+
+        // test usage methods for voltage/angle/onflow constraint usage rules
+        assertEquals(1, crac.getRemedialActions().stream().filter(ra -> ra.getUsageRules().stream().anyMatch(usageRule -> usageRule instanceof OnVoltageConstraint)).count());
+        assertEquals(AVAILABLE, crac.getRangeAction("pstRange2Id").getUsageMethod(crac.getFlowCnec("cnec1prevId").getState()));
+        assertEquals(FORCED, crac.getNetworkAction("injectionSetpointRaId").getUsageMethod(crac.getFlowCnec("cnec3autoId").getState()));
     }
 
     private void testContentOfV2Point0Crac(Crac crac) {

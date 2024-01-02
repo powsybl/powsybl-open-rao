@@ -369,6 +369,7 @@ public class TRemedialActionAdder {
         // RA is available for specific UCTE country
         remedialActionAdder.newOnFlowConstraintInCountryUsageRule()
             .withInstant(raApplicationInstant.getId())
+            .withUsageMethod(UsageMethod.AVAILABLE)
             .withCountry(country)
             .add();
     }
@@ -388,6 +389,7 @@ public class TRemedialActionAdder {
                 if (!crac.getFlowCnec(flowCnecId).getState().getInstant().comesBefore(raApplicationInstant)) {
                     remedialActionAdder.newOnFlowConstraintUsageRule()
                         .withInstant(raApplicationInstant.getId())
+                        .withUsageMethod(UsageMethod.AVAILABLE)
                         .withFlowCnec(flowCnecId)
                         .add();
                 }

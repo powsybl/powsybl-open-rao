@@ -48,8 +48,7 @@ class FlowCnecCreationTest {
 
         assertEquals(curativeInstant, usageRule1.getInstant());
         assertEquals("ELIA_AE1 (dd5247a7-3cb1-43f8-8ce1-12f285653f06) - ELIA_CO1 - curative", ((OnFlowConstraintImpl) usageRule1).getFlowCnec().getId());
-        // TODO assert that UsageMethod.FORCED
-        // assertEquals(UsageMethod.FORCED, usageRule1.getUsageMethod());
+        assertEquals(UsageMethod.AVAILABLE, usageRule1.getUsageMethod());
         assertEquals("5c1e945b-4598-437f-b8ae-7c6d4b475a6c", cracCreationContext.getRemedialActionCreationContexts().stream().filter(raC -> !raC.isImported()).findAny().get().getNativeId());
 
     }
@@ -59,7 +58,7 @@ class FlowCnecCreationTest {
         CsaProfileCracCreationContext cracCreationContext = getCsaCracCreationContext("/CSA_TestConfiguration_TC2_27Apr2023.zip");
 
         cracCreationContext.getCrac().getRemedialActions()
-                .forEach(ra -> assertTrue(ra.getUsageRules().stream().noneMatch(usageRule -> usageRule instanceof OnFlowConstraintImpl)));
+            .forEach(ra -> assertTrue(ra.getUsageRules().stream().noneMatch(usageRule -> usageRule instanceof OnFlowConstraintImpl)));
     }
 
     @Test
@@ -170,17 +169,17 @@ class FlowCnecCreationTest {
         CsaProfileCracCreationTestUtil.assertNetworkActionImported(cracCreationContext, "f17a745b-60a1-4acd-887f-ebc8349b4597", Set.of("50719289-6406-4d69-9dd7-6de60aecd2d4"), true, 2);
         CsaProfileCracCreationTestUtil.assertNetworkActionImported(cracCreationContext, "a8f21a9a-49dc-4c2a-9745-405392f0d87b", Set.of("468fdb4a-49d6-4ea9-b216-928d057b65f0"), false, 2);
 
-        CsaProfileCracCreationTestUtil.assertHasOnFlowConstraintUsageRule(cracCreationContext, "6c283463-9aac-4d9b-9d0b-6710c5b2aa00", "RTE_AE1 (e2b71e64-ce03-4aa3-9adc-7ff910adae36) - preventive", preventiveInstant, UsageMethod.TO_BE_EVALUATED); // TODO change TO_BE_EVALUATED by AVAILABLE
-        CsaProfileCracCreationTestUtil.assertHasOnFlowConstraintUsageRule(cracCreationContext, "6c283463-9aac-4d9b-9d0b-6710c5b2aa00", "RTE_AE1 (e2b71e64-ce03-4aa3-9adc-7ff910adae36) - RTE_CO1 - curative", preventiveInstant, UsageMethod.TO_BE_EVALUATED);
+        CsaProfileCracCreationTestUtil.assertHasOnFlowConstraintUsageRule(cracCreationContext, "6c283463-9aac-4d9b-9d0b-6710c5b2aa00", "RTE_AE1 (e2b71e64-ce03-4aa3-9adc-7ff910adae36) - preventive", preventiveInstant, UsageMethod.AVAILABLE);
+        CsaProfileCracCreationTestUtil.assertHasOnFlowConstraintUsageRule(cracCreationContext, "6c283463-9aac-4d9b-9d0b-6710c5b2aa00", "RTE_AE1 (e2b71e64-ce03-4aa3-9adc-7ff910adae36) - RTE_CO1 - curative", preventiveInstant, UsageMethod.AVAILABLE);
 
-        CsaProfileCracCreationTestUtil.assertHasOnFlowConstraintUsageRule(cracCreationContext, "0af9ce7e-8013-4362-96a0-40ac0a970eb6", "RTE_AE2 (a418e290-0d0c-4f40-b7fa-31fca1a2607d) - preventive", preventiveInstant, UsageMethod.TO_BE_EVALUATED); // TODO change TO_BE_EVALUATED by AVAILABLE
-        CsaProfileCracCreationTestUtil.assertHasOnFlowConstraintUsageRule(cracCreationContext, "0af9ce7e-8013-4362-96a0-40ac0a970eb6", "RTE_AE2 (a418e290-0d0c-4f40-b7fa-31fca1a2607d) - RTE_CO2 - curative", preventiveInstant, UsageMethod.TO_BE_EVALUATED);
+        CsaProfileCracCreationTestUtil.assertHasOnFlowConstraintUsageRule(cracCreationContext, "0af9ce7e-8013-4362-96a0-40ac0a970eb6", "RTE_AE2 (a418e290-0d0c-4f40-b7fa-31fca1a2607d) - preventive", preventiveInstant, UsageMethod.AVAILABLE);
+        CsaProfileCracCreationTestUtil.assertHasOnFlowConstraintUsageRule(cracCreationContext, "0af9ce7e-8013-4362-96a0-40ac0a970eb6", "RTE_AE2 (a418e290-0d0c-4f40-b7fa-31fca1a2607d) - RTE_CO2 - curative", preventiveInstant, UsageMethod.AVAILABLE);
 
-        CsaProfileCracCreationTestUtil.assertHasOnFlowConstraintUsageRule(cracCreationContext, "f17a745b-60a1-4acd-887f-ebc8349b4597", "RTE_AE2 (a418e290-0d0c-4f40-b7fa-31fca1a2607d) - preventive", preventiveInstant, UsageMethod.TO_BE_EVALUATED); // TODO change TO_BE_EVALUATED by AVAILABLE
-        CsaProfileCracCreationTestUtil.assertHasOnFlowConstraintUsageRule(cracCreationContext, "f17a745b-60a1-4acd-887f-ebc8349b4597", "RTE_AE2 (a418e290-0d0c-4f40-b7fa-31fca1a2607d) - RTE_CO2 - curative", preventiveInstant, UsageMethod.TO_BE_EVALUATED);
+        CsaProfileCracCreationTestUtil.assertHasOnFlowConstraintUsageRule(cracCreationContext, "f17a745b-60a1-4acd-887f-ebc8349b4597", "RTE_AE2 (a418e290-0d0c-4f40-b7fa-31fca1a2607d) - preventive", preventiveInstant, UsageMethod.AVAILABLE);
+        CsaProfileCracCreationTestUtil.assertHasOnFlowConstraintUsageRule(cracCreationContext, "f17a745b-60a1-4acd-887f-ebc8349b4597", "RTE_AE2 (a418e290-0d0c-4f40-b7fa-31fca1a2607d) - RTE_CO2 - curative", preventiveInstant, UsageMethod.AVAILABLE);
 
-        CsaProfileCracCreationTestUtil.assertHasOnFlowConstraintUsageRule(cracCreationContext, "a8f21a9a-49dc-4c2a-9745-405392f0d87b", "RTE_AE1 (e2b71e64-ce03-4aa3-9adc-7ff910adae36) - RTE_CO1 - curative", curativeInstant, UsageMethod.TO_BE_EVALUATED); // TODO change TO_BE_EVALUATED by AVAILABLE
-        CsaProfileCracCreationTestUtil.assertHasOnFlowConstraintUsageRule(cracCreationContext, "a8f21a9a-49dc-4c2a-9745-405392f0d87b", "RTE_AE2 (a418e290-0d0c-4f40-b7fa-31fca1a2607d) - RTE_CO2 - curative", curativeInstant, UsageMethod.TO_BE_EVALUATED);
+        CsaProfileCracCreationTestUtil.assertHasOnFlowConstraintUsageRule(cracCreationContext, "a8f21a9a-49dc-4c2a-9745-405392f0d87b", "RTE_AE1 (e2b71e64-ce03-4aa3-9adc-7ff910adae36) - RTE_CO1 - curative", curativeInstant, UsageMethod.AVAILABLE);
+        CsaProfileCracCreationTestUtil.assertHasOnFlowConstraintUsageRule(cracCreationContext, "a8f21a9a-49dc-4c2a-9745-405392f0d87b", "RTE_AE2 (a418e290-0d0c-4f40-b7fa-31fca1a2607d) - RTE_CO2 - curative", curativeInstant, UsageMethod.AVAILABLE);
     }
 
     @Test

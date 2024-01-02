@@ -11,7 +11,7 @@ import com.farao_community.farao.data.crac_api.cnec.VoltageCnec;
 
 /**
  * The OnVoltageConstraint UsageRule is defined on a given VoltageCnec. For instance, if a RemedialAction
- * has a OnVoltageConstraint UsageRule with State "cnec1" and UsageMethod TO_BE_EVALUATED, this
+ * has a OnVoltageConstraint UsageRule with State "cnec1" and UsageMethod AVAILABLE, this
  * RemedialAction will only be available if "cnec1" is constrained (= has a negative margin).
  *
  * @author Fabrice Buscaylet {@literal <fabrice.buscaylet at artelys.com>}

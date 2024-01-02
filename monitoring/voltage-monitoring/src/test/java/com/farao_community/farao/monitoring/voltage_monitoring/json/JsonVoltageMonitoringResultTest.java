@@ -11,6 +11,7 @@ import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_api.cnec.VoltageCnec;
+import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import com.farao_community.farao.monitoring.voltage_monitoring.VoltageMonitoringResult;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -75,12 +76,12 @@ class JsonVoltageMonitoringResultTest {
         crac.newNetworkAction()
                 .withId("na1")
                 .newInjectionSetPoint().withNetworkElement("ne1").withSetpoint(50.).withUnit(Unit.MEGAWATT).add()
-                .newOnVoltageConstraintUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withVoltageCnec(vc1.getId()).add()
+                .newOnVoltageConstraintUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withVoltageCnec(vc1.getId()).withUsageMethod(UsageMethod.AVAILABLE).add()
                 .add();
         crac.newNetworkAction()
                 .withId("na2")
                 .newInjectionSetPoint().withNetworkElement("ne2").withSetpoint(150.).withUnit(Unit.MEGAWATT).add()
-                .newOnVoltageConstraintUsageRule().withInstant(CURATIVE_INSTANT_ID).withVoltageCnec(vc2.getId()).add()
+                .newOnVoltageConstraintUsageRule().withInstant(CURATIVE_INSTANT_ID).withVoltageCnec(vc2.getId()).withUsageMethod(UsageMethod.AVAILABLE).add()
                 .add();
         voltageMonitoringResultImporter = new VoltageMonitoringResultImporter();
     }
