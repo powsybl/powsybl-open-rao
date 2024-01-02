@@ -11,7 +11,7 @@ import com.farao_community.farao.data.crac_api.cnec.AngleCnec;
 
 /**
  * The OnAngleConstraint UsageRule is defined on a given AngleCnec. For instance, if a RemedialAction
- * has a OnAngleConstraint UsageRule with State "cnec1" and UsageMethod TO_BE_EVALUATED, this
+ * has a OnAngleConstraint UsageRule with State "cnec1" and UsageMethod AVAILABLE, this
  * RemedialAction will only be available if "cnec1" is constrained (= has a negative margin).
  *
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
