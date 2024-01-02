@@ -11,6 +11,7 @@ import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.cnec.VoltageCnec;
 import com.farao_community.farao.data.crac_api.usage_rule.OnVoltageConstraint;
 import com.farao_community.farao.data.crac_api.usage_rule.OnVoltageConstraintAdder;
+import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 
 import java.util.Objects;
 
@@ -24,6 +25,7 @@ public class OnVoltageConstraintAdderImpl<T extends AbstractRemedialActionAdder<
     private final T owner;
     private String instantId;
     private String voltageCnecId;
+    private UsageMethod usageMethod;
 
     OnVoltageConstraintAdderImpl(AbstractRemedialActionAdder<T> owner) {
         this.owner = (T) owner;
@@ -36,6 +38,12 @@ public class OnVoltageConstraintAdderImpl<T extends AbstractRemedialActionAdder<
     }
 
     @Override
+    public OnVoltageConstraintAdder<T> withUsageMethod(UsageMethod usageMethod) {
+        this.usageMethod = usageMethod;
+        return this;
+    }
+
+    @Override
     public OnVoltageConstraintAdder<T> withVoltageCnec(String voltageCnecId) {
         this.voltageCnecId = voltageCnecId;
         return this;
@@ -43,8 +51,9 @@ public class OnVoltageConstraintAdderImpl<T extends AbstractRemedialActionAdder<
 
     @Override
     public T add() {
-        assertAttributeNotNull(instantId, "OnInstant", "instant", "withInstant()");
+        assertAttributeNotNull(instantId, "OnVoltageConstraint", "instant", "withInstant()");
         assertAttributeNotNull(voltageCnecId, "OnVoltageConstraint", "voltage cnec", "withVoltageCnec()");
+        assertAttributeNotNull(usageMethod, "OnVoltageConstraint", "usage method", "withUsageMethod()");
 
         Instant instant = owner.getCrac().getInstant(instantId);
         if (instant.isOutage()) {
@@ -61,7 +70,7 @@ public class OnVoltageConstraintAdderImpl<T extends AbstractRemedialActionAdder<
 
         AbstractRemedialActionAdder.checkOnConstraintUsageRules(instant, voltageCnec);
 
-        OnVoltageConstraint onVoltageConstraint = new OnVoltageConstraintImpl(instant, voltageCnec);
+        OnVoltageConstraint onVoltageConstraint = new OnVoltageConstraintImpl(usageMethod, instant, voltageCnec);
         owner.addUsageRule(onVoltageConstraint);
         return owner;
     }

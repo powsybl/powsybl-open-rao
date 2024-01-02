@@ -1,3 +1,9 @@
+/*
+ * Copyright (c) 2023, RTE (http://www.rte-france.com)
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
 package com.farao_community.farao.data.crac_creation.creator.csa_profile.crac_creator.remedial_action;
 
 import com.farao_community.farao.data.crac_api.Instant;
@@ -91,7 +97,7 @@ class InjectionSetPointActionCreationTest {
         // on-state-included-curative-remedial-action (on state)
         NetworkAction ra3 = cracCreationContext.getCrac().getNetworkAction("on-state-included-curative-remedial-action");
         assertEquals("RA3", ra3.getName());
-        assertEquals(UsageMethod.FORCED, ra3.getUsageRules().iterator().next().getUsageMethod());
+        assertEquals(UsageMethod.AVAILABLE, ra3.getUsageRules().iterator().next().getUsageMethod());
         assertEquals(curativeInstant, ra3.getUsageRules().iterator().next().getInstant());
         assertEquals("contingency", ((OnContingencyStateImpl) ra3.getUsageRules().iterator().next()).getContingency().getId());
         assertEquals("rotating-machine", ra3.getNetworkElements().iterator().next().getId());

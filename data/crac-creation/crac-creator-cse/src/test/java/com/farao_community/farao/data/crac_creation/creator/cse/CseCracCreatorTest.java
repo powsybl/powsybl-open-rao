@@ -330,8 +330,10 @@ class CseCracCreatorTest {
         assertEquals(preventiveInstant, usageRule2.getInstant());
         assertTrue(((OnFlowConstraint) usageRule1).getFlowCnec().equals(outageCnec) || ((OnFlowConstraint) usageRule2).getFlowCnec().equals(outageCnec));
         assertTrue(((OnFlowConstraint) usageRule1).getFlowCnec().equals(curativeCnec) || ((OnFlowConstraint) usageRule2).getFlowCnec().equals(curativeCnec));
-        assertEquals(UsageMethod.TO_BE_EVALUATED, usageRule1.getUsageMethod(preventiveState));
-        assertEquals(UsageMethod.TO_BE_EVALUATED, usageRule2.getUsageMethod(preventiveState));
+        System.out.println(usageRule1.getUsageMethod(preventiveState));
+        System.out.println(usageRule2.getUsageMethod(preventiveState));
+        assertEquals(UsageMethod.AVAILABLE, usageRule1.getUsageMethod(preventiveState));
+        assertEquals(UsageMethod.AVAILABLE, usageRule2.getUsageMethod(preventiveState));
         assertEquals(UsageMethod.UNDEFINED, usageRule1.getUsageMethod(outageState));
         assertEquals(UsageMethod.UNDEFINED, usageRule2.getUsageMethod(outageState));
         assertEquals(UsageMethod.UNDEFINED, usageRule1.getUsageMethod(curativeState));
@@ -346,7 +348,7 @@ class CseCracCreatorTest {
         assertEquals(curativeInstant, usageRule1.getInstant());
         assertEquals(UsageMethod.UNDEFINED, usageRule1.getUsageMethod(preventiveState));
         assertEquals(UsageMethod.UNDEFINED, usageRule1.getUsageMethod(outageState));
-        assertEquals(UsageMethod.TO_BE_EVALUATED, usageRule1.getUsageMethod(curativeState));
+        assertEquals(UsageMethod.AVAILABLE, usageRule1.getUsageMethod(curativeState));
     }
 
     @Test
@@ -435,9 +437,9 @@ class CseCracCreatorTest {
         // cra_2
         RemedialAction<?> cra2 = importedCrac.getNetworkAction("cra_2");
         assertEquals(2, cra2.getUsageRules().size()); // one OnInstant, one OnConstraint on CNEC 1
-        List<UsageRule> usageRules2List = cra2.getUsageRules().stream().sorted(Comparator.comparing(UsageRule::getUsageMethod)).toList();
-        assertTrue(usageRules2List.get(0) instanceof OnInstant);
-        assertTrue(usageRules2List.get(1) instanceof OnFlowConstraint);
+        List<UsageRule> usageRules2List = cra2.getUsageRules().stream().sorted(Comparator.comparing(ur -> ur.getClass().getName())).toList();
+        assertTrue(usageRules2List.get(0) instanceof OnFlowConstraint);
+        assertTrue(usageRules2List.get(1) instanceof OnInstant);
         // cra_3
         RemedialAction<?> cra3 = importedCrac.getNetworkAction("cra_3");
         assertEquals(2, cra3.getUsageRules().size()); // 1 OnConstraint on CNEC 1 and 1 on country FR

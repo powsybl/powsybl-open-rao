@@ -149,7 +149,7 @@ public class CsaProfileRemedialActionsCreator {
                     boolean hasAtLeastOneOnConstraintUsageRule = addOnConstraintUsageRules(curativeInstant, remedialActionAdder, remedialActionId, alterations);
                     if (!hasAtLeastOneOnConstraintUsageRule) {
                         if (!randomCombinationConstraintKind.equals(CsaProfileConstants.ElementCombinationConstraintKind.EXCLUDED.toString())) {
-                            addOnContingencyStateUsageRules(remedialActionAdder, faraoContingenciesIds, randomCombinationConstraintKind, curativeInstant.getId());
+                            addOnContingencyStateUsageRules(remedialActionAdder, faraoContingenciesIds, curativeInstant.getId(), UsageMethod.AVAILABLE);
                         } else {
                             alterations.add(String.format("The association 'RemedialAction'/'Contingencies' '%s'/'%s' will be ignored because 'excluded' combination constraint kind is not supported", remedialActionId, String.join(". ", faraoContingenciesIds)));
                         }
@@ -184,8 +184,7 @@ public class CsaProfileRemedialActionsCreator {
         this.cracCreationContext.setRemedialActionCreationContexts(csaProfileRemedialActionCreationContexts);
     }
 
-    private void addOnContingencyStateUsageRules(RemedialActionAdder<?> remedialActionAdder, List<String> faraoContingenciesIds, String randomCombinationConstraintKind, String instantId) {
-        UsageMethod usageMethod = CsaProfileCracUtils.getConstraintToUsageMethodMap().get(randomCombinationConstraintKind);
+    private void addOnContingencyStateUsageRules(RemedialActionAdder<?> remedialActionAdder, List<String> faraoContingenciesIds, String instantId, UsageMethod usageMethod) {
         faraoContingenciesIds.forEach(faraoContingencyId -> remedialActionAdder.newOnContingencyStateUsageRule()
             .withInstant(instantId)
             .withContingency(faraoContingencyId)
@@ -308,7 +307,7 @@ public class CsaProfileRemedialActionsCreator {
             alterations.add(String.format("The association 'RemedialAction'/'Cnecs' '%s'/'%s' will be ignored because 'excluded' combination constraint kind is not supported", importableRemedialActionId, String.join(". ", onConstraintUsageRuleHelper.getExcludedCnecsByRemedialAction().get(importableRemedialActionId))));
         }
         flag2 = processAssessedElementsWithRemedialActions(remedialActionInstant, remedialActionAdder, importableRemedialActionId, UsageMethod.AVAILABLE, onConstraintUsageRuleHelper.getConsideredCnecsElementsByRemedialAction());
-        flag3 = processAssessedElementsWithRemedialActions(remedialActionInstant, remedialActionAdder, importableRemedialActionId, UsageMethod.FORCED, onConstraintUsageRuleHelper.getIncludedCnecsByRemedialAction());
+        flag3 = processAssessedElementsWithRemedialActions(remedialActionInstant, remedialActionAdder, importableRemedialActionId, UsageMethod.AVAILABLE, onConstraintUsageRuleHelper.getIncludedCnecsByRemedialAction());
         return flag1 || flag2 || flag3;
     }
 
@@ -333,22 +332,22 @@ public class CsaProfileRemedialActionsCreator {
                     remedialActionAdder.newOnFlowConstraintUsageRule()
                             .withInstant(remedialActionInstant.getId())
                             .withFlowCnec(cnecId)
-                            .add();
-                    // TODO add .withUsageMethod(usageMethod) when API of OnFlowConstraintAdder is ready
+                            .withUsageMethod(usageMethod)
+                        .add();
                     return true;
                 } else if (cnec instanceof VoltageCnec) {
                     remedialActionAdder.newOnVoltageConstraintUsageRule()
                             .withInstant(remedialActionInstant.getId())
                             .withVoltageCnec(cnecId)
-                            .add();
-                    // TODO add .withUsageMethod(usageMethod) when API of OnFlowConstraintAdder is ready
+                            .withUsageMethod(usageMethod)
+                        .add();
                     return true;
                 } else if (cnec instanceof AngleCnec) {
                     remedialActionAdder.newOnAngleConstraintUsageRule()
                             .withInstant(remedialActionInstant.getId())
                             .withAngleCnec(cnecId)
-                            .add();
-                    // TODO add .withUsageMethod(usageMethod) when API of OnFlowConstraintAdder is ready
+                            .withUsageMethod(usageMethod)
+                        .add();
                     return true;
                 } else {
                     throw new FaraoException(String.format("Unsupported cnec type %s", cnec.getClass().toString()));
@@ -429,7 +428,7 @@ public class CsaProfileRemedialActionsCreator {
 
                     boolean hasAtLeastOneOnConstraintUsageRule = addOnConstraintUsageRules(crac.getInstant(InstantKind.CURATIVE), remedialActionAdder, spsId, new ArrayList<>());
                     if (!hasAtLeastOneOnConstraintUsageRule) {
-                        addOnContingencyStateUsageRules(remedialActionAdder, faraoContingenciesIds.stream().toList(), CsaProfileConstants.ElementCombinationConstraintKind.INCLUDED.toString(), crac.getInstant(InstantKind.AUTO).getId());
+                        addOnContingencyStateUsageRules(remedialActionAdder, faraoContingenciesIds.stream().toList(), crac.getInstant(InstantKind.AUTO).getId(), UsageMethod.FORCED);
                     }
                 } else {
                     throw new FaraoImportException(ImportStatus.INCONSISTENCY_IN_DATA, CsaProfileConstants.AUTO_REMEDIAL_ACTION_MESSAGE + spsId + " will not be imported because no contingency is linked to the remedial action");
