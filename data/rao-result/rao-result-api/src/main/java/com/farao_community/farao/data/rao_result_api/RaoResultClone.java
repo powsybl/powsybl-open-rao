@@ -7,6 +7,7 @@
 
 package com.farao_community.farao.data.rao_result_api;
 
+import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.RemedialAction;
@@ -28,6 +29,9 @@ public class RaoResultClone implements RaoResult {
     private final RaoResult raoResult;
 
     protected RaoResultClone(RaoResult raoResult) {
+        if (raoResult == null) {
+            throw new FaraoException("RaoResult must not be null");
+        }
         this.raoResult = raoResult;
     }
 

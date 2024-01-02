@@ -8,10 +8,7 @@ package com.farao_community.farao.data.rao_result_impl;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
-import com.farao_community.farao.data.crac_api.Crac;
-import com.farao_community.farao.data.crac_api.Instant;
-import com.farao_community.farao.data.crac_api.RemedialAction;
-import com.farao_community.farao.data.crac_api.State;
+import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_api.cnec.AngleCnec;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.cnec.Side;
@@ -48,7 +45,7 @@ public class RaoResultImpl implements RaoResult {
     private final Map<VoltageCnec, VoltageCnecResult> voltageCnecResults = new HashMap<>();
     private final Map<NetworkAction, NetworkActionResult> networkActionResults = new HashMap<>();
     private final Map<RangeAction<?>, RangeActionResult> rangeActionResults = new HashMap<>();
-    private final Map<Instant, CostResult> costResults = new HashMap<>();
+    private final Map<String, CostResult> costResults = new HashMap<>();
 
     private OptimizationStepsExecuted optimizationStepsExecuted = OptimizationStepsExecuted.FIRST_PREVENTIVE_ONLY;
 
@@ -82,8 +79,8 @@ public class RaoResultImpl implements RaoResult {
         if (flowCnec.getState().getInstant().comesBefore(instant)) {
             instant = flowCnec.getState().getInstant();
         }
-        if (instant.equals(Instant.OUTAGE)) {
-            instant = Instant.PREVENTIVE;
+        if (instant.isOutage()) {
+            instant = crac.getPreventiveInstant();
         }
         return instant;
     }
@@ -153,24 +150,27 @@ public class RaoResultImpl implements RaoResult {
         return voltageCnecResults.get(voltageCnec);
     }
 
-    public CostResult getAndCreateIfAbsentCostResult(Instant optimizedInstant) {
-        costResults.putIfAbsent(optimizedInstant, new CostResult());
-        return costResults.get(optimizedInstant);
+    public CostResult getAndCreateIfAbsentCostResult(String optimizedInstantId) {
+        costResults.putIfAbsent(optimizedInstantId, new CostResult());
+        return costResults.get(optimizedInstantId);
     }
 
     @Override
     public double getCost(Instant optimizedInstant) {
-        return costResults.getOrDefault(optimizedInstant, DEFAULT_COST_RESULT).getCost();
+        String id = getIdFromNullableInstant(optimizedInstant);
+        return costResults.getOrDefault(id, DEFAULT_COST_RESULT).getCost();
     }
 
     @Override
     public double getFunctionalCost(Instant optimizedInstant) {
-        return costResults.getOrDefault(optimizedInstant, DEFAULT_COST_RESULT).getFunctionalCost();
+        String id = getIdFromNullableInstant(optimizedInstant);
+        return costResults.getOrDefault(id, DEFAULT_COST_RESULT).getFunctionalCost();
     }
 
     @Override
     public double getVirtualCost(Instant optimizedInstant) {
-        return costResults.getOrDefault(optimizedInstant, DEFAULT_COST_RESULT).getVirtualCost();
+        String id = getIdFromNullableInstant(optimizedInstant);
+        return costResults.getOrDefault(id, DEFAULT_COST_RESULT).getVirtualCost();
     }
 
     @Override
@@ -180,7 +180,12 @@ public class RaoResultImpl implements RaoResult {
 
     @Override
     public double getVirtualCost(Instant optimizedInstant, String virtualCostName) {
-        return costResults.getOrDefault(optimizedInstant, DEFAULT_COST_RESULT).getVirtualCost(virtualCostName);
+        String id = getIdFromNullableInstant(optimizedInstant);
+        return costResults.getOrDefault(id, DEFAULT_COST_RESULT).getVirtualCost(virtualCostName);
+    }
+
+    private static String getIdFromNullableInstant(Instant optimizedInstant) {
+        return optimizedInstant == null ? INITIAL_INSTANT_ID : optimizedInstant.getId();
     }
 
     @Override
@@ -307,28 +312,14 @@ public class RaoResultImpl implements RaoResult {
     }
 
     private State stateBefore(String contingencyId, Instant instant) {
-        if (instant.comesBefore(Instant.AUTO)) {
+        if (instant.isOutage()) {
             return crac.getPreventiveState();
         }
-        State stateBefore = lookupState(contingencyId, instantBefore(instant));
+        State stateBefore = lookupState(contingencyId, crac.getInstantBefore(instant));
         if (Objects.nonNull(stateBefore)) {
             return stateBefore;
         } else {
-            return stateBefore(contingencyId, instantBefore(instant));
-        }
-    }
-
-    private Instant instantBefore(Instant instant) {
-        switch (instant) {
-            case PREVENTIVE:
-            case OUTAGE:
-                return Instant.PREVENTIVE;
-            case AUTO:
-                return Instant.OUTAGE;
-            case CURATIVE:
-                return Instant.AUTO;
-            default:
-                throw new FaraoException(String.format("Unknown instant: %s", instant));
+            return stateBefore(contingencyId, crac.getInstantBefore(instant));
         }
     }
 

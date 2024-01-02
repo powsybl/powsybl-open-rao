@@ -32,6 +32,7 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
 
     private final Map<String, NetworkElement> networkElements = new HashMap<>();
     private final Map<String, Contingency> contingencies = new HashMap<>();
+    private final Map<String, Instant> instants = new HashMap<>();
     private final Map<String, State> states = new HashMap<>();
     private final Map<String, FlowCnec> flowCnecs = new HashMap<>();
     private final Map<String, AngleCnec> angleCnecs = new HashMap<>();
@@ -41,6 +42,7 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
     private final Map<String, InjectionRangeAction> injectionRangeActions = new HashMap<>();
     private final Map<String, CounterTradeRangeAction> counterTradeRangeActions = new HashMap<>();
     private final Map<String, NetworkAction> networkActions = new HashMap<>();
+    private Instant lastInstantAdded = null;
 
     public CracImpl(String id, String name) {
         super(id, name);
@@ -148,6 +150,99 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
         }
     }
 
+    @Override
+    public CracImpl newInstant(String instantId, InstantKind instantKind) {
+        if (instants.containsKey(instantId)) {
+            throw new FaraoException(format("Instant '%s' is already defined", instantId));
+        }
+        InstantImpl instant = new InstantImpl(instantId, instantKind, lastInstantAdded);
+        if (instant.getOrder() == 0 && !instant.isPreventive()) {
+            throw new FaraoException("The first instant in the CRAC must be preventive");
+        }
+        if (instant.getOrder() == 1 && !instant.isOutage()) {
+            throw new FaraoException("The second instant in the CRAC must be an outage");
+        }
+        lastInstantAdded = instant;
+        instants.put(instantId, instant);
+        return this;
+    }
+
+    @Override
+    public Instant getInstant(String instantId) {
+        if (!instants.containsKey(instantId)) {
+            throw new FaraoException(String.format("Instant '%s' has not been defined", instantId));
+        }
+        return instants.get(instantId);
+    }
+
+    @Override
+    public List<Instant> getSortedInstants() {
+        return instants.values().stream().sorted(Comparator.comparingInt(Instant::getOrder)).toList();
+    }
+
+    @Override
+    public Instant getInstant(InstantKind instantKind) {
+        Set<Instant> instantsOfKind = getInstants(instantKind);
+        if (instantsOfKind.size() != 1) {
+            throw new FaraoException(String.format("Crac does not contain exactly one instant of kind '%s'. It contains %d instants of kind '%s'", instantKind.toString(), instantsOfKind.size(), instantKind));
+        }
+        return instantsOfKind.stream().findAny().orElseThrow(
+            () -> new FaraoException(String.format("Should not occur as there is only one '%s' instant", instantKind))
+        );
+    }
+
+    @Override
+    public Set<Instant> getInstants(InstantKind instantKind) {
+        return instants.values().stream()
+            .filter(instant -> instant.getKind().equals(instantKind))
+            .collect(Collectors.toSet());
+    }
+
+    @Override
+    public Instant getInstantBefore(Instant providedInstant) {
+        Objects.requireNonNull(providedInstant);
+        checkCracContainsProvidedInstantId(providedInstant);
+        checkCracInstantAndProvidedInstantAreTheSame(providedInstant);
+
+        if (providedInstant instanceof InstantImpl) {
+            return ((InstantImpl) providedInstant).getInstantBefore();
+        }
+        throw new FaraoException("This should not happen thanks to the equality ckeck. " +
+            "Method getInstantBefore might not have been defined as a package-private method " +
+            "in the implementation of the Instant interface");
+    }
+
+    @Override
+    public Instant getPreventiveInstant() {
+        return getInstant(InstantKind.PREVENTIVE);
+    }
+
+    @Override
+    public Instant getOutageInstant() {
+        return getInstant(InstantKind.OUTAGE);
+    }
+
+    @Override
+    public boolean hasAutoInstant() {
+        return getInstants(InstantKind.AUTO).size() >= 1;
+    }
+
+    private void checkCracContainsProvidedInstantId(Instant providedInstant) {
+        if (!instants.containsKey(providedInstant.getId())) {
+            throw new FaraoException(String.format("Provided instant '%s' is not defined in the CRAC", providedInstant));
+        }
+    }
+
+    private void checkCracInstantAndProvidedInstantAreTheSame(Instant providedInstant) {
+        Instant instantInsideCracWithSameId = getInstant(providedInstant.getId());
+        if (!Objects.equals(instantInsideCracWithSameId, providedInstant)) {
+            throw new FaraoException(String.format(
+                "Provided instant {id:'%s', kind:'%s', order:%d} is not the same {id: '%s', kind:'%s', order:%d} in the CRAC",
+                providedInstant.getId(), providedInstant.getKind(), providedInstant.getOrder(),
+                instantInsideCracWithSameId.getId(), instantInsideCracWithSameId.getKind(), instantInsideCracWithSameId.getOrder()));
+        }
+    }
+
     void addContingency(Contingency contingency) {
         contingencies.put(contingency.getId(), contingency);
     }
@@ -198,14 +293,14 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
     @Override
     public State getState(Contingency contingency, Instant instant) {
         Objects.requireNonNull(contingency, "Contingency must not be null when getting a state.");
-        return states.get(contingency.getId() + " - " + instant.toString());
+        return states.get(contingency.getId() + " - " + instant.getId());
     }
 
     State addPreventiveState() {
         if (getPreventiveState() != null) {
             return getPreventiveState();
         } else {
-            State state = new PreventiveState();
+            State state = new PreventiveState(getPreventiveInstant());
             states.put(state.getId(), state);
             return state;
         }
@@ -213,7 +308,7 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
 
     State addState(Contingency contingency, Instant instant) {
         Objects.requireNonNull(contingency, "Contingency must not be null when adding a state.");
-        if (instant.equals(Instant.PREVENTIVE)) {
+        if (instant.isPreventive()) {
             throw new FaraoException("Impossible to add a preventive state with a contingency.");
         }
         if (getState(contingency, instant) != null) {

@@ -40,9 +40,9 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 class FlowbasedComputationImplTest {
     private static final double EPSILON = 1e-3;
+
     private FlowbasedComputationProvider flowBasedComputationProvider;
     private Network network;
-    private Crac crac;
     private ZonalData<SensitivityVariableSet> glsk;
     private FlowbasedComputationParameters parameters;
 
@@ -67,7 +67,7 @@ class FlowbasedComputationImplTest {
 
     @Test
     void testRunWithCra() {
-        crac = ExampleGenerator.crac("crac.json");
+        Crac crac = ExampleGenerator.crac("crac.json");
         assertTrue(network.getBranch("FR-BE").getTerminal1().isConnected());
         assertTrue(network.getBranch("FR-BE").getTerminal2().isConnected());
         FlowbasedComputationResult result = flowBasedComputationProvider.run(network, crac, null, glsk, parameters).join();
@@ -77,10 +77,10 @@ class FlowbasedComputationImplTest {
 
     @Test
     void testRunWithCraRaoResult() {
-        crac = ExampleGenerator.crac("crac_for_rao_result.json");
+        Crac crac = ExampleGenerator.crac("crac_for_rao_result.json");
         assertTrue(network.getBranch("FR-BE").getTerminal1().isConnected());
         assertTrue(network.getBranch("FR-BE").getTerminal2().isConnected());
-        RaoResult raoResult = createRaoResult(crac.getFlowCnecs(), crac.getNetworkAction("Open line FR-BE"));
+        RaoResult raoResult = createRaoResult(crac, crac.getFlowCnecs(), crac.getNetworkAction("Open line FR-BE"));
         FlowbasedComputationResult result = flowBasedComputationProvider.run(network, crac, raoResult, glsk, parameters).join();
         checkAssertions(result);
         checkCurativeAssertions(result);
@@ -88,14 +88,14 @@ class FlowbasedComputationImplTest {
 
     @Test
     void testRunPraWithForced() {
-        crac = ExampleGenerator.crac("crac_with_forced.json");
+        Crac crac = ExampleGenerator.crac("crac_with_forced.json");
         FlowbasedComputationResult result = flowBasedComputationProvider.run(network, crac, null, glsk, parameters).join();
         checkAssertions(result);
     }
 
     @Test
     void testRunPraWithExtension() {
-        crac = ExampleGenerator.crac("crac_with_extension.json");
+        Crac crac = ExampleGenerator.crac("crac_with_extension.json");
         FlowbasedComputationResult result = flowBasedComputationProvider.run(network, crac, null, glsk, parameters).join();
         checkAssertions(result);
     }
@@ -242,8 +242,9 @@ class FlowbasedComputationImplTest {
             ));
     }
 
-    private RaoResult createRaoResult(Set<FlowCnec> flowCnecs, NetworkAction na) {
+    private RaoResult createRaoResult(Crac crac, Set<FlowCnec> flowCnecs, NetworkAction na) {
         RaoResultImpl raoResult = new RaoResultImpl(crac);
+        Instant curativeInstant = crac.getInstant("curative");
 
         // Warning: these results on cnecs are not relevant, and maybe not coherent with
         // the hardcoded results of FlowbasedComputationProviderMock, used in this test class.
@@ -267,8 +268,8 @@ class FlowbasedComputationImplTest {
 
             elementaryFlowCnecResult.setPtdfZonalSum(Side.LEFT, 0.1);
 
-            flowCnecResult.getAndCreateIfAbsentResultForOptimizationState(Instant.CURATIVE);
-            elementaryFlowCnecResult = flowCnecResult.getResult(Instant.CURATIVE);
+            flowCnecResult.getAndCreateIfAbsentResultForOptimizationState(curativeInstant);
+            elementaryFlowCnecResult = flowCnecResult.getResult(curativeInstant);
 
             elementaryFlowCnecResult.setFlow(Side.LEFT, 200., MEGAWATT);
             elementaryFlowCnecResult.setMargin(201., MEGAWATT);
@@ -283,7 +284,7 @@ class FlowbasedComputationImplTest {
             elementaryFlowCnecResult.setPtdfZonalSum(Side.LEFT, 0.1);
         });
 
-        raoResult.getAndCreateIfAbsentNetworkActionResult(na).addActivationForState(crac.getState("N-1 FR-BE", Instant.CURATIVE));
+        raoResult.getAndCreateIfAbsentNetworkActionResult(na).addActivationForState(crac.getState("N-1 FR-BE", curativeInstant));
 
         raoResult.setComputationStatus(ComputationStatus.DEFAULT);
 

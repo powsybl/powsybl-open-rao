@@ -11,7 +11,6 @@ import com.farao_community.farao.commons.Unit;
 import com.powsybl.glsk.commons.ZonalData;
 import com.farao_community.farao.data.crac_api.Contingency;
 import com.farao_community.farao.data.crac_api.Crac;
-import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.cnec.Side;
@@ -71,14 +70,14 @@ public class FlowbasedComputationImpl implements FlowbasedComputationProvider {
         if (raoResult == null) {
             TECHNICAL_LOGS.debug("RAO result is null: applying all network actions from CRAC.");
             crac.getStates().forEach(state -> {
-                if (state.getInstant().equals(Instant.CURATIVE)) {
+                if (state.getInstant().isCurative()) {
                     appliedRemedialActions.addAppliedNetworkActions(state, findAllAvailableRemedialActionsForState(crac, state));
                 }
             });
         } else {
             TECHNICAL_LOGS.debug("RAO result is not null: applying remedial actions selected by the RAO.");
             crac.getStates().forEach(state -> {
-                if (state.getInstant().equals(Instant.CURATIVE)) {
+                if (state.getInstant().isCurative()) {
                     appliedRemedialActions.addAppliedNetworkActions(state, findAppliedNetworkActionsForState(raoResult, state, crac.getNetworkActions()));
                     appliedRemedialActions.addAppliedRangeActions(state, findAppliedRangeActionsForState(raoResult, state));
                 }
@@ -90,6 +89,7 @@ public class FlowbasedComputationImpl implements FlowbasedComputationProvider {
                 .withParameters(parameters.getSensitivityAnalysisParameters())
                 .withPtdfSensitivities(glsk, crac.getFlowCnecs(), Collections.singleton(Unit.MEGAWATT))
                 .withAppliedRemedialActions(appliedRemedialActions)
+                .withOutageInstant(crac.getOutageInstant())
                 .build();
 
         // Preventive perimeter

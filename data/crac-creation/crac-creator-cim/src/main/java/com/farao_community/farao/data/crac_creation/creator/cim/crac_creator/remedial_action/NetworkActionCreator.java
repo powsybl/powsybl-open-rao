@@ -69,7 +69,7 @@ public class NetworkActionCreator {
             .withOperator(CimConstants.readOperator(createdRemedialActionId));
 
         try {
-            RemedialActionSeriesCreator.addUsageRules(applicationModeMarketObjectStatus, networkActionAdder, contingencies, invalidContingencies, flowCnecs, angleCnec, sharedDomain);
+            RemedialActionSeriesCreator.addUsageRules(crac, applicationModeMarketObjectStatus, networkActionAdder, contingencies, invalidContingencies, flowCnecs, angleCnec, sharedDomain);
 
             // Elementary actions
             for (RemedialActionRegisteredResource remedialActionRegisteredResource : networkActionRegisteredResources) {

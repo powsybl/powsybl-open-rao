@@ -8,7 +8,7 @@ package com.farao_community.farao.data.crac_creation.creator.cim.parameters;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
-import com.farao_community.farao.data.crac_api.Instant;
+import com.farao_community.farao.data.crac_api.InstantKind;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
@@ -16,7 +16,6 @@ import com.fasterxml.jackson.core.type.TypeReference;
 
 import java.io.IOException;
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
@@ -39,7 +38,7 @@ public final class JsonVoltageCnecsCreationParameters {
     }
 
     static VoltageCnecsCreationParameters deserialize(JsonParser jsonParser) throws IOException {
-        Map<Instant, VoltageMonitoredContingenciesAndThresholds> voltageMonitoringStatesAndThresholds = new TreeMap<>();
+        Map<String, VoltageMonitoredContingenciesAndThresholds> voltageMonitoringStatesAndThresholds = new TreeMap<>();
         Set<String> monitoredNetworkElements = new HashSet<>();
         while (jsonParser.nextToken() != JsonToken.END_OBJECT) {
             switch (jsonParser.getCurrentName()) {
@@ -63,17 +62,17 @@ public final class JsonVoltageCnecsCreationParameters {
         return new VoltageCnecsCreationParameters(voltageMonitoringStatesAndThresholds, monitoredNetworkElements);
     }
 
-    private static Map<Instant, VoltageMonitoredContingenciesAndThresholds> deserializeStatesAndThresholds(JsonParser jsonParser) throws IOException, NoSuchFieldException {
-        Map<Instant, VoltageMonitoredContingenciesAndThresholds> statesAndThresholds = new EnumMap<>(Instant.class);
+    private static Map<String, VoltageMonitoredContingenciesAndThresholds> deserializeStatesAndThresholds(JsonParser jsonParser) throws IOException, NoSuchFieldException {
+        Map<String, VoltageMonitoredContingenciesAndThresholds> statesAndThresholds = new HashMap<>();
 
         while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
-            Instant instant = null;
+            String instantId = null;
             Set<String> contingencyNames = null;
             Map<Double, VoltageThreshold> thresholdPerNominalV = new TreeMap<>();
             while (!jsonParser.nextToken().isStructEnd()) {
                 switch (jsonParser.getCurrentName()) {
                     case INSTANT:
-                        instant = Instant.valueOf(jsonParser.nextTextValue().toUpperCase());
+                        instantId = jsonParser.nextTextValue();
                         break;
                     case CONTINGENCY_NAMES:
                         jsonParser.nextToken();
@@ -88,14 +87,14 @@ public final class JsonVoltageCnecsCreationParameters {
                         throw new NoSuchFieldException(String.format("Unexpected field in %s: ", MONITORED_STATES_AND_THRESHOLDS) + jsonParser.getCurrentName());
                 }
             }
-            Objects.requireNonNull(instant);
-            if (instant.equals(Instant.PREVENTIVE) && !Objects.isNull(contingencyNames) && !contingencyNames.isEmpty()) {
+            Objects.requireNonNull(instantId);
+            if (instantId.equals(InstantKind.PREVENTIVE.toString().toLowerCase()) && !Objects.isNull(contingencyNames) && !contingencyNames.isEmpty()) {
                 throw new FaraoException("When monitoring the preventive instant, no contingency can be defined.");
             }
-            if (statesAndThresholds.containsKey(instant)) {
-                throw new FaraoException(String.format("A threshold is already defined for instant %s.", instant));
+            if (statesAndThresholds.containsKey(instantId)) {
+                throw new FaraoException(String.format("A threshold is already defined for instant %s.", instantId));
             } else {
-                statesAndThresholds.put(instant, new VoltageMonitoredContingenciesAndThresholds(contingencyNames, thresholdPerNominalV));
+                statesAndThresholds.put(instantId, new VoltageMonitoredContingenciesAndThresholds(contingencyNames, thresholdPerNominalV));
             }
         }
         return statesAndThresholds;
@@ -132,7 +131,7 @@ public final class JsonVoltageCnecsCreationParameters {
             if (nominalV == null) {
                 throw new FaraoException(String.format("Field %s for %s should be defined.", NOMINAL_V, THRESHOLDS_PER_NOMINAL_V));
             } else if (map.containsKey(nominalV)) {
-                throw new FaraoException(String.format("Multiple thresholds for same nominalV (%.1f) defined", nominalV));
+                throw new FaraoException(String.format(Locale.ENGLISH, "Multiple thresholds for same nominalV (%.1f) defined", nominalV));
             } else {
                 Objects.requireNonNull(unit);
                 map.put(nominalV, new VoltageThreshold(unit, min, max));
@@ -148,13 +147,13 @@ public final class JsonVoltageCnecsCreationParameters {
         jsonGenerator.writeEndObject();
     }
 
-    private static void serializeMonitoredStatesAndThresholds(Map<Instant, VoltageMonitoredContingenciesAndThresholds> monitoredStatesAndThresholds, JsonGenerator jsonGenerator) throws IOException {
+    private static void serializeMonitoredStatesAndThresholds(Map<String, VoltageMonitoredContingenciesAndThresholds> monitoredStatesAndThresholds, JsonGenerator jsonGenerator) throws IOException {
         jsonGenerator.writeArrayFieldStart(MONITORED_STATES_AND_THRESHOLDS);
-        for (Map.Entry<Instant, VoltageMonitoredContingenciesAndThresholds> entry : monitoredStatesAndThresholds.entrySet()) {
+        for (Map.Entry<String, VoltageMonitoredContingenciesAndThresholds> entry : monitoredStatesAndThresholds.entrySet()) {
             jsonGenerator.writeStartObject();
 
             // Instant
-            jsonGenerator.writeStringField(INSTANT, entry.getKey().toString().toLowerCase());
+            jsonGenerator.writeStringField(INSTANT, entry.getKey());
 
             VoltageMonitoredContingenciesAndThresholds data = entry.getValue();
 
@@ -191,7 +190,7 @@ public final class JsonVoltageCnecsCreationParameters {
         if (array == null || array.isEmpty()) {
             return;
         }
-        List<String> sortedArray = array.stream().sorted().collect(Collectors.toList());
+        List<String> sortedArray = array.stream().sorted().toList();
         jsonGenerator.writeArrayFieldStart(fieldName);
         for (String str : sortedArray) {
             jsonGenerator.writeString(str);
@@ -200,7 +199,7 @@ public final class JsonVoltageCnecsCreationParameters {
     }
 
     private static Unit stringToUnit(String string) {
-        if (string.toLowerCase().equalsIgnoreCase(KILOVOLT)) {
+        if (string.equalsIgnoreCase(KILOVOLT)) {
             return Unit.KILOVOLT;
         } else {
             throw new FaraoException(String.format("Unhandled unit in voltage monitoring: %s", string));

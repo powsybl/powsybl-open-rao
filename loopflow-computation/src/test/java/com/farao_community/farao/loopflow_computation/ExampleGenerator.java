@@ -45,6 +45,8 @@ import static com.farao_community.farao.commons.Unit.MEGAWATT;
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 final class ExampleGenerator {
+    private static final String PREVENTIVE_INSTANT_ID = "preventive";
+    private static final String OUTAGE_INSTANT_ID = "outage";
 
     private ExampleGenerator() {
         throw new AssertionError("Utility class should not be instantiated");
@@ -319,11 +321,13 @@ final class ExampleGenerator {
     }
 
     static Crac crac() {
-        Crac crac = new CracImplFactory().create("test-crac");
+        Crac crac = new CracImplFactory().create("test-crac")
+            .newInstant(PREVENTIVE_INSTANT_ID, InstantKind.PREVENTIVE)
+            .newInstant(OUTAGE_INSTANT_ID, InstantKind.OUTAGE);
 
         crac.newFlowCnec()
             .withId("FR-BE1")
-            .withInstant(Instant.PREVENTIVE)
+            .withInstant(PREVENTIVE_INSTANT_ID)
             .withNetworkElement("FR-BE1")
             .newThreshold()
                 .withMin(-200.)
@@ -335,7 +339,7 @@ final class ExampleGenerator {
 
         crac.newFlowCnec()
             .withId("FR-DE")
-            .withInstant(Instant.PREVENTIVE)
+            .withInstant(PREVENTIVE_INSTANT_ID)
             .withNetworkElement("FR-DE")
             .newThreshold()
                 .withMin(-200.)
@@ -347,7 +351,7 @@ final class ExampleGenerator {
 
         crac.newFlowCnec()
             .withId("BE2-NL")
-            .withInstant(Instant.PREVENTIVE)
+            .withInstant(PREVENTIVE_INSTANT_ID)
             .withNetworkElement("BE2-NL")
             .newThreshold()
                 .withMin(-200.)
@@ -359,7 +363,7 @@ final class ExampleGenerator {
 
         crac.newFlowCnec()
             .withId("DE-NL")
-            .withInstant(Instant.PREVENTIVE)
+            .withInstant(PREVENTIVE_INSTANT_ID)
             .withNetworkElement("DE-NL")
             .newThreshold()
                 .withMin(-200.)
@@ -371,7 +375,7 @@ final class ExampleGenerator {
 
         crac.newFlowCnec()
             .withId("BE1-BE2")
-            .withInstant(Instant.PREVENTIVE)
+            .withInstant(PREVENTIVE_INSTANT_ID)
             .withNetworkElement("BE1-BE2")
             .newThreshold()
                 .withMin(-200.)

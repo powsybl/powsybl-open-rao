@@ -31,7 +31,7 @@ public final class OnFlowConstraintInCountryArrayDeserializer {
             while (!jsonParser.nextToken().isStructEnd()) {
                 switch (jsonParser.getCurrentName()) {
                     case INSTANT:
-                        adder.withInstant(deserializeInstant(jsonParser.nextTextValue()));
+                        adder.withInstant(jsonParser.nextTextValue());
                         break;
                     case COUNTRY:
                         adder.withCountry(Country.valueOf(jsonParser.nextTextValue()));

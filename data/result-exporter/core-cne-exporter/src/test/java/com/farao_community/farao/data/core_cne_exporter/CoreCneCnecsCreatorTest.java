@@ -13,10 +13,7 @@ import com.farao_community.farao.data.cne_exporter_commons.CneExporterParameters
 import com.farao_community.farao.data.cne_exporter_commons.CneHelper;
 import com.farao_community.farao.data.cne_exporter_commons.CneUtil;
 import com.farao_community.farao.data.core_cne_exporter.xsd.*;
-import com.farao_community.farao.data.crac_api.Contingency;
-import com.farao_community.farao.data.crac_api.Crac;
-import com.farao_community.farao.data.crac_api.CracFactory;
-import com.farao_community.farao.data.crac_api.Instant;
+import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
@@ -41,18 +38,28 @@ import static org.mockito.Mockito.*;
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
 class CoreCneCnecsCreatorTest {
+    private static final String PREVENTIVE_INSTANT_ID = "preventive";
+    private static final String OUTAGE_INSTANT_ID = "outage";
+    private static final String AUTO_INSTANT_ID = "auto";
+    private static final String CURATIVE_INSTANT_ID = "curative";
 
     private Crac crac;
     private Network network;
     private RaoResult raoResult;
     private RaoParameters raoParameters;
     private CneExporterParameters exporterParameters;
+    private Instant curativeInstant;
 
     @BeforeEach
     public void setUp() {
         CneUtil.initUniqueIds();
         network = Network.read("TestCase12Nodes.uct", getClass().getResourceAsStream("/TestCase12Nodes.uct"));
-        crac = CracFactory.findDefault().create("test-crac");
+        crac = CracFactory.findDefault().create("test-crac")
+            .newInstant(PREVENTIVE_INSTANT_ID, InstantKind.PREVENTIVE)
+            .newInstant(OUTAGE_INSTANT_ID, InstantKind.OUTAGE)
+            .newInstant(AUTO_INSTANT_ID, InstantKind.AUTO)
+            .newInstant(CURATIVE_INSTANT_ID, InstantKind.CURATIVE);
+        curativeInstant = crac.getInstant(CURATIVE_INSTANT_ID);
         raoResult = Mockito.mock(RaoResult.class);
         raoParameters = new RaoParameters();
         exporterParameters = new CneExporterParameters("22XCORESO------S-20211115-F299v1", 2, "10YDOM-REGION-1V", CneExporterParameters.ProcessType.DAY_AHEAD_CC,
@@ -140,7 +147,7 @@ class CoreCneCnecsCreatorTest {
             .withId("bbb_cnec1")
             .withNetworkElement("FFR2AA1  DDE3AA1  1")
             .withOperator("FR")
-            .withInstant(Instant.PREVENTIVE)
+            .withInstant(PREVENTIVE_INSTANT_ID)
             .withOptimized()
             .withNominalVoltage(400.)
             .withReliabilityMargin(0.)
@@ -153,7 +160,7 @@ class CoreCneCnecsCreatorTest {
             .withId("aaa_cnec2")
             .withNetworkElement("NNL2AA1  NNL3AA1  1")
             .withOperator("NL")
-            .withInstant(Instant.PREVENTIVE)
+            .withInstant(PREVENTIVE_INSTANT_ID)
             .withOptimized()
             .withNominalVoltage(400.)
             .withReliabilityMargin(10.)
@@ -205,7 +212,7 @@ class CoreCneCnecsCreatorTest {
             .withId("cnec1")
             .withNetworkElement("FFR2AA1  DDE3AA1  1")
             .withOperator("D8")
-            .withInstant(Instant.PREVENTIVE)
+            .withInstant(PREVENTIVE_INSTANT_ID)
             .withMonitored()
             .withNominalVoltage(400.)
             .withReliabilityMargin(0.)
@@ -242,7 +249,7 @@ class CoreCneCnecsCreatorTest {
             .withId("cnec1")
             .withNetworkElement("FFR2AA1  DDE3AA1  1")
             .withOperator("D7")
-            .withInstant(Instant.PREVENTIVE)
+            .withInstant(PREVENTIVE_INSTANT_ID)
             .withOptimized()
             .withMonitored()
             .withNominalVoltage(400.)
@@ -295,7 +302,7 @@ class CoreCneCnecsCreatorTest {
             .withId("zzz_cnec1 - N")
             .withNetworkElement("FFR2AA1  DDE3AA1  1")
             .withOperator("D2")
-            .withInstant(Instant.PREVENTIVE)
+            .withInstant(PREVENTIVE_INSTANT_ID)
             .withOptimized()
             .withNominalVoltage(400.)
             .withReliabilityMargin(30.)
@@ -305,7 +312,7 @@ class CoreCneCnecsCreatorTest {
             .withId("cnec1 - Outage")
             .withNetworkElement("FFR2AA1  DDE3AA1  1")
             .withOperator("D2")
-            .withInstant(Instant.OUTAGE)
+            .withInstant(OUTAGE_INSTANT_ID)
             .withContingency("contingency1")
             .withOptimized()
             .withNominalVoltage(400.)
@@ -316,7 +323,7 @@ class CoreCneCnecsCreatorTest {
             .withId("cnec1 - Curative")
             .withNetworkElement("FFR2AA1  DDE3AA1  1")
             .withOperator("D2")
-            .withInstant(Instant.CURATIVE)
+            .withInstant(CURATIVE_INSTANT_ID)
             .withContingency("contingency1")
             .withOptimized()
             .withNominalVoltage(400.)
@@ -330,7 +337,7 @@ class CoreCneCnecsCreatorTest {
         mockCnecResult(cnecCur, 85, 18, 28, 108, 208, .1);
 
         raoParameters.getObjectiveFunctionParameters().setType(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT);
-        when(raoResult.getActivatedNetworkActionsDuringState(crac.getState(cnecCur.getState().getContingency().orElseThrow(), Instant.CURATIVE))).thenReturn(Set.of(Mockito.mock(NetworkAction.class)));
+        when(raoResult.getActivatedNetworkActionsDuringState(crac.getState(cnecCur.getState().getContingency().orElseThrow(), curativeInstant))).thenReturn(Set.of(Mockito.mock(NetworkAction.class)));
         CneHelper cneHelper = new CneHelper(crac, network, raoResult, raoParameters, exporterParameters);
         CoreCneCnecsCreator cneCnecsCreator = new CoreCneCnecsCreator(cneHelper, new MockCracCreationContext(crac));
 
@@ -371,7 +378,7 @@ class CoreCneCnecsCreatorTest {
             .withId("cnec1")
             .withNetworkElement("FFR2AA1  DDE3AA1  1")
             .withOperator("D4")
-            .withInstant(Instant.PREVENTIVE)
+            .withInstant(PREVENTIVE_INSTANT_ID)
             .withOptimized()
             .withNominalVoltage(400.)
             .withReliabilityMargin(0.)

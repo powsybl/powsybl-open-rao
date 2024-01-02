@@ -10,6 +10,7 @@ package com.farao_community.farao.data.crac_io_json.deserializers;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.CracFactory;
+import com.farao_community.farao.data.crac_api.InstantKind;
 import com.farao_community.farao.data.crac_io_json.ExtensionsHandler;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
@@ -70,6 +71,12 @@ public class CracDeserializer extends JsonDeserializer<Crac> {
         }
         String name = jsonParser.nextTextValue();
         Crac crac = cracFactory.create(id, name);
+        if (getPrimaryVersionNumber(version) < 2) {
+            crac.newInstant("preventive", InstantKind.PREVENTIVE)
+                .newInstant("outage", InstantKind.OUTAGE)
+                .newInstant("auto", InstantKind.AUTO)
+                .newInstant("curative", InstantKind.CURATIVE);
+        }
 
         Map<String, String> deserializedNetworkElementsNamesPerId = null;
 
@@ -131,6 +138,11 @@ public class CracDeserializer extends JsonDeserializer<Crac> {
                     ExtensionsHandler.getExtensionsSerializers().addExtensions(crac, extensions);
                     break;
 
+                case INSTANTS:
+                    jsonParser.nextToken();
+                    InstantArrayDeserializer.deserialize(jsonParser, crac);
+                    break;
+
                 default:
                     throw new FaraoException("Unexpected field in Crac: " + jsonParser.getCurrentName());
             }
@@ -150,7 +162,7 @@ public class CracDeserializer extends JsonDeserializer<Crac> {
     private void checkVersion(String cracVersion) {
 
         if (getPrimaryVersionNumber(CRAC_IO_VERSION) > getPrimaryVersionNumber(cracVersion)) {
-            throw new FaraoException(String.format("CRAC importer %s is no longer compatible with json CRAC version %s", CRAC_IO_VERSION, cracVersion));
+            LOGGER.warn("CRAC importer {} might not be longer compatible with json CRAC version {}, consider updating your json CRAC file", CRAC_IO_VERSION, cracVersion);
         }
         if (getPrimaryVersionNumber(CRAC_IO_VERSION) < getPrimaryVersionNumber(cracVersion)) {
             throw new FaraoException(String.format("CRAC importer %s cannot handle json CRAC version %s, consider upgrading farao-core version", CRAC_IO_VERSION, cracVersion));

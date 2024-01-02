@@ -6,12 +6,13 @@
  */
 package com.farao_community.farao.data.crac_creation.creator.fb_constraint.crac_creator;
 
-import com.farao_community.farao.data.crac_api.Instant;
+import com.farao_community.farao.data.crac_api.Crac;
+import com.farao_community.farao.data.crac_api.InstantKind;
 import com.farao_community.farao.data.crac_creation.creator.api.ImportStatus;
 import com.farao_community.farao.data.crac_creation.creator.api.std_creation_context.BranchCnecCreationContext;
 import com.farao_community.farao.data.crac_creation.creator.api.std_creation_context.NativeBranch;
 
-import java.util.EnumMap;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
@@ -24,10 +25,9 @@ public class CriticalBranchCreationContext implements BranchCnecCreationContext 
     private final NativeBranch nativeBranch;
     private final boolean isBaseCase;
     private final boolean isImported;
-    private final Map<Instant, String> createdCnecIds;
+    private final Map<String, String> createdCnecIds;
     private final ImportStatus importStatus;
     private final String importStatusDetail;
-
     private final String contingencyId;
     private final boolean isDirectionInverted;
 
@@ -77,27 +77,27 @@ public class CriticalBranchCreationContext implements BranchCnecCreationContext 
     }
 
     @Override
-    public Map<Instant, String> getCreatedCnecsIds() {
+    public Map<String, String> getCreatedCnecsIds() {
         return createdCnecIds;
     }
 
-    CriticalBranchCreationContext(CriticalBranchReader criticalBranchReader) {
+    CriticalBranchCreationContext(CriticalBranchReader criticalBranchReader, Crac crac) {
         this.criticalBranchId = criticalBranchReader.getCriticalBranch().getId();
         this.nativeBranch = criticalBranchReader.getNativeBranch();
         this.isBaseCase = criticalBranchReader.isBaseCase();
         this.isImported = criticalBranchReader.isCriticialBranchValid();
-        this.createdCnecIds = new EnumMap<>(Instant.class);
+        this.createdCnecIds = new HashMap<>();
         this.importStatus = criticalBranchReader.getImportStatus();
         this.importStatusDetail = criticalBranchReader.getImportStatusDetail();
 
         if (criticalBranchReader.isCriticialBranchValid() && criticalBranchReader.isBaseCase()) {
             this.isDirectionInverted = criticalBranchReader.isInvertedInNetwork();
-            this.createdCnecIds.put(Instant.PREVENTIVE, criticalBranchReader.getBaseCaseCnecId());
+            this.createdCnecIds.put(crac.getPreventiveInstant().getId(), criticalBranchReader.getBaseCaseCnecId());
             this.contingencyId = null;
         } else if (criticalBranchReader.isCriticialBranchValid() && !criticalBranchReader.isBaseCase()) {
             this.isDirectionInverted = criticalBranchReader.isInvertedInNetwork();
-            this.createdCnecIds.put(Instant.OUTAGE, criticalBranchReader.getOutageCnecId());
-            this.createdCnecIds.put(Instant.CURATIVE, criticalBranchReader.getCurativeCnecId());
+            this.createdCnecIds.put(crac.getOutageInstant().getId(), criticalBranchReader.getOutageCnecId());
+            this.createdCnecIds.put(crac.getInstant(InstantKind.CURATIVE).getId(), criticalBranchReader.getCurativeCnecId());
             this.contingencyId = criticalBranchReader.getOutageReader().getOutage().getId();
         } else {
             this.contingencyId = null;
@@ -105,7 +105,7 @@ public class CriticalBranchCreationContext implements BranchCnecCreationContext 
         }
     }
 
-    private CriticalBranchCreationContext(String criticalBranchId, NativeBranch nativeBranch, boolean isBaseCase, String contingencyId, boolean isImported, Map<Instant, String> createdCnecIds, boolean isDirectionInverted, ImportStatus importStatus, String importStatusDetail) {
+    private CriticalBranchCreationContext(String criticalBranchId, NativeBranch nativeBranch, boolean isBaseCase, String contingencyId, boolean isImported, Map<String, String> createdCnecIds, boolean isDirectionInverted, ImportStatus importStatus, String importStatusDetail) {
         this.criticalBranchId = criticalBranchId;
         this.nativeBranch = nativeBranch;
         this.isBaseCase = isBaseCase;
@@ -118,6 +118,6 @@ public class CriticalBranchCreationContext implements BranchCnecCreationContext 
     }
 
     public static CriticalBranchCreationContext notImported(String criticalBranchId, ImportStatus importStatus, String importStatusDetail) {
-        return new CriticalBranchCreationContext(criticalBranchId, null, false, null, false, new EnumMap<>(Instant.class), false, importStatus, importStatusDetail);
+        return new CriticalBranchCreationContext(criticalBranchId, null, false, null, false, new HashMap<>(), false, importStatus, importStatusDetail);
     }
 }

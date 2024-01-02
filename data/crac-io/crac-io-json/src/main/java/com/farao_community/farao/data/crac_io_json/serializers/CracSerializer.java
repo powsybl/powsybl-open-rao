@@ -8,10 +8,7 @@
 
 package com.farao_community.farao.data.crac_io_json.serializers;
 
-import com.farao_community.farao.data.crac_api.Contingency;
-import com.farao_community.farao.data.crac_api.Crac;
-import com.farao_community.farao.data.crac_api.NetworkElement;
-import com.farao_community.farao.data.crac_api.RemedialAction;
+import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_api.cnec.AngleCnec;
 import com.farao_community.farao.data.crac_api.cnec.Cnec;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
@@ -47,6 +44,7 @@ public class CracSerializer extends AbstractJsonSerializer<Crac> {
         gen.writeStringField(ID, crac.getId());
         gen.writeStringField(NAME, crac.getName());
 
+        serializeInstants(crac, gen);
         serializeNetworkElements(crac, gen);
         serializeContingencies(crac, gen);
         serializeFlowCnecs(crac, gen);
@@ -61,6 +59,15 @@ public class CracSerializer extends AbstractJsonSerializer<Crac> {
         JsonUtil.writeExtensions(crac, gen, serializers, ExtensionsHandler.getExtensionsSerializers());
 
         gen.writeEndObject();
+    }
+
+    private void serializeInstants(Crac crac, JsonGenerator gen) throws IOException {
+        gen.writeArrayFieldStart(INSTANTS);
+        List<Instant> instants = crac.getSortedInstants();
+        for (Instant instant: instants) {
+            gen.writeObject(instant);
+        }
+        gen.writeEndArray();
     }
 
     private void serializeNetworkElements(Crac crac, JsonGenerator gen) throws IOException {
