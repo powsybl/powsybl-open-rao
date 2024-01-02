@@ -13,7 +13,6 @@ import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
-import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import com.farao_community.farao.search_tree_rao.commons.NetworkActionCombination;
 import com.farao_community.farao.search_tree_rao.commons.RaoLogger;
 import com.farao_community.farao.search_tree_rao.commons.SensitivityComputer;
@@ -124,8 +123,6 @@ public class SearchTree {
 
         initLeaves(input);
 
-        applyForcedNetworkActionsOnRootLeaf();
-
         TECHNICAL_LOGS.debug("Evaluating root leaf");
         rootLeaf.evaluate(input.getObjectiveFunction(), getSensitivityComputerForEvaluation(true));
         if (rootLeaf.getStatus().equals(Leaf.Status.ERROR)) {
@@ -175,31 +172,6 @@ public class SearchTree {
 
     Leaf makeLeaf(OptimizationPerimeter optimizationPerimeter, Network network, PrePerimeterResult prePerimeterOutput, AppliedRemedialActions appliedRemedialActionsInSecondaryStates) {
         return new Leaf(optimizationPerimeter, network, prePerimeterOutput, appliedRemedialActionsInSecondaryStates);
-    }
-
-    /**
-     * Detects forced network actions and applies them on root leaf, re-evaluating the leaf if needed.
-     */
-    private void applyForcedNetworkActionsOnRootLeaf() {
-        State optimizedState = input.getOptimizationPerimeter().getMainOptimizationState();
-        // Fetch available network actions, then apply those that should be forced
-        Set<NetworkAction> forcedNetworkActions = input.getOptimizationPerimeter().getNetworkActions().stream()
-            .filter(ra -> ra.getUsageRules().stream().anyMatch(usageRule -> usageRule.getUsageMethod(optimizedState).equals(UsageMethod.FORCED)))
-            .collect(Collectors.toSet());
-        if (!forcedNetworkActions.isEmpty()) {
-            TECHNICAL_LOGS.info("{} network actions were forced on the network. The root leaf will be re-evaluated.", forcedNetworkActions.size());
-            forcedNetworkActions.forEach(ra -> TECHNICAL_LOGS.debug("Network action {} is available and forced. It will be applied on the root leaf.", ra.getId()));
-            input.getOptimizationPerimeter().getNetworkActions().removeAll(forcedNetworkActions);
-            rootLeaf = new Leaf(input.getOptimizationPerimeter(),
-                input.getNetwork(),
-                forcedNetworkActions,
-                null,
-                new RangeActionActivationResultImpl(input.getPrePerimeterResult()),
-                input.getPrePerimeterResult(),
-                input.getPreOptimizationAppliedRemedialActions());
-            optimalLeaf = rootLeaf;
-            previousDepthOptimalLeaf = rootLeaf;
-        }
     }
 
     private void logOptimizationSummary(Leaf optimalLeaf) {
@@ -418,7 +390,8 @@ public class SearchTree {
         SensitivityComputer.SensitivityComputerBuilder sensitivityComputerBuilder = SensitivityComputer.create()
             .withToolProvider(input.getToolProvider())
             .withCnecs(input.getOptimizationPerimeter().getFlowCnecs())
-            .withRangeActions(input.getOptimizationPerimeter().getRangeActions());
+            .withRangeActions(input.getOptimizationPerimeter().getRangeActions())
+            .withOutageInstant(input.getOutageInstant());
 
         if (isRootLeaf) {
             sensitivityComputerBuilder.withAppliedRemedialActions(input.getPreOptimizationAppliedRemedialActions());

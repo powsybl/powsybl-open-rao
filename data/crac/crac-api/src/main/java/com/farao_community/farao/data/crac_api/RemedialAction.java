@@ -55,17 +55,9 @@ public interface RemedialAction<I extends RemedialAction<I>> extends Identifiabl
      */
     Optional<Integer> getSpeed();
 
-    /**
-     * Evaluates if the remedial action is available depending on its UsageMethod.
-     */
-    boolean isRemedialActionAvailable(State state);
-
-    /**
-     * Evaluates if the remedial action is available depending on its UsageMethod.
-     */
-    boolean isRemedialActionAvailable(State state, boolean evaluatedCondition);
-
     Set<FlowCnec> getFlowCnecsConstrainingUsageRules(Set<FlowCnec> perimeterCnecs, Network network, State optimizedState);
+
+    Set<FlowCnec> getFlowCnecsConstrainingForOneUsageRule(UsageRule usageRule, Set<FlowCnec> perimeterCnecs, Network network);
 
     /**
      * Gather all the network elements present in the remedial action. It returns a set because network

@@ -58,6 +58,59 @@ public interface Crac extends Identifiable<Crac> {
      */
     void removeContingency(String id);
 
+    // Instants management
+
+    /**
+     * Add instant
+     *
+     * @return crac
+     */
+    Crac newInstant(String instantId, InstantKind instantKind);
+
+    /**
+     * Get instant based on Id
+     * If the ID is null, this will return a null instant
+     */
+    Instant getInstant(String instantId);
+
+    /**
+     * Gather all the instants present in the Crac. It returns a list of ordered instants
+     */
+    List<Instant> getSortedInstants();
+
+    /**
+     * Get instant based on a kind. Throws exception:
+     * - if crac does not contain such instant Kind or
+     * - if multiple instants of this kind are defined in the crac
+     */
+    Instant getInstant(InstantKind instantKind);
+
+    /**
+     * Gather all the instants present in the Crac with the correct instantKind.
+     */
+    Set<Instant> getInstants(InstantKind instantKind);
+
+    /**
+     * Returns the previous instant of an instant.
+     * Optional is empty if no previous instant is defined.
+     */
+    Instant getInstantBefore(Instant providedInstant);
+
+    /**
+     * Returns the unique preventive instant
+     */
+    Instant getPreventiveInstant();
+
+    /**
+     * Returns the unique outage instant
+     */
+    Instant getOutageInstant();
+
+    /**
+     * Returns whether a crac has an auto instant
+     */
+    boolean hasAutoInstant();
+
     // States management
 
     /**

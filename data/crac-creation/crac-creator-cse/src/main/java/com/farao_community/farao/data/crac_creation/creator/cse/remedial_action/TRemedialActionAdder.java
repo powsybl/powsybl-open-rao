@@ -10,6 +10,7 @@ import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.Instant;
+import com.farao_community.farao.data.crac_api.InstantKind;
 import com.farao_community.farao.data.crac_api.RemedialActionAdder;
 import com.farao_community.farao.data.crac_api.network_action.ActionType;
 import com.farao_community.farao.data.crac_api.network_action.NetworkActionAdder;
@@ -317,20 +318,20 @@ public class TRemedialActionAdder {
         if (tVariationType.getV().equals(ABSOLUTE_VARIATION_TYPE)) {
             return RangeType.ABSOLUTE;
         } else {
-            throw new IllegalArgumentException(String.format("%s type is not handled by the importer", tVariationType.getV()));
+            throw new FaraoException(String.format("%s type is not handled by the importer", tVariationType.getV()));
         }
     }
 
-    private static Instant getInstant(TApplication tApplication) {
+    private Instant getInstant(TApplication tApplication) {
         switch (tApplication.getV()) {
             case "PREVENTIVE":
-                return Instant.PREVENTIVE;
+                return crac.getPreventiveInstant();
             case "SPS":
-                return Instant.AUTO;
+                return crac.getInstant(InstantKind.AUTO);
             case "CURATIVE":
-                return Instant.CURATIVE;
+                return crac.getInstant(InstantKind.CURATIVE);
             default:
-                throw new IllegalArgumentException(String.format("%s is not a recognized application type for remedial action", tApplication.getV()));
+                throw new FaraoException(String.format("%s is not a recognized application type for remedial action", tApplication.getV()));
         }
     }
 
@@ -341,7 +342,7 @@ public class TRemedialActionAdder {
         // According to <SharedWith> tag :
         String sharedWithId = tRemedialAction.getSharedWith().getV();
         if (sharedWithId.equals("CSE")) {
-            if (raApplicationInstant.equals(Instant.AUTO)) {
+            if (raApplicationInstant.isAuto()) {
                 throw new FaraoException("Cannot import automatons from CSE CRAC yet");
             } else {
                 addOnInstantUsageRules(remedialActionAdder, raApplicationInstant);
@@ -367,7 +368,8 @@ public class TRemedialActionAdder {
 
         // RA is available for specific UCTE country
         remedialActionAdder.newOnFlowConstraintInCountryUsageRule()
-            .withInstant(raApplicationInstant)
+            .withInstant(raApplicationInstant.getId())
+            .withUsageMethod(UsageMethod.AVAILABLE)
             .withCountry(country)
             .add();
     }
@@ -375,7 +377,7 @@ public class TRemedialActionAdder {
     private void addOnInstantUsageRules(RemedialActionAdder<?> remedialActionAdder, Instant raApplicationInstant) {
         // RA is available for all countries
         remedialActionAdder.newOnInstantUsageRule()
-            .withInstant(raApplicationInstant)
+            .withInstant(raApplicationInstant.getId())
             .withUsageMethod(UsageMethod.AVAILABLE)
             .add();
     }
@@ -384,9 +386,10 @@ public class TRemedialActionAdder {
         if (remedialActionsForCnecsMap.containsKey(tRemedialAction.getName().getV())) {
             for (String flowCnecId : remedialActionsForCnecsMap.get(tRemedialAction.getName().getV())) {
                 // Only add the usage rule if the RemedialAction can be applied before or during CNEC instant
-                if (raApplicationInstant.compareTo(crac.getFlowCnec(flowCnecId).getState().getInstant()) <= 0) {
+                if (!crac.getFlowCnec(flowCnecId).getState().getInstant().comesBefore(raApplicationInstant)) {
                     remedialActionAdder.newOnFlowConstraintUsageRule()
-                        .withInstant(raApplicationInstant)
+                        .withInstant(raApplicationInstant.getId())
+                        .withUsageMethod(UsageMethod.AVAILABLE)
                         .withFlowCnec(flowCnecId)
                         .add();
                 }

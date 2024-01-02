@@ -6,7 +6,6 @@
  */
 package com.farao_community.farao.data.crac_creation.creator.api.std_creation_context;
 
-import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_creation.creator.api.ElementaryCreationContext;
 
 import java.util.Map;
@@ -38,7 +37,7 @@ public interface BranchCnecCreationContext extends ElementaryCreationContext {
     /**
      * Get a map of created CNECs id, whose key is the instant id on which the created CNEC is monitored
      */
-    Map<Instant, String> getCreatedCnecsIds();
+    Map<String, String> getCreatedCnecsIds();
 
     /**
      * Get a boolean indicating whether the direction of created CNECs is inverted compared

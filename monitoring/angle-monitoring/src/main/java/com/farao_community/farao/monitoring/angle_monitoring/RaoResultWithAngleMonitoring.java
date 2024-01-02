@@ -32,6 +32,9 @@ public class RaoResultWithAngleMonitoring extends RaoResultClone {
     public RaoResultWithAngleMonitoring(RaoResult raoResult, AngleMonitoringResult angleMonitoringResult) {
         super(raoResult);
         this.raoResult = raoResult;
+        if (angleMonitoringResult == null) {
+            throw new FaraoException("AngleMonitoringResult must not be null");
+        }
         this.angleMonitoringResult = angleMonitoringResult;
     }
 
@@ -49,7 +52,7 @@ public class RaoResultWithAngleMonitoring extends RaoResultClone {
         if (!unit.equals(Unit.DEGREE)) {
             throw new FaraoException("Unexpected unit for angle monitoring result : " + unit);
         }
-        if (!optimizationInstant.equals(Instant.CURATIVE)) {
+        if (!optimizationInstant.isCurative()) {
             throw new FaraoException("Unexpected optimization instant for angle monitoring result (only curative instant is supported currently) : " + optimizationInstant);
         }
         return angleMonitoringResult.getAngle(angleCnec, unit);
@@ -77,5 +80,4 @@ public class RaoResultWithAngleMonitoring extends RaoResultClone {
     public boolean isActivatedDuringState(State state, NetworkAction networkAction) {
         return isActivatedDuringState(state, (RemedialAction<?>) networkAction);
     }
-
 }

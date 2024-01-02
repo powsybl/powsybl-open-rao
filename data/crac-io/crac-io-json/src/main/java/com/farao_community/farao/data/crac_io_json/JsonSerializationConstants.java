@@ -9,7 +9,7 @@ package com.farao_community.farao.data.crac_io_json;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
-import com.farao_community.farao.data.crac_api.Instant;
+import com.farao_community.farao.data.crac_api.InstantKind;
 import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_api.network_action.ActionType;
 import com.farao_community.farao.data.crac_api.range.RangeType;
@@ -31,7 +31,7 @@ public final class JsonSerializationConstants {
     private JsonSerializationConstants() {
     }
 
-    public static final String CRAC_IO_VERSION = "1.9";
+    public static final String CRAC_IO_VERSION = "2.0";
     /*
     v1.1: addition of switchPairs
     v1.2: addition of injectionRangeAction
@@ -41,6 +41,7 @@ public final class JsonSerializationConstants {
     v1.7: addition of VoltageConstraints usage rules
     v1.8: addition of ShuntCompensator set-point action
     v1.9: addition of counterTradeRangeAction
+    v2.0: addition of instants and change in usage method logic
      */
 
     // headers
@@ -66,7 +67,9 @@ public final class JsonSerializationConstants {
     public static final String CONTINGENCIES = "contingencies";
     public static final String CONTINGENCY_ID = "contingencyId";
 
+    public static final String INSTANTS = "instants";
     public static final String INSTANT = "instant";
+    public static final String INSTANT_KIND = "kind";
 
     public static final String FLOW_CNECS = "flowCnecs";
     public static final String FLOW_CNEC_ID = "flowCnecId";
@@ -129,10 +132,10 @@ public final class JsonSerializationConstants {
     public static final String COUNTRY = "country";
 
     // instants
-    public static final String PREVENTIVE_INSTANT = "preventive";
-    public static final String OUTAGE_INSTANT = "outage";
-    public static final String AUTO_INSTANT = "auto";
-    public static final String CURATIVE_INSTANT = "curative";
+    public static final String PREVENTIVE_INSTANT_KIND = "PREVENTIVE";
+    public static final String OUTAGE_INSTANT_KIND = "OUTAGE";
+    public static final String AUTO_INSTANT_KIND = "AUTO";
+    public static final String CURATIVE_INSTANT_KIND = "CURATIVE";
 
     // units
     public static final String AMPERE_UNIT = "ampere";
@@ -189,33 +192,33 @@ public final class JsonSerializationConstants {
 
     // serialization of enums
 
-    public static String serializeInstant(Instant instant) {
-        switch (instant) {
+    public static String seralizeInstantKind(InstantKind instantKind) {
+        switch (instantKind) {
             case PREVENTIVE:
-                return PREVENTIVE_INSTANT;
+                return PREVENTIVE_INSTANT_KIND;
             case OUTAGE:
-                return OUTAGE_INSTANT;
+                return OUTAGE_INSTANT_KIND;
             case AUTO:
-                return AUTO_INSTANT;
+                return AUTO_INSTANT_KIND;
             case CURATIVE:
-                return CURATIVE_INSTANT;
+                return CURATIVE_INSTANT_KIND;
             default:
-                throw new FaraoException(String.format("Unsupported instant %s", instant));
+                throw new FaraoException(String.format("Unsupported instant kind %s", instantKind));
         }
     }
 
-    public static Instant deserializeInstant(String stringValue) {
-        switch (stringValue) {
-            case PREVENTIVE_INSTANT:
-                return Instant.PREVENTIVE;
-            case OUTAGE_INSTANT:
-                return Instant.OUTAGE;
-            case AUTO_INSTANT:
-                return Instant.AUTO;
-            case CURATIVE_INSTANT:
-                return Instant.CURATIVE;
+    public static InstantKind deseralizeInstantKind(String stringValue) {
+        switch (stringValue.toUpperCase()) {
+            case PREVENTIVE_INSTANT_KIND:
+                return InstantKind.PREVENTIVE;
+            case OUTAGE_INSTANT_KIND:
+                return InstantKind.OUTAGE;
+            case AUTO_INSTANT_KIND:
+                return InstantKind.AUTO;
+            case CURATIVE_INSTANT_KIND:
+                return InstantKind.CURATIVE;
             default:
-                throw new FaraoException(String.format("Unrecognized instant %s", stringValue));
+                throw new FaraoException(String.format("Unrecognized instant kind %s", stringValue));
         }
     }
 
@@ -335,7 +338,7 @@ public final class JsonSerializationConstants {
         }
     }
 
-    public static UsageMethod deserializeUsageMethod(String stringValue, String version) {
+    public static UsageMethod deserializeUsageMethod(String stringValue) {
         switch (stringValue) {
             case UNAVAILABLE_USAGE_METHOD:
                 return UsageMethod.UNAVAILABLE;

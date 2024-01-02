@@ -1,5 +1,12 @@
+/*
+ * Copyright (c) 2023, RTE (http://www.rte-france.com)
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
 package com.farao_community.farao.data.crac_creation.creator.csa_profile.crac_creator.remedial_action;
 
+import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_creation.creator.api.ImportStatus;
 import com.farao_community.farao.data.crac_creation.creator.csa_profile.crac_creator.CsaProfileCracCreationContext;
@@ -8,7 +15,6 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Map;
 
-import static com.farao_community.farao.data.crac_api.Instant.CURATIVE;
 import static com.farao_community.farao.data.crac_creation.creator.csa_profile.crac_creator.CsaProfileCracCreationTestUtil.getCsaCracCreationContext;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -17,6 +23,7 @@ class PstRangeActionCreationTest {
     @Test
     void testTC1ImportPstRangeActions() {
         CsaProfileCracCreationContext cracCreationContext = getCsaCracCreationContext("/TestConfiguration_TC1_v29Mar2023.zip");
+        Instant curativeInstant = cracCreationContext.getCrac().getInstant("curative");
 
         // ELIA_RA1 (on instant)
         PstRangeAction eliaRa1 = cracCreationContext.getCrac().getPstRangeAction("7fc2fc14-eea6-4e69-b8d9-a3edc218e687");
@@ -28,7 +35,7 @@ class PstRangeActionCreationTest {
         assertEquals(5., eliaRa1.getRanges().iterator().next().getMinTap());
         assertEquals(20., eliaRa1.getRanges().iterator().next().getMaxTap());
         assertEquals(1, eliaRa1.getUsageRules().size());
-        assertEquals(CURATIVE, eliaRa1.getUsageRules().iterator().next().getInstant());
+        assertEquals(curativeInstant, eliaRa1.getUsageRules().iterator().next().getInstant());
         // TODO waiting for PO to check US, after implementation of CSA11 behaviour changed, assertEquals("493480ba-93c3-426e-bee5-347d8dda3749", ((OnContingencyStateImpl) eliaRa1.getUsageRules().iterator().next()).getState().getContingency().get().getId());
         Map<Integer, Double> expectedTapToAngleMap = Map.ofEntries(
                 Map.entry(1, 4.926567934889113),
@@ -63,6 +70,7 @@ class PstRangeActionCreationTest {
     @Test
     void testTC2ImportPstRangeActions() {
         CsaProfileCracCreationContext cracCreationContext = getCsaCracCreationContext("/CSA_TestConfiguration_TC2_Draft_v14Apr2023.zip");
+        Instant curativeInstant = cracCreationContext.getCrac().getInstant("curative");
 
         PstRangeAction reeRa1 = cracCreationContext.getCrac().getPstRangeAction("5898c268-9b32-4ab5-9cfc-64546135a337");
         assertEquals("RA1", reeRa1.getName());
@@ -70,7 +78,7 @@ class PstRangeActionCreationTest {
         assertEquals(13, reeRa1.getInitialTap());
         assertEquals(0, reeRa1.getRanges().size());
         assertEquals(1, reeRa1.getUsageRules().size());
-        assertEquals(CURATIVE, reeRa1.getUsageRules().iterator().next().getInstant());
+        assertEquals(curativeInstant, reeRa1.getUsageRules().iterator().next().getInstant());
         assertEquals("8cdec4c6-10c3-40c1-9eeb-7f6ae8d9b3fe", ((OnContingencyStateImpl) reeRa1.getUsageRules().iterator().next()).getState().getContingency().get().getId());
         Map<Integer, Double> expectedTapToAngleMap = Map.ofEntries(
                 Map.entry(-1, -2.0),

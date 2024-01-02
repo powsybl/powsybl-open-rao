@@ -4,6 +4,7 @@ import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Contingency;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.Instant;
+import com.farao_community.farao.data.crac_api.InstantKind;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnecAdder;
 import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_api.threshold.BranchThresholdAdder;
@@ -190,20 +191,20 @@ public class FlowCnecCreator extends AbstractCnecCreator {
             return null;
         }
         if (0 < acceptableDuration && acceptableDuration <= 60) {
-            return Instant.OUTAGE;
+            return crac.getOutageInstant();
         }
         if (60 < acceptableDuration && acceptableDuration <= 900) {
-            return Instant.AUTO;
+            return crac.getInstant(InstantKind.AUTO);
         }
-        return Instant.CURATIVE;
+        return crac.getInstant(InstantKind.CURATIVE);
     }
 
-    private void addFlowCnec(Branch<?> networkElement, Contingency contingency, Instant instant, EnumMap<TwoSides, Double> thresholds, boolean useMaxAndMinThresholds, boolean hasNoPatl) {
+    private void addFlowCnec(Branch<?> networkElement, Contingency contingency, String instantId, EnumMap<TwoSides, Double> thresholds, boolean useMaxAndMinThresholds, boolean hasNoPatl) {
         if (thresholds.isEmpty()) {
             return;
         }
         FlowCnecAdder cnecAdder = initFlowCnec();
-        addCnecBaseInformation(cnecAdder, contingency, instant);
+        addCnecBaseInformation(cnecAdder, contingency, instantId);
         for (TwoSides side : thresholds.keySet()) {
             double threshold = thresholds.get(side);
             addFlowCnecThreshold(cnecAdder, side == TwoSides.ONE ? Side.LEFT : Side.RIGHT, threshold, useMaxAndMinThresholds);
@@ -214,11 +215,11 @@ public class FlowCnecCreator extends AbstractCnecCreator {
         }
         cnecAdder.add();
         if (hasNoPatl) {
-            String cnecName = getCnecName(instant, null);
+            String cnecName = getCnecName(instantId, null);
             csaProfileCnecCreationContexts.add(CsaProfileElementaryCreationContext.imported(assessedElementId, cnecName, cnecName, "the AssessedElement was pointing to a TATL and used inBaseCase. For the preventive instant, this TATL was also used as a PATL to create the CNEC", true));
             return;
         }
-        markCnecAsImportedAndHandleRejectedContingencies(instant, contingency);
+        markCnecAsImportedAndHandleRejectedContingencies(instantId, contingency);
     }
 
     private void addAllFlowCnecsFromBranchAndOperationalLimits(Branch<?> networkElement, Map<Integer, EnumMap<TwoSides, Double>> thresholds, boolean useMaxAndMinThresholds) {
@@ -229,18 +230,18 @@ public class FlowCnecCreator extends AbstractCnecCreator {
             // If no PATL, we use the lowest TATL instead (as in PowSyBl).
             // Only happens when the AssessedElement is defined with an OperationalLimit
             if (hasPatl) {
-                addFlowCnec(networkElement, null, Instant.PREVENTIVE, patlThresholds, useMaxAndMinThresholds, false);
+                addFlowCnec(networkElement, null, crac.getPreventiveInstant().getId(), patlThresholds, useMaxAndMinThresholds, false);
             } else {
                 // No PATL thus the longest acceptable duration is strictly lower than Integer.MAX_VALUE
                 Optional<Integer> longestAcceptableDuration = thresholds.keySet().stream().max(Integer::compareTo);
-                longestAcceptableDuration.ifPresent(integer -> addFlowCnec(networkElement, null, Instant.PREVENTIVE, thresholds.get(integer), useMaxAndMinThresholds, true));
+                longestAcceptableDuration.ifPresent(integer -> addFlowCnec(networkElement, null, crac.getPreventiveInstant().getId(), thresholds.get(integer), useMaxAndMinThresholds, true));
             }
         }
 
         for (Contingency contingency : linkedContingencies) {
             // Add PATL
             if (hasPatl) {
-                addFlowCnec(networkElement, contingency, Instant.CURATIVE, patlThresholds, useMaxAndMinThresholds, false);
+                addFlowCnec(networkElement, contingency, crac.getInstant(InstantKind.CURATIVE).getId(), patlThresholds, useMaxAndMinThresholds, false);
             }
             // Add TATLs
             for (int acceptableDuration : thresholds.keySet()) {
@@ -250,7 +251,7 @@ public class FlowCnecCreator extends AbstractCnecCreator {
                         csaProfileCnecCreationContexts.add(CsaProfileElementaryCreationContext.notImported(assessedElementId, ImportStatus.INCONSISTENCY_IN_DATA, writeAssessedElementIgnoredReasonMessage("TATL acceptable duration is negative: " + acceptableDuration)));
                         return;
                     }
-                    addFlowCnec(networkElement, contingency, instant, thresholds.get(acceptableDuration), useMaxAndMinThresholds, false);
+                    addFlowCnec(networkElement, contingency, instant.getId(), thresholds.get(acceptableDuration), useMaxAndMinThresholds, false);
                 }
             }
         }

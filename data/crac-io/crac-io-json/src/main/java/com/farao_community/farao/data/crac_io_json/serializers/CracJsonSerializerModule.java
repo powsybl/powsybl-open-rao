@@ -8,6 +8,7 @@ package com.farao_community.farao.data.crac_io_json.serializers;
 
 import com.farao_community.farao.data.crac_api.Contingency;
 import com.farao_community.farao.data.crac_api.Crac;
+import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.cnec.AngleCnec;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.cnec.VoltageCnec;
@@ -54,5 +55,6 @@ public class CracJsonSerializerModule extends SimpleModule {
         this.addSerializer(PstSetpoint.class, new PstSetpointSerializer());
         this.addSerializer(InjectionSetpoint.class, new InjectionSetpointSerializer());
         this.addSerializer(SwitchPair.class, new SwitchPairSerializer());
+        this.addSerializer(Instant.class, new InstantSerializer());
     }
 }

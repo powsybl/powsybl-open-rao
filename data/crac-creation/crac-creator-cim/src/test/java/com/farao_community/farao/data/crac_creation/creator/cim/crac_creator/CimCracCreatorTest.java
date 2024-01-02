@@ -8,10 +8,7 @@
 package com.farao_community.farao.data.crac_creation.creator.cim.crac_creator;
 
 import com.farao_community.farao.commons.Unit;
-import com.farao_community.farao.data.crac_api.Crac;
-import com.farao_community.farao.data.crac_api.Instant;
-import com.farao_community.farao.data.crac_api.NetworkElement;
-import com.farao_community.farao.data.crac_api.RemedialAction;
+import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_api.network_action.*;
@@ -54,12 +51,19 @@ import static org.junit.jupiter.api.Assertions.*;
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
  */
 class CimCracCreatorTest {
+    private static final String PREVENTIVE_INSTANT_ID = "preventive";
+    private static final String OUTAGE_INSTANT_ID = "outage";
+    private static final String AUTO_INSTANT_ID = "auto";
+    private static final String CURATIVE_INSTANT_ID = "curative";
     private static final double DOUBLE_TOLERANCE = 1e-6;
 
     private Crac importedCrac;
     private CimCracCreationContext cracCreationContext;
     private static Network baseNetwork;
     private static Network hvdcNetwork;
+    private Instant preventiveInstant;
+    private Instant autoInstant;
+    private Instant curativeInstant;
 
     @BeforeAll
     public static void loadNetwork() {
@@ -82,6 +86,15 @@ class CimCracCreatorTest {
         CimCracCreator cimCracCreator = new CimCracCreator();
         cracCreationContext = cimCracCreator.createCrac(cimCrac, network, parametrableOffsetDateTime, cracCreationParameters);
         importedCrac = cracCreationContext.getCrac();
+        if (!Objects.isNull(importedCrac)) {
+            preventiveInstant = importedCrac.getInstant(PREVENTIVE_INSTANT_ID);
+            autoInstant = importedCrac.getInstant(AUTO_INSTANT_ID);
+            curativeInstant = importedCrac.getInstant(CURATIVE_INSTANT_ID);
+        } else {
+            preventiveInstant = null;
+            autoInstant = null;
+            curativeInstant = null;
+        }
     }
 
     private void setUpWithGroupId(String fileName, Network network, OffsetDateTime parametrableOffsetDateTime, List<List<String>> alignedRangeActions) {
@@ -101,6 +114,9 @@ class CimCracCreatorTest {
         CimCracCreator cimCracCreator = new CimCracCreator();
         cracCreationContext = cimCracCreator.createCrac(cimCrac, network, parametrableOffsetDateTime, cracCreationParameters);
         importedCrac = cracCreationContext.getCrac();
+        preventiveInstant = importedCrac.getInstant(PREVENTIVE_INSTANT_ID);
+        autoInstant = importedCrac.getInstant(AUTO_INSTANT_ID);
+        curativeInstant = importedCrac.getInstant(CURATIVE_INSTANT_ID);
     }
 
     private void setUpWithSpeed(String fileName, Network network, OffsetDateTime parametrableOffsetDateTime, Set<RangeActionSpeed> rangeActionSpeeds) {
@@ -117,6 +133,9 @@ class CimCracCreatorTest {
         CimCracCreator cimCracCreator = new CimCracCreator();
         cracCreationContext = cimCracCreator.createCrac(cimCrac, network, parametrableOffsetDateTime, cracCreationParameters);
         importedCrac = cracCreationContext.getCrac();
+        preventiveInstant = importedCrac.getInstant(PREVENTIVE_INSTANT_ID);
+        autoInstant = importedCrac.getInstant(AUTO_INSTANT_ID);
+        curativeInstant = importedCrac.getInstant(CURATIVE_INSTANT_ID);
     }
 
     private void setUpWithTimeseriesMrids(String fileName, Network network, OffsetDateTime parametrableOffsetDateTime, Set<String> timeseriesMrids) {
@@ -132,6 +151,9 @@ class CimCracCreatorTest {
         CimCracCreator cimCracCreator = new CimCracCreator();
         cracCreationContext = cimCracCreator.createCrac(cimCrac, network, parametrableOffsetDateTime, cracCreationParameters);
         importedCrac = cracCreationContext.getCrac();
+        preventiveInstant = importedCrac.getInstant(PREVENTIVE_INSTANT_ID);
+        autoInstant = importedCrac.getInstant(AUTO_INSTANT_ID);
+        curativeInstant = importedCrac.getInstant(CURATIVE_INSTANT_ID);
     }
 
     private void assertContingencyNotImported(String name, String nativeName, ImportStatus importStatus) {
@@ -259,7 +281,7 @@ class CimCracCreatorTest {
                         .anyMatch(
                                 ur -> ur.getInstant().equals(instant)
                                         && ur.getFlowCnec().getId().equals(flowCnecId)
-                                        && ur.getUsageMethod().equals(UsageMethod.TO_BE_EVALUATED)
+                                        && ur.getUsageMethod().equals(instant.isAuto() ? UsageMethod.FORCED : UsageMethod.AVAILABLE)
                         ));
     }
 
@@ -269,9 +291,9 @@ class CimCracCreatorTest {
                 ra.getUsageRules().stream()
                         .filter(OnAngleConstraint.class::isInstance)
                         .anyMatch(
-                                ur -> ((OnAngleConstraint) ur).getInstant().equals(Instant.CURATIVE)
+                                ur -> ((OnAngleConstraint) ur).getInstant().isCurative()
                                         && ((OnAngleConstraint) ur).getAngleCnec().getId().equals(angleCnecId)
-                                        && ((OnAngleConstraint) ur).getUsageMethod().equals(UsageMethod.TO_BE_EVALUATED)
+                                        && ((OnAngleConstraint) ur).getUsageMethod().equals(UsageMethod.AVAILABLE)
                         ));
     }
 
@@ -538,14 +560,17 @@ class CimCracCreatorTest {
         // PRA_1
         assertPstRangeActionImported("PRA_1", "_a708c3bc-465d-4fe7-b6ef-6fa6408a62b0", false);
         PstRangeAction pra1 = importedCrac.getPstRangeAction("PRA_1");
-        assertEquals(7, pra1.getUsageRules().size());
-        assertHasOnFlowConstraintUsageRule(pra1, Instant.PREVENTIVE, "GHIOL_QSDFGH_1_220 - preventive");
-        assertHasOnFlowConstraintUsageRule(pra1, Instant.PREVENTIVE, "GHIOL_QSDFGH_1_220 - Co-one-1 - outage");
-        assertHasOnFlowConstraintUsageRule(pra1, Instant.PREVENTIVE, "GHIOL_QSDFGH_1_220 - Co-one-1 - curative");
-        assertHasOnFlowConstraintUsageRule(pra1, Instant.PREVENTIVE, "GHIOL_QSDFGH_1_220 - Co-one-2 - outage");
-        assertHasOnFlowConstraintUsageRule(pra1, Instant.PREVENTIVE, "GHIOL_QSDFGH_1_220 - Co-one-2 - curative");
-        assertHasOnFlowConstraintUsageRule(pra1, Instant.PREVENTIVE, "GHIOL_QSDFGH_1_220 - Co-one-3 - outage");
-        assertHasOnFlowConstraintUsageRule(pra1, Instant.PREVENTIVE, "GHIOL_QSDFGH_1_220 - Co-one-3 - curative");
+        assertEquals(10, pra1.getUsageRules().size());
+        assertHasOnFlowConstraintUsageRule(pra1, preventiveInstant, "GHIOL_QSDFGH_1_220 - preventive");
+        assertHasOnFlowConstraintUsageRule(pra1, preventiveInstant, "GHIOL_QSDFGH_1_220 - Co-one-1 - outage");
+        assertHasOnFlowConstraintUsageRule(pra1, preventiveInstant, "GHIOL_QSDFGH_1_220 - Co-one-1 - auto");
+        assertHasOnFlowConstraintUsageRule(pra1, preventiveInstant, "GHIOL_QSDFGH_1_220 - Co-one-1 - curative");
+        assertHasOnFlowConstraintUsageRule(pra1, preventiveInstant, "GHIOL_QSDFGH_1_220 - Co-one-2 - outage");
+        assertHasOnFlowConstraintUsageRule(pra1, preventiveInstant, "GHIOL_QSDFGH_1_220 - Co-one-2 - auto");
+        assertHasOnFlowConstraintUsageRule(pra1, preventiveInstant, "GHIOL_QSDFGH_1_220 - Co-one-2 - curative");
+        assertHasOnFlowConstraintUsageRule(pra1, preventiveInstant, "GHIOL_QSDFGH_1_220 - Co-one-3 - outage");
+        assertHasOnFlowConstraintUsageRule(pra1, preventiveInstant, "GHIOL_QSDFGH_1_220 - Co-one-3 - auto");
+        assertHasOnFlowConstraintUsageRule(pra1, preventiveInstant, "GHIOL_QSDFGH_1_220 - Co-one-3 - curative");
         assertEquals(1, pra1.getRanges().size());
         assertEquals(RangeType.ABSOLUTE, pra1.getRanges().get(0).getRangeType());
         assertEquals(1, pra1.getRanges().get(0).getMinTap());
@@ -555,13 +580,15 @@ class CimCracCreatorTest {
         // PRA_CRA_1
         assertPstRangeActionImported("PRA_CRA_1", "_e8a7eaec-51d6-4571-b3d9-c36d52073c33", true);
         PstRangeAction praCra1 = importedCrac.getPstRangeAction("PRA_CRA_1");
-        assertEquals(6, praCra1.getUsageRules().size());
-        assertHasOnFlowConstraintUsageRule(praCra1, Instant.PREVENTIVE, "GHIOL_QSDFGH_1_220 - Co-one-2 - outage");
-        assertHasOnFlowConstraintUsageRule(praCra1, Instant.PREVENTIVE, "GHIOL_QSDFGH_1_220 - Co-one-2 - curative");
-        assertHasOnFlowConstraintUsageRule(praCra1, Instant.PREVENTIVE, "GHIOL_QSDFGH_1_220 - Co-one-3 - outage");
-        assertHasOnFlowConstraintUsageRule(praCra1, Instant.PREVENTIVE, "GHIOL_QSDFGH_1_220 - Co-one-3 - curative");
-        assertHasOnFlowConstraintUsageRule(praCra1, Instant.CURATIVE, "GHIOL_QSDFGH_1_220 - Co-one-2 - curative");
-        assertHasOnFlowConstraintUsageRule(praCra1, Instant.CURATIVE, "GHIOL_QSDFGH_1_220 - Co-one-3 - curative");
+        assertEquals(8, praCra1.getUsageRules().size());
+        assertHasOnFlowConstraintUsageRule(praCra1, preventiveInstant, "GHIOL_QSDFGH_1_220 - Co-one-2 - outage");
+        assertHasOnFlowConstraintUsageRule(praCra1, preventiveInstant, "GHIOL_QSDFGH_1_220 - Co-one-2 - auto");
+        assertHasOnFlowConstraintUsageRule(praCra1, preventiveInstant, "GHIOL_QSDFGH_1_220 - Co-one-2 - curative");
+        assertHasOnFlowConstraintUsageRule(praCra1, preventiveInstant, "GHIOL_QSDFGH_1_220 - Co-one-3 - outage");
+        assertHasOnFlowConstraintUsageRule(praCra1, preventiveInstant, "GHIOL_QSDFGH_1_220 - Co-one-3 - auto");
+        assertHasOnFlowConstraintUsageRule(praCra1, preventiveInstant, "GHIOL_QSDFGH_1_220 - Co-one-3 - curative");
+        assertHasOnFlowConstraintUsageRule(praCra1, curativeInstant, "GHIOL_QSDFGH_1_220 - Co-one-2 - curative");
+        assertHasOnFlowConstraintUsageRule(praCra1, curativeInstant, "GHIOL_QSDFGH_1_220 - Co-one-3 - curative");
         assertEquals(1, praCra1.getRanges().size());
         assertEquals(RangeType.RELATIVE_TO_INITIAL_NETWORK, praCra1.getRanges().get(0).getRangeType());
         assertEquals(-10, praCra1.getRanges().get(0).getMinTap());
@@ -571,9 +598,11 @@ class CimCracCreatorTest {
         // AUTO_1
         assertPstRangeActionImported("AUTO_1", "_e8a7eaec-51d6-4571-b3d9-c36d52073c33", true);
         PstRangeAction auto1 = importedCrac.getPstRangeAction("AUTO_1");
-        assertEquals(2, auto1.getUsageRules().size());
-        assertHasOnFlowConstraintUsageRule(auto1, Instant.AUTO, "GHIOL_QSDFGH_1_220 - Co-one-2 - auto");
-        assertHasOnFlowConstraintUsageRule(auto1, Instant.AUTO, "GHIOL_QSDFGH_1_220 - Co-one-3 - auto");
+        assertEquals(4, auto1.getUsageRules().size());
+        assertHasOnFlowConstraintUsageRule(auto1, autoInstant, "GHIOL_QSDFGH_1_220 - Co-one-2 - auto");
+        assertHasOnFlowConstraintUsageRule(auto1, autoInstant, "GHIOL_QSDFGH_1_220 - Co-one-2 - curative");
+        assertHasOnFlowConstraintUsageRule(auto1, autoInstant, "GHIOL_QSDFGH_1_220 - Co-one-3 - auto");
+        assertHasOnFlowConstraintUsageRule(auto1, autoInstant, "GHIOL_QSDFGH_1_220 - Co-one-3 - curative");
         assertEquals(1, auto1.getRanges().size());
         assertEquals(RangeType.RELATIVE_TO_INITIAL_NETWORK, auto1.getRanges().get(0).getRangeType());
         assertEquals(-10, auto1.getRanges().get(0).getMinTap());
@@ -590,18 +619,18 @@ class CimCracCreatorTest {
         NetworkAction ra1 = importedCrac.getNetworkAction("RA_1");
         assertEquals(1, ra1.getUsageRules().size());
         assertTrue(ra1.getUsageRules().iterator().next() instanceof OnFlowConstraintInCountry);
-        assertEquals(Instant.PREVENTIVE, ra1.getUsageRules().iterator().next().getInstant());
+        assertEquals(preventiveInstant, ra1.getUsageRules().iterator().next().getInstant());
         assertEquals(Country.PT, ((OnFlowConstraintInCountry) ra1.getUsageRules().iterator().next()).getCountry());
         assertEquals(2, ra1.getElementaryActions().size());
         assertTrue(ra1.getElementaryActions().stream()
-                .filter(InjectionSetpoint.class::isInstance)
-                .map(InjectionSetpoint.class::cast)
-                .anyMatch(is -> is.getNetworkElement().getId().equals("_2844585c-0d35-488d-a449-685bcd57afbf") && is.getSetpoint() == 380)
+            .filter(InjectionSetpoint.class::isInstance)
+            .map(InjectionSetpoint.class::cast)
+            .anyMatch(is -> is.getNetworkElement().getId().equals("_2844585c-0d35-488d-a449-685bcd57afbf") && is.getSetpoint() == 380)
         );
         assertTrue(ra1.getElementaryActions().stream()
-                .filter(TopologicalAction.class::isInstance)
-                .map(TopologicalAction.class::cast)
-                .anyMatch(ta -> ta.getNetworkElement().getId().equals("_ffbabc27-1ccd-4fdc-b037-e341706c8d29") && ta.getActionType().equals(ActionType.CLOSE))
+            .filter(TopologicalAction.class::isInstance)
+            .map(TopologicalAction.class::cast)
+            .anyMatch(ta -> ta.getNetworkElement().getId().equals("_ffbabc27-1ccd-4fdc-b037-e341706c8d29") && ta.getActionType().equals(ActionType.CLOSE))
         );
 
         // RA_2
@@ -609,18 +638,18 @@ class CimCracCreatorTest {
         NetworkAction ra2 = importedCrac.getNetworkAction("RA_2");
         assertEquals(1, ra2.getUsageRules().size());
         assertTrue(ra2.getUsageRules().iterator().next() instanceof OnFlowConstraintInCountry);
-        assertEquals(Instant.CURATIVE, ((OnFlowConstraintInCountry) ra2.getUsageRules().iterator().next()).getInstant());
+        assertEquals(curativeInstant, ra2.getUsageRules().iterator().next().getInstant());
         assertEquals(Country.ES, ((OnFlowConstraintInCountry) ra2.getUsageRules().iterator().next()).getCountry());
         assertEquals(2, ra2.getElementaryActions().size());
         assertTrue(ra2.getElementaryActions().stream()
-                .filter(PstSetpoint.class::isInstance)
-                .map(PstSetpoint.class::cast)
-                .anyMatch(ps -> ps.getNetworkElement().getId().equals("_e8a7eaec-51d6-4571-b3d9-c36d52073c33") && ps.getSetpoint() == -19)
+            .filter(PstSetpoint.class::isInstance)
+            .map(PstSetpoint.class::cast)
+            .anyMatch(ps -> ps.getNetworkElement().getId().equals("_e8a7eaec-51d6-4571-b3d9-c36d52073c33") && ps.getSetpoint() == -19)
         );
         assertTrue(ra2.getElementaryActions().stream()
-                .filter(TopologicalAction.class::isInstance)
-                .map(TopologicalAction.class::cast)
-                .anyMatch(ta -> ta.getNetworkElement().getId().equals("_b58bf21a-096a-4dae-9a01-3f03b60c24c7") && ta.getActionType().equals(ActionType.OPEN))
+            .filter(TopologicalAction.class::isInstance)
+            .map(TopologicalAction.class::cast)
+            .anyMatch(ta -> ta.getNetworkElement().getId().equals("_b58bf21a-096a-4dae-9a01-3f03b60c24c7") && ta.getActionType().equals(ActionType.OPEN))
         );
 
         // RA_3
@@ -631,24 +660,24 @@ class CimCracCreatorTest {
                 ra3.getUsageRules().stream()
                         .filter(OnInstant.class::isInstance)
                         .map(OnInstant.class::cast)
-                        .anyMatch(ur -> ur.getInstant().equals(Instant.PREVENTIVE))
+                        .anyMatch(ur -> ur.getInstant().isPreventive())
         );
         assertTrue(
                 ra3.getUsageRules().stream()
                         .filter(OnContingencyState.class::isInstance)
                         .map(OnContingencyState.class::cast)
-                        .anyMatch(ur -> ur.getInstant().equals(Instant.CURATIVE) && ur.getContingency().getId().equals("CO_1"))
+                        .anyMatch(ur -> ur.getInstant().isCurative() && ur.getContingency().getId().equals("CO_1"))
         );
         assertEquals(2, ra3.getElementaryActions().size());
         assertTrue(ra3.getElementaryActions().stream()
-                .filter(PstSetpoint.class::isInstance)
-                .map(PstSetpoint.class::cast)
-                .anyMatch(ps -> ps.getNetworkElement().getId().equals("_b94318f6-6d24-4f56-96b9-df2531ad6543") && ps.getSetpoint() == 0)
+            .filter(PstSetpoint.class::isInstance)
+            .map(PstSetpoint.class::cast)
+            .anyMatch(ps -> ps.getNetworkElement().getId().equals("_b94318f6-6d24-4f56-96b9-df2531ad6543") && ps.getSetpoint() == 0)
         );
         assertTrue(ra3.getElementaryActions().stream()
-                .filter(InjectionSetpoint.class::isInstance)
-                .map(InjectionSetpoint.class::cast)
-                .anyMatch(is -> is.getNetworkElement().getId().equals("_1dc9afba-23b5-41a0-8540-b479ed8baf4b") && is.getSetpoint() == 480)
+            .filter(InjectionSetpoint.class::isInstance)
+            .map(InjectionSetpoint.class::cast)
+            .anyMatch(is -> is.getNetworkElement().getId().equals("_1dc9afba-23b5-41a0-8540-b479ed8baf4b") && is.getSetpoint() == 480)
         );
     }
 
@@ -659,13 +688,15 @@ class CimCracCreatorTest {
         // PRA_CRA_1
         assertPstRangeActionImported("PRA_CRA_1", "_e8a7eaec-51d6-4571-b3d9-c36d52073c33", true);
         PstRangeAction praCra1 = importedCrac.getPstRangeAction("PRA_CRA_1");
-        assertEquals(6, praCra1.getUsageRules().size());
-        assertHasOnFlowConstraintUsageRule(praCra1, Instant.PREVENTIVE, "GHIOL_QSDFGH_1_220 - Co-one-2 - outage");
-        assertHasOnFlowConstraintUsageRule(praCra1, Instant.PREVENTIVE, "GHIOL_QSDFGH_1_220 - Co-one-2 - curative");
-        assertHasOnFlowConstraintUsageRule(praCra1, Instant.PREVENTIVE, "GHIOL_QSDFGH_1_220 - Co-one-3 - outage");
-        assertHasOnFlowConstraintUsageRule(praCra1, Instant.PREVENTIVE, "GHIOL_QSDFGH_1_220 - Co-one-3 - curative");
-        assertHasOnFlowConstraintUsageRule(praCra1, Instant.CURATIVE, "GHIOL_QSDFGH_1_220 - Co-one-2 - curative");
-        assertHasOnFlowConstraintUsageRule(praCra1, Instant.CURATIVE, "GHIOL_QSDFGH_1_220 - Co-one-3 - curative");
+        assertEquals(8, praCra1.getUsageRules().size());
+        assertHasOnFlowConstraintUsageRule(praCra1, preventiveInstant, "GHIOL_QSDFGH_1_220 - Co-one-2 - outage");
+        assertHasOnFlowConstraintUsageRule(praCra1, preventiveInstant, "GHIOL_QSDFGH_1_220 - Co-one-2 - auto");
+        assertHasOnFlowConstraintUsageRule(praCra1, preventiveInstant, "GHIOL_QSDFGH_1_220 - Co-one-2 - curative");
+        assertHasOnFlowConstraintUsageRule(praCra1, preventiveInstant, "GHIOL_QSDFGH_1_220 - Co-one-3 - outage");
+        assertHasOnFlowConstraintUsageRule(praCra1, preventiveInstant, "GHIOL_QSDFGH_1_220 - Co-one-3 - auto");
+        assertHasOnFlowConstraintUsageRule(praCra1, preventiveInstant, "GHIOL_QSDFGH_1_220 - Co-one-3 - curative");
+        assertHasOnFlowConstraintUsageRule(praCra1, curativeInstant, "GHIOL_QSDFGH_1_220 - Co-one-2 - curative");
+        assertHasOnFlowConstraintUsageRule(praCra1, curativeInstant, "GHIOL_QSDFGH_1_220 - Co-one-3 - curative");
         assertEquals(1, praCra1.getRanges().size());
         assertEquals(RangeType.RELATIVE_TO_INITIAL_NETWORK, praCra1.getRanges().get(0).getRangeType());
         assertEquals(-10, praCra1.getRanges().get(0).getMinTap());
@@ -736,8 +767,8 @@ class CimCracCreatorTest {
 
         // CNEC 4
         assertCnecImported("CNEC-4", Set.of("CNEC-4 - preventive", "CNEC-4 - Co-1 - curative", "CNEC-4 - Co-2 - curative",
-                "CNEC-5 - MONITORED - preventive", "CNEC-5 - MONITORED - Co-1 - curative",
-                "CNEC-6 - MONITORED - preventive", "CNEC-6 - MONITORED - Co-1 - outage"));
+            "CNEC-5 - MONITORED - preventive", "CNEC-5 - MONITORED - Co-1 - curative",
+            "CNEC-6 - MONITORED - preventive", "CNEC-6 - MONITORED - Co-1 - outage"));
         assertFalse(cracCreationContext.getMonitoredSeriesCreationContext("CNEC-4").isAltered());
     }
 
@@ -753,11 +784,11 @@ class CimCracCreatorTest {
     void testImportVoltageCnecs() {
         Set<String> monitoredElements = Set.of("_d77b61ef-61aa-4b22-95f6-b56ca080788d", "_2844585c-0d35-488d-a449-685bcd57afbf", "_a708c3bc-465d-4fe7-b6ef-6fa6408a62b0");
 
-        Map<Instant, VoltageMonitoredContingenciesAndThresholds> monitoredStatesAndThresholds = Map.of(
-                Instant.PREVENTIVE, new VoltageMonitoredContingenciesAndThresholds(null, Map.of(220., mockVoltageThreshold(220., 230.))),
-                Instant.CURATIVE, new VoltageMonitoredContingenciesAndThresholds(Set.of("Co-1-name", "Co-4-name"), Map.of(220., mockVoltageThreshold(210., 240.))),
-                Instant.OUTAGE, new VoltageMonitoredContingenciesAndThresholds(Set.of("Co-3-name"), Map.of(220., mockVoltageThreshold(200., null))),
-                Instant.AUTO, new VoltageMonitoredContingenciesAndThresholds(Set.of("Co-2-name"), Map.of(220., mockVoltageThreshold(null, null)))
+        Map<String, VoltageMonitoredContingenciesAndThresholds> monitoredStatesAndThresholds = Map.of(
+                PREVENTIVE_INSTANT_ID, new VoltageMonitoredContingenciesAndThresholds(null, Map.of(220., mockVoltageThreshold(220., 230.))),
+                CURATIVE_INSTANT_ID, new VoltageMonitoredContingenciesAndThresholds(Set.of("Co-1-name", "Co-4-name"), Map.of(220., mockVoltageThreshold(210., 240.))),
+                OUTAGE_INSTANT_ID, new VoltageMonitoredContingenciesAndThresholds(Set.of("Co-3-name"), Map.of(220., mockVoltageThreshold(200., null))),
+                AUTO_INSTANT_ID, new VoltageMonitoredContingenciesAndThresholds(Set.of("Co-2-name"), Map.of(220., mockVoltageThreshold(null, null)))
         );
         VoltageCnecsCreationParameters voltageCnecsCreationParameters = new VoltageCnecsCreationParameters(monitoredStatesAndThresholds, monitoredElements);
 
@@ -910,7 +941,7 @@ class CimCracCreatorTest {
         assertNotNull(duplicate);
         assertEquals(flowCnec.getNetworkElement().getId(), duplicate.getNetworkElement().getId());
         assertEquals(flowCnec.getState().getContingency(), duplicate.getState().getContingency());
-        assertEquals(Instant.OUTAGE, duplicate.getState().getInstant());
+        assertEquals(InstantKind.OUTAGE, duplicate.getState().getInstant().getKind());
         assertEquals(flowCnec.isOptimized(), duplicate.isOptimized());
         assertEquals(flowCnec.isMonitored(), duplicate.isMonitored());
         assertEquals(flowCnec.getReliabilityMargin(), duplicate.getReliabilityMargin(), 1e-6);
@@ -948,10 +979,10 @@ class CimCracCreatorTest {
         assertEquals(14, importedCrac.getFlowCnecs().size());
 
         assertCnecImported("TUU_MR_31", Set.of(
-                "GHIOL_QSDFGH_1_220 - Co-one-1 - auto", "GHIOL_QSDFGH_1_220 - preventive", "GHIOL_QSDFGH_1_220 - Co-one-1 - outage",
-                "GHIOL_QSDFGH_1_220 - Co-one-3 - outage", "GHIOL_QSDFGH_1_220 - Co-one-3 - curative", "GHIOL_QSDFGH_1_220 - Co-one-2 - curative",
-                "GHIOL_QSDFGH_1_220 - Co-one-3 - auto", "GHIOL_QSDFGH_1_220 - Co-one-1 - curative", "GHIOL_QSDFGH_1_220 - Co-one-2 - auto",
-                "GHIOL_QSDFGH_1_220 - Co-one-2 - outage"
+            "GHIOL_QSDFGH_1_220 - Co-one-1 - auto", "GHIOL_QSDFGH_1_220 - preventive", "GHIOL_QSDFGH_1_220 - Co-one-1 - outage",
+            "GHIOL_QSDFGH_1_220 - Co-one-3 - outage", "GHIOL_QSDFGH_1_220 - Co-one-3 - curative", "GHIOL_QSDFGH_1_220 - Co-one-2 - curative",
+            "GHIOL_QSDFGH_1_220 - Co-one-3 - auto", "GHIOL_QSDFGH_1_220 - Co-one-1 - curative", "GHIOL_QSDFGH_1_220 - Co-one-2 - auto",
+            "GHIOL_QSDFGH_1_220 - Co-one-2 - outage"
         ));
         assertHasOneThreshold("GHIOL_QSDFGH_1_220 - preventive", Side.LEFT, Unit.PERCENT_IMAX, -1, 1);
         assertHasOneThreshold("GHIOL_QSDFGH_1_220 - Co-one-1 - outage", Side.LEFT, Unit.PERCENT_IMAX, -1.15, 1.15);
@@ -959,8 +990,8 @@ class CimCracCreatorTest {
         assertHasOneThreshold("GHIOL_QSDFGH_1_220 - Co-one-3 - curative", Side.LEFT, Unit.PERCENT_IMAX, -1.05, 1.05);
 
         assertCnecImported("TUU_MR_56", Set.of(
-                "GHIOL_QSRBJH_1_400 - Co-one-1 - auto", "GHIOL_QSRBJH_1_400 - preventive", "GHIOL_QSRBJH_1_400 - Co-one-1 - outage",
-                "GHIOL_QSRBJH_1_400 - Co-one-1 - curative"
+            "GHIOL_QSRBJH_1_400 - Co-one-1 - auto", "GHIOL_QSRBJH_1_400 - preventive", "GHIOL_QSRBJH_1_400 - Co-one-1 - outage",
+            "GHIOL_QSRBJH_1_400 - Co-one-1 - curative"
         ));
         assertHasOneThreshold("GHIOL_QSRBJH_1_400 - preventive", Side.LEFT, Unit.PERCENT_IMAX, -1, 1);
         assertHasOneThreshold("GHIOL_QSRBJH_1_400 - Co-one-1 - outage", Side.LEFT, Unit.PERCENT_IMAX, -1.5, 1.5);
@@ -970,16 +1001,16 @@ class CimCracCreatorTest {
         // PRA_1
         assertPstRangeActionImported("PRA_1", "_a708c3bc-465d-4fe7-b6ef-6fa6408a62b0", false);
         PstRangeAction pra1 = importedCrac.getPstRangeAction("PRA_1");
-        assertEquals(7, pra1.getUsageRules().size());
+        assertEquals(10, pra1.getUsageRules().size());
 
         // PRA_CRA_1
         assertPstRangeActionImported("PRA_CRA_1", "_e8a7eaec-51d6-4571-b3d9-c36d52073c33", true);
         PstRangeAction praCra1 = importedCrac.getPstRangeAction("PRA_CRA_1");
-        assertEquals(6, praCra1.getUsageRules().size());
+        assertEquals(8, praCra1.getUsageRules().size());
 
         // AUTO_1
         assertPstRangeActionImported("AUTO_1", "_e8a7eaec-51d6-4571-b3d9-c36d52073c33", true);
         PstRangeAction auto1 = importedCrac.getPstRangeAction("AUTO_1");
-        assertEquals(2, auto1.getUsageRules().size());
+        assertEquals(4, auto1.getUsageRules().size());
     }
 }

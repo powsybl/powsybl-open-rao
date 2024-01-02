@@ -29,6 +29,11 @@ import static org.junit.jupiter.api.Assertions.*;
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 class PstRangeActionImplTest {
+    private static final String PREVENTIVE_INSTANT_ID = "preventive";
+    private static final String OUTAGE_INSTANT_ID = "outage";
+    private static final String AUTO_INSTANT_ID = "auto";
+    private static final String CURATIVE_INSTANT_ID = "curative";
+
     private Crac crac;
     private PstRangeActionAdder pstRangeActionAdder;
     private String networkElementId;
@@ -38,7 +43,11 @@ class PstRangeActionImplTest {
 
     @BeforeEach
     public void setUp() {
-        crac = new CracImplFactory().create("cracId");
+        crac = new CracImplFactory().create("cracId")
+            .newInstant(PREVENTIVE_INSTANT_ID, InstantKind.PREVENTIVE)
+            .newInstant(OUTAGE_INSTANT_ID, InstantKind.OUTAGE)
+            .newInstant(AUTO_INSTANT_ID, InstantKind.AUTO)
+            .newInstant(CURATIVE_INSTANT_ID, InstantKind.CURATIVE);
         network = NetworkImportsUtil.import12NodesNetwork();
         networkElementId = "BBE2AA1  BBE3AA1  1";
         phaseTapChanger = network.getTwoWindingsTransformer(networkElementId).getPhaseTapChanger();
@@ -50,7 +59,7 @@ class PstRangeActionImplTest {
             .withName("pst-range-action-name")
             .withNetworkElement("BBE2AA1  BBE3AA1  1")
             .withOperator("operator")
-            .newOnInstantUsageRule().withInstant(Instant.PREVENTIVE).withUsageMethod(UsageMethod.AVAILABLE).add()
+            .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add()
             .withTapToAngleConversionMap(tapToAngleConversionMap)
             .withInitialTap(0);
     }
@@ -70,20 +79,23 @@ class PstRangeActionImplTest {
     @Test
     void applyOutOfBound() {
         PstRangeAction pstRa = pstRangeActionAdder.add();
-        assertThrows(FaraoException.class, () -> pstRa.apply(network, 50));
+        FaraoException exception = assertThrows(FaraoException.class, () -> pstRa.apply(network, 50));
+        assertEquals("Angle value 50.0000 not is the range of minimum and maximum angle values [-6.2276,6.2276] of the phase tap changer BBE2AA1  BBE3AA1  1 steps", exception.getMessage());
     }
 
     @Test
     void applyOnUnknownPst() {
         PstRangeAction pstRa = pstRangeActionAdder.withNetworkElement("unknownNetworkElement").add();
-        assertThrows(FaraoException.class, () -> pstRa.apply(network, 50));
+        FaraoException exception = assertThrows(FaraoException.class, () -> pstRa.apply(network, 50));
+        assertEquals("PST unknownNetworkElement does not exist in the current network", exception.getMessage());
     }
 
     @Test
     void applyOnTransformerWithNoPhaseShifter() {
         Network network = Network.read("TestCase12Nodes_no_pst.uct", getClass().getResourceAsStream("/TestCase12Nodes_no_pst.uct"));
         PstRangeAction pstRa = pstRangeActionAdder.add();
-        assertThrows(FaraoException.class, () -> pstRa.apply(network, 50));
+        FaraoException exception = assertThrows(FaraoException.class, () -> pstRa.apply(network, 50));
+        assertEquals("Transformer BBE2AA1  BBE3AA1  1 is not a PST but is defined as a TapRange", exception.getMessage());
     }
 
     @Test
@@ -115,7 +127,7 @@ class PstRangeActionImplTest {
     void pstWithRelativeToPreviousInstantRange() {
 
         PstRangeAction pstRa = pstRangeActionAdder
-            .newOnInstantUsageRule().withInstant(Instant.CURATIVE).withUsageMethod(UsageMethod.AVAILABLE).add()
+            .newOnInstantUsageRule().withInstant(CURATIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add()
             .newTapRange().withMinTap(-3).withMaxTap(3).withRangeType(RangeType.RELATIVE_TO_PREVIOUS_INSTANT).add()
             .add();
 
@@ -189,7 +201,7 @@ class PstRangeActionImplTest {
             .withName("pst-range-action-name-2")
             .withNetworkElement("BBE2AA1  BBE3AA1  1")
             .withOperator("operator")
-            .newOnInstantUsageRule().withInstant(Instant.PREVENTIVE).withUsageMethod(UsageMethod.AVAILABLE).add()
+            .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add()
             .newTapRange().withMinTap(-10).withMaxTap(10).withRangeType(RangeType.ABSOLUTE).add()
             .withTapToAngleConversionMap(tapToAngleConversionMap2)
             .withInitialTap(0)

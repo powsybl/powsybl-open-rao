@@ -11,6 +11,7 @@ import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.cnec.AngleCnec;
 import com.farao_community.farao.data.crac_api.usage_rule.OnAngleConstraint;
 import com.farao_community.farao.data.crac_api.usage_rule.OnAngleConstraintAdder;
+import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 
 import java.util.Objects;
 
@@ -22,16 +23,23 @@ import static com.farao_community.farao.data.crac_impl.AdderUtils.assertAttribut
 public class OnAngleConstraintAdderImpl<T extends AbstractRemedialActionAdder<T>> implements OnAngleConstraintAdder<T> {
 
     private T owner;
-    private Instant instant;
+    private String instantId;
     private String angleCnecId;
+    private UsageMethod usageMethod;
 
     OnAngleConstraintAdderImpl(AbstractRemedialActionAdder<T> owner) {
         this.owner = (T) owner;
     }
 
     @Override
-    public OnAngleConstraintAdder<T> withInstant(Instant instant) {
-        this.instant = instant;
+    public OnAngleConstraintAdder<T> withInstant(String instantId) {
+        this.instantId = instantId;
+        return this;
+    }
+
+    @Override
+    public OnAngleConstraintAdder<T> withUsageMethod(UsageMethod usageMethod) {
+        this.usageMethod = usageMethod;
         return this;
     }
 
@@ -43,13 +51,15 @@ public class OnAngleConstraintAdderImpl<T extends AbstractRemedialActionAdder<T>
 
     @Override
     public T add() {
-        assertAttributeNotNull(instant, "OnInstant", "instant", "withInstant()");
+        assertAttributeNotNull(instantId, "OnAngleConstraint", "instant", "withInstant()");
         assertAttributeNotNull(angleCnecId, "OnAngleConstraint", "angle cnec", "withAngleCnec()");
+        assertAttributeNotNull(usageMethod, "OnAngleConstraint", "usage method", "withUsageMethod()");
 
-        if (instant.equals(Instant.OUTAGE)) {
+        Instant instant = owner.getCrac().getInstant(instantId);
+        if (instant.isOutage()) {
             throw new FaraoException("OnAngleConstraint usage rules are not allowed for OUTAGE instant.");
         }
-        if (instant.equals(Instant.PREVENTIVE)) {
+        if (instant.isPreventive()) {
             owner.getCrac().addPreventiveState();
         }
 
@@ -60,7 +70,7 @@ public class OnAngleConstraintAdderImpl<T extends AbstractRemedialActionAdder<T>
 
         AbstractRemedialActionAdder.checkOnConstraintUsageRules(instant, angleCnec);
 
-        OnAngleConstraint onAngleConstraint = new OnAngleConstraintImpl(instant, angleCnec);
+        OnAngleConstraint onAngleConstraint = new OnAngleConstraintImpl(usageMethod, instant, angleCnec);
         owner.addUsageRule(onAngleConstraint);
         return owner;
     }

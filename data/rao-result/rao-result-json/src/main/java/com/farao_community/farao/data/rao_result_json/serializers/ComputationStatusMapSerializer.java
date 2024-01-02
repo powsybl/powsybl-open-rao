@@ -40,7 +40,7 @@ final class ComputationStatusMapSerializer {
             if (!computationStatus.equals(ComputationStatus.DEFAULT)) {
                 jsonGenerator.writeStartObject();
                 jsonGenerator.writeStringField(COMPUTATION_STATUS, raoResult.getComputationStatus(state).toString());
-                jsonGenerator.writeStringField(INSTANT, serializeInstant(state.getInstant()));
+                jsonGenerator.writeStringField(INSTANT, serializeInstantId(state.getInstant()));
                 Optional<Contingency> optContingency = state.getContingency();
                 if (optContingency.isPresent()) {
                     jsonGenerator.writeStringField(CONTINGENCY_ID, optContingency.get().getId());
