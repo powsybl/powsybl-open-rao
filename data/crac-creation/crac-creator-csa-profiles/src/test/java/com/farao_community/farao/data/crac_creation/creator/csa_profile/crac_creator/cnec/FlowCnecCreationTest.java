@@ -400,7 +400,7 @@ class FlowCnecCreationTest {
                 "REE_AE2 (3a364a5b-7aca-4e48-abd5-4cd79e2e8676) - preventive",
                 "REE_AE2 (3a364a5b-7aca-4e48-abd5-4cd79e2e8676) - preventive",
                 "044cd003-c766-11e1-8775-005056c00008",
-                PREVENTIVE, null,
+                preventiveInstant, null,
                 +1000d, -1000d, Side.LEFT);
         CsaProfileCracCreationTestUtil.assertFlowCnecEquality(listFlowCnecs.get(1),
                 "REE_AE3 (989535e7-3789-47e7-8ba7-da7be9962a15) - preventive",
