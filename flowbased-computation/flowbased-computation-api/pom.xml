@@ -49,7 +49,7 @@
         <dependency>
             <groupId>com.powsybl</groupId>
             <artifactId>powsybl-glsk-document-io-api</artifactId>
-            <version>${powsybl.glsk.version}</version>
+            <version>${powsybl.entsoe.version}</version>
         </dependency>
         <dependency>
             <groupId>com.powsybl</groupId>
