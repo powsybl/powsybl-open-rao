@@ -9,8 +9,8 @@ package com.farao_community.farao.data.flowbased_domain.json;
 import com.farao_community.farao.data.flowbased_domain.DataGlskFactors;
 import com.farao_community.farao.data.flowbased_domain.DataMonitoredBranch;
 import com.farao_community.farao.data.flowbased_domain.DataPostContingency;
-import com.powsybl.commons.test.AbstractConverterTest;
 import com.farao_community.farao.data.flowbased_domain.DataDomain;
+import com.powsybl.commons.test.AbstractSerDeTest;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -27,7 +27,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
  */
-class JsonFlowbasedDomainTest extends AbstractConverterTest {
+class JsonFlowbasedDomainTest extends AbstractSerDeTest {
 
     private static final double EPSILON = 1e-3;
 

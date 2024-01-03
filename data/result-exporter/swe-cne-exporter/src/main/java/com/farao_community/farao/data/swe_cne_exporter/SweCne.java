@@ -63,7 +63,7 @@ public class SweCne {
         }
 
         OffsetDateTime offsetDateTime = cracCreationContext.getTimeStamp().withMinute(0);
-        fillHeader(sweCneHelper.getNetwork().getCaseDate().toDate().toInstant().atOffset(ZoneOffset.UTC));
+        fillHeader(sweCneHelper.getNetwork().getCaseDate().toInstant().atOffset(ZoneOffset.UTC));
         addTimeSeriesToCne(offsetDateTime);
         Point point = marketDocument.getTimeSeries().get(0).getPeriod().get(0).getPoint().get(0);
 

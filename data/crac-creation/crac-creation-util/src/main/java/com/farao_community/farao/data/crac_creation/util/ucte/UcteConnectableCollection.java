@@ -157,8 +157,8 @@ class UcteConnectableCollection {
                     should be inverted as "UCTNODE2" is in the second half of the TieLine
                 */
                 String xnode = ((TieLine) branch).getPairingKey();
-                connectables.put(from, new UcteConnectable(from, xnode, getOrderCode(branch, Branch.Side.ONE), getElementNames(branch), branch, false, UcteConnectable.Side.ONE));
-                connectables.put(xnode, new UcteConnectable(xnode, to, getOrderCode(branch, Branch.Side.TWO), getElementNames(branch), branch, false, UcteConnectable.Side.TWO));
+                connectables.put(from, new UcteConnectable(from, xnode, getOrderCode(branch, TwoSides.ONE), getElementNames(branch), branch, false, UcteConnectable.Side.ONE));
+                connectables.put(xnode, new UcteConnectable(xnode, to, getOrderCode(branch, TwoSides.TWO), getElementNames(branch), branch, false, UcteConnectable.Side.TWO));
             } else if (branch instanceof TwoWindingsTransformer) {
                 /*
                     The terminals of the TwoWindingTransformer are inverted in the iidm network, compared to what
@@ -209,12 +209,12 @@ class UcteConnectableCollection {
     /**
      * Get the order code for an identifiable, on a given side (side is important for tie lines)
      */
-    private static String getOrderCode(Identifiable<?> identifiable, Branch.Side side) {
+    private static String getOrderCode(Identifiable<?> identifiable, TwoSides side) {
         String connectableId;
         if (identifiable instanceof TieLine && identifiable.getId().length() > UcteUtils.MAX_BRANCH_ID_LENGTH) {
             Objects.requireNonNull(side, "Side should be specified for tielines");
             int separator = identifiable.getId().indexOf(UcteUtils.TIELINE_SEPARATOR);
-            connectableId = side.equals(Branch.Side.ONE) ? identifiable.getId().substring(0, separator) : identifiable.getId().substring(separator + UcteUtils.TIELINE_SEPARATOR.length());
+            connectableId = side.equals(TwoSides.ONE) ? identifiable.getId().substring(0, separator) : identifiable.getId().substring(separator + UcteUtils.TIELINE_SEPARATOR.length());
         } else {
             connectableId = identifiable.getId();
         }

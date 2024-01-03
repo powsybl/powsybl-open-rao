@@ -6,7 +6,7 @@
  */
 package com.farao_community.farao.data.crac_creation.util;
 
-import com.powsybl.iidm.network.Branch;
+import com.powsybl.iidm.network.TwoSides;
 
 public interface CnecElementHelper extends ElementHelper {
 
@@ -22,14 +22,14 @@ public interface CnecElementHelper extends ElementHelper {
      * The side corresponds to the side of the element in the network, which might be inverted
      * (see isInvertedInNetwork()).
      */
-    double getNominalVoltage(Branch.Side side);
+    double getNominalVoltage(TwoSides side);
 
     /**
      * If the CNEC element is valid, returns the current limit on a given side of the Branch.
      * The side corresponds to the side of the branch in the network, which might be inverted
      * (see isInvertedInNetwork()).
      */
-    double getCurrentLimit(Branch.Side side);
+    double getCurrentLimit(TwoSides side);
 
     /**
      * If the CNEC element is valid, returns a boolean indicating whether or not the element is
@@ -41,5 +41,5 @@ public interface CnecElementHelper extends ElementHelper {
      * If the CNEC element is a valid half-line, returns a boolean indicating which half of the
      * tie-line is actually targeted by the CNEC definition
      */
-    Branch.Side getHalfLineSide();
+    TwoSides getHalfLineSide();
 }
