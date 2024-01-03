@@ -53,7 +53,7 @@ public final class NetworkUtil {
         return ((TwoWindingsTransformer) branch).getPhaseTapChanger() != null;
     }
 
-    public static Country getBranchSideCountry(Branch branch, Branch.Side side) {
+    public static Country getBranchSideCountry(Branch branch, TwoSides side) {
         Optional<Substation> substation = branch.getTerminal(side).getVoltageLevel().getSubstation();
         if (substation.isPresent()) {
             return substation.get().getNullableCountry();

@@ -35,7 +35,7 @@ public class IidmCnecElementHelper implements CnecElementHelper {
     protected Double currentLimitLeft;
     protected Double currentLimitRight;
     private boolean isHalfLine = false;
-    private Branch.Side halfLineSide = null;
+    private TwoSides halfLineSide = null;
 
     public IidmCnecElementHelper(String iidmId, Network network) {
         if (Objects.isNull(iidmId)) {
@@ -73,7 +73,7 @@ public class IidmCnecElementHelper implements CnecElementHelper {
     }
 
     @Override
-    public Branch.Side getHalfLineSide() {
+    public TwoSides getHalfLineSide() {
         return halfLineSide;
     }
 
@@ -82,8 +82,8 @@ public class IidmCnecElementHelper implements CnecElementHelper {
      * The side corresponds to the side of the branch in the network, which might be inverted
      * compared from the from/to nodes of the UcteBranch (see isInvertedInNetwork()).
      */
-    public double getNominalVoltage(Branch.Side side) {
-        if (side.equals(Branch.Side.ONE)) {
+    public double getNominalVoltage(TwoSides side) {
+        if (side.equals(TwoSides.ONE)) {
             return nominalVoltageLeft;
         } else {
             return nominalVoltageRight;
@@ -95,8 +95,8 @@ public class IidmCnecElementHelper implements CnecElementHelper {
      * The side corresponds to the side of the branch in the network, which might be inverted
      * compared from the from/to nodes of the UcteBranch (see isInvertedInNetwork()).
      */
-    public double getCurrentLimit(Branch.Side side) {
-        if (side.equals(Branch.Side.ONE)) {
+    public double getCurrentLimit(TwoSides side) {
+        if (side.equals(TwoSides.ONE)) {
             return currentLimitLeft;
         } else {
             return currentLimitRight;
@@ -148,7 +148,7 @@ public class IidmCnecElementHelper implements CnecElementHelper {
 
         this.branchIdInNetwork = tieLine.get().getId();
         this.isHalfLine = true;
-        this.halfLineSide = tieLine.get().getDanglingLine1().getId().equals(branchId) ? Branch.Side.ONE : Branch.Side.TWO;
+        this.halfLineSide = tieLine.get().getDanglingLine1().getId().equals(branchId) ? TwoSides.ONE : TwoSides.TWO;
         checkBranchNominalVoltage(tieLine.get());
         checkTieLineCurrentLimits(tieLine.get());
         // todo: check if halfLine can be inverted in CGMES format
@@ -166,13 +166,13 @@ public class IidmCnecElementHelper implements CnecElementHelper {
     }
 
     private void checkTieLineCurrentLimits(TieLine tieLine) {
-        if (tieLine.getCurrentLimits(Branch.Side.ONE).isPresent()) {
-            this.currentLimitLeft = tieLine.getCurrentLimits(Branch.Side.ONE).orElseThrow().getPermanentLimit();
+        if (tieLine.getCurrentLimits(TwoSides.ONE).isPresent()) {
+            this.currentLimitLeft = tieLine.getCurrentLimits(TwoSides.ONE).orElseThrow().getPermanentLimit();
         }
-        if (tieLine.getCurrentLimits(Branch.Side.TWO).isPresent()) {
-            this.currentLimitRight = tieLine.getCurrentLimits(Branch.Side.TWO).orElseThrow().getPermanentLimit();
+        if (tieLine.getCurrentLimits(TwoSides.TWO).isPresent()) {
+            this.currentLimitRight = tieLine.getCurrentLimits(TwoSides.TWO).orElseThrow().getPermanentLimit();
         }
-        if (Objects.isNull(tieLine.getCurrentLimits(Branch.Side.ONE)) && Objects.isNull(tieLine.getCurrentLimits(Branch.Side.TWO))) {
+        if (Objects.isNull(tieLine.getCurrentLimits(TwoSides.ONE)) && Objects.isNull(tieLine.getCurrentLimits(TwoSides.TWO))) {
             invalidate(String.format("couldn't identify current limits of tie-line (%s, networkTieLineId: %s)", branchId, tieLine.getId()));
         }
     }

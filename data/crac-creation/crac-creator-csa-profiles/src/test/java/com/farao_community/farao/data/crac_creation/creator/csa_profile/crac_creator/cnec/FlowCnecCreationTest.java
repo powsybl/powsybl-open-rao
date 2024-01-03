@@ -85,8 +85,8 @@ class FlowCnecCreationTest {
         Mockito.when(networkElementMock1.getTerminal1()).thenReturn(terminal1);
         Mockito.when(networkElementMock1.getTerminal2()).thenReturn(terminal2);
 
-        Mockito.when(networkElementMock1.getCurrentLimits(Branch.Side.ONE)).thenReturn(Optional.of(currentLimits));
-        Mockito.when(networkElementMock1.getCurrentLimits(Branch.Side.TWO)).thenReturn(Optional.of(currentLimits));
+        Mockito.when(networkElementMock1.getCurrentLimits(TwoSides.ONE)).thenReturn(Optional.of(currentLimits));
+        Mockito.when(networkElementMock1.getCurrentLimits(TwoSides.TWO)).thenReturn(Optional.of(currentLimits));
         Mockito.when(networkElementMock1.getAliasFromType("CGMES.Terminal1")).thenReturn(Optional.of("60038442-5c02-21a9-22ad-f0554a65a466"));
 
         Branch networkElementMock2 = Mockito.mock(Branch.class);
@@ -95,8 +95,8 @@ class FlowCnecCreationTest {
         Mockito.when(networkElementMock2.getTerminal1()).thenReturn(terminal1);
         Mockito.when(networkElementMock2.getTerminal2()).thenReturn(terminal2);
 
-        Mockito.when(networkElementMock2.getCurrentLimits(Branch.Side.ONE)).thenReturn(Optional.of(currentLimits));
-        Mockito.when(networkElementMock2.getCurrentLimits(Branch.Side.TWO)).thenReturn(Optional.of(currentLimits));
+        Mockito.when(networkElementMock2.getCurrentLimits(TwoSides.ONE)).thenReturn(Optional.of(currentLimits));
+        Mockito.when(networkElementMock2.getCurrentLimits(TwoSides.TWO)).thenReturn(Optional.of(currentLimits));
         Mockito.when(networkElementMock2.getAliasFromType("CGMES.Terminal2")).thenReturn(Optional.of("65e9a6a7-8488-7b17-6344-cb7d61b7920b"));
 
         Branch networkElementLinkedToContingencies = Mockito.mock(Branch.class);

@@ -8,7 +8,7 @@
 package com.farao_community.farao.data.crac_api.cnec;
 
 import com.farao_community.farao.commons.FaraoException;
-import com.powsybl.iidm.network.Branch;
+import com.powsybl.iidm.network.TwoSides;
 
 /**
  * Side of a branch
@@ -16,20 +16,20 @@ import com.powsybl.iidm.network.Branch;
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
 public enum Side {
-    LEFT(Branch.Side.ONE),
-    RIGHT(Branch.Side.TWO);
+    LEFT(TwoSides.ONE),
+    RIGHT(TwoSides.TWO);
 
-    private final Branch.Side iidmSide;
+    private final TwoSides iidmSide;
 
-    Side(Branch.Side iidmSide) {
+    Side(TwoSides iidmSide) {
         this.iidmSide = iidmSide;
     }
 
-    public Branch.Side iidmSide() {
+    public TwoSides iidmSide() {
         return iidmSide;
     }
 
-    public static Side fromIidmSide(Branch.Side side) {
+    public static Side fromIidmSide(TwoSides side) {
         switch (side) {
             case ONE:
                 return LEFT;

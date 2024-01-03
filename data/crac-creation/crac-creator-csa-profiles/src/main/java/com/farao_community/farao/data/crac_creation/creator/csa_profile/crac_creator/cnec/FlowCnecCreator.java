@@ -48,7 +48,7 @@ public class FlowCnecCreator extends AbstractCnecCreator {
 
         // The thresholds are a map of acceptable durations to thresholds (per branch side)
         // Integer.MAX_VALUE is used for the PATL's acceptable duration
-        Map<Integer, EnumMap<Branch.Side, Double>> thresholds = definitionMode == FlowCnecDefinitionMode.CONDUCTING_EQUIPMENT ? getPermanentAndTemporaryLimitsOfBranch((Branch<?>) branch) : getPermanentAndTemporaryLimitsOfOperationalLimit(branch, networkElementId);
+        Map<Integer, EnumMap<TwoSides, Double>> thresholds = definitionMode == FlowCnecDefinitionMode.CONDUCTING_EQUIPMENT ? getPermanentAndTemporaryLimitsOfBranch((Branch<?>) branch) : getPermanentAndTemporaryLimitsOfOperationalLimit(branch, networkElementId);
         if (thresholds.isEmpty()) {
             csaProfileCnecCreationContexts.add(CsaProfileElementaryCreationContext.notImported(assessedElementId, ImportStatus.INCOMPLETE_DATA, writeAssessedElementIgnoredReasonMessage("no PATL or TATLs could be retrieved for the branch " + branch.getId())));
             return;
@@ -157,8 +157,8 @@ public class FlowCnecCreator extends AbstractCnecCreator {
     }
 
     private boolean setCurrentLimitsFromBranch(FlowCnecAdder flowCnecAdder, Branch<?> branch) {
-        Double currentLimitLeft = getCurrentLimitFromBranch(branch, Branch.Side.ONE);
-        Double currentLimitRight = getCurrentLimitFromBranch(branch, Branch.Side.TWO);
+        Double currentLimitLeft = getCurrentLimitFromBranch(branch, TwoSides.ONE);
+        Double currentLimitRight = getCurrentLimitFromBranch(branch, TwoSides.TWO);
         if (Objects.nonNull(currentLimitLeft) && Objects.nonNull(currentLimitRight)) {
             flowCnecAdder.withIMax(currentLimitLeft, Side.LEFT);
             flowCnecAdder.withIMax(currentLimitRight, Side.RIGHT);
@@ -169,18 +169,18 @@ public class FlowCnecCreator extends AbstractCnecCreator {
         }
     }
 
-    private Double getCurrentLimitFromBranch(Branch<?> branch, Branch.Side side) {
+    private Double getCurrentLimitFromBranch(Branch<?> branch, TwoSides side) {
 
         if (branch.getCurrentLimits(side).isPresent()) {
             return branch.getCurrentLimits(side).orElseThrow().getPermanentLimit();
         }
 
-        if (side == Branch.Side.ONE && branch.getCurrentLimits(Branch.Side.TWO).isPresent()) {
-            return branch.getCurrentLimits(Branch.Side.TWO).orElseThrow().getPermanentLimit() * branch.getTerminal1().getVoltageLevel().getNominalV() / branch.getTerminal2().getVoltageLevel().getNominalV();
+        if (side == TwoSides.ONE && branch.getCurrentLimits(TwoSides.TWO).isPresent()) {
+            return branch.getCurrentLimits(TwoSides.TWO).orElseThrow().getPermanentLimit() * branch.getTerminal1().getVoltageLevel().getNominalV() / branch.getTerminal2().getVoltageLevel().getNominalV();
         }
 
-        if (side == Branch.Side.TWO && branch.getCurrentLimits(Branch.Side.ONE).isPresent()) {
-            return branch.getCurrentLimits(Branch.Side.ONE).orElseThrow().getPermanentLimit() * branch.getTerminal2().getVoltageLevel().getNominalV() / branch.getTerminal1().getVoltageLevel().getNominalV();
+        if (side == TwoSides.TWO && branch.getCurrentLimits(TwoSides.ONE).isPresent()) {
+            return branch.getCurrentLimits(TwoSides.ONE).orElseThrow().getPermanentLimit() * branch.getTerminal2().getVoltageLevel().getNominalV() / branch.getTerminal1().getVoltageLevel().getNominalV();
         }
 
         return null;
@@ -199,15 +199,15 @@ public class FlowCnecCreator extends AbstractCnecCreator {
         return crac.getInstant(InstantKind.CURATIVE);
     }
 
-    private void addFlowCnec(Branch<?> networkElement, Contingency contingency, String instantId, EnumMap<Branch.Side, Double> thresholds, boolean useMaxAndMinThresholds, boolean hasNoPatl) {
+    private void addFlowCnec(Branch<?> networkElement, Contingency contingency, String instantId, EnumMap<TwoSides, Double> thresholds, boolean useMaxAndMinThresholds, boolean hasNoPatl) {
         if (thresholds.isEmpty()) {
             return;
         }
         FlowCnecAdder cnecAdder = initFlowCnec();
         addCnecBaseInformation(cnecAdder, contingency, instantId);
-        for (Branch.Side side : thresholds.keySet()) {
+        for (TwoSides side : thresholds.keySet()) {
             double threshold = thresholds.get(side);
-            addFlowCnecThreshold(cnecAdder, side == Branch.Side.ONE ? Side.LEFT : Side.RIGHT, threshold, useMaxAndMinThresholds);
+            addFlowCnecThreshold(cnecAdder, side == TwoSides.ONE ? Side.LEFT : Side.RIGHT, threshold, useMaxAndMinThresholds);
         }
         cnecAdder.withNetworkElement(networkElement.getId());
         if (!setNominalVoltage(cnecAdder, networkElement) || !setCurrentLimitsFromBranch(cnecAdder, networkElement)) {
@@ -222,8 +222,8 @@ public class FlowCnecCreator extends AbstractCnecCreator {
         markCnecAsImportedAndHandleRejectedContingencies(instantId, contingency);
     }
 
-    private void addAllFlowCnecsFromBranchAndOperationalLimits(Branch<?> networkElement, Map<Integer, EnumMap<Branch.Side, Double>> thresholds, boolean useMaxAndMinThresholds) {
-        EnumMap<Branch.Side, Double> patlThresholds = thresholds.get(Integer.MAX_VALUE);
+    private void addAllFlowCnecsFromBranchAndOperationalLimits(Branch<?> networkElement, Map<Integer, EnumMap<TwoSides, Double>> thresholds, boolean useMaxAndMinThresholds) {
+        EnumMap<TwoSides, Double> patlThresholds = thresholds.get(Integer.MAX_VALUE);
         boolean hasPatl = thresholds.get(Integer.MAX_VALUE) != null;
 
         if (inBaseCase) {
@@ -257,8 +257,8 @@ public class FlowCnecCreator extends AbstractCnecCreator {
         }
     }
 
-    private Map<Integer, EnumMap<Branch.Side, Double>> getPermanentAndTemporaryLimitsOfOperationalLimit(Identifiable<?> branch, String terminalId) {
-        Map<Integer, EnumMap<Branch.Side, Double>> thresholds = new HashMap<>();
+    private Map<Integer, EnumMap<TwoSides, Double>> getPermanentAndTemporaryLimitsOfOperationalLimit(Identifiable<?> branch, String terminalId) {
+        Map<Integer, EnumMap<TwoSides, Double>> thresholds = new HashMap<>();
 
         String limitKind = operationalLimitPropertyBag.get(CsaProfileConstants.REQUEST_OPERATIONAL_LIMIT_KIND);
         Side side = getSideFromNetworkElement(branch, terminalId);
@@ -281,10 +281,10 @@ public class FlowCnecCreator extends AbstractCnecCreator {
         return thresholds;
     }
 
-    private Map<Integer, EnumMap<Branch.Side, Double>> getPermanentAndTemporaryLimitsOfBranch(Branch<?> branch) {
+    private Map<Integer, EnumMap<TwoSides, Double>> getPermanentAndTemporaryLimitsOfBranch(Branch<?> branch) {
         Set<Side> sidesToCheck = getSidesToCheck(branch);
 
-        Map<Integer, EnumMap<Branch.Side, Double>> thresholds = new HashMap<>();
+        Map<Integer, EnumMap<TwoSides, Double>> thresholds = new HashMap<>();
 
         for (Side side : sidesToCheck) {
             Optional<CurrentLimits> currentLimits = branch.getCurrentLimits(side.iidmSide());
@@ -304,7 +304,7 @@ public class FlowCnecCreator extends AbstractCnecCreator {
         return thresholds;
     }
 
-    private static void addLimitThreshold(Map<Integer, EnumMap<Branch.Side, Double>> thresholds, int acceptableDuration, double threshold, Side side) {
+    private static void addLimitThreshold(Map<Integer, EnumMap<TwoSides, Double>> thresholds, int acceptableDuration, double threshold, Side side) {
         if (thresholds.containsKey(acceptableDuration)) {
             thresholds.get(acceptableDuration).put(side.iidmSide(), threshold);
         } else {

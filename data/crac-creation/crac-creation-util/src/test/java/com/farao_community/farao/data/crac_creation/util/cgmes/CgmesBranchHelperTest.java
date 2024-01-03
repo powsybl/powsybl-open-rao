@@ -10,8 +10,8 @@ package com.farao_community.farao.data.crac_creation.util.cgmes;
 import com.google.common.base.Suppliers;
 import com.powsybl.computation.local.LocalComputationManager;
 import com.powsybl.iidm.network.ImportConfig;
-import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.TwoSides;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
@@ -51,7 +51,7 @@ class CgmesBranchHelperTest {
         assertTrue(cgmesBranchHelper.isValid());
         assertNotNull(cgmesBranchHelper.getBranch());
         assertTrue(cgmesBranchHelper.isHalfLine());
-        assertSame(Branch.Side.ONE, cgmesBranchHelper.getTieLineSide());
+        assertSame(TwoSides.ONE, cgmesBranchHelper.getTieLineSide());
         assertEquals("_b18cd1aa-7808-49b9-a7cf-605eaf07b006 + _e8acf6b6-99cb-45ad-b8dc-16c7866a4ddc", cgmesBranchHelper.getIdInNetwork());
     }
 
@@ -61,7 +61,7 @@ class CgmesBranchHelperTest {
         assertTrue(cgmesBranchHelper.isValid());
         assertNotNull(cgmesBranchHelper.getBranch());
         assertTrue(cgmesBranchHelper.isHalfLine());
-        assertSame(Branch.Side.TWO, cgmesBranchHelper.getTieLineSide());
+        assertSame(TwoSides.TWO, cgmesBranchHelper.getTieLineSide());
         assertEquals("_b18cd1aa-7808-49b9-a7cf-605eaf07b006 + _e8acf6b6-99cb-45ad-b8dc-16c7866a4ddc", cgmesBranchHelper.getIdInNetwork());
     }
 

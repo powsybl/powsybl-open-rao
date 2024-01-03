@@ -19,7 +19,7 @@ public class CgmesBranchHelper implements ElementHelper {
 
     private final String mrId;
 
-    private Branch.Side tieLineSide = null;
+    private TwoSides tieLineSide = null;
     private boolean isHalfLine = false;
 
     private Branch<?> branch = null;
@@ -40,7 +40,7 @@ public class CgmesBranchHelper implements ElementHelper {
         return isHalfLine;
     }
 
-    public Branch.Side getTieLineSide() {
+    public TwoSides getTieLineSide() {
         return tieLineSide;
     }
 
@@ -55,12 +55,12 @@ public class CgmesBranchHelper implements ElementHelper {
             for (TieLine tieLine : network.getTieLines()) {
                 if (tieLine.getDanglingLine1().getId().equals(mrId)) {
                     isHalfLine = true;
-                    tieLineSide = Branch.Side.ONE;
+                    tieLineSide = TwoSides.ONE;
                     branch = tieLine;
                     return;
                 } else if (tieLine.getDanglingLine2().getId().equals(mrId)) {
                     isHalfLine = true;
-                    tieLineSide = Branch.Side.TWO;
+                    tieLineSide = TwoSides.TWO;
                     branch = tieLine;
                     return;
                 }

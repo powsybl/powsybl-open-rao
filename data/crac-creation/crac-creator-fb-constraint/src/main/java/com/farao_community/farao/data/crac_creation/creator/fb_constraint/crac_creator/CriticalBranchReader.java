@@ -19,8 +19,8 @@ import com.farao_community.farao.data.crac_creation.creator.fb_constraint.xsd.Cr
 import com.farao_community.farao.data.crac_creation.util.ucte.UcteFlowElementHelper;
 import com.farao_community.farao.data.crac_creation.util.ucte.UcteNetworkAnalyzer;
 import com.farao_community.farao.data.crac_loopflow_extension.LoopFlowThresholdAdder;
-import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Country;
+import com.powsybl.iidm.network.TwoSides;
 
 import java.util.*;
 import java.util.regex.Pattern;
@@ -162,9 +162,9 @@ class CriticalBranchReader {
 
     private void initAmpereThresholdSide() {
         if (!ucteFlowElementHelper.isHalfLine()
-            && Math.abs(ucteFlowElementHelper.getNominalVoltage(Branch.Side.ONE) - ucteFlowElementHelper.getNominalVoltage(Branch.Side.TWO)) > 1) {
+            && Math.abs(ucteFlowElementHelper.getNominalVoltage(TwoSides.ONE) - ucteFlowElementHelper.getNominalVoltage(TwoSides.TWO)) > 1) {
             // For transformers, if unit is absolute amperes, monitor low voltage side
-            ampereThresholdSide = ucteFlowElementHelper.getNominalVoltage(Branch.Side.ONE) <= ucteFlowElementHelper.getNominalVoltage(Branch.Side.TWO) ?
+            ampereThresholdSide = ucteFlowElementHelper.getNominalVoltage(TwoSides.ONE) <= ucteFlowElementHelper.getNominalVoltage(TwoSides.TWO) ?
                 Side.LEFT : Side.RIGHT;
         }
     }
@@ -195,10 +195,10 @@ class CriticalBranchReader {
             .withOperator(criticalBranch.getTsoOrigin())
             .withMonitored(criticalBranch.isMNEC())
             .withOptimized(criticalBranch.isCNEC())
-            .withIMax(ucteFlowElementHelper.getCurrentLimit(Branch.Side.ONE), Side.LEFT)
-            .withIMax(ucteFlowElementHelper.getCurrentLimit(Branch.Side.TWO), Side.RIGHT)
-            .withNominalVoltage(ucteFlowElementHelper.getNominalVoltage(Branch.Side.ONE), Side.LEFT)
-            .withNominalVoltage(ucteFlowElementHelper.getNominalVoltage(Branch.Side.TWO), Side.RIGHT);
+            .withIMax(ucteFlowElementHelper.getCurrentLimit(TwoSides.ONE), Side.LEFT)
+            .withIMax(ucteFlowElementHelper.getCurrentLimit(TwoSides.TWO), Side.RIGHT)
+            .withNominalVoltage(ucteFlowElementHelper.getNominalVoltage(TwoSides.ONE), Side.LEFT)
+            .withNominalVoltage(ucteFlowElementHelper.getNominalVoltage(TwoSides.TWO), Side.RIGHT);
 
         if (!isBaseCase) {
             adder.withContingency(outageReader.getOutage().getId());

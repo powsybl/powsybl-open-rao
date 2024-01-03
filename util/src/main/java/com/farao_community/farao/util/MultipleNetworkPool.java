@@ -8,7 +8,7 @@ package com.farao_community.farao.util;
 
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.VariantManagerConstants;
-import com.powsybl.iidm.xml.NetworkXml;
+import com.powsybl.iidm.serde.NetworkSerDe;
 
 import java.util.Arrays;
 import java.util.List;
@@ -61,7 +61,7 @@ public class MultipleNetworkPool extends AbstractNetworkPool {
 
         while (networkNumberOfClones < requiredClones) {
             TECHNICAL_LOGS.debug("Copy n°{}", networkNumberOfClones + 1);
-            Network copy = NetworkXml.copy(network);
+            Network copy = NetworkSerDe.copy(network);
             // The initial network working variant is VariantManagerConstants.INITIAL_VARIANT_ID
             // in cloned network, so we need to copy it again.
             copy.getVariantManager().cloneVariant(VariantManagerConstants.INITIAL_VARIANT_ID, Arrays.asList(stateSaveVariant, workingVariant), true);

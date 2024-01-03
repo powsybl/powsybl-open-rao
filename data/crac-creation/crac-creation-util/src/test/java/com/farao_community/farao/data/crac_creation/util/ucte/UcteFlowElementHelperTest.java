@@ -7,8 +7,8 @@
 
 package com.farao_community.farao.data.crac_creation.util.ucte;
 
-import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.TwoSides;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -37,10 +37,10 @@ class UcteFlowElementHelperTest {
         assertEquals("BBE1AA1  BBE2AA1  1", branchHelper.getIdInNetwork());
         assertFalse(branchHelper.isInvertedInNetwork());
         assertFalse(branchHelper.isHalfLine());
-        assertEquals(380., branchHelper.getNominalVoltage(Branch.Side.ONE), DOUBLE_TOLERANCE);
-        assertEquals(380., branchHelper.getNominalVoltage(Branch.Side.TWO), DOUBLE_TOLERANCE);
-        assertEquals(5000., branchHelper.getCurrentLimit(Branch.Side.ONE), DOUBLE_TOLERANCE);
-        assertEquals(5000., branchHelper.getCurrentLimit(Branch.Side.TWO), DOUBLE_TOLERANCE);
+        assertEquals(380., branchHelper.getNominalVoltage(TwoSides.ONE), DOUBLE_TOLERANCE);
+        assertEquals(380., branchHelper.getNominalVoltage(TwoSides.TWO), DOUBLE_TOLERANCE);
+        assertEquals(5000., branchHelper.getCurrentLimit(TwoSides.ONE), DOUBLE_TOLERANCE);
+        assertEquals(5000., branchHelper.getCurrentLimit(TwoSides.TWO), DOUBLE_TOLERANCE);
 
         branchHelper = new UcteFlowElementHelper("FFR1AA1 ", "FFR3AA1 ", "2", null, networkHelper);
         assertTrue(branchHelper.isValid());
@@ -64,10 +64,10 @@ class UcteFlowElementHelperTest {
         assertEquals("BBE1AA2  BBE2AA2  1", branchHelper.getIdInNetwork());
         assertTrue(branchHelper.isInvertedInNetwork());
         assertFalse(branchHelper.isHalfLine());
-        assertEquals(220., branchHelper.getNominalVoltage(Branch.Side.ONE), DOUBLE_TOLERANCE);
-        assertEquals(220., branchHelper.getNominalVoltage(Branch.Side.TWO), DOUBLE_TOLERANCE);
-        assertEquals(1000., branchHelper.getCurrentLimit(Branch.Side.ONE), DOUBLE_TOLERANCE);
-        assertEquals(1000., branchHelper.getCurrentLimit(Branch.Side.TWO), DOUBLE_TOLERANCE);
+        assertEquals(220., branchHelper.getNominalVoltage(TwoSides.ONE), DOUBLE_TOLERANCE);
+        assertEquals(220., branchHelper.getNominalVoltage(TwoSides.TWO), DOUBLE_TOLERANCE);
+        assertEquals(1000., branchHelper.getCurrentLimit(TwoSides.ONE), DOUBLE_TOLERANCE);
+        assertEquals(1000., branchHelper.getCurrentLimit(TwoSides.TWO), DOUBLE_TOLERANCE);
 
         branchHelper = new UcteFlowElementHelper("FFR3AA1 ", "FFR1AA1 ", "2", null, networkHelper);
         assertTrue(branchHelper.isValid());
@@ -95,10 +95,10 @@ class UcteFlowElementHelperTest {
         assertEquals("BBE1AA1  BBE2AA1  1", branchHelper.getIdInNetwork());
         assertFalse(branchHelper.isInvertedInNetwork());
         assertFalse(branchHelper.isHalfLine());
-        assertEquals(380., branchHelper.getNominalVoltage(Branch.Side.ONE), DOUBLE_TOLERANCE);
-        assertEquals(380., branchHelper.getNominalVoltage(Branch.Side.TWO), DOUBLE_TOLERANCE);
-        assertEquals(5000., branchHelper.getCurrentLimit(Branch.Side.ONE), DOUBLE_TOLERANCE);
-        assertEquals(5000., branchHelper.getCurrentLimit(Branch.Side.TWO), DOUBLE_TOLERANCE);
+        assertEquals(380., branchHelper.getNominalVoltage(TwoSides.ONE), DOUBLE_TOLERANCE);
+        assertEquals(380., branchHelper.getNominalVoltage(TwoSides.TWO), DOUBLE_TOLERANCE);
+        assertEquals(5000., branchHelper.getCurrentLimit(TwoSides.ONE), DOUBLE_TOLERANCE);
+        assertEquals(5000., branchHelper.getCurrentLimit(TwoSides.TWO), DOUBLE_TOLERANCE);
 
         branchHelper = new UcteFlowElementHelper("FFR1AA18", "FFR3AA18", "2", null, alternativeNetworkHelper);
         assertTrue(branchHelper.isValid());
@@ -122,10 +122,10 @@ class UcteFlowElementHelperTest {
         assertEquals("BBE1AA2  BBE2AA2  1", branchHelper.getIdInNetwork());
         assertTrue(branchHelper.isInvertedInNetwork());
         assertFalse(branchHelper.isHalfLine());
-        assertEquals(220., branchHelper.getNominalVoltage(Branch.Side.ONE), DOUBLE_TOLERANCE);
-        assertEquals(220., branchHelper.getNominalVoltage(Branch.Side.TWO), DOUBLE_TOLERANCE);
-        assertEquals(1000., branchHelper.getCurrentLimit(Branch.Side.ONE), DOUBLE_TOLERANCE);
-        assertEquals(1000., branchHelper.getCurrentLimit(Branch.Side.TWO), DOUBLE_TOLERANCE);
+        assertEquals(220., branchHelper.getNominalVoltage(TwoSides.ONE), DOUBLE_TOLERANCE);
+        assertEquals(220., branchHelper.getNominalVoltage(TwoSides.TWO), DOUBLE_TOLERANCE);
+        assertEquals(1000., branchHelper.getCurrentLimit(TwoSides.ONE), DOUBLE_TOLERANCE);
+        assertEquals(1000., branchHelper.getCurrentLimit(TwoSides.TWO), DOUBLE_TOLERANCE);
 
         branchHelper = new UcteFlowElementHelper("FFR3AA18", "FFR1AA18", "2", null, alternativeNetworkHelper);
         assertTrue(branchHelper.isValid());
@@ -205,20 +205,20 @@ class UcteFlowElementHelperTest {
         assertEquals("BBE2AA1  BBE3AA1  1", branchHelper.getIdInNetwork());
         assertTrue(branchHelper.isInvertedInNetwork());
         assertFalse(branchHelper.isHalfLine());
-        assertEquals(380., branchHelper.getNominalVoltage(Branch.Side.ONE), DOUBLE_TOLERANCE);
-        assertEquals(380., branchHelper.getNominalVoltage(Branch.Side.TWO), DOUBLE_TOLERANCE);
-        assertEquals(4500., branchHelper.getCurrentLimit(Branch.Side.ONE), DOUBLE_TOLERANCE);
-        assertEquals(4500., branchHelper.getCurrentLimit(Branch.Side.TWO), DOUBLE_TOLERANCE);
+        assertEquals(380., branchHelper.getNominalVoltage(TwoSides.ONE), DOUBLE_TOLERANCE);
+        assertEquals(380., branchHelper.getNominalVoltage(TwoSides.TWO), DOUBLE_TOLERANCE);
+        assertEquals(4500., branchHelper.getCurrentLimit(TwoSides.ONE), DOUBLE_TOLERANCE);
+        assertEquals(4500., branchHelper.getCurrentLimit(TwoSides.TWO), DOUBLE_TOLERANCE);
 
         branchHelper = new UcteFlowElementHelper("FFR1AA2 ", "FFR1AA1 ", "5", null, networkHelper);
         assertTrue(branchHelper.isValid());
         assertEquals("FFR1AA2  FFR1AA1  5", branchHelper.getIdInNetwork());
         assertTrue(branchHelper.isInvertedInNetwork());
         assertFalse(branchHelper.isHalfLine());
-        assertEquals(380., branchHelper.getNominalVoltage(Branch.Side.ONE), DOUBLE_TOLERANCE);
-        assertEquals(220., branchHelper.getNominalVoltage(Branch.Side.TWO), DOUBLE_TOLERANCE);
-        assertEquals(1500. * 220 / 380, branchHelper.getCurrentLimit(Branch.Side.ONE), DOUBLE_TOLERANCE);
-        assertEquals(1500., branchHelper.getCurrentLimit(Branch.Side.TWO), DOUBLE_TOLERANCE);
+        assertEquals(380., branchHelper.getNominalVoltage(TwoSides.ONE), DOUBLE_TOLERANCE);
+        assertEquals(220., branchHelper.getNominalVoltage(TwoSides.TWO), DOUBLE_TOLERANCE);
+        assertEquals(1500. * 220 / 380, branchHelper.getCurrentLimit(TwoSides.ONE), DOUBLE_TOLERANCE);
+        assertEquals(1500., branchHelper.getCurrentLimit(TwoSides.TWO), DOUBLE_TOLERANCE);
 
         // transformer with element name, from/to same as network
         branchHelper = new UcteFlowElementHelper("BBE2AA1 ", "BBE3AA1 ", null, "PST BE", networkHelper);
@@ -226,20 +226,20 @@ class UcteFlowElementHelperTest {
         assertEquals("BBE2AA1  BBE3AA1  1", branchHelper.getIdInNetwork());
         assertTrue(branchHelper.isInvertedInNetwork());
         assertFalse(branchHelper.isHalfLine());
-        assertEquals(380., branchHelper.getNominalVoltage(Branch.Side.ONE), DOUBLE_TOLERANCE);
-        assertEquals(380., branchHelper.getNominalVoltage(Branch.Side.TWO), DOUBLE_TOLERANCE);
-        assertEquals(4500., branchHelper.getCurrentLimit(Branch.Side.ONE), DOUBLE_TOLERANCE);
-        assertEquals(4500., branchHelper.getCurrentLimit(Branch.Side.TWO), DOUBLE_TOLERANCE);
+        assertEquals(380., branchHelper.getNominalVoltage(TwoSides.ONE), DOUBLE_TOLERANCE);
+        assertEquals(380., branchHelper.getNominalVoltage(TwoSides.TWO), DOUBLE_TOLERANCE);
+        assertEquals(4500., branchHelper.getCurrentLimit(TwoSides.ONE), DOUBLE_TOLERANCE);
+        assertEquals(4500., branchHelper.getCurrentLimit(TwoSides.TWO), DOUBLE_TOLERANCE);
 
         branchHelper = new UcteFlowElementHelper("BBE1AA1 ", "BBE1AA2 ", null, "TR BE1", networkHelper);
         assertTrue(branchHelper.isValid());
         assertEquals("BBE1AA1  BBE1AA2  1", branchHelper.getIdInNetwork());
         assertTrue(branchHelper.isInvertedInNetwork());
         assertFalse(branchHelper.isHalfLine());
-        assertEquals(220., branchHelper.getNominalVoltage(Branch.Side.ONE), DOUBLE_TOLERANCE);
-        assertEquals(380., branchHelper.getNominalVoltage(Branch.Side.TWO), DOUBLE_TOLERANCE);
-        assertEquals(1000. * 380 / 220, branchHelper.getCurrentLimit(Branch.Side.ONE), DOUBLE_TOLERANCE);
-        assertEquals(1000., branchHelper.getCurrentLimit(Branch.Side.TWO), DOUBLE_TOLERANCE);
+        assertEquals(220., branchHelper.getNominalVoltage(TwoSides.ONE), DOUBLE_TOLERANCE);
+        assertEquals(380., branchHelper.getNominalVoltage(TwoSides.TWO), DOUBLE_TOLERANCE);
+        assertEquals(1000. * 380 / 220, branchHelper.getCurrentLimit(TwoSides.ONE), DOUBLE_TOLERANCE);
+        assertEquals(1000., branchHelper.getCurrentLimit(TwoSides.TWO), DOUBLE_TOLERANCE);
 
         // transformer with order code, from/to different from network
         branchHelper = new UcteFlowElementHelper("BBE3AA1 ", "BBE2AA1 ", "1", null, networkHelper);
@@ -247,20 +247,20 @@ class UcteFlowElementHelperTest {
         assertEquals("BBE2AA1  BBE3AA1  1", branchHelper.getIdInNetwork());
         assertFalse(branchHelper.isInvertedInNetwork());
         assertFalse(branchHelper.isHalfLine());
-        assertEquals(380., branchHelper.getNominalVoltage(Branch.Side.ONE), DOUBLE_TOLERANCE);
-        assertEquals(380., branchHelper.getNominalVoltage(Branch.Side.TWO), DOUBLE_TOLERANCE);
-        assertEquals(4500., branchHelper.getCurrentLimit(Branch.Side.ONE), DOUBLE_TOLERANCE);
-        assertEquals(4500., branchHelper.getCurrentLimit(Branch.Side.TWO), DOUBLE_TOLERANCE);
+        assertEquals(380., branchHelper.getNominalVoltage(TwoSides.ONE), DOUBLE_TOLERANCE);
+        assertEquals(380., branchHelper.getNominalVoltage(TwoSides.TWO), DOUBLE_TOLERANCE);
+        assertEquals(4500., branchHelper.getCurrentLimit(TwoSides.ONE), DOUBLE_TOLERANCE);
+        assertEquals(4500., branchHelper.getCurrentLimit(TwoSides.TWO), DOUBLE_TOLERANCE);
 
         branchHelper = new UcteFlowElementHelper("BBE2AA1 ", "BBE2AA2 ", "2", null, networkHelper);
         assertTrue(branchHelper.isValid());
         assertEquals("BBE2AA2  BBE2AA1  2", branchHelper.getIdInNetwork());
         assertFalse(branchHelper.isInvertedInNetwork());
         assertFalse(branchHelper.isHalfLine());
-        assertEquals(380., branchHelper.getNominalVoltage(Branch.Side.ONE), DOUBLE_TOLERANCE);
-        assertEquals(220., branchHelper.getNominalVoltage(Branch.Side.TWO), DOUBLE_TOLERANCE);
-        assertEquals(1200. * 220 / 380, branchHelper.getCurrentLimit(Branch.Side.ONE), DOUBLE_TOLERANCE);
-        assertEquals(1200., branchHelper.getCurrentLimit(Branch.Side.TWO), DOUBLE_TOLERANCE);
+        assertEquals(380., branchHelper.getNominalVoltage(TwoSides.ONE), DOUBLE_TOLERANCE);
+        assertEquals(220., branchHelper.getNominalVoltage(TwoSides.TWO), DOUBLE_TOLERANCE);
+        assertEquals(1200. * 220 / 380, branchHelper.getCurrentLimit(TwoSides.ONE), DOUBLE_TOLERANCE);
+        assertEquals(1200., branchHelper.getCurrentLimit(TwoSides.TWO), DOUBLE_TOLERANCE);
 
         // transformer with element name, from/to different from network
         branchHelper = new UcteFlowElementHelper("BBE3AA1 ", "BBE2AA1 ", null, "PST BE", networkHelper);
@@ -268,20 +268,20 @@ class UcteFlowElementHelperTest {
         assertEquals("BBE2AA1  BBE3AA1  1", branchHelper.getIdInNetwork());
         assertFalse(branchHelper.isInvertedInNetwork());
         assertFalse(branchHelper.isHalfLine());
-        assertEquals(380., branchHelper.getNominalVoltage(Branch.Side.ONE), DOUBLE_TOLERANCE);
-        assertEquals(380., branchHelper.getNominalVoltage(Branch.Side.TWO), DOUBLE_TOLERANCE);
-        assertEquals(4500., branchHelper.getCurrentLimit(Branch.Side.ONE), DOUBLE_TOLERANCE);
-        assertEquals(4500., branchHelper.getCurrentLimit(Branch.Side.TWO), DOUBLE_TOLERANCE);
+        assertEquals(380., branchHelper.getNominalVoltage(TwoSides.ONE), DOUBLE_TOLERANCE);
+        assertEquals(380., branchHelper.getNominalVoltage(TwoSides.TWO), DOUBLE_TOLERANCE);
+        assertEquals(4500., branchHelper.getCurrentLimit(TwoSides.ONE), DOUBLE_TOLERANCE);
+        assertEquals(4500., branchHelper.getCurrentLimit(TwoSides.TWO), DOUBLE_TOLERANCE);
 
         branchHelper = new UcteFlowElementHelper("FFR1AA1 ", "FFR1AA2 ", null, "TR FR1", networkHelper);
         assertTrue(branchHelper.isValid());
         assertEquals("FFR1AA2  FFR1AA1  5", branchHelper.getIdInNetwork());
         assertFalse(branchHelper.isInvertedInNetwork());
         assertFalse(branchHelper.isHalfLine());
-        assertEquals(380., branchHelper.getNominalVoltage(Branch.Side.ONE), DOUBLE_TOLERANCE);
-        assertEquals(220., branchHelper.getNominalVoltage(Branch.Side.TWO), DOUBLE_TOLERANCE);
-        assertEquals(1500. * 220 / 380, branchHelper.getCurrentLimit(Branch.Side.ONE), DOUBLE_TOLERANCE);
-        assertEquals(1500., branchHelper.getCurrentLimit(Branch.Side.TWO), DOUBLE_TOLERANCE);
+        assertEquals(380., branchHelper.getNominalVoltage(TwoSides.ONE), DOUBLE_TOLERANCE);
+        assertEquals(220., branchHelper.getNominalVoltage(TwoSides.TWO), DOUBLE_TOLERANCE);
+        assertEquals(1500. * 220 / 380, branchHelper.getCurrentLimit(TwoSides.ONE), DOUBLE_TOLERANCE);
+        assertEquals(1500., branchHelper.getCurrentLimit(TwoSides.TWO), DOUBLE_TOLERANCE);
     }
 
     @Test
@@ -305,36 +305,36 @@ class UcteFlowElementHelperTest {
         assertEquals("XFRDE11  DDE3AA1  1 + XFRDE11  FFR2AA1  1", branchHelper.getIdInNetwork());
         assertTrue(branchHelper.isInvertedInNetwork());
         assertTrue(branchHelper.isHalfLine());
-        assertEquals(Branch.Side.ONE, branchHelper.getHalfLineSide());
-        assertEquals(380., branchHelper.getNominalVoltage(Branch.Side.ONE), DOUBLE_TOLERANCE);
-        assertEquals(380., branchHelper.getNominalVoltage(Branch.Side.TWO), DOUBLE_TOLERANCE);
-        assertEquals(4800., branchHelper.getCurrentLimit(Branch.Side.ONE), DOUBLE_TOLERANCE);
-        assertEquals(4400., branchHelper.getCurrentLimit(Branch.Side.TWO), DOUBLE_TOLERANCE);
+        assertEquals(TwoSides.ONE, branchHelper.getHalfLineSide());
+        assertEquals(380., branchHelper.getNominalVoltage(TwoSides.ONE), DOUBLE_TOLERANCE);
+        assertEquals(380., branchHelper.getNominalVoltage(TwoSides.TWO), DOUBLE_TOLERANCE);
+        assertEquals(4800., branchHelper.getCurrentLimit(TwoSides.ONE), DOUBLE_TOLERANCE);
+        assertEquals(4400., branchHelper.getCurrentLimit(TwoSides.TWO), DOUBLE_TOLERANCE);
 
         branchHelper = new UcteFlowElementHelper("DDE3AA1 ", "XFRDE11 ", "1", null, networkHelper);
         assertTrue(branchHelper.isValid());
         assertEquals("XFRDE11  DDE3AA1  1 + XFRDE11  FFR2AA1  1", branchHelper.getIdInNetwork());
         assertFalse(branchHelper.isInvertedInNetwork());
         assertTrue(branchHelper.isHalfLine());
-        assertEquals(Branch.Side.ONE, branchHelper.getHalfLineSide());
+        assertEquals(TwoSides.ONE, branchHelper.getHalfLineSide());
 
         branchHelper = new UcteFlowElementHelper("XFRDE11 ", "FFR2AA1 ", "1", null, networkHelper);
         assertTrue(branchHelper.isValid());
         assertEquals("XFRDE11  DDE3AA1  1 + XFRDE11  FFR2AA1  1", branchHelper.getIdInNetwork());
         assertFalse(branchHelper.isInvertedInNetwork());
         assertTrue(branchHelper.isHalfLine());
-        assertEquals(Branch.Side.TWO, branchHelper.getHalfLineSide());
-        assertEquals(380., branchHelper.getNominalVoltage(Branch.Side.ONE), DOUBLE_TOLERANCE);
-        assertEquals(380., branchHelper.getNominalVoltage(Branch.Side.TWO), DOUBLE_TOLERANCE);
-        assertEquals(4800., branchHelper.getCurrentLimit(Branch.Side.ONE), DOUBLE_TOLERANCE);
-        assertEquals(4400., branchHelper.getCurrentLimit(Branch.Side.TWO), DOUBLE_TOLERANCE);
+        assertEquals(TwoSides.TWO, branchHelper.getHalfLineSide());
+        assertEquals(380., branchHelper.getNominalVoltage(TwoSides.ONE), DOUBLE_TOLERANCE);
+        assertEquals(380., branchHelper.getNominalVoltage(TwoSides.TWO), DOUBLE_TOLERANCE);
+        assertEquals(4800., branchHelper.getCurrentLimit(TwoSides.ONE), DOUBLE_TOLERANCE);
+        assertEquals(4400., branchHelper.getCurrentLimit(TwoSides.TWO), DOUBLE_TOLERANCE);
 
         branchHelper = new UcteFlowElementHelper("FFR2AA1 ", "XFRDE11 ", "1", null, networkHelper);
         assertTrue(branchHelper.isValid());
         assertEquals("XFRDE11  DDE3AA1  1 + XFRDE11  FFR2AA1  1", branchHelper.getIdInNetwork());
         assertTrue(branchHelper.isInvertedInNetwork());
         assertTrue(branchHelper.isHalfLine());
-        assertEquals(Branch.Side.TWO, branchHelper.getHalfLineSide());
+        assertEquals(TwoSides.TWO, branchHelper.getHalfLineSide());
 
         // tie-line with element name
         branchHelper = new UcteFlowElementHelper("NNL2AA1 ", "XNLBE11 ", null, "TL NL2X", networkHelper);
@@ -342,36 +342,36 @@ class UcteFlowElementHelperTest {
         assertEquals("NNL2AA1  XNLBE11  1 + XNLBE11  BBE3AA1  1", branchHelper.getIdInNetwork());
         assertFalse(branchHelper.isInvertedInNetwork());
         assertTrue(branchHelper.isHalfLine());
-        assertEquals(Branch.Side.ONE, branchHelper.getHalfLineSide());
-        assertEquals(380., branchHelper.getNominalVoltage(Branch.Side.ONE), DOUBLE_TOLERANCE);
-        assertEquals(380., branchHelper.getNominalVoltage(Branch.Side.TWO), DOUBLE_TOLERANCE);
-        assertEquals(3200., branchHelper.getCurrentLimit(Branch.Side.ONE), DOUBLE_TOLERANCE);
-        assertEquals(2800., branchHelper.getCurrentLimit(Branch.Side.TWO), DOUBLE_TOLERANCE);
+        assertEquals(TwoSides.ONE, branchHelper.getHalfLineSide());
+        assertEquals(380., branchHelper.getNominalVoltage(TwoSides.ONE), DOUBLE_TOLERANCE);
+        assertEquals(380., branchHelper.getNominalVoltage(TwoSides.TWO), DOUBLE_TOLERANCE);
+        assertEquals(3200., branchHelper.getCurrentLimit(TwoSides.ONE), DOUBLE_TOLERANCE);
+        assertEquals(2800., branchHelper.getCurrentLimit(TwoSides.TWO), DOUBLE_TOLERANCE);
 
         branchHelper = new UcteFlowElementHelper("XNLBE11 ", "NNL2AA1 ", null, "TL NL2X", networkHelper);
         assertTrue(branchHelper.isValid());
         assertEquals("NNL2AA1  XNLBE11  1 + XNLBE11  BBE3AA1  1", branchHelper.getIdInNetwork());
         assertTrue(branchHelper.isInvertedInNetwork());
         assertTrue(branchHelper.isHalfLine());
-        assertEquals(Branch.Side.ONE, branchHelper.getHalfLineSide());
+        assertEquals(TwoSides.ONE, branchHelper.getHalfLineSide());
 
         branchHelper = new UcteFlowElementHelper("XNLBE11 ", "BBE3AA1 ", null, "TL BE3X", networkHelper);
         assertTrue(branchHelper.isValid());
         assertEquals("NNL2AA1  XNLBE11  1 + XNLBE11  BBE3AA1  1", branchHelper.getIdInNetwork());
         assertFalse(branchHelper.isInvertedInNetwork());
         assertTrue(branchHelper.isHalfLine());
-        assertEquals(Branch.Side.TWO, branchHelper.getHalfLineSide());
-        assertEquals(380., branchHelper.getNominalVoltage(Branch.Side.ONE), DOUBLE_TOLERANCE);
-        assertEquals(380., branchHelper.getNominalVoltage(Branch.Side.TWO), DOUBLE_TOLERANCE);
-        assertEquals(3200., branchHelper.getCurrentLimit(Branch.Side.ONE), DOUBLE_TOLERANCE);
-        assertEquals(2800., branchHelper.getCurrentLimit(Branch.Side.TWO), DOUBLE_TOLERANCE);
+        assertEquals(TwoSides.TWO, branchHelper.getHalfLineSide());
+        assertEquals(380., branchHelper.getNominalVoltage(TwoSides.ONE), DOUBLE_TOLERANCE);
+        assertEquals(380., branchHelper.getNominalVoltage(TwoSides.TWO), DOUBLE_TOLERANCE);
+        assertEquals(3200., branchHelper.getCurrentLimit(TwoSides.ONE), DOUBLE_TOLERANCE);
+        assertEquals(2800., branchHelper.getCurrentLimit(TwoSides.TWO), DOUBLE_TOLERANCE);
 
         branchHelper = new UcteFlowElementHelper("BBE3AA1 ", "XNLBE11 ", null, "TL BE3X", networkHelper);
         assertTrue(branchHelper.isValid());
         assertEquals("NNL2AA1  XNLBE11  1 + XNLBE11  BBE3AA1  1", branchHelper.getIdInNetwork());
         assertTrue(branchHelper.isInvertedInNetwork());
         assertTrue(branchHelper.isHalfLine());
-        assertEquals(Branch.Side.TWO, branchHelper.getHalfLineSide());
+        assertEquals(TwoSides.TWO, branchHelper.getHalfLineSide());
     }
 
     @Test
@@ -395,10 +395,10 @@ class UcteFlowElementHelperTest {
         assertEquals("BBE2AA1  XBE2AL1  1", branchHelper.getIdInNetwork());
         assertTrue(branchHelper.isInvertedInNetwork());
         assertFalse(branchHelper.isHalfLine());
-        assertEquals(380., branchHelper.getNominalVoltage(Branch.Side.ONE), DOUBLE_TOLERANCE);
-        assertEquals(380., branchHelper.getNominalVoltage(Branch.Side.TWO), DOUBLE_TOLERANCE);
-        assertEquals(1250, branchHelper.getCurrentLimit(Branch.Side.ONE), DOUBLE_TOLERANCE);
-        assertEquals(1250, branchHelper.getCurrentLimit(Branch.Side.TWO), DOUBLE_TOLERANCE);
+        assertEquals(380., branchHelper.getNominalVoltage(TwoSides.ONE), DOUBLE_TOLERANCE);
+        assertEquals(380., branchHelper.getNominalVoltage(TwoSides.TWO), DOUBLE_TOLERANCE);
+        assertEquals(1250, branchHelper.getCurrentLimit(TwoSides.ONE), DOUBLE_TOLERANCE);
+        assertEquals(1250, branchHelper.getCurrentLimit(TwoSides.TWO), DOUBLE_TOLERANCE);
 
         branchHelper = new UcteFlowElementHelper("XBE2AL1 ", "BBE2AA1 ", "1", null, networkHelper);
         assertTrue(branchHelper.isValid());
@@ -412,10 +412,10 @@ class UcteFlowElementHelperTest {
         assertEquals("XDE2AL1  DDE2AA1  1", branchHelper.getIdInNetwork());
         assertFalse(branchHelper.isInvertedInNetwork());
         assertFalse(branchHelper.isHalfLine());
-        assertEquals(380., branchHelper.getNominalVoltage(Branch.Side.ONE), DOUBLE_TOLERANCE);
-        assertEquals(380., branchHelper.getNominalVoltage(Branch.Side.TWO), DOUBLE_TOLERANCE);
-        assertEquals(1245, branchHelper.getCurrentLimit(Branch.Side.ONE), DOUBLE_TOLERANCE);
-        assertEquals(1245, branchHelper.getCurrentLimit(Branch.Side.TWO), DOUBLE_TOLERANCE);
+        assertEquals(380., branchHelper.getNominalVoltage(TwoSides.ONE), DOUBLE_TOLERANCE);
+        assertEquals(380., branchHelper.getNominalVoltage(TwoSides.TWO), DOUBLE_TOLERANCE);
+        assertEquals(1245, branchHelper.getCurrentLimit(TwoSides.ONE), DOUBLE_TOLERANCE);
+        assertEquals(1245, branchHelper.getCurrentLimit(TwoSides.TWO), DOUBLE_TOLERANCE);
 
         branchHelper = new UcteFlowElementHelper("DDE2AA1 ", "XDE2AL1 ", null, "DL AL", networkHelper);
         assertTrue(branchHelper.isValid());
@@ -568,10 +568,10 @@ class UcteFlowElementHelperTest {
         assertEquals("BBE1AA11 BBE2AA11 1", branchHelper.getIdInNetwork());
         assertFalse(branchHelper.isInvertedInNetwork());
         assertFalse(branchHelper.isHalfLine());
-        assertEquals(380., branchHelper.getNominalVoltage(Branch.Side.ONE), DOUBLE_TOLERANCE);
-        assertEquals(380., branchHelper.getNominalVoltage(Branch.Side.TWO), DOUBLE_TOLERANCE);
-        assertEquals(5000., branchHelper.getCurrentLimit(Branch.Side.ONE), DOUBLE_TOLERANCE);
-        assertEquals(5000., branchHelper.getCurrentLimit(Branch.Side.TWO), DOUBLE_TOLERANCE);
+        assertEquals(380., branchHelper.getNominalVoltage(TwoSides.ONE), DOUBLE_TOLERANCE);
+        assertEquals(380., branchHelper.getNominalVoltage(TwoSides.TWO), DOUBLE_TOLERANCE);
+        assertEquals(5000., branchHelper.getCurrentLimit(TwoSides.ONE), DOUBLE_TOLERANCE);
+        assertEquals(5000., branchHelper.getCurrentLimit(TwoSides.TWO), DOUBLE_TOLERANCE);
 
         branchHelper = new UcteFlowElementHelper("FFR3AA1*", "XBEFR11*", "1", null, networkHelper);
         assertTrue(branchHelper.isValid());
