@@ -39,12 +39,12 @@
         <dependency>
             <groupId>com.powsybl</groupId>
             <artifactId>powsybl-glsk-commons</artifactId>
-            <version>${powsybl.glsk.version}</version>
+            <version>${powsybl.entsoe.version}</version>
         </dependency>
         <dependency>
             <groupId>com.powsybl</groupId>
             <artifactId>powsybl-glsk-document-ucte</artifactId>
-            <version>${powsybl.glsk.version}</version>
+            <version>${powsybl.entsoe.version}</version>
         </dependency>
         <dependency>
             <groupId>com.powsybl</groupId>
