@@ -118,9 +118,6 @@ GRAPH <%s> {
         ?assessedElement
             nc:AssessedElement.isCombinableWithRemedialAction ?isCombinableWithRemedialAction ;
     }
-    OPTIONAL {
-            ?assessedElement nc:AssessedElement.isCritical ?isCritical .
-            }
 }
 }
 
