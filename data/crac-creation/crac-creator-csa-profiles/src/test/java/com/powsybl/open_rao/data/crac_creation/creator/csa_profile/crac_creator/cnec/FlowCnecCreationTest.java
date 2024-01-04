@@ -390,30 +390,36 @@ class FlowCnecCreationTest {
         assertNotNull(cracCreationContext);
         assertTrue(cracCreationContext.isCreationSuccessful());
         assertEquals(7, cracCreationContext.getCrac().getContingencies().size());
-        assertEquals(4, cracCreationContext.getCrac().getFlowCnecs().size());
+        assertEquals(5, cracCreationContext.getCrac().getFlowCnecs().size());
 
         List<FlowCnec> listFlowCnecs = cracCreationContext.getCrac().getFlowCnecs()
                 .stream().sorted(Comparator.comparing(FlowCnec::getId)).toList();
 
         CsaProfileCracCreationTestUtil.assertFlowCnecEquality(listFlowCnecs.get(0),
+                "REE_AE2 (3a364a5b-7aca-4e48-abd5-4cd79e2e8676) - preventive",
+                "REE_AE2 (3a364a5b-7aca-4e48-abd5-4cd79e2e8676) - preventive",
+                "044cd003-c766-11e1-8775-005056c00008",
+                preventiveInstant, null,
+                +1000d, -1000d, Side.LEFT);
+        CsaProfileCracCreationTestUtil.assertFlowCnecEquality(listFlowCnecs.get(1),
                 "REE_AE3 (989535e7-3789-47e7-8ba7-da7be9962a15) - preventive",
                 "REE_AE3 (989535e7-3789-47e7-8ba7-da7be9962a15) - preventive",
                 "048badc5-c766-11e1-8775-005056c00008",
                 preventiveInstant, null,
                 +500d, -500d, Side.LEFT);
-        CsaProfileCracCreationTestUtil.assertFlowCnecEquality(listFlowCnecs.get(1),
+        CsaProfileCracCreationTestUtil.assertFlowCnecEquality(listFlowCnecs.get(2),
                 "REE_AE4 (ea577780-24d2-4167-a5d2-fa56c56a9481) - preventive",
                 "REE_AE4 (ea577780-24d2-4167-a5d2-fa56c56a9481) - preventive",
                 "0478c207-c766-11e1-8775-005056c00008",
                 preventiveInstant, null,
                 +1000d, -1000d, Side.RIGHT);
-        CsaProfileCracCreationTestUtil.assertFlowCnecEquality(listFlowCnecs.get(2),
+        CsaProfileCracCreationTestUtil.assertFlowCnecEquality(listFlowCnecs.get(3),
                 "REE_AE5 (2bd363ca-bab7-4571-a59a-b9193dc9fc9d) - preventive",
                 "REE_AE5 (2bd363ca-bab7-4571-a59a-b9193dc9fc9d) - preventive",
                 "048badc5-c766-11e1-8775-005056c00008",
                 preventiveInstant, null,
                 +1000d, -1000d, Side.LEFT);
-        CsaProfileCracCreationTestUtil.assertFlowCnecEquality(listFlowCnecs.get(3),
+        CsaProfileCracCreationTestUtil.assertFlowCnecEquality(listFlowCnecs.get(4),
                 "REE_AE6 (3bc10ae6-6e25-4e4d-9a3a-ec2c4e2436b0) - preventive",
                 "REE_AE6 (3bc10ae6-6e25-4e4d-9a3a-ec2c4e2436b0) - preventive",
                 "044a5f09-c766-11e1-8775-005056c00008",
