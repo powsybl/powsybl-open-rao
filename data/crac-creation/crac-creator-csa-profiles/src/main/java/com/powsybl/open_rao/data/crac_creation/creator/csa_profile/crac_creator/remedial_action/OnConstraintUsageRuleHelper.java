@@ -47,20 +47,20 @@ public class OnConstraintUsageRuleHelper {
             String remedialActionId = propertyBag.getId(CsaProfileConstants.REQUEST_REMEDIAL_ACTION);
             String assessedElementId = propertyBag.getId(CsaProfileConstants.REQUEST_ASSESSED_ELEMENT);
 
-            Set<String> faraoCnecIds = getImportedCnecsNativeIdsToOpenRaoIds().get(assessedElementId);
+            Set<String> openRaoCnecIds = getImportedCnecsNativeIdsToOpenRaoIds().get(assessedElementId);
 
             if (combinationConstraintKind.equals(CsaProfileConstants.ElementCombinationConstraintKind.EXCLUDED.toString())) {
                 excludedCnecsByRemedialAction
                     .computeIfAbsent(remedialActionId, k -> new HashSet<>())
-                    .addAll(faraoCnecIds);
+                    .addAll(openRaoCnecIds);
             } else if (combinationConstraintKind.equals(CsaProfileConstants.ElementCombinationConstraintKind.INCLUDED.toString())) {
                 includedCnecsByRemedialAction
                     .computeIfAbsent(remedialActionId, k -> new HashSet<>())
-                    .addAll(faraoCnecIds);
+                    .addAll(openRaoCnecIds);
             } else if (combinationConstraintKind.equals(CsaProfileConstants.ElementCombinationConstraintKind.CONSIDERED.toString())) {
                 consideredCnecsElementsByRemedialAction
                     .computeIfAbsent(remedialActionId, k -> new HashSet<>())
-                    .addAll(faraoCnecIds);
+                    .addAll(openRaoCnecIds);
             } else {
                 throw new OpenRaoException(String.format("Unsupported combinationConstraintKind of AssessedElementsWithRemedialAction with id %s, only  ['INCLUDED', 'EXCLUDED', 'CONSIDERED'] are supported ", propertyBag.get(CsaProfileConstants.REQUEST_ASSESSED_ELEMENT_WITH_REMEDIAL_ACTION)));
             }

@@ -13,7 +13,7 @@
     <artifactId>open-rao-data</artifactId>
     <packaging>pom</packaging>
     <name>Data</name>
-    <description>Business data classes (inputs and outputs) of FARAO core and associated converters</description>
+    <description>Business data classes (inputs and outputs) of Open Rao and associated converters</description>
 
     <modules>
         <module>crac</module>

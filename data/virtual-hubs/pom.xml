@@ -11,8 +11,8 @@
 
 	<artifactId>open-rao-virtual-hubs</artifactId>
 	<packaging>pom</packaging>
-	<name>FARAO virtual hubs</name>
-	<description>Virtual hubs management for FARAO framework</description>
+	<name>Open Rao virtual hubs</name>
+	<description>Virtual hubs management for Open Rao framework</description>
 
 	<modules>
 		<module>virtual-hubs-api</module>

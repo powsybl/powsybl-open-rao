@@ -1,8 +1,8 @@
 {
   "id" : "FLOWBASED_DATA_DOMAIN_ID",
-  "name" : "This is an example of Flow-based data domain inputs for FARAO",
+  "name" : "This is an example of Flow-based data domain inputs for Open Rao",
   "sourceFormat" : "JSON",
-  "description" : "This is an example of Flow-based inputs for FARAO",
+  "description" : "This is an example of Flow-based inputs for Open Rao",
   "dataPreContingency" : {
     "dataMonitoredBranches" : [ {
       "id" : "FLOWBASED_DATA_DOMAIN_BRANCH_1",

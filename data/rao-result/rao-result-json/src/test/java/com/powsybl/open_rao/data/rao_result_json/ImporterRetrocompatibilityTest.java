@@ -50,7 +50,7 @@ class ImporterRetrocompatibilityTest {
     /*
     CARE: the existing json file used in this test case SHOULD NOT BE MODIFIED. If
     the current tests do not pass, it means that formerly generated JSON RaoResult
-    will not be compatible anymore with the next version of farao-core -> This is NOT
+    will not be compatible anymore with the next version of open-rao-core -> This is NOT
     desirable.
 
     Instead, we need to ensure that the JSON RaoResult files used in this class can

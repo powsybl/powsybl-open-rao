@@ -13,7 +13,7 @@
     <artifactId>open-rao-monitoring</artifactId>
     <packaging>pom</packaging>
     <name>Monitoring</name>
-    <description>Monitoring classes (voltage and angle) of FARAO core</description>
+    <description>Monitoring classes (voltage and angle) of Open Rao</description>
 
     <modules>
         <module>angle-monitoring</module>
