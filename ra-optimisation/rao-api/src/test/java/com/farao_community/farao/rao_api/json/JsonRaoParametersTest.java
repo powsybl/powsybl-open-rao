@@ -20,7 +20,7 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.google.auto.service.AutoService;
-import com.powsybl.commons.test.AbstractConverterTest;
+import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.commons.test.ComparisonUtils;
 import com.powsybl.commons.extensions.AbstractExtension;
 import org.junit.jupiter.api.Test;
@@ -39,7 +39,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-class JsonRaoParametersTest extends AbstractConverterTest {
+class JsonRaoParametersTest extends AbstractSerDeTest {
     static double DOUBLE_TOLERANCE = 1e-6;
 
     @Test

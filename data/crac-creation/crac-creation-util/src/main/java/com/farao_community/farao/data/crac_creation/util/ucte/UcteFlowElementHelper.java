@@ -8,10 +8,7 @@
 package com.farao_community.farao.data.crac_creation.util.ucte;
 
 import com.farao_community.farao.data.crac_creation.util.CnecElementHelper;
-import com.powsybl.iidm.network.Branch;
-import com.powsybl.iidm.network.DanglingLine;
-import com.powsybl.iidm.network.Identifiable;
-import com.powsybl.iidm.network.TieLine;
+import com.powsybl.iidm.network.*;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -31,7 +28,7 @@ import static java.lang.String.format;
 public class UcteFlowElementHelper extends AbstractUcteConnectableHelper implements CnecElementHelper {
 
     private boolean isInvertedInNetwork = false;
-    private Branch.Side halfLineSide = null;
+    private TwoSides halfLineSide = null;
     private boolean isHalfLine = false;
 
     protected Double nominalVoltageLeft;
@@ -95,8 +92,8 @@ public class UcteFlowElementHelper extends AbstractUcteConnectableHelper impleme
     }
 
     @Override
-    public double getNominalVoltage(Branch.Side side) {
-        if (side.equals(Branch.Side.ONE)) {
+    public double getNominalVoltage(TwoSides side) {
+        if (side.equals(TwoSides.ONE)) {
             return nominalVoltageLeft;
         } else {
             return nominalVoltageRight;
@@ -104,8 +101,8 @@ public class UcteFlowElementHelper extends AbstractUcteConnectableHelper impleme
     }
 
     @Override
-    public double getCurrentLimit(Branch.Side side) {
-        if (side.equals(Branch.Side.ONE)) {
+    public double getCurrentLimit(TwoSides side) {
+        if (side.equals(TwoSides.ONE)) {
             return currentLimitLeft;
         } else {
             return currentLimitRight;
@@ -118,7 +115,7 @@ public class UcteFlowElementHelper extends AbstractUcteConnectableHelper impleme
     }
 
     @Override
-    public Branch.Side getHalfLineSide() {
+    public TwoSides getHalfLineSide() {
         return halfLineSide;
     }
 
@@ -141,7 +138,7 @@ public class UcteFlowElementHelper extends AbstractUcteConnectableHelper impleme
         this.connectableIdInNetwork = networkElement.getId();
 
         if (networkElement instanceof TieLine) {
-            interpretTieLine((TieLine) networkElement, ucteMatchingResult.getSide() == TWO ? Branch.Side.TWO : Branch.Side.ONE);
+            interpretTieLine((TieLine) networkElement, ucteMatchingResult.getSide() == TWO ? TwoSides.TWO : TwoSides.ONE);
         } else if (networkElement instanceof Branch) {
             checkBranchNominalVoltage((Branch<?>) networkElement);
             checkBranchCurrentLimits((Branch<?>) networkElement);
@@ -150,7 +147,7 @@ public class UcteFlowElementHelper extends AbstractUcteConnectableHelper impleme
         }
     }
 
-    private void interpretTieLine(TieLine tieLine, Branch.Side side) {
+    private void interpretTieLine(TieLine tieLine, TwoSides side) {
         this.isHalfLine = true;
         this.halfLineSide = side;
         checkBranchNominalVoltage(tieLine);
@@ -158,13 +155,13 @@ public class UcteFlowElementHelper extends AbstractUcteConnectableHelper impleme
     }
 
     private void checkTieLineCurrentLimits(TieLine tieLine) {
-        if (tieLine.getCurrentLimits(Branch.Side.ONE).isPresent()) {
-            this.currentLimitLeft = tieLine.getCurrentLimits(Branch.Side.ONE).orElseThrow().getPermanentLimit();
+        if (tieLine.getCurrentLimits(TwoSides.ONE).isPresent()) {
+            this.currentLimitLeft = tieLine.getCurrentLimits(TwoSides.ONE).orElseThrow().getPermanentLimit();
         }
-        if (tieLine.getCurrentLimits(Branch.Side.TWO).isPresent()) {
-            this.currentLimitRight = tieLine.getCurrentLimits(Branch.Side.TWO).orElseThrow().getPermanentLimit();
+        if (tieLine.getCurrentLimits(TwoSides.TWO).isPresent()) {
+            this.currentLimitRight = tieLine.getCurrentLimits(TwoSides.TWO).orElseThrow().getPermanentLimit();
         }
-        if (Objects.isNull(tieLine.getCurrentLimits(Branch.Side.ONE)) && Objects.isNull(tieLine.getCurrentLimits(Branch.Side.TWO))) {
+        if (Objects.isNull(tieLine.getCurrentLimits(TwoSides.ONE)) && Objects.isNull(tieLine.getCurrentLimits(TwoSides.TWO))) {
             invalidate(format("couldn't identify current limits of tie-line (from: %s, to: %s, suffix: %s, networkTieLineId: %s)", from, to, suffix, tieLine.getId()));
         }
     }
@@ -179,7 +176,7 @@ public class UcteFlowElementHelper extends AbstractUcteConnectableHelper impleme
         if (optionalTieLine.isPresent()) {
             TieLine tieLine = optionalTieLine.get();
             this.connectableIdInNetwork = tieLine.getId();
-            Branch.Side side = tieLine.getDanglingLine1() == danglingLine ? Branch.Side.ONE : Branch.Side.TWO;
+            TwoSides side = tieLine.getDanglingLine1() == danglingLine ? TwoSides.ONE : TwoSides.TWO;
             // dangling line convention is x node to terminal, so dl 1 is towards terminal 1 (opposite) and dl 2 is towards terminal 2 (direct)
             this.isInvertedInNetwork = tieLine.getDanglingLine1() == danglingLine ? !isInvertedInNetwork : isInvertedInNetwork;
             interpretTieLine(tieLine, side);

@@ -20,7 +20,7 @@ import com.farao_community.farao.data.crac_creation.creator.cse.xsd.TImax;
 import com.farao_community.farao.data.crac_creation.creator.cse.xsd.TOutage;
 import com.farao_community.farao.data.crac_creation.util.ucte.UcteFlowElementHelper;
 import com.farao_community.farao.data.crac_creation.util.ucte.UcteNetworkAnalyzer;
-import com.powsybl.iidm.network.Branch;
+import com.powsybl.iidm.network.TwoSides;
 
 import javax.annotation.Nullable;
 import java.util.*;
@@ -155,17 +155,17 @@ public class CriticalBranchReader {
                 .withContingency(outage)
                 .withOptimized(selected).withMonitored(isMonitored)
                 .withNetworkElement(branchHelper.getIdInNetwork())
-                .withIMax(branchHelper.getCurrentLimit(Branch.Side.ONE), Side.LEFT)
-                .withIMax(branchHelper.getCurrentLimit(Branch.Side.TWO), Side.RIGHT)
-                .withNominalVoltage(branchHelper.getNominalVoltage(Branch.Side.ONE), Side.LEFT)
-                .withNominalVoltage(branchHelper.getNominalVoltage(Branch.Side.TWO), Side.RIGHT);
+                .withIMax(branchHelper.getCurrentLimit(TwoSides.ONE), Side.LEFT)
+                .withIMax(branchHelper.getCurrentLimit(TwoSides.TWO), Side.RIGHT)
+                .withNominalVoltage(branchHelper.getNominalVoltage(TwoSides.ONE), Side.LEFT)
+                .withNominalVoltage(branchHelper.getNominalVoltage(TwoSides.TWO), Side.RIGHT);
 
         Set<Side> monitoredSidesForThreshold = monitoredSides;
         Unit unit = convertUnit(tImax.getUnit());
         // For transformers, if unit is absolute amperes, monitor low voltage side
         if (!branchHelper.isHalfLine() && unit.equals(Unit.AMPERE) &&
-                Math.abs(branchHelper.getNominalVoltage(Branch.Side.ONE) - branchHelper.getNominalVoltage(Branch.Side.TWO)) > 1) {
-            monitoredSidesForThreshold = (branchHelper.getNominalVoltage(Branch.Side.ONE) <= branchHelper.getNominalVoltage(Branch.Side.TWO)) ?
+                Math.abs(branchHelper.getNominalVoltage(TwoSides.ONE) - branchHelper.getNominalVoltage(TwoSides.TWO)) > 1) {
+            monitoredSidesForThreshold = (branchHelper.getNominalVoltage(TwoSides.ONE) <= branchHelper.getNominalVoltage(TwoSides.TWO)) ?
                     Set.of(Side.LEFT) : Set.of(Side.RIGHT);
         }
         addThreshold(cnecAdder, tImax.getV(), unit, tBranch.getDirection().getV(), isDirectionInverted, monitoredSidesForThreshold);

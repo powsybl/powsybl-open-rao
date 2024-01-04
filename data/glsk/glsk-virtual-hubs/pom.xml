@@ -34,7 +34,7 @@
         <dependency>
             <groupId>com.powsybl</groupId>
             <artifactId>powsybl-glsk-commons</artifactId>
-            <version>${powsybl.glsk.version}</version>
+            <version>${powsybl.entsoe.version}</version>
         </dependency>
         <dependency>
             <groupId>com.powsybl</groupId>
@@ -59,7 +59,7 @@
         </dependency>
         <dependency>
             <groupId>com.powsybl</groupId>
-            <artifactId>powsybl-iidm-xml-converter</artifactId>
+            <artifactId>powsybl-iidm-serde</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
