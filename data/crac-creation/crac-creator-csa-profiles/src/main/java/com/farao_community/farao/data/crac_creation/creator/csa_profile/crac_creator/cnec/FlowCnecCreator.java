@@ -258,6 +258,10 @@ public class FlowCnecCreator extends AbstractCnecCreator {
         }
 
         for (Contingency contingency : linkedContingencies) {
+            if (incompatibleLocationsBetweenCnecAndContingency(networkElement.getId(), contingency)) {
+                // TODO: cracCreationContext
+                continue;
+            }
             // Add PATL
             if (hasPatl) {
                 addFlowCnec(networkElement, contingency, crac.getInstant(InstantKind.CURATIVE).getId(), patlThresholds, useMaxAndMinThresholds, false);

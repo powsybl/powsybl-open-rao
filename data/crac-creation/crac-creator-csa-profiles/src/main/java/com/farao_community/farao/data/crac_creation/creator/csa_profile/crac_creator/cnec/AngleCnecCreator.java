@@ -35,7 +35,7 @@ public class AngleCnecCreator extends AbstractCnecCreator {
 
     private void addAngleCnec(String instantId, Contingency contingency) {
         AngleCnecAdder angleCnecAdder = initAngleCnec();
-        if (addAngleLimit(angleCnecAdder)) {
+        if (addAngleLimit(angleCnecAdder, contingency)) {
             addCnecBaseInformation(angleCnecAdder, contingency, instantId);
             angleCnecAdder.add();
             String cnecName = getCnecName(instantId, contingency);
@@ -50,7 +50,7 @@ public class AngleCnecCreator extends AbstractCnecCreator {
                 .withReliabilityMargin(0);
     }
 
-    private boolean addAngleLimit(AngleCnecAdder angleCnecAdder) {
+    private boolean addAngleLimit(AngleCnecAdder angleCnecAdder, Contingency contingency) {
         String isFlowToRefTerminalStr = operationalLimitPropertyBag.get(CsaProfileConstants.REQUEST_IS_FLOW_TO_REF_TERMINAL);
         boolean isFlowToRefTerminalIsNull = isFlowToRefTerminalStr == null;
         boolean isFlowToRefTerminal = isFlowToRefTerminalIsNull || Boolean.parseBoolean(isFlowToRefTerminalStr);
@@ -69,6 +69,11 @@ public class AngleCnecCreator extends AbstractCnecCreator {
 
         boolean areNetworkElementsOk = this.addAngleCnecElements(angleCnecAdder, networkElement1Id, networkElement2Id, isFlowToRefTerminal);
         if (!areNetworkElementsOk) {
+            return false;
+        }
+
+        if (incompatibleLocationsBetweenCnecAndContingency(Set.of(terminal1Id, terminal2Id), contingency)) {
+            // TODO: cracCreationContext
             return false;
         }
 

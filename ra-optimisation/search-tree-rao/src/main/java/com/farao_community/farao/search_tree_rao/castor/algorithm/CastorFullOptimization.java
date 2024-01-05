@@ -110,6 +110,8 @@ public class CastorFullOptimization {
         network.getVariantManager().setWorkingVariant(PREVENTIVE_SCENARIO);
 
         if (stateTree.getContingencyScenarios().isEmpty()) {
+            network.getVariantManager().removeVariant(PREVENTIVE_SCENARIO);
+            network.getVariantManager().removeVariant(SECOND_PREVENTIVE_SCENARIO);
             return CompletableFuture.completedFuture(optimizePreventivePerimeter(raoInput, raoParameters, stateTree, toolProvider, initialOutput));
         }
 
@@ -128,6 +130,8 @@ public class CastorFullOptimization {
         PrePerimeterResult preCurativeSensitivityAnalysisOutput = prePerimeterSensitivityAnalysis.runBasedOnInitialResults(network, raoInput.getCrac(), initialOutput, initialOutput, Collections.emptySet(), null);
         if (preCurativeSensitivityAnalysisOutput.getSensitivityStatus() == ComputationStatus.FAILURE) {
             BUSINESS_LOGS.error("Systematic sensitivity analysis after preventive remedial actions failed");
+            network.getVariantManager().removeVariant(PREVENTIVE_SCENARIO);
+            network.getVariantManager().removeVariant(SECOND_PREVENTIVE_SCENARIO);
             return CompletableFuture.completedFuture(new FailedRaoResultImpl());
         }
         RaoLogger.logSensitivityAnalysisResults("Systematic sensitivity analysis after preventive remedial actions: ",
@@ -150,6 +154,8 @@ public class CastorFullOptimization {
             // log results
             RaoLogger.logMostLimitingElementsResults(BUSINESS_LOGS, preCurativeSensitivityAnalysisOutput, raoParameters.getObjectiveFunctionParameters().getType(), NUMBER_LOGGED_ELEMENTS_END_RAO);
 
+            network.getVariantManager().removeVariant(PREVENTIVE_SCENARIO);
+            network.getVariantManager().removeVariant(SECOND_PREVENTIVE_SCENARIO);
             return postCheckResults(mergedRaoResults, initialOutput, raoParameters.getObjectiveFunctionParameters());
         }
 
@@ -177,6 +183,8 @@ public class CastorFullOptimization {
             RaoLogger.logMostLimitingElementsResults(BUSINESS_LOGS, stateTree.getBasecaseScenario(), preventiveResult, stateTree.getContingencyScenarios(), postContingencyResults, raoParameters.getObjectiveFunctionParameters().getType(), NUMBER_LOGGED_ELEMENTS_END_RAO);
         }
 
+        network.getVariantManager().removeVariant(PREVENTIVE_SCENARIO);
+        network.getVariantManager().removeVariant(SECOND_PREVENTIVE_SCENARIO);
         return postCheckResults(mergedRaoResults, initialOutput, raoParameters.getObjectiveFunctionParameters());
     }
 

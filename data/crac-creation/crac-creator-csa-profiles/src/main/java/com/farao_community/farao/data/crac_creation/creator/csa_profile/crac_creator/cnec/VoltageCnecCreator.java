@@ -34,7 +34,7 @@ public class VoltageCnecCreator extends AbstractCnecCreator {
 
     private void addVoltageCnec(String instantId, Contingency contingency) {
         VoltageCnecAdder voltageCnecAdder = initVoltageCnec();
-        if (addVoltageLimit(voltageCnecAdder)) {
+        if (addVoltageLimit(voltageCnecAdder, contingency)) {
             addCnecBaseInformation(voltageCnecAdder, contingency, instantId);
             voltageCnecAdder.add();
             String cnecName = getCnecName(instantId, contingency);
@@ -49,7 +49,7 @@ public class VoltageCnecCreator extends AbstractCnecCreator {
                 .withReliabilityMargin(0);
     }
 
-    private boolean addVoltageLimit(VoltageCnecAdder voltageCnecAdder) {
+    private boolean addVoltageLimit(VoltageCnecAdder voltageCnecAdder, Contingency contingency) {
         String terminalId = operationalLimitPropertyBag.getId(CsaProfileConstants.REQUEST_OPERATIONAL_LIMIT_TERMINAL);
         Identifiable<?> networkElement = this.getNetworkElementInNetwork(terminalId);
         if (networkElement == null) {
@@ -63,6 +63,12 @@ public class VoltageCnecCreator extends AbstractCnecCreator {
         }
 
         String networkElementId = networkElement.getId();
+
+        if (incompatibleLocationsBetweenCnecAndContingency(networkElementId, contingency)) {
+            // TODO: cracCreationContext
+            return false;
+        }
+
         voltageCnecAdder.withNetworkElement(networkElementId);
 
         if (!checkDuration()) {
