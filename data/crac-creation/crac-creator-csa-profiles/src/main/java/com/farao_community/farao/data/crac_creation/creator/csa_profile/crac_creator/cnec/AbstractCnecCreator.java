@@ -73,6 +73,11 @@ public abstract class AbstractCnecCreator {
         return assessedElementName + " (" + assessedElementId + ") - " + (contingency == null ? "" : contingency.getName() + " - ") + instantId;
     }
 
+    protected String getCnecName(String instantId, Contingency contingency, int tatlDuration) {
+        // Need to include the mRID in the name in case the AssessedElement's name is not unique
+        return assessedElementName + " (" + assessedElementId + ") - " + (contingency == null ? "" : contingency.getName() + " - ") + instantId + " - TATL " + tatlDuration;
+    }
+
     protected void addCnecBaseInformation(CnecAdder<?> cnecAdder, Contingency contingency, String instantId) {
         String cnecName = getCnecName(instantId, contingency);
         cnecAdder.withContingency(contingency == null ? null : contingency.getId())
@@ -81,8 +86,15 @@ public abstract class AbstractCnecCreator {
                     .withInstant(instantId);
     }
 
-    protected void markCnecAsImportedAndHandleRejectedContingencies(String instantId, Contingency contingency) {
-        String cnecName = getCnecName(instantId, contingency);
+    protected void addCnecBaseInformation(CnecAdder<?> cnecAdder, Contingency contingency, String instantId, int tatlDuration) {
+        String cnecName = getCnecName(instantId, contingency, tatlDuration);
+        cnecAdder.withContingency(contingency == null ? null : contingency.getId())
+                .withId(cnecName)
+                .withName(cnecName)
+                .withInstant(instantId);
+    }
+
+    protected void markCnecAsImportedAndHandleRejectedContingencies(String cnecName) {
         if (rejectedLinksAssessedElementContingency.isEmpty()) {
             csaProfileCnecCreationContexts.add(CsaProfileElementaryCreationContext.imported(assessedElementId, cnecName, cnecName, "", false));
         } else {

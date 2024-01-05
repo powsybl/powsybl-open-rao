@@ -38,7 +38,8 @@ public class AngleCnecCreator extends AbstractCnecCreator {
         if (addAngleLimit(angleCnecAdder)) {
             addCnecBaseInformation(angleCnecAdder, contingency, instantId);
             angleCnecAdder.add();
-            markCnecAsImportedAndHandleRejectedContingencies(instantId, contingency);
+            String cnecName = getCnecName(instantId, contingency);
+            markCnecAsImportedAndHandleRejectedContingencies(cnecName);
         }
     }
 

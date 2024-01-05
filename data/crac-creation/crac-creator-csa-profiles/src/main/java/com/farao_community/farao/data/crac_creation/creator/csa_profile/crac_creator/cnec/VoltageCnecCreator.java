@@ -37,7 +37,8 @@ public class VoltageCnecCreator extends AbstractCnecCreator {
         if (addVoltageLimit(voltageCnecAdder)) {
             addCnecBaseInformation(voltageCnecAdder, contingency, instantId);
             voltageCnecAdder.add();
-            markCnecAsImportedAndHandleRejectedContingencies(instantId, contingency);
+            String cnecName = getCnecName(instantId, contingency);
+            markCnecAsImportedAndHandleRejectedContingencies(cnecName);
         }
     }
 
