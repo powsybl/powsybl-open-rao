@@ -5,15 +5,15 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>com.farao-community.farao</groupId>
-        <artifactId>farao-core</artifactId>
+        <groupId>com.powsybl</groupId>
+        <artifactId>open-rao</artifactId>
         <version>5.1.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>farao-data</artifactId>
+    <artifactId>open-rao-data</artifactId>
     <packaging>pom</packaging>
     <name>Data</name>
-    <description>Business data classes (inputs and outputs) of FARAO core and associated converters</description>
+    <description>Business data classes (inputs and outputs) of Open RAO and associated converters</description>
 
     <modules>
         <module>crac</module>

@@ -118,13 +118,13 @@
           </Monitored_Series>
           <RemedialAction_Series>
             <mRID>PRA_1</mRID>
-            <name>PRA PST FARAO</name>
+            <name>PRA PST OPEN RAO</name>
             <businessType>B59</businessType>
             <applicationMode_MarketObjectStatus.status>A18</applicationMode_MarketObjectStatus.status>
             <availability_MarketObjectStatus.status>A39</availability_MarketObjectStatus.status>
             <RegisteredResource>
               <mRID codingScheme="A02">_a708c3bc-465d-4fe7-b6ef-6fa6408a62b0</mRID>
-              <name>FARAO_1_220_220</name>
+              <name>OPEN_RAO_1_220_220</name>
               <pSRType.psrType>A06</pSRType.psrType>
               <in_Domain.mRID codingScheme="A01">10YES-REE------0</in_Domain.mRID>
               <out_Domain.mRID codingScheme="A01">10YES-REE------0</out_Domain.mRID>
