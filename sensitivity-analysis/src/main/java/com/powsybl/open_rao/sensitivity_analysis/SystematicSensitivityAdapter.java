@@ -109,6 +109,7 @@ final class SystematicSensitivityAdapter {
 
             TECHNICAL_LOGS.debug("... ({}/{}) state with RA {}", counterForLogs, statesWithRa.size() + 1, state.getId());
 
+            //TODO: We can save a bit of time by unapplying previous remedial actions here if we find a clean way to do it
             network.getVariantManager().cloneVariant(workingVariantId, variantForState, true);
             shouldRemoveVariant = true;
             network.getVariantManager().setWorkingVariant(variantForState);

@@ -197,7 +197,7 @@ public class MonitoredSeriesCreator {
             instant = crac.getInstant(getMeasurementInstant(measurement));
             unit = getMeasurementUnit(measurement);
             direction = getMeasurementDirection(measurement);
-            threshold = (unit.equals(Unit.PERCENT_IMAX) ? 0.01 : 1) * measurement.getAnalogValuesValue(); // Open Rao uses relative convention for %Imax (0 <= threshold <= 1)
+            threshold = (unit.equals(Unit.PERCENT_IMAX) ? 0.01 : 1) * measurement.getAnalogValuesValue(); // Open RAO uses relative convention for %Imax (0 <= threshold <= 1)
         } catch (OpenRaoException e) {
             return MeasurementCreationContext.notImported(ImportStatus.INCONSISTENCY_IN_DATA, e.getMessage());
         }

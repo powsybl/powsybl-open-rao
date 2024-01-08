@@ -165,7 +165,7 @@ class AngleCnecAdderImplTest {
             .newThreshold().withUnit(Unit.DEGREE).withMax(100.0).withMin(-100.0).add()
             .withOptimized();
         OpenRaoException exception = assertThrows(OpenRaoException.class, angleCnecAdder::add);
-        assertEquals("Error while adding cnec Cnec ID : Open Rao does not allow the optimization of AngleCnecs.", exception.getMessage());
+        assertEquals("Error while adding cnec Cnec ID : Open RAO does not allow the optimization of AngleCnecs.", exception.getMessage());
     }
 
     @Test

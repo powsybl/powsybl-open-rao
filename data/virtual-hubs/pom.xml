@@ -11,8 +11,8 @@
 
 	<artifactId>open-rao-virtual-hubs</artifactId>
 	<packaging>pom</packaging>
-	<name>Open Rao virtual hubs</name>
-	<description>Virtual hubs management for Open Rao framework</description>
+	<name>Open RAO virtual hubs</name>
+	<description>Virtual hubs management for Open RAO framework</description>
 
 	<modules>
 		<module>virtual-hubs-api</module>

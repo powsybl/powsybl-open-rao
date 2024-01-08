@@ -82,9 +82,9 @@ class JsonFlowbasedDomainTest extends AbstractSerDeTest {
     void testGetters() {
         DataDomain flowbasedDomain = JsonFlowbasedDomainTest.create();
         assertEquals("FLOWBASED_DATA_DOMAIN_ID", flowbasedDomain.getId());
-        assertEquals("This is an example of Flow-based data domain inputs for Open Rao", flowbasedDomain.getName());
+        assertEquals("This is an example of Flow-based data domain inputs for Open RAO", flowbasedDomain.getName());
         assertEquals("JSON", flowbasedDomain.getSourceFormat());
-        assertEquals("This is an example of Flow-based inputs for Open Rao", flowbasedDomain.getDescription());
+        assertEquals("This is an example of Flow-based inputs for Open RAO", flowbasedDomain.getDescription());
 
         assertNotNull(flowbasedDomain.getDataPreContingency());
         assertEquals(1, flowbasedDomain.getDataPreContingency().getDataMonitoredBranches().size());

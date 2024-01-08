@@ -29,7 +29,7 @@ public final class ExhaustiveCracCreation {
     private static final String CURATIVE_INSTANT_ID = "curative";
 
     /*
-    Small CRAC used in I/O unit tests of open-rao-core
+    Small CRAC used in I/O unit tests of open-rao
 
     The idea of this CRAC is to be quite exhaustive regarding the diversity of the CRAC objects.
     It contains numerous variations of the CRAC objects, to ensure that they are all tested in

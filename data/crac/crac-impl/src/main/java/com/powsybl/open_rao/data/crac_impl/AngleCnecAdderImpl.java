@@ -89,7 +89,7 @@ public class AngleCnecAdderImpl extends AbstractCnecAdderImpl<AngleCnecAdder> im
         checkCnec();
 
         if (optimized) {
-            throw new OpenRaoException(format("Error while adding cnec %s : Open Rao does not allow the optimization of AngleCnecs.", id));
+            throw new OpenRaoException(format("Error while adding cnec %s : Open RAO does not allow the optimization of AngleCnecs.", id));
         }
 
         checkAndInitThresholds();

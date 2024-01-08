@@ -528,7 +528,7 @@ public class RemedialActionSeriesCreator {
             remedialActionSeriesCreationContexts.add(RemedialActionSeriesCreationContext.notImported(createdRemedialActionId, ImportStatus.INCOMPLETE_DATA, "Missing availabilityMarketObjectStatus"));
             return false;
         }
-        // A38 not handled by Open Rao.
+        // A38 not handled by Open RAO.
         if (availabilityMarketObjectStatus.equals(AvailabilityMarketObjectStatus.SHALL_BE_USED.getStatus())) {
             remedialActionSeriesCreationContexts.add(RemedialActionSeriesCreationContext.notImported(createdRemedialActionId, ImportStatus.NOT_YET_HANDLED_BY_OPEN_RAO, String.format("Wrong availabilityMarketObjectStatus: %s", availabilityMarketObjectStatus)));
             return false;

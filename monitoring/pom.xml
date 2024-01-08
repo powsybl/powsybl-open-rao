@@ -6,14 +6,14 @@
 
     <parent>
         <groupId>com.powsybl</groupId>
-        <artifactId>open-rao-core</artifactId>
+        <artifactId>open-rao</artifactId>
         <version>4.7.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>open-rao-monitoring</artifactId>
     <packaging>pom</packaging>
     <name>Monitoring</name>
-    <description>Monitoring classes (voltage and angle) of Open Rao</description>
+    <description>Monitoring classes (voltage and angle) of Open RAO</description>
 
     <modules>
         <module>angle-monitoring</module>

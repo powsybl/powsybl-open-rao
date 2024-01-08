@@ -6,9 +6,9 @@
  */
 
 /**
- * Common utilities for Open Rao
+ * Common utilities for Open RAO
  *
- * This package include utilities that could serve in all Open Rao modules.
+ * This package include utilities that could serve in all Open RAO modules.
  *
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
  */

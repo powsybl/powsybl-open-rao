@@ -60,7 +60,7 @@ public class VoltageCnecAdderImpl extends AbstractCnecAdderImpl<VoltageCnecAdder
         checkCnec();
 
         if (optimized) {
-            throw new OpenRaoException(format("Error while adding cnec %s : Open Rao does not allow the optimization of VoltageCnecs.", id));
+            throw new OpenRaoException(format("Error while adding cnec %s : Open RAO does not allow the optimization of VoltageCnecs.", id));
         }
 
         checkAndInitThresholds();

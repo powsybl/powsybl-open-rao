@@ -15,7 +15,7 @@ public enum ImportStatus {
     ELEMENT_NOT_FOUND_IN_NETWORK("Not found in network."),
     INCOMPLETE_DATA("Data incomplete"),
     INCONSISTENCY_IN_DATA("Data inconsistent"),
-    NOT_YET_HANDLED_BY_OPEN_RAO("Functionality is not handled by Open Rao for the moment."),
+    NOT_YET_HANDLED_BY_OPEN_RAO("Functionality is not handled by Open RAO for the moment."),
     NOT_FOR_RAO("Not used in RAO"),
     NOT_FOR_REQUESTED_TIMESTAMP("Not for requested timestamp"),
     OTHER("");

@@ -50,7 +50,7 @@ class ImporterRetrocompatibilityTest {
     /*
     CARE: the existing json file used in this test case SHOULD NOT BE MODIFIED. If
     the current tests do not pass, it means that formerly generated JSON RaoResult
-    will not be compatible anymore with the next version of open-rao-core -> This is NOT
+    will not be compatible anymore with the next version of open-rao -> This is NOT
     desirable.
 
     Instead, we need to ensure that the JSON RaoResult files used in this class can
@@ -60,7 +60,7 @@ class ImporterRetrocompatibilityTest {
     @Test
     void importV1Point0Test() {
 
-        // JSON file of open-rao-core v3.4.3
+        // JSON file of open-rao v3.4.3
         /*
          versioning was not yet in place, and version number does not explicitly appear
          in v1.0 files
@@ -77,7 +77,7 @@ class ImporterRetrocompatibilityTest {
     @Test
     void importV1Point1Test() {
 
-        // JSON file of open-rao-core v3.5.0
+        // JSON file of open-rao v3.5.0
         /*
          addition of versioning, no changes apart from the fact that version numbers
          are now added in the first lines of the json
