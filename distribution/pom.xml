@@ -24,7 +24,12 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>open-rao-cne-exporter</artifactId>
+            <artifactId>open-rao-core-cne-exporter</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>open-rao-swe-cne-exporter</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
