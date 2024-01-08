@@ -96,6 +96,9 @@ final class SystematicSensitivityAdapter {
         cnecSensitivityProvider.disableFactorsForBaseCaseSituation();
         String workingVariantId = network.getVariantManager().getWorkingVariantId();
         int counterForLogs = 2;
+
+        String variantForState = RandomizedString.getRandomizedString();
+        boolean shouldRemoveVariant = false;
         for (State state : statesWithRa) {
 
             Optional<com.powsybl.open_rao.data.crac_api.Contingency> optContingency = state.getContingency();
@@ -106,8 +109,8 @@ final class SystematicSensitivityAdapter {
 
             TECHNICAL_LOGS.debug("... ({}/{}) state with RA {}", counterForLogs, statesWithRa.size() + 1, state.getId());
 
-            String variantForState = RandomizedString.getRandomizedString();
-            network.getVariantManager().cloneVariant(workingVariantId, variantForState);
+            network.getVariantManager().cloneVariant(workingVariantId, variantForState, true);
+            shouldRemoveVariant = true;
             network.getVariantManager().setWorkingVariant(variantForState);
 
             appliedRemedialActions.applyOnNetwork(state, network);
@@ -120,8 +123,11 @@ final class SystematicSensitivityAdapter {
                 contingencyList,
                 cnecSensitivityProvider.getVariableSets(),
                 sensitivityComputationParameters), state.getInstant().getOrder());
-            network.getVariantManager().removeVariant(variantForState);
             counterForLogs++;
+        }
+
+        if (shouldRemoveVariant) {
+            network.getVariantManager().removeVariant(variantForState);
         }
 
         TECHNICAL_LOGS.debug("Systematic sensitivity analysis with applied RA [end]");

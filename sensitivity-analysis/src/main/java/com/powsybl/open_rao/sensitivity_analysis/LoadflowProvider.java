@@ -34,6 +34,8 @@ import java.util.stream.Collectors;
  */
 public class LoadflowProvider extends AbstractSimpleSensitivityProvider {
 
+    Pair<String, SensitivityVariableType> defaultSensitivityVariable;
+
     LoadflowProvider(Set<FlowCnec> cnecs, Set<Unit> units) {
         super(cnecs, units);
     }
@@ -96,6 +98,11 @@ public class LoadflowProvider extends AbstractSimpleSensitivityProvider {
     }
 
     void addDefaultSensitivityVariable(Network network, Map<String, SensitivityVariableType> sensitivityVariables) {
+        if (!Objects.isNull(defaultSensitivityVariable)) {
+            sensitivityVariables.put(defaultSensitivityVariable.getLeft(), defaultSensitivityVariable.getRight());
+            return;
+        }
+
         // First try to get a PST angle
         Optional<TwoWindingsTransformer> optionalPst = network.getTwoWindingsTransformerStream()
             .filter(this::willBeKeptInSensi)
@@ -103,6 +110,7 @@ public class LoadflowProvider extends AbstractSimpleSensitivityProvider {
 
         if (optionalPst.isPresent()) {
             sensitivityVariables.put(optionalPst.get().getId(), SensitivityVariableType.TRANSFORMER_PHASE);
+            defaultSensitivityVariable = Pair.of(optionalPst.get().getId(), SensitivityVariableType.TRANSFORMER_PHASE);
             return;
         }
 
@@ -113,6 +121,7 @@ public class LoadflowProvider extends AbstractSimpleSensitivityProvider {
 
         if (optionalGen.isPresent()) {
             sensitivityVariables.put(optionalGen.get().getId(), SensitivityVariableType.INJECTION_ACTIVE_POWER);
+            defaultSensitivityVariable = Pair.of(optionalGen.get().getId(), SensitivityVariableType.INJECTION_ACTIVE_POWER);
             return;
         }
         throw new OpenRaoException(String.format("Unable to create sensitivity factors. Did not find any varying element in network '%s'.", network.getId()));
