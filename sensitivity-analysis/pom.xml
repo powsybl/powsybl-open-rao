@@ -3,13 +3,13 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <artifactId>farao-core</artifactId>
-        <groupId>com.farao-community.farao</groupId>
+        <artifactId>open-rao</artifactId>
+        <groupId>com.powsybl</groupId>
         <version>5.1.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>farao-sensitivity-analysis</artifactId>
+    <artifactId>open-rao-sensitivity-analysis</artifactId>
     <packaging>jar</packaging>
     <name>Sensitivity analysis module</name>
     <description>Manages the different sensitivity analysis needed for the rao</description>
@@ -18,12 +18,12 @@
 
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>farao-commons</artifactId>
+            <artifactId>open-rao-commons</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>farao-util</artifactId>
+            <artifactId>open-rao-util</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
@@ -43,14 +43,14 @@
         <!--test-->
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>farao-crac-impl</artifactId>
+            <artifactId>open-rao-crac-impl</artifactId>
             <version>${project.version}</version>
             <type>test-jar</type>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>farao-crac-impl</artifactId>
+            <artifactId>open-rao-crac-impl</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>

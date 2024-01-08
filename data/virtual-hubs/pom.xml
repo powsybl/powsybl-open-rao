@@ -4,15 +4,15 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<parent>
-		<groupId>com.farao-community.farao</groupId>
-		<artifactId>farao-data</artifactId>
+		<groupId>com.powsybl</groupId>
+		<artifactId>open-rao-data</artifactId>
 		<version>5.1.0-SNAPSHOT</version>
 	</parent>
 
-	<artifactId>farao-virtual-hubs</artifactId>
+	<artifactId>open-rao-virtual-hubs</artifactId>
 	<packaging>pom</packaging>
-	<name>FARAO virtual hubs</name>
-	<description>Virtual hubs management for FARAO framework</description>
+	<name>Open RAO virtual hubs</name>
+	<description>Virtual hubs management for Open RAO framework</description>
 
 	<modules>
 		<module>virtual-hubs-api</module>

@@ -93,7 +93,7 @@
             </RegisteredResource>
           </Contingency_Series>
           <Monitored_Series>
-            <mRID>Farao-Mr-1</mRID>
+            <mRID>Open-Rao-Mr-1</mRID>
             <name>ERGBS - ZEGDQ</name>
             <RegisteredResource>
               <mRID codingScheme="A02">_dad02278-bd25-476f-8f58-dbe44be72586 + _ed0c5d75-4a54-43c8-b782-b20d7431630b</mRID>
@@ -144,8 +144,8 @@
             </RegisteredResource>
           </Contingency_Series>
           <Monitored_Series>
-            <mRID>FARAO_MR_88</mRID>
-            <name>FARAO_MR_88_ERFHK_2_400</name>
+            <mRID>OPEN_RAO_MR_88</mRID>
+            <name>OPEN_RAO_MR_88_ERFHK_2_400</name>
             <RegisteredResource>
               <mRID codingScheme="A02">_df16b3dd-c905-4a6f-84ee-f067be86f5da</mRID>
               <name>ERFHK_2_400</name>
@@ -169,8 +169,8 @@
             </RegisteredResource>
           </Monitored_Series>
           <Monitored_Series>
-            <mRID>FARAO_MR_9</mRID>
-            <name>FARAO_MR_9_OJLJJ_5_400_220</name>
+            <mRID>OPEN_RAO_MR_9</mRID>
+            <name>OPEN_RAO_MR_9_OJLJJ_5_400_220</name>
             <RegisteredResource>
               <mRID codingScheme="A02">_a708c3bc-465d-4fe7-b6ef-6fa6408a62b0</mRID>
               <name>OJLJJ_5_400_220</name>

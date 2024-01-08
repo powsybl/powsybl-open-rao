@@ -3,13 +3,13 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <artifactId>farao-rao-result</artifactId>
-        <groupId>com.farao-community.farao</groupId>
+        <artifactId>open-rao-rao-result</artifactId>
+        <groupId>com.powsybl</groupId>
         <version>5.1.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>farao-rao-result-api</artifactId>
+    <artifactId>open-rao-rao-result-api</artifactId>
     <packaging>jar</packaging>
     <name>RAO result API</name>
     <description>RAO result business model API</description>
@@ -18,12 +18,12 @@
         <!-- Compile dependencies -->
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>farao-commons</artifactId>
+            <artifactId>open-rao-commons</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>farao-crac-api</artifactId>
+            <artifactId>open-rao-crac-api</artifactId>
             <version>${project.version}</version>
         </dependency>
 

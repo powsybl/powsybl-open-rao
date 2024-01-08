@@ -8,3 +8,4 @@ target
 # ignore installation script artifacts
 install.cfg
 farao-*.zip
+open-rao-*.zip

@@ -5,11 +5,11 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>com.farao-community.farao</groupId>
-        <artifactId>farao-virtual-hubs</artifactId>
+        <groupId>com.powsybl</groupId>
+        <artifactId>open-rao-virtual-hubs</artifactId>
         <version>5.1.0-SNAPSHOT</version>
     </parent>
-    <artifactId>farao-virtual-hubs-api</artifactId>
+    <artifactId>open-rao-virtual-hubs-api</artifactId>
     <dependencies>
         <dependency>
             <groupId>org.junit.jupiter</groupId>

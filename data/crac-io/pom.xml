@@ -5,12 +5,12 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>com.farao-community.farao</groupId>
-        <artifactId>farao-data</artifactId>
+        <groupId>com.powsybl</groupId>
+        <artifactId>open-rao-data</artifactId>
         <version>5.1.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>farao-crac-io</artifactId>
+    <artifactId>open-rao-crac-io</artifactId>
     <version>5.1.0-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>CRAC import/export related modules</name>

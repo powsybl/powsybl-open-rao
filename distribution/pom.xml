@@ -5,163 +5,168 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>com.farao-community.farao</groupId>
-        <artifactId>farao-core</artifactId>
+        <groupId>com.powsybl</groupId>
+        <artifactId>open-rao</artifactId>
         <version>5.1.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>farao-distribution</artifactId>
+    <artifactId>open-rao-distribution</artifactId>
     <packaging>pom</packaging>
     <name>Distribution package</name>
     <description>Jacoco report aggregator</description>
 
     <dependencies>
-        <!-- farao-core dependencies -->
+        <!-- open-rao dependencies -->
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>farao-angle-monitoring</artifactId>
+            <artifactId>open-rao-angle-monitoring</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>farao-core-cne-exporter</artifactId>
+            <artifactId>open-rao-core-cne-exporter</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>farao-crac-api</artifactId>
+            <artifactId>open-rao-swe-cne-exporter</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>farao-crac-creator-api</artifactId>
+            <artifactId>open-rao-crac-api</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>farao-crac-impl</artifactId>
+            <artifactId>open-rao-crac-creator-api</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>farao-crac-io-api</artifactId>
+            <artifactId>open-rao-crac-impl</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>farao-crac-io-json</artifactId>
+            <artifactId>open-rao-crac-io-api</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>farao-crac-loopflow-extension</artifactId>
+            <artifactId>open-rao-crac-io-json</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>farao-crac-util</artifactId>
+            <artifactId>open-rao-crac-loopflow-extension</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>farao-commons</artifactId>
+            <artifactId>open-rao-crac-util</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>farao-flowbased-domain</artifactId>
+            <artifactId>open-rao-commons</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>farao-flowbased-computation-api</artifactId>
+            <artifactId>open-rao-flowbased-domain</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>farao-flowbased-computation-impl</artifactId>
+            <artifactId>open-rao-flowbased-computation-api</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>farao-glsk-virtual-hubs</artifactId>
+            <artifactId>open-rao-flowbased-computation-impl</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>farao-loopflow-computation</artifactId>
+            <artifactId>open-rao-glsk-virtual-hubs</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>farao-native-crac-api</artifactId>
+            <artifactId>open-rao-loopflow-computation</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>farao-native-crac-io-api</artifactId>
+            <artifactId>open-rao-native-crac-api</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>farao-rao-result-api</artifactId>
+            <artifactId>open-rao-native-crac-io-api</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>farao-rao-result-impl</artifactId>
+            <artifactId>open-rao-rao-result-api</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>farao-rao-result-json</artifactId>
+            <artifactId>open-rao-rao-result-impl</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>farao-reference-program</artifactId>
+            <artifactId>open-rao-rao-result-json</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>farao-refprog-xml-importer</artifactId>
+            <artifactId>open-rao-reference-program</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>farao-search-tree-rao</artifactId>
+            <artifactId>open-rao-refprog-xml-importer</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>farao-sensitivity-analysis</artifactId>
+            <artifactId>open-rao-search-tree-rao</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>farao-rao-api</artifactId>
+            <artifactId>open-rao-sensitivity-analysis</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>farao-util</artifactId>
+            <artifactId>open-rao-rao-api</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>farao-voltage-monitoring</artifactId>
+            <artifactId>open-rao-util</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>farao-monitoring-commons</artifactId>
+            <artifactId>open-rao-voltage-monitoring</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>open-rao-monitoring-commons</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>
 
     <profiles>
         <profile>
-            <id>coverage</id>
+            <id>jacoco</id>
             <activation>
                 <activeByDefault>false</activeByDefault>
             </activation>

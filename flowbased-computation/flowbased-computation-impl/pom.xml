@@ -5,12 +5,12 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>com.farao-community.farao</groupId>
-        <artifactId>farao-flowbased-computation</artifactId>
+        <groupId>com.powsybl</groupId>
+        <artifactId>open-rao-flowbased-computation</artifactId>
         <version>5.1.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>farao-flowbased-computation-impl</artifactId>
+    <artifactId>open-rao-flowbased-computation-impl</artifactId>
     <packaging>jar</packaging>
     <name>Flowbased computation implementation</name>
     <description>Simple implementation of Flowbased computation</description>
@@ -18,17 +18,17 @@
     <dependencies>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>farao-crac-api</artifactId>
+            <artifactId>open-rao-crac-api</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>farao-flowbased-computation-api</artifactId>
+            <artifactId>open-rao-flowbased-computation-api</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>farao-sensitivity-analysis</artifactId>
+            <artifactId>open-rao-sensitivity-analysis</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
@@ -51,19 +51,19 @@
         <!-- Test dependencies -->
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>farao-crac-impl</artifactId>
+            <artifactId>open-rao-crac-impl</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>farao-crac-io-json</artifactId>
+            <artifactId>open-rao-crac-io-json</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>farao-rao-result-impl</artifactId>
+            <artifactId>open-rao-rao-result-impl</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>

@@ -5,12 +5,12 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>com.farao-community.farao</groupId>
-        <artifactId>farao-flowbased-computation</artifactId>
+        <groupId>com.powsybl</groupId>
+        <artifactId>open-rao-flowbased-computation</artifactId>
         <version>5.1.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>farao-flowbased-computation-api</artifactId>
+    <artifactId>open-rao-flowbased-computation-api</artifactId>
     <packaging>jar</packaging>
     <name>Flowbased computation interface</name>
     <description>Interface of a flowbased computation task</description>
@@ -19,27 +19,27 @@
         <!-- Compile dependencies -->
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>farao-crac-api</artifactId>
+            <artifactId>open-rao-crac-api</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>farao-crac-io-api</artifactId>
+            <artifactId>open-rao-crac-io-api</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>farao-crac-util</artifactId>
+            <artifactId>open-rao-crac-util</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>farao-flowbased-domain</artifactId>
+            <artifactId>open-rao-flowbased-domain</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>farao-rao-result-api</artifactId>
+            <artifactId>open-rao-rao-result-api</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
@@ -65,14 +65,14 @@
         <!-- Test dependencies -->
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>farao-commons</artifactId>
+            <artifactId>open-rao-commons</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
             <type>test-jar</type>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>farao-crac-impl</artifactId>
+            <artifactId>open-rao-crac-impl</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>

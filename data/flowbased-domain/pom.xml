@@ -5,12 +5,12 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>com.farao-community.farao</groupId>
-        <artifactId>farao-data</artifactId>
+        <groupId>com.powsybl</groupId>
+        <artifactId>open-rao-data</artifactId>
         <version>5.1.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>farao-flowbased-domain</artifactId>
+    <artifactId>open-rao-flowbased-domain</artifactId>
     <packaging>jar</packaging>
     <name>Flowbased domain business object model</name>
     <description>Object model for flowbased domain</description>

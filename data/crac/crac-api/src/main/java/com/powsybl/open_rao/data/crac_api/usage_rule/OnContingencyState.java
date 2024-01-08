@@ -1,0 +1,30 @@
+/*
+ * Copyright (c) 2020, RTE (http://www.rte-france.com)
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
+package com.powsybl.open_rao.data.crac_api.usage_rule;
+
+import com.powsybl.open_rao.data.crac_api.Contingency;
+import com.powsybl.open_rao.data.crac_api.State;
+
+/**
+ * The OnContingencyState UsageRule is defined on a given State. For instance, if a RemedialAction
+ * has an OnContingencyState UsageRule with State "curative-co1" and UsageMethod FORCED, this
+ * RemedialAction will be forced in the State "curative-co1".
+ *
+ * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
+ */
+public interface OnContingencyState extends UsageRule {
+
+    /**
+     * Get the State of the OnContingencyState usage rule
+     */
+    State getState();
+
+    /**
+     * Get the Contingency associated to the state of the OnContingencyState usage rule
+     */
+    Contingency getContingency();
+}

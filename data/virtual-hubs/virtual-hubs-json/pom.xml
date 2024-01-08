@@ -5,17 +5,17 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>com.farao-community.farao</groupId>
-        <artifactId>farao-virtual-hubs</artifactId>
+        <groupId>com.powsybl</groupId>
+        <artifactId>open-rao-virtual-hubs</artifactId>
         <version>5.1.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>farao-virtual-hubs-json</artifactId>
+    <artifactId>open-rao-virtual-hubs-json</artifactId>
 
     <dependencies>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>farao-virtual-hubs-api</artifactId>
+            <artifactId>open-rao-virtual-hubs-api</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
