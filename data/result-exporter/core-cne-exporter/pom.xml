@@ -12,11 +12,11 @@
     <parent>
         <artifactId>open-rao-result-exporter</artifactId>
         <groupId>com.powsybl</groupId>
-        <version>4.7.0-SNAPSHOT</version>
+        <version>5.1.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>open-rao-cne-exporter</artifactId>
+    <artifactId>open-rao-core-cne-exporter</artifactId>
     <packaging>jar</packaging>
     <name>CORE CNE exporter</name>
     <description>Export the results of a RAO in a CNE file for the CORE region</description>
