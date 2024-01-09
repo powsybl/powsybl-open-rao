@@ -5,15 +5,15 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>com.farao-community.farao</groupId>
-        <artifactId>farao-core</artifactId>
+        <groupId>com.powsybl</groupId>
+        <artifactId>open-rao</artifactId>
         <version>5.1.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>farao-monitoring</artifactId>
+    <artifactId>open-rao-monitoring</artifactId>
     <packaging>pom</packaging>
     <name>Monitoring</name>
-    <description>Monitoring classes (voltage and angle) of FARAO core</description>
+    <description>Monitoring classes (voltage and angle) of Open RAO</description>
 
     <modules>
         <module>angle-monitoring</module>

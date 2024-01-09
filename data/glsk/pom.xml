@@ -5,11 +5,11 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>com.farao-community.farao</groupId>
-        <artifactId>farao-data</artifactId>
+        <groupId>com.powsybl</groupId>
+        <artifactId>open-rao-data</artifactId>
         <version>5.1.0-SNAPSHOT</version>
     </parent>
-    <artifactId>farao-glsk</artifactId>
+    <artifactId>open-rao-glsk</artifactId>
     <version>5.1.0-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>GLSK virtual hubs related modules</name>

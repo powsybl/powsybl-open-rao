@@ -9,12 +9,12 @@
     </jxb:bindings>
     <jxb:bindings schemaLocation="../xsd/iec62325-451-n-crac_v2_3.xsd">
         <jxb:schemaBindings>
-            <jxb:package name="com.farao_community.farao.data.crac_creation.creator.cim.xsd" />
+            <jxb:package name="com.powsybl.open_rao.data.crac_creation.creator.cim.xsd" />
         </jxb:schemaBindings>
     </jxb:bindings>
     <jxb:bindings schemaLocation="../xsd/urn-entsoe-eu-wgedi-codelists.xsd">
         <jxb:schemaBindings>
-            <jxb:package name="com.farao_community.farao.data.crac_creation.creator.cim.xsd.urncodelists" />
+            <jxb:package name="com.powsybl.open_rao.data.crac_creation.creator.cim.xsd.urncodelists" />
         </jxb:schemaBindings>
     </jxb:bindings>
 </jxb:bindings>
