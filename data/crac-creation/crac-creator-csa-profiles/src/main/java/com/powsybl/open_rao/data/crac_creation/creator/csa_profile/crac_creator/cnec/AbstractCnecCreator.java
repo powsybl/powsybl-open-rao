@@ -159,8 +159,6 @@ public abstract class AbstractCnecCreator {
     }
 
     protected boolean incompatibleLocationsBetweenCnecAndContingency(Set<String> cnecElementsIds, Contingency contingency) {
-        return false;
-        /*
         if (contingency == null) {
             return false;
         }
@@ -170,7 +168,6 @@ public abstract class AbstractCnecCreator {
         // Intersect locations sets
         cnecLocations.retainAll(contingencyLocations);
         return cnecLocations.isEmpty();
-        */
     }
 
     protected boolean incompatibleLocationsBetweenCnecAndContingency(String cnecElementId, Contingency contingency) {
