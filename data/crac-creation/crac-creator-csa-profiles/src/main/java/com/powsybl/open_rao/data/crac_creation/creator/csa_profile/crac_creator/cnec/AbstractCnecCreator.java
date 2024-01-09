@@ -1,16 +1,9 @@
 package com.powsybl.open_rao.data.crac_creation.creator.csa_profile.crac_creator.cnec;
 
-import com.farao_community.farao.commons.FaraoException;
-import com.farao_community.farao.data.crac_api.Contingency;
-import com.farao_community.farao.data.crac_api.Crac;
-import com.farao_community.farao.data.crac_api.cnec.CnecAdder;
-import com.farao_community.farao.data.crac_creation.creator.csa_profile.crac_creator.CsaProfileCracCreationContext;
-import com.farao_community.farao.data.crac_creation.creator.csa_profile.crac_creator.CsaProfileCracUtils;
-import com.farao_community.farao.data.crac_creation.creator.csa_profile.crac_creator.CsaProfileElementaryCreationContext;
-import com.farao_community.farao.data.crac_creation.util.cgmes.CgmesBranchHelper;
 import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.Country;
+import com.powsybl.open_rao.commons.OpenRaoException;
 import com.powsybl.open_rao.data.crac_api.Contingency;
 import com.powsybl.open_rao.data.crac_api.Crac;
 import com.powsybl.open_rao.data.crac_api.cnec.CnecAdder;
@@ -130,7 +123,7 @@ public abstract class AbstractCnecCreator {
     public Set<Optional<Country>> getNetworkElementLocation(String networkElementId) {
         Identifiable<?> ne = network.getIdentifiable(networkElementId);
         if (Objects.isNull(ne)) {
-            throw new FaraoException("Network element " + networkElementId + " was not found in the network.");
+            throw new OpenRaoException("Network element " + networkElementId + " was not found in the network.");
         } else if (ne instanceof Branch) {
             Branch<?> branch = (Branch) ne;
             Optional<Country> country1 = getSubstationCountry(branch.getTerminal1().getVoltageLevel().getSubstation());
@@ -152,7 +145,7 @@ public abstract class AbstractCnecCreator {
             return Set.of(((Substation) ne).getCountry());
         } else if (ne instanceof HvdcLine) {
             return Set.of(getSubstationCountry(((HvdcLine) ne).getConverterStation1().getTerminal().getVoltageLevel().getSubstation()), getSubstationCountry(((HvdcLine) ne).getConverterStation2().getTerminal().getVoltageLevel().getSubstation()));
-        }  else {
+        } else {
             throw new NotImplementedException("Don't know how to figure out the location of " + ne.getId() + " of type " + ne.getClass());
         }
     }
@@ -166,6 +159,8 @@ public abstract class AbstractCnecCreator {
     }
 
     protected boolean incompatibleLocationsBetweenCnecAndContingency(Set<String> cnecElementsIds, Contingency contingency) {
+        return false;
+        /*
         if (contingency == null) {
             return false;
         }
@@ -175,6 +170,7 @@ public abstract class AbstractCnecCreator {
         // Intersect locations sets
         cnecLocations.retainAll(contingencyLocations);
         return cnecLocations.isEmpty();
+        */
     }
 
     protected boolean incompatibleLocationsBetweenCnecAndContingency(String cnecElementId, Contingency contingency) {

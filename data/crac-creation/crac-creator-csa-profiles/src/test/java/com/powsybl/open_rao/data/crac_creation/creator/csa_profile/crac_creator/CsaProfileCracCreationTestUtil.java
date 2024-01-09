@@ -214,6 +214,11 @@ public final class CsaProfileCracCreationTestUtil {
         return getCsaCracCreationContext(csaProfilesArchive, network, OffsetDateTime.parse("2023-03-29T12:00Z"));
     }
 
+    public static CsaProfileCracCreationContext getCsaCracCreationContext(String csaProfilesArchive, OffsetDateTime offsetDateTime) {
+        Network network = getNetworkFromResource(csaProfilesArchive);
+        return getCsaCracCreationContext(csaProfilesArchive, network, offsetDateTime);
+    }
+
     public static CsaProfileCracCreationContext getCsaCracCreationContext(String csaProfilesArchive, Network network, OffsetDateTime offsetDateTime) {
         CsaProfileCracImporter cracImporter = new CsaProfileCracImporter();
         InputStream inputStream = CsaProfileCracCreationTestUtil.class.getResourceAsStream(csaProfilesArchive);

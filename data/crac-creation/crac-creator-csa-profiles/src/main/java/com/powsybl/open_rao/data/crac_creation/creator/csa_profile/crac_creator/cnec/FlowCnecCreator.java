@@ -211,7 +211,7 @@ public class FlowCnecCreator extends AbstractCnecCreator {
         if (thresholds.isEmpty()) {
             return;
         }
-        String cnecName = getCnecName(instantId, hasNoPatl ? null : contingency);
+        String cnecName = getCnecName(instantId, contingency);
         FlowCnecAdder cnecAdder = initFlowCnec();
         addCnecBaseInformation(cnecAdder, contingency, instantId);
         for (Map.Entry<TwoSides, Double> thresholdEntry : thresholds.entrySet()) {
@@ -290,17 +290,7 @@ public class FlowCnecCreator extends AbstractCnecCreator {
                     //TODO : this most likely needs fixing, maybe continue is enough as a fix instead of return, but then the context wont be very clear since some will have been imported (can already be the case)
                     continue;
                 }
-                for (int acceptableDuration : thresholds.keySet()) {
-                    if (acceptableDuration != Integer.MAX_VALUE) {
-                        Instant instant = getCnecInstant(acceptableDuration);
-                        if (instant == null) {
-                            csaProfileCnecCreationContexts.add(CsaProfileElementaryCreationContext.notImported(assessedElementId, ImportStatus.INCONSISTENCY_IN_DATA, writeAssessedElementIgnoredReasonMessage("TATL acceptable duration is negative: " + acceptableDuration)));
-                            return;
-                        }
-                        addCurativeFlowCnec(networkElement, contingency, instant.getId(), thresholds.get(acceptableDuration), useMaxAndMinThresholds, acceptableDuration);
-                    }
-                    addFlowCnec(networkElement, contingency, instant.getId(), thresholdEntry.getValue(), useMaxAndMinThresholds, false);
-                }
+                addCurativeFlowCnec(networkElement, contingency, instant.getId(), thresholds.get(acceptableDuration), useMaxAndMinThresholds, acceptableDuration);
             }
         }
     }

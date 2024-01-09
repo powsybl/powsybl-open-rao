@@ -19,7 +19,6 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static com.powsybl.open_rao.data.crac_creation.creator.csa_profile.crac_creator.CsaProfileCracCreationTestUtil.getCsaCracCreationContext;
 import static com.powsybl.open_rao.data.crac_creation.creator.csa_profile.crac_creator.CsaProfileCracCreationTestUtil.getLogs;
@@ -283,7 +282,7 @@ class FlowCnecCreationTest {
         assertEquals(12, cracCreationContext.getCrac().getFlowCnecs().size());
 
         List<FlowCnec> listFlowCnecs = cracCreationContext.getCrac().getFlowCnecs()
-                .stream().sorted(Comparator.comparing(FlowCnec::getId)).collect(Collectors.toList());
+                .stream().sorted(Comparator.comparing(FlowCnec::getId)).toList();
 
         CsaProfileCracCreationTestUtil.assertFlowCnecEquality(listFlowCnecs.get(0),
                 "ELIA_AE2 (d463cbba-c89c-4199-bbb9-1a33d90cae2c) - preventive",
