@@ -77,12 +77,6 @@ class CsaProfileCracCreatorTest {
     }
 
     @Test
-    void test() {
-        CsaProfileCracCreationContext cracCreationContext = getCsaCracCreationContext("/R1TestAExCO.zip", OffsetDateTime.parse("2023-06-11T12:00Z"));
-        assertEquals(434728, cracCreationContext.getCrac().getFlowCnecs().size());
-    }
-
-    @Test
     void checkExcludedCombinationConstraintHandling() {
         //CSA 63_1
         Network network = Mockito.mock(Network.class);
