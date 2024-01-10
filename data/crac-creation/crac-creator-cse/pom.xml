@@ -37,15 +37,15 @@
                             <version>${maven.jvnet.jaxb2-basics.version}</version>
                         </plugin>
                     </plugins>
-                    <generatePackage>com.powsybl.open_rao.data.crac_creation.creator.cse.xsd</generatePackage>
-                    <schemaDirectory>src/main/resources/com/powsybl/open_rao/data/crac_creation/creator/cse/xsd</schemaDirectory>
+                    <generatePackage>com.powsybl.openrao.data.craccreation.creator.cse.xsd</generatePackage>
+                    <schemaDirectory>src/main/resources/com/powsybl/openrao/data/craccreation/creator/cse/xsd</schemaDirectory>
                 </configuration>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
                 <configuration>
-                    <excludePackageNames>com.powsybl.open_rao.data.crac_creation.creator.cse.xsd</excludePackageNames>
+                    <excludePackageNames>com.powsybl.openrao.data.craccreation.creator.cse.xsd</excludePackageNames>
                 </configuration>
             </plugin>
         </plugins>
