@@ -56,7 +56,7 @@ public class GeographicalFilter {
     private static Set<Optional<Country>> getBranchLocation(Branch<?> branch) {
         Optional<Country> country1 = branch.getTerminal1() == null ? Optional.empty() : getSubstationCountry(branch.getTerminal1().getVoltageLevel().getSubstation());
         Optional<Country> country2 = branch.getTerminal2() == null ? Optional.empty() : getSubstationCountry(branch.getTerminal2().getVoltageLevel().getSubstation());
-        return country1.equals(country2) ? Set.of(country1) :  Set.of(country1, country2);
+        return country1.equals(country2) ? Set.of(country1) : Set.of(country1, country2);
     }
 
     private static Set<Optional<Country>> getSwitchLocation(Switch switchElement) {
@@ -64,7 +64,7 @@ public class GeographicalFilter {
     }
 
     private static Set<Optional<Country>> getInjectionLocation(Injection<?> injection) {
-        return Set.of(injection.getTerminal() == null ? Optional.empty() : getSubstationCountry((injection.getTerminal().getVoltageLevel().getSubstation())));
+        return Set.of(injection.getTerminal() == null ? Optional.empty() : getSubstationCountry(injection.getTerminal().getVoltageLevel().getSubstation()));
     }
 
     private static Set<Optional<Country>> getBusLocation(Bus bus) {

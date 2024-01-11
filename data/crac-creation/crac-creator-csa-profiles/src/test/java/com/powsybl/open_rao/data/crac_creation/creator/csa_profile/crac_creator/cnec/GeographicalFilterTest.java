@@ -19,7 +19,6 @@ class GeographicalFilterTest {
     private final String dutchBelgianLineId = "NNL2AA1  BBE3AA1  1";
     private final String belgianSwitchId = "BBE1AA1  BBE4AA1  1";
 
-
     @Test
     void getLocationsFromSingleElementFromOneCountry() {
         assertCountriesSetEquality(

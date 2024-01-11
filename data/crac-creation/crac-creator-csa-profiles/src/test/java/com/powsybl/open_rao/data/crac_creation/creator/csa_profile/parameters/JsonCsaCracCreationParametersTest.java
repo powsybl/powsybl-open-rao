@@ -15,13 +15,13 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class JsonCsaCracCreationParametersTest {
-    private static final JsonCsaCracCreationParameters jsonSerDe = new JsonCsaCracCreationParameters();
+    private static final JsonCsaCracCreationParameters JSON_CSA_CRAC_CREATION_PARAMETERS = new JsonCsaCracCreationParameters();
 
     @Test
     void basicData() {
-        assertEquals("CsaCracCreatorParameters", jsonSerDe.getExtensionName());
-        assertEquals(CsaCracCreationParameters.class, jsonSerDe.getExtensionClass());
-        assertEquals("crac-creation-parameters", jsonSerDe.getCategoryName());
+        assertEquals("CsaCracCreatorParameters", JSON_CSA_CRAC_CREATION_PARAMETERS.getExtensionName());
+        assertEquals(CsaCracCreationParameters.class, JSON_CSA_CRAC_CREATION_PARAMETERS.getExtensionClass());
+        assertEquals("crac-creation-parameters", JSON_CSA_CRAC_CREATION_PARAMETERS.getCategoryName());
     }
 
     @Test
