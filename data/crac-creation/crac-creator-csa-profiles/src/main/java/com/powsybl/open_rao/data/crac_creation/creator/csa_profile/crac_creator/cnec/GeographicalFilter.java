@@ -29,10 +29,9 @@ import java.util.stream.Collectors;
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
-public class GeographicalFilter {
+public final class GeographicalFilter {
 
-
-    public GeographicalFilter() {}
+    private GeographicalFilter() { }
 
     public static Set<Country> getNetworkElementLocation(String networkElementId, Network network) {
         Identifiable<?> networkElement = network.getIdentifiable(networkElementId);
@@ -95,7 +94,7 @@ public class GeographicalFilter {
     }
 
     private static Set<Country> filterEmptyCountries(Set<Optional<Country>> countries) {
-        return countries.stream().filter(Optional::isPresent ).map(Optional::get).collect(Collectors.toSet());
+        return countries.stream().filter(Optional::isPresent).map(Optional::get).collect(Collectors.toSet());
     }
 
     public static Set<Country> getNetworkElementsLocations(Set<String> networkElementIds, Network network) {

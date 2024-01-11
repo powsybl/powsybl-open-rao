@@ -33,7 +33,7 @@ public abstract class AbstractCnecCreator {
     protected final CsaProfileCracCreationContext cracCreationContext;
     protected final String rejectedLinksAssessedElementContingency;
     private final boolean useGeographicalFilter;
-    
+
     protected AbstractCnecCreator(Crac crac, Network network, String assessedElementId, String nativeAssessedElementName, String assessedElementOperator, boolean inBaseCase, PropertyBag operationalLimitPropertyBag, List<Contingency> linkedContingencies, Set<CsaProfileElementaryCreationContext> csaProfileCnecCreationContexts, CsaProfileCracCreationContext cracCreationContext, String rejectedLinksAssessedElementContingency, boolean useGeographicalFilter) {
         this.crac = crac;
         this.network = network;
