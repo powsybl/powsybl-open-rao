@@ -2,6 +2,13 @@ package com.powsybl.open_rao.data.crac_creation.creator.csa_profile.crac_creator
 
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.read.ListAppender;
+import com.powsybl.iidm.network.Branch;
+import com.powsybl.iidm.network.CurrentLimits;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.Switch;
+import com.powsybl.iidm.network.Terminal;
+import com.powsybl.iidm.network.TwoSides;
+import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.open_rao.commons.logs.RaoBusinessWarns;
 import com.powsybl.open_rao.data.crac_api.Instant;
 import com.powsybl.open_rao.data.crac_api.cnec.FlowCnec;
@@ -14,16 +21,20 @@ import com.powsybl.open_rao.data.crac_creation.creator.csa_profile.crac_creator.
 import com.powsybl.open_rao.data.crac_creation.creator.csa_profile.crac_creator.CsaProfileCracCreationTestUtil;
 import com.powsybl.open_rao.data.crac_creation.creator.csa_profile.crac_creator.CsaProfileElementaryCreationContext;
 import com.powsybl.open_rao.data.crac_impl.OnFlowConstraintImpl;
-import com.powsybl.iidm.network.*;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.Comparator;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 
 import static com.powsybl.open_rao.data.crac_creation.creator.csa_profile.crac_creator.CsaProfileCracCreationTestUtil.getCsaCracCreationContext;
 import static com.powsybl.open_rao.data.crac_creation.creator.csa_profile.crac_creator.CsaProfileCracCreationTestUtil.getLogs;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class FlowCnecCreationTest {
     private static final String PREVENTIVE_INSTANT_ID = "preventive";
@@ -283,7 +294,7 @@ class FlowCnecCreationTest {
         assertEquals(12, cracCreationContext.getCrac().getFlowCnecs().size());
 
         List<FlowCnec> listFlowCnecs = cracCreationContext.getCrac().getFlowCnecs()
-                .stream().sorted(Comparator.comparing(FlowCnec::getId)).collect(Collectors.toList());
+                .stream().sorted(Comparator.comparing(FlowCnec::getId)).toList();
 
         CsaProfileCracCreationTestUtil.assertFlowCnecEquality(listFlowCnecs.get(0),
                 "ELIA_AE2 (d463cbba-c89c-4199-bbb9-1a33d90cae2c) - preventive",
@@ -316,8 +327,8 @@ class FlowCnecCreationTest {
                 preventiveInstant, null,
                 +1000d, -1000d, Side.LEFT);
         CsaProfileCracCreationTestUtil.assertFlowCnecEquality(listFlowCnecs.get(5),
-                "REE_AE3 (989535e7-3789-47e7-8ba7-da7be9962a15) - REE_CO3 - auto",
-                "REE_AE3 (989535e7-3789-47e7-8ba7-da7be9962a15) - REE_CO3 - auto",
+                "REE_AE3 (989535e7-3789-47e7-8ba7-da7be9962a15) - REE_CO3 - auto - TATL 600",
+                "REE_AE3 (989535e7-3789-47e7-8ba7-da7be9962a15) - REE_CO3 - auto - TATL 600",
                 "048badc5-c766-11e1-8775-005056c00008",
                 autoInstant, "13334fdf-9cc2-4341-adb6-1281269040b4",
                 +500.0, -500.0, Side.LEFT);
@@ -479,8 +490,8 @@ class FlowCnecCreationTest {
 
         CsaProfileCracCreationTestUtil.assertFlowCnecEquality(
                 importedFlowCnecs.get(0),
-                "RTE_AE1 (183829bd-5c60-4c04-ad57-c72a15a75047) - RTE_CO1 - auto",
-                "RTE_AE1 (183829bd-5c60-4c04-ad57-c72a15a75047) - RTE_CO1 - auto",
+                "RTE_AE1 (183829bd-5c60-4c04-ad57-c72a15a75047) - RTE_CO1 - auto - TATL 600",
+                "RTE_AE1 (183829bd-5c60-4c04-ad57-c72a15a75047) - RTE_CO1 - auto - TATL 600",
                 "b58bf21a-096a-4dae-9a01-3f03b60c24c7",
                 autoInstant,
                 "bbda9fe0-77e0-4f8e-b9d9-4402a539f2b7",

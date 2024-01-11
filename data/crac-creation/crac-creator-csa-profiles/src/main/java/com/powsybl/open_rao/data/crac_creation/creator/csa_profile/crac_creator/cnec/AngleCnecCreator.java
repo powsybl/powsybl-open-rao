@@ -1,5 +1,8 @@
 package com.powsybl.open_rao.data.crac_creation.creator.csa_profile.crac_creator.cnec;
 
+import com.powsybl.iidm.network.Identifiable;
+import com.powsybl.iidm.network.IdentifiableType;
+import com.powsybl.iidm.network.Network;
 import com.powsybl.open_rao.commons.Unit;
 import com.powsybl.open_rao.data.crac_api.Contingency;
 import com.powsybl.open_rao.data.crac_api.Crac;
@@ -9,9 +12,6 @@ import com.powsybl.open_rao.data.crac_creation.creator.api.ImportStatus;
 import com.powsybl.open_rao.data.crac_creation.creator.csa_profile.crac_creator.CsaProfileConstants;
 import com.powsybl.open_rao.data.crac_creation.creator.csa_profile.crac_creator.CsaProfileCracCreationContext;
 import com.powsybl.open_rao.data.crac_creation.creator.csa_profile.crac_creator.CsaProfileElementaryCreationContext;
-import com.powsybl.iidm.network.Identifiable;
-import com.powsybl.iidm.network.IdentifiableType;
-import com.powsybl.iidm.network.Network;
 import com.powsybl.triplestore.api.PropertyBag;
 
 import java.util.List;
@@ -20,8 +20,8 @@ import java.util.Set;
 
 public class AngleCnecCreator extends AbstractCnecCreator {
 
-    public AngleCnecCreator(Crac crac, Network network, String assessedElementId, String nativeAssessedElementName, String assessedElementOperator, boolean inBaseCase, PropertyBag angleLimitPropertyBag, List<Contingency> linkedContingencies, Set<CsaProfileElementaryCreationContext> csaProfileCnecCreationContexts, CsaProfileCracCreationContext cracCreationContext, String rejectedLinksAssessedElementContingency) {
-        super(crac, network, assessedElementId, nativeAssessedElementName, assessedElementOperator, inBaseCase, angleLimitPropertyBag, linkedContingencies, csaProfileCnecCreationContexts, cracCreationContext, rejectedLinksAssessedElementContingency);
+    public AngleCnecCreator(Crac crac, Network network, String assessedElementId, String nativeAssessedElementName, String assessedElementOperator, boolean inBaseCase, PropertyBag angleLimitPropertyBag, List<Contingency> linkedContingencies, Set<CsaProfileElementaryCreationContext> csaProfileCnecCreationContexts, CsaProfileCracCreationContext cracCreationContext, String rejectedLinksAssessedElementContingency, boolean useGeographicalFilter) {
+        super(crac, network, assessedElementId, nativeAssessedElementName, assessedElementOperator, inBaseCase, angleLimitPropertyBag, linkedContingencies, csaProfileCnecCreationContexts, cracCreationContext, rejectedLinksAssessedElementContingency, useGeographicalFilter);
     }
 
     public void addAngleCnecs() {
@@ -35,10 +35,11 @@ public class AngleCnecCreator extends AbstractCnecCreator {
 
     private void addAngleCnec(String instantId, Contingency contingency) {
         AngleCnecAdder angleCnecAdder = initAngleCnec();
-        if (addAngleLimit(angleCnecAdder)) {
+        if (addAngleLimit(angleCnecAdder, contingency)) {
             addCnecBaseInformation(angleCnecAdder, contingency, instantId);
             angleCnecAdder.add();
-            markCnecAsImportedAndHandleRejectedContingencies(instantId, contingency);
+            String cnecName = getCnecName(instantId, contingency);
+            markCnecAsImportedAndHandleRejectedContingencies(cnecName);
         }
     }
 
@@ -49,7 +50,7 @@ public class AngleCnecCreator extends AbstractCnecCreator {
                 .withReliabilityMargin(0);
     }
 
-    private boolean addAngleLimit(AngleCnecAdder angleCnecAdder) {
+    private boolean addAngleLimit(AngleCnecAdder angleCnecAdder, Contingency contingency) {
         String isFlowToRefTerminalStr = operationalLimitPropertyBag.get(CsaProfileConstants.REQUEST_IS_FLOW_TO_REF_TERMINAL);
         boolean isFlowToRefTerminalIsNull = isFlowToRefTerminalStr == null;
         boolean isFlowToRefTerminal = isFlowToRefTerminalIsNull || Boolean.parseBoolean(isFlowToRefTerminalStr);
@@ -68,6 +69,11 @@ public class AngleCnecCreator extends AbstractCnecCreator {
 
         boolean areNetworkElementsOk = this.addAngleCnecElements(angleCnecAdder, networkElement1Id, networkElement2Id, isFlowToRefTerminal);
         if (!areNetworkElementsOk) {
+            return false;
+        }
+
+        if (incompatibleLocationsBetweenCnecAndContingency(Set.of(terminal1Id, terminal2Id), contingency)) {
+            csaProfileCnecCreationContexts.add(CsaProfileElementaryCreationContext.notImported(assessedElementId, ImportStatus.INCONSISTENCY_IN_DATA, writeAssessedElementIgnoredReasonMessage("AssessedElement and Contingency " + contingency.getId()) + " do not belong to a common country. AngleCNEC will not be imported."));
             return false;
         }
 

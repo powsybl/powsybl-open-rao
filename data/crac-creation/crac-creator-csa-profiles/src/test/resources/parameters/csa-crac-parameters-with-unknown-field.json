@@ -1,0 +1,9 @@
+{
+  "crac-factory" : "CracImplFactory",
+  "extensions" : {
+    "CsaCracCreatorParameters": {
+      "use-cnec-geographical-filter": true,
+      "unknown-field": "What is this?"
+    }
+  }
+}

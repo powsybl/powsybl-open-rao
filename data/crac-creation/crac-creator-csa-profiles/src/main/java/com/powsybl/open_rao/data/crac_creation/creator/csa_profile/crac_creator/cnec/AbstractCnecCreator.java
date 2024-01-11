@@ -1,21 +1,23 @@
 package com.powsybl.open_rao.data.crac_creation.creator.csa_profile.crac_creator.cnec;
 
+import com.powsybl.iidm.network.DanglingLine;
+import com.powsybl.iidm.network.Identifiable;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.TieLine;
 import com.powsybl.open_rao.data.crac_api.Contingency;
 import com.powsybl.open_rao.data.crac_api.Crac;
+import com.powsybl.open_rao.data.crac_api.NetworkElement;
 import com.powsybl.open_rao.data.crac_api.cnec.CnecAdder;
 import com.powsybl.open_rao.data.crac_creation.creator.csa_profile.crac_creator.CsaProfileCracCreationContext;
 import com.powsybl.open_rao.data.crac_creation.creator.csa_profile.crac_creator.CsaProfileCracUtils;
 import com.powsybl.open_rao.data.crac_creation.creator.csa_profile.crac_creator.CsaProfileElementaryCreationContext;
 import com.powsybl.open_rao.data.crac_creation.util.cgmes.CgmesBranchHelper;
-import com.powsybl.iidm.network.DanglingLine;
-import com.powsybl.iidm.network.Identifiable;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.TieLine;
 import com.powsybl.triplestore.api.PropertyBag;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public abstract class AbstractCnecCreator {
     protected final Crac crac;
@@ -30,8 +32,10 @@ public abstract class AbstractCnecCreator {
     protected Set<CsaProfileElementaryCreationContext> csaProfileCnecCreationContexts;
     protected final CsaProfileCracCreationContext cracCreationContext;
     protected final String rejectedLinksAssessedElementContingency;
+    private final boolean useGeographicalFilter;
+    private final GeographicalFilter geographicalFilter;
 
-    protected AbstractCnecCreator(Crac crac, Network network, String assessedElementId, String nativeAssessedElementName, String assessedElementOperator, boolean inBaseCase, PropertyBag operationalLimitPropertyBag, List<Contingency> linkedContingencies, Set<CsaProfileElementaryCreationContext> csaProfileCnecCreationContexts, CsaProfileCracCreationContext cracCreationContext, String rejectedLinksAssessedElementContingency) {
+    protected AbstractCnecCreator(Crac crac, Network network, String assessedElementId, String nativeAssessedElementName, String assessedElementOperator, boolean inBaseCase, PropertyBag operationalLimitPropertyBag, List<Contingency> linkedContingencies, Set<CsaProfileElementaryCreationContext> csaProfileCnecCreationContexts, CsaProfileCracCreationContext cracCreationContext, String rejectedLinksAssessedElementContingency, boolean useGeographicalFilter) {
         this.crac = crac;
         this.network = network;
         this.assessedElementId = assessedElementId;
@@ -44,6 +48,8 @@ public abstract class AbstractCnecCreator {
         this.csaProfileCnecCreationContexts = csaProfileCnecCreationContexts;
         this.cracCreationContext = cracCreationContext;
         this.rejectedLinksAssessedElementContingency = rejectedLinksAssessedElementContingency;
+        this.useGeographicalFilter = useGeographicalFilter;
+        this.geographicalFilter = new GeographicalFilter(network);
     }
 
     protected Identifiable<?> getNetworkElementInNetwork(String networkElementId) {
@@ -73,20 +79,43 @@ public abstract class AbstractCnecCreator {
         return assessedElementName + " (" + assessedElementId + ") - " + (contingency == null ? "" : contingency.getName() + " - ") + instantId;
     }
 
+    protected String getCnecName(String instantId, Contingency contingency, int tatlDuration) {
+        // Need to include the mRID in the name in case the AssessedElement's name is not unique
+        return assessedElementName + " (" + assessedElementId + ") - " + (contingency == null ? "" : contingency.getName() + " - ") + instantId + " - TATL " + tatlDuration;
+    }
+
     protected void addCnecBaseInformation(CnecAdder<?> cnecAdder, Contingency contingency, String instantId) {
         String cnecName = getCnecName(instantId, contingency);
         cnecAdder.withContingency(contingency == null ? null : contingency.getId())
-                    .withId(cnecName)
-                    .withName(cnecName)
-                    .withInstant(instantId);
+                .withId(cnecName)
+                .withName(cnecName)
+                .withInstant(instantId);
     }
 
-    protected void markCnecAsImportedAndHandleRejectedContingencies(String instantId, Contingency contingency) {
-        String cnecName = getCnecName(instantId, contingency);
+    protected void addCnecBaseInformation(CnecAdder<?> cnecAdder, Contingency contingency, String instantId, int tatlDuration) {
+        String cnecName = getCnecName(instantId, contingency, tatlDuration);
+        cnecAdder.withContingency(contingency == null ? null : contingency.getId())
+                .withId(cnecName)
+                .withName(cnecName)
+                .withInstant(instantId);
+    }
+
+    protected void markCnecAsImportedAndHandleRejectedContingencies(String cnecName) {
         if (rejectedLinksAssessedElementContingency.isEmpty()) {
             csaProfileCnecCreationContexts.add(CsaProfileElementaryCreationContext.imported(assessedElementId, cnecName, cnecName, "", false));
         } else {
             csaProfileCnecCreationContexts.add(CsaProfileElementaryCreationContext.imported(assessedElementId, cnecName, cnecName, "some cnec for the same assessed element are not imported because of incorrect data for assessed elements for contingencies : " + rejectedLinksAssessedElementContingency, true));
         }
+    }
+
+    protected boolean incompatibleLocationsBetweenCnecAndContingency(Set<String> cnecElementsIds, Contingency contingency) {
+        if (!useGeographicalFilter || contingency == null) {
+            return false;
+        }
+        return !geographicalFilter.networkElementsShareCommonCountry(cnecElementsIds, contingency.getNetworkElements().stream().map(NetworkElement::getId).collect(Collectors.toSet()));
+    }
+
+    protected boolean incompatibleLocationsBetweenCnecAndContingency(String cnecElementId, Contingency contingency) {
+        return incompatibleLocationsBetweenCnecAndContingency(Set.of(cnecElementId), contingency);
     }
 }
