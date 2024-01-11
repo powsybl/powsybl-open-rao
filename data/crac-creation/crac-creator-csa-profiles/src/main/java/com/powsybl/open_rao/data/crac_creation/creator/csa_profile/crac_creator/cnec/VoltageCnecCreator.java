@@ -64,7 +64,7 @@ public class VoltageCnecCreator extends AbstractCnecCreator {
 
         String networkElementId = networkElement.getId();
 
-        if (incompatibleLocationsBetweenCnecAndContingency(networkElementId, contingency)) {
+        if (incompatibleLocationsBetweenCnecNetworkElementsAndContingency(networkElementId, contingency)) {
             csaProfileCnecCreationContexts.add(CsaProfileElementaryCreationContext.notImported(assessedElementId, ImportStatus.INCONSISTENCY_IN_DATA, writeAssessedElementIgnoredReasonMessage("AssessedElement and Contingency " + contingency.getId()) + " do not belong to a common country. VoltageCNEC will not be imported."));
             return false;
         }

@@ -33,8 +33,7 @@ public abstract class AbstractCnecCreator {
     protected final CsaProfileCracCreationContext cracCreationContext;
     protected final String rejectedLinksAssessedElementContingency;
     private final boolean useGeographicalFilter;
-    private final GeographicalFilter geographicalFilter;
-
+    
     protected AbstractCnecCreator(Crac crac, Network network, String assessedElementId, String nativeAssessedElementName, String assessedElementOperator, boolean inBaseCase, PropertyBag operationalLimitPropertyBag, List<Contingency> linkedContingencies, Set<CsaProfileElementaryCreationContext> csaProfileCnecCreationContexts, CsaProfileCracCreationContext cracCreationContext, String rejectedLinksAssessedElementContingency, boolean useGeographicalFilter) {
         this.crac = crac;
         this.network = network;
@@ -49,7 +48,6 @@ public abstract class AbstractCnecCreator {
         this.cracCreationContext = cracCreationContext;
         this.rejectedLinksAssessedElementContingency = rejectedLinksAssessedElementContingency;
         this.useGeographicalFilter = useGeographicalFilter;
-        this.geographicalFilter = new GeographicalFilter(network);
     }
 
     protected Identifiable<?> getNetworkElementInNetwork(String networkElementId) {
@@ -108,14 +106,14 @@ public abstract class AbstractCnecCreator {
         }
     }
 
-    protected boolean incompatibleLocationsBetweenCnecAndContingency(Set<String> cnecElementsIds, Contingency contingency) {
+    protected boolean incompatibleLocationsBetweenCnecNetworkElementsAndContingency(Set<String> cnecElementsIds, Contingency contingency) {
         if (!useGeographicalFilter || contingency == null) {
             return false;
         }
-        return !geographicalFilter.networkElementsShareCommonCountry(cnecElementsIds, contingency.getNetworkElements().stream().map(NetworkElement::getId).collect(Collectors.toSet()));
+        return !GeographicalFilter.networkElementsShareCommonCountry(cnecElementsIds, contingency.getNetworkElements().stream().map(NetworkElement::getId).collect(Collectors.toSet()), network);
     }
 
-    protected boolean incompatibleLocationsBetweenCnecAndContingency(String cnecElementId, Contingency contingency) {
-        return incompatibleLocationsBetweenCnecAndContingency(Set.of(cnecElementId), contingency);
+    protected boolean incompatibleLocationsBetweenCnecNetworkElementsAndContingency(String cnecElementId, Contingency contingency) {
+        return incompatibleLocationsBetweenCnecNetworkElementsAndContingency(Set.of(cnecElementId), contingency);
     }
 }

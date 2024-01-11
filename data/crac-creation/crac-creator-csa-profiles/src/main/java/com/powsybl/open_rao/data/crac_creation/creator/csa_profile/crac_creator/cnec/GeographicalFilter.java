@@ -1,3 +1,10 @@
+/*
+ * Copyright (c) 2023, RTE (http://www.rte-france.com)
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
+
 package com.powsybl.open_rao.data.crac_creation.creator.csa_profile.crac_creator.cnec;
 
 import com.powsybl.iidm.network.Branch;
@@ -24,13 +31,10 @@ import java.util.stream.Collectors;
  */
 public class GeographicalFilter {
 
-    private final Network network;
 
-    public GeographicalFilter(Network network) {
-        this.network = network;
-    }
+    public GeographicalFilter() {}
 
-    public Set<Country> getNetworkElementLocation(String networkElementId) {
+    public static Set<Country> getNetworkElementLocation(String networkElementId, Network network) {
         Identifiable<?> networkElement = network.getIdentifiable(networkElementId);
         if (Objects.isNull(networkElement)) {
             throw new OpenRaoException("Network element " + networkElementId + " was not found in the network.");
@@ -91,18 +95,18 @@ public class GeographicalFilter {
     }
 
     private static Set<Country> filterEmptyCountries(Set<Optional<Country>> countries) {
-        return countries.stream().filter(Optional::isPresent).map(Optional::get).collect(Collectors.toSet());
+        return countries.stream().filter(Optional::isPresent ).map(Optional::get).collect(Collectors.toSet());
     }
 
-    public Set<Country> getNetworkElementsLocations(Set<String> networkElementIds) {
+    public static Set<Country> getNetworkElementsLocations(Set<String> networkElementIds, Network network) {
         Set<Country> locations = new HashSet<>();
-        networkElementIds.forEach(networkElement -> locations.addAll(getNetworkElementLocation(networkElement)));
+        networkElementIds.forEach(networkElement -> locations.addAll(getNetworkElementLocation(networkElement, network)));
         return locations;
     }
 
-    public boolean networkElementsShareCommonCountry(Set<String> networkElementsSet1, Set<String> networkElementsSet2) {
-        Set<Country> locations1 = getNetworkElementsLocations(networkElementsSet1);
-        Set<Country> locations2 = getNetworkElementsLocations(networkElementsSet2);
+    public static boolean networkElementsShareCommonCountry(Set<String> networkElementsSet1, Set<String> networkElementsSet2, Network network) {
+        Set<Country> locations1 = getNetworkElementsLocations(networkElementsSet1, network);
+        Set<Country> locations2 = getNetworkElementsLocations(networkElementsSet2, network);
         locations1.retainAll(locations2);
         return !locations1.isEmpty();
     }

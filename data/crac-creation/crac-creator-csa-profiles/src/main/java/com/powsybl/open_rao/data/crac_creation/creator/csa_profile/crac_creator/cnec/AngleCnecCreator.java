@@ -72,7 +72,7 @@ public class AngleCnecCreator extends AbstractCnecCreator {
             return false;
         }
 
-        if (incompatibleLocationsBetweenCnecAndContingency(Set.of(terminal1Id, terminal2Id), contingency)) {
+        if (incompatibleLocationsBetweenCnecNetworkElementsAndContingency(Set.of(terminal1Id, terminal2Id), contingency)) {
             csaProfileCnecCreationContexts.add(CsaProfileElementaryCreationContext.notImported(assessedElementId, ImportStatus.INCONSISTENCY_IN_DATA, writeAssessedElementIgnoredReasonMessage("AssessedElement and Contingency " + contingency.getId()) + " do not belong to a common country. AngleCNEC will not be imported."));
             return false;
         }
