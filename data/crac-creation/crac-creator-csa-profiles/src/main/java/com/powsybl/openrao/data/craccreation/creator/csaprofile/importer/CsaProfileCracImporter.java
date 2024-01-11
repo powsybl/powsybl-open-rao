@@ -84,8 +84,10 @@ public class CsaProfileCracImporter implements NativeCracImporter<CsaProfileCrac
             tempFile = Files.createTempFile("openRaoCsaProfile", ".tmp", attr).toFile(); // Compliant
             tempFileOk = true;
         } else {
-            tempFile = Files.createTempFile("prefix", "suffix").toFile();  // Compliant
+            tempFile = Files.createTempFile("prefix", "suffix").toFile();  //NOSONAR
             //sonar wants us to set readable and writable right after creating file
+            //but it counts it as a bug if you don't use the return variable
+            //and doesn't see the calls if you use the return variable...
             tempFileOk = tempFile.setReadable(true, true) &&
                 tempFile.setWritable(true, true) &&
                 tempFile.setExecutable(true, true);
