@@ -15,6 +15,7 @@ import com.google.auto.service.AutoService;
 import com.powsybl.triplestore.api.TripleStore;
 import com.powsybl.triplestore.api.TripleStoreFactory;
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang3.SystemUtils;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
@@ -75,8 +76,15 @@ public class CsaProfileCracImporter implements NativeCracImporter<CsaProfileCrac
     private static void importZipEntry(ZipEntry zipEntry, ZipInputStream zipInputStream, int maxSizeEntry, Pattern keywordPattern, Map<String, Set<String>> keywordMap, TripleStore tripleStoreCsaProfile) throws IOException {
         OpenRaoLoggerProvider.BUSINESS_LOGS.info("csa profile crac import : import of file {}", zipEntry.getName());
         int currentSizeEntry = 0;
-        FileAttribute<Set<PosixFilePermission>> attr = PosixFilePermissions.asFileAttribute(PosixFilePermissions.fromString("rwx------"));
-        File tempFile = Files.createTempFile("openRaoCsaProfile", ".tmp", attr).toFile();
+        File tempFile;
+
+        if (SystemUtils.IS_OS_UNIX) {
+            FileAttribute<Set<PosixFilePermission>> attr = PosixFilePermissions.asFileAttribute(PosixFilePermissions.fromString("rwx------"));
+            tempFile = Files.createTempFile("openRaoCsaProfile", ".tmp", attr).toFile(); // Compliant
+        } else {
+            tempFile = Files.createTempFile("prefix", "suffix").toFile();  // Compliant
+            tempFile.setExecutable(true, true);
+        }
         boolean tempFileOk = tempFile.setReadable(true, true) &&
             tempFile.setWritable(true, true);
         if (tempFileOk) {
