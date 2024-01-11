@@ -23,7 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  */
 class GeographicalFilterTest {
 
-    private final Network network = getNetworkFromResource("/TestCase16Nodes.zip");
+    private final Network network = getNetworkFromResource("/TestCase16Nodes_CGMES.zip");
     private final String frenchLineId = "FFR2AA1  FFR3AA1  2";
     private final String dutchBelgianLineId = "NNL2AA1  BBE3AA1  1";
     private final String belgianSwitchId = "BBE1AA1  BBE4AA1  1";
