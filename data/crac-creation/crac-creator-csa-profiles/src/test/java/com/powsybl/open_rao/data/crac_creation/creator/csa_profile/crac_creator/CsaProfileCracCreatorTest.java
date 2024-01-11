@@ -113,7 +113,7 @@ class CsaProfileCracCreatorTest {
         Mockito.when(network.getSwitch("d1db384f-3a27-434b-93f5-5afa3ab23b00")).thenReturn(switchMock);
         Mockito.when(network.getIdentifiable("ff3c8013-d3f9-4198-a1f2-98d3ebdf30c4")).thenReturn(networkElementMock);
 
-        CsaProfileCracCreationContext cracCreationContext = getCsaCracCreationContext("/CSA_63_1_ValidationTest.zip", network);
+        CsaProfileCracCreationContext cracCreationContext = getCsaCracCreationContext("/CSA_63_1_ValidationTest.zip", network, false);
         Instant curativeInstant = cracCreationContext.getCrac().getInstant("curative");
 
         assertNotNull(cracCreationContext);
@@ -196,7 +196,7 @@ class CsaProfileCracCreatorTest {
         Mockito.when(switch3Mock.getId()).thenReturn("55f4bfcb-f46f-40f8-a87e-6caeefc5330a");
         Mockito.when(network.getIdentifiable("55f4bfcb-f46f-40f8-a87e-6caeefc5330a")).thenReturn((Identifiable) switch3Mock);
 
-        CsaProfileCracCreationContext cracCreationContext = getCsaCracCreationContext("/CSA_36_3_CustomExample.zip", network, OffsetDateTime.parse("2023-01-01T21:30Z"));
+        CsaProfileCracCreationContext cracCreationContext = getCsaCracCreationContext("/CSA_36_3_CustomExample.zip", network, OffsetDateTime.parse("2023-01-01T21:30Z"), false);
         assertNotNull(cracCreationContext);
         Instant preventiveInstant = cracCreationContext.getCrac().getInstant("preventive");
         Instant curativeInstant = cracCreationContext.getCrac().getInstant("curative");
@@ -269,7 +269,7 @@ class CsaProfileCracCreatorTest {
         Mockito.when(switch3Mock.getId()).thenReturn("55f4bfcb-f46f-40f8-a87e-6caeefc5330a");
         Mockito.when(network.getIdentifiable("55f4bfcb-f46f-40f8-a87e-6caeefc5330a")).thenReturn((Identifiable) switch3Mock);
 
-        CsaProfileCracCreationContext cracCreationContext = getCsaCracCreationContext("/CSA_36_3_CustomExample.zip", network, OffsetDateTime.parse("2023-01-01T22:30Z"));
+        CsaProfileCracCreationContext cracCreationContext = getCsaCracCreationContext("/CSA_36_3_CustomExample.zip", network, OffsetDateTime.parse("2023-01-01T22:30Z"), false);
         assertNotNull(cracCreationContext);
         Instant preventiveInstant = cracCreationContext.getCrac().getInstant("preventive");
 

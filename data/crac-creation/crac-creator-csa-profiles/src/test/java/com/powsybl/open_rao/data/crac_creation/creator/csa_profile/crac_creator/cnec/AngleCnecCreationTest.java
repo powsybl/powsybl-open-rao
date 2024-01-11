@@ -47,7 +47,7 @@ class AngleCnecCreationTest {
         Mockito.when(network.getIdentifiable("40ed5398-3a74-4581-a3c1-688f9764a2b5")).thenReturn((Identifiable) switchMock);
         Mockito.when(network.getIdentifiable("1bac939d-d873-48e0-9640-5743f389f3de")).thenReturn(networkElementMock);
 
-        CsaProfileCracCreationContext cracCreationContext = getCsaCracCreationContext("/csa-13/CSA_13_3_ValidProfiles.zip", network);
+        CsaProfileCracCreationContext cracCreationContext = getCsaCracCreationContext("/csa-13/CSA_13_3_ValidProfiles.zip", network, false);
 
         assertEquals(4, cracCreationContext.getCrac().getAngleCnecs().size());
         List<AngleCnec> angleCnecs = cracCreationContext.getCrac().getAngleCnecs().stream()
@@ -95,7 +95,6 @@ class AngleCnecCreationTest {
         assertEquals(120.0, angleCnec4.getUpperBound(Unit.DEGREE).get());
 
         // TODO: add onAngleConstraint usage rules checks when CSA-11 is merged
-        // TODO: add ER profile with wrong header
     }
 
     @Test
@@ -110,7 +109,7 @@ class AngleCnecCreationTest {
         Mockito.when(network.getIdentifiable("7ce8103f-e4d4-4f1a-94a0-ffaf76049e38")).thenReturn((Identifiable) terminal1Mock);
         Mockito.when(network.getIdentifiable("008952f4-0b93-4622-af28-49934dde3db3")).thenReturn((Identifiable) terminal2Mock);
 
-        CsaProfileCracCreationContext cracCreationContext = getCsaCracCreationContext("/csa-13/CSA_13_4_InvalidProfiles.zip", network);
+        CsaProfileCracCreationContext cracCreationContext = getCsaCracCreationContext("/csa-13/CSA_13_4_InvalidProfiles.zip", network, false);
 
         assertEquals(0, cracCreationContext.getCrac().getAngleCnecs().size());
 
@@ -163,7 +162,7 @@ class AngleCnecCreationTest {
         Mockito.when(network.getSwitch("f9c8d9ce-6c44-4293-b60e-93c658411d68")).thenReturn(switchMock);
         Mockito.when(network.getIdentifiable("3a88a6a7-66fe-4988-9019-b3b288fd54ee")).thenReturn(networkElementMock);
 
-        CsaProfileCracCreationContext cracCreationContext = getCsaCracCreationContext("/csa-11/CSA_11_4_OnAngleConstraint.zip", network);
+        CsaProfileCracCreationContext cracCreationContext = getCsaCracCreationContext("/csa-11/CSA_11_4_OnAngleConstraint.zip", network, false);
         Instant preventiveInstant = cracCreationContext.getCrac().getInstant("preventive");
         Instant curativeInstant = cracCreationContext.getCrac().getInstant("curative");
 

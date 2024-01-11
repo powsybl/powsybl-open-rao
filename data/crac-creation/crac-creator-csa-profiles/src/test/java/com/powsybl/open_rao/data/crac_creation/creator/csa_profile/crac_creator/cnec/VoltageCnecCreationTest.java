@@ -47,7 +47,7 @@ class VoltageCnecCreationTest {
 
         Mockito.when(network.getIdentifiable("3a88a6a7-66fe-4988-9019-b3b288fd54ee")).thenReturn(networkElementMock);
 
-        CsaProfileCracCreationContext cracCreationContext = getCsaCracCreationContext("/csa-11/CSA_11_5_OnVoltageConstraint.zip", network);
+        CsaProfileCracCreationContext cracCreationContext = getCsaCracCreationContext("/csa-11/CSA_11_5_OnVoltageConstraint.zip", network, false);
         Instant preventiveInstant = cracCreationContext.getCrac().getInstant("preventive");
         Instant curativeInstant = cracCreationContext.getCrac().getInstant("curative");
 

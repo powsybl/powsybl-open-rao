@@ -46,7 +46,7 @@ class InjectionSetPointActionCreationTest {
             );
         });
 
-        CsaProfileCracCreationContext cracCreationContext = getCsaCracCreationContext("/csa-23/CSA_23_1_ValidProfiles.zip", network);
+        CsaProfileCracCreationContext cracCreationContext = getCsaCracCreationContext("/csa-23/CSA_23_1_ValidProfiles.zip", network, false);
         Instant preventiveInstant = cracCreationContext.getCrac().getInstant("preventive");
         Instant curativeInstant = cracCreationContext.getCrac().getInstant("curative");
 
@@ -155,7 +155,7 @@ class InjectionSetPointActionCreationTest {
             );
         });
 
-        CsaProfileCracCreationContext cracCreationContext = getCsaCracCreationContext("/CSA_30_CustomProfiles.zip", network);
+        CsaProfileCracCreationContext cracCreationContext = getCsaCracCreationContext("/CSA_30_CustomProfiles.zip", network, false);
 
         assertNotNull(cracCreationContext);
 
@@ -202,7 +202,7 @@ class InjectionSetPointActionCreationTest {
             );
         });
 
-        CsaProfileCracCreationContext cracCreationContext = getCsaCracCreationContext("/CSA_33_TestExample.zip", network);
+        CsaProfileCracCreationContext cracCreationContext = getCsaCracCreationContext("/CSA_33_TestExample.zip", network, false);
 
         assertNotNull(cracCreationContext);
         assertEquals(5, cracCreationContext.getCrac().getRemedialActions().size());
