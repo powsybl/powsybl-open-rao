@@ -19,6 +19,9 @@ import org.apache.commons.io.FilenameUtils;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.attribute.FileAttribute;
+import java.nio.file.attribute.PosixFilePermission;
+import java.nio.file.attribute.PosixFilePermissions;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -57,7 +60,7 @@ public class CsaProfileCracImporter implements NativeCracImporter<CsaProfileCrac
             int maxNbEntries = 200;
             int maxSizeEntry = 1_000_000_000;
             int countEntries = 0;
-            while ((zipEntry = zipInputStream.getNextEntry()) != null && countEntries < maxNbEntries) {
+            while ((zipEntry = zipInputStream.getNextEntry()) != null && countEntries < maxNbEntries) { //NOSONAR
                 countEntries++;
                 if (!zipEntry.isDirectory()) {
                     importZipEntry(zipEntry, zipInputStream, maxSizeEntry, keywordPattern, keywordMap, tripleStoreCsaProfile);
@@ -72,7 +75,8 @@ public class CsaProfileCracImporter implements NativeCracImporter<CsaProfileCrac
     private static void importZipEntry(ZipEntry zipEntry, ZipInputStream zipInputStream, int maxSizeEntry, Pattern keywordPattern, Map<String, Set<String>> keywordMap, TripleStore tripleStoreCsaProfile) throws IOException {
         OpenRaoLoggerProvider.BUSINESS_LOGS.info("csa profile crac import : import of file {}", zipEntry.getName());
         int currentSizeEntry = 0;
-        File tempFile = File.createTempFile("openRaoCsaProfile", ".tmp");
+        FileAttribute<Set<PosixFilePermission>> attr = PosixFilePermissions.asFileAttribute(PosixFilePermissions.fromString("rwx------"));
+        File tempFile = Files.createTempFile("openRaoCsaProfile", ".tmp", attr).toFile();
         boolean tempFileOk = tempFile.setReadable(true, true) &&
             tempFile.setWritable(true, true);
         if (tempFileOk) {
