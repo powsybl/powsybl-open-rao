@@ -77,19 +77,19 @@ public class CsaProfileCracImporter implements NativeCracImporter<CsaProfileCrac
         OpenRaoLoggerProvider.BUSINESS_LOGS.info("csa profile crac import : import of file {}", zipEntry.getName());
         int currentSizeEntry = 0;
         File tempFile;
+        boolean tempFileOk;
 
         if (SystemUtils.IS_OS_UNIX) {
             FileAttribute<Set<PosixFilePermission>> attr = PosixFilePermissions.asFileAttribute(PosixFilePermissions.fromString("rwx------"));
             tempFile = Files.createTempFile("openRaoCsaProfile", ".tmp", attr).toFile(); // Compliant
+            tempFileOk = true;
         } else {
             tempFile = Files.createTempFile("prefix", "suffix").toFile();  // Compliant
             //sonar wants us to set readable and writable right after creating file
-            tempFile.setReadable(true, true);
-            tempFile.setWritable(true, true);
-            tempFile.setExecutable(true, true);
+            tempFileOk = tempFile.setReadable(true, true) &&
+                tempFile.setWritable(true, true) &&
+                tempFile.setExecutable(true, true);
         }
-        boolean tempFileOk = tempFile.setReadable(true, true) &&
-            tempFile.setWritable(true, true);
         if (tempFileOk) {
             boolean isKeywordInFile = false;
             InputStream in = new BufferedInputStream(zipInputStream);
