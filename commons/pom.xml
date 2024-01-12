@@ -31,7 +31,7 @@
                 <configuration>
                     <archive>
                         <manifestEntries>
-                            <Automatic-Module-Name>com.powsybl.open_rao.commons</Automatic-Module-Name>
+                            <Automatic-Module-Name>com.powsybl.openrao.commons</Automatic-Module-Name>
                         </manifestEntries>
                     </archive>
                 </configuration>
