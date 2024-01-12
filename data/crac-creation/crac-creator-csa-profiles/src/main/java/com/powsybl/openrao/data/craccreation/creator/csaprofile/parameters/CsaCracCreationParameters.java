@@ -4,10 +4,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.powsybl.openrao.data.crac_creation.creator.csa_profile.parameters;
+package com.powsybl.openrao.data.craccreation.creator.csaprofile.parameters;
 
 import com.powsybl.commons.extensions.AbstractExtension;
-import com.powsybl.openrao.data.crac_creation.creator.api.parameters.CracCreationParameters;
+import com.powsybl.openrao.data.craccreation.creator.api.parameters.CracCreationParameters;
 
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}

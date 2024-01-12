@@ -5,7 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.powsybl.openrao.data.crac_creation.creator.csa_profile.crac_creator.cnec;
+package com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.cnec;
 
 import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Bus;

@@ -5,7 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.powsybl.openrao.data.crac_creation.creator.csa_profile.parameters;
+package com.powsybl.openrao.data.craccreation.creator.csaprofile.parameters;
 
 import org.junit.jupiter.api.Test;
 

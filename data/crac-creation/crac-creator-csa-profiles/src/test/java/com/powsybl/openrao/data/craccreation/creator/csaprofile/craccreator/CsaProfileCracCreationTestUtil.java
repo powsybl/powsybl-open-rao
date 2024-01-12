@@ -23,7 +23,7 @@ import com.google.common.base.Suppliers;
 import com.powsybl.computation.local.LocalComputationManager;
 import com.powsybl.iidm.network.ImportConfig;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.open_rao.data.crac_creation.creator.csa_profile.parameters.CsaCracCreationParameters;
+import com.powsybl.openrao.data.craccreation.creator.csaprofile.parameters.CsaCracCreationParameters;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;

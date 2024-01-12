@@ -4,7 +4,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.powsybl.open_rao.data.crac_creation.creator.csa_profile.parameters;
+package com.powsybl.openrao.data.craccreation.creator.csaprofile.parameters;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
@@ -12,7 +12,7 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.google.auto.service.AutoService;
 import com.powsybl.openrao.commons.OpenRaoException;
-import com.powsybl.openrao.data.crac_creation.creator.api.parameters.JsonCracCreationParameters;
+import com.powsybl.openrao.data.craccreation.creator.api.parameters.JsonCracCreationParameters;
 
 import java.io.IOException;
 
