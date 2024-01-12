@@ -10,5 +10,5 @@
     </root>
     <logger name="com.powsybl.openloadflow" level="ERROR"/>
     <logger name="com.powsybl.math" level="ERROR"/>
-    <logger name="com.powsybl.open_rao" level="DEBUG"/>
+    <logger name="com.powsybl.openrao" level="DEBUG"/>
 </configuration>

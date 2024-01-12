@@ -22,7 +22,7 @@
                 <configuration>
                     <archive>
                         <manifestEntries>
-                            <Automatic-Module-Name>com.powsybl.open_rao.data.crac_impl</Automatic-Module-Name>
+                            <Automatic-Module-Name>com.powsybl.openrao.data.cracimpl</Automatic-Module-Name>
                         </manifestEntries>
                     </archive>
                 </configuration>

@@ -5,7 +5,7 @@
               xmlns:xs="http://www.w3.org/2001/XMLSchema">
     <jxb:bindings schemaLocation="../xsd/publication-document-v2r0.xsd">
         <jxb:schemaBindings>
-            <jxb:package name="com.powsybl.open_rao.data.refprog.refprog_xml_importer" />
+            <jxb:package name="com.powsybl.openrao.data.refprog.refprogxmlimporter" />
         </jxb:schemaBindings>
     </jxb:bindings>
 </jxb:bindings>
