@@ -168,7 +168,7 @@ public class MaxLoopFlowFiller implements ProblemFiller {
         double loopFlowThreshold = loopFlowCnec.getExtension(LoopFlowThreshold.class).getThresholdWithReliabilityMargin(Unit.MEGAWATT);
         double initialLoopFlow = initialFlowResult.getLoopFlow(loopFlowCnec, side, Unit.MEGAWATT);
         // The first term ensures that the initial situation is always feasible, whatever the configuration parameters.
-        // add a tiny bit of slack to the threshold to avoid the rounding causing infeasibility
+        // A tiny bit of slack (0.01) has been added to the threshold to avoid the rounding causing infeasibility.
         return Math.max(Math.abs(initialLoopFlow),
             Math.max(loopFlowThreshold, Math.abs(initialLoopFlow) + loopFlowAcceptableAugmentation) - loopFlowConstraintAdjustmentCoefficient) + 0.01;
     }
