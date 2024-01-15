@@ -1003,4 +1003,36 @@ class CracImplTest {
         assertTrue(crac.hasAutoInstant());
         assertFalse(new CracImpl("test-crac").hasAutoInstant());
     }
+
+    @Test
+    void multiCurativeCrac() {
+        Crac multiCurativeCrac = new CracImpl("multi-curative-crac")
+                .newInstant(PREVENTIVE_INSTANT_ID, InstantKind.PREVENTIVE)
+                .newInstant(OUTAGE_INSTANT_ID, InstantKind.OUTAGE)
+                .newInstant(AUTO_INSTANT_ID, InstantKind.AUTO)
+                .newInstant("curative-1", InstantKind.CURATIVE)
+                .newInstant("curative-2", InstantKind.CURATIVE)
+                .newInstant("curative-3", InstantKind.CURATIVE);
+
+        List<Instant> curativeInstants = multiCurativeCrac.getCurativeInstants();
+        assertEquals(3, curativeInstants.size());
+
+        // First curative instant
+        Instant curativeInstant1 = curativeInstants.get(0);
+        assertEquals("curative-1", curativeInstant1.getId());
+        assertEquals(InstantKind.CURATIVE, curativeInstant1.getKind());
+        assertEquals(3, curativeInstant1.getOrder());
+
+        // Second curative instant
+        Instant curativeInstant2 = curativeInstants.get(1);
+        assertEquals("curative-2", curativeInstant2.getId());
+        assertEquals(InstantKind.CURATIVE, curativeInstant2.getKind());
+        assertEquals(4, curativeInstant2.getOrder());
+
+        // Third curative instant
+        Instant curativeInstant3 = curativeInstants.get(2);
+        assertEquals("curative-3", curativeInstant3.getId());
+        assertEquals(InstantKind.CURATIVE, curativeInstant3.getKind());
+        assertEquals(5, curativeInstant3.getOrder());
+    }
 }

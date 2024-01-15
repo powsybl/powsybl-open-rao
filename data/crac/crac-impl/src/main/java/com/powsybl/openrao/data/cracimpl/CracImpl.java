@@ -227,6 +227,11 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
         return !getInstants(InstantKind.AUTO).isEmpty();
     }
 
+    @Override
+    public List<Instant> getCurativeInstants() {
+        return getInstants(InstantKind.CURATIVE).stream().sorted(Comparator.comparing(Instant::getOrder)).toList();
+    }
+
     private void checkCracContainsProvidedInstantId(Instant providedInstant) {
         if (!instants.containsKey(providedInstant.getId())) {
             throw new OpenRaoException(String.format("Provided instant '%s' is not defined in the CRAC", providedInstant));

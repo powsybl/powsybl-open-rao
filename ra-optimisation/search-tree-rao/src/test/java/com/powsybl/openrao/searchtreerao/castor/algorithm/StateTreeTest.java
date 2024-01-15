@@ -337,7 +337,7 @@ class StateTreeTest {
         // 2.1 Only AUTO exists and has RAs
         setUpCustomCracWithAutoInstant(true, true, false, false);
         OpenRaoException exception = assertThrows(OpenRaoException.class, () -> new StateTree(crac));
-        assertEquals("Automaton state contingency - auto has RAs, but curative state null doesn't. This is not supported.", exception.getMessage());
+        assertEquals("Automaton state contingency - auto has RAs, but none of the curative states for contingency 'contingency' do. This is not supported.", exception.getMessage());
     }
 
     @Test
@@ -374,7 +374,7 @@ class StateTreeTest {
         // 4.2 Both AUTO and CURATIVE exist, only AUTO has RAs
         setUpCustomCracWithAutoInstant(true, true, true, false);
         OpenRaoException exception = assertThrows(OpenRaoException.class, () -> new StateTree(crac));
-        assertEquals("Automaton state contingency - auto has RAs, but curative state contingency - curative doesn't. This is not supported.", exception.getMessage());
+        assertEquals("Automaton state contingency - auto has RAs, but none of the curative states for contingency 'contingency' do. This is not supported.", exception.getMessage());
 
         // 4.3 Both AUTO and CURATIVE exist, only CURATIVE has RAs
         setUpCustomCracWithAutoInstant(true, false, true, true);

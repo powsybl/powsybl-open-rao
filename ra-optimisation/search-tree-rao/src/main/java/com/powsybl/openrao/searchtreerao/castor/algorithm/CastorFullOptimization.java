@@ -334,8 +334,10 @@ public class CastorFullOptimization {
         // Do not simulate curative instant if last sensitivity analysis failed
         // -- if there was no automaton state, check prePerimeterSensitivityOutput sensi status
         // -- or if there was an automaton state that failed
+        // TODO: iterate on curative instants
         if (!automatonsOnly && automatonState.isEmpty() && prePerimeterSensitivityOutput.getSensitivityStatus(curativeState) == ComputationStatus.FAILURE
             || automatonState.isPresent() && autoStateSensiFailed) {
+            // TODO: check previous instant
             contingencyScenarioResults.put(curativeState, new SkippedOptimizationResultImpl(curativeState, new HashSet<>(), new HashSet<>(), ComputationStatus.FAILURE));
         } else if (!automatonsOnly) {
             // Optimize curative instant

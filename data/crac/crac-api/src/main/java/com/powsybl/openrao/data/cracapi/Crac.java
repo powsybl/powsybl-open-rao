@@ -14,6 +14,7 @@ import com.powsybl.openrao.data.cracapi.rangeaction.*;
 import com.powsybl.openrao.data.cracapi.usagerule.UsageMethod;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static java.lang.String.format;
 
@@ -110,6 +111,12 @@ public interface Crac extends Identifiable<Crac> {
      * Returns whether a crac has an auto instant
      */
     boolean hasAutoInstant();
+
+    /**
+     * Returns the list of the curative instants in the crac,
+     * ordered by instant order.
+     */
+    List<Instant> getCurativeInstants();
 
     // States management
 
