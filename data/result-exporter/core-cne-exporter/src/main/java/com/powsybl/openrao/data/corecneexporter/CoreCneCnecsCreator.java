@@ -251,7 +251,8 @@ public final class CoreCneCnecsCreator {
     }
 
     private Analog createMarginMeasurement(FlowCnec cnec, Instant optimizedInstant, boolean asMnec, Unit unit, String measurementType) {
-        return newFlowMeasurement(measurementType, unit, getCnecMargin(cnec, optimizedInstant, asMnec, unit, false));
+        boolean deductFrmFromMargin = Unit.MEGAWATT.equals(unit);
+        return newFlowMeasurement(measurementType, unit, getCnecMargin(cnec, optimizedInstant, asMnec, unit, deductFrmFromMargin));
     }
 
     private Analog createObjectiveValueMeasurement(FlowCnec cnec, Instant optimizedInstant, boolean asMnec, Unit unit, String measurementType) {

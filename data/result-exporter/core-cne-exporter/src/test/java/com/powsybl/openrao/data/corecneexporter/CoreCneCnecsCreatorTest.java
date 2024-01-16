@@ -181,11 +181,11 @@ class CoreCneCnecsCreatorTest {
         // check contents
         // start with cnec2 (name starts with aaa)
         checkConstraintSeriesContent(cnecsConstraintSeries.get(0), cnec2, "B88", List.of("10X1001A1001A361"), false,
-            800., 1443., 1000., 10., 1443., 1000., .2, 200., 950.,
-            200., 950., null, null);
+            800., 1443., 1000., 10., 1443., 1000., .2, 190., 950.,
+            190., 950., null, null);
         checkConstraintSeriesContent(cnecsConstraintSeries.get(1), cnec2, "B57", List.of("10X1001A1001A361"), false,
             800., null, null, 10., 1443., 1000., .2, null, null,
-            200., 950., null, null);
+            190., 950., null, null);
         /* TODO : reactivate this when we go back to exporting B54 series even if no CRAs are applied
         checkConstraintSeriesContent(cnecsConstraintSeries.get(2), cnec2, "B54", List.of("10X1001A1001A361"), false,
             800., 1443., 1000., 10., null, null, .2, 200., 950.,
@@ -280,11 +280,11 @@ class CoreCneCnecsCreatorTest {
             null, null, null, null);*/
 
         checkConstraintSeriesContent(cnecsConstraintSeries.get(0), cnec1, "B88", List.of("10XDE-RWENET---W"), false,
-            80., 144., 100., 10., 144., 100., .1, 20., 100.,
-            20., 100., null, null);
+            80., 144., 100., 10., 144., 100., .1, 10., 100.,
+            10., 100., null, null);
         checkConstraintSeriesContent(cnecsConstraintSeries.get(1), cnec1, "B57", List.of("10XDE-RWENET---W"), false,
             80., null, null, 10., 144., 100., .1, null, null,
-            20., 100., null, null);
+            10., 100., null, null);
         /* TODO : reactivate this when we go back to exporting B54 series even if no CRAs are applied
         checkConstraintSeriesContent(cnecsConstraintSeries.get(2), cnec1, "B54", List.of("10XDE-RWENET---W"), false,
             80., 144., 100., 10., null, null, .1, 20., 100.,
@@ -349,11 +349,11 @@ class CoreCneCnecsCreatorTest {
 
         // preventive cnec
         checkConstraintSeriesContent(cnecsConstraintSeries.get(3), cnecPrev, "B88", tsos, false,
-            80., 144., 100., 30., 144., 100., .1, 20., -10.,
-            20., -10., null, null);
+            80., 144., 100., 30., 144., 100., .1, -10., -10.,
+            -10., -10., null, null);
         checkConstraintSeriesContent(cnecsConstraintSeries.get(4), cnecPrev, "B57", tsos, false,
             80., null, null, 30., 144., 100., .1, null, null,
-            20., -10., null, null);
+            -10., -10., null, null);
         /* TODO : reactivate this when we go back to exporting B54 series even if no CRAs are applied
         checkConstraintSeriesContent(cnecsConstraintSeries.get(5), cnecPrev, "B54", tsos, false,
             80., 144., 100., 30., null, null, .1, 20., -10.,
@@ -362,13 +362,13 @@ class CoreCneCnecsCreatorTest {
 
         // curative cnecs
         checkConstraintSeriesContent(cnecsConstraintSeries.get(0), cnecCur, "B88", tsos, false,
-            85., 217., 150., 20., 289., 200., .1, 65., 450.,
-            115., 950., null, null);
+            85., 217., 150., 20., 289., 200., .1, 45., 450.,
+            95., 950., null, null);
         checkConstraintSeriesContent(cnecsConstraintSeries.get(1), cnecOutage, "B57", tsos, false,
             85., null, null, 20., 289., 200., .1, null, null,
-            115., 950., null, null);
+            95., 950., null, null);
         checkConstraintSeriesContent(cnecsConstraintSeries.get(2), cnecCur, "B54", tsos, false,
-            85., 217., 150., 20., null, null, .1, 65., 450.,
+            85., 217., 150., 20., null, null, .1, 45., 450.,
             null, null, null, null);
     }
 
