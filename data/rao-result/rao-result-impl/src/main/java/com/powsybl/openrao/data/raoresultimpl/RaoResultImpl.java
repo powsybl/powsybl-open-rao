@@ -7,6 +7,7 @@
 package com.powsybl.openrao.data.raoresultimpl;
 
 import com.powsybl.openrao.commons.OpenRaoException;
+import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.*;
 import com.powsybl.openrao.data.cracapi.cnec.AngleCnec;
@@ -337,6 +338,29 @@ public class RaoResultImpl implements RaoResult {
         } else {
             throw new OpenRaoException("The RaoResult object should not be modified outside of its usual routine");
         }
+    }
+
+    @Override
+    public boolean isSecure(Instant optimizedInstant, PhysicalParameter... u) {
+        for (PhysicalParameter physicalParameter : Set.of(u)) {
+            if (PhysicalParameter.FLOW.equals(physicalParameter)) {
+                boolean unsecureFlowCnec = !flowCnecResults.values().stream().filter(result -> result.getResult(optimizedInstant) != null && result.getResult(optimizedInstant).getMargin(Unit.MEGAWATT) < 0).toList().isEmpty();
+                if (unsecureFlowCnec) {
+                    return false;
+                }
+            } else if (PhysicalParameter.ANGLE.equals(physicalParameter)) {
+                boolean unsecureAngleCnec = !angleCnecResults.values().stream().filter(result -> result.getResult(optimizedInstant) != null && result.getResult(optimizedInstant).getMargin(Unit.DEGREE) < 0).toList().isEmpty();
+                if (unsecureAngleCnec) {
+                    return false;
+                }
+            } else {
+                boolean unsecureVoltageCnec = !voltageCnecResults.values().stream().filter(result -> result.getResult(optimizedInstant) != null && result.getResult(optimizedInstant).getMargin(Unit.KILOVOLT) < 0).toList().isEmpty();
+                if (unsecureVoltageCnec) {
+                    return false;
+                }
+            }
+        }
+        return true;
     }
 
     @Override

@@ -8,6 +8,7 @@
 package com.powsybl.openrao.data.raoresultapi;
 
 import com.powsybl.openrao.commons.OpenRaoException;
+import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.cracapi.Instant;
@@ -403,4 +404,13 @@ public interface RaoResult {
     OptimizationStepsExecuted getOptimizationStepsExecuted();
 
     void setOptimizationStepsExecuted(OptimizationStepsExecuted optimizationStepsExecuted);
+
+    /**
+     * Indicates whether the all the CNECs of a given type at a given instant are secure.
+     *
+     * @param optimizedInstant: The instant to assess
+     * @param u: The types of CNECs to check (FLOW -> FlowCNECs, ANGLE -> AngleCNECs, VOLTAGE -> VoltageCNECs). 1 to 3 arguments can be provided.
+     * @return whether all the CNECs of the given type(s) are secure at the optimized instant or not.
+     */
+    boolean isSecure(Instant optimizedInstant, PhysicalParameter... u);
 }

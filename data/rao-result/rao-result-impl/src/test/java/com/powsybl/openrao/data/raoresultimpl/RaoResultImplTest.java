@@ -7,6 +7,7 @@
 package com.powsybl.openrao.data.raoresultimpl;
 
 import com.powsybl.openrao.commons.OpenRaoException;
+import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.cracapi.Instant;
 import com.powsybl.openrao.data.cracapi.State;
@@ -242,5 +243,16 @@ class RaoResultImplTest {
         setUp();
         raoResult.setComputationStatus(crac.getState("Contingency FR1 FR3", autoInstant), ComputationStatus.DEFAULT);
         assertEquals(ComputationStatus.DEFAULT, raoResult.getComputationStatus(crac.getState("Contingency FR1 FR3", autoInstant)));
+    }
+
+    @Test
+    void testIsSecureFlowCnecs() {
+        setUp();
+        assertTrue(raoResult.isSecure(preventiveInstant, PhysicalParameter.FLOW));
+        assertTrue(raoResult.isSecure(autoInstant, PhysicalParameter.FLOW));
+        assertTrue(raoResult.isSecure(curativeInstant, PhysicalParameter.FLOW));
+        assertTrue(raoResult.isSecure(preventiveInstant, PhysicalParameter.FLOW, PhysicalParameter.ANGLE));
+        assertTrue(raoResult.isSecure(preventiveInstant, PhysicalParameter.FLOW, PhysicalParameter.VOLTAGE));
+        assertTrue(raoResult.isSecure(preventiveInstant, PhysicalParameter.FLOW, PhysicalParameter.ANGLE, PhysicalParameter.VOLTAGE));
     }
 }
