@@ -27,9 +27,9 @@
     </licenses>
 
     <scm>
-        <connection>scm:git:https://github.com/farao-community/open-rao.git</connection>
-        <developerConnection>scm:git:https://github.com/farao-community/open-rao.git</developerConnection>
-        <url>https://github.com/farao-community/open-rao.git</url>
+        <connection>scm:git:https://github.com/powsybl/powsybl-open-rao.git</connection>
+        <developerConnection>scm:git:https://github.com/powsybl/powsybl-open-rao.git</developerConnection>
+        <url>https://github.com/powsybl/powsybl-open-rao.git</url>
     </scm>
 
     <developers>
