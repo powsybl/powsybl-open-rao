@@ -343,20 +343,24 @@ public class RaoResultImpl implements RaoResult {
     @Override
     public boolean isSecure(Instant optimizedInstant, PhysicalParameter... u) {
         for (PhysicalParameter physicalParameter : Set.of(u)) {
-            if (PhysicalParameter.FLOW.equals(physicalParameter)) {
-                boolean unsecureFlowCnec = !flowCnecResults.values().stream().filter(result -> result.getResult(optimizedInstant) != null && result.getResult(optimizedInstant).getMargin(Unit.MEGAWATT) < 0).toList().isEmpty();
-                if (unsecureFlowCnec) {
-                    return false;
+            switch (physicalParameter) {
+                case ANGLE -> {
+                    if (!angleCnecResults.values().stream().filter(result ->
+                            result.getResult(optimizedInstant) != null && result.getResult(optimizedInstant).getMargin(Unit.DEGREE) < 0).toList().isEmpty()) {
+                        return false;
+                    }
                 }
-            } else if (PhysicalParameter.ANGLE.equals(physicalParameter)) {
-                boolean unsecureAngleCnec = !angleCnecResults.values().stream().filter(result -> result.getResult(optimizedInstant) != null && result.getResult(optimizedInstant).getMargin(Unit.DEGREE) < 0).toList().isEmpty();
-                if (unsecureAngleCnec) {
-                    return false;
+                case FLOW -> {
+                    if (!flowCnecResults.values().stream().filter(result ->
+                            result.getResult(optimizedInstant) != null && result.getResult(optimizedInstant).getMargin(Unit.MEGAWATT) < 0).toList().isEmpty()) {
+                        return false;
+                    }
                 }
-            } else {
-                boolean unsecureVoltageCnec = !voltageCnecResults.values().stream().filter(result -> result.getResult(optimizedInstant) != null && result.getResult(optimizedInstant).getMargin(Unit.KILOVOLT) < 0).toList().isEmpty();
-                if (unsecureVoltageCnec) {
-                    return false;
+                case VOLTAGE -> {
+                    if (!voltageCnecResults.values().stream().filter(result ->
+                            result.getResult(optimizedInstant) != null && result.getResult(optimizedInstant).getMargin(Unit.KILOVOLT) < 0).toList().isEmpty()) {
+                        return false;
+                    }
                 }
             }
         }
