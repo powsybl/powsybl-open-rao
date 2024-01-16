@@ -5,8 +5,6 @@
 [![MPL-2.0 License](https://img.shields.io/badge/license-MPL_2.0-blue.svg)](https://www.mozilla.org/en-US/MPL/2.0/)
 [![Join the community on Spectrum](https://withspectrum.github.io/badge/badge.svg)](https://spectrum.chat/farao-community)
 
-![Open RAO horizontal logo](https://raw.githubusercontent.com/farao-community/.github/master/logo-farao-horizontal.svg?sanitize=true)  
-
 Open RAO (Remedial Action Optimizer) is an open-source toolbox that aims at providing a modular engine for remedial actions optimisation.
 
 **open-rao** repository contains the main features of Open RAO.
