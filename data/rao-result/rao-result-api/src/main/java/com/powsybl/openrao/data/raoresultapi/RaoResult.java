@@ -413,4 +413,11 @@ public interface RaoResult {
      * @return whether all the CNECs of the given type(s) are secure at the optimized instant or not.
      */
     boolean isSecure(Instant optimizedInstant, PhysicalParameter... u);
+
+    /**
+     * Indicates whether all the CNECs are secure.
+     *
+     * @return whether all the CNECs are secure or not.
+     */
+    boolean isSecure();
 }

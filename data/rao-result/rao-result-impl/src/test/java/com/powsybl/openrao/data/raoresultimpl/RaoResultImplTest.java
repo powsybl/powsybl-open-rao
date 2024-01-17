@@ -11,8 +11,10 @@ import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.cracapi.Instant;
 import com.powsybl.openrao.data.cracapi.State;
+import com.powsybl.openrao.data.cracapi.cnec.AngleCnec;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
 import com.powsybl.openrao.data.cracapi.cnec.Side;
+import com.powsybl.openrao.data.cracapi.cnec.VoltageCnec;
 import com.powsybl.openrao.data.cracapi.networkaction.ActionType;
 import com.powsybl.openrao.data.cracapi.networkaction.NetworkAction;
 import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeAction;
@@ -26,8 +28,7 @@ import org.junit.jupiter.api.Test;
 import java.util.Map;
 import java.util.Set;
 
-import static com.powsybl.openrao.commons.Unit.AMPERE;
-import static com.powsybl.openrao.commons.Unit.MEGAWATT;
+import static com.powsybl.openrao.commons.Unit.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -254,5 +255,66 @@ class RaoResultImplTest {
         assertTrue(raoResult.isSecure(preventiveInstant, PhysicalParameter.FLOW, PhysicalParameter.ANGLE));
         assertTrue(raoResult.isSecure(preventiveInstant, PhysicalParameter.FLOW, PhysicalParameter.VOLTAGE));
         assertTrue(raoResult.isSecure(preventiveInstant, PhysicalParameter.FLOW, PhysicalParameter.ANGLE, PhysicalParameter.VOLTAGE));
+    }
+
+    @Test
+    void testIsNotSecureIfComputationStatusIsFailure() {
+        setUp();
+        raoResult.setComputationStatus(ComputationStatus.FAILURE);
+        assertFalse(raoResult.isSecure(preventiveInstant, PhysicalParameter.FLOW));
+    }
+
+    @Test
+    void testIsSecureIfNoCnecOfGivenParameterType() {
+        setUp();
+        assertTrue(raoResult.isSecure(preventiveInstant, PhysicalParameter.ANGLE));
+    }
+
+    @Test
+    void testIsNotSecureCheckPhysicalParameterKind() {
+        setUp();
+        AngleCnec angleCnec = crac.newAngleCnec()
+                .withId("AngleCnec")
+                .withInstant(AUTO_INSTANT_ID)
+                .withExportingNetworkElement("ExportingNE")
+                .withImportingNetworkElement("ImportingNE")
+                .withContingency("Contingency FR1 FR3")
+                .newThreshold()
+                .withMin(0.)
+                .withMax(30.)
+                .withUnit(DEGREE)
+                .add()
+                .add();
+
+        AngleCnecResult result = raoResult.getAndCreateIfAbsentAngleCnecResult(angleCnec);
+        ElementaryAngleCnecResult elementaryAngleCnecResult = result.getAndCreateIfAbsentResultForOptimizationState(autoInstant);
+        elementaryAngleCnecResult.setAngle(35., DEGREE);
+        elementaryAngleCnecResult.setMargin(-5., DEGREE);
+        assertTrue(raoResult.isSecure(autoInstant, PhysicalParameter.FLOW));
+        assertFalse(raoResult.isSecure(autoInstant, PhysicalParameter.FLOW, PhysicalParameter.ANGLE));
+    }
+
+    @Test
+    void testIsSecureIfBeforeUnsecureInstant() {
+        setUp();
+        VoltageCnec voltageCnec = crac.newVoltageCnec()
+                .withId("VoltageCnec")
+                .withInstant(AUTO_INSTANT_ID)
+                .withNetworkElement("NetworkElement")
+                .withContingency("Contingency FR1 FR3")
+                .newThreshold()
+                .withMin(180.)
+                .withMax(250.)
+                .withUnit(KILOVOLT)
+                .add()
+                .add();
+
+        VoltageCnecResult result = raoResult.getAndCreateIfAbsentVoltageCnecResult(voltageCnec);
+        ElementaryVoltageCnecResult elementaryVoltageCnecResult = result.getAndCreateIfAbsentResultForOptimizationState(autoInstant);
+        elementaryVoltageCnecResult.setVoltage(175., KILOVOLT);
+        elementaryVoltageCnecResult.setMargin(-5., KILOVOLT);
+        assertTrue(raoResult.isSecure(preventiveInstant, PhysicalParameter.FLOW, PhysicalParameter.ANGLE, PhysicalParameter.VOLTAGE));
+        assertFalse(raoResult.isSecure(autoInstant, PhysicalParameter.FLOW, PhysicalParameter.ANGLE, PhysicalParameter.VOLTAGE));
+        assertFalse(raoResult.isSecure(curativeInstant, PhysicalParameter.FLOW, PhysicalParameter.ANGLE, PhysicalParameter.VOLTAGE));
     }
 }

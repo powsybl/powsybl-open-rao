@@ -299,8 +299,19 @@ public class OneStateOnlyRaoResultImpl implements RaoResult {
 
     @Override
     public boolean isSecure(Instant optimizedInstant, PhysicalParameter... u) {
-        // TODO
-        return false;
+        if (ComputationStatus.FAILURE.equals(getComputationStatus())) {
+            return false;
+        }
+        if (Arrays.stream(u).toList().contains(PhysicalParameter.FLOW)) {
+            return optimizedFlowCnecs.stream()
+                    .noneMatch(flowCnec -> getMargin(optimizedInstant, flowCnec, Unit.MEGAWATT) < 0);
+        }
+        return true;
+    }
+
+    @Override
+    public boolean isSecure() {
+        return isSecure(optimizedState.getInstant(), PhysicalParameter.FLOW, PhysicalParameter.ANGLE, PhysicalParameter.VOLTAGE);
     }
 
     @Override

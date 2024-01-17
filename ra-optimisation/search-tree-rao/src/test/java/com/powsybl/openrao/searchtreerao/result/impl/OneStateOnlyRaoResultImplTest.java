@@ -8,6 +8,7 @@
 package com.powsybl.openrao.searchtreerao.result.impl;
 
 import com.powsybl.openrao.commons.OpenRaoException;
+import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.*;
 import com.powsybl.openrao.data.cracapi.cnec.AngleCnec;
@@ -425,7 +426,6 @@ class OneStateOnlyRaoResultImplTest {
 
     @Test
     void testOptimizedStepsExecuted() {
-        setUp();
         assertFalse(output.getOptimizationStepsExecuted().hasRunSecondPreventive());
         output.setOptimizationStepsExecuted(OptimizationStepsExecuted.SECOND_PREVENTIVE_IMPROVED_FIRST);
         assertTrue(output.getOptimizationStepsExecuted().hasRunSecondPreventive());
@@ -461,5 +461,29 @@ class OneStateOnlyRaoResultImplTest {
         assertEquals("Angle cnecs are not computed in the rao", exception.getMessage());
         exception = assertThrows(OpenRaoException.class, () -> output.getMargin(optInstant, angleCnec, AMPERE));
         assertEquals("Angle cnecs are not computed in the rao", exception.getMessage());
+    }
+
+    @Test
+    void testIsSecureOnSecureCase() {
+        when(optimizedState.isPreventive()).thenReturn(true);
+
+        assertTrue(output.isSecure(preventiveInstant, PhysicalParameter.FLOW));
+    }
+
+    @Test
+    void testIsSecureOnUnsecureCase() {
+        when(optimizedState.getInstant()).thenReturn(curativeInstant);
+        when(optimizedState.isPreventive()).thenReturn(false);
+
+        // margins
+        when(cnec1state.isPreventive()).thenReturn(false);
+        when(cnec2state.isPreventive()).thenReturn(false);
+        Contingency contingency = mock(Contingency.class);
+        when(optimizedState.getContingency()).thenReturn(Optional.of(contingency));
+        when(cnec1state.getContingency()).thenReturn(Optional.of(mock(Contingency.class)));
+        when(cnec2state.getContingency()).thenReturn(Optional.of(contingency));
+        when(cnec2state.compareTo(optimizedState)).thenReturn(-1);
+
+        assertFalse(output.isSecure(curativeInstant, PhysicalParameter.FLOW));
     }
 }

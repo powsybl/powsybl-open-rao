@@ -197,6 +197,11 @@ public class UnoptimizedRaoResultImpl implements RaoResult {
     }
 
     @Override
+    public boolean isSecure() {
+        throw new OpenRaoException("Unavailable method for unoptimized RaoResult.");
+    }
+
+    @Override
     public OptimizationStepsExecuted getOptimizationStepsExecuted() {
         return optimizationStepsExecuted;
     }

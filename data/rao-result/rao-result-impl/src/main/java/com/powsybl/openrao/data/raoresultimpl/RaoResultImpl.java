@@ -340,31 +340,48 @@ public class RaoResultImpl implements RaoResult {
         }
     }
 
-    @Override
-    public boolean isSecure(Instant optimizedInstant, PhysicalParameter... u) {
+    private boolean instantHasAnyNegativeMargin(Instant instant, PhysicalParameter... u) {
         for (PhysicalParameter physicalParameter : Set.of(u)) {
             switch (physicalParameter) {
                 case ANGLE -> {
-                    if (!angleCnecResults.values().stream().filter(result ->
-                            result.getResult(optimizedInstant) != null && result.getResult(optimizedInstant).getMargin(Unit.DEGREE) < 0).toList().isEmpty()) {
-                        return false;
+                    if (angleCnecResults.keySet().stream()
+                            .anyMatch(angleCnec -> getMargin(instant, angleCnec, Unit.DEGREE) < 0)) {
+                        return true;
                     }
                 }
                 case FLOW -> {
-                    if (!flowCnecResults.values().stream().filter(result ->
-                            result.getResult(optimizedInstant) != null && result.getResult(optimizedInstant).getMargin(Unit.MEGAWATT) < 0).toList().isEmpty()) {
-                        return false;
+                    if (flowCnecResults.keySet().stream()
+                            .anyMatch(flowCnec -> getMargin(instant, flowCnec, Unit.MEGAWATT) < 0)) {
+                        return true;
                     }
                 }
                 case VOLTAGE -> {
-                    if (!voltageCnecResults.values().stream().filter(result ->
-                            result.getResult(optimizedInstant) != null && result.getResult(optimizedInstant).getMargin(Unit.KILOVOLT) < 0).toList().isEmpty()) {
-                        return false;
+                    if (voltageCnecResults.keySet().stream()
+                            .anyMatch(voltageCnec -> getMargin(instant, voltageCnec, Unit.KILOVOLT) < 0)) {
+                        return true;
                     }
                 }
             }
         }
+        return false;
+    }
+
+    @Override
+    public boolean isSecure(Instant optimizedInstant, PhysicalParameter... u) {
+        if (ComputationStatus.FAILURE.equals(getComputationStatus())) {
+            return false;
+        }
+        for (Instant instant : crac.getInstantsBefore(optimizedInstant)) {
+            if (instantHasAnyNegativeMargin(instant, u)) {
+                return false;
+            }
+        }
         return true;
+    }
+
+    @Override
+    public boolean isSecure() {
+        return isSecure(crac.getLastInstant(), PhysicalParameter.FLOW, PhysicalParameter.ANGLE, PhysicalParameter.VOLTAGE);
     }
 
     @Override

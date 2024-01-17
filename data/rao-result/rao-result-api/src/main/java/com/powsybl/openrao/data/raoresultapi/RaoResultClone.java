@@ -172,6 +172,11 @@ public class RaoResultClone implements RaoResult {
     }
 
     @Override
+    public boolean isSecure() {
+        return raoResult.isSecure();
+    }
+
+    @Override
     public OptimizationStepsExecuted getOptimizationStepsExecuted() {
         return raoResult.getOptimizationStepsExecuted();
     }
