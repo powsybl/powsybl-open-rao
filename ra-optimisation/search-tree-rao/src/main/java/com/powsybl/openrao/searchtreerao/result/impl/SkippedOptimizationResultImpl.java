@@ -31,12 +31,14 @@ public class SkippedOptimizationResultImpl implements OptimizationResult {
     private final Set<NetworkAction> activatedNetworkActions;
     private final Set<RangeAction<?>> activatedRangeActions;
     private final ComputationStatus computationStatus;
+    private final double sensitivityFailureOverCost;
 
-    public SkippedOptimizationResultImpl(State state, Set<NetworkAction> activatedNetworkActions, Set<RangeAction<?>> activatedRangeActions, ComputationStatus computationStatus) {
+    public SkippedOptimizationResultImpl(State state, Set<NetworkAction> activatedNetworkActions, Set<RangeAction<?>> activatedRangeActions, ComputationStatus computationStatus, double sensitivityFailureOverCost) {
         this.state = state;
         this.activatedNetworkActions = activatedNetworkActions;
         this.activatedRangeActions = activatedRangeActions;
         this.computationStatus = computationStatus;
+        this.sensitivityFailureOverCost = sensitivityFailureOverCost;
     }
 
     @Override
@@ -113,7 +115,7 @@ public class SkippedOptimizationResultImpl implements OptimizationResult {
 
     @Override
     public double getVirtualCost() {
-        return 0;
+        return sensitivityFailureOverCost;
     }
 
     @Override
