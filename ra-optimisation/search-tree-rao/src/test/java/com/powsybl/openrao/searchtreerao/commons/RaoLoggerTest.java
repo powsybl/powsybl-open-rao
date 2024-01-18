@@ -68,6 +68,8 @@ class RaoLoggerTest {
         Instant preventiveInstant = mock(Instant.class);
         Instant autoInstant = mock(Instant.class);
         Instant curativeInstant = mock(Instant.class);
+        when(autoInstant.isAuto()).thenReturn(true);
+        when(curativeInstant.isCurative()).thenReturn(true);
         when(preventiveInstant.isPreventive()).thenReturn(true);
         statePreventive = mockState("preventive", preventiveInstant);
         stateCo1Auto = mockState("co1 - auto", autoInstant);
@@ -210,7 +212,7 @@ class RaoLoggerTest {
         when(stateCo1Curative.getContingency()).thenReturn(Optional.of(contingency1));
 
         BasecaseScenario basecaseScenario = new BasecaseScenario(statePreventive, Set.of(stateCo2Curative));
-        Set<ContingencyScenario> contingencyScenarios = Set.of(new ContingencyScenario(stateCo1Auto.getContingency().get(), stateCo1Auto, stateCo1Curative));
+        Set<ContingencyScenario> contingencyScenarios = Set.of(new ContingencyScenario(stateCo1Auto.getContingency().get(), stateCo1Auto, List.of(stateCo1Curative)));
 
         OptimizationResult co1AutoOptimResult = mock(OptimizationResult.class);
         OptimizationResult co1CurativeOptimResult = mock(OptimizationResult.class);

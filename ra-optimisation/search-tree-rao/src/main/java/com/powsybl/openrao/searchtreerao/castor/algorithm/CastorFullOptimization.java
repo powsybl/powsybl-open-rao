@@ -316,13 +316,13 @@ public class CastorFullOptimization {
 
         // Init variables
         Optional<State> automatonState = optimizedScenario.getAutomatonState();
-        State curativeState = optimizedScenario.getCurativeState();
+        List<State> curativeStates = optimizedScenario.getCurativeStates();
         PrePerimeterResult preCurativeResult = prePerimeterSensitivityOutput;
 
         // Simulate automaton instant
         boolean autoStateSensiFailed = false;
         if (automatonState.isPresent()) {
-            AutomatonPerimeterResultImpl automatonResult = automatonSimulator.simulateAutomatonState(automatonState.get(), curativeState, networkClone);
+            AutomatonPerimeterResultImpl automatonResult = automatonSimulator.simulateAutomatonState(automatonState.get(), curativeStates.get(0), networkClone);
             if (automatonResult.getComputationStatus() == ComputationStatus.FAILURE) {
                 autoStateSensiFailed = true;
                 contingencyScenarioResults.put(automatonState.get(), new SkippedOptimizationResultImpl(automatonState.get(), automatonResult.getActivatedNetworkActions(), automatonResult.getActivatedRangeActions(automatonState.get()), ComputationStatus.FAILURE));
@@ -334,18 +334,18 @@ public class CastorFullOptimization {
         // Do not simulate curative instant if last sensitivity analysis failed
         // -- if there was no automaton state, check prePerimeterSensitivityOutput sensi status
         // -- or if there was an automaton state that failed
-        // TODO: iterate on curative instants
-        if (!automatonsOnly && automatonState.isEmpty() && prePerimeterSensitivityOutput.getSensitivityStatus(curativeState) == ComputationStatus.FAILURE
+        if (!automatonsOnly && automatonState.isEmpty() && prePerimeterSensitivityOutput.getSensitivityStatus(curativeStates.get(0)) == ComputationStatus.FAILURE
             || automatonState.isPresent() && autoStateSensiFailed) {
-            // TODO: check previous instant
-            contingencyScenarioResults.put(curativeState, new SkippedOptimizationResultImpl(curativeState, new HashSet<>(), new HashSet<>(), ComputationStatus.FAILURE));
+            curativeStates.forEach(curativeState -> contingencyScenarioResults.put(curativeState, new SkippedOptimizationResultImpl(curativeState, new HashSet<>(), new HashSet<>(), ComputationStatus.FAILURE)));
         } else if (!automatonsOnly) {
             // Optimize curative instant
-            OptimizationResult curativeResult = optimizeCurativeState(curativeState, crac, networkClone,
-                raoParameters, stateTree, toolProvider, curativeTreeParameters, initialSensitivityOutput, preCurativeResult);
-            contingencyScenarioResults.put(curativeState, curativeResult);
-            if (curativeResult.getSensitivityStatus() == ComputationStatus.FAILURE) {
-                contingencyScenarioResults.put(curativeState, new SkippedOptimizationResultImpl(curativeState, new HashSet<>(), new HashSet<>(), ComputationStatus.FAILURE));
+            for (State curativeState : curativeStates) {
+                OptimizationResult curativeResult = optimizeCurativeState(curativeState, crac, networkClone,
+                        raoParameters, stateTree, toolProvider, curativeTreeParameters, initialSensitivityOutput, preCurativeResult);
+                contingencyScenarioResults.put(curativeState, curativeResult);
+                if (curativeResult.getSensitivityStatus() == ComputationStatus.FAILURE) {
+                    contingencyScenarioResults.put(curativeState, new SkippedOptimizationResultImpl(curativeState, new HashSet<>(), new HashSet<>(), ComputationStatus.FAILURE));
+                }
             }
         }
         TECHNICAL_LOGS.debug("Remaining post-contingency scenarios to optimize: {}", remainingScenarios.decrementAndGet());

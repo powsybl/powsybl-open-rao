@@ -232,8 +232,8 @@ class PreventiveAndCurativesRaoResultImplTest {
         stateTree = mock(StateTree.class);
         BasecaseScenario basecaseScenario = new BasecaseScenario(preventiveState, null);
         Set<ContingencyScenario> contingencyScenarios = Set.of(
-            new ContingencyScenario(contingency1, autoState1, curativeState1),
-            new ContingencyScenario(contingency2, null, curativeState2)
+            new ContingencyScenario(contingency1, autoState1, List.of(curativeState1)),
+            new ContingencyScenario(contingency2, List.of(curativeState2))
         );
         when(stateTree.getBasecaseScenario()).thenReturn(basecaseScenario);
         when(stateTree.getContingencyScenarios()).thenReturn(contingencyScenarios);

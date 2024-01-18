@@ -72,12 +72,12 @@ public class StateTree {
         if (autoRasExist && !curativeRasExist) {
             throw new OpenRaoException(String.format("Automaton state %s has RAs, but none of the curative states for contingency '%s' do. This is not supported.", automatonState, contingency.getId()));
         } else if (autoRasExist) {
-            curativeStates.forEach(curativeState -> contingencyScenarios.add(new ContingencyScenario(automatonState, curativeStates)));
+            contingencyScenarios.add(new ContingencyScenario(automatonState, curativeStates));
         } else if (curativeRasExist) {
             if (automatonState != null) {
                 basecaseScenario.addOtherState(automatonState);
             }
-            curativeStates.forEach(curativeState -> contingencyScenarios.add(new ContingencyScenario(null, curativeStates)));
+            contingencyScenarios.add(new ContingencyScenario(curativeStates));
         } else {
             if (automatonState != null) {
                 basecaseScenario.addOtherState(automatonState);
