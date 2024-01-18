@@ -84,10 +84,20 @@ public class RaoResultWithAngleMonitoring extends RaoResultClone {
 
     @Override
     public boolean isSecure(Instant instant, PhysicalParameter... u) {
-        if (Set.of(u).contains(PhysicalParameter.ANGLE) && !angleMonitoringResult.isSecure()) {
-            return false;
+        if (Set.of(u).contains(PhysicalParameter.ANGLE)) {
+            return raoResult.isSecure(instant, u) && angleMonitoringResult.isSecure();
+        } else {
+            return raoResult.isSecure(instant, u);
         }
-        return raoResult.isSecure(instant, u);
+    }
+
+    @Override
+    public boolean isSecure(PhysicalParameter... u) {
+        if (Set.of(u).contains(PhysicalParameter.ANGLE)) {
+            return raoResult.isSecure(u) && angleMonitoringResult.isSecure();
+        } else {
+            return raoResult.isSecure(u);
+        }
     }
 
     @Override

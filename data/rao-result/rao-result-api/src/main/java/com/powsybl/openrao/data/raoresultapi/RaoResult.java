@@ -415,9 +415,19 @@ public interface RaoResult {
     boolean isSecure(Instant optimizedInstant, PhysicalParameter... u);
 
     /**
-     * Indicates whether all the CNECs are secure.
+     * Indicates whether all the CNECs of a given type are secure.
      *
-     * @return whether all the CNECs are secure or not.
+     * @param u: The types of CNECs to check (FLOW -> FlowCNECs, ANGLE -> AngleCNECs, VOLTAGE -> VoltageCNECs). 1 to 3 arguments can be provided.
+     * @return whether all the CNECs of the given type(s) are secure at the last instant.
      */
-    boolean isSecure();
+    boolean isSecure(PhysicalParameter... u);
+
+    /**
+     * Indicates whether all the CNECs are secure at last instant.
+     *
+     * @return whether all the CNECs are secure at last instant or not.
+     */
+    default boolean isSecure() {
+        return isSecure(PhysicalParameter.FLOW, PhysicalParameter.ANGLE, PhysicalParameter.VOLTAGE);
+    }
 }

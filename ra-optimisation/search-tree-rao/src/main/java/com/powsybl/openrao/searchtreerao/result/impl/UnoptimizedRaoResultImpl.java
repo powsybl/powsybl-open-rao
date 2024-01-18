@@ -197,7 +197,7 @@ public class UnoptimizedRaoResultImpl implements RaoResult {
     }
 
     @Override
-    public boolean isSecure() {
+    public boolean isSecure(PhysicalParameter... u) {
         throw new OpenRaoException("Unavailable method for unoptimized RaoResult.");
     }
 

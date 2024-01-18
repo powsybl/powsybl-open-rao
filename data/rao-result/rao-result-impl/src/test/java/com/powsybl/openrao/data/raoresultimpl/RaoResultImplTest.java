@@ -295,7 +295,7 @@ class RaoResultImplTest {
     }
 
     @Test
-    void testIsSecureIfBeforeUnsecureInstant() {
+    void testIsSecureDependsOnOptimizationState() {
         setUp();
         VoltageCnec voltageCnec = crac.newVoltageCnec()
                 .withId("VoltageCnec")
@@ -310,11 +310,17 @@ class RaoResultImplTest {
                 .add();
 
         VoltageCnecResult result = raoResult.getAndCreateIfAbsentVoltageCnecResult(voltageCnec);
-        ElementaryVoltageCnecResult elementaryVoltageCnecResult = result.getAndCreateIfAbsentResultForOptimizationState(autoInstant);
+        ElementaryVoltageCnecResult elementaryVoltageCnecResult = result.getAndCreateIfAbsentResultForOptimizationState(preventiveInstant);
+        elementaryVoltageCnecResult.setVoltage(200., KILOVOLT);
+        elementaryVoltageCnecResult.setMargin(20., KILOVOLT);
+        elementaryVoltageCnecResult = result.getAndCreateIfAbsentResultForOptimizationState(autoInstant);
         elementaryVoltageCnecResult.setVoltage(175., KILOVOLT);
         elementaryVoltageCnecResult.setMargin(-5., KILOVOLT);
+        elementaryVoltageCnecResult = result.getAndCreateIfAbsentResultForOptimizationState(curativeInstant);
+        elementaryVoltageCnecResult.setVoltage(200., KILOVOLT);
+        elementaryVoltageCnecResult.setMargin(20., KILOVOLT);
         assertTrue(raoResult.isSecure(preventiveInstant, PhysicalParameter.FLOW, PhysicalParameter.ANGLE, PhysicalParameter.VOLTAGE));
         assertFalse(raoResult.isSecure(autoInstant, PhysicalParameter.FLOW, PhysicalParameter.ANGLE, PhysicalParameter.VOLTAGE));
-        assertFalse(raoResult.isSecure(curativeInstant, PhysicalParameter.FLOW, PhysicalParameter.ANGLE, PhysicalParameter.VOLTAGE));
+        assertTrue(raoResult.isSecure(curativeInstant, PhysicalParameter.FLOW, PhysicalParameter.ANGLE, PhysicalParameter.VOLTAGE));
     }
 }

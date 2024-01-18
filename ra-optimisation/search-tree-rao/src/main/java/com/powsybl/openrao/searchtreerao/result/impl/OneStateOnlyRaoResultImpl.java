@@ -310,8 +310,8 @@ public class OneStateOnlyRaoResultImpl implements RaoResult {
     }
 
     @Override
-    public boolean isSecure() {
-        return isSecure(optimizedState.getInstant(), PhysicalParameter.FLOW, PhysicalParameter.ANGLE, PhysicalParameter.VOLTAGE);
+    public boolean isSecure(PhysicalParameter... u) {
+        return isSecure(optimizedState.getInstant(), u);
     }
 
     @Override

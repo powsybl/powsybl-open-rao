@@ -92,10 +92,20 @@ public class RaoResultWithVoltageMonitoring extends RaoResultClone {
 
     @Override
     public boolean isSecure(Instant instant, PhysicalParameter... u) {
-        if (Set.of(u).contains(PhysicalParameter.VOLTAGE) && !voltageMonitoringResult.isSecure()) {
-            return false;
+        if (Set.of(u).contains(PhysicalParameter.VOLTAGE)) {
+            return raoResult.isSecure(instant, u) && voltageMonitoringResult.isSecure();
+        } else {
+            return raoResult.isSecure(instant, u);
         }
-        return raoResult.isSecure(instant, u);
+    }
+
+    @Override
+    public boolean isSecure(PhysicalParameter... u) {
+        if (Set.of(u).contains(PhysicalParameter.VOLTAGE)) {
+            return raoResult.isSecure(u) && voltageMonitoringResult.isSecure();
+        } else {
+            return raoResult.isSecure(u);
+        }
     }
 
     @Override

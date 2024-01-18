@@ -172,6 +172,11 @@ public class RaoResultClone implements RaoResult {
     }
 
     @Override
+    public boolean isSecure(PhysicalParameter... u) {
+        return raoResult.isSecure(u);
+    }
+
+    @Override
     public boolean isSecure() {
         return raoResult.isSecure();
     }

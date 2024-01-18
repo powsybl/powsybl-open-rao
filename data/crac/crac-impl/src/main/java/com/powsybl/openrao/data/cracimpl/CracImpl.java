@@ -228,11 +228,6 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
     }
 
     @Override
-    public Set<Instant> getInstantsBefore(Instant instant) {
-        return instants.values().stream().filter(otherInstant -> otherInstant.equals(instant) || otherInstant.comesBefore(instant)).collect(Collectors.toSet());
-    }
-
-    @Override
     public boolean hasAutoInstant() {
         return !getInstants(InstantKind.AUTO).isEmpty();
     }

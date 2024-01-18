@@ -940,20 +940,6 @@ class CracImplTest {
     }
 
     @Test
-    void testGetInstantBefore() {
-        assertEquals(Set.of(preventiveInstant, outageInstant, autoInstant), crac.getInstantsBefore(autoInstant));
-    }
-
-    @Test
-    void testGetInstantBeforeWithMultipleInstantsPerInstantKind() {
-        crac.newInstant("curative 2", InstantKind.CURATIVE)
-            .newInstant("curative 3", InstantKind.CURATIVE)
-            .newInstant("curative 4", InstantKind.CURATIVE);
-        Instant curativeInstant2 = crac.getInstant("curative 2");
-        assertEquals(Set.of(preventiveInstant, outageInstant, autoInstant, curativeInstant, curativeInstant2), crac.getInstantsBefore(curativeInstant2));
-    }
-
-    @Test
     void testGetInstantsByKindWithTwoInstantsPerInstantKind() {
         crac.newInstant("preventive 2", InstantKind.PREVENTIVE)
             .newInstant("outage 2", InstantKind.OUTAGE)

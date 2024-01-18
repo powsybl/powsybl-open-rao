@@ -165,7 +165,7 @@ public class FailedRaoResultImpl implements RaoResult {
     }
 
     @Override
-    public boolean isSecure() {
+    public boolean isSecure(PhysicalParameter... u) {
         throw new OpenRaoException(SHOULD_NOT_BE_USED);
     }
 }

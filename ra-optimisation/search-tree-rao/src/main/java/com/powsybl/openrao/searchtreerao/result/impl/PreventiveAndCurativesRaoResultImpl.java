@@ -595,8 +595,8 @@ public class PreventiveAndCurativesRaoResultImpl implements RaoResult {
     }
 
     @Override
-    public boolean isSecure() {
-        return isSecure(crac.getLastInstant(), PhysicalParameter.FLOW, PhysicalParameter.ANGLE, PhysicalParameter.VOLTAGE);
+    public boolean isSecure(PhysicalParameter... u) {
+        return isSecure(crac.getLastInstant(), u);
     }
 
     @Override

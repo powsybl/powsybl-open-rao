@@ -112,11 +112,6 @@ public interface Crac extends Identifiable<Crac> {
     Instant getLastInstant();
 
     /**
-     * Gather all the instants before given instant, this one included.
-     */
-    Set<Instant> getInstantsBefore(Instant instant);
-
-    /**
      * Returns whether a crac has an auto instant
      */
     boolean hasAutoInstant();
