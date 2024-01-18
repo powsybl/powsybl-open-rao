@@ -557,6 +557,7 @@ class VoltageMonitoringTest {
         assertEquals(SECURE, voltageMonitoringResult.getStatus());
         assertEquals(1, voltageMonitoringResult.getAppliedRas().size());
         assertEquals(Set.of(networkAction), voltageMonitoringResult.getAppliedRas().get(crac.getState("co", curativeInstant)));
-        assertTrue(voltageMonitoringResult.isSecure());    }
+        assertTrue(voltageMonitoringResult.isSecure());
+    }
 }
 
