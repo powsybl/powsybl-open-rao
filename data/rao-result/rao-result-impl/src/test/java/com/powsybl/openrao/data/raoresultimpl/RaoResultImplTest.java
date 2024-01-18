@@ -271,7 +271,18 @@ class RaoResultImplTest {
     }
 
     @Test
-    void testIsNotSecureCheckPhysicalParameterKind() {
+    void testIsSecureUnlessSomeNegativeMarginOnCnecResult() {
+        setUp();
+        assertTrue(raoResult.isSecure());
+        FlowCnecResult result = raoResult.getAndCreateIfAbsentFlowCnecResult(cnec);
+        ElementaryFlowCnecResult elementaryFlowCnecResult = result.getAndCreateIfAbsentResultForOptimizationState(preventiveInstant);
+        elementaryFlowCnecResult.setFlow(Side.LEFT, 505., MEGAWATT);
+        elementaryFlowCnecResult.setMargin(-5., MEGAWATT);
+        assertFalse(raoResult.isSecure());
+    }
+
+    @Test
+    void testIsNotSecureCheckPhysicalParameterKind2() {
         setUp();
         AngleCnec angleCnec = crac.newAngleCnec()
                 .withId("AngleCnec")
