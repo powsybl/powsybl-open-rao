@@ -591,7 +591,7 @@ public class PreventiveAndCurativesRaoResultImpl implements RaoResult {
         if (ComputationStatus.FAILURE.equals(getComputationStatus())) {
             return false;
         }
-        return getCost(optimizedInstant) < 0;
+        return getFunctionalCost(optimizedInstant) < 0;
     }
 
     @Override

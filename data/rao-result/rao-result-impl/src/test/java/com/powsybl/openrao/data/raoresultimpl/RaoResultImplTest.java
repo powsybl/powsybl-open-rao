@@ -271,14 +271,11 @@ class RaoResultImplTest {
     }
 
     @Test
-    void testIsSecureUnlessSomeNegativeMarginOnCnecResult() {
+    void testIsSecureUnlessFunctionalCostPositive() {
         setUp();
-        assertTrue(raoResult.isSecure());
-        FlowCnecResult result = raoResult.getAndCreateIfAbsentFlowCnecResult(cnec);
-        ElementaryFlowCnecResult elementaryFlowCnecResult = result.getAndCreateIfAbsentResultForOptimizationState(preventiveInstant);
-        elementaryFlowCnecResult.setFlow(Side.LEFT, 505., MEGAWATT);
-        elementaryFlowCnecResult.setMargin(-5., MEGAWATT);
-        assertFalse(raoResult.isSecure());
+        assertTrue(raoResult.isSecure(preventiveInstant, PhysicalParameter.FLOW));
+        raoResult.getAndCreateIfAbsentCostResult(preventiveInstant.getId()).setFunctionalCost(10);
+        assertFalse(raoResult.isSecure(preventiveInstant, PhysicalParameter.FLOW));
     }
 
     @Test

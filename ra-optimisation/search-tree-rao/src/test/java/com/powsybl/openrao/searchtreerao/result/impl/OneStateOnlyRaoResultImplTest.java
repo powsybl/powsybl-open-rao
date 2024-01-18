@@ -8,7 +8,6 @@
 package com.powsybl.openrao.searchtreerao.result.impl;
 
 import com.powsybl.openrao.commons.OpenRaoException;
-import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.*;
 import com.powsybl.openrao.data.cracapi.cnec.AngleCnec;
@@ -465,25 +464,22 @@ class OneStateOnlyRaoResultImplTest {
 
     @Test
     void testIsSecureOnSecureCase() {
-        when(optimizedState.isPreventive()).thenReturn(true);
+        when(optimizedState.getInstant()).thenReturn(curativeInstant);
+        when(output.getFunctionalCost(curativeInstant)).thenReturn(-10.);
+        assertTrue(output.isSecure());
+    }
 
-        assertTrue(output.isSecure(preventiveInstant, PhysicalParameter.FLOW));
+    @Test
+    void testIsSecureOnFailureCase() {
+        when(optimizedState.getInstant()).thenReturn(curativeInstant);
+        when(output.getComputationStatus()).thenReturn(ComputationStatus.FAILURE);
+        assertFalse(output.isSecure());
     }
 
     @Test
     void testIsSecureOnUnsecureCase() {
         when(optimizedState.getInstant()).thenReturn(curativeInstant);
-        when(optimizedState.isPreventive()).thenReturn(false);
-
-        // margins
-        when(cnec1state.isPreventive()).thenReturn(false);
-        when(cnec2state.isPreventive()).thenReturn(false);
-        Contingency contingency = mock(Contingency.class);
-        when(optimizedState.getContingency()).thenReturn(Optional.of(contingency));
-        when(cnec1state.getContingency()).thenReturn(Optional.of(mock(Contingency.class)));
-        when(cnec2state.getContingency()).thenReturn(Optional.of(contingency));
-        when(cnec2state.compareTo(optimizedState)).thenReturn(-1);
-
-        assertFalse(output.isSecure(curativeInstant, PhysicalParameter.FLOW));
+        when(output.getFunctionalCost(curativeInstant)).thenReturn(10.);
+        assertFalse(output.isSecure());
     }
 }

@@ -344,17 +344,23 @@ public class RaoResultImpl implements RaoResult {
         for (PhysicalParameter physicalParameter : Set.of(u)) {
             switch (physicalParameter) {
                 case ANGLE -> {
-                    if (angleCnecResults.keySet().stream().anyMatch(cnec -> getMargin(optimizedInstant, cnec, Unit.DEGREE) < 0)) {
+                    if (angleCnecResults.keySet().stream()
+                            .mapToDouble(cnec -> getMargin(optimizedInstant, cnec, Unit.DEGREE))
+                            .filter(margin -> !Double.isNaN(margin))
+                            .anyMatch(margin -> margin < 0)) {
                         return false;
                     }
                 }
                 case FLOW -> {
-                    if (flowCnecResults.keySet().stream().anyMatch(cnec -> getMargin(optimizedInstant, cnec, Unit.MEGAWATT) < 0)) {
+                    if (getFunctionalCost(optimizedInstant) > 0) {
                         return false;
                     }
                 }
                 case VOLTAGE -> {
-                    if (voltageCnecResults.keySet().stream().anyMatch(cnec -> getMargin(optimizedInstant, cnec, Unit.KILOVOLT) < 0)) {
+                    if (voltageCnecResults.keySet().stream()
+                            .mapToDouble(cnec -> getMargin(optimizedInstant, cnec, Unit.KILOVOLT))
+                            .filter(margin -> !Double.isNaN(margin))
+                            .anyMatch(margin -> margin < 0)) {
                         return false;
                     }
                 }
@@ -366,6 +372,10 @@ public class RaoResultImpl implements RaoResult {
     @Override
     public boolean isSecure(Instant optimizedInstant, PhysicalParameter... u) {
         if (ComputationStatus.FAILURE.equals(getComputationStatus())) {
+            return false;
+        }
+        if (sensitivityStatusPerState.keySet().stream().filter(state -> optimizedInstant.equals(state.getInstant()))
+                .anyMatch(state -> ComputationStatus.FAILURE.equals(sensitivityStatusPerState.get(state)))) {
             return false;
         }
         return instantHasNoNegativeMargin(optimizedInstant, u);

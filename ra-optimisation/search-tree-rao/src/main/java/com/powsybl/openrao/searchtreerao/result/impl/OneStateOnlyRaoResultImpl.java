@@ -302,11 +302,7 @@ public class OneStateOnlyRaoResultImpl implements RaoResult {
         if (ComputationStatus.FAILURE.equals(getComputationStatus())) {
             return false;
         }
-        if (Arrays.stream(u).toList().contains(PhysicalParameter.FLOW)) {
-            return optimizedFlowCnecs.stream()
-                    .noneMatch(flowCnec -> getMargin(optimizedInstant, flowCnec, Unit.MEGAWATT) < 0);
-        }
-        return true;
+        return getFunctionalCost(optimizedInstant) < 0;
     }
 
     @Override
