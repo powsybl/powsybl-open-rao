@@ -11,8 +11,6 @@ import com.powsybl.openrao.data.cracapi.Instant;
 import com.powsybl.openrao.data.cracapi.cnec.Side;
 import org.junit.jupiter.api.Test;
 
-import java.lang.reflect.InvocationTargetException;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.mock;
 
@@ -35,7 +33,7 @@ class FlowCnecResultTest {
     }
 
     @Test
-    void testGetAndCreateIfAbsent() throws InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
+    void testGetAndCreateIfAbsent() {
         FlowCnecResult flowCnecResult = new FlowCnecResult();
         assertEquals(Double.NaN, flowCnecResult.getResult(null).getFlow(Side.LEFT, Unit.MEGAWATT));
         assertEquals(Double.NaN, flowCnecResult.getResult(null).getFlow(Side.RIGHT, Unit.MEGAWATT));
