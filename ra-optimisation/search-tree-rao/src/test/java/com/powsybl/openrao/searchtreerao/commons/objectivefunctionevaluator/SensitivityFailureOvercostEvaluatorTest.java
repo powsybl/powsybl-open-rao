@@ -7,7 +7,6 @@
 package com.powsybl.openrao.searchtreerao.commons.objectivefunctionevaluator;
 
 import com.powsybl.openrao.commons.Unit;
-import com.powsybl.openrao.data.cracapi.Contingency;
 import com.powsybl.openrao.data.cracapi.State;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
 import com.powsybl.openrao.data.raoresultapi.ComputationStatus;
@@ -18,7 +17,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-import java.util.Optional;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -35,7 +33,6 @@ class SensitivityFailureOvercostEvaluatorTest {
     private SensitivityResult sensitivityResult;
     private FlowCnec cnec1;
     private FlowCnec cnec2;
-    private FlowCnec cnec3;
 
     @BeforeEach
     public void setUp() {
@@ -44,18 +41,12 @@ class SensitivityFailureOvercostEvaluatorTest {
         sensitivityResult = Mockito.mock(SensitivityResult.class);
         cnec1 = Mockito.mock(FlowCnec.class);
         cnec2 = Mockito.mock(FlowCnec.class);
-        cnec3 = Mockito.mock(FlowCnec.class);
         State state1 = Mockito.mock(State.class);
         State state2 = Mockito.mock(State.class);
-        State state3 = Mockito.mock(State.class);
         Mockito.when(cnec1.getState()).thenReturn(state1);
         Mockito.when(cnec2.getState()).thenReturn(state2);
-        Mockito.when(cnec3.getState()).thenReturn(state3);
         Mockito.when(sensitivityResult.getSensitivityStatus(state1)).thenReturn(ComputationStatus.DEFAULT);
         Mockito.when(sensitivityResult.getSensitivityStatus(state2)).thenReturn(ComputationStatus.FAILURE);
-        Mockito.when(sensitivityResult.getSensitivityStatus(state3)).thenReturn(ComputationStatus.FAILURE);
-        Contingency contingency = Mockito.mock(Contingency.class);
-        Mockito.when(state2.getContingency()).thenReturn(Optional.of(contingency));
     }
 
     @Test
@@ -79,7 +70,7 @@ class SensitivityFailureOvercostEvaluatorTest {
 
     @Test
     void testGetCostlyElements() {
-        evaluator = new SensitivityFailureOvercostEvaluator(Set.of(cnec1, cnec2, cnec3), 10000);
+        evaluator = new SensitivityFailureOvercostEvaluator(Set.of(cnec1, cnec2), 10000);
         assertEquals(0, evaluator.computeCostAndLimitingElements(flowResult, rangeActionActivationResult, sensitivityResult, ComputationStatus.DEFAULT).getRight().size());
         assertEquals(0, evaluator.computeCostAndLimitingElements(flowResult, rangeActionActivationResult, sensitivityResult, ComputationStatus.DEFAULT, Set.of("")).getRight().size());
     }

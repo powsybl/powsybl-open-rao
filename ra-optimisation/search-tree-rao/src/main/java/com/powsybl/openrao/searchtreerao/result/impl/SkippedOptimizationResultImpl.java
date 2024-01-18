@@ -27,6 +27,7 @@ import java.util.*;
  */
 public class SkippedOptimizationResultImpl implements OptimizationResult {
     private static final String SHOULD_NOT_BE_USED = "Should not be used: optimization result has been skipped.";
+    private static final String SENSITIVITY_FAILURE_COST = "sensitivity-failure-cost";
     private final State state;
     private final Set<NetworkAction> activatedNetworkActions;
     private final Set<RangeAction<?>> activatedRangeActions;
@@ -120,12 +121,12 @@ public class SkippedOptimizationResultImpl implements OptimizationResult {
 
     @Override
     public Set<String> getVirtualCostNames() {
-        return new HashSet<>();
+        return Set.of(SENSITIVITY_FAILURE_COST);
     }
 
     @Override
     public double getVirtualCost(String virtualCostName) {
-        return 0;
+        return virtualCostName.equals(SENSITIVITY_FAILURE_COST) ? sensitivityFailureOverCost : 0;
     }
 
     @Override

@@ -53,7 +53,9 @@ class SkippedOptimizationResultImplTest {
         assertTrue(skippedOptimizationResult.getMostLimitingElements(10).isEmpty());
         assertEquals(sensitivityFailureOverCost, skippedOptimizationResult.getVirtualCost(), 1e-6);
         assertEquals(0, skippedOptimizationResult.getVirtualCost("emptyString"), 1e-6);
-        assertTrue(skippedOptimizationResult.getVirtualCostNames().isEmpty());
+        assertEquals(10000, skippedOptimizationResult.getVirtualCost("sensitivity-failure-cost"), 1e-6);
+        assertEquals(1, skippedOptimizationResult.getVirtualCostNames().size());
+        assertEquals("sensitivity-failure-cost", skippedOptimizationResult.getVirtualCostNames().iterator().next());
         assertThrows(OpenRaoException.class, () -> skippedOptimizationResult.getSensitivityValue(flowCnec, side, rangeAction, unit));
         assertThrows(OpenRaoException.class, () -> skippedOptimizationResult.getSensitivityValue(flowCnec, side, sensitivityVariableSet, unit));
         assertThrows(OpenRaoException.class, () -> skippedOptimizationResult.getFlow(flowCnec, side, unit));
