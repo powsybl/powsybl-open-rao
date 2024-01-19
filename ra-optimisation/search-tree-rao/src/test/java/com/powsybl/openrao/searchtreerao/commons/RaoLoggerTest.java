@@ -66,9 +66,12 @@ class RaoLoggerTest {
         flowResult = mock(FlowResult.class);
         basecaseOptimResult = mock(OptimizationResult.class);
         Instant preventiveInstant = mock(Instant.class);
-        Instant autoInstant = mock(Instant.class);
-        Instant curativeInstant = mock(Instant.class);
         when(preventiveInstant.isPreventive()).thenReturn(true);
+        when(preventiveInstant.getKind()).thenReturn(InstantKind.PREVENTIVE);
+        Instant autoInstant = mock(Instant.class);
+        when(autoInstant.getKind()).thenReturn(InstantKind.AUTO);
+        Instant curativeInstant = mock(Instant.class);
+        when(curativeInstant.getKind()).thenReturn(InstantKind.CURATIVE);
         statePreventive = mockState("preventive", preventiveInstant);
         stateCo1Auto = mockState("co1 - auto", autoInstant);
         stateCo1Curative = mockState("co1 - curative", curativeInstant);
@@ -210,7 +213,12 @@ class RaoLoggerTest {
         when(stateCo1Curative.getContingency()).thenReturn(Optional.of(contingency1));
 
         BasecaseScenario basecaseScenario = new BasecaseScenario(statePreventive, Set.of(stateCo2Curative));
-        Set<ContingencyScenario> contingencyScenarios = Set.of(new ContingencyScenario(stateCo1Auto.getContingency().get(), stateCo1Auto, stateCo1Curative));
+        Set<ContingencyScenario> contingencyScenarios = Set.of(
+            ContingencyScenario.create()
+                .withContingency(stateCo1Auto.getContingency().get())
+                .withAutomatonState(stateCo1Auto)
+                .withCurativeState(stateCo1Curative)
+                .build());
 
         OptimizationResult co1AutoOptimResult = mock(OptimizationResult.class);
         OptimizationResult co1CurativeOptimResult = mock(OptimizationResult.class);

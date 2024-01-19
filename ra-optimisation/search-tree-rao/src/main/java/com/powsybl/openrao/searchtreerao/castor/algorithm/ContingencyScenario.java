@@ -9,6 +9,7 @@ package com.powsybl.openrao.searchtreerao.castor.algorithm;
 
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.cracapi.Contingency;
+import com.powsybl.openrao.data.cracapi.InstantKind;
 import com.powsybl.openrao.data.cracapi.State;
 
 import java.util.Objects;
@@ -20,42 +21,15 @@ import java.util.Optional;
  *
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
-public class ContingencyScenario {
-    private final Contingency contingency;
-    private final State automatonState;
-    private final State curativeState;
+public final class ContingencyScenario {
+    private Contingency contingency;
+    private State automatonState;
+    private State curativeState;
 
-    /**
-     * Construct a post-contingency scenario
-     * @param contingency the contingency (required)
-     * @param automatonState the automaton state (can be null)
-     * @param curativeState the curative state (required)
-     */
-    public ContingencyScenario(Contingency contingency, State automatonState, State curativeState) {
-        Objects.requireNonNull(contingency);
-        Objects.requireNonNull(curativeState);
-        Optional<Contingency> curativeContingency = curativeState.getContingency();
-        if (curativeContingency.isEmpty() || !curativeContingency.get().equals(contingency)) {
-            throw new OpenRaoException(String.format("Curative state %s do not refer to the contingency %s", curativeState, contingency));
-        }
-        if (automatonState != null) {
-            Optional<Contingency> automatonContingency = automatonState.getContingency();
-            if (automatonContingency.isEmpty() || !automatonContingency.get().equals(contingency)) {
-                throw new OpenRaoException(String.format("Automaton state %s do not refer to the contingency %s", automatonState, contingency));
-            }
-        }
-        this.contingency = contingency;
-        this.automatonState = automatonState;
-        this.curativeState = curativeState;
-    }
+    private ContingencyScenario() { }
 
-    /**
-     * Construct a post-contingency scenario
-     * @param automatonState the automaton state (can be null)
-     * @param curativeState the curative state (required)
-     */
-    public ContingencyScenario(State automatonState, State curativeState) {
-        this(curativeState.getContingency().orElse(null), automatonState, curativeState);
+    public static ContingencyScenarioBuilder create() {
+        return new ContingencyScenarioBuilder();
     }
 
     public Contingency getContingency() {
@@ -63,10 +37,59 @@ public class ContingencyScenario {
     }
 
     public Optional<State> getAutomatonState() {
-        return automatonState == null ? Optional.empty() : Optional.of(automatonState);
+        return Objects.isNull(automatonState) ? Optional.empty() : Optional.of(automatonState);
     }
 
-    public State getCurativeState() {
-        return curativeState;
+    public Optional<State> getCurativeState() {
+        return Objects.isNull(curativeState) ? Optional.empty() : Optional.of(curativeState);
+    }
+
+    public static final class ContingencyScenarioBuilder {
+        private Contingency contingency;
+        private State automatonState;
+        private State curativeState;
+
+        private ContingencyScenarioBuilder() { }
+
+        public ContingencyScenarioBuilder withContingency(Contingency contingency) {
+            this.contingency = contingency;
+            return this;
+        }
+
+        public ContingencyScenarioBuilder withAutomatonState(State automatonState) {
+            this.automatonState = automatonState;
+            return this;
+        }
+
+        public ContingencyScenarioBuilder withCurativeState(State curativeState) {
+            this.curativeState = curativeState;
+            return this;
+        }
+
+        public ContingencyScenario build() {
+            Objects.requireNonNull(contingency);
+            if (Objects.isNull(automatonState) && Objects.isNull(curativeState)) {
+                throw new OpenRaoException(String.format("Contingency %s scenario should have at least an auto or curative state.", contingency.getId()));
+            }
+            checkStateContingencyAndInstant(automatonState, InstantKind.AUTO);
+            checkStateContingencyAndInstant(curativeState, InstantKind.CURATIVE);
+            ContingencyScenario contingencyScenario = new ContingencyScenario();
+            contingencyScenario.contingency = contingency;
+            contingencyScenario.automatonState = automatonState;
+            contingencyScenario.curativeState = curativeState;
+            return contingencyScenario;
+        }
+
+        private void checkStateContingencyAndInstant(State state, InstantKind instantKind) {
+            if (Objects.nonNull(state)) {
+                Optional<Contingency> stateContingency = state.getContingency();
+                if (stateContingency.isEmpty() || !stateContingency.get().equals(contingency)) {
+                    throw new OpenRaoException(String.format("State %s does not refer to the contingency %s.", state.getId(), contingency.getId()));
+                }
+                if (!instantKind.equals(state.getInstant().getKind())) {
+                    throw new OpenRaoException(String.format("Instant of state %s is not of kind %s.", state.getId(), instantKind));
+                }
+            }
+        }
     }
 }

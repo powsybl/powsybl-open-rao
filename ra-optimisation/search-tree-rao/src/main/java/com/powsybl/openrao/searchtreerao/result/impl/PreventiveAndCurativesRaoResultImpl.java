@@ -123,15 +123,17 @@ public class PreventiveAndCurativesRaoResultImpl implements RaoResult {
             if (automatonState.isPresent()) {
                 OptimizationResult automatonResult = postContingencyResults.get(automatonState.get());
                 results.put(automatonState.get(), new PerimeterResultImpl(preContingencyResult, automatonResult));
-                OptimizationResult curativeResult = postContingencyResults.get(contingencyScenario.getCurativeState());
-                if (automatonResult.getSensitivityStatus() == FAILURE || curativeResult.getSensitivityStatus() == FAILURE) {
-                    results.put(contingencyScenario.getCurativeState(), new PerimeterResultImpl(preContingencyResult, curativeResult));
-                } else {
-                    results.put(contingencyScenario.getCurativeState(), new PerimeterResultImpl(RangeActionSetpointResultImpl.buildFromActivationOfRangeActionAtState(automatonResult, automatonState.get()), curativeResult));
+                if (contingencyScenario.getCurativeState().isPresent()) {
+                    OptimizationResult curativeResult = postContingencyResults.get(contingencyScenario.getCurativeState().get());
+                    if (automatonResult.getSensitivityStatus() == FAILURE || curativeResult.getSensitivityStatus() == FAILURE) {
+                        results.put(contingencyScenario.getCurativeState().get(), new PerimeterResultImpl(preContingencyResult, curativeResult));
+                    } else {
+                        results.put(contingencyScenario.getCurativeState().get(), new PerimeterResultImpl(RangeActionSetpointResultImpl.buildFromActivationOfRangeActionAtState(automatonResult, automatonState.get()), curativeResult));
+                    }
                 }
-            } else {
-                OptimizationResult curativeResult = postContingencyResults.get(contingencyScenario.getCurativeState());
-                results.put(contingencyScenario.getCurativeState(), new PerimeterResultImpl(preContingencyResult, curativeResult));
+            } else if (contingencyScenario.getCurativeState().isPresent()) {
+                OptimizationResult curativeResult = postContingencyResults.get(contingencyScenario.getCurativeState().get());
+                results.put(contingencyScenario.getCurativeState().get(), new PerimeterResultImpl(preContingencyResult, curativeResult));
             }
         });
         return results;
@@ -147,12 +149,14 @@ public class PreventiveAndCurativesRaoResultImpl implements RaoResult {
                     contingenciesToExclude.add(contingencyScenario.getContingency().getId());
                     return;
                 }
-                OptimizationResult curativeResult = postContingencyResults.get(contingencyScenario.getCurativeState());
-                if (!curativeResult.getContingencies().contains(contingencyScenario.getContingency().getId())) {
-                    contingenciesToExclude.add(contingencyScenario.getContingency().getId());
+                if (contingencyScenario.getCurativeState().isPresent()) {
+                    OptimizationResult curativeResult = postContingencyResults.get(contingencyScenario.getCurativeState().get());
+                    if (!curativeResult.getContingencies().contains(contingencyScenario.getContingency().getId())) {
+                        contingenciesToExclude.add(contingencyScenario.getContingency().getId());
+                    }
                 }
-            } else {
-                OptimizationResult curativeResult = postContingencyResults.get(contingencyScenario.getCurativeState());
+            } else if (contingencyScenario.getCurativeState().isPresent()) {
+                OptimizationResult curativeResult = postContingencyResults.get(contingencyScenario.getCurativeState().get());
                 if (!curativeResult.getContingencies().contains(contingencyScenario.getContingency().getId())) {
                     contingenciesToExclude.add(contingencyScenario.getContingency().getId());
                 }

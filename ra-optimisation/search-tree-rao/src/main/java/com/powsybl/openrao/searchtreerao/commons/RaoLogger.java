@@ -187,9 +187,10 @@ public final class RaoLogger {
             automatonState.ifPresent(state -> mostLimitingElementsAndMargins.putAll(
                     getMostLimitingElementsAndMargins(contingencyOptimizationResults.get(state), Set.of(state), unit, relativePositiveMargins, numberOfLoggedElements)
             ));
-            mostLimitingElementsAndMargins.putAll(
-                    getMostLimitingElementsAndMargins(contingencyOptimizationResults.get(contingencyScenario.getCurativeState()), Set.of(contingencyScenario.getCurativeState()), unit, relativePositiveMargins, numberOfLoggedElements)
-            );
+            Optional<State> curativeState = contingencyScenario.getCurativeState();
+            curativeState.ifPresent(state -> mostLimitingElementsAndMargins.putAll(
+                getMostLimitingElementsAndMargins(contingencyOptimizationResults.get(state), Set.of(state), unit, relativePositiveMargins, numberOfLoggedElements)
+            ));
         });
 
         List<FlowCnec> sortedCnecs = mostLimitingElementsAndMargins.keySet().stream()

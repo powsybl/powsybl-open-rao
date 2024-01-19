@@ -13,6 +13,7 @@ import com.powsybl.openrao.data.cracapi.*;
 import com.powsybl.openrao.data.cracapi.cnec.Side;
 import com.powsybl.openrao.data.cracapi.networkaction.NetworkAction;
 import com.powsybl.openrao.data.cracapi.usagerule.UsageMethod;
+import com.powsybl.openrao.data.cracimpl.CracImplFactory;
 import com.powsybl.openrao.data.cracimpl.utils.CommonCracCreation;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -20,6 +21,7 @@ import org.mockito.Mockito;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -49,7 +51,7 @@ class StateTreeTest {
         if (withCra) {
             crac = CommonCracCreation.createWithCurativePstRange();
         } else {
-            crac = CommonCracCreation.create();
+            crac = CommonCracCreation.create(new CracImplFactory(), Set.of(Side.LEFT));
         }
         outageInstant = crac.getInstant(OUTAGE_INSTANT_ID);
         autoInstant = crac.getInstant(AUTO_INSTANT_ID);
@@ -81,14 +83,14 @@ class StateTreeTest {
         ContingencyScenario contingencyScenario = stateTree.getContingencyScenarios().iterator().next();
         assertEquals(crac.getContingency("Contingency FR1 FR3"), contingencyScenario.getContingency());
         assertTrue(contingencyScenario.getAutomatonState().isEmpty());
-        assertEquals(curativeState2, contingencyScenario.getCurativeState());
+        assertEquals(Optional.of(curativeState2), contingencyScenario.getCurativeState());
 
         assertEquals(1, stateTree.getOperatorsNotSharingCras().size());
         assertEquals("operator2", stateTree.getOperatorsNotSharingCras().iterator().next());
     }
 
     private void setUpCustomCrac() {
-        crac = CracFactory.findDefault().create("crac-id")
+        crac = new CracImplFactory().create("crac-id")
             .newInstant(PREVENTIVE_INSTANT_ID, InstantKind.PREVENTIVE)
             .newInstant(OUTAGE_INSTANT_ID, InstantKind.OUTAGE)
             .newInstant(AUTO_INSTANT_ID, InstantKind.AUTO)
@@ -186,7 +188,7 @@ class StateTreeTest {
         ContingencyScenario contingencyScenario = stateTree.getContingencyScenarios().iterator().next();
         assertEquals(crac.getContingency("contingency-1"), contingencyScenario.getContingency());
         assertTrue(contingencyScenario.getAutomatonState().isEmpty());
-        assertEquals(crac.getState("contingency-1", curativeInstant), contingencyScenario.getCurativeState());
+        assertEquals(Optional.of(crac.getState("contingency-1", curativeInstant)), contingencyScenario.getCurativeState());
     }
 
     @Test
@@ -245,7 +247,7 @@ class StateTreeTest {
     }
 
     private void setUpCustomCracWithAutoInstant(boolean withAutoState, boolean withAutoRa, boolean withCurativeState, boolean withCurativeRa) {
-        crac = CracFactory.findDefault().create("crac-id")
+        crac = new CracImplFactory().create("crac-id")
             .newInstant(PREVENTIVE_INSTANT_ID, InstantKind.PREVENTIVE)
             .newInstant(OUTAGE_INSTANT_ID, InstantKind.OUTAGE)
             .newInstant(AUTO_INSTANT_ID, InstantKind.AUTO)
@@ -336,8 +338,10 @@ class StateTreeTest {
 
         // 2.1 Only AUTO exists and has RAs
         setUpCustomCracWithAutoInstant(true, true, false, false);
-        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> new StateTree(crac));
-        assertEquals("Automaton state contingency - auto has RAs, but curative state null doesn't. This is not supported.", exception.getMessage());
+        stateTree = new StateTree(crac);
+        assertEquals(Set.of(preventiveState, outageState), stateTree.getBasecaseScenario().getAllStates());
+        assertEquals(1, stateTree.getContingencyScenarios().size());
+        assertEquals(Optional.of(autoState), stateTree.getContingencyScenarios().iterator().next().getAutomatonState());
     }
 
     @Test
@@ -358,7 +362,7 @@ class StateTreeTest {
         ContingencyScenario contingencyScenario = stateTree.getContingencyScenarios().iterator().next();
         assertEquals(crac.getContingency("contingency"), contingencyScenario.getContingency());
         assertEquals(Optional.empty(), contingencyScenario.getAutomatonState());
-        assertEquals(curativeState1, contingencyScenario.getCurativeState());
+        assertEquals(Optional.of(curativeState1), contingencyScenario.getCurativeState());
     }
 
     @Test
@@ -373,8 +377,11 @@ class StateTreeTest {
 
         // 4.2 Both AUTO and CURATIVE exist, only AUTO has RAs
         setUpCustomCracWithAutoInstant(true, true, true, false);
-        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> new StateTree(crac));
-        assertEquals("Automaton state contingency - auto has RAs, but curative state contingency - curative doesn't. This is not supported.", exception.getMessage());
+        stateTree = new StateTree(crac);
+        assertEquals(Set.of(preventiveState, outageState), stateTree.getBasecaseScenario().getAllStates());
+        assertEquals(1, stateTree.getContingencyScenarios().size());
+        assertEquals(Optional.of(autoState), stateTree.getContingencyScenarios().iterator().next().getAutomatonState());
+        assertEquals(Optional.of(curativeState1), stateTree.getContingencyScenarios().iterator().next().getCurativeState());
 
         // 4.3 Both AUTO and CURATIVE exist, only CURATIVE has RAs
         setUpCustomCracWithAutoInstant(true, false, true, true);
@@ -384,7 +391,7 @@ class StateTreeTest {
         ContingencyScenario contingencyScenario = stateTree.getContingencyScenarios().iterator().next();
         assertEquals(crac.getContingency("contingency"), contingencyScenario.getContingency());
         assertEquals(Optional.empty(), contingencyScenario.getAutomatonState());
-        assertEquals(curativeState1, contingencyScenario.getCurativeState());
+        assertEquals(Optional.of(curativeState1), contingencyScenario.getCurativeState());
 
         // 4.4 Both AUTO and CURATIVE exist and have RAs
         setUpCustomCracWithAutoInstant(true, true, true, true);
@@ -394,6 +401,51 @@ class StateTreeTest {
         contingencyScenario = stateTree.getContingencyScenarios().iterator().next();
         assertEquals(crac.getContingency("contingency"), contingencyScenario.getContingency());
         assertEquals(Optional.of(autoState), contingencyScenario.getAutomatonState());
-        assertEquals(curativeState1, contingencyScenario.getCurativeState());
+        assertEquals(Optional.of(curativeState1), contingencyScenario.getCurativeState());
+    }
+
+    @Test
+    void testAutomatonStateWithoutAutoCnecs() {
+        setUpCustomCracWithAutoInstant(true, true, true, true);
+        Set<String> cnecsToRemove = crac.getFlowCnecs(autoState).stream().map(Identifiable::getId).collect(Collectors.toSet());
+        crac.removeFlowCnecs(cnecsToRemove);
+        assertTrue(crac.getFlowCnecs(autoState).isEmpty());
+
+        stateTree = new StateTree(crac);
+        assertEquals(Set.of(preventiveState, outageState), stateTree.getBasecaseScenario().getAllStates());
+        assertEquals(1, stateTree.getContingencyScenarios().size());
+        ContingencyScenario contingencyScenario = stateTree.getContingencyScenarios().iterator().next();
+        assertEquals(crac.getContingency("contingency"), contingencyScenario.getContingency());
+        assertTrue(contingencyScenario.getAutomatonState().isEmpty());
+        assertEquals(Optional.of(curativeState1), contingencyScenario.getCurativeState());
+    }
+
+    @Test
+    void testCurativeStateWithoutCurativeCnecs() {
+        setUpCustomCracWithAutoInstant(true, true, true, true);
+        Set<String> cnecsToRemove = crac.getFlowCnecs(curativeState1).stream().map(Identifiable::getId).collect(Collectors.toSet());
+        crac.removeFlowCnecs(cnecsToRemove);
+        assertTrue(crac.getFlowCnecs(curativeState1).isEmpty());
+
+        stateTree = new StateTree(crac);
+        assertEquals(Set.of(preventiveState, outageState), stateTree.getBasecaseScenario().getAllStates());
+        assertEquals(1, stateTree.getContingencyScenarios().size());
+        ContingencyScenario contingencyScenario = stateTree.getContingencyScenarios().iterator().next();
+        assertEquals(crac.getContingency("contingency"), contingencyScenario.getContingency());
+        assertEquals(Optional.of(autoState), contingencyScenario.getAutomatonState());
+        assertTrue(contingencyScenario.getCurativeState().isEmpty());
+    }
+
+    @Test
+    void testStateWithoutCnecs() {
+        setUpCustomCracWithAutoInstant(true, true, true, true);
+        crac.removeFlowCnecs(crac.getFlowCnecs(autoState).stream().map(Identifiable::getId).collect(Collectors.toSet()));
+        crac.removeFlowCnecs(crac.getFlowCnecs(curativeState1).stream().map(Identifiable::getId).collect(Collectors.toSet()));
+        assertTrue(crac.getFlowCnecs(autoState).isEmpty());
+        assertTrue(crac.getFlowCnecs(curativeState1).isEmpty());
+
+        stateTree = new StateTree(crac);
+        assertEquals(Set.of(preventiveState, outageState), stateTree.getBasecaseScenario().getAllStates());
+        assertEquals(0, stateTree.getContingencyScenarios().size());
     }
 }

@@ -86,7 +86,7 @@ public final class AutomatonSimulator {
      * then range actions by order of speed. TODO Network actions by speed  is not implemented yet
      * Returns an AutomatonPerimeterResult
      */
-    AutomatonPerimeterResultImpl simulateAutomatonState(State automatonState, State curativeState, Network network) {
+    AutomatonPerimeterResultImpl simulateAutomatonState(State automatonState, Optional<State> curativeState, Network network) {
         TECHNICAL_LOGS.info("Optimizing automaton state {}.", automatonState.getId());
         if (!crac.getNetworkActions(automatonState, UsageMethod.AVAILABLE).isEmpty()) {
             BUSINESS_WARNS.warn("CRAC has network action automatons with usage method AVAILABLE. These are not supported.");
@@ -138,12 +138,14 @@ public final class AutomatonSimulator {
         return automatonPerimeterResultImpl;
     }
 
-    private PrePerimeterSensitivityAnalysis getPreAutoPerimeterSensitivityAnalysis(State automatonState, State curativeState) {
+    private PrePerimeterSensitivityAnalysis getPreAutoPerimeterSensitivityAnalysis(State automatonState, Optional<State> curativeState) {
         Set<FlowCnec> flowCnecsInSensi = crac.getFlowCnecs(automatonState);
-        flowCnecsInSensi.addAll(crac.getFlowCnecs(curativeState));
         Set<RangeAction<?>> rangeActionsInSensi = new HashSet<>();
         rangeActionsInSensi.addAll(crac.getRangeActions(automatonState, UsageMethod.FORCED));
-        rangeActionsInSensi.addAll(crac.getRangeActions(curativeState, UsageMethod.AVAILABLE));
+        if (curativeState.isPresent()) {
+            flowCnecsInSensi.addAll(crac.getFlowCnecs(curativeState.get()));
+            rangeActionsInSensi.addAll(crac.getRangeActions(curativeState.get(), UsageMethod.AVAILABLE));
+        }
         return new PrePerimeterSensitivityAnalysis(flowCnecsInSensi, rangeActionsInSensi, raoParameters, toolProvider);
     }
 
@@ -256,7 +258,7 @@ public final class AutomatonSimulator {
         }
     }
 
-    RangeAutomatonSimulationResult simulateRangeAutomatons(State automatonState, State curativeState, Network network, PrePerimeterSensitivityAnalysis preAutoPerimeterSensitivityAnalysis, PrePerimeterResult postAutoTopoResult) {
+    RangeAutomatonSimulationResult simulateRangeAutomatons(State automatonState, Optional<State> curativeState, Network network, PrePerimeterSensitivityAnalysis preAutoPerimeterSensitivityAnalysis, PrePerimeterResult postAutoTopoResult) {
         PrePerimeterResult finalPostAutoResult = postAutoTopoResult;
         // -- Create groups of aligned range actions
         List<List<RangeAction<?>>> rangeActionsOnAutomatonState = buildRangeActionsGroupsOrderedBySpeed(finalPostAutoResult, automatonState, network);
@@ -400,13 +402,16 @@ public final class AutomatonSimulator {
      * The sensitivity analysis is run on curative range actions, to be used at curative instant.
      * This function returns a prePerimeterResult that will be used to build an AutomatonPerimeterResult.
      */
-    private PrePerimeterResult runPreCurativeSensitivityComputation(State automatonState, State curativeState, Network network) {
+    private PrePerimeterResult runPreCurativeSensitivityComputation(State automatonState, Optional<State> curativeState, Network network) {
         // -- Run sensitivity computation before running curative RAO later
         // -- Get curative range actions
-        Set<RangeAction<?>> curativeRangeActions = crac.getRangeActions(curativeState, UsageMethod.AVAILABLE);
+        Set<RangeAction<?>> curativeRangeActions = new HashSet<>();
         // Get cnecs
         Set<FlowCnec> flowCnecs = crac.getFlowCnecs(automatonState);
-        flowCnecs.addAll(crac.getFlowCnecs(curativeState));
+        if (curativeState.isPresent()) {
+            curativeRangeActions.addAll(crac.getRangeActions(curativeState.get(), UsageMethod.AVAILABLE));
+            flowCnecs.addAll(crac.getFlowCnecs(curativeState.get()));
+        }
         PrePerimeterSensitivityAnalysis prePerimeterSensitivityAnalysis = new PrePerimeterSensitivityAnalysis(
                 flowCnecs,
                 curativeRangeActions,

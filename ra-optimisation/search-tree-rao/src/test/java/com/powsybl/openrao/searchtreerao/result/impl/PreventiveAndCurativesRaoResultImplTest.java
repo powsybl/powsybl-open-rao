@@ -87,16 +87,19 @@ class PreventiveAndCurativesRaoResultImplTest {
         crac = mock(Crac.class);
         preventiveInstant = mock(Instant.class);
         when(preventiveInstant.isPreventive()).thenReturn(true);
+        when(preventiveInstant.getKind()).thenReturn(InstantKind.PREVENTIVE);
         when(preventiveInstant.getOrder()).thenReturn(0);
         when(preventiveInstant.toString()).thenReturn(PREVENTIVE_INSTANT_ID);
         when(preventiveInstant.getId()).thenReturn(PREVENTIVE_INSTANT_ID);
         outageInstant = mock(Instant.class);
         when(outageInstant.isOutage()).thenReturn(true);
+        when(outageInstant.getKind()).thenReturn(InstantKind.OUTAGE);
         when(outageInstant.getOrder()).thenReturn(1);
         when(outageInstant.toString()).thenReturn(OUTAGE_INSTANT_ID);
         when(outageInstant.getId()).thenReturn(OUTAGE_INSTANT_ID);
         autoInstant = mock(Instant.class);
         when(autoInstant.isAuto()).thenReturn(true);
+        when(autoInstant.getKind()).thenReturn(InstantKind.AUTO);
         when(autoInstant.getOrder()).thenReturn(2);
         when(autoInstant.toString()).thenReturn(AUTO_INSTANT_ID);
         when(autoInstant.getId()).thenReturn(AUTO_INSTANT_ID);
@@ -104,6 +107,7 @@ class PreventiveAndCurativesRaoResultImplTest {
         when(outageInstant.comesBefore(autoInstant)).thenReturn(true);
         curativeInstant = mock(Instant.class);
         when(curativeInstant.isCurative()).thenReturn(true);
+        when(curativeInstant.getKind()).thenReturn(InstantKind.CURATIVE);
         when(curativeInstant.getOrder()).thenReturn(3);
         when(curativeInstant.toString()).thenReturn(CURATIVE_INSTANT_ID);
         when(preventiveInstant.comesBefore(curativeInstant)).thenReturn(true);
@@ -232,8 +236,16 @@ class PreventiveAndCurativesRaoResultImplTest {
         stateTree = mock(StateTree.class);
         BasecaseScenario basecaseScenario = new BasecaseScenario(preventiveState, null);
         Set<ContingencyScenario> contingencyScenarios = Set.of(
-            new ContingencyScenario(contingency1, autoState1, curativeState1),
-            new ContingencyScenario(contingency2, null, curativeState2)
+            ContingencyScenario.create()
+                .withContingency(contingency1)
+                .withAutomatonState(autoState1)
+                .withCurativeState(curativeState1)
+                .build(),
+            ContingencyScenario.create()
+                .withContingency(contingency2)
+                .withAutomatonState(null)
+                .withCurativeState(curativeState2)
+                .build()
         );
         when(stateTree.getBasecaseScenario()).thenReturn(basecaseScenario);
         when(stateTree.getContingencyScenarios()).thenReturn(contingencyScenarios);
