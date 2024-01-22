@@ -6,6 +6,7 @@
  */
 package com.powsybl.openrao.monitoring.voltagemonitoring;
 
+import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.cracapi.Identifiable;
@@ -16,6 +17,7 @@ import com.powsybl.openrao.data.raoresultapi.RaoResult;
 import com.powsybl.openrao.data.raoresultjson.RaoResultImporter;
 import com.powsybl.openrao.monitoring.voltagemonitoring.json.VoltageMonitoringResultImporter;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 
 import java.io.InputStream;
 import java.util.Set;
@@ -53,6 +55,55 @@ class RaoResultWithVoltageMonitoringTest {
         assertEquals(398., raoResultWithVoltageMonitoring2.getVoltage(curativeInstant, crac.getVoltageCnec("voltageCnecId"), Unit.KILOVOLT), DOUBLE_TOLERANCE);
         assertEquals(1., raoResultWithVoltageMonitoring2.getMargin(curativeInstant, crac.getVoltageCnec("voltageCnecId"), Unit.KILOVOLT), DOUBLE_TOLERANCE);
         assertEquals(ComputationStatus.DEFAULT, raoResultWithVoltageMonitoring2.getComputationStatus());
+    }
+
+    @Test
+    void testIsSecureWhenRaoResultAndVoltageMonitoringIsSecure() {
+        RaoResult raoResult = Mockito.mock(RaoResult.class);
+        VoltageMonitoringResult voltageMonitoringResult = Mockito.mock(VoltageMonitoringResult.class);
+        RaoResult raoResultWithVoltageMonitoring = new RaoResultWithVoltageMonitoring(raoResult, voltageMonitoringResult);
+        Mockito.when(raoResult.isSecure()).thenReturn(true);
+        Mockito.when(voltageMonitoringResult.isSecure()).thenReturn(true);
+        Mockito.when(raoResult.isSecure(PhysicalParameter.FLOW, PhysicalParameter.VOLTAGE)).thenReturn(true);
+        Mockito.when(raoResult.isSecure(Mockito.any(Instant.class), Mockito.eq(PhysicalParameter.FLOW), Mockito.eq(PhysicalParameter.VOLTAGE))).thenReturn(true);
+
+        assertTrue(raoResultWithVoltageMonitoring.isSecure());
+        assertTrue(raoResultWithVoltageMonitoring.isSecure(PhysicalParameter.FLOW, PhysicalParameter.VOLTAGE));
+        assertTrue(raoResultWithVoltageMonitoring.isSecure(Mockito.mock(Instant.class), PhysicalParameter.FLOW, PhysicalParameter.VOLTAGE));
+    }
+
+    @Test
+    void testIsSecureWhenRaoResultAndVoltageMonitoringUnsecureIfVoltageNotChecked() {
+        RaoResult raoResult = Mockito.mock(RaoResult.class);
+        VoltageMonitoringResult voltageMonitoringResult = Mockito.mock(VoltageMonitoringResult.class);
+        RaoResult raoResultWithVoltageMonitoring = new RaoResultWithVoltageMonitoring(raoResult, voltageMonitoringResult);
+        Mockito.when(raoResult.isSecure()).thenReturn(true);
+        Mockito.when(voltageMonitoringResult.isSecure()).thenReturn(false);
+        Mockito.when(raoResult.isSecure(PhysicalParameter.FLOW, PhysicalParameter.VOLTAGE)).thenReturn(true);
+        Mockito.when(raoResult.isSecure(PhysicalParameter.FLOW, PhysicalParameter.ANGLE)).thenReturn(true);
+        Mockito.when(raoResult.isSecure(Mockito.any(Instant.class), Mockito.eq(PhysicalParameter.FLOW), Mockito.eq(PhysicalParameter.VOLTAGE))).thenReturn(true);
+        Mockito.when(raoResult.isSecure(Mockito.any(Instant.class), Mockito.eq(PhysicalParameter.FLOW), Mockito.eq(PhysicalParameter.ANGLE))).thenReturn(true);
+
+        assertFalse(raoResultWithVoltageMonitoring.isSecure());
+        assertFalse(raoResultWithVoltageMonitoring.isSecure(PhysicalParameter.FLOW, PhysicalParameter.VOLTAGE));
+        assertFalse(raoResultWithVoltageMonitoring.isSecure(Mockito.mock(Instant.class), PhysicalParameter.FLOW, PhysicalParameter.VOLTAGE));
+        assertTrue(raoResultWithVoltageMonitoring.isSecure(PhysicalParameter.FLOW, PhysicalParameter.ANGLE));
+        assertTrue(raoResultWithVoltageMonitoring.isSecure(Mockito.mock(Instant.class), PhysicalParameter.FLOW, PhysicalParameter.ANGLE));
+    }
+
+    @Test
+    void testIsUnsecureWhenRaoResultIsUnsecureAndVoltageMonitoringIsSecure() {
+        RaoResult raoResult = Mockito.mock(RaoResult.class);
+        VoltageMonitoringResult voltageMonitoringResult = Mockito.mock(VoltageMonitoringResult.class);
+        RaoResult raoResultWithVoltageMonitoring = new RaoResultWithVoltageMonitoring(raoResult, voltageMonitoringResult);
+        Mockito.when(raoResult.isSecure()).thenReturn(false);
+        Mockito.when(voltageMonitoringResult.isSecure()).thenReturn(true);
+        Mockito.when(raoResult.isSecure(PhysicalParameter.FLOW, PhysicalParameter.VOLTAGE)).thenReturn(false);
+        Mockito.when(raoResult.isSecure(Mockito.any(Instant.class), Mockito.eq(PhysicalParameter.FLOW), Mockito.eq(PhysicalParameter.VOLTAGE))).thenReturn(false);
+
+        assertFalse(raoResultWithVoltageMonitoring.isSecure());
+        assertFalse(raoResultWithVoltageMonitoring.isSecure(PhysicalParameter.FLOW, PhysicalParameter.VOLTAGE));
+        assertFalse(raoResultWithVoltageMonitoring.isSecure(Mockito.mock(Instant.class), PhysicalParameter.FLOW, PhysicalParameter.VOLTAGE));
     }
 
 }
