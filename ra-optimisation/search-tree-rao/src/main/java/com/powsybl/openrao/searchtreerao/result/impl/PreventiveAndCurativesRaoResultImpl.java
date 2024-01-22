@@ -8,6 +8,7 @@
 package com.powsybl.openrao.searchtreerao.result.impl;
 
 import com.powsybl.openrao.commons.OpenRaoException;
+import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.*;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
@@ -583,6 +584,19 @@ public class PreventiveAndCurativesRaoResultImpl implements RaoResult {
         } else {
             throw new OpenRaoException("The RaoResult object should not be modified outside of its usual routine");
         }
+    }
+
+    @Override
+    public boolean isSecure(Instant optimizedInstant, PhysicalParameter... u) {
+        if (ComputationStatus.FAILURE.equals(getComputationStatus())) {
+            return false;
+        }
+        return getFunctionalCost(optimizedInstant) < 0;
+    }
+
+    @Override
+    public boolean isSecure(PhysicalParameter... u) {
+        return isSecure(crac.getLastInstant(), u);
     }
 
     @Override
