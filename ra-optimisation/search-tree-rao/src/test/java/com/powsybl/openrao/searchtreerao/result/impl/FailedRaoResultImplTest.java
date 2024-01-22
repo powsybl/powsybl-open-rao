@@ -8,6 +8,7 @@
 package com.powsybl.openrao.searchtreerao.result.impl;
 
 import com.powsybl.openrao.commons.OpenRaoException;
+import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.data.cracapi.Instant;
 import com.powsybl.openrao.data.cracapi.cnec.AngleCnec;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
@@ -61,6 +62,8 @@ class FailedRaoResultImplTest {
         assertThrows(OpenRaoException.class, () -> failedRaoResultImpl.getOptimizedSetPointsOnState(state));
         assertThrows(OpenRaoException.class, failedRaoResultImpl::getOptimizationStepsExecuted);
         assertThrows(OpenRaoException.class, () -> failedRaoResultImpl.setOptimizationStepsExecuted(OptimizationStepsExecuted.FIRST_PREVENTIVE_ONLY));
+        assertThrows(OpenRaoException.class, failedRaoResultImpl::isSecure);
+        assertThrows(OpenRaoException.class, () -> failedRaoResultImpl.isSecure(optInstant, PhysicalParameter.FLOW));
     }
 
     @Test

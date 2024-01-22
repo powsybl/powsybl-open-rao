@@ -130,6 +130,7 @@ class VoltageMonitoringTest {
         assertEquals(SECURE, voltageMonitoringResult.getStatus());
         assertTrue(voltageMonitoringResult.getConstrainedElements().isEmpty());
         assertEquals(List.of("All voltage CNECs are secure."), voltageMonitoringResult.printConstraints());
+        assertTrue(voltageMonitoringResult.isSecure());
     }
 
     @Test
@@ -142,6 +143,7 @@ class VoltageMonitoringTest {
         assertEquals(SECURE, voltageMonitoringResult.getStatus());
         assertTrue(voltageMonitoringResult.getConstrainedElements().isEmpty());
         assertEquals(List.of("All voltage CNECs are secure."), voltageMonitoringResult.printConstraints());
+        assertTrue(voltageMonitoringResult.isSecure());
     }
 
     @Test
@@ -154,6 +156,7 @@ class VoltageMonitoringTest {
         assertEquals(Set.of(crac.getVoltageCnec("vc")), voltageMonitoringResult.getConstrainedElements());
         assertEquals(List.of("Some voltage CNECs are not secure:",
             "Network element VL1 at state preventive has a voltage of 400 - 400 kV."), voltageMonitoringResult.printConstraints());
+        assertFalse(voltageMonitoringResult.isSecure());
     }
 
     @Test
@@ -166,6 +169,7 @@ class VoltageMonitoringTest {
         assertEquals(Set.of(crac.getVoltageCnec("vc")), voltageMonitoringResult.getConstrainedElements());
         assertEquals(List.of("Some voltage CNECs are not secure:",
             "Network element VL1 at state preventive has a voltage of 400 - 400 kV."), voltageMonitoringResult.printConstraints());
+        assertFalse(voltageMonitoringResult.isSecure());
     }
 
     @Test
@@ -186,6 +190,7 @@ class VoltageMonitoringTest {
         assertEquals(383., voltageMonitoringResult.getMaxVoltage(vc2), VOLTAGE_TOLERANCE);
         assertEquals(List.of("Some voltage CNECs are not secure:",
             "Network element VL2 at state preventive has a voltage of 368 - 368 kV."), voltageMonitoringResult.printConstraints());
+        assertFalse(voltageMonitoringResult.isSecure());
     }
 
     @Test
@@ -206,6 +211,7 @@ class VoltageMonitoringTest {
         assertEquals(383., voltageMonitoringResult.getMaxVoltage(vc2), VOLTAGE_TOLERANCE);
         assertEquals(List.of("Some voltage CNECs are not secure:",
             "Network element VL2 at state preventive has a voltage of 368 - 368 kV.", "Network element VL3 at state preventive has a voltage of 383 - 383 kV."), voltageMonitoringResult.printConstraints());
+        assertFalse(voltageMonitoringResult.isSecure());
     }
 
     @Test
@@ -226,6 +232,7 @@ class VoltageMonitoringTest {
         assertEquals(400., voltageMonitoringResult.getMaxVoltage(vc2), VOLTAGE_TOLERANCE);
         assertEquals(List.of("Some voltage CNECs are not secure:",
             "Network element VL3 at state preventive has a voltage of 400 - 400 kV."), voltageMonitoringResult.printConstraints());
+        assertFalse(voltageMonitoringResult.isSecure());
     }
 
     @Test
@@ -246,6 +253,7 @@ class VoltageMonitoringTest {
         assertEquals(400., voltageMonitoringResult.getMaxVoltage(vc2), VOLTAGE_TOLERANCE);
         assertEquals(List.of("Some voltage CNECs are not secure:",
             "Network element VL2 at state preventive has a voltage of 368 - 368 kV.", "Network element VL3 at state preventive has a voltage of 400 - 400 kV."), voltageMonitoringResult.printConstraints());
+        assertFalse(voltageMonitoringResult.isSecure());
     }
 
     @Test
@@ -267,6 +275,7 @@ class VoltageMonitoringTest {
         assertEquals(387., voltageMonitoringResult.getMaxVoltage(vc2), VOLTAGE_TOLERANCE);
         assertEquals(List.of("Some voltage CNECs are not secure:",
             "Network element VL2 at state preventive has a voltage of 379 - 379 kV."), voltageMonitoringResult.printConstraints());
+        assertFalse(voltageMonitoringResult.isSecure());
     }
 
     @Test
@@ -294,6 +303,7 @@ class VoltageMonitoringTest {
                 "Network element VL3 at state coL2 - curative has a voltage of 400 - 400 kV.",
                 "Network element VL3 at state coL1L2 - curative has a voltage of 400 - 400 kV."),
             voltageMonitoringResult.printConstraints());
+        assertFalse(voltageMonitoringResult.isSecure());
     }
 
     @Test
@@ -320,6 +330,7 @@ class VoltageMonitoringTest {
         assertEquals(393., voltageMonitoringResult.getMinVoltage(vc2b), VOLTAGE_TOLERANCE);
         assertEquals(393., voltageMonitoringResult.getMaxVoltage(vc2b), VOLTAGE_TOLERANCE);
         assertEquals(List.of("All voltage CNECs are secure."), voltageMonitoringResult.printConstraints());
+        assertTrue(voltageMonitoringResult.isSecure());
     }
 
     @Test
@@ -339,6 +350,7 @@ class VoltageMonitoringTest {
         assertEquals(368., voltageMonitoringResult.getMaxVoltage(vc), VOLTAGE_TOLERANCE);
         assertEquals(List.of("Some voltage CNECs are not secure:",
             "Network element VL2 at state co3 - curative has a voltage of 368 - 368 kV."), voltageMonitoringResult.printConstraints());
+        assertFalse(voltageMonitoringResult.isSecure());
     }
 
     @Test
@@ -363,6 +375,7 @@ class VoltageMonitoringTest {
                 "Network element VL45 at state preventive has a voltage of 144 - 148 kV.",
                 "Network element VL46 at state preventive has a voltage of 143 - 148 kV."),
             voltageMonitoringResult.printConstraints());
+        assertFalse(voltageMonitoringResult.isSecure());
     }
 
     public void setUpCracFactory(String networkFileName) {
@@ -395,6 +408,7 @@ class VoltageMonitoringTest {
         assertEquals(0, voltageMonitoringResult.getAppliedRas().size());
         assertEquals(Double.NaN, voltageMonitoringResult.getMinVoltage(vcPrev));
         assertEquals(Double.NaN, voltageMonitoringResult.getMaxVoltage(vcPrev));
+        assertFalse(voltageMonitoringResult.isSecure());
     }
 
     @Test
@@ -415,6 +429,7 @@ class VoltageMonitoringTest {
 
         assertEquals(HIGH_VOLTAGE_CONSTRAINT, voltageMonitoringResult.getStatus());
         assertEquals(0, voltageMonitoringResult.getAppliedRas().size());
+        assertFalse(voltageMonitoringResult.isSecure());
     }
 
     @Test
@@ -434,6 +449,7 @@ class VoltageMonitoringTest {
 
         assertEquals(SECURE, voltageMonitoringResult.getStatus());
         assertEquals(0, voltageMonitoringResult.getAppliedRas().size());
+        assertTrue(voltageMonitoringResult.isSecure());
     }
 
     @Test
@@ -445,6 +461,7 @@ class VoltageMonitoringTest {
 
         assertEquals(0, voltageMonitoringResult.getAppliedRas().size());
         assertEquals(HIGH_VOLTAGE_CONSTRAINT, voltageMonitoringResult.getStatus());
+        assertFalse(voltageMonitoringResult.isSecure());
     }
 
     @Test
@@ -471,6 +488,7 @@ class VoltageMonitoringTest {
         assertEquals(1, voltageMonitoringResult.getAppliedRas().size());
         assertEquals(Set.of(networkAction), voltageMonitoringResult.getAppliedRas().get(crac.getState("co", curativeInstant)));
         assertEquals(HIGH_VOLTAGE_CONSTRAINT, voltageMonitoringResult.getStatus());
+        assertFalse(voltageMonitoringResult.isSecure());
     }
 
     @Test
@@ -497,6 +515,7 @@ class VoltageMonitoringTest {
         assertEquals(1, voltageMonitoringResult.getAppliedRas().size());
         assertEquals(Set.of(networkAction), voltageMonitoringResult.getAppliedRas().get(crac.getState("co", curativeInstant)));
         assertEquals(LOW_VOLTAGE_CONSTRAINT, voltageMonitoringResult.getStatus());
+        assertFalse(voltageMonitoringResult.isSecure());
     }
 
     @Test
@@ -517,6 +536,7 @@ class VoltageMonitoringTest {
         assertEquals(SECURE, voltageMonitoringResult.getStatus());
         assertEquals(1, voltageMonitoringResult.getAppliedRas().size());
         assertEquals(Set.of(networkAction), voltageMonitoringResult.getAppliedRas().get(crac.getState("co", curativeInstant)));
+        assertTrue(voltageMonitoringResult.isSecure());
     }
 
     @Test
@@ -537,6 +557,7 @@ class VoltageMonitoringTest {
         assertEquals(SECURE, voltageMonitoringResult.getStatus());
         assertEquals(1, voltageMonitoringResult.getAppliedRas().size());
         assertEquals(Set.of(networkAction), voltageMonitoringResult.getAppliedRas().get(crac.getState("co", curativeInstant)));
+        assertTrue(voltageMonitoringResult.isSecure());
     }
 }
 

@@ -8,6 +8,7 @@
 package com.powsybl.openrao.data.raoresultapi;
 
 import com.powsybl.openrao.commons.OpenRaoException;
+import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.Instant;
 import com.powsybl.openrao.data.cracapi.RemedialAction;
@@ -163,6 +164,21 @@ public class RaoResultClone implements RaoResult {
     @Override
     public void setOptimizationStepsExecuted(OptimizationStepsExecuted optimizationStepsExecuted) {
         raoResult.setOptimizationStepsExecuted(optimizationStepsExecuted);
+    }
+
+    @Override
+    public boolean isSecure(Instant optimizedInstant, PhysicalParameter... u) {
+        return raoResult.isSecure(optimizedInstant, u);
+    }
+
+    @Override
+    public boolean isSecure(PhysicalParameter... u) {
+        return raoResult.isSecure(u);
+    }
+
+    @Override
+    public boolean isSecure() {
+        return raoResult.isSecure();
     }
 
     @Override

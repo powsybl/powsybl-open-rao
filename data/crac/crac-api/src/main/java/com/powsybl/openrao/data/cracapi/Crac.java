@@ -107,6 +107,11 @@ public interface Crac extends Identifiable<Crac> {
     Instant getOutageInstant();
 
     /**
+     * Return the last instant, i.e. the only instant that has no instant after it
+     */
+    Instant getLastInstant();
+
+    /**
      * Returns whether a crac has an auto instant
      */
     boolean hasAutoInstant();

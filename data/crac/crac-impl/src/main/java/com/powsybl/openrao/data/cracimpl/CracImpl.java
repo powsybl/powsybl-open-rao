@@ -223,6 +223,11 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
     }
 
     @Override
+    public Instant getLastInstant() {
+        return lastInstantAdded;
+    }
+
+    @Override
     public boolean hasAutoInstant() {
         return !getInstants(InstantKind.AUTO).isEmpty();
     }

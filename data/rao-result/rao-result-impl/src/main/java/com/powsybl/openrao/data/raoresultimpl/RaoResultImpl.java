@@ -7,6 +7,7 @@
 package com.powsybl.openrao.data.raoresultimpl;
 
 import com.powsybl.openrao.commons.OpenRaoException;
+import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.*;
 import com.powsybl.openrao.data.cracapi.cnec.AngleCnec;
@@ -337,6 +338,52 @@ public class RaoResultImpl implements RaoResult {
         } else {
             throw new OpenRaoException("The RaoResult object should not be modified outside of its usual routine");
         }
+    }
+
+    private boolean instantHasNoNegativeMargin(Instant optimizedInstant, PhysicalParameter... u) {
+        for (PhysicalParameter physicalParameter : Set.of(u)) {
+            switch (physicalParameter) {
+                case ANGLE -> {
+                    if (angleCnecResults.keySet().stream()
+                            .mapToDouble(cnec -> getMargin(optimizedInstant, cnec, Unit.DEGREE))
+                            .filter(margin -> !Double.isNaN(margin))
+                            .anyMatch(margin -> margin < 0)) {
+                        return false;
+                    }
+                }
+                case FLOW -> {
+                    if (getFunctionalCost(optimizedInstant) > 0) {
+                        return false;
+                    }
+                }
+                case VOLTAGE -> {
+                    if (voltageCnecResults.keySet().stream()
+                            .mapToDouble(cnec -> getMargin(optimizedInstant, cnec, Unit.KILOVOLT))
+                            .filter(margin -> !Double.isNaN(margin))
+                            .anyMatch(margin -> margin < 0)) {
+                        return false;
+                    }
+                }
+            }
+        }
+        return true;
+    }
+
+    @Override
+    public boolean isSecure(Instant optimizedInstant, PhysicalParameter... u) {
+        if (ComputationStatus.FAILURE.equals(getComputationStatus())) {
+            return false;
+        }
+        if (sensitivityStatusPerState.keySet().stream().filter(state -> optimizedInstant.equals(state.getInstant()))
+                .anyMatch(state -> ComputationStatus.FAILURE.equals(sensitivityStatusPerState.get(state)))) {
+            return false;
+        }
+        return instantHasNoNegativeMargin(optimizedInstant, u);
+    }
+
+    @Override
+    public boolean isSecure(PhysicalParameter... u) {
+        return isSecure(crac.getLastInstant(), u);
     }
 
     @Override

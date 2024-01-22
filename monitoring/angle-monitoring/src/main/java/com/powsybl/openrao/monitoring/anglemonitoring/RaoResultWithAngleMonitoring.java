@@ -7,6 +7,7 @@
 package com.powsybl.openrao.monitoring.anglemonitoring;
 
 import com.powsybl.openrao.commons.OpenRaoException;
+import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.Instant;
 import com.powsybl.openrao.data.cracapi.RemedialAction;
@@ -79,5 +80,28 @@ public class RaoResultWithAngleMonitoring extends RaoResultClone {
     @Override
     public boolean isActivatedDuringState(State state, NetworkAction networkAction) {
         return isActivatedDuringState(state, (RemedialAction<?>) networkAction);
+    }
+
+    @Override
+    public boolean isSecure(Instant instant, PhysicalParameter... u) {
+        if (Set.of(u).contains(PhysicalParameter.ANGLE)) {
+            return raoResult.isSecure(instant, u) && angleMonitoringResult.isSecure();
+        } else {
+            return raoResult.isSecure(instant, u);
+        }
+    }
+
+    @Override
+    public boolean isSecure(PhysicalParameter... u) {
+        if (Set.of(u).contains(PhysicalParameter.ANGLE)) {
+            return raoResult.isSecure(u) && angleMonitoringResult.isSecure();
+        } else {
+            return raoResult.isSecure(u);
+        }
+    }
+
+    @Override
+    public boolean isSecure() {
+        return raoResult.isSecure() && angleMonitoringResult.isSecure();
     }
 }
