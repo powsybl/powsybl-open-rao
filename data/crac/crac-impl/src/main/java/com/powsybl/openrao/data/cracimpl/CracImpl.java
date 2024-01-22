@@ -602,6 +602,16 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
         removeNetworkAction(remedialActionId);
     }
 
+    @Override
+    public void removeAllRemedialActions() {
+        pstRangeActions.clear();
+        hvdcRangeActions.clear();
+        injectionRangeActions.clear();
+        counterTradeRangeActions.clear();
+        networkActions.clear();
+
+    }
+
     private Set<State> getAssociatedStates(RemedialAction<?> remedialAction) {
         return remedialAction.getUsageRules().stream()
                 .filter(OnContingencyState.class::isInstance)

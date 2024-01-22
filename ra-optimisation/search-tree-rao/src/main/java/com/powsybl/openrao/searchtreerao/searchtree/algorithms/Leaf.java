@@ -121,9 +121,10 @@ public class Leaf implements OptimizationResult {
     Leaf(OptimizationPerimeter optimizationPerimeter,
          Network network,
          PrePerimeterResult prePerimeterOutput,
-         AppliedRemedialActions appliedRemedialActionsInSecondaryStates) {
+         AppliedRemedialActions appliedRemedialActionsInSecondaryStates,
+         Status status) {
         this(optimizationPerimeter, network, Collections.emptySet(), null, new RangeActionActivationResultImpl(prePerimeterOutput), prePerimeterOutput, appliedRemedialActionsInSecondaryStates);
-        this.status = Status.EVALUATED;
+        this.status = status;
         this.preOptimFlowResult = prePerimeterOutput;
         this.preOptimSensitivityResult = prePerimeterOutput;
     }

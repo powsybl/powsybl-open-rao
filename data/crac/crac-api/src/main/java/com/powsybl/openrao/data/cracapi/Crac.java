@@ -369,6 +369,8 @@ public interface Crac extends Identifiable<Crac> {
      */
     void removeRemedialAction(String id);
 
+    void removeAllRemedialActions();
+
     // Range actions management
 
     /**

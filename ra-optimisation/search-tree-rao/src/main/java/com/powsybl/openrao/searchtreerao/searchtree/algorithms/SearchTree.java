@@ -13,6 +13,7 @@ import com.powsybl.openrao.data.cracapi.State;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
 import com.powsybl.openrao.data.cracapi.cnec.Side;
 import com.powsybl.openrao.data.cracapi.networkaction.NetworkAction;
+import com.powsybl.openrao.data.cracapi.usagerule.UsageMethod;
 import com.powsybl.openrao.searchtreerao.commons.NetworkActionCombination;
 import com.powsybl.openrao.searchtreerao.commons.RaoLogger;
 import com.powsybl.openrao.searchtreerao.commons.SensitivityComputer;
@@ -36,6 +37,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.*;
@@ -165,13 +167,19 @@ public class SearchTree {
     }
 
     void initLeaves(SearchTreeInput input) {
-        rootLeaf = makeLeaf(input.getOptimizationPerimeter(), input.getNetwork(), input.getPrePerimeterResult(), input.getPreOptimizationAppliedRemedialActions());
+        AtomicReference<Leaf.Status> status = new AtomicReference<>(Leaf.Status.EVALUATED);
+        OptimizationPerimeter perimeter = input.getOptimizationPerimeter();
+        perimeter.getNetworkActions().stream().filter(networkAction -> networkAction.getUsageMethod(perimeter.getMainOptimizationState()).equals(UsageMethod.FORCED)).forEach(networkAction -> {
+            networkAction.apply(input.getNetwork());
+            status.set(Leaf.Status.CREATED);
+        });
+        rootLeaf = makeLeaf(input.getOptimizationPerimeter(), input.getNetwork(), input.getPrePerimeterResult(), input.getPreOptimizationAppliedRemedialActions(), status.get());
         optimalLeaf = rootLeaf;
         previousDepthOptimalLeaf = rootLeaf;
     }
 
-    Leaf makeLeaf(OptimizationPerimeter optimizationPerimeter, Network network, PrePerimeterResult prePerimeterOutput, AppliedRemedialActions appliedRemedialActionsInSecondaryStates) {
-        return new Leaf(optimizationPerimeter, network, prePerimeterOutput, appliedRemedialActionsInSecondaryStates);
+    Leaf makeLeaf(OptimizationPerimeter optimizationPerimeter, Network network, PrePerimeterResult prePerimeterOutput, AppliedRemedialActions appliedRemedialActionsInSecondaryStates, Leaf.Status status) {
+        return new Leaf(optimizationPerimeter, network, prePerimeterOutput, appliedRemedialActionsInSecondaryStates, status);
     }
 
     private void logOptimizationSummary(Leaf optimalLeaf) {
