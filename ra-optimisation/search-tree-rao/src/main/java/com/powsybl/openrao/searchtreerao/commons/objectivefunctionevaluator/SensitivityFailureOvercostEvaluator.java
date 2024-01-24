@@ -48,7 +48,7 @@ public class SensitivityFailureOvercostEvaluator implements CostEvaluator {
         }
         for (State state : states) {
             Optional<Contingency> contingency = state.getContingency();
-            if ((state.getContingency().isEmpty() || contingency.isPresent() && !contingenciesToExclude.contains(contingency.get().getId())) &&
+            if ((state.getContingency().isEmpty() || contingency.isPresent()) &&
                     sensitivityResult.getSensitivityStatus(state) == ComputationStatus.FAILURE) {
                 TECHNICAL_LOGS.info(String.format("Sensitivity failure for state %s : assigning virtual overcost of %s", state.getId(), sensitivityFailureOvercost));
                 return Pair.of(sensitivityFailureOvercost, new ArrayList<>());
