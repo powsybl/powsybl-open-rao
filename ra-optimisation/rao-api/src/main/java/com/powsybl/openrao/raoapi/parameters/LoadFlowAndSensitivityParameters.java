@@ -12,6 +12,7 @@ import com.powsybl.sensitivity.SensitivityAnalysisParameters;
 
 import java.util.Objects;
 import static com.powsybl.openrao.raoapi.RaoParametersCommons.*;
+import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.BUSINESS_WARNS;
 
 /**
  * LoadFlow and sensitivity computation parameters for RAO
@@ -58,7 +59,10 @@ public class LoadFlowAndSensitivityParameters {
     }
 
     public void setSensitivityFailureOvercost(double sensitivityFailureOvercost) {
-        this.sensitivityFailureOvercost = sensitivityFailureOvercost;
+        if (sensitivityFailureOvercost < 0) {
+            BUSINESS_WARNS.warn("The value {} for `sensitivity-failure-overcost` is smaller than 0. This would encourage the optimizer to make the loadflow diverge. Thus, it will be set to + {}", sensitivityFailureOvercost, -sensitivityFailureOvercost);
+        }
+        this.sensitivityFailureOvercost = Math.abs(sensitivityFailureOvercost);
     }
 
     public static LoadFlowAndSensitivityParameters load(PlatformConfig platformConfig) {

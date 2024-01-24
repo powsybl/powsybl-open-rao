@@ -32,6 +32,8 @@ import static org.mockito.Mockito.mock;
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
  */
 class SkippedOptimizationResultImplTest {
+    private final double sensitivityFailureOverCost = 10000; // DEFAULT_SENSITIVITY_FAILURE_OVERCOST value
+
     @Test
     void testBasicReturns() {
         FlowCnec flowCnec = mock(FlowCnec.class);
@@ -42,16 +44,18 @@ class SkippedOptimizationResultImplTest {
         PstRangeAction pstRangeAction = mock(PstRangeAction.class);
         RangeAction rangeAction = mock(RangeAction.class);
 
-        SkippedOptimizationResultImpl skippedOptimizationResult = new SkippedOptimizationResultImpl(state, new HashSet<>(), new HashSet<>(), ComputationStatus.FAILURE);
+        SkippedOptimizationResultImpl skippedOptimizationResult = new SkippedOptimizationResultImpl(state, new HashSet<>(), new HashSet<>(), ComputationStatus.FAILURE, sensitivityFailureOverCost);
 
         assertEquals(ComputationStatus.FAILURE, skippedOptimizationResult.getSensitivityStatus());
         assertEquals(ComputationStatus.FAILURE, skippedOptimizationResult.getSensitivityStatus(state));
         assertTrue(skippedOptimizationResult.getContingencies().isEmpty());
         assertTrue(skippedOptimizationResult.getMostLimitingElements(0).isEmpty());
         assertTrue(skippedOptimizationResult.getMostLimitingElements(10).isEmpty());
-        assertEquals(0, skippedOptimizationResult.getVirtualCost(), 1e-6);
+        assertEquals(sensitivityFailureOverCost, skippedOptimizationResult.getVirtualCost(), 1e-6);
         assertEquals(0, skippedOptimizationResult.getVirtualCost("emptyString"), 1e-6);
-        assertTrue(skippedOptimizationResult.getVirtualCostNames().isEmpty());
+        assertEquals(10000, skippedOptimizationResult.getVirtualCost("sensitivity-failure-cost"), 1e-6);
+        assertEquals(1, skippedOptimizationResult.getVirtualCostNames().size());
+        assertEquals("sensitivity-failure-cost", skippedOptimizationResult.getVirtualCostNames().iterator().next());
         assertThrows(OpenRaoException.class, () -> skippedOptimizationResult.getSensitivityValue(flowCnec, side, rangeAction, unit));
         assertThrows(OpenRaoException.class, () -> skippedOptimizationResult.getSensitivityValue(flowCnec, side, sensitivityVariableSet, unit));
         assertThrows(OpenRaoException.class, () -> skippedOptimizationResult.getFlow(flowCnec, side, unit));
@@ -76,7 +80,7 @@ class SkippedOptimizationResultImplTest {
         Mockito.when(optContingency.get()).thenReturn(contingency);
         Mockito.when(contingency.getId()).thenReturn("contingencyId");
 
-        SkippedOptimizationResultImpl skippedOptimizationResult = new SkippedOptimizationResultImpl(state, new HashSet<>(), new HashSet<>(), ComputationStatus.DEFAULT);
+        SkippedOptimizationResultImpl skippedOptimizationResult = new SkippedOptimizationResultImpl(state, new HashSet<>(), new HashSet<>(), ComputationStatus.DEFAULT, sensitivityFailureOverCost);
         assertEquals(ComputationStatus.DEFAULT, skippedOptimizationResult.getSensitivityStatus());
         assertEquals(Set.of("contingencyId"), skippedOptimizationResult.getContingencies());
     }
@@ -91,7 +95,7 @@ class SkippedOptimizationResultImplTest {
         RangeAction ra2 = Mockito.mock(RangeAction.class);
         Set<NetworkAction> networkActions = Set.of(na1, na2);
         Set<RangeAction<?>> rangeActions = Set.of(ra1, ra2);
-        SkippedOptimizationResultImpl skippedOptimizationResult = new SkippedOptimizationResultImpl(state, networkActions, rangeActions, ComputationStatus.DEFAULT);
+        SkippedOptimizationResultImpl skippedOptimizationResult = new SkippedOptimizationResultImpl(state, networkActions, rangeActions, ComputationStatus.DEFAULT, sensitivityFailureOverCost);
         assertEquals(networkActions, skippedOptimizationResult.getActivatedNetworkActions());
         assertTrue(skippedOptimizationResult.isActivated(na1));
         assertTrue(skippedOptimizationResult.isActivated(na2));
