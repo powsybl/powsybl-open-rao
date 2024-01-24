@@ -425,7 +425,6 @@ class OneStateOnlyRaoResultImplTest {
 
     @Test
     void testOptimizedStepsExecuted() {
-        setUp();
         assertFalse(output.getOptimizationStepsExecuted().hasRunSecondPreventive());
         output.setOptimizationStepsExecuted(OptimizationStepsExecuted.SECOND_PREVENTIVE_IMPROVED_FIRST);
         assertTrue(output.getOptimizationStepsExecuted().hasRunSecondPreventive());
@@ -461,5 +460,26 @@ class OneStateOnlyRaoResultImplTest {
         assertEquals("Angle cnecs are not computed in the rao", exception.getMessage());
         exception = assertThrows(OpenRaoException.class, () -> output.getMargin(optInstant, angleCnec, AMPERE));
         assertEquals("Angle cnecs are not computed in the rao", exception.getMessage());
+    }
+
+    @Test
+    void testIsSecureOnSecureCase() {
+        when(optimizedState.getInstant()).thenReturn(curativeInstant);
+        when(output.getFunctionalCost(curativeInstant)).thenReturn(-10.);
+        assertTrue(output.isSecure());
+    }
+
+    @Test
+    void testIsSecureOnFailureCase() {
+        when(optimizedState.getInstant()).thenReturn(curativeInstant);
+        when(output.getComputationStatus()).thenReturn(ComputationStatus.FAILURE);
+        assertFalse(output.isSecure());
+    }
+
+    @Test
+    void testIsSecureOnUnsecureCase() {
+        when(optimizedState.getInstant()).thenReturn(curativeInstant);
+        when(output.getFunctionalCost(curativeInstant)).thenReturn(10.);
+        assertFalse(output.isSecure());
     }
 }

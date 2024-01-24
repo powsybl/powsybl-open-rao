@@ -8,10 +8,10 @@
 package com.powsybl.openrao.data.swecneexporter;
 
 import com.powsybl.openrao.commons.OpenRaoException;
+import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.data.cneexportercommons.CneExporterParameters;
 import com.powsybl.openrao.data.cneexportercommons.CneUtil;
 import com.powsybl.openrao.data.cracapi.Crac;
-import com.powsybl.openrao.data.cracapi.InstantKind;
 import com.powsybl.openrao.data.craccreation.creator.cim.craccreator.CimCracCreationContext;
 import com.powsybl.openrao.data.raoresultapi.ComputationStatus;
 import com.powsybl.openrao.data.raoresultapi.RaoResult;
@@ -109,7 +109,7 @@ public class SweCne {
         Reason reason = new Reason();
         RaoResult raoResult = sweCneHelper.getRaoResult();
         boolean isDivergent = sweCneHelper.isAnyContingencyInFailure() || raoResult.getComputationStatus() == ComputationStatus.FAILURE;
-        boolean isUnsecure = raoResult.getFunctionalCost(cracCreationContext.getCrac().getInstant(InstantKind.CURATIVE)) > 0 || isAngleMonitoringUnsecure(sweCneHelper.getCrac(), sweCneHelper.getRaoResult());
+        boolean isUnsecure = !raoResult.isSecure(PhysicalParameter.FLOW, PhysicalParameter.ANGLE);
         if (isDivergent) {
             reason.setCode(DIVERGENCE_CODE);
             reason.setText(DIVERGENCE_TEXT);

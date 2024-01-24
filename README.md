@@ -1,18 +1,19 @@
 # Open RAO
-[![Actions Status](https://github.com/farao-community/farao-core/workflows/CI/badge.svg)](https://github.com/farao-community/farao-core/actions)
-[![Coverage Status](https://sonarcloud.io/api/project_badges/measure?project=com.farao-community.farao%3Afarao-core&metric=coverage)](https://sonarcloud.io/component_measures?id=com.farao-community.farao%3Afarao-core&metric=coverage)
-[![Quality Gate](https://sonarcloud.io/api/project_badges/measure?project=com.farao-community.farao%3Afarao-core&metric=alert_status)](https://sonarcloud.io/dashboard?id=com.farao-community.farao%3Afarao-core)
+[![Actions Status](https://github.com/powsybl/powsybl-core/workflows/CI/badge.svg)](https://github.com/powsybl/powsybl-open-rao/actions)
+[![Coverage Status](https://sonarcloud.io/api/project_badges/measure?project=com.powsybl%3Apowsybl-open-rao&metric=coverage)](https://sonarcloud.io/component_measures?id=com.powsybl%3Aopen-rao&metric=coverage)
+[![Quality Gate](https://sonarcloud.io/api/project_badges/measure?project=com.powsybl%3Apowsybl-open-rao&metric=alert_status)](https://sonarcloud.io/dashboard?id=com.powsybl%3Aopen-rao)
 [![MPL-2.0 License](https://img.shields.io/badge/license-MPL_2.0-blue.svg)](https://www.mozilla.org/en-US/MPL/2.0/)
-[![Join the community on Spectrum](https://withspectrum.github.io/badge/badge.svg)](https://spectrum.chat/farao-community)
+[![Slack](https://img.shields.io/badge/slack-powsybl-blueviolet.svg?logo=slack)](https://join.slack.com/t/powsybl/shared_invite/zt-rzvbuzjk-nxi0boim1RKPS5PjieI0rA)
+[![Javadocs](https://www.javadoc.io/badge/com.powsybl/powsybl-open-rao.svg?color=blue)](https://www.javadoc.io/doc/com.powsybl/powsybl-open-rao)
 
-Open RAO (Remedial Action Optimizer) is an open-source toolbox that aims at providing a modular engine for remedial actions optimisation.
+Open RAO (Remedial Action Optimizer) is an open-source toolbox that aims at providing a modular engine for remedial actions optimisation, part of the Linux Foundation Energy.
 
-**open-rao** repository contains the main features of Open RAO.
+**powsybl-open-rao** repository contains the main features of Open RAO.
 
 For detailed information about Open RAO toolbox, please refer to the [detailed documentation](  https://farao-community.github.io/docs/).
 
-This project and everyone participating in it is governed by the [Open RAO Code of Conduct](https://github.com/farao-community/.github/blob/master/CODE_OF_CONDUCT.md). By participating, you are expected to uphold this code.
-Please report unacceptable behavior to [contact@farao-community.com](mailto:contact@farao-community.com).
+This project and everyone participating in it is governed by the [PowSyBl Code of Conduct](https://github.com/powsybl/.github/blob/main/CODE_OF_CONDUCT.md).
+By participating, you are expected to uphold this code. Please report unacceptable behavior to [powsybl-tsc@lists.lfenergy.org](mailto:powsybl-tsc@lists.lfenergy.org).
 
 ## Getting started
 
@@ -21,22 +22,17 @@ for development and testing purposes.
 
 ### Prerequisites
 
-In order to build **open-rao**, you need the following environment available:
+In order to build **powsybl-open-rao**, you need the following environment available:
   - Install JDK *(17 or greater)*,
   - Install Maven latest version.
 
 ### Installing
 
-Before installing **open-rao**, you need to install OR-Tools, a software suite for optimisation that is used by Open RAO.
+Before installing **powsybl-open-rao**, you need to install OR-Tools, a software suite for optimisation that is used by Open RAO.
 
 Please refer to [OR-tools website](https://developers.google.com/optimization/install/download) for installation instructions.
 
-Open RAO also needs a loadflow engine and a sensitivity calculation engine at runtime.
-You may use any engine integrated in [PowSyBl framework](https://www.powsybl.org/).
-
-Hades2 tool from RTE is available as a freeware for demonstration purpose.
-For more information about how to get and install Hades2 loadflow and sensitivity computation, please refer to the
-[dedicated documentation](https://rte-france.github.io/hades2/index.html).
+Open RAO also needs a load flow implementation and a sensitivity analysis implementation at runtime, following the interfaces of **powsybl-core** which documentation is available in [PowSyBl website](https://www.powsybl.org/pages/documentation/). Note that for obvious reasons, included performances, reliability and transparency, Open RAO uses [Powsybl Open Load Flow](https://github.com/powsybl/powsybl-open-loadflow) by default, but you can prefer you own implementation.
 
 ### Running
 
@@ -70,5 +66,5 @@ For more information about *itools*, do not hesitate to visit [PowSyBl documenta
 
 ## License
 
-This project is licensed under the Mozilla Public License 2.0 - see the [LICENSE.txt](https://github.com/farao-community/farao-core/blob/master/LICENSE.txt) file for details.
+This project is licensed under the Mozilla Public License 2.0 - see the [LICENSE.txt](https://github.com/powsybl/powsybl-open-rao/blob/main/LICENSE.txt) file for details.
  

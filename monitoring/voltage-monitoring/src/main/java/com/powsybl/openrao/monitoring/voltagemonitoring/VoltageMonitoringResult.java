@@ -149,4 +149,8 @@ public class VoltageMonitoringResult {
         }
         return constraints;
     }
+
+    public boolean isSecure() {
+        return getStatus() == Status.SECURE;
+    }
 }

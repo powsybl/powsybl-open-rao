@@ -6,6 +6,7 @@
  */
 package com.powsybl.openrao.data.raoresultapi;
 
+import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.cracapi.Instant;
 import com.powsybl.openrao.data.cracapi.State;
@@ -191,6 +192,11 @@ class RaoResultCloneTest {
         when(raoResult.getComputationStatus(crac.getPreventiveState())).thenReturn(ComputationStatus.DEFAULT);
         when(raoResult.getComputationStatus(crac.getState("contingency1Id", curativeInstant))).thenReturn(ComputationStatus.FAILURE);
         when(raoResult.getComputationStatus(crac.getState("contingency2Id", autoInstant))).thenReturn(ComputationStatus.DEFAULT);
+
+        when(raoResult.isSecure()).thenReturn(false);
+        when(raoResult.isSecure(PhysicalParameter.FLOW, PhysicalParameter.ANGLE)).thenReturn(true);
+        when(raoResult.isSecure(PhysicalParameter.VOLTAGE)).thenReturn(false);
+        when(raoResult.isSecure(any(Instant.class), eq(PhysicalParameter.VOLTAGE))).thenReturn(false);
 
         testRaoResultClone(new RaoResultClone(raoResult), crac);
 
@@ -407,5 +413,10 @@ class RaoResultCloneTest {
         assertEquals(ComputationStatus.DEFAULT, raoResultClone.getComputationStatus(crac.getPreventiveState()));
         assertEquals(ComputationStatus.FAILURE, raoResultClone.getComputationStatus(crac.getState("contingency1Id", curativeInstant)));
         assertEquals(ComputationStatus.DEFAULT, raoResultClone.getComputationStatus(crac.getState("contingency2Id", autoInstant)));
+
+        assertFalse(raoResultClone.isSecure());
+        assertTrue(raoResultClone.isSecure(PhysicalParameter.FLOW, PhysicalParameter.ANGLE));
+        assertFalse(raoResultClone.isSecure(PhysicalParameter.VOLTAGE));
+        assertFalse(raoResultClone.isSecure(curativeInstant, PhysicalParameter.VOLTAGE));
     }
 }
