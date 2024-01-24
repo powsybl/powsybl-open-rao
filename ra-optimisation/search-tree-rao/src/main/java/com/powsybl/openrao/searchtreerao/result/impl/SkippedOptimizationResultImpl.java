@@ -27,16 +27,19 @@ import java.util.*;
  */
 public class SkippedOptimizationResultImpl implements OptimizationResult {
     private static final String SHOULD_NOT_BE_USED = "Should not be used: optimization result has been skipped.";
+    private static final String SENSITIVITY_FAILURE_COST = "sensitivity-failure-cost";
     private final State state;
     private final Set<NetworkAction> activatedNetworkActions;
     private final Set<RangeAction<?>> activatedRangeActions;
     private final ComputationStatus computationStatus;
+    private final double sensitivityFailureOverCost;
 
-    public SkippedOptimizationResultImpl(State state, Set<NetworkAction> activatedNetworkActions, Set<RangeAction<?>> activatedRangeActions, ComputationStatus computationStatus) {
+    public SkippedOptimizationResultImpl(State state, Set<NetworkAction> activatedNetworkActions, Set<RangeAction<?>> activatedRangeActions, ComputationStatus computationStatus, double sensitivityFailureOverCost) {
         this.state = state;
         this.activatedNetworkActions = activatedNetworkActions;
         this.activatedRangeActions = activatedRangeActions;
         this.computationStatus = computationStatus;
+        this.sensitivityFailureOverCost = sensitivityFailureOverCost;
     }
 
     @Override
@@ -113,17 +116,17 @@ public class SkippedOptimizationResultImpl implements OptimizationResult {
 
     @Override
     public double getVirtualCost() {
-        return 0;
+        return sensitivityFailureOverCost;
     }
 
     @Override
     public Set<String> getVirtualCostNames() {
-        return new HashSet<>();
+        return Set.of(SENSITIVITY_FAILURE_COST);
     }
 
     @Override
     public double getVirtualCost(String virtualCostName) {
-        return 0;
+        return virtualCostName.equals(SENSITIVITY_FAILURE_COST) ? sensitivityFailureOverCost : 0;
     }
 
     @Override
