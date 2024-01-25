@@ -342,7 +342,6 @@ public class CastorFullOptimization {
         // Do not simulate curative instant if last sensitivity analysis failed
         // -- if there was no automaton state, check prePerimeterSensitivityOutput sensi status
         // -- or if there was an automaton state that failed
-
         if (!automatonsOnly
             && automatonState.isEmpty()
             && !optimizedScenario.getCurativePerimeters().isEmpty()
@@ -366,20 +365,6 @@ public class CastorFullOptimization {
                 }
             }
         }
-        // if (firstCurativePerimeter.isPresent()) {
-        //     if (!automatonsOnly && automatonState.isEmpty() && prePerimeterSensitivityOutput.getSensitivityStatus(firstCurativePerimeter.get()) == ComputationStatus.FAILURE
-        //         || automatonState.isPresent() && autoStateSensiFailed) {
-        //         contingencyScenarioResults.put(firstCurativePerimeter.get(), new SkippedOptimizationResultImpl(firstCurativePerimeter.get(), new HashSet<>(), new HashSet<>(), ComputationStatus.FAILURE));
-        //     } else if (!automatonsOnly) {
-        //         // Optimize curative instant
-        //         OptimizationResult curativeResult = optimizeCurativeState(firstCurativePerimeter.get(), crac, networkClone,
-        //             raoParameters, stateTree, toolProvider, curativeTreeParameters, initialSensitivityOutput, preCurativeResult);
-        //         contingencyScenarioResults.put(firstCurativePerimeter.get(), curativeResult);
-        //         if (curativeResult.getSensitivityStatus() == ComputationStatus.FAILURE) {
-        //             contingencyScenarioResults.put(firstCurativePerimeter.get(), new SkippedOptimizationResultImpl(firstCurativePerimeter.get(), new HashSet<>(), new HashSet<>(), ComputationStatus.FAILURE));
-        //         }
-        //     }
-        // }
         TECHNICAL_LOGS.debug("Remaining post-contingency scenarios to optimize: {}", remainingScenarios.decrementAndGet());
         networkPool.releaseUsedNetwork(networkClone);
         return null;
