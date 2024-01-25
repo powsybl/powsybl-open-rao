@@ -350,7 +350,7 @@ public class CastorFullOptimization {
             || automatonState.isPresent()
             && autoStateSensiFailed
         ) {
-            curativeStates.forEach(curativeState -> contingencyScenarioResults.put(curativeState, new SkippedOptimizationResultImpl(curativeState, new HashSet<>(), new HashSet<>(), ComputationStatus.FAILURE)));
+            curativeStates.forEach(curativeState -> contingencyScenarioResults.put(curativeState, new SkippedOptimizationResultImpl(curativeState, new HashSet<>(), new HashSet<>(), ComputationStatus.FAILURE, sensitivityFailureOvercost)));
         } else if (!automatonsOnly) {
             boolean allPreviousPerimetersSucceded = true;
             // Optimize curative instant
@@ -361,7 +361,7 @@ public class CastorFullOptimization {
                     contingencyScenarioResults.put(curativeState, curativeResult);
                     allPreviousPerimetersSucceded = allPreviousPerimetersSucceded && curativeResult.getSensitivityStatus() == DEFAULT;
                     if (!allPreviousPerimetersSucceded) {
-                        contingencyScenarioResults.put(curativeState, new SkippedOptimizationResultImpl(curativeState, new HashSet<>(), new HashSet<>(), ComputationStatus.FAILURE));
+                        contingencyScenarioResults.put(curativeState, new SkippedOptimizationResultImpl(curativeState, new HashSet<>(), new HashSet<>(), ComputationStatus.FAILURE, sensitivityFailureOvercost));
                     }
                 }
             }
