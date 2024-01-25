@@ -14,7 +14,7 @@ import com.powsybl.openrao.data.cracapi.networkaction.NetworkAction;
 import com.powsybl.openrao.data.cracapi.rangeaction.RangeAction;
 import com.powsybl.openrao.data.raoresultapi.ComputationStatus;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
-import com.powsybl.openrao.searchtreerao.castor.algorithm.BasecaseScenario;
+import com.powsybl.openrao.searchtreerao.castor.algorithm.Perimeter;
 import com.powsybl.openrao.searchtreerao.commons.RaoUtil;
 import com.powsybl.openrao.searchtreerao.result.api.PrePerimeterResult;
 import com.powsybl.iidm.network.Network;
@@ -40,8 +40,8 @@ public class PreventiveOptimizationPerimeter extends AbstractOptimizationPerimet
         }
     }
 
-    public static PreventiveOptimizationPerimeter buildFromBasecaseScenario(BasecaseScenario basecaseScenario, Crac crac, Network network, RaoParameters raoParameters, PrePerimeterResult prePerimeterResult) {
-        return buildForStates(basecaseScenario.getBasecaseState(), basecaseScenario.getAllStates(), crac, crac.getRangeActions(), network, raoParameters, prePerimeterResult);
+    public static PreventiveOptimizationPerimeter buildFromBasecaseScenario(Perimeter preventivePerimeter, Crac crac, Network network, RaoParameters raoParameters, PrePerimeterResult prePerimeterResult) {
+        return buildForStates(preventivePerimeter.getOptimisationState(), preventivePerimeter.getAllStates(), crac, crac.getRangeActions(), network, raoParameters, prePerimeterResult);
     }
 
     public static PreventiveOptimizationPerimeter buildWithPreventiveCnecsOnly(Crac crac, Network network, RaoParameters raoParameters, PrePerimeterResult prePerimeterResult) {

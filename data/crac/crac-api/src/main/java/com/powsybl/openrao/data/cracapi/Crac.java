@@ -131,6 +131,11 @@ public interface Crac extends Identifiable<Crac> {
     State getPreventiveState();
 
     /**
+     * Get the curative states for all curative instants.
+     */
+    Set<State> getCurativeStates();
+
+    /**
      * Chronological list of states after a defined contingency. The chronology is defined by
      * instants objects. This is a set because states must not be duplicated and it is sorted
      * by chronology of instants. Can return null if no matching contingency is found.

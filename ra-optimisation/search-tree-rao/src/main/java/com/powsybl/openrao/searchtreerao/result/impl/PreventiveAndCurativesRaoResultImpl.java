@@ -19,11 +19,13 @@ import com.powsybl.openrao.data.cracapi.rangeaction.RangeAction;
 import com.powsybl.openrao.data.raoresultapi.ComputationStatus;
 import com.powsybl.openrao.data.raoresultapi.OptimizationStepsExecuted;
 import com.powsybl.openrao.data.raoresultapi.RaoResult;
+import com.powsybl.openrao.searchtreerao.castor.algorithm.Perimeter;
 import com.powsybl.openrao.searchtreerao.result.api.*;
 import com.powsybl.openrao.searchtreerao.castor.algorithm.StateTree;
 
 import java.util.*;
 
+import static com.powsybl.openrao.data.raoresultapi.ComputationStatus.DEFAULT;
 import static com.powsybl.openrao.data.raoresultapi.ComputationStatus.FAILURE;
 
 /**
@@ -62,7 +64,7 @@ public class PreventiveAndCurativesRaoResultImpl implements RaoResult {
                                                PrePerimeterResult resultsWithPrasForAllCnecs,
                                                Map<State, OptimizationResult> postContingencyResults,
                                                Crac crac) {
-        this(stateTree.getBasecaseScenario().getBasecaseState(), initialResult, preventivePerimeterResult, preventivePerimeterResult, new HashSet<>(), resultsWithPrasForAllCnecs, buildPostContingencyResults(stateTree, resultsWithPrasForAllCnecs, postContingencyResults), null, crac);
+        this(stateTree.getBasecaseScenario().getOptimisationState(), initialResult, preventivePerimeterResult, preventivePerimeterResult, new HashSet<>(), resultsWithPrasForAllCnecs, buildPostContingencyResults(stateTree, resultsWithPrasForAllCnecs, postContingencyResults), null, crac);
         excludeContingencies(getContingenciesToExclude(stateTree));
     }
 
@@ -77,7 +79,7 @@ public class PreventiveAndCurativesRaoResultImpl implements RaoResult {
                                                PrePerimeterResult resultsWithPrasForAllCnecs,
                                                Map<State, OptimizationResult> postContingencyResults,
                                                Crac crac) {
-        this(stateTree.getBasecaseScenario().getBasecaseState(), initialResult, firstPreventivePerimeterResult, secondPreventivePerimeterResult, remedialActionsExcludedFromSecondPreventive, resultsWithPrasForAllCnecs, buildPostContingencyResults(stateTree, resultsWithPrasForAllCnecs, postContingencyResults), secondPreventivePerimeterResult, crac);
+        this(stateTree.getBasecaseScenario().getOptimisationState(), initialResult, firstPreventivePerimeterResult, secondPreventivePerimeterResult, remedialActionsExcludedFromSecondPreventive, resultsWithPrasForAllCnecs, buildPostContingencyResults(stateTree, resultsWithPrasForAllCnecs, postContingencyResults), secondPreventivePerimeterResult, crac);
         excludeContingencies(getContingenciesToExclude(stateTree));
     }
 
@@ -93,7 +95,7 @@ public class PreventiveAndCurativesRaoResultImpl implements RaoResult {
                                                Map<State, OptimizationResult> postContingencyResults,
                                                ObjectiveFunctionResult postSecondAraoResults,
                                                Crac crac) {
-        this(stateTree.getBasecaseScenario().getBasecaseState(), initialResult, firstPreventivePerimeterResult, secondPreventivePerimeterResult, remedialActionsExcludedFromSecondPreventive, resultsWithPrasForAllCnecs, buildPostContingencyResults(stateTree, resultsWithPrasForAllCnecs, postContingencyResults), postSecondAraoResults, crac);
+        this(stateTree.getBasecaseScenario().getOptimisationState(), initialResult, firstPreventivePerimeterResult, secondPreventivePerimeterResult, remedialActionsExcludedFromSecondPreventive, resultsWithPrasForAllCnecs, buildPostContingencyResults(stateTree, resultsWithPrasForAllCnecs, postContingencyResults), postSecondAraoResults, crac);
         excludeContingencies(getContingenciesToExclude(stateTree));
     }
 
@@ -124,17 +126,37 @@ public class PreventiveAndCurativesRaoResultImpl implements RaoResult {
             if (automatonState.isPresent()) {
                 OptimizationResult automatonResult = postContingencyResults.get(automatonState.get());
                 results.put(automatonState.get(), new PerimeterResultImpl(preContingencyResult, automatonResult));
-                if (contingencyScenario.getCurativeState().isPresent()) {
-                    OptimizationResult curativeResult = postContingencyResults.get(contingencyScenario.getCurativeState().get());
-                    if (automatonResult.getSensitivityStatus() == FAILURE || curativeResult.getSensitivityStatus() == FAILURE) {
-                        results.put(contingencyScenario.getCurativeState().get(), new PerimeterResultImpl(preContingencyResult, curativeResult));
+
+                OptimizationResult previousResult = automatonResult;
+                State previousState = automatonState.get();
+                boolean allPreviousPerimetersSucceded = automatonResult.getSensitivityStatus() == DEFAULT;
+
+                for (Perimeter curativePerimeter : contingencyScenario.getCurativePerimeters()) {
+                    OptimizationResult curativeResult = postContingencyResults.get(curativePerimeter.getOptimisationState());
+                    allPreviousPerimetersSucceded = allPreviousPerimetersSucceded && curativeResult.getSensitivityStatus() == DEFAULT;
+                    if (allPreviousPerimetersSucceded) {
+                        results.put(curativePerimeter.getOptimisationState(), new PerimeterResultImpl(RangeActionSetpointResultImpl.buildFromActivationOfRangeActionAtState(previousResult, previousState), curativeResult));
                     } else {
-                        results.put(contingencyScenario.getCurativeState().get(), new PerimeterResultImpl(RangeActionSetpointResultImpl.buildFromActivationOfRangeActionAtState(automatonResult, automatonState.get()), curativeResult));
+                        results.put(curativePerimeter.getOptimisationState(), new PerimeterResultImpl(preContingencyResult, curativeResult));
                     }
+                    previousResult = curativeResult;
+                    previousState = curativePerimeter.getOptimisationState();
                 }
-            } else if (contingencyScenario.getCurativeState().isPresent()) {
-                OptimizationResult curativeResult = postContingencyResults.get(contingencyScenario.getCurativeState().get());
-                results.put(contingencyScenario.getCurativeState().get(), new PerimeterResultImpl(preContingencyResult, curativeResult));
+            } else {
+
+                RangeActionSetpointResult previousResult = preContingencyResult;
+                boolean allPreviousPerimetersSucceded = true;
+
+                for (Perimeter curativePerimeter : contingencyScenario.getCurativePerimeters()) {
+                    OptimizationResult curativeResult = postContingencyResults.get(curativePerimeter.getOptimisationState());
+                    allPreviousPerimetersSucceded = allPreviousPerimetersSucceded && curativeResult.getSensitivityStatus() == DEFAULT;
+                    if (allPreviousPerimetersSucceded) {
+                        results.put(curativePerimeter.getOptimisationState(), new PerimeterResultImpl(previousResult, curativeResult));
+                    } else {
+                        results.put(curativePerimeter.getOptimisationState(), new PerimeterResultImpl(preContingencyResult, curativeResult));
+                    }
+                    previousResult = RangeActionSetpointResultImpl.buildFromActivationOfRangeActionAtState(curativeResult, curativePerimeter.getOptimisationState());
+                }
             }
         });
         return results;
@@ -150,14 +172,9 @@ public class PreventiveAndCurativesRaoResultImpl implements RaoResult {
                     contingenciesToExclude.add(contingencyScenario.getContingency().getId());
                     return;
                 }
-                if (contingencyScenario.getCurativeState().isPresent()) {
-                    OptimizationResult curativeResult = postContingencyResults.get(contingencyScenario.getCurativeState().get());
-                    if (!curativeResult.getContingencies().contains(contingencyScenario.getContingency().getId())) {
-                        contingenciesToExclude.add(contingencyScenario.getContingency().getId());
-                    }
-                }
-            } else if (contingencyScenario.getCurativeState().isPresent()) {
-                OptimizationResult curativeResult = postContingencyResults.get(contingencyScenario.getCurativeState().get());
+            }
+            for (Perimeter curativePerimeter : contingencyScenario.getCurativePerimeters()) {
+                OptimizationResult curativeResult = postContingencyResults.get(curativePerimeter.getOptimisationState());
                 if (!curativeResult.getContingencies().contains(contingencyScenario.getContingency().getId())) {
                     contingenciesToExclude.add(contingencyScenario.getContingency().getId());
                 }
@@ -184,7 +201,7 @@ public class PreventiveAndCurativesRaoResultImpl implements RaoResult {
             || postContingencyResults.entrySet().stream().anyMatch(entry -> Objects.isNull(entry.getValue()) || entry.getValue().getSensitivityStatus(entry.getKey()) == FAILURE)) {
             return FAILURE;
         }
-        return ComputationStatus.DEFAULT;
+        return DEFAULT;
     }
 
     @Override

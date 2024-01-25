@@ -297,6 +297,13 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
     }
 
     @Override
+    public Set<State> getCurativeStates() {
+        return states.values().stream()
+            .filter(state -> state.getInstant().isCurative())
+            .collect(Collectors.toSet());
+    }
+
+    @Override
     public SortedSet<State> getStates(Contingency contingency) {
         Objects.requireNonNull(contingency, "Contingency must not be null when getting states.");
         return states.values().stream()

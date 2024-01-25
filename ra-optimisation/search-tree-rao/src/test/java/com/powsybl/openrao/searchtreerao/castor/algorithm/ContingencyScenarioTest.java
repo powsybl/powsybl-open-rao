@@ -16,6 +16,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -51,25 +52,27 @@ class ContingencyScenarioTest {
 
     @Test
     void testWithAutoAndCurative() {
+        Perimeter curativePerimeter = new Perimeter(curativeState, null);
         ContingencyScenario contingencyScenario = ContingencyScenario.create()
             .withContingency(contingency)
             .withAutomatonState(automatonState)
-            .withCurativeState(curativeState)
+            .withCurativePerimeter(curativePerimeter)
             .build();
         assertEquals(contingency, contingencyScenario.getContingency());
         assertEquals(Optional.of(automatonState), contingencyScenario.getAutomatonState());
-        assertEquals(Optional.of(curativeState), contingencyScenario.getCurativeState());
+        assertEquals(List.of(curativePerimeter), contingencyScenario.getCurativePerimeters());
     }
 
     @Test
     void testCurativeOnly() {
+        Perimeter curativePerimeter = new Perimeter(curativeState, null);
         ContingencyScenario contingencyScenario = ContingencyScenario.create()
             .withContingency(contingency)
-            .withCurativeState(curativeState)
+            .withCurativePerimeter(curativePerimeter)
             .build();
         assertEquals(contingency, contingencyScenario.getContingency());
         assertEquals(Optional.empty(), contingencyScenario.getAutomatonState());
-        assertEquals(Optional.of(curativeState), contingencyScenario.getCurativeState());
+        assertEquals(List.of(curativePerimeter), contingencyScenario.getCurativePerimeters());
     }
 
     @Test
@@ -80,14 +83,15 @@ class ContingencyScenarioTest {
             .build();
         assertEquals(contingency, contingencyScenario.getContingency());
         assertEquals(Optional.of(automatonState), contingencyScenario.getAutomatonState());
-        assertEquals(Optional.empty(), contingencyScenario.getCurativeState());
+        assertEquals(List.of(), contingencyScenario.getCurativePerimeters());
     }
 
     @Test
     void testNoContingency() {
+        Perimeter curativePerimeter = new Perimeter(curativeState, null);
         ContingencyScenario.ContingencyScenarioBuilder contingencyScenarioBuilder = ContingencyScenario.create()
             .withAutomatonState(automatonState)
-            .withCurativeState(curativeState);
+            .withCurativePerimeter(curativePerimeter);
         assertThrows(NullPointerException.class, contingencyScenarioBuilder::build);
     }
 
@@ -113,10 +117,11 @@ class ContingencyScenarioTest {
 
     @Test
     void testWrongCurativeContingency() {
+        Perimeter curativePerimeter = new Perimeter(curativeState, null);
         Mockito.when(curativeState.getContingency()).thenReturn(Optional.empty());
         ContingencyScenario.ContingencyScenarioBuilder contingencyScenarioBuilder = ContingencyScenario.create()
             .withContingency(contingency)
-            .withCurativeState(curativeState);
+            .withCurativePerimeter(curativePerimeter);
         OpenRaoException openRaoException = assertThrows(OpenRaoException.class, contingencyScenarioBuilder::build);
         assertEquals("State curativeState does not refer to the contingency contingency.",
             openRaoException.getMessage());
@@ -135,10 +140,11 @@ class ContingencyScenarioTest {
 
     @Test
     void testWrongCurativeInstantKind() {
+        Perimeter curativePerimeter = new Perimeter(curativeState, null);
         Mockito.when(curativeState.getInstant().getKind()).thenReturn(InstantKind.PREVENTIVE);
         ContingencyScenario.ContingencyScenarioBuilder contingencyScenarioBuilder = ContingencyScenario.create()
             .withContingency(contingency)
-            .withCurativeState(curativeState);
+            .withCurativePerimeter(curativePerimeter);
         OpenRaoException openRaoException = assertThrows(OpenRaoException.class, contingencyScenarioBuilder::build);
         assertEquals("Instant of state curativeState is not of kind CURATIVE.",
             openRaoException.getMessage());

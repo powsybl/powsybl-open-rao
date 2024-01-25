@@ -12,7 +12,9 @@ import com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider;
 import com.powsybl.openrao.data.cracapi.*;
 import com.powsybl.openrao.data.cracapi.cnec.Cnec;
 
+import java.util.Comparator;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -23,22 +25,18 @@ import java.util.stream.Collectors;
 public class StateTree {
 
     private final Set<String> operatorsNotSharingCras;
-    private final BasecaseScenario basecaseScenario;
+    private final Perimeter preventivePerimeter;
     private final Set<ContingencyScenario> contingencyScenarios = new HashSet<>();
 
     public StateTree(Crac crac) {
-        basecaseScenario = new BasecaseScenario(crac.getPreventiveState(), null);
+        preventivePerimeter = new Perimeter(crac.getPreventiveState(), null);
 
         for (Contingency contingency : crac.getContingencies()) {
             processOutageInstant(contingency, crac);
             processAutoAndCurativeInstants(contingency, crac);
         }
 
-        Set<State> optimizedCurativeStates = contingencyScenarios.stream()
-            .filter(cs -> cs.getCurativeState().isPresent())
-            .map(cs -> cs.getCurativeState().get())
-            .collect(Collectors.toSet());
-        this.operatorsNotSharingCras = findOperatorsNotSharingCras(crac, optimizedCurativeStates);
+        this.operatorsNotSharingCras = findOperatorsNotSharingCras(crac, crac.getCurativeStates());
     }
 
     /**
@@ -52,7 +50,7 @@ public class StateTree {
             if (anyAvailableRemedialAction(crac, outageState)) {
                 throw new OpenRaoException(String.format("Outage state %s has available RAs. This is not supported.", outageState));
             } else {
-                basecaseScenario.addOtherState(outageState);
+                preventivePerimeter.addOtherState(outageState);
             }
         }
     }
@@ -68,47 +66,73 @@ public class StateTree {
      */
     private void processAutoAndCurativeInstants(Contingency contingency, Crac crac) {
         State automatonState = crac.hasAutoInstant() ? crac.getState(contingency.getId(), crac.getInstant(InstantKind.AUTO)) : null;
-        State curativeState = crac.getState(contingency.getId(), crac.getInstant(InstantKind.CURATIVE));
+        List<State> curativeStates = crac.getStates(contingency)
+            .stream()
+            .filter(state -> state.getInstant().isCurative())
+            // Invert order for more efficient processing
+            .sorted(Comparator.comparingInt(state -> -state.getInstant().getOrder()))
+            .toList();
         boolean autoRasExist = automatonState != null && anyAvailableRemedialAction(crac, automatonState);
-        boolean curativeRasExist = curativeState != null && anyAvailableRemedialAction(crac, curativeState);
         boolean autoCnecsExist = automatonState != null && anyCnec(crac, automatonState);
-        boolean curativeCnecsExist = curativeState != null && anyCnec(crac, curativeState);
+        boolean curativeCnecsExist = !curativeStates.isEmpty() && curativeStates.stream().anyMatch(curativeState -> anyCnec(crac, curativeState));
 
         if (!autoCnecsExist && !curativeCnecsExist) {
             // do not create scenarios with no CNECs even if RAs exist
-            if (Objects.nonNull(automatonState) || Objects.nonNull(curativeState)) {
-                OpenRaoLoggerProvider.BUSINESS_WARNS.warn("Contingency {} has an automaton or a curative state but no cnecs associated.", contingency);
+            if (Objects.nonNull(automatonState) || !curativeStates.isEmpty()) {
+                OpenRaoLoggerProvider.BUSINESS_WARNS.warn("Contingency {} has an automaton or a curative state but no CNECs associated.", contingency.getId());
             }
             return;
         }
         // add automaton CNECs to preventive if no ARAs affect them
         if (autoCnecsExist && !autoRasExist) {
-            basecaseScenario.addOtherState(automatonState);
+            preventivePerimeter.addOtherState(automatonState);
         }
-        // add curative cnecs to preventive if no ARAs and no CRAs affect them
-        if (!(autoCnecsExist && autoRasExist) && curativeCnecsExist && !curativeRasExist) {
-            basecaseScenario.addOtherState(curativeState);
-        }
+
         ContingencyScenario.ContingencyScenarioBuilder contingencyScenarioBuilder = ContingencyScenario.create().withContingency(contingency);
         boolean contingencyScenarioUsed = false;
+        Set<State> curativeStatesWithCnecsButNoCras = new HashSet<>();
+
+        // if curative state has CNECs but no CRAs, add it to the closest optimisation state with CRAs
+        for (State curativeState : curativeStates) {
+            if (anyAvailableRemedialAction(crac, curativeState)) {
+                if (anyCnec(crac, curativeState) || !curativeStatesWithCnecsButNoCras.isEmpty()) {
+                    contingencyScenarioBuilder.withCurativePerimeter(new Perimeter(curativeState, curativeStatesWithCnecsButNoCras));
+                    curativeStatesWithCnecsButNoCras.clear();
+                    contingencyScenarioUsed = true;
+                }
+            } else if (anyCnec(crac, curativeState)) {
+                curativeStatesWithCnecsButNoCras.add(curativeState);
+            }
+        }
+
+        // add curative CNECs to preventive if no ARAs and no CRAs affect them
+        if (!(autoCnecsExist && autoRasExist) && !curativeStatesWithCnecsButNoCras.isEmpty()) {
+            curativeStatesWithCnecsButNoCras.forEach(preventivePerimeter::addOtherState);
+            curativeStatesWithCnecsButNoCras.clear();
+        }
+
         // run automaton perimeter if auto RAs and CNECs exist
         if (autoCnecsExist && autoRasExist) {
             contingencyScenarioBuilder.withAutomatonState(automatonState);
             contingencyScenarioUsed = true;
         }
+
         // run curative perimeter if curative CNECs exist and either CRA exist or auto state was added to the scenario
-        if (curativeCnecsExist && (curativeRasExist || autoCnecsExist && autoRasExist)) {
-            contingencyScenarioBuilder.withCurativeState(curativeState);
-            contingencyScenarioUsed = true;
+        if (!curativeStatesWithCnecsButNoCras.isEmpty()) {
+            State firstCurativeState = curativeStates.get(curativeStates.size() - 1);
+            curativeStatesWithCnecsButNoCras.remove(firstCurativeState);
+            contingencyScenarioBuilder.withCurativePerimeter(new Perimeter(firstCurativeState, curativeStatesWithCnecsButNoCras));
+            // no need to set contingencyScenarioUsed to true because it was already set to true for the automaton perimeter
         }
+
         // if no auto and no curative perimeter, do not add scenario
         if (contingencyScenarioUsed) {
             contingencyScenarios.add(contingencyScenarioBuilder.build());
         }
     }
 
-    public BasecaseScenario getBasecaseScenario() {
-        return basecaseScenario;
+    public Perimeter getBasecaseScenario() {
+        return preventivePerimeter;
     }
 
     public Set<ContingencyScenario> getContingencyScenarios() {
@@ -131,8 +155,8 @@ public class StateTree {
     static Set<String> findOperatorsNotSharingCras(Crac crac, Set<State> optimizedCurativeStates) {
         Set<String> tsos = crac.getFlowCnecs().stream().map(Cnec::getOperator).collect(Collectors.toSet());
         tsos.addAll(crac.getRemedialActions().stream().map(RemedialAction::getOperator).collect(Collectors.toSet()));
-        // <!> If a CNEC's operator is null, filter it out of the list of operators not sharing CRAs
-        return tsos.stream().filter(tso -> !Objects.isNull(tso) && !tsoHasCra(tso, crac, optimizedCurativeStates)).collect(Collectors.toSet());
+        // <!> If a CNEC's operator is not null, filter it out of the list of operators not sharing CRAs
+        return tsos.stream().filter(tso -> Objects.nonNull(tso) && !tsoHasCra(tso, crac, optimizedCurativeStates)).collect(Collectors.toSet());
     }
 
     static boolean tsoHasCra(String tso, Crac crac, Set<State> optimizedCurativeStates) {

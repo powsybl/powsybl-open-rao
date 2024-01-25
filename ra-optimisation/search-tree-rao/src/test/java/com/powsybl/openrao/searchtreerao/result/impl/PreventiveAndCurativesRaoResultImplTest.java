@@ -24,7 +24,7 @@ import com.powsybl.openrao.searchtreerao.result.api.ObjectiveFunctionResult;
 import com.powsybl.openrao.searchtreerao.result.api.OptimizationResult;
 import com.powsybl.openrao.searchtreerao.result.api.PrePerimeterResult;
 import com.powsybl.openrao.searchtreerao.result.api.PerimeterResult;
-import com.powsybl.openrao.searchtreerao.castor.algorithm.BasecaseScenario;
+import com.powsybl.openrao.searchtreerao.castor.algorithm.Perimeter;
 import com.powsybl.openrao.searchtreerao.castor.algorithm.ContingencyScenario;
 import com.powsybl.openrao.searchtreerao.castor.algorithm.StateTree;
 import org.junit.jupiter.api.BeforeEach;
@@ -234,20 +234,22 @@ class PreventiveAndCurativesRaoResultImplTest {
         mockCnecResults(preCurativeResult, cnec1, 5050, 300, 1550, 800);
 
         stateTree = mock(StateTree.class);
-        BasecaseScenario basecaseScenario = new BasecaseScenario(preventiveState, null);
+        Perimeter preventivePerimeter = new Perimeter(preventiveState, null);
+        Perimeter curativePerimeter1 = new Perimeter(curativeState1, null);
+        Perimeter curativePerimeter2 = new Perimeter(curativeState2, null);
         Set<ContingencyScenario> contingencyScenarios = Set.of(
             ContingencyScenario.create()
                 .withContingency(contingency1)
                 .withAutomatonState(autoState1)
-                .withCurativeState(curativeState1)
+                .withCurativePerimeter(curativePerimeter1)
                 .build(),
             ContingencyScenario.create()
                 .withContingency(contingency2)
                 .withAutomatonState(null)
-                .withCurativeState(curativeState2)
+                .withCurativePerimeter(curativePerimeter2)
                 .build()
         );
-        when(stateTree.getBasecaseScenario()).thenReturn(basecaseScenario);
+        when(stateTree.getBasecaseScenario()).thenReturn(preventivePerimeter);
         when(stateTree.getContingencyScenarios()).thenReturn(contingencyScenarios);
 
         output = new PreventiveAndCurativesRaoResultImpl(

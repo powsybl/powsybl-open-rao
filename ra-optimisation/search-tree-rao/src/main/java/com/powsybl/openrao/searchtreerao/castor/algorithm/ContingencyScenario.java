@@ -12,8 +12,12 @@ import com.powsybl.openrao.data.cracapi.Contingency;
 import com.powsybl.openrao.data.cracapi.InstantKind;
 import com.powsybl.openrao.data.cracapi.State;
 
+import java.util.Comparator;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 
 /**
  * This class represents the functional contingency scenario
@@ -24,7 +28,7 @@ import java.util.Optional;
 public final class ContingencyScenario {
     private Contingency contingency;
     private State automatonState;
-    private State curativeState;
+    private List<Perimeter> curativePerimeters;
 
     private ContingencyScenario() { }
 
@@ -40,14 +44,14 @@ public final class ContingencyScenario {
         return Objects.isNull(automatonState) ? Optional.empty() : Optional.of(automatonState);
     }
 
-    public Optional<State> getCurativeState() {
-        return Objects.isNull(curativeState) ? Optional.empty() : Optional.of(curativeState);
+    public List<Perimeter> getCurativePerimeters() {
+        return curativePerimeters;
     }
 
     public static final class ContingencyScenarioBuilder {
         private Contingency contingency;
         private State automatonState;
-        private State curativeState;
+        private final Set<Perimeter> curativePerimeters = new HashSet<>();
 
         private ContingencyScenarioBuilder() { }
 
@@ -61,22 +65,24 @@ public final class ContingencyScenario {
             return this;
         }
 
-        public ContingencyScenarioBuilder withCurativeState(State curativeState) {
-            this.curativeState = curativeState;
+        public ContingencyScenarioBuilder withCurativePerimeter(Perimeter curativePerimeter) {
+            this.curativePerimeters.add(curativePerimeter);
             return this;
         }
 
         public ContingencyScenario build() {
             Objects.requireNonNull(contingency);
-            if (Objects.isNull(automatonState) && Objects.isNull(curativeState)) {
+            if (Objects.isNull(automatonState) && curativePerimeters.isEmpty()) {
                 throw new OpenRaoException(String.format("Contingency %s scenario should have at least an auto or curative state.", contingency.getId()));
             }
             checkStateContingencyAndInstant(automatonState, InstantKind.AUTO);
-            checkStateContingencyAndInstant(curativeState, InstantKind.CURATIVE);
+            curativePerimeters.forEach(curativePerimeter -> checkStateContingencyAndInstant(curativePerimeter.getOptimisationState(), InstantKind.CURATIVE));
             ContingencyScenario contingencyScenario = new ContingencyScenario();
             contingencyScenario.contingency = contingency;
             contingencyScenario.automatonState = automatonState;
-            contingencyScenario.curativeState = curativeState;
+            contingencyScenario.curativePerimeters = curativePerimeters.stream()
+                .sorted(Comparator.comparingInt(perimeter -> perimeter.getOptimisationState().getInstant().getOrder()))
+                .toList();
             return contingencyScenario;
         }
 

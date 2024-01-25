@@ -83,7 +83,9 @@ class StateTreeTest {
         ContingencyScenario contingencyScenario = stateTree.getContingencyScenarios().iterator().next();
         assertEquals(crac.getContingency("Contingency FR1 FR3"), contingencyScenario.getContingency());
         assertTrue(contingencyScenario.getAutomatonState().isEmpty());
-        assertEquals(Optional.of(curativeState2), contingencyScenario.getCurativeState());
+        assertEquals(1, contingencyScenario.getCurativePerimeters().size());
+        assertEquals(curativeState2, contingencyScenario.getCurativePerimeters().get(0).getOptimisationState());
+        assertTrue(contingencyScenario.getCurativePerimeters().get(0).getOtherStates().isEmpty());
 
         assertEquals(1, stateTree.getOperatorsNotSharingCras().size());
         assertEquals("operator2", stateTree.getOperatorsNotSharingCras().iterator().next());
@@ -164,11 +166,11 @@ class StateTreeTest {
         setUpCustomCrac();
         stateTree = new StateTree(crac);
         assertTrue(stateTree.getContingencyScenarios().isEmpty());
-        BasecaseScenario basecaseScenario = stateTree.getBasecaseScenario();
-        assertNotNull(basecaseScenario);
-        assertEquals(crac.getPreventiveState(), basecaseScenario.getBasecaseState());
-        assertEquals(6, basecaseScenario.getOtherStates().size());
-        assertEquals(7, basecaseScenario.getAllStates().size());
+        Perimeter preventivePerimeter = stateTree.getBasecaseScenario();
+        assertNotNull(preventivePerimeter);
+        assertEquals(crac.getPreventiveState(), preventivePerimeter.getOptimisationState());
+        assertEquals(6, preventivePerimeter.getOtherStates().size());
+        assertEquals(7, preventivePerimeter.getAllStates().size());
     }
 
     @Test
@@ -188,7 +190,9 @@ class StateTreeTest {
         ContingencyScenario contingencyScenario = stateTree.getContingencyScenarios().iterator().next();
         assertEquals(crac.getContingency("contingency-1"), contingencyScenario.getContingency());
         assertTrue(contingencyScenario.getAutomatonState().isEmpty());
-        assertEquals(Optional.of(crac.getState("contingency-1", curativeInstant)), contingencyScenario.getCurativeState());
+        assertEquals(1, contingencyScenario.getCurativePerimeters().size());
+        assertEquals(crac.getState("contingency-1", curativeInstant), contingencyScenario.getCurativePerimeters().get(0).getOptimisationState());
+        assertTrue(contingencyScenario.getCurativePerimeters().get(0).getOtherStates().isEmpty());
     }
 
     @Test
@@ -362,7 +366,9 @@ class StateTreeTest {
         ContingencyScenario contingencyScenario = stateTree.getContingencyScenarios().iterator().next();
         assertEquals(crac.getContingency("contingency"), contingencyScenario.getContingency());
         assertEquals(Optional.empty(), contingencyScenario.getAutomatonState());
-        assertEquals(Optional.of(curativeState1), contingencyScenario.getCurativeState());
+        assertEquals(1, contingencyScenario.getCurativePerimeters().size());
+        assertEquals(curativeState1, contingencyScenario.getCurativePerimeters().get(0).getOptimisationState());
+        assertTrue(contingencyScenario.getCurativePerimeters().get(0).getOtherStates().isEmpty());
     }
 
     @Test
@@ -381,17 +387,22 @@ class StateTreeTest {
         assertEquals(Set.of(preventiveState, outageState), stateTree.getBasecaseScenario().getAllStates());
         assertEquals(1, stateTree.getContingencyScenarios().size());
         assertEquals(Optional.of(autoState), stateTree.getContingencyScenarios().iterator().next().getAutomatonState());
-        assertEquals(Optional.of(curativeState1), stateTree.getContingencyScenarios().iterator().next().getCurativeState());
+        ContingencyScenario contingencyScenario = stateTree.getContingencyScenarios().iterator().next();
+        assertEquals(1, contingencyScenario.getCurativePerimeters().size());
+        assertEquals(curativeState1, contingencyScenario.getCurativePerimeters().get(0).getOptimisationState());
+        assertTrue(contingencyScenario.getCurativePerimeters().get(0).getOtherStates().isEmpty());
 
         // 4.3 Both AUTO and CURATIVE exist, only CURATIVE has RAs
         setUpCustomCracWithAutoInstant(true, false, true, true);
         stateTree = new StateTree(crac);
         assertEquals(Set.of(preventiveState, outageState, autoState), stateTree.getBasecaseScenario().getAllStates());
         assertEquals(1, stateTree.getContingencyScenarios().size());
-        ContingencyScenario contingencyScenario = stateTree.getContingencyScenarios().iterator().next();
+        contingencyScenario = stateTree.getContingencyScenarios().iterator().next();
         assertEquals(crac.getContingency("contingency"), contingencyScenario.getContingency());
         assertEquals(Optional.empty(), contingencyScenario.getAutomatonState());
-        assertEquals(Optional.of(curativeState1), contingencyScenario.getCurativeState());
+        assertEquals(1, contingencyScenario.getCurativePerimeters().size());
+        assertEquals(curativeState1, contingencyScenario.getCurativePerimeters().get(0).getOptimisationState());
+        assertTrue(contingencyScenario.getCurativePerimeters().get(0).getOtherStates().isEmpty());
 
         // 4.4 Both AUTO and CURATIVE exist and have RAs
         setUpCustomCracWithAutoInstant(true, true, true, true);
@@ -401,7 +412,9 @@ class StateTreeTest {
         contingencyScenario = stateTree.getContingencyScenarios().iterator().next();
         assertEquals(crac.getContingency("contingency"), contingencyScenario.getContingency());
         assertEquals(Optional.of(autoState), contingencyScenario.getAutomatonState());
-        assertEquals(Optional.of(curativeState1), contingencyScenario.getCurativeState());
+        assertEquals(1, contingencyScenario.getCurativePerimeters().size());
+        assertEquals(curativeState1, contingencyScenario.getCurativePerimeters().get(0).getOptimisationState());
+        assertTrue(contingencyScenario.getCurativePerimeters().get(0).getOtherStates().isEmpty());
     }
 
     @Test
@@ -417,7 +430,9 @@ class StateTreeTest {
         ContingencyScenario contingencyScenario = stateTree.getContingencyScenarios().iterator().next();
         assertEquals(crac.getContingency("contingency"), contingencyScenario.getContingency());
         assertTrue(contingencyScenario.getAutomatonState().isEmpty());
-        assertEquals(Optional.of(curativeState1), contingencyScenario.getCurativeState());
+        assertEquals(1, contingencyScenario.getCurativePerimeters().size());
+        assertEquals(curativeState1, contingencyScenario.getCurativePerimeters().get(0).getOptimisationState());
+        assertTrue(contingencyScenario.getCurativePerimeters().get(0).getOtherStates().isEmpty());
     }
 
     @Test
@@ -433,7 +448,7 @@ class StateTreeTest {
         ContingencyScenario contingencyScenario = stateTree.getContingencyScenarios().iterator().next();
         assertEquals(crac.getContingency("contingency"), contingencyScenario.getContingency());
         assertEquals(Optional.of(autoState), contingencyScenario.getAutomatonState());
-        assertTrue(contingencyScenario.getCurativeState().isEmpty());
+        assertTrue(contingencyScenario.getCurativePerimeters().isEmpty());
     }
 
     @Test
