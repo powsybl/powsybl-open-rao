@@ -343,14 +343,14 @@ public class CastorFullOptimization {
         if (curativeState.isPresent()) {
             if (!automatonsOnly && automatonState.isEmpty() && prePerimeterSensitivityOutput.getSensitivityStatus(curativeState.get()) == ComputationStatus.FAILURE
                 || automatonState.isPresent() && autoStateSensiFailed) {
-                contingencyScenarioResults.put(curativeState.get(), new SkippedOptimizationResultImpl(curativeState.get(), new HashSet<>(), new HashSet<>(), ComputationStatus.FAILURE));
+                contingencyScenarioResults.put(curativeState.get(), new SkippedOptimizationResultImpl(curativeState.get(), new HashSet<>(), new HashSet<>(), ComputationStatus.FAILURE, sensitivityFailureOvercost));
             } else if (!automatonsOnly) {
                 // Optimize curative instant
                 OptimizationResult curativeResult = optimizeCurativeState(curativeState.get(), crac, networkClone,
                     raoParameters, stateTree, toolProvider, curativeTreeParameters, initialSensitivityOutput, preCurativeResult);
                 contingencyScenarioResults.put(curativeState.get(), curativeResult);
                 if (curativeResult.getSensitivityStatus() == ComputationStatus.FAILURE) {
-                    contingencyScenarioResults.put(curativeState.get(), new SkippedOptimizationResultImpl(curativeState.get(), new HashSet<>(), new HashSet<>(), ComputationStatus.FAILURE));
+                    contingencyScenarioResults.put(curativeState.get(), new SkippedOptimizationResultImpl(curativeState.get(), new HashSet<>(), new HashSet<>(), ComputationStatus.FAILURE, sensitivityFailureOvercost));
                 }
             }
         }
