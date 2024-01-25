@@ -136,7 +136,7 @@ public final class RaoUtil {
      * For automatonState, the remedial action is available if and only if the usage method is "FORCED".
      * For other states, the remedial action is available if and only if the usage method is "AVAILABLE".
      */
-    public static boolean isRemedialActionAvailable(RemedialAction<?> remedialAction, State state, PrePerimeterResult prePerimeterResult, Set<FlowCnec> flowCnecs, Network network, RaoParameters raoParameters) {
+    public static boolean isRemedialActionAvailable(RemedialAction<?> remedialAction, State state, FlowResult prePerimeterResult, Set<FlowCnec> flowCnecs, Network network, RaoParameters raoParameters) {
         Set<UsageRule> usageRules = remedialAction.getUsageRules();
         if (usageRules.isEmpty()) {
             OpenRaoLoggerProvider.BUSINESS_WARNS.warn(format("The remedial action %s has no usage rule and therefore will not be available.", remedialAction.getName()));
@@ -165,7 +165,7 @@ public final class RaoUtil {
      * Returns a set of usageMethods corresponding to a remedialAction.
      * It filters out every OnFlowConstraint(InCountry) that is not applicable due to positive margins.
      */
-    private static Set<UsageMethod> getAllUsageMethods(Set<UsageRule> usageRules, RemedialAction<?> remedialAction, State state, PrePerimeterResult prePerimeterResult, Set<FlowCnec> flowCnecs, Network network, RaoParameters raoParameters) {
+    private static Set<UsageMethod> getAllUsageMethods(Set<UsageRule> usageRules, RemedialAction<?> remedialAction, State state, FlowResult prePerimeterResult, Set<FlowCnec> flowCnecs, Network network, RaoParameters raoParameters) {
         return usageRules.stream()
             .filter(ur -> ur instanceof OnContingencyState || ur instanceof OnInstant
                 || (ur instanceof OnFlowConstraint || ur instanceof OnFlowConstraintInCountry)
