@@ -27,6 +27,8 @@ public interface Instant extends Identifiable<Instant> {
 
     boolean comesBefore(Instant otherInstant);
 
+    boolean comesAfter(Instant otherInstant);
+
     boolean isPreventive();
 
     boolean isOutage();

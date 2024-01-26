@@ -321,13 +321,13 @@ public class PreventiveAndCurativesRaoResultImpl implements RaoResult {
             return initialResult;
         } else if (flowCnec.getState().getInstant().comesBefore(optimizedInstant)) {
             throw new OpenRaoException(String.format("Trying to access results for instant %s at optimization state %s is not allowed", flowCnec.getState().getInstant(), optimizedInstant));
-        } else if (optimizedInstant.isPreventive() || optimizedInstant.isOutage() || postContingencyResults.isEmpty() ||
-                optimizedInstant.isAuto() && postContingencyResults.keySet().stream().noneMatch(state -> state.getInstant().isAuto())) {
+        } else if ((optimizedInstant.isPreventive() || optimizedInstant.isOutage() || postContingencyResults.isEmpty()) ||
+            (optimizedInstant.isAuto() && postContingencyResults.keySet().stream().noneMatch(state -> state.getInstant().isAuto()))) {
             // using postPreventiveResult would exclude curative CNECs
             return resultsWithPrasForAllCnecs;
-        } else if (postContingencyResults.containsKey(flowCnec.getState()) && optimizedInstant.equals(flowCnec.getState().getInstant())) {
+        } else if (Objects.nonNull(findStateOptimizedFor(optimizedInstant, flowCnec))) {
             // if cnec has been optimized during a post contingency instant
-            return postContingencyResults.get(flowCnec.getState());
+            return postContingencyResults.get(findStateOptimizedFor(optimizedInstant, flowCnec));
         } else if (!postContingencyResults.containsKey(flowCnec.getState())) {
             // if post contingency cnec has been optimized in preventive perimeter (no remedial actions)
             return secondPreventivePerimeterResult;
@@ -335,6 +335,14 @@ public class PreventiveAndCurativesRaoResultImpl implements RaoResult {
             // e.g Auto instant for curative cnecs optimized in 2P
             return null;
         }
+    }
+
+    private State findStateOptimizedFor(Instant optimizedInstant, FlowCnec flowCnec) {
+        return postContingencyResults.keySet().stream().filter(state ->
+            !state.getInstant().comesAfter(flowCnec.getState().getInstant())
+                && state.getInstant().equals(optimizedInstant)
+                && state.getContingency().equals(flowCnec.getState().getContingency())
+        ).findAny().orElse(null);
     }
 
     private double getHighestFunctionalForInstant(Instant instant) {
