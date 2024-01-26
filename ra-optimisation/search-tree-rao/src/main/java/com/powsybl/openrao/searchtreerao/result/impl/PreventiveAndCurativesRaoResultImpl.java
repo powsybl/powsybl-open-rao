@@ -321,8 +321,8 @@ public class PreventiveAndCurativesRaoResultImpl implements RaoResult {
             return initialResult;
         } else if (flowCnec.getState().getInstant().comesBefore(optimizedInstant)) {
             throw new OpenRaoException(String.format("Trying to access results for instant %s at optimization state %s is not allowed", flowCnec.getState().getInstant(), optimizedInstant));
-        } else if ((optimizedInstant.isPreventive() || optimizedInstant.isOutage() || postContingencyResults.isEmpty()) ||
-            (optimizedInstant.isAuto() && postContingencyResults.keySet().stream().noneMatch(state -> state.getInstant().isAuto()))) {
+        } else if (optimizedInstant.isPreventive() || optimizedInstant.isOutage() || postContingencyResults.isEmpty() ||
+            optimizedInstant.isAuto() && postContingencyResults.keySet().stream().noneMatch(state -> state.getInstant().isAuto())) {
             // using postPreventiveResult would exclude curative CNECs
             return resultsWithPrasForAllCnecs;
         } else if (Objects.nonNull(findStateOptimizedFor(optimizedInstant, flowCnec))) {

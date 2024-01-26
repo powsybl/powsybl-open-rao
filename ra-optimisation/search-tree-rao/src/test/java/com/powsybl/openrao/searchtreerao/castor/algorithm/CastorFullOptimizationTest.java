@@ -670,7 +670,7 @@ class CastorFullOptimizationTest {
         Network network = Network.read("small-network-2P.uct", getClass().getResourceAsStream("/network/small-network-2P.uct"));
         Crac crac = CracFactory.findDefault().create("crac");
 
-        crac.newInstant( "preventive", InstantKind.PREVENTIVE)
+        crac.newInstant("preventive", InstantKind.PREVENTIVE)
             .newInstant("outage", InstantKind.OUTAGE)
             .newInstant("auto", InstantKind.AUTO)
             .newInstant("curative1", InstantKind.CURATIVE)
@@ -763,7 +763,7 @@ class CastorFullOptimizationTest {
         Network network = Network.read("small-network-2P.uct", getClass().getResourceAsStream("/network/small-network-2P.uct"));
         Crac crac = CracFactory.findDefault().create("crac");
 
-        crac.newInstant( "preventive", InstantKind.PREVENTIVE)
+        crac.newInstant("preventive", InstantKind.PREVENTIVE)
             .newInstant("outage", InstantKind.OUTAGE)
             .newInstant("auto", InstantKind.AUTO)
             .newInstant("curative1", InstantKind.CURATIVE)

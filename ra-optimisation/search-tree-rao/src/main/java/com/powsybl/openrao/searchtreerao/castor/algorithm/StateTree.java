@@ -61,7 +61,7 @@ public class StateTree {
      * If the state has AUTO and CURATIVE RAs, both states will be treated in a dedicated scenario.
      * If the AUTO has no RA but the CURATIVE has RAs, the AUTO will be optimized in basecase RAO and the CURATIVE in a dedicated scenario.
      * If neither AUTO nor CURATIVE states have RAs, they will be optimized in basecase RAO.
-     *
+     * <p>
      * If AUTO or CURATIVE state does not exist, it will not be optimized.
      */
     private void processAutoAndCurativeInstants(Contingency contingency, Crac crac) {
@@ -91,37 +91,38 @@ public class StateTree {
         ContingencyScenario.ContingencyScenarioBuilder contingencyScenarioBuilder = ContingencyScenario.create().withContingency(contingency);
         boolean contingencyScenarioUsed = false;
         Set<State> curativeStatesWithCnecsButNoCras = new HashSet<>();
+        boolean curativeCnecsEncountered = false;
 
         // if curative state has CNECs but no CRAs, add it to the closest optimisation state with CRAs
         for (State curativeState : curativeStates) {
-            if (anyAvailableRemedialAction(crac, curativeState)) {
-                if (anyCnec(crac, curativeState) || !curativeStatesWithCnecsButNoCras.isEmpty()) {
-                    contingencyScenarioBuilder.withCurativePerimeter(new Perimeter(curativeState, curativeStatesWithCnecsButNoCras));
-                    curativeStatesWithCnecsButNoCras.clear();
-                    contingencyScenarioUsed = true;
-                }
-            } else if (anyCnec(crac, curativeState)) {
+            boolean curativeCnecsPresent = anyCnec(crac, curativeState);
+            curativeCnecsEncountered = curativeCnecsEncountered || curativeCnecsPresent;
+            if (anyAvailableRemedialAction(crac, curativeState) && curativeCnecsEncountered) {
+                contingencyScenarioBuilder.withCurativePerimeter(new Perimeter(curativeState, new HashSet<>(curativeStatesWithCnecsButNoCras)));
+                curativeStatesWithCnecsButNoCras.clear();
+                contingencyScenarioUsed = true;
+            } else if (curativeCnecsPresent) {
                 curativeStatesWithCnecsButNoCras.add(curativeState);
             }
         }
 
-        // add curative CNECs to preventive if no ARAs and no CRAs affect them
-        if (!(autoCnecsExist && autoRasExist) && !curativeStatesWithCnecsButNoCras.isEmpty()) {
-            curativeStatesWithCnecsButNoCras.forEach(preventivePerimeter::addOtherState);
-            curativeStatesWithCnecsButNoCras.clear();
-        }
-
-        // run automaton perimeter if auto RAs and CNECs exist
-        if (autoCnecsExist && autoRasExist) {
+        // run automaton perimeter if auto ARAs exist and auto or curative CNECs exist
+        if (autoRasExist) {
             contingencyScenarioBuilder.withAutomatonState(automatonState);
             contingencyScenarioUsed = true;
+        }
+
+        // add curative CNECs to preventive if no ARAs and no CRAs affect them
+        if (!autoRasExist && !curativeStatesWithCnecsButNoCras.isEmpty()) {
+            curativeStatesWithCnecsButNoCras.forEach(preventivePerimeter::addOtherState);
+            curativeStatesWithCnecsButNoCras.clear();
         }
 
         // run curative perimeter if curative CNECs exist and either CRA exist or auto state was added to the scenario
         if (!curativeStatesWithCnecsButNoCras.isEmpty()) {
             State firstCurativeState = curativeStates.get(curativeStates.size() - 1);
             curativeStatesWithCnecsButNoCras.remove(firstCurativeState);
-            contingencyScenarioBuilder.withCurativePerimeter(new Perimeter(firstCurativeState, curativeStatesWithCnecsButNoCras));
+            contingencyScenarioBuilder.withCurativePerimeter(new Perimeter(firstCurativeState, new HashSet<>(curativeStatesWithCnecsButNoCras)));
             // no need to set contingencyScenarioUsed to true because it was already set to true for the automaton perimeter
         }
 
@@ -149,7 +150,7 @@ public class StateTree {
 
     private static boolean anyAvailableRemedialAction(Crac crac, State state) {
         return !crac.getPotentiallyAvailableNetworkActions(state).isEmpty() ||
-                !crac.getPotentiallyAvailableRangeActions(state).isEmpty();
+            !crac.getPotentiallyAvailableRangeActions(state).isEmpty();
     }
 
     static Set<String> findOperatorsNotSharingCras(Crac crac, Set<State> optimizedCurativeStates) {
@@ -161,7 +162,7 @@ public class StateTree {
 
     static boolean tsoHasCra(String tso, Crac crac, Set<State> optimizedCurativeStates) {
         return optimizedCurativeStates.stream().anyMatch(state ->
-           crac.getPotentiallyAvailableNetworkActions(state).stream().map(RemedialAction::getOperator).anyMatch(tso::equals) ||
+            crac.getPotentiallyAvailableNetworkActions(state).stream().map(RemedialAction::getOperator).anyMatch(tso::equals) ||
                 crac.getPotentiallyAvailableRangeActions(state).stream().map(RemedialAction::getOperator).anyMatch(tso::equals)
         );
     }
