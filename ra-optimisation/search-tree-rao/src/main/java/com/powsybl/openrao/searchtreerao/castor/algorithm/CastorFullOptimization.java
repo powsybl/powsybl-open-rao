@@ -198,7 +198,7 @@ public class CastorFullOptimization {
             BUSINESS_LOGS.info("RAO has succeeded thanks to second preventive step when first preventive step had failed");
             return true;
         }
-        Instant curativeInstant = raoInput.getCrac().getInstant(InstantKind.CURATIVE);
+        Instant curativeInstant = raoInput.getCrac().getLastInstant();
         double firstPreventiveCost = mergedRaoResults.getCost(curativeInstant);
         double secondPreventiveCost = secondPreventiveRaoResults.getCost(curativeInstant);
         if (secondPreventiveCost > firstPreventiveCost) {
@@ -361,6 +361,8 @@ public class CastorFullOptimization {
                     allPreviousPerimetersSucceded = allPreviousPerimetersSucceded && curativeResult.getSensitivityStatus() == DEFAULT;
                     if (!allPreviousPerimetersSucceded) {
                         contingencyScenarioResults.put(curativeState, new SkippedOptimizationResultImpl(curativeState, new HashSet<>(), new HashSet<>(), ComputationStatus.FAILURE, sensitivityFailureOvercost));
+                    } else {
+                        applyRemedialActions(networkClone, curativeResult, curativeState);
                     }
                 }
             }
@@ -572,6 +574,7 @@ public class CastorFullOptimization {
         // Get the applied network actions for every contingency perimeter
         AppliedRemedialActions appliedArasAndCras = new AppliedRemedialActions();
         Crac crac = raoInput.getCrac();
+        // TODO: see how to handle multiple curative instants here
         Instant curativeInstant = crac.getInstant(InstantKind.CURATIVE);
         if (crac.hasAutoInstant()) {
             addAppliedNetworkActionsPostContingency(crac.getInstant(InstantKind.AUTO), appliedArasAndCras, postContingencyResults);
