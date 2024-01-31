@@ -223,6 +223,8 @@ public final class CsaProfileCracCreationTestUtil {
     }
 
     public static Network getNetworkFromResource(String filename) {
-        return Network.read(Paths.get(new File(CsaProfileCracCreatorTest.class.getResource(filename).getFile()).toString()), LocalComputationManager.getDefault(), Suppliers.memoize(ImportConfig::load).get(), new Properties());
+        Properties importParams = new Properties();
+        importParams.put("iidm.import.cgmes.cgm-with-subnetworks", false);
+        return Network.read(Paths.get(new File(CsaProfileCracCreatorTest.class.getResource(filename).getFile()).toString()), LocalComputationManager.getDefault(), Suppliers.memoize(ImportConfig::load).get(), importParams);
     }
 }
