@@ -80,6 +80,7 @@
             "slackBusSelectionMode" : "MOST_MESHED",
             "slackBusesIds" : [ ],
             "slackDistributionFailureBehavior" : "LEAVE_ON_SLACK_BUS",
+            "voltageRemoteControl" : true,
             "lowImpedanceBranchMode" : "REPLACE_BY_ZERO_IMPEDANCE_LINE",
             "loadPowerFactorConstant" : false,
             "plausibleActivePowerLimit" : 10000.0,
@@ -101,7 +102,7 @@
             "stateVectorScalingMode" : "NONE",
             "maxSlackBusCount" : 1,
             "debugDir" : null,
-            "incrementalTransformerVoltageControlOuterLoopMaxTapShift" : 3,
+            "incrementalTransformerRatioTapControlOuterLoopMaxTapShift" : 3,
             "secondaryVoltageControl" : false,
             "reactiveLimitsMaxPqPvSwitch" : 3
           }
