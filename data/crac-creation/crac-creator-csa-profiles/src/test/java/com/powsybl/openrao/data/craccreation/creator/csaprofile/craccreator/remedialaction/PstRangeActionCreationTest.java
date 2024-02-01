@@ -77,9 +77,7 @@ class PstRangeActionCreationTest {
         assertEquals("f6e8823f-d431-6fc7-37cf-b7a0d80035dd", reeRa1.getNetworkElement().getId());
         assertEquals(13, reeRa1.getInitialTap());
         assertEquals(0, reeRa1.getRanges().size());
-        assertEquals(1, reeRa1.getUsageRules().size());
-        assertEquals(curativeInstant, reeRa1.getUsageRules().iterator().next().getInstant());
-        assertEquals("8cdec4c6-10c3-40c1-9eeb-7f6ae8d9b3fe", ((OnContingencyStateImpl) reeRa1.getUsageRules().iterator().next()).getState().getContingency().get().getId());
+        assertEquals(0, reeRa1.getUsageRules().size());
         Map<Integer, Double> expectedTapToAngleMap = Map.ofEntries(
                 Map.entry(-1, -2.0),
                 Map.entry(0, 0.0),

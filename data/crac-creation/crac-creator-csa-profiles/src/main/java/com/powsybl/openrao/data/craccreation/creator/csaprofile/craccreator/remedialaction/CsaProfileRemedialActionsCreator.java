@@ -30,6 +30,9 @@ import com.powsybl.triplestore.api.PropertyBags;
 import java.util.*;
 import java.util.function.Function;
 
+import static com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileConstants.COMBINATION_CONSTRAINT_KIND;
+import static com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileConstants.NORMAL_ENABLED;
+
 /**
  * @author Mohamed Ben-rejeb {@literal <mohamed.ben-rejeb at rte-france.com>}
  */
@@ -118,7 +121,7 @@ public class CsaProfileRemedialActionsCreator {
                 Optional<Integer> speedOpt = getSpeedOpt(parentRemedialActionPropertyBag.get(CsaProfileConstants.TIME_TO_IMPLEMENT), remedialActionId, false);
 
                 if (remedialActionType.equals(RemedialActionType.NETWORK_ACTION)) {
-                    remedialActionAdder = networkActionCreator.getNetworkActionAdder(linkedTopologyActions, linkedRotatingMachineActions, linkedShuntCompensatorModifications, linkedStaticPropertyRanges, remedialActionId, remedialActionId);
+                    remedialActionAdder = networkActionCreator.getNetworkActionAdder(linkedTopologyActions, linkedRotatingMachineActions, linkedShuntCompensatorModifications, linkedStaticPropertyRanges, remedialActionId, remedialActionId, alterations);
                 } else {
                     remedialActionAdder = pstRangeActionCreator.getPstRangeActionAdder(linkedTapPositionActions, linkedStaticPropertyRanges, remedialActionId, remedialActionId);
                 }
@@ -150,27 +153,42 @@ public class CsaProfileRemedialActionsCreator {
     }
 
     private void addOnStateUsageRules(PropertyBag parentRemedialActionPropertyBag, Map<String, Set<PropertyBag>> linkedContingencyWithRAs, String remedialActionId, RemedialActionAdder<?> remedialActionAdder, List<String> alterations) {
-        String randomCombinationConstraintKind = linkedContingencyWithRAs.get(remedialActionId).iterator().next().get(CsaProfileConstants.COMBINATION_CONSTRAINT_KIND);
+        String randomCombinationConstraintKind = linkedContingencyWithRAs.get(remedialActionId).iterator().next().get(COMBINATION_CONSTRAINT_KIND);
         checkElementCombinationConstraintKindsCoherence(remedialActionId, linkedContingencyWithRAs);
 
-        List<String> openRaoContingenciesIds = linkedContingencyWithRAs.get(remedialActionId).stream()
-            .map(contingencyWithRemedialActionPropertyBag ->
-                checkContingencyAndGetOpenRaoId(
-                    contingencyWithRemedialActionPropertyBag,
-                    parentRemedialActionPropertyBag.get(CsaProfileConstants.RA_KIND),
-                    remedialActionId,
-                    randomCombinationConstraintKind
-                )
-            )
-            .toList();
+        List<String> validContingenciesIds = new ArrayList<>();
+        List<String> ignoredContingenciesMessages = new ArrayList<>();
+
+        for (PropertyBag contingencyWithRemedialActionPropertyBag : linkedContingencyWithRAs.get(remedialActionId)) {
+            if (!parentRemedialActionPropertyBag.get(CsaProfileConstants.RA_KIND).equals(CsaProfileConstants.RemedialActionKind.CURATIVE.toString())) {
+                throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, CsaProfileConstants.REMEDIAL_ACTION_MESSAGE + remedialActionId + " will not be imported because it is linked to a contingency but it's kind is not curative");
+            }
+            String contingencyId = contingencyWithRemedialActionPropertyBag.get(CsaProfileConstants.REQUEST_CONTINGENCY).substring(contingencyWithRemedialActionPropertyBag.get(CsaProfileConstants.REQUEST_CONTINGENCY).lastIndexOf("_") + 1);
+            if (!Boolean.parseBoolean(contingencyWithRemedialActionPropertyBag.get(NORMAL_ENABLED))) {
+                ignoredContingenciesMessages.add("OnContingencyState usage rule for remedial action %s with contingency %s ignored because the link between the remedial action and the contingency is disabled or missing".formatted(remedialActionId, contingencyId));
+                continue;
+            }
+            String combinationConstraintKind = contingencyWithRemedialActionPropertyBag.get(COMBINATION_CONSTRAINT_KIND);
+            if (!combinationConstraintKind.equals(CsaProfileConstants.ElementCombinationConstraintKind.INCLUDED.toString()) && !combinationConstraintKind.equals(CsaProfileConstants.ElementCombinationConstraintKind.EXCLUDED.toString()) && !combinationConstraintKind.equals(CsaProfileConstants.ElementCombinationConstraintKind.CONSIDERED.toString())) {
+                ignoredContingenciesMessages.add("OnContingencyState usage rule for remedial action %s with contingency %s ignored because of an illegal combinationConstraintKind".formatted(remedialActionId, contingencyId));
+                continue;
+            }
+            Optional<CsaProfileElementaryCreationContext> importedCsaProfileContingencyCreationContextOpt = cracCreationContext.getContingencyCreationContexts().stream().filter(co -> co.isImported() && co.getNativeId().equals(contingencyId)).findAny();
+            if (importedCsaProfileContingencyCreationContextOpt.isEmpty()) {
+                ignoredContingenciesMessages.add("OnContingencyState usage rule for remedial action %s with contingency %s ignored because this contingency does not exist or was not imported by Open RAO".formatted(remedialActionId, contingencyId));
+                continue;
+            }
+            validContingenciesIds.add(importedCsaProfileContingencyCreationContextOpt.get().getElementId());
+        }
 
         Instant curativeInstant = crac.getInstant(InstantKind.CURATIVE);
         boolean hasAtLeastOneOnConstraintUsageRule = addOnConstraintUsageRules(curativeInstant, remedialActionAdder, remedialActionId, alterations);
         if (!hasAtLeastOneOnConstraintUsageRule) {
             if (!randomCombinationConstraintKind.equals(CsaProfileConstants.ElementCombinationConstraintKind.EXCLUDED.toString())) {
-                addOnContingencyStateUsageRules(remedialActionAdder, openRaoContingenciesIds, curativeInstant.getId(), UsageMethod.AVAILABLE);
+                addOnContingencyStateUsageRules(remedialActionAdder, validContingenciesIds, curativeInstant.getId(), UsageMethod.AVAILABLE);
+                alterations.addAll(ignoredContingenciesMessages);
             } else {
-                alterations.add(String.format("The association 'RemedialAction'/'Contingencies' '%s'/'%s' will be ignored because 'excluded' combination constraint kind is not supported", remedialActionId, String.join(". ", openRaoContingenciesIds)));
+                alterations.add(String.format("All OnContingencyState usage rules for remedial action %s ignored because of an illegal EXCLUDED combinationConstraintKind", remedialActionId));
             }
         }
         this.cracCreationContext.setRemedialActionCreationContexts(csaProfileRemedialActionCreationContexts);
@@ -207,7 +225,7 @@ public class CsaProfileRemedialActionsCreator {
         Set<String> contingenciesWithConsidered = new HashSet<>();
         Set<PropertyBag> linkedContingencyWithRA = linkedContingencyWithRAs.get(remedialActionId);
         for (PropertyBag propertyBag : linkedContingencyWithRA) {
-            String combinationKind = propertyBag.get(CsaProfileConstants.COMBINATION_CONSTRAINT_KIND);
+            String combinationKind = propertyBag.get(COMBINATION_CONSTRAINT_KIND);
             String contingencyId = propertyBag.get(CsaProfileConstants.REQUEST_CONTINGENCY);
             if (combinationKind.equals(CsaProfileConstants.ElementCombinationConstraintKind.INCLUDED.toString())) {
                 contingenciesWithIncluded.add(contingencyId);
@@ -394,6 +412,7 @@ public class CsaProfileRemedialActionsCreator {
                 String spsTsoName = schemeRemedialActionPropertyBag.get(CsaProfileConstants.TSO);
                 Optional<String> spsName = CsaProfileCracUtils.createElementName(nativeSpsName, spsTsoName);
                 Optional<Integer> spsSpeed = getSpeedOpt(schemeRemedialActionPropertyBag.get(CsaProfileConstants.TIME_TO_IMPLEMENT), spsId, true);
+                List<String> alterations = new ArrayList<>();
 
                 String gridStateAlterationCollection = getGridStateAlterationCollection(spsId);
 
@@ -401,7 +420,7 @@ public class CsaProfileRemedialActionsCreator {
                 RemedialActionAdder<?> remedialActionAdder;
 
                 if (remedialActionType.equals(RemedialActionType.NETWORK_ACTION)) {
-                    remedialActionAdder = networkActionCreator.getNetworkActionAdder(linkedTopologyActionsAuto, linkedRotatingMachineActionsAuto, linkedShuntCompensatorModificationAuto, linkedStaticPropertyRanges, gridStateAlterationCollection, spsId);
+                    remedialActionAdder = networkActionCreator.getNetworkActionAdder(linkedTopologyActionsAuto, linkedRotatingMachineActionsAuto, linkedShuntCompensatorModificationAuto, linkedStaticPropertyRanges, gridStateAlterationCollection, spsId, alterations);
                 } else {
                     remedialActionAdder = pstRangeActionCreator.getPstRangeActionAdder(linkedTapPositionActionsAuto, linkedStaticPropertyRanges, gridStateAlterationCollection, spsId);
                 }
@@ -442,7 +461,7 @@ public class CsaProfileRemedialActionsCreator {
             }
             String openRaoContingencyId = importedCsaProfileContingencyCreationContextOpt.get().getElementId();
             CsaProfileCracUtils.checkNormalEnabled(contingencyWithRemedialActionPropertyBag, spsId, "ContingencyWithRemedialAction");
-            String combinationConstraintKind = contingencyWithRemedialActionPropertyBag.get(CsaProfileConstants.COMBINATION_CONSTRAINT_KIND);
+            String combinationConstraintKind = contingencyWithRemedialActionPropertyBag.get(COMBINATION_CONSTRAINT_KIND);
             if (!CsaProfileConstants.ElementCombinationConstraintKind.INCLUDED.toString().equals(combinationConstraintKind)) {
                 throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, CsaProfileConstants.AUTO_REMEDIAL_ACTION_MESSAGE + spsId + " will not be imported because it must be linked to the contingency " + contingencyId + " with an 'included' ElementCombinationConstraintKind");
             }

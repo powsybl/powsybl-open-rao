@@ -287,6 +287,10 @@ GRAPH <%s> {
         nc:GridStateAlteration.GridStateAlterationRemedialAction ?gridStateAlterationRemedialAction ;
         nc:TopologyAction.Switch ?switchId ;
         nc:GridStateAlteration.PropertyReference ?propertyReference ;
+
+        OPTIONAL {
+            ?topologyAction nc:GridStateAlteration.normalEnabled ?normalEnabled .
+        }
 }
 }
 
@@ -319,7 +323,7 @@ WHERE {
         nc:GridStateAlteration.GridStateAlterationRemedialAction ?gridStateAlterationRemedialAction ;
         nc:ShuntCompensatorModification.ShuntCompensator ?shuntCompensatorId ;
     OPTIONAL {
-        ?shuntCompensatorModification nc:RemedialAction.normalEnabled ?normalEnabled .
+        ?shuntCompensatorModification nc:GridStateAlteration.normalEnabled ?normalEnabled .
     }
 }
 
@@ -489,7 +493,7 @@ GRAPH <%s> {
         nc:GridStateAlteration.GridStateAlterationCollection ?gridStateAlterationCollection ;
         nc:ShuntCompensatorModification.ShuntCompensator ?shuntCompensatorId ;
     OPTIONAL {
-        ?shuntCompensatorModificationAuto nc:RemedialAction.normalEnabled ?normalEnabled .
+        ?shuntCompensatorModificationAuto nc:GridStateAlteration.normalEnabled ?normalEnabled .
     }
 }
 }
@@ -589,7 +593,7 @@ GRAPH <%s> {
 }
 }
 
-# query: remedialActionOverriding
+# query: gridStateAlterationRemedialActionOverriding
 PREFIX nc: <http://entsoe.eu/ns/nc#>
 PREFIX dcat: <http://www.w3.org/ns/dcat#>
 SELECT *
@@ -599,8 +603,8 @@ GRAPH <%s> {
         dcat:startDate ?startDate ;
         dcat:endDate ?endDate ;
         dcat:keyword ?keyword .
-    ?remedialAction
-        rdf:type nc:RemedialAction ;
+    ?gridStateAlterationRemedialAction
+        rdf:type nc:GridStateAlterationRemedialAction ;
         nc:RemedialAction.available ?available .
 }
 }
@@ -621,7 +625,7 @@ GRAPH <%s> {
 }
 }
 
-# query: rangeConstraintOverriding
+# query: topologyActionOverriding
 PREFIX nc: <http://entsoe.eu/ns/nc#>
 PREFIX dcat: <http://www.w3.org/ns/dcat#>
 SELECT *
@@ -631,7 +635,71 @@ GRAPH <%s> {
         dcat:startDate ?startDate ;
         dcat:endDate ?endDate ;
         dcat:keyword ?keyword .
-    ?rangeConstraint
+    ?topologyAction
+        rdf:type nc:GridStateAlteration ;
+        nc:GridStateAlteration.enabled ?enabled .
+}
+}
+
+# query: rotatingMachineActionOverriding
+PREFIX nc: <http://entsoe.eu/ns/nc#>
+PREFIX dcat: <http://www.w3.org/ns/dcat#>
+SELECT *
+{
+GRAPH <%s> {
+    ?fullModel
+        dcat:startDate ?startDate ;
+        dcat:endDate ?endDate ;
+        dcat:keyword ?keyword .
+    ?rotatingMachineAction
+        rdf:type nc:GridStateAlteration ;
+        nc:GridStateAlteration.enabled ?enabled .
+}
+}
+
+# query: shuntCompensatorModificationOverriding
+PREFIX nc: <http://entsoe.eu/ns/nc#>
+PREFIX dcat: <http://www.w3.org/ns/dcat#>
+SELECT *
+{
+GRAPH <%s> {
+    ?fullModel
+        dcat:startDate ?startDate ;
+        dcat:endDate ?endDate ;
+        dcat:keyword ?keyword .
+    ?shuntCompensatorModification
+        rdf:type nc:GridStateAlteration ;
+        nc:GridStateAlteration.enabled ?enabled .
+}
+}
+
+# query: tapPositionActionOverriding
+PREFIX nc: <http://entsoe.eu/ns/nc#>
+PREFIX dcat: <http://www.w3.org/ns/dcat#>
+SELECT *
+{
+GRAPH <%s> {
+    ?fullModel
+        dcat:startDate ?startDate ;
+        dcat:endDate ?endDate ;
+        dcat:keyword ?keyword .
+    ?tapPositionAction
+        rdf:type nc:GridStateAlteration ;
+        nc:GridStateAlteration.enabled ?enabled .
+}
+}
+
+# query: staticPropertyRangeOverriding
+PREFIX nc: <http://entsoe.eu/ns/nc#>
+PREFIX dcat: <http://www.w3.org/ns/dcat#>
+SELECT *
+{
+GRAPH <%s> {
+    ?fullModel
+        dcat:startDate ?startDate ;
+        dcat:endDate ?endDate ;
+        dcat:keyword ?keyword .
+    ?staticPropertyRange
         rdf:type nc:RangeConstraint ;
         nc:RangeConstraint.value ?value .
 }
