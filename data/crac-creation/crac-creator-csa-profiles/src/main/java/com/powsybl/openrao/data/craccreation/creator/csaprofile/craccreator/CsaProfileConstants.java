@@ -366,14 +366,14 @@ public final class CsaProfileConstants {
         final String requestName;
         final String objectName;
         final String initialFieldName;
-        final String overridedFieldName;
+        final String overriddenFieldName;
         final HeaderType headerType;
 
         OverridingObjectsFields(String requestName, String objectName, String initialFieldName, String overridedFieldName, HeaderType headerType) {
             this.requestName = requestName;
             this.objectName = objectName;
             this.initialFieldName = initialFieldName;
-            this.overridedFieldName = overridedFieldName;
+            this.overriddenFieldName = overridedFieldName;
             this.headerType = headerType;
         }
 
@@ -390,7 +390,7 @@ public final class CsaProfileConstants {
         }
 
         public String getOverridedFieldName() {
-            return this.overridedFieldName;
+            return this.overriddenFieldName;
         }
 
         public HeaderType getHeaderType() {
