@@ -146,22 +146,6 @@ public class CsaProfileCrac implements NativeCrac {
         return getPropertyBags(CsaProfileConstants.REQUEST_CONTINGENCY_WITH_REMEDIAL_ACTION, CsaProfileConstants.CsaProfileKeywords.REMEDIAL_ACTION.toString());
     }
 
-    public PropertyBags getShuntCompensatorModificationAuto() {
-        return getPropertyBags(CsaProfileConstants.SHUNT_COMPENSATOR_MODIFICATION_AUTO, CsaProfileConstants.CsaProfileKeywords.REMEDIAL_ACTION.toString());
-    }
-
-    public PropertyBags getRotatingMachineActionAuto() {
-        return getPropertyBags(CsaProfileConstants.ROTATING_MACHINE_ACTION_AUTO, CsaProfileConstants.CsaProfileKeywords.REMEDIAL_ACTION.toString());
-    }
-
-    public PropertyBags getTopologyActionAuto() {
-        return getPropertyBags(CsaProfileConstants.TOPOLOGY_ACTION_AUTO, CsaProfileConstants.CsaProfileKeywords.REMEDIAL_ACTION.toString());
-    }
-
-    public PropertyBags getTapPositionActionAuto() {
-        return getPropertyBags(CsaProfileConstants.TAP_POSITION_ACTION_AUTO, CsaProfileConstants.CsaProfileKeywords.REMEDIAL_ACTION.toString());
-    }
-
     public PropertyBags getStage() {
         return getPropertyBags(CsaProfileConstants.STAGE, CsaProfileConstants.CsaProfileKeywords.REMEDIAL_ACTION.toString());
     }
