@@ -88,6 +88,7 @@
             "slackBusSelectionMode" : "MOST_MESHED",
             "slackBusesIds" : [ ],
             "slackDistributionFailureBehavior" : "LEAVE_ON_SLACK_BUS",
+            "voltageRemoteControl" : true,
             "lowImpedanceBranchMode" : "REPLACE_BY_ZERO_IMPEDANCE_LINE",
             "loadPowerFactorConstant" : false,
             "plausibleActivePowerLimit" : 5000.0,
@@ -100,6 +101,8 @@
             "maxSusceptanceMismatch" : 1.0E-4,
             "slackBusPMaxMismatch" : 1.0,
             "voltagePerReactivePowerControl" : false,
+            "generatorReactivePowerRemoteControl" : false,
+            "transformerReactivePowerControl" : false,
             "maxNewtonRaphsonIterations" : 15,
             "maxOuterLoopIterations" : 20,
             "newtonRaphsonConvEpsPerEq" : 1.0E-4,
@@ -118,7 +121,7 @@
             "stateVectorScalingMode" : "NONE",
             "maxSlackBusCount" : 1,
             "debugDir" : null,
-            "incrementalTransformerVoltageControlOuterLoopMaxTapShift" : 3,
+            "incrementalTransformerRatioTapControlOuterLoopMaxTapShift" : 3,
             "secondaryVoltageControl" : false,
             "reactiveLimitsMaxPqPvSwitch" : 3,
             "phaseShifterControlMode" : "CONTINUOUS_WITH_DISCRETISATION",
@@ -131,6 +134,7 @@
             "reactivePowerDispatchMode" : "Q_EQUAL_PROPORTION",
             "outerLoopNames" : null,
             "useActiveLimits" : true,
+            "disableVoltageControlOfGeneratorsOutsideActivePowerLimits" : false,
             "lineSearchStateVectorScalingMaxIteration" : 10,
             "lineSearchStateVectorScalingStepFold" : 1.3333333333333333,
             "maxVoltageChangeStateVectorScalingMaxDv" : 0.1,
@@ -140,8 +144,10 @@
             "dcApproximationType" : "IGNORE_R",
             "simulateAutomationSystems" : false,
             "acSolverType" : "NEWTON_RAPHSON",
-            "maxNewtowKrylovIterations" : 100,
-            "newtowKrylovLineSearch" : false
+            "maxNewtonKrylovIterations" : 100,
+            "newtonKrylovLineSearch" : false,
+            "referenceBusSelectionMode" : "FIRST_SLACK",
+            "writeReferenceTerminals" : false
           }
         }
       },
