@@ -13,6 +13,7 @@ import com.powsybl.openrao.data.cracapi.networkaction.TopologicalAction;
 import com.powsybl.openrao.data.cracapi.usagerule.UsageMethod;
 import com.powsybl.openrao.data.craccreation.creator.api.ImportStatus;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileCracCreationContext;
+import com.powsybl.openrao.data.cracimpl.OnContingencyStateImpl;
 import org.junit.jupiter.api.Test;
 
 import java.util.Iterator;
@@ -60,42 +61,54 @@ class TopologicalActionCreationTest {
         // RA13 (on state)
         NetworkAction ra13 = cracCreationContext.getCrac().getNetworkAction("1fd630a9-b9d8-414b-ac84-b47a093af936");
         assertEquals("RA13", ra13.getName());
-        assertEquals(0, ra13.getUsageRules().size());
+        assertEquals(UsageMethod.AVAILABLE, ra13.getUsageRules().iterator().next().getUsageMethod());
+        assertEquals(curativeInstant, ra13.getUsageRules().iterator().next().getInstant());
+        assertEquals("b6b780cb-9fe5-4c45-989d-447a927c3874", ((OnContingencyStateImpl) ra13.getUsageRules().iterator().next()).getContingency().getId());
         assertEquals("52effb0d-091b-4867-a0a2-387109cdad5c", ra13.getNetworkElements().iterator().next().getId());
         assertEquals(ActionType.OPEN, ((TopologicalAction) ra13.getElementaryActions().iterator().next()).getActionType());
 
         // RA22 (on state)
         NetworkAction ra22 = cracCreationContext.getCrac().getNetworkAction("d856a2a2-3de4-4a7b-aea4-d363c13d9014");
         assertEquals("RA22", ra22.getName());
-        assertEquals(0, ra22.getUsageRules().size());
+        assertEquals(UsageMethod.AVAILABLE, ra22.getUsageRules().iterator().next().getUsageMethod());
+        assertEquals(curativeInstant, ra22.getUsageRules().iterator().next().getInstant());
+        assertEquals("96c96ad8-844c-4f3b-8b38-c886ba2c0214", ((OnContingencyStateImpl) ra22.getUsageRules().iterator().next()).getContingency().getId());
         assertEquals("c871da6f-816f-4398-82a4-698550cbee58", ra22.getNetworkElements().iterator().next().getId());
         assertEquals(ActionType.OPEN, ((TopologicalAction) ra22.getElementaryActions().iterator().next()).getActionType());
 
         // RA14 (on state)
         NetworkAction ra14 = cracCreationContext.getCrac().getNetworkAction("c8bf6b19-1c3b-4ce6-a15c-99995a3c88ce");
         assertEquals("RA14", ra14.getName());
-        assertEquals(0, ra14.getUsageRules().size());
+        assertEquals(UsageMethod.AVAILABLE, ra14.getUsageRules().iterator().next().getUsageMethod());
+        assertEquals(curativeInstant, ra14.getUsageRules().iterator().next().getInstant());
+        assertEquals("13334fdf-9cc2-4341-adb6-1281269040b4", ((OnContingencyStateImpl) ra14.getUsageRules().iterator().next()).getContingency().getId());
         assertEquals("88e2e417-fc08-41a7-a711-4c6d0784ac4f", ra14.getNetworkElements().iterator().next().getId());
         assertEquals(ActionType.OPEN, ((TopologicalAction) ra14.getElementaryActions().iterator().next()).getActionType());
 
         // RA21 (on state)
         NetworkAction ra21 = cracCreationContext.getCrac().getNetworkAction("fb487cc2-0f7b-4958-8f66-1d3fabf7840d");
         assertEquals("RA21", ra21.getName());
-        assertEquals(0, ra21.getUsageRules().size());
+        assertEquals(UsageMethod.AVAILABLE, ra21.getUsageRules().iterator().next().getUsageMethod());
+        assertEquals(curativeInstant, ra21.getUsageRules().iterator().next().getInstant());
+        assertEquals("9d17b84c-33b5-4a68-b8b9-ed5b31038d40", ((OnContingencyStateImpl) ra21.getUsageRules().iterator().next()).getContingency().getId());
         assertEquals("65b97d2e-d749-41df-aa8f-0be4629d5e0e", ra21.getNetworkElements().iterator().next().getId());
         assertEquals(ActionType.OPEN, ((TopologicalAction) ra21.getElementaryActions().iterator().next()).getActionType());
 
         // RA3 (on state)
         NetworkAction ra3 = cracCreationContext.getCrac().getNetworkAction("5e401955-387e-45ce-b126-dd142b06b20c");
         assertEquals("RA3", ra3.getName());
-        assertEquals(0, ra3.getUsageRules().size());
+        assertEquals(UsageMethod.AVAILABLE, ra3.getUsageRules().iterator().next().getUsageMethod());
+        assertEquals(curativeInstant, ra3.getUsageRules().iterator().next().getInstant());
+        assertEquals("475ba18f-cbf5-490b-b65d-e8e03f9bcbc4", ((OnContingencyStateImpl) ra3.getUsageRules().iterator().next()).getContingency().getId());
         assertEquals("8e55fb9d-e514-4f4b-8a5d-8fd05b1dc02e", ra3.getNetworkElements().iterator().next().getId());
         assertEquals(ActionType.OPEN, ((TopologicalAction) ra3.getElementaryActions().iterator().next()).getActionType());
 
         // RA5 (on state)
         NetworkAction ra5 = cracCreationContext.getCrac().getNetworkAction("587cb391-ed16-4a1d-876e-f90241addce5");
         assertEquals("RA5", ra5.getName());
-        assertEquals(0, ra5.getUsageRules().size());
+        assertEquals(UsageMethod.AVAILABLE, ra5.getUsageRules().iterator().next().getUsageMethod());
+        assertEquals(curativeInstant, ra5.getUsageRules().iterator().next().getInstant());
+        assertEquals("5d587c7e-9ced-416a-ad17-6ef9b241a998", ((OnContingencyStateImpl) ra5.getUsageRules().iterator().next()).getContingency().getId());
         assertEquals("21f21596-302e-4e0e-8009-2b8c3c23517f", ra5.getNetworkElements().iterator().next().getId());
         assertEquals(ActionType.OPEN, ((TopologicalAction) ra5.getElementaryActions().iterator().next()).getActionType());
     }

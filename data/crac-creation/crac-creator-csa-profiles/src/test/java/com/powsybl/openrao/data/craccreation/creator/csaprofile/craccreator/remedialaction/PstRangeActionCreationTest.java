@@ -10,6 +10,7 @@ import com.powsybl.openrao.data.cracapi.Instant;
 import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.craccreation.creator.api.ImportStatus;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileCracCreationContext;
+import com.powsybl.openrao.data.cracimpl.OnContingencyStateImpl;
 import org.junit.jupiter.api.Test;
 
 import java.util.Map;
@@ -76,49 +77,51 @@ class PstRangeActionCreationTest {
         assertEquals("f6e8823f-d431-6fc7-37cf-b7a0d80035dd", reeRa1.getNetworkElement().getId());
         assertEquals(13, reeRa1.getInitialTap());
         assertEquals(0, reeRa1.getRanges().size());
-        assertEquals(0, reeRa1.getUsageRules().size());
+        assertEquals(1, reeRa1.getUsageRules().size());
+        assertEquals(curativeInstant, reeRa1.getUsageRules().iterator().next().getInstant());
+        assertEquals("8cdec4c6-10c3-40c1-9eeb-7f6ae8d9b3fe", ((OnContingencyStateImpl) reeRa1.getUsageRules().iterator().next()).getState().getContingency().get().getId());
         Map<Integer, Double> expectedTapToAngleMap = Map.ofEntries(
-                Map.entry(-1, -2.0),
-                Map.entry(0, 0.0),
-                Map.entry(-2, -4.0),
-                Map.entry(1, 2.0),
-                Map.entry(-3, -6.0),
-                Map.entry(2, 4.0),
-                Map.entry(-4, -8.0),
-                Map.entry(3, 6.0),
-                Map.entry(-5, -10.0),
-                Map.entry(4, 8.0),
-                Map.entry(-6, -12.0),
-                Map.entry(5, 10.0),
-                Map.entry(-7, -14.0),
-                Map.entry(6, 12.0),
-                Map.entry(-8, -16.0),
-                Map.entry(7, 14.0),
-                Map.entry(-9, -18.0),
-                Map.entry(8, 16.0),
-                Map.entry(-10, -20.0),
-                Map.entry(9, 18.0),
-                Map.entry(-11, -22.0),
-                Map.entry(10, 20.0),
-                Map.entry(-12, -24.0),
-                Map.entry(11, 22.0),
-                Map.entry(-13, -26.0),
-                Map.entry(12, 24.0),
-                Map.entry(-14, -28.0),
-                Map.entry(13, 26.0),
-                Map.entry(-15, -30.0),
-                Map.entry(14, 28.0),
-                Map.entry(-16, -32.0),
-                Map.entry(15, 30.0),
-                Map.entry(-17, -34.0),
-                Map.entry(16, 32.0),
-                Map.entry(-18, -36.0),
-                Map.entry(17, 34.0),
-                Map.entry(-19, -38.0),
-                Map.entry(18, 36.0),
-                Map.entry(-20, -40.0),
-                Map.entry(19, 38.0),
-                Map.entry(20, 40.0)
+            Map.entry(-1, -2.0),
+            Map.entry(0, 0.0),
+            Map.entry(-2, -4.0),
+            Map.entry(1, 2.0),
+            Map.entry(-3, -6.0),
+            Map.entry(2, 4.0),
+            Map.entry(-4, -8.0),
+            Map.entry(3, 6.0),
+            Map.entry(-5, -10.0),
+            Map.entry(4, 8.0),
+            Map.entry(-6, -12.0),
+            Map.entry(5, 10.0),
+            Map.entry(-7, -14.0),
+            Map.entry(6, 12.0),
+            Map.entry(-8, -16.0),
+            Map.entry(7, 14.0),
+            Map.entry(-9, -18.0),
+            Map.entry(8, 16.0),
+            Map.entry(-10, -20.0),
+            Map.entry(9, 18.0),
+            Map.entry(-11, -22.0),
+            Map.entry(10, 20.0),
+            Map.entry(-12, -24.0),
+            Map.entry(11, 22.0),
+            Map.entry(-13, -26.0),
+            Map.entry(12, 24.0),
+            Map.entry(-14, -28.0),
+            Map.entry(13, 26.0),
+            Map.entry(-15, -30.0),
+            Map.entry(14, 28.0),
+            Map.entry(-16, -32.0),
+            Map.entry(15, 30.0),
+            Map.entry(-17, -34.0),
+            Map.entry(16, 32.0),
+            Map.entry(-18, -36.0),
+            Map.entry(17, 34.0),
+            Map.entry(-19, -38.0),
+            Map.entry(18, 36.0),
+            Map.entry(-20, -40.0),
+            Map.entry(19, 38.0),
+            Map.entry(20, 40.0)
         );
         assertEquals(expectedTapToAngleMap, reeRa1.getTapToAngleConversionMap());
 
