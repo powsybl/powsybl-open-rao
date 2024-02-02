@@ -203,7 +203,7 @@ GRAPH <%s> {
 }
 }
 
-# query: angleLimit
+# query: voltageAngleLimit
 PREFIX cim: <http://iec.ch/TC57/CIM100#>
 PREFIX nc: <http://entsoe.eu/ns/nc#>
 PREFIX dcat: <http://www.w3.org/ns/dcat#>
@@ -211,7 +211,7 @@ PREFIX dcat: <http://www.w3.org/ns/dcat#>
 SELECT *
 {
     GRAPH <%s> {
-        ?angleLimit
+        ?voltageAngleLimit
             rdf:type nc:VoltageAngleLimit ;
             nc:VoltageAngleLimit.normalValue ?normalValue ;
             nc:VoltageAngleLimit.AngleReferenceTerminal ?terminal1 ;
@@ -225,7 +225,7 @@ SELECT *
             cim:OperationalLimitType.direction ?direction .
 
         OPTIONAL {
-                ?angleLimit
+                ?voltageAngleLimit
                     nc:VoltageAngleLimit.isFlowToRefTerminal ?isFlowToRefTerminal .
             }
     }
@@ -456,9 +456,9 @@ PREFIX cim: <http://iec.ch/TC57/CIM100#>
 SELECT *
 {
 GRAPH <%s> {
-        ?gridStateAlterationCollection
-            rdf:type nc:GridStateAlterationCollection ;
-            cim:IdentifiedObject.mRID ?mRID ;
+    ?gridStateAlterationCollection
+        rdf:type nc:GridStateAlterationCollection ;
+        cim:IdentifiedObject.mRID ?mRID ;
 
 }
 }

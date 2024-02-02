@@ -55,6 +55,7 @@ public class CsaProfileRemedialActionsCreator {
     private final PropertyBags remedialActionSchemePropertyBags;
     private final PropertyBags stagePropertyBags;
     private final PropertyBags gridStateAlterationCollectionPropertyBags;
+    private final PropertyBags assessedElementWithRemedialActionPropertyBags;
 
     public CsaProfileRemedialActionsCreator(Crac crac, Network network, CsaProfileCracCreationContext cracCreationContext, PropertyBags gridStateAlterationRemedialActionPropertyBags, PropertyBags contingencyWithRemedialActionsPropertyBags,
                                             PropertyBags topologyActionsPropertyBags,
@@ -66,7 +67,8 @@ public class CsaProfileRemedialActionsCreator {
                                             PropertyBags schemeRemedialActionsPropertyBags,
                                             PropertyBags remedialActionSchemePropertyBags,
                                             PropertyBags stagePropertyBags,
-                                            PropertyBags gridStateAlterationCollectionPropertyBags) {
+                                            PropertyBags gridStateAlterationCollectionPropertyBags,
+                                            PropertyBags assessedElementWithRemedialActionPropertyBags) {
         this.crac = crac;
         this.network = network;
         this.gridStateAlterationRemedialActionPropertyBags = gridStateAlterationRemedialActionPropertyBags;
@@ -82,6 +84,7 @@ public class CsaProfileRemedialActionsCreator {
         this.remedialActionSchemePropertyBags = remedialActionSchemePropertyBags;
         this.stagePropertyBags = stagePropertyBags;
         this.gridStateAlterationCollectionPropertyBags = gridStateAlterationCollectionPropertyBags;
+        this.assessedElementWithRemedialActionPropertyBags = assessedElementWithRemedialActionPropertyBags;
         createAndAddRemedialActions();
         createAutoRemedialActions();
     }
@@ -159,6 +162,7 @@ public class CsaProfileRemedialActionsCreator {
                 throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, CsaProfileConstants.REMEDIAL_ACTION_MESSAGE + remedialActionId + " will not be imported because it is linked to a contingency but it's kind is not curative");
             }
             String contingencyId = contingencyWithRemedialActionPropertyBag.get(CsaProfileConstants.REQUEST_CONTINGENCY).substring(contingencyWithRemedialActionPropertyBag.get(CsaProfileConstants.REQUEST_CONTINGENCY).lastIndexOf("_") + 1);
+            // TODO: ignore = missing || false or just false?
             if (!Boolean.parseBoolean(contingencyWithRemedialActionPropertyBag.get(NORMAL_ENABLED))) {
                 ignoredContingenciesMessages.add("OnContingencyState usage rule for remedial action %s with contingency %s ignored because the link between the remedial action and the contingency is disabled or missing".formatted(remedialActionId, contingencyId));
                 continue;
@@ -177,8 +181,9 @@ public class CsaProfileRemedialActionsCreator {
         }
 
         Instant curativeInstant = crac.getInstant(InstantKind.CURATIVE);
-        boolean hasAtLeastOneOnConstraintUsageRule = addOnConstraintUsageRules(curativeInstant, remedialActionAdder, remedialActionId, alterations);
-        if (!hasAtLeastOneOnConstraintUsageRule) {
+        boolean isLinkedToAssessedElements = remedialActionIsLinkedToAssessedElements(remedialActionId);
+        addOnConstraintUsageRules(curativeInstant, remedialActionAdder, remedialActionId, alterations);
+        if (!isLinkedToAssessedElements) {
             if (!randomCombinationConstraintKind.equals(CsaProfileConstants.ElementCombinationConstraintKind.EXCLUDED.toString())) {
                 addOnContingencyStateUsageRules(remedialActionAdder, validContingenciesIds, curativeInstant.getId(), UsageMethod.AVAILABLE);
                 alterations.addAll(ignoredContingenciesMessages);
@@ -193,14 +198,16 @@ public class CsaProfileRemedialActionsCreator {
         String kind = parentRemedialActionPropertyBag.get(CsaProfileConstants.RA_KIND);
         if (kind.equals(CsaProfileConstants.RemedialActionKind.PREVENTIVE.toString())) {
             Instant preventiveInstant = crac.getPreventiveInstant();
-            boolean hasAtLeastOneOnConstraintUsageRule = addOnConstraintUsageRules(preventiveInstant, remedialActionAdder, remedialActionId, alterations);
-            if (!hasAtLeastOneOnConstraintUsageRule) {
+            boolean isLinkedToAssessedElements = remedialActionIsLinkedToAssessedElements(remedialActionId);
+            addOnConstraintUsageRules(preventiveInstant, remedialActionAdder, remedialActionId, alterations);
+            if (!isLinkedToAssessedElements) {
                 remedialActionAdder.newOnInstantUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withInstant(preventiveInstant.getId()).add();
             }
         } else {
             Instant curativeInstant = crac.getInstant(InstantKind.CURATIVE);
-            boolean hasAtLeastOneOnConstraintUsageRule = addOnConstraintUsageRules(curativeInstant, remedialActionAdder, remedialActionId, alterations);
-            if (!hasAtLeastOneOnConstraintUsageRule) {
+            boolean isLinkedToAssessedElements = remedialActionIsLinkedToAssessedElements(remedialActionId);
+            addOnConstraintUsageRules(curativeInstant, remedialActionAdder, remedialActionId, alterations);
+            if (!isLinkedToAssessedElements) {
                 remedialActionAdder.newOnInstantUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withInstant(curativeInstant.getId()).add();
             }
         }
@@ -277,27 +284,6 @@ public class CsaProfileRemedialActionsCreator {
                     throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, CsaProfileConstants.REMEDIAL_ACTION_MESSAGE + remedialActionId + " will not be imported because several conflictual StaticPropertyRanges are linked to that RA's injection set point action");
                 }
             }
-        }
-    }
-
-    private String checkContingencyAndGetOpenRaoId(PropertyBag contingencyWithRemedialActionPropertyBag, String raKind, String
-            remedialActionId, String combinationConstraintKind) {
-        if (!raKind.equals(CsaProfileConstants.RemedialActionKind.CURATIVE.toString())) {
-            throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, CsaProfileConstants.REMEDIAL_ACTION_MESSAGE + remedialActionId + " will not be imported because it is linked to a contingency but it's kind is not curative");
-        }
-
-        if (!combinationConstraintKind.equals(CsaProfileConstants.ElementCombinationConstraintKind.INCLUDED.toString()) && !combinationConstraintKind.equals(CsaProfileConstants.ElementCombinationConstraintKind.EXCLUDED.toString()) && !combinationConstraintKind.equals(CsaProfileConstants.ElementCombinationConstraintKind.CONSIDERED.toString())) {
-            throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, CsaProfileConstants.REMEDIAL_ACTION_MESSAGE + remedialActionId + " will not be imported because combinationConstraintKind of a ContingencyWithRemedialAction must be 'included, 'excluded' or 'considered', but it was: " + combinationConstraintKind);
-        }
-
-        String contingencyId = contingencyWithRemedialActionPropertyBag.get(CsaProfileConstants.REQUEST_CONTINGENCY).substring(contingencyWithRemedialActionPropertyBag.get(CsaProfileConstants.REQUEST_CONTINGENCY).lastIndexOf("_") + 1);
-        Optional<CsaProfileElementaryCreationContext> importedCsaProfileContingencyCreationContextOpt = cracCreationContext.getContingencyCreationContexts().stream().filter(co -> co.isImported() && co.getNativeId().equals(contingencyId)).findAny();
-        if (importedCsaProfileContingencyCreationContextOpt.isEmpty()) {
-            throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, CsaProfileConstants.REMEDIAL_ACTION_MESSAGE + remedialActionId + " will not be imported because contingency" + contingencyId + " linked to that remedialAction does not exist or was not imported by Open RAO");
-        } else {
-            String openRaoContingencyId = importedCsaProfileContingencyCreationContextOpt.get().getElementId();
-            CsaProfileCracUtils.checkNormalEnabled(contingencyWithRemedialActionPropertyBag, remedialActionId, "ContingencyWithRemedialAction");
-            return openRaoContingencyId;
         }
     }
 
@@ -463,8 +449,12 @@ public class CsaProfileRemedialActionsCreator {
             openRaoContingenciesIds.add(openRaoContingencyId);
         }
 
-        boolean hasAtLeastOneOnConstraintUsageRule = addOnConstraintUsageRules(crac.getInstant(InstantKind.CURATIVE), remedialActionAdder, spsId, new ArrayList<>());
-        if (!hasAtLeastOneOnConstraintUsageRule) {
+        // If the remedial action is linked to an assessed element, no matter if this link or this assessed element is
+        // valid or not, the remedial action cannot have an onContingencyState usage rule because it would make it more
+        // available than what it was designed for
+        boolean isLinkedToAssessedElements = remedialActionIsLinkedToAssessedElements(spsId);
+        addOnConstraintUsageRules(crac.getInstant(InstantKind.CURATIVE), remedialActionAdder, spsId, new ArrayList<>());
+        if (!isLinkedToAssessedElements) {
             addOnContingencyStateUsageRules(remedialActionAdder, openRaoContingenciesIds.stream().toList(), crac.getInstant(InstantKind.AUTO).getId(), UsageMethod.FORCED);
         }
     }
@@ -547,6 +537,10 @@ public class CsaProfileRemedialActionsCreator {
             throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, CsaProfileConstants.AUTO_REMEDIAL_ACTION_MESSAGE + spsId + " will not be imported because there is no elementary action for that ARA");
         }
         return remedialActionType;
+    }
+
+    private boolean remedialActionIsLinkedToAssessedElements(String remedialActionId) {
+        return assessedElementWithRemedialActionPropertyBags.stream().anyMatch(propertyBag -> remedialActionId.equals(propertyBag.getId("remedialAction")));
     }
 
 }

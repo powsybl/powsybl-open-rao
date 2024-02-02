@@ -25,9 +25,8 @@ public final class CsaProfileConstants {
         CONTINGENCY("CO"),
         EQUIPMENT_RELIABILITY("ER"),
         REMEDIAL_ACTION("RA"),
-        REMEDIAL_ACTION_SCHEDULE("RAS"),
-        SSI("SSI"),
-        SSH("SSH");
+        STEADY_STATE_INSTRUCTION("SSI"),
+        STEADY_STATE_HYPOTHESIS("SSH");
 
         private final String keyword;
 
@@ -104,7 +103,6 @@ public final class CsaProfileConstants {
     public static final String REMEDIAL_ACTION_NAME = "name";
     public static final String REMEDIAL_ACTION_MESSAGE = "Remedial action ";
     public static final String AUTO_REMEDIAL_ACTION_MESSAGE = "Auto Remedial action ";
-    public static final String REMEDIAL_ACTION_SCHEDULE = "remedialActionSchedule";
     public static final String SCHEME_REMEDIAL_ACTION = "schemeRemedialAction";
     public static final String REMEDIAL_ACTION_SCHEME = "remedialActionScheme";
     public static final String STAGE = "stage";
@@ -232,7 +230,6 @@ public final class CsaProfileConstants {
     public static final String REQUEST_ASSESSED_ELEMENT_OPERATOR = "assessedSystemOperator";
     public static final String REQUEST_ASSESSED_ELEMENT_OPERATIONAL_LIMIT = "operationalLimit";
     public static final String REQUEST_ASSESSED_ELEMENT_CONDUCTING_EQUIPMENT = "conductingEquipment";
-    public static final String REQUEST_ASSESSED_ELEMENT_IS_CRITICAL = "isCritical";
     public static final String REQUEST_ASSESSED_ELEMENT_NORMAL_ENABLED = "normalEnabled";
     public static final String REQUEST_ASSESSED_ELEMENT_IS_COMBINABLE_WITH_CONTINGENCY = "isCombinableWithContingency";
     public static final String REQUEST_ASSESSED_ELEMENT_IS_COMBINABLE_WITH_REMEDIAL_ACTION = "isCombinableWithRemedialAction";
@@ -315,10 +312,10 @@ public final class CsaProfileConstants {
      */
 
     public static final String REQUEST_IS_FLOW_TO_REF_TERMINAL = "isFlowToRefTerminal";
-    public static final String REQUEST_ANGLE_LIMIT = "angleLimit";
+    public static final String REQUEST_VOLTAGE_ANGLE_LIMIT = "voltageAngleLimit";
 
     public enum LimitType {
-        ANGLE(REQUEST_ANGLE_LIMIT),
+        ANGLE(REQUEST_VOLTAGE_ANGLE_LIMIT),
         CURRENT(REQUEST_CURRENT_LIMIT),
         VOLTAGE(REQUEST_VOLTAGE_LIMIT);
 
@@ -332,12 +329,6 @@ public final class CsaProfileConstants {
         public String toString() {
             return this.type;
         }
-    }
-
-    public enum HeaderValidity {
-        OK,
-        INVALID_KEYWORD,
-        INVALID_INTERVAL;
     }
 
     public enum HeaderType {
