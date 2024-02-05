@@ -2,7 +2,7 @@
   "crac-factory" : "CracImplFactory",
   "extensions" : {
     "CsaCracCreatorParameters" : {
-      "use-cnec-geographical-filter": true
+      "forbid-implicit-extranational-ae-co-combinations": true
     }
   }
 }

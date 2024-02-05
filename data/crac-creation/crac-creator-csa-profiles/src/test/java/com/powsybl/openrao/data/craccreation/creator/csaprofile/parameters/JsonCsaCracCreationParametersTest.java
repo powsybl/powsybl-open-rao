@@ -4,7 +4,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-
 package com.powsybl.openrao.data.craccreation.creator.csaprofile.parameters;
 
 import com.powsybl.openrao.commons.OpenRaoException;
@@ -48,12 +47,6 @@ class JsonCsaCracCreationParametersTest {
         CsaCracCreationParameters csaCracCreationParameters = importedParameters.getExtension(CsaCracCreationParameters.class);
         assertNotNull(csaCracCreationParameters);
         assertFalse(csaCracCreationParameters.getUseCnecGeographicalFilter());
-    }
-
-    @Test
-    void deserializeParametersWithDuplicatedGeographicalFilterField() {
-        OpenRaoException importException = assertThrows(OpenRaoException.class, () -> JsonCracCreationParameters.read(getClass().getResourceAsStream("/parameters/csa-crac-parameters-with-duplicated-geographical-filter.json")));
-        assertEquals("Duplicated field: use-cnec-geographical-filter", importException.getMessage());
     }
 
     @Test

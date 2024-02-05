@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023, RTE (http://www.rte-france.com)
+ * Copyright (c) 2024, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -22,7 +22,7 @@ import java.io.IOException;
 @AutoService(JsonCracCreationParameters.ExtensionSerializer.class)
 public class JsonCsaCracCreationParameters implements JsonCracCreationParameters.ExtensionSerializer<CsaCracCreationParameters> {
 
-    private static final String USE_CNEC_GEOGRAPHICAL_FILTER = "use-cnec-geographical-filter";
+    private static final String FORBID_IMPLICIT_AE_CO_COMBINATIONS = "forbid-implicit-extranational-ae-co-combinations";
 
     @Override
     public void serialize(CsaCracCreationParameters csaParameters, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
@@ -38,15 +38,10 @@ public class JsonCsaCracCreationParameters implements JsonCracCreationParameters
 
     @Override
     public CsaCracCreationParameters deserializeAndUpdate(JsonParser jsonParser, DeserializationContext deserializationContext, CsaCracCreationParameters parameters) throws IOException {
-        boolean cnecGeogrphicalFilterAlreadyMet = false;
         while (!jsonParser.nextToken().isStructEnd()) {
-            if (USE_CNEC_GEOGRAPHICAL_FILTER.equals(jsonParser.getCurrentName())) {
-                if (cnecGeogrphicalFilterAlreadyMet) {
-                    throw new OpenRaoException("Duplicated field: " + USE_CNEC_GEOGRAPHICAL_FILTER);
-                }
+            if (FORBID_IMPLICIT_AE_CO_COMBINATIONS.equals(jsonParser.getCurrentName())) {
                 jsonParser.nextToken();
                 parameters.setUseCnecGeographicalFilter(jsonParser.readValueAs(Boolean.class));
-                cnecGeogrphicalFilterAlreadyMet = true;
             } else {
                 throw new OpenRaoException("Unexpected field: " + jsonParser.getCurrentName());
             }
@@ -71,6 +66,6 @@ public class JsonCsaCracCreationParameters implements JsonCracCreationParameters
     }
 
     private void serializeUseCnecGeographicalFilter(boolean useCnecGeographicalFilter, JsonGenerator jsonGenerator) throws IOException {
-        jsonGenerator.writeStringField(USE_CNEC_GEOGRAPHICAL_FILTER, ((Boolean) useCnecGeographicalFilter).toString());
+        jsonGenerator.writeStringField(FORBID_IMPLICIT_AE_CO_COMBINATIONS, ((Boolean) useCnecGeographicalFilter).toString());
     }
 }
