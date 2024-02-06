@@ -162,7 +162,6 @@ public class CsaProfileRemedialActionsCreator {
                 throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, CsaProfileConstants.REMEDIAL_ACTION_MESSAGE + remedialActionId + " will not be imported because it is linked to a contingency but it's kind is not curative");
             }
             String contingencyId = contingencyWithRemedialActionPropertyBag.get(CsaProfileConstants.REQUEST_CONTINGENCY).substring(contingencyWithRemedialActionPropertyBag.get(CsaProfileConstants.REQUEST_CONTINGENCY).lastIndexOf("_") + 1);
-            // TODO: ignore = missing || false or just false?
             Optional<String> normalEnabled = Optional.ofNullable(contingencyWithRemedialActionPropertyBag.get(NORMAL_ENABLED));
             if (normalEnabled.isPresent() && !Boolean.parseBoolean(normalEnabled.get())) {
                 ignoredContingenciesMessages.add("OnContingencyState usage rule for remedial action %s with contingency %s ignored because the link between the remedial action and the contingency is disabled or missing".formatted(remedialActionId, contingencyId));
