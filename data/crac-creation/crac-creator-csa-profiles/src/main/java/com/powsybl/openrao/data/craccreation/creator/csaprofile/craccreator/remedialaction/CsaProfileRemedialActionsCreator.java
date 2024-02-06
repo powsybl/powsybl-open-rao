@@ -29,6 +29,10 @@ import com.powsybl.triplestore.api.PropertyBags;
 
 import java.util.*;
 import java.util.function.Function;
+import java.util.stream.Collectors;
+
+import static com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileConstants.COMBINATION_CONSTRAINT_KIND;
+import static com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileConstants.NORMAL_ENABLED;
 
 /**
  * @author Mohamed Ben-rejeb {@literal <mohamed.ben-rejeb at rte-france.com>}
@@ -40,7 +44,7 @@ public class CsaProfileRemedialActionsCreator {
     private final PropertyBags topologyActionsPropertyBags;
     private final PropertyBags rotatingMachineActionsPropertyBags;
     private final PropertyBags shuntCompensatorModificationsPropertyBags;
-    private final PropertyBags tapPositionPropertyBags;
+    private final PropertyBags tapPositionActionsPropertyBags;
     private final PropertyBags staticPropertyRangesPropertyBags;
     private final PropertyBags contingencyWithRemedialActionsPropertyBags;
     private final OnConstraintUsageRuleHelper onConstraintUsageRuleHelper;
@@ -51,26 +55,20 @@ public class CsaProfileRemedialActionsCreator {
     private final PropertyBags remedialActionSchemePropertyBags;
     private final PropertyBags stagePropertyBags;
     private final PropertyBags gridStateAlterationCollectionPropertyBags;
-    private final PropertyBags topologyActionAutoPropertyBags;
-    private final PropertyBags rotatingMachineActionAutoPropertyBags;
-    private final PropertyBags shuntCompensatorModificationAutoPropertyBags;
-    private final PropertyBags tapPositionActionsAutoPropertyBags;
+    private final PropertyBags assessedElementWithRemedialActionPropertyBags;
 
     public CsaProfileRemedialActionsCreator(Crac crac, Network network, CsaProfileCracCreationContext cracCreationContext, PropertyBags gridStateAlterationRemedialActionPropertyBags, PropertyBags contingencyWithRemedialActionsPropertyBags,
                                             PropertyBags topologyActionsPropertyBags,
                                             PropertyBags rotatingMachineActionsPropertyBags,
                                             PropertyBags shuntCompensatorModificationsPropertyBags,
-                                            PropertyBags tapPositionPropertyBags,
+                                            PropertyBags tapPositionActionsPropertyBags,
                                             PropertyBags staticPropertyRangesPropertyBags,
                                             OnConstraintUsageRuleHelper onConstraintUsageRuleHelper,
                                             PropertyBags schemeRemedialActionsPropertyBags,
                                             PropertyBags remedialActionSchemePropertyBags,
                                             PropertyBags stagePropertyBags,
                                             PropertyBags gridStateAlterationCollectionPropertyBags,
-                                            PropertyBags topologyActionAutoPropertyBags,
-                                            PropertyBags rotatingMachineActionAutoPropertyBags,
-                                            PropertyBags shuntCompensatorModificationAutoPropertyBags,
-                                            PropertyBags tapPositionActionsAutoPropertyBags) {
+                                            PropertyBags assessedElementWithRemedialActionPropertyBags) {
         this.crac = crac;
         this.network = network;
         this.gridStateAlterationRemedialActionPropertyBags = gridStateAlterationRemedialActionPropertyBags;
@@ -78,7 +76,7 @@ public class CsaProfileRemedialActionsCreator {
         this.topologyActionsPropertyBags = topologyActionsPropertyBags;
         this.rotatingMachineActionsPropertyBags = rotatingMachineActionsPropertyBags;
         this.shuntCompensatorModificationsPropertyBags = shuntCompensatorModificationsPropertyBags;
-        this.tapPositionPropertyBags = tapPositionPropertyBags;
+        this.tapPositionActionsPropertyBags = tapPositionActionsPropertyBags;
         this.staticPropertyRangesPropertyBags = staticPropertyRangesPropertyBags;
         this.cracCreationContext = cracCreationContext;
         this.onConstraintUsageRuleHelper = onConstraintUsageRuleHelper;
@@ -86,20 +84,23 @@ public class CsaProfileRemedialActionsCreator {
         this.remedialActionSchemePropertyBags = remedialActionSchemePropertyBags;
         this.stagePropertyBags = stagePropertyBags;
         this.gridStateAlterationCollectionPropertyBags = gridStateAlterationCollectionPropertyBags;
-        this.topologyActionAutoPropertyBags = topologyActionAutoPropertyBags;
-        this.rotatingMachineActionAutoPropertyBags = rotatingMachineActionAutoPropertyBags;
-        this.shuntCompensatorModificationAutoPropertyBags = shuntCompensatorModificationAutoPropertyBags;
-        this.tapPositionActionsAutoPropertyBags = tapPositionActionsAutoPropertyBags;
+        this.assessedElementWithRemedialActionPropertyBags = assessedElementWithRemedialActionPropertyBags;
         createAndAddRemedialActions();
         createAutoRemedialActions();
     }
 
+    private PropertyBags filterElementaryActions(PropertyBags elementaryActionsPropertyBags, boolean autoRemedialAction) {
+        String parentRemedialActionField = autoRemedialAction ? CsaProfileConstants.GRID_STATE_ALTERATION_COLLECTION : CsaProfileConstants.GRID_STATE_ALTERATION_REMEDIAL_ACTION;
+        Set<PropertyBag> relevantElementaryActionsPropertyBags = elementaryActionsPropertyBags.stream().filter(propertyBag -> Optional.ofNullable(propertyBag.get(parentRemedialActionField)).isPresent()).collect(Collectors.toSet());
+        return new PropertyBags(relevantElementaryActionsPropertyBags);
+    }
+
     private void createAndAddRemedialActions() {
         Map<String, Set<PropertyBag>> linkedContingencyWithRAs = CsaProfileCracUtils.getMappedPropertyBagsSet(contingencyWithRemedialActionsPropertyBags, CsaProfileConstants.GRID_STATE_ALTERATION_REMEDIAL_ACTION);
-        Map<String, Set<PropertyBag>> linkedTopologyActions = CsaProfileCracUtils.getMappedPropertyBagsSet(topologyActionsPropertyBags, CsaProfileConstants.GRID_STATE_ALTERATION_REMEDIAL_ACTION);
-        Map<String, Set<PropertyBag>> linkedRotatingMachineActions = CsaProfileCracUtils.getMappedPropertyBagsSet(rotatingMachineActionsPropertyBags, CsaProfileConstants.GRID_STATE_ALTERATION_REMEDIAL_ACTION);
-        Map<String, Set<PropertyBag>> linkedShuntCompensatorModifications = CsaProfileCracUtils.getMappedPropertyBagsSet(shuntCompensatorModificationsPropertyBags, CsaProfileConstants.GRID_STATE_ALTERATION_REMEDIAL_ACTION);
-        Map<String, Set<PropertyBag>> linkedTapPositionActions = CsaProfileCracUtils.getMappedPropertyBagsSet(tapPositionPropertyBags, CsaProfileConstants.GRID_STATE_ALTERATION_REMEDIAL_ACTION);
+        Map<String, Set<PropertyBag>> linkedTopologyActions = CsaProfileCracUtils.getMappedPropertyBagsSet(filterElementaryActions(topologyActionsPropertyBags, false), CsaProfileConstants.GRID_STATE_ALTERATION_REMEDIAL_ACTION);
+        Map<String, Set<PropertyBag>> linkedRotatingMachineActions = CsaProfileCracUtils.getMappedPropertyBagsSet(filterElementaryActions(rotatingMachineActionsPropertyBags, false), CsaProfileConstants.GRID_STATE_ALTERATION_REMEDIAL_ACTION);
+        Map<String, Set<PropertyBag>> linkedShuntCompensatorModifications = CsaProfileCracUtils.getMappedPropertyBagsSet(filterElementaryActions(shuntCompensatorModificationsPropertyBags, false), CsaProfileConstants.GRID_STATE_ALTERATION_REMEDIAL_ACTION);
+        Map<String, Set<PropertyBag>> linkedTapPositionActions = CsaProfileCracUtils.getMappedPropertyBagsSet(filterElementaryActions(tapPositionActionsPropertyBags, false), CsaProfileConstants.GRID_STATE_ALTERATION_REMEDIAL_ACTION);
         Map<String, Set<PropertyBag>> linkedStaticPropertyRanges = CsaProfileCracUtils.getMappedPropertyBagsSet(staticPropertyRangesPropertyBags, CsaProfileConstants.GRID_STATE_ALTERATION_REMEDIAL_ACTION); // the id here is the id of the subclass of gridStateAlteration (tapPositionAction, RotatingMachine, ..)
 
         NetworkActionCreator networkActionCreator = new NetworkActionCreator(crac, network);
@@ -118,7 +119,7 @@ public class CsaProfileRemedialActionsCreator {
                 Optional<Integer> speedOpt = getSpeedOpt(parentRemedialActionPropertyBag.get(CsaProfileConstants.TIME_TO_IMPLEMENT), remedialActionId, false);
 
                 if (remedialActionType.equals(RemedialActionType.NETWORK_ACTION)) {
-                    remedialActionAdder = networkActionCreator.getNetworkActionAdder(linkedTopologyActions, linkedRotatingMachineActions, linkedShuntCompensatorModifications, linkedStaticPropertyRanges, remedialActionId, remedialActionId);
+                    remedialActionAdder = networkActionCreator.getNetworkActionAdder(linkedTopologyActions, linkedRotatingMachineActions, linkedShuntCompensatorModifications, linkedStaticPropertyRanges, remedialActionId, remedialActionId, alterations);
                 } else {
                     remedialActionAdder = pstRangeActionCreator.getPstRangeActionAdder(linkedTapPositionActions, linkedStaticPropertyRanges, remedialActionId, remedialActionId);
                 }
@@ -150,27 +151,44 @@ public class CsaProfileRemedialActionsCreator {
     }
 
     private void addOnStateUsageRules(PropertyBag parentRemedialActionPropertyBag, Map<String, Set<PropertyBag>> linkedContingencyWithRAs, String remedialActionId, RemedialActionAdder<?> remedialActionAdder, List<String> alterations) {
-        String randomCombinationConstraintKind = linkedContingencyWithRAs.get(remedialActionId).iterator().next().get(CsaProfileConstants.COMBINATION_CONSTRAINT_KIND);
+        String randomCombinationConstraintKind = linkedContingencyWithRAs.get(remedialActionId).iterator().next().get(COMBINATION_CONSTRAINT_KIND);
         checkElementCombinationConstraintKindsCoherence(remedialActionId, linkedContingencyWithRAs);
 
-        List<String> openRaoContingenciesIds = linkedContingencyWithRAs.get(remedialActionId).stream()
-            .map(contingencyWithRemedialActionPropertyBag ->
-                checkContingencyAndGetOpenRaoId(
-                    contingencyWithRemedialActionPropertyBag,
-                    parentRemedialActionPropertyBag.get(CsaProfileConstants.RA_KIND),
-                    remedialActionId,
-                    randomCombinationConstraintKind
-                )
-            )
-            .toList();
+        List<String> validContingenciesIds = new ArrayList<>();
+        List<String> ignoredContingenciesMessages = new ArrayList<>();
+
+        for (PropertyBag contingencyWithRemedialActionPropertyBag : linkedContingencyWithRAs.get(remedialActionId)) {
+            if (!parentRemedialActionPropertyBag.get(CsaProfileConstants.RA_KIND).equals(CsaProfileConstants.RemedialActionKind.CURATIVE.toString())) {
+                throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, CsaProfileConstants.REMEDIAL_ACTION_MESSAGE + remedialActionId + " will not be imported because it is linked to a contingency but it's kind is not curative");
+            }
+            String contingencyId = contingencyWithRemedialActionPropertyBag.get(CsaProfileConstants.REQUEST_CONTINGENCY).substring(contingencyWithRemedialActionPropertyBag.get(CsaProfileConstants.REQUEST_CONTINGENCY).lastIndexOf("_") + 1);
+            Optional<String> normalEnabled = Optional.ofNullable(contingencyWithRemedialActionPropertyBag.get(NORMAL_ENABLED));
+            if (normalEnabled.isPresent() && !Boolean.parseBoolean(normalEnabled.get())) {
+                ignoredContingenciesMessages.add("OnContingencyState usage rule for remedial action %s with contingency %s ignored because the link between the remedial action and the contingency is disabled or missing".formatted(remedialActionId, contingencyId));
+                continue;
+            }
+            String combinationConstraintKind = contingencyWithRemedialActionPropertyBag.get(COMBINATION_CONSTRAINT_KIND);
+            if (!combinationConstraintKind.equals(CsaProfileConstants.ElementCombinationConstraintKind.INCLUDED.toString()) && !combinationConstraintKind.equals(CsaProfileConstants.ElementCombinationConstraintKind.EXCLUDED.toString()) && !combinationConstraintKind.equals(CsaProfileConstants.ElementCombinationConstraintKind.CONSIDERED.toString())) {
+                ignoredContingenciesMessages.add("OnContingencyState usage rule for remedial action %s with contingency %s ignored because of an illegal combinationConstraintKind".formatted(remedialActionId, contingencyId));
+                continue;
+            }
+            Optional<CsaProfileElementaryCreationContext> importedCsaProfileContingencyCreationContextOpt = cracCreationContext.getContingencyCreationContexts().stream().filter(co -> co.isImported() && co.getNativeId().equals(contingencyId)).findAny();
+            if (importedCsaProfileContingencyCreationContextOpt.isEmpty()) {
+                ignoredContingenciesMessages.add("OnContingencyState usage rule for remedial action %s with contingency %s ignored because this contingency does not exist or was not imported by Open RAO".formatted(remedialActionId, contingencyId));
+                continue;
+            }
+            validContingenciesIds.add(importedCsaProfileContingencyCreationContextOpt.get().getElementId());
+        }
 
         Instant curativeInstant = crac.getInstant(InstantKind.CURATIVE);
-        boolean hasAtLeastOneOnConstraintUsageRule = addOnConstraintUsageRules(curativeInstant, remedialActionAdder, remedialActionId, alterations);
-        if (!hasAtLeastOneOnConstraintUsageRule) {
+        boolean isLinkedToAssessedElements = remedialActionIsLinkedToAssessedElements(remedialActionId);
+        addOnConstraintUsageRules(curativeInstant, remedialActionAdder, remedialActionId, alterations);
+        if (!isLinkedToAssessedElements) {
             if (!randomCombinationConstraintKind.equals(CsaProfileConstants.ElementCombinationConstraintKind.EXCLUDED.toString())) {
-                addOnContingencyStateUsageRules(remedialActionAdder, openRaoContingenciesIds, curativeInstant.getId(), UsageMethod.AVAILABLE);
+                addOnContingencyStateUsageRules(remedialActionAdder, validContingenciesIds, curativeInstant.getId(), UsageMethod.AVAILABLE);
+                alterations.addAll(ignoredContingenciesMessages);
             } else {
-                alterations.add(String.format("The association 'RemedialAction'/'Contingencies' '%s'/'%s' will be ignored because 'excluded' combination constraint kind is not supported", remedialActionId, String.join(". ", openRaoContingenciesIds)));
+                alterations.add(String.format("All OnContingencyState usage rules for remedial action %s ignored because of an illegal EXCLUDED combinationConstraintKind", remedialActionId));
             }
         }
         this.cracCreationContext.setRemedialActionCreationContexts(csaProfileRemedialActionCreationContexts);
@@ -180,14 +198,16 @@ public class CsaProfileRemedialActionsCreator {
         String kind = parentRemedialActionPropertyBag.get(CsaProfileConstants.RA_KIND);
         if (kind.equals(CsaProfileConstants.RemedialActionKind.PREVENTIVE.toString())) {
             Instant preventiveInstant = crac.getPreventiveInstant();
-            boolean hasAtLeastOneOnConstraintUsageRule = addOnConstraintUsageRules(preventiveInstant, remedialActionAdder, remedialActionId, alterations);
-            if (!hasAtLeastOneOnConstraintUsageRule) {
+            boolean isLinkedToAssessedElements = remedialActionIsLinkedToAssessedElements(remedialActionId);
+            addOnConstraintUsageRules(preventiveInstant, remedialActionAdder, remedialActionId, alterations);
+            if (!isLinkedToAssessedElements) {
                 remedialActionAdder.newOnInstantUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withInstant(preventiveInstant.getId()).add();
             }
         } else {
             Instant curativeInstant = crac.getInstant(InstantKind.CURATIVE);
-            boolean hasAtLeastOneOnConstraintUsageRule = addOnConstraintUsageRules(curativeInstant, remedialActionAdder, remedialActionId, alterations);
-            if (!hasAtLeastOneOnConstraintUsageRule) {
+            boolean isLinkedToAssessedElements = remedialActionIsLinkedToAssessedElements(remedialActionId);
+            addOnConstraintUsageRules(curativeInstant, remedialActionAdder, remedialActionId, alterations);
+            if (!isLinkedToAssessedElements) {
                 remedialActionAdder.newOnInstantUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withInstant(curativeInstant.getId()).add();
             }
         }
@@ -207,7 +227,7 @@ public class CsaProfileRemedialActionsCreator {
         Set<String> contingenciesWithConsidered = new HashSet<>();
         Set<PropertyBag> linkedContingencyWithRA = linkedContingencyWithRAs.get(remedialActionId);
         for (PropertyBag propertyBag : linkedContingencyWithRA) {
-            String combinationKind = propertyBag.get(CsaProfileConstants.COMBINATION_CONSTRAINT_KIND);
+            String combinationKind = propertyBag.get(COMBINATION_CONSTRAINT_KIND);
             String contingencyId = propertyBag.get(CsaProfileConstants.REQUEST_CONTINGENCY);
             if (combinationKind.equals(CsaProfileConstants.ElementCombinationConstraintKind.INCLUDED.toString())) {
                 contingenciesWithIncluded.add(contingencyId);
@@ -264,27 +284,6 @@ public class CsaProfileRemedialActionsCreator {
                     throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, CsaProfileConstants.REMEDIAL_ACTION_MESSAGE + remedialActionId + " will not be imported because several conflictual StaticPropertyRanges are linked to that RA's injection set point action");
                 }
             }
-        }
-    }
-
-    private String checkContingencyAndGetOpenRaoId(PropertyBag contingencyWithRemedialActionPropertyBag, String raKind, String
-            remedialActionId, String combinationConstraintKind) {
-        if (!raKind.equals(CsaProfileConstants.RemedialActionKind.CURATIVE.toString())) {
-            throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, CsaProfileConstants.REMEDIAL_ACTION_MESSAGE + remedialActionId + " will not be imported because it is linked to a contingency but it's kind is not curative");
-        }
-
-        if (!combinationConstraintKind.equals(CsaProfileConstants.ElementCombinationConstraintKind.INCLUDED.toString()) && !combinationConstraintKind.equals(CsaProfileConstants.ElementCombinationConstraintKind.EXCLUDED.toString()) && !combinationConstraintKind.equals(CsaProfileConstants.ElementCombinationConstraintKind.CONSIDERED.toString())) {
-            throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, CsaProfileConstants.REMEDIAL_ACTION_MESSAGE + remedialActionId + " will not be imported because combinationConstraintKind of a ContingencyWithRemedialAction must be 'included, 'excluded' or 'considered', but it was: " + combinationConstraintKind);
-        }
-
-        String contingencyId = contingencyWithRemedialActionPropertyBag.get(CsaProfileConstants.REQUEST_CONTINGENCY).substring(contingencyWithRemedialActionPropertyBag.get(CsaProfileConstants.REQUEST_CONTINGENCY).lastIndexOf("_") + 1);
-        Optional<CsaProfileElementaryCreationContext> importedCsaProfileContingencyCreationContextOpt = cracCreationContext.getContingencyCreationContexts().stream().filter(co -> co.isImported() && co.getNativeId().equals(contingencyId)).findAny();
-        if (importedCsaProfileContingencyCreationContextOpt.isEmpty()) {
-            throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, CsaProfileConstants.REMEDIAL_ACTION_MESSAGE + remedialActionId + " will not be imported because contingency" + contingencyId + " linked to that remedialAction does not exist or was not imported by Open RAO");
-        } else {
-            String openRaoContingencyId = importedCsaProfileContingencyCreationContextOpt.get().getElementId();
-            CsaProfileCracUtils.checkNormalEnabled(contingencyWithRemedialActionPropertyBag, remedialActionId, "ContingencyWithRemedialAction");
-            return openRaoContingencyId;
         }
     }
 
@@ -379,10 +378,10 @@ public class CsaProfileRemedialActionsCreator {
         PstRangeActionCreator pstRangeActionCreator = new PstRangeActionCreator(crac, network);
         Map<String, Set<PropertyBag>> linkedStaticPropertyRanges = CsaProfileCracUtils.getMappedPropertyBagsSet(staticPropertyRangesPropertyBags, CsaProfileConstants.GRID_STATE_ALTERATION_REMEDIAL_ACTION); // the id here is the id of the subclass of gridStateAlteration (tapPositionAction, RotatingMachine, ..)
         Map<String, Set<PropertyBag>> linkedContingencyWithRAs = CsaProfileCracUtils.getMappedPropertyBagsSet(contingencyWithRemedialActionsPropertyBags, CsaProfileConstants.GRID_STATE_ALTERATION_REMEDIAL_ACTION);
-        Map<String, Set<PropertyBag>> linkedTopologyActionsAuto = CsaProfileCracUtils.getMappedPropertyBagsSet(topologyActionAutoPropertyBags, CsaProfileConstants.GRID_STATE_ALTERATION_COLLECTION);
-        Map<String, Set<PropertyBag>> linkedRotatingMachineActionsAuto = CsaProfileCracUtils.getMappedPropertyBagsSet(rotatingMachineActionAutoPropertyBags, CsaProfileConstants.GRID_STATE_ALTERATION_COLLECTION);
-        Map<String, Set<PropertyBag>> linkedShuntCompensatorModificationAuto = CsaProfileCracUtils.getMappedPropertyBagsSet(shuntCompensatorModificationAutoPropertyBags, CsaProfileConstants.GRID_STATE_ALTERATION_COLLECTION);
-        Map<String, Set<PropertyBag>> linkedTapPositionActionsAuto = CsaProfileCracUtils.getMappedPropertyBagsSet(tapPositionActionsAutoPropertyBags, CsaProfileConstants.GRID_STATE_ALTERATION_COLLECTION);
+        Map<String, Set<PropertyBag>> linkedTopologyActionsAuto = CsaProfileCracUtils.getMappedPropertyBagsSet(filterElementaryActions(topologyActionsPropertyBags, true), CsaProfileConstants.GRID_STATE_ALTERATION_COLLECTION);
+        Map<String, Set<PropertyBag>> linkedRotatingMachineActionsAuto = CsaProfileCracUtils.getMappedPropertyBagsSet(filterElementaryActions(rotatingMachineActionsPropertyBags, true), CsaProfileConstants.GRID_STATE_ALTERATION_COLLECTION);
+        Map<String, Set<PropertyBag>> linkedShuntCompensatorModificationAuto = CsaProfileCracUtils.getMappedPropertyBagsSet(filterElementaryActions(shuntCompensatorModificationsPropertyBags, true), CsaProfileConstants.GRID_STATE_ALTERATION_COLLECTION);
+        Map<String, Set<PropertyBag>> linkedTapPositionActionsAuto = CsaProfileCracUtils.getMappedPropertyBagsSet(filterElementaryActions(tapPositionActionsPropertyBags, true), CsaProfileConstants.GRID_STATE_ALTERATION_COLLECTION);
 
         for (PropertyBag schemeRemedialActionPropertyBag : schemeRemedialActionsPropertyBags) {
             String spsId = schemeRemedialActionPropertyBag.get(CsaProfileConstants.MRID);
@@ -394,6 +393,7 @@ public class CsaProfileRemedialActionsCreator {
                 String spsTsoName = schemeRemedialActionPropertyBag.get(CsaProfileConstants.TSO);
                 Optional<String> spsName = CsaProfileCracUtils.createElementName(nativeSpsName, spsTsoName);
                 Optional<Integer> spsSpeed = getSpeedOpt(schemeRemedialActionPropertyBag.get(CsaProfileConstants.TIME_TO_IMPLEMENT), spsId, true);
+                List<String> alterations = new ArrayList<>();
 
                 String gridStateAlterationCollection = getGridStateAlterationCollection(spsId);
 
@@ -401,7 +401,7 @@ public class CsaProfileRemedialActionsCreator {
                 RemedialActionAdder<?> remedialActionAdder;
 
                 if (remedialActionType.equals(RemedialActionType.NETWORK_ACTION)) {
-                    remedialActionAdder = networkActionCreator.getNetworkActionAdder(linkedTopologyActionsAuto, linkedRotatingMachineActionsAuto, linkedShuntCompensatorModificationAuto, linkedStaticPropertyRanges, gridStateAlterationCollection, spsId);
+                    remedialActionAdder = networkActionCreator.getNetworkActionAdder(linkedTopologyActionsAuto, linkedRotatingMachineActionsAuto, linkedShuntCompensatorModificationAuto, linkedStaticPropertyRanges, gridStateAlterationCollection, spsId, alterations);
                 } else {
                     remedialActionAdder = pstRangeActionCreator.getPstRangeActionAdder(linkedTapPositionActionsAuto, linkedStaticPropertyRanges, gridStateAlterationCollection, spsId);
                 }
@@ -442,15 +442,19 @@ public class CsaProfileRemedialActionsCreator {
             }
             String openRaoContingencyId = importedCsaProfileContingencyCreationContextOpt.get().getElementId();
             CsaProfileCracUtils.checkNormalEnabled(contingencyWithRemedialActionPropertyBag, spsId, "ContingencyWithRemedialAction");
-            String combinationConstraintKind = contingencyWithRemedialActionPropertyBag.get(CsaProfileConstants.COMBINATION_CONSTRAINT_KIND);
+            String combinationConstraintKind = contingencyWithRemedialActionPropertyBag.get(COMBINATION_CONSTRAINT_KIND);
             if (!CsaProfileConstants.ElementCombinationConstraintKind.INCLUDED.toString().equals(combinationConstraintKind)) {
                 throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, CsaProfileConstants.AUTO_REMEDIAL_ACTION_MESSAGE + spsId + " will not be imported because it must be linked to the contingency " + contingencyId + " with an 'included' ElementCombinationConstraintKind");
             }
             openRaoContingenciesIds.add(openRaoContingencyId);
         }
 
-        boolean hasAtLeastOneOnConstraintUsageRule = addOnConstraintUsageRules(crac.getInstant(InstantKind.CURATIVE), remedialActionAdder, spsId, new ArrayList<>());
-        if (!hasAtLeastOneOnConstraintUsageRule) {
+        // If the remedial action is linked to an assessed element, no matter if this link or this assessed element is
+        // valid or not, the remedial action cannot have an onContingencyState usage rule because it would make it more
+        // available than what it was designed for
+        boolean isLinkedToAssessedElements = remedialActionIsLinkedToAssessedElements(spsId);
+        addOnConstraintUsageRules(crac.getInstant(InstantKind.CURATIVE), remedialActionAdder, spsId, new ArrayList<>());
+        if (!isLinkedToAssessedElements) {
             addOnContingencyStateUsageRules(remedialActionAdder, openRaoContingenciesIds.stream().toList(), crac.getInstant(InstantKind.AUTO).getId(), UsageMethod.FORCED);
         }
     }
@@ -533,6 +537,10 @@ public class CsaProfileRemedialActionsCreator {
             throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, CsaProfileConstants.AUTO_REMEDIAL_ACTION_MESSAGE + spsId + " will not be imported because there is no elementary action for that ARA");
         }
         return remedialActionType;
+    }
+
+    private boolean remedialActionIsLinkedToAssessedElements(String remedialActionId) {
+        return assessedElementWithRemedialActionPropertyBags.stream().anyMatch(propertyBag -> remedialActionId.equals(propertyBag.getId("remedialAction")));
     }
 
 }
