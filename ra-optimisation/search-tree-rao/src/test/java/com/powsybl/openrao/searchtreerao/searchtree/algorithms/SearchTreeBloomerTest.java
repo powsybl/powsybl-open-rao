@@ -10,10 +10,15 @@ import com.powsybl.openrao.commons.CountryBoundary;
 import com.powsybl.openrao.commons.CountryGraph;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.Crac;
+import com.powsybl.openrao.data.cracapi.NetworkElement;
 import com.powsybl.openrao.data.cracapi.State;
 import com.powsybl.openrao.data.cracapi.cnec.Side;
 import com.powsybl.openrao.data.cracapi.networkaction.ActionType;
+import com.powsybl.openrao.data.cracapi.networkaction.InjectionSetpoint;
 import com.powsybl.openrao.data.cracapi.networkaction.NetworkAction;
+import com.powsybl.openrao.data.cracapi.networkaction.PstSetpoint;
+import com.powsybl.openrao.data.cracapi.networkaction.SwitchPair;
+import com.powsybl.openrao.data.cracapi.networkaction.TopologicalAction;
 import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.cracapi.rangeaction.RangeAction;
 import com.powsybl.openrao.data.cracapi.range.RangeType;
@@ -568,5 +573,89 @@ class SearchTreeBloomerTest {
         Map<NetworkActionCombination, Boolean> filteredNaCombination = bloomer.removeCombinationsWhichExceedMaxNumberOfTsos(naCombinations, previousLeaf);
 
         assertEquals(1, filteredNaCombination.size()); // no combination filtered, because null operator should not count
+    }
+
+    @Test
+    void removeIncompatibleCombinations() {
+        NetworkElement switch1 = Mockito.mock(NetworkElement.class);
+        NetworkElement switch2 = Mockito.mock(NetworkElement.class);
+        NetworkElement switch3 = Mockito.mock(NetworkElement.class);
+        NetworkElement pst1 = Mockito.mock(NetworkElement.class);
+        NetworkElement generator1 = Mockito.mock(NetworkElement.class);
+        NetworkElement generator2 = Mockito.mock(NetworkElement.class);
+
+        Mockito.when(switch1.getId()).thenReturn("switch-1");
+        Mockito.when(switch2.getId()).thenReturn("switch-2");
+        Mockito.when(switch3.getId()).thenReturn("switch-3");
+        Mockito.when(pst1.getId()).thenReturn("pst-1");
+        Mockito.when(generator1.getId()).thenReturn("generator-1");
+        Mockito.when(generator2.getId()).thenReturn("generator-2");
+
+        TopologicalAction topologicalAction1 = Mockito.mock(TopologicalAction.class);
+        Mockito.when(topologicalAction1.getNetworkElement()).thenReturn(switch1);
+        Mockito.when(topologicalAction1.getActionType()).thenReturn(ActionType.OPEN);
+
+        TopologicalAction topologicalAction2 = Mockito.mock(TopologicalAction.class);
+        Mockito.when(topologicalAction2.getNetworkElement()).thenReturn(switch2);
+        Mockito.when(topologicalAction2.getActionType()).thenReturn(ActionType.CLOSE);
+
+        TopologicalAction topologicalAction3 = Mockito.mock(TopologicalAction.class);
+        Mockito.when(topologicalAction3.getNetworkElement()).thenReturn(switch2);
+        Mockito.when(topologicalAction3.getActionType()).thenReturn(ActionType.OPEN);
+
+        TopologicalAction topologicalAction4 = Mockito.mock(TopologicalAction.class);
+        Mockito.when(topologicalAction4.getNetworkElement()).thenReturn(switch3);
+        Mockito.when(topologicalAction4.getActionType()).thenReturn(ActionType.CLOSE);
+
+        InjectionSetpoint injectionSetpoint1 = Mockito.mock(InjectionSetpoint.class);
+        Mockito.when(injectionSetpoint1.getNetworkElement()).thenReturn(generator1);
+        Mockito.when(injectionSetpoint1.getSetpoint()).thenReturn(100d);
+
+        InjectionSetpoint injectionSetpoint2 = Mockito.mock(InjectionSetpoint.class);
+        Mockito.when(injectionSetpoint2.getNetworkElement()).thenReturn(generator2);
+        Mockito.when(injectionSetpoint2.getSetpoint()).thenReturn(75d);
+
+        PstSetpoint pstSetpoint = Mockito.mock(PstSetpoint.class);
+        Mockito.when(pstSetpoint.getNetworkElement()).thenReturn(pst1);
+        Mockito.when(pstSetpoint.getSetpoint()).thenReturn(1);
+
+        SwitchPair switchPair = Mockito.mock(SwitchPair.class);
+        Mockito.when(switchPair.getSwitchToOpen()).thenReturn(switch2);
+        Mockito.when(switchPair.getSwitchToClose()).thenReturn(switch1);
+
+        NetworkAction appliedRemedialAction1 = Mockito.mock(NetworkAction.class);
+        Mockito.when(appliedRemedialAction1.getElementaryActions()).thenReturn(Set.of(topologicalAction1));
+
+        NetworkAction appliedRemedialAction2 = Mockito.mock(NetworkAction.class);
+        Mockito.when(appliedRemedialAction2.getElementaryActions()).thenReturn(Set.of(topologicalAction2, injectionSetpoint1));
+
+        NetworkAction availableRemedialAction1 = Mockito.mock(NetworkAction.class);
+        Mockito.when(availableRemedialAction1.getElementaryActions()).thenReturn(Set.of(topologicalAction3, pstSetpoint));
+
+        NetworkAction availableRemedialAction2 = Mockito.mock(NetworkAction.class);
+        Mockito.when(availableRemedialAction2.getElementaryActions()).thenReturn(Set.of(injectionSetpoint2));
+
+        NetworkAction availableRemedialAction3 = Mockito.mock(NetworkAction.class);
+        Mockito.when(availableRemedialAction3.getElementaryActions()).thenReturn(Set.of(injectionSetpoint1, topologicalAction4));
+
+        NetworkAction availableRemedialAction4 = Mockito.mock(NetworkAction.class);
+        Mockito.when(availableRemedialAction4.getElementaryActions()).thenReturn(Set.of(switchPair));
+
+        Leaf previousLeaf = Mockito.mock(Leaf.class);
+        Mockito.when(previousLeaf.getActivatedNetworkActions()).thenReturn(Set.of(appliedRemedialAction1, appliedRemedialAction2));
+
+        NetworkActionCombination networkActionCombination1 = new NetworkActionCombination(Set.of(availableRemedialAction1, availableRemedialAction2));
+        NetworkActionCombination networkActionCombination2 = new NetworkActionCombination(Set.of(availableRemedialAction3));
+        NetworkActionCombination networkActionCombination3 = new NetworkActionCombination(Set.of(availableRemedialAction4));
+
+        Map<NetworkActionCombination, Boolean> naCombinations = Map.of(
+            networkActionCombination1, false,
+            networkActionCombination2, false,
+            networkActionCombination3, true
+        );
+
+        SearchTreeBloomer bloomer = new SearchTreeBloomer(network, Integer.MAX_VALUE, 2, null, null, false, 0, new ArrayList<>(), pState);
+
+        assertEquals(Map.of(networkActionCombination2, false), bloomer.removeIncompatibleCombinations(naCombinations, previousLeaf));
     }
 }

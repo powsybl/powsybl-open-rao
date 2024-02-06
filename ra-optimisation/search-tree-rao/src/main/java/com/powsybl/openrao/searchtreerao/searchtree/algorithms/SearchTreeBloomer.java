@@ -14,6 +14,7 @@ import com.powsybl.openrao.data.cracapi.networkaction.NetworkAction;
 import com.powsybl.openrao.searchtreerao.commons.NetworkActionCombination;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.openrao.searchtreerao.searchtree.NetworkActionsCompatibilityChecker;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -100,6 +101,8 @@ public final class SearchTreeBloomer {
         networkActionCombinations = removeCombinationsWhichExceedMaxNumberOfRaPerTso(networkActionCombinations, fromLeaf);
         networkActionCombinations = removeCombinationsWhichExceedMaxNumberOfTsos(networkActionCombinations, fromLeaf);
         networkActionCombinations = removeCombinationsFarFromMostLimitingElement(networkActionCombinations, fromLeaf);
+
+        networkActionCombinations = removeIncompatibleCombinations(networkActionCombinations, fromLeaf);
 
         return networkActionCombinations;
     }
@@ -258,6 +261,19 @@ public final class SearchTreeBloomer {
             TECHNICAL_LOGS.info("{} network action combinations have been filtered out because they are too far from the most limiting element", naCombinations.size() - filteredNaCombinations.size());
         }
         return filteredNaCombinations;
+    }
+
+    /**
+     * Ignore a combination if any of the network actions if conflictual with the
+     * already applied network actions on the parent leaf.
+     * @param naCombinations : the network actions combination
+     * @param fromLeaf : the parent lead
+     * @return filtered version of the input map
+     */
+    Map<NetworkActionCombination, Boolean> removeIncompatibleCombinations(Map<NetworkActionCombination, Boolean> naCombinations, Leaf fromLeaf) {
+        return naCombinations.keySet().stream()
+            .filter(naCombination -> NetworkActionsCompatibilityChecker.filterOutIncompatibleRemedialActions(fromLeaf.getActivatedNetworkActions(), naCombination.getNetworkActionSet()).size() == naCombination.getNetworkActionSet().size())
+            .collect(Collectors.toMap(naCombination -> naCombination, naCombinations::get));
     }
 
     /**
