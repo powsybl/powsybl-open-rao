@@ -9,6 +9,7 @@ package com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.cne
 
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.openrao.commons.OpenRaoException;
 import org.junit.jupiter.api.Test;
 
 import java.util.Set;
@@ -16,6 +17,7 @@ import java.util.Set;
 import static com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileCracCreationTestUtil.getNetworkFromResource;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
@@ -30,29 +32,49 @@ class GeographicalFilterTest {
 
     @Test
     void getLocationsFromSingleElementFromOneCountry() {
+        // Branch
         assertEquals(
-                Set.of(Country.FR),
-                GeographicalFilter.getNetworkElementLocation(frenchLineId, network)
+            Set.of(Country.FR),
+            GeographicalFilter.getNetworkElementLocation(frenchLineId, network)
         );
+        // Switch
         assertEquals(
-                Set.of(Country.BE),
-                GeographicalFilter.getNetworkElementLocation(belgianSwitchId, network)
+            Set.of(Country.BE),
+            GeographicalFilter.getNetworkElementLocation(belgianSwitchId, network)
         );
+        // Voltage Level
+        assertEquals(
+            Set.of(Country.BE),
+            GeographicalFilter.getNetworkElementLocation("BBE1AA1", network)
+        );
+        // Substation
+        assertEquals(
+            Set.of(Country.DE),
+            GeographicalFilter.getNetworkElementLocation("DDE3AA", network)
+        );
+        // Generator
+        assertEquals(
+            Set.of(Country.NL),
+            GeographicalFilter.getNetworkElementLocation("NNL2AA1 _generator", network)
+        );
+        // Unknown network element
+        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> GeographicalFilter.getNetworkElementLocation("Unknown element", network));
+        assertEquals("Network element Unknown element was not found in the network.", exception.getMessage());
     }
 
     @Test
     void getLocationsFromSingleElementFromTwoCountries() {
         assertEquals(
-                Set.of(Country.BE, Country.NL),
-                GeographicalFilter.getNetworkElementLocation(dutchBelgianLineId, network)
+            Set.of(Country.BE, Country.NL),
+            GeographicalFilter.getNetworkElementLocation(dutchBelgianLineId, network)
         );
     }
 
     @Test
     void getLocationsFromSetOfElements() {
         assertEquals(
-                Set.of(Country.BE, Country.FR, Country.NL),
-                GeographicalFilter.getNetworkElementsLocations(Set.of(frenchLineId, dutchBelgianLineId), network)
+            Set.of(Country.BE, Country.FR, Country.NL),
+            GeographicalFilter.getNetworkElementsLocations(Set.of(frenchLineId, dutchBelgianLineId), network)
         );
     }
 

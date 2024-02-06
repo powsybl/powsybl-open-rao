@@ -238,7 +238,7 @@ public final class CsaProfileCracCreationTestUtil {
         return getCsaCracCreationContext(csaProfilesArchive, network, OffsetDateTime.parse(timestamp), false);
     }
 
-    public static CsaProfileCracCreationContext getCsaCracCreationContext(String csaProfilesArchive, Network network, OffsetDateTime offsetDateTime) {
+    public static CsaProfileCracCreationContext getCsaCracCreationContext(String csaProfilesArchive, Network network, OffsetDateTime offsetDateTime, boolean useGeographicalFilter) {
         CsaProfileCracImporter cracImporter = new CsaProfileCracImporter();
         InputStream inputStream = CsaProfileCracCreationTestUtil.class.getResourceAsStream(csaProfilesArchive);
         CsaProfileCrac nativeCrac = cracImporter.importNativeCrac(inputStream);

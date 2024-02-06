@@ -36,23 +36,29 @@ public final class GeographicalFilter {
         Identifiable<?> networkElement = network.getIdentifiable(networkElementId);
         if (Objects.isNull(networkElement)) {
             throw new OpenRaoException("Network element " + networkElementId + " was not found in the network.");
-        } else if (networkElement instanceof Branch<?> branch) {
-            return getBranchLocation(branch);
-        } else if (networkElement instanceof Switch switchElement) {
-            return getSwitchLocation(switchElement);
-        } else if (networkElement instanceof Injection<?> injection) {
-            return getInjectionLocation(injection);
-        } else if (networkElement instanceof Bus bus) {
-            return getBusLocation(bus);
-        } else if (networkElement instanceof VoltageLevel voltageLevel) {
-            return getVoltageLevelLocation(voltageLevel);
-        } else if (networkElement instanceof Substation substation) {
-            return getSubstationLocation(substation);
-        } else if (networkElement instanceof HvdcLine hvdcLine) {
-            return getHvdcLineLocation(hvdcLine);
-        } else {
-            throw new NotImplementedException("Could not figure out the location of " + networkElement.getId() + " of type " + networkElement.getClass());
         }
+        if (networkElement instanceof Branch<?> branch) {
+            return getBranchLocation(branch);
+        }
+        if (networkElement instanceof Switch switchElement) {
+            return getSwitchLocation(switchElement);
+        }
+        if (networkElement instanceof Injection<?> injection) {
+            return getInjectionLocation(injection);
+        }
+        if (networkElement instanceof Bus bus) {
+            return getBusLocation(bus);
+        }
+        if (networkElement instanceof VoltageLevel voltageLevel) {
+            return getVoltageLevelLocation(voltageLevel);
+        }
+        if (networkElement instanceof Substation substation) {
+            return getSubstationLocation(substation);
+        }
+        if (networkElement instanceof HvdcLine hvdcLine) {
+            return getHvdcLineLocation(hvdcLine);
+        }
+        throw new NotImplementedException("Could not figure out the location of " + networkElement.getId() + " of type " + networkElement.getClass());
     }
 
     private static Set<Country> getBranchLocation(Branch<?> branch) {
