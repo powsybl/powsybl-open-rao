@@ -1,5 +1,8 @@
 package com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.cnec;
 
+import com.powsybl.iidm.network.BusbarSection;
+import com.powsybl.iidm.network.Identifiable;
+import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.Contingency;
 import com.powsybl.openrao.data.cracapi.Crac;
@@ -9,9 +12,6 @@ import com.powsybl.openrao.data.craccreation.creator.api.ImportStatus;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileConstants;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileCracCreationContext;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileElementaryCreationContext;
-import com.powsybl.iidm.network.BusbarSection;
-import com.powsybl.iidm.network.Identifiable;
-import com.powsybl.iidm.network.Network;
 import com.powsybl.triplestore.api.PropertyBag;
 
 import java.util.List;
@@ -19,8 +19,8 @@ import java.util.Set;
 
 public class VoltageCnecCreator extends AbstractCnecCreator {
 
-    public VoltageCnecCreator(Crac crac, Network network, String assessedElementId, String nativeAssessedElementName, String assessedElementOperator, boolean inBaseCase, PropertyBag voltageLimitPropertyBag, List<Contingency> linkedContingencies, Set<CsaProfileElementaryCreationContext> csaProfileCnecCreationContexts, CsaProfileCracCreationContext cracCreationContext, String rejectedLinksAssessedElementContingency) {
-        super(crac, network, assessedElementId, nativeAssessedElementName, assessedElementOperator, inBaseCase, voltageLimitPropertyBag, linkedContingencies, csaProfileCnecCreationContexts, cracCreationContext, rejectedLinksAssessedElementContingency);
+    public VoltageCnecCreator(Crac crac, Network network, String assessedElementId, String nativeAssessedElementName, String assessedElementOperator, boolean inBaseCase, PropertyBag voltageLimitPropertyBag, List<Contingency> linkedContingencies, Set<CsaProfileElementaryCreationContext> csaProfileCnecCreationContexts, CsaProfileCracCreationContext cracCreationContext, String rejectedLinksAssessedElementContingency, boolean useGeographicalFilter) {
+        super(crac, network, assessedElementId, nativeAssessedElementName, assessedElementOperator, inBaseCase, voltageLimitPropertyBag, linkedContingencies, csaProfileCnecCreationContexts, cracCreationContext, rejectedLinksAssessedElementContingency, useGeographicalFilter);
     }
 
     public void addVoltageCnecs() {
@@ -34,10 +34,11 @@ public class VoltageCnecCreator extends AbstractCnecCreator {
 
     private void addVoltageCnec(String instantId, Contingency contingency) {
         VoltageCnecAdder voltageCnecAdder = initVoltageCnec();
-        if (addVoltageLimit(voltageCnecAdder)) {
+        if (addVoltageLimit(voltageCnecAdder, contingency)) {
             addCnecBaseInformation(voltageCnecAdder, contingency, instantId);
             voltageCnecAdder.add();
-            markCnecAsImportedAndHandleRejectedContingencies(instantId, contingency);
+            String cnecName = getCnecName(instantId, contingency);
+            markCnecAsImportedAndHandleRejectedContingencies(cnecName);
         }
     }
 
@@ -48,7 +49,7 @@ public class VoltageCnecCreator extends AbstractCnecCreator {
                 .withReliabilityMargin(0);
     }
 
-    private boolean addVoltageLimit(VoltageCnecAdder voltageCnecAdder) {
+    private boolean addVoltageLimit(VoltageCnecAdder voltageCnecAdder, Contingency contingency) {
         String terminalId = operationalLimitPropertyBag.getId(CsaProfileConstants.REQUEST_OPERATIONAL_LIMIT_TERMINAL);
         Identifiable<?> networkElement = this.getNetworkElementInNetwork(terminalId);
         if (networkElement == null) {
@@ -62,6 +63,12 @@ public class VoltageCnecCreator extends AbstractCnecCreator {
         }
 
         String networkElementId = networkElement.getId();
+
+        if (incompatibleLocationsBetweenCnecNetworkElementsAndContingency(networkElementId, contingency)) {
+            csaProfileCnecCreationContexts.add(CsaProfileElementaryCreationContext.notImported(assessedElementId, ImportStatus.INCONSISTENCY_IN_DATA, writeAssessedElementIgnoredReasonMessage("AssessedElement and Contingency " + contingency.getId()) + " do not belong to a common country. VoltageCNEC will not be imported."));
+            return false;
+        }
+
         voltageCnecAdder.withNetworkElement(networkElementId);
 
         if (!checkDuration()) {

@@ -7,6 +7,12 @@
 
 package com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator;
 
+import com.powsybl.iidm.network.Branch;
+import com.powsybl.iidm.network.BusbarSection;
+import com.powsybl.iidm.network.Identifiable;
+import com.powsybl.iidm.network.IdentifiableType;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.Switch;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.Contingency;
 import com.powsybl.openrao.data.cracapi.Crac;
@@ -27,6 +33,9 @@ import java.util.Set;
 import static com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileCracCreationTestUtil.assertRaNotImported;
 import static com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileCracCreationTestUtil.getCsaCracCreationContext;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class CsaProfileCracCreatorTest {
 
@@ -48,7 +57,7 @@ class CsaProfileCracCreatorTest {
         assertEquals(6, importedCrac.getFlowCnecs().size());
         CsaProfileCracCreationTestUtil.assertFlowCnecEquality(importedCrac.getFlowCnec("RTE_FFR2AA1--FFR3AA1--2 (079f1887-f33e-49ef-b1ff-22e871055fd0) - RTE_co1_fr2_fr3_1 - curative"), "RTE_FFR2AA1--FFR3AA1--2 (079f1887-f33e-49ef-b1ff-22e871055fd0) - RTE_co1_fr2_fr3_1 - curative", "RTE_FFR2AA1--FFR3AA1--2 (079f1887-f33e-49ef-b1ff-22e871055fd0) - RTE_co1_fr2_fr3_1 - curative",
             "FFR2AA1--FFR3AA1--2", curativeInstant, "co1_fr2_fr3_1", 2500., -2500., Side.RIGHT);
-        CsaProfileCracCreationTestUtil.assertFlowCnecEquality(importedCrac.getFlowCnec("RTE_FFR3AA1--FFR5AA1--1 (755832d8-220a-4e5a-b133-dfd27b3c8a78) - RTE_co1_fr2_fr3_1 - outage"), "RTE_FFR3AA1--FFR5AA1--1 (755832d8-220a-4e5a-b133-dfd27b3c8a78) - RTE_co1_fr2_fr3_1 - outage", "RTE_FFR3AA1--FFR5AA1--1 (755832d8-220a-4e5a-b133-dfd27b3c8a78) - RTE_co1_fr2_fr3_1 - outage",
+        CsaProfileCracCreationTestUtil.assertFlowCnecEquality(importedCrac.getFlowCnec("RTE_FFR3AA1--FFR5AA1--1 (755832d8-220a-4e5a-b133-dfd27b3c8a78) - RTE_co1_fr2_fr3_1 - outage - TATL 60"), "RTE_FFR3AA1--FFR5AA1--1 (755832d8-220a-4e5a-b133-dfd27b3c8a78) - RTE_co1_fr2_fr3_1 - outage - TATL 60", "RTE_FFR3AA1--FFR5AA1--1 (755832d8-220a-4e5a-b133-dfd27b3c8a78) - RTE_co1_fr2_fr3_1 - outage - TATL 60",
             "FFR3AA1--FFR5AA1--1", outageInstant, "co1_fr2_fr3_1", 1500., -1500., Side.RIGHT);
         CsaProfileCracCreationTestUtil.assertFlowCnecEquality(importedCrac.getFlowCnec("RTE_FFR2AA1--DDE3AA1--1 (77320d6c-7880-43b1-ac28-e27a85ebda82) - preventive"), "RTE_FFR2AA1--DDE3AA1--1 (77320d6c-7880-43b1-ac28-e27a85ebda82) - preventive", "RTE_FFR2AA1--DDE3AA1--1 (77320d6c-7880-43b1-ac28-e27a85ebda82) - preventive",
             "FFR2AA1--DDE3AA1--1", preventiveInstant, null, 1000., -1000., Side.RIGHT);
@@ -56,7 +65,7 @@ class CsaProfileCracCreatorTest {
             "FFR3AA1--FFR5AA1--1", curativeInstant, "co1_fr2_fr3_1", 1000., -1000., Side.RIGHT);
         CsaProfileCracCreationTestUtil.assertFlowCnecEquality(importedCrac.getFlowCnec("TENNET_TSO_NNL2AA1--BBE3AA1--1 (f0208d08-2ed5-4d92-91a1-4e89ac71e17e) - preventive"), "TENNET_TSO_NNL2AA1--BBE3AA1--1 (f0208d08-2ed5-4d92-91a1-4e89ac71e17e) - preventive", "TENNET_TSO_NNL2AA1--BBE3AA1--1 (f0208d08-2ed5-4d92-91a1-4e89ac71e17e) - preventive",
             "NNL2AA1--BBE3AA1--1", preventiveInstant, null, 5000., -5000., Side.RIGHT);
-        CsaProfileCracCreationTestUtil.assertFlowCnecEquality(importedCrac.getFlowCnec("RTE_FFR2AA1--DDE3AA1--1 (f7708112-b880-4674-98a1-b005a01a61d5) - RTE_co1_fr2_fr3_1 - outage"), "RTE_FFR2AA1--DDE3AA1--1 (f7708112-b880-4674-98a1-b005a01a61d5) - RTE_co1_fr2_fr3_1 - outage", "RTE_FFR2AA1--DDE3AA1--1 (f7708112-b880-4674-98a1-b005a01a61d5) - RTE_co1_fr2_fr3_1 - outage",
+        CsaProfileCracCreationTestUtil.assertFlowCnecEquality(importedCrac.getFlowCnec("RTE_FFR2AA1--DDE3AA1--1 (f7708112-b880-4674-98a1-b005a01a61d5) - RTE_co1_fr2_fr3_1 - outage - TATL 60"), "RTE_FFR2AA1--DDE3AA1--1 (f7708112-b880-4674-98a1-b005a01a61d5) - RTE_co1_fr2_fr3_1 - outage - TATL 60", "RTE_FFR2AA1--DDE3AA1--1 (f7708112-b880-4674-98a1-b005a01a61d5) - RTE_co1_fr2_fr3_1 - outage - TATL 60",
             "FFR2AA1--DDE3AA1--1", outageInstant, "co1_fr2_fr3_1", 1200., -1200., Side.RIGHT);
 
         // Check PST RAs
@@ -106,7 +115,7 @@ class CsaProfileCracCreatorTest {
         Mockito.when(network.getSwitch("d1db384f-3a27-434b-93f5-5afa3ab23b00")).thenReturn(switchMock);
         Mockito.when(network.getIdentifiable("ff3c8013-d3f9-4198-a1f2-98d3ebdf30c4")).thenReturn(networkElementMock);
 
-        CsaProfileCracCreationContext cracCreationContext = getCsaCracCreationContext("/CSA_63_1_ValidationTest.zip", network);
+        CsaProfileCracCreationContext cracCreationContext = getCsaCracCreationContext("/CSA_63_1_ValidationTest.zip", network, false);
         Instant curativeInstant = cracCreationContext.getCrac().getInstant("curative");
 
         assertNotNull(cracCreationContext);
@@ -189,7 +198,7 @@ class CsaProfileCracCreatorTest {
         Mockito.when(switch3Mock.getId()).thenReturn("55f4bfcb-f46f-40f8-a87e-6caeefc5330a");
         Mockito.when(network.getIdentifiable("55f4bfcb-f46f-40f8-a87e-6caeefc5330a")).thenReturn((Identifiable) switch3Mock);
 
-        CsaProfileCracCreationContext cracCreationContext = getCsaCracCreationContext("/CSA_36_3_CustomExample.zip", network, OffsetDateTime.parse("2023-01-01T21:30Z"));
+        CsaProfileCracCreationContext cracCreationContext = getCsaCracCreationContext("/CSA_36_3_CustomExample.zip", network, OffsetDateTime.parse("2023-01-01T21:30Z"), false);
         assertNotNull(cracCreationContext);
         Instant preventiveInstant = cracCreationContext.getCrac().getInstant("preventive");
         Instant curativeInstant = cracCreationContext.getCrac().getInstant("curative");
@@ -262,7 +271,7 @@ class CsaProfileCracCreatorTest {
         Mockito.when(switch3Mock.getId()).thenReturn("55f4bfcb-f46f-40f8-a87e-6caeefc5330a");
         Mockito.when(network.getIdentifiable("55f4bfcb-f46f-40f8-a87e-6caeefc5330a")).thenReturn((Identifiable) switch3Mock);
 
-        CsaProfileCracCreationContext cracCreationContext = getCsaCracCreationContext("/CSA_36_3_CustomExample.zip", network, OffsetDateTime.parse("2023-01-01T22:30Z"));
+        CsaProfileCracCreationContext cracCreationContext = getCsaCracCreationContext("/CSA_36_3_CustomExample.zip", network, OffsetDateTime.parse("2023-01-01T22:30Z"), false);
         assertNotNull(cracCreationContext);
         Instant preventiveInstant = cracCreationContext.getCrac().getInstant("preventive");
 

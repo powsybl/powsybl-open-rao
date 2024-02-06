@@ -1,3 +1,9 @@
+/*
+ * Copyright (c) 2023, RTE (http://www.rte-france.com)
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
 package com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator;
 
 import ch.qos.logback.classic.Logger;
@@ -23,6 +29,7 @@ import com.google.common.base.Suppliers;
 import com.powsybl.computation.local.LocalComputationManager;
 import com.powsybl.iidm.network.ImportConfig;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.openrao.data.craccreation.creator.csaprofile.parameters.CsaCracCreationParameters;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
@@ -215,23 +222,32 @@ public final class CsaProfileCracCreationTestUtil {
 
     public static CsaProfileCracCreationContext getCsaCracCreationContext(String csaProfilesArchive) {
         Network network = getNetworkFromResource(csaProfilesArchive);
-        return getCsaCracCreationContext(csaProfilesArchive, network);
+        return getCsaCracCreationContext(csaProfilesArchive, network, false);
     }
 
-    public static CsaProfileCracCreationContext getCsaCracCreationContext(String csaProfilesArchive, Network network) {
-        return getCsaCracCreationContext(csaProfilesArchive, network, OffsetDateTime.parse("2023-03-29T12:00Z"));
+    public static CsaProfileCracCreationContext getCsaCracCreationContext(String csaProfilesArchive, boolean useGeographicalFilter) {
+        Network network = getNetworkFromResource(csaProfilesArchive);
+        return getCsaCracCreationContext(csaProfilesArchive, network, useGeographicalFilter);
+    }
+
+    public static CsaProfileCracCreationContext getCsaCracCreationContext(String csaProfilesArchive, Network network, boolean useGeographicalFilter) {
+        return getCsaCracCreationContext(csaProfilesArchive, network, OffsetDateTime.parse("2023-03-29T12:00Z"), useGeographicalFilter);
     }
 
     public static CsaProfileCracCreationContext getCsaCracCreationContext(String csaProfilesArchive, Network network, String timestamp) {
-        return getCsaCracCreationContext(csaProfilesArchive, network, OffsetDateTime.parse(timestamp));
+        return getCsaCracCreationContext(csaProfilesArchive, network, OffsetDateTime.parse(timestamp), false);
     }
 
-    public static CsaProfileCracCreationContext getCsaCracCreationContext(String csaProfilesArchive, Network network, OffsetDateTime offsetDateTime) {
+    public static CsaProfileCracCreationContext getCsaCracCreationContext(String csaProfilesArchive, Network network, OffsetDateTime offsetDateTime, boolean useGeographicalFilter) {
         CsaProfileCracImporter cracImporter = new CsaProfileCracImporter();
         InputStream inputStream = CsaProfileCracCreationTestUtil.class.getResourceAsStream(csaProfilesArchive);
         CsaProfileCrac nativeCrac = cracImporter.importNativeCrac(inputStream);
         CsaProfileCracCreator cracCreator = new CsaProfileCracCreator();
-        return cracCreator.createCrac(nativeCrac, network, offsetDateTime, new CracCreationParameters());
+        CracCreationParameters parameters = new CracCreationParameters();
+        CsaCracCreationParameters csaParameters = new CsaCracCreationParameters();
+        csaParameters.setUseCnecGeographicalFilter(useGeographicalFilter);
+        parameters.addExtension(CsaCracCreationParameters.class, csaParameters);
+        return cracCreator.createCrac(nativeCrac, network, offsetDateTime, parameters);
     }
 
     public static Network getNetworkFromResource(String filename) {

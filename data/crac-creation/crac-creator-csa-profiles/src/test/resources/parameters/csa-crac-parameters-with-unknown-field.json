@@ -1,0 +1,9 @@
+{
+  "crac-factory" : "CracImplFactory",
+  "extensions" : {
+    "CsaCracCreatorParameters": {
+      "forbid-implicit-extranational-ae-co-combinations": true,
+      "unknown-field": "What is this?"
+    }
+  }
+}

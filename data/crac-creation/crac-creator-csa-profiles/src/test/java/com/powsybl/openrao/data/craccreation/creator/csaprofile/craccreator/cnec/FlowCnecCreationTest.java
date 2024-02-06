@@ -1,3 +1,9 @@
+/*
+ * Copyright (c) 2023, RTE (http://www.rte-france.com)
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
 package com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.cnec;
 
 import ch.qos.logback.classic.spi.ILoggingEvent;
@@ -15,15 +21,28 @@ import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaP
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileElementaryCreationContext;
 import com.powsybl.openrao.data.cracimpl.OnFlowConstraintImpl;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.Branch;
+import com.powsybl.iidm.network.CurrentLimits;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.Switch;
+import com.powsybl.iidm.network.Terminal;
+import com.powsybl.iidm.network.TwoSides;
+import com.powsybl.iidm.network.VoltageLevel;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.Comparator;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 
 import static com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileCracCreationTestUtil.getCsaCracCreationContext;
 import static com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileCracCreationTestUtil.getLogs;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class FlowCnecCreationTest {
     private static final String PREVENTIVE_INSTANT_ID = "preventive";
@@ -116,7 +135,7 @@ class FlowCnecCreationTest {
         Mockito.when(switch4.isOpen()).thenReturn(false);
         Mockito.when(network.getSwitch("50719289-6406-4d69-9dd7-6de60aecd2d4")).thenReturn(switch4);
 
-        CsaProfileCracCreationContext cracCreationContext = getCsaCracCreationContext("/csa-11/CSA_11_3_OnFlowConstraint.zip", network);
+        CsaProfileCracCreationContext cracCreationContext = getCsaCracCreationContext("/csa-11/CSA_11_3_OnFlowConstraint.zip", network, false);
         Instant preventiveInstant = cracCreationContext.getCrac().getInstant(PREVENTIVE_INSTANT_ID);
         Instant curativeInstant = cracCreationContext.getCrac().getInstant(CURATIVE_INSTANT_ID);
 
@@ -283,7 +302,7 @@ class FlowCnecCreationTest {
         assertEquals(12, cracCreationContext.getCrac().getFlowCnecs().size());
 
         List<FlowCnec> listFlowCnecs = cracCreationContext.getCrac().getFlowCnecs()
-                .stream().sorted(Comparator.comparing(FlowCnec::getId)).collect(Collectors.toList());
+                .stream().sorted(Comparator.comparing(FlowCnec::getId)).toList();
 
         CsaProfileCracCreationTestUtil.assertFlowCnecEquality(listFlowCnecs.get(0),
                 "ELIA_AE2 (d463cbba-c89c-4199-bbb9-1a33d90cae2c) - preventive",
@@ -316,8 +335,8 @@ class FlowCnecCreationTest {
                 preventiveInstant, null,
                 +1000d, -1000d, Side.LEFT);
         CsaProfileCracCreationTestUtil.assertFlowCnecEquality(listFlowCnecs.get(5),
-                "REE_AE3 (989535e7-3789-47e7-8ba7-da7be9962a15) - REE_CO3 - auto",
-                "REE_AE3 (989535e7-3789-47e7-8ba7-da7be9962a15) - REE_CO3 - auto",
+                "REE_AE3 (989535e7-3789-47e7-8ba7-da7be9962a15) - REE_CO3 - auto - TATL 600",
+                "REE_AE3 (989535e7-3789-47e7-8ba7-da7be9962a15) - REE_CO3 - auto - TATL 600",
                 "048badc5-c766-11e1-8775-005056c00008",
                 autoInstant, "13334fdf-9cc2-4341-adb6-1281269040b4",
                 +500.0, -500.0, Side.LEFT);
@@ -479,8 +498,8 @@ class FlowCnecCreationTest {
 
         CsaProfileCracCreationTestUtil.assertFlowCnecEquality(
                 importedFlowCnecs.get(0),
-                "RTE_AE1 (183829bd-5c60-4c04-ad57-c72a15a75047) - RTE_CO1 - auto",
-                "RTE_AE1 (183829bd-5c60-4c04-ad57-c72a15a75047) - RTE_CO1 - auto",
+                "RTE_AE1 (183829bd-5c60-4c04-ad57-c72a15a75047) - RTE_CO1 - auto - TATL 600",
+                "RTE_AE1 (183829bd-5c60-4c04-ad57-c72a15a75047) - RTE_CO1 - auto - TATL 600",
                 "b58bf21a-096a-4dae-9a01-3f03b60c24c7",
                 autoInstant,
                 "bbda9fe0-77e0-4f8e-b9d9-4402a539f2b7",
@@ -574,5 +593,95 @@ class FlowCnecCreationTest {
                 -1000d,
                 Set.of(Side.RIGHT, Side.LEFT)
         );
+    }
+
+    @Test
+    void useGeographicalFilter() {
+        // Use of same input profiles as previous test (CSA 79)
+        CsaProfileCracCreationContext cracCreationContext = getCsaCracCreationContext("/CSA_79_1.zip", true);
+
+        /*
+            - Assessed Element 08d0622e-02c7-4c20-8dbd-992ef4e6be0a monitors a tie-line with a terminal in Spain
+            - Contingency bbda9fe0-77e0-4f8e-b9d9-4402a539f2b7 defined in Spain
+            - All preventive CNECs can be kept
+         */
+        Instant preventiveInstant = cracCreationContext.getCrac().getInstant(PREVENTIVE_INSTANT_ID);
+        Instant autoInstant = cracCreationContext.getCrac().getInstant(AUTO_INSTANT_ID);
+        Instant curativeInstant = cracCreationContext.getCrac().getInstant(CURATIVE_INSTANT_ID);
+
+        List<FlowCnec> importedFlowCnecs = cracCreationContext.getCrac().getFlowCnecs()
+                .stream().sorted(Comparator.comparing(FlowCnec::getId)).toList();
+        assertEquals(4, importedFlowCnecs.size());
+
+        CsaProfileCracCreationTestUtil.assertFlowCnecEquality(
+                importedFlowCnecs.get(0),
+                "RTE_AE1 (183829bd-5c60-4c04-ad57-c72a15a75047) - preventive",
+                "RTE_AE1 (183829bd-5c60-4c04-ad57-c72a15a75047) - preventive",
+                "b58bf21a-096a-4dae-9a01-3f03b60c24c7",
+                preventiveInstant,
+                null,
+                +1574d,
+                -1574d,
+                +1574d,
+                -1574d,
+                Set.of(Side.RIGHT, Side.LEFT)
+        );
+
+        CsaProfileCracCreationTestUtil.assertFlowCnecEquality(
+                importedFlowCnecs.get(1),
+                "RTE_AE2 (de5b6775-b8d7-4ac4-9619-ecc30d98f3db) - preventive",
+                "RTE_AE2 (de5b6775-b8d7-4ac4-9619-ecc30d98f3db) - preventive",
+                "3852b69e-22d2-41cb-b370-fb372ddcde19",
+                preventiveInstant,
+                null,
+                +1283d,
+                -1283d,
+                +10188.5,
+                -10188.5,
+                Set.of(Side.RIGHT, Side.LEFT)
+        );
+
+        CsaProfileCracCreationTestUtil.assertFlowCnecEquality(
+                importedFlowCnecs.get(2),
+                "RTE_AE3 (08d0622e-02c7-4c20-8dbd-992ef4e6be0a) - RTE_CO1 - curative",
+                "RTE_AE3 (08d0622e-02c7-4c20-8dbd-992ef4e6be0a) - RTE_CO1 - curative",
+                "4c390dab-3499-4a9f-9cee-5877081479ab + edf1af97-de49-45bb-a7ef-31f96d486712",
+                curativeInstant,
+                "bbda9fe0-77e0-4f8e-b9d9-4402a539f2b7",
+                +1233.9,
+                -1233.9,
+                +1000d,
+                -1000d,
+                Set.of(Side.RIGHT, Side.LEFT)
+        );
+
+        CsaProfileCracCreationTestUtil.assertFlowCnecEquality(
+                importedFlowCnecs.get(3),
+                "RTE_AE3 (08d0622e-02c7-4c20-8dbd-992ef4e6be0a) - preventive",
+                "RTE_AE3 (08d0622e-02c7-4c20-8dbd-992ef4e6be0a) - preventive",
+                "4c390dab-3499-4a9f-9cee-5877081479ab + edf1af97-de49-45bb-a7ef-31f96d486712",
+                preventiveInstant,
+                null,
+                +1233.9,
+                -1233.9,
+                +1000d,
+                -1000d,
+                Set.of(Side.RIGHT, Side.LEFT)
+        );
+
+        /*
+            - Assessed Element 183829bd-5c60-4c04-ad57-c72a15a75047 monitors line b58bf21a-096a-4dae-9a01-3f03b60c24c7 defined for no country
+            - Assessed Element de5b6775-b8d7-4ac4-9619-ecc30d98f3db monitors line 3852b69e-22d2-41cb-b370-fb372ddcde19 defined for no country
+            - Contingency bbda9fe0-77e0-4f8e-b9d9-4402a539f2b7 defined in Spain
+        */
+        List<CsaProfileElementaryCreationContext> notImportedFlowCnecs = cracCreationContext
+                .getCnecCreationContexts()
+                .stream()
+                .filter(flowCnec -> !flowCnec.isImported())
+                .sorted(Comparator.comparing(CsaProfileElementaryCreationContext::getNativeId))
+                .toList();
+        assertEquals(2, notImportedFlowCnecs.size());
+        assertEquals("Assessed Element 183829bd-5c60-4c04-ad57-c72a15a75047 ignored because AssessedElement and Contingency bbda9fe0-77e0-4f8e-b9d9-4402a539f2b7. do not belong to a common country. FlowCNEC will not be imported.", notImportedFlowCnecs.get(0).getImportStatusDetail());
+        assertEquals("Assessed Element de5b6775-b8d7-4ac4-9619-ecc30d98f3db ignored because AssessedElement and Contingency bbda9fe0-77e0-4f8e-b9d9-4402a539f2b7. do not belong to a common country. FlowCNEC will not be imported.", notImportedFlowCnecs.get(1).getImportStatusDetail());
     }
 }

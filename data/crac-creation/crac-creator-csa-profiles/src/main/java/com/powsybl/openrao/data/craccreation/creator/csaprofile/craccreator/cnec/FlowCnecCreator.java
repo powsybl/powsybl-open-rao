@@ -13,9 +13,23 @@ import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaP
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileCracCreationContext;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileElementaryCreationContext;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.Branch;
+import com.powsybl.iidm.network.CurrentLimits;
+import com.powsybl.iidm.network.Identifiable;
+import com.powsybl.iidm.network.LoadingLimits;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.TieLine;
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.triplestore.api.PropertyBag;
 
-import java.util.*;
+import java.util.EnumMap;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
 
 public class FlowCnecCreator extends AbstractCnecCreator {
 
@@ -28,8 +42,8 @@ public class FlowCnecCreator extends AbstractCnecCreator {
     private final String conductingEquipment;
     private final Set<Side> defaultMonitoredSides;
 
-    public FlowCnecCreator(Crac crac, Network network, String assessedElementId, String nativeAssessedElementName, String assessedElementOperator, boolean inBaseCase, PropertyBag currentLimitPropertyBag, String conductingEquipment, List<Contingency> linkedContingencies, Set<CsaProfileElementaryCreationContext> csaProfileCnecCreationContexts, CsaProfileCracCreationContext cracCreationContext, Set<Side> defaultMonitoredSides, String rejectedLinksAssessedElementContingency) {
-        super(crac, network, assessedElementId, nativeAssessedElementName, assessedElementOperator, inBaseCase, currentLimitPropertyBag, linkedContingencies, csaProfileCnecCreationContexts, cracCreationContext, rejectedLinksAssessedElementContingency);
+    public FlowCnecCreator(Crac crac, Network network, String assessedElementId, String nativeAssessedElementName, String assessedElementOperator, boolean inBaseCase, PropertyBag currentLimitPropertyBag, String conductingEquipment, List<Contingency> linkedContingencies, Set<CsaProfileElementaryCreationContext> csaProfileCnecCreationContexts, CsaProfileCracCreationContext cracCreationContext, Set<Side> defaultMonitoredSides, String rejectedLinksAssessedElementContingency, boolean useGeographicalFilter) {
+        super(crac, network, assessedElementId, nativeAssessedElementName, assessedElementOperator, inBaseCase, currentLimitPropertyBag, linkedContingencies, csaProfileCnecCreationContexts, cracCreationContext, rejectedLinksAssessedElementContingency, useGeographicalFilter);
         this.conductingEquipment = conductingEquipment;
         this.defaultMonitoredSides = defaultMonitoredSides;
     }
@@ -211,6 +225,7 @@ public class FlowCnecCreator extends AbstractCnecCreator {
         if (thresholds.isEmpty()) {
             return;
         }
+        String cnecName = getCnecName(instantId, contingency);
         FlowCnecAdder cnecAdder = initFlowCnec();
         addCnecBaseInformation(cnecAdder, contingency, instantId);
         for (Map.Entry<TwoSides, Double> thresholdEntry : thresholds.entrySet()) {
@@ -224,11 +239,29 @@ public class FlowCnecCreator extends AbstractCnecCreator {
         }
         cnecAdder.add();
         if (hasNoPatl) {
-            String cnecName = getCnecName(instantId, null);
             csaProfileCnecCreationContexts.add(CsaProfileElementaryCreationContext.imported(assessedElementId, cnecName, cnecName, "the AssessedElement was pointing to a TATL and used inBaseCase. For the preventive instant, this TATL was also used as a PATL to create the CNEC", true));
             return;
         }
-        markCnecAsImportedAndHandleRejectedContingencies(instantId, contingency);
+        markCnecAsImportedAndHandleRejectedContingencies(cnecName);
+    }
+
+    private void addCurativeFlowCnec(Branch<?> networkElement, Contingency contingency, String instantId, EnumMap<TwoSides, Double> thresholds, boolean useMaxAndMinThresholds, int tatlDuration) {
+        if (thresholds.isEmpty()) {
+            return;
+        }
+        String cnecName = getCnecName(instantId, contingency, tatlDuration);
+        FlowCnecAdder cnecAdder = initFlowCnec();
+        addCnecBaseInformation(cnecAdder, contingency, instantId, tatlDuration);
+        for (TwoSides side : thresholds.keySet()) {
+            double threshold = thresholds.get(side);
+            addFlowCnecThreshold(cnecAdder, side == TwoSides.ONE ? Side.LEFT : Side.RIGHT, threshold, useMaxAndMinThresholds);
+        }
+        cnecAdder.withNetworkElement(networkElement.getId());
+        if (!setNominalVoltage(cnecAdder, networkElement) || !setCurrentLimitsFromBranch(cnecAdder, networkElement)) {
+            return;
+        }
+        cnecAdder.add();
+        markCnecAsImportedAndHandleRejectedContingencies(cnecName);
     }
 
     private void addAllFlowCnecsFromBranchAndOperationalLimits(Branch<?> networkElement, Map<Integer, EnumMap<TwoSides, Double>> thresholds, boolean useMaxAndMinThresholds) {
@@ -248,6 +281,10 @@ public class FlowCnecCreator extends AbstractCnecCreator {
         }
 
         for (Contingency contingency : linkedContingencies) {
+            if (incompatibleLocationsBetweenCnecNetworkElementsAndContingency(networkElement.getId(), contingency)) {
+                csaProfileCnecCreationContexts.add(CsaProfileElementaryCreationContext.notImported(assessedElementId, ImportStatus.INCONSISTENCY_IN_DATA, writeAssessedElementIgnoredReasonMessage("AssessedElement and Contingency " + contingency.getId()) + " do not belong to a common country. FlowCNEC will not be imported."));
+                continue;
+            }
             // Add PATL
             if (hasPatl) {
                 addFlowCnec(networkElement, contingency, crac.getInstant(InstantKind.CURATIVE).getId(), patlThresholds, useMaxAndMinThresholds, false);
@@ -267,7 +304,7 @@ public class FlowCnecCreator extends AbstractCnecCreator {
                     //TODO : this most likely needs fixing, maybe continue is enough as a fix instead of return, but then the context wont be very clear since some will have been imported (can already be the case)
                     continue;
                 }
-                addFlowCnec(networkElement, contingency, instant.getId(), thresholdEntry.getValue(), useMaxAndMinThresholds, false);
+                addCurativeFlowCnec(networkElement, contingency, instant.getId(), thresholds.get(acceptableDuration), useMaxAndMinThresholds, acceptableDuration);
             }
         }
     }
