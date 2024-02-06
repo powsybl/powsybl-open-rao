@@ -57,6 +57,11 @@ class GeographicalFilterTest {
             Set.of(Country.NL),
             GeographicalFilter.getNetworkElementLocation("NNL2AA1 _generator", network)
         );
+        // Bus
+        assertEquals(
+            Set.of(Country.FR),
+            GeographicalFilter.getNetworkElementLocation("FFR2AA1 ", network)
+        );
         // Unknown network element
         OpenRaoException exception = assertThrows(OpenRaoException.class, () -> GeographicalFilter.getNetworkElementLocation("Unknown element", network));
         assertEquals("Network element Unknown element was not found in the network.", exception.getMessage());
