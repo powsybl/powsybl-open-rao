@@ -203,7 +203,7 @@ GRAPH <%s> {
 }
 }
 
-# query: angleLimit
+# query: voltageAngleLimit
 PREFIX cim: <http://iec.ch/TC57/CIM100#>
 PREFIX nc: <http://entsoe.eu/ns/nc#>
 PREFIX dcat: <http://www.w3.org/ns/dcat#>
@@ -211,7 +211,7 @@ PREFIX dcat: <http://www.w3.org/ns/dcat#>
 SELECT *
 {
     GRAPH <%s> {
-        ?angleLimit
+        ?voltageAngleLimit
             rdf:type nc:VoltageAngleLimit ;
             nc:VoltageAngleLimit.normalValue ?normalValue ;
             nc:VoltageAngleLimit.AngleReferenceTerminal ?terminal1 ;
@@ -225,7 +225,7 @@ SELECT *
             cim:OperationalLimitType.direction ?direction .
 
         OPTIONAL {
-                ?angleLimit
+                ?voltageAngleLimit
                     nc:VoltageAngleLimit.isFlowToRefTerminal ?isFlowToRefTerminal .
             }
     }
@@ -284,9 +284,18 @@ GRAPH <%s> {
     ?topologyAction
         rdf:type nc:TopologyAction ;
         cim:IdentifiedObject.mRID ?mRID ;
-        nc:GridStateAlteration.GridStateAlterationRemedialAction ?gridStateAlterationRemedialAction ;
         nc:TopologyAction.Switch ?switchId ;
         nc:GridStateAlteration.PropertyReference ?propertyReference ;
+
+        OPTIONAL {
+            ?topologyAction nc:GridStateAlteration.normalEnabled ?normalEnabled .
+        }
+        OPTIONAL {
+            ?topologyAction nc:GridStateAlteration.GridStateAlterationRemedialAction ?gridStateAlterationRemedialAction .
+        }
+        OPTIONAL {
+            ?topologyAction nc:GridStateAlteration.GridStateAlterationCollection ?gridStateAlterationCollection .
+        }
 }
 }
 
@@ -299,11 +308,16 @@ WHERE {
         rdf:type nc:RotatingMachineAction ;
         cim:IdentifiedObject.mRID ?mRID ;
         nc:GridStateAlteration.PropertyReference ?propertyReference ;
-        nc:GridStateAlteration.GridStateAlterationRemedialAction ?gridStateAlterationRemedialAction ;
         nc:RotatingMachineAction.RotatingMachine ?rotatingMachineId ;
 
         OPTIONAL {
             ?rotatingMachineAction nc:GridStateAlteration.normalEnabled ?normalEnabled .
+        }
+        OPTIONAL {
+            ?rotatingMachineAction nc:GridStateAlteration.GridStateAlterationRemedialAction ?gridStateAlterationRemedialAction .
+        }
+        OPTIONAL {
+            ?rotatingMachineAction nc:GridStateAlteration.GridStateAlterationCollection ?gridStateAlterationCollection .
         }
 }
 
@@ -316,10 +330,16 @@ WHERE {
         rdf:type nc:ShuntCompensatorModification ;
         cim:IdentifiedObject.mRID ?mRID ;
         nc:GridStateAlteration.PropertyReference ?propertyReference ;
-        nc:GridStateAlteration.GridStateAlterationRemedialAction ?gridStateAlterationRemedialAction ;
         nc:ShuntCompensatorModification.ShuntCompensator ?shuntCompensatorId ;
+
     OPTIONAL {
-        ?shuntCompensatorModification nc:RemedialAction.normalEnabled ?normalEnabled .
+        ?shuntCompensatorModification nc:GridStateAlteration.normalEnabled ?normalEnabled .
+    }
+    OPTIONAL {
+        ?shuntCompensatorModification nc:GridStateAlteration.GridStateAlterationRemedialAction ?gridStateAlterationRemedialAction .
+    }
+    OPTIONAL {
+        ?shuntCompensatorModification nc:GridStateAlteration.GridStateAlterationCollection ?gridStateAlterationCollection .
     }
 }
 
@@ -350,12 +370,17 @@ GRAPH <%s> {
         rdf:type nc:TapPositionAction ;
         cim:IdentifiedObject.mRID ?mRID ;
         nc:GridStateAlteration.PropertyReference ?propertyReference;
-        nc:GridStateAlteration.GridStateAlterationRemedialAction ?gridStateAlterationRemedialAction ;
         nc:TapPositionAction.TapChanger ?tapChangerId ;
 
         OPTIONAL {
-                ?tapPositionAction nc:GridStateAlteration.normalEnabled ?normalEnabled .
-            }
+            ?tapPositionAction nc:GridStateAlteration.normalEnabled ?normalEnabled .
+        }
+        OPTIONAL {
+            ?tapPositionAction nc:GridStateAlteration.GridStateAlterationRemedialAction ?gridStateAlterationRemedialAction .
+        }
+        OPTIONAL {
+            ?tapPositionAction nc:GridStateAlteration.GridStateAlterationCollection ?gridStateAlterationCollection .
+        }
 }
 }
 
@@ -431,81 +456,10 @@ PREFIX cim: <http://iec.ch/TC57/CIM100#>
 SELECT *
 {
 GRAPH <%s> {
-        ?gridStateAlterationCollection
-            rdf:type nc:GridStateAlterationCollection ;
-            cim:IdentifiedObject.mRID ?mRID ;
-
-}
-}
-
-
-# query: topologyActionAuto
-PREFIX nc: <http://entsoe.eu/ns/nc#>
-PREFIX cim: <http://iec.ch/TC57/CIM100#>
-SELECT *
-{
-GRAPH <%s> {
-    ?topologyActionAuto
-        rdf:type nc:TopologyAction ;
+    ?gridStateAlterationCollection
+        rdf:type nc:GridStateAlterationCollection ;
         cim:IdentifiedObject.mRID ?mRID ;
-        nc:GridStateAlteration.GridStateAlterationCollection ?gridStateAlterationCollection ;
-        nc:GridStateAlteration.PropertyReference ?propertyReference ;
-        nc:TopologyAction.Switch ?switchId ;
-            OPTIONAL {
-                ?topologyActionAuto nc:GridStateAlteration.normalEnabled ?normalEnabled .
-            }
-}
-}
 
-# query: rotatingMachineActionAuto
-PREFIX nc: <http://entsoe.eu/ns/nc#>
-PREFIX cim: <http://iec.ch/TC57/CIM100#>
-SELECT *
-{
-GRAPH <%s> {
-    ?rotatingMachineActionAuto
-        rdf:type nc:RotatingMachineAction ;
-        cim:IdentifiedObject.mRID ?mRID ;
-        nc:GridStateAlteration.PropertyReference ?propertyReference ;
-        nc:GridStateAlteration.GridStateAlterationCollection ?gridStateAlterationCollection ;
-        nc:RotatingMachineAction.RotatingMachine ?rotatingMachineId ;
-
-            OPTIONAL {
-                ?rotatingMachineActionAuto nc:GridStateAlteration.normalEnabled ?normalEnabled .
-            }
-}
-}
-
-# query: shuntCompensatorModificationAuto
-PREFIX nc: <http://entsoe.eu/ns/nc#>
-PREFIX cim: <http://iec.ch/TC57/CIM100#>
-SELECT *
-{
-GRAPH <%s> {
-    ?shuntCompensatorModificationAuto
-        rdf:type nc:ShuntCompensatorModification ;
-        cim:IdentifiedObject.mRID ?mRID ;
-        nc:GridStateAlteration.PropertyReference ?propertyReference ;
-        nc:GridStateAlteration.GridStateAlterationCollection ?gridStateAlterationCollection ;
-        nc:ShuntCompensatorModification.ShuntCompensator ?shuntCompensatorId ;
-    OPTIONAL {
-        ?shuntCompensatorModificationAuto nc:RemedialAction.normalEnabled ?normalEnabled .
-    }
-}
-}
-
-# query: tapPositionActionAuto
-PREFIX nc: <http://entsoe.eu/ns/nc#>
-PREFIX cim: <http://iec.ch/TC57/CIM100#>
-SELECT *
-{
-GRAPH <%s> {
-    ?tapPositionActionAuto
-        rdf:type nc:TapPositionAction ;
-        cim:IdentifiedObject.mRID ?mRID ;
-        nc:GridStateAlteration.PropertyReference ?propertyReference;
-        nc:GridStateAlteration.GridStateAlterationCollection ?gridStateAlterationCollection ;
-        nc:TapPositionAction.TapChanger ?tapChangerId ;
 }
 }
 
@@ -589,7 +543,7 @@ GRAPH <%s> {
 }
 }
 
-# query: remedialActionOverriding
+# query: gridStateAlterationRemedialActionOverriding
 PREFIX nc: <http://entsoe.eu/ns/nc#>
 PREFIX dcat: <http://www.w3.org/ns/dcat#>
 SELECT *
@@ -599,8 +553,8 @@ GRAPH <%s> {
         dcat:startDate ?startDate ;
         dcat:endDate ?endDate ;
         dcat:keyword ?keyword .
-    ?remedialAction
-        rdf:type nc:RemedialAction ;
+    ?gridStateAlterationRemedialAction
+        rdf:type nc:GridStateAlterationRemedialAction ;
         nc:RemedialAction.available ?available .
 }
 }
@@ -621,7 +575,7 @@ GRAPH <%s> {
 }
 }
 
-# query: rangeConstraintOverriding
+# query: topologyActionOverriding
 PREFIX nc: <http://entsoe.eu/ns/nc#>
 PREFIX dcat: <http://www.w3.org/ns/dcat#>
 SELECT *
@@ -631,7 +585,71 @@ GRAPH <%s> {
         dcat:startDate ?startDate ;
         dcat:endDate ?endDate ;
         dcat:keyword ?keyword .
-    ?rangeConstraint
+    ?topologyAction
+        rdf:type nc:GridStateAlteration ;
+        nc:GridStateAlteration.enabled ?enabled .
+}
+}
+
+# query: rotatingMachineActionOverriding
+PREFIX nc: <http://entsoe.eu/ns/nc#>
+PREFIX dcat: <http://www.w3.org/ns/dcat#>
+SELECT *
+{
+GRAPH <%s> {
+    ?fullModel
+        dcat:startDate ?startDate ;
+        dcat:endDate ?endDate ;
+        dcat:keyword ?keyword .
+    ?rotatingMachineAction
+        rdf:type nc:GridStateAlteration ;
+        nc:GridStateAlteration.enabled ?enabled .
+}
+}
+
+# query: shuntCompensatorModificationOverriding
+PREFIX nc: <http://entsoe.eu/ns/nc#>
+PREFIX dcat: <http://www.w3.org/ns/dcat#>
+SELECT *
+{
+GRAPH <%s> {
+    ?fullModel
+        dcat:startDate ?startDate ;
+        dcat:endDate ?endDate ;
+        dcat:keyword ?keyword .
+    ?shuntCompensatorModification
+        rdf:type nc:GridStateAlteration ;
+        nc:GridStateAlteration.enabled ?enabled .
+}
+}
+
+# query: tapPositionActionOverriding
+PREFIX nc: <http://entsoe.eu/ns/nc#>
+PREFIX dcat: <http://www.w3.org/ns/dcat#>
+SELECT *
+{
+GRAPH <%s> {
+    ?fullModel
+        dcat:startDate ?startDate ;
+        dcat:endDate ?endDate ;
+        dcat:keyword ?keyword .
+    ?tapPositionAction
+        rdf:type nc:GridStateAlteration ;
+        nc:GridStateAlteration.enabled ?enabled .
+}
+}
+
+# query: staticPropertyRangeOverriding
+PREFIX nc: <http://entsoe.eu/ns/nc#>
+PREFIX dcat: <http://www.w3.org/ns/dcat#>
+SELECT *
+{
+GRAPH <%s> {
+    ?fullModel
+        dcat:startDate ?startDate ;
+        dcat:endDate ?endDate ;
+        dcat:keyword ?keyword .
+    ?staticPropertyRange
         rdf:type nc:RangeConstraint ;
         nc:RangeConstraint.value ?value .
 }

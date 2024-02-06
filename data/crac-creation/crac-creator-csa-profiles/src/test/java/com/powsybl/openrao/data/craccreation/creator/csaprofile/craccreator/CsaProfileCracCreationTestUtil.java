@@ -58,6 +58,14 @@ public final class CsaProfileCracCreationTestUtil {
         }
     }
 
+    public static void assertContingencyNotImported(CsaProfileCracCreationContext cracCreationContext, String contingencyId, ImportStatus importStatus, String importStatusDetail) {
+        assertTrue(cracCreationContext.getContingencyCreationContexts().stream().anyMatch(context -> !context.isImported() && contingencyId.equals(context.getNativeId()) && importStatus.equals(context.getImportStatus()) && importStatusDetail.equals(context.getImportStatusDetail())));
+    }
+
+    public static void assertCnecNotImported(CsaProfileCracCreationContext cracCreationContext, String cnecId, ImportStatus importStatus, String importStatusDetail) {
+        assertTrue(cracCreationContext.getCnecCreationContexts().stream().anyMatch(context -> !context.isImported() && cnecId.equals(context.getNativeId()) && importStatus.equals(context.getImportStatus()) && importStatusDetail.equals(context.getImportStatusDetail())));
+    }
+
     public static void assertFlowCnecEquality(FlowCnec fc, String expectedFlowCnecId, String expectedFlowCnecName, String expectedNetworkElementId,
                                               Instant expectedInstant, String expectedContingencyId, Double expectedThresholdMax, Double expectedThresholdMin, Side expectedThresholdSide) {
         assertFlowCnecEquality(fc, expectedFlowCnecId, expectedFlowCnecName, expectedNetworkElementId, expectedInstant, expectedContingencyId, expectedThresholdMax, expectedThresholdMin, expectedThresholdMax, expectedThresholdMin, Set.of(expectedThresholdSide));
@@ -212,6 +220,10 @@ public final class CsaProfileCracCreationTestUtil {
 
     public static CsaProfileCracCreationContext getCsaCracCreationContext(String csaProfilesArchive, Network network) {
         return getCsaCracCreationContext(csaProfilesArchive, network, OffsetDateTime.parse("2023-03-29T12:00Z"));
+    }
+
+    public static CsaProfileCracCreationContext getCsaCracCreationContext(String csaProfilesArchive, Network network, String timestamp) {
+        return getCsaCracCreationContext(csaProfilesArchive, network, OffsetDateTime.parse(timestamp));
     }
 
     public static CsaProfileCracCreationContext getCsaCracCreationContext(String csaProfilesArchive, Network network, OffsetDateTime offsetDateTime) {

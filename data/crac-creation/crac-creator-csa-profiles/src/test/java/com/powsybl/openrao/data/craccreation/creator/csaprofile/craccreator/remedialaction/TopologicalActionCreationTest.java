@@ -178,7 +178,7 @@ class TopologicalActionCreationTest {
         assertEquals(1, cracCreationContext.getCrac().getRemedialActions().size());
         assertNetworkActionImported(cracCreationContext, "topology-action", Set.of("BBE1AA1  BBE4AA1  1", "DDE3AA1  DDE4AA1  1"), false, 1);
         cracCreationContext.getCrac().getNetworkAction("topology-action").getElementaryActions();
-        Iterator it = cracCreationContext.getCrac().getNetworkAction("topology-action").getElementaryActions().iterator();
+        Iterator<?> it = cracCreationContext.getCrac().getNetworkAction("topology-action").getElementaryActions().iterator();
         TopologicalAction ta1 = (TopologicalAction) it.next();
         TopologicalAction ta2 = (TopologicalAction) it.next();
         if ("BBE1AA1  BBE4AA1  1".equals(ta1.getNetworkElement().getName())) {
