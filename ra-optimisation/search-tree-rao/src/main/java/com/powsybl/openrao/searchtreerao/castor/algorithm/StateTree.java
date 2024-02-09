@@ -93,7 +93,7 @@ public class StateTree {
         Set<State> curativeStatesWithCnecsButNoCras = new HashSet<>();
         boolean curativeCnecsEncountered = false;
 
-        // if curative state has CNECs but no CRAs, add it to the closest optimisation state with CRAs
+        // if curative state has CNECs but no CRAs, add it to the last optimisation state before it with CRAs
         for (State curativeState : curativeStates) {
             boolean curativeCnecsPresent = anyCnec(crac, curativeState);
             curativeCnecsEncountered = curativeCnecsEncountered || curativeCnecsPresent;
