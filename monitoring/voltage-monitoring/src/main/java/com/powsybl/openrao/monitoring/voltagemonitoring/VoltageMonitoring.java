@@ -164,7 +164,7 @@ public class VoltageMonitoring {
             return catchVoltageMonitoringResult(state, VoltageMonitoringResult.Status.UNKNOWN);
         }
         // Check for threshold overshoot for the voltages of each cnec
-        Set<RemedialAction> appliedNetworkActions = new TreeSet<>(Comparator.comparing(RemedialAction::getId));
+        Set<RemedialAction<?>> appliedNetworkActions = new TreeSet<>(Comparator.comparing(RemedialAction::getId));
         Map<VoltageCnec, ExtremeVoltageValues> voltageValues = computeVoltages(crac.getVoltageCnecs(state), networkClone);
         for (Map.Entry<VoltageCnec, ExtremeVoltageValues> voltages : voltageValues.entrySet()) {
             VoltageCnec voltageCnec = voltages.getKey();
@@ -179,7 +179,7 @@ public class VoltageMonitoring {
             BUSINESS_WARNS.warn("Load-flow computation failed at state {} after applying RAs. Skipping this state.", state);
             return new VoltageMonitoringResult(voltageValues, new HashMap<>(), VoltageMonitoringResult.getUnsecureStatus(voltageValues));
         }
-        Map<State, Set<RemedialAction>> appliedRa = new HashMap<>();
+        Map<State, Set<RemedialAction<?>>> appliedRa = new HashMap<>();
         if (!appliedNetworkActions.isEmpty()) {
             appliedRa.put(state, appliedNetworkActions);
         }
@@ -300,7 +300,7 @@ public class VoltageMonitoring {
      */
     private VoltageMonitoringResult assembleVoltageMonitoringResults() {
         Map<VoltageCnec, ExtremeVoltageValues> extremeVoltageValuesMap = new HashMap<>();
-        Map<State, Set<RemedialAction>> appliedRas = new HashMap<>();
+        Map<State, Set<RemedialAction<?>>> appliedRas = new HashMap<>();
         stateSpecificResults.forEach(s -> {
             extremeVoltageValuesMap.putAll(s.getExtremeVoltageValues());
             appliedRas.putAll(s.getAppliedRas());

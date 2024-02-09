@@ -77,7 +77,7 @@ public class RaoResultWithVoltageMonitoring extends RaoResultClone {
     @Override
     public Set<NetworkAction> getActivatedNetworkActionsDuringState(State state) {
         Set<NetworkAction> concatenatedActions = new HashSet<>(raoResult.getActivatedNetworkActionsDuringState(state));
-        Set<RemedialAction> voltageMonitoringRas = voltageMonitoringResult.getAppliedRas(state);
+        Set<RemedialAction<?>> voltageMonitoringRas = voltageMonitoringResult.getAppliedRas(state);
         Set<NetworkAction> voltageMonitoringNetworkActions = voltageMonitoringRas.stream().filter(NetworkAction.class::isInstance).map(ra -> (NetworkAction) ra).collect(Collectors.toSet());
         concatenatedActions.addAll(voltageMonitoringNetworkActions);
         return concatenatedActions;

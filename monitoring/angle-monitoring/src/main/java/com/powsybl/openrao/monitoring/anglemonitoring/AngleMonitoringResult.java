@@ -61,10 +61,10 @@ public class AngleMonitoringResult {
     }
 
     private final Set<AngleResult> angleCnecsWithAngle;
-    private final Map<State, Set<RemedialAction>> appliedCras;
+    private final Map<State, Set<RemedialAction<?>>> appliedCras;
     private final Status status;
 
-    public AngleMonitoringResult(Set<AngleResult> angleCnecsWithAngle, Map<State, Set<RemedialAction>> appliedCras, Status status) {
+    public AngleMonitoringResult(Set<AngleResult> angleCnecsWithAngle, Map<State, Set<RemedialAction<?>>> appliedCras, Status status) {
         this.angleCnecsWithAngle = angleCnecsWithAngle;
         this.appliedCras = appliedCras;
         this.status = status;
@@ -86,7 +86,7 @@ public class AngleMonitoringResult {
     public boolean isDivergent() {
         return getStatus() == Status.DIVERGENT; }
 
-    public Set<RemedialAction> getAppliedCras(State state) {
+    public Set<RemedialAction<?>> getAppliedCras(State state) {
         return appliedCras.getOrDefault(state, Collections.emptySet());
     }
 
@@ -105,7 +105,7 @@ public class AngleMonitoringResult {
         return angleCnecsWithAngle;
     }
 
-    public Map<State, Set<RemedialAction>> getAppliedCras() {
+    public Map<State, Set<RemedialAction<?>>> getAppliedCras() {
         return appliedCras;
     }
 

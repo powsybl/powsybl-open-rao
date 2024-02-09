@@ -15,8 +15,8 @@ public final class MonitoringCommonSerializer {
     private MonitoringCommonSerializer() {
     }
 
-    public static void serializeAppliedRas(Map<State, Set<RemedialAction>> appliedRas, JsonGenerator jsonGenerator) throws IOException {
-        for (Map.Entry<State, Set<RemedialAction>> entry : appliedRas.entrySet().stream().sorted(Comparator.comparing(e -> e.getKey().getId()))
+    public static void serializeAppliedRas(Map<State, Set<RemedialAction<?>>> appliedRas, JsonGenerator jsonGenerator) throws IOException {
+        for (Map.Entry<State, Set<RemedialAction<?>>> entry : appliedRas.entrySet().stream().sorted(Comparator.comparing(e -> e.getKey().getId()))
                 .toList()) {
             jsonGenerator.writeStartObject();
             jsonGenerator.writeStringField(JsonCommonMonitoringResultConstants.INSTANT, entry.getKey().getInstant().toString());

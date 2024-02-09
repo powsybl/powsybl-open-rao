@@ -61,7 +61,7 @@ public class AngleMonitoringResultDeserializer extends JsonDeserializer<AngleMon
         }
 
         Set<AngleMonitoringResult.AngleResult> angleResults = new HashSet<>();
-        Map<State, Set<RemedialAction>> appliedCras = new HashMap<>();
+        Map<State, Set<RemedialAction<?>>> appliedCras = new HashMap<>();
         while (jsonParser.nextToken() != JsonToken.END_OBJECT) {
             if (jsonParser.getCurrentName().equals(ANGLE_VALUES)) {
                 jsonParser.nextToken();

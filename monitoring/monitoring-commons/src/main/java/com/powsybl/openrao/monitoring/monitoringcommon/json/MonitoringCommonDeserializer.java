@@ -23,7 +23,7 @@ public final class MonitoringCommonDeserializer {
     private MonitoringCommonDeserializer() {
     }
 
-    public static void readAppliedRas(JsonParser jsonParser, Map<State, Set<RemedialAction>> appliedRas, Crac crac) throws IOException {
+    public static void readAppliedRas(JsonParser jsonParser, Map<State, Set<RemedialAction<?>>> appliedRas, Crac crac) throws IOException {
         while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
             String contingencyId = null;
             Instant instant = null;
@@ -73,7 +73,7 @@ public final class MonitoringCommonDeserializer {
         return state;
     }
 
-    private static Set<RemedialAction> getNetworkActions(Set<String> ids, Crac crac) {
+    private static Set<RemedialAction<?>> getNetworkActions(Set<String> ids, Crac crac) {
         return ids.stream().map(crac::getNetworkAction).collect(Collectors.toSet());
     }
 }

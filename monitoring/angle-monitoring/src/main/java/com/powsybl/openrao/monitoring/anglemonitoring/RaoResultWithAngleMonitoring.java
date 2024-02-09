@@ -69,7 +69,7 @@ public class RaoResultWithAngleMonitoring extends RaoResultClone {
     @Override
     public Set<NetworkAction> getActivatedNetworkActionsDuringState(State state) {
         Set<NetworkAction> concatenatedActions = new HashSet<>(raoResult.getActivatedNetworkActionsDuringState(state));
-        Set<RemedialAction> angleMonitoringRas = angleMonitoringResult.getAppliedCras(state);
+        Set<RemedialAction<?>> angleMonitoringRas = angleMonitoringResult.getAppliedCras(state);
         Set<NetworkAction> angleMonitoringNetworkActions = angleMonitoringRas.stream().filter(NetworkAction.class::isInstance).map(ra -> (NetworkAction) ra).collect(Collectors.toSet());
         concatenatedActions.addAll(angleMonitoringNetworkActions);
         return concatenatedActions;

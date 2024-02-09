@@ -45,10 +45,10 @@ public class VoltageMonitoringResult {
     private final Status status;
     private final Map<VoltageCnec, ExtremeVoltageValues> extremeVoltageValues;
     private final Set<VoltageCnec> constrainedElements;
-    private final Map<State, Set<RemedialAction>> appliedRas;
+    private final Map<State, Set<RemedialAction<?>>> appliedRas;
     private List<String> constraints;
 
-    public VoltageMonitoringResult(Map<VoltageCnec, ExtremeVoltageValues> extremeVoltageValues, Map<State, Set<RemedialAction>> appliedRas, Status status) {
+    public VoltageMonitoringResult(Map<VoltageCnec, ExtremeVoltageValues> extremeVoltageValues, Map<State, Set<RemedialAction<?>>> appliedRas, Status status) {
         this.extremeVoltageValues = extremeVoltageValues;
         Set<VoltageCnec> tmpConstrainedElements = new HashSet<>();
         this.constrainedElements = Collections.unmodifiableSet(tmpConstrainedElements);
@@ -86,7 +86,7 @@ public class VoltageMonitoringResult {
         return constrainedElements;
     }
 
-    public Set<RemedialAction> getAppliedRas(State state) {
+    public Set<RemedialAction<?>> getAppliedRas(State state) {
         return appliedRas.getOrDefault(state, Collections.emptySet());
     }
 
@@ -101,7 +101,7 @@ public class VoltageMonitoringResult {
         }
     }
 
-    public Map<State, Set<RemedialAction>> getAppliedRas() {
+    public Map<State, Set<RemedialAction<?>>> getAppliedRas() {
         return appliedRas;
     }
 

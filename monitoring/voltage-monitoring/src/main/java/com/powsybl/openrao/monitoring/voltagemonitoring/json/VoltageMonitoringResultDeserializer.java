@@ -59,7 +59,7 @@ public class VoltageMonitoringResultDeserializer extends JsonDeserializer<Voltag
         }
 
         Map<VoltageCnec, ExtremeVoltageValues> extremeVoltageValues = new HashMap<>();
-        Map<State, Set<RemedialAction>> appliedRas = new HashMap<>();
+        Map<State, Set<RemedialAction<?>>> appliedRas = new HashMap<>();
         while (jsonParser.nextToken() != JsonToken.END_OBJECT) {
             if (jsonParser.getCurrentName().equals(VOLTAGE_VALUES)) {
                 jsonParser.nextToken();
