@@ -219,7 +219,7 @@ public class CastorFullOptimization {
         double initialCost = initialResult.getCost();
         double initialFunctionalCost = initialResult.getFunctionalCost();
         double initialVirtualCost = initialResult.getVirtualCost();
-        Instant lastCurativeInstant = raoInput.getCrac().getLastInstant();
+        Instant lastInstant = raoInput.getCrac().getLastInstant();
         double finalCost = finalRaoResult.getCost(lastCurativeInstant);
         double finalFunctionalCost = finalRaoResult.getFunctionalCost(lastCurativeInstant);
         double finalVirtualCost = finalRaoResult.getVirtualCost(lastCurativeInstant);
