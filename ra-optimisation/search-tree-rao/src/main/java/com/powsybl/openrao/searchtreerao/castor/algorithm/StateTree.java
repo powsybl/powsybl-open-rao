@@ -79,7 +79,7 @@ public class StateTree {
         if (!autoCnecsExist && !curativeCnecsExist) {
             // do not create scenarios with no CNECs even if RAs exist
             if (Objects.nonNull(automatonState) || !curativeStates.isEmpty()) {
-                OpenRaoLoggerProvider.BUSINESS_WARNS.warn("Contingency {} has an automaton or a curative state but no CNECs associated.", contingency.getId());
+                OpenRaoLoggerProvider.BUSINESS_WARNS.warn("Contingency {} has an automaton or a curative remedial action but no CNECs associated.", contingency.getId());
             }
             return;
         }
