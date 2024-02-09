@@ -41,7 +41,7 @@ public class PreventiveOptimizationPerimeter extends AbstractOptimizationPerimet
     }
 
     public static PreventiveOptimizationPerimeter buildFromBasecaseScenario(Perimeter preventivePerimeter, Crac crac, Network network, RaoParameters raoParameters, PrePerimeterResult prePerimeterResult) {
-        return buildForStates(preventivePerimeter.getOptimisationState(), preventivePerimeter.getAllStates(), crac, crac.getRangeActions(), network, raoParameters, prePerimeterResult);
+        return buildForStates(preventivePerimeter.getRaOptimisationState(), preventivePerimeter.getAllStates(), crac, crac.getRangeActions(), network, raoParameters, prePerimeterResult);
     }
 
     public static PreventiveOptimizationPerimeter buildWithPreventiveCnecsOnly(Crac crac, Network network, RaoParameters raoParameters, PrePerimeterResult prePerimeterResult) {

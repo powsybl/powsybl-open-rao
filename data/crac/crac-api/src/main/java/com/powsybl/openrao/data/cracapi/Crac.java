@@ -88,7 +88,7 @@ public interface Crac extends Identifiable<Crac> {
     /**
      * Gather all the instants present in the Crac with the correct instantKind.
      */
-    Set<Instant> getInstants(InstantKind instantKind);
+    SortedSet<Instant> getInstants(InstantKind instantKind);
 
     /**
      * Returns the previous instant of an instant.

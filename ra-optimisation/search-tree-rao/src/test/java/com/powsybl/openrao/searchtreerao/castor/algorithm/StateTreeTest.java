@@ -88,8 +88,8 @@ class StateTreeTest {
         assertEquals(crac.getContingency("Contingency FR1 FR3"), contingencyScenario.getContingency());
         assertTrue(contingencyScenario.getAutomatonState().isEmpty());
         assertEquals(1, contingencyScenario.getCurativePerimeters().size());
-        assertEquals(curativeState2, contingencyScenario.getCurativePerimeters().get(0).getOptimisationState());
-        assertTrue(contingencyScenario.getCurativePerimeters().get(0).getOtherStates().isEmpty());
+        assertEquals(curativeState2, contingencyScenario.getCurativePerimeters().get(0).getRaOptimisationState());
+        assertTrue(contingencyScenario.getCurativePerimeters().get(0).getCnecStates().isEmpty());
 
         assertEquals(1, stateTree.getOperatorsNotSharingCras().size());
         assertEquals("operator2", stateTree.getOperatorsNotSharingCras().iterator().next());
@@ -172,8 +172,8 @@ class StateTreeTest {
         assertTrue(stateTree.getContingencyScenarios().isEmpty());
         Perimeter preventivePerimeter = stateTree.getBasecaseScenario();
         assertNotNull(preventivePerimeter);
-        assertEquals(crac.getPreventiveState(), preventivePerimeter.getOptimisationState());
-        assertEquals(6, preventivePerimeter.getOtherStates().size());
+        assertEquals(crac.getPreventiveState(), preventivePerimeter.getRaOptimisationState());
+        assertEquals(6, preventivePerimeter.getCnecStates().size());
         assertEquals(7, preventivePerimeter.getAllStates().size());
     }
 
@@ -195,8 +195,8 @@ class StateTreeTest {
         assertEquals(crac.getContingency("contingency-1"), contingencyScenario.getContingency());
         assertTrue(contingencyScenario.getAutomatonState().isEmpty());
         assertEquals(1, contingencyScenario.getCurativePerimeters().size());
-        assertEquals(crac.getState("contingency-1", curativeInstant), contingencyScenario.getCurativePerimeters().get(0).getOptimisationState());
-        assertTrue(contingencyScenario.getCurativePerimeters().get(0).getOtherStates().isEmpty());
+        assertEquals(crac.getState("contingency-1", curativeInstant), contingencyScenario.getCurativePerimeters().get(0).getRaOptimisationState());
+        assertTrue(contingencyScenario.getCurativePerimeters().get(0).getCnecStates().isEmpty());
     }
 
     @Test
@@ -371,8 +371,8 @@ class StateTreeTest {
         assertEquals(crac.getContingency("contingency"), contingencyScenario.getContingency());
         assertEquals(Optional.empty(), contingencyScenario.getAutomatonState());
         assertEquals(1, contingencyScenario.getCurativePerimeters().size());
-        assertEquals(curativeState1, contingencyScenario.getCurativePerimeters().get(0).getOptimisationState());
-        assertTrue(contingencyScenario.getCurativePerimeters().get(0).getOtherStates().isEmpty());
+        assertEquals(curativeState1, contingencyScenario.getCurativePerimeters().get(0).getRaOptimisationState());
+        assertTrue(contingencyScenario.getCurativePerimeters().get(0).getCnecStates().isEmpty());
     }
 
     @Test
@@ -393,8 +393,8 @@ class StateTreeTest {
         assertEquals(Optional.of(autoState), stateTree.getContingencyScenarios().iterator().next().getAutomatonState());
         ContingencyScenario contingencyScenario = stateTree.getContingencyScenarios().iterator().next();
         assertEquals(1, contingencyScenario.getCurativePerimeters().size());
-        assertEquals(curativeState1, contingencyScenario.getCurativePerimeters().get(0).getOptimisationState());
-        assertTrue(contingencyScenario.getCurativePerimeters().get(0).getOtherStates().isEmpty());
+        assertEquals(curativeState1, contingencyScenario.getCurativePerimeters().get(0).getRaOptimisationState());
+        assertTrue(contingencyScenario.getCurativePerimeters().get(0).getCnecStates().isEmpty());
 
         // 4.3 Both AUTO and CURATIVE exist, only CURATIVE has RAs
         setUpCustomCracWithAutoInstant(true, false, true, true);
@@ -405,8 +405,8 @@ class StateTreeTest {
         assertEquals(crac.getContingency("contingency"), contingencyScenario.getContingency());
         assertEquals(Optional.empty(), contingencyScenario.getAutomatonState());
         assertEquals(1, contingencyScenario.getCurativePerimeters().size());
-        assertEquals(curativeState1, contingencyScenario.getCurativePerimeters().get(0).getOptimisationState());
-        assertTrue(contingencyScenario.getCurativePerimeters().get(0).getOtherStates().isEmpty());
+        assertEquals(curativeState1, contingencyScenario.getCurativePerimeters().get(0).getRaOptimisationState());
+        assertTrue(contingencyScenario.getCurativePerimeters().get(0).getCnecStates().isEmpty());
 
         // 4.4 Both AUTO and CURATIVE exist and have RAs
         setUpCustomCracWithAutoInstant(true, true, true, true);
@@ -417,8 +417,8 @@ class StateTreeTest {
         assertEquals(crac.getContingency("contingency"), contingencyScenario.getContingency());
         assertEquals(Optional.of(autoState), contingencyScenario.getAutomatonState());
         assertEquals(1, contingencyScenario.getCurativePerimeters().size());
-        assertEquals(curativeState1, contingencyScenario.getCurativePerimeters().get(0).getOptimisationState());
-        assertTrue(contingencyScenario.getCurativePerimeters().get(0).getOtherStates().isEmpty());
+        assertEquals(curativeState1, contingencyScenario.getCurativePerimeters().get(0).getRaOptimisationState());
+        assertTrue(contingencyScenario.getCurativePerimeters().get(0).getCnecStates().isEmpty());
     }
 
     @Test
@@ -435,8 +435,8 @@ class StateTreeTest {
         assertEquals(crac.getContingency("contingency"), contingencyScenario.getContingency());
         assertEquals(Optional.of(autoState), contingencyScenario.getAutomatonState());
         assertEquals(1, contingencyScenario.getCurativePerimeters().size());
-        assertEquals(curativeState1, contingencyScenario.getCurativePerimeters().get(0).getOptimisationState());
-        assertTrue(contingencyScenario.getCurativePerimeters().get(0).getOtherStates().isEmpty());
+        assertEquals(curativeState1, contingencyScenario.getCurativePerimeters().get(0).getRaOptimisationState());
+        assertTrue(contingencyScenario.getCurativePerimeters().get(0).getCnecStates().isEmpty());
     }
 
     @Test
@@ -487,13 +487,13 @@ class StateTreeTest {
         curativePerimeters = contingencyScenario
             .getCurativePerimeters()
             .stream()
-            .sorted(Comparator.comparing(perimeter -> perimeter.getOptimisationState().getInstant().getOrder()))
+            .sorted(Comparator.comparing(perimeter -> perimeter.getRaOptimisationState().getInstant().getOrder()))
             .toList();
         assertEquals(2, curativePerimeters.size());
-        assertEquals("co-01 - curative1", curativePerimeters.get(0).getOptimisationState().getId());
-        assertTrue(curativePerimeters.get(0).getOtherStates().isEmpty());
-        assertEquals("co-01 - curative2", curativePerimeters.get(1).getOptimisationState().getId());
-        assertTrue(curativePerimeters.get(1).getOtherStates().isEmpty());
+        assertEquals("co-01 - curative1", curativePerimeters.get(0).getRaOptimisationState().getId());
+        assertTrue(curativePerimeters.get(0).getCnecStates().isEmpty());
+        assertEquals("co-01 - curative2", curativePerimeters.get(1).getRaOptimisationState().getId());
+        assertTrue(curativePerimeters.get(1).getCnecStates().isEmpty());
 
         contingencyScenario = contingencyScenarios.get(1);
         assertTrue(contingencyScenario.getAutomatonState().isEmpty());
@@ -501,11 +501,11 @@ class StateTreeTest {
         curativePerimeters = contingencyScenario
             .getCurativePerimeters()
             .stream()
-            .sorted(Comparator.comparing(perimeter -> perimeter.getOptimisationState().getInstant().getOrder()))
+            .sorted(Comparator.comparing(perimeter -> perimeter.getRaOptimisationState().getInstant().getOrder()))
             .toList();
         assertEquals(1, curativePerimeters.size());
-        assertEquals("co-02 - curative1", curativePerimeters.get(0).getOptimisationState().getId());
-        otherStates = curativePerimeters.get(0).getOtherStates().stream().toList();
+        assertEquals("co-02 - curative1", curativePerimeters.get(0).getRaOptimisationState().getId());
+        otherStates = curativePerimeters.get(0).getCnecStates().stream().toList();
         assertEquals(1, otherStates.size());
         assertEquals("co-02 - curative2", otherStates.get(0).getId());
 
@@ -515,11 +515,11 @@ class StateTreeTest {
         curativePerimeters = contingencyScenario
             .getCurativePerimeters()
             .stream()
-            .sorted(Comparator.comparing(perimeter -> perimeter.getOptimisationState().getInstant().getOrder()))
+            .sorted(Comparator.comparing(perimeter -> perimeter.getRaOptimisationState().getInstant().getOrder()))
             .toList();
         assertEquals(1, curativePerimeters.size());
-        assertEquals("co-03 - curative1", curativePerimeters.get(0).getOptimisationState().getId());
-        assertTrue(curativePerimeters.get(0).getOtherStates().isEmpty());
+        assertEquals("co-03 - curative1", curativePerimeters.get(0).getRaOptimisationState().getId());
+        assertTrue(curativePerimeters.get(0).getCnecStates().isEmpty());
 
         contingencyScenario = contingencyScenarios.get(3);
         assertTrue(contingencyScenario.getAutomatonState().isEmpty());
@@ -527,11 +527,11 @@ class StateTreeTest {
         curativePerimeters = contingencyScenario
             .getCurativePerimeters()
             .stream()
-            .sorted(Comparator.comparing(perimeter -> perimeter.getOptimisationState().getInstant().getOrder()))
+            .sorted(Comparator.comparing(perimeter -> perimeter.getRaOptimisationState().getInstant().getOrder()))
             .toList();
         assertEquals(1, curativePerimeters.size());
-        assertEquals("co-04 - curative1", curativePerimeters.get(0).getOptimisationState().getId());
-        assertTrue(curativePerimeters.get(0).getOtherStates().isEmpty());
+        assertEquals("co-04 - curative1", curativePerimeters.get(0).getRaOptimisationState().getId());
+        assertTrue(curativePerimeters.get(0).getCnecStates().isEmpty());
 
         contingencyScenario = contingencyScenarios.get(4);
         assertTrue(contingencyScenario.getAutomatonState().isEmpty());
@@ -539,11 +539,11 @@ class StateTreeTest {
         curativePerimeters = contingencyScenario
             .getCurativePerimeters()
             .stream()
-            .sorted(Comparator.comparing(perimeter -> perimeter.getOptimisationState().getInstant().getOrder()))
+            .sorted(Comparator.comparing(perimeter -> perimeter.getRaOptimisationState().getInstant().getOrder()))
             .toList();
         assertEquals(1, curativePerimeters.size());
-        assertEquals("co-05 - curative2", curativePerimeters.get(0).getOptimisationState().getId());
-        assertTrue(curativePerimeters.get(0).getOtherStates().isEmpty());
+        assertEquals("co-05 - curative2", curativePerimeters.get(0).getRaOptimisationState().getId());
+        assertTrue(curativePerimeters.get(0).getCnecStates().isEmpty());
 
         contingencyScenario = contingencyScenarios.get(5);
         assertTrue(contingencyScenario.getAutomatonState().isEmpty());
@@ -551,13 +551,11 @@ class StateTreeTest {
         curativePerimeters = contingencyScenario
             .getCurativePerimeters()
             .stream()
-            .sorted(Comparator.comparing(perimeter -> perimeter.getOptimisationState().getInstant().getOrder()))
+            .sorted(Comparator.comparing(perimeter -> perimeter.getRaOptimisationState().getInstant().getOrder()))
             .toList();
-        assertEquals(2, curativePerimeters.size());
-        assertEquals("co-09 - curative1", curativePerimeters.get(0).getOptimisationState().getId());
-        assertTrue(curativePerimeters.get(0).getOtherStates().isEmpty());
-        assertEquals("co-09 - curative2", curativePerimeters.get(1).getOptimisationState().getId());
-        assertTrue(curativePerimeters.get(1).getOtherStates().isEmpty());
+        assertEquals(1, curativePerimeters.size());
+        assertEquals("co-09 - curative2", curativePerimeters.get(0).getRaOptimisationState().getId());
+        assertTrue(curativePerimeters.get(0).getCnecStates().isEmpty());
 
         contingencyScenario = contingencyScenarios.get(6);
         assertTrue(contingencyScenario.getAutomatonState().isEmpty());
@@ -565,11 +563,11 @@ class StateTreeTest {
         curativePerimeters = contingencyScenario
             .getCurativePerimeters()
             .stream()
-            .sorted(Comparator.comparing(perimeter -> perimeter.getOptimisationState().getInstant().getOrder()))
+            .sorted(Comparator.comparing(perimeter -> perimeter.getRaOptimisationState().getInstant().getOrder()))
             .toList();
         assertEquals(1, curativePerimeters.size());
-        assertEquals("co-10 - curative1", curativePerimeters.get(0).getOptimisationState().getId());
-        otherStates = curativePerimeters.get(0).getOtherStates().stream().toList();
+        assertEquals("co-10 - curative1", curativePerimeters.get(0).getRaOptimisationState().getId());
+        otherStates = curativePerimeters.get(0).getCnecStates().stream().toList();
         assertEquals(1, otherStates.size());
         assertEquals("co-10 - curative2", otherStates.get(0).getId());
 
@@ -579,13 +577,13 @@ class StateTreeTest {
         curativePerimeters = contingencyScenario
             .getCurativePerimeters()
             .stream()
-            .sorted(Comparator.comparing(perimeter -> perimeter.getOptimisationState().getInstant().getOrder()))
+            .sorted(Comparator.comparing(perimeter -> perimeter.getRaOptimisationState().getInstant().getOrder()))
             .toList();
         assertEquals(1, curativePerimeters.size());
-        assertEquals("co-13 - curative2", curativePerimeters.get(0).getOptimisationState().getId());
-        assertTrue(curativePerimeters.get(0).getOtherStates().isEmpty());
+        assertEquals("co-13 - curative2", curativePerimeters.get(0).getRaOptimisationState().getId());
+        assertTrue(curativePerimeters.get(0).getCnecStates().isEmpty());
 
-        assertEquals(6, stateTree.getBasecaseScenario().getOtherStates().size());
+        assertEquals(6, stateTree.getBasecaseScenario().getCnecStates().size());
         assertCurativeStateInBaseCase(stateTree, multipleCurativeInstantsCrac, "co-05", "curative1");
         assertCurativeStateInBaseCase(stateTree, multipleCurativeInstantsCrac, "co-06", "curative1");
         assertCurativeStateInBaseCase(stateTree, multipleCurativeInstantsCrac, "co-06", "curative2");
@@ -614,13 +612,13 @@ class StateTreeTest {
         curativePerimeters = contingencyScenario
             .getCurativePerimeters()
             .stream()
-            .sorted(Comparator.comparing(perimeter -> perimeter.getOptimisationState().getInstant().getOrder()))
+            .sorted(Comparator.comparing(perimeter -> perimeter.getRaOptimisationState().getInstant().getOrder()))
             .toList();
         assertEquals(2, curativePerimeters.size());
-        assertEquals("co-01 - curative1", curativePerimeters.get(0).getOptimisationState().getId());
-        assertTrue(curativePerimeters.get(0).getOtherStates().isEmpty());
-        assertEquals("co-01 - curative2", curativePerimeters.get(1).getOptimisationState().getId());
-        assertTrue(curativePerimeters.get(1).getOtherStates().isEmpty());
+        assertEquals("co-01 - curative1", curativePerimeters.get(0).getRaOptimisationState().getId());
+        assertTrue(curativePerimeters.get(0).getCnecStates().isEmpty());
+        assertEquals("co-01 - curative2", curativePerimeters.get(1).getRaOptimisationState().getId());
+        assertTrue(curativePerimeters.get(1).getCnecStates().isEmpty());
 
         contingencyScenario = contingencyScenarios.get(1);
         assertTrue(contingencyScenario.getAutomatonState().isEmpty());
@@ -628,11 +626,11 @@ class StateTreeTest {
         curativePerimeters = contingencyScenario
             .getCurativePerimeters()
             .stream()
-            .sorted(Comparator.comparing(perimeter -> perimeter.getOptimisationState().getInstant().getOrder()))
+            .sorted(Comparator.comparing(perimeter -> perimeter.getRaOptimisationState().getInstant().getOrder()))
             .toList();
         assertEquals(1, curativePerimeters.size());
-        assertEquals("co-02 - curative1", curativePerimeters.get(0).getOptimisationState().getId());
-        otherStates = curativePerimeters.get(0).getOtherStates().stream().toList();
+        assertEquals("co-02 - curative1", curativePerimeters.get(0).getRaOptimisationState().getId());
+        otherStates = curativePerimeters.get(0).getCnecStates().stream().toList();
         assertEquals(1, otherStates.size());
         assertEquals("co-02 - curative2", otherStates.get(0).getId());
 
@@ -642,11 +640,11 @@ class StateTreeTest {
         curativePerimeters = contingencyScenario
             .getCurativePerimeters()
             .stream()
-            .sorted(Comparator.comparing(perimeter -> perimeter.getOptimisationState().getInstant().getOrder()))
+            .sorted(Comparator.comparing(perimeter -> perimeter.getRaOptimisationState().getInstant().getOrder()))
             .toList();
         assertEquals(1, curativePerimeters.size());
-        assertEquals("co-03 - curative1", curativePerimeters.get(0).getOptimisationState().getId());
-        assertTrue(curativePerimeters.get(0).getOtherStates().isEmpty());
+        assertEquals("co-03 - curative1", curativePerimeters.get(0).getRaOptimisationState().getId());
+        assertTrue(curativePerimeters.get(0).getCnecStates().isEmpty());
 
         contingencyScenario = contingencyScenarios.get(3);
         assertTrue(contingencyScenario.getAutomatonState().isEmpty());
@@ -654,11 +652,11 @@ class StateTreeTest {
         curativePerimeters = contingencyScenario
             .getCurativePerimeters()
             .stream()
-            .sorted(Comparator.comparing(perimeter -> perimeter.getOptimisationState().getInstant().getOrder()))
+            .sorted(Comparator.comparing(perimeter -> perimeter.getRaOptimisationState().getInstant().getOrder()))
             .toList();
         assertEquals(1, curativePerimeters.size());
-        assertEquals("co-04 - curative1", curativePerimeters.get(0).getOptimisationState().getId());
-        assertTrue(curativePerimeters.get(0).getOtherStates().isEmpty());
+        assertEquals("co-04 - curative1", curativePerimeters.get(0).getRaOptimisationState().getId());
+        assertTrue(curativePerimeters.get(0).getCnecStates().isEmpty());
 
         contingencyScenario = contingencyScenarios.get(4);
         assertTrue(contingencyScenario.getAutomatonState().isEmpty());
@@ -666,11 +664,11 @@ class StateTreeTest {
         curativePerimeters = contingencyScenario
             .getCurativePerimeters()
             .stream()
-            .sorted(Comparator.comparing(perimeter -> perimeter.getOptimisationState().getInstant().getOrder()))
+            .sorted(Comparator.comparing(perimeter -> perimeter.getRaOptimisationState().getInstant().getOrder()))
             .toList();
         assertEquals(1, curativePerimeters.size());
-        assertEquals("co-05 - curative2", curativePerimeters.get(0).getOptimisationState().getId());
-        assertTrue(curativePerimeters.get(0).getOtherStates().isEmpty());
+        assertEquals("co-05 - curative2", curativePerimeters.get(0).getRaOptimisationState().getId());
+        assertTrue(curativePerimeters.get(0).getCnecStates().isEmpty());
 
         contingencyScenario = contingencyScenarios.get(5);
         assertTrue(contingencyScenario.getAutomatonState().isEmpty());
@@ -678,13 +676,11 @@ class StateTreeTest {
         curativePerimeters = contingencyScenario
             .getCurativePerimeters()
             .stream()
-            .sorted(Comparator.comparing(perimeter -> perimeter.getOptimisationState().getInstant().getOrder()))
+            .sorted(Comparator.comparing(perimeter -> perimeter.getRaOptimisationState().getInstant().getOrder()))
             .toList();
-        assertEquals(2, curativePerimeters.size());
-        assertEquals("co-09 - curative1", curativePerimeters.get(0).getOptimisationState().getId());
-        assertTrue(curativePerimeters.get(0).getOtherStates().isEmpty());
-        assertEquals("co-09 - curative2", curativePerimeters.get(1).getOptimisationState().getId());
-        assertTrue(curativePerimeters.get(1).getOtherStates().isEmpty());
+        assertEquals(1, curativePerimeters.size());
+        assertEquals("co-09 - curative2", curativePerimeters.get(0).getRaOptimisationState().getId());
+        assertTrue(curativePerimeters.get(0).getCnecStates().isEmpty());
 
         contingencyScenario = contingencyScenarios.get(6);
         assertTrue(contingencyScenario.getAutomatonState().isEmpty());
@@ -692,11 +688,11 @@ class StateTreeTest {
         curativePerimeters = contingencyScenario
             .getCurativePerimeters()
             .stream()
-            .sorted(Comparator.comparing(perimeter -> perimeter.getOptimisationState().getInstant().getOrder()))
+            .sorted(Comparator.comparing(perimeter -> perimeter.getRaOptimisationState().getInstant().getOrder()))
             .toList();
         assertEquals(1, curativePerimeters.size());
-        assertEquals("co-10 - curative1", curativePerimeters.get(0).getOptimisationState().getId());
-        otherStates = curativePerimeters.get(0).getOtherStates().stream().toList();
+        assertEquals("co-10 - curative1", curativePerimeters.get(0).getRaOptimisationState().getId());
+        otherStates = curativePerimeters.get(0).getCnecStates().stream().toList();
         assertEquals(1, otherStates.size());
         assertEquals("co-10 - curative2", otherStates.get(0).getId());
 
@@ -706,13 +702,13 @@ class StateTreeTest {
         curativePerimeters = contingencyScenario
             .getCurativePerimeters()
             .stream()
-            .sorted(Comparator.comparing(perimeter -> perimeter.getOptimisationState().getInstant().getOrder()))
+            .sorted(Comparator.comparing(perimeter -> perimeter.getRaOptimisationState().getInstant().getOrder()))
             .toList();
         assertEquals(1, curativePerimeters.size());
-        assertEquals("co-13 - curative2", curativePerimeters.get(0).getOptimisationState().getId());
-        assertTrue(curativePerimeters.get(0).getOtherStates().isEmpty());
+        assertEquals("co-13 - curative2", curativePerimeters.get(0).getRaOptimisationState().getId());
+        assertTrue(curativePerimeters.get(0).getCnecStates().isEmpty());
 
-        assertEquals(22, stateTree.getBasecaseScenario().getOtherStates().size());
+        assertEquals(22, stateTree.getBasecaseScenario().getCnecStates().size());
         assertCurativeStateInBaseCase(stateTree, multipleCurativeInstantsCrac, "co-05", "curative1");
         assertCurativeStateInBaseCase(stateTree, multipleCurativeInstantsCrac, "co-06", "curative1");
         assertCurativeStateInBaseCase(stateTree, multipleCurativeInstantsCrac, "co-06", "curative2");
@@ -758,13 +754,13 @@ class StateTreeTest {
         curativePerimeters = contingencyScenario
             .getCurativePerimeters()
             .stream()
-            .sorted(Comparator.comparing(perimeter -> perimeter.getOptimisationState().getInstant().getOrder()))
+            .sorted(Comparator.comparing(perimeter -> perimeter.getRaOptimisationState().getInstant().getOrder()))
             .toList();
         assertEquals(2, curativePerimeters.size());
-        assertEquals("co-01 - curative1", curativePerimeters.get(0).getOptimisationState().getId());
-        assertTrue(curativePerimeters.get(0).getOtherStates().isEmpty());
-        assertEquals("co-01 - curative2", curativePerimeters.get(1).getOptimisationState().getId());
-        assertTrue(curativePerimeters.get(1).getOtherStates().isEmpty());
+        assertEquals("co-01 - curative1", curativePerimeters.get(0).getRaOptimisationState().getId());
+        assertTrue(curativePerimeters.get(0).getCnecStates().isEmpty());
+        assertEquals("co-01 - curative2", curativePerimeters.get(1).getRaOptimisationState().getId());
+        assertTrue(curativePerimeters.get(1).getCnecStates().isEmpty());
 
         contingencyScenario = contingencyScenarios.get(1);
         assertTrue(contingencyScenario.getAutomatonState().isPresent());
@@ -773,11 +769,11 @@ class StateTreeTest {
         curativePerimeters = contingencyScenario
             .getCurativePerimeters()
             .stream()
-            .sorted(Comparator.comparing(perimeter -> perimeter.getOptimisationState().getInstant().getOrder()))
+            .sorted(Comparator.comparing(perimeter -> perimeter.getRaOptimisationState().getInstant().getOrder()))
             .toList();
         assertEquals(1, curativePerimeters.size());
-        assertEquals("co-02 - curative1", curativePerimeters.get(0).getOptimisationState().getId());
-        otherStates = curativePerimeters.get(0).getOtherStates().stream().toList();
+        assertEquals("co-02 - curative1", curativePerimeters.get(0).getRaOptimisationState().getId());
+        otherStates = curativePerimeters.get(0).getCnecStates().stream().toList();
         assertEquals(1, otherStates.size());
         assertEquals("co-02 - curative2", otherStates.get(0).getId());
 
@@ -788,11 +784,11 @@ class StateTreeTest {
         curativePerimeters = contingencyScenario
             .getCurativePerimeters()
             .stream()
-            .sorted(Comparator.comparing(perimeter -> perimeter.getOptimisationState().getInstant().getOrder()))
+            .sorted(Comparator.comparing(perimeter -> perimeter.getRaOptimisationState().getInstant().getOrder()))
             .toList();
         assertEquals(1, curativePerimeters.size());
-        assertEquals("co-03 - curative1", curativePerimeters.get(0).getOptimisationState().getId());
-        assertTrue(curativePerimeters.get(0).getOtherStates().isEmpty());
+        assertEquals("co-03 - curative1", curativePerimeters.get(0).getRaOptimisationState().getId());
+        assertTrue(curativePerimeters.get(0).getCnecStates().isEmpty());
 
         contingencyScenario = contingencyScenarios.get(3);
         assertTrue(contingencyScenario.getAutomatonState().isPresent());
@@ -801,11 +797,11 @@ class StateTreeTest {
         curativePerimeters = contingencyScenario
             .getCurativePerimeters()
             .stream()
-            .sorted(Comparator.comparing(perimeter -> perimeter.getOptimisationState().getInstant().getOrder()))
+            .sorted(Comparator.comparing(perimeter -> perimeter.getRaOptimisationState().getInstant().getOrder()))
             .toList();
         assertEquals(1, curativePerimeters.size());
-        assertEquals("co-04 - curative1", curativePerimeters.get(0).getOptimisationState().getId());
-        assertTrue(curativePerimeters.get(0).getOtherStates().isEmpty());
+        assertEquals("co-04 - curative1", curativePerimeters.get(0).getRaOptimisationState().getId());
+        assertTrue(curativePerimeters.get(0).getCnecStates().isEmpty());
 
         contingencyScenario = contingencyScenarios.get(4);
         assertTrue(contingencyScenario.getAutomatonState().isPresent());
@@ -814,13 +810,13 @@ class StateTreeTest {
         curativePerimeters = contingencyScenario
             .getCurativePerimeters()
             .stream()
-            .sorted(Comparator.comparing(perimeter -> perimeter.getOptimisationState().getInstant().getOrder()))
+            .sorted(Comparator.comparing(perimeter -> perimeter.getRaOptimisationState().getInstant().getOrder()))
             .toList();
         assertEquals(2, curativePerimeters.size());
-        assertEquals("co-05 - curative1", curativePerimeters.get(0).getOptimisationState().getId());
-        assertTrue(curativePerimeters.get(0).getOtherStates().isEmpty());
-        assertEquals("co-05 - curative2", curativePerimeters.get(1).getOptimisationState().getId());
-        assertTrue(curativePerimeters.get(1).getOtherStates().isEmpty());
+        assertEquals("co-05 - curative1", curativePerimeters.get(0).getRaOptimisationState().getId());
+        assertTrue(curativePerimeters.get(0).getCnecStates().isEmpty());
+        assertEquals("co-05 - curative2", curativePerimeters.get(1).getRaOptimisationState().getId());
+        assertTrue(curativePerimeters.get(1).getCnecStates().isEmpty());
 
         contingencyScenario = contingencyScenarios.get(5);
         assertTrue(contingencyScenario.getAutomatonState().isPresent());
@@ -829,11 +825,11 @@ class StateTreeTest {
         curativePerimeters = contingencyScenario
             .getCurativePerimeters()
             .stream()
-            .sorted(Comparator.comparing(perimeter -> perimeter.getOptimisationState().getInstant().getOrder()))
+            .sorted(Comparator.comparing(perimeter -> perimeter.getRaOptimisationState().getInstant().getOrder()))
             .toList();
         assertEquals(1, curativePerimeters.size());
-        assertEquals("co-06 - curative1", curativePerimeters.get(0).getOptimisationState().getId());
-        otherStates = curativePerimeters.get(0).getOtherStates().stream().toList();
+        assertEquals("co-06 - curative1", curativePerimeters.get(0).getRaOptimisationState().getId());
+        otherStates = curativePerimeters.get(0).getCnecStates().stream().toList();
         assertEquals(1, otherStates.size());
         assertEquals("co-06 - curative2", otherStates.get(0).getId());
 
@@ -844,11 +840,11 @@ class StateTreeTest {
         curativePerimeters = contingencyScenario
             .getCurativePerimeters()
             .stream()
-            .sorted(Comparator.comparing(perimeter -> perimeter.getOptimisationState().getInstant().getOrder()))
+            .sorted(Comparator.comparing(perimeter -> perimeter.getRaOptimisationState().getInstant().getOrder()))
             .toList();
         assertEquals(1, curativePerimeters.size());
-        assertEquals("co-07 - curative1", curativePerimeters.get(0).getOptimisationState().getId());
-        assertTrue(curativePerimeters.get(0).getOtherStates().isEmpty());
+        assertEquals("co-07 - curative1", curativePerimeters.get(0).getRaOptimisationState().getId());
+        assertTrue(curativePerimeters.get(0).getCnecStates().isEmpty());
 
         contingencyScenario = contingencyScenarios.get(7);
         assertTrue(contingencyScenario.getAutomatonState().isPresent());
@@ -857,11 +853,11 @@ class StateTreeTest {
         curativePerimeters = contingencyScenario
             .getCurativePerimeters()
             .stream()
-            .sorted(Comparator.comparing(perimeter -> perimeter.getOptimisationState().getInstant().getOrder()))
+            .sorted(Comparator.comparing(perimeter -> perimeter.getRaOptimisationState().getInstant().getOrder()))
             .toList();
         assertEquals(1, curativePerimeters.size());
-        assertEquals("co-08 - curative1", curativePerimeters.get(0).getOptimisationState().getId());
-        assertTrue(curativePerimeters.get(0).getOtherStates().isEmpty());
+        assertEquals("co-08 - curative1", curativePerimeters.get(0).getRaOptimisationState().getId());
+        assertTrue(curativePerimeters.get(0).getCnecStates().isEmpty());
 
         contingencyScenario = contingencyScenarios.get(8);
         assertTrue(contingencyScenario.getAutomatonState().isPresent());
@@ -870,13 +866,11 @@ class StateTreeTest {
         curativePerimeters = contingencyScenario
             .getCurativePerimeters()
             .stream()
-            .sorted(Comparator.comparing(perimeter -> perimeter.getOptimisationState().getInstant().getOrder()))
+            .sorted(Comparator.comparing(perimeter -> perimeter.getRaOptimisationState().getInstant().getOrder()))
             .toList();
-        assertEquals(2, curativePerimeters.size());
-        assertEquals("co-09 - curative1", curativePerimeters.get(0).getOptimisationState().getId());
-        assertTrue(curativePerimeters.get(0).getOtherStates().isEmpty());
-        assertEquals("co-09 - curative2", curativePerimeters.get(1).getOptimisationState().getId());
-        assertTrue(curativePerimeters.get(1).getOtherStates().isEmpty());
+        assertEquals(1, curativePerimeters.size());
+        assertEquals("co-09 - curative2", curativePerimeters.get(0).getRaOptimisationState().getId());
+        assertTrue(curativePerimeters.get(0).getCnecStates().isEmpty());
 
         contingencyScenario = contingencyScenarios.get(9);
         assertTrue(contingencyScenario.getAutomatonState().isPresent());
@@ -885,11 +879,11 @@ class StateTreeTest {
         curativePerimeters = contingencyScenario
             .getCurativePerimeters()
             .stream()
-            .sorted(Comparator.comparing(perimeter -> perimeter.getOptimisationState().getInstant().getOrder()))
+            .sorted(Comparator.comparing(perimeter -> perimeter.getRaOptimisationState().getInstant().getOrder()))
             .toList();
         assertEquals(1, curativePerimeters.size());
-        assertEquals("co-10 - curative1", curativePerimeters.get(0).getOptimisationState().getId());
-        otherStates = curativePerimeters.get(0).getOtherStates().stream().toList();
+        assertEquals("co-10 - curative1", curativePerimeters.get(0).getRaOptimisationState().getId());
+        otherStates = curativePerimeters.get(0).getCnecStates().stream().toList();
         assertEquals(1, otherStates.size());
         assertEquals("co-10 - curative2", otherStates.get(0).getId());
 
@@ -900,13 +894,13 @@ class StateTreeTest {
         curativePerimeters = contingencyScenario
             .getCurativePerimeters()
             .stream()
-            .sorted(Comparator.comparing(perimeter -> perimeter.getOptimisationState().getInstant().getOrder()))
+            .sorted(Comparator.comparing(perimeter -> perimeter.getRaOptimisationState().getInstant().getOrder()))
             .toList();
         assertEquals(1, curativePerimeters.size());
-        assertEquals("co-13 - curative2", curativePerimeters.get(0).getOptimisationState().getId());
-        assertTrue(curativePerimeters.get(0).getOtherStates().isEmpty());
+        assertEquals("co-13 - curative2", curativePerimeters.get(0).getRaOptimisationState().getId());
+        assertTrue(curativePerimeters.get(0).getCnecStates().isEmpty());
 
-        assertEquals(0, stateTree.getBasecaseScenario().getOtherStates().size());
+        assertEquals(0, stateTree.getBasecaseScenario().getCnecStates().size());
     }
 
     @Test
@@ -931,13 +925,13 @@ class StateTreeTest {
         curativePerimeters = contingencyScenario
             .getCurativePerimeters()
             .stream()
-            .sorted(Comparator.comparing(perimeter -> perimeter.getOptimisationState().getInstant().getOrder()))
+            .sorted(Comparator.comparing(perimeter -> perimeter.getRaOptimisationState().getInstant().getOrder()))
             .toList();
         assertEquals(2, curativePerimeters.size());
-        assertEquals("co-01 - curative1", curativePerimeters.get(0).getOptimisationState().getId());
-        assertTrue(curativePerimeters.get(0).getOtherStates().isEmpty());
-        assertEquals("co-01 - curative2", curativePerimeters.get(1).getOptimisationState().getId());
-        assertTrue(curativePerimeters.get(1).getOtherStates().isEmpty());
+        assertEquals("co-01 - curative1", curativePerimeters.get(0).getRaOptimisationState().getId());
+        assertTrue(curativePerimeters.get(0).getCnecStates().isEmpty());
+        assertEquals("co-01 - curative2", curativePerimeters.get(1).getRaOptimisationState().getId());
+        assertTrue(curativePerimeters.get(1).getCnecStates().isEmpty());
 
         contingencyScenario = contingencyScenarios.get(1);
         assertTrue(contingencyScenario.getAutomatonState().isPresent());
@@ -946,11 +940,11 @@ class StateTreeTest {
         curativePerimeters = contingencyScenario
             .getCurativePerimeters()
             .stream()
-            .sorted(Comparator.comparing(perimeter -> perimeter.getOptimisationState().getInstant().getOrder()))
+            .sorted(Comparator.comparing(perimeter -> perimeter.getRaOptimisationState().getInstant().getOrder()))
             .toList();
         assertEquals(1, curativePerimeters.size());
-        assertEquals("co-02 - curative1", curativePerimeters.get(0).getOptimisationState().getId());
-        otherStates = curativePerimeters.get(0).getOtherStates().stream().toList();
+        assertEquals("co-02 - curative1", curativePerimeters.get(0).getRaOptimisationState().getId());
+        otherStates = curativePerimeters.get(0).getCnecStates().stream().toList();
         assertEquals(1, otherStates.size());
         assertEquals("co-02 - curative2", otherStates.get(0).getId());
 
@@ -961,11 +955,11 @@ class StateTreeTest {
         curativePerimeters = contingencyScenario
             .getCurativePerimeters()
             .stream()
-            .sorted(Comparator.comparing(perimeter -> perimeter.getOptimisationState().getInstant().getOrder()))
+            .sorted(Comparator.comparing(perimeter -> perimeter.getRaOptimisationState().getInstant().getOrder()))
             .toList();
         assertEquals(1, curativePerimeters.size());
-        assertEquals("co-03 - curative1", curativePerimeters.get(0).getOptimisationState().getId());
-        assertTrue(curativePerimeters.get(0).getOtherStates().isEmpty());
+        assertEquals("co-03 - curative1", curativePerimeters.get(0).getRaOptimisationState().getId());
+        assertTrue(curativePerimeters.get(0).getCnecStates().isEmpty());
 
         contingencyScenario = contingencyScenarios.get(3);
         assertTrue(contingencyScenario.getAutomatonState().isPresent());
@@ -974,11 +968,11 @@ class StateTreeTest {
         curativePerimeters = contingencyScenario
             .getCurativePerimeters()
             .stream()
-            .sorted(Comparator.comparing(perimeter -> perimeter.getOptimisationState().getInstant().getOrder()))
+            .sorted(Comparator.comparing(perimeter -> perimeter.getRaOptimisationState().getInstant().getOrder()))
             .toList();
         assertEquals(1, curativePerimeters.size());
-        assertEquals("co-04 - curative1", curativePerimeters.get(0).getOptimisationState().getId());
-        assertTrue(curativePerimeters.get(0).getOtherStates().isEmpty());
+        assertEquals("co-04 - curative1", curativePerimeters.get(0).getRaOptimisationState().getId());
+        assertTrue(curativePerimeters.get(0).getCnecStates().isEmpty());
 
         contingencyScenario = contingencyScenarios.get(4);
         assertTrue(contingencyScenario.getAutomatonState().isPresent());
@@ -987,13 +981,13 @@ class StateTreeTest {
         curativePerimeters = contingencyScenario
             .getCurativePerimeters()
             .stream()
-            .sorted(Comparator.comparing(perimeter -> perimeter.getOptimisationState().getInstant().getOrder()))
+            .sorted(Comparator.comparing(perimeter -> perimeter.getRaOptimisationState().getInstant().getOrder()))
             .toList();
         assertEquals(2, curativePerimeters.size());
-        assertEquals("co-05 - curative1", curativePerimeters.get(0).getOptimisationState().getId());
-        assertTrue(curativePerimeters.get(0).getOtherStates().isEmpty());
-        assertEquals("co-05 - curative2", curativePerimeters.get(1).getOptimisationState().getId());
-        assertTrue(curativePerimeters.get(0).getOtherStates().isEmpty());
+        assertEquals("co-05 - curative1", curativePerimeters.get(0).getRaOptimisationState().getId());
+        assertTrue(curativePerimeters.get(0).getCnecStates().isEmpty());
+        assertEquals("co-05 - curative2", curativePerimeters.get(1).getRaOptimisationState().getId());
+        assertTrue(curativePerimeters.get(0).getCnecStates().isEmpty());
 
         contingencyScenario = contingencyScenarios.get(5);
         assertTrue(contingencyScenario.getAutomatonState().isPresent());
@@ -1002,11 +996,11 @@ class StateTreeTest {
         curativePerimeters = contingencyScenario
             .getCurativePerimeters()
             .stream()
-            .sorted(Comparator.comparing(perimeter -> perimeter.getOptimisationState().getInstant().getOrder()))
+            .sorted(Comparator.comparing(perimeter -> perimeter.getRaOptimisationState().getInstant().getOrder()))
             .toList();
         assertEquals(1, curativePerimeters.size());
-        assertEquals("co-06 - curative1", curativePerimeters.get(0).getOptimisationState().getId());
-        otherStates = curativePerimeters.get(0).getOtherStates().stream().toList();
+        assertEquals("co-06 - curative1", curativePerimeters.get(0).getRaOptimisationState().getId());
+        otherStates = curativePerimeters.get(0).getCnecStates().stream().toList();
         assertEquals(1, otherStates.size());
         assertEquals("co-06 - curative2", otherStates.get(0).getId());
 
@@ -1017,11 +1011,11 @@ class StateTreeTest {
         curativePerimeters = contingencyScenario
             .getCurativePerimeters()
             .stream()
-            .sorted(Comparator.comparing(perimeter -> perimeter.getOptimisationState().getInstant().getOrder()))
+            .sorted(Comparator.comparing(perimeter -> perimeter.getRaOptimisationState().getInstant().getOrder()))
             .toList();
         assertEquals(1, curativePerimeters.size());
-        assertEquals("co-07 - curative1", curativePerimeters.get(0).getOptimisationState().getId());
-        assertTrue(curativePerimeters.get(0).getOtherStates().isEmpty());
+        assertEquals("co-07 - curative1", curativePerimeters.get(0).getRaOptimisationState().getId());
+        assertTrue(curativePerimeters.get(0).getCnecStates().isEmpty());
 
         contingencyScenario = contingencyScenarios.get(7);
         assertTrue(contingencyScenario.getAutomatonState().isPresent());
@@ -1030,11 +1024,11 @@ class StateTreeTest {
         curativePerimeters = contingencyScenario
             .getCurativePerimeters()
             .stream()
-            .sorted(Comparator.comparing(perimeter -> perimeter.getOptimisationState().getInstant().getOrder()))
+            .sorted(Comparator.comparing(perimeter -> perimeter.getRaOptimisationState().getInstant().getOrder()))
             .toList();
         assertEquals(1, curativePerimeters.size());
-        assertEquals("co-08 - curative1", curativePerimeters.get(0).getOptimisationState().getId());
-        assertTrue(curativePerimeters.get(0).getOtherStates().isEmpty());
+        assertEquals("co-08 - curative1", curativePerimeters.get(0).getRaOptimisationState().getId());
+        assertTrue(curativePerimeters.get(0).getCnecStates().isEmpty());
 
         contingencyScenario = contingencyScenarios.get(8);
         assertTrue(contingencyScenario.getAutomatonState().isPresent());
@@ -1043,13 +1037,11 @@ class StateTreeTest {
         curativePerimeters = contingencyScenario
             .getCurativePerimeters()
             .stream()
-            .sorted(Comparator.comparing(perimeter -> perimeter.getOptimisationState().getInstant().getOrder()))
+            .sorted(Comparator.comparing(perimeter -> perimeter.getRaOptimisationState().getInstant().getOrder()))
             .toList();
-        assertEquals(2, curativePerimeters.size());
-        assertEquals("co-09 - curative1", curativePerimeters.get(0).getOptimisationState().getId());
-        assertTrue(curativePerimeters.get(0).getOtherStates().isEmpty());
-        assertEquals("co-09 - curative2", curativePerimeters.get(1).getOptimisationState().getId());
-        assertTrue(curativePerimeters.get(1).getOtherStates().isEmpty());
+        assertEquals(1, curativePerimeters.size());
+        assertEquals("co-09 - curative2", curativePerimeters.get(0).getRaOptimisationState().getId());
+        assertTrue(curativePerimeters.get(0).getCnecStates().isEmpty());
 
         contingencyScenario = contingencyScenarios.get(9);
         assertTrue(contingencyScenario.getAutomatonState().isPresent());
@@ -1058,11 +1050,11 @@ class StateTreeTest {
         curativePerimeters = contingencyScenario
             .getCurativePerimeters()
             .stream()
-            .sorted(Comparator.comparing(perimeter -> perimeter.getOptimisationState().getInstant().getOrder()))
+            .sorted(Comparator.comparing(perimeter -> perimeter.getRaOptimisationState().getInstant().getOrder()))
             .toList();
         assertEquals(1, curativePerimeters.size());
-        assertEquals("co-10 - curative1", curativePerimeters.get(0).getOptimisationState().getId());
-        otherStates = curativePerimeters.get(0).getOtherStates().stream().toList();
+        assertEquals("co-10 - curative1", curativePerimeters.get(0).getRaOptimisationState().getId());
+        otherStates = curativePerimeters.get(0).getCnecStates().stream().toList();
         assertEquals(1, otherStates.size());
         assertEquals("co-10 - curative2", otherStates.get(0).getId());
 
@@ -1085,11 +1077,11 @@ class StateTreeTest {
         curativePerimeters = contingencyScenario
             .getCurativePerimeters()
             .stream()
-            .sorted(Comparator.comparing(perimeter -> perimeter.getOptimisationState().getInstant().getOrder()))
+            .sorted(Comparator.comparing(perimeter -> perimeter.getRaOptimisationState().getInstant().getOrder()))
             .toList();
         assertEquals(1, curativePerimeters.size());
-        assertEquals("co-13 - curative2", curativePerimeters.get(0).getOptimisationState().getId());
-        assertTrue(curativePerimeters.get(0).getOtherStates().isEmpty());
+        assertEquals("co-13 - curative2", curativePerimeters.get(0).getRaOptimisationState().getId());
+        assertTrue(curativePerimeters.get(0).getCnecStates().isEmpty());
 
         contingencyScenario = contingencyScenarios.get(13);
         assertTrue(contingencyScenario.getAutomatonState().isPresent());
@@ -1098,11 +1090,11 @@ class StateTreeTest {
         curativePerimeters = contingencyScenario
             .getCurativePerimeters()
             .stream()
-            .sorted(Comparator.comparing(perimeter -> perimeter.getOptimisationState().getInstant().getOrder()))
+            .sorted(Comparator.comparing(perimeter -> perimeter.getRaOptimisationState().getInstant().getOrder()))
             .toList();
         assertEquals(1, curativePerimeters.size());
-        assertEquals("co-14 - curative2", curativePerimeters.get(0).getOptimisationState().getId());
-        assertTrue(curativePerimeters.get(0).getOtherStates().isEmpty());
+        assertEquals("co-14 - curative2", curativePerimeters.get(0).getRaOptimisationState().getId());
+        assertTrue(curativePerimeters.get(0).getCnecStates().isEmpty());
 
         contingencyScenario = contingencyScenarios.get(14);
         assertTrue(contingencyScenario.getAutomatonState().isPresent());
@@ -1116,7 +1108,7 @@ class StateTreeTest {
         assertEquals("co-16", contingencyScenario.getContingency().getId());
         assertTrue(contingencyScenario.getCurativePerimeters().isEmpty());
 
-        assertEquals(0, stateTree.getBasecaseScenario().getOtherStates().size());
+        assertEquals(0, stateTree.getBasecaseScenario().getCnecStates().size());
     }
 
     private static Crac createCommonMultipleCurativeInstantsCrac() {
@@ -1260,6 +1252,6 @@ class StateTreeTest {
     }
 
     private static void assertCurativeStateInBaseCase(StateTree stateTree, Crac crac, String contingencyId, String instantId) {
-        assertTrue(stateTree.getBasecaseScenario().getOtherStates().contains(crac.getState(contingencyId, crac.getInstant(instantId))));
+        assertTrue(stateTree.getBasecaseScenario().getCnecStates().contains(crac.getState(contingencyId, crac.getInstant(instantId))));
     }
 }

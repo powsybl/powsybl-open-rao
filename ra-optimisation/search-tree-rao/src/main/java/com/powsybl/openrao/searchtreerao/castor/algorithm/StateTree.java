@@ -36,7 +36,7 @@ public class StateTree {
             processAutoAndCurativeInstants(contingency, crac);
         }
 
-        this.operatorsNotSharingCras = findOperatorsNotSharingCras(crac, crac.getCurativeStates());
+        this.operatorsNotSharingCras = findOperatorsNotSharingCras(crac);
     }
 
     /**
@@ -100,6 +100,7 @@ public class StateTree {
             if (anyAvailableRemedialAction(crac, curativeState) && curativeCnecsEncountered) {
                 contingencyScenarioBuilder.withCurativePerimeter(new Perimeter(curativeState, new HashSet<>(curativeStatesWithCnecsButNoCras)));
                 curativeStatesWithCnecsButNoCras.clear();
+                curativeCnecsEncountered = false;
                 contingencyScenarioUsed = true;
             } else if (curativeCnecsPresent) {
                 curativeStatesWithCnecsButNoCras.add(curativeState);
@@ -153,14 +154,15 @@ public class StateTree {
             !crac.getPotentiallyAvailableRangeActions(state).isEmpty();
     }
 
-    static Set<String> findOperatorsNotSharingCras(Crac crac, Set<State> optimizedCurativeStates) {
+    static Set<String> findOperatorsNotSharingCras(Crac crac) {
         Set<String> tsos = crac.getFlowCnecs().stream().map(Cnec::getOperator).collect(Collectors.toSet());
         tsos.addAll(crac.getRemedialActions().stream().map(RemedialAction::getOperator).collect(Collectors.toSet()));
         // <!> If a CNEC's operator is not null, filter it out of the list of operators not sharing CRAs
-        return tsos.stream().filter(tso -> Objects.nonNull(tso) && !tsoHasCra(tso, crac, optimizedCurativeStates)).collect(Collectors.toSet());
+        return tsos.stream().filter(tso -> Objects.nonNull(tso) && !tsoHasCra(tso, crac)).collect(Collectors.toSet());
     }
 
-    static boolean tsoHasCra(String tso, Crac crac, Set<State> optimizedCurativeStates) {
+    static boolean tsoHasCra(String tso, Crac crac) {
+        Set<State> optimizedCurativeStates = crac.getCurativeStates();
         return optimizedCurativeStates.stream().anyMatch(state ->
             crac.getPotentiallyAvailableNetworkActions(state).stream().map(RemedialAction::getOperator).anyMatch(tso::equals) ||
                 crac.getPotentiallyAvailableRangeActions(state).stream().map(RemedialAction::getOperator).anyMatch(tso::equals)

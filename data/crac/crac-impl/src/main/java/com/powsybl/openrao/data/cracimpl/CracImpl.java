@@ -192,10 +192,10 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
     }
 
     @Override
-    public Set<Instant> getInstants(InstantKind instantKind) {
-        return instants.values().stream()
-            .filter(instant -> instant.getKind().equals(instantKind))
-            .collect(Collectors.toSet());
+    public SortedSet<Instant> getInstants(InstantKind instantKind) {
+        SortedSet<Instant> sortedInstants = new TreeSet<>();
+        instants.values().stream().filter(instant -> instant.getKind().equals(instantKind)).forEach(sortedInstants::add);
+        return sortedInstants;
     }
 
     @Override

@@ -22,53 +22,54 @@ import java.util.Set;
  * as well as other states that should have their CNECs optimised
  * at the optimisation state's instant (ie outage states and curative states that have no RAs)
  *
- * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
+ * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
+ * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
  */
 public class Perimeter {
-    private final State optimisationState;
-    private final Set<State> otherStates;
+    private final State raOptimisationState;
+    private final Set<State> cnecStates;
 
     /**
      * Construct a perimeter
-     * @param optimisationState the optimisation state for which remedial actions are available (required)
-     * @param otherStates the other states to optimize in the perimeter (can be empty or null)
+     * @param raOptimisationState the optimisation state for which remedial actions are available (required)
+     * @param cnecStates the other states to optimize in the perimeter (can be empty or null)
      */
-    public Perimeter(State optimisationState, Set<State> otherStates) {
-        Objects.requireNonNull(optimisationState);
-        this.optimisationState = optimisationState;
-        if (Objects.nonNull(otherStates)) {
-            otherStates.forEach(this::checkStateConsistency);
-            this.otherStates = otherStates;
+    public Perimeter(State raOptimisationState, Set<State> cnecStates) {
+        Objects.requireNonNull(raOptimisationState);
+        this.raOptimisationState = raOptimisationState;
+        if (Objects.nonNull(cnecStates)) {
+            cnecStates.forEach(this::checkStateConsistency);
+            this.cnecStates = cnecStates;
         } else {
-            this.otherStates = new HashSet<>();
+            this.cnecStates = new HashSet<>();
         }
     }
 
-    public State getOptimisationState() {
-        return optimisationState;
+    public State getRaOptimisationState() {
+        return raOptimisationState;
     }
 
-    public Set<State> getOtherStates() {
-        return otherStates;
+    public Set<State> getCnecStates() {
+        return cnecStates;
     }
 
     public Set<State> getAllStates() {
-        Set<State> states = new HashSet<>(otherStates);
-        states.add(optimisationState);
+        Set<State> states = new HashSet<>(cnecStates);
+        states.add(raOptimisationState);
         return states;
     }
 
     void addOtherState(State state) {
         checkStateConsistency(state);
-        otherStates.add(state);
+        cnecStates.add(state);
     }
 
     private void checkStateConsistency(State state) {
-        Optional<Contingency> optimisationStateContingency = optimisationState.getContingency();
+        Optional<Contingency> optimisationStateContingency = raOptimisationState.getContingency();
         if (optimisationStateContingency.isPresent() && !optimisationStateContingency.equals(state.getContingency())) {
             throw new OpenRaoException("Contingency should be the same for the optimisation state and the other states.");
         }
-        if (!optimisationState.getInstant().comesBefore(state.getInstant())) {
+        if (!raOptimisationState.getInstant().comesBefore(state.getInstant())) {
             throw new OpenRaoException("Other states should occur after the optimisation state.");
         }
     }

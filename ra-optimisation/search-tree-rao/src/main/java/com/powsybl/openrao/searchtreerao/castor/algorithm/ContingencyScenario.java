@@ -23,7 +23,8 @@ import java.util.Set;
  * This class represents the functional contingency scenario
  * It contains the auto and curative states that should be optimized after a given contingency
  *
- * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
+ * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
+ * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
  */
 public final class ContingencyScenario {
     private Contingency contingency;
@@ -76,12 +77,12 @@ public final class ContingencyScenario {
                 throw new OpenRaoException(String.format("Contingency %s scenario should have at least an auto or curative state.", contingency.getId()));
             }
             checkStateContingencyAndInstant(automatonState, InstantKind.AUTO);
-            curativePerimeters.forEach(curativePerimeter -> checkStateContingencyAndInstant(curativePerimeter.getOptimisationState(), InstantKind.CURATIVE));
+            curativePerimeters.forEach(curativePerimeter -> checkStateContingencyAndInstant(curativePerimeter.getRaOptimisationState(), InstantKind.CURATIVE));
             ContingencyScenario contingencyScenario = new ContingencyScenario();
             contingencyScenario.contingency = contingency;
             contingencyScenario.automatonState = automatonState;
             contingencyScenario.curativePerimeters = curativePerimeters.stream()
-                .sorted(Comparator.comparingInt(perimeter -> perimeter.getOptimisationState().getInstant().getOrder()))
+                .sorted(Comparator.comparingInt(perimeter -> perimeter.getRaOptimisationState().getInstant().getOrder()))
                 .toList();
             return contingencyScenario;
         }

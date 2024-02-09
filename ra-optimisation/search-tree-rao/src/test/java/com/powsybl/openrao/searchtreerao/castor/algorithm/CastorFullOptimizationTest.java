@@ -666,7 +666,7 @@ class CastorFullOptimizationTest {
     }
 
     @Test
-    void testCurative1Instant() {
+    void testThreeCurativeInstantsWithSecondCurativeHavingNoCnecAndNoRa() {
         Network network = Network.read("small-network-2P.uct", getClass().getResourceAsStream("/network/small-network-2P.uct"));
         Crac crac = CracFactory.findDefault().create("crac");
 
@@ -708,12 +708,6 @@ class CastorFullOptimizationTest {
         RaoInput raoInput = RaoInput.build(network, crac).build();
         RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/RaoParameters_2P_v2.json"));
         raoParameters.getObjectiveFunctionParameters().setType(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_MARGIN_IN_AMPERE);
-
-        //co.apply(network, null);
-        //pstPrev.apply(network);
-        //naCur1.apply(network);
-        //pstCur.apply(network);
-        //LoadFlow.find("OpenLoadFlow").run(network, raoParameters.getLoadFlowAndSensitivityParameters().getSensitivityWithLoadFlowParameters().getLoadFlowParameters());
 
         RaoResult raoResult = new CastorFullOptimization(raoInput, raoParameters, null).run().join();
 
@@ -759,7 +753,7 @@ class CastorFullOptimizationTest {
     }
 
     @Test
-    void testCurative2Instant() {
+    void testThreeCurativeInstants() {
         Network network = Network.read("small-network-2P.uct", getClass().getResourceAsStream("/network/small-network-2P.uct"));
         Crac crac = CracFactory.findDefault().create("crac");
 
@@ -808,13 +802,6 @@ class CastorFullOptimizationTest {
         RaoInput raoInput = RaoInput.build(network, crac).build();
         RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/RaoParameters_2P_v2.json"));
         raoParameters.getObjectiveFunctionParameters().setType(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_MARGIN_IN_AMPERE);
-
-        //co.apply(network, null);
-        //pstPrev.apply(network);
-        //naCur1.apply(network);
-        //pstCur2.apply(network);
-        //pstCur.apply(network);
-        //LoadFlow.find("OpenLoadFlow").run(network, raoParameters.getLoadFlowAndSensitivityParameters().getSensitivityWithLoadFlowParameters().getLoadFlowParameters());
 
         RaoResult raoResult = new CastorFullOptimization(raoInput, raoParameters, null).run().join();
 

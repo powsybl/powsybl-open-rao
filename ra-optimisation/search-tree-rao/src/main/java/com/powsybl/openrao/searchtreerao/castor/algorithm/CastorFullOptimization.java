@@ -220,9 +220,9 @@ public class CastorFullOptimization {
         double initialFunctionalCost = initialResult.getFunctionalCost();
         double initialVirtualCost = initialResult.getVirtualCost();
         Instant lastInstant = raoInput.getCrac().getLastInstant();
-        double finalCost = finalRaoResult.getCost(lastCurativeInstant);
-        double finalFunctionalCost = finalRaoResult.getFunctionalCost(lastCurativeInstant);
-        double finalVirtualCost = finalRaoResult.getVirtualCost(lastCurativeInstant);
+        double finalCost = finalRaoResult.getCost(lastInstant);
+        double finalFunctionalCost = finalRaoResult.getFunctionalCost(lastInstant);
+        double finalVirtualCost = finalRaoResult.getVirtualCost(lastInstant);
 
         if (objectiveFunctionParameters.getForbidCostIncrease() && finalCost > initialCost) {
             BUSINESS_LOGS.info("RAO has increased the overall cost from {} (functional: {}, virtual: {}) to {} (functional: {}, virtual: {}). Falling back to initial solution:",
@@ -345,7 +345,7 @@ public class CastorFullOptimization {
         if (!automatonsOnly
             && automatonState.isEmpty()
             && !optimizedScenario.getCurativePerimeters().isEmpty()
-            && prePerimeterSensitivityOutput.getSensitivityStatus(optimizedScenario.getCurativePerimeters().get(0).getOptimisationState()) == ComputationStatus.FAILURE
+            && prePerimeterSensitivityOutput.getSensitivityStatus(optimizedScenario.getCurativePerimeters().get(0).getRaOptimisationState()) == ComputationStatus.FAILURE
             || automatonState.isPresent()
             && autoStateSensiFailed
         ) {
@@ -355,14 +355,14 @@ public class CastorFullOptimization {
             // Optimize curative instant
             for (Perimeter curativePerimeter : optimizedScenario.getCurativePerimeters()) {
                 for (State curativeState : curativePerimeter.getAllStates()) {
-                    OptimizationResult curativeResult = optimizeCurativeState(curativeState, crac, networkClone,
-                        raoParameters, stateTree, toolProvider, curativeTreeParameters, initialSensitivityOutput, preCurativeResult);
-                    contingencyScenarioResults.put(curativeState, curativeResult);
-                    allPreviousPerimetersSucceded = allPreviousPerimetersSucceded && curativeResult.getSensitivityStatus() == DEFAULT;
-                    if (!allPreviousPerimetersSucceded) {
-                        contingencyScenarioResults.put(curativeState, new SkippedOptimizationResultImpl(curativeState, new HashSet<>(), new HashSet<>(), ComputationStatus.FAILURE, sensitivityFailureOvercost));
-                    } else {
+                    if (allPreviousPerimetersSucceded) {
+                        OptimizationResult curativeResult = optimizeCurativeState(curativeState, crac, networkClone,
+                            raoParameters, stateTree, toolProvider, curativeTreeParameters, initialSensitivityOutput, preCurativeResult);
+                        allPreviousPerimetersSucceded = curativeResult.getSensitivityStatus() == DEFAULT;
+                        contingencyScenarioResults.put(curativeState, curativeResult);
                         applyRemedialActions(networkClone, curativeResult, curativeState);
+                    } else {
+                        contingencyScenarioResults.put(curativeState, new SkippedOptimizationResultImpl(curativeState, new HashSet<>(), new HashSet<>(), ComputationStatus.FAILURE, sensitivityFailureOvercost));
                     }
                 }
             }

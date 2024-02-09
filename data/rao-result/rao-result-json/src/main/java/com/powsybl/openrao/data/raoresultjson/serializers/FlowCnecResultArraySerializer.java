@@ -60,7 +60,7 @@ final class FlowCnecResultArraySerializer {
             if (crac.hasAutoInstant()) {
                 serializeFlowCnecResultForOptimizationState(crac.getInstant(InstantKind.AUTO), flowCnec, raoResult, crac, flowUnits, jsonGenerator);
             }
-            crac.getInstants(InstantKind.CURATIVE).stream().sorted(Comparator.comparingInt(Instant::getOrder)).forEach(curativeInstant -> {
+            crac.getInstants(InstantKind.CURATIVE).forEach(curativeInstant -> {
                 try {
                     serializeFlowCnecResultForOptimizationState(curativeInstant, flowCnec, raoResult, crac, flowUnits, jsonGenerator);
                 } catch (IOException e) {

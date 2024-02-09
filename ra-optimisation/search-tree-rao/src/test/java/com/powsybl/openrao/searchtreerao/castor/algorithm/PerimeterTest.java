@@ -48,21 +48,21 @@ class PerimeterTest {
     @Test
     void testConstructor() {
         Perimeter preventivePerimeter = new Perimeter(basecaseState, Set.of(otherState1, otherState2));
-        assertEquals(basecaseState, preventivePerimeter.getOptimisationState());
-        assertEquals(Set.of(otherState1, otherState2), preventivePerimeter.getOtherStates());
+        assertEquals(basecaseState, preventivePerimeter.getRaOptimisationState());
+        assertEquals(Set.of(otherState1, otherState2), preventivePerimeter.getCnecStates());
         assertEquals(Set.of(basecaseState, otherState1, otherState2), preventivePerimeter.getAllStates());
     }
 
     @Test
     void testConstructor2() {
         Perimeter preventivePerimeter = new Perimeter(basecaseState, Set.of());
-        assertEquals(basecaseState, preventivePerimeter.getOptimisationState());
-        assertEquals(Set.of(), preventivePerimeter.getOtherStates());
+        assertEquals(basecaseState, preventivePerimeter.getRaOptimisationState());
+        assertEquals(Set.of(), preventivePerimeter.getCnecStates());
         assertEquals(Set.of(basecaseState), preventivePerimeter.getAllStates());
 
         preventivePerimeter = new Perimeter(basecaseState, null);
-        assertEquals(basecaseState, preventivePerimeter.getOptimisationState());
-        assertEquals(Set.of(), preventivePerimeter.getOtherStates());
+        assertEquals(basecaseState, preventivePerimeter.getRaOptimisationState());
+        assertEquals(Set.of(), preventivePerimeter.getCnecStates());
         assertEquals(Set.of(basecaseState), preventivePerimeter.getAllStates());
     }
 
@@ -84,13 +84,13 @@ class PerimeterTest {
     @Test
     void testAddOtherState() {
         Perimeter preventivePerimeter = new Perimeter(basecaseState, null);
-        assertEquals(Set.of(), preventivePerimeter.getOtherStates());
+        assertEquals(Set.of(), preventivePerimeter.getCnecStates());
         preventivePerimeter.addOtherState(otherState1);
-        assertEquals(Set.of(otherState1), preventivePerimeter.getOtherStates());
+        assertEquals(Set.of(otherState1), preventivePerimeter.getCnecStates());
         preventivePerimeter.addOtherState(otherState2);
-        assertEquals(Set.of(otherState1, otherState2), preventivePerimeter.getOtherStates());
+        assertEquals(Set.of(otherState1, otherState2), preventivePerimeter.getCnecStates());
         preventivePerimeter.addOtherState(otherState2);
-        assertEquals(Set.of(otherState1, otherState2), preventivePerimeter.getOtherStates());
+        assertEquals(Set.of(otherState1, otherState2), preventivePerimeter.getCnecStates());
         OpenRaoException exception = assertThrows(OpenRaoException.class, () -> preventivePerimeter.addOtherState(basecaseState));
         assertEquals("Other states should occur after the optimisation state.", exception.getMessage());
     }
