@@ -39,7 +39,7 @@ public class Perimeter {
         this.raOptimisationState = raOptimisationState;
         if (Objects.nonNull(cnecStates)) {
             cnecStates.forEach(this::checkStateConsistency);
-            this.cnecStates = cnecStates;
+            this.cnecStates = new HashSet<>(cnecStates);
         } else {
             this.cnecStates = new HashSet<>();
         }
