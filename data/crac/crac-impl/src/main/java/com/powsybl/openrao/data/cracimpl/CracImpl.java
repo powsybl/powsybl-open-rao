@@ -21,6 +21,8 @@ import java.util.stream.Collectors;
 
 import static java.lang.String.format;
 
+import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.BUSINESS_WARNS;
+
 /**
  * Business object of the CRAC file.
  *
@@ -42,6 +44,7 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
     private final Map<String, InjectionRangeAction> injectionRangeActions = new HashMap<>();
     private final Map<String, CounterTradeRangeAction> counterTradeRangeActions = new HashMap<>();
     private final Map<String, NetworkAction> networkActions = new HashMap<>();
+    private Map<String, RaUsageLimits> raUsageLimitsPerInstant = new HashMap<>();
     private Instant lastInstantAdded = null;
 
     public CracImpl(String id, String name) {
@@ -857,6 +860,17 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
         networkActions.put(networkAction.getId(), networkAction);
     }
     // endregion
+
+    @Override
+    public void addRaUsageLimits(Map<String, RaUsageLimits> raUsageLimitsPerInstant) {
+        raUsageLimitsPerInstant.forEach((instantName, raUsageLimits) -> {
+            if (!this.instants.containsKey(instantName)) {
+                BUSINESS_WARNS.warn("The instant %s registered in the crac creation parameters does not exist in the crac. Its remedial action limitations will be ignored.", instantName);
+            } else {
+                this.raUsageLimitsPerInstant.put(instantName, raUsageLimits);
+            }
+        });
+    }
 
     @Override
     public boolean equals(Object o) {

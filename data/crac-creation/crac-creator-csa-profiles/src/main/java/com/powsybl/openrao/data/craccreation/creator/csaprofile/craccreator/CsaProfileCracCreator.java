@@ -48,6 +48,7 @@ public class CsaProfileCracCreator implements CracCreator<CsaProfileCrac, CsaPro
     public CsaProfileCracCreationContext createCrac(CsaProfileCrac nativeCrac, Network network, OffsetDateTime offsetDateTime, CracCreationParameters cracCreationParameters) {
         this.crac = cracCreationParameters.getCracFactory().create(nativeCrac.toString());
         addCsaInstants();
+        crac.addRaUsageLimits(cracCreationParameters.getRaUsageLimitsPerInstant());
         this.network = network;
         this.creationContext = new CsaProfileCracCreationContext(crac, offsetDateTime, network.getNameOrId());
         clearNativeCracContextsAndMap(nativeCrac, offsetDateTime);

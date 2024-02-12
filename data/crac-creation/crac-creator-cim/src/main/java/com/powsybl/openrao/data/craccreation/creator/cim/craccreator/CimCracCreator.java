@@ -48,6 +48,7 @@ public class CimCracCreator implements CracCreator<CimCrac, CimCracCreationConte
         // Set attributes
         this.crac = parameters.getCracFactory().create(cimCrac.getCracDocument().getMRID());
         addCimInstants();
+        crac.addRaUsageLimits(parameters.getRaUsageLimitsPerInstant());
         this.network = network;
         this.cimTimeSeries = new ArrayList<>(cimCrac.getCracDocument().getTimeSeries());
         this.creationContext = new CimCracCreationContext(crac, offsetDateTime, network.getNameOrId());

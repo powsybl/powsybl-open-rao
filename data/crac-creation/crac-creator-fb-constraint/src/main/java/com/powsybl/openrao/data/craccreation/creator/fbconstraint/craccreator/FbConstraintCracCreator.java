@@ -51,6 +51,7 @@ public class FbConstraintCracCreator implements CracCreator<FbConstraint, FbCons
         FbConstraintCreationContext creationContext = new FbConstraintCreationContext(offsetDateTime, network.getNameOrId());
         Crac crac = cracCreatorParameters.getCracFactory().create(fbConstraintDocument.getDocument().getDocumentIdentification().getV());
         addFbContraintInstants(crac);
+        crac.addRaUsageLimits(cracCreatorParameters.getRaUsageLimitsPerInstant());
 
         // check timestamp
         if (!checkTimeStamp(offsetDateTime, fbConstraintDocument.getDocument().getConstraintTimeInterval().getV(), creationContext)) {

@@ -515,4 +515,9 @@ public interface Crac extends Identifiable<Crac> {
      * Remove a NetworkAction - identified by its id - from the Crac
      */
     void removeNetworkAction(String id);
+
+    /**
+     * Add remedial action usage limitation according to the crac creation parameters
+     */
+    void addRaUsageLimits(Map<String, RaUsageLimits> raUsageLimitsPerInstant);
 }

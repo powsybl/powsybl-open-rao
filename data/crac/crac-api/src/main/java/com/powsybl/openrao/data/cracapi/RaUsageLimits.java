@@ -1,4 +1,4 @@
-package com.powsybl.openrao.data.craccreation.creator.api.parameters;
+package com.powsybl.openrao.data.cracapi;
 
 import com.powsybl.openrao.commons.OpenRaoException;
 
