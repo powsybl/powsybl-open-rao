@@ -6,7 +6,13 @@
  */
 package com.powsybl.openrao.data.craccreation.creator.api.parameters;
 
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonToken;
 import com.powsybl.openrao.commons.OpenRaoException;
+
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
@@ -19,6 +25,13 @@ public final class JsonCracCreationParametersConstants {
     private static final String MONITOR_LINES_ON_LEFT_SIDE_TEXT = "monitor-lines-on-left-side";
     private static final String MONITOR_LINES_ON_RIGHT_SIDE_TEXT = "monitor-lines-on-right-side";
     private static final String MONITOR_LINES_ON_BOTH_SIDES_TEXT = "monitor-lines-on-both-sides";
+    static final String RA_USAGE_LIMITS_PER_INSTANT = "ra-usage-limits-per-instant";
+    public static final String INSTANT = "instant";
+    public static final String MAX_RA = "max-ra";
+    public static final String MAX_TSO = "max-tso";
+    public static final String MAX_TOPO_PER_TSO = "max-topo-per-tso";
+    public static final String MAX_PST_PER_TSO = "max-pst-per-tso";
+    public static final String MAX_RA_PER_TSO = "max-ra-per-tso";
 
     private JsonCracCreationParametersConstants() {
         // should not be instantiated
@@ -48,5 +61,57 @@ public final class JsonCracCreationParametersConstants {
             default:
                 throw new OpenRaoException(String.format("Unknown monitored line side: %s", monitoredLineSide));
         }
+    }
+
+    static void deserializeRaUsageLimitsAndUpdateParameters(JsonParser jsonParser, CracCreationParameters parameters) throws IOException {
+        RaUsageLimits raUsageLimits = new RaUsageLimits();
+        while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
+            String instant = null;
+            while (!jsonParser.nextToken().isStructEnd()) {
+                switch (jsonParser.getCurrentName()) {
+                    case INSTANT:
+                        jsonParser.nextToken();
+                        instant = jsonParser.getValueAsString();
+                        break;
+                    case MAX_RA:
+                        jsonParser.nextToken();
+                        raUsageLimits.setMaxRa(jsonParser.getIntValue());
+                        break;
+                    case MAX_TSO:
+                        jsonParser.nextToken();
+                        raUsageLimits.setMaxTso(jsonParser.getIntValue());
+                        break;
+                    case MAX_TOPO_PER_TSO:
+                        jsonParser.nextToken();
+                        raUsageLimits.setMaxTopoPerTso(readStringToPositiveIntMap(jsonParser));
+                        break;
+                    case MAX_PST_PER_TSO:
+                        jsonParser.nextToken();
+                        raUsageLimits.setMaxPstPerTso(readStringToPositiveIntMap(jsonParser));
+                        break;
+                    case MAX_RA_PER_TSO:
+                        jsonParser.nextToken();
+                        raUsageLimits.setMaxRaPerTso(readStringToPositiveIntMap(jsonParser));
+                        break;
+                    default:
+                        throw new OpenRaoException(String.format("Cannot deserialize ra usage limits per contingency parameters: unexpected field in %s (%s)", RA_USAGE_LIMITS_PER_INSTANT, jsonParser.getCurrentName()));
+                }
+            }
+            parameters.addRaUsageLimitsForAGivenInstant(instant, raUsageLimits);
+        }
+    }
+
+    private static Map<String, Integer> readStringToPositiveIntMap(JsonParser jsonParser) throws IOException {
+        HashMap<String, Integer> map = jsonParser.readValueAs(HashMap.class);
+        // Check types
+        map.forEach((Object o, Object o2) -> {
+            if (!(o instanceof String) || !(o2 instanceof Integer)) {
+                throw new OpenRaoException("Unexpected key or value type in a Map<String, Integer> parameter!");
+            }
+            if ((int) o2 < 0) {
+                throw new OpenRaoException("Unexpected negative integer!");
+            }
+        });
+        return map;
     }
 }
