@@ -9,6 +9,7 @@ package com.powsybl.openrao.searchtreerao.searchtree.algorithms;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.commons.logs.OpenRaoLogger;
+import com.powsybl.openrao.data.cracapi.RaUsageLimits;
 import com.powsybl.openrao.data.cracapi.State;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
 import com.powsybl.openrao.data.cracapi.cnec.Side;
@@ -93,12 +94,13 @@ public class SearchTree {
         this.purelyVirtual = input.getOptimizationPerimeter().getOptimizedFlowCnecs().isEmpty();
 
         if (input.getOptimizationPerimeter() instanceof CurativeOptimizationPerimeter) {
+            RaUsageLimits legacyRaUsageLimitsForCurative = parameters.getRaLimitationParameters().get("curative");
             this.bloomer = new SearchTreeBloomer(
                 input.getNetwork(),
-                parameters.getRaLimitationParameters().getMaxCurativeRa(),
-                parameters.getRaLimitationParameters().getMaxCurativeTso(),
-                parameters.getRaLimitationParameters().getMaxCurativeTopoPerTso(),
-                parameters.getRaLimitationParameters().getMaxCurativeRaPerTso(),
+                legacyRaUsageLimitsForCurative.getMaxRa(),
+                legacyRaUsageLimitsForCurative.getMaxTso(),
+                legacyRaUsageLimitsForCurative.getMaxTopoPerTso(),
+                legacyRaUsageLimitsForCurative.getMaxRaPerTso(),
                 parameters.getNetworkActionParameters().skipNetworkActionFarFromMostLimitingElements(),
                 parameters.getNetworkActionParameters().getMaxNumberOfBoundariesForSkippingNetworkActions(),
                 parameters.getNetworkActionParameters().getNetworkActionCombinations(),

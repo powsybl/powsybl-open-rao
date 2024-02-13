@@ -11,6 +11,7 @@ import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.cracapi.CracFactory;
 import com.powsybl.openrao.data.cracapi.InstantKind;
+import com.powsybl.openrao.data.cracapi.RaUsageLimits;
 import com.powsybl.openrao.data.craciojson.ExtensionsHandler;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
@@ -76,6 +77,7 @@ public class CracDeserializer extends JsonDeserializer<Crac> {
                 .newInstant("outage", InstantKind.OUTAGE)
                 .newInstant("auto", InstantKind.AUTO)
                 .newInstant("curative", InstantKind.CURATIVE);
+            crac.addRaUsageLimits(Map.of("curative", new RaUsageLimits()));
         }
 
         Map<String, String> deserializedNetworkElementsNamesPerId = null;

@@ -7,6 +7,7 @@
 package com.powsybl.openrao.searchtreerao.searchtree.parameters;
 
 import com.powsybl.openrao.data.cracapi.Crac;
+import com.powsybl.openrao.data.cracapi.RaUsageLimits;
 import com.powsybl.openrao.raoapi.parameters.ObjectiveFunctionParameters;
 import com.powsybl.openrao.raoapi.parameters.RangeActionsOptimizationParameters;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
@@ -14,6 +15,8 @@ import com.powsybl.openrao.raoapi.parameters.extensions.LoopFlowParametersExtens
 import com.powsybl.openrao.raoapi.parameters.extensions.MnecParametersExtension;
 import com.powsybl.openrao.raoapi.parameters.extensions.RelativeMarginsParametersExtension;
 import com.powsybl.openrao.searchtreerao.commons.parameters.*;
+
+import java.util.Map;
 
 /**
  * @author Baptiste Seguinot {@literal <joris.mancini at rte-france.com>}
@@ -25,7 +28,7 @@ public class SearchTreeParameters {
     // required for the search tree algorithm
     private final TreeParameters treeParameters;
     private final NetworkActionParameters networkActionParameters;
-    private final GlobalRemedialActionLimitationParameters raLimitationParameters;
+    private final Map<String, RaUsageLimits> raLimitationParameters;
 
     // required for sub-module iterating linear optimizer
     private final RangeActionsOptimizationParameters rangeActionParameters;
@@ -39,7 +42,7 @@ public class SearchTreeParameters {
     public SearchTreeParameters(ObjectiveFunctionParameters.ObjectiveFunctionType objectiveFunction,
                                 TreeParameters treeParameters,
                                 NetworkActionParameters networkActionParameters,
-                                GlobalRemedialActionLimitationParameters raLimitationParameters,
+                                Map<String, RaUsageLimits> raLimitationParameters,
                                 RangeActionsOptimizationParameters rangeActionParameters,
                                 MnecParametersExtension mnecParameters,
                                 RelativeMarginsParametersExtension maxMinRelativeMarginParameters,
@@ -72,7 +75,7 @@ public class SearchTreeParameters {
         return networkActionParameters;
     }
 
-    public GlobalRemedialActionLimitationParameters getRaLimitationParameters() {
+    public Map<String, RaUsageLimits> getRaLimitationParameters() {
         return raLimitationParameters;
     }
 
@@ -112,7 +115,7 @@ public class SearchTreeParameters {
         private ObjectiveFunctionParameters.ObjectiveFunctionType objectiveFunction;
         private TreeParameters treeParameters;
         private NetworkActionParameters networkActionParameters;
-        private GlobalRemedialActionLimitationParameters raLimitationParameters;
+        private Map<String, RaUsageLimits> raLimitationParameters;
         private RangeActionsOptimizationParameters rangeActionParameters;
         private MnecParametersExtension mnecParameters;
         private RelativeMarginsParametersExtension maxMinRelativeMarginParameters;
@@ -124,7 +127,7 @@ public class SearchTreeParameters {
         public SearchTreeParametersBuilder withConstantParametersOverAllRao(RaoParameters raoParameters, Crac crac) {
             this.objectiveFunction = raoParameters.getObjectiveFunctionParameters().getType();
             this.networkActionParameters = NetworkActionParameters.buildFromRaoParameters(raoParameters.getTopoOptimizationParameters(), crac);
-            this.raLimitationParameters = GlobalRemedialActionLimitationParameters.buildFromRaoParameters(raoParameters.getRaUsageLimitsPerContingencyParameters());
+            this.raLimitationParameters = crac.getRaUsageLimitsPerInstant();
             this.rangeActionParameters = RangeActionsOptimizationParameters.buildFromRaoParameters(raoParameters);
             this.mnecParameters = raoParameters.getExtension(MnecParametersExtension.class);
             this.maxMinRelativeMarginParameters = raoParameters.getExtension(RelativeMarginsParametersExtension.class);
@@ -149,7 +152,7 @@ public class SearchTreeParameters {
             return this;
         }
 
-        public SearchTreeParametersBuilder withGlobalRemedialActionLimitationParameters(GlobalRemedialActionLimitationParameters raLimitationParameters) {
+        public SearchTreeParametersBuilder withGlobalRemedialActionLimitationParameters(Map<String, RaUsageLimits> raLimitationParameters) {
             this.raLimitationParameters = raLimitationParameters;
             return this;
         }

@@ -28,7 +28,6 @@ import com.powsybl.openrao.searchtreerao.commons.SensitivityComputer;
 import com.powsybl.openrao.searchtreerao.commons.ToolProvider;
 import com.powsybl.openrao.searchtreerao.commons.objectivefunctionevaluator.ObjectiveFunction;
 import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.OptimizationPerimeter;
-import com.powsybl.openrao.searchtreerao.commons.parameters.GlobalRemedialActionLimitationParameters;
 import com.powsybl.openrao.searchtreerao.commons.parameters.NetworkActionParameters;
 import com.powsybl.openrao.searchtreerao.commons.parameters.TreeParameters;
 import com.powsybl.openrao.searchtreerao.result.api.*;
@@ -79,7 +78,7 @@ class SearchTreeTest {
 
     private SearchTreeParameters searchTreeParameters;
     private TreeParameters treeParameters;
-    private GlobalRemedialActionLimitationParameters raLimitationParameters;
+    private Map<String, RaUsageLimits> raLimitationParameters;
 
     private int leavesInParallel;
 
@@ -102,10 +101,7 @@ class SearchTreeTest {
         when(treeParameters.maximumSearchDepth()).thenReturn(maximumSearchDepth);
         when(treeParameters.leavesInParallel()).thenReturn(leavesInParallel);
         when(searchTreeParameters.getTreeParameters()).thenReturn(treeParameters);
-        raLimitationParameters = Mockito.mock(GlobalRemedialActionLimitationParameters.class);
-        when(raLimitationParameters.getMaxCurativeRa()).thenReturn(Integer.MAX_VALUE);
-        when(raLimitationParameters.getMaxCurativeTso()).thenReturn(Integer.MAX_VALUE);
-        when(raLimitationParameters.getMaxCurativePstPerTso()).thenReturn(new HashMap<>());
+        raLimitationParameters = Map.of("curative", new RaUsageLimits());
         when(searchTreeParameters.getRaLimitationParameters()).thenReturn(raLimitationParameters);
         NetworkActionParameters networkActionParameters = Mockito.mock(NetworkActionParameters.class);
         when(searchTreeParameters.getNetworkActionParameters()).thenReturn(networkActionParameters);
@@ -401,10 +397,9 @@ class SearchTreeTest {
     private void setMaxPstPerTso(String tsoName, int maxPstOfTso) {
         Map<String, Integer> maxPstPerTso = new HashMap<>();
         maxPstPerTso.put(tsoName, maxPstOfTso);
-        GlobalRemedialActionLimitationParameters raLimitationParameters = Mockito.mock(GlobalRemedialActionLimitationParameters.class);
-        when(raLimitationParameters.getMaxCurativeRa()).thenReturn(Integer.MAX_VALUE);
-        when(raLimitationParameters.getMaxCurativeTso()).thenReturn(Integer.MAX_VALUE);
-        when(raLimitationParameters.getMaxCurativePstPerTso()).thenReturn(maxPstPerTso);
+        RaUsageLimits raUsageLimits = new RaUsageLimits();
+        raUsageLimits.setMaxPstPerTso(maxPstPerTso);
+        raLimitationParameters = Map.of("curative", raUsageLimits);
         when(searchTreeParameters.getRaLimitationParameters()).thenReturn(raLimitationParameters);
     }
 
@@ -440,10 +435,6 @@ class SearchTreeTest {
 
     private void raoWithoutLoopFlowLimitation() {
         when(searchTreeParameters.getLoopFlowParameters()).thenReturn(null);
-    }
-
-    private void setMaxRa(int maxRa) {
-        when(raLimitationParameters.getMaxCurativeRa()).thenReturn(maxRa);
     }
 
     @Test

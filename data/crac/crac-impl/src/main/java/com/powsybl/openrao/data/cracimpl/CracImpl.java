@@ -862,6 +862,11 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
     // endregion
 
     @Override
+    public Map<String, RaUsageLimits> getRaUsageLimitsPerInstant() {
+        return this.raUsageLimitsPerInstant;
+    }
+
+    @Override
     public void addRaUsageLimits(Map<String, RaUsageLimits> raUsageLimitsPerInstant) {
         raUsageLimitsPerInstant.forEach((instantName, raUsageLimits) -> {
             if (!this.instants.containsKey(instantName)) {

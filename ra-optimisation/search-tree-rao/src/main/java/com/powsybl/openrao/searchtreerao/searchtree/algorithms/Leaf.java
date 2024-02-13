@@ -8,6 +8,7 @@ package com.powsybl.openrao.searchtreerao.searchtree.algorithms;
 
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
+import com.powsybl.openrao.data.cracapi.RaUsageLimits;
 import com.powsybl.openrao.data.cracapi.RemedialAction;
 import com.powsybl.openrao.data.cracapi.State;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
@@ -241,14 +242,14 @@ public class Leaf implements OptimizationResult {
             return null;
         }
         RangeActionLimitationParameters limitationParameters = new RangeActionLimitationParameters();
+        RaUsageLimits legacyRaUsageLimitsForCurative = parameters.getRaLimitationParameters().get("curative");
 
         if (context instanceof CurativeOptimizationPerimeter) {
-
-            int maxRa = parameters.getRaLimitationParameters().getMaxCurativeRa() - appliedNetworkActionsInPrimaryState.size();
+            int maxRa = legacyRaUsageLimitsForCurative.getMaxRa() - appliedNetworkActionsInPrimaryState.size();
             Set<String> tsoWithAlreadyActivatedRa = appliedNetworkActionsInPrimaryState.stream().map(RemedialAction::getOperator).collect(Collectors.toSet());
-            int maxTso = parameters.getRaLimitationParameters().getMaxCurativeTso() - tsoWithAlreadyActivatedRa.size();
-            Map<String, Integer> maxPstPerTso = parameters.getRaLimitationParameters().getMaxCurativePstPerTso();
-            Map<String, Integer> maxRaPerTso = new HashMap<>(parameters.getRaLimitationParameters().getMaxCurativeRaPerTso());
+            int maxTso = legacyRaUsageLimitsForCurative.getMaxTso() - tsoWithAlreadyActivatedRa.size();
+            Map<String, Integer> maxPstPerTso = legacyRaUsageLimitsForCurative.getMaxPstPerTso();
+            Map<String, Integer> maxRaPerTso = new HashMap<>(legacyRaUsageLimitsForCurative.getMaxRaPerTso());
             maxRaPerTso.entrySet().forEach(entry -> {
                 int activatedNetworkActionsForTso = appliedNetworkActionsInPrimaryState.stream().filter(na -> entry.getKey().equals(na.getOperator())).collect(Collectors.toSet()).size();
                 entry.setValue(entry.getValue() - activatedNetworkActionsForTso);
@@ -265,11 +266,11 @@ public class Leaf implements OptimizationResult {
             context.getRangeActionOptimizationStates().stream()
                     .filter(state -> state.getInstant().isCurative())
                     .forEach(state -> {
-                        int maxRa = parameters.getRaLimitationParameters().getMaxCurativeRa() - appliedRemedialActionsInSecondaryStates.getAppliedNetworkActions(state).size();
+                        int maxRa = legacyRaUsageLimitsForCurative.getMaxRa() - appliedRemedialActionsInSecondaryStates.getAppliedNetworkActions(state).size();
                         Set<String> tsoWithAlreadyActivatedRa = appliedRemedialActionsInSecondaryStates.getAppliedNetworkActions(state).stream().map(RemedialAction::getOperator).collect(Collectors.toSet());
-                        int maxTso = parameters.getRaLimitationParameters().getMaxCurativeTso() - tsoWithAlreadyActivatedRa.size();
-                        Map<String, Integer> maxPstPerTso = parameters.getRaLimitationParameters().getMaxCurativePstPerTso();
-                        Map<String, Integer> maxRaPerTso = new HashMap<>(parameters.getRaLimitationParameters().getMaxCurativeRaPerTso());
+                        int maxTso = legacyRaUsageLimitsForCurative.getMaxTso() - tsoWithAlreadyActivatedRa.size();
+                        Map<String, Integer> maxPstPerTso = legacyRaUsageLimitsForCurative.getMaxPstPerTso();
+                        Map<String, Integer> maxRaPerTso = new HashMap<>(legacyRaUsageLimitsForCurative.getMaxRaPerTso());
                         maxRaPerTso.entrySet().forEach(entry -> {
                             int alreadyActivatedNetworkActionsForTso = appliedRemedialActionsInSecondaryStates.getAppliedNetworkActions(state).stream().filter(na -> entry.getKey().equals(na.getOperator())).collect(Collectors.toSet()).size();
                             entry.setValue(entry.getValue() - alreadyActivatedNetworkActionsForTso);
