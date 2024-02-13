@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.data.raoresultjson;
 
+import com.powsybl.contingency.Contingency;
 import com.powsybl.openrao.data.cracapi.*;
 import com.powsybl.openrao.data.raoresultapi.OptimizationStepsExecuted;
 import org.junit.jupiter.api.Test;

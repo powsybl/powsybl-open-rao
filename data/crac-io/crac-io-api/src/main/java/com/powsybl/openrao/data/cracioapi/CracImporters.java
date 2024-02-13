@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.data.cracioapi;
 
+import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.cracapi.Crac;
 import com.google.common.base.Suppliers;
@@ -28,9 +29,9 @@ public final class CracImporters {
     private CracImporters() {
     }
 
-    public static Crac importCrac(Path cracPath) {
+    public static Crac importCrac(Path cracPath, Network network) {
         try (InputStream is = new FileInputStream(cracPath.toFile())) {
-            return importCrac(cracPath.getFileName().toString(), is);
+            return importCrac(cracPath.getFileName().toString(), is, network);
         } catch (FileNotFoundException e) {
             throw new OpenRaoException("File not found.");
         } catch (IOException e) {
@@ -45,7 +46,7 @@ public final class CracImporters {
         return baos.toByteArray();
     }
 
-    public static Crac importCrac(String fileName, InputStream inputStream) {
+    public static Crac importCrac(String fileName, InputStream inputStream, Network network) {
         try {
             byte[] bytes = getBytesFromInputStream(inputStream);
 
@@ -53,7 +54,7 @@ public final class CracImporters {
             if (importer == null) {
                 throw new OpenRaoException("No importer found for this file");
             }
-            return importer.importCrac(new ByteArrayInputStream(bytes));
+            return importer.importCrac(new ByteArrayInputStream(bytes), network);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
