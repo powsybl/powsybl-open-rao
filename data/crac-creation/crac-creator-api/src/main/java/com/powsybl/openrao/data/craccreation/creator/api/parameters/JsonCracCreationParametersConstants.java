@@ -67,22 +67,20 @@ public final class JsonCracCreationParametersConstants {
     }
 
     static void serializeRaUsageLimits(CracCreationParameters parameters, JsonGenerator jsonGenerator) throws IOException {
-        jsonGenerator.writeObjectFieldStart(RA_USAGE_LIMITS_PER_INSTANT);
-        parameters.getRaUsageLimitsPerInstant().forEach((instant, raUsageLimits) -> {
-            try {
-                jsonGenerator.writeStartObject();
-                jsonGenerator.writeStringField(INSTANT, instant);
-                jsonGenerator.writeNumberField(MAX_RA, raUsageLimits.getMaxRa());
-                jsonGenerator.writeNumberField(MAX_TSO, raUsageLimits.getMaxTso());
-                jsonGenerator.writeObjectField(MAX_TOPO_PER_TSO, new TreeMap<>(raUsageLimits.getMaxTopoPerTso()));
-                jsonGenerator.writeObjectField(MAX_PST_PER_TSO, new TreeMap<>(raUsageLimits.getMaxPstPerTso()));
-                jsonGenerator.writeObjectField(MAX_RA_PER_TSO, new TreeMap<>(raUsageLimits.getMaxRaPerTso()));
-                jsonGenerator.writeEndObject();
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        });
-        jsonGenerator.writeEndObject();
+        jsonGenerator.writeFieldName(RA_USAGE_LIMITS_PER_INSTANT);
+        jsonGenerator.writeStartArray();
+        for (Map.Entry<String, RaUsageLimits> entry : parameters.getRaUsageLimitsPerInstant().entrySet()) {
+            RaUsageLimits raUsageLimits = entry.getValue();
+            jsonGenerator.writeStartObject();
+            jsonGenerator.writeStringField(INSTANT, entry.getKey());
+            jsonGenerator.writeNumberField(MAX_RA, raUsageLimits.getMaxRa());
+            jsonGenerator.writeNumberField(MAX_TSO, raUsageLimits.getMaxTso());
+            jsonGenerator.writeObjectField(MAX_TOPO_PER_TSO, new TreeMap<>(raUsageLimits.getMaxTopoPerTso()));
+            jsonGenerator.writeObjectField(MAX_PST_PER_TSO, new TreeMap<>(raUsageLimits.getMaxPstPerTso()));
+            jsonGenerator.writeObjectField(MAX_RA_PER_TSO, new TreeMap<>(raUsageLimits.getMaxRaPerTso()));
+            jsonGenerator.writeEndObject();
+        }
+        jsonGenerator.writeEndArray();
     }
 
     static void deserializeRaUsageLimitsAndUpdateParameters(JsonParser jsonParser, CracCreationParameters parameters) throws IOException {
