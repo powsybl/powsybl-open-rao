@@ -7,6 +7,8 @@
 
 package com.powsybl.openrao.data.cracimpl.utils;
 
+import com.powsybl.contingency.ContingencyElementType;
+import com.powsybl.iidm.network.*;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.cracapi.CracFactory;
@@ -15,10 +17,11 @@ import com.powsybl.openrao.data.cracapi.cnec.Side;
 import com.powsybl.openrao.data.cracapi.networkaction.ActionType;
 import com.powsybl.openrao.data.cracapi.range.RangeType;
 import com.powsybl.openrao.data.cracapi.usagerule.UsageMethod;
-import com.powsybl.iidm.network.Country;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import static com.powsybl.openrao.data.cracimpl.utils.NetworkImportsUtil.createNetworkWithLines;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
@@ -44,6 +47,15 @@ public final class ExhaustiveCracCreation {
         return create(CracFactory.findDefault());
     }
 
+    private static ContingencyElementType randomContingencyElementType() {
+        return ContingencyElementType.LINE;
+    }
+
+    public static Network createAssociatedNetwork() {
+        // should be Line because of ContingencyElementType.LINE;
+        return createNetworkWithLines("ne1Id", "ne2Id", "ne3Id");
+    }
+
     public static Crac create(CracFactory cracFactory) {
 
         Crac crac = cracFactory.create("exhaustiveCracId", "exhaustiveCracName")
@@ -61,10 +73,10 @@ public final class ExhaustiveCracCreation {
                 .add();
 
         String contingency1Id = "contingency1Id";
-        crac.newContingency().withId(contingency1Id).withNetworkElement("ne1Id").add();
+        crac.newContingency().withId(contingency1Id).withContingencyElement("ne1Id", randomContingencyElementType()).add();
 
         String contingency2Id = "contingency2Id";
-        crac.newContingency().withId(contingency2Id).withNetworkElement("ne2Id", "ne2Name").withNetworkElement("ne3Id").add();
+        crac.newContingency().withId(contingency2Id).withContingencyElement("ne2Id", randomContingencyElementType()).withContingencyElement("ne3Id", randomContingencyElementType()).add();
 
         crac.newFlowCnec().withId("cnec1prevId")
                 .withNetworkElement("ne4Id")

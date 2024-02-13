@@ -6,6 +6,8 @@
  */
 package com.powsybl.openrao.data.craccreation.creator.fbconstraint.craccreator;
 
+import com.powsybl.contingency.ContingencyElement;
+import com.powsybl.contingency.ContingencyElementType;
 import com.powsybl.openrao.data.cracapi.ContingencyAdder;
 import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.craccreation.creator.fbconstraint.xsd.OutageType;
@@ -14,10 +16,7 @@ import com.powsybl.openrao.data.craccreation.util.ucte.UcteNetworkAnalyzer;
 import com.powsybl.iidm.network.DanglingLine;
 import com.powsybl.iidm.network.Network;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 
 /**
  * @author Baptiste Seguinot{@literal <baptiste.seguinot at rte-france.com>}
@@ -29,7 +28,7 @@ class OutageReader {
     private boolean isOutageValid = true;
     private String invalidOutageReason = "";
 
-    private List<String> outageElementIds;
+    private Map<String, ContingencyElementType> outageElementIdsAndContingencyType;
 
     OutageType getOutage() {
         return outage;
@@ -47,7 +46,7 @@ class OutageReader {
         ContingencyAdder contingencyAdder = crac.newContingency()
             .withId(outage.getId())
             .withName(outage.getName());
-        outageElementIds.forEach(contingencyAdder::withNetworkElement);
+        outageElementIdsAndContingencyType.forEach(contingencyAdder::withContingencyElement);
         contingencyAdder.add();
     }
 
@@ -64,7 +63,7 @@ class OutageReader {
             return;
         }
 
-        outageElementIds = new ArrayList<>();
+        outageElementIdsAndContingencyType = new HashMap<>();
 
         if (!outage.getBranch().isEmpty()) {
 
@@ -79,7 +78,7 @@ class OutageReader {
                 this.invalidOutageReason = String.format("outage %s is not valid: %s", outage.getId(), invalidBranch.get().getInvalidReason());
                 return;
             } else {
-                outageElementsReader.forEach(br -> outageElementIds.add(br.getIdInNetwork()));
+                outageElementsReader.forEach(br -> outageElementIdsAndContingencyType.put(br.getIdInNetwork(), br.getContingencyTypeInNetwork()));
             }
         }
 
@@ -92,8 +91,8 @@ class OutageReader {
                     this.isOutageValid = false;
                     this.invalidOutageReason = String.format("one of the two Xnodes of outage %s was not found in the network: %s, %s", outage.getId(), hvdcVH.getFrom(), hvdcVH.getTo());
                 } else {
-                    outageElementIds.add(dl1.getId());
-                    outageElementIds.add(dl2.getId());
+                    outageElementIdsAndContingencyType.put(dl1.getId(), ContingencyElement.of(dl1).getType());
+                    outageElementIdsAndContingencyType.put(dl2.getId(), ContingencyElement.of(dl2).getType());
                 }
             });
         }

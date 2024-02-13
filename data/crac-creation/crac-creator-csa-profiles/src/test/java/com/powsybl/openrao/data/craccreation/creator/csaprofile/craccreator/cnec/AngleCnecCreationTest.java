@@ -27,7 +27,7 @@ class AngleCnecCreationTest {
         BusbarSection terminal1Mock = Mockito.mock(BusbarSection.class);
         BusbarSection terminal2Mock = Mockito.mock(BusbarSection.class);
         Switch switchMock = Mockito.mock(Switch.class);
-        Branch networkElementMock = Mockito.mock(Branch.class);
+        Branch networkElementMock = Mockito.mock(Line.class);
 
         Mockito.when(terminal1Mock.getId()).thenReturn("bdfd51d2-f48a-424e-a42d-0f6e712094bb");
         Mockito.when(terminal2Mock.getId()).thenReturn("601ac88b-14bc-448a-b8a7-e0b8874a478d");
@@ -45,7 +45,7 @@ class AngleCnecCreationTest {
 
         assertEquals(4, cracCreationContext.getCrac().getAngleCnecs().size());
         List<AngleCnec> angleCnecs = cracCreationContext.getCrac().getAngleCnecs().stream()
-                .sorted(Comparator.comparing(AngleCnec::getId)).toList();
+            .sorted(Comparator.comparing(AngleCnec::getId)).toList();
 
         // RTE_AE1 - preventive
         AngleCnec angleCnec1 = angleCnecs.iterator().next();
@@ -143,7 +143,7 @@ class AngleCnecCreationTest {
         BusbarSection terminal1Mock = Mockito.mock(BusbarSection.class);
         BusbarSection terminal2Mock = Mockito.mock(BusbarSection.class);
         Switch switchMock = Mockito.mock(Switch.class);
-        Branch networkElementMock = Mockito.mock(Branch.class);
+        Branch networkElementMock = Mockito.mock(Line.class);
 
         Mockito.when(terminal1Mock.getId()).thenReturn("60038442-5c02-21a9-22ad-f0554a65a466");
         Mockito.when(terminal2Mock.getId()).thenReturn("65e9a6a7-8488-7b17-6344-cb7d61b7920b");
@@ -162,48 +162,48 @@ class AngleCnecCreationTest {
         Instant curativeInstant = cracCreationContext.getCrac().getInstant("curative");
 
         CsaProfileCracCreationTestUtil.assertAngleCnecEquality(cracCreationContext.getCrac().getAngleCnec("RTE_AE1 (e2b71e64-ce03-4aa3-9adc-7ff910adae36) - RTE_CO1 - curative"),
-                "RTE_AE1 (e2b71e64-ce03-4aa3-9adc-7ff910adae36) - RTE_CO1 - curative",
-                "RTE_AE1 (e2b71e64-ce03-4aa3-9adc-7ff910adae36) - RTE_CO1 - curative",
-                "60038442-5c02-21a9-22ad-f0554a65a466",
-                "65e9a6a7-8488-7b17-6344-cb7d61b7920b",
-                curativeInstant,
-                "6c9656a6-84c2-4967-aabc-51f63a7abdf1",
-                30.,
-                -30.,
-                true);
+            "RTE_AE1 (e2b71e64-ce03-4aa3-9adc-7ff910adae36) - RTE_CO1 - curative",
+            "RTE_AE1 (e2b71e64-ce03-4aa3-9adc-7ff910adae36) - RTE_CO1 - curative",
+            "60038442-5c02-21a9-22ad-f0554a65a466",
+            "65e9a6a7-8488-7b17-6344-cb7d61b7920b",
+            curativeInstant,
+            "6c9656a6-84c2-4967-aabc-51f63a7abdf1",
+            30.,
+            -30.,
+            true);
 
         CsaProfileCracCreationTestUtil.assertAngleCnecEquality(cracCreationContext.getCrac().getAngleCnec("RTE_AE1 (e2b71e64-ce03-4aa3-9adc-7ff910adae36) - preventive"),
-                "RTE_AE1 (e2b71e64-ce03-4aa3-9adc-7ff910adae36) - preventive",
-                "RTE_AE1 (e2b71e64-ce03-4aa3-9adc-7ff910adae36) - preventive",
-                "60038442-5c02-21a9-22ad-f0554a65a466",
-                "65e9a6a7-8488-7b17-6344-cb7d61b7920b",
-                preventiveInstant,
-                null,
-                30.,
-                -30.,
-                true);
+            "RTE_AE1 (e2b71e64-ce03-4aa3-9adc-7ff910adae36) - preventive",
+            "RTE_AE1 (e2b71e64-ce03-4aa3-9adc-7ff910adae36) - preventive",
+            "60038442-5c02-21a9-22ad-f0554a65a466",
+            "65e9a6a7-8488-7b17-6344-cb7d61b7920b",
+            preventiveInstant,
+            null,
+            30.,
+            -30.,
+            true);
 
         CsaProfileCracCreationTestUtil.assertAngleCnecEquality(cracCreationContext.getCrac().getAngleCnec("RTE_AE2 (a418e290-0d0c-4f40-b7fa-31fca1a2607d) - RTE_CO2 - curative"),
-                "RTE_AE2 (a418e290-0d0c-4f40-b7fa-31fca1a2607d) - RTE_CO2 - curative",
-                "RTE_AE2 (a418e290-0d0c-4f40-b7fa-31fca1a2607d) - RTE_CO2 - curative",
-                "65e9a6a7-8488-7b17-6344-cb7d61b7920b",
-                "60038442-5c02-21a9-22ad-f0554a65a466",
-                curativeInstant,
-                "410a7075-51df-4c5c-aa80-0bb1bbe41190",
-                15.,
-                -15.,
-                true);
+            "RTE_AE2 (a418e290-0d0c-4f40-b7fa-31fca1a2607d) - RTE_CO2 - curative",
+            "RTE_AE2 (a418e290-0d0c-4f40-b7fa-31fca1a2607d) - RTE_CO2 - curative",
+            "65e9a6a7-8488-7b17-6344-cb7d61b7920b",
+            "60038442-5c02-21a9-22ad-f0554a65a466",
+            curativeInstant,
+            "410a7075-51df-4c5c-aa80-0bb1bbe41190",
+            15.,
+            -15.,
+            true);
 
         CsaProfileCracCreationTestUtil.assertAngleCnecEquality(cracCreationContext.getCrac().getAngleCnec("RTE_AE2 (a418e290-0d0c-4f40-b7fa-31fca1a2607d) - preventive"),
-                "RTE_AE2 (a418e290-0d0c-4f40-b7fa-31fca1a2607d) - preventive",
-                "RTE_AE2 (a418e290-0d0c-4f40-b7fa-31fca1a2607d) - preventive",
-                "65e9a6a7-8488-7b17-6344-cb7d61b7920b",
-                "60038442-5c02-21a9-22ad-f0554a65a466",
-                preventiveInstant,
-                null,
-                15.,
-                -15.,
-                true);
+            "RTE_AE2 (a418e290-0d0c-4f40-b7fa-31fca1a2607d) - preventive",
+            "RTE_AE2 (a418e290-0d0c-4f40-b7fa-31fca1a2607d) - preventive",
+            "65e9a6a7-8488-7b17-6344-cb7d61b7920b",
+            "60038442-5c02-21a9-22ad-f0554a65a466",
+            preventiveInstant,
+            null,
+            15.,
+            -15.,
+            true);
 
         //4 remedial actions and a total of 8 onAngleConstraint usage rules.
         assertEquals(4, cracCreationContext.getCrac().getRemedialActions().size());

@@ -6,6 +6,7 @@
  */
 package com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.remedialaction;
 
+import com.powsybl.iidm.network.*;
 import com.powsybl.openrao.data.cracapi.Instant;
 import com.powsybl.openrao.data.cracapi.networkaction.InjectionSetpoint;
 import com.powsybl.openrao.data.cracapi.networkaction.NetworkAction;
@@ -14,10 +15,6 @@ import com.powsybl.openrao.data.craccreation.creator.api.ImportStatus;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileCracCreationContext;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileCracCreationTestUtil;
 import com.powsybl.openrao.data.cracimpl.OnContingencyStateImpl;
-import com.powsybl.iidm.network.Branch;
-import com.powsybl.iidm.network.Load;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.ShuntCompensator;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
@@ -33,7 +30,7 @@ class InjectionSetPointActionCreationTest {
     @Test
     void testImportInjectionSetPointActions() {
         Network network = Mockito.mock(Network.class);
-        Branch networkElementMock = Mockito.mock(Branch.class);
+        Branch networkElementMock = Mockito.mock(Line.class);
         Mockito.when(networkElementMock.getId()).thenReturn("equipment-with-contingency");
         Mockito.when(network.getIdentifiable("equipment-with-contingency")).thenReturn(networkElementMock);
 
@@ -111,7 +108,6 @@ class InjectionSetPointActionCreationTest {
         assertEquals("contingency", ((OnContingencyStateImpl) ra4.getUsageRules().iterator().next()).getContingency().getId());
         assertEquals("rotating-machine", ra4.getNetworkElements().iterator().next().getId());
         assertEquals(15.6, ((InjectionSetpoint) ra4.getElementaryActions().iterator().next()).getSetpoint(), 0.1);
-
     }
 
     @Test

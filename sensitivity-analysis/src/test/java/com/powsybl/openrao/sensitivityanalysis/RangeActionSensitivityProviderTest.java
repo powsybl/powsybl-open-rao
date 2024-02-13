@@ -6,6 +6,7 @@
  */
 package com.powsybl.openrao.sensitivityanalysis;
 
+import com.powsybl.contingency.ContingencyElementType;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.*;
@@ -49,17 +50,17 @@ class RangeActionSensitivityProviderTest {
 
         crac.newContingency()
             .withId("contingency-generator")
-            .withNetworkElement("BBE1AA1 _generator")
+            .withContingencyElement("BBE1AA1 _generator", ContingencyElementType.GENERATOR)
             .add();
 
         crac.newContingency()
             .withId("contingency-hvdc")
-            .withNetworkElement("HVDC1")
+            .withContingencyElement("HVDC1", ContingencyElementType.HVDC_LINE)
             .add();
 
         crac.newContingency()
             .withId("contingency-busbar-section")
-            .withNetworkElement("BB1")
+            .withContingencyElement("BB1", ContingencyElementType.BUSBAR_SECTION)
             .add();
 
         crac.newFlowCnec()
@@ -131,36 +132,6 @@ class RangeActionSensitivityProviderTest {
         // factors after disabling basecase
         assertEquals(0, provider.getBasecaseFactors(network).size());
         assertEquals(4, provider.getContingencyFactors(network, List.of(new Contingency("Contingency FR1 FR3", new ArrayList<>()))).size());
-    }
-
-    @Test
-    void testFailureOnContingency() {
-        Network network = NetworkImportsUtil.import12NodesNetwork();
-        Crac crac = CommonCracCreation.createWithPreventivePstRange();
-
-        crac.newContingency()
-            .withId("contingency-fail")
-            .withNetworkElement("FFR3AA1")
-            .add();
-
-        crac.newFlowCnec()
-            .withId("failureCnec")
-            .withNetworkElement("BBE1AA1  BBE3AA1  1")
-            .newThreshold()
-            .withUnit(Unit.AMPERE)
-            .withSide(Side.LEFT)
-            .withMin(-10.)
-            .withMax(10.)
-            .add()
-            .withInstant(CURATIVE_INSTANT_ID)
-            .withContingency("contingency-fail")
-            .withNominalVoltage(380.)
-            .add();
-
-        RangeActionSensitivityProvider provider = new RangeActionSensitivityProvider(new HashSet<>(),
-            Set.of(crac.getFlowCnec("failureCnec")), Stream.of(Unit.MEGAWATT, Unit.AMPERE).collect(Collectors.toSet()));
-        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> provider.getContingencies(network));
-        assertEquals("Unable to apply contingency element FFR3AA1 while converting crac contingency to Powsybl format", exception.getMessage());
     }
 
     @Test

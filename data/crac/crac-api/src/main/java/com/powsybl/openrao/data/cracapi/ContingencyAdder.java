@@ -7,14 +7,15 @@
 
 package com.powsybl.openrao.data.cracapi;
 
+import com.powsybl.contingency.Contingency;
+import com.powsybl.contingency.ContingencyElementType;
+
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
 public interface ContingencyAdder extends IdentifiableAdder<ContingencyAdder> {
 
-    ContingencyAdder withNetworkElement(String networkElementId);
-
-    ContingencyAdder withNetworkElement(String networkElementId, String networkElementName);
+    ContingencyAdder withContingencyElement(String contingencyElementId, ContingencyElementType contingencyElementType);
 
     Contingency add();
 }

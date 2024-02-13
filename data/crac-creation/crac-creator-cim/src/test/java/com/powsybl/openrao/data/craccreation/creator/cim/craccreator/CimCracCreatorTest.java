@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.data.craccreation.creator.cim.craccreator;
 
+import com.powsybl.contingency.ContingencyElement;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.*;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
@@ -177,7 +178,7 @@ class CimCracCreatorTest {
         }
         assertEquals(id, context.getCreatedContingencyId());
         assertNotNull(importedCrac.getContingency(id));
-        Set<String> actualNetworkElements = importedCrac.getContingency(id).getNetworkElements().stream().map(NetworkElement::getId).collect(Collectors.toSet());
+        Set<String> actualNetworkElements = importedCrac.getContingency(id).getElements().stream().map(ContingencyElement::getId).collect(Collectors.toSet());
         assertEquals(networkElements, actualNetworkElements);
     }
 

@@ -7,6 +7,8 @@
 
 package com.powsybl.openrao.data.cracutil;
 
+import com.powsybl.contingency.ContingencyElement;
+import com.powsybl.contingency.ContingencyElementType;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.cracapi.CracFactory;
@@ -37,6 +39,10 @@ class CracValidatorTest {
     private Network network;
     private Instant outageInstant;
 
+    private ContingencyElementType getContingencyType(String id) {
+        return ContingencyElement.of(network.getIdentifiable(id)).getType();
+    }
+
     @BeforeEach
     public void setUp() {
         network = Network.read("TestCase12Nodes.uct", getClass().getResourceAsStream("/TestCase12Nodes.uct"));
@@ -46,8 +52,8 @@ class CracValidatorTest {
             .newInstant(OUTAGE_INSTANT_ID, InstantKind.OUTAGE)
             .newInstant(AUTO_INSTANT_ID, InstantKind.AUTO);
         outageInstant = crac.getInstant(OUTAGE_INSTANT_ID);
-        crac.newContingency().withId("co-1").withNetworkElement("BBE1AA1  BBE2AA1  1").add();
-        crac.newContingency().withId("co-2").withNetworkElement("BBE1AA1  BBE3AA1  1").add();
+        crac.newContingency().withId("co-1").withContingencyElement("BBE1AA1  BBE2AA1  1", getContingencyType("BBE1AA1  BBE2AA1  1")).add();
+        crac.newContingency().withId("co-2").withContingencyElement("BBE1AA1  BBE3AA1  1", getContingencyType("BBE1AA1  BBE3AA1  1")).add();
 
         crac.newFlowCnec()
             .withId("auto-cnec-1")
