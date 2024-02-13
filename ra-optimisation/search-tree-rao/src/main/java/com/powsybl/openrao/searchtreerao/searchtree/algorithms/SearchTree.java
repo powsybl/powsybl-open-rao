@@ -94,7 +94,7 @@ public class SearchTree {
         this.purelyVirtual = input.getOptimizationPerimeter().getOptimizedFlowCnecs().isEmpty();
 
         if (input.getOptimizationPerimeter() instanceof CurativeOptimizationPerimeter) {
-            RaUsageLimits legacyRaUsageLimitsForCurative = parameters.getRaLimitationParameters().get("curative");
+            RaUsageLimits legacyRaUsageLimitsForCurative = parameters.getRaLimitationParameters().getOrDefault("curative", new RaUsageLimits());
             this.bloomer = new SearchTreeBloomer(
                 input.getNetwork(),
                 legacyRaUsageLimitsForCurative.getMaxRa(),

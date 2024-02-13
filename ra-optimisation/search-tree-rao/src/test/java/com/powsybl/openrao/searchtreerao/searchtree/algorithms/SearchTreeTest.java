@@ -101,7 +101,7 @@ class SearchTreeTest {
         when(treeParameters.maximumSearchDepth()).thenReturn(maximumSearchDepth);
         when(treeParameters.leavesInParallel()).thenReturn(leavesInParallel);
         when(searchTreeParameters.getTreeParameters()).thenReturn(treeParameters);
-        raLimitationParameters = Map.of("curative", new RaUsageLimits());
+        raLimitationParameters = new HashMap<>();
         when(searchTreeParameters.getRaLimitationParameters()).thenReturn(raLimitationParameters);
         NetworkActionParameters networkActionParameters = Mockito.mock(NetworkActionParameters.class);
         when(searchTreeParameters.getNetworkActionParameters()).thenReturn(networkActionParameters);

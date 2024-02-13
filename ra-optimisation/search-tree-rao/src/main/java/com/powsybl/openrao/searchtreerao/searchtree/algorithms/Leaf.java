@@ -242,7 +242,7 @@ public class Leaf implements OptimizationResult {
             return null;
         }
         RangeActionLimitationParameters limitationParameters = new RangeActionLimitationParameters();
-        RaUsageLimits legacyRaUsageLimitsForCurative = parameters.getRaLimitationParameters().get("curative");
+        RaUsageLimits legacyRaUsageLimitsForCurative = parameters.getRaLimitationParameters().getOrDefault("curative", new RaUsageLimits());
 
         if (context instanceof CurativeOptimizationPerimeter) {
             int maxRa = legacyRaUsageLimitsForCurative.getMaxRa() - appliedNetworkActionsInPrimaryState.size();
