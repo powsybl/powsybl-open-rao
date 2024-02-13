@@ -28,7 +28,7 @@ public final class JsonCracCreationParametersConstants {
     private static final String MONITOR_LINES_ON_LEFT_SIDE_TEXT = "monitor-lines-on-left-side";
     private static final String MONITOR_LINES_ON_RIGHT_SIDE_TEXT = "monitor-lines-on-right-side";
     private static final String MONITOR_LINES_ON_BOTH_SIDES_TEXT = "monitor-lines-on-both-sides";
-    static final String RA_USAGE_LIMITS_PER_INSTANT = "ra-usage-limits-per-instant";
+    public static final String RA_USAGE_LIMITS_PER_INSTANT = "ra-usage-limits-per-instant";
     public static final String INSTANT = "instant";
     public static final String MAX_RA = "max-ra";
     public static final String MAX_TSO = "max-tso";
@@ -117,13 +117,11 @@ public final class JsonCracCreationParametersConstants {
                         throw new OpenRaoException(String.format("Cannot deserialize ra-usage-limits-per-instant parameters: unexpected field in %s (%s)", RA_USAGE_LIMITS_PER_INSTANT, jsonParser.getCurrentName()));
                 }
             }
-            if (instant != null) {
-                parameters.addRaUsageLimitsForAGivenInstant(instant, raUsageLimits);
-            }
+            parameters.addRaUsageLimitsForAGivenInstant(instant, raUsageLimits);
         }
     }
 
-    private static Map<String, Integer> readStringToPositiveIntMap(JsonParser jsonParser) throws IOException {
+    public static Map<String, Integer> readStringToPositiveIntMap(JsonParser jsonParser) throws IOException {
         HashMap<String, Integer> map = jsonParser.readValueAs(HashMap.class);
         // Check types
         map.forEach((Object o, Object o2) -> {

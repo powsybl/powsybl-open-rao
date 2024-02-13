@@ -878,6 +878,11 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
     }
 
     @Override
+    public void addRaUsageLimitsForAGivenInstant(String instantName, RaUsageLimits raUsageLimits) {
+        this.raUsageLimitsPerInstant.put(instantName, raUsageLimits);
+    }
+
+    @Override
     public boolean equals(Object o) {
         if (this == o) {
             return true;

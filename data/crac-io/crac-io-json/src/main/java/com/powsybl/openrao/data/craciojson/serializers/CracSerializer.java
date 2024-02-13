@@ -28,6 +28,8 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.powsybl.openrao.data.craciojson.JsonSerializationConstants.*;
+import static com.powsybl.openrao.data.craccreation.creator.api.parameters.JsonCracCreationParametersConstants.*;
+import static com.powsybl.openrao.data.craciojson.JsonSerializationConstants.INSTANT;
 
 /**
  * @author Alexandre Montigny {@literal <alexandre.montigny at rte-france.com>}
@@ -44,6 +46,7 @@ public class CracSerializer extends AbstractJsonSerializer<Crac> {
         gen.writeStringField(ID, crac.getId());
         gen.writeStringField(NAME, crac.getName());
 
+        serializeRaUsageLimits(crac, gen);
         serializeInstants(crac, gen);
         serializeNetworkElements(crac, gen);
         serializeContingencies(crac, gen);
@@ -59,6 +62,22 @@ public class CracSerializer extends AbstractJsonSerializer<Crac> {
         JsonUtil.writeExtensions(crac, gen, serializers, ExtensionsHandler.getExtensionsSerializers());
 
         gen.writeEndObject();
+    }
+
+    private void serializeRaUsageLimits(Crac crac, JsonGenerator gen) throws IOException {
+        gen.writeArrayFieldStart(RA_USAGE_LIMITS_PER_INSTANT);
+        for (Map.Entry<String, RaUsageLimits> entry : crac.getRaUsageLimitsPerInstant().entrySet()) {
+            RaUsageLimits raUsageLimits = entry.getValue();
+            gen.writeStartObject();
+            gen.writeStringField(INSTANT, entry.getKey());
+            gen.writeNumberField(MAX_RA, raUsageLimits.getMaxRa());
+            gen.writeNumberField(MAX_TSO, raUsageLimits.getMaxTso());
+            gen.writeObjectField(MAX_TOPO_PER_TSO, new TreeMap<>(raUsageLimits.getMaxTopoPerTso()));
+            gen.writeObjectField(MAX_PST_PER_TSO, new TreeMap<>(raUsageLimits.getMaxPstPerTso()));
+            gen.writeObjectField(MAX_RA_PER_TSO, new TreeMap<>(raUsageLimits.getMaxRaPerTso()));
+            gen.writeEndObject();
+        }
+        gen.writeEndArray();
     }
 
     private void serializeInstants(Crac crac, JsonGenerator gen) throws IOException {
