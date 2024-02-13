@@ -1,5 +1,5 @@
 {
-  "version" : "2.1",
+  "version" : "2.2",
   "objective-function" : {
     "type" : "MAX_MIN_MARGIN_IN_AMPERE",
     "forbid-cost-increase" : true,
@@ -35,16 +35,6 @@
     "execution-condition" : "POSSIBLE_CURATIVE_IMPROVEMENT",
     "re-optimize-curative-range-actions" : true,
     "hint-from-first-preventive-rao" : true
-  },
-  "ra-usage-limits-per-contingency" : {
-    "max-curative-ra" : 214,
-    "max-curative-tso" : 215,
-    "max-curative-topo-per-tso" : { },
-    "max-curative-pst-per-tso" : { },
-    "max-curative-ra-per-tso" : {
-      "REE" : 7,
-      "RTE" : 5
-    }
   },
   "not-optimized-cnecs" : {
     "do-not-optimize-curative-cnecs-for-tsos-without-cras" : false,

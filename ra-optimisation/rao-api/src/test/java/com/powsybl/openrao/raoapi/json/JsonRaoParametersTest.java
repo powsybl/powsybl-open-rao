@@ -180,7 +180,7 @@ class JsonRaoParametersTest extends AbstractSerDeTest {
     void testFailOnOldVersion() {
         InputStream inputStream = getClass().getResourceAsStream("/RaoParameters_oldVersion.json");
         OpenRaoException e = assertThrows(OpenRaoException.class, () -> JsonRaoParameters.read(inputStream));
-        assertEquals("RaoParameters version '2.0' cannot be deserialized. The only supported version currently is '2.1'.", e.getMessage());
+        assertEquals("RaoParameters version '2.0' cannot be deserialized. The only supported version currently is '2.2'.", e.getMessage());
     }
 
     @ParameterizedTest
