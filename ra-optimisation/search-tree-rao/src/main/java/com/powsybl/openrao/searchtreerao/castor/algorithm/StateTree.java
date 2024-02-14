@@ -97,15 +97,14 @@ public class StateTree {
         if (!automatonRemedialActionsExist) {
             return preventivePerimeter;
         }
-        List<State> curativeState = crac.getStates()
+        return crac.getStates(contingency)
             .stream()
-            .filter(state -> state.getContingency().isPresent())
-            .filter(state -> contingency.equals(state.getContingency().get()))
             .filter(state -> state.getInstant().isCurative())
             .filter(state -> anyCnec(crac, state))
-            .sorted(Comparator.comparingInt(state -> state.getInstant().getOrder()))
-            .toList();
-        return curativeState.isEmpty() ? null : new Perimeter(curativeState.get(0), new HashSet<>());
+            .sorted()
+            .findFirst()
+            .map(state -> new Perimeter(state, new HashSet<>()))
+            .orElse(null);
     }
 
     private Pair<Boolean, Boolean> processAutoInstant(Contingency contingency, Crac crac, ContingencyScenario.ContingencyScenarioBuilder contingencyScenarioBuilder) {
