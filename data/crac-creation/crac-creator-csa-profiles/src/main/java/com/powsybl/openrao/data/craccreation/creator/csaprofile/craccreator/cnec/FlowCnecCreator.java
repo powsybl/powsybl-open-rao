@@ -231,6 +231,25 @@ public class FlowCnecCreator extends AbstractCnecCreator {
         markCnecAsImportedAndHandleRejectedContingencies(instantId, contingency);
     }
 
+    private void addCurativeFlowCnec(Branch<?> networkElement, Contingency contingency, String instantId, EnumMap<TwoSides, Double> thresholds, boolean useMaxAndMinThresholds, int tatlDuration) {
+        if (thresholds.isEmpty()) {
+            return;
+        }
+        String cnecName = getCnecName(instantId, contingency, tatlDuration);
+        FlowCnecAdder cnecAdder = initFlowCnec();
+        addCnecBaseInformation(cnecAdder, contingency, instantId, tatlDuration);
+        for (TwoSides side : thresholds.keySet()) {
+            double threshold = thresholds.get(side);
+            addFlowCnecThreshold(cnecAdder, side == TwoSides.ONE ? Side.LEFT : Side.RIGHT, threshold, useMaxAndMinThresholds);
+        }
+        cnecAdder.withNetworkElement(networkElement.getId());
+        if (!setNominalVoltage(cnecAdder, networkElement) || !setCurrentLimitsFromBranch(cnecAdder, networkElement)) {
+            return;
+        }
+        cnecAdder.add();
+        markCnecAsImportedAndHandleRejectedContingencies(cnecName, contingency);
+    }
+
     private void addAllFlowCnecsFromBranchAndOperationalLimits(Branch<?> networkElement, Map<Integer, EnumMap<TwoSides, Double>> thresholds, boolean useMaxAndMinThresholds) {
         EnumMap<TwoSides, Double> patlThresholds = thresholds.get(Integer.MAX_VALUE);
         boolean hasPatl = thresholds.get(Integer.MAX_VALUE) != null;
@@ -267,7 +286,7 @@ public class FlowCnecCreator extends AbstractCnecCreator {
                     //TODO : this most likely needs fixing, maybe continue is enough as a fix instead of return, but then the context wont be very clear since some will have been imported (can already be the case)
                     continue;
                 }
-                addFlowCnec(networkElement, contingency, instant.getId(), thresholdEntry.getValue(), useMaxAndMinThresholds, false);
+                addCurativeFlowCnec(networkElement, contingency, instant.getId(), thresholds.get(acceptableDuration), useMaxAndMinThresholds, acceptableDuration);
             }
         }
     }
