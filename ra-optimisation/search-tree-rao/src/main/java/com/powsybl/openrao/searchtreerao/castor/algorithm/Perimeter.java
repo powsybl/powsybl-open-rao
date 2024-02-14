@@ -37,11 +37,9 @@ public class Perimeter {
     public Perimeter(State raOptimisationState, Set<State> cnecStates) {
         Objects.requireNonNull(raOptimisationState);
         this.raOptimisationState = raOptimisationState;
+        this.cnecStates = new HashSet<>();
         if (Objects.nonNull(cnecStates)) {
-            cnecStates.forEach(this::checkStateConsistency);
-            this.cnecStates = new HashSet<>(cnecStates);
-        } else {
-            this.cnecStates = new HashSet<>();
+            cnecStates.forEach(this::addOtherState);
         }
     }
 
@@ -60,17 +58,23 @@ public class Perimeter {
     }
 
     void addOtherState(State state) {
-        checkStateConsistency(state);
-        cnecStates.add(state);
+        boolean isRaOptimizationState = checkStateConsistency(state);
+        if (!isRaOptimizationState) {
+            cnecStates.add(state);
+        }
     }
 
-    private void checkStateConsistency(State state) {
+    private boolean checkStateConsistency(State state) {
         Optional<Contingency> optimisationStateContingency = raOptimisationState.getContingency();
         if (optimisationStateContingency.isPresent() && !optimisationStateContingency.equals(state.getContingency())) {
             throw new OpenRaoException("Contingency should be the same for the optimisation state and the other states.");
         }
-        if (!raOptimisationState.getInstant().comesBefore(state.getInstant())) {
+        if (raOptimisationState.getInstant().equals(state.getInstant())) {
+            return true;
+        }
+        if (raOptimisationState.getInstant().comesAfter(state.getInstant())) {
             throw new OpenRaoException("Other states should occur after the optimisation state.");
         }
+        return false;
     }
 }
