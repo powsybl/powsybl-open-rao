@@ -168,8 +168,8 @@ public class StateTree {
         // - if the associated instant is null, the CNECs are added to the default perimeter
         // - otherwise, they are added to the perimeter corresponding to their associated optimization instant
         // if the instant has both CRAs and CNECs, there is no need to add the CNECs
-        instantsWithCnecs.forEach(instant -> {
-            Instant nearestPrecedentInstantWithRemedialActions = associatedOptimizationInstant.get(instant);
+        instantsWithCnecs.forEach(cnecInstant -> {
+            Instant craInstant = associatedOptimizationInstant.get(cnecInstant);
             State state = crac.getState(contingency, instant);
             if (Objects.isNull(nearestPrecedentInstantWithRemedialActions)) {
                 if (!instant.equals(defaultPerimeter.getRaOptimisationState().getInstant())) {
