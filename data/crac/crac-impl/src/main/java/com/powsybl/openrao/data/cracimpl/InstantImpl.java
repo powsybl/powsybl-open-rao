@@ -108,7 +108,7 @@ public class InstantImpl extends AbstractIdentifiable<Instant> implements Instan
     }
 
     @Override
-    public int compareTo(Instant otherPlayer) {
-        return Integer.compare(getOrder(), otherPlayer.getOrder());
+    public int compareTo(Instant otherInstant) {
+        return Integer.compare(getOrder(), otherInstant.getOrder());
     }
 }
