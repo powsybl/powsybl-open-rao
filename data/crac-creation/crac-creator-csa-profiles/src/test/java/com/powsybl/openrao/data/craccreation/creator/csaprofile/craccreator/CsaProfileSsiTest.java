@@ -411,21 +411,16 @@ class CsaProfileSsiTest {
         assertContingencyEquality(contingencies.get(2), "contingency-3", "RTE_CO3", 1, List.of("FFR1AA1  FFR4AA1  1"));
 
         List<NetworkAction> networkActions = crac.getNetworkActions().stream().sorted(Comparator.comparing(NetworkAction::getId)).toList();
-        assertEquals(2, networkActions.size());
+        assertEquals(1, networkActions.size());
 
-        assertEquals("remedial-action-1", networkActions.get(0).getId());
-        assertEquals("RTE_RA1", networkActions.get(0).getName());
+        assertRaNotImported(cracCreationContext, "remedial-action-1", ImportStatus.NOT_FOR_RAO, "Remedial action 'remedial-action-1' will not be imported because field 'normalEnabled' in 'ContingencyWithRemedialAction' must be true or empty");
+
+        assertEquals("remedial-action-2", networkActions.get(0).getId());
+        assertEquals("RTE_RA2", networkActions.get(0).getName());
         assertEquals(1, networkActions.get(0).getUsageRules().size());
         assertTrue(networkActions.get(0).getUsageRules().iterator().next() instanceof OnContingencyState);
         assertEquals(crac.getInstant("curative"), networkActions.get(0).getUsageRules().iterator().next().getInstant());
-        assertEquals("contingency-1", ((OnContingencyState) networkActions.get(0).getUsageRules().iterator().next()).getContingency().getId());
-
-        assertEquals("remedial-action-2", networkActions.get(1).getId());
-        assertEquals("RTE_RA2", networkActions.get(1).getName());
-        assertEquals(1, networkActions.get(1).getUsageRules().size());
-        assertTrue(networkActions.get(1).getUsageRules().iterator().next() instanceof OnContingencyState);
-        assertEquals(crac.getInstant("curative"), networkActions.get(1).getUsageRules().iterator().next().getInstant());
-        assertEquals("contingency-3", ((OnContingencyState) networkActions.get(1).getUsageRules().iterator().next()).getContingency().getId());
+        assertEquals("contingency-3", ((OnContingencyState) networkActions.get(0).getUsageRules().iterator().next()).getContingency().getId());
 
         // With SSI
         cracCreationContext = getCsaCracCreationContext("/ssi/SSI-12_ContingencyWithRemedialAction.zip", network, "2024-01-31T12:30Z");
@@ -438,18 +433,13 @@ class CsaProfileSsiTest {
         assertContingencyNotImported(cracCreationContext, "contingency-3", ImportStatus.NOT_FOR_RAO, "contingency.mustStudy is false");
 
         networkActions = crac.getNetworkActions().stream().sorted(Comparator.comparing(NetworkAction::getId)).toList();
-        assertEquals(2, networkActions.size());
+        assertEquals(1, networkActions.size());
 
-        assertEquals("remedial-action-1", networkActions.get(0).getId());
-        assertEquals("RTE_RA1", networkActions.get(0).getName());
-        assertEquals(1, networkActions.get(0).getUsageRules().size());
-        assertTrue(networkActions.get(0).getUsageRules().iterator().next() instanceof OnContingencyState);
-        assertEquals(crac.getInstant("curative"), networkActions.get(0).getUsageRules().iterator().next().getInstant());
-        assertEquals("contingency-2", ((OnContingencyState) networkActions.get(0).getUsageRules().iterator().next()).getContingency().getId());
+        assertRaNotImported(cracCreationContext, "remedial-action-1", ImportStatus.NOT_FOR_RAO, "Remedial action 'remedial-action-1' will not be imported because field 'normalEnabled' in 'ContingencyWithRemedialAction' must be true or empty");
 
-        assertEquals("remedial-action-2", networkActions.get(1).getId());
-        assertEquals("RTE_RA2", networkActions.get(1).getName());
-        assertEquals(0, networkActions.get(1).getUsageRules().size());
+        assertEquals("remedial-action-2", networkActions.get(0).getId());
+        assertEquals("RTE_RA2", networkActions.get(0).getName());
+        assertEquals(0, networkActions.get(0).getUsageRules().size());
     }
 
     @Test

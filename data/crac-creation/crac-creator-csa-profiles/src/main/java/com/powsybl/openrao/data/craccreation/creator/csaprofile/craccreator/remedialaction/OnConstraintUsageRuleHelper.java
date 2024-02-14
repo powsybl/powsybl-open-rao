@@ -24,7 +24,7 @@ public class OnConstraintUsageRuleHelper {
     private final Set<String> importedCnecsCombinableWithRas = new HashSet<>();
     private final Map<String, Set<String>> excludedCnecsByRemedialAction = new HashMap<>();
     private final Map<String, Set<String>> includedCnecsByRemedialAction = new HashMap<>();
-    private final Map<String, Set<String>> consideredCnecsElementsByRemedialAction = new HashMap<>();
+    private final Map<String, Set<String>> consideredCnecsByRemedialAction = new HashMap<>();
 
     public OnConstraintUsageRuleHelper(Set<CsaProfileElementaryCreationContext> csaProfileCnecCreationContexts, PropertyBags assessedElements, PropertyBags assessedElementsWithRemedialAction) {
         this.csaProfileCnecCreationContexts = csaProfileCnecCreationContexts;
@@ -58,7 +58,7 @@ public class OnConstraintUsageRuleHelper {
                     .computeIfAbsent(remedialActionId, k -> new HashSet<>())
                     .addAll(openRaoCnecIds);
             } else if (combinationConstraintKind.equals(CsaProfileConstants.ElementCombinationConstraintKind.CONSIDERED.toString())) {
-                consideredCnecsElementsByRemedialAction
+                consideredCnecsByRemedialAction
                     .computeIfAbsent(remedialActionId, k -> new HashSet<>())
                     .addAll(openRaoCnecIds);
             } else {
@@ -93,7 +93,13 @@ public class OnConstraintUsageRuleHelper {
         return this.includedCnecsByRemedialAction;
     }
 
-    public Map<String, Set<String>> getConsideredCnecsElementsByRemedialAction() {
-        return this.consideredCnecsElementsByRemedialAction;
+    public Map<String, Set<String>> getConsideredCnecsByRemedialAction() {
+        return this.consideredCnecsByRemedialAction;
+    }
+
+    public Map<String, Set<String>> getConsideredAndIncludedCnecsByRemedialAction() {
+        Map<String, Set<String>> result = new HashMap<>(this.includedCnecsByRemedialAction);
+        result.putAll(consideredCnecsByRemedialAction);
+        return result;
     }
 }
