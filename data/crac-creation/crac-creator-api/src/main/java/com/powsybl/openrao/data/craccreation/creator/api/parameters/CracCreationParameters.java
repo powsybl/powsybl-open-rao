@@ -104,14 +104,6 @@ public class CracCreationParameters extends AbstractExtendable<CracCreationParam
         return this.raUsageLimitsPerInstant;
     }
 
-    public RaUsageLimits getRaUsageLimitsForAGivenInstant(String instant) {
-        return this.raUsageLimitsPerInstant.getOrDefault(instant, new RaUsageLimits());
-    }
-
-    public void setRaUsageLimitsPerInstant(Map<String, RaUsageLimits> raUsageLimitsPerInstant) {
-        this.raUsageLimitsPerInstant = raUsageLimitsPerInstant;
-    }
-
     public void addRaUsageLimitsForAGivenInstant(String instant, RaUsageLimits raUsageLimits) {
         this.raUsageLimitsPerInstant.put(instant, raUsageLimits);
     }

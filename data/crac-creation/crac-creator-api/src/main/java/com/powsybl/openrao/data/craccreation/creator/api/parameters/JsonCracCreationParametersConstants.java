@@ -11,6 +11,7 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.cracapi.RaUsageLimits;
+import org.apache.commons.lang3.tuple.Pair;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -84,40 +85,9 @@ public final class JsonCracCreationParametersConstants {
     }
 
     static void deserializeRaUsageLimitsAndUpdateParameters(JsonParser jsonParser, CracCreationParameters parameters) throws IOException {
-        RaUsageLimits raUsageLimits = new RaUsageLimits();
         while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
-            String instant = null;
-            while (!jsonParser.nextToken().isStructEnd()) {
-                switch (jsonParser.getCurrentName()) {
-                    case INSTANT:
-                        jsonParser.nextToken();
-                        instant = jsonParser.getValueAsString();
-                        break;
-                    case MAX_RA:
-                        jsonParser.nextToken();
-                        raUsageLimits.setMaxRa(jsonParser.getIntValue());
-                        break;
-                    case MAX_TSO:
-                        jsonParser.nextToken();
-                        raUsageLimits.setMaxTso(jsonParser.getIntValue());
-                        break;
-                    case MAX_TOPO_PER_TSO:
-                        jsonParser.nextToken();
-                        raUsageLimits.setMaxTopoPerTso(readStringToPositiveIntMap(jsonParser));
-                        break;
-                    case MAX_PST_PER_TSO:
-                        jsonParser.nextToken();
-                        raUsageLimits.setMaxPstPerTso(readStringToPositiveIntMap(jsonParser));
-                        break;
-                    case MAX_RA_PER_TSO:
-                        jsonParser.nextToken();
-                        raUsageLimits.setMaxRaPerTso(readStringToPositiveIntMap(jsonParser));
-                        break;
-                    default:
-                        throw new OpenRaoException(String.format("Cannot deserialize ra-usage-limits-per-instant parameters: unexpected field in %s (%s)", RA_USAGE_LIMITS_PER_INSTANT, jsonParser.getCurrentName()));
-                }
-            }
-            parameters.addRaUsageLimitsForAGivenInstant(instant, raUsageLimits);
+            Pair<String, RaUsageLimits> pairOfInstantAndItsRaUsageLimits = deserializeRaUsageLimits(jsonParser);
+            parameters.addRaUsageLimitsForAGivenInstant(pairOfInstantAndItsRaUsageLimits.getLeft(), pairOfInstantAndItsRaUsageLimits.getRight());
         }
     }
 
@@ -133,5 +103,41 @@ public final class JsonCracCreationParametersConstants {
             }
         });
         return map;
+    }
+
+    public static Pair<String, RaUsageLimits> deserializeRaUsageLimits(JsonParser jsonParser) throws IOException {
+        RaUsageLimits raUsageLimits = new RaUsageLimits();
+        String instant = null;
+        while (!jsonParser.nextToken().isStructEnd()) {
+            switch (jsonParser.getCurrentName()) {
+                case INSTANT:
+                    jsonParser.nextToken();
+                    instant = jsonParser.getValueAsString();
+                    break;
+                case MAX_RA:
+                    jsonParser.nextToken();
+                    raUsageLimits.setMaxRa(jsonParser.getIntValue());
+                    break;
+                case MAX_TSO:
+                    jsonParser.nextToken();
+                    raUsageLimits.setMaxTso(jsonParser.getIntValue());
+                    break;
+                case MAX_TOPO_PER_TSO:
+                    jsonParser.nextToken();
+                    raUsageLimits.setMaxTopoPerTso(readStringToPositiveIntMap(jsonParser));
+                    break;
+                case MAX_PST_PER_TSO:
+                    jsonParser.nextToken();
+                    raUsageLimits.setMaxPstPerTso(readStringToPositiveIntMap(jsonParser));
+                    break;
+                case MAX_RA_PER_TSO:
+                    jsonParser.nextToken();
+                    raUsageLimits.setMaxRaPerTso(readStringToPositiveIntMap(jsonParser));
+                    break;
+                default:
+                    throw new OpenRaoException(String.format("Cannot deserialize ra-usage-limits-per-instant parameters: unexpected field in %s (%s)", RA_USAGE_LIMITS_PER_INSTANT, jsonParser.getCurrentName()));
+            }
+        }
+        return Pair.of(instant, raUsageLimits);
     }
 }
