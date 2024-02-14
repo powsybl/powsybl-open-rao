@@ -73,7 +73,7 @@ public class StateTree {
         Pair<Boolean, Boolean> autoInstantHasCnecsAndRemedialActions = processAutoInstant(contingency, crac, contingencyScenarioBuilder);
         Perimeter defaultPerimeter = getDefaultPerimeter(contingency, crac, autoInstantHasCnecsAndRemedialActions.getRight());
         boolean scenarioHasCurativeStates = false;
-        if (Objects.nonNull(defaultPerimeter)) {
+        if (defaultPerimeter != null) {
             scenarioHasCurativeStates = processCurativeInstants(contingency, crac, contingencyScenarioBuilder, defaultPerimeter, autoInstantHasCnecsAndRemedialActions.getLeft());
         }
         if (Boolean.TRUE.equals(autoInstantHasCnecsAndRemedialActions.getLeft()) && Boolean.TRUE.equals(autoInstantHasCnecsAndRemedialActions.getRight()) || scenarioHasCurativeStates) {
@@ -122,7 +122,7 @@ public class StateTree {
     }
 
     private Pair<Boolean, Boolean> stateHasCnecsAndRemedialActions(Crac crac, State state) {
-        return Objects.nonNull(state) ? Pair.of(anyCnec(crac, state), anyAvailableRemedialAction(crac, state)) : Pair.of(false, false);
+        return state != null ? Pair.of(anyCnec(crac, state), anyAvailableRemedialAction(crac, state)) : Pair.of(false, false);
     }
 
     /**
