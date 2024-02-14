@@ -149,10 +149,9 @@ public class StateTree {
 
         // create a perimeter for each instant with CRAs associated to an instant with CNECs
         Map<Instant, Perimeter> perimeters = new HashMap<>();
-        associatedOptimizationInstant.values().stream().distinct().forEach(instant -> {
-            if (Objects.nonNull(instant)) {
-                perimeters.put(instant, new Perimeter(crac.getState(contingency, instant), new HashSet<>()));
-            }
+        associatedOptimizationInstant.values().stream().distinct().filter(Objects::nonNull).forEach(instant -> {
+            perimeters.put(instant, new Perimeter(crac.getState(contingency, instant), new HashSet<>()));
+        });
         });
 
         // create a perimeter for each instant with CRAs but not CNECs occurring before instants with CNECs because
