@@ -8,10 +8,34 @@ import java.util.Map;
 import static org.junit.jupiter.api.Assertions.*;
 
 class RaUsageLimitsTest {
+    private final RaUsageLimits raUsageLimits = new RaUsageLimits();
+
+    @Test
+    void testNominalBehavior() {
+        // check default values
+        assertEquals(Integer.MAX_VALUE, raUsageLimits.getMaxRa());
+        assertEquals(Integer.MAX_VALUE, raUsageLimits.getMaxTso());
+        assertTrue(raUsageLimits.getMaxRaPerTso().isEmpty());
+        assertTrue(raUsageLimits.getMaxPstPerTso().isEmpty());
+        assertTrue(raUsageLimits.getMaxTopoPerTso().isEmpty());
+        // set regular values
+        raUsageLimits.setMaxRa(4);
+        assertEquals(4, raUsageLimits.getMaxRa());
+        raUsageLimits.setMaxTso(4);
+        assertEquals(4, raUsageLimits.getMaxTso());
+        Map<String, Integer> pstMap = Map.of("FR", 4, "DE", 5);
+        raUsageLimits.setMaxPstPerTso(pstMap);
+        assertEquals(pstMap, raUsageLimits.getMaxPstPerTso());
+        Map<String, Integer> topoMap = Map.of("FR", 2, "DE", 0);
+        raUsageLimits.setMaxTopoPerTso(topoMap);
+        assertEquals(topoMap, raUsageLimits.getMaxTopoPerTso());
+        Map<String, Integer> raMap = Map.of("FR", 7, "DE", 10);
+        raUsageLimits.setMaxRaPerTso(raMap);
+        assertEquals(raMap, raUsageLimits.getMaxRaPerTso());
+    }
 
     @Test
     void testIllegalValues() {
-        RaUsageLimits raUsageLimits = new RaUsageLimits();
         // negative values
         raUsageLimits.setMaxTso(-2);
         assertEquals(0, raUsageLimits.getMaxTso());
