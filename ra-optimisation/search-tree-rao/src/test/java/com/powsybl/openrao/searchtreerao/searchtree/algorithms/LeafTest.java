@@ -22,7 +22,9 @@ import com.powsybl.openrao.data.cracimpl.utils.NetworkImportsUtil;
 import com.powsybl.openrao.data.raoresultapi.ComputationStatus;
 import com.powsybl.openrao.raoapi.parameters.ObjectiveFunctionParameters;
 import com.powsybl.openrao.searchtreerao.commons.SensitivityComputer;
+import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.GlobalOptimizationPerimeter;
 import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.OptimizationPerimeter;
+import com.powsybl.openrao.searchtreerao.commons.parameters.RangeActionLimitationParameters;
 import com.powsybl.openrao.searchtreerao.commons.parameters.TreeParameters;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.IteratingLinearOptimizer;
 import com.powsybl.openrao.searchtreerao.commons.objectivefunctionevaluator.ObjectiveFunction;
@@ -793,6 +795,44 @@ class LeafTest {
         when(linearOptimizationResult.getVirtualCost("mnec-violation-cost")).thenReturn(0.);
         when(linearOptimizationResult.getVirtualCost("loopflow-violation-cost")).thenReturn(0.);
         assertEquals("Root leaf, no range action(s) activated, cost: -160.00 (functional: -160.00, virtual: 0.00)", leaf.toString());
+    }
 
+    @Test
+    void testRaLimitations() {
+        Instant instant = Mockito.mock(Instant.class);
+        when(optimizedState.getInstant()).thenReturn(instant);
+        Leaf leaf = new Leaf(optimizationPerimeter, network, prePerimeterResult, appliedRemedialActions);
+        RaUsageLimits raUsageLimits = new RaUsageLimits();
+        raUsageLimits.setMaxRa(3);
+
+        // test for preventive without topological actions
+        Map<String, RaUsageLimits> raUsageLimitsMap = Map.of("preventive", raUsageLimits);
+        when(searchTreeParameters.getRaLimitationParameters()).thenReturn(raUsageLimitsMap);
+        when(instant.getId()).thenReturn("preventive");
+        RangeActionLimitationParameters raLimitationParameters = leaf.getRaLimitationParameters(optimizationPerimeter, searchTreeParameters);
+        assertEquals(3, raLimitationParameters.getMaxRangeActions(optimizedState));
+
+        // test for preventive with 1 topological actions
+        Leaf rootLeaf = new Leaf(optimizationPerimeter, network, prePerimeterResult, appliedRemedialActions);
+        Leaf leaftWith1Topo = new Leaf(optimizationPerimeter, network, rootLeaf.getActivatedNetworkActions(), new NetworkActionCombination(na1), Mockito.mock(RangeActionActivationResult.class), prePerimeterResult, appliedRemedialActions);
+        raLimitationParameters = leaftWith1Topo.getRaLimitationParameters(optimizationPerimeter, searchTreeParameters);
+        assertEquals(2, raLimitationParameters.getMaxRangeActions(optimizedState));
+
+        // test for 2nd preventive
+        OptimizationPerimeter secondPreventivePerimeter = Mockito.mock(GlobalOptimizationPerimeter.class);
+        when(secondPreventivePerimeter.getRangeActionOptimizationStates()).thenReturn(Set.of(optimizedState));
+        when(secondPreventivePerimeter.getMainOptimizationState()).thenReturn(optimizedState);
+        when(instant.isCurative()).thenReturn(true);
+        when(appliedRemedialActions.getAppliedNetworkActions(optimizedState)).thenReturn(Set.of(na1, na2));
+        Leaf leaf2ndPreventive = new Leaf(secondPreventivePerimeter, network, prePerimeterResult, appliedRemedialActions);
+        raLimitationParameters = leaf2ndPreventive.getRaLimitationParameters(secondPreventivePerimeter, searchTreeParameters);
+        assertEquals(1, raLimitationParameters.getMaxRangeActions(optimizedState));
+
+        // test for curative
+        raUsageLimitsMap = Map.of("curative", raUsageLimits);
+        when(searchTreeParameters.getRaLimitationParameters()).thenReturn(raUsageLimitsMap);
+        when(instant.getId()).thenReturn("curative");
+        raLimitationParameters = leaf.getRaLimitationParameters(optimizationPerimeter, searchTreeParameters);
+        assertEquals(3, raLimitationParameters.getMaxRangeActions(optimizedState));
     }
 }
