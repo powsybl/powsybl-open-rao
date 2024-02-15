@@ -23,6 +23,6 @@ public final class RaUsageLimitsDeserializer {
             Pair<String, RaUsageLimits> raUsageLimitsPair = deserializeRaUsageLimits(jsonParser);
             raUsageLimits.put(raUsageLimitsPair.getLeft(), raUsageLimitsPair.getRight());
         }
-        crac.addRaUsageLimits(raUsageLimits);
+        crac.setRaUsageLimits(raUsageLimits);
     }
 }

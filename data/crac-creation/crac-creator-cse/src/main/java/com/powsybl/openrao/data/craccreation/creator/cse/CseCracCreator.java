@@ -44,7 +44,7 @@ public class CseCracCreator implements CracCreator<CseCrac, CseCracCreationConte
         // Set attributes
         Crac crac = cracCreationParameters.getCracFactory().create(cseCrac.getCracDocument().getDocumentIdentification().getV());
         addCseInstants(crac);
-        crac.addRaUsageLimits(cracCreationParameters.getRaUsageLimitsPerInstant());
+        crac.setRaUsageLimits(cracCreationParameters.getRaUsageLimitsPerInstant());
         this.creationContext = new CseCracCreationContext(crac, offsetDateTime, network.getNameOrId());
 
         // Check timestamp field

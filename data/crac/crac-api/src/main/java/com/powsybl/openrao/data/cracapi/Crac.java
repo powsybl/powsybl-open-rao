@@ -524,5 +524,5 @@ public interface Crac extends Identifiable<Crac> {
     /**
      * Add remedial action usage limitation according to the crac creation parameters
      */
-    void addRaUsageLimits(Map<String, RaUsageLimits> raUsageLimitsPerInstant);
+    void setRaUsageLimits(Map<String, RaUsageLimits> raUsageLimitsPerInstant);
 }
