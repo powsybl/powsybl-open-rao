@@ -7,6 +7,8 @@ import com.powsybl.openrao.data.cracapi.RaUsageLimits;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 import static com.powsybl.openrao.data.craccreation.creator.api.parameters.JsonCracCreationParametersConstants.*;
 
@@ -16,9 +18,11 @@ public final class RaUsageLimitsDeserializer {
     }
 
     public static void deserialize(JsonParser jsonParser, Crac crac) throws IOException {
+        Map<String, RaUsageLimits> raUsageLimits = new HashMap<>();
         while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
-            Pair<String, RaUsageLimits> pairOfInstantAndItsRaUsageLimits = deserializeRaUsageLimits(jsonParser);
-            crac.addRaUsageLimitsForAGivenInstant(pairOfInstantAndItsRaUsageLimits.getLeft(), pairOfInstantAndItsRaUsageLimits.getRight());
+            Pair<String, RaUsageLimits> raUsageLimitsPair = deserializeRaUsageLimits(jsonParser);
+            raUsageLimits.put(raUsageLimitsPair.getLeft(), raUsageLimitsPair.getRight());
         }
+        crac.addRaUsageLimits(raUsageLimits);
     }
 }

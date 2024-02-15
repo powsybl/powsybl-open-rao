@@ -102,6 +102,15 @@ class RaoParametersConsistencyTest {
     }
 
     @Test
+    void testNonNullMaps() {
+        NotOptimizedCnecsParameters nocp = parameters.getNotOptimizedCnecsParameters();
+        nocp.setDoNotOptimizeCnecsSecuredByTheirPst(Map.of("cnec1", "pst1"));
+        nocp.setDoNotOptimizeCnecsSecuredByTheirPst(null);
+        assertNotNull(nocp.getDoNotOptimizeCnecsSecuredByTheirPst());
+        assertTrue(nocp.getDoNotOptimizeCnecsSecuredByTheirPst().isEmpty());
+    }
+
+    @Test
     void testIncompatibleParameters1() {
         NotOptimizedCnecsParameters nocp = parameters.getNotOptimizedCnecsParameters();
 
