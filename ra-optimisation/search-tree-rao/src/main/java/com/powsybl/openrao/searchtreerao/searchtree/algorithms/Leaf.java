@@ -242,14 +242,14 @@ public class Leaf implements OptimizationResult {
             return null;
         }
         RangeActionLimitationParameters limitationParameters = new RangeActionLimitationParameters();
-        RaUsageLimits legacyRaUsageLimitsForCurative = parameters.getRaLimitationParameters().getOrDefault("curative", new RaUsageLimits());
+        RaUsageLimits raUsageLimits = parameters.getRaLimitationParameters().getOrDefault(context.getMainOptimizationState().getInstant().getId(), new RaUsageLimits());
 
         if (context instanceof CurativeOptimizationPerimeter) {
-            int maxRa = legacyRaUsageLimitsForCurative.getMaxRa() - appliedNetworkActionsInPrimaryState.size();
+            int maxRa = raUsageLimits.getMaxRa() - appliedNetworkActionsInPrimaryState.size();
             Set<String> tsoWithAlreadyActivatedRa = appliedNetworkActionsInPrimaryState.stream().map(RemedialAction::getOperator).collect(Collectors.toSet());
-            int maxTso = legacyRaUsageLimitsForCurative.getMaxTso() - tsoWithAlreadyActivatedRa.size();
-            Map<String, Integer> maxPstPerTso = legacyRaUsageLimitsForCurative.getMaxPstPerTso();
-            Map<String, Integer> maxRaPerTso = new HashMap<>(legacyRaUsageLimitsForCurative.getMaxRaPerTso());
+            int maxTso = raUsageLimits.getMaxTso() - tsoWithAlreadyActivatedRa.size();
+            Map<String, Integer> maxPstPerTso = raUsageLimits.getMaxPstPerTso();
+            Map<String, Integer> maxRaPerTso = new HashMap<>(raUsageLimits.getMaxRaPerTso());
             maxRaPerTso.entrySet().forEach(entry -> {
                 int activatedNetworkActionsForTso = appliedNetworkActionsInPrimaryState.stream().filter(na -> entry.getKey().equals(na.getOperator())).collect(Collectors.toSet()).size();
                 entry.setValue(entry.getValue() - activatedNetworkActionsForTso);
@@ -266,11 +266,11 @@ public class Leaf implements OptimizationResult {
             context.getRangeActionOptimizationStates().stream()
                     .filter(state -> state.getInstant().isCurative())
                     .forEach(state -> {
-                        int maxRa = legacyRaUsageLimitsForCurative.getMaxRa() - appliedRemedialActionsInSecondaryStates.getAppliedNetworkActions(state).size();
+                        int maxRa = raUsageLimits.getMaxRa() - appliedRemedialActionsInSecondaryStates.getAppliedNetworkActions(state).size();
                         Set<String> tsoWithAlreadyActivatedRa = appliedRemedialActionsInSecondaryStates.getAppliedNetworkActions(state).stream().map(RemedialAction::getOperator).collect(Collectors.toSet());
-                        int maxTso = legacyRaUsageLimitsForCurative.getMaxTso() - tsoWithAlreadyActivatedRa.size();
-                        Map<String, Integer> maxPstPerTso = legacyRaUsageLimitsForCurative.getMaxPstPerTso();
-                        Map<String, Integer> maxRaPerTso = new HashMap<>(legacyRaUsageLimitsForCurative.getMaxRaPerTso());
+                        int maxTso = raUsageLimits.getMaxTso() - tsoWithAlreadyActivatedRa.size();
+                        Map<String, Integer> maxPstPerTso = raUsageLimits.getMaxPstPerTso();
+                        Map<String, Integer> maxRaPerTso = new HashMap<>(raUsageLimits.getMaxRaPerTso());
                         maxRaPerTso.entrySet().forEach(entry -> {
                             int alreadyActivatedNetworkActionsForTso = appliedRemedialActionsInSecondaryStates.getAppliedNetworkActions(state).stream().filter(na -> entry.getKey().equals(na.getOperator())).collect(Collectors.toSet()).size();
                             entry.setValue(entry.getValue() - alreadyActivatedNetworkActionsForTso);

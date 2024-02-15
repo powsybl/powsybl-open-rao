@@ -17,7 +17,6 @@ import com.powsybl.openrao.data.cracapi.networkaction.NetworkAction;
 import com.powsybl.openrao.searchtreerao.commons.NetworkActionCombination;
 import com.powsybl.openrao.searchtreerao.commons.RaoLogger;
 import com.powsybl.openrao.searchtreerao.commons.SensitivityComputer;
-import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.CurativeOptimizationPerimeter;
 import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.GlobalOptimizationPerimeter;
 import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.OptimizationPerimeter;
 import com.powsybl.openrao.searchtreerao.commons.parameters.TreeParameters;
@@ -92,33 +91,18 @@ public class SearchTree {
 
         // build from inputs
         this.purelyVirtual = input.getOptimizationPerimeter().getOptimizedFlowCnecs().isEmpty();
-
-        if (input.getOptimizationPerimeter() instanceof CurativeOptimizationPerimeter) {
-            RaUsageLimits legacyRaUsageLimitsForCurative = parameters.getRaLimitationParameters().getOrDefault("curative", new RaUsageLimits());
-            this.bloomer = new SearchTreeBloomer(
-                input.getNetwork(),
-                legacyRaUsageLimitsForCurative.getMaxRa(),
-                legacyRaUsageLimitsForCurative.getMaxTso(),
-                legacyRaUsageLimitsForCurative.getMaxTopoPerTso(),
-                legacyRaUsageLimitsForCurative.getMaxRaPerTso(),
-                parameters.getNetworkActionParameters().skipNetworkActionFarFromMostLimitingElements(),
-                parameters.getNetworkActionParameters().getMaxNumberOfBoundariesForSkippingNetworkActions(),
-                parameters.getNetworkActionParameters().getNetworkActionCombinations(),
-                input.getOptimizationPerimeter().getMainOptimizationState()
-            );
-        } else {
-            this.bloomer = new SearchTreeBloomer(
-                input.getNetwork(),
-                Integer.MAX_VALUE, //no limitation of RA in preventive
-                Integer.MAX_VALUE, //no limitation of RA in preventive
-                new HashMap<>(),   //no limitation of RA in preventive
-                new HashMap<>(),   //no limitation of RA in preventive
-                parameters.getNetworkActionParameters().skipNetworkActionFarFromMostLimitingElements(),
-                parameters.getNetworkActionParameters().getMaxNumberOfBoundariesForSkippingNetworkActions(),
-                parameters.getNetworkActionParameters().getNetworkActionCombinations(),
-                    input.getOptimizationPerimeter().getMainOptimizationState()
-            );
-        }
+        RaUsageLimits raUsageLimits = parameters.getRaLimitationParameters().getOrDefault(input.getOptimizationPerimeter().getMainOptimizationState().getInstant().getId(), new RaUsageLimits());
+        this.bloomer = new SearchTreeBloomer(
+            input.getNetwork(),
+            raUsageLimits.getMaxRa(),
+            raUsageLimits.getMaxTso(),
+            raUsageLimits.getMaxTopoPerTso(),
+            raUsageLimits.getMaxRaPerTso(),
+            parameters.getNetworkActionParameters().skipNetworkActionFarFromMostLimitingElements(),
+            parameters.getNetworkActionParameters().getMaxNumberOfBoundariesForSkippingNetworkActions(),
+            parameters.getNetworkActionParameters().getNetworkActionCombinations(),
+            input.getOptimizationPerimeter().getMainOptimizationState()
+        );
     }
 
     public CompletableFuture<OptimizationResult> run() {
