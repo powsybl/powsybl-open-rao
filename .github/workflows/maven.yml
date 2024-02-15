@@ -19,6 +19,10 @@ jobs:
         with:
           java-version: 17
 
+      - name: Build with Maven
+        if: matrix.os == 'ubuntu-latest'
+        run: mvn --batch-mode -Pjacoco install
+
       - name: Run SonarCloud analysis
         if: matrix.os == 'ubuntu-latest'
         run: >
