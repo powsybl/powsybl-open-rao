@@ -76,7 +76,7 @@ public class CsaProfileRemedialActionsCreator {
                 speedOpt.ifPresent(remedialActionAdder::withSpeed);
 
                 if (elementaryActionsHelper.getContingenciesByRemedialAction().containsKey(remedialActionId)) {
-                    addOnStateUsageRules(parentRemedialActionPropertyBag, remedialActionId, elementaryActionsHelper.getContingenciesByRemedialAction(), remedialActionAdder, alterations, isAuto);
+                    addOnContingencyStateUsageRules(parentRemedialActionPropertyBag, remedialActionId, elementaryActionsHelper.getContingenciesByRemedialAction(), remedialActionAdder, alterations, isAuto);
                 } else {
                     if (!isAuto) {
                         // no contingency linked to RA --> on instant usage rule if remedial action is not Auto
@@ -102,9 +102,9 @@ public class CsaProfileRemedialActionsCreator {
     private RemedialActionAdder<?> getRemedialActionAdder(String remedialActionId, String elementaryActionsAggregatorId, RemedialActionType remedialActionType, boolean isAuto, List<String> alterations) {
         RemedialActionAdder<?> remedialActionAdder;
         if (remedialActionType.equals(RemedialActionType.NETWORK_ACTION)) {
-            remedialActionAdder = networkActionCreator.getNetworkActionAdder(elementaryActionsHelper.getTopologyActions(isAuto), elementaryActionsHelper.getRotatingMachineActions(isAuto), elementaryActionsHelper.getShuntCompensatorModifications(isAuto), elementaryActionsHelper.getStaticPropertyRangesByElementaryActionAggregator(), remedialActionId, elementaryActionsAggregatorId, alterations);
+            remedialActionAdder = networkActionCreator.getNetworkActionAdder(elementaryActionsHelper.getTopologyActions(isAuto), elementaryActionsHelper.getRotatingMachineActions(isAuto), elementaryActionsHelper.getShuntCompensatorModifications(isAuto), elementaryActionsHelper.getStaticPropertyRangesByElementaryActionsAggregator(), remedialActionId, elementaryActionsAggregatorId, alterations);
         } else {
-            remedialActionAdder = pstRangeActionCreator.getPstRangeActionAdder(elementaryActionsHelper.getTapPositionActions(isAuto), elementaryActionsHelper.getStaticPropertyRangesByElementaryActionAggregator(), remedialActionId, elementaryActionsAggregatorId);
+            remedialActionAdder = pstRangeActionCreator.getPstRangeActionAdder(elementaryActionsHelper.getTapPositionActions(isAuto), elementaryActionsHelper.getStaticPropertyRangesByElementaryActionsAggregator(), remedialActionId, elementaryActionsAggregatorId, alterations);
         }
         return remedialActionAdder;
     }
@@ -116,13 +116,6 @@ public class CsaProfileRemedialActionsCreator {
         if (!isLinkedToAssessedElements) {
             remedialActionAdder.newOnInstantUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withInstant(instant.getId()).add();
         }
-    }
-
-    private void addOnContingencyStateUsageRules(RemedialActionAdder<?> remedialActionAdder, List<String> openRaoContingenciesIds, String instantId, UsageMethod usageMethod) {
-        openRaoContingenciesIds.forEach(openRaoContingencyId -> remedialActionAdder.newOnContingencyStateUsageRule()
-            .withInstant(instantId)
-            .withContingency(openRaoContingencyId)
-            .withUsageMethod(usageMethod).add());
     }
 
     private void checkElementCombinationConstraintKindsCoherence(String remedialActionId, Map<String, Set<PropertyBag>> linkedContingencyWithRAs, List<String> alterations, boolean isAuto) {
@@ -156,17 +149,6 @@ public class CsaProfileRemedialActionsCreator {
         boolean normalAvailable = Boolean.parseBoolean(remedialActionPropertyBag.get(NORMAL_AVAILABLE));
         if (!normalAvailable) {
             throw new OpenRaoImportException(ImportStatus.NOT_FOR_RAO, "Remedial action " + remedialActionId + " will not be imported because RemedialAction.normalAvailable must be 'true' to be imported");
-        }
-    }
-
-    private void checkNetworkActionHasExactlyOneStaticPropertyRangeElseThrowException(String remedialActionId, Set<PropertyBag> networkActionsForOneRa, Map<String, Set<PropertyBag>> staticPropertyRangesLinkedToInjectionSetPointActions) {
-        for (PropertyBag networkAction : networkActionsForOneRa) {
-            Set<PropertyBag> staticPropertyRangePropertyBags = staticPropertyRangesLinkedToInjectionSetPointActions.get(networkAction.getId(MRID));
-            if (staticPropertyRangePropertyBags == null || staticPropertyRangePropertyBags.isEmpty()) {
-                throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action " + remedialActionId + " will not be imported because there is no StaticPropertyRange linked to that RA");
-            } else if (staticPropertyRangePropertyBags.size() > 1) {
-                throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action " + remedialActionId + " will not be imported because several conflictual StaticPropertyRanges are linked to that RA's injection set point action");
-            }
         }
     }
 
@@ -229,12 +211,12 @@ public class CsaProfileRemedialActionsCreator {
         return !cnecInstant.comesBefore(remedialInstant);
     }
 
-    private void addOnStateUsageRules(PropertyBag parentRemedialActionPropertyBag, String remedialActionId, Map<String, Set<PropertyBag>> linkedContingencyWithRAs, RemedialActionAdder<?> remedialActionAdder, List<String> alterations, boolean isAuto) {
+    private void addOnContingencyStateUsageRules(PropertyBag parentRemedialActionPropertyBag, String remedialActionId, Map<String, Set<PropertyBag>> linkedContingencyWithRAs, RemedialActionAdder<?> remedialActionAdder, List<String> alterations, boolean isAuto) {
         checkElementCombinationConstraintKindsCoherence(remedialActionId, linkedContingencyWithRAs, alterations, isAuto);
         List<String> validContingenciesIds = new ArrayList<>();
         List<String> ignoredContingenciesMessages = new ArrayList<>();
         for (PropertyBag contingencyWithRemedialActionPropertyBag : linkedContingencyWithRAs.get(remedialActionId)) {
-            CsaProfileCracUtils.checkNormalEnabled(contingencyWithRemedialActionPropertyBag, remedialActionId, "ContingencyWithRemedialAction");
+            CsaProfileCracUtils.checkNormalEnabled(contingencyWithRemedialActionPropertyBag, remedialActionId, REQUEST_CONTINGENCY_WITH_REMEDIAL_ACTION, alterations);
             if (!parentRemedialActionPropertyBag.get(RA_KIND).equals(RemedialActionKind.CURATIVE.toString())) {
                 throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action " + remedialActionId + " will not be imported because it is linked to a contingency but it's kind is not curative");
             }
@@ -265,7 +247,12 @@ public class CsaProfileRemedialActionsCreator {
         if (!isLinkedToAssessedElements) {
             String instantId = isAuto ? crac.getInstant(InstantKind.AUTO).getId() : crac.getInstant(InstantKind.CURATIVE).getId();
             UsageMethod usageMethod = isAuto ? UsageMethod.FORCED : UsageMethod.AVAILABLE;
-            addOnContingencyStateUsageRules(remedialActionAdder, validContingenciesIds, instantId, usageMethod);
+
+            validContingenciesIds.forEach(openRaoContingencyId -> remedialActionAdder.newOnContingencyStateUsageRule()
+                .withInstant(instantId)
+                .withContingency(openRaoContingencyId)
+                .withUsageMethod(usageMethod).add());
+
             alterations.addAll(ignoredContingenciesMessages);
         }
     }
@@ -274,11 +261,11 @@ public class CsaProfileRemedialActionsCreator {
         String kind = remedialActionPropertyBag.get(RA_KIND);
         if (isAuto) {
             if (!kind.equals(RemedialActionKind.CURATIVE.toString())) {
-                throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action " + remedialActionId + " will not be imported because auto remedial action musty be of curative kind");
+                throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action " + remedialActionId + " will not be imported because auto remedial action must be of curative kind");
             }
         } else {
             if (!kind.equals(RemedialActionKind.CURATIVE.toString()) && !kind.equals(RemedialActionKind.PREVENTIVE.toString())) {
-                throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action " + remedialActionId + " will not be imported because remedial action musty be of curative or preventive kind");
+                throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action " + remedialActionId + " will not be imported because remedial action must be of curative or preventive kind");
             }
         }
     }
@@ -286,13 +273,10 @@ public class CsaProfileRemedialActionsCreator {
     private RemedialActionType getRemedialActionType(String remedialActionId, String elementaryActionsAggregatorId, boolean isAuto) {
         RemedialActionType remedialActionType;
         if (elementaryActionsHelper.getTopologyActions(isAuto).containsKey(elementaryActionsAggregatorId)) {
-            checkNetworkActionHasExactlyOneStaticPropertyRangeElseThrowException(remedialActionId, elementaryActionsHelper.getTopologyActions(isAuto).get(elementaryActionsAggregatorId), elementaryActionsHelper.getStaticPropertyRangesByElementaryActionAggregator());
             remedialActionType = RemedialActionType.NETWORK_ACTION;
         } else if (elementaryActionsHelper.getRotatingMachineActions(isAuto).containsKey(elementaryActionsAggregatorId)) {
-            checkNetworkActionHasExactlyOneStaticPropertyRangeElseThrowException(remedialActionId, elementaryActionsHelper.getRotatingMachineActions(isAuto).get(elementaryActionsAggregatorId), elementaryActionsHelper.getStaticPropertyRangesByElementaryActionAggregator());
             remedialActionType = RemedialActionType.NETWORK_ACTION;
         } else if (elementaryActionsHelper.getShuntCompensatorModifications(isAuto).containsKey(elementaryActionsAggregatorId)) {
-            checkNetworkActionHasExactlyOneStaticPropertyRangeElseThrowException(remedialActionId, elementaryActionsHelper.getShuntCompensatorModifications(isAuto).get(elementaryActionsAggregatorId), elementaryActionsHelper.getStaticPropertyRangesByElementaryActionAggregator());
             remedialActionType = RemedialActionType.NETWORK_ACTION;
         } else if (elementaryActionsHelper.getTapPositionActions(isAuto).containsKey(elementaryActionsAggregatorId)) {
             // StaticPropertyRanges not mandatory in case of tapPositionsActions

@@ -29,7 +29,6 @@ import java.util.Set;
  * @author Mohamed Ben-rejeb {@literal <mohamed.ben-rejeb at rte-france.com>}
  */
 public class NetworkActionCreator {
-    public static final String NO_STATIC_PROPERTY_RANGE = " will not be imported because there is no StaticPropertyRange linked to that RA";
     private final Crac crac;
     private final Network network;
 
@@ -63,14 +62,11 @@ public class NetworkActionCreator {
     private boolean processLinkedShuntCompensatorModifications(Map<String, Set<PropertyBag>> linkedShuntCompensatorModifications, Map<String, Set<PropertyBag>> staticPropertyRanges, String remedialActionId, String networkElementsAggregatorId, NetworkActionAdder networkActionAdder, List<String> alterations) {
         boolean hasShuntCompensatorModification = false;
         for (PropertyBag shuntCompensatorModificationPropertyBag : linkedShuntCompensatorModifications.get(networkElementsAggregatorId)) {
-            if (staticPropertyRanges.containsKey(shuntCompensatorModificationPropertyBag.getId(CsaProfileConstants.MRID))) {
-                hasShuntCompensatorModification = addInjectionSetPointFromShuntCompensatorModification(
-                    staticPropertyRanges.get(shuntCompensatorModificationPropertyBag.getId(CsaProfileConstants.MRID)),
-                    remedialActionId, networkActionAdder, shuntCompensatorModificationPropertyBag, alterations)
-                    || hasShuntCompensatorModification;
-            } else {
-                throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action " + remedialActionId + NO_STATIC_PROPERTY_RANGE);
-            }
+            checkNetworkActionHasExactlyOneStaticPropertyRange(staticPropertyRanges, remedialActionId, shuntCompensatorModificationPropertyBag);
+            hasShuntCompensatorModification = addInjectionSetPointFromShuntCompensatorModification(
+                staticPropertyRanges.get(shuntCompensatorModificationPropertyBag.getId(CsaProfileConstants.MRID)),
+                remedialActionId, networkActionAdder, shuntCompensatorModificationPropertyBag, alterations)
+                || hasShuntCompensatorModification;
         }
         return hasShuntCompensatorModification;
     }
@@ -78,14 +74,11 @@ public class NetworkActionCreator {
     private boolean processLinkedRotatingMachineActions(Map<String, Set<PropertyBag>> linkedRotatingMachineActions, Map<String, Set<PropertyBag>> staticPropertyRanges, String remedialActionId, String networkElementsAggregatorId, NetworkActionAdder networkActionAdder, List<String> alterations) {
         boolean hasRotatingMachineAction = false;
         for (PropertyBag rotatingMachineActionPropertyBag : linkedRotatingMachineActions.get(networkElementsAggregatorId)) {
-            if (staticPropertyRanges.containsKey(rotatingMachineActionPropertyBag.getId(CsaProfileConstants.MRID))) {
-                hasRotatingMachineAction = addInjectionSetPointFromRotatingMachineAction(
-                    staticPropertyRanges.get(rotatingMachineActionPropertyBag.getId(CsaProfileConstants.MRID)),
-                    remedialActionId, networkActionAdder, rotatingMachineActionPropertyBag, alterations)
-                    || hasRotatingMachineAction;
-            } else {
-                throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action " + remedialActionId + NO_STATIC_PROPERTY_RANGE);
-            }
+            checkNetworkActionHasExactlyOneStaticPropertyRange(staticPropertyRanges, remedialActionId, rotatingMachineActionPropertyBag);
+            hasRotatingMachineAction = addInjectionSetPointFromRotatingMachineAction(
+                staticPropertyRanges.get(rotatingMachineActionPropertyBag.getId(CsaProfileConstants.MRID)),
+                remedialActionId, networkActionAdder, rotatingMachineActionPropertyBag, alterations)
+                || hasRotatingMachineAction;
         }
         return hasRotatingMachineAction;
     }
@@ -93,15 +86,22 @@ public class NetworkActionCreator {
     private boolean processLinkedTopologyActions(Map<String, Set<PropertyBag>> linkedTopologyActions, Map<String, Set<PropertyBag>> staticPropertyRanges, String remedialActionId, String networkElementsAggregatorId, NetworkActionAdder networkActionAdder, List<String> alterations) {
         boolean hasTopologyActions = false;
         for (PropertyBag topologyActionPropertyBag : linkedTopologyActions.get(networkElementsAggregatorId)) {
-            if (staticPropertyRanges.containsKey(topologyActionPropertyBag.getId(CsaProfileConstants.MRID))) {
-                hasTopologyActions = addTopologicalElementaryAction(staticPropertyRanges.get(topologyActionPropertyBag.getId(CsaProfileConstants.MRID)),
-                    networkActionAdder, topologyActionPropertyBag, remedialActionId, alterations)
-                    || hasTopologyActions;
-            } else {
-                throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action " + remedialActionId + NO_STATIC_PROPERTY_RANGE);
-            }
+            checkNetworkActionHasExactlyOneStaticPropertyRange(staticPropertyRanges, remedialActionId, topologyActionPropertyBag);
+            hasTopologyActions = addTopologicalElementaryAction(staticPropertyRanges.get(topologyActionPropertyBag.getId(CsaProfileConstants.MRID)),
+                networkActionAdder, topologyActionPropertyBag, remedialActionId, alterations)
+                || hasTopologyActions;
         }
         return hasTopologyActions;
+    }
+
+    private static void checkNetworkActionHasExactlyOneStaticPropertyRange(Map<String, Set<PropertyBag>> staticPropertyRanges, String remedialActionId, PropertyBag networkActionPropertyBag) {
+        String elementaryActionId = networkActionPropertyBag.getId(CsaProfileConstants.MRID);
+        if (!staticPropertyRanges.containsKey(elementaryActionId)) {
+            throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action " + remedialActionId + " will not be imported because there is no StaticPropertyRange linked to elementary action " + elementaryActionId);
+        }
+        if (staticPropertyRanges.get(elementaryActionId).size() > 1) {
+            throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action " + remedialActionId + " will not be imported because several conflictual StaticPropertyRanges are linked to that elementary action " + elementaryActionId);
+        }
     }
 
     private boolean addInjectionSetPointFromRotatingMachineAction(Set<PropertyBag> staticPropertyRangesLinkedToRotatingMachineAction, String remedialActionId, NetworkActionAdder networkActionAdder, PropertyBag rotatingMachineActionPropertyBag, List<String> alterations) {

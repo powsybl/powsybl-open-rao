@@ -88,7 +88,6 @@ public final class CsaProfileCracUtils {
                 seconds += value * entry.getValue();
             }
         }
-
         return seconds;
     }
 
@@ -99,9 +98,13 @@ public final class CsaProfileCracUtils {
         }
     }
 
-    public static void checkNormalEnabled(PropertyBag propertyBag, String remedialActionId, String propertyBagKind) {
+    public static void checkNormalEnabled(PropertyBag propertyBag, String remedialActionId, String propertyBagKind, List<String> alterations) {
         Optional<String> normalEnabledOpt = Optional.ofNullable(propertyBag.get(CsaProfileConstants.NORMAL_ENABLED));
         if (normalEnabledOpt.isPresent() && !Boolean.parseBoolean(normalEnabledOpt.get())) {
+            if (propertyBagKind.equals(CsaProfileConstants.REQUEST_CONTINGENCY_WITH_REMEDIAL_ACTION)) {
+                alterations.add(String.format("Association CO/RA '%s'/'%s' will be ignored because field 'normalEnabled' in '%s' is false", propertyBag.getId(CsaProfileConstants.REQUEST_CONTINGENCY), remedialActionId, propertyBagKind));
+                return;
+            }
             throw new OpenRaoImportException(ImportStatus.NOT_FOR_RAO, String.format("Remedial action '%s' will not be imported because field 'normalEnabled' in '%s' must be true or empty", remedialActionId, propertyBagKind));
         }
     }

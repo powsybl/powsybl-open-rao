@@ -188,7 +188,7 @@ class TopologicalActionCreationTest {
             assertEquals(ActionType.OPEN, ta2.getActionType());
             assertEquals(ActionType.CLOSE, ta1.getActionType());
         }
-        assertRaNotImported(cracCreationContext, "no-static-property-range", ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action no-static-property-range will not be imported because there is no StaticPropertyRange linked to that RA");
+        assertRaNotImported(cracCreationContext, "no-static-property-range", ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action no-static-property-range will not be imported because there is no StaticPropertyRange linked to elementary action b2976651-58f9-46bf-bd0d-a721b11dbb9a");
         assertRaNotImported(cracCreationContext, "wrong-value-offset-kind", ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action wrong-value-offset-kind will not be imported because the ValueOffsetKind is http://entsoe.eu/ns/nc#ValueOffsetKind.incremental but should be none.");
         assertRaNotImported(cracCreationContext, "wrong-direction", ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action wrong-direction will not be imported because the RelativeDirectionKind is http://entsoe.eu/ns/nc#RelativeDirectionKind.up but should be absolute.");
         assertRaNotImported(cracCreationContext, "undefined-action-type", ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action undefined-action-type will not be imported because the normalValue is 2 which does not define a proper action type (open 1 / close 0)");

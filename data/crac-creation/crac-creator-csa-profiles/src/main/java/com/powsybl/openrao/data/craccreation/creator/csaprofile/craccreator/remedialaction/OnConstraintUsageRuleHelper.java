@@ -89,14 +89,6 @@ public class OnConstraintUsageRuleHelper {
         return this.excludedCnecsByRemedialAction;
     }
 
-    public Map<String, Set<String>> getIncludedCnecsByRemedialAction() {
-        return this.includedCnecsByRemedialAction;
-    }
-
-    public Map<String, Set<String>> getConsideredCnecsByRemedialAction() {
-        return this.consideredCnecsByRemedialAction;
-    }
-
     public Map<String, Set<String>> getConsideredAndIncludedCnecsByRemedialAction() {
         Map<String, Set<String>> result = new HashMap<>(this.includedCnecsByRemedialAction);
         result.putAll(consideredCnecsByRemedialAction);

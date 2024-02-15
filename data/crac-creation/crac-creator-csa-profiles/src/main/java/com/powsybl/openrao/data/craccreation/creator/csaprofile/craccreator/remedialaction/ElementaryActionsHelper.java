@@ -82,7 +82,7 @@ public class ElementaryActionsHelper {
         return new PropertyBags(relevantElementaryActionsPropertyBags);
     }
 
-    public Map<String, Set<PropertyBag>> getStaticPropertyRangesByElementaryActionAggregator() {
+    public Map<String, Set<PropertyBag>> getStaticPropertyRangesByElementaryActionsAggregator() {
         return linkedStaticPropertyRanges;
     }
 
