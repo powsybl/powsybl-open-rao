@@ -1,7 +1,6 @@
-package com.powsybl.openrao.data.cracimpl;
+package com.powsybl.openrao.data.cracapi;
 
 import com.powsybl.openrao.commons.OpenRaoException;
-import com.powsybl.openrao.data.cracapi.RaUsageLimits;
 import org.junit.jupiter.api.Test;
 
 import java.util.Map;
