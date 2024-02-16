@@ -7,8 +7,12 @@
 
 package com.powsybl.openrao.data.cracimpl;
 
+import ch.qos.logback.classic.Logger;
+import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.core.read.ListAppender;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
+import com.powsybl.openrao.commons.logs.RaoBusinessWarns;
 import com.powsybl.openrao.data.cracapi.*;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnecAdder;
@@ -26,6 +30,7 @@ import com.powsybl.openrao.data.cracapi.usagerule.UsageRule;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
@@ -1015,5 +1020,31 @@ class CracImplTest {
     void testCracHasAutoInstant() {
         assertTrue(crac.hasAutoInstant());
         assertFalse(new CracImpl("test-crac").hasAutoInstant());
+    }
+
+    public static ListAppender<ILoggingEvent> getLogs(Class<?> logsClass) {
+        Logger logger = (Logger) LoggerFactory.getLogger(logsClass);
+        ListAppender<ILoggingEvent> listAppender = new ListAppender<>();
+        listAppender.start();
+        logger.addAppender(listAppender);
+        return listAppender;
+    }
+
+    @Test
+    void testRaUsageLimits() {
+        ListAppender<ILoggingEvent> listAppender = getLogs(RaoBusinessWarns.class);
+        List<ILoggingEvent> logsList = listAppender.list;
+        assertTrue(crac.getRaUsageLimitsPerInstant().isEmpty());
+        RaUsageLimits raUsageLimits1 = new RaUsageLimits();
+        raUsageLimits1.setMaxRa(3);
+        Map<String, RaUsageLimits> firstMap = Map.of("preventive", raUsageLimits1);
+        crac.setRaUsageLimits(firstMap);
+        assertEquals(firstMap, crac.getRaUsageLimitsPerInstant());
+        raUsageLimits1.setMaxTso(4);
+        Map<String, RaUsageLimits> secondMap = Map.of("fake_instant", raUsageLimits1);
+        crac.setRaUsageLimits(secondMap);
+        assertEquals(secondMap, crac.getRaUsageLimitsPerInstant());
+        assertEquals(1, logsList.size());
+        assertEquals("The instant fake_instant registered in the crac creation parameters does not exist in the crac. Its remedial action limitations will be ignored.", logsList.get(0).getFormattedMessage());
     }
 }

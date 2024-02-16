@@ -870,7 +870,7 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
     public void setRaUsageLimits(Map<String, RaUsageLimits> raUsageLimitsPerInstant) {
         raUsageLimitsPerInstant.forEach((instantName, raUsageLimits) -> {
             if (!this.instants.containsKey(instantName)) {
-                BUSINESS_WARNS.warn("The instant %s registered in the crac creation parameters does not exist in the crac. Its remedial action limitations will be ignored.", instantName);
+                BUSINESS_WARNS.warn("The instant {} registered in the crac creation parameters does not exist in the crac. Its remedial action limitations will be ignored.", instantName);
             }
         });
         this.raUsageLimitsPerInstant = raUsageLimitsPerInstant;
