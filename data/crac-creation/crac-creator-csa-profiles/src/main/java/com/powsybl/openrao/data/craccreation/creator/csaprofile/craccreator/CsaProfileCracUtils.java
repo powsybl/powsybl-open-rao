@@ -88,7 +88,6 @@ public final class CsaProfileCracUtils {
                 seconds += value * entry.getValue();
             }
         }
-
         return seconds;
     }
 
@@ -96,13 +95,6 @@ public final class CsaProfileCracUtils {
         String actualPropertyReference = propertyBag.get(CsaProfileConstants.GRID_ALTERATION_PROPERTY_REFERENCE);
         if (!actualPropertyReference.equals(expectedPropertyReference)) {
             throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, String.format("Remedial action '%s' will not be imported because '%s' must have a property reference with '%s' value, but it was: '%s'", remedialActionId, propertyBagKind, expectedPropertyReference, actualPropertyReference));
-        }
-    }
-
-    public static void checkNormalEnabled(PropertyBag propertyBag, String remedialActionId, String propertyBagKind) {
-        Optional<String> normalEnabledOpt = Optional.ofNullable(propertyBag.get(CsaProfileConstants.NORMAL_ENABLED));
-        if (normalEnabledOpt.isPresent() && !Boolean.parseBoolean(normalEnabledOpt.get())) {
-            throw new OpenRaoImportException(ImportStatus.NOT_FOR_RAO, String.format("Remedial action '%s' will not be imported because field 'normalEnabled' in '%s' must be true or empty", remedialActionId, propertyBagKind));
         }
     }
 
