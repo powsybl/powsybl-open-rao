@@ -107,6 +107,7 @@ public final class CsaProfileConstants {
     public static final String SIPS = "http://entsoe.eu/ns/nc#RemedialActionSchemeKind.sips";
     public static final String NORMAL_ARMED = "normalArmed";
     public static final String OVERRIDE_ARMED = "armed";
+    public static final String DEPENDING_REMEDIAL_ACTION_GROUP = " dependingRemedialActionGroup";
     public static final String GRID_STATE_ALTERATION_COLLECTION = "gridStateAlterationCollection";
     public static final String GRID_STATE_ALTERATION_REMEDIAL_ACTION = "gridStateAlterationRemedialAction";
     public static final String TOPOLOGY_ACTION = "topologyAction";
@@ -128,6 +129,8 @@ public final class CsaProfileConstants {
     public static final String SHUNT_COMPENSATOR_MODIFICATION = "shuntCompensatorModification";
     public static final String SHUNT_COMPENSATOR_ID = "shuntCompensatorId";
     public static final String REQUEST_SCHEME_REMEDIAL_ACTION = "schemeRemedialAction";
+    public static final String REQUEST_REMEDIAL_ACTION_GROUP = "remedialActionGroup";
+    public static final String REQUEST_REMEDIAL_ACTION_DEPENDENCY = "remedialActionDependency";
 
     public enum PropertyReference {
         SWITCH("Switch.open"),

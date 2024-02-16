@@ -716,3 +716,36 @@ GRAPH <%s> {
         nc:VoltageLimit.value ?value .
 }
 }
+
+# query: remedialActionGroup
+PREFIX nc: <http://entsoe.eu/ns/nc#>
+PREFIX cim: <http://iec.ch/TC57/CIM100#>
+SELECT *
+{
+GRAPH <%s> {
+    ?remedialActionGroup
+        rdf:type nc:RemedialActionGroup ;
+        cim:IdentifiedObject.mRID ?mRID ;
+    OPTIONAL {
+        ?remedialActionGroup cim:IdentifiedObject.name ?name .
+    }
+}
+}
+
+# query: remedialActionDependency
+PREFIX nc: <http://entsoe.eu/ns/nc#>
+PREFIX cim: <http://iec.ch/TC57/CIM100#>
+SELECT *
+{
+GRAPH <%s> {
+    ?remedialActionDependency
+        rdf:type nc:RemedialActionDependency ;
+        nc:RemedialActionDependency.kind ?kind ;
+        nc:RemedialActionDependency.mRID ?mRID ;
+        nc:RemedialActionDependency.RemedialAction ?remedialAction ;
+        nc:RemedialAction.DependingRemedialActionGroup ?dependingRemedialActionGroup ;
+        OPTIONAL {
+            ?remedialActionDependency nc:RemedialActionDependency.normalEnabled ?normalEnabled .
+        }
+}
+}
