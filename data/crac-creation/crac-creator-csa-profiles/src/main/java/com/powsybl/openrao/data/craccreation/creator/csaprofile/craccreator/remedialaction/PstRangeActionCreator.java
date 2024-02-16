@@ -48,7 +48,10 @@ public class PstRangeActionCreator {
     }
 
     private void addTapPositionElementaryAction(Set<PropertyBag> linkedStaticPropertyRangesToTapPositionAction, String remedialActionId, PstRangeActionAdder pstRangeActionAdder, PropertyBag tapPositionActionPropertyBag, List<String> alterations) {
-        CsaProfileCracUtils.checkNormalEnabled(tapPositionActionPropertyBag, remedialActionId, TAP_POSITION_ACTION, alterations);
+        Optional<String> normalEnabledOpt = Optional.ofNullable(tapPositionActionPropertyBag.get(NORMAL_ENABLED));
+        if (normalEnabledOpt.isPresent() && !Boolean.parseBoolean(normalEnabledOpt.get())) {
+            throw new OpenRaoImportException(ImportStatus.NOT_FOR_RAO, String.format("Remedial action '%s' will not be imported because field 'normalEnabled' in tapPositionAction must be true or empty", remedialActionId));
+        }
         CsaProfileCracUtils.checkPropertyReference(tapPositionActionPropertyBag, remedialActionId, TAP_POSITION_ACTION, PropertyReference.TAP_CHANGER.toString());
         String rawId = tapPositionActionPropertyBag.get(TAP_CHANGER);
         String tapChangerId = rawId.substring(rawId.lastIndexOf("#_") + 2).replace("+", " ");
@@ -70,22 +73,22 @@ public class PstRangeActionCreator {
                 String valueKind = staticPropertyRangePropertyBag.get(STATIC_PROPERTY_RANGE_VALUE_KIND);
 
                 if (!valueKind.equals(ValueOffsetKind.ABSOLUTE.toString())) {
-                    throw new OpenRaoImportException(ImportStatus.NOT_YET_HANDLED_BY_OPEN_RAO, "Remedial action " + remedialActionId + " will not be imported because StaticPropertyRange has wrong value of valueKind, the only allowed value is 'absolute'");
+                    throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action " + remedialActionId + " will not be imported because StaticPropertyRange has wrong value of valueKind, the only allowed value is 'absolute'");
                 } else {
                     String direction = staticPropertyRangePropertyBag.get(STATIC_PROPERTY_RANGE_DIRECTION);
                     int normalValue = (int) Float.parseFloat(staticPropertyRangePropertyBag.get(NORMAL_VALUE));
                     if (direction.equals(RelativeDirectionKind.DOWN.toString())) {
                         normalValueDown.ifPresent(value -> {
-                            throw new OpenRaoImportException(ImportStatus.NOT_YET_HANDLED_BY_OPEN_RAO, "Remedial action " + remedialActionId + " will not be imported because StaticPropertyRange has more than ONE direction RelativeDirectionKind.down");
+                            throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action " + remedialActionId + " will not be imported because StaticPropertyRange has more than ONE direction RelativeDirectionKind.down");
                         });
                         normalValueDown = Optional.of(normalValue);
                     } else if (direction.equals(RelativeDirectionKind.UP.toString())) {
                         normalValueUp.ifPresent(value -> {
-                            throw new OpenRaoImportException(ImportStatus.NOT_YET_HANDLED_BY_OPEN_RAO, "Remedial action " + remedialActionId + " will not be imported because StaticPropertyRange has more than ONE direction RelativeDirectionKind.up");
+                            throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action " + remedialActionId + " will not be imported because StaticPropertyRange has more than ONE direction RelativeDirectionKind.up");
                         });
                         normalValueUp = Optional.of(normalValue);
                     } else {
-                        throw new OpenRaoImportException(ImportStatus.NOT_YET_HANDLED_BY_OPEN_RAO, "Remedial action " + remedialActionId + " will not be imported because StaticPropertyRange has wrong value of direction, the only allowed values are RelativeDirectionKind.up and RelativeDirectionKind.down");
+                        throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action " + remedialActionId + " will not be imported because StaticPropertyRange has wrong value of direction, the only allowed values are RelativeDirectionKind.up and RelativeDirectionKind.down");
                     }
                 }
             }
