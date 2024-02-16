@@ -568,4 +568,94 @@ class CsaProfileSsiTest {
         assertEquals("RTE_RA2", remedialActions.get(1).getName());
         assertEquals(0, remedialActions.get(1).getUsageRules().size());
     }
+
+    @Test
+    void activateDeactivateSchemeRemedialAction() {
+        // General case
+        cracCreationContext = getCsaCracCreationContext("/ssi/SSI-17_SchemeRemedialAction.zip", network, "2023-01-01T22:30Z");
+        crac = cracCreationContext.getCrac();
+
+        assertEquals(1, crac.getNetworkActions().size());
+        NetworkAction remedialAction = crac.getNetworkActions().iterator().next();
+        assertEquals("ara-1", remedialAction.getId());
+        assertEquals("RTE_ARA-1", remedialAction.getName());
+
+        assertEquals(1, remedialAction.getElementaryActions().size());
+        ElementaryAction elementaryAction = remedialAction.getElementaryActions().iterator().next();
+        assertTrue(elementaryAction instanceof TopologicalAction);
+        assertEquals("BBE1AA1  BBE4AA1  1", ((TopologicalAction) elementaryAction).getNetworkElement().getId());
+        assertEquals(ActionType.OPEN, ((TopologicalAction) elementaryAction).getActionType());
+
+        assertEquals(1, remedialAction.getUsageRules().size());
+        assertEquals(crac.getInstant("auto"), remedialAction.getUsageRules().iterator().next().getInstant());
+        assertEquals(UsageMethod.FORCED, remedialAction.getUsageRules().iterator().next().getUsageMethod());
+
+        assertRaNotImported(cracCreationContext, "ara-2", ImportStatus.NOT_FOR_RAO, "Remedial action ara-2 will not be imported because RemedialAction.normalAvailable must be 'true' to be imported");
+
+        // With SSI
+        cracCreationContext = getCsaCracCreationContext("/ssi/SSI-17_SchemeRemedialAction.zip", network, "2024-01-31T12:30Z");
+        crac = cracCreationContext.getCrac();
+
+        assertEquals(1, crac.getNetworkActions().size());
+        remedialAction = crac.getNetworkActions().iterator().next();
+        assertEquals("ara-2", remedialAction.getId());
+        assertEquals("RTE_ARA-2", remedialAction.getName());
+
+        assertEquals(1, remedialAction.getElementaryActions().size());
+        elementaryAction = remedialAction.getElementaryActions().iterator().next();
+        assertTrue(elementaryAction instanceof TopologicalAction);
+        assertEquals("DDE3AA1  DDE4AA1  1", ((TopologicalAction) elementaryAction).getNetworkElement().getId());
+        assertEquals(ActionType.OPEN, ((TopologicalAction) elementaryAction).getActionType());
+
+        assertEquals(1, remedialAction.getUsageRules().size());
+        assertEquals(crac.getInstant("auto"), remedialAction.getUsageRules().iterator().next().getInstant());
+        assertEquals(UsageMethod.FORCED, remedialAction.getUsageRules().iterator().next().getUsageMethod());
+
+        assertRaNotImported(cracCreationContext, "ara-1", ImportStatus.NOT_FOR_RAO, "Remedial action ara-1 will not be imported because RemedialAction.normalAvailable must be 'true' to be imported");
+    }
+
+    @Test
+    void activateDeactivateRemedialActionScheme() {
+        // General case
+        cracCreationContext = getCsaCracCreationContext("/ssi/SSI-18_RemedialActionScheme.zip", network, "2023-01-01T22:30Z");
+        crac = cracCreationContext.getCrac();
+
+        assertEquals(1, crac.getNetworkActions().size());
+        NetworkAction remedialAction = crac.getNetworkActions().iterator().next();
+        assertEquals("ara-1", remedialAction.getId());
+        assertEquals("RTE_ARA-1", remedialAction.getName());
+
+        assertEquals(1, remedialAction.getElementaryActions().size());
+        ElementaryAction elementaryAction = remedialAction.getElementaryActions().iterator().next();
+        assertTrue(elementaryAction instanceof TopologicalAction);
+        assertEquals("BBE1AA1  BBE4AA1  1", ((TopologicalAction) elementaryAction).getNetworkElement().getId());
+        assertEquals(ActionType.OPEN, ((TopologicalAction) elementaryAction).getActionType());
+
+        assertEquals(1, remedialAction.getUsageRules().size());
+        assertEquals(crac.getInstant("auto"), remedialAction.getUsageRules().iterator().next().getInstant());
+        assertEquals(UsageMethod.FORCED, remedialAction.getUsageRules().iterator().next().getUsageMethod());
+
+        assertRaNotImported(cracCreationContext, "ara-2", ImportStatus.NOT_FOR_RAO, "Remedial action ara-2 will not be imported because RemedialActionScheme remedial-action-scheme-2 is not armed");
+
+        // With SSI
+        cracCreationContext = getCsaCracCreationContext("/ssi/SSI-18_RemedialActionScheme.zip", network, "2024-01-31T12:30Z");
+        crac = cracCreationContext.getCrac();
+
+        assertEquals(1, crac.getNetworkActions().size());
+        remedialAction = crac.getNetworkActions().iterator().next();
+        assertEquals("ara-2", remedialAction.getId());
+        assertEquals("RTE_ARA-2", remedialAction.getName());
+
+        assertEquals(1, remedialAction.getElementaryActions().size());
+        elementaryAction = remedialAction.getElementaryActions().iterator().next();
+        assertTrue(elementaryAction instanceof TopologicalAction);
+        assertEquals("DDE3AA1  DDE4AA1  1", ((TopologicalAction) elementaryAction).getNetworkElement().getId());
+        assertEquals(ActionType.OPEN, ((TopologicalAction) elementaryAction).getActionType());
+
+        assertEquals(1, remedialAction.getUsageRules().size());
+        assertEquals(crac.getInstant("auto"), remedialAction.getUsageRules().iterator().next().getInstant());
+        assertEquals(UsageMethod.FORCED, remedialAction.getUsageRules().iterator().next().getUsageMethod());
+
+        assertRaNotImported(cracCreationContext, "ara-1", ImportStatus.NOT_FOR_RAO, "Remedial action ara-1 will not be imported because RemedialActionScheme remedial-action-scheme-1 is not armed");
+    }
 }
