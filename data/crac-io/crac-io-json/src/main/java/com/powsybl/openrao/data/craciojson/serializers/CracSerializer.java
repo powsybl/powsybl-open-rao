@@ -46,8 +46,8 @@ public class CracSerializer extends AbstractJsonSerializer<Crac> {
         gen.writeStringField(ID, crac.getId());
         gen.writeStringField(NAME, crac.getName());
 
-        serializeRaUsageLimits(crac, gen);
         serializeInstants(crac, gen);
+        serializeRaUsageLimits(crac, gen);
         serializeNetworkElements(crac, gen);
         serializeContingencies(crac, gen);
         serializeFlowCnecs(crac, gen);
