@@ -35,6 +35,28 @@ class RaUsageLimitsTest {
     }
 
     @Test
+    void testEquality() {
+        // default constructor
+        RaUsageLimits raUsageLimits1 = new RaUsageLimits();
+        RaUsageLimits raUsageLimits2 = new RaUsageLimits();
+        assertEquals(raUsageLimits1, raUsageLimits2);
+        // modifies one object
+        raUsageLimits1.setMaxRa(3);
+        raUsageLimits1.setMaxTso(5);
+        raUsageLimits1.setMaxRaPerTso(Map.of("FR", 4));
+        raUsageLimits1.setMaxTopoPerTso(Map.of("FR", 2));
+        raUsageLimits1.setMaxPstPerTso(Map.of("FR", 3));
+        assertNotEquals(raUsageLimits1, raUsageLimits2);
+        // applies the same modification to the second object
+        raUsageLimits2.setMaxRa(3);
+        raUsageLimits2.setMaxTso(5);
+        raUsageLimits2.setMaxRaPerTso(Map.of("FR", 4));
+        raUsageLimits2.setMaxTopoPerTso(Map.of("FR", 2));
+        raUsageLimits2.setMaxPstPerTso(Map.of("FR", 3));
+        assertEquals(raUsageLimits1, raUsageLimits2);
+    }
+
+    @Test
     void testIllegalValues() {
         // negative values
         raUsageLimits.setMaxTso(-2);
@@ -45,12 +67,12 @@ class RaUsageLimitsTest {
         raUsageLimits.setMaxTopoPerTso(Map.of("FR", 5));
         Map<String, Integer> illegalMap = Map.of("FR", 3);
         OpenRaoException exception = assertThrows(OpenRaoException.class, () -> raUsageLimits.setMaxRaPerTso(illegalMap));
-        assertEquals("TSO FR has a maximum number of allowed CRAs smaller than the number of allowed topological CRAs. This is not supported.", exception.getMessage());
+        assertEquals("TSO FR has a maximum number of allowed RAs smaller than the number of allowed topological RAs. This is not supported.", exception.getMessage());
         raUsageLimits.setMaxTopoPerTso(Map.of("FR", 1));
         // incoherent parameters for pst
         raUsageLimits.setMaxPstPerTso(Map.of("FR", 5));
         exception = assertThrows(OpenRaoException.class, () -> raUsageLimits.setMaxRaPerTso(illegalMap));
-        assertEquals("TSO FR has a maximum number of allowed CRAs smaller than the number of allowed PST CRAs. This is not supported.", exception.getMessage());
+        assertEquals("TSO FR has a maximum number of allowed RAs smaller than the number of allowed PST RAs. This is not supported.", exception.getMessage());
         // fill values with null maps
         raUsageLimits.setMaxPstPerTso(null);
         assertTrue(raUsageLimits.getMaxPstPerTso().isEmpty());

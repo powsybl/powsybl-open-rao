@@ -91,12 +91,33 @@ public class RaUsageLimits {
         tsos.forEach(tso -> {
             if (maxTopoPerTso.containsKey(tso)
                 && maxRaPerTso.getOrDefault(tso, 1000) < maxTopoPerTso.get(tso)) {
-                throw new OpenRaoException(String.format("TSO %s has a maximum number of allowed CRAs smaller than the number of allowed topological CRAs. This is not supported.", tso));
+                throw new OpenRaoException(String.format("TSO %s has a maximum number of allowed RAs smaller than the number of allowed topological RAs. This is not supported.", tso));
             }
             if (maxPstPerTso.containsKey(tso)
                 && maxRaPerTso.getOrDefault(tso, 1000) < maxPstPerTso.get(tso)) {
-                throw new OpenRaoException(String.format("TSO %s has a maximum number of allowed CRAs smaller than the number of allowed PST CRAs. This is not supported.", tso));
+                throw new OpenRaoException(String.format("TSO %s has a maximum number of allowed RAs smaller than the number of allowed PST RAs. This is not supported.", tso));
             }
         });
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        RaUsageLimits raUsageLimits = (RaUsageLimits) o;
+        return raUsageLimits.maxRa == this.getMaxRa()
+            && raUsageLimits.maxTso == this.getMaxTso()
+            && raUsageLimits.maxRaPerTso.equals(this.getMaxRaPerTso())
+            && raUsageLimits.maxPstPerTso.equals(this.getMaxPstPerTso())
+            && raUsageLimits.maxTopoPerTso.equals(this.getMaxTopoPerTso());
+    }
+
+    @Override
+    public int hashCode() {
+        return super.hashCode();
     }
 }
