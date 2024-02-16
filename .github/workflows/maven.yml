@@ -23,6 +23,10 @@ jobs:
         if: matrix.os == 'ubuntu-latest'
         run: mvn --batch-mode -Pjacoco install
 
+      - name: Build with Maven
+        if: matrix.os != 'ubuntu-latest'
+        run: mvn --batch-mode install
+
       - name: Run SonarCloud analysis
         if: matrix.os == 'ubuntu-latest'
         run: >
