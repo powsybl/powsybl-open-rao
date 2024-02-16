@@ -57,7 +57,7 @@ class CsaProfileCracImporterTest {
         assertEquals(2, contingencyEquipmentsPb.size());
         assertEquals("ef11f9bd-5da0-43e3-921b-7e92d2896136", contingencyEquipmentsPb.get(1).getId(CsaProfileConstants.REQUEST_CONTINGENCY_EQUIPMENT));
         assertEquals("f19925fa-b114-48c5-97a4-42ef84372115", contingencyEquipmentsPb.get(0).getId(CsaProfileConstants.REQUEST_CONTINGENCY_EQUIPMENT));
-        assertEquals(2, csaProfileCrac.getRemedialActions().size());
+        assertEquals(2, csaProfileCrac.getGridStateAlterationRemedialAction().size());
     }
 
     @Test
