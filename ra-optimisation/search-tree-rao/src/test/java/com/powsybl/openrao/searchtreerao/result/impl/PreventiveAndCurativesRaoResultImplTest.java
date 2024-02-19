@@ -140,6 +140,9 @@ class PreventiveAndCurativesRaoResultImplTest {
         when(curativeState2.getInstant()).thenReturn(curativeInstant);
         when(curativeState2.getContingency()).thenReturn(Optional.of(contingency2));
         when(curativeState3.getInstant()).thenReturn(curativeInstant);
+        when(crac.getInstantBefore(curativeInstant)).thenReturn(autoInstant);
+        when(crac.getInstantBefore(autoInstant)).thenReturn(outageInstant);
+        when(crac.getInstantBefore(outageInstant)).thenReturn(preventiveInstant);
 
         initialResult = mock(PrePerimeterResult.class);
         postPrevResult = mock(PerimeterResult.class);
@@ -1022,4 +1025,6 @@ class PreventiveAndCurativesRaoResultImplTest {
         exception = assertThrows(OpenRaoException.class, () -> output.getMargin(optimizedInstant, angleCnec, AMPERE));
         assertEquals("Angle cnecs are not computed in the rao", exception.getMessage());
     }
+
+    // TODO: add UT that checks the behaviour of findStateOptimizedFor
 }

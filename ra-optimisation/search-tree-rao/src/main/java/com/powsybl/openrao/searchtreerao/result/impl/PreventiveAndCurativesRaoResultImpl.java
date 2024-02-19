@@ -328,21 +328,27 @@ public class PreventiveAndCurativesRaoResultImpl implements RaoResult {
         } else if (Objects.nonNull(findStateOptimizedFor(optimizedInstant, flowCnec))) {
             // if cnec has been optimized during a post contingency instant
             return postContingencyResults.get(findStateOptimizedFor(optimizedInstant, flowCnec));
-        } else if (!postContingencyResults.containsKey(flowCnec.getState())) {
-            // if post contingency cnec has been optimized in preventive perimeter (no remedial actions)
-            return secondPreventivePerimeterResult;
         } else {
-            // e.g Auto instant for curative cnecs optimized in 2P
-            return null;
+            return resultsWithPrasForAllCnecs;
         }
+        // else if (!postContingencyResults.containsKey(flowCnec.getState())) {
+        //     // if post contingency cnec has been optimized in preventive perimeter (no remedial actions)
+        //     return secondPreventivePerimeterResult;
+        // } else {
+        //     // e.g Auto instant for curative cnecs optimized in 2P
+        //     return null;
+        // }
     }
 
     private State findStateOptimizedFor(Instant optimizedInstant, FlowCnec flowCnec) {
+        if (optimizedInstant.isPreventive()) {
+            return null;
+        }
         return postContingencyResults.keySet().stream().filter(state ->
             !state.getInstant().comesAfter(flowCnec.getState().getInstant())
                 && state.getInstant().equals(optimizedInstant)
                 && state.getContingency().equals(flowCnec.getState().getContingency())
-        ).findAny().orElse(null);
+        ).findAny().orElseGet(() -> findStateOptimizedFor(crac.getInstantBefore(optimizedInstant), flowCnec));
     }
 
     private double getHighestFunctionalForInstant(Instant instant) {
