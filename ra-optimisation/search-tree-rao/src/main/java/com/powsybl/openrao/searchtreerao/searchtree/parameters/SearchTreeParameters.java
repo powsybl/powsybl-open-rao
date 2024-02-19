@@ -8,6 +8,7 @@ package com.powsybl.openrao.searchtreerao.searchtree.parameters;
 
 import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.cracapi.RaUsageLimits;
+import com.powsybl.openrao.data.cracapi.rangeaction.RangeAction;
 import com.powsybl.openrao.raoapi.parameters.ObjectiveFunctionParameters;
 import com.powsybl.openrao.raoapi.parameters.RangeActionsOptimizationParameters;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
@@ -16,7 +17,9 @@ import com.powsybl.openrao.raoapi.parameters.extensions.MnecParametersExtension;
 import com.powsybl.openrao.raoapi.parameters.extensions.RelativeMarginsParametersExtension;
 import com.powsybl.openrao.searchtreerao.commons.parameters.*;
 
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * @author Baptiste Seguinot {@literal <joris.mancini at rte-france.com>}
@@ -28,7 +31,7 @@ public class SearchTreeParameters {
     // required for the search tree algorithm
     private final TreeParameters treeParameters;
     private final NetworkActionParameters networkActionParameters;
-    private final Map<String, RaUsageLimits> raLimitationParameters;
+    private Map<String, RaUsageLimits> raLimitationParameters;
 
     // required for sub-module iterating linear optimizer
     private final RangeActionsOptimizationParameters rangeActionParameters;
@@ -105,6 +108,29 @@ public class SearchTreeParameters {
 
     public int getMaxNumberOfIterations() {
         return maxNumberOfIterations;
+    }
+
+    public void setRaLimitationsForSecondPreventive(RaUsageLimits raUsageLimits, Set<RangeAction<?>> rangeActionSet) {
+        Set<String> tsoCount = new HashSet<>();
+        int raCount = 0;
+        Map<String, Integer> currentPstPerTsoLimits = raUsageLimits.getMaxPstPerTso();
+        Map<String, Integer> currentRaPerTsoLimits = raUsageLimits.getMaxRaPerTso();
+        Map<String, Integer> currentTopoPerTsoLimits = raUsageLimits.getMaxTopoPerTso();
+        for (RangeAction<?> rangeAction : rangeActionSet) {
+            String tso = rangeAction.getOperator();
+            tsoCount.add(tso);
+            raCount += 1;
+            currentRaPerTsoLimits.computeIfPresent(tso, (key, currentLimit) -> Math.max(0, currentLimit - 1));
+            currentPstPerTsoLimits.computeIfPresent(tso, (key, currentLimit) -> Math.max(0, currentLimit - 1));
+        }
+        raUsageLimits.setMaxRa(Math.max(0, raUsageLimits.getMaxRa() - raCount));
+        raUsageLimits.setMaxTso(Math.max(0, raUsageLimits.getMaxTso() - tsoCount.size()));
+        currentTopoPerTsoLimits.forEach((tso, raLimits) -> currentTopoPerTsoLimits.put(tso, Math.min(raLimits, currentRaPerTsoLimits.getOrDefault(tso, 1000))));
+        currentPstPerTsoLimits.forEach((tso, raLimits) -> currentPstPerTsoLimits.put(tso, Math.min(raLimits, currentRaPerTsoLimits.getOrDefault(tso, 1000))));
+        raUsageLimits.setMaxPstPerTso(currentPstPerTsoLimits);
+        raUsageLimits.setMaxTopoPerTso(currentTopoPerTsoLimits);
+        raUsageLimits.setMaxRaPerTso(currentRaPerTsoLimits);
+        this.raLimitationParameters.put("preventive", raUsageLimits);
     }
 
     public static SearchTreeParametersBuilder create() {

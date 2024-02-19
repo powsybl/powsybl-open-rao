@@ -8,6 +8,7 @@
 package com.powsybl.openrao.searchtreerao.searchtree.parameters;
 import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.cracapi.RaUsageLimits;
+import com.powsybl.openrao.data.cracapi.rangeaction.RangeAction;
 import com.powsybl.openrao.raoapi.parameters.ObjectiveFunctionParameters;
 import com.powsybl.openrao.raoapi.parameters.RangeActionsOptimizationParameters;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
@@ -21,8 +22,10 @@ import org.mockito.Mockito;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.when;
 
 /**
  * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
@@ -93,5 +96,48 @@ class SearchTreeParametersTest {
         assertEquals(unoptimizedCnecParameters, searchTreeParameters.getUnoptimizedCnecParameters());
         assertEquals(solverParameters, searchTreeParameters.getSolverParameters());
         assertEquals(maxNumberOfIterations, searchTreeParameters.getMaxNumberOfIterations());
+    }
+
+    @Test
+    void testRaLimitsSetter() {
+        // Set up
+        Map<String, RaUsageLimits> raLimitationParameters = new HashMap<>();
+        RaUsageLimits raUsageLimits = new RaUsageLimits();
+        raUsageLimits.setMaxRa(3);
+        raUsageLimits.setMaxTso(2);
+        Map<String, Integer> raLimitsPerTso = new HashMap<>();
+        raLimitsPerTso.put("BE", 10);
+        raLimitsPerTso.put("FR", 3);
+        raUsageLimits.setMaxRaPerTso(raLimitsPerTso);
+        Map<String, Integer> pstLimitsPerTso = new HashMap<>();
+        pstLimitsPerTso.put("BE", 10);
+        pstLimitsPerTso.put("FR", 1);
+        raUsageLimits.setMaxPstPerTso(pstLimitsPerTso);
+        Map<String, Integer> topoLimitsPerTso = new HashMap<>();
+        topoLimitsPerTso.put("BE", 10);
+        topoLimitsPerTso.put("FR", 2);
+        raUsageLimits.setMaxTopoPerTso(topoLimitsPerTso);
+        raLimitationParameters.put("preventive", raUsageLimits);
+        raLimitationParameters.put("curative", new RaUsageLimits());
+        SearchTreeParameters searchTreeParameters = builder.withGlobalRemedialActionLimitationParameters(raLimitationParameters).build();
+        RangeAction<?> ra1 = Mockito.mock(RangeAction.class);
+        RangeAction<?> ra2 = Mockito.mock(RangeAction.class);
+        when(ra1.getOperator()).thenReturn("FR");
+        when(ra2.getOperator()).thenReturn("FR");
+        // assertions
+        searchTreeParameters.setRaLimitationsForSecondPreventive(searchTreeParameters.getRaLimitationParameters().get("preventive"), Set.of(ra1, ra2));
+        Map<String, RaUsageLimits> updatedMap = searchTreeParameters.getRaLimitationParameters();
+        assertEquals(2, updatedMap.keySet().size());
+        assertEquals(new RaUsageLimits(), updatedMap.get("curative"));
+        RaUsageLimits updatedRaUsageLimits = updatedMap.get("preventive");
+        assertEquals(1, updatedRaUsageLimits.getMaxRa());
+        assertEquals(1, updatedRaUsageLimits.getMaxTso());
+        Map<String, Integer> maxRaPerTso = updatedRaUsageLimits.getMaxRaPerTso();
+        assertEquals(10, maxRaPerTso.get("BE"));
+        assertEquals(1, maxRaPerTso.get("FR"));
+        assertEquals(maxRaPerTso, updatedRaUsageLimits.getMaxTopoPerTso());
+        Map<String, Integer> maxPstPerTso = updatedRaUsageLimits.getMaxPstPerTso();
+        assertEquals(10, maxPstPerTso.get("BE"));
+        assertEquals(0, maxPstPerTso.get("FR"));
     }
 }
