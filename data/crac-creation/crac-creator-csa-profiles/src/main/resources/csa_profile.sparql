@@ -559,6 +559,22 @@ GRAPH <%s> {
 }
 }
 
+# query: schemeRemedialActionOverriding
+PREFIX nc: <http://entsoe.eu/ns/nc#>
+PREFIX dcat: <http://www.w3.org/ns/dcat#>
+SELECT *
+{
+GRAPH <%s> {
+    ?fullModel
+        dcat:startDate ?startDate ;
+        dcat:endDate ?endDate ;
+        dcat:keyword ?keyword .
+    ?schemeRemedialAction
+        rdf:type nc:SchemeRemedialAction ;
+        nc:RemedialAction.available ?available .
+}
+}
+
 # query: gridStateAlterationOverriding
 PREFIX nc: <http://entsoe.eu/ns/nc#>
 PREFIX dcat: <http://www.w3.org/ns/dcat#>
