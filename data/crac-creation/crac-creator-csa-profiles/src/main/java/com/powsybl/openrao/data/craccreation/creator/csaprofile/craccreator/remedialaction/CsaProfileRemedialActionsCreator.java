@@ -58,7 +58,7 @@ public class CsaProfileRemedialActionsCreator {
         createRemedialActions(true);
         Set<String> importedRas = createRemedialActionGroups();
         importedRas.forEach(importedRaId -> contextByRaId.remove(importedRaId));
-        this.cracCreationContext.setRemedialActionCreationContexts((Set<CsaProfileElementaryCreationContext>) contextByRaId.values());
+        this.cracCreationContext.setRemedialActionCreationContexts(new HashSet<>(contextByRaId.values()));
     }
 
     private void createRemedialActions(boolean isAuto) {
