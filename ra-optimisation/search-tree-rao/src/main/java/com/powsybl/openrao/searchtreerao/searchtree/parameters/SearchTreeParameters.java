@@ -116,7 +116,7 @@ public class SearchTreeParameters {
         Map<String, Integer> currentPstPerTsoLimits = raUsageLimits.getMaxPstPerTso();
         Map<String, Integer> currentRaPerTsoLimits = raUsageLimits.getMaxRaPerTso();
         Map<String, Integer> currentTopoPerTsoLimits = raUsageLimits.getMaxTopoPerTso();
-        for (RangeAction<?> rangeAction : rangeActionSet) {
+        for (var rangeAction : rangeActionSet) {
             String tso = rangeAction.getOperator();
             tsoCount.add(tso);
             raCount += 1;

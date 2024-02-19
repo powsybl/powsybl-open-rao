@@ -663,7 +663,7 @@ public class CastorFullOptimization {
 
         // update RaUsageLimits with already applied RangeActions
         Set<RangeAction<?>> excludedRangeActions = new HashSet<>(getRangeActionsExcludedFromSecondPreventive(raoInput.getCrac()));
-        if (!excludedRangeActions.isEmpty()) {
+        if (!excludedRangeActions.isEmpty() && searchTreeParameters.getRaLimitationParameters().containsKey("preventive")) {
             searchTreeParameters.setRaLimitationsForSecondPreventive(searchTreeParameters.getRaLimitationParameters().get("preventive"), excludedRangeActions);
         }
 
