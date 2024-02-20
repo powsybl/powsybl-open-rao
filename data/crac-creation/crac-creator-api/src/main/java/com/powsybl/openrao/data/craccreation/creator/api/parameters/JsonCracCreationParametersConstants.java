@@ -87,7 +87,7 @@ public final class JsonCracCreationParametersConstants {
     static void deserializeRaUsageLimitsAndUpdateParameters(JsonParser jsonParser, CracCreationParameters parameters) throws IOException {
         while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
             Pair<String, RaUsageLimits> pairOfInstantAndItsRaUsageLimits = deserializeRaUsageLimits(jsonParser);
-            parameters.addRaUsageLimitsForAGivenInstant(pairOfInstantAndItsRaUsageLimits.getLeft(), pairOfInstantAndItsRaUsageLimits.getRight());
+            parameters.addRaUsageLimitsForInstant(pairOfInstantAndItsRaUsageLimits.getLeft(), pairOfInstantAndItsRaUsageLimits.getRight());
         }
     }
 
