@@ -805,6 +805,12 @@ class LeafTest {
         RaUsageLimits raUsageLimits = new RaUsageLimits();
         raUsageLimits.setMaxRa(3);
 
+        // test for instant not present in searchTreeParameters
+        Map<String, RaUsageLimits> raUsageLimitsMapForCurative = Map.of("curative", raUsageLimits);
+        when(searchTreeParameters.getRaLimitationParameters()).thenReturn(raUsageLimitsMapForCurative);
+        when(instant.getId()).thenReturn("preventive");
+        assertNull(leaf.getRaLimitationParameters(optimizationPerimeter, searchTreeParameters));
+
         // test for preventive without topological actions
         Map<String, RaUsageLimits> raUsageLimitsMap = Map.of("preventive", raUsageLimits);
         when(searchTreeParameters.getRaLimitationParameters()).thenReturn(raUsageLimitsMap);

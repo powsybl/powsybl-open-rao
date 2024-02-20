@@ -234,9 +234,11 @@ public class Leaf implements OptimizationResult {
     }
 
     RangeActionLimitationParameters getRaLimitationParameters(OptimizationPerimeter context, SearchTreeParameters parameters) {
-
+        if (!parameters.getRaLimitationParameters().containsKey(context.getMainOptimizationState().getInstant().getId())) {
+            return null;
+        }
+        RaUsageLimits raUsageLimits = parameters.getRaLimitationParameters().get(context.getMainOptimizationState().getInstant().getId());
         RangeActionLimitationParameters limitationParameters = new RangeActionLimitationParameters();
-        RaUsageLimits raUsageLimits = parameters.getRaLimitationParameters().getOrDefault(context.getMainOptimizationState().getInstant().getId(), new RaUsageLimits());
 
         if (context instanceof GlobalOptimizationPerimeter) {
             context.getRangeActionOptimizationStates().stream()
