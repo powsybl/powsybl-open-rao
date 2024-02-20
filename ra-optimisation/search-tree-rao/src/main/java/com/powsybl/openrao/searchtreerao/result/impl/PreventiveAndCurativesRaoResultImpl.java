@@ -329,15 +329,8 @@ public class PreventiveAndCurativesRaoResultImpl implements RaoResult {
             // if cnec has been optimized during a post contingency instant
             return postContingencyResults.get(findStateOptimizedFor(optimizedInstant, flowCnec));
         } else {
-            return resultsWithPrasForAllCnecs;
+            return secondPreventivePerimeterResult;
         }
-        // else if (!postContingencyResults.containsKey(flowCnec.getState())) {
-        //     // if post contingency cnec has been optimized in preventive perimeter (no remedial actions)
-        //     return secondPreventivePerimeterResult;
-        // } else {
-        //     // e.g Auto instant for curative cnecs optimized in 2P
-        //     return null;
-        // }
     }
 
     private State findStateOptimizedFor(Instant optimizedInstant, FlowCnec flowCnec) {

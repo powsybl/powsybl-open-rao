@@ -107,6 +107,7 @@ class PreventiveAndCurativesRaoResultImplTest {
         when(outageInstant.comesBefore(autoInstant)).thenReturn(true);
         curativeInstant = mock(Instant.class);
         when(curativeInstant.isCurative()).thenReturn(true);
+        when(curativeInstant.isPreventive()).thenReturn(false);
         when(curativeInstant.getKind()).thenReturn(InstantKind.CURATIVE);
         when(curativeInstant.getOrder()).thenReturn(3);
         when(curativeInstant.toString()).thenReturn(CURATIVE_INSTANT_ID);
