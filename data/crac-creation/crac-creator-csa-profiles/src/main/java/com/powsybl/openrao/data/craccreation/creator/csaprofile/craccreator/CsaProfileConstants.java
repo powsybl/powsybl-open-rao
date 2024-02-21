@@ -107,7 +107,7 @@ public final class CsaProfileConstants {
     public static final String SIPS = "http://entsoe.eu/ns/nc#RemedialActionSchemeKind.sips";
     public static final String NORMAL_ARMED = "normalArmed";
     public static final String OVERRIDE_ARMED = "armed";
-    public static final String DEPENDING_REMEDIAL_ACTION_GROUP = " dependingRemedialActionGroup";
+    public static final String DEPENDING_REMEDIAL_ACTION_GROUP = "dependingRemedialActionGroup";
     public static final String GRID_STATE_ALTERATION_COLLECTION = "gridStateAlterationCollection";
     public static final String GRID_STATE_ALTERATION_REMEDIAL_ACTION = "gridStateAlterationRemedialAction";
     public static final String TOPOLOGY_ACTION = "topologyAction";

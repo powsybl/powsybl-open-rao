@@ -41,9 +41,7 @@ public class ElementaryActionsHelper {
     private final Map<String, Set<PropertyBag>> linkedTapPositionActions;
     private final Map<String, Set<PropertyBag>> linkedTapPositionActionsAuto;
     private final Map<String, Set<PropertyBag>> linkedStaticPropertyRanges;
-    private final Map<String, Set<PropertyBag>> linkedContingencyWithRAs;
-
-    private final Map<String, Set<PropertyBag>> linkedAssessedElementsWithRAs;
+    final Map<String, Set<PropertyBag>> linkedContingencyWithRAs;
 
     public ElementaryActionsHelper(PropertyBags gridStateAlterationRemedialActionPropertyBags,
                                    PropertyBags schemeRemedialActionsPropertyBags,
@@ -67,9 +65,9 @@ public class ElementaryActionsHelper {
         this.gridStateAlterationCollectionPropertyBags = gridStateAlterationCollectionPropertyBags;
         this.assessedElementWithRemedialActionPropertyBags = assessedElementWithRemedialActionPropertyBags;
 
-        this.remedialActionDependenciesByGroup = CsaProfileCracUtils.getMappedPropertyBagsSet(remedialActionDependenciesPropertyBags, "dependingRemedialActionGroup");
+        this.remedialActionDependenciesByGroup = CsaProfileCracUtils.getMappedPropertyBagsSet(remedialActionDependenciesPropertyBags, DEPENDING_REMEDIAL_ACTION_GROUP);
 
-        this.linkedContingencyWithRAs = CsaProfileCracUtils.getMappedPropertyBagsSet(contingencyWithRemedialActionsPropertyBags, DEPENDING_REMEDIAL_ACTION_GROUP);
+        this.linkedContingencyWithRAs = CsaProfileCracUtils.getMappedPropertyBagsSet(contingencyWithRemedialActionsPropertyBags, GRID_STATE_ALTERATION_REMEDIAL_ACTION);
         this.linkedStaticPropertyRanges = CsaProfileCracUtils.getMappedPropertyBagsSet(staticPropertyRangesPropertyBags, GRID_STATE_ALTERATION_REMEDIAL_ACTION); // the id here is the id of the subclass of gridStateAlteration (tapPositionAction, RotatingMachine, ..)
 
         this.linkedTopologyActions = CsaProfileCracUtils.getMappedPropertyBagsSet(filterElementaryActions(topologyActionsPropertyBags, false), GRID_STATE_ALTERATION_REMEDIAL_ACTION);
@@ -82,7 +80,6 @@ public class ElementaryActionsHelper {
         this.linkedShuntCompensatorModificationAuto = CsaProfileCracUtils.getMappedPropertyBagsSet(filterElementaryActions(shuntCompensatorModificationPropertyBags, true), GRID_STATE_ALTERATION_COLLECTION);
         this.linkedTapPositionActionsAuto = CsaProfileCracUtils.getMappedPropertyBagsSet(filterElementaryActions(tapPositionActionsPropertyBags, true), GRID_STATE_ALTERATION_COLLECTION);
 
-        this.linkedAssessedElementsWithRAs = CsaProfileCracUtils.getMappedPropertyBagsSet(assessedElementWithRemedialActionPropertyBags, "remedialAction");
     }
 
     private PropertyBags filterElementaryActions(PropertyBags elementaryActionsPropertyBags, boolean autoRemedialAction) {
@@ -176,9 +173,5 @@ public class ElementaryActionsHelper {
 
     public boolean remedialActionIsLinkedToAssessedElements(String remedialActionId) {
         return assessedElementWithRemedialActionPropertyBags.stream().anyMatch(propertyBag -> remedialActionId.equals(propertyBag.getId("remedialAction")));
-    }
-
-    public Map<String, Set<PropertyBag>> getAssessedElementsWithRAs() {
-        return linkedAssessedElementsWithRAs;
     }
 }

@@ -759,7 +759,7 @@ GRAPH <%s> {
         nc:RemedialActionDependency.kind ?kind ;
         nc:RemedialActionDependency.mRID ?mRID ;
         nc:RemedialActionDependency.RemedialAction ?remedialAction ;
-        nc:RemedialAction.DependingRemedialActionGroup ?dependingRemedialActionGroup ;
+        nc:RemedialActionDependency.DependingRemedialActionGroup ?dependingRemedialActionGroup ;
         OPTIONAL {
             ?remedialActionDependency nc:RemedialActionDependency.normalEnabled ?normalEnabled .
         }
