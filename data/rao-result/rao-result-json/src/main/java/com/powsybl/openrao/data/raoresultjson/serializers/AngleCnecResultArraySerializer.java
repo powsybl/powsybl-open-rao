@@ -53,7 +53,15 @@ final class AngleCnecResultArraySerializer {
 
             if (!angleCnec.getState().isPreventive()) {
                 serializeAngleCnecResultForOptimizationState(crac.getInstant(InstantKind.AUTO), angleCnec, raoResult, jsonGenerator);
-                serializeAngleCnecResultForOptimizationState(crac.getInstant(InstantKind.CURATIVE), angleCnec, raoResult, jsonGenerator);
+                crac.getInstants(InstantKind.CURATIVE).stream().sorted(Comparator.comparingInt(Instant::getOrder)).forEach(
+                    curativeInstant -> {
+                        try {
+                            serializeAngleCnecResultForOptimizationState(curativeInstant, angleCnec, raoResult, jsonGenerator);
+                        } catch (IOException e) {
+                            throw new RuntimeException(e);
+                        }
+                    }
+                );
             }
             jsonGenerator.writeEndObject();
         }
@@ -96,7 +104,7 @@ final class AngleCnecResultArraySerializer {
             return containsAnyResultForOptimizationState(raoResult, angleCnec, null) ||
                 containsAnyResultForOptimizationState(raoResult, angleCnec, crac.getPreventiveInstant()) ||
                 containsAnyResultForOptimizationState(raoResult, angleCnec, crac.getInstant(InstantKind.AUTO)) ||
-                containsAnyResultForOptimizationState(raoResult, angleCnec, crac.getInstant(InstantKind.CURATIVE));
+                crac.getInstants(InstantKind.CURATIVE).stream().anyMatch(curativeInstant -> containsAnyResultForOptimizationState(raoResult, angleCnec, curativeInstant));
         }
     }
 
