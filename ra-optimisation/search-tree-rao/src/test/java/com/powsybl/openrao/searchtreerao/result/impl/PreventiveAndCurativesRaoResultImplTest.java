@@ -17,6 +17,7 @@ import com.powsybl.openrao.data.cracapi.cnec.VoltageCnec;
 import com.powsybl.openrao.data.cracapi.networkaction.NetworkAction;
 import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.cracapi.rangeaction.RangeAction;
+import com.powsybl.openrao.data.cracimpl.CracImpl;
 import com.powsybl.openrao.data.raoresultapi.ComputationStatus;
 import com.powsybl.openrao.data.raoresultapi.OptimizationStepsExecuted;
 import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
@@ -24,7 +25,7 @@ import com.powsybl.openrao.searchtreerao.result.api.ObjectiveFunctionResult;
 import com.powsybl.openrao.searchtreerao.result.api.OptimizationResult;
 import com.powsybl.openrao.searchtreerao.result.api.PrePerimeterResult;
 import com.powsybl.openrao.searchtreerao.result.api.PerimeterResult;
-import com.powsybl.openrao.searchtreerao.castor.algorithm.BasecaseScenario;
+import com.powsybl.openrao.searchtreerao.castor.algorithm.Perimeter;
 import com.powsybl.openrao.searchtreerao.castor.algorithm.ContingencyScenario;
 import com.powsybl.openrao.searchtreerao.castor.algorithm.StateTree;
 import org.junit.jupiter.api.BeforeEach;
@@ -33,7 +34,6 @@ import org.mockito.Mockito;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -49,11 +49,6 @@ import static com.powsybl.openrao.commons.Unit.*;
  */
 class PreventiveAndCurativesRaoResultImplTest {
     private static final double DOUBLE_TOLERANCE = 1e-3;
-    private static final String PREVENTIVE_INSTANT_ID = "preventive";
-    private static final String OUTAGE_INSTANT_ID = "outage";
-    private static final String AUTO_INSTANT_ID = "auto";
-    private static final String CURATIVE_INSTANT_ID = "curative";
-
     private Crac crac;
     private Instant preventiveInstant;
     private Instant outageInstant;
@@ -62,7 +57,7 @@ class PreventiveAndCurativesRaoResultImplTest {
     private PrePerimeterResult initialResult;
     private PerimeterResult postPrevResult;
     private PrePerimeterResult preCurativeResult;
-    private PstRangeAction pstRangeAction = mock(PstRangeAction.class);
+    private PstRangeAction pstRangeAction;
     private RangeAction<?> rangeAction;
     private NetworkAction networkAction;
     private FlowCnec cnec1;
@@ -71,7 +66,6 @@ class PreventiveAndCurativesRaoResultImplTest {
     private FlowCnec cnec3;
     private FlowCnec cnec4;
     private State preventiveState;
-    private State outageState;
     private State autoState1;
     private State curativeState1;
     private State curativeState2;
@@ -82,59 +76,100 @@ class PreventiveAndCurativesRaoResultImplTest {
     private OptimizationResult curativeResult2;
     private StateTree stateTree;
 
+    private void initCrac() {
+        crac = new CracImpl("crac");
+        // Instants
+        crac.newInstant("preventive", InstantKind.PREVENTIVE)
+            .newInstant("outage", InstantKind.OUTAGE)
+            .newInstant("auto", InstantKind.AUTO)
+            .newInstant("curative", InstantKind.CURATIVE);
+        // Contingencies
+        crac.newContingency()
+            .withId("contingency-1")
+            .withName("CO1")
+            .withNetworkElement("element-1")
+            .add();
+        crac.newContingency()
+            .withId("contingency-2")
+            .withName("CO2")
+            .withNetworkElement("element-2")
+            .add();
+        // FlowCNECs
+        cnec1 = crac.newFlowCnec()
+            .withId("cnec-1")
+            .withInstant("curative")
+            .withContingency("contingency-1")
+            .withNetworkElement("line-1")
+            .withOptimized(true)
+            .withMonitored(false)
+            .newThreshold()
+                .withSide(LEFT)
+                .withUnit(MEGAWATT)
+                .withMin(-1000d)
+                .withMax(1000d)
+                .add()
+            .add();
+        cnec1auto = crac.newFlowCnec()
+            .withId("cnec-1-auto")
+            .withInstant("auto")
+            .withContingency("contingency-1")
+            .withNetworkElement("line-1")
+            .withOptimized(true)
+            .withMonitored(false)
+            .newThreshold()
+                .withSide(LEFT)
+                .withUnit(MEGAWATT)
+                .withMin(-1000d)
+                .withMax(1000d)
+                .add()
+            .add();
+        cnec2 = crac.newFlowCnec()
+            .withId("cnec-2")
+            .withInstant("curative")
+            .withContingency("contingency-2")
+            .withNetworkElement("line-1")
+            .withOptimized(true)
+            .withMonitored(false)
+            .newThreshold()
+                .withSide(LEFT)
+                .withUnit(MEGAWATT)
+                .withMin(-1000d)
+                .withMax(1000d)
+                .add()
+            .add();
+        cnec4 = crac.newFlowCnec()
+            .withId("cnec-4")
+            .withInstant("outage")
+            .withContingency("contingency-1")
+            .withNetworkElement("line-1")
+            .withOptimized(true)
+            .withMonitored(false)
+            .newThreshold()
+                .withSide(LEFT)
+                .withUnit(MEGAWATT)
+                .withMin(-1000d)
+                .withMax(1000d)
+                .add()
+            .add();
+    }
+
     @BeforeEach
     public void setUp() {
-        crac = mock(Crac.class);
-        preventiveInstant = mock(Instant.class);
-        when(preventiveInstant.isPreventive()).thenReturn(true);
-        when(preventiveInstant.getOrder()).thenReturn(0);
-        when(preventiveInstant.toString()).thenReturn(PREVENTIVE_INSTANT_ID);
-        when(preventiveInstant.getId()).thenReturn(PREVENTIVE_INSTANT_ID);
-        outageInstant = mock(Instant.class);
-        when(outageInstant.isOutage()).thenReturn(true);
-        when(outageInstant.getOrder()).thenReturn(1);
-        when(outageInstant.toString()).thenReturn(OUTAGE_INSTANT_ID);
-        when(outageInstant.getId()).thenReturn(OUTAGE_INSTANT_ID);
-        autoInstant = mock(Instant.class);
-        when(autoInstant.isAuto()).thenReturn(true);
-        when(autoInstant.getOrder()).thenReturn(2);
-        when(autoInstant.toString()).thenReturn(AUTO_INSTANT_ID);
-        when(autoInstant.getId()).thenReturn(AUTO_INSTANT_ID);
-        when(preventiveInstant.comesBefore(autoInstant)).thenReturn(true);
-        when(outageInstant.comesBefore(autoInstant)).thenReturn(true);
-        curativeInstant = mock(Instant.class);
-        when(curativeInstant.isCurative()).thenReturn(true);
-        when(curativeInstant.getOrder()).thenReturn(3);
-        when(curativeInstant.toString()).thenReturn(CURATIVE_INSTANT_ID);
-        when(preventiveInstant.comesBefore(curativeInstant)).thenReturn(true);
-        when(outageInstant.comesBefore(curativeInstant)).thenReturn(true);
-        when(autoInstant.comesBefore(curativeInstant)).thenReturn(true);
-        cnec1 = mock(FlowCnec.class);
-        cnec1auto = mock(FlowCnec.class);
-        cnec2 = mock(FlowCnec.class);
+        initCrac();
+        preventiveInstant = crac.getInstant("preventive");
+        outageInstant = crac.getInstant("outage");
+        autoInstant = crac.getInstant("auto");
+        curativeInstant = crac.getInstant("curative");
+
         cnec3 = mock(FlowCnec.class);
-        cnec4 = mock(FlowCnec.class);
+
         preventiveState = mock(State.class);
-        outageState = mock(State.class);
-        autoState1 = mock(State.class);
-        curativeState1 = mock(State.class);
-        curativeState2 = mock(State.class);
-        curativeState3 = mock(State.class);
-        when(cnec1.getState()).thenReturn(curativeState1);
-        when(cnec1auto.getState()).thenReturn(autoState1);
-        when(cnec2.getState()).thenReturn(curativeState2);
-        when(cnec4.getState()).thenReturn(outageState);
         when(preventiveState.getInstant()).thenReturn(preventiveInstant);
-        Contingency contingency1 = mock(Contingency.class);
-        Contingency contingency2 = mock(Contingency.class);
-        when(outageState.getInstant()).thenReturn(outageInstant);
-        when(outageState.getContingency()).thenReturn(Optional.of(contingency1));
-        when(autoState1.getInstant()).thenReturn(autoInstant);
-        when(autoState1.getContingency()).thenReturn(Optional.of(contingency1));
-        when(curativeState1.getInstant()).thenReturn(curativeInstant);
-        when(curativeState1.getContingency()).thenReturn(Optional.of(contingency1));
-        when(curativeState2.getInstant()).thenReturn(curativeInstant);
-        when(curativeState2.getContingency()).thenReturn(Optional.of(contingency2));
+        autoState1 = crac.getState("contingency-1", autoInstant);
+        curativeState1 = crac.getState("contingency-1", curativeInstant);
+        curativeState2 = crac.getState("contingency-2", curativeInstant);
+        curativeState3 = mock(State.class);
+
         when(curativeState3.getInstant()).thenReturn(curativeInstant);
 
         initialResult = mock(PrePerimeterResult.class);
@@ -230,12 +265,22 @@ class PreventiveAndCurativesRaoResultImplTest {
         mockCnecResults(preCurativeResult, cnec1, 5050, 300, 1550, 800);
 
         stateTree = mock(StateTree.class);
-        BasecaseScenario basecaseScenario = new BasecaseScenario(preventiveState, null);
+        Perimeter preventivePerimeter = new Perimeter(preventiveState, null);
+        Perimeter curativePerimeter1 = new Perimeter(curativeState1, null);
+        Perimeter curativePerimeter2 = new Perimeter(curativeState2, null);
         Set<ContingencyScenario> contingencyScenarios = Set.of(
-            new ContingencyScenario(contingency1, autoState1, curativeState1),
-            new ContingencyScenario(contingency2, null, curativeState2)
+            ContingencyScenario.create()
+                .withContingency(crac.getContingency("contingency-1"))
+                .withAutomatonState(autoState1)
+                .withCurativePerimeter(curativePerimeter1)
+                .build(),
+            ContingencyScenario.create()
+                .withContingency(crac.getContingency("contingency-2"))
+                .withAutomatonState(null)
+                .withCurativePerimeter(curativePerimeter2)
+                .build()
         );
-        when(stateTree.getBasecaseScenario()).thenReturn(basecaseScenario);
+        when(stateTree.getBasecaseScenario()).thenReturn(preventivePerimeter);
         when(stateTree.getContingencyScenarios()).thenReturn(contingencyScenarios);
 
         output = new PreventiveAndCurativesRaoResultImpl(
@@ -733,11 +778,11 @@ class PreventiveAndCurativesRaoResultImplTest {
         // Test get pre optim tap
         assertEquals(1, output.getPreOptimizationTapOnState(preventiveState, pstRangeAction));
         OpenRaoException exception = assertThrows(OpenRaoException.class, () -> output.getPreOptimizationTapOnState(autoState1, pstRangeAction));
-        assertEquals("State null was not optimized and does not have pre-optim values", exception.getMessage());
+        assertEquals("State contingency-1 - auto was not optimized and does not have pre-optim values", exception.getMessage());
         exception = assertThrows(OpenRaoException.class, () -> output.getPreOptimizationTapOnState(curativeState1, pstRangeAction));
-        assertEquals("State null was not optimized and does not have pre-optim values", exception.getMessage());
+        assertEquals("State contingency-1 - curative was not optimized and does not have pre-optim values", exception.getMessage());
         exception = assertThrows(OpenRaoException.class, () -> output.getPreOptimizationTapOnState(curativeState2, pstRangeAction));
-        assertEquals("State null was not optimized and does not have pre-optim values", exception.getMessage());
+        assertEquals("State contingency-2 - curative was not optimized and does not have pre-optim values", exception.getMessage());
         exception = assertThrows(OpenRaoException.class, () -> output.getPreOptimizationTapOnState(curativeState3, pstRangeAction));
         assertEquals("State null was not optimized and does not have pre-optim values", exception.getMessage());
 
@@ -752,11 +797,11 @@ class PreventiveAndCurativesRaoResultImplTest {
         // Test get pre optim setpoint
         assertEquals(6.7, output.getPreOptimizationSetPointOnState(preventiveState, pstRangeAction), DOUBLE_TOLERANCE);
         exception = assertThrows(OpenRaoException.class, () -> output.getPreOptimizationSetPointOnState(autoState1, pstRangeAction));
-        assertEquals("State null was not optimized and does not have pre-optim values", exception.getMessage());
+        assertEquals("State contingency-1 - auto was not optimized and does not have pre-optim values", exception.getMessage());
         exception = assertThrows(OpenRaoException.class, () -> output.getPreOptimizationSetPointOnState(curativeState1, pstRangeAction));
-        assertEquals("State null was not optimized and does not have pre-optim values", exception.getMessage());
+        assertEquals("State contingency-1 - curative was not optimized and does not have pre-optim values", exception.getMessage());
         exception = assertThrows(OpenRaoException.class, () -> output.getPreOptimizationSetPointOnState(curativeState2, pstRangeAction));
-        assertEquals("State null was not optimized and does not have pre-optim values", exception.getMessage());
+        assertEquals("State contingency-2 - curative was not optimized and does not have pre-optim values", exception.getMessage());
         exception = assertThrows(OpenRaoException.class, () -> output.getPreOptimizationSetPointOnState(curativeState3, pstRangeAction));
         assertEquals("State null was not optimized and does not have pre-optim values", exception.getMessage());
 

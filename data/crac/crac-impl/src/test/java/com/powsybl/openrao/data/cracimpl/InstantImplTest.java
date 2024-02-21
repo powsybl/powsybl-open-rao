@@ -124,4 +124,42 @@ class InstantImplTest {
         assertEquals(outageInstant, autoInstant.getInstantBefore());
         assertEquals(autoInstant, curativeInstant.getInstantBefore());
     }
+
+    @Test
+    void testInstantBeforeAfter() {
+        InstantImpl preventiveInstant = new InstantImpl(PREVENTIVE_INSTANT_ID, InstantKind.PREVENTIVE, null);
+        InstantImpl outageInstant = new InstantImpl(OUTAGE_INSTANT_ID, InstantKind.OUTAGE, preventiveInstant);
+        InstantImpl autoInstant = new InstantImpl(AUTO_INSTANT_ID, InstantKind.AUTO, outageInstant);
+        InstantImpl curativeInstant = new InstantImpl(CURATIVE_INSTANT_ID, InstantKind.CURATIVE, autoInstant);
+
+        // Comes before
+        assertFalse(preventiveInstant.comesBefore(preventiveInstant));
+        assertTrue(preventiveInstant.comesBefore(outageInstant));
+        assertTrue(preventiveInstant.comesBefore(autoInstant));
+        assertTrue(preventiveInstant.comesBefore(curativeInstant));
+
+        assertFalse(outageInstant.comesBefore(outageInstant));
+        assertTrue(outageInstant.comesBefore(autoInstant));
+        assertTrue(outageInstant.comesBefore(curativeInstant));
+
+        assertFalse(autoInstant.comesBefore(autoInstant));
+        assertTrue(autoInstant.comesBefore(curativeInstant));
+
+        assertFalse(curativeInstant.comesBefore(curativeInstant));
+
+        // Comes after
+        assertFalse(curativeInstant.comesAfter(curativeInstant));
+        assertTrue(curativeInstant.comesAfter(autoInstant));
+        assertTrue(curativeInstant.comesAfter(outageInstant));
+        assertTrue(curativeInstant.comesAfter(preventiveInstant));
+
+        assertFalse(autoInstant.comesAfter(autoInstant));
+        assertTrue(autoInstant.comesAfter(outageInstant));
+        assertTrue(autoInstant.comesAfter(preventiveInstant));
+
+        assertFalse(outageInstant.comesAfter(outageInstant));
+        assertTrue(outageInstant.comesAfter(preventiveInstant));
+
+        assertFalse(preventiveInstant.comesAfter(preventiveInstant));
+    }
 }
