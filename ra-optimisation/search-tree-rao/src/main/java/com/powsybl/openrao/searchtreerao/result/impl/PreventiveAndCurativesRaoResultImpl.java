@@ -333,7 +333,7 @@ public class PreventiveAndCurativesRaoResultImpl implements RaoResult {
         }
     }
 
-    State findStateOptimizedFor(Instant optimizedInstant, FlowCnec flowCnec) {
+    private State findStateOptimizedFor(Instant optimizedInstant, FlowCnec flowCnec) {
         if (optimizedInstant.isPreventive()) {
             return null;
         }
