@@ -101,19 +101,12 @@ public final class CsaProfileConstants {
      */
 
     public static final String REMEDIAL_ACTION_NAME = "name";
-    public static final String REMEDIAL_ACTION_MESSAGE = "Remedial action ";
-    public static final String AUTO_REMEDIAL_ACTION_MESSAGE = "Auto Remedial action ";
     public static final String SCHEME_REMEDIAL_ACTION = "schemeRemedialAction";
     public static final String REMEDIAL_ACTION_SCHEME = "remedialActionScheme";
     public static final String STAGE = "stage";
     public static final String SIPS = "http://entsoe.eu/ns/nc#RemedialActionSchemeKind.sips";
     public static final String NORMAL_ARMED = "normalArmed";
     public static final String OVERRIDE_ARMED = "armed";
-    public static final String TOPOLOGY_ACTION_AUTO = "topologyActionAuto";
-    public static final String ROTATING_MACHINE_ACTION_AUTO = "rotatingMachineActionAuto";
-    public static final String TAP_POSITION_ACTION_AUTO = "tapPositionActionAuto";
-
-    public static final String SHUNT_COMPENSATOR_MODIFICATION_AUTO = "shuntCompensatorModificationAuto";
     public static final String GRID_STATE_ALTERATION_COLLECTION = "gridStateAlterationCollection";
     public static final String GRID_STATE_ALTERATION_REMEDIAL_ACTION = "gridStateAlterationRemedialAction";
     public static final String TOPOLOGY_ACTION = "topologyAction";
@@ -349,10 +342,11 @@ public final class CsaProfileConstants {
         VOLTAGE_ANGLE_LIMIT("voltageAngleLimitOverriding", "voltageAngleLimit", NORMAL_VALUE, OVERRIDE_VALUE, HeaderType.START_END_DATE),
         CURRENT_LIMIT("currentLimitOverriding", REQUEST_CURRENT_LIMIT, NORMAL_VALUE, OVERRIDE_VALUE, HeaderType.SCENARIO_TIME),
         VOLTAGE_LIMIT("voltageLimitOverriding", REQUEST_VOLTAGE_LIMIT, NORMAL_VALUE, OVERRIDE_VALUE, HeaderType.SCENARIO_TIME),
-        TOPOLOGY_ACTION("topologyActionOverriding", REQUEST_TOPOLOGY_ACTION, NORMAL_ENABLED, OVERRIDE_ENABLED, HeaderType.SCENARIO_TIME),
-        ROTATING_MACHINE_ACTION("rotatingMachineActionOverriding", REQUEST_ROTATING_MACHINE_ACTION, NORMAL_ENABLED, OVERRIDE_ENABLED, HeaderType.SCENARIO_TIME),
-        SHUNT_COMPENSATOR_MODIFICATION("shuntCompensatorModificationOverriding", REQUEST_SHUNT_COMPENSATOR_MODIFICATION, NORMAL_ENABLED, OVERRIDE_ENABLED, HeaderType.SCENARIO_TIME),
-        TAP_POSITION_ACTION("tapPositionActionOverriding", REQUEST_TAP_POSITION_ACTION, NORMAL_ENABLED, OVERRIDE_ENABLED, HeaderType.SCENARIO_TIME);
+        TOPOLOGY_ACTION("topologyActionOverriding", REQUEST_TOPOLOGY_ACTION, NORMAL_ENABLED, OVERRIDE_ENABLED, HeaderType.START_END_DATE),
+        ROTATING_MACHINE_ACTION("rotatingMachineActionOverriding", REQUEST_ROTATING_MACHINE_ACTION, NORMAL_ENABLED, OVERRIDE_ENABLED, HeaderType.START_END_DATE),
+        SHUNT_COMPENSATOR_MODIFICATION("shuntCompensatorModificationOverriding", REQUEST_SHUNT_COMPENSATOR_MODIFICATION, NORMAL_ENABLED, OVERRIDE_ENABLED, HeaderType.START_END_DATE),
+        TAP_POSITION_ACTION("tapPositionActionOverriding", REQUEST_TAP_POSITION_ACTION, NORMAL_ENABLED, OVERRIDE_ENABLED, HeaderType.START_END_DATE),
+        SCHEME_REMEDIAL_ACTION("schemeRemedialActionOverriding", REQUEST_SCHEME_REMEDIAL_ACTION, NORMAL_AVAILABLE, OVERRIDE_AVAILABLE, HeaderType.START_END_DATE);
 
         final String requestName;
         final String objectName;

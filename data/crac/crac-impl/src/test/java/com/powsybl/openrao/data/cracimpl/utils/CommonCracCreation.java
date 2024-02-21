@@ -16,6 +16,7 @@ import com.powsybl.openrao.data.cracapi.usagerule.UsageMethod;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.PhaseTapChanger;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
+import com.powsybl.openrao.data.cracimpl.CracImplFactory;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -76,11 +77,11 @@ public final class CommonCracCreation {
     }
 
     public static Crac create(Set<Side> monitoredCnecSides) {
-        return create(CracFactory.findDefault(), monitoredCnecSides);
+        return create(new CracImplFactory(), monitoredCnecSides);
     }
 
     public static Crac create() {
-        return create(CracFactory.findDefault(), Set.of(Side.LEFT));
+        return create(new CracImplFactory(), Set.of(Side.LEFT));
     }
 
     public static Crac create(CracFactory cracFactory, Set<Side> monitoredCnecSides) {

@@ -53,7 +53,15 @@ final class VoltageCnecResultArraySerializer {
 
             if (!voltageCnec.getState().isPreventive()) {
                 serializeVoltageCnecResultForOptimizationState(crac.getInstant(InstantKind.AUTO), voltageCnec, raoResult, jsonGenerator);
-                serializeVoltageCnecResultForOptimizationState(crac.getInstant(InstantKind.CURATIVE), voltageCnec, raoResult, jsonGenerator);
+                crac.getInstants(InstantKind.CURATIVE).stream().sorted(Comparator.comparingInt(Instant::getOrder)).forEach(
+                    curativeInstant -> {
+                        try {
+                            serializeVoltageCnecResultForOptimizationState(curativeInstant, voltageCnec, raoResult, jsonGenerator);
+                        } catch (IOException e) {
+                            throw new RuntimeException(e);
+                        }
+                    }
+                );
             }
             jsonGenerator.writeEndObject();
         }
@@ -96,7 +104,7 @@ final class VoltageCnecResultArraySerializer {
             return containsAnyResultForOptimizationState(raoResult, voltageCnec, null) ||
                 containsAnyResultForOptimizationState(raoResult, voltageCnec, crac.getPreventiveInstant()) ||
                 containsAnyResultForOptimizationState(raoResult, voltageCnec, crac.getInstant(InstantKind.AUTO)) ||
-                containsAnyResultForOptimizationState(raoResult, voltageCnec, crac.getInstant(InstantKind.CURATIVE));
+                crac.getInstants(InstantKind.CURATIVE).stream().anyMatch(curativeInstant -> containsAnyResultForOptimizationState(raoResult, voltageCnec, curativeInstant));
         }
     }
 
