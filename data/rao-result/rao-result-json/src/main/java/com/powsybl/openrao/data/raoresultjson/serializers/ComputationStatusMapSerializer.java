@@ -30,9 +30,8 @@ final class ComputationStatusMapSerializer {
 
     static void serialize(RaoResult raoResult, Crac crac, JsonGenerator jsonGenerator) throws IOException {
         List<State> sortedListOfStates = crac.getStates().stream()
-            .filter(state -> !crac.getFlowCnecs(state).isEmpty())
-            .sorted(STATE_COMPARATOR)
-            .toList();
+                .sorted(STATE_COMPARATOR)
+                .toList();
 
         jsonGenerator.writeArrayFieldStart(COMPUTATION_STATUS_MAP);
         for (State state : sortedListOfStates) {

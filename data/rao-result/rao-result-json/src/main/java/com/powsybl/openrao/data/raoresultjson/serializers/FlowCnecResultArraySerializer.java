@@ -60,13 +60,7 @@ final class FlowCnecResultArraySerializer {
             if (crac.hasAutoInstant()) {
                 serializeFlowCnecResultForOptimizationState(crac.getInstant(InstantKind.AUTO), flowCnec, raoResult, crac, flowUnits, jsonGenerator);
             }
-            crac.getInstants(InstantKind.CURATIVE).forEach(curativeInstant -> {
-                try {
-                    serializeFlowCnecResultForOptimizationState(curativeInstant, flowCnec, raoResult, crac, flowUnits, jsonGenerator);
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
-            });
+            serializeFlowCnecResultForOptimizationState(crac.getInstant(InstantKind.CURATIVE), flowCnec, raoResult, crac, flowUnits, jsonGenerator);
         }
         jsonGenerator.writeEndObject();
     }
@@ -143,7 +137,7 @@ final class FlowCnecResultArraySerializer {
             return containsAnyResultForOptimizationState(raoResult, flowCnec, null, unit) ||
                 containsAnyResultForOptimizationState(raoResult, flowCnec, crac.getPreventiveInstant(), unit) ||
                 crac.hasAutoInstant() && containsAnyResultForOptimizationState(raoResult, flowCnec, crac.getInstant(InstantKind.AUTO), unit) ||
-                crac.getInstants(InstantKind.CURATIVE).stream().anyMatch(curativeInstant -> containsAnyResultForOptimizationState(raoResult, flowCnec, curativeInstant, unit));
+                containsAnyResultForOptimizationState(raoResult, flowCnec, crac.getInstant(InstantKind.CURATIVE), unit);
         }
     }
 

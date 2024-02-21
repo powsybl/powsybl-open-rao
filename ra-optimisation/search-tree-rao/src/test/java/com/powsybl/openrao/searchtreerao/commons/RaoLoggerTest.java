@@ -23,7 +23,7 @@ import com.powsybl.openrao.raoapi.parameters.ObjectiveFunctionParameters;
 import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
 import com.powsybl.openrao.searchtreerao.result.api.ObjectiveFunctionResult;
 import com.powsybl.openrao.searchtreerao.result.api.OptimizationResult;
-import com.powsybl.openrao.searchtreerao.castor.algorithm.Perimeter;
+import com.powsybl.openrao.searchtreerao.castor.algorithm.BasecaseScenario;
 import com.powsybl.openrao.searchtreerao.castor.algorithm.ContingencyScenario;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -66,18 +66,13 @@ class RaoLoggerTest {
         flowResult = mock(FlowResult.class);
         basecaseOptimResult = mock(OptimizationResult.class);
         Instant preventiveInstant = mock(Instant.class);
-        when(preventiveInstant.isPreventive()).thenReturn(true);
-        when(preventiveInstant.getKind()).thenReturn(InstantKind.PREVENTIVE);
         Instant autoInstant = mock(Instant.class);
-        when(autoInstant.getKind()).thenReturn(InstantKind.AUTO);
         Instant curativeInstant = mock(Instant.class);
-        when(curativeInstant.getKind()).thenReturn(InstantKind.CURATIVE);
-        when(curativeInstant.getOrder()).thenReturn(3);
+        when(preventiveInstant.isPreventive()).thenReturn(true);
         statePreventive = mockState("preventive", preventiveInstant);
         stateCo1Auto = mockState("co1 - auto", autoInstant);
         stateCo1Curative = mockState("co1 - curative", curativeInstant);
         stateCo2Curative = mockState("co2 - curative", curativeInstant);
-        when(preventiveInstant.comesBefore(curativeInstant)).thenReturn(true);
 
         cnec1 = mockCnec("ne1", stateCo1Curative, -10, -10, 30, 300, 0.1);
         cnec2 = mockCnec("ne2", statePreventive, 0, 0, -10, -10, 0.2);
@@ -214,14 +209,8 @@ class RaoLoggerTest {
         when(stateCo1Auto.getContingency()).thenReturn(Optional.of(contingency1));
         when(stateCo1Curative.getContingency()).thenReturn(Optional.of(contingency1));
 
-        Perimeter preventivePerimeter = new Perimeter(statePreventive, Set.of(stateCo2Curative));
-        Perimeter curativePerimeter = new Perimeter(stateCo1Curative, null);
-        Set<ContingencyScenario> contingencyScenarios = Set.of(
-            ContingencyScenario.create()
-                .withContingency(stateCo1Auto.getContingency().get())
-                .withAutomatonState(stateCo1Auto)
-                .withCurativePerimeter(curativePerimeter)
-                .build());
+        BasecaseScenario basecaseScenario = new BasecaseScenario(statePreventive, Set.of(stateCo2Curative));
+        Set<ContingencyScenario> contingencyScenarios = Set.of(new ContingencyScenario(stateCo1Auto.getContingency().get(), stateCo1Auto, stateCo1Curative));
 
         OptimizationResult co1AutoOptimResult = mock(OptimizationResult.class);
         OptimizationResult co1CurativeOptimResult = mock(OptimizationResult.class);
@@ -238,7 +227,7 @@ class RaoLoggerTest {
         when(basecaseOptimResult.getMostLimitingElements(anyInt())).thenReturn(List.of(cnec1, cnec2, cnec3, cnec4, cnec5));
         when(co1AutoOptimResult.getMostLimitingElements(anyInt())).thenReturn(List.of(cnec5, cnec1, cnec4));
         when(co1CurativeOptimResult.getMostLimitingElements(anyInt())).thenReturn(List.of(cnec5, cnec1));
-        List<String> summary = RaoLogger.getMostLimitingElementsResults(preventivePerimeter, basecaseOptimResult, contingencyScenarios, contingencyOptimizationResults, ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_MARGIN_IN_MEGAWATT, 5);
+        List<String> summary = RaoLogger.getMostLimitingElementsResults(basecaseScenario, basecaseOptimResult, contingencyScenarios, contingencyOptimizationResults, ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_MARGIN_IN_MEGAWATT, 5);
         assertEquals(5, summary.size());
         assertEquals(absoluteMarginLog(1, -8, MEGAWATT, cnec5), summary.get(0));
         assertEquals(absoluteMarginLog(2, 0, MEGAWATT, cnec2), summary.get(1));
@@ -250,7 +239,7 @@ class RaoLoggerTest {
         when(basecaseOptimResult.getMostLimitingElements(anyInt())).thenReturn(List.of(cnec5, cnec4, cnec3, cnec2, cnec1));
         when(co1AutoOptimResult.getMostLimitingElements(anyInt())).thenReturn(List.of(cnec5, cnec1, cnec4));
         when(co1CurativeOptimResult.getMostLimitingElements(anyInt())).thenReturn(List.of(cnec5, cnec1));
-        summary = RaoLogger.getMostLimitingElementsResults(preventivePerimeter, basecaseOptimResult, contingencyScenarios, contingencyOptimizationResults, ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT, 5);
+        summary = RaoLogger.getMostLimitingElementsResults(basecaseScenario, basecaseOptimResult, contingencyScenarios, contingencyOptimizationResults, ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT, 5);
         assertEquals(5, summary.size());
         assertEquals(absoluteMarginLog(1, -8, MEGAWATT, cnec5), summary.get(0));
         assertEquals(absoluteMarginLog(2, 0, MEGAWATT, cnec2), summary.get(1));
@@ -262,7 +251,7 @@ class RaoLoggerTest {
         when(basecaseOptimResult.getMostLimitingElements(anyInt())).thenReturn(List.of(cnec2, cnec5, cnec1, cnec3, cnec4));
         when(co1AutoOptimResult.getMostLimitingElements(anyInt())).thenReturn(List.of(cnec4, cnec5, cnec1));
         when(co1CurativeOptimResult.getMostLimitingElements(anyInt())).thenReturn(List.of(cnec1, cnec5));
-        summary = RaoLogger.getMostLimitingElementsResults(preventivePerimeter, basecaseOptimResult, contingencyScenarios, contingencyOptimizationResults, ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_MARGIN_IN_AMPERE, 5);
+        summary = RaoLogger.getMostLimitingElementsResults(basecaseScenario, basecaseOptimResult, contingencyScenarios, contingencyOptimizationResults, ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_MARGIN_IN_AMPERE, 5);
         assertEquals(5, summary.size());
         assertEquals(absoluteMarginLog(1, -21, AMPERE, cnec4), summary.get(0));
         assertEquals(absoluteMarginLog(2, -10, AMPERE, cnec2), summary.get(1));
@@ -274,7 +263,7 @@ class RaoLoggerTest {
         when(basecaseOptimResult.getMostLimitingElements(anyInt())).thenReturn(List.of(cnec4, cnec3, cnec5, cnec1, cnec2));
         when(co1AutoOptimResult.getMostLimitingElements(anyInt())).thenReturn(List.of(cnec4, cnec1, cnec5));
         when(co1CurativeOptimResult.getMostLimitingElements(anyInt())).thenReturn(List.of(cnec1, cnec5));
-        summary = RaoLogger.getMostLimitingElementsResults(preventivePerimeter, basecaseOptimResult, contingencyScenarios, contingencyOptimizationResults, ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN_IN_AMPERE, 5);
+        summary = RaoLogger.getMostLimitingElementsResults(basecaseScenario, basecaseOptimResult, contingencyScenarios, contingencyOptimizationResults, ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN_IN_AMPERE, 5);
         assertEquals(5, summary.size());
         assertEquals(absoluteMarginLog(1, -21, AMPERE, cnec4), summary.get(0));
         assertEquals(absoluteMarginLog(2, -10, AMPERE, cnec2), summary.get(1));
