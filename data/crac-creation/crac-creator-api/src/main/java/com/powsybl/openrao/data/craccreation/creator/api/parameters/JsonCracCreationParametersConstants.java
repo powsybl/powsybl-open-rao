@@ -91,7 +91,7 @@ public final class JsonCracCreationParametersConstants {
         }
     }
 
-    public static Map<String, Integer> readStringToPositiveIntMap(JsonParser jsonParser) throws IOException {
+    private static Map<String, Integer> readStringToPositiveIntMap(JsonParser jsonParser) throws IOException {
         HashMap<String, Integer> map = jsonParser.readValueAs(HashMap.class);
         // Check types
         map.forEach((Object o, Object o2) -> {
@@ -105,7 +105,7 @@ public final class JsonCracCreationParametersConstants {
         return map;
     }
 
-    public static Pair<String, RaUsageLimits> deserializeRaUsageLimits(JsonParser jsonParser) throws IOException {
+    private static Pair<String, RaUsageLimits> deserializeRaUsageLimits(JsonParser jsonParser) throws IOException {
         RaUsageLimits raUsageLimits = new RaUsageLimits();
         String instant = null;
         while (!jsonParser.nextToken().isStructEnd()) {

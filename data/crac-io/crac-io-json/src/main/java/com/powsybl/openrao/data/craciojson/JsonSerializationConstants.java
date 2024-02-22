@@ -138,6 +138,14 @@ public final class JsonSerializationConstants {
     public static final String AUTO_INSTANT_KIND = "AUTO";
     public static final String CURATIVE_INSTANT_KIND = "CURATIVE";
 
+    // ra usage limits
+    public static final String RA_USAGE_LIMITS_PER_INSTANT = "ra-usage-limits-per-instant";
+    public static final String MAX_RA = "max-ra";
+    public static final String MAX_TSO = "max-tso";
+    public static final String MAX_TOPO_PER_TSO = "max-topo-per-tso";
+    public static final String MAX_PST_PER_TSO = "max-pst-per-tso";
+    public static final String MAX_RA_PER_TSO = "max-ra-per-tso";
+
     // units
     public static final String AMPERE_UNIT = "ampere";
     public static final String MEGAWATT_UNIT = "megawatt";
