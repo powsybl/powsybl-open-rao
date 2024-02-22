@@ -48,7 +48,7 @@ public class CsaProfileCracCreator implements CracCreator<CsaProfileCrac, CsaPro
     public CsaProfileCracCreationContext createCrac(CsaProfileCrac nativeCrac, Network network, OffsetDateTime offsetDateTime, CracCreationParameters cracCreationParameters) {
         this.crac = cracCreationParameters.getCracFactory().create(nativeCrac.toString());
         addCsaInstants();
-        crac.setRaUsageLimits(cracCreationParameters.getRaUsageLimitsPerInstant());
+        addRaUsageLimits(cracCreationParameters);
         this.network = network;
         this.creationContext = new CsaProfileCracCreationContext(crac, offsetDateTime, network.getNameOrId());
         clearNativeCracContextsAndMap(nativeCrac, offsetDateTime);
@@ -88,6 +88,17 @@ public class CsaProfileCracCreator implements CracCreator<CsaProfileCrac, CsaPro
             .newInstant("auto", InstantKind.AUTO)
             .newInstant("curative", InstantKind.CURATIVE);
         // TODO : add other curative instants here
+    }
+
+    private void addRaUsageLimits(CracCreationParameters parameters) {
+        parameters.getRaUsageLimitsPerInstant().forEach((instantName, raUsageLimits)
+            -> crac.newRaUsageLimits(instantName)
+            .withMaxRa(raUsageLimits.getMaxRa())
+            .withMaxTso(raUsageLimits.getMaxTso())
+            .withMaxRaPerTso(raUsageLimits.getMaxRaPerTso())
+            .withMaxPstPerTso(raUsageLimits.getMaxPstPerTso())
+            .withMaxTopoPerTso(raUsageLimits.getMaxTopoPerTso())
+            .add());
     }
 
     private void clearNativeCracContextsAndMap(CsaProfileCrac nativeCrac, OffsetDateTime offsetDateTime) {

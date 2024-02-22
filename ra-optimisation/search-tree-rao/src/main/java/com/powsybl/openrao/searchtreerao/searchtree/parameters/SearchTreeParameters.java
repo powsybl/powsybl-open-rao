@@ -7,6 +7,7 @@
 package com.powsybl.openrao.searchtreerao.searchtree.parameters;
 
 import com.powsybl.openrao.data.cracapi.Crac;
+import com.powsybl.openrao.data.cracapi.Instant;
 import com.powsybl.openrao.data.cracapi.RaUsageLimits;
 import com.powsybl.openrao.data.cracapi.rangeaction.RangeAction;
 import com.powsybl.openrao.raoapi.parameters.ObjectiveFunctionParameters;
@@ -31,7 +32,7 @@ public class SearchTreeParameters {
     // required for the search tree algorithm
     private final TreeParameters treeParameters;
     private final NetworkActionParameters networkActionParameters;
-    private Map<String, RaUsageLimits> raLimitationParameters;
+    private Map<Instant, RaUsageLimits> raLimitationParameters;
 
     // required for sub-module iterating linear optimizer
     private final RangeActionsOptimizationParameters rangeActionParameters;
@@ -45,7 +46,7 @@ public class SearchTreeParameters {
     public SearchTreeParameters(ObjectiveFunctionParameters.ObjectiveFunctionType objectiveFunction,
                                 TreeParameters treeParameters,
                                 NetworkActionParameters networkActionParameters,
-                                Map<String, RaUsageLimits> raLimitationParameters,
+                                Map<Instant, RaUsageLimits> raLimitationParameters,
                                 RangeActionsOptimizationParameters rangeActionParameters,
                                 MnecParametersExtension mnecParameters,
                                 RelativeMarginsParametersExtension maxMinRelativeMarginParameters,
@@ -78,7 +79,7 @@ public class SearchTreeParameters {
         return networkActionParameters;
     }
 
-    public Map<String, RaUsageLimits> getRaLimitationParameters() {
+    public Map<Instant, RaUsageLimits> getRaLimitationParameters() {
         return raLimitationParameters;
     }
 
@@ -110,7 +111,7 @@ public class SearchTreeParameters {
         return maxNumberOfIterations;
     }
 
-    public void setRaLimitationsForSecondPreventive(RaUsageLimits raUsageLimits, Set<RangeAction<?>> rangeActionSet) {
+    public void setRaLimitationsForSecondPreventive(RaUsageLimits raUsageLimits, Set<RangeAction<?>> rangeActionSet, Instant preventiveInstant) {
         Set<String> tsoCount = new HashSet<>();
         int raCount = 0;
         Map<String, Integer> currentPstPerTsoLimits = raUsageLimits.getMaxPstPerTso();
@@ -130,7 +131,7 @@ public class SearchTreeParameters {
         raUsageLimits.setMaxPstPerTso(currentPstPerTsoLimits);
         raUsageLimits.setMaxTopoPerTso(currentTopoPerTsoLimits);
         raUsageLimits.setMaxRaPerTso(currentRaPerTsoLimits);
-        this.raLimitationParameters.put("preventive", raUsageLimits);
+        this.raLimitationParameters.put(preventiveInstant, raUsageLimits);
     }
 
     public static SearchTreeParametersBuilder create() {
@@ -141,7 +142,7 @@ public class SearchTreeParameters {
         private ObjectiveFunctionParameters.ObjectiveFunctionType objectiveFunction;
         private TreeParameters treeParameters;
         private NetworkActionParameters networkActionParameters;
-        private Map<String, RaUsageLimits> raLimitationParameters;
+        private Map<Instant, RaUsageLimits> raLimitationParameters;
         private RangeActionsOptimizationParameters rangeActionParameters;
         private MnecParametersExtension mnecParameters;
         private RelativeMarginsParametersExtension maxMinRelativeMarginParameters;
@@ -178,7 +179,7 @@ public class SearchTreeParameters {
             return this;
         }
 
-        public SearchTreeParametersBuilder withGlobalRemedialActionLimitationParameters(Map<String, RaUsageLimits> raLimitationParameters) {
+        public SearchTreeParametersBuilder withGlobalRemedialActionLimitationParameters(Map<Instant, RaUsageLimits> raLimitationParameters) {
             this.raLimitationParameters = raLimitationParameters;
             return this;
         }

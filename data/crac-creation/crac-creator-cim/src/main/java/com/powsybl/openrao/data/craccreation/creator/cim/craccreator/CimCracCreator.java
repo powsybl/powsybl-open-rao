@@ -48,7 +48,7 @@ public class CimCracCreator implements CracCreator<CimCrac, CimCracCreationConte
         // Set attributes
         this.crac = parameters.getCracFactory().create(cimCrac.getCracDocument().getMRID());
         addCimInstants();
-        crac.setRaUsageLimits(parameters.getRaUsageLimitsPerInstant());
+        addRaUsageLimits(parameters);
         this.network = network;
         this.cimTimeSeries = new ArrayList<>(cimCrac.getCracDocument().getTimeSeries());
         this.creationContext = new CimCracCreationContext(crac, offsetDateTime, network.getNameOrId());
@@ -91,6 +91,17 @@ public class CimCracCreator implements CracCreator<CimCrac, CimCracCreationConte
             .newInstant("outage", InstantKind.OUTAGE)
             .newInstant("auto", InstantKind.AUTO)
             .newInstant("curative", InstantKind.CURATIVE);
+    }
+
+    private void addRaUsageLimits(CracCreationParameters parameters) {
+        parameters.getRaUsageLimitsPerInstant().forEach((instantName, raUsageLimits)
+            -> crac.newRaUsageLimits(instantName)
+            .withMaxRa(raUsageLimits.getMaxRa())
+            .withMaxTso(raUsageLimits.getMaxTso())
+            .withMaxRaPerTso(raUsageLimits.getMaxRaPerTso())
+            .withMaxPstPerTso(raUsageLimits.getMaxPstPerTso())
+            .withMaxTopoPerTso(raUsageLimits.getMaxTopoPerTso())
+            .add());
     }
 
     private void createContingencies() {

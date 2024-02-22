@@ -519,10 +519,15 @@ public interface Crac extends Identifiable<Crac> {
     /**
      * Get all remedial action usage limitation according to the crac creation parameters
      */
-    Map<String, RaUsageLimits> getRaUsageLimitsPerInstant();
+    Map<Instant, RaUsageLimits> getRaUsageLimitsPerInstant();
 
     /**
-     * Add remedial action usage limitation according to the crac creation parameters
+     * Get remedial action usage limitation for a given instant
      */
-    void setRaUsageLimits(Map<String, RaUsageLimits> raUsageLimitsPerInstant);
+    RaUsageLimits getRaUsageLimits(Instant instant);
+
+    /**
+     * Get a {@link RaUsageLimitsAdder}, to add a {@link RaUsageLimits} to the crac
+     */
+    RaUsageLimitsAdder newRaUsageLimits(String instantName);
 }

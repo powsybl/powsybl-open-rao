@@ -647,24 +647,26 @@ public class CastorFullOptimization {
     private CompletableFuture<OneStateOnlyRaoResultImpl> optimizeSecondPreventivePerimeter(RaoInput raoInput, RaoParameters raoParameters, StateTree stateTree, ToolProvider toolProvider, PrePerimeterResult initialOutput, PrePerimeterResult prePerimeterResult, Set<NetworkAction> optimalNetworkActionsInFirstPreventiveRao, AppliedRemedialActions appliedCras) {
 
         OptimizationPerimeter optPerimeter;
+        Crac crac = raoInput.getCrac();
+
         if (raoParameters.getSecondPreventiveRaoParameters().getReOptimizeCurativeRangeActions()) {
-            optPerimeter = GlobalOptimizationPerimeter.build(raoInput.getCrac(), raoInput.getNetwork(), raoParameters, prePerimeterResult);
+            optPerimeter = GlobalOptimizationPerimeter.build(crac, raoInput.getNetwork(), raoParameters, prePerimeterResult);
         } else {
-            Set<RangeAction<?>> rangeActionsFor2p = new HashSet<>(raoInput.getCrac().getRangeActions());
-            removeRangeActionsExcludedFromSecondPreventive(rangeActionsFor2p, raoInput.getCrac());
-            optPerimeter = PreventiveOptimizationPerimeter.buildWithAllCnecs(raoInput.getCrac(), rangeActionsFor2p, raoInput.getNetwork(), raoParameters, prePerimeterResult);
+            Set<RangeAction<?>> rangeActionsFor2p = new HashSet<>(crac.getRangeActions());
+            removeRangeActionsExcludedFromSecondPreventive(rangeActionsFor2p, crac);
+            optPerimeter = PreventiveOptimizationPerimeter.buildWithAllCnecs(crac, rangeActionsFor2p, raoInput.getNetwork(), raoParameters, prePerimeterResult);
         }
 
         SearchTreeParameters searchTreeParameters = SearchTreeParameters.create()
-            .withConstantParametersOverAllRao(raoParameters, raoInput.getCrac())
+            .withConstantParametersOverAllRao(raoParameters, crac)
             .withTreeParameters(TreeParameters.buildForSecondPreventivePerimeter(raoParameters))
-            .withUnoptimizedCnecParameters(UnoptimizedCnecParameters.build(raoParameters.getNotOptimizedCnecsParameters(), stateTree.getOperatorsNotSharingCras(), raoInput.getCrac()))
+            .withUnoptimizedCnecParameters(UnoptimizedCnecParameters.build(raoParameters.getNotOptimizedCnecsParameters(), stateTree.getOperatorsNotSharingCras(), crac))
             .build();
 
         // update RaUsageLimits with already applied RangeActions
-        Set<RangeAction<?>> excludedRangeActions = new HashSet<>(getRangeActionsExcludedFromSecondPreventive(raoInput.getCrac()));
-        if (!excludedRangeActions.isEmpty() && searchTreeParameters.getRaLimitationParameters().containsKey(raoInput.getCrac().getPreventiveInstant().getId())) {
-            searchTreeParameters.setRaLimitationsForSecondPreventive(searchTreeParameters.getRaLimitationParameters().get(raoInput.getCrac().getPreventiveInstant().getId()), excludedRangeActions);
+        Set<RangeAction<?>> excludedRangeActions = new HashSet<>(getRangeActionsExcludedFromSecondPreventive(crac));
+        if (!excludedRangeActions.isEmpty() && searchTreeParameters.getRaLimitationParameters().containsKey(crac.getPreventiveInstant())) {
+            searchTreeParameters.setRaLimitationsForSecondPreventive(searchTreeParameters.getRaLimitationParameters().get(crac.getPreventiveInstant()), excludedRangeActions, crac.getPreventiveInstant());
         }
 
         if (raoParameters.getSecondPreventiveRaoParameters().getHintFromFirstPreventiveRao()) {
@@ -678,19 +680,19 @@ public class CastorFullOptimization {
             .withInitialFlowResult(initialOutput)
             .withPrePerimeterResult(prePerimeterResult)
             .withPreOptimizationAppliedNetworkActions(appliedCras) //no remedial Action applied
-            .withObjectiveFunction(ObjectiveFunction.create().build(optPerimeter.getFlowCnecs(), optPerimeter.getLoopFlowCnecs(), initialOutput, prePerimeterResult, prePerimeterResult, raoInput.getCrac(), new HashSet<>(), raoParameters))
+            .withObjectiveFunction(ObjectiveFunction.create().build(optPerimeter.getFlowCnecs(), optPerimeter.getLoopFlowCnecs(), initialOutput, prePerimeterResult, prePerimeterResult, crac, new HashSet<>(), raoParameters))
             .withToolProvider(toolProvider)
-            .withOutageInstant(raoInput.getCrac().getOutageInstant())
+            .withOutageInstant(crac.getOutageInstant())
             .build();
 
         OptimizationResult result = new SearchTree(searchTreeInput, searchTreeParameters, true).run().join();
 
         // apply PRAs
         raoInput.getNetwork().getVariantManager().setWorkingVariant(SECOND_PREVENTIVE_SCENARIO_BEFORE_OPT);
-        result.getActivatedRangeActions(raoInput.getCrac().getPreventiveState()).forEach(rangeAction -> rangeAction.apply(raoInput.getNetwork(), result.getOptimizedSetpoint(rangeAction, raoInput.getCrac().getPreventiveState())));
+        result.getActivatedRangeActions(crac.getPreventiveState()).forEach(rangeAction -> rangeAction.apply(raoInput.getNetwork(), result.getOptimizedSetpoint(rangeAction, crac.getPreventiveState())));
         result.getActivatedNetworkActions().forEach(networkAction -> networkAction.apply(raoInput.getNetwork()));
 
-        return CompletableFuture.completedFuture(new OneStateOnlyRaoResultImpl(raoInput.getCrac().getPreventiveState(), prePerimeterResult, result, optPerimeter.getFlowCnecs()));
+        return CompletableFuture.completedFuture(new OneStateOnlyRaoResultImpl(crac.getPreventiveState(), prePerimeterResult, result, optPerimeter.getFlowCnecs()));
     }
 
     /**

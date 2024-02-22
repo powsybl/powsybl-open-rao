@@ -91,7 +91,7 @@ public class SearchTree {
 
         // build from inputs
         this.purelyVirtual = input.getOptimizationPerimeter().getOptimizedFlowCnecs().isEmpty();
-        RaUsageLimits raUsageLimits = parameters.getRaLimitationParameters().getOrDefault(input.getOptimizationPerimeter().getMainOptimizationState().getInstant().getId(), new RaUsageLimits());
+        RaUsageLimits raUsageLimits = parameters.getRaLimitationParameters().getOrDefault(input.getOptimizationPerimeter().getMainOptimizationState().getInstant(), new RaUsageLimits());
         this.bloomer = new SearchTreeBloomer(
             input.getNetwork(),
             raUsageLimits.getMaxRa(),

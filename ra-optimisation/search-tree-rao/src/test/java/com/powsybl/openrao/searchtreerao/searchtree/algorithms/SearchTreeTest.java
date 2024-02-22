@@ -78,7 +78,7 @@ class SearchTreeTest {
 
     private SearchTreeParameters searchTreeParameters;
     private TreeParameters treeParameters;
-    private Map<String, RaUsageLimits> raLimitationParameters;
+    private Map<Instant, RaUsageLimits> raLimitationParameters;
 
     private int leavesInParallel;
 
@@ -399,7 +399,9 @@ class SearchTreeTest {
         maxPstPerTso.put(tsoName, maxPstOfTso);
         RaUsageLimits raUsageLimits = new RaUsageLimits();
         raUsageLimits.setMaxPstPerTso(maxPstPerTso);
-        raLimitationParameters = Map.of("curative", raUsageLimits);
+        Instant curativeInstant = Mockito.mock(Instant.class);
+        when(curativeInstant.getId()).thenReturn("curative");
+        raLimitationParameters = Map.of(curativeInstant, raUsageLimits);
         when(searchTreeParameters.getRaLimitationParameters()).thenReturn(raLimitationParameters);
     }
 

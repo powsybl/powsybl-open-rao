@@ -28,7 +28,6 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.powsybl.openrao.data.craciojson.JsonSerializationConstants.*;
-import static com.powsybl.openrao.data.craccreation.creator.api.parameters.JsonCracCreationParametersConstants.*;
 import static com.powsybl.openrao.data.craciojson.JsonSerializationConstants.INSTANT;
 
 /**
@@ -66,10 +65,10 @@ public class CracSerializer extends AbstractJsonSerializer<Crac> {
 
     private void serializeRaUsageLimits(Crac crac, JsonGenerator gen) throws IOException {
         gen.writeArrayFieldStart(RA_USAGE_LIMITS_PER_INSTANT);
-        for (Map.Entry<String, RaUsageLimits> entry : crac.getRaUsageLimitsPerInstant().entrySet()) {
+        for (Map.Entry<Instant, RaUsageLimits> entry : crac.getRaUsageLimitsPerInstant().entrySet()) {
             RaUsageLimits raUsageLimits = entry.getValue();
             gen.writeStartObject();
-            gen.writeStringField(INSTANT, entry.getKey());
+            gen.writeStringField(INSTANT, entry.getKey().getId());
             gen.writeNumberField(MAX_RA, raUsageLimits.getMaxRa());
             gen.writeNumberField(MAX_TSO, raUsageLimits.getMaxTso());
             gen.writeObjectField(MAX_TOPO_PER_TSO, new TreeMap<>(raUsageLimits.getMaxTopoPerTso()));

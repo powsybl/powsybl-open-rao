@@ -35,12 +35,17 @@ public final class RaUsageLimitsDeserializer {
     }
 
     public static void deserialize(JsonParser jsonParser, Crac crac) throws IOException {
-        Map<String, RaUsageLimits> raUsageLimits = new HashMap<>();
         while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
             Pair<String, RaUsageLimits> raUsageLimitsPair = deserializeRaUsageLimits(jsonParser);
-            raUsageLimits.put(raUsageLimitsPair.getLeft(), raUsageLimitsPair.getRight());
+            RaUsageLimits raUsageLimits = raUsageLimitsPair.getRight();
+            crac.newRaUsageLimits(raUsageLimitsPair.getLeft())
+                .withMaxRa(raUsageLimits.getMaxRa())
+                .withMaxTso(raUsageLimits.getMaxTso())
+                .withMaxRaPerTso(raUsageLimits.getMaxRaPerTso())
+                .withMaxPstPerTso(raUsageLimits.getMaxPstPerTso())
+                .withMaxTopoPerTso(raUsageLimits.getMaxTopoPerTso())
+                .add();
         }
-        crac.setRaUsageLimits(raUsageLimits);
     }
 
     private static Map<String, Integer> readStringToPositiveIntMap(JsonParser jsonParser) throws IOException {

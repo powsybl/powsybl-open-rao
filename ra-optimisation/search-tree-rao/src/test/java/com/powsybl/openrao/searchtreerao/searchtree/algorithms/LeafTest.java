@@ -806,15 +806,16 @@ class LeafTest {
         raUsageLimits.setMaxRa(3);
 
         // test for instant not present in searchTreeParameters
-        Map<String, RaUsageLimits> raUsageLimitsMapForCurative = Map.of("curative", raUsageLimits);
+        Instant curativeInstant = Mockito.mock(Instant.class);
+        when(curativeInstant.getId()).thenReturn("curative");
+        Map<Instant, RaUsageLimits> raUsageLimitsMapForCurative = Map.of(curativeInstant, raUsageLimits);
         when(searchTreeParameters.getRaLimitationParameters()).thenReturn(raUsageLimitsMapForCurative);
         when(instant.getId()).thenReturn("preventive");
         assertNull(leaf.getRaLimitationParameters(optimizationPerimeter, searchTreeParameters));
 
         // test for preventive without topological actions
-        Map<String, RaUsageLimits> raUsageLimitsMap = Map.of("preventive", raUsageLimits);
+        Map<Instant, RaUsageLimits> raUsageLimitsMap = Map.of(instant, raUsageLimits);
         when(searchTreeParameters.getRaLimitationParameters()).thenReturn(raUsageLimitsMap);
-        when(instant.getId()).thenReturn("preventive");
         RangeActionLimitationParameters raLimitationParameters = leaf.getRaLimitationParameters(optimizationPerimeter, searchTreeParameters);
         assertEquals(3, raLimitationParameters.getMaxRangeActions(optimizedState));
 
@@ -835,9 +836,9 @@ class LeafTest {
         assertEquals(1, raLimitationParameters.getMaxRangeActions(optimizedState));
 
         // test for curative
-        raUsageLimitsMap = Map.of("curative", raUsageLimits);
+        raUsageLimitsMap = Map.of(curativeInstant, raUsageLimits);
         when(searchTreeParameters.getRaLimitationParameters()).thenReturn(raUsageLimitsMap);
-        when(instant.getId()).thenReturn("curative");
+        when(optimizedState.getInstant()).thenReturn(curativeInstant);
         raLimitationParameters = leaf.getRaLimitationParameters(optimizationPerimeter, searchTreeParameters);
         assertEquals(3, raLimitationParameters.getMaxRangeActions(optimizedState));
     }

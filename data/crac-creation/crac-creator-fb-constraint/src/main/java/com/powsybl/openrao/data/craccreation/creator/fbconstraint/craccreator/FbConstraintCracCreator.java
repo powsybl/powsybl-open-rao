@@ -41,6 +41,17 @@ public class FbConstraintCracCreator implements CracCreator<FbConstraint, FbCons
             .newInstant("curative", InstantKind.CURATIVE);
     }
 
+    private static void addRaUsageLimits(Crac crac, CracCreationParameters parameters) {
+        parameters.getRaUsageLimitsPerInstant().forEach((instantName, raUsageLimits)
+            -> crac.newRaUsageLimits(instantName)
+            .withMaxRa(raUsageLimits.getMaxRa())
+            .withMaxTso(raUsageLimits.getMaxTso())
+            .withMaxRaPerTso(raUsageLimits.getMaxRaPerTso())
+            .withMaxPstPerTso(raUsageLimits.getMaxPstPerTso())
+            .withMaxTopoPerTso(raUsageLimits.getMaxTopoPerTso())
+            .add());
+    }
+
     @Override
     public String getNativeCracFormat() {
         return "FlowBasedConstraintDocument";
@@ -51,7 +62,7 @@ public class FbConstraintCracCreator implements CracCreator<FbConstraint, FbCons
         FbConstraintCreationContext creationContext = new FbConstraintCreationContext(offsetDateTime, network.getNameOrId());
         Crac crac = cracCreatorParameters.getCracFactory().create(fbConstraintDocument.getDocument().getDocumentIdentification().getV());
         addFbContraintInstants(crac);
-        crac.setRaUsageLimits(cracCreatorParameters.getRaUsageLimitsPerInstant());
+        addRaUsageLimits(crac, cracCreatorParameters);
 
         // check timestamp
         if (!checkTimeStamp(offsetDateTime, fbConstraintDocument.getDocument().getConstraintTimeInterval().getV(), creationContext)) {

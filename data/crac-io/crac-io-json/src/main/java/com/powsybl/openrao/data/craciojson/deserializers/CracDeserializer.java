@@ -26,7 +26,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.powsybl.openrao.data.craccreation.creator.api.parameters.JsonCracCreationParametersConstants.RA_USAGE_LIMITS_PER_INSTANT;
 import static com.powsybl.openrao.data.craciojson.JsonSerializationConstants.*;
 
 /**

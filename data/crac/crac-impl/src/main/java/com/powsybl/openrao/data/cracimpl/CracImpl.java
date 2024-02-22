@@ -21,8 +21,6 @@ import java.util.stream.Collectors;
 
 import static java.lang.String.format;
 
-import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.BUSINESS_WARNS;
-
 /**
  * Business object of the CRAC file.
  *
@@ -44,7 +42,7 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
     private final Map<String, InjectionRangeAction> injectionRangeActions = new HashMap<>();
     private final Map<String, CounterTradeRangeAction> counterTradeRangeActions = new HashMap<>();
     private final Map<String, NetworkAction> networkActions = new HashMap<>();
-    private Map<String, RaUsageLimits> raUsageLimitsPerInstant = new HashMap<>();
+    private final Map<Instant, RaUsageLimits> raUsageLimitsPerInstant = new HashMap<>();
     private Instant lastInstantAdded = null;
 
     public CracImpl(String id, String name) {
@@ -862,18 +860,22 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
     // endregion
 
     @Override
-    public Map<String, RaUsageLimits> getRaUsageLimitsPerInstant() {
+    public Map<Instant, RaUsageLimits> getRaUsageLimitsPerInstant() {
         return this.raUsageLimitsPerInstant;
     }
 
     @Override
-    public void setRaUsageLimits(Map<String, RaUsageLimits> raUsageLimitsPerInstant) {
-        raUsageLimitsPerInstant.forEach((instantName, raUsageLimits) -> {
-            if (!this.instants.containsKey(instantName)) {
-                BUSINESS_WARNS.warn("The instant {} registered in the crac creation parameters does not exist in the crac. Its remedial action limitations will be ignored.", instantName);
-            }
-        });
-        this.raUsageLimitsPerInstant = raUsageLimitsPerInstant;
+    public RaUsageLimits getRaUsageLimits(Instant instant) {
+        return this.raUsageLimitsPerInstant.getOrDefault(instant, new RaUsageLimits());
+    }
+
+    void addRaUsageLimits(Instant instant, RaUsageLimits raUsageLimits) {
+        this.raUsageLimitsPerInstant.put(instant, raUsageLimits);
+    }
+
+    @Override
+    public RaUsageLimitsAdder newRaUsageLimits(String instantName) {
+        return new RaUsageLimitsAdderImpl(this, instantName);
     }
 
     @Override
