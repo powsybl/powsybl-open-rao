@@ -24,12 +24,14 @@ import static com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreat
  * @author Mohamed Ben-rejeb {@literal <mohamed.ben-rejeb at rte-france.com>}
  */
 public class ElementaryActionsHelper {
+    private final PropertyBags remedialActionGroupsPropertyBags;
     private final PropertyBags gridStateAlterationRemedialActionPropertyBags;
     private final PropertyBags schemeRemedialActionsPropertyBags;
     private final PropertyBags remedialActionSchemePropertyBags;
     private final PropertyBags stagePropertyBags;
     private final PropertyBags gridStateAlterationCollectionPropertyBags;
     private final PropertyBags assessedElementWithRemedialActionPropertyBags;
+    private final Map<String, Set<PropertyBag>> remedialActionDependenciesByGroup;
     private final Map<String, Set<PropertyBag>> linkedTopologyActions;
     private final Map<String, Set<PropertyBag>> linkedTopologyActionsAuto;
     private final Map<String, Set<PropertyBag>> linkedRotatingMachineActions;
@@ -52,14 +54,18 @@ public class ElementaryActionsHelper {
                                    PropertyBags topologyActionsPropertyBags,
                                    PropertyBags rotatingMachineActionsPropertyBags,
                                    PropertyBags shuntCompensatorModificationPropertyBags,
-                                   PropertyBags tapPositionActionsPropertyBags) {
-
+                                   PropertyBags tapPositionActionsPropertyBags,
+                                   PropertyBags remedialActionGroupsPropertyBags,
+                                   PropertyBags remedialActionDependenciesPropertyBags) {
+        this.remedialActionGroupsPropertyBags = remedialActionGroupsPropertyBags;
         this.gridStateAlterationRemedialActionPropertyBags = gridStateAlterationRemedialActionPropertyBags;
         this.schemeRemedialActionsPropertyBags = schemeRemedialActionsPropertyBags;
         this.remedialActionSchemePropertyBags = remedialActionSchemePropertyBags;
         this.stagePropertyBags = stagePropertyBags;
         this.gridStateAlterationCollectionPropertyBags = gridStateAlterationCollectionPropertyBags;
         this.assessedElementWithRemedialActionPropertyBags = assessedElementWithRemedialActionPropertyBags;
+
+        this.remedialActionDependenciesByGroup = CsaProfileCracUtils.getMappedPropertyBagsSet(remedialActionDependenciesPropertyBags, DEPENDING_REMEDIAL_ACTION_GROUP);
 
         this.linkedContingencyWithRAs = CsaProfileCracUtils.getMappedPropertyBagsSet(contingencyWithRemedialActionsPropertyBags, GRID_STATE_ALTERATION_REMEDIAL_ACTION);
         this.linkedStaticPropertyRanges = CsaProfileCracUtils.getMappedPropertyBagsSet(staticPropertyRangesPropertyBags, GRID_STATE_ALTERATION_REMEDIAL_ACTION); // the id here is the id of the subclass of gridStateAlteration (tapPositionAction, RotatingMachine, ..)
@@ -80,6 +86,14 @@ public class ElementaryActionsHelper {
         String parentRemedialActionField = autoRemedialAction ? GRID_STATE_ALTERATION_COLLECTION : GRID_STATE_ALTERATION_REMEDIAL_ACTION;
         Set<PropertyBag> relevantElementaryActionsPropertyBags = elementaryActionsPropertyBags.stream().filter(propertyBag -> Optional.ofNullable(propertyBag.get(parentRemedialActionField)).isPresent()).collect(Collectors.toSet());
         return new PropertyBags(relevantElementaryActionsPropertyBags);
+    }
+
+    public Map<String, Set<PropertyBag>> getRemedialActionDependenciesByGroup() {
+        return remedialActionDependenciesByGroup;
+    }
+
+    public PropertyBags getRemedialActionGroupsPropertyBags() {
+        return remedialActionGroupsPropertyBags;
     }
 
     public Map<String, Set<PropertyBag>> getStaticPropertyRangesByElementaryActionsAggregator() {
@@ -146,7 +160,7 @@ public class ElementaryActionsHelper {
         PropertyBag remedialActionSchemePropertyBag = linkedRemedialActionSchemePropertyBags.get(0);
         String remedialActionSchemeId = remedialActionSchemePropertyBag.getId(MRID);
 
-        String remedialActionSchemeKind = remedialActionSchemePropertyBag.get(RA_KIND);
+        String remedialActionSchemeKind = remedialActionSchemePropertyBag.get(KIND);
         if (!remedialActionSchemeKind.equals(SIPS)) {
             throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action " + remedialActionId + " will not be imported because of an unsupported kind for remedial action schedule (only SIPS allowed)");
         }
