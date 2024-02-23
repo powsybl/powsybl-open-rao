@@ -19,6 +19,7 @@ import com.powsybl.openrao.data.craccreation.creator.cim.craccreator.contingency
 import com.powsybl.openrao.data.craccreation.creator.cim.craccreator.remedialaction.RemedialActionSeriesCreator;
 import com.powsybl.openrao.data.craccreation.creator.cim.parameters.CimCracCreationParameters;
 import com.powsybl.openrao.data.craccreation.creator.cim.xsd.TimeSeries;
+import com.powsybl.openrao.data.craccreation.util.RaUsageLimitsAdder;
 import com.powsybl.openrao.data.cracutil.CracValidator;
 import com.google.auto.service.AutoService;
 import com.powsybl.iidm.network.Network;
@@ -48,7 +49,7 @@ public class CimCracCreator implements CracCreator<CimCrac, CimCracCreationConte
         // Set attributes
         this.crac = parameters.getCracFactory().create(cimCrac.getCracDocument().getMRID());
         addCimInstants();
-        addRaUsageLimits(parameters);
+        RaUsageLimitsAdder.addRaUsageLimits(crac, parameters);
         this.network = network;
         this.cimTimeSeries = new ArrayList<>(cimCrac.getCracDocument().getTimeSeries());
         this.creationContext = new CimCracCreationContext(crac, offsetDateTime, network.getNameOrId());
@@ -91,17 +92,6 @@ public class CimCracCreator implements CracCreator<CimCrac, CimCracCreationConte
             .newInstant("outage", InstantKind.OUTAGE)
             .newInstant("auto", InstantKind.AUTO)
             .newInstant("curative", InstantKind.CURATIVE);
-    }
-
-    private void addRaUsageLimits(CracCreationParameters parameters) {
-        parameters.getRaUsageLimitsPerInstant().forEach((instantName, raUsageLimits)
-            -> crac.newRaUsageLimits(instantName)
-            .withMaxRa(raUsageLimits.getMaxRa())
-            .withMaxTso(raUsageLimits.getMaxTso())
-            .withMaxRaPerTso(raUsageLimits.getMaxRaPerTso())
-            .withMaxPstPerTso(raUsageLimits.getMaxPstPerTso())
-            .withMaxTopoPerTso(raUsageLimits.getMaxTopoPerTso())
-            .add());
     }
 
     private void createContingencies() {

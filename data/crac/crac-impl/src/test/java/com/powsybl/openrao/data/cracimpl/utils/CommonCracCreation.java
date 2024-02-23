@@ -23,16 +23,13 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
+import static com.powsybl.openrao.data.cracimpl.utils.ExhaustiveCracCreation.*;
 import static com.powsybl.openrao.data.cracimpl.utils.NetworkImportsUtil.import12NodesNetwork;
 
 /**
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
 public final class CommonCracCreation {
-    private static final String PREVENTIVE_INSTANT_ID = "preventive";
-    private static final String OUTAGE_INSTANT_ID = "outage";
-    private static final String AUTO_INSTANT_ID = "auto";
-    private static final String CURATIVE_INSTANT_ID = "curative";
 
     private static class IidmPstHelper {
 

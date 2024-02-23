@@ -126,8 +126,8 @@ public class SearchTreeParameters {
         }
         raUsageLimits.setMaxRa(Math.max(0, raUsageLimits.getMaxRa() - raCount));
         raUsageLimits.setMaxTso(Math.max(0, raUsageLimits.getMaxTso() - tsoCount.size()));
-        currentTopoPerTsoLimits.forEach((tso, raLimits) -> currentTopoPerTsoLimits.put(tso, Math.min(raLimits, currentRaPerTsoLimits.getOrDefault(tso, 1000))));
-        currentPstPerTsoLimits.forEach((tso, raLimits) -> currentPstPerTsoLimits.put(tso, Math.min(raLimits, currentRaPerTsoLimits.getOrDefault(tso, 1000))));
+        currentTopoPerTsoLimits.forEach((tso, raLimits) -> currentTopoPerTsoLimits.put(tso, Math.min(raLimits, currentRaPerTsoLimits.getOrDefault(tso, Integer.MAX_VALUE))));
+        currentPstPerTsoLimits.forEach((tso, raLimits) -> currentPstPerTsoLimits.put(tso, Math.min(raLimits, currentRaPerTsoLimits.getOrDefault(tso, Integer.MAX_VALUE))));
         raUsageLimits.setMaxPstPerTso(currentPstPerTsoLimits);
         raUsageLimits.setMaxTopoPerTso(currentTopoPerTsoLimits);
         raUsageLimits.setMaxRaPerTso(currentRaPerTsoLimits);

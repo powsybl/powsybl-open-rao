@@ -35,6 +35,7 @@ import org.slf4j.LoggerFactory;
 import java.util.*;
 
 import static com.powsybl.openrao.data.cracapi.usagerule.UsageMethod.*;
+import static com.powsybl.openrao.data.cracimpl.utils.ExhaustiveCracCreation.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.when;
@@ -45,10 +46,6 @@ import static org.mockito.Mockito.when;
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
 class CracImplTest {
-    private static final String PREVENTIVE_INSTANT_ID = "preventive";
-    private static final String OUTAGE_INSTANT_ID = "outage";
-    private static final String AUTO_INSTANT_ID = "auto";
-    private static final String CURATIVE_INSTANT_ID = "curative";
 
     private CracImpl crac;
     private Instant preventiveInstant;
@@ -1042,25 +1039,14 @@ class CracImplTest {
         Map<Instant, RaUsageLimits> firstMap = Map.of(preventiveInstant, raUsageLimits1);
         crac.newRaUsageLimits("preventive")
             .withMaxRa(raUsageLimits1.getMaxRa())
-            .withMaxTso(raUsageLimits1.getMaxTso())
-            .withMaxRaPerTso(raUsageLimits1.getMaxRaPerTso())
-            .withMaxPstPerTso(raUsageLimits1.getMaxPstPerTso())
-            .withMaxTopoPerTso(raUsageLimits1.getMaxTopoPerTso())
             .add();
         assertEquals(firstMap.get(preventiveInstant), crac.getRaUsageLimitsPerInstant().get(preventiveInstant));
         assertEquals(firstMap.get(preventiveInstant), crac.getRaUsageLimits(preventiveInstant));
         assertEquals(firstMap, crac.getRaUsageLimitsPerInstant());
-        raUsageLimits1.setMaxTso(4);
         Instant fakeInstant = Mockito.mock(Instant.class);
         when(fakeInstant.getId()).thenReturn("fake_instant");
         Map<Instant, RaUsageLimits> secondMap = Map.of(fakeInstant, raUsageLimits1);
-        crac.newRaUsageLimits("fake_instant")
-            .withMaxRa(raUsageLimits1.getMaxRa())
-            .withMaxTso(raUsageLimits1.getMaxTso())
-            .withMaxRaPerTso(raUsageLimits1.getMaxRaPerTso())
-            .withMaxPstPerTso(raUsageLimits1.getMaxPstPerTso())
-            .withMaxTopoPerTso(raUsageLimits1.getMaxTopoPerTso())
-            .add();
+        crac.newRaUsageLimits("fake_instant").add();
         assertFalse(crac.getRaUsageLimitsPerInstant().containsKey(fakeInstant));
         assertEquals(new RaUsageLimits(), crac.getRaUsageLimits(fakeInstant));
         assertEquals(1, logsList.size());

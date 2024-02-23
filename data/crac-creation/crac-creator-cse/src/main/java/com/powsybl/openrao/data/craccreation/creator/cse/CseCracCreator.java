@@ -18,6 +18,7 @@ import com.powsybl.openrao.data.craccreation.creator.cse.parameters.CseCracCreat
 import com.powsybl.openrao.data.craccreation.creator.cse.remedialaction.TRemedialActionAdder;
 import com.powsybl.openrao.data.craccreation.creator.cse.xsd.CRACDocumentType;
 import com.powsybl.openrao.data.craccreation.creator.cse.xsd.TCRACSeries;
+import com.powsybl.openrao.data.craccreation.util.RaUsageLimitsAdder;
 import com.powsybl.openrao.data.craccreation.util.ucte.UcteNetworkAnalyzer;
 import com.powsybl.openrao.data.craccreation.util.ucte.UcteNetworkAnalyzerProperties;
 import com.powsybl.openrao.data.cracutil.CracValidator;
@@ -44,7 +45,7 @@ public class CseCracCreator implements CracCreator<CseCrac, CseCracCreationConte
         // Set attributes
         Crac crac = cracCreationParameters.getCracFactory().create(cseCrac.getCracDocument().getDocumentIdentification().getV());
         addCseInstants(crac);
-        addRaUsageLimits(crac, cracCreationParameters);
+        RaUsageLimitsAdder.addRaUsageLimits(crac, cracCreationParameters);
         this.creationContext = new CseCracCreationContext(crac, offsetDateTime, network.getNameOrId());
 
         // Check timestamp field
@@ -95,17 +96,6 @@ public class CseCracCreator implements CracCreator<CseCrac, CseCracCreationConte
             .newInstant("outage", InstantKind.OUTAGE)
             .newInstant("auto", InstantKind.AUTO)
             .newInstant("curative", InstantKind.CURATIVE);
-    }
-
-    private static void addRaUsageLimits(Crac crac, CracCreationParameters parameters) {
-        parameters.getRaUsageLimitsPerInstant().forEach((instantName, raUsageLimits)
-            -> crac.newRaUsageLimits(instantName)
-            .withMaxRa(raUsageLimits.getMaxRa())
-            .withMaxTso(raUsageLimits.getMaxTso())
-            .withMaxRaPerTso(raUsageLimits.getMaxRaPerTso())
-            .withMaxPstPerTso(raUsageLimits.getMaxPstPerTso())
-            .withMaxTopoPerTso(raUsageLimits.getMaxTopoPerTso())
-            .add());
     }
 
     public static TCRACSeries getCracSeries(CRACDocumentType cracDocumentType) {

@@ -16,6 +16,7 @@ import com.powsybl.openrao.data.craccreation.creator.fbconstraint.xsd.CriticalBr
 import com.powsybl.openrao.data.craccreation.creator.fbconstraint.FbConstraint;
 import com.powsybl.openrao.data.craccreation.creator.fbconstraint.xsd.FlowBasedConstraintDocument;
 import com.powsybl.openrao.data.craccreation.creator.fbconstraint.xsd.IndependantComplexVariant;
+import com.powsybl.openrao.data.craccreation.util.RaUsageLimitsAdder;
 import com.powsybl.openrao.data.craccreation.util.ucte.UcteNetworkAnalyzer;
 import com.powsybl.openrao.data.craccreation.util.ucte.UcteNetworkAnalyzerProperties;
 import com.google.auto.service.AutoService;
@@ -41,17 +42,6 @@ public class FbConstraintCracCreator implements CracCreator<FbConstraint, FbCons
             .newInstant("curative", InstantKind.CURATIVE);
     }
 
-    private static void addRaUsageLimits(Crac crac, CracCreationParameters parameters) {
-        parameters.getRaUsageLimitsPerInstant().forEach((instantName, raUsageLimits)
-            -> crac.newRaUsageLimits(instantName)
-            .withMaxRa(raUsageLimits.getMaxRa())
-            .withMaxTso(raUsageLimits.getMaxTso())
-            .withMaxRaPerTso(raUsageLimits.getMaxRaPerTso())
-            .withMaxPstPerTso(raUsageLimits.getMaxPstPerTso())
-            .withMaxTopoPerTso(raUsageLimits.getMaxTopoPerTso())
-            .add());
-    }
-
     @Override
     public String getNativeCracFormat() {
         return "FlowBasedConstraintDocument";
@@ -62,7 +52,7 @@ public class FbConstraintCracCreator implements CracCreator<FbConstraint, FbCons
         FbConstraintCreationContext creationContext = new FbConstraintCreationContext(offsetDateTime, network.getNameOrId());
         Crac crac = cracCreatorParameters.getCracFactory().create(fbConstraintDocument.getDocument().getDocumentIdentification().getV());
         addFbContraintInstants(crac);
-        addRaUsageLimits(crac, cracCreatorParameters);
+        RaUsageLimitsAdder.addRaUsageLimits(crac, cracCreatorParameters);
 
         // check timestamp
         if (!checkTimeStamp(offsetDateTime, fbConstraintDocument.getDocument().getConstraintTimeInterval().getV(), creationContext)) {

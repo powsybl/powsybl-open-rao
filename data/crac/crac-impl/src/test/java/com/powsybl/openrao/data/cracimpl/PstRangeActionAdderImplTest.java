@@ -20,6 +20,7 @@ import org.junit.jupiter.api.Test;
 import java.util.HashMap;
 import java.util.Map;
 
+import static com.powsybl.openrao.data.cracimpl.utils.ExhaustiveCracCreation.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -27,9 +28,6 @@ import static org.junit.jupiter.api.Assertions.*;
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 class PstRangeActionAdderImplTest {
-    private static final String PREVENTIVE_INSTANT_ID = "preventive";
-    private static final String OUTAGE_INSTANT_ID = "outage";
-    private static final String AUTO_INSTANT_ID = "auto";
 
     private CracImpl crac;
     private String networkElementId;

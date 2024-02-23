@@ -20,6 +20,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Optional;
 
+import static com.powsybl.openrao.data.cracimpl.utils.ExhaustiveCracCreation.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -27,10 +28,6 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 class AngleCnecAdderImplTest {
     private static final double DOUBLE_TOLERANCE = 1e-6;
-    private static final String PREVENTIVE_INSTANT_ID = "preventive";
-    private static final String OUTAGE_INSTANT_ID = "outage";
-    private static final String AUTO_INSTANT_ID = "auto";
-    private static final String CURATIVE_INSTANT_ID = "curative";
 
     private CracImpl crac;
     private String contingency1Id = "condId1";
