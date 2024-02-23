@@ -54,11 +54,7 @@ public class CsaProfileRemedialActionsCreator {
         createRemedialActions(true);
         // standaloneRaIdsImplicatedIntoAGroup contain ids of Ra's depending on a group whether the group is imported or not
         Set<String> standaloneRaIdsImplicatedIntoAGroup = createRemedialActionGroups();
-        crac.getRemedialActions().forEach(ra -> {
-            if (standaloneRaIdsImplicatedIntoAGroup.contains(ra.getId())) {
-                crac.removeRemedialAction(ra.getId());
-            }
-        });
+        standaloneRaIdsImplicatedIntoAGroup.forEach(crac::removeRemedialAction);
         standaloneRaIdsImplicatedIntoAGroup.forEach(importedRaId -> contextByRaId.remove(importedRaId));
         this.cracCreationContext.setRemedialActionCreationContexts(new HashSet<>(contextByRaId.values()));
     }
@@ -117,7 +113,7 @@ public class CsaProfileRemedialActionsCreator {
     }
 
     private void addOnInstantUsageRules(PropertyBag parentRemedialActionPropertyBag, RemedialActionAdder<?> remedialActionAdder, String remedialActionId, List<String> alterations) {
-        Instant instant = parentRemedialActionPropertyBag.get(RA_KIND).equals(RemedialActionKind.PREVENTIVE.toString()) ? crac.getPreventiveInstant() : crac.getInstant(InstantKind.CURATIVE);
+        Instant instant = parentRemedialActionPropertyBag.get(KIND).equals(RemedialActionKind.PREVENTIVE.toString()) ? crac.getPreventiveInstant() : crac.getInstant(InstantKind.CURATIVE);
         boolean isLinkedToAssessedElements = elementaryActionsHelper.remedialActionIsLinkedToAssessedElements(remedialActionId);
         addOnConstraintUsageRules(instant, remedialActionAdder, remedialActionId, alterations);
         if (!isLinkedToAssessedElements) {
@@ -227,7 +223,7 @@ public class CsaProfileRemedialActionsCreator {
             if (normalEnabledOpt.isPresent() && !Boolean.parseBoolean(normalEnabledOpt.get())) {
                 alterations.add(String.format("Association CO/RA '%s'/'%s' will be ignored because field 'normalEnabled' in ContingencyWithRemedialAction is set to false", contingencyWithRemedialActionPropertyBag.getId(REQUEST_CONTINGENCY), remedialActionId));
             }
-            if (!parentRemedialActionPropertyBag.get(RA_KIND).equals(RemedialActionKind.CURATIVE.toString())) {
+            if (!parentRemedialActionPropertyBag.get(KIND).equals(RemedialActionKind.CURATIVE.toString())) {
                 throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action " + remedialActionId + " will not be imported because it is linked to a contingency but it's kind is not curative");
             }
             String contingencyId = contingencyWithRemedialActionPropertyBag.getId(REQUEST_CONTINGENCY);
@@ -268,7 +264,7 @@ public class CsaProfileRemedialActionsCreator {
     }
 
     private static void checkKind(PropertyBag remedialActionPropertyBag, String remedialActionId, boolean isAuto) {
-        String kind = remedialActionPropertyBag.get(RA_KIND);
+        String kind = remedialActionPropertyBag.get(KIND);
         if (isAuto) {
             if (!kind.equals(RemedialActionKind.CURATIVE.toString())) {
                 throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action " + remedialActionId + " will not be imported because auto remedial action must be of curative kind");
@@ -310,12 +306,12 @@ public class CsaProfileRemedialActionsCreator {
             String groupId = propertyBag.get(MRID);
             String groupName = propertyBag.get(REMEDIAL_ACTION_NAME) == null ? groupId : propertyBag.get(REMEDIAL_ACTION_NAME);
             try {
-                Set<PropertyBag> dependingEnabledRemedialActions = remedialActionDependenciesByGroup.get(groupId).stream().filter(raDependency -> raDependency.get(NORMAL_ENABLED).equals("true") || raDependency.get(NORMAL_ENABLED) == null).collect(Collectors.toSet());
+                Set<PropertyBag> dependingEnabledRemedialActions = remedialActionDependenciesByGroup.get(groupId).stream().filter(raDependency -> Boolean.parseBoolean(raDependency.get(NORMAL_ENABLED)) || raDependency.get(NORMAL_ENABLED) == null).collect(Collectors.toSet());
                 if (!dependingEnabledRemedialActions.isEmpty()) {
 
                     PropertyBag refRemedialActionDependency = dependingEnabledRemedialActions.iterator().next();
-                    String refRemedialActionDependencyKind = refRemedialActionDependency.get(RA_KIND);
-                    if (!dependingEnabledRemedialActions.stream().allMatch(raDependency -> raDependency.get(RA_KIND).equals(refRemedialActionDependencyKind))) {
+                    String refRemedialActionDependencyKind = refRemedialActionDependency.get(KIND);
+                    if (!dependingEnabledRemedialActions.stream().allMatch(raDependency -> raDependency.get(KIND).equals(refRemedialActionDependencyKind))) {
                         standaloneRasImplicatedIntoAGroup.addAll(dependingEnabledRemedialActions.stream().map(getRaId()).collect(Collectors.toSet()));
                         throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action group " + groupId + " will not be imported because all related RemedialActionDependency must be of the same kind. All RA's depending in that group will be ignored: " + printRaIds(dependingEnabledRemedialActions));
                     }
@@ -325,11 +321,11 @@ public class CsaProfileRemedialActionsCreator {
                         standaloneRasImplicatedIntoAGroup.addAll(dependingEnabledRemedialActions.stream().map(getRaId()).collect(Collectors.toSet()));
                         throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action group " + groupId + " will not be imported because the remedial action " + refRemedialActionDependency.getId(REQUEST_REMEDIAL_ACTION) + " does not exist or not imported. All RA's depending in that group will be ignored: " + printRaIds(dependingEnabledRemedialActions));
                     }
-                    List<UsageRule> onAngleConstraintUsageRules = refNetworkAction.getUsageRules().stream().filter(ur -> ur instanceof OnAngleConstraint).toList();
-                    List<UsageRule> onFlowConstraintUsageRules = refNetworkAction.getUsageRules().stream().filter(ur -> ur instanceof OnFlowConstraint).toList();
-                    List<UsageRule> onVoltageConstraintUsageRules = refNetworkAction.getUsageRules().stream().filter(ur -> ur instanceof OnVoltageConstraint).toList();
-                    List<UsageRule> onContingencyStateUsageRules = refNetworkAction.getUsageRules().stream().filter(ur -> ur instanceof OnContingencyState).toList();
-                    List<UsageRule> onInstantUsageRules = refNetworkAction.getUsageRules().stream().filter(ur -> ur instanceof OnInstant).toList();
+                    List<UsageRule> onAngleConstraintUsageRules = refNetworkAction.getUsageRules().stream().filter(OnAngleConstraint.class::isInstance).toList();
+                    List<UsageRule> onFlowConstraintUsageRules = refNetworkAction.getUsageRules().stream().filter(OnFlowConstraint.class::isInstance).toList();
+                    List<UsageRule> onVoltageConstraintUsageRules = refNetworkAction.getUsageRules().stream().filter(OnVoltageConstraint.class::isInstance).toList();
+                    List<UsageRule> onContingencyStateUsageRules = refNetworkAction.getUsageRules().stream().filter(OnContingencyState.class::isInstance).toList();
+                    List<UsageRule> onInstantUsageRules = refNetworkAction.getUsageRules().stream().filter(OnInstant.class::isInstance).toList();
 
                     List<ElementaryAction> injectionSetpoints = new ArrayList<>();
                     List<ElementaryAction> pstSetPoints = new ArrayList<>();
@@ -341,80 +337,18 @@ public class CsaProfileRemedialActionsCreator {
                             standaloneRasImplicatedIntoAGroup.addAll(dependingEnabledRemedialActions.stream().map(getRaId()).collect(Collectors.toSet()));
                             throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action group " + groupId + " will not be imported because the remedial action " + remedialActionId + " does not exist or not imported. All RA's depending in that group will be ignored: " + printRaIds(dependingEnabledRemedialActions));
                         }
-                        if (!hasSameUsageRules(refNetworkAction, crac.getNetworkAction(remedialActionId))) {
+                        if (!refNetworkAction.getUsageRules().equals(crac.getNetworkAction(remedialActionId).getUsageRules())) {
                             standaloneRasImplicatedIntoAGroup.addAll(dependingEnabledRemedialActions.stream().map(getRaId()).collect(Collectors.toSet()));
                             throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action group " + groupId + " will not be imported because all depending the remedial actions must have the same usage rules. All RA's depending in that group will be ignored: " + printRaIds(dependingEnabledRemedialActions));
                         }
-                        injectionSetpoints.addAll(crac.getNetworkAction(remedialActionId).getElementaryActions().stream().filter(ea -> ea instanceof InjectionSetpoint).toList());
-                        pstSetPoints.addAll(crac.getNetworkAction(remedialActionId).getElementaryActions().stream().filter(ea -> ea instanceof PstSetpoint).toList());
-                        topologicalActions.addAll(crac.getNetworkAction(remedialActionId).getElementaryActions().stream().filter(ea -> ea instanceof TopologicalAction).toList());
-
+                        injectionSetpoints.addAll(crac.getNetworkAction(remedialActionId).getElementaryActions().stream().filter(InjectionSetpoint.class::isInstance).toList());
+                        pstSetPoints.addAll(crac.getNetworkAction(remedialActionId).getElementaryActions().stream().filter(PstSetpoint.class::isInstance).toList());
+                        topologicalActions.addAll(crac.getNetworkAction(remedialActionId).getElementaryActions().stream().filter(TopologicalAction.class::isInstance).toList());
                     });
 
                     NetworkActionAdder networkActionAdder = crac.newNetworkAction().withId(groupId).withName(groupName);
-                    onAngleConstraintUsageRules.forEach(ur -> {
-                        OnAngleConstraint onAngleConstraintUsageRule = (OnAngleConstraint) ur;
-                        networkActionAdder.newOnAngleConstraintUsageRule()
-                            .withInstant(onAngleConstraintUsageRule.getInstant().getId())
-                            .withUsageMethod(onAngleConstraintUsageRule.getUsageMethod())
-                            .withAngleCnec(onAngleConstraintUsageRule.getAngleCnec().getId())
-                            .add();
-                    });
-                    onFlowConstraintUsageRules.forEach(ur -> {
-                        OnFlowConstraint onFlowConstraintUsageRule = (OnFlowConstraint) ur;
-                        networkActionAdder.newOnFlowConstraintUsageRule()
-                            .withInstant(onFlowConstraintUsageRule.getInstant().getId())
-                            .withUsageMethod(onFlowConstraintUsageRule.getUsageMethod())
-                            .withFlowCnec(onFlowConstraintUsageRule.getFlowCnec().getId())
-                            .add();
-                    });
-                    onVoltageConstraintUsageRules.forEach(ur -> {
-                        OnVoltageConstraint onVoltageConstraintUsageRule = (OnVoltageConstraint) ur;
-                        networkActionAdder.newOnVoltageConstraintUsageRule()
-                            .withInstant(onVoltageConstraintUsageRule.getInstant().getId())
-                            .withUsageMethod(onVoltageConstraintUsageRule.getUsageMethod())
-                            .withVoltageCnec(onVoltageConstraintUsageRule.getVoltageCnec().getId())
-                            .add();
-                    });
-                    onContingencyStateUsageRules.forEach(ur -> {
-                        OnContingencyState onContingencyStateUsageRule = (OnContingencyState) ur;
-                        networkActionAdder.newOnContingencyStateUsageRule()
-                            .withInstant(onContingencyStateUsageRule.getInstant().getId())
-                            .withUsageMethod(onContingencyStateUsageRule.getUsageMethod())
-                            .withContingency(onContingencyStateUsageRule.getContingency().getId())
-                            .add();
-                    });
-                    onInstantUsageRules.forEach(ur -> {
-                        OnInstant onInstantUsageRule = (OnInstant) ur;
-                        networkActionAdder.newOnInstantUsageRule()
-                            .withInstant(onInstantUsageRule.getInstant().getId())
-                            .withUsageMethod(onInstantUsageRule.getUsageMethod())
-                            .add();
-                    });
-
-                    injectionSetpoints.forEach(ea -> {
-                        InjectionSetpoint injectionSetPoint = (InjectionSetpoint) ea;
-                        networkActionAdder.newInjectionSetPoint()
-                            .withNetworkElement(injectionSetPoint.getNetworkElement().getId())
-                            .withSetpoint(injectionSetPoint.getSetpoint())
-                            .withUnit(injectionSetPoint.getUnit())
-                            .add();
-                    });
-                    pstSetPoints.forEach(ea -> {
-                        PstSetpoint pstSetPoint = (PstSetpoint) ea;
-                        networkActionAdder.newPstSetPoint()
-                            .withNetworkElement(pstSetPoint.getNetworkElement().getId())
-                            .withSetpoint(pstSetPoint.getSetpoint())
-                            .add();
-                    });
-                    topologicalActions.forEach(ea -> {
-                        TopologicalAction topologicalAction = (TopologicalAction) ea;
-                        networkActionAdder.newTopologicalAction()
-                            .withNetworkElement(topologicalAction.getNetworkElement().getId())
-                            .withActionType(topologicalAction.getActionType())
-                            .add();
-                    });
-
+                    addUsageRulesToGroup(onAngleConstraintUsageRules, onFlowConstraintUsageRules, onVoltageConstraintUsageRules, onContingencyStateUsageRules, onInstantUsageRules, injectionSetpoints, pstSetPoints, topologicalActions, networkActionAdder);
+                    addElementaryActionsToGroup(injectionSetpoints, pstSetPoints, topologicalActions, networkActionAdder);
                     networkActionAdder.add();
                     contextByRaId.put(groupId, CsaProfileElementaryCreationContext.imported(groupId, groupId, groupName, "The RemedialActionGroup with mRID " + groupId + " was turned into a remedial action from the following remedial actions: " + printRaIds(dependingEnabledRemedialActions), true));
                     standaloneRasImplicatedIntoAGroup.addAll(dependingEnabledRemedialActions.stream().map(getRaId()).collect(Collectors.toSet()));
@@ -427,8 +361,72 @@ public class CsaProfileRemedialActionsCreator {
         return standaloneRasImplicatedIntoAGroup;
     }
 
-    private boolean hasSameUsageRules(NetworkAction refNetworkAction, NetworkAction networkAction) {
-        return refNetworkAction.getUsageRules().containsAll(networkAction.getUsageRules()) && networkAction.getUsageRules().containsAll(refNetworkAction.getUsageRules());
+    private static void addElementaryActionsToGroup(List<ElementaryAction> injectionSetpoints, List<ElementaryAction> pstSetPoints, List<ElementaryAction> topologicalActions, NetworkActionAdder networkActionAdder) {
+        injectionSetpoints.forEach(ea -> {
+            InjectionSetpoint injectionSetPoint = (InjectionSetpoint) ea;
+            networkActionAdder.newInjectionSetPoint()
+                .withNetworkElement(injectionSetPoint.getNetworkElement().getId())
+                .withSetpoint(injectionSetPoint.getSetpoint())
+                .withUnit(injectionSetPoint.getUnit())
+                .add();
+        });
+        pstSetPoints.forEach(ea -> {
+            PstSetpoint pstSetPoint = (PstSetpoint) ea;
+            networkActionAdder.newPstSetPoint()
+                .withNetworkElement(pstSetPoint.getNetworkElement().getId())
+                .withSetpoint(pstSetPoint.getSetpoint())
+                .add();
+        });
+        topologicalActions.forEach(ea -> {
+            TopologicalAction topologicalAction = (TopologicalAction) ea;
+            networkActionAdder.newTopologicalAction()
+                .withNetworkElement(topologicalAction.getNetworkElement().getId())
+                .withActionType(topologicalAction.getActionType())
+                .add();
+        });
+    }
+
+    private static void addUsageRulesToGroup(List<UsageRule> onAngleConstraintUsageRules, List<UsageRule> onFlowConstraintUsageRules, List<UsageRule> onVoltageConstraintUsageRules, List<UsageRule> onContingencyStateUsageRules, List<UsageRule> onInstantUsageRules, List<ElementaryAction> injectionSetpoints, List<ElementaryAction> pstSetPoints, List<ElementaryAction> topologicalActions, NetworkActionAdder networkActionAdder) {
+        onAngleConstraintUsageRules.forEach(ur -> {
+            OnAngleConstraint onAngleConstraintUsageRule = (OnAngleConstraint) ur;
+            networkActionAdder.newOnAngleConstraintUsageRule()
+                .withInstant(onAngleConstraintUsageRule.getInstant().getId())
+                .withUsageMethod(onAngleConstraintUsageRule.getUsageMethod())
+                .withAngleCnec(onAngleConstraintUsageRule.getAngleCnec().getId())
+                .add();
+        });
+        onFlowConstraintUsageRules.forEach(ur -> {
+            OnFlowConstraint onFlowConstraintUsageRule = (OnFlowConstraint) ur;
+            networkActionAdder.newOnFlowConstraintUsageRule()
+                .withInstant(onFlowConstraintUsageRule.getInstant().getId())
+                .withUsageMethod(onFlowConstraintUsageRule.getUsageMethod())
+                .withFlowCnec(onFlowConstraintUsageRule.getFlowCnec().getId())
+                .add();
+        });
+        onVoltageConstraintUsageRules.forEach(ur -> {
+            OnVoltageConstraint onVoltageConstraintUsageRule = (OnVoltageConstraint) ur;
+            networkActionAdder.newOnVoltageConstraintUsageRule()
+                .withInstant(onVoltageConstraintUsageRule.getInstant().getId())
+                .withUsageMethod(onVoltageConstraintUsageRule.getUsageMethod())
+                .withVoltageCnec(onVoltageConstraintUsageRule.getVoltageCnec().getId())
+                .add();
+        });
+        onContingencyStateUsageRules.forEach(ur -> {
+            OnContingencyState onContingencyStateUsageRule = (OnContingencyState) ur;
+            networkActionAdder.newOnContingencyStateUsageRule()
+                .withInstant(onContingencyStateUsageRule.getInstant().getId())
+                .withUsageMethod(onContingencyStateUsageRule.getUsageMethod())
+                .withContingency(onContingencyStateUsageRule.getContingency().getId())
+                .add();
+        });
+        onInstantUsageRules.forEach(ur -> {
+            OnInstant onInstantUsageRule = (OnInstant) ur;
+            networkActionAdder.newOnInstantUsageRule()
+                .withInstant(onInstantUsageRule.getInstant().getId())
+                .withUsageMethod(onInstantUsageRule.getUsageMethod())
+                .add();
+        });
+
     }
 
     private static String printRaIds(Set<PropertyBag> dependingEnabledRemedialActions) {

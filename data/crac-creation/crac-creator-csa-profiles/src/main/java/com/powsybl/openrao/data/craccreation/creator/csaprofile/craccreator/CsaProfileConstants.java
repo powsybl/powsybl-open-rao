@@ -120,7 +120,7 @@ public final class CsaProfileConstants {
     public static final String TSO = "tso";
     public static final String NORMAL_AVAILABLE = "normalAvailable";
     public static final String OVERRIDE_AVAILABLE = "available";
-    public static final String RA_KIND = "kind";
+    public static final String KIND = "kind";
     public static final String COMBINATION_CONSTRAINT_KIND = "combinationConstraintKind";
     public static final String SWITCH = "switchId";
     public static final String NORMAL_ENABLED = "normalEnabled";

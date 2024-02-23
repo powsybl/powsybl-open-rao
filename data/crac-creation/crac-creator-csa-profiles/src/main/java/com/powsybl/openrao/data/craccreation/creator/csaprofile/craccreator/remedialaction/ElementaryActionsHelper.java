@@ -160,7 +160,7 @@ public class ElementaryActionsHelper {
         PropertyBag remedialActionSchemePropertyBag = linkedRemedialActionSchemePropertyBags.get(0);
         String remedialActionSchemeId = remedialActionSchemePropertyBag.getId(MRID);
 
-        String remedialActionSchemeKind = remedialActionSchemePropertyBag.get(RA_KIND);
+        String remedialActionSchemeKind = remedialActionSchemePropertyBag.get(KIND);
         if (!remedialActionSchemeKind.equals(SIPS)) {
             throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action " + remedialActionId + " will not be imported because of an unsupported kind for remedial action schedule (only SIPS allowed)");
         }

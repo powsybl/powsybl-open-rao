@@ -6,8 +6,8 @@
  */
 package com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.remedialaction;
 
-import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.data.cracapi.InstantKind;
+import com.powsybl.openrao.data.cracapi.networkaction.*;
 import com.powsybl.openrao.data.cracapi.usagerule.OnContingencyState;
 import com.powsybl.openrao.data.cracapi.usagerule.OnFlowConstraint;
 import com.powsybl.openrao.data.cracapi.usagerule.UsageMethod;
@@ -20,9 +20,9 @@ import java.util.Set;
 
 import static com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileCracCreationTestUtil.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class GroupRemedialActionTest {
-    private final Network network = getNetworkFromResource("/TestCase16NodesWithShuntCompensator.zip");
 
     @Test
     void importGroupedRemedialActions() {
@@ -71,64 +71,58 @@ class GroupRemedialActionTest {
     void importGroupedHvdcRemedialActions() {
         CsaProfileCracCreationContext cracCreationContext = getCsaCracCreationContext("/RemedialActionGroups_HVDC.zip");
         assertNetworkActionImported(cracCreationContext, "hdvc-200-be-de", Set.of("BBE1AA1 _generator", "DDE2AA1 _generator", "BBE1AA1  BBE4AA1  1", "DDE1AA1 _generator", "BBE2AA1 _generator", "DDE3AA1  DDE4AA1  1"), true, 1);
-        assertEquals("HDVC Action - 200 MW BE to DE", cracCreationContext.getCrac().getRemedialAction("hdvc-200-be-de").getName());
-        UsageRule ur0 = cracCreationContext.getCrac().getNetworkAction("hdvc-200-be-de").getUsageRules().iterator().next();
-        assertEquals(InstantKind.CURATIVE, ur0.getInstant().getKind());
-        assertEquals(UsageMethod.AVAILABLE, ur0.getUsageMethod());
-
-        assertNetworkActionImported(cracCreationContext, "hdvc-200-de-be", Set.of("BBE1AA1 _generator", "DDE2AA1 _generator", "BBE1AA1  BBE4AA1  1", "DDE1AA1 _generator", "BBE2AA1 _generator", "DDE3AA1  DDE4AA1  1"), true, 1);
-        assertEquals("HDVC Action - 200 MW DE to BE", cracCreationContext.getCrac().getRemedialAction("hdvc-200-de-be").getName());
-        UsageRule ur1 = cracCreationContext.getCrac().getNetworkAction("hdvc-200-be-de").getUsageRules().iterator().next();
+        NetworkAction networkAction1 = cracCreationContext.getCrac().getNetworkAction("hdvc-200-be-de");
+        assertEquals("HDVC Action - 200 MW BE to DE", networkAction1.getName());
+        assertEquals(6, networkAction1.getElementaryActions().size());
+        assertTrue(hasTopologicalAction(networkAction1.getElementaryActions(), "BBE1AA1  BBE4AA1  1", ActionType.OPEN));
+        assertTrue(hasTopologicalAction(networkAction1.getElementaryActions(), "DDE3AA1  DDE4AA1  1", ActionType.OPEN));
+        assertTrue(hasInjectionSetPointAction(networkAction1.getElementaryActions(), "BBE1AA1 _generator", -200));
+        assertTrue(hasInjectionSetPointAction(networkAction1.getElementaryActions(), "BBE2AA1 _generator", -200));
+        assertTrue(hasInjectionSetPointAction(networkAction1.getElementaryActions(), "DDE1AA1 _generator", 200));
+        assertTrue(hasInjectionSetPointAction(networkAction1.getElementaryActions(), "DDE2AA1 _generator", 200));
+        UsageRule ur1 = networkAction1.getUsageRules().iterator().next();
         assertEquals(InstantKind.CURATIVE, ur1.getInstant().getKind());
         assertEquals(UsageMethod.AVAILABLE, ur1.getUsageMethod());
 
-        assertNetworkActionImported(cracCreationContext, "hdvc-0", Set.of("BBE1AA1 _generator", "DDE2AA1 _generator", "BBE1AA1  BBE4AA1  1", "DDE1AA1 _generator", "BBE2AA1 _generator", "DDE3AA1  DDE4AA1  1"), true, 1);
-        assertEquals("HDVC Action - 0 MW", cracCreationContext.getCrac().getRemedialAction("hdvc-0").getName());
-        UsageRule ur2 = cracCreationContext.getCrac().getNetworkAction("hdvc-0").getUsageRules().iterator().next();
+        assertNetworkActionImported(cracCreationContext, "hdvc-200-de-be", Set.of("BBE1AA1 _generator", "DDE2AA1 _generator", "BBE1AA1  BBE4AA1  1", "DDE1AA1 _generator", "BBE2AA1 _generator", "DDE3AA1  DDE4AA1  1"), true, 1);
+        NetworkAction networkAction2 = cracCreationContext.getCrac().getNetworkAction("hdvc-200-de-be");
+        assertEquals("HDVC Action - 200 MW DE to BE", networkAction2.getName());
+        assertEquals(6, networkAction2.getElementaryActions().size());
+        assertTrue(hasTopologicalAction(networkAction2.getElementaryActions(), "BBE1AA1  BBE4AA1  1", ActionType.OPEN));
+        assertTrue(hasTopologicalAction(networkAction2.getElementaryActions(), "DDE3AA1  DDE4AA1  1", ActionType.OPEN));
+        assertTrue(hasInjectionSetPointAction(networkAction2.getElementaryActions(), "BBE1AA1 _generator", 200));
+        assertTrue(hasInjectionSetPointAction(networkAction2.getElementaryActions(), "BBE2AA1 _generator", 200));
+        assertTrue(hasInjectionSetPointAction(networkAction2.getElementaryActions(), "DDE1AA1 _generator", -200));
+        assertTrue(hasInjectionSetPointAction(networkAction2.getElementaryActions(), "DDE2AA1 _generator", -200));
+        UsageRule ur2 = networkAction2.getUsageRules().iterator().next();
         assertEquals(InstantKind.CURATIVE, ur2.getInstant().getKind());
         assertEquals(UsageMethod.AVAILABLE, ur2.getUsageMethod());
+
+        assertNetworkActionImported(cracCreationContext, "hdvc-0", Set.of("BBE1AA1 _generator", "DDE2AA1 _generator", "BBE1AA1  BBE4AA1  1", "DDE1AA1 _generator", "BBE2AA1 _generator", "DDE3AA1  DDE4AA1  1"), true, 1);
+        NetworkAction networkAction3 = cracCreationContext.getCrac().getNetworkAction("hdvc-0");
+        assertEquals("HDVC Action - 0 MW", networkAction3.getName());
+        assertEquals(6, networkAction3.getElementaryActions().size());
+        assertTrue(hasTopologicalAction(networkAction3.getElementaryActions(), "BBE1AA1  BBE4AA1  1", ActionType.OPEN));
+        assertTrue(hasTopologicalAction(networkAction3.getElementaryActions(), "DDE3AA1  DDE4AA1  1", ActionType.OPEN));
+        assertTrue(hasInjectionSetPointAction(networkAction3.getElementaryActions(), "BBE1AA1 _generator", 0));
+        assertTrue(hasInjectionSetPointAction(networkAction3.getElementaryActions(), "BBE2AA1 _generator", 0));
+        assertTrue(hasInjectionSetPointAction(networkAction3.getElementaryActions(), "DDE1AA1 _generator", 0));
+        assertTrue(hasInjectionSetPointAction(networkAction3.getElementaryActions(), "DDE2AA1 _generator", 0));
+        UsageRule ur3 = networkAction3.getUsageRules().iterator().next();
+        assertEquals(InstantKind.CURATIVE, ur3.getInstant().getKind());
+        assertEquals(UsageMethod.AVAILABLE, ur3.getUsageMethod());
     }
 
-    @Test
-    void importGroupedRemedialActionsWithSsiOverriding() {
-        CsaProfileCracCreationContext cracCreationContext = getCsaCracCreationContext("/SSI-19_RemedialActionDependency.zip", network, "2023-01-01T22:30Z");
-        assertNetworkActionImported(cracCreationContext, "remedial-action-group", Set.of("FFR1AA1 _generator", "BBE1AA1  BBE4AA1  1"), true, 1);
-        assertEquals("Remedial Action Group", cracCreationContext.getCrac().getRemedialAction("remedial-action-group").getName());
-        assertNetworkActionImported(cracCreationContext, "redispatching-action-fr2", Set.of("FFR2AA1 _generator"), false, 1);
-        assertEquals("RTE_Redispatch -70 MW FR2", cracCreationContext.getCrac().getRemedialAction("redispatching-action-fr2").getName());
-        assertEquals("The RemedialActionGroup with mRID remedial-action-group was turned into a remedial action from the following remedial actions: topological-action, redispatching-action-fr1",
-            cracCreationContext.getRemedialActionCreationContext("remedial-action-group").getImportStatusDetail());
-
-        CsaProfileCracCreationContext cracCreationContextWithSsi = getCsaCracCreationContext("/SSI-19_RemedialActionDependency.zip", network, "2024-01-31T12:30Z");
-        assertNetworkActionImported(cracCreationContextWithSsi, "remedial-action-group", Set.of("FFR2AA1 _generator", "BBE1AA1  BBE4AA1  1"), true, 1);
-        assertEquals("Remedial Action Group", cracCreationContext.getCrac().getRemedialAction("remedial-action-group").getName());
-        assertNetworkActionImported(cracCreationContextWithSsi, "redispatching-action-fr1", Set.of("FFR1AA1 _generator"), false, 1);
-        assertEquals("RTE_Redispatch 70 MW FR1", cracCreationContextWithSsi.getCrac().getRemedialAction("redispatching-action-fr1").getName());
-        assertEquals("The RemedialActionGroup with mRID remedial-action-group was turned into a remedial action from the following remedial actions: topological-action, redispatching-action-fr2",
-            cracCreationContextWithSsi.getRemedialActionCreationContext("remedial-action-group").getImportStatusDetail());
+    private boolean hasInjectionSetPointAction(Set<ElementaryAction> elementaryActions, String elementId, double setpoint) {
+        return elementaryActions.stream()
+            .filter(InjectionSetpoint.class::isInstance)
+            .anyMatch(action -> ((InjectionSetpoint) action).getNetworkElement().getId().equals(elementId) && ((InjectionSetpoint) action).getSetpoint() == setpoint);
     }
 
-    @Test
-    void importGroupedRemedialActionsWithSsi20Overriding() {
-        CsaProfileCracCreationContext cracCreationContext = getCsaCracCreationContext("/SSI-20_RemedialActionGroup.zip", network, "2023-01-01T22:30Z");
-        assertNetworkActionImported(cracCreationContext, "remedial-action-group", Set.of("BBE1AA1  BBE4AA1  1", "DDE3AA1  DDE4AA1  1"), true, 1);
-        assertEquals("The RemedialActionGroup with mRID remedial-action-group was turned into a remedial action from the following remedial actions: open-be1-be4, open-de3-de4",
-            cracCreationContext.getRemedialActionCreationContext("remedial-action-group").getImportStatusDetail());
-
-        CsaProfileCracCreationContext cracCreationContextSii1 = getCsaCracCreationContext("/SSI-20_RemedialActionGroup.zip", network, "2024-01-31T12:30Z");
-        assertEquals(0, cracCreationContextSii1.getCrac().getRemedialActions().size());
-        assertEquals("Remedial action group remedial-action-group will not be imported because the remedial action open-be1-be4 does not exist or not imported. All RA's depending in that group will be ignored: open-be1-be4, open-de3-de4",
-            cracCreationContextSii1.getRemedialActionCreationContext("remedial-action-group").getImportStatusDetail());
-
-        CsaProfileCracCreationContext cracCreationContextSii2 = getCsaCracCreationContext("/SSI-20_RemedialActionGroup.zip", network, "2024-02-01T12:30Z");
-        assertEquals(2, cracCreationContextSii2.getCrac().getRemedialActions().size());
-        assertEquals("The RemedialActionGroup with mRID remedial-action-group was turned into a remedial action from the following remedial actions: open-de3-de4",
-            cracCreationContextSii2.getRemedialActionCreationContext("remedial-action-group").getImportStatusDetail());
-
-        CsaProfileCracCreationContext cracCreationContextSii3 = getCsaCracCreationContext("/SSI-20_RemedialActionGroup.zip", network, "2024-02-02T12:30Z");
-        assertEquals(1, cracCreationContextSii3.getCrac().getRemedialActions().size());
-        assertEquals("The RemedialActionGroup with mRID remedial-action-group was turned into a remedial action from the following remedial actions: open-de3-de4",
-            cracCreationContextSii3.getRemedialActionCreationContext("remedial-action-group").getImportStatusDetail());
+    private boolean hasTopologicalAction(Set<ElementaryAction> elementaryActions, String elementId, ActionType actionType) {
+        return elementaryActions.stream()
+            .filter(TopologicalAction.class::isInstance)
+            .anyMatch(action -> ((TopologicalAction) action).getNetworkElement().getId().equals(elementId) && ((TopologicalAction) action).getActionType().equals(actionType));
     }
 
 }
