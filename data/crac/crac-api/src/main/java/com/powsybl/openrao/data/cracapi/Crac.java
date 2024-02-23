@@ -88,7 +88,7 @@ public interface Crac extends Identifiable<Crac> {
     /**
      * Gather all the instants present in the Crac with the correct instantKind.
      */
-    Set<Instant> getInstants(InstantKind instantKind);
+    SortedSet<Instant> getInstants(InstantKind instantKind);
 
     /**
      * Returns the previous instant of an instant.
@@ -129,6 +129,11 @@ public interface Crac extends Identifiable<Crac> {
      * defined on the preventive instant, with no contingency.
      */
     State getPreventiveState();
+
+    /**
+     * Get the curative states for all curative instants.
+     */
+    Set<State> getCurativeStates();
 
     /**
      * Chronological list of states after a defined contingency. The chronology is defined by
