@@ -14,6 +14,7 @@ import com.powsybl.openrao.data.craccreation.creator.cim.craccreator.cnec.Monito
 import com.powsybl.openrao.data.craccreation.creator.cim.craccreator.contingency.CimContingencyCreationContext;
 import com.powsybl.openrao.data.craccreation.creator.cim.xsd.ContingencySeries;
 import com.powsybl.openrao.data.craccreation.creator.cim.xsd.MonitoredSeries;
+import com.powsybl.openrao.data.craccreation.creator.cim.xsd.SeriesPeriod;
 import com.powsybl.openrao.data.craccreation.creator.cim.xsd.TimeSeries;
 import org.apache.commons.lang3.StringUtils;
 
@@ -62,7 +63,11 @@ public final class CimCracUtils {
         return curveType;
     }
 
-    public static boolean isTimestampInPeriod(Instant timestamp, Instant periodStart, Instant periodEnd, String curveType, Duration periodResolution, int position) {
+    public static boolean isTimestampInPeriod(Instant timestamp, TimeSeries timeSerie, SeriesPeriod period, int position) {
+        final String curveType = CimCracUtils.getCurveTypeFromTimeSeries(timeSerie);
+        final Duration periodResolution = Duration.parse(period.getResolution().toString());
+        final Instant periodStart = CimCracUtils.parseDateTime(period.getTimeInterval().getStart());
+        final Instant periodEnd = CimCracUtils.parseDateTime(period.getTimeInterval().getEnd());
 
         Instant pointStart = periodStart.plus(periodResolution.multipliedBy(position - 1L));
         // default "A03"

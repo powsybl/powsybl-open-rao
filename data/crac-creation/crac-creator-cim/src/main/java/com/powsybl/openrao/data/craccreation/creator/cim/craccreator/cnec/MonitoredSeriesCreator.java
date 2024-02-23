@@ -25,7 +25,6 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.TwoSides;
 import org.apache.commons.lang3.StringUtils;
 
-import java.time.Duration;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -81,27 +80,20 @@ public class MonitoredSeriesCreator {
     private Set<Series> getCnecSeries() {
         Set<Series> cnecSeries = new HashSet<>();
         cimTimeSeries.forEach(
-            timeSerie -> {
-                final String curveType = CimCracUtils.getCurveTypeFromTimeSeries(timeSerie);
-                timeSerie.getPeriod().forEach(
-                        period -> {
-                            final Duration resolution = Duration.parse(period.getResolution().toString());
-                            final java.time.Instant periodStart = CimCracUtils.parseDateTime(period.getTimeInterval().getStart());
-                            final java.time.Instant periodEnd = CimCracUtils.parseDateTime(period.getTimeInterval().getEnd());
-
-                            period.getPoint().forEach(
+            timeSerie -> timeSerie.getPeriod().forEach(
+                        period -> period.getPoint().forEach(
                                     point -> {
                                         final int position = point.getPosition();
 
                                         java.time.Instant timestamp = cracCreationContext.getTimeStamp().toInstant();
 
-                                        if (CimCracUtils.isTimestampInPeriod(timestamp, periodStart, periodEnd, curveType, resolution, position)) {
+                                        if (CimCracUtils.isTimestampInPeriod(timestamp, timeSerie, period, position)) {
                                             point.getSeries().stream().filter(this::describesCnecsToImport).forEach(cnecSeries::add);
                                         }
                                     }
-                            );
-                        });
-            });
+                            )
+                        )
+        );
         return cnecSeries;
     }
 

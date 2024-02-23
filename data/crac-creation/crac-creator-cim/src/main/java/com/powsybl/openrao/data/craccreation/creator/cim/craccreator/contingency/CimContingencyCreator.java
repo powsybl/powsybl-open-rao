@@ -19,7 +19,6 @@ import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.TieLine;
 
-import java.time.Duration;
 import java.time.Instant;
 import java.util.HashSet;
 import java.util.List;
@@ -59,19 +58,11 @@ public class CimContingencyCreator {
     }
 
     private void addContingenciesIfTimestampInPeriod(TimeSeries cimTimeSerie) {
-        final String curveType = CimCracUtils.getCurveTypeFromTimeSeries(cimTimeSerie);
-
         for (SeriesPeriod cimPeriodInTimeSerie : cimTimeSerie.getPeriod()) {
-            final Duration resolution = Duration.parse(cimPeriodInTimeSerie.getResolution().toString());
-            final Instant periodStart = CimCracUtils.parseDateTime(cimPeriodInTimeSerie.getTimeInterval().getStart());
-            final Instant periodEnd = CimCracUtils.parseDateTime(cimPeriodInTimeSerie.getTimeInterval().getEnd());
-
             for (Point cimPointInPeriodInTimeSerie : cimPeriodInTimeSerie.getPoint()) {
                 final int position = cimPointInPeriodInTimeSerie.getPosition();
-
                 Instant timestamp = cracCreationContext.getTimeStamp().toInstant();
-
-                if (CimCracUtils.isTimestampInPeriod(timestamp, periodStart, periodEnd, curveType, resolution, position)) {
+                if (CimCracUtils.isTimestampInPeriod(timestamp, cimTimeSerie, cimPeriodInTimeSerie, position)) {
                     for (Series cimSerie : cimPointInPeriodInTimeSerie.getSeries().stream().filter(this::describesContingencyToImport).toList()) {
                         for (ContingencySeries cimContingency : cimSerie.getContingencySeries()) {
                             addContingency(cimContingency);
