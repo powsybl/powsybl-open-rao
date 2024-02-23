@@ -35,15 +35,19 @@ public class PstRangeActionCreator {
 
     public PstRangeActionAdder getPstRangeActionAdder(Map<String, Set<PropertyBag>> linkedTapPositionActions, Map<String, Set<PropertyBag>> linkedStaticPropertyRanges, String remedialActionId, String elementaryActionsAggregatorId, List<String> alterations) {
         PstRangeActionAdder pstRangeActionAdder = crac.newPstRangeAction().withId(remedialActionId);
+
         if (linkedTapPositionActions.containsKey(elementaryActionsAggregatorId)) {
-            for (PropertyBag tapPositionActionPropertyBag : linkedTapPositionActions.get(elementaryActionsAggregatorId)) {
-                Set<PropertyBag> linkedStaticPropertyRangesToTapPositionAction = new HashSet<>();
-                if (linkedStaticPropertyRanges.containsKey(tapPositionActionPropertyBag.getId(MRID))) {
-                    linkedStaticPropertyRangesToTapPositionAction = linkedStaticPropertyRanges.get(tapPositionActionPropertyBag.getId(MRID));
-                }
-                addTapPositionElementaryAction(linkedStaticPropertyRangesToTapPositionAction, remedialActionId, pstRangeActionAdder, tapPositionActionPropertyBag);
+            if (linkedTapPositionActions.get(elementaryActionsAggregatorId).size() > 1) {
+                throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, String.format("Remedial action '%s' will not be imported because several TapPositionActions were defined for the same PST Range Action when only one is expected", remedialActionId));
             }
+            PropertyBag tapPositionActionPropertyBag = linkedTapPositionActions.get(elementaryActionsAggregatorId).iterator().next();
+            Set<PropertyBag> linkedStaticPropertyRangesToTapPositionAction = new HashSet<>();
+            if (linkedStaticPropertyRanges.containsKey(tapPositionActionPropertyBag.getId(MRID))) {
+                linkedStaticPropertyRangesToTapPositionAction = linkedStaticPropertyRanges.get(tapPositionActionPropertyBag.getId(MRID));
+            }
+            addTapPositionElementaryAction(linkedStaticPropertyRangesToTapPositionAction, remedialActionId, pstRangeActionAdder, tapPositionActionPropertyBag);
         }
+
         return pstRangeActionAdder;
     }
 
