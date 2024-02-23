@@ -133,7 +133,7 @@ public class CsaProfileRemedialActionsCreator {
         Set<PropertyBag> linkedContingencyWithRA = linkedContingencyWithRAs.get(remedialActionId);
         for (PropertyBag propertyBag : linkedContingencyWithRA) {
             String combinationKind = propertyBag.get(COMBINATION_CONSTRAINT_KIND);
-            String contingencyId = CsaProfileCracUtils.getIdFromUrl(propertyBag, REQUEST_CONTINGENCY);
+            String contingencyId = propertyBag.getId(REQUEST_CONTINGENCY);
             if (combinationKind.equals(ElementCombinationConstraintKind.INCLUDED.toString())) {
                 contingenciesWithIncluded.add(contingencyId);
             } else if (combinationKind.equals(ElementCombinationConstraintKind.CONSIDERED.toString())) {
@@ -230,7 +230,7 @@ public class CsaProfileRemedialActionsCreator {
             if (!parentRemedialActionPropertyBag.get(RA_KIND).equals(RemedialActionKind.CURATIVE.toString())) {
                 throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action " + remedialActionId + " will not be imported because it is linked to a contingency but it's kind is not curative");
             }
-            String contingencyId = CsaProfileCracUtils.getIdFromUrl(contingencyWithRemedialActionPropertyBag, REQUEST_CONTINGENCY);
+            String contingencyId = contingencyWithRemedialActionPropertyBag.getId(REQUEST_CONTINGENCY);
             Optional<String> normalEnabled = Optional.ofNullable(contingencyWithRemedialActionPropertyBag.get(NORMAL_ENABLED));
             if (normalEnabled.isPresent() && !Boolean.parseBoolean(normalEnabled.get())) {
                 ignoredContingenciesMessages.add("OnContingencyState usage rule for remedial action %s with contingency %s ignored because the link between the remedial action and the contingency is disabled or missing".formatted(remedialActionId, contingencyId));
@@ -436,6 +436,6 @@ public class CsaProfileRemedialActionsCreator {
     }
 
     private static Function<PropertyBag, String> getRaId() {
-        return dependingRa -> CsaProfileCracUtils.getIdFromUrl(dependingRa, REQUEST_REMEDIAL_ACTION);
+        return dependingRa -> dependingRa.getId(REQUEST_REMEDIAL_ACTION);
     }
 }

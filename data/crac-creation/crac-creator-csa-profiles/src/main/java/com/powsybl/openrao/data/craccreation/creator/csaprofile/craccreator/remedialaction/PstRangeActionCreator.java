@@ -53,8 +53,7 @@ public class PstRangeActionCreator {
             throw new OpenRaoImportException(ImportStatus.NOT_FOR_RAO, String.format("Remedial action '%s' will not be imported because the field 'normalEnabled' in TapPositionAction is set to false", remedialActionId));
         }
         CsaProfileCracUtils.checkPropertyReference(tapPositionActionPropertyBag, remedialActionId, TAP_POSITION_ACTION, PropertyReference.TAP_CHANGER.toString());
-        String rawId = tapPositionActionPropertyBag.get(TAP_CHANGER);
-        String tapChangerId = rawId.substring(rawId.lastIndexOf("#_") + 2).replace("+", " ");
+        String tapChangerId = tapPositionActionPropertyBag.getId(TAP_CHANGER).replace("+", " ");
         IidmPstHelper iidmPstHelper = new IidmPstHelper(tapChangerId, network);
         if (!iidmPstHelper.isValid()) {
             throw new OpenRaoImportException(ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK, "Remedial action " + remedialActionId + " will not be imported because " + iidmPstHelper.getInvalidReason());

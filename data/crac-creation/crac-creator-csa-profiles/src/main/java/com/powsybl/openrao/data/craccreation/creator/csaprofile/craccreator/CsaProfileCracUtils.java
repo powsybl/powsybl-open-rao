@@ -126,7 +126,4 @@ public final class CsaProfileCracUtils {
         return propertyBags;
     }
 
-    public static String getIdFromUrl(PropertyBag propertyBag, String key) {
-        return propertyBag.get(key).substring(propertyBag.get(key).lastIndexOf("#_") + 2);
-    }
 }
