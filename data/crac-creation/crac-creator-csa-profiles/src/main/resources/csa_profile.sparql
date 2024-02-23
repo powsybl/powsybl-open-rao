@@ -765,3 +765,20 @@ GRAPH <%s> {
         }
 }
 }
+
+
+# query: remedialActionDependencyOverriding
+PREFIX nc: <http://entsoe.eu/ns/nc#>
+PREFIX dcat: <http://www.w3.org/ns/dcat#>
+SELECT *
+{
+GRAPH <%s> {
+    ?fullModel
+        dcat:startDate ?startDate ;
+        dcat:endDate ?endDate ;
+        dcat:keyword ?keyword .
+    ?remedialActionDependency
+        rdf:type nc:RemedialActionDependency ;
+        nc:RemedialActionDependency.enabled ?enabled .
+}
+}

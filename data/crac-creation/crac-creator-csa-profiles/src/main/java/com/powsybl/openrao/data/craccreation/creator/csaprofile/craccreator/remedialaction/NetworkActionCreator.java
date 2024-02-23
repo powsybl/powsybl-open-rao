@@ -130,8 +130,7 @@ public class NetworkActionCreator {
 
     private boolean addInjectionSetPointFromShuntCompensatorModification(Set<PropertyBag> staticPropertyRangesLinkedToShuntCompensatorModification, String remedialActionId, NetworkActionAdder networkActionAdder, PropertyBag shuntCompensatorModificationPropertyBag, List<String> alterations) {
         CsaProfileCracUtils.checkPropertyReference(shuntCompensatorModificationPropertyBag, remedialActionId, "ShuntCompensatorModification", CsaProfileConstants.PropertyReference.SHUNT_COMPENSATOR.toString());
-        String rawId = shuntCompensatorModificationPropertyBag.get(CsaProfileConstants.SHUNT_COMPENSATOR_ID);
-        String shuntCompensatorId = rawId.substring(rawId.lastIndexOf("#_") + 2);
+        String shuntCompensatorId = CsaProfileCracUtils.getIdFromUrl(shuntCompensatorModificationPropertyBag, CsaProfileConstants.SHUNT_COMPENSATOR_ID);
         float initialSetPoint = getInitialSetPointShuntCompensator(shuntCompensatorId, remedialActionId);
 
         PropertyBag staticPropertyRangePropertyBag = staticPropertyRangesLinkedToShuntCompensatorModification.iterator().next(); // get a random one because there is only one

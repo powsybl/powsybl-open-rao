@@ -6,6 +6,7 @@
  */
 package com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.remedialaction;
 
+import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.data.cracapi.InstantKind;
 import com.powsybl.openrao.data.cracapi.usagerule.OnContingencyState;
 import com.powsybl.openrao.data.cracapi.usagerule.OnFlowConstraint;
@@ -21,16 +22,17 @@ import static com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreat
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class GroupRemedialActionTest {
+    private final Network network = getNetworkFromResource("/TestCase16NodesWithShuntCompensator.zip");
 
     @Test
     void importGroupedRemedialActions() {
         CsaProfileCracCreationContext cracCreationContext = getCsaCracCreationContext("/CSA_80.zip");
-        assertEquals(7, cracCreationContext.getCrac().getRemedialActions().size()); // TODO check with thomas, 5 in US, but 2 standalone ra's still not grouped
-        assertRaNotImported(cracCreationContext, "92f45b99-44c2-499d-8c4e-723bd1829dbe", ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action group 92f45b99-44c2-499d-8c4e-723bd1829dbe will not be imported because all depending the remedial actions must have the same usage rules");
-        assertRaNotImported(cracCreationContext, "95ba7539-6067-4f7e-a30b-e53eae7c042a", ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action group 95ba7539-6067-4f7e-a30b-e53eae7c042a will not be imported because all depending the remedial actions must have the same usage rules");
-        assertRaNotImported(cracCreationContext, "a8c92deb-6a3a-49a2-aecd-fb3bccbd005c", ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action group a8c92deb-6a3a-49a2-aecd-fb3bccbd005c will not be imported because all depending the remedial actions must have the same usage rules");
-        assertRaNotImported(cracCreationContext, "b9dc54f8-6f8f-4878-8d7d-5d08751e5977", ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action group b9dc54f8-6f8f-4878-8d7d-5d08751e5977 will not be imported because all related RemedialActionDependency must be of the same kind");
-        assertRaNotImported(cracCreationContext, "fc0403cc-c774-4966-b7cb-2fc75b7ebdbc", ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action group fc0403cc-c774-4966-b7cb-2fc75b7ebdbc will not be imported because all depending the remedial actions must have the same usage rules");
+        assertEquals(5, cracCreationContext.getCrac().getRemedialActions().size());
+        assertRaNotImported(cracCreationContext, "92f45b99-44c2-499d-8c4e-723bd1829dbe", ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action group 92f45b99-44c2-499d-8c4e-723bd1829dbe will not be imported because all depending the remedial actions must have the same usage rules. All RA's depending in that group will be ignored: open_fr1_fr3_pra, open_fr1_fr3_cra");
+        assertRaNotImported(cracCreationContext, "95ba7539-6067-4f7e-a30b-e53eae7c042a", ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action group 95ba7539-6067-4f7e-a30b-e53eae7c042a will not be imported because all depending the remedial actions must have the same usage rules. All RA's depending in that group will be ignored: open_fr1_fr3_cra_ae1, open_fr1_fr3_pra");
+        assertRaNotImported(cracCreationContext, "a8c92deb-6a3a-49a2-aecd-fb3bccbd005c", ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action group a8c92deb-6a3a-49a2-aecd-fb3bccbd005c will not be imported because all depending the remedial actions must have the same usage rules. All RA's depending in that group will be ignored: open_fr1_fr3_cra, open_fr1_fr3_cra_co1");
+        assertRaNotImported(cracCreationContext, "b9dc54f8-6f8f-4878-8d7d-5d08751e5977", ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action group b9dc54f8-6f8f-4878-8d7d-5d08751e5977 will not be imported because all related RemedialActionDependency must be of the same kind. All RA's depending in that group will be ignored: open_fr1_fr3_pra, open_fr1_fr2_pra");
+        assertRaNotImported(cracCreationContext, "fc0403cc-c774-4966-b7cb-2fc75b7ebdbc", ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action group fc0403cc-c774-4966-b7cb-2fc75b7ebdbc will not be imported because all depending the remedial actions must have the same usage rules. All RA's depending in that group will be ignored: open_fr1_fr3_cra_ae1, open_fr1_fr3_cra_ae2");
 
         assertNetworkActionImported(cracCreationContext, "23ff9c5d-9501-4141-a4b3-f4468b2eb636", Set.of("FFR1AA1X-FFR1AA1--1", "FFR1AA1Y-FFR1AA1--1"), true, 1);
         assertEquals("Topo 1 + Topo 2 - PRA", cracCreationContext.getCrac().getRemedialAction("23ff9c5d-9501-4141-a4b3-f4468b2eb636").getName());
@@ -58,7 +60,7 @@ class GroupRemedialActionTest {
         assertEquals(UsageMethod.AVAILABLE, ur3.getUsageMethod());
         assertEquals("RTE_AE1 (f7708112-b880-4674-98a1-b005a01a61d5) - RTE_CO1 - curative", ((OnFlowConstraint) ur3).getFlowCnec().getId());
 
-        assertNetworkActionImported(cracCreationContext, "66979f64-3c52-486c-84f7-b5439cd71765", Set.of("FFR1AA1X-FFR1AA1--1", "FFR1AA1Y-FFR1AA1--1"), true, 1);
+        assertNetworkActionImported(cracCreationContext, "66979f64-3c52-486c-84f7-b5439cd71765", Set.of("FFR1AA1X-FFR1AA1--1"), true, 1);
         assertEquals("Topo 1 - PRA", cracCreationContext.getCrac().getRemedialAction("66979f64-3c52-486c-84f7-b5439cd71765").getName());
         UsageRule ur4 = cracCreationContext.getCrac().getNetworkAction("66979f64-3c52-486c-84f7-b5439cd71765").getUsageRules().iterator().next();
         assertEquals(InstantKind.PREVENTIVE, ur4.getInstant().getKind());
@@ -85,6 +87,48 @@ class GroupRemedialActionTest {
         UsageRule ur2 = cracCreationContext.getCrac().getNetworkAction("hdvc-0").getUsageRules().iterator().next();
         assertEquals(InstantKind.CURATIVE, ur2.getInstant().getKind());
         assertEquals(UsageMethod.AVAILABLE, ur2.getUsageMethod());
+    }
+
+    @Test
+    void importGroupedRemedialActionsWithSsiOverriding() {
+        CsaProfileCracCreationContext cracCreationContext = getCsaCracCreationContext("/SSI-19_RemedialActionDependency.zip", network, "2023-01-01T22:30Z");
+        assertNetworkActionImported(cracCreationContext, "remedial-action-group", Set.of("FFR1AA1 _generator", "BBE1AA1  BBE4AA1  1"), true, 1);
+        assertEquals("Remedial Action Group", cracCreationContext.getCrac().getRemedialAction("remedial-action-group").getName());
+        assertNetworkActionImported(cracCreationContext, "redispatching-action-fr2", Set.of("FFR2AA1 _generator"), false, 1);
+        assertEquals("RTE_Redispatch -70 MW FR2", cracCreationContext.getCrac().getRemedialAction("redispatching-action-fr2").getName());
+        assertEquals("The RemedialActionGroup with mRID remedial-action-group was turned into a remedial action from the following remedial actions: topological-action, redispatching-action-fr1",
+            cracCreationContext.getRemedialActionCreationContext("remedial-action-group").getImportStatusDetail());
+
+        CsaProfileCracCreationContext cracCreationContextWithSsi = getCsaCracCreationContext("/SSI-19_RemedialActionDependency.zip", network, "2024-01-31T12:30Z");
+        assertNetworkActionImported(cracCreationContextWithSsi, "remedial-action-group", Set.of("FFR2AA1 _generator", "BBE1AA1  BBE4AA1  1"), true, 1);
+        assertEquals("Remedial Action Group", cracCreationContext.getCrac().getRemedialAction("remedial-action-group").getName());
+        assertNetworkActionImported(cracCreationContextWithSsi, "redispatching-action-fr1", Set.of("FFR1AA1 _generator"), false, 1);
+        assertEquals("RTE_Redispatch 70 MW FR1", cracCreationContextWithSsi.getCrac().getRemedialAction("redispatching-action-fr1").getName());
+        assertEquals("The RemedialActionGroup with mRID remedial-action-group was turned into a remedial action from the following remedial actions: topological-action, redispatching-action-fr2",
+            cracCreationContextWithSsi.getRemedialActionCreationContext("remedial-action-group").getImportStatusDetail());
+    }
+
+    @Test
+    void importGroupedRemedialActionsWithSsi20Overriding() {
+        CsaProfileCracCreationContext cracCreationContext = getCsaCracCreationContext("/SSI-20_RemedialActionGroup.zip", network, "2023-01-01T22:30Z");
+        assertNetworkActionImported(cracCreationContext, "remedial-action-group", Set.of("BBE1AA1  BBE4AA1  1", "DDE3AA1  DDE4AA1  1"), true, 1);
+        assertEquals("The RemedialActionGroup with mRID remedial-action-group was turned into a remedial action from the following remedial actions: open-be1-be4, open-de3-de4",
+            cracCreationContext.getRemedialActionCreationContext("remedial-action-group").getImportStatusDetail());
+
+        CsaProfileCracCreationContext cracCreationContextSii1 = getCsaCracCreationContext("/SSI-20_RemedialActionGroup.zip", network, "2024-01-31T12:30Z");
+        assertEquals(0, cracCreationContextSii1.getCrac().getRemedialActions().size());
+        assertEquals("Remedial action group remedial-action-group will not be imported because the remedial action open-be1-be4 does not exist or not imported. All RA's depending in that group will be ignored: open-be1-be4, open-de3-de4",
+            cracCreationContextSii1.getRemedialActionCreationContext("remedial-action-group").getImportStatusDetail());
+
+        CsaProfileCracCreationContext cracCreationContextSii2 = getCsaCracCreationContext("/SSI-20_RemedialActionGroup.zip", network, "2024-02-01T12:30Z");
+        assertEquals(2, cracCreationContextSii2.getCrac().getRemedialActions().size());
+        assertEquals("The RemedialActionGroup with mRID remedial-action-group was turned into a remedial action from the following remedial actions: open-de3-de4",
+            cracCreationContextSii2.getRemedialActionCreationContext("remedial-action-group").getImportStatusDetail());
+
+        CsaProfileCracCreationContext cracCreationContextSii3 = getCsaCracCreationContext("/SSI-20_RemedialActionGroup.zip", network, "2024-02-02T12:30Z");
+        assertEquals(1, cracCreationContextSii3.getCrac().getRemedialActions().size());
+        assertEquals("The RemedialActionGroup with mRID remedial-action-group was turned into a remedial action from the following remedial actions: open-de3-de4",
+            cracCreationContextSii3.getRemedialActionCreationContext("remedial-action-group").getImportStatusDetail());
     }
 
 }
