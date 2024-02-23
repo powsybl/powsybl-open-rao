@@ -106,8 +106,7 @@ public class NetworkActionCreator {
 
     private boolean addInjectionSetPointFromRotatingMachineAction(Set<PropertyBag> staticPropertyRangesLinkedToRotatingMachineAction, String remedialActionId, NetworkActionAdder networkActionAdder, PropertyBag rotatingMachineActionPropertyBag, List<String> alterations) {
         CsaProfileCracUtils.checkPropertyReference(rotatingMachineActionPropertyBag, remedialActionId, "RotatingMachineAction", CsaProfileConstants.PropertyReference.ROTATING_MACHINE.toString());
-        String rawId = rotatingMachineActionPropertyBag.get(CsaProfileConstants.ROTATING_MACHINE);
-        String rotatingMachineId = rawId.substring(rawId.lastIndexOf("#_") + 2).replace("+", " ");
+        String rotatingMachineId = rotatingMachineActionPropertyBag.getId(CsaProfileConstants.ROTATING_MACHINE).replace("+", " ");
         float initialSetPoint = getInitialSetPointRotatingMachine(rotatingMachineId, remedialActionId);
 
         PropertyBag staticPropertyRangePropertyBag = staticPropertyRangesLinkedToRotatingMachineAction.iterator().next(); // get a random one because there is only one
@@ -130,8 +129,7 @@ public class NetworkActionCreator {
 
     private boolean addInjectionSetPointFromShuntCompensatorModification(Set<PropertyBag> staticPropertyRangesLinkedToShuntCompensatorModification, String remedialActionId, NetworkActionAdder networkActionAdder, PropertyBag shuntCompensatorModificationPropertyBag, List<String> alterations) {
         CsaProfileCracUtils.checkPropertyReference(shuntCompensatorModificationPropertyBag, remedialActionId, "ShuntCompensatorModification", CsaProfileConstants.PropertyReference.SHUNT_COMPENSATOR.toString());
-        String rawId = shuntCompensatorModificationPropertyBag.get(CsaProfileConstants.SHUNT_COMPENSATOR_ID);
-        String shuntCompensatorId = rawId.substring(rawId.lastIndexOf("_") + 1);
+        String shuntCompensatorId = shuntCompensatorModificationPropertyBag.getId(CsaProfileConstants.SHUNT_COMPENSATOR_ID);
         float initialSetPoint = getInitialSetPointShuntCompensator(shuntCompensatorId, remedialActionId);
 
         PropertyBag staticPropertyRangePropertyBag = staticPropertyRangesLinkedToShuntCompensatorModification.iterator().next(); // get a random one because there is only one
