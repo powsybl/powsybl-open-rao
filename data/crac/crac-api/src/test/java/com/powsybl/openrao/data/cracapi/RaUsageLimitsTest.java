@@ -7,9 +7,16 @@
 
 package com.powsybl.openrao.data.cracapi;
 
+import ch.qos.logback.classic.Logger;
+import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.core.read.ListAppender;
 import com.powsybl.openrao.commons.OpenRaoException;
+import com.powsybl.openrao.commons.logs.RaoBusinessWarns;
 import org.junit.jupiter.api.Test;
+import org.slf4j.LoggerFactory;
 
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -66,13 +73,25 @@ class RaUsageLimitsTest {
         assertEquals(raUsageLimits1, raUsageLimits2);
     }
 
+    public static ListAppender<ILoggingEvent> getLogs(Class<?> logsClass) {
+        Logger logger = (Logger) LoggerFactory.getLogger(logsClass);
+        ListAppender<ILoggingEvent> listAppender = new ListAppender<>();
+        listAppender.start();
+        logger.addAppender(listAppender);
+        return listAppender;
+    }
+
     @Test
     void testIllegalValues() {
+        ListAppender<ILoggingEvent> listAppender = getLogs(RaoBusinessWarns.class);
+        List<ILoggingEvent> logsList = listAppender.list;
         // negative values
-        raUsageLimits.setMaxTso(-2);
+        raUsageLimits.setMaxTso(-3);
         assertEquals(0, raUsageLimits.getMaxTso());
         raUsageLimits.setMaxRa(-2);
         assertEquals(0, raUsageLimits.getMaxRa());
+        raUsageLimits.setMaxTopoPerTso(new HashMap<>(Map.of("FR", -4)));
+        assertEquals(0, raUsageLimits.getMaxTopoPerTso().get("FR"));
         // incoherent parameters for topo
         raUsageLimits.setMaxTopoPerTso(Map.of("FR", 5));
         Map<String, Integer> illegalMap = Map.of("FR", 3);
@@ -90,5 +109,10 @@ class RaUsageLimitsTest {
         assertTrue(raUsageLimits.getMaxTopoPerTso().isEmpty());
         raUsageLimits.setMaxRaPerTso(null);
         assertTrue(raUsageLimits.getMaxRaPerTso().isEmpty());
+        // check logs
+        assertEquals(3, logsList.size());
+        assertEquals("The value -3 provided for max number of TSOs is smaller than 0. It will be set to 0 instead.", logsList.get(0).getFormattedMessage());
+        assertEquals("The value -2 provided for max number of RAs is smaller than 0. It will be set to 0 instead.", logsList.get(1).getFormattedMessage());
+        assertEquals("The value -4 provided for max number of RAs for TSO FR is smaller than 0. It will be set to 0 instead.", logsList.get(2).getFormattedMessage());
     }
 }

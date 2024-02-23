@@ -30,7 +30,7 @@ public class RaUsageLimits {
 
     public void setMaxRa(int maxRa) {
         if (maxRa < 0) {
-            BUSINESS_WARNS.warn("The value {} provided for max number of  RAs is smaller than 0. It will be set to 0 instead.", maxRa);
+            BUSINESS_WARNS.warn("The value {} provided for max number of RAs is smaller than 0. It will be set to 0 instead.", maxRa);
             this.maxRa = 0;
         } else {
             this.maxRa = maxRa;
@@ -39,7 +39,7 @@ public class RaUsageLimits {
 
     public void setMaxTso(int maxTso) {
         if (maxTso < 0) {
-            BUSINESS_WARNS.warn("The value {} provided for max number of  TSOs is smaller than 0. It will be set to 0 instead.", maxTso);
+            BUSINESS_WARNS.warn("The value {} provided for max number of TSOs is smaller than 0. It will be set to 0 instead.", maxTso);
             this.maxTso = 0;
         } else {
             this.maxTso = maxTso;
@@ -99,7 +99,7 @@ public class RaUsageLimits {
     private Map<String, Integer> replaceNegativeValues(Map<String, Integer> limitsPerTso) {
         limitsPerTso.forEach((tso, limit) -> {
             if (limit < 0) {
-                BUSINESS_WARNS.warn("The value {} provided for RAs usage limits for TSO {} is smaller than 0. It will be set to 0 instead.", limit, tso);
+                BUSINESS_WARNS.warn("The value {} provided for max number of RAs for TSO {} is smaller than 0. It will be set to 0 instead.", limit, tso);
                 limitsPerTso.put(tso, 0);
             }
         });
