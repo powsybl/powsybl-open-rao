@@ -11,6 +11,7 @@ import com.powsybl.openrao.data.cracapi.ContingencyAdder;
 import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.craccreation.creator.api.ImportStatus;
 import com.powsybl.openrao.data.craccreation.creator.cim.craccreator.CimCracCreationContext;
+import com.powsybl.openrao.data.craccreation.creator.cim.craccreator.CimCracUtils;
 import com.powsybl.openrao.data.craccreation.creator.cim.xsd.*;
 import com.powsybl.openrao.data.craccreation.util.cgmes.CgmesBranchHelper;
 import com.powsybl.iidm.network.DanglingLine;
@@ -18,6 +19,8 @@ import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.TieLine;
 
+import java.time.Duration;
+import java.time.Instant;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -50,8 +53,25 @@ public class CimContingencyCreator {
         this.cimContingencyCreationContexts = new HashSet<>();
 
         for (TimeSeries cimTimeSerie : cimTimeSeries) {
-            for (SeriesPeriod cimPeriodInTimeSerie : cimTimeSerie.getPeriod()) {
-                for (Point cimPointInPeriodInTimeSerie : cimPeriodInTimeSerie.getPoint()) {
+            addContingenciesIfTimestampInPeriod(cimTimeSerie);
+        }
+        this.cracCreationContext.setContingencyCreationContexts(cimContingencyCreationContexts);
+    }
+
+    private void addContingenciesIfTimestampInPeriod(TimeSeries cimTimeSerie) {
+        final String curveType = CimCracUtils.getCurveTypeFromTimeSeries(cimTimeSerie);
+
+        for (SeriesPeriod cimPeriodInTimeSerie : cimTimeSerie.getPeriod()) {
+            final Duration resolution = Duration.parse(cimPeriodInTimeSerie.getResolution().toString());
+            final Instant periodStart = CimCracUtils.parseDateTime(cimPeriodInTimeSerie.getTimeInterval().getStart());
+            final Instant periodEnd = CimCracUtils.parseDateTime(cimPeriodInTimeSerie.getTimeInterval().getEnd());
+
+            for (Point cimPointInPeriodInTimeSerie : cimPeriodInTimeSerie.getPoint()) {
+                final int position = cimPointInPeriodInTimeSerie.getPosition();
+
+                Instant timestamp = cracCreationContext.getTimeStamp().toInstant();
+
+                if (CimCracUtils.isTimestampInPeriod(timestamp, periodStart, periodEnd, curveType, resolution, position)) {
                     for (Series cimSerie : cimPointInPeriodInTimeSerie.getSeries().stream().filter(this::describesContingencyToImport).toList()) {
                         for (ContingencySeries cimContingency : cimSerie.getContingencySeries()) {
                             addContingency(cimContingency);
@@ -60,7 +80,6 @@ public class CimContingencyCreator {
                 }
             }
         }
-        this.cracCreationContext.setContingencyCreationContexts(cimContingencyCreationContexts);
     }
 
     private void addContingency(ContingencySeries cimContingency) {

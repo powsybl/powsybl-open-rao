@@ -278,4 +278,11 @@ class AngleMonitoringTest {
             "AngleCnec AngleCnec1 (with importing network element _d77b61ef-61aa-4b22-95f6-b56ca080788d and exporting network element _8d8a82ba-b5b0-4e94-861a-192af055f2b8) at state Co-1 - curative has an angle of 5°."
         ));
     }
+
+    @Test
+    void testCracCimNoValidPositions() {
+        setUpCimCrac("/CIM_21_7_1_AngMon.xml", OffsetDateTime.parse("2021-04-01T22:00Z"), new CracCreationParameters());
+        assertEquals(0, crac.getAngleCnecs().size());
+    }
+
 }

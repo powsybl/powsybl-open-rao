@@ -13,6 +13,7 @@ import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
 import com.powsybl.openrao.data.cracapi.usagerule.UsageMethod;
 import com.powsybl.openrao.data.craccreation.creator.api.ImportStatus;
 import com.powsybl.openrao.data.craccreation.creator.cim.craccreator.CimCracCreationContext;
+import com.powsybl.openrao.data.craccreation.creator.cim.craccreator.CimCracUtils;
 import com.powsybl.openrao.data.craccreation.creator.cim.craccreator.cnec.AdditionalConstraintSeriesCreator;
 import com.powsybl.openrao.data.craccreation.creator.cim.parameters.CimCracCreationParameters;
 import com.powsybl.openrao.data.craccreation.creator.cim.xsd.*;
@@ -22,6 +23,7 @@ import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
 import org.apache.commons.lang3.StringUtils;
 
+import java.time.Duration;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -60,13 +62,29 @@ public class RemedialActionSeriesCreator {
     private Set<Series> getRaSeries() {
         Set<Series> raSeries = new HashSet<>();
         cimTimeSeries.forEach(
-            timeSerie -> timeSerie.getPeriod().forEach(
-                period -> period.getPoint().forEach(
-                    point -> point.getSeries().stream()
-                        .filter(this::describesRemedialActionsToImport)
-                        .filter(this::checkRemedialActionSeries)
-                        .forEach(raSeries::add)
-                )));
+            timeSerie -> {
+                final String curveType = CimCracUtils.getCurveTypeFromTimeSeries(timeSerie);
+                timeSerie.getPeriod().forEach(
+                        period -> {
+                            final Duration resolution = Duration.parse(period.getResolution().toString());
+                            final java.time.Instant periodStart = CimCracUtils.parseDateTime(period.getTimeInterval().getStart());
+                            final java.time.Instant periodEnd = CimCracUtils.parseDateTime(period.getTimeInterval().getEnd());
+                            period.getPoint().forEach(
+                                    point -> {
+                                        final int position = point.getPosition();
+
+                                        java.time.Instant timestamp = cracCreationContext.getTimeStamp().toInstant();
+
+                                        if (CimCracUtils.isTimestampInPeriod(timestamp, periodStart, periodEnd, curveType, resolution, position)) {
+                                            point.getSeries().stream()
+                                                    .filter(this::describesRemedialActionsToImport)
+                                                    .filter(this::checkRemedialActionSeries)
+                                                    .forEach(raSeries::add);
+                                        }
+                                    }
+                            );
+                        });
+            });
         return raSeries;
     }
 
