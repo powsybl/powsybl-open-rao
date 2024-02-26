@@ -19,6 +19,7 @@ import com.powsybl.openrao.raoapi.parameters.extensions.RelativeMarginsParameter
 import com.powsybl.openrao.searchtreerao.commons.parameters.*;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -132,6 +133,17 @@ public class SearchTreeParameters {
         raUsageLimits.setMaxTopoPerTso(currentTopoPerTsoLimits);
         raUsageLimits.setMaxRaPerTso(currentRaPerTsoLimits);
         this.raLimitationParameters.put(preventiveInstant, raUsageLimits);
+    }
+
+    public void decreaseNumberOfApplicableRemedialActions(Map<Instant, Integer> numberOfAlreadyAppliedRemedialActions) {
+        List<Instant> instants = numberOfAlreadyAppliedRemedialActions.keySet().stream().sorted().toList();
+        instants.forEach(instant -> raLimitationParameters.keySet().forEach(
+            otherInstant -> {
+                if (!otherInstant.comesBefore(instant) && instant.getKind().equals(otherInstant.getKind())) {
+                    raLimitationParameters.get(otherInstant).setMaxRa(raLimitationParameters.get(otherInstant).getMaxRa() - numberOfAlreadyAppliedRemedialActions.get(instant));
+                }
+            }
+        ));
     }
 
     public static SearchTreeParametersBuilder create() {
