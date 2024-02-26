@@ -15,13 +15,14 @@ import com.powsybl.openrao.data.cracapi.usagerule.UsageMethod;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import static com.powsybl.openrao.data.cracimpl.utils.ExhaustiveCracCreation.PREVENTIVE_INSTANT_ID;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 class InjectionRangeActionAdderImplTest {
+
+    private static final String PREVENTIVE_INSTANT_ID = "preventive";
 
     private CracImpl crac;
     private String injectionId1;

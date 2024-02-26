@@ -12,11 +12,13 @@ import com.powsybl.openrao.data.cracapi.*;
 import java.util.*;
 
 import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.BUSINESS_WARNS;
+import static com.powsybl.openrao.data.cracimpl.AdderUtils.assertAttributeNotNull;
 
 /**
  * @author Martin Belthle {@literal <martin.belthle at rte-france.com>}
  */
 public class RaUsageLimitsAdderImpl implements RaUsageLimitsAdder {
+    public static final String RA_USAGE_LIMITS = "RaUsageLimits";
     CracImpl owner;
     private Instant instant = null;
     private final RaUsageLimits raUsageLimits = new RaUsageLimits();
@@ -64,9 +66,7 @@ public class RaUsageLimitsAdderImpl implements RaUsageLimitsAdder {
 
     @Override
     public RaUsageLimits add() {
-        if (Objects.isNull(instant)) {
-            return null;
-        }
+        assertAttributeNotNull(instant, RA_USAGE_LIMITS, "instant", "newRaUsageLimits(String instant)");
         owner.addRaUsageLimits(instant, raUsageLimits);
         return raUsageLimits;
     }

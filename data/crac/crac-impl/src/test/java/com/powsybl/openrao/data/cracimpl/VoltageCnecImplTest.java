@@ -20,13 +20,13 @@ import org.junit.jupiter.api.Test;
 import java.util.Optional;
 import java.util.Set;
 
-import static com.powsybl.openrao.data.cracimpl.utils.ExhaustiveCracCreation.PREVENTIVE_INSTANT_ID;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
  */
 class VoltageCnecImplTest {
+    private static final String PREVENTIVE_INSTANT_ID = "preventive";
     private static final double DOUBLE_TOLERANCE = 1e-3;
 
     private Crac crac;

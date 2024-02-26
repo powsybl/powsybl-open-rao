@@ -23,10 +23,10 @@ import java.util.Map;
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 public final class ExhaustiveCracCreation {
-    public static final String PREVENTIVE_INSTANT_ID = "preventive";
-    public static final String OUTAGE_INSTANT_ID = "outage";
-    public static final String AUTO_INSTANT_ID = "auto";
-    public static final String CURATIVE_INSTANT_ID = "curative";
+    private static final String PREVENTIVE_INSTANT_ID = "preventive";
+    private static final String OUTAGE_INSTANT_ID = "outage";
+    private static final String AUTO_INSTANT_ID = "auto";
+    private static final String CURATIVE_INSTANT_ID = "curative";
 
     /*
     Small CRAC used in I/O unit tests of open-rao

@@ -12,7 +12,6 @@ import com.powsybl.openrao.data.cracapi.Instant;
 import com.powsybl.openrao.data.cracapi.InstantKind;
 import org.junit.jupiter.api.Test;
 
-import static com.powsybl.openrao.data.cracimpl.utils.ExhaustiveCracCreation.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -21,6 +20,10 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 
 class InstantImplTest {
+    private static final String PREVENTIVE_INSTANT_ID = "preventive";
+    private static final String OUTAGE_INSTANT_ID = "outage";
+    private static final String AUTO_INSTANT_ID = "auto";
+    private static final String CURATIVE_INSTANT_ID = "curative";
 
     @Test
     void testPreventive() {

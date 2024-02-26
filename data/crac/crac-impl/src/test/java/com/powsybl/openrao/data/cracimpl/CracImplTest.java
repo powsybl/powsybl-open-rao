@@ -35,7 +35,6 @@ import org.slf4j.LoggerFactory;
 import java.util.*;
 
 import static com.powsybl.openrao.data.cracapi.usagerule.UsageMethod.*;
-import static com.powsybl.openrao.data.cracimpl.utils.ExhaustiveCracCreation.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.when;
@@ -46,6 +45,10 @@ import static org.mockito.Mockito.when;
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
 class CracImplTest {
+    private static final String PREVENTIVE_INSTANT_ID = "preventive";
+    private static final String OUTAGE_INSTANT_ID = "outage";
+    private static final String AUTO_INSTANT_ID = "auto";
+    private static final String CURATIVE_INSTANT_ID = "curative";
 
     private CracImpl crac;
     private Instant preventiveInstant;
@@ -1046,7 +1049,9 @@ class CracImplTest {
         Instant fakeInstant = Mockito.mock(Instant.class);
         when(fakeInstant.getId()).thenReturn("fake_instant");
         Map<Instant, RaUsageLimits> secondMap = Map.of(fakeInstant, raUsageLimits1);
-        crac.newRaUsageLimits("fake_instant").add();
+        RaUsageLimitsAdder adder = crac.newRaUsageLimits("fake_instant");
+        OpenRaoException exception = assertThrows(OpenRaoException.class, adder::add);
+        assertEquals("Cannot add RaUsageLimits without a instant. Please use newRaUsageLimits(String instant) with a non null value", exception.getMessage());
         assertFalse(crac.getRaUsageLimitsPerInstant().containsKey(fakeInstant));
         assertEquals(new RaUsageLimits(), crac.getRaUsageLimits(fakeInstant));
         assertEquals(1, logsList.size());

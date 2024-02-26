@@ -16,10 +16,10 @@ import com.powsybl.iidm.network.Country;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import static com.powsybl.openrao.data.cracimpl.utils.ExhaustiveCracCreation.PREVENTIVE_INSTANT_ID;
 import static org.junit.jupiter.api.Assertions.*;
 
 class CounterTradeRangeActionAdderImplTest {
+    private static final String PREVENTIVE_INSTANT_ID = "preventive";
 
     private Crac crac;
 

@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.data.cracimpl;
 
+import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.cracapi.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -14,14 +15,15 @@ import org.junit.jupiter.api.Test;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.powsybl.openrao.data.cracimpl.utils.ExhaustiveCracCreation.*;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Martin Belthle {@literal <martin.belthle at rte-france.com>}
  */
 class RaUsageLimitsAdderImplTest {
+    private static final String PREVENTIVE_INSTANT_ID = "preventive";
+    private static final String OUTAGE_INSTANT_ID = "outage";
+    private static final String CURATIVE_INSTANT_ID = "curative";
     private CracImpl crac;
     private Instant preventiveInstant;
     private Instant outageInstant;
@@ -50,8 +52,9 @@ class RaUsageLimitsAdderImplTest {
         assertEquals(new RaUsageLimits(), crac.getRaUsageLimits(preventiveInstant));
 
         // with fake instant
-        RaUsageLimits nullRaUsageLimits = crac.newRaUsageLimits("fakeInstant").add();
-        assertNull(nullRaUsageLimits);
+        RaUsageLimitsAdder adder = crac.newRaUsageLimits("fake_instant");
+        OpenRaoException exception = assertThrows(OpenRaoException.class, adder::add);
+        assertEquals("Cannot add RaUsageLimits without a instant. Please use newRaUsageLimits(String instant) with a non null value", exception.getMessage());
 
         // preventiveInstant with limitations
         crac.newRaUsageLimits("preventive").withMaxRa(33).add();

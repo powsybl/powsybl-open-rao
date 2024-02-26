@@ -17,13 +17,13 @@ import com.powsybl.iidm.network.Network;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import static com.powsybl.openrao.data.cracimpl.utils.ExhaustiveCracCreation.PREVENTIVE_INSTANT_ID;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 class InjectionRangeActionImplTest {
+    private static final String PREVENTIVE_INSTANT_ID = "preventive";
 
     private Network network;
     private Crac crac;
