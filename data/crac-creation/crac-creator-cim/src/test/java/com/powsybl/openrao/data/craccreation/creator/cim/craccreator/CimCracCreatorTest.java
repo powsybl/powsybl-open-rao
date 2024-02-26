@@ -357,6 +357,18 @@ class CimCracCreatorTest {
     }
 
     @Test
+    void testCracPeriodManagementBeforeValidPeriod() {
+        setUp("/cracs/CIM_21_1_1_multi_period.xml", baseNetwork, OffsetDateTime.parse("2021-04-01T22:00Z"), new CracCreationParameters());
+        assertEquals(0, importedCrac.getContingencies().size());
+        setUp("/cracs/CIM_21_1_1_multi_period.xml", baseNetwork, OffsetDateTime.parse("2021-04-01T23:00Z"), new CracCreationParameters());
+        assertEquals(3, importedCrac.getContingencies().size());
+        setUp("/cracs/CIM_21_1_1_multi_period.xml", baseNetwork, OffsetDateTime.parse("2021-04-02T01:00Z"), new CracCreationParameters());
+        assertEquals(3, importedCrac.getContingencies().size());
+        setUp("/cracs/CIM_21_1_1_multi_period.xml", baseNetwork, OffsetDateTime.parse("2021-04-02T02:00Z"), new CracCreationParameters());
+        assertEquals(1, importedCrac.getContingencies().size());
+    }
+
+    @Test
     void testImportContingencyOnTieLine() {
         setUp("/cracs/CIM_co_halfline.xml", baseNetwork, OffsetDateTime.parse("2021-04-01T23:00Z"), new CracCreationParameters());
 

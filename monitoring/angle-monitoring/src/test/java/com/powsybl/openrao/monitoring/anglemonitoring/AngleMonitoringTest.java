@@ -282,6 +282,9 @@ class AngleMonitoringTest {
     @Test
     void testCracCimNoValidPositions() {
         setUpCimCrac("/CIM_21_7_1_AngMon.xml", OffsetDateTime.parse("2021-04-01T22:00Z"), new CracCreationParameters());
+        assertEquals(0, crac.getContingencies().size());
+        assertEquals(0, crac.getFlowCnecs().size());
+        assertEquals(0, crac.getRemedialActions().size());
         assertEquals(0, crac.getAngleCnecs().size());
     }
 

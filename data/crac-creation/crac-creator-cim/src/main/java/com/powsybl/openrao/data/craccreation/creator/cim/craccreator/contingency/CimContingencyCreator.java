@@ -19,11 +19,7 @@ import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.TieLine;
 
-import java.time.Instant;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 import static com.powsybl.openrao.data.craccreation.creator.cim.craccreator.CimConstants.*;
 
@@ -58,19 +54,25 @@ public class CimContingencyCreator {
     }
 
     private void addContingenciesIfTimestampInPeriod(TimeSeries cimTimeSerie) {
-        for (SeriesPeriod cimPeriodInTimeSerie : cimTimeSerie.getPeriod()) {
-            for (Point cimPointInPeriodInTimeSerie : cimPeriodInTimeSerie.getPoint()) {
-                final int position = cimPointInPeriodInTimeSerie.getPosition();
-                Instant timestamp = cracCreationContext.getTimeStamp().toInstant();
-                if (CimCracUtils.isTimestampInPeriod(timestamp, cimTimeSerie, cimPeriodInTimeSerie, position)) {
-                    for (Series cimSerie : cimPointInPeriodInTimeSerie.getSeries().stream().filter(this::describesContingencyToImport).toList()) {
-                        for (ContingencySeries cimContingency : cimSerie.getContingencySeries()) {
-                            addContingency(cimContingency);
-                        }
+        final java.time.Instant timestamp = cracCreationContext.getTimeStamp().toInstant();
+        final Comparator<Point> reversePointComparator = CimCracUtils.getReversePointComparator();
+        cimTimeSerie.getPeriod().forEach(
+            period -> {
+                List<Point> points = period.getPoint();
+                points.sort(reversePointComparator);
+                Optional<Integer> previousPosition = Optional.empty();
+                for (Point point : points) {
+                    final int currentPosition = point.getPosition();
+                    if (CimCracUtils.isTimestampInPeriod(timestamp, cimTimeSerie, period, currentPosition, previousPosition)) {
+                        point.getSeries().stream().filter(this::describesContingencyToImport).forEach(
+                                series -> series.getContingencySeries().forEach(this::addContingency)
+                        );
                     }
+                    previousPosition = Optional.of(currentPosition);
                 }
+
             }
-        }
+        );
     }
 
     private void addContingency(ContingencySeries cimContingency) {
