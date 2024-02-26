@@ -57,7 +57,7 @@ html_theme = "pydata_sphinx_theme"
 html_title = 'powsybl-openrao'
 html_short_title = 'powsybl-openrao'
 
-html_logo = '_static/logos/logo.svg'
+html_logo = '_static/logos/powsybl_logo.svg'
 html_favicon = "_static/favicon.ico"
 
 html_theme_options = {
