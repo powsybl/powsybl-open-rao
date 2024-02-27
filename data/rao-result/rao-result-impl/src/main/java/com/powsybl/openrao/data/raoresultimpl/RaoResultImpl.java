@@ -344,7 +344,12 @@ public class RaoResultImpl implements RaoResult {
         for (PhysicalParameter physicalParameter : Set.of(u)) {
             switch (physicalParameter) {
                 case ANGLE -> {
-                    if (angleCnecResults.keySet().stream()
+                    // TODO: check that all CNECs have a result for the given optimized instant?
+                    if (!crac.getAngleCnecs().stream().allMatch(angleCnecResults::containsKey)) {
+                        throw new OpenRaoException("RaoResult does not contain angle values for all AngleCNECs, security status for physical parameter ANGLE is unknown");
+                    }
+                    // TODO: lancer cucumber
+                    if (crac.getAngleCnecs().stream()
                             .mapToDouble(cnec -> getMargin(optimizedInstant, cnec, Unit.DEGREE))
                             .filter(margin -> !Double.isNaN(margin))
                             .anyMatch(margin -> margin < 0)) {
@@ -357,6 +362,7 @@ public class RaoResultImpl implements RaoResult {
                     }
                 }
                 case VOLTAGE -> {
+                    // TODO: check that all CNECs have a result for the given optimized instant?
                     if (voltageCnecResults.keySet().stream()
                             .mapToDouble(cnec -> getMargin(optimizedInstant, cnec, Unit.KILOVOLT))
                             .filter(margin -> !Double.isNaN(margin))

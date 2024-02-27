@@ -18,6 +18,7 @@ import com.powsybl.openrao.data.raoresultapi.ComputationStatus;
 import com.powsybl.openrao.data.raoresultapi.RaoResult;
 import com.powsybl.openrao.data.raoresultapi.RaoResultClone;
 
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -92,6 +93,7 @@ public class RaoResultWithVoltageMonitoring extends RaoResultClone {
 
     @Override
     public boolean isSecure(Instant instant, PhysicalParameter... u) {
+        // TODO: remove VOLTAGE from u
         if (Set.of(u).contains(PhysicalParameter.VOLTAGE)) {
             return raoResult.isSecure(instant, u) && voltageMonitoringResult.isSecure();
         } else {
@@ -101,6 +103,7 @@ public class RaoResultWithVoltageMonitoring extends RaoResultClone {
 
     @Override
     public boolean isSecure(PhysicalParameter... u) {
+        // TODO: remove VOLTAGE from u
         if (Set.of(u).contains(PhysicalParameter.VOLTAGE)) {
             return raoResult.isSecure(u) && voltageMonitoringResult.isSecure();
         } else {

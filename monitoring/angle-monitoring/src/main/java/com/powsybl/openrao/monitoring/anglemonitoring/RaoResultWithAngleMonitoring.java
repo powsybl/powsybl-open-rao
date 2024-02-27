@@ -18,6 +18,7 @@ import com.powsybl.openrao.data.raoresultapi.ComputationStatus;
 import com.powsybl.openrao.data.raoresultapi.RaoResult;
 import com.powsybl.openrao.data.raoresultapi.RaoResultClone;
 
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -84,6 +85,7 @@ public class RaoResultWithAngleMonitoring extends RaoResultClone {
 
     @Override
     public boolean isSecure(Instant instant, PhysicalParameter... u) {
+        // TODO: remove ANGLE from u
         if (Set.of(u).contains(PhysicalParameter.ANGLE)) {
             return raoResult.isSecure(instant, u) && angleMonitoringResult.isSecure();
         } else {
@@ -93,6 +95,7 @@ public class RaoResultWithAngleMonitoring extends RaoResultClone {
 
     @Override
     public boolean isSecure(PhysicalParameter... u) {
+        // TODO: remove ANGLE from u
         if (Set.of(u).contains(PhysicalParameter.ANGLE)) {
             return raoResult.isSecure(u) && angleMonitoringResult.isSecure();
         } else {
