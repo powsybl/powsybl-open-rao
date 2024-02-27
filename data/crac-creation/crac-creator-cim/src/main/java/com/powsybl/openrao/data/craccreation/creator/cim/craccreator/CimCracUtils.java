@@ -19,10 +19,8 @@ import java.time.Duration;
 import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Comparator;
-import java.util.HashSet;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 /**
@@ -52,7 +50,26 @@ public final class CimCracUtils {
         return mscc.getCreatedCnecIds().stream().map(cnecId -> cracCreationContext.getCrac().getFlowCnec(cnecId)).collect(Collectors.toSet());
     }
 
-    public static String getCurveTypeFromTimeSeries(TimeSeries cimTimeSerie) {
+    public static void applyActionToEveryPoint(List<TimeSeries> cimTimeSeries, java.time.Instant timestamp, Consumer<? super Point> action) {
+        cimTimeSeries.forEach(
+            timeSerie -> timeSerie.getPeriod().forEach(
+                period -> {
+                    List<Point> points = period.getPoint();
+                    points.sort(REVERSE_POINT_COMPARATOR);
+                    Optional<Integer> previousPosition = Optional.empty();
+                    for (Point point : points) {
+                        final int currentPosition = point.getPosition();
+                        if (isTimestampInPeriod(timestamp, timeSerie, period, currentPosition, previousPosition)) {
+                            action.accept(point);
+                        }
+                        previousPosition = Optional.of(currentPosition);
+                    }
+                }
+            )
+        );
+    }
+
+    private static String getCurveTypeFromTimeSeries(TimeSeries cimTimeSerie) {
         String curveType = cimTimeSerie.getCurveType();
         if (StringUtils.isBlank(curveType)) {
             curveType = CimConstants.VARIABLE_SIZED_BLOCK_CURVE;
@@ -64,7 +81,7 @@ public final class CimCracUtils {
         return curveType;
     }
 
-    public static boolean isTimestampInPeriod(Instant timestamp, TimeSeries timeSerie, SeriesPeriod period, int position, Optional<Integer> endPosition) {
+    private static boolean isTimestampInPeriod(Instant timestamp, TimeSeries timeSerie, SeriesPeriod period, int position, Optional<Integer> endPosition) {
         final String curveType = CimCracUtils.getCurveTypeFromTimeSeries(timeSerie);
         final Duration periodResolution = Duration.parse(period.getResolution().toString());
         final Instant periodStart = CimCracUtils.parseDateTime(period.getTimeInterval().getStart());
@@ -84,11 +101,7 @@ public final class CimCracUtils {
         return pointStart.compareTo(timestamp) <= 0 && pointEnd.isAfter(timestamp);
     }
 
-    public static Instant parseDateTime(String dateTimeStringFromCrac) {
+    private static Instant parseDateTime(String dateTimeStringFromCrac) {
         return OffsetDateTime.parse(dateTimeStringFromCrac, CRAC_DATE_TIME_FORMAT).toInstant();
-    }
-
-    public static Comparator<Point> getReversePointComparator() {
-        return REVERSE_POINT_COMPARATOR;
     }
 }

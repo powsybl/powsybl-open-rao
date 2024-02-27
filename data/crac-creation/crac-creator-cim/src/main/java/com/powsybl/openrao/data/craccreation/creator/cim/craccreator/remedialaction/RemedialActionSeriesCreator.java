@@ -59,28 +59,17 @@ public class RemedialActionSeriesCreator {
     }
 
     private Set<Series> getRaSeries() {
-        final java.time.Instant timestamp = cracCreationContext.getTimeStamp().toInstant();
-        final Comparator<Point> reversePointComparator = CimCracUtils.getReversePointComparator();
         Set<Series> raSeries = new HashSet<>();
-        cimTimeSeries.forEach(
-            timeSerie -> timeSerie.getPeriod().forEach(
-                period -> {
-                    List<Point> points = period.getPoint();
-                    points.sort(reversePointComparator);
-                    Optional<Integer> previousPosition = Optional.empty();
-                    for (Point point : points) {
-                        final int currentPosition = point.getPosition();
-                        if (CimCracUtils.isTimestampInPeriod(timestamp, timeSerie, period, currentPosition, previousPosition)) {
-                            point.getSeries().stream()
-                                .filter(this::describesRemedialActionsToImport)
-                                .filter(this::checkRemedialActionSeries)
-                                .forEach(raSeries::add);
-                        }
-                        previousPosition = Optional.of(currentPosition);
-                    }
-                }
-            )
+
+        CimCracUtils.applyActionToEveryPoint(
+            cimTimeSeries,
+            cracCreationContext.getTimeStamp().toInstant(),
+            point -> point.getSeries().stream()
+                    .filter(this::describesRemedialActionsToImport)
+                    .filter(this::checkRemedialActionSeries)
+                    .forEach(raSeries::add)
         );
+
         return raSeries;
     }
 

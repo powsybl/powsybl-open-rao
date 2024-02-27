@@ -46,33 +46,14 @@ public class CimContingencyCreator {
 
     public void createAndAddContingencies() {
         this.cimContingencyCreationContexts = new HashSet<>();
-
-        for (TimeSeries cimTimeSerie : cimTimeSeries) {
-            addContingenciesIfTimestampInPeriod(cimTimeSerie);
-        }
-        this.cracCreationContext.setContingencyCreationContexts(cimContingencyCreationContexts);
-    }
-
-    private void addContingenciesIfTimestampInPeriod(TimeSeries cimTimeSerie) {
-        final java.time.Instant timestamp = cracCreationContext.getTimeStamp().toInstant();
-        final Comparator<Point> reversePointComparator = CimCracUtils.getReversePointComparator();
-        cimTimeSerie.getPeriod().forEach(
-            period -> {
-                List<Point> points = period.getPoint();
-                points.sort(reversePointComparator);
-                Optional<Integer> previousPosition = Optional.empty();
-                for (Point point : points) {
-                    final int currentPosition = point.getPosition();
-                    if (CimCracUtils.isTimestampInPeriod(timestamp, cimTimeSerie, period, currentPosition, previousPosition)) {
-                        point.getSeries().stream().filter(this::describesContingencyToImport).forEach(
-                                series -> series.getContingencySeries().forEach(this::addContingency)
-                        );
-                    }
-                    previousPosition = Optional.of(currentPosition);
-                }
-
-            }
+        CimCracUtils.applyActionToEveryPoint(
+                cimTimeSeries,
+                cracCreationContext.getTimeStamp().toInstant(),
+                point -> point.getSeries().stream().filter(this::describesContingencyToImport).forEach(
+                        series -> series.getContingencySeries().forEach(this::addContingency)
+                )
         );
+        this.cracCreationContext.setContingencyCreationContexts(cimContingencyCreationContexts);
     }
 
     private void addContingency(ContingencySeries cimContingency) {

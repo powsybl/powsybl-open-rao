@@ -78,24 +78,11 @@ public class MonitoredSeriesCreator {
     }
 
     private Set<Series> getCnecSeries() {
-        final java.time.Instant timestamp = cracCreationContext.getTimeStamp().toInstant();
-        final Comparator<Point> reversePointComparator = CimCracUtils.getReversePointComparator();
         Set<Series> cnecSeries = new HashSet<>();
-        cimTimeSeries.forEach(
-            timeSerie -> timeSerie.getPeriod().forEach(
-                period -> {
-                    List<Point> points = period.getPoint();
-                    points.sort(reversePointComparator);
-                    Optional<Integer> previousPosition = Optional.empty();
-                    for (Point point : points) {
-                        final int currentPosition = point.getPosition();
-                        if (CimCracUtils.isTimestampInPeriod(timestamp, timeSerie, period, currentPosition, previousPosition)) {
-                            point.getSeries().stream().filter(this::describesCnecsToImport).forEach(cnecSeries::add);
-                        }
-                        previousPosition = Optional.of(currentPosition);
-                    }
-                }
-            )
+        CimCracUtils.applyActionToEveryPoint(
+                cimTimeSeries,
+                cracCreationContext.getTimeStamp().toInstant(),
+                point -> point.getSeries().stream().filter(this::describesCnecsToImport).forEach(cnecSeries::add)
         );
         return cnecSeries;
     }
