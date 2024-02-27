@@ -83,10 +83,6 @@ class JsonRaoParametersTest extends AbstractSerDeTest {
         parameters.getSecondPreventiveRaoParameters().setExecutionCondition(SecondPreventiveRaoParameters.ExecutionCondition.POSSIBLE_CURATIVE_IMPROVEMENT);
         parameters.getSecondPreventiveRaoParameters().setReOptimizeCurativeRangeActions(true);
         parameters.getSecondPreventiveRaoParameters().setHintFromFirstPreventiveRao(true);
-        // RaUsageLimitsPerContingency parameters
-        parameters.getRaUsageLimitsPerContingencyParameters().setMaxCurativeRa(214);
-        parameters.getRaUsageLimitsPerContingencyParameters().setMaxCurativeTso(215);
-        parameters.getRaUsageLimitsPerContingencyParameters().setMaxCurativeRaPerTso(Map.of("RTE", 5, "REE", 7));
         // Not optimized cnecs parameters
         parameters.getNotOptimizedCnecsParameters().setDoNotOptimizeCurativeCnecsForTsosWithoutCras(false);
         parameters.getNotOptimizedCnecsParameters().setDoNotOptimizeCnecsSecuredByTheirPst(Map.of("cnec1", "pst1", "cnec2", "pst2"));
@@ -136,14 +132,6 @@ class JsonRaoParametersTest extends AbstractSerDeTest {
         assertTrue(parameters.getNotOptimizedCnecsParameters().getDoNotOptimizeCnecsSecuredByTheirPst().isEmpty());
         assertEquals(SecondPreventiveRaoParameters.ExecutionCondition.COST_INCREASE, parameters.getSecondPreventiveRaoParameters().getExecutionCondition());
         assertTrue(parameters.getSecondPreventiveRaoParameters().getHintFromFirstPreventiveRao());
-        assertEquals(2, parameters.getRaUsageLimitsPerContingencyParameters().getMaxCurativeTopoPerTso().size());
-        assertEquals(3, parameters.getRaUsageLimitsPerContingencyParameters().getMaxCurativeTopoPerTso().get("RTE").intValue());
-        assertEquals(5, parameters.getRaUsageLimitsPerContingencyParameters().getMaxCurativeTopoPerTso().get("Elia").intValue());
-        assertEquals(1, parameters.getRaUsageLimitsPerContingencyParameters().getMaxCurativePstPerTso().size());
-        assertEquals(0, parameters.getRaUsageLimitsPerContingencyParameters().getMaxCurativePstPerTso().get("Amprion").intValue());
-        assertEquals(2, parameters.getRaUsageLimitsPerContingencyParameters().getMaxCurativeRaPerTso().size());
-        assertEquals(1, parameters.getRaUsageLimitsPerContingencyParameters().getMaxCurativeRaPerTso().get("Tennet").intValue());
-        assertEquals(9, parameters.getRaUsageLimitsPerContingencyParameters().getMaxCurativeRaPerTso().get("50Hz").intValue());
         // Extensions
         MnecParametersExtension mnecParameters = parameters.getExtension(MnecParametersExtension.class);
         assertEquals(888, mnecParameters.getAcceptableMarginDecrease(), DOUBLE_TOLERANCE);
@@ -180,11 +168,11 @@ class JsonRaoParametersTest extends AbstractSerDeTest {
     void testFailOnOldVersion() {
         InputStream inputStream = getClass().getResourceAsStream("/RaoParameters_oldVersion.json");
         OpenRaoException e = assertThrows(OpenRaoException.class, () -> JsonRaoParameters.read(inputStream));
-        assertEquals("RaoParameters version '2.0' cannot be deserialized. The only supported version currently is '2.1'.", e.getMessage());
+        assertEquals("RaoParameters version '2.0' cannot be deserialized. The only supported version currently is '2.2'.", e.getMessage());
     }
 
     @ParameterizedTest
-    @ValueSource(strings = {"LoopFlowError", "PrevStopCriterionError", "CurStopCriterionError", "WrongField", "NegativeField"})
+    @ValueSource(strings = {"LoopFlowError", "PrevStopCriterionError", "CurStopCriterionError", "WrongField"})
     void importNokTest(String source) {
         InputStream inputStream = getClass().getResourceAsStream("/RaoParametersWith" + source + "_v2.json");
         assertThrows(OpenRaoException.class, () -> JsonRaoParameters.read(inputStream));

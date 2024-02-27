@@ -30,12 +30,6 @@ rao-second-preventive-rao:
     re-optimize-curative-range-actions: true
     hint-from-first-preventive-rao: true
 
-rao-ra-usage-limits-per-contingency:
-    max-curative-tso: 2
-    max-curative-topo-per-tso: ["{TSO_1}:1", "{TSO_2}:2"]
-    max-curative-pst-per-tso: ["{TSO_1}:3", "{TSO_2}:4"]
-    max-curative-ra-per-tso: ["{TSO_1}:5", "{TSO_2}:6"]
-
 rao-not-optimized-cnecs:
     do-not-optimize-cnec-secured-by-its-pst: [ "{cnecId1}:{pstId1}", "{cnecId2}:{pstId2}" ]
 
