@@ -46,6 +46,10 @@ public class CracCreationParametersDeserializer extends StdDeserializer<CracCrea
                 case DEFAULT_MONITORED_LINE_SIDE:
                     parameters.setDefaultMonitoredLineSide(deserializeMonitoredLineSide(parser.nextTextValue()));
                     break;
+                case RA_USAGE_LIMITS_PER_INSTANT:
+                    parser.nextToken();
+                    deserializeRaUsageLimitsAndUpdateParameters(parser, parameters);
+                    break;
                 case "extensions":
                     parser.nextToken();
                     if (parameters.getExtensions().isEmpty()) {

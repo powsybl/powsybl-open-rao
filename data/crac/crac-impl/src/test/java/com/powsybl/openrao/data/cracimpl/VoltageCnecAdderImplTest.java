@@ -27,11 +27,11 @@ import static org.junit.jupiter.api.Assertions.*;
  * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
  */
 class VoltageCnecAdderImplTest {
-    private static final double DOUBLE_TOLERANCE = 1e-6;
     private static final String PREVENTIVE_INSTANT_ID = "preventive";
     private static final String OUTAGE_INSTANT_ID = "outage";
     private static final String AUTO_INSTANT_ID = "auto";
     private static final String CURATIVE_INSTANT_ID = "curative";
+    private static final double DOUBLE_TOLERANCE = 1e-6;
 
     private CracImpl crac;
     private String contingency1Id = "condId1";
