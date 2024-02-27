@@ -17,6 +17,7 @@ import com.powsybl.openrao.data.cracapi.range.RangeType;
 import com.powsybl.openrao.data.cracapi.usagerule.UsageMethod;
 import com.powsybl.iidm.network.Country;
 
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -50,6 +51,8 @@ public final class ExhaustiveCracCreation {
             .newInstant(OUTAGE_INSTANT_ID, InstantKind.OUTAGE)
             .newInstant(AUTO_INSTANT_ID, InstantKind.AUTO)
             .newInstant(CURATIVE_INSTANT_ID, InstantKind.CURATIVE);
+
+        crac.newRaUsageLimits(CURATIVE_INSTANT_ID).withMaxRa(4).withMaxRaPerTso(new HashMap<>(Map.of("FR", 12))).add();
 
         String contingency1Id = "contingency1Id";
         crac.newContingency().withId(contingency1Id).withNetworkElement("ne1Id").add();

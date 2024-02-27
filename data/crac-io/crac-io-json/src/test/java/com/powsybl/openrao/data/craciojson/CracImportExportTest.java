@@ -10,6 +10,7 @@ import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.cracapi.Instant;
 import com.powsybl.openrao.data.cracapi.NetworkElement;
+import com.powsybl.openrao.data.cracapi.RaUsageLimits;
 import com.powsybl.openrao.data.cracapi.cnec.AngleCnec;
 import com.powsybl.openrao.data.cracapi.cnec.Side;
 import com.powsybl.openrao.data.cracapi.cnec.VoltageCnec;
@@ -26,6 +27,7 @@ import com.powsybl.openrao.data.cracimpl.utils.ExhaustiveCracCreation;
 import com.powsybl.iidm.network.Country;
 import org.junit.jupiter.api.Test;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -58,6 +60,16 @@ class CracImportExportTest {
         assertEquals(1, importedCrac.getVoltageCnecs().size());
         assertEquals(9, importedCrac.getRangeActions().size());
         assertEquals(4, importedCrac.getNetworkActions().size());
+
+        // --------------------------
+        // --- test Ra Usage Limits ---
+        // --------------------------
+
+        RaUsageLimits expectedUsageLimits = crac.getRaUsageLimits(curativeInstant);
+        assertEquals(4, expectedUsageLimits.getMaxRa());
+        assertEquals(new HashMap<>(Map.of("FR", 12)), expectedUsageLimits.getMaxRaPerTso());
+        // check instant with no limits
+        assertEquals(new RaUsageLimits(), crac.getRaUsageLimits(preventiveInstant));
 
         // --------------------------
         // --- test Contingencies ---
