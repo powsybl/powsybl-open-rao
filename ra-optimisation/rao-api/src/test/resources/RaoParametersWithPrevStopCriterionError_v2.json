@@ -1,5 +1,5 @@
 {
-  "version" : "2.1",
+  "version" : "2.2",
   "objective-function" : {
     "type" : "MAX_MIN_MARGIN_IN_MEGAWATT",
     "forbid-cost-increase" : false,
@@ -34,13 +34,6 @@
     "execution-condition" : "DISABLED",
     "re-optimize-curative-range-actions" : false,
     "hint-from-first-preventive-rao" : false
-  },
-  "ra-usage-limits-per-contingency" : {
-    "max-curative-ra" : 2147483647,
-    "max-curative-tso" : 2147483647,
-    "max-curative-topo-per-tso" : { },
-    "max-curative-pst-per-tso" : { },
-    "max-curative-ra-per-tso" : { }
   },
   "not-optimized-cnecs" : {
     "do-not-optimize-curative-cnecs-for-tsos-without-cras" : false,

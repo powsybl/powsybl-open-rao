@@ -10,6 +10,7 @@ import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.Contingency;
 import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.cracapi.CracFactory;
+import com.powsybl.openrao.data.cracapi.RaUsageLimits;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
 import com.powsybl.openrao.data.cracapi.cnec.Side;
 import com.powsybl.openrao.data.cracapi.networkaction.NetworkAction;
@@ -67,6 +68,19 @@ class FbConstraintCracCreatorTest {
         assertNotNull(context);
         assertFalse(context.isImported());
         assertEquals(importStatus, context.getImportStatus());
+    }
+
+    @Test
+    void importCracWithParameters() {
+        Network network = Network.read("TestCase12Nodes_with_Xnodes.uct", getClass().getResourceAsStream("/network/TestCase12Nodes_with_Xnodes.uct"));
+        FbConstraint fbConstraint = new FbConstraintImporter().importNativeCrac(getClass().getResourceAsStream("/merged_cb/without_RA.xml"));
+        OffsetDateTime timestamp = OffsetDateTime.parse("2019-01-08T00:30Z");
+        RaUsageLimits raUsageLimits = new RaUsageLimits();
+        raUsageLimits.setMaxRa(12);
+        parameters.addRaUsageLimitsForInstant("preventive", raUsageLimits);
+        creationContext = new FbConstraintCracCreator().createCrac(fbConstraint, network, timestamp, parameters);
+        assertTrue(creationContext.isCreationSuccessful());
+        assertEquals(12, creationContext.getCrac().getRaUsageLimits(creationContext.getCrac().getInstant("preventive")).getMaxRa());
     }
 
     @Test

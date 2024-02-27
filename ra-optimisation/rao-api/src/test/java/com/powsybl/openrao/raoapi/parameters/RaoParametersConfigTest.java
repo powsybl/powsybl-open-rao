@@ -141,28 +141,6 @@ class RaoParametersConfigTest {
     }
 
     @Test
-    void checkRaUsageLimitsPerContingencyConfig() {
-        MapModuleConfig raUsageLimitsModuleConfig = platformCfg.createModuleConfig("rao-ra-usage-limits-per-contingency");
-        raUsageLimitsModuleConfig.setStringProperty("max-curative-ra", Objects.toString(3));
-        raUsageLimitsModuleConfig.setStringProperty("max-curative-tso", Objects.toString(13));
-        raUsageLimitsModuleConfig.setStringListProperty("max-curative-topo-per-tso", List.of("{ABC}:5", "{DEF}:6"));
-        raUsageLimitsModuleConfig.setStringListProperty("max-curative-pst-per-tso", List.of("{ABC}:54", "{DEF}:64"));
-        raUsageLimitsModuleConfig.setStringListProperty("max-curative-ra-per-tso", List.of("{ABC}:55", "{DEF}:66"));
-
-        RaoParameters parameters = new RaoParameters();
-        RaoParameters.load(parameters, platformCfg);
-        RaUsageLimitsPerContingencyParameters params = parameters.getRaUsageLimitsPerContingencyParameters();
-        assertEquals(3, params.getMaxCurativeRa(), DOUBLE_TOLERANCE);
-        assertEquals(13, params.getMaxCurativeTso(), DOUBLE_TOLERANCE);
-        Map<String, Integer> expectedTopoTsoMap = Map.of("ABC", 5, "DEF", 6);
-        Map<String, Integer> expectedPstTsoMap = Map.of("ABC", 54, "DEF", 64);
-        Map<String, Integer> expectedRaTsoMap = Map.of("ABC", 55, "DEF", 66);
-        assertEquals(expectedTopoTsoMap, params.getMaxCurativeTopoPerTso());
-        assertEquals(expectedPstTsoMap, params.getMaxCurativePstPerTso());
-        assertEquals(expectedRaTsoMap, params.getMaxCurativeRaPerTso());
-    }
-
-    @Test
     void checkNotOptimizedCnecsConfig() {
         MapModuleConfig notOptimizedModuleConfig = platformCfg.createModuleConfig("rao-not-optimized-cnecs");
         notOptimizedModuleConfig.setStringProperty("do-not-optimize-curative-cnecs-for-tsos-without-cras", Objects.toString(false));
@@ -266,24 +244,6 @@ class RaoParametersConfigTest {
         topoActionsModuleConfig.setStringListProperty("predefined-combinations", List.of("{na12} - {na22}", "{na41} + {na5} + {na6}"));
         RaoParameters parameters = new RaoParameters();
         assertThrows(OpenRaoException.class, () -> RaoParameters.load(parameters, platformCfg));
-    }
-
-    @ParameterizedTest
-    @MethodSource("generateIntMap")
-    void inconsistentStringIntMap(List<String> source) {
-        MapModuleConfig raUsageLimitsModuleConfig = platformCfg.createModuleConfig("rao-ra-usage-limits-per-contingency");
-        raUsageLimitsModuleConfig.setStringListProperty("max-curative-topo-per-tso", source);
-        RaoParameters parameters = new RaoParameters();
-        assertThrows(OpenRaoException.class, () -> RaoParameters.load(parameters, platformCfg));
-    }
-
-    static Stream<Arguments> generateIntMap() {
-        return Stream.of(
-            Arguments.of(List.of("{ABC:5", "{DEF}:6")),
-            Arguments.of(List.of("{ABC}+5", "{DEF}:6")),
-            Arguments.of(List.of("{ABC}", "{DEF}:6")),
-            Arguments.of(List.of("5", "{DEF}:6"))
-        );
     }
 
     @ParameterizedTest

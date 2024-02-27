@@ -7,6 +7,7 @@
 package com.powsybl.openrao.data.craccreation.creator.api.parameters;
 
 import com.powsybl.openrao.commons.OpenRaoException;
+import com.powsybl.openrao.data.cracapi.RaUsageLimits;
 import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayInputStream;
@@ -14,6 +15,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.net.URISyntaxException;
 import java.nio.file.Paths;
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -43,6 +45,29 @@ class CracCreationParametersJsonTest {
         CracCreationParameters importedParameters = JsonCracCreationParameters.read(getClass().getResourceAsStream("/parameters/crac-creator-parameters-ok.json"));
         assertNotNull(importedParameters);
         assertEquals("anotherCracFactory", importedParameters.getCracFactoryName());
+    }
+
+    @Test
+    void importFromFileWithRaLimits() {
+        CracCreationParameters importedParameters = JsonCracCreationParameters.read(getClass().getResourceAsStream("/parameters/crac-creator-parameters-with-ra-limits.json"));
+        Map<String, RaUsageLimits> raUsageLimitsFromFile = importedParameters.getRaUsageLimitsPerInstant();
+        assertEquals(2, raUsageLimitsFromFile.size());
+        RaUsageLimits raUsageLimitsPreventive = raUsageLimitsFromFile.get("preventive");
+        RaUsageLimits raUsageLimitsCurative = raUsageLimitsFromFile.get("curative");
+        RaUsageLimits expectedLimitsPreventive = new RaUsageLimits();
+        expectedLimitsPreventive.setMaxRa(3);
+        expectedLimitsPreventive.setMaxTso(5);
+        expectedLimitsPreventive.setMaxRaPerTso(Map.of("FR", 4));
+        expectedLimitsPreventive.setMaxTopoPerTso(Map.of("FR", 2));
+        expectedLimitsPreventive.setMaxPstPerTso(Map.of("FR", 3));
+        RaUsageLimits expectedLimitsCurative = new RaUsageLimits();
+        expectedLimitsCurative.setMaxRa(7);
+        expectedLimitsCurative.setMaxTso(2);
+        expectedLimitsCurative.setMaxRaPerTso(Map.of("FR", 7));
+        expectedLimitsCurative.setMaxTopoPerTso(Map.of("FR", 1));
+        expectedLimitsCurative.setMaxPstPerTso(Map.of("FR", 5));
+        assertEquals(expectedLimitsPreventive, raUsageLimitsPreventive);
+        assertEquals(expectedLimitsCurative, raUsageLimitsCurative);
     }
 
     @Test

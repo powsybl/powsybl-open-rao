@@ -27,7 +27,6 @@ public class RaoParameters extends AbstractExtendable<RaoParameters> {
     private TopoOptimizationParameters topoOptimizationParameters = new TopoOptimizationParameters();
     private MultithreadingParameters multithreadingParameters = new MultithreadingParameters();
     private SecondPreventiveRaoParameters secondPreventiveRaoParameters = new SecondPreventiveRaoParameters();
-    private RaUsageLimitsPerContingencyParameters raUsageLimitsPerContingencyParameters = new RaUsageLimitsPerContingencyParameters();
     private NotOptimizedCnecsParameters notOptimizedCnecsParameters = new NotOptimizedCnecsParameters();
     private LoadFlowAndSensitivityParameters loadFlowAndSensitivityParameters = new LoadFlowAndSensitivityParameters();
 
@@ -50,10 +49,6 @@ public class RaoParameters extends AbstractExtendable<RaoParameters> {
 
     public void setSecondPreventiveRaoParameters(SecondPreventiveRaoParameters secondPreventiveRaoParameters) {
         this.secondPreventiveRaoParameters = secondPreventiveRaoParameters;
-    }
-
-    public void setRaUsageLimitsPerContingencyParameters(RaUsageLimitsPerContingencyParameters raUsageLimitsPerContingencyParameters) {
-        this.raUsageLimitsPerContingencyParameters = raUsageLimitsPerContingencyParameters;
     }
 
     public void setNotOptimizedCnecsParameters(NotOptimizedCnecsParameters notOptimizedCnecsParameters) {
@@ -82,10 +77,6 @@ public class RaoParameters extends AbstractExtendable<RaoParameters> {
 
     public SecondPreventiveRaoParameters getSecondPreventiveRaoParameters() {
         return secondPreventiveRaoParameters;
-    }
-
-    public RaUsageLimitsPerContingencyParameters getRaUsageLimitsPerContingencyParameters() {
-        return raUsageLimitsPerContingencyParameters;
     }
 
     public NotOptimizedCnecsParameters getNotOptimizedCnecsParameters() {
@@ -138,7 +129,6 @@ public class RaoParameters extends AbstractExtendable<RaoParameters> {
         parameters.setTopoOptimizationParameters(TopoOptimizationParameters.load(platformConfig));
         parameters.setMultithreadingParameters(MultithreadingParameters.load(platformConfig));
         parameters.setSecondPreventiveRaoParameters(SecondPreventiveRaoParameters.load(platformConfig));
-        parameters.setRaUsageLimitsPerContingencyParameters(RaUsageLimitsPerContingencyParameters.load(platformConfig));
         parameters.setNotOptimizedCnecsParameters(NotOptimizedCnecsParameters.load(platformConfig));
         parameters.setLoadFlowAndSensitivityParameters(LoadFlowAndSensitivityParameters.load(platformConfig));
     }

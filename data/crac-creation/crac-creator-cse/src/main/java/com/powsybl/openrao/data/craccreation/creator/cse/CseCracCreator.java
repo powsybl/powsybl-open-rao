@@ -18,6 +18,7 @@ import com.powsybl.openrao.data.craccreation.creator.cse.parameters.CseCracCreat
 import com.powsybl.openrao.data.craccreation.creator.cse.remedialaction.TRemedialActionAdder;
 import com.powsybl.openrao.data.craccreation.creator.cse.xsd.CRACDocumentType;
 import com.powsybl.openrao.data.craccreation.creator.cse.xsd.TCRACSeries;
+import com.powsybl.openrao.data.craccreation.util.RaUsageLimitsAdder;
 import com.powsybl.openrao.data.craccreation.util.ucte.UcteNetworkAnalyzer;
 import com.powsybl.openrao.data.craccreation.util.ucte.UcteNetworkAnalyzerProperties;
 import com.powsybl.openrao.data.cracutil.CracValidator;
@@ -44,6 +45,7 @@ public class CseCracCreator implements CracCreator<CseCrac, CseCracCreationConte
         // Set attributes
         Crac crac = cracCreationParameters.getCracFactory().create(cseCrac.getCracDocument().getDocumentIdentification().getV());
         addCseInstants(crac);
+        RaUsageLimitsAdder.addRaUsageLimits(crac, cracCreationParameters);
         this.creationContext = new CseCracCreationContext(crac, offsetDateTime, network.getNameOrId());
 
         // Check timestamp field

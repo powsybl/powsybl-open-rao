@@ -1,0 +1,30 @@
+{
+  "crac-factory" : "anotherCracFactory",
+  "ra-usage-limits-per-instant": [ {
+    "instant" : "preventive",
+    "max-ra" : 3,
+    "max-tso" : 5,
+    "max-topo-per-tso" : {
+      "FR" : 2
+    },
+    "max-pst-per-tso" : {
+      "FR" : 3
+    },
+    "max-ra-per-tso" : {
+      "FR" : 4
+    }
+  }, {
+    "instant" : "curative",
+    "max-ra" : 7,
+    "max-tso" : 2,
+    "max-topo-per-tso" : {
+      "FR" : 1
+    },
+    "max-pst-per-tso" : {
+      "FR" : 5
+    },
+    "max-ra-per-tso" : {
+      "FR" : 7
+    }
+  } ]
+}

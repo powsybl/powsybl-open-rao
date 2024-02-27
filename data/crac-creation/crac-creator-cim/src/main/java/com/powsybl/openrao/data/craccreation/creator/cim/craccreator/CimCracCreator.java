@@ -19,6 +19,7 @@ import com.powsybl.openrao.data.craccreation.creator.cim.craccreator.contingency
 import com.powsybl.openrao.data.craccreation.creator.cim.craccreator.remedialaction.RemedialActionSeriesCreator;
 import com.powsybl.openrao.data.craccreation.creator.cim.parameters.CimCracCreationParameters;
 import com.powsybl.openrao.data.craccreation.creator.cim.xsd.TimeSeries;
+import com.powsybl.openrao.data.craccreation.util.RaUsageLimitsAdder;
 import com.powsybl.openrao.data.cracutil.CracValidator;
 import com.google.auto.service.AutoService;
 import com.powsybl.iidm.network.Network;
@@ -48,6 +49,7 @@ public class CimCracCreator implements CracCreator<CimCrac, CimCracCreationConte
         // Set attributes
         this.crac = parameters.getCracFactory().create(cimCrac.getCracDocument().getMRID());
         addCimInstants();
+        RaUsageLimitsAdder.addRaUsageLimits(crac, parameters);
         this.network = network;
         this.cimTimeSeries = new ArrayList<>(cimCrac.getCracDocument().getTimeSeries());
         this.creationContext = new CimCracCreationContext(crac, offsetDateTime, network.getNameOrId());

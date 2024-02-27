@@ -31,7 +31,7 @@ public final class JsonSerializationConstants {
     private JsonSerializationConstants() {
     }
 
-    public static final String CRAC_IO_VERSION = "2.0";
+    public static final String CRAC_IO_VERSION = "2.1";
     /*
     v1.1: addition of switchPairs
     v1.2: addition of injectionRangeAction
@@ -42,6 +42,7 @@ public final class JsonSerializationConstants {
     v1.8: addition of ShuntCompensator set-point action
     v1.9: addition of counterTradeRangeAction
     v2.0: addition of instants and change in usage method logic
+    v2.1: addition of ra-usage-limits
      */
 
     // headers
@@ -136,6 +137,14 @@ public final class JsonSerializationConstants {
     public static final String OUTAGE_INSTANT_KIND = "OUTAGE";
     public static final String AUTO_INSTANT_KIND = "AUTO";
     public static final String CURATIVE_INSTANT_KIND = "CURATIVE";
+
+    // ra usage limits
+    public static final String RA_USAGE_LIMITS_PER_INSTANT = "ra-usage-limits-per-instant";
+    public static final String MAX_RA = "max-ra";
+    public static final String MAX_TSO = "max-tso";
+    public static final String MAX_TOPO_PER_TSO = "max-topo-per-tso";
+    public static final String MAX_PST_PER_TSO = "max-pst-per-tso";
+    public static final String MAX_RA_PER_TSO = "max-ra-per-tso";
 
     // units
     public static final String AMPERE_UNIT = "ampere";

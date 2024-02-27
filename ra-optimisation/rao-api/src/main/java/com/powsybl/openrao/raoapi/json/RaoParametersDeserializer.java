@@ -67,10 +67,6 @@ public class RaoParametersDeserializer extends StdDeserializer<RaoParameters> {
                     parser.nextToken();
                     JsonSecondPreventiveRaoParameters.deserialize(parser, parameters);
                     break;
-                case RA_USAGE_LIMITS_PER_CONTINGENCY:
-                    parser.nextToken();
-                    JsonRaUsageLimitsPerContingencyParameters.deserialize(parser, parameters);
-                    break;
                 case NOT_OPTIMIZED_CNECS:
                     parser.nextToken();
                     JsonNotOptimizedCnecsParameters.deserialize(parser, parameters);

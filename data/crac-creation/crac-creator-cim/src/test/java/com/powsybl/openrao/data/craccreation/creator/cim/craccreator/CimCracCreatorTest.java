@@ -342,6 +342,17 @@ class CimCracCreatorTest {
     }
 
     @Test
+    void cracCreationWithParameters() {
+        CracCreationParameters cracCreationParameters = new CracCreationParameters();
+        RaUsageLimits raUsageLimits = new RaUsageLimits();
+        raUsageLimits.setMaxRa(2);
+        cracCreationParameters.addRaUsageLimitsForInstant("preventive", raUsageLimits);
+        setUp("/cracs/CIM_21_1_1.xml", baseNetwork, OffsetDateTime.parse("2021-04-01T22:00Z"), cracCreationParameters);
+        assertTrue(cracCreationContext.isCreationSuccessful());
+        assertEquals(2, cracCreationContext.getCrac().getRaUsageLimits(preventiveInstant).getMaxRa());
+    }
+
+    @Test
     void testImportContingencies() {
         setUp("/cracs/CIM_21_1_1.xml", baseNetwork, OffsetDateTime.parse("2021-04-01T23:00Z"), new CracCreationParameters());
 
