@@ -7,20 +7,17 @@
 
 package com.powsybl.openrao.data.cracimpl;
 
+import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.cracapi.*;
 
 import java.util.*;
-
-import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.BUSINESS_WARNS;
-import static com.powsybl.openrao.data.cracimpl.AdderUtils.assertAttributeNotNull;
 
 /**
  * @author Martin Belthle {@literal <martin.belthle at rte-france.com>}
  */
 public class RaUsageLimitsAdderImpl implements RaUsageLimitsAdder {
-    public static final String RA_USAGE_LIMITS = "RaUsageLimits";
     CracImpl owner;
-    private Instant instant = null;
+    private final Instant instant;
     private final RaUsageLimits raUsageLimits = new RaUsageLimits();
 
     RaUsageLimitsAdderImpl(CracImpl owner, String instantName) {
@@ -28,10 +25,9 @@ public class RaUsageLimitsAdderImpl implements RaUsageLimitsAdder {
         this.owner = owner;
         List<Instant> instants = this.owner.getSortedInstants().stream().filter(cracInstant -> cracInstant.getId().equals(instantName)).toList();
         if (instants.isEmpty()) {
-            BUSINESS_WARNS.warn("The instant {} registered in the crac creation parameters does not exist in the crac. Its remedial action limitations will be ignored.", instantName);
-        } else {
-            this.instant = instants.get(0);
+            throw new OpenRaoException(String.format("The instant %s registered in the crac creation parameters does not exist in the crac. Its remedial action limitations will be ignored.", instantName));
         }
+        this.instant = instants.get(0);
     }
 
     @Override
@@ -66,7 +62,6 @@ public class RaUsageLimitsAdderImpl implements RaUsageLimitsAdder {
 
     @Override
     public RaUsageLimits add() {
-        assertAttributeNotNull(instant, RA_USAGE_LIMITS, "instant", "newRaUsageLimits(String instant)");
         owner.addRaUsageLimits(instant, raUsageLimits);
         return raUsageLimits;
     }

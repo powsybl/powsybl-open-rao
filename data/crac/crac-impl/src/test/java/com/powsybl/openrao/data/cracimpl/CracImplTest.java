@@ -7,12 +7,8 @@
 
 package com.powsybl.openrao.data.cracimpl;
 
-import ch.qos.logback.classic.Logger;
-import ch.qos.logback.classic.spi.ILoggingEvent;
-import ch.qos.logback.core.read.ListAppender;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
-import com.powsybl.openrao.commons.logs.RaoBusinessWarns;
 import com.powsybl.openrao.data.cracapi.*;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnecAdder;
@@ -30,7 +26,6 @@ import com.powsybl.openrao.data.cracapi.usagerule.UsageRule;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
-import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
@@ -1023,18 +1018,8 @@ class CracImplTest {
         assertFalse(new CracImpl("test-crac").hasAutoInstant());
     }
 
-    public static ListAppender<ILoggingEvent> getLogs(Class<?> logsClass) {
-        Logger logger = (Logger) LoggerFactory.getLogger(logsClass);
-        ListAppender<ILoggingEvent> listAppender = new ListAppender<>();
-        listAppender.start();
-        logger.addAppender(listAppender);
-        return listAppender;
-    }
-
     @Test
     void testRaUsageLimits() {
-        ListAppender<ILoggingEvent> listAppender = getLogs(RaoBusinessWarns.class);
-        List<ILoggingEvent> logsList = listAppender.list;
         assertTrue(crac.getRaUsageLimitsPerInstant().isEmpty());
         RaUsageLimits raUsageLimits1 = new RaUsageLimits();
         raUsageLimits1.setMaxRa(3);
@@ -1048,13 +1033,9 @@ class CracImplTest {
         assertEquals(firstMap, crac.getRaUsageLimitsPerInstant());
         Instant fakeInstant = Mockito.mock(Instant.class);
         when(fakeInstant.getId()).thenReturn("fake_instant");
-        Map<Instant, RaUsageLimits> secondMap = Map.of(fakeInstant, raUsageLimits1);
-        RaUsageLimitsAdder adder = crac.newRaUsageLimits("fake_instant");
-        OpenRaoException exception = assertThrows(OpenRaoException.class, adder::add);
-        assertEquals("Cannot add RaUsageLimits without a instant. Please use newRaUsageLimits(String instant) with a non null value", exception.getMessage());
+        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> crac.newRaUsageLimits("fake_instant"));
+        assertEquals("The instant fake_instant registered in the crac creation parameters does not exist in the crac. Its remedial action limitations will be ignored.", exception.getMessage());
         assertFalse(crac.getRaUsageLimitsPerInstant().containsKey(fakeInstant));
         assertEquals(new RaUsageLimits(), crac.getRaUsageLimits(fakeInstant));
-        assertEquals(1, logsList.size());
-        assertEquals("The instant fake_instant registered in the crac creation parameters does not exist in the crac. Its remedial action limitations will be ignored.", logsList.get(0).getFormattedMessage());
     }
 }
