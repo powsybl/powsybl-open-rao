@@ -21,6 +21,9 @@ public final class CimConstants {
     public static final String MEGAWATT_UNIT_SYMBOL = "MAW";
     public static final String AMPERES_UNIT_SYMBOL = "AMP";
 
+    // --- Curve
+    public static final String SEQUENTIAL_FIXED_SIZE_BLOCKS_CURVE_TYPE = "A01";
+    public static final String VARIABLE_SIZED_BLOCK_CURVE = "A03";
     // --- Contingencies
     public static final String CONTINGENCY_SERIES_BUSINESS_TYPE = "B55";
 
