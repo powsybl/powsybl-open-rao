@@ -8,10 +8,8 @@
 package com.powsybl.openrao.searchtreerao.searchtree.parameters;
 import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.cracapi.Instant;
-import com.powsybl.openrao.data.cracapi.InstantKind;
 import com.powsybl.openrao.data.cracapi.RaUsageLimits;
 import com.powsybl.openrao.data.cracapi.rangeaction.RangeAction;
-import com.powsybl.openrao.data.cracimpl.CracImpl;
 import com.powsybl.openrao.raoapi.parameters.ObjectiveFunctionParameters;
 import com.powsybl.openrao.raoapi.parameters.RangeActionsOptimizationParameters;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
