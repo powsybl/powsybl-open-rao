@@ -52,7 +52,13 @@ public final class ExhaustiveCracCreation {
             .newInstant(AUTO_INSTANT_ID, InstantKind.AUTO)
             .newInstant(CURATIVE_INSTANT_ID, InstantKind.CURATIVE);
 
-        crac.newRaUsageLimits(CURATIVE_INSTANT_ID).withMaxRa(4).withMaxRaPerTso(new HashMap<>(Map.of("FR", 12))).add();
+        crac.newRaUsageLimits(CURATIVE_INSTANT_ID)
+                .withMaxRa(4)
+                .withMaxTso(2)
+                .withMaxPstPerTso(new HashMap<>(Map.of("FR", 7)))
+                .withMaxTopoPerTso(new HashMap<>(Map.of("FR", 5, "BE", 6)))
+                .withMaxRaPerTso(new HashMap<>(Map.of("FR", 12)))
+                .add();
 
         String contingency1Id = "contingency1Id";
         crac.newContingency().withId(contingency1Id).withNetworkElement("ne1Id").add();
