@@ -7,6 +7,7 @@
 package com.powsybl.openrao.data.craccreation.creator.api.parameters;
 
 import com.powsybl.openrao.data.cracapi.CracFactory;
+import com.powsybl.openrao.data.cracapi.RaUsageLimits;
 import com.powsybl.openrao.data.cracapi.cnec.Side;
 import com.google.common.base.Suppliers;
 import com.powsybl.commons.config.PlatformConfig;
@@ -15,6 +16,8 @@ import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.extensions.ExtensionConfigLoader;
 import com.powsybl.commons.extensions.ExtensionProviders;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.function.Supplier;
@@ -71,6 +74,8 @@ public class CracCreationParameters extends AbstractExtendable<CracCreationParam
 
     private MonitoredLineSide defaultMonitoredLineSide = DEFAULT_DEFAULT_MONITORED_LINE_SIDE;
 
+    private Map<String, RaUsageLimits> raUsageLimitsPerInstant = new HashMap<>();
+
     public String getCracFactoryName() {
         return cracFactoryName;
     }
@@ -93,6 +98,14 @@ public class CracCreationParameters extends AbstractExtendable<CracCreationParam
 
     public void setDefaultMonitoredLineSide(MonitoredLineSide defaultMonitoredLineSide) {
         this.defaultMonitoredLineSide = defaultMonitoredLineSide;
+    }
+
+    public Map<String, RaUsageLimits> getRaUsageLimitsPerInstant() {
+        return this.raUsageLimitsPerInstant;
+    }
+
+    public void addRaUsageLimitsForInstant(String instant, RaUsageLimits raUsageLimits) {
+        this.raUsageLimitsPerInstant.put(instant, raUsageLimits);
     }
 
     public static CracCreationParameters load() {

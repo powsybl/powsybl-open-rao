@@ -7,10 +7,7 @@
 package com.powsybl.openrao.data.craccreation.creator.cse;
 
 import com.powsybl.openrao.commons.Unit;
-import com.powsybl.openrao.data.cracapi.Crac;
-import com.powsybl.openrao.data.cracapi.Instant;
-import com.powsybl.openrao.data.cracapi.RemedialAction;
-import com.powsybl.openrao.data.cracapi.State;
+import com.powsybl.openrao.data.cracapi.*;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
 import com.powsybl.openrao.data.cracapi.cnec.Side;
 import com.powsybl.openrao.data.cracapi.networkaction.NetworkAction;
@@ -123,6 +120,18 @@ class CseCracCreatorTest {
         assertTrue(cracCreationContext.isCreationSuccessful());
         assertEquals(offsetDateTime, cracCreationContext.getTimeStamp());
         assertEquals("/networks/TestCase12Nodes_with_Xnodes", cracCreationContext.getNetworkName());
+    }
+
+    @Test
+    void createCracWithParameters() {
+        RaUsageLimits raUsageLimits = new RaUsageLimits();
+        raUsageLimits.setMaxRa(4);
+        parameters.addRaUsageLimitsForInstant("preventive", raUsageLimits);
+        setUp("/cracs/cse_crac_1.xml");
+        assertTrue(cracCreationContext.isCreationSuccessful());
+        assertEquals(offsetDateTime, cracCreationContext.getTimeStamp());
+        assertEquals("/networks/TestCase12Nodes_with_Xnodes", cracCreationContext.getNetworkName());
+        assertEquals(4, cracCreationContext.getCrac().getRaUsageLimits(preventiveInstant).getMaxRa());
     }
 
     @Test

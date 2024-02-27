@@ -1,6 +1,7 @@
 {
   "crac-factory" : "CracImplFactory",
   "default-monitored-line-side" : "monitor-lines-on-both-sides",
+  "ra-usage-limits-per-instant" : [ ],
   "extensions" : {
     "CimCracCreatorParameters" : {
       "voltage-cnecs-creation-parameters" : {

@@ -29,6 +29,7 @@ public class CracCreationParametersSerializer extends StdSerializer<CracCreation
         jsonGenerator.writeStartObject();
         jsonGenerator.writeStringField(CRAC_FACTORY, parameters.getCracFactoryName());
         jsonGenerator.writeStringField(DEFAULT_MONITORED_LINE_SIDE, serializeMonitoredLineSide(parameters.getDefaultMonitoredLineSide()));
+        serializeRaUsageLimits(parameters, jsonGenerator);
         JsonUtil.writeExtensions(parameters, jsonGenerator, serializerProvider, JsonCracCreationParameters.getExtensionSerializers());
         jsonGenerator.writeEndObject();
     }
