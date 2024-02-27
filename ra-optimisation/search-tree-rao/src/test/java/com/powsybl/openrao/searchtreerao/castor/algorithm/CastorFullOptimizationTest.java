@@ -859,4 +859,145 @@ class CastorFullOptimizationTest {
         assertEquals(-20.30, raoResult.getFunctionalCost(crac.getInstant("curative2")), 1.); // TODO
         assertEquals(-20.30, raoResult.getFunctionalCost(crac.getInstant("curative3")), 1.);
     }
+
+    @Test
+    void threeCurativeInstantsWithCumulativeMaximumNumberOfApplicableRemedialActions() {
+        Network network = Network.read("12Nodes_4ParallelLines.uct", getClass().getResourceAsStream("/network/12Nodes_4ParallelLines.uct"));
+        Crac crac = CracFactory.findDefault().create("crac");
+
+        crac.newInstant("preventive", InstantKind.PREVENTIVE)
+            .newInstant("outage", InstantKind.OUTAGE)
+            .newInstant("curative1", InstantKind.CURATIVE)
+            .newInstant("curative2", InstantKind.CURATIVE);
+
+        crac.newContingency().withId("contingency").withName("CO")
+            .withNetworkElement("NNL2AA1  BBE3AA1  1").add();
+
+        crac.newFlowCnec().withId("FR2-DE3 - preventive")
+            .withOptimized(true)
+            .withInstant("preventive")
+            .withNetworkElement("FFR2AA1  DDE3AA1  1")
+            .withNominalVoltage(400.)
+            .newThreshold()
+                .withUnit(Unit.AMPERE)
+                .withSide(Side.LEFT)
+                .withMax(600d)
+                .withMin(-600d)
+                .add()
+            .add();
+
+        crac.newFlowCnec().withId("FR2-DE3 - contingency - outage")
+            .withOptimized(true)
+            .withInstant("outage")
+            .withContingency("contingency")
+            .withNetworkElement("FFR2AA1  DDE3AA1  1")
+            .withNominalVoltage(400.)
+            .newThreshold()
+            .withUnit(Unit.AMPERE)
+            .withSide(Side.LEFT)
+            .withMax(1000d)
+            .withMin(-1000d)
+            .add()
+            .add();
+
+        crac.newFlowCnec().withId("FR2-DE3 - contingency - curative1")
+            .withOptimized(true)
+            .withInstant("curative1")
+            .withContingency("contingency")
+            .withNetworkElement("FFR2AA1  DDE3AA1  1")
+            .withNominalVoltage(400.)
+            .newThreshold()
+            .withUnit(Unit.AMPERE)
+            .withSide(Side.LEFT)
+            .withMax(800d)
+            .withMin(-800d)
+            .add()
+            .add();
+
+        crac.newFlowCnec().withId("FR2-DE3 - contingency - curative2")
+            .withOptimized(true)
+            .withInstant("curative2")
+            .withContingency("contingency")
+            .withNetworkElement("FFR2AA1  DDE3AA1  1")
+            .withNominalVoltage(400.)
+            .newThreshold()
+            .withUnit(Unit.AMPERE)
+            .withSide(Side.LEFT)
+            .withMax(400d)
+            .withMin(-400d)
+            .add()
+            .add();
+
+        crac.newNetworkAction()
+            .withId("close-fr2-de3-2")
+            .newTopologicalAction()
+                .withNetworkElement("FFR2AA1  DDE3AA1  2")
+                .withActionType(ActionType.CLOSE)
+                .add()
+            .newOnContingencyStateUsageRule()
+                .withUsageMethod(UsageMethod.AVAILABLE)
+                .withContingency("contingency")
+                .withInstant("curative1")
+                .add()
+            .newOnContingencyStateUsageRule()
+                .withUsageMethod(UsageMethod.AVAILABLE)
+                .withContingency("contingency")
+                .withInstant("curative2")
+                .add()
+            .add();
+
+        crac.newNetworkAction()
+            .withId("close-fr2-de3-3")
+            .newTopologicalAction()
+                .withNetworkElement("FFR2AA1  DDE3AA1  3")
+                .withActionType(ActionType.CLOSE)
+                .add()
+            .newOnContingencyStateUsageRule()
+                .withUsageMethod(UsageMethod.AVAILABLE)
+                .withContingency("contingency")
+                .withInstant("curative1")
+                .add()
+            .newOnContingencyStateUsageRule()
+                .withUsageMethod(UsageMethod.AVAILABLE)
+                .withContingency("contingency")
+                .withInstant("curative2")
+                .add()
+            .add();
+
+        crac.newNetworkAction()
+            .withId("close-fr2-de3-4")
+            .newTopologicalAction()
+                .withNetworkElement("FFR2AA1  DDE3AA1  4")
+                .withActionType(ActionType.CLOSE)
+                .add()
+            .newOnContingencyStateUsageRule()
+                .withUsageMethod(UsageMethod.AVAILABLE)
+                .withContingency("contingency")
+                .withInstant("curative1")
+                .add()
+            .newOnContingencyStateUsageRule()
+                .withUsageMethod(UsageMethod.AVAILABLE)
+                .withContingency("contingency")
+                .withInstant("curative2")
+                .add()
+            .add();
+
+        RaUsageLimits curative1RaUsageLimits = new RaUsageLimits();
+        curative1RaUsageLimits.setMaxRa(1);
+        crac.addRaUsageLimits(crac.getInstant("curative1"), curative1RaUsageLimits);
+
+        RaUsageLimits curative2RaUsageLimits = new RaUsageLimits();
+        curative2RaUsageLimits.setMaxRa(2);
+        crac.addRaUsageLimits(crac.getInstant("curative2"), curative2RaUsageLimits);
+
+        RaoInput raoInput = RaoInput.build(network, crac).build();
+        RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/RaoParameters_DC.json"));
+
+        RaoResult raoResult = new CastorFullOptimization(raoInput, raoParameters, null).run().join();
+
+        // SearchTree stop criterion is MIN_OBJECTIVE so all 3 remedial actions should be applied in the first curative instant
+        // Yet, the number of RAs that can be applied is restricted to 1 (resp. 2) in total for curative1 (resp. curative2)
+        assertEquals(1, raoResult.getActivatedNetworkActionsDuringState(crac.getState("contingency", crac.getInstant("curative1"))).size());
+        assertEquals(1, raoResult.getActivatedNetworkActionsDuringState(crac.getState("contingency", crac.getInstant("curative2"))).size());
+    }
 }
