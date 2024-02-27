@@ -53,7 +53,7 @@ class RaUsageLimitsAdderImplTest {
 
         // with fake instant
         OpenRaoException exception = assertThrows(OpenRaoException.class, () -> crac.newRaUsageLimits("fake_instant"));
-        assertEquals("The instant fake_instant registered in the crac creation parameters does not exist in the crac. Its remedial action limitations will be ignored.", exception.getMessage());
+        assertEquals("The instant fake_instant does not exist in the crac.", exception.getMessage());
 
         // preventiveInstant with limitations
         crac.newRaUsageLimits("preventive").withMaxRa(33).add();

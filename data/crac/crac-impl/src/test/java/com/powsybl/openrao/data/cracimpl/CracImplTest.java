@@ -1034,7 +1034,7 @@ class CracImplTest {
         Instant fakeInstant = Mockito.mock(Instant.class);
         when(fakeInstant.getId()).thenReturn("fake_instant");
         OpenRaoException exception = assertThrows(OpenRaoException.class, () -> crac.newRaUsageLimits("fake_instant"));
-        assertEquals("The instant fake_instant registered in the crac creation parameters does not exist in the crac. Its remedial action limitations will be ignored.", exception.getMessage());
+        assertEquals("The instant fake_instant does not exist in the crac.", exception.getMessage());
         assertFalse(crac.getRaUsageLimitsPerInstant().containsKey(fakeInstant));
         assertEquals(new RaUsageLimits(), crac.getRaUsageLimits(fakeInstant));
     }

@@ -25,7 +25,7 @@ public class RaUsageLimitsAdderImpl implements RaUsageLimitsAdder {
         this.owner = owner;
         List<Instant> instants = this.owner.getSortedInstants().stream().filter(cracInstant -> cracInstant.getId().equals(instantName)).toList();
         if (instants.isEmpty()) {
-            throw new OpenRaoException(String.format("The instant %s registered in the crac creation parameters does not exist in the crac. Its remedial action limitations will be ignored.", instantName));
+            throw new OpenRaoException(String.format("The instant %s does not exist in the crac.", instantName));
         }
         this.instant = instants.get(0);
     }
