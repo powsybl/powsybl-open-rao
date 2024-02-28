@@ -332,4 +332,12 @@ class RaoResultImplTest {
         assertTrue(raoResult.isSecure(curativeInstant, PhysicalParameter.FLOW, PhysicalParameter.ANGLE, PhysicalParameter.VOLTAGE));
         assertTrue(raoResult.isSecure());
     }
+
+    @Test
+    void comprehensiveRaoResultWithAllThreeTypesOfCnecs() {
+        // TODO: crac with FlowCNECs, VoltageCNECs, AngleCNECs x3 (prev, out, cur)
+        // TODO: raoResult with all instants
+        // TODO: results after PRAs?
+        // TODO: check throw if instant does not exist
+    }
 }

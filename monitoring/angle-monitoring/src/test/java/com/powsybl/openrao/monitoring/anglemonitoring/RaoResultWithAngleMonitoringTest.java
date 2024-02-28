@@ -74,8 +74,8 @@ class RaoResultWithAngleMonitoringTest {
         RaoResult raoResultWithVoltageMonitoring = new RaoResultWithAngleMonitoring(raoResult, angleMonitoringResult);
         Mockito.when(raoResult.isSecure()).thenReturn(true);
         Mockito.when(angleMonitoringResult.isSecure()).thenReturn(true);
-        Mockito.when(raoResult.isSecure(PhysicalParameter.FLOW, PhysicalParameter.ANGLE)).thenReturn(true);
-        Mockito.when(raoResult.isSecure(Mockito.any(Instant.class), Mockito.eq(PhysicalParameter.FLOW), Mockito.eq(PhysicalParameter.ANGLE))).thenReturn(true);
+        Mockito.when(raoResult.isSecure(PhysicalParameter.FLOW)).thenReturn(true);
+        Mockito.when(raoResult.isSecure(Mockito.any(Instant.class), Mockito.eq(PhysicalParameter.FLOW))).thenReturn(true);
 
         assertTrue(raoResultWithVoltageMonitoring.isSecure());
         assertTrue(raoResultWithVoltageMonitoring.isSecure(PhysicalParameter.FLOW, PhysicalParameter.ANGLE));
@@ -89,9 +89,9 @@ class RaoResultWithAngleMonitoringTest {
         RaoResult raoResultWithVoltageMonitoring = new RaoResultWithAngleMonitoring(raoResult, angleMonitoringResult);
         Mockito.when(raoResult.isSecure()).thenReturn(true);
         Mockito.when(angleMonitoringResult.isSecure()).thenReturn(false);
-        Mockito.when(raoResult.isSecure(PhysicalParameter.FLOW, PhysicalParameter.ANGLE)).thenReturn(true);
+        Mockito.when(raoResult.isSecure(PhysicalParameter.FLOW)).thenReturn(true);
         Mockito.when(raoResult.isSecure(PhysicalParameter.FLOW, PhysicalParameter.VOLTAGE)).thenReturn(true);
-        Mockito.when(raoResult.isSecure(Mockito.any(Instant.class), Mockito.eq(PhysicalParameter.FLOW), Mockito.eq(PhysicalParameter.ANGLE))).thenReturn(true);
+        Mockito.when(raoResult.isSecure(Mockito.any(Instant.class), Mockito.eq(PhysicalParameter.FLOW))).thenReturn(true);
         Mockito.when(raoResult.isSecure(Mockito.any(Instant.class), Mockito.eq(PhysicalParameter.FLOW), Mockito.eq(PhysicalParameter.VOLTAGE))).thenReturn(true);
 
         assertFalse(raoResultWithVoltageMonitoring.isSecure());

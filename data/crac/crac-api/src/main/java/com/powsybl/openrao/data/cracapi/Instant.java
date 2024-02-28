@@ -36,4 +36,12 @@ public interface Instant extends Identifiable<Instant>, Comparable<Instant> {
     boolean isAuto();
 
     boolean isCurative();
+
+    // TODO: test this
+    static Instant min(Instant instant1, Instant instant2) {
+        if (instant1 == null || instant2 == null) {
+            return null;
+        }
+        return instant1.comesBefore(instant2) ? instant1 : instant2;
+    }
 }
