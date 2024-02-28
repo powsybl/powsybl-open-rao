@@ -8,8 +8,10 @@
 package com.powsybl.openrao.searchtreerao.searchtree.parameters;
 import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.cracapi.Instant;
+import com.powsybl.openrao.data.cracapi.InstantKind;
 import com.powsybl.openrao.data.cracapi.RaUsageLimits;
 import com.powsybl.openrao.data.cracapi.rangeaction.RangeAction;
+import com.powsybl.openrao.data.cracimpl.CracImpl;
 import com.powsybl.openrao.raoapi.parameters.ObjectiveFunctionParameters;
 import com.powsybl.openrao.raoapi.parameters.RangeActionsOptimizationParameters;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
@@ -33,7 +35,6 @@ import static org.mockito.Mockito.when;
  */
 class SearchTreeParametersTest {
     SearchTreeParameters.SearchTreeParametersBuilder builder;
-    private Crac crac;
 
     @BeforeEach
     public void setup() {
@@ -145,5 +146,104 @@ class SearchTreeParametersTest {
         Map<String, Integer> maxPstPerTso = updatedRaUsageLimits.getMaxPstPerTso();
         assertEquals(10, maxPstPerTso.get("BE"));
         assertEquals(0, maxPstPerTso.get("FR"));
+    }
+
+    @Test
+    void decreaseNumberOfApplicableRemedialActions() {
+        Crac crac = setUpCrac();
+        SearchTreeParameters parameters;
+        Map<Instant, Integer> appliedRemedialActions;
+
+        // Preventive
+        parameters = setUpParameters(crac);
+        appliedRemedialActions = Map.of(crac.getInstant("preventive"), 3);
+        parameters.decreaseNumberOfApplicableRemedialActions(appliedRemedialActions);
+        assertMaxRaForAllInstants(crac, parameters, 4, 1, 3, 7);
+
+        // Curative 1 only
+        parameters = setUpParameters(crac);
+        appliedRemedialActions = Map.of(crac.getInstant("curative1"), 1);
+        parameters.decreaseNumberOfApplicableRemedialActions(appliedRemedialActions);
+        assertMaxRaForAllInstants(crac, parameters, 7, 0, 2, 6);
+
+        // Curative 2 only
+        parameters = setUpParameters(crac);
+        appliedRemedialActions = Map.of(crac.getInstant("curative2"), 2);
+        parameters.decreaseNumberOfApplicableRemedialActions(appliedRemedialActions);
+        assertMaxRaForAllInstants(crac, parameters, 7, 1, 1, 5);
+
+        // Curative 3 only
+        parameters = setUpParameters(crac);
+        appliedRemedialActions = Map.of(crac.getInstant("curative3"), 6);
+        parameters.decreaseNumberOfApplicableRemedialActions(appliedRemedialActions);
+        assertMaxRaForAllInstants(crac, parameters, 7, 1, 3, 1);
+
+        // Curative 1 + 2
+        parameters = setUpParameters(crac);
+        appliedRemedialActions = Map.of(crac.getInstant("preventive"), 5, crac.getInstant("curative1"), 1, crac.getInstant("curative2"), 2);
+        parameters.decreaseNumberOfApplicableRemedialActions(appliedRemedialActions);
+        assertMaxRaForAllInstants(crac, parameters, 2, 0, 0, 4);
+
+        // Curative 1 + 3
+        parameters = setUpParameters(crac);
+        appliedRemedialActions = Map.of(crac.getInstant("curative1"), 1, crac.getInstant("curative3"), 4);
+        parameters.decreaseNumberOfApplicableRemedialActions(appliedRemedialActions);
+        assertMaxRaForAllInstants(crac, parameters, 7, 0, 2, 2);
+
+        // Curative 2 + 3
+        parameters = setUpParameters(crac);
+        appliedRemedialActions = Map.of(crac.getInstant("curative2"), 2, crac.getInstant("curative3"), 1);
+        parameters.decreaseNumberOfApplicableRemedialActions(appliedRemedialActions);
+        assertMaxRaForAllInstants(crac, parameters, 7, 1, 1, 4);
+
+        // All curatives
+        parameters = setUpParameters(crac);
+        appliedRemedialActions = Map.of(crac.getInstant("curative1"), 1, crac.getInstant("curative2"), 2, crac.getInstant("curative3"), 4);
+        parameters.decreaseNumberOfApplicableRemedialActions(appliedRemedialActions);
+        assertMaxRaForAllInstants(crac, parameters, 7, 0, 0, 0);
+
+        // None
+        parameters = setUpParameters(crac);
+        appliedRemedialActions = Map.of();
+        parameters.decreaseNumberOfApplicableRemedialActions(appliedRemedialActions);
+        assertMaxRaForAllInstants(crac, parameters, 7, 1, 3, 7);
+    }
+
+    private void assertMaxRaForAllInstants(Crac crac, SearchTreeParameters parameters, int preventiveRas, int curative1Ras, int curative2Ras, int curative3Ras) {
+        assertEquals(preventiveRas, parameters.getRaLimitationParameters().get(crac.getInstant("preventive")).getMaxRa());
+        assertEquals(curative1Ras, parameters.getRaLimitationParameters().get(crac.getInstant("curative1")).getMaxRa());
+        assertEquals(curative2Ras, parameters.getRaLimitationParameters().get(crac.getInstant("curative2")).getMaxRa());
+        assertEquals(curative3Ras, parameters.getRaLimitationParameters().get(crac.getInstant("curative3")).getMaxRa());
+    }
+
+    private Crac setUpCrac() {
+        return new CracImpl("dummy-crac")
+            .newInstant("preventive", InstantKind.PREVENTIVE)
+            .newInstant("outage", InstantKind.OUTAGE)
+            .newInstant("curative1", InstantKind.CURATIVE)
+            .newInstant("curative2", InstantKind.CURATIVE)
+            .newInstant("curative3", InstantKind.CURATIVE);
+    }
+
+    private SearchTreeParameters setUpParameters(Crac crac) {
+        RaUsageLimits preventiveRaUsageLimits = new RaUsageLimits();
+        preventiveRaUsageLimits.setMaxRa(7);
+        RaUsageLimits curative1RaUsageLimits = new RaUsageLimits();
+        curative1RaUsageLimits.setMaxRa(1);
+        RaUsageLimits curative2RaUsageLimits = new RaUsageLimits();
+        curative2RaUsageLimits.setMaxRa(3);
+        RaUsageLimits curative3RaUsageLimits = new RaUsageLimits();
+        curative3RaUsageLimits.setMaxRa(7);
+
+        return SearchTreeParameters.create()
+            .withGlobalRemedialActionLimitationParameters(
+                Map.of(
+                    crac.getInstant("preventive"), preventiveRaUsageLimits,
+                    crac.getInstant("curative1"), curative1RaUsageLimits,
+                    crac.getInstant("curative2"), curative2RaUsageLimits,
+                    crac.getInstant("curative3"), curative3RaUsageLimits
+                )
+            )
+            .build();
     }
 }

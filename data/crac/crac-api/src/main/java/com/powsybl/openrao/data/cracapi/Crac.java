@@ -527,11 +527,6 @@ public interface Crac extends Identifiable<Crac> {
     RaUsageLimits getRaUsageLimits(Instant instant);
 
     /**
-     * Add remedial action usage limitation for a given instant
-     */
-    void addRaUsageLimits(Instant instant, RaUsageLimits raUsageLimits);
-
-    /**
      * Get a {@link RaUsageLimitsAdder}, to add a {@link RaUsageLimits} to the crac
      */
     RaUsageLimitsAdder newRaUsageLimits(String instantName);

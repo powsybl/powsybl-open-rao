@@ -869,7 +869,7 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
         return this.raUsageLimitsPerInstant.getOrDefault(instant, new RaUsageLimits());
     }
 
-    public void addRaUsageLimits(Instant instant, RaUsageLimits raUsageLimits) {
+    void addRaUsageLimits(Instant instant, RaUsageLimits raUsageLimits) {
         this.raUsageLimitsPerInstant.put(instant, raUsageLimits);
     }
 
