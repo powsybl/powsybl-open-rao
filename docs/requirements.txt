@@ -1,4 +1,5 @@
 sphinx==5.0.2
+sphinx-design
 sphinx-tabs
 sphinx-mdinclude
 pydata-sphinx-theme==0.10.1

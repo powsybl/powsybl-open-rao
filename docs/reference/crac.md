@@ -1,4 +1,10 @@
 ## Introduction {#introduction}
+
+:::{dropdown} Dropdown Title
+:open:
+Dropdown content
+:::
+
 The name CRAC is a standard denomination defined by the ENTSO-E which means: **C**ontingency list, **R**emedial 
 **A**ctions, and additional **C**onstraints.
 
@@ -23,17 +29,16 @@ CRAC formats, such as the [FlowBasedConstraint](fbconstraint) format, the [CSE](
 Example of complete CRACs are given below
 
 ::::{tab-set}
-
 :::{tab-item} JAVA creation API
+:sync: tab1
 The creation of a small CRAC is for instance made in this test class of farao-core repository:  
 [example on GitHub](https://github.com/powsybl/powsybl-open-rao/blob/main/data/crac/crac-impl/src/test/java/com/powsybl/openrao/data/cracimpl/utils/CommonCracCreation.java)
 :::
-
 :::{tab-item} JSON file
+:sync: tab2
 An example of a small CRAC in the json internal format of FARAO is given below:  
 [example on GitHub](https://github.com/powsybl/powsybl-open-rao/blob/main/ra-optimisation/search-tree-rao/src/test/resources/crac/small-crac-with-network-actions.json)
 :::
-
 ::::
   
 The following paragraphs of this page explain, step by step, the content of these examples.
@@ -68,8 +73,8 @@ added to the CRAC. This is particularly important to keep in mind if you want to
 make the CRAC or some outputs of the application more readable for humans.
 
 ::::{tab-set}
-
 :::{tab-item} JAVA creation API
+:sync: tab1
 Network elements are never built on their own in the CRAC object: they are always a component of a larger business object,
 and are added implicitly to the CRAC when the business object is added (e.g. a contingency, a CNEC, or a remedial action).
 When building a business object, one of the two following methods can be used to add a network element to it (using an
@@ -80,8 +85,8 @@ ID only, or an ID and a name).
 ~~~
 These methods will be depicted in the following examples on this page.
 :::
-
 :::{tab-item} JSON file
+:sync: tab2
 Network elements' IDs are defined within the objects that contain them. Examples are given later in this page,
 for contingencies, CNECs and remedial actions. Moreover, the internal Json CRAC format contains an index of network
 element names, in which network elements that have a name are listed, with their name and their ID.
@@ -92,7 +97,6 @@ element names, in which network elements that have a name are listed, with their
 },
 ~~~
 :::
-
 ::::
 
 ## Contingencies {#contingencies}
@@ -113,8 +117,8 @@ be considered when operating the electrical transmission / distribution system.
 In FARAO, contingencies are defined in the following way:
 
 ::::{tab-set}
-
 :::{tab-item} JAVA creation API
+:sync: tab1
 ~~~java
 crac.newContingency()
     .withId("CO_0001")
@@ -130,8 +134,22 @@ crac.newContingency()
     .add();
 ~~~
 :::
-
 :::{tab-item} JSON file
+:sync: tab2
+~~~json
+"contingencies" : [{
+    "id" : "CO_0001",
+    "name" : "N-1 on generator",
+    "networkElementsIds" : [ "powsybl_generator_id" ]
+}, {
+    "id" : "CO_0002",
+    "name" : "N-1 electrical lines",
+    "networkElementsIds" : [ "powsybl_electrical_line_1_id", "powsybl_electrical_line_2_id" ]
+}],
+~~~
+:::
+:::{tab-item} Object fields
+:sync: tab3
 🔴⭐ **identifier**  
 ⚪ **name**  
 ⚪ **network elements**: list of 0 to N network elements  
@@ -139,7 +157,6 @@ crac.newContingency()
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ⚪ **network element names**: names are optional, they can be used to make the CRAC
 more understandable from a business viewpoint, but applications relying on the CRAC do not necessarily need them.  
 :::
-
 ::::
 
 > 💡  **NOTE**  

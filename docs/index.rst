@@ -1,7 +1,7 @@
 .. documentation master file, created by
 
 PowSyBl-OpenRAO's user documentation
-==============================
+====================================
 
 API reference
 -------------
@@ -13,4 +13,3 @@ please check out the API reference documentation :
    :maxdepth: 2
 
    reference/index
-   reference/input-data/crac/json
