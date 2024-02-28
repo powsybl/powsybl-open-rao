@@ -66,7 +66,7 @@ public class MultipleNetworkPool extends AbstractNetworkPool {
         AtomicInteger remainingClones = new AtomicInteger(requiredClones);
         List<ForkJoinTask<Network>> tasks = new ArrayList<>();
         try {
-            for (int i = 0; i < requiredClones; i++) {
+            for (int i = networkNumberOfClones; i < requiredClones; i++) {
                 int finalI = i;
                 tasks.add(this.submit(() -> createNetworkCopy(finalI, remainingClones)));
             }
@@ -74,7 +74,7 @@ public class MultipleNetworkPool extends AbstractNetworkPool {
                 try {
                     boolean isSuccess = networksQueue.offer(task.get());
                     if (!isSuccess) {
-                        throw new AssertionError(String.format("Cannot offer copy n°'%d' in pool. Should not happen", networkNumberOfClones + 1));
+                        throw new OpenRaoException(String.format("Cannot offer copy n°'%d' in pool. Should not happen", networkNumberOfClones + 1));
                     } else {
                         networkNumberOfClones++;
                     }
