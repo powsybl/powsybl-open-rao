@@ -13,3 +13,4 @@ please check out the API reference documentation :
    :maxdepth: 2
 
    reference/index
+   reference/input-data/crac/json
