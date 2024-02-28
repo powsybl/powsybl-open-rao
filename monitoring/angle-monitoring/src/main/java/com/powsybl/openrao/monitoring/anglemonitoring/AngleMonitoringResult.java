@@ -9,9 +9,9 @@ package com.powsybl.openrao.monitoring.anglemonitoring;
 
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
+import com.powsybl.openrao.data.cracapi.RemedialAction;
 import com.powsybl.openrao.data.cracapi.State;
 import com.powsybl.openrao.data.cracapi.cnec.AngleCnec;
-import com.powsybl.openrao.data.cracapi.networkaction.NetworkAction;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -61,10 +61,10 @@ public class AngleMonitoringResult {
     }
 
     private final Set<AngleResult> angleCnecsWithAngle;
-    private final Map<State, Set<NetworkAction>> appliedCras;
+    private final Map<State, Set<RemedialAction<?>>> appliedCras;
     private final Status status;
 
-    public AngleMonitoringResult(Set<AngleResult> angleCnecsWithAngle, Map<State, Set<NetworkAction>> appliedCras, Status status) {
+    public AngleMonitoringResult(Set<AngleResult> angleCnecsWithAngle, Map<State, Set<RemedialAction<?>>> appliedCras, Status status) {
         this.angleCnecsWithAngle = angleCnecsWithAngle;
         this.appliedCras = appliedCras;
         this.status = status;
@@ -86,7 +86,7 @@ public class AngleMonitoringResult {
     public boolean isDivergent() {
         return getStatus() == Status.DIVERGENT; }
 
-    public Set<NetworkAction> getAppliedCras(State state) {
+    public Set<RemedialAction<?>> getAppliedCras(State state) {
         return appliedCras.getOrDefault(state, Collections.emptySet());
     }
 
@@ -97,7 +97,7 @@ public class AngleMonitoringResult {
         } else if (states.size() > 1) {
             throw new OpenRaoException(String.format("%s states share the same id : %s.", states.size(), stateId));
         } else {
-            return appliedCras.get(states.iterator().next()).stream().map(NetworkAction::getId).collect(Collectors.toSet());
+            return appliedCras.get(states.iterator().next()).stream().map(RemedialAction::getId).collect(Collectors.toSet());
         }
     }
 
@@ -105,7 +105,7 @@ public class AngleMonitoringResult {
         return angleCnecsWithAngle;
     }
 
-    public Map<State, Set<NetworkAction>> getAppliedCras() {
+    public Map<State, Set<RemedialAction<?>>> getAppliedCras() {
         return appliedCras;
     }
 
