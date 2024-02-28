@@ -2,3 +2,6 @@ sphinx==5.0.2
 sphinx-tabs
 sphinx-mdinclude
 pydata-sphinx-theme==0.10.1
+mkdocs
+mkdocs-material
+myst-parser
