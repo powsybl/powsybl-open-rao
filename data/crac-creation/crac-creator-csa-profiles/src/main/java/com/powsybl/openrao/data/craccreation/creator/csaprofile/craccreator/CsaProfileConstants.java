@@ -107,6 +107,7 @@ public final class CsaProfileConstants {
     public static final String SIPS = "http://entsoe.eu/ns/nc#RemedialActionSchemeKind.sips";
     public static final String NORMAL_ARMED = "normalArmed";
     public static final String OVERRIDE_ARMED = "armed";
+    public static final String DEPENDING_REMEDIAL_ACTION_GROUP = "dependingRemedialActionGroup";
     public static final String GRID_STATE_ALTERATION_COLLECTION = "gridStateAlterationCollection";
     public static final String GRID_STATE_ALTERATION_REMEDIAL_ACTION = "gridStateAlterationRemedialAction";
     public static final String TOPOLOGY_ACTION = "topologyAction";
@@ -119,7 +120,7 @@ public final class CsaProfileConstants {
     public static final String TSO = "tso";
     public static final String NORMAL_AVAILABLE = "normalAvailable";
     public static final String OVERRIDE_AVAILABLE = "available";
-    public static final String RA_KIND = "kind";
+    public static final String KIND = "kind";
     public static final String COMBINATION_CONSTRAINT_KIND = "combinationConstraintKind";
     public static final String SWITCH = "switchId";
     public static final String NORMAL_ENABLED = "normalEnabled";
@@ -128,6 +129,8 @@ public final class CsaProfileConstants {
     public static final String SHUNT_COMPENSATOR_MODIFICATION = "shuntCompensatorModification";
     public static final String SHUNT_COMPENSATOR_ID = "shuntCompensatorId";
     public static final String REQUEST_SCHEME_REMEDIAL_ACTION = "schemeRemedialAction";
+    public static final String REQUEST_REMEDIAL_ACTION_GROUP = "remedialActionGroup";
+    public static final String REQUEST_REMEDIAL_ACTION_DEPENDENCY = "remedialActionDependency";
 
     public enum PropertyReference {
         SWITCH("Switch.open"),
@@ -346,7 +349,8 @@ public final class CsaProfileConstants {
         ROTATING_MACHINE_ACTION("rotatingMachineActionOverriding", REQUEST_ROTATING_MACHINE_ACTION, NORMAL_ENABLED, OVERRIDE_ENABLED, HeaderType.START_END_DATE),
         SHUNT_COMPENSATOR_MODIFICATION("shuntCompensatorModificationOverriding", REQUEST_SHUNT_COMPENSATOR_MODIFICATION, NORMAL_ENABLED, OVERRIDE_ENABLED, HeaderType.START_END_DATE),
         TAP_POSITION_ACTION("tapPositionActionOverriding", REQUEST_TAP_POSITION_ACTION, NORMAL_ENABLED, OVERRIDE_ENABLED, HeaderType.START_END_DATE),
-        SCHEME_REMEDIAL_ACTION("schemeRemedialActionOverriding", REQUEST_SCHEME_REMEDIAL_ACTION, NORMAL_AVAILABLE, OVERRIDE_AVAILABLE, HeaderType.START_END_DATE);
+        SCHEME_REMEDIAL_ACTION("schemeRemedialActionOverriding", REQUEST_SCHEME_REMEDIAL_ACTION, NORMAL_AVAILABLE, OVERRIDE_AVAILABLE, HeaderType.START_END_DATE),
+        SCHEME_REMEDIAL_ACTION_DEPENDENCY("remedialActionDependencyOverriding", REQUEST_REMEDIAL_ACTION_DEPENDENCY, NORMAL_ENABLED, OVERRIDE_ENABLED, HeaderType.START_END_DATE);
 
         final String requestName;
         final String objectName;

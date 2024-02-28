@@ -32,6 +32,7 @@ import java.util.*;
 import static com.powsybl.openrao.data.cracapi.usagerule.UsageMethod.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.when;
 
 /**
  * General test file
@@ -156,9 +157,9 @@ class CracImplTest {
     @Test
     void testAddPstRangeActionWithNoConflict() {
         PstRangeAction rangeAction = Mockito.mock(PstRangeAction.class);
-        Mockito.when(rangeAction.getId()).thenReturn("rangeAction");
+        when(rangeAction.getId()).thenReturn("rangeAction");
         State state = Mockito.mock(State.class);
-        Mockito.when(state.getContingency()).thenReturn(Optional.empty());
+        when(state.getContingency()).thenReturn(Optional.empty());
 
         assertEquals(0, crac.getPstRangeActions().size());
         assertEquals(0, crac.getRangeActions().size());
@@ -173,9 +174,9 @@ class CracImplTest {
     @Test
     void testAddHvdcRangeActionWithNoConflict() {
         HvdcRangeAction rangeAction = Mockito.mock(HvdcRangeAction.class);
-        Mockito.when(rangeAction.getId()).thenReturn("rangeAction");
+        when(rangeAction.getId()).thenReturn("rangeAction");
         State state = Mockito.mock(State.class);
-        Mockito.when(state.getContingency()).thenReturn(Optional.empty());
+        when(state.getContingency()).thenReturn(Optional.empty());
 
         assertEquals(0, crac.getHvdcRangeActions().size());
         assertEquals(0, crac.getRangeActions().size());
@@ -1015,5 +1016,26 @@ class CracImplTest {
     void testCracHasAutoInstant() {
         assertTrue(crac.hasAutoInstant());
         assertFalse(new CracImpl("test-crac").hasAutoInstant());
+    }
+
+    @Test
+    void testRaUsageLimits() {
+        assertTrue(crac.getRaUsageLimitsPerInstant().isEmpty());
+        RaUsageLimits raUsageLimits1 = new RaUsageLimits();
+        raUsageLimits1.setMaxRa(3);
+        Instant preventiveInstant = crac.getInstant("preventive");
+        Map<Instant, RaUsageLimits> firstMap = Map.of(preventiveInstant, raUsageLimits1);
+        crac.newRaUsageLimits("preventive")
+            .withMaxRa(raUsageLimits1.getMaxRa())
+            .add();
+        assertEquals(firstMap.get(preventiveInstant), crac.getRaUsageLimitsPerInstant().get(preventiveInstant));
+        assertEquals(firstMap.get(preventiveInstant), crac.getRaUsageLimits(preventiveInstant));
+        assertEquals(firstMap, crac.getRaUsageLimitsPerInstant());
+        Instant fakeInstant = Mockito.mock(Instant.class);
+        when(fakeInstant.getId()).thenReturn("fake_instant");
+        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> crac.newRaUsageLimits("fake_instant"));
+        assertEquals("The instant fake_instant does not exist in the crac.", exception.getMessage());
+        assertFalse(crac.getRaUsageLimitsPerInstant().containsKey(fakeInstant));
+        assertEquals(new RaUsageLimits(), crac.getRaUsageLimits(fakeInstant));
     }
 }
