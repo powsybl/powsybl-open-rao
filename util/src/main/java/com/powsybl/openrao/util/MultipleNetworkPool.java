@@ -75,6 +75,8 @@ public class MultipleNetworkPool extends AbstractNetworkPool {
                     boolean isSuccess = networksQueue.offer(task.get());
                     if (!isSuccess) {
                         throw new AssertionError(String.format("Cannot offer copy n°'%d' in pool. Should not happen", networkNumberOfClones + 1));
+                    } else {
+                        networkNumberOfClones++;
                     }
                 } catch (ExecutionException e) {
                     throw new OpenRaoException(e);
