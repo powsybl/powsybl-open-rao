@@ -353,24 +353,24 @@ public class CastorFullOptimization {
         } else if (!automatonsOnly) {
             boolean allPreviousPerimetersSucceded = true;
             // Optimize curative instant
-            Map<Instant, Integer> appliedCurativeRemedialActions = new HashMap<>();
+            Map<State, Set<OptimizationResult>> resultsPerState = new HashMap<>();
             for (Perimeter curativePerimeter : optimizedScenario.getCurativePerimeters()) {
-                int remedialActionAppliedDuringPerimeter = 0;
+                Set<OptimizationResult> optimizedStatesResults = new HashSet<>();
                 for (State curativeState : curativePerimeter.getAllStates()) {
                     if (allPreviousPerimetersSucceded) {
                         OptimizationResult curativeResult = optimizeCurativeState(curativeState, crac, networkClone,
-                            raoParameters, stateTree, toolProvider, curativeTreeParameters, initialSensitivityOutput, preCurativeResult, appliedCurativeRemedialActions);
+                            raoParameters, stateTree, toolProvider, curativeTreeParameters, initialSensitivityOutput, preCurativeResult, resultsPerState);
                         allPreviousPerimetersSucceded = curativeResult.getSensitivityStatus() == DEFAULT;
+                        if (allPreviousPerimetersSucceded) {
+                            optimizedStatesResults.add(curativeResult);
+                        }
                         contingencyScenarioResults.put(curativeState, curativeResult);
                         applyRemedialActions(networkClone, curativeResult, curativeState);
-                        if (allPreviousPerimetersSucceded) {
-                            remedialActionAppliedDuringPerimeter += curativeResult.getActivatedNetworkActions().size() + curativeResult.getActivatedRangeActions(curativeState).size();
-                        }
                     } else {
                         contingencyScenarioResults.put(curativeState, new SkippedOptimizationResultImpl(curativeState, new HashSet<>(), new HashSet<>(), ComputationStatus.FAILURE, sensitivityFailureOvercost));
                     }
                 }
-                appliedCurativeRemedialActions.put(curativePerimeter.getRaOptimisationState().getInstant(), remedialActionAppliedDuringPerimeter);
+                resultsPerState.put(curativePerimeter.getRaOptimisationState(), optimizedStatesResults);
             }
         }
         TECHNICAL_LOGS.debug("Remaining post-contingency scenarios to optimize: {}", remainingScenarios.decrementAndGet());
@@ -388,7 +388,7 @@ public class CastorFullOptimization {
                                                      TreeParameters curativeTreeParameters,
                                                      PrePerimeterResult initialSensitivityOutput,
                                                      PrePerimeterResult prePerimeterSensitivityOutput,
-                                                     Map<Instant, Integer> alreadyAppliedRemedialActions) {
+                                                     Map<State, Set<OptimizationResult>> resultsPerInstant) {
         TECHNICAL_LOGS.info("Optimizing curative state {}.", curativeState.getId());
 
         OptimizationPerimeter optPerimeter = CurativeOptimizationPerimeter.build(curativeState, crac, network, raoParameters, prePerimeterSensitivityOutput);
@@ -399,7 +399,7 @@ public class CastorFullOptimization {
             .withUnoptimizedCnecParameters(UnoptimizedCnecParameters.build(raoParameters.getNotOptimizedCnecsParameters(), stateTree.getOperatorsNotSharingCras(), raoInput.getCrac()))
             .build();
 
-        searchTreeParameters.decreaseNumberOfApplicableRemedialActions(alreadyAppliedRemedialActions);
+        searchTreeParameters.decreaseRemedialActionUsageLimits(resultsPerInstant);
 
         SearchTreeInput searchTreeInput = SearchTreeInput.create()
             .withNetwork(network)
