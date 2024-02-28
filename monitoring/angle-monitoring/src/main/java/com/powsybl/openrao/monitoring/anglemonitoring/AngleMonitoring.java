@@ -163,7 +163,7 @@ public class AngleMonitoring {
      * Returns an AngleMonitoringResult.
      */
     private AngleMonitoringResult monitorAngleCnecs(String loadFlowProvider, LoadFlowParameters loadFlowParameters, State state, Network networkClone) {
-        Set<NetworkAction> appliedNetworkActions = new TreeSet<>(Comparator.comparing(NetworkAction::getId));
+        Set<RemedialAction<?>> appliedNetworkActions = new TreeSet<>(Comparator.comparing(RemedialAction::getId));
         Set<String> networkElementsToBeExcluded = new HashSet<>();
         EnumMap<Country, Double> powerToBeRedispatched = new EnumMap<>(Country.class);
         // 1) Compute angles for all AngleCnecs
@@ -403,7 +403,7 @@ public class AngleMonitoring {
      */
     private AngleMonitoringResult assembleAngleMonitoringResults() {
         Set<AngleMonitoringResult.AngleResult> assembledAngleCnecsWithAngle = new TreeSet<>(Comparator.comparing(AngleMonitoringResult.AngleResult::getId));
-        Map<State, Set<NetworkAction>> assembledAppliedCras = new HashMap<>();
+        Map<State, Set<RemedialAction<?>>> assembledAppliedCras = new HashMap<>();
         AngleMonitoringResult.Status assembledStatus = AngleMonitoringResult.Status.SECURE;
 
         stateSpecificResults.forEach(individualResult -> {

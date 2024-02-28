@@ -20,6 +20,7 @@ import com.powsybl.openrao.data.raoresultapi.RaoResultClone;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * class that enhances rao result with angle monitoring results
@@ -68,7 +69,9 @@ public class RaoResultWithAngleMonitoring extends RaoResultClone {
     @Override
     public Set<NetworkAction> getActivatedNetworkActionsDuringState(State state) {
         Set<NetworkAction> concatenatedActions = new HashSet<>(raoResult.getActivatedNetworkActionsDuringState(state));
-        concatenatedActions.addAll(angleMonitoringResult.getAppliedCras(state));
+        Set<RemedialAction<?>> angleMonitoringRas = angleMonitoringResult.getAppliedCras(state);
+        Set<NetworkAction> angleMonitoringNetworkActions = angleMonitoringRas.stream().filter(NetworkAction.class::isInstance).map(ra -> (NetworkAction) ra).collect(Collectors.toSet());
+        concatenatedActions.addAll(angleMonitoringNetworkActions);
         return concatenatedActions;
     }
 

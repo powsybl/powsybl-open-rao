@@ -8,9 +8,9 @@
 package com.powsybl.openrao.monitoring.voltagemonitoring;
 
 import com.powsybl.openrao.commons.OpenRaoException;
+import com.powsybl.openrao.data.cracapi.RemedialAction;
 import com.powsybl.openrao.data.cracapi.State;
 import com.powsybl.openrao.data.cracapi.cnec.VoltageCnec;
-import com.powsybl.openrao.data.cracapi.networkaction.NetworkAction;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -45,10 +45,10 @@ public class VoltageMonitoringResult {
     private final Status status;
     private final Map<VoltageCnec, ExtremeVoltageValues> extremeVoltageValues;
     private final Set<VoltageCnec> constrainedElements;
-    private final Map<State, Set<NetworkAction>> appliedRas;
+    private final Map<State, Set<RemedialAction<?>>> appliedRas;
     private List<String> constraints;
 
-    public VoltageMonitoringResult(Map<VoltageCnec, ExtremeVoltageValues> extremeVoltageValues, Map<State, Set<NetworkAction>> appliedRas, Status status) {
+    public VoltageMonitoringResult(Map<VoltageCnec, ExtremeVoltageValues> extremeVoltageValues, Map<State, Set<RemedialAction<?>>> appliedRas, Status status) {
         this.extremeVoltageValues = extremeVoltageValues;
         Set<VoltageCnec> tmpConstrainedElements = new HashSet<>();
         this.constrainedElements = Collections.unmodifiableSet(tmpConstrainedElements);
@@ -86,7 +86,7 @@ public class VoltageMonitoringResult {
         return constrainedElements;
     }
 
-    public Set<NetworkAction> getAppliedRas(State state) {
+    public Set<RemedialAction<?>> getAppliedRas(State state) {
         return appliedRas.getOrDefault(state, Collections.emptySet());
     }
 
@@ -97,11 +97,11 @@ public class VoltageMonitoringResult {
         } else if (states.size() > 1) {
             throw new OpenRaoException(String.format("%s states share the same id : %s.", states.size(), stateId));
         } else {
-            return appliedRas.get(states.iterator().next()).stream().map(NetworkAction::getId).collect(Collectors.toSet());
+            return appliedRas.get(states.iterator().next()).stream().map(RemedialAction::getId).collect(Collectors.toSet());
         }
     }
 
-    public Map<State, Set<NetworkAction>> getAppliedRas() {
+    public Map<State, Set<RemedialAction<?>>> getAppliedRas() {
         return appliedRas;
     }
 

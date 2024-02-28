@@ -20,6 +20,7 @@ import com.powsybl.openrao.data.raoresultapi.RaoResultClone;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * class that enhances rao result with voltage monitoring results
@@ -76,7 +77,9 @@ public class RaoResultWithVoltageMonitoring extends RaoResultClone {
     @Override
     public Set<NetworkAction> getActivatedNetworkActionsDuringState(State state) {
         Set<NetworkAction> concatenatedActions = new HashSet<>(raoResult.getActivatedNetworkActionsDuringState(state));
-        concatenatedActions.addAll(voltageMonitoringResult.getAppliedRas(state));
+        Set<RemedialAction<?>> voltageMonitoringRas = voltageMonitoringResult.getAppliedRas(state);
+        Set<NetworkAction> voltageMonitoringNetworkActions = voltageMonitoringRas.stream().filter(NetworkAction.class::isInstance).map(ra -> (NetworkAction) ra).collect(Collectors.toSet());
+        concatenatedActions.addAll(voltageMonitoringNetworkActions);
         return concatenatedActions;
     }
 
