@@ -86,7 +86,7 @@ public final class AutomatonSimulator {
      * then range actions by order of speed. TODO Network actions by speed  is not implemented yet
      * Returns an AutomatonPerimeterResult
      */
-    AutomatonPerimeterResultImpl simulateAutomatonState(State automatonState, State curativeState, Network network) {
+    AutomatonPerimeterResultImpl simulateAutomatonState(State automatonState, Set<State> curativeStates, Network network) {
         TECHNICAL_LOGS.info("Optimizing automaton state {}.", automatonState.getId());
         if (!crac.getNetworkActions(automatonState, UsageMethod.AVAILABLE).isEmpty()) {
             BUSINESS_WARNS.warn("CRAC has network action automatons with usage method AVAILABLE. These are not supported.");
@@ -94,7 +94,7 @@ public final class AutomatonSimulator {
         TECHNICAL_LOGS.info("Initial situation:");
         RaoLogger.logMostLimitingElementsResults(TECHNICAL_LOGS, prePerimeterSensitivityOutput, Set.of(automatonState), raoParameters.getObjectiveFunctionParameters().getType(), numberLoggedElementsDuringRao);
 
-        PrePerimeterSensitivityAnalysis preAutoPerimeterSensitivityAnalysis = getPreAutoPerimeterSensitivityAnalysis(automatonState, curativeState);
+        PrePerimeterSensitivityAnalysis preAutoPerimeterSensitivityAnalysis = getPreAutoPerimeterSensitivityAnalysis(automatonState, curativeStates);
 
         // Sensitivity analysis failed :
         if (prePerimeterSensitivityOutput.getSensitivityStatus(automatonState) == ComputationStatus.FAILURE) {
@@ -110,7 +110,7 @@ public final class AutomatonSimulator {
         }
 
         // II) Simulate range actions
-        RangeAutomatonSimulationResult rangeAutomatonSimulationResult = simulateRangeAutomatons(automatonState, curativeState, network, preAutoPerimeterSensitivityAnalysis, topoSimulationResult.getPerimeterResult());
+        RangeAutomatonSimulationResult rangeAutomatonSimulationResult = simulateRangeAutomatons(automatonState, curativeStates, network, preAutoPerimeterSensitivityAnalysis, topoSimulationResult.getPerimeterResult());
 
         // Sensitivity analysis failed :
         if (rangeAutomatonSimulationResult.getPerimeterResult().getSensitivityStatus(automatonState) == ComputationStatus.FAILURE) {
@@ -138,12 +138,13 @@ public final class AutomatonSimulator {
         return automatonPerimeterResultImpl;
     }
 
-    private PrePerimeterSensitivityAnalysis getPreAutoPerimeterSensitivityAnalysis(State automatonState, State curativeState) {
+    private PrePerimeterSensitivityAnalysis getPreAutoPerimeterSensitivityAnalysis(State automatonState, Set<State> curativeStates) {
         Set<FlowCnec> flowCnecsInSensi = crac.getFlowCnecs(automatonState);
-        flowCnecsInSensi.addAll(crac.getFlowCnecs(curativeState));
-        Set<RangeAction<?>> rangeActionsInSensi = new HashSet<>();
-        rangeActionsInSensi.addAll(crac.getRangeActions(automatonState, UsageMethod.FORCED));
-        rangeActionsInSensi.addAll(crac.getRangeActions(curativeState, UsageMethod.AVAILABLE));
+        Set<RangeAction<?>> rangeActionsInSensi = new HashSet<>(crac.getRangeActions(automatonState, UsageMethod.FORCED));
+        for (State curativeState : curativeStates) {
+            flowCnecsInSensi.addAll(crac.getFlowCnecs(curativeState));
+            rangeActionsInSensi.addAll(crac.getRangeActions(curativeState, UsageMethod.AVAILABLE));
+        }
         return new PrePerimeterSensitivityAnalysis(flowCnecsInSensi, rangeActionsInSensi, raoParameters, toolProvider);
     }
 
@@ -256,7 +257,7 @@ public final class AutomatonSimulator {
         }
     }
 
-    RangeAutomatonSimulationResult simulateRangeAutomatons(State automatonState, State curativeState, Network network, PrePerimeterSensitivityAnalysis preAutoPerimeterSensitivityAnalysis, PrePerimeterResult postAutoTopoResult) {
+    RangeAutomatonSimulationResult simulateRangeAutomatons(State automatonState, Set<State> curativeStates, Network network, PrePerimeterSensitivityAnalysis preAutoPerimeterSensitivityAnalysis, PrePerimeterResult postAutoTopoResult) {
         PrePerimeterResult finalPostAutoResult = postAutoTopoResult;
         // -- Create groups of aligned range actions
         List<List<RangeAction<?>>> rangeActionsOnAutomatonState = buildRangeActionsGroupsOrderedBySpeed(finalPostAutoResult, automatonState, network);
@@ -293,7 +294,7 @@ public final class AutomatonSimulator {
         }
 
         if (!activatedRangeActions.isEmpty()) {
-            finalPostAutoResult = runPreCurativeSensitivityComputation(automatonState, curativeState, network);
+            finalPostAutoResult = runPreCurativeSensitivityComputation(automatonState, curativeStates, network);
             if (finalPostAutoResult.getSensitivityStatus(automatonState) == ComputationStatus.FAILURE) {
                 return new RangeAutomatonSimulationResult(finalPostAutoResult, activatedRangeActions, rangeActionsWithSetpoint);
             }
@@ -400,13 +401,16 @@ public final class AutomatonSimulator {
      * The sensitivity analysis is run on curative range actions, to be used at curative instant.
      * This function returns a prePerimeterResult that will be used to build an AutomatonPerimeterResult.
      */
-    private PrePerimeterResult runPreCurativeSensitivityComputation(State automatonState, State curativeState, Network network) {
+    private PrePerimeterResult runPreCurativeSensitivityComputation(State automatonState, Set<State> curativeStates, Network network) {
         // -- Run sensitivity computation before running curative RAO later
         // -- Get curative range actions
-        Set<RangeAction<?>> curativeRangeActions = crac.getRangeActions(curativeState, UsageMethod.AVAILABLE);
+        Set<RangeAction<?>> curativeRangeActions = new HashSet<>();
         // Get cnecs
         Set<FlowCnec> flowCnecs = crac.getFlowCnecs(automatonState);
-        flowCnecs.addAll(crac.getFlowCnecs(curativeState));
+        for (State curativeState : curativeStates) {
+            curativeRangeActions.addAll(crac.getRangeActions(curativeState, UsageMethod.AVAILABLE));
+            flowCnecs.addAll(crac.getFlowCnecs(curativeState));
+        }
         PrePerimeterSensitivityAnalysis prePerimeterSensitivityAnalysis = new PrePerimeterSensitivityAnalysis(
                 flowCnecs,
                 curativeRangeActions,

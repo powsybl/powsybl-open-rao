@@ -15,6 +15,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Map;
 
+import static com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileCracCreationTestUtil.assertRaNotImported;
 import static com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileCracCreationTestUtil.getCsaCracCreationContext;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -36,33 +37,32 @@ class PstRangeActionCreationTest {
         assertEquals(20., eliaRa1.getRanges().iterator().next().getMaxTap());
         assertEquals(1, eliaRa1.getUsageRules().size());
         assertEquals(curativeInstant, eliaRa1.getUsageRules().iterator().next().getInstant());
-        // TODO waiting for PO to check US, after implementation of CSA11 behaviour changed, assertEquals("493480ba-93c3-426e-bee5-347d8dda3749", ((OnContingencyStateImpl) eliaRa1.getUsageRules().iterator().next()).getState().getContingency().get().getId());
         Map<Integer, Double> expectedTapToAngleMap = Map.ofEntries(
-                Map.entry(1, 4.926567934889113),
-                Map.entry(2, 4.4625049779277965),
-                Map.entry(3, 4.009142308337196),
-                Map.entry(4, 3.5661689080738133),
-                Map.entry(5, 3.133282879390916),
-                Map.entry(6, 2.7101913084587235),
-                Map.entry(7, 2.296610111393503),
-                Map.entry(8, 1.892263865774221),
-                Map.entry(9, 1.496885630374893),
-                Map.entry(10, 1.1102167555229658),
-                Map.entry(11, 0.7320066862066437),
-                Map.entry(12, 0.36201275979482317),
-                Map.entry(13, -0.0),
-                Map.entry(14, -0.3542590914949466),
-                Map.entry(15, -0.7009847445128217),
-                Map.entry(16, -1.040390129895497),
-                Map.entry(17, -1.3726815681386877),
-                Map.entry(18, -1.698058736365395),
-                Map.entry(19, -2.016714872973585),
-                Map.entry(20, -2.32883697939856),
-                Map.entry(21, -2.6346060185232267),
-                Map.entry(22, -2.9341971093513304),
-                Map.entry(23, -3.227779717630807),
-                Map.entry(24, -3.515517842177712),
-                Map.entry(25, -3.797570196706609)
+            Map.entry(1, 4.926567934889113),
+            Map.entry(2, 4.4625049779277965),
+            Map.entry(3, 4.009142308337196),
+            Map.entry(4, 3.5661689080738133),
+            Map.entry(5, 3.133282879390916),
+            Map.entry(6, 2.7101913084587235),
+            Map.entry(7, 2.296610111393503),
+            Map.entry(8, 1.892263865774221),
+            Map.entry(9, 1.496885630374893),
+            Map.entry(10, 1.1102167555229658),
+            Map.entry(11, 0.7320066862066437),
+            Map.entry(12, 0.36201275979482317),
+            Map.entry(13, -0.0),
+            Map.entry(14, -0.3542590914949466),
+            Map.entry(15, -0.7009847445128217),
+            Map.entry(16, -1.040390129895497),
+            Map.entry(17, -1.3726815681386877),
+            Map.entry(18, -1.698058736365395),
+            Map.entry(19, -2.016714872973585),
+            Map.entry(20, -2.32883697939856),
+            Map.entry(21, -2.6346060185232267),
+            Map.entry(22, -2.9341971093513304),
+            Map.entry(23, -3.227779717630807),
+            Map.entry(24, -3.515517842177712),
+            Map.entry(25, -3.797570196706609)
         );
         assertEquals(expectedTapToAngleMap, eliaRa1.getTapToAngleConversionMap());
     }
@@ -81,52 +81,60 @@ class PstRangeActionCreationTest {
         assertEquals(curativeInstant, reeRa1.getUsageRules().iterator().next().getInstant());
         assertEquals("8cdec4c6-10c3-40c1-9eeb-7f6ae8d9b3fe", ((OnContingencyStateImpl) reeRa1.getUsageRules().iterator().next()).getState().getContingency().get().getId());
         Map<Integer, Double> expectedTapToAngleMap = Map.ofEntries(
-                Map.entry(-1, -2.0),
-                Map.entry(0, 0.0),
-                Map.entry(-2, -4.0),
-                Map.entry(1, 2.0),
-                Map.entry(-3, -6.0),
-                Map.entry(2, 4.0),
-                Map.entry(-4, -8.0),
-                Map.entry(3, 6.0),
-                Map.entry(-5, -10.0),
-                Map.entry(4, 8.0),
-                Map.entry(-6, -12.0),
-                Map.entry(5, 10.0),
-                Map.entry(-7, -14.0),
-                Map.entry(6, 12.0),
-                Map.entry(-8, -16.0),
-                Map.entry(7, 14.0),
-                Map.entry(-9, -18.0),
-                Map.entry(8, 16.0),
-                Map.entry(-10, -20.0),
-                Map.entry(9, 18.0),
-                Map.entry(-11, -22.0),
-                Map.entry(10, 20.0),
-                Map.entry(-12, -24.0),
-                Map.entry(11, 22.0),
-                Map.entry(-13, -26.0),
-                Map.entry(12, 24.0),
-                Map.entry(-14, -28.0),
-                Map.entry(13, 26.0),
-                Map.entry(-15, -30.0),
-                Map.entry(14, 28.0),
-                Map.entry(-16, -32.0),
-                Map.entry(15, 30.0),
-                Map.entry(-17, -34.0),
-                Map.entry(16, 32.0),
-                Map.entry(-18, -36.0),
-                Map.entry(17, 34.0),
-                Map.entry(-19, -38.0),
-                Map.entry(18, 36.0),
-                Map.entry(-20, -40.0),
-                Map.entry(19, 38.0),
-                Map.entry(20, 40.0)
+            Map.entry(-1, -2.0),
+            Map.entry(0, 0.0),
+            Map.entry(-2, -4.0),
+            Map.entry(1, 2.0),
+            Map.entry(-3, -6.0),
+            Map.entry(2, 4.0),
+            Map.entry(-4, -8.0),
+            Map.entry(3, 6.0),
+            Map.entry(-5, -10.0),
+            Map.entry(4, 8.0),
+            Map.entry(-6, -12.0),
+            Map.entry(5, 10.0),
+            Map.entry(-7, -14.0),
+            Map.entry(6, 12.0),
+            Map.entry(-8, -16.0),
+            Map.entry(7, 14.0),
+            Map.entry(-9, -18.0),
+            Map.entry(8, 16.0),
+            Map.entry(-10, -20.0),
+            Map.entry(9, 18.0),
+            Map.entry(-11, -22.0),
+            Map.entry(10, 20.0),
+            Map.entry(-12, -24.0),
+            Map.entry(11, 22.0),
+            Map.entry(-13, -26.0),
+            Map.entry(12, 24.0),
+            Map.entry(-14, -28.0),
+            Map.entry(13, 26.0),
+            Map.entry(-15, -30.0),
+            Map.entry(14, 28.0),
+            Map.entry(-16, -32.0),
+            Map.entry(15, 30.0),
+            Map.entry(-17, -34.0),
+            Map.entry(16, 32.0),
+            Map.entry(-18, -36.0),
+            Map.entry(17, 34.0),
+            Map.entry(-19, -38.0),
+            Map.entry(18, 36.0),
+            Map.entry(-20, -40.0),
+            Map.entry(19, 38.0),
+            Map.entry(20, 40.0)
         );
         assertEquals(expectedTapToAngleMap, reeRa1.getTapToAngleConversionMap());
-
         assertEquals(ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK, cracCreationContext.getRemedialActionCreationContexts().stream().filter(ra -> ra.getNativeId().equals("5e5ff13e-2043-4468-9351-01920d3d9504")).findAny().get().getImportStatus());
         assertEquals(ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK, cracCreationContext.getRemedialActionCreationContexts().stream().filter(ra -> ra.getNativeId().equals("2e4f4212-7b30-4316-9fce-ca618f2a8a05")).findAny().get().getImportStatus());
+    }
+
+    @Test
+    void checkRaWithSeveralTapPositionIsNotAccepted() {
+        CsaProfileCracCreationContext cracCreationContext = getCsaCracCreationContext("/RaWithMultipleTapPositions.zip");
+        assertRaNotImported(cracCreationContext, "pst-range-action-with-multiple-psts", ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action 'pst-range-action-with-multiple-psts' will not be imported because several TapPositionActions were defined for the same PST Range Action when only one is expected");
+        assertRaNotImported(cracCreationContext, "pst-range-action-with-disabled-pst", ImportStatus.NOT_FOR_RAO, "Remedial action 'pst-range-action-with-disabled-pst' will not be imported because the field 'normalEnabled' in TapPositionAction is set to false");
+        assertRaNotImported(cracCreationContext, "pst-range-action-with-multiple-max-taps", ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action pst-range-action-with-multiple-max-taps will not be imported because StaticPropertyRange has more than ONE direction RelativeDirectionKind.up");
+        assertRaNotImported(cracCreationContext, "pst-range-action-with-multiple-min-taps", ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action pst-range-action-with-multiple-min-taps will not be imported because StaticPropertyRange has more than ONE direction RelativeDirectionKind.down");
     }
 
 }

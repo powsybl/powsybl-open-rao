@@ -20,6 +20,7 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.ShuntCompensator;
 import com.powsybl.triplestore.api.PropertyBag;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -28,7 +29,6 @@ import java.util.Set;
  * @author Mohamed Ben-rejeb {@literal <mohamed.ben-rejeb at rte-france.com>}
  */
 public class NetworkActionCreator {
-    public static final String NO_STATIC_PROPERTY_RANGE = " will not be imported because there is no StaticPropertyRange linked to that RA";
     private final Crac crac;
     private final Network network;
 
@@ -37,91 +37,117 @@ public class NetworkActionCreator {
         this.network = network;
     }
 
-    public NetworkActionAdder getNetworkActionAdder(Map<String, Set<PropertyBag>> linkedTopologyActions, Map<String, Set<PropertyBag>> linkedRotatingMachineActions, Map<String, Set<PropertyBag>> linkedShuntCompensatorModifications, Map<String, Set<PropertyBag>> staticPropertyRanges, String gridStateAlterationId, String targetRaId) {
-        NetworkActionAdder networkActionAdder = crac.newNetworkAction().withId(targetRaId);
-        if (linkedTopologyActions.containsKey(gridStateAlterationId)) {
-            processLinkedTopologyActions(linkedTopologyActions, staticPropertyRanges, gridStateAlterationId, targetRaId, networkActionAdder);
+    public NetworkActionAdder getNetworkActionAdder(Map<String, Set<PropertyBag>> linkedTopologyActions, Map<String, Set<PropertyBag>> linkedRotatingMachineActions, Map<String, Set<PropertyBag>> linkedShuntCompensatorModifications, Map<String, Set<PropertyBag>> staticPropertyRanges, String remedialActionId, String elementaryActionsAggregatorId, List<String> alterations) {
+        NetworkActionAdder networkActionAdder = crac.newNetworkAction().withId(remedialActionId);
+        boolean hasElementaryActions = false;
+
+        if (linkedTopologyActions.containsKey(elementaryActionsAggregatorId)) {
+            hasElementaryActions = processLinkedTopologyActions(linkedTopologyActions, staticPropertyRanges, remedialActionId, elementaryActionsAggregatorId, networkActionAdder, alterations);
         }
 
-        if (linkedRotatingMachineActions.containsKey(gridStateAlterationId)) {
-            processLinkedRotatingMachineActions(linkedRotatingMachineActions, staticPropertyRanges, gridStateAlterationId, targetRaId, networkActionAdder);
+        if (linkedRotatingMachineActions.containsKey(elementaryActionsAggregatorId)) {
+            hasElementaryActions = processLinkedRotatingMachineActions(linkedRotatingMachineActions, staticPropertyRanges, remedialActionId, elementaryActionsAggregatorId, networkActionAdder, alterations) || hasElementaryActions;
         }
 
-        if (linkedShuntCompensatorModifications.containsKey(gridStateAlterationId)) {
-            processLinkedShuntCompensatorModifications(linkedShuntCompensatorModifications, staticPropertyRanges, gridStateAlterationId, targetRaId, networkActionAdder);
+        if (linkedShuntCompensatorModifications.containsKey(elementaryActionsAggregatorId)) {
+            hasElementaryActions = processLinkedShuntCompensatorModifications(linkedShuntCompensatorModifications, staticPropertyRanges, remedialActionId, elementaryActionsAggregatorId, networkActionAdder, alterations) || hasElementaryActions;
+        }
+
+        if (!hasElementaryActions) {
+            throw new OpenRaoImportException(ImportStatus.NOT_FOR_RAO, "Remedial action " + remedialActionId + " will not be imported because it has no elementary action");
         }
         return networkActionAdder;
     }
 
-    private void processLinkedShuntCompensatorModifications(Map<String, Set<PropertyBag>> linkedShuntCompensatorModifications, Map<String, Set<PropertyBag>> staticPropertyRanges, String gridStateAlterationId, String targetRaId, NetworkActionAdder networkActionAdder) {
-        for (PropertyBag shuntCompensatorModificationPropertyBag : linkedShuntCompensatorModifications.get(gridStateAlterationId)) {
-            if (staticPropertyRanges.containsKey(shuntCompensatorModificationPropertyBag.getId(CsaProfileConstants.MRID))) {
-                addInjectionSetPointFromShuntCompensatorModification(
-                    staticPropertyRanges.get(shuntCompensatorModificationPropertyBag.getId(CsaProfileConstants.MRID)),
-                    gridStateAlterationId, networkActionAdder, shuntCompensatorModificationPropertyBag);
-            } else {
-                throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, CsaProfileConstants.REMEDIAL_ACTION_MESSAGE + targetRaId + NO_STATIC_PROPERTY_RANGE);
-            }
+    private boolean processLinkedShuntCompensatorModifications(Map<String, Set<PropertyBag>> linkedShuntCompensatorModifications, Map<String, Set<PropertyBag>> staticPropertyRanges, String remedialActionId, String networkElementsAggregatorId, NetworkActionAdder networkActionAdder, List<String> alterations) {
+        boolean hasShuntCompensatorModification = false;
+        for (PropertyBag shuntCompensatorModificationPropertyBag : linkedShuntCompensatorModifications.get(networkElementsAggregatorId)) {
+            checkNetworkActionHasExactlyOneStaticPropertyRange(staticPropertyRanges, remedialActionId, shuntCompensatorModificationPropertyBag);
+            hasShuntCompensatorModification = addInjectionSetPointFromShuntCompensatorModification(
+                staticPropertyRanges.get(shuntCompensatorModificationPropertyBag.getId(CsaProfileConstants.MRID)),
+                remedialActionId, networkActionAdder, shuntCompensatorModificationPropertyBag, alterations)
+                || hasShuntCompensatorModification;
+        }
+        return hasShuntCompensatorModification;
+    }
+
+    private boolean processLinkedRotatingMachineActions(Map<String, Set<PropertyBag>> linkedRotatingMachineActions, Map<String, Set<PropertyBag>> staticPropertyRanges, String remedialActionId, String networkElementsAggregatorId, NetworkActionAdder networkActionAdder, List<String> alterations) {
+        boolean hasRotatingMachineAction = false;
+        for (PropertyBag rotatingMachineActionPropertyBag : linkedRotatingMachineActions.get(networkElementsAggregatorId)) {
+            checkNetworkActionHasExactlyOneStaticPropertyRange(staticPropertyRanges, remedialActionId, rotatingMachineActionPropertyBag);
+            hasRotatingMachineAction = addInjectionSetPointFromRotatingMachineAction(
+                staticPropertyRanges.get(rotatingMachineActionPropertyBag.getId(CsaProfileConstants.MRID)),
+                remedialActionId, networkActionAdder, rotatingMachineActionPropertyBag, alterations)
+                || hasRotatingMachineAction;
+        }
+        return hasRotatingMachineAction;
+    }
+
+    private boolean processLinkedTopologyActions(Map<String, Set<PropertyBag>> linkedTopologyActions, Map<String, Set<PropertyBag>> staticPropertyRanges, String remedialActionId, String networkElementsAggregatorId, NetworkActionAdder networkActionAdder, List<String> alterations) {
+        boolean hasTopologyActions = false;
+        for (PropertyBag topologyActionPropertyBag : linkedTopologyActions.get(networkElementsAggregatorId)) {
+            checkNetworkActionHasExactlyOneStaticPropertyRange(staticPropertyRanges, remedialActionId, topologyActionPropertyBag);
+            hasTopologyActions = addTopologicalElementaryAction(staticPropertyRanges.get(topologyActionPropertyBag.getId(CsaProfileConstants.MRID)),
+                networkActionAdder, topologyActionPropertyBag, remedialActionId, alterations)
+                || hasTopologyActions;
+        }
+        return hasTopologyActions;
+    }
+
+    private static void checkNetworkActionHasExactlyOneStaticPropertyRange(Map<String, Set<PropertyBag>> staticPropertyRanges, String remedialActionId, PropertyBag networkActionPropertyBag) {
+        String elementaryActionId = networkActionPropertyBag.getId(CsaProfileConstants.MRID);
+        if (!staticPropertyRanges.containsKey(elementaryActionId)) {
+            throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action " + remedialActionId + " will not be imported because there is no StaticPropertyRange linked to elementary action " + elementaryActionId);
+        }
+        if (staticPropertyRanges.get(elementaryActionId).size() > 1) {
+            throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action " + remedialActionId + " will not be imported because several conflictual StaticPropertyRanges are linked to elementary action " + elementaryActionId);
         }
     }
 
-    private void processLinkedRotatingMachineActions(Map<String, Set<PropertyBag>> linkedRotatingMachineActions, Map<String, Set<PropertyBag>> staticPropertyRanges, String gridStateAlterationId, String targetRaId, NetworkActionAdder networkActionAdder) {
-        for (PropertyBag rotatingMachineActionPropertyBag : linkedRotatingMachineActions.get(gridStateAlterationId)) {
-            if (staticPropertyRanges.containsKey(rotatingMachineActionPropertyBag.getId(CsaProfileConstants.MRID))) {
-                addInjectionSetPointFromRotatingMachineAction(
-                    staticPropertyRanges.get(rotatingMachineActionPropertyBag.getId(CsaProfileConstants.MRID)),
-                    gridStateAlterationId, networkActionAdder, rotatingMachineActionPropertyBag);
-            } else {
-                throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, CsaProfileConstants.REMEDIAL_ACTION_MESSAGE + targetRaId + NO_STATIC_PROPERTY_RANGE);
-            }
-        }
-    }
-
-    private void processLinkedTopologyActions(Map<String, Set<PropertyBag>> linkedTopologyActions, Map<String, Set<PropertyBag>> staticPropertyRanges, String gridStateAlterationId, String targetRaId, NetworkActionAdder networkActionAdder) {
-        for (PropertyBag topologyActionPropertyBag : linkedTopologyActions.get(gridStateAlterationId)) {
-            if (staticPropertyRanges.containsKey(topologyActionPropertyBag.getId(CsaProfileConstants.MRID))) {
-                addTopologicalElementaryAction(staticPropertyRanges.get(topologyActionPropertyBag.getId(CsaProfileConstants.MRID)),
-                    networkActionAdder, topologyActionPropertyBag, gridStateAlterationId);
-            } else {
-                throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, CsaProfileConstants.REMEDIAL_ACTION_MESSAGE + targetRaId + NO_STATIC_PROPERTY_RANGE);
-            }
-
-        }
-    }
-
-    private void addInjectionSetPointFromRotatingMachineAction(Set<PropertyBag> staticPropertyRangesLinkedToRotatingMachineAction, String remedialActionId, NetworkActionAdder networkActionAdder, PropertyBag rotatingMachineActionPropertyBag) {
-        CsaProfileCracUtils.checkNormalEnabled(rotatingMachineActionPropertyBag, remedialActionId, "RotatingMachineAction");
+    private boolean addInjectionSetPointFromRotatingMachineAction(Set<PropertyBag> staticPropertyRangesLinkedToRotatingMachineAction, String remedialActionId, NetworkActionAdder networkActionAdder, PropertyBag rotatingMachineActionPropertyBag, List<String> alterations) {
         CsaProfileCracUtils.checkPropertyReference(rotatingMachineActionPropertyBag, remedialActionId, "RotatingMachineAction", CsaProfileConstants.PropertyReference.ROTATING_MACHINE.toString());
-        String rawId = rotatingMachineActionPropertyBag.get(CsaProfileConstants.ROTATING_MACHINE);
-        String rotatingMachineId = rawId.substring(rawId.lastIndexOf("#_") + 2).replace("+", " ");
+        String rotatingMachineId = rotatingMachineActionPropertyBag.getId(CsaProfileConstants.ROTATING_MACHINE).replace("+", " ");
         float initialSetPoint = getInitialSetPointRotatingMachine(rotatingMachineId, remedialActionId);
 
         PropertyBag staticPropertyRangePropertyBag = staticPropertyRangesLinkedToRotatingMachineAction.iterator().next(); // get a random one because there is only one
         CsaProfileCracUtils.checkPropertyReference(staticPropertyRangePropertyBag, remedialActionId, "StaticPropertyRange", CsaProfileConstants.PropertyReference.ROTATING_MACHINE.toString());
         float setPointValue = getSetPointValue(staticPropertyRangePropertyBag, remedialActionId, false, initialSetPoint);
 
-        networkActionAdder.newInjectionSetPoint()
-            .withSetpoint(setPointValue)
-            .withNetworkElement(rotatingMachineId)
-            .withUnit(Unit.MEGAWATT)
-            .add();
+        Optional<String> normalEnabled = Optional.ofNullable(rotatingMachineActionPropertyBag.get(CsaProfileConstants.NORMAL_ENABLED));
+        if (normalEnabled.isEmpty() || Boolean.parseBoolean(normalEnabled.get())) {
+            networkActionAdder.newInjectionSetPoint()
+                .withSetpoint(setPointValue)
+                .withNetworkElement(rotatingMachineId)
+                .withUnit(Unit.MEGAWATT)
+                .add();
+            return true;
+        } else {
+            alterations.add("Elementary rotating machine action on rotating machine %s for remedial action %s ignored because the RotatingMachineAction is disabled".formatted(rotatingMachineId, remedialActionId));
+            return false;
+        }
     }
 
-    private void addInjectionSetPointFromShuntCompensatorModification(Set<PropertyBag> staticPropertyRangesLinkedToShuntCompensatorModification, String remedialActionId, NetworkActionAdder networkActionAdder, PropertyBag shuntCompensatorModificationPropertyBag) {
-        CsaProfileCracUtils.checkNormalEnabled(shuntCompensatorModificationPropertyBag, remedialActionId, "ShuntCompensatorModification");
+    private boolean addInjectionSetPointFromShuntCompensatorModification(Set<PropertyBag> staticPropertyRangesLinkedToShuntCompensatorModification, String remedialActionId, NetworkActionAdder networkActionAdder, PropertyBag shuntCompensatorModificationPropertyBag, List<String> alterations) {
         CsaProfileCracUtils.checkPropertyReference(shuntCompensatorModificationPropertyBag, remedialActionId, "ShuntCompensatorModification", CsaProfileConstants.PropertyReference.SHUNT_COMPENSATOR.toString());
-        String rawId = shuntCompensatorModificationPropertyBag.get(CsaProfileConstants.SHUNT_COMPENSATOR_ID);
-        String shuntCompensatorId = rawId.substring(rawId.lastIndexOf("_") + 1);
+        String shuntCompensatorId = shuntCompensatorModificationPropertyBag.getId(CsaProfileConstants.SHUNT_COMPENSATOR_ID);
         float initialSetPoint = getInitialSetPointShuntCompensator(shuntCompensatorId, remedialActionId);
 
         PropertyBag staticPropertyRangePropertyBag = staticPropertyRangesLinkedToShuntCompensatorModification.iterator().next(); // get a random one because there is only one
         CsaProfileCracUtils.checkPropertyReference(staticPropertyRangePropertyBag, remedialActionId, "StaticPropertyRange", CsaProfileConstants.PropertyReference.SHUNT_COMPENSATOR.toString());
         float setPointValue = getSetPointValue(staticPropertyRangePropertyBag, remedialActionId, true, initialSetPoint);
-        networkActionAdder.newInjectionSetPoint()
-            .withSetpoint(setPointValue)
-            .withNetworkElement(shuntCompensatorId)
-            .withUnit(Unit.MEGAWATT)
-            .add();
+
+        Optional<String> normalEnabled = Optional.ofNullable(shuntCompensatorModificationPropertyBag.get(CsaProfileConstants.NORMAL_ENABLED));
+        if (normalEnabled.isEmpty() || Boolean.parseBoolean(normalEnabled.get())) {
+            networkActionAdder.newInjectionSetPoint()
+                .withSetpoint(setPointValue)
+                .withNetworkElement(shuntCompensatorId)
+                .withUnit(Unit.SECTION_COUNT)
+                .add();
+            return true;
+        } else {
+            alterations.add("Elementary shunt compensator modification on shunt compensator %s for remedial action %s ignored because the ShuntCompensatorModification is disabled".formatted(shuntCompensatorId, remedialActionId));
+            return false;
+        }
     }
 
     private float getInitialSetPointRotatingMachine(String injectionSetPointActionId, String remedialActionId) {
@@ -129,11 +155,9 @@ public class NetworkActionCreator {
         Optional<Generator> optionalGenerator = network.getGeneratorStream().filter(gen -> gen.getId().equals(injectionSetPointActionId)).findAny();
         Optional<Load> optionalLoad = findLoad(injectionSetPointActionId);
         if (optionalGenerator.isEmpty() && optionalLoad.isEmpty()) {
-            throw new OpenRaoImportException(ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK, CsaProfileConstants.REMEDIAL_ACTION_MESSAGE + remedialActionId + " will not be imported because Network model does not contain a generator, neither a load with id of RotatingMachine: " + injectionSetPointActionId);
-        } else if (optionalGenerator.isPresent()) {
-            initialSetPoint = (float) optionalGenerator.get().getTargetP();
+            throw new OpenRaoImportException(ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK, "Remedial action " + remedialActionId + " will not be imported because Network model does not contain a generator, neither a load with id of RotatingMachine: " + injectionSetPointActionId);
         } else {
-            initialSetPoint = (float) optionalLoad.get().getP0();
+            initialSetPoint = optionalGenerator.map(generator -> (float) generator.getTargetP()).orElseGet(() -> (float) optionalLoad.get().getP0());
         }
         return initialSetPoint;
     }
@@ -142,7 +166,7 @@ public class NetworkActionCreator {
         float initialSetPoint;
         ShuntCompensator shuntCompensator = network.getShuntCompensator(injectionSetPointActionId);
         if (shuntCompensator == null) {
-            throw new OpenRaoImportException(ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK, CsaProfileConstants.REMEDIAL_ACTION_MESSAGE + remedialActionId + " will not be imported because Network model does not contain a shunt compensator with id of ShuntCompensator: " + injectionSetPointActionId);
+            throw new OpenRaoImportException(ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK, "Remedial action " + remedialActionId + " will not be imported because Network model does not contain a shunt compensator with id of ShuntCompensator: " + injectionSetPointActionId);
         } else {
             initialSetPoint = shuntCompensator.getSectionCount();
         }
@@ -158,14 +182,12 @@ public class NetworkActionCreator {
         try {
             normalValue = Float.parseFloat(staticPropertyRangePropertyBag.get(CsaProfileConstants.NORMAL_VALUE));
         } catch (Exception e) {
-            throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, CsaProfileConstants.REMEDIAL_ACTION_MESSAGE + remedialActionId + " will not be imported because StaticPropertyRange has a non float-castable normalValue so no set-point value was retrieved");
+            throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action " + remedialActionId + " will not be imported because StaticPropertyRange has a non float-castable normalValue so no set-point value was retrieved");
         }
 
         float setPointValue;
         if (CsaProfileConstants.ValueOffsetKind.ABSOLUTE.toString().equals(valueKind)) {
             setPointValue = normalValue;
-        } else if (normalValue < 0) {
-            throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, CsaProfileConstants.REMEDIAL_ACTION_MESSAGE + remedialActionId + " will not be imported because StaticPropertyRange has a negative normalValue so no set-point value was retrieved");
         } else if (CsaProfileConstants.ValueOffsetKind.INCREMENTAL.toString().equals(valueKind)) {
             setPointValue = CsaProfileConstants.RelativeDirectionKind.UP.toString().equals(direction) ?
                 initialSetPoint + normalValue :
@@ -178,10 +200,10 @@ public class NetworkActionCreator {
 
         if (mustValueBePositiveInteger) {
             if (setPointValue < 0) {
-                throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, CsaProfileConstants.REMEDIAL_ACTION_MESSAGE + remedialActionId + " will not be imported because StaticPropertyRange has a negative normalValue so no set-point value was retrieved");
+                throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action " + remedialActionId + " will not be imported because StaticPropertyRange has a negative normalValue so no set-point value was retrieved");
             }
             if (setPointValue != (int) setPointValue) {
-                throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, CsaProfileConstants.REMEDIAL_ACTION_MESSAGE + remedialActionId + " will not be imported because StaticPropertyRange has a non integer-castable normalValue so no set-point value was retrieved");
+                throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action " + remedialActionId + " will not be imported because StaticPropertyRange has a non integer-castable normalValue so no set-point value was retrieved");
             }
         }
         return setPointValue;
@@ -191,7 +213,7 @@ public class NetworkActionCreator {
         if (CsaProfileConstants.ValueOffsetKind.ABSOLUTE.toString().equals(valueKind) && !CsaProfileConstants.RelativeDirectionKind.NONE.toString().equals(direction)
             || !CsaProfileConstants.ValueOffsetKind.ABSOLUTE.toString().equals(valueKind) && CsaProfileConstants.RelativeDirectionKind.NONE.toString().equals(direction)
             || CsaProfileConstants.RelativeDirectionKind.UP_AND_DOWN.toString().equals(direction)) {
-            throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, CsaProfileConstants.REMEDIAL_ACTION_MESSAGE + remedialActionId + " will not be imported because StaticPropertyRange has wrong values of valueKind and direction");
+            throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action " + remedialActionId + " will not be imported because StaticPropertyRange has wrong values of valueKind and direction");
         }
     }
 
@@ -199,31 +221,38 @@ public class NetworkActionCreator {
         return network.getLoadStream().filter(load -> load.getId().equals(injectionSetPointId)).findAny();
     }
 
-    private void addTopologicalElementaryAction(Set<PropertyBag> staticPropertyRangesLinkedToTopologicalElementaryAction, NetworkActionAdder networkActionAdder, PropertyBag topologyActionPropertyBag, String remedialActionId) {
+    private boolean addTopologicalElementaryAction(Set<PropertyBag> staticPropertyRangesLinkedToTopologicalElementaryAction, NetworkActionAdder networkActionAdder, PropertyBag topologyActionPropertyBag, String remedialActionId, List<String> alterations) {
         String switchId = topologyActionPropertyBag.getId(CsaProfileConstants.SWITCH);
         if (network.getSwitch(switchId) == null) {
-            throw new OpenRaoImportException(ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK, CsaProfileConstants.REMEDIAL_ACTION_MESSAGE + remedialActionId + " will not be imported because network model does not contain a switch with id: " + switchId);
+            throw new OpenRaoImportException(ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK, "Remedial action " + remedialActionId + " will not be imported because network model does not contain a switch with id: " + switchId);
         }
         CsaProfileCracUtils.checkPropertyReference(topologyActionPropertyBag, remedialActionId, "TopologyAction", CsaProfileConstants.PropertyReference.SWITCH.toString());
 
         PropertyBag staticPropertyRangePropertyBag = staticPropertyRangesLinkedToTopologicalElementaryAction.iterator().next();
         String normalValue = staticPropertyRangePropertyBag.get(CsaProfileConstants.NORMAL_VALUE);
         if (!"0".equals(normalValue) && !"1".equals(normalValue)) {
-            throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, CsaProfileConstants.REMEDIAL_ACTION_MESSAGE + remedialActionId + " will not be imported because the normalValue is " + normalValue + " which does not define a proper action type (open 1 / close 0)");
+            throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action " + remedialActionId + " will not be imported because the normalValue is " + normalValue + " which does not define a proper action type (open 1 / close 0)");
         }
 
         String valueKind = staticPropertyRangePropertyBag.get(CsaProfileConstants.STATIC_PROPERTY_RANGE_VALUE_KIND);
         if (!CsaProfileConstants.ValueOffsetKind.ABSOLUTE.toString().equals(valueKind)) {
-            throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, CsaProfileConstants.REMEDIAL_ACTION_MESSAGE + remedialActionId + " will not be imported because the ValueOffsetKind is " + valueKind + " but should be none.");
+            throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action " + remedialActionId + " will not be imported because the ValueOffsetKind is " + valueKind + " but should be none.");
         }
 
         String direction = staticPropertyRangePropertyBag.get(CsaProfileConstants.STATIC_PROPERTY_RANGE_DIRECTION);
         if (!CsaProfileConstants.RelativeDirectionKind.NONE.toString().equals(direction)) {
-            throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, CsaProfileConstants.REMEDIAL_ACTION_MESSAGE + remedialActionId + " will not be imported because the RelativeDirectionKind is " + direction + " but should be absolute.");
+            throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action " + remedialActionId + " will not be imported because the RelativeDirectionKind is " + direction + " but should be absolute.");
         }
 
-        networkActionAdder.newTopologicalAction()
-            .withNetworkElement(switchId)
-            .withActionType("0".equals(normalValue) ? ActionType.CLOSE : ActionType.OPEN).add();
+        Optional<String> normalEnabled = Optional.ofNullable(topologyActionPropertyBag.get(CsaProfileConstants.NORMAL_ENABLED));
+        if (normalEnabled.isEmpty() || Boolean.parseBoolean(normalEnabled.get())) {
+            networkActionAdder.newTopologicalAction()
+                .withNetworkElement(switchId)
+                .withActionType("0".equals(normalValue) ? ActionType.CLOSE : ActionType.OPEN).add();
+            return true;
+        } else {
+            alterations.add("Elementary topology action on switch %s for remedial action %s ignored because the TopologyAction is disabled".formatted(switchId, remedialActionId));
+            return false;
+        }
     }
 }

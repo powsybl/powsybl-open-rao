@@ -128,7 +128,7 @@ class JsonAngleMonitoringResultTest {
         AngleMonitoringResult angleMonitoringResult =
             new AngleMonitoringResultImporter().importAngleMonitoringResult(getClass().getResourceAsStream("/result-roundTrip.json"), crac);
         assertEquals("SECURE", angleMonitoringResult.getStatus().toString());
-        assertEquals(Set.of("na1"), angleMonitoringResult.getAppliedCras(preventiveState).stream().map(NetworkAction::getId).collect(Collectors.toSet()));
+        assertEquals(Set.of("na1"), angleMonitoringResult.getAppliedCras(preventiveState).stream().map(RemedialAction::getId).collect(Collectors.toSet()));
         assertEquals(2, angleMonitoringResult.getAppliedCras().keySet().size());
         assertEquals(1, angleMonitoringResult.getAppliedCras().get(preventiveState).size());
         assertEquals(1, angleMonitoringResult.getAppliedCras().get(crac.getState(co1.getId(), curativeInstant)).size());

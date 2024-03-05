@@ -42,6 +42,7 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
     private final Map<String, InjectionRangeAction> injectionRangeActions = new HashMap<>();
     private final Map<String, CounterTradeRangeAction> counterTradeRangeActions = new HashMap<>();
     private final Map<String, NetworkAction> networkActions = new HashMap<>();
+    private final Map<Instant, RaUsageLimits> raUsageLimitsPerInstant = new HashMap<>();
     private Instant lastInstantAdded = null;
 
     public CracImpl(String id, String name) {
@@ -192,10 +193,10 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
     }
 
     @Override
-    public Set<Instant> getInstants(InstantKind instantKind) {
-        return instants.values().stream()
-            .filter(instant -> instant.getKind().equals(instantKind))
-            .collect(Collectors.toSet());
+    public SortedSet<Instant> getInstants(InstantKind instantKind) {
+        SortedSet<Instant> sortedInstants = new TreeSet<>();
+        instants.values().stream().filter(instant -> instant.getKind().equals(instantKind)).forEach(sortedInstants::add);
+        return sortedInstants;
     }
 
     @Override
@@ -294,6 +295,13 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
     @Override
     public State getPreventiveState() {
         return states.get("preventive");
+    }
+
+    @Override
+    public Set<State> getCurativeStates() {
+        return states.values().stream()
+            .filter(state -> state.getInstant().isCurative())
+            .collect(Collectors.toSet());
     }
 
     @Override
@@ -850,6 +858,25 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
         networkActions.put(networkAction.getId(), networkAction);
     }
     // endregion
+
+    @Override
+    public Map<Instant, RaUsageLimits> getRaUsageLimitsPerInstant() {
+        return this.raUsageLimitsPerInstant;
+    }
+
+    @Override
+    public RaUsageLimits getRaUsageLimits(Instant instant) {
+        return this.raUsageLimitsPerInstant.getOrDefault(instant, new RaUsageLimits());
+    }
+
+    void addRaUsageLimits(Instant instant, RaUsageLimits raUsageLimits) {
+        this.raUsageLimitsPerInstant.put(instant, raUsageLimits);
+    }
+
+    @Override
+    public RaUsageLimitsAdder newRaUsageLimits(String instantName) {
+        return new RaUsageLimitsAdderImpl(this, instantName);
+    }
 
     @Override
     public boolean equals(Object o) {

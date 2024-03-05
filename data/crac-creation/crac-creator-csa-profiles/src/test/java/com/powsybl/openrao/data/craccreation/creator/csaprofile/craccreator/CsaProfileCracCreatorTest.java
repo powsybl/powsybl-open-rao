@@ -11,11 +11,13 @@ import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.Contingency;
 import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.cracapi.Instant;
+import com.powsybl.openrao.data.cracapi.RaUsageLimits;
 import com.powsybl.openrao.data.cracapi.cnec.AngleCnec;
 import com.powsybl.openrao.data.cracapi.cnec.Side;
 import com.powsybl.openrao.data.cracapi.usagerule.UsageMethod;
 import com.powsybl.openrao.data.craccreation.creator.api.ImportStatus;
 import com.powsybl.iidm.network.*;
+import com.powsybl.openrao.data.craccreation.creator.api.parameters.CracCreationParameters;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
@@ -27,18 +29,26 @@ import java.util.Set;
 import static com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileCracCreationTestUtil.assertRaNotImported;
 import static com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileCracCreationTestUtil.getCsaCracCreationContext;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.when;
 
 class CsaProfileCracCreatorTest {
 
     @Test
     void testCustomImportCase() {
-        CsaProfileCracCreationContext cracCreationContext = getCsaCracCreationContext("/TestCase_13_5_4.zip");
+        CracCreationParameters cracCreationParameters = new CracCreationParameters();
+        RaUsageLimits raUsageLimits = new RaUsageLimits();
+        raUsageLimits.setMaxRa(33);
+        cracCreationParameters.addRaUsageLimitsForInstant("preventive", raUsageLimits);
+        CsaProfileCracCreationContext cracCreationContext = getCsaCracCreationContext("/TestCase_13_5_4.zip", cracCreationParameters);
         Crac importedCrac = cracCreationContext.getCrac();
         Instant preventiveInstant = importedCrac.getInstant("preventive");
         Instant outageInstant = importedCrac.getInstant("outage");
         Instant curativeInstant = importedCrac.getInstant("curative");
 
         assertTrue(cracCreationContext.isCreationSuccessful());
+
+        // Check ra usage limits
+        assertEquals(33, importedCrac.getRaUsageLimits(preventiveInstant).getMaxRa());
 
         // Check contingencies
         assertEquals(1, importedCrac.getContingencies().size());
@@ -48,7 +58,7 @@ class CsaProfileCracCreatorTest {
         assertEquals(6, importedCrac.getFlowCnecs().size());
         CsaProfileCracCreationTestUtil.assertFlowCnecEquality(importedCrac.getFlowCnec("RTE_FFR2AA1--FFR3AA1--2 (079f1887-f33e-49ef-b1ff-22e871055fd0) - RTE_co1_fr2_fr3_1 - curative"), "RTE_FFR2AA1--FFR3AA1--2 (079f1887-f33e-49ef-b1ff-22e871055fd0) - RTE_co1_fr2_fr3_1 - curative", "RTE_FFR2AA1--FFR3AA1--2 (079f1887-f33e-49ef-b1ff-22e871055fd0) - RTE_co1_fr2_fr3_1 - curative",
             "FFR2AA1--FFR3AA1--2", curativeInstant, "co1_fr2_fr3_1", 2500., -2500., Side.RIGHT);
-        CsaProfileCracCreationTestUtil.assertFlowCnecEquality(importedCrac.getFlowCnec("RTE_FFR3AA1--FFR5AA1--1 (755832d8-220a-4e5a-b133-dfd27b3c8a78) - RTE_co1_fr2_fr3_1 - outage"), "RTE_FFR3AA1--FFR5AA1--1 (755832d8-220a-4e5a-b133-dfd27b3c8a78) - RTE_co1_fr2_fr3_1 - outage", "RTE_FFR3AA1--FFR5AA1--1 (755832d8-220a-4e5a-b133-dfd27b3c8a78) - RTE_co1_fr2_fr3_1 - outage",
+        CsaProfileCracCreationTestUtil.assertFlowCnecEquality(importedCrac.getFlowCnec("RTE_FFR3AA1--FFR5AA1--1 (755832d8-220a-4e5a-b133-dfd27b3c8a78) - RTE_co1_fr2_fr3_1 - outage - TATL 60"), "RTE_FFR3AA1--FFR5AA1--1 (755832d8-220a-4e5a-b133-dfd27b3c8a78) - RTE_co1_fr2_fr3_1 - outage - TATL 60", "RTE_FFR3AA1--FFR5AA1--1 (755832d8-220a-4e5a-b133-dfd27b3c8a78) - RTE_co1_fr2_fr3_1 - outage - TATL 60",
             "FFR3AA1--FFR5AA1--1", outageInstant, "co1_fr2_fr3_1", 1500., -1500., Side.RIGHT);
         CsaProfileCracCreationTestUtil.assertFlowCnecEquality(importedCrac.getFlowCnec("RTE_FFR2AA1--DDE3AA1--1 (77320d6c-7880-43b1-ac28-e27a85ebda82) - preventive"), "RTE_FFR2AA1--DDE3AA1--1 (77320d6c-7880-43b1-ac28-e27a85ebda82) - preventive", "RTE_FFR2AA1--DDE3AA1--1 (77320d6c-7880-43b1-ac28-e27a85ebda82) - preventive",
             "FFR2AA1--DDE3AA1--1", preventiveInstant, null, 1000., -1000., Side.RIGHT);
@@ -56,7 +66,7 @@ class CsaProfileCracCreatorTest {
             "FFR3AA1--FFR5AA1--1", curativeInstant, "co1_fr2_fr3_1", 1000., -1000., Side.RIGHT);
         CsaProfileCracCreationTestUtil.assertFlowCnecEquality(importedCrac.getFlowCnec("TENNET_TSO_NNL2AA1--BBE3AA1--1 (f0208d08-2ed5-4d92-91a1-4e89ac71e17e) - preventive"), "TENNET_TSO_NNL2AA1--BBE3AA1--1 (f0208d08-2ed5-4d92-91a1-4e89ac71e17e) - preventive", "TENNET_TSO_NNL2AA1--BBE3AA1--1 (f0208d08-2ed5-4d92-91a1-4e89ac71e17e) - preventive",
             "NNL2AA1--BBE3AA1--1", preventiveInstant, null, 5000., -5000., Side.RIGHT);
-        CsaProfileCracCreationTestUtil.assertFlowCnecEquality(importedCrac.getFlowCnec("RTE_FFR2AA1--DDE3AA1--1 (f7708112-b880-4674-98a1-b005a01a61d5) - RTE_co1_fr2_fr3_1 - outage"), "RTE_FFR2AA1--DDE3AA1--1 (f7708112-b880-4674-98a1-b005a01a61d5) - RTE_co1_fr2_fr3_1 - outage", "RTE_FFR2AA1--DDE3AA1--1 (f7708112-b880-4674-98a1-b005a01a61d5) - RTE_co1_fr2_fr3_1 - outage",
+        CsaProfileCracCreationTestUtil.assertFlowCnecEquality(importedCrac.getFlowCnec("RTE_FFR2AA1--DDE3AA1--1 (f7708112-b880-4674-98a1-b005a01a61d5) - RTE_co1_fr2_fr3_1 - outage - TATL 60"), "RTE_FFR2AA1--DDE3AA1--1 (f7708112-b880-4674-98a1-b005a01a61d5) - RTE_co1_fr2_fr3_1 - outage - TATL 60", "RTE_FFR2AA1--DDE3AA1--1 (f7708112-b880-4674-98a1-b005a01a61d5) - RTE_co1_fr2_fr3_1 - outage - TATL 60",
             "FFR2AA1--DDE3AA1--1", outageInstant, "co1_fr2_fr3_1", 1200., -1200., Side.RIGHT);
 
         // Check PST RAs
@@ -87,24 +97,24 @@ class CsaProfileCracCreatorTest {
         Switch switchMock = Mockito.mock(Switch.class);
         Branch networkElementMock = Mockito.mock(Branch.class);
 
-        Mockito.when(terminal1Mock.getId()).thenReturn("c2e3e624-8389-4a50-a2f8-be51631ba221");
-        Mockito.when(terminal2Mock.getId()).thenReturn("073a3aef-f425-48ec-ba72-d68ad4dd333c");
-        Mockito.when(terminal3Mock.getId()).thenReturn("9b476375-4005-46b5-8465-0192dfdbba51");
-        Mockito.when(terminal4Mock.getId()).thenReturn("175aa88b-c62a-4411-b4df-474c436692d0");
+        when(terminal1Mock.getId()).thenReturn("c2e3e624-8389-4a50-a2f8-be51631ba221");
+        when(terminal2Mock.getId()).thenReturn("073a3aef-f425-48ec-ba72-d68ad4dd333c");
+        when(terminal3Mock.getId()).thenReturn("9b476375-4005-46b5-8465-0192dfdbba51");
+        when(terminal4Mock.getId()).thenReturn("175aa88b-c62a-4411-b4df-474c436692d0");
 
-        Mockito.when(terminal1Mock.getType()).thenReturn(IdentifiableType.BUS);
-        Mockito.when(terminal2Mock.getType()).thenReturn(IdentifiableType.BUS);
-        Mockito.when(terminal3Mock.getType()).thenReturn(IdentifiableType.BUS);
-        Mockito.when(terminal4Mock.getType()).thenReturn(IdentifiableType.BUS);
-        Mockito.when(switchMock.getId()).thenReturn("d1db384f-3a27-434b-93f5-5afa3ab23b00");
-        Mockito.when(networkElementMock.getId()).thenReturn("ff3c8013-d3f9-4198-a1f2-98d3ebdf30c4");
-        Mockito.when(switchMock.isOpen()).thenReturn(false);
-        Mockito.when(network.getIdentifiable("c2e3e624-8389-4a50-a2f8-be51631ba221")).thenReturn((Identifiable) terminal1Mock);
-        Mockito.when(network.getIdentifiable("073a3aef-f425-48ec-ba72-d68ad4dd333c")).thenReturn((Identifiable) terminal2Mock);
-        Mockito.when(network.getIdentifiable("9b476375-4005-46b5-8465-0192dfdbba51")).thenReturn((Identifiable) terminal1Mock);
-        Mockito.when(network.getIdentifiable("175aa88b-c62a-4411-b4df-474c436692d0")).thenReturn((Identifiable) terminal2Mock);
-        Mockito.when(network.getSwitch("d1db384f-3a27-434b-93f5-5afa3ab23b00")).thenReturn(switchMock);
-        Mockito.when(network.getIdentifiable("ff3c8013-d3f9-4198-a1f2-98d3ebdf30c4")).thenReturn(networkElementMock);
+        when(terminal1Mock.getType()).thenReturn(IdentifiableType.BUS);
+        when(terminal2Mock.getType()).thenReturn(IdentifiableType.BUS);
+        when(terminal3Mock.getType()).thenReturn(IdentifiableType.BUS);
+        when(terminal4Mock.getType()).thenReturn(IdentifiableType.BUS);
+        when(switchMock.getId()).thenReturn("d1db384f-3a27-434b-93f5-5afa3ab23b00");
+        when(networkElementMock.getId()).thenReturn("ff3c8013-d3f9-4198-a1f2-98d3ebdf30c4");
+        when(switchMock.isOpen()).thenReturn(false);
+        when(network.getIdentifiable("c2e3e624-8389-4a50-a2f8-be51631ba221")).thenReturn((Identifiable) terminal1Mock);
+        when(network.getIdentifiable("073a3aef-f425-48ec-ba72-d68ad4dd333c")).thenReturn((Identifiable) terminal2Mock);
+        when(network.getIdentifiable("9b476375-4005-46b5-8465-0192dfdbba51")).thenReturn((Identifiable) terminal1Mock);
+        when(network.getIdentifiable("175aa88b-c62a-4411-b4df-474c436692d0")).thenReturn((Identifiable) terminal2Mock);
+        when(network.getSwitch("d1db384f-3a27-434b-93f5-5afa3ab23b00")).thenReturn(switchMock);
+        when(network.getIdentifiable("ff3c8013-d3f9-4198-a1f2-98d3ebdf30c4")).thenReturn(networkElementMock);
 
         CsaProfileCracCreationContext cracCreationContext = getCsaCracCreationContext("/CSA_63_1_ValidationTest.zip", network);
         Instant curativeInstant = cracCreationContext.getCrac().getInstant("curative");
@@ -172,22 +182,22 @@ class CsaProfileCracCreatorTest {
         Switch switch2Mock = Mockito.mock(Switch.class);
         Switch switch3Mock = Mockito.mock(Switch.class);
 
-        Mockito.when(terminal1Mock.getType()).thenReturn(IdentifiableType.BUS);
-        Mockito.when(terminal2Mock.getType()).thenReturn(IdentifiableType.BUS);
-        Mockito.when(terminal1Mock.getId()).thenReturn("1fee928b-5093-4c24-9042-940a9ba3d229");
-        Mockito.when(network.getIdentifiable("1fee928b-5093-4c24-9042-940a9ba3d229")).thenReturn((Identifiable) terminal1Mock);
-        Mockito.when(terminal2Mock.getId()).thenReturn("6b1d5995-bb88-4e04-b7d8-c292431003dc");
-        Mockito.when(network.getIdentifiable("6b1d5995-bb88-4e04-b7d8-c292431003dc")).thenReturn((Identifiable) terminal2Mock);
-        Mockito.when(contingencyElement1Mock.getId()).thenReturn("12c706b2-72bc-4f90-9693-0ab12db63eb2");
-        Mockito.when(network.getIdentifiable("12c706b2-72bc-4f90-9693-0ab12db63eb2")).thenReturn(contingencyElement1Mock);
-        Mockito.when(contingencyElement2Mock.getId()).thenReturn("e70568b9-3acc-47d5-8c4b-d7c7645e2297");
-        Mockito.when(network.getIdentifiable("e70568b9-3acc-47d5-8c4b-d7c7645e2297")).thenReturn(contingencyElement2Mock);
-        Mockito.when(switch1Mock.getId()).thenReturn("4b7b74db-d03f-43a7-be32-d183d9aa6f20");
-        Mockito.when(network.getIdentifiable("4b7b74db-d03f-43a7-be32-d183d9aa6f20")).thenReturn((Identifiable) switch1Mock);
-        Mockito.when(switch2Mock.getId()).thenReturn("10eb02d6-e50e-4b36-9b1b-b044dedfa256");
-        Mockito.when(network.getIdentifiable("10eb02d6-e50e-4b36-9b1b-b044dedfa256")).thenReturn((Identifiable) switch2Mock);
-        Mockito.when(switch3Mock.getId()).thenReturn("55f4bfcb-f46f-40f8-a87e-6caeefc5330a");
-        Mockito.when(network.getIdentifiable("55f4bfcb-f46f-40f8-a87e-6caeefc5330a")).thenReturn((Identifiable) switch3Mock);
+        when(terminal1Mock.getType()).thenReturn(IdentifiableType.BUS);
+        when(terminal2Mock.getType()).thenReturn(IdentifiableType.BUS);
+        when(terminal1Mock.getId()).thenReturn("1fee928b-5093-4c24-9042-940a9ba3d229");
+        when(network.getIdentifiable("1fee928b-5093-4c24-9042-940a9ba3d229")).thenReturn((Identifiable) terminal1Mock);
+        when(terminal2Mock.getId()).thenReturn("6b1d5995-bb88-4e04-b7d8-c292431003dc");
+        when(network.getIdentifiable("6b1d5995-bb88-4e04-b7d8-c292431003dc")).thenReturn((Identifiable) terminal2Mock);
+        when(contingencyElement1Mock.getId()).thenReturn("12c706b2-72bc-4f90-9693-0ab12db63eb2");
+        when(network.getIdentifiable("12c706b2-72bc-4f90-9693-0ab12db63eb2")).thenReturn(contingencyElement1Mock);
+        when(contingencyElement2Mock.getId()).thenReturn("e70568b9-3acc-47d5-8c4b-d7c7645e2297");
+        when(network.getIdentifiable("e70568b9-3acc-47d5-8c4b-d7c7645e2297")).thenReturn(contingencyElement2Mock);
+        when(switch1Mock.getId()).thenReturn("4b7b74db-d03f-43a7-be32-d183d9aa6f20");
+        when(network.getIdentifiable("4b7b74db-d03f-43a7-be32-d183d9aa6f20")).thenReturn((Identifiable) switch1Mock);
+        when(switch2Mock.getId()).thenReturn("10eb02d6-e50e-4b36-9b1b-b044dedfa256");
+        when(network.getIdentifiable("10eb02d6-e50e-4b36-9b1b-b044dedfa256")).thenReturn((Identifiable) switch2Mock);
+        when(switch3Mock.getId()).thenReturn("55f4bfcb-f46f-40f8-a87e-6caeefc5330a");
+        when(network.getIdentifiable("55f4bfcb-f46f-40f8-a87e-6caeefc5330a")).thenReturn((Identifiable) switch3Mock);
 
         CsaProfileCracCreationContext cracCreationContext = getCsaCracCreationContext("/CSA_36_3_CustomExample.zip", network, OffsetDateTime.parse("2023-01-01T21:30Z"));
         assertNotNull(cracCreationContext);
@@ -245,22 +255,22 @@ class CsaProfileCracCreatorTest {
         Switch switch2Mock = Mockito.mock(Switch.class);
         Switch switch3Mock = Mockito.mock(Switch.class);
 
-        Mockito.when(terminal1Mock.getType()).thenReturn(IdentifiableType.BUS);
-        Mockito.when(terminal2Mock.getType()).thenReturn(IdentifiableType.BUS);
-        Mockito.when(terminal1Mock.getId()).thenReturn("1fee928b-5093-4c24-9042-940a9ba3d229");
-        Mockito.when(network.getIdentifiable("1fee928b-5093-4c24-9042-940a9ba3d229")).thenReturn((Identifiable) terminal1Mock);
-        Mockito.when(terminal2Mock.getId()).thenReturn("6b1d5995-bb88-4e04-b7d8-c292431003dc");
-        Mockito.when(network.getIdentifiable("6b1d5995-bb88-4e04-b7d8-c292431003dc")).thenReturn((Identifiable) terminal2Mock);
-        Mockito.when(contingencyElement1Mock.getId()).thenReturn("12c706b2-72bc-4f90-9693-0ab12db63eb2");
-        Mockito.when(network.getIdentifiable("12c706b2-72bc-4f90-9693-0ab12db63eb2")).thenReturn(contingencyElement1Mock);
-        Mockito.when(contingencyElement2Mock.getId()).thenReturn("e70568b9-3acc-47d5-8c4b-d7c7645e2297");
-        Mockito.when(network.getIdentifiable("e70568b9-3acc-47d5-8c4b-d7c7645e2297")).thenReturn(contingencyElement2Mock);
-        Mockito.when(switch1Mock.getId()).thenReturn("4b7b74db-d03f-43a7-be32-d183d9aa6f20");
-        Mockito.when(network.getIdentifiable("4b7b74db-d03f-43a7-be32-d183d9aa6f20")).thenReturn((Identifiable) switch1Mock);
-        Mockito.when(switch2Mock.getId()).thenReturn("10eb02d6-e50e-4b36-9b1b-b044dedfa256");
-        Mockito.when(network.getIdentifiable("10eb02d6-e50e-4b36-9b1b-b044dedfa256")).thenReturn((Identifiable) switch2Mock);
-        Mockito.when(switch3Mock.getId()).thenReturn("55f4bfcb-f46f-40f8-a87e-6caeefc5330a");
-        Mockito.when(network.getIdentifiable("55f4bfcb-f46f-40f8-a87e-6caeefc5330a")).thenReturn((Identifiable) switch3Mock);
+        when(terminal1Mock.getType()).thenReturn(IdentifiableType.BUS);
+        when(terminal2Mock.getType()).thenReturn(IdentifiableType.BUS);
+        when(terminal1Mock.getId()).thenReturn("1fee928b-5093-4c24-9042-940a9ba3d229");
+        when(network.getIdentifiable("1fee928b-5093-4c24-9042-940a9ba3d229")).thenReturn((Identifiable) terminal1Mock);
+        when(terminal2Mock.getId()).thenReturn("6b1d5995-bb88-4e04-b7d8-c292431003dc");
+        when(network.getIdentifiable("6b1d5995-bb88-4e04-b7d8-c292431003dc")).thenReturn((Identifiable) terminal2Mock);
+        when(contingencyElement1Mock.getId()).thenReturn("12c706b2-72bc-4f90-9693-0ab12db63eb2");
+        when(network.getIdentifiable("12c706b2-72bc-4f90-9693-0ab12db63eb2")).thenReturn(contingencyElement1Mock);
+        when(contingencyElement2Mock.getId()).thenReturn("e70568b9-3acc-47d5-8c4b-d7c7645e2297");
+        when(network.getIdentifiable("e70568b9-3acc-47d5-8c4b-d7c7645e2297")).thenReturn(contingencyElement2Mock);
+        when(switch1Mock.getId()).thenReturn("4b7b74db-d03f-43a7-be32-d183d9aa6f20");
+        when(network.getIdentifiable("4b7b74db-d03f-43a7-be32-d183d9aa6f20")).thenReturn((Identifiable) switch1Mock);
+        when(switch2Mock.getId()).thenReturn("10eb02d6-e50e-4b36-9b1b-b044dedfa256");
+        when(network.getIdentifiable("10eb02d6-e50e-4b36-9b1b-b044dedfa256")).thenReturn((Identifiable) switch2Mock);
+        when(switch3Mock.getId()).thenReturn("55f4bfcb-f46f-40f8-a87e-6caeefc5330a");
+        when(network.getIdentifiable("55f4bfcb-f46f-40f8-a87e-6caeefc5330a")).thenReturn((Identifiable) switch3Mock);
 
         CsaProfileCracCreationContext cracCreationContext = getCsaCracCreationContext("/CSA_36_3_CustomExample.zip", network, OffsetDateTime.parse("2023-01-01T22:30Z"));
         assertNotNull(cracCreationContext);

@@ -115,10 +115,10 @@ public class CsaProfileCrac implements NativeCrac {
     }
 
     public PropertyBags getAngleLimits() {
-        return getPropertyBags(CsaProfileConstants.REQUEST_ANGLE_LIMIT, CsaProfileConstants.CsaProfileKeywords.EQUIPMENT_RELIABILITY.toString());
+        return getPropertyBags(CsaProfileConstants.REQUEST_VOLTAGE_ANGLE_LIMIT, CsaProfileConstants.CsaProfileKeywords.EQUIPMENT_RELIABILITY.toString());
     }
 
-    public PropertyBags getRemedialActions() {
+    public PropertyBags getGridStateAlterationRemedialAction() {
         return getPropertyBags(CsaProfileConstants.GRID_STATE_ALTERATION_REMEDIAL_ACTION, CsaProfileConstants.CsaProfileKeywords.REMEDIAL_ACTION.toString());
     }
 
@@ -146,22 +146,6 @@ public class CsaProfileCrac implements NativeCrac {
         return getPropertyBags(CsaProfileConstants.REQUEST_CONTINGENCY_WITH_REMEDIAL_ACTION, CsaProfileConstants.CsaProfileKeywords.REMEDIAL_ACTION.toString());
     }
 
-    public PropertyBags getShuntCompensatorModificationAuto() {
-        return getPropertyBags(CsaProfileConstants.SHUNT_COMPENSATOR_MODIFICATION_AUTO, CsaProfileConstants.CsaProfileKeywords.REMEDIAL_ACTION.toString());
-    }
-
-    public PropertyBags getRotatingMachineActionAuto() {
-        return getPropertyBags(CsaProfileConstants.ROTATING_MACHINE_ACTION_AUTO, CsaProfileConstants.CsaProfileKeywords.REMEDIAL_ACTION.toString());
-    }
-
-    public PropertyBags getTopologyActionAuto() {
-        return getPropertyBags(CsaProfileConstants.TOPOLOGY_ACTION_AUTO, CsaProfileConstants.CsaProfileKeywords.REMEDIAL_ACTION.toString());
-    }
-
-    public PropertyBags getTapPositionActionAuto() {
-        return getPropertyBags(CsaProfileConstants.TAP_POSITION_ACTION_AUTO, CsaProfileConstants.CsaProfileKeywords.REMEDIAL_ACTION.toString());
-    }
-
     public PropertyBags getStage() {
         return getPropertyBags(CsaProfileConstants.STAGE, CsaProfileConstants.CsaProfileKeywords.REMEDIAL_ACTION.toString());
     }
@@ -178,6 +162,16 @@ public class CsaProfileCrac implements NativeCrac {
         return getPropertyBags(CsaProfileConstants.REQUEST_SCHEME_REMEDIAL_ACTION, CsaProfileConstants.CsaProfileKeywords.REMEDIAL_ACTION.toString());
     }
 
+    public PropertyBags getRemedialActionGroups() {
+        return getPropertyBags(CsaProfileConstants.REQUEST_REMEDIAL_ACTION_GROUP, CsaProfileConstants.CsaProfileKeywords.REMEDIAL_ACTION.toString());
+
+    }
+
+    public PropertyBags getRemedialActionDependencies() {
+        return getPropertyBags(CsaProfileConstants.REQUEST_REMEDIAL_ACTION_DEPENDENCY, CsaProfileConstants.CsaProfileKeywords.REMEDIAL_ACTION.toString());
+
+    }
+
     public Map<String, String> getOverridingCracData(OffsetDateTime importTimestamp) {
         Map<String, String> overridingData = new HashMap<>();
         for (CsaProfileConstants.OverridingObjectsFields overridingObject : CsaProfileConstants.OverridingObjectsFields.values()) {
@@ -190,13 +184,13 @@ public class CsaProfileCrac implements NativeCrac {
         PropertyBags propertyBagsResult = queryTripleStore(queryName, tripleStoreCsaProfileCrac.contextNames());
         for (PropertyBag propertyBag : propertyBagsResult) {
             if (CsaProfileConstants.HeaderType.START_END_DATE.equals(headerType)) {
-                if (CsaProfileCracUtils.checkProfileKeyword(propertyBag, CsaProfileConstants.CsaProfileKeywords.SSI) && CsaProfileCracUtils.checkProfileValidityInterval(propertyBag, importTimestamp)) {
+                if (CsaProfileCracUtils.checkProfileKeyword(propertyBag, CsaProfileConstants.CsaProfileKeywords.STEADY_STATE_INSTRUCTION) && CsaProfileCracUtils.checkProfileValidityInterval(propertyBag, importTimestamp)) {
                     String id = propertyBag.getId(queryObjectName);
                     String overridedValue = propertyBag.get(queryFieldName);
                     dataMap.put(id, overridedValue);
                 }
             } else {
-                if (CsaProfileCracUtils.checkProfileKeyword(propertyBag, CsaProfileConstants.CsaProfileKeywords.SSH)) {
+                if (CsaProfileCracUtils.checkProfileKeyword(propertyBag, CsaProfileConstants.CsaProfileKeywords.STEADY_STATE_HYPOTHESIS)) {
                     OffsetDateTime scenarioTime = OffsetDateTime.parse(propertyBag.get(CsaProfileConstants.SCENARIO_TIME));
                     if (importTimestamp.isEqual(scenarioTime)) {
                         String id = propertyBag.getId(queryObjectName);

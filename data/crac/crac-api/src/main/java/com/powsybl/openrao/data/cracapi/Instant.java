@@ -16,7 +16,7 @@ import com.powsybl.openrao.data.cracapi.cnec.Cnec;
  * @author Hugo Schindler {@literal <hugo.schindler at rte-france.com>}
  * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
  */
-public interface Instant extends Identifiable<Instant> {
+public interface Instant extends Identifiable<Instant>, Comparable<Instant> {
 
     int getOrder();
 
@@ -26,6 +26,8 @@ public interface Instant extends Identifiable<Instant> {
     String toString();
 
     boolean comesBefore(Instant otherInstant);
+
+    boolean comesAfter(Instant otherInstant);
 
     boolean isPreventive();
 

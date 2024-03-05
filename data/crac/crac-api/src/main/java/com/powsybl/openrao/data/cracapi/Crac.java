@@ -88,7 +88,7 @@ public interface Crac extends Identifiable<Crac> {
     /**
      * Gather all the instants present in the Crac with the correct instantKind.
      */
-    Set<Instant> getInstants(InstantKind instantKind);
+    SortedSet<Instant> getInstants(InstantKind instantKind);
 
     /**
      * Returns the previous instant of an instant.
@@ -129,6 +129,11 @@ public interface Crac extends Identifiable<Crac> {
      * defined on the preventive instant, with no contingency.
      */
     State getPreventiveState();
+
+    /**
+     * Get the curative states for all curative instants.
+     */
+    Set<State> getCurativeStates();
 
     /**
      * Chronological list of states after a defined contingency. The chronology is defined by
@@ -510,4 +515,19 @@ public interface Crac extends Identifiable<Crac> {
      * Remove a NetworkAction - identified by its id - from the Crac
      */
     void removeNetworkAction(String id);
+
+    /**
+     * Get all remedial action usage limitation according to the crac creation parameters
+     */
+    Map<Instant, RaUsageLimits> getRaUsageLimitsPerInstant();
+
+    /**
+     * Get remedial action usage limitation for a given instant
+     */
+    RaUsageLimits getRaUsageLimits(Instant instant);
+
+    /**
+     * Get a {@link RaUsageLimitsAdder}, to add a {@link RaUsageLimits} to the crac
+     */
+    RaUsageLimitsAdder newRaUsageLimits(String instantName);
 }

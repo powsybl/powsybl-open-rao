@@ -70,15 +70,28 @@ public abstract class AbstractCnecCreator {
 
     protected String getCnecName(String instantId, Contingency contingency) {
         // Need to include the mRID in the name in case the AssessedElement's name is not unique
-        return assessedElementName + " (" + assessedElementId + ") - " + (contingency == null ? "" : contingency.getName() + " - ") + instantId;
+        return "%s (%s) - %s%s".formatted(assessedElementName, assessedElementId, contingency == null ? "" : contingency.getName() + " - ", instantId);
+    }
+
+    protected String getCnecName(String instantId, Contingency contingency, int tatlDuration) {
+        // Add TATL duration in case to CNECs of the same instant are created with different TATLs
+        return "%s - TATL %s".formatted(getCnecName(instantId, contingency), tatlDuration);
     }
 
     protected void addCnecBaseInformation(CnecAdder<?> cnecAdder, Contingency contingency, String instantId) {
         String cnecName = getCnecName(instantId, contingency);
         cnecAdder.withContingency(contingency == null ? null : contingency.getId())
-                    .withId(cnecName)
-                    .withName(cnecName)
-                    .withInstant(instantId);
+            .withId(cnecName)
+            .withName(cnecName)
+            .withInstant(instantId);
+    }
+
+    protected void addCnecBaseInformation(CnecAdder<?> cnecAdder, Contingency contingency, String instantId, int tatlDuration) {
+        String cnecName = getCnecName(instantId, contingency, tatlDuration);
+        cnecAdder.withContingency(contingency == null ? null : contingency.getId())
+            .withId(cnecName)
+            .withName(cnecName)
+            .withInstant(instantId);
     }
 
     protected void markCnecAsImportedAndHandleRejectedContingencies(String instantId, Contingency contingency) {

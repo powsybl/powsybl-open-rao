@@ -58,6 +58,14 @@ public final class CsaProfileCracCreationTestUtil {
         }
     }
 
+    public static void assertContingencyNotImported(CsaProfileCracCreationContext cracCreationContext, String contingencyId, ImportStatus importStatus, String importStatusDetail) {
+        assertTrue(cracCreationContext.getContingencyCreationContexts().stream().anyMatch(context -> !context.isImported() && contingencyId.equals(context.getNativeId()) && importStatus.equals(context.getImportStatus()) && importStatusDetail.equals(context.getImportStatusDetail())));
+    }
+
+    public static void assertCnecNotImported(CsaProfileCracCreationContext cracCreationContext, String cnecId, ImportStatus importStatus, String importStatusDetail) {
+        assertTrue(cracCreationContext.getCnecCreationContexts().stream().anyMatch(context -> !context.isImported() && cnecId.equals(context.getNativeId()) && importStatus.equals(context.getImportStatus()) && importStatusDetail.equals(context.getImportStatusDetail())));
+    }
+
     public static void assertFlowCnecEquality(FlowCnec fc, String expectedFlowCnecId, String expectedFlowCnecName, String expectedNetworkElementId,
                                               Instant expectedInstant, String expectedContingencyId, Double expectedThresholdMax, Double expectedThresholdMin, Side expectedThresholdSide) {
         assertFlowCnecEquality(fc, expectedFlowCnecId, expectedFlowCnecName, expectedNetworkElementId, expectedInstant, expectedContingencyId, expectedThresholdMax, expectedThresholdMin, expectedThresholdMax, expectedThresholdMin, Set.of(expectedThresholdSide));
@@ -205,21 +213,37 @@ public final class CsaProfileCracCreationTestUtil {
         assertEquals(speed, importedSpeed.get());
     }
 
-    public static CsaProfileCracCreationContext getCsaCracCreationContext(String csaProfilesArchive) {
+    public static CsaProfileCracCreationContext getCsaCracCreationContext(String csaProfilesArchive, CracCreationParameters cracCreationParameters) {
         Network network = getNetworkFromResource(csaProfilesArchive);
-        return getCsaCracCreationContext(csaProfilesArchive, network);
+        return getCsaCracCreationContext(csaProfilesArchive, network, cracCreationParameters);
+    }
+
+    public static CsaProfileCracCreationContext getCsaCracCreationContext(String csaProfilesArchive) {
+        return getCsaCracCreationContext(csaProfilesArchive, new CracCreationParameters());
     }
 
     public static CsaProfileCracCreationContext getCsaCracCreationContext(String csaProfilesArchive, Network network) {
-        return getCsaCracCreationContext(csaProfilesArchive, network, OffsetDateTime.parse("2023-03-29T12:00Z"));
+        return getCsaCracCreationContext(csaProfilesArchive, network, OffsetDateTime.parse("2023-03-29T12:00Z"), new CracCreationParameters());
+    }
+
+    public static CsaProfileCracCreationContext getCsaCracCreationContext(String csaProfilesArchive, Network network, CracCreationParameters cracCreationParameters) {
+        return getCsaCracCreationContext(csaProfilesArchive, network, OffsetDateTime.parse("2023-03-29T12:00Z"), cracCreationParameters);
+    }
+
+    public static CsaProfileCracCreationContext getCsaCracCreationContext(String csaProfilesArchive, Network network, String timestamp) {
+        return getCsaCracCreationContext(csaProfilesArchive, network, OffsetDateTime.parse(timestamp), new CracCreationParameters());
     }
 
     public static CsaProfileCracCreationContext getCsaCracCreationContext(String csaProfilesArchive, Network network, OffsetDateTime offsetDateTime) {
+        return getCsaCracCreationContext(csaProfilesArchive, network, offsetDateTime, new CracCreationParameters());
+    }
+
+    public static CsaProfileCracCreationContext getCsaCracCreationContext(String csaProfilesArchive, Network network, OffsetDateTime offsetDateTime, CracCreationParameters cracCreationParameters) {
         CsaProfileCracImporter cracImporter = new CsaProfileCracImporter();
         InputStream inputStream = CsaProfileCracCreationTestUtil.class.getResourceAsStream(csaProfilesArchive);
         CsaProfileCrac nativeCrac = cracImporter.importNativeCrac(inputStream);
         CsaProfileCracCreator cracCreator = new CsaProfileCracCreator();
-        return cracCreator.createCrac(nativeCrac, network, offsetDateTime, new CracCreationParameters());
+        return cracCreator.createCrac(nativeCrac, network, offsetDateTime, cracCreationParameters);
     }
 
     public static Network getNetworkFromResource(String filename) {

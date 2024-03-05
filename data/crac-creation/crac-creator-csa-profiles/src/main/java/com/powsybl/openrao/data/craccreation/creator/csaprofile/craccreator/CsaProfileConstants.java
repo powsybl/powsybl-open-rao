@@ -25,9 +25,8 @@ public final class CsaProfileConstants {
         CONTINGENCY("CO"),
         EQUIPMENT_RELIABILITY("ER"),
         REMEDIAL_ACTION("RA"),
-        REMEDIAL_ACTION_SCHEDULE("RAS"),
-        SSI("SSI"),
-        SSH("SSH");
+        STEADY_STATE_INSTRUCTION("SSI"),
+        STEADY_STATE_HYPOTHESIS("SSH");
 
         private final String keyword;
 
@@ -102,20 +101,13 @@ public final class CsaProfileConstants {
      */
 
     public static final String REMEDIAL_ACTION_NAME = "name";
-    public static final String REMEDIAL_ACTION_MESSAGE = "Remedial action ";
-    public static final String AUTO_REMEDIAL_ACTION_MESSAGE = "Auto Remedial action ";
-    public static final String REMEDIAL_ACTION_SCHEDULE = "remedialActionSchedule";
     public static final String SCHEME_REMEDIAL_ACTION = "schemeRemedialAction";
     public static final String REMEDIAL_ACTION_SCHEME = "remedialActionScheme";
     public static final String STAGE = "stage";
     public static final String SIPS = "http://entsoe.eu/ns/nc#RemedialActionSchemeKind.sips";
     public static final String NORMAL_ARMED = "normalArmed";
     public static final String OVERRIDE_ARMED = "armed";
-    public static final String TOPOLOGY_ACTION_AUTO = "topologyActionAuto";
-    public static final String ROTATING_MACHINE_ACTION_AUTO = "rotatingMachineActionAuto";
-    public static final String TAP_POSITION_ACTION_AUTO = "tapPositionActionAuto";
-
-    public static final String SHUNT_COMPENSATOR_MODIFICATION_AUTO = "shuntCompensatorModificationAuto";
+    public static final String DEPENDING_REMEDIAL_ACTION_GROUP = "dependingRemedialActionGroup";
     public static final String GRID_STATE_ALTERATION_COLLECTION = "gridStateAlterationCollection";
     public static final String GRID_STATE_ALTERATION_REMEDIAL_ACTION = "gridStateAlterationRemedialAction";
     public static final String TOPOLOGY_ACTION = "topologyAction";
@@ -128,7 +120,7 @@ public final class CsaProfileConstants {
     public static final String TSO = "tso";
     public static final String NORMAL_AVAILABLE = "normalAvailable";
     public static final String OVERRIDE_AVAILABLE = "available";
-    public static final String RA_KIND = "kind";
+    public static final String KIND = "kind";
     public static final String COMBINATION_CONSTRAINT_KIND = "combinationConstraintKind";
     public static final String SWITCH = "switchId";
     public static final String NORMAL_ENABLED = "normalEnabled";
@@ -137,6 +129,8 @@ public final class CsaProfileConstants {
     public static final String SHUNT_COMPENSATOR_MODIFICATION = "shuntCompensatorModification";
     public static final String SHUNT_COMPENSATOR_ID = "shuntCompensatorId";
     public static final String REQUEST_SCHEME_REMEDIAL_ACTION = "schemeRemedialAction";
+    public static final String REQUEST_REMEDIAL_ACTION_GROUP = "remedialActionGroup";
+    public static final String REQUEST_REMEDIAL_ACTION_DEPENDENCY = "remedialActionDependency";
 
     public enum PropertyReference {
         SWITCH("Switch.open"),
@@ -224,6 +218,7 @@ public final class CsaProfileConstants {
 
     public static final String REQUEST_ASSESSED_ELEMENT = "assessedElement";
     public static final String REQUEST_REMEDIAL_ACTION = "remedialAction";
+    public static final String REQUEST_GRID_STATE_ALTERATION_REMEDIAL_ACTION = "gridStateAlterationRemedialAction";
     public static final String REQUEST_ASSESSED_ELEMENT_WITH_CONTINGENCY = "assessedElementWithContingency";
     public static final String REQUEST_ASSESSED_ELEMENT_WITH_REMEDIAL_ACTION = "assessedElementWithRemedialAction";
     public static final String REQUEST_ASSESSED_ELEMENT_IN_BASE_CASE = "inBaseCase";
@@ -231,7 +226,6 @@ public final class CsaProfileConstants {
     public static final String REQUEST_ASSESSED_ELEMENT_OPERATOR = "assessedSystemOperator";
     public static final String REQUEST_ASSESSED_ELEMENT_OPERATIONAL_LIMIT = "operationalLimit";
     public static final String REQUEST_ASSESSED_ELEMENT_CONDUCTING_EQUIPMENT = "conductingEquipment";
-    public static final String REQUEST_ASSESSED_ELEMENT_IS_CRITICAL = "isCritical";
     public static final String REQUEST_ASSESSED_ELEMENT_NORMAL_ENABLED = "normalEnabled";
     public static final String REQUEST_ASSESSED_ELEMENT_IS_COMBINABLE_WITH_CONTINGENCY = "isCombinableWithContingency";
     public static final String REQUEST_ASSESSED_ELEMENT_IS_COMBINABLE_WITH_REMEDIAL_ACTION = "isCombinableWithRemedialAction";
@@ -239,6 +233,10 @@ public final class CsaProfileConstants {
     public static final String REQUEST_ASSESSED_ELEMENT_WITH_CONTINGENCY_NORMAL_ENABLED = "normalEnabled";
     public static final String REQUEST_CURRENT_LIMIT = "currentLimit";
     public static final String REQUEST_VOLTAGE_LIMIT = "voltageLimit";
+    public static final String REQUEST_TOPOLOGY_ACTION = "topologyAction";
+    public static final String REQUEST_ROTATING_MACHINE_ACTION = "rotatingMachineAction";
+    public static final String REQUEST_SHUNT_COMPENSATOR_MODIFICATION = "shuntCompensatorModification";
+    public static final String REQUEST_TAP_POSITION_ACTION = "tapPositionAction";
     public static final String CGMES = "CGMES";
     public static final String REQUEST_OPERATIONAL_LIMIT_NORMAL_VALUE = "normalValue";
     public static final String REQUEST_OPERATIONAL_LIMIT_TERMINAL = "terminal";
@@ -310,10 +308,10 @@ public final class CsaProfileConstants {
      */
 
     public static final String REQUEST_IS_FLOW_TO_REF_TERMINAL = "isFlowToRefTerminal";
-    public static final String REQUEST_ANGLE_LIMIT = "angleLimit";
+    public static final String REQUEST_VOLTAGE_ANGLE_LIMIT = "voltageAngleLimit";
 
     public enum LimitType {
-        ANGLE(REQUEST_ANGLE_LIMIT),
+        ANGLE(REQUEST_VOLTAGE_ANGLE_LIMIT),
         CURRENT(REQUEST_CURRENT_LIMIT),
         VOLTAGE(REQUEST_VOLTAGE_LIMIT);
 
@@ -329,12 +327,6 @@ public final class CsaProfileConstants {
         }
     }
 
-    public enum HeaderValidity {
-        OK,
-        INVALID_KEYWORD,
-        INVALID_INTERVAL;
-    }
-
     public enum HeaderType {
         START_END_DATE,
         SCENARIO_TIME;
@@ -346,25 +338,31 @@ public final class CsaProfileConstants {
         ASSESSED_ELEMENT_WITH_CONTINGENCY("assessedElementWithContingencyOverriding", REQUEST_ASSESSED_ELEMENT_WITH_CONTINGENCY, NORMAL_ENABLED, OVERRIDE_ENABLED, HeaderType.START_END_DATE),
         ASSESSED_ELEMENT_WITH_REMEDIAL_ACTION("assessedElementWithRemedialActionOverriding", REQUEST_ASSESSED_ELEMENT_WITH_REMEDIAL_ACTION, NORMAL_ENABLED, OVERRIDE_ENABLED, HeaderType.START_END_DATE),
         CONTINGENCY_WITH_REMEDIAL_ACTION("contingencyWithRemedialActionOverriding", REQUEST_CONTINGENCY_WITH_REMEDIAL_ACTION, NORMAL_ENABLED, OVERRIDE_ENABLED, HeaderType.START_END_DATE),
-        REMEDIAL_ACTION("remedialActionOverriding", REQUEST_REMEDIAL_ACTION, NORMAL_AVAILABLE, OVERRIDE_AVAILABLE, HeaderType.START_END_DATE),
+        GRID_STATE_ALTERATION_REMEDIAL_ACTION("gridStateAlterationRemedialActionOverriding", REQUEST_GRID_STATE_ALTERATION_REMEDIAL_ACTION, NORMAL_AVAILABLE, OVERRIDE_AVAILABLE, HeaderType.START_END_DATE),
         GRID_STATE_ALTERATION("gridStateAlterationOverriding", "gridStateAlteration", NORMAL_ENABLED, OVERRIDE_ENABLED, HeaderType.START_END_DATE),
-        RANGE_CONSTRAINT("rangeConstraintOverriding", "rangeConstraint", NORMAL_VALUE, OVERRIDE_VALUE, HeaderType.START_END_DATE),
+        STATIC_PROPERTY_RANGE("staticPropertyRangeOverriding", CsaProfileConstants.STATIC_PROPERTY_RANGE, NORMAL_VALUE, OVERRIDE_VALUE, HeaderType.START_END_DATE),
         REMEDIAL_ACTION_SCHEME("remedialActionSchemeOverriding", CsaProfileConstants.REMEDIAL_ACTION_SCHEME, NORMAL_ARMED, OVERRIDE_ARMED, HeaderType.START_END_DATE),
         VOLTAGE_ANGLE_LIMIT("voltageAngleLimitOverriding", "voltageAngleLimit", NORMAL_VALUE, OVERRIDE_VALUE, HeaderType.START_END_DATE),
         CURRENT_LIMIT("currentLimitOverriding", REQUEST_CURRENT_LIMIT, NORMAL_VALUE, OVERRIDE_VALUE, HeaderType.SCENARIO_TIME),
-        VOLTAGE_LIMIT("voltageLimitOverriding", REQUEST_VOLTAGE_LIMIT, NORMAL_VALUE, OVERRIDE_VALUE, HeaderType.SCENARIO_TIME);
+        VOLTAGE_LIMIT("voltageLimitOverriding", REQUEST_VOLTAGE_LIMIT, NORMAL_VALUE, OVERRIDE_VALUE, HeaderType.SCENARIO_TIME),
+        TOPOLOGY_ACTION("topologyActionOverriding", REQUEST_TOPOLOGY_ACTION, NORMAL_ENABLED, OVERRIDE_ENABLED, HeaderType.START_END_DATE),
+        ROTATING_MACHINE_ACTION("rotatingMachineActionOverriding", REQUEST_ROTATING_MACHINE_ACTION, NORMAL_ENABLED, OVERRIDE_ENABLED, HeaderType.START_END_DATE),
+        SHUNT_COMPENSATOR_MODIFICATION("shuntCompensatorModificationOverriding", REQUEST_SHUNT_COMPENSATOR_MODIFICATION, NORMAL_ENABLED, OVERRIDE_ENABLED, HeaderType.START_END_DATE),
+        TAP_POSITION_ACTION("tapPositionActionOverriding", REQUEST_TAP_POSITION_ACTION, NORMAL_ENABLED, OVERRIDE_ENABLED, HeaderType.START_END_DATE),
+        SCHEME_REMEDIAL_ACTION("schemeRemedialActionOverriding", REQUEST_SCHEME_REMEDIAL_ACTION, NORMAL_AVAILABLE, OVERRIDE_AVAILABLE, HeaderType.START_END_DATE),
+        SCHEME_REMEDIAL_ACTION_DEPENDENCY("remedialActionDependencyOverriding", REQUEST_REMEDIAL_ACTION_DEPENDENCY, NORMAL_ENABLED, OVERRIDE_ENABLED, HeaderType.START_END_DATE);
 
-        String requestName;
-        String objectName;
-        String initialFieldName;
-        String overridedFieldName;
-        HeaderType headerType;
+        final String requestName;
+        final String objectName;
+        final String initialFieldName;
+        final String overriddenFieldName;
+        final HeaderType headerType;
 
         OverridingObjectsFields(String requestName, String objectName, String initialFieldName, String overridedFieldName, HeaderType headerType) {
             this.requestName = requestName;
             this.objectName = objectName;
             this.initialFieldName = initialFieldName;
-            this.overridedFieldName = overridedFieldName;
+            this.overriddenFieldName = overridedFieldName;
             this.headerType = headerType;
         }
 
@@ -381,7 +379,7 @@ public final class CsaProfileConstants {
         }
 
         public String getOverridedFieldName() {
-            return this.overridedFieldName;
+            return this.overriddenFieldName;
         }
 
         public HeaderType getHeaderType() {

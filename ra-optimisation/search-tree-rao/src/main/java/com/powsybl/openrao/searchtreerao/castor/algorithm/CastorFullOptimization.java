@@ -45,6 +45,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.*;
+import static com.powsybl.openrao.data.raoresultapi.ComputationStatus.DEFAULT;
 import static com.powsybl.openrao.searchtreerao.commons.RaoLogger.formatDouble;
 
 /**
@@ -112,7 +113,9 @@ public class CastorFullOptimization {
         network.getVariantManager().setWorkingVariant(PREVENTIVE_SCENARIO);
 
         if (stateTree.getContingencyScenarios().isEmpty()) {
-            return CompletableFuture.completedFuture(optimizePreventivePerimeter(raoInput, raoParameters, stateTree, toolProvider, initialOutput));
+            CompletableFuture<RaoResult> result = CompletableFuture.completedFuture(optimizePreventivePerimeter(raoInput, raoParameters, stateTree, toolProvider, initialOutput));
+            BUSINESS_LOGS.info("----- Preventive perimeter optimization [end]");
+            return result;
         }
 
         PerimeterResult preventiveResult = optimizePreventivePerimeter(raoInput, raoParameters, stateTree, toolProvider, initialOutput).getPerimeterResult(raoInput.getCrac().getPreventiveState());
@@ -166,7 +169,7 @@ public class CastorFullOptimization {
         mergedRaoResults = new PreventiveAndCurativesRaoResultImpl(stateTree, initialOutput, preventiveResult, preCurativeSensitivityAnalysisOutput, postContingencyResults, raoInput.getCrac());
         boolean logFinalResultsOutsideOfSecondPreventive = true;
         // Run second preventive when necessary
-        if (shouldRunSecondPreventiveRao(raoParameters, preventiveResult, postContingencyResults.values(), mergedRaoResults, targetEndInstant, preventiveRaoTime, raoInput.getCrac().getInstant(InstantKind.CURATIVE))) {
+        if (shouldRunSecondPreventiveRao(raoParameters, preventiveResult, postContingencyResults.values(), mergedRaoResults, targetEndInstant, preventiveRaoTime, raoInput.getCrac().getLastInstant())) {
             RaoResult secondPreventiveRaoResults = runSecondPreventiveAndAutoRao(raoInput, raoParameters, stateTree, toolProvider, prePerimeterSensitivityAnalysis, initialOutput, preventiveResult, postContingencyResults);
             if (secondPreventiveImprovesResults(secondPreventiveRaoResults, mergedRaoResults)) {
                 mergedRaoResults = secondPreventiveRaoResults;
@@ -197,7 +200,7 @@ public class CastorFullOptimization {
             BUSINESS_LOGS.info("RAO has succeeded thanks to second preventive step when first preventive step had failed");
             return true;
         }
-        Instant curativeInstant = raoInput.getCrac().getInstant(InstantKind.CURATIVE);
+        Instant curativeInstant = raoInput.getCrac().getLastInstant();
         double firstPreventiveCost = mergedRaoResults.getCost(curativeInstant);
         double secondPreventiveCost = secondPreventiveRaoResults.getCost(curativeInstant);
         if (secondPreventiveCost > firstPreventiveCost) {
@@ -218,10 +221,10 @@ public class CastorFullOptimization {
         double initialCost = initialResult.getCost();
         double initialFunctionalCost = initialResult.getFunctionalCost();
         double initialVirtualCost = initialResult.getVirtualCost();
-        Instant curativeInstant = raoInput.getCrac().getInstant(InstantKind.CURATIVE);
-        double finalCost = finalRaoResult.getCost(curativeInstant);
-        double finalFunctionalCost = finalRaoResult.getFunctionalCost(curativeInstant);
-        double finalVirtualCost = finalRaoResult.getVirtualCost(curativeInstant);
+        Instant lastInstant = raoInput.getCrac().getLastInstant();
+        double finalCost = finalRaoResult.getCost(lastInstant);
+        double finalFunctionalCost = finalRaoResult.getFunctionalCost(lastInstant);
+        double finalVirtualCost = finalRaoResult.getVirtualCost(lastInstant);
 
         if (objectiveFunctionParameters.getForbidCostIncrease() && finalCost > initialCost) {
             BUSINESS_LOGS.info("RAO has increased the overall cost from {} (functional: {}, virtual: {}) to {} (functional: {}, virtual: {}). Falling back to initial solution:",
@@ -321,14 +324,15 @@ public class CastorFullOptimization {
 
         // Init variables
         Optional<State> automatonState = optimizedScenario.getAutomatonState();
-        State curativeState = optimizedScenario.getCurativeState();
+        Set<State> curativeStates = new HashSet<>();
+        optimizedScenario.getCurativePerimeters().forEach(perimeter -> curativeStates.addAll(perimeter.getAllStates()));
         PrePerimeterResult preCurativeResult = prePerimeterSensitivityOutput;
         double sensitivityFailureOvercost = raoParameters.getLoadFlowAndSensitivityParameters().getSensitivityFailureOvercost();
 
         // Simulate automaton instant
         boolean autoStateSensiFailed = false;
         if (automatonState.isPresent()) {
-            AutomatonPerimeterResultImpl automatonResult = automatonSimulator.simulateAutomatonState(automatonState.get(), curativeState, networkClone);
+            AutomatonPerimeterResultImpl automatonResult = automatonSimulator.simulateAutomatonState(automatonState.get(), curativeStates, networkClone);
             if (automatonResult.getComputationStatus() == ComputationStatus.FAILURE) {
                 autoStateSensiFailed = true;
                 contingencyScenarioResults.put(automatonState.get(), new SkippedOptimizationResultImpl(automatonState.get(), automatonResult.getActivatedNetworkActions(), automatonResult.getActivatedRangeActions(automatonState.get()), ComputationStatus.FAILURE, sensitivityFailureOvercost));
@@ -340,16 +344,29 @@ public class CastorFullOptimization {
         // Do not simulate curative instant if last sensitivity analysis failed
         // -- if there was no automaton state, check prePerimeterSensitivityOutput sensi status
         // -- or if there was an automaton state that failed
-        if (!automatonsOnly && automatonState.isEmpty() && prePerimeterSensitivityOutput.getSensitivityStatus(curativeState) == ComputationStatus.FAILURE
-            || automatonState.isPresent() && autoStateSensiFailed) {
-            contingencyScenarioResults.put(curativeState, new SkippedOptimizationResultImpl(curativeState, new HashSet<>(), new HashSet<>(), ComputationStatus.FAILURE, sensitivityFailureOvercost));
+        if (!automatonsOnly
+            && automatonState.isEmpty()
+            && !optimizedScenario.getCurativePerimeters().isEmpty()
+            && prePerimeterSensitivityOutput.getSensitivityStatus(optimizedScenario.getCurativePerimeters().get(0).getRaOptimisationState()) == ComputationStatus.FAILURE
+            || automatonState.isPresent()
+            && autoStateSensiFailed
+        ) {
+            curativeStates.forEach(curativeState -> contingencyScenarioResults.put(curativeState, new SkippedOptimizationResultImpl(curativeState, new HashSet<>(), new HashSet<>(), ComputationStatus.FAILURE, sensitivityFailureOvercost)));
         } else if (!automatonsOnly) {
+            boolean allPreviousPerimetersSucceded = true;
             // Optimize curative instant
-            OptimizationResult curativeResult = optimizeCurativeState(curativeState, crac, networkClone,
-                raoParameters, stateTree, toolProvider, curativeTreeParameters, initialSensitivityOutput, preCurativeResult);
-            contingencyScenarioResults.put(curativeState, curativeResult);
-            if (curativeResult.getSensitivityStatus() == ComputationStatus.FAILURE) {
-                contingencyScenarioResults.put(curativeState, new SkippedOptimizationResultImpl(curativeState, new HashSet<>(), new HashSet<>(), ComputationStatus.FAILURE, sensitivityFailureOvercost));
+            for (Perimeter curativePerimeter : optimizedScenario.getCurativePerimeters()) {
+                for (State curativeState : curativePerimeter.getAllStates()) {
+                    if (allPreviousPerimetersSucceded) {
+                        OptimizationResult curativeResult = optimizeCurativeState(curativeState, crac, networkClone,
+                            raoParameters, stateTree, toolProvider, curativeTreeParameters, initialSensitivityOutput, preCurativeResult);
+                        allPreviousPerimetersSucceded = curativeResult.getSensitivityStatus() == DEFAULT;
+                        contingencyScenarioResults.put(curativeState, curativeResult);
+                        applyRemedialActions(networkClone, curativeResult, curativeState);
+                    } else {
+                        contingencyScenarioResults.put(curativeState, new SkippedOptimizationResultImpl(curativeState, new HashSet<>(), new HashSet<>(), ComputationStatus.FAILURE, sensitivityFailureOvercost));
+                    }
+                }
             }
         }
         TECHNICAL_LOGS.debug("Remaining post-contingency scenarios to optimize: {}", remainingScenarios.decrementAndGet());
@@ -400,7 +417,7 @@ public class CastorFullOptimization {
      * This function decides if a 2nd preventive RAO should be run. It checks the user parameter first, then takes the
      * decision depending on the curative RAO results and the curative RAO stop criterion.
      */
-    static boolean shouldRunSecondPreventiveRao(RaoParameters raoParameters, OptimizationResult firstPreventiveResult, Collection<OptimizationResult> curativeRaoResults, RaoResult postFirstRaoResult, java.time.Instant targetEndInstant, long estimatedPreventiveRaoTimeInSeconds, Instant curativeInstant) {
+    static boolean shouldRunSecondPreventiveRao(RaoParameters raoParameters, OptimizationResult firstPreventiveResult, Collection<OptimizationResult> curativeRaoResults, RaoResult postFirstRaoResult, java.time.Instant targetEndInstant, long estimatedPreventiveRaoTimeInSeconds, Instant lastCurativeInstant) {
         if (raoParameters.getSecondPreventiveRaoParameters().getExecutionCondition().equals(SecondPreventiveRaoParameters.ExecutionCondition.DISABLED)) {
             return false;
         }
@@ -409,7 +426,7 @@ public class CastorFullOptimization {
             return false;
         }
         if (raoParameters.getSecondPreventiveRaoParameters().getExecutionCondition().equals(SecondPreventiveRaoParameters.ExecutionCondition.COST_INCREASE)
-                && postFirstRaoResult.getCost(curativeInstant) <= postFirstRaoResult.getCost(null)) {
+                && postFirstRaoResult.getCost(lastCurativeInstant) <= postFirstRaoResult.getCost(null)) {
             BUSINESS_LOGS.info("Cost has not increased during RAO, there is no need to run a 2nd preventive RAO.");
             // it is not necessary to compare initial & post-preventive costs since the preventive RAO cannot increase its own cost
             // only compare initial cost with the curative costs
@@ -425,10 +442,10 @@ public class CastorFullOptimization {
                 return isAnyResultUnsecure(curativeRaoResults);
             case PREVENTIVE_OBJECTIVE:
                 // Run 2nd preventive RAO if the final result has a worse cost than the preventive perimeter
-                return isFinalCostWorseThanPreventive(raoParameters.getObjectiveFunctionParameters().getCurativeMinObjImprovement(), firstPreventiveResult, postFirstRaoResult, curativeInstant);
+                return isFinalCostWorseThanPreventive(raoParameters.getObjectiveFunctionParameters().getCurativeMinObjImprovement(), firstPreventiveResult, postFirstRaoResult, lastCurativeInstant);
             case PREVENTIVE_OBJECTIVE_AND_SECURE:
                 // Run 2nd preventive RAO if the final result has a worse cost than the preventive perimeter or is unsecure
-                return isAnyResultUnsecure(curativeRaoResults) || isFinalCostWorseThanPreventive(raoParameters.getObjectiveFunctionParameters().getCurativeMinObjImprovement(), firstPreventiveResult, postFirstRaoResult, curativeInstant);
+                return isAnyResultUnsecure(curativeRaoResults) || isFinalCostWorseThanPreventive(raoParameters.getObjectiveFunctionParameters().getCurativeMinObjImprovement(), firstPreventiveResult, postFirstRaoResult, lastCurativeInstant);
             default:
                 throw new OpenRaoException(String.format("Unknown curative RAO stop criterion: %s", curativeStopCriterion));
         }
@@ -559,6 +576,7 @@ public class CastorFullOptimization {
         // Get the applied network actions for every contingency perimeter
         AppliedRemedialActions appliedArasAndCras = new AppliedRemedialActions();
         Crac crac = raoInput.getCrac();
+        // TODO: see how to handle multiple curative instants here
         Instant curativeInstant = crac.getInstant(InstantKind.CURATIVE);
         if (crac.hasAutoInstant()) {
             addAppliedNetworkActionsPostContingency(crac.getInstant(InstantKind.AUTO), appliedArasAndCras, postContingencyResults);
@@ -631,19 +649,27 @@ public class CastorFullOptimization {
     private CompletableFuture<OneStateOnlyRaoResultImpl> optimizeSecondPreventivePerimeter(RaoInput raoInput, RaoParameters raoParameters, StateTree stateTree, ToolProvider toolProvider, PrePerimeterResult initialOutput, PrePerimeterResult prePerimeterResult, Set<NetworkAction> optimalNetworkActionsInFirstPreventiveRao, AppliedRemedialActions appliedCras) {
 
         OptimizationPerimeter optPerimeter;
+        Crac crac = raoInput.getCrac();
+
         if (raoParameters.getSecondPreventiveRaoParameters().getReOptimizeCurativeRangeActions()) {
-            optPerimeter = GlobalOptimizationPerimeter.build(raoInput.getCrac(), raoInput.getNetwork(), raoParameters, prePerimeterResult);
+            optPerimeter = GlobalOptimizationPerimeter.build(crac, raoInput.getNetwork(), raoParameters, prePerimeterResult);
         } else {
-            Set<RangeAction<?>> rangeActionsFor2p = new HashSet<>(raoInput.getCrac().getRangeActions());
-            removeRangeActionsExcludedFromSecondPreventive(rangeActionsFor2p, raoInput.getCrac());
-            optPerimeter = PreventiveOptimizationPerimeter.buildWithAllCnecs(raoInput.getCrac(), rangeActionsFor2p, raoInput.getNetwork(), raoParameters, prePerimeterResult);
+            Set<RangeAction<?>> rangeActionsFor2p = new HashSet<>(crac.getRangeActions());
+            removeRangeActionsExcludedFromSecondPreventive(rangeActionsFor2p, crac);
+            optPerimeter = PreventiveOptimizationPerimeter.buildWithAllCnecs(crac, rangeActionsFor2p, raoInput.getNetwork(), raoParameters, prePerimeterResult);
         }
 
         SearchTreeParameters searchTreeParameters = SearchTreeParameters.create()
-            .withConstantParametersOverAllRao(raoParameters, raoInput.getCrac())
+            .withConstantParametersOverAllRao(raoParameters, crac)
             .withTreeParameters(TreeParameters.buildForSecondPreventivePerimeter(raoParameters))
-            .withUnoptimizedCnecParameters(UnoptimizedCnecParameters.build(raoParameters.getNotOptimizedCnecsParameters(), stateTree.getOperatorsNotSharingCras(), raoInput.getCrac()))
+            .withUnoptimizedCnecParameters(UnoptimizedCnecParameters.build(raoParameters.getNotOptimizedCnecsParameters(), stateTree.getOperatorsNotSharingCras(), crac))
             .build();
+
+        // update RaUsageLimits with already applied RangeActions
+        Set<RangeAction<?>> excludedRangeActions = new HashSet<>(getRangeActionsExcludedFromSecondPreventive(crac));
+        if (!excludedRangeActions.isEmpty() && searchTreeParameters.getRaLimitationParameters().containsKey(crac.getPreventiveInstant())) {
+            searchTreeParameters.setRaLimitationsForSecondPreventive(searchTreeParameters.getRaLimitationParameters().get(crac.getPreventiveInstant()), excludedRangeActions, crac.getPreventiveInstant());
+        }
 
         if (raoParameters.getSecondPreventiveRaoParameters().getHintFromFirstPreventiveRao()) {
             // Set the optimal set of network actions decided in 1st preventive RAO as a hint for 2nd preventive RAO
@@ -656,19 +682,19 @@ public class CastorFullOptimization {
             .withInitialFlowResult(initialOutput)
             .withPrePerimeterResult(prePerimeterResult)
             .withPreOptimizationAppliedNetworkActions(appliedCras) //no remedial Action applied
-            .withObjectiveFunction(ObjectiveFunction.create().build(optPerimeter.getFlowCnecs(), optPerimeter.getLoopFlowCnecs(), initialOutput, prePerimeterResult, prePerimeterResult, raoInput.getCrac(), new HashSet<>(), raoParameters))
+            .withObjectiveFunction(ObjectiveFunction.create().build(optPerimeter.getFlowCnecs(), optPerimeter.getLoopFlowCnecs(), initialOutput, prePerimeterResult, prePerimeterResult, crac, new HashSet<>(), raoParameters))
             .withToolProvider(toolProvider)
-            .withOutageInstant(raoInput.getCrac().getOutageInstant())
+            .withOutageInstant(crac.getOutageInstant())
             .build();
 
         OptimizationResult result = new SearchTree(searchTreeInput, searchTreeParameters, true).run().join();
 
         // apply PRAs
         raoInput.getNetwork().getVariantManager().setWorkingVariant(SECOND_PREVENTIVE_SCENARIO_BEFORE_OPT);
-        result.getActivatedRangeActions(raoInput.getCrac().getPreventiveState()).forEach(rangeAction -> rangeAction.apply(raoInput.getNetwork(), result.getOptimizedSetpoint(rangeAction, raoInput.getCrac().getPreventiveState())));
+        result.getActivatedRangeActions(crac.getPreventiveState()).forEach(rangeAction -> rangeAction.apply(raoInput.getNetwork(), result.getOptimizedSetpoint(rangeAction, crac.getPreventiveState())));
         result.getActivatedNetworkActions().forEach(networkAction -> networkAction.apply(raoInput.getNetwork()));
 
-        return CompletableFuture.completedFuture(new OneStateOnlyRaoResultImpl(raoInput.getCrac().getPreventiveState(), prePerimeterResult, result, optPerimeter.getFlowCnecs()));
+        return CompletableFuture.completedFuture(new OneStateOnlyRaoResultImpl(crac.getPreventiveState(), prePerimeterResult, result, optPerimeter.getFlowCnecs()));
     }
 
     /**

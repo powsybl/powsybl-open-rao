@@ -156,7 +156,7 @@ class TopologicalActionCreationTest {
         assertEquals(0, cracCreationContext.getCrac().getRemedialActions().size());
 
         assertRaNotImported(cracCreationContext, "unavailable-topological-remedial-action", ImportStatus.NOT_FOR_RAO, "Remedial action unavailable-topological-remedial-action will not be imported because RemedialAction.normalAvailable must be 'true' to be imported");
-        assertRaNotImported(cracCreationContext, "undefined-topological-remedial-action", ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action undefined-topological-remedial-action will not be imported because there is no topology actions, no Set point actions, nor tap position action linked to that RA");
+        assertRaNotImported(cracCreationContext, "undefined-topological-remedial-action", ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action undefined-topological-remedial-action will not be imported because there is no elementary action for that RA");
         assertRaNotImported(cracCreationContext, "topological-remedial-action-with-not-existing-switch", ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK, "Remedial action topological-remedial-action-with-not-existing-switch will not be imported because network model does not contain a switch with id: unknown-switch");
         assertRaNotImported(cracCreationContext, "topological-remedial-action-with-wrong-property-reference", ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action 'topological-remedial-action-with-wrong-property-reference' will not be imported because 'TopologyAction' must have a property reference with 'http://energy.referencedata.eu/PropertyReference/Switch.open' value, but it was: 'http://energy.referencedata.eu/PropertyReference/RotatingMachine.p'");
         assertRaNotImported(cracCreationContext, "preventive-topological-remedial-action-with-contingency", ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action preventive-topological-remedial-action-with-contingency will not be imported because it is linked to a contingency but it's kind is not curative");
@@ -168,7 +168,7 @@ class TopologicalActionCreationTest {
 
         assertEquals(1, cracCreationContext.getCrac().getRemedialActions().size());
         assertNetworkActionImported(cracCreationContext, "ra2", Set.of("BBE1AA1  BBE4AA1  1"), false, 2);
-        assertRaNotImported(cracCreationContext, "ra1", ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action ra1 will not be imported because the ElementCombinationConstraintKinds that link the remedial action to the contingency http://entsoe.eu/#_co1 are different");
+        assertRaNotImported(cracCreationContext, "ra1", ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action ra1 will not be imported because the ElementCombinationConstraintKinds that link the remedial action to the contingency co1 are different");
     }
 
     @Test
@@ -178,7 +178,7 @@ class TopologicalActionCreationTest {
         assertEquals(1, cracCreationContext.getCrac().getRemedialActions().size());
         assertNetworkActionImported(cracCreationContext, "topology-action", Set.of("BBE1AA1  BBE4AA1  1", "DDE3AA1  DDE4AA1  1"), false, 1);
         cracCreationContext.getCrac().getNetworkAction("topology-action").getElementaryActions();
-        Iterator it = cracCreationContext.getCrac().getNetworkAction("topology-action").getElementaryActions().iterator();
+        Iterator<?> it = cracCreationContext.getCrac().getNetworkAction("topology-action").getElementaryActions().iterator();
         TopologicalAction ta1 = (TopologicalAction) it.next();
         TopologicalAction ta2 = (TopologicalAction) it.next();
         if ("BBE1AA1  BBE4AA1  1".equals(ta1.getNetworkElement().getName())) {
@@ -188,7 +188,7 @@ class TopologicalActionCreationTest {
             assertEquals(ActionType.OPEN, ta2.getActionType());
             assertEquals(ActionType.CLOSE, ta1.getActionType());
         }
-        assertRaNotImported(cracCreationContext, "no-static-property-range", ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action no-static-property-range will not be imported because there is no StaticPropertyRange linked to that RA");
+        assertRaNotImported(cracCreationContext, "no-static-property-range", ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action no-static-property-range will not be imported because there is no StaticPropertyRange linked to elementary action b2976651-58f9-46bf-bd0d-a721b11dbb9a");
         assertRaNotImported(cracCreationContext, "wrong-value-offset-kind", ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action wrong-value-offset-kind will not be imported because the ValueOffsetKind is http://entsoe.eu/ns/nc#ValueOffsetKind.incremental but should be none.");
         assertRaNotImported(cracCreationContext, "wrong-direction", ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action wrong-direction will not be imported because the RelativeDirectionKind is http://entsoe.eu/ns/nc#RelativeDirectionKind.up but should be absolute.");
         assertRaNotImported(cracCreationContext, "undefined-action-type", ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action undefined-action-type will not be imported because the normalValue is 2 which does not define a proper action type (open 1 / close 0)");
