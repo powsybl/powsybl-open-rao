@@ -14,7 +14,7 @@ import com.powsybl.openrao.data.cracapi.networkaction.NetworkAction;
 import com.powsybl.openrao.searchtreerao.commons.NetworkActionCombination;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.openrao.searchtreerao.searchtree.NetworkActionsCompatibilityChecker;
+import com.powsybl.openrao.util.NetworkActionsCompatibilityChecker;
 
 import java.util.*;
 import java.util.stream.Collectors;
