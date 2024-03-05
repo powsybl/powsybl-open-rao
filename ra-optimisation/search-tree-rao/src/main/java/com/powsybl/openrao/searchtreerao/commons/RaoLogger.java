@@ -189,10 +189,8 @@ public final class RaoLogger {
             ));
             contingencyScenario.getCurativePerimeters()
                 .forEach(
-                    curativePerimeter -> curativePerimeter.getAllStates().forEach(
-                        curativeState -> mostLimitingElementsAndMargins.putAll(
-                            getMostLimitingElementsAndMargins(contingencyOptimizationResults.get(curativeState), Set.of(curativeState), unit, relativePositiveMargins, numberOfLoggedElements)
-                        )
+                    curativePerimeter -> mostLimitingElementsAndMargins.putAll(
+                        getMostLimitingElementsAndMargins(contingencyOptimizationResults.get(curativePerimeter.getRaOptimisationState()), Set.of(curativePerimeter.getRaOptimisationState()), unit, relativePositiveMargins, numberOfLoggedElements)
                     )
                 );
         });
