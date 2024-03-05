@@ -381,7 +381,7 @@ public class CastorFullOptimization {
 
     private PrePerimeterSensitivityAnalysis getPreCurativePerimeterSensitivityAnalysis(Crac crac, Perimeter curativePerimeter, ToolProvider toolProvider) {
         Set<FlowCnec> flowCnecsInSensi = crac.getFlowCnecs(curativePerimeter.getRaOptimisationState());
-        Set<RangeAction<?>> rangeActionsInSensi = new HashSet<>(crac.getRangeActions(curativePerimeter.getRaOptimisationState()));
+        Set<RangeAction<?>> rangeActionsInSensi = new HashSet<>(crac.getPotentiallyAvailableRangeActions(curativePerimeter.getRaOptimisationState()));
         for (State curativeState : curativePerimeter.getAllStates()) {
             flowCnecsInSensi.addAll(crac.getFlowCnecs(curativeState));
         }
