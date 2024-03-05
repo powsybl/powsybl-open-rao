@@ -70,7 +70,6 @@ public class VoltageMonitoring {
         if (crac.getVoltageCnecs().isEmpty()) {
             BUSINESS_WARNS.warn("No VoltageCnecs defined.");
             stateSpecificResults.add(new VoltageMonitoringResult(Collections.emptyMap(), Collections.emptyMap(), VoltageMonitoringResult.Status.SECURE));
-            BUSINESS_LOGS.info(VOLTAGE_MONITORING_END);
             return assembleVoltageMonitoringResults();
         }
 
