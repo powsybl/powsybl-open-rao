@@ -9,9 +9,14 @@ package com.powsybl.openrao.util;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.VariantManagerConstants;
 import com.powsybl.iidm.serde.NetworkSerDe;
+import com.powsybl.openrao.commons.OpenRaoException;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ForkJoinTask;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.TECHNICAL_LOGS;
 
@@ -32,9 +37,9 @@ public class MultipleNetworkPool extends AbstractNetworkPool {
     @Override
     protected void cleanVariants(Network networkClone) {
         List<String> variantsToBeRemoved = networkClone.getVariantManager().getVariantIds().stream()
-                .filter(variantId -> !variantId.equals(VariantManagerConstants.INITIAL_VARIANT_ID))
-                .filter(variantId -> !variantId.equals(stateSaveVariant))
-                .toList();
+            .filter(variantId -> !variantId.equals(VariantManagerConstants.INITIAL_VARIANT_ID))
+            .filter(variantId -> !variantId.equals(stateSaveVariant))
+            .toList();
         variantsToBeRemoved.forEach(variantId -> networkClone.getVariantManager().removeVariant(variantId));
     }
 
@@ -58,18 +63,38 @@ public class MultipleNetworkPool extends AbstractNetworkPool {
         String initialVariant = network.getVariantManager().getWorkingVariantId();
         network.getVariantManager().setWorkingVariant(targetVariant);
 
-        while (networkNumberOfClones < requiredClones) {
-            TECHNICAL_LOGS.debug("Copy n°{}", networkNumberOfClones + 1);
-            Network copy = NetworkSerDe.copy(network);
-            // The initial network working variant is VariantManagerConstants.INITIAL_VARIANT_ID
-            // in cloned network, so we need to copy it again.
-            copy.getVariantManager().cloneVariant(VariantManagerConstants.INITIAL_VARIANT_ID, Arrays.asList(stateSaveVariant, workingVariant), true);
-            boolean isSuccess = networksQueue.offer(copy);
-            if (!isSuccess) {
-                throw new AssertionError(String.format("Cannot offer copy n°'%d' in pool. Should not happen", networkNumberOfClones + 1));
+        AtomicInteger remainingClones = new AtomicInteger(requiredClones);
+        List<ForkJoinTask<Network>> tasks = new ArrayList<>();
+        try {
+            for (int i = networkNumberOfClones; i < requiredClones; i++) {
+                int finalI = i;
+                tasks.add(this.submit(() -> createNetworkCopy(finalI, remainingClones)));
             }
-            networkNumberOfClones++;
+            for (ForkJoinTask<Network> task : tasks) {
+                try {
+                    boolean isSuccess = networksQueue.offer(task.get());
+                    if (!isSuccess) {
+                        throw new OpenRaoException(String.format("Cannot offer copy n°'%d' in pool. Should not happen", networkNumberOfClones + 1));
+                    } else {
+                        networkNumberOfClones++;
+                    }
+                } catch (ExecutionException e) {
+                    throw new OpenRaoException(e);
+                }
+            }
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
         }
         network.getVariantManager().setWorkingVariant(initialVariant);
+    }
+
+    private Network createNetworkCopy(int finalI, AtomicInteger remainingClones) {
+        TECHNICAL_LOGS.debug("Copy n°{}", finalI + 1);
+        Network copy = NetworkSerDe.copy(network);
+        // The initial network working variant is VariantManagerConstants.INITIAL_VARIANT_ID
+        // in cloned network, so we need to copy it again.
+        copy.getVariantManager().cloneVariant(VariantManagerConstants.INITIAL_VARIANT_ID, Arrays.asList(stateSaveVariant, workingVariant), true);
+        remainingClones.decrementAndGet();
+        return copy;
     }
 }
