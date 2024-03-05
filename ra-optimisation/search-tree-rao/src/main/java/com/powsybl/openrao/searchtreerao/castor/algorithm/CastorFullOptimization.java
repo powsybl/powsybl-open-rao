@@ -12,7 +12,6 @@ import com.powsybl.openrao.data.cracapi.*;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
 import com.powsybl.openrao.data.cracapi.networkaction.NetworkAction;
 import com.powsybl.openrao.data.cracapi.rangeaction.RangeAction;
-import com.powsybl.openrao.data.cracapi.usagerule.UsageMethod;
 import com.powsybl.openrao.data.raoresultapi.ComputationStatus;
 import com.powsybl.openrao.data.raoresultapi.OptimizationStepsExecuted;
 import com.powsybl.openrao.data.raoresultapi.RaoResult;
@@ -385,7 +384,6 @@ public class CastorFullOptimization {
         Set<RangeAction<?>> rangeActionsInSensi = new HashSet<>(crac.getRangeActions(curativePerimeter.getRaOptimisationState()));
         for (State curativeState : curativePerimeter.getAllStates()) {
             flowCnecsInSensi.addAll(crac.getFlowCnecs(curativeState));
-            rangeActionsInSensi.addAll(crac.getRangeActions(curativeState, UsageMethod.AVAILABLE));
         }
         return new PrePerimeterSensitivityAnalysis(flowCnecsInSensi, rangeActionsInSensi, raoParameters, toolProvider);
     }
@@ -402,7 +400,7 @@ public class CastorFullOptimization {
         State curativeState = curativePerimeter.getRaOptimisationState();
         TECHNICAL_LOGS.info("Optimizing curative state {}.", curativeState.getId());
 
-        OptimizationPerimeter optPerimeter = CurativeOptimizationPerimeter.buildForStates(curativeState, curativePerimeter.getAllStates(), crac, crac.getRangeActions(), network, raoParameters, prePerimeterSensitivityOutput);
+        OptimizationPerimeter optPerimeter = CurativeOptimizationPerimeter.buildForStates(curativeState, curativePerimeter.getAllStates(), crac, network, raoParameters, prePerimeterSensitivityOutput);
 
         SearchTreeParameters searchTreeParameters = SearchTreeParameters.create()
             .withConstantParametersOverAllRao(raoParameters, crac)

@@ -62,7 +62,9 @@ public class CurativeOptimizationPerimeter extends AbstractOptimizationPerimeter
             availableRangeActions);
     }
 
-    public static CurativeOptimizationPerimeter buildForStates(State curativeState, Set<State> allMonitoredStates, Crac crac, Set<RangeAction<?>> rangeActions, Network network, RaoParameters raoParameters, PrePerimeterResult prePerimeterResult) {
+    public static CurativeOptimizationPerimeter buildForStates(State curativeState, Set<State> allMonitoredStates, Crac crac, Network network, RaoParameters raoParameters, PrePerimeterResult prePerimeterResult) {
+        Set<RangeAction<?>> rangeActions = crac.getRangeActions();
+
         Set<State> filteredStates = allMonitoredStates.stream()
             .filter(state -> !prePerimeterResult.getSensitivityStatus(state).equals(ComputationStatus.FAILURE))
             .collect(Collectors.toSet());
