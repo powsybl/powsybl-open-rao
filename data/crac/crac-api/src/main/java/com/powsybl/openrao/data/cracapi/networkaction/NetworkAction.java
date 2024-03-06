@@ -50,5 +50,14 @@ public interface NetworkAction extends RemedialAction<NetworkAction> {
      * @param otherNetworkAction the other network action to check compatibility with
      * @return true if both network actions can be applied without any conflictual behaviour
      */
-    boolean isCompatibleWith(NetworkAction otherNetworkAction);
+    default boolean isCompatibleWith(NetworkAction otherNetworkAction) {
+        for (ElementaryAction elementaryAction1 : getElementaryActions()) {
+            for (ElementaryAction elementaryAction2 : otherNetworkAction.getElementaryActions()) {
+                if (!elementaryAction1.isCompatibleWith(elementaryAction2)) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
 }
