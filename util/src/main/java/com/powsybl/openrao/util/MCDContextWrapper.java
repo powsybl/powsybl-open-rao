@@ -40,8 +40,6 @@ public final class MCDContextWrapper {
             setMDCContext(contextMap);
             try {
                 return task.call();
-            } catch (Exception e) {
-                throw new RuntimeException(e);
             } finally {
                 // once the task is complete, clear MDC
                 MDC.clear();
