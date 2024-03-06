@@ -21,5 +21,8 @@ jobs:
               && unzip -j ${PWD}/or-tools.jar -d ${PWD}/farao-dep/runtime/ortools/lib/ ortools-linux-x86-64/* \
               && rm -f ${PWD}/or-tools.jar
 
+      - name: Install OpenRAO with Maven
+        run: mvn --batch-mode install -DskipTests=true
+
       - name: Run cucumber tests with Maven
         run: export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${PWD}/farao-dep/runtime/ortools/lib && mvn test -pl tests
