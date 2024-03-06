@@ -272,11 +272,7 @@ public final class SearchTreeBloomer {
     Map<NetworkActionCombination, Boolean> removeIncompatibleCombinations(Map<NetworkActionCombination, Boolean> naCombinations, Leaf fromLeaf) {
         return naCombinations.keySet().stream()
             .filter(naCombination -> naCombination.getNetworkActionSet().stream().allMatch(networkAction -> fromLeaf.getActivatedNetworkActions().stream().allMatch(networkAction::isCompatibleWith)))
-            .filter(naCombination -> naCombination.getNetworkActionSet().stream().anyMatch(networkAction -> fromLeaf.getActivatedNetworkActions().stream().noneMatch(appliedNetworkAction -> networkAction.getElementaryActions().equals(appliedNetworkAction.getElementaryActions()))))
             .collect(Collectors.toMap(naCombination -> naCombination, naCombinations::get));
-        // return naCombinations.keySet().stream()
-        //     .filter(naCombination -> NetworkActionsCompatibilityChecker.filterOutIncompatibleRemedialActions(fromLeaf.getActivatedNetworkActions(), naCombination.getNetworkActionSet()).size() == naCombination.getNetworkActionSet().size())
-        //     .collect(Collectors.toMap(naCombination -> naCombination, naCombinations::get));
     }
 
     /**

@@ -676,19 +676,13 @@ class SearchTreeBloomerTest {
         NetworkActionCombination networkActionCombination1 = new NetworkActionCombination(Set.of(availableRemedialAction1, availableRemedialAction2));
         NetworkActionCombination networkActionCombination2 = new NetworkActionCombination(Set.of(availableRemedialAction3));
         NetworkActionCombination networkActionCombination3 = new NetworkActionCombination(Set.of(availableRemedialAction4));
-        NetworkActionCombination networkActionCombination4 = new NetworkActionCombination(Set.of(appliedRemedialAction1, availableRemedialAction4));
-        NetworkActionCombination networkActionCombination5 = new NetworkActionCombination(Set.of(appliedRemedialAction1, appliedRemedialAction2));
-        NetworkActionCombination networkActionCombination6 = new NetworkActionCombination(Set.of(availableRemedialAction3, appliedRemedialAction2));
-        NetworkActionCombination networkActionCombination7 = new NetworkActionCombination(Set.of(availableRemedialAction2, availableRemedialAction3));
+        NetworkActionCombination networkActionCombination4 = new NetworkActionCombination(Set.of(availableRemedialAction2, availableRemedialAction3));
 
         Map<NetworkActionCombination, Boolean> naCombinations = Map.of(
             networkActionCombination1, false,
             networkActionCombination2, false,
             networkActionCombination3, true,
-            networkActionCombination4, false,
-            networkActionCombination5, false,
-            networkActionCombination6, true,
-            networkActionCombination7, true
+            networkActionCombination4, false
         );
 
         Leaf previousLeaf = Mockito.mock(Leaf.class);
@@ -697,7 +691,7 @@ class SearchTreeBloomerTest {
         SearchTreeBloomer bloomer = new SearchTreeBloomer(network, Integer.MAX_VALUE, 2, null, null, false, 0, new ArrayList<>(), pState);
 
         assertEquals(
-            Map.of(networkActionCombination2, false, networkActionCombination3, true, networkActionCombination4, false, networkActionCombination6, true, networkActionCombination7, true),
+            Map.of(networkActionCombination2, false, networkActionCombination3, true, networkActionCombination4, false),
             bloomer.removeIncompatibleCombinations(naCombinations, previousLeaf)
         );
     }
