@@ -177,12 +177,14 @@ class SearchTreeParametersTest {
         assertEquals(Map.of("FR", 2, "BE", 1), preventiveRaUsageLimits.getMaxTopoPerTso());
         assertEquals(Map.of("FR", 4, "BE", 1), preventiveRaUsageLimits.getMaxPstPerTso());
         assertEquals(Map.of("FR", 4, "BE", 1), preventiveRaUsageLimits.getMaxRaPerTso());
+        assertEquals(0, preventiveRaUsageLimits.getMaxTso());
 
         RaUsageLimits curative1RaUsageLimits = parameters.getRaLimitationParameters().get(crac.getInstant("curative1"));
         assertEquals(0, curative1RaUsageLimits.getMaxRa());
         assertEquals(Map.of("FR", 0, "BE", 0), curative1RaUsageLimits.getMaxTopoPerTso());
         assertEquals(Map.of("FR", 1, "BE", 0), curative1RaUsageLimits.getMaxPstPerTso());
         assertEquals(Map.of("FR", 1, "BE", 0), curative1RaUsageLimits.getMaxRaPerTso());
+        assertEquals(0, curative1RaUsageLimits.getMaxTso());
 
         // results from curative1 should impact limits for curative2
         RaUsageLimits curative2RaUsageLimits = parameters.getRaLimitationParameters().get(crac.getInstant("curative2"));
@@ -190,6 +192,7 @@ class SearchTreeParametersTest {
         assertEquals(Map.of("FR", 2, "BE", 2), curative2RaUsageLimits.getMaxTopoPerTso());
         assertEquals(Map.of("FR", 4, "BE", 4), curative2RaUsageLimits.getMaxPstPerTso());
         assertEquals(Map.of("FR", 5, "BE", 4), curative2RaUsageLimits.getMaxRaPerTso());
+        assertEquals(1, curative2RaUsageLimits.getMaxTso());
     }
 
     /*
