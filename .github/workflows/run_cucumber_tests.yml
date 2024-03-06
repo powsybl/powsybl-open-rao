@@ -2,14 +2,23 @@ name: Cucumber Tests
 
 on: [push]
 
+env:
+  LD_LIBRARY_PATH: /home/farao/farao-dep/runtime/ortools/lib
+
 jobs:
-  container-test-job:
+  build:
+    name: Run Cucumber Tests
     runs-on: ubuntu-latest
-    container: farao/farao-computation-base:1.7.0
 
     steps:
       - name: Checkout sources
         uses: actions/checkout@v1
+
+      - name: Install OR-Tools
+        run: curl -sSL https://github.com/google/or-tools/releases/download/v9.5/ortools-linux-x86-64-9.5.2237.jar --output /tmp/or-tools.jar \
+              && mkdir -p /home/farao/farao-dep/runtime/ortools/lib/ \
+              && unzip -j /tmp/or-tools.jar -d /home/farao/farao-dep/runtime/ortools/lib/ ortools-linux-x86-64/* \
+              && rm -f /tmp/or-tools.jar
 
       - name: Run cucumber tests with Maven
         run: mvn test -pl tests
