@@ -41,18 +41,20 @@ public class PreventiveOptimizationPerimeter extends AbstractOptimizationPerimet
     }
 
     public static PreventiveOptimizationPerimeter buildFromBasecaseScenario(Perimeter preventivePerimeter, Crac crac, Network network, RaoParameters raoParameters, PrePerimeterResult prePerimeterResult) {
-        return buildForStates(preventivePerimeter.getRaOptimisationState(), preventivePerimeter.getAllStates(), crac, crac.getRangeActions(), network, raoParameters, prePerimeterResult);
+        return buildForStates(preventivePerimeter.getRaOptimisationState(), preventivePerimeter.getAllStates(), crac, network, raoParameters, prePerimeterResult);
     }
 
     public static PreventiveOptimizationPerimeter buildWithPreventiveCnecsOnly(Crac crac, Network network, RaoParameters raoParameters, PrePerimeterResult prePerimeterResult) {
-        return buildForStates(crac.getPreventiveState(), Collections.singleton(crac.getPreventiveState()), crac, crac.getRangeActions(), network, raoParameters, prePerimeterResult);
+        return buildForStates(crac.getPreventiveState(), Collections.singleton(crac.getPreventiveState()), crac, network, raoParameters, prePerimeterResult);
     }
 
     public static PreventiveOptimizationPerimeter buildWithAllCnecs(Crac crac, Set<RangeAction<?>> rangeActions, Network network, RaoParameters raoParameters, PrePerimeterResult prePerimeterResult) {
-        return buildForStates(crac.getPreventiveState(), crac.getStates(), crac, rangeActions, network, raoParameters, prePerimeterResult);
+        return buildForStates(crac.getPreventiveState(), crac.getStates(), crac, network, raoParameters, prePerimeterResult);
     }
 
-    public static PreventiveOptimizationPerimeter buildForStates(State preventiveState, Set<State> allMonitoredStates, Crac crac, Set<RangeAction<?>> rangeActions, Network network, RaoParameters raoParameters, PrePerimeterResult prePerimeterResult) {
+    public static PreventiveOptimizationPerimeter buildForStates(State preventiveState, Set<State> allMonitoredStates, Crac crac, Network network, RaoParameters raoParameters, PrePerimeterResult prePerimeterResult) {
+        Set<RangeAction<?>> rangeActions = crac.getRangeActions();
+
         Set<State> filteredStates = allMonitoredStates.stream()
             .filter(state -> !prePerimeterResult.getSensitivityStatus(state).equals(ComputationStatus.FAILURE))
             .collect(Collectors.toSet());
