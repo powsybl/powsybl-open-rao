@@ -17,4 +17,4 @@ jobs:
           java-version: 17
 
       - name: Run cucumber tests with Maven
-        run: mvn test -pl tests -am
+        run: mvn test -pl tests
