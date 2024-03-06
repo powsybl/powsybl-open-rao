@@ -9,6 +9,7 @@ package com.powsybl.openrao.searchtreerao.castor.algorithm;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.RandomizedString;
 import com.powsybl.openrao.data.cracapi.*;
+import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
 import com.powsybl.openrao.data.cracapi.networkaction.NetworkAction;
 import com.powsybl.openrao.data.cracapi.rangeaction.RangeAction;
 import com.powsybl.openrao.data.raoresultapi.ComputationStatus;
@@ -113,7 +114,9 @@ public class CastorFullOptimization {
         network.getVariantManager().setWorkingVariant(PREVENTIVE_SCENARIO);
 
         if (stateTree.getContingencyScenarios().isEmpty()) {
-            return CompletableFuture.completedFuture(optimizePreventivePerimeter(raoInput, raoParameters, stateTree, toolProvider, initialOutput));
+            CompletableFuture<RaoResult> result = CompletableFuture.completedFuture(optimizePreventivePerimeter(raoInput, raoParameters, stateTree, toolProvider, initialOutput));
+            BUSINESS_LOGS.info("----- Preventive perimeter optimization [end]");
+            return result;
         }
 
         PerimeterResult preventiveResult = optimizePreventivePerimeter(raoInput, raoParameters, stateTree, toolProvider, initialOutput).getPerimeterResult(raoInput.getCrac().getPreventiveState());
@@ -352,23 +355,23 @@ public class CastorFullOptimization {
             curativeStates.forEach(curativeState -> contingencyScenarioResults.put(curativeState, new SkippedOptimizationResultImpl(curativeState, new HashSet<>(), new HashSet<>(), ComputationStatus.FAILURE, sensitivityFailureOvercost)));
         } else if (!automatonsOnly) {
             boolean allPreviousPerimetersSucceded = true;
+            PrePerimeterResult previousPerimeterResult = preCurativeResult;
             // Optimize curative instant
             Map<State, Set<OptimizationResult>> resultsPerState = new HashMap<>();
             for (Perimeter curativePerimeter : optimizedScenario.getCurativePerimeters()) {
-                Set<OptimizationResult> optimizedStatesResults = new HashSet<>();
-                for (State curativeState : curativePerimeter.getAllStates()) {
-                    if (allPreviousPerimetersSucceded) {
-                        OptimizationResult curativeResult = optimizeCurativeState(curativeState, crac, networkClone,
-                            raoParameters, stateTree, toolProvider, curativeTreeParameters, initialSensitivityOutput, preCurativeResult, resultsPerState);
-                        allPreviousPerimetersSucceded = curativeResult.getSensitivityStatus() == DEFAULT;
-                        if (allPreviousPerimetersSucceded) {
-                            optimizedStatesResults.add(curativeResult);
-                        }
-                        contingencyScenarioResults.put(curativeState, curativeResult);
-                        applyRemedialActions(networkClone, curativeResult, curativeState);
-                    } else {
-                        contingencyScenarioResults.put(curativeState, new SkippedOptimizationResultImpl(curativeState, new HashSet<>(), new HashSet<>(), ComputationStatus.FAILURE, sensitivityFailureOvercost));
-                    }
+                State curativeState = curativePerimeter.getRaOptimisationState();
+                if (previousPerimeterResult == null) {
+                    previousPerimeterResult = getPreCurativePerimeterSensitivityAnalysis(crac, curativePerimeter, toolProvider).runBasedOnInitialResults(networkClone, raoInput.getCrac(), previousPerimeterResult, previousPerimeterResult, stateTree.getOperatorsNotSharingCras(), null);
+                }
+                if (allPreviousPerimetersSucceded) {
+                    OptimizationResult curativeResult = optimizeCurativePerimeter(curativePerimeter, crac, networkClone,
+                        raoParameters, stateTree, toolProvider, curativeTreeParameters, initialSensitivityOutput, previousPerimeterResult);
+                    allPreviousPerimetersSucceded = curativeResult.getSensitivityStatus() == DEFAULT;
+                    contingencyScenarioResults.put(curativeState, curativeResult);
+                    applyRemedialActions(networkClone, curativeResult, curativeState);
+                    previousPerimeterResult = null;
+                } else {
+                    contingencyScenarioResults.put(curativeState, new SkippedOptimizationResultImpl(curativeState, new HashSet<>(), new HashSet<>(), ComputationStatus.FAILURE, sensitivityFailureOvercost));
                 }
                 resultsPerState.put(curativePerimeter.getRaOptimisationState(), optimizedStatesResults);
             }
@@ -379,19 +382,28 @@ public class CastorFullOptimization {
         return null;
     }
 
-    private OptimizationResult optimizeCurativeState(State curativeState,
-                                                     Crac crac,
-                                                     Network network,
-                                                     RaoParameters raoParameters,
-                                                     StateTree stateTree,
-                                                     ToolProvider toolProvider,
-                                                     TreeParameters curativeTreeParameters,
-                                                     PrePerimeterResult initialSensitivityOutput,
-                                                     PrePerimeterResult prePerimeterSensitivityOutput,
-                                                     Map<State, Set<OptimizationResult>> resultsPerInstant) {
+    private PrePerimeterSensitivityAnalysis getPreCurativePerimeterSensitivityAnalysis(Crac crac, Perimeter curativePerimeter, ToolProvider toolProvider) {
+        Set<FlowCnec> flowCnecsInSensi = crac.getFlowCnecs(curativePerimeter.getRaOptimisationState());
+        Set<RangeAction<?>> rangeActionsInSensi = new HashSet<>(crac.getPotentiallyAvailableRangeActions(curativePerimeter.getRaOptimisationState()));
+        for (State curativeState : curativePerimeter.getAllStates()) {
+            flowCnecsInSensi.addAll(crac.getFlowCnecs(curativeState));
+        }
+        return new PrePerimeterSensitivityAnalysis(flowCnecsInSensi, rangeActionsInSensi, raoParameters, toolProvider);
+    }
+
+    private OptimizationResult optimizeCurativePerimeter(Perimeter curativePerimeter,
+                                                         Crac crac,
+                                                         Network network,
+                                                         RaoParameters raoParameters,
+                                                         StateTree stateTree,
+                                                         ToolProvider toolProvider,
+                                                         TreeParameters curativeTreeParameters,
+                                                         PrePerimeterResult initialSensitivityOutput,
+                                                         PrePerimeterResult prePerimeterSensitivityOutput) {
+        State curativeState = curativePerimeter.getRaOptimisationState();
         TECHNICAL_LOGS.info("Optimizing curative state {}.", curativeState.getId());
 
-        OptimizationPerimeter optPerimeter = CurativeOptimizationPerimeter.build(curativeState, crac, network, raoParameters, prePerimeterSensitivityOutput);
+        OptimizationPerimeter optPerimeter = CurativeOptimizationPerimeter.buildForStates(curativeState, curativePerimeter.getAllStates(), crac, network, raoParameters, prePerimeterSensitivityOutput);
 
         SearchTreeParameters searchTreeParameters = SearchTreeParameters.create()
             .withConstantParametersOverAllRao(raoParameters, crac)

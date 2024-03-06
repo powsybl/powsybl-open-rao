@@ -210,16 +210,16 @@ public class SearchTree {
 
         TreeMap<NetworkActionCombination, Boolean> naCombinationsSorted = new TreeMap<>(this::deterministicNetworkActionCombinationComparison);
         naCombinationsSorted.putAll(bloomer.bloom(optimalLeaf, input.getOptimizationPerimeter().getNetworkActions()));
-        int amountOfCombinations = naCombinationsSorted.size();
+        int numberOfCombinations = naCombinationsSorted.size();
 
-        networkPool.initClones(amountOfCombinations);
+        networkPool.initClones(numberOfCombinations);
         if (naCombinationsSorted.isEmpty()) {
             TECHNICAL_LOGS.info("No more network action available");
             return;
         } else {
-            TECHNICAL_LOGS.info("Leaves to evaluate: {}", amountOfCombinations);
+            TECHNICAL_LOGS.info("Leaves to evaluate: {}", numberOfCombinations);
         }
-        AtomicInteger remainingLeaves = new AtomicInteger(amountOfCombinations);
+        AtomicInteger remainingLeaves = new AtomicInteger(numberOfCombinations);
         List<ForkJoinTask<Object>> tasks = naCombinationsSorted.keySet().stream().map(naCombination ->
             networkPool.submit(() -> optimizeOneLeaf(networkPool, naCombination, naCombinationsSorted, remainingLeaves))
         ).toList();
