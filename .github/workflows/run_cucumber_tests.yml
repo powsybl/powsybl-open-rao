@@ -11,10 +11,13 @@ jobs:
       - name: Checkout sources
         uses: actions/checkout@v1
 
-      - name: Install OR-Tools
+      - name: Download OR-Tools
         run: |
             curl https://github.com/google/or-tools/releases/download/v9.5/ortools-linux-x86-64-9.5.2237.jar --output ${PWD}/or-tools.jar \
-              && mkdir -p ${PWD}/farao-dep/runtime/ortools/lib/ \
+
+      - name: Install OR-Tools
+        run: |
+              mkdir -p ${PWD}/farao-dep/runtime/ortools/lib/ \
               && unzip -j ${PWD}/or-tools.jar -d ${PWD}/farao-dep/runtime/ortools/lib/ ortools-linux-x86-64/* \
               && rm -f ${PWD}/or-tools.jar
 
