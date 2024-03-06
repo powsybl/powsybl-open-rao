@@ -13,7 +13,7 @@ jobs:
 
       - name: Download OR-Tools
         run: |
-            curl https://github.com/google/or-tools/releases/download/v9.5/ortools-linux-x86-64-9.5.2237.jar --output ${PWD}/or-tools.jar \
+            curl -sSL https://github.com/google/or-tools/releases/download/v9.5/ortools-linux-x86-64-9.5.2237.jar --output ${PWD}/or-tools.jar
 
       - name: Install OR-Tools
         run: |
