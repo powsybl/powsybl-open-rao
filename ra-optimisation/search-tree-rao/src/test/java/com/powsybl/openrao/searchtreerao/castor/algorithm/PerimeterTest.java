@@ -19,7 +19,6 @@ import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
@@ -55,7 +54,6 @@ class PerimeterTest {
     void testConstructor() {
         Perimeter preventivePerimeter = new Perimeter(basecaseState, Set.of(otherState1, otherState2));
         assertEquals(basecaseState, preventivePerimeter.getRaOptimisationState());
-        assertEquals(Set.of(otherState1, otherState2), preventivePerimeter.getCnecStates());
         assertEquals(Set.of(basecaseState, otherState1, otherState2), preventivePerimeter.getAllStates());
     }
 
@@ -63,12 +61,10 @@ class PerimeterTest {
     void testConstructor2() {
         Perimeter preventivePerimeter = new Perimeter(basecaseState, Set.of());
         assertEquals(basecaseState, preventivePerimeter.getRaOptimisationState());
-        assertEquals(Set.of(), preventivePerimeter.getCnecStates());
         assertEquals(Set.of(basecaseState), preventivePerimeter.getAllStates());
 
         preventivePerimeter = new Perimeter(basecaseState, null);
         assertEquals(basecaseState, preventivePerimeter.getRaOptimisationState());
-        assertEquals(Set.of(), preventivePerimeter.getCnecStates());
         assertEquals(Set.of(basecaseState), preventivePerimeter.getAllStates());
     }
 
@@ -89,25 +85,25 @@ class PerimeterTest {
     @Test
     void testAddOtherState() {
         Perimeter preventivePerimeter = new Perimeter(basecaseState, null);
-        assertEquals(Set.of(), preventivePerimeter.getCnecStates());
+        assertEquals(Set.of(basecaseState), preventivePerimeter.getAllStates());
         preventivePerimeter.addOtherState(otherState1);
-        assertEquals(Set.of(otherState1), preventivePerimeter.getCnecStates());
+        assertEquals(Set.of(basecaseState, otherState1), preventivePerimeter.getAllStates());
         preventivePerimeter.addOtherState(otherState2);
-        assertEquals(Set.of(otherState1, otherState2), preventivePerimeter.getCnecStates());
+        assertEquals(Set.of(basecaseState, otherState1, otherState2), preventivePerimeter.getAllStates());
         preventivePerimeter.addOtherState(otherState2);
-        assertEquals(Set.of(otherState1, otherState2), preventivePerimeter.getCnecStates());
+        assertEquals(Set.of(basecaseState, otherState1, otherState2), preventivePerimeter.getAllStates());
     }
 
     @Test
     void testAddRemedialActionStateToCnecsStates1() {
         Perimeter preventivePerimeter = new Perimeter(basecaseState, new HashSet<>());
         preventivePerimeter.addOtherState(basecaseState);
-        assertTrue(preventivePerimeter.getCnecStates().isEmpty());
+        assertEquals(Set.of(basecaseState), preventivePerimeter.getAllStates());
     }
 
     @Test
     void testAddRemedialActionStateToCnecsStates2() {
         Perimeter preventivePerimeter = new Perimeter(basecaseState, Set.of(basecaseState));
-        assertTrue(preventivePerimeter.getCnecStates().isEmpty());
+        assertEquals(Set.of(basecaseState), preventivePerimeter.getAllStates());
     }
 }
