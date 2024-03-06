@@ -5,7 +5,7 @@ on: [push]
 jobs:
   container-test-job:
     runs-on: ubuntu-latest
-    container: node:18
+    container: farao/farao-computation-base:1.7.0
 
     steps:
       - name: Checkout sources
@@ -17,4 +17,4 @@ jobs:
           java-version: 17
 
       - name: Run cucumber tests with Maven
-        run: mvn test -pl tests -am
+        run: mvn test -pl tests
