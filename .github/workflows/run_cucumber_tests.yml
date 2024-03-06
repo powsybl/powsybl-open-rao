@@ -13,10 +13,10 @@ jobs:
 
       - name: Install OR-Tools
         run: |
-            curl https://github.com/google/or-tools/releases/download/v9.5/ortools-linux-x86-64-9.5.2237.jar --output /tmp/or-tools.jar \
+            curl https://github.com/google/or-tools/releases/download/v9.5/ortools-linux-x86-64-9.5.2237.jar --output ${PWD}/or-tools.jar \
               && mkdir -p ${PWD}/farao-dep/runtime/ortools/lib/ \
-              && unzip -j /tmp/or-tools.jar -d ${PWD}/farao-dep/runtime/ortools/lib/ ortools-linux-x86-64/* \
-              && rm -f ${PWD}/tmp/or-tools.jar
+              && unzip -j ${PWD}/or-tools.jar -d ${PWD}/farao-dep/runtime/ortools/lib/ ortools-linux-x86-64/* \
+              && rm -f ${PWD}/or-tools.jar
 
       - name: Run cucumber tests with Maven
         run: export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${PWD}/farao-dep/runtime/ortools/lib && mvn test -pl tests
