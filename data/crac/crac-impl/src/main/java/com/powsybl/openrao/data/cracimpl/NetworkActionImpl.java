@@ -59,6 +59,18 @@ public class NetworkActionImpl extends AbstractRemedialAction<NetworkAction> imp
     }
 
     @Override
+    public boolean isCompatibleWith(NetworkAction otherNetworkAction) {
+        for (ElementaryAction elementaryAction1 : elementaryActions) {
+            for (ElementaryAction elementaryAction2 : otherNetworkAction.getElementaryActions()) {
+                if (!elementaryAction1.isCompatibleWith(elementaryAction2)) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    @Override
     public boolean equals(Object o) {
         if (this == o) {
             return true;
