@@ -89,6 +89,7 @@
         <!-- Dependencies versions -->
         <apache.commons.lang3>3.13.0</apache.commons.lang3>
         <commons-io.version>2.11.0</commons-io.version>
+        <cucumber.bom.version>7.15.0</cucumber.bom.version>
         <google.autoservice.version>1.1.1</google.autoservice.version>
         <google.guava.version>32.0.0-jre</google.guava.version>
         <google.ortools.version>9.5.2237</google.ortools.version>
@@ -99,6 +100,7 @@
         <jaxb-runtime.version>2.4.0-b180830.0438</jaxb-runtime.version>
         <jimfs.version>1.1</jimfs.version>
         <junit-jupiter.version>5.10.0</junit-jupiter.version>
+        <junit.bom.version>5.10.0</junit.bom.version>
         <logback.version>1.2.3</logback.version>
         <lombok.version>1.18.28</lombok.version>
         <maven.buildnumber.version>1.4</maven.buildnumber.version>
@@ -359,14 +361,14 @@
             <dependency>
                 <groupId>io.cucumber</groupId>
                 <artifactId>cucumber-bom</artifactId>
-                <version>7.15.0</version>
+                <version>${cucumber.bom.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
             <dependency>
                 <groupId>org.junit</groupId>
                 <artifactId>junit-bom</artifactId>
-                <version>5.10.1</version>
+                <version>${junit.bom.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
