@@ -137,17 +137,17 @@ public class SearchTreeParameters {
         this.raLimitationParameters.put(preventiveInstant, raUsageLimits);
     }
 
-    public void decreaseRemedialActionUsageLimits(Map<State, Set<OptimizationResult>> resultsPerInstant) {
-        resultsPerInstant.keySet().forEach(optimizedState ->
+    public void decreaseRemedialActionUsageLimits(Map<State, OptimizationResult> resultsPerOptimizationState) {
+        resultsPerOptimizationState.forEach((optimizedState, result) ->
             raLimitationParameters.keySet().forEach(
                 otherInstant -> {
                     // Cumulative behaviour of constraints only applies to instants of the same kind
                     if (!otherInstant.comesBefore(optimizedState.getInstant()) && optimizedState.getInstant().getKind().equals(otherInstant.getKind())) {
                         RaUsageLimits raUsageLimits = raLimitationParameters.get(otherInstant);
-                        int decreasedMaxRa = decreaseMaxRemedialAction(raUsageLimits, optimizedState, resultsPerInstant.get(optimizedState));
-                        Map<String, Integer> decreasedMaxRaPerTso = decreaseMaxRemedialActionPerTso(raUsageLimits, optimizedState, resultsPerInstant.get(optimizedState));
-                        Map<String, Integer> decreasedMaxTopoPerTso = decreaseMaxTopoPerTso(raUsageLimits, resultsPerInstant.get(optimizedState), decreasedMaxRaPerTso);
-                        Map<String, Integer> decreasedMaxPstPerTso = decreaseMaxPstPerTso(raUsageLimits, optimizedState, resultsPerInstant.get(optimizedState), decreasedMaxRaPerTso);
+                        int decreasedMaxRa = decreaseMaxRemedialAction(raUsageLimits, optimizedState, result);
+                        Map<String, Integer> decreasedMaxRaPerTso = decreaseMaxRemedialActionPerTso(raUsageLimits, optimizedState, result);
+                        Map<String, Integer> decreasedMaxTopoPerTso = decreaseMaxTopoPerTso(raUsageLimits, result, decreasedMaxRaPerTso);
+                        Map<String, Integer> decreasedMaxPstPerTso = decreaseMaxPstPerTso(raUsageLimits, optimizedState, result, decreasedMaxRaPerTso);
                         // TODO: add maxTsos
 
                         RaUsageLimits decreasedRaUsageLimits = new RaUsageLimits();
@@ -163,48 +163,25 @@ public class SearchTreeParameters {
         );
     }
 
-    private static int decreaseMaxRemedialAction(RaUsageLimits raUsageLimits, State optimizedState, Set<OptimizationResult> resultsForInstant) {
-        int appliedRemedialActions = 0;
-        for (OptimizationResult optimizationResult : resultsForInstant) {
-            appliedRemedialActions += optimizationResult.getActivatedNetworkActions().size() + optimizationResult.getActivatedRangeActions(optimizedState).size();
-        }
-        return raUsageLimits.getMaxRa() - appliedRemedialActions;
+    private static int decreaseMaxRemedialAction(RaUsageLimits raUsageLimits, State optimizedState, OptimizationResult result) {
+        return raUsageLimits.getMaxRa() - result.getActivatedNetworkActions().size() - result.getActivatedRangeActions(optimizedState).size();
     }
 
-    private static Map<String, Integer> decreaseMaxTopoPerTso(RaUsageLimits raUsageLimits, Set<OptimizationResult> resultsForInstant, Map<String, Integer> decreasedMaxRaPerTso) {
+    private static Map<String, Integer> decreaseMaxTopoPerTso(RaUsageLimits raUsageLimits, OptimizationResult result, Map<String, Integer> decreasedMaxRaPerTso) {
         Map<String, Integer> decreasedMaxTopoPerTso = new HashMap<>();
-        raUsageLimits.getMaxTopoPerTso().forEach((key, value) -> {
-            int appliedTopos = 0;
-            for (OptimizationResult optimizationResult : resultsForInstant) {
-                appliedTopos += optimizationResult.getActivatedNetworkActions().stream().filter(networkAction -> key.equals(networkAction.getOperator())).toList().size();
-            }
-            decreasedMaxTopoPerTso.put(key, Math.min(value - appliedTopos, decreasedMaxRaPerTso.get(key)));
-        });
+        raUsageLimits.getMaxTopoPerTso().forEach((key, value) -> decreasedMaxTopoPerTso.put(key, Math.min(value - result.getActivatedNetworkActions().stream().filter(networkAction -> key.equals(networkAction.getOperator())).toList().size(), decreasedMaxRaPerTso.get(key))));
         return decreasedMaxTopoPerTso;
     }
 
-    private static Map<String, Integer> decreaseMaxPstPerTso(RaUsageLimits raUsageLimits, State optimizedState, Set<OptimizationResult> resultsForInstant, Map<String, Integer> decreasedMaxRaPerTso) {
+    private static Map<String, Integer> decreaseMaxPstPerTso(RaUsageLimits raUsageLimits, State optimizedState, OptimizationResult result, Map<String, Integer> decreasedMaxRaPerTso) {
         Map<String, Integer> decreasedMaxPstPerTso = new HashMap<>();
-        raUsageLimits.getMaxPstPerTso().forEach((key, value) -> {
-            int appliedPsts = 0;
-            for (OptimizationResult optimizationResult : resultsForInstant) {
-                appliedPsts += optimizationResult.getActivatedRangeActions(optimizedState).stream().filter(networkAction -> key.equals(networkAction.getOperator())).toList().size();
-            }
-            decreasedMaxPstPerTso.put(key, Math.min(value - appliedPsts, decreasedMaxRaPerTso.get(key)));
-        });
+        raUsageLimits.getMaxPstPerTso().forEach((key, value) -> decreasedMaxPstPerTso.put(key, Math.min(value - result.getActivatedRangeActions(optimizedState).stream().filter(networkAction -> key.equals(networkAction.getOperator())).toList().size(), decreasedMaxRaPerTso.get(key))));
         return decreasedMaxPstPerTso;
     }
 
-    private static Map<String, Integer> decreaseMaxRemedialActionPerTso(RaUsageLimits raUsageLimits, State optimizedState, Set<OptimizationResult> resultsForInstant) {
+    private static Map<String, Integer> decreaseMaxRemedialActionPerTso(RaUsageLimits raUsageLimits, State optimizedState, OptimizationResult result) {
         Map<String, Integer> decreasedMaxRaPerTso = new HashMap<>();
-        raUsageLimits.getMaxRaPerTso().forEach((key, value) -> {
-            int appliedRas = 0;
-            for (OptimizationResult optimizationResult : resultsForInstant) {
-                appliedRas += optimizationResult.getActivatedNetworkActions().stream().filter(networkAction -> key.equals(networkAction.getOperator())).toList().size()
-                    + optimizationResult.getActivatedRangeActions(optimizedState).stream().filter(networkAction -> key.equals(networkAction.getOperator())).toList().size();
-            }
-            decreasedMaxRaPerTso.put(key, value - appliedRas);
-        });
+        raUsageLimits.getMaxRaPerTso().forEach((key, value) -> decreasedMaxRaPerTso.put(key, value - result.getActivatedNetworkActions().stream().filter(networkAction -> key.equals(networkAction.getOperator())).toList().size() - result.getActivatedRangeActions(optimizedState).stream().filter(networkAction -> key.equals(networkAction.getOperator())).toList().size()));
         return decreasedMaxRaPerTso;
     }
 

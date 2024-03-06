@@ -170,7 +170,7 @@ class SearchTreeParametersTest {
         when(curative1OptimizationResult.getActivatedNetworkActions()).thenReturn(Set.of(crac.getNetworkAction("cur1-open-fr-1")));
         when(curative1OptimizationResult.getActivatedRangeActions(crac.getState("contingency", crac.getInstant("curative1")))).thenReturn(Set.of(crac.getPstRangeAction("cur1-pst-be")));
 
-        parameters.decreaseRemedialActionUsageLimits(Map.of(crac.getPreventiveState(), Set.of(preventiveOptimizationResult), crac.getState("contingency", crac.getInstant("curative1")), Set.of(curative1OptimizationResult)));
+        parameters.decreaseRemedialActionUsageLimits(Map.of(crac.getPreventiveState(), preventiveOptimizationResult, crac.getState("contingency", crac.getInstant("curative1")), curative1OptimizationResult));
 
         RaUsageLimits preventiveRaUsageLimits = parameters.getRaLimitationParameters().get(crac.getInstant("preventive"));
         assertEquals(0, preventiveRaUsageLimits.getMaxRa());
