@@ -2,9 +2,6 @@ name: Cucumber Tests
 
 on: [push]
 
-env:
-  LD_LIBRARY_PATH: /home/farao/farao-dep/runtime/ortools/lib
-
 jobs:
   build:
     name: Run Cucumber Tests
@@ -16,10 +13,10 @@ jobs:
 
       - name: Install OR-Tools
         run: |
-            curl https://github.com/google/or-tools/releases/download/v9.5/ortools-linux-x86-64-9.5.2237.jar --output /tmp/or-tools.jar \
-              && mkdir -p /home/farao/farao-dep/runtime/ortools/lib/ \
-              && unzip -j /tmp/or-tools.jar -d /home/farao/farao-dep/runtime/ortools/lib/ ortools-linux-x86-64/* \
-              && rm -f /tmp/or-tools.jar
+            curl https://github.com/google/or-tools/releases/download/v9.5/ortools-linux-x86-64-9.5.2237.jar --output ${PWD}/tmp/or-tools.jar \
+              && mkdir -p ${PWD}/farao-dep/runtime/ortools/lib/ \
+              && unzip -j ${PWD}/tmp/or-tools.jar -d ${PWD}/farao-dep/runtime/ortools/lib/ ortools-linux-x86-64/* \
+              && rm -f ${PWD}/tmp/or-tools.jar
 
       - name: Run cucumber tests with Maven
-        run: mvn test -pl tests
+        run: export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${PWD}/farao-dep/runtime/ortools/lib && mvn test -pl tests
