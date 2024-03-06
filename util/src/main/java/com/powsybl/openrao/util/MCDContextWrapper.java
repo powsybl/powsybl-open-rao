@@ -8,6 +8,7 @@ package com.powsybl.openrao.util;
 
 import org.slf4j.MDC;
 import java.util.Map;
+import java.util.concurrent.Callable;
 
 /**
  * @author Mohamed Ben Rejeb {@literal <mohamed.ben-rejeb at rte-france.com>}
@@ -25,6 +26,22 @@ public final class MCDContextWrapper {
             setMDCContext(contextMap);
             try {
                 task.run();
+            } finally {
+                // once the task is complete, clear MDC
+                MDC.clear();
+            }
+        };
+    }
+
+    public static <T> Callable<T> wrapWithMdcContext(Callable<T> task) {
+        //save the current MDC context
+        Map<String, String> contextMap = MDC.getCopyOfContextMap();
+        return () -> {
+            setMDCContext(contextMap);
+            try {
+                return task.call();
+            } catch (Exception e) {
+                throw new RuntimeException(e);
             } finally {
                 // once the task is complete, clear MDC
                 MDC.clear();
