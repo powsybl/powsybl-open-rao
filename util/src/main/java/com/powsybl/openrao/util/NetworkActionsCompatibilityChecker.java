@@ -9,8 +9,8 @@ package com.powsybl.openrao.util;
 
 import com.powsybl.openrao.data.cracapi.networkaction.NetworkAction;
 
-import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
@@ -19,12 +19,9 @@ public final class NetworkActionsCompatibilityChecker {
     private NetworkActionsCompatibilityChecker() { }
 
     public static Set<NetworkAction> filterOutIncompatibleRemedialActions(Set<NetworkAction> appliedNetworkActions, Set<NetworkAction> availableRemedialActions) {
-        Set<NetworkAction> compatibleNetworkActions = new HashSet<>();
-        for (NetworkAction availableRemedialAction : availableRemedialActions) {
-            if (appliedNetworkActions.stream().allMatch(networkAction -> networkAction.isCompatibleWith(availableRemedialAction))) {
-                compatibleNetworkActions.add(availableRemedialAction);
-            }
-        }
-        return compatibleNetworkActions;
+        return availableRemedialActions.stream()
+            .filter(availableRemedialAction -> appliedNetworkActions.stream().allMatch(availableRemedialAction::isCompatibleWith))
+            .filter(availableRemedialAction -> appliedNetworkActions.stream().noneMatch(appliedNetworkAction -> availableRemedialAction.getElementaryActions().equals(appliedNetworkAction.getElementaryActions())))
+            .collect(Collectors.toSet());
     }
 }

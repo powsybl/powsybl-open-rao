@@ -124,7 +124,7 @@ class NetworkActionsCompatibilityCheckerTest {
             Set.of(availableRemedialAction2, availableRemedialAction3, availableRemedialAction4),
             NetworkActionsCompatibilityChecker.filterOutIncompatibleRemedialActions(
                 Set.of(appliedRemedialAction1, appliedRemedialAction2),
-                Set.of(availableRemedialAction1, availableRemedialAction2, availableRemedialAction3, availableRemedialAction4)
+                Set.of(appliedRemedialAction1, appliedRemedialAction2, availableRemedialAction1, availableRemedialAction2, availableRemedialAction3, availableRemedialAction4)
             )
         );
     }
