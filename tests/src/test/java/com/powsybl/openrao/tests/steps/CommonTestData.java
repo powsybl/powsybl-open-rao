@@ -40,11 +40,11 @@ import static com.powsybl.openrao.tests.utils.Helpers.*;
 
 public final class CommonTestData {
 
-    public static final String RESOURCES_PATH = "src/test/resources/files/";
+    public static final String RESOURCES_PATH = "src/test/resources/";
     private static final String DEFAULT_CRAC_CREATION_PARAMETERS_PATH = "/files/cracCreationParameters/common/CracCreationParameters_default.json";
     private static final String DEFAULT_RAO_PARAMETERS_PATH = "/files/configurations/common/RaoParameters_default.json";
 
-    private static String dataPrefix = "";
+    private static String dataPrefix = "files/";
 
     private static String networkPath;
     private static Boolean coreCcNetworkPreprocessing = false;
@@ -98,8 +98,8 @@ public final class CommonTestData {
         }
     }
 
-    public static String getDataPrefix() {
-        return dataPrefix;
+    public static String getResourcesPath() {
+        return RESOURCES_PATH.concat(dataPrefix);
     }
 
     @Before
@@ -135,17 +135,17 @@ public final class CommonTestData {
     @After("@validation-core or @validation-cse or @validation-swe or @validation-swe-csa")
     // Cleanup prefix
     public static void unsetSensitiveData() {
-        dataPrefix = "";
+        dataPrefix = "files/";
     }
 
     @Given("crac file is {string}")
     public static void cracFileIs(String path) {
-        cracPath = RESOURCES_PATH.concat(dataPrefix).concat("crac/").concat(path);
+        cracPath = getResourcesPath().concat("crac/").concat(path);
     }
 
     @Given("crac creation parameters file is {string}")
     public static void cracCreationParametersFileIs(String path) {
-        cracCreationParametersPath = RESOURCES_PATH.concat(dataPrefix).concat("cracCreationParameters/").concat(path);
+        cracCreationParametersPath = getResourcesPath().concat("cracCreationParameters/").concat(path);
     }
 
     @Given("network file is {string}")
@@ -160,43 +160,43 @@ public final class CommonTestData {
     }
 
     private static void setNetworkInput(String path, Boolean coreCcPreprocessing) {
-        networkPath = RESOURCES_PATH.concat(dataPrefix).concat("cases/").concat(path);
+        networkPath = getResourcesPath().concat("cases/").concat(path);
         coreCcNetworkPreprocessing = coreCcPreprocessing;
     }
 
     @Given("configuration file is {string}")
     public static void configurationFileIs(String path) {
-        raoParametersPath = RESOURCES_PATH.concat(dataPrefix).concat("configurations/").concat(path);
+        raoParametersPath = getResourcesPath().concat("configurations/").concat(path);
     }
 
     @Given("Glsk file is {string}")
     public static void glskFileIs(String path) {
-        glskPath = RESOURCES_PATH.concat(dataPrefix).concat("glsks/").concat(path);
+        glskPath = getResourcesPath().concat("glsks/").concat(path);
     }
 
     @Given("cim glsk file is {string}")
     public static void cimGlskFileIs(String path) {
-        cimGlskPath = RESOURCES_PATH.concat(dataPrefix).concat("glsks/").concat(path);
+        cimGlskPath = getResourcesPath().concat("glsks/").concat(path);
     }
 
     @Given("RefProg file is {string}")
     public static void refProgFileIs(String path) {
-        refProgPath = RESOURCES_PATH.concat(dataPrefix).concat("refprogs/").concat(path);
+        refProgPath = getResourcesPath().concat("refprogs/").concat(path);
     }
 
     @Given("Virtual hubs configuration file is {string}")
     public static void virtualHubsConfigurationFileIs(String path) {
-        virtualHubsConfigPath = RESOURCES_PATH.concat(dataPrefix).concat("virtualhubs/").concat(path);
+        virtualHubsConfigPath = getResourcesPath().concat("virtualhubs/").concat(path);
     }
 
     @Given("RaoResult file is {string}")
     public static void raoResultIs(String path) {
-        raoResultPath = RESOURCES_PATH.concat(dataPrefix).concat("raoresults/").concat(path);
+        raoResultPath = getResourcesPath().concat("raoresults/").concat(path);
     }
 
     @Given("AngleMonitoringResult file is {string}")
     public static void angleMonitoringResultIs(String path) {
-        angleMonitoringResultPath = RESOURCES_PATH.concat(dataPrefix).concat("anglemonitoringresults/").concat(path);
+        angleMonitoringResultPath = getResourcesPath().concat("anglemonitoringresults/").concat(path);
     }
 
     @When("I import data")

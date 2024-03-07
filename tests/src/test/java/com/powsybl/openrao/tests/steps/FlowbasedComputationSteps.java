@@ -50,17 +50,17 @@ public class FlowbasedComputationSteps {
 
     @Given("French glsk file is {string}")
     public void glskFrFileIs(String glskFrPath) {
-        this.glskFrPath = CommonTestData.RESOURCES_PATH.concat("glsks/").concat(glskFrPath);
+        this.glskFrPath = CommonTestData.getResourcesPath().concat("glsks/").concat(glskFrPath);
     }
 
     @Given("Belgian glsk file is {string}")
     public void glskBeFileIs(String glskBePath) {
-        this.glskBePath = CommonTestData.RESOURCES_PATH.concat("glsks/").concat(glskBePath);
+        this.glskBePath = CommonTestData.getResourcesPath().concat("glsks/").concat(glskBePath);
     }
 
     @Given("German glsk file is {string}")
     public void glskDeFileIs(String glskDePath) {
-        this.glskDePath = CommonTestData.RESOURCES_PATH.concat("glsks/").concat(glskDePath);
+        this.glskDePath = CommonTestData.getResourcesPath().concat("glsks/").concat(glskDePath);
     }
 
     @When("I launch flowbased computation with {string}")
