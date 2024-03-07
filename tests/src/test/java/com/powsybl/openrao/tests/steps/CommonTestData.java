@@ -29,7 +29,6 @@ import com.powsybl.sensitivity.SensitivityVariableSet;
 import com.powsybl.openrao.tests.utils.CoreCcPreprocessor;
 import com.powsybl.openrao.tests.utils.Helpers;
 import com.powsybl.openrao.tests.utils.RaoUtils;
-import io.cucumber.java.After;
 import io.cucumber.java.Before;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.When;
