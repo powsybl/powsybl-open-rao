@@ -47,6 +47,7 @@ public final class CommonTestData {
 
     private static String dataPrefix = "files/";
 
+    private static String overrideDefaultLinearSolver = null;
     private static String overrideLinearSolver = null;
 
     private static String networkPath;
@@ -111,6 +112,14 @@ public final class CommonTestData {
 
     public static String getResourcesPath() {
         return RESOURCES_PATH.concat(dataPrefix);
+    }
+
+    public static void setDefaultLinearSolver(String solver) {
+        overrideDefaultLinearSolver = solver;
+    }
+
+    public static void resetDefaultLinearSolver() {
+        overrideDefaultLinearSolver = null;
     }
 
     public static void setLinearSolver(String solver) {
@@ -302,7 +311,7 @@ public final class CommonTestData {
         if (raoParametersPath != null) {
             raoParameters = buildConfig(getFile(raoParametersPath));
         } else {
-            raoParameters = buildDefaultConfig();
+            raoParameters = buildDefaultConfig(overrideDefaultLinearSolver);
         }
         if (overrideLinearSolver != null) {
             raoParameters.getRangeActionsOptimizationParameters().getLinearOptimizationSolver().setSolver(RangeActionsOptimizationParameters.Solver.valueOf(overrideLinearSolver.toUpperCase()));
@@ -344,9 +353,13 @@ public final class CommonTestData {
         }
     }
 
-    private static RaoParameters buildDefaultConfig() {
+    private static RaoParameters buildDefaultConfig(String overrideLinearSolver) {
         try (InputStream defaultConfigStream = RaoUtils.class.getResourceAsStream(DEFAULT_RAO_PARAMETERS_PATH)) {
-            return JsonRaoParameters.read(defaultConfigStream);
+            RaoParameters parameters = JsonRaoParameters.read(defaultConfigStream);
+            if (overrideLinearSolver != null) {
+                parameters.getRangeActionsOptimizationParameters().getLinearOptimizationSolver().setSolver(RangeActionsOptimizationParameters.Solver.valueOf(overrideLinearSolver.toUpperCase()));
+            }
+            return parameters;
         } catch (IOException | UncheckedIOException e) {
             throw new IllegalArgumentException("Could not load default configuration file", e);
         }
