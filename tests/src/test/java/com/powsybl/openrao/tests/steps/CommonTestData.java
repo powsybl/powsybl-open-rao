@@ -40,9 +40,9 @@ import static com.powsybl.openrao.tests.utils.Helpers.*;
 
 public final class CommonTestData {
 
-    public static final String RESOURCES_PATH = "src/test/resources/com/powsybl/openrao/tests/files/";
-    private static final String DEFAULT_CRAC_CREATION_PARAMETERS_PATH = "/com/powsybl/openrao/tests/files/cracCreationParameters/common/CracCreationParameters_default.json";
-    private static final String DEFAULT_RAO_PARAMETERS_PATH = "/com/powsybl/openrao/tests/files/configurations/common/RaoParameters_default.json";
+    public static final String RESOURCES_PATH = "src/test/resources/files/";
+    private static final String DEFAULT_CRAC_CREATION_PARAMETERS_PATH = "/files/cracCreationParameters/common/CracCreationParameters_default.json";
+    private static final String DEFAULT_RAO_PARAMETERS_PATH = "/files/configurations/common/RaoParameters_default.json";
 
     private static String dataPrefix = "";
 
