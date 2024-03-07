@@ -60,7 +60,7 @@ public class CneExportSteps {
     }
 
     private void compareCne(String expectedCnePath, boolean onlySimilarity) throws IOException {
-        String fullExpectedCnePath = CommonTestData.RESOURCES_PATH.concat(CommonTestData.getResourcesPath()).concat("cne/").concat(expectedCnePath);
+        String fullExpectedCnePath = CommonTestData.getResourcesPath().concat("cne/").concat(expectedCnePath);
         try (InputStream expectedCneInputStream = new FileInputStream(getFile(fullExpectedCnePath))) {
             InputStream actualCneInputStream = new ByteArrayInputStream(exportedCne.getBytes());
             CneHelper.compareCneFiles(expectedCneInputStream, actualCneInputStream, onlySimilarity, cneVersion);
