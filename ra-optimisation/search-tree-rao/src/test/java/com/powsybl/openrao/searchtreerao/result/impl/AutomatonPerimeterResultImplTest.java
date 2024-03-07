@@ -65,7 +65,7 @@ class AutomatonPerimeterResultImplTest {
         rangeActionsWithSetpoint.put(pstRangeActionShifted, 1.0);
         rangeActionsWithSetpoint.put(hvdcRangeActionShifted, 2.0);
         rangeActionsWithSetpoint.put(unshiftedRangeAction, 3.0);
-        result = new AutomatonPerimeterResultImpl(postAutoSensitivity, Set.of(networkAction1), Set.of(pstRangeActionShifted, hvdcRangeActionShifted), rangeActionsWithSetpoint, state1);
+        result = new AutomatonPerimeterResultImpl(postAutoSensitivity, Set.of(networkAction1), Set.of(), Set.of(pstRangeActionShifted, hvdcRangeActionShifted), rangeActionsWithSetpoint, state1);
     }
 
     @Test
@@ -115,6 +115,8 @@ class AutomatonPerimeterResultImplTest {
     @Test
     void testGetActivatedNetworkActions() {
         assertEquals(Set.of(networkAction1), result.getActivatedNetworkActions());
+        assertEquals(Set.of(networkAction1), result.getSimulatedNetworkActions());
+        assertEquals(Set.of(), result.getSelectedNetworkActions());
     }
 
     @Test

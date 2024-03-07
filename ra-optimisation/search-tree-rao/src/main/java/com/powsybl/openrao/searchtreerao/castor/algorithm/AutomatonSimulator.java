@@ -116,46 +116,25 @@ public final class AutomatonSimulator {
 
         // II) Run auto search tree on available topological automatons
         OptimizationPerimeter autoOptimizationPerimeter = AutoOptimizationPerimeter.build(automatonState, crac, network, raoParameters, topoSimulationResult.getPerimeterResult());
-        PrePerimeterResult postAutoSearchTreeResult;
+        OptimizationResult autoSearchTreeResult = null;
 
         if (!autoOptimizationPerimeter.getNetworkActions().isEmpty()) {
-            SearchTreeParameters searchTreeParameters = SearchTreeParameters.create()
-                .withConstantParametersOverAllRao(raoParameters, crac)
-                .withTreeParameters(automatonTreeParameters)
-                .withUnoptimizedCnecParameters(UnoptimizedCnecParameters.build(raoParameters.getNotOptimizedCnecsParameters(), stateTree.getOperatorsNotSharingCras(), crac))
-                .build();
-
-            SearchTreeInput searchTreeInput = SearchTreeInput.create()
-                .withNetwork(network)
-                .withOptimizationPerimeter(autoOptimizationPerimeter)
-                .withInitialFlowResult(initialSensitivityOutput)
-                .withPrePerimeterResult(prePerimeterSensitivityOutput)
-                .withPreOptimizationAppliedNetworkActions(new AppliedRemedialActions()) // no remedial Action applied
-                .withObjectiveFunction(ObjectiveFunction.create().build(autoOptimizationPerimeter.getFlowCnecs(), autoOptimizationPerimeter.getLoopFlowCnecs(), initialSensitivityOutput, prePerimeterSensitivityOutput, prePerimeterSensitivityOutput, crac, stateTree.getOperatorsNotSharingCras(), raoParameters))
-                .withToolProvider(toolProvider)
-                .withOutageInstant(crac.getOutageInstant())
-                .build();
-
-            OptimizationResult autoSearchTreeResult = new SearchTree(searchTreeInput, searchTreeParameters, false).run().join();
-            postAutoSearchTreeResult = (PrePerimeterResult) autoSearchTreeResult;
-
+            autoSearchTreeResult = runAutoSearchTree(network, stateTree, automatonTreeParameters, initialSensitivityOutput, autoOptimizationPerimeter);
             if (autoSearchTreeResult.getSensitivityStatus(automatonState) == ComputationStatus.FAILURE) {
                 return createFailedAutomatonPerimeterResult(automatonState, topoSimulationResult.getPerimeterResult(), autoSearchTreeResult.getActivatedNetworkActions(), "during");
             }
-
             applyRemedialActions(network, autoSearchTreeResult, automatonState);
-        } else {
-            postAutoSearchTreeResult = topoSimulationResult.getPerimeterResult();
         }
 
         // III) Simulate range actions
-        RangeAutomatonSimulationResult rangeAutomatonSimulationResult = simulateRangeAutomatons(automatonState, curativeStates, network, preAutoPerimeterSensitivityAnalysis, postAutoSearchTreeResult);
+        RangeAutomatonSimulationResult rangeAutomatonSimulationResult = simulateRangeAutomatons(automatonState, curativeStates, network, preAutoPerimeterSensitivityAnalysis, autoSearchTreeResult == null ? topoSimulationResult.getPerimeterResult() : (PrePerimeterResult) autoSearchTreeResult);
 
         // Sensitivity analysis failed :
         if (rangeAutomatonSimulationResult.getPerimeterResult().getSensitivityStatus(automatonState) == ComputationStatus.FAILURE) {
             AutomatonPerimeterResultImpl failedAutomatonPerimeterResultImpl = new AutomatonPerimeterResultImpl(
                     rangeAutomatonSimulationResult.getPerimeterResult(),
                     topoSimulationResult.getActivatedNetworkActions(),
+                autoSearchTreeResult == null ? new HashSet<>() : new HashSet<>(autoSearchTreeResult.getActivatedNetworkActions()),
                     rangeAutomatonSimulationResult.getActivatedRangeActions(),
                     rangeAutomatonSimulationResult.getRangeActionsWithSetpoint(),
                     automatonState);
@@ -169,12 +148,34 @@ public final class AutomatonSimulator {
         AutomatonPerimeterResultImpl automatonPerimeterResultImpl = new AutomatonPerimeterResultImpl(
             prePerimeterResultForOptimizedState,
             topoSimulationResult.getActivatedNetworkActions(),
+            autoSearchTreeResult == null ? new HashSet<>() : new HashSet<>(autoSearchTreeResult.getActivatedNetworkActions()),
             rangeAutomatonSimulationResult.getActivatedRangeActions(),
             rangeAutomatonSimulationResult.getRangeActionsWithSetpoint(),
             automatonState);
         TECHNICAL_LOGS.info("Automaton state {} has been optimized.", automatonState.getId());
         RaoLogger.logOptimizationSummary(BUSINESS_LOGS, automatonState, automatonPerimeterResultImpl.getActivatedNetworkActions(), getRangeActionsAndTheirTapsAppliedOnState(automatonPerimeterResultImpl, automatonState), null, automatonPerimeterResultImpl);
         return automatonPerimeterResultImpl;
+    }
+
+    private OptimizationResult runAutoSearchTree(Network network, StateTree stateTree, TreeParameters automatonTreeParameters, PrePerimeterResult initialSensitivityOutput, OptimizationPerimeter autoOptimizationPerimeter) {
+        SearchTreeParameters searchTreeParameters = SearchTreeParameters.create()
+            .withConstantParametersOverAllRao(raoParameters, crac)
+            .withTreeParameters(automatonTreeParameters)
+            .withUnoptimizedCnecParameters(UnoptimizedCnecParameters.build(raoParameters.getNotOptimizedCnecsParameters(), stateTree.getOperatorsNotSharingCras(), crac))
+            .build();
+
+        SearchTreeInput searchTreeInput = SearchTreeInput.create()
+            .withNetwork(network)
+            .withOptimizationPerimeter(autoOptimizationPerimeter)
+            .withInitialFlowResult(initialSensitivityOutput)
+            .withPrePerimeterResult(prePerimeterSensitivityOutput)
+            .withPreOptimizationAppliedNetworkActions(new AppliedRemedialActions()) // no remedial Action applied
+            .withObjectiveFunction(ObjectiveFunction.create().build(autoOptimizationPerimeter.getFlowCnecs(), autoOptimizationPerimeter.getLoopFlowCnecs(), initialSensitivityOutput, prePerimeterSensitivityOutput, prePerimeterSensitivityOutput, crac, stateTree.getOperatorsNotSharingCras(), raoParameters))
+            .withToolProvider(toolProvider)
+            .withOutageInstant(crac.getOutageInstant())
+            .build();
+
+        return new SearchTree(searchTreeInput, searchTreeParameters, false).run().join();
     }
 
     private PrePerimeterSensitivityAnalysis getPreAutoPerimeterSensitivityAnalysis(State automatonState, Set<State> curativeStates) {
@@ -199,6 +200,7 @@ public final class AutomatonSimulator {
         AutomatonPerimeterResultImpl failedAutomatonPerimeterResultImpl = new AutomatonPerimeterResultImpl(
                 result,
                 activatedNetworkActions,
+                new HashSet<>(),
                 new HashSet<>(),
                 new HashMap<>(),
                 autoState);
