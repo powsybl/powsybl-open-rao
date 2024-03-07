@@ -98,6 +98,14 @@ public final class CommonTestData {
         }
     }
 
+    public static void setDataLocation(String location) {
+        dataPrefix = location.concat("/");
+    }
+
+    public static void resetDataLocation() {
+        setDataLocation("files");
+    }
+
     public static String getResourcesPath() {
         return RESOURCES_PATH.concat(dataPrefix);
     }
@@ -124,18 +132,6 @@ public final class CommonTestData {
         raoResult = null;
         angleMonitoringResultPath = null;
         angleMonitoringResult = null;
-    }
-
-    @Before("@validation-core or @validation-cse or @validation-swe or @validation-swe-csa")
-    // Set data prefix to "sensitive"
-    public static void setSensitiveData() {
-        dataPrefix = "sensitive/";
-    }
-
-    @After("@validation-core or @validation-cse or @validation-swe or @validation-swe-csa")
-    // Cleanup prefix
-    public static void unsetSensitiveData() {
-        dataPrefix = "files/";
     }
 
     @Given("crac file is {string}")
