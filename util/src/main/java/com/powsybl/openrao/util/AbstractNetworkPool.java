@@ -91,6 +91,11 @@ public abstract class AbstractNetworkPool extends ForkJoinPool implements AutoCl
         return super.submit(wrapWithMdcContext(task));
     }
 
+    @Override
+    public <T> ForkJoinTask<T> submit(Callable<T> task) {
+        return super.submit(wrapWithMdcContext(task));
+    }
+
     public int getNetworkNumberOfClones() {
         return 1;
     }
