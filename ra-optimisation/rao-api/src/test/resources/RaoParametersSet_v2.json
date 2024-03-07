@@ -1,5 +1,5 @@
 {
-  "version" : "2.2",
+  "version" : "2.3",
   "objective-function" : {
     "type" : "MAX_MIN_MARGIN_IN_AMPERE",
     "forbid-cost-increase" : true,
@@ -77,6 +77,7 @@
   "multi-threading" : {
     "contingency-scenarios-in-parallel" : 15,
     "preventive-leaves-in-parallel" : 21,
+    "auto-leaves-in-parallel" : 30,
     "curative-leaves-in-parallel" : 22
   },
   "extensions" : {

@@ -48,6 +48,7 @@ class RaoParametersConfigTest {
         objectiveFunctionModuleConfig.setStringProperty("forbid-cost-increase", Objects.toString(true));
         objectiveFunctionModuleConfig.setStringProperty("curative-min-obj-improvement", Objects.toString(123.0));
         objectiveFunctionModuleConfig.setStringProperty("preventive-stop-criterion", "MIN_OBJECTIVE");
+        objectiveFunctionModuleConfig.setStringProperty("auto-stop-criterion", "MIN_OBJECTIVE");
         objectiveFunctionModuleConfig.setStringProperty("curative-stop-criterion", "PREVENTIVE_OBJECTIVE");
 
         RaoParameters parameters = new RaoParameters();
@@ -117,12 +118,14 @@ class RaoParametersConfigTest {
         MapModuleConfig multiThreadingModuleConfig = platformCfg.createModuleConfig("rao-multi-threading");
         multiThreadingModuleConfig.setStringProperty("contingency-scenarios-in-parallel", Objects.toString(3));
         multiThreadingModuleConfig.setStringProperty("preventive-leaves-in-parallel", Objects.toString(23));
+        multiThreadingModuleConfig.setStringProperty("auto-leaves-in-parallel", Objects.toString(17));
         multiThreadingModuleConfig.setStringProperty("curative-leaves-in-parallel", Objects.toString(43));
         RaoParameters parameters = new RaoParameters();
         RaoParameters.load(parameters, platformCfg);
         MultithreadingParameters params = parameters.getMultithreadingParameters();
         assertEquals(3, params.getContingencyScenariosInParallel(), DOUBLE_TOLERANCE);
         assertEquals(23, params.getPreventiveLeavesInParallel(), DOUBLE_TOLERANCE);
+        assertEquals(17, params.getAutoLeavesInParallel(), DOUBLE_TOLERANCE);
         assertEquals(43, params.getCurativeLeavesInParallel(), DOUBLE_TOLERANCE);
     }
 

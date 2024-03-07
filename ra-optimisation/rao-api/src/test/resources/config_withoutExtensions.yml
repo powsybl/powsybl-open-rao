@@ -46,4 +46,5 @@ rao-load-flow-and-sensitivity-computation:
 rao-multi-threading:
     contingency-scenarios-in-parallel: 4
     preventive-leaves-in-parallel: 5
+    auto-leaves-in-parallel: 3
     curative-leaves-in-parallel: 6

@@ -73,6 +73,7 @@ class RaoParametersYamlConfigTest extends AbstractSerDeTest {
         MultithreadingParameters multithreadingParameters = parameters.getMultithreadingParameters();
         assertEquals(4, multithreadingParameters.getContingencyScenariosInParallel(), DOUBLE_TOLERANCE);
         assertEquals(5, multithreadingParameters.getPreventiveLeavesInParallel(), DOUBLE_TOLERANCE);
+        assertEquals(3, multithreadingParameters.getAutoLeavesInParallel(), DOUBLE_TOLERANCE);
         assertEquals(6, multithreadingParameters.getCurativeLeavesInParallel(), DOUBLE_TOLERANCE);
 
         SecondPreventiveRaoParameters secondPreventiveRaoParameters = parameters.getSecondPreventiveRaoParameters();
@@ -155,6 +156,7 @@ class RaoParametersYamlConfigTest extends AbstractSerDeTest {
         MultithreadingParameters multithreadingParameters = parameters.getMultithreadingParameters();
         assertEquals(4, multithreadingParameters.getContingencyScenariosInParallel(), DOUBLE_TOLERANCE);
         assertEquals(5, multithreadingParameters.getPreventiveLeavesInParallel(), DOUBLE_TOLERANCE);
+        assertEquals(3, multithreadingParameters.getAutoLeavesInParallel(), DOUBLE_TOLERANCE);
         assertEquals(6, multithreadingParameters.getCurativeLeavesInParallel(), DOUBLE_TOLERANCE);
 
         SecondPreventiveRaoParameters secondPreventiveRaoParameters = parameters.getSecondPreventiveRaoParameters();
@@ -224,6 +226,7 @@ class RaoParametersYamlConfigTest extends AbstractSerDeTest {
         MultithreadingParameters multithreadingParameters = parameters.getMultithreadingParameters();
         assertEquals(1, multithreadingParameters.getContingencyScenariosInParallel(), DOUBLE_TOLERANCE);
         assertEquals(5, multithreadingParameters.getPreventiveLeavesInParallel(), DOUBLE_TOLERANCE);
+        assertEquals(2, multithreadingParameters.getAutoLeavesInParallel(), DOUBLE_TOLERANCE);
         assertEquals(6, multithreadingParameters.getCurativeLeavesInParallel(), DOUBLE_TOLERANCE);
 
         SecondPreventiveRaoParameters secondPreventiveRaoParameters = parameters.getSecondPreventiveRaoParameters();

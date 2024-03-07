@@ -1,5 +1,5 @@
 {
-  "version" : "2.2",
+  "version" : "2.3",
   "objective-function" : {
     "type" : "MAX_MIN_MARGIN_IN_AMPERE",
     "forbid-cost-increase" : false,

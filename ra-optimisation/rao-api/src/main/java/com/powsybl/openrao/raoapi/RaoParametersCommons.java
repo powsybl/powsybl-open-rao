@@ -16,7 +16,7 @@ public final class RaoParametersCommons {
     private RaoParametersCommons() {
     }
 
-    public static final String RAO_PARAMETERS_VERSION = "2.2";
+    public static final String RAO_PARAMETERS_VERSION = "2.3";
 
     // header
     public static final String VERSION = "version";
@@ -28,6 +28,7 @@ public final class RaoParametersCommons {
     public static final String FORBID_COST_INCREASE = "forbid-cost-increase";
     public static final String CURATIVE_MIN_OBJ_IMPROVEMENT = "curative-min-obj-improvement";
     public static final String PREVENTIVE_STOP_CRITERION = "preventive-stop-criterion";
+    public static final String AUTO_STOP_CRITERION = "auto-stop-criterion";
     public static final String CURATIVE_STOP_CRITERION = "curative-stop-criterion";
 
     // range actions optimization parameters
@@ -63,6 +64,7 @@ public final class RaoParametersCommons {
     public static final String MULTI_THREADING_SECTION = "rao-multi-threading";
     public static final String CONTINGENCY_SCENARIOS_IN_PARALLEL = "contingency-scenarios-in-parallel";
     public static final String PREVENTIVE_LEAVES_IN_PARALLEL = "preventive-leaves-in-parallel";
+    public static final String AUTO_LEAVES_IN_PARALLEL = "auto-leaves-in-parallel";
     public static final String CURATIVE_LEAVES_IN_PARALLEL = "curative-leaves-in-parallel";
 
     // Second Preventive RAO parameters

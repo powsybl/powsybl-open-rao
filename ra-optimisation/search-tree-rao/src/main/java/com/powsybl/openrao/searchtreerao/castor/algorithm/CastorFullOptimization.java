@@ -129,8 +129,7 @@ public class CastorFullOptimization {
         // mutualise the pre-perimeter sensi analysis for all contingency scenario + get after-PRA result over all CNECs
 
         double preventiveOptimalCost = preventiveResult.getCost();
-        // TODO: change automaton tree parameters definition
-        TreeParameters automatonTreeParameters = TreeParameters.buildForCurativePerimeter(raoParameters, preventiveOptimalCost);
+        TreeParameters automatonTreeParameters = TreeParameters.buildForAutomatonPerimeter(raoParameters);
         TreeParameters curativeTreeParameters = TreeParameters.buildForCurativePerimeter(raoParameters, preventiveOptimalCost);
         network.getVariantManager().setWorkingVariant(INITIAL_SCENARIO);
         network.getVariantManager().cloneVariant(network.getVariantManager().getWorkingVariantId(), PREVENTIVE_SCENARIO, true);

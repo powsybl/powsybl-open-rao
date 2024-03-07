@@ -39,6 +39,7 @@ rao-load-flow-and-sensitivity-computation:
 
 rao-multi-threading:
     preventive-leaves-in-parallel: 5
+    auto-leaves-in-parallel: 2
     curative-leaves-in-parallel: 6
 
 rao-loop-flow-parameters:

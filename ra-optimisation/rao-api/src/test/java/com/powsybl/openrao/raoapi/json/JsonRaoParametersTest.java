@@ -78,6 +78,7 @@ class JsonRaoParametersTest extends AbstractSerDeTest {
         // Multi-threading parameters
         parameters.getMultithreadingParameters().setContingencyScenariosInParallel(15);
         parameters.getMultithreadingParameters().setPreventiveLeavesInParallel(21);
+        parameters.getMultithreadingParameters().setAutoLeavesInParallel(30);
         parameters.getMultithreadingParameters().setCurativeLeavesInParallel(22);
         // Second preventive RAO parameters
         parameters.getSecondPreventiveRaoParameters().setExecutionCondition(SecondPreventiveRaoParameters.ExecutionCondition.POSSIBLE_CURATIVE_IMPROVEMENT);
@@ -125,6 +126,7 @@ class JsonRaoParametersTest extends AbstractSerDeTest {
         assertEquals(0, parameters.getTopoOptimizationParameters().getRelativeMinImpactThreshold(), DOUBLE_TOLERANCE);
         assertEquals(1, parameters.getTopoOptimizationParameters().getAbsoluteMinImpactThreshold(), DOUBLE_TOLERANCE);
         assertEquals(8, parameters.getMultithreadingParameters().getPreventiveLeavesInParallel());
+        assertEquals(4, parameters.getMultithreadingParameters().getAutoLeavesInParallel());
         assertEquals(3, parameters.getMultithreadingParameters().getCurativeLeavesInParallel());
         assertTrue(parameters.getTopoOptimizationParameters().getSkipActionsFarFromMostLimitingElement());
         assertEquals(2, parameters.getTopoOptimizationParameters().getMaxNumberOfBoundariesForSkippingActions());
@@ -168,7 +170,7 @@ class JsonRaoParametersTest extends AbstractSerDeTest {
     void testFailOnOldVersion() {
         InputStream inputStream = getClass().getResourceAsStream("/RaoParameters_oldVersion.json");
         OpenRaoException e = assertThrows(OpenRaoException.class, () -> JsonRaoParameters.read(inputStream));
-        assertEquals("RaoParameters version '2.0' cannot be deserialized. The only supported version currently is '2.2'.", e.getMessage());
+        assertEquals("RaoParameters version '2.0' cannot be deserialized. The only supported version currently is '2.3'.", e.getMessage());
     }
 
     @ParameterizedTest
