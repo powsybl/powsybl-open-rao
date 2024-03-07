@@ -20,12 +20,16 @@ import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.cracapi.rangeaction.RangeAction;
 import com.powsybl.openrao.data.cracapi.usagerule.*;
 import com.powsybl.openrao.data.raoresultapi.ComputationStatus;
+import com.powsybl.openrao.raoapi.RaoInput;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.searchtreerao.commons.RaoLogger;
 import com.powsybl.openrao.searchtreerao.commons.RaoUtil;
 import com.powsybl.openrao.searchtreerao.commons.ToolProvider;
 import com.powsybl.openrao.searchtreerao.commons.objectivefunctionevaluator.ObjectiveFunction;
 import com.powsybl.openrao.searchtreerao.commons.objectivefunctionevaluator.ObjectiveFunctionResultImpl;
+import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.AutoOptimizationPerimeter;
+import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.OptimizationPerimeter;
+import com.powsybl.openrao.searchtreerao.commons.parameters.TreeParameters;
 import com.powsybl.openrao.searchtreerao.commons.parameters.UnoptimizedCnecParameters;
 import com.powsybl.openrao.searchtreerao.result.api.*;
 import com.powsybl.openrao.searchtreerao.result.impl.AutomatonPerimeterResultImpl;
@@ -36,6 +40,10 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.extensions.HvdcAngleDroopActivePowerControl;
 import com.powsybl.loadflow.LoadFlow;
 import com.powsybl.loadflow.LoadFlowParameters;
+import com.powsybl.openrao.searchtreerao.searchtree.algorithms.SearchTree;
+import com.powsybl.openrao.searchtreerao.searchtree.inputs.SearchTreeInput;
+import com.powsybl.openrao.searchtreerao.searchtree.parameters.SearchTreeParameters;
+import com.powsybl.openrao.sensitivityanalysis.AppliedRemedialActions;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.*;
@@ -43,6 +51,7 @@ import java.util.stream.Collectors;
 
 import static com.powsybl.openrao.commons.Unit.MEGAWATT;
 import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.*;
+import static com.powsybl.openrao.searchtreerao.commons.RaoUtil.applyRemedialActions;
 
 /**
  * Automaton simulator
@@ -86,11 +95,8 @@ public final class AutomatonSimulator {
      * then range actions by order of speed. TODO Network actions by speed  is not implemented yet
      * Returns an AutomatonPerimeterResult
      */
-    AutomatonPerimeterResultImpl simulateAutomatonState(State automatonState, Set<State> curativeStates, Network network) {
+    AutomatonPerimeterResultImpl simulateAutomatonState(State automatonState, Set<State> curativeStates, Network network, StateTree stateTree, TreeParameters automatonTreeParameters, PrePerimeterResult initialSensitivityOutput) {
         TECHNICAL_LOGS.info("Optimizing automaton state {}.", automatonState.getId());
-        if (!crac.getNetworkActions(automatonState, UsageMethod.AVAILABLE).isEmpty()) {
-            BUSINESS_WARNS.warn("CRAC has network action automatons with usage method AVAILABLE. These are not supported.");
-        }
         TECHNICAL_LOGS.info("Initial situation:");
         RaoLogger.logMostLimitingElementsResults(TECHNICAL_LOGS, prePerimeterSensitivityOutput, Set.of(automatonState), raoParameters.getObjectiveFunctionParameters().getType(), numberLoggedElementsDuringRao);
 
@@ -109,7 +115,37 @@ public final class AutomatonSimulator {
             return createFailedAutomatonPerimeterResult(automatonState, topoSimulationResult.getPerimeterResult(), topoSimulationResult.getActivatedNetworkActions(), "during");
         }
 
-        // II) Simulate range actions
+        // II) Run auto search tree on available topological automatons
+        OptimizationPerimeter autoOptimizationPerimeter = AutoOptimizationPerimeter.build(automatonState, crac, network, raoParameters, prePerimeterSensitivityOutput);
+
+        if (!autoOptimizationPerimeter.getNetworkActions().isEmpty()) {
+            SearchTreeParameters searchTreeParameters = SearchTreeParameters.create()
+                .withConstantParametersOverAllRao(raoParameters, crac)
+                .withTreeParameters(automatonTreeParameters)
+                .withUnoptimizedCnecParameters(UnoptimizedCnecParameters.build(raoParameters.getNotOptimizedCnecsParameters(), stateTree.getOperatorsNotSharingCras(), crac))
+                .build();
+
+            SearchTreeInput searchTreeInput = SearchTreeInput.create()
+                .withNetwork(network)
+                .withOptimizationPerimeter(autoOptimizationPerimeter)
+                .withInitialFlowResult(initialSensitivityOutput)
+                .withPrePerimeterResult(prePerimeterSensitivityOutput)
+                .withPreOptimizationAppliedNetworkActions(new AppliedRemedialActions()) // no remedial Action applied
+                .withObjectiveFunction(ObjectiveFunction.create().build(autoOptimizationPerimeter.getFlowCnecs(), autoOptimizationPerimeter.getLoopFlowCnecs(), initialSensitivityOutput, prePerimeterSensitivityOutput, prePerimeterSensitivityOutput, crac, stateTree.getOperatorsNotSharingCras(), raoParameters))
+                .withToolProvider(toolProvider)
+                .withOutageInstant(crac.getOutageInstant())
+                .build();
+
+            OptimizationResult autoSearchTreeResult = new SearchTree(searchTreeInput, searchTreeParameters, false).run().join();
+
+            if (autoSearchTreeResult.getSensitivityStatus(automatonState) == ComputationStatus.FAILURE) {
+                return createFailedAutomatonPerimeterResult(automatonState, topoSimulationResult.getPerimeterResult(), autoSearchTreeResult.getActivatedNetworkActions(), "during");
+            }
+
+            applyRemedialActions(network, autoSearchTreeResult, automatonState);
+        }
+
+        // III) Simulate range actions
         RangeAutomatonSimulationResult rangeAutomatonSimulationResult = simulateRangeAutomatons(automatonState, curativeStates, network, preAutoPerimeterSensitivityAnalysis, topoSimulationResult.getPerimeterResult());
 
         // Sensitivity analysis failed :
@@ -201,7 +237,7 @@ public final class AutomatonSimulator {
         // -- First get forced network actions
         Set<FlowCnec> flowCnecs = crac.getFlowCnecs();
         Set<NetworkAction> appliedNetworkActions = crac.getNetworkActions().stream()
-            .filter(ra -> RaoUtil.isRemedialActionAvailable(ra, automatonState, prePerimeterSensitivityOutput, flowCnecs, network, raoParameters))
+            .filter(ra -> RaoUtil.isRemedialActionAvailable(ra, automatonState, prePerimeterSensitivityOutput, flowCnecs, network, raoParameters, false))
             .collect(Collectors.toSet());
 
         if (appliedNetworkActions.isEmpty()) {
@@ -330,7 +366,7 @@ public final class AutomatonSimulator {
         // 1) Get available range actions
         // -- First get forced range actions
         Set<RangeAction<?>> availableRangeActions = crac.getRangeActions().stream()
-            .filter(ra -> RaoUtil.isRemedialActionAvailable(ra, automatonState, rangeActionSensitivity, crac.getFlowCnecs(), network, raoParameters))
+            .filter(ra -> RaoUtil.isRemedialActionAvailable(ra, automatonState, rangeActionSensitivity, crac.getFlowCnecs(), network, raoParameters, false))
             .collect(Collectors.toSet());
 
         // 2) Sort range actions
