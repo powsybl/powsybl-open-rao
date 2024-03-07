@@ -40,13 +40,12 @@ import static com.powsybl.openrao.tests.utils.Helpers.*;
 
 public final class CommonTestData {
 
-    public static final String RESOURCES_PATH = "src/test/resources/";
-    private static final String DEFAULT_CRAC_CREATION_PARAMETERS_PATH = "/files/cracCreationParameters/common/CracCreationParameters_default.json";
-    private static final String DEFAULT_RAO_PARAMETERS_PATH = "/files/configurations/common/RaoParameters_default.json";
+    public static final String RESOURCES_PATH = "";
+    private static final String DEFAULT_CRAC_CREATION_PARAMETERS_PATH = "cracCreationParameters/common/CracCreationParameters_default.json";
+    private static final String DEFAULT_RAO_PARAMETERS_PATH = "configurations/common/RaoParameters_default.json";
 
-    private static String dataPrefix = "files/";
+    private static String dataPrefix = "src/test/resources/files/";
 
-    private static String overrideDefaultLinearSolver = null;
     private static String overrideLinearSolver = null;
 
     private static String networkPath;
@@ -106,19 +105,11 @@ public final class CommonTestData {
     }
 
     public static void resetDataLocation() {
-        setDataLocation("files");
+        setDataLocation("src/test/resources/files/");
     }
 
     public static String getResourcesPath() {
         return RESOURCES_PATH.concat(dataPrefix);
-    }
-
-    public static void setDefaultLinearSolver(String solver) {
-        overrideDefaultLinearSolver = solver;
-    }
-
-    public static void resetDefaultLinearSolver() {
-        overrideDefaultLinearSolver = null;
     }
 
     public static void setLinearSolver(String solver) {
@@ -289,16 +280,13 @@ public final class CommonTestData {
 
         // CracCreationParameters
         CracCreationParameters cracCreationParameters = null;
-        if (cracCreationParametersPath != null) {
-            InputStream cracCreationParametersInputStream;
-            try {
-                cracCreationParametersInputStream = new BufferedInputStream(new FileInputStream(getFile(cracCreationParametersPath)));
-                cracCreationParameters = JsonCracCreationParameters.read(cracCreationParametersInputStream);
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
-            }
-        } else {
-            cracCreationParameters = JsonCracCreationParameters.read(CommonTestData.class.getResourceAsStream(DEFAULT_CRAC_CREATION_PARAMETERS_PATH));
+        String ccpToImport = (cracCreationParametersPath == null) ? getResourcesPath().concat(DEFAULT_CRAC_CREATION_PARAMETERS_PATH) : cracCreationParametersPath;
+        InputStream cracCreationParametersInputStream;
+        try {
+            cracCreationParametersInputStream = new BufferedInputStream(new FileInputStream(getFile(ccpToImport)));
+            cracCreationParameters = JsonCracCreationParameters.read(cracCreationParametersInputStream);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
         }
 
         // Crac
@@ -308,9 +296,9 @@ public final class CommonTestData {
 
         // RAO parameters
         if (raoParametersPath != null) {
-            raoParameters = buildConfig(getFile(raoParametersPath), overrideDefaultLinearSolver);
+            raoParameters = buildConfig(getFile(raoParametersPath));
         } else {
-            raoParameters = buildDefaultConfig(overrideDefaultLinearSolver);
+            raoParameters = buildDefaultConfig();
         }
         if (overrideLinearSolver != null) {
             raoParameters.getRangeActionsOptimizationParameters().getLinearOptimizationSolver().setSolver(RangeActionsOptimizationParameters.Solver.valueOf(overrideLinearSolver.toUpperCase()));
@@ -352,20 +340,16 @@ public final class CommonTestData {
         }
     }
 
-    private static RaoParameters buildDefaultConfig(String overrideLinearSolver) {
-        try (InputStream defaultConfigStream = RaoUtils.class.getResourceAsStream(DEFAULT_RAO_PARAMETERS_PATH)) {
-            RaoParameters parameters = JsonRaoParameters.read(defaultConfigStream);
-            if (overrideLinearSolver != null) {
-                parameters.getRangeActionsOptimizationParameters().getLinearOptimizationSolver().setSolver(RangeActionsOptimizationParameters.Solver.valueOf(overrideLinearSolver.toUpperCase()));
-            }
-            return parameters;
-        } catch (IOException | UncheckedIOException e) {
+    private static RaoParameters buildDefaultConfig() {
+        try (InputStream configStream = new FileInputStream(getFile(getResourcesPath().concat(DEFAULT_RAO_PARAMETERS_PATH)))) {
+            return JsonRaoParameters.read(configStream);
+        } catch (Exception e) {
             throw new IllegalArgumentException("Could not load default configuration file", e);
         }
     }
 
-    private static RaoParameters buildConfig(File configFile, String overrideDefaultLinearSolver) {
-        RaoParameters config = buildDefaultConfig(overrideDefaultLinearSolver);
+    private static RaoParameters buildConfig(File configFile) {
+        RaoParameters config = buildDefaultConfig();
         try (InputStream configStream = new FileInputStream(configFile)) {
             JsonRaoParameters.update(config, configStream);
         } catch (IOException | UncheckedIOException e) {
