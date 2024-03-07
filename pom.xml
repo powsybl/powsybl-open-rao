@@ -88,8 +88,8 @@
 
         <!-- Dependencies versions -->
         <apache.commons.lang3>3.13.0</apache.commons.lang3>
-        <commons-io.version>2.11.0</commons-io.version>
         <cucumber.bom.version>7.15.0</cucumber.bom.version>
+        <commonsio.version>2.13.0</commonsio.version>
         <google.autoservice.version>1.1.1</google.autoservice.version>
         <google.guava.version>32.0.0-jre</google.guava.version>
         <google.ortools.version>9.5.2237</google.ortools.version>
@@ -222,6 +222,11 @@
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-lang3</artifactId>
                 <version>${apache.commons.lang3}</version>
+            </dependency>
+            <dependency>
+                <groupId>commons-io</groupId>
+                <artifactId>commons-io</artifactId>
+                <version>${commonsio.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.google.auto.service</groupId>
