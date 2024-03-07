@@ -309,7 +309,7 @@ public final class CommonTestData {
 
         // RAO parameters
         if (raoParametersPath != null) {
-            raoParameters = buildConfig(getFile(raoParametersPath));
+            raoParameters = buildConfig(getFile(raoParametersPath), overrideDefaultLinearSolver);
         } else {
             raoParameters = buildDefaultConfig(overrideDefaultLinearSolver);
         }
@@ -365,8 +365,8 @@ public final class CommonTestData {
         }
     }
 
-    private static RaoParameters buildConfig(File configFile) {
-        RaoParameters config = buildDefaultConfig();
+    private static RaoParameters buildConfig(File configFile, String overrideDefaultLinearSolver) {
+        RaoParameters config = buildDefaultConfig(overrideDefaultLinearSolver);
         try (InputStream configStream = new FileInputStream(configFile)) {
             JsonRaoParameters.update(config, configStream);
         } catch (IOException | UncheckedIOException e) {
