@@ -23,12 +23,11 @@ import com.powsybl.openrao.monitoring.anglemonitoring.RaoResultWithAngleMonitori
 import com.powsybl.openrao.raoapi.json.JsonRaoParameters;
 import com.powsybl.openrao.raoapi.parameters.RangeActionsOptimizationParameters;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
+import com.powsybl.openrao.tests.utils.CoreCcPreprocessor;
+import com.powsybl.openrao.tests.utils.Helpers;
 import com.powsybl.openrao.virtualhubs.VirtualHubsConfiguration;
 import com.powsybl.openrao.virtualhubs.xml.XmlVirtualHubsConfiguration;
 import com.powsybl.sensitivity.SensitivityVariableSet;
-import com.powsybl.openrao.tests.utils.CoreCcPreprocessor;
-import com.powsybl.openrao.tests.utils.Helpers;
-import com.powsybl.openrao.tests.utils.RaoUtils;
 import io.cucumber.java.Before;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.When;
