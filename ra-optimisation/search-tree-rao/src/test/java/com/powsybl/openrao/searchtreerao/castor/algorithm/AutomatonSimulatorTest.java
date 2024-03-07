@@ -730,4 +730,9 @@ class AutomatonSimulatorTest {
         assertEquals(-3.1, shiftResult.getRangeActionsWithSetpoint().get(ara2), DOUBLE_TOLERANCE);
     }
 
+    @Test
+    void testWithAutoSearchTree() {
+        // TODO
+    }
+
 }
