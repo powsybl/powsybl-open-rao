@@ -255,11 +255,6 @@ public class CastorFullOptimization {
         return CompletableFuture.completedFuture(finalRaoResult);
     }
 
-    // private void applyRemedialActions(Network network, OptimizationResult optResult, State state) {
-    //     optResult.getActivatedNetworkActions().forEach(networkAction -> networkAction.apply(network));
-    //     optResult.getActivatedRangeActions(state).forEach(rangeAction -> rangeAction.apply(network, optResult.getOptimizedSetpoint(rangeAction, state)));
-    // }
-
     private OneStateOnlyRaoResultImpl optimizePreventivePerimeter(RaoInput raoInput, RaoParameters raoParameters, StateTree stateTree, ToolProvider toolProvider, PrePerimeterResult initialResult) {
 
         PreventiveOptimizationPerimeter optPerimeter = PreventiveOptimizationPerimeter.buildFromBasecaseScenario(stateTree.getBasecaseScenario(), raoInput.getCrac(), raoInput.getNetwork(), raoParameters, initialResult);

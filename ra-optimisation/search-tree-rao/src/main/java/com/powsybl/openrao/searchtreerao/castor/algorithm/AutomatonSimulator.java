@@ -115,7 +115,8 @@ public final class AutomatonSimulator {
         }
 
         // II) Run auto search tree on available topological automatons
-        OptimizationPerimeter autoOptimizationPerimeter = AutoOptimizationPerimeter.build(automatonState, crac, network, raoParameters, prePerimeterSensitivityOutput);
+        OptimizationPerimeter autoOptimizationPerimeter = AutoOptimizationPerimeter.build(automatonState, crac, network, raoParameters, topoSimulationResult.getPerimeterResult());
+        PrePerimeterResult postAutoSearchTreeResult;
 
         if (!autoOptimizationPerimeter.getNetworkActions().isEmpty()) {
             SearchTreeParameters searchTreeParameters = SearchTreeParameters.create()
@@ -136,16 +137,19 @@ public final class AutomatonSimulator {
                 .build();
 
             OptimizationResult autoSearchTreeResult = new SearchTree(searchTreeInput, searchTreeParameters, false).run().join();
+            postAutoSearchTreeResult = (PrePerimeterResult) autoSearchTreeResult;
 
             if (autoSearchTreeResult.getSensitivityStatus(automatonState) == ComputationStatus.FAILURE) {
                 return createFailedAutomatonPerimeterResult(automatonState, topoSimulationResult.getPerimeterResult(), autoSearchTreeResult.getActivatedNetworkActions(), "during");
             }
 
             applyRemedialActions(network, autoSearchTreeResult, automatonState);
+        } else {
+            postAutoSearchTreeResult = topoSimulationResult.getPerimeterResult();
         }
 
         // III) Simulate range actions
-        RangeAutomatonSimulationResult rangeAutomatonSimulationResult = simulateRangeAutomatons(automatonState, curativeStates, network, preAutoPerimeterSensitivityAnalysis, topoSimulationResult.getPerimeterResult());
+        RangeAutomatonSimulationResult rangeAutomatonSimulationResult = simulateRangeAutomatons(automatonState, curativeStates, network, preAutoPerimeterSensitivityAnalysis, postAutoSearchTreeResult);
 
         // Sensitivity analysis failed :
         if (rangeAutomatonSimulationResult.getPerimeterResult().getSensitivityStatus(automatonState) == ComputationStatus.FAILURE) {
