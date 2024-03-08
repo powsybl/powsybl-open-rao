@@ -103,55 +103,11 @@ class RaoParametersConsistencyTest {
 
     @Test
     void testNonNullMaps() {
-        RaUsageLimitsPerContingencyParameters rulpcp = parameters.getRaUsageLimitsPerContingencyParameters();
         NotOptimizedCnecsParameters nocp = parameters.getNotOptimizedCnecsParameters();
-
-        // default
-        assertNotNull(rulpcp.getMaxCurativeRaPerTso());
-        assertTrue(rulpcp.getMaxCurativeRaPerTso().isEmpty());
-
-        assertNotNull(rulpcp.getMaxCurativePstPerTso());
-        assertTrue(rulpcp.getMaxCurativePstPerTso().isEmpty());
-
-        assertNotNull(rulpcp.getMaxCurativeTopoPerTso());
-        assertTrue(rulpcp.getMaxCurativeTopoPerTso().isEmpty());
-
-        assertNotNull(nocp.getDoNotOptimizeCnecsSecuredByTheirPst());
-        assertTrue(nocp.getDoNotOptimizeCnecsSecuredByTheirPst().isEmpty());
-
-        // using setters
-        rulpcp.setMaxCurativeRaPerTso(Map.of("fr", 2));
-        rulpcp.setMaxCurativeRaPerTso(null);
-        assertNotNull(rulpcp.getMaxCurativeRaPerTso());
-        assertTrue(rulpcp.getMaxCurativeRaPerTso().isEmpty());
-
-        rulpcp.setMaxCurativePstPerTso(Map.of("fr", 2));
-        rulpcp.setMaxCurativePstPerTso(null);
-        assertNotNull(rulpcp.getMaxCurativePstPerTso());
-        assertTrue(rulpcp.getMaxCurativePstPerTso().isEmpty());
-
-        rulpcp.setMaxCurativeTopoPerTso(Map.of("fr", 2));
-        rulpcp.setMaxCurativeTopoPerTso(null);
-        assertNotNull(rulpcp.getMaxCurativeTopoPerTso());
-        assertTrue(rulpcp.getMaxCurativeTopoPerTso().isEmpty());
-
         nocp.setDoNotOptimizeCnecsSecuredByTheirPst(Map.of("cnec1", "pst1"));
         nocp.setDoNotOptimizeCnecsSecuredByTheirPst(null);
         assertNotNull(nocp.getDoNotOptimizeCnecsSecuredByTheirPst());
         assertTrue(nocp.getDoNotOptimizeCnecsSecuredByTheirPst().isEmpty());
-    }
-
-    @Test
-    void testIllegalValues() {
-        RaUsageLimitsPerContingencyParameters rulpcp = parameters.getRaUsageLimitsPerContingencyParameters();
-
-        rulpcp.setMaxCurativeRa(2);
-        rulpcp.setMaxCurativeRa(-2);
-        assertEquals(0, rulpcp.getMaxCurativeRa());
-
-        rulpcp.setMaxCurativeTso(2);
-        rulpcp.setMaxCurativeTso(-2);
-        assertEquals(0, rulpcp.getMaxCurativeTso());
     }
 
     @Test
@@ -202,23 +158,6 @@ class RaoParametersConsistencyTest {
         nocp.setDoNotOptimizeCnecsSecuredByTheirPst(Map.of("cnec1", "pst1"));
         nocp.setDoNotOptimizeCurativeCnecsForTsosWithoutCras(false);
         assertFalse(nocp.getDoNotOptimizeCurativeCnecsForTsosWithoutCras());
-    }
-
-    @Test
-    void testIncompatibleMaxCraParameters() {
-        RaUsageLimitsPerContingencyParameters rulpcp = parameters.getRaUsageLimitsPerContingencyParameters();
-
-        rulpcp.setMaxCurativeRaPerTso(Map.of("RTE", 5, "REE", 1));
-
-        Map<String, Integer> fewerCrasThanTopos = Map.of("RTE", 6);
-        Exception exception = assertThrows(OpenRaoException.class, () -> rulpcp.setMaxCurativeTopoPerTso(fewerCrasThanTopos));
-        assertEquals("TSO RTE has a maximum number of allowed CRAs smaller than the number of allowed topological CRAs. This is not supported.", exception.getMessage());
-        assertTrue(rulpcp.getMaxCurativeTopoPerTso().isEmpty());
-
-        Map<String, Integer> fewerCrasThanPsts = Map.of("REE", 2);
-        exception = assertThrows(OpenRaoException.class, () -> rulpcp.setMaxCurativePstPerTso(fewerCrasThanPsts));
-        assertEquals("TSO REE has a maximum number of allowed CRAs smaller than the number of allowed PST CRAs. This is not supported.", exception.getMessage());
-        assertTrue(rulpcp.getMaxCurativePstPerTso().isEmpty());
     }
 
     @Test

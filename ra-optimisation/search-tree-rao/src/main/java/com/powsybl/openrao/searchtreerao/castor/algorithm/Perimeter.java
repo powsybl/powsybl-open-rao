@@ -47,10 +47,6 @@ public class Perimeter {
         return raOptimisationState;
     }
 
-    public Set<State> getCnecStates() {
-        return cnecStates;
-    }
-
     public Set<State> getAllStates() {
         Set<State> states = new HashSet<>(cnecStates);
         states.add(raOptimisationState);

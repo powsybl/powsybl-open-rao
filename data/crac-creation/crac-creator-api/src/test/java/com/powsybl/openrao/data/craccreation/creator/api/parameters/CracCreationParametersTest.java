@@ -15,6 +15,7 @@ import org.mockito.Mockito;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.*;
 
 /**
@@ -27,6 +28,9 @@ class CracCreationParametersTest {
         CracCreationParameters parameters = new CracCreationParameters();
         assertEquals(CracFactory.findDefault().getName(), parameters.getCracFactoryName());
         assertEquals(CracFactory.findDefault().getName(), parameters.getCracFactory().getName());
+        assertTrue(parameters.getRaUsageLimitsPerInstant().isEmpty());
+        assertEquals(CracCreationParameters.MonitoredLineSide.MONITOR_LINES_ON_BOTH_SIDES, parameters.getDefaultMonitoredLineSide());
+        assertTrue(parameters.getExtensions().isEmpty());
     }
 
     @Test

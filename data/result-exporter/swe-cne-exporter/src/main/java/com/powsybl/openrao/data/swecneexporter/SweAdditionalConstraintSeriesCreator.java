@@ -15,6 +15,7 @@ import com.powsybl.openrao.data.cracapi.cnec.AngleCnec;
 import com.powsybl.openrao.data.craccreation.creator.cim.craccreator.CimCracCreationContext;
 import com.powsybl.openrao.data.craccreation.creator.cim.craccreator.cnec.AngleCnecCreationContext;
 import com.powsybl.openrao.data.raoresultapi.ComputationStatus;
+import com.powsybl.openrao.data.raoresultapi.RaoResult;
 import com.powsybl.openrao.data.swecneexporter.xsd.AdditionalConstraintSeries;
 
 import java.math.BigDecimal;
@@ -71,8 +72,9 @@ public class SweAdditionalConstraintSeriesCreator {
         additionalConstraintSeries.setMRID(angleCnecCreationContext.getCreatedCnecId());
         additionalConstraintSeries.setBusinessType(ANGLE_CNEC_BUSINESS_TYPE);
         additionalConstraintSeries.setName(angleCnec.getName());
-        if (!sweCneHelper.getRaoResult().getComputationStatus().equals(ComputationStatus.FAILURE)) {
-            additionalConstraintSeries.setQuantityQuantity(BigDecimal.valueOf(sweCneHelper.getRaoResult().getAngle(crac.getInstant(InstantKind.CURATIVE), angleCnec, Unit.DEGREE)).setScale(1, RoundingMode.HALF_UP));
+        RaoResult raoResult = sweCneHelper.getRaoResult();
+        if (!raoResult.getComputationStatus().equals(ComputationStatus.FAILURE) && !Double.isNaN(raoResult.getAngle(crac.getInstant(InstantKind.CURATIVE), angleCnec, Unit.DEGREE))) {
+            additionalConstraintSeries.setQuantityQuantity(BigDecimal.valueOf(raoResult.getAngle(crac.getInstant(InstantKind.CURATIVE), angleCnec, Unit.DEGREE)).setScale(1, RoundingMode.HALF_UP));
         }
         return additionalConstraintSeries;
     }

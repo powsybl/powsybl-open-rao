@@ -342,6 +342,17 @@ class CimCracCreatorTest {
     }
 
     @Test
+    void cracCreationWithParameters() {
+        CracCreationParameters cracCreationParameters = new CracCreationParameters();
+        RaUsageLimits raUsageLimits = new RaUsageLimits();
+        raUsageLimits.setMaxRa(2);
+        cracCreationParameters.addRaUsageLimitsForInstant("preventive", raUsageLimits);
+        setUp("/cracs/CIM_21_1_1.xml", baseNetwork, OffsetDateTime.parse("2021-04-01T22:00Z"), cracCreationParameters);
+        assertTrue(cracCreationContext.isCreationSuccessful());
+        assertEquals(2, cracCreationContext.getCrac().getRaUsageLimits(preventiveInstant).getMaxRa());
+    }
+
+    @Test
     void testImportContingencies() {
         setUp("/cracs/CIM_21_1_1.xml", baseNetwork, OffsetDateTime.parse("2021-04-01T23:00Z"), new CracCreationParameters());
 
@@ -357,8 +368,20 @@ class CimCracCreatorTest {
     }
 
     @Test
+    void testCracPeriodManagementBeforeValidPeriod() {
+        setUp("/cracs/CIM_21_1_1_multi_period.xml", baseNetwork, OffsetDateTime.parse("2021-04-01T22:00Z"), new CracCreationParameters());
+        assertEquals(0, importedCrac.getContingencies().size());
+        setUp("/cracs/CIM_21_1_1_multi_period.xml", baseNetwork, OffsetDateTime.parse("2021-04-01T23:00Z"), new CracCreationParameters());
+        assertEquals(3, importedCrac.getContingencies().size());
+        setUp("/cracs/CIM_21_1_1_multi_period.xml", baseNetwork, OffsetDateTime.parse("2021-04-02T01:00Z"), new CracCreationParameters());
+        assertEquals(3, importedCrac.getContingencies().size());
+        setUp("/cracs/CIM_21_1_1_multi_period.xml", baseNetwork, OffsetDateTime.parse("2021-04-02T02:00Z"), new CracCreationParameters());
+        assertEquals(1, importedCrac.getContingencies().size());
+    }
+
+    @Test
     void testImportContingencyOnTieLine() {
-        setUp("/cracs/CIM_co_halfline.xml", baseNetwork, OffsetDateTime.parse("2021-04-01T22:00Z"), new CracCreationParameters());
+        setUp("/cracs/CIM_co_halfline.xml", baseNetwork, OffsetDateTime.parse("2021-04-01T23:00Z"), new CracCreationParameters());
 
         assertEquals(1, importedCrac.getContingencies().size());
         assertContingencyImported("Co-2", "Co-2-name", Set.of("_b18cd1aa-7808-49b9-a7cf-605eaf07b006 + _e8acf6b6-99cb-45ad-b8dc-16c7866a4ddc", "_df16b3dd-c905-4a6f-84ee-f067be86f5da"), false);
@@ -612,7 +635,7 @@ class CimCracCreatorTest {
 
     @Test
     void testImportRasAvailableForSpecificCountry() {
-        setUp("/cracs/CIM_21_5_2.xml", baseNetwork, OffsetDateTime.parse("2021-04-01T23:00Z"), new CracCreationParameters());
+        setUp("/cracs/CIM_21_5_2.xml", baseNetwork, OffsetDateTime.parse("2021-04-02T20:00Z"), new CracCreationParameters());
 
         // RA_1
         assertNetworkActionImported("RA_1", Set.of("_2844585c-0d35-488d-a449-685bcd57afbf", "_ffbabc27-1ccd-4fdc-b037-e341706c8d29"), false);
@@ -886,7 +909,7 @@ class CimCracCreatorTest {
         // Curative threshold is in A, should be defined on high voltage level side
 
         cracCreationParameters.setDefaultMonitoredLineSide(CracCreationParameters.MonitoredLineSide.MONITOR_LINES_ON_BOTH_SIDES);
-        setUp("/cracs/CIM_21_5_2.xml", baseNetwork, OffsetDateTime.parse("2021-04-01T23:00Z"), cracCreationParameters);
+        setUp("/cracs/CIM_21_5_2.xml", baseNetwork, OffsetDateTime.parse("2021-04-02T20:00Z"), cracCreationParameters);
         assertHasTwoThresholds("OJLJJ_5_400_220 - preventive", Unit.PERCENT_IMAX, -1., 1.);
         assertHasTwoThresholds("OJLJJ_5_400_220 - CO_2 - outage", Unit.MEGAWATT, -1000., 1000.);
         assertHasTwoThresholds("OJLJJ_5_400_220 - CO_3 - outage", Unit.MEGAWATT, -1000., 1000.);
@@ -894,7 +917,7 @@ class CimCracCreatorTest {
         assertHasOneThreshold("OJLJJ_5_400_220 - CO_3 - curative", Side.RIGHT, Unit.AMPERE, -2000., 2000.);
 
         cracCreationParameters.setDefaultMonitoredLineSide(CracCreationParameters.MonitoredLineSide.MONITOR_LINES_ON_LEFT_SIDE);
-        setUp("/cracs/CIM_21_5_2.xml", baseNetwork, OffsetDateTime.parse("2021-04-01T23:00Z"), cracCreationParameters);
+        setUp("/cracs/CIM_21_5_2.xml", baseNetwork, OffsetDateTime.parse("2021-04-02T03:00Z"), cracCreationParameters);
         assertHasOneThreshold("OJLJJ_5_400_220 - preventive", Side.LEFT, Unit.PERCENT_IMAX, -1., 1.);
         assertHasOneThreshold("OJLJJ_5_400_220 - CO_2 - outage", Side.LEFT, Unit.MEGAWATT, -1000., 1000.);
         assertHasOneThreshold("OJLJJ_5_400_220 - CO_3 - outage", Side.LEFT, Unit.MEGAWATT, -1000., 1000.);
@@ -902,7 +925,7 @@ class CimCracCreatorTest {
         assertHasOneThreshold("OJLJJ_5_400_220 - CO_3 - curative", Side.RIGHT, Unit.AMPERE, -2000., 2000.);
 
         cracCreationParameters.setDefaultMonitoredLineSide(CracCreationParameters.MonitoredLineSide.MONITOR_LINES_ON_RIGHT_SIDE);
-        setUp("/cracs/CIM_21_5_2.xml", baseNetwork, OffsetDateTime.parse("2021-04-01T23:00Z"), cracCreationParameters);
+        setUp("/cracs/CIM_21_5_2.xml", baseNetwork, OffsetDateTime.parse("2021-04-02T05:00Z"), cracCreationParameters);
         assertHasOneThreshold("OJLJJ_5_400_220 - preventive", Side.RIGHT, Unit.PERCENT_IMAX, -1., 1.);
         assertHasOneThreshold("OJLJJ_5_400_220 - CO_2 - outage", Side.RIGHT, Unit.MEGAWATT, -1000., 1000.);
         assertHasOneThreshold("OJLJJ_5_400_220 - CO_3 - outage", Side.RIGHT, Unit.MEGAWATT, -1000., 1000.);

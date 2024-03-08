@@ -9,9 +9,9 @@ package com.powsybl.openrao.monitoring.voltagemonitoring.json;
 
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.cracapi.Crac;
+import com.powsybl.openrao.data.cracapi.RemedialAction;
 import com.powsybl.openrao.data.cracapi.State;
 import com.powsybl.openrao.data.cracapi.cnec.VoltageCnec;
-import com.powsybl.openrao.data.cracapi.networkaction.NetworkAction;
 import com.powsybl.openrao.monitoring.monitoringcommon.json.MonitoringCommonDeserializer;
 import com.powsybl.openrao.monitoring.voltagemonitoring.ExtremeVoltageValues;
 import com.powsybl.openrao.monitoring.voltagemonitoring.VoltageMonitoringResult;
@@ -59,7 +59,7 @@ public class VoltageMonitoringResultDeserializer extends JsonDeserializer<Voltag
         }
 
         Map<VoltageCnec, ExtremeVoltageValues> extremeVoltageValues = new HashMap<>();
-        Map<State, Set<NetworkAction>> appliedRas = new HashMap<>();
+        Map<State, Set<RemedialAction<?>>> appliedRas = new HashMap<>();
         while (jsonParser.nextToken() != JsonToken.END_OBJECT) {
             if (jsonParser.getCurrentName().equals(VOLTAGE_VALUES)) {
                 jsonParser.nextToken();
