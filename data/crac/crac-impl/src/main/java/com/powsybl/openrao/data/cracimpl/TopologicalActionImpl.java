@@ -7,6 +7,8 @@
 
 package com.powsybl.openrao.data.cracimpl;
 
+import com.powsybl.action.SwitchActionBuilder;
+import com.powsybl.action.TerminalsConnectionActionBuilder;
 import com.powsybl.openrao.data.cracapi.networkaction.ActionType;
 import com.powsybl.openrao.data.cracapi.NetworkElement;
 import com.powsybl.openrao.data.cracapi.networkaction.TopologicalAction;
@@ -43,16 +45,22 @@ public final class TopologicalActionImpl implements TopologicalAction {
     @Override
     public void apply(Network network) {
         Identifiable<?> element = network.getIdentifiable(networkElement.getId());
-        if (element instanceof Branch<?> branch) {
-            if (actionType == ActionType.OPEN) {
-                branch.getTerminal1().disconnect();
-                branch.getTerminal2().disconnect();
-            } else {
-                branch.getTerminal1().connect();
-                branch.getTerminal2().connect();
-            }
-        } else if (element instanceof Switch sw) {
-            sw.setOpen(actionType == ActionType.OPEN);
+        if (element instanceof Branch<?>) {
+            new TerminalsConnectionActionBuilder()
+                    .withId("id")
+                    .withNetworkElementId(networkElement.getId())
+                    .withOpen(actionType == ActionType.OPEN)
+                .build()
+                .toModification()
+                .apply(network);
+        } else if (element instanceof Switch) {
+            new SwitchActionBuilder()
+                    .withId("id")
+                    .withNetworkElementId(networkElement.getId())
+                    .withOpen(actionType == ActionType.OPEN)
+                .build()
+                .toModification()
+                .apply(network);
         } else {
             throw new NotImplementedException("Topological actions are only on branches or switches for now");
         }
