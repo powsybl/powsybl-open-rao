@@ -11,6 +11,7 @@ import com.google.auto.service.AutoService;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.VariantManager;
 import com.powsybl.iidm.serde.NetworkSerDe;
+import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.commons.logs.OpenRaoLogger;
 import com.powsybl.openrao.commons.logs.RaoBusinessLogs;
 import com.powsybl.openrao.data.cracapi.Crac;
@@ -115,12 +116,29 @@ public class FastRao implements RaoProvider {
                 postSensiAndFilteredRaoResult = runFilteredRao(raoInput, parameters, targetEndInstant, worstCnecs, prePerimeterSensitivityAnalysis, initialResult);
                 ofResult = postSensiAndFilteredRaoResult.getLeft();
                 RaoLogger.logMostLimitingElementsResults(logger, ofResult, parameters.getObjectiveFunctionParameters().getType(), 5);
+                logVirtualCosts(logger, initialResult, ofResult);
                 worstCnec = ofResult.getMostLimitingElements(1).get(0);
             } while (!(worstCnecs.contains(worstCnec) && worstCnecs.containsAll(getCostlyVirtualCnecs(ofResult))));
 
             return CompletableFuture.completedFuture(new FastRaoResultImpl(initialResult, ofResult, postSensiAndFilteredRaoResult.getRight(), crac));
         } catch (IOException e) {
             throw new UncheckedIOException(e);
+        }
+    }
+
+    private void logVirtualCosts(OpenRaoLogger logger, PrePerimeterResult initialResult, PrePerimeterResult ofResult) {
+        if (ofResult.getVirtualCost() > 1e-6) {
+            ofResult.getVirtualCostNames().forEach(name -> ofResult.getCostlyElements(name, 10).forEach(flowCnec -> {
+                String stringBuilder = name +
+                    " costly element " +
+                    flowCnec.getId() +
+                    "; margin before RAO " +
+                    initialResult.getMargin(flowCnec, Unit.MEGAWATT) +
+                    "MW; margin after RAO " +
+                    ofResult.getMargin(flowCnec, Unit.MEGAWATT) +
+                    "MW.";
+                logger.info(stringBuilder);
+            }));
         }
     }
 
@@ -135,7 +153,9 @@ public class FastRao implements RaoProvider {
 
     private FlowCnec getWorstPreventiveCnec(ObjectiveFunctionResult ofResult) {
         List<FlowCnec> orderedCnecs = ofResult.getMostLimitingElements(Integer.MAX_VALUE);
-        return orderedCnecs.stream().filter(cnec -> cnec.getState().isPreventive()).findFirst().orElseThrow();
+        return orderedCnecs.stream().filter(cnec -> cnec.getState().isPreventive()).findFirst().orElse(
+            ofResult.getObjectiveFunction().getFlowCnecs().stream().filter(flowCnec -> flowCnec.getState().isPreventive()).findFirst().orElseThrow()
+        );
     }
 
     private Set<FlowCnec> getCostlyVirtualCnecs(ObjectiveFunctionResult ofResult) {
