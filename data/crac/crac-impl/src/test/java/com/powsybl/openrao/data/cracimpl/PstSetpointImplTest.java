@@ -6,8 +6,9 @@
  */
 
 package com.powsybl.openrao.data.cracimpl;
-import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.cracapi.Crac;
+
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.openrao.data.cracapi.NetworkElement;
 import com.powsybl.openrao.data.cracapi.networkaction.PstSetpoint;
 import com.powsybl.openrao.data.cracimpl.utils.NetworkImportsUtil;
@@ -77,8 +78,8 @@ class PstSetpointImplTest {
         try {
             pstSetpoint.apply(network);
             fail();
-        } catch (OpenRaoException e) {
-            assertEquals("Tap value 17 not in the range of high and low tap positions [-16,16] of the phase tap changer BBE2AA1  BBE3AA1  1 steps", e.getMessage());
+        } catch (PowsyblException e) {
+            assertEquals("2 windings transformer 'BBE2AA1  BBE3AA1  1': incorrect tap position 17 [-16, 16]", e.getMessage());
         }
     }
 
@@ -91,8 +92,8 @@ class PstSetpointImplTest {
         try {
             pstSetpoint.apply(network);
             fail();
-        } catch (OpenRaoException e) {
-            assertEquals("Tap value 50 not in the range of high and low tap positions [-16,16] of the phase tap changer BBE2AA1  BBE3AA1  1 steps", e.getMessage());
+        } catch (PowsyblException e) {
+            assertEquals("2 windings transformer 'BBE2AA1  BBE3AA1  1': incorrect tap position 50 [-16, 16]", e.getMessage());
         }
     }
 

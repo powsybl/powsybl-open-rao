@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.data.cracimpl;
 
+import com.powsybl.action.SwitchActionBuilder;
 import com.powsybl.openrao.data.cracapi.NetworkElement;
 import com.powsybl.openrao.data.cracapi.networkaction.SwitchPair;
 import com.powsybl.iidm.network.Network;
@@ -38,8 +39,20 @@ public class SwitchPairImpl implements SwitchPair {
 
     @Override
     public void apply(Network network) {
-        network.getSwitch(switchToOpen.getId()).setOpen(true);
-        network.getSwitch(switchToClose.getId()).setOpen(false);
+        new SwitchActionBuilder()
+                .withId("idOpen")
+                .withNetworkElementId(switchToOpen.getId())
+                .withOpen(true)
+            .build()
+            .toModification()
+            .apply(network);
+        new SwitchActionBuilder()
+                .withId("idClose")
+                .withNetworkElementId(switchToClose.getId())
+                .withOpen(false)
+            .build()
+            .toModification()
+            .apply(network);
     }
 
     @Override
