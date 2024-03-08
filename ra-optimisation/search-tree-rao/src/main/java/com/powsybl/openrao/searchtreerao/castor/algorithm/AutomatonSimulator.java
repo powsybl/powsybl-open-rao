@@ -162,7 +162,7 @@ public final class AutomatonSimulator {
         return automatonPerimeterResultImpl;
     }
 
-    private OptimizationResult runAutoSearchTree(State automatonState, Network network, StateTree stateTree, TreeParameters automatonTreeParameters, PrePerimeterResult initialSensitivityOutput, OptimizationPerimeter autoOptimizationPerimeter, Set<NetworkAction> simulatedNetworkActions) {
+    private OptimizationResult runAutoSearchTree(State automatonState, Network network, StateTree stateTree, TreeParameters automatonTreeParameters, PrePerimeterResult initialSensitivityOutput, OptimizationPerimeter autoOptimizationPerimeter, Set<NetworkAction> forcedNetworkActions) {
         SearchTreeParameters searchTreeParameters = SearchTreeParameters.create()
             .withConstantParametersOverAllRao(raoParameters, crac)
             .withTreeParameters(automatonTreeParameters)
@@ -170,7 +170,7 @@ public final class AutomatonSimulator {
             .build();
 
         AppliedRemedialActions appliedRemedialActions = new AppliedRemedialActions();
-        appliedRemedialActions.addAppliedNetworkActions(automatonState, simulatedNetworkActions);
+        appliedRemedialActions.addAppliedNetworkActions(automatonState, forcedNetworkActions);
 
         SearchTreeInput searchTreeInput = SearchTreeInput.create()
             .withNetwork(network)

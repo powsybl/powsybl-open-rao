@@ -28,7 +28,6 @@ public final class RaoParametersCommons {
     public static final String FORBID_COST_INCREASE = "forbid-cost-increase";
     public static final String CURATIVE_MIN_OBJ_IMPROVEMENT = "curative-min-obj-improvement";
     public static final String PREVENTIVE_STOP_CRITERION = "preventive-stop-criterion";
-    public static final String AUTO_STOP_CRITERION = "auto-stop-criterion";
     public static final String CURATIVE_STOP_CRITERION = "curative-stop-criterion";
 
     // range actions optimization parameters

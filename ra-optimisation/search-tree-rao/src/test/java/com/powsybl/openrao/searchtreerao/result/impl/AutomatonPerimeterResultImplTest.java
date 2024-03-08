@@ -115,7 +115,7 @@ class AutomatonPerimeterResultImplTest {
     @Test
     void testGetActivatedNetworkActions() {
         assertEquals(Set.of(networkAction1), result.getActivatedNetworkActions());
-        assertEquals(Set.of(networkAction1), result.getSimulatedNetworkActions());
+        assertEquals(Set.of(networkAction1), result.getForcedNetworkActions());
         assertEquals(Set.of(), result.getSelectedNetworkActions());
     }
 

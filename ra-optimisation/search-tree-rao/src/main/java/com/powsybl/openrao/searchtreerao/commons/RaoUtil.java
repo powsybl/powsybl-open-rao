@@ -133,7 +133,7 @@ public final class RaoUtil {
      * It will not be available.
      * 2) It gathers all the remedial action usageMethods and filters out the OnFlowConstraint(InCountry) with no negative margins on their associated cnecs.
      * 3) It computes the "strongest" usage method.
-     * For automatonState, the remedial action is available if and only if the usage method is "FORCED".
+     * For automatonState, the remedial action is available if and only if the usage method is "FORCED" (resp. "AVAILABLE") if the parameter onlyUseAvailableAutoRemedialActions is set to false (resp. true).
      * For other states, the remedial action is available if and only if the usage method is "AVAILABLE".
      */
     public static boolean isRemedialActionAvailable(RemedialAction<?> remedialAction, State state, FlowResult flowResult, Set<FlowCnec> flowCnecs, Network network, RaoParameters raoParameters, boolean onlyUseAvailableAutoRemedialActions) {
@@ -150,10 +150,6 @@ public final class RaoUtil {
             if (onlyUseAvailableAutoRemedialActions) {
                 return finalUsageMethod.equals(UsageMethod.AVAILABLE);
             } else {
-                if (finalUsageMethod.equals(UsageMethod.AVAILABLE)) {
-                    // TODO: remove OpenRaoLoggerProvider.BUSINESS_WARNS.warn(format("The RAO only knows how to interpret 'forced' usage method to simulate automatons. Therefore, %s will be ignored for this state: %s", remedialAction.getName(), state.getId()));
-                    return false;
-                }
                 return finalUsageMethod.equals(UsageMethod.FORCED);
             }
         } else {

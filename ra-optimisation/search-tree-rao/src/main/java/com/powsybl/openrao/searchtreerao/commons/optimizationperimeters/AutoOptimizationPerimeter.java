@@ -24,9 +24,9 @@ import java.util.stream.Collectors;
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
 public class AutoOptimizationPerimeter extends AbstractOptimizationPerimeter {
-    public AutoOptimizationPerimeter(State automatonState, Set<FlowCnec> flowCnecs, Set<FlowCnec> looopFlowCnecs, Set<NetworkAction> availableNetworkActions) {
+    public AutoOptimizationPerimeter(State automatonState, Set<FlowCnec> flowCnecs, Set<FlowCnec> loopFlowCnecs, Set<NetworkAction> availableNetworkActions) {
         // Only network ARA can be available
-        super(automatonState, flowCnecs, looopFlowCnecs, availableNetworkActions, Map.of());
+        super(automatonState, flowCnecs, loopFlowCnecs, availableNetworkActions, Map.of());
         if (!automatonState.getInstant().isAuto()) {
             throw new OpenRaoException("an AutoOptimizationPerimeter must be based on an auto state");
         }

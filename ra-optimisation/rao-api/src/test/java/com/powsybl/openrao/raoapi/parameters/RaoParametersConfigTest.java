@@ -48,7 +48,6 @@ class RaoParametersConfigTest {
         objectiveFunctionModuleConfig.setStringProperty("forbid-cost-increase", Objects.toString(true));
         objectiveFunctionModuleConfig.setStringProperty("curative-min-obj-improvement", Objects.toString(123.0));
         objectiveFunctionModuleConfig.setStringProperty("preventive-stop-criterion", "MIN_OBJECTIVE");
-        objectiveFunctionModuleConfig.setStringProperty("auto-stop-criterion", "MIN_OBJECTIVE");
         objectiveFunctionModuleConfig.setStringProperty("curative-stop-criterion", "PREVENTIVE_OBJECTIVE");
 
         RaoParameters parameters = new RaoParameters();
