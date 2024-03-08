@@ -94,7 +94,7 @@ public final class AutomatonSimulator {
      * then range actions by order of speed. TODO Network actions by speed  is not implemented yet
      * Returns an AutomatonPerimeterResult
      */
-    AutomatonPerimeterResultImpl simulateAutomatonState(State automatonState, Set<State> curativeStates, Network network, StateTree stateTree, TreeParameters automatonTreeParameters, PrePerimeterResult initialSensitivityOutput) {
+    AutomatonPerimeterResultImpl simulateAutomatonState(State automatonState, Set<State> curativeStates, Network network, StateTree stateTree, TreeParameters automatonTreeParameters) {
         TECHNICAL_LOGS.info("Optimizing automaton state {}.", automatonState.getId());
         TECHNICAL_LOGS.info("Initial situation:");
         RaoLogger.logMostLimitingElementsResults(TECHNICAL_LOGS, prePerimeterSensitivityOutput, Set.of(automatonState), raoParameters.getObjectiveFunctionParameters().getType(), numberLoggedElementsDuringRao);

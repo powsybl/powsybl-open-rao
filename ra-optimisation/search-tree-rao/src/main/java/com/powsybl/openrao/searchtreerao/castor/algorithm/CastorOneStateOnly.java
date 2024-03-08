@@ -92,7 +92,7 @@ public class CastorOneStateOnly {
             AutomatonSimulator automatonSimulator = new AutomatonSimulator(raoInput.getCrac(), raoParameters, toolProvider, initialResults, initialResults, initialResults, stateTree.getOperatorsNotSharingCras(), 2);
             TreeParameters automatonTreeParameters = TreeParameters.buildForAutomatonPerimeter(raoParameters);
             // TODO: check initial results
-            optimizationResult = automatonSimulator.simulateAutomatonState(raoInput.getOptimizedState(), Set.of(curativeState), raoInput.getNetwork(), stateTree, automatonTreeParameters, initialResults);
+            optimizationResult = automatonSimulator.simulateAutomatonState(raoInput.getOptimizedState(), Set.of(curativeState), raoInput.getNetwork(), stateTree, automatonTreeParameters);
         } else {
             if (raoInput.getOptimizedState().equals(raoInput.getCrac().getPreventiveState())) {
                 optPerimeter = PreventiveOptimizationPerimeter.buildWithPreventiveCnecsOnly(raoInput.getCrac(), raoInput.getNetwork(), raoParameters, initialResults);

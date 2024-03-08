@@ -634,7 +634,7 @@ class AutomatonSimulatorTest {
         SensitivityResult mockedSensitivityResult = mock(SensitivityResult.class);
         when(mockedPrePerimeterResult.getSensitivityResult()).thenReturn(mockedSensitivityResult);
 
-        AutomatonPerimeterResultImpl result = automatonSimulator.simulateAutomatonState(autoState, Set.of(curativeState), network, null, null, null);
+        AutomatonPerimeterResultImpl result = automatonSimulator.simulateAutomatonState(autoState, Set.of(curativeState), network, null, null);
         assertNotNull(result);
         assertEquals(Set.of(), result.getActivatedNetworkActions());
         assertEquals(Set.of(), result.getActivatedRangeActions(autoState));
@@ -648,7 +648,7 @@ class AutomatonSimulatorTest {
         Instant curativeInstant = Mockito.mock(Instant.class);
         when(curativeState.getInstant()).thenReturn(curativeInstant);
         when(curativeState.getContingency()).thenReturn(Optional.of(crac.getContingency("contingency1")));
-        AutomatonPerimeterResultImpl result = automatonSimulator.simulateAutomatonState(autoState, Set.of(curativeState), network, null, null, null);
+        AutomatonPerimeterResultImpl result = automatonSimulator.simulateAutomatonState(autoState, Set.of(curativeState), network, null, null);
         assertNotNull(result);
         assertEquals(ComputationStatus.FAILURE, result.getComputationStatus());
         assertEquals(Set.of(), result.getActivatedRangeActions(autoState));
@@ -729,10 +729,4 @@ class AutomatonSimulatorTest {
         assertEquals(-3.1, shiftResult.getRangeActionsWithSetpoint().get(ara1), DOUBLE_TOLERANCE);
         assertEquals(-3.1, shiftResult.getRangeActionsWithSetpoint().get(ara2), DOUBLE_TOLERANCE);
     }
-
-    @Test
-    void testWithAutoSearchTree() {
-        // TODO
-    }
-
 }

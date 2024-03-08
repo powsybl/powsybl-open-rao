@@ -332,7 +332,7 @@ public class CastorFullOptimization {
         // Simulate automaton instant
         boolean autoStateSensiFailed = false;
         if (automatonState.isPresent()) {
-            AutomatonPerimeterResultImpl automatonResult = automatonSimulator.simulateAutomatonState(automatonState.get(), curativeStates, networkClone, stateTree, automatonTreeParameters, initialSensitivityOutput);
+            AutomatonPerimeterResultImpl automatonResult = automatonSimulator.simulateAutomatonState(automatonState.get(), curativeStates, networkClone, stateTree, automatonTreeParameters);
             if (automatonResult.getComputationStatus() == ComputationStatus.FAILURE) {
                 autoStateSensiFailed = true;
                 contingencyScenarioResults.put(automatonState.get(), new SkippedOptimizationResultImpl(automatonState.get(), automatonResult.getActivatedNetworkActions(), automatonResult.getActivatedRangeActions(automatonState.get()), ComputationStatus.FAILURE, sensitivityFailureOvercost));
