@@ -151,7 +151,7 @@ public final class RaoUtil {
                 return finalUsageMethod.equals(UsageMethod.AVAILABLE);
             } else {
                 if (finalUsageMethod.equals(UsageMethod.AVAILABLE)) {
-                    OpenRaoLoggerProvider.BUSINESS_WARNS.warn(format("The RAO only knows how to interpret 'forced' usage method to simulate automatons. Therefore, %s will be ignored for this state: %s", remedialAction.getName(), state.getId()));
+                    // TODO: remove OpenRaoLoggerProvider.BUSINESS_WARNS.warn(format("The RAO only knows how to interpret 'forced' usage method to simulate automatons. Therefore, %s will be ignored for this state: %s", remedialAction.getName(), state.getId()));
                     return false;
                 }
                 return finalUsageMethod.equals(UsageMethod.FORCED);
