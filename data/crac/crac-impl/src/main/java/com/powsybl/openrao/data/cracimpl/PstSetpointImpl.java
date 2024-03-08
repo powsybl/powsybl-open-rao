@@ -7,7 +7,7 @@
 
 package com.powsybl.openrao.data.cracimpl;
 
-import com.powsybl.openrao.commons.OpenRaoException;
+import com.powsybl.action.PhaseTapChangerTapPositionAction;
 import com.powsybl.openrao.data.cracapi.NetworkElement;
 import com.powsybl.openrao.data.cracapi.networkaction.PstSetpoint;
 import com.powsybl.iidm.network.Network;
@@ -60,17 +60,10 @@ public final class PstSetpointImpl implements PstSetpoint {
     public void apply(Network network) {
         PhaseTapChanger phaseTapChanger = network.getTwoWindingsTransformer(networkElement.getId()).getPhaseTapChanger();
         int normalizedSetPoint = getNormalizedSetpoint(phaseTapChanger);
-
-        if (normalizedSetPoint >= phaseTapChanger.getLowTapPosition() && normalizedSetPoint <= phaseTapChanger.getHighTapPosition()) {
-            phaseTapChanger.setTapPosition(normalizedSetPoint);
-        } else {
-            throw new OpenRaoException(String.format(
-                    "Tap value %d not in the range of high and low tap positions [%d,%d] of the phase tap changer %s steps",
-                    normalizedSetPoint,
-                    phaseTapChanger.getLowTapPosition(),
-                    phaseTapChanger.getHighTapPosition(),
-                    networkElement.getId()));
-        }
+        // should log or throw exception in case outside limits
+        new PhaseTapChangerTapPositionAction("id", networkElement.getId(), false, normalizedSetPoint)
+            .toModification()
+            .apply(network, true, null);
     }
 
     @Override
