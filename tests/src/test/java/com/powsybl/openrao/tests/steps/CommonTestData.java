@@ -39,7 +39,6 @@ import static com.powsybl.openrao.tests.utils.Helpers.*;
 
 public final class CommonTestData {
 
-    public static final String RESOURCES_PATH = "";
     private static final String DEFAULT_CRAC_CREATION_PARAMETERS_PATH = "cracCreationParameters/common/CracCreationParameters_default.json";
     private static final String DEFAULT_RAO_PARAMETERS_PATH = "configurations/common/RaoParameters_default.json";
 
@@ -108,7 +107,7 @@ public final class CommonTestData {
     }
 
     public static String getResourcesPath() {
-        return RESOURCES_PATH.concat(dataPrefix);
+        return dataPrefix;
     }
 
     public static void setLinearSolver(String solver) {
