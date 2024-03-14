@@ -106,7 +106,7 @@ public final class AutomatonSimulator {
             return createFailedAutomatonPerimeterResult(automatonState, prePerimeterSensitivityOutput, new HashSet<>(), "before");
         }
 
-        // I) Simulate topological automatons
+        // I) Simulate FORCED topological automatons
         TopoAutomatonSimulationResult topoSimulationResult = simulateTopologicalAutomatons(automatonState, network, preAutoPerimeterSensitivityAnalysis);
 
         // Sensitivity analysis failed :
@@ -114,7 +114,7 @@ public final class AutomatonSimulator {
             return createFailedAutomatonPerimeterResult(automatonState, topoSimulationResult.getPerimeterResult(), topoSimulationResult.getActivatedNetworkActions(), "during");
         }
 
-        // II) Run auto search tree on available topological automatons
+        // II) Run auto search tree on AVAILABLE topological automatons
         OptimizationPerimeter autoOptimizationPerimeter = AutoOptimizationPerimeter.build(automatonState, crac, network, raoParameters, topoSimulationResult.getPerimeterResult());
         OptimizationResult autoSearchTreeResult = null;
 
