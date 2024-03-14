@@ -250,7 +250,7 @@ public final class AutomatonSimulator {
         // -- First get forced network actions
         Set<FlowCnec> flowCnecs = crac.getFlowCnecs();
         Set<NetworkAction> appliedNetworkActions = crac.getNetworkActions().stream()
-            .filter(ra -> RaoUtil.isRemedialActionAvailable(ra, automatonState, prePerimeterSensitivityOutput, flowCnecs, network, raoParameters, false))
+            .filter(ra -> RaoUtil.isRemedialActionForced(ra, automatonState, prePerimeterSensitivityOutput, flowCnecs, network, raoParameters))
             .collect(Collectors.toSet());
 
         if (appliedNetworkActions.isEmpty()) {
@@ -379,7 +379,7 @@ public final class AutomatonSimulator {
         // 1) Get available range actions
         // -- First get forced range actions
         Set<RangeAction<?>> availableRangeActions = crac.getRangeActions().stream()
-            .filter(ra -> RaoUtil.isRemedialActionAvailable(ra, automatonState, rangeActionSensitivity, crac.getFlowCnecs(), network, raoParameters, false))
+            .filter(ra -> RaoUtil.isRemedialActionForced(ra, automatonState, rangeActionSensitivity, crac.getFlowCnecs(), network, raoParameters))
             .collect(Collectors.toSet());
 
         // 2) Sort range actions
