@@ -10,7 +10,9 @@
     "pst-sensitivity-threshold" : 1.0E-6
   },
   "topological-actions-optimization" : {
-    "max-search-tree-depth" : 5,
+    "max-preventive-search-tree-depth" : 5,
+    "max-auto-search-tree-depth" : 2,
+    "max-curative-search-tree-depth" : 5,
     "relative-minimum-impact-threshold" : 0.0,
     "absolute-minimum-impact-threshold" : 0.0,
     "skip-actions-far-from-most-limiting-element" : false,
