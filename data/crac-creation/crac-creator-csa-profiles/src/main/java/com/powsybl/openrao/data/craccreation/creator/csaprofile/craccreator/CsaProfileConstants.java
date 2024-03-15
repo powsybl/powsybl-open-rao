@@ -268,11 +268,11 @@ public final class CsaProfileConstants {
         }
     }
 
-    public enum LimitKind {
+    public enum LimitTypeKind {
         PATL("patl"),
         TATL("tatl");
 
-        LimitKind(String name) {
+        LimitTypeKind(String name) {
             this.name = name;
         }
 
@@ -281,7 +281,7 @@ public final class CsaProfileConstants {
 
         @Override
         public String toString() {
-            return LimitKind.URL + this.name;
+            return LimitTypeKind.URL + this.name;
         }
     }
 

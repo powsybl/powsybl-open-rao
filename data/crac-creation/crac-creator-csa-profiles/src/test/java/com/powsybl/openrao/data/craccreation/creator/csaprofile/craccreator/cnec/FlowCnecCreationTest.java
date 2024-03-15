@@ -9,7 +9,6 @@ import com.powsybl.openrao.data.cracapi.cnec.Side;
 import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.cracapi.usagerule.UsageMethod;
 import com.powsybl.openrao.data.cracapi.usagerule.UsageRule;
-import com.powsybl.openrao.data.craccreation.creator.api.ImportStatus;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileCracCreationContext;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileCracCreationTestUtil;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileElementaryCreationContext;
@@ -280,7 +279,7 @@ class FlowCnecCreationTest {
         assertNotNull(cracCreationContext);
         assertTrue(cracCreationContext.isCreationSuccessful());
         assertEquals(15, cracCreationContext.getCrac().getContingencies().size());
-        assertEquals(12, cracCreationContext.getCrac().getFlowCnecs().size());
+        assertEquals(11, cracCreationContext.getCrac().getFlowCnecs().size());
 
         List<FlowCnec> listFlowCnecs = cracCreationContext.getCrac().getFlowCnecs()
                 .stream().sorted(Comparator.comparing(FlowCnec::getId)).collect(Collectors.toList());
@@ -322,47 +321,37 @@ class FlowCnecCreationTest {
                 autoInstant, "13334fdf-9cc2-4341-adb6-1281269040b4",
                 +500.0, -500.0, Side.LEFT);
         CsaProfileCracCreationTestUtil.assertFlowCnecEquality(listFlowCnecs.get(6),
-                "REE_AE3 (989535e7-3789-47e7-8ba7-da7be9962a15) - preventive",
-                "REE_AE3 (989535e7-3789-47e7-8ba7-da7be9962a15) - preventive",
-                "048badc5-c766-11e1-8775-005056c00008",
-                preventiveInstant, null,
-                +500d, -500d, Side.LEFT);
-        CsaProfileCracCreationTestUtil.assertFlowCnecEquality(listFlowCnecs.get(7),
                 "REE_AE4 (ea577780-24d2-4167-a5d2-fa56c56a9481) - preventive",
                 "REE_AE4 (ea577780-24d2-4167-a5d2-fa56c56a9481) - preventive",
                 "0478c207-c766-11e1-8775-005056c00008",
                 preventiveInstant, null,
                 +1000d, -1000d, Side.RIGHT);
-        CsaProfileCracCreationTestUtil.assertFlowCnecEquality(listFlowCnecs.get(8),
+        CsaProfileCracCreationTestUtil.assertFlowCnecEquality(listFlowCnecs.get(7),
                 "REE_AE5 (2bd363ca-bab7-4571-a59a-b9193dc9fc9d) - REE_CO4 - curative",
                 "REE_AE5 (2bd363ca-bab7-4571-a59a-b9193dc9fc9d) - REE_CO4 - curative",
                 "048badc5-c766-11e1-8775-005056c00008",
                 curativeInstant, "9d17b84c-33b5-4a68-b8b9-ed5b31038d40",
                 +1000d, -1000d, Side.LEFT);
-        CsaProfileCracCreationTestUtil.assertFlowCnecEquality(listFlowCnecs.get(9),
+        CsaProfileCracCreationTestUtil.assertFlowCnecEquality(listFlowCnecs.get(8),
                 "REE_AE5 (2bd363ca-bab7-4571-a59a-b9193dc9fc9d) - preventive",
                 "REE_AE5 (2bd363ca-bab7-4571-a59a-b9193dc9fc9d) - preventive",
                 "048badc5-c766-11e1-8775-005056c00008",
                 preventiveInstant, null,
                 +1000d, -1000d, Side.LEFT);
-        CsaProfileCracCreationTestUtil.assertFlowCnecEquality(listFlowCnecs.get(10),
+        CsaProfileCracCreationTestUtil.assertFlowCnecEquality(listFlowCnecs.get(9),
                 "REE_AE6 (3bc10ae6-6e25-4e4d-9a3a-ec2c4e2436b0) - REE_CO5 - curative",
                 "REE_AE6 (3bc10ae6-6e25-4e4d-9a3a-ec2c4e2436b0) - REE_CO5 - curative",
                 "044a5f09-c766-11e1-8775-005056c00008",
                 curativeInstant, "96c96ad8-844c-4f3b-8b38-c886ba2c0214",
                 +2000d, -2000d, Side.LEFT);
-        CsaProfileCracCreationTestUtil.assertFlowCnecEquality(listFlowCnecs.get(11),
+        CsaProfileCracCreationTestUtil.assertFlowCnecEquality(listFlowCnecs.get(10),
                 "REE_AE6 (3bc10ae6-6e25-4e4d-9a3a-ec2c4e2436b0) - preventive",
                 "REE_AE6 (3bc10ae6-6e25-4e4d-9a3a-ec2c4e2436b0) - preventive",
                 "044a5f09-c766-11e1-8775-005056c00008",
                 preventiveInstant, null,
                 +2000d, -2000d, Side.LEFT);
 
-        List<CsaProfileElementaryCreationContext> alteredCnecs = cracCreationContext.getCnecCreationContexts().stream().filter(CsaProfileElementaryCreationContext::isAltered).toList();
-        assertEquals(1, alteredCnecs.size());
-        assertEquals("REE_AE3 (989535e7-3789-47e7-8ba7-da7be9962a15) - preventive", alteredCnecs.get(0).getElementId());
-        assertEquals(ImportStatus.IMPORTED, alteredCnecs.get(0).getImportStatus());
-        assertEquals("the AssessedElement was pointing to a TATL and used inBaseCase. For the preventive instant, this TATL was also used as a PATL to create the CNEC", alteredCnecs.get(0).getImportStatusDetail());
+        assertTrue(cracCreationContext.getCnecCreationContexts().stream().filter(CsaProfileElementaryCreationContext::isAltered).toList().isEmpty());
     }
 
     @Test
@@ -390,7 +379,7 @@ class FlowCnecCreationTest {
         assertNotNull(cracCreationContext);
         assertTrue(cracCreationContext.isCreationSuccessful());
         assertEquals(7, cracCreationContext.getCrac().getContingencies().size());
-        assertEquals(5, cracCreationContext.getCrac().getFlowCnecs().size());
+        assertEquals(4, cracCreationContext.getCrac().getFlowCnecs().size());
 
         List<FlowCnec> listFlowCnecs = cracCreationContext.getCrac().getFlowCnecs()
                 .stream().sorted(Comparator.comparing(FlowCnec::getId)).toList();
@@ -402,24 +391,18 @@ class FlowCnecCreationTest {
                 preventiveInstant, null,
                 +1000d, -1000d, Side.LEFT);
         CsaProfileCracCreationTestUtil.assertFlowCnecEquality(listFlowCnecs.get(1),
-                "REE_AE3 (989535e7-3789-47e7-8ba7-da7be9962a15) - preventive",
-                "REE_AE3 (989535e7-3789-47e7-8ba7-da7be9962a15) - preventive",
-                "048badc5-c766-11e1-8775-005056c00008",
-                preventiveInstant, null,
-                +500d, -500d, Side.LEFT);
-        CsaProfileCracCreationTestUtil.assertFlowCnecEquality(listFlowCnecs.get(2),
                 "REE_AE4 (ea577780-24d2-4167-a5d2-fa56c56a9481) - preventive",
                 "REE_AE4 (ea577780-24d2-4167-a5d2-fa56c56a9481) - preventive",
                 "0478c207-c766-11e1-8775-005056c00008",
                 preventiveInstant, null,
                 +1000d, -1000d, Side.RIGHT);
-        CsaProfileCracCreationTestUtil.assertFlowCnecEquality(listFlowCnecs.get(3),
+        CsaProfileCracCreationTestUtil.assertFlowCnecEquality(listFlowCnecs.get(2),
                 "REE_AE5 (2bd363ca-bab7-4571-a59a-b9193dc9fc9d) - preventive",
                 "REE_AE5 (2bd363ca-bab7-4571-a59a-b9193dc9fc9d) - preventive",
                 "048badc5-c766-11e1-8775-005056c00008",
                 preventiveInstant, null,
                 +1000d, -1000d, Side.LEFT);
-        CsaProfileCracCreationTestUtil.assertFlowCnecEquality(listFlowCnecs.get(4),
+        CsaProfileCracCreationTestUtil.assertFlowCnecEquality(listFlowCnecs.get(3),
                 "REE_AE6 (3bc10ae6-6e25-4e4d-9a3a-ec2c4e2436b0) - preventive",
                 "REE_AE6 (3bc10ae6-6e25-4e4d-9a3a-ec2c4e2436b0) - preventive",
                 "044a5f09-c766-11e1-8775-005056c00008",
