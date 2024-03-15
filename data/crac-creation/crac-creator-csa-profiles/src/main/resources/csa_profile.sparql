@@ -303,43 +303,47 @@ GRAPH <%s> {
 PREFIX nc: <http://entsoe.eu/ns/nc#>
 PREFIX cim: <http://iec.ch/TC57/CIM100#>
 SELECT *
-WHERE {
-    ?rotatingMachineAction
-        rdf:type nc:RotatingMachineAction ;
-        cim:IdentifiedObject.mRID ?mRID ;
-        nc:GridStateAlteration.PropertyReference ?propertyReference ;
-        nc:RotatingMachineAction.RotatingMachine ?rotatingMachineId ;
+{
+    GRAPH <%s> {
+        ?rotatingMachineAction
+            rdf:type nc:RotatingMachineAction ;
+            cim:IdentifiedObject.mRID ?mRID ;
+            nc:GridStateAlteration.PropertyReference ?propertyReference ;
+            nc:RotatingMachineAction.RotatingMachine ?rotatingMachineId ;
 
-        OPTIONAL {
-            ?rotatingMachineAction nc:GridStateAlteration.normalEnabled ?normalEnabled .
-        }
-        OPTIONAL {
-            ?rotatingMachineAction nc:GridStateAlteration.GridStateAlterationRemedialAction ?gridStateAlterationRemedialAction .
-        }
-        OPTIONAL {
-            ?rotatingMachineAction nc:GridStateAlteration.GridStateAlterationCollection ?gridStateAlterationCollection .
-        }
+            OPTIONAL {
+                ?rotatingMachineAction nc:GridStateAlteration.normalEnabled ?normalEnabled .
+            }
+            OPTIONAL {
+                ?rotatingMachineAction nc:GridStateAlteration.GridStateAlterationRemedialAction ?gridStateAlterationRemedialAction .
+            }
+            OPTIONAL {
+                ?rotatingMachineAction nc:GridStateAlteration.GridStateAlterationCollection ?gridStateAlterationCollection .
+            }
+    }
 }
 
 # query: shuntCompensatorModification
 PREFIX nc: <http://entsoe.eu/ns/nc#>
 PREFIX cim: <http://iec.ch/TC57/CIM100#>
 SELECT *
-WHERE {
-    ?shuntCompensatorModification
-        rdf:type nc:ShuntCompensatorModification ;
-        cim:IdentifiedObject.mRID ?mRID ;
-        nc:GridStateAlteration.PropertyReference ?propertyReference ;
-        nc:ShuntCompensatorModification.ShuntCompensator ?shuntCompensatorId ;
+{
+    GRAPH <%s> {
+        ?shuntCompensatorModification
+            rdf:type nc:ShuntCompensatorModification ;
+            cim:IdentifiedObject.mRID ?mRID ;
+            nc:GridStateAlteration.PropertyReference ?propertyReference ;
+            nc:ShuntCompensatorModification.ShuntCompensator ?shuntCompensatorId ;
 
-    OPTIONAL {
-        ?shuntCompensatorModification nc:GridStateAlteration.normalEnabled ?normalEnabled .
-    }
-    OPTIONAL {
-        ?shuntCompensatorModification nc:GridStateAlteration.GridStateAlterationRemedialAction ?gridStateAlterationRemedialAction .
-    }
-    OPTIONAL {
-        ?shuntCompensatorModification nc:GridStateAlteration.GridStateAlterationCollection ?gridStateAlterationCollection .
+        OPTIONAL {
+            ?shuntCompensatorModification nc:GridStateAlteration.normalEnabled ?normalEnabled .
+        }
+        OPTIONAL {
+            ?shuntCompensatorModification nc:GridStateAlteration.GridStateAlterationRemedialAction ?gridStateAlterationRemedialAction .
+        }
+        OPTIONAL {
+            ?shuntCompensatorModification nc:GridStateAlteration.GridStateAlterationCollection ?gridStateAlterationCollection .
+        }
     }
 }
 
