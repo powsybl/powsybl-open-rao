@@ -6,7 +6,6 @@
  */
 
 package com.powsybl.openrao.data.cracimpl;
-
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.cracapi.NetworkElement;
 import com.powsybl.openrao.data.cracapi.networkaction.PstSetpoint;
@@ -62,6 +61,7 @@ class PstSetpointImplTest {
             -9);
 
         Network network = NetworkImportsUtil.import12NodesNetwork();
+        assertEquals(0, network.getTwoWindingsTransformer("BBE2AA1  BBE3AA1  1").getPhaseTapChanger().getTapPosition());
         pstSetpoint.apply(network);
         assertEquals(-9, network.getTwoWindingsTransformer("BBE2AA1  BBE3AA1  1").getPhaseTapChanger().getTapPosition());
     }
@@ -96,19 +96,13 @@ class PstSetpointImplTest {
 
     @Test
     void equals() {
-        PstSetpoint pstSetpoint = new PstSetpointImpl(
-            new NetworkElementImpl("BBE2AA1  BBE3AA1  1"),
-            -9);
-        assertEquals(pstSetpoint, pstSetpoint);
+        PstSetpoint pstSetpoint = new PstSetpointImpl(new NetworkElementImpl("BBE2AA1  BBE3AA1  1"), -9);
+        assertEquals(pstSetpoint, new PstSetpointImpl(new NetworkElementImpl("BBE2AA1  BBE3AA1  1"), -9));
 
-        PstSetpoint samePstSetpoint = new PstSetpointImpl(
-            new NetworkElementImpl("BBE2AA1  BBE3AA1  1"),
-            -9);
-        assertEquals(samePstSetpoint, samePstSetpoint);
+        PstSetpoint differentPstSetpointOnSetPoint = new PstSetpointImpl(new NetworkElementImpl("BBE2AA1  BBE3AA1  1"), -10);
+        assertNotEquals(pstSetpoint, differentPstSetpointOnSetPoint);
 
-        PstSetpoint differentPstSetpoint = new PstSetpointImpl(
-            new NetworkElementImpl("BBE2AA1  BBE3AA1  1"),
-            -10);
-        assertNotEquals(pstSetpoint, differentPstSetpoint);
+        PstSetpoint differentPstSetpointOnNetworkEl = new PstSetpointImpl(new NetworkElementImpl("BBE2AA1  BBE3AA1  2"), -9);
+        assertNotEquals(pstSetpoint, differentPstSetpointOnNetworkEl);
     }
 }

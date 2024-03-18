@@ -121,7 +121,7 @@ class TopologicalActionImplTest {
 
     @Test
     void equals() {
-        assertEquals(topologyClose, topologyClose);
+        assertEquals(new TopologicalActionImpl(new NetworkElementImpl("FFR2AA1  DDE3AA1  1"), ActionType.CLOSE), topologyClose);
         assertNotEquals(topologyClose, topologyOpen);
     }
 }
