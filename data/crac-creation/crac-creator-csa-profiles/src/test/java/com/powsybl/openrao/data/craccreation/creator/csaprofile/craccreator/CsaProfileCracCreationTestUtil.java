@@ -36,6 +36,12 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public final class CsaProfileCracCreationTestUtil {
 
+    public static final String PREVENTIVE_INSTANT_ID = "preventive";
+    public static final String OUTAGE_INSTANT_ID = "outage";
+    public static final String AUTO_INSTANT_ID = "auto";
+    public static final String CURATIVE_INSTANT_ID = "curative";
+    public static final Network NETWORK = getNetworkFromResource("/networks/16Nodes.zip");
+
     private CsaProfileCracCreationTestUtil() {
     }
 
@@ -58,12 +64,19 @@ public final class CsaProfileCracCreationTestUtil {
         }
     }
 
+    public static void assertContingencyEquality(Contingency actualContingency, String expectedContingencyId, String expectedContingencyName, Set<String> expectedNetworkElementsIds) {
+        assertEquals(expectedContingencyId, actualContingency.getId());
+        assertEquals(expectedContingencyName, actualContingency.getName());
+        assertEquals(expectedNetworkElementsIds.size(), actualContingency.getNetworkElements().size());
+        assertTrue(expectedNetworkElementsIds.containsAll(actualContingency.getNetworkElements().stream().map(NetworkElement::getId).toList()));
+    }
+
     public static void assertContingencyNotImported(CsaProfileCracCreationContext cracCreationContext, String contingencyId, ImportStatus importStatus, String importStatusDetail) {
         assertTrue(cracCreationContext.getContingencyCreationContexts().stream().anyMatch(context -> !context.isImported() && contingencyId.equals(context.getNativeId()) && importStatus.equals(context.getImportStatus()) && importStatusDetail.equals(context.getImportStatusDetail())));
     }
 
-    public static void assertCnecNotImported(CsaProfileCracCreationContext cracCreationContext, String cnecId, ImportStatus importStatus, String importStatusDetail) {
-        assertTrue(cracCreationContext.getCnecCreationContexts().stream().anyMatch(context -> !context.isImported() && cnecId.equals(context.getNativeId()) && importStatus.equals(context.getImportStatus()) && importStatusDetail.equals(context.getImportStatusDetail())));
+    public static void assertCnecNotImported(CsaProfileCracCreationContext cracCreationContext, String assessedElementId, ImportStatus importStatus, String importStatusDetail) {
+        assertTrue(cracCreationContext.getCnecCreationContexts().stream().anyMatch(context -> !context.isImported() && assessedElementId.equals(context.getNativeId()) && importStatus.equals(context.getImportStatus()) && importStatusDetail.equals(context.getImportStatusDetail())));
     }
 
     public static void assertFlowCnecEquality(FlowCnec fc, String expectedFlowCnecId, String expectedFlowCnecName, String expectedNetworkElementId,
@@ -91,6 +104,27 @@ public final class CsaProfileCracCreationTestUtil {
         }
 
         assertEquals(expectedThresholdSides, fc.getMonitoredSides());
+    }
+
+    public static void assertFlowCnecEquality(FlowCnec flowCnec, String expectedFlowCnecIdAndName, String expectedNetworkElementId, String expectedInstant, String expectedContingencyId, Double expectedThresholdMaxLeft, Double expectedThresholdMinLeft, Double expectedThresholdMaxRight, Double expectedThresholdMinRight, Set<Side> expectedThresholdSides) {
+        assertEquals(expectedFlowCnecIdAndName, flowCnec.getId());
+        assertEquals(expectedFlowCnecIdAndName, flowCnec.getName());
+        assertEquals(expectedNetworkElementId, flowCnec.getNetworkElement().getId());
+        assertEquals(expectedInstant, flowCnec.getState().getInstant().getId());
+        if (expectedContingencyId == null) {
+            assertFalse(flowCnec.getState().getContingency().isPresent());
+        } else {
+            assertEquals(expectedContingencyId, flowCnec.getState().getContingency().get().getId());
+        }
+
+        List<BranchThreshold> thresholds = flowCnec.getThresholds().stream().sorted(Comparator.comparing(BranchThreshold::getSide)).toList();
+        for (BranchThreshold threshold : thresholds) {
+            Side side = threshold.getSide();
+            assertEquals(side == Side.LEFT ? expectedThresholdMaxLeft : expectedThresholdMaxRight, threshold.max().orElse(null));
+            assertEquals(side == Side.LEFT ? expectedThresholdMinLeft : expectedThresholdMinRight, threshold.min().orElse(null));
+        }
+
+        assertEquals(expectedThresholdSides, flowCnec.getMonitoredSides());
     }
 
     public static void assertAngleCnecEquality(AngleCnec angleCnec, String expectedFlowCnecId, String expectedFlowCnecName, String expectedImportingNetworkElementId, String expectedExportingNetworkElementId,
