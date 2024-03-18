@@ -65,7 +65,7 @@ class InjectionSetpointImplTest {
         InjectionSetpointImpl generatorSetpoint = new InjectionSetpointImpl(
                 new NetworkElementImpl("FFR1AA1 _generator"),
                 100, Unit.MEGAWATT);
-
+        assertEquals(2000., network.getGenerator("FFR1AA1 _generator").getTargetP(), 1e-3);
         generatorSetpoint.apply(network);
         assertEquals(100., network.getGenerator("FFR1AA1 _generator").getTargetP(), 1e-3);
     }
@@ -96,7 +96,7 @@ class InjectionSetpointImplTest {
         InjectionSetpointImpl loadSetpoint = new InjectionSetpointImpl(
                 new NetworkElementImpl("FFR1AA1 _load"),
                 100, Unit.MEGAWATT);
-
+        assertEquals(1000., network.getLoad("FFR1AA1 _load").getP0(), 1e-3);
         loadSetpoint.apply(network);
         assertEquals(100., network.getLoad("FFR1AA1 _load").getP0(), 1e-3);
     }
@@ -130,7 +130,7 @@ class InjectionSetpointImplTest {
         InjectionSetpointImpl danglingLineSetpoint = new InjectionSetpointImpl(
                 new NetworkElementImpl("DL1"),
                 100, Unit.MEGAWATT);
-
+        assertEquals(0., network.getDanglingLine("DL1").getP0(), 1e-3);
         danglingLineSetpoint.apply(network);
         assertEquals(100., network.getDanglingLine("DL1").getP0(), 1e-3);
     }
@@ -162,6 +162,7 @@ class InjectionSetpointImplTest {
         InjectionSetpointImpl shuntCompensatorSetpoint = new InjectionSetpointImpl(
                 new NetworkElementImpl("SC1"),
                 2, Unit.SECTION_COUNT);
+        assertEquals(1., network.getShuntCompensator("SC1").getSectionCount(), 1e-3);
         shuntCompensatorSetpoint.apply(network);
         assertEquals(2., network.getShuntCompensator("SC1").getSectionCount(), 1e-3);
     }
@@ -218,21 +219,29 @@ class InjectionSetpointImplTest {
 
     @Test
     void equals() {
-        NetworkElement mockedNetworkElement = Mockito.mock(NetworkElement.class);
         InjectionSetpointImpl injectionSetpoint = new InjectionSetpointImpl(
-            mockedNetworkElement,
+            new NetworkElementImpl("BBE2AA1  BBE3AA1  1"),
             10., Unit.MEGAWATT);
-        assertEquals(injectionSetpoint, injectionSetpoint);
 
         InjectionSetpointImpl sameInjectionSetpoint = new InjectionSetpointImpl(
-            mockedNetworkElement,
+            new NetworkElementImpl("BBE2AA1  BBE3AA1  1"),
             10., Unit.MEGAWATT);
         assertEquals(injectionSetpoint, sameInjectionSetpoint);
 
-        InjectionSetpointImpl differentInjectionSetpoint = new InjectionSetpointImpl(
-            mockedNetworkElement,
+        InjectionSetpointImpl differentInjectionSetpointOnSetpoint = new InjectionSetpointImpl(
+            new NetworkElementImpl("BBE2AA1  BBE3AA1  1"),
             12., Unit.MEGAWATT);
-        assertNotEquals(injectionSetpoint, differentInjectionSetpoint);
+        assertNotEquals(injectionSetpoint, differentInjectionSetpointOnSetpoint);
+
+        InjectionSetpointImpl differentInjectionSetpointOnNetworkElement = new InjectionSetpointImpl(
+            new NetworkElementImpl("BBE2AA1  BBE3AA1  2"),
+            10., Unit.MEGAWATT);
+        assertNotEquals(injectionSetpoint, differentInjectionSetpointOnNetworkElement);
+
+        /*InjectionSetpointImpl differentInjectionSetpointOnUnit = new InjectionSetpointImpl(
+            new NetworkElementImpl("BBE2AA1  BBE3AA1  1"),
+            10., Unit.AMPERE);
+        assertNotEquals(injectionSetpoint, differentInjectionSetpointOnUnit);*/ //do not work
     }
 
     @Test
