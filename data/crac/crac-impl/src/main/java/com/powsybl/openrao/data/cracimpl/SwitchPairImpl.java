@@ -27,17 +27,6 @@ public class SwitchPairImpl implements SwitchPair {
     }
 
     @Override
-    public boolean hasImpactOnNetwork(Network network) {
-        return !network.getSwitch(switchToOpen.getId()).isOpen() || network.getSwitch(switchToClose.getId()).isOpen();
-    }
-
-    @Override
-    public boolean canBeApplied(Network network) {
-        // It is only applicable if, initially, one switch was closed and the other was open.
-        return network.getSwitch(switchToOpen.getId()).isOpen() != network.getSwitch(switchToClose.getId()).isOpen();
-    }
-
-    @Override
     public void apply(Network network) {
         new SwitchAction("id", switchToOpen.getId(), true).toModification().apply(network);
         new SwitchAction("id", switchToClose.getId(), false).toModification().apply(network);

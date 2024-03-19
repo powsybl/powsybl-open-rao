@@ -17,6 +17,7 @@ import org.apache.commons.lang3.NotImplementedException;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
+import java.util.Collections;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -33,7 +34,8 @@ class InjectionSetpointImplTest {
         assertEquals(10., injectionSetpoint.getSetpoint(), 1e-3);
         assertEquals(mockedNetworkElement, injectionSetpoint.getNetworkElement());
         assertEquals(Set.of(mockedNetworkElement), injectionSetpoint.getNetworkElements());
-        assertTrue(injectionSetpoint.canBeApplied(Mockito.mock(Network.class)));
+        assertTrue(new NetworkActionImpl(null, null, null, null,
+            Collections.singleton(injectionSetpoint), null).canBeApplied(Mockito.mock(Network.class)));
     }
 
     @Test
@@ -43,7 +45,8 @@ class InjectionSetpointImplTest {
             new NetworkElementImpl("FFR1AA1 _generator"),
             100, Unit.MEGAWATT);
 
-        assertTrue(generatorSetpoint.hasImpactOnNetwork(network));
+        assertTrue(new NetworkActionImpl(null, null, null, null,
+            Collections.singleton(generatorSetpoint), null).hasImpactOnNetwork(network));
     }
 
     @Test
@@ -53,7 +56,8 @@ class InjectionSetpointImplTest {
             new NetworkElementImpl("FFR1AA1 _generator"),
             2000, Unit.MEGAWATT);
 
-        assertFalse(generatorSetpoint.hasImpactOnNetwork(network));
+        assertFalse(new NetworkActionImpl(null, null, null, null,
+            Collections.singleton(generatorSetpoint), null).hasImpactOnNetwork(network));
     }
 
     @Test
@@ -74,7 +78,8 @@ class InjectionSetpointImplTest {
             new NetworkElementImpl("FFR1AA1 _load"),
             100, Unit.MEGAWATT);
 
-        assertTrue(loadSetpoint.hasImpactOnNetwork(network));
+        assertTrue(new NetworkActionImpl(null, null, null, null,
+            Collections.singleton(loadSetpoint), null).hasImpactOnNetwork(network));
     }
 
     @Test
@@ -84,7 +89,8 @@ class InjectionSetpointImplTest {
             new NetworkElementImpl("FFR1AA1 _load"),
             1000, Unit.MEGAWATT);
 
-        assertFalse(loadSetpoint.hasImpactOnNetwork(network));
+        assertFalse(new NetworkActionImpl(null, null, null, null,
+            Collections.singleton(loadSetpoint), null).hasImpactOnNetwork(network));
     }
 
     @Test
@@ -106,7 +112,8 @@ class InjectionSetpointImplTest {
             new NetworkElementImpl("DL1"),
             100, Unit.MEGAWATT);
 
-        assertTrue(danglingLineSetpoint.hasImpactOnNetwork(network));
+        assertTrue(new NetworkActionImpl(null, null, null, null,
+            Collections.singleton(danglingLineSetpoint), null).hasImpactOnNetwork(network));
     }
 
     @Test
@@ -117,7 +124,8 @@ class InjectionSetpointImplTest {
             new NetworkElementImpl("DL1"),
             0, Unit.MEGAWATT);
 
-        assertFalse(danglingLineSetpoint.hasImpactOnNetwork(network));
+        assertFalse(new NetworkActionImpl(null, null, null, null,
+            Collections.singleton(danglingLineSetpoint), null).hasImpactOnNetwork(network));
     }
 
     @Test
@@ -139,7 +147,8 @@ class InjectionSetpointImplTest {
         InjectionSetpointImpl shuntCompensatorSetpoint = new InjectionSetpointImpl(
                 new NetworkElementImpl("SC1"),
                 0, Unit.SECTION_COUNT);
-        assertTrue(shuntCompensatorSetpoint.hasImpactOnNetwork(network));
+        assertTrue(new NetworkActionImpl(null, null, null, null,
+            Collections.singleton(shuntCompensatorSetpoint), null).hasImpactOnNetwork(network));
     }
 
     @Test
@@ -149,7 +158,8 @@ class InjectionSetpointImplTest {
         InjectionSetpointImpl shuntCompensatorSetpoint = new InjectionSetpointImpl(
                 new NetworkElementImpl("SC1"),
                 1, Unit.SECTION_COUNT);
-        assertFalse(shuntCompensatorSetpoint.hasImpactOnNetwork(network));
+        assertFalse(new NetworkActionImpl(null, null, null, null,
+            Collections.singleton(shuntCompensatorSetpoint), null).hasImpactOnNetwork(network));
     }
 
     @Test
@@ -178,7 +188,8 @@ class InjectionSetpointImplTest {
         InjectionSetpointImpl dummy = new InjectionSetpointImpl(
                 new NetworkElementImpl("wrong_name"),
                 100, Unit.MEGAWATT);
-        assertThrows(NotImplementedException.class, () -> dummy.hasImpactOnNetwork(network));
+        assertThrows(NotImplementedException.class, () -> new NetworkActionImpl(null, null, null, null,
+            Collections.singleton(dummy), null).hasImpactOnNetwork(network));
     }
 
     @Test

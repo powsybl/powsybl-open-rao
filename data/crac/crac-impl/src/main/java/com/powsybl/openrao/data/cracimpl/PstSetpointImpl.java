@@ -80,18 +80,6 @@ public final class PstSetpointImpl implements PstSetpoint {
     }
 
     @Override
-    public boolean hasImpactOnNetwork(Network network) {
-        PhaseTapChanger phaseTapChanger = network.getTwoWindingsTransformer(networkElement.getId()).getPhaseTapChanger();
-        return getNormalizedSetpoint(phaseTapChanger) != phaseTapChanger.getTapPosition();
-    }
-
-    @Override
-    public boolean canBeApplied(Network network) {
-        // TODO : setpoint out of range ?
-        return true;
-    }
-
-    @Override
     public int hashCode() {
         return networkElement.hashCode() + 7 * Double.valueOf(setpoint).hashCode();
     }

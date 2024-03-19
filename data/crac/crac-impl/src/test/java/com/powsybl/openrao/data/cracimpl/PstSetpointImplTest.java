@@ -15,6 +15,7 @@ import com.powsybl.iidm.network.Network;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
+import java.util.Collections;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -32,7 +33,8 @@ class PstSetpointImplTest {
         assertEquals(12, pstSetpoint.getSetpoint(), 0);
         assertEquals(ne, pstSetpoint.getNetworkElement());
         assertEquals(Set.of(ne), pstSetpoint.getNetworkElements());
-        assertTrue(pstSetpoint.canBeApplied(Mockito.mock(Network.class)));
+        assertTrue(new NetworkActionImpl(null, null, null, null,
+            Collections.singleton(pstSetpoint), null).canBeApplied(Mockito.mock(Network.class)));
     }
 
     @Test
@@ -42,7 +44,8 @@ class PstSetpointImplTest {
             -9);
         Network network = NetworkImportsUtil.import12NodesNetwork();
 
-        assertTrue(pstSetpoint.hasImpactOnNetwork(network));
+        assertTrue(new NetworkActionImpl(null, null, null, null,
+            Collections.singleton(pstSetpoint), null).hasImpactOnNetwork(network));
     }
 
     @Test
@@ -52,7 +55,8 @@ class PstSetpointImplTest {
             0);
         Network network = NetworkImportsUtil.import12NodesNetwork();
 
-        assertFalse(pstSetpoint.hasImpactOnNetwork(network));
+        assertFalse(new NetworkActionImpl(null, null, null, null,
+            Collections.singleton(pstSetpoint), null).hasImpactOnNetwork(network));
     }
 
     @Test

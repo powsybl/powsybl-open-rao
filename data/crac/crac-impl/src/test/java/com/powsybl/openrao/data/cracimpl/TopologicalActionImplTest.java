@@ -16,6 +16,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
+import java.util.Collections;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -43,15 +45,18 @@ class TopologicalActionImplTest {
         assertEquals(ActionType.OPEN, topologyOpen.getActionType());
         assertEquals("FFR2AA1  DDE3AA1  1", topologyOpen.getNetworkElement().getId());
         assertEquals(1, topologyOpen.getNetworkElements().size());
-        assertTrue(topologyOpen.canBeApplied(Mockito.mock(Network.class)));
+        assertTrue(new NetworkActionImpl(null, null, null, null,
+            Collections.singleton(topologyOpen), null).canBeApplied(Mockito.mock(Network.class)));
     }
 
     @Test
     void hasImpactOnNetworkForLine() {
         Network network = NetworkImportsUtil.import12NodesNetwork();
 
-        assertTrue(topologyOpen.hasImpactOnNetwork(network));
-        assertFalse(topologyClose.hasImpactOnNetwork(network));
+        assertTrue(new NetworkActionImpl(null, null, null, null,
+            Collections.singleton(topologyOpen), null).hasImpactOnNetwork(network));
+        assertFalse(new NetworkActionImpl(null, null, null, null,
+            Collections.singleton(topologyClose), null).hasImpactOnNetwork(network));
     }
 
     @Test
@@ -79,13 +84,15 @@ class TopologicalActionImplTest {
             networkElement,
             ActionType.OPEN);
 
-        assertTrue(openSwitchTopology.hasImpactOnNetwork(network));
+        assertTrue(new NetworkActionImpl(null, null, null, null,
+            Collections.singleton(openSwitchTopology), null).hasImpactOnNetwork(network));
 
         TopologicalActionImpl closeSwitchTopology = new TopologicalActionImpl(
             networkElement,
             ActionType.CLOSE);
 
-        assertFalse(closeSwitchTopology.hasImpactOnNetwork(network));
+        assertFalse(new NetworkActionImpl(null, null, null, null,
+            Collections.singleton(closeSwitchTopology), null).hasImpactOnNetwork(network));
     }
 
     @Test
