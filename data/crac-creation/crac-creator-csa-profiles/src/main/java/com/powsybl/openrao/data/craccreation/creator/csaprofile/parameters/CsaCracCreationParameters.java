@@ -13,7 +13,7 @@ import com.powsybl.openrao.data.craccreation.creator.api.parameters.CracCreation
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
 public class CsaCracCreationParameters extends AbstractExtension<CracCreationParameters> {
-    private String capacityCalculationRegionEicCode = "10Y1001C–00095L";
+    private String capacityCalculationRegionEicCode;
 
     @Override
     public String getName() {

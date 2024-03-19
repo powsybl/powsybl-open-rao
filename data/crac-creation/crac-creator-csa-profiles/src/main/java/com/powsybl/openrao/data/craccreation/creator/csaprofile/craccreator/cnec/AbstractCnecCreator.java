@@ -3,9 +3,11 @@ package com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.cne
 import com.powsybl.openrao.data.cracapi.Contingency;
 import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.cracapi.cnec.CnecAdder;
+import com.powsybl.openrao.data.craccreation.creator.api.ImportStatus;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileCracCreationContext;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileCracUtils;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileElementaryCreationContext;
+import com.powsybl.openrao.data.craccreation.util.OpenRaoImportException;
 import com.powsybl.openrao.data.craccreation.util.cgmes.CgmesBranchHelper;
 import com.powsybl.iidm.network.DanglingLine;
 import com.powsybl.iidm.network.Identifiable;
@@ -30,8 +32,11 @@ public abstract class AbstractCnecCreator {
     protected Set<CsaProfileElementaryCreationContext> csaProfileCnecCreationContexts;
     protected final CsaProfileCracCreationContext cracCreationContext;
     protected final String rejectedLinksAssessedElementContingency;
+    protected final String regionEic;
+    protected final String aeSecuredForRegion;
+    protected final String aeScannedForRegion;
 
-    protected AbstractCnecCreator(Crac crac, Network network, String assessedElementId, String nativeAssessedElementName, String assessedElementOperator, boolean inBaseCase, PropertyBag operationalLimitPropertyBag, List<Contingency> linkedContingencies, Set<CsaProfileElementaryCreationContext> csaProfileCnecCreationContexts, CsaProfileCracCreationContext cracCreationContext, String rejectedLinksAssessedElementContingency) {
+    protected AbstractCnecCreator(Crac crac, Network network, String assessedElementId, String nativeAssessedElementName, String assessedElementOperator, boolean inBaseCase, PropertyBag operationalLimitPropertyBag, List<Contingency> linkedContingencies, Set<CsaProfileElementaryCreationContext> csaProfileCnecCreationContexts, CsaProfileCracCreationContext cracCreationContext, String rejectedLinksAssessedElementContingency, String regionEic, String aeSecuredForRegion, String aeScannedForRegion) {
         this.crac = crac;
         this.network = network;
         this.assessedElementId = assessedElementId;
@@ -44,6 +49,9 @@ public abstract class AbstractCnecCreator {
         this.csaProfileCnecCreationContexts = csaProfileCnecCreationContexts;
         this.cracCreationContext = cracCreationContext;
         this.rejectedLinksAssessedElementContingency = rejectedLinksAssessedElementContingency;
+        this.regionEic = regionEic;
+        this.aeSecuredForRegion = aeSecuredForRegion;
+        this.aeScannedForRegion = aeScannedForRegion;
     }
 
     protected Identifiable<?> getNetworkElementInNetwork(String networkElementId) {
@@ -80,10 +88,24 @@ public abstract class AbstractCnecCreator {
 
     protected void addCnecBaseInformation(CnecAdder<?> cnecAdder, Contingency contingency, String instantId) {
         String cnecName = getCnecName(instantId, contingency);
+
+        if (isAeSecuredForRegion().orElse(false) && isAeScannedForRegion().orElse(false)) {
+            throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, "AssessedElement" + assessedElementId + "will not be imported because an AssessedElement cannot be optimized and monitored at the same time");
+        }
         cnecAdder.withContingency(contingency == null ? null : contingency.getId())
             .withId(cnecName)
             .withName(cnecName)
             .withInstant(instantId);
+        isAeSecuredForRegion().ifPresent(cnecAdder::withOptimized);
+        isAeScannedForRegion().ifPresent(cnecAdder::withMonitored);
+    }
+
+    private Optional<Boolean> isAeSecuredForRegion() {
+        return Optional.of(aeSecuredForRegion.equals(regionEic));
+    }
+
+    private Optional<Boolean> isAeScannedForRegion() {
+        return Optional.of(aeScannedForRegion.equals(regionEic));
     }
 
     protected void addCnecBaseInformation(CnecAdder<?> cnecAdder, Contingency contingency, String instantId, int tatlDuration) {
