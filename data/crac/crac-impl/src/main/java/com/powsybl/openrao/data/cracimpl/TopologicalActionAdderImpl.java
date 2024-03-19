@@ -57,7 +57,7 @@ public class TopologicalActionAdderImpl implements TopologicalActionAdder {
         networkElement = this.ownerAdder.getCrac().addNetworkElement(networkElementId, networkElementName);
 
         TopologicalAction topologicalAction = new TopologicalActionImpl(networkElement, actionType);
-        ownerAdder.addElementaryAction(topologicalAction);
+        ownerAdder.addElementaryAction(topologicalAction, networkElement);
         return ownerAdder;
     }
 }

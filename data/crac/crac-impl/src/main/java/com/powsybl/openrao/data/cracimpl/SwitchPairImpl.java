@@ -12,8 +12,6 @@ import com.powsybl.openrao.data.cracapi.NetworkElement;
 import com.powsybl.openrao.data.cracapi.networkaction.SwitchPair;
 import com.powsybl.iidm.network.Network;
 
-import java.util.Set;
-
 /***
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
@@ -24,17 +22,6 @@ public class SwitchPairImpl implements SwitchPair {
     SwitchPairImpl(NetworkElement switchToOpen, NetworkElement switchToClose) {
         this.switchToOpen = switchToOpen;
         this.switchToClose = switchToClose;
-    }
-
-    @Override
-    public boolean hasImpactOnNetwork(Network network) {
-        return !network.getSwitch(switchToOpen.getId()).isOpen() || network.getSwitch(switchToClose.getId()).isOpen();
-    }
-
-    @Override
-    public boolean canBeApplied(Network network) {
-        // It is only applicable if, initially, one switch was closed and the other was open.
-        return network.getSwitch(switchToOpen.getId()).isOpen() != network.getSwitch(switchToClose.getId()).isOpen();
     }
 
     @Override
@@ -53,11 +40,6 @@ public class SwitchPairImpl implements SwitchPair {
             .build()
             .toModification()
             .apply(network);
-    }
-
-    @Override
-    public Set<NetworkElement> getNetworkElements() {
-        return Set.of(switchToOpen, switchToClose);
     }
 
     @Override

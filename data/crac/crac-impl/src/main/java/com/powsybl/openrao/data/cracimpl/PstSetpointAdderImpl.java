@@ -53,7 +53,7 @@ public class PstSetpointAdderImpl implements PstSetpointAdder {
 
         NetworkElement networkElement = this.ownerAdder.getCrac().addNetworkElement(networkElementId, networkElementName);
         PstSetpointImpl pstSetpoint = new PstSetpointImpl(networkElement, setpoint);
-        ownerAdder.addElementaryAction(pstSetpoint);
+        ownerAdder.addElementaryAction(pstSetpoint, networkElement);
         return ownerAdder;
     }
 }

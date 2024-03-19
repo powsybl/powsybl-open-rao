@@ -9,6 +9,7 @@ package com.powsybl.openrao.data.cracimpl;
 
 import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.cracapi.NetworkElement;
+import com.powsybl.openrao.data.cracapi.networkaction.NetworkAction;
 import com.powsybl.openrao.data.cracapi.networkaction.SwitchPair;
 import com.powsybl.openrao.data.cracapi.networkaction.TopologicalAction;
 import com.powsybl.iidm.network.Network;
@@ -37,8 +38,21 @@ class SwitchPairImplTest {
 
     @Test
     void hasImpactOnNetwork() {
-        SwitchPair sp1 = new SwitchPairImpl(switch1, switch2);
-        SwitchPair sp2 = new SwitchPairImpl(switch2, switch1);
+        Crac crac = new CracImplFactory().create("cracId");
+        NetworkAction sp1 = crac.newNetworkAction()
+            .withId("sp1")
+            .newSwitchPair()
+                .withSwitchToOpen("NNL3AA11 NNL3AA12 1")
+                .withSwitchToClose("NNL3AA13 NNL3AA14 1")
+                .add()
+            .add();
+        NetworkAction sp2 = crac.newNetworkAction()
+            .withId("sp2")
+            .newSwitchPair()
+                .withSwitchToOpen("NNL3AA13 NNL3AA14 1")
+                .withSwitchToClose("NNL3AA11 NNL3AA12 1")
+                .add()
+            .add();
         assertEquals(Set.of(switch1, switch2), sp1.getNetworkElements());
         assertEquals(Set.of(switch1, switch2), sp2.getNetworkElements());
 
@@ -60,8 +74,21 @@ class SwitchPairImplTest {
 
     @Test
     void testCanBeApplied() {
-        SwitchPair sp1 = new SwitchPairImpl(switch1, switch2);
-        SwitchPair sp2 = new SwitchPairImpl(switch2, switch1);
+        Crac crac = new CracImplFactory().create("cracId");
+        NetworkAction sp1 = crac.newNetworkAction()
+            .withId("sp1")
+            .newSwitchPair()
+            .withSwitchToOpen("NNL3AA11 NNL3AA12 1")
+            .withSwitchToClose("NNL3AA13 NNL3AA14 1")
+            .add()
+            .add();
+        NetworkAction sp2 = crac.newNetworkAction()
+            .withId("sp2")
+            .newSwitchPair()
+            .withSwitchToOpen("NNL3AA13 NNL3AA14 1")
+            .withSwitchToClose("NNL3AA11 NNL3AA12 1")
+            .add()
+            .add();
         assertEquals(Set.of(switch1, switch2), sp1.getNetworkElements());
         assertEquals(Set.of(switch1, switch2), sp2.getNetworkElements());
 

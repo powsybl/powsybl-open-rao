@@ -14,9 +14,6 @@ import com.powsybl.openrao.data.cracapi.NetworkElement;
 import com.powsybl.iidm.network.*;
 import org.apache.commons.lang3.NotImplementedException;
 
-import java.util.Collections;
-import java.util.Set;
-
 /**
  * Injection setpoint remedial action: set a load or generator at a given value.
  *
@@ -43,31 +40,6 @@ public final class InjectionSetpointImpl implements InjectionSetpoint {
     @Override
     public Unit getUnit() {
         return unit;
-    }
-
-    @Override
-    public boolean hasImpactOnNetwork(Network network) {
-        Identifiable<?> identifiable = network.getIdentifiable(networkElement.getId());
-        if (identifiable instanceof Generator generator) {
-            return Math.abs(generator.getTargetP() - setpoint) >= EPSILON;
-        } else if (identifiable instanceof Load load) {
-            return Math.abs(load.getP0() - setpoint) >= EPSILON;
-        } else if (identifiable instanceof DanglingLine danglingLine) {
-            return Math.abs(danglingLine.getP0() - setpoint) >= EPSILON;
-        } else if (identifiable instanceof ShuntCompensator shuntCompensator) {
-            return Math.abs(shuntCompensator.getSectionCount() - setpoint) >= EPSILON;
-        } else {
-            throw new NotImplementedException("Injection setpoint only handled for generators, loads, dangling lines or shunt compensator");
-        }
-    }
-
-    @Override
-    public boolean canBeApplied(Network network) {
-        Identifiable<?> identifiable = network.getIdentifiable(networkElement.getId());
-        if (identifiable instanceof ShuntCompensator shuntCompensator) {
-            return setpoint <= shuntCompensator.getMaximumSectionCount();
-        }
-        return true;
     }
 
     @Override
@@ -117,11 +89,6 @@ public final class InjectionSetpointImpl implements InjectionSetpoint {
     @Override
     public NetworkElement getNetworkElement() {
         return networkElement;
-    }
-
-    @Override
-    public Set<NetworkElement> getNetworkElements() {
-        return Collections.singleton(networkElement);
     }
 
     @Override

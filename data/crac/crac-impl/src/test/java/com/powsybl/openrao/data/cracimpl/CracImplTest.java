@@ -816,13 +816,13 @@ class CracImplTest {
         ElementaryAction ea1 = new TopologicalActionImpl(ne1, ActionType.OPEN);
         ElementaryAction ea2 = new TopologicalActionImpl(ne2, ActionType.CLOSE);
 
-        NetworkAction ra1 = new NetworkActionImpl("ra1", "ra1", "operator", Set.of(ur1), Collections.singleton(ea1), 10);
+        NetworkAction ra1 = new NetworkActionImpl("ra1", "ra1", "operator", Set.of(ur1), Collections.singleton(ea1), 10, Collections.singleton(ne1));
         crac.addNetworkAction(ra1);
-        NetworkAction ra2 = new NetworkActionImpl("ra2", "ra2", "operator", Set.of(ur2), Collections.singleton(ea1), 10);
+        NetworkAction ra2 = new NetworkActionImpl("ra2", "ra2", "operator", Set.of(ur2), Collections.singleton(ea1), 10, Collections.singleton(ne1));
         crac.addNetworkAction(ra2);
-        NetworkAction ra3 = new NetworkActionImpl("ra3", "ra3", "operator", Set.of(ur1), Collections.singleton(ea2), 10);
+        NetworkAction ra3 = new NetworkActionImpl("ra3", "ra3", "operator", Set.of(ur1), Collections.singleton(ea2), 10, Collections.singleton(ne2));
         crac.addNetworkAction(ra3);
-        NetworkAction ra4 = new NetworkActionImpl("ra4", "ra4", "operator", Set.of(ur2), Collections.singleton(ea2), 10);
+        NetworkAction ra4 = new NetworkActionImpl("ra4", "ra4", "operator", Set.of(ur2), Collections.singleton(ea2), 10, Collections.singleton(ne2));
         crac.addNetworkAction(ra4);
 
         assertTrue(crac.getNetworkActions(state1, FORCED).isEmpty());
@@ -877,13 +877,13 @@ class CracImplTest {
         ElementaryAction ea1 = new TopologicalActionImpl(ne1, ActionType.OPEN);
         ElementaryAction ea2 = new TopologicalActionImpl(ne2, ActionType.CLOSE);
 
-        NetworkAction ra1 = new NetworkActionImpl("ra1", "ra1", "operator", Set.of(ur1), Collections.singleton(ea1), 10);
+        NetworkAction ra1 = new NetworkActionImpl("ra1", "ra1", "operator", Set.of(ur1), Collections.singleton(ea1), 10, Collections.singleton(ne1));
         crac.addNetworkAction(ra1);
-        NetworkAction ra2 = new NetworkActionImpl("ra2", "ra2", "operator", Set.of(ur2), Collections.singleton(ea1), 10);
+        NetworkAction ra2 = new NetworkActionImpl("ra2", "ra2", "operator", Set.of(ur2), Collections.singleton(ea1), 10, Collections.singleton(ne1));
         crac.addNetworkAction(ra2);
-        NetworkAction ra3 = new NetworkActionImpl("ra3", "ra3", "operator", Set.of(ur3), Collections.singleton(ea2), 10);
+        NetworkAction ra3 = new NetworkActionImpl("ra3", "ra3", "operator", Set.of(ur3), Collections.singleton(ea2), 10, Collections.singleton(ne2));
         crac.addNetworkAction(ra3);
-        NetworkAction ra4 = new NetworkActionImpl("ra4", "ra4", "operator", Set.of(ur2), Collections.singleton(ea2), 10);
+        NetworkAction ra4 = new NetworkActionImpl("ra4", "ra4", "operator", Set.of(ur2), Collections.singleton(ea2), 10, Collections.singleton(ne2));
         crac.addNetworkAction(ra4);
 
         assertEquals(Set.of(ra1), crac.getNetworkActions(state1, AVAILABLE));

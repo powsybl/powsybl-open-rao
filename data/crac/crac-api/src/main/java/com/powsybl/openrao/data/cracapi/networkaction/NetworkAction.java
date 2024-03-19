@@ -9,6 +9,7 @@ package com.powsybl.openrao.data.cracapi.networkaction;
 
 import com.powsybl.openrao.data.cracapi.RemedialAction;
 import com.powsybl.iidm.network.Network;
+import org.apache.commons.lang3.NotImplementedException;
 
 import java.util.Set;
 
@@ -53,13 +54,38 @@ public interface NetworkAction extends RemedialAction<NetworkAction> {
      * @return true if both network actions can be applied without any conflictual behaviour
      */
     default boolean isCompatibleWith(NetworkAction otherNetworkAction) {
-        for (ElementaryAction elementaryAction1 : getElementaryActions()) {
-            for (ElementaryAction elementaryAction2 : otherNetworkAction.getElementaryActions()) {
-                if (!elementaryAction1.isCompatibleWith(elementaryAction2)) {
-                    return false;
-                }
+        return getElementaryActions().stream().allMatch(elementaryAction -> {
+            if (elementaryAction instanceof InjectionSetpoint injectionSetPoint) {
+                return otherNetworkAction.getElementaryActions().stream().allMatch(otherElementaryAction -> {
+                    if (otherElementaryAction instanceof InjectionSetpoint otherInjectionSetpoint) {
+                        return !injectionSetPoint.getNetworkElement().equals(otherInjectionSetpoint.getNetworkElement()) || injectionSetPoint.getSetpoint() == otherInjectionSetpoint.getSetpoint() && injectionSetPoint.getUnit() == otherInjectionSetpoint.getUnit();
+                    }
+                    return true;
+                });
+            } else if (elementaryAction instanceof PstSetpoint pstSetPoint) {
+                return otherNetworkAction.getElementaryActions().stream().allMatch(otherElementaryAction -> {
+                    if (otherElementaryAction instanceof PstSetpoint otherPstSetpoint) {
+                        return !pstSetPoint.getNetworkElement().equals(otherPstSetpoint.getNetworkElement()) || pstSetPoint.getSetpoint() == otherPstSetpoint.getSetpoint();
+                    }
+                    return true;
+                });
+            } else if (elementaryAction instanceof SwitchPair switchPair) {
+                return otherNetworkAction.getElementaryActions().stream().allMatch(switchPair::isCompatibleWith);
+            } else if (elementaryAction instanceof TopologicalAction topologicalAction) {
+                return otherNetworkAction.getElementaryActions().stream().allMatch(otherElementaryAction -> {
+                    if (otherElementaryAction instanceof TopologicalAction otherTopologicalAction) {
+                        return !topologicalAction.getNetworkElement().equals(otherTopologicalAction.getNetworkElement()) || topologicalAction.getActionType().equals(otherTopologicalAction.getActionType());
+                    }
+                    return true;
+                });
+            } else {
+                throw new NotImplementedException();
             }
-        }
-        return true;
+        });
     }
+
+    /**
+     * Returns true if all the elementary actions can be applied to the given network
+     */
+    boolean canBeApplied(Network network);
 }
