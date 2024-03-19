@@ -24,6 +24,7 @@ import org.junit.jupiter.api.Test;
 import java.util.Comparator;
 import java.util.List;
 
+import static com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileCracCreationTestUtil.NETWORK;
 import static com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileCracCreationTestUtil.assertRaNotImported;
 import static com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileCracCreationTestUtil.getCsaCracCreationContext;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -31,16 +32,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class AutoRemedialActionTest {
 
     @Test
-    void importAutoRemedialActionTC2() {
-        CsaProfileCracCreationContext cracCreationContext = getCsaCracCreationContext("/CSA_TestConfiguration_TC2_27Apr2023.zip");
-        List<RemedialAction<?>> autoRemedialActionList = cracCreationContext.getCrac().getRemedialActions().stream().filter(ra -> ra.getUsageRules().stream().anyMatch(usageRule -> usageRule.getInstant().isAuto())).toList();
-        assertEquals(0, autoRemedialActionList.size());
-        assertRaNotImported(cracCreationContext, "31d41e36-11c8-417b-bafb-c410d4391898", ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action 31d41e36-11c8-417b-bafb-c410d4391898 will not be imported because it has no associated RemedialActionScheme");
-    }
-
-    @Test
     void importAutoRemedialActions() {
-        CsaProfileCracCreationContext cracCreationContext = getCsaCracCreationContext("/CSA-83.zip");
+        CsaProfileCracCreationContext cracCreationContext = getCsaCracCreationContext("/AutoRemedialActions.zip", NETWORK);
 
         // Imported ARAs
         List<RemedialAction<?>> importedSps = cracCreationContext.getCrac().getRemedialActions().stream().filter(ra -> ra.getUsageRules().size() == 1 && ra.getUsageRules().stream().toList().get(0).getInstant().isAuto()).toList();

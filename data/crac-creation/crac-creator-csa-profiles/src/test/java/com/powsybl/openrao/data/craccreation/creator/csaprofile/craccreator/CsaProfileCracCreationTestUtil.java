@@ -53,17 +53,6 @@ public final class CsaProfileCracCreationTestUtil {
         return listAppender;
     }
 
-    public static void assertContingencyEquality(Contingency c, String expectedContingencyId, String expectedContingencyName, int expectedNetworkElementsSize, List<String> expectedNetworkElementsIds) {
-        assertEquals(expectedContingencyId, c.getId());
-        assertEquals(expectedContingencyName, c.getName());
-        List<NetworkElement> networkElements = c.getNetworkElements().stream()
-            .sorted(Comparator.comparing(NetworkElement::getId)).toList();
-        assertEquals(expectedNetworkElementsSize, networkElements.size());
-        for (int i = 0; i < expectedNetworkElementsSize; i++) {
-            assertEquals(expectedNetworkElementsIds.get(i), networkElements.get(i).getId());
-        }
-    }
-
     public static void assertContingencyEquality(Contingency actualContingency, String expectedContingencyId, String expectedContingencyName, Set<String> expectedNetworkElementsIds) {
         assertEquals(expectedContingencyId, actualContingency.getId());
         assertEquals(expectedContingencyName, actualContingency.getName());
@@ -146,6 +135,23 @@ public final class CsaProfileCracCreationTestUtil {
         assertEquals(isMonitored, angleCnec.isMonitored());
     }
 
+    public static void assertAngleCnecEquality(AngleCnec angleCnec, String expectedFlowCnecIdAndName, String expectedImportingNetworkElementId, String expectedExportingNetworkElementId, String expectedInstant, String expectedContingencyId, Double expectedThresholdMax, Double expectedThresholdMin) {
+        assertEquals(expectedFlowCnecIdAndName, angleCnec.getId());
+        assertEquals(expectedFlowCnecIdAndName, angleCnec.getName());
+        assertEquals(expectedImportingNetworkElementId, angleCnec.getImportingNetworkElement().getId());
+        assertEquals(expectedExportingNetworkElementId, angleCnec.getExportingNetworkElement().getId());
+        assertEquals(expectedInstant, angleCnec.getState().getInstant().getId());
+        if (expectedContingencyId == null) {
+            assertFalse(angleCnec.getState().getContingency().isPresent());
+        } else {
+            assertEquals(expectedContingencyId, angleCnec.getState().getContingency().get().getId());
+        }
+
+        Threshold threshold = angleCnec.getThresholds().stream().toList().iterator().next();
+        assertEquals(expectedThresholdMax, threshold.max().orElse(null));
+        assertEquals(expectedThresholdMin, threshold.min().orElse(null));
+    }
+
     public static void assertVoltageCnecEquality(VoltageCnec voltageCnec, String expectedVoltageCnecId, String expectedFlowCnecName, String expectedNetworkElementId,
                                                  Instant expectedInstant, String expectedContingencyId, Double expectedThresholdMax, Double expectedThresholdMin, boolean isMonitored) {
         assertEquals(expectedVoltageCnecId, voltageCnec.getId());
@@ -162,6 +168,21 @@ public final class CsaProfileCracCreationTestUtil {
         assertEquals(expectedThresholdMax, threshold.max().orElse(null));
         assertEquals(expectedThresholdMin, threshold.min().orElse(null));
         assertEquals(isMonitored, voltageCnec.isMonitored());
+    }
+
+    public static void assertVoltageCnecEquality(VoltageCnec voltageCnec, String expectedVoltageCnecIdAndName, String expectedNetworkElementId, String expectedInstant, String expectedContingencyId, Double expectedThresholdMax, Double expectedThresholdMin) {
+        assertEquals(expectedVoltageCnecIdAndName, voltageCnec.getId());
+        assertEquals(expectedVoltageCnecIdAndName, voltageCnec.getName());
+        assertEquals(expectedNetworkElementId, voltageCnec.getNetworkElement().getId());
+        assertEquals(expectedInstant, voltageCnec.getState().getInstant().getId());
+        if (expectedContingencyId == null) {
+            assertFalse(voltageCnec.getState().getContingency().isPresent());
+        } else {
+            assertEquals(expectedContingencyId, voltageCnec.getState().getContingency().get().getId());
+        }
+        Threshold threshold = voltageCnec.getThresholds().stream().toList().iterator().next();
+        assertEquals(expectedThresholdMax, threshold.max().orElse(null));
+        assertEquals(expectedThresholdMin, threshold.min().orElse(null));
     }
 
     public static void assertPstRangeActionImported(CsaProfileCracCreationContext cracCreationContext, String id, String networkElement, boolean isAltered, int numberOfUsageRules) {

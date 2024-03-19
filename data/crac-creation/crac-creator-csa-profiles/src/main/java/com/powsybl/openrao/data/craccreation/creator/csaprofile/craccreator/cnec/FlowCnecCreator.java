@@ -79,7 +79,7 @@ public class FlowCnecCreator extends AbstractCnecCreator {
     private Identifiable<?> getFlowCnecBranch(String networkElementId) {
         Identifiable<?> networkElement = getNetworkElementInNetwork(networkElementId);
         if (networkElement == null) {
-            csaProfileCnecCreationContexts.add(CsaProfileElementaryCreationContext.notImported(assessedElementId, ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK, writeAssessedElementIgnoredReasonMessage("the following is element missing from the network : " + networkElementId)));
+            csaProfileCnecCreationContexts.add(CsaProfileElementaryCreationContext.notImported(assessedElementId, ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK, writeAssessedElementIgnoredReasonMessage("the following element is missing from the network: " + networkElementId)));
             return null;
         }
         if (!(networkElement instanceof Branch)) {

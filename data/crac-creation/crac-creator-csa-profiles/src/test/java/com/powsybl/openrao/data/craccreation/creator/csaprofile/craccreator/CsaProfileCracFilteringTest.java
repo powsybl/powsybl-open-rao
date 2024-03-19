@@ -21,21 +21,21 @@ class CsaProfileCracFilteringTest {
         ListAppender<ILoggingEvent> listAppender = getLogs(RaoBusinessWarns.class);
         List<ILoggingEvent> logsList = listAppender.list;
 
-        CsaProfileCracCreationContext context = getCsaCracCreationContext("/CSA_82_FilterBadTS.zip");
+        CsaProfileCracCreationContext context = getCsaCracCreationContext("/ProfilesWithIncoherentTimestamps.zip");
         Crac crac = context.getCrac();
 
-        // checks files filtering
+        // check files filtering
         assertEquals(7, logsList.size());
         logsList.sort(Comparator.comparing(ILoggingEvent::getMessage));
-        assert logsList.get(0).getFormattedMessage().contains("CSA_RA_bad_end_date_remove.xml");
-        assert logsList.get(1).getFormattedMessage().contains("CSA_RA_bad_start_date_remove.xml");
-        assert logsList.get(2).getFormattedMessage().contains("CSA_RA_missing_end_date_remove.xml");
-        assert logsList.get(3).getFormattedMessage().contains("CSA_RA_missing_start_date_remove.xml");
-        assert logsList.get(4).getFormattedMessage().contains("CSA_RA_not_yet_valid_remove.xml");
-        assert logsList.get(5).getFormattedMessage().contains("CSA_RA_outdated_remove.xml");
-        assert logsList.get(6).getFormattedMessage().contains("CSA_RA_start_date_after_end_date_remove.xml");
+        assertEquals("[REMOVED] The file : contexts:CSA_RA_bad_end_date_remove.xml will be ignored. Its dates are not consistent with the import date : 2023-03-29T12:00Z", logsList.get(0).getFormattedMessage());
+        assertEquals("[REMOVED] The file : contexts:CSA_RA_bad_start_date_remove.xml will be ignored. Its dates are not consistent with the import date : 2023-03-29T12:00Z", logsList.get(1).getFormattedMessage());
+        assertEquals("[REMOVED] The file : contexts:CSA_RA_missing_end_date_remove.xml will be ignored. Its dates are not consistent with the import date : 2023-03-29T12:00Z", logsList.get(2).getFormattedMessage());
+        assertEquals("[REMOVED] The file : contexts:CSA_RA_missing_start_date_remove.xml will be ignored. Its dates are not consistent with the import date : 2023-03-29T12:00Z", logsList.get(3).getFormattedMessage());
+        assertEquals("[REMOVED] The file : contexts:CSA_RA_not_yet_valid_remove.xml will be ignored. Its dates are not consistent with the import date : 2023-03-29T12:00Z", logsList.get(4).getFormattedMessage());
+        assertEquals("[REMOVED] The file : contexts:CSA_RA_outdated_remove.xml will be ignored. Its dates are not consistent with the import date : 2023-03-29T12:00Z", logsList.get(5).getFormattedMessage());
+        assertEquals("[REMOVED] The file : contexts:CSA_RA_start_date_after_end_date_remove.xml will be ignored. Its dates are not consistent with the import date : 2023-03-29T12:00Z", logsList.get(6).getFormattedMessage());
 
-        // checks crac content
+        // check crac content
         assertTrue(crac.getRemedialActions().isEmpty());
         assertEquals(1, crac.getContingencies().size());
         assertEquals("RTE_co1_fr2_fr3_1", crac.getContingencies().stream().iterator().next().getName());

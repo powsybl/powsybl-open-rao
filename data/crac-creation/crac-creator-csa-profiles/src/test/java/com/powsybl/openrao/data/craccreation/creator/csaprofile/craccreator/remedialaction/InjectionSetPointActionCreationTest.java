@@ -30,6 +30,8 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 class InjectionSetPointActionCreationTest {
 
+    // TODO: clean tests
+
     @Test
     void testImportInjectionSetPointActions() {
         Network network = Mockito.mock(Network.class);

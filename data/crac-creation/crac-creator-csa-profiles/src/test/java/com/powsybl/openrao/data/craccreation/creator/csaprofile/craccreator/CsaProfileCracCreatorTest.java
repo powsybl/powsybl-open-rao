@@ -21,7 +21,6 @@ import com.powsybl.openrao.data.craccreation.creator.api.parameters.CracCreation
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-import java.time.OffsetDateTime;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
@@ -52,7 +51,7 @@ class CsaProfileCracCreatorTest {
 
         // Check contingencies
         assertEquals(1, importedCrac.getContingencies().size());
-        CsaProfileCracCreationTestUtil.assertContingencyEquality(importedCrac.getContingencies().iterator().next(), "co1_fr2_fr3_1", "RTE_co1_fr2_fr3_1", 1, List.of("FFR2AA1--FFR3AA1--1"));
+        CsaProfileCracCreationTestUtil.assertContingencyEquality(importedCrac.getContingencies().iterator().next(), "co1_fr2_fr3_1", "RTE_co1_fr2_fr3_1", Set.of("FFR2AA1--FFR3AA1--1"));
 
         // Check Flow Cnecs
         assertEquals(6, importedCrac.getFlowCnecs().size());
@@ -149,13 +148,13 @@ class CsaProfileCracCreatorTest {
 
         CsaProfileCracCreationTestUtil.assertContingencyEquality(listContingencies.get(0),
             "2a193923-ac8a-40e8-b0f0-50ba28826317", "RTE_CO2",
-            1, List.of("ff3c8013-d3f9-4198-a1f2-98d3ebdf30c4"));
+            Set.of("ff3c8013-d3f9-4198-a1f2-98d3ebdf30c4"));
         CsaProfileCracCreationTestUtil.assertContingencyEquality(listContingencies.get(1),
             "5bd378fa-700b-4b88-b73a-327100ad18bf", "RTE_CO1",
-            1, List.of("ff3c8013-d3f9-4198-a1f2-98d3ebdf30c4"));
+            Set.of("ff3c8013-d3f9-4198-a1f2-98d3ebdf30c4"));
         CsaProfileCracCreationTestUtil.assertContingencyEquality(listContingencies.get(2),
             "8f2cac52-ba92-4922-b8e2-2ee0414829f5", "RTE_CO3",
-            1, List.of("ff3c8013-d3f9-4198-a1f2-98d3ebdf30c4"));
+            Set.of("ff3c8013-d3f9-4198-a1f2-98d3ebdf30c4"));
 
         assertEquals(3, cracCreationContext.getCrac().getRemedialActions().size());
         CsaProfileCracCreationTestUtil.assertNetworkActionImported(cracCreationContext, "ac60186a-8ee9-4379-8ce2-48fe335b0357", Set.of("d1db384f-3a27-434b-93f5-5afa3ab23b00"), false, 2);
@@ -169,130 +168,5 @@ class CsaProfileCracCreatorTest {
         CsaProfileCracCreationTestUtil.assertHasOnAngleConstraintUsageRule(cracCreationContext, "6dccb771-921c-4025-8079-f55590868704", "RTE_AE2 (ebe2f6f6-ea0a-4361-8740-d4efd68d5fe5) - RTE_CO3 - curative", curativeInstant, UsageMethod.AVAILABLE);
 
         assertRaNotImported(cracCreationContext, "fb21c59d-4268-4ba2-aa1b-ae2767799a36", ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action fb21c59d-4268-4ba2-aa1b-ae2767799a36 will not be imported because of an illegal EXCLUDED ElementCombinationConstraintKind");
-    }
-
-    @Test
-    void testImportWithoutSsiSsh() {
-        Network network = Mockito.mock(Network.class);
-        BusbarSection terminal1Mock = Mockito.mock(BusbarSection.class);
-        BusbarSection terminal2Mock = Mockito.mock(BusbarSection.class);
-        Branch contingencyElement1Mock = Mockito.mock(Branch.class);
-        Branch contingencyElement2Mock = Mockito.mock(Branch.class);
-        Switch switch1Mock = Mockito.mock(Switch.class);
-        Switch switch2Mock = Mockito.mock(Switch.class);
-        Switch switch3Mock = Mockito.mock(Switch.class);
-
-        when(terminal1Mock.getType()).thenReturn(IdentifiableType.BUS);
-        when(terminal2Mock.getType()).thenReturn(IdentifiableType.BUS);
-        when(terminal1Mock.getId()).thenReturn("1fee928b-5093-4c24-9042-940a9ba3d229");
-        when(network.getIdentifiable("1fee928b-5093-4c24-9042-940a9ba3d229")).thenReturn((Identifiable) terminal1Mock);
-        when(terminal2Mock.getId()).thenReturn("6b1d5995-bb88-4e04-b7d8-c292431003dc");
-        when(network.getIdentifiable("6b1d5995-bb88-4e04-b7d8-c292431003dc")).thenReturn((Identifiable) terminal2Mock);
-        when(contingencyElement1Mock.getId()).thenReturn("12c706b2-72bc-4f90-9693-0ab12db63eb2");
-        when(network.getIdentifiable("12c706b2-72bc-4f90-9693-0ab12db63eb2")).thenReturn(contingencyElement1Mock);
-        when(contingencyElement2Mock.getId()).thenReturn("e70568b9-3acc-47d5-8c4b-d7c7645e2297");
-        when(network.getIdentifiable("e70568b9-3acc-47d5-8c4b-d7c7645e2297")).thenReturn(contingencyElement2Mock);
-        when(switch1Mock.getId()).thenReturn("4b7b74db-d03f-43a7-be32-d183d9aa6f20");
-        when(network.getIdentifiable("4b7b74db-d03f-43a7-be32-d183d9aa6f20")).thenReturn((Identifiable) switch1Mock);
-        when(switch2Mock.getId()).thenReturn("10eb02d6-e50e-4b36-9b1b-b044dedfa256");
-        when(network.getIdentifiable("10eb02d6-e50e-4b36-9b1b-b044dedfa256")).thenReturn((Identifiable) switch2Mock);
-        when(switch3Mock.getId()).thenReturn("55f4bfcb-f46f-40f8-a87e-6caeefc5330a");
-        when(network.getIdentifiable("55f4bfcb-f46f-40f8-a87e-6caeefc5330a")).thenReturn((Identifiable) switch3Mock);
-
-        CsaProfileCracCreationContext cracCreationContext = getCsaCracCreationContext("/CSA_36_3_CustomExample.zip", network, OffsetDateTime.parse("2023-01-01T21:30Z"));
-        assertNotNull(cracCreationContext);
-        Instant preventiveInstant = cracCreationContext.getCrac().getInstant("preventive");
-        Instant curativeInstant = cracCreationContext.getCrac().getInstant("curative");
-
-        assertEquals(1, cracCreationContext.getCrac().getContingencies().size());
-        List<Contingency> listContingencies = cracCreationContext.getCrac().getContingencies()
-            .stream().sorted(Comparator.comparing(Contingency::getId)).toList();
-
-        CsaProfileCracCreationTestUtil.assertContingencyEquality(listContingencies.get(0),
-            "e39724a0-853e-498d-96b9-4c9fe15aea3c", "RTE_CO1",
-            1, List.of("12c706b2-72bc-4f90-9693-0ab12db63eb2"));
-
-        CsaProfileCracCreationTestUtil.assertAngleCnecEquality(cracCreationContext.getCrac().getAngleCnec("RTE_AE1 (d0c771ba-523a-480a-96b3-29fa358536df) - preventive"),
-            "RTE_AE1 (d0c771ba-523a-480a-96b3-29fa358536df) - preventive",
-            "RTE_AE1 (d0c771ba-523a-480a-96b3-29fa358536df) - preventive",
-            "1fee928b-5093-4c24-9042-940a9ba3d229",
-            "6b1d5995-bb88-4e04-b7d8-c292431003dc",
-            preventiveInstant,
-            null,
-            100.,
-            -100.,
-            true);
-        CsaProfileCracCreationTestUtil.assertAngleCnecEquality(cracCreationContext.getCrac().getAngleCnec("RTE_AE1 (d0c771ba-523a-480a-96b3-29fa358536df) - RTE_CO1 - curative"),
-            "RTE_AE1 (d0c771ba-523a-480a-96b3-29fa358536df) - RTE_CO1 - curative",
-            "RTE_AE1 (d0c771ba-523a-480a-96b3-29fa358536df) - RTE_CO1 - curative",
-            "1fee928b-5093-4c24-9042-940a9ba3d229",
-            "6b1d5995-bb88-4e04-b7d8-c292431003dc",
-            curativeInstant,
-            "e39724a0-853e-498d-96b9-4c9fe15aea3c",
-            100.,
-            -100.,
-            true);
-        CsaProfileCracCreationTestUtil.assertAngleCnecEquality(cracCreationContext.getCrac().getAngleCnec("RTE_AE2 (698091e7-8661-4f75-acc3-419164d9c4ed) - preventive"),
-            "RTE_AE2 (698091e7-8661-4f75-acc3-419164d9c4ed) - preventive",
-            "RTE_AE2 (698091e7-8661-4f75-acc3-419164d9c4ed) - preventive",
-            "6b1d5995-bb88-4e04-b7d8-c292431003dc",
-            "1fee928b-5093-4c24-9042-940a9ba3d229",
-            preventiveInstant,
-            null,
-            75.,
-            null,
-            true);
-    }
-
-    @Test
-    void testImportWithSsiSsh() {
-        Network network = Mockito.mock(Network.class);
-        BusbarSection terminal1Mock = Mockito.mock(BusbarSection.class);
-        BusbarSection terminal2Mock = Mockito.mock(BusbarSection.class);
-        Branch contingencyElement1Mock = Mockito.mock(Branch.class);
-        Branch contingencyElement2Mock = Mockito.mock(Branch.class);
-        Switch switch1Mock = Mockito.mock(Switch.class);
-        Switch switch2Mock = Mockito.mock(Switch.class);
-        Switch switch3Mock = Mockito.mock(Switch.class);
-
-        when(terminal1Mock.getType()).thenReturn(IdentifiableType.BUS);
-        when(terminal2Mock.getType()).thenReturn(IdentifiableType.BUS);
-        when(terminal1Mock.getId()).thenReturn("1fee928b-5093-4c24-9042-940a9ba3d229");
-        when(network.getIdentifiable("1fee928b-5093-4c24-9042-940a9ba3d229")).thenReturn((Identifiable) terminal1Mock);
-        when(terminal2Mock.getId()).thenReturn("6b1d5995-bb88-4e04-b7d8-c292431003dc");
-        when(network.getIdentifiable("6b1d5995-bb88-4e04-b7d8-c292431003dc")).thenReturn((Identifiable) terminal2Mock);
-        when(contingencyElement1Mock.getId()).thenReturn("12c706b2-72bc-4f90-9693-0ab12db63eb2");
-        when(network.getIdentifiable("12c706b2-72bc-4f90-9693-0ab12db63eb2")).thenReturn(contingencyElement1Mock);
-        when(contingencyElement2Mock.getId()).thenReturn("e70568b9-3acc-47d5-8c4b-d7c7645e2297");
-        when(network.getIdentifiable("e70568b9-3acc-47d5-8c4b-d7c7645e2297")).thenReturn(contingencyElement2Mock);
-        when(switch1Mock.getId()).thenReturn("4b7b74db-d03f-43a7-be32-d183d9aa6f20");
-        when(network.getIdentifiable("4b7b74db-d03f-43a7-be32-d183d9aa6f20")).thenReturn((Identifiable) switch1Mock);
-        when(switch2Mock.getId()).thenReturn("10eb02d6-e50e-4b36-9b1b-b044dedfa256");
-        when(network.getIdentifiable("10eb02d6-e50e-4b36-9b1b-b044dedfa256")).thenReturn((Identifiable) switch2Mock);
-        when(switch3Mock.getId()).thenReturn("55f4bfcb-f46f-40f8-a87e-6caeefc5330a");
-        when(network.getIdentifiable("55f4bfcb-f46f-40f8-a87e-6caeefc5330a")).thenReturn((Identifiable) switch3Mock);
-
-        CsaProfileCracCreationContext cracCreationContext = getCsaCracCreationContext("/CSA_36_3_CustomExample.zip", network, OffsetDateTime.parse("2023-01-01T22:30Z"));
-        assertNotNull(cracCreationContext);
-        Instant preventiveInstant = cracCreationContext.getCrac().getInstant("preventive");
-
-        assertEquals(1, cracCreationContext.getCrac().getContingencies().size());
-        List<Contingency> listContingencies = cracCreationContext.getCrac().getContingencies()
-            .stream().sorted(Comparator.comparing(Contingency::getId)).toList();
-
-        CsaProfileCracCreationTestUtil.assertContingencyEquality(listContingencies.get(0),
-            "90492e2d-861f-49ed-9cc5-f365b5a969e3", "RTE_CO2",
-            1, List.of("e70568b9-3acc-47d5-8c4b-d7c7645e2297"));
-
-        CsaProfileCracCreationTestUtil.assertAngleCnecEquality(cracCreationContext.getCrac().getAngleCnec("RTE_AE1 (d0c771ba-523a-480a-96b3-29fa358536df) - preventive"),
-            "RTE_AE1 (d0c771ba-523a-480a-96b3-29fa358536df) - preventive",
-            "RTE_AE1 (d0c771ba-523a-480a-96b3-29fa358536df) - preventive",
-            "1fee928b-5093-4c24-9042-940a9ba3d229",
-            "6b1d5995-bb88-4e04-b7d8-c292431003dc",
-            preventiveInstant,
-            null,
-            100.,
-            -100.,
-            true);
     }
 }

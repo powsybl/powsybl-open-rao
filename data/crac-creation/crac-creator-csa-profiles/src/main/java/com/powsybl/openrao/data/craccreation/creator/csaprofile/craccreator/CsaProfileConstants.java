@@ -249,6 +249,7 @@ public final class CsaProfileConstants {
     public static final List<String> CURRENT_LIMIT_POSSIBLE_ALIASES_BY_TYPE_RIGHT = List.of("CGMES.Terminal2", "CGMES.Terminal_Boundary_2");
     public static final List<String> CURRENT_LIMIT_POSSIBLE_ALIASES_BY_TYPE_TIE_LINE = List.of("CGMES.Terminal1", "CGMES.Terminal_Boundary");
     public static final String IEC_URL = "http://iec.ch/TC57/";
+    public static final String ENTSOE_URL = "http://entsoe.eu/CIM/SchemaExtension/3/1#";
 
     public enum ElementCombinationConstraintKind {
         CONSIDERED("considered"),
@@ -270,14 +271,16 @@ public final class CsaProfileConstants {
 
     public enum LimitTypeKind {
         PATL("patl"),
-        TATL("tatl");
+        TATL("tatl"),
+        HIGH_VOLTAGE("highVoltage"),
+        LOW_VOLTAGE("lowVoltage");
 
         LimitTypeKind(String name) {
             this.name = name;
         }
 
         private final String name;
-        private static final String URL = IEC_URL + "CIM100-European#LimitKind.";
+        private static final String URL = ENTSOE_URL + "LimitTypeKind.";
 
         @Override
         public String toString() {

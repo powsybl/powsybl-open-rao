@@ -20,7 +20,7 @@ class ContingenciesCreationTest {
 
     @Test
     void importContingencies() {
-        CsaProfileCracCreationContext cracCreationContext = getCsaCracCreationContext("/Contingencies.zip", NETWORK);
+        CsaProfileCracCreationContext cracCreationContext = getCsaCracCreationContext("/profiles/contingencies/Contingencies.zip", NETWORK);
 
         List<Contingency> importedContingencies = cracCreationContext.getCrac().getContingencies().stream().sorted(Comparator.comparing(Contingency::getId)).toList();
         assertEquals(8, importedContingencies.size());
