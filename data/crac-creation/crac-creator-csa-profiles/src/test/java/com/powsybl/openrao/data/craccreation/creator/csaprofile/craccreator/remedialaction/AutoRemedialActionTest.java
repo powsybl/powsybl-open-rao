@@ -74,7 +74,7 @@ class AutoRemedialActionTest {
         assertRaNotImported(cracCreationContext, "sps-without-remedial-action-scheme", ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action sps-without-remedial-action-scheme will not be imported because it has no associated RemedialActionScheme");
         assertRaNotImported(cracCreationContext, "sps-without-stage", ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action sps-without-stage will not be imported because it has no associated Stage");
         assertRaNotImported(cracCreationContext, "sps-without-grid-state-alteration-collection", ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action sps-without-grid-state-alteration-collection will not be imported because it has no associated GridStateAlterationCollection");
-        assertRaNotImported(cracCreationContext, "sps-without-elementary-actions", ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action sps-without-elementary-actions will not be imported because there is no elementary action for that RA");
+        assertRaNotImported(cracCreationContext, "sps-without-elementary-actions", ImportStatus.NOT_FOR_RAO, "Remedial action sps-without-elementary-actions will not be imported because it has no elementary action");
         assertRaNotImported(cracCreationContext, "sps-without-contingency", ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action sps-without-contingency will not be imported because no contingency is linked to the remedial action");
     }
 }

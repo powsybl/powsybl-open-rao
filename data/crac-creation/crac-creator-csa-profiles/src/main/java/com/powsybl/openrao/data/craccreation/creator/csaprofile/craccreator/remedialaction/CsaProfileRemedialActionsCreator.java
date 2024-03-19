@@ -23,6 +23,7 @@ import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaP
 import com.powsybl.openrao.data.craccreation.util.OpenRaoImportException;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.triplestore.api.PropertyBag;
+import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.*;
 import java.util.function.Consumer;
@@ -137,10 +138,6 @@ public class CsaProfileRemedialActionsCreator {
                     throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action " + remedialActionId + " will not be imported because it must be linked to the contingency " + contingencyId + " with an 'included' ElementCombinationConstraintKind");
                 }
                 contingenciesWithConsidered.add(contingencyId);
-            } else if (combinationKind.equals(ElementCombinationConstraintKind.EXCLUDED.toString())) {
-                throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action " + remedialActionId + " will not be imported because of an illegal EXCLUDED ElementCombinationConstraintKind");
-            } else {
-                throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action " + remedialActionId + " will not be imported because of an invalid Element Combination Constraint Kind");
             }
             if (contingenciesWithIncluded.contains(contingencyId) && contingenciesWithConsidered.contains(contingencyId)) {
                 throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action " + remedialActionId + " will not be imported because the ElementCombinationConstraintKinds that link the remedial action to the contingency " + contingencyId + " are different");
@@ -151,7 +148,7 @@ public class CsaProfileRemedialActionsCreator {
     private static void checkAvailability(PropertyBag remedialActionPropertyBag, String remedialActionId) {
         boolean normalAvailable = Boolean.parseBoolean(remedialActionPropertyBag.get(NORMAL_AVAILABLE));
         if (!normalAvailable) {
-            throw new OpenRaoImportException(ImportStatus.NOT_FOR_RAO, "Remedial action " + remedialActionId + " will not be imported because RemedialAction.normalAvailable must be 'true' to be imported");
+            throw new OpenRaoImportException(ImportStatus.NOT_FOR_RAO, "Remedial action " + remedialActionId + " will not be imported because normalAvailable is set to false");
         }
     }
 
@@ -216,7 +213,7 @@ public class CsaProfileRemedialActionsCreator {
 
     private void addOnContingencyStateUsageRules(PropertyBag parentRemedialActionPropertyBag, String remedialActionId, Map<String, Set<PropertyBag>> linkedContingencyWithRAs, RemedialActionAdder<?> remedialActionAdder, List<String> alterations, boolean isAuto) {
         checkElementCombinationConstraintKindsCoherence(remedialActionId, linkedContingencyWithRAs, alterations, isAuto);
-        List<String> validContingenciesIds = new ArrayList<>();
+        List<Pair<String, ElementCombinationConstraintKind>> validContingencies = new ArrayList<>();
         List<String> ignoredContingenciesMessages = new ArrayList<>();
         for (PropertyBag contingencyWithRemedialActionPropertyBag : linkedContingencyWithRAs.get(remedialActionId)) {
             Optional<String> normalEnabledOpt = Optional.ofNullable(contingencyWithRemedialActionPropertyBag.get(CsaProfileConstants.NORMAL_ENABLED));
@@ -224,7 +221,7 @@ public class CsaProfileRemedialActionsCreator {
                 alterations.add(String.format("Association CO/RA '%s'/'%s' will be ignored because field 'normalEnabled' in ContingencyWithRemedialAction is set to false", contingencyWithRemedialActionPropertyBag.getId(REQUEST_CONTINGENCY), remedialActionId));
             }
             if (!parentRemedialActionPropertyBag.get(KIND).equals(RemedialActionKind.CURATIVE.toString())) {
-                throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action " + remedialActionId + " will not be imported because it is linked to a contingency but it's kind is not curative");
+                throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action " + remedialActionId + " will not be imported because it is linked to a contingency but is not curative");
             }
             String contingencyId = contingencyWithRemedialActionPropertyBag.getId(REQUEST_CONTINGENCY);
             Optional<String> normalEnabled = Optional.ofNullable(contingencyWithRemedialActionPropertyBag.get(NORMAL_ENABLED));
@@ -233,7 +230,7 @@ public class CsaProfileRemedialActionsCreator {
                 continue;
             }
             String combinationConstraintKind = contingencyWithRemedialActionPropertyBag.get(COMBINATION_CONSTRAINT_KIND);
-            if (!combinationConstraintKind.equals(ElementCombinationConstraintKind.INCLUDED.toString()) && !combinationConstraintKind.equals(ElementCombinationConstraintKind.EXCLUDED.toString()) && !combinationConstraintKind.equals(ElementCombinationConstraintKind.CONSIDERED.toString())) {
+            if (!combinationConstraintKind.equals(ElementCombinationConstraintKind.INCLUDED.toString()) && !combinationConstraintKind.equals(ElementCombinationConstraintKind.CONSIDERED.toString())) {
                 ignoredContingenciesMessages.add("OnContingencyState usage rule for remedial action %s with contingency %s ignored because of an illegal combinationConstraintKind".formatted(remedialActionId, contingencyId));
                 continue;
             }
@@ -242,7 +239,7 @@ public class CsaProfileRemedialActionsCreator {
                 ignoredContingenciesMessages.add("OnContingencyState usage rule for remedial action %s with contingency %s ignored because this contingency does not exist or was not imported by Open RAO".formatted(remedialActionId, contingencyId));
                 continue;
             }
-            validContingenciesIds.add(importedCsaProfileContingencyCreationContextOpt.get().getElementId());
+            validContingencies.add(Pair.of(importedCsaProfileContingencyCreationContextOpt.get().getElementId(), combinationConstraintKind.equals(ElementCombinationConstraintKind.INCLUDED.toString()) ? ElementCombinationConstraintKind.INCLUDED : ElementCombinationConstraintKind.CONSIDERED));
         }
 
         // If the remedial action is linked to an assessed element, no matter if this link or this assessed element is
@@ -252,15 +249,21 @@ public class CsaProfileRemedialActionsCreator {
         boolean isLinkedToAssessedElements = elementaryActionsHelper.remedialActionIsLinkedToAssessedElements(remedialActionId);
         if (!isLinkedToAssessedElements) {
             String instantId = isAuto ? crac.getInstant(InstantKind.AUTO).getId() : crac.getInstant(InstantKind.CURATIVE).getId();
-            UsageMethod usageMethod = isAuto ? UsageMethod.FORCED : UsageMethod.AVAILABLE;
 
-            validContingenciesIds.forEach(openRaoContingencyId -> remedialActionAdder.newOnContingencyStateUsageRule()
+            validContingencies.forEach(openRaoContingencyId -> remedialActionAdder.newOnContingencyStateUsageRule()
                 .withInstant(instantId)
-                .withContingency(openRaoContingencyId)
-                .withUsageMethod(usageMethod).add());
+                .withContingency(openRaoContingencyId.getLeft())
+                .withUsageMethod(getUsageMethod(openRaoContingencyId.getRight(), isAuto)).add());
 
             alterations.addAll(ignoredContingenciesMessages);
         }
+    }
+
+    private UsageMethod getUsageMethod(ElementCombinationConstraintKind elementCombinationConstraintKind, boolean isAuto) {
+        if (isAuto) {
+            return UsageMethod.FORCED;
+        }
+        return ElementCombinationConstraintKind.INCLUDED.equals(elementCombinationConstraintKind) ? UsageMethod.FORCED : UsageMethod.AVAILABLE;
     }
 
     private static void checkKind(PropertyBag remedialActionPropertyBag, String remedialActionId, boolean isAuto) {
@@ -288,7 +291,7 @@ public class CsaProfileRemedialActionsCreator {
             // StaticPropertyRanges not mandatory in case of tapPositionsActions
             remedialActionType = RemedialActionType.PST_RANGE_ACTION;
         } else {
-            throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action " + remedialActionId + " will not be imported because there is no elementary action for that RA");
+            throw new OpenRaoImportException(ImportStatus.NOT_FOR_RAO, "Remedial action " + remedialActionId + " will not be imported because it has no elementary action");
         }
         return remedialActionType;
     }

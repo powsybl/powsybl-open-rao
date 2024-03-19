@@ -233,6 +233,10 @@ public final class CsaProfileCracCreationTestUtil {
         );
     }
 
+    public static void assertHasOnContingencyStateUsageRule(CsaProfileCracCreationContext cracCreationContext, String raId, String contingencyId, String instant, UsageMethod usageMethod) {
+        assertHasOnContingencyStateUsageRule(cracCreationContext, raId, contingencyId, cracCreationContext.getCrac().getInstant(instant), usageMethod);
+    }
+
     public static void assertHasOnFlowConstraintUsageRule(CsaProfileCracCreationContext cracCreationContext, String raId, String flowCnecId, Instant instant, UsageMethod usageMethod) {
         assertTrue(
             cracCreationContext.getCrac().getRemedialAction(raId).getUsageRules().stream().filter(OnFlowConstraint.class::isInstance)
@@ -346,6 +350,6 @@ public final class CsaProfileCracCreationTestUtil {
     public static Network getNetworkFromResource(String filename) {
         Properties importParams = new Properties();
         importParams.put("iidm.import.cgmes.cgm-with-subnetworks", false);
-        return Network.read(Paths.get(new File(CsaProfileCracCreatorTest.class.getResource(filename).getFile()).toString()), LocalComputationManager.getDefault(), Suppliers.memoize(ImportConfig::load).get(), importParams);
+        return Network.read(Paths.get(new File(CsaProfileCracCreationTestUtil.class.getResource(filename).getFile()).toString()), LocalComputationManager.getDefault(), Suppliers.memoize(ImportConfig::load).get(), importParams);
     }
 }
