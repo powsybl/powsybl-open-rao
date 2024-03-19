@@ -67,7 +67,7 @@ public class InjectionSetpointAdderImpl implements InjectionSetpointAdder {
 
         NetworkElement networkElement = this.ownerAdder.getCrac().addNetworkElement(networkElementId, networkElementName);
         InjectionSetpoint injectionSetpoint = new InjectionSetpointImpl(networkElement, setpoint, unit);
-        ownerAdder.addElementaryAction(injectionSetpoint);
+        ownerAdder.addElementaryAction(injectionSetpoint, networkElement);
         return ownerAdder;
     }
 }

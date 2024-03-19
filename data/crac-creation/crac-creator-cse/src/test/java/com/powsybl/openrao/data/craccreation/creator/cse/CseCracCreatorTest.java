@@ -295,8 +295,8 @@ class CseCracCreatorTest {
         assertTrue(raContext.isImported());
         NetworkAction na = cracCreationContext.getCrac().getNetworkAction("cra_4");
         assertEquals(2, na.getNetworkElements().size());
-        assertTrue(na.getElementaryActions().stream().anyMatch(ea -> ea.getNetworkElements().iterator().next().getId().equals("FFR3AA1 _generator")));
-        assertTrue(na.getElementaryActions().stream().anyMatch(ea -> ea.getNetworkElements().iterator().next().getId().equals("FFR2AA1 _generator")));
+        assertTrue(na.getNetworkElements().stream().anyMatch(el -> el.getId().equals("FFR3AA1 _generator")));
+        assertTrue(na.getNetworkElements().stream().anyMatch(el -> el.getId().equals("FFR2AA1 _generator")));
     }
 
     @Test

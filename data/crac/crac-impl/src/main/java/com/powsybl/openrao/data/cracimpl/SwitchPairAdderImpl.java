@@ -60,7 +60,7 @@ public class SwitchPairAdderImpl implements SwitchPairAdder {
         }
         NetworkElement switchToOpen = this.ownerAdder.getCrac().addNetworkElement(switchToOpenId, switchToOpenName);
         NetworkElement switchToClose = this.ownerAdder.getCrac().addNetworkElement(switchToCloseId, switchToCloseName);
-        ownerAdder.addElementaryAction(new SwitchPairImpl(switchToOpen, switchToClose));
+        ownerAdder.addElementaryAction(new SwitchPairImpl(switchToOpen, switchToClose), switchToOpen, switchToClose);
         return ownerAdder;
     }
 }

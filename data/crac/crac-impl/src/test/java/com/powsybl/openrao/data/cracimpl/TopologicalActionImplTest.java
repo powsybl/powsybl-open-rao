@@ -7,8 +7,10 @@
 
 package com.powsybl.openrao.data.cracimpl;
 
+import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.cracapi.networkaction.ActionType;
 import com.powsybl.openrao.data.cracapi.NetworkElement;
+import com.powsybl.openrao.data.cracapi.networkaction.NetworkAction;
 import com.powsybl.openrao.data.cracimpl.utils.NetworkImportsUtil;
 import com.powsybl.iidm.network.Network;
 import org.apache.commons.lang3.NotImplementedException;
@@ -22,27 +24,32 @@ import static org.junit.jupiter.api.Assertions.*;
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
 class TopologicalActionImplTest {
-
-    private TopologicalActionImpl topologyOpen;
-    private TopologicalActionImpl topologyClose;
+    private NetworkAction topologyOpen;
+    private NetworkAction topologyClose;
 
     @BeforeEach
     public void setUp() {
-        topologyOpen = new TopologicalActionImpl(
-                new NetworkElementImpl("FFR2AA1  DDE3AA1  1"),
-                ActionType.OPEN
-        );
-        topologyClose = new TopologicalActionImpl(
-                new NetworkElementImpl("FFR2AA1  DDE3AA1  1"),
-                ActionType.CLOSE
-        );
+        Crac crac = new CracImplFactory().create("cracId");
+        topologyOpen = crac.newNetworkAction()
+            .withId("topologyOpen")
+            .newTopologicalAction()
+                .withNetworkElement("FFR2AA1  DDE3AA1  1")
+                .withActionType(ActionType.OPEN)
+                .add()
+            .add();
+        topologyClose = crac.newNetworkAction()
+            .withId("topologyClose")
+            .newTopologicalAction()
+                .withNetworkElement("FFR2AA1  DDE3AA1  1")
+                .withActionType(ActionType.CLOSE)
+                .add()
+            .add();
     }
 
     @Test
     void basicMethods() {
-        assertEquals(ActionType.OPEN, topologyOpen.getActionType());
-        assertEquals("FFR2AA1  DDE3AA1  1", topologyOpen.getNetworkElement().getId());
         assertEquals(1, topologyOpen.getNetworkElements().size());
+        assertEquals("FFR2AA1  DDE3AA1  1", topologyOpen.getNetworkElements().iterator().next().getId());
         assertTrue(topologyOpen.canBeApplied(Mockito.mock(Network.class)));
     }
 
@@ -74,16 +81,24 @@ class TopologicalActionImplTest {
         Network network = NetworkImportsUtil.import12NodesNetworkWithSwitch();
         String switchNetworkElementId = "NNL3AA11 NNL3AA12 1";
 
-        NetworkElement networkElement = new NetworkElementImpl(switchNetworkElementId);
-        TopologicalActionImpl openSwitchTopology = new TopologicalActionImpl(
-            networkElement,
-            ActionType.OPEN);
+        Crac crac = new CracImplFactory().create("cracId");
+        NetworkAction openSwitchTopology = crac.newNetworkAction()
+            .withId("openSwitchTopology")
+            .newTopologicalAction()
+                .withNetworkElement(switchNetworkElementId)
+                .withActionType(ActionType.OPEN)
+                .add()
+            .add();
 
         assertTrue(openSwitchTopology.hasImpactOnNetwork(network));
 
-        TopologicalActionImpl closeSwitchTopology = new TopologicalActionImpl(
-            networkElement,
-            ActionType.CLOSE);
+        NetworkAction closeSwitchTopology = crac.newNetworkAction()
+            .withId("closeSwitchTopology")
+            .newTopologicalAction()
+            .withNetworkElement(switchNetworkElementId)
+            .withActionType(ActionType.CLOSE)
+            .add()
+            .add();
 
         assertFalse(closeSwitchTopology.hasImpactOnNetwork(network));
     }
@@ -121,7 +136,15 @@ class TopologicalActionImplTest {
 
     @Test
     void equals() {
-        assertEquals(new TopologicalActionImpl(new NetworkElementImpl("FFR2AA1  DDE3AA1  1"), ActionType.CLOSE), topologyClose);
+        Crac crac = new CracImplFactory().create("cracId");
+        NetworkAction similarTopologyClose = crac.newNetworkAction()
+            .withId("topologyClose")
+            .newTopologicalAction()
+            .withNetworkElement("FFR2AA1  DDE3AA1  1")
+            .withActionType(ActionType.CLOSE)
+            .add()
+            .add();
+        assertEquals(similarTopologyClose, topologyClose);
         assertNotEquals(topologyClose, topologyOpen);
     }
 }

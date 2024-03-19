@@ -18,9 +18,6 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Switch;
 import org.apache.commons.lang3.NotImplementedException;
 
-import java.util.Collections;
-import java.util.Set;
-
 /**
  * Topological remedial action: open or close a network element.
  *
@@ -67,30 +64,6 @@ public final class TopologicalActionImpl implements TopologicalAction {
     }
 
     @Override
-    public boolean hasImpactOnNetwork(Network network) {
-        Identifiable<?> element = network.getIdentifiable(networkElement.getId());
-        if (element instanceof Branch<?> branch) {
-            if (actionType == ActionType.OPEN) {
-                // Line is considered closed if both terminal are connected
-                return branch.getTerminal1().isConnected() && branch.getTerminal2().isConnected();
-            } else {
-                // Line is already considered opened if one of the terminals is disconnected
-                return !branch.getTerminal1().isConnected() || !branch.getTerminal2().isConnected();
-            }
-        } else if (element instanceof Switch sw) {
-            return sw.isOpen() == (actionType == ActionType.CLOSE);
-        } else {
-            throw new NotImplementedException("Topological actions are only on branches or switches for now");
-        }
-    }
-
-    @Override
-    public boolean canBeApplied(Network network) {
-        // TODO : always true ?
-        return true;
-    }
-
-    @Override
     public boolean equals(Object o) {
         if (this == o) {
             return true;
@@ -105,11 +78,6 @@ public final class TopologicalActionImpl implements TopologicalAction {
     @Override
     public NetworkElement getNetworkElement() {
         return networkElement;
-    }
-
-    @Override
-    public Set<NetworkElement> getNetworkElements() {
-        return Collections.singleton(networkElement);
     }
 
     @Override

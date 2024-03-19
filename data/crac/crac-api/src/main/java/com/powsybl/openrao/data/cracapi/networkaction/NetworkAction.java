@@ -44,4 +44,10 @@ public interface NetworkAction extends RemedialAction<NetworkAction> {
      * Get the set of the elementary actions constituting then network action
      */
     Set<ElementaryAction> getElementaryActions();
+
+
+    /**
+     * Returns true if all the elementary actions can be applied to the given network
+     */
+    boolean canBeApplied(Network network);
 }

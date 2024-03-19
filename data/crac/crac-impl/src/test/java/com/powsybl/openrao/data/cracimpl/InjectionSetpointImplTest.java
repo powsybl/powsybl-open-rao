@@ -10,14 +10,13 @@
 package com.powsybl.openrao.data.cracimpl;
 
 import com.powsybl.openrao.commons.Unit;
-import com.powsybl.openrao.data.cracapi.NetworkElement;
+import com.powsybl.openrao.data.cracapi.Crac;
+import com.powsybl.openrao.data.cracapi.networkaction.NetworkAction;
 import com.powsybl.openrao.data.cracimpl.utils.NetworkImportsUtil;
 import com.powsybl.iidm.network.Network;
 import org.apache.commons.lang3.NotImplementedException;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
-
-import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -28,31 +27,47 @@ class InjectionSetpointImplTest {
 
     @Test
     void basicMethods() {
-        NetworkElement mockedNetworkElement = Mockito.mock(NetworkElement.class);
-        InjectionSetpointImpl injectionSetpoint = new InjectionSetpointImpl(mockedNetworkElement, 10., Unit.MEGAWATT);
-        assertEquals(10., injectionSetpoint.getSetpoint(), 1e-3);
-        assertEquals(mockedNetworkElement, injectionSetpoint.getNetworkElement());
-        assertEquals(Set.of(mockedNetworkElement), injectionSetpoint.getNetworkElements());
+        Crac crac = new CracImplFactory().create("cracId");
+        NetworkAction injectionSetpoint = crac.newNetworkAction()
+            .withId("injectionSetpoint")
+            .newInjectionSetPoint()
+                .withNetworkElement("element")
+                .withSetpoint(10)
+                .withUnit(Unit.MEGAWATT)
+                .add()
+            .add();
+        assertEquals(1, injectionSetpoint.getNetworkElements().size());
+        assertEquals("element", injectionSetpoint.getNetworkElements().iterator().next().getId());
         assertTrue(injectionSetpoint.canBeApplied(Mockito.mock(Network.class)));
     }
 
     @Test
     void hasImpactOnNetworkForGenerator() {
         Network network = NetworkImportsUtil.import12NodesNetwork();
-        InjectionSetpointImpl generatorSetpoint = new InjectionSetpointImpl(
-            new NetworkElementImpl("FFR1AA1 _generator"),
-            100, Unit.MEGAWATT);
-
+        Crac crac = new CracImplFactory().create("cracId");
+        NetworkAction generatorSetpoint = crac.newNetworkAction()
+            .withId("generatorSetpoint")
+            .newInjectionSetPoint()
+            .withNetworkElement("FFR1AA1 _generator")
+            .withSetpoint(100)
+            .withUnit(Unit.MEGAWATT)
+            .add()
+            .add();
         assertTrue(generatorSetpoint.hasImpactOnNetwork(network));
     }
 
     @Test
     void hasNoImpactOnNetworkForGenerator() {
         Network network = NetworkImportsUtil.import12NodesNetwork();
-        InjectionSetpointImpl generatorSetpoint = new InjectionSetpointImpl(
-            new NetworkElementImpl("FFR1AA1 _generator"),
-            2000, Unit.MEGAWATT);
-
+        Crac crac = new CracImplFactory().create("cracId");
+        NetworkAction generatorSetpoint = crac.newNetworkAction()
+            .withId("generatorSetpoint")
+            .newInjectionSetPoint()
+            .withNetworkElement("FFR1AA1 _generator")
+            .withSetpoint(2000)
+            .withUnit(Unit.MEGAWATT)
+            .add()
+            .add();
         assertFalse(generatorSetpoint.hasImpactOnNetwork(network));
     }
 
@@ -70,20 +85,30 @@ class InjectionSetpointImplTest {
     @Test
     void hasImpactOnNetworkForLoad() {
         Network network = NetworkImportsUtil.import12NodesNetwork();
-        InjectionSetpointImpl loadSetpoint = new InjectionSetpointImpl(
-            new NetworkElementImpl("FFR1AA1 _load"),
-            100, Unit.MEGAWATT);
-
+        Crac crac = new CracImplFactory().create("cracId");
+        NetworkAction loadSetpoint = crac.newNetworkAction()
+            .withId("loadSetpoint")
+            .newInjectionSetPoint()
+            .withNetworkElement("FFR1AA1 _load")
+            .withSetpoint(100)
+            .withUnit(Unit.MEGAWATT)
+            .add()
+            .add();
         assertTrue(loadSetpoint.hasImpactOnNetwork(network));
     }
 
     @Test
     void hasNoImpactOnNetworkForLoad() {
         Network network = NetworkImportsUtil.import12NodesNetwork();
-        InjectionSetpointImpl loadSetpoint = new InjectionSetpointImpl(
-            new NetworkElementImpl("FFR1AA1 _load"),
-            1000, Unit.MEGAWATT);
-
+        Crac crac = new CracImplFactory().create("cracId");
+        NetworkAction loadSetpoint = crac.newNetworkAction()
+            .withId("loadSetpoint")
+            .newInjectionSetPoint()
+            .withNetworkElement("FFR1AA1 _load")
+            .withSetpoint(1000)
+            .withUnit(Unit.MEGAWATT)
+            .add()
+            .add();
         assertFalse(loadSetpoint.hasImpactOnNetwork(network));
     }
 
@@ -102,10 +127,15 @@ class InjectionSetpointImplTest {
     void hasImpactOnNetworkForDanglingLine() {
         Network network = NetworkImportsUtil.import12NodesNetwork();
         NetworkImportsUtil.addDanglingLine(network);
-        InjectionSetpointImpl danglingLineSetpoint = new InjectionSetpointImpl(
-            new NetworkElementImpl("DL1"),
-            100, Unit.MEGAWATT);
-
+        Crac crac = new CracImplFactory().create("cracId");
+        NetworkAction danglingLineSetpoint = crac.newNetworkAction()
+            .withId("danglingLineSetpoint")
+            .newInjectionSetPoint()
+            .withNetworkElement("DL1")
+            .withSetpoint(100)
+            .withUnit(Unit.MEGAWATT)
+            .add()
+            .add();
         assertTrue(danglingLineSetpoint.hasImpactOnNetwork(network));
     }
 
@@ -113,11 +143,17 @@ class InjectionSetpointImplTest {
     void hasNoImpactOnNetworkForDanglingLine() {
         Network network = NetworkImportsUtil.import12NodesNetwork();
         NetworkImportsUtil.addDanglingLine(network);
-        InjectionSetpointImpl danglingLineSetpoint = new InjectionSetpointImpl(
-            new NetworkElementImpl("DL1"),
-            0, Unit.MEGAWATT);
-
+        Crac crac = new CracImplFactory().create("cracId");
+        NetworkAction danglingLineSetpoint = crac.newNetworkAction()
+            .withId("danglingLineSetpoint")
+            .newInjectionSetPoint()
+            .withNetworkElement("DL1")
+            .withSetpoint(0)
+            .withUnit(Unit.MEGAWATT)
+            .add()
+            .add();
         assertFalse(danglingLineSetpoint.hasImpactOnNetwork(network));
+
     }
 
     @Test
@@ -136,9 +172,15 @@ class InjectionSetpointImplTest {
     void hasImpactOnNetworkForShuntCompensator() {
         Network network = NetworkImportsUtil.import12NodesNetwork();
         NetworkImportsUtil.addShuntCompensator(network);
-        InjectionSetpointImpl shuntCompensatorSetpoint = new InjectionSetpointImpl(
-                new NetworkElementImpl("SC1"),
-                0, Unit.SECTION_COUNT);
+        Crac crac = new CracImplFactory().create("cracId");
+        NetworkAction shuntCompensatorSetpoint = crac.newNetworkAction()
+            .withId("shuntCompensatorSetpoint")
+            .newInjectionSetPoint()
+            .withNetworkElement("SC1")
+            .withSetpoint(0)
+            .withUnit(Unit.SECTION_COUNT)
+            .add()
+            .add();
         assertTrue(shuntCompensatorSetpoint.hasImpactOnNetwork(network));
     }
 
@@ -146,9 +188,15 @@ class InjectionSetpointImplTest {
     void hasNoImpactOnNetworkForShuntCompensator() {
         Network network = NetworkImportsUtil.import12NodesNetwork();
         NetworkImportsUtil.addShuntCompensator(network);
-        InjectionSetpointImpl shuntCompensatorSetpoint = new InjectionSetpointImpl(
-                new NetworkElementImpl("SC1"),
-                1, Unit.SECTION_COUNT);
+        Crac crac = new CracImplFactory().create("cracId");
+        NetworkAction shuntCompensatorSetpoint = crac.newNetworkAction()
+            .withId("shuntCompensatorSetpoint")
+            .newInjectionSetPoint()
+            .withNetworkElement("SC1")
+            .withSetpoint(1)
+            .withUnit(Unit.SECTION_COUNT)
+            .add()
+            .add();
         assertFalse(shuntCompensatorSetpoint.hasImpactOnNetwork(network));
     }
 
@@ -168,9 +216,15 @@ class InjectionSetpointImplTest {
     void canNotBeAppliedOnShuntCompensator() {
         Network network = NetworkImportsUtil.import12NodesNetwork();
         NetworkImportsUtil.addShuntCompensator(network);
-        InjectionSetpointImpl shuntCompensatorSetpoint = new InjectionSetpointImpl(
-            new NetworkElementImpl("SC1"),
-            3, Unit.SECTION_COUNT);
+        Crac crac = new CracImplFactory().create("cracId");
+        NetworkAction shuntCompensatorSetpoint = crac.newNetworkAction()
+            .withId("shuntCompensatorSetpoint")
+            .newInjectionSetPoint()
+            .withNetworkElement("SC1")
+            .withSetpoint(3)
+            .withUnit(Unit.SECTION_COUNT)
+            .add()
+            .add();
         assertEquals(2, network.getShuntCompensator("SC1").getMaximumSectionCount());
         assertFalse(shuntCompensatorSetpoint.canBeApplied(network)); // max is 2 while setpoint is 3
     }
@@ -179,9 +233,15 @@ class InjectionSetpointImplTest {
     void canBeAppliedOnShuntCompensator() {
         Network network = NetworkImportsUtil.import12NodesNetwork();
         NetworkImportsUtil.addShuntCompensator(network);
-        InjectionSetpointImpl shuntCompensatorSetpoint = new InjectionSetpointImpl(
-            new NetworkElementImpl("SC1"),
-            1, Unit.SECTION_COUNT);
+        Crac crac = new CracImplFactory().create("cracId");
+        NetworkAction shuntCompensatorSetpoint = crac.newNetworkAction()
+            .withId("shuntCompensatorSetpoint")
+            .newInjectionSetPoint()
+            .withNetworkElement("SC1")
+            .withSetpoint(1)
+            .withUnit(Unit.SECTION_COUNT)
+            .add()
+            .add();
         assertEquals(2, network.getShuntCompensator("SC1").getMaximumSectionCount());
         assertTrue(shuntCompensatorSetpoint.canBeApplied(network)); // max is 2 while setpoint is 1
     }
@@ -190,9 +250,15 @@ class InjectionSetpointImplTest {
     void canMaxBeAppliedOnShuntCompensator() {
         Network network = NetworkImportsUtil.import12NodesNetwork();
         NetworkImportsUtil.addShuntCompensator(network);
-        InjectionSetpointImpl shuntCompensatorSetpoint = new InjectionSetpointImpl(
-            new NetworkElementImpl("SC1"),
-            2, Unit.SECTION_COUNT);
+        Crac crac = new CracImplFactory().create("cracId");
+        NetworkAction shuntCompensatorSetpoint = crac.newNetworkAction()
+            .withId("shuntCompensatorSetpoint")
+            .newInjectionSetPoint()
+            .withNetworkElement("SC1")
+            .withSetpoint(2)
+            .withUnit(Unit.SECTION_COUNT)
+            .add()
+            .add();
         assertEquals(2, network.getShuntCompensator("SC1").getMaximumSectionCount());
         assertTrue(shuntCompensatorSetpoint.canBeApplied(network)); // max is 2 while setpoint is 2
     }
@@ -208,9 +274,15 @@ class InjectionSetpointImplTest {
     @Test
     void hasImpactOnNetworkThrow() {
         Network network = NetworkImportsUtil.import12NodesNetwork();
-        InjectionSetpointImpl dummy = new InjectionSetpointImpl(
-                new NetworkElementImpl("wrong_name"),
-                100, Unit.MEGAWATT);
+        Crac crac = new CracImplFactory().create("cracId");
+        NetworkAction dummy = crac.newNetworkAction()
+            .withId("dummy")
+            .newInjectionSetPoint()
+            .withNetworkElement("wrong_name")
+            .withSetpoint(100)
+            .withUnit(Unit.MEGAWATT)
+            .add()
+            .add();
         assertThrows(NotImplementedException.class, () -> dummy.hasImpactOnNetwork(network));
     }
 
