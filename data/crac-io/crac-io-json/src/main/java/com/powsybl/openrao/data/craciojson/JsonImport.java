@@ -7,6 +7,8 @@
 
 package com.powsybl.openrao.data.craciojson;
 
+import com.powsybl.iidm.network.Network;
+import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.cracapi.CracFactory;
 import com.powsybl.openrao.data.cracioapi.CracImporter;
@@ -15,8 +17,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.google.auto.service.AutoService;
 import org.apache.commons.io.FilenameUtils;
-import org.checkerframework.checker.nullness.qual.NonNull;
 
+import javax.annotation.Nonnull;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;
@@ -31,12 +33,11 @@ import static com.powsybl.commons.json.JsonUtil.createObjectMapper;
 public class JsonImport implements CracImporter {
     private static final String JSON_EXTENSION = "json";
 
-    @Override
-    public Crac importCrac(InputStream inputStream, @NonNull CracFactory cracFactory) {
+    private Crac importCrac(InputStream inputStream, CracDeserializer cracDeserializer) {
         try {
             ObjectMapper objectMapper = createObjectMapper();
             SimpleModule module = new SimpleModule();
-            module.addDeserializer(Crac.class, new CracDeserializer(cracFactory));
+            module.addDeserializer(Crac.class, cracDeserializer);
             objectMapper.registerModule(module);
             return objectMapper.readValue(inputStream, Crac.class);
         } catch (IOException e) {
@@ -45,8 +46,16 @@ public class JsonImport implements CracImporter {
     }
 
     @Override
-    public Crac importCrac(InputStream inputStream) {
-        return importCrac(inputStream, CracFactory.findDefault());
+    public Crac importCrac(InputStream inputStream, @Nonnull CracFactory cracFactory, Network network) {
+        if (network == null) {
+            throw new OpenRaoException("Network object is null but it is needed to map contingency's elements");
+        }
+        return importCrac(inputStream, new CracDeserializer(cracFactory, network));
+    }
+
+    @Override
+    public Crac importCrac(InputStream inputStream, Network network) {
+        return importCrac(inputStream, CracFactory.findDefault(), network);
     }
 
     @Override

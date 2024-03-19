@@ -15,7 +15,7 @@ import com.powsybl.openrao.data.corecneexporter.xsd.Analog;
 import com.powsybl.openrao.data.corecneexporter.xsd.ConstraintSeries;
 import com.powsybl.openrao.data.corecneexporter.xsd.ContingencySeries;
 import com.powsybl.openrao.data.corecneexporter.xsd.MonitoredRegisteredResource;
-import com.powsybl.openrao.data.cracapi.Contingency;
+import com.powsybl.contingency.Contingency;
 import com.powsybl.openrao.data.cracapi.Instant;
 import com.powsybl.openrao.data.cracapi.InstantKind;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
@@ -106,11 +106,12 @@ public final class CoreCneCnecsCreator {
         Optional<Contingency> optionalContingency = outageCnec.getState().getContingency();
         String contingencySuffix = "BASECASE";
         if (optionalContingency.isPresent()) {
-            ContingencySeries contingencySeries = newContingencySeries(optionalContingency.get().getId(), optionalContingency.get().getName());
+            String contingencyName = optionalContingency.get().getName().orElse(optionalContingency.get().getId());
+            ContingencySeries contingencySeries = newContingencySeries(optionalContingency.get().getId(), contingencyName);
             constraintSeriesB88.getContingencySeries().add(contingencySeries);
             constraintSeriesB57.getContingencySeries().add(contingencySeries);
             constraintSeriesB54.getContingencySeries().add(contingencySeries);
-            contingencySuffix = optionalContingency.get().getName();
+            contingencySuffix = contingencyName;
         }
 
         contingencySuffix = "|" + contingencySuffix;

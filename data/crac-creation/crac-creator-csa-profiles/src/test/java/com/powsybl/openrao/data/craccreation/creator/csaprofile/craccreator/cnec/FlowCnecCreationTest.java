@@ -99,7 +99,7 @@ class FlowCnecCreationTest {
         Mockito.when(networkElementMock2.getCurrentLimits(TwoSides.TWO)).thenReturn(Optional.of(currentLimits));
         Mockito.when(networkElementMock2.getAliasFromType("CGMES.Terminal2")).thenReturn(Optional.of("65e9a6a7-8488-7b17-6344-cb7d61b7920b"));
 
-        Branch networkElementLinkedToContingencies = Mockito.mock(Branch.class);
+        Branch networkElementLinkedToContingencies = Mockito.mock(Line.class);
         Mockito.when(networkElementLinkedToContingencies.getId()).thenReturn("3a88a6a7-66fe-4988-9019-b3b288fd54ee");
         Mockito.when(network.getIdentifiable("3a88a6a7-66fe-4988-9019-b3b288fd54ee")).thenReturn(networkElementLinkedToContingencies);
 
@@ -123,44 +123,44 @@ class FlowCnecCreationTest {
         // Check Flow Cnecs
         assertEquals(4, cracCreationContext.getCrac().getFlowCnecs().size());
         CsaProfileCracCreationTestUtil.assertFlowCnecEquality(cracCreationContext.getCrac().getFlowCnec("RTE_AE1 (e2b71e64-ce03-4aa3-9adc-7ff910adae36) - RTE_CO1 - curative"),
-                "RTE_AE1 (e2b71e64-ce03-4aa3-9adc-7ff910adae36) - RTE_CO1 - curative",
-                "RTE_AE1 (e2b71e64-ce03-4aa3-9adc-7ff910adae36) - RTE_CO1 - curative",
-                "60038442-5c02-21a9-22ad-f0554a65a466",
-                curativeInstant,
-                "6c9656a6-84c2-4967-aabc-51f63a7abdf1",
-                1000.,
-                -1000.,
-                Side.LEFT);
+            "RTE_AE1 (e2b71e64-ce03-4aa3-9adc-7ff910adae36) - RTE_CO1 - curative",
+            "RTE_AE1 (e2b71e64-ce03-4aa3-9adc-7ff910adae36) - RTE_CO1 - curative",
+            "60038442-5c02-21a9-22ad-f0554a65a466",
+            curativeInstant,
+            "6c9656a6-84c2-4967-aabc-51f63a7abdf1",
+            1000.,
+            -1000.,
+            Side.LEFT);
 
         CsaProfileCracCreationTestUtil.assertFlowCnecEquality(cracCreationContext.getCrac().getFlowCnec("RTE_AE1 (e2b71e64-ce03-4aa3-9adc-7ff910adae36) - preventive"),
-                "RTE_AE1 (e2b71e64-ce03-4aa3-9adc-7ff910adae36) - preventive",
-                "RTE_AE1 (e2b71e64-ce03-4aa3-9adc-7ff910adae36) - preventive",
-                "60038442-5c02-21a9-22ad-f0554a65a466",
-                preventiveInstant,
-                null,
-                1000.,
-                -1000.,
-                Side.LEFT);
+            "RTE_AE1 (e2b71e64-ce03-4aa3-9adc-7ff910adae36) - preventive",
+            "RTE_AE1 (e2b71e64-ce03-4aa3-9adc-7ff910adae36) - preventive",
+            "60038442-5c02-21a9-22ad-f0554a65a466",
+            preventiveInstant,
+            null,
+            1000.,
+            -1000.,
+            Side.LEFT);
 
         CsaProfileCracCreationTestUtil.assertFlowCnecEquality(cracCreationContext.getCrac().getFlowCnec("RTE_AE2 (a418e290-0d0c-4f40-b7fa-31fca1a2607d) - RTE_CO2 - curative"),
-                "RTE_AE2 (a418e290-0d0c-4f40-b7fa-31fca1a2607d) - RTE_CO2 - curative",
-                "RTE_AE2 (a418e290-0d0c-4f40-b7fa-31fca1a2607d) - RTE_CO2 - curative",
-                "65e9a6a7-8488-7b17-6344-cb7d61b7920b",
-                curativeInstant,
-                "410a7075-51df-4c5c-aa80-0bb1bbe41190",
-                1000.,
-                -1000.,
-                Side.RIGHT);
+            "RTE_AE2 (a418e290-0d0c-4f40-b7fa-31fca1a2607d) - RTE_CO2 - curative",
+            "RTE_AE2 (a418e290-0d0c-4f40-b7fa-31fca1a2607d) - RTE_CO2 - curative",
+            "65e9a6a7-8488-7b17-6344-cb7d61b7920b",
+            curativeInstant,
+            "410a7075-51df-4c5c-aa80-0bb1bbe41190",
+            1000.,
+            -1000.,
+            Side.RIGHT);
 
         CsaProfileCracCreationTestUtil.assertFlowCnecEquality(cracCreationContext.getCrac().getFlowCnec("RTE_AE2 (a418e290-0d0c-4f40-b7fa-31fca1a2607d) - preventive"),
-                "RTE_AE2 (a418e290-0d0c-4f40-b7fa-31fca1a2607d) - preventive",
-                "RTE_AE2 (a418e290-0d0c-4f40-b7fa-31fca1a2607d) - preventive",
-                "65e9a6a7-8488-7b17-6344-cb7d61b7920b",
-                preventiveInstant,
-                null,
-                1000.,
-                -1000.,
-                Side.RIGHT);
+            "RTE_AE2 (a418e290-0d0c-4f40-b7fa-31fca1a2607d) - preventive",
+            "RTE_AE2 (a418e290-0d0c-4f40-b7fa-31fca1a2607d) - preventive",
+            "65e9a6a7-8488-7b17-6344-cb7d61b7920b",
+            preventiveInstant,
+            null,
+            1000.,
+            -1000.,
+            Side.RIGHT);
 
         //4 remedial actions and a total of 8 onFlowConstraint usage rules.
         assertEquals(4, cracCreationContext.getCrac().getRemedialActions().size());

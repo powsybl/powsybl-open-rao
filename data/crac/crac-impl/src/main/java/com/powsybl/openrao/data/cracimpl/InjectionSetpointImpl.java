@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.data.cracimpl;
 
+import com.powsybl.action.*;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.networkaction.InjectionSetpoint;
 import com.powsybl.openrao.data.cracapi.NetworkElement;
@@ -45,41 +46,44 @@ public final class InjectionSetpointImpl implements InjectionSetpoint {
     }
 
     @Override
-    public boolean hasImpactOnNetwork(Network network) {
-        Identifiable<?> identifiable = network.getIdentifiable(networkElement.getId());
-        if (identifiable instanceof Generator generator) {
-            return Math.abs(generator.getTargetP() - setpoint) >= EPSILON;
-        } else if (identifiable instanceof Load load) {
-            return Math.abs(load.getP0() - setpoint) >= EPSILON;
-        } else if (identifiable instanceof DanglingLine danglingLine) {
-            return Math.abs(danglingLine.getP0() - setpoint) >= EPSILON;
-        } else if (identifiable instanceof ShuntCompensator shuntCompensator) {
-            return Math.abs(shuntCompensator.getSectionCount() - setpoint) >= EPSILON;
-        } else {
-            throw new NotImplementedException("Injection setpoint only handled for generators, loads, dangling lines or shunt compensator");
-        }
-    }
-
-    @Override
-    public boolean canBeApplied(Network network) {
-        Identifiable<?> identifiable = network.getIdentifiable(networkElement.getId());
-        if (identifiable instanceof ShuntCompensator shuntCompensator) {
-            return shuntCompensator.getMaximumSectionCount() < setpoint;
-        }
-        return true;
-    }
-
-    @Override
     public void apply(Network network) {
         Identifiable<?> identifiable = network.getIdentifiable(networkElement.getId());
-        if (identifiable instanceof Generator generator) {
-            generator.setTargetP(setpoint);
-        } else if (identifiable instanceof Load load) {
-            load.setP0(setpoint);
-        } else if (identifiable instanceof DanglingLine danglingLine) {
-            danglingLine.setP0(setpoint);
-        } else if (identifiable instanceof ShuntCompensator shuntCompensator) {
-            shuntCompensator.setSectionCount((int) setpoint);
+        if (identifiable instanceof Generator) {
+            new GeneratorActionBuilder()
+                    .withId("id")
+                    .withGeneratorId(networkElement.getId())
+                    .withActivePowerRelativeValue(false)
+                    .withActivePowerValue(setpoint)
+                .build()
+                .toModification()
+                .apply(network);
+                // change of behavior: if P is not within bounds, min or max will be applied (without error), before the incorrect value was applied
+        } else if (identifiable instanceof Load) {
+            new LoadActionBuilder()
+                    .withId("id")
+                    .withLoadId(networkElement.getId())
+                    .withRelativeValue(false)
+                    .withActivePowerValue(setpoint)
+                .build()
+                .toModification()
+                .apply(network);
+        } else if (identifiable instanceof DanglingLine) {
+            new DanglingLineActionBuilder()
+                    .withId("id")
+                    .withDanglingLineId(networkElement.getId())
+                    .withRelativeValue(false)
+                    .withActivePowerValue(setpoint)
+                .build()
+                .toModification()
+                .apply(network);
+        } else if (identifiable instanceof ShuntCompensator) {
+            new ShuntCompensatorPositionActionBuilder()
+                    .withId("id")
+                    .withShuntCompensatorId(networkElement.getId())
+                    .withSectionCount((int) setpoint)
+                .build()
+                .toModification()
+                .apply(network);
         } else {
             throw new NotImplementedException("Injection setpoint only handled for generators, loads, dangling lines or shunt compensators");
         }

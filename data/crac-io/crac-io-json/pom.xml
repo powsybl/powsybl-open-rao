@@ -75,6 +75,11 @@
             <artifactId>powsybl-commons-test</artifactId>
             <version>${powsybl.core.version}</version>
         </dependency>
+        <dependency>
+            <groupId>com.powsybl</groupId>
+            <artifactId>powsybl-iidm-impl</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
 

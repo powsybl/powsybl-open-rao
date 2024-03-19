@@ -7,7 +7,7 @@
 
 package com.powsybl.openrao.data.cracimpl;
 
-import com.powsybl.openrao.commons.OpenRaoException;
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.openrao.data.cracapi.NetworkElement;
 import com.powsybl.openrao.data.cracapi.networkaction.PstSetpoint;
 import com.powsybl.openrao.data.cracimpl.utils.NetworkImportsUtil;
@@ -15,6 +15,7 @@ import com.powsybl.iidm.network.Network;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
+import java.util.Collections;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -32,7 +33,8 @@ class PstSetpointImplTest {
         assertEquals(12, pstSetpoint.getSetpoint(), 0);
         assertEquals(ne, pstSetpoint.getNetworkElement());
         assertEquals(Set.of(ne), pstSetpoint.getNetworkElements());
-        assertTrue(pstSetpoint.canBeApplied(Mockito.mock(Network.class)));
+        assertTrue(new NetworkActionImpl(null, null, null, null,
+            Collections.singleton(pstSetpoint), null).canBeApplied(Mockito.mock(Network.class)));
     }
 
     @Test
@@ -42,7 +44,8 @@ class PstSetpointImplTest {
             -9);
         Network network = NetworkImportsUtil.import12NodesNetwork();
 
-        assertTrue(pstSetpoint.hasImpactOnNetwork(network));
+        assertTrue(new NetworkActionImpl(null, null, null, null,
+            Collections.singleton(pstSetpoint), null).hasImpactOnNetwork(network));
     }
 
     @Test
@@ -52,7 +55,8 @@ class PstSetpointImplTest {
             0);
         Network network = NetworkImportsUtil.import12NodesNetwork();
 
-        assertFalse(pstSetpoint.hasImpactOnNetwork(network));
+        assertFalse(new NetworkActionImpl(null, null, null, null,
+            Collections.singleton(pstSetpoint), null).hasImpactOnNetwork(network));
     }
 
     @Test
@@ -62,6 +66,7 @@ class PstSetpointImplTest {
             -9);
 
         Network network = NetworkImportsUtil.import12NodesNetwork();
+        assertEquals(0, network.getTwoWindingsTransformer("BBE2AA1  BBE3AA1  1").getPhaseTapChanger().getTapPosition());
         pstSetpoint.apply(network);
         assertEquals(-9, network.getTwoWindingsTransformer("BBE2AA1  BBE3AA1  1").getPhaseTapChanger().getTapPosition());
     }
@@ -75,8 +80,8 @@ class PstSetpointImplTest {
         try {
             pstSetpoint.apply(network);
             fail();
-        } catch (OpenRaoException e) {
-            assertEquals("Tap value 17 not in the range of high and low tap positions [-16,16] of the phase tap changer BBE2AA1  BBE3AA1  1 steps", e.getMessage());
+        } catch (PowsyblException e) {
+            assertEquals("2 windings transformer 'BBE2AA1  BBE3AA1  1': incorrect tap position 17 [-16, 16]", e.getMessage());
         }
     }
 
@@ -89,26 +94,20 @@ class PstSetpointImplTest {
         try {
             pstSetpoint.apply(network);
             fail();
-        } catch (OpenRaoException e) {
-            assertEquals("Tap value 50 not in the range of high and low tap positions [-16,16] of the phase tap changer BBE2AA1  BBE3AA1  1 steps", e.getMessage());
+        } catch (PowsyblException e) {
+            assertEquals("2 windings transformer 'BBE2AA1  BBE3AA1  1': incorrect tap position 50 [-16, 16]", e.getMessage());
         }
     }
 
     @Test
     void equals() {
-        PstSetpoint pstSetpoint = new PstSetpointImpl(
-            new NetworkElementImpl("BBE2AA1  BBE3AA1  1"),
-            -9);
-        assertEquals(pstSetpoint, pstSetpoint);
+        PstSetpoint pstSetpoint = new PstSetpointImpl(new NetworkElementImpl("BBE2AA1  BBE3AA1  1"), -9);
+        assertEquals(pstSetpoint, new PstSetpointImpl(new NetworkElementImpl("BBE2AA1  BBE3AA1  1"), -9));
 
-        PstSetpoint samePstSetpoint = new PstSetpointImpl(
-            new NetworkElementImpl("BBE2AA1  BBE3AA1  1"),
-            -9);
-        assertEquals(samePstSetpoint, samePstSetpoint);
+        PstSetpoint differentPstSetpointOnSetPoint = new PstSetpointImpl(new NetworkElementImpl("BBE2AA1  BBE3AA1  1"), -10);
+        assertNotEquals(pstSetpoint, differentPstSetpointOnSetPoint);
 
-        PstSetpoint differentPstSetpoint = new PstSetpointImpl(
-            new NetworkElementImpl("BBE2AA1  BBE3AA1  1"),
-            -10);
-        assertNotEquals(pstSetpoint, differentPstSetpoint);
+        PstSetpoint differentPstSetpointOnNetworkEl = new PstSetpointImpl(new NetworkElementImpl("BBE2AA1  BBE3AA1  2"), -9);
+        assertNotEquals(pstSetpoint, differentPstSetpointOnNetworkEl);
     }
 }

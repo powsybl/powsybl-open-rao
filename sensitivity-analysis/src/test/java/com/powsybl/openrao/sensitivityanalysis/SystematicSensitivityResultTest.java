@@ -6,6 +6,7 @@
  */
 package com.powsybl.openrao.sensitivityanalysis;
 
+import com.powsybl.contingency.ContingencyElementType;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.cnec.Side;
 import com.powsybl.openrao.data.cracapi.CracFactory;
@@ -179,7 +180,7 @@ class SystematicSensitivityResultTest {
             .newInstant(CURATIVE_INSTANT_ID, InstantKind.CURATIVE);
         crac.newContingency()
             .withId("co")
-            .withNetworkElement("NNL2AA11 BBE3AA11 1")
+            .withContingencyElement("NNL2AA11 BBE3AA11 1", ContingencyElementType.LINE)
             .add();
         nStateCnec = crac.newFlowCnec()
             .withId("cnec-prev")

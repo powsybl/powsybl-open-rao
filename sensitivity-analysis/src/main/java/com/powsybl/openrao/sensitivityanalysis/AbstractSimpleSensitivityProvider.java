@@ -9,13 +9,12 @@ package com.powsybl.openrao.sensitivityanalysis;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider;
-import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
 import com.powsybl.contingency.Contingency;
+import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.sensitivity.SensitivityFactor;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
@@ -79,12 +78,10 @@ public abstract class AbstractSimpleSensitivityProvider implements CnecSensitivi
 
     @Override
     public List<Contingency> getContingencies(Network network) {
-        Set<com.powsybl.openrao.data.cracapi.Contingency> cracContingencies = cnecs.stream()
+        return cnecs.stream()
             .filter(cnec -> cnec.getState().getContingency().isPresent())
             .map(cnec -> cnec.getState().getContingency().get())
-            .collect(Collectors.toSet());
-        return cracContingencies.stream()
-            .map(contingency -> SensitivityAnalysisUtil.convertCracContingencyToPowsybl(contingency, network))
+            .distinct()
             .toList();
     }
 

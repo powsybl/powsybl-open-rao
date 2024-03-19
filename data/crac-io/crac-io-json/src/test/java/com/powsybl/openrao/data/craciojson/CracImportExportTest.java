@@ -49,7 +49,7 @@ class CracImportExportTest {
         Instant autoInstant = crac.getInstant("auto");
         Instant curativeInstant = crac.getInstant("curative");
 
-        Crac importedCrac = RoundTripUtil.roundTrip(crac);
+        Crac importedCrac = RoundTripUtil.roundTrip(crac, ExhaustiveCracCreation.createAssociatedNetwork());
 
         // check overall content
         assertNotNull(importedCrac);
@@ -83,9 +83,9 @@ class CracImportExportTest {
         assertNotNull(crac.getContingency("contingency2Id"));
 
         // check network elements
-        assertEquals(1, crac.getContingency("contingency1Id").getNetworkElements().size());
-        assertEquals("ne1Id", crac.getContingency("contingency1Id").getNetworkElements().iterator().next().getId());
-        assertEquals(2, crac.getContingency("contingency2Id").getNetworkElements().size());
+        assertEquals(1, crac.getContingency("contingency1Id").getElements().size());
+        assertEquals("ne1Id", crac.getContingency("contingency1Id").getElements().iterator().next().getId());
+        assertEquals(2, crac.getContingency("contingency2Id").getElements().size());
 
         // ----------------------
         // --- test FlowCnecs ---

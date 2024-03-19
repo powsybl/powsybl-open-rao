@@ -8,7 +8,7 @@
 package com.powsybl.openrao.data.craccreation.creator.cim.craccreator;
 
 import com.powsybl.openrao.commons.OpenRaoException;
-import com.powsybl.openrao.data.cracapi.Contingency;
+import com.powsybl.contingency.Contingency;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
 import com.powsybl.openrao.data.craccreation.creator.cim.craccreator.cnec.MonitoredSeriesCreationContext;
 import com.powsybl.openrao.data.craccreation.creator.cim.craccreator.contingency.CimContingencyCreationContext;

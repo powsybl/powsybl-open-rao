@@ -7,6 +7,10 @@
 
 package com.powsybl.openrao.data.cracimpl;
 
+import com.powsybl.contingency.BranchContingency;
+import com.powsybl.contingency.Contingency;
+import com.powsybl.contingency.ContingencyElement;
+import com.powsybl.contingency.ContingencyElementType;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.*;
@@ -50,6 +54,14 @@ class CracImplTest {
     private Instant outageInstant;
     private Instant autoInstant;
     private Instant curativeInstant;
+
+    private ContingencyElementType getRandomTypeContingency() {
+        return ContingencyElementType.LINE;
+    }
+
+    private ContingencyElement getRandomTypeContingencyElement(String id) {
+        return new BranchContingency(id);
+    }
 
     @BeforeEach
     public void setUp() {
@@ -101,12 +113,12 @@ class CracImplTest {
     @Test
     void testAddContingency() {
         assertEquals(0, crac.getContingencies().size());
-        crac.addContingency(new ContingencyImpl("contingency-1", "co-name", Collections.singleton(new NetworkElementImpl("ne1"))));
+        crac.addContingency(new Contingency("contingency-1", "co-name", Collections.singletonList(getRandomTypeContingencyElement("ne1"))));
         assertEquals(1, crac.getContingencies().size());
         assertNotNull(crac.getContingency("contingency-1"));
-        crac.addContingency(new ContingencyImpl("contingency-2", "co-name", Collections.singleton(new NetworkElementImpl("ne1"))));
+        crac.addContingency(new Contingency("contingency-2", "co-name", Collections.singletonList(getRandomTypeContingencyElement("ne1"))));
         assertEquals(2, crac.getContingencies().size());
-        crac.addContingency(new ContingencyImpl("contingency-3", "co-name", Collections.singleton(new NetworkElementImpl("ne3"))));
+        crac.addContingency(new Contingency("contingency-3", "co-name", Collections.singletonList(getRandomTypeContingencyElement("ne3"))));
         assertEquals(3, crac.getContingencies().size());
         assertNotNull(crac.getContingency("contingency-3"));
         assertNull(crac.getContingency("contingency-fail"));
@@ -129,7 +141,7 @@ class CracImplTest {
         Contingency contingency = crac.newContingency()
                 .withId("co")
                 .withName("co-name")
-                .withNetworkElement("ne")
+                .withContingencyElement("ne", getRandomTypeContingency())
                 .add();
 
         assertNull(crac.getState(contingency, curativeInstant));
@@ -138,7 +150,7 @@ class CracImplTest {
     @Test
     void testGetCnecandGetFlowCnec() {
 
-        crac.newContingency().withId("co").withNetworkElement("ne-co").add();
+        crac.newContingency().withId("co").withContingencyElement("ne-co", getRandomTypeContingency()).add();
         crac.newFlowCnec()
                 .withId("cnec-id")
                 .withName("cnec-name")
@@ -191,7 +203,7 @@ class CracImplTest {
     @Test
     void testSafeRemoveNetworkElements() {
 
-        crac.newContingency().withId("co").withNetworkElement("ne1").withNetworkElement("ne2").add();
+        crac.newContingency().withId("co").withContingencyElement("ne1", getRandomTypeContingency()).withContingencyElement("ne2", getRandomTypeContingency()).add();
         crac.newFlowCnec()
                 .withId("cnec")
                 .withNetworkElement("ne3")
@@ -213,11 +225,9 @@ class CracImplTest {
         assertNotNull(crac.getRemedialAction("na"));
         assertNotNull(crac.getNetworkAction("na"));
 
-        assertEquals(7, crac.getNetworkElements().size());
-        crac.safeRemoveNetworkElements(Set.of("ne1", "ne2", "ne3", "ne4", "ne5", "ne6"));
-        assertEquals(6, crac.getNetworkElements().size());
-        assertNotNull(crac.getNetworkElement("ne1"));
-        assertNotNull(crac.getNetworkElement("ne2"));
+        assertEquals(5, crac.getNetworkElements().size());
+        crac.safeRemoveNetworkElements(Set.of("ne3", "ne4", "ne5", "ne6"));
+        assertEquals(4, crac.getNetworkElements().size());
         assertNotNull(crac.getNetworkElement("ne3"));
         assertNotNull(crac.getNetworkElement("ne4"));
         assertNotNull(crac.getNetworkElement("ne5"));
@@ -230,12 +240,12 @@ class CracImplTest {
 
         Contingency contingency1 = crac.newContingency()
                 .withId("co1")
-                .withNetworkElement("anyNetworkElement")
+                .withContingencyElement("anyNetworkElement", getRandomTypeContingency())
                 .add();
 
         Contingency contingency2 = crac.newContingency()
                 .withId("co2")
-                .withNetworkElement("anyNetworkElement")
+                .withContingencyElement("anyNetworkElement", getRandomTypeContingency())
                 .add();
 
         State state1 = crac.addState(contingency1, curativeInstant);
@@ -292,14 +302,14 @@ class CracImplTest {
     @Test
     void testRemoveContingency() {
 
-        crac.newContingency().withId("co1").withNetworkElement("ne1").add();
-        crac.newContingency().withId("co2").withNetworkElement("ne2").add();
+        crac.newContingency().withId("co1").withContingencyElement("ne1", getRandomTypeContingency()).add();
+        crac.newContingency().withId("co2").withContingencyElement("ne2", getRandomTypeContingency()).add();
 
         assertEquals(2, crac.getContingencies().size());
-        assertEquals(2, crac.getNetworkElements().size());
+        assertEquals(0, crac.getNetworkElements().size());
         crac.removeContingency("co2");
         assertEquals(1, crac.getContingencies().size());
-        assertEquals(1, crac.getNetworkElements().size());
+        assertEquals(0, crac.getNetworkElements().size());
         assertNotNull(crac.getContingency("co1"));
         assertNull(crac.getContingency("co2"));
     }
@@ -309,7 +319,7 @@ class CracImplTest {
 
         crac.newContingency()
                 .withId("co1")
-                .withNetworkElement("anyNetworkElement")
+                .withContingencyElement("anyNetworkElement", getRandomTypeContingency())
                 .add();
         crac.newFlowCnec()
                 .withId("cnec")
@@ -336,7 +346,7 @@ class CracImplTest {
 
         crac.newContingency()
                 .withId("co1")
-                .withNetworkElement("anyNetworkElement")
+                .withContingencyElement("anyNetworkElement", getRandomTypeContingency())
                 .add();
         crac.newNetworkAction()
                 .withId("na")
@@ -370,8 +380,8 @@ class CracImplTest {
 
     @Test
     void testGetStatesFromContingency() {
-        Contingency contingency1 = new ContingencyImpl("co1", "co1", Collections.singleton(Mockito.mock(NetworkElement.class)));
-        Contingency contingency2 = new ContingencyImpl("co2", "co2", Collections.singleton(Mockito.mock(NetworkElement.class)));
+        Contingency contingency1 = new Contingency("co1", "co1", Collections.singletonList(Mockito.mock(ContingencyElement.class)));
+        Contingency contingency2 = new Contingency("co2", "co2", Collections.singletonList(Mockito.mock(ContingencyElement.class)));
         crac.addContingency(contingency1);
         crac.addContingency(contingency2);
         State state1 = crac.addState(contingency1, curativeInstant);
@@ -384,14 +394,14 @@ class CracImplTest {
         assertTrue(crac.getStates(contingency1).containsAll(Set.of(state1, state2)));
         assertEquals(3, crac.getStates(contingency2).size());
         assertTrue(crac.getStates(contingency2).containsAll(Set.of(state3, state4, state5)));
-        Contingency contingency3 = new ContingencyImpl("co3", "co3", Collections.singleton(Mockito.mock(NetworkElement.class)));
+        Contingency contingency3 = new Contingency("co3", "co3", Collections.singletonList(Mockito.mock(ContingencyElement.class)));
         assertTrue(crac.getStates(contingency3).isEmpty());
     }
 
     @Test
     void testGetStatesFromInstant() {
-        Contingency contingency1 = new ContingencyImpl("co1", "co1", Collections.singleton(Mockito.mock(NetworkElement.class)));
-        Contingency contingency2 = new ContingencyImpl("co2", "co2", Collections.singleton(Mockito.mock(NetworkElement.class)));
+        Contingency contingency1 = new Contingency("co1", "co1", Collections.singletonList(Mockito.mock(ContingencyElement.class)));
+        Contingency contingency2 = new Contingency("co2", "co2", Collections.singletonList(Mockito.mock(ContingencyElement.class)));
         crac.addContingency(contingency1);
         crac.addContingency(contingency2);
         State state1 = crac.addState(contingency1, curativeInstant);
@@ -411,7 +421,7 @@ class CracImplTest {
 
     @Test
     void testAddStateWithPreventiveError() {
-        Contingency contingency1 = new ContingencyImpl("co1", "co1", Collections.singleton(Mockito.mock(NetworkElement.class)));
+        Contingency contingency1 = new Contingency("co1", "co1", Collections.singletonList(Mockito.mock(ContingencyElement.class)));
         crac.addContingency(contingency1);
         OpenRaoException exception = assertThrows(OpenRaoException.class, () -> crac.addState(contingency1, preventiveInstant));
         assertEquals("Impossible to add a preventive state with a contingency.", exception.getMessage());
@@ -419,7 +429,7 @@ class CracImplTest {
 
     @Test
     void testAddSameStateTwice() {
-        Contingency contingency1 = new ContingencyImpl("co1", "co1", Collections.singleton(Mockito.mock(NetworkElement.class)));
+        Contingency contingency1 = new Contingency("co1", "co1", Collections.singletonList(Mockito.mock(ContingencyElement.class)));
         crac.addContingency(contingency1);
         State state1 = crac.addState(contingency1, curativeInstant);
         State state2 = crac.addState(contingency1, curativeInstant);
@@ -428,7 +438,7 @@ class CracImplTest {
 
     @Test
     void testAddStateBeforecontingencyError() {
-        Contingency contingency1 = new ContingencyImpl("co1", "co1", Collections.singleton(Mockito.mock(NetworkElement.class)));
+        Contingency contingency1 = new Contingency("co1", "co1", Collections.singletonList(Mockito.mock(ContingencyElement.class)));
         OpenRaoException exception = assertThrows(OpenRaoException.class, () -> crac.addState(contingency1, curativeInstant));
         assertEquals("Please add co1 to crac first.", exception.getMessage());
     }
@@ -445,11 +455,11 @@ class CracImplTest {
 
         crac.newContingency()
                 .withId("co1")
-                .withNetworkElement("anyNetworkElement")
+                .withContingencyElement("anyNetworkElement", getRandomTypeContingency())
                 .add();
         crac.newContingency()
                 .withId("co2")
-                .withNetworkElement("anyNetworkElement")
+                .withContingencyElement("anyNetworkElement", getRandomTypeContingency())
                 .add();
         FlowCnec cnec1 = crac.newFlowCnec()
                 .withId("cnec1")
@@ -491,11 +501,11 @@ class CracImplTest {
 
         crac.newContingency()
                 .withId("co1")
-                .withNetworkElement("neCo")
+                .withContingencyElement("neCo", getRandomTypeContingency())
                 .add();
         crac.newContingency()
                 .withId("co2")
-                .withNetworkElement("neCo")
+                .withContingencyElement("neCo", getRandomTypeContingency())
                 .add();
         crac.newFlowCnec()
                 .withId("cnec1")
@@ -550,16 +560,17 @@ class CracImplTest {
 
         crac.removeCnec("cnec4");
         assertEquals(0, crac.getFlowCnecs().size());
-        assertEquals(1, crac.getNetworkElements().size());
-        assertNotNull(crac.getNetworkElement("neCo"));
+        assertEquals(0, crac.getNetworkElements().size());
+        assertEquals(1, crac.getContingency("co1").getElements().stream().filter(e -> Objects.equals(e.getId(), "neCo")).count());
+        assertEquals(1, crac.getContingency("co2").getElements().stream().filter(e -> Objects.equals(e.getId(), "neCo")).count());
         assertEquals(0, crac.getStates().size());
     }
 
     @Test
     void testRemovePstRangeAction() {
 
-        crac.newContingency().withId("co1").withNetworkElement("neCo").add();
-        crac.newContingency().withId("co2").withNetworkElement("neCo").add();
+        crac.newContingency().withId("co1").withContingencyElement("neCo", getRandomTypeContingency()).add();
+        crac.newContingency().withId("co2").withContingencyElement("neCo", getRandomTypeContingency()).add();
 
         RemedialAction<?> ra1 = crac.newPstRangeAction()
                 .withId("ra1")
@@ -625,16 +636,17 @@ class CracImplTest {
 
         crac.removeRemedialAction("ra4");
         assertEquals(0, crac.getRemedialActions().size());
-        assertEquals(1, crac.getNetworkElements().size());
-        assertNotNull(crac.getNetworkElement("neCo"));
+        assertEquals(0, crac.getNetworkElements().size());
+        assertEquals(1, crac.getContingency("co1").getElements().stream().filter(e -> Objects.equals(e.getId(), "neCo")).count());
+        assertEquals(1, crac.getContingency("co2").getElements().stream().filter(e -> Objects.equals(e.getId(), "neCo")).count());
         assertEquals(0, crac.getStates().size());
     }
 
     @Test
     void testRemoveHvdcRangeAction() {
 
-        crac.newContingency().withId("co1").withNetworkElement("neCo").add();
-        crac.newContingency().withId("co2").withNetworkElement("neCo").add();
+        crac.newContingency().withId("co1").withContingencyElement("neCo", getRandomTypeContingency()).add();
+        crac.newContingency().withId("co2").withContingencyElement("neCo", getRandomTypeContingency()).add();
 
         RemedialAction<?> ra1 = crac.newHvdcRangeAction()
                 .withId("ra1")
@@ -696,15 +708,16 @@ class CracImplTest {
 
         crac.removeRemedialAction("ra4");
         assertEquals(0, crac.getRemedialActions().size());
-        assertEquals(1, crac.getNetworkElements().size());
-        assertNotNull(crac.getNetworkElement("neCo"));
+        assertEquals(0, crac.getNetworkElements().size());
+        assertEquals(1, crac.getContingency("co1").getElements().stream().filter(e -> Objects.equals(e.getId(), "neCo")).count());
+        assertEquals(1, crac.getContingency("co1").getElements().stream().filter(e -> Objects.equals(e.getId(), "neCo")).count());
         assertEquals(0, crac.getStates().size());
     }
 
     @Test
     void testFilterPstRangeActionUsageRules() {
-        crac.newContingency().withId("co1").withNetworkElement("neCo").add();
-        crac.newContingency().withId("co2").withNetworkElement("neCo").add();
+        crac.newContingency().withId("co1").withContingencyElement("neCo", getRandomTypeContingency()).add();
+        crac.newContingency().withId("co2").withContingencyElement("neCo", getRandomTypeContingency()).add();
 
         RemedialAction<?> ra1 = crac.newPstRangeAction()
                 .withId("ra1")
@@ -748,8 +761,8 @@ class CracImplTest {
 
     @Test
     void testFilterHvdcRangeActionUsageRules() {
-        crac.newContingency().withId("co1").withNetworkElement("neCo").add();
-        crac.newContingency().withId("co2").withNetworkElement("neCo").add();
+        crac.newContingency().withId("co1").withContingencyElement("neCo", getRandomTypeContingency()).add();
+        crac.newContingency().withId("co2").withContingencyElement("neCo", getRandomTypeContingency()).add();
 
         RemedialAction<?> ra1 = crac.newHvdcRangeAction()
                 .withId("ra1")
@@ -790,7 +803,7 @@ class CracImplTest {
     @Test
     void testRemoveNetworkAction() {
         NetworkElement neCo = crac.addNetworkElement("neCo", "neCo");
-        Contingency contingency1 = new ContingencyImpl("co1", "co1", Collections.singleton(neCo));
+        Contingency contingency1 = new Contingency("co1", "co1", Collections.singletonList(getRandomTypeContingencyElement("neCo")));
         crac.addContingency(contingency1);
         State state1 = crac.addState(contingency1, curativeInstant);
         UsageRule ur1 = new OnContingencyStateImpl(UsageMethod.AVAILABLE, state1);
@@ -850,7 +863,7 @@ class CracImplTest {
     @Test
     void testFilterNetworkActionUsageRules() {
         NetworkElement neCo = crac.addNetworkElement("neCo", "neCo");
-        Contingency contingency1 = new ContingencyImpl("co1", "co1", Collections.singleton(neCo));
+        Contingency contingency1 = new Contingency("co1", "co1", Collections.singletonList(getRandomTypeContingencyElement("neCo")));
         crac.addContingency(contingency1);
         State state1 = crac.addState(contingency1, curativeInstant);
         UsageRule ur1 = new OnContingencyStateImpl(UsageMethod.AVAILABLE, state1);

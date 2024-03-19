@@ -3,7 +3,8 @@ package com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator;
 import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.read.ListAppender;
-import com.powsybl.openrao.data.cracapi.Contingency;
+import com.powsybl.contingency.ContingencyElement;
+import com.powsybl.contingency.Contingency;
 import com.powsybl.openrao.data.cracapi.Instant;
 import com.powsybl.openrao.data.cracapi.NetworkElement;
 import com.powsybl.openrao.data.cracapi.cnec.AngleCnec;
@@ -49,9 +50,9 @@ public final class CsaProfileCracCreationTestUtil {
 
     public static void assertContingencyEquality(Contingency c, String expectedContingencyId, String expectedContingencyName, int expectedNetworkElementsSize, List<String> expectedNetworkElementsIds) {
         assertEquals(expectedContingencyId, c.getId());
-        assertEquals(expectedContingencyName, c.getName());
-        List<NetworkElement> networkElements = c.getNetworkElements().stream()
-            .sorted(Comparator.comparing(NetworkElement::getId)).toList();
+        assertEquals(expectedContingencyName, c.getName().get());
+        List<ContingencyElement> networkElements = c.getElements().stream()
+            .sorted(Comparator.comparing(ContingencyElement::getId)).toList();
         assertEquals(expectedNetworkElementsSize, networkElements.size());
         for (int i = 0; i < expectedNetworkElementsSize; i++) {
             assertEquals(expectedNetworkElementsIds.get(i), networkElements.get(i).getId());

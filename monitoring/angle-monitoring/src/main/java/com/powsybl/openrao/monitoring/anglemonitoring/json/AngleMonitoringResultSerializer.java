@@ -7,7 +7,7 @@
 
 package com.powsybl.openrao.monitoring.anglemonitoring.json;
 
-import com.powsybl.openrao.data.cracapi.Contingency;
+import com.powsybl.contingency.Contingency;
 import com.powsybl.openrao.monitoring.anglemonitoring.AngleMonitoringResult;
 import com.powsybl.openrao.monitoring.monitoringcommon.json.MonitoringCommonSerializer;
 import com.fasterxml.jackson.core.JsonGenerator;
