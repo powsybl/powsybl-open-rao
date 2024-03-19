@@ -26,7 +26,6 @@ public interface SwitchPair extends ElementaryAction {
      */
     NetworkElement getSwitchToClose();
 
-    @Override
     default boolean isCompatibleWith(ElementaryAction otherElementaryAction) {
         if (otherElementaryAction instanceof SwitchPair switchPair) {
             return getSwitchToOpen().equals(switchPair.getSwitchToOpen()) && getSwitchToClose().equals(switchPair.getSwitchToClose())

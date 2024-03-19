@@ -25,12 +25,4 @@ public interface TopologicalAction extends ElementaryAction {
      * Get the Network Element associated to the elementary action
      */
     NetworkElement getNetworkElement();
-
-    @Override
-    default boolean isCompatibleWith(ElementaryAction otherElementaryAction) {
-        if (otherElementaryAction instanceof TopologicalAction topologicalAction) {
-            return !getNetworkElement().equals(topologicalAction.getNetworkElement()) || getActionType().equals(topologicalAction.getActionType());
-        }
-        return true;
-    }
 }

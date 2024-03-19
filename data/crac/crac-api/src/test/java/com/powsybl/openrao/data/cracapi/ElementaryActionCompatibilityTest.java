@@ -8,12 +8,7 @@
 package com.powsybl.openrao.data.cracapi;
 
 import com.powsybl.openrao.commons.Unit;
-import com.powsybl.openrao.data.cracapi.networkaction.ActionType;
-import com.powsybl.openrao.data.cracapi.networkaction.ElementaryAction;
-import com.powsybl.openrao.data.cracapi.networkaction.InjectionSetpoint;
-import com.powsybl.openrao.data.cracapi.networkaction.PstSetpoint;
-import com.powsybl.openrao.data.cracapi.networkaction.SwitchPair;
-import com.powsybl.openrao.data.cracapi.networkaction.TopologicalAction;
+import com.powsybl.openrao.data.cracapi.networkaction.*;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
@@ -32,25 +27,25 @@ class ElementaryActionCompatibilityTest {
     private final NetworkElement pstBe = NetworkActionUtils.createNetworkElement("pst-be");
     private final NetworkElement generatorFr = NetworkActionUtils.createNetworkElement("generator-fr");
     private final NetworkElement generatorBe = NetworkActionUtils.createNetworkElement("generator-be");
-    private final TopologicalAction openSwitchFr = NetworkActionUtils.createTopologyAction(switchFr, ActionType.OPEN);
-    private final TopologicalAction closeSwitchFr = NetworkActionUtils.createTopologyAction(switchFr, ActionType.CLOSE);
-    private final TopologicalAction openSwitchBe = NetworkActionUtils.createTopologyAction(switchBe, ActionType.OPEN);
-    private final TopologicalAction closeSwitchBe = NetworkActionUtils.createTopologyAction(switchBe, ActionType.CLOSE);
-    private final SwitchPair openSwitchFrCloseSwitchBe = NetworkActionUtils.createSwitchPair(switchFr, switchBe);
-    private final SwitchPair openSwitchBeCloseSwitchFr = NetworkActionUtils.createSwitchPair(switchBe, switchFr);
-    private final PstSetpoint pstFr0 = NetworkActionUtils.createPstSetpoint(pstFr, 0);
-    private final PstSetpoint pstFr5 = NetworkActionUtils.createPstSetpoint(pstFr, 5);
-    private final PstSetpoint pstBe0 = NetworkActionUtils.createPstSetpoint(pstBe, 0);
-    private final PstSetpoint pstBeMinus5 = NetworkActionUtils.createPstSetpoint(pstBe, -5);
-    private final InjectionSetpoint generatorFr0Mw = NetworkActionUtils.createInjectionSetpoint(generatorFr, 0d, Unit.MEGAWATT);
-    private final InjectionSetpoint generatorFr100Mw = NetworkActionUtils.createInjectionSetpoint(generatorFr, 100d, Unit.MEGAWATT);
-    private final InjectionSetpoint generatorFr0A = NetworkActionUtils.createInjectionSetpoint(generatorFr, 0d, Unit.AMPERE);
-    private final InjectionSetpoint generatorFr1000A = NetworkActionUtils.createInjectionSetpoint(generatorFr, 1000d, Unit.AMPERE);
-    private final InjectionSetpoint generatorBe0Mw = NetworkActionUtils.createInjectionSetpoint(generatorBe, 0d, Unit.MEGAWATT);
-    private final InjectionSetpoint generatorBe100Mw = NetworkActionUtils.createInjectionSetpoint(generatorBe, 100d, Unit.MEGAWATT);
-    private final InjectionSetpoint generatorBe0A = NetworkActionUtils.createInjectionSetpoint(generatorBe, 0d, Unit.AMPERE);
-    private final InjectionSetpoint generatorBe1000A = NetworkActionUtils.createInjectionSetpoint(generatorBe, 1000d, Unit.AMPERE);
-    private final List<ElementaryAction> elementaryActions = gatherElementaryActions();
+    private final NetworkAction openSwitchFr = NetworkActionUtils.createTopologyAction(switchFr, ActionType.OPEN);
+    private final NetworkAction closeSwitchFr = NetworkActionUtils.createTopologyAction(switchFr, ActionType.CLOSE);
+    private final NetworkAction openSwitchBe = NetworkActionUtils.createTopologyAction(switchBe, ActionType.OPEN);
+    private final NetworkAction closeSwitchBe = NetworkActionUtils.createTopologyAction(switchBe, ActionType.CLOSE);
+    private final NetworkAction openSwitchFrCloseSwitchBe = NetworkActionUtils.createSwitchPair(switchFr, switchBe);
+    private final NetworkAction openSwitchBeCloseSwitchFr = NetworkActionUtils.createSwitchPair(switchBe, switchFr);
+    private final NetworkAction pstFr0 = NetworkActionUtils.createPstSetpoint(pstFr, 0);
+    private final NetworkAction pstFr5 = NetworkActionUtils.createPstSetpoint(pstFr, 5);
+    private final NetworkAction pstBe0 = NetworkActionUtils.createPstSetpoint(pstBe, 0);
+    private final NetworkAction pstBeMinus5 = NetworkActionUtils.createPstSetpoint(pstBe, -5);
+    private final NetworkAction generatorFr0Mw = NetworkActionUtils.createInjectionSetpoint(generatorFr, 0d, Unit.MEGAWATT);
+    private final NetworkAction generatorFr100Mw = NetworkActionUtils.createInjectionSetpoint(generatorFr, 100d, Unit.MEGAWATT);
+    private final NetworkAction generatorFr0A = NetworkActionUtils.createInjectionSetpoint(generatorFr, 0d, Unit.AMPERE);
+    private final NetworkAction generatorFr1000A = NetworkActionUtils.createInjectionSetpoint(generatorFr, 1000d, Unit.AMPERE);
+    private final NetworkAction generatorBe0Mw = NetworkActionUtils.createInjectionSetpoint(generatorBe, 0d, Unit.MEGAWATT);
+    private final NetworkAction generatorBe100Mw = NetworkActionUtils.createInjectionSetpoint(generatorBe, 100d, Unit.MEGAWATT);
+    private final NetworkAction generatorBe0A = NetworkActionUtils.createInjectionSetpoint(generatorBe, 0d, Unit.AMPERE);
+    private final NetworkAction generatorBe1000A = NetworkActionUtils.createInjectionSetpoint(generatorBe, 1000d, Unit.AMPERE);
+    private final List<NetworkAction> networkActions = gatherActions();
 
     @Test
     void testElementaryActionsCompatibility() {
@@ -74,36 +69,36 @@ class ElementaryActionCompatibilityTest {
         assertIncompatibility(generatorBe1000A, generatorBe0Mw, generatorBe100Mw, generatorBe0A);
     }
 
-    private List<ElementaryAction> gatherElementaryActions() {
-        List<ElementaryAction> elementaryActions = new ArrayList<>();
-        elementaryActions.add(openSwitchFr);
-        elementaryActions.add(closeSwitchFr);
-        elementaryActions.add(openSwitchBe);
-        elementaryActions.add(closeSwitchBe);
-        elementaryActions.add(openSwitchFrCloseSwitchBe);
-        elementaryActions.add(openSwitchBeCloseSwitchFr);
-        elementaryActions.add(pstFr0);
-        elementaryActions.add(pstFr5);
-        elementaryActions.add(pstBe0);
-        elementaryActions.add(pstBeMinus5);
-        elementaryActions.add(generatorFr0Mw);
-        elementaryActions.add(generatorFr100Mw);
-        elementaryActions.add(generatorFr0A);
-        elementaryActions.add(generatorFr1000A);
-        elementaryActions.add(generatorBe0Mw);
-        elementaryActions.add(generatorBe100Mw);
-        elementaryActions.add(generatorBe0A);
-        elementaryActions.add(generatorBe1000A);
-        return elementaryActions;
+    private List<NetworkAction> gatherActions() {
+        List<NetworkAction> actions = new ArrayList<>();
+        actions.add(openSwitchFr);
+        actions.add(closeSwitchFr);
+        actions.add(openSwitchBe);
+        actions.add(closeSwitchBe);
+        actions.add(openSwitchFrCloseSwitchBe);
+        actions.add(openSwitchBeCloseSwitchFr);
+        actions.add(pstFr0);
+        actions.add(pstFr5);
+        actions.add(pstBe0);
+        actions.add(pstBeMinus5);
+        actions.add(generatorFr0Mw);
+        actions.add(generatorFr100Mw);
+        actions.add(generatorFr0A);
+        actions.add(generatorFr1000A);
+        actions.add(generatorBe0Mw);
+        actions.add(generatorBe100Mw);
+        actions.add(generatorBe0A);
+        actions.add(generatorBe1000A);
+        return actions;
     }
 
-    private void assertIncompatibility(ElementaryAction elementaryAction, ElementaryAction... incompatibleElementaryActions) {
-        List<ElementaryAction> incompatibleElementaryActionsList = List.of(incompatibleElementaryActions);
-        for (ElementaryAction ea : elementaryActions) {
-            if (incompatibleElementaryActionsList.contains(ea)) {
-                assertFalse(elementaryAction.isCompatibleWith(ea));
+    private void assertIncompatibility(NetworkAction action, NetworkAction... incompatibleActions) {
+        List<NetworkAction> incompatibleActionsList = List.of(incompatibleActions);
+        for (NetworkAction na : this.networkActions) {
+            if (incompatibleActionsList.contains(na)) {
+                assertFalse(action.isCompatibleWith(na));
             } else {
-                assertTrue(elementaryAction.isCompatibleWith(ea));
+                assertTrue(action.isCompatibleWith(na));
             }
         }
     }

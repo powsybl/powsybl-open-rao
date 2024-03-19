@@ -31,12 +31,4 @@ public interface InjectionSetpoint extends ElementaryAction {
      * Get the unit of the injection setpoint
      */
     Unit getUnit();
-
-    @Override
-    default boolean isCompatibleWith(ElementaryAction otherElementaryAction) {
-        if (otherElementaryAction instanceof InjectionSetpoint injectionSetpoint) {
-            return !getNetworkElement().equals(injectionSetpoint.getNetworkElement()) || getSetpoint() == injectionSetpoint.getSetpoint() && getUnit() == injectionSetpoint.getUnit();
-        }
-        return true;
-    }
 }

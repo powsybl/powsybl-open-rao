@@ -9,8 +9,10 @@ package com.powsybl.openrao.data.cracimpl;
 
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider;
+import com.powsybl.openrao.data.cracapi.NetworkElement;
 import com.powsybl.openrao.data.cracapi.networkaction.*;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
@@ -22,10 +24,12 @@ import java.util.Set;
 public class NetworkActionAdderImpl extends AbstractRemedialActionAdder<NetworkActionAdder> implements NetworkActionAdder {
 
     private Set<ElementaryAction> elementaryActions;
+    private Set<NetworkElement> networkElements;
 
     NetworkActionAdderImpl(CracImpl owner) {
         super(owner);
         this.elementaryActions = new HashSet<>();
+        this.networkElements = new HashSet<>();
     }
 
     @Override
@@ -67,12 +71,13 @@ public class NetworkActionAdderImpl extends AbstractRemedialActionAdder<NetworkA
             throw new OpenRaoException(String.format("NetworkAction %s has to have at least one ElementaryAction.", id));
         }
 
-        NetworkAction networkAction = new NetworkActionImpl(id, name, operator, usageRules, elementaryActions, speed);
+        NetworkAction networkAction = new NetworkActionImpl(id, name, operator, usageRules, elementaryActions, speed, networkElements);
         getCrac().addNetworkAction(networkAction);
         return networkAction;
     }
 
-    void addElementaryAction(ElementaryAction elementaryAction) {
+    void addElementaryAction(ElementaryAction elementaryAction, NetworkElement... networkElements) {
         this.elementaryActions.add(elementaryAction);
+        Collections.addAll(this.networkElements, networkElements);
     }
 }

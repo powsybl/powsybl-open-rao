@@ -13,9 +13,6 @@ import com.powsybl.openrao.data.cracapi.networkaction.PstSetpoint;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.PhaseTapChanger;
 
-import java.util.Collections;
-import java.util.Set;
-
 /**
  * PST setpoint remedial action: set a PST's tap at a given value.
  *
@@ -40,11 +37,6 @@ public final class PstSetpointImpl implements PstSetpoint {
     @Override
     public NetworkElement getNetworkElement() {
         return networkElement;
-    }
-
-    @Override
-    public Set<NetworkElement> getNetworkElements() {
-        return Collections.singleton(networkElement);
     }
 
     private int getNormalizedSetpoint(PhaseTapChanger phaseTapChanger) {
@@ -82,18 +74,6 @@ public final class PstSetpointImpl implements PstSetpoint {
         PstSetpointImpl oPstSetPoint = (PstSetpointImpl) o;
         return oPstSetPoint.getNetworkElement().equals(this.networkElement)
             && oPstSetPoint.getSetpoint() == this.setpoint;
-    }
-
-    @Override
-    public boolean hasImpactOnNetwork(Network network) {
-        PhaseTapChanger phaseTapChanger = network.getTwoWindingsTransformer(networkElement.getId()).getPhaseTapChanger();
-        return getNormalizedSetpoint(phaseTapChanger) != phaseTapChanger.getTapPosition();
-    }
-
-    @Override
-    public boolean canBeApplied(Network network) {
-        // TODO : setpoint out of range ?
-        return true;
     }
 
     @Override
