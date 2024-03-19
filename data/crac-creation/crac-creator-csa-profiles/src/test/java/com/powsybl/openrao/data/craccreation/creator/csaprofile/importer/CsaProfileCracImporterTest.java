@@ -33,7 +33,6 @@ class CsaProfileCracImporterTest {
         assertTrue(importer.exists("/profiles/contingencies/Contingencies.zip", is1));
     }
 
-
     @Test
     void testImportNativeCracWithoutSubdirectory() {
         CsaProfileCracImporter csaProfileCracImporter = new CsaProfileCracImporter();

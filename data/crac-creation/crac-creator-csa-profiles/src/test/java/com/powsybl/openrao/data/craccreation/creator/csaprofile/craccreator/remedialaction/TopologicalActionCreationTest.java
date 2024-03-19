@@ -36,7 +36,7 @@ class TopologicalActionCreationTest {
 
         assertEquals(9, cracCreationContext.getRemedialActionCreationContexts().stream().filter(context -> !context.isImported()).toList().size());
 
-        assertRaNotImported(cracCreationContext, "remedial-action-3", ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK, "Remedial action remedial-action-3 will not be imported because network model does not contain a switch with id: unknown-switch");
+        assertRaNotImported(cracCreationContext, "remedial-action-3", ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK, "Remedial action remedial-action-3 will not be imported because the network does not contain a switch with id: unknown-switch");
         assertRaNotImported(cracCreationContext, "remedial-action-4", ImportStatus.NOT_FOR_RAO, "Remedial action remedial-action-4 will not be imported because it has no elementary action");
         assertRaNotImported(cracCreationContext, "remedial-action-5", ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action remedial-action-5 will not be imported because TopologyAction must have a property reference with http://energy.referencedata.eu/PropertyReference/Switch.open value, but it was: http://energy.referencedata.eu/PropertyReference/RotatingMachine.p");
         assertRaNotImported(cracCreationContext, "remedial-action-6", ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action remedial-action-6 will not be imported because StaticPropertyRange must have a property reference with http://energy.referencedata.eu/PropertyReference/Switch.open value, but it was: http://energy.referencedata.eu/PropertyReference/RotatingMachine.p");

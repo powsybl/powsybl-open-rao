@@ -12,7 +12,7 @@ import static com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreat
 import static com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileCracCreationTestUtil.getCsaCracCreationContext;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class RemedialActionCreationTest {
+class RemedialActionCreationTest {
     /*
     - disabled RA
     - test all combinations of TSO and name
