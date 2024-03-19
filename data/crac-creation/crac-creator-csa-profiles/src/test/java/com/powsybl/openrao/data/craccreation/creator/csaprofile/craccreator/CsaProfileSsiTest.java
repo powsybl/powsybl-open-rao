@@ -40,14 +40,14 @@ class CsaProfileSsiTest {
     @Test
     void activateDeactivateContingency() {
         // General case
-        cracCreationContext = getCsaCracCreationContext("/ssi/SSI-1_Contingency.zip", NETWORK, "2023-01-01T22:30Z");
+        cracCreationContext = getCsaCracCreationContext("/profiles/ssi/SSI-1_Contingency.zip", NETWORK, "2023-01-01T22:30Z");
         crac = cracCreationContext.getCrac();
         assertEquals(1, crac.getContingencies().size());
         assertContingencyEquality(crac.getContingencies().iterator().next(), "contingency-1", "RTE_CO1", Set.of("FFR1AA1  FFR2AA1  1"));
         assertContingencyNotImported(cracCreationContext, "contingency-2", ImportStatus.NOT_FOR_RAO, "Contingency contingency-2 will not be imported because its field mustStudy is set to false");
 
         // With SSI
-        cracCreationContext = getCsaCracCreationContext("/ssi/SSI-1_Contingency.zip", NETWORK, "2024-01-31T12:30Z");
+        cracCreationContext = getCsaCracCreationContext("/profiles/ssi/SSI-1_Contingency.zip", NETWORK, "2024-01-31T12:30Z");
         crac = cracCreationContext.getCrac();
         assertEquals(1, crac.getContingencies().size());
         assertContingencyEquality(crac.getContingencies().iterator().next(), "contingency-2", "RTE_CO2", Set.of("FFR1AA1  FFR3AA1  1"));
@@ -57,7 +57,7 @@ class CsaProfileSsiTest {
     @Test
     void activateDeactivateRemedialAction() {
         // General case
-        cracCreationContext = getCsaCracCreationContext("/ssi/SSI-2_RemedialAction.zip", NETWORK, "2023-01-01T22:30Z");
+        cracCreationContext = getCsaCracCreationContext("/profiles/ssi/SSI-2_RemedialAction.zip", NETWORK, "2023-01-01T22:30Z");
         crac = cracCreationContext.getCrac();
 
         assertEquals(1, crac.getNetworkActions().size());
@@ -78,7 +78,7 @@ class CsaProfileSsiTest {
         assertRaNotImported(cracCreationContext, "remedial-action-2", ImportStatus.NOT_FOR_RAO, "Remedial action remedial-action-2 will not be imported because RemedialAction.normalAvailable must be 'true' to be imported");
 
         // With SSI
-        cracCreationContext = getCsaCracCreationContext("/ssi/SSI-2_RemedialAction.zip", NETWORK, "2024-01-31T12:30Z");
+        cracCreationContext = getCsaCracCreationContext("/profiles/ssi/SSI-2_RemedialAction.zip", NETWORK, "2024-01-31T12:30Z");
         crac = cracCreationContext.getCrac();
 
         assertEquals(1, crac.getNetworkActions().size());
@@ -102,7 +102,7 @@ class CsaProfileSsiTest {
     @Test
     void changeTopologyActionType() {
         // General case
-        cracCreationContext = getCsaCracCreationContext("/ssi/SSI-3_ChangeTopologicalActionType.zip", NETWORK, "2023-01-01T22:30Z");
+        cracCreationContext = getCsaCracCreationContext("/profiles/ssi/SSI-3_ChangeTopologicalActionType.zip", NETWORK, "2023-01-01T22:30Z");
         crac = cracCreationContext.getCrac();
 
         assertEquals(1, crac.getNetworkActions().size());
@@ -117,7 +117,7 @@ class CsaProfileSsiTest {
         assertEquals(ActionType.OPEN, ((TopologicalAction) elementaryAction).getActionType());
 
         // With SSI
-        cracCreationContext = getCsaCracCreationContext("/ssi/SSI-3_ChangeTopologicalActionType.zip", NETWORK, "2024-01-31T12:30Z");
+        cracCreationContext = getCsaCracCreationContext("/profiles/ssi/SSI-3_ChangeTopologicalActionType.zip", NETWORK, "2024-01-31T12:30Z");
         crac = cracCreationContext.getCrac();
 
         assertEquals(1, crac.getNetworkActions().size());
@@ -135,7 +135,7 @@ class CsaProfileSsiTest {
     @Test
     void restrictPstActionRange() {
         // General case
-        cracCreationContext = getCsaCracCreationContext("/ssi/SSI-4_RestrictPSTActionRange.zip", NETWORK, "2023-01-01T22:30Z");
+        cracCreationContext = getCsaCracCreationContext("/profiles/ssi/SSI-4_RestrictPSTActionRange.zip", NETWORK, "2023-01-01T22:30Z");
         crac = cracCreationContext.getCrac();
 
         assertEquals(1, crac.getPstRangeActions().size());
@@ -148,7 +148,7 @@ class CsaProfileSsiTest {
         assertEquals(16, remedialAction.getRanges().iterator().next().getMaxTap());
 
         // With SSI
-        cracCreationContext = getCsaCracCreationContext("/ssi/SSI-4_RestrictPSTActionRange.zip", NETWORK, "2024-01-31T12:30Z");
+        cracCreationContext = getCsaCracCreationContext("/profiles/ssi/SSI-4_RestrictPSTActionRange.zip", NETWORK, "2024-01-31T12:30Z");
         crac = cracCreationContext.getCrac();
 
         assertEquals(1, crac.getPstRangeActions().size());
@@ -164,7 +164,7 @@ class CsaProfileSsiTest {
     @Test
     void changeRotatingMachineactionSetpoint() {
         // General case
-        cracCreationContext = getCsaCracCreationContext("/ssi/SSI-5_ChangeRotatingMachineActionSetpoint.zip", NETWORK, "2023-01-01T22:30Z");
+        cracCreationContext = getCsaCracCreationContext("/profiles/ssi/SSI-5_ChangeRotatingMachineActionSetpoint.zip", NETWORK, "2023-01-01T22:30Z");
         crac = cracCreationContext.getCrac();
 
         assertEquals(1, crac.getNetworkActions().size());
@@ -179,7 +179,7 @@ class CsaProfileSsiTest {
         assertEquals(75d, ((InjectionSetpoint) elementaryAction).getSetpoint());
 
         // With SSI
-        cracCreationContext = getCsaCracCreationContext("/ssi/SSI-5_ChangeRotatingMachineActionSetpoint.zip", NETWORK, "2024-01-31T12:30Z");
+        cracCreationContext = getCsaCracCreationContext("/profiles/ssi/SSI-5_ChangeRotatingMachineActionSetpoint.zip", NETWORK, "2024-01-31T12:30Z");
         crac = cracCreationContext.getCrac();
 
         assertEquals(1, crac.getNetworkActions().size());
@@ -197,7 +197,7 @@ class CsaProfileSsiTest {
     @Test
     void activateDeactivateTopologyAction() {
         // General case
-        cracCreationContext = getCsaCracCreationContext("/ssi/SSI-6_TopologyAction.zip", NETWORK, "2023-01-01T22:30Z");
+        cracCreationContext = getCsaCracCreationContext("/profiles/ssi/SSI-6_TopologyAction.zip", NETWORK, "2023-01-01T22:30Z");
         crac = cracCreationContext.getCrac();
 
         assertEquals(1, crac.getNetworkActions().size());
@@ -212,7 +212,7 @@ class CsaProfileSsiTest {
         assertEquals(ActionType.OPEN, ((TopologicalAction) elementaryAction).getActionType());
 
         // With SSI
-        cracCreationContext = getCsaCracCreationContext("/ssi/SSI-6_TopologyAction.zip", NETWORK, "2024-01-31T12:30Z");
+        cracCreationContext = getCsaCracCreationContext("/profiles/ssi/SSI-6_TopologyAction.zip", NETWORK, "2024-01-31T12:30Z");
         crac = cracCreationContext.getCrac();
 
         assertEquals(1, crac.getNetworkActions().size());
@@ -230,7 +230,7 @@ class CsaProfileSsiTest {
     @Test
     void activateDeactivateRotatingMachineAction() {
         // General case
-        cracCreationContext = getCsaCracCreationContext("/ssi/SSI-7_RotatingMachineAction.zip", NETWORK, "2023-01-01T22:30Z");
+        cracCreationContext = getCsaCracCreationContext("/profiles/ssi/SSI-7_RotatingMachineAction.zip", NETWORK, "2023-01-01T22:30Z");
         crac = cracCreationContext.getCrac();
 
         assertEquals(1, crac.getNetworkActions().size());
@@ -245,7 +245,7 @@ class CsaProfileSsiTest {
         assertEquals(75d, ((InjectionSetpoint) elementaryAction).getSetpoint());
 
         // With SSI
-        cracCreationContext = getCsaCracCreationContext("/ssi/SSI-7_RotatingMachineAction.zip", NETWORK, "2024-01-31T12:30Z");
+        cracCreationContext = getCsaCracCreationContext("/profiles/ssi/SSI-7_RotatingMachineAction.zip", NETWORK, "2024-01-31T12:30Z");
         crac = cracCreationContext.getCrac();
 
         assertEquals(1, crac.getNetworkActions().size());
@@ -263,13 +263,13 @@ class CsaProfileSsiTest {
     @Test
     void activateTapPositionAction() {
         // General case
-        cracCreationContext = getCsaCracCreationContext("/ssi/SSI-8_ActivateTapPositionAction.zip", NETWORK, "2023-01-01T22:30Z");
+        cracCreationContext = getCsaCracCreationContext("/profiles/ssi/SSI-8_ActivateTapPositionAction.zip", NETWORK, "2023-01-01T22:30Z");
         crac = cracCreationContext.getCrac();
 
         assertEquals(0, crac.getPstRangeActions().size());
 
         // With SSI
-        cracCreationContext = getCsaCracCreationContext("/ssi/SSI-8_ActivateTapPositionAction.zip", NETWORK, "2024-01-31T12:30Z");
+        cracCreationContext = getCsaCracCreationContext("/profiles/ssi/SSI-8_ActivateTapPositionAction.zip", NETWORK, "2024-01-31T12:30Z");
         crac = cracCreationContext.getCrac();
 
         assertEquals(1, crac.getPstRangeActions().size());
@@ -285,7 +285,7 @@ class CsaProfileSsiTest {
     @Test
     void deactivateTapPositionAction() {
         // General case
-        cracCreationContext = getCsaCracCreationContext("/ssi/SSI-9_DeactivateTapPositionAction.zip", NETWORK, "2023-01-01T22:30Z");
+        cracCreationContext = getCsaCracCreationContext("/profiles/ssi/SSI-9_DeactivateTapPositionAction.zip", NETWORK, "2023-01-01T22:30Z");
         crac = cracCreationContext.getCrac();
 
         assertEquals(1, crac.getPstRangeActions().size());
@@ -298,7 +298,7 @@ class CsaProfileSsiTest {
         assertEquals(8, remedialAction.getRanges().iterator().next().getMaxTap());
 
         // With SSI
-        cracCreationContext = getCsaCracCreationContext("/ssi/SSI-9_DeactivateTapPositionAction.zip", NETWORK, "2024-01-31T12:30Z");
+        cracCreationContext = getCsaCracCreationContext("/profiles/ssi/SSI-9_DeactivateTapPositionAction.zip", NETWORK, "2024-01-31T12:30Z");
         crac = cracCreationContext.getCrac();
 
         assertEquals(0, crac.getPstRangeActions().size());
@@ -307,7 +307,7 @@ class CsaProfileSsiTest {
     @Test
     void activateDeactivateShuntCompensatorModification() {
         // General case
-        cracCreationContext = getCsaCracCreationContext("/ssi/SSI-10_ShuntCompensatorModification.zip", NETWORK, "2023-01-01T22:30Z");
+        cracCreationContext = getCsaCracCreationContext("/profiles/ssi/SSI-10_ShuntCompensatorModification.zip", NETWORK, "2023-01-01T22:30Z");
         crac = cracCreationContext.getCrac();
 
         assertEquals(1, crac.getNetworkActions().size());
@@ -322,7 +322,7 @@ class CsaProfileSsiTest {
         assertEquals(1, ((InjectionSetpoint) elementaryAction).getSetpoint());
 
         // With SSI
-        cracCreationContext = getCsaCracCreationContext("/ssi/SSI-10_ShuntCompensatorModification.zip", NETWORK, "2024-01-31T12:30Z");
+        cracCreationContext = getCsaCracCreationContext("/profiles/ssi/SSI-10_ShuntCompensatorModification.zip", NETWORK, "2024-01-31T12:30Z");
         crac = cracCreationContext.getCrac();
 
         assertEquals(1, crac.getNetworkActions().size());
@@ -340,7 +340,7 @@ class CsaProfileSsiTest {
     @Test
     void activateDeactivateAllElementaryActions() {
         // General case
-        cracCreationContext = getCsaCracCreationContext("/ssi/SSI-11_ElementaryActions.zip", NETWORK, "2023-01-01T22:30Z");
+        cracCreationContext = getCsaCracCreationContext("/profiles/ssi/SSI-11_ElementaryActions.zip", NETWORK, "2023-01-01T22:30Z");
         crac = cracCreationContext.getCrac();
 
         assertEquals(1, crac.getNetworkActions().size());
@@ -366,7 +366,7 @@ class CsaProfileSsiTest {
         assertRaNotImported(cracCreationContext, "remedial-action-2", ImportStatus.NOT_FOR_RAO, "Remedial action remedial-action-2 will not be imported because it has no elementary action");
 
         // With SSI
-        cracCreationContext = getCsaCracCreationContext("/ssi/SSI-11_ElementaryActions.zip", NETWORK, "2024-01-31T12:30Z");
+        cracCreationContext = getCsaCracCreationContext("/profiles/ssi/SSI-11_ElementaryActions.zip", NETWORK, "2024-01-31T12:30Z");
         crac = cracCreationContext.getCrac();
 
         assertEquals(1, crac.getNetworkActions().size());
@@ -395,7 +395,7 @@ class CsaProfileSsiTest {
     @Test
     void activateDeactivateContingencyWithRemedialAction() {
         // General case
-        cracCreationContext = getCsaCracCreationContext("/ssi/SSI-12_ContingencyWithRemedialAction.zip", NETWORK, "2023-01-01T22:30Z");
+        cracCreationContext = getCsaCracCreationContext("/profiles/ssi/SSI-12_ContingencyWithRemedialAction.zip", NETWORK, "2023-01-01T22:30Z");
         crac = cracCreationContext.getCrac();
 
         List<Contingency> contingencies = crac.getContingencies().stream().sorted(Comparator.comparing(Contingency::getId)).toList();
@@ -422,7 +422,7 @@ class CsaProfileSsiTest {
         assertEquals("contingency-3", ((OnContingencyState) networkActions.get(1).getUsageRules().iterator().next()).getContingency().getId());
 
         // With SSI
-        cracCreationContext = getCsaCracCreationContext("/ssi/SSI-12_ContingencyWithRemedialAction.zip", NETWORK, "2024-01-31T12:30Z");
+        cracCreationContext = getCsaCracCreationContext("/profiles/ssi/SSI-12_ContingencyWithRemedialAction.zip", NETWORK, "2024-01-31T12:30Z");
         crac = cracCreationContext.getCrac();
 
         contingencies = crac.getContingencies().stream().sorted(Comparator.comparing(Contingency::getId)).toList();
@@ -449,14 +449,14 @@ class CsaProfileSsiTest {
     @Test
     void activateDeactivateAngleCnec() {
         // General case
-        cracCreationContext = getCsaCracCreationContext("/ssi/SSI-13_AngleCNEC.zip", NETWORK, "2023-01-01T22:30Z");
+        cracCreationContext = getCsaCracCreationContext("/profiles/ssi/SSI-13_AngleCNEC.zip", NETWORK, "2023-01-01T22:30Z");
         crac = cracCreationContext.getCrac();
 
         assertAngleCnecEquality(crac.getAngleCnec("RTE_AE1 (assessed-element-1) - preventive"), "RTE_AE1 (assessed-element-1) - preventive", "RTE_AE1 (assessed-element-1) - preventive", "BBE1AA1 ", "BBE4AA1 ", crac.getInstant(PREVENTIVE_INSTANT_ID), null, 30d, -30d, true);
         assertCnecNotImported(cracCreationContext, "assessed-element-2", ImportStatus.NOT_FOR_RAO, "AssessedElement.normalEnabled is false");
 
         // With SSI
-        cracCreationContext = getCsaCracCreationContext("/ssi/SSI-13_AngleCNEC.zip", NETWORK, "2024-01-31T12:30Z");
+        cracCreationContext = getCsaCracCreationContext("/profiles/ssi/SSI-13_AngleCNEC.zip", NETWORK, "2024-01-31T12:30Z");
         crac = cracCreationContext.getCrac();
 
         assertAngleCnecEquality(crac.getAngleCnec("RTE_AE2 (assessed-element-2) - preventive"), "RTE_AE2 (assessed-element-2) - preventive", "RTE_AE2 (assessed-element-2) - preventive", "BBE4AA1 ", "BBE1AA1 ", crac.getInstant(PREVENTIVE_INSTANT_ID), null, 45d, -45d, true);
@@ -466,12 +466,12 @@ class CsaProfileSsiTest {
     @Test
     void changeAngleCnecThreshold() {
         // General case
-        cracCreationContext = getCsaCracCreationContext("/ssi/SSI-14_VoltageAngleLimit.zip", NETWORK, "2023-01-01T22:30Z");
+        cracCreationContext = getCsaCracCreationContext("/profiles/ssi/SSI-14_VoltageAngleLimit.zip", NETWORK, "2023-01-01T22:30Z");
         crac = cracCreationContext.getCrac();
         assertAngleCnecEquality(crac.getAngleCnec("RTE_AE (assessed-element) - preventive"), "RTE_AE (assessed-element) - preventive", "RTE_AE (assessed-element) - preventive", "BBE1AA1 ", "BBE4AA1 ", crac.getInstant(PREVENTIVE_INSTANT_ID), null, 30d, -30d, true);
 
         // With SSI
-        cracCreationContext = getCsaCracCreationContext("/ssi/SSI-14_VoltageAngleLimit.zip", NETWORK, "2024-01-31T12:30Z");
+        cracCreationContext = getCsaCracCreationContext("/profiles/ssi/SSI-14_VoltageAngleLimit.zip", NETWORK, "2024-01-31T12:30Z");
         crac = cracCreationContext.getCrac();
         assertAngleCnecEquality(crac.getAngleCnec("RTE_AE (assessed-element) - preventive"), "RTE_AE (assessed-element) - preventive", "RTE_AE (assessed-element) - preventive", "BBE1AA1 ", "BBE4AA1 ", crac.getInstant(PREVENTIVE_INSTANT_ID), null, 45d, -45d, true);
     }
@@ -479,7 +479,7 @@ class CsaProfileSsiTest {
     @Test
     void activateDeactivateAssessedElementWithContingency() {
         // General case
-        cracCreationContext = getCsaCracCreationContext("/ssi/SSI-15_AssessedElementWithContingency.zip", NETWORK, "2023-01-01T22:30Z");
+        cracCreationContext = getCsaCracCreationContext("/profiles/ssi/SSI-15_AssessedElementWithContingency.zip", NETWORK, "2023-01-01T22:30Z");
         crac = cracCreationContext.getCrac();
 
         assertEquals(4, crac.getAngleCnecs().size());
@@ -490,7 +490,7 @@ class CsaProfileSsiTest {
         assertCnecNotImported(cracCreationContext, "assessed-element-1", ImportStatus.NOT_FOR_RAO, "AssessedElementWithContingency.normalEnabled is false for contingency contingency-2");
 
         // With SSI
-        cracCreationContext = getCsaCracCreationContext("/ssi/SSI-15_AssessedElementWithContingency.zip", NETWORK, "2024-01-31T12:30Z");
+        cracCreationContext = getCsaCracCreationContext("/profiles/ssi/SSI-15_AssessedElementWithContingency.zip", NETWORK, "2024-01-31T12:30Z");
         crac = cracCreationContext.getCrac();
 
         assertEquals(3, crac.getAngleCnecs().size());
@@ -504,7 +504,7 @@ class CsaProfileSsiTest {
     @Test
     void activateDeactivateAssessedElementWithRemedialAction() {
         // General case
-        cracCreationContext = getCsaCracCreationContext("/ssi/SSI-16_AssessedElementWithRemedialAction.zip", NETWORK, "2023-01-01T22:30Z");
+        cracCreationContext = getCsaCracCreationContext("/profiles/ssi/SSI-16_AssessedElementWithRemedialAction.zip", NETWORK, "2023-01-01T22:30Z");
         crac = cracCreationContext.getCrac();
 
         assertEquals(1, crac.getContingencies().size());
@@ -536,7 +536,7 @@ class CsaProfileSsiTest {
         assertEquals("RTE_AE3 (assessed-element-3) - RTE_CO - curative", ((OnAngleConstraint) remedialActions.get(1).getUsageRules().iterator().next()).getAngleCnec().getId());
 
         // With SSI
-        cracCreationContext = getCsaCracCreationContext("/ssi/SSI-16_AssessedElementWithRemedialAction.zip", NETWORK, "2024-01-31T12:30Z");
+        cracCreationContext = getCsaCracCreationContext("/profiles/ssi/SSI-16_AssessedElementWithRemedialAction.zip", NETWORK, "2024-01-31T12:30Z");
         crac = cracCreationContext.getCrac();
 
         assertEquals(1, crac.getContingencies().size());
@@ -566,7 +566,7 @@ class CsaProfileSsiTest {
     @Test
     void activateDeactivateSchemeRemedialAction() {
         // General case
-        cracCreationContext = getCsaCracCreationContext("/ssi/SSI-17_SchemeRemedialAction.zip", NETWORK, "2023-01-01T22:30Z");
+        cracCreationContext = getCsaCracCreationContext("/profiles/ssi/SSI-17_SchemeRemedialAction.zip", NETWORK, "2023-01-01T22:30Z");
         crac = cracCreationContext.getCrac();
 
         assertEquals(1, crac.getNetworkActions().size());
@@ -587,7 +587,7 @@ class CsaProfileSsiTest {
         assertRaNotImported(cracCreationContext, "ara-2", ImportStatus.NOT_FOR_RAO, "Remedial action ara-2 will not be imported because RemedialAction.normalAvailable must be 'true' to be imported");
 
         // With SSI
-        cracCreationContext = getCsaCracCreationContext("/ssi/SSI-17_SchemeRemedialAction.zip", NETWORK, "2024-01-31T12:30Z");
+        cracCreationContext = getCsaCracCreationContext("/profiles/ssi/SSI-17_SchemeRemedialAction.zip", NETWORK, "2024-01-31T12:30Z");
         crac = cracCreationContext.getCrac();
 
         assertEquals(1, crac.getNetworkActions().size());
@@ -611,7 +611,7 @@ class CsaProfileSsiTest {
     @Test
     void activateDeactivateRemedialActionScheme() {
         // General case
-        cracCreationContext = getCsaCracCreationContext("/ssi/SSI-18_RemedialActionScheme.zip", NETWORK, "2023-01-01T22:30Z");
+        cracCreationContext = getCsaCracCreationContext("/profiles/ssi/SSI-18_RemedialActionScheme.zip", NETWORK, "2023-01-01T22:30Z");
         crac = cracCreationContext.getCrac();
 
         assertEquals(1, crac.getNetworkActions().size());
@@ -632,7 +632,7 @@ class CsaProfileSsiTest {
         assertRaNotImported(cracCreationContext, "ara-2", ImportStatus.NOT_FOR_RAO, "Remedial action ara-2 will not be imported because RemedialActionScheme remedial-action-scheme-2 is not armed");
 
         // With SSI
-        cracCreationContext = getCsaCracCreationContext("/ssi/SSI-18_RemedialActionScheme.zip", NETWORK, "2024-01-31T12:30Z");
+        cracCreationContext = getCsaCracCreationContext("/profiles/ssi/SSI-18_RemedialActionScheme.zip", NETWORK, "2024-01-31T12:30Z");
         crac = cracCreationContext.getCrac();
 
         assertEquals(1, crac.getNetworkActions().size());

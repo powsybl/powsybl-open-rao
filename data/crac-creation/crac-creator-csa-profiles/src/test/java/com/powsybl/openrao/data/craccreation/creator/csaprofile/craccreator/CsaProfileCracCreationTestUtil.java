@@ -10,7 +10,11 @@ import com.powsybl.openrao.data.cracapi.cnec.AngleCnec;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
 import com.powsybl.openrao.data.cracapi.cnec.Side;
 import com.powsybl.openrao.data.cracapi.cnec.VoltageCnec;
+import com.powsybl.openrao.data.cracapi.networkaction.ActionType;
+import com.powsybl.openrao.data.cracapi.networkaction.ElementaryAction;
 import com.powsybl.openrao.data.cracapi.networkaction.NetworkAction;
+import com.powsybl.openrao.data.cracapi.networkaction.TopologicalAction;
+import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.cracapi.threshold.BranchThreshold;
 import com.powsybl.openrao.data.cracapi.threshold.Threshold;
 import com.powsybl.openrao.data.cracapi.usagerule.*;
@@ -23,6 +27,7 @@ import com.google.common.base.Suppliers;
 import com.powsybl.computation.local.LocalComputationManager;
 import com.powsybl.iidm.network.ImportConfig;
 import com.powsybl.iidm.network.Network;
+import org.eclipse.rdf4j.query.algebra.Str;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
@@ -215,6 +220,10 @@ public final class CsaProfileCracCreationTestUtil {
         );
     }
 
+    public static void assertHasOnInstantUsageRule(CsaProfileCracCreationContext cracCreationContext, String raId, String instant, UsageMethod usageMethod) {
+        assertHasOnInstantUsageRule(cracCreationContext, raId, cracCreationContext.getCrac().getInstant(instant), usageMethod);
+    }
+
     public static void assertHasOnContingencyStateUsageRule(CsaProfileCracCreationContext cracCreationContext, String raId, String contingencyId, Instant instant, UsageMethod usageMethod) {
         assertTrue(
             cracCreationContext.getCrac().getRemedialAction(raId).getUsageRules().stream().filter(OnContingencyState.class::isInstance)
@@ -261,11 +270,32 @@ public final class CsaProfileCracCreationTestUtil {
         assertEquals(switchId, ra.getNetworkElements().stream().toList().get(0).getId());
     }
 
+    public static void assertSimpleTopologicalActionImported(NetworkAction networkAction, String raId, String raName, String switchId, ActionType actionType) {
+        assertEquals(raId, networkAction.getId());
+        assertEquals(raName, networkAction.getName());
+        assertEquals(1, networkAction.getElementaryActions().size());
+        ElementaryAction elementaryAction = networkAction.getElementaryActions().iterator().next();
+        assertTrue(elementaryAction instanceof TopologicalAction);
+        assertEquals(switchId, ((TopologicalAction) elementaryAction).getNetworkElement().getId());
+        assertEquals(actionType, ((TopologicalAction) elementaryAction).getActionType());
+    }
+
     public static void assertTopologicalActionImported(CracCreationContext cracCreationContext, String raId, String raName, String switchId, int speed) {
         assertTopologicalActionImported(cracCreationContext, raId, raName, switchId);
         Optional<Integer> importedSpeed = cracCreationContext.getCrac().getNetworkAction(raId).getSpeed();
         assertNotNull(importedSpeed);
         assertEquals(speed, importedSpeed.get());
+    }
+
+    public static void assertPstRangeActionImported(PstRangeAction pstRangeAction, String expectedId, String expectedName, String expectedPstId, Integer expectedMinTap, Integer expectedMaxTap) {
+        assertEquals(expectedId, pstRangeAction.getId());
+        assertEquals(expectedName, pstRangeAction.getName());
+        assertEquals(expectedPstId, pstRangeAction.getNetworkElement().getId());
+        if (expectedMinTap == null && expectedMaxTap == null) {
+            return;
+        }
+        assertEquals(expectedMinTap == null ? Integer.MIN_VALUE : expectedMinTap, pstRangeAction.getRanges().get(0).getMinTap());
+        assertEquals(expectedMaxTap == null ? Integer.MAX_VALUE : expectedMaxTap, pstRangeAction.getRanges().get(0).getMaxTap());
     }
 
     public static CsaProfileCracCreationContext getCsaCracCreationContext(String csaProfilesArchive, CracCreationParameters cracCreationParameters) {

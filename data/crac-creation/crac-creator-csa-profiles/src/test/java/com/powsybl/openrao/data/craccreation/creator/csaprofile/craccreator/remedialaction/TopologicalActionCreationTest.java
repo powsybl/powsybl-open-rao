@@ -6,102 +6,44 @@
  */
 package com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.remedialaction;
 
-import com.powsybl.openrao.data.cracapi.Instant;
 import com.powsybl.openrao.data.cracapi.networkaction.ActionType;
-import com.powsybl.openrao.data.cracapi.networkaction.TopologicalAction;
+import com.powsybl.openrao.data.cracapi.networkaction.NetworkAction;
 import com.powsybl.openrao.data.cracapi.usagerule.UsageMethod;
 import com.powsybl.openrao.data.craccreation.creator.api.ImportStatus;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileCracCreationContext;
 import org.junit.jupiter.api.Test;
 
-import java.util.Iterator;
-import java.util.Set;
+import java.util.Comparator;
+import java.util.List;
 
 import static com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileCracCreationTestUtil.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 class TopologicalActionCreationTest {
 
-    // TODO: remove CGMES from achives + rename + gather all in one test
-
     @Test
-    void testImportNetworkActions() {
-        CsaProfileCracCreationContext cracCreationContext = getCsaCracCreationContext("/csa-9/CSA_9_4_ValidProfiles.zip", NETWORK);
-        Instant preventiveInstant = cracCreationContext.getCrac().getInstant("preventive");
-        Instant curativeInstant = cracCreationContext.getCrac().getInstant("curative");
+    void importTopologicalActions() {
+        CsaProfileCracCreationContext cracCreationContext = getCsaCracCreationContext("/profiles/remedialactions/TopologicalActions.zip", NETWORK);
 
-        assertEquals(7, cracCreationContext.getCrac().getRemedialActions().size());
+        List<NetworkAction> importedTopologicalActions = cracCreationContext.getCrac().getNetworkActions().stream().sorted(Comparator.comparing(NetworkAction::getId)).toList();
+        assertEquals(2, importedTopologicalActions.size());
 
-        // RA1 (on instant)
-        assertTopologicalActionImported(cracCreationContext, "on-instant-preventive-topological-remedial-action", "RA1", "BBE1AA1  BBE4AA1  1");
-        assertHasOnInstantUsageRule(cracCreationContext, "on-instant-preventive-topological-remedial-action", preventiveInstant, UsageMethod.AVAILABLE);
+        assertSimpleTopologicalActionImported(importedTopologicalActions.get(0), "remedial-action-1", "RTE_RA1", "BBE1AA1  BBE4AA1  1", ActionType.OPEN);
+        assertHasOnInstantUsageRule(cracCreationContext, "remedial-action-1", PREVENTIVE_INSTANT_ID, UsageMethod.AVAILABLE);
 
-        // RA2 (on instant)
-        assertTopologicalActionImported(cracCreationContext, "on-instant-curative-topological-remedial-action", "RA2", "BBE1AA1  BBE4AA1  1");
-        assertHasOnInstantUsageRule(cracCreationContext, "on-instant-curative-topological-remedial-action", curativeInstant, UsageMethod.AVAILABLE);
+        assertSimpleTopologicalActionImported(importedTopologicalActions.get(1), "remedial-action-2", "RTE_RA2", "DDE3AA1  DDE4AA1  1", ActionType.CLOSE);
+        assertHasOnInstantUsageRule(cracCreationContext, "remedial-action-2", CURATIVE_INSTANT_ID, UsageMethod.AVAILABLE);
 
-        // RA3 (on state)
-        assertTopologicalActionImported(cracCreationContext, "on-contingency-state-considered-curative-topological-remedial-action", "RA3", "BBE1AA1  BBE4AA1  1");
-        assertHasOnContingencyStateUsageRule(cracCreationContext, "on-contingency-state-considered-curative-topological-remedial-action", "bbda9fe0-77e0-4f8e-b9d9-4402a539f2b7", curativeInstant, UsageMethod.AVAILABLE);
+        assertEquals(9, cracCreationContext.getRemedialActionCreationContexts().stream().filter(context -> !context.isImported()).toList().size());
 
-        // RA4 (on state)
-        assertTopologicalActionImported(cracCreationContext, "on-contingency-state-included-curative-topological-remedial-action", "RA4", "BBE1AA1  BBE4AA1  1");
-        assertHasOnContingencyStateUsageRule(cracCreationContext, "on-contingency-state-included-curative-topological-remedial-action", "bbda9fe0-77e0-4f8e-b9d9-4402a539f2b7", curativeInstant, UsageMethod.AVAILABLE);
-
-        // nameless-topological-remedial-action-with-speed (on instant)
-        assertTopologicalActionImported(cracCreationContext, "nameless-topological-remedial-action-with-speed", "nameless-topological-remedial-action-with-speed", "BBE1AA1  BBE4AA1  1", 137);
-
-        // RTE_RA6 (on instant)
-        assertTopologicalActionImported(cracCreationContext, "topological-remedial-action-with-tso-name", "RTE_RA6", "BBE1AA1  BBE4AA1  1");
-        assertHasOnInstantUsageRule(cracCreationContext, "topological-remedial-action-with-tso-name", preventiveInstant, UsageMethod.AVAILABLE);
-
-        // nameless-topological-remedial-action-with-tso-name-parent (on instant)
-        assertTopologicalActionImported(cracCreationContext, "nameless-topological-remedial-action-with-tso-name-parent", "nameless-topological-remedial-action-with-tso-name-parent", "BBE1AA1  BBE4AA1  1");
-        assertHasOnInstantUsageRule(cracCreationContext, "nameless-topological-remedial-action-with-tso-name-parent", preventiveInstant, UsageMethod.AVAILABLE);
-    }
-
-    @Test
-    void testIgnoreInvalidTopologicalActions() {
-        CsaProfileCracCreationContext cracCreationContext = getCsaCracCreationContext("/csa-9/CSA_9_5_InvalidProfiles.zip", NETWORK);
-
-        assertEquals(0, cracCreationContext.getCrac().getRemedialActions().size());
-
-        assertRaNotImported(cracCreationContext, "unavailable-topological-remedial-action", ImportStatus.NOT_FOR_RAO, "Remedial action unavailable-topological-remedial-action will not be imported because RemedialAction.normalAvailable must be 'true' to be imported");
-        assertRaNotImported(cracCreationContext, "undefined-topological-remedial-action", ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action undefined-topological-remedial-action will not be imported because there is no elementary action for that RA");
-        assertRaNotImported(cracCreationContext, "topological-remedial-action-with-not-existing-switch", ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK, "Remedial action topological-remedial-action-with-not-existing-switch will not be imported because network model does not contain a switch with id: unknown-switch");
-        assertRaNotImported(cracCreationContext, "topological-remedial-action-with-wrong-property-reference", ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action 'topological-remedial-action-with-wrong-property-reference' will not be imported because 'TopologyAction' must have a property reference with 'http://energy.referencedata.eu/PropertyReference/Switch.open' value, but it was: 'http://energy.referencedata.eu/PropertyReference/RotatingMachine.p'");
-        assertRaNotImported(cracCreationContext, "preventive-topological-remedial-action-with-contingency", ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action preventive-topological-remedial-action-with-contingency will not be imported because it is linked to a contingency but it's kind is not curative");
-    }
-
-    @Test
-    void testImportRemedialActionWithMultipleContingencies() {
-        CsaProfileCracCreationContext cracCreationContext = getCsaCracCreationContext("/CSA_MultipleContingenciesForTheSameRemedialAction.zip", NETWORK);
-
-        assertEquals(1, cracCreationContext.getCrac().getRemedialActions().size());
-        assertNetworkActionImported(cracCreationContext, "ra2", Set.of("BBE1AA1  BBE4AA1  1"), false, 2);
-        assertRaNotImported(cracCreationContext, "ra1", ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action ra1 will not be imported because the ElementCombinationConstraintKinds that link the remedial action to the contingency co1 are different");
-    }
-
-    @Test
-    void testTopologicalActionOpenClose() {
-        CsaProfileCracCreationContext cracCreationContext = getCsaCracCreationContext("/CSA_74_TopoOpenClose.zip", NETWORK);
-        assertNotNull(cracCreationContext);
-        assertEquals(1, cracCreationContext.getCrac().getRemedialActions().size());
-        assertNetworkActionImported(cracCreationContext, "topology-action", Set.of("BBE1AA1  BBE4AA1  1", "DDE3AA1  DDE4AA1  1"), false, 1);
-        cracCreationContext.getCrac().getNetworkAction("topology-action").getElementaryActions();
-        Iterator<?> it = cracCreationContext.getCrac().getNetworkAction("topology-action").getElementaryActions().iterator();
-        TopologicalAction ta1 = (TopologicalAction) it.next();
-        TopologicalAction ta2 = (TopologicalAction) it.next();
-        if ("BBE1AA1  BBE4AA1  1".equals(ta1.getNetworkElement().getName())) {
-            assertEquals(ActionType.OPEN, ta1.getActionType());
-            assertEquals(ActionType.CLOSE, ta2.getActionType());
-        } else {
-            assertEquals(ActionType.OPEN, ta2.getActionType());
-            assertEquals(ActionType.CLOSE, ta1.getActionType());
-        }
-        assertRaNotImported(cracCreationContext, "no-static-property-range", ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action no-static-property-range will not be imported because there is no StaticPropertyRange linked to elementary action b2976651-58f9-46bf-bd0d-a721b11dbb9a");
-        assertRaNotImported(cracCreationContext, "wrong-value-offset-kind", ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action wrong-value-offset-kind will not be imported because the ValueOffsetKind is http://entsoe.eu/ns/nc#ValueOffsetKind.incremental but should be none.");
-        assertRaNotImported(cracCreationContext, "wrong-direction", ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action wrong-direction will not be imported because the RelativeDirectionKind is http://entsoe.eu/ns/nc#RelativeDirectionKind.up but should be absolute.");
-        assertRaNotImported(cracCreationContext, "undefined-action-type", ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action undefined-action-type will not be imported because the normalValue is 2 which does not define a proper action type (open 1 / close 0)");
+        assertRaNotImported(cracCreationContext, "remedial-action-3", ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK, "Remedial action remedial-action-3 will not be imported because network model does not contain a switch with id: unknown-switch");
+        assertRaNotImported(cracCreationContext, "remedial-action-4", ImportStatus.NOT_FOR_RAO, "Remedial action remedial-action-4 will not be imported because it has no elementary action");
+        assertRaNotImported(cracCreationContext, "remedial-action-5", ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action remedial-action-5 will not be imported because TopologyAction must have a property reference with http://energy.referencedata.eu/PropertyReference/Switch.open value, but it was: http://energy.referencedata.eu/PropertyReference/RotatingMachine.p");
+        assertRaNotImported(cracCreationContext, "remedial-action-6", ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action remedial-action-6 will not be imported because StaticPropertyRange must have a property reference with http://energy.referencedata.eu/PropertyReference/Switch.open value, but it was: http://energy.referencedata.eu/PropertyReference/RotatingMachine.p");
+        assertRaNotImported(cracCreationContext, "remedial-action-7", ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action remedial-action-7 will not be imported because the RelativeDirectionKind is http://entsoe.eu/ns/nc#RelativeDirectionKind.up but should be absolute");
+        assertRaNotImported(cracCreationContext, "remedial-action-8", ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action remedial-action-8 will not be imported because the ValueOffsetKind is http://entsoe.eu/ns/nc#ValueOffsetKind.incrementalPercentage but should be none");
+        assertRaNotImported(cracCreationContext, "remedial-action-9", ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action remedial-action-9 will not be imported because there is no StaticPropertyRange linked to elementary action topology-action-9");
+        assertRaNotImported(cracCreationContext, "remedial-action-10", ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action remedial-action-10 will not be imported because the normalValue is 2 which does not define a proper action type (open 1 / close 0)");
+        assertRaNotImported(cracCreationContext, "remedial-action-11", ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action remedial-action-11 will not be imported because several conflictual StaticPropertyRanges are linked to elementary action topology-action-11");
     }
 }
