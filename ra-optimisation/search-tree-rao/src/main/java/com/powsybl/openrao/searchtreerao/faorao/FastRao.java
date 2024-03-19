@@ -18,21 +18,25 @@ import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.cracapi.InstantKind;
 import com.powsybl.openrao.data.cracapi.State;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
+import com.powsybl.openrao.data.cracapi.rangeaction.RangeAction;
 import com.powsybl.openrao.data.craciojson.JsonExport;
 import com.powsybl.openrao.data.craciojson.JsonImport;
 import com.powsybl.openrao.data.raoresultapi.RaoResult;
 import com.powsybl.openrao.raoapi.RaoInput;
 import com.powsybl.openrao.raoapi.RaoProvider;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.LoopFlowParametersExtension;
+import com.powsybl.openrao.raoapi.parameters.extensions.RelativeMarginsParametersExtension;
 import com.powsybl.openrao.searchtreerao.castor.algorithm.CastorFullOptimization;
 import com.powsybl.openrao.searchtreerao.castor.algorithm.PrePerimeterSensitivityAnalysis;
+import com.powsybl.openrao.searchtreerao.castor.algorithm.StateTree;
 import com.powsybl.openrao.searchtreerao.commons.RaoLogger;
 import com.powsybl.openrao.searchtreerao.commons.RaoUtil;
+import com.powsybl.openrao.searchtreerao.commons.SensitivityComputer;
 import com.powsybl.openrao.searchtreerao.commons.ToolProvider;
-import com.powsybl.openrao.searchtreerao.result.api.ObjectiveFunctionResult;
-import com.powsybl.openrao.searchtreerao.result.api.PrePerimeterResult;
-import com.powsybl.openrao.searchtreerao.result.impl.FastRaoResultImpl;
-import com.powsybl.openrao.searchtreerao.result.impl.OneStateOnlyRaoResultImpl;
+import com.powsybl.openrao.searchtreerao.commons.objectivefunctionevaluator.ObjectiveFunction;
+import com.powsybl.openrao.searchtreerao.result.api.*;
+import com.powsybl.openrao.searchtreerao.result.impl.*;
 import com.powsybl.openrao.sensitivityanalysis.AppliedRemedialActions;
 import org.apache.commons.lang3.tuple.Pair;
 
@@ -164,7 +168,7 @@ public class FastRao implements RaoProvider {
         return flowCnecs;
     }
 
-    private Pair<PrePerimeterResult, RaoResult> runFilteredRao(RaoInput raoInput, RaoParameters parameters, Instant targetEndInstant, Set<FlowCnec> flowCnecsToKeep, PrePerimeterSensitivityAnalysis prePerimeterSensitivityAnalysis, PrePerimeterResult initialResult) throws IOException {
+    private Pair<PrePerimeterResult, RaoResult> runFilteredRao(RaoInput raoInput, RaoParameters parameters, Instant targetEndInstant, Set<FlowCnec> flowCnecsToKeep, ToolProvider toolProvider, PrePerimeterResult initialResult) throws IOException {
         // 4. Filter CRAC to only keep the worst CNECs
         Crac filteredCrac = copyCrac(raoInput.getCrac());
         removeFlowCnecsFromCrac(filteredCrac, flowCnecsToKeep);
@@ -185,6 +189,7 @@ public class FastRao implements RaoProvider {
         AppliedRemedialActions appliedRemedialActions = createAppliedRemedialActionsFromRaoResult(filteredCrac, raoResult);
         // 7. Run RAO with applied/forced RAs
         System.out.println("**************************FULL SENSI WITH RAS*******************************");
+        PrePerimeterResult postPraSensi = runBasedOnInitialAndPrePerimResults(toolProvider, raoInput, networkCopy, raoParameters, )
         PrePerimeterResult postRaSensi = prePerimeterSensitivityAnalysis.runBasedOnInitialResults(networkCopy, raoInput.getCrac(), initialResult, initialResult, new HashSet<>(), appliedRemedialActions);
         raoInput.getNetwork().getVariantManager().setWorkingVariant(finalVariantId);
         return Pair.of(postRaSensi, raoResult);
@@ -232,5 +237,59 @@ public class FastRao implements RaoProvider {
             appliedRemedialActions.addAppliedRangeActions(state, raoResult.getOptimizedSetPointsOnState(state));
         });
         return appliedRemedialActions;
+    }
+
+    private PrePerimeterResult runBasedOnInitialAndPrePerimResults(ToolProvider toolProvider,
+                                                                   RaoInput raoInput,
+                                                                   Network network,
+                                                                   RaoParameters raoParameters,
+                                                                   Set<FlowCnec> flowCnecs,
+                                                                   AppliedRemedialActions appliedRemedialActions,
+                                                                   PrePerimeterResult initialFlowResult,
+                                                                   PrePerimeterResult prePerimeterResult) {
+        Crac crac = raoInput.getCrac();
+        SensitivityComputer.SensitivityComputerBuilder sensitivityComputerBuilder = SensitivityComputer.create()
+            .withToolProvider(toolProvider)
+            .withCnecs(flowCnecs)
+            .withRangeActions(crac.getRangeActions())
+            .withOutageInstant(raoInput.getCrac().getOutageInstant());
+        if (raoParameters.hasExtension(LoopFlowParametersExtension.class)) {
+            if (raoParameters.getExtension(LoopFlowParametersExtension.class).getPtdfApproximation().shouldUpdatePtdfWithTopologicalChange()) {
+                sensitivityComputerBuilder.withCommercialFlowsResults(toolProvider.getLoopFlowComputation(), toolProvider.getLoopFlowCnecs(flowCnecs));
+            } else {
+                sensitivityComputerBuilder.withCommercialFlowsResults(initialFlowResult);
+            }
+        }
+        if (raoParameters.getObjectiveFunctionParameters().getType().relativePositiveMargins()) {
+            if (raoParameters.getExtension(RelativeMarginsParametersExtension.class).getPtdfApproximation().shouldUpdatePtdfWithTopologicalChange()) {
+                sensitivityComputerBuilder.withPtdfsResults(toolProvider.getAbsolutePtdfSumsComputation(), flowCnecs);
+            } else {
+                sensitivityComputerBuilder.withPtdfsResults(initialFlowResult);
+            }
+        }
+        if (appliedRemedialActions != null) {
+            // for 2nd preventive initial sensi
+            sensitivityComputerBuilder.withAppliedRemedialActions(appliedRemedialActions);
+        }
+        SensitivityComputer sensitivityComputer = sensitivityComputerBuilder.build();
+
+        ObjectiveFunction objectiveFunction = ObjectiveFunction.create().build(flowCnecs, toolProvider.getLoopFlowCnecs(flowCnecs), initialFlowResult, prePerimeterResult, initialFlowResult, crac, new StateTree(crac).getOperatorsNotSharingCras(), raoParameters);
+
+        return runAndGetResult(network, sensitivityComputer, objectiveFunction, crac.getRangeActions());
+    }
+
+    private PrePerimeterResult runAndGetResult(Network network, SensitivityComputer sensitivityComputer, ObjectiveFunction objectiveFunction, Set<RangeAction<?>> rangeActions) {
+        sensitivityComputer.compute(network);
+        FlowResult flowResult = sensitivityComputer.getBranchResult(network);
+        SensitivityResult sensitivityResult = sensitivityComputer.getSensitivityResult();
+        RangeActionSetpointResult rangeActionSetpointResult = RangeActionSetpointResultImpl.buildWithSetpointsFromNetwork(network, rangeActions);
+        RangeActionActivationResult rangeActionActivationResult = new RangeActionActivationResultImpl(rangeActionSetpointResult);
+        ObjectiveFunctionResult objectiveFunctionResult = objectiveFunction.evaluate(flowResult, rangeActionActivationResult, sensitivityResult, sensitivityResult.getSensitivityStatus());
+        return new PrePerimeterSensitivityResultImpl(
+            flowResult,
+            sensitivityResult,
+            rangeActionSetpointResult,
+            objectiveFunctionResult
+        );
     }
 }
