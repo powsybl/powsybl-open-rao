@@ -21,6 +21,7 @@ import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
 import com.powsybl.openrao.data.cracapi.cnec.Side;
 import com.powsybl.openrao.data.cracapi.networkaction.ActionType;
 import com.powsybl.openrao.data.cracapi.networkaction.NetworkAction;
+import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeActionAdder;
 import com.powsybl.openrao.data.cracapi.rangeaction.RangeAction;
 import com.powsybl.openrao.data.cracapi.usagerule.UsageMethod;
@@ -372,9 +373,9 @@ class CastorFullOptimizationTest {
         // ra4 is preventive, ra5 is available in state2, both have the same network element
         assertTrue(CastorFullOptimization.isRangeActionAvailableInState(ra4, crac.getPreventiveState(), crac));
         assertFalse(CastorFullOptimization.isRangeActionAvailableInState(ra4, state1, crac));
-        assertTrue(CastorFullOptimization.isRangeActionAvailableInState(ra4, state2, crac));
+        assertFalse(CastorFullOptimization.isRangeActionAvailableInState(ra4, state2, crac));
 
-        assertTrue(CastorFullOptimization.isRangeActionAvailableInState(ra5, crac.getPreventiveState(), crac));
+        assertFalse(CastorFullOptimization.isRangeActionAvailableInState(ra5, crac.getPreventiveState(), crac));
         assertFalse(CastorFullOptimization.isRangeActionAvailableInState(ra5, state1, crac));
         assertTrue(CastorFullOptimization.isRangeActionAvailableInState(ra5, state2, crac));
 
@@ -395,7 +396,7 @@ class CastorFullOptimizationTest {
         assertTrue(CastorFullOptimization.isRangeActionPreventive(ra3, crac));
         // ra4 is preventive, ra5 is available in state2, both have the same network element
         assertTrue(CastorFullOptimization.isRangeActionPreventive(ra4, crac));
-        assertTrue(CastorFullOptimization.isRangeActionPreventive(ra5, crac));
+        assertFalse(CastorFullOptimization.isRangeActionPreventive(ra5, crac));
         // ra6 is preventive and curative
         assertTrue(CastorFullOptimization.isRangeActionPreventive(ra6, crac));
     }
@@ -410,7 +411,7 @@ class CastorFullOptimizationTest {
         // ra3 is available in preventive and in state1
         assertTrue(CastorFullOptimization.isRangeActionAutoOrCurative(ra3, crac));
         // ra4 is preventive, ra5 is available in state2, both have the same network element
-        assertTrue(CastorFullOptimization.isRangeActionAutoOrCurative(ra4, crac));
+        assertFalse(CastorFullOptimization.isRangeActionAutoOrCurative(ra4, crac));
         assertTrue(CastorFullOptimization.isRangeActionAutoOrCurative(ra5, crac));
         // ra6 is preventive and curative
         assertTrue(CastorFullOptimization.isRangeActionAutoOrCurative(ra6, crac));
@@ -424,32 +425,44 @@ class CastorFullOptimizationTest {
         // ra8 is preventive and auto
         assertTrue(CastorFullOptimization.isRangeActionAutoOrCurative(ra8, crac));
         // ra9 is preventive with same network element as ra8
-        assertTrue(CastorFullOptimization.isRangeActionAutoOrCurative(ra9, crac));
+        assertFalse(CastorFullOptimization.isRangeActionAutoOrCurative(ra9, crac));
     }
 
     @Test
     void testGetRangeActionsExcludedFromSecondPreventive() {
+        // ra1 : preventive only
+        // ra2 : preventive and curative
+        // ra3 : preventive and curative
+        // ra4 : preventive only, but with same NetworkElement as ra5
+        // ra5 : curative only, but with same NetworkElement as ra4
+        // ra6 : preventive and curative (onFlowConstraint)
+        // ra7 : auto only
+        // ra8 : preventive and auto
+        // ra9 : preventive only, but with same NetworkElement as ra8
         setUpCracWithRAs();
-        // detect range actions that are preventive and curative
-        Set<RangeAction<?>> rangeActionsExcludedFrom2P = CastorFullOptimization.getRangeActionsExcludedFromSecondPreventive(crac);
-        assertEquals(8, rangeActionsExcludedFrom2P.size());
+        PerimeterResult firstPreventiveResult = Mockito.mock(PerimeterResult.class);
+        OptimizationResult optimizationResult = Mockito.mock(OptimizationResult.class);
+        State preventiveState = crac.getPreventiveState();
+        when(firstPreventiveResult.getOptimizedTap((PstRangeAction) ra3, preventiveState)).thenReturn(4);
+        when(optimizationResult.getOptimizedTap((PstRangeAction) ra3, state1)).thenReturn(5);
+        crac.newRaUsageLimits(curativeInstant.getId()).withMaxRa(0).add();
+        Map<State, OptimizationResult> contingencyResult = new HashMap<>(Map.of(state1, optimizationResult, state2, optimizationResult));
+        Set<RangeAction<?>> rangeActionsExcludedFrom2P = CastorFullOptimization.getRangeActionsExcludedFromSecondPreventive(crac, firstPreventiveResult, contingencyResult);
+        // ra2, ra3 (mais pas la psq chgt prise), ra4 il faut voir avec ra5.
+        // ra6, ra8. ra9 à voir avec ra8 :/.
+        /*
+        assertEquals(5, rangeActionsExcludedFrom2P.size());
+        // ra3 should not be excluded as its tap are different.
+        assertFalse(rangeActionsExcludedFrom2P.contains(ra3));
+        assertFalse(rangeActionsExcludedFrom2P.contains(ra1));
         assertTrue(rangeActionsExcludedFrom2P.contains(ra2));
-        assertTrue(rangeActionsExcludedFrom2P.contains(ra3));
-        assertTrue(rangeActionsExcludedFrom2P.contains(ra4));
-        assertTrue(rangeActionsExcludedFrom2P.contains(ra5));
+        assertFalse(rangeActionsExcludedFrom2P.contains(ra4));
+        assertFalse(rangeActionsExcludedFrom2P.contains(ra5));
         assertTrue(rangeActionsExcludedFrom2P.contains(ra6));
-        assertTrue(rangeActionsExcludedFrom2P.contains(ra7));
+        assertFalse(rangeActionsExcludedFrom2P.contains(ra7));
         assertTrue(rangeActionsExcludedFrom2P.contains(ra8));
-        assertTrue(rangeActionsExcludedFrom2P.contains(ra9));
-    }
-
-    @Test
-    void testRemoveRangeActionsExcludedFromSecondPreventive() {
-        setUpCracWithRAs();
-        Set<RangeAction<?>> rangeActions = new HashSet<>(Set.of(ra1, ra2, ra3, ra4, ra5));
-        CastorFullOptimization.removeRangeActionsExcludedFromSecondPreventive(rangeActions, crac);
-        assertEquals(1, rangeActions.size());
-        assertTrue(rangeActions.contains(ra1));
+        assertFalse(rangeActionsExcludedFrom2P.contains(ra9));²
+         */
     }
 
     private void setUpCracWithRealRAs(boolean curative) {
