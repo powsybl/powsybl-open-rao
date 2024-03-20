@@ -20,7 +20,6 @@ import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.cracapi.threshold.BranchThreshold;
 import com.powsybl.openrao.data.cracapi.threshold.Threshold;
 import com.powsybl.openrao.data.cracapi.usagerule.*;
-import com.powsybl.openrao.data.craccreation.creator.api.CracCreationContext;
 import com.powsybl.openrao.data.craccreation.creator.api.ImportStatus;
 import com.powsybl.openrao.data.craccreation.creator.api.parameters.CracCreationParameters;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.CsaProfileCrac;
@@ -74,33 +73,6 @@ public final class CsaProfileCracCreationTestUtil {
         assertTrue(cracCreationContext.getCnecCreationContexts().stream().anyMatch(context -> !context.isImported() && assessedElementId.equals(context.getNativeId()) && importStatus.equals(context.getImportStatus()) && importStatusDetail.equals(context.getImportStatusDetail())));
     }
 
-    public static void assertFlowCnecEquality(FlowCnec fc, String expectedFlowCnecId, String expectedFlowCnecName, String expectedNetworkElementId,
-                                              Instant expectedInstant, String expectedContingencyId, Double expectedThresholdMax, Double expectedThresholdMin, Side expectedThresholdSide) {
-        assertFlowCnecEquality(fc, expectedFlowCnecId, expectedFlowCnecName, expectedNetworkElementId, expectedInstant, expectedContingencyId, expectedThresholdMax, expectedThresholdMin, expectedThresholdMax, expectedThresholdMin, Set.of(expectedThresholdSide));
-    }
-
-    public static void assertFlowCnecEquality(FlowCnec fc, String expectedFlowCnecId, String expectedFlowCnecName, String expectedNetworkElementId,
-                                              Instant expectedInstant, String expectedContingencyId, Double expectedThresholdMaxLeft, Double expectedThresholdMinLeft, Double expectedThresholdMaxRight, Double expectedThresholdMinRight, Set<Side> expectedThresholdSides) {
-        assertEquals(expectedFlowCnecId, fc.getId());
-        assertEquals(expectedFlowCnecName, fc.getName());
-        assertEquals(expectedNetworkElementId, fc.getNetworkElement().getId());
-        assertEquals(expectedInstant, fc.getState().getInstant());
-        if (expectedContingencyId == null) {
-            assertFalse(fc.getState().getContingency().isPresent());
-        } else {
-            assertEquals(expectedContingencyId, fc.getState().getContingency().get().getId());
-        }
-
-        List<BranchThreshold> thresholds = fc.getThresholds().stream().sorted(Comparator.comparing(BranchThreshold::getSide)).toList();
-        for (BranchThreshold threshold : thresholds) {
-            Side side = threshold.getSide();
-            assertEquals(side == Side.LEFT ? expectedThresholdMaxLeft : expectedThresholdMaxRight, threshold.max().orElse(null));
-            assertEquals(side == Side.LEFT ? expectedThresholdMinLeft : expectedThresholdMinRight, threshold.min().orElse(null));
-        }
-
-        assertEquals(expectedThresholdSides, fc.getMonitoredSides());
-    }
-
     public static void assertFlowCnecEquality(FlowCnec flowCnec, String expectedFlowCnecIdAndName, String expectedNetworkElementId, String expectedInstant, String expectedContingencyId, Double expectedThresholdMaxLeft, Double expectedThresholdMinLeft, Double expectedThresholdMaxRight, Double expectedThresholdMinRight, Set<Side> expectedThresholdSides) {
         assertEquals(expectedFlowCnecIdAndName, flowCnec.getId());
         assertEquals(expectedFlowCnecIdAndName, flowCnec.getName());
@@ -122,25 +94,6 @@ public final class CsaProfileCracCreationTestUtil {
         assertEquals(expectedThresholdSides, flowCnec.getMonitoredSides());
     }
 
-    public static void assertAngleCnecEquality(AngleCnec angleCnec, String expectedFlowCnecId, String expectedFlowCnecName, String expectedImportingNetworkElementId, String expectedExportingNetworkElementId,
-                                               Instant expectedInstant, String expectedContingencyId, Double expectedThresholdMax, Double expectedThresholdMin, boolean isMonitored) {
-        assertEquals(expectedFlowCnecId, angleCnec.getId());
-        assertEquals(expectedFlowCnecName, angleCnec.getName());
-        assertEquals(expectedImportingNetworkElementId, angleCnec.getImportingNetworkElement().getId());
-        assertEquals(expectedExportingNetworkElementId, angleCnec.getExportingNetworkElement().getId());
-        assertEquals(expectedInstant, angleCnec.getState().getInstant());
-        if (expectedContingencyId == null) {
-            assertFalse(angleCnec.getState().getContingency().isPresent());
-        } else {
-            assertEquals(expectedContingencyId, angleCnec.getState().getContingency().get().getId());
-        }
-
-        Threshold threshold = angleCnec.getThresholds().stream().toList().iterator().next();
-        assertEquals(expectedThresholdMax, threshold.max().orElse(null));
-        assertEquals(expectedThresholdMin, threshold.min().orElse(null));
-        assertEquals(isMonitored, angleCnec.isMonitored());
-    }
-
     public static void assertAngleCnecEquality(AngleCnec angleCnec, String expectedFlowCnecIdAndName, String expectedImportingNetworkElementId, String expectedExportingNetworkElementId, String expectedInstant, String expectedContingencyId, Double expectedThresholdMax, Double expectedThresholdMin) {
         assertEquals(expectedFlowCnecIdAndName, angleCnec.getId());
         assertEquals(expectedFlowCnecIdAndName, angleCnec.getName());
@@ -156,24 +109,6 @@ public final class CsaProfileCracCreationTestUtil {
         Threshold threshold = angleCnec.getThresholds().stream().toList().iterator().next();
         assertEquals(expectedThresholdMax, threshold.max().orElse(null));
         assertEquals(expectedThresholdMin, threshold.min().orElse(null));
-    }
-
-    public static void assertVoltageCnecEquality(VoltageCnec voltageCnec, String expectedVoltageCnecId, String expectedFlowCnecName, String expectedNetworkElementId,
-                                                 Instant expectedInstant, String expectedContingencyId, Double expectedThresholdMax, Double expectedThresholdMin, boolean isMonitored) {
-        assertEquals(expectedVoltageCnecId, voltageCnec.getId());
-        assertEquals(expectedFlowCnecName, voltageCnec.getName());
-        assertEquals(expectedNetworkElementId, voltageCnec.getNetworkElement().getId());
-        assertEquals(expectedInstant, voltageCnec.getState().getInstant());
-        if (expectedContingencyId == null) {
-            assertFalse(voltageCnec.getState().getContingency().isPresent());
-        } else {
-            assertEquals(expectedContingencyId, voltageCnec.getState().getContingency().get().getId());
-        }
-
-        Threshold threshold = voltageCnec.getThresholds().stream().toList().iterator().next();
-        assertEquals(expectedThresholdMax, threshold.max().orElse(null));
-        assertEquals(expectedThresholdMin, threshold.min().orElse(null));
-        assertEquals(isMonitored, voltageCnec.isMonitored());
     }
 
     public static void assertVoltageCnecEquality(VoltageCnec voltageCnec, String expectedVoltageCnecIdAndName, String expectedNetworkElementId, String expectedInstant, String expectedContingencyId, Double expectedThresholdMax, Double expectedThresholdMin) {
@@ -269,12 +204,6 @@ public final class CsaProfileCracCreationTestUtil {
         assertEquals(importStatus, context.getImportStatus());
     }
 
-    public static void assertTopologicalActionImported(CracCreationContext cracCreationContext, String raId, String raName, String switchId) {
-        NetworkAction ra = cracCreationContext.getCrac().getNetworkAction(raId);
-        assertEquals(raName, ra.getName());
-        assertEquals(switchId, ra.getNetworkElements().stream().toList().get(0).getId());
-    }
-
     public static void assertSimpleTopologicalActionImported(NetworkAction networkAction, String raId, String raName, String switchId, ActionType actionType) {
         assertEquals(raId, networkAction.getId());
         assertEquals(raName, networkAction.getName());
@@ -294,13 +223,6 @@ public final class CsaProfileCracCreationTestUtil {
         assertEquals(networkElementId, ((InjectionSetpoint) elementaryAction).getNetworkElement().getId());
         assertEquals(setpoint, ((InjectionSetpoint) elementaryAction).getSetpoint());
         assertEquals(unit, ((InjectionSetpoint) elementaryAction).getUnit());
-    }
-
-    public static void assertTopologicalActionImported(CracCreationContext cracCreationContext, String raId, String raName, String switchId, int speed) {
-        assertTopologicalActionImported(cracCreationContext, raId, raName, switchId);
-        Optional<Integer> importedSpeed = cracCreationContext.getCrac().getNetworkAction(raId).getSpeed();
-        assertNotNull(importedSpeed);
-        assertEquals(speed, importedSpeed.get());
     }
 
     public static void assertPstRangeActionImported(PstRangeAction pstRangeAction, String expectedId, String expectedName, String expectedPstId, Integer expectedMinTap, Integer expectedMaxTap) {
