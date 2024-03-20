@@ -433,7 +433,7 @@ public class CsaProfileRemedialActionsCreator {
     }
 
     private static String printRaIds(Set<PropertyBag> dependingEnabledRemedialActions) {
-        return dependingEnabledRemedialActions.stream().map(getRaId()).collect(Collectors.joining(", "));
+        return dependingEnabledRemedialActions.stream().map(getRaId()).sorted(String::compareTo).collect(Collectors.joining(", "));
     }
 
     private static Function<PropertyBag, String> getRaId() {
