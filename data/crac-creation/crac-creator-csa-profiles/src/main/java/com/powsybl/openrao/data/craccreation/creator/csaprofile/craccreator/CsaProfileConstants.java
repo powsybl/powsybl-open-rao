@@ -241,6 +241,7 @@ public final class CsaProfileConstants {
     public static final String REQUEST_OPERATIONAL_LIMIT_VALUE = "value";
     public static final String REQUEST_VOLTAGE_ANGLE_LIMIT_NORMAL_VALUE = "normalValue";
     public static final String REQUEST_OPERATIONAL_LIMIT_TERMINAL = "terminal";
+    public static final String REQUEST_OPERATIONAL_LIMIT_EQUIPMENT = "equipment";
     public static final String REQUEST_OPERATIONAL_LIMIT_TYPE = "limitType";
     public static final String REQUEST_OPERATIONAL_LIMIT_DIRECTION = "direction";
     public static final String REQUEST_OPERATIONAL_LIMIT_ACCEPTABLE_DURATION = "acceptableDuration";

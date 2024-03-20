@@ -49,7 +49,10 @@ public class VoltageCnecCreator extends AbstractCnecCreator {
     }
 
     private boolean addVoltageLimit(VoltageCnecAdder voltageCnecAdder) {
-        String terminalId = operationalLimitPropertyBag.getId(CsaProfileConstants.REQUEST_OPERATIONAL_LIMIT_TERMINAL);
+        String terminalId = getOperationalLimitSetEquipmentOrTerminal();
+        if (terminalId == null) {
+            return false;
+        }
         Identifiable<?> networkElement = this.getNetworkElementInNetwork(terminalId);
         if (networkElement == null) {
             csaProfileCnecCreationContexts.add(CsaProfileElementaryCreationContext.notImported(assessedElementId, ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK, writeAssessedElementIgnoredReasonMessage("the voltage limit equipment " + terminalId + " is missing in network")));
