@@ -192,21 +192,14 @@ GRAPH <%s> {
         cim:OperationalLimit.OperationalLimitSet ?operationalLimitSet ;
         cim:OperationalLimit.OperationalLimitType ?operationalLimitType .
     ?operationalLimitSet
-        rdf:type cim:OperationalLimitSet .
+        rdf:type cim:OperationalLimitSet ;
+        cim:OperationalLimitSet.Equipment ?equipment .
     ?operationalLimitType
         rdf:type cim:OperationalLimitType ;
         entsoe:OperationalLimitType.limitType ?limitType .
     OPTIONAL {
         ?operationalLimitType
             cim:OperationalLimitType.isInfiniteDuration ?isInfiniteDuration .
-    }
-    OPTIONAL {
-        ?operationalLimitSet
-            cim:OperationalLimitSet.Equipment ?equipment .
-    }
-    OPTIONAL {
-        ?operationalLimitSet
-            cim:OperationalLimitSet.Terminal ?terminal .
     }
 }
 }

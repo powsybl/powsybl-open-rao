@@ -49,13 +49,10 @@ public class VoltageCnecCreator extends AbstractCnecCreator {
     }
 
     private boolean addVoltageLimit(VoltageCnecAdder voltageCnecAdder) {
-        String terminalId = getOperationalLimitSetEquipmentOrTerminal();
-        if (terminalId == null) {
-            return false;
-        }
-        Identifiable<?> networkElement = this.getNetworkElementInNetwork(terminalId);
+        String equipmentId = operationalLimitPropertyBag.getId(CsaProfileConstants.REQUEST_OPERATIONAL_LIMIT_EQUIPMENT);
+        Identifiable<?> networkElement = this.getNetworkElementInNetwork(equipmentId);
         if (networkElement == null) {
-            csaProfileCnecCreationContexts.add(CsaProfileElementaryCreationContext.notImported(assessedElementId, ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK, writeAssessedElementIgnoredReasonMessage("the voltage limit equipment " + terminalId + " is missing in network")));
+            csaProfileCnecCreationContexts.add(CsaProfileElementaryCreationContext.notImported(assessedElementId, ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK, writeAssessedElementIgnoredReasonMessage("the voltage limit equipment " + equipmentId + " is missing in network")));
             return false;
         }
 
@@ -101,19 +98,5 @@ public class VoltageCnecCreator extends AbstractCnecCreator {
             return false;
         }
         return true;
-    }
-
-    private String getOperationalLimitSetEquipmentOrTerminal() {
-        String terminal = operationalLimitPropertyBag.getId(CsaProfileConstants.REQUEST_OPERATIONAL_LIMIT_TERMINAL);
-        String equipment = operationalLimitPropertyBag.getId(CsaProfileConstants.REQUEST_OPERATIONAL_LIMIT_EQUIPMENT);
-        if (terminal == null && equipment == null) {
-            csaProfileCnecCreationContexts.add(CsaProfileElementaryCreationContext.notImported(assessedElementId, ImportStatus.INCONSISTENCY_IN_DATA, writeAssessedElementIgnoredReasonMessage("its associated OperationalLimitSet has no equipment or terminal defined")));
-            return null;
-        } else if (terminal != null && equipment != null) {
-            csaProfileCnecCreationContexts.add(CsaProfileElementaryCreationContext.notImported(assessedElementId, ImportStatus.INCONSISTENCY_IN_DATA, writeAssessedElementIgnoredReasonMessage("its associated OperationalLimitSet has both an equipment and a terminal defined, this is illegal")));
-            return null;
-        } else {
-            return terminal != null ? terminal : equipment;
-        }
     }
 }
