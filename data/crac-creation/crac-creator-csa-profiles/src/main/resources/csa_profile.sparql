@@ -163,7 +163,7 @@ SELECT *
     GRAPH <%s> {
         ?currentLimit
             rdf:type cim:CurrentLimit ;
-            cim:CurrentLimit.value ?normalValue ;
+            cim:CurrentLimit.value ?value ;
             cim:OperationalLimit.OperationalLimitSet ?operationalLimitSet ;
             cim:OperationalLimit.OperationalLimitType ?operationalLimitType .
         ?operationalLimitSet
@@ -171,7 +171,7 @@ SELECT *
             cim:OperationalLimitSet.Terminal ?terminal .
         ?operationalLimitType
             rdf:type cim:OperationalLimitType ;
-            entsoe:OperationalLimitType.limitType ?kind ;
+            entsoe:OperationalLimitType.limitType ?limitType ;
             cim:OperationalLimitType.direction ?direction .
         OPTIONAL {
             ?operationalLimitType
@@ -188,7 +188,7 @@ SELECT *
 GRAPH <%s> {
     ?voltageLimit
         rdf:type cim:VoltageLimit ;
-        cim:VoltageLimit.value ?normalValue ;
+        cim:VoltageLimit.value ?value ;
         cim:OperationalLimit.OperationalLimitSet ?operationalLimitSet ;
         cim:OperationalLimit.OperationalLimitType ?operationalLimitType .
     ?operationalLimitSet
@@ -196,7 +196,7 @@ GRAPH <%s> {
         cim:OperationalLimitSet.Terminal ?terminal .
     ?operationalLimitType
         rdf:type cim:OperationalLimitType ;
-        entsoe:OperationalLimitType.limitType ?direction .
+        entsoe:OperationalLimitType.limitType ?limitType .
     OPTIONAL {
         ?operationalLimitType
             cim:OperationalLimitType.isInfiniteDuration ?isInfiniteDuration .

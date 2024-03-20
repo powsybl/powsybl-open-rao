@@ -293,22 +293,22 @@ public class FlowCnecCreator extends AbstractCnecCreator {
     private Map<Integer, EnumMap<TwoSides, Double>> getPermanentAndTemporaryLimitsOfOperationalLimit(Identifiable<?> branch, String terminalId) {
         Map<Integer, EnumMap<TwoSides, Double>> thresholds = new HashMap<>();
 
-        String limitKind = operationalLimitPropertyBag.get(CsaProfileConstants.REQUEST_OPERATIONAL_LIMIT_KIND);
+        String limitType = operationalLimitPropertyBag.get(CsaProfileConstants.REQUEST_OPERATIONAL_LIMIT_TYPE);
         Side side = getSideFromNetworkElement(branch, terminalId);
-        String normalValueStr = operationalLimitPropertyBag.get(CsaProfileConstants.REQUEST_OPERATIONAL_LIMIT_NORMAL_VALUE);
-        Double normalValue = Double.valueOf(normalValueStr);
+        String valueStr = operationalLimitPropertyBag.get(CsaProfileConstants.REQUEST_OPERATIONAL_LIMIT_VALUE);
+        Double value = Double.valueOf(valueStr);
 
         if (side != null) {
             int acceptableDuration;
-            if (CsaProfileConstants.LimitTypeKind.PATL.toString().equals(limitKind)) {
+            if (CsaProfileConstants.LimitTypeKind.PATL.toString().equals(limitType)) {
                 acceptableDuration = Integer.MAX_VALUE;
-            } else if (CsaProfileConstants.LimitTypeKind.TATL.toString().equals(limitKind)) {
+            } else if (CsaProfileConstants.LimitTypeKind.TATL.toString().equals(limitType)) {
                 String acceptableDurationStr = operationalLimitPropertyBag.get(CsaProfileConstants.REQUEST_OPERATIONAL_LIMIT_ACCEPTABLE_DURATION);
                 acceptableDuration = Integer.parseInt(acceptableDurationStr);
             } else {
                 return thresholds;
             }
-            thresholds.put(acceptableDuration, new EnumMap<>(Map.of(side.iidmSide(), normalValue)));
+            thresholds.put(acceptableDuration, new EnumMap<>(Map.of(side.iidmSide(), value)));
         }
 
         return thresholds;

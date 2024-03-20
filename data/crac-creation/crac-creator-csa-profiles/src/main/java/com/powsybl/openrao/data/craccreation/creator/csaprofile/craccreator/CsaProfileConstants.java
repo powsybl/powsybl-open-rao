@@ -238,9 +238,10 @@ public final class CsaProfileConstants {
     public static final String REQUEST_SHUNT_COMPENSATOR_MODIFICATION = "shuntCompensatorModification";
     public static final String REQUEST_TAP_POSITION_ACTION = "tapPositionAction";
     public static final String CGMES = "CGMES";
-    public static final String REQUEST_OPERATIONAL_LIMIT_NORMAL_VALUE = "normalValue";
+    public static final String REQUEST_OPERATIONAL_LIMIT_VALUE = "value";
+    public static final String REQUEST_VOLTAGE_ANGLE_LIMIT_NORMAL_VALUE = "normalValue";
     public static final String REQUEST_OPERATIONAL_LIMIT_TERMINAL = "terminal";
-    public static final String REQUEST_OPERATIONAL_LIMIT_KIND = "kind";
+    public static final String REQUEST_OPERATIONAL_LIMIT_TYPE = "limitType";
     public static final String REQUEST_OPERATIONAL_LIMIT_DIRECTION = "direction";
     public static final String REQUEST_OPERATIONAL_LIMIT_ACCEPTABLE_DURATION = "acceptableDuration";
     public static final String REQUEST_VOLTAGE_LIMIT_IS_INFINITE_DURATION = "isInfiniteDuration";

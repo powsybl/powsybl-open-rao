@@ -72,17 +72,17 @@ public class VoltageCnecCreator extends AbstractCnecCreator {
     }
 
     private boolean addVoltageLimitThreshold(String assessedElementId, VoltageCnecAdder voltageCnecAdder, PropertyBag voltageLimit) {
-        String normalValueStr = voltageLimit.get(CsaProfileConstants.REQUEST_OPERATIONAL_LIMIT_NORMAL_VALUE);
-        Double normalValue = Double.valueOf(normalValueStr);
-        String direction = voltageLimit.get(CsaProfileConstants.REQUEST_OPERATIONAL_LIMIT_DIRECTION);
-        if (CsaProfileConstants.LimitTypeKind.HIGH_VOLTAGE.toString().equals(direction)) {
+        String valueStr = voltageLimit.get(CsaProfileConstants.REQUEST_OPERATIONAL_LIMIT_VALUE);
+        Double value = Double.valueOf(valueStr);
+        String limitType = voltageLimit.get(CsaProfileConstants.REQUEST_OPERATIONAL_LIMIT_TYPE);
+        if (CsaProfileConstants.LimitTypeKind.HIGH_VOLTAGE.toString().equals(limitType)) {
             voltageCnecAdder.newThreshold()
                     .withUnit(Unit.KILOVOLT)
-                    .withMax(normalValue).add();
-        } else if (CsaProfileConstants.LimitTypeKind.LOW_VOLTAGE.toString().equals(direction)) {
+                    .withMax(value).add();
+        } else if (CsaProfileConstants.LimitTypeKind.LOW_VOLTAGE.toString().equals(limitType)) {
             voltageCnecAdder.newThreshold()
                     .withUnit(Unit.KILOVOLT)
-                    .withMin(normalValue).add();
+                    .withMin(value).add();
         } else {
             csaProfileCnecCreationContexts.add(CsaProfileElementaryCreationContext.notImported(assessedElementId, ImportStatus.INCONSISTENCY_IN_DATA, writeAssessedElementIgnoredReasonMessage("a voltage limit can only be of kind highVoltage or lowVoltage")));
             return false;

@@ -88,7 +88,7 @@ public class AngleCnecCreator extends AbstractCnecCreator {
     }
 
     private boolean addAngleLimitThreshold(AngleCnecAdder angleCnecAdder, PropertyBag angleLimit, boolean isFlowToRefTerminalIsNull) {
-        String normalValueStr = angleLimit.get(CsaProfileConstants.REQUEST_OPERATIONAL_LIMIT_NORMAL_VALUE);
+        String normalValueStr = angleLimit.get(CsaProfileConstants.REQUEST_VOLTAGE_ANGLE_LIMIT_NORMAL_VALUE);
         Double normalValue = Double.valueOf(normalValueStr);
         if (normalValue < 0) {
             csaProfileCnecCreationContexts.add(CsaProfileElementaryCreationContext.notImported(assessedElementId, ImportStatus.INCONSISTENCY_IN_DATA, writeAssessedElementIgnoredReasonMessage("the angle limit's normal value is negative")));
