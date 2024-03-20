@@ -102,4 +102,18 @@ public class VoltageCnecCreator extends AbstractCnecCreator {
         }
         return true;
     }
+
+    private String getOperationalLimitSetEquipmentOrTerminal() {
+        String terminal = operationalLimitPropertyBag.getId(CsaProfileConstants.REQUEST_OPERATIONAL_LIMIT_TERMINAL);
+        String equipment = operationalLimitPropertyBag.getId(CsaProfileConstants.REQUEST_OPERATIONAL_LIMIT_EQUIPMENT);
+        if (terminal == null && equipment == null) {
+            csaProfileCnecCreationContexts.add(CsaProfileElementaryCreationContext.notImported(assessedElementId, ImportStatus.INCONSISTENCY_IN_DATA, writeAssessedElementIgnoredReasonMessage("its associated OperationalLimitSet has no equipment or terminal defined")));
+            return null;
+        } else if (terminal != null && equipment != null) {
+            csaProfileCnecCreationContexts.add(CsaProfileElementaryCreationContext.notImported(assessedElementId, ImportStatus.INCONSISTENCY_IN_DATA, writeAssessedElementIgnoredReasonMessage("its associated OperationalLimitSet has both an equipment and a terminal defined, this is illegal")));
+            return null;
+        } else {
+            return terminal != null ? terminal : equipment;
+        }
+    }
 }

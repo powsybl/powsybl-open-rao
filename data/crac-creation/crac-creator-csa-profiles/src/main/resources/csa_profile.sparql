@@ -167,7 +167,8 @@ SELECT *
             cim:OperationalLimit.OperationalLimitSet ?operationalLimitSet ;
             cim:OperationalLimit.OperationalLimitType ?operationalLimitType .
         ?operationalLimitSet
-            rdf:type cim:OperationalLimitSet .
+            rdf:type cim:OperationalLimitSet ;
+            cim:OperationalLimitSet.Terminal ?terminal .
         ?operationalLimitType
             rdf:type cim:OperationalLimitType ;
             entsoe:OperationalLimitType.limitType ?limitType ;
@@ -175,14 +176,6 @@ SELECT *
         OPTIONAL {
             ?operationalLimitType
                 cim:OperationalLimitType.acceptableDuration ?acceptableDuration .
-        }
-        OPTIONAL {
-            ?operationalLimitSet
-                cim:OperationalLimitSet.Equipment ?equipment .
-        }
-        OPTIONAL {
-            ?operationalLimitSet
-                cim:OperationalLimitSet.Terminal ?terminal .
         }
     }
 }

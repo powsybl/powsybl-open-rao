@@ -40,7 +40,7 @@ public class FlowCnecCreator extends AbstractCnecCreator {
             return;
         }
 
-        String networkElementId = definitionMode == FlowCnecDefinitionMode.CONDUCTING_EQUIPMENT ? conductingEquipment : getOperationalLimitSetEquipmentOrTerminal();
+        String networkElementId = definitionMode == FlowCnecDefinitionMode.CONDUCTING_EQUIPMENT ? conductingEquipment : operationalLimitPropertyBag.getId(CsaProfileConstants.REQUEST_OPERATIONAL_LIMIT_TERMINAL);
         if (networkElementId == null) {
             // AssessedElement defined with an OperationalLimit but the OperationalLimitSet is invalid
             return;
