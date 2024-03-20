@@ -21,7 +21,6 @@ import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
 import com.powsybl.openrao.data.cracapi.cnec.Side;
 import com.powsybl.openrao.data.cracapi.networkaction.ActionType;
 import com.powsybl.openrao.data.cracapi.networkaction.NetworkAction;
-import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeActionAdder;
 import com.powsybl.openrao.data.cracapi.rangeaction.RangeAction;
 import com.powsybl.openrao.data.cracapi.usagerule.UsageMethod;
@@ -430,39 +429,37 @@ class CastorFullOptimizationTest {
 
     @Test
     void testGetRangeActionsExcludedFromSecondPreventive() {
-        // ra1 : preventive only
-        // ra2 : preventive and curative
-        // ra3 : preventive and curative
-        // ra4 : preventive only, but with same NetworkElement as ra5
-        // ra5 : curative only, but with same NetworkElement as ra4
-        // ra6 : preventive and curative (onFlowConstraint)
-        // ra7 : auto only
-        // ra8 : preventive and auto
-        // ra9 : preventive only, but with same NetworkElement as ra8
         setUpCracWithRAs();
         PerimeterResult firstPreventiveResult = Mockito.mock(PerimeterResult.class);
         OptimizationResult optimizationResult = Mockito.mock(OptimizationResult.class);
         State preventiveState = crac.getPreventiveState();
-        when(firstPreventiveResult.getOptimizedTap((PstRangeAction) ra3, preventiveState)).thenReturn(4);
-        when(optimizationResult.getOptimizedTap((PstRangeAction) ra3, state1)).thenReturn(5);
+        // ras has different taps in preventive and in curative
+        when(firstPreventiveResult.getOptimizedSetpoint(ra3, preventiveState)).thenReturn(4.);
+        when(optimizationResult.getOptimizedSetpoint(ra3, state1)).thenReturn(5.);
+        // ra9 has different taps than ra8.
+        when(firstPreventiveResult.getOptimizedSetpoint(ra9, preventiveState)).thenReturn(2.);
         crac.newRaUsageLimits(curativeInstant.getId()).withMaxRa(0).add();
-        Map<State, OptimizationResult> contingencyResult = new HashMap<>(Map.of(state1, optimizationResult, state2, optimizationResult));
+        Map<State, OptimizationResult> contingencyResult = new HashMap<>();
+        crac.getStates().forEach(state -> {
+            if (!state.isPreventive()) {
+                contingencyResult.put(state, optimizationResult);
+            }
+        });
+
         Set<RangeAction<?>> rangeActionsExcludedFrom2P = CastorFullOptimization.getRangeActionsExcludedFromSecondPreventive(crac, firstPreventiveResult, contingencyResult);
-        // ra2, ra3 (mais pas la psq chgt prise), ra4 il faut voir avec ra5.
-        // ra6, ra8. ra9 à voir avec ra8 :/.
-        /*
-        assertEquals(5, rangeActionsExcludedFrom2P.size());
-        // ra3 should not be excluded as its tap are different.
-        assertFalse(rangeActionsExcludedFrom2P.contains(ra3));
-        assertFalse(rangeActionsExcludedFrom2P.contains(ra1));
-        assertTrue(rangeActionsExcludedFrom2P.contains(ra2));
-        assertFalse(rangeActionsExcludedFrom2P.contains(ra4));
-        assertFalse(rangeActionsExcludedFrom2P.contains(ra5));
-        assertTrue(rangeActionsExcludedFrom2P.contains(ra6));
-        assertFalse(rangeActionsExcludedFrom2P.contains(ra7));
-        assertTrue(rangeActionsExcludedFrom2P.contains(ra8));
-        assertFalse(rangeActionsExcludedFrom2P.contains(ra9));²
-         */
+
+        assertEquals(2, rangeActionsExcludedFrom2P.size());
+        assertFalse(rangeActionsExcludedFrom2P.contains(ra1)); // Should not be excluded as it's preventive only.
+        assertFalse(rangeActionsExcludedFrom2P.contains(ra2)); // Should not be excluded as it's UNAVAILABLE for preventive.
+        assertFalse(rangeActionsExcludedFrom2P.contains(ra5)); // Should not be excluded as it's not preventive.
+        assertFalse(rangeActionsExcludedFrom2P.contains(ra7)); // Should not be excluded as it's not preventive.
+
+        assertFalse(rangeActionsExcludedFrom2P.contains(ra9)); // It shares the same network elements as ra8 but their tap are different. It should not be excluded.
+        assertTrue(rangeActionsExcludedFrom2P.contains(ra4));  // It shares the same network elements as ra5 and their taps are the same. As RaUsageLimits are contraining for curative, it should be excluded.
+
+        assertFalse(rangeActionsExcludedFrom2P.contains(ra3)); // It does not have the same taps in preventive and in curative. It should not be excluded.
+        assertTrue(rangeActionsExcludedFrom2P.contains(ra6));  // It has the same taps in preventive and in curative. As RaUsageLimits are contraining for curative, it should be excluded.
+        assertFalse(rangeActionsExcludedFrom2P.contains(ra8)); // It has the same taps in preventive and auto. As there are no RaUsageLimits for this instant, it should not be excluded
     }
 
     private void setUpCracWithRealRAs(boolean curative) {
