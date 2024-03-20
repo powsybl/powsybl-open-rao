@@ -21,7 +21,7 @@ class CsaProfileCracFilteringTest {
         ListAppender<ILoggingEvent> listAppender = getLogs(RaoBusinessWarns.class);
         List<ILoggingEvent> logsList = listAppender.list;
 
-        CsaProfileCracCreationContext context = getCsaCracCreationContext("/ProfilesWithIncoherentTimestamps.zip");
+        CsaProfileCracCreationContext context = getCsaCracCreationContext("/profiles/ProfilesWithIncoherentTimestamps.zip");
         Crac crac = context.getCrac();
 
         // check files filtering

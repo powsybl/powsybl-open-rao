@@ -26,7 +26,7 @@ class GroupRemedialActionTest {
 
     @Test
     void importGroupedRemedialActions() {
-        CsaProfileCracCreationContext cracCreationContext = getCsaCracCreationContext("/CSA_80.zip", NETWORK);
+        CsaProfileCracCreationContext cracCreationContext = getCsaCracCreationContext("/profiles/remedialactions/RemedialActionGroups.zip", NETWORK);
         assertEquals(5, cracCreationContext.getCrac().getRemedialActions().size());
         assertRaNotImported(cracCreationContext, "92f45b99-44c2-499d-8c4e-723bd1829dbe", ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action group 92f45b99-44c2-499d-8c4e-723bd1829dbe will not be imported because all depending the remedial actions must have the same usage rules. All RA's depending in that group will be ignored: open_fr1_fr3_pra, open_fr1_fr3_cra");
         assertRaNotImported(cracCreationContext, "95ba7539-6067-4f7e-a30b-e53eae7c042a", ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action group 95ba7539-6067-4f7e-a30b-e53eae7c042a will not be imported because all depending the remedial actions must have the same usage rules. All RA's depending in that group will be ignored: open_fr1_fr3_cra_ae1, open_fr1_fr3_pra");
@@ -69,7 +69,7 @@ class GroupRemedialActionTest {
 
     @Test
     void importGroupedHvdcRemedialActions() {
-        CsaProfileCracCreationContext cracCreationContext = getCsaCracCreationContext("/RemedialActionGroups_HVDC.zip", NETWORK);
+        CsaProfileCracCreationContext cracCreationContext = getCsaCracCreationContext("/profiles/remedialactions/RemedialActionGroups_HVDC.zip", NETWORK);
         assertNetworkActionImported(cracCreationContext, "hdvc-200-be-de", Set.of("BBE1AA1 _generator", "DDE2AA1 _generator", "BBE1AA1  BBE4AA1  1", "DDE1AA1 _generator", "BBE2AA1 _generator", "DDE3AA1  DDE4AA1  1"), true, 1);
         NetworkAction networkAction1 = cracCreationContext.getCrac().getNetworkAction("hdvc-200-be-de");
         assertEquals("HDVC Action - 200 MW BE to DE", networkAction1.getName());
