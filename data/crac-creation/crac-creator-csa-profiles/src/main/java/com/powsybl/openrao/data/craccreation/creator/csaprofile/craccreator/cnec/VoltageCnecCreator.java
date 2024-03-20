@@ -43,9 +43,9 @@ public class VoltageCnecCreator extends AbstractCnecCreator {
 
     private VoltageCnecAdder initVoltageCnec() {
         return crac.newVoltageCnec()
-                .withMonitored(true)
-                .withOptimized(false)
-                .withReliabilityMargin(0);
+            .withMonitored(true)
+            .withOptimized(false)
+            .withReliabilityMargin(0);
     }
 
     private boolean addVoltageLimit(VoltageCnecAdder voltageCnecAdder) {
@@ -80,12 +80,12 @@ public class VoltageCnecCreator extends AbstractCnecCreator {
         String limitType = voltageLimit.get(CsaProfileConstants.REQUEST_OPERATIONAL_LIMIT_TYPE);
         if (CsaProfileConstants.LimitTypeKind.HIGH_VOLTAGE.toString().equals(limitType)) {
             voltageCnecAdder.newThreshold()
-                    .withUnit(Unit.KILOVOLT)
-                    .withMax(value).add();
+                .withUnit(Unit.KILOVOLT)
+                .withMax(value).add();
         } else if (CsaProfileConstants.LimitTypeKind.LOW_VOLTAGE.toString().equals(limitType)) {
             voltageCnecAdder.newThreshold()
-                    .withUnit(Unit.KILOVOLT)
-                    .withMin(value).add();
+                .withUnit(Unit.KILOVOLT)
+                .withMin(value).add();
         } else {
             csaProfileCnecCreationContexts.add(CsaProfileElementaryCreationContext.notImported(assessedElementId, ImportStatus.INCONSISTENCY_IN_DATA, writeAssessedElementIgnoredReasonMessage("a voltage limit can only be of kind highVoltage or lowVoltage")));
             return false;

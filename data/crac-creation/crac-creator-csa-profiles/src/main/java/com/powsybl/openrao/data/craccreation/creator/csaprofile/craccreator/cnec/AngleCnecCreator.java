@@ -44,9 +44,9 @@ public class AngleCnecCreator extends AbstractCnecCreator {
 
     private AngleCnecAdder initAngleCnec() {
         return crac.newAngleCnec()
-                .withMonitored(true)
-                .withOptimized(false)
-                .withReliabilityMargin(0);
+            .withMonitored(true)
+            .withOptimized(false)
+            .withReliabilityMargin(0);
     }
 
     private boolean addAngleLimit(AngleCnecAdder angleCnecAdder) {
@@ -100,20 +100,20 @@ public class AngleCnecCreator extends AbstractCnecCreator {
                 return false;
             }
             angleCnecAdder.newThreshold()
-                    .withUnit(Unit.DEGREE)
-                    .withMax(normalValue).add();
+                .withUnit(Unit.DEGREE)
+                .withMax(normalValue).add();
         } else if (CsaProfileConstants.OperationalLimitDirectionKind.LOW.toString().equals(direction)) {
             if (handleMissingIsFlowToRefTerminalForNotAbsoluteDirection(isFlowToRefTerminalIsNull, CsaProfileConstants.OperationalLimitDirectionKind.LOW)) {
                 return false;
             }
             angleCnecAdder.newThreshold()
-                    .withUnit(Unit.DEGREE)
-                    .withMin(-normalValue).add();
+                .withUnit(Unit.DEGREE)
+                .withMin(-normalValue).add();
         } else if (CsaProfileConstants.OperationalLimitDirectionKind.ABSOLUTE.toString().equals(direction)) {
             angleCnecAdder.newThreshold()
-                    .withUnit(Unit.DEGREE)
-                    .withMin(-normalValue)
-                    .withMax(normalValue).add();
+                .withUnit(Unit.DEGREE)
+                .withMin(-normalValue)
+                .withMax(normalValue).add();
         }
         return true;
     }
