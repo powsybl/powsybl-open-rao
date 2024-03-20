@@ -584,6 +584,13 @@ class AutomatonSimulatorTest {
         assertNotNull(result.getPerimeterResult());
         assertEquals(Set.of(na), result.getActivatedNetworkActions());
 
+        // NA already activated (stay on same variant), do not activate NA
+        when(mockedPrePerimeterResult.getMargin(cnec2, Unit.MEGAWATT)).thenReturn(-100.);
+        result = automatonSimulator.simulateTopologicalAutomatons(autoState, network, mockedPreAutoPerimeterSensitivityAnalysis);
+        assertNotNull(result);
+        assertNotNull(result.getPerimeterResult());
+        assertEquals(Set.of(), result.getActivatedNetworkActions());
+
         // margin = 0 => activate NA
         when(mockedPrePerimeterResult.getMargin(cnec2, Unit.MEGAWATT)).thenReturn(0.);
         network.getVariantManager().cloneVariant(initialVariantId, workingVariantId, true);
