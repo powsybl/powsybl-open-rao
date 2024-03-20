@@ -654,14 +654,14 @@ class CsaProfileSsiTest {
     }
 
     @Test
-    void importGroupedRemedialActionsWithSsiOverriding() {
+    void activateDeactivateRemedialActionDependency() {
         // General case
         cracCreationContext = getCsaCracCreationContext("/profiles/ssi/SSI-19_RemedialActionDependency.zip", NETWORK, "2023-01-01T22:30Z");
         assertNetworkActionImported(cracCreationContext, "remedial-action-group", Set.of("FFR1AA1 _generator", "BBE1AA1  BBE4AA1  1"), true, 1);
         assertEquals("Remedial Action Group", cracCreationContext.getCrac().getRemedialAction("remedial-action-group").getName());
         assertNetworkActionImported(cracCreationContext, "redispatching-action-fr2", Set.of("FFR2AA1 _generator"), false, 1);
         assertEquals("RTE_Redispatch -70 MW FR2", cracCreationContext.getCrac().getRemedialAction("redispatching-action-fr2").getName());
-        assertEquals("The RemedialActionGroup with mRID remedial-action-group was turned into a remedial action from the following remedial actions: topological-action, redispatching-action-fr1",
+        assertEquals("The RemedialActionGroup with mRID remedial-action-group was turned into a remedial action from the following remedial actions: redispatching-action-fr1, topological-action",
             cracCreationContext.getRemedialActionCreationContext("remedial-action-group").getImportStatusDetail());
 
         // With SSI
@@ -670,12 +670,12 @@ class CsaProfileSsiTest {
         assertEquals("Remedial Action Group", cracCreationContext.getCrac().getRemedialAction("remedial-action-group").getName());
         assertNetworkActionImported(cracCreationContext, "redispatching-action-fr1", Set.of("FFR1AA1 _generator"), false, 1);
         assertEquals("RTE_Redispatch 70 MW FR1", cracCreationContext.getCrac().getRemedialAction("redispatching-action-fr1").getName());
-        assertEquals("The RemedialActionGroup with mRID remedial-action-group was turned into a remedial action from the following remedial actions: topological-action, redispatching-action-fr2",
+        assertEquals("The RemedialActionGroup with mRID remedial-action-group was turned into a remedial action from the following remedial actions: redispatching-action-fr2, topological-action",
             cracCreationContext.getRemedialActionCreationContext("remedial-action-group").getImportStatusDetail());
     }
 
     @Test
-    void importGroupedRemedialActionsWithSsi20Overriding() {
+    void overrideRemedialActionGroup() {
         // General case
         cracCreationContext = getCsaCracCreationContext("/profiles/ssi/SSI-20_RemedialActionGroup.zip", NETWORK, "2023-01-01T22:30Z");
         assertNetworkActionImported(cracCreationContext, "remedial-action-group", Set.of("BBE1AA1  BBE4AA1  1", "DDE3AA1  DDE4AA1  1"), true, 1);
