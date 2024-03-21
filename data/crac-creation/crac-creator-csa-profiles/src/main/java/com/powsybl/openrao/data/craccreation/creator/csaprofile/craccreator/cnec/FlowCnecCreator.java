@@ -66,20 +66,20 @@ public class FlowCnecCreator extends AbstractCnecCreator {
             }
         }
 
-        addAllFlowCnecsFromBranchAndOperationalLimits((Branch<?>) branch, thresholds, useMaxAndMinThresholds);
+        addAllFlowCnecsFromBranchAndOperationalLimits((Branch<?>) branch, thresholds, useMaxAndMinThresholds, definitionMode == FlowCnecDefinitionMode.CONDUCTING_EQUIPMENT);
     }
 
     private FlowCnecAdder initFlowCnec() {
         return crac.newFlowCnec()
-                .withMonitored(false)
-                .withOptimized(true)
-                .withReliabilityMargin(0);
+            .withMonitored(false)
+            .withOptimized(true)
+            .withReliabilityMargin(0);
     }
 
     private Identifiable<?> getFlowCnecBranch(String networkElementId) {
         Identifiable<?> networkElement = getNetworkElementInNetwork(networkElementId);
         if (networkElement == null) {
-            csaProfileCnecCreationContexts.add(CsaProfileElementaryCreationContext.notImported(assessedElementId, ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK, writeAssessedElementIgnoredReasonMessage("the following is element missing from the network : " + networkElementId)));
+            csaProfileCnecCreationContexts.add(CsaProfileElementaryCreationContext.notImported(assessedElementId, ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK, writeAssessedElementIgnoredReasonMessage("the following element is missing from the network: " + networkElementId)));
             return null;
         }
         if (!(networkElement instanceof Branch)) {
@@ -143,8 +143,8 @@ public class FlowCnecCreator extends AbstractCnecCreator {
 
     private void addFlowCnecThreshold(FlowCnecAdder flowCnecAdder, Side side, double threshold, boolean useMaxAndMinThresholds) {
         BranchThresholdAdder adder = flowCnecAdder.newThreshold().withSide(side)
-                .withUnit(Unit.AMPERE)
-                .withMax(threshold);
+            .withUnit(Unit.AMPERE)
+            .withMax(threshold);
         if (useMaxAndMinThresholds) {
             adder.withMin(-threshold);
         }
@@ -250,16 +250,15 @@ public class FlowCnecCreator extends AbstractCnecCreator {
         markCnecAsImportedAndHandleRejectedContingencies(cnecName, contingency);
     }
 
-    private void addAllFlowCnecsFromBranchAndOperationalLimits(Branch<?> networkElement, Map<Integer, EnumMap<TwoSides, Double>> thresholds, boolean useMaxAndMinThresholds) {
+    private void addAllFlowCnecsFromBranchAndOperationalLimits(Branch<?> networkElement, Map<Integer, EnumMap<TwoSides, Double>> thresholds, boolean useMaxAndMinThresholds, boolean definedWithConductingEquipment) {
         EnumMap<TwoSides, Double> patlThresholds = thresholds.get(Integer.MAX_VALUE);
         boolean hasPatl = thresholds.get(Integer.MAX_VALUE) != null;
 
         if (inBaseCase) {
             // If no PATL, we use the lowest TATL instead (as in PowSyBl).
-            // Only happens when the AssessedElement is defined with an OperationalLimit
             if (hasPatl) {
                 addFlowCnec(networkElement, null, crac.getPreventiveInstant().getId(), patlThresholds, useMaxAndMinThresholds, false);
-            } else {
+            } else if (definedWithConductingEquipment) {
                 // No PATL thus the longest acceptable duration is strictly lower than Integer.MAX_VALUE
                 Optional<Integer> longestAcceptableDuration = thresholds.keySet().stream().max(Integer::compareTo);
                 longestAcceptableDuration.ifPresent(integer -> addFlowCnec(networkElement, null, crac.getPreventiveInstant().getId(), thresholds.get(integer), useMaxAndMinThresholds, true));
@@ -294,22 +293,22 @@ public class FlowCnecCreator extends AbstractCnecCreator {
     private Map<Integer, EnumMap<TwoSides, Double>> getPermanentAndTemporaryLimitsOfOperationalLimit(Identifiable<?> branch, String terminalId) {
         Map<Integer, EnumMap<TwoSides, Double>> thresholds = new HashMap<>();
 
-        String limitKind = operationalLimitPropertyBag.get(CsaProfileConstants.REQUEST_OPERATIONAL_LIMIT_KIND);
+        String limitType = operationalLimitPropertyBag.get(CsaProfileConstants.REQUEST_OPERATIONAL_LIMIT_TYPE);
         Side side = getSideFromNetworkElement(branch, terminalId);
-        String normalValueStr = operationalLimitPropertyBag.get(CsaProfileConstants.REQUEST_OPERATIONAL_LIMIT_NORMAL_VALUE);
-        Double normalValue = Double.valueOf(normalValueStr);
+        String valueStr = operationalLimitPropertyBag.get(CsaProfileConstants.REQUEST_OPERATIONAL_LIMIT_VALUE);
+        Double value = Double.valueOf(valueStr);
 
         if (side != null) {
             int acceptableDuration;
-            if (CsaProfileConstants.LimitKind.PATL.toString().equals(limitKind)) {
+            if (CsaProfileConstants.LimitTypeKind.PATL.toString().equals(limitType)) {
                 acceptableDuration = Integer.MAX_VALUE;
-            } else if (CsaProfileConstants.LimitKind.TATL.toString().equals(limitKind)) {
+            } else if (CsaProfileConstants.LimitTypeKind.TATL.toString().equals(limitType)) {
                 String acceptableDurationStr = operationalLimitPropertyBag.get(CsaProfileConstants.REQUEST_OPERATIONAL_LIMIT_ACCEPTABLE_DURATION);
                 acceptableDuration = Integer.parseInt(acceptableDurationStr);
             } else {
                 return thresholds;
             }
-            thresholds.put(acceptableDuration, new EnumMap<>(Map.of(side.iidmSide(), normalValue)));
+            thresholds.put(acceptableDuration, new EnumMap<>(Map.of(side.iidmSide(), value)));
         }
 
         return thresholds;

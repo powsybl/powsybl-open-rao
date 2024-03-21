@@ -143,6 +143,11 @@ public class CracDeserializer extends JsonDeserializer<Crac> {
                     InstantArrayDeserializer.deserialize(jsonParser, crac);
                     break;
 
+                case RA_USAGE_LIMITS_PER_INSTANT:
+                    jsonParser.nextToken();
+                    RaUsageLimitsDeserializer.deserialize(jsonParser, crac);
+                    break;
+
                 default:
                     throw new OpenRaoException("Unexpected field in Crac: " + jsonParser.getCurrentName());
             }

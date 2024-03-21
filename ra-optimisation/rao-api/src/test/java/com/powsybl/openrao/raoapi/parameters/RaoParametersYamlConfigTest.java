@@ -80,16 +80,6 @@ class RaoParametersYamlConfigTest extends AbstractSerDeTest {
         assertTrue(secondPreventiveRaoParameters.getReOptimizeCurativeRangeActions());
         assertTrue(secondPreventiveRaoParameters.getHintFromFirstPreventiveRao());
 
-        RaUsageLimitsPerContingencyParameters raUsageLimitsPerContingencyParameters = parameters.getRaUsageLimitsPerContingencyParameters();
-        assertEquals(10, raUsageLimitsPerContingencyParameters.getMaxCurativeRa(), DOUBLE_TOLERANCE);
-        assertEquals(2, raUsageLimitsPerContingencyParameters.getMaxCurativeTso(), DOUBLE_TOLERANCE);
-        Map<String, Integer> expectedTopoTsoMap = Map.of("TSO_1", 1, "TSO_2", 2);
-        Map<String, Integer> expectedPstTsoMap = Map.of("TSO_1", 3, "TSO_2", 4);
-        Map<String, Integer> expectedRaTsoMap = Map.of("TSO_1", 5, "TSO_2", 6);
-        assertEquals(expectedTopoTsoMap, raUsageLimitsPerContingencyParameters.getMaxCurativeTopoPerTso());
-        assertEquals(expectedPstTsoMap, raUsageLimitsPerContingencyParameters.getMaxCurativePstPerTso());
-        assertEquals(expectedRaTsoMap, raUsageLimitsPerContingencyParameters.getMaxCurativeRaPerTso());
-
         NotOptimizedCnecsParameters notOptimizedCnecsParameters = parameters.getNotOptimizedCnecsParameters();
         Map<String, String> expectedCnecPstMap = Map.of("cnecId1", "pstId1", "cnecId2", "pstId2");
         assertFalse(notOptimizedCnecsParameters.getDoNotOptimizeCurativeCnecsForTsosWithoutCras());
@@ -172,16 +162,6 @@ class RaoParametersYamlConfigTest extends AbstractSerDeTest {
         assertTrue(secondPreventiveRaoParameters.getReOptimizeCurativeRangeActions());
         assertTrue(secondPreventiveRaoParameters.getHintFromFirstPreventiveRao());
 
-        RaUsageLimitsPerContingencyParameters raUsageLimitsPerContingencyParameters = parameters.getRaUsageLimitsPerContingencyParameters();
-        assertEquals(10, raUsageLimitsPerContingencyParameters.getMaxCurativeRa(), DOUBLE_TOLERANCE);
-        assertEquals(2, raUsageLimitsPerContingencyParameters.getMaxCurativeTso(), DOUBLE_TOLERANCE);
-        Map<String, Integer> expectedTopoTsoMap = Map.of("TSO_1", 1, "TSO_2", 2);
-        Map<String, Integer> expectedPstTsoMap = Map.of("TSO_1", 3, "TSO_2", 4);
-        Map<String, Integer> expectedRaTsoMap = Map.of("TSO_1", 5, "TSO_2", 6);
-        assertEquals(expectedTopoTsoMap, raUsageLimitsPerContingencyParameters.getMaxCurativeTopoPerTso());
-        assertEquals(expectedPstTsoMap, raUsageLimitsPerContingencyParameters.getMaxCurativePstPerTso());
-        assertEquals(expectedRaTsoMap, raUsageLimitsPerContingencyParameters.getMaxCurativeRaPerTso());
-
         NotOptimizedCnecsParameters notOptimizedCnecsParameters = parameters.getNotOptimizedCnecsParameters();
         Map<String, String> expectedCnecPstMap = Map.of("cnecId1", "pstId1", "cnecId2", "pstId2");
         assertFalse(notOptimizedCnecsParameters.getDoNotOptimizeCurativeCnecsForTsosWithoutCras());
@@ -250,16 +230,6 @@ class RaoParametersYamlConfigTest extends AbstractSerDeTest {
         assertEquals(SecondPreventiveRaoParameters.ExecutionCondition.DISABLED, secondPreventiveRaoParameters.getExecutionCondition());
         assertTrue(secondPreventiveRaoParameters.getReOptimizeCurativeRangeActions());
         assertTrue(secondPreventiveRaoParameters.getHintFromFirstPreventiveRao());
-
-        RaUsageLimitsPerContingencyParameters raUsageLimitsPerContingencyParameters = parameters.getRaUsageLimitsPerContingencyParameters();
-        assertEquals(Integer.MAX_VALUE, raUsageLimitsPerContingencyParameters.getMaxCurativeRa(), DOUBLE_TOLERANCE);
-        assertEquals(2, raUsageLimitsPerContingencyParameters.getMaxCurativeTso(), DOUBLE_TOLERANCE);
-        Map<String, Integer> expectedTopoTsoMap = Map.of("TSO_1", 1, "TSO_2", 2);
-        Map<String, Integer> expectedPstTsoMap = Map.of("TSO_1", 3, "TSO_2", 4);
-        Map<String, Integer> expectedRaTsoMap = Map.of("TSO_1", 5, "TSO_2", 6);
-        assertEquals(expectedTopoTsoMap, raUsageLimitsPerContingencyParameters.getMaxCurativeTopoPerTso());
-        assertEquals(expectedPstTsoMap, raUsageLimitsPerContingencyParameters.getMaxCurativePstPerTso());
-        assertEquals(expectedRaTsoMap, raUsageLimitsPerContingencyParameters.getMaxCurativeRaPerTso());
 
         NotOptimizedCnecsParameters notOptimizedCnecsParameters = parameters.getNotOptimizedCnecsParameters();
         Map<String, String> expectedCnecPstMap = Map.of("cnecId1", "pstId1", "cnecId2", "pstId2");

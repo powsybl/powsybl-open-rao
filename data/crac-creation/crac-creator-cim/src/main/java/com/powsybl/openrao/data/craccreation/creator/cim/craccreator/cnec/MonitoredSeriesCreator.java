@@ -17,6 +17,7 @@ import com.powsybl.openrao.data.cracapi.cnec.FlowCnecAdder;
 import com.powsybl.openrao.data.cracapi.cnec.Side;
 import com.powsybl.openrao.data.craccreation.creator.api.ImportStatus;
 import com.powsybl.openrao.data.craccreation.creator.cim.craccreator.CimCracCreationContext;
+import com.powsybl.openrao.data.craccreation.creator.cim.craccreator.CimCracUtils;
 import com.powsybl.openrao.data.craccreation.creator.cim.xsd.*;
 import com.powsybl.openrao.data.craccreation.util.cgmes.CgmesBranchHelper;
 import com.powsybl.iidm.network.Branch;
@@ -78,11 +79,11 @@ public class MonitoredSeriesCreator {
 
     private Set<Series> getCnecSeries() {
         Set<Series> cnecSeries = new HashSet<>();
-        cimTimeSeries.forEach(
-            timeSerie -> timeSerie.getPeriod().forEach(
-                period -> period.getPoint().forEach(
-                    point -> point.getSeries().stream().filter(this::describesCnecsToImport).forEach(cnecSeries::add)
-                )));
+        CimCracUtils.applyActionToEveryPoint(
+                cimTimeSeries,
+                cracCreationContext.getTimeStamp().toInstant(),
+                point -> point.getSeries().stream().filter(this::describesCnecsToImport).forEach(cnecSeries::add)
+        );
         return cnecSeries;
     }
 
