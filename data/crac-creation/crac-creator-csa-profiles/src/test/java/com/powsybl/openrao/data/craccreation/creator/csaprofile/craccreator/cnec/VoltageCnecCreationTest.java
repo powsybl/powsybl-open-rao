@@ -1,109 +1,84 @@
 package com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.cnec;
 
-import com.powsybl.openrao.data.cracapi.Instant;
+import com.powsybl.openrao.data.cracapi.cnec.VoltageCnec;
 import com.powsybl.openrao.data.cracapi.usagerule.UsageMethod;
+import com.powsybl.openrao.data.craccreation.creator.api.ImportStatus;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileCracCreationContext;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileCracCreationTestUtil;
-import com.powsybl.iidm.network.*;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 
-import java.util.Set;
+import java.util.Comparator;
+import java.util.List;
 
+import static com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileCracCreationTestUtil.CURATIVE_INSTANT_ID;
+import static com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileCracCreationTestUtil.NETWORK;
+import static com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileCracCreationTestUtil.PREVENTIVE_INSTANT_ID;
+import static com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileCracCreationTestUtil.assertCnecNotImported;
+import static com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileCracCreationTestUtil.assertHasOnVoltageConstraintUsageRule;
 import static com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileCracCreationTestUtil.getCsaCracCreationContext;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class VoltageCnecCreationTest {
 
     @Test
-    void checkOnConstraintWith4VoltageCnecs() {
-        Network network = Mockito.spy(Network.create("Test", "code"));
-        BusbarSection terminal1Mock = Mockito.mock(BusbarSection.class);
-        BusbarSection terminal2Mock = Mockito.mock(BusbarSection.class);
-        Switch switch1Mock = Mockito.mock(Switch.class);
-        Branch networkElementMock = Mockito.mock(Branch.class);
-        Switch switch2Mock = Mockito.mock(Switch.class);
-        Switch switch3Mock = Mockito.mock(Switch.class);
-        Switch switch4Mock = Mockito.mock(Switch.class);
+    void importVoltageCnecs() {
+        CsaProfileCracCreationContext cracCreationContext = getCsaCracCreationContext("/profiles/cnecs/VoltageCNECs.zip", NETWORK);
 
-        Mockito.when(terminal1Mock.getId()).thenReturn("60038442-5c02-21a9-22ad-f0554a65a466");
-        Mockito.when(terminal2Mock.getId()).thenReturn("65e9a6a7-8488-7b17-6344-cb7d61b7920b");
-        Mockito.when(terminal1Mock.getType()).thenReturn(IdentifiableType.BUS);
-        Mockito.when(terminal2Mock.getType()).thenReturn(IdentifiableType.BUS);
-        Mockito.when(switch1Mock.getId()).thenReturn("f9c8d9ce-6c44-4293-b60e-93c658411d68");
-        Mockito.when(networkElementMock.getId()).thenReturn("3a88a6a7-66fe-4988-9019-b3b288fd54ee");
-        Mockito.when(switch1Mock.isOpen()).thenReturn(false);
-        Mockito.when(network.getIdentifiable("60038442-5c02-21a9-22ad-f0554a65a466")).thenReturn((Identifiable) terminal1Mock);
-        Mockito.when(network.getIdentifiable("65e9a6a7-8488-7b17-6344-cb7d61b7920b")).thenReturn((Identifiable) terminal2Mock);
-        Mockito.when(network.getSwitch("f9c8d9ce-6c44-4293-b60e-93c658411d68")).thenReturn(switch1Mock);
-        Mockito.when(network.getSwitch("c8fcaef5-67f2-42c5-b736-ca91dcbcfe59")).thenReturn(switch2Mock);
-        Mockito.when(network.getSwitch("468fdb4a-49d6-4ea9-b216-928d057b65f0")).thenReturn(switch3Mock);
-        Mockito.when(network.getSwitch("50719289-6406-4d69-9dd7-6de60aecd2d4")).thenReturn(switch4Mock);
+        List<VoltageCnec> importedVoltageCnecs = cracCreationContext.getCrac().getVoltageCnecs().stream().sorted(Comparator.comparing(VoltageCnec::getId)).toList();
+        assertEquals(4, importedVoltageCnecs.size());
 
-        Mockito.when(network.getIdentifiable("3a88a6a7-66fe-4988-9019-b3b288fd54ee")).thenReturn(networkElementMock);
+        CsaProfileCracCreationTestUtil.assertVoltageCnecEquality(
+            importedVoltageCnecs.get(0),
+            "RTE_AE1 (assessed-element-1) - RTE_CO1 - curative",
+            "BBE1AA1 ",
+            CURATIVE_INSTANT_ID,
+            "contingency-1",
+            135d,
+            null
+        );
 
-        CsaProfileCracCreationContext cracCreationContext = getCsaCracCreationContext("/csa-11/CSA_11_5_OnVoltageConstraint.zip", network);
-        Instant preventiveInstant = cracCreationContext.getCrac().getInstant("preventive");
-        Instant curativeInstant = cracCreationContext.getCrac().getInstant("curative");
+        CsaProfileCracCreationTestUtil.assertVoltageCnecEquality(
+            importedVoltageCnecs.get(1),
+            "RTE_AE2 (assessed-element-2) - RTE_CO1 - curative",
+            "BBE1AA1 ",
+            CURATIVE_INSTANT_ID,
+            "contingency-1",
+            null,
+            -72d
+        );
 
-        CsaProfileCracCreationTestUtil.assertVoltageCnecEquality(cracCreationContext.getCrac().getVoltageCnec("RTE_AE1 (e2b71e64-ce03-4aa3-9adc-7ff910adae36) - RTE_CO1 - curative"),
-                "RTE_AE1 (e2b71e64-ce03-4aa3-9adc-7ff910adae36) - RTE_CO1 - curative",
-                "RTE_AE1 (e2b71e64-ce03-4aa3-9adc-7ff910adae36) - RTE_CO1 - curative",
-                "60038442-5c02-21a9-22ad-f0554a65a466",
-                curativeInstant,
-                "6c9656a6-84c2-4967-aabc-51f63a7abdf1",
-                817.,
-                null,
-                true);
+        CsaProfileCracCreationTestUtil.assertVoltageCnecEquality(
+            importedVoltageCnecs.get(2),
+            "RTE_AE2 (assessed-element-2) - RTE_CO2 - curative",
+            "BBE1AA1 ",
+            CURATIVE_INSTANT_ID,
+            "contingency-2",
+            null,
+            -72d
+        );
 
-        CsaProfileCracCreationTestUtil.assertVoltageCnecEquality(cracCreationContext.getCrac().getVoltageCnec("RTE_AE1 (e2b71e64-ce03-4aa3-9adc-7ff910adae36) - preventive"),
-                "RTE_AE1 (e2b71e64-ce03-4aa3-9adc-7ff910adae36) - preventive",
-                "RTE_AE1 (e2b71e64-ce03-4aa3-9adc-7ff910adae36) - preventive",
-                "60038442-5c02-21a9-22ad-f0554a65a466",
-                preventiveInstant,
-                null,
-                817.,
-                null,
-                true);
+        CsaProfileCracCreationTestUtil.assertVoltageCnecEquality(
+            importedVoltageCnecs.get(3),
+            "RTE_AE2 (assessed-element-2) - preventive",
+            "BBE1AA1 ",
+            PREVENTIVE_INSTANT_ID,
+            null,
+            null,
+            -72d
+        );
 
-        CsaProfileCracCreationTestUtil.assertVoltageCnecEquality(cracCreationContext.getCrac().getVoltageCnec("RTE_AE2 (a418e290-0d0c-4f40-b7fa-31fca1a2607d) - RTE_CO2 - curative"),
-                "RTE_AE2 (a418e290-0d0c-4f40-b7fa-31fca1a2607d) - RTE_CO2 - curative",
-                "RTE_AE2 (a418e290-0d0c-4f40-b7fa-31fca1a2607d) - RTE_CO2 - curative",
-                "65e9a6a7-8488-7b17-6344-cb7d61b7920b",
-                curativeInstant,
-                "410a7075-51df-4c5c-aa80-0bb1bbe41190",
-                null,
-                520.,
-                true);
+        assertEquals(6, cracCreationContext.getCnecCreationContexts().stream().filter(context -> !context.isImported()).toList().size());
 
-        CsaProfileCracCreationTestUtil.assertVoltageCnecEquality(cracCreationContext.getCrac().getVoltageCnec("RTE_AE2 (a418e290-0d0c-4f40-b7fa-31fca1a2607d) - preventive"),
-                "RTE_AE2 (a418e290-0d0c-4f40-b7fa-31fca1a2607d) - preventive",
-                "RTE_AE2 (a418e290-0d0c-4f40-b7fa-31fca1a2607d) - preventive",
-                "65e9a6a7-8488-7b17-6344-cb7d61b7920b",
-                preventiveInstant,
-                null,
-                null,
-                520.,
-                true);
+        assertCnecNotImported(cracCreationContext, "assessed-element-3", ImportStatus.INCONSISTENCY_IN_DATA, "AssessedElement assessed-element-3 ignored because a voltage limit can only be of kind highVoltage or lowVoltage");
+        assertCnecNotImported(cracCreationContext, "assessed-element-4", ImportStatus.NOT_YET_HANDLED_BY_OPEN_RAO, "AssessedElement assessed-element-4 ignored because only permanent voltage limits (with infinite duration) are currently handled");
+        assertCnecNotImported(cracCreationContext, "assessed-element-5", ImportStatus.INCONSISTENCY_IN_DATA, "AssessedElement assessed-element-5 ignored because the network element FFR1AA1 _generator is not a bus bar section");
+        assertCnecNotImported(cracCreationContext, "assessed-element-6", ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK, "AssessedElement assessed-element-6 ignored because the voltage limit equipment unknown-equipment is missing in network");
+        assertCnecNotImported(cracCreationContext, "assessed-element-7", ImportStatus.NOT_YET_HANDLED_BY_OPEN_RAO, "AssessedElement assessed-element-7 ignored because only permanent voltage limits (with infinite duration) are currently handled");
+        assertCnecNotImported(cracCreationContext, "assessed-element-8", ImportStatus.INCOMPLETE_DATA, "AssessedElement assessed-element-8 ignored because no ConductingEquipment or OperationalLimit was provided");
 
-        //4 remedial actions and a total of 8 onVoltageConstraint usage rules.
-        assertEquals(4, cracCreationContext.getCrac().getRemedialActions().size());
-        CsaProfileCracCreationTestUtil.assertNetworkActionImported(cracCreationContext, "6c283463-9aac-4d9b-9d0b-6710c5b2aa00", Set.of("f9c8d9ce-6c44-4293-b60e-93c658411d68"), true, 2);
-        CsaProfileCracCreationTestUtil.assertNetworkActionImported(cracCreationContext, "0af9ce7e-8013-4362-96a0-40ac0a970eb6", Set.of("c8fcaef5-67f2-42c5-b736-ca91dcbcfe59"), false, 2);
-        CsaProfileCracCreationTestUtil.assertNetworkActionImported(cracCreationContext, "f17a745b-60a1-4acd-887f-ebc8349b4597", Set.of("50719289-6406-4d69-9dd7-6de60aecd2d4"), true, 2);
-        CsaProfileCracCreationTestUtil.assertNetworkActionImported(cracCreationContext, "a8f21a9a-49dc-4c2a-9745-405392f0d87b", Set.of("468fdb4a-49d6-4ea9-b216-928d057b65f0"), false, 2);
-
-        CsaProfileCracCreationTestUtil.assertHasOnVoltageConstraintUsageRule(cracCreationContext, "6c283463-9aac-4d9b-9d0b-6710c5b2aa00", "RTE_AE1 (e2b71e64-ce03-4aa3-9adc-7ff910adae36) - preventive", preventiveInstant, UsageMethod.AVAILABLE);
-        CsaProfileCracCreationTestUtil.assertHasOnVoltageConstraintUsageRule(cracCreationContext, "6c283463-9aac-4d9b-9d0b-6710c5b2aa00", "RTE_AE1 (e2b71e64-ce03-4aa3-9adc-7ff910adae36) - RTE_CO1 - curative", preventiveInstant, UsageMethod.AVAILABLE);
-
-        CsaProfileCracCreationTestUtil.assertHasOnVoltageConstraintUsageRule(cracCreationContext, "0af9ce7e-8013-4362-96a0-40ac0a970eb6", "RTE_AE2 (a418e290-0d0c-4f40-b7fa-31fca1a2607d) - preventive", preventiveInstant, UsageMethod.AVAILABLE);
-        CsaProfileCracCreationTestUtil.assertHasOnVoltageConstraintUsageRule(cracCreationContext, "0af9ce7e-8013-4362-96a0-40ac0a970eb6", "RTE_AE2 (a418e290-0d0c-4f40-b7fa-31fca1a2607d) - RTE_CO2 - curative", preventiveInstant, UsageMethod.AVAILABLE);
-
-        CsaProfileCracCreationTestUtil.assertHasOnVoltageConstraintUsageRule(cracCreationContext, "f17a745b-60a1-4acd-887f-ebc8349b4597", "RTE_AE2 (a418e290-0d0c-4f40-b7fa-31fca1a2607d) - preventive", preventiveInstant, UsageMethod.AVAILABLE);
-        CsaProfileCracCreationTestUtil.assertHasOnVoltageConstraintUsageRule(cracCreationContext, "f17a745b-60a1-4acd-887f-ebc8349b4597", "RTE_AE2 (a418e290-0d0c-4f40-b7fa-31fca1a2607d) - RTE_CO2 - curative", preventiveInstant, UsageMethod.AVAILABLE);
-
-        CsaProfileCracCreationTestUtil.assertHasOnVoltageConstraintUsageRule(cracCreationContext, "a8f21a9a-49dc-4c2a-9745-405392f0d87b", "RTE_AE1 (e2b71e64-ce03-4aa3-9adc-7ff910adae36) - RTE_CO1 - curative", curativeInstant, UsageMethod.AVAILABLE);
-        CsaProfileCracCreationTestUtil.assertHasOnVoltageConstraintUsageRule(cracCreationContext, "a8f21a9a-49dc-4c2a-9745-405392f0d87b", "RTE_AE2 (a418e290-0d0c-4f40-b7fa-31fca1a2607d) - RTE_CO2 - curative", curativeInstant, UsageMethod.AVAILABLE);
+        assertHasOnVoltageConstraintUsageRule(cracCreationContext, "remedial-action-1", "RTE_AE1 (assessed-element-1) - RTE_CO1 - curative", cracCreationContext.getCrac().getInstant(CURATIVE_INSTANT_ID), UsageMethod.AVAILABLE);
+        assertHasOnVoltageConstraintUsageRule(cracCreationContext, "remedial-action-1", "RTE_AE2 (assessed-element-2) - RTE_CO1 - curative", cracCreationContext.getCrac().getInstant(CURATIVE_INSTANT_ID), UsageMethod.AVAILABLE);
+        assertHasOnVoltageConstraintUsageRule(cracCreationContext, "remedial-action-1", "RTE_AE2 (assessed-element-2) - RTE_CO2 - curative", cracCreationContext.getCrac().getInstant(CURATIVE_INSTANT_ID), UsageMethod.AVAILABLE);
+        assertHasOnVoltageConstraintUsageRule(cracCreationContext, "remedial-action-2", "RTE_AE1 (assessed-element-1) - RTE_CO1 - curative", cracCreationContext.getCrac().getInstant(CURATIVE_INSTANT_ID), UsageMethod.AVAILABLE);
     }
-
 }
