@@ -205,7 +205,7 @@ public class AutomatonPerimeterResultImpl implements PerimeterResult {
     }
 
     private void checkState(State state) {
-        if (state != optimizedState) {
+        if (!state.equals(optimizedState)) {
             throw new OpenRaoException("State should be " + optimizedState.getId() + " but was " + state.getId());
         }
     }
