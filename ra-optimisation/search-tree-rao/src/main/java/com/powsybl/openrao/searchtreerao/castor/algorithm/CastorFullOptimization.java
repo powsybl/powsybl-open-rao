@@ -839,8 +839,9 @@ public class CastorFullOptimization {
                             String otherOperator = rangeAction.getOperator();
                             return otherOperator != null && otherOperator.equals(operator);
                         }).count();
+                        int limitingValueForTheTso = Math.min(raUsageLimits.getMaxPstPerTso().getOrDefault(operator, Integer.MAX_VALUE), raUsageLimits.getMaxRaPerTso().getOrDefault(operator, Integer.MAX_VALUE));
                         if (raUsageLimits.getMaxRa() < potentiallyAvailableRas.size() ||
-                                raUsageLimits.getMaxPstPerTso().getOrDefault(operator, Integer.MAX_VALUE) < potentiallyAvailableRasForTheOperator) {
+                                limitingValueForTheTso < potentiallyAvailableRasForTheOperator) {
                             rangeActionsToRemove.add(ra);
                             break;
                         }
