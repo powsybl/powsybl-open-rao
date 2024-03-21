@@ -700,7 +700,10 @@ public class CastorFullOptimization {
             optPerimeter = GlobalOptimizationPerimeter.build(crac, raoInput.getNetwork(), raoParameters, prePerimeterResult);
         } else {
             Set<RangeAction<?>> rangeActionsFor2p = new HashSet<>(crac.getRangeActions());
-            rangeActionsFor2p.removeAll(excludedRangeActions);
+            excludedRangeActions.forEach(rangeAction -> {
+                BUSINESS_WARNS.warn("Range action {} will not be considered in 2nd preventive RAO as it is also auto/curative (or its network element has an associated ARA/CRA)", rangeAction.getId());
+                rangeActionsFor2p.remove(rangeAction);
+            });
             optPerimeter = PreventiveOptimizationPerimeter.buildWithAllCnecs(crac, rangeActionsFor2p, raoInput.getNetwork(), raoParameters, prePerimeterResult);
         }
 
@@ -754,6 +757,16 @@ public class CastorFullOptimization {
 
     /**
      * Returns the set of range actions that are excluded from the 2nd preventive RAO.
+     * The concerned range actions meet certain criterion.
+     * 1- The RA has a range limit relative to the previous instant.
+     * This way we avoid incoherence between preventive & curative tap positions.
+     * 2- For the remaining RAs we are going to remove some for the reason explained below.
+     * Let's consider a rangeAction that has the same tap in preventive and in another state.
+     * If so, considering it in the second preventive optimization could change its tap for preventive only.
+     * Therefore, the RA would no longer have the same taps in preventive and for the given contingency state: It's consider used for the given state.
+     * That could lead the RAO to wrongly exceed the RaUsageLimits for the given state.
+     * To avoid this, we don't want to optimize these RAs.
+     * For the same reason, we are going to check preventive RAs that share the same network elements as auto or curative RAs.
      */
     static Set<RangeAction<?>> getRangeActionsExcludedFromSecondPreventive(Crac crac, PerimeterResult firstPreventiveResult, Map<State, OptimizationResult> contingencyResults) {
         Set<RangeAction<?>> multipleInstantRangeActions = crac.getRangeActions().stream().filter(ra ->
@@ -765,8 +778,7 @@ public class CastorFullOptimization {
             return multipleInstantRangeActions;
         }
 
-        // First we remove range actions that have a range limit relative to the previous instant.
-        // This way we avoid incoherence between preventive & curative tap positions.
+        // Removes range actions that have a range limit relative to the previous instant.
         Set<RangeAction<?>> rangeActionsToRemove = multipleInstantRangeActions.stream()
                 .filter(ra -> {
                     if (ra instanceof PstRangeAction) {
@@ -776,22 +788,27 @@ public class CastorFullOptimization {
                 })
                 .collect(Collectors.toSet());
 
-        // For the remaining RAs we are going to remove some for the reason explained below.
-        // Let's consider a rangeAction that has the same tap in preventive and in another state.
-        // If so, considering it in the second preventive optimization could change its tap for preventive only.
-        // Therefore, the RA would no longer have the same taps in preventive and for the given contingency state: It's consider used for the given state.
-        // That could lead the RAO to wrongly exceed the RaUsageLimits for the given state.
-        // To avoid this, we don't want to optimize these PSTs.
-        // For the same reason, we are going to check preventive RAs that share the same network elements as auto or curative RAs.
-
-        // First we filter out state that diverged because we know no set-point was chosen for this state.
+        // Removes RAs that put crac RaUsageLimits at risk.
+        // First, we filter out state that diverged because we know no set-point was chosen for this state.
         Map<State, OptimizationResult> newContingencyResults = new HashMap<>(contingencyResults);
         newContingencyResults.entrySet().removeIf(entry -> entry.getValue() instanceof SkippedOptimizationResultImpl);
 
-        // Then we build a map giving for each RA, its tap at each state it's available at.
+        // Then, we build a map that gives for each RA, its tap at each state it's available at.
         Set<RangeAction<?>> rangeActionsNotPreventive = crac.getRangeActions().stream().filter(ra -> isRangeActionAutoOrCurative(ra, crac)).collect(Collectors.toSet());
-        Map<RangeAction<?>, Map<State, Set<Double>>> setPointResults = new HashMap<>();
         State preventiveState = crac.getPreventiveState();
+        rangeActionsToRemove.forEach(multipleInstantRangeActions::remove);
+        Map<RangeAction<?>, Map<State, Set<Double>>> setPointResults = buildSetPointResultsMap(crac, firstPreventiveResult, newContingencyResults, multipleInstantRangeActions, rangeActionsNotPreventive, preventiveState);
+
+        // Finally, we filter out RAs that put crac RaUsageLimits at risk.
+        rangeActionsToRemove.addAll(getRangeActionsToRemove(crac, preventiveState, setPointResults));
+        return rangeActionsToRemove;
+    }
+
+    /**
+     * Creates a map that gives for a given RA, its tap for each state it's available at.
+     * The only subtlety being that RAs sharing exactly the same network elements are considered to be only one RA.
+     */
+    private static Map<RangeAction<?>, Map<State, Set<Double>>> buildSetPointResultsMap(Crac crac, PerimeterResult firstPreventiveResult, Map<State, OptimizationResult> contingencyResults, Set<RangeAction<?>> multipleInstantRangeActions, Set<RangeAction<?>> rangeActionsNotPreventive, State preventiveState) {
         Map<RangeAction<?>, Set<RangeAction<?>>> correspondanceMap = new HashMap<>();
         crac.getRangeActions().stream().filter(ra -> isRangeActionPreventive(ra, crac) && !isRangeActionAutoOrCurative(ra, crac)).forEach(pra -> {
             Set<NetworkElement> praNetworkElements = pra.getNetworkElements();
@@ -802,9 +819,10 @@ public class CastorFullOptimization {
                 }
             });
         });
+        Map<RangeAction<?>, Map<State, Set<Double>>> setPointResults = new HashMap<>();
         correspondanceMap.forEach((pra, associatedCras) -> {
             setPointResults.put(pra, new HashMap<>(Map.of(preventiveState, Set.of(firstPreventiveResult.getOptimizedSetpoint(pra, preventiveState)))));
-            associatedCras.forEach(cra -> newContingencyResults.forEach((state, result) -> {
+            associatedCras.forEach(cra -> contingencyResults.forEach((state, result) -> {
                 if (isRangeActionAvailableInState(cra, state, crac)) {
                     Map<State, Set<Double>> praResults = setPointResults.get(pra);
                     double craSetPoint = result.getOptimizedSetpoint(cra, state);
@@ -813,19 +831,24 @@ public class CastorFullOptimization {
                 }
             }));
         });
-        rangeActionsToRemove.forEach(multipleInstantRangeActions::remove);
         multipleInstantRangeActions.forEach(ra -> {
             setPointResults.put(ra, new HashMap<>(Map.of(preventiveState, Set.of(firstPreventiveResult.getOptimizedSetpoint(ra, preventiveState)))));
-            newContingencyResults.forEach((state, result) -> {
+            contingencyResults.forEach((state, result) -> {
                 if (isRangeActionAvailableInState(ra, state, crac)) {
                     setPointResults.get(ra).put(state, Set.of(result.getOptimizedSetpoint(ra, state)));
                 }
             });
         });
+        return setPointResults;
+    }
 
-        // 1- The Ra has the same tap in preventive and for another state.
-        // 2- If so, we check the RaUsageLimits for the given state.
-        // 3- If the limits are at risk, we consider that we should not consider the rangeAction.
+    /**
+     * Gathers every range action that should not be considered in the second preventive if those 2 criterion are met :
+     * 1- The range action has the same tap in preventive and in a contingency scenario.
+     * 2- For the given state, the crac has limiting RaUsageLimits.
+     */
+    private static Set<RangeAction<?>> getRangeActionsToRemove(Crac crac, State preventiveState, Map<RangeAction<?>, Map<State, Set<Double>>> setPointResults) {
+        Set<RangeAction<?>> rangeActionsToRemove = new HashSet<>();
         setPointResults.forEach((ra, spMap) -> {
             double referenceSetPoint = spMap.get(preventiveState).iterator().next();
             for (State state : spMap.keySet()) {
@@ -849,7 +872,6 @@ public class CastorFullOptimization {
                 }
             }
         });
-
         return rangeActionsToRemove;
     }
 
