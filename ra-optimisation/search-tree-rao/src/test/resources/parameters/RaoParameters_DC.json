@@ -1,7 +1,7 @@
 {
   "version" : "2.3",
   "objective-function" : {
-    "type" : "MAX_MIN_MARGIN_IN_AMPERE",
+    "type" : "MAX_MIN_MARGIN_IN_MEGAWATT",
     "forbid-cost-increase" : false,
     "curative-min-obj-improvement" : 0.0,
     "preventive-stop-criterion" : "MIN_OBJECTIVE",
@@ -35,6 +35,7 @@
   "multi-threading" : {
     "contingency-scenarios-in-parallel" : 1,
     "preventive-leaves-in-parallel" : 1,
+    "auto-leaves-in-parallel" : 1,
     "curative-leaves-in-parallel" : 1
   },
   "second-preventive-rao" : {
@@ -62,7 +63,7 @@
         "shuntCompensatorVoltageControlOn" : false,
         "readSlackBus" : false,
         "writeSlackBus" : false,
-        "dc" : false,
+        "dc" : true,
         "distributedSlack" : true,
         "balanceType" : "PROPORTIONAL_TO_GENERATION_P",
         "dcUseTransformerRatio" : false,
@@ -81,7 +82,7 @@
             "plausibleActivePowerLimit" : 10000.0,
             "slackBusPMaxMismatch" : 1.0,
             "voltagePerReactivePowerControl" : false,
-            "maxNewtonRaphsonIterations" : 1,
+            "maxNewtonRaphsonIterations" : 30,
             "newtonRaphsonConvEpsPerEq" : 1.0E-4,
             "voltageInitModeOverride" : "NONE",
             "transformerVoltageControlMode" : "WITH_GENERATOR_VOLTAGE_CONTROL",
