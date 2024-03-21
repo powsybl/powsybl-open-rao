@@ -65,7 +65,7 @@ public abstract class AbstractCnecCreator {
     }
 
     protected String writeAssessedElementIgnoredReasonMessage(String reason) {
-        return "Assessed Element " + assessedElementId + " ignored because " + reason + ".";
+        return "AssessedElement " + assessedElementId + " ignored because " + reason;
     }
 
     protected String getCnecName(String instantId, Contingency contingency) {

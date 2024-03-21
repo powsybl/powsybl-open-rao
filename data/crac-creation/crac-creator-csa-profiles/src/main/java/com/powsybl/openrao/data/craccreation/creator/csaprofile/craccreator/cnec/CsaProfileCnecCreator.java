@@ -70,13 +70,15 @@ public class CsaProfileCnecCreator {
         String inBaseCaseStr = assessedElementPropertyBag.get(CsaProfileConstants.REQUEST_ASSESSED_ELEMENT_IN_BASE_CASE);
         boolean inBaseCase = Boolean.parseBoolean(inBaseCaseStr);
 
-        Set<PropertyBag> assessedElementsWithContingencies = getAssessedElementsWithContingencies(assessedElementId, assessedElementPropertyBag, inBaseCase);
-        if (!inBaseCase && assessedElementsWithContingencies == null) {
-            return;
-        }
+        Set<PropertyBag> assessedElementsWithContingencies = this.assessedElementsWithContingenciesPropertyBags.get(assessedElementPropertyBag.getId(CsaProfileConstants.REQUEST_ASSESSED_ELEMENT));
 
         String isCombinableWithContingencyStr = assessedElementPropertyBag.get(CsaProfileConstants.REQUEST_ASSESSED_ELEMENT_IS_COMBINABLE_WITH_CONTINGENCY);
         boolean isCombinableWithContingency = Boolean.parseBoolean(isCombinableWithContingencyStr);
+
+        if (!inBaseCase && !isCombinableWithContingency && assessedElementsWithContingencies == null) {
+            csaProfileCnecCreationContexts.add(CsaProfileElementaryCreationContext.notImported(assessedElementId, ImportStatus.INCONSISTENCY_IN_DATA, "AssessedElement %s ignored because the assessed element is not in base case and not combinable with contingencies, but no explicit link to a contingency was found".formatted(assessedElementId)));
+            return;
+        }
 
         Set<Contingency> combinableContingencies;
         if (isCombinableWithContingency) {
@@ -128,15 +130,6 @@ public class CsaProfileCnecCreator {
             return false;
         }
         return true;
-    }
-
-    private Set<PropertyBag> getAssessedElementsWithContingencies(String assessedElementId, PropertyBag assessedElementPropertyBag, boolean inBaseCase) {
-        Set<PropertyBag> assessedElementsWithContingencies = this.assessedElementsWithContingenciesPropertyBags.get(assessedElementPropertyBag.getId(CsaProfileConstants.REQUEST_ASSESSED_ELEMENT));
-
-        if (!inBaseCase && assessedElementsWithContingencies == null) {
-            csaProfileCnecCreationContexts.add(CsaProfileElementaryCreationContext.notImported(assessedElementId, ImportStatus.INCOMPLETE_DATA, "no link between the assessed element and a contingency"));
-        }
-        return assessedElementsWithContingencies;
     }
 
     private CsaProfileConstants.LimitType getLimit(String assessedElementId, PropertyBag assessedElementPropertyBag) {

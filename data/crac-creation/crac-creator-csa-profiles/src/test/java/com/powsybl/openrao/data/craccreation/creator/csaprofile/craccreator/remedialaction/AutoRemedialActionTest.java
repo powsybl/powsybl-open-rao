@@ -15,7 +15,6 @@ import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.cracapi.usagerule.UsageMethod;
 import com.powsybl.openrao.data.craccreation.creator.api.ImportStatus;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileCracCreationContext;
-import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileElementaryCreationContext;
 import com.powsybl.openrao.data.cracimpl.InjectionSetpointImpl;
 import com.powsybl.openrao.data.cracimpl.OnContingencyStateImpl;
 import com.powsybl.openrao.data.cracimpl.TopologicalActionImpl;
@@ -24,6 +23,7 @@ import org.junit.jupiter.api.Test;
 import java.util.Comparator;
 import java.util.List;
 
+import static com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileCracCreationTestUtil.NETWORK;
 import static com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileCracCreationTestUtil.assertRaNotImported;
 import static com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileCracCreationTestUtil.getCsaCracCreationContext;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -31,18 +31,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class AutoRemedialActionTest {
 
     @Test
-    void importAutoRemedialActionTC2() {
-        CsaProfileCracCreationContext cracCreationContext = getCsaCracCreationContext("/CSA_TestConfiguration_TC2_27Apr2023.zip");
-        List<RemedialAction<?>> autoRemedialActionList = cracCreationContext.getCrac().getRemedialActions().stream().filter(ra -> ra.getUsageRules().stream().anyMatch(usageRule -> usageRule.getInstant().isAuto())).toList();
-        assertEquals(0, autoRemedialActionList.size());
-        assertRaNotImported(cracCreationContext, "31d41e36-11c8-417b-bafb-c410d4391898", ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action 31d41e36-11c8-417b-bafb-c410d4391898 will not be imported because it has no associated RemedialActionScheme");
-    }
-
-    @Test
     void importAutoRemedialActions() {
-        CsaProfileCracCreationContext cracCreationContext = getCsaCracCreationContext("/CSA-83.zip");
+        CsaProfileCracCreationContext cracCreationContext = getCsaCracCreationContext("/profiles/remedialactions/AutoRemedialActions.zip", NETWORK);
 
-        // Imported ARAs
         List<RemedialAction<?>> importedSps = cracCreationContext.getCrac().getRemedialActions().stream().filter(ra -> ra.getUsageRules().size() == 1 && ra.getUsageRules().stream().toList().get(0).getInstant().isAuto()).toList();
         assertEquals(2, importedSps.size());
 
@@ -71,10 +62,7 @@ class AutoRemedialActionTest {
         assertEquals(InstantKind.AUTO, networkSpsUsageRule.getInstant().getKind());
         assertEquals(UsageMethod.FORCED, networkSpsUsageRule.getUsageMethod());
 
-        // Not imported ARAs
-
-        List<CsaProfileElementaryCreationContext> notImportedSps = cracCreationContext.getRemedialActionCreationContexts().stream().filter(ra -> !ra.isImported()).toList();
-        assertEquals(12, notImportedSps.size());
+        assertEquals(12, cracCreationContext.getRemedialActionCreationContexts().stream().filter(ra -> !ra.isImported()).toList().size());
 
         assertRaNotImported(cracCreationContext, "sps-with-multiple-remedial-action-schemes", ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action sps-with-multiple-remedial-action-schemes will not be imported because it has several conflictual RemedialActionSchemes");
         assertRaNotImported(cracCreationContext, "sps-with-multiple-stages", ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action sps-with-multiple-stages will not be imported because it has several conflictual Stages");
@@ -86,7 +74,7 @@ class AutoRemedialActionTest {
         assertRaNotImported(cracCreationContext, "sps-without-remedial-action-scheme", ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action sps-without-remedial-action-scheme will not be imported because it has no associated RemedialActionScheme");
         assertRaNotImported(cracCreationContext, "sps-without-stage", ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action sps-without-stage will not be imported because it has no associated Stage");
         assertRaNotImported(cracCreationContext, "sps-without-grid-state-alteration-collection", ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action sps-without-grid-state-alteration-collection will not be imported because it has no associated GridStateAlterationCollection");
-        assertRaNotImported(cracCreationContext, "sps-without-elementary-actions", ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action sps-without-elementary-actions will not be imported because there is no elementary action for that RA");
+        assertRaNotImported(cracCreationContext, "sps-without-elementary-actions", ImportStatus.NOT_FOR_RAO, "Remedial action sps-without-elementary-actions will not be imported because it has no elementary action");
         assertRaNotImported(cracCreationContext, "sps-without-contingency", ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action sps-without-contingency will not be imported because no contingency is linked to the remedial action");
     }
 }
