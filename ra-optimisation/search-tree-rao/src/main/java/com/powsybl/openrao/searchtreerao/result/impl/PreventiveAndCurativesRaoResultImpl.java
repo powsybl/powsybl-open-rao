@@ -386,7 +386,7 @@ public class PreventiveAndCurativesRaoResultImpl implements RaoResult {
                 .filter(entry -> entry.getKey().getInstant().equals(optimizedInstant))
                 .map(Map.Entry::getValue)
                 .mapToDouble(ObjectiveFunctionResult::getVirtualCost)
-                .sum();
+                .sum() + secondPreventivePerimeterResult.getVirtualCost();
         }
     }
 
@@ -423,7 +423,7 @@ public class PreventiveAndCurativesRaoResultImpl implements RaoResult {
                 .filter(entry -> entry.getKey().getInstant().equals(optimizedInstant))
                 .map(Map.Entry::getValue)
                 .mapToDouble(perimeterResult -> perimeterResult.getVirtualCost(virtualCostName))
-                .sum();
+                .sum() + secondPreventivePerimeterResult.getVirtualCost(virtualCostName);
         }
     }
 
