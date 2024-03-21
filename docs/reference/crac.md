@@ -1,4 +1,8 @@
-## Introduction {#introduction}
+---
+title: Internal json CRAC format
+---
+
+## Introduction
 
 The name CRAC is a standard denomination defined by the ENTSO-E which means: **C**ontingency list, **R**emedial 
 **A**ctions, and additional **C**onstraints.
@@ -20,7 +24,7 @@ network elements that might be critical after specific outages, and the remedial
 Note that other pages of this documentation describe how the FARAO CRAC object model can be built with other standard 
 CRAC formats, such as the [FlowBasedConstraint](fbconstraint) format, the [CSE](cse) Format, and the [CIM](cim) format.
 
-## Full CRAC examples {#full-crac-examples}
+## Full CRAC examples
 Example of complete CRACs are given below
 
 ::::{tabs}
@@ -42,11 +46,11 @@ The following paragraphs of this page explain, step by step, the content of thes
 > 🔵 marks a field that can be **mandatory in some cases**  
 > ⭐ marks a field that must be **unique** in the CRAC  
 
-## Network elements {#network-elements}
+## Network elements 
 ```{include} network-elements.md
 ```
 
-## Contingencies {#contingencies}
+## Contingencies
 ```{include} contingencies.md
 ```
 
@@ -54,14 +58,14 @@ The following paragraphs of this page explain, step by step, the content of thes
 ```{include} instants-states.md
 ```
 
-## CNECs {#cnecs}
+## CNECs
 TODO  
 
-## Remedial actions and usages rules {#remedial-actions}
+## Remedial actions and usages rules
 TODO  
 
-## Network Actions {#network-actions}
+## Network Actions
 TODO  
 
-## Range Actions {#range-actions}
+## Range Actions
 TODO  
