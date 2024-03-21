@@ -28,13 +28,22 @@ import java.util.*;
  */
 public class FastRaoResultImpl implements RaoResult {
     private final PrePerimeterResult initialResult;
+    private final PrePerimeterResult afterPraResult;
+    private final PrePerimeterResult afterAraResult;
     private final PrePerimeterResult finalResult;
     private final RaoResult filteredRaoResult;
     private final Crac crac;
     private OptimizationStepsExecuted optimizationStepsExecuted;
 
-    public FastRaoResultImpl(PrePerimeterResult initialResult, PrePerimeterResult finalResult, RaoResult filteredRaoResult, Crac crac) {
+    public FastRaoResultImpl(PrePerimeterResult initialResult,
+                             PrePerimeterResult afterPraResult,
+                             PrePerimeterResult afterAraResult,
+                             PrePerimeterResult finalResult,
+                             RaoResult filteredRaoResult,
+                             Crac crac) {
         this.initialResult = initialResult;
+        this.afterPraResult = afterPraResult;
+        this.afterAraResult = afterAraResult;
         this.finalResult = finalResult;
         this.filteredRaoResult = filteredRaoResult;
         this.crac = crac;
@@ -43,11 +52,11 @@ public class FastRaoResultImpl implements RaoResult {
 
     @Override
     public ComputationStatus getComputationStatus() {
-        if (initialResult.getSensitivityStatus() == ComputationStatus.FAILURE || finalResult.getSensitivityStatus() == ComputationStatus.FAILURE) {
+        if (initialResult.getSensitivityStatus() == ComputationStatus.FAILURE
+            || afterPraResult.getSensitivityStatus() == ComputationStatus.FAILURE
+            || afterAraResult.getSensitivityStatus() == ComputationStatus.FAILURE
+            || finalResult.getSensitivityStatus() == ComputationStatus.FAILURE) {
             return ComputationStatus.FAILURE;
-        }
-        if (initialResult.getSensitivityStatus() == finalResult.getSensitivityStatus()) {
-            return initialResult.getSensitivityStatus();
         }
         return ComputationStatus.DEFAULT;
     }
@@ -57,68 +66,73 @@ public class FastRaoResultImpl implements RaoResult {
         return finalResult.getSensitivityStatus(state);
     }
 
-    private FlowResult getAppropriateResult(Instant optimizedInstant) {
+    public PrePerimeterResult getAppropriateResult(Instant optimizedInstant) {
         if (optimizedInstant == null) {
             return initialResult;
-        } else {
+        }
+        if (optimizedInstant.isPreventive() || optimizedInstant.isOutage()) {
+            return afterPraResult;
+        }
+        if (optimizedInstant.isAuto()) {
+            return afterAraResult;
+        }
+        if (optimizedInstant.isCurative()) {
             return finalResult;
         }
+        throw new OpenRaoException(String.format("Optimized instant %s was not recognized", optimizedInstant));
+    }
+
+    public PrePerimeterResult getAppropriateResult(Instant optimizedInstant, FlowCnec flowCnec) {
+        if (Objects.isNull(optimizedInstant)) {
+            return initialResult;
+        }
+        Instant minInstant = optimizedInstant.comesBefore(flowCnec.getState().getInstant()) ?
+            optimizedInstant : flowCnec.getState().getInstant();
+        return getAppropriateResult(minInstant);
     }
 
     @Override
     public double getMargin(Instant optimizedInstant, FlowCnec flowCnec, Unit unit) {
-        return getAppropriateResult(optimizedInstant).getMargin(flowCnec, unit);
+        return getAppropriateResult(optimizedInstant, flowCnec).getMargin(flowCnec, unit);
     }
 
     @Override
     public double getRelativeMargin(Instant optimizedInstant, FlowCnec flowCnec, Unit unit) {
-        return getAppropriateResult(optimizedInstant).getRelativeMargin(flowCnec, unit);
+        return getAppropriateResult(optimizedInstant, flowCnec).getRelativeMargin(flowCnec, unit);
     }
 
     @Override
     public double getFlow(Instant optimizedInstant, FlowCnec flowCnec, Side side, Unit unit) {
-        return getAppropriateResult(optimizedInstant).getFlow(flowCnec, side, unit);
+        return getAppropriateResult(optimizedInstant, flowCnec).getFlow(flowCnec, side, unit);
     }
 
     @Override
     public double getCommercialFlow(Instant optimizedInstant, FlowCnec flowCnec, Side side, Unit unit) {
-        return getAppropriateResult(optimizedInstant).getCommercialFlow(flowCnec, side, unit);
+        return getAppropriateResult(optimizedInstant, flowCnec).getCommercialFlow(flowCnec, side, unit);
     }
 
     @Override
     public double getLoopFlow(Instant optimizedInstant, FlowCnec flowCnec, Side side, Unit unit) {
-        return getAppropriateResult(optimizedInstant).getLoopFlow(flowCnec, side, unit);
+        return getAppropriateResult(optimizedInstant, flowCnec).getLoopFlow(flowCnec, side, unit);
     }
 
     @Override
     public double getPtdfZonalSum(Instant optimizedInstant, FlowCnec flowCnec, Side side) {
-        return getAppropriateResult(optimizedInstant).getPtdfZonalSum(flowCnec, side);
+        return getAppropriateResult(optimizedInstant, flowCnec).getPtdfZonalSum(flowCnec, side);
     }
 
     @Override
     public double getFunctionalCost(Instant optimizedInstant) {
-        if (optimizedInstant == null) {
-            return initialResult.getFunctionalCost();
-        } else {
-            return finalResult.getFunctionalCost();
-        }
+        return getAppropriateResult(optimizedInstant).getFunctionalCost();
     }
 
     public List<FlowCnec> getMostLimitingElements(Instant optimizedInstant, int number) {
-        if (optimizedInstant == null) {
-            return initialResult.getMostLimitingElements(number);
-        } else {
-            return finalResult.getMostLimitingElements(number);
-        }
+        return getAppropriateResult(optimizedInstant).getMostLimitingElements(number);
     }
 
     @Override
     public double getVirtualCost(Instant optimizedInstant) {
-        if (optimizedInstant == null) {
-            return initialResult.getVirtualCost();
-        } else {
-            return finalResult.getVirtualCost();
-        }
+        return getAppropriateResult(optimizedInstant).getVirtualCost();
     }
 
     @Override
@@ -135,19 +149,11 @@ public class FastRaoResultImpl implements RaoResult {
 
     @Override
     public double getVirtualCost(Instant optimizedInstant, String virtualCostName) {
-        if (optimizedInstant == null) {
-            return initialResult.getVirtualCost(virtualCostName);
-        } else {
-            return finalResult.getVirtualCost(virtualCostName);
-        }
+        return getAppropriateResult(optimizedInstant).getVirtualCost(virtualCostName);
     }
 
     public List<FlowCnec> getCostlyElements(Instant optimizedInstant, String virtualCostName, int number) {
-        if (optimizedInstant == null) {
-            return initialResult.getCostlyElements(virtualCostName, number);
-        } else {
-            return finalResult.getCostlyElements(virtualCostName, number);
-        }
+        return getAppropriateResult(optimizedInstant).getCostlyElements(virtualCostName, number);
     }
 
     @Override

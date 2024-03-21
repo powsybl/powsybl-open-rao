@@ -8,6 +8,8 @@
 package com.powsybl.openrao.searchtreerao.commons.objectivefunctionevaluator;
 
 import com.powsybl.openrao.commons.Unit;
+import com.powsybl.openrao.data.cracapi.Instant;
+import com.powsybl.openrao.data.cracapi.State;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
 import com.powsybl.openrao.data.cracapi.cnec.Side;
 import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
@@ -43,6 +45,11 @@ class MarginEvaluatorWithMarginDecreaseUnoptimizedCnecsTest {
     @BeforeEach
     public void setUp() {
         when(flowCnec.getMonitoredSides()).thenReturn(Set.of(Side.LEFT));
+        State state = Mockito.mock(State.class);
+        Instant instant = Mockito.mock(Instant.class);
+        when(instant.isCurative()).thenReturn(true);
+        when(state.getInstant()).thenReturn(instant);
+        when(flowCnec.getState()).thenReturn(state);
     }
 
     @Test
