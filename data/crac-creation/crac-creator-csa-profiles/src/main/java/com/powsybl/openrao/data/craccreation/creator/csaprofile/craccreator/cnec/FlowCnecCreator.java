@@ -28,8 +28,8 @@ public class FlowCnecCreator extends AbstractCnecCreator {
     private final String conductingEquipment;
     private final Set<Side> defaultMonitoredSides;
 
-    public FlowCnecCreator(Crac crac, Network network, String assessedElementId, String nativeAssessedElementName, String assessedElementOperator, boolean inBaseCase, PropertyBag currentLimitPropertyBag, String conductingEquipment, List<Contingency> linkedContingencies, Set<CsaProfileElementaryCreationContext> csaProfileCnecCreationContexts, CsaProfileCracCreationContext cracCreationContext, Set<Side> defaultMonitoredSides, String rejectedLinksAssessedElementContingency) {
-        super(crac, network, assessedElementId, nativeAssessedElementName, assessedElementOperator, inBaseCase, currentLimitPropertyBag, linkedContingencies, csaProfileCnecCreationContexts, cracCreationContext, rejectedLinksAssessedElementContingency);
+    public FlowCnecCreator(Crac crac, Network network, String assessedElementId, String nativeAssessedElementName, String assessedElementOperator, boolean inBaseCase, PropertyBag currentLimitPropertyBag, String conductingEquipment, List<Contingency> linkedContingencies, Set<CsaProfileElementaryCreationContext> csaProfileCnecCreationContexts, CsaProfileCracCreationContext cracCreationContext, Set<Side> defaultMonitoredSides, String rejectedLinksAssessedElementContingency, boolean aeSecuredForRegion, boolean aeScannedForRegion) {
+        super(crac, network, assessedElementId, nativeAssessedElementName, assessedElementOperator, inBaseCase, currentLimitPropertyBag, linkedContingencies, csaProfileCnecCreationContexts, cracCreationContext, rejectedLinksAssessedElementContingency, aeSecuredForRegion, aeScannedForRegion);
         this.conductingEquipment = conductingEquipment;
         this.defaultMonitoredSides = defaultMonitoredSides;
     }
@@ -212,7 +212,9 @@ public class FlowCnecCreator extends AbstractCnecCreator {
             return;
         }
         FlowCnecAdder cnecAdder = initFlowCnec();
-        addCnecBaseInformation(cnecAdder, contingency, instantId);
+        if (!addCnecBaseInformation(cnecAdder, contingency, instantId)) {
+            return;
+        }
         for (Map.Entry<TwoSides, Double> thresholdEntry : thresholds.entrySet()) {
             TwoSides side = thresholdEntry.getKey();
             double threshold = thresholdEntry.getValue();
