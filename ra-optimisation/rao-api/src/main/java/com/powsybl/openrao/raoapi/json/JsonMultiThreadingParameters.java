@@ -27,6 +27,7 @@ final class JsonMultiThreadingParameters {
         jsonGenerator.writeObjectFieldStart(MULTI_THREADING);
         jsonGenerator.writeNumberField(CONTINGENCY_SCENARIOS_IN_PARALLEL, parameters.getMultithreadingParameters().getContingencyScenariosInParallel());
         jsonGenerator.writeNumberField(PREVENTIVE_LEAVES_IN_PARALLEL, parameters.getMultithreadingParameters().getPreventiveLeavesInParallel());
+        jsonGenerator.writeNumberField(AUTO_LEAVES_IN_PARALLEL, parameters.getMultithreadingParameters().getAutoLeavesInParallel());
         jsonGenerator.writeNumberField(CURATIVE_LEAVES_IN_PARALLEL, parameters.getMultithreadingParameters().getCurativeLeavesInParallel());
         jsonGenerator.writeEndObject();
     }
@@ -41,6 +42,10 @@ final class JsonMultiThreadingParameters {
                 case PREVENTIVE_LEAVES_IN_PARALLEL:
                     jsonParser.nextToken();
                     raoParameters.getMultithreadingParameters().setPreventiveLeavesInParallel(jsonParser.getIntValue());
+                    break;
+                case AUTO_LEAVES_IN_PARALLEL:
+                    jsonParser.nextToken();
+                    raoParameters.getMultithreadingParameters().setAutoLeavesInParallel(jsonParser.getIntValue());
                     break;
                 case CURATIVE_LEAVES_IN_PARALLEL:
                     jsonParser.nextToken();

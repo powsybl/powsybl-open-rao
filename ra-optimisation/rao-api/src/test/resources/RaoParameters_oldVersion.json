@@ -24,7 +24,9 @@
     }
   },
   "topological-actions-optimization" : {
-    "max-search-tree-depth" : 2147483647,
+    "max-preventive-search-tree-depth" : 2147483647,
+    "max-auto-search-tree-depth" : 2147483647,
+    "max-curative-search-tree-depth" : 2147483647,
     "predefined-combinations" : [ ],
     "relative-minimum-impact-threshold" : 0.0,
     "absolute-minimum-impact-threshold" : 0.0,
