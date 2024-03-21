@@ -362,16 +362,16 @@ class PreventiveAndCurativesRaoResultImplTest {
     void testGetVirtualCost() {
         assertEquals(100., output.getVirtualCost(null), DOUBLE_TOLERANCE);
         assertEquals(-150., output.getVirtualCost(preventiveInstant), DOUBLE_TOLERANCE);
-        assertEquals(-125., output.getVirtualCost(autoInstant), DOUBLE_TOLERANCE);
-        assertEquals(-270., output.getVirtualCost(curativeInstant), DOUBLE_TOLERANCE);
+        assertEquals(-245., output.getVirtualCost(autoInstant), DOUBLE_TOLERANCE);
+        assertEquals(-390., output.getVirtualCost(curativeInstant), DOUBLE_TOLERANCE);
     }
 
     @Test
     void testGetCost() {
         assertEquals(1100., output.getCost(null), DOUBLE_TOLERANCE);
         assertEquals(-1200., output.getCost(preventiveInstant), DOUBLE_TOLERANCE);
-        assertEquals(-1145., output.getCost(autoInstant), DOUBLE_TOLERANCE);
-        assertEquals(-1290., output.getCost(curativeInstant), DOUBLE_TOLERANCE);
+        assertEquals(-1265., output.getCost(autoInstant), DOUBLE_TOLERANCE);
+        assertEquals(-1410., output.getCost(curativeInstant), DOUBLE_TOLERANCE);
     }
 
     @Test
@@ -385,10 +385,10 @@ class PreventiveAndCurativesRaoResultImplTest {
         assertEquals(80., output.getVirtualCost(null, "lf"), DOUBLE_TOLERANCE);
         assertEquals(-70., output.getVirtualCost(preventiveInstant, "mnec"), DOUBLE_TOLERANCE);
         assertEquals(-130., output.getVirtualCost(preventiveInstant, "lf"), DOUBLE_TOLERANCE);
-        assertEquals(-45., output.getVirtualCost(autoInstant, "mnec"), DOUBLE_TOLERANCE);
-        assertEquals(-105., output.getVirtualCost(autoInstant, "lf"), DOUBLE_TOLERANCE);
-        assertEquals(-110., output.getVirtualCost(curativeInstant, "mnec"), DOUBLE_TOLERANCE);
-        assertEquals(-230., output.getVirtualCost(curativeInstant, "lf"), DOUBLE_TOLERANCE);
+        assertEquals(-85., output.getVirtualCost(autoInstant, "mnec"), DOUBLE_TOLERANCE);
+        assertEquals(-205., output.getVirtualCost(autoInstant, "lf"), DOUBLE_TOLERANCE);
+        assertEquals(-150., output.getVirtualCost(curativeInstant, "mnec"), DOUBLE_TOLERANCE);
+        assertEquals(-330., output.getVirtualCost(curativeInstant, "lf"), DOUBLE_TOLERANCE);
     }
 
     @Test
