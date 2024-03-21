@@ -760,6 +760,11 @@ public class CastorFullOptimization {
                 isRangeActionPreventive(ra, crac)
                         && isRangeActionAutoOrCurative(ra, crac)).collect(Collectors.toSet());
 
+        // If first preventive diverged, we want to remove every range action that is both preventive and auto or curative.
+        if (firstPreventiveResult instanceof SkippedOptimizationResultImpl) {
+            return multipleInstantRangeActions;
+        }
+
         // First we remove range actions that have a range limit relative to the previous instant.
         // This way we avoid incoherence between preventive & curative tap positions.
         Set<RangeAction<?>> rangeActionsToRemove = multipleInstantRangeActions.stream()
@@ -777,8 +782,16 @@ public class CastorFullOptimization {
         // Therefore, the RA would no longer have the same taps in preventive and for the given contingency state: It's consider used for the given state.
         // That could lead the RAO to wrongly exceed the RaUsageLimits for the given state.
         // To avoid this, we don't want to optimize these PSTs.
-
         // For the same reason, we are going to check preventive RAs that share the same network elements as auto or curative RAs.
+
+        // First we filter out state that diverged because we know no set-point was chosen for this state.
+        contingencyResults.forEach((state, result) -> {
+            if (result instanceof SkippedOptimizationResultImpl) {
+                contingencyResults.remove(state);
+            }
+        });
+
+        // Then we build a map giving for each RA, its tap at each state it's available at.
         Set<RangeAction<?>> rangeActionsNotPreventive = crac.getRangeActions().stream().filter(ra -> isRangeActionAutoOrCurative(ra, crac)).collect(Collectors.toSet());
         Map<RangeAction<?>, Map<State, Set<Double>>> setPointResults = new HashMap<>();
         State preventiveState = crac.getPreventiveState();
@@ -803,8 +816,6 @@ public class CastorFullOptimization {
                 }
             }));
         });
-
-        // For a given rangeAction, gathers taps for each state.
         rangeActionsToRemove.forEach(multipleInstantRangeActions::remove);
         multipleInstantRangeActions.forEach(ra -> {
             setPointResults.put(ra, new HashMap<>(Map.of(preventiveState, Set.of(firstPreventiveResult.getOptimizedSetpoint(ra, preventiveState)))));
