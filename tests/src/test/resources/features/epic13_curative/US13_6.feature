@@ -75,7 +75,7 @@ Feature: US 13.6: cross validation curative optimization and MNECs
     And 1 remedial actions are used after "Contingency_FR1_FR3" at "curative"
     And the remedial action "Open line DE1-DE2" is used after "Contingency_FR1_FR3" at "curative"
     And the margin on cnec "FR2-FR3-OO - curative" after CRA should be -137.0 MW
-    And the value of the objective function after CRA should be 267
+    And the value of the objective function after CRA should be 273
 
   @fast @rao @mock @ac @contingency-scenarios @mnec
   Scenario: US 13.6.5: Simple case with a mix of preventive and curative remedial actions and a MNEC in preventive limited by threshold

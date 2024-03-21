@@ -1,5 +1,5 @@
 {
-  "version" : "2.2",
+  "version" : "2.3",
   "objective-function" : {
     "type" : "MAX_MIN_MARGIN_IN_AMPERE",
     "forbid-cost-increase" : false,
@@ -23,7 +23,9 @@
     }
   },
   "topological-actions-optimization" : {
-    "max-search-tree-depth" : 1,
+    "max-preventive-search-tree-depth" : 1,
+    "max-auto-search-tree-depth" : 1,
+    "max-curative-search-tree-depth" : 1,
     "predefined-combinations" : [ [ "open_fr1_fr3", "open_be1_be4", "close_fr1_fr5" ], [ "open_fr1_fr3", "open_be1__be4", "close_fr1_fr5" ] ],
     "relative-minimum-impact-threshold" : 0.0,
     "absolute-minimum-impact-threshold" : 1.0,
