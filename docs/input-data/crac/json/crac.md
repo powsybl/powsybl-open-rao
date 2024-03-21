@@ -2,6 +2,8 @@
 title: Internal json CRAC format
 ---
 
+# Internal json CRAC format
+
 ## Introduction
 
 The name CRAC is a standard denomination defined by the ENTSO-E which means: **C**ontingency list, **R**emedial 
@@ -54,18 +56,26 @@ The following paragraphs of this page explain, step by step, the content of thes
 ```{include} contingencies.md
 ```
 
-## Instants and States {#instants-states}
+## Instants and States
 ```{include} instants-states.md
 ```
 
 ## CNECs
-TODO  
+```{include} cnecs.md
+```
 
 ## Remedial actions and usages rules
-TODO  
+```{include} remedial-actions.md
+```
 
 ## Network Actions
-TODO  
+```{include} network-actions.md
+```
 
 ## Range Actions
-TODO  
+```{include} range-actions.md
+```
+
+## RAs usage limitations
+```{include} ra-usage-limits.md
+```

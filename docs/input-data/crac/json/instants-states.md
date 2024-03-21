@@ -19,7 +19,7 @@ The instant is a moment in the chronology of a contingency event. Four instants 
 > more restrictive permanent limits (PATL).  
 > FARAO allows a different limit setting for different instants on critical network elements (see [CNECs](#cnecs)).
 >
-> ![patl-vs-tatl](/assets/img/patl-tatl.png)
+> ![patl-vs-tatl](/_static/img/patl-tatl.png)
 > (**PRA** = Preventive Remedial Action,
 > **ARA** = Automatic Remedial Action,
 > **CRA** = Curative Remedial Action)
@@ -32,7 +32,7 @@ The FARAO object model includes the notion of "state". A state is either:
 
 The scheme below illustrates these notions of instant and state. It highlights the combinations of the situations which can be described in a CRAC, with a base-case situation, but also variants of this situation occurring at different moments in time after different probable and hypothetical contingencies.
 
-![Instants & states](/assets/img/States_AUTO.png)
+![Instants & states](/_static/img/States_AUTO.png)
 
 States are not directly added to a FARAO CRAC object model; they are implicitly created by business objects
 that are described in the following paragraphs ([CNECs](#cnecs) and [remedial actions](#remedial-actions)).
