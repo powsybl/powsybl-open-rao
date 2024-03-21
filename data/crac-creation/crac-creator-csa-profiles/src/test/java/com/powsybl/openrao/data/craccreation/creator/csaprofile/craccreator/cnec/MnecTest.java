@@ -1,31 +1,21 @@
 package com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.cnec;
 
-import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.data.craccreation.creator.api.ImportStatus;
-import com.powsybl.openrao.data.craccreation.creator.api.parameters.CracCreationParameters;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileCracCreationContext;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileElementaryCreationContext;
-import com.powsybl.openrao.data.craccreation.creator.csaprofile.parameters.CsaCracCreationParameters;
 import org.junit.jupiter.api.Test;
 
-import java.time.OffsetDateTime;
 import java.util.Comparator;
 import java.util.List;
 
-import static com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileCracCreationTestUtil.getCsaCracCreationContext;
-import static com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileCracCreationTestUtil.getNetworkFromResource;
+import static com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileCracCreationTestUtil.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class MnecTest {
 
     @Test
     void checkOnFlowConstraintUsageRule() {
-        Network network = getNetworkFromResource("/SecuredAndScannedAssessedElement.zip");
-        CracCreationParameters cracCreationParameters = new CracCreationParameters();
-        cracCreationParameters.addExtension(CsaCracCreationParameters.class, new CsaCracCreationParameters());
-        cracCreationParameters.getExtension(CsaCracCreationParameters.class).setCapacityCalculationRegionEicCode("10Y1001C–00095L");
-
-        CsaProfileCracCreationContext cracCreationContext = getCsaCracCreationContext("/SecuredAndScannedAssessedElement.zip", network, OffsetDateTime.parse("2023-03-29T12:00Z"), cracCreationParameters);
+        CsaProfileCracCreationContext cracCreationContext = getCsaCracCreationContext("/profiles/cnecs/SecuredAndScannedAssessedElements.zip", NETWORK);
 
         assertEquals(7, cracCreationContext.getCrac().getFlowCnecs().size());
         assertTrue(cracCreationContext.getCrac().getFlowCnec("RTE_AE2 (ae-2) - preventive").isOptimized());
@@ -49,18 +39,17 @@ public class MnecTest {
         assertFalse(cracCreationContext.getCrac().getFlowCnec("RTE_AE9 (ae-9) - preventive").isOptimized());
         assertFalse(cracCreationContext.getCrac().getFlowCnec("RTE_AE9 (ae-9) - preventive").isMonitored());
 
-
         List<CsaProfileElementaryCreationContext> notImportedCnecCreationContexts = cracCreationContext.getCnecCreationContexts().stream().filter(c -> !c.isImported())
             .sorted(Comparator.comparing(CsaProfileElementaryCreationContext::getNativeId)).toList();
         assertEquals(2, notImportedCnecCreationContexts.size());
 
-        assertEquals("RTE_AE1 (ae-1) - preventive", notImportedCnecCreationContexts.get(0).getNativeId());
+        assertEquals("ae-1", notImportedCnecCreationContexts.get(0).getNativeId());
         assertEquals(ImportStatus.INCONSISTENCY_IN_DATA, notImportedCnecCreationContexts.get(0).getImportStatus());
-        assertEquals("AssessedElement RTE_AE1 (ae-1) - preventive will not be imported because an AssessedElement cannot be optimized and monitored at the same time.", notImportedCnecCreationContexts.get(0).getImportStatusDetail());
+        assertEquals("AssessedElement ae-1 ignored because an AssessedElement cannot be optimized and monitored at the same time", notImportedCnecCreationContexts.get(0).getImportStatusDetail());
 
-        assertEquals("RTE_AE4 (ae-4) - preventive", notImportedCnecCreationContexts.get(1).getNativeId());
+        assertEquals("ae-4", notImportedCnecCreationContexts.get(1).getNativeId());
         assertEquals(ImportStatus.INCONSISTENCY_IN_DATA, notImportedCnecCreationContexts.get(1).getImportStatus());
-        assertEquals("AssessedElement RTE_AE1 (ae-1) - preventive will not be imported because an AssessedElement cannot be optimized and monitored at the same time.", notImportedCnecCreationContexts.get(0).getImportStatusDetail());
+        assertEquals("AssessedElement ae-4 ignored because an AssessedElement cannot be optimized and monitored at the same time", notImportedCnecCreationContexts.get(1).getImportStatusDetail());
 
     }
 }

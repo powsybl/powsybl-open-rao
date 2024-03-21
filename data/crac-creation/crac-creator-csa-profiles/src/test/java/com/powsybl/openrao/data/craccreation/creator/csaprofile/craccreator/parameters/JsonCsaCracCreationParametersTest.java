@@ -38,7 +38,7 @@ class JsonCsaCracCreationParametersTest {
         CracCreationParameters importedParameters = JsonCracCreationParameters.read(getClass().getResourceAsStream("/parameters/csa-crac-parameters-with-region-eic-code.json"));
         CsaCracCreationParameters csaCracCreationParameters = importedParameters.getExtension(CsaCracCreationParameters.class);
         assertNotNull(csaCracCreationParameters);
-        assertEquals("10Y1001C–00095L", csaCracCreationParameters.getCapacityCalculationRegionEicCode());
+        assertEquals("10Y1001C--00095L", csaCracCreationParameters.getCapacityCalculationRegionEicCode());
     }
 
     @Test
@@ -62,7 +62,7 @@ class JsonCsaCracCreationParametersTest {
         assertEquals(1, importedParameters.getExtensions().size());
         CsaCracCreationParameters csaCracCreationParameters = importedParameters.getExtension(CsaCracCreationParameters.class);
         assertNotNull(csaCracCreationParameters);
-        assertEquals("10Y1001C–00095L", csaCracCreationParameters.getCapacityCalculationRegionEicCode());
+        assertEquals("10Y1001C--00095L", csaCracCreationParameters.getCapacityCalculationRegionEicCode());
     }
 
 }

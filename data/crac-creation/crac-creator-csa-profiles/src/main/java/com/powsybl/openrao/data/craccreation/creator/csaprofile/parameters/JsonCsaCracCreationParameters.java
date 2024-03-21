@@ -16,9 +16,6 @@ import com.powsybl.openrao.data.craccreation.creator.api.parameters.JsonCracCrea
 
 import java.io.IOException;
 
-/**
- * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
- */
 @AutoService(JsonCracCreationParameters.ExtensionSerializer.class)
 public class JsonCsaCracCreationParameters implements JsonCracCreationParameters.ExtensionSerializer<CsaCracCreationParameters> {
 
