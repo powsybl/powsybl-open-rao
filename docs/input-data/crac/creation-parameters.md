@@ -116,21 +116,21 @@ The [CSE native crac format](cse) lacks important information that other formats
 The user can define a [CseCracCreationParameters](https://github.com/powsybl/powsybl-open-rao/blob/main/data/crac-creation/crac-creator-cse/src/main/java/com/powsybl/openrao/data/craccreation/creator/cse/parameters/CseCracCreationParameters.java) 
 extension to the CracCreationParameters object in order to define them.  
 
-### range-action-groups
-The CSE native CRAC format does not allow defining [aligned range actions](crac#range-action). This extra parameter 
+### range-action-groups (CSE)
+The CSE native CRAC format does not allow defining [aligned range actions](introduction.md#range-action). This extra parameter 
 allows the user to do just that.  
 To use it, you have to define a list of strings containing the IDs of range actions that have to be aligned seperated by a 
 " + " sign; for example "range-action-1-id + range-action-17-id" and "range-action-8-id + range-action-9-id".  
-See [example below](#cse-example) for a better illustration.
+See [example below](#full-cse-example) for a better illustration.
 
 ### bus-bar-change-switches
-As explained in the CSE native CRAC format section [here](cse#bus-bar), bus-bar-change remedial actions are defined in FARAO 
-as [switch pair network actions](crac#switch-pair).  
+As explained in the CSE native CRAC format section [here](cse.md#bus-bar-change), bus-bar-change remedial actions are defined in FARAO 
+as [switch pair network actions](introduction.md#switch-pair).  
 These switches are not defined in the native CRAC nor in the original network, they should be created artificially in the 
 network and their IDs should be sent to the RAO.  
 This parameter allows the definition of the switch(es) to open and the switch(es) to close for every bus-bar change remedial action.  
 To use it, for every bus-bar-change remedial action ID, define the IDs of the pairs of switches to open/close.  
-See [example below](#cse-example) for a better illustration.
+See [example below](#full-cse-example) for a better illustration.
 
 ### full CSE example
 ::::{tabs}
@@ -205,14 +205,14 @@ Spain-Portugal RAO. This is possible thanks to the CIM CRAC's TimeSeries tags, t
 the two borders.  
 The "timeseries-mrids" parameters allows the user to set which timeseries should be read from the CIM CRAC file, in order 
 to define the CNECs and remedial actions of the border-specific RAO. TimeSeries are identified by their "mRID" value.  
-See [example below](#cim-example) for a better illustration.
+See [example below](#full-cim-example) for a better illustration.
 
-### range-action-groups
-Like the CSE native CRAC format, the CIM format does not allow defining [aligned range actions](crac#range-action). 
+### range-action-groups (CIM)
+Like the CSE native CRAC format, the CIM format does not allow defining [aligned range actions](introduction.md#range-action). 
 This extra parameter allows the user to do just that.  
 To use it, you have to define a list of strings containing the IDs of range actions that have to be aligned seperated by a
 " + " sign; for example "range-action-1-id + range-action-17-id" and "range-action-8-id + range-action-9-id".  
-See [example below](#cim-example) for a better illustration.
+See [example below](#full-cim-example) for a better illustration.
 
 ### range-action-speeds
 FARAO can simulate range-action automatons, that is automatons that shift their set-points until one or many CNECs are secured.  
@@ -222,10 +222,10 @@ As the CIM native CRAC format does not allow the definition of relative automato
 To use it, set the speed of every range action automaton, defined by its ID. A smaller value means a speedier automaton.  
 Beware that FARAO cannot optimize range-action automatons that do not have a defined speed ; also that aligned range actions 
 must have the same speed.  
-See [example below](#cim-example) for a better illustration.
+See [example below](#full-cim-example) for a better illustration.
 
 ### voltage-cnecs-creation-parameters
-The CIM CRAC does not allow the definition of [VoltageCnecs](json#voltage-cnecs). This parameter allows the user 
+The CIM CRAC does not allow the definition of [VoltageCnecs](json.md#voltage-cnecs). This parameter allows the user 
 to add VoltageCnecs during CRAC creation.  
 To define voltage CNECs, the user has to define:
 - A list of monitored network elements, identified by their unique ID in the network file. These network elements must be VoltageLevels.
@@ -233,7 +233,7 @@ To define voltage CNECs, the user has to define:
 - For instants other than preventive that are selected, a list of contingencies after which these elements are monitored 
 at defined instants (the contingences shall be identified by their CIM CRAC mRIDs as they figure in the B55 Series/Contingency_Series)
 - For every instant, the minimum and maximum voltage thresholds to be respected for every nominal voltage level.  
-See [example below](#cim-example) for a better illustration.
+See [example below](#full-cim-example) for a better illustration.
 
 
 ### full CIM example

@@ -1,10 +1,5 @@
-.. documentation master file, created by
-
-PowSyBl-OpenRAO's user documentation
-====================================
-
-Input Data
-----------
+PowSyBl Open RAO's user documentation
+=====================================
 
 .. toctree::
    :maxdepth: 2

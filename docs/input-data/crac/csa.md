@@ -65,7 +65,7 @@ fields read by FARAO are displayed in the following chart.
 
 ## Contingencies
 
-The [contingencies](/docs/input-data/crac/json#contingencies) are described in the **CO** profile. They can be represented by three types of
+The [contingencies](json.md#contingencies) are described in the **CO** profile. They can be represented by three types of
 objects: `OrdinaryContingency`, `ExceptionalContingency` and  `OutOfRangeContingency`. The contingency must be
 associated to the impacted network elements through `ContingencyEquipment` objects.
 
@@ -163,7 +163,7 @@ element.
 
 ## CNECs
 
-The [CNECs](/docs/input-data/crac/json#cnecs) are described in the **AE** profile with an `AssessedElement` object which bears the identifier,
+The [CNECs](json.md#cnecs) are described in the **AE** profile with an `AssessedElement` object which bears the identifier,
 name, instant(s) and operator information.
 
 ```xml
@@ -229,7 +229,7 @@ of the Assessed Element (or the use of a `ConductingEquipment` for FlowCNECs).
 
 ::::{tabs}
 :::{group-tab} OperationalLimit
-The CNEC is a [FlowCNEC](/docs/input-data/crac/json#flow-cnecs) if its associated `OperationalLimit` is a `CurrentLimit` which can be found in
+The CNEC is a [FlowCNEC](json.md#flow-cnecs) if its associated `OperationalLimit` is a `CurrentLimit` which can be found in
 the **EQ** profile (CGMES file).
 
 ```xml
@@ -347,7 +347,7 @@ both the maximum (positive) and minimum (negative) FlowCNEC's thresholds.
 
 ### AngleCNEC
 
-The CNEC is an [AngleCNEC](/docs/input-data/crac/json#angle-cnecs) if its associated `OperationalLimit` is a `VoltageAngleLimit` which can be
+The CNEC is an [AngleCNEC](json.md#angle-cnecs) if its associated `OperationalLimit` is a `VoltageAngleLimit` which can be
 found in the **ER** profile.
 
 ```xml
@@ -404,7 +404,7 @@ on the `VoltageAngleLimit`'s `isFlowToRefTerminal` field value:
 
 ### VoltageCNEC
 
-The CNEC is a [VoltageCNEC](/docs/input-data/crac/json#voltage-cnecs) if its associated `OperationalLimit` is a `VoltageLimit` which can be
+The CNEC is a [VoltageCNEC](json.md#voltage-cnecs) if its associated `OperationalLimit` is a `VoltageLimit` which can be
 found in the **EQ** profile (CGMES file).
 
 ```xml
@@ -451,7 +451,7 @@ existing BusBarSection in the network.
 
 ## Remedial Actions
 
-The [remedial actions](/docs/input-data/crac/json#remedial-actions) are described in the **RA** profile. The most general way to describe a
+The [remedial actions](json.md#remedial-actions-and-usages-rules) are described in the **RA** profile. The most general way to describe a
 remedial action is with a `GridStateAlterationRemedialAction` object that bears the identifier, name, operator, speed
 and instant of the remedial action.
 
@@ -497,7 +497,7 @@ definition of the remedial action. The field of the `StaticPropertyRange` are:
 
 ### PST Range Action
 
-A [PST range action](/docs/input-data/crac/json#pst-range-action) is described by a `TapPositionAction` object which references its parent
+A [PST range action](json.md#pst-range-action) is described by a `TapPositionAction` object which references its parent
 remedial action (`GridStateAlterationRemedialAction`) and the PST affected by the action.
 
 ```xml
@@ -571,7 +571,7 @@ and/or maximum tap.
 
 #### Topological Action
 
-A [topological action](/docs/input-data/crac/json#network-actions) is described by a `TopologyAction` object which references its parent
+A [topological action](json.md#network-actions) is described by a `TopologyAction` object which references its parent
 remedial action (`GridStateAlterationRemedialAction`) and the switch affected by the action.
 
 ```xml
@@ -633,7 +633,7 @@ state. Finally, the `normalValue` field sets the behaviour of the switch:
 
 #### Injection Set-point Action
 
-An [injection set-point action](/docs/input-data/crac/json#network-actions) is described by a `SetPointAction` object which references its
+An [injection set-point action](json.md#network-actions) is described by a `SetPointAction` object which references its
 parent remedial action (`GridStateAlterationRemedialAction`) and the network element affected by the action, and which
 is itself referenced by a `StaticPropertyRange` object to provide the numerical value of the set-point. Currently, FARAO
 handles three types of CSA set-point actions: the **rotating machine actions**, the **power electronics connection

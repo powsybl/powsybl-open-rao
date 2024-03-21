@@ -83,7 +83,7 @@ identify it with other names.
 Another problem is that from/to nodes can be inverted in the CRAC compared to what is present in the network. Such 
 branches are correctly identified when the file is imported, but appears to be inverted in the resulting CRAC - meaning 
 that their flow sign might be different between the 'CORE-definition' of the branch and the 'FARAO-definition' of the 
-branch. The inversion of the branch is tracked in the [CracCreationContext](creation-context#fbconstraint) to handle 
+branch. The inversion of the branch is tracked in the [CracCreationContext](creation-context.md#flowbasedconstraint-implementation) to handle 
 properly the sign of the flow when the results of the RAO are exported.
 
 ### Thresholds

@@ -21,7 +21,7 @@ print(f'appended {source_path}')
 
 # -- Project information -----------------------------------------------------
 
-project = 'powsybl-openrao'
+project = 'PowSyBl Open RAO'
 copyright = '2024, RTE (http://www.rte-france.com)'
 
 
@@ -62,8 +62,8 @@ exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
 #
 html_theme = "pydata_sphinx_theme"
 
-html_title = 'powsybl-openrao'
-html_short_title = 'powsybl-openrao'
+html_title = 'PowSyBl Open RAO'
+html_short_title = 'PowSyBl Open RAO'
 
 html_logo = '_static/logos/powsybl_logo.svg'
 html_favicon = "_static/favicon.ico"

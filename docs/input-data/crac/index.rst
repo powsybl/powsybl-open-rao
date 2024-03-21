@@ -1,14 +1,15 @@
 CRAC
 ====
 
-This is the reference documentation for CRAC input data
+Reference documentation for Open RAO's CRAC input data
 
 .. toctree::
    :maxdepth: 2
 
+   introduction.md
    import.md
    creation-parameters.md
-   json/crac.md
+   json.md
    fbconstraint.md
    cse.md
    cim.md

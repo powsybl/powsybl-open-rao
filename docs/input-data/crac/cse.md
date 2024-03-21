@@ -69,11 +69,11 @@ However, a branch has also a lot of optional tags that are described right below
 - **EIC** : Identification
 - **AlwaysSelected** : FARAO does not use this tag, it only reads the selected tag one
 - **selected** : If selected is false, FARAO will not consider the margin on this branch in its optimization. Default value is true
-- **Imax{...} and Ilimit{...}** : Please refer respectively to the [CriticalBranches](#critical-branch) and [Monitored Elements](#monitored-elements) sections at the end of this page
+- **Imax{...} and Ilimit{...}** : Please refer respectively to the [CriticalBranches](#criticalbranches) and [Monitored Elements](#monitoredelements) sections at the end of this page
 - **Vn** : It is the nominal voltage, but FARAO reads is directly in the network therefore it is useless to fill it
 - **minmargin** : FARAO does not interact with this tag
 - **Direction** : Has to be DIRECT, OPPOSITE or BIDIR. **If the Branch is defined in a BaseCaseBranch, a CriticalBranch 
-or a MonitoredElement, this tag is mandatory.** Please refer to [this section](json#flow-cnecs) of JSON CRAC Format
+or a MonitoredElement, this tag is mandatory.** Please refer to [this section](json.md#flow-cnecs) of JSON CRAC Format
 for more information on the behavior of FARAO according to the different direction values.
 - **Status** : Must be OPEN or CLOSE for a branch involved in a topological action. Default value is OPEN. See an example in the [topological actions](#network-actions) section of this page.
 - **Sensitivity** : FARAO does not interact with this tag
@@ -140,7 +140,7 @@ A remedial action can be of different types, but they will always have :
 
 **The SharedWith tag**
 
-This tag defines the usage rule of the remedial action. You can refer to [this section](json#remedial-actions) for further explanation on the usage rule behavior.
+This tag defines the usage rule of the remedial action. You can refer to [this section](json.md#remedial-actions-and-usages-rules) for further explanation on the usage rule behavior.
 
 If SharedWith is "CSE" : FreeToUse  
 If SharedWith is a UCTE country code : OnFlowConstraintInCountry in the country filled in     
@@ -312,8 +312,8 @@ or closed by these remedial actions.
 
 ![bus-bar-equivalent-model](/_static/img/busbar.png)  
 
-Using [CseCracCreationParameters](creation-parameters.md#cse), FARAO can then map these remedial actions to the switches 
-created by the user, and interpret BusBar remedial actions as [SwitchPairs](crac#switch-pair).
+Using [CseCracCreationParameters](creation-parameters.md#cse-specific-parameters), FARAO can then map these remedial actions to the switches 
+created by the user, and interpret BusBar remedial actions as [SwitchPairs](introduction.md#switch-pair).
 
 ## CriticalBranches
 

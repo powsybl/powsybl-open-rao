@@ -1,16 +1,3 @@
----
-layout: documentation
-title: CIM CRAC format
-permalink: /docs/input-data/crac/cim
-hide: true
-root-page: Documentation
-docu-section: Input Data
-docu-parent: CRAC
-order: 6
-tags: [Docs, Data, CRAC]
-see-also: |
-    [CimCracCreationParameters](creation-parameters#cim), [CimCracCreationContext](creation-context#cim)
----
 # CIM CRAC format
 
 ## Header overview
@@ -47,7 +34,7 @@ see-also: |
 </CRAC_MarketDocument>
 ```
 A crac market document has a time interval for its validity. Therefore, **this document has to be imported for a specific datetime** – hourly-precise.  
-Moreover, only timeseries whose mRIDs are configured in the CimCracCreationParameters [timeseries-mrids](creation-parameters#timeseries-mrids) 
+Moreover, only timeseries whose mRIDs are configured in the CimCracCreationParameters [timeseries-mrids](creation-parameters.md#timeseries-mrids) 
 parameter are imported. This allows the import of border-specific contraints and remedial actions.
 Each timeseries is configured using a curve: either **SEQUENTIAL_FIXED_SIZE_BLOCKS_CURVE_TYPE** (value "A01"), 
 or **VARIABLE_SIZED_BLOCK_CURVE**  (value "A03").
@@ -242,7 +229,7 @@ In the CIM CRAC, AngleCnecs are actually defined with their corresponding remedi
 
 ### VoltageCnecs 
 
-[VoltageCnecs are defined in the CimCracCreationParameters](creation-parameters#voltage-cnecs-creation-parameters). 
+[VoltageCnecs are defined in the CimCracCreationParameters](creation-parameters.md#voltage-cnecs-creation-parameters). 
 Nevertheless, they are imported via the CimCracCreator because that's where the information on which contingencies are imported lies. 
 Only voltage CNECs with contingencies that were previously correctly defined shall be imported.
 
@@ -284,13 +271,13 @@ BusinessType in B56 series should always be B59. In RemedialAction_Series, the a
 
 By default, the operator is read from the RemedialAction_Series' mRID, as the string that precedes the first "-" character. In the example above, the operator would be "RTE".  
 
-RemedialAction_Series may also contain Contingency_Series, Monitored_Series and Shared_Domain tags. Remedial actions' [usage rules](json#remedial-actions) will be defined depending on these tags: 
+RemedialAction_Series may also contain Contingency_Series, Monitored_Series and Shared_Domain tags. Remedial actions' [usage rules](json.md#remedial-actions-and-usages-rules) will be defined depending on these tags: 
 - RemedialAction_Series that don't have any Monitored_Series children tags nor any Shared_Domain tags define **FreeToUse** remedial actions.
-- When Monitored_Series tags exist, they define CNECs for which the remedial action series is available. These CNECs could have been defined previously in B57 series, or they are only defined in this B56 series following the [same logic described previously](#flow-cnecs). When the RemedialAction_Series also contains a Contingency_Series, the only CNECs from the Monitored_Series tags that will be considered are those that list CNECs defined with a contingency from the Contingency_Series. For each remaining CNEC, the remedial action is defined with a **OnFlowConstraint** on the remedial action's instant.
+- When Monitored_Series tags exist, they define CNECs for which the remedial action series is available. These CNECs could have been defined previously in B57 series, or they are only defined in this B56 series following the [same logic described previously](#cnecs). When the RemedialAction_Series also contains a Contingency_Series, the only CNECs from the Monitored_Series tags that will be considered are those that list CNECs defined with a contingency from the Contingency_Series. For each remaining CNEC, the remedial action is defined with a **OnFlowConstraint** on the remedial action's instant.
 - When the RemedialAction_Series has no Contingency_Series, no Monitored_Series, and a Shared_Domain tag, the Shared_Domain tag must be taken into account. It represents a country. Then, the remedial action is defined with a **OnFlowConstraintInCountry** on the remedial action's instant.  
 
 Some remedial actions may have to be aligned in order to keep the same set-point value. 
-When it's the case, this information is retrieved [from the CracCreationParameters file](creation-parameters#cim-range-action-groups) 
+When it's the case, this information is retrieved [from the CracCreationParameters file](creation-parameters.md#range-action-groups-cim) 
 and the remedial actions are defined with a common groupId.
 
 ### PST Range Actions
