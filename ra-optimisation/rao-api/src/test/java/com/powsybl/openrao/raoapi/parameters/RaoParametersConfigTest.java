@@ -95,7 +95,9 @@ class RaoParametersConfigTest {
     @Test
     void checkTopoActionsOptimizationConfig() {
         MapModuleConfig topoActionsModuleConfig = platformCfg.createModuleConfig("rao-topological-actions-optimization");
-        topoActionsModuleConfig.setStringProperty("max-search-tree-depth", Objects.toString(3));
+        topoActionsModuleConfig.setStringProperty("max-preventive-search-tree-depth", Objects.toString(3));
+        topoActionsModuleConfig.setStringProperty("max-auto-search-tree-depth", Objects.toString(2));
+        topoActionsModuleConfig.setStringProperty("max-curative-search-tree-depth", Objects.toString(3));
         topoActionsModuleConfig.setStringListProperty("predefined-combinations", List.of("{na12} + {na22}", "{na41} + {na5} + {na6}"));
         topoActionsModuleConfig.setStringProperty("relative-minimum-impact-threshold", Objects.toString(0.9));
         topoActionsModuleConfig.setStringProperty("absolute-minimum-impact-threshold", Objects.toString(22));
@@ -104,7 +106,9 @@ class RaoParametersConfigTest {
         RaoParameters parameters = new RaoParameters();
         RaoParameters.load(parameters, platformCfg);
         TopoOptimizationParameters params = parameters.getTopoOptimizationParameters();
-        assertEquals(3, params.getMaxSearchTreeDepth(), DOUBLE_TOLERANCE);
+        assertEquals(3, params.getMaxPreventiveSearchTreeDepth(), DOUBLE_TOLERANCE);
+        assertEquals(2, params.getMaxAutoSearchTreeDepth(), DOUBLE_TOLERANCE);
+        assertEquals(3, params.getMaxCurativeSearchTreeDepth(), DOUBLE_TOLERANCE);
         assertEquals(List.of(List.of("na12", "na22"), List.of("na41", "na5", "na6")), params.getPredefinedCombinations());
         assertEquals(0.9, params.getRelativeMinImpactThreshold(), DOUBLE_TOLERANCE);
         assertEquals(22, params.getAbsoluteMinImpactThreshold(), DOUBLE_TOLERANCE);
@@ -117,12 +121,14 @@ class RaoParametersConfigTest {
         MapModuleConfig multiThreadingModuleConfig = platformCfg.createModuleConfig("rao-multi-threading");
         multiThreadingModuleConfig.setStringProperty("contingency-scenarios-in-parallel", Objects.toString(3));
         multiThreadingModuleConfig.setStringProperty("preventive-leaves-in-parallel", Objects.toString(23));
+        multiThreadingModuleConfig.setStringProperty("auto-leaves-in-parallel", Objects.toString(17));
         multiThreadingModuleConfig.setStringProperty("curative-leaves-in-parallel", Objects.toString(43));
         RaoParameters parameters = new RaoParameters();
         RaoParameters.load(parameters, platformCfg);
         MultithreadingParameters params = parameters.getMultithreadingParameters();
         assertEquals(3, params.getContingencyScenariosInParallel(), DOUBLE_TOLERANCE);
         assertEquals(23, params.getPreventiveLeavesInParallel(), DOUBLE_TOLERANCE);
+        assertEquals(17, params.getAutoLeavesInParallel(), DOUBLE_TOLERANCE);
         assertEquals(43, params.getCurativeLeavesInParallel(), DOUBLE_TOLERANCE);
     }
 
