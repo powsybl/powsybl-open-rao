@@ -1,0 +1,4 @@
+sphinx==5.0.2
+sphinx-tabs
+pydata-sphinx-theme==0.10.1
+myst-parser
