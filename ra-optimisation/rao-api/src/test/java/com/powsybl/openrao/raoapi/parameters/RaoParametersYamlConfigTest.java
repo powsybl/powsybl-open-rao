@@ -63,7 +63,9 @@ class RaoParametersYamlConfigTest extends AbstractSerDeTest {
         assertEquals("BLABLABLA", rangeActionsOptimizationParameters.getLinearOptimizationSolver().getSolverSpecificParameters());
 
         TopoOptimizationParameters topoOptimizationParameters = parameters.getTopoOptimizationParameters();
-        assertEquals(3, topoOptimizationParameters.getMaxSearchTreeDepth(), DOUBLE_TOLERANCE);
+        assertEquals(3, topoOptimizationParameters.getMaxPreventiveSearchTreeDepth(), DOUBLE_TOLERANCE);
+        assertEquals(2, topoOptimizationParameters.getMaxAutoSearchTreeDepth(), DOUBLE_TOLERANCE);
+        assertEquals(3, topoOptimizationParameters.getMaxCurativeSearchTreeDepth(), DOUBLE_TOLERANCE);
         assertEquals(List.of(List.of("na1", "na2"), List.of("na3", "na4", "na5")), topoOptimizationParameters.getPredefinedCombinations());
         assertEquals(0.02, topoOptimizationParameters.getRelativeMinImpactThreshold(), DOUBLE_TOLERANCE);
         assertEquals(2.0, topoOptimizationParameters.getAbsoluteMinImpactThreshold(), DOUBLE_TOLERANCE);
@@ -73,6 +75,7 @@ class RaoParametersYamlConfigTest extends AbstractSerDeTest {
         MultithreadingParameters multithreadingParameters = parameters.getMultithreadingParameters();
         assertEquals(4, multithreadingParameters.getContingencyScenariosInParallel(), DOUBLE_TOLERANCE);
         assertEquals(5, multithreadingParameters.getPreventiveLeavesInParallel(), DOUBLE_TOLERANCE);
+        assertEquals(3, multithreadingParameters.getAutoLeavesInParallel(), DOUBLE_TOLERANCE);
         assertEquals(6, multithreadingParameters.getCurativeLeavesInParallel(), DOUBLE_TOLERANCE);
 
         SecondPreventiveRaoParameters secondPreventiveRaoParameters = parameters.getSecondPreventiveRaoParameters();
@@ -145,7 +148,9 @@ class RaoParametersYamlConfigTest extends AbstractSerDeTest {
         assertEquals("BLABLABLA", rangeActionsOptimizationParameters.getLinearOptimizationSolver().getSolverSpecificParameters());
 
         TopoOptimizationParameters topoOptimizationParameters = parameters.getTopoOptimizationParameters();
-        assertEquals(3, topoOptimizationParameters.getMaxSearchTreeDepth(), DOUBLE_TOLERANCE);
+        assertEquals(3, topoOptimizationParameters.getMaxPreventiveSearchTreeDepth(), DOUBLE_TOLERANCE);
+        assertEquals(2, topoOptimizationParameters.getMaxAutoSearchTreeDepth(), DOUBLE_TOLERANCE);
+        assertEquals(3, topoOptimizationParameters.getMaxCurativeSearchTreeDepth(), DOUBLE_TOLERANCE);
         assertEquals(List.of(List.of("na1", "na2"), List.of("na3", "na4", "na5")), topoOptimizationParameters.getPredefinedCombinations());
         assertEquals(0.02, topoOptimizationParameters.getRelativeMinImpactThreshold(), DOUBLE_TOLERANCE);
         assertEquals(2.0, topoOptimizationParameters.getAbsoluteMinImpactThreshold(), DOUBLE_TOLERANCE);
@@ -155,6 +160,7 @@ class RaoParametersYamlConfigTest extends AbstractSerDeTest {
         MultithreadingParameters multithreadingParameters = parameters.getMultithreadingParameters();
         assertEquals(4, multithreadingParameters.getContingencyScenariosInParallel(), DOUBLE_TOLERANCE);
         assertEquals(5, multithreadingParameters.getPreventiveLeavesInParallel(), DOUBLE_TOLERANCE);
+        assertEquals(3, multithreadingParameters.getAutoLeavesInParallel(), DOUBLE_TOLERANCE);
         assertEquals(6, multithreadingParameters.getCurativeLeavesInParallel(), DOUBLE_TOLERANCE);
 
         SecondPreventiveRaoParameters secondPreventiveRaoParameters = parameters.getSecondPreventiveRaoParameters();
@@ -214,7 +220,9 @@ class RaoParametersYamlConfigTest extends AbstractSerDeTest {
         assertEquals("BLABLABLA", rangeActionsOptimizationParameters.getLinearOptimizationSolver().getSolverSpecificParameters());
 
         TopoOptimizationParameters topoOptimizationParameters = parameters.getTopoOptimizationParameters();
-        assertEquals(3, topoOptimizationParameters.getMaxSearchTreeDepth(), DOUBLE_TOLERANCE);
+        assertEquals(3, topoOptimizationParameters.getMaxPreventiveSearchTreeDepth(), DOUBLE_TOLERANCE);
+        assertEquals(2, topoOptimizationParameters.getMaxAutoSearchTreeDepth(), DOUBLE_TOLERANCE);
+        assertEquals(3, topoOptimizationParameters.getMaxCurativeSearchTreeDepth(), DOUBLE_TOLERANCE);
         assertEquals(List.of(List.of("na1", "na2"), List.of("na3", "na4", "na5")), topoOptimizationParameters.getPredefinedCombinations());
         assertEquals(0.02, topoOptimizationParameters.getRelativeMinImpactThreshold(), DOUBLE_TOLERANCE);
         assertEquals(2.0, topoOptimizationParameters.getAbsoluteMinImpactThreshold(), DOUBLE_TOLERANCE);
@@ -224,6 +232,7 @@ class RaoParametersYamlConfigTest extends AbstractSerDeTest {
         MultithreadingParameters multithreadingParameters = parameters.getMultithreadingParameters();
         assertEquals(1, multithreadingParameters.getContingencyScenariosInParallel(), DOUBLE_TOLERANCE);
         assertEquals(5, multithreadingParameters.getPreventiveLeavesInParallel(), DOUBLE_TOLERANCE);
+        assertEquals(2, multithreadingParameters.getAutoLeavesInParallel(), DOUBLE_TOLERANCE);
         assertEquals(6, multithreadingParameters.getCurativeLeavesInParallel(), DOUBLE_TOLERANCE);
 
         SecondPreventiveRaoParameters secondPreventiveRaoParameters = parameters.getSecondPreventiveRaoParameters();
