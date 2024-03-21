@@ -758,11 +758,8 @@ public class CastorFullOptimization {
         // For the same reason, we are going to check preventive RAs that share the same network elements as auto or curative RAs.
 
         // First we filter out state that diverged because we know no set-point was chosen for this state.
-        contingencyResults.forEach((state, result) -> {
-            if (result instanceof SkippedOptimizationResultImpl) {
-                contingencyResults.remove(state);
-            }
-        });
+        Map<State, OptimizationResult> newContingencyResults = new HashMap<>(contingencyResults);
+        newContingencyResults.entrySet().removeIf(entry -> entry.getValue() instanceof SkippedOptimizationResultImpl);
 
         // Then we build a map giving for each RA, its tap at each state it's available at.
         Set<RangeAction<?>> rangeActionsNotPreventive = crac.getRangeActions().stream().filter(ra -> isRangeActionAutoOrCurative(ra, crac)).collect(Collectors.toSet());
@@ -780,7 +777,7 @@ public class CastorFullOptimization {
         });
         correspondanceMap.forEach((pra, associatedCras) -> {
             setPointResults.put(pra, new HashMap<>(Map.of(preventiveState, Set.of(firstPreventiveResult.getOptimizedSetpoint(pra, preventiveState)))));
-            associatedCras.forEach(cra -> contingencyResults.forEach((state, result) -> {
+            associatedCras.forEach(cra -> newContingencyResults.forEach((state, result) -> {
                 if (isRangeActionAvailableInState(cra, state, crac)) {
                     Map<State, Set<Double>> praResults = setPointResults.get(pra);
                     double craSetPoint = result.getOptimizedSetpoint(cra, state);
@@ -792,7 +789,7 @@ public class CastorFullOptimization {
         rangeActionsToRemove.forEach(multipleInstantRangeActions::remove);
         multipleInstantRangeActions.forEach(ra -> {
             setPointResults.put(ra, new HashMap<>(Map.of(preventiveState, Set.of(firstPreventiveResult.getOptimizedSetpoint(ra, preventiveState)))));
-            contingencyResults.forEach((state, result) -> {
+            newContingencyResults.forEach((state, result) -> {
                 if (isRangeActionAvailableInState(ra, state, crac)) {
                     setPointResults.get(ra).put(state, Set.of(result.getOptimizedSetpoint(ra, state)));
                 }
