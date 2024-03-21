@@ -109,14 +109,19 @@ GRAPH <%s> {
                 ?assessedElement nc:AssessedElement.OperationalLimit ?operationalLimit .
                 }
     OPTIONAL {
-            ?assessedElement nc:AssessedElement.isCombinableWithContingency ?isCombinableWithContingency .
+                ?assessedElement nc:AssessedElement.isCombinableWithContingency ?isCombinableWithContingency .
             }
     OPTIONAL {
-            ?assessedElement nc:AssessedElement.normalEnabled ?normalEnabled .
+               ?assessedElement nc:AssessedElement.normalEnabled ?normalEnabled .
             }
     OPTIONAL {
-        ?assessedElement
-            nc:AssessedElement.isCombinableWithRemedialAction ?isCombinableWithRemedialAction ;
+                ?assessedElement nc:AssessedElement.SecuredForRegion ?securedForRegion .
+            }
+    OPTIONAL {
+                ?assessedElement nc:AssessedElement.ScannedForRegion ?scannedForRegion .
+            }
+    OPTIONAL {
+                ?assessedElement nc:AssessedElement.isCombinableWithRemedialAction ?isCombinableWithRemedialAction ;
     }
 }
 }
