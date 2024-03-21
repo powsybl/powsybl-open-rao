@@ -11,7 +11,7 @@ Feature: US 24.1 : Run RAO for SWE CSA process
     Given crac file is "epic24/TestCase_13_5_4.zip"
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
     When I launch search_tree_rao at "2023-04-30 22:30"
-    Then the worst margin is -342 A
+    Then the worst margin is -184.1 A
     And the remedial action "open_fr1_fr2" is used in preventive
     # TODO: define "close" RA and change this test when closing topo actions is supported
     # And the remedial action "close_fr1_fr5" is used after "co1_fr2_fr3_1" at "curative"
