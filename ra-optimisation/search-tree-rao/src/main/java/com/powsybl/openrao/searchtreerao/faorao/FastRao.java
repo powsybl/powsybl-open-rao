@@ -108,16 +108,13 @@ public class FastRao implements RaoProvider {
             //computeAvailableRangeActions(initialResult, crac, network, parameters);
 
             Set<FlowCnec> worstCnecs = new HashSet<>();
-            worstCnecs.addAll(initialResult.getMostLimitingElements(20));
-            worstCnecs.addAll(getCostlyVirtualCnecs(initialResult));
-            worstCnecs.add(getWorstPreventiveCnec(initialResult));
-
             FlowCnec worstCnec;
             FastRaoResultImpl raoResult;
 
             com.powsybl.openrao.data.cracapi.Instant lastInstant = raoInput.getCrac().getLastInstant();
             do {
                 worstCnecs.addAll(ofResult.getMostLimitingElements(20));
+                worstCnecs.addAll(getUnsecureFunctionalCnecs(ofResult, parameters.getObjectiveFunctionParameters().getType().getUnit()));
                 worstCnecs.addAll(getCostlyVirtualCnecs(ofResult));
                 worstCnecs.add(getWorstPreventiveCnec(ofResult));
                 cleanVariants(raoInput.getNetwork(), initialNetworkVariants);
@@ -165,6 +162,17 @@ public class FastRao implements RaoProvider {
         return orderedCnecs.stream().filter(cnec -> cnec.getState().isPreventive()).findFirst().orElse(
             ofResult.getObjectiveFunction().getFlowCnecs().stream().filter(flowCnec -> flowCnec.getState().isPreventive()).findFirst().orElseThrow()
         );
+    }
+
+    private Set<FlowCnec> getUnsecureFunctionalCnecs(PrePerimeterResult prePerimeterResult, Unit unit) {
+        List<FlowCnec> orderedCnecs = prePerimeterResult.getMostLimitingElements(1000);
+        Set<FlowCnec> flowCnecs = new HashSet<>();
+        for (FlowCnec cnec : orderedCnecs) {
+            if (prePerimeterResult.getMargin(cnec, unit) < 5) {
+                flowCnecs.add(cnec);
+            }
+        }
+        return flowCnecs;
     }
 
     private Set<FlowCnec> getCostlyVirtualCnecs(ObjectiveFunctionResult ofResult) {
