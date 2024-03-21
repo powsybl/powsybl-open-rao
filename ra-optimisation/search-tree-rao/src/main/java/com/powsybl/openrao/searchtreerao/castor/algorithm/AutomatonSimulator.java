@@ -202,6 +202,12 @@ public final class AutomatonSimulator {
         Set<FlowCnec> flowCnecs = crac.getFlowCnecs();
         Set<NetworkAction> appliedNetworkActions = crac.getNetworkActions().stream()
             .filter(ra -> RaoUtil.isRemedialActionAvailable(ra, automatonState, prePerimeterSensitivityOutput, flowCnecs, network, raoParameters))
+            .peek(networkAction -> {
+                if (!networkAction.hasImpactOnNetwork(network)) {
+                    TECHNICAL_LOGS.info("Automaton {} - {} has been skipped as it has no impact on network.", networkAction.getId(), networkAction.getName());
+                }
+            })
+            .filter(networkAction -> networkAction.hasImpactOnNetwork(network))
             .collect(Collectors.toSet());
 
         if (appliedNetworkActions.isEmpty()) {
