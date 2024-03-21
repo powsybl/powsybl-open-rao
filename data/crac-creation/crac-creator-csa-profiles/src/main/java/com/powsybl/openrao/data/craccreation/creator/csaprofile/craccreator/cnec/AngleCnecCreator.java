@@ -44,9 +44,9 @@ public class AngleCnecCreator extends AbstractCnecCreator {
 
     private AngleCnecAdder initAngleCnec() {
         return crac.newAngleCnec()
-                .withMonitored(true)
-                .withOptimized(false)
-                .withReliabilityMargin(0);
+            .withMonitored(true)
+            .withOptimized(false)
+            .withReliabilityMargin(0);
     }
 
     private boolean addAngleLimit(AngleCnecAdder angleCnecAdder) {
@@ -77,7 +77,7 @@ public class AngleCnecCreator extends AbstractCnecCreator {
     private String checkAngleNetworkElementAndGetId(String terminalId) {
         Identifiable<?> networkElement = this.getNetworkElementInNetwork(terminalId);
         if (networkElement == null) {
-            csaProfileCnecCreationContexts.add(CsaProfileElementaryCreationContext.notImported(assessedElementId, ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK, writeAssessedElementIgnoredReasonMessage("angle limit equipment is missing in network : " + terminalId)));
+            csaProfileCnecCreationContexts.add(CsaProfileElementaryCreationContext.notImported(assessedElementId, ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK, writeAssessedElementIgnoredReasonMessage("the angle limit equipment " + terminalId + " is missing in network")));
             return null;
         }
         if (!networkElement.getType().equals(IdentifiableType.BUS)) {
@@ -88,7 +88,7 @@ public class AngleCnecCreator extends AbstractCnecCreator {
     }
 
     private boolean addAngleLimitThreshold(AngleCnecAdder angleCnecAdder, PropertyBag angleLimit, boolean isFlowToRefTerminalIsNull) {
-        String normalValueStr = angleLimit.get(CsaProfileConstants.REQUEST_OPERATIONAL_LIMIT_NORMAL_VALUE);
+        String normalValueStr = angleLimit.get(CsaProfileConstants.REQUEST_VOLTAGE_ANGLE_LIMIT_NORMAL_VALUE);
         Double normalValue = Double.valueOf(normalValueStr);
         if (normalValue < 0) {
             csaProfileCnecCreationContexts.add(CsaProfileElementaryCreationContext.notImported(assessedElementId, ImportStatus.INCONSISTENCY_IN_DATA, writeAssessedElementIgnoredReasonMessage("the angle limit's normal value is negative")));
@@ -100,27 +100,27 @@ public class AngleCnecCreator extends AbstractCnecCreator {
                 return false;
             }
             angleCnecAdder.newThreshold()
-                    .withUnit(Unit.DEGREE)
-                    .withMax(normalValue).add();
+                .withUnit(Unit.DEGREE)
+                .withMax(normalValue).add();
         } else if (CsaProfileConstants.OperationalLimitDirectionKind.LOW.toString().equals(direction)) {
             if (handleMissingIsFlowToRefTerminalForNotAbsoluteDirection(isFlowToRefTerminalIsNull, CsaProfileConstants.OperationalLimitDirectionKind.LOW)) {
                 return false;
             }
             angleCnecAdder.newThreshold()
-                    .withUnit(Unit.DEGREE)
-                    .withMin(-normalValue).add();
+                .withUnit(Unit.DEGREE)
+                .withMin(-normalValue).add();
         } else if (CsaProfileConstants.OperationalLimitDirectionKind.ABSOLUTE.toString().equals(direction)) {
             angleCnecAdder.newThreshold()
-                    .withUnit(Unit.DEGREE)
-                    .withMin(-normalValue)
-                    .withMax(normalValue).add();
+                .withUnit(Unit.DEGREE)
+                .withMin(-normalValue)
+                .withMax(normalValue).add();
         }
         return true;
     }
 
     private boolean handleMissingIsFlowToRefTerminalForNotAbsoluteDirection(boolean isFlowToRefTerminalIsNull, CsaProfileConstants.OperationalLimitDirectionKind direction) {
         if (isFlowToRefTerminalIsNull) {
-            csaProfileCnecCreationContexts.add(CsaProfileElementaryCreationContext.notImported(assessedElementId, ImportStatus.INCONSISTENCY_IN_DATA, writeAssessedElementIgnoredReasonMessage("of an ambiguous angle limit direction definition from an undefined VoltageAngleLimit.isFlowToRefTerminal and an OperationalLimit.OperationalLimitType : " + direction)));
+            csaProfileCnecCreationContexts.add(CsaProfileElementaryCreationContext.notImported(assessedElementId, ImportStatus.INCONSISTENCY_IN_DATA, writeAssessedElementIgnoredReasonMessage("of an ambiguous angle limit direction definition from an undefined VoltageAngleLimit.isFlowToRefTerminal and an OperationalLimit.OperationalLimitType: " + direction)));
             return true;
         }
         return false;
@@ -128,7 +128,7 @@ public class AngleCnecCreator extends AbstractCnecCreator {
 
     private boolean addAngleCnecElements(AngleCnecAdder angleCnecAdder, String networkElement1Id, String networkElement2Id, boolean isFlowToRefTerminal) {
         if (Objects.equals(networkElement1Id, networkElement2Id)) {
-            csaProfileCnecCreationContexts.add(CsaProfileElementaryCreationContext.notImported(assessedElementId, ImportStatus.INCONSISTENCY_IN_DATA, writeAssessedElementIgnoredReasonMessage("AngleCNEC's importing and exporting equipments are the same : " + networkElement1Id)));
+            csaProfileCnecCreationContexts.add(CsaProfileElementaryCreationContext.notImported(assessedElementId, ImportStatus.INCONSISTENCY_IN_DATA, writeAssessedElementIgnoredReasonMessage("AngleCNEC's importing and exporting equipments are the same: " + networkElement1Id)));
             return false;
         }
         String importingElement = isFlowToRefTerminal ? networkElement1Id : networkElement2Id;
