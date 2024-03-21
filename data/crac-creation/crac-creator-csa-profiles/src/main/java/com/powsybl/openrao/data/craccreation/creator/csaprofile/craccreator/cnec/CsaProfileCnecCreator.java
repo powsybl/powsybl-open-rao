@@ -20,6 +20,8 @@ import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
 
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * @author Jean-Pierre Arnould {@literal <jean-pierre.arnould at rte-france.com>}
@@ -36,6 +38,8 @@ public class CsaProfileCnecCreator {
     private final CsaProfileCracCreationContext cracCreationContext;
     private final Set<Side> defaultMonitoredSides;
     private final String regionEic;
+    private static final String EIC_REGEX = "http://energy.referencedata.eu/energy/EIC/([A-Z0-9_+\\-]{16})";
+    private static final Pattern EIC_PATTERN = Pattern.compile(EIC_REGEX);
 
     public CsaProfileCnecCreator(Crac crac, Network network, PropertyBags assessedElementsPropertyBags, PropertyBags assessedElementsWithContingenciesPropertyBags, PropertyBags currentLimitsPropertyBags, PropertyBags voltageLimitsPropertyBags, PropertyBags angleLimitsPropertyBags, CsaProfileCracCreationContext cracCreationContext, Set<Side> defaultMonitoredSides, String regionEic) {
         this.crac = crac;
@@ -105,6 +109,9 @@ public class CsaProfileCnecCreator {
         CsaProfileConstants.LimitType limitType = getLimit(assessedElementId, assessedElementPropertyBag);
         String conductingEquipment = assessedElementPropertyBag.getId(CsaProfileConstants.REQUEST_ASSESSED_ELEMENT_CONDUCTING_EQUIPMENT);
 
+        if (!checkAeScannedSecuredCoherence(assessedElementId, assessedElementPropertyBag)) {
+            return;
+        }
         boolean aeSecuredForRegion = isAeSecuredForRegion(assessedElementPropertyBag);
         boolean aeScannedForRegion = isAeScannedForRegion(assessedElementPropertyBag);
 
@@ -123,14 +130,31 @@ public class CsaProfileCnecCreator {
         }
     }
 
+    private boolean checkAeScannedSecuredCoherence(String assessedElementId, PropertyBag assessedElementPropertyBag) {
+        String rawIdSecured = assessedElementPropertyBag.get(CsaProfileConstants.REQUEST_ASSESSED_ELEMENT_SECURED_FOR_REGION);
+        String rawIdScanned = assessedElementPropertyBag.get(CsaProfileConstants.REQUEST_ASSESSED_ELEMENT_SCANNED_FOR_REGION);
+        if (rawIdSecured != null && rawIdSecured.equals(rawIdScanned)) {
+            csaProfileCnecCreationContexts.add(CsaProfileElementaryCreationContext.notImported(assessedElementId, ImportStatus.INCONSISTENCY_IN_DATA, "AssessedElement " + assessedElementId + " ignored because an AssessedElement cannot be optimized and monitored at the same time"));
+            return false;
+        }
+        return true;
+    }
+
     private boolean isAeSecuredForRegion(PropertyBag assessedElementPropertyBag) {
-        Optional<String> aeSecuredForRegion = Optional.ofNullable(assessedElementPropertyBag.get(CsaProfileConstants.REQUEST_ASSESSED_ELEMENT_SECURED_FOR_REGION));
-        return aeSecuredForRegion.map(rawRegionId -> rawRegionId.substring(rawRegionId.lastIndexOf("/") + 1).equals(regionEic)).orElse(false);
+        return isAeSecuredOrScannedForRegion(assessedElementPropertyBag, CsaProfileConstants.REQUEST_ASSESSED_ELEMENT_SECURED_FOR_REGION);
     }
 
     private boolean isAeScannedForRegion(PropertyBag assessedElementPropertyBag) {
-        Optional<String> aeScannedForRegion = Optional.ofNullable(assessedElementPropertyBag.get(CsaProfileConstants.REQUEST_ASSESSED_ELEMENT_SCANNED_FOR_REGION));
-        return aeScannedForRegion.map(rawRegionId -> rawRegionId.substring(rawRegionId.lastIndexOf("/") + 1).equals(regionEic)).orElse(false);
+        return isAeSecuredOrScannedForRegion(assessedElementPropertyBag, CsaProfileConstants.REQUEST_ASSESSED_ELEMENT_SCANNED_FOR_REGION);
+    }
+
+    private boolean isAeSecuredOrScannedForRegion(PropertyBag assessedElementPropertyBag, String propertyName) {
+        String rawRegionId = assessedElementPropertyBag.get(propertyName);
+        if (rawRegionId == null) {
+            return false;
+        }
+        Matcher matcher = EIC_PATTERN.matcher(rawRegionId);
+        return matcher.find() && matcher.group(1).equals(regionEic);
     }
 
     private PropertyBag getOperationalLimitPropertyBag(Map<String, Set<PropertyBag>> operationalLimitPropertyBags, PropertyBag assessedElementPropertyBag) {

@@ -9,6 +9,9 @@ package com.powsybl.openrao.data.craccreation.creator.csaprofile.parameters;
 import com.powsybl.commons.extensions.AbstractExtension;
 import com.powsybl.openrao.data.craccreation.creator.api.parameters.CracCreationParameters;
 
+/**
+ * @author Mohamed Ben-rejeb {@literal <mohamed.ben-rejeb at rte-france.com>}
+ */
 public class CsaCracCreationParameters extends AbstractExtension<CracCreationParameters> {
     private String capacityCalculationRegionEicCode = "10Y1001C--00095L"; // swe as default
 
