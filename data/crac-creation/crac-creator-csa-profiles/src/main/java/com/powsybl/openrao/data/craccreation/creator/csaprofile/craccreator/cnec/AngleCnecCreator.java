@@ -20,8 +20,8 @@ import java.util.Set;
 
 public class AngleCnecCreator extends AbstractCnecCreator {
 
-    public AngleCnecCreator(Crac crac, Network network, String assessedElementId, String nativeAssessedElementName, String assessedElementOperator, boolean inBaseCase, PropertyBag angleLimitPropertyBag, List<Contingency> linkedContingencies, Set<CsaProfileElementaryCreationContext> csaProfileCnecCreationContexts, CsaProfileCracCreationContext cracCreationContext, String rejectedLinksAssessedElementContingency) {
-        super(crac, network, assessedElementId, nativeAssessedElementName, assessedElementOperator, inBaseCase, angleLimitPropertyBag, linkedContingencies, csaProfileCnecCreationContexts, cracCreationContext, rejectedLinksAssessedElementContingency);
+    public AngleCnecCreator(Crac crac, Network network, String assessedElementId, String nativeAssessedElementName, String assessedElementOperator, boolean inBaseCase, PropertyBag angleLimitPropertyBag, List<Contingency> linkedContingencies, Set<CsaProfileElementaryCreationContext> csaProfileCnecCreationContexts, CsaProfileCracCreationContext cracCreationContext, String rejectedLinksAssessedElementContingency, String regionEic, String aeSecuredForRegion, String aeScannedForRegion) {
+        super(crac, network, assessedElementId, nativeAssessedElementName, assessedElementOperator, inBaseCase, angleLimitPropertyBag, linkedContingencies, csaProfileCnecCreationContexts, cracCreationContext, rejectedLinksAssessedElementContingency, regionEic, aeSecuredForRegion, aeScannedForRegion);
     }
 
     public void addAngleCnecs() {
