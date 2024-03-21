@@ -133,32 +133,43 @@ public final class RaoUtil {
      * It will not be available.
      * 2) It gathers all the remedial action usageMethods and filters out the OnFlowConstraint(InCountry) with no negative margins on their associated cnecs.
      * 3) It computes the "strongest" usage method.
-     * For automatonState, the remedial action is available if and only if the usage method is "FORCED".
-     * For other states, the remedial action is available if and only if the usage method is "AVAILABLE".
+     * The remedial action is available if and only if the usage method is "AVAILABLE".
      */
     public static boolean isRemedialActionAvailable(RemedialAction<?> remedialAction, State state, FlowResult flowResult, Set<FlowCnec> flowCnecs, Network network, RaoParameters raoParameters) {
+        UsageMethod finalUsageMethod = getFinalUsageMethod(remedialAction, state, flowResult, flowCnecs, network, raoParameters);
+        return finalUsageMethod != null && finalUsageMethod.equals(UsageMethod.AVAILABLE);
+    }
+
+    /**
+     * Evaluates if a remedial action is forced.
+     * 1) The remedial action has no usage rule:
+     * It will not be forced.
+     * 2) It gathers all the remedial action usageMethods and filters out the OnFlowConstraint(InCountry) with no negative margins on their associated cnecs.
+     * 3) It computes the "strongest" usage method.
+     * For automatonState, the remedial action is forced if and only if the usage method is "FORCED".
+     * For non-automaton states, a forced remedial action is not supported and the remedial action is ignored.
+     */
+    public static boolean isRemedialActionForced(RemedialAction<?> remedialAction, State state, FlowResult flowResult, Set<FlowCnec> flowCnecs, Network network, RaoParameters raoParameters) {
+        UsageMethod finalUsageMethod = getFinalUsageMethod(remedialAction, state, flowResult, flowCnecs, network, raoParameters);
+        if (finalUsageMethod == null) {
+            return false;
+        }
+        if (!state.getInstant().isAuto() && finalUsageMethod.equals(UsageMethod.FORCED)) {
+            OpenRaoLoggerProvider.BUSINESS_WARNS.warn(format("The 'forced' usage method is for automatons only. Therefore, %s will be ignored for this state: %s", remedialAction.getName(), state.getId()));
+            return false;
+        }
+        return finalUsageMethod.equals(UsageMethod.FORCED);
+    }
+
+    private static UsageMethod getFinalUsageMethod(RemedialAction<?> remedialAction, State state, FlowResult flowResult, Set<FlowCnec> flowCnecs, Network network, RaoParameters raoParameters) {
         Set<UsageRule> usageRules = remedialAction.getUsageRules();
         if (usageRules.isEmpty()) {
             OpenRaoLoggerProvider.BUSINESS_WARNS.warn(format("The remedial action %s has no usage rule and therefore will not be available.", remedialAction.getName()));
-            return false;
+            return null;
         }
 
         Set<UsageMethod> usageMethods = getAllUsageMethods(usageRules, remedialAction, state, flowResult, flowCnecs, network, raoParameters);
-        UsageMethod finalUsageMethod = UsageMethod.getStrongestUsageMethod(usageMethods);
-
-        if (state.getInstant().isAuto()) {
-            if (finalUsageMethod.equals(UsageMethod.AVAILABLE)) {
-                OpenRaoLoggerProvider.BUSINESS_WARNS.warn(format("The RAO only knows how to interpret 'forced' usage method for automatons. Therefore, %s will be ignored for this state: %s", remedialAction.getName(), state.getId()));
-                return false;
-            }
-            return finalUsageMethod.equals(UsageMethod.FORCED);
-        } else {
-            if (finalUsageMethod.equals(UsageMethod.FORCED)) {
-                OpenRaoLoggerProvider.BUSINESS_WARNS.warn(format("The 'forced' usage method is for automatons only. Therefore, %s will be ignored for this state: %s", remedialAction.getName(), state.getId()));
-                return false;
-            }
-            return finalUsageMethod.equals(UsageMethod.AVAILABLE);
-        }
+        return UsageMethod.getStrongestUsageMethod(usageMethods);
     }
 
     /**
@@ -250,5 +261,10 @@ public final class RaoUtil {
         double maxFlowIncrease = sensitivity >= 0 ? sensitivity * raMaxIncrease : -sensitivity * raMaxDecrease;
 
         return cnecMarginToUpperBound + maxFlowDecrease < 0 || cnecMarginToLowerBound + maxFlowIncrease < 0;
+    }
+
+    public static void applyRemedialActions(Network network, OptimizationResult optResult, State state) {
+        optResult.getActivatedNetworkActions().forEach(networkAction -> networkAction.apply(network));
+        optResult.getActivatedRangeActions(state).forEach(rangeAction -> rangeAction.apply(network, optResult.getOptimizedSetpoint(rangeAction, state)));
     }
 }
