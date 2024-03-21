@@ -20,8 +20,8 @@ import java.util.Set;
 
 public class AngleCnecCreator extends AbstractCnecCreator {
 
-    public AngleCnecCreator(Crac crac, Network network, String assessedElementId, String nativeAssessedElementName, String assessedElementOperator, boolean inBaseCase, PropertyBag angleLimitPropertyBag, List<Contingency> linkedContingencies, Set<CsaProfileElementaryCreationContext> csaProfileCnecCreationContexts, CsaProfileCracCreationContext cracCreationContext, String rejectedLinksAssessedElementContingency) {
-        super(crac, network, assessedElementId, nativeAssessedElementName, assessedElementOperator, inBaseCase, angleLimitPropertyBag, linkedContingencies, csaProfileCnecCreationContexts, cracCreationContext, rejectedLinksAssessedElementContingency);
+    public AngleCnecCreator(Crac crac, Network network, String assessedElementId, String nativeAssessedElementName, String assessedElementOperator, boolean inBaseCase, PropertyBag angleLimitPropertyBag, List<Contingency> linkedContingencies, Set<CsaProfileElementaryCreationContext> csaProfileCnecCreationContexts, CsaProfileCracCreationContext cracCreationContext, String rejectedLinksAssessedElementContingency, boolean aeSecuredForRegion, boolean aeScannedForRegion) {
+        super(crac, network, assessedElementId, nativeAssessedElementName, assessedElementOperator, inBaseCase, angleLimitPropertyBag, linkedContingencies, csaProfileCnecCreationContexts, cracCreationContext, rejectedLinksAssessedElementContingency, aeSecuredForRegion, aeScannedForRegion);
     }
 
     public void addAngleCnecs() {
@@ -36,7 +36,9 @@ public class AngleCnecCreator extends AbstractCnecCreator {
     private void addAngleCnec(String instantId, Contingency contingency) {
         AngleCnecAdder angleCnecAdder = initAngleCnec();
         if (addAngleLimit(angleCnecAdder)) {
-            addCnecBaseInformation(angleCnecAdder, contingency, instantId);
+            if (!addCnecBaseInformation(angleCnecAdder, contingency, instantId)) {
+                return;
+            }
             angleCnecAdder.add();
             markCnecAsImportedAndHandleRejectedContingencies(instantId, contingency);
         }

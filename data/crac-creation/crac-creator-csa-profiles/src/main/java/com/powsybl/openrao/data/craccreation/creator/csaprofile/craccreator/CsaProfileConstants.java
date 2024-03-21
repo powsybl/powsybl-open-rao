@@ -231,6 +231,9 @@ public final class CsaProfileConstants {
     public static final String REQUEST_ASSESSED_ELEMENT_IS_COMBINABLE_WITH_REMEDIAL_ACTION = "isCombinableWithRemedialAction";
     public static final String REQUEST_ASSESSED_ELEMENT_WITH_CONTINGENCY_COMBINATION_CONSTRAINT_KIND = "combinationConstraintKind";
     public static final String REQUEST_ASSESSED_ELEMENT_WITH_CONTINGENCY_NORMAL_ENABLED = "normalEnabled";
+    public static final String REQUEST_ASSESSED_ELEMENT_SCANNED_FOR_REGION = "scannedForRegion";
+    public static final String REQUEST_ASSESSED_ELEMENT_SECURED_FOR_REGION = "securedForRegion";
+
     public static final String REQUEST_CURRENT_LIMIT = "currentLimit";
     public static final String REQUEST_VOLTAGE_LIMIT = "voltageLimit";
     public static final String REQUEST_TOPOLOGY_ACTION = "topologyAction";

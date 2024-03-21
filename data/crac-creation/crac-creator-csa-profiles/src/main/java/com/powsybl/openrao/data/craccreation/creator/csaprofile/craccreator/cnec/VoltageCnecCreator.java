@@ -19,8 +19,8 @@ import java.util.Set;
 
 public class VoltageCnecCreator extends AbstractCnecCreator {
 
-    public VoltageCnecCreator(Crac crac, Network network, String assessedElementId, String nativeAssessedElementName, String assessedElementOperator, boolean inBaseCase, PropertyBag voltageLimitPropertyBag, List<Contingency> linkedContingencies, Set<CsaProfileElementaryCreationContext> csaProfileCnecCreationContexts, CsaProfileCracCreationContext cracCreationContext, String rejectedLinksAssessedElementContingency) {
-        super(crac, network, assessedElementId, nativeAssessedElementName, assessedElementOperator, inBaseCase, voltageLimitPropertyBag, linkedContingencies, csaProfileCnecCreationContexts, cracCreationContext, rejectedLinksAssessedElementContingency);
+    public VoltageCnecCreator(Crac crac, Network network, String assessedElementId, String nativeAssessedElementName, String assessedElementOperator, boolean inBaseCase, PropertyBag voltageLimitPropertyBag, List<Contingency> linkedContingencies, Set<CsaProfileElementaryCreationContext> csaProfileCnecCreationContexts, CsaProfileCracCreationContext cracCreationContext, String rejectedLinksAssessedElementContingency, boolean aeSecuredForRegion, boolean aeScannedForRegion) {
+        super(crac, network, assessedElementId, nativeAssessedElementName, assessedElementOperator, inBaseCase, voltageLimitPropertyBag, linkedContingencies, csaProfileCnecCreationContexts, cracCreationContext, rejectedLinksAssessedElementContingency, aeSecuredForRegion, aeScannedForRegion);
     }
 
     public void addVoltageCnecs() {
@@ -35,7 +35,9 @@ public class VoltageCnecCreator extends AbstractCnecCreator {
     private void addVoltageCnec(String instantId, Contingency contingency) {
         VoltageCnecAdder voltageCnecAdder = initVoltageCnec();
         if (addVoltageLimit(voltageCnecAdder)) {
-            addCnecBaseInformation(voltageCnecAdder, contingency, instantId);
+            if (!addCnecBaseInformation(voltageCnecAdder, contingency, instantId)) {
+                return;
+            }
             voltageCnecAdder.add();
             markCnecAsImportedAndHandleRejectedContingencies(instantId, contingency);
         }
