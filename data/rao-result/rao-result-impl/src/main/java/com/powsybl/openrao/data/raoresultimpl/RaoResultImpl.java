@@ -347,12 +347,14 @@ public class RaoResultImpl implements RaoResult {
                     // TODO: check instant
                     // TODO: test without min and if it does not work add min
                     // TODO: create JSON RaoResult with anlgeCNECs prev + cur (prev -> prev / cur -> prev + cur)
-                    // if (crac.getAngleCnecs().stream()
-                    //     .mapToDouble(cnec -> getMargin(Instant.min(optimizedInstant, cnec.getState().getInstant()), cnec, Unit.DEGREE))
-                    //     .anyMatch(Double::isNaN)) { }
-                    if (!crac.getAngleCnecs().stream().allMatch(angleCnecResults::containsKey)) {
+                    if (crac.getAngleCnecs().stream()
+                        .mapToDouble(cnec -> getMargin(Instant.min(optimizedInstant, cnec.getState().getInstant()), cnec, Unit.DEGREE))
+                        .anyMatch(Double::isNaN)) {
                         throw new OpenRaoException("RaoResult does not contain angle values for all AngleCNECs, security status for physical parameter ANGLE is unknown");
                     }
+                    // if (!crac.getAngleCnecs().stream().allMatch(angleCnecResults::containsKey)) {
+                    //     throw new OpenRaoException("RaoResult does not contain angle values for all AngleCNECs, security status for physical parameter ANGLE is unknown");
+                    // }
                     // TODO: lancer cucumber
                     if (crac.getAngleCnecs().stream()
                             .mapToDouble(cnec -> getMargin(optimizedInstant, cnec, Unit.DEGREE))
@@ -367,7 +369,12 @@ public class RaoResultImpl implements RaoResult {
                     }
                 }
                 case VOLTAGE -> {
-                    if (!crac.getVoltageCnecs().stream().allMatch(voltageCnecResults::containsKey)) {
+                    // if (!crac.getVoltageCnecs().stream().allMatch(voltageCnecResults::containsKey)) {
+                    //     throw new OpenRaoException("RaoResult does not contain voltage values for all VoltageCNECs, security status for physical parameter VOLTAGE is unknown");
+                    // }
+                    if (crac.getVoltageCnecs().stream()
+                        .mapToDouble(cnec -> getMargin(Instant.min(optimizedInstant, cnec.getState().getInstant()), cnec, Unit.KILOVOLT))
+                        .anyMatch(Double::isNaN)) {
                         throw new OpenRaoException("RaoResult does not contain voltage values for all VoltageCNECs, security status for physical parameter VOLTAGE is unknown");
                     }
                     if (crac.getVoltageCnecs().stream()
