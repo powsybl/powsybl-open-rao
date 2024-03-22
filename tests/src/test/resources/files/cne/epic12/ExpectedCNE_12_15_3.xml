@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<CriticalNetworkElement_MarketDocument xsi:schemaLocation="iec62325-451-n-cne_v2_3.xsd" xmlns="urn:iec62325.351:tc57wg16:451-n:cnedocument:2:3" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <mRID>documentId</mRID>
+    <revisionNumber>3</revisionNumber>
+    <type>B06</type>
+    <process.processType>A48</process.processType>
+    <sender_MarketParticipant.mRID codingScheme="A01">senderId</sender_MarketParticipant.mRID>
+    <sender_MarketParticipant.marketRole.type>A44</sender_MarketParticipant.marketRole.type>
+    <receiver_MarketParticipant.mRID codingScheme="A01">receiverId</receiver_MarketParticipant.mRID>
+    <receiver_MarketParticipant.marketRole.type>A36</receiver_MarketParticipant.marketRole.type>
+    <createdDateTime>2022-10-21T11:19:36Z</createdDateTime>
+    <time_Period.timeInterval>
+        <start>2019-04-01T13:09Z</start>
+        <end>2019-04-01T14:09Z</end>
+    </time_Period.timeInterval>
+    <TimeSeries>
+        <mRID>CNE_RAO_CASTOR-TimeSeries-1</mRID>
+        <businessType>B54</businessType>
+        <curveType>A01</curveType>
+        <Period>
+            <timeInterval>
+                <start>2021-04-02T03:00Z</start>
+                <end>2021-04-02T04:00Z</end>
+            </timeInterval>
+            <resolution>PT60M</resolution>
+            <Point>
+                <position>1</position>
+                <Constraint_Series>
+                    <mRID>1cbda15-da6c-4f43-84f4-5cd5159d4935</mRID>
+                    <businessType>B56</businessType>
+                    <RemedialAction_Series>
+                        <mRID>PRA_OPEN_N1011_N1013</mRID>
+                        <name>PRA_OPEN_N1011_N1013</name>
+                        <applicationMode_MarketObjectStatus.status>A18</applicationMode_MarketObjectStatus.status>
+                    </RemedialAction_Series>
+                </Constraint_Series>
+                <Constraint_Series>
+                    <mRID>0243bdc-da9c-4c93-aaca-571713d7a19f</mRID>
+                    <businessType>B56</businessType>
+                    <Contingency_Series>
+                        <mRID>CO_N1012_N4012</mRID>
+                        <name>CO_N1012_N4012</name>
+                    </Contingency_Series>
+                    <Reason>
+                        <code>B40</code>
+                        <text>Load flow divergence</text>
+                    </Reason>
+                </Constraint_Series>
+                <Constraint_Series>
+                    <mRID>84d7f7e-43f1-4201-86f7-d5588e45c9a3</mRID>
+                    <businessType>B57</businessType>
+                    <Monitored_Series>
+                        <mRID>CNE_N1013_N1014</mRID>
+                        <name>CNE_N1013_N1014</name>
+                        <RegisteredResource>
+                            <mRID codingScheme="A02">N1013___-N1014___-1_AC</mRID>
+                            <name>N1013_N1014</name>
+                            <in_AggregateNode.mRID codingScheme="A02">N1013____VL</in_AggregateNode.mRID>
+                            <out_AggregateNode.mRID codingScheme="A02">N1014____VL</out_AggregateNode.mRID>
+                            <Measurements>
+                                <measurementType>A01</measurementType>
+                                <unitSymbol>AMP</unitSymbol>
+                                <positiveFlowIn>A02</positiveFlowIn>
+                                <analogValues.value>302</analogValues.value>
+                            </Measurements>
+                            <Measurements>
+                                <measurementType>A02</measurementType>
+                                <unitSymbol>AMP</unitSymbol>
+                                <positiveFlowIn>A02</positiveFlowIn>
+                                <analogValues.value>500.0</analogValues.value>
+                            </Measurements>
+                        </RegisteredResource>
+                    </Monitored_Series>
+                    <RemedialAction_Series>
+                        <mRID>PRA_OPEN_N1011_N1013</mRID>
+                        <name>PRA_OPEN_N1011_N1013</name>
+                        <applicationMode_MarketObjectStatus.status>A18</applicationMode_MarketObjectStatus.status>
+                    </RemedialAction_Series>
+                </Constraint_Series>
+                <Constraint_Series>
+                    <mRID>6965977-71c8-472f-9fee-677d1f2ed7f3</mRID>
+                    <businessType>B57</businessType>
+                    <Contingency_Series>
+                        <mRID>CO_N1012_N4012</mRID>
+                        <name>CO_N1012_N4012</name>
+                    </Contingency_Series>
+                    <Monitored_Series>
+                        <mRID>CNE_N1013_N1014</mRID>
+                        <name>CNE_N1013_N1014</name>
+                        <RegisteredResource>
+                            <mRID codingScheme="A02">N1013___-N1014___-1_AC</mRID>
+                            <name>N1013_N1014</name>
+                            <in_AggregateNode.mRID codingScheme="A02">N1013____VL</in_AggregateNode.mRID>
+                            <out_AggregateNode.mRID codingScheme="A02">N1014____VL</out_AggregateNode.mRID>
+                        </RegisteredResource>
+                    </Monitored_Series>
+                    <Reason>
+                        <code>B40</code>
+                        <text>Load flow divergence</text>
+                    </Reason>
+                </Constraint_Series>
+                <Reason>
+                    <code>B40</code>
+                    <text>Load flow divergence</text>
+                </Reason>
+            </Point>
+        </Period>
+    </TimeSeries>
+</CriticalNetworkElement_MarketDocument>
