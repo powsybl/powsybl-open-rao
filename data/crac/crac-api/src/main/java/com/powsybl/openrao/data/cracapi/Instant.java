@@ -37,7 +37,11 @@ public interface Instant extends Identifiable<Instant>, Comparable<Instant> {
 
     boolean isCurative();
 
-    // TODO: test this
+    @Override
+    default int compareTo(Instant otherInstant) {
+        return Integer.compare(getOrder(), otherInstant.getOrder());
+    }
+
     static Instant min(Instant instant1, Instant instant2) {
         if (instant1 == null || instant2 == null) {
             return null;

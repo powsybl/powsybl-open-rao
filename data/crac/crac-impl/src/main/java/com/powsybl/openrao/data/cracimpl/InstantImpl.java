@@ -106,9 +106,4 @@ public class InstantImpl extends AbstractIdentifiable<Instant> implements Instan
     Instant getInstantBefore() {
         return previous;
     }
-
-    @Override
-    public int compareTo(Instant otherInstant) {
-        return Integer.compare(getOrder(), otherInstant.getOrder());
-    }
 }
