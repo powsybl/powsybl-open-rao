@@ -1,0 +1,865 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<CriticalNetworkElement_MarketDocument xsi:schemaLocation="iec62325-451-n-cne_v2_4_FlowBased_v04.xsd" xmlns="urn:iec62325.351:tc57wg16:451-n:cnedocument:2:4" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <mRID>22XCORESO------S-20211115-F299v1</mRID>
+    <revisionNumber>1</revisionNumber>
+    <type>B06</type>
+    <process.processType>A48</process.processType>
+    <sender_MarketParticipant.mRID codingScheme="A01">22XCORESO------S</sender_MarketParticipant.mRID>
+    <sender_MarketParticipant.marketRole.type>A44</sender_MarketParticipant.marketRole.type>
+    <receiver_MarketParticipant.mRID codingScheme="A01">17XTSO-CS------W</receiver_MarketParticipant.mRID>
+    <receiver_MarketParticipant.marketRole.type>A36</receiver_MarketParticipant.marketRole.type>
+    <createdDateTime>2021-12-30T14:44:54Z</createdDateTime>
+    <time_Period.timeInterval>
+        <start>2021-10-30T22:00Z</start>
+        <end>2021-10-31T23:00Z</end>
+    </time_Period.timeInterval>
+    <domain.mRID codingScheme="A01">10YDOM-REGION-1V</domain.mRID>
+    <TimeSeries>
+        <mRID>CNE_RAO_CASTOR-TimeSeries-1</mRID>
+        <businessType>B54</businessType>
+        <curveType>A01</curveType>
+        <Period>
+            <timeInterval>
+                <start>2019-01-08T20:00Z</start>
+                <end>2019-01-08T21:00Z</end>
+            </timeInterval>
+            <resolution>PT60M</resolution>
+            <Point>
+                <position>1</position>
+                <Constraint_Series>
+                    <mRID>BBE2AA1  FFR3AA1  1</mRID>
+                    <businessType>B88</businessType>
+                    <Party_MarketParticipant>
+                        <mRID codingScheme="A01">10XFR-RTE------Q</mRID>
+                    </Party_MarketParticipant>
+                    <optimization_MarketObjectStatus.status>A52</optimization_MarketObjectStatus.status>
+                    <Monitored_Series>
+                        <mRID>BBE2AA1  FFR3AA1  1</mRID>
+                        <name>BBE2AA1  FFR3AA1  1|BASECASE</name>
+                        <RegisteredResource>
+                            <mRID codingScheme="A02">BBE2AA1  FFR3AA1  1</mRID>
+                            <name>BBE2AA1  FFR3AA1  1</name>
+                            <Measurements>
+                                <measurementType>A01</measurementType>
+                                <unitSymbol>MAW</unitSymbol>
+                                <positiveFlowIn>A01</positiveFlowIn>
+                                <analogValues.value>500</analogValues.value>
+                            </Measurements>
+                            <Measurements>
+                                <measurementType>A02</measurementType>
+                                <unitSymbol>AMP</unitSymbol>
+                                <positiveFlowIn>A01</positiveFlowIn>
+                                <analogValues.value>5774</analogValues.value>
+                            </Measurements>
+                            <Measurements>
+                                <measurementType>A02</measurementType>
+                                <unitSymbol>MAW</unitSymbol>
+                                <positiveFlowIn>A01</positiveFlowIn>
+                                <analogValues.value>4000</analogValues.value>
+                            </Measurements>
+                            <Measurements>
+                                <measurementType>A03</measurementType>
+                                <unitSymbol>MAW</unitSymbol>
+                                <positiveFlowIn>A01</positiveFlowIn>
+                                <analogValues.value>0</analogValues.value>
+                            </Measurements>
+                            <Measurements>
+                                <measurementType>A07</measurementType>
+                                <unitSymbol>AMP</unitSymbol>
+                                <positiveFlowIn>A01</positiveFlowIn>
+                                <analogValues.value>5774</analogValues.value>
+                            </Measurements>
+                            <Measurements>
+                                <measurementType>A07</measurementType>
+                                <unitSymbol>MAW</unitSymbol>
+                                <positiveFlowIn>A01</positiveFlowIn>
+                                <analogValues.value>4000</analogValues.value>
+                            </Measurements>
+                            <Measurements>
+                                <measurementType>Z12</measurementType>
+                                <unitSymbol>MAW</unitSymbol>
+                                <positiveFlowIn>A01</positiveFlowIn>
+                                <analogValues.value>3501</analogValues.value>
+                            </Measurements>
+                            <Measurements>
+                                <measurementType>Z13</measurementType>
+                                <unitSymbol>MAW</unitSymbol>
+                                <positiveFlowIn>A01</positiveFlowIn>
+                                <analogValues.value>3501</analogValues.value>
+                            </Measurements>
+                            <Measurements>
+                                <measurementType>Z14</measurementType>
+                                <unitSymbol>MAW</unitSymbol>
+                                <positiveFlowIn>A01</positiveFlowIn>
+                                <analogValues.value>3501</analogValues.value>
+                            </Measurements>
+                            <Measurements>
+                                <measurementType>Z15</measurementType>
+                                <unitSymbol>MAW</unitSymbol>
+                                <positiveFlowIn>A01</positiveFlowIn>
+                                <analogValues.value>3501</analogValues.value>
+                            </Measurements>
+                            <Measurements>
+                                <measurementType>Z16</measurementType>
+                                <unitSymbol>MAW</unitSymbol>
+                                <positiveFlowIn>A02</positiveFlowIn>
+                                <analogValues.value>210</analogValues.value>
+                            </Measurements>
+                            <Measurements>
+                                <measurementType>Z17</measurementType>
+                                <unitSymbol>MAW</unitSymbol>
+                                <positiveFlowIn>A02</positiveFlowIn>
+                                <analogValues.value>1000</analogValues.value>
+                            </Measurements>
+                        </RegisteredResource>
+                    </Monitored_Series>
+                </Constraint_Series>
+                <Constraint_Series>
+                    <mRID>BBE2AA1  FFR3AA1  1</mRID>
+                    <businessType>B57</businessType>
+                    <Party_MarketParticipant>
+                        <mRID codingScheme="A01">10XFR-RTE------Q</mRID>
+                    </Party_MarketParticipant>
+                    <optimization_MarketObjectStatus.status>A52</optimization_MarketObjectStatus.status>
+                    <Monitored_Series>
+                        <mRID>BBE2AA1  FFR3AA1  1</mRID>
+                        <name>BBE2AA1  FFR3AA1  1|BASECASE</name>
+                        <RegisteredResource>
+                            <mRID codingScheme="A02">BBE2AA1  FFR3AA1  1</mRID>
+                            <name>BBE2AA1  FFR3AA1  1</name>
+                            <Measurements>
+                                <measurementType>A01</measurementType>
+                                <unitSymbol>MAW</unitSymbol>
+                                <positiveFlowIn>A01</positiveFlowIn>
+                                <analogValues.value>143</analogValues.value>
+                            </Measurements>
+                            <Measurements>
+                                <measurementType>A03</measurementType>
+                                <unitSymbol>MAW</unitSymbol>
+                                <positiveFlowIn>A01</positiveFlowIn>
+                                <analogValues.value>0</analogValues.value>
+                            </Measurements>
+                            <Measurements>
+                                <measurementType>A07</measurementType>
+                                <unitSymbol>AMP</unitSymbol>
+                                <positiveFlowIn>A01</positiveFlowIn>
+                                <analogValues.value>5774</analogValues.value>
+                            </Measurements>
+                            <Measurements>
+                                <measurementType>A07</measurementType>
+                                <unitSymbol>MAW</unitSymbol>
+                                <positiveFlowIn>A01</positiveFlowIn>
+                                <analogValues.value>4000</analogValues.value>
+                            </Measurements>
+                            <Measurements>
+                                <measurementType>Z14</measurementType>
+                                <unitSymbol>MAW</unitSymbol>
+                                <positiveFlowIn>A01</positiveFlowIn>
+                                <analogValues.value>3857</analogValues.value>
+                            </Measurements>
+                            <Measurements>
+                                <measurementType>Z15</measurementType>
+                                <unitSymbol>MAW</unitSymbol>
+                                <positiveFlowIn>A01</positiveFlowIn>
+                                <analogValues.value>3857</analogValues.value>
+                            </Measurements>
+                            <Measurements>
+                                <measurementType>Z16</measurementType>
+                                <unitSymbol>MAW</unitSymbol>
+                                <positiveFlowIn>A02</positiveFlowIn>
+                                <analogValues.value>533</analogValues.value>
+                            </Measurements>
+                            <Measurements>
+                                <measurementType>Z17</measurementType>
+                                <unitSymbol>MAW</unitSymbol>
+                                <positiveFlowIn>A02</positiveFlowIn>
+                                <analogValues.value>1000</analogValues.value>
+                            </Measurements>
+                        </RegisteredResource>
+                    </Monitored_Series>
+                    <RemedialAction_Series>
+                        <mRID>PRA_PST_BE</mRID>
+                        <name>PRA_PST_BE</name>
+                        <applicationMode_MarketObjectStatus.status>A18</applicationMode_MarketObjectStatus.status>
+                    </RemedialAction_Series>
+                    <RemedialAction_Series>
+                        <mRID>Open FR1 FR2</mRID>
+                        <name>Open FR1 FR2</name>
+                        <applicationMode_MarketObjectStatus.status>A18</applicationMode_MarketObjectStatus.status>
+                    </RemedialAction_Series>
+                </Constraint_Series>
+                <Constraint_Series>
+                    <mRID>BBE2AA1  FFR3AA1  1_oppo</mRID>
+                    <businessType>B88</businessType>
+                    <Party_MarketParticipant>
+                        <mRID codingScheme="A01">10XFR-RTE------Q</mRID>
+                    </Party_MarketParticipant>
+                    <optimization_MarketObjectStatus.status>A52</optimization_MarketObjectStatus.status>
+                    <Monitored_Series>
+                        <mRID>BBE2AA1  FFR3AA1  1_oppo</mRID>
+                        <name>BBE2AA1  FFR3AA1  1|BASECASE</name>
+                        <RegisteredResource>
+                            <mRID codingScheme="A02">BBE2AA1  FFR3AA1  1_oppo</mRID>
+                            <name>BBE2AA1  FFR3AA1  1</name>
+                            <Measurements>
+                                <measurementType>A01</measurementType>
+                                <unitSymbol>MAW</unitSymbol>
+                                <positiveFlowIn>A02</positiveFlowIn>
+                                <analogValues.value>500</analogValues.value>
+                            </Measurements>
+                            <Measurements>
+                                <measurementType>A02</measurementType>
+                                <unitSymbol>AMP</unitSymbol>
+                                <positiveFlowIn>A01</positiveFlowIn>
+                                <analogValues.value>5774</analogValues.value>
+                            </Measurements>
+                            <Measurements>
+                                <measurementType>A02</measurementType>
+                                <unitSymbol>MAW</unitSymbol>
+                                <positiveFlowIn>A01</positiveFlowIn>
+                                <analogValues.value>4000</analogValues.value>
+                            </Measurements>
+                            <Measurements>
+                                <measurementType>A03</measurementType>
+                                <unitSymbol>MAW</unitSymbol>
+                                <positiveFlowIn>A01</positiveFlowIn>
+                                <analogValues.value>0</analogValues.value>
+                            </Measurements>
+                            <Measurements>
+                                <measurementType>A07</measurementType>
+                                <unitSymbol>AMP</unitSymbol>
+                                <positiveFlowIn>A01</positiveFlowIn>
+                                <analogValues.value>5774</analogValues.value>
+                            </Measurements>
+                            <Measurements>
+                                <measurementType>A07</measurementType>
+                                <unitSymbol>MAW</unitSymbol>
+                                <positiveFlowIn>A01</positiveFlowIn>
+                                <analogValues.value>4000</analogValues.value>
+                            </Measurements>
+                            <Measurements>
+                                <measurementType>Z12</measurementType>
+                                <unitSymbol>MAW</unitSymbol>
+                                <positiveFlowIn>A01</positiveFlowIn>
+                                <analogValues.value>4500</analogValues.value>
+                            </Measurements>
+                            <Measurements>
+                                <measurementType>Z13</measurementType>
+                                <unitSymbol>MAW</unitSymbol>
+                                <positiveFlowIn>A01</positiveFlowIn>
+                                <analogValues.value>4500</analogValues.value>
+                            </Measurements>
+                            <Measurements>
+                                <measurementType>Z14</measurementType>
+                                <unitSymbol>MAW</unitSymbol>
+                                <positiveFlowIn>A01</positiveFlowIn>
+                                <analogValues.value>4500</analogValues.value>
+                            </Measurements>
+                            <Measurements>
+                                <measurementType>Z15</measurementType>
+                                <unitSymbol>MAW</unitSymbol>
+                                <positiveFlowIn>A01</positiveFlowIn>
+                                <analogValues.value>4500</analogValues.value>
+                            </Measurements>
+                            <Measurements>
+                                <measurementType>Z16</measurementType>
+                                <unitSymbol>MAW</unitSymbol>
+                                <positiveFlowIn>A01</positiveFlowIn>
+                                <analogValues.value>210</analogValues.value>
+                            </Measurements>
+                            <Measurements>
+                                <measurementType>Z17</measurementType>
+                                <unitSymbol>MAW</unitSymbol>
+                                <positiveFlowIn>A01</positiveFlowIn>
+                                <analogValues.value>1000</analogValues.value>
+                            </Measurements>
+                        </RegisteredResource>
+                    </Monitored_Series>
+                </Constraint_Series>
+                <Constraint_Series>
+                    <mRID>BBE2AA1  FFR3AA1  1_oppo</mRID>
+                    <businessType>B57</businessType>
+                    <Party_MarketParticipant>
+                        <mRID codingScheme="A01">10XFR-RTE------Q</mRID>
+                    </Party_MarketParticipant>
+                    <optimization_MarketObjectStatus.status>A52</optimization_MarketObjectStatus.status>
+                    <Monitored_Series>
+                        <mRID>BBE2AA1  FFR3AA1  1_oppo</mRID>
+                        <name>BBE2AA1  FFR3AA1  1|BASECASE</name>
+                        <RegisteredResource>
+                            <mRID codingScheme="A02">BBE2AA1  FFR3AA1  1_oppo</mRID>
+                            <name>BBE2AA1  FFR3AA1  1</name>
+                            <Measurements>
+                                <measurementType>A01</measurementType>
+                                <unitSymbol>MAW</unitSymbol>
+                                <positiveFlowIn>A02</positiveFlowIn>
+                                <analogValues.value>143</analogValues.value>
+                            </Measurements>
+                            <Measurements>
+                                <measurementType>A03</measurementType>
+                                <unitSymbol>MAW</unitSymbol>
+                                <positiveFlowIn>A01</positiveFlowIn>
+                                <analogValues.value>0</analogValues.value>
+                            </Measurements>
+                            <Measurements>
+                                <measurementType>A07</measurementType>
+                                <unitSymbol>AMP</unitSymbol>
+                                <positiveFlowIn>A01</positiveFlowIn>
+                                <analogValues.value>5774</analogValues.value>
+                            </Measurements>
+                            <Measurements>
+                                <measurementType>A07</measurementType>
+                                <unitSymbol>MAW</unitSymbol>
+                                <positiveFlowIn>A01</positiveFlowIn>
+                                <analogValues.value>4000</analogValues.value>
+                            </Measurements>
+                            <Measurements>
+                                <measurementType>Z14</measurementType>
+                                <unitSymbol>MAW</unitSymbol>
+                                <positiveFlowIn>A01</positiveFlowIn>
+                                <analogValues.value>4143</analogValues.value>
+                            </Measurements>
+                            <Measurements>
+                                <measurementType>Z15</measurementType>
+                                <unitSymbol>MAW</unitSymbol>
+                                <positiveFlowIn>A01</positiveFlowIn>
+                                <analogValues.value>4143</analogValues.value>
+                            </Measurements>
+                            <Measurements>
+                                <measurementType>Z16</measurementType>
+                                <unitSymbol>MAW</unitSymbol>
+                                <positiveFlowIn>A01</positiveFlowIn>
+                                <analogValues.value>533</analogValues.value>
+                            </Measurements>
+                            <Measurements>
+                                <measurementType>Z17</measurementType>
+                                <unitSymbol>MAW</unitSymbol>
+                                <positiveFlowIn>A01</positiveFlowIn>
+                                <analogValues.value>1000</analogValues.value>
+                            </Measurements>
+                        </RegisteredResource>
+                    </Monitored_Series>
+                    <RemedialAction_Series>
+                        <mRID>PRA_PST_BE</mRID>
+                        <name>PRA_PST_BE</name>
+                        <applicationMode_MarketObjectStatus.status>A18</applicationMode_MarketObjectStatus.status>
+                    </RemedialAction_Series>
+                    <RemedialAction_Series>
+                        <mRID>Open FR1 FR2</mRID>
+                        <name>Open FR1 FR2</name>
+                        <applicationMode_MarketObjectStatus.status>A18</applicationMode_MarketObjectStatus.status>
+                    </RemedialAction_Series>
+                </Constraint_Series>
+                <Constraint_Series>
+                    <mRID>DDE2AA1  NNL3AA1  1</mRID>
+                    <businessType>B88</businessType>
+                    <Party_MarketParticipant>
+                        <mRID codingScheme="A01">10XFR-RTE------Q</mRID>
+                    </Party_MarketParticipant>
+                    <optimization_MarketObjectStatus.status>A52</optimization_MarketObjectStatus.status>
+                    <Monitored_Series>
+                        <mRID>DDE2AA1  NNL3AA1  1</mRID>
+                        <name>DDE2AA1  NNL3AA1  1|BASECASE</name>
+                        <RegisteredResource>
+                            <mRID codingScheme="A02">DDE2AA1  NNL3AA1  1</mRID>
+                            <name>DDE2AA1  NNL3AA1  1</name>
+                            <Measurements>
+                                <measurementType>A01</measurementType>
+                                <unitSymbol>MAW</unitSymbol>
+                                <positiveFlowIn>A02</positiveFlowIn>
+                                <analogValues.value>1000</analogValues.value>
+                            </Measurements>
+                            <Measurements>
+                                <measurementType>A02</measurementType>
+                                <unitSymbol>AMP</unitSymbol>
+                                <positiveFlowIn>A01</positiveFlowIn>
+                                <analogValues.value>5774</analogValues.value>
+                            </Measurements>
+                            <Measurements>
+                                <measurementType>A02</measurementType>
+                                <unitSymbol>MAW</unitSymbol>
+                                <positiveFlowIn>A01</positiveFlowIn>
+                                <analogValues.value>4000</analogValues.value>
+                            </Measurements>
+                            <Measurements>
+                                <measurementType>A03</measurementType>
+                                <unitSymbol>MAW</unitSymbol>
+                                <positiveFlowIn>A01</positiveFlowIn>
+                                <analogValues.value>0</analogValues.value>
+                            </Measurements>
+                            <Measurements>
+                                <measurementType>A07</measurementType>
+                                <unitSymbol>AMP</unitSymbol>
+                                <positiveFlowIn>A01</positiveFlowIn>
+                                <analogValues.value>5774</analogValues.value>
+                            </Measurements>
+                            <Measurements>
+                                <measurementType>A07</measurementType>
+                                <unitSymbol>MAW</unitSymbol>
+                                <positiveFlowIn>A01</positiveFlowIn>
+                                <analogValues.value>4000</analogValues.value>
+                            </Measurements>
+                            <Measurements>
+                                <measurementType>Z12</measurementType>
+                                <unitSymbol>MAW</unitSymbol>
+                                <positiveFlowIn>A01</positiveFlowIn>
+                                <analogValues.value>5001</analogValues.value>
+                            </Measurements>
+                            <Measurements>
+                                <measurementType>Z13</measurementType>
+                                <unitSymbol>MAW</unitSymbol>
+                                <positiveFlowIn>A01</positiveFlowIn>
+                                <analogValues.value>5001</analogValues.value>
+                            </Measurements>
+                            <Measurements>
+                                <measurementType>Z14</measurementType>
+                                <unitSymbol>MAW</unitSymbol>
+                                <positiveFlowIn>A01</positiveFlowIn>
+                                <analogValues.value>5001</analogValues.value>
+                            </Measurements>
+                            <Measurements>
+                                <measurementType>Z15</measurementType>
+                                <unitSymbol>MAW</unitSymbol>
+                                <positiveFlowIn>A01</positiveFlowIn>
+                                <analogValues.value>5001</analogValues.value>
+                            </Measurements>
+                            <Measurements>
+                                <measurementType>Z16</measurementType>
+                                <unitSymbol>MAW</unitSymbol>
+                                <positiveFlowIn>A02</positiveFlowIn>
+                                <analogValues.value>610</analogValues.value>
+                            </Measurements>
+                            <Measurements>
+                                <measurementType>Z17</measurementType>
+                                <unitSymbol>MAW</unitSymbol>
+                                <positiveFlowIn>A02</positiveFlowIn>
+                                <analogValues.value>1000</analogValues.value>
+                            </Measurements>
+                        </RegisteredResource>
+                    </Monitored_Series>
+                </Constraint_Series>
+                <Constraint_Series>
+                    <mRID>DDE2AA1  NNL3AA1  1</mRID>
+                    <businessType>B57</businessType>
+                    <Party_MarketParticipant>
+                        <mRID codingScheme="A01">10XFR-RTE------Q</mRID>
+                    </Party_MarketParticipant>
+                    <optimization_MarketObjectStatus.status>A52</optimization_MarketObjectStatus.status>
+                    <Monitored_Series>
+                        <mRID>DDE2AA1  NNL3AA1  1</mRID>
+                        <name>DDE2AA1  NNL3AA1  1|BASECASE</name>
+                        <RegisteredResource>
+                            <mRID codingScheme="A02">DDE2AA1  NNL3AA1  1</mRID>
+                            <name>DDE2AA1  NNL3AA1  1</name>
+                            <Measurements>
+                                <measurementType>A01</measurementType>
+                                <unitSymbol>MAW</unitSymbol>
+                                <positiveFlowIn>A02</positiveFlowIn>
+                                <analogValues.value>1357</analogValues.value>
+                            </Measurements>
+                            <Measurements>
+                                <measurementType>A03</measurementType>
+                                <unitSymbol>MAW</unitSymbol>
+                                <positiveFlowIn>A01</positiveFlowIn>
+                                <analogValues.value>0</analogValues.value>
+                            </Measurements>
+                            <Measurements>
+                                <measurementType>A07</measurementType>
+                                <unitSymbol>AMP</unitSymbol>
+                                <positiveFlowIn>A01</positiveFlowIn>
+                                <analogValues.value>5774</analogValues.value>
+                            </Measurements>
+                            <Measurements>
+                                <measurementType>A07</measurementType>
+                                <unitSymbol>MAW</unitSymbol>
+                                <positiveFlowIn>A01</positiveFlowIn>
+                                <analogValues.value>4000</analogValues.value>
+                            </Measurements>
+                            <Measurements>
+                                <measurementType>Z14</measurementType>
+                                <unitSymbol>MAW</unitSymbol>
+                                <positiveFlowIn>A01</positiveFlowIn>
+                                <analogValues.value>5357</analogValues.value>
+                            </Measurements>
+                            <Measurements>
+                                <measurementType>Z15</measurementType>
+                                <unitSymbol>MAW</unitSymbol>
+                                <positiveFlowIn>A01</positiveFlowIn>
+                                <analogValues.value>5357</analogValues.value>
+                            </Measurements>
+                            <Measurements>
+                                <measurementType>Z16</measurementType>
+                                <unitSymbol>MAW</unitSymbol>
+                                <positiveFlowIn>A02</positiveFlowIn>
+                                <analogValues.value>933</analogValues.value>
+                            </Measurements>
+                            <Measurements>
+                                <measurementType>Z17</measurementType>
+                                <unitSymbol>MAW</unitSymbol>
+                                <positiveFlowIn>A02</positiveFlowIn>
+                                <analogValues.value>1000</analogValues.value>
+                            </Measurements>
+                        </RegisteredResource>
+                    </Monitored_Series>
+                    <RemedialAction_Series>
+                        <mRID>PRA_PST_BE</mRID>
+                        <name>PRA_PST_BE</name>
+                        <applicationMode_MarketObjectStatus.status>A18</applicationMode_MarketObjectStatus.status>
+                    </RemedialAction_Series>
+                    <RemedialAction_Series>
+                        <mRID>Open FR1 FR2</mRID>
+                        <name>Open FR1 FR2</name>
+                        <applicationMode_MarketObjectStatus.status>A18</applicationMode_MarketObjectStatus.status>
+                    </RemedialAction_Series>
+                </Constraint_Series>
+                <Constraint_Series>
+                    <mRID>FFR2AA1  DDE3AA1  1</mRID>
+                    <businessType>B88</businessType>
+                    <Party_MarketParticipant>
+                        <mRID codingScheme="A01">10XFR-RTE------Q</mRID>
+                    </Party_MarketParticipant>
+                    <optimization_MarketObjectStatus.status>A52</optimization_MarketObjectStatus.status>
+                    <Monitored_Series>
+                        <mRID>FFR2AA1  DDE3AA1  1</mRID>
+                        <name>FFR2AA1  DDE3AA1  1|BASECASE</name>
+                        <RegisteredResource>
+                            <mRID codingScheme="A02">FFR2AA1  DDE3AA1  1</mRID>
+                            <name>FFR2AA1  DDE3AA1  1</name>
+                            <Measurements>
+                                <measurementType>A01</measurementType>
+                                <unitSymbol>MAW</unitSymbol>
+                                <positiveFlowIn>A01</positiveFlowIn>
+                                <analogValues.value>1500</analogValues.value>
+                            </Measurements>
+                            <Measurements>
+                                <measurementType>A02</measurementType>
+                                <unitSymbol>AMP</unitSymbol>
+                                <positiveFlowIn>A01</positiveFlowIn>
+                                <analogValues.value>1443</analogValues.value>
+                            </Measurements>
+                            <Measurements>
+                                <measurementType>A02</measurementType>
+                                <unitSymbol>MAW</unitSymbol>
+                                <positiveFlowIn>A01</positiveFlowIn>
+                                <analogValues.value>1000</analogValues.value>
+                            </Measurements>
+                            <Measurements>
+                                <measurementType>A03</measurementType>
+                                <unitSymbol>MAW</unitSymbol>
+                                <positiveFlowIn>A01</positiveFlowIn>
+                                <analogValues.value>0</analogValues.value>
+                            </Measurements>
+                            <Measurements>
+                                <measurementType>A07</measurementType>
+                                <unitSymbol>AMP</unitSymbol>
+                                <positiveFlowIn>A01</positiveFlowIn>
+                                <analogValues.value>1443</analogValues.value>
+                            </Measurements>
+                            <Measurements>
+                                <measurementType>A07</measurementType>
+                                <unitSymbol>MAW</unitSymbol>
+                                <positiveFlowIn>A01</positiveFlowIn>
+                                <analogValues.value>1000</analogValues.value>
+                            </Measurements>
+                            <Measurements>
+                                <measurementType>Z12</measurementType>
+                                <unitSymbol>MAW</unitSymbol>
+                                <positiveFlowIn>A02</positiveFlowIn>
+                                <analogValues.value>500</analogValues.value>
+                            </Measurements>
+                            <Measurements>
+                                <measurementType>Z13</measurementType>
+                                <unitSymbol>MAW</unitSymbol>
+                                <positiveFlowIn>A02</positiveFlowIn>
+                                <analogValues.value>500</analogValues.value>
+                            </Measurements>
+                            <Measurements>
+                                <measurementType>Z14</measurementType>
+                                <unitSymbol>MAW</unitSymbol>
+                                <positiveFlowIn>A02</positiveFlowIn>
+                                <analogValues.value>500</analogValues.value>
+                            </Measurements>
+                            <Measurements>
+                                <measurementType>Z15</measurementType>
+                                <unitSymbol>MAW</unitSymbol>
+                                <positiveFlowIn>A02</positiveFlowIn>
+                                <analogValues.value>500</analogValues.value>
+                            </Measurements>
+                        </RegisteredResource>
+                    </Monitored_Series>
+                </Constraint_Series>
+                <Constraint_Series>
+                    <mRID>FFR2AA1  DDE3AA1  1</mRID>
+                    <businessType>B57</businessType>
+                    <Party_MarketParticipant>
+                        <mRID codingScheme="A01">10XFR-RTE------Q</mRID>
+                    </Party_MarketParticipant>
+                    <optimization_MarketObjectStatus.status>A52</optimization_MarketObjectStatus.status>
+                    <Monitored_Series>
+                        <mRID>FFR2AA1  DDE3AA1  1</mRID>
+                        <name>FFR2AA1  DDE3AA1  1|BASECASE</name>
+                        <RegisteredResource>
+                            <mRID codingScheme="A02">FFR2AA1  DDE3AA1  1</mRID>
+                            <name>FFR2AA1  DDE3AA1  1</name>
+                            <Measurements>
+                                <measurementType>A01</measurementType>
+                                <unitSymbol>MAW</unitSymbol>
+                                <positiveFlowIn>A01</positiveFlowIn>
+                                <analogValues.value>1143</analogValues.value>
+                            </Measurements>
+                            <Measurements>
+                                <measurementType>A03</measurementType>
+                                <unitSymbol>MAW</unitSymbol>
+                                <positiveFlowIn>A01</positiveFlowIn>
+                                <analogValues.value>0</analogValues.value>
+                            </Measurements>
+                            <Measurements>
+                                <measurementType>A07</measurementType>
+                                <unitSymbol>AMP</unitSymbol>
+                                <positiveFlowIn>A01</positiveFlowIn>
+                                <analogValues.value>1443</analogValues.value>
+                            </Measurements>
+                            <Measurements>
+                                <measurementType>A07</measurementType>
+                                <unitSymbol>MAW</unitSymbol>
+                                <positiveFlowIn>A01</positiveFlowIn>
+                                <analogValues.value>1000</analogValues.value>
+                            </Measurements>
+                            <Measurements>
+                                <measurementType>Z14</measurementType>
+                                <unitSymbol>MAW</unitSymbol>
+                                <positiveFlowIn>A02</positiveFlowIn>
+                                <analogValues.value>143</analogValues.value>
+                            </Measurements>
+                            <Measurements>
+                                <measurementType>Z15</measurementType>
+                                <unitSymbol>MAW</unitSymbol>
+                                <positiveFlowIn>A02</positiveFlowIn>
+                                <analogValues.value>143</analogValues.value>
+                            </Measurements>
+                        </RegisteredResource>
+                    </Monitored_Series>
+                    <RemedialAction_Series>
+                        <mRID>PRA_PST_BE</mRID>
+                        <name>PRA_PST_BE</name>
+                        <applicationMode_MarketObjectStatus.status>A18</applicationMode_MarketObjectStatus.status>
+                    </RemedialAction_Series>
+                    <RemedialAction_Series>
+                        <mRID>Open FR1 FR2</mRID>
+                        <name>Open FR1 FR2</name>
+                        <applicationMode_MarketObjectStatus.status>A18</applicationMode_MarketObjectStatus.status>
+                    </RemedialAction_Series>
+                </Constraint_Series>
+                <Constraint_Series>
+                    <mRID>NNL2AA1  BBE3AA1  1</mRID>
+                    <businessType>B88</businessType>
+                    <Party_MarketParticipant>
+                        <mRID codingScheme="A01">10XFR-RTE------Q</mRID>
+                    </Party_MarketParticipant>
+                    <optimization_MarketObjectStatus.status>A52</optimization_MarketObjectStatus.status>
+                    <Monitored_Series>
+                        <mRID>NNL2AA1  BBE3AA1  1</mRID>
+                        <name>NNL2AA1  BBE3AA1  1|BASECASE</name>
+                        <RegisteredResource>
+                            <mRID codingScheme="A02">NNL2AA1  BBE3AA1  1</mRID>
+                            <name>NNL2AA1  BBE3AA1  1</name>
+                            <Measurements>
+                                <measurementType>A01</measurementType>
+                                <unitSymbol>MAW</unitSymbol>
+                                <positiveFlowIn>A02</positiveFlowIn>
+                                <analogValues.value>1500</analogValues.value>
+                            </Measurements>
+                            <Measurements>
+                                <measurementType>A02</measurementType>
+                                <unitSymbol>AMP</unitSymbol>
+                                <positiveFlowIn>A01</positiveFlowIn>
+                                <analogValues.value>5774</analogValues.value>
+                            </Measurements>
+                            <Measurements>
+                                <measurementType>A02</measurementType>
+                                <unitSymbol>MAW</unitSymbol>
+                                <positiveFlowIn>A01</positiveFlowIn>
+                                <analogValues.value>4000</analogValues.value>
+                            </Measurements>
+                            <Measurements>
+                                <measurementType>A03</measurementType>
+                                <unitSymbol>MAW</unitSymbol>
+                                <positiveFlowIn>A01</positiveFlowIn>
+                                <analogValues.value>0</analogValues.value>
+                            </Measurements>
+                            <Measurements>
+                                <measurementType>A07</measurementType>
+                                <unitSymbol>AMP</unitSymbol>
+                                <positiveFlowIn>A01</positiveFlowIn>
+                                <analogValues.value>5774</analogValues.value>
+                            </Measurements>
+                            <Measurements>
+                                <measurementType>A07</measurementType>
+                                <unitSymbol>MAW</unitSymbol>
+                                <positiveFlowIn>A01</positiveFlowIn>
+                                <analogValues.value>4000</analogValues.value>
+                            </Measurements>
+                            <Measurements>
+                                <measurementType>Z12</measurementType>
+                                <unitSymbol>MAW</unitSymbol>
+                                <positiveFlowIn>A01</positiveFlowIn>
+                                <analogValues.value>5501</analogValues.value>
+                            </Measurements>
+                            <Measurements>
+                                <measurementType>Z13</measurementType>
+                                <unitSymbol>MAW</unitSymbol>
+                                <positiveFlowIn>A01</positiveFlowIn>
+                                <analogValues.value>5501</analogValues.value>
+                            </Measurements>
+                            <Measurements>
+                                <measurementType>Z14</measurementType>
+                                <unitSymbol>MAW</unitSymbol>
+                                <positiveFlowIn>A01</positiveFlowIn>
+                                <analogValues.value>5501</analogValues.value>
+                            </Measurements>
+                            <Measurements>
+                                <measurementType>Z15</measurementType>
+                                <unitSymbol>MAW</unitSymbol>
+                                <positiveFlowIn>A01</positiveFlowIn>
+                                <analogValues.value>5501</analogValues.value>
+                            </Measurements>
+                            <Measurements>
+                                <measurementType>Z16</measurementType>
+                                <unitSymbol>MAW</unitSymbol>
+                                <positiveFlowIn>A02</positiveFlowIn>
+                                <analogValues.value>410</analogValues.value>
+                            </Measurements>
+                            <Measurements>
+                                <measurementType>Z17</measurementType>
+                                <unitSymbol>MAW</unitSymbol>
+                                <positiveFlowIn>A02</positiveFlowIn>
+                                <analogValues.value>1000</analogValues.value>
+                            </Measurements>
+                        </RegisteredResource>
+                    </Monitored_Series>
+                </Constraint_Series>
+                <Constraint_Series>
+                    <mRID>NNL2AA1  BBE3AA1  1</mRID>
+                    <businessType>B57</businessType>
+                    <Party_MarketParticipant>
+                        <mRID codingScheme="A01">10XFR-RTE------Q</mRID>
+                    </Party_MarketParticipant>
+                    <optimization_MarketObjectStatus.status>A52</optimization_MarketObjectStatus.status>
+                    <Monitored_Series>
+                        <mRID>NNL2AA1  BBE3AA1  1</mRID>
+                        <name>NNL2AA1  BBE3AA1  1|BASECASE</name>
+                        <RegisteredResource>
+                            <mRID codingScheme="A02">NNL2AA1  BBE3AA1  1</mRID>
+                            <name>NNL2AA1  BBE3AA1  1</name>
+                            <Measurements>
+                                <measurementType>A01</measurementType>
+                                <unitSymbol>MAW</unitSymbol>
+                                <positiveFlowIn>A02</positiveFlowIn>
+                                <analogValues.value>1857</analogValues.value>
+                            </Measurements>
+                            <Measurements>
+                                <measurementType>A03</measurementType>
+                                <unitSymbol>MAW</unitSymbol>
+                                <positiveFlowIn>A01</positiveFlowIn>
+                                <analogValues.value>0</analogValues.value>
+                            </Measurements>
+                            <Measurements>
+                                <measurementType>A07</measurementType>
+                                <unitSymbol>AMP</unitSymbol>
+                                <positiveFlowIn>A01</positiveFlowIn>
+                                <analogValues.value>5774</analogValues.value>
+                            </Measurements>
+                            <Measurements>
+                                <measurementType>A07</measurementType>
+                                <unitSymbol>MAW</unitSymbol>
+                                <positiveFlowIn>A01</positiveFlowIn>
+                                <analogValues.value>4000</analogValues.value>
+                            </Measurements>
+                            <Measurements>
+                                <measurementType>Z14</measurementType>
+                                <unitSymbol>MAW</unitSymbol>
+                                <positiveFlowIn>A01</positiveFlowIn>
+                                <analogValues.value>5857</analogValues.value>
+                            </Measurements>
+                            <Measurements>
+                                <measurementType>Z15</measurementType>
+                                <unitSymbol>MAW</unitSymbol>
+                                <positiveFlowIn>A01</positiveFlowIn>
+                                <analogValues.value>5857</analogValues.value>
+                            </Measurements>
+                            <Measurements>
+                                <measurementType>Z16</measurementType>
+                                <unitSymbol>MAW</unitSymbol>
+                                <positiveFlowIn>A02</positiveFlowIn>
+                                <analogValues.value>733</analogValues.value>
+                            </Measurements>
+                            <Measurements>
+                                <measurementType>Z17</measurementType>
+                                <unitSymbol>MAW</unitSymbol>
+                                <positiveFlowIn>A02</positiveFlowIn>
+                                <analogValues.value>1000</analogValues.value>
+                            </Measurements>
+                        </RegisteredResource>
+                    </Monitored_Series>
+                    <RemedialAction_Series>
+                        <mRID>PRA_PST_BE</mRID>
+                        <name>PRA_PST_BE</name>
+                        <applicationMode_MarketObjectStatus.status>A18</applicationMode_MarketObjectStatus.status>
+                    </RemedialAction_Series>
+                    <RemedialAction_Series>
+                        <mRID>Open FR1 FR2</mRID>
+                        <name>Open FR1 FR2</name>
+                        <applicationMode_MarketObjectStatus.status>A18</applicationMode_MarketObjectStatus.status>
+                    </RemedialAction_Series>
+                </Constraint_Series>
+                <Constraint_Series>
+                    <mRID>RAseries_2cef8</mRID>
+                    <businessType>B56</businessType>
+                    <RemedialAction_Series>
+                        <mRID>PRA_PST_BE</mRID>
+                        <name>PRA_PST_BE</name>
+                        <Party_MarketParticipant>
+                            <mRID codingScheme="A01">10X1001A1001A094</mRID>
+                        </Party_MarketParticipant>
+                        <RegisteredResource>
+                            <mRID codingScheme="A01">PRA_PST_BE</mRID>
+                            <name>BBE2AA1  BBE3AA1  1</name>
+                            <pSRType.psrType>A06</pSRType.psrType>
+                            <marketObjectStatus.status>A26</marketObjectStatus.status>
+                            <resourceCapacity.defaultCapacity>0</resourceCapacity.defaultCapacity>
+                            <resourceCapacity.unitSymbol>C62</resourceCapacity.unitSymbol>
+                        </RegisteredResource>
+                    </RemedialAction_Series>
+                </Constraint_Series>
+                <Constraint_Series>
+                    <mRID>RAseries_16ccd</mRID>
+                    <businessType>B56</businessType>
+                    <RemedialAction_Series>
+                        <mRID>PRA_PST_BE</mRID>
+                        <name>PRA_PST_BE</name>
+                        <applicationMode_MarketObjectStatus.status>A18</applicationMode_MarketObjectStatus.status>
+                        <Party_MarketParticipant>
+                            <mRID codingScheme="A01">10X1001A1001A094</mRID>
+                        </Party_MarketParticipant>
+                        <RegisteredResource>
+                            <mRID codingScheme="A01">PRA_PST_BE</mRID>
+                            <name>BBE2AA1  BBE3AA1  1</name>
+                            <pSRType.psrType>A06</pSRType.psrType>
+                            <marketObjectStatus.status>A26</marketObjectStatus.status>
+                            <resourceCapacity.defaultCapacity>-16</resourceCapacity.defaultCapacity>
+                            <resourceCapacity.unitSymbol>C62</resourceCapacity.unitSymbol>
+                        </RegisteredResource>
+                    </RemedialAction_Series>
+                    <RemedialAction_Series>
+                        <mRID>Open FR1 FR2</mRID>
+                        <name>Open FR1 FR2</name>
+                        <applicationMode_MarketObjectStatus.status>A18</applicationMode_MarketObjectStatus.status>
+                        <Party_MarketParticipant>
+                            <mRID codingScheme="A01">10X1001A1001A329</mRID>
+                        </Party_MarketParticipant>
+                    </RemedialAction_Series>
+                </Constraint_Series>
+            </Point>
+        </Period>
+    </TimeSeries>
+</CriticalNetworkElement_MarketDocument>

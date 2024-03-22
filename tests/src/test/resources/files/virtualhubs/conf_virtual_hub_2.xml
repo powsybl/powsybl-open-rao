@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Configuration>
+    <MarketAreas>
+        <MarketArea Code="BE" Eic="10YBE----------2" MCParticipant="true"/>
+        <MarketArea Code="DE" Eic="10YCB-GERMANY--8" MCParticipant="true"/>
+        <MarketArea Code="FR" Eic="10YFR-RTE------C" MCParticipant="true"/>
+        <MarketArea Code="NL" Eic="10YNL----------L" MCParticipant="true"/>
+    </MarketAreas>
+    <VirtualHubs>
+        <VirtualHub Eic="99YXXXXXXFRGBIFA" Code="GB_BORDER" RelatedMA="FR"
+                    MCParticipant="true" NodeName="X_GBFR1 "/>
+    </VirtualHubs>
+</Configuration>
