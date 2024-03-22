@@ -31,15 +31,17 @@ import java.util.*;
 public class AutomatonPerimeterResultImpl implements PerimeterResult {
 
     private final PrePerimeterResult postAutomatonSensitivityAnalysisOutput;
-    private final Set<NetworkAction> activatedNetworkActions;
+    private final Set<NetworkAction> forcedNetworkActions;
+    private final Set<NetworkAction> selectedNetworkActions;
     private final Set<RangeAction<?>> activatedRangeActions;
     private final Map<RangeAction<?>, Double> rangeActionsWithSetpoint;
     private final State optimizedState;
     private ComputationStatus computationStatus = ComputationStatus.DEFAULT;
 
-    public AutomatonPerimeterResultImpl(PrePerimeterResult postAutomatonSensitivityAnalysisOutput, Set<NetworkAction> activatedNetworkActions, Set<RangeAction<?>> activatedRangeActions, Map<RangeAction<?>, Double> rangeActionsWithSetpoint, State optimizedState) {
+    public AutomatonPerimeterResultImpl(PrePerimeterResult postAutomatonSensitivityAnalysisOutput, Set<NetworkAction> forcedNetworkActions, Set<NetworkAction> selectedNetworkActions, Set<RangeAction<?>> activatedRangeActions, Map<RangeAction<?>, Double> rangeActionsWithSetpoint, State optimizedState) {
         this.postAutomatonSensitivityAnalysisOutput = postAutomatonSensitivityAnalysisOutput;
-        this.activatedNetworkActions = activatedNetworkActions;
+        this.forcedNetworkActions = forcedNetworkActions;
+        this.selectedNetworkActions = selectedNetworkActions;
         this.activatedRangeActions = activatedRangeActions;
         this.rangeActionsWithSetpoint = rangeActionsWithSetpoint;
         this.optimizedState = optimizedState;
@@ -71,12 +73,23 @@ public class AutomatonPerimeterResultImpl implements PerimeterResult {
 
     @Override
     public boolean isActivated(NetworkAction networkAction) {
-        return activatedNetworkActions.contains(networkAction);
+        return forcedNetworkActions.contains(networkAction) || selectedNetworkActions.contains(networkAction);
     }
 
     @Override
     public Set<NetworkAction> getActivatedNetworkActions() {
-        return new HashSet<>(activatedNetworkActions);
+        Set<NetworkAction> networkActions = new HashSet<>();
+        networkActions.addAll(forcedNetworkActions);
+        networkActions.addAll(selectedNetworkActions);
+        return networkActions;
+    }
+
+    public Set<NetworkAction> getForcedNetworkActions() {
+        return new HashSet<>(forcedNetworkActions);
+    }
+
+    public Set<NetworkAction> getSelectedNetworkActions() {
+        return new HashSet<>(selectedNetworkActions);
     }
 
     @Override

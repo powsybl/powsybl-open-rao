@@ -28,6 +28,7 @@ import com.google.common.base.Suppliers;
 import com.powsybl.computation.local.LocalComputationManager;
 import com.powsybl.iidm.network.ImportConfig;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.openrao.data.craccreation.creator.csaprofile.parameters.CsaCracCreationParameters;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
@@ -242,11 +243,18 @@ public final class CsaProfileCracCreationTestUtil {
     }
 
     public static CsaProfileCracCreationContext getCsaCracCreationContext(String csaProfilesArchive) {
-        return getCsaCracCreationContext(csaProfilesArchive, new CracCreationParameters());
+        return getCsaCracCreationContext(csaProfilesArchive, cracCreationParametersWithCsaExtension());
+    }
+
+    public static CracCreationParameters cracCreationParametersWithCsaExtension() {
+        CracCreationParameters cracCreationParameters = new CracCreationParameters();
+        cracCreationParameters.addExtension(CsaCracCreationParameters.class, new CsaCracCreationParameters());
+        cracCreationParameters.getExtension(CsaCracCreationParameters.class).setCapacityCalculationRegionEicCode("10Y1001C--00095L");
+        return cracCreationParameters;
     }
 
     public static CsaProfileCracCreationContext getCsaCracCreationContext(String csaProfilesArchive, Network network) {
-        return getCsaCracCreationContext(csaProfilesArchive, network, OffsetDateTime.parse("2023-03-29T12:00Z"), new CracCreationParameters());
+        return getCsaCracCreationContext(csaProfilesArchive, network, OffsetDateTime.parse("2023-03-29T12:00Z"), cracCreationParametersWithCsaExtension());
     }
 
     public static CsaProfileCracCreationContext getCsaCracCreationContext(String csaProfilesArchive, Network network, CracCreationParameters cracCreationParameters) {
@@ -254,11 +262,11 @@ public final class CsaProfileCracCreationTestUtil {
     }
 
     public static CsaProfileCracCreationContext getCsaCracCreationContext(String csaProfilesArchive, Network network, String timestamp) {
-        return getCsaCracCreationContext(csaProfilesArchive, network, OffsetDateTime.parse(timestamp), new CracCreationParameters());
+        return getCsaCracCreationContext(csaProfilesArchive, network, OffsetDateTime.parse(timestamp), cracCreationParametersWithCsaExtension());
     }
 
     public static CsaProfileCracCreationContext getCsaCracCreationContext(String csaProfilesArchive, Network network, OffsetDateTime offsetDateTime) {
-        return getCsaCracCreationContext(csaProfilesArchive, network, offsetDateTime, new CracCreationParameters());
+        return getCsaCracCreationContext(csaProfilesArchive, network, offsetDateTime, cracCreationParametersWithCsaExtension());
     }
 
     public static CsaProfileCracCreationContext getCsaCracCreationContext(String csaProfilesArchive, Network network, OffsetDateTime offsetDateTime, CracCreationParameters cracCreationParameters) {

@@ -16,7 +16,7 @@ public final class RaoParametersCommons {
     private RaoParametersCommons() {
     }
 
-    public static final String RAO_PARAMETERS_VERSION = "2.2";
+    public static final String RAO_PARAMETERS_VERSION = "2.3";
 
     // header
     public static final String VERSION = "version";
@@ -51,7 +51,9 @@ public final class RaoParametersCommons {
     // topological actions optimization parameters
     public static final String TOPOLOGICAL_ACTIONS_OPTIMIZATION = "topological-actions-optimization";
     public static final String TOPOLOGICAL_ACTIONS_OPTIMIZATION_SECTION = "rao-topological-actions-optimization";
-    public static final String MAX_SEARCH_TREE_DEPTH = "max-search-tree-depth";
+    public static final String MAX_PREVENTIVE_SEARCH_TREE_DEPTH = "max-preventive-search-tree-depth";
+    public static final String MAX_AUTO_SEARCH_TREE_DEPTH = "max-auto-search-tree-depth";
+    public static final String MAX_CURATIVE_SEARCH_TREE_DEPTH = "max-curative-search-tree-depth";
     public static final String PREDEFINED_COMBINATIONS = "predefined-combinations";
     public static final String RELATIVE_MINIMUM_IMPACT_THRESHOLD = "relative-minimum-impact-threshold";
     public static final String ABSOLUTE_MINIMUM_IMPACT_THRESHOLD = "absolute-minimum-impact-threshold";
@@ -63,6 +65,7 @@ public final class RaoParametersCommons {
     public static final String MULTI_THREADING_SECTION = "rao-multi-threading";
     public static final String CONTINGENCY_SCENARIOS_IN_PARALLEL = "contingency-scenarios-in-parallel";
     public static final String PREVENTIVE_LEAVES_IN_PARALLEL = "preventive-leaves-in-parallel";
+    public static final String AUTO_LEAVES_IN_PARALLEL = "auto-leaves-in-parallel";
     public static final String CURATIVE_LEAVES_IN_PARALLEL = "curative-leaves-in-parallel";
 
     // Second Preventive RAO parameters
