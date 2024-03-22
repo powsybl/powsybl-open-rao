@@ -1,0 +1,169 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<FlowBasedConstraintDocument DtdRelease="4" DtdVersion="0" xmlns="flowbased" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="flowbasedconstraintdocument-18.xsd">
+  <DocumentIdentification v="17XTSO-CS------W-20190108-F301v1"/>
+  <DocumentVersion v="1"/>
+  <DocumentType v="B06"/>
+  <ProcessType v="A01"/>
+  <SenderIdentification codingScheme="A01" v="17XTSO-CS------W"/>
+  <SenderRole v="A36"/>
+  <ReceiverIdentification codingScheme="A01" v="22XCORESO------S"/>
+  <ReceiverRole v="A44"/>
+  <CreationDateTime v="2019-08-15T14:07:28Z"/>
+  <ConstraintTimeInterval v="2019-01-07T23:00Z/2019-01-08T23:00Z"/>
+  <Domain codingScheme="A01" v="10Y1001C--00059P"/>
+  <criticalBranches>
+    <criticalBranch id="be1_fr5_n_dir">
+      <timeInterval v="2019-01-07T23:00Z/2019-01-08T23:00Z"/>
+      <branch name="BE1-FR5" from="BBE1AA1" to="FFR5AA1" order="1" eic="1234567890123451"/>
+      <imaxA>1500</imaxA>
+      <imaxType>FIXED</imaxType>
+      <frmMw>0</frmMw>
+      <minRAMfactor>100</minRAMfactor>
+      <CNEC>true</CNEC>
+      <MNEC>false</MNEC>
+      <direction>DIRECT</direction>
+      <tsoOrigin>FR</tsoOrigin>
+    </criticalBranch>
+    <criticalBranch id="be1_fr5_n_oppo">
+      <timeInterval v="2019-01-07T23:00Z/2019-01-08T23:00Z"/>
+      <branch name="BE1-FR5" from="BBE1AA1" to="FFR5AA1" order="1" eic="1234567890123451"/>
+      <imaxA>1500</imaxA>
+      <imaxType>FIXED</imaxType>
+      <frmMw>0</frmMw>
+      <minRAMfactor>100</minRAMfactor>
+      <CNEC>true</CNEC>
+      <MNEC>false</MNEC>
+      <direction>OPPOSITE</direction>
+      <tsoOrigin>FR</tsoOrigin>
+    </criticalBranch>
+    <criticalBranch id="fr3_fr5_co1_dir">
+      <timeInterval v="2019-01-07T23:00Z/2019-01-08T23:00Z"/>
+      <branch name="FR3-FR5" from="FFR3AA1" to="FFR5AA1" order="1" eic="1234567890123451"/>
+      <imaxA>1000</imaxA>
+      <imaxType>FIXED</imaxType>
+      <frmMw>0</frmMw>
+      <minRAMfactor>100</minRAMfactor>
+      <CNEC>true</CNEC>
+      <MNEC>false</MNEC>
+      <direction>DIRECT</direction>
+      <tsoOrigin>FR</tsoOrigin>
+      <outage id="Contingency FR2 FR3" location="FR-FR" name="Contingency FR2 FR3">
+        <branch eic="1234567890123450" from="FFR2AA1" order="1" to="FFR3AA1"/>
+      </outage>
+    </criticalBranch>
+    <criticalBranch id="fr3_fr5_co1_oppo">
+      <timeInterval v="2019-01-07T23:00Z/2019-01-08T23:00Z"/>
+      <branch name="FR3-FR5" from="FFR3AA1" to="FFR5AA1" order="1" eic="1234567890123451"/>
+      <imaxA>1000</imaxA>
+      <imaxType>FIXED</imaxType>
+      <frmMw>0</frmMw>
+      <minRAMfactor>100</minRAMfactor>
+      <CNEC>true</CNEC>
+      <MNEC>false</MNEC>
+      <direction>OPPOSITE</direction>
+      <tsoOrigin>FR</tsoOrigin>
+      <outage id="Contingency FR2 FR3" location="FR-FR" name="Contingency FR2 FR3">
+        <branch eic="1234567890123450" from="FFR2AA1" order="1" to="FFR3AA1"/>
+      </outage>
+    </criticalBranch>
+  </criticalBranches>
+  <complexVariants>
+    <complexVariant id="PRA_PST_BE" name="PRA_PST_BE">
+      <timeInterval v="2019-01-07T23:00Z/2019-01-08T23:00Z"/>
+      <tsoOrigin>BE</tsoOrigin>
+      <actionsSet name="PRA_PST_BE">
+        <preventive>true</preventive>
+        <curative>false</curative>
+        <enforced>false</enforced>
+        <action type="PSTTAP">
+          <branch order="1" from="BBE2AA1" to="BBE3AA1"/>
+          <range>
+            <min>-16</min>
+            <max>16</max>
+          </range>
+        </action>
+      </actionsSet>
+    </complexVariant>
+    <complexVariant id="PRA_PST_FR" name="PRA_PST_FR">
+      <timeInterval v="2019-01-07T23:00Z/2019-01-08T23:00Z"/>
+      <tsoOrigin>FR</tsoOrigin>
+      <actionsSet name="PRA_PST_FR">
+        <preventive>true</preventive>
+        <curative>false</curative>
+        <enforced>false</enforced>
+        <action type="PSTTAP">
+          <branch order="1" from="FFR2AA1" to="FFR4AA1"/>
+          <range>
+            <min>-10</min>
+            <max>10</max>
+          </range>
+        </action>
+      </actionsSet>
+    </complexVariant>
+    <complexVariant id="Close line FR1-FR5" name="Close line FR1-FR5">
+      <timeInterval v="2019-01-07T23:00Z/2019-01-08T23:00Z"/>
+      <tsoOrigin>FR</tsoOrigin>
+      <actionsSet name="Close line FR1-FR5">
+        <preventive>true</preventive>
+        <curative>false</curative>
+        <enforced>false</enforced>
+        <action type="STATUS">
+          <branch from="FFR1AA1" order="1" to="FFR5AA1"/>
+          <value>CLOSE</value>
+        </action>
+      </actionsSet>
+    </complexVariant>
+    <complexVariant id="Open line FR1-FR2" name="Open line FR1-FR2">
+      <timeInterval v="2019-01-07T23:00Z/2019-01-08T23:00Z"/>
+      <tsoOrigin>FR</tsoOrigin>
+      <actionsSet name="Open line FR1-FR2">
+        <preventive>true</preventive>
+        <curative>false</curative>
+        <enforced>false</enforced>
+        <action type="STATUS">
+          <branch from="FFR1AA1" order="1" to="FFR2AA1"/>
+          <value>OPEN</value>
+        </action>
+      </actionsSet>
+    </complexVariant>
+    <complexVariant id="Open line FR1-FR3" name="Open line FR1-FR3">
+      <timeInterval v="2019-01-07T23:00Z/2019-01-08T23:00Z"/>
+      <tsoOrigin>FR</tsoOrigin>
+      <actionsSet name="Open line FR1-FR3">
+        <preventive>true</preventive>
+        <curative>false</curative>
+        <enforced>false</enforced>
+        <action type="STATUS">
+          <branch from="FFR1AA1" order="1" to="FFR3AA1"/>
+          <value>OPEN</value>
+        </action>
+      </actionsSet>
+    </complexVariant>
+    <complexVariant id="Open line BE1-BE4" name="Open line BE1-BE4">
+      <timeInterval v="2019-01-07T23:00Z/2019-01-08T23:00Z"/>
+      <tsoOrigin>BE</tsoOrigin>
+      <actionsSet name="Open line BE1-BE4">
+        <preventive>true</preventive>
+        <curative>false</curative>
+        <enforced>false</enforced>
+        <action type="STATUS">
+          <branch from="BBE1AA1" order="1" to="BBE4AA1"/>
+          <value>OPEN</value>
+        </action>
+      </actionsSet>
+    </complexVariant>
+    <complexVariant id="Close line DE3-DE4" name="Close line DE3-DE4">
+      <timeInterval v="2019-01-07T23:00Z/2019-01-08T23:00Z"/>
+      <tsoOrigin>DE</tsoOrigin>
+      <actionsSet name="Close line DE3-DE4">
+        <preventive>true</preventive>
+        <curative>false</curative>
+        <enforced>false</enforced>
+        <action type="STATUS">
+          <branch from="DDE3AA1" order="1" to="DDE4AA1"/>
+          <value>CLOSE</value>
+        </action>
+      </actionsSet>
+    </complexVariant>
+  </complexVariants>
+</FlowBasedConstraintDocument>
