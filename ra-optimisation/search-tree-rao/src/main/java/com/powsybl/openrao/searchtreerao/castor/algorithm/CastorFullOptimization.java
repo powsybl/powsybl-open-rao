@@ -781,8 +781,8 @@ public class CastorFullOptimization {
         // Removes range actions that have a range limit relative to the previous instant.
         Set<RangeAction<?>> rangeActionsToRemove = multipleInstantRangeActions.stream()
                 .filter(ra -> {
-                    if (ra instanceof PstRangeAction) {
-                        return ((PstRangeAction) ra).getRanges().stream().anyMatch(tapRange -> tapRange.getRangeType().equals(RELATIVE_TO_PREVIOUS_INSTANT));
+                    if (ra instanceof PstRangeAction pstRangeAction) {
+                        return pstRangeAction.getRanges().stream().anyMatch(tapRange -> tapRange.getRangeType().equals(RELATIVE_TO_PREVIOUS_INSTANT));
                     }
                     return ((StandardRangeAction<?>) ra).getRanges().stream().anyMatch(standardRange -> standardRange.getRangeType().equals(RELATIVE_TO_PREVIOUS_INSTANT));
                 })
@@ -851,8 +851,9 @@ public class CastorFullOptimization {
         Set<RangeAction<?>> rangeActionsToRemove = new HashSet<>();
         setPointResults.forEach((ra, spMap) -> {
             double referenceSetPoint = spMap.get(preventiveState).iterator().next();
-            for (State state : spMap.keySet()) {
-                if (!state.isPreventive() && spMap.get(state).contains(referenceSetPoint)) {
+            for (Map.Entry<State, Set<Double>> entry : spMap.entrySet()) {
+                State state = entry.getKey();
+                if (!state.isPreventive() && entry.getValue().contains(referenceSetPoint)) {
                     Instant instant = state.getInstant();
                     if (crac.getRaUsageLimitsPerInstant().containsKey(instant)) {
                         String operator = ra.getOperator();
