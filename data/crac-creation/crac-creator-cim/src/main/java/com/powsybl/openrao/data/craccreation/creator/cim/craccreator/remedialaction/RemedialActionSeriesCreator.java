@@ -13,6 +13,7 @@ import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
 import com.powsybl.openrao.data.cracapi.usagerule.UsageMethod;
 import com.powsybl.openrao.data.craccreation.creator.api.ImportStatus;
 import com.powsybl.openrao.data.craccreation.creator.cim.craccreator.CimCracCreationContext;
+import com.powsybl.openrao.data.craccreation.creator.cim.craccreator.CimCracUtils;
 import com.powsybl.openrao.data.craccreation.creator.cim.craccreator.cnec.AdditionalConstraintSeriesCreator;
 import com.powsybl.openrao.data.craccreation.creator.cim.parameters.CimCracCreationParameters;
 import com.powsybl.openrao.data.craccreation.creator.cim.xsd.*;
@@ -59,14 +60,16 @@ public class RemedialActionSeriesCreator {
 
     private Set<Series> getRaSeries() {
         Set<Series> raSeries = new HashSet<>();
-        cimTimeSeries.forEach(
-            timeSerie -> timeSerie.getPeriod().forEach(
-                period -> period.getPoint().forEach(
-                    point -> point.getSeries().stream()
-                        .filter(this::describesRemedialActionsToImport)
-                        .filter(this::checkRemedialActionSeries)
-                        .forEach(raSeries::add)
-                )));
+
+        CimCracUtils.applyActionToEveryPoint(
+            cimTimeSeries,
+            cracCreationContext.getTimeStamp().toInstant(),
+            point -> point.getSeries().stream()
+                    .filter(this::describesRemedialActionsToImport)
+                    .filter(this::checkRemedialActionSeries)
+                    .forEach(raSeries::add)
+        );
+
         return raSeries;
     }
 

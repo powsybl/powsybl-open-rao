@@ -8,14 +8,10 @@
 package com.powsybl.openrao.data.craccreation.creator.csaprofile.importer;
 
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.CsaProfileCrac;
-import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileConstants;
-import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
 import org.junit.jupiter.api.Test;
 
 import java.io.InputStream;
-import java.util.Comparator;
-import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -32,38 +28,15 @@ class CsaProfileCracImporterTest {
 
     @Test
     void testExists() {
-        InputStream is1 = getClass().getResourceAsStream("/TestConfiguration_TC1_v29Mar2023.zip");
+        InputStream is1 = getClass().getResourceAsStream("/profiles/contingencies/Contingencies.zip");
         CsaProfileCracImporter importer = new CsaProfileCracImporter();
-        assertTrue(importer.exists("TestConfiguration_TC1_v29Mar2023.zip", is1));
-    }
-
-    @Test
-    void testImportNativeCracV29Mar2023() {
-        CsaProfileCracImporter csaProfileCracImporter = new CsaProfileCracImporter();
-        InputStream is1 = getClass().getResourceAsStream("/TestConfiguration_TC1_v29Mar2023.zip");
-        CsaProfileCrac csaProfileCrac = csaProfileCracImporter.importNativeCrac(is1);
-        assertNotNull(csaProfileCrac);
-
-        //contingencies
-        List<PropertyBag> contingenciesPb = csaProfileCrac.getContingencies().stream().sorted(Comparator.comparing(PropertyBag::hashCode)).toList();
-
-        assertNotNull(contingenciesPb);
-        assertEquals(2, contingenciesPb.size());
-        assertEquals("493480ba-93c3-426e-bee5-347d8dda3749", contingenciesPb.get(0).getId(CsaProfileConstants.REQUEST_CONTINGENCY));
-        assertEquals("c0a25fd7-eee0-4191-98a5-71a74469d36e", contingenciesPb.get(1).getId(CsaProfileConstants.REQUEST_CONTINGENCY));
-        // contingencies equipments
-        List<PropertyBag> contingencyEquipmentsPb = csaProfileCrac.getContingencyEquipments().stream().sorted(Comparator.comparing(PropertyBag::hashCode)).toList();
-        assertNotNull(contingencyEquipmentsPb);
-        assertEquals(2, contingencyEquipmentsPb.size());
-        assertEquals("ef11f9bd-5da0-43e3-921b-7e92d2896136", contingencyEquipmentsPb.get(1).getId(CsaProfileConstants.REQUEST_CONTINGENCY_EQUIPMENT));
-        assertEquals("f19925fa-b114-48c5-97a4-42ef84372115", contingencyEquipmentsPb.get(0).getId(CsaProfileConstants.REQUEST_CONTINGENCY_EQUIPMENT));
-        assertEquals(2, csaProfileCrac.getGridStateAlterationRemedialAction().size());
+        assertTrue(importer.exists("/profiles/contingencies/Contingencies.zip", is1));
     }
 
     @Test
     void testImportNativeCracWithoutSubdirectory() {
         CsaProfileCracImporter csaProfileCracImporter = new CsaProfileCracImporter();
-        InputStream is1 = getClass().getResourceAsStream("/TestCaseWithoutSubdirectory.zip");
+        InputStream is1 = getClass().getResourceAsStream("/profiles/TestCaseWithoutSubdirectory.zip");
         CsaProfileCrac csaProfileCrac = csaProfileCracImporter.importNativeCrac(is1);
         assertNotNull(csaProfileCrac);
 

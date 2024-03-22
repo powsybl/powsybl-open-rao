@@ -11,6 +11,7 @@ import com.powsybl.openrao.data.cracapi.ContingencyAdder;
 import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.craccreation.creator.api.ImportStatus;
 import com.powsybl.openrao.data.craccreation.creator.cim.craccreator.CimCracCreationContext;
+import com.powsybl.openrao.data.craccreation.creator.cim.craccreator.CimCracUtils;
 import com.powsybl.openrao.data.craccreation.creator.cim.xsd.*;
 import com.powsybl.openrao.data.craccreation.util.cgmes.CgmesBranchHelper;
 import com.powsybl.iidm.network.DanglingLine;
@@ -18,10 +19,7 @@ import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.TieLine;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 import static com.powsybl.openrao.data.craccreation.creator.cim.craccreator.CimConstants.*;
 
@@ -48,18 +46,13 @@ public class CimContingencyCreator {
 
     public void createAndAddContingencies() {
         this.cimContingencyCreationContexts = new HashSet<>();
-
-        for (TimeSeries cimTimeSerie : cimTimeSeries) {
-            for (SeriesPeriod cimPeriodInTimeSerie : cimTimeSerie.getPeriod()) {
-                for (Point cimPointInPeriodInTimeSerie : cimPeriodInTimeSerie.getPoint()) {
-                    for (Series cimSerie : cimPointInPeriodInTimeSerie.getSeries().stream().filter(this::describesContingencyToImport).toList()) {
-                        for (ContingencySeries cimContingency : cimSerie.getContingencySeries()) {
-                            addContingency(cimContingency);
-                        }
-                    }
-                }
-            }
-        }
+        CimCracUtils.applyActionToEveryPoint(
+                cimTimeSeries,
+                cracCreationContext.getTimeStamp().toInstant(),
+                point -> point.getSeries().stream().filter(this::describesContingencyToImport).forEach(
+                        series -> series.getContingencySeries().forEach(this::addContingency)
+                )
+        );
         this.cracCreationContext.setContingencyCreationContexts(cimContingencyCreationContexts);
     }
 

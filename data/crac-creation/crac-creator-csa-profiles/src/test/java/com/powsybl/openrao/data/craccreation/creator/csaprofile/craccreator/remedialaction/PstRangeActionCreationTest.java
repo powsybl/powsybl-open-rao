@@ -6,15 +6,20 @@
  */
 package com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.remedialaction;
 
-import com.powsybl.openrao.data.cracapi.Instant;
 import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeAction;
+import com.powsybl.openrao.data.cracapi.usagerule.UsageMethod;
 import com.powsybl.openrao.data.craccreation.creator.api.ImportStatus;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileCracCreationContext;
-import com.powsybl.openrao.data.cracimpl.OnContingencyStateImpl;
 import org.junit.jupiter.api.Test;
 
-import java.util.Map;
+import java.util.Comparator;
+import java.util.List;
 
+import static com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileCracCreationTestUtil.CURATIVE_INSTANT_ID;
+import static com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileCracCreationTestUtil.NETWORK;
+import static com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileCracCreationTestUtil.PREVENTIVE_INSTANT_ID;
+import static com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileCracCreationTestUtil.assertHasOnInstantUsageRule;
+import static com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileCracCreationTestUtil.assertPstRangeActionImported;
 import static com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileCracCreationTestUtil.assertRaNotImported;
 import static com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileCracCreationTestUtil.getCsaCracCreationContext;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -22,119 +27,33 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class PstRangeActionCreationTest {
 
     @Test
-    void testTC1ImportPstRangeActions() {
-        CsaProfileCracCreationContext cracCreationContext = getCsaCracCreationContext("/TestConfiguration_TC1_v29Mar2023.zip");
-        Instant curativeInstant = cracCreationContext.getCrac().getInstant("curative");
+    void importPstRangeActions() {
+        CsaProfileCracCreationContext cracCreationContext = getCsaCracCreationContext("/profiles/remedialactions/PSTRangeActions.zip", NETWORK);
 
-        // ELIA_RA1 (on instant)
-        PstRangeAction eliaRa1 = cracCreationContext.getCrac().getPstRangeAction("7fc2fc14-eea6-4e69-b8d9-a3edc218e687");
-        assertEquals("ELIA_RA1", eliaRa1.getName());
-        assertEquals("ELIA", eliaRa1.getOperator());
-        assertEquals("36b83adb-3d45-4693-8967-96627b5f9ec9", eliaRa1.getNetworkElement().getId());
-        assertEquals(10, eliaRa1.getInitialTap());
-        assertEquals(1, eliaRa1.getRanges().size());
-        assertEquals(5., eliaRa1.getRanges().iterator().next().getMinTap());
-        assertEquals(20., eliaRa1.getRanges().iterator().next().getMaxTap());
-        assertEquals(1, eliaRa1.getUsageRules().size());
-        assertEquals(curativeInstant, eliaRa1.getUsageRules().iterator().next().getInstant());
-        Map<Integer, Double> expectedTapToAngleMap = Map.ofEntries(
-            Map.entry(1, 4.926567934889113),
-            Map.entry(2, 4.4625049779277965),
-            Map.entry(3, 4.009142308337196),
-            Map.entry(4, 3.5661689080738133),
-            Map.entry(5, 3.133282879390916),
-            Map.entry(6, 2.7101913084587235),
-            Map.entry(7, 2.296610111393503),
-            Map.entry(8, 1.892263865774221),
-            Map.entry(9, 1.496885630374893),
-            Map.entry(10, 1.1102167555229658),
-            Map.entry(11, 0.7320066862066437),
-            Map.entry(12, 0.36201275979482317),
-            Map.entry(13, -0.0),
-            Map.entry(14, -0.3542590914949466),
-            Map.entry(15, -0.7009847445128217),
-            Map.entry(16, -1.040390129895497),
-            Map.entry(17, -1.3726815681386877),
-            Map.entry(18, -1.698058736365395),
-            Map.entry(19, -2.016714872973585),
-            Map.entry(20, -2.32883697939856),
-            Map.entry(21, -2.6346060185232267),
-            Map.entry(22, -2.9341971093513304),
-            Map.entry(23, -3.227779717630807),
-            Map.entry(24, -3.515517842177712),
-            Map.entry(25, -3.797570196706609)
-        );
-        assertEquals(expectedTapToAngleMap, eliaRa1.getTapToAngleConversionMap());
+        List<PstRangeAction> importedPstRangeActions = cracCreationContext.getCrac().getPstRangeActions().stream().sorted(Comparator.comparing(PstRangeAction::getId)).toList();
+        assertEquals(4, importedPstRangeActions.size());
+
+        assertPstRangeActionImported(importedPstRangeActions.get(0), "remedial-action-1", "RTE_RA1", "BBE2AA1  BBE3AA1  1", null, null);
+        assertHasOnInstantUsageRule(cracCreationContext, "remedial-action-1", PREVENTIVE_INSTANT_ID, UsageMethod.AVAILABLE);
+
+        assertPstRangeActionImported(importedPstRangeActions.get(1), "remedial-action-2", "RTE_RA2", "FFR2AA1  FFR4AA1  1", 3, null);
+        assertHasOnInstantUsageRule(cracCreationContext, "remedial-action-2", CURATIVE_INSTANT_ID, UsageMethod.AVAILABLE);
+
+        assertPstRangeActionImported(importedPstRangeActions.get(2), "remedial-action-3", "RTE_RA3", "FFR2AA1  FFR4AA1  1", null, 17);
+        assertHasOnInstantUsageRule(cracCreationContext, "remedial-action-3", CURATIVE_INSTANT_ID, UsageMethod.AVAILABLE);
+
+        assertPstRangeActionImported(importedPstRangeActions.get(3), "remedial-action-4", "RTE_RA4", "BBE2AA1  BBE3AA1  1", 5, 15);
+        assertHasOnInstantUsageRule(cracCreationContext, "remedial-action-4", PREVENTIVE_INSTANT_ID, UsageMethod.AVAILABLE);
+
+        assertEquals(8, cracCreationContext.getRemedialActionCreationContexts().stream().filter(context -> !context.isImported()).toList().size());
+
+        assertRaNotImported(cracCreationContext, "remedial-action-5", ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK, "Remedial action remedial-action-5 will not be imported because transformer with id unknown-pst was not found in network");
+        assertRaNotImported(cracCreationContext, "remedial-action-6", ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action remedial-action-6 will not be imported because TapPositionAction must have a property reference with http://energy.referencedata.eu/PropertyReference/TapChanger.step value, but it was: http://energy.referencedata.eu/PropertyReference/Switch.open");
+        assertRaNotImported(cracCreationContext, "remedial-action-7", ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action remedial-action-7 will not be imported because StaticPropertyRange must have a property reference with http://energy.referencedata.eu/PropertyReference/TapChanger.step value, but it was: http://energy.referencedata.eu/PropertyReference/Switch.open");
+        assertRaNotImported(cracCreationContext, "remedial-action-8", ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action remedial-action-8 will not be imported because several TapPositionActions were defined for the same PST Range Action when only one is expected");
+        assertRaNotImported(cracCreationContext, "remedial-action-9", ImportStatus.NOT_FOR_RAO, "Remedial action remedial-action-9 will not be imported because the field normalEnabled in TapPositionAction is set to false");
+        assertRaNotImported(cracCreationContext, "remedial-action-10", ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action remedial-action-10 will not be imported because there is more than ONE StaticPropertyRange with direction RelativeDirectionKind.up");
+        assertRaNotImported(cracCreationContext, "remedial-action-11", ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action remedial-action-11 will not be imported because there is more than ONE StaticPropertyRange with direction RelativeDirectionKind.down");
+        assertRaNotImported(cracCreationContext, "remedial-action-12", ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action remedial-action-12 will not be imported because StaticPropertyRange has wrong value of valueKind, the only allowed value is absolute");
     }
-
-    @Test
-    void testTC2ImportPstRangeActions() {
-        CsaProfileCracCreationContext cracCreationContext = getCsaCracCreationContext("/CSA_TestConfiguration_TC2_Draft_v14Apr2023.zip");
-        Instant curativeInstant = cracCreationContext.getCrac().getInstant("curative");
-
-        PstRangeAction reeRa1 = cracCreationContext.getCrac().getPstRangeAction("5898c268-9b32-4ab5-9cfc-64546135a337");
-        assertEquals("RA1", reeRa1.getName());
-        assertEquals("f6e8823f-d431-6fc7-37cf-b7a0d80035dd", reeRa1.getNetworkElement().getId());
-        assertEquals(13, reeRa1.getInitialTap());
-        assertEquals(0, reeRa1.getRanges().size());
-        assertEquals(1, reeRa1.getUsageRules().size());
-        assertEquals(curativeInstant, reeRa1.getUsageRules().iterator().next().getInstant());
-        assertEquals("8cdec4c6-10c3-40c1-9eeb-7f6ae8d9b3fe", ((OnContingencyStateImpl) reeRa1.getUsageRules().iterator().next()).getState().getContingency().get().getId());
-        Map<Integer, Double> expectedTapToAngleMap = Map.ofEntries(
-            Map.entry(-1, -2.0),
-            Map.entry(0, 0.0),
-            Map.entry(-2, -4.0),
-            Map.entry(1, 2.0),
-            Map.entry(-3, -6.0),
-            Map.entry(2, 4.0),
-            Map.entry(-4, -8.0),
-            Map.entry(3, 6.0),
-            Map.entry(-5, -10.0),
-            Map.entry(4, 8.0),
-            Map.entry(-6, -12.0),
-            Map.entry(5, 10.0),
-            Map.entry(-7, -14.0),
-            Map.entry(6, 12.0),
-            Map.entry(-8, -16.0),
-            Map.entry(7, 14.0),
-            Map.entry(-9, -18.0),
-            Map.entry(8, 16.0),
-            Map.entry(-10, -20.0),
-            Map.entry(9, 18.0),
-            Map.entry(-11, -22.0),
-            Map.entry(10, 20.0),
-            Map.entry(-12, -24.0),
-            Map.entry(11, 22.0),
-            Map.entry(-13, -26.0),
-            Map.entry(12, 24.0),
-            Map.entry(-14, -28.0),
-            Map.entry(13, 26.0),
-            Map.entry(-15, -30.0),
-            Map.entry(14, 28.0),
-            Map.entry(-16, -32.0),
-            Map.entry(15, 30.0),
-            Map.entry(-17, -34.0),
-            Map.entry(16, 32.0),
-            Map.entry(-18, -36.0),
-            Map.entry(17, 34.0),
-            Map.entry(-19, -38.0),
-            Map.entry(18, 36.0),
-            Map.entry(-20, -40.0),
-            Map.entry(19, 38.0),
-            Map.entry(20, 40.0)
-        );
-        assertEquals(expectedTapToAngleMap, reeRa1.getTapToAngleConversionMap());
-        assertEquals(ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK, cracCreationContext.getRemedialActionCreationContexts().stream().filter(ra -> ra.getNativeId().equals("5e5ff13e-2043-4468-9351-01920d3d9504")).findAny().get().getImportStatus());
-        assertEquals(ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK, cracCreationContext.getRemedialActionCreationContexts().stream().filter(ra -> ra.getNativeId().equals("2e4f4212-7b30-4316-9fce-ca618f2a8a05")).findAny().get().getImportStatus());
-    }
-
-    @Test
-    void checkRaWithSeveralTapPositionIsNotAccepted() {
-        CsaProfileCracCreationContext cracCreationContext = getCsaCracCreationContext("/RaWithMultipleTapPositions.zip");
-        assertRaNotImported(cracCreationContext, "pst-range-action-with-multiple-psts", ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action 'pst-range-action-with-multiple-psts' will not be imported because several TapPositionActions were defined for the same PST Range Action when only one is expected");
-        assertRaNotImported(cracCreationContext, "pst-range-action-with-disabled-pst", ImportStatus.NOT_FOR_RAO, "Remedial action 'pst-range-action-with-disabled-pst' will not be imported because the field 'normalEnabled' in TapPositionAction is set to false");
-        assertRaNotImported(cracCreationContext, "pst-range-action-with-multiple-max-taps", ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action pst-range-action-with-multiple-max-taps will not be imported because StaticPropertyRange has more than ONE direction RelativeDirectionKind.up");
-        assertRaNotImported(cracCreationContext, "pst-range-action-with-multiple-min-taps", ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action pst-range-action-with-multiple-min-taps will not be imported because StaticPropertyRange has more than ONE direction RelativeDirectionKind.down");
-    }
-
 }
