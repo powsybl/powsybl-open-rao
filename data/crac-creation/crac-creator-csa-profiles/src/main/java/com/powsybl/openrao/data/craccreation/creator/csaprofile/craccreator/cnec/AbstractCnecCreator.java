@@ -30,8 +30,10 @@ public abstract class AbstractCnecCreator {
     protected Set<CsaProfileElementaryCreationContext> csaProfileCnecCreationContexts;
     protected final CsaProfileCracCreationContext cracCreationContext;
     protected final String rejectedLinksAssessedElementContingency;
+    protected final boolean aeSecuredForRegion;
+    protected final boolean aeScannedForRegion;
 
-    protected AbstractCnecCreator(Crac crac, Network network, String assessedElementId, String nativeAssessedElementName, String assessedElementOperator, boolean inBaseCase, PropertyBag operationalLimitPropertyBag, List<Contingency> linkedContingencies, Set<CsaProfileElementaryCreationContext> csaProfileCnecCreationContexts, CsaProfileCracCreationContext cracCreationContext, String rejectedLinksAssessedElementContingency) {
+    protected AbstractCnecCreator(Crac crac, Network network, String assessedElementId, String nativeAssessedElementName, String assessedElementOperator, boolean inBaseCase, PropertyBag operationalLimitPropertyBag, List<Contingency> linkedContingencies, Set<CsaProfileElementaryCreationContext> csaProfileCnecCreationContexts, CsaProfileCracCreationContext cracCreationContext, String rejectedLinksAssessedElementContingency, boolean aeSecuredForRegion, boolean aeScannedForRegion) {
         this.crac = crac;
         this.network = network;
         this.assessedElementId = assessedElementId;
@@ -44,6 +46,8 @@ public abstract class AbstractCnecCreator {
         this.csaProfileCnecCreationContexts = csaProfileCnecCreationContexts;
         this.cracCreationContext = cracCreationContext;
         this.rejectedLinksAssessedElementContingency = rejectedLinksAssessedElementContingency;
+        this.aeSecuredForRegion = aeSecuredForRegion;
+        this.aeScannedForRegion = aeScannedForRegion;
     }
 
     protected Identifiable<?> getNetworkElementInNetwork(String networkElementId) {
@@ -65,7 +69,7 @@ public abstract class AbstractCnecCreator {
     }
 
     protected String writeAssessedElementIgnoredReasonMessage(String reason) {
-        return "Assessed Element " + assessedElementId + " ignored because " + reason + ".";
+        return "AssessedElement " + assessedElementId + " ignored because " + reason;
     }
 
     protected String getCnecName(String instantId, Contingency contingency) {
@@ -78,12 +82,16 @@ public abstract class AbstractCnecCreator {
         return "%s - TATL %s".formatted(getCnecName(instantId, contingency), tatlDuration);
     }
 
-    protected void addCnecBaseInformation(CnecAdder<?> cnecAdder, Contingency contingency, String instantId) {
+    protected boolean addCnecBaseInformation(CnecAdder<?> cnecAdder, Contingency contingency, String instantId) {
         String cnecName = getCnecName(instantId, contingency);
+
         cnecAdder.withContingency(contingency == null ? null : contingency.getId())
             .withId(cnecName)
             .withName(cnecName)
-            .withInstant(instantId);
+            .withInstant(instantId)
+            .withOptimized(aeSecuredForRegion)
+            .withMonitored(aeScannedForRegion);
+        return true;
     }
 
     protected void addCnecBaseInformation(CnecAdder<?> cnecAdder, Contingency contingency, String instantId, int tatlDuration) {

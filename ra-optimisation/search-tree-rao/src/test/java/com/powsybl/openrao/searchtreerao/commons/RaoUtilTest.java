@@ -44,6 +44,7 @@ import org.mockito.Mockito;
 import java.util.*;
 
 import static com.powsybl.openrao.searchtreerao.commons.RaoUtil.isRemedialActionAvailable;
+import static com.powsybl.openrao.searchtreerao.commons.RaoUtil.isRemedialActionForced;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -266,9 +267,9 @@ class RaoUtilTest {
         // remedial action with OnInstant Usage Rule
         when(automatonRa.getUsageRules()).thenReturn(Set.of(onInstant));
         when(onInstant.getUsageMethod(automatonState)).thenReturn(UsageMethod.FORCED);
-        assertTrue(isRemedialActionAvailable(automatonRa, automatonState, prePerimeterResult, crac.getFlowCnecs(), network, raoParameters));
+        assertTrue(isRemedialActionForced(automatonRa, automatonState, prePerimeterResult, crac.getFlowCnecs(), network, raoParameters));
         when(onInstant.getUsageMethod(automatonState)).thenReturn(UsageMethod.AVAILABLE);
-        assertFalse(isRemedialActionAvailable(automatonRa, automatonState, prePerimeterResult, crac.getFlowCnecs(), network, raoParameters));
+        assertTrue(isRemedialActionAvailable(automatonRa, automatonState, prePerimeterResult, crac.getFlowCnecs(), network, raoParameters));
 
         // remedial action with OnFlowConstraint Usage Rule
         when(automatonRa.getUsageRules()).thenReturn(Set.of(onFlowConstraint));

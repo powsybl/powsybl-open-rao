@@ -1,5 +1,5 @@
 {
-  "version" : "2.2",
+  "version" : "2.3",
   "objective-function" : {
     "type" : "MAX_MIN_MARGIN_IN_AMPERE",
     "forbid-cost-increase" : true,
@@ -24,7 +24,9 @@
     }
   },
   "topological-actions-optimization" : {
-    "max-search-tree-depth" : 10,
+    "max-preventive-search-tree-depth" : 10,
+    "max-auto-search-tree-depth" : 3,
+    "max-curative-search-tree-depth" : 10,
     "predefined-combinations" : [ [ "na-id-1", "na-id-2" ], [ "na-id-1", "na-id-3", "na-id-4" ] ],
     "relative-minimum-impact-threshold" : 0.1,
     "absolute-minimum-impact-threshold" : 20.0,
@@ -77,6 +79,7 @@
   "multi-threading" : {
     "contingency-scenarios-in-parallel" : 15,
     "preventive-leaves-in-parallel" : 21,
+    "auto-leaves-in-parallel" : 30,
     "curative-leaves-in-parallel" : 22
   },
   "extensions" : {
