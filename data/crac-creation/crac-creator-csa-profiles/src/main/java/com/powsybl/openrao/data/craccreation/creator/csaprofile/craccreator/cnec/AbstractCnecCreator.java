@@ -1,6 +1,5 @@
 package com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.cnec;
 
-import com.powsybl.openrao.commons.TsoEICode;
 import com.powsybl.openrao.data.cracapi.Contingency;
 import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.cracapi.cnec.CnecAdder;
@@ -18,7 +17,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-import static com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileCracUtils.getEicFromUrl;
 import static com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileCracUtils.getTsoNameFromUrl;
 
 public abstract class AbstractCnecCreator {
