@@ -352,8 +352,8 @@ public class CoreProblemFiller implements ProblemFiller {
 
             int minAbsoluteTap = tapToAngleMap.keySet().stream().mapToInt(k -> k).min().orElseThrow();
             int maxAbsoluteTap = tapToAngleMap.keySet().stream().mapToInt(k -> k).max().orElseThrow();
-            int minRelativeTap = tapToAngleMap.keySet().stream().mapToInt(k -> k).min().orElseThrow();
-            int maxRelativeTap = tapToAngleMap.keySet().stream().mapToInt(k -> k).max().orElseThrow();
+            int minRelativeTap = Integer.MIN_VALUE;
+            int maxRelativeTap = Integer.MAX_VALUE;
             for (TapRange range : ranges) {
                 RangeType rangeType = range.getRangeType();
                 switch (rangeType) {
