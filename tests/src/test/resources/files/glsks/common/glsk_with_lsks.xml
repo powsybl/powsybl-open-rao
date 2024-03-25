@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<GSKDocument xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" DtdVersion="1" DtdRelease="0" xsi:noNamespaceSchemaLocation="gsk-document.xsd">
+	<DocumentIdentification v="17XTSO-CS------W-20160729-F112"/>
+	<DocumentVersion v="1"/>
+	<DocumentType v="Z02"/>
+	<ProcessType v="Z02"/>
+	<SenderIdentification v="17XTSO-CS------W" codingScheme="A01"/>
+	<SenderRole v="A36"/>
+	<ReceiverIdentification v="10XFR-RTE------Q" codingScheme="A01"/>
+	<ReceiverRole v="A04"/>
+	<CreationDateTime v="2020-10-30T09:27:21Z"/>
+	<GSKTimeInterval v="2019-01-07T23:00Z/2019-01-08T23:00Z"/>
+	<Domain v="10YDOM-REGION-1V" codingScheme="A01"/>
+	<GSKSeries>
+		<TimeSeriesIdentification v="GSK_BE"/>
+		<BusinessType v="Z02" share="50"/>
+		<Area v="10YBE----------2" codingScheme="A01"/>
+		<AutoGSK_Block>
+			<GSK_Name v="BE"/>
+			<TimeInterval v="2019-01-07T23:00Z/2019-01-08T23:00Z"/>
+			<AutoNodes>
+				<NodeName v="BBE1AA1 "/>
+			</AutoNodes>
+			<AutoNodes>
+				<NodeName v="BBE2AA1 "/>
+			</AutoNodes>
+		</AutoGSK_Block>
+	</GSKSeries>
+    <GSKSeries>
+		<TimeSeriesIdentification v="LSK_BE"/>
+		<BusinessType v="Z05" share="50"/>
+		<Area v="10YBE----------2" codingScheme="A01"/>
+		<ManualGSK_Block>
+			<GSK_Name v="BE"/>
+			<TimeInterval v="2019-01-07T23:00Z/2019-01-08T23:00Z"/>
+            <ManualNodes>
+				<NodeName v="BBE2AA1 "/>
+                <Status v="OK" />
+                <Factor v="0.7" />
+			</ManualNodes>
+			<ManualNodes>
+				<NodeName v="BBE3AA1 "/>
+                <Status v="OK" />
+                <Factor v="0.3" />
+			</ManualNodes>
+		</ManualGSK_Block>
+	</GSKSeries>
+	<GSKSeries>
+		<TimeSeriesIdentification v="GSK_DE"/>
+		<BusinessType v="Z02" share="75"/>
+		<Area v="10YCB-GERMANY--8" codingScheme="A01"/>
+		<ManualGSK_Block>
+			<GSK_Name v="DE"/>
+			<TimeInterval v="2019-01-07T23:00Z/2019-01-08T23:00Z"/>
+            <ManualNodes>
+				<NodeName v="DDE1AA1 "/>
+                <Status v="OK" />
+                <Factor v="0.1" />
+			</ManualNodes>
+			<ManualNodes>
+				<NodeName v="DDE3AA1 "/>
+                <Status v="OK" />
+                <Factor v="0.9" />
+			</ManualNodes>
+		</ManualGSK_Block>
+	</GSKSeries>
+    <GSKSeries>
+		<TimeSeriesIdentification v="LSK_DE"/>
+		<BusinessType v="Z05" share="25"/>
+		<Area v="10YCB-GERMANY--8" codingScheme="A01"/>
+		<ManualGSK_Block>
+			<GSK_Name v="DE"/>
+			<TimeInterval v="2019-01-07T23:00Z/2019-01-08T23:00Z"/>
+            <ManualNodes>
+				<NodeName v="DDE2AA1 "/>
+                <Status v="OK" />
+                <Factor v="0.5" />
+			</ManualNodes>
+			<ManualNodes>
+				<NodeName v="DDE3AA1 "/>
+                <Status v="OK" />
+                <Factor v="0.5" />
+			</ManualNodes>
+		</ManualGSK_Block>
+	</GSKSeries>
+	<GSKSeries>
+		<TimeSeriesIdentification v="LSK_FR"/>
+		<BusinessType v="Z05" share="100"/>
+		<Area v="10YFR-RTE------C" codingScheme="A01"/>
+		<ManualGSK_Block>
+			<GSK_Name v="FR"/>
+			<TimeInterval v="2019-01-07T23:00Z/2019-01-08T23:00Z"/>
+			<ManualNodes>
+				<NodeName v="FFR2AA1 "/>
+                <Status v="OK" />
+                <Factor v="0.9" />
+			</ManualNodes>
+            <ManualNodes>
+				<NodeName v="FFR3AA1 "/>
+                <Status v="OK" />
+                <Factor v="0.1" />
+			</ManualNodes>
+		</ManualGSK_Block>
+	</GSKSeries>
+	<GSKSeries>
+		<TimeSeriesIdentification v="4"/>
+		<BusinessType v="Z02" share="100"/>
+		<Area v="10YNL----------L" codingScheme="A01"/>
+		<ManualGSK_Block>
+			<GSK_Name v="NL"/>
+			<TimeInterval v="2019-01-07T23:00Z/2019-01-08T23:00Z"/>
+            <ManualNodes>
+				<NodeName v="NNL1AA1 "/>
+                <Status v="OK" />
+                <Factor v="0.2" />
+			</ManualNodes>
+			<ManualNodes>
+				<NodeName v="NNL3AA1 "/>
+                <Status v="OK" />
+                <Factor v="0.8" />
+			</ManualNodes>
+		</ManualGSK_Block>
+	</GSKSeries>
+</GSKDocument>

@@ -28,15 +28,25 @@ public class TopoOptimizationParameters {
     private static final boolean DEFAULT_SKIP_ACTIONS_FAR_FROM_MOST_LIMITING_ELEMENT = false;
     private static final int DEFAULT_MAX_NUMBER_OF_BOUNDARIES_FOR_SKIPPING_ACTIONS = 2;
     // Attributes
-    private int maxSearchTreeDepth = DEFAULT_MAX_SEARCH_TREE_DEPTH;
+    private int maxPreventiveSearchTreeDepth = DEFAULT_MAX_SEARCH_TREE_DEPTH;
+    private int maxAutoSearchTreeDepth = DEFAULT_MAX_SEARCH_TREE_DEPTH;
+    private int maxCurativeSearchTreeDepth = DEFAULT_MAX_SEARCH_TREE_DEPTH;
     private List<List<String>> predefinedCombinations = DEFAULT_PREDEFINED_COMBINATIONS;
     private double relativeMinImpactThreshold = DEFAULT_RELATIVE_MIN_IMPACT_THRESHOLD;
     private double absoluteMinImpactThreshold = DEFAULT_ABSOLUTE_MIN_IMPACT_THRESHOLD;
     private boolean skipActionsFarFromMostLimitingElement = DEFAULT_SKIP_ACTIONS_FAR_FROM_MOST_LIMITING_ELEMENT;
     private int maxNumberOfBoundariesForSkippingActions = DEFAULT_MAX_NUMBER_OF_BOUNDARIES_FOR_SKIPPING_ACTIONS;
 
-    public void setMaxSearchTreeDepth(int maxSearchTreeDepth) {
-        this.maxSearchTreeDepth = maxSearchTreeDepth;
+    public void setMaxPreventiveSearchTreeDepth(int maxPreventiveSearchTreeDepth) {
+        this.maxPreventiveSearchTreeDepth = maxPreventiveSearchTreeDepth;
+    }
+
+    public void setMaxAutoSearchTreeDepth(int maxAutoSearchTreeDepth) {
+        this.maxAutoSearchTreeDepth = maxAutoSearchTreeDepth;
+    }
+
+    public void setMaxCurativeSearchTreeDepth(int maxCurativeSearchTreeDepth) {
+        this.maxCurativeSearchTreeDepth = maxCurativeSearchTreeDepth;
     }
 
     public void setPredefinedCombinations(List<List<String>> predefinedCombinations) {
@@ -72,8 +82,16 @@ public class TopoOptimizationParameters {
         }
     }
 
-    public int getMaxSearchTreeDepth() {
-        return maxSearchTreeDepth;
+    public int getMaxPreventiveSearchTreeDepth() {
+        return maxPreventiveSearchTreeDepth;
+    }
+
+    public int getMaxAutoSearchTreeDepth() {
+        return maxAutoSearchTreeDepth;
+    }
+
+    public int getMaxCurativeSearchTreeDepth() {
+        return maxCurativeSearchTreeDepth;
     }
 
     public double getRelativeMinImpactThreshold() {
@@ -101,7 +119,9 @@ public class TopoOptimizationParameters {
         TopoOptimizationParameters parameters = new TopoOptimizationParameters();
         platformConfig.getOptionalModuleConfig(TOPOLOGICAL_ACTIONS_OPTIMIZATION_SECTION)
                 .ifPresent(config -> {
-                    parameters.setMaxSearchTreeDepth(config.getIntProperty(MAX_SEARCH_TREE_DEPTH, DEFAULT_MAX_SEARCH_TREE_DEPTH));
+                    parameters.setMaxPreventiveSearchTreeDepth(config.getIntProperty(MAX_PREVENTIVE_SEARCH_TREE_DEPTH, DEFAULT_MAX_SEARCH_TREE_DEPTH));
+                    parameters.setMaxAutoSearchTreeDepth(config.getIntProperty(MAX_AUTO_SEARCH_TREE_DEPTH, DEFAULT_MAX_SEARCH_TREE_DEPTH));
+                    parameters.setMaxCurativeSearchTreeDepth(config.getIntProperty(MAX_CURATIVE_SEARCH_TREE_DEPTH, DEFAULT_MAX_SEARCH_TREE_DEPTH));
                     parameters.setPredefinedCombinations(ParametersUtil.convertListToListOfList(config.getStringListProperty(PREDEFINED_COMBINATIONS, ParametersUtil.convertListOfListToList(DEFAULT_PREDEFINED_COMBINATIONS))));
                     parameters.setRelativeMinImpactThreshold(config.getDoubleProperty(RELATIVE_MINIMUM_IMPACT_THRESHOLD, DEFAULT_RELATIVE_MIN_IMPACT_THRESHOLD));
                     parameters.setAbsoluteMinImpactThreshold(config.getDoubleProperty(ABSOLUTE_MINIMUM_IMPACT_THRESHOLD, DEFAULT_ABSOLUTE_MIN_IMPACT_THRESHOLD));

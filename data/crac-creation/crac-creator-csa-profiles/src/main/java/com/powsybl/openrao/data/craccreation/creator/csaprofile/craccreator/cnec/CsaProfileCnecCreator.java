@@ -20,6 +20,8 @@ import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
 
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * @author Jean-Pierre Arnould {@literal <jean-pierre.arnould at rte-france.com>}
@@ -35,8 +37,11 @@ public class CsaProfileCnecCreator {
     private Set<CsaProfileElementaryCreationContext> csaProfileCnecCreationContexts;
     private final CsaProfileCracCreationContext cracCreationContext;
     private final Set<Side> defaultMonitoredSides;
+    private final String regionEic;
+    private static final String EIC_REGEX = "http://energy.referencedata.eu/energy/EIC/([A-Z0-9_+\\-]{16})";
+    private static final Pattern EIC_PATTERN = Pattern.compile(EIC_REGEX);
 
-    public CsaProfileCnecCreator(Crac crac, Network network, PropertyBags assessedElementsPropertyBags, PropertyBags assessedElementsWithContingenciesPropertyBags, PropertyBags currentLimitsPropertyBags, PropertyBags voltageLimitsPropertyBags, PropertyBags angleLimitsPropertyBags, CsaProfileCracCreationContext cracCreationContext, Set<Side> defaultMonitoredSides) {
+    public CsaProfileCnecCreator(Crac crac, Network network, PropertyBags assessedElementsPropertyBags, PropertyBags assessedElementsWithContingenciesPropertyBags, PropertyBags currentLimitsPropertyBags, PropertyBags voltageLimitsPropertyBags, PropertyBags angleLimitsPropertyBags, CsaProfileCracCreationContext cracCreationContext, Set<Side> defaultMonitoredSides, String regionEic) {
         this.crac = crac;
         this.network = network;
         this.assessedElementsPropertyBags = assessedElementsPropertyBags;
@@ -46,6 +51,7 @@ public class CsaProfileCnecCreator {
         this.angleLimitsPropertyBags = CsaProfileCracUtils.getMappedPropertyBagsSet(angleLimitsPropertyBags, CsaProfileConstants.REQUEST_VOLTAGE_ANGLE_LIMIT);
         this.cracCreationContext = cracCreationContext;
         this.defaultMonitoredSides = defaultMonitoredSides;
+        this.regionEic = regionEic;
         this.createAndAddCnecs();
     }
 
@@ -70,13 +76,15 @@ public class CsaProfileCnecCreator {
         String inBaseCaseStr = assessedElementPropertyBag.get(CsaProfileConstants.REQUEST_ASSESSED_ELEMENT_IN_BASE_CASE);
         boolean inBaseCase = Boolean.parseBoolean(inBaseCaseStr);
 
-        Set<PropertyBag> assessedElementsWithContingencies = getAssessedElementsWithContingencies(assessedElementId, assessedElementPropertyBag, inBaseCase);
-        if (!inBaseCase && assessedElementsWithContingencies == null) {
-            return;
-        }
+        Set<PropertyBag> assessedElementsWithContingencies = this.assessedElementsWithContingenciesPropertyBags.get(assessedElementPropertyBag.getId(CsaProfileConstants.REQUEST_ASSESSED_ELEMENT));
 
         String isCombinableWithContingencyStr = assessedElementPropertyBag.get(CsaProfileConstants.REQUEST_ASSESSED_ELEMENT_IS_COMBINABLE_WITH_CONTINGENCY);
         boolean isCombinableWithContingency = Boolean.parseBoolean(isCombinableWithContingencyStr);
+
+        if (!inBaseCase && !isCombinableWithContingency && assessedElementsWithContingencies == null) {
+            csaProfileCnecCreationContexts.add(CsaProfileElementaryCreationContext.notImported(assessedElementId, ImportStatus.INCONSISTENCY_IN_DATA, "AssessedElement %s ignored because the assessed element is not in base case and not combinable with contingencies, but no explicit link to a contingency was found".formatted(assessedElementId)));
+            return;
+        }
 
         Set<Contingency> combinableContingencies;
         if (isCombinableWithContingency) {
@@ -101,19 +109,52 @@ public class CsaProfileCnecCreator {
         CsaProfileConstants.LimitType limitType = getLimit(assessedElementId, assessedElementPropertyBag);
         String conductingEquipment = assessedElementPropertyBag.getId(CsaProfileConstants.REQUEST_ASSESSED_ELEMENT_CONDUCTING_EQUIPMENT);
 
+        if (!checkAeScannedSecuredCoherence(assessedElementId, assessedElementPropertyBag)) {
+            return;
+        }
+        boolean aeSecuredForRegion = isAeSecuredForRegion(assessedElementPropertyBag);
+        boolean aeScannedForRegion = isAeScannedForRegion(assessedElementPropertyBag);
+
         // If not, we check if it is defined with a ConductingEquipment instead, otherwise we ignore
         if (limitType == null) {
-            new FlowCnecCreator(crac, network, assessedElementId, nativeAssessedElementName, assessedSystemOperator, inBaseCase, null, conductingEquipment, combinableContingencies.stream().toList(), csaProfileCnecCreationContexts, cracCreationContext, defaultMonitoredSides, rejectedLinksAssessedElementContingency).addFlowCnecs();
+            new FlowCnecCreator(crac, network, assessedElementId, nativeAssessedElementName, assessedSystemOperator, inBaseCase, null, conductingEquipment, combinableContingencies.stream().toList(), csaProfileCnecCreationContexts, cracCreationContext, defaultMonitoredSides, rejectedLinksAssessedElementContingency, aeSecuredForRegion, aeScannedForRegion).addFlowCnecs();
             return;
         }
 
         if (CsaProfileConstants.LimitType.CURRENT.equals(limitType)) {
-            new FlowCnecCreator(crac, network, assessedElementId, nativeAssessedElementName, assessedSystemOperator, inBaseCase, getOperationalLimitPropertyBag(currentLimitsPropertyBags, assessedElementPropertyBag), conductingEquipment, combinableContingencies.stream().toList(), csaProfileCnecCreationContexts, cracCreationContext, defaultMonitoredSides, rejectedLinksAssessedElementContingency).addFlowCnecs();
+            new FlowCnecCreator(crac, network, assessedElementId, nativeAssessedElementName, assessedSystemOperator, inBaseCase, getOperationalLimitPropertyBag(currentLimitsPropertyBags, assessedElementPropertyBag), conductingEquipment, combinableContingencies.stream().toList(), csaProfileCnecCreationContexts, cracCreationContext, defaultMonitoredSides, rejectedLinksAssessedElementContingency, aeSecuredForRegion, aeScannedForRegion).addFlowCnecs();
         } else if (CsaProfileConstants.LimitType.VOLTAGE.equals(limitType)) {
-            new VoltageCnecCreator(crac, network, assessedElementId, nativeAssessedElementName, assessedSystemOperator, inBaseCase, getOperationalLimitPropertyBag(voltageLimitsPropertyBags, assessedElementPropertyBag), combinableContingencies.stream().toList(), csaProfileCnecCreationContexts, cracCreationContext, rejectedLinksAssessedElementContingency).addVoltageCnecs();
+            new VoltageCnecCreator(crac, network, assessedElementId, nativeAssessedElementName, assessedSystemOperator, inBaseCase, getOperationalLimitPropertyBag(voltageLimitsPropertyBags, assessedElementPropertyBag), combinableContingencies.stream().toList(), csaProfileCnecCreationContexts, cracCreationContext, rejectedLinksAssessedElementContingency, aeSecuredForRegion, aeScannedForRegion).addVoltageCnecs();
         } else {
-            new AngleCnecCreator(crac, network, assessedElementId, nativeAssessedElementName, assessedSystemOperator, inBaseCase, getOperationalLimitPropertyBag(angleLimitsPropertyBags, assessedElementPropertyBag), combinableContingencies.stream().toList(), csaProfileCnecCreationContexts, cracCreationContext, rejectedLinksAssessedElementContingency).addAngleCnecs();
+            new AngleCnecCreator(crac, network, assessedElementId, nativeAssessedElementName, assessedSystemOperator, inBaseCase, getOperationalLimitPropertyBag(angleLimitsPropertyBags, assessedElementPropertyBag), combinableContingencies.stream().toList(), csaProfileCnecCreationContexts, cracCreationContext, rejectedLinksAssessedElementContingency, aeSecuredForRegion, aeScannedForRegion).addAngleCnecs();
         }
+    }
+
+    private boolean checkAeScannedSecuredCoherence(String assessedElementId, PropertyBag assessedElementPropertyBag) {
+        String rawIdSecured = assessedElementPropertyBag.get(CsaProfileConstants.REQUEST_ASSESSED_ELEMENT_SECURED_FOR_REGION);
+        String rawIdScanned = assessedElementPropertyBag.get(CsaProfileConstants.REQUEST_ASSESSED_ELEMENT_SCANNED_FOR_REGION);
+        if (rawIdSecured != null && rawIdSecured.equals(rawIdScanned)) {
+            csaProfileCnecCreationContexts.add(CsaProfileElementaryCreationContext.notImported(assessedElementId, ImportStatus.INCONSISTENCY_IN_DATA, "AssessedElement " + assessedElementId + " ignored because an AssessedElement cannot be optimized and monitored at the same time"));
+            return false;
+        }
+        return true;
+    }
+
+    private boolean isAeSecuredForRegion(PropertyBag assessedElementPropertyBag) {
+        return isAeSecuredOrScannedForRegion(assessedElementPropertyBag, CsaProfileConstants.REQUEST_ASSESSED_ELEMENT_SECURED_FOR_REGION);
+    }
+
+    private boolean isAeScannedForRegion(PropertyBag assessedElementPropertyBag) {
+        return isAeSecuredOrScannedForRegion(assessedElementPropertyBag, CsaProfileConstants.REQUEST_ASSESSED_ELEMENT_SCANNED_FOR_REGION);
+    }
+
+    private boolean isAeSecuredOrScannedForRegion(PropertyBag assessedElementPropertyBag, String propertyName) {
+        String rawRegionId = assessedElementPropertyBag.get(propertyName);
+        if (rawRegionId == null) {
+            return false;
+        }
+        Matcher matcher = EIC_PATTERN.matcher(rawRegionId);
+        return matcher.find() && matcher.group(1).equals(regionEic);
     }
 
     private PropertyBag getOperationalLimitPropertyBag(Map<String, Set<PropertyBag>> operationalLimitPropertyBags, PropertyBag assessedElementPropertyBag) {
@@ -128,15 +169,6 @@ public class CsaProfileCnecCreator {
             return false;
         }
         return true;
-    }
-
-    private Set<PropertyBag> getAssessedElementsWithContingencies(String assessedElementId, PropertyBag assessedElementPropertyBag, boolean inBaseCase) {
-        Set<PropertyBag> assessedElementsWithContingencies = this.assessedElementsWithContingenciesPropertyBags.get(assessedElementPropertyBag.getId(CsaProfileConstants.REQUEST_ASSESSED_ELEMENT));
-
-        if (!inBaseCase && assessedElementsWithContingencies == null) {
-            csaProfileCnecCreationContexts.add(CsaProfileElementaryCreationContext.notImported(assessedElementId, ImportStatus.INCOMPLETE_DATA, "no link between the assessed element and a contingency"));
-        }
-        return assessedElementsWithContingencies;
     }
 
     private CsaProfileConstants.LimitType getLimit(String assessedElementId, PropertyBag assessedElementPropertyBag) {
@@ -183,7 +215,7 @@ public class CsaProfileCnecCreator {
             Contingency contingencyToLink = crac.getContingency(contingencyId);
             if (contingencyToLink == null) {
                 csaProfileCnecCreationContexts.add(CsaProfileElementaryCreationContext.notImported(assessedElementId, ImportStatus.INCONSISTENCY_IN_DATA, "the contingency "
-                        + contingencyId + " linked to the assessed element doesn't exist in the CRAC"));
+                    + contingencyId + " linked to the assessed element doesn't exist in the CRAC"));
                 return false;
             } else {
                 combinableContingenciesSet.add(contingencyToLink);
@@ -194,7 +226,7 @@ public class CsaProfileCnecCreator {
             Contingency contingencyToRemove = crac.getContingency(contingencyId);
             if (contingencyToRemove == null) {
                 csaProfileCnecCreationContexts.add(CsaProfileElementaryCreationContext.notImported(assessedElementId, ImportStatus.INCONSISTENCY_IN_DATA, "the contingency "
-                        + contingencyId + " excluded from the contingencies linked to the assessed element doesn't exist in the CRAC"));
+                    + contingencyId + " excluded from the contingencies linked to the assessed element doesn't exist in the CRAC"));
                 return false;
             } else {
                 combinableContingenciesSet.remove(contingencyToRemove);
@@ -202,7 +234,7 @@ public class CsaProfileCnecCreator {
             }
         }
         csaProfileCnecCreationContexts.add(CsaProfileElementaryCreationContext.notImported(assessedElementId, ImportStatus.INCONSISTENCY_IN_DATA, "AssessedElementWithContingency.combinationConstraintKind = "
-                + combinationConstraintKind + " and AssessedElement.isCombinableWithContingency = " + isCombinableWithContingency + " have inconsistent values"));
+            + combinationConstraintKind + " and AssessedElement.isCombinableWithContingency = " + isCombinableWithContingency + " have inconsistent values"));
         return false;
     }
 }
