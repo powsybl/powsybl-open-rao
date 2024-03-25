@@ -74,7 +74,7 @@ public final class CsaProfileCracCreationTestUtil {
         assertTrue(cracCreationContext.getCnecCreationContexts().stream().anyMatch(context -> !context.isImported() && assessedElementId.equals(context.getNativeId()) && importStatus.equals(context.getImportStatus()) && importStatusDetail.equals(context.getImportStatusDetail())));
     }
 
-    public static void assertFlowCnecEquality(FlowCnec flowCnec, String expectedFlowCnecIdAndName, String expectedNetworkElementId, String expectedInstant, String expectedContingencyId, Double expectedThresholdMaxLeft, Double expectedThresholdMinLeft, Double expectedThresholdMaxRight, Double expectedThresholdMinRight, Set<Side> expectedThresholdSides) {
+    public static void assertFlowCnecEquality(FlowCnec flowCnec, String expectedFlowCnecIdAndName, String expectedNetworkElementId, String expectedInstant, String expectedContingencyId, Double expectedThresholdMaxLeft, Double expectedThresholdMinLeft, Double expectedThresholdMaxRight, Double expectedThresholdMinRight, Set<Side> expectedThresholdSides, String expectedOperator) {
         assertEquals(expectedFlowCnecIdAndName, flowCnec.getId());
         assertEquals(expectedFlowCnecIdAndName, flowCnec.getName());
         assertEquals(expectedNetworkElementId, flowCnec.getNetworkElement().getId());
@@ -93,9 +93,10 @@ public final class CsaProfileCracCreationTestUtil {
         }
 
         assertEquals(expectedThresholdSides, flowCnec.getMonitoredSides());
+        assertEquals(expectedOperator, flowCnec.getOperator());
     }
 
-    public static void assertAngleCnecEquality(AngleCnec angleCnec, String expectedFlowCnecIdAndName, String expectedImportingNetworkElementId, String expectedExportingNetworkElementId, String expectedInstant, String expectedContingencyId, Double expectedThresholdMax, Double expectedThresholdMin) {
+    public static void assertAngleCnecEquality(AngleCnec angleCnec, String expectedFlowCnecIdAndName, String expectedImportingNetworkElementId, String expectedExportingNetworkElementId, String expectedInstant, String expectedContingencyId, Double expectedThresholdMax, Double expectedThresholdMin, String expectedOperator) {
         assertEquals(expectedFlowCnecIdAndName, angleCnec.getId());
         assertEquals(expectedFlowCnecIdAndName, angleCnec.getName());
         assertEquals(expectedImportingNetworkElementId, angleCnec.getImportingNetworkElement().getId());
@@ -110,9 +111,10 @@ public final class CsaProfileCracCreationTestUtil {
         Threshold threshold = angleCnec.getThresholds().stream().toList().iterator().next();
         assertEquals(expectedThresholdMax, threshold.max().orElse(null));
         assertEquals(expectedThresholdMin, threshold.min().orElse(null));
+        assertEquals(expectedOperator, angleCnec.getOperator());
     }
 
-    public static void assertVoltageCnecEquality(VoltageCnec voltageCnec, String expectedVoltageCnecIdAndName, String expectedNetworkElementId, String expectedInstant, String expectedContingencyId, Double expectedThresholdMax, Double expectedThresholdMin) {
+    public static void assertVoltageCnecEquality(VoltageCnec voltageCnec, String expectedVoltageCnecIdAndName, String expectedNetworkElementId, String expectedInstant, String expectedContingencyId, Double expectedThresholdMax, Double expectedThresholdMin, String expectedOperator) {
         assertEquals(expectedVoltageCnecIdAndName, voltageCnec.getId());
         assertEquals(expectedVoltageCnecIdAndName, voltageCnec.getName());
         assertEquals(expectedNetworkElementId, voltageCnec.getNetworkElement().getId());
@@ -125,9 +127,10 @@ public final class CsaProfileCracCreationTestUtil {
         Threshold threshold = voltageCnec.getThresholds().stream().toList().iterator().next();
         assertEquals(expectedThresholdMax, threshold.max().orElse(null));
         assertEquals(expectedThresholdMin, threshold.min().orElse(null));
+        assertEquals(expectedOperator, voltageCnec.getOperator());
     }
 
-    public static void assertPstRangeActionImported(CsaProfileCracCreationContext cracCreationContext, String id, String networkElement, boolean isAltered, int numberOfUsageRules) {
+    public static void assertPstRangeActionImported(CsaProfileCracCreationContext cracCreationContext, String id, String networkElement, boolean isAltered, int numberOfUsageRules, String expectedOperator) {
         CsaProfileElementaryCreationContext csaProfileElementaryCreationContext = cracCreationContext.getRemedialActionCreationContext(id);
         assertNotNull(csaProfileElementaryCreationContext);
         assertTrue(csaProfileElementaryCreationContext.isImported());
@@ -136,9 +139,10 @@ public final class CsaProfileCracCreationTestUtil {
         String actualNetworkElement = cracCreationContext.getCrac().getPstRangeAction(id).getNetworkElement().toString();
         assertEquals(networkElement, actualNetworkElement);
         assertEquals(numberOfUsageRules, cracCreationContext.getCrac().getPstRangeAction(id).getUsageRules().size());
+        assertEquals(expectedOperator, cracCreationContext.getCrac().getPstRangeAction(id).getOperator());
     }
 
-    public static void assertNetworkActionImported(CsaProfileCracCreationContext cracCreationContext, String id, Set<String> networkElements, boolean isAltered, int numberOfUsageRules) {
+    public static void assertNetworkActionImported(CsaProfileCracCreationContext cracCreationContext, String id, Set<String> networkElements, boolean isAltered, int numberOfUsageRules, String expectedOperator) {
         CsaProfileElementaryCreationContext csaProfileElementaryCreationContext = cracCreationContext.getRemedialActionCreationContext(id);
         assertNotNull(csaProfileElementaryCreationContext);
         assertTrue(csaProfileElementaryCreationContext.isImported());
@@ -147,6 +151,7 @@ public final class CsaProfileCracCreationTestUtil {
         Set<String> actualNetworkElements = cracCreationContext.getCrac().getNetworkAction(id).getNetworkElements().stream().map(NetworkElement::getId).collect(Collectors.toSet());
         assertEquals(networkElements, actualNetworkElements);
         assertEquals(numberOfUsageRules, cracCreationContext.getCrac().getNetworkAction(id).getUsageRules().size());
+        assertEquals(expectedOperator, cracCreationContext.getCrac().getNetworkAction(id).getOperator());
     }
 
     public static void assertHasOnInstantUsageRule(CsaProfileCracCreationContext cracCreationContext, String raId, Instant instant, UsageMethod usageMethod) {
@@ -205,7 +210,7 @@ public final class CsaProfileCracCreationTestUtil {
         assertEquals(importStatus, context.getImportStatus());
     }
 
-    public static void assertSimpleTopologicalActionImported(NetworkAction networkAction, String raId, String raName, String switchId, ActionType actionType) {
+    public static void assertSimpleTopologicalActionImported(NetworkAction networkAction, String raId, String raName, String switchId, ActionType actionType, String expectedOperator) {
         assertEquals(raId, networkAction.getId());
         assertEquals(raName, networkAction.getName());
         assertEquals(1, networkAction.getElementaryActions().size());
@@ -213,9 +218,10 @@ public final class CsaProfileCracCreationTestUtil {
         assertTrue(elementaryAction instanceof TopologicalAction);
         assertEquals(switchId, ((TopologicalAction) elementaryAction).getNetworkElement().getId());
         assertEquals(actionType, ((TopologicalAction) elementaryAction).getActionType());
+        assertEquals(expectedOperator, networkAction.getOperator());
     }
 
-    public static void assertSimpleInjectionSetpointActionImported(NetworkAction networkAction, String raId, String raName, String networkElementId, double setpoint, Unit unit) {
+    public static void assertSimpleInjectionSetpointActionImported(NetworkAction networkAction, String raId, String raName, String networkElementId, double setpoint, Unit unit, String expectedOperator) {
         assertEquals(raId, networkAction.getId());
         assertEquals(raName, networkAction.getName());
         assertEquals(1, networkAction.getElementaryActions().size());
@@ -224,12 +230,14 @@ public final class CsaProfileCracCreationTestUtil {
         assertEquals(networkElementId, ((InjectionSetpoint) elementaryAction).getNetworkElement().getId());
         assertEquals(setpoint, ((InjectionSetpoint) elementaryAction).getSetpoint());
         assertEquals(unit, ((InjectionSetpoint) elementaryAction).getUnit());
+        assertEquals(expectedOperator, networkAction.getOperator());
     }
 
-    public static void assertPstRangeActionImported(PstRangeAction pstRangeAction, String expectedId, String expectedName, String expectedPstId, Integer expectedMinTap, Integer expectedMaxTap) {
+    public static void assertPstRangeActionImported(PstRangeAction pstRangeAction, String expectedId, String expectedName, String expectedPstId, Integer expectedMinTap, Integer expectedMaxTap, String expectedOperator) {
         assertEquals(expectedId, pstRangeAction.getId());
         assertEquals(expectedName, pstRangeAction.getName());
         assertEquals(expectedPstId, pstRangeAction.getNetworkElement().getId());
+        assertEquals(expectedOperator, pstRangeAction.getOperator());
         if (expectedMinTap == null && expectedMaxTap == null) {
             return;
         }
