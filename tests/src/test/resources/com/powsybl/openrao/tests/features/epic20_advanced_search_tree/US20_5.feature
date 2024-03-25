@@ -47,9 +47,9 @@ Feature: US 20.5: Advanced 2nd preventive run conditions
     Then 2 remedial actions are used in preventive
     And the tap of PstRangeAction "pst_fr" should be -5 in preventive
     And the remedial action "close_fr1_fr5" is used in preventive
-    And 2 remedial actions are used after "co1_fr2_fr3_1" at "curative"
+    And 1 remedial actions are used after "co1_fr2_fr3_1" at "curative"
     And the remedial action "open_fr1_fr3" is used after "co1_fr2_fr3_1" at "curative"
-    And the tap of PstRangeAction "pst_be" should be -16 after "co1_fr2_fr3_1" at "curative"
+    And the remedial action "pst_be" is not used after "co1_fr2_fr3_1" at "curative"
     And the worst margin is 638 A
     And the margin on cnec "FFR4AA1  DDE1AA1  1 - preventive" after PRA should be 638 A
     And the margin on cnec "FFR1AA1  FFR4AA1  1 - co1_fr2_fr3_1 - curative" after CRA should be 645 A

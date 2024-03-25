@@ -6,7 +6,7 @@
 Feature: US 20.1: enable second optimization of the preventive perimeter
 
   @fast @rao @mock @ac @second-preventive
-  Scenario: US 20.1.1: Preventive network actions only
+  Scenario: US 20.1.1.1: Preventive network actions only
     Given network file is "common/TestCase16Nodes.uct"
     Given crac file is "epic20/second_preventive_ls_1.json"
     Given configuration file is "epic20/RaoParameters_maxMargin_ampere_second_preventive.json"
@@ -21,9 +21,9 @@ Feature: US 20.1: enable second optimization of the preventive perimeter
     Then the optimization steps executed by the RAO should be "SECOND_PREVENTIVE_IMPROVED_FIRST"
 
   @fast @rao @mock @ac @second-preventive
-  Scenario: US 20.1.1_bis: Same case as US 20.1.1 with a limitation of 2 RAs in preventive
+  Scenario: US 20.1.1.2: Same case as US 20.1.1 with a limitation of 2 RAs in preventive
     Given network file is "common/TestCase16Nodes.uct"
-    Given crac file is "epic20/second_preventive_ls_1_bis.json"
+    Given crac file is "epic20/second_preventive_ls_1_2.json"
     Given configuration file is "epic20/RaoParameters_maxMargin_ampere_second_preventive.json"
     When I launch search_tree_rao
     Then 2 remedial actions are used in preventive
@@ -33,14 +33,77 @@ Feature: US 20.1: enable second optimization of the preventive perimeter
     Then the worst margin is 295.6 A
 
   @fast @rao @mock @ac @second-preventive
-  Scenario: US 20.1.1_ter: Same case as US 20.1.1_bis with pst_fr available in curative
+  Scenario: US 20.1.1.3: Same case as US 20.1.1.1 with pst_fr available in curative
     Given network file is "common/TestCase16Nodes.uct"
-    Given crac file is "epic20/second_preventive_ls_1_ter.json"
+    Given crac file is "epic20/second_preventive_ls_1_3.json"
     Given configuration file is "epic20/RaoParameters_maxMargin_ampere_second_preventive.json"
     When I launch search_tree_rao
-    # As pst_fr is both preventive and curative, it's excluded from the 2nd preventive.
-    # But we still consider it was applied in first preventive.
-    # Therefore, only 1 remedial action can be applied in 2nd preventive.
+    # We can re-optimize pst_fr even if it is preventive and curative for 2 reasons.
+    # 1- It has no range limitations based on previous instants.
+    # 2- There are no ra usage limits in curative.
+    # Therefore, we obtain better results.
+    Then 2 remedial actions are used in preventive
+    And the remedial action "open_fr1_fr3" is used in preventive
+    And the tap of PstRangeAction "pst_fr" should be 5 in preventive
+    And the tap of PstRangeAction "pst_be" should be -16 in preventive
+    Then the worst margin is 321 A
+
+  @fast @rao @mock @ac @second-preventive
+  Scenario: US 20.1.1.4: Same case as US 20.1.1.3 with pst_fr limits relative to preventive.
+    # We should have the same results as 20.1.1.2
+    Given network file is "common/TestCase16Nodes.uct"
+    Given crac file is "epic20/second_preventive_ls_1_4.json"
+    Given configuration file is "epic20/RaoParameters_maxMargin_ampere_second_preventive.json"
+    When I launch search_tree_rao
+    # We can not re-optimize pst_fr as its range limitation type is RELATIVE_TO_PREVIOUS_INSTANT.
+    Then 2 remedial actions are used in preventive
+    And the remedial action "open_fr1_fr3" is used in preventive
+    And the tap of PstRangeAction "pst_fr" should be -5 in preventive
+    And the tap of PstRangeAction "pst_be" should be 0 in preventive
+    Then the worst margin is 295.6 A
+
+  @fast @rao @mock @ac @second-preventive
+  Scenario: US 20.1.1.5: Same case as US 20.1.1.3 with curative maxRa limits.
+    # We should have the same results as 20.1.1.2
+    Given network file is "common/TestCase16Nodes.uct"
+    Given crac file is "epic20/second_preventive_ls_1_5.json"
+    Given configuration file is "epic20/RaoParameters_maxMargin_ampere_second_preventive.json"
+    When I launch search_tree_rao
+    # We can not re-optimize pst_fr for 2 combined reasons:
+    # 1- It has the same taps in preventive and in curative.
+    # 2- There are maxRa usage limits for curative instant.
+    Then 2 remedial actions are used in preventive
+    And the remedial action "open_fr1_fr3" is used in preventive
+    And the tap of PstRangeAction "pst_fr" should be -5 in preventive
+    And the tap of PstRangeAction "pst_be" should be 0 in preventive
+    Then the worst margin is 295.6 A
+
+  @fast @rao @mock @ac @second-preventive
+  Scenario: US 20.1.1.6: Same case as US 20.1.1.3 with curative maxPstPerTso limits.
+    # We should have the same results as 20.1.1.2
+    Given network file is "common/TestCase16Nodes.uct"
+    Given crac file is "epic20/second_preventive_ls_1_6.json"
+    Given configuration file is "epic20/RaoParameters_maxMargin_ampere_second_preventive.json"
+    When I launch search_tree_rao
+    # We can not re-optimize pst_fr for 2 combined reasons:
+    # 1- It has the same taps in preventive and in curative.
+    # 2- There are maxPstPerTso usage limits for curative instant.
+    Then 2 remedial actions are used in preventive
+    And the remedial action "open_fr1_fr3" is used in preventive
+    And the tap of PstRangeAction "pst_fr" should be -5 in preventive
+    And the tap of PstRangeAction "pst_be" should be 0 in preventive
+    Then the worst margin is 295.6 A
+
+  @fast @rao @mock @ac @second-preventive
+  Scenario: US 20.1.1.7: Same case as US 20.1.1.3 with curative maxRaPerTso limits.
+    # We should have the same results as 20.1.1.2
+    Given network file is "common/TestCase16Nodes.uct"
+    Given crac file is "epic20/second_preventive_ls_1_7.json"
+    Given configuration file is "epic20/RaoParameters_maxMargin_ampere_second_preventive.json"
+    When I launch search_tree_rao
+    # We can not re-optimize pst_fr for 2 combined reasons:
+    # 1- It has the same taps in preventive and in curative.
+    # 2- There are maxRaPerTso usage limits for curative instant.
     Then 2 remedial actions are used in preventive
     And the remedial action "open_fr1_fr3" is used in preventive
     And the tap of PstRangeAction "pst_fr" should be -5 in preventive
@@ -60,9 +123,9 @@ Feature: US 20.1: enable second optimization of the preventive perimeter
     Then 2 remedial actions are used in preventive
     And the tap of PstRangeAction "pst_fr" should be -5 in preventive
     And the remedial action "close_fr1_fr5" is used in preventive
-    And 2 remedial actions are used after "co1_fr2_fr3_1" at "curative"
+    And 1 remedial actions are used after "co1_fr2_fr3_1" at "curative"
     And the remedial action "open_fr1_fr3" is used after "co1_fr2_fr3_1" at "curative"
-    And the tap of PstRangeAction "pst_be" should be -16 after "co1_fr2_fr3_1" at "curative"
+    And the remedial action "pst_be" is not used in preventive
     And the worst margin is 638 A
     And the margin on cnec "FFR4AA1  DDE1AA1  1 - preventive" after PRA should be 638 A
     And the margin on cnec "FFR1AA1  FFR4AA1  1 - co1_fr2_fr3_1 - curative" after CRA should be 645 A
@@ -116,10 +179,10 @@ Feature: US 20.1: enable second optimization of the preventive perimeter
     Then 1 remedial actions are used in preventive
     And the tap of PstRangeAction "pst_fr_pra" should be -7 in preventive
     And the tap of PstRangeAction "pst_be" should be 0 in preventive
-    And 3 remedial actions are used after "co1_fr2_fr3_1" at "curative"
+    And 1 remedial actions are used after "co1_fr2_fr3_1" at "curative"
     And the remedial action "close_fr1_fr5" is used after "co1_fr2_fr3_1" at "curative"
-    And the tap of PstRangeAction "pst_fr_cra" should be 1 after "co1_fr2_fr3_1" at "curative"
-    And the tap of PstRangeAction "pst_be" should be -16 after "co1_fr2_fr3_1" at "curative"
+    And the remedial action "pst_fr_cra" is not used after "co1_fr2_fr3_1" at "curative"
+    And the remedial action "pst_be" is not used after "co1_fr2_fr3_1" at "curative"
     Then the worst margin is 43 A
     And the margin on cnec "FFR2AA1  DDE3AA1  1 - preventive" after PRA should be 43 A
     And the margin on cnec "FFR2AA1  DDE3AA1  1 - co1_fr2_fr3_1 - outage" after PRA should be 385 A
@@ -137,9 +200,9 @@ Feature: US 20.1: enable second optimization of the preventive perimeter
     Then 2 remedial actions are used in preventive
     And the remedial action "close_fr1_fr5" is used in preventive
     And the tap of PstRangeAction "pst_fr" should be -5 in preventive
-    And 2 remedial actions are used after "CO1_fr2_fr3_1" at "curative"
+    And 1 remedial actions are used after "CO1_fr2_fr3_1" at "curative"
     And the remedial action "open_fr1_fr3" is used after "CO1_fr2_fr3_1" at "curative"
-    And the tap of PstRangeAction "pst_be" should be -16 after "CO1_fr2_fr3_1" at "curative"
+    And the remedial action "pst_be" is not used after "CO1_fr2_fr3_1" at "curative"
     And the worst margin is 638 A
     And the margin on cnec "fr4_de1_N - preventive" after PRA should be 638 A
     And the margin on cnec "fr1_fr4_CO1 - curative" after CRA should be 645 A
