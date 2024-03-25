@@ -1,4 +1,4 @@
-sphinx==5.0.2
+sphinx==7.1.2
 sphinx-tabs
-pydata-sphinx-theme==0.10.1
+furo==2024.1.29
 myst-parser
