@@ -41,6 +41,8 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
+import java.nio.file.Paths;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -864,7 +866,7 @@ class CastorFullOptimizationTest {
     @Test
     void optimizationWithAutoSearchTree() {
         Network network = Network.read("12Nodes_2_twin_lines.uct", getClass().getResourceAsStream("/network/12Nodes_2_twin_lines.uct"));
-        Crac crac = CracImporters.importCrac("crac/small-crac-available-aras.json", getClass().getResourceAsStream("/crac/small-crac-available-aras.json"));
+        Crac crac = CracImporters.importCrac(Paths.get(getClass().getResource("/crac/small-crac-available-aras.json").getFile()), network);
 
         RaoInput raoInput = RaoInput.build(network, crac).build();
         RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/RaoParameters_DC.json"));
@@ -891,7 +893,7 @@ class CastorFullOptimizationTest {
     @Test
     void optimizationWithAutoSearchTreeAndAutoPsts() {
         Network network = Network.read("12Nodes_2_twin_lines.uct", getClass().getResourceAsStream("/network/12Nodes_2_twin_lines.uct"));
-        Crac crac = CracImporters.importCrac("crac/small-crac-available-aras-low-limits-thresholds.json", getClass().getResourceAsStream("/crac/small-crac-available-aras-low-limits-thresholds.json"));
+        Crac crac = CracImporters.importCrac(Paths.get(getClass().getResource("/crac/small-crac-available-aras-low-limits-thresholds.json").getFile()), network);
 
         RaoInput raoInput = RaoInput.build(network, crac).build();
         RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/RaoParameters_DC.json"));
