@@ -109,14 +109,19 @@ GRAPH <%s> {
                 ?assessedElement nc:AssessedElement.OperationalLimit ?operationalLimit .
                 }
     OPTIONAL {
-            ?assessedElement nc:AssessedElement.isCombinableWithContingency ?isCombinableWithContingency .
+                ?assessedElement nc:AssessedElement.isCombinableWithContingency ?isCombinableWithContingency .
             }
     OPTIONAL {
-            ?assessedElement nc:AssessedElement.normalEnabled ?normalEnabled .
+               ?assessedElement nc:AssessedElement.normalEnabled ?normalEnabled .
             }
     OPTIONAL {
-        ?assessedElement
-            nc:AssessedElement.isCombinableWithRemedialAction ?isCombinableWithRemedialAction ;
+                ?assessedElement nc:AssessedElement.SecuredForRegion ?securedForRegion .
+            }
+    OPTIONAL {
+                ?assessedElement nc:AssessedElement.ScannedForRegion ?scannedForRegion .
+            }
+    OPTIONAL {
+                ?assessedElement nc:AssessedElement.isCombinableWithRemedialAction ?isCombinableWithRemedialAction ;
     }
 }
 }
@@ -156,50 +161,51 @@ GRAPH <%s> {
 }
 
 # query: currentLimit
-PREFIX cim: <http://iec.ch/TC57/CIM100#>
-PREFIX eu: <http://iec.ch/TC57/CIM100-European#>
+PREFIX cim: <http://iec.ch/TC57/2013/CIM-schema-cim16#>
+PREFIX entsoe: <http://entsoe.eu/CIM/SchemaExtension/3/1#>
 SELECT *
 {
-GRAPH <%s> {
-    ?currentLimit
-        rdf:type cim:CurrentLimit ;
-        cim:CurrentLimit.normalValue ?normalValue ;
-        cim:OperationalLimit.OperationalLimitSet ?operationalLimitSet ;
-        cim:OperationalLimit.OperationalLimitType ?operationalLimitType .
-    ?operationalLimitSet
-        rdf:type cim:OperationalLimitSet ;
-        cim:OperationalLimitSet.Terminal ?terminal .
-    ?operationalLimitType
-        rdf:type cim:OperationalLimitType ;
-        eu:OperationalLimitType.kind ?kind ;
-        cim:OperationalLimitType.direction ?direction .
-    OPTIONAL {
+    GRAPH <%s> {
+        ?currentLimit
+            rdf:type cim:CurrentLimit ;
+            cim:CurrentLimit.value ?value ;
+            cim:OperationalLimit.OperationalLimitSet ?operationalLimitSet ;
+            cim:OperationalLimit.OperationalLimitType ?operationalLimitType .
+        ?operationalLimitSet
+            rdf:type cim:OperationalLimitSet ;
+            cim:OperationalLimitSet.Terminal ?terminal .
+        ?operationalLimitType
+            rdf:type cim:OperationalLimitType ;
+            entsoe:OperationalLimitType.limitType ?limitType ;
+            cim:OperationalLimitType.direction ?direction .
+        OPTIONAL {
             ?operationalLimitType
                 cim:OperationalLimitType.acceptableDuration ?acceptableDuration .
         }
-}
+    }
 }
 
 # query: voltageLimit
-PREFIX cim: <http://iec.ch/TC57/CIM100#>
+PREFIX cim: <http://iec.ch/TC57/2013/CIM-schema-cim16#>
+PREFIX entsoe: <http://entsoe.eu/CIM/SchemaExtension/3/1#>
 SELECT *
 {
 GRAPH <%s> {
     ?voltageLimit
         rdf:type cim:VoltageLimit ;
-        cim:VoltageLimit.normalValue ?normalValue ;
+        cim:VoltageLimit.value ?value ;
         cim:OperationalLimit.OperationalLimitSet ?operationalLimitSet ;
         cim:OperationalLimit.OperationalLimitType ?operationalLimitType .
     ?operationalLimitSet
         rdf:type cim:OperationalLimitSet ;
-        cim:OperationalLimitSet.Terminal ?terminal .
+        cim:OperationalLimitSet.Equipment ?equipment .
     ?operationalLimitType
         rdf:type cim:OperationalLimitType ;
-        cim:OperationalLimitType.direction ?direction .
+        entsoe:OperationalLimitType.limitType ?limitType .
     OPTIONAL {
-            ?operationalLimitType
-                cim:OperationalLimitType.isInfiniteDuration ?isInfiniteDuration .
-        }
+        ?operationalLimitType
+            cim:OperationalLimitType.isInfiniteDuration ?isInfiniteDuration .
+    }
 }
 }
 
@@ -303,43 +309,47 @@ GRAPH <%s> {
 PREFIX nc: <http://entsoe.eu/ns/nc#>
 PREFIX cim: <http://iec.ch/TC57/CIM100#>
 SELECT *
-WHERE {
-    ?rotatingMachineAction
-        rdf:type nc:RotatingMachineAction ;
-        cim:IdentifiedObject.mRID ?mRID ;
-        nc:GridStateAlteration.PropertyReference ?propertyReference ;
-        nc:RotatingMachineAction.RotatingMachine ?rotatingMachineId ;
+{
+    GRAPH <%s> {
+        ?rotatingMachineAction
+            rdf:type nc:RotatingMachineAction ;
+            cim:IdentifiedObject.mRID ?mRID ;
+            nc:GridStateAlteration.PropertyReference ?propertyReference ;
+            nc:RotatingMachineAction.RotatingMachine ?rotatingMachineId ;
 
-        OPTIONAL {
-            ?rotatingMachineAction nc:GridStateAlteration.normalEnabled ?normalEnabled .
-        }
-        OPTIONAL {
-            ?rotatingMachineAction nc:GridStateAlteration.GridStateAlterationRemedialAction ?gridStateAlterationRemedialAction .
-        }
-        OPTIONAL {
-            ?rotatingMachineAction nc:GridStateAlteration.GridStateAlterationCollection ?gridStateAlterationCollection .
-        }
+            OPTIONAL {
+                ?rotatingMachineAction nc:GridStateAlteration.normalEnabled ?normalEnabled .
+            }
+            OPTIONAL {
+                ?rotatingMachineAction nc:GridStateAlteration.GridStateAlterationRemedialAction ?gridStateAlterationRemedialAction .
+            }
+            OPTIONAL {
+                ?rotatingMachineAction nc:GridStateAlteration.GridStateAlterationCollection ?gridStateAlterationCollection .
+            }
+    }
 }
 
 # query: shuntCompensatorModification
 PREFIX nc: <http://entsoe.eu/ns/nc#>
 PREFIX cim: <http://iec.ch/TC57/CIM100#>
 SELECT *
-WHERE {
-    ?shuntCompensatorModification
-        rdf:type nc:ShuntCompensatorModification ;
-        cim:IdentifiedObject.mRID ?mRID ;
-        nc:GridStateAlteration.PropertyReference ?propertyReference ;
-        nc:ShuntCompensatorModification.ShuntCompensator ?shuntCompensatorId ;
+{
+    GRAPH <%s> {
+        ?shuntCompensatorModification
+            rdf:type nc:ShuntCompensatorModification ;
+            cim:IdentifiedObject.mRID ?mRID ;
+            nc:GridStateAlteration.PropertyReference ?propertyReference ;
+            nc:ShuntCompensatorModification.ShuntCompensator ?shuntCompensatorId ;
 
-    OPTIONAL {
-        ?shuntCompensatorModification nc:GridStateAlteration.normalEnabled ?normalEnabled .
-    }
-    OPTIONAL {
-        ?shuntCompensatorModification nc:GridStateAlteration.GridStateAlterationRemedialAction ?gridStateAlterationRemedialAction .
-    }
-    OPTIONAL {
-        ?shuntCompensatorModification nc:GridStateAlteration.GridStateAlterationCollection ?gridStateAlterationCollection .
+        OPTIONAL {
+            ?shuntCompensatorModification nc:GridStateAlteration.normalEnabled ?normalEnabled .
+        }
+        OPTIONAL {
+            ?shuntCompensatorModification nc:GridStateAlteration.GridStateAlterationRemedialAction ?gridStateAlterationRemedialAction .
+        }
+        OPTIONAL {
+            ?shuntCompensatorModification nc:GridStateAlteration.GridStateAlterationCollection ?gridStateAlterationCollection .
+        }
     }
 }
 

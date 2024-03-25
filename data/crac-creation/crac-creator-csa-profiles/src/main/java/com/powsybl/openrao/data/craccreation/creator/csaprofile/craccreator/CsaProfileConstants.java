@@ -231,6 +231,9 @@ public final class CsaProfileConstants {
     public static final String REQUEST_ASSESSED_ELEMENT_IS_COMBINABLE_WITH_REMEDIAL_ACTION = "isCombinableWithRemedialAction";
     public static final String REQUEST_ASSESSED_ELEMENT_WITH_CONTINGENCY_COMBINATION_CONSTRAINT_KIND = "combinationConstraintKind";
     public static final String REQUEST_ASSESSED_ELEMENT_WITH_CONTINGENCY_NORMAL_ENABLED = "normalEnabled";
+    public static final String REQUEST_ASSESSED_ELEMENT_SCANNED_FOR_REGION = "scannedForRegion";
+    public static final String REQUEST_ASSESSED_ELEMENT_SECURED_FOR_REGION = "securedForRegion";
+
     public static final String REQUEST_CURRENT_LIMIT = "currentLimit";
     public static final String REQUEST_VOLTAGE_LIMIT = "voltageLimit";
     public static final String REQUEST_TOPOLOGY_ACTION = "topologyAction";
@@ -238,9 +241,11 @@ public final class CsaProfileConstants {
     public static final String REQUEST_SHUNT_COMPENSATOR_MODIFICATION = "shuntCompensatorModification";
     public static final String REQUEST_TAP_POSITION_ACTION = "tapPositionAction";
     public static final String CGMES = "CGMES";
-    public static final String REQUEST_OPERATIONAL_LIMIT_NORMAL_VALUE = "normalValue";
+    public static final String REQUEST_OPERATIONAL_LIMIT_VALUE = "value";
+    public static final String REQUEST_VOLTAGE_ANGLE_LIMIT_NORMAL_VALUE = "normalValue";
     public static final String REQUEST_OPERATIONAL_LIMIT_TERMINAL = "terminal";
-    public static final String REQUEST_OPERATIONAL_LIMIT_KIND = "kind";
+    public static final String REQUEST_OPERATIONAL_LIMIT_EQUIPMENT = "equipment";
+    public static final String REQUEST_OPERATIONAL_LIMIT_TYPE = "limitType";
     public static final String REQUEST_OPERATIONAL_LIMIT_DIRECTION = "direction";
     public static final String REQUEST_OPERATIONAL_LIMIT_ACCEPTABLE_DURATION = "acceptableDuration";
     public static final String REQUEST_VOLTAGE_LIMIT_IS_INFINITE_DURATION = "isInfiniteDuration";
@@ -249,6 +254,7 @@ public final class CsaProfileConstants {
     public static final List<String> CURRENT_LIMIT_POSSIBLE_ALIASES_BY_TYPE_RIGHT = List.of("CGMES.Terminal2", "CGMES.Terminal_Boundary_2");
     public static final List<String> CURRENT_LIMIT_POSSIBLE_ALIASES_BY_TYPE_TIE_LINE = List.of("CGMES.Terminal1", "CGMES.Terminal_Boundary");
     public static final String IEC_URL = "http://iec.ch/TC57/";
+    public static final String ENTSOE_URL = "http://entsoe.eu/CIM/SchemaExtension/3/1#";
 
     public enum ElementCombinationConstraintKind {
         CONSIDERED("considered"),
@@ -268,20 +274,22 @@ public final class CsaProfileConstants {
         }
     }
 
-    public enum LimitKind {
+    public enum LimitTypeKind {
         PATL("patl"),
-        TATL("tatl");
+        TATL("tatl"),
+        HIGH_VOLTAGE("highVoltage"),
+        LOW_VOLTAGE("lowVoltage");
 
-        LimitKind(String name) {
+        LimitTypeKind(String name) {
             this.name = name;
         }
 
         private final String name;
-        private static final String URL = IEC_URL + "CIM100-European#LimitKind.";
+        private static final String URL = ENTSOE_URL + "LimitTypeKind.";
 
         @Override
         public String toString() {
-            return LimitKind.URL + this.name;
+            return LimitTypeKind.URL + this.name;
         }
     }
 

@@ -71,13 +71,16 @@ class JsonRaoParametersTest extends AbstractSerDeTest {
         parameters.getRangeActionsOptimizationParameters().setPstModel(RangeActionsOptimizationParameters.PstModel.APPROXIMATED_INTEGERS);
         parameters.getRangeActionsOptimizationParameters().setRaRangeShrinking(RangeActionsOptimizationParameters.RaRangeShrinking.ENABLED);
         // TopologicalActions optimization parameters
-        parameters.getTopoOptimizationParameters().setMaxSearchTreeDepth(10);
+        parameters.getTopoOptimizationParameters().setMaxPreventiveSearchTreeDepth(10);
+        parameters.getTopoOptimizationParameters().setMaxAutoSearchTreeDepth(3);
+        parameters.getTopoOptimizationParameters().setMaxCurativeSearchTreeDepth(10);
         parameters.getTopoOptimizationParameters().setRelativeMinImpactThreshold(0.1);
         parameters.getTopoOptimizationParameters().setAbsoluteMinImpactThreshold(20);
         parameters.getTopoOptimizationParameters().setPredefinedCombinations(List.of(List.of("na-id-1", "na-id-2"), List.of("na-id-1", "na-id-3", "na-id-4")));
         // Multi-threading parameters
         parameters.getMultithreadingParameters().setContingencyScenariosInParallel(15);
         parameters.getMultithreadingParameters().setPreventiveLeavesInParallel(21);
+        parameters.getMultithreadingParameters().setAutoLeavesInParallel(30);
         parameters.getMultithreadingParameters().setCurativeLeavesInParallel(22);
         // Second preventive RAO parameters
         parameters.getSecondPreventiveRaoParameters().setExecutionCondition(SecondPreventiveRaoParameters.ExecutionCondition.POSSIBLE_CURATIVE_IMPROVEMENT);
@@ -121,10 +124,13 @@ class JsonRaoParametersTest extends AbstractSerDeTest {
         JsonRaoParameters.update(parameters, getClass().getResourceAsStream("/RaoParameters_update_v2.json"));
         assertEquals(2, parameters.getExtensions().size());
         assertEquals(ObjectiveFunctionParameters.PreventiveStopCriterion.MIN_OBJECTIVE, parameters.getObjectiveFunctionParameters().getPreventiveStopCriterion());
-        assertEquals(5, parameters.getTopoOptimizationParameters().getMaxSearchTreeDepth());
+        assertEquals(5, parameters.getTopoOptimizationParameters().getMaxPreventiveSearchTreeDepth(), DOUBLE_TOLERANCE);
+        assertEquals(2, parameters.getTopoOptimizationParameters().getMaxAutoSearchTreeDepth(), DOUBLE_TOLERANCE);
+        assertEquals(5, parameters.getTopoOptimizationParameters().getMaxCurativeSearchTreeDepth(), DOUBLE_TOLERANCE);
         assertEquals(0, parameters.getTopoOptimizationParameters().getRelativeMinImpactThreshold(), DOUBLE_TOLERANCE);
         assertEquals(1, parameters.getTopoOptimizationParameters().getAbsoluteMinImpactThreshold(), DOUBLE_TOLERANCE);
         assertEquals(8, parameters.getMultithreadingParameters().getPreventiveLeavesInParallel());
+        assertEquals(4, parameters.getMultithreadingParameters().getAutoLeavesInParallel());
         assertEquals(3, parameters.getMultithreadingParameters().getCurativeLeavesInParallel());
         assertTrue(parameters.getTopoOptimizationParameters().getSkipActionsFarFromMostLimitingElement());
         assertEquals(2, parameters.getTopoOptimizationParameters().getMaxNumberOfBoundariesForSkippingActions());
@@ -168,7 +174,7 @@ class JsonRaoParametersTest extends AbstractSerDeTest {
     void testFailOnOldVersion() {
         InputStream inputStream = getClass().getResourceAsStream("/RaoParameters_oldVersion.json");
         OpenRaoException e = assertThrows(OpenRaoException.class, () -> JsonRaoParameters.read(inputStream));
-        assertEquals("RaoParameters version '2.0' cannot be deserialized. The only supported version currently is '2.2'.", e.getMessage());
+        assertEquals("RaoParameters version '2.0' cannot be deserialized. The only supported version currently is '2.3'.", e.getMessage());
     }
 
     @ParameterizedTest

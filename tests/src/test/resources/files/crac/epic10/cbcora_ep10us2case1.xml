@@ -1,0 +1,103 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<FlowBasedConstraintDocument DtdRelease="4" DtdVersion="0" xmlns="flowbased" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="flowbasedconstraintdocument-17.xsd">
+  <DocumentIdentification v="17XTSO-CS------W-20190108-F301v1"/>
+  <DocumentVersion v="1"/>
+  <DocumentType v="B06"/>
+  <ProcessType v="A01"/>
+  <SenderIdentification codingScheme="A01" v="17XTSO-CS------W"/>
+  <SenderRole v="A36"/>
+  <ReceiverIdentification codingScheme="A01" v="22XCORESO------S"/>
+  <ReceiverRole v="A44"/>
+  <CreationDateTime v="2019-08-15T14:07:28Z"/>
+  <ConstraintTimeInterval v="2019-01-07T23:00Z/2019-01-08T23:00Z"/>
+  <Domain codingScheme="A01" v="10YDOM-REGION-1V"/>
+  <criticalBranches>
+    <criticalBranch id="FFR2AA1  DDE3AA1  1">
+      <timeInterval v="2019-01-07T23:00Z/2019-01-08T23:00Z"/>
+      <branch eic="1234567890123450" from="FFR2AA1 " name="FFR2AA1  DDE3AA1  1" order="1" to="DDE3AA1 "/>
+      <imaxA>2000</imaxA>
+      <imaxType>SEASONAL</imaxType>
+      <permanentImaxFactor>1.5</permanentImaxFactor>
+      <temporaryImaxFactor>1.5</temporaryImaxFactor>
+      <frmMw>0</frmMw>
+      <minRAMfactor>75</minRAMfactor>
+      <CNEC>true</CNEC>
+      <MNEC>false</MNEC>
+      <direction>DIRECT</direction>
+      <tsoOrigin>FR</tsoOrigin>
+    </criticalBranch>
+    <criticalBranch id="DDE2AA1  NNL3AA1  1">
+      <timeInterval v="2019-01-07T23:00Z/2019-01-08T23:00Z"/>
+      <branch eic="1234567890123450" from="DDE2AA1 " name="DDE2AA1  NNL3AA1  1" order="1" to="NNL3AA1 "/>
+      <imaxA>2500</imaxA>
+      <imaxType>SEASONAL</imaxType>
+      <permanentImaxFactor>1.5</permanentImaxFactor>
+      <temporaryImaxFactor>1.5</temporaryImaxFactor>
+      <frmMw>0</frmMw>
+      <minRAMfactor>75</minRAMfactor>
+      <CNEC>true</CNEC>
+      <MNEC>false</MNEC>
+      <direction>DIRECT</direction>
+      <tsoOrigin>FR</tsoOrigin>
+    </criticalBranch>
+    <criticalBranch id="NNL2AA1  BBE3AA1  1">
+      <timeInterval v="2019-01-07T23:00Z/2019-01-08T23:00Z"/>
+      <branch eic="1234567890123450" from="NNL2AA1 " name="NNL2AA1  BBE3AA1  1" order="1" to="BBE3AA1 "/>
+      <imaxA>2500</imaxA>
+      <imaxType>SEASONAL</imaxType>
+      <permanentImaxFactor>1.5</permanentImaxFactor>
+      <temporaryImaxFactor>1.5</temporaryImaxFactor>
+      <frmMw>0</frmMw>
+      <minRAMfactor>75</minRAMfactor>
+      <CNEC>true</CNEC>
+      <MNEC>false</MNEC>
+      <direction>DIRECT</direction>
+      <tsoOrigin>FR</tsoOrigin>
+    </criticalBranch>
+    <criticalBranch id="BBE2AA1  FFR3AA1  1">
+      <timeInterval v="2019-01-07T23:00Z/2019-01-08T23:00Z"/>
+      <branch eic="1234567890123450" from="BBE2AA1 " name="BBE2AA1  FFR3AA1  1" order="1" to="FFR3AA1 "/>
+      <imaxA>2000</imaxA>
+      <imaxType>SEASONAL</imaxType>
+      <permanentImaxFactor>1.5</permanentImaxFactor>
+      <temporaryImaxFactor>1.5</temporaryImaxFactor>
+      <frmMw>0</frmMw>
+      <minRAMfactor>75</minRAMfactor>
+      <CNEC>true</CNEC>
+      <MNEC>false</MNEC>
+      <direction>DIRECT</direction>
+      <tsoOrigin>FR</tsoOrigin>
+    </criticalBranch>
+  </criticalBranches>
+  <complexVariants>
+    <complexVariant id="PRA_PST_BE" name="PRA_PST_BE">
+      <timeInterval v="2019-01-07T23:00Z/2019-01-08T23:00Z"/>
+      <tsoOrigin>BE</tsoOrigin>
+      <actionsSet name="PRA_PST_BE">
+        <preventive>true</preventive>
+        <curative>false</curative>
+        <enforced>false</enforced>
+        <action type="PSTTAP">
+          <branch order="1" from="BBE2AA1 " to="BBE3AA1 "/>
+          <range>
+            <min>-16</min>
+            <max>16</max>
+          </range>
+        </action>
+      </actionsSet>
+    </complexVariant>
+    <complexVariant id="Open FR1 FR2" name="Open FR1 FR2">
+      <timeInterval v="2019-01-07T23:00Z/2019-01-08T23:00Z"/>
+      <tsoOrigin>HU</tsoOrigin>
+      <actionsSet name="Open FR1 FR2">
+        <preventive>true</preventive>
+        <curative>false</curative>
+        <enforced>false</enforced>
+        <action type="STATUS">
+          <branch from="FFR1AA1 " order="1" to="FFR2AA1 "/>
+          <value>OPEN</value>
+        </action>
+      </actionsSet>
+    </complexVariant>
+  </complexVariants>
+</FlowBasedConstraintDocument>

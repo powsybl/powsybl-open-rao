@@ -27,7 +27,9 @@ final class JsonTopoOptimizationParameters {
 
     static void serialize(RaoParameters parameters, JsonGenerator jsonGenerator) throws IOException {
         jsonGenerator.writeObjectFieldStart(TOPOLOGICAL_ACTIONS_OPTIMIZATION);
-        jsonGenerator.writeNumberField(MAX_SEARCH_TREE_DEPTH, parameters.getTopoOptimizationParameters().getMaxSearchTreeDepth());
+        jsonGenerator.writeNumberField(MAX_PREVENTIVE_SEARCH_TREE_DEPTH, parameters.getTopoOptimizationParameters().getMaxPreventiveSearchTreeDepth());
+        jsonGenerator.writeNumberField(MAX_AUTO_SEARCH_TREE_DEPTH, parameters.getTopoOptimizationParameters().getMaxAutoSearchTreeDepth());
+        jsonGenerator.writeNumberField(MAX_CURATIVE_SEARCH_TREE_DEPTH, parameters.getTopoOptimizationParameters().getMaxCurativeSearchTreeDepth());
         jsonGenerator.writeFieldName(PREDEFINED_COMBINATIONS);
         jsonGenerator.writeStartArray();
         for (List<String> naIdCombination : parameters.getTopoOptimizationParameters().getPredefinedCombinations()) {
@@ -48,9 +50,17 @@ final class JsonTopoOptimizationParameters {
     static void deserialize(JsonParser jsonParser, RaoParameters raoParameters) throws IOException {
         while (!jsonParser.nextToken().isStructEnd()) {
             switch (jsonParser.getCurrentName()) {
-                case MAX_SEARCH_TREE_DEPTH:
+                case MAX_PREVENTIVE_SEARCH_TREE_DEPTH:
                     jsonParser.nextToken();
-                    raoParameters.getTopoOptimizationParameters().setMaxSearchTreeDepth(jsonParser.getIntValue());
+                    raoParameters.getTopoOptimizationParameters().setMaxPreventiveSearchTreeDepth(jsonParser.getIntValue());
+                    break;
+                case MAX_AUTO_SEARCH_TREE_DEPTH:
+                    jsonParser.nextToken();
+                    raoParameters.getTopoOptimizationParameters().setMaxAutoSearchTreeDepth(jsonParser.getIntValue());
+                    break;
+                case MAX_CURATIVE_SEARCH_TREE_DEPTH:
+                    jsonParser.nextToken();
+                    raoParameters.getTopoOptimizationParameters().setMaxCurativeSearchTreeDepth(jsonParser.getIntValue());
                     break;
                 case PREDEFINED_COMBINATIONS:
                     raoParameters.getTopoOptimizationParameters().setPredefinedCombinations(readListOfListOfString(jsonParser));

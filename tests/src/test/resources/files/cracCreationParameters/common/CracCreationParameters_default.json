@@ -1,0 +1,5 @@
+{
+  "crac-factory": "CracImplFactory",
+  "default-monitored-line-side" : "monitor-lines-on-left-side",
+  "ra-usage-limits-per-instant": []
+}

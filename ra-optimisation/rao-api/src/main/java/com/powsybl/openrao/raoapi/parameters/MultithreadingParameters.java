@@ -19,9 +19,11 @@ import static com.powsybl.openrao.raoapi.RaoParametersCommons.*;
 public class MultithreadingParameters {
     private static final int DEFAULT_CONTINGENCY_SCENARIOS_IN_PARALLEL = 1;
     private static final int DEFAULT_PREVENTIVE_LEAVES_IN_PARALLEL = 1;
+    private static final int DEFAULT_AUTO_LEAVES_IN_PARALLEL = 1;
     private static final int DEFAULT_CURATIVE_LEAVES_IN_PARALLEL = 1;
     private int contingencyScenariosInParallel = DEFAULT_CONTINGENCY_SCENARIOS_IN_PARALLEL;
     private int preventiveLeavesInParallel = DEFAULT_PREVENTIVE_LEAVES_IN_PARALLEL;
+    private int autoLeavesInParallel = DEFAULT_AUTO_LEAVES_IN_PARALLEL;
     private int curativeLeavesInParallel = DEFAULT_CURATIVE_LEAVES_IN_PARALLEL;
 
     public int getContingencyScenariosInParallel() {
@@ -36,12 +38,20 @@ public class MultithreadingParameters {
         this.preventiveLeavesInParallel = preventiveLeavesInParallel;
     }
 
+    public void setAutoLeavesInParallel(int autoLeavesInParallel) {
+        this.autoLeavesInParallel = autoLeavesInParallel;
+    }
+
     public void setCurativeLeavesInParallel(int curativeLeavesInParallel) {
         this.curativeLeavesInParallel = curativeLeavesInParallel;
     }
 
     public int getPreventiveLeavesInParallel() {
         return preventiveLeavesInParallel;
+    }
+
+    public int getAutoLeavesInParallel() {
+        return autoLeavesInParallel;
     }
 
     public int getCurativeLeavesInParallel() {
@@ -55,6 +65,7 @@ public class MultithreadingParameters {
                 .ifPresent(config -> {
                     parameters.setContingencyScenariosInParallel(config.getIntProperty(CONTINGENCY_SCENARIOS_IN_PARALLEL, DEFAULT_CONTINGENCY_SCENARIOS_IN_PARALLEL));
                     parameters.setPreventiveLeavesInParallel(config.getIntProperty(PREVENTIVE_LEAVES_IN_PARALLEL, DEFAULT_PREVENTIVE_LEAVES_IN_PARALLEL));
+                    parameters.setAutoLeavesInParallel(config.getIntProperty(AUTO_LEAVES_IN_PARALLEL, DEFAULT_AUTO_LEAVES_IN_PARALLEL));
                     parameters.setCurativeLeavesInParallel(config.getIntProperty(CURATIVE_LEAVES_IN_PARALLEL, DEFAULT_CURATIVE_LEAVES_IN_PARALLEL));
 
                 });

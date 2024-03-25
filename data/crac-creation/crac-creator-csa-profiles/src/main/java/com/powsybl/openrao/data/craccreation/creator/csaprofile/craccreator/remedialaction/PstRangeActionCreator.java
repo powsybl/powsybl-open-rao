@@ -38,7 +38,7 @@ public class PstRangeActionCreator {
 
         if (linkedTapPositionActions.containsKey(elementaryActionsAggregatorId)) {
             if (linkedTapPositionActions.get(elementaryActionsAggregatorId).size() > 1) {
-                throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, String.format("Remedial action '%s' will not be imported because several TapPositionActions were defined for the same PST Range Action when only one is expected", remedialActionId));
+                throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, String.format("Remedial action %s will not be imported because several TapPositionActions were defined for the same PST Range Action when only one is expected", remedialActionId));
             }
             PropertyBag tapPositionActionPropertyBag = linkedTapPositionActions.get(elementaryActionsAggregatorId).iterator().next();
             Set<PropertyBag> linkedStaticPropertyRangesToTapPositionAction = new HashSet<>();
@@ -54,9 +54,9 @@ public class PstRangeActionCreator {
     private void addTapPositionElementaryAction(Set<PropertyBag> linkedStaticPropertyRangesToTapPositionAction, String remedialActionId, PstRangeActionAdder pstRangeActionAdder, PropertyBag tapPositionActionPropertyBag) {
         Optional<String> normalEnabledOpt = Optional.ofNullable(tapPositionActionPropertyBag.get(NORMAL_ENABLED));
         if (normalEnabledOpt.isPresent() && !Boolean.parseBoolean(normalEnabledOpt.get())) {
-            throw new OpenRaoImportException(ImportStatus.NOT_FOR_RAO, String.format("Remedial action '%s' will not be imported because the field 'normalEnabled' in TapPositionAction is set to false", remedialActionId));
+            throw new OpenRaoImportException(ImportStatus.NOT_FOR_RAO, String.format("Remedial action %s will not be imported because the field normalEnabled in TapPositionAction is set to false", remedialActionId));
         }
-        CsaProfileCracUtils.checkPropertyReference(tapPositionActionPropertyBag, remedialActionId, TAP_POSITION_ACTION, PropertyReference.TAP_CHANGER.toString());
+        CsaProfileCracUtils.checkPropertyReference(tapPositionActionPropertyBag, remedialActionId, "TapPositionAction", PropertyReference.TAP_CHANGER.toString());
         String tapChangerId = tapPositionActionPropertyBag.getId(TAP_CHANGER).replace("+", " ");
         IidmPstHelper iidmPstHelper = new IidmPstHelper(tapChangerId, network);
         if (!iidmPstHelper.isValid()) {
@@ -72,22 +72,22 @@ public class PstRangeActionCreator {
             Optional<Integer> normalValueUp = Optional.empty();
             Optional<Integer> normalValueDown = Optional.empty();
             for (PropertyBag staticPropertyRangePropertyBag : linkedStaticPropertyRangesToTapPositionAction) {
-                CsaProfileCracUtils.checkPropertyReference(staticPropertyRangePropertyBag, remedialActionId, STATIC_PROPERTY_RANGE, PropertyReference.TAP_CHANGER.toString());
+                CsaProfileCracUtils.checkPropertyReference(staticPropertyRangePropertyBag, remedialActionId, "StaticPropertyRange", PropertyReference.TAP_CHANGER.toString());
                 String valueKind = staticPropertyRangePropertyBag.get(STATIC_PROPERTY_RANGE_VALUE_KIND);
 
                 if (!valueKind.equals(ValueOffsetKind.ABSOLUTE.toString())) {
-                    throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action " + remedialActionId + " will not be imported because StaticPropertyRange has wrong value of valueKind, the only allowed value is 'absolute'");
+                    throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action " + remedialActionId + " will not be imported because StaticPropertyRange has wrong value of valueKind, the only allowed value is absolute");
                 } else {
                     String direction = staticPropertyRangePropertyBag.get(STATIC_PROPERTY_RANGE_DIRECTION);
                     int normalValue = (int) Float.parseFloat(staticPropertyRangePropertyBag.get(NORMAL_VALUE));
                     if (direction.equals(RelativeDirectionKind.DOWN.toString())) {
                         normalValueDown.ifPresent(value -> {
-                            throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action " + remedialActionId + " will not be imported because StaticPropertyRange has more than ONE direction RelativeDirectionKind.down");
+                            throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action " + remedialActionId + " will not be imported because there is more than ONE StaticPropertyRange with direction RelativeDirectionKind.down");
                         });
                         normalValueDown = Optional.of(normalValue);
                     } else if (direction.equals(RelativeDirectionKind.UP.toString())) {
                         normalValueUp.ifPresent(value -> {
-                            throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action " + remedialActionId + " will not be imported because StaticPropertyRange has more than ONE direction RelativeDirectionKind.up");
+                            throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action " + remedialActionId + " will not be imported because there is more than ONE StaticPropertyRange with direction RelativeDirectionKind.up");
                         });
                         normalValueUp = Optional.of(normalValue);
                     } else {

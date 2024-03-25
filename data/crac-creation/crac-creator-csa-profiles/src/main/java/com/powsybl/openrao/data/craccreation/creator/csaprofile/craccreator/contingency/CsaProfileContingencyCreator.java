@@ -24,7 +24,9 @@ import com.powsybl.openrao.data.craccreation.util.cgmes.CgmesBranchHelper;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -83,21 +85,21 @@ public class CsaProfileContingencyCreator {
         boolean isMissingNetworkElement = false;
         boolean atLeastOneCorrectContingentStatus = false;
         boolean atLeastOneNetworkElement = false;
-        String incorrectContingentStatusElements = "";
-        String missingNetworkElements = "";
+        List<String> incorrectContingentStatusElements = new ArrayList<>();
+        List<String> missingNetworkElements = new ArrayList<>();
         for (PropertyBag contingencyEquipmentPropertyBag : contingencyEquipments) {
             String equipmentId = contingencyEquipmentPropertyBag.getId(CsaProfileConstants.REQUEST_CONTINGENCIES_EQUIPMENT_ID);
             String contingentStatus = contingencyEquipmentPropertyBag.get(CsaProfileConstants.REQUEST_CONTINGENCIES_CONTINGENT_STATUS);
 
             if (!CsaProfileConstants.IMPORTED_CONTINGENT_STATUS.equals(contingentStatus)) {
                 isIncorrectContingentStatus = true;
-                incorrectContingentStatusElements = incorrectContingentStatusElements.concat(equipmentId + " ");
+                incorrectContingentStatusElements.add(equipmentId);
             } else {
                 atLeastOneCorrectContingentStatus = true;
                 Identifiable<?> networkElement = this.getNetworkElementInNetwork(equipmentId);
                 if (networkElement == null) {
                     isMissingNetworkElement = true;
-                    missingNetworkElements = missingNetworkElements.concat(equipmentId + " ");
+                    missingNetworkElements.add(equipmentId);
                 } else {
                     String networkElementId = networkElement.getId();
                     ContingencyElementType contingencyElementType = ContingencyElement.of(networkElement).getType();
@@ -107,42 +109,43 @@ public class CsaProfileContingencyCreator {
             }
         }
 
+        incorrectContingentStatusElements.sort(String::compareTo);
+        missingNetworkElements.sort(String::compareTo);
+
         if (!atLeastOneCorrectContingentStatus) {
-            csaProfileContingencyCreationContexts.add(CsaProfileElementaryCreationContext.notImported(contingencyId, ImportStatus.INCONSISTENCY_IN_DATA, "all contingency equipments have incorrect contingent status : " + incorrectContingentStatusElements));
+            csaProfileContingencyCreationContexts.add(CsaProfileElementaryCreationContext.notImported(contingencyId, ImportStatus.INCONSISTENCY_IN_DATA, formatNotImportedMessage(contingencyId, "all contingency equipments have an incorrect contingent status: " + String.join(", ", incorrectContingentStatusElements))));
             return;
         }
 
         if (!atLeastOneNetworkElement) {
-            csaProfileContingencyCreationContexts.add(CsaProfileElementaryCreationContext.notImported(contingencyId, ImportStatus.INCONSISTENCY_IN_DATA, "all contingency equipments are missing in network : " + missingNetworkElements));
+            csaProfileContingencyCreationContexts.add(CsaProfileElementaryCreationContext.notImported(contingencyId, ImportStatus.INCONSISTENCY_IN_DATA, formatNotImportedMessage(contingencyId, "all contingency equipments are missing in the network: " + String.join(", ", missingNetworkElements))));
             return;
         }
 
-        contingencyAdder
-            .add();
+        contingencyAdder.add();
+        List<String> importStatusDetail = new ArrayList<>();
 
         if (isIncorrectContingentStatus) {
-            csaProfileContingencyCreationContexts.add(CsaProfileElementaryCreationContext.imported(contingencyId, contingencyId, contingencyName, "incorrect contingent status for equipment(s) : " + incorrectContingentStatusElements, true));
-            return;
+            importStatusDetail.add("incorrect contingent status for equipment(s): " + String.join(", ", incorrectContingentStatusElements));
         }
 
         if (isMissingNetworkElement) {
-            csaProfileContingencyCreationContexts.add(CsaProfileElementaryCreationContext.imported(contingencyId, contingencyId, contingencyName, "missing contingent equipment(s) in network : " + incorrectContingentStatusElements, true));
-            return;
+            importStatusDetail.add("missing contingent equipment(s) in network: " + String.join(", ", missingNetworkElements));
         }
 
-        csaProfileContingencyCreationContexts.add(CsaProfileElementaryCreationContext.imported(contingencyId, contingencyId, contingencyName, "", false));
+        csaProfileContingencyCreationContexts.add(CsaProfileElementaryCreationContext.imported(contingencyId, contingencyId, contingencyName, String.join("; ", importStatusDetail), isIncorrectContingentStatus || isMissingNetworkElement));
     }
 
     private Set<PropertyBag> dataCheck(PropertyBag contingencyPropertyBag, String contingencyId) {
         Boolean mustStudy = Boolean.parseBoolean(contingencyPropertyBag.get(CsaProfileConstants.REQUEST_CONTINGENCIES_NORMAL_MUST_STUDY));
         if (!Boolean.TRUE.equals(mustStudy)) {
-            csaProfileContingencyCreationContexts.add(CsaProfileElementaryCreationContext.notImported(contingencyId, ImportStatus.NOT_FOR_RAO, "contingency.mustStudy is false"));
+            csaProfileContingencyCreationContexts.add(CsaProfileElementaryCreationContext.notImported(contingencyId, ImportStatus.NOT_FOR_RAO, formatNotImportedMessage(contingencyId, "its field mustStudy is set to false")));
             return new HashSet<>();
         }
 
         Set<PropertyBag> contingencyEquipments = contingencyEquipmentsPropertyBags.get(contingencyPropertyBag.getId(CsaProfileConstants.REQUEST_CONTINGENCY));
         if (contingencyEquipments == null) {
-            csaProfileContingencyCreationContexts.add(CsaProfileElementaryCreationContext.notImported(contingencyId, ImportStatus.INCOMPLETE_DATA, "no contingency equipment linked to the contingency"));
+            csaProfileContingencyCreationContexts.add(CsaProfileElementaryCreationContext.notImported(contingencyId, ImportStatus.INCOMPLETE_DATA, formatNotImportedMessage(contingencyId, "no contingency equipment is linked to the contingency")));
             return new HashSet<>();
         }
 
@@ -169,5 +172,9 @@ public class CsaProfileContingencyCreator {
             }
         }
         return networkElementToReturn;
+    }
+
+    private static String formatNotImportedMessage(String contingencyId, String reason) {
+        return "Contingency %s will not be imported because %s".formatted(contingencyId, reason);
     }
 }
