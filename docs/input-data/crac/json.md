@@ -455,7 +455,6 @@ flowCnec.newExtension(LoopFlowThresholdAdder.class)
 ~~~json
 "flowCnecs" : [ {
   "id" : "cnec-with-mw-loop-flow-extension",
-  ...
   "extensions" : {
     "LoopFlowThreshold" : {
       "inputThreshold" : 150.0,
@@ -464,7 +463,6 @@ flowCnec.newExtension(LoopFlowThresholdAdder.class)
   }
 }, {
   "id" : "cnec-with-pimax-loop-flow-extension",
-  ...
   "extensions" : {
     "LoopFlowThreshold" : {
       "inputThreshold" : 0.9,
