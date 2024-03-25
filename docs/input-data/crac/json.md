@@ -74,7 +74,7 @@ make the CRAC or some outputs of the application more readable for humans.
 ::::{tabs}
 :::{group-tab} JAVA creation API
 Network elements are never built on their own in the CRAC object: they are always a component of a larger business object,
-and are added implicitly to the CRAC when the business object is added (e.g. a contingency, a CNEC, or a remedial action).
+and are added implicitly to the CRAC when the business object is added (e.g. a CNEC, or a remedial action).
 When building a business object, one of the two following methods can be used to add a network element to it (using an
 ID only, or an ID and a name).
 ~~~java
@@ -111,7 +111,8 @@ Examples:
 A contingency is a probable event that can put the grid at risk. Therefore, contingencies must
 be considered when operating the electrical transmission / distribution system.
 
-In FARAO, contingencies are defined in the following way:
+In FARAO, contingencies come from PowSyBl Contingency, where a contingency element has the id of the impacted network element, and its type is linked to the network elements type.
+They are represented in the following way:
 
 ::::{tabs}
 :::{group-tab} JAVA creation API
@@ -119,14 +120,14 @@ In FARAO, contingencies are defined in the following way:
 crac.newContingency()
     .withId("CO_0001")
     .withName("N-1 on generator")
-    .withNetworkElement("powsybl_generator_id", "my_generators_name")
+    .withContingencyElement("powsybl_generator_id", ContingencyElementType.GENERATOR)
     .add();
 
 crac.newContingency()
     .withId("CO_0002")
     .withName("N-2 on electrical lines")
-    .withNetworkElement("powsybl_electrical_line_1_id")
-    .withNetworkElement("powsybl_electrical_line_2_id")
+    .withContingencyElement("powsybl_electrical_line_1_id", ContingencyElementType.LINE)
+    .withContingencyElement("powsybl_electrical_line_2_id", ContingencyElementType.LINE)
     .add();
 ~~~
 :::
@@ -146,16 +147,14 @@ crac.newContingency()
 :::{group-tab} Object fields
 🔴⭐ **identifier**  
 ⚪ **name**  
-⚪ **network elements**: list of 0 to N network elements  
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔴 **network element id**: must be the id of a PowSyBl network identifiable  
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ⚪ **network element names**: names are optional, they can be used to make the CRAC
-more understandable from a business viewpoint, but applications relying on the CRAC do not necessarily need them.  
+⚪ **contingency elements**: list of 0 to N contingency elements  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔴 **contingency element id**: must be the id of a PowSyBl network identifiable  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔴 **contingency element type**: type of element in the network. Currently, PowSyBl handles: 
+GENERATOR, STATIC_VAR_COMPENSATOR, SHUNT_COMPENSATOR, BRANCH, HVDC_LINE, BUSBAR_SECTION, DANGLING_LINE, LINE, TWO_WINDINGS_TRANSFORMER, 
+THREE_WINDINGS_TRANSFORMER, LOAD, SWITCH, BATTERY, BUS, TIE_LINE. The contingency elements type can be retrieved from the PowSyBl Network using the network element id, using: 
+`ContingencyElement.of(network.getIdentifiable(id)).getType()`.  
 :::
 ::::
-
-> 💡  **NOTE**  
-> The network elements currently handled by FARAO's contingencies are: internal lines, interconnections, transformers,
-> PSTs, generators, HVDCs, bus-bar sections, and dangling lines.
 
 ## Instants and States
 The instant is a moment in the chronology of a contingency event. Four instants kinds currently exist in FARAO:
@@ -422,7 +421,7 @@ crac.newFlowCnec()
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔴 **unit**  
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔴 **side**  
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔵 **minValue**  
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔵 **maxValue**: at least one of minValue/maxValue should be defined
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔵 **maxValue**: at least one of minValue/maxValue should be defined  
 🔵 **nominal voltages**: mandatory if the FlowCnec has at least one threshold in %Imax or A  
 🔵 **iMax**:  mandatory if the FlowCnec has at least one threshold in %Imax  
 :::
