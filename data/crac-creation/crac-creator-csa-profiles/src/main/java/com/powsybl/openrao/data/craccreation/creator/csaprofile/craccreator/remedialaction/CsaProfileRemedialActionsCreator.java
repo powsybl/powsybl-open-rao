@@ -7,7 +7,6 @@
 package com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.remedialaction;
 
 import com.powsybl.openrao.commons.OpenRaoException;
-import com.powsybl.openrao.commons.TsoEICode;
 import com.powsybl.openrao.data.cracapi.*;
 import com.powsybl.openrao.data.cracapi.cnec.AngleCnec;
 import com.powsybl.openrao.data.cracapi.cnec.Cnec;
