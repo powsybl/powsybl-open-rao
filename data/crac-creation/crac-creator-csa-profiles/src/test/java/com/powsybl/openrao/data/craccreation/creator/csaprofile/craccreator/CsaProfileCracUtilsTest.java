@@ -14,6 +14,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.*;
 
+import static com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileCracUtils.getEicFromUrl;
 import static org.junit.jupiter.api.Assertions.*;
 
 class CsaProfileCracUtilsTest {
@@ -141,5 +142,13 @@ class CsaProfileCracUtilsTest {
         assertThrows(OpenRaoException.class, () -> CsaProfileCracUtils.convertDurationToSeconds("P1YT3S"));
         assertThrows(OpenRaoException.class, () -> CsaProfileCracUtils.convertDurationToSeconds("P5Y4M"));
         assertThrows(OpenRaoException.class, () -> CsaProfileCracUtils.convertDurationToSeconds("P0Y5MT3S"));
+    }
+
+    @Test
+    void testEicFromUrl() {
+        assertEquals("10XES-REE------E", getEicFromUrl("http://energy.referencedata.eu/EIC/10XES-REE------E"));
+        assertEquals("10XPT-REN------9", getEicFromUrl("http://energy.referencedata.eu/EIC/10XPT-REN------9"));
+        assertEquals("10XFR-RTE------Q", getEicFromUrl("http://energy.referencedata.eu/EIC/10XFR-RTE------Q"));
+        assertNull(getEicFromUrl("Hello world!"));
     }
 }

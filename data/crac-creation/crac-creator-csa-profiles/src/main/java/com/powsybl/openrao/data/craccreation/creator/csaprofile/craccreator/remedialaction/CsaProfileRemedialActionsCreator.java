@@ -7,7 +7,6 @@
 package com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.remedialaction;
 
 import com.powsybl.openrao.commons.OpenRaoException;
-import com.powsybl.openrao.commons.TsoEICode;
 import com.powsybl.openrao.data.cracapi.*;
 import com.powsybl.openrao.data.cracapi.cnec.AngleCnec;
 import com.powsybl.openrao.data.cracapi.cnec.Cnec;
@@ -77,7 +76,7 @@ public class CsaProfileRemedialActionsCreator {
                 Optional<Integer> speedOpt = getSpeedOpt(remedialActionType, parentRemedialActionPropertyBag.get(TIME_TO_IMPLEMENT), remedialActionId, isAuto);
                 targetRemedialActionNameOpt.ifPresent(remedialActionAdder::withName);
                 if (tsoName != null) {
-                    remedialActionAdder.withOperator(TsoEICode.fromEICode(tsoName.substring(tsoName.lastIndexOf("/") + 1)).getDisplayName());
+                    remedialActionAdder.withOperator(CsaProfileCracUtils.getTsoNameFromUrl(tsoName));
                 }
                 speedOpt.ifPresent(remedialActionAdder::withSpeed);
                 if (elementaryActionsHelper.getContingenciesByRemedialAction().containsKey(remedialActionId)) {
@@ -333,6 +332,7 @@ public class CsaProfileRemedialActionsCreator {
                     List<ElementaryAction> injectionSetpoints = new ArrayList<>();
                     List<ElementaryAction> pstSetPoints = new ArrayList<>();
                     List<ElementaryAction> topologicalActions = new ArrayList<>();
+                    Set<String> operators = new HashSet<>();
 
                     dependingEnabledRemedialActions.forEach(remedialActionDependency -> {
                         String remedialActionId = remedialActionDependency.getId(REQUEST_REMEDIAL_ACTION);
@@ -347,9 +347,13 @@ public class CsaProfileRemedialActionsCreator {
                         injectionSetpoints.addAll(crac.getNetworkAction(remedialActionId).getElementaryActions().stream().filter(InjectionSetpoint.class::isInstance).toList());
                         pstSetPoints.addAll(crac.getNetworkAction(remedialActionId).getElementaryActions().stream().filter(PstSetpoint.class::isInstance).toList());
                         topologicalActions.addAll(crac.getNetworkAction(remedialActionId).getElementaryActions().stream().filter(TopologicalAction.class::isInstance).toList());
+                        operators.add(crac.getNetworkAction(remedialActionId).getOperator());
                     });
 
                     NetworkActionAdder networkActionAdder = crac.newNetworkAction().withId(groupId).withName(groupName);
+                    if (operators.size() == 1) {
+                        networkActionAdder.withOperator(operators.iterator().next());
+                    }
                     addUsageRulesToGroup(onAngleConstraintUsageRules, onFlowConstraintUsageRules, onVoltageConstraintUsageRules, onContingencyStateUsageRules, onInstantUsageRules, injectionSetpoints, pstSetPoints, topologicalActions, networkActionAdder);
                     addElementaryActionsToGroup(injectionSetpoints, pstSetPoints, topologicalActions, networkActionAdder);
                     networkActionAdder.add();
