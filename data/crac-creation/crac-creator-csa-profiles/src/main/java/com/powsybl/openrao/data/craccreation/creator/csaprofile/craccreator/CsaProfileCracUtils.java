@@ -14,7 +14,9 @@ import com.powsybl.openrao.data.craccreation.util.OpenRaoImportException;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
 
+import java.time.DateTimeException;
 import java.time.OffsetDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -64,31 +66,20 @@ public final class CsaProfileCracUtils {
     }
 
     public static int convertDurationToSeconds(String duration) {
-        Map<Character, Integer> durationFactors = new HashMap<>();
-        durationFactors.put('D', 86400);
-        durationFactors.put('H', 3600);
-        durationFactors.put('M', 60);
-        durationFactors.put('S', 1);
-
-        Pattern pattern = Pattern.compile("P(?:\\d+D)?(?:T(?:\\d+H)?(?:\\d+M)?(?:\\d+S)?)?");
-        Matcher matcher = pattern.matcher(duration);
-
-        if (!matcher.matches()) {
-            throw new OpenRaoException("Error occurred while converting time to implement to seconds, unknown pattern: " + duration);
+        Pattern removeYearAndMonthPattern = Pattern.compile("P(?:0Y)?(?:0M)?(\\d+D)?(T(?:\\d+H)?(?:\\d+M)?(?:\\d+S)?)?");
+        Matcher matcher = removeYearAndMonthPattern.matcher(duration);
+        String durationWithoutYearAndMonth;
+        if (matcher.matches()) {
+            durationWithoutYearAndMonth = "P" + (matcher.group(1) == null ? "" : matcher.group(1)) + (matcher.group(2) == null ? "" : matcher.group(2));
+        } else {
+            durationWithoutYearAndMonth = duration;
         }
 
-        int seconds = 0;
-
-        for (Map.Entry<Character, Integer> entry : durationFactors.entrySet()) {
-            Pattern unitPattern = Pattern.compile("(\\d+)" + entry.getKey());
-            Matcher unitMatcher = unitPattern.matcher(duration);
-
-            if (unitMatcher.find()) {
-                int value = Integer.parseInt(unitMatcher.group(1));
-                seconds += value * entry.getValue();
-            }
+        try {
+            return (int) java.time.Duration.parse(durationWithoutYearAndMonth).get(ChronoUnit.SECONDS);
+        } catch (DateTimeException dateTimeException) {
+            throw new OpenRaoException("Error occurred while converting time to implement to seconds for duration: " + durationWithoutYearAndMonth);
         }
-        return seconds;
     }
 
     public static void checkPropertyReference(PropertyBag propertyBag, String remedialActionId, String propertyBagKind, String expectedPropertyReference) {
