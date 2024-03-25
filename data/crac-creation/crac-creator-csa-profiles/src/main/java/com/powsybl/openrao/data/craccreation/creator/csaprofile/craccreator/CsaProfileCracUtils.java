@@ -41,7 +41,7 @@ public final class CsaProfileCracUtils {
     }
 
     public static String getUniqueName(String prefixUrl, String suffix) {
-        return TsoEICode.fromEICode(prefixUrl.substring(prefixUrl.lastIndexOf('/') + 1)).getDisplayName().concat("_").concat(suffix);
+        return getTsoNameFromUrl(prefixUrl).concat("_").concat(suffix);
     }
 
     public static Optional<String> createElementName(String nativeElementName, String tsoNameUrl) {
@@ -115,5 +115,15 @@ public final class CsaProfileCracUtils {
             }
         }
         return propertyBags;
+    }
+
+    public static String getEicFromUrl(String url) {
+        Pattern eicPattern = Pattern.compile("http://energy.referencedata.eu/EIC/([A-Z0-9_+\\-]{16})");
+        Matcher matcher = eicPattern.matcher(url);
+        return matcher.find() ? matcher.group(1) : null;
+    }
+
+    public static String getTsoNameFromUrl(String url) {
+        return TsoEICode.fromEICode(getEicFromUrl(url)).getDisplayName();
     }
 }

@@ -34,8 +34,8 @@ class VoltageCnecCreationTest {
             CURATIVE_INSTANT_ID,
             "contingency-1",
             135d,
-            null
-        );
+            null,
+            "RTE");
 
         CsaProfileCracCreationTestUtil.assertVoltageCnecEquality(
             importedVoltageCnecs.get(1),
@@ -44,8 +44,8 @@ class VoltageCnecCreationTest {
             CURATIVE_INSTANT_ID,
             "contingency-1",
             null,
-            -72d
-        );
+            -72d,
+            "RTE");
 
         CsaProfileCracCreationTestUtil.assertVoltageCnecEquality(
             importedVoltageCnecs.get(2),
@@ -54,8 +54,8 @@ class VoltageCnecCreationTest {
             CURATIVE_INSTANT_ID,
             "contingency-2",
             null,
-            -72d
-        );
+            -72d,
+            "RTE");
 
         CsaProfileCracCreationTestUtil.assertVoltageCnecEquality(
             importedVoltageCnecs.get(3),
@@ -64,8 +64,8 @@ class VoltageCnecCreationTest {
             PREVENTIVE_INSTANT_ID,
             null,
             null,
-            -72d
-        );
+            -72d,
+            "RTE");
 
         assertEquals(6, cracCreationContext.getCnecCreationContexts().stream().filter(context -> !context.isImported()).toList().size());
 

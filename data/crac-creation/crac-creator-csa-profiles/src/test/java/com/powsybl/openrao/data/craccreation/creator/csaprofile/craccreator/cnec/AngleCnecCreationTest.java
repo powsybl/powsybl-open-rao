@@ -35,8 +35,8 @@ class AngleCnecCreationTest {
             CURATIVE_INSTANT_ID,
             "contingency-1",
             60d,
-            -60d
-        );
+            -60d,
+            "RTE");
 
         CsaProfileCracCreationTestUtil.assertAngleCnecEquality(
             importedFlowCnecs.get(1),
@@ -46,8 +46,8 @@ class AngleCnecCreationTest {
             PREVENTIVE_INSTANT_ID,
             null,
             60d,
-            -60d
-        );
+            -60d,
+            "RTE");
 
         CsaProfileCracCreationTestUtil.assertAngleCnecEquality(
             importedFlowCnecs.get(2),
@@ -57,8 +57,8 @@ class AngleCnecCreationTest {
             CURATIVE_INSTANT_ID,
             "contingency-1",
             45d,
-            -45d
-        );
+            -45d,
+            "RTE");
 
         CsaProfileCracCreationTestUtil.assertAngleCnecEquality(
             importedFlowCnecs.get(3),
@@ -68,8 +68,8 @@ class AngleCnecCreationTest {
             CURATIVE_INSTANT_ID,
             "contingency-2",
             45d,
-            -45d
-        );
+            -45d,
+            "RTE");
 
         CsaProfileCracCreationTestUtil.assertAngleCnecEquality(
             importedFlowCnecs.get(4),
@@ -79,8 +79,8 @@ class AngleCnecCreationTest {
             PREVENTIVE_INSTANT_ID,
             null,
             45d,
-            -45d
-        );
+            -45d,
+            "RTE");
 
         CsaProfileCracCreationTestUtil.assertAngleCnecEquality(
             importedFlowCnecs.get(5),
@@ -90,8 +90,8 @@ class AngleCnecCreationTest {
             CURATIVE_INSTANT_ID,
             "contingency-1",
             45d,
-            -45d
-        );
+            -45d,
+            "RTE");
 
         CsaProfileCracCreationTestUtil.assertAngleCnecEquality(
             importedFlowCnecs.get(6),
@@ -101,8 +101,8 @@ class AngleCnecCreationTest {
             CURATIVE_INSTANT_ID,
             "contingency-2",
             45d,
-            -45d
-        );
+            -45d,
+            "RTE");
 
         CsaProfileCracCreationTestUtil.assertAngleCnecEquality(
             importedFlowCnecs.get(7),
@@ -112,8 +112,8 @@ class AngleCnecCreationTest {
             PREVENTIVE_INSTANT_ID,
             null,
             45d,
-            -45d
-        );
+            -45d,
+            "RTE");
 
         CsaProfileCracCreationTestUtil.assertAngleCnecEquality(
             importedFlowCnecs.get(8),
@@ -123,8 +123,8 @@ class AngleCnecCreationTest {
             CURATIVE_INSTANT_ID,
             "contingency-2",
             60d,
-            null
-        );
+            null,
+            "RTE");
 
         CsaProfileCracCreationTestUtil.assertAngleCnecEquality(
             importedFlowCnecs.get(9),
@@ -134,8 +134,8 @@ class AngleCnecCreationTest {
             PREVENTIVE_INSTANT_ID,
             null,
             null,
-            -30d
-        );
+            -30d,
+            "RTE");
 
         assertEquals(8, cracCreationContext.getCnecCreationContexts().stream().filter(context -> !context.isImported()).toList().size());
 
