@@ -61,8 +61,7 @@ public class SwitchPairImpl implements SwitchPair {
     @Override
     public boolean isCompatibleWith(ElementaryAction otherElementaryAction) {
         if (otherElementaryAction instanceof SwitchPair switchPair) {
-            return !switchToOpen.equals(switchPair.getSwitchToOpen()) && !switchToOpen.equals(switchPair.getSwitchToClose()) && !switchToClose.equals(switchPair.getSwitchToClose()) && !switchToClose.equals(switchPair.getSwitchToOpen())
-                || switchToOpen.equals(switchPair.getSwitchToOpen()) || switchToClose.equals(switchPair.getSwitchToClose());
+            return !switchToOpen.equals(switchPair.getSwitchToOpen()) && !switchToOpen.equals(switchPair.getSwitchToClose()) && !switchToClose.equals(switchPair.getSwitchToClose()) && !switchToClose.equals(switchPair.getSwitchToOpen());
         }
         return true;
     }
