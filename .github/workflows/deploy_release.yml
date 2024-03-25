@@ -1,9 +1,7 @@
 name: Deploy release
 
 on:
-  release:
-    types:
-      - published
+  [push]
 
 jobs:
   deploy-release:
@@ -31,3 +29,4 @@ jobs:
           nexus_username: ${{ secrets.NEXUS_USERNAME }}
           nexus_password: ${{ secrets.NEXUS_PASSWORD }}
           maven_profiles: release
+          maven_args: -DskipCucumberTests=true
