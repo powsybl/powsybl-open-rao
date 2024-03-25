@@ -77,7 +77,7 @@ public class CsaProfileRemedialActionsCreator {
                 Optional<Integer> speedOpt = getSpeedOpt(remedialActionType, parentRemedialActionPropertyBag.get(TIME_TO_IMPLEMENT), remedialActionId, isAuto);
                 targetRemedialActionNameOpt.ifPresent(remedialActionAdder::withName);
                 if (tsoName != null) {
-                    remedialActionAdder.withOperator(TsoEICode.fromEICode(tsoName.substring(tsoName.lastIndexOf("/") + 1)).getDisplayName());
+                    remedialActionAdder.withOperator(CsaProfileCracUtils.getTsoNameFromUrl(tsoName));
                 }
                 speedOpt.ifPresent(remedialActionAdder::withSpeed);
                 if (elementaryActionsHelper.getContingenciesByRemedialAction().containsKey(remedialActionId)) {
