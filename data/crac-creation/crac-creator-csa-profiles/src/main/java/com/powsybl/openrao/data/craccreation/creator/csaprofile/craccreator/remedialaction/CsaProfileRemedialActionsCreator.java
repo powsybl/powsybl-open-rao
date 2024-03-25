@@ -333,6 +333,7 @@ public class CsaProfileRemedialActionsCreator {
                     List<ElementaryAction> injectionSetpoints = new ArrayList<>();
                     List<ElementaryAction> pstSetPoints = new ArrayList<>();
                     List<ElementaryAction> topologicalActions = new ArrayList<>();
+                    Set<String> operators = new HashSet<>();
 
                     dependingEnabledRemedialActions.forEach(remedialActionDependency -> {
                         String remedialActionId = remedialActionDependency.getId(REQUEST_REMEDIAL_ACTION);
@@ -347,9 +348,13 @@ public class CsaProfileRemedialActionsCreator {
                         injectionSetpoints.addAll(crac.getNetworkAction(remedialActionId).getElementaryActions().stream().filter(InjectionSetpoint.class::isInstance).toList());
                         pstSetPoints.addAll(crac.getNetworkAction(remedialActionId).getElementaryActions().stream().filter(PstSetpoint.class::isInstance).toList());
                         topologicalActions.addAll(crac.getNetworkAction(remedialActionId).getElementaryActions().stream().filter(TopologicalAction.class::isInstance).toList());
+                        operators.add(crac.getNetworkAction(remedialActionId).getOperator());
                     });
 
                     NetworkActionAdder networkActionAdder = crac.newNetworkAction().withId(groupId).withName(groupName);
+                    if (operators.size() == 1) {
+                        networkActionAdder.withOperator(operators.iterator().next());
+                    }
                     addUsageRulesToGroup(onAngleConstraintUsageRules, onFlowConstraintUsageRules, onVoltageConstraintUsageRules, onContingencyStateUsageRules, onInstantUsageRules, injectionSetpoints, pstSetPoints, topologicalActions, networkActionAdder);
                     addElementaryActionsToGroup(injectionSetpoints, pstSetPoints, topologicalActions, networkActionAdder);
                     networkActionAdder.add();

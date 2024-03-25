@@ -1,5 +1,6 @@
 package com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.cnec;
 
+import com.powsybl.openrao.commons.TsoEICode;
 import com.powsybl.openrao.data.cracapi.Contingency;
 import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.cracapi.cnec.CnecAdder;
@@ -16,6 +17,9 @@ import com.powsybl.triplestore.api.PropertyBag;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+
+import static com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileCracUtils.getEicFromUrl;
+import static com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileCracUtils.getTsoNameFromUrl;
 
 public abstract class AbstractCnecCreator {
     protected final Crac crac;
@@ -84,22 +88,23 @@ public abstract class AbstractCnecCreator {
 
     protected boolean addCnecBaseInformation(CnecAdder<?> cnecAdder, Contingency contingency, String instantId) {
         String cnecName = getCnecName(instantId, contingency);
-
-        cnecAdder.withContingency(contingency == null ? null : contingency.getId())
-            .withId(cnecName)
-            .withName(cnecName)
-            .withInstant(instantId)
-            .withOptimized(aeSecuredForRegion)
-            .withMonitored(aeScannedForRegion);
+        initCnecAdder(cnecAdder, contingency, instantId, cnecName);
         return true;
     }
 
     protected void addCnecBaseInformation(CnecAdder<?> cnecAdder, Contingency contingency, String instantId, int tatlDuration) {
         String cnecName = getCnecName(instantId, contingency, tatlDuration);
+        initCnecAdder(cnecAdder, contingency, instantId, cnecName);
+    }
+
+    private void initCnecAdder(CnecAdder<?> cnecAdder, Contingency contingency, String instantId, String cnecName) {
         cnecAdder.withContingency(contingency == null ? null : contingency.getId())
             .withId(cnecName)
             .withName(cnecName)
-            .withInstant(instantId);
+            .withInstant(instantId)
+            .withOperator(getTsoNameFromUrl(assessedElementOperator))
+            .withOptimized(aeSecuredForRegion)
+            .withMonitored(aeScannedForRegion);
     }
 
     protected void markCnecAsImportedAndHandleRejectedContingencies(String instantId, Contingency contingency) {

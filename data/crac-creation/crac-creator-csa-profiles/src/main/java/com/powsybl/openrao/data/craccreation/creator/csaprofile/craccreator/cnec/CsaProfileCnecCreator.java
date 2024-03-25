@@ -23,6 +23,8 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileCracUtils.getEicFromUrl;
+
 /**
  * @author Jean-Pierre Arnould {@literal <jean-pierre.arnould at rte-france.com>}
  */
@@ -38,7 +40,7 @@ public class CsaProfileCnecCreator {
     private final CsaProfileCracCreationContext cracCreationContext;
     private final Set<Side> defaultMonitoredSides;
     private final String regionEic;
-    private static final String EIC_REGEX = "http://energy.referencedata.eu/energy/EIC/([A-Z0-9_+\\-]{16})";
+    private static final String EIC_REGEX = "http://energy.referencedata.eu/EIC/([A-Z0-9_+\\-]{16})";
     private static final Pattern EIC_PATTERN = Pattern.compile(EIC_REGEX);
 
     public CsaProfileCnecCreator(Crac crac, Network network, PropertyBags assessedElementsPropertyBags, PropertyBags assessedElementsWithContingenciesPropertyBags, PropertyBags currentLimitsPropertyBags, PropertyBags voltageLimitsPropertyBags, PropertyBags angleLimitsPropertyBags, CsaProfileCracCreationContext cracCreationContext, Set<Side> defaultMonitoredSides, String regionEic) {
@@ -150,11 +152,8 @@ public class CsaProfileCnecCreator {
 
     private boolean isAeSecuredOrScannedForRegion(PropertyBag assessedElementPropertyBag, String propertyName) {
         String rawRegionId = assessedElementPropertyBag.get(propertyName);
-        if (rawRegionId == null) {
-            return false;
-        }
-        Matcher matcher = EIC_PATTERN.matcher(rawRegionId);
-        return matcher.find() && matcher.group(1).equals(regionEic);
+        String region = rawRegionId == null ? null : getEicFromUrl(assessedElementPropertyBag.get(propertyName));
+        return region != null && region.equals(regionEic);
     }
 
     private PropertyBag getOperationalLimitPropertyBag(Map<String, Set<PropertyBag>> operationalLimitPropertyBags, PropertyBag assessedElementPropertyBag) {
