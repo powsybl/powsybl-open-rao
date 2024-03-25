@@ -302,7 +302,16 @@ public class OneStateOnlyRaoResultImpl implements RaoResult {
         if (ComputationStatus.FAILURE.equals(getComputationStatus())) {
             return false;
         }
-        return getFunctionalCost(optimizedInstant) < 0;
+        if (Arrays.stream(u).noneMatch(PhysicalParameter.FLOW::equals)) {
+            throw new OpenRaoException("This is a flow RaoResult, isSecure is available for FLOW physical parameter");
+        }
+        if (getFunctionalCost(optimizedInstant) >= 0) {
+            return false;
+        }
+        if (Arrays.stream(u).anyMatch(physicalParameter -> !PhysicalParameter.FLOW.equals(physicalParameter))) {
+            throw new OpenRaoException("This is a flow RaoResult, flows are secure but other physical parameters' security status is unknown");
+        }
+        return true;
     }
 
     @Override
