@@ -228,7 +228,7 @@ public class FlowCnecCreator extends AbstractCnecCreator {
             csaProfileCnecCreationContexts.add(CsaProfileElementaryCreationContext.imported(assessedElementId, cnecName, cnecName, "the AssessedElement was pointing to a TATL and used inBaseCase. For the preventive instant, this TATL was also used as a PATL to create the CNEC", true));
             return;
         }
-        markCnecAsImportedAndHandleRejectedContingencies(instantId, contingency);
+        markCnecAsImportedAndHandleRejectedContingencies(getCnecName(instantId, contingency));
     }
 
     private void addCurativeFlowCnec(Branch<?> networkElement, Contingency contingency, String instantId, EnumMap<TwoSides, Double> thresholds, boolean useMaxAndMinThresholds, int tatlDuration) {
@@ -246,7 +246,7 @@ public class FlowCnecCreator extends AbstractCnecCreator {
             return;
         }
         cnecAdder.add();
-        markCnecAsImportedAndHandleRejectedContingencies(instantId, contingency);
+        markCnecAsImportedAndHandleRejectedContingencies(getCnecName(instantId, contingency, tatlDuration));
     }
 
     private void addAllFlowCnecsFromBranchAndOperationalLimits(Branch<?> networkElement, Map<Integer, EnumMap<TwoSides, Double>> thresholds, boolean useMaxAndMinThresholds, boolean definedWithConductingEquipment) {
