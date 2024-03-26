@@ -40,14 +40,12 @@ public class AngleCnecCreator extends AbstractCnecCreator {
                 return;
             }
             angleCnecAdder.add();
-            markCnecAsImportedAndHandleRejectedContingencies(instantId, contingency);
+            markCnecAsImportedAndHandleRejectedContingencies(getCnecName(instantId, contingency));
         }
     }
 
     private AngleCnecAdder initAngleCnec() {
         return crac.newAngleCnec()
-            .withMonitored(true)
-            .withOptimized(false)
             .withReliabilityMargin(0);
     }
 
