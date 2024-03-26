@@ -71,8 +71,6 @@ public class FlowCnecCreator extends AbstractCnecCreator {
 
     private FlowCnecAdder initFlowCnec() {
         return crac.newFlowCnec()
-            .withMonitored(false)
-            .withOptimized(true)
             .withReliabilityMargin(0);
     }
 
@@ -237,7 +235,6 @@ public class FlowCnecCreator extends AbstractCnecCreator {
         if (thresholds.isEmpty()) {
             return;
         }
-        String cnecName = getCnecName(instantId, contingency, tatlDuration);
         FlowCnecAdder cnecAdder = initFlowCnec();
         addCnecBaseInformation(cnecAdder, contingency, instantId, tatlDuration);
         for (TwoSides side : thresholds.keySet()) {
@@ -249,7 +246,7 @@ public class FlowCnecCreator extends AbstractCnecCreator {
             return;
         }
         cnecAdder.add();
-        markCnecAsImportedAndHandleRejectedContingencies(cnecName, contingency);
+        markCnecAsImportedAndHandleRejectedContingencies(instantId, contingency);
     }
 
     private void addAllFlowCnecsFromBranchAndOperationalLimits(Branch<?> networkElement, Map<Integer, EnumMap<TwoSides, Double>> thresholds, boolean useMaxAndMinThresholds, boolean definedWithConductingEquipment) {
@@ -268,6 +265,10 @@ public class FlowCnecCreator extends AbstractCnecCreator {
         }
 
         for (Contingency contingency : linkedContingencies) {
+            if (incompatibleLocationsBetweenCnecNetworkElementsAndContingency(networkElement.getId(), contingency)) {
+                csaProfileCnecCreationContexts.add(CsaProfileElementaryCreationContext.notImported(assessedElementId, ImportStatus.INCONSISTENCY_IN_DATA, writeAssessedElementIgnoredReasonMessage("AssessedElement and Contingency " + contingency.getId()) + " do not belong to a common country. FlowCNEC will not be imported."));
+                continue;
+            }
             // Add PATL
             if (hasPatl) {
                 addFlowCnec(networkElement, contingency, crac.getInstant(InstantKind.CURATIVE).getId(), patlThresholds, useMaxAndMinThresholds, false);
