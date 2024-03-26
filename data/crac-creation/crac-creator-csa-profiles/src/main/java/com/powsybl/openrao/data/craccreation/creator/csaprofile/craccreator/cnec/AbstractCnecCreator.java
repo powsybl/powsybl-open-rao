@@ -105,8 +105,7 @@ public abstract class AbstractCnecCreator {
             .withMonitored(aeScannedForRegion);
     }
 
-    protected void markCnecAsImportedAndHandleRejectedContingencies(String instantId, Contingency contingency) {
-        String cnecName = getCnecName(instantId, contingency);
+    protected void markCnecAsImportedAndHandleRejectedContingencies(String cnecName) {
         if (rejectedLinksAssessedElementContingency.isEmpty()) {
             csaProfileCnecCreationContexts.add(CsaProfileElementaryCreationContext.imported(assessedElementId, cnecName, cnecName, "", false));
         } else {
