@@ -44,4 +44,20 @@ public interface NetworkAction extends RemedialAction<NetworkAction> {
      * Get the set of the elementary actions constituting then network action
      */
     Set<ElementaryAction> getElementaryActions();
+
+    /**
+     * States if the network action can be applied without infringing on another network action's scope.
+     * @param otherNetworkAction the other network action to check compatibility with
+     * @return true if both network actions can be applied without any conflictual behaviour
+     */
+    default boolean isCompatibleWith(NetworkAction otherNetworkAction) {
+        for (ElementaryAction elementaryAction1 : getElementaryActions()) {
+            for (ElementaryAction elementaryAction2 : otherNetworkAction.getElementaryActions()) {
+                if (!elementaryAction1.isCompatibleWith(elementaryAction2)) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
 }

@@ -8,6 +8,7 @@
 package com.powsybl.openrao.data.cracimpl;
 
 import com.powsybl.openrao.commons.OpenRaoException;
+import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.cracapi.NetworkElement;
 import com.powsybl.openrao.data.cracapi.networkaction.PstSetpoint;
 import com.powsybl.openrao.data.cracimpl.utils.NetworkImportsUtil;
@@ -17,6 +18,7 @@ import org.mockito.Mockito;
 
 import java.util.Set;
 
+import static com.powsybl.openrao.data.cracimpl.utils.CommonCracCreation.createCracWithRemedialActions;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -110,5 +112,32 @@ class PstSetpointImplTest {
             new NetworkElementImpl("BBE2AA1  BBE3AA1  1"),
             -10);
         assertNotEquals(pstSetpoint, differentPstSetpoint);
+    }
+
+    @Test
+    void compatibility() {
+        Crac crac = createCracWithRemedialActions();
+        PstSetpoint pstSetpoint = (PstSetpoint) crac.getNetworkAction("pst-1-tap-3").getElementaryActions().iterator().next();
+
+        assertTrue(pstSetpoint.isCompatibleWith(pstSetpoint));
+        assertTrue(pstSetpoint.isCompatibleWith(crac.getNetworkAction("open-switch-2").getElementaryActions().iterator().next()));
+        assertTrue(pstSetpoint.isCompatibleWith(crac.getNetworkAction("close-switch-1").getElementaryActions().iterator().next()));
+        assertTrue(pstSetpoint.isCompatibleWith(crac.getNetworkAction("close-switch-2").getElementaryActions().iterator().next()));
+
+        assertTrue(pstSetpoint.isCompatibleWith(crac.getNetworkAction("generator-1-75-mw").getElementaryActions().iterator().next()));
+        assertTrue(pstSetpoint.isCompatibleWith(crac.getNetworkAction("generator-1-100-mw").getElementaryActions().iterator().next()));
+        assertTrue(pstSetpoint.isCompatibleWith(crac.getNetworkAction("generator-2-75-mw").getElementaryActions().iterator().next()));
+        assertTrue(pstSetpoint.isCompatibleWith(crac.getNetworkAction("generator-2-100-mw").getElementaryActions().iterator().next()));
+
+        assertTrue(pstSetpoint.isCompatibleWith(crac.getNetworkAction("pst-1-tap-3").getElementaryActions().iterator().next()));
+        assertFalse(pstSetpoint.isCompatibleWith(crac.getNetworkAction("pst-1-tap-8").getElementaryActions().iterator().next()));
+        assertTrue(pstSetpoint.isCompatibleWith(crac.getNetworkAction("pst-2-tap-3").getElementaryActions().iterator().next()));
+        assertTrue(pstSetpoint.isCompatibleWith(crac.getNetworkAction("pst-2-tap-8").getElementaryActions().iterator().next()));
+
+        assertTrue(pstSetpoint.isCompatibleWith(crac.getNetworkAction("open-switch-1-close-switch-2").getElementaryActions().iterator().next()));
+        assertTrue(pstSetpoint.isCompatibleWith(crac.getNetworkAction("open-switch-2-close-switch-1").getElementaryActions().iterator().next()));
+        assertTrue(pstSetpoint.isCompatibleWith(crac.getNetworkAction("open-switch-3-close-switch-4").getElementaryActions().iterator().next()));
+        assertTrue(pstSetpoint.isCompatibleWith(crac.getNetworkAction("open-switch-1-close-switch-3").getElementaryActions().iterator().next()));
+        assertTrue(pstSetpoint.isCompatibleWith(crac.getNetworkAction("open-switch-3-close-switch-2").getElementaryActions().iterator().next()));
     }
 }

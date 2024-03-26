@@ -101,6 +101,8 @@ public final class SearchTreeBloomer {
         networkActionCombinations = removeCombinationsWhichExceedMaxNumberOfTsos(networkActionCombinations, fromLeaf);
         networkActionCombinations = removeCombinationsFarFromMostLimitingElement(networkActionCombinations, fromLeaf);
 
+        networkActionCombinations = removeIncompatibleCombinations(networkActionCombinations, fromLeaf);
+
         return networkActionCombinations;
     }
 
@@ -258,6 +260,19 @@ public final class SearchTreeBloomer {
             TECHNICAL_LOGS.info("{} network action combinations have been filtered out because they are too far from the most limiting element", naCombinations.size() - filteredNaCombinations.size());
         }
         return filteredNaCombinations;
+    }
+
+    /**
+     * Ignore a combination if any of the network actions if conflictual with the
+     * already applied network actions on the parent leaf.
+     * @param naCombinations : the network actions combination
+     * @param fromLeaf : the parent lead
+     * @return filtered version of the input map
+     */
+    Map<NetworkActionCombination, Boolean> removeIncompatibleCombinations(Map<NetworkActionCombination, Boolean> naCombinations, Leaf fromLeaf) {
+        return naCombinations.keySet().stream()
+            .filter(naCombination -> naCombination.getNetworkActionSet().stream().allMatch(networkAction -> fromLeaf.getActivatedNetworkActions().stream().allMatch(networkAction::isCompatibleWith)))
+            .collect(Collectors.toMap(naCombination -> naCombination, naCombinations::get));
     }
 
     /**
