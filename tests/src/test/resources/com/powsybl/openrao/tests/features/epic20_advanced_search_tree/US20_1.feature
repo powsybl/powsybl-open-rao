@@ -111,6 +111,22 @@ Feature: US 20.1: enable second optimization of the preventive perimeter
     Then the worst margin is 295.6 A
 
   @fast @rao @mock @ac @second-preventive
+  Scenario: US 20.1.1.8: Same case as US 20.1.1.3 with curative maxTso limits.
+    # We should have the same results as 20.1.1.2
+    Given network file is "common/TestCase16Nodes.uct"
+    Given crac file is "epic20/second_preventive_ls_1_8.json"
+    Given configuration file is "epic20/RaoParameters_maxMargin_ampere_second_preventive.json"
+    When I launch search_tree_rao
+    # We can not re-optimize pst_fr for 2 combined reasons:
+    # 1- It has the same taps in preventive and in curative.
+    # 2- There are maxTso usage limits for curative instant.
+    Then 2 remedial actions are used in preventive
+    And the remedial action "open_fr1_fr3" is used in preventive
+    And the tap of PstRangeAction "pst_fr" should be -5 in preventive
+    And the tap of PstRangeAction "pst_be" should be 0 in preventive
+    Then the worst margin is 295.6 A
+
+  @fast @rao @mock @ac @second-preventive
   Scenario: US 20.1.2: Preventive and curative network actions 1/3
     Given network file is "common/TestCase16Nodes.uct"
     Given crac file is "epic13/SL_ep13us3case1.json"
