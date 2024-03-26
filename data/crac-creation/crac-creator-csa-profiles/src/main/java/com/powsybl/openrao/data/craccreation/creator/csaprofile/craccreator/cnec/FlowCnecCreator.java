@@ -71,8 +71,6 @@ public class FlowCnecCreator extends AbstractCnecCreator {
 
     private FlowCnecAdder initFlowCnec() {
         return crac.newFlowCnec()
-            .withMonitored(false)
-            .withOptimized(true)
             .withReliabilityMargin(0);
     }
 
@@ -249,7 +247,7 @@ public class FlowCnecCreator extends AbstractCnecCreator {
             return;
         }
         cnecAdder.add();
-        markCnecAsImportedAndHandleRejectedContingencies(cnecName, contingency);
+        markCnecAsImportedAndHandleRejectedContingencies(instantId, contingency);
     }
 
     private void addAllFlowCnecsFromBranchAndOperationalLimits(Branch<?> networkElement, Map<Integer, EnumMap<TwoSides, Double>> thresholds, boolean useMaxAndMinThresholds, boolean definedWithConductingEquipment) {
