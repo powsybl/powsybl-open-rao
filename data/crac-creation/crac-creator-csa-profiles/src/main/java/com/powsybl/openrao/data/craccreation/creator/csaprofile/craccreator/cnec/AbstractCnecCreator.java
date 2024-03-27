@@ -1,6 +1,6 @@
 package com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.cnec;
 
-import com.powsybl.openrao.data.cracapi.Contingency;
+import com.powsybl.contingency.Contingency;
 import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.cracapi.cnec.CnecAdder;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileCracCreationContext;
@@ -76,7 +76,7 @@ public abstract class AbstractCnecCreator {
 
     protected String getCnecName(String instantId, Contingency contingency) {
         // Need to include the mRID in the name in case the AssessedElement's name is not unique
-        return "%s (%s) - %s%s".formatted(assessedElementName, assessedElementId, contingency == null ? "" : contingency.getName() + " - ", instantId);
+        return "%s (%s) - %s%s".formatted(assessedElementName, assessedElementId, contingency == null ? "" : contingency.getName().orElse(contingency.getId()) + " - ", instantId);
     }
 
     protected String getCnecName(String instantId, Contingency contingency, int tatlDuration) {

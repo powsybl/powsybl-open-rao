@@ -8,7 +8,7 @@
 package com.powsybl.openrao.data.swecneexporter;
 
 import com.powsybl.openrao.data.cneexportercommons.CneUtil;
-import com.powsybl.openrao.data.cracapi.Contingency;
+import com.powsybl.contingency.Contingency;
 import com.powsybl.openrao.data.craccreation.creator.cim.craccreator.CimCracCreationContext;
 import com.powsybl.openrao.data.swecneexporter.xsd.*;
 
@@ -116,7 +116,7 @@ public final class SweConstraintSeriesCreator {
     private ContingencySeries generateContingencySeries(Contingency contingency) {
         ContingencySeries contingencySeries = new ContingencySeries();
         contingencySeries.setMRID(contingency.getId());
-        contingencySeries.setName(contingency.getName());
+        contingencySeries.setName(contingency.getName().orElse(contingency.getId()));
         return contingencySeries;
     }
 }

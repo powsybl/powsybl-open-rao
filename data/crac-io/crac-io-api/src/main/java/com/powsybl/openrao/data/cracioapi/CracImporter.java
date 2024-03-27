@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.data.cracioapi;
 
+import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.cracapi.CracFactory;
 
@@ -21,9 +22,9 @@ import java.io.InputStream;
 
 public interface CracImporter {
 
-    Crac importCrac(InputStream inputStream, @Nonnull CracFactory cracFactory);
+    Crac importCrac(InputStream inputStream, @Nonnull CracFactory cracFactory, Network network);
 
-    Crac importCrac(InputStream inputStream);
+    Crac importCrac(InputStream inputStream, Network network);
 
     boolean exists(String fileName, InputStream inputStream);
 }

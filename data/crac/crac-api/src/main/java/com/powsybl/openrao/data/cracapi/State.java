@@ -7,6 +7,8 @@
 
 package com.powsybl.openrao.data.cracapi;
 
+import com.powsybl.contingency.Contingency;
+
 import java.util.Optional;
 
 /**

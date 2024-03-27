@@ -6,6 +6,9 @@
  */
 package com.powsybl.openrao.monitoring.anglemonitoring;
 
+import com.powsybl.iidm.network.Branch;
+import com.powsybl.iidm.network.Line;
+import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.commons.Unit;
@@ -37,11 +40,21 @@ class RaoResultWithAngleMonitoringTest {
     private RaoResult raoResult;
     private static final double DOUBLE_TOLERANCE = 0.1;
 
+    private static Network mockNetworkWithLines(String... lineIds) {
+        Network network = Mockito.mock(Network.class);
+        for (String lineId : lineIds) {
+            Branch l = Mockito.mock(Line.class);
+            Mockito.when(l.getId()).thenReturn(lineId);
+            Mockito.when(network.getIdentifiable(lineId)).thenReturn(l);
+        }
+        return network;
+    }
+
     @BeforeEach
     public void setUp() {
         InputStream raoResultFile = getClass().getResourceAsStream("/rao-result-v1.4.json");
         InputStream cracFile = getClass().getResourceAsStream("/crac-for-rao-result-v1.4.json");
-        crac = new JsonImport().importCrac(cracFile);
+        crac = new JsonImport().importCrac(cracFile, mockNetworkWithLines("ne1Id", "ne2Id", "ne3Id"));
         raoResult = new RaoResultImporter().importRaoResult(raoResultFile, crac);
     }
 

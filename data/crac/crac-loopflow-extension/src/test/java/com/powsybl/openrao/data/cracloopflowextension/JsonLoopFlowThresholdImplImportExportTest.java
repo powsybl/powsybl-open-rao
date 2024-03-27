@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.data.cracloopflowextension;
 
+import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.cracapi.InstantKind;
@@ -67,7 +68,7 @@ class JsonLoopFlowThresholdImplImportExportTest {
         // import Crac
         Crac importedCrac;
         try (ByteArrayInputStream inputStream = new ByteArrayInputStream(outputStream.toByteArray())) {
-            importedCrac = CracImporters.importCrac("whatever.json", inputStream);
+            importedCrac = CracImporters.importCrac("whatever.json", inputStream, Network.create("test", "test"));
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }

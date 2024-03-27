@@ -6,6 +6,7 @@
  */
 package com.powsybl.openrao.data.raoresultjson;
 
+import com.powsybl.contingency.ContingencyElementType;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.*;
@@ -413,7 +414,7 @@ class RaoResultRoundTripTest {
                 .add();
 
         // dummy flow cnecs
-        crac.newContingency().withId("contingency").withNetworkElement("co-ne").add();
+        crac.newContingency().withId("contingency").withContingencyElement("co-ne", ContingencyElementType.LINE).add();
         crac.newFlowCnec().withId("dummy-preventive").withInstant(PREVENTIVE_INSTANT_ID).withNetworkElement("ne")
                 .newThreshold().withMax(1.).withSide(Side.LEFT).withUnit(Unit.MEGAWATT).add()
                 .add();

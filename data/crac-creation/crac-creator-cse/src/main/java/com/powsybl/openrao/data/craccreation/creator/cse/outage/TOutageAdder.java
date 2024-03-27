@@ -55,7 +55,6 @@ public class TOutageAdder {
         tOutage.getBranch().forEach(tBranch -> handleTBranch(tBranch, contingencyAdder, contingencyElementHelpers, outageId));
         if (atLeastOneBranchIsMissing(contingencyElementHelpers)) {
             addNotAddedOutageCreationContext(tOutage, contingencyElementHelpers);
-            crac.removeContingency(outageId);
         } else {
             contingencyAdder.add();
             cseCracCreationContext.addOutageCreationContext(CseOutageCreationContext.imported(tOutage.getName().getV()));
@@ -77,7 +76,7 @@ public class TOutageAdder {
         if (!branchHelper.isValid()) {
             branchHelpers.add(branchHelper);
         } else {
-            contingencyAdder.withNetworkElement(branchHelper.getIdInNetwork()).add();
+            contingencyAdder.withContingencyElement(branchHelper.getIdInNetwork(), branchHelper.getContingencyTypeInNetwork());
         }
     }
 }
