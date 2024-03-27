@@ -28,8 +28,6 @@ jobs:
       - name: Install OpenRAO with Maven
         run: mvn --batch-mode install -DskipTests=true
 
-      - name: Setup Path
-        run: $env:Path+=';${PWD}\\farao-dep\\runtime\\ortools\\lib'
-
       - name: Run cucumber tests with Maven
-        run: mvn test -pl tests
+        run: (echo "${PWD}\\farao-dep\\runtime\\ortools\\lib" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append) `
+               -and (mvn test -pl tests)
