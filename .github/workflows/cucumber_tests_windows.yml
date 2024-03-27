@@ -21,13 +21,12 @@ jobs:
             Invoke-WebRequest -Uri "https://github.com/google/or-tools/releases/download/v9.5/ortools-win32-x86-64-9.5.2237.jar" -OutFile "${PWD}\\or-tools.jar"
 
       - name: Install OR-Tools
-        run: |
-              mkdir -p ${PWD}\\farao-dep\\runtime\\ortools\\lib\\ \
-              && unzip -j ${PWD}\\or-tools.jar -d ${PWD}\\farao-dep\\runtime\\ortools\\lib\\ ortools-win32-x86-64/jniortools.dll
-              && rm -Force ${PWD}\\or-tools.jar
+        run: (mkdir -p ${PWD}\\farao-dep\\runtime\\ortools\\lib\\) \
+              -and (unzip -j ${PWD}\\or-tools.jar -d ${PWD}\\farao-dep\\runtime\\ortools\\lib\\ ortools-win32-x86-64/jniortools.dll)
+              -and (rm -Force ${PWD}\\or-tools.jar)
 
       - name: Install OpenRAO with Maven
         run: mvn --batch-mode install -DskipTests=true
 
       - name: Run cucumber tests with Maven
-        run: $env:Path+=';${PWD}\\farao-dep\\runtime\\ortools\\lib' && mvn test -pl tests
+        run: ($env:Path+=';${PWD}\\farao-dep\\runtime\\ortools\\lib') -and (mvn test -pl tests)
