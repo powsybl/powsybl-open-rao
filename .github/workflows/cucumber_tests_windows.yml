@@ -18,7 +18,7 @@ jobs:
 
       - name: Download OR-Tools
         run: |
-            curl -Uri https://github.com/google/or-tools/releases/download/v9.5/ortools-win32-x86-64-9.5.2237.jar -OutFile ${PWD}\\or-tools.jar
+            wget "https://github.com/google/or-tools/releases/download/v9.5/ortools-win32-x86-64-9.5.2237.jar" -outfile "${PWD}\\or-tools.jar"
 
       - name: Install OR-Tools
         run: |
