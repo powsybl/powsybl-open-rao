@@ -4,7 +4,7 @@ on: [push]
 
 jobs:
   cucumber_ubuntu:
-    name: Run Cucumber Tests on Ubuntu
+    name: Run Cucumber tests on Ubuntu
     runs-on: ubuntu-latest
     steps:
       - name: Checkout sources
@@ -27,9 +27,8 @@ jobs:
         run: export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${PWD}/farao-dep/runtime/ortools/lib && mvn test -pl tests
 
   cucumber_windows:
-    name: Run Cucumber Tests on Windows
+    name: Run Cucumber tests on Windows
     runs-on: windows-latest
-
     steps:
       - name: Checkout sources
         uses: actions/checkout@v1
