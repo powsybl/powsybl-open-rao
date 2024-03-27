@@ -20,14 +20,18 @@ jobs:
         run: |
             Invoke-WebRequest -Uri "https://github.com/google/or-tools/releases/download/v9.5/ortools-win32-x86-64-9.5.2237.jar" -OutFile "${PWD}\\or-tools.jar"
 
+      - name: Create OR-Tools install directory
+        run: mkdir -p ${PWD}\\farao-dep\\runtime\\ortools\\lib\\
+
       - name: Install OR-Tools
-        run: (mkdir -p ${PWD}\\farao-dep\\runtime\\ortools\\lib\\) `
-              -and (unzip -j ${PWD}\\or-tools.jar -d ${PWD}\\farao-dep\\runtime\\ortools\\lib\\ ortools-win32-x86-64/jniortools.dll) `
-              -and (rm -Force ${PWD}\\or-tools.jar)
+        run: unzip -j ${PWD}\\or-tools.jar -d ${PWD}\\farao-dep\\runtime\\ortools\\lib\\ ortools-win32-x86-64/jniortools.dll
+
+      - name: Cleanup workspace
+        run: rm -Force ${PWD}\\or-tools.jar
 
       - name: Install OpenRAO with Maven
         run: mvn --batch-mode install -DskipTests=true
 
       - name: Run cucumber tests with Maven
-        run: (echo "${PWD}\\farao-dep\\runtime\\ortools\\lib" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append) `
-               -and (mvn test -pl tests)
+        shell: bash
+        run: export PATH=${PATH}:${PWD}\\farao-dep\\runtime\\ortools\\lib && mvn test -pl tests
