@@ -3,31 +3,50 @@ name: Functional Tests
 on: [push]
 
 jobs:
-  build:
-    name: Run Cucumber Tests
+  cucumber_ubuntu:
+    name: Run Cucumber tests on Ubuntu
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout sources
         uses: actions/checkout@v1
-
       - name: Set up JDK 17
         uses: actions/setup-java@v1
         with:
           java-version: 17
-
       - name: Download OR-Tools
         run: |
             curl -sSL https://github.com/google/or-tools/releases/download/v9.5/ortools-linux-x86-64-9.5.2237.jar --output ${PWD}/or-tools.jar
-
       - name: Install OR-Tools
         run: |
               mkdir -p ${PWD}/farao-dep/runtime/ortools/lib/ \
               && unzip -j ${PWD}/or-tools.jar -d ${PWD}/farao-dep/runtime/ortools/lib/ ortools-linux-x86-64/* \
               && rm -f ${PWD}/or-tools.jar
-
       - name: Install OpenRAO with Maven
         run: mvn --batch-mode install -DskipTests=true
-
       - name: Run cucumber tests with Maven
         run: export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${PWD}/farao-dep/runtime/ortools/lib && mvn test -pl tests
+
+  cucumber_windows:
+    name: Run Cucumber tests on Windows
+    runs-on: windows-latest
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v1
+      - name: Set up JDK 17
+        uses: actions/setup-java@v1
+        with:
+          java-version: 17
+      - name: Download OR-Tools
+        run: |
+          Invoke-WebRequest -Uri "https://github.com/google/or-tools/releases/download/v9.5/ortools-win32-x86-64-9.5.2237.jar" -OutFile "${PWD}\\or-tools.jar"
+      - name: Create OR-Tools install directory
+        run: mkdir -p ${PWD}\\farao-dep\\runtime\\ortools\\lib\\
+      - name: Install OR-Tools
+        run: unzip -j ${PWD}\\or-tools.jar -d ${PWD}\\farao-dep\\runtime\\ortools\\lib\\ ortools-win32-x86-64/jniortools.dll
+      - name: Cleanup workspace
+        run: rm -Force ${PWD}\\or-tools.jar
+      - name: Install OpenRAO with Maven
+        run: mvn --batch-mode install -DskipTests=true
+      - name: Run cucumber tests with Maven
+        shell: bash
+        run: export PATH=${PATH}:${PWD}\\farao-dep\\runtime\\ortools\\lib && mvn test -pl tests

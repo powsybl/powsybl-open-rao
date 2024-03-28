@@ -17,6 +17,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+import static com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileCracUtils.getTsoNameFromUrl;
+
 public abstract class AbstractCnecCreator {
     protected final Crac crac;
     protected final Network network;
@@ -84,26 +86,26 @@ public abstract class AbstractCnecCreator {
 
     protected boolean addCnecBaseInformation(CnecAdder<?> cnecAdder, Contingency contingency, String instantId) {
         String cnecName = getCnecName(instantId, contingency);
-
-        cnecAdder.withContingency(contingency == null ? null : contingency.getId())
-            .withId(cnecName)
-            .withName(cnecName)
-            .withInstant(instantId)
-            .withOptimized(aeSecuredForRegion)
-            .withMonitored(aeScannedForRegion);
+        initCnecAdder(cnecAdder, contingency, instantId, cnecName);
         return true;
     }
 
     protected void addCnecBaseInformation(CnecAdder<?> cnecAdder, Contingency contingency, String instantId, int tatlDuration) {
         String cnecName = getCnecName(instantId, contingency, tatlDuration);
+        initCnecAdder(cnecAdder, contingency, instantId, cnecName);
+    }
+
+    private void initCnecAdder(CnecAdder<?> cnecAdder, Contingency contingency, String instantId, String cnecName) {
         cnecAdder.withContingency(contingency == null ? null : contingency.getId())
             .withId(cnecName)
             .withName(cnecName)
-            .withInstant(instantId);
+            .withInstant(instantId)
+            .withOperator(getTsoNameFromUrl(assessedElementOperator))
+            .withOptimized(aeSecuredForRegion)
+            .withMonitored(aeScannedForRegion);
     }
 
-    protected void markCnecAsImportedAndHandleRejectedContingencies(String instantId, Contingency contingency) {
-        String cnecName = getCnecName(instantId, contingency);
+    protected void markCnecAsImportedAndHandleRejectedContingencies(String cnecName) {
         if (rejectedLinksAssessedElementContingency.isEmpty()) {
             csaProfileCnecCreationContexts.add(CsaProfileElementaryCreationContext.imported(assessedElementId, cnecName, cnecName, "", false));
         } else {
