@@ -171,19 +171,19 @@ public class SearchTreeParameters {
 
     private static Map<String, Integer> decreaseMaxTopoPerTso(RaUsageLimits raUsageLimits, OptimizationResult result, Map<String, Integer> decreasedMaxRaPerTso) {
         Map<String, Integer> decreasedMaxTopoPerTso = new HashMap<>();
-        raUsageLimits.getMaxTopoPerTso().forEach((key, value) -> decreasedMaxTopoPerTso.put(key, Math.min(value - result.getActivatedNetworkActions().stream().filter(networkAction -> key.equals(networkAction.getOperator())).toList().size(), decreasedMaxRaPerTso.get(key))));
+        raUsageLimits.getMaxTopoPerTso().forEach((key, value) -> decreasedMaxTopoPerTso.put(key, Math.min(value - (int) result.getActivatedNetworkActions().stream().filter(networkAction -> key.equals(networkAction.getOperator())).count(), decreasedMaxRaPerTso.get(key))));
         return decreasedMaxTopoPerTso;
     }
 
     private static Map<String, Integer> decreaseMaxPstPerTso(RaUsageLimits raUsageLimits, State optimizedState, OptimizationResult result, Map<String, Integer> decreasedMaxRaPerTso) {
         Map<String, Integer> decreasedMaxPstPerTso = new HashMap<>();
-        raUsageLimits.getMaxPstPerTso().forEach((key, value) -> decreasedMaxPstPerTso.put(key, Math.min(value - result.getActivatedRangeActions(optimizedState).stream().filter(networkAction -> key.equals(networkAction.getOperator())).toList().size(), decreasedMaxRaPerTso.get(key))));
+        raUsageLimits.getMaxPstPerTso().forEach((key, value) -> decreasedMaxPstPerTso.put(key, Math.min(value - (int) result.getActivatedRangeActions(optimizedState).stream().filter(networkAction -> key.equals(networkAction.getOperator())).count(), decreasedMaxRaPerTso.get(key))));
         return decreasedMaxPstPerTso;
     }
 
     private static Map<String, Integer> decreaseMaxRemedialActionPerTso(RaUsageLimits raUsageLimits, State optimizedState, OptimizationResult result) {
         Map<String, Integer> decreasedMaxRaPerTso = new HashMap<>();
-        raUsageLimits.getMaxRaPerTso().forEach((key, value) -> decreasedMaxRaPerTso.put(key, value - result.getActivatedNetworkActions().stream().filter(networkAction -> key.equals(networkAction.getOperator())).toList().size() - result.getActivatedRangeActions(optimizedState).stream().filter(networkAction -> key.equals(networkAction.getOperator())).toList().size()));
+        raUsageLimits.getMaxRaPerTso().forEach((key, value) -> decreasedMaxRaPerTso.put(key, value - (int) result.getActivatedNetworkActions().stream().filter(networkAction -> key.equals(networkAction.getOperator())).count() - (int) result.getActivatedRangeActions(optimizedState).stream().filter(networkAction -> key.equals(networkAction.getOperator())).count()));
         return decreasedMaxRaPerTso;
     }
 
