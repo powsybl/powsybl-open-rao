@@ -165,7 +165,7 @@ Feature: US 13.5: dynamic of range actions available in several instants
     # is not the same with 2d preventive optimisation
     Given network file is "epic13/TestCase16Nodes_with_different_imax.uct"
     Given crac file is "epic13/CBCORA_ep13us5case10.xml"
-    Given configuration file is "epic13/RaoParameters_maxMargin_ampere_2p.json"
+    Given configuration file is "epic20/RaoParameters_maxMargin_ampere_second_preventive.json"
     When I launch search_tree_rao at "2019-01-08 12:00"
     Then 2 remedial actions are used in preventive
     And the tap of PstRangeAction "pra_pst_fr" should be -15 in preventive
