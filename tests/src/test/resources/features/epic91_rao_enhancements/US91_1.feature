@@ -27,7 +27,7 @@ Feature: US 91.1: geographic filter
     # This results in a solution that is less optimal than using "PST @1" alone (83A, see test case 1.3 variant 1)
     Given network file is "common/TestCase12Nodes.uct"
     Given crac file is "epic1/SL_ep1us2_selectionTopoRA_variant1.json"
-    Given configuration file is "epic91/RaoParameters_case_91_1_2.json"
+    Given configuration file is "epic91/RaoParameters_case_91_1_12.json"
     When I launch search_tree_rao
     Then its security status should be "SECURED"
     Then the worst margin is 56.0 A
@@ -51,7 +51,7 @@ Feature: US 91.1: geographic filter
   Scenario: US 91.1.4: Simple case, one boundary can be passed, max margin
     Given network file is "common/TestCase12Nodes.uct"
     Given crac file is "epic1/SL_ep1us2_selectionTopoRA_variant1.json"
-    Given configuration file is "epic91/RaoParameters_case_91_1_4.json"
+    Given configuration file is "epic91/RaoParameters_case_91_1_3.json"
     When I launch search_tree_rao
     Then its security status should be "SECURED"
     Then the worst margin is 83.0 A
@@ -63,7 +63,7 @@ Feature: US 91.1: geographic filter
   Scenario: US 91.1.5: Another simple case, no boundary can be passed, positive margin
     Given network file is "common/TestCase12Nodes.uct"
     Given crac file is "epic91/sl_ep91us1case5.json"
-    Given configuration file is "epic91/RaoParameters_case_91_1_5.json"
+    Given configuration file is "epic91/RaoParameters_case_91_1_1.json"
     When I launch search_tree_rao
     Then the worst margin is -12.0 A
     And the margin on cnec "DDE1AA1  DDE3AA1  1 - preventive" after PRA should be -12.0 A
