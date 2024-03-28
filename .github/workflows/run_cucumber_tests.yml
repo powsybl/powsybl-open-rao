@@ -21,6 +21,13 @@ jobs:
               mkdir -p ${PWD}/farao-dep/runtime/ortools/lib/ \
               && unzip -j ${PWD}/or-tools.jar -d ${PWD}/farao-dep/runtime/ortools/lib/ ortools-linux-x86-64/* \
               && rm -f ${PWD}/or-tools.jar
+      - name: Checkout powsybl-open-loadflow sources
+        uses: actions/checkout@v1
+        with:
+          repository: powsybl/powsybl-open-loadflow
+          ref: refs/heads/main
+      - name: Build and install powsybl-open-loadflow with Maven
+        run: mvn --batch-mode -DskipTests=true --file ../powsybl-open-loadflow/pom.xml install
       - name: Install OpenRAO with Maven
         run: mvn --batch-mode install -DskipTests=true
       - name: Run cucumber tests with Maven
@@ -45,6 +52,13 @@ jobs:
         run: unzip -j ${PWD}\\or-tools.jar -d ${PWD}\\farao-dep\\runtime\\ortools\\lib\\ ortools-win32-x86-64/jniortools.dll
       - name: Cleanup workspace
         run: rm -Force ${PWD}\\or-tools.jar
+      - name: Checkout powsybl-open-loadflow sources
+        uses: actions/checkout@v1
+        with:
+          repository: powsybl/powsybl-open-loadflow
+          ref: refs/heads/main
+      - name: Build and install powsybl-open-loadflow with Maven
+        run: mvn --batch-mode -DskipTests=true --file ../powsybl-open-loadflow/pom.xml install
       - name: Install OpenRAO with Maven
         run: mvn --batch-mode install -DskipTests=true
       - name: Run cucumber tests with Maven
