@@ -5,3 +5,4 @@ PowSyBl Open RAO's user documentation
    :maxdepth: 2
 
    input-data/index
+   tutorial/index
