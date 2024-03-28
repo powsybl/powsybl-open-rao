@@ -40,7 +40,7 @@ Feature: US 15.13: Handle combined RAs by configuration
   Scenario: US 15.13.3: Optimal combination in curative, but not available as only 2 CRA are allowed
     Given network file is "epic15/TestCase16Nodes_ep15us13case2_3_4.uct"
     Given crac file is "epic15/CseCrac_ep15us13case2_3_4.xml"
-    Given configuration file is "epic15/RaoParameters_ep15us13case3.json"
+    Given configuration file is "epic15/RaoParameters_ep15us13case2.json"
     Given crac creation parameters file is "epic15/us_15_13_3.json"
     When I launch search_tree_rao at "2021-04-30 22:30"
     Then 2 remedial actions are used after "co1_fr2_fr3_1" at "curative"
@@ -54,7 +54,7 @@ Feature: US 15.13: Handle combined RAs by configuration
   Scenario: US 15.13.4: Optimal combination in curative, but not available as only the RA of 1 TSO can be used
     Given network file is "epic15/TestCase16Nodes_ep15us13case2_3_4.uct"
     Given crac file is "epic15/CseCrac_ep15us13case2_3_4.xml"
-    Given configuration file is "epic15/RaoParameters_ep15us13case4.json"
+    Given configuration file is "epic15/RaoParameters_ep15us13case2.json"
     Given crac creation parameters file is "epic15/us15_13_4.json"
     When I launch search_tree_rao at "2021-04-30 22:30"
     Then 2 remedial actions are used after "co1_fr2_fr3_1" at "curative"
@@ -134,7 +134,7 @@ Feature: US 15.13: Handle combined RAs by configuration
   Scenario: US 15.13.9: onConstraint remedial action is not re evaluated after the activation of a combination of RA
     Given network file is "common/TestCase16Nodes.uct"
     Given crac file is "epic15/CseCrac_ep15us13case9.xml"
-    Given configuration file is "epic15/RaoParameters_ep15us13case9.json"
+    Given configuration file is "epic15/RaoParameters_ep15us13case5.json"
     When I launch search_tree_rao at "2021-04-30 22:30"
     Then 3 remedial actions are used in preventive
     And the remedial action "open_fr1_fr3" is used in preventive

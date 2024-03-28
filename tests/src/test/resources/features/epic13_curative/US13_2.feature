@@ -28,7 +28,7 @@ Feature: US 13.2: Solve a RAO for two consecutive states (preventive THEN curati
     # OSIRIS has worst margin 986 A with "open_fr1_fr2" and pst_be at 16 and pst_fr at 15
     # This solution exists in FARAO (we can see it in the logs) but a better solution is found
     Given network file is "common/TestCase16Nodes.uct"
-    Given crac file is "epic13/SL_ep13us2case2.json"
+    Given crac file is "epic19/SL_ep19us6basecase.json"
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
     When I launch search_tree_rao
     Then 2 remedial actions are used after "co1_fr2_fr3_1" at "curative"

@@ -10,7 +10,7 @@ Feature: US 19.3: Handle maximum CRA and maximum curative PSTs per TSO
     # <!> All RAs are hypothetically operated by "be"
     Given network file is "common/TestCase16Nodes.uct"
     Given crac file is "epic19/SL_ep19us3case1.json"
-    Given configuration file is "epic19/RaoParameters_19_3_1.json"
+    Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
     When I launch search_tree_rao
     Then 2 remedial actions are used after "co1_fr2_fr3_1" at "curative"
     And the remedial action "close_fr1_fr5" is used after "co1_fr2_fr3_1" at "curative"
@@ -24,7 +24,7 @@ Feature: US 19.3: Handle maximum CRA and maximum curative PSTs per TSO
     # <!> All RAs are hypothetically operated by "be"
     Given network file is "common/TestCase16Nodes.uct"
     Given crac file is "epic19/SL_ep19us3case2.json"
-    Given configuration file is "epic19/RaoParameters_19_3_2.json"
+    Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
     When I launch search_tree_rao
     Then 2 remedial actions are used after "co1_fr2_fr3_1" at "curative"
     And the remedial action "pst_be" is used after "co1_fr2_fr3_1" at "curative"
@@ -38,8 +38,8 @@ Feature: US 19.3: Handle maximum CRA and maximum curative PSTs per TSO
   Scenario: US 19.3.3: One PST and no topo
     # <!> All RAs are hypothetically operated by "be"
     Given network file is "common/TestCase16Nodes.uct"
-    Given crac file is "epic19/SL_ep19us3case3.json"
-    Given configuration file is "epic19/RaoParameters_19_3_3.json"
+    Given crac file is "epic19/SL_ep19us10case1.json"
+    Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
     When I launch search_tree_rao
     Then 1 remedial actions are used after "co1_fr2_fr3_1" at "curative"
     And the remedial action "pst_be" is used after "co1_fr2_fr3_1" at "curative"
@@ -51,8 +51,8 @@ Feature: US 19.3: Handle maximum CRA and maximum curative PSTs per TSO
   Scenario: US 19.3.4: No PST and one topo
     # <!> All RAs are hypothetically operated by "be"
     Given network file is "common/TestCase16Nodes.uct"
-    Given crac file is "epic19/SL_ep19us3case4.json"
-    Given configuration file is "epic19/RaoParameters_19_3_4.json"
+    Given crac file is "epic19/SL_ep19us10case2.json"
+    Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
     When I launch search_tree_rao
     Then 1 remedial actions are used after "co1_fr2_fr3_1" at "curative"
     And the remedial action "close_fr1_fr5" is used after "co1_fr2_fr3_1" at "curative"
@@ -62,8 +62,8 @@ Feature: US 19.3: Handle maximum CRA and maximum curative PSTs per TSO
   Scenario: US 19.3.5: One PST and one topo, one CRA, chose PST
     # <!> All RAs are hypothetically operated by "be"
     Given network file is "common/TestCase16Nodes.uct"
-    Given crac file is "epic19/SL_ep19us3case5.json"
-    Given configuration file is "epic19/RaoParameters_19_3_5.json"
+    Given crac file is "epic19/SL_ep19us10case3.json"
+    Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
     When I launch search_tree_rao
     Then 1 remedial actions are used after "co1_fr2_fr3_1" at "curative"
     And the remedial action "pst_be" is used after "co1_fr2_fr3_1" at "curative"
@@ -76,7 +76,7 @@ Feature: US 19.3: Handle maximum CRA and maximum curative PSTs per TSO
     # <!> All RAs are hypothetically operated by "be"
     Given network file is "epic19/TestCase16Nodes_19_3_6.uct"
     Given crac file is "epic19/SL_ep19us3case6.json"
-    Given configuration file is "epic19/RaoParameters_19_3_6.json"
+    Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
     When I launch search_tree_rao after "co1_fr2_fr3_1" at "curative"
     Then 1 remedial actions are used after "co1_fr2_fr3_1" at "curative"
     And the remedial action "open_fr1_fr2" is used after "co1_fr2_fr3_1" at "curative"
@@ -87,7 +87,7 @@ Feature: US 19.3: Handle maximum CRA and maximum curative PSTs per TSO
     # <!> All RAs are hypothetically operated by "be"
     Given network file is "common/TestCase16Nodes.uct"
     Given crac file is "epic19/SL_ep19us3case7.json"
-    Given configuration file is "epic19/RaoParameters_19_3_7.json"
+    Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
     When I launch search_tree_rao
     Then 2 remedial actions are used after "co1_fr2_fr3_1" at "curative"
     And the remedial action "close_fr1_fr5" is used after "co1_fr2_fr3_1" at "curative"
@@ -99,7 +99,7 @@ Feature: US 19.3: Handle maximum CRA and maximum curative PSTs per TSO
     # <!> All RAs are hypothetically operated by "be", except for "open_be1_be4" operated by "fr"
     Given network file is "common/TestCase16Nodes.uct"
     Given crac file is "epic19/SL_ep19us3case8.json"
-    Given configuration file is "epic19/RaoParameters_19_3_8.json"
+    Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
     When I launch search_tree_rao
     Then 2 remedial actions are used after "co1_fr2_fr3_1" at "curative"
     And the remedial action "close_fr1_fr5" is used after "co1_fr2_fr3_1" at "curative"
@@ -110,7 +110,7 @@ Feature: US 19.3: Handle maximum CRA and maximum curative PSTs per TSO
   Scenario: US 19.3.9: Test that the parameters are ignored in preventive
     Given network file is "common/TestCase16Nodes.uct"
     Given crac file is "epic19/SL_ep19us3case9.json"
-    Given configuration file is "epic19/RaoParameters_19_3_9.json"
+    Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
     When I launch search_tree_rao on preventive state
     Then 3 remedial actions are used in preventive
     And the remedial action "open_be1_be4" is used in preventive
@@ -122,7 +122,7 @@ Feature: US 19.3: Handle maximum CRA and maximum curative PSTs per TSO
     # <!> All RAs are hypothetically operated by "be"
     Given network file is "common/TestCase16Nodes.uct"
     Given crac file is "epic19/SL_ep19us3case10.json"
-    Given configuration file is "epic19/RaoParameters_19_3_10.json"
+    Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
     When I launch search_tree_rao
     Then 3 remedial actions are used after "co1_fr2_fr3_1" at "curative"
     And the remedial action "open_fr1_fr3" is used after "co1_fr2_fr3_1" at "curative"

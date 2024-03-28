@@ -9,7 +9,7 @@ Feature: US 14.6: Dangling lines
   Scenario: 14.6.1 : Dangling line with no generation, RAO in MW
     Given network file is "epic14/TestCase12NodesXnodeNoGen.uct" for CORE CC
     Given crac file is "epic14/cbcora_ep14us6.xml"
-    Given configuration file is "common/RaoParameters_maxMargin_megawatt_dc_olf.json"
+    Given configuration file is "common/RaoParameters_maxMargin_megawatt_dc.json"
     When I launch search_tree_rao at "2019-01-08 12:00"
     Then its security status should be "SECURED"
     Then the worst margin is 2000.0 MW
@@ -19,7 +19,7 @@ Feature: US 14.6: Dangling lines
   Scenario: 14.6.2 : Dangling line with no generation, RAO in A
     Given network file is "epic14/TestCase12NodesXnodeNoGen.uct" for CORE CC
     Given crac file is "epic14/cbcora_ep14us6.xml"
-    Given configuration file is "common/RaoParameters_maxMargin_ampere_olf.json"
+    Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
     When I launch search_tree_rao at "2019-01-08 12:00"
     Then its security status should be "SECURED"
     Then the worst margin is 2888.0 A
@@ -29,7 +29,7 @@ Feature: US 14.6: Dangling lines
   Scenario: 14.6.3 : Dangling line with generation, RAO in MW
     Given network file is "epic14/TestCase12NodesXnodeWithGen.uct" for CORE CC
     Given crac file is "epic14/cbcora_ep14us6.xml"
-    Given configuration file is "common/RaoParameters_maxMargin_megawatt_dc_olf.json"
+    Given configuration file is "common/RaoParameters_maxMargin_megawatt_dc.json"
     When I launch search_tree_rao at "2019-01-08 12:00"
     Then its security status should be "SECURED"
     Then the worst margin is 1000.0 MW
@@ -39,7 +39,7 @@ Feature: US 14.6: Dangling lines
   Scenario: 14.6.4 : Dangling line with generation, RAO in A
     Given network file is "epic14/TestCase12NodesXnodeWithGen.uct" for CORE CC
     Given crac file is "epic14/cbcora_ep14us6.xml"
-    Given configuration file is "common/RaoParameters_maxMargin_ampere_olf.json"
+    Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
     When I launch search_tree_rao at "2019-01-08 12:00"
     Then its security status should be "SECURED"
     Then the worst margin is 695.0 A

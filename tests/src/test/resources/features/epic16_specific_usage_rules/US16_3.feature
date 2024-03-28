@@ -180,7 +180,7 @@ Feature: User Story #16.3: Activate remedial actions only after a specific const
   Scenario: US 16.3.13: Test with a maximum number of CRA 1/2
     Given network file is "epic16/TestCase16Nodes_3psts.uct"
     Given crac file is "epic16/SL_ep16us3case13.json"
-    Given configuration file is "epic16/RaoParameters_maxMargin_ampere_2cra.json"
+    Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
     When I launch search_tree_rao
     Then 0 remedial actions are used in preventive
     And 1 remedial actions are used after "co1_fr2_fr3_1" at "curative"
@@ -194,7 +194,7 @@ Feature: User Story #16.3: Activate remedial actions only after a specific const
   Scenario: US 16.3.14: Test with a maximum number of CRA 2/2
     Given network file is "epic16/TestCase16Nodes_3psts.uct"
     Given crac file is "epic16/SL_ep16us3case14.json"
-    Given configuration file is "epic16/RaoParameters_maxMargin_ampere_1pst.json"
+    Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
     When I launch search_tree_rao
     Then 0 remedial actions are used in preventive
     And 1 remedial actions are used after "co1_fr2_fr3_1" at "curative"

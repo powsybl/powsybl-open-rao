@@ -99,7 +99,7 @@ Feature: US 15.12.7: Handle CSE's HVDCs with range actions on injections
   Scenario: US 15.12.7.8: UCTE HVDC as InjectionRangeAction and PST filtering
     Given network file is "epic15/TestCase16NodesWithUcteHvdc.uct"
     Given crac file is "epic15/cseCrac_ep15us12-5case8.xml"
-    Given configuration file is "epic15/RaoParameters_ep15us12-5case8.json"
+    Given configuration file is "common/RaoParameters_maxMargin_megawatt_dc.json"
     Given crac creation parameters file is "epic15/us_15_2_7.json"
     When I launch search_tree_rao
     Then the setpoint of RangeAction "CRA_HVDC" should be 1406 MW after "co1_be1_fr5" at "curative"

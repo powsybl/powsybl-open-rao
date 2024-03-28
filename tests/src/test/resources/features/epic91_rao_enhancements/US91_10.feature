@@ -31,7 +31,7 @@ Feature: US 91.10: MIP test cases
   Scenario: US 91.10.3: MIP with slightly different aligned PSTs
     Given network file is "epic91/TestCase16Nodes_alignedPsts.uct"
     Given crac file is "epic91/CBCORA_alignedPsts.xml"
-    Given configuration file is "epic91/RaoParameters_maxMargin_ampere_mip.json"
+    Given configuration file is "common/RaoParameters_maxMargin_ampere_mip.json"
     When I launch search_tree_rao at "2019-01-08 12:00" on preventive state
     Then 2 remedial actions are used in preventive
     And the tap of PstRangeAction "pst_be" should be 7 in preventive
