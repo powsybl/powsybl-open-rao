@@ -100,7 +100,7 @@ Feature: US 15.12.5: Handle HVDC range actions in RAO
   Scenario: US 15.12.5.8: HVDC and PST filtering
     Given network file is "epic15/TestCase16NodesWithHvdc.xiidm"
     Given crac file is "epic15/jsonCrac_ep15us12-5case8.json"
-    Given configuration file is "epic15/RaoParameters_ep15us12-5case8.json"
+    Given configuration file is "common/RaoParameters_maxMargin_megawatt_dc.json"
     When I launch search_tree_rao
     Then the setpoint of RangeAction "CRA_HVDC" should be 1419 MW after "co1_be1_fr5" at "curative"
     And the worst margin is 300 MW
