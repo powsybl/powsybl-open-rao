@@ -1,5 +1,5 @@
-PowSyBl Open RAO's user documentation
-=====================================
+RAO Logs
+========
 
 .. include:: documentation.md
     :parser: markdown
@@ -9,6 +9,7 @@ PowSyBl Open RAO's user documentation
    :hidden:
 
    glossary/glossary.md
-   input-data/index
-   parameters/index
-   tutorial/index
+   input-data/input-data.md
+   output-data/output-data.md
+   parameters/parameters.md
+   tutorial/run-simple-rao.md

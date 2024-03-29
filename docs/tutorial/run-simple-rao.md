@@ -1,4 +1,4 @@
-# Run a simple RAO
+# Tutorial
 
 In this tutorial, we will see how to run a simple RAO from a network file and a CRAC. The CRAC will be created from
 scratch using the Java API so there is no need to import a CRAC file.

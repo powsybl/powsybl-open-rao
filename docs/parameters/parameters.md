@@ -1,4 +1,6 @@
-# Introduction
+# Parameters
+
+## Introduction
 
 The RAO parameters allow tuning the RAO:
 - to choose the **business objective function** of the RAO (maximize min margin, get a positive margin, ...)
@@ -10,15 +12,15 @@ RAO parameters can be constructed using:
 - A JSON file (see [example](#examples))
 - A PowSyBl configuration file (see [example](#examples))
 
-# Global parameters
+## Global parameters
 
 These parameters should be always set in the RAO parameters file or object.
 
-## Objective function parameters
+### Objective function parameters
 
 These parameters (objective-function) configure the remedial action optimisation's objective function.  
 
-### type
+#### type
 
 - **Expected value**: one of the following:
   - "MAX_MIN_MARGIN_IN_MEGAWATT"
@@ -38,7 +40,7 @@ These parameters (objective-function) configure the remedial action optimisation
   - **MAX_MIN_RELATIVE_MARGIN_IN_AMPERE**: same as MAX_MIN_MARGIN_IN_AMPERE, but the margins will be relative (divided
     by the absolute sum of PTDFs) when they are positive.
 
-### forbid-cost-increase
+#### forbid-cost-increase
 - **Expected value**: true/false
 - **Default value**: false
 - **Usage**: if this parameter is set to true, FARAO will post-check the results after optimisation. If the value of
@@ -49,7 +51,7 @@ These parameters (objective-function) configure the remedial action optimisation
   If this parameter is set to false, FARAO will return the real result of optimisation, which has a worse result
   than the initial situation.
 
-### preventive-stop-criterion
+#### preventive-stop-criterion
 - **Expected value**: one of the following:
   - "MIN_OBJECTIVE"
   - "SECURE"
@@ -60,7 +62,7 @@ These parameters (objective-function) configure the remedial action optimisation
   - **SECURE**: the search-tree will stop as soon as it finds a solution where the minimum margin is positive.  
   *Note: if the best possible minimum margin is negative, both stop criterion will return the same solution.*
 
-### curative-stop-criterion
+#### curative-stop-criterion
 - **Expected value**: one of the following:
   - "MIN_OBJECTIVE"
   - "SECURE"
@@ -81,17 +83,17 @@ These parameters (objective-function) configure the remedial action optimisation
   without deteriorating the final solution (minimum margin over all perimeters). However, using them means the flow-based
   domain is not maximised for all perimeters.*
 
-### curative-min-obj-improvement
+#### curative-min-obj-improvement
 - **Expected value**: numeric value, where the unit is that of the objective function
 - **Default value**: 0
 - **Usage**: used as a minimum improvement of the preventive RAO objective value for the curative RAO stop criterion,
   when it is set to PREVENTIVE_OBJECTIVE or PREVENTIVE_OBJECTIVE_AND_SECURE.
 
-## Range actions optimisation parameters
+### Range actions optimisation parameters
 These parameters (range-actions-optimization) tune the [linear optimiser](https://farao-community.github.io/docs/engine/ra-optimisation/linear-rao) used to optimise range actions.  
 (See [Modelling CNECs and range actions](https://farao-community.github.io/docs/castor/linear-optimisation-problem/core-problem-filler))
 
-### max-mip-iterations
+#### max-mip-iterations
 - **Expected value**: integer
 - **Default value**: 10
 - **Usage**: defines the maximum number of iterations to be executed by the iterating linear optimiser of the RAO.  
@@ -104,7 +106,7 @@ These parameters (range-actions-optimization) tune the [linear optimiser](https:
   solution found in iteration (n).  
   Note that the linear optimisation problems usually "converge" with very few iterations (1 to 4 iterations).
 
-### pst-model
+#### pst-model
 - **Expected value**: one of the following:
   - "CONTINUOUS"
   - "APPROXIMATED_INTEGERS"
@@ -121,7 +123,7 @@ These parameters (range-actions-optimization) tune the [linear optimiser](https:
     integer variables (tap positions) and can be harder to solve.  
     See [Using integer variables for PST taps](https://farao-community.github.io/docs/castor/linear-optimisation-problem/discrete-pst-tap-filler).
 
-### pst-penalty-cost
+#### pst-penalty-cost
 - **Expected value**: numeric value, unit: unit of the objective function / ° (per degree)
 - **Default value**: 0.01
 - **Usage**: the pst-penalty-cost represents the cost of changing the PST set-points, it is used within the linear
@@ -131,7 +133,7 @@ These parameters (range-actions-optimization) tune the [linear optimiser](https:
   If several solutions are equivalent (e.g. with the same min margin), a strictly positive pst penalty cost will favour
   the ones with the PST taps the closest to the initial situation.  
 
-### pst-sensitivity-threshold
+#### pst-sensitivity-threshold
 - **Expected value**: numeric value, unit: MW / ° (per degree)
 - **Default value**: 0.0
 - **Usage**: the pst sensitivity coefficients which are below the pst-sensitivity-threshold will be considered equal to
@@ -140,7 +142,7 @@ These parameters (range-actions-optimization) tune the [linear optimiser](https:
   - it decreases the complexity of the optimisation problem by reducing significantly the number of non-zero elements
   - it can avoid changes of PST set-points when they only allow to earn a few MW on the margins of some CNECs.
 
-### hvdc-penalty-cost
+#### hvdc-penalty-cost
 - **Expected value**: numeric value, unit: unit of the objective function / MW
 - **Default value**: 0.001
 - **Usage**: the hvdc-penalty-cost represents the cost of changing the HVDC set-points, it is used within the linear
@@ -150,7 +152,7 @@ These parameters (range-actions-optimization) tune the [linear optimiser](https:
   If several solutions are equivalent (e.g. with the same min margin), a strictly positive hvdc penalty cost will favour
   the ones with the HVDC set-points the closest to the initial situation.
 
-### hvdc-sensitivity-threshold
+#### hvdc-sensitivity-threshold
 - **Expected value**: numeric value, unit: MW / MW
 - **Default value**: 0.0
 - **Usage**: the hvdc sensitivity coefficients which are below the hvdc-sensitivity-threshold will be considered equal
@@ -159,20 +161,20 @@ These parameters (range-actions-optimization) tune the [linear optimiser](https:
   - it decreases the complexity of the optimisation problem by reducing significantly the number of non-null elements
   - it can avoid changes of HVDC set-points when they only allow to earn a few MW on the margins of some CNECs.
 
-### injection-ra-penalty-cost
+#### injection-ra-penalty-cost
 - **Expected value**: numeric value, unit: unit of the objective function / MW
 - **Default value**: 0.001
 - **Usage**: the injection-ra-penalty-cost represents the cost of changing the injection set-points, it is used within the linear
   optimisation problem of the RAO, in the same way as the two types of RangeAction above.
 
-### injection-ra-sensitivity-threshold
+#### injection-ra-sensitivity-threshold
 - **Expected value**: numeric value, unit: MW / MW
 - **Default value**: 0.0
 - **Usage**: the injection sensitivity coefficients which are below the injection-ra-sensitivity-threshold will be
   considered equal to zero by the linear optimisation problem.  
   The perks are the same as the two parameters above.
 
-### ra-range-shrinking
+#### ra-range-shrinking
 - **Expected value**: one of the following:
   - "DISABLED"
   - "ENABLED"
@@ -195,10 +197,10 @@ These parameters (range-actions-optimization) tune the [linear optimiser](https:
     sensitivity computations in the second preventive RAO can be slow (due to the larger optimization perimeter), thus 
     computation time loss may outweigh the gains of RA range shrinking.
 
-### linear-optimization-solver
+#### linear-optimization-solver
 These are parameters that tune the solver used to solve the MIP problem.
 
-#### solver
+##### solver
 - **Expected value**: one of the following:
   - "CBC"
   - "SCIP"
@@ -209,14 +211,14 @@ These are parameters that tune the solver used to solve the MIP problem.
   (open-source), SCIP (commercial) and XPRESS (commercial) for the moment.  
   If needed, other solvers can be easily added.
 
-#### relative-mip-gap
+##### relative-mip-gap
 - **Expected value**: double
 - **Default value**: 0.0001
 - **Usage**: the relative MILP (Mixed-Integer-Linear-Programming) target gap.  
   During branch-and-bound algorithm (only in MILP case), the solver will stop branching when this relative gap is
   reached between the best found objective function and the estimated objective function best bound.
 
-#### solver-specific-parameters
+##### solver-specific-parameters
 
 - **Expected value**: String, space-separated parameters (keys and values) understandable by OR-Tools (for example "key1
   value1 key2 value2")
@@ -224,28 +226,28 @@ These are parameters that tune the solver used to solve the MIP problem.
 - **Usage**: this can be used to set solver-specific parameters, when the OR-Tools API and its generic parameters are
   not enough.
 
-## Network actions optimisation parameters
+### Network actions optimisation parameters
 These parameters (topological-actions-optimization) tune the [search-tree algorithm](https://farao-community.github.io/docs/engine/ra-optimisation/search-tree-rao) 
 when searching for the best network actions.
 
-### max-preventive-search-tree-depth
+#### max-preventive-search-tree-depth
 - **Expected value**: integer
 - **Default value**: 2^32 -1 (max integer value)
 - **Usage**: maximum search-tree depth for preventive optimization.  
   Applies to the preventive RAO.
 
-### max-auto-search-tree-depth
+#### max-auto-search-tree-depth
 - **Expected value**: integer
 - **Default value**: 2^32 -1 (max integer value)
 - **Usage**: maximum search-tree depth for the optimization of available auto network actions.  
 
-### max-curative-search-tree-depth
+#### max-curative-search-tree-depth
 - **Expected value**: integer
 - **Default value**: 2^32 -1 (max integer value)
 - **Usage**: maximum search-tree depth for curative optimization.  
   Applies separately to each perimeter-specific curative RAO.
 
-### predefined-combinations
+#### predefined-combinations
 - **Expected value**: an array containing sets of network action IDs
 - **Default value**: empty
 - **Usage**: this parameter contains hints for the search-tree RAO, consisting of combinations of multiple network 
@@ -253,7 +255,7 @@ when searching for the best network actions.
   These combinations will be tested in the first search depth of the search-tree
   ![Search-tree-with-combinations](/assets/img/Search-tree-with-combinations.png)
 
-### absolute-minimum-impact-threshold
+#### absolute-minimum-impact-threshold
 - **Expected value**: numeric value, where the unit is that of the objective function
 - **Default value**: 0.0
 - **Usage**: if a topological action improves the objective function by x, and x is smaller than this parameter, the 
@@ -263,7 +265,7 @@ when searching for the best network actions.
   - do not retain in the optimal solution of the RAO remedial actions with a negligible impact
   - speed up the computation by avoiding the few final depths which only slightly improve the solution.
 
-### relative-minimum-impact-threshold
+#### relative-minimum-impact-threshold
 - **Expected value**: numeric value, percentage defined between 0 and 1 (1 = 100%)
 - **Default value**: 0.0
 - **Usage**: behaves like [absolute-minimum-impact-threshold](#absolute-minimum-impact-threshold), but the
@@ -271,7 +273,7 @@ when searching for the best network actions.
   topological action improves the objective function by x, with x < solution(depth(n)) x relative-minimum-impact-threshold, 
   it will not be retained by the search-tree.
 
-### skip-actions-far-from-most-limiting-element
+#### skip-actions-far-from-most-limiting-element
 - **Expected value**: true/false
 - **Default value**: false
 - **Usage**: whether the RAO should skip evaluating topological actions that are geographically far from the most
@@ -280,7 +282,7 @@ when searching for the best network actions.
   Setting this to true allows you to speed up the search tree RAO, while keeping a good precision, since topological
   actions that are far from the most limiting element have almost no impact on the minimum margin.
 
-### max-number-of-boundaries-for-skipping-actions
+#### max-number-of-boundaries-for-skipping-actions
 - **Expected value**: integer (>= 0)
 - **Default value**: 2
 - **Usage**: the maximum number of country boundaries between the most limiting element and the topological actions that
@@ -294,10 +296,10 @@ when searching for the best network actions.
   considered direct neighbors; dangling lines are not considered linked (ie BE and DE are not considered neighbors, even
   though they share the Alegro line)*
 
-## Second preventive RAO parameters
+### Second preventive RAO parameters
 These parameters (second-preventive-rao) tune the behaviour of the [second preventive RAO](https://farao-community.github.io/docs/engine/ra-optimisation/rao-steps#second-preventive-rao).
 
-### execution-condition
+#### execution-condition
 - **Expected value**: one of the following:
   - "DISABLED"
   - "COST_INCREASE"
@@ -318,7 +320,7 @@ These parameters (second-preventive-rao) tune the behaviour of the [second preve
     - **PREVENTIVE_OBJECTIVE_AND_SECURE**: 2nd preventive RAO is run if one of the two conditions above is satisfied  
     - **MIN_OBJECTIVE**: 2nd preventive RAO is always run, trying to improve the minimum margin even more
 
-### re-optimize-curative-range-actions
+#### re-optimize-curative-range-actions
 - **Expected value**: true/false
 - **Default value**: false
 - **Usage**: 
@@ -327,18 +329,18 @@ These parameters (second-preventive-rao) tune the behaviour of the [second preve
   - **true**: the 2nd preventive RAO will optimize preventive remedial actions **and** curative range actions, keeping 
     only the optimal curative **topological** actions computed in the curative RAO.
 
-### hint-from-first-preventive-rao
+#### hint-from-first-preventive-rao
 - **Expected value**: true/false
 - **Default value**: false
 - **Usage**: if set to true, the RAO will use the optimal combination of network actions found in the first preventive
   RAO, as a predefined combination ("hint") to test at the first search depth of the second preventive RAO. This way, 
   if this combination is optimal in the 2nd preventive RAO as well, getting to the optimal solution will be much faster.
 
-## CNECs that should not be optimised
+### CNECs that should not be optimised
 These parameters (not-optimized-cnecs) allow the activation of region-specific features, that de-activate the
 optimisation of specific CNECs in specific conditions.
 
-### do-not-optimize-curative-cnecs-for-tsos-without-cras
+#### do-not-optimize-curative-cnecs-for-tsos-without-cras
 - **Expected value**: true/false
 - **Default value**: false
 - **Usage**: if this parameter is set to true, the RAO will detect TSOs not sharing any curative remedial actions (in
@@ -351,7 +353,7 @@ optimisation of specific CNECs in specific conditions.
   This parameter is not compatible with [do-not-optimize-cnec-secured-by-its-pst](#do-not-optimize-cnec-secured-by-its-pst) 
   for technical reasons.
 
-### do-not-optimize-cnec-secured-by-its-pst
+#### do-not-optimize-cnec-secured-by-its-pst
 - **Expected value**: a map with string keys and values. The keys should represent critical network element IDs, and the
   values should represent PST network element IDs.
 - **Default value**: empty map
@@ -364,21 +366,21 @@ optimisation of specific CNECs in specific conditions.
   This parameter is not compatible with [do-not-optimize-curative-cnecs-for-tsos-without-cras](#do-not-optimize-curative-cnecs-for-tsos-without-cras)
   for technical reasons.
 
-## Load-flow and sensitivity computation parameters
+### Load-flow and sensitivity computation parameters
 These parameters (load-flow-and-sensitivity-computation) configure the load-flow and sensitivity computations providers 
 from inside the RAO.  
 
-### load-flow-provider
+#### load-flow-provider
 - **Expected value**: String, should refer to a [PowSyBl load flow provider implementation](https://www.powsybl.org/pages/documentation/simulation/powerflow/)
 - **Default value**: "OpenLoadFlow" (see [OpenLoadFlow](https://www.powsybl.org/pages/documentation/simulation/powerflow/openlf.html))
 - **Usage**: the name of the load flow provider to use when a load flow is needed
 
-### sensitivity-provider
+#### sensitivity-provider
 - **Expected value**: String, should refer to a [PowSyBl sensitivity provider implementation](https://www.powsybl.org/pages/documentation/simulation/sensitivity/)
 - **Default value**: "OpenLoadFlow" (see [OpenLoadFlow](https://www.powsybl.org/pages/documentation/simulation/sensitivity/openlf.html))
 - **Usage**: the name of the sensitivity provider to use in the RAO
 
-### sensitivity-failure-over-cost
+#### sensitivity-failure-over-cost
 - **Expected value**: numeric value, where the unit is that of the objective function
 - **Default value**: 10000.0
 - **Usage**: if the systematic sensitivity analysis fails (= diverged) due to a combination of remedial actions, its 
@@ -389,16 +391,16 @@ analysis didn't converge. The RAO might therefore put aside the solution with th
 lead to a sensitivity failure, and instead propose a solution whose objective-function is worse, but whose associated 
 network is converging for all contingency scenarios.
 
-### sensitivity-parameters
+#### sensitivity-parameters
 - **Expected value**: SensitivityComputationParameters ([PowSyBl](https://www.powsybl.org/pages/documentation/simulation/sensitivity/) configuration)
 - **Default value**: PowSyBl's default value (it is generally a bad idea to keep the default value for this parameter)
 - **Usage**: sensitivity-parameters is the configuration of the PowSyBl sensitivity engine, which is used within FARAO. 
 The underlying "load-flow-parameters" is also used whenever an explicit pure load-flow computation is needed. 
 
-## Multi-threading parameters
+### Multi-threading parameters
 These parameters (multi-threading) allow you to run a RAO making the most out of your computation resources.
 
-### contingency-scenarios-in-parallel
+#### contingency-scenarios-in-parallel
 - **Expected value**: integer
 - **Default value**: 1
 - **Usage**: number of contingency scenarios (auto + curative instants) to optimise in parallel.  
@@ -406,7 +408,7 @@ These parameters (multi-threading) allow you to run a RAO making the most out of
   *Note that the more contingencies are optimised in parallel, the more RAM is required by the RAO, and that the performance
   of the RAO might significantly decrease on a machine with limited memory resources.*
 
-### preventive-leaves-in-parallel
+#### preventive-leaves-in-parallel
 - **Expected value**: integer
 - **Default value**: 1
 - **Usage**: this parameter sets the number of combination of remedial actions that the search-tree will investigate in 
@@ -415,7 +417,7 @@ These parameters (multi-threading) allow you to run a RAO making the most out of
   *Note that the more leaves are optimised in parallel, the more RAM is required by the RAO, and that the performance
   of the RAO might significantly decrease on a machine with limited memory resources.*
 
-### curative-leaves-in-parallel
+#### curative-leaves-in-parallel
 - **Expected value**: integer
 - **Default value**: 1
 - **Usage**: this parameter sets the number of combination of remedial actions that the search-tree will investigate in 
@@ -424,16 +426,16 @@ These parameters (multi-threading) allow you to run a RAO making the most out of
   we also have the option to parallelize the contingency scenarios, so a compromise should be found. It is generally
   best to set this parameter to 1 and to maximize [contingency-scenarios-in-parallel](#contingency-scenarios-in-parallel).
 
-# Extensions
+## Extensions
 The following extensions can be added to RaoParameters when needed, in order to activate specific RAO features.
 
-## Loop-flow extension
+### Loop-flow extension
 Adding a LoopFlowParameters extension to RaoParameters will activate [loop-flow constraints](https://farao-community.github.io/docs/engine/ra-optimisation/loop-flows).  
 (The RAO will monitor the loop-flows on CNECs that have a LoopFlowThreshold extension.)  
 The following parameters tune these constraints.  
 See also: [Modelling loop-flows and their virtual cost](https://farao-community.github.io/docs/castor/linear-optimisation-problem/max-loop-flow-filler)  
 
-### acceptable-increase
+#### acceptable-increase
 - **Expected value**: numeric values, in MEGAWATT unit
 - **Default value**: 0.0 MW
 - **Usage**: the increase of the initial loop-flow that is allowed by the optimisation. That is to say, the optimisation
@@ -445,7 +447,7 @@ See also: [Modelling loop-flows and their virtual cost](https://farao-community.
   If this constraint cannot be respected and the loop-flow exceeds the aforementioned threshold, the objective function
   associated to this situation will be penalized (see also [violation-cost](#violation-cost))
 
-### ptdf-approximation
+#### ptdf-approximation
 - **Expected value**: one of the following:
   - "FIXED_PTDF"
   - "UPDATE_PTDF_WITH_TOPO"
@@ -461,7 +463,7 @@ See also: [Modelling loop-flows and their virtual cost](https://farao-community.
     each new combination of PST taps (i.e. for each iteration of the linear optimisation).  
     *Note that this option is only relevant in AC-loadflow mode, as the UPDATE_PTDF_WITH_TOPO already maximizes accuracy in DC.*
 
-### constraint-adjustment-coefficient
+#### constraint-adjustment-coefficient
 - **Expected value**: numeric values, in MEGAWATT unit
 - **Default value**: 0.0 MW
 - **Usage**: this parameter acts as a margin which tightens, in the linear optimisation problem of RAO, the bounds of the
@@ -472,14 +474,14 @@ See also: [Modelling loop-flows and their virtual cost](https://farao-community.
   therefore increase the probability that the loop-flow constraints which are respected in the linear optimisation
   problem, remain respected once the loop-flows are re-computed without the linear approximations.
 
-### violation-cost
+#### violation-cost
 - **Expected value**: numeric values, unit = unit of the objective function per MEGAWATT
 - **Default value**: 10.0
 - **Usage**: this parameter is the cost of each excess of loop-flow. That is to say, if the loop-flows on one or several
   CNECs exceed the loop-flow threshold, a penalty will be added in the objective function of the RAO equal to:  
   *violation-cost x sum{cnec} excess-loop-flow(cnec)*
 
-### countries
+#### countries
 - **Expected value**: array of country codes "XX"
 - **Default value**: all countries encountered
 - **Usage**: list of countries for which loop-flows should be limited accordingly to the specified constraints. If not
@@ -488,13 +490,13 @@ See also: [Modelling loop-flows and their virtual cost](https://farao-community.
   Example of this parameter : [ "BE", "NL" ] if you want to monitor loop-flows in and out of Belgium and the
   Netherlands.
 
-## MNEC extension
+### MNEC extension
 Adding a MnecParameters extension to RaoParameters will activate [MNEC constraints](https://farao-community.github.io/docs/castor/linear-optimisation-problem/mnec-filler).  
 (The RAO will only monitor CNECs that are only ["monitored"](/input-data/crac/json.md#cnecs)).
 The following parameters tune these constraints.  
 See also: [Modelling MNECs and their virtual cost](https://farao-community.github.io/docs/castor/linear-optimisation-problem/mnec-filler)  
 
-### acceptable-margin-decrease
+#### acceptable-margin-decrease
 - **Expected value**: numeric values, in MEGAWATT unit
 - **Default value**: 50 MW (required by CORE CC methodology)
 - **Usage**: the decrease of the initial margin that is allowed by the optimisation on MNECs.  
@@ -506,7 +508,7 @@ See also: [Modelling MNECs and their virtual cost](https://farao-community.githu
   For CSE CC calculation, setting this parameter to -99999 allows the MNEC constraints to consider 
   the thresholds in the CRAC only.
 
-### violation-cost
+#### violation-cost
 - **Expected value**: numeric values, no unit (it applies as a multiplier for the constraint violation inside the
   objective function)
 - **Default value**: 10.0 (same as [loop-flow violation cost](#violation-cost))
@@ -516,7 +518,7 @@ See also: [Modelling MNECs and their virtual cost](https://farao-community.githu
   MNECs' constraints are respected. The penalty injected in the objective function is equal to the violation (difference
   between actual margin and least acceptable margin) multiplied by this parameter.
 
-### constraint-adjustment-coefficient
+#### constraint-adjustment-coefficient
 - **Expected value**: numeric values, in MEGAWATT unit
 - **Default value**: 0.0
 - **Usage**: this coefficient is here to mitigate the approximation made by the linear optimisation (approximation = use
@@ -526,11 +528,11 @@ See also: [Modelling MNECs and their virtual cost](https://farao-community.githu
   It tightens the MNEC constraint, in order to take some margin for that constraint to stay respected once the
   approximations are removed (i.e. taps have been rounded and real flow calculated)
 
-## Relative margins extension
+### Relative margins extension
 Adding a RelativeMarginsParameters extension is mandatory when [objective function is relative](#type).  
 See also: [Modelling the maximum minimum relative margin objective function](https://farao-community.github.io/docs/castor/linear-optimisation-problem/max-min-relative-margin-filler)
 
-### ptdf-boundaries
+#### ptdf-boundaries
 - **Expected value**: array of zone-to-zone PTDF computation definition, expressed as an equation.  
 Zones are defined by their 2-character code or their 16-character EICode, inside **{ }** characters.  
 Zones are seperated by + or -.  
@@ -542,7 +544,7 @@ Zones are seperated by + or -.
   For CORE, we should use all the CORE region boundaries (all countries seperated by a - sign) plus Alegro's special
   equation: "{BE}-{22Y201903144---9}-{DE}+{22Y201903145---4}"
 
-### ptdf-approximation
+#### ptdf-approximation
 - **Expected value**: one of the following:
   - "FIXED_PTDF"
   - "UPDATE_PTDF_WITH_TOPO"
@@ -558,14 +560,14 @@ Zones are seperated by + or -.
     each new combination of PST taps (i.e. for each iteration of the linear optimisation).  
     *Note that this option is only relevant in AC-loadflow mode, as the UPDATE_PTDF_WITH_TOPO already maximizes accuracy in DC.*
 
-### ptdf-sum-lower-bound
+#### ptdf-sum-lower-bound
 - **Expected value**: numeric value, no unit (homogeneous to PTDFs)
 - **Default value**: 0.01
 - **Usage**: PTDF absolute sums are used as a denominator in the objective function. In order to prevent the objective
   function from diverging to infinity (resulting in unbounded problems), the denominator should be prevented from
   getting close to zero. This parameter acts as a lower bound to the denominator.
 
-# Examples
+## Examples
 > ⚠️  **NOTE**  
 > The following examples in json and yaml are not equivalent
 

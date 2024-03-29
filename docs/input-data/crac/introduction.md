@@ -1,4 +1,16 @@
-# Introduction
+# CRAC
+
+```{toctree}
+:hidden:
+import.md
+creation-parameters.md
+json.md
+fbconstraint.md
+cse.md
+cim.md
+csa.md
+creation-context.md
+```
 
 The CRAC (***C**ontingency list, **R**emedial **A**ctions and additional **C**onstraints*) file model contains two main categories of objects:
 - CNECs, containing the network elements to be monitored after given contingencies,

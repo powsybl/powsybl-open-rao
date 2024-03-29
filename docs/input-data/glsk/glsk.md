@@ -1,4 +1,13 @@
-# General definition
+# GLSK
+
+```{toctree}
+:hidden:
+glsk-ucte.md
+glsk-cse.md
+glsk-cim.md
+```
+
+## General definition
 
 GLSK stands for **Generators and Loads Shift Keys**. The aim of this object is to define repartition keys on generators and loads of a network. It is used to **apply a variation of net position on a geographical zone** that could be defined as a set of generators and loads. It is used for different purposes: simple zone net position variation in a network, sensitivity computation toward a zone, loop-flow computation according to ACER definition, etc.
 
@@ -7,11 +16,11 @@ GLSK stands for **Generators and Loads Shift Keys**. The aim of this object is t
 > When a variation is to be applied on the specified geographical zone – defined as a set of generators and loads within the network – the GLSK will give **rules** to define each variation to apply on individual generators and loads.  
 > These **rules can be different** according to what is called the type of GLSK. And for the same geographical zone these rules can also be different whether the net position variation of the zone is positive or negative.
 
-# Types of GLSK
+## Types of GLSK
 
 Here we are going to talk about one unique geographical zone.
 
-## Proportional GLSK
+### Proportional GLSK
 
 A proportional GLSK gives a percentage as repartition key. Within the zone, the absolute sum of these percentages must be one. Of course the variation on generators and loads must be of the opposite sign meaning that if the variation on the zone is positive generators target powers must increase and loads consumption must decrease – the aim being to increase net position.
 
@@ -35,7 +44,7 @@ A proportional GLSK gives a percentage as repartition key. Within the zone, the 
 
 Given this global definition we can define proportional GLSK in different ways.
 
-### Equally balanced GLSK
+#### Equally balanced GLSK
 
 Given a zone, each element of the GLSK **are rated equally**. So there is no need to specify the coefficients, only the zone and the set of generators/loads within it is required.
 
@@ -43,7 +52,7 @@ Given a zone, each element of the GLSK **are rated equally**. So there is no nee
 > 
 > To define the coefficient that will be equal for all elements of the zone you divide 1 by the number of elements in the zone. Here 1 / 6 = 0.15.
 
-### Proportional to target power GLSK
+#### Proportional to target power GLSK
 Given a zone, each element the GLSK is **rated by its participation to the net position of the zone**. So there is no need to specify the coefficients, we only need to know the set of generators/loads and their associated target active power.
 
 > ![proportional-to-target-power-GLSK](/_static/img/proportional-GLSK.png)
@@ -56,7 +65,7 @@ Given a zone, each element the GLSK is **rated by its participation to the net p
 > - L1 : 100 / 1400 = 0.07
 > - L2 : 50 / 1400 = 0.035
 
-### Proportional to remaining capacity
+#### Proportional to remaining capacity
 Given a zone, each element the GLSK is **rated by its remaining available capacity in the direction of the variation**. So there is no need to specify the coefficients, we only need to know the set of generators/loads, their associated target active power and their maximum and minimum capacity.
 
 > ![proportional-to-remaining-GLSK](/_static/img/proportional-to-remaining-GLSK.png)
@@ -86,7 +95,7 @@ Given a zone, each element the GLSK is **rated by its remaining available capaci
 > - L1 : 900 / 2800 = 0.321
 > - L2 : 950 / 2800 = 0.339
 
-## Merit order GLSK
+### Merit order GLSK
 
 A merit order GLSK gives a priority to individual generators and loads. So **this type of GLSK is not linear** so it cannot be used to compute PTDF and as a consequence loop-flows. It can **only be used for net position variation**. Merit order GLSK is an ordered list of generators and loads. To reach the variation goal the first element of the list would be shifted until it reaches its minimum or maximum value – whether it is a load or a generator and whether it is a net position increase or decrease. Once this extremum is reached the second element of the list can be shifted, and so on until the target variation is reached.
 
