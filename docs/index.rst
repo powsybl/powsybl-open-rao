@@ -6,3 +6,4 @@ PowSyBl Open RAO's user documentation
 
    input-data/index
    parameters/index
+   tutorial/index
