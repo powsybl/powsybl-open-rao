@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, RTE (http://www.rte-france.com)
+ * Copyright (c) 2024, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
@@ -12,10 +12,13 @@ import org.xml.sax.SAXException;
 
 import java.io.InputStream;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Sebastien Murgey {@literal <sebastien.murgey@rte-france.com>}
+ * @author Oualid Aloui {@literal <oualid.aloui at rte-france.com>}
  */
 class VirtualHubsConfigurationImporterTest {
     @Test
@@ -25,6 +28,7 @@ class VirtualHubsConfigurationImporterTest {
 
         assertEquals(3, configuration.getMarketAreas().size());
         assertEquals(4, configuration.getVirtualHubs().size());
+        assertEquals(7, configuration.getBorderDirections().size());
     }
 
     @Test

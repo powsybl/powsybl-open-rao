@@ -1,11 +1,12 @@
 /*
- * Copyright (c) 2020, RTE (http://www.rte-france.com)
+ * Copyright (c) 2024, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 package com.powsybl.openrao.virtualhubs.xml;
 
+import com.powsybl.openrao.virtualhubs.BorderDirection;
 import com.powsybl.openrao.virtualhubs.MarketArea;
 import com.powsybl.openrao.virtualhubs.VirtualHub;
 import com.powsybl.openrao.virtualhubs.VirtualHubsConfiguration;
@@ -26,6 +27,7 @@ import java.util.TreeMap;
 
 /**
  * @author Sebastien Murgey {@literal <sebastien.murgey@rte-france.com>}
+ * @author Oualid Aloui {@literal <oualid.aloui at rte-france.com>}
  */
 class VirtualHubsConfigurationImporter {
     public VirtualHubsConfiguration importConfiguration(InputStream inputStream) {
@@ -38,6 +40,7 @@ class VirtualHubsConfigurationImporter {
             Element configurationEl = document.getDocumentElement();
             NodeList marketAreas = configurationEl.getElementsByTagName("MarketArea");
             NodeList virtualHubs = configurationEl.getElementsByTagName("VirtualHub");
+            NodeList borderDirections = configurationEl.getElementsByTagName("BorderDirection");
             Map<String, MarketArea> marketAreasMap = new TreeMap<>();
 
             VirtualHubsConfiguration configuration = new VirtualHubsConfiguration();
@@ -59,6 +62,13 @@ class VirtualHubsConfigurationImporter {
                 String nodeName = node.getAttributes().getNamedItem("NodeName").getNodeValue();
                 MarketArea marketArea = marketAreasMap.get(node.getAttributes().getNamedItem("RelatedMA").getNodeValue());
                 configuration.addVirtualHub(new VirtualHub(code, eic, isMcParticipant, nodeName, marketArea));
+            }
+            for (int i = 0; i < borderDirections.getLength(); i++) {
+                Node node = borderDirections.item(i);
+                String borderFrom = node.getAttributes().getNamedItem("From").getNodeValue();
+                String borderTo = node.getAttributes().getNamedItem("To").getNodeValue();
+                BorderDirection borderDirection = new BorderDirection(borderFrom, borderTo);
+                configuration.addBorderDirection(borderDirection);
             }
             return configuration;
         } catch (ParserConfigurationException | SAXException | IOException e) {

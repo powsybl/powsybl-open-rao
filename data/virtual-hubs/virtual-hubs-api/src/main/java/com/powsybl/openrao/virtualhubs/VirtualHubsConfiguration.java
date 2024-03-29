@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, RTE (http://www.rte-france.com)
+ * Copyright (c) 2024, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
@@ -14,10 +14,12 @@ import java.util.Objects;
  * Virtual hubs configuration POJO
  *
  * @author Sebastien Murgey {@literal <sebastien.murgey@rte-france.com>}
+ * @author Oualid Aloui {@literal <oualid.aloui at rte-france.com>}
  */
 public class VirtualHubsConfiguration {
     private final List<MarketArea> marketAreas = new ArrayList<>();
     private final List<VirtualHub> virtualHubs = new ArrayList<>();
+    private final List<BorderDirection> borderDirections = new ArrayList<>();
 
     public void addMarketArea(MarketArea marketArea) {
         marketAreas.add(Objects.requireNonNull(marketArea, "Virtual hubs configuration does not allow adding null market area"));
@@ -27,11 +29,19 @@ public class VirtualHubsConfiguration {
         virtualHubs.add(Objects.requireNonNull(virtualHub, "Virtual hubs configuration does not allow adding null virtual hub"));
     }
 
+    public void addBorderDirection(BorderDirection borderDirection) {
+        borderDirections.add(Objects.requireNonNull(borderDirection, "Virtual hubs configuration does not allow adding null border direction"));
+    }
+
     public List<MarketArea> getMarketAreas() {
         return marketAreas;
     }
 
     public List<VirtualHub> getVirtualHubs() {
         return virtualHubs;
+    }
+
+    public List<BorderDirection> getBorderDirections() {
+        return borderDirections;
     }
 }
