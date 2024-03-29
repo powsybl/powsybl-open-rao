@@ -93,9 +93,8 @@ todo_include_todos = True
 
 # Links to external documentations : python 3 and pandas
 intersphinx_mapping = {
-    'python': ('https://docs.python.org/3', None),
-    'pandas': ('https://pandas.pydata.org/docs', None),
 }
+intersphinx_disabled_reftypes = ["*"]
 
 # Generate one file per method
 autosummary_generate = True
