@@ -296,7 +296,6 @@ public class FastRao implements RaoProvider {
         }
         AppliedRemedialActions appliedRemedialActions = new AppliedRemedialActions();
         crac.getStates().stream().filter(state -> !state.isPreventive() && !state.getInstant().getKind().equals(InstantKind.OUTAGE)).forEach(state -> {
-            raoResult.getActivatedNetworkActionsDuringState(state).forEach(networkAction -> appliedRemedialActions.addAppliedNetworkAction(state, networkAction));
             appliedRemedialActions.addAppliedNetworkActions(state, raoResult.getActivatedNetworkActionsDuringState(state));
             appliedRemedialActions.addAppliedRangeActions(state, raoResult.getOptimizedSetPointsOnState(state));
         });
@@ -309,7 +308,6 @@ public class FastRao implements RaoProvider {
         }
         AppliedRemedialActions appliedRemedialActions = new AppliedRemedialActions();
         crac.getStates().stream().filter(state -> state.getInstant().getKind().equals(InstantKind.AUTO)).forEach(state -> {
-            raoResult.getActivatedNetworkActionsDuringState(state).forEach(networkAction -> appliedRemedialActions.addAppliedNetworkAction(state, networkAction));
             appliedRemedialActions.addAppliedNetworkActions(state, raoResult.getActivatedNetworkActionsDuringState(state));
             appliedRemedialActions.addAppliedRangeActions(state, raoResult.getOptimizedSetPointsOnState(state));
         });

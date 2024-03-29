@@ -69,7 +69,10 @@ final class SystematicSensitivityAdapter {
         // retrieve sensi information for curative state from auto state to take into account auto RAs.
         // (When auto AND curative RAs are applied, they will both be included in statesWithRa and both sensis
         // are computed.)
-        Set<State> statesWithRa = appliedRemedialActions.getStatesWithRa(network);
+        Set<State> statesWithCnecs = cnecSensitivityProvider.getFlowCnecs().stream().map(Cnec::getState).collect(Collectors.toSet());
+        Set<State> statesWithRa = appliedRemedialActions.getStatesWithRa(network).stream().filter(
+            statesWithCnecs::contains
+        ).collect(Collectors.toSet());
         Set<State> statesWithoutRa = cnecSensitivityProvider.getFlowCnecs().stream().map(Cnec::getState).collect(Collectors.toSet());
         statesWithoutRa.removeAll(statesWithRa);
 
