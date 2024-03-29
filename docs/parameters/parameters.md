@@ -11,12 +11,15 @@ RAO parameters can be constructed using:
 - A PowSyBl configuration file (see [example](#examples))
 
 # Global parameters
+
 These parameters should be always set in the RAO parameters file or object.
 
 ## Objective function parameters
+
 These parameters (objective-function) configure the remedial action optimisation's objective function.  
 
 ### type
+
 - **Expected value**: one of the following:
   - "MAX_MIN_MARGIN_IN_MEGAWATT"
   - "MAX_MIN_MARGIN_IN_AMPERE"

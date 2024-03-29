@@ -1,5 +1,7 @@
 Parameters
 ==========
 
-.. include:: parameters.md
-    :parser: markdown
+.. toctree::
+   :maxdepth: 1
+
+   parameters.md

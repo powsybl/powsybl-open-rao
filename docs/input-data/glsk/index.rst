@@ -1,8 +1,6 @@
 GLSK
 ====
 
-Reference documentation for Open RAO's CRAC input data
-
 .. include:: glsk.md
     :parser: markdown
 
