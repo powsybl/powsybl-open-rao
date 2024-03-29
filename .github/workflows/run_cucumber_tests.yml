@@ -15,7 +15,7 @@ jobs:
           java-version: 17
       - name: Download OR-Tools
         run: |
-            curl -sSL https://github.com/google/or-tools/releases/download/v9.5/ortools-linux-x86-64-9.5.2237.jar --output ${PWD}/or-tools.jar
+            curl -sSL https://github.com/google/or-tools/releases/download/v9.9/ortools-linux-x86-64-9.9.3963.jar --output ${PWD}/or-tools.jar
       - name: Install OR-Tools
         run: |
               mkdir -p ${PWD}/farao-dep/runtime/ortools/lib/ \
@@ -38,7 +38,7 @@ jobs:
           java-version: 17
       - name: Download OR-Tools
         run: |
-          Invoke-WebRequest -Uri "https://github.com/google/or-tools/releases/download/v9.5/ortools-win32-x86-64-9.5.2237.jar" -OutFile "${PWD}\\or-tools.jar"
+          Invoke-WebRequest -Uri "https://github.com/google/or-tools/releases/download/v9.9/ortools-win32-x86-64-9.9.3963.jar" -OutFile "${PWD}\\or-tools.jar"
       - name: Create OR-Tools install directory
         run: mkdir -p ${PWD}\\farao-dep\\runtime\\ortools\\lib\\
       - name: Install OR-Tools
