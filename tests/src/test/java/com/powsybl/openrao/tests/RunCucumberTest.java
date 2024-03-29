@@ -18,5 +18,6 @@ import static io.cucumber.core.options.Constants.*;
 @SelectClasspathResource("com.powsybl.openrao.tests")
 @ConfigurationParameter(key = PLUGIN_PROPERTY_NAME, value = "pretty")
 @ConfigurationParameter(key = FEATURES_PROPERTY_NAME, value = "src/test/resources/features")
+@ConfigurationParameter(key = FILTER_NAME_PROPERTY_NAME, value = "US 13.8.1: Full optimization in relative margin with negative margin in curative")
 public class RunCucumberTest {
 }

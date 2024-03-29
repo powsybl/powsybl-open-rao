@@ -33,6 +33,7 @@ public final class ReferenceProgramBuilder {
         try {
             // we need this separate load flow to get reference flow on cnec.
             // because reference flow from sensi is not yet fully implemented in powsybl
+            loadFlowParameters.setWriteSlackBus(false);
             LoadFlowResult loadFlowResult = LoadFlow.find(loadFlowProvider).run(network, loadFlowParameters);
             if (!loadFlowResult.isOk()) {
                 BUSINESS_WARNS.warn(errorMsg);
