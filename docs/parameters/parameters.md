@@ -487,7 +487,7 @@ See also: [Modelling loop-flows and their virtual cost](https://farao-community.
 
 ## MNEC extension
 Adding a MnecParameters extension to RaoParameters will activate [MNEC constraints](https://farao-community.github.io/docs/castor/linear-optimisation-problem/mnec-filler).  
-(The RAO will only monitor CNECs that are only ["monitored"](/docs/input-data/crac/json#cnecs)).
+(The RAO will only monitor CNECs that are only ["monitored"](/input-data/crac/json.md#cnecs)).
 The following parameters tune these constraints.  
 See also: [Modelling MNECs and their virtual cost](https://farao-community.github.io/docs/castor/linear-optimisation-problem/mnec-filler)  
 
