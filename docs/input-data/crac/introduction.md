@@ -41,11 +41,19 @@ Any 2 or more range actions (of same type) can be aligned into range action "gro
 Network actions are any other kind of action on the network, such as the opening/closing of a network element, setting the tap position of a PST to a given set-point, etc. They can only be activated, or remain inactive.
 They are used in the [search-tree RAO](https://farao-community.github.io/docs/engine/ra-optimisation/search-tree-rao) only.  
 One network action can combine one or multiple elementary actions. These are the types of elementary actions handled in FARAO:
+
 #### Topological actions
+
 It consists in the opening or the closing of one branch or one switch of the network.
+
 #### PST set-point
+
 It consists in the modification of the tap of a PST to a pre-defined target tap.
+
 #### Injection set-point
+
 It consists in the modification of an injection (load, generator, dangling line or shunt compensator) to a pre-defined set-point.
+
 #### Switch pair
+
 It consists in opening a switch and closing another.
