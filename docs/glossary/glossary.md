@@ -1,3 +1,5 @@
+# Glossary
+
 | Term                                                              | Acronym | Definition                                                                                                                                                                                                                   |
 |-------------------------------------------------------------------|---------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | Fully Autonomous Remedial Actions Optimiser                       | FARAO   | Open-source project aiming at providing an efficient solution for electrical power systems’ Coordinated Capacity Calculation, Local Security Analysis and Coordinated Security Analysis                                      |

@@ -87,8 +87,8 @@ Given a zone, each element the GLSK is **rated by its remaining available capaci
 > - L2 : 950 / 2800 = 0.339
 
 ## Merit order GLSK
-A merit order GLSK gives a priority to individual generators and loads. So **this type of GLSK is not linear** so it cannot be used to compute PTDF and as a consequence loop-flows. It can **only be used for net position variation**. Merit order GLSK is an ordered list of generators and loads. To reach the variation goal the first element of the list would be shifted until it reaches its minimum or maximum value – whether it is a load or a generator and whether it is a net position increase or decrease. Once this extremum is reached the second element of the list can be shifted, and so on until the target variation is reached.
 
+A merit order GLSK gives a priority to individual generators and loads. So **this type of GLSK is not linear** so it cannot be used to compute PTDF and as a consequence loop-flows. It can **only be used for net position variation**. Merit order GLSK is an ordered list of generators and loads. To reach the variation goal the first element of the list would be shifted until it reaches its minimum or maximum value – whether it is a load or a generator and whether it is a net position increase or decrease. Once this extremum is reached the second element of the list can be shifted, and so on until the target variation is reached.
 
 > ![merit-order-GLSK-2](/_static/img/merit-order-GLSK-2.png)
 > 
