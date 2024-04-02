@@ -417,12 +417,21 @@ These parameters (multi-threading) allow you to run a RAO making the most out of
   *Note that the more leaves are optimised in parallel, the more RAM is required by the RAO, and that the performance
   of the RAO might significantly decrease on a machine with limited memory resources.*
 
+#### auto-leaves-in-parallel
+- **Expected value**: integer
+- **Default value**: 1
+- **Usage**: this parameter sets the number of combination of remedial actions that the search-tree will investigate in
+  parallel during the <ins>automaton</ins> RAO.  
+  It is separated from [preventive-leaves-in-parallel](#preventive-leaves-in-parallel) and [curative-leaves-in-parallel](#curative-leaves-in-parallel)
+  because during the curative RAO we also have the option to parallelize the contingency scenarios, so a compromise should be found. It is generally
+  best to set this parameter to 1 and to maximize [contingency-scenarios-in-parallel](#contingency-scenarios-in-parallel). Besides, there are generally fewer available auto remedial action than curative remedial actions.
+
 #### curative-leaves-in-parallel
 - **Expected value**: integer
 - **Default value**: 1
 - **Usage**: this parameter sets the number of combination of remedial actions that the search-tree will investigate in 
   parallel during the <ins>curative</ins> RAO.  
-  It is seperated from [preventive-leaves-in-parallel](#preventive-leaves-in-parallel) because during the curative RAO
+  It is separated from [preventive-leaves-in-parallel](#preventive-leaves-in-parallel) because during the curative RAO
   we also have the option to parallelize the contingency scenarios, so a compromise should be found. It is generally
   best to set this parameter to 1 and to maximize [contingency-scenarios-in-parallel](#contingency-scenarios-in-parallel).
 
