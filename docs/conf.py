@@ -76,11 +76,10 @@ html_theme_options = {
             "icon": "fab fa-github-square",
         }
     ],
-    "navbar_start": ["navbar-brand-powsybl-openrao"],
     # the following 3 lines enable edit button
     "source_repository": "https://github.com/powsybl/powsybl-open-rao/",
     "source_branch": "main",
-    "source_directory": "docs/",
+    "source_directory": "docs/"
 }
 
 # Add any paths that contain custom static files (such as style sheets) here,
