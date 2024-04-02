@@ -68,6 +68,10 @@ html_short_title = 'Open RAO'
 html_logo = '_static/logos/logo_lfe_powsybl.svg'
 html_favicon = "_static/favicon.ico"
 
+html_context = {
+    "sidebar_logo_href": "https://powsybl.readthedocs.org"
+}
+
 html_theme_options = {
     "icon_links": [
         {
