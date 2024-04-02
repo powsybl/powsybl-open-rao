@@ -1,0 +1,35 @@
+Here is a detailed description of how the angle monitoring algorithm operates:
+- Apply optimal preventive remedial actions from RaoResult on the network
+- From the CRAC, get the set of states on which AngleCnecs exist
+- For each of these states, monitor angles:
+  - Use a new copy of the network
+  - If the state is not preventive,
+    - apply the contingency on the network
+    - from the RaoResult, apply on the network the optimal remedial actions decided by the RAO (automatic and curative)
+  - Compute load-flow
+    - If it diverges, return the following content for this state, then move on to the next state:
+      - the angles of the angle CNECs equal to NaN
+      - no applied remedial actions
+      - status DIVERGENT
+  - Compute the angles for all angle CNECs, as the maximum phase difference between the 2 voltage levels **(1)**
+    - Angle in degrees = 180 / pi * (max(angle on buses of exporting voltage level) - min(angle on buses of importing voltage level))
+  - Compare the angles to their thresholds. For the AngleCnecs that have an angle overshoot, get the associated remedial actions **(2)**
+    - If the AngleCnec has no associated RA, then the angle constraint cannot be remedied: move on to the next AngleCnec.
+    - If the state is preventive, do not apply any PRA (it would be incoherent with the RAO results). Move on to the next state.
+    - For every RA:
+      - If the remedial action is not a network action, do not apply it (if it's a RangeAction, we cannot know which set-point to use). Move on to the next RA.
+      - If the RA is a network action, apply it on the network.
+  - If any injection-set-point RA was applied, create and apply the re-dispatch that shall compensate the loss of generation / load **(3)**:
+    - The amount of power to re-dispatch is the net sum (generation - load) of power generations & loads affected by the RAs, before changing the set-points
+    - The GLSK to use shall be the same as the one used for the whole process
+    - Exclude from the re-dispatching all the generators & loads that were modified by an injection-set-point RA, since they should not be affected
+  - If any RA was applied, recompute the load-flow
+    - If it diverges, return the following content for this state, then move on to the next state:
+      - the angles of the AngleCnecs equal to what was computed in step **(1)**
+      - no applied remedial actions
+      - security DIVERGENT
+  - Re-compute all angle values **(4)**
+  - Create an intermediary result, with angles computed in **(4)**, list of applied remedial actions in **(2)**, and secure flag set to SECURE if there is no more overshoot (after re-verifying thresholds)
+- Assemble all the state-specific result in one overall result and [update the RAO result object](#the-angle-monitoring-result)
+  
+![Angle monitoring algorithm](/_static/img/angle_monitoring_algorithm.png)

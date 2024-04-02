@@ -53,6 +53,7 @@ Given a zone, each element of the GLSK **are rated equally**. So there is no nee
 > To define the coefficient that will be equal for all elements of the zone you divide 1 by the number of elements in the zone. Here 1 / 6 = 0.15.
 
 #### Proportional to target power GLSK
+
 Given a zone, each element the GLSK is **rated by its participation to the net position of the zone**. So there is no need to specify the coefficients, we only need to know the set of generators/loads and their associated target active power.
 
 > ![proportional-to-target-power-GLSK](/_static/img/proportional-GLSK.png)
@@ -66,6 +67,7 @@ Given a zone, each element the GLSK is **rated by its participation to the net p
 > - L2 : 50 / 1400 = 0.035
 
 #### Proportional to remaining capacity
+
 Given a zone, each element the GLSK is **rated by its remaining available capacity in the direction of the variation**. So there is no need to specify the coefficients, we only need to know the set of generators/loads, their associated target active power and their maximum and minimum capacity.
 
 > ![proportional-to-remaining-GLSK](/_static/img/proportional-to-remaining-GLSK.png)
