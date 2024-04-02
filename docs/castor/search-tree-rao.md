@@ -149,7 +149,7 @@ Note that if no candidate can increase the objective function value more than co
 
 By default, CASTOR always studies the combination of PST and other linear remedial actions with each individual non-linear remedial action. This allows to better take into consideration the joint effect of non-linear remedial with available LRAs (in particular if the non-linear remedial action impacts significantly the sensitivity of available LRAs, typically if both actions are in close electrical vicinity).
 
-![Search Tree example](/_static/img/search-tree-example.png) 
+![forceWhiteBackground](/_static/img/search-tree-example.png) 
 
 In this figure above, 3 non-linear remedial actions are available, as well as a list of PSTs (LRAs). Each non-linear remedial action is applied on the grid situation. However, prior to an assessment of the objective function value, sensitivities are assessed (with consideration of the applied non-linear action), and LRAs are optimised.
 

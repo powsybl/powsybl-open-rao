@@ -32,4 +32,4 @@ Here is a detailed description of how the angle monitoring algorithm operates:
   - Create an intermediary result, with angles computed in **(4)**, list of applied remedial actions in **(2)**, and secure flag set to SECURE if there is no more overshoot (after re-verifying thresholds)
 - Assemble all the state-specific result in one overall result and [update the RAO result object](#the-angle-monitoring-result)
   
-![Angle monitoring algorithm](/_static/img/angle_monitoring_algorithm.png)
+![forceWhiteBackground](/_static/img/angle_monitoring_algorithm.png)

@@ -4,4 +4,4 @@ allows exporting RAO results in a CORE CNE file using a network, an internal [RA
 an [internal CRAC](/input-data/crac/json.md), a [UcteCracCreationContext](/input-data/crac/creation-context.md#ucte),
 and [RAO parameters](/parameters/parameters.md).
 
-![CORE CNE](/assets/img/core-cne.png)
+![forceWhiteBackground](/_static/img/core-cne.png)

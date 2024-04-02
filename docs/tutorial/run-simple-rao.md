@@ -60,7 +60,7 @@ The first step is to import a network for the simulation. As an example, we will
 network that is made of 18 lines including 1 PST spread over 4 countries. All the production (1000 MW) is located in the
 Netherlands (node _NNL1AA1_) and the consumption (1000 MW) is in France (node _FFR1AA1_).
 
-![](/_static/img/tutorial/basecase.svg)
+![forceWhiteBackground](/_static/img/tutorial/basecase.svg)
 
 We will create a UCTE file to model this network, so it can be processed and imported for the RAO. Copy and paste the
 network data in a file named `12Nodes.uct` that you shall store in the resources directory of the project.
@@ -335,7 +335,7 @@ As presented earlier, the whole electricity production (1000 MW) in the network 
 is divided evenly among lines _NNL2AA1 BBE3AA1 1_ and _DDE2AA1 NNL3AA1 1_. The consumption (1000 MW as well) is entirely
 locate at node _FFR1AA1_.
 
-![Basecase network](/_static/img/tutorial/basecase.svg)
+![forceWhiteBackground](/_static/img/tutorial/basecase.svg)
 
 However, the PATL of line _NNL2AA1 BBE3AA1 1_ is set to 410 MW which is below the current 500 MW flow on the line. Thus,
 remedial actions must be applied to solve this base case issue. In The CRAC, we only defined one preventive remedial
@@ -363,7 +363,7 @@ When reading the preventive perimeter's logs above, we notice that the RAO set t
 increases the flow margin on line _NNL2AA1 BBE3AA1 1_ up to 8.15 MW (i.e. reduces the flow to 402 MW). The preventive
 perimeter is thus secured. The network with the preventive remedial action applied is displayed below.
 
-![Network with PRAs applied](/_static/img/tutorial/preventive.svg)
+![forceWhiteBackground](/_static/img/tutorial/preventive.svg)
 
 ### Loss of line
 
@@ -371,7 +371,7 @@ The contingency is then simulated: line _NNL3AA1 DDE2AA1 1_ is lost. The network
 is
 now of 1000 MW (the whole production power) on line _NNL2AA1 BBE3AA1 1_.
 
-![Network after outage](/_static/img/tutorial/outage.svg)
+![forceWhiteBackground](/_static/img/tutorial/outage.svg)
 
 However, the line's TATL is exactly 1000 MW so the network is temporarily secure. Note that this result is coherent with
 the most limiting element displayed at the end of the preventive perimeter logs:
@@ -426,7 +426,7 @@ We can see in the logs that the remedial action was indeed applied, increasing t
 76.67 MW (i.e. decreasing the flow to 333 MW which is below the PATL). At the end of the curative perimeter, the network
 is secure and the three parallel lines are all connected.
 
-![Network with CRAs applied](/_static/img/tutorial/curative.svg)
+![forceWhiteBackground](/_static/img/tutorial/curative.svg)
 
 ### Final results
 

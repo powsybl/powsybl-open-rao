@@ -1,5 +1,5 @@
-RAO Logs
-========
+OpenRAO
+=======
 
 .. include:: documentation.md
     :parser: markdown

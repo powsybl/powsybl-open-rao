@@ -4,4 +4,4 @@ allows exporting RAO results in a SWE CNE file using an [internal CRAC](/input-d
 (containing [angle results](/castor/angle-monitoring/angle-monitoring.md) if the CRAC contains [Angle CNECs](/input-data/crac/json.md#angle-cnecs)), 
 a [CimCracCreationContext](/input-data/crac/creation-context.md#cim), and a [RAO parameters](/parameters/parameters.md).
 
-![SWE CNE](/_static/img/swe-cne.png)
+![forceWhiteBackground](/_static/img/swe-cne.png)
