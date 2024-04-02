@@ -17,13 +17,13 @@ class MarketAreaTest {
     @Test
     void checkThatMarketAreaIsCorrectlyCreated() {
         MarketArea myMarketArea = new MarketArea("AreaCode", "AreaEic", true);
-        assertEquals("AreaCode", myMarketArea.getCode());
-        assertEquals("AreaEic", myMarketArea.getEic());
+        assertEquals("AreaCode", myMarketArea.code());
+        assertEquals("AreaEic", myMarketArea.eic());
         assertTrue(myMarketArea.isMcParticipant());
 
         MarketArea myOtherMarketArea = new MarketArea("OtherAreaCode", "OtherAreaEic", false);
-        assertEquals("OtherAreaCode", myOtherMarketArea.getCode());
-        assertEquals("OtherAreaEic", myOtherMarketArea.getEic());
+        assertEquals("OtherAreaCode", myOtherMarketArea.code());
+        assertEquals("OtherAreaEic", myOtherMarketArea.eic());
         assertFalse(myOtherMarketArea.isMcParticipant());
     }
 

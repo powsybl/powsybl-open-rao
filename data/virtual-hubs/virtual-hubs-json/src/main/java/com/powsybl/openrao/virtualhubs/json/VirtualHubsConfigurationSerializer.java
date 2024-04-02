@@ -38,8 +38,8 @@ class VirtualHubsConfigurationSerializer extends JsonSerializer<VirtualHubsConfi
 
     private void serializeMarketArea(MarketArea marketArea, JsonGenerator jsonGenerator) throws IOException {
         jsonGenerator.writeStartObject();
-        jsonGenerator.writeStringField("code", marketArea.getCode());
-        jsonGenerator.writeStringField("eic", marketArea.getEic());
+        jsonGenerator.writeStringField("code", marketArea.code());
+        jsonGenerator.writeStringField("eic", marketArea.eic());
         jsonGenerator.writeBooleanField("isMcParticipant", marketArea.isMcParticipant());
         jsonGenerator.writeEndObject();
     }
@@ -55,11 +55,11 @@ class VirtualHubsConfigurationSerializer extends JsonSerializer<VirtualHubsConfi
 
     private void serializeVirtualHub(VirtualHub virtualHub, JsonGenerator jsonGenerator) throws IOException {
         jsonGenerator.writeStartObject();
-        jsonGenerator.writeStringField("code", virtualHub.getCode());
-        jsonGenerator.writeStringField("eic", virtualHub.getEic());
+        jsonGenerator.writeStringField("code", virtualHub.code());
+        jsonGenerator.writeStringField("eic", virtualHub.eic());
         jsonGenerator.writeBooleanField("isMcParticipant", virtualHub.isMcParticipant());
-        jsonGenerator.writeStringField("nodeName", virtualHub.getNodeName());
-        jsonGenerator.writeStringField("marketArea", virtualHub.getRelatedMa().getCode());
+        jsonGenerator.writeStringField("nodeName", virtualHub.nodeName());
+        jsonGenerator.writeStringField("marketArea", virtualHub.relatedMa().code());
         jsonGenerator.writeEndObject();
     }
 }

@@ -18,19 +18,19 @@ class VirtualHubTest {
     void checkThatVirtualHubIsCorrectlyCreated() {
         MarketArea marketArea = new MarketArea("AreaCode", "AreaEic", true);
         VirtualHub myVirtualHub = new VirtualHub("HubCode", "HubEic", true, "HubNodeName", marketArea);
-        assertEquals("HubCode", myVirtualHub.getCode());
-        assertEquals("HubEic", myVirtualHub.getEic());
+        assertEquals("HubCode", myVirtualHub.code());
+        assertEquals("HubEic", myVirtualHub.eic());
         assertTrue(myVirtualHub.isMcParticipant());
-        assertEquals("HubNodeName", myVirtualHub.getNodeName());
-        assertEquals(marketArea, myVirtualHub.getRelatedMa());
+        assertEquals("HubNodeName", myVirtualHub.nodeName());
+        assertEquals(marketArea, myVirtualHub.relatedMa());
 
         MarketArea otherMarketArea = new MarketArea("OtherAreaCode", "OtherAreaEic", false);
         VirtualHub myOtherVirtualHub = new VirtualHub("OtherHubCode", "OtherHubEic", false, "OtherHubNodeName", otherMarketArea);
-        assertEquals("OtherHubCode", myOtherVirtualHub.getCode());
-        assertEquals("OtherHubEic", myOtherVirtualHub.getEic());
+        assertEquals("OtherHubCode", myOtherVirtualHub.code());
+        assertEquals("OtherHubEic", myOtherVirtualHub.eic());
         assertFalse(myOtherVirtualHub.isMcParticipant());
-        assertEquals("OtherHubNodeName", myOtherVirtualHub.getNodeName());
-        assertEquals(otherMarketArea, myOtherVirtualHub.getRelatedMa());
+        assertEquals("OtherHubNodeName", myOtherVirtualHub.nodeName());
+        assertEquals(otherMarketArea, myOtherVirtualHub.relatedMa());
     }
 
     @Test
