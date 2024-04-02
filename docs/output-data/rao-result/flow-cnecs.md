@@ -1,7 +1,7 @@
 These results contain important RAO information about flow CNECs.  
 Note that you have to use [FlowCnec](/input-data/crac/json.md#flow-cnecs) objects from the CRAC in order to query the RaoResult Java API.
 Most results are power flow results (like flows & margins), and can be queried in two [units](https://github.com/powsybl/powsybl-open-rao/blob/main/commons/src/main/java/com/powsybl/openrao/commons/Unit.java)
-(AMEPRE & MEGAWATT) and on one or two sides (LEFT & RIGHT).
+(AMPERE & MEGAWATT) and on one or two sides (LEFT & RIGHT).
 
 #### Flow
 
@@ -137,7 +137,7 @@ The relative margin is the smallest flow margin of the CNEC.
 - When the margin is positive, it is equal to the margin divided by the zonal PTDF absolute sum  
   It is used to artificially increase (in the RAO) the margin on flow cnecs that are less impacted by changes in
   power exchanges between commercial zones, in order to prioritize other CNECs in the minimum margin optimisation.  
-  (See [Modelling the maximum minimum relative margin objective function](/docs/castor/linear-optimisation-problem/max-min-relative-margin-filler))
+  (See [Modelling the maximum minimum relative margin objective function](/castor/linear-problem/max-min-relative-margin-filler.md))
 
 ::::{tabs}
 :::{group-tab} JAVA API

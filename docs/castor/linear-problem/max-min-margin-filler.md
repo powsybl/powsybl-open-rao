@@ -11,9 +11,9 @@
 
 ## Used parameters
 
-| Name                                                               | Details |
-|--------------------------------------------------------------------|---|
-| [objective-function](/parameters/parameters.md#objective-function-parameters) | Used to set the unit (AMPERE/MW) of the objective function |
+| Name                                   | Details |
+|----------------------------------------|---|
+| [type](/parameters/parameters.md#type) | Used to set the unit (AMPERE/MW) of the objective function |
 
 ## Defined optimization variables
 

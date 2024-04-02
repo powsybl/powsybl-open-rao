@@ -184,12 +184,12 @@ These parameters (range-actions-optimization) tune the [linear optimiser](/casto
   active+reactive computations, this approximation may be incorrect. The linear problem can thus find a worse solution 
   than in its previous iteration.
   - **DISABLED**: if this situation occurs, the linear problem stops and returns the previous solution,
-    see this schema : [Linear Remedial Actions Optimisation](/castor/linear-problem/linear-rao#algorithm).
+    see this schema : [Linear Remedial Actions Optimisation](/castor/linear-problem/linear-rao.md#algorithm).
   - **ENABLED**: this introduces two new behaviors to the iterating linear optimiser:
     1. If the linear problem finds a solution worse than in its previous iteration, it continues iterating.  
        When stop condition is met ([max-mip-iterations](#max-mip-iterations) reached, or two successive iterations have 
        the same optimal RA set-points), then the problem returns the best solution it has found.
-    2. At each new iteration, the range action's allowed range shrinks according to equations [described here](/castor/linear-problem/core-problem-filler#shrinking-the-allowed-range).
+    2. At each new iteration, the range action's allowed range shrinks according to equations [described here](/castor/linear-problem/core-problem-filler.md#shrinking-the-allowed-range).
        These equations have been chosen to force the linear problem convergence while allowing the RA to go 
        back to its initial solution if needed.  
   - **ENABLED_IN_FIRST_PRAO_AND_CRAO**:

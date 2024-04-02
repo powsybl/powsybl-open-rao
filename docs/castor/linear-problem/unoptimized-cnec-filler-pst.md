@@ -37,8 +37,8 @@ information [here](/input-data/crac/json.md#range-actions))
 
 | Name        | Symbol | Defined in                                                              |
 |-------------|--------|-------------------------------------------------------------------------|
-| Flow        | $F(c)$ | [CoreProblemFiller](core-problem-filler#defined-optimization-variables) |
-| RA setpoint | $A(r)$ | [CoreProblemFiller](core-problem-filler#defined-optimization-variables) |
+| Flow        | $F(c)$ | [CoreProblemFiller](core-problem-filler.md#defined-optimization-variables) |
+| RA setpoint | $A(r)$ | [CoreProblemFiller](core-problem-filler.md#defined-optimization-variables) |
 
 ## Defined constraints
 
@@ -82,8 +82,8 @@ constraints is defined.*
 
 ### Updating the minimum margin constraints
 
-(These are originally defined in [MaxMinMarginFiller](max-min-margin-filler#defined-constraints)
-and [MaxMinRelativeMarginFiller](max-min-relative-margin-filler#defined-constraints))
+(These are originally defined in [MaxMinMarginFiller](max-min-margin-filler.md#defined-constraints)
+and [MaxMinRelativeMarginFiller](max-min-relative-margin-filler.md#defined-constraints))
 
 For CNECs which should not be optimized, their RAM should not be taken into account in the minimum margin variable
 unless their margin is decreased.

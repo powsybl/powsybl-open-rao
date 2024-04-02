@@ -1,4 +1,4 @@
-This field contains the status of sensitivity / load-flow computations during the RAO, for a given [state](/docs/input-data/crac/json#instants-states),
+This field contains the status of sensitivity / load-flow computations during the RAO, for a given [state](/input-data/crac/json.md#instants-and-states),
 or for the overall RAO (the status of the overall RAO is computed as the worst status among all states).  
 It can have one of the following values:
 - **DEFAULT**: the sensitivity / load-flow computations converged normally

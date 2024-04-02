@@ -121,7 +121,7 @@ Unique ID, in the network, of the voltage level on the branch's right side.
 
 ##### PTDF_Domain (optional)
 
-Only in the hypothetical case of a [relative margins objective function](/parameters/parameters.md#objective-function-type).  
+Only in the hypothetical case of a [relative margins objective function](/parameters/parameters.md#type).  
 - **mRID**: [ENTSO-E EICode](https://www.entsoe.eu/data/energy-identification-codes-eic/) of the area
 - **pTDF_Quantity.quantity**: value of the PTDF associated to the bidding zone for the critical network element  
 > ⚠️  **NOTE**  

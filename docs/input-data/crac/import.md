@@ -7,7 +7,9 @@ The [FARAO CRAC object model](json) can be directly imported and exported using 
 The JSON format - also called FARAO internal format - is a raw image of the CRAC object model of FARAO. It is particularly suited to exchange a CRAC java object through files, for instance to exchange CRAC data between microservices or Kubernetes pods of an application. It has an importer and an exporter. The complete round-trip (java object → export → json file → import → java object) has been designed so that the CRAC at the beginning of the chain is exactly the same as the one at the end of the chain.  
 
 Examples of JSON formats are given on this [page](json).  
+
 Examples of uses of the farao-crac-io-api are given below:  
+
 ~~~java
 // import a CRAC from a PATH
 Crac crac = CracImporters.importCrac(Paths.get("/tmp/crac.json"));
