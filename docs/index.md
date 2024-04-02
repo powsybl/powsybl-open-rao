@@ -1,3 +1,18 @@
+```{toctree}
+---
+caption: Contents of this website
+maxdepth: 2
+hidden: true
+---
+
+glossary/glossary.md
+input-data/input-data.md
+output-data/output-data.md
+castor/search-tree-rao.md
+parameters/parameters.md
+tutorial/run-simple-rao.md
+```
+
 ![PowSyBl Logo](/_static/logos/logo_lfe_powsybl.svg)
 
 # What is OpenRAO?
@@ -72,7 +87,7 @@ and distribution system.
 
 Thanks to our modular architecture, implementing a new process in existing RAO modules or creating a new RAO based on an existing input format is fastened (see concrete example below)
 
-![FARAO modules](/_static/img/modular.png) {.forced-white-background}
+![FARAO modules](/_static/img/modular.png){.forced-white-background}
 
 
 Take benefit from our platform for optimisation with different methodologies already implemented for CACM/SO methodologies. Moreover, it is possible to contribute by adding your features/improvements in existing RAO modules and creating new ones if needed.
