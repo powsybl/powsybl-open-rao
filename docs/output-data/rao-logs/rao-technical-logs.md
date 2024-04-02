@@ -9,16 +9,16 @@ Most logs contain normal information, but some may contain errors or warnings (p
 Package name:
 
 ~~~java
-com.farao_community.farao.commons.logs.TechnicalLogs
+com.powsybl.openrao.commons.logs.TechnicalLogs
 ~~~
 
 ## Possible error cases
 
-| Module               | Name                   | Label                                                                                                                                          | Description                                  | Consequence                                                                                                            |
-|----------------------|------------------------|------------------------------------------------------------------------------------------------------------------------------------------------|----------------------------------------------|------------------------------------------------------------------------------------------------------------------------|
-| ra-optimisation      | OR-Tools load error    | "Native library jniortools could not be loaded. You can ignore this message if it is not needed."                                              | FARAO could not load native library OR-Tools | FARAO cannot call a solver to optimize the MIP (range actions). The RAO will only be able to optimize network actions. |
-| commons              | Randomize string error | "There should at least be one try to generate randomized string." <br>or<br> "Failed to create a randomized string with prefix '{}' in {} {}." | FARAO failed to generate a random string     | Depends on the calling method (a FaraoException is thrown)                                                             |
-| sensitivity-analysis | Sensitivity unit error | "The Sensitivity Provider should contain at least Megawatt or Ampere unit"                                                                     | The sensitivity is neither in MW nor in A    | Depends on the calling method (a SensitivityAnalysisException is thrown)                                               |
+| Module               | Name                   | Label                                                                                                                                          | Description                                  | Consequence                                                                                                              |
+|----------------------|------------------------|------------------------------------------------------------------------------------------------------------------------------------------------|----------------------------------------------|--------------------------------------------------------------------------------------------------------------------------|
+| ra-optimisation      | OR-Tools load error    | "Native library jniortools could not be loaded. You can ignore this message if it is not needed."                                              | OpenRAO could not load native library OR-Tools | OpenRAO cannot call a solver to optimize the MIP (range actions). The RAO will only be able to optimize network actions. |
+| commons              | Randomize string error | "There should at least be one try to generate randomized string." <br>or<br> "Failed to create a randomized string with prefix '{}' in {} {}." | OpenRAO failed to generate a random string     | Depends on the calling method (an OpenRaoException is thrown)                                                            |
+| sensitivity-analysis | Sensitivity unit error | "The Sensitivity Provider should contain at least Megawatt or Ampere unit"                                                                     | The sensitivity is neither in MW nor in A    | Depends on the calling method (a SensitivityAnalysisException is thrown)                                                 |
 
 ## Possible warnings
 

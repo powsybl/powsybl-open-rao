@@ -4,7 +4,7 @@
 
 A **R**emedial **A**ction **O**ptimisation process provides an optimal list of remedial actions to be applied in basecase and after contingencies listed in the [CRAC](/input-data/crac/introduction.md). The decisions are based upon the impact of these remedial actions on the CRAC's [CNECs](/input-data/crac/introduction.md#cnec).
 
-A **RaoResult object model** has been designed in FARAO in order to hold all the important results of optimisation.
+A **RaoResult object model** has been designed in OpenRAO in order to hold all the important results of optimisation.
 In this page, we present:
 - where to find the RaoResult instance,
 - how to save a RaoResult java object to a JSON file,
@@ -13,8 +13,8 @@ In this page, we present:
 
 ## Accessing the RAO result
 
-The [RaoResult](https://github.com/powsybl/powsybl-open-rao/blob/main/data/rao-result/rao-result-api/src/main/java/com/powsybl/openrao/data/raoresultapi/RaoResult.java) java object is actually an interface that is implemented by many FARAO classes. However, one only needs to use the interface's functions.
-A RaoResult object is returned by FARAO's main optimisation method:
+The [RaoResult](https://github.com/powsybl/powsybl-open-rao/blob/main/data/rao-result/rao-result-api/src/main/java/com/powsybl/openrao/data/raoresultapi/RaoResult.java) java object is actually an interface that is implemented by many OpenRAO classes. However, one only needs to use the interface's functions.
+A RaoResult object is returned by OpenRAO's main optimisation method:
 
 ~~~java
 CompletableFuture<RaoResult> RaoProvider::run(RaoInput raoInput, RaoParameters parameters, Instant targetEndInstant)

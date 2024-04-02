@@ -1,6 +1,6 @@
 ![PowSyBl Logo](/_static/logos/logo_lfe_powsybl.svg)
 
-# What is OpenRAO
+# What is OpenRAO?
 
 OpenRAO stands for "*Open Remedial Actions Optimizer*". It is an open-source
 toolbox that aims at providing a modular engine for remedial actions optimisation

@@ -42,7 +42,7 @@ Three possible values for CNEC results:
   remedial actions optimisation
 - **B54**: these are the CNEC final results, after curative remedial actions optimisation
   > ⚠️  **NOTE**
-  > In order to align FARAO with other capacity calculation tools, **B54** series are not exported for CNECs if no 
+  > In order to align OpenRAO with other capacity calculation tools, **B54** series are not exported for CNECs if no 
   > curative remedial actions were applied (even though it makes sense to export them, because PATL results are not 
   > exported in **B57** series, as explained further in this article)
 
@@ -56,7 +56,7 @@ Two possible values:
 - **A52**: the CNEC is [optimised](/input-data/crac/json.md#cnecs)
 - **A49**: the CNEC is [monitored](/input-data/crac/json.md#cnecs)  
   > ⚠️  **NOTE**
-  > In order to align FARAO with other capacity calculation tools, CNECs that are both optimised and monitored are 
+  > In order to align OpenRAO with other capacity calculation tools, CNECs that are both optimised and monitored are 
   > currently only exported with an **A52** type
 
 #### Contingency_Series (optional)

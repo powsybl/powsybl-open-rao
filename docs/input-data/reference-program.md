@@ -1,7 +1,7 @@
 # Reference program
 
 The reference program contains the values of the power exchanges between the different market areas.
-In FARAO, this is used to compute loop-flows.
+In OpenRAO, this is used to compute loop-flows.
 
 The main tag for the document is **PublicationDocument**.
 

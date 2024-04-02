@@ -125,7 +125,7 @@ Only in the hypothetical case of a [relative margins objective function](/parame
 - **mRID**: [ENTSO-E EICode](https://www.entsoe.eu/data/energy-identification-codes-eic/) of the area
 - **pTDF_Quantity.quantity**: value of the PTDF associated to the bidding zone for the critical network element  
 > ⚠️  **NOTE**  
-> This tag is currently not supported in FARAO, since the SWE CC process (only process to use the SWE CNE format) 
+> This tag is currently not supported in OpenRAO, since the SWE CC process (only process to use the SWE CNE format) 
 > does not optimise relative margins
 
 ##### Measurements

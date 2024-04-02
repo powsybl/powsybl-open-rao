@@ -43,12 +43,12 @@ These parameters (objective-function) configure the remedial action optimisation
 #### forbid-cost-increase
 - **Expected value**: true/false
 - **Default value**: false
-- **Usage**: if this parameter is set to true, FARAO will post-check the results after optimisation. If the value of
+- **Usage**: if this parameter is set to true, OpenRAO will post-check the results after optimisation. If the value of
   the objective function is worse after optimisation than before optimisation, then it will return the initial
   solution (i.e. no PRA and no CRA applied).  
   This can happen for example if the preventive RAO decreases the margin on a curative CNEC, which cannot be reverted
   during curative RAO.  
-  If this parameter is set to false, FARAO will return the real result of optimisation, which has a worse result
+  If this parameter is set to false, OpenRAO will return the real result of optimisation, which has a worse result
   than the initial situation.
 
 #### preventive-stop-criterion
@@ -113,7 +113,7 @@ These parameters (range-actions-optimization) tune the [linear optimiser](/casto
 - **Default value**: "CONTINUOUS"
 - **Usage**: the method to model PSTs in the linear problem:  
   - **CONTINUOUS**: PSTs are represented by their angle set-points; the set-points are continuous optimisation variables
-    and FARAO rounds the result to the best tap (around the optimal set-point) after optimisation. This approach is not
+    and OpenRAO rounds the result to the best tap (around the optimal set-point) after optimisation. This approach is not
     very precise but does not create integer optimisation variables; thus it is quicker to solve, especially with
     open-source solvers.  
   - **APPROXIMATED_INTEGERS**: a PST is represented by its tap positions, and these tap positions are considered
@@ -207,7 +207,7 @@ These are parameters that tune the solver used to solve the MIP problem.
   - "XPRESS"
 - **Default value**: "CBC"
 - **Usage**: the solver called for optimising the linear problem.  
-  Note that theoretically all solvers supported by OR-Tools can be called, but the FARAO interface only allows CBC
+  Note that theoretically all solvers supported by OR-Tools can be called, but the OpenRAO interface only allows CBC
   (open-source), SCIP (commercial) and XPRESS (commercial) for the moment.  
   If needed, other solvers can be easily added.
 
@@ -394,7 +394,7 @@ network is converging for all contingency scenarios.
 #### sensitivity-parameters
 - **Expected value**: SensitivityComputationParameters ([PowSyBl](https://www.powsybl.org/pages/documentation/simulation/sensitivity/) configuration)
 - **Default value**: PowSyBl's default value (it is generally a bad idea to keep the default value for this parameter)
-- **Usage**: sensitivity-parameters is the configuration of the PowSyBl sensitivity engine, which is used within FARAO. 
+- **Usage**: sensitivity-parameters is the configuration of the PowSyBl sensitivity engine, which is used within OpenRAO. 
 The underlying "load-flow-parameters" is also used whenever an explicit pure load-flow computation is needed. 
 
 ### Multi-threading parameters

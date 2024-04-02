@@ -1,6 +1,6 @@
 # Virtual hubs
 
-In FARAO, virtual hubs are used to compute loop-flows. Virtual hubs are one-node areas which should be considered as market areas when calculating loop-flows.
+In OpenRAO, virtual hubs are used to compute loop-flows. Virtual hubs are one-node areas which should be considered as market areas when calculating loop-flows.
 
 They are defined in a specific configuration file. For example :
 

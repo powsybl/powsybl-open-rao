@@ -9,15 +9,15 @@ to the end user._
 In this step, the RAO assesses the initial network against the different constraints in the CRAC.  
 It then prints the two CNECs with the smallest margins (i.e. "most limiting elements"), along with their margins.
 ~~~
-DEBUG c.f.farao.commons.logs.TechnicalLogs - Systematic sensitivity analysis [start]
-DEBUG c.f.farao.commons.logs.TechnicalLogs - Systematic sensitivity analysis [end]
-INFO  c.f.f.commons.logs.RaoBusinessLogs - Initial sensitivity analysis: cost = 182.55 (functional: 182.55, virtual: 0.00)
-INFO  c.f.f.commons.logs.RaoBusinessLogs - Limiting element #01: margin = -182.55 MW, element NNL1AA1  NNL3AA1  1 at state Contingency_FR1_FR3 - outage, CNEC ID = "NL1-NL3-D - outage"
-INFO  c.f.f.commons.logs.RaoBusinessLogs - Limiting element #02: margin = -166.08 MW, element FFR2AA1  FFR3AA1  1 at state preventive, CNEC ID = "FR2-FR3-O - preventive"
+DEBUG c.p.openrao.commons.logs.TechnicalLogs - Systematic sensitivity analysis [start]
+DEBUG c.p.openrao.commons.logs.TechnicalLogs - Systematic sensitivity analysis [end]
+INFO  c.p.o.commons.logs.RaoBusinessLogs - Initial sensitivity analysis: cost = 182.55 (functional: 182.55, virtual: 0.00)
+INFO  c.p.o.commons.logs.RaoBusinessLogs - Limiting element #01: margin = -182.55 MW, element NNL1AA1  NNL3AA1  1 at state Contingency_FR1_FR3 - outage, CNEC ID = "NL1-NL3-D - outage"
+INFO  c.p.o.commons.logs.RaoBusinessLogs - Limiting element #02: margin = -166.08 MW, element FFR2AA1  FFR3AA1  1 at state preventive, CNEC ID = "FR2-FR3-O - preventive"
 ~~~
-In this case, the most limiting CNEC is "NL1-NL3-D - outage" (this is its unique ID in the [FARAO CRAC object](/input-data/crac/json.md)).  
+In this case, the most limiting CNEC is "NL1-NL3-D - outage" (this is its unique ID in the [OpenRAO CRAC object](/input-data/crac/json.md)).  
 It monitors network element "NNL1AA1  NNL3AA1  1", after contingency "Contingency_FR1_FR3" (unique ID of the contingency 
-in the FARAO CRAC), at the "outage" instant (i.e. before applying auto & curative actions).
+in the OpenRAO CRAC), at the "outage" instant (i.e. before applying auto & curative actions).
 The margin on this CNEC is -182.55MW, so the branch is actually over-charged by 182MW.
 
 The second most-limiting CNEC is "FR2-FR3-O - preventive" with a margin of -166 MW.
@@ -29,9 +29,9 @@ Next comes the [first preventive RAO](/castor/rao-steps.md#preventive-perimeter)
 > 💡  **NOTE**
 > This step is delimited by the two following lines:
 > ~~~
-> INFO  c.f.f.commons.logs.RaoBusinessLogs - ----- Preventive perimeter optimization [start]
+> INFO  c.p.o.commons.logs.RaoBusinessLogs - ----- Preventive perimeter optimization [start]
 > ...
-> INFO  c.f.f.commons.logs.RaoBusinessLogs - ----- Preventive perimeter optimization [end]
+> INFO  c.p.o.commons.logs.RaoBusinessLogs - ----- Preventive perimeter optimization [end]
 > ~~~
 
 As the two most limiting elements are either monitored at the preventive or the outage instant, the RAO will try to 
@@ -40,7 +40,7 @@ improve their margins using preventive remedial actions.
 First the RAO logs the beginning of the step:
 
 ~~~
-INFO  c.f.f.commons.logs.RaoBusinessLogs - ----- Preventive perimeter optimization [start]
+INFO  c.p.o.commons.logs.RaoBusinessLogs - ----- Preventive perimeter optimization [start]
 ~~~
 
 ### Root leaf
@@ -55,11 +55,11 @@ The RAO then logs the most limiting elements of the preventive perimeter. In thi
 overall most limiting elements for the reasons explained above.
 
 ~~~
-INFO  c.f.farao.commons.logs.TechnicalLogs - Evaluating root leaf
-DEBUG c.f.farao.commons.logs.TechnicalLogs - Leaf has already been evaluated
-INFO  c.f.farao.commons.logs.TechnicalLogs - Root leaf, range actions have not been optimized, cost: 182.55 (functional: 182.55, virtual: 0.00)
-INFO  c.f.farao.commons.logs.TechnicalLogs - Limiting element #01: margin = -182.55 MW, element NNL1AA1  NNL3AA1  1 at state Contingency_FR1_FR3 - outage, CNEC ID = "NL1-NL3-D - outage"
-INFO  c.f.farao.commons.logs.TechnicalLogs - Limiting element #02: margin = -166.08 MW, element FFR2AA1  FFR3AA1  1 at state preventive, CNEC ID = "FR2-FR3-O - preventive"
+INFO  c.p.openrao.commons.logs.TechnicalLogs - Evaluating root leaf
+DEBUG c.p.openrao.commons.logs.TechnicalLogs - Leaf has already been evaluated
+INFO  c.p.openrao.commons.logs.TechnicalLogs - Root leaf, range actions have not been optimized, cost: 182.55 (functional: 182.55, virtual: 0.00)
+INFO  c.p.openrao.commons.logs.TechnicalLogs - Limiting element #01: margin = -182.55 MW, element NNL1AA1  NNL3AA1  1 at state Contingency_FR1_FR3 - outage, CNEC ID = "NL1-NL3-D - outage"
+INFO  c.p.openrao.commons.logs.TechnicalLogs - Limiting element #02: margin = -166.08 MW, element FFR2AA1  FFR3AA1  1 at state preventive, CNEC ID = "FR2-FR3-O - preventive"
 ~~~
 
 After root leaf evaluation, the RAO conducts [range action linear optimisation](/castor/linear-problem/linear-rao.md) 
@@ -70,21 +70,21 @@ Multiple "MILP -> sensitivity analysis" iterations can be needed until the optim
 set-point for range actions (in the example, 2 iterations are needed at the root leaf).
 
 ~~~
-INFO  c.f.farao.commons.logs.TechnicalLogs - Linear optimization on root leaf
-DEBUG c.f.farao.commons.logs.TechnicalLogs - Optimizing leaf...
-INFO  c.f.farao.commons.logs.TechnicalLogs - Loading library 'jniortools'
-DEBUG c.f.farao.commons.logs.TechnicalLogs - Iteration 1: linear optimization [start]
-DEBUG c.f.farao.commons.logs.TechnicalLogs - Iteration 1: linear optimization [end]
-DEBUG c.f.farao.commons.logs.TechnicalLogs - Systematic sensitivity analysis [start]
-DEBUG c.f.farao.commons.logs.TechnicalLogs - Systematic sensitivity analysis [end]
-INFO  c.f.farao.commons.logs.TechnicalLogs - Iteration 1: better solution found with a cost of 179.10 (functional: 179.10)
-DEBUG c.f.farao.commons.logs.TechnicalLogs - Iteration 2: linear optimization [start]
-DEBUG c.f.farao.commons.logs.TechnicalLogs - Iteration 2: linear optimization [end]
-INFO  c.f.farao.commons.logs.TechnicalLogs - Iteration 2: same results as previous iterations, optimal solution found
-INFO  c.f.f.commons.logs.RaoBusinessLogs - Root leaf, 1 range action(s) activated, cost: 179.10 (functional: 179.10, virtual: 0.00)
-INFO  c.f.farao.commons.logs.TechnicalLogs - range action(s): PRA_CRA_PST_BE: 1
-INFO  c.f.f.commons.logs.RaoBusinessLogs - Limiting element #01: margin = -179.10 MW, element NNL1AA1  NNL3AA1  1 at state Contingency_FR1_FR3 - outage, CNEC ID = "NL1-NL3-D - outage"
-INFO  c.f.f.commons.logs.RaoBusinessLogs - Limiting element #02: margin = -173.31 MW, element FFR2AA1  FFR3AA1  1 at state preventive, CNEC ID = "FR2-FR3-O - preventive"
+INFO  c.p.openrao.commons.logs.TechnicalLogs - Linear optimization on root leaf
+DEBUG c.p.openrao.commons.logs.TechnicalLogs - Optimizing leaf...
+INFO  c.p.openrao.commons.logs.TechnicalLogs - Loading library 'jniortools'
+DEBUG c.p.openrao.commons.logs.TechnicalLogs - Iteration 1: linear optimization [start]
+DEBUG c.p.openrao.commons.logs.TechnicalLogs - Iteration 1: linear optimization [end]
+DEBUG c.p.openrao.commons.logs.TechnicalLogs - Systematic sensitivity analysis [start]
+DEBUG c.p.openrao.commons.logs.TechnicalLogs - Systematic sensitivity analysis [end]
+INFO  c.p.openrao.commons.logs.TechnicalLogs - Iteration 1: better solution found with a cost of 179.10 (functional: 179.10)
+DEBUG c.p.openrao.commons.logs.TechnicalLogs - Iteration 2: linear optimization [start]
+DEBUG c.p.openrao.commons.logs.TechnicalLogs - Iteration 2: linear optimization [end]
+INFO  c.p.openrao.commons.logs.TechnicalLogs - Iteration 2: same results as previous iterations, optimal solution found
+INFO  c.p.o.commons.logs.RaoBusinessLogs - Root leaf, 1 range action(s) activated, cost: 179.10 (functional: 179.10, virtual: 0.00)
+INFO  c.p.openrao.commons.logs.TechnicalLogs - range action(s): PRA_CRA_PST_BE: 1
+INFO  c.p.o.commons.logs.RaoBusinessLogs - Limiting element #01: margin = -179.10 MW, element NNL1AA1  NNL3AA1  1 at state Contingency_FR1_FR3 - outage, CNEC ID = "NL1-NL3-D - outage"
+INFO  c.p.o.commons.logs.RaoBusinessLogs - Limiting element #02: margin = -173.31 MW, element FFR2AA1  FFR3AA1  1 at state preventive, CNEC ID = "FR2-FR3-O - preventive"
 ~~~
 
 The RAO successfully decreased the objection function value to 179.1 by setting the tap position of PST "PRA_CRA_PST_BE" to 1.
@@ -110,45 +110,45 @@ Then every leaf is treated like the root leaf: it is evaluated, then optimised.
 Here is an example of a "search depth 1" RAO.
 
 ~~~
-DEBUG c.f.farao.commons.logs.TechnicalLogs - Evaluating 1 leaves in parallel
-INFO  c.f.farao.commons.logs.TechnicalLogs - Using base network 'TestCase12Nodes2PSTs' on variant 'PreventiveScenario'
-INFO  c.f.farao.commons.logs.TechnicalLogs - Search depth 1 [start]
-INFO  c.f.farao.commons.logs.TechnicalLogs - Leaves to evaluate: 2
-DEBUG c.f.farao.commons.logs.TechnicalLogs - Evaluating network action(s): Open line FR1-FR2
-DEBUG c.f.farao.commons.logs.TechnicalLogs - Systematic sensitivity analysis [start]
-DEBUG c.f.farao.commons.logs.TechnicalLogs - Systematic sensitivity analysis [end]
-DEBUG c.f.farao.commons.logs.TechnicalLogs - Evaluated network action(s): Open line FR1-FR2, range actions have not been optimized, cost: 1307.99 (functional: 1307.99, virtual: 0.00)
-DEBUG c.f.farao.commons.logs.TechnicalLogs - Optimizing leaf...
-DEBUG c.f.farao.commons.logs.TechnicalLogs - Iteration 1: linear optimization [start]
-DEBUG c.f.farao.commons.logs.TechnicalLogs - Iteration 1: linear optimization [end]
-DEBUG c.f.farao.commons.logs.TechnicalLogs - Systematic sensitivity analysis [start]
-DEBUG c.f.farao.commons.logs.TechnicalLogs - Systematic sensitivity analysis [end]
-INFO  c.f.farao.commons.logs.TechnicalLogs - Iteration 1: better solution found with a cost of 1266.73 (functional: 1266.73)
-DEBUG c.f.farao.commons.logs.TechnicalLogs - Iteration 2: linear optimization [start]
-DEBUG c.f.farao.commons.logs.TechnicalLogs - Iteration 2: linear optimization [end]
-INFO  c.f.farao.commons.logs.TechnicalLogs - Iteration 2: same results as previous iterations, optimal solution found
-INFO  c.f.f.commons.logs.RaoBusinessLogs - Optimized network action(s): Open line FR1-FR2, 1 range action(s) activated, cost: 1266.73 (functional: 1266.73, virtual: 0.00)
-INFO  c.f.farao.commons.logs.TechnicalLogs - Remaining leaves to evaluate: 1
-DEBUG c.f.farao.commons.logs.TechnicalLogs - Evaluating network action(s): Open line NL1-NL2
-DEBUG c.f.farao.commons.logs.TechnicalLogs - Systematic sensitivity analysis [start]
-DEBUG c.f.farao.commons.logs.TechnicalLogs - Systematic sensitivity analysis [end]
-DEBUG c.f.farao.commons.logs.TechnicalLogs - Evaluated network action(s): Open line NL1-NL2, range actions have not been optimized, cost: 181.93 (functional: 181.93, virtual: 0.00)
-DEBUG c.f.farao.commons.logs.TechnicalLogs - Optimizing leaf...
-DEBUG c.f.farao.commons.logs.TechnicalLogs - Iteration 1: linear optimization [start]
-DEBUG c.f.farao.commons.logs.TechnicalLogs - Iteration 1: linear optimization [end]
-DEBUG c.f.farao.commons.logs.TechnicalLogs - Systematic sensitivity analysis [start]
-DEBUG c.f.farao.commons.logs.TechnicalLogs - Systematic sensitivity analysis [end]
-INFO  c.f.farao.commons.logs.TechnicalLogs - Iteration 1: better solution found with a cost of 140.65 (functional: 140.65)
-DEBUG c.f.farao.commons.logs.TechnicalLogs - Iteration 2: linear optimization [start]
-DEBUG c.f.farao.commons.logs.TechnicalLogs - Iteration 2: linear optimization [end]
-INFO  c.f.farao.commons.logs.TechnicalLogs - Iteration 2: same results as previous iterations, optimal solution found
-INFO  c.f.f.commons.logs.RaoBusinessLogs - Optimized network action(s): Open line NL1-NL2, 1 range action(s) activated, cost: 140.65 (functional: 140.65, virtual: 0.00)
-INFO  c.f.farao.commons.logs.TechnicalLogs - Remaining leaves to evaluate: 0
-INFO  c.f.farao.commons.logs.TechnicalLogs - Search depth 1 [end]
-INFO  c.f.f.commons.logs.RaoBusinessLogs - Search depth 1 best leaf: network action(s): Open line NL1-NL2, 1 range action(s) activated, cost: 140.65 (functional: 140.65, virtual: 0.00)
-INFO  c.f.farao.commons.logs.TechnicalLogs - Search depth 1 best leaf: range action(s): PRA_CRA_PST_BE: -6
-INFO  c.f.f.commons.logs.RaoBusinessLogs - Limiting element #01: margin = -140.65 MW, element FFR2AA1  FFR3AA1  1 at state preventive, CNEC ID = "FR2-FR3-O - preventive"
-INFO  c.f.f.commons.logs.RaoBusinessLogs - Limiting element #02: margin = 0.22 MW, element NNL1AA1  NNL3AA1  1 at state Contingency_FR1_FR3 - outage, CNEC ID = "NL1-NL3-D - outage"
+DEBUG c.p.openrao.commons.logs.TechnicalLogs - Evaluating 1 leaves in parallel
+INFO  c.p.openrao.commons.logs.TechnicalLogs - Using base network 'TestCase12Nodes2PSTs' on variant 'PreventiveScenario'
+INFO  c.p.openrao.commons.logs.TechnicalLogs - Search depth 1 [start]
+INFO  c.p.openrao.commons.logs.TechnicalLogs - Leaves to evaluate: 2
+DEBUG c.p.openrao.commons.logs.TechnicalLogs - Evaluating network action(s): Open line FR1-FR2
+DEBUG c.p.openrao.commons.logs.TechnicalLogs - Systematic sensitivity analysis [start]
+DEBUG c.p.openrao.commons.logs.TechnicalLogs - Systematic sensitivity analysis [end]
+DEBUG c.p.openrao.commons.logs.TechnicalLogs - Evaluated network action(s): Open line FR1-FR2, range actions have not been optimized, cost: 1307.99 (functional: 1307.99, virtual: 0.00)
+DEBUG c.p.openrao.commons.logs.TechnicalLogs - Optimizing leaf...
+DEBUG c.p.openrao.commons.logs.TechnicalLogs - Iteration 1: linear optimization [start]
+DEBUG c.p.openrao.commons.logs.TechnicalLogs - Iteration 1: linear optimization [end]
+DEBUG c.p.openrao.commons.logs.TechnicalLogs - Systematic sensitivity analysis [start]
+DEBUG c.p.openrao.commons.logs.TechnicalLogs - Systematic sensitivity analysis [end]
+INFO  c.p.openrao.commons.logs.TechnicalLogs - Iteration 1: better solution found with a cost of 1266.73 (functional: 1266.73)
+DEBUG c.p.openrao.commons.logs.TechnicalLogs - Iteration 2: linear optimization [start]
+DEBUG c.p.openrao.commons.logs.TechnicalLogs - Iteration 2: linear optimization [end]
+INFO  c.p.openrao.commons.logs.TechnicalLogs - Iteration 2: same results as previous iterations, optimal solution found
+INFO  c.p.o.commons.logs.RaoBusinessLogs - Optimized network action(s): Open line FR1-FR2, 1 range action(s) activated, cost: 1266.73 (functional: 1266.73, virtual: 0.00)
+INFO  c.p.openrao.commons.logs.TechnicalLogs - Remaining leaves to evaluate: 1
+DEBUG c.p.openrao.commons.logs.TechnicalLogs - Evaluating network action(s): Open line NL1-NL2
+DEBUG c.p.openrao.commons.logs.TechnicalLogs - Systematic sensitivity analysis [start]
+DEBUG c.p.openrao.commons.logs.TechnicalLogs - Systematic sensitivity analysis [end]
+DEBUG c.p.openrao.commons.logs.TechnicalLogs - Evaluated network action(s): Open line NL1-NL2, range actions have not been optimized, cost: 181.93 (functional: 181.93, virtual: 0.00)
+DEBUG c.p.openrao.commons.logs.TechnicalLogs - Optimizing leaf...
+DEBUG c.p.openrao.commons.logs.TechnicalLogs - Iteration 1: linear optimization [start]
+DEBUG c.p.openrao.commons.logs.TechnicalLogs - Iteration 1: linear optimization [end]
+DEBUG c.p.openrao.commons.logs.TechnicalLogs - Systematic sensitivity analysis [start]
+DEBUG c.p.openrao.commons.logs.TechnicalLogs - Systematic sensitivity analysis [end]
+INFO  c.p.openrao.commons.logs.TechnicalLogs - Iteration 1: better solution found with a cost of 140.65 (functional: 140.65)
+DEBUG c.p.openrao.commons.logs.TechnicalLogs - Iteration 2: linear optimization [start]
+DEBUG c.p.openrao.commons.logs.TechnicalLogs - Iteration 2: linear optimization [end]
+INFO  c.p.openrao.commons.logs.TechnicalLogs - Iteration 2: same results as previous iterations, optimal solution found
+INFO  c.p.o.commons.logs.RaoBusinessLogs - Optimized network action(s): Open line NL1-NL2, 1 range action(s) activated, cost: 140.65 (functional: 140.65, virtual: 0.00)
+INFO  c.p.openrao.commons.logs.TechnicalLogs - Remaining leaves to evaluate: 0
+INFO  c.p.openrao.commons.logs.TechnicalLogs - Search depth 1 [end]
+INFO  c.p.o.commons.logs.RaoBusinessLogs - Search depth 1 best leaf: network action(s): Open line NL1-NL2, 1 range action(s) activated, cost: 140.65 (functional: 140.65, virtual: 0.00)
+INFO  c.p.openrao.commons.logs.TechnicalLogs - Search depth 1 best leaf: range action(s): PRA_CRA_PST_BE: -6
+INFO  c.p.o.commons.logs.RaoBusinessLogs - Limiting element #01: margin = -140.65 MW, element FFR2AA1  FFR3AA1  1 at state preventive, CNEC ID = "FR2-FR3-O - preventive"
+INFO  c.p.o.commons.logs.RaoBusinessLogs - Limiting element #02: margin = 0.22 MW, element NNL1AA1  NNL3AA1  1 at state Contingency_FR1_FR3 - outage, CNEC ID = "NL1-NL3-D - outage"
 ~~~
 
 The RAO has two preventive network actions to assess:
@@ -169,24 +169,24 @@ limiting elements in the preventive RAO:
 The RAO then goes on to try combining "Open line NL1-NL2" with the remaining network actions (i.e. "Open line FR1-FR2").
 
 ~~~
-INFO  c.f.farao.commons.logs.TechnicalLogs - Search depth 2 [start]
-INFO  c.f.farao.commons.logs.TechnicalLogs - Leaves to evaluate: 1
-DEBUG c.f.farao.commons.logs.TechnicalLogs - Evaluating network action(s): Open line NL1-NL2, Open line FR1-FR2
-DEBUG c.f.farao.commons.logs.TechnicalLogs - Systematic sensitivity analysis [start]
-DEBUG c.f.farao.commons.logs.TechnicalLogs - Systematic sensitivity analysis [end]
-DEBUG c.f.farao.commons.logs.TechnicalLogs - Evaluated network action(s): Open line NL1-NL2, Open line FR1-FR2, range actions have not been optimized, cost: 1339.40 (functional: 1339.40, virtual: 0.00)
-DEBUG c.f.farao.commons.logs.TechnicalLogs - Optimizing leaf...
-DEBUG c.f.farao.commons.logs.TechnicalLogs - Iteration 1: linear optimization [start]
-DEBUG c.f.farao.commons.logs.TechnicalLogs - Iteration 1: linear optimization [end]
-DEBUG c.f.farao.commons.logs.TechnicalLogs - Systematic sensitivity analysis [start]
-DEBUG c.f.farao.commons.logs.TechnicalLogs - Systematic sensitivity analysis [end]
-INFO  c.f.farao.commons.logs.TechnicalLogs - Iteration 1: better solution found with a cost of 1280.34 (functional: 1280.34)
-DEBUG c.f.farao.commons.logs.TechnicalLogs - Iteration 2: linear optimization [start]
-DEBUG c.f.farao.commons.logs.TechnicalLogs - Iteration 2: linear optimization [end]
-INFO  c.f.farao.commons.logs.TechnicalLogs - Iteration 2: same results as previous iterations, optimal solution found
-INFO  c.f.f.commons.logs.RaoBusinessLogs - Optimized network action(s): Open line NL1-NL2, Open line FR1-FR2, 1 range action(s) activated, cost: 1280.34 (functional: 1280.34, virtual: 0.00)
-INFO  c.f.farao.commons.logs.TechnicalLogs - Remaining leaves to evaluate: 0
-INFO  c.f.f.commons.logs.RaoBusinessLogs - No better result found in search depth 2, exiting search tree
+INFO  c.p.openrao.commons.logs.TechnicalLogs - Search depth 2 [start]
+INFO  c.p.openrao.commons.logs.TechnicalLogs - Leaves to evaluate: 1
+DEBUG c.p.openrao.commons.logs.TechnicalLogs - Evaluating network action(s): Open line NL1-NL2, Open line FR1-FR2
+DEBUG c.p.openrao.commons.logs.TechnicalLogs - Systematic sensitivity analysis [start]
+DEBUG c.p.openrao.commons.logs.TechnicalLogs - Systematic sensitivity analysis [end]
+DEBUG c.p.openrao.commons.logs.TechnicalLogs - Evaluated network action(s): Open line NL1-NL2, Open line FR1-FR2, range actions have not been optimized, cost: 1339.40 (functional: 1339.40, virtual: 0.00)
+DEBUG c.p.openrao.commons.logs.TechnicalLogs - Optimizing leaf...
+DEBUG c.p.openrao.commons.logs.TechnicalLogs - Iteration 1: linear optimization [start]
+DEBUG c.p.openrao.commons.logs.TechnicalLogs - Iteration 1: linear optimization [end]
+DEBUG c.p.openrao.commons.logs.TechnicalLogs - Systematic sensitivity analysis [start]
+DEBUG c.p.openrao.commons.logs.TechnicalLogs - Systematic sensitivity analysis [end]
+INFO  c.p.openrao.commons.logs.TechnicalLogs - Iteration 1: better solution found with a cost of 1280.34 (functional: 1280.34)
+DEBUG c.p.openrao.commons.logs.TechnicalLogs - Iteration 2: linear optimization [start]
+DEBUG c.p.openrao.commons.logs.TechnicalLogs - Iteration 2: linear optimization [end]
+INFO  c.p.openrao.commons.logs.TechnicalLogs - Iteration 2: same results as previous iterations, optimal solution found
+INFO  c.p.o.commons.logs.RaoBusinessLogs - Optimized network action(s): Open line NL1-NL2, Open line FR1-FR2, 1 range action(s) activated, cost: 1280.34 (functional: 1280.34, virtual: 0.00)
+INFO  c.p.openrao.commons.logs.TechnicalLogs - Remaining leaves to evaluate: 0
+INFO  c.p.o.commons.logs.RaoBusinessLogs - No better result found in search depth 2, exiting search tree
 ~~~
 
 This combination is almost as catastrophic as using "Open line FR1-FR2" alone:
@@ -201,21 +201,21 @@ The RAO re-log the optimal remedial action combination it found (search depth 1 
 elements of the preventive perimeter.
 
 ~~~
-INFO  c.f.farao.commons.logs.TechnicalLogs - Search-tree RAO completed with status DEFAULT
-INFO  c.f.farao.commons.logs.TechnicalLogs - Best leaf: network action(s): Open line NL1-NL2, 1 range action(s) activated, cost: 140.65 (functional: 140.65, virtual: 0.00)
-INFO  c.f.farao.commons.logs.TechnicalLogs - Best leaf: range action(s): PRA_CRA_PST_BE: -6
-INFO  c.f.farao.commons.logs.TechnicalLogs - Limiting element #01: margin = -140.65 MW, element FFR2AA1  FFR3AA1  1 at state preventive, CNEC ID = "FR2-FR3-O - preventive"
-INFO  c.f.farao.commons.logs.TechnicalLogs - Limiting element #02: margin = 0.22 MW, element NNL1AA1  NNL3AA1  1 at state Contingency_FR1_FR3 - outage, CNEC ID = "NL1-NL3-D - outage"
-INFO  c.f.farao.commons.logs.TechnicalLogs - Limiting element #03: margin = 38.37 MW, element FFR2AA1  DDE3AA1  1 at state preventive, CNEC ID = "FR2-DE3-D - preventive"
-INFO  c.f.farao.commons.logs.TechnicalLogs - Limiting element #04: margin = 82.50 MW, element FFR2AA1  FFR3AA1  1 at state Contingency_FR1_FR3 - outage, CNEC ID = "FR2-FR3-OO - outage"
-INFO  c.f.farao.commons.logs.TechnicalLogs - Limiting element #05: margin = 582.50 MW, element FFR2AA1  DDE3AA1  1 at state Contingency_FR1_FR3 - outage, CNEC ID = "FR2-DE3-DO - outage"
-INFO  c.f.f.commons.logs.RaoBusinessLogs - Scenario "preventive": initial cost = 182.55 (functional: 182.55, virtual: 0.00), 1 network action(s) and 1 range action(s) activated, cost after PRA = 140.65 (functional: 140.65, virtual: 0.00)
-INFO  c.f.f.commons.logs.RaoBusinessLogs - ----- Preventive perimeter optimization [end]
-DEBUG c.f.farao.commons.logs.TechnicalLogs - Systematic sensitivity analysis [start]
-DEBUG c.f.farao.commons.logs.TechnicalLogs - Systematic sensitivity analysis [end]
-INFO  c.f.f.commons.logs.RaoBusinessLogs - Systematic sensitivity analysis after preventive remedial actions: cost = 790.43 (functional: 140.65, virtual: 649.78)
-INFO  c.f.f.commons.logs.RaoBusinessLogs - Limiting element #01: margin = -140.65 MW, element FFR2AA1  FFR3AA1  1 at state preventive, CNEC ID = "FR2-FR3-O - preventive"
-INFO  c.f.f.commons.logs.RaoBusinessLogs - Limiting element #02: margin = -32.49 MW, element NNL2AA1  BBE3AA1  1 at state Contingency_FR1_FR3 - auto, CNEC ID = "NL2-BE3-O - auto"
+INFO  c.p.openrao.commons.logs.TechnicalLogs - Search-tree RAO completed with status DEFAULT
+INFO  c.p.openrao.commons.logs.TechnicalLogs - Best leaf: network action(s): Open line NL1-NL2, 1 range action(s) activated, cost: 140.65 (functional: 140.65, virtual: 0.00)
+INFO  c.p.openrao.commons.logs.TechnicalLogs - Best leaf: range action(s): PRA_CRA_PST_BE: -6
+INFO  c.p.openrao.commons.logs.TechnicalLogs - Limiting element #01: margin = -140.65 MW, element FFR2AA1  FFR3AA1  1 at state preventive, CNEC ID = "FR2-FR3-O - preventive"
+INFO  c.p.openrao.commons.logs.TechnicalLogs - Limiting element #02: margin = 0.22 MW, element NNL1AA1  NNL3AA1  1 at state Contingency_FR1_FR3 - outage, CNEC ID = "NL1-NL3-D - outage"
+INFO  c.p.openrao.commons.logs.TechnicalLogs - Limiting element #03: margin = 38.37 MW, element FFR2AA1  DDE3AA1  1 at state preventive, CNEC ID = "FR2-DE3-D - preventive"
+INFO  c.p.openrao.commons.logs.TechnicalLogs - Limiting element #04: margin = 82.50 MW, element FFR2AA1  FFR3AA1  1 at state Contingency_FR1_FR3 - outage, CNEC ID = "FR2-FR3-OO - outage"
+INFO  c.p.openrao.commons.logs.TechnicalLogs - Limiting element #05: margin = 582.50 MW, element FFR2AA1  DDE3AA1  1 at state Contingency_FR1_FR3 - outage, CNEC ID = "FR2-DE3-DO - outage"
+INFO  c.p.o.commons.logs.RaoBusinessLogs - Scenario "preventive": initial cost = 182.55 (functional: 182.55, virtual: 0.00), 1 network action(s) and 1 range action(s) activated, cost after PRA = 140.65 (functional: 140.65, virtual: 0.00)
+INFO  c.p.o.commons.logs.RaoBusinessLogs - ----- Preventive perimeter optimization [end]
+DEBUG c.p.openrao.commons.logs.TechnicalLogs - Systematic sensitivity analysis [start]
+DEBUG c.p.openrao.commons.logs.TechnicalLogs - Systematic sensitivity analysis [end]
+INFO  c.p.o.commons.logs.RaoBusinessLogs - Systematic sensitivity analysis after preventive remedial actions: cost = 790.43 (functional: 140.65, virtual: 649.78)
+INFO  c.p.o.commons.logs.RaoBusinessLogs - Limiting element #01: margin = -140.65 MW, element FFR2AA1  FFR3AA1  1 at state preventive, CNEC ID = "FR2-FR3-O - preventive"
+INFO  c.p.o.commons.logs.RaoBusinessLogs - Limiting element #02: margin = -32.49 MW, element NNL2AA1  BBE3AA1  1 at state Contingency_FR1_FR3 - auto, CNEC ID = "NL2-BE3-O - auto"
 ~~~
 
 This concludes the preventive RAO.  
@@ -238,9 +238,9 @@ In this case, the CRAC only defines one contingency: "Contingency_FR1_FR3".
 As many contingency scenarios are created as there are contingencies in the CRAC (with associated [remedial actions](/castor/rao-steps.md#extension-of-the-preventive-perimeter-to-the-curative-situation)).
 
 ~~~
-INFO  c.f.f.commons.logs.RaoBusinessLogs - ----- Post-contingency perimeters optimization [start]
-INFO  c.f.farao.commons.logs.TechnicalLogs - Using base network 'TestCase12Nodes2PSTs' on variant 'ContingencyScenario944e605c-e5df-4d31-a06e-7df90fa4517c'
-INFO  c.f.farao.commons.logs.TechnicalLogs - Optimizing scenario post-contingency Contingency_FR1_FR3.
+INFO  c.p.o.commons.logs.RaoBusinessLogs - ----- Post-contingency perimeters optimization [start]
+INFO  c.p.openrao.commons.logs.TechnicalLogs - Using base network 'TestCase12Nodes2PSTs' on variant 'ContingencyScenario944e605c-e5df-4d31-a06e-7df90fa4517c'
+INFO  c.p.openrao.commons.logs.TechnicalLogs - Optimizing scenario post-contingency Contingency_FR1_FR3.
 ~~~
 
 ### Automatons simulation
@@ -248,25 +248,25 @@ INFO  c.f.farao.commons.logs.TechnicalLogs - Optimizing scenario post-contingenc
 Automatons are triggered with regard to their usage rules.
 
 ~~~
-INFO  c.f.farao.commons.logs.TechnicalLogs - Optimizing automaton state Contingency_FR1_FR3 - auto.
-INFO  c.f.farao.commons.logs.TechnicalLogs - Initial situation:
-INFO  c.f.farao.commons.logs.TechnicalLogs - Limiting element #01: margin = -32.49 MW, element NNL2AA1  BBE3AA1  1 at state Contingency_FR1_FR3 - auto, CNEC ID = "NL2-BE3-O - auto"
-INFO  c.f.farao.commons.logs.TechnicalLogs - Topological automaton state Contingency_FR1_FR3 - auto has been skipped as no topological automatons were activated.
-DEBUG c.f.farao.commons.logs.TechnicalLogs - Shifting setpoint from 0.0 to 1.5583491300758083 on range action(s) ARA_PST_DE to improve margin on cnec NL2-BE3-O - auto on side LEFT (initial margin : -32.489056200328605 MW).
-DEBUG c.f.farao.commons.logs.TechnicalLogs - Systematic sensitivity analysis [start]
-DEBUG c.f.farao.commons.logs.TechnicalLogs - Systematic sensitivity analysis [end]
-INFO  c.f.farao.commons.logs.TechnicalLogs - Limiting element #01: margin = 6.96 MW, element NNL2AA1  BBE3AA1  1 at state Contingency_FR1_FR3 - auto, CNEC ID = "NL2-BE3-O - auto"
-INFO  c.f.farao.commons.logs.TechnicalLogs - Running pre curative sensi after auto state Contingency_FR1_FR3 - auto.
-DEBUG c.f.farao.commons.logs.TechnicalLogs - Systematic sensitivity analysis [start]
-DEBUG c.f.farao.commons.logs.TechnicalLogs - Systematic sensitivity analysis [end]
-INFO  c.f.farao.commons.logs.TechnicalLogs - Limiting element #01: margin = 6.96 MW, element NNL2AA1  BBE3AA1  1 at state Contingency_FR1_FR3 - auto, CNEC ID = "NL2-BE3-O - auto"
-INFO  c.f.farao.commons.logs.TechnicalLogs - Automaton state Contingency_FR1_FR3 - auto has been optimized.
-INFO  c.f.f.commons.logs.RaoBusinessLogs - Scenario "Contingency_FR1_FR3": 1 range action(s) activated, cost after ARA = -1549.84 (functional: -1549.84, virtual: 0.00)
+INFO  c.p.openrao.commons.logs.TechnicalLogs - Optimizing automaton state Contingency_FR1_FR3 - auto.
+INFO  c.p.openrao.commons.logs.TechnicalLogs - Initial situation:
+INFO  c.p.openrao.commons.logs.TechnicalLogs - Limiting element #01: margin = -32.49 MW, element NNL2AA1  BBE3AA1  1 at state Contingency_FR1_FR3 - auto, CNEC ID = "NL2-BE3-O - auto"
+INFO  c.p.openrao.commons.logs.TechnicalLogs - Topological automaton state Contingency_FR1_FR3 - auto has been skipped as no topological automatons were activated.
+DEBUG c.p.openrao.commons.logs.TechnicalLogs - Shifting setpoint from 0.0 to 1.5583491300758083 on range action(s) ARA_PST_DE to improve margin on cnec NL2-BE3-O - auto on side LEFT (initial margin : -32.489056200328605 MW).
+DEBUG c.p.openrao.commons.logs.TechnicalLogs - Systematic sensitivity analysis [start]
+DEBUG c.p.openrao.commons.logs.TechnicalLogs - Systematic sensitivity analysis [end]
+INFO  c.p.openrao.commons.logs.TechnicalLogs - Limiting element #01: margin = 6.96 MW, element NNL2AA1  BBE3AA1  1 at state Contingency_FR1_FR3 - auto, CNEC ID = "NL2-BE3-O - auto"
+INFO  c.p.openrao.commons.logs.TechnicalLogs - Running pre curative sensi after auto state Contingency_FR1_FR3 - auto.
+DEBUG c.p.openrao.commons.logs.TechnicalLogs - Systematic sensitivity analysis [start]
+DEBUG c.p.openrao.commons.logs.TechnicalLogs - Systematic sensitivity analysis [end]
+INFO  c.p.openrao.commons.logs.TechnicalLogs - Limiting element #01: margin = 6.96 MW, element NNL2AA1  BBE3AA1  1 at state Contingency_FR1_FR3 - auto, CNEC ID = "NL2-BE3-O - auto"
+INFO  c.p.openrao.commons.logs.TechnicalLogs - Automaton state Contingency_FR1_FR3 - auto has been optimized.
+INFO  c.p.o.commons.logs.RaoBusinessLogs - Scenario "Contingency_FR1_FR3": 1 range action(s) activated, cost after ARA = -1549.84 (functional: -1549.84, virtual: 0.00)
 ~~~
 
 In this case, automatic PST "ARA_PST_DE" is triggered in order to secure its associated CNEC "NL2-BE3-O - auto", that 
 has a negative margin of -32MW initially.  
-The FARAO automaton simulator shifts the PST's tap (using sensitivity values) until the CNEC is secured or the PST 
+The OpenRAO automaton simulator shifts the PST's tap (using sensitivity values) until the CNEC is secured or the PST 
 reaches its limit tap. In this case, shifting the PST's set-point from 0.0 to 1.56 (in radians) is enough to increase 
 the margin on the CNEC from -32 to +7 MW.  
 
@@ -277,52 +277,52 @@ Here, it is the same network element as in the auto perimeter with a margin of +
 The search-tree behaves exactly like the preventive search-tree, but using curative remedial actions defined in the CRAC. 
 
 ~~~
-INFO  c.f.farao.commons.logs.TechnicalLogs - Optimizing curative state Contingency_FR1_FR3 - curative.
-INFO  c.f.farao.commons.logs.TechnicalLogs - Evaluating root leaf
-DEBUG c.f.farao.commons.logs.TechnicalLogs - Leaf has already been evaluated
-INFO  c.f.farao.commons.logs.TechnicalLogs - Root leaf, range actions have not been optimized, cost: -6.96 (functional: -6.96, virtual: 0.00)
-INFO  c.f.farao.commons.logs.TechnicalLogs - Limiting element #01: margin = 6.96 MW, element NNL2AA1  BBE3AA1  1 at state Contingency_FR1_FR3 - curative, CNEC ID = "NL2-BE3-O - curative"
-INFO  c.f.farao.commons.logs.TechnicalLogs - Linear optimization on root leaf
-DEBUG c.f.farao.commons.logs.TechnicalLogs - Optimizing leaf...
-DEBUG c.f.farao.commons.logs.TechnicalLogs - Iteration 1: linear optimization [start]
-DEBUG c.f.farao.commons.logs.TechnicalLogs - Iteration 1: linear optimization [end]
-DEBUG c.f.farao.commons.logs.TechnicalLogs - Systematic sensitivity analysis [start]
-DEBUG c.f.farao.commons.logs.TechnicalLogs - Systematic sensitivity analysis [end]
-INFO  c.f.farao.commons.logs.TechnicalLogs - Iteration 1: better solution found with a cost of -223.77 (functional: -223.77)
-DEBUG c.f.farao.commons.logs.TechnicalLogs - Iteration 2: linear optimization [start]
-DEBUG c.f.farao.commons.logs.TechnicalLogs - Iteration 2: linear optimization [end]
-INFO  c.f.farao.commons.logs.TechnicalLogs - Iteration 2: same results as previous iterations, optimal solution found
-INFO  c.f.farao.commons.logs.TechnicalLogs - Root leaf, 1 range action(s) activated, cost: -223.77 (functional: -223.77, virtual: 0.00)
-INFO  c.f.farao.commons.logs.TechnicalLogs - range action(s): PRA_CRA_PST_BE: 16
-INFO  c.f.farao.commons.logs.TechnicalLogs - Limiting element #01: margin = 223.77 MW, element NNL2AA1  BBE3AA1  1 at state Contingency_FR1_FR3 - curative, CNEC ID = "NL2-BE3-O - curative"
-DEBUG c.f.farao.commons.logs.TechnicalLogs - Evaluating 1 leaves in parallel
-INFO  c.f.farao.commons.logs.TechnicalLogs - Using base network 'TestCase12Nodes2PSTs' on variant 'FaraoNetworkPool working variant c43f9fb6-2502-40d8-b99f-63c4598954c6'
-INFO  c.f.farao.commons.logs.TechnicalLogs - Search depth 1 [start]
-INFO  c.f.farao.commons.logs.TechnicalLogs - Leaves to evaluate: 1
-DEBUG c.f.farao.commons.logs.TechnicalLogs - Evaluating network action(s): Open line FR1-FR2
-DEBUG c.f.farao.commons.logs.TechnicalLogs - Systematic sensitivity analysis [start]
-DEBUG c.f.farao.commons.logs.TechnicalLogs - Systematic sensitivity analysis [end]
-DEBUG c.f.farao.commons.logs.TechnicalLogs - Evaluated network action(s): Open line FR1-FR2, range actions have not been optimized, cost: -7.61 (functional: -7.61, virtual: 0.00)
-DEBUG c.f.farao.commons.logs.TechnicalLogs - Optimizing leaf...
-DEBUG c.f.farao.commons.logs.TechnicalLogs - Iteration 1: linear optimization [start]
-DEBUG c.f.farao.commons.logs.TechnicalLogs - Iteration 1: linear optimization [end]
-DEBUG c.f.farao.commons.logs.TechnicalLogs - Systematic sensitivity analysis [start]
-DEBUG c.f.farao.commons.logs.TechnicalLogs - Systematic sensitivity analysis [end]
-INFO  c.f.farao.commons.logs.TechnicalLogs - Iteration 1: better solution found with a cost of -224.34 (functional: -224.34)
-DEBUG c.f.farao.commons.logs.TechnicalLogs - Iteration 2: linear optimization [start]
-DEBUG c.f.farao.commons.logs.TechnicalLogs - Iteration 2: linear optimization [end]
-INFO  c.f.farao.commons.logs.TechnicalLogs - Iteration 2: same results as previous iterations, optimal solution found
-INFO  c.f.farao.commons.logs.TechnicalLogs - Optimized network action(s): Open line FR1-FR2, 1 range action(s) activated, cost: -224.34 (functional: -224.34, virtual: 0.00)
-INFO  c.f.farao.commons.logs.TechnicalLogs - Remaining leaves to evaluate: 0
-INFO  c.f.farao.commons.logs.TechnicalLogs - No better result found in search depth 1, exiting search tree
-INFO  c.f.farao.commons.logs.TechnicalLogs - Search-tree RAO completed with status DEFAULT
-INFO  c.f.farao.commons.logs.TechnicalLogs - Best leaf: Root leaf, 1 range action(s) activated, cost: -223.77 (functional: -223.77, virtual: 0.00)
-INFO  c.f.farao.commons.logs.TechnicalLogs - Best leaf: range action(s): PRA_CRA_PST_BE: 16
-INFO  c.f.farao.commons.logs.TechnicalLogs - Limiting element #01: margin = 223.77 MW, element NNL2AA1  BBE3AA1  1 at state Contingency_FR1_FR3 - curative, CNEC ID = "NL2-BE3-O - curative"
-INFO  c.f.f.commons.logs.RaoBusinessLogs - Scenario "Contingency_FR1_FR3": initial cost = -6.96 (functional: -6.96, virtual: 0.00), 1 range action(s) activated, cost after CRA = -223.77 (functional: -223.77, virtual: 0.00)
-INFO  c.f.farao.commons.logs.TechnicalLogs - Curative state Contingency_FR1_FR3 - curative has been optimized.
-INFO  c.f.farao.commons.logs.TechnicalLogs - Remaining post-contingency scenarios to optimize: 0
-INFO  c.f.f.commons.logs.RaoBusinessLogs - ----- Post-contingency perimeters optimization [end]
+INFO  c.p.openrao.commons.logs.TechnicalLogs - Optimizing curative state Contingency_FR1_FR3 - curative.
+INFO  c.p.openrao.commons.logs.TechnicalLogs - Evaluating root leaf
+DEBUG c.p.openrao.commons.logs.TechnicalLogs - Leaf has already been evaluated
+INFO  c.p.openrao.commons.logs.TechnicalLogs - Root leaf, range actions have not been optimized, cost: -6.96 (functional: -6.96, virtual: 0.00)
+INFO  c.p.openrao.commons.logs.TechnicalLogs - Limiting element #01: margin = 6.96 MW, element NNL2AA1  BBE3AA1  1 at state Contingency_FR1_FR3 - curative, CNEC ID = "NL2-BE3-O - curative"
+INFO  c.p.openrao.commons.logs.TechnicalLogs - Linear optimization on root leaf
+DEBUG c.p.openrao.commons.logs.TechnicalLogs - Optimizing leaf...
+DEBUG c.p.openrao.commons.logs.TechnicalLogs - Iteration 1: linear optimization [start]
+DEBUG c.p.openrao.commons.logs.TechnicalLogs - Iteration 1: linear optimization [end]
+DEBUG c.p.openrao.commons.logs.TechnicalLogs - Systematic sensitivity analysis [start]
+DEBUG c.p.openrao.commons.logs.TechnicalLogs - Systematic sensitivity analysis [end]
+INFO  c.p.openrao.commons.logs.TechnicalLogs - Iteration 1: better solution found with a cost of -223.77 (functional: -223.77)
+DEBUG c.p.openrao.commons.logs.TechnicalLogs - Iteration 2: linear optimization [start]
+DEBUG c.p.openrao.commons.logs.TechnicalLogs - Iteration 2: linear optimization [end]
+INFO  c.p.openrao.commons.logs.TechnicalLogs - Iteration 2: same results as previous iterations, optimal solution found
+INFO  c.p.openrao.commons.logs.TechnicalLogs - Root leaf, 1 range action(s) activated, cost: -223.77 (functional: -223.77, virtual: 0.00)
+INFO  c.p.openrao.commons.logs.TechnicalLogs - range action(s): PRA_CRA_PST_BE: 16
+INFO  c.p.openrao.commons.logs.TechnicalLogs - Limiting element #01: margin = 223.77 MW, element NNL2AA1  BBE3AA1  1 at state Contingency_FR1_FR3 - curative, CNEC ID = "NL2-BE3-O - curative"
+DEBUG c.p.openrao.commons.logs.TechnicalLogs - Evaluating 1 leaves in parallel
+INFO  c.p.openrao.commons.logs.TechnicalLogs - Using base network 'TestCase12Nodes2PSTs' on variant 'OpenRaoNetworkPool working variant c43f9fb6-2502-40d8-b99f-63c4598954c6'
+INFO  c.p.openrao.commons.logs.TechnicalLogs - Search depth 1 [start]
+INFO  c.p.openrao.commons.logs.TechnicalLogs - Leaves to evaluate: 1
+DEBUG c.p.openrao.commons.logs.TechnicalLogs - Evaluating network action(s): Open line FR1-FR2
+DEBUG c.p.openrao.commons.logs.TechnicalLogs - Systematic sensitivity analysis [start]
+DEBUG c.p.openrao.commons.logs.TechnicalLogs - Systematic sensitivity analysis [end]
+DEBUG c.p.openrao.commons.logs.TechnicalLogs - Evaluated network action(s): Open line FR1-FR2, range actions have not been optimized, cost: -7.61 (functional: -7.61, virtual: 0.00)
+DEBUG c.p.openrao.commons.logs.TechnicalLogs - Optimizing leaf...
+DEBUG c.p.openrao.commons.logs.TechnicalLogs - Iteration 1: linear optimization [start]
+DEBUG c.p.openrao.commons.logs.TechnicalLogs - Iteration 1: linear optimization [end]
+DEBUG c.p.openrao.commons.logs.TechnicalLogs - Systematic sensitivity analysis [start]
+DEBUG c.p.openrao.commons.logs.TechnicalLogs - Systematic sensitivity analysis [end]
+INFO  c.p.openrao.commons.logs.TechnicalLogs - Iteration 1: better solution found with a cost of -224.34 (functional: -224.34)
+DEBUG c.p.openrao.commons.logs.TechnicalLogs - Iteration 2: linear optimization [start]
+DEBUG c.p.openrao.commons.logs.TechnicalLogs - Iteration 2: linear optimization [end]
+INFO  c.p.openrao.commons.logs.TechnicalLogs - Iteration 2: same results as previous iterations, optimal solution found
+INFO  c.p.openrao.commons.logs.TechnicalLogs - Optimized network action(s): Open line FR1-FR2, 1 range action(s) activated, cost: -224.34 (functional: -224.34, virtual: 0.00)
+INFO  c.p.openrao.commons.logs.TechnicalLogs - Remaining leaves to evaluate: 0
+INFO  c.p.openrao.commons.logs.TechnicalLogs - No better result found in search depth 1, exiting search tree
+INFO  c.p.openrao.commons.logs.TechnicalLogs - Search-tree RAO completed with status DEFAULT
+INFO  c.p.openrao.commons.logs.TechnicalLogs - Best leaf: Root leaf, 1 range action(s) activated, cost: -223.77 (functional: -223.77, virtual: 0.00)
+INFO  c.p.openrao.commons.logs.TechnicalLogs - Best leaf: range action(s): PRA_CRA_PST_BE: 16
+INFO  c.p.openrao.commons.logs.TechnicalLogs - Limiting element #01: margin = 223.77 MW, element NNL2AA1  BBE3AA1  1 at state Contingency_FR1_FR3 - curative, CNEC ID = "NL2-BE3-O - curative"
+INFO  c.p.o.commons.logs.RaoBusinessLogs - Scenario "Contingency_FR1_FR3": initial cost = -6.96 (functional: -6.96, virtual: 0.00), 1 range action(s) activated, cost after CRA = -223.77 (functional: -223.77, virtual: 0.00)
+INFO  c.p.openrao.commons.logs.TechnicalLogs - Curative state Contingency_FR1_FR3 - curative has been optimized.
+INFO  c.p.openrao.commons.logs.TechnicalLogs - Remaining post-contingency scenarios to optimize: 0
+INFO  c.p.o.commons.logs.RaoBusinessLogs - ----- Post-contingency perimeters optimization [end]
 ~~~
 
 In this case, setting "PRA_CRA_PST_BE" to tap +16 produces the best result with a minimum margin, on this curative 
@@ -336,14 +336,14 @@ Then a second preventive RAO is executed.
 First, the RAO applies only automatons and curative actions on the network and assesses the constraints.
 
 ~~~
-DEBUG c.f.farao.commons.logs.TechnicalLogs - Systematic sensitivity analysis with applied RA [start]
-DEBUG c.f.farao.commons.logs.TechnicalLogs - ... (1/3) 2 state(s) without RA 
-DEBUG c.f.farao.commons.logs.TechnicalLogs - ... (2/3) state with RA Contingency_FR1_FR3 - auto
-DEBUG c.f.farao.commons.logs.TechnicalLogs - ... (3/3) state with RA Contingency_FR1_FR3 - curative
-DEBUG c.f.farao.commons.logs.TechnicalLogs - Systematic sensitivity analysis with applied RA [end]
-INFO  c.f.f.commons.logs.RaoBusinessLogs - Systematic sensitivity analysis after curative remedial actions before second preventive optimization: cost = 592.14 (functional: 203.22, virtual: 388.93)
-INFO  c.f.f.commons.logs.RaoBusinessLogs - Limiting element #01: margin = -203.22 MW, element NNL1AA1  NNL3AA1  1 at state Contingency_FR1_FR3 - outage, CNEC ID = "NL1-NL3-D - outage"
-INFO  c.f.f.commons.logs.RaoBusinessLogs - Limiting element #02: margin = -122.73 MW, element FFR2AA1  FFR3AA1  1 at state preventive, CNEC ID = "FR2-FR3-O - preventive"
+DEBUG c.p.openrao.commons.logs.TechnicalLogs - Systematic sensitivity analysis with applied RA [start]
+DEBUG c.p.openrao.commons.logs.TechnicalLogs - ... (1/3) 2 state(s) without RA 
+DEBUG c.p.openrao.commons.logs.TechnicalLogs - ... (2/3) state with RA Contingency_FR1_FR3 - auto
+DEBUG c.p.openrao.commons.logs.TechnicalLogs - ... (3/3) state with RA Contingency_FR1_FR3 - curative
+DEBUG c.p.openrao.commons.logs.TechnicalLogs - Systematic sensitivity analysis with applied RA [end]
+INFO  c.p.o.commons.logs.RaoBusinessLogs - Systematic sensitivity analysis after curative remedial actions before second preventive optimization: cost = 592.14 (functional: 203.22, virtual: 388.93)
+INFO  c.p.o.commons.logs.RaoBusinessLogs - Limiting element #01: margin = -203.22 MW, element NNL1AA1  NNL3AA1  1 at state Contingency_FR1_FR3 - outage, CNEC ID = "NL1-NL3-D - outage"
+INFO  c.p.o.commons.logs.RaoBusinessLogs - Limiting element #02: margin = -122.73 MW, element FFR2AA1  FFR3AA1  1 at state preventive, CNEC ID = "FR2-FR3-O - preventive"
 ~~~
 
 It finds that applying these RAs only results in a minimum margin of -203.22 MW on "NL1-NL3-D - outage", but also in a 
@@ -356,77 +356,77 @@ automatic and curative actions.
 curative, and re-optimising curative PSTs is not enabled in this instance)
 
 ~~~
-INFO  c.f.f.commons.logs.RaoBusinessLogs - ----- Second preventive perimeter optimization [start]
-WARN  c.f.f.commons.logs.RaoBusinessWarns - Range action PRA_CRA_PST_BE will not be considered in 2nd preventive RAO as it is also curative (or its network element has an associated CRA)
-INFO  c.f.farao.commons.logs.TechnicalLogs - Evaluating root leaf
-DEBUG c.f.farao.commons.logs.TechnicalLogs - Leaf has already been evaluated
-INFO  c.f.farao.commons.logs.TechnicalLogs - Root leaf, range actions have not been optimized, cost: 592.14 (functional: 203.22, virtual: 388.93)
-INFO  c.f.farao.commons.logs.TechnicalLogs - Limiting element #01: margin = -203.22 MW, element NNL1AA1  NNL3AA1  1 at state Contingency_FR1_FR3 - outage, CNEC ID = "NL1-NL3-D - outage"
-INFO  c.f.farao.commons.logs.TechnicalLogs - Limiting element #02: margin = -122.73 MW, element FFR2AA1  FFR3AA1  1 at state preventive, CNEC ID = "FR2-FR3-O - preventive"
-INFO  c.f.farao.commons.logs.TechnicalLogs - Linear optimization on root leaf
-INFO  c.f.farao.commons.logs.TechnicalLogs - No range actions to optimize
-INFO  c.f.f.commons.logs.RaoBusinessLogs - Root leaf, range actions have not been optimized, cost: 592.14 (functional: 203.22, virtual: 388.93)
-INFO  c.f.farao.commons.logs.TechnicalLogs - range action(s): 
-INFO  c.f.f.commons.logs.RaoBusinessLogs - Limiting element #01: margin = -203.22 MW, element NNL1AA1  NNL3AA1  1 at state Contingency_FR1_FR3 - outage, CNEC ID = "NL1-NL3-D - outage"
-INFO  c.f.f.commons.logs.RaoBusinessLogs - Limiting element #02: margin = -122.73 MW, element FFR2AA1  FFR3AA1  1 at state preventive, CNEC ID = "FR2-FR3-O - preventive"
-INFO  c.f.f.commons.logs.RaoBusinessLogs - Root leaf, limiting "mnec-cost" constraint #01: flow = -1610.04 MW, threshold = -1590.02 MW, margin = -20.02 MW, element NNL2AA1  BBE3AA1  1 at state Contingency_FR1_FR3 - outage, CNEC ID = "NL2-BE3-O - outage", CNEC name = "NL2-BE3"
-INFO  c.f.f.commons.logs.RaoBusinessLogs - Root leaf, limiting "mnec-cost" constraint #02: flow = -1568.71 MW, threshold = -1549.84 MW, margin = -18.87 MW, element NNL2AA1  BBE3AA1  1 at state Contingency_FR1_FR3 - auto, CNEC ID = "NL2-BE3-O - auto", CNEC name = "NL2-BE3"
-DEBUG c.f.farao.commons.logs.TechnicalLogs - Evaluating 1 leaves in parallel
-INFO  c.f.farao.commons.logs.TechnicalLogs - Using base network 'TestCase12Nodes2PSTs' on variant 'SecondPreventiveScenario'
-INFO  c.f.farao.commons.logs.TechnicalLogs - Search depth 1 [start]
-INFO  c.f.farao.commons.logs.TechnicalLogs - Leaves to evaluate: 2
-DEBUG c.f.farao.commons.logs.TechnicalLogs - Evaluating network action(s): Open line FR1-FR2
-DEBUG c.f.farao.commons.logs.TechnicalLogs - Systematic sensitivity analysis with applied RA [start]
-DEBUG c.f.farao.commons.logs.TechnicalLogs - ... (1/3) 2 state(s) without RA 
-DEBUG c.f.farao.commons.logs.TechnicalLogs - ... (2/3) state with RA Contingency_FR1_FR3 - auto
-DEBUG c.f.farao.commons.logs.TechnicalLogs - ... (3/3) state with RA Contingency_FR1_FR3 - curative
-DEBUG c.f.farao.commons.logs.TechnicalLogs - Systematic sensitivity analysis with applied RA [end]
-DEBUG c.f.farao.commons.logs.TechnicalLogs - Evaluated network action(s): Open line FR1-FR2, range actions have not been optimized, cost: 1577.69 (functional: 1246.11, virtual: 331.58)
-INFO  c.f.farao.commons.logs.TechnicalLogs - No range actions to optimize
-INFO  c.f.f.commons.logs.RaoBusinessLogs - Optimized network action(s): Open line FR1-FR2, range actions have not been optimized, cost: 1577.69 (functional: 1246.11, virtual: 331.58)
-INFO  c.f.f.commons.logs.RaoBusinessLogs - Optimized network action(s): Open line FR1-FR2, limiting "mnec-cost" constraint #01: flow = -1565.86 MW, threshold = -1549.84 MW, margin = -16.02 MW, element NNL2AA1  BBE3AA1  1 at state Contingency_FR1_FR3 - auto, CNEC ID = "NL2-BE3-O - auto", CNEC name = "NL2-BE3"
-INFO  c.f.f.commons.logs.RaoBusinessLogs - Optimized network action(s): Open line FR1-FR2, limiting "mnec-cost" constraint #02: flow = -1607.16 MW, threshold = -1590.02 MW, margin = -17.14 MW, element NNL2AA1  BBE3AA1  1 at state Contingency_FR1_FR3 - outage, CNEC ID = "NL2-BE3-O - outage", CNEC name = "NL2-BE3"
-INFO  c.f.farao.commons.logs.TechnicalLogs - Remaining leaves to evaluate: 1
-DEBUG c.f.farao.commons.logs.TechnicalLogs - Evaluating network action(s): Open line NL1-NL2
-DEBUG c.f.farao.commons.logs.TechnicalLogs - Systematic sensitivity analysis with applied RA [start]
-DEBUG c.f.farao.commons.logs.TechnicalLogs - ... (1/3) 2 state(s) without RA 
-DEBUG c.f.farao.commons.logs.TechnicalLogs - ... (2/3) state with RA Contingency_FR1_FR3 - auto
-DEBUG c.f.farao.commons.logs.TechnicalLogs - ... (3/3) state with RA Contingency_FR1_FR3 - curative
-DEBUG c.f.farao.commons.logs.TechnicalLogs - Systematic sensitivity analysis with applied RA [end]
-DEBUG c.f.farao.commons.logs.TechnicalLogs - Evaluated network action(s): Open line NL1-NL2, range actions have not been optimized, cost: 140.65 (functional: 140.65, virtual: 0.00)
-INFO  c.f.farao.commons.logs.TechnicalLogs - No range actions to optimize
-INFO  c.f.f.commons.logs.RaoBusinessLogs - Optimized network action(s): Open line NL1-NL2, range actions have not been optimized, cost: 140.65 (functional: 140.65, virtual: 0.00)
-INFO  c.f.farao.commons.logs.TechnicalLogs - Remaining leaves to evaluate: 0
-INFO  c.f.farao.commons.logs.TechnicalLogs - Search depth 1 [end]
-INFO  c.f.f.commons.logs.RaoBusinessLogs - Search depth 1 best leaf: network action(s): Open line NL1-NL2, range actions have not been optimized, cost: 140.65 (functional: 140.65, virtual: 0.00)
-INFO  c.f.farao.commons.logs.TechnicalLogs - Search depth 1 best leaf: range action(s): 
-INFO  c.f.f.commons.logs.RaoBusinessLogs - Limiting element #01: margin = -140.65 MW, element FFR2AA1  FFR3AA1  1 at state preventive, CNEC ID = "FR2-FR3-O - preventive"
-INFO  c.f.f.commons.logs.RaoBusinessLogs - Limiting element #02: margin = 0.22 MW, element NNL1AA1  NNL3AA1  1 at state Contingency_FR1_FR3 - outage, CNEC ID = "NL1-NL3-D - outage"
-INFO  c.f.farao.commons.logs.TechnicalLogs - Search depth 2 [start]
-INFO  c.f.farao.commons.logs.TechnicalLogs - Leaves to evaluate: 1
-DEBUG c.f.farao.commons.logs.TechnicalLogs - Evaluating network action(s): Open line NL1-NL2, Open line FR1-FR2
-DEBUG c.f.farao.commons.logs.TechnicalLogs - Systematic sensitivity analysis with applied RA [start]
-DEBUG c.f.farao.commons.logs.TechnicalLogs - ... (1/3) 2 state(s) without RA 
-DEBUG c.f.farao.commons.logs.TechnicalLogs - ... (2/3) state with RA Contingency_FR1_FR3 - auto
-DEBUG c.f.farao.commons.logs.TechnicalLogs - ... (3/3) state with RA Contingency_FR1_FR3 - curative
-DEBUG c.f.farao.commons.logs.TechnicalLogs - Systematic sensitivity analysis with applied RA [end]
-DEBUG c.f.farao.commons.logs.TechnicalLogs - Evaluated network action(s): Open line NL1-NL2, Open line FR1-FR2, range actions have not been optimized, cost: 1280.34 (functional: 1280.34, virtual: 0.00)
-INFO  c.f.farao.commons.logs.TechnicalLogs - No range actions to optimize
-INFO  c.f.f.commons.logs.RaoBusinessLogs - Optimized network action(s): Open line NL1-NL2, Open line FR1-FR2, range actions have not been optimized, cost: 1280.34 (functional: 1280.34, virtual: 0.00)
-INFO  c.f.farao.commons.logs.TechnicalLogs - Remaining leaves to evaluate: 0
-INFO  c.f.f.commons.logs.RaoBusinessLogs - No better result found in search depth 2, exiting search tree
-INFO  c.f.farao.commons.logs.TechnicalLogs - Search-tree RAO completed with status DEFAULT
-INFO  c.f.farao.commons.logs.TechnicalLogs - Best leaf: network action(s): Open line NL1-NL2, range actions have not been optimized, cost: 140.65 (functional: 140.65, virtual: 0.00)
-INFO  c.f.farao.commons.logs.TechnicalLogs - Best leaf: range action(s): PRA_CRA_PST_BE: -6
-INFO  c.f.farao.commons.logs.TechnicalLogs - Limiting element #01: margin = -140.65 MW, element FFR2AA1  FFR3AA1  1 at state preventive, CNEC ID = "FR2-FR3-O - preventive"
-INFO  c.f.farao.commons.logs.TechnicalLogs - Limiting element #02: margin = 0.22 MW, element NNL1AA1  NNL3AA1  1 at state Contingency_FR1_FR3 - outage, CNEC ID = "NL1-NL3-D - outage"
-INFO  c.f.farao.commons.logs.TechnicalLogs - Limiting element #03: margin = 38.37 MW, element FFR2AA1  DDE3AA1  1 at state preventive, CNEC ID = "FR2-DE3-D - preventive"
-INFO  c.f.farao.commons.logs.TechnicalLogs - Limiting element #04: margin = 82.50 MW, element FFR2AA1  FFR3AA1  1 at state Contingency_FR1_FR3 - outage, CNEC ID = "FR2-FR3-OO - outage"
-INFO  c.f.farao.commons.logs.TechnicalLogs - Limiting element #05: margin = 223.77 MW, element NNL2AA1  BBE3AA1  1 at state Contingency_FR1_FR3 - curative, CNEC ID = "NL2-BE3-O - curative"
-INFO  c.f.f.commons.logs.RaoBusinessLogs - Scenario "preventive": initial cost = 592.14 (functional: 203.22, virtual: 388.93), 1 network action(s) activated, cost after PRA = 140.65 (functional: 140.65, virtual: 0.00)
-DEBUG c.f.farao.commons.logs.TechnicalLogs - Systematic sensitivity analysis [start]
-DEBUG c.f.farao.commons.logs.TechnicalLogs - Systematic sensitivity analysis [end]
-INFO  c.f.f.commons.logs.RaoBusinessLogs - ----- Second preventive perimeter optimization [end]
+INFO  c.p.o.commons.logs.RaoBusinessLogs - ----- Second preventive perimeter optimization [start]
+WARN  c.p.o.commons.logs.RaoBusinessWarns - Range action PRA_CRA_PST_BE will not be considered in 2nd preventive RAO as it is also curative (or its network element has an associated CRA)
+INFO  c.p.openrao.commons.logs.TechnicalLogs - Evaluating root leaf
+DEBUG c.p.openrao.commons.logs.TechnicalLogs - Leaf has already been evaluated
+INFO  c.p.openrao.commons.logs.TechnicalLogs - Root leaf, range actions have not been optimized, cost: 592.14 (functional: 203.22, virtual: 388.93)
+INFO  c.p.openrao.commons.logs.TechnicalLogs - Limiting element #01: margin = -203.22 MW, element NNL1AA1  NNL3AA1  1 at state Contingency_FR1_FR3 - outage, CNEC ID = "NL1-NL3-D - outage"
+INFO  c.p.openrao.commons.logs.TechnicalLogs - Limiting element #02: margin = -122.73 MW, element FFR2AA1  FFR3AA1  1 at state preventive, CNEC ID = "FR2-FR3-O - preventive"
+INFO  c.p.openrao.commons.logs.TechnicalLogs - Linear optimization on root leaf
+INFO  c.p.openrao.commons.logs.TechnicalLogs - No range actions to optimize
+INFO  c.p.o.commons.logs.RaoBusinessLogs - Root leaf, range actions have not been optimized, cost: 592.14 (functional: 203.22, virtual: 388.93)
+INFO  c.p.openrao.commons.logs.TechnicalLogs - range action(s): 
+INFO  c.p.o.commons.logs.RaoBusinessLogs - Limiting element #01: margin = -203.22 MW, element NNL1AA1  NNL3AA1  1 at state Contingency_FR1_FR3 - outage, CNEC ID = "NL1-NL3-D - outage"
+INFO  c.p.o.commons.logs.RaoBusinessLogs - Limiting element #02: margin = -122.73 MW, element FFR2AA1  FFR3AA1  1 at state preventive, CNEC ID = "FR2-FR3-O - preventive"
+INFO  c.p.o.commons.logs.RaoBusinessLogs - Root leaf, limiting "mnec-cost" constraint #01: flow = -1610.04 MW, threshold = -1590.02 MW, margin = -20.02 MW, element NNL2AA1  BBE3AA1  1 at state Contingency_FR1_FR3 - outage, CNEC ID = "NL2-BE3-O - outage", CNEC name = "NL2-BE3"
+INFO  c.p.o.commons.logs.RaoBusinessLogs - Root leaf, limiting "mnec-cost" constraint #02: flow = -1568.71 MW, threshold = -1549.84 MW, margin = -18.87 MW, element NNL2AA1  BBE3AA1  1 at state Contingency_FR1_FR3 - auto, CNEC ID = "NL2-BE3-O - auto", CNEC name = "NL2-BE3"
+DEBUG c.p.openrao.commons.logs.TechnicalLogs - Evaluating 1 leaves in parallel
+INFO  c.p.openrao.commons.logs.TechnicalLogs - Using base network 'TestCase12Nodes2PSTs' on variant 'SecondPreventiveScenario'
+INFO  c.p.openrao.commons.logs.TechnicalLogs - Search depth 1 [start]
+INFO  c.p.openrao.commons.logs.TechnicalLogs - Leaves to evaluate: 2
+DEBUG c.p.openrao.commons.logs.TechnicalLogs - Evaluating network action(s): Open line FR1-FR2
+DEBUG c.p.openrao.commons.logs.TechnicalLogs - Systematic sensitivity analysis with applied RA [start]
+DEBUG c.p.openrao.commons.logs.TechnicalLogs - ... (1/3) 2 state(s) without RA 
+DEBUG c.p.openrao.commons.logs.TechnicalLogs - ... (2/3) state with RA Contingency_FR1_FR3 - auto
+DEBUG c.p.openrao.commons.logs.TechnicalLogs - ... (3/3) state with RA Contingency_FR1_FR3 - curative
+DEBUG c.p.openrao.commons.logs.TechnicalLogs - Systematic sensitivity analysis with applied RA [end]
+DEBUG c.p.openrao.commons.logs.TechnicalLogs - Evaluated network action(s): Open line FR1-FR2, range actions have not been optimized, cost: 1577.69 (functional: 1246.11, virtual: 331.58)
+INFO  c.p.openrao.commons.logs.TechnicalLogs - No range actions to optimize
+INFO  c.p.o.commons.logs.RaoBusinessLogs - Optimized network action(s): Open line FR1-FR2, range actions have not been optimized, cost: 1577.69 (functional: 1246.11, virtual: 331.58)
+INFO  c.p.o.commons.logs.RaoBusinessLogs - Optimized network action(s): Open line FR1-FR2, limiting "mnec-cost" constraint #01: flow = -1565.86 MW, threshold = -1549.84 MW, margin = -16.02 MW, element NNL2AA1  BBE3AA1  1 at state Contingency_FR1_FR3 - auto, CNEC ID = "NL2-BE3-O - auto", CNEC name = "NL2-BE3"
+INFO  c.p.o.commons.logs.RaoBusinessLogs - Optimized network action(s): Open line FR1-FR2, limiting "mnec-cost" constraint #02: flow = -1607.16 MW, threshold = -1590.02 MW, margin = -17.14 MW, element NNL2AA1  BBE3AA1  1 at state Contingency_FR1_FR3 - outage, CNEC ID = "NL2-BE3-O - outage", CNEC name = "NL2-BE3"
+INFO  c.p.openrao.commons.logs.TechnicalLogs - Remaining leaves to evaluate: 1
+DEBUG c.p.openrao.commons.logs.TechnicalLogs - Evaluating network action(s): Open line NL1-NL2
+DEBUG c.p.openrao.commons.logs.TechnicalLogs - Systematic sensitivity analysis with applied RA [start]
+DEBUG c.p.openrao.commons.logs.TechnicalLogs - ... (1/3) 2 state(s) without RA 
+DEBUG c.p.openrao.commons.logs.TechnicalLogs - ... (2/3) state with RA Contingency_FR1_FR3 - auto
+DEBUG c.p.openrao.commons.logs.TechnicalLogs - ... (3/3) state with RA Contingency_FR1_FR3 - curative
+DEBUG c.p.openrao.commons.logs.TechnicalLogs - Systematic sensitivity analysis with applied RA [end]
+DEBUG c.p.openrao.commons.logs.TechnicalLogs - Evaluated network action(s): Open line NL1-NL2, range actions have not been optimized, cost: 140.65 (functional: 140.65, virtual: 0.00)
+INFO  c.p.openrao.commons.logs.TechnicalLogs - No range actions to optimize
+INFO  c.p.o.commons.logs.RaoBusinessLogs - Optimized network action(s): Open line NL1-NL2, range actions have not been optimized, cost: 140.65 (functional: 140.65, virtual: 0.00)
+INFO  c.p.openrao.commons.logs.TechnicalLogs - Remaining leaves to evaluate: 0
+INFO  c.p.openrao.commons.logs.TechnicalLogs - Search depth 1 [end]
+INFO  c.p.o.commons.logs.RaoBusinessLogs - Search depth 1 best leaf: network action(s): Open line NL1-NL2, range actions have not been optimized, cost: 140.65 (functional: 140.65, virtual: 0.00)
+INFO  c.p.openrao.commons.logs.TechnicalLogs - Search depth 1 best leaf: range action(s): 
+INFO  c.p.o.commons.logs.RaoBusinessLogs - Limiting element #01: margin = -140.65 MW, element FFR2AA1  FFR3AA1  1 at state preventive, CNEC ID = "FR2-FR3-O - preventive"
+INFO  c.p.o.commons.logs.RaoBusinessLogs - Limiting element #02: margin = 0.22 MW, element NNL1AA1  NNL3AA1  1 at state Contingency_FR1_FR3 - outage, CNEC ID = "NL1-NL3-D - outage"
+INFO  c.p.openrao.commons.logs.TechnicalLogs - Search depth 2 [start]
+INFO  c.p.openrao.commons.logs.TechnicalLogs - Leaves to evaluate: 1
+DEBUG c.p.openrao.commons.logs.TechnicalLogs - Evaluating network action(s): Open line NL1-NL2, Open line FR1-FR2
+DEBUG c.p.openrao.commons.logs.TechnicalLogs - Systematic sensitivity analysis with applied RA [start]
+DEBUG c.p.openrao.commons.logs.TechnicalLogs - ... (1/3) 2 state(s) without RA 
+DEBUG c.p.openrao.commons.logs.TechnicalLogs - ... (2/3) state with RA Contingency_FR1_FR3 - auto
+DEBUG c.p.openrao.commons.logs.TechnicalLogs - ... (3/3) state with RA Contingency_FR1_FR3 - curative
+DEBUG c.p.openrao.commons.logs.TechnicalLogs - Systematic sensitivity analysis with applied RA [end]
+DEBUG c.p.openrao.commons.logs.TechnicalLogs - Evaluated network action(s): Open line NL1-NL2, Open line FR1-FR2, range actions have not been optimized, cost: 1280.34 (functional: 1280.34, virtual: 0.00)
+INFO  c.p.openrao.commons.logs.TechnicalLogs - No range actions to optimize
+INFO  c.p.o.commons.logs.RaoBusinessLogs - Optimized network action(s): Open line NL1-NL2, Open line FR1-FR2, range actions have not been optimized, cost: 1280.34 (functional: 1280.34, virtual: 0.00)
+INFO  c.p.openrao.commons.logs.TechnicalLogs - Remaining leaves to evaluate: 0
+INFO  c.p.o.commons.logs.RaoBusinessLogs - No better result found in search depth 2, exiting search tree
+INFO  c.p.openrao.commons.logs.TechnicalLogs - Search-tree RAO completed with status DEFAULT
+INFO  c.p.openrao.commons.logs.TechnicalLogs - Best leaf: network action(s): Open line NL1-NL2, range actions have not been optimized, cost: 140.65 (functional: 140.65, virtual: 0.00)
+INFO  c.p.openrao.commons.logs.TechnicalLogs - Best leaf: range action(s): PRA_CRA_PST_BE: -6
+INFO  c.p.openrao.commons.logs.TechnicalLogs - Limiting element #01: margin = -140.65 MW, element FFR2AA1  FFR3AA1  1 at state preventive, CNEC ID = "FR2-FR3-O - preventive"
+INFO  c.p.openrao.commons.logs.TechnicalLogs - Limiting element #02: margin = 0.22 MW, element NNL1AA1  NNL3AA1  1 at state Contingency_FR1_FR3 - outage, CNEC ID = "NL1-NL3-D - outage"
+INFO  c.p.openrao.commons.logs.TechnicalLogs - Limiting element #03: margin = 38.37 MW, element FFR2AA1  DDE3AA1  1 at state preventive, CNEC ID = "FR2-DE3-D - preventive"
+INFO  c.p.openrao.commons.logs.TechnicalLogs - Limiting element #04: margin = 82.50 MW, element FFR2AA1  FFR3AA1  1 at state Contingency_FR1_FR3 - outage, CNEC ID = "FR2-FR3-OO - outage"
+INFO  c.p.openrao.commons.logs.TechnicalLogs - Limiting element #05: margin = 223.77 MW, element NNL2AA1  BBE3AA1  1 at state Contingency_FR1_FR3 - curative, CNEC ID = "NL2-BE3-O - curative"
+INFO  c.p.o.commons.logs.RaoBusinessLogs - Scenario "preventive": initial cost = 592.14 (functional: 203.22, virtual: 388.93), 1 network action(s) activated, cost after PRA = 140.65 (functional: 140.65, virtual: 0.00)
+DEBUG c.p.openrao.commons.logs.TechnicalLogs - Systematic sensitivity analysis [start]
+DEBUG c.p.openrao.commons.logs.TechnicalLogs - Systematic sensitivity analysis [end]
+INFO  c.p.o.commons.logs.RaoBusinessLogs - ----- Second preventive perimeter optimization [end]
 ~~~
 
 The search-tree now finds that the optimal preventive remedial action combination is still the same.  
@@ -440,25 +440,25 @@ In this case, second preventive RAO did not change preventive actions, so the se
 the same way as the first.
 
 ~~~
-INFO  c.f.f.commons.logs.RaoBusinessLogs - ----- Second automaton simulation [start]
-INFO  c.f.farao.commons.logs.TechnicalLogs - Using base network 'TestCase12Nodes2PSTs' on variant 'ContingencyScenarioaa4a095c-b400-4008-a9f0-894073339fd3'
-INFO  c.f.farao.commons.logs.TechnicalLogs - Optimizing scenario post-contingency Contingency_FR1_FR3.
-INFO  c.f.farao.commons.logs.TechnicalLogs - Optimizing automaton state Contingency_FR1_FR3 - auto.
-INFO  c.f.farao.commons.logs.TechnicalLogs - Initial situation:
-INFO  c.f.farao.commons.logs.TechnicalLogs - Limiting element #01: margin = -32.49 MW, element NNL2AA1  BBE3AA1  1 at state Contingency_FR1_FR3 - curative, CNEC ID = "NL2-BE3-O - curative"
-INFO  c.f.farao.commons.logs.TechnicalLogs - Topological automaton state Contingency_FR1_FR3 - auto has been skipped as no topological automatons were activated.
-DEBUG c.f.farao.commons.logs.TechnicalLogs - Shifting setpoint from 0.0 to 1.5583491300758083 on range action(s) ARA_PST_DE to improve margin on cnec NL2-BE3-O - auto on side LEFT} (initial margin : -32.489056200328605 MW).
-DEBUG c.f.farao.commons.logs.TechnicalLogs - Systematic sensitivity analysis [start]
-DEBUG c.f.farao.commons.logs.TechnicalLogs - Systematic sensitivity analysis [end]
-INFO  c.f.farao.commons.logs.TechnicalLogs - Limiting element #01: margin = 6.96 MW, element NNL2AA1  BBE3AA1  1 at state Contingency_FR1_FR3 - curative, CNEC ID = "NL2-BE3-O - curative"
-INFO  c.f.farao.commons.logs.TechnicalLogs - Running pre curative sensi after auto state Contingency_FR1_FR3 - auto.
-DEBUG c.f.farao.commons.logs.TechnicalLogs - Systematic sensitivity analysis [start]
-DEBUG c.f.farao.commons.logs.TechnicalLogs - Systematic sensitivity analysis [end]
-INFO  c.f.farao.commons.logs.TechnicalLogs - Limiting element #01: margin = 6.96 MW, element NNL2AA1  BBE3AA1  1 at state Contingency_FR1_FR3 - curative, CNEC ID = "NL2-BE3-O - curative"
-INFO  c.f.farao.commons.logs.TechnicalLogs - Automaton state Contingency_FR1_FR3 - auto has been optimized.
-INFO  c.f.f.commons.logs.RaoBusinessLogs - Scenario "Contingency_FR1_FR3": 1 range action(s) activated, cost after ARA = -1549.84 (functional: -1549.84, virtual: 0.00)
-INFO  c.f.farao.commons.logs.TechnicalLogs - Remaining post-contingency scenarios to optimize: 0
-INFO  c.f.f.commons.logs.RaoBusinessLogs - ----- Second automaton simulation [end]
+INFO  c.p.o.commons.logs.RaoBusinessLogs - ----- Second automaton simulation [start]
+INFO  c.p.openrao.commons.logs.TechnicalLogs - Using base network 'TestCase12Nodes2PSTs' on variant 'ContingencyScenarioaa4a095c-b400-4008-a9f0-894073339fd3'
+INFO  c.p.openrao.commons.logs.TechnicalLogs - Optimizing scenario post-contingency Contingency_FR1_FR3.
+INFO  c.p.openrao.commons.logs.TechnicalLogs - Optimizing automaton state Contingency_FR1_FR3 - auto.
+INFO  c.p.openrao.commons.logs.TechnicalLogs - Initial situation:
+INFO  c.p.openrao.commons.logs.TechnicalLogs - Limiting element #01: margin = -32.49 MW, element NNL2AA1  BBE3AA1  1 at state Contingency_FR1_FR3 - curative, CNEC ID = "NL2-BE3-O - curative"
+INFO  c.p.openrao.commons.logs.TechnicalLogs - Topological automaton state Contingency_FR1_FR3 - auto has been skipped as no topological automatons were activated.
+DEBUG c.p.openrao.commons.logs.TechnicalLogs - Shifting setpoint from 0.0 to 1.5583491300758083 on range action(s) ARA_PST_DE to improve margin on cnec NL2-BE3-O - auto on side LEFT} (initial margin : -32.489056200328605 MW).
+DEBUG c.p.openrao.commons.logs.TechnicalLogs - Systematic sensitivity analysis [start]
+DEBUG c.p.openrao.commons.logs.TechnicalLogs - Systematic sensitivity analysis [end]
+INFO  c.p.openrao.commons.logs.TechnicalLogs - Limiting element #01: margin = 6.96 MW, element NNL2AA1  BBE3AA1  1 at state Contingency_FR1_FR3 - curative, CNEC ID = "NL2-BE3-O - curative"
+INFO  c.p.openrao.commons.logs.TechnicalLogs - Running pre curative sensi after auto state Contingency_FR1_FR3 - auto.
+DEBUG c.p.openrao.commons.logs.TechnicalLogs - Systematic sensitivity analysis [start]
+DEBUG c.p.openrao.commons.logs.TechnicalLogs - Systematic sensitivity analysis [end]
+INFO  c.p.openrao.commons.logs.TechnicalLogs - Limiting element #01: margin = 6.96 MW, element NNL2AA1  BBE3AA1  1 at state Contingency_FR1_FR3 - curative, CNEC ID = "NL2-BE3-O - curative"
+INFO  c.p.openrao.commons.logs.TechnicalLogs - Automaton state Contingency_FR1_FR3 - auto has been optimized.
+INFO  c.p.o.commons.logs.RaoBusinessLogs - Scenario "Contingency_FR1_FR3": 1 range action(s) activated, cost after ARA = -1549.84 (functional: -1549.84, virtual: 0.00)
+INFO  c.p.openrao.commons.logs.TechnicalLogs - Remaining post-contingency scenarios to optimize: 0
+INFO  c.p.o.commons.logs.RaoBusinessLogs - ----- Second automaton simulation [end]
 ~~~
 
 ## Final results
@@ -467,21 +467,21 @@ Finally, the results from all the steps are merged and most limiting elements af
 In this case, as expected, the most limiting CNEC is "FR2-FR3-O - preventive" with a margin of -140MW. 
 
 ~~~
-INFO  c.f.f.commons.logs.RaoBusinessLogs - Merging first, second preventive and post-contingency RAO results:
-DEBUG c.f.farao.commons.logs.TechnicalLogs - Systematic sensitivity analysis with applied RA [start]
-DEBUG c.f.farao.commons.logs.TechnicalLogs - ... (1/3) 2 state(s) without RA 
-DEBUG c.f.farao.commons.logs.TechnicalLogs - ... (2/3) state with RA Contingency_FR1_FR3 - auto
-DEBUG c.f.farao.commons.logs.TechnicalLogs - ... (3/3) state with RA Contingency_FR1_FR3 - curative
-DEBUG c.f.farao.commons.logs.TechnicalLogs - Systematic sensitivity analysis with applied RA [end]
-INFO  c.f.f.commons.logs.RaoBusinessLogs - Limiting element #01: margin = -140.65 MW, element FFR2AA1  FFR3AA1  1 at state preventive, CNEC ID = "FR2-FR3-O - preventive"
-INFO  c.f.f.commons.logs.RaoBusinessLogs - Limiting element #02: margin = 0.22 MW, element NNL1AA1  NNL3AA1  1 at state Contingency_FR1_FR3 - outage, CNEC ID = "NL1-NL3-D - outage"
-INFO  c.f.f.commons.logs.RaoBusinessLogs - Limiting element #03: margin = 38.37 MW, element FFR2AA1  DDE3AA1  1 at state preventive, CNEC ID = "FR2-DE3-D - preventive"
-INFO  c.f.f.commons.logs.RaoBusinessLogs - Limiting element #04: margin = 82.50 MW, element FFR2AA1  FFR3AA1  1 at state Contingency_FR1_FR3 - outage, CNEC ID = "FR2-FR3-OO - outage"
-INFO  c.f.f.commons.logs.RaoBusinessLogs - Limiting element #05: margin = 223.77 MW, element NNL2AA1  BBE3AA1  1 at state Contingency_FR1_FR3 - curative, CNEC ID = "NL2-BE3-O - curative"
-INFO  c.f.f.commons.logs.RaoBusinessLogs - Limiting element #06: margin = 582.50 MW, element FFR2AA1  DDE3AA1  1 at state Contingency_FR1_FR3 - outage, CNEC ID = "FR2-DE3-DO - outage"
-INFO  c.f.f.commons.logs.RaoBusinessLogs - Limiting element #07: margin = 1000.22 MW, element NNL1AA1  NNL3AA1  1 at state Contingency_FR1_FR3 - outage, CNEC ID = "NL1-NL3-O - outage"
-INFO  c.f.f.commons.logs.RaoBusinessLogs - Limiting element #08: margin = 1153.77 MW, element DDE1AA1  DDE2AA1  1 at state preventive, CNEC ID = "DE1-DE2-O - preventive"
-INFO  c.f.f.commons.logs.RaoBusinessLogs - Limiting element #09: margin = 1639.35 MW, element DDE1AA1  DDE2AA1  1 at state Contingency_FR1_FR3 - outage, CNEC ID = "DE1-DE2-OO - outage"
-INFO  c.f.f.commons.logs.RaoBusinessLogs - Limiting element #10: margin = 1846.14 MW, element DDE1AA1  DDE2AA1  1 at state preventive, CNEC ID = "DE1-DE2-D - preventive"
-INFO  c.f.f.commons.logs.RaoBusinessLogs - Cost before RAO = 182.55 (functional: 182.55, virtual: 0.00), cost after RAO = 140.65 (functional: 140.65, virtual: 0.00)
+INFO  c.p.o.commons.logs.RaoBusinessLogs - Merging first, second preventive and post-contingency RAO results:
+DEBUG c.p.openrao.commons.logs.TechnicalLogs - Systematic sensitivity analysis with applied RA [start]
+DEBUG c.p.openrao.commons.logs.TechnicalLogs - ... (1/3) 2 state(s) without RA 
+DEBUG c.p.openrao.commons.logs.TechnicalLogs - ... (2/3) state with RA Contingency_FR1_FR3 - auto
+DEBUG c.p.openrao.commons.logs.TechnicalLogs - ... (3/3) state with RA Contingency_FR1_FR3 - curative
+DEBUG c.p.openrao.commons.logs.TechnicalLogs - Systematic sensitivity analysis with applied RA [end]
+INFO  c.p.o.commons.logs.RaoBusinessLogs - Limiting element #01: margin = -140.65 MW, element FFR2AA1  FFR3AA1  1 at state preventive, CNEC ID = "FR2-FR3-O - preventive"
+INFO  c.p.o.commons.logs.RaoBusinessLogs - Limiting element #02: margin = 0.22 MW, element NNL1AA1  NNL3AA1  1 at state Contingency_FR1_FR3 - outage, CNEC ID = "NL1-NL3-D - outage"
+INFO  c.p.o.commons.logs.RaoBusinessLogs - Limiting element #03: margin = 38.37 MW, element FFR2AA1  DDE3AA1  1 at state preventive, CNEC ID = "FR2-DE3-D - preventive"
+INFO  c.p.o.commons.logs.RaoBusinessLogs - Limiting element #04: margin = 82.50 MW, element FFR2AA1  FFR3AA1  1 at state Contingency_FR1_FR3 - outage, CNEC ID = "FR2-FR3-OO - outage"
+INFO  c.p.o.commons.logs.RaoBusinessLogs - Limiting element #05: margin = 223.77 MW, element NNL2AA1  BBE3AA1  1 at state Contingency_FR1_FR3 - curative, CNEC ID = "NL2-BE3-O - curative"
+INFO  c.p.o.commons.logs.RaoBusinessLogs - Limiting element #06: margin = 582.50 MW, element FFR2AA1  DDE3AA1  1 at state Contingency_FR1_FR3 - outage, CNEC ID = "FR2-DE3-DO - outage"
+INFO  c.p.o.commons.logs.RaoBusinessLogs - Limiting element #07: margin = 1000.22 MW, element NNL1AA1  NNL3AA1  1 at state Contingency_FR1_FR3 - outage, CNEC ID = "NL1-NL3-O - outage"
+INFO  c.p.o.commons.logs.RaoBusinessLogs - Limiting element #08: margin = 1153.77 MW, element DDE1AA1  DDE2AA1  1 at state preventive, CNEC ID = "DE1-DE2-O - preventive"
+INFO  c.p.o.commons.logs.RaoBusinessLogs - Limiting element #09: margin = 1639.35 MW, element DDE1AA1  DDE2AA1  1 at state Contingency_FR1_FR3 - outage, CNEC ID = "DE1-DE2-OO - outage"
+INFO  c.p.o.commons.logs.RaoBusinessLogs - Limiting element #10: margin = 1846.14 MW, element DDE1AA1  DDE2AA1  1 at state preventive, CNEC ID = "DE1-DE2-D - preventive"
+INFO  c.p.o.commons.logs.RaoBusinessLogs - Cost before RAO = 182.55 (functional: 182.55, virtual: 0.00), cost after RAO = 140.65 (functional: 140.65, virtual: 0.00)
 ~~~

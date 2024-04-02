@@ -11,7 +11,7 @@ virtual-hubs.md
 
 ## Network
 
-The network data model used by FARAO toolbox is the PowSyBl IIDM format.
+The network data model used by OpenRAO toolbox is the PowSyBl IIDM format.
 To get detailed information about the network model, please refer to [dedicated documentation](https://www.powsybl.org/pages/documentation/index.html#grid-model)
 on PowSyBl website.
 
@@ -29,13 +29,13 @@ constraints to monitor and remedial actions available to get rid of potential ac
 
 Based on our experience on different capacity calculation regions, the format for IGM/CGM (either UCTE/CGMES) or
 CRAC/CBCORA (Critical Branch/Critical Outages/Remedial Actions) are not yet harmonized over Europe.  
-To limit dependencies with input/output formats, FARAO uses its own [CRAC format](/input-data/crac/json) in order to be easily
+To limit dependencies with input/output formats, OpenRAO uses its own [CRAC format](/input-data/crac/json) in order to be easily
 adaptable for any process.
 
 Please refer to the [dedicated CRAC section](/input-data/crac/introduction) for more information.
 
-CRAC exchange formats actually supported by FARAO:
-- [JSON CRAC](/input-data//crac/json) (FARAO-specific)
+CRAC exchange formats actually supported by OpenRAO:
+- [JSON CRAC](/input-data//crac/json) (OpenRAO-specific)
 - [FlowBasedConstraint CRAC](/input-data//crac/fbconstraint) (used in CORE region)
 - [CSE CRAC](/input-data//crac/cse) (used in CSE region)
 - [CIM CRAC](/input-data//crac/cim) (used in SWE region)

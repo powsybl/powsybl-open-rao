@@ -24,13 +24,13 @@ A CNEC is associated to **thresholds**. These thresholds can be of different typ
 
 ## Remedial action
 
-FARAO distinguishes two types of remedial actions, **range actions** and **network actions**. The key difference between the two types is that the latter has only two possible states (activated/deactivated), while the former can be activated in different "ways".
+OpenRAO distinguishes two types of remedial actions, **range actions** and **network actions**. The key difference between the two types is that the latter has only two possible states (activated/deactivated), while the former can be activated in different "ways".
 
 ### Range action
 
 Range actions are actions on the network with a degree of freedom: the choice of a **set-point** within a given range. 
 These actions can be optimised linearly, with some approximations. For more information related to the linear optimisation 
-of range actions in FARAO, please refer to the [dedicated documentation page](/castor/linear-problem/linear-rao.md).
+of range actions in OpenRAO, please refer to the [dedicated documentation page](/castor/linear-problem/linear-rao.md).
 
 They can be defined on some categories of network elements:
 - Phase Shift Transformer (PST),
@@ -46,14 +46,14 @@ The determination of the optimal set-point improving a network situation require
 - the maximal reachable value according to the specified network – or the maximal authorized variation for an increasing variation,
 - the sensitivity of a set-point variation on every CNEC for the specified network.
   
-Any 2 or more range actions (of same type) can be aligned into range action "groups" in FARAO, which constrains the RAO to set them to the same set-point at all times.
+Any 2 or more range actions (of same type) can be aligned into range action "groups" in OpenRAO, which constrains the RAO to set them to the same set-point at all times.
 
 ### Network action
 
 Network actions are any other kind of action on the network, such as the opening/closing of a network element, setting the tap position of a PST to a given set-point, etc. They can only be activated, or remain inactive.
 They are used in the [search-tree RAO](/castor/search-tree-rao.md) only.  
 
-One network action can combine one or multiple elementary actions. These are the types of elementary actions handled in FARAO:
+One network action can combine one or multiple elementary actions. These are the types of elementary actions handled in OpenRAO:
 
 #### Topological actions
 

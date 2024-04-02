@@ -7,6 +7,7 @@ special-features/special-features.md
 linear-problem/linear-rao.md
 monitoring.md
 performance.md
+applications/applications.md
 ```
 
 **CASTOR** (**CA**lculation with **S**calable and **T**ransparent **O**ptimise**R**) is initially designed to optimise non-costly remedial actions (including tripping of generation units where applicable). It relies on a search-tree algorithm which is explained in this page.

@@ -17,13 +17,13 @@ In other words, it gathers the following information:
 It is typically used in European coordinated processes. It enables, for a given geographical region, to define the 
 network elements that might be critical after specific outages, and the remedial actions that might help to manage them.  
 
-**A CRAC object model has been designed in FARAO** in order to store all the aforementioned information. This page aims to present:
-- the content and the organization of the data present in the FARAO CRAC object model,
-- how a FARAO CRAC object can be built,
+**A CRAC object model has been designed in OpenRAO** in order to store all the aforementioned information. This page aims to present:
+- the content and the organization of the data present in the OpenRAO CRAC object model,
+- how a OpenRAO CRAC object can be built,
   - using the java API,
-  - or using the FARAO internal Json CRAC format.
+  - or using the OpenRAO internal Json CRAC format.
 
-Note that other pages of this documentation describe how the FARAO CRAC object model can be built with other standard 
+Note that other pages of this documentation describe how the OpenRAO CRAC object model can be built with other standard 
 CRAC formats, such as the [FlowBasedConstraint](fbconstraint) format, the [CSE](cse) Format, and the [CIM](cim) format.
 
 ## Full CRAC examples
@@ -31,11 +31,11 @@ Example of complete CRACs are given below
 
 ::::{tabs}
 :::{group-tab} JAVA creation API
-The creation of a small CRAC is for instance made in this test class of farao-core repository:  
+The creation of a small CRAC is for instance made in this test class of powsybl-open-rao repository:  
 [example on GitHub](https://github.com/powsybl/powsybl-open-rao/blob/main/data/crac/crac-impl/src/test/java/com/powsybl/openrao/data/cracimpl/utils/CommonCracCreation.java)
 :::
 :::{group-tab} JSON file
-An example of a small CRAC in the json internal format of FARAO is given below:  
+An example of a small CRAC in the json internal format of OpenRAO is given below:  
 [example on GitHub](https://github.com/powsybl/powsybl-open-rao/blob/main/ra-optimisation/search-tree-rao/src/test/resources/crac/small-crac-with-network-actions.json)
 :::
 ::::
@@ -49,7 +49,7 @@ The following paragraphs of this page explain, step by step, the content of thes
 > ⭐ marks a field that must be **unique** in the CRAC  
 
 ## Network elements 
-FARAO relies on the [PowSyBl framework](https://www.powsybl.org/), and FARAO's CRAC relies on some elements of
+OpenRAO relies on the [PowSyBl framework](https://www.powsybl.org/), and OpenRAO's CRAC relies on some elements of
 [PowSyBl's network model](https://www.powsybl.org/pages/documentation/grid/model/): the so-called network elements.
 
 The network elements can be:
@@ -98,10 +98,10 @@ element names, in which network elements that have a name are listed, with their
 
 ## Contingencies
 A CRAC object must define "critical contingencies" (or "critical outages", or "CO", or "N-k"...).  
-The denomination chosen within the FARAO internal format is **"Contingency"**.
+The denomination chosen within the OpenRAO internal format is **"Contingency"**.
 
 A contingency is the representation of an incident on the network (i.e. a cut line or a group/transformer failure, etc.).
-In FARAO, it is modelled by the loss of one or several network elements. Usually we have either a one-network-element-loss
+In OpenRAO, it is modelled by the loss of one or several network elements. Usually we have either a one-network-element-loss
 called "N-1", or a two-network-element-loss called "N-2".
 
 Examples:
@@ -111,7 +111,7 @@ Examples:
 A contingency is a probable event that can put the grid at risk. Therefore, contingencies must
 be considered when operating the electrical transmission / distribution system.
 
-In FARAO, contingencies are defined in the following way:
+In OpenRAO, contingencies are defined in the following way:
 
 ::::{tabs}
 :::{group-tab} JAVA creation API
@@ -154,11 +154,11 @@ more understandable from a business viewpoint, but applications relying on the C
 ::::
 
 > 💡  **NOTE**  
-> The network elements currently handled by FARAO's contingencies are: internal lines, interconnections, transformers,
+> The network elements currently handled by OpenRAO's contingencies are: internal lines, interconnections, transformers,
 > PSTs, generators, HVDCs, bus-bar sections, and dangling lines.
 
 ## Instants and States
-The instant is a moment in the chronology of a contingency event. Four instants kinds currently exist in FARAO:
+The instant is a moment in the chronology of a contingency event. Four instants kinds currently exist in OpenRAO:
 - the **preventive** instant kind occurs before any contingency, and describes the "base-case" situation. A CRAC may
   contain only one instant of kind preventive.
 - the **outage** instant kind occurs just after a contingency happens, in a time too short to allow the activation of any
@@ -177,14 +177,14 @@ The instant is a moment in the chronology of a contingency event. Four instants 
 > On the contrary, the preventive and curative instant kinds are supposed to be a lasting moment during which the grid
 > operation is nominal (sometimes thanks to preventive and/or curative remedial actions), so they usually come with
 > more restrictive permanent limits (PATL).  
-> FARAO allows a different limit setting for different instants on critical network elements (see [CNECs](#cnecs)).
+> OpenRAO allows a different limit setting for different instants on critical network elements (see [CNECs](#cnecs)).
 >
 > ![forceWhiteBackground](/_static/img/patl-tatl.png)
 > (**PRA** = Preventive Remedial Action,
 > **ARA** = Automatic Remedial Action,
 > **CRA** = Curative Remedial Action)
 
-The FARAO object model includes the notion of "state". A state is either:
+The OpenRAO object model includes the notion of "state". A state is either:
 
 - the preventive state: the state of the base-case network, without any contingency, at the preventive instant.
 - the combination of a given contingency with instant outage, auto or curative: the state of the network after the said
@@ -194,7 +194,7 @@ The scheme below illustrates these notions of instant and state. It highlights t
 
 ![Instants & states](/_static/img/States_AUTO.png)
 
-States are not directly added to a FARAO CRAC object model; they are implicitly created by business objects
+States are not directly added to a OpenRAO CRAC object model; they are implicitly created by business objects
 that are described in the following paragraphs ([CNECs](#cnecs) and [remedial actions](#remedial-actions-and-usages-rules)).
 
 Instants are added one after the other in the CRAC object.
@@ -239,15 +239,15 @@ A CRAC should define CNECs. A CNEC is a "**C**ritical **N**etwork **E**lement an
 or "Critical Branch and Critical Outage").
 
 A CNEC is a **network element**, which is considered at a given **instant**, after a given **contingency** (i.e. at a
-given FARAO ["state"](#instants-and-states)).  
+given OpenRAO ["state"](#instants-and-states)).  
 The contingency is omitted if the CNEC is defined at the preventive instant.
 
 > 💡  **NOTE**  
-> A FARAO CNEC is associated to one instant and one contingency only. This is not the case for all native CRAC formats:
+> A OpenRAO CNEC is associated to one instant and one contingency only. This is not the case for all native CRAC formats:
 > for instance, in the [CORE merged-CB CRAC format](fbconstraint), the post-outage CNECs are implicitly defined for the
 > two instants outage and curative.
 >
-> However, we are talking here about the internal FARAO CRAC format, which has its own independent conventions, and which
+> However, we are talking here about the internal OpenRAO CRAC format, which has its own independent conventions, and which
 > is imported from native CRAC formats using [CRAC importers](import).
 
 A CNEC has an operator, i.e. the identifier of the TSO operating its network element.  
@@ -260,7 +260,7 @@ calculation on the CORE region, and is now also used for the CSE region:
 - maximise the margins of CNECs that are "optimised"
 - ensure that the margins of "monitored" CNECs are positive and/or are not decreased by the RAO.
 
-FARAO contains 3 families of CNECs, depending on which type of physical constraints they have: **FlowCnecs**,
+OpenRAO contains 3 families of CNECs, depending on which type of physical constraints they have: **FlowCnecs**,
 **AngleCnecs** and **VoltageCnecs**.
 
 ### Flow CNECs
@@ -279,16 +279,16 @@ A FlowCnec has **two sides**, which correspond to the two terminals of the PowSy
 (usually called terminals "one" and "two", or terminals "left" and "right").
 The notion of **direction** is also inherent to the FlowCnec: a flow in direction "direct" is a flow from terminal
 one/left to terminal two/right, while a flow in direction "opposite" is a flow from terminal two/right to terminal
-one/left. The convention of FARAO is that a positive flow is a flow in the "direct" direction, while a negative flow is
+one/left. The convention of OpenRAO is that a positive flow is a flow in the "direct" direction, while a negative flow is
 a flow in the "opposite" direction.
 
 > 💡  **NOTE**  
-> A FARAO FlowCnec is one implementation of the generic ["BranchCnec"](https://github.com/powsybl/powsybl-open-rao/blob/main/data/crac/crac-api/src/main/java/com/powsybl/openrao/data/cracapi/cnec/BranchCnec.java).
+> A OpenRAO FlowCnec is one implementation of the generic ["BranchCnec"](https://github.com/powsybl/powsybl-open-rao/blob/main/data/crac/crac-api/src/main/java/com/powsybl/openrao/data/cracapi/cnec/BranchCnec.java).
 > If needed, this would allow you a fast implementation of other types of CNECs, on branches, but with a monitored
 > physical parameter other than power flow.
 
 #### Flow limits on a FlowCnec
-A FlowCnec has flow limits, called "thresholds" in FARAO. These thresholds define the limits between which the power
+A FlowCnec has flow limits, called "thresholds" in OpenRAO. These thresholds define the limits between which the power
 flow of the FlowCnec should ideally remain.
 - They can be defined in megawatt, ampere, or in percentage of the Imax of the branch (in which case the Imax is read in
   the network file).
@@ -319,7 +319,7 @@ additional data is required in order to handle the following conversions:
 > It can only be defined in megawatt, it is subtracted from the thresholds of the FlowCnec, adding an extra constraint.
 
 #### Creating a FlowCnec
-In FARAO, FlowCnecs can be created by the java API, or written in the json CRAC internal format, as shown below:
+In OpenRAO, FlowCnecs can be created by the java API, or written in the json CRAC internal format, as shown below:
 
 ::::{tabs}
 :::{group-tab} JAVA creation API
@@ -484,7 +484,7 @@ An "AngleCnec" is a branch which may see a phase angle shift between its two end
 insecurities in the network when it's back up. That's why we monitor angle CNECs and associate with them remedial actions
 (generally re-dispatching) that can reduce the phase angle shift between the two ends.
 
-In terms of FARAO object model, an AngleCnec is a CNEC. Even though it is associated with a branch, it is not a
+In terms of OpenRAO object model, an AngleCnec is a CNEC. Even though it is associated with a branch, it is not a
 BranchCnec, because we cannot define on which side it is monitored: it is monitored on both sides (more specifically,
 we monitor the phase shift between the two sides).
 
@@ -499,7 +499,7 @@ An AngleCnec has the following specificities:
 > [AngleMonitoring](/castor/angle-monitoring/angle-monitoring.md) module.
 
 #### Creating an AngleCnec
-In FARAO, AngleCnecs can be created by the java API, or written in the json CRAC internal format, as shown below:
+In OpenRAO, AngleCnecs can be created by the java API, or written in the json CRAC internal format, as shown below:
 
 ::::{tabs}
 :::{group-tab} JAVA creation API
@@ -603,7 +603,7 @@ A "VoltageCnec" is a CNEC on which we monitor the voltage on substations. It has
 > [VoltageMonitoring](/castor/voltage-monitoring/voltage-monitoring.md) module.
 
 #### Creating a VoltageCnec
-In FARAO, VoltageCnecs can be created by the java API, or written in the json CRAC internal format, as shown below:
+In OpenRAO, VoltageCnecs can be created by the java API, or written in the json CRAC internal format, as shown below:
 
 ::::{tabs}
 :::{group-tab} JAVA creation API
@@ -690,14 +690,14 @@ crac.newVoltageCnec()
 ## Remedial actions and usages rules
 A remedial action is an action on the network that is considered capable of reducing constraints on the CNECs.
 
-Two types of remedial action exists in FARAO:
+Two types of remedial action exists in OpenRAO:
 - **Network Actions**: they have the specificity of being binary. A Network Action is either applied on the network, or
   not applied. Topological actions are a typical example of Network Actions.
 - **Range Actions**: they have the specificity of having a degree of freedom, a set-point. When a Range Action is
   activated, it is activated at a given value of its set-point. PSTs are a typical example of Range Actions.
 
 Both Network Actions and Range Actions have usage rules which define the conditions under which they can be activated.
-The usage rules which exist in FARAO are:
+The usage rules which exist in OpenRAO are:
 - the **FreeToUse** usage rule (defined for a specific [instant](#instants-and-states)): the remedial action is available in all
   the states of a given instant.
 - the **OnState** usage rule (defined for a specific [state](#instants-and-states)): the remedial action is available in a given state.
@@ -808,17 +808,17 @@ Complete examples of Network and Range Action in Json format are given in the fo
 🔴 **instant**  
 🔴 **voltageCnecId**: must be the id of an [VoltageCnec](#voltage-cnecs) that exists in the CRAC  
 <ins>**Usage methods**</ins>  
-FARAO handles three different types of usage methods sorted by priority:
+OpenRAO handles three different types of usage methods sorted by priority:
 1- **UNAVAILABLE**: the remedial action can not be considered by the RAO.
 2 - **FORCED**: For automaton instant, the RAO must activate the remedial action under the condition described by the usage rule. For other instants, it will be ignored.
 3 - **AVAILABLE**: For automaton instant, the remedial action is ignored. Otherwise, it can be chosen by the RAO under the condition described by the usage rule.
 
-*NB*: even though OnState usage rules on the preventive state is theoretically possible, it is forbidden by FARAO as the same purpose can be achieved with a FreeToUse usage rule on the preventive instant.  
+*NB*: even though OnState usage rules on the preventive state is theoretically possible, it is forbidden by OpenRAO as the same purpose can be achieved with a FreeToUse usage rule on the preventive instant.  
 :::
 ::::
 
 ## Network Actions
-A FARAO "Network Action" is a remedial action with a binary state: it is either active or inactive.  
+A OpenRAO "Network Action" is a remedial action with a binary state: it is either active or inactive.  
 One network action is a combination of one or multiple "elementary actions", among the following:
 - Topological action: opening or closing a branch or a switch in the network.
 - PST set-point: setting the tap of a PST in the network to a specific position.
@@ -984,10 +984,10 @@ crac.newNetworkAction()
 ::::
 
 ## Range Actions
-A FARAO "Range Action" is a remedial action with a continuous or discrete set-point. If the range action is inactive, its
+A OpenRAO "Range Action" is a remedial action with a continuous or discrete set-point. If the range action is inactive, its
 set-point is equal to its value in the initial network. If it is activated, its set-point is optimized by the RAO to
 improve the objective function.  
-FARAO has four types of range actions : PST range actions, HVDC range actions, "injection" range actions and counter-
+OpenRAO has four types of range actions : PST range actions, HVDC range actions, "injection" range actions and counter-
 trading range actions.
 
 ### PST Range Action
@@ -1007,7 +1007,7 @@ TapRanges can be of different types:
 - **relative to previous instant**: the maximum variation of the tap of the PST relatively to its tap in the previous instant. Note that this type of range does not make sense for PstRangeActions which are only available in the preventive instant, as there is no instant before the preventive one.
 
 The final validity range of the PstRangeAction is the intersection of its TapRanges, with the intersection of the min/max feasible taps of the PST.  
-The PstRangeAction also requires additional data, notably to be able to interpret the TapRanges. Those additional data are: the initial tap of the PST, and a conversion map which gives for each feasible tap of the PST its corresponding angle. Utility methods have been developed in FARAO to ease the management of these additional data during the creation of a PstRangeAction.
+The PstRangeAction also requires additional data, notably to be able to interpret the TapRanges. Those additional data are: the initial tap of the PST, and a conversion map which gives for each feasible tap of the PST its corresponding angle. Utility methods have been developed in OpenRAO to ease the management of these additional data during the creation of a PstRangeAction.
 
 Two or more [aligned PST range actions](introduction.md#range-action) must have the same (random) group ID defined. The RAO will
 make sure their optimized set-points are always equal.
@@ -1299,7 +1299,7 @@ exported from France to Spain.
 ::::
 
 ## RAs usage limitations
-A FARAO "ra-usage-limits-per-instant" consists in limits on the usage of remedial actions for given instants.  
+A OpenRAO "ra-usage-limits-per-instant" consists in limits on the usage of remedial actions for given instants.  
 The given instant IDs should match an ID of an instant in the CRAC. Otherwise, its limits will be ignored.  
 See [here](creation-parameters.md#ra-usage-limits-per-instant) for further explanation on each field described in the following example.
 
