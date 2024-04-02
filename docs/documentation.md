@@ -72,25 +72,25 @@ and distribution system.
 
 Thanks to our modular architecture, implementing a new process in existing RAO modules or creating a new RAO based on an existing input format is fastened (see concrete example below)
 
-![forceWhiteBackground](/_static/img/modular.png) 
+![FARAO modules](/_static/img/modular.png) {.forced-white-background}
 
 
 Take benefit from our platform for optimisation with different methodologies already implemented for CACM/SO methodologies. Moreover, it is possible to contribute by adding your features/improvements in existing RAO modules and creating new ones if needed.
 
-![forceWhiteBackground](/_static/img/modular2.png)
+![FARAO modules usage](/_static/img/modular2.png){.forced-white-background}
 
 # Under the hood
 
 OpenRAO is based on high quality open source frameworks.
 
-![mainPageLogo](/_static/logos/logo_lfe_powsybl.svg)
+![PowSyBl logo](/_static/logos/logo_lfe_powsybl.svg){.main-page-logo}
 
 [PowSyBl](https://www.powsybl.org/) is an open source Java library to assemble applications
 for electrical power systems' simulation and analysis. This project is part of Linux Foundation
 [LF Energy initiative](https://www.lfenergy.org/). Thanks to its internal IIDM format, OpenRAO is
 natively compatible with both UCTE and CGMES network formats.
 
-![mainPageLogo](/_static/logos/DuoN35ZXgAAKzC_.jpg)
+![OR-Tools logo](/_static/logos/DuoN35ZXgAAKzC_.jpg){.main-page-logo}
 
 [OR-Tools](https://developers.google.com/optimization) is an open source software suite for
 optimisation, tuned for tackling the world's toughest problems in vehicle routing, flows,
@@ -98,12 +98,12 @@ integer and linear programming, and constraint programming.
 The choice of Google OR-tools was driven by its large compatibility with most of existing open source/commercial solvers,
 including commercial solvers such Gurobi and Xpress when high performance is required.
 
-![mainPageLogo](/_static/logos/horizontal-logo-monochromatic-white.png)
+![Docker logo](/_static/logos/horizontal-logo-monochromatic-white.png){.main-page-logo}
 
 [Docker](https://www.docker.com/) is an open source container platform that packages applications as
 lightweight, portable containers.
 
-![mainPageLogo](/_static/logos/kubernetes.png)
+![Kubernetes logo](/_static/logos/kubernetes.png){.main-page-logo}
 
 [Kubernetes](https://kubernetes.io/), also known as K8s, is an open-source system for automating deployment, scaling, and management of containerized applications.
 

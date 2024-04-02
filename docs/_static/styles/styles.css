@@ -5,7 +5,7 @@
     }
 }
 
-img[alt=mainPageLogo] {
+.main-page-logo {
     width: 600px;
     display: block;
     margin-left: auto;

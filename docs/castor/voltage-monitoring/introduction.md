@@ -7,4 +7,4 @@ does not inherently support voltage constraints.
 The [VoltageMonitoring](https://github.com/powsybl/powsybl-open-rao/tree/main/monitoring/voltage-monitoring)
 package allows monitoring voltage values after a RAO has been run.
 
-![forceWhiteBackground](/_static/img/voltage_monitoring.png)
+![Voltage monitoring](/_static/img/voltage_monitoring.png){.forced-white-background}

@@ -127,7 +127,7 @@ Operationally, curative actions are sized in order to overcome the difference be
 While during preventive actions, only the TATL has to be respected (active flow should remain below this value),
 curative actions (if properly sized), should be able to reduce the active flow in order to respect the PATL value.
 
-![forceWhiteBackground](/_static/img/patl-tatl.png)
+![PATL vs TATL](/_static/img/patl-tatl.png){.forced-white-background}
 
 When curative actions are not sized properly and are not sufficient to respect the two limits, CASTOR will then
 investigate additional preventive remedial actions, by running
@@ -186,4 +186,4 @@ The differences with the first preventive RAO are that, in this run:
 _* It is possible to re-optimise curative range actions during second preventive RAO
 using [this parameter](/parameters/parameters.md#re-optimize-curative-range-actions)._
 
-![forceWhiteBackground](/_static/img/rao_steps.png)  
+![PATL vs TATL](/_static/img/rao_steps.png){.forced-white-background} 

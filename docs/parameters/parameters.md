@@ -253,7 +253,8 @@ when searching for the best network actions.
 - **Usage**: this parameter contains hints for the search-tree RAO, consisting of combinations of multiple network 
   actions that the user considers interesting to test together during the RAO.  
   These combinations will be tested in the first search depth of the search-tree
-  ![forceWhiteBackground](/_static/img/Search-tree-with-combinations.png)
+
+![Search-tree-with-combinations](/_static/img/Search-tree-with-combinations.png){.forced-white-background}
 
 #### absolute-minimum-impact-threshold
 - **Expected value**: numeric value, where the unit is that of the objective function

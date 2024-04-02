@@ -8,4 +8,4 @@ The [AngleMonitoring](https://github.com/powsybl/powsybl-open-rao/tree/main/moni
 package allows monitoring angle values after a RAO has been run, and activating re-dispatch remedial actions in case of
 constrained elements.
 
-![forceWhiteBackground](/_static/img/angle_monitoring.png)
+![Angle monitoring](/_static/img/angle_monitoring.png){.forced-white-background}

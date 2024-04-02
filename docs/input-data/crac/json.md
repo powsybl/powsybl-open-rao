@@ -179,7 +179,7 @@ The instant is a moment in the chronology of a contingency event. Four instants 
 > more restrictive permanent limits (PATL).  
 > OpenRAO allows a different limit setting for different instants on critical network elements (see [CNECs](#cnecs)).
 >
-> ![forceWhiteBackground](/_static/img/patl-tatl.png)
+> ![patl-vs-tatl](/_static/img/patl-tatl.png){.forced-white-background}
 > (**PRA** = Preventive Remedial Action,
 > **ARA** = Automatic Remedial Action,
 > **CRA** = Curative Remedial Action)
@@ -1171,7 +1171,7 @@ Each impacted generator or load has an associated "key", which is a coefficient 
 This range action is mainly used to represent an HVDC line in an AC equivalent model (where the line is disconnected and
 replaced by two injections, one on each side of the line, with opposite keys of 1 and -1).
 
-![forceWhiteBackground](/_static/img/HVDC_AC_model.png)
+![HVDC AC model](/_static/img/HVDC_AC_model.png){.forced-white-background}
 
 Two or more [aligned injection range actions](introduction.md#range-action) must have the same (random) group ID defined. The RAO will
 make sure their optimized set-points are always equal.

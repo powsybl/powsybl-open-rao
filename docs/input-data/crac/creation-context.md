@@ -20,7 +20,8 @@ NativeCrac nativeCrac = NativeCracImporters.importData(Paths.get("/example_file.
 OffsetDateTime timestamp = ...
 CracCreationContext cracCreationContext = CracCreators.createCrac(nativeCrac, network, timestamp);
 ```
-![forceWhiteBackground](/_static/img/CracCreationContext.png)
+
+![CracCreationContext inheritance](/_static/img/CracCreationContext.png){.forced-white-background}
 
 ## Non-specific information
 All CracCreationContext implementations present the following information.

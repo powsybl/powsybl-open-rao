@@ -34,4 +34,4 @@ Here is a detailed description of how the voltage monitoring algorithm operates:
   - Move on to next state (Go to (A)).
 - Assemble all the state-specific results in one overall result, and [update the RAO result object](#the-voltage-monitoring-result)
   
-![forceWhiteBackground](/_static/img/voltage_monitoring_algorithm.png)
+![Voltage monitoring algorithm](/_static/img/voltage_monitoring_algorithm.png){.forced-white-background}
