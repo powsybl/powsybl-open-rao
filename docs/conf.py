@@ -69,7 +69,8 @@ html_logo = '_static/logos/logo_lfe_powsybl.svg'
 html_favicon = "_static/favicon.ico"
 
 html_context = {
-    "sidebar_logo_href": "https://powsybl.readthedocs.org"
+    # TODO : replace next option with "https://powsybl.readthedocs.org" when website is published
+    "sidebar_logo_href": "https://www.powsybl.org/"
 }
 
 html_theme_options = {
