@@ -5,6 +5,8 @@ import com.powsybl.openrao.data.cracapi.networkaction.NetworkAction;
 import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.cracapi.usagerule.UsageMethod;
 import com.powsybl.openrao.data.craccreation.creator.api.ImportStatus;
+import com.powsybl.openrao.data.craccreation.creator.api.parameters.CracCreationParameters;
+import com.powsybl.openrao.data.craccreation.creator.api.parameters.JsonCracCreationParameters;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileCracCreationContext;
 import org.junit.jupiter.api.Test;
 
@@ -12,6 +14,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
+import static com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileCracCreationTestUtil.AUTO_INSTANT_ID;
 import static com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileCracCreationTestUtil.CURATIVE_INSTANT_ID;
 import static com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileCracCreationTestUtil.NETWORK;
 import static com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileCracCreationTestUtil.PREVENTIVE_INSTANT_ID;
@@ -26,7 +29,8 @@ class RemedialActionCreationTest {
 
     @Test
     void importRemedialActions() {
-        CsaProfileCracCreationContext cracCreationContext = getCsaCracCreationContext("/profiles/remedialactions/RemedialActions.zip", NETWORK);
+        CracCreationParameters importedParameters = JsonCracCreationParameters.read(getClass().getResourceAsStream("/parameters/csaCracCreationParameters_SPS_60_sec.json"));
+        CsaProfileCracCreationContext cracCreationContext = getCsaCracCreationContext("/profiles/remedialactions/RemedialActions.zip", NETWORK, importedParameters);
 
         List<RemedialAction<?>> importedRemedialActions = cracCreationContext.getCrac().getRemedialActions().stream().sorted(Comparator.comparing(RemedialAction::getId)).toList();
         assertEquals(6, importedRemedialActions.size());
@@ -39,7 +43,7 @@ class RemedialActionCreationTest {
 
         assertPstRangeActionImported((PstRangeAction) importedRemedialActions.get(2), "remedial-action-3", "remedial-action-3", "BBE2AA1  BBE3AA1  1", null, null, "RTE");
         assertEquals(Optional.of(10), importedRemedialActions.get(2).getSpeed());
-        assertHasOnContingencyStateUsageRule(cracCreationContext, "remedial-action-3", "contingency-1", CURATIVE_INSTANT_ID, UsageMethod.AVAILABLE);
+        assertHasOnContingencyStateUsageRule(cracCreationContext, "remedial-action-3", "contingency-1", AUTO_INSTANT_ID, UsageMethod.AVAILABLE);
 
         assertPstRangeActionImported((PstRangeAction) importedRemedialActions.get(3), "remedial-action-4", "RTE_RA4", "BBE2AA1  BBE3AA1  1", null, null, "RTE");
         assertHasOnContingencyStateUsageRule(cracCreationContext, "remedial-action-4", "contingency-2", CURATIVE_INSTANT_ID, UsageMethod.FORCED);
