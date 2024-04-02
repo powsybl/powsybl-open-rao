@@ -24,5 +24,5 @@ Both these situations can be modelled with constraints activating a binary varia
 
 This binary variable forces cnecs in $\mathcal{C} ^{specific}$  to be taken into account in the minimum margin objective.
 These constraints are modelled in the RAO under the linear problem as:
-- [Modelling un-optimized CNECs (CRAs)](https://farao-community.github.io/docs/castor/linear-optimisation-problem/unoptimized-cnec-filler-cra)
-- [Modelling un-optimized CNECs (PSTs)](https://farao-community.github.io/docs/castor/linear-optimisation-problem/unoptimized-cnec-filler-pst)
+- [Modelling un-optimized CNECs (CRAs)](/castor/linear-problem/unoptimized-cnec-filler-cra.md)
+- [Modelling un-optimized CNECs (PSTs)](/castor/linear-problem/unoptimized-cnec-filler-pst.md)

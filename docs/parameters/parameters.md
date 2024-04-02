@@ -90,8 +90,8 @@ These parameters (objective-function) configure the remedial action optimisation
   when it is set to PREVENTIVE_OBJECTIVE or PREVENTIVE_OBJECTIVE_AND_SECURE.
 
 ### Range actions optimisation parameters
-These parameters (range-actions-optimization) tune the [linear optimiser](https://farao-community.github.io/docs/engine/ra-optimisation/linear-rao) used to optimise range actions.  
-(See [Modelling CNECs and range actions](https://farao-community.github.io/docs/castor/linear-optimisation-problem/core-problem-filler))
+These parameters (range-actions-optimization) tune the [linear optimiser](/castor/linear-problem/linear-rao.md) used to optimise range actions.  
+(See [Modelling CNECs and range actions](/castor/linear-problem/core-problem-filler.md))
 
 #### max-mip-iterations
 - **Expected value**: integer
@@ -121,7 +121,7 @@ These parameters (range-actions-optimization) tune the [linear optimiser](https:
     used as a multiplier of the sensitivity values when representing the impact of the PST on CNECs. This approach is
     more precise and thus has the advantage of better respecting Loop-Flow and MNEC constraints. But it introduces
     integer variables (tap positions) and can be harder to solve.  
-    See [Using integer variables for PST taps](https://farao-community.github.io/docs/castor/linear-optimisation-problem/discrete-pst-tap-filler).
+    See [Using integer variables for PST taps](/castor/linear-problem/discrete-pst-tap-filler.md).
 
 #### pst-penalty-cost
 - **Expected value**: numeric value, unit: unit of the objective function / ° (per degree)
@@ -184,12 +184,12 @@ These parameters (range-actions-optimization) tune the [linear optimiser](https:
   active+reactive computations, this approximation may be incorrect. The linear problem can thus find a worse solution 
   than in its previous iteration.
   - **DISABLED**: if this situation occurs, the linear problem stops and returns the previous solution,
-    see this schema : [Linear Remedial Actions Optimisation](https://farao-community.github.io/docs/engine/ra-optimisation/linear-rao#algorithm).
+    see this schema : [Linear Remedial Actions Optimisation](/castor/linear-problem/linear-rao#algorithm).
   - **ENABLED**: this introduces two new behaviors to the iterating linear optimiser:
     1. If the linear problem finds a solution worse than in its previous iteration, it continues iterating.  
        When stop condition is met ([max-mip-iterations](#max-mip-iterations) reached, or two successive iterations have 
        the same optimal RA set-points), then the problem returns the best solution it has found.
-    2. At each new iteration, the range action's allowed range shrinks according to equations [described here](https://farao-community.github.io/docs/castor/linear-optimisation-problem/core-problem-filler#ra-range-shrinking).
+    2. At each new iteration, the range action's allowed range shrinks according to equations [described here](/castor/linear-problem/core-problem-filler#shrinking-the-allowed-range).
        These equations have been chosen to force the linear problem convergence while allowing the RA to go 
        back to its initial solution if needed.  
   - **ENABLED_IN_FIRST_PRAO_AND_CRAO**:
@@ -227,7 +227,7 @@ These are parameters that tune the solver used to solve the MIP problem.
   not enough.
 
 ### Network actions optimisation parameters
-These parameters (topological-actions-optimization) tune the [search-tree algorithm](https://farao-community.github.io/docs/engine/ra-optimisation/search-tree-rao) 
+These parameters (topological-actions-optimization) tune the [search-tree algorithm](/castor/search-tree-rao.md) 
 when searching for the best network actions.
 
 #### max-preventive-search-tree-depth
@@ -297,7 +297,7 @@ when searching for the best network actions.
   though they share the Alegro line)*
 
 ### Second preventive RAO parameters
-These parameters (second-preventive-rao) tune the behaviour of the [second preventive RAO](https://farao-community.github.io/docs/engine/ra-optimisation/rao-steps#second-preventive-rao).
+These parameters (second-preventive-rao) tune the behaviour of the [second preventive RAO](/castor/rao-steps.md#second-preventive-rao).
 
 #### execution-condition
 - **Expected value**: one of the following:
@@ -439,10 +439,10 @@ These parameters (multi-threading) allow you to run a RAO making the most out of
 The following extensions can be added to RaoParameters when needed, in order to activate specific RAO features.
 
 ### Loop-flow extension
-Adding a LoopFlowParameters extension to RaoParameters will activate [loop-flow constraints](https://farao-community.github.io/docs/engine/ra-optimisation/loop-flows).  
+Adding a LoopFlowParameters extension to RaoParameters will activate [loop-flow constraints](/castor/special-features/loop-flows.md).  
 (The RAO will monitor the loop-flows on CNECs that have a LoopFlowThreshold extension.)  
 The following parameters tune these constraints.  
-See also: [Modelling loop-flows and their virtual cost](https://farao-community.github.io/docs/castor/linear-optimisation-problem/max-loop-flow-filler)  
+See also: [Modelling loop-flows and their virtual cost](/castor/linear-problem/max-loop-flow-filler.md)  
 
 #### acceptable-increase
 - **Expected value**: numeric values, in MEGAWATT unit
@@ -500,10 +500,10 @@ See also: [Modelling loop-flows and their virtual cost](https://farao-community.
   Netherlands.
 
 ### MNEC extension
-Adding a MnecParameters extension to RaoParameters will activate [MNEC constraints](https://farao-community.github.io/docs/castor/linear-optimisation-problem/mnec-filler).  
+Adding a MnecParameters extension to RaoParameters will activate [MNEC constraints](/castor/linear-problem/mnec-filler.md).  
 (The RAO will only monitor CNECs that are only ["monitored"](/input-data/crac/json.md#cnecs)).
 The following parameters tune these constraints.  
-See also: [Modelling MNECs and their virtual cost](https://farao-community.github.io/docs/castor/linear-optimisation-problem/mnec-filler)  
+See also: [Modelling MNECs and their virtual cost](/castor/linear-problem/mnec-filler.md)  
 
 #### acceptable-margin-decrease
 - **Expected value**: numeric values, in MEGAWATT unit
@@ -539,7 +539,7 @@ See also: [Modelling MNECs and their virtual cost](https://farao-community.githu
 
 ### Relative margins extension
 Adding a RelativeMarginsParameters extension is mandatory when [objective function is relative](#type).  
-See also: [Modelling the maximum minimum relative margin objective function](https://farao-community.github.io/docs/castor/linear-optimisation-problem/max-min-relative-margin-filler)
+See also: [Modelling the maximum minimum relative margin objective function](/castor/linear-problem/max-min-relative-margin-filler.md)
 
 #### ptdf-boundaries
 - **Expected value**: array of zone-to-zone PTDF computation definition, expressed as an equation.  

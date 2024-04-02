@@ -15,7 +15,7 @@ Unlike purely linear optimisation, a search-tree algorithm does not neglect the 
 
 So far, the search-tree algorithm has proved for many years its relevance and efficiency on current daily operational processes on CWE, Northern Italy and SWE Capacity calculation. 
 
-For each topological remedial action applied, the search-tree will systematically optimise PST taps & HVDC setpoints by applying a [linear optimisation](https://farao-community.github.io/docs/engine/ra-optimisation/linear-rao). By considering both topological remedial actions and linear remedial actions at every step, instead of considering only one after the other, CASTOR's results are optimal.
+For each topological remedial action applied, the search-tree will systematically optimise PST taps & HVDC setpoints by applying a [linear optimisation](/castor/linear-problem/linear-rao.md). By considering both topological remedial actions and linear remedial actions at every step, instead of considering only one after the other, CASTOR's results are optimal.
 
 The optimisation problem is a non-convex and non-linear one, dealing with topology changes on the network, which represent discrete actions by definition. The problem treated by the optimiser is a combinatorial problem. Search-tree algorithms are commonly used for high complexity mathematical problems, containing combinatorial and discrete aspects.
 
@@ -61,7 +61,7 @@ As a matter of clarification, connecting/disconnecting a generation unit can als
 ### For Flow-based Capacity calculation – minimum margin
 
 The objective function is used to determine at each step of the search tree which remedial action is the best. 
-A variant of it is also used when solving the [linear optimisation problem](https://farao-community.github.io/docs/engine/ra-optimisation/linear-rao).
+A variant of it is also used when solving the [linear optimisation problem](/castor/linear-problem/linear-rao.md).
 
 The active flow $F_i$ on a CNEC $i$ is:
 
@@ -94,7 +94,7 @@ of CNEC $i$ relatively to a commercial border (zone-to-zone) of the capacity cal
 
 The objective function of CASTOR is also configurable. The constraints taken into account within the 
 optimisation are also configurable in order to comply with process specificities (i.e. limitation of 
-[loop flows](https://farao-community.github.io/docs/engine/ra-optimisation/loop-flows) required for Flow based CORE Capacity Calculation).
+[loop flows](/castor/special-features/loop-flows) required for Flow based CORE Capacity Calculation).
 
 
 ### For NTC Capacity calculation/CEP Validation
@@ -139,7 +139,7 @@ On both stop criteria, [additional constraints](/parameters/parameters.md#topolo
 For each iteration/step (a level of depth in tree):
 - Determination of available remedial actions. 
 - Once the list of available remedial actions is defined, candidates are created. Each candidate corresponds to a grid situation, where one (or more) remedial actions are applied.
-- A skippable [optimisation of the linear remedial](https://farao-community.github.io/docs/engine/ra-optimisation/linear-rao) actions is done.
+- A skippable [optimisation of the linear remedial](/castor/linear-problem/linear-rao.md) actions is done.
 - A security analysis determines for each candidate the value of the objective function. The security analysis consists of a series of DC (or AC) load-flow computations (for each defined contingency).
 - In order to maximise the objective function, values obtained for each candidate are compared: the candidate leading to the best increase of objective function value is selected. The remedial actions corresponding to this candidate are applied. 
 

@@ -314,7 +314,7 @@ raoParameters.getRangeActionsOptimizationParameters().setPstModel(RangeActionsOp
 
 ## Run the RAO
 
- Run the RAO using the following code to produce a [`RaoResult`](https://farao-community.github.io/docs/output-data/rao-result-json) object:
+ Run the RAO using the following code to produce a [`RaoResult`](/output-data/rao-result/rao-result-json.md) object:
 
  ```java
  RaoInput.RaoInputBuilder raoInputBuilder = RaoInput.build(network, crac);

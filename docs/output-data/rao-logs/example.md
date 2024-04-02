@@ -24,7 +24,7 @@ The second most-limiting CNEC is "FR2-FR3-O - preventive" with a margin of -166 
 
 ## First preventive RAO
 
-Next comes the [first preventive RAO](https://farao-community.github.io/docs/engine/ra-optimisation/rao-steps#preventive-rao).
+Next comes the [first preventive RAO](/castor/rao-steps.md#preventive-perimeter).
 
 > 💡  **NOTE**
 > This step is delimited by the two following lines:
@@ -45,9 +45,9 @@ INFO  c.f.f.commons.logs.RaoBusinessLogs - ----- Preventive perimeter optimizati
 
 ### Root leaf
 
-Then it starts the [search-tree](https://farao-community.github.io/docs/engine/ra-optimisation/search-tree-rao) algorithm, starting by evaluating the 
+Then it starts the [search-tree](/castor/search-tree-rao.md) algorithm, starting by evaluating the 
 "root leaf": it assesses CNEC constraints on the network, considering only CNECs that belong to the 
-[preventive perimeter](https://farao-community.github.io/docs/engine/ra-optimisation/rao-steps#preventive-rao), 
+[preventive perimeter](/castor/rao-steps.md#preventive-perimeter), 
 before applying any preventive remedial action.  
 It needs not re-run a sensitivity analysis (or load-flow computation), as this has already been done. It just needs to 
 restrict constraints assessment on the perimeter's CNECs.  
@@ -62,10 +62,10 @@ INFO  c.f.farao.commons.logs.TechnicalLogs - Limiting element #01: margin = -182
 INFO  c.f.farao.commons.logs.TechnicalLogs - Limiting element #02: margin = -166.08 MW, element FFR2AA1  FFR3AA1  1 at state preventive, CNEC ID = "FR2-FR3-O - preventive"
 ~~~
 
-After root leaf evaluation, the RAO conducts [range action linear optimisation](https://farao-community.github.io/docs/engine/ra-optimisation/linear-rao) 
-before applying any [network action](https://farao-community.github.io/docs/input-data/crac/crac#network-action).  
+After root leaf evaluation, the RAO conducts [range action linear optimisation](/castor/linear-problem/linear-rao.md) 
+before applying any [network action](/input-data/crac/introduction.md#network-action).  
 This step is usually quick and allows the RAO to try to secure the network / improve margins using only remedial actions 
-with a linear impact on the network ([range actions](https://farao-community.github.io/docs/input-data/crac/crac#range-action)).  
+with a linear impact on the network ([range actions](/input-data/crac/introduction.md#range-action)).  
 Multiple "MILP -> sensitivity analysis" iterations can be needed until the optimisation converges to an optimal set of 
 set-point for range actions (in the example, 2 iterations are needed at the root leaf).
 
@@ -235,7 +235,7 @@ Every contingency is treated separately:
 - Each curative instant is optimised in a search-tree to select best curative actions
 
 In this case, the CRAC only defines one contingency: "Contingency_FR1_FR3".  
-As many contingency scenarios are created as there are contingencies in the CRAC (with associated [remedial actions](https://farao-community.github.io/docs/engine/ra-optimisation/rao-steps#preventive-extension)).
+As many contingency scenarios are created as there are contingencies in the CRAC (with associated [remedial actions](/castor/rao-steps.md#extension-of-the-preventive-perimeter-to-the-curative-situation)).
 
 ~~~
 INFO  c.f.f.commons.logs.RaoBusinessLogs - ----- Post-contingency perimeters optimization [start]

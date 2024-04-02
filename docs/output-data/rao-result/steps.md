@@ -1,4 +1,4 @@
-This field contains macro information about which steps the [CASTOR RAO](https://farao-community.github.io/docs/engine/ra-optimisation/search-tree-rao) executed.  
+This field contains macro information about which steps the [CASTOR RAO](/castor/search-tree-rao.md) executed.  
 (See also: [Forbidding cost increase](/parameters/parameters.md#forbid-cost-increase), [Second preventive RAO parameters](/parameters/parameters.md#second-preventive-rao))
 
 | Value                                                    | Did CASTOR run a 1st preventive RAO? | Did CASTOR run a 2nd preventive RAO? | Did the RAO fall back to initial situation? | Did the RAO fall back to 1st preventive RAO result even though a 2nd was run? |  

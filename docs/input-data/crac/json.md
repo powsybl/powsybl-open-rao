@@ -429,11 +429,11 @@ crac.newFlowCnec()
 ::::
 
 #### Loop-flow extension
-When a FlowCnec carries a LoopFlowThreshold extension (and if [loop-flow constraints are enabled in the RAO](https://farao-community.github.io/docs/parameters#loop-flow-parameters)),
-its loop-flow is monitored by the RAO, that will keep it [under its threshold](https://farao-community.github.io/docs/engine/ra-optimisation/loop-flows)
+When a FlowCnec carries a LoopFlowThreshold extension (and if [loop-flow constraints are enabled in the RAO](/parameters/parameters.md#loop-flow-extension)),
+its loop-flow is monitored by the RAO, that will keep it [under its threshold](/castor/special-features/loop-flows.md)
 when optimising remedial actions.  
 The loop-flow extension defines the loop-flow threshold to be respected by the RAO (even though the initial loop-flow
-value on this CNEC may override this user-defined thrshold, as explained [here](https://farao-community.github.io/docs/castor/linear-optimisation-problem/max-loop-flow-filler)).
+value on this CNEC may override this user-defined thrshold, as explained [here](/castor/linear-problem/max-loop-flow-filler.md)).
 
 ::::{tabs}
 :::{group-tab} JAVA creation API
@@ -496,7 +496,7 @@ An AngleCnec has the following specificities:
 
 > 💡  **NOTE**
 > AngleCnecs currently cannot be optimised by the RAO, but they are monitored by an independent
-> [AngleMonitoring](https://farao-community.github.io/docs/engine/monitoring/angle-monitoring) module.
+> [AngleMonitoring](/castor/angle-monitoring/angle-monitoring.md) module.
 
 #### Creating an AngleCnec
 In FARAO, AngleCnecs can be created by the java API, or written in the json CRAC internal format, as shown below:
@@ -600,7 +600,7 @@ A "VoltageCnec" is a CNEC on which we monitor the voltage on substations. It has
 
 > 💡  **NOTE**
 > VoltageCnecs currently cannot be optimised by the RAO, but they are monitored by an independent
-> [VoltageMonitoring](https://farao-community.github.io/docs/engine/monitoring/voltage-monitoring) module.
+> [VoltageMonitoring](/castor/voltage-monitoring/voltage-monitoring.md) module.
 
 #### Creating a VoltageCnec
 In FARAO, VoltageCnecs can be created by the java API, or written in the json CRAC internal format, as shown below:

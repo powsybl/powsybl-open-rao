@@ -64,7 +64,7 @@ This is why **most of the information in the RAO results are stored by optimized
 - Instant of kind **AUTO**: values after simulating auto instant, i.e. after applying automatic remedial actions
 - Instant of kind **CURATIVE**: values after optimizing curative instant, i.e. after applying optimal curative remedial actions
   
-_See also: [RAO steps](https://farao-community.github.io/docs/engine/ra-optimisation/rao-steps)_
+_See also: [RAO steps](/castor/rao-steps.md)_
 
 ### Computation status
 

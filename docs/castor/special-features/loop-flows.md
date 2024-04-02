@@ -44,4 +44,4 @@ The PTDF represents FlowCnec c's sensitivity to a variation of the net position 
 
 ## Implementation
 
-Loop-flow limitation are modelled in the RAO under the linear problem as constraints for each CNEC $i$ forcing the loop-flows within their bounds, see [Loop-flow constraints](https://farao-community.github.io/docs/castor/linear-optimisation-problem/max-loop-flow-filler).
+Loop-flow limitation are modelled in the RAO under the linear problem as constraints for each CNEC $i$ forcing the loop-flows within their bounds, see [Loop-flow constraints](/castor/linear-problem/max-loop-flow-filler.md).

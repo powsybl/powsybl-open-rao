@@ -4,13 +4,13 @@
 When FARAO tries to import a native CRAC file ([FlowBasedConstraint](fbconstraint), [CSE](cse), [CIM](cim), ...) 
 into an [internal CRAC format](json), some data transformation can happen, and data present in the final CRAC object 
 will not be a "one-to-one" exact representation of the data in the original file.  
-This can be an issue for the final user, as [querying the RAO result file or object](https://farao-community.github.io/docs/output-data/rao-result-json#contents) 
+This can be an issue for the final user, as [querying the RAO result file or object](/output-data/rao-result/rao-result-json.md#contents-of-the-rao-result) 
 needs knowledge of the artefacts FARAO created during CRAC creation.  
 The [CracCreationContext](https://github.com/powsybl/powsybl-open-rao/blob/main/data/crac-creation/crac-creator-api/src/main/java/com/powsybl/openrao/data/craccreation/creator/api/CracCreationContext.java) 
 classes produced by the different CRAC creators allow the user to access meta-information 
 about the CRAC creation process, and to map the original file to the created artifacts in the FARAO object, or to 
 error messages if some objects could not be imported.  
-This is particularly useful if the user needs to export the RAO result in a format different from [FARAO's internal format](https://farao-community.github.io/docs/output-data/rao-result-json), 
+This is particularly useful if the user needs to export the RAO result in a format different from [FARAO's internal format](/output-data/rao-result/rao-result-json.md), 
 and to reference CNECs and remedial actions as they were defined in the original (native) CRAC file.  
 Many implementations of CracCreationContext exist, depending on the original format. Every implementation has its own 
 specific API. CracCreationContexts are the main output of CracCreators.  

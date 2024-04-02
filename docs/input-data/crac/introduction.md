@@ -30,7 +30,7 @@ FARAO distinguishes two types of remedial actions, **range actions** and **netwo
 
 Range actions are actions on the network with a degree of freedom: the choice of a **set-point** within a given range. 
 These actions can be optimised linearly, with some approximations. For more information related to the linear optimisation 
-of range actions in FARAO, please refer to the [dedicated documentation page](https://farao-community.github.io/docs/engine/ra-optimisation/linear-rao).
+of range actions in FARAO, please refer to the [dedicated documentation page](/castor/linear-problem/linear-rao.md).
 
 They can be defined on some categories of network elements:
 - Phase Shift Transformer (PST),
@@ -51,7 +51,7 @@ Any 2 or more range actions (of same type) can be aligned into range action "gro
 ### Network action
 
 Network actions are any other kind of action on the network, such as the opening/closing of a network element, setting the tap position of a PST to a given set-point, etc. They can only be activated, or remain inactive.
-They are used in the [search-tree RAO](https://farao-community.github.io/docs/engine/ra-optimisation/search-tree-rao) only.  
+They are used in the [search-tree RAO](/castor/search-tree-rao.md) only.  
 One network action can combine one or multiple elementary actions. These are the types of elementary actions handled in FARAO:
 
 #### Topological actions

@@ -11,7 +11,7 @@ Open RAO (Remedial Action Optimizer) is an open-source toolbox that aims at prov
 
 **powsybl-open-rao** repository contains the main features of Open RAO.
 
-For detailed information about Open RAO toolbox, please refer to the [detailed documentation](  https://farao-community.github.io/docs/).
+For detailed information about Open RAO toolbox, please refer to the [detailed documentation](https://farao-community.github.io/docs/).
 
 This project and everyone participating in it is governed by the [PowSyBl Code of Conduct](https://github.com/powsybl/.github/blob/main/CODE_OF_CONDUCT.md).
 By participating, you are expected to uphold this code. Please report unacceptable behavior to [powsybl-tsc@lists.lfenergy.org](mailto:powsybl-tsc@lists.lfenergy.org).

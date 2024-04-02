@@ -9,4 +9,4 @@ Their margin must be kept positive or above its initial value.
 ## Implementation
 
 MNEC constraints are modelled in the RAO under the linear problem
-as [MNEC constraints](https://farao-community.github.io/docs/castor/linear-optimisation-problem/mnec-filler).
+as [MNEC constraints](/castor/linear-problem/mnec-filler.md).
