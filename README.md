@@ -5,7 +5,7 @@
 [![MPL-2.0 License](https://img.shields.io/badge/license-MPL_2.0-blue.svg)](https://www.mozilla.org/en-US/MPL/2.0/)
 [![Slack](https://img.shields.io/badge/slack-powsybl-blueviolet.svg?logo=slack)](https://join.slack.com/t/powsybl/shared_invite/zt-rzvbuzjk-nxi0boim1RKPS5PjieI0rA)
 [![Javadocs](https://www.javadoc.io/badge/com.powsybl/powsybl-open-rao.svg?color=blue)](https://www.javadoc.io/doc/com.powsybl/powsybl-open-rao)
-[![ReadTheDocsStatus](https://readthedocs.org/projects/powsybl-openrao/badge/?version=latest)](https://powsybl-openrao.readthedocs.io/latest/?badge=latest)
+[![ReadTheDocsStatus](https://readthedocs.org/projects/powsybl-openrao/badge/?version=stable)](https://powsybl.readthedocs.io/projects/openrao/en/stable/?badge=stable)
 
 Open RAO (Remedial Action Optimizer) is an open-source toolbox that aims at providing a modular engine for remedial actions optimisation, part of the Linux Foundation Energy.
 
