@@ -2,7 +2,7 @@
 
 ## CRAC import/export
 
-The [OpenRAO CRAC object model](json) can be directly imported and exported using the openrao-crac-io-api.  
+The [OpenRAO CRAC object model](json) can be directly imported and exported using the open-rao-crac-io-api.  
 
 The JSON format - also called OpenRAO internal format - is a raw image of the CRAC object model of OpenRAO. It is particularly suited to exchange a CRAC java object through files, for instance to exchange CRAC data between microservices or Kubernetes pods of an application. It has an importer and an exporter. The complete round-trip (java object → export → json file → import → java object) has been designed so that the CRAC at the beginning of the chain is exactly the same as the one at the end of the chain.  
 
