@@ -21,10 +21,14 @@ class VirtualHubsConfigurationTest {
         configuration.addMarketArea(marketArea);
         configuration.addMarketArea(new MarketArea("OtherAreaCode", "OtherAreaEic", false));
         configuration.addVirtualHub(new VirtualHub("HubCode", "HubEic", true, "HibNodeName", marketArea));
+        BorderDirection borderDirection = new BorderDirection("Paris", "Berlin");
+        configuration.addBorderDirection(borderDirection);
 
         assertEquals(2, configuration.getMarketAreas().size());
         assertEquals(1, configuration.getVirtualHubs().size());
+        assertEquals(1, configuration.getBorderDirections().size());
         assertTrue(configuration.getMarketAreas().contains(marketArea));
+        assertTrue(configuration.getBorderDirections().contains(borderDirection));
     }
 
     @Test
@@ -47,5 +51,16 @@ class VirtualHubsConfigurationTest {
             "Null virtual hub addition in configuration should throw but does not"
         );
         assertEquals("Virtual hubs configuration does not allow adding null virtual hub", thrown.getMessage());
+    }
+
+    @Test
+    void checkThatAddingNullBorderDirectionInConfigurationThrows() {
+        VirtualHubsConfiguration configuration = new VirtualHubsConfiguration();
+        NullPointerException thrown = assertThrows(
+            NullPointerException.class,
+            () -> configuration.addBorderDirection(null),
+            "Null border direction addition in configuration should throw but does not"
+        );
+        assertEquals("Virtual hubs configuration does not allow adding null border direction", thrown.getMessage());
     }
 }

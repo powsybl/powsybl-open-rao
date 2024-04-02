@@ -15,4 +15,10 @@
         <VirtualHub Eic="17Y0000009308082" Code="Virtual_Hub_ES_MA" RelatedMA="ES"
                     MCParticipant="false" NodeName="XMA_ES11"/>
     </VirtualHubs>
+    <BorderDirections>
+        <BorderDirection From="A1" To="B1"/>
+        <BorderDirection From="A1" To="B2"/>
+        <BorderDirection From="A2" To="B1"/>
+        <BorderDirection From="A2" To="C1"/>
+    </BorderDirections>
 </Configuration>

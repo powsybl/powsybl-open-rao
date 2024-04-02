@@ -6,6 +6,7 @@
  */
 package com.powsybl.openrao.virtualhubs.xml;
 
+import com.powsybl.openrao.virtualhubs.BorderDirection;
 import com.powsybl.openrao.virtualhubs.MarketArea;
 import com.powsybl.openrao.virtualhubs.VirtualHub;
 import com.powsybl.openrao.virtualhubs.VirtualHubsConfiguration;
@@ -38,6 +39,7 @@ class VirtualHubsConfigurationImporter {
             Element configurationEl = document.getDocumentElement();
             NodeList marketAreas = configurationEl.getElementsByTagName("MarketArea");
             NodeList virtualHubs = configurationEl.getElementsByTagName("VirtualHub");
+            NodeList borderDirections = configurationEl.getElementsByTagName("BorderDirection");
             Map<String, MarketArea> marketAreasMap = new TreeMap<>();
 
             VirtualHubsConfiguration configuration = new VirtualHubsConfiguration();
@@ -59,6 +61,12 @@ class VirtualHubsConfigurationImporter {
                 String nodeName = node.getAttributes().getNamedItem("NodeName").getNodeValue();
                 MarketArea marketArea = marketAreasMap.get(node.getAttributes().getNamedItem("RelatedMA").getNodeValue());
                 configuration.addVirtualHub(new VirtualHub(code, eic, isMcParticipant, nodeName, marketArea));
+            }
+            for (int i = 0; i < borderDirections.getLength(); i++) {
+                Node node = borderDirections.item(i);
+                String from = node.getAttributes().getNamedItem("From").getNodeValue();
+                String to = node.getAttributes().getNamedItem("To").getNodeValue();
+                configuration.addBorderDirection(new BorderDirection(from, to));
             }
             return configuration;
         } catch (ParserConfigurationException | SAXException | IOException e) {
