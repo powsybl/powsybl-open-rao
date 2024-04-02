@@ -12,8 +12,8 @@ img[alt=mainPageLogo] {
     margin-right: auto;
 }
 
-img[alt=forceWhiteBackground] {
-    background-color: white;
+.forced-white-background {
+    background-color : white
 }
 
 

@@ -60,7 +60,7 @@ The first step is to import a network for the simulation. As an example, we will
 network that is made of 18 lines including 1 PST spread over 4 countries. All the production (1000 MW) is located in the
 Netherlands (node _NNL1AA1_) and the consumption (1000 MW) is in France (node _FFR1AA1_).
 
-![forceWhiteBackground](/_static/img/tutorial/basecase.svg)
+![forceWhiteBackground](/_static/img/tutorial/basecase.svg){.forced-white-background}
 
 We will create a UCTE file to model this network, so it can be processed and imported for the RAO. Copy and paste the
 network data in a file named `12Nodes.uct` that you shall store in the resources directory of the project.
