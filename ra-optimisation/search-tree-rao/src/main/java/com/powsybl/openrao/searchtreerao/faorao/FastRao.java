@@ -10,11 +10,11 @@ package com.powsybl.openrao.searchtreerao.faorao;
 import com.google.auto.service.AutoService;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.VariantManager;
-import com.powsybl.iidm.serde.NetworkSerDe;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.commons.logs.OpenRaoLogger;
 import com.powsybl.openrao.commons.logs.RaoBusinessLogs;
 import com.powsybl.openrao.data.cracapi.Crac;
+import com.powsybl.openrao.data.cracapi.Identifiable;
 import com.powsybl.openrao.data.cracapi.InstantKind;
 import com.powsybl.openrao.data.cracapi.State;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
@@ -198,14 +198,19 @@ public class FastRao implements RaoProvider {
         RaoResult raoResult;
         try {
             raoResult = new CastorFullOptimization(filteredRaoInput, parameters, targetEndInstant).run().get();
+            List<List<String>> predefinedCombinations = parameters.getTopoOptimizationParameters().getPredefinedCombinations();
+            predefinedCombinations.add(
+                raoResult.getActivatedNetworkActionsDuringState(crac.getPreventiveState()).stream()
+                    .map(Identifiable::getId)
+                    .toList()
+            );
+            parameters.getTopoOptimizationParameters().setPredefinedCombinations(predefinedCombinations);
         } catch (InterruptedException | ExecutionException e) {
             throw new RuntimeException(e);
         }
         String finalVariantId = raoInput.getNetwork().getVariantManager().getWorkingVariantId();
         raoInput.getNetwork().getVariantManager().setWorkingVariant(raoInput.getNetworkVariantId());
         // 6. Apply / Force optimal RAs found on filter RAO
-        Network networkCopy = NetworkSerDe.copy(raoInput.getNetwork());
-        applyOptimalPreventiveRemedialActions(networkCopy, filteredCrac.getPreventiveState(), raoResult);
         // 7. Run RAO with applied/forced RAs
         System.out.println("**************************FULL SENSI WITH RAS*******************************");
         AtomicReference<PrePerimeterResult> postPraSensi = new AtomicReference<>();
@@ -218,8 +223,15 @@ public class FastRao implements RaoProvider {
         preventiveSemaphore.acquire();
         if (anyActionActivatedDuringInstantKind(raoResult, InstantKind.PREVENTIVE, crac)) {
             networkPool.submit(() -> {
-                postPraSensi.set(runBasedOnInitialAndPrePerimResults(toolProvider, raoInput, networkCopy, parameters, crac.getFlowCnecs(), new AppliedRemedialActions(), initialResult, initialResult));
-                preventiveSemaphore.release();
+                try {
+                    Network networkCopy = networkPool.getAvailableNetwork();
+                    applyOptimalPreventiveRemedialActions(networkCopy, filteredCrac.getPreventiveState(), raoResult);
+                    postPraSensi.set(runBasedOnInitialAndPrePerimResults(toolProvider, raoInput, networkCopy, parameters, crac.getFlowCnecs(), new AppliedRemedialActions(), initialResult, initialResult));
+                    networkPool.releaseUsedNetwork(networkCopy);
+                    preventiveSemaphore.release();
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
             });
         } else {
             postPraSensi.set(initialResult);
@@ -227,24 +239,40 @@ public class FastRao implements RaoProvider {
         }
 
         autoSemaphore.acquire();
-        if (anyActionActivatedDuringInstantKind(raoResult, InstantKind.AUTO, crac)) {
-            networkPool.submit(() -> {
-                AppliedRemedialActions appliedAutoRemedialActions = createAutoAppliedRemedialActionsFromRaoResult(filteredCrac, raoResult);
-                postAraSensi.set(runBasedOnInitialAndPrePerimResults(toolProvider, raoInput, networkCopy, parameters, crac.getFlowCnecs(), appliedAutoRemedialActions, initialResult, postPraSensi.get()));
-                autoSemaphore.release();
-            });
-        } else {
-            preventiveSemaphore.acquire();
-            postAraSensi.set(postPraSensi.get());
-            preventiveSemaphore.release();
-            autoSemaphore.release();
-        }
+        networkPool.submit(() -> {
+            try {
+                if (anyActionActivatedDuringInstantKind(raoResult, InstantKind.AUTO, crac)) {
+                    Network networkCopy = networkPool.getAvailableNetwork();
+                    applyOptimalPreventiveRemedialActions(networkCopy, filteredCrac.getPreventiveState(), raoResult);
+                    AppliedRemedialActions appliedAutoRemedialActions = createAutoAppliedRemedialActionsFromRaoResult(filteredCrac, raoResult);
+                    postAraSensi.set(runBasedOnInitialAndPrePerimResults(toolProvider, raoInput, networkCopy, parameters, crac.getFlowCnecs(), appliedAutoRemedialActions, initialResult, postPraSensi.get()));
+                    networkPool.releaseUsedNetwork(networkCopy);
+                    autoSemaphore.release();
+                } else {
+                    preventiveSemaphore.acquire();
+                    postAraSensi.set(postPraSensi.get());
+                    preventiveSemaphore.release();
+                    autoSemaphore.release();
+                }
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+        });
 
         curativeSemaphore.acquire();
         if (anyActionActivatedDuringInstantKind(raoResult, InstantKind.CURATIVE, crac)) {
-            AppliedRemedialActions appliedRemedialActions = createAppliedRemedialActionsFromRaoResult(filteredCrac, raoResult);
-            postCraSensi.set(runBasedOnInitialAndPrePerimResults(toolProvider, raoInput, networkCopy, parameters, raoInput.getCrac().getFlowCnecs(), appliedRemedialActions, initialResult, postAraSensi.get()));
-            curativeSemaphore.release();
+            networkPool.submit(() -> {
+                try {
+                    Network networkCopy = networkPool.getAvailableNetwork();
+                    applyOptimalPreventiveRemedialActions(networkCopy, filteredCrac.getPreventiveState(), raoResult);
+                    AppliedRemedialActions appliedRemedialActions = createAppliedRemedialActionsFromRaoResult(filteredCrac, raoResult);
+                    postCraSensi.set(runBasedOnInitialAndPrePerimResults(toolProvider, raoInput, networkCopy, parameters, raoInput.getCrac().getFlowCnecs(), appliedRemedialActions, initialResult, postAraSensi.get()));
+                    networkPool.releaseUsedNetwork(networkCopy);
+                    curativeSemaphore.release();
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+            });
         } else {
             autoSemaphore.acquire();
             postCraSensi.set(postAraSensi.get());
