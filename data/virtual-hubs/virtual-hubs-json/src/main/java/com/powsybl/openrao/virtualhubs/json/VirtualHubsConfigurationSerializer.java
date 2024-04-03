@@ -43,6 +43,7 @@ class VirtualHubsConfigurationSerializer extends JsonSerializer<VirtualHubsConfi
         jsonGenerator.writeStringField("code", marketArea.code());
         jsonGenerator.writeStringField("eic", marketArea.eic());
         jsonGenerator.writeBooleanField("isMcParticipant", marketArea.isMcParticipant());
+        jsonGenerator.writeBooleanField("isAhc", marketArea.isAhc());
         jsonGenerator.writeEndObject();
     }
 
@@ -60,6 +61,7 @@ class VirtualHubsConfigurationSerializer extends JsonSerializer<VirtualHubsConfi
         jsonGenerator.writeStringField("code", virtualHub.code());
         jsonGenerator.writeStringField("eic", virtualHub.eic());
         jsonGenerator.writeBooleanField("isMcParticipant", virtualHub.isMcParticipant());
+        jsonGenerator.writeBooleanField("isAhc", virtualHub.isAhc());
         jsonGenerator.writeStringField("nodeName", virtualHub.nodeName());
         jsonGenerator.writeStringField("marketArea", virtualHub.relatedMa().code());
         jsonGenerator.writeStringField("oppositeHub", virtualHub.oppositeHub());
@@ -79,6 +81,7 @@ class VirtualHubsConfigurationSerializer extends JsonSerializer<VirtualHubsConfi
         jsonGenerator.writeStartObject();
         jsonGenerator.writeStringField("from", borderDirection.from());
         jsonGenerator.writeStringField("to", borderDirection.to());
+        jsonGenerator.writeBooleanField("isAhc", borderDirection.isAhc());
         jsonGenerator.writeEndObject();
     }
 }

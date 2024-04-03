@@ -13,9 +13,10 @@ import java.util.Objects;
  *
  * @author Vincent Bochet {@literal <vincent.bochet@rte-france.com>}
  */
-public record BorderDirection(String from, String to) {
-    public BorderDirection(String from, String to) {
+public record BorderDirection(String from, String to, boolean isAhc) {
+    public BorderDirection(String from, String to, boolean isAhc) {
         this.from = Objects.requireNonNull(from, "BorderDirection creation does not allow null attribute 'from'");
         this.to = Objects.requireNonNull(to, "BorderDirection creation does not allow null attribute 'to'");
+        this.isAhc = isAhc;
     }
 }

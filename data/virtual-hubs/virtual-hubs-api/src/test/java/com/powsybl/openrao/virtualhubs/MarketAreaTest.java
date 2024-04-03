@@ -16,22 +16,24 @@ import static org.junit.jupiter.api.Assertions.*;
 class MarketAreaTest {
     @Test
     void checkThatMarketAreaIsCorrectlyCreated() {
-        MarketArea myMarketArea = new MarketArea("AreaCode", "AreaEic", true);
+        MarketArea myMarketArea = new MarketArea("AreaCode", "AreaEic", true, false);
         assertEquals("AreaCode", myMarketArea.code());
         assertEquals("AreaEic", myMarketArea.eic());
         assertTrue(myMarketArea.isMcParticipant());
+        assertFalse(myMarketArea.isAhc());
 
-        MarketArea myOtherMarketArea = new MarketArea("OtherAreaCode", "OtherAreaEic", false);
+        MarketArea myOtherMarketArea = new MarketArea("OtherAreaCode", "OtherAreaEic", false, true);
         assertEquals("OtherAreaCode", myOtherMarketArea.code());
         assertEquals("OtherAreaEic", myOtherMarketArea.eic());
         assertFalse(myOtherMarketArea.isMcParticipant());
+        assertTrue(myOtherMarketArea.isAhc());
     }
 
     @Test
     void checkThatMarketAreaCreationThrowsWhenCodeIsNull() {
         NullPointerException thrown = assertThrows(
             NullPointerException.class,
-            () -> new MarketArea(null, "AreaEic", true),
+            () -> new MarketArea(null, "AreaEic", true, false),
             "Null code in MarketArea creation should throw but does not"
         );
         assertEquals("MarketArea creation does not allow null code", thrown.getMessage());
@@ -41,7 +43,7 @@ class MarketAreaTest {
     void checkThatMarketAreaCreationThrowsWhenEicIsNull() {
         NullPointerException thrown = assertThrows(
             NullPointerException.class,
-            () -> new MarketArea("AreaCode", null, true),
+            () -> new MarketArea("AreaCode", null, true, false),
             "Null eic in MarketArea creation should throw but does not"
         );
         assertEquals("MarketArea creation does not allow null eic", thrown.getMessage());

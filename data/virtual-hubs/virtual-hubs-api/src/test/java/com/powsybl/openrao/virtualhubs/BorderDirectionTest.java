@@ -10,6 +10,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Vincent Bochet {@literal <vincent.bochet@rte-france.com>}
@@ -17,16 +18,17 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 class BorderDirectionTest {
     @Test
     void checkThatBorderDirectionIsCorrectlyCreated() {
-        BorderDirection borderDirection = new BorderDirection("Paris", "Berlin");
+        BorderDirection borderDirection = new BorderDirection("Paris", "Berlin", true);
         assertEquals("Paris", borderDirection.from());
         assertEquals("Berlin", borderDirection.to());
+        assertTrue(borderDirection.isAhc());
     }
 
     @Test
     void checkThatBorderDirectionCreationThrowsWhenFromIsNull() {
         NullPointerException thrown = assertThrows(
             NullPointerException.class,
-            () -> new BorderDirection(null, "To"),
+            () -> new BorderDirection(null, "To", false),
             "Null 'from' in BorderDirection creation should throw but does not"
         );
         assertEquals("BorderDirection creation does not allow null attribute 'from'", thrown.getMessage());
@@ -36,7 +38,7 @@ class BorderDirectionTest {
     void checkThatBorderDirectionCreationThrowsWhenToIsNull() {
         NullPointerException thrown = assertThrows(
             NullPointerException.class,
-            () -> new BorderDirection("From", null),
+            () -> new BorderDirection("From", null, false),
             "Null 'to' in BorderDirection creation should throw but does not"
         );
         assertEquals("BorderDirection creation does not allow null attribute 'to'", thrown.getMessage());

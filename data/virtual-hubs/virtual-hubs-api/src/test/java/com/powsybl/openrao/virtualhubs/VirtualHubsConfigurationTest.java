@@ -17,11 +17,11 @@ class VirtualHubsConfigurationTest {
     @Test
     void checkThatConfigurationManipulationWorksAsExpected() {
         VirtualHubsConfiguration configuration = new VirtualHubsConfiguration();
-        MarketArea marketArea = new MarketArea("AreaCode", "AreaEic", true);
+        MarketArea marketArea = new MarketArea("AreaCode", "AreaEic", true, false);
         configuration.addMarketArea(marketArea);
-        configuration.addMarketArea(new MarketArea("OtherAreaCode", "OtherAreaEic", false));
-        configuration.addVirtualHub(new VirtualHub("HubCode", "HubEic", true, "HibNodeName", marketArea, null));
-        BorderDirection borderDirection = new BorderDirection("Paris", "Berlin");
+        configuration.addMarketArea(new MarketArea("OtherAreaCode", "OtherAreaEic", false, false));
+        configuration.addVirtualHub(new VirtualHub("HubCode", "HubEic", true, false, "HibNodeName", marketArea, null));
+        BorderDirection borderDirection = new BorderDirection("Paris", "Berlin", false);
         configuration.addBorderDirection(borderDirection);
 
         assertEquals(2, configuration.getMarketAreas().size());

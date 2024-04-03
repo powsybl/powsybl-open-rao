@@ -33,31 +33,31 @@ class JsonVirtualHubsConfigurationTest {
     @Test
     void checkThatConfigurationExportsCorrectlyOnOutputStream() {
         VirtualHubsConfiguration configuration = new VirtualHubsConfiguration();
-        MarketArea marketArea = new MarketArea("AreaCode", "AreaEic", true);
+        MarketArea marketArea = new MarketArea("AreaCode", "AreaEic", true, true);
         configuration.addMarketArea(marketArea);
-        configuration.addMarketArea(new MarketArea("OtherAreaCode", "OtherAreaEic", false));
-        configuration.addVirtualHub(new VirtualHub("HubCode", "HubEic", true, "HubNodeName", marketArea, "OppositeHub"));
-        configuration.addBorderDirection(new BorderDirection("From", "To"));
+        configuration.addMarketArea(new MarketArea("OtherAreaCode", "OtherAreaEic", false, false));
+        configuration.addVirtualHub(new VirtualHub("HubCode", "HubEic", true, false, "HubNodeName", marketArea, "OppositeHub"));
+        configuration.addBorderDirection(new BorderDirection("From", "To", false));
 
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         JsonVirtualHubsConfiguration.exportConfiguration(baos, configuration);
 
-        assertEquals("{\"marketAreas\":[{\"code\":\"AreaCode\",\"eic\":\"AreaEic\",\"isMcParticipant\":true},{\"code\":\"OtherAreaCode\",\"eic\":\"OtherAreaEic\",\"isMcParticipant\":false}],\"virtualHubs\":[{\"code\":\"HubCode\",\"eic\":\"HubEic\",\"isMcParticipant\":true,\"nodeName\":\"HubNodeName\",\"marketArea\":\"AreaCode\",\"oppositeHub\":\"OppositeHub\"}],\"borderDirections\":[{\"from\":\"From\",\"to\":\"To\"}]}", new String(baos.toByteArray()));
+        assertEquals("{\"marketAreas\":[{\"code\":\"AreaCode\",\"eic\":\"AreaEic\",\"isMcParticipant\":true,\"isAhc\":true},{\"code\":\"OtherAreaCode\",\"eic\":\"OtherAreaEic\",\"isMcParticipant\":false,\"isAhc\":false}],\"virtualHubs\":[{\"code\":\"HubCode\",\"eic\":\"HubEic\",\"isMcParticipant\":true,\"isAhc\":false,\"nodeName\":\"HubNodeName\",\"marketArea\":\"AreaCode\",\"oppositeHub\":\"OppositeHub\"}],\"borderDirections\":[{\"from\":\"From\",\"to\":\"To\",\"isAhc\":false}]}", new String(baos.toByteArray()));
     }
 
     @Test
     void checkThatConfigurationExportsCorrectlyOnWriter() {
         VirtualHubsConfiguration configuration = new VirtualHubsConfiguration();
-        MarketArea marketArea = new MarketArea("AreaCode", "AreaEic", true);
+        MarketArea marketArea = new MarketArea("AreaCode", "AreaEic", true, false);
         configuration.addMarketArea(marketArea);
-        configuration.addMarketArea(new MarketArea("OtherAreaCode", "OtherAreaEic", false));
-        configuration.addVirtualHub(new VirtualHub("HubCode", "HubEic", true, "HubNodeName", marketArea, "OppositeHub"));
-        configuration.addBorderDirection(new BorderDirection("From", "To"));
+        configuration.addMarketArea(new MarketArea("OtherAreaCode", "OtherAreaEic", false, true));
+        configuration.addVirtualHub(new VirtualHub("HubCode", "HubEic", true, true, "HubNodeName", marketArea, "OppositeHub"));
+        configuration.addBorderDirection(new BorderDirection("From", "To", true));
 
         StringWriter writer = new StringWriter();
         JsonVirtualHubsConfiguration.exportConfiguration(writer, configuration);
 
-        assertEquals("{\"marketAreas\":[{\"code\":\"AreaCode\",\"eic\":\"AreaEic\",\"isMcParticipant\":true},{\"code\":\"OtherAreaCode\",\"eic\":\"OtherAreaEic\",\"isMcParticipant\":false}],\"virtualHubs\":[{\"code\":\"HubCode\",\"eic\":\"HubEic\",\"isMcParticipant\":true,\"nodeName\":\"HubNodeName\",\"marketArea\":\"AreaCode\",\"oppositeHub\":\"OppositeHub\"}],\"borderDirections\":[{\"from\":\"From\",\"to\":\"To\"}]}", writer.toString());
+        assertEquals("{\"marketAreas\":[{\"code\":\"AreaCode\",\"eic\":\"AreaEic\",\"isMcParticipant\":true,\"isAhc\":false},{\"code\":\"OtherAreaCode\",\"eic\":\"OtherAreaEic\",\"isMcParticipant\":false,\"isAhc\":true}],\"virtualHubs\":[{\"code\":\"HubCode\",\"eic\":\"HubEic\",\"isMcParticipant\":true,\"isAhc\":true,\"nodeName\":\"HubNodeName\",\"marketArea\":\"AreaCode\",\"oppositeHub\":\"OppositeHub\"}],\"borderDirections\":[{\"from\":\"From\",\"to\":\"To\",\"isAhc\":true}]}", writer.toString());
     }
 
     @Test
