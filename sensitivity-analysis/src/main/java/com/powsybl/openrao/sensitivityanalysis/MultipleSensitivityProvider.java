@@ -97,7 +97,7 @@ public class MultipleSensitivityProvider implements CnecSensitivityProvider {
     @Override
     public List<Contingency> getContingencies(Network network) {
         //using a set to avoid duplicates
-        Set<Contingency> contingencies = new TreeSet<>(Comparator.comparingInt(Contingency::hashCode));
+        Set<Contingency> contingencies = new TreeSet<>(Comparator.comparing(Contingency::getId));
         for (CnecSensitivityProvider cnecSensitivityProvider : cnecSensitivityProviders) {
             contingencies.addAll(cnecSensitivityProvider.getContingencies(network));
         }
