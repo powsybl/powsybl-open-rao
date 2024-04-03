@@ -42,7 +42,8 @@ extensions = ['sphinx.ext.autodoc',
 myst_enable_extensions = [
     "amsmath",
     "colon_fence",
-    "dollarmath"
+    "dollarmath",
+    "attrs_inline"
 ]
 myst_heading_anchors = 6
 

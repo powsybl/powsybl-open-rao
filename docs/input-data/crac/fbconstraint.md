@@ -82,7 +82,7 @@ identify it with other names.
 
 Another problem is that from/to nodes can be inverted in the CRAC compared to what is present in the network. Such 
 branches are correctly identified when the file is imported, but appears to be inverted in the resulting CRAC - meaning 
-that their flow sign might be different between the 'CORE-definition' of the branch and the 'FARAO-definition' of the 
+that their flow sign might be different between the 'CORE-definition' of the branch and the 'OpenRAO-definition' of the 
 branch. The inversion of the branch is tracked in the [CracCreationContext](creation-context.md#flowbasedconstraint-implementation) to handle 
 properly the sign of the flow when the results of the RAO are exported.
 
@@ -176,7 +176,7 @@ Only PST range actions can be defined in FlowBasedConstraint documents. They are
 
 
 ### Special rules
-In order to ensure the imported CRAC is usable in the RAO, FARAO implements these special rules for FlowBasedConstraint documents:
+In order to ensure the imported CRAC is usable in the RAO, OpenRAO implements these special rules for FlowBasedConstraint documents:
 - If multiple PST remedial actions are defined for the same network element and the same state, only one is imported (priority is given to PSTs that have a group ID defined)
-- FARAO adds LoopFlow constraints for all critical branches with names ending with "[XX]" (where "XX" is a country code), even if the critical branch is internal to a country
+- OpenRAO adds LoopFlow constraints for all critical branches with names ending with "[XX]" (where "XX" is a country code), even if the critical branch is internal to a country
 

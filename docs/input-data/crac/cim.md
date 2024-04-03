@@ -408,7 +408,7 @@ In the end, two HVDC range actions with an absolute range of -XXX MW to XXX MW e
 
 ## Extra rules
 
-In order to ensure the imported CRAC is usable in the RAO, FARAO implements the following special rules:
+In order to ensure the imported CRAC is usable in the RAO, OpenRAO implements the following special rules:
 - Hybrid (range-actions + network-actions) remedial actions are prohibited.
 - If AUTO CNECs exist without any automaton that can eventually secure them, these CNECs are duplicated in the 
   outage instant in order to be secured by the preventive RAO.

@@ -7,10 +7,10 @@ the current on both sides of the line, on the left side only, or on the right si
 In DC convention, it doesn't matter: it is enough for the RAO to monitor the left side, allowing it to have a smaller optimisation problem.  
 In AC convention, it is generally preferred to monitor both sides, as flows on both sides can be different because of losses.  
   
-In FARAO's [internal CRAC format](json), it is possible to define which side(s) to monitor, and this is needed in the RAO.  
+In OpenRAO's [internal CRAC format](json), it is possible to define which side(s) to monitor, and this is needed in the RAO.  
 However, no CRAC format actually defines this configuration, thus it is necessary to add an extra configuration object 
 when creating a CRAC object to be used in the RAO.  
-This is the purpose of FARAO's "CRAC creation parameters".
+This is the purpose of OpenRAO's "CRAC creation parameters".
 
 ## Creating a CracCreationParameters object
 (and reading/writing it to a file).  
@@ -30,14 +30,14 @@ parameters = JsonCracCreationParameters.read(jsonFilePath);
   
   
 ## Non-specific parameters
-FARAO's [CracCreationParameters](https://github.com/powsybl/powsybl-open-rao/blob/main/data/crac-creation/crac-creator-api/src/main/java/com/powsybl/openrao/data/craccreation/creator/api/parameters/CracCreationParameters.java) 
+OpenRAO's [CracCreationParameters](https://github.com/powsybl/powsybl-open-rao/blob/main/data/crac-creation/crac-creator-api/src/main/java/com/powsybl/openrao/data/craccreation/creator/api/parameters/CracCreationParameters.java) 
 defines a few parameters needed for all native CRAC formats.
 
 ### crac-factory
-FARAO's [Crac](https://github.com/powsybl/powsybl-open-rao/blob/main/data/crac/crac-api/src/main/java/com/powsybl/openrao/data/cracapi/Crac.java) 
+OpenRAO's [Crac](https://github.com/powsybl/powsybl-open-rao/blob/main/data/crac/crac-api/src/main/java/com/powsybl/openrao/data/cracapi/Crac.java) 
 object is actually just an interface, with a default implementation in [CracImpl](https://github.com/powsybl/powsybl-open-rao/tree/main/data/crac/crac-impl/src/main/java/com/powsybl/openrao/data/cracimpl).  
-As a FARAO toolbox user, you are allowed to define your own custom Crac implementation. This implementation shall be instanced using a [CracFactory](https://github.com/powsybl/powsybl-open-rao/blob/main/data/crac/crac-api/src/main/java/com/powsybl/openrao/data/cracapi/CracFactory.java).  
-FARAO's default implementation is [CracImplFactory](https://github.com/powsybl/powsybl-open-rao/blob/main/data/crac/crac-impl/src/main/java/com/powsybl/openrao/data/cracimpl/CracImplFactory.java).  
+As a OpenRAO toolbox user, you are allowed to define your own custom Crac implementation. This implementation shall be instanced using a [CracFactory](https://github.com/powsybl/powsybl-open-rao/blob/main/data/crac/crac-api/src/main/java/com/powsybl/openrao/data/cracapi/CracFactory.java).  
+OpenRAO's default implementation is [CracImplFactory](https://github.com/powsybl/powsybl-open-rao/blob/main/data/crac/crac-impl/src/main/java/com/powsybl/openrao/data/cracimpl/CracImplFactory.java).  
 Parameter "crac-factory" allows the user to define which CracFactory implementation (thus which Crac implementation) to 
 use. If you do not have a custom implementation (which should be the case of most users), set it to "CracImplFactory".  
 
@@ -124,7 +124,7 @@ To use it, you have to define a list of strings containing the IDs of range acti
 See [example below](#full-cse-example) for a better illustration.
 
 ### bus-bar-change-switches
-As explained in the CSE native CRAC format section [here](cse.md#bus-bar-change), bus-bar-change remedial actions are defined in FARAO 
+As explained in the CSE native CRAC format section [here](cse.md#bus-bar-change), bus-bar-change remedial actions are defined in OpenRAO 
 as [switch pair network actions](introduction.md#switch-pair).  
 These switches are not defined in the native CRAC nor in the original network, they should be created artificially in the 
 network and their IDs should be sent to the RAO.  
@@ -215,12 +215,12 @@ To use it, you have to define a list of strings containing the IDs of range acti
 See [example below](#full-cim-example) for a better illustration.
 
 ### range-action-speeds
-FARAO can simulate range-action automatons, that is automatons that shift their set-points until one or many CNECs are secured.  
-In order to do that, FARAO must know which automaton is quicker than the other, because activating one automaton can render 
+OpenRAO can simulate range-action automatons, that is automatons that shift their set-points until one or many CNECs are secured.  
+In order to do that, OpenRAO must know which automaton is quicker than the other, because activating one automaton can render 
 the others useless.
 As the CIM native CRAC format does not allow the definition of relative automaton speeds, this parameter allows the user to do it.  
 To use it, set the speed of every range action automaton, defined by its ID. A smaller value means a speedier automaton.  
-Beware that FARAO cannot optimize range-action automatons that do not have a defined speed ; also that aligned range actions 
+Beware that OpenRAO cannot optimize range-action automatons that do not have a defined speed ; also that aligned range actions 
 must have the same speed.  
 See [example below](#full-cim-example) for a better illustration.
 
