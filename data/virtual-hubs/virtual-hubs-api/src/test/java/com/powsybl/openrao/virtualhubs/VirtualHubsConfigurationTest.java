@@ -20,7 +20,7 @@ class VirtualHubsConfigurationTest {
         MarketArea marketArea = new MarketArea("AreaCode", "AreaEic", true);
         configuration.addMarketArea(marketArea);
         configuration.addMarketArea(new MarketArea("OtherAreaCode", "OtherAreaEic", false));
-        configuration.addVirtualHub(new VirtualHub("HubCode", "HubEic", true, "HibNodeName", marketArea));
+        configuration.addVirtualHub(new VirtualHub("HubCode", "HubEic", true, "HibNodeName", marketArea, null));
         BorderDirection borderDirection = new BorderDirection("Paris", "Berlin");
         configuration.addBorderDirection(borderDirection);
 

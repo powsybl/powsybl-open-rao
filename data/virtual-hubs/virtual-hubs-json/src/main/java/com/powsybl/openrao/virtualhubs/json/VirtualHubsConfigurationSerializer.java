@@ -60,6 +60,7 @@ class VirtualHubsConfigurationSerializer extends JsonSerializer<VirtualHubsConfi
         jsonGenerator.writeBooleanField("isMcParticipant", virtualHub.isMcParticipant());
         jsonGenerator.writeStringField("nodeName", virtualHub.nodeName());
         jsonGenerator.writeStringField("marketArea", virtualHub.relatedMa().code());
+        jsonGenerator.writeStringField("oppositeHub", virtualHub.oppositeHub());
         jsonGenerator.writeEndObject();
     }
 }

@@ -17,20 +17,22 @@ class VirtualHubTest {
     @Test
     void checkThatVirtualHubIsCorrectlyCreated() {
         MarketArea marketArea = new MarketArea("AreaCode", "AreaEic", true);
-        VirtualHub myVirtualHub = new VirtualHub("HubCode", "HubEic", true, "HubNodeName", marketArea);
+        VirtualHub myVirtualHub = new VirtualHub("HubCode", "HubEic", true, "HubNodeName", marketArea, "OppositeHub");
         assertEquals("HubCode", myVirtualHub.code());
         assertEquals("HubEic", myVirtualHub.eic());
         assertTrue(myVirtualHub.isMcParticipant());
         assertEquals("HubNodeName", myVirtualHub.nodeName());
         assertEquals(marketArea, myVirtualHub.relatedMa());
+        assertEquals("OppositeHub", myVirtualHub.oppositeHub());
 
         MarketArea otherMarketArea = new MarketArea("OtherAreaCode", "OtherAreaEic", false);
-        VirtualHub myOtherVirtualHub = new VirtualHub("OtherHubCode", "OtherHubEic", false, "OtherHubNodeName", otherMarketArea);
+        VirtualHub myOtherVirtualHub = new VirtualHub("OtherHubCode", "OtherHubEic", false, "OtherHubNodeName", otherMarketArea, null);
         assertEquals("OtherHubCode", myOtherVirtualHub.code());
         assertEquals("OtherHubEic", myOtherVirtualHub.eic());
         assertFalse(myOtherVirtualHub.isMcParticipant());
         assertEquals("OtherHubNodeName", myOtherVirtualHub.nodeName());
         assertEquals(otherMarketArea, myOtherVirtualHub.relatedMa());
+        assertNull(myOtherVirtualHub.oppositeHub());
     }
 
     @Test
@@ -38,7 +40,7 @@ class VirtualHubTest {
         MarketArea marketArea = new MarketArea("AreaCode", "AreaEic", true);
         NullPointerException thrown = assertThrows(
             NullPointerException.class,
-            () -> new VirtualHub(null, "HubEic", true, "HubNodeName", marketArea),
+            () -> new VirtualHub(null, "HubEic", true, "HubNodeName", marketArea, "OppositeHub"),
             "Null code in VirtualHub creation should throw but does not"
         );
         assertEquals("VirtualHub creation does not allow null code", thrown.getMessage());
@@ -49,7 +51,7 @@ class VirtualHubTest {
         MarketArea marketArea = new MarketArea("AreaCode", "AreaEic", true);
         NullPointerException thrown = assertThrows(
             NullPointerException.class,
-            () -> new VirtualHub("HubCode", null, true, "HubNodeName", marketArea),
+            () -> new VirtualHub("HubCode", null, true, "HubNodeName", marketArea, "OppositeHub"),
             "Null code in VirtualHub creation should throw but does not"
         );
         assertEquals("VirtualHub creation does not allow null eic", thrown.getMessage());
@@ -60,7 +62,7 @@ class VirtualHubTest {
         MarketArea marketArea = new MarketArea("AreaCode", "AreaEic", true);
         NullPointerException thrown = assertThrows(
             NullPointerException.class,
-            () -> new VirtualHub("HubCode", "HubEic", true, null, marketArea),
+            () -> new VirtualHub("HubCode", "HubEic", true, null, marketArea, "OppositeHub"),
             "Null nodeName in VirtualHub creation should throw but does not"
         );
         assertEquals("VirtualHub creation does not allow null nodeName", thrown.getMessage());
@@ -70,7 +72,7 @@ class VirtualHubTest {
     void checkThatVirtualHubCreationThrowsWhenMarketAreaIsNull() {
         NullPointerException thrown = assertThrows(
             NullPointerException.class,
-            () -> new VirtualHub("HubCode", "HubEic", true, "HubNodeName", null),
+            () -> new VirtualHub("HubCode", "HubEic", true, "HubNodeName", null, "OppositeHub"),
             "Null relatedMa in VirtualHub creation should throw but does not"
         );
         assertEquals("VirtualHub creation does not allow null relatedMa", thrown.getMessage());

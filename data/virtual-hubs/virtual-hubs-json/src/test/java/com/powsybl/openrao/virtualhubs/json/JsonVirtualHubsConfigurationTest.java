@@ -35,12 +35,12 @@ class JsonVirtualHubsConfigurationTest {
         MarketArea marketArea = new MarketArea("AreaCode", "AreaEic", true);
         configuration.addMarketArea(marketArea);
         configuration.addMarketArea(new MarketArea("OtherAreaCode", "OtherAreaEic", false));
-        configuration.addVirtualHub(new VirtualHub("HubCode", "HubEic", true, "HubNodeName", marketArea));
+        configuration.addVirtualHub(new VirtualHub("HubCode", "HubEic", true, "HubNodeName", marketArea, "OppositeHub"));
 
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         JsonVirtualHubsConfiguration.exportConfiguration(baos, configuration);
 
-        assertEquals("{\"marketAreas\":[{\"code\":\"AreaCode\",\"eic\":\"AreaEic\",\"isMcParticipant\":true},{\"code\":\"OtherAreaCode\",\"eic\":\"OtherAreaEic\",\"isMcParticipant\":false}],\"virtualHubs\":[{\"code\":\"HubCode\",\"eic\":\"HubEic\",\"isMcParticipant\":true,\"nodeName\":\"HubNodeName\",\"marketArea\":\"AreaCode\"}]}", new String(baos.toByteArray()));
+        assertEquals("{\"marketAreas\":[{\"code\":\"AreaCode\",\"eic\":\"AreaEic\",\"isMcParticipant\":true},{\"code\":\"OtherAreaCode\",\"eic\":\"OtherAreaEic\",\"isMcParticipant\":false}],\"virtualHubs\":[{\"code\":\"HubCode\",\"eic\":\"HubEic\",\"isMcParticipant\":true,\"nodeName\":\"HubNodeName\",\"marketArea\":\"AreaCode\",\"oppositeHub\":\"OppositeHub\"}]}", new String(baos.toByteArray()));
     }
 
     @Test
@@ -49,12 +49,12 @@ class JsonVirtualHubsConfigurationTest {
         MarketArea marketArea = new MarketArea("AreaCode", "AreaEic", true);
         configuration.addMarketArea(marketArea);
         configuration.addMarketArea(new MarketArea("OtherAreaCode", "OtherAreaEic", false));
-        configuration.addVirtualHub(new VirtualHub("HubCode", "HubEic", true, "HubNodeName", marketArea));
+        configuration.addVirtualHub(new VirtualHub("HubCode", "HubEic", true, "HubNodeName", marketArea, "OppositeHub"));
 
         StringWriter writer = new StringWriter();
         JsonVirtualHubsConfiguration.exportConfiguration(writer, configuration);
 
-        assertEquals("{\"marketAreas\":[{\"code\":\"AreaCode\",\"eic\":\"AreaEic\",\"isMcParticipant\":true},{\"code\":\"OtherAreaCode\",\"eic\":\"OtherAreaEic\",\"isMcParticipant\":false}],\"virtualHubs\":[{\"code\":\"HubCode\",\"eic\":\"HubEic\",\"isMcParticipant\":true,\"nodeName\":\"HubNodeName\",\"marketArea\":\"AreaCode\"}]}", writer.toString());
+        assertEquals("{\"marketAreas\":[{\"code\":\"AreaCode\",\"eic\":\"AreaEic\",\"isMcParticipant\":true},{\"code\":\"OtherAreaCode\",\"eic\":\"OtherAreaEic\",\"isMcParticipant\":false}],\"virtualHubs\":[{\"code\":\"HubCode\",\"eic\":\"HubEic\",\"isMcParticipant\":true,\"nodeName\":\"HubNodeName\",\"marketArea\":\"AreaCode\",\"oppositeHub\":\"OppositeHub\"}]}", writer.toString());
     }
 
     @Test

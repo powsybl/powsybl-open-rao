@@ -85,6 +85,7 @@ class VirtualHubsConfigurationDeserializer extends JsonDeserializer<VirtualHubsC
         Boolean isMcParticipant = null;
         String nodeName = null;
         MarketArea marketArea = null;
+        String oppositeHub = null;
         while (!jsonParser.nextToken().isStructEnd()) {
             switch (jsonParser.getCurrentName()) {
                 case "code":
@@ -103,10 +104,13 @@ class VirtualHubsConfigurationDeserializer extends JsonDeserializer<VirtualHubsC
                     String marketAreaCode = jsonParser.nextTextValue();
                     marketArea = marketAreas.get(marketAreaCode);
                     break;
+                case "oppositeHub":
+                    oppositeHub = jsonParser.nextTextValue();
+                    break;
                 default:
                     throw new VirtualHubsConfigurationDeserializationException(String.format("Attribute '%s' invalid for virtual hub", jsonParser.getCurrentName()));
             }
         }
-        configuration.addVirtualHub(new VirtualHub(code, eic, isMcParticipant, nodeName, marketArea));
+        configuration.addVirtualHub(new VirtualHub(code, eic, isMcParticipant, nodeName, marketArea, oppositeHub));
     }
 }

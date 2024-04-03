@@ -13,12 +13,14 @@ import java.util.Objects;
  *
  * @author Sebastien Murgey {@literal <sebastien.murgey@rte-france.com>}
  */
-public record VirtualHub(String code, String eic, boolean isMcParticipant, String nodeName, MarketArea relatedMa) {
-    public VirtualHub(String code, String eic, boolean isMcParticipant, String nodeName, MarketArea relatedMa) {
+public record VirtualHub(String code, String eic, boolean isMcParticipant, String nodeName, MarketArea relatedMa, String oppositeHub) {
+    public VirtualHub(String code, String eic, boolean isMcParticipant, String nodeName, MarketArea relatedMa, String oppositeHub) {
         this.code = Objects.requireNonNull(code, "VirtualHub creation does not allow null code");
         this.eic = Objects.requireNonNull(eic, "VirtualHub creation does not allow null eic");
         this.isMcParticipant = isMcParticipant;
         this.nodeName = Objects.requireNonNull(nodeName, "VirtualHub creation does not allow null nodeName");
         this.relatedMa = Objects.requireNonNull(relatedMa, "VirtualHub creation does not allow null relatedMa");
+        this.oppositeHub = oppositeHub;
+
     }
 }

@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.TreeMap;
 
 /**
@@ -60,7 +61,8 @@ class VirtualHubsConfigurationImporter {
                 boolean isMcParticipant = Boolean.parseBoolean(node.getAttributes().getNamedItem("MCParticipant").getNodeValue());
                 String nodeName = node.getAttributes().getNamedItem("NodeName").getNodeValue();
                 MarketArea marketArea = marketAreasMap.get(node.getAttributes().getNamedItem("RelatedMA").getNodeValue());
-                configuration.addVirtualHub(new VirtualHub(code, eic, isMcParticipant, nodeName, marketArea));
+                String oppositeHub = Optional.ofNullable(node.getAttributes().getNamedItem("OppositeHub")).map(Node::getNodeValue).orElse(null);
+                configuration.addVirtualHub(new VirtualHub(code, eic, isMcParticipant, nodeName, marketArea, oppositeHub));
             }
             for (int i = 0; i < borderDirections.getLength(); i++) {
                 Node node = borderDirections.item(i);
