@@ -112,13 +112,3 @@ optimisation, tuned for tackling the world's toughest problems in vehicle routin
 integer and linear programming, and constraint programming.
 The choice of Google OR-tools was driven by its large compatibility with most of existing open source/commercial solvers,
 including commercial solvers such Gurobi and Xpress when high performance is required.
-
-![Docker logo](/_static/logos/horizontal-logo-monochromatic-white.png){.main-page-logo}
-
-[Docker](https://www.docker.com/) is an open source container platform that packages applications as
-lightweight, portable containers.
-
-![Kubernetes logo](/_static/logos/kubernetes.png){.main-page-logo}
-
-[Kubernetes](https://kubernetes.io/), also known as K8s, is an open-source system for automating deployment, scaling, and management of containerized applications.
-
