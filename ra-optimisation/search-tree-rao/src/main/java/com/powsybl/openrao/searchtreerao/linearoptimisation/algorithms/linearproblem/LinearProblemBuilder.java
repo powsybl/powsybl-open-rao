@@ -6,6 +6,7 @@
  */
 package com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem;
 
+import com.google.ortools.Loader;
 import com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider;
 import com.powsybl.openrao.data.cracapi.State;
 import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeAction;
@@ -15,7 +16,6 @@ import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.Curative
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.fillers.*;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.inputs.IteratingLinearOptimizerInput;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.parameters.IteratingLinearOptimizerParameters;
-import com.powsybl.openrao.util.NativeLibraryLoader;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -27,7 +27,7 @@ public class LinearProblemBuilder {
 
     static {
         try {
-            NativeLibraryLoader.loadNativeLibrary("jniortools");
+            Loader.loadNativeLibraries();
         } catch (Exception e) {
             OpenRaoLoggerProvider.TECHNICAL_LOGS.error("Native library jniortools could not be loaded. You can ignore this message if it is not needed.");
         }
