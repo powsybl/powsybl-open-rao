@@ -1,0 +1,9 @@
+{
+  "crac-factory" : "CracImplFactory",
+  "extensions" : {
+    "CsaCracCreatorParameters" : {
+      "capacity-calculation-region-eic-code": "10Y1001C--00095L-1",
+      "sps-max-time-to-implement-threshold-in-seconds": 60
+    }
+  }
+}

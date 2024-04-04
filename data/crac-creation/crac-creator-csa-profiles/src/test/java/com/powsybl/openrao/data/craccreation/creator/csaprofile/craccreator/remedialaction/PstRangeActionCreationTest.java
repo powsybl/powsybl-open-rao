@@ -92,7 +92,7 @@ class PstRangeActionCreationTest {
         assertEquals(3, importedPstRangeActions.size());
 
         assertPstRangeActionImported(cracCreationContext, "auto-pst-be2-be3", "BBE2AA1  BBE3AA1  1", false, 1, null);
-        assertHasOnFlowConstraintUsageRule(cracCreationContext, "auto-pst-be2-be3", "RTE_AE1 (ae-1) - RTE_CO - auto - TATL 900", cracCreationContext.getCrac().getInstant(AUTO_INSTANT_ID), UsageMethod.AVAILABLE);
+        assertHasOnFlowConstraintUsageRule(cracCreationContext, "auto-pst-be2-be3", "RTE_AE1 (ae-1) - RTE_CO - auto - TATL 900", cracCreationContext.getCrac().getInstant(AUTO_INSTANT_ID), UsageMethod.FORCED);
         assertPstRangeActionImported(cracCreationContext, "cra-pst-be2-be3", "BBE2AA1  BBE3AA1  1", false, 1, null);
         assertHasOnFlowConstraintUsageRule(cracCreationContext, "cra-pst-be2-be3", "RTE_AE2 (ae-2) - RTE_CO - curative", cracCreationContext.getCrac().getInstant(CURATIVE_INSTANT_ID), UsageMethod.AVAILABLE);
         assertPstRangeActionImported(cracCreationContext, "cra-pst-fr2-fr4", "FFR2AA1  FFR4AA1  1", false, 1, null);
