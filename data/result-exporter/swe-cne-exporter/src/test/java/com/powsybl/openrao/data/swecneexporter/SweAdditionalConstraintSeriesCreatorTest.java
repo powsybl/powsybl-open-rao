@@ -23,7 +23,6 @@ import org.mockito.Mockito;
 import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
 
 /**
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
@@ -78,6 +77,25 @@ class SweAdditionalConstraintSeriesCreatorTest {
         Mockito.when(angleCnec1.getState()).thenReturn(curativeState);
         Mockito.when(angleCnec2.getState()).thenReturn(curativeState);
         return new SweAdditionalConstraintSeriesCreator(sweCneHelper, cracCreationContext);
+    }
+
+    private void setUpNanAngleCnecs(Contingency contingency) {
+        Mockito.when(contingency.getId()).thenReturn("contingency");
+        AngleCnecCreationContext acc1 = createAdcs("AngleCnecId1", "contingency");
+        AngleCnecCreationContext acc2 = createAdcs("AngleCnecId2", "contingency");
+        AngleCnec angleCnec1 = Mockito.mock(AngleCnec.class);
+        AngleCnec angleCnec2 = Mockito.mock(AngleCnec.class);
+        Mockito.when(crac.getAngleCnec(acc1.getCreatedCnecId())).thenReturn(angleCnec1);
+        Mockito.when(crac.getAngleCnec(acc2.getCreatedCnecId())).thenReturn(angleCnec2);
+        Mockito.when(angleCnec1.getName()).thenReturn("AngleCnecName1");
+        Mockito.when(angleCnec2.getName()).thenReturn("AngleCnecName2");
+        Mockito.when(raoResult.getAngle(curativeInstant, angleCnec1, Unit.DEGREE)).thenReturn(Double.NaN);
+        Mockito.when(raoResult.getAngle(curativeInstant, angleCnec2, Unit.DEGREE)).thenReturn(Double.NaN);
+        Mockito.when(cracCreationContext.getAngleCnecCreationContexts()).thenReturn(Set.of(acc1, acc2));
+        State curativeState = Mockito.mock(State.class);
+        Mockito.when(curativeState.getInstant()).thenReturn(curativeInstant);
+        Mockito.when(angleCnec1.getState()).thenReturn(curativeState);
+        Mockito.when(angleCnec2.getState()).thenReturn(curativeState);
     }
 
     @Test
@@ -136,21 +154,23 @@ class SweAdditionalConstraintSeriesCreatorTest {
     }
 
     @Test
-    void generateContingencyAdditionalConstraintSeriesWithDivergentAngleMonitoringTest() {
+    void noGenerateContingencyAdditionalConstraintSeriesWithDivergentAngleMonitoringIfFailureTest() {
         Contingency contingency = Mockito.mock(Contingency.class);
         Mockito.when(raoResult.getComputationStatus()).thenReturn(ComputationStatus.FAILURE);
         setUpAngleCnecs(contingency);
         SweAdditionalConstraintSeriesCreator additionalConstraintSeriesCreator = new SweAdditionalConstraintSeriesCreator(sweCneHelper, cracCreationContext);
         List<AdditionalConstraintSeries> contingencyAngleSeries = additionalConstraintSeriesCreator.generateAdditionalConstraintSeries(contingency);
-        assertEquals(2, contingencyAngleSeries.size());
-        assertEquals("AngleCnecId1", contingencyAngleSeries.get(0).getMRID());
-        assertEquals("AngleCnecName1", contingencyAngleSeries.get(0).getName());
-        assertEquals("B87", contingencyAngleSeries.get(0).getBusinessType());
-        assertNull(contingencyAngleSeries.get(0).getQuantityQuantity());
-        assertEquals("AngleCnecId2", contingencyAngleSeries.get(1).getMRID());
-        assertEquals("AngleCnecName2", contingencyAngleSeries.get(1).getName());
-        assertEquals("B87", contingencyAngleSeries.get(1).getBusinessType());
-        assertNull(contingencyAngleSeries.get(1).getQuantityQuantity());
+        assertEquals(0, contingencyAngleSeries.size());
+    }
+
+    @Test
+    void noGenerateContingencyAdditionalConstraintSeriesWithDivergentAngleMonitoringIfNoAngleTest() {
+        Contingency contingency = Mockito.mock(Contingency.class);
+        Mockito.when(raoResult.getComputationStatus()).thenReturn(ComputationStatus.DEFAULT);
+        setUpNanAngleCnecs(contingency);
+        SweAdditionalConstraintSeriesCreator additionalConstraintSeriesCreator = new SweAdditionalConstraintSeriesCreator(sweCneHelper, cracCreationContext);
+        List<AdditionalConstraintSeries> contingencyAngleSeries = additionalConstraintSeriesCreator.generateAdditionalConstraintSeries(contingency);
+        assertEquals(0, contingencyAngleSeries.size());
     }
 
     private AngleCnecCreationContext createAdcs(String nativeId, String contingencyId) {
