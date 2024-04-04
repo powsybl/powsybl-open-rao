@@ -4,7 +4,6 @@ import com.powsybl.iidm.network.IdentifiableType;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.Contingency;
 import com.powsybl.openrao.data.cracapi.Crac;
-import com.powsybl.openrao.data.cracapi.InstantKind;
 import com.powsybl.openrao.data.cracapi.cnec.VoltageCnecAdder;
 import com.powsybl.openrao.data.craccreation.creator.api.ImportStatus;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileConstants;
@@ -28,7 +27,7 @@ public class VoltageCnecCreator extends AbstractCnecCreator {
             addVoltageCnec(crac.getPreventiveInstant().getId(), null);
         }
         for (Contingency contingency : linkedContingencies) {
-            addVoltageCnec(crac.getInstant(InstantKind.CURATIVE).getId(), contingency);
+            addVoltageCnec(crac.getLastInstant().getId(), contingency);
         }
     }
 

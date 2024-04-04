@@ -113,12 +113,21 @@ public class CsaProfileRemedialActionsCreator {
     }
 
     private void addOnInstantUsageRules(PropertyBag parentRemedialActionPropertyBag, RemedialActionAdder<?> remedialActionAdder, String remedialActionId, List<String> alterations) {
-        Instant instant = parentRemedialActionPropertyBag.get(KIND).equals(RemedialActionKind.PREVENTIVE.toString()) ? crac.getPreventiveInstant() : crac.getInstant(InstantKind.CURATIVE);
         boolean isLinkedToAssessedElements = elementaryActionsHelper.remedialActionIsLinkedToAssessedElements(remedialActionId);
-        addOnConstraintUsageRules(instant, remedialActionAdder, remedialActionId, alterations);
-        if (!isLinkedToAssessedElements) {
-            remedialActionAdder.newOnInstantUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withInstant(instant.getId()).add();
+        if (parentRemedialActionPropertyBag.get(KIND).equals(RemedialActionKind.PREVENTIVE.toString())) {
+            addOnConstraintUsageRules(crac.getPreventiveInstant(), remedialActionAdder, remedialActionId, alterations);
+            if (!isLinkedToAssessedElements) {
+                remedialActionAdder.newOnInstantUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withInstant(crac.getPreventiveInstant().getId()).add();
+            }
+        } else {
+            for (Instant instant : crac.getInstants(InstantKind.CURATIVE)) {
+                addOnConstraintUsageRules(instant, remedialActionAdder, remedialActionId, alterations);
+                if (!isLinkedToAssessedElements) {
+                    remedialActionAdder.newOnInstantUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withInstant(instant.getId()).add();
+                }
+            }
         }
+
     }
 
     private void checkElementCombinationConstraintKindsCoherence(String remedialActionId, Map<String, Set<PropertyBag>> linkedContingencyWithRAs, List<String> alterations, boolean isAuto) {
@@ -207,6 +216,7 @@ public class CsaProfileRemedialActionsCreator {
     }
 
     private static boolean isOnConstraintInstantCoherent(Instant cnecInstant, Instant remedialInstant) {
+        // TODO: update this with multiple curatives
         return !cnecInstant.comesBefore(remedialInstant);
     }
 
@@ -244,15 +254,23 @@ public class CsaProfileRemedialActionsCreator {
         // If the remedial action is linked to an assessed element, no matter if this link or this assessed element is
         // valid or not, the remedial action cannot have an onContingencyState usage rule because it would make it more
         // available than what it was designed for
-        addOnConstraintUsageRules(crac.getInstant(InstantKind.CURATIVE), remedialActionAdder, remedialActionId, alterations);
+        crac.getInstants(InstantKind.CURATIVE).forEach(instant -> addOnConstraintUsageRules(instant, remedialActionAdder, remedialActionId, alterations));
+
         boolean isLinkedToAssessedElements = elementaryActionsHelper.remedialActionIsLinkedToAssessedElements(remedialActionId);
         if (!isLinkedToAssessedElements) {
-            String instantId = isAuto ? crac.getInstant(InstantKind.AUTO).getId() : crac.getInstant(InstantKind.CURATIVE).getId();
-
-            validContingencies.forEach(openRaoContingencyId -> remedialActionAdder.newOnContingencyStateUsageRule()
-                .withInstant(instantId)
-                .withContingency(openRaoContingencyId.getLeft())
-                .withUsageMethod(getUsageMethod(openRaoContingencyId.getRight(), isAuto)).add());
+            if (isAuto) {
+                validContingencies.forEach(openRaoContingencyId -> remedialActionAdder.newOnContingencyStateUsageRule()
+                    .withInstant(crac.getInstant(InstantKind.AUTO).getId())
+                    .withContingency(openRaoContingencyId.getLeft())
+                    .withUsageMethod(getUsageMethod(openRaoContingencyId.getRight(), true)).add());
+            } else {
+                crac.getInstants(InstantKind.CURATIVE).forEach(instant ->
+                    validContingencies.forEach(openRaoContingencyId -> remedialActionAdder.newOnContingencyStateUsageRule()
+                        .withInstant(instant.getId())
+                        .withContingency(openRaoContingencyId.getLeft())
+                        .withUsageMethod(getUsageMethod(openRaoContingencyId.getRight(), false)).add())
+                );
+            }
 
             alterations.addAll(ignoredContingenciesMessages);
         }

@@ -3,7 +3,6 @@ package com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.cne
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.Contingency;
 import com.powsybl.openrao.data.cracapi.Crac;
-import com.powsybl.openrao.data.cracapi.InstantKind;
 import com.powsybl.openrao.data.cracapi.cnec.AngleCnecAdder;
 import com.powsybl.openrao.data.craccreation.creator.api.ImportStatus;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileConstants;
@@ -29,7 +28,7 @@ public class AngleCnecCreator extends AbstractCnecCreator {
             addAngleCnec(crac.getPreventiveInstant().getId(), null);
         }
         for (Contingency contingency : linkedContingencies) {
-            addAngleCnec(crac.getInstant(InstantKind.CURATIVE).getId(), contingency);
+            addAngleCnec(crac.getLastInstant().getId(), contingency);
         }
     }
 

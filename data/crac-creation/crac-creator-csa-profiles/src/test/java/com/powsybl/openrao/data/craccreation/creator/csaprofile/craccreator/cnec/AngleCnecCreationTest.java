@@ -10,7 +10,7 @@ import org.junit.jupiter.api.Test;
 import java.util.Comparator;
 import java.util.List;
 
-import static com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileCracCreationTestUtil.CURATIVE_INSTANT_ID;
+import static com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileCracCreationTestUtil.CURATIVE_3_INSTANT_ID;
 import static com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileCracCreationTestUtil.NETWORK;
 import static com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileCracCreationTestUtil.PREVENTIVE_INSTANT_ID;
 import static com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileCracCreationTestUtil.assertCnecNotImported;
@@ -29,10 +29,10 @@ class AngleCnecCreationTest {
 
         CsaProfileCracCreationTestUtil.assertAngleCnecEquality(
             importedFlowCnecs.get(0),
-            "RTE_AE1 (assessed-element-1) - RTE_CO1 - curative",
+            "RTE_AE1 (assessed-element-1) - RTE_CO1 - curative 3",
             "BBE1AA1 ",
             "BBE4AA1 ",
-            CURATIVE_INSTANT_ID,
+            CURATIVE_3_INSTANT_ID,
             "contingency-1",
             60d,
             -60d,
@@ -51,10 +51,10 @@ class AngleCnecCreationTest {
 
         CsaProfileCracCreationTestUtil.assertAngleCnecEquality(
             importedFlowCnecs.get(2),
-            "RTE_AE2 (assessed-element-2) - RTE_CO1 - curative",
+            "RTE_AE2 (assessed-element-2) - RTE_CO1 - curative 3",
             "BBE1AA1 ",
             "BBE4AA1 ",
-            CURATIVE_INSTANT_ID,
+            CURATIVE_3_INSTANT_ID,
             "contingency-1",
             45d,
             -45d,
@@ -62,10 +62,10 @@ class AngleCnecCreationTest {
 
         CsaProfileCracCreationTestUtil.assertAngleCnecEquality(
             importedFlowCnecs.get(3),
-            "RTE_AE2 (assessed-element-2) - RTE_CO2 - curative",
+            "RTE_AE2 (assessed-element-2) - RTE_CO2 - curative 3",
             "BBE1AA1 ",
             "BBE4AA1 ",
-            CURATIVE_INSTANT_ID,
+            CURATIVE_3_INSTANT_ID,
             "contingency-2",
             45d,
             -45d,
@@ -84,10 +84,10 @@ class AngleCnecCreationTest {
 
         CsaProfileCracCreationTestUtil.assertAngleCnecEquality(
             importedFlowCnecs.get(5),
-            "RTE_AE3 (assessed-element-3) - RTE_CO1 - curative",
+            "RTE_AE3 (assessed-element-3) - RTE_CO1 - curative 3",
             "BBE4AA1 ",
             "BBE1AA1 ",
-            CURATIVE_INSTANT_ID,
+            CURATIVE_3_INSTANT_ID,
             "contingency-1",
             45d,
             -45d,
@@ -95,10 +95,10 @@ class AngleCnecCreationTest {
 
         CsaProfileCracCreationTestUtil.assertAngleCnecEquality(
             importedFlowCnecs.get(6),
-            "RTE_AE3 (assessed-element-3) - RTE_CO2 - curative",
+            "RTE_AE3 (assessed-element-3) - RTE_CO2 - curative 3",
             "BBE4AA1 ",
             "BBE1AA1 ",
-            CURATIVE_INSTANT_ID,
+            CURATIVE_3_INSTANT_ID,
             "contingency-2",
             45d,
             -45d,
@@ -117,10 +117,10 @@ class AngleCnecCreationTest {
 
         CsaProfileCracCreationTestUtil.assertAngleCnecEquality(
             importedFlowCnecs.get(8),
-            "RTE_AE4 (assessed-element-4) - RTE_CO2 - curative",
+            "RTE_AE4 (assessed-element-4) - RTE_CO2 - curative 3",
             "BBE1AA1 ",
             "BBE4AA1 ",
-            CURATIVE_INSTANT_ID,
+            CURATIVE_3_INSTANT_ID,
             "contingency-2",
             60d,
             null,
@@ -148,8 +148,8 @@ class AngleCnecCreationTest {
         assertCnecNotImported(cracCreationContext, "assessed-element-12", ImportStatus.INCONSISTENCY_IN_DATA, "AssessedElement assessed-element-12 ignored because the network element FFR1AA1 _generator is not a bus bar section");
         assertCnecNotImported(cracCreationContext, "assessed-element-13", ImportStatus.INCONSISTENCY_IN_DATA, "AssessedElement assessed-element-13 ignored because the network element FFR2AA1 _generator is not a bus bar section");
 
-        assertHasOnAngleConstraintUsageRule(cracCreationContext, "remedial-action-1", "RTE_AE1 (assessed-element-1) - RTE_CO1 - curative", cracCreationContext.getCrac().getInstant(CURATIVE_INSTANT_ID), UsageMethod.AVAILABLE);
-        assertHasOnAngleConstraintUsageRule(cracCreationContext, "remedial-action-2", "RTE_AE2 (assessed-element-2) - RTE_CO1 - curative", cracCreationContext.getCrac().getInstant(CURATIVE_INSTANT_ID), UsageMethod.AVAILABLE);
-        assertHasOnAngleConstraintUsageRule(cracCreationContext, "remedial-action-2", "RTE_AE2 (assessed-element-2) - RTE_CO2 - curative", cracCreationContext.getCrac().getInstant(CURATIVE_INSTANT_ID), UsageMethod.AVAILABLE);
+        assertHasOnAngleConstraintUsageRule(cracCreationContext, "remedial-action-1", "RTE_AE1 (assessed-element-1) - RTE_CO1 - curative 3", cracCreationContext.getCrac().getInstant(CURATIVE_3_INSTANT_ID), UsageMethod.AVAILABLE);
+        assertHasOnAngleConstraintUsageRule(cracCreationContext, "remedial-action-2", "RTE_AE2 (assessed-element-2) - RTE_CO1 - curative 3", cracCreationContext.getCrac().getInstant(CURATIVE_3_INSTANT_ID), UsageMethod.AVAILABLE);
+        assertHasOnAngleConstraintUsageRule(cracCreationContext, "remedial-action-2", "RTE_AE2 (assessed-element-2) - RTE_CO2 - curative 3", cracCreationContext.getCrac().getInstant(CURATIVE_3_INSTANT_ID), UsageMethod.AVAILABLE);
     }
 }

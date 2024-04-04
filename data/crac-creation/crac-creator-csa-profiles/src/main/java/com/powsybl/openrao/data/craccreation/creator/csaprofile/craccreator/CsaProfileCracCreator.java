@@ -92,7 +92,9 @@ public class CsaProfileCracCreator implements CracCreator<CsaProfileCrac, CsaPro
         crac.newInstant("preventive", InstantKind.PREVENTIVE)
             .newInstant("outage", InstantKind.OUTAGE)
             .newInstant("auto", InstantKind.AUTO)
-            .newInstant("curative", InstantKind.CURATIVE);
+            .newInstant("curative 1", InstantKind.CURATIVE)
+            .newInstant("curative 2", InstantKind.CURATIVE)
+            .newInstant("curative 3", InstantKind.CURATIVE);
         // TODO : add other curative instants here
     }
 

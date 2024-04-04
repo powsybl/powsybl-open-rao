@@ -12,7 +12,9 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
-import static com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileCracCreationTestUtil.CURATIVE_INSTANT_ID;
+import static com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileCracCreationTestUtil.CURATIVE_1_INSTANT_ID;
+import static com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileCracCreationTestUtil.CURATIVE_2_INSTANT_ID;
+import static com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileCracCreationTestUtil.CURATIVE_3_INSTANT_ID;
 import static com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileCracCreationTestUtil.NETWORK;
 import static com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileCracCreationTestUtil.PREVENTIVE_INSTANT_ID;
 import static com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileCracCreationTestUtil.assertHasOnContingencyStateUsageRule;
@@ -35,22 +37,32 @@ class RemedialActionCreationTest {
         assertHasOnInstantUsageRule(cracCreationContext, "remedial-action-1", PREVENTIVE_INSTANT_ID, UsageMethod.AVAILABLE);
 
         assertPstRangeActionImported((PstRangeAction) importedRemedialActions.get(1), "remedial-action-2", "RA2", "BBE2AA1  BBE3AA1  1", null, null, null);
-        assertHasOnInstantUsageRule(cracCreationContext, "remedial-action-2", CURATIVE_INSTANT_ID, UsageMethod.AVAILABLE);
+        assertHasOnInstantUsageRule(cracCreationContext, "remedial-action-2", CURATIVE_1_INSTANT_ID, UsageMethod.AVAILABLE);
+        assertHasOnInstantUsageRule(cracCreationContext, "remedial-action-2", CURATIVE_2_INSTANT_ID, UsageMethod.AVAILABLE);
+        assertHasOnInstantUsageRule(cracCreationContext, "remedial-action-2", CURATIVE_3_INSTANT_ID, UsageMethod.AVAILABLE);
 
         assertPstRangeActionImported((PstRangeAction) importedRemedialActions.get(2), "remedial-action-3", "remedial-action-3", "BBE2AA1  BBE3AA1  1", null, null, "RTE");
         assertEquals(Optional.of(10), importedRemedialActions.get(2).getSpeed());
-        assertHasOnContingencyStateUsageRule(cracCreationContext, "remedial-action-3", "contingency-1", CURATIVE_INSTANT_ID, UsageMethod.AVAILABLE);
+        assertHasOnContingencyStateUsageRule(cracCreationContext, "remedial-action-3", "contingency-1", CURATIVE_1_INSTANT_ID, UsageMethod.AVAILABLE);
+        assertHasOnContingencyStateUsageRule(cracCreationContext, "remedial-action-3", "contingency-1", CURATIVE_2_INSTANT_ID, UsageMethod.AVAILABLE);
+        assertHasOnContingencyStateUsageRule(cracCreationContext, "remedial-action-3", "contingency-1", CURATIVE_3_INSTANT_ID, UsageMethod.AVAILABLE);
 
         assertPstRangeActionImported((PstRangeAction) importedRemedialActions.get(3), "remedial-action-4", "RTE_RA4", "BBE2AA1  BBE3AA1  1", null, null, "RTE");
-        assertHasOnContingencyStateUsageRule(cracCreationContext, "remedial-action-4", "contingency-2", CURATIVE_INSTANT_ID, UsageMethod.FORCED);
+        assertHasOnContingencyStateUsageRule(cracCreationContext, "remedial-action-4", "contingency-2", CURATIVE_1_INSTANT_ID, UsageMethod.FORCED);
+        assertHasOnContingencyStateUsageRule(cracCreationContext, "remedial-action-4", "contingency-2", CURATIVE_2_INSTANT_ID, UsageMethod.FORCED);
+        assertHasOnContingencyStateUsageRule(cracCreationContext, "remedial-action-4", "contingency-2", CURATIVE_3_INSTANT_ID, UsageMethod.FORCED);
 
         assertEquals(3, ((NetworkAction) importedRemedialActions.get(4)).getElementaryActions().size());
         assertHasOnInstantUsageRule(cracCreationContext, "remedial-action-5", PREVENTIVE_INSTANT_ID, UsageMethod.AVAILABLE);
 
         assertPstRangeActionImported((PstRangeAction) importedRemedialActions.get(5), "remedial-action-6", "RTE_RA6", "BBE2AA1  BBE3AA1  1", null, null, "RTE");
-        assertEquals(2, importedRemedialActions.get(5).getUsageRules().size());
-        assertHasOnContingencyStateUsageRule(cracCreationContext, "remedial-action-6", "contingency-1", CURATIVE_INSTANT_ID, UsageMethod.AVAILABLE);
-        assertHasOnContingencyStateUsageRule(cracCreationContext, "remedial-action-6", "contingency-2", CURATIVE_INSTANT_ID, UsageMethod.FORCED);
+        assertEquals(6, importedRemedialActions.get(5).getUsageRules().size());
+        assertHasOnContingencyStateUsageRule(cracCreationContext, "remedial-action-6", "contingency-1", CURATIVE_1_INSTANT_ID, UsageMethod.AVAILABLE);
+        assertHasOnContingencyStateUsageRule(cracCreationContext, "remedial-action-6", "contingency-1", CURATIVE_2_INSTANT_ID, UsageMethod.AVAILABLE);
+        assertHasOnContingencyStateUsageRule(cracCreationContext, "remedial-action-6", "contingency-1", CURATIVE_3_INSTANT_ID, UsageMethod.AVAILABLE);
+        assertHasOnContingencyStateUsageRule(cracCreationContext, "remedial-action-6", "contingency-2", CURATIVE_1_INSTANT_ID, UsageMethod.FORCED);
+        assertHasOnContingencyStateUsageRule(cracCreationContext, "remedial-action-6", "contingency-2", CURATIVE_2_INSTANT_ID, UsageMethod.FORCED);
+        assertHasOnContingencyStateUsageRule(cracCreationContext, "remedial-action-6", "contingency-2", CURATIVE_3_INSTANT_ID, UsageMethod.FORCED);
 
         assertEquals(5, cracCreationContext.getRemedialActionCreationContexts().stream().filter(context -> !context.isImported()).toList().size());
 
