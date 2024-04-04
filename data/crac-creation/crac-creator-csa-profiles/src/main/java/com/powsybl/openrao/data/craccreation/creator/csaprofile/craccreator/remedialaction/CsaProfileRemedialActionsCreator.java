@@ -216,8 +216,8 @@ public class CsaProfileRemedialActionsCreator {
     }
 
     private static boolean isOnConstraintInstantCoherent(Instant cnecInstant, Instant remedialInstant) {
-        // TODO: update this with multiple curatives
-        return !cnecInstant.comesBefore(remedialInstant);
+        // TODO: add test to cover all the possible cases
+        return remedialInstant.isAuto() ? cnecInstant.isAuto() : !cnecInstant.comesBefore(remedialInstant);
     }
 
     private void addOnContingencyStateUsageRules(PropertyBag parentRemedialActionPropertyBag, String remedialActionId, Map<String, Set<PropertyBag>> linkedContingencyWithRAs, RemedialActionAdder<?> remedialActionAdder, List<String> alterations, boolean isAuto) {
