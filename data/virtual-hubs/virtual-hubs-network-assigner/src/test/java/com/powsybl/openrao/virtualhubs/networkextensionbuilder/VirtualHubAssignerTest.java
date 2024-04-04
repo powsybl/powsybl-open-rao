@@ -36,7 +36,7 @@ class VirtualHubAssignerTest {
 
     @Test
     void testAssignerOnRealNode() {
-        virtualHubs.add(new VirtualHub("code_vh1", "eic_vh1", true, "NNL2AA1 ", new MarketArea("NL", "eic_nl", true)));
+        virtualHubs.add(new VirtualHub("code_vh1", "eic_vh1", true, false, "NNL2AA1 ", new MarketArea("NL", "eic_nl", true, false), null));
         new VirtualHubAssigner(virtualHubs).addVirtualLoads(network);
 
         Optional<Load> load = network.getLoadStream().filter(l -> l.getExtension(AssignedVirtualHub.class) != null).findFirst();
@@ -50,7 +50,7 @@ class VirtualHubAssignerTest {
 
     @Test
     void testAssignerOnXNode() {
-        virtualHubs.add(new VirtualHub("code_vh2", "eic_vh2", true, "X_GBFR1 ", new MarketArea("FR", "eic_fr", true)));
+        virtualHubs.add(new VirtualHub("code_vh2", "eic_vh2", true, false, "X_GBFR1 ", new MarketArea("FR", "eic_fr", true, false), null));
         new VirtualHubAssigner(virtualHubs).addVirtualLoads(network);
 
         Optional<Load> load = network.getLoadStream().filter(l -> l.getExtension(AssignedVirtualHub.class) != null).findFirst();
@@ -67,7 +67,7 @@ class VirtualHubAssignerTest {
 
         network.getDanglingLine("FFR1AA1  X_GBFR1  1").getTerminal().disconnect();
 
-        virtualHubs.add(new VirtualHub("code_vh2", "eic_vh2", true, "X_GBFR1 ", new MarketArea("FR", "eic_fr", true)));
+        virtualHubs.add(new VirtualHub("code_vh2", "eic_vh2", true, false, "X_GBFR1 ", new MarketArea("FR", "eic_fr", true, false), null));
         new VirtualHubAssigner(virtualHubs).addVirtualLoads(network);
 
         Optional<Load> load = network.getLoadStream().filter(l -> l.getExtension(AssignedVirtualHub.class) != null).findFirst();
@@ -77,8 +77,8 @@ class VirtualHubAssignerTest {
 
     @Test
     void testAssignerOnSeveralNodes() {
-        virtualHubs.add(new VirtualHub("code_vh1", "eic_vh1", true, "NNL2AA1 ", new MarketArea("NL", "eic_nl", true)));
-        virtualHubs.add(new VirtualHub("code_vh2", "eic_vh2", true, "X_GBFR1 ", new MarketArea("FR", "eic_fr", true)));
+        virtualHubs.add(new VirtualHub("code_vh1", "eic_vh1", true, false, "NNL2AA1 ", new MarketArea("NL", "eic_nl", true, false), null));
+        virtualHubs.add(new VirtualHub("code_vh2", "eic_vh2", true, false, "X_GBFR1 ", new MarketArea("FR", "eic_fr", true, false), null));
 
         new VirtualHubAssigner(virtualHubs).addVirtualLoads(network);
 
@@ -87,7 +87,7 @@ class VirtualHubAssignerTest {
 
     @Test
     void testAssignerOnNonExistingNode() {
-        virtualHubs.add(new VirtualHub("code_vh3", "eic_vh3", true, "UNKNOWN_", new MarketArea("FR", "eic_fr", true)));
+        virtualHubs.add(new VirtualHub("code_vh3", "eic_vh3", true, false, "UNKNOWN_", new MarketArea("FR", "eic_fr", true, false), null));
 
         new VirtualHubAssigner(virtualHubs).addVirtualLoads(network);
 
