@@ -6,6 +6,7 @@
  */
 package com.powsybl.openrao.virtualhubs.json;
 
+import com.powsybl.openrao.virtualhubs.BorderDirection;
 import com.powsybl.openrao.virtualhubs.MarketArea;
 import com.powsybl.openrao.virtualhubs.VirtualHub;
 import com.powsybl.openrao.virtualhubs.VirtualHubsConfiguration;
@@ -24,6 +25,7 @@ class VirtualHubsConfigurationSerializer extends JsonSerializer<VirtualHubsConfi
         jsonGenerator.writeStartObject();
         serializeMarketAreas(virtualHubsConfiguration, jsonGenerator);
         serializeVirtualHubs(virtualHubsConfiguration, jsonGenerator);
+        serializeBorderDirections(virtualHubsConfiguration, jsonGenerator);
         jsonGenerator.writeEndObject();
     }
 
@@ -38,9 +40,10 @@ class VirtualHubsConfigurationSerializer extends JsonSerializer<VirtualHubsConfi
 
     private void serializeMarketArea(MarketArea marketArea, JsonGenerator jsonGenerator) throws IOException {
         jsonGenerator.writeStartObject();
-        jsonGenerator.writeStringField("code", marketArea.getCode());
-        jsonGenerator.writeStringField("eic", marketArea.getEic());
+        jsonGenerator.writeStringField("code", marketArea.code());
+        jsonGenerator.writeStringField("eic", marketArea.eic());
         jsonGenerator.writeBooleanField("isMcParticipant", marketArea.isMcParticipant());
+        jsonGenerator.writeBooleanField("isAhc", marketArea.isAhc());
         jsonGenerator.writeEndObject();
     }
 
@@ -55,11 +58,30 @@ class VirtualHubsConfigurationSerializer extends JsonSerializer<VirtualHubsConfi
 
     private void serializeVirtualHub(VirtualHub virtualHub, JsonGenerator jsonGenerator) throws IOException {
         jsonGenerator.writeStartObject();
-        jsonGenerator.writeStringField("code", virtualHub.getCode());
-        jsonGenerator.writeStringField("eic", virtualHub.getEic());
+        jsonGenerator.writeStringField("code", virtualHub.code());
+        jsonGenerator.writeStringField("eic", virtualHub.eic());
         jsonGenerator.writeBooleanField("isMcParticipant", virtualHub.isMcParticipant());
-        jsonGenerator.writeStringField("nodeName", virtualHub.getNodeName());
-        jsonGenerator.writeStringField("marketArea", virtualHub.getRelatedMa().getCode());
+        jsonGenerator.writeBooleanField("isAhc", virtualHub.isAhc());
+        jsonGenerator.writeStringField("nodeName", virtualHub.nodeName());
+        jsonGenerator.writeStringField("marketArea", virtualHub.relatedMa().code());
+        jsonGenerator.writeStringField("oppositeHub", virtualHub.oppositeHub());
+        jsonGenerator.writeEndObject();
+    }
+
+    private void serializeBorderDirections(VirtualHubsConfiguration virtualHubsConfiguration, JsonGenerator jsonGenerator) throws IOException {
+        jsonGenerator.writeFieldName("borderDirections");
+        jsonGenerator.writeStartArray();
+        for (BorderDirection borderDirection : virtualHubsConfiguration.getBorderDirections()) {
+            serializeBorderDirection(borderDirection, jsonGenerator);
+        }
+        jsonGenerator.writeEndArray();
+    }
+
+    private void serializeBorderDirection(BorderDirection borderDirection, JsonGenerator jsonGenerator) throws IOException {
+        jsonGenerator.writeStartObject();
+        jsonGenerator.writeStringField("from", borderDirection.from());
+        jsonGenerator.writeStringField("to", borderDirection.to());
+        jsonGenerator.writeBooleanField("isAhc", borderDirection.isAhc());
         jsonGenerator.writeEndObject();
     }
 }

@@ -13,26 +13,11 @@ import java.util.Objects;
  *
  * @author Sebastien Murgey {@literal <sebastien.murgey@rte-france.com>}
  */
-public class MarketArea {
-    private final String code;
-    private final String eic;
-    private final boolean isMcParticipant;
-
-    public MarketArea(String code, String eic, boolean isMcParticipant) {
+public record MarketArea(String code, String eic, boolean isMcParticipant, boolean isAhc) {
+    public MarketArea(String code, String eic, boolean isMcParticipant, boolean isAhc) {
         this.code = Objects.requireNonNull(code, "MarketArea creation does not allow null code");
         this.eic = Objects.requireNonNull(eic, "MarketArea creation does not allow null eic");
         this.isMcParticipant = isMcParticipant;
-    }
-
-    public String getCode() {
-        return code;
-    }
-
-    public String getEic() {
-        return eic;
-    }
-
-    public boolean isMcParticipant() {
-        return isMcParticipant;
+        this.isAhc = isAhc;
     }
 }

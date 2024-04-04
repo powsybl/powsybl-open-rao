@@ -6,6 +6,7 @@
  */
 package com.powsybl.openrao.virtualhubs.json;
 
+import com.powsybl.openrao.virtualhubs.BorderDirection;
 import com.powsybl.openrao.virtualhubs.MarketArea;
 import com.powsybl.openrao.virtualhubs.VirtualHub;
 import com.powsybl.openrao.virtualhubs.VirtualHubsConfiguration;
@@ -28,13 +29,10 @@ class VirtualHubsConfigurationDeserializer extends JsonDeserializer<VirtualHubsC
 
         while (!jsonParser.nextToken().isStructEnd()) {
             switch (jsonParser.getCurrentName()) {
-                case "marketAreas":
-                    deserializeMarketAreas(jsonParser, configuration, marketAreas);
-                    break;
-                case "virtualHubs":
-                    deserializeVirtualHubs(jsonParser, configuration, marketAreas);
-                    break;
-                default:
+                case "marketAreas" -> deserializeMarketAreas(jsonParser, configuration, marketAreas);
+                case "virtualHubs" -> deserializeVirtualHubs(jsonParser, configuration, marketAreas);
+                case "borderDirections" -> deserializeBorderDirections(jsonParser, configuration);
+                default ->
                     throw new VirtualHubsConfigurationDeserializationException(String.format("Attribute '%s' invalid for configuration", jsonParser.getCurrentName()));
             }
         }
@@ -55,26 +53,29 @@ class VirtualHubsConfigurationDeserializer extends JsonDeserializer<VirtualHubsC
         }
     }
 
+    private void deserializeBorderDirections(JsonParser jsonParser, VirtualHubsConfiguration configuration) throws IOException {
+        jsonParser.nextToken(); // Enter inside list and iterate on all border directions
+        while (!jsonParser.nextToken().isStructEnd()) {
+            deserializeBorderDirection(jsonParser, configuration);
+        }
+    }
+
     private void deserializeMarketArea(JsonParser jsonParser, VirtualHubsConfiguration configuration, Map<String, MarketArea> marketAreas) throws IOException {
         String code = null;
         String eic = null;
         Boolean isMcParticipant = null;
+        Boolean isAhc = false;
         while (!jsonParser.nextToken().isStructEnd()) {
             switch (jsonParser.getCurrentName()) {
-                case "code":
-                    code = jsonParser.nextTextValue();
-                    break;
-                case "eic":
-                    eic = jsonParser.nextTextValue();
-                    break;
-                case "isMcParticipant":
-                    isMcParticipant = jsonParser.nextBooleanValue();
-                    break;
-                default:
+                case "code" -> code = jsonParser.nextTextValue();
+                case "eic" -> eic = jsonParser.nextTextValue();
+                case "isMcParticipant" -> isMcParticipant = jsonParser.nextBooleanValue();
+                case "isAhc" -> isAhc = jsonParser.nextBooleanValue();
+                default ->
                     throw new VirtualHubsConfigurationDeserializationException(String.format("Attribute '%s' invalid for market area", jsonParser.getCurrentName()));
             }
         }
-        MarketArea marketArea = new MarketArea(code, eic, isMcParticipant);
+        MarketArea marketArea = new MarketArea(code, eic, isMcParticipant, isAhc);
         marketAreas.put(code, marketArea);
         configuration.addMarketArea(marketArea);
     }
@@ -83,30 +84,43 @@ class VirtualHubsConfigurationDeserializer extends JsonDeserializer<VirtualHubsC
         String code = null;
         String eic = null;
         Boolean isMcParticipant = null;
+        Boolean isAhc = false;
         String nodeName = null;
         MarketArea marketArea = null;
+        String oppositeHub = null;
         while (!jsonParser.nextToken().isStructEnd()) {
             switch (jsonParser.getCurrentName()) {
-                case "code":
-                    code = jsonParser.nextTextValue();
-                    break;
-                case "eic":
-                    eic = jsonParser.nextTextValue();
-                    break;
-                case "isMcParticipant":
-                    isMcParticipant = jsonParser.nextBooleanValue();
-                    break;
-                case "nodeName":
-                    nodeName = jsonParser.nextTextValue();
-                    break;
-                case "marketArea":
+                case "code" -> code = jsonParser.nextTextValue();
+                case "eic" -> eic = jsonParser.nextTextValue();
+                case "isMcParticipant" -> isMcParticipant = jsonParser.nextBooleanValue();
+                case "isAhc" -> isAhc = jsonParser.nextBooleanValue();
+                case "nodeName" -> nodeName = jsonParser.nextTextValue();
+                case "marketArea" -> {
                     String marketAreaCode = jsonParser.nextTextValue();
                     marketArea = marketAreas.get(marketAreaCode);
-                    break;
-                default:
+                }
+                case "oppositeHub" -> oppositeHub = jsonParser.nextTextValue();
+                default ->
                     throw new VirtualHubsConfigurationDeserializationException(String.format("Attribute '%s' invalid for virtual hub", jsonParser.getCurrentName()));
             }
         }
-        configuration.addVirtualHub(new VirtualHub(code, eic, isMcParticipant, nodeName, marketArea));
+        configuration.addVirtualHub(new VirtualHub(code, eic, isMcParticipant, isAhc, nodeName, marketArea, oppositeHub));
+    }
+
+    private void deserializeBorderDirection(JsonParser jsonParser, VirtualHubsConfiguration configuration) throws IOException {
+        String from = null;
+        String to = null;
+        Boolean isAhc = false;
+        while (!jsonParser.nextToken().isStructEnd()) {
+            switch (jsonParser.getCurrentName()) {
+                case "from" -> from = jsonParser.nextTextValue();
+                case "to" -> to = jsonParser.nextTextValue();
+                case "isAhc" -> isAhc = jsonParser.nextBooleanValue();
+                default ->
+                    throw new VirtualHubsConfigurationDeserializationException(String.format("Attribute '%s' invalid for market area", jsonParser.getCurrentName()));
+            }
+        }
+        BorderDirection borderDirection = new BorderDirection(from, to, isAhc);
+        configuration.addBorderDirection(borderDirection);
     }
 }

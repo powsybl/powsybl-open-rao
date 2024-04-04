@@ -34,32 +34,32 @@ public class VirtualHubAssigner {
 
     private void addVirtualLoad(Network network, VirtualHub virtualHub) {
 
-        Optional<Bus> bus = findBusById(network, virtualHub.getNodeName());
+        Optional<Bus> bus = findBusById(network, virtualHub.nodeName());
         if (bus.isPresent()) {
             // virtual hub is on a real network node
             addVirtualHubOnNewFictitiousLoad(bus.get(), virtualHub);
             return;
         }
 
-        Optional<DanglingLine> danglingLine = findDanglingLineWithXNode(network, virtualHub.getNodeName());
+        Optional<DanglingLine> danglingLine = findDanglingLineWithXNode(network, virtualHub.nodeName());
         if (danglingLine.isPresent()) {
             // virtual hub is on a Xnode which has been merged in a dangling line during network import
             if (danglingLine.get().getTerminal().isConnected()) {
                 addVirtualHubOnNewFictitiousLoad(danglingLine.get().getTerminal().getBusBreakerView().getConnectableBus(), virtualHub);
             } else {
-                LOGGER.warn("Virtual hub {} was not assigned on node {} as it is disconnected from the main network", virtualHub.getEic(), virtualHub.getNodeName());
+                LOGGER.warn("Virtual hub {} was not assigned on node {} as it is disconnected from the main network", virtualHub.eic(), virtualHub.nodeName());
             }
             return;
         }
 
-        LOGGER.warn("Virtual hub {} cannot be assigned on node {} as it was not found in the network", virtualHub.getEic(), virtualHub.getNodeName());
+        LOGGER.warn("Virtual hub {} cannot be assigned on node {} as it was not found in the network", virtualHub.eic(), virtualHub.nodeName());
     }
 
     private void addVirtualHubOnNewFictitiousLoad(Bus bus, VirtualHub virtualHub) {
         // add a fictitious load to this bus
         Load load = bus.getVoltageLevel().newLoad()
             .setBus(bus.getId())
-            .setId(virtualHub.getEic() + "_virtualLoad")
+            .setId(virtualHub.eic() + "_virtualLoad")
             .setEnsureIdUnicity(true)
             .setLoadType(LoadType.FICTITIOUS)
             .setP0(0.).setQ0(0.)
@@ -67,14 +67,14 @@ public class VirtualHubAssigner {
 
         // the virtual hub is assigned on this load
         load.newExtension(AssignedVirtualHubAdder.class)
-            .withCode(virtualHub.getCode())
-            .withEic(virtualHub.getEic())
+            .withCode(virtualHub.code())
+            .withEic(virtualHub.eic())
             .withMcParticipant(virtualHub.isMcParticipant())
-            .withNodeName(virtualHub.getNodeName())
-            .withRelatedMa(Objects.isNull(virtualHub.getRelatedMa()) ? null : virtualHub.getRelatedMa().getCode())
+            .withNodeName(virtualHub.nodeName())
+            .withRelatedMa(Objects.isNull(virtualHub.relatedMa()) ? null : virtualHub.relatedMa().code())
             .add();
 
-        LOGGER.info("A fictitious load {} has been added to {} in order to assign the virtual hub {}", load.getId(), bus.getId(), virtualHub.getEic());
+        LOGGER.info("A fictitious load {} has been added to {} in order to assign the virtual hub {}", load.getId(), bus.getId(), virtualHub.eic());
     }
 
     private Optional<Bus> findBusById(Network network, String id) {

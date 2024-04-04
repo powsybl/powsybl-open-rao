@@ -25,6 +25,7 @@ class VirtualHubsConfigurationImporterTest {
 
         assertEquals(3, configuration.getMarketAreas().size());
         assertEquals(4, configuration.getVirtualHubs().size());
+        assertEquals(4, configuration.getBorderDirections().size());
     }
 
     @Test

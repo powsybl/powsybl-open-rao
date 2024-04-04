@@ -45,5 +45,11 @@
       "nodeName": "XMA_ES11",
       "marketArea": "ES"
     }
+  ],
+  "borderDirections" : [
+    {
+      "from": "FR",
+      "to": "ES"
+    }
   ]
 }
