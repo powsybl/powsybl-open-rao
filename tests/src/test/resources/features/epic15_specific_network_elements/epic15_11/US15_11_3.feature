@@ -9,7 +9,7 @@ Feature: US 15.11.3: Simulate range action automatons right after topological au
   Scenario: US 15.11.3.1: 1 auto HVDC
     Given network file is "epic15/TestCase16NodesWithHvdc_AC_emulation.xiidm"
     Given crac file is "epic15/jsonCrac_ep15us11-3case1.json"
-    Given configuration file is "epic15/RaoParameters_ep15us12-5case8.json"
+    Given configuration file is "common/RaoParameters_maxMargin_megawatt_dc.json"
     When I launch search_tree_rao
     Then 0 remedial actions are used in preventive
     And the setpoint of RangeAction "ARA_HVDC" should be 0.0 MW in preventive
@@ -25,7 +25,7 @@ Feature: US 15.11.3: Simulate range action automatons right after topological au
   Scenario: US 15.11.3.2: 1 auto PST
     Given network file is "common/TestCase16Nodes.uct"
     Given crac file is "epic15/SL_ep15us11-3case2.json"
-    Given configuration file is "epic15/RaoParameters_ep15us11-3.json"
+    Given configuration file is "epic13/RaoParameters_maxMargin_ampere_absolute_threshold.json"
     When I launch search_tree_rao
     Then 0 remedial actions are used in preventive
     And the tap of PstRangeAction "pst_be" should be 0 in preventive
@@ -42,7 +42,7 @@ Feature: US 15.11.3: Simulate range action automatons right after topological au
   Scenario: US 15.11.3.3: 2 auto range actions
     Given network file is "common/TestCase16Nodes.uct"
     Given crac file is "epic15/SL_ep15us11-3case3.json"
-    Given configuration file is "epic15/RaoParameters_ep15us11-3.json"
+    Given configuration file is "epic13/RaoParameters_maxMargin_ampere_absolute_threshold.json"
     When I launch search_tree_rao
     Then 0 remedial actions are used in preventive
     And the tap of PstRangeAction "pst_fr" should be 5 in preventive
@@ -62,7 +62,7 @@ Feature: US 15.11.3: Simulate range action automatons right after topological au
   Scenario: US 15.11.3.4: auto range actions and topological range actions
     Given network file is "common/TestCase16Nodes.uct"
     Given crac file is "epic15/SL_ep15us11-3case4.json"
-    Given configuration file is "epic15/RaoParameters_ep15us11-3.json"
+    Given configuration file is "epic13/RaoParameters_maxMargin_ampere_absolute_threshold.json"
     When I launch search_tree_rao
     Then 0 remedial actions are used in preventive
     And the tap of PstRangeAction "pst_fr" should be 5 in preventive
@@ -88,7 +88,7 @@ Feature: US 15.11.3: Simulate range action automatons right after topological au
     # in curative at -16
     Given network file is "common/TestCase16Nodes.uct"
     Given crac file is "epic15/SL_ep15us11-3case2_withPstCra.json"
-    Given configuration file is "epic15/RaoParameters_ep15us11-3.json"
+    Given configuration file is "epic13/RaoParameters_maxMargin_ampere_absolute_threshold.json"
     When I launch search_tree_rao
     Then 1 remedial actions are used in preventive
     And the tap of PstRangeAction "pst_be_pra" should be -2 in preventive

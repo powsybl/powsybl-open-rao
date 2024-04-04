@@ -17,7 +17,7 @@ Feature: US 90.3: Inversion of PSTs in remedial actions
   @fast @rao @mock @ac @preventive-only
   Scenario: US 90.3.2: Inverted PstSetpoint in Security Limit
     Given network file is "common/TestCase12Nodes.uct"
-    Given crac file is "epic90/SL_ep90us3case2.json"
+    Given crac file is "epic1/SL_ep1us2_selectionTopoRA_variant1.json"
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
     When I launch search_tree_rao
     Then the worst margin is 83.0 A
