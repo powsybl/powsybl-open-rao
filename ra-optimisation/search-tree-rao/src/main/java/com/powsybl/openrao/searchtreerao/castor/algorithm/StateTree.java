@@ -196,7 +196,7 @@ public class StateTree {
     }
 
     private boolean anyCnec(Crac crac, State state) {
-        return !crac.getCnecs(state).isEmpty();
+        return !crac.getFlowCnecs(state).isEmpty();
     }
 
     private static boolean anyAvailableRemedialAction(Crac crac, State state) {
