@@ -3,8 +3,8 @@
 ```{toctree}
 :hidden:
 input-data/network.md
-input-data/glsk/glsk.md
-input-data/crac/introduction.md
+input-data/glsk.md
+input-data/crac.md
 input-data/reference-program.md
 input-data/virtual-hubs.md
 ```
