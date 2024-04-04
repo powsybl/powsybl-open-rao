@@ -28,7 +28,7 @@ Therefore, **this document has to be imported for a specific datetime** – hour
 
 In the PowSyBl vocabulary, **a 'Branch' is an element which is connected to two terminals** (lines, tie-lines, transformers, etc.)  
 As this object is used almost everywhere in the CRAC, it is introduced first.
-A branch has few mandatory tags that should be filled in for FARAO to consider them : **FromNode, ToNode, Order.** They refer to existing network elements by their UCTE code.  
+A branch has few mandatory tags that should be filled in for OpenRAO to consider them : **FromNode, ToNode, Order.** They refer to existing network elements by their UCTE code.  
 However, a branch has also a lot of optional tags that are described right below this example.
 
 ```xml
@@ -67,17 +67,17 @@ However, a branch has also a lot of optional tags that are described right below
 
 - **Name** : Alternative way to describe the branch with useful information to identify it more easily when reading logs and results
 - **EIC** : Identification
-- **AlwaysSelected** : FARAO does not use this tag, it only reads the selected tag one
-- **selected** : If selected is false, FARAO will not consider the margin on this branch in its optimization. Default value is true
+- **AlwaysSelected** : OpenRAO does not use this tag, it only reads the selected tag one
+- **selected** : If selected is false, OpenRAO will not consider the margin on this branch in its optimization. Default value is true
 - **Imax{...} and Ilimit{...}** : Please refer respectively to the [CriticalBranches](#criticalbranches) and [Monitored Elements](#monitoredelements) sections at the end of this page
-- **Vn** : It is the nominal voltage, but FARAO reads is directly in the network therefore it is useless to fill it
-- **minmargin** : FARAO does not interact with this tag
+- **Vn** : It is the nominal voltage, but OpenRAO reads is directly in the network therefore it is useless to fill it
+- **minmargin** : OpenRAO does not interact with this tag
 - **Direction** : Has to be DIRECT, OPPOSITE or BIDIR. **If the Branch is defined in a BaseCaseBranch, a CriticalBranch 
 or a MonitoredElement, this tag is mandatory.** Please refer to [this section](json.md#flow-cnecs) of JSON CRAC Format
-for more information on the behavior of FARAO according to the different direction values.
+for more information on the behavior of OpenRAO according to the different direction values.
 - **Status** : Must be OPEN or CLOSE for a branch involved in a topological action. Default value is OPEN. See an example in the [topological actions](#network-actions) section of this page.
-- **Sensitivity** : FARAO does not interact with this tag
-- **PTDFListRef** : FARAO does not interact with this tag
+- **Sensitivity** : OpenRAO does not interact with this tag
+- **PTDFListRef** : OpenRAO does not interact with this tag
 - **Remedial actions** : These remedial actions will be available with OnFlowConstraint usage rule for the branches they are associated to
 
 ## Outages
@@ -177,12 +177,12 @@ If SharedWith is "None" : OnFlowConstraint only for its associated CNECs (c.f. t
 
 A PST Range Action is defined by its PstRange attribute which contains:
 - a Branch
-- a VariationType : For now the only VariationType handled by FARAO is "ABSOLUTE" : the mix/max admissible taps of the PST.
+- a VariationType : For now the only VariationType handled by OpenRAO is "ABSOLUTE" : the mix/max admissible taps of the PST.
 - a Min value : Has to be an Integer
 - a Max value : Must be an Integer >= Min value
 
-FARAO minimum tap = max(Network minimum tap, Crac minimum tap)  
-FARAO maximum tap = min(Network maximum tap, Crac maximum tap)
+OpenRAO minimum tap = max(Network minimum tap, Crac minimum tap)  
+OpenRAO maximum tap = min(Network maximum tap, Crac maximum tap)
 
 #### HVDC Range Actions
 
@@ -211,9 +211,9 @@ FARAO maximum tap = min(Network maximum tap, Crac maximum tap)
 </CRACSeries>
 ```
 
-For now the only VariationType handled by FARAO is "ABSOLUTE" : the min/max admissible set-points of the HVDC.   
+For now the only VariationType handled by OpenRAO is "ABSOLUTE" : the min/max admissible set-points of the HVDC.   
 **An HVDC Range Action is modelled by an Injection range Action** (the HVDC line is disconnected and replaced by two injections, one on each side of the line, with opposite keys of 1 and -1). 
-FARAO creates the opposite keys by itself, therefore there is no need to specify it.  
+OpenRAO creates the opposite keys by itself, therefore there is no need to specify it.  
 ⚠️*There isn't any check performed to verify that an applied set-point is between the ranges' min and max.*
 
 ### Network Actions
@@ -242,7 +242,7 @@ FARAO creates the opposite keys by itself, therefore there is no need to specify
 </CRACSeries>
 ```
 
-For now the only VariationType handled by FARAO is "ABSOLUTE", on the node you filled in, the new set-point value will be the one you defined (in MW).
+For now the only VariationType handled by OpenRAO is "ABSOLUTE", on the node you filled in, the new set-point value will be the one you defined (in MW).
 
 #### topological actions
 
@@ -312,7 +312,7 @@ or closed by these remedial actions.
 
 ![bus-bar-equivalent-model](/_static/img/busbar.png)  
 
-Using [CseCracCreationParameters](creation-parameters.md#cse-specific-parameters), FARAO can then map these remedial actions to the switches 
+Using [CseCracCreationParameters](creation-parameters.md#cse-specific-parameters), OpenRAO can then map these remedial actions to the switches 
 created by the user, and interpret BusBar remedial actions as [SwitchPairs](introduction.md#switch-pair).
 
 ## CriticalBranches
@@ -416,7 +416,7 @@ For each critical branch, given an attribute ImaxAfter{Instant}, **a CNEC on the
 ```
 
 A MonitoredElement always has a TimeInterval and a branch.  
-It will not be optimized by FARAO, however it will be monitored. In other words, **on this element, FARAO cannot reduce the margin compared to its initial value.**
+It will not be optimized by OpenRAO, however it will be monitored. In other words, **on this element, OpenRAO cannot reduce the margin compared to its initial value.**
 
 First, if IlimitMNE is filled in, a CNEC on Preventive state will be created. Then, **for each outage in the Outages tag and for each attribute IlimitMNE_After{Instant} that is present, a CNEC will be created on the given state**:
 - IlimitMNE_AfterOutage -> Instant Outage

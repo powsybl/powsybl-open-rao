@@ -39,7 +39,7 @@ public class VoltageCnecCreator extends AbstractCnecCreator {
                 return;
             }
             voltageCnecAdder.add();
-            markCnecAsImportedAndHandleRejectedContingencies(instantId, contingency);
+            markCnecAsImportedAndHandleRejectedContingencies(getCnecName(instantId, contingency));
         }
     }
 

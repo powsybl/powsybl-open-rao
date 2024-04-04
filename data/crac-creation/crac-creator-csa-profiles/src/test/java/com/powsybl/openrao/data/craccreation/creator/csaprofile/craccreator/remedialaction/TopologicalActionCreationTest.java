@@ -28,10 +28,10 @@ class TopologicalActionCreationTest {
         List<NetworkAction> importedTopologicalActions = cracCreationContext.getCrac().getNetworkActions().stream().sorted(Comparator.comparing(NetworkAction::getId)).toList();
         assertEquals(2, importedTopologicalActions.size());
 
-        assertSimpleTopologicalActionImported(importedTopologicalActions.get(0), "remedial-action-1", "RTE_RA1", "BBE1AA1  BBE4AA1  1", ActionType.OPEN);
+        assertSimpleTopologicalActionImported(importedTopologicalActions.get(0), "remedial-action-1", "RTE_RA1", "BBE1AA1  BBE4AA1  1", ActionType.OPEN, "RTE");
         assertHasOnInstantUsageRule(cracCreationContext, "remedial-action-1", PREVENTIVE_INSTANT_ID, UsageMethod.AVAILABLE);
 
-        assertSimpleTopologicalActionImported(importedTopologicalActions.get(1), "remedial-action-2", "RTE_RA2", "DDE3AA1  DDE4AA1  1", ActionType.CLOSE);
+        assertSimpleTopologicalActionImported(importedTopologicalActions.get(1), "remedial-action-2", "RTE_RA2", "DDE3AA1  DDE4AA1  1", ActionType.CLOSE, "RTE");
         assertHasOnInstantUsageRule(cracCreationContext, "remedial-action-2", CURATIVE_INSTANT_ID, UsageMethod.AVAILABLE);
 
         assertEquals(9, cracCreationContext.getRemedialActionCreationContexts().stream().filter(context -> !context.isImported()).toList().size());
