@@ -68,54 +68,54 @@ _See also: [RAO steps](/castor/rao-steps.md)_
 
 ### Computation status
 
-```{include} computation-status.md
+```{include} rao-result/computation-status.md
 :parser: markdown
 ```
 
 ### Security status
 
-```{include} security-status.md
+```{include} rao-result/security-status.md
 :parser: markdown
 ```
 
 ### Executed optimisation steps
 
-```{include} steps.md
+```{include} rao-result/steps.md
 :parser: markdown
 ```
 
 ### Objective function cost results
 
-```{include} obj-function.md
+```{include} rao-result/obj-function.md
 :parser: markdown
 ```
 
 ### Flow CNECs results
 
-```{include} flow-cnecs.md
+```{include} rao-result/flow-cnecs.md
 :parser: markdown
 ```
 
 ### Angle CNECs results
 
-```{include} angle-cnecs.md
+```{include} rao-result/angle-cnecs.md
 :parser: markdown
 ```
 
 ### Voltage CNECs results
 
-```{include} voltage-cnecs.md
+```{include} rao-result/voltage-cnecs.md
 :parser: markdown
 ```
 
 ### Network actions results
 
-```{include} network-actions.md
+```{include} rao-result/network-actions.md
 :parser: markdown
 ```
 
 ### Standard range actions results
 
-```{include} range-actions.md
+```{include} rao-result/range-actions.md
 :parser: markdown
 ```

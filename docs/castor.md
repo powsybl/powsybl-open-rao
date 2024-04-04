@@ -2,12 +2,12 @@
 
 ```{toctree}
 :hidden:
-rao-steps.md
-special-features/special-features.md
-linear-problem/linear-rao.md
-monitoring.md
-performance.md
-applications/applications.md
+castor/rao-steps.md
+castor/special-features.md
+castor/linear-problem.md
+castor/monitoring.md
+castor/performance.md
+castor/applications.md
 ```
 
 **CASTOR** (**CA**lculation with **S**calable and **T**ransparent **O**ptimise**R**) is initially designed to optimise non-costly remedial actions (including tripping of generation units where applicable). It relies on a search-tree algorithm which is explained in this page.

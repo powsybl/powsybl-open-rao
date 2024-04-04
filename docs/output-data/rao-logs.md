@@ -2,10 +2,10 @@
 
 ```{toctree}
 :hidden:
-rao-business-logs.md
-rao-business-warns.md
-rao-technical-logs.md
-example.md
+rao-logs/rao-business-logs.md
+rao-logs/rao-business-warns.md
+rao-logs/rao-technical-logs.md
+rao-logs/example.md
 ```
 
 CASTOR's logs are divided into three categories:

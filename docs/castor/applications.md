@@ -7,18 +7,18 @@ You can find examples of usages for OpenRAO below.
 
 ## Maximizing the minimum margin
 
-```{include} max-min-margin.md
+```{include} applications/max-min-margin.md
 :parser: markdown
 ```
 
 ## Aiming for a positive minimum margin
 
-```{include} positive-margin.md
+```{include} applications/positive-margin.md
 :parser: markdown
 ```
 
 ## Closed optimisation
 
-```{include} closed-optim.md
+```{include} applications/closed-optim.md
 :parser: markdown
 ```

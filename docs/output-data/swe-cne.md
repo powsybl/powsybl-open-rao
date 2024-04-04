@@ -2,13 +2,13 @@
 
 ## Introduction
 
-```{include} introduction.md
+```{include} swe-cne/introduction.md
 :parser: markdown
 ```
 
 ## The Java API
 
-```{include} java-api.md
+```{include} swe-cne/java-api.md
 :parser: markdown
 ```
 
@@ -19,24 +19,24 @@ Here is an overview of the general structure of the SWE CNE document, detailed i
 
 ### Header
 
-```{include} header.md
+```{include} swe-cne/header.md
 :parser: markdown
 ```
 
 ### Remedial action results
 
-```{include} ra-results.md
+```{include} swe-cne/ra-results.md
 :parser: markdown
 ```
 
 ### CNEC results
 
-```{include} cnec-results.md
+```{include} swe-cne/cnec-results.md
 :parser: markdown
 ```
 
 ### Overall status
 
-```{include} status.md
+```{include} swe-cne/status.md
 :parser: markdown
 ```

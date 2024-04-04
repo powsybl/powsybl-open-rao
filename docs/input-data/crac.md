@@ -2,14 +2,14 @@
 
 ```{toctree}
 :hidden:
-import.md
-creation-parameters.md
-json.md
-fbconstraint.md
-cse.md
-cim.md
-csa.md
-creation-context.md
+crac/import.md
+crac/creation-parameters.md
+crac/json.md
+crac/fbconstraint.md
+crac/cse.md
+crac/cim.md
+crac/csa.md
+crac/creation-context.md
 ```
 
 The CRAC (***C**ontingency list, **R**emedial **A**ctions and additional **C**onstraints*) file model contains two main categories of objects:

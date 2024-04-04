@@ -2,30 +2,30 @@
 
 ## Introduction
 
-```{include} introduction.md
+```{include} voltage-monitoring/introduction.md
 :parser: markdown
 ```
 
 ## The Java API
 
-```{include} java-api.md
+```{include} voltage-monitoring/java-api.md
 :parser: markdown
 ```
 
 ## The voltage monitoring result
 
-```{include} result.md
+```{include} voltage-monitoring/result.md
 :parser: markdown
 ```
 
 ## The voltage monitoring algorithm
 
-```{include} algorithm.md
+```{include} voltage-monitoring/algorithm.md
 :parser: markdown
 ```
 
 ## The output logs
 
-```{include} logs.md
+```{include} voltage-monitoring/logs.md
 :parser: markdown
 ```

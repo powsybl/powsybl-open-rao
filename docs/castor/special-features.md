@@ -2,9 +2,9 @@
 
 ```{toctree}
 :hidden:
-loop-flows.md
-mnecs.md
-do-not-optimize-specific-cnecs.md
+special-features/loop-flows.md
+special-features/mnecs.md
+special-features/do-not-optimize-specific-cnecs.md
 ```
 
 Several special features can be included in the RAO optimisation:

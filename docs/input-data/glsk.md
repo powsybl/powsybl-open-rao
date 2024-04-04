@@ -2,9 +2,9 @@
 
 ```{toctree}
 :hidden:
-glsk-ucte.md
-glsk-cse.md
-glsk-cim.md
+glsk/glsk-ucte.md
+glsk/glsk-cse.md
+glsk/glsk-cim.md
 ```
 
 ## General definition

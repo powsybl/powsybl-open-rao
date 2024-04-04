@@ -2,11 +2,11 @@
 
 ```{toctree}
 :hidden:
-network.md
-glsk/glsk.md
-crac/introduction.md
-reference-program.md
-virtual-hubs.md
+input-data/network.md
+input-data/glsk.md
+input-data/crac.md
+input-data/reference-program.md
+input-data/virtual-hubs.md
 ```
 
 ## Network

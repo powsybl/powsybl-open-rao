@@ -2,10 +2,10 @@
 
 ```{toctree}
 :hidden:
-rao-logs/rao-logs.md
-rao-result/rao-result-json.md
-core-cne/core-cne.md
-swe-cne/swe-cne.md
+output-data/rao-logs.md
+output-data/rao-result.md
+output-data/core-cne.md
+output-data/swe-cne.md
 ```
 
 During input data import & RAO computation, CASTOR produces human-readable logs that detail each step of the optimisation. More info on logs [here](rao-logs/rao-logs).  
