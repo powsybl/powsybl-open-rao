@@ -10,7 +10,7 @@ information among several distinct files.
 
 ## Header overview
 
-The FARAO importer only supports version `2.3` headers for CSA profiles (see
+The OpenRAO importer only supports version `2.3` headers for CSA profiles (see
 [ENTSO-E website](https://www.entsoe.eu/Documents/CIM_documents/Grid_Model_CIM/MetadataAndHeaderDataExchangeSpecification_v2.3.0.pdf)).
 
 ```xml
@@ -37,7 +37,7 @@ The FARAO importer only supports version `2.3` headers for CSA profiles (see
 ```
 
 Each CSA profile is identified by a `dcat:keyword` that states which category of features it bears. To be valid for
-FARAO, a profile must have exactly one keyword defined in its header. Besides, FARAO currently handles 5 different CSA
+OpenRAO, a profile must have exactly one keyword defined in its header. Besides, OpenRAO currently handles 5 different CSA
 profiles, the keyword and purpose of which are gathered in the following table:
 
 | Keyword | Full Name                | Purpose                                |
@@ -52,12 +52,12 @@ Besides, each CSA profile has a period of validity delimited by the `dcat:startD
 required) in the header. If the time at which the import occurs is outside of this time interval, the profile is
 ignored.
 
-> Several other fields can be added to the header but these will be ignored by FARAO.
+> Several other fields can be added to the header but these will be ignored by OpenRAO.
 
 ## Profiles overview
 
 The CRAC data is spread over different profiles that reference one another. The relation between the objects and the
-fields read by FARAO are displayed in the following chart.
+fields read by OpenRAO are displayed in the following chart.
 
 > Fields preceded by a "~" are optional.
 
@@ -483,7 +483,7 @@ the `RemedialActionSystemOperator` and `name` are concatenated together to creat
 instant of the remedial action is determined by the `kind` which can be either `preventive` or `curative`. Finally,
 the `timeToImplement` is converted to a number of seconds and used as the remedial action's speed.
 
-In the following, we describe the different types of remedial actions that can be imported in FARAO from the CSA
+In the following, we describe the different types of remedial actions that can be imported in OpenRAO from the CSA
 profiles. The general pattern is to link a `GridStateAlteration` object which references the parent remedial
 action (`GridStateAlterationRemedialAction`) and a `StaticPropertyRange` which contains the physical and numerical
 definition of the remedial action. The field of the `StaticPropertyRange` are:
@@ -635,9 +635,9 @@ state. Finally, the `normalValue` field sets the behaviour of the switch:
 
 An [injection set-point action](json.md#network-actions) is described by a `SetPointAction` object which references its
 parent remedial action (`GridStateAlterationRemedialAction`) and the network element affected by the action, and which
-is itself referenced by a `StaticPropertyRange` object to provide the numerical value of the set-point. Currently, FARAO
+is itself referenced by a `StaticPropertyRange` object to provide the numerical value of the set-point. Currently, OpenRAO
 handles three types of CSA set-point actions: the **rotating machine actions**, the **power electronics connection
-actions** and the **shunt compensator modifications**. All three are handled similarly by FARAO but their respective
+actions** and the **shunt compensator modifications**. All three are handled similarly by OpenRAO but their respective
 descriptions in the CSA profiles differ from one another.
 
 ::::{tabs}
