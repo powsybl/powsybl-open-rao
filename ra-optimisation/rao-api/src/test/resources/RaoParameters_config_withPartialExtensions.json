@@ -116,6 +116,7 @@
             "reportedFeatures" : [ ],
             "slackBusCountryFilter" : [ ],
             "actionableSwitchesIds" : [ ],
+            "actionableTransformersIds" : [ ],
             "asymmetrical" : false,
             "reactivePowerDispatchMode" : "Q_EQUAL_PROPORTION",
             "outerLoopNames" : null,
