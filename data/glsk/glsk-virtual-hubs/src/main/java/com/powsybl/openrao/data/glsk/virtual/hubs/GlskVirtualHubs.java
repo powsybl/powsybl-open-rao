@@ -78,7 +78,7 @@ public final class GlskVirtualHubs {
                 .forEach(virtualHub -> {
                     Injection<?> injection = getInjection(network, virtualHub);
                     if (injection != null) {
-                        injections.put(virtualHub.getEic(), injection);
+                        injections.put(virtualHub.eic(), injection);
                     }
                 });
         return injections;
@@ -96,23 +96,23 @@ public final class GlskVirtualHubs {
 
     private static Injection<?> getInjection(Network network, VirtualHub virtualHub) {
 
-        Optional<Bus> bus = findBusById(network, virtualHub.getNodeName());
+        Optional<Bus> bus = findBusById(network, virtualHub.nodeName());
         if (bus.isPresent()) {
             // virtual hub is on a real network node
             Optional<Load> busLoad = bus.get().getLoadStream().findFirst();
             if (busLoad.isEmpty()) {
-                OpenRaoLoggerProvider.BUSINESS_WARNS.warn("Virtual hub {} cannot be assigned on node {} as it has no load in the network", virtualHub.getEic(), virtualHub.getNodeName());
+                OpenRaoLoggerProvider.BUSINESS_WARNS.warn("Virtual hub {} cannot be assigned on node {} as it has no load in the network", virtualHub.eic(), virtualHub.nodeName());
                 return null;
             }
             return busLoad.get();
         }
 
-        Optional<DanglingLine> danglingLine = findDanglingLineWithXNode(network, virtualHub.getNodeName());
+        Optional<DanglingLine> danglingLine = findDanglingLineWithXNode(network, virtualHub.nodeName());
         if (danglingLine.isPresent() && !danglingLine.get().isPaired()) {
             return danglingLine.get();
         }
 
-        OpenRaoLoggerProvider.BUSINESS_WARNS.warn("Virtual hub {} cannot be assigned on node {} as it was not found in the network", virtualHub.getEic(), virtualHub.getNodeName());
+        OpenRaoLoggerProvider.BUSINESS_WARNS.warn("Virtual hub {} cannot be assigned on node {} as it was not found in the network", virtualHub.eic(), virtualHub.nodeName());
         return null;
     }
 
