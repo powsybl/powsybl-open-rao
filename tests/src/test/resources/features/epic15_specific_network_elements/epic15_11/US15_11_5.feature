@@ -18,7 +18,7 @@ Feature: US 15.11.5: Additional tests to check various fixes concerning automato
 
   @fast @rao @mock @dc @second-preventive
   Scenario: US 15.11.5.2: test fix condition 2P
-    Given network file is "epic15/TestCase12Nodes_15_11_5_2.uct"
+    Given network file is "epic15/TestCase12Nodes_15_11_5_3_2.uct"
     Given crac file is "epic15/crac_15_11_5_2bis.json"
     Given configuration file is "epic15/RaoParameters_ep15us11-5-2.json"
     When I launch search_tree_rao
@@ -27,9 +27,9 @@ Feature: US 15.11.5: Additional tests to check various fixes concerning automato
 
   @fast @rao @mock @dc @contingency-scenarios
   Scenario: US 15.11.5.3.1: test get highest functional cost worst cnec is a curative after 1PRAO
-    Given network file is "epic15/TestCase12Nodes_15_11_5_3_1.uct"
+    Given network file is "epic15/TestCase12Nodes_15_11_5_3_2.uct"
     Given crac file is "epic15/crac_15_11_5_3_1.json"
-    Given configuration file is "epic15/RaoParameters_ep15us11-5-3-1.json"
+    Given configuration file is "epic15/RaoParameters_ep15us11-5-3-3.json"
     When I launch search_tree_rao
     And the worst margin is -773.0 MW on cnec "be1_be3_co2 - BBE1AA11->BBE3AA11  - co2_de1_de3 - curative"
 
@@ -37,13 +37,13 @@ Feature: US 15.11.5: Additional tests to check various fixes concerning automato
   Scenario: US 15.11.5.3.2: test get highest functional cost worst cnec is auto after 1ARAO
     Given network file is "epic15/TestCase12Nodes_15_11_5_3_2.uct"
     Given crac file is "epic15/crac_15_11_5_3_2.json"
-    Given configuration file is "epic15/RaoParameters_ep15us11-5-3-2.json"
+    Given configuration file is "epic15/RaoParameters_ep15us11-5-3-3.json"
     When I launch search_tree_rao
     And the worst margin is -1945.45 MW on cnec "de2_nl3_co1 - DDE2AA11->NNL3AA11  - co1_de1_de2 - auto"
 
   @fast @rao @mock @dc @contingency-scenarios
   Scenario: US 15.11.5.3.3: test get highest functional cost worst cnec is curative after 1CRAO
-    Given network file is "epic15/TestCase12Nodes_15_11_5_3_3.uct"
+    Given network file is "epic15/TestCase12Nodes_15_11_5_3_2.uct"
     Given crac file is "epic15/crac_15_11_5_3_3.json"
     Given configuration file is "epic15/RaoParameters_ep15us11-5-3-3.json"
     When I launch search_tree_rao
@@ -68,7 +68,7 @@ Feature: US 15.11.5: Additional tests to check various fixes concerning automato
   Scenario: US 15.11.5.5: RaoResult AFTER PRA fixed for curative cnecs, without 2P
     Given network file is "epic15/TestCase12Nodes_15_11_5_1.uct"
     Given crac file is "epic15/crac_15_11_5_1.json"
-    Given configuration file is "epic15/RaoParameters_ep15us11-5-1Disabled2P.json"
+    Given configuration file is "epic15/RaoParameters_ep15us11-5-3-3.json"
     When I launch search_tree_rao
     And the remedial action "open_de1_de2_open_nl2_be3 - prev" is not used in preventive
     And the remedial action "open_de2_nl3 - co1 - auto" is not used after "co1_fr2_de3" at "auto"

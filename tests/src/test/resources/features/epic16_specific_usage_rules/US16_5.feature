@@ -182,7 +182,7 @@ Feature: User Story #16.5: activate remedial actions only after a constraint in 
   Scenario: US 16.5.13: Test with a maximum number of CRA
     Given network file is "epic16/TestCase16Nodes_3psts.uct"
     Given crac file is "epic16/SL_ep16us5case13.json"
-    Given configuration file is "epic16/RaoParameters_maxMargin_ampere_2cra.json"
+    Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
     When I launch search_tree_rao
     Then 0 remedial actions are used in preventive
     And 1 remedial actions are used after "co1_fr2_fr3_1" at "curative"
