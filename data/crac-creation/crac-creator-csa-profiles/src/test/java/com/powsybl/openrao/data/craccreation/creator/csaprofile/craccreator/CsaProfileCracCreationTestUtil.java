@@ -75,10 +75,6 @@ public final class CsaProfileCracCreationTestUtil {
     }
 
     public static void assertFlowCnecEquality(FlowCnec flowCnec, String expectedFlowCnecIdAndName, String expectedNetworkElementId, String expectedInstant, String expectedContingencyId, Double expectedThresholdMaxLeft, Double expectedThresholdMinLeft, Double expectedThresholdMaxRight, Double expectedThresholdMinRight, Set<Side> expectedThresholdSides, String expectedOperator) {
-        assertFlowCnecEquality(flowCnec, expectedFlowCnecIdAndName, expectedNetworkElementId, expectedInstant, expectedContingencyId, expectedThresholdMaxLeft, expectedThresholdMinLeft, expectedThresholdMaxRight, expectedThresholdMinRight, expectedThresholdSides, expectedOperator, 0d);
-    }
-
-    public static void assertFlowCnecEquality(FlowCnec flowCnec, String expectedFlowCnecIdAndName, String expectedNetworkElementId, String expectedInstant, String expectedContingencyId, Double expectedThresholdMaxLeft, Double expectedThresholdMinLeft, Double expectedThresholdMaxRight, Double expectedThresholdMinRight, Set<Side> expectedThresholdSides, String expectedOperator, double reliabilityMargin) {
         assertEquals(expectedFlowCnecIdAndName, flowCnec.getId());
         assertEquals(expectedFlowCnecIdAndName, flowCnec.getName());
         assertEquals(expectedNetworkElementId, flowCnec.getNetworkElement().getId());
@@ -98,7 +94,6 @@ public final class CsaProfileCracCreationTestUtil {
 
         assertEquals(expectedThresholdSides, flowCnec.getMonitoredSides());
         assertEquals(expectedOperator, flowCnec.getOperator());
-        assertEquals(reliabilityMargin, flowCnec.getReliabilityMargin(), 1d);
     }
 
     public static void assertAngleCnecEquality(AngleCnec angleCnec, String expectedFlowCnecIdAndName, String expectedImportingNetworkElementId, String expectedExportingNetworkElementId, String expectedInstant, String expectedContingencyId, Double expectedThresholdMax, Double expectedThresholdMin, String expectedOperator) {

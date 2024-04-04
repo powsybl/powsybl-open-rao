@@ -320,11 +320,10 @@ class FlowCnecCreationTest {
             "contingency-1",
             null,
             null,
-            +2500d,
-            -2500d,
+            +2250d,
+            -2250d,
             Set.of(Side.RIGHT),
-            "RTE",
-            360.85
+            "RTE"
         );
 
         CsaProfileCracCreationTestUtil.assertFlowCnecEquality(
@@ -335,11 +334,10 @@ class FlowCnecCreationTest {
             null,
             null,
             null,
-            +2500d,
-            -2500d,
+            +2250d,
+            -2250d,
             Set.of(Side.RIGHT),
-            "RTE",
-            360.85
+            "RTE"
         );
 
         CsaProfileCracCreationTestUtil.assertFlowCnecEquality(
@@ -350,11 +348,10 @@ class FlowCnecCreationTest {
             "contingency-2",
             null,
             null,
-            +4000d,
-            -4000d,
+            +3400d,
+            -3400d,
             Set.of(Side.RIGHT),
-            "RTE",
-            866.03
+            "RTE"
         );
 
         CsaProfileCracCreationTestUtil.assertFlowCnecEquality(
@@ -363,13 +360,12 @@ class FlowCnecCreationTest {
             "FFR2AA1  FFR3AA1  1",
             AUTO_INSTANT_ID,
             "contingency-3",
-            +4000d,
-            -4000d,
-            +4000d,
-            -4000d,
+            +3200d,
+            -3200d,
+            +3200d,
+            -3200d,
             Set.of(Side.LEFT, Side.RIGHT),
-            "RTE",
-            1154.7
+            "RTE"
         );
 
         CsaProfileCracCreationTestUtil.assertFlowCnecEquality(
@@ -378,13 +374,12 @@ class FlowCnecCreationTest {
             "FFR2AA1  FFR3AA1  1",
             CURATIVE_INSTANT_ID,
             "contingency-3",
-            +2500d,
-            -2500d,
-            +2500d,
-            -2500d,
+            +2000d,
+            -2000d,
+            +2000d,
+            -2000d,
             Set.of(Side.LEFT, Side.RIGHT),
-            "RTE",
-            721.69
+            "RTE"
         );
 
         CsaProfileCracCreationTestUtil.assertFlowCnecEquality(
@@ -393,13 +388,12 @@ class FlowCnecCreationTest {
             "FFR2AA1  FFR3AA1  1",
             OUTAGE_INSTANT_ID,
             "contingency-3",
-            +5000d,
-            -5000d,
-            +5000d,
-            -5000d,
+            +4000d,
+            -4000d,
+            +4000d,
+            -4000d,
             Set.of(Side.LEFT, Side.RIGHT),
-            "RTE",
-            1443.38
+            "RTE"
         );
 
         CsaProfileCracCreationTestUtil.assertFlowCnecEquality(
@@ -408,13 +402,12 @@ class FlowCnecCreationTest {
             "FFR2AA1  FFR3AA1  1",
             PREVENTIVE_INSTANT_ID,
             null,
-            +2500d,
-            -2500d,
-            +2500d,
-            -2500d,
+            +2000d,
+            -2000d,
+            +2000d,
+            -2000d,
             Set.of(Side.LEFT, Side.RIGHT),
-            "RTE",
-            721.69
+            "RTE"
         );
     }
 }
