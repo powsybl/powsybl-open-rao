@@ -17,6 +17,8 @@ import com.powsybl.triplestore.api.PropertyBag;
 
 import java.util.*;
 
+import static java.lang.Math.sqrt;
+
 public class FlowCnecCreator extends AbstractCnecCreator {
 
     private enum FlowCnecDefinitionMode {
@@ -27,11 +29,13 @@ public class FlowCnecCreator extends AbstractCnecCreator {
 
     private final String conductingEquipment;
     private final Set<Side> defaultMonitoredSides;
+    private final String flowReliabilityMarginString;
 
-    public FlowCnecCreator(Crac crac, Network network, String assessedElementId, String nativeAssessedElementName, String assessedElementOperator, boolean inBaseCase, PropertyBag currentLimitPropertyBag, String conductingEquipment, List<Contingency> linkedContingencies, Set<CsaProfileElementaryCreationContext> csaProfileCnecCreationContexts, CsaProfileCracCreationContext cracCreationContext, Set<Side> defaultMonitoredSides, String rejectedLinksAssessedElementContingency, boolean aeSecuredForRegion, boolean aeScannedForRegion) {
+    public FlowCnecCreator(Crac crac, Network network, String assessedElementId, String nativeAssessedElementName, String assessedElementOperator, boolean inBaseCase, PropertyBag currentLimitPropertyBag, String conductingEquipment, String flowReliabilityMarginString, List<Contingency> linkedContingencies, Set<CsaProfileElementaryCreationContext> csaProfileCnecCreationContexts, CsaProfileCracCreationContext cracCreationContext, Set<Side> defaultMonitoredSides, String rejectedLinksAssessedElementContingency, boolean aeSecuredForRegion, boolean aeScannedForRegion) {
         super(crac, network, assessedElementId, nativeAssessedElementName, assessedElementOperator, inBaseCase, currentLimitPropertyBag, linkedContingencies, csaProfileCnecCreationContexts, cracCreationContext, rejectedLinksAssessedElementContingency, aeSecuredForRegion, aeScannedForRegion);
         this.conductingEquipment = conductingEquipment;
         this.defaultMonitoredSides = defaultMonitoredSides;
+        this.flowReliabilityMarginString = flowReliabilityMarginString;
     }
 
     public void addFlowCnecs() {
@@ -66,7 +70,29 @@ public class FlowCnecCreator extends AbstractCnecCreator {
             }
         }
 
-        addAllFlowCnecsFromBranchAndOperationalLimits((Branch<?>) branch, thresholds, useMaxAndMinThresholds, definitionMode == FlowCnecDefinitionMode.CONDUCTING_EQUIPMENT);
+        Double flowReliabilityMargin = null;
+        if (flowReliabilityMarginString != null) {
+            flowReliabilityMargin = parseFlowReliabilityMargin();
+            if (flowReliabilityMargin == null) {
+                return;
+            }
+        }
+
+        addAllFlowCnecsFromBranchAndOperationalLimits((Branch<?>) branch, thresholds, useMaxAndMinThresholds, definitionMode == FlowCnecDefinitionMode.CONDUCTING_EQUIPMENT, flowReliabilityMargin);
+    }
+
+    private Double parseFlowReliabilityMargin() {
+        try {
+            double flowReliabilityMargin = Double.parseDouble(flowReliabilityMarginString);
+            if (flowReliabilityMargin < 0 || flowReliabilityMargin > 100) {
+                csaProfileCnecCreationContexts.add(CsaProfileElementaryCreationContext.notImported(assessedElementId, ImportStatus.INCONSISTENCY_IN_DATA, writeAssessedElementIgnoredReasonMessage("of an invalid flow reliability margin (expected a value between 0 and 100)")));
+                return null;
+            }
+            return flowReliabilityMargin;
+        } catch (NumberFormatException exception) {
+            csaProfileCnecCreationContexts.add(CsaProfileElementaryCreationContext.notImported(assessedElementId, ImportStatus.INCONSISTENCY_IN_DATA, writeAssessedElementIgnoredReasonMessage("the flowReliabilityMargin could not be converted to a numerical value")));
+            return null;
+        }
     }
 
     private FlowCnecAdder initFlowCnec() {
@@ -205,7 +231,7 @@ public class FlowCnecCreator extends AbstractCnecCreator {
         return crac.getInstant(InstantKind.CURATIVE);
     }
 
-    private void addFlowCnec(Branch<?> networkElement, Contingency contingency, String instantId, EnumMap<TwoSides, Double> thresholds, boolean useMaxAndMinThresholds, boolean hasNoPatl) {
+    private void addFlowCnec(Branch<?> networkElement, Contingency contingency, String instantId, EnumMap<TwoSides, Double> thresholds, boolean useMaxAndMinThresholds, boolean hasNoPatl, Double flowReliabilityMargin) {
         if (thresholds.isEmpty()) {
             return;
         }
@@ -222,6 +248,7 @@ public class FlowCnecCreator extends AbstractCnecCreator {
         if (!setNominalVoltage(cnecAdder, networkElement) || !setCurrentLimitsFromBranch(cnecAdder, networkElement)) {
             return;
         }
+        addFlowReliabilityMargin(cnecAdder, flowReliabilityMargin, thresholds, networkElement);
         cnecAdder.add();
         if (hasNoPatl) {
             String cnecName = getCnecName(instantId, null);
@@ -231,7 +258,7 @@ public class FlowCnecCreator extends AbstractCnecCreator {
         markCnecAsImportedAndHandleRejectedContingencies(getCnecName(instantId, contingency));
     }
 
-    private void addCurativeFlowCnec(Branch<?> networkElement, Contingency contingency, String instantId, EnumMap<TwoSides, Double> thresholds, boolean useMaxAndMinThresholds, int tatlDuration) {
+    private void addCurativeFlowCnec(Branch<?> networkElement, Contingency contingency, String instantId, EnumMap<TwoSides, Double> thresholds, boolean useMaxAndMinThresholds, int tatlDuration, Double flowReliabilityMargin) {
         if (thresholds.isEmpty()) {
             return;
         }
@@ -245,36 +272,37 @@ public class FlowCnecCreator extends AbstractCnecCreator {
         if (!setNominalVoltage(cnecAdder, networkElement) || !setCurrentLimitsFromBranch(cnecAdder, networkElement)) {
             return;
         }
+        addFlowReliabilityMargin(cnecAdder, flowReliabilityMargin, thresholds, networkElement);
         cnecAdder.add();
         markCnecAsImportedAndHandleRejectedContingencies(getCnecName(instantId, contingency, tatlDuration));
     }
 
-    private void addAllFlowCnecsFromBranchAndOperationalLimits(Branch<?> networkElement, Map<Integer, EnumMap<TwoSides, Double>> thresholds, boolean useMaxAndMinThresholds, boolean definedWithConductingEquipment) {
+    private void addAllFlowCnecsFromBranchAndOperationalLimits(Branch<?> networkElement, Map<Integer, EnumMap<TwoSides, Double>> thresholds, boolean useMaxAndMinThresholds, boolean definedWithConductingEquipment, Double flowReliabilityMargin) {
         EnumMap<TwoSides, Double> patlThresholds = thresholds.get(Integer.MAX_VALUE);
         boolean hasPatl = thresholds.get(Integer.MAX_VALUE) != null;
 
         if (inBaseCase) {
             // If no PATL, we use the lowest TATL instead (as in PowSyBl).
             if (hasPatl) {
-                addFlowCnec(networkElement, null, crac.getPreventiveInstant().getId(), patlThresholds, useMaxAndMinThresholds, false);
+                addFlowCnec(networkElement, null, crac.getPreventiveInstant().getId(), patlThresholds, useMaxAndMinThresholds, false, flowReliabilityMargin);
             } else if (definedWithConductingEquipment) {
                 // No PATL thus the longest acceptable duration is strictly lower than Integer.MAX_VALUE
                 Optional<Integer> longestAcceptableDuration = thresholds.keySet().stream().max(Integer::compareTo);
-                longestAcceptableDuration.ifPresent(integer -> addFlowCnec(networkElement, null, crac.getPreventiveInstant().getId(), thresholds.get(integer), useMaxAndMinThresholds, true));
+                longestAcceptableDuration.ifPresent(integer -> addFlowCnec(networkElement, null, crac.getPreventiveInstant().getId(), thresholds.get(integer), useMaxAndMinThresholds, true, flowReliabilityMargin));
             }
         }
 
         for (Contingency contingency : linkedContingencies) {
             // Add PATL
             if (hasPatl) {
-                addFlowCnec(networkElement, contingency, crac.getInstant(InstantKind.CURATIVE).getId(), patlThresholds, useMaxAndMinThresholds, false);
+                addFlowCnec(networkElement, contingency, crac.getInstant(InstantKind.CURATIVE).getId(), patlThresholds, useMaxAndMinThresholds, false, flowReliabilityMargin);
             }
             // Add TATLs
-            addTatls(networkElement, thresholds, useMaxAndMinThresholds, contingency);
+            addTatls(networkElement, thresholds, useMaxAndMinThresholds, contingency, flowReliabilityMargin);
         }
     }
 
-    private void addTatls(Branch<?> networkElement, Map<Integer, EnumMap<TwoSides, Double>> thresholds, boolean useMaxAndMinThresholds, Contingency contingency) {
+    private void addTatls(Branch<?> networkElement, Map<Integer, EnumMap<TwoSides, Double>> thresholds, boolean useMaxAndMinThresholds, Contingency contingency, Double flowReliabilityMargin) {
         for (Map.Entry<Integer, EnumMap<TwoSides, Double>> thresholdEntry : thresholds.entrySet()) {
             int acceptableDuration = thresholdEntry.getKey();
             if (acceptableDuration != Integer.MAX_VALUE) {
@@ -284,7 +312,7 @@ public class FlowCnecCreator extends AbstractCnecCreator {
                     //TODO : this most likely needs fixing, maybe continue is enough as a fix instead of return, but then the context wont be very clear since some will have been imported (can already be the case)
                     continue;
                 }
-                addCurativeFlowCnec(networkElement, contingency, instant.getId(), thresholds.get(acceptableDuration), useMaxAndMinThresholds, acceptableDuration);
+                addCurativeFlowCnec(networkElement, contingency, instant.getId(), thresholds.get(acceptableDuration), useMaxAndMinThresholds, acceptableDuration, flowReliabilityMargin);
             }
         }
     }
@@ -357,5 +385,14 @@ public class FlowCnecCreator extends AbstractCnecCreator {
             sidesToCheck.add(branch.getCurrentLimits(defaultSide.iidmSide()).isPresent() ? defaultSide : otherSide);
         }
         return sidesToCheck;
+    }
+
+    private void addFlowReliabilityMargin(FlowCnecAdder flowCnecAdder, Double flowReliabilityMargin, EnumMap<TwoSides, Double> thresholds, Branch<?> branch) {
+        if (flowReliabilityMargin != null) {
+            Arrays.stream(TwoSides.values())
+                .map(twoSides -> flowReliabilityMargin * 10d * thresholds.getOrDefault(twoSides, 0d) / (sqrt(3d) * branch.getTerminal(twoSides).getVoltageLevel().getNominalV()))
+                .max(Double::compareTo)
+                .ifPresent(flowCnecAdder::withReliabilityMargin);
+        }
     }
 }
