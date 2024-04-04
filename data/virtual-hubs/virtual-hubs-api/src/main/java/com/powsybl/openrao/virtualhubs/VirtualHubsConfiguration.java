@@ -18,6 +18,7 @@ import java.util.Objects;
 public class VirtualHubsConfiguration {
     private final List<MarketArea> marketAreas = new ArrayList<>();
     private final List<VirtualHub> virtualHubs = new ArrayList<>();
+    private final List<BorderDirection> borderDirections = new ArrayList<>();
 
     public void addMarketArea(MarketArea marketArea) {
         marketAreas.add(Objects.requireNonNull(marketArea, "Virtual hubs configuration does not allow adding null market area"));
@@ -27,11 +28,19 @@ public class VirtualHubsConfiguration {
         virtualHubs.add(Objects.requireNonNull(virtualHub, "Virtual hubs configuration does not allow adding null virtual hub"));
     }
 
+    public void addBorderDirection(BorderDirection borderDirection) {
+        borderDirections.add(Objects.requireNonNull(borderDirection, "Virtual hubs configuration does not allow adding null border direction"));
+    }
+
     public List<MarketArea> getMarketAreas() {
         return marketAreas;
     }
 
     public List<VirtualHub> getVirtualHubs() {
         return virtualHubs;
+    }
+
+    public List<BorderDirection> getBorderDirections() {
+        return borderDirections;
     }
 }
