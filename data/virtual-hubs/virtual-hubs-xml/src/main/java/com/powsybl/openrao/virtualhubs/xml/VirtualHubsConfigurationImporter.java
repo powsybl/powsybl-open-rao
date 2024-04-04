@@ -6,6 +6,7 @@
  */
 package com.powsybl.openrao.virtualhubs.xml;
 
+import com.powsybl.openrao.virtualhubs.BorderDirection;
 import com.powsybl.openrao.virtualhubs.MarketArea;
 import com.powsybl.openrao.virtualhubs.VirtualHub;
 import com.powsybl.openrao.virtualhubs.VirtualHubsConfiguration;
@@ -22,6 +23,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.TreeMap;
 
 /**
@@ -38,6 +40,7 @@ class VirtualHubsConfigurationImporter {
             Element configurationEl = document.getDocumentElement();
             NodeList marketAreas = configurationEl.getElementsByTagName("MarketArea");
             NodeList virtualHubs = configurationEl.getElementsByTagName("VirtualHub");
+            NodeList borderDirections = configurationEl.getElementsByTagName("BorderDirection");
             Map<String, MarketArea> marketAreasMap = new TreeMap<>();
 
             VirtualHubsConfiguration configuration = new VirtualHubsConfiguration();
@@ -47,7 +50,8 @@ class VirtualHubsConfigurationImporter {
                 String code = node.getAttributes().getNamedItem("Code").getNodeValue();
                 String eic = node.getAttributes().getNamedItem("Eic").getNodeValue();
                 boolean isMcParticipant = Boolean.parseBoolean(node.getAttributes().getNamedItem("MCParticipant").getNodeValue());
-                MarketArea marketArea = new MarketArea(code, eic, isMcParticipant);
+                boolean isAhc = getAhc(node);
+                MarketArea marketArea = new MarketArea(code, eic, isMcParticipant, isAhc);
                 marketAreasMap.put(code, marketArea);
                 configuration.addMarketArea(marketArea);
             }
@@ -56,13 +60,29 @@ class VirtualHubsConfigurationImporter {
                 String code = node.getAttributes().getNamedItem("Code").getNodeValue();
                 String eic = node.getAttributes().getNamedItem("Eic").getNodeValue();
                 boolean isMcParticipant = Boolean.parseBoolean(node.getAttributes().getNamedItem("MCParticipant").getNodeValue());
+                boolean isAhc = getAhc(node);
                 String nodeName = node.getAttributes().getNamedItem("NodeName").getNodeValue();
                 MarketArea marketArea = marketAreasMap.get(node.getAttributes().getNamedItem("RelatedMA").getNodeValue());
-                configuration.addVirtualHub(new VirtualHub(code, eic, isMcParticipant, nodeName, marketArea));
+                String oppositeHub = Optional.ofNullable(node.getAttributes().getNamedItem("OppositeHub")).map(Node::getNodeValue).orElse(null);
+                configuration.addVirtualHub(new VirtualHub(code, eic, isMcParticipant, isAhc, nodeName, marketArea, oppositeHub));
+            }
+            for (int i = 0; i < borderDirections.getLength(); i++) {
+                Node node = borderDirections.item(i);
+                String from = node.getAttributes().getNamedItem("From").getNodeValue();
+                String to = node.getAttributes().getNamedItem("To").getNodeValue();
+                boolean isAhc = getAhc(node);
+                configuration.addBorderDirection(new BorderDirection(from, to, isAhc));
             }
             return configuration;
         } catch (ParserConfigurationException | SAXException | IOException e) {
             throw new VirtualHubsConfigProcessingException(e);
         }
+    }
+
+    private static Boolean getAhc(Node node) {
+        return Optional.ofNullable(node.getAttributes().getNamedItem("AHC"))
+            .map(Node::getNodeValue)
+            .map(Boolean::parseBoolean)
+            .orElse(false);
     }
 }
