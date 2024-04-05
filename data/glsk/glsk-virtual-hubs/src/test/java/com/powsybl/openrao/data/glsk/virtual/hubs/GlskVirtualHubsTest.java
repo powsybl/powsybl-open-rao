@@ -36,10 +36,10 @@ class GlskVirtualHubsTest {
         network = Network.read(networkFileName, getClass().getResourceAsStream("/" + networkFileName));
 
         virtualHubsConfiguration = new VirtualHubsConfiguration();
-        MarketArea frMarketArea = new MarketArea("FR", "10YFR-RTE------C", true);
+        MarketArea frMarketArea = new MarketArea("FR", "10YFR-RTE------C", true, false);
         virtualHubsConfiguration.addMarketArea(frMarketArea);
-        virtualHubsConfiguration.addVirtualHub(new VirtualHub("code1", "17YXTYUDHGKAAAAS", true, "X_GBFR1 ", frMarketArea));
-        virtualHubsConfiguration.addVirtualHub(new VirtualHub("code2", "15XGDYRHKLKAAAAS", false, "NNL3AA1 ", frMarketArea));
+        virtualHubsConfiguration.addVirtualHub(new VirtualHub("code1", "17YXTYUDHGKAAAAS", true, false, "X_GBFR1 ", frMarketArea, null));
+        virtualHubsConfiguration.addVirtualHub(new VirtualHub("code2", "15XGDYRHKLKAAAAS", false, false, "NNL3AA1 ", frMarketArea, null));
     }
 
     @Test
