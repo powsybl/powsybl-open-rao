@@ -6,8 +6,13 @@
  */
 package com.powsybl.openrao.searchtreerao.searchtree.algorithms;
 
+import com.powsybl.openrao.data.cracapi.RaUsageLimits;
 import com.powsybl.openrao.data.cracapi.networkaction.NetworkAction;
 import com.powsybl.openrao.searchtreerao.commons.NetworkActionCombination;
+import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.OptimizationPerimeter;
+import com.powsybl.openrao.searchtreerao.commons.parameters.NetworkActionParameters;
+import com.powsybl.openrao.searchtreerao.searchtree.inputs.SearchTreeInput;
+import com.powsybl.openrao.searchtreerao.searchtree.parameters.SearchTreeParameters;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
@@ -29,7 +34,7 @@ class SearchTreeBloomerTest {
         Mockito.when(na1.getOperator()).thenReturn("fake_tso");
         Mockito.when(na2.getOperator()).thenReturn("fake_tso");
 
-        SearchTreeBloomer bloomer = new SearchTreeBloomer(NetworkActionCombinationsUtils.NETWORK, Integer.MAX_VALUE, Integer.MAX_VALUE, new HashMap<>(), new HashMap<>(), false, 0, List.of(new NetworkActionCombination(Set.of(na2), true)), P_STATE);
+        SearchTreeBloomer bloomer = initBloomer(List.of(new NetworkActionCombination(Set.of(na2), true)));
         Leaf leaf = Mockito.mock(Leaf.class);
         Mockito.when(leaf.getActivatedNetworkActions()).thenReturn(Collections.emptySet());
         Map<NetworkActionCombination, Boolean> result = bloomer.bloom(leaf, Set.of(na1, na2));
@@ -45,10 +50,27 @@ class SearchTreeBloomerTest {
         Mockito.when(na1.getOperator()).thenReturn("fake_tso");
         Mockito.when(na2.getOperator()).thenReturn("fake_tso");
 
-        SearchTreeBloomer bloomer = new SearchTreeBloomer(NetworkActionCombinationsUtils.NETWORK, Integer.MAX_VALUE, Integer.MAX_VALUE, new HashMap<>(), new HashMap<>(), false, 0, List.of(new NetworkActionCombination(Set.of(na1, na2), false), new NetworkActionCombination(Set.of(na1, na2), false), new NetworkActionCombination(Set.of(na1, na2), true)), P_STATE);
+        SearchTreeBloomer bloomer = initBloomer(List.of(new NetworkActionCombination(Set.of(na1, na2), false), new NetworkActionCombination(Set.of(na1, na2), false), new NetworkActionCombination(Set.of(na1, na2), true)));
         Leaf leaf = Mockito.mock(Leaf.class);
         Mockito.when(leaf.getActivatedNetworkActions()).thenReturn(Collections.emptySet());
         Map<NetworkActionCombination, Boolean> result = bloomer.bloom(leaf, Set.of(na1, na2));
         assertEquals(4, result.size());
+    }
+
+    private SearchTreeBloomer initBloomer(List<NetworkActionCombination> naCombinations) {
+        OptimizationPerimeter perimeter = Mockito.mock(OptimizationPerimeter.class);
+        Mockito.when(perimeter.getMainOptimizationState()).thenReturn(P_STATE);
+        SearchTreeInput input = SearchTreeInput.create()
+            .withNetwork(NetworkActionCombinationsUtils.NETWORK)
+            .withOptimizationPerimeter(perimeter)
+            .build();
+        NetworkActionParameters networkActionParameters = Mockito.mock(NetworkActionParameters.class);
+        Mockito.when(networkActionParameters.getNetworkActionCombinations()).thenReturn(naCombinations);
+        Mockito.when(networkActionParameters.skipNetworkActionFarFromMostLimitingElements()).thenReturn(false);
+        Mockito.when(networkActionParameters.getMaxNumberOfBoundariesForSkippingNetworkActions()).thenReturn(0);
+        SearchTreeParameters parameters = Mockito.mock(SearchTreeParameters.class);
+        Mockito.when(parameters.getRaLimitationParameters()).thenReturn(Map.of(P_STATE.getInstant(), new RaUsageLimits()));
+        Mockito.when(parameters.getNetworkActionParameters()).thenReturn(networkActionParameters);
+        return new SearchTreeBloomer(input, parameters);
     }
 }

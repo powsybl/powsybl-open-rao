@@ -9,7 +9,6 @@ package com.powsybl.openrao.searchtreerao.searchtree.algorithms;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.commons.logs.OpenRaoLogger;
-import com.powsybl.openrao.data.cracapi.RaUsageLimits;
 import com.powsybl.openrao.data.cracapi.State;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
 import com.powsybl.openrao.data.cracapi.cnec.Side;
@@ -91,18 +90,7 @@ public class SearchTree {
 
         // build from inputs
         this.purelyVirtual = input.getOptimizationPerimeter().getOptimizedFlowCnecs().isEmpty();
-        RaUsageLimits raUsageLimits = parameters.getRaLimitationParameters().getOrDefault(input.getOptimizationPerimeter().getMainOptimizationState().getInstant(), new RaUsageLimits());
-        this.bloomer = new SearchTreeBloomer(
-            input.getNetwork(),
-            raUsageLimits.getMaxRa(),
-            raUsageLimits.getMaxTso(),
-            raUsageLimits.getMaxTopoPerTso(),
-            raUsageLimits.getMaxRaPerTso(),
-            parameters.getNetworkActionParameters().skipNetworkActionFarFromMostLimitingElements(),
-            parameters.getNetworkActionParameters().getMaxNumberOfBoundariesForSkippingNetworkActions(),
-            parameters.getNetworkActionParameters().getNetworkActionCombinations(),
-            input.getOptimizationPerimeter().getMainOptimizationState()
-        );
+        this.bloomer = new SearchTreeBloomer(input, parameters);
     }
 
     public CompletableFuture<OptimizationResult> run() {

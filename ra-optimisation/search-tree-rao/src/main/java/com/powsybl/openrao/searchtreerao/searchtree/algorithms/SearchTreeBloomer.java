@@ -7,10 +7,11 @@
 
 package com.powsybl.openrao.searchtreerao.searchtree.algorithms;
 
-import com.powsybl.openrao.data.cracapi.State;
+import com.powsybl.openrao.data.cracapi.RaUsageLimits;
 import com.powsybl.openrao.data.cracapi.networkaction.NetworkAction;
 import com.powsybl.openrao.searchtreerao.commons.NetworkActionCombination;
-import com.powsybl.iidm.network.Network;
+import com.powsybl.openrao.searchtreerao.searchtree.inputs.SearchTreeInput;
+import com.powsybl.openrao.searchtreerao.searchtree.parameters.SearchTreeParameters;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -22,16 +23,16 @@ public final class SearchTreeBloomer {
     private final List<NetworkActionCombination> preDefinedNaCombinations;
     private final List<NetworkActionCombinationFilter> networkActionCombinationFilters;
 
-    public SearchTreeBloomer(Network network, int maxRa, int maxTso, Map<String, Integer> maxTopoPerTso, Map<String, Integer> maxRaPerTso, boolean filterFarElements, int maxNumberOfBoundariesForSkippingNetworkActions, List<NetworkActionCombination> preDefinedNaCombinations, State optimizedStateForNetworkActions) {
-        // TODO: refactor constructor with only two parameters: SearchTreeInput input, SearchTreeParameters parameters
-        this.preDefinedNaCombinations = preDefinedNaCombinations;
+    public SearchTreeBloomer(SearchTreeInput input, SearchTreeParameters parameters) {
+        RaUsageLimits raUsageLimits = parameters.getRaLimitationParameters().getOrDefault(input.getOptimizationPerimeter().getMainOptimizationState().getInstant(), new RaUsageLimits());
+        this.preDefinedNaCombinations = parameters.getNetworkActionParameters().getNetworkActionCombinations();
         this.networkActionCombinationFilters = List.of(
             new AlreadyAppliedNetworkActionsFilter(),
             new AlreadyTestedCombinationsFilter(preDefinedNaCombinations),
-            new MaximumNumberOfRemedialActionsFilter(maxRa),
-            new MaximumNumberOfRemedialActionPerTsoFilter(maxTopoPerTso, maxRaPerTso, optimizedStateForNetworkActions),
-            new MaximumNumberOfTsosFilter(maxTso, optimizedStateForNetworkActions),
-            new FarFromMostLimitingElementFilter(network, filterFarElements, maxNumberOfBoundariesForSkippingNetworkActions)
+            new MaximumNumberOfRemedialActionsFilter(raUsageLimits.getMaxRa()),
+            new MaximumNumberOfRemedialActionPerTsoFilter(raUsageLimits.getMaxTopoPerTso(), raUsageLimits.getMaxRaPerTso(), input.getOptimizationPerimeter().getMainOptimizationState()),
+            new MaximumNumberOfTsosFilter(raUsageLimits.getMaxTso(), input.getOptimizationPerimeter().getMainOptimizationState()),
+            new FarFromMostLimitingElementFilter(input.getNetwork(), parameters.getNetworkActionParameters().skipNetworkActionFarFromMostLimitingElements(), parameters.getNetworkActionParameters().getMaxNumberOfBoundariesForSkippingNetworkActions())
         );
     }
 
