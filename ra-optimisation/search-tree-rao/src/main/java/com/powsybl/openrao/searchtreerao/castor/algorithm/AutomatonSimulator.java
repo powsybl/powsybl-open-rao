@@ -532,6 +532,12 @@ public final class AutomatonSimulator {
     }
 
     private static Map<String, Double> computeHvdcAngleDroopActivePowerControlValues(Network network, State state, String loadFlowProvider, LoadFlowParameters loadFlowParameters) {
+        // clean parameters to be compatible with sensitivity analyses
+        LoadFlowParameters newLoadFlowParameters = loadFlowParameters;
+        newLoadFlowParameters.setWriteSlackBus(false);
+        if (newLoadFlowParameters.isDc()) {
+            newLoadFlowParameters.setHvdcAcEmulation(false);
+        }
         // Create a temporary variant to apply contingency and compute load-flow on
         String initialVariantId = network.getVariantManager().getWorkingVariantId();
         String tmpVariant = RandomizedString.getRandomizedString("HVDC_LF", network.getVariantManager().getVariantIds(), 10);
@@ -542,7 +548,7 @@ public final class AutomatonSimulator {
         if (state.getContingency().isPresent()) {
             state.getContingency().orElseThrow().apply(network, null);
         }
-        LoadFlow.find(loadFlowProvider).run(network, loadFlowParameters);
+        LoadFlow.find(loadFlowProvider).run(network, newLoadFlowParameters);
 
         // Compute HvdcAngleDroopActivePowerControl values of HVDC lines
         Map<String, Double> controls = network.getHvdcLineStream()
