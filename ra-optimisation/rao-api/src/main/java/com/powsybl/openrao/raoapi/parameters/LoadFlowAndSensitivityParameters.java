@@ -82,7 +82,7 @@ public class LoadFlowAndSensitivityParameters {
     private SensitivityAnalysisParameters cleanLoadFlowParameters(SensitivityAnalysisParameters sensitivityAnalysisParameters) {
         LoadFlowParameters loadFlowParameters = sensitivityAnalysisParameters.getLoadFlowParameters();
         // we have to clean load flow parameters.
-        // the slack bus must not br written because it could pollute the sensitivity analyses.
+        // the slack bus must not be written because it could pollute the sensitivity analyses.
         loadFlowParameters.setWriteSlackBus(false);
         // in DC, as emulation AC is supported for LF but not for sensitivity analyses, it could
         // lead to incoherence.
