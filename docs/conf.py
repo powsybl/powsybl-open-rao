@@ -42,7 +42,8 @@ extensions = ['sphinx.ext.autodoc',
 myst_enable_extensions = [
     "amsmath",
     "colon_fence",
-    "dollarmath"
+    "dollarmath",
+    "attrs_inline"
 ]
 myst_heading_anchors = 6
 
@@ -67,6 +68,11 @@ html_short_title = 'Open RAO'
 
 html_logo = '_static/logos/logo_lfe_powsybl.svg'
 html_favicon = "_static/favicon.ico"
+
+html_context = {
+    # TODO : replace next option with "https://powsybl.readthedocs.org" when website is published
+    "sidebar_logo_href": "https://www.powsybl.org/"
+}
 
 html_theme_options = {
     "icon_links": [
