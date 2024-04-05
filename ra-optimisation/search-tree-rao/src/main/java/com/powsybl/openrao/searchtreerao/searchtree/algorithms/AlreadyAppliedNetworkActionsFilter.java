@@ -14,7 +14,7 @@ import java.util.stream.Collectors;
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
-public class AlreadyAppliedNetworkActionsFilter implements NetworkActionCombinationFilter{
+public class AlreadyAppliedNetworkActionsFilter implements NetworkActionCombinationFilter {
     public Map<NetworkActionCombination, Boolean> filter(Map<NetworkActionCombination, Boolean> naCombinations, Leaf fromLeaf) {
         return naCombinations.keySet().stream()
             .filter(naCombination -> naCombination.getNetworkActionSet().stream().noneMatch(na -> fromLeaf.getActivatedNetworkActions().contains(na)))

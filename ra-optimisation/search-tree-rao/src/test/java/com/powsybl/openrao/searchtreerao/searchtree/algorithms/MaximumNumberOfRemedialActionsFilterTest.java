@@ -10,23 +10,22 @@ import com.powsybl.openrao.searchtreerao.commons.NetworkActionCombination;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import static com.powsybl.openrao.searchtreerao.searchtree.algorithms.NetworkActionCombinationsUtils.comb2BeNl;
-import static com.powsybl.openrao.searchtreerao.searchtree.algorithms.NetworkActionCombinationsUtils.comb2Fr;
-import static com.powsybl.openrao.searchtreerao.searchtree.algorithms.NetworkActionCombinationsUtils.comb2FrDeBe;
-import static com.powsybl.openrao.searchtreerao.searchtree.algorithms.NetworkActionCombinationsUtils.comb3Be;
-import static com.powsybl.openrao.searchtreerao.searchtree.algorithms.NetworkActionCombinationsUtils.indBe1;
-import static com.powsybl.openrao.searchtreerao.searchtree.algorithms.NetworkActionCombinationsUtils.indFr2;
-import static com.powsybl.openrao.searchtreerao.searchtree.algorithms.NetworkActionCombinationsUtils.indNl1;
-import static com.powsybl.openrao.searchtreerao.searchtree.algorithms.NetworkActionCombinationsUtils.indNlBe;
-import static com.powsybl.openrao.searchtreerao.searchtree.algorithms.NetworkActionCombinationsUtils.naBe1;
-import static com.powsybl.openrao.searchtreerao.searchtree.algorithms.NetworkActionCombinationsUtils.naFr1;
+import static com.powsybl.openrao.searchtreerao.searchtree.algorithms.NetworkActionCombinationsUtils.COMB_2_BE_NL;
+import static com.powsybl.openrao.searchtreerao.searchtree.algorithms.NetworkActionCombinationsUtils.COMB_2_FR;
+import static com.powsybl.openrao.searchtreerao.searchtree.algorithms.NetworkActionCombinationsUtils.COMB_2_FR_DE_BE;
+import static com.powsybl.openrao.searchtreerao.searchtree.algorithms.NetworkActionCombinationsUtils.COMB_3_BE;
+import static com.powsybl.openrao.searchtreerao.searchtree.algorithms.NetworkActionCombinationsUtils.IND_BE_1;
+import static com.powsybl.openrao.searchtreerao.searchtree.algorithms.NetworkActionCombinationsUtils.IND_FR_2;
+import static com.powsybl.openrao.searchtreerao.searchtree.algorithms.NetworkActionCombinationsUtils.IND_NL_1;
+import static com.powsybl.openrao.searchtreerao.searchtree.algorithms.NetworkActionCombinationsUtils.IND_NL_BE;
+import static com.powsybl.openrao.searchtreerao.searchtree.algorithms.NetworkActionCombinationsUtils.NA_BE_1;
+import static com.powsybl.openrao.searchtreerao.searchtree.algorithms.NetworkActionCombinationsUtils.NA_FR_1;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -39,13 +38,13 @@ class MaximumNumberOfRemedialActionsFilterTest {
     void testRemoveCombinationsWhichExceedMaxNumberOfRa() {
 
         // arrange naCombination list
-        List<NetworkActionCombination> listOfNaCombinations = List.of(indFr2, indBe1, indNlBe, indNl1, comb2Fr, comb3Be, comb2BeNl, comb2FrDeBe);
+        List<NetworkActionCombination> listOfNaCombinations = List.of(IND_FR_2, IND_BE_1, IND_NL_BE, IND_NL_1, COMB_2_FR, COMB_3_BE, COMB_2_BE_NL, COMB_2_FR_DE_BE);
         Map<NetworkActionCombination, Boolean> naCombinations = new HashMap<>();
         listOfNaCombinations.forEach(na -> naCombinations.put(na, false));
 
         // arrange previous Leaf -> naFr1 has already been activated
         Leaf previousLeaf = Mockito.mock(Leaf.class);
-        Mockito.when(previousLeaf.getActivatedNetworkActions()).thenReturn(Collections.singleton(naFr1));
+        Mockito.when(previousLeaf.getActivatedNetworkActions()).thenReturn(Collections.singleton(NA_FR_1));
 
         MaximumNumberOfRemedialActionsFilter naFilter;
         Map<NetworkActionCombination, Boolean> filteredNaCombination;
@@ -61,17 +60,17 @@ class MaximumNumberOfRemedialActionsFilterTest {
         filteredNaCombination = naFilter.filter(naCombinations, previousLeaf);
 
         assertEquals(7, filteredNaCombination.size()); // one combination filtered
-        assertFalse(filteredNaCombination.containsKey(comb3Be));
+        assertFalse(filteredNaCombination.containsKey(COMB_3_BE));
 
         // max 2 RAs
         naFilter = new MaximumNumberOfRemedialActionsFilter(2);
         filteredNaCombination = naFilter.filter(naCombinations, previousLeaf);
 
         assertEquals(4, filteredNaCombination.size());
-        assertTrue(filteredNaCombination.containsKey(indFr2));
-        assertTrue(filteredNaCombination.containsKey(indBe1));
-        assertTrue(filteredNaCombination.containsKey(indNlBe));
-        assertTrue(filteredNaCombination.containsKey(indNl1));
+        assertTrue(filteredNaCombination.containsKey(IND_FR_2));
+        assertTrue(filteredNaCombination.containsKey(IND_BE_1));
+        assertTrue(filteredNaCombination.containsKey(IND_NL_BE));
+        assertTrue(filteredNaCombination.containsKey(IND_NL_1));
 
         // max 1 RAs
         naFilter = new MaximumNumberOfRemedialActionsFilter(1);
@@ -84,10 +83,10 @@ class MaximumNumberOfRemedialActionsFilterTest {
         naFilter = new MaximumNumberOfRemedialActionsFilter(4);
 
         Mockito.when(previousLeaf.getNumberOfActivatedRangeActions()).thenReturn(1L);
-        Mockito.when(previousLeaf.getActivatedNetworkActions()).thenReturn(Set.of(naFr1, naBe1));
+        Mockito.when(previousLeaf.getActivatedNetworkActions()).thenReturn(Set.of(NA_FR_1, NA_BE_1));
 
         Map<NetworkActionCombination, Boolean> naToRemove = naFilter.filter(naCombinations, previousLeaf);
-        Map<NetworkActionCombination, Boolean> expectedResult = Map.of(indFr2, false, indBe1, false, indNlBe, false, indNl1, false, comb2Fr, true, comb2BeNl, true, comb2FrDeBe, true);
+        Map<NetworkActionCombination, Boolean> expectedResult = Map.of(IND_FR_2, false, IND_BE_1, false, IND_NL_BE, false, IND_NL_1, false, COMB_2_FR, true, COMB_2_BE_NL, true, COMB_2_FR_DE_BE, true);
         assertEquals(expectedResult, naToRemove);
     }
 }

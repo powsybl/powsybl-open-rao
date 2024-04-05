@@ -20,21 +20,21 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import static com.powsybl.openrao.searchtreerao.searchtree.algorithms.NetworkActionCombinationsUtils.comb2BeNl;
-import static com.powsybl.openrao.searchtreerao.searchtree.algorithms.NetworkActionCombinationsUtils.comb2Fr;
-import static com.powsybl.openrao.searchtreerao.searchtree.algorithms.NetworkActionCombinationsUtils.comb2FrNl;
-import static com.powsybl.openrao.searchtreerao.searchtree.algorithms.NetworkActionCombinationsUtils.comb3Be;
-import static com.powsybl.openrao.searchtreerao.searchtree.algorithms.NetworkActionCombinationsUtils.comb3FrNlBe;
+import static com.powsybl.openrao.searchtreerao.searchtree.algorithms.NetworkActionCombinationsUtils.COMB_2_BE_NL;
+import static com.powsybl.openrao.searchtreerao.searchtree.algorithms.NetworkActionCombinationsUtils.COMB_2_FR;
+import static com.powsybl.openrao.searchtreerao.searchtree.algorithms.NetworkActionCombinationsUtils.COMB_2_FR_NL;
+import static com.powsybl.openrao.searchtreerao.searchtree.algorithms.NetworkActionCombinationsUtils.COMB_3_BE;
+import static com.powsybl.openrao.searchtreerao.searchtree.algorithms.NetworkActionCombinationsUtils.COMB_3_FR_NL_BE;
 import static com.powsybl.openrao.searchtreerao.searchtree.algorithms.NetworkActionCombinationsUtils.createNetworkActionWithOperator;
 import static com.powsybl.openrao.searchtreerao.searchtree.algorithms.NetworkActionCombinationsUtils.createPstRangeActionWithOperator;
-import static com.powsybl.openrao.searchtreerao.searchtree.algorithms.NetworkActionCombinationsUtils.indBe1;
-import static com.powsybl.openrao.searchtreerao.searchtree.algorithms.NetworkActionCombinationsUtils.indFr2;
-import static com.powsybl.openrao.searchtreerao.searchtree.algorithms.NetworkActionCombinationsUtils.indFrDe;
-import static com.powsybl.openrao.searchtreerao.searchtree.algorithms.NetworkActionCombinationsUtils.indNl1;
-import static com.powsybl.openrao.searchtreerao.searchtree.algorithms.NetworkActionCombinationsUtils.naBe1;
-import static com.powsybl.openrao.searchtreerao.searchtree.algorithms.NetworkActionCombinationsUtils.naFr1;
-import static com.powsybl.openrao.searchtreerao.searchtree.algorithms.NetworkActionCombinationsUtils.pState;
-import static com.powsybl.openrao.searchtreerao.searchtree.algorithms.NetworkActionCombinationsUtils.raBe1;
+import static com.powsybl.openrao.searchtreerao.searchtree.algorithms.NetworkActionCombinationsUtils.IND_BE_1;
+import static com.powsybl.openrao.searchtreerao.searchtree.algorithms.NetworkActionCombinationsUtils.IND_FR_2;
+import static com.powsybl.openrao.searchtreerao.searchtree.algorithms.NetworkActionCombinationsUtils.IND_FR_DE;
+import static com.powsybl.openrao.searchtreerao.searchtree.algorithms.NetworkActionCombinationsUtils.IND_NL_1;
+import static com.powsybl.openrao.searchtreerao.searchtree.algorithms.NetworkActionCombinationsUtils.NA_BE_1;
+import static com.powsybl.openrao.searchtreerao.searchtree.algorithms.NetworkActionCombinationsUtils.NA_FR_1;
+import static com.powsybl.openrao.searchtreerao.searchtree.algorithms.NetworkActionCombinationsUtils.P_STATE;
+import static com.powsybl.openrao.searchtreerao.searchtree.algorithms.NetworkActionCombinationsUtils.RA_BE_1;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -47,48 +47,48 @@ class MaximumNumberOfTsosFilterTest {
     void testRemoveCombinationsWhichExceedMaxNumberOfTsos() {
 
         // arrange naCombination list
-        List<NetworkActionCombination> listOfNaCombinations = List.of(indFr2, indBe1, indNl1, indFrDe, comb2Fr, comb3Be, comb2BeNl, comb2FrNl, comb3FrNlBe);
+        List<NetworkActionCombination> listOfNaCombinations = List.of(IND_FR_2, IND_BE_1, IND_NL_1, IND_FR_DE, COMB_2_FR, COMB_3_BE, COMB_2_BE_NL, COMB_2_FR_NL, COMB_3_FR_NL_BE);
         Map<NetworkActionCombination, Boolean> naCombinations = new HashMap<>();
         listOfNaCombinations.forEach(na -> naCombinations.put(na, false));
 
         // arrange previous Leaf -> naFr1 has already been activated
         Leaf previousLeaf = Mockito.mock(Leaf.class);
-        Mockito.when(previousLeaf.getActivatedNetworkActions()).thenReturn(Collections.singleton(naFr1));
-        
+        Mockito.when(previousLeaf.getActivatedNetworkActions()).thenReturn(Collections.singleton(NA_FR_1));
+
         MaximumNumberOfTsosFilter naFilter;
         Map<NetworkActionCombination, Boolean> filteredNaCombination;
 
         // max 3 TSOs
-        naFilter = new MaximumNumberOfTsosFilter(3, pState);
+        naFilter = new MaximumNumberOfTsosFilter(3, P_STATE);
         filteredNaCombination = naFilter.filter(naCombinations, previousLeaf);
 
         assertEquals(9, filteredNaCombination.size()); // no combination filtered
 
         // max 2 TSOs
-        naFilter = new MaximumNumberOfTsosFilter(2, pState);
+        naFilter = new MaximumNumberOfTsosFilter(2, P_STATE);
         filteredNaCombination = naFilter.filter(naCombinations, previousLeaf);
 
         assertEquals(7, filteredNaCombination.size());
-        assertFalse(filteredNaCombination.containsKey(comb2BeNl)); // one combination filtered
+        assertFalse(filteredNaCombination.containsKey(COMB_2_BE_NL)); // one combination filtered
 
         // max 1 TSO
-        naFilter = new MaximumNumberOfTsosFilter(1, pState);
+        naFilter = new MaximumNumberOfTsosFilter(1, P_STATE);
         filteredNaCombination = naFilter.filter(naCombinations, previousLeaf);
 
         assertEquals(3, filteredNaCombination.size());
-        assertTrue(filteredNaCombination.containsKey(indFr2));
-        assertTrue(filteredNaCombination.containsKey(indFrDe));
-        assertTrue(filteredNaCombination.containsKey(comb2Fr));
+        assertTrue(filteredNaCombination.containsKey(IND_FR_2));
+        assertTrue(filteredNaCombination.containsKey(IND_FR_DE));
+        assertTrue(filteredNaCombination.containsKey(COMB_2_FR));
 
         // check booleans in hashmap -> max 2 TSOs
         Leaf leaf = Mockito.mock(Leaf.class);
-        naFilter = new MaximumNumberOfTsosFilter(2, pState);
+        naFilter = new MaximumNumberOfTsosFilter(2, P_STATE);
 
-        Mockito.when(leaf.getActivatedNetworkActions()).thenReturn(Set.of(naFr1));
-        Mockito.when(leaf.getActivatedRangeActions(Mockito.any(State.class))).thenReturn(Set.of(raBe1));
+        Mockito.when(leaf.getActivatedNetworkActions()).thenReturn(Set.of(NA_FR_1));
+        Mockito.when(leaf.getActivatedRangeActions(Mockito.any(State.class))).thenReturn(Set.of(RA_BE_1));
 
         Map<NetworkActionCombination, Boolean> naToRemove = naFilter.filter(naCombinations, leaf);
-        Map<NetworkActionCombination, Boolean> expectedResult = Map.of(indFr2, false, indBe1, false, indNl1, true, indFrDe, false, comb2Fr, false, comb3Be, false, comb2FrNl, true);
+        Map<NetworkActionCombination, Boolean> expectedResult = Map.of(IND_FR_2, false, IND_BE_1, false, IND_NL_1, true, IND_FR_DE, false, COMB_2_FR, false, COMB_3_BE, false, COMB_2_FR_NL, true);
         assertEquals(expectedResult, naToRemove);
     }
 
@@ -97,15 +97,15 @@ class MaximumNumberOfTsosFilterTest {
         RangeAction<?> nonActivatedRa = createPstRangeActionWithOperator("NNL2AA1  NNL3AA1  1", "nl");
         Set<RangeAction<?>> rangeActions = new HashSet<>();
         rangeActions.add(nonActivatedRa);
-        rangeActions.add(raBe1);
+        rangeActions.add(RA_BE_1);
 
         Leaf leaf = Mockito.mock(Leaf.class);
-        Mockito.when(leaf.getActivatedNetworkActions()).thenReturn(Collections.singleton(naFr1));
+        Mockito.when(leaf.getActivatedNetworkActions()).thenReturn(Collections.singleton(NA_FR_1));
         Mockito.when(leaf.getRangeActions()).thenReturn(rangeActions);
-        Mockito.when(leaf.getOptimizedSetpoint(raBe1, pState)).thenReturn(5.);
-        Mockito.when(leaf.getOptimizedSetpoint(nonActivatedRa, pState)).thenReturn(0.);
+        Mockito.when(leaf.getOptimizedSetpoint(RA_BE_1, P_STATE)).thenReturn(5.);
+        Mockito.when(leaf.getOptimizedSetpoint(nonActivatedRa, P_STATE)).thenReturn(0.);
 
-        MaximumNumberOfTsosFilter naFilter = new MaximumNumberOfTsosFilter(Integer.MAX_VALUE, pState);
+        MaximumNumberOfTsosFilter naFilter = new MaximumNumberOfTsosFilter(Integer.MAX_VALUE, P_STATE);
         Set<String> activatedTsos = naFilter.getTsosWithActivatedNetworkActions(leaf);
 
         // only network actions count when counting activated RAs in previous leaf
@@ -115,16 +115,16 @@ class MaximumNumberOfTsosFilterTest {
     @Test
     void testDontFilterNullOperator() {
         NetworkAction naNoOperator1 = createNetworkActionWithOperator("NNL2AA1  NNL3AA1  1", null);
-        List<NetworkActionCombination> listOfNaCombinations = List.of(new NetworkActionCombination(Set.of(naFr1, naBe1, naNoOperator1)));
+        List<NetworkActionCombination> listOfNaCombinations = List.of(new NetworkActionCombination(Set.of(NA_FR_1, NA_BE_1, naNoOperator1)));
         Map<NetworkActionCombination, Boolean> naCombinations = new HashMap<>();
         listOfNaCombinations.forEach(na -> naCombinations.put(na, false));
 
         // previous Leaf -> naFr1 has already been activated
         Leaf previousLeaf = Mockito.mock(Leaf.class);
-        Mockito.when(previousLeaf.getActivatedNetworkActions()).thenReturn(Collections.singleton(naFr1));
+        Mockito.when(previousLeaf.getActivatedNetworkActions()).thenReturn(Collections.singleton(NA_FR_1));
 
         // max 2 TSOs
-        MaximumNumberOfTsosFilter naFilter = new MaximumNumberOfTsosFilter(2, pState);
+        MaximumNumberOfTsosFilter naFilter = new MaximumNumberOfTsosFilter(2, P_STATE);
         Map<NetworkActionCombination, Boolean> filteredNaCombination = naFilter.filter(naCombinations, previousLeaf);
 
         assertEquals(1, filteredNaCombination.size()); // no combination filtered, because null operator should not count

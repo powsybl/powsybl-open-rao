@@ -19,19 +19,19 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import static com.powsybl.openrao.searchtreerao.searchtree.algorithms.NetworkActionCombinationsUtils.comb2BeNl;
-import static com.powsybl.openrao.searchtreerao.searchtree.algorithms.NetworkActionCombinationsUtils.comb2Fr;
-import static com.powsybl.openrao.searchtreerao.searchtree.algorithms.NetworkActionCombinationsUtils.comb2FrNl;
-import static com.powsybl.openrao.searchtreerao.searchtree.algorithms.NetworkActionCombinationsUtils.comb3Be;
+import static com.powsybl.openrao.searchtreerao.searchtree.algorithms.NetworkActionCombinationsUtils.COMB_2_BE_NL;
+import static com.powsybl.openrao.searchtreerao.searchtree.algorithms.NetworkActionCombinationsUtils.COMB_2_FR;
+import static com.powsybl.openrao.searchtreerao.searchtree.algorithms.NetworkActionCombinationsUtils.COMB_2_FR_NL;
+import static com.powsybl.openrao.searchtreerao.searchtree.algorithms.NetworkActionCombinationsUtils.COMB_3_BE;
 import static com.powsybl.openrao.searchtreerao.searchtree.algorithms.NetworkActionCombinationsUtils.createPstRangeActionWithOperator;
-import static com.powsybl.openrao.searchtreerao.searchtree.algorithms.NetworkActionCombinationsUtils.indBe2;
-import static com.powsybl.openrao.searchtreerao.searchtree.algorithms.NetworkActionCombinationsUtils.indFr2;
-import static com.powsybl.openrao.searchtreerao.searchtree.algorithms.NetworkActionCombinationsUtils.indFrDe;
-import static com.powsybl.openrao.searchtreerao.searchtree.algorithms.NetworkActionCombinationsUtils.indNl1;
-import static com.powsybl.openrao.searchtreerao.searchtree.algorithms.NetworkActionCombinationsUtils.naBe1;
-import static com.powsybl.openrao.searchtreerao.searchtree.algorithms.NetworkActionCombinationsUtils.naFr1;
-import static com.powsybl.openrao.searchtreerao.searchtree.algorithms.NetworkActionCombinationsUtils.pState;
-import static com.powsybl.openrao.searchtreerao.searchtree.algorithms.NetworkActionCombinationsUtils.raBe1;
+import static com.powsybl.openrao.searchtreerao.searchtree.algorithms.NetworkActionCombinationsUtils.IND_BE_2;
+import static com.powsybl.openrao.searchtreerao.searchtree.algorithms.NetworkActionCombinationsUtils.IND_FR_2;
+import static com.powsybl.openrao.searchtreerao.searchtree.algorithms.NetworkActionCombinationsUtils.IND_FR_DE;
+import static com.powsybl.openrao.searchtreerao.searchtree.algorithms.NetworkActionCombinationsUtils.IND_NL_1;
+import static com.powsybl.openrao.searchtreerao.searchtree.algorithms.NetworkActionCombinationsUtils.NA_BE_1;
+import static com.powsybl.openrao.searchtreerao.searchtree.algorithms.NetworkActionCombinationsUtils.NA_FR_1;
+import static com.powsybl.openrao.searchtreerao.searchtree.algorithms.NetworkActionCombinationsUtils.P_STATE;
+import static com.powsybl.openrao.searchtreerao.searchtree.algorithms.NetworkActionCombinationsUtils.RA_BE_1;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -44,85 +44,85 @@ class MaximumNumberOfRemedialActionPerTsoFilterTest {
     void testRemoveCombinationsWhichExceedMaxNumberOfRaPerTso() {
 
         // arrange naCombination list
-        List<NetworkActionCombination> listOfNaCombinations = List.of(indFr2, indBe2, indNl1, indFrDe, comb2Fr, comb3Be, comb2BeNl, comb2FrNl);
+        List<NetworkActionCombination> listOfNaCombinations = List.of(IND_FR_2, IND_BE_2, IND_NL_1, IND_FR_DE, COMB_2_FR, COMB_3_BE, COMB_2_BE_NL, COMB_2_FR_NL);
         Map<NetworkActionCombination, Boolean> naCombinations = new HashMap<>();
         listOfNaCombinations.forEach(na -> naCombinations.put(na, false));
 
         // arrange Leaf -> naFr1 and raBe1 have already been activated in previous leaf
         // but only naFr1 should count
         Leaf previousLeaf = Mockito.mock(Leaf.class);
-        Mockito.when(previousLeaf.getActivatedNetworkActions()).thenReturn(Collections.singleton(naFr1));
-        Mockito.when(previousLeaf.getRangeActions()).thenReturn(Collections.singleton(raBe1));
-        Mockito.when(previousLeaf.getOptimizedSetpoint(raBe1, pState)).thenReturn(5.);
+        Mockito.when(previousLeaf.getActivatedNetworkActions()).thenReturn(Collections.singleton(NA_FR_1));
+        Mockito.when(previousLeaf.getRangeActions()).thenReturn(Collections.singleton(RA_BE_1));
+        Mockito.when(previousLeaf.getOptimizedSetpoint(RA_BE_1, P_STATE)).thenReturn(5.);
 
         MaximumNumberOfRemedialActionPerTsoFilter naFilter;
         Map<NetworkActionCombination, Boolean> filteredNaCombination;
 
         // filter - max 2 topo in FR and DE
         Map<String, Integer> maxTopoPerTso = Map.of("fr", 2, "be", 2);
-        naFilter = new MaximumNumberOfRemedialActionPerTsoFilter(maxTopoPerTso, new HashMap<>(), pState);
+        naFilter = new MaximumNumberOfRemedialActionPerTsoFilter(maxTopoPerTso, new HashMap<>(), P_STATE);
         filteredNaCombination = naFilter.filter(naCombinations, previousLeaf);
 
         assertEquals(6, filteredNaCombination.size()); // 2 combinations filtered
-        assertFalse(filteredNaCombination.containsKey(comb2Fr));
-        assertFalse(filteredNaCombination.containsKey(comb3Be));
+        assertFalse(filteredNaCombination.containsKey(COMB_2_FR));
+        assertFalse(filteredNaCombination.containsKey(COMB_3_BE));
 
         // filter - max 1 topo in FR
         maxTopoPerTso = Map.of("fr", 1);
-        naFilter = new MaximumNumberOfRemedialActionPerTsoFilter(maxTopoPerTso, new HashMap<>(), pState);
+        naFilter = new MaximumNumberOfRemedialActionPerTsoFilter(maxTopoPerTso, new HashMap<>(), P_STATE);
         filteredNaCombination = naFilter.filter(naCombinations, previousLeaf);
 
         assertEquals(4, filteredNaCombination.size()); // 4 combinations filtered
-        assertTrue(filteredNaCombination.containsKey(indBe2));
-        assertTrue(filteredNaCombination.containsKey(indNl1));
-        assertTrue(filteredNaCombination.containsKey(comb3Be));
-        assertTrue(filteredNaCombination.containsKey(comb2BeNl));
+        assertTrue(filteredNaCombination.containsKey(IND_BE_2));
+        assertTrue(filteredNaCombination.containsKey(IND_NL_1));
+        assertTrue(filteredNaCombination.containsKey(COMB_3_BE));
+        assertTrue(filteredNaCombination.containsKey(COMB_2_BE_NL));
 
         // filter - max 1 RA in FR and max 2 RA in BE
         Map<String, Integer> maxRaPerTso = Map.of("fr", 1, "be", 2);
-        naFilter = new MaximumNumberOfRemedialActionPerTsoFilter(new HashMap<>(), maxRaPerTso, pState);
+        naFilter = new MaximumNumberOfRemedialActionPerTsoFilter(new HashMap<>(), maxRaPerTso, P_STATE);
         filteredNaCombination = naFilter.filter(naCombinations, previousLeaf);
 
         assertEquals(3, filteredNaCombination.size());
-        assertTrue(filteredNaCombination.containsKey(indBe2));
-        assertTrue(filteredNaCombination.containsKey(indNl1));
-        assertTrue(filteredNaCombination.containsKey(comb2BeNl));
+        assertTrue(filteredNaCombination.containsKey(IND_BE_2));
+        assertTrue(filteredNaCombination.containsKey(IND_NL_1));
+        assertTrue(filteredNaCombination.containsKey(COMB_2_BE_NL));
 
         // filter - max 2 topo in FR, max 0 topo in Nl and max 1 RA in BE
         maxTopoPerTso = Map.of("fr", 2, "nl", 0);
         maxRaPerTso = Map.of("be", 1);
-        naFilter = new MaximumNumberOfRemedialActionPerTsoFilter(maxTopoPerTso, maxRaPerTso, pState);
+        naFilter = new MaximumNumberOfRemedialActionPerTsoFilter(maxTopoPerTso, maxRaPerTso, P_STATE);
         filteredNaCombination = naFilter.filter(naCombinations, previousLeaf);
 
         assertEquals(3, filteredNaCombination.size());
-        assertTrue(filteredNaCombination.containsKey(indFr2));
-        assertTrue(filteredNaCombination.containsKey(indFrDe));
-        assertTrue(filteredNaCombination.containsKey(indBe2));
+        assertTrue(filteredNaCombination.containsKey(IND_FR_2));
+        assertTrue(filteredNaCombination.containsKey(IND_FR_DE));
+        assertTrue(filteredNaCombination.containsKey(IND_BE_2));
 
         // filter - no RA in NL
         maxTopoPerTso = Map.of("fr", 10, "nl", 10, "be", 10);
         maxRaPerTso = Map.of("nl", 0);
-        naFilter = new MaximumNumberOfRemedialActionPerTsoFilter(maxTopoPerTso, maxRaPerTso, pState);
+        naFilter = new MaximumNumberOfRemedialActionPerTsoFilter(maxTopoPerTso, maxRaPerTso, P_STATE);
         filteredNaCombination = naFilter.filter(naCombinations, previousLeaf);
 
         assertEquals(5, filteredNaCombination.size());
-        assertFalse(filteredNaCombination.containsKey(indNl1));
-        assertFalse(filteredNaCombination.containsKey(comb2BeNl));
-        assertFalse(filteredNaCombination.containsKey(comb2FrNl));
+        assertFalse(filteredNaCombination.containsKey(IND_NL_1));
+        assertFalse(filteredNaCombination.containsKey(COMB_2_BE_NL));
+        assertFalse(filteredNaCombination.containsKey(COMB_2_FR_NL));
 
         // check booleans in hashmap
         //Map<NetworkActionCombination, Boolean> naCombinations = Map.of(indFr2, false, indBe2, false, comb3Be, false);
         Leaf leaf = Mockito.mock(Leaf.class);
-        Mockito.when(leaf.getActivatedNetworkActions()).thenReturn(Set.of(naBe1));
-        Mockito.when(leaf.getActivatedRangeActions(Mockito.any(State.class))).thenReturn(Set.of(raBe1));
+        Mockito.when(leaf.getActivatedNetworkActions()).thenReturn(Set.of(NA_BE_1));
+        Mockito.when(leaf.getActivatedRangeActions(Mockito.any(State.class))).thenReturn(Set.of(RA_BE_1));
 
         Map<String, Integer> maxNaPerTso = Map.of("fr", 1, "be", 2);
         maxRaPerTso = Map.of("fr", 2, "be", 2);
 
-        naFilter = new MaximumNumberOfRemedialActionPerTsoFilter(maxNaPerTso, maxRaPerTso, pState);
+        naFilter = new MaximumNumberOfRemedialActionPerTsoFilter(maxNaPerTso, maxRaPerTso, P_STATE);
         // indFr2, indBe1, indNl1, indFrDe, comb2Fr, comb3Be, comb2BeNl, comb2FrNl
         Map<NetworkActionCombination, Boolean> naToRemove = naFilter.filter(naCombinations, leaf);
-        Map<NetworkActionCombination, Boolean> expectedResult = Map.of(indFr2, false, indBe2, true, indNl1, false, indFrDe, false, comb2BeNl, true, comb2FrNl, false);
+        Map<NetworkActionCombination, Boolean> expectedResult = Map.of(IND_FR_2, false, IND_BE_2, true, IND_NL_1, false, IND_FR_DE, false, COMB_2_BE_NL, true, COMB_2_FR_NL, false);
         assertEquals(expectedResult, naToRemove);
     }
 
@@ -153,13 +153,13 @@ class MaximumNumberOfRemedialActionPerTsoFilterTest {
         Leaf previousLeaf = Mockito.mock(Leaf.class);
         Mockito.when(previousLeaf.getActivatedNetworkActions()).thenReturn(Collections.emptySet());
         Mockito.when(previousLeaf.getActivatedRangeActions(Mockito.any())).thenReturn(Set.of(raFr1, raFr2));
-        Mockito.when(previousLeaf.getOptimizedSetpoint(raFr1, pState)).thenReturn(5.);
-        Mockito.when(previousLeaf.getOptimizedSetpoint(raFr2, pState)).thenReturn(5.);
+        Mockito.when(previousLeaf.getOptimizedSetpoint(raFr1, P_STATE)).thenReturn(5.);
+        Mockito.when(previousLeaf.getOptimizedSetpoint(raFr2, P_STATE)).thenReturn(5.);
 
         Map<String, Integer> maxTopoPerTso = Map.of("fr", 2, "nl", 2);
         Map<String, Integer> maxRemedialActionsPerTso = Map.of("fr", 2, "nl", 5);
 
-        MaximumNumberOfRemedialActionPerTsoFilter naFilter = new MaximumNumberOfRemedialActionPerTsoFilter(maxTopoPerTso, maxRemedialActionsPerTso, pState);
+        MaximumNumberOfRemedialActionPerTsoFilter naFilter = new MaximumNumberOfRemedialActionPerTsoFilter(maxTopoPerTso, maxRemedialActionsPerTso, P_STATE);
         Map<NetworkActionCombination, Boolean> filteredNaCombination = naFilter.filter(naCombinations, previousLeaf);
         assertEquals(0, filteredNaCombination.size()); // combination is filtered out
     }
