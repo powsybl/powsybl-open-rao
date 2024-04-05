@@ -8,6 +8,7 @@
 package com.powsybl.openrao.raoapi.parameters;
 
 import com.powsybl.commons.config.PlatformConfig;
+import com.powsybl.loadflow.LoadFlowParameters;
 import com.powsybl.sensitivity.SensitivityAnalysisParameters;
 
 import java.util.Objects;
@@ -27,7 +28,7 @@ public class LoadFlowAndSensitivityParameters {
     private String sensitivityProvider = DEFAULT_SENSITIVITY_PROVIDER;
 
     private double sensitivityFailureOvercost = DEFAULT_SENSITIVITY_FAILURE_OVERCOST;
-    private SensitivityAnalysisParameters sensitivityWithLoadFlowParameters = new SensitivityAnalysisParameters();
+    private SensitivityAnalysisParameters sensitivityWithLoadFlowParameters = cleanLoadFlowParameters(new SensitivityAnalysisParameters());
 
     // Getters and setters
     public SensitivityAnalysisParameters getSensitivityWithLoadFlowParameters() {
@@ -35,7 +36,7 @@ public class LoadFlowAndSensitivityParameters {
     }
 
     public void setSensitivityWithLoadFlowParameters(SensitivityAnalysisParameters sensitivityWithLoadFlowParameters) {
-        this.sensitivityWithLoadFlowParameters = sensitivityWithLoadFlowParameters;
+        this.sensitivityWithLoadFlowParameters = cleanLoadFlowParameters(sensitivityWithLoadFlowParameters);
     }
 
     public String getLoadFlowProvider() {
@@ -76,5 +77,20 @@ public class LoadFlowAndSensitivityParameters {
                 });
         parameters.setSensitivityWithLoadFlowParameters(SensitivityAnalysisParameters.load(platformConfig));
         return parameters;
+    }
+
+    private SensitivityAnalysisParameters cleanLoadFlowParameters(SensitivityAnalysisParameters sensitivityAnalysisParameters) {
+        LoadFlowParameters loadFlowParameters = sensitivityAnalysisParameters.getLoadFlowParameters();
+        // we have to clean load flow parameters.
+        // the slack bus must not br written because it could pollute the sensitivity analyses.
+        loadFlowParameters.setWriteSlackBus(false);
+        // in DC, as emulation AC is supported for LF but not for sensitivity analyses, it could
+        // lead to incoherence.
+        if (loadFlowParameters.isDc()) {
+            BUSINESS_WARNS.warn("The runs are in DC but the HvdcAcEmulation parameter is on: this is not compatible." +
+                    "HvdcAcEmulation parameter set to false.");
+            loadFlowParameters.setHvdcAcEmulation(false);
+        }
+        return sensitivityAnalysisParameters;
     }
 }
