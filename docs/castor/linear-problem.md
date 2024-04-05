@@ -2,17 +2,17 @@
 
 ```{toctree}
 :hidden:
-core-problem-filler.md
-max-min-margin-filler.md
-max-min-relative-margin-filler.md
-max-loop-flow-filler.md
-mnec-filler.md
-continuous-range-action-group-filler.md
-discrete-pst-tap-filler.md
-discrete-pst-group-filler.md
-unoptimized-cnec-filler-cra.md
-unoptimized-cnec-filler-pst.md
-ra-usage-limits-filler.md
+linear-problem/core-problem-filler.md
+linear-problem/max-min-margin-filler.md
+linear-problem/max-min-relative-margin-filler.md
+linear-problem/max-loop-flow-filler.md
+linear-problem/mnec-filler.md
+linear-problem/continuous-range-action-group-filler.md
+linear-problem/discrete-pst-tap-filler.md
+linear-problem/discrete-pst-group-filler.md
+linear-problem/unoptimized-cnec-filler-cra.md
+linear-problem/unoptimized-cnec-filler-pst.md
+linear-problem/ra-usage-limits-filler.md
 ```
 
 ## Introduction
