@@ -30,6 +30,12 @@ import java.time.OffsetDateTime;
 import java.util.Map;
 import java.util.Set;
 
+import static com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileConstants.AUTO_INSTANT;
+import static com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileConstants.CURATIVE_1_INSTANT;
+import static com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileConstants.CURATIVE_2_INSTANT;
+import static com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileConstants.CURATIVE_3_INSTANT;
+import static com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileConstants.OUTAGE_INSTANT;
+import static com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileConstants.PREVENTIVE_INSTANT;
 import static com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileCracUtils.isValidInterval;
 
 /**
@@ -89,12 +95,12 @@ public class CsaProfileCracCreator implements CracCreator<CsaProfileCrac, CsaPro
     }
 
     private void addCsaInstants() {
-        crac.newInstant("preventive", InstantKind.PREVENTIVE)
-            .newInstant("outage", InstantKind.OUTAGE)
-            .newInstant("auto", InstantKind.AUTO)
-            .newInstant("curative 1", InstantKind.CURATIVE)
-            .newInstant("curative 2", InstantKind.CURATIVE)
-            .newInstant("curative 3", InstantKind.CURATIVE);
+        crac.newInstant(PREVENTIVE_INSTANT, InstantKind.PREVENTIVE)
+            .newInstant(OUTAGE_INSTANT, InstantKind.OUTAGE)
+            .newInstant(AUTO_INSTANT, InstantKind.AUTO)
+            .newInstant(CURATIVE_1_INSTANT, InstantKind.CURATIVE)
+            .newInstant(CURATIVE_2_INSTANT, InstantKind.CURATIVE)
+            .newInstant(CURATIVE_3_INSTANT, InstantKind.CURATIVE);
         // TODO : add other curative instants here
     }
 
