@@ -8,6 +8,7 @@ package com.powsybl.openrao.data.craccreation.creator.csaprofile.parameters;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.google.auto.service.AutoService;
@@ -15,6 +16,8 @@ import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.craccreation.creator.api.parameters.JsonCracCreationParameters;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author Mohamed Ben-rejeb {@literal <mohamed.ben-rejeb at rte-france.com>}
@@ -23,27 +26,36 @@ import java.io.IOException;
 public class JsonCsaCracCreationParameters implements JsonCracCreationParameters.ExtensionSerializer<CsaCracCreationParameters> {
 
     private static final String CAPACITY_CALCULATION_REGION_EIC_CODE = "capacity-calculation-region-eic-code";
+    private static final String USE_PATL_IN_FINAL_STATE = "use-patl-in-final-state";
+    private static final String CRA_APPLICATION_WINDOW = "cra-application-window";
 
     @Override
     public void serialize(CsaCracCreationParameters csaParameters, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
         jsonGenerator.writeStartObject();
         serializeCapacityCalculationRegionEicCode(csaParameters.getCapacityCalculationRegionEicCode(), jsonGenerator);
+        serializeUsePatlInFinalState(csaParameters.getUsePatlInFinalState(), jsonGenerator);
+        serializeCraApplicationWindow(csaParameters.getCraApplicationWindow(), jsonGenerator);
         jsonGenerator.writeEndObject();
-    }
-
-    @Override
-    public CsaCracCreationParameters deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
-        return deserializeAndUpdate(jsonParser, deserializationContext, new CsaCracCreationParameters());
     }
 
     @Override
     public CsaCracCreationParameters deserializeAndUpdate(JsonParser jsonParser, DeserializationContext deserializationContext, CsaCracCreationParameters parameters) throws IOException {
         while (!jsonParser.nextToken().isStructEnd()) {
-            if (CAPACITY_CALCULATION_REGION_EIC_CODE.equals(jsonParser.getCurrentName())) {
-                jsonParser.nextToken();
-                parameters.setCapacityCalculationRegionEicCode(jsonParser.readValueAs(String.class));
-            } else {
-                throw new OpenRaoException("Unexpected field: " + jsonParser.getCurrentName());
+            switch (jsonParser.getCurrentName()) {
+                case CAPACITY_CALCULATION_REGION_EIC_CODE:
+                    jsonParser.nextToken();
+                    parameters.setCapacityCalculationRegionEicCode(jsonParser.readValueAs(String.class));
+                    break;
+                case USE_PATL_IN_FINAL_STATE:
+                    jsonParser.nextToken();
+                    parameters.setUsePatlInFinalState(deserializeUsePatlInFinalStateMap(jsonParser));
+                    break;
+                case CRA_APPLICATION_WINDOW:
+                    jsonParser.nextToken();
+                    parameters.setCraApplicationWindow(deserializeCraApplicationWindowMap(jsonParser));
+                    break;
+                default:
+                    throw new OpenRaoException("Unexpected field: " + jsonParser.getCurrentName());
             }
         }
 
@@ -67,5 +79,52 @@ public class JsonCsaCracCreationParameters implements JsonCracCreationParameters
 
     private void serializeCapacityCalculationRegionEicCode(String eicCode, JsonGenerator jsonGenerator) throws IOException {
         jsonGenerator.writeStringField(CAPACITY_CALCULATION_REGION_EIC_CODE, eicCode);
+    }
+
+    private void serializeUsePatlInFinalState(Map<String, Boolean> usePatlInFinalState, JsonGenerator jsonGenerator) throws IOException {
+        jsonGenerator.writeFieldName(USE_PATL_IN_FINAL_STATE);
+        jsonGenerator.writeStartObject();
+        usePatlInFinalState.forEach((tso, usePatl) -> {
+            try {
+                jsonGenerator.writeBooleanField(tso, usePatl);
+            } catch (IOException e) {
+                throw new OpenRaoException("Could not serialize " + USE_PATL_IN_FINAL_STATE + " map. Reason: " + e.getMessage());
+            }
+        });
+        jsonGenerator.writeEndObject();
+    }
+
+    private void serializeCraApplicationWindow(Map<String, Integer> craApplicationWindow, JsonGenerator jsonGenerator) throws IOException {
+        jsonGenerator.writeFieldName(CRA_APPLICATION_WINDOW);
+        jsonGenerator.writeStartObject();
+        craApplicationWindow.forEach((instant, duration) -> {
+            try {
+                jsonGenerator.writeNumberField(instant, duration);
+            } catch (IOException e) {
+                throw new OpenRaoException("Could not serialize " + CRA_APPLICATION_WINDOW + " map. Reason: " + e.getMessage());
+            }
+        });
+        jsonGenerator.writeEndObject();
+    }
+
+    @Override
+    public CsaCracCreationParameters deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
+        return deserializeAndUpdate(jsonParser, deserializationContext, new CsaCracCreationParameters());
+    }
+
+    private Map<String, Boolean> deserializeUsePatlInFinalStateMap(JsonParser jsonParser) throws IOException {
+        Map<String, Boolean> usePatlInFinalState = new HashMap<>();
+        while (jsonParser.nextToken() != JsonToken.END_OBJECT) {
+            usePatlInFinalState.put(jsonParser.getCurrentName(), jsonParser.nextBooleanValue());
+        }
+        return usePatlInFinalState;
+    }
+
+    private Map<String, Integer> deserializeCraApplicationWindowMap(JsonParser jsonParser) throws IOException {
+        Map<String, Integer> craApplicationWindow = new HashMap<>();
+        while (jsonParser.nextToken() != JsonToken.END_OBJECT) {
+            craApplicationWindow.put(jsonParser.getCurrentName(), jsonParser.nextIntValue(0));
+        }
+        return craApplicationWindow;
     }
 }
