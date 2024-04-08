@@ -2,8 +2,8 @@
 
 ```{toctree}
 :hidden:
-angle-monitoring/angle-monitoring.md
-voltage-monitoring/voltage-monitoring.md
+monitoring/angle-monitoring.md
+monitoring/voltage-monitoring.md
 ```
 
 CASTOR has monitoring modules that can be used apart from the RAO:
