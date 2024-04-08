@@ -38,7 +38,7 @@ class JsonCsaCracCreationParametersTest {
         CracCreationParameters importedParameters = JsonCracCreationParameters.read(getClass().getResourceAsStream("/parameters/csa-crac-parameters-json-csa-crac-creation-parameters-test.json"));
         CsaCracCreationParameters csaCracCreationParameters = importedParameters.getExtension(CsaCracCreationParameters.class);
         assertNotNull(csaCracCreationParameters);
-        assertEquals("10Y1001C--00095L-1", csaCracCreationParameters.getCapacityCalculationRegionEicCode());
+        assertEquals("10XFR-RTE------Q", csaCracCreationParameters.getCapacityCalculationRegionEicCode());
         assertEquals(60, csaCracCreationParameters.getSpsMaxTimeToImplementThresholdInSeconds());
     }
 
