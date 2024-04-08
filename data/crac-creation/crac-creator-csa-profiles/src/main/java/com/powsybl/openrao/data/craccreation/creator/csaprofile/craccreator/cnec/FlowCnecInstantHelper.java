@@ -1,27 +1,45 @@
 package com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.cnec;
 
+import com.powsybl.iidm.network.Branch;
+import com.powsybl.iidm.network.LoadingLimits;
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.craccreation.creator.api.parameters.CracCreationParameters;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.parameters.CsaCracCreationParameters;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
+import static com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileConstants.AUTO_INSTANT;
 import static com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileConstants.CURATIVE_1_INSTANT;
 import static com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileConstants.CURATIVE_2_INSTANT;
 import static com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileConstants.CURATIVE_3_INSTANT;
+import static com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileConstants.OUTAGE_INSTANT;
 
 class FlowCnecInstantHelper {
+
+    private final Set<String> tsosWhichDoNotUsePatlInFinalState;
+    private final int curative1InstantDuration;
+    private final int curative2InstantDuration;
+    private final int curative3InstantDuration;
 
     private final Set<String> tsos = Set.of("REE", "REN", "RTE");
     private final Set<String> instants = Set.of(CURATIVE_1_INSTANT, CURATIVE_2_INSTANT, CURATIVE_3_INSTANT);
 
-    void checkCracCreationParameters(CracCreationParameters parameters) {
+    public FlowCnecInstantHelper(CracCreationParameters parameters) {
         CsaCracCreationParameters csaParameters = parameters.getExtension(CsaCracCreationParameters.class);
         checkCsaExtension(csaParameters);
         checkUsePatlInFinalStateMap(csaParameters);
         checkCraApplicationWindowMap(csaParameters);
+        tsosWhichDoNotUsePatlInFinalState = csaParameters.getUsePatlInFinalState().entrySet().stream().filter(entry -> !entry.getValue()).map(Map.Entry::getKey).collect(Collectors.toSet());
+        curative1InstantDuration = csaParameters.getCraApplicationWindow().get(CURATIVE_1_INSTANT);
+        curative2InstantDuration = csaParameters.getCraApplicationWindow().get(CURATIVE_2_INSTANT);
+        curative3InstantDuration = csaParameters.getCraApplicationWindow().get(CURATIVE_3_INSTANT);
     }
+
+    // CSA CRAC Creation Parameters checking
 
     private static void checkCsaExtension(CsaCracCreationParameters csaParameters) {
         if (csaParameters == null) {
@@ -52,4 +70,45 @@ class FlowCnecInstantHelper {
             throw new OpenRaoException("The TATL acceptable duration for %s cannot be longer than the acceptable duration for %s.".formatted(CURATIVE_2_INSTANT, CURATIVE_3_INSTANT));
         }
     }
+
+    // Instant to limits mapping
+    // TODO: [only in ConductingEquipment mode] what if limits are different between LEFT and RIGHT? ex: spanish side = TATL 900 and french side = TATL 300
+
+    Set<Integer> getAllTatlDurationsOnSide(Branch<?> branch, TwoSides side) {
+        return branch.getCurrentLimits(side).isPresent() ? branch.getCurrentLimits(side).get().getTemporaryLimits().stream().map(LoadingLimits.TemporaryLimit::getAcceptableDuration).collect(Collectors.toSet()) : Set.of();
+    }
+
+    public Map<String, Integer> mapPostContingencyInstantsAndLimitDurations(Branch<?> branch, TwoSides side, String tso) {
+        Map<String, Integer> instantToLimit = new HashMap<>();
+        boolean doNotUsePatlInFinalState = tsosWhichDoNotUsePatlInFinalState.contains(tso);
+        Set<Integer> tatlDurations = getAllTatlDurationsOnSide(branch, side);
+        // raise exception if a TSO not using the PATL has no TATL either
+        if (doNotUsePatlInFinalState && tatlDurations.isEmpty()) {
+            throw new OpenRaoException("TSO %s does not use PATL in final state but has no TATL defined for branch %s on side %s, this is not supported.".formatted(tso, branch.getId(), side));
+        }
+        // associate instant to TATL duration, or Integer.MAX_VALUE if PATL
+        int longestDuration = doNotUsePatlInFinalState ? tatlDurations.stream().max(Integer::compareTo).get() : Integer.MAX_VALUE; // longest TATL duration or infinite (PATL)
+        instantToLimit.put(OUTAGE_INSTANT, getShortestTatlWithDurationGreaterThanOrReturn(tatlDurations.stream().filter(tatlDuration -> tatlDuration < curative1InstantDuration).collect(Collectors.toSet()), 0, longestDuration));
+        instantToLimit.put(AUTO_INSTANT, getShortestTatlWithDurationGreaterThanOrReturn(tatlDurations, curative1InstantDuration, longestDuration));
+        instantToLimit.put(CURATIVE_1_INSTANT, getShortestTatlWithDurationGreaterThanOrReturn(tatlDurations, curative2InstantDuration, longestDuration));
+        instantToLimit.put(CURATIVE_2_INSTANT, getShortestTatlWithDurationGreaterThanOrReturn(tatlDurations, curative3InstantDuration, longestDuration));
+        instantToLimit.put(CURATIVE_3_INSTANT, longestDuration);
+        return instantToLimit;
+    }
+
+    private int getShortestTatlWithDurationGreaterThanOrReturn(Set<Integer> tatlDurations, int duration, int longestDuration) {
+        return tatlDurations.stream().filter(tatlDuration -> tatlDuration >= duration).min(Integer::compareTo).orElse(longestDuration);
+    }
+
+    // Retrieve instant from limit duration
+    // TODO: what if same TATL is for two instants? create 2 CNECs? ex: REE's TATL 900 is for outage, auto and curative 1 -> create 3 CNECs?
+
+    public Set<String> getPostContingencyInstantsAssociatedToLimitDuration(Map<String, Double> mapInstantsAndLimits, int limitDuration) {
+        return mapInstantsAndLimits.entrySet().stream().filter(entry -> entry.getValue() == limitDuration).map(Map.Entry::getKey).collect(Collectors.toSet());
+    }
+
+    public Set<String> getPostContingencyInstantsAssociatedToPatl(Map<String, Double> mapInstantsAndLimits) {
+        return getPostContingencyInstantsAssociatedToLimitDuration(mapInstantsAndLimits, Integer.MAX_VALUE);
+    }
+
 }

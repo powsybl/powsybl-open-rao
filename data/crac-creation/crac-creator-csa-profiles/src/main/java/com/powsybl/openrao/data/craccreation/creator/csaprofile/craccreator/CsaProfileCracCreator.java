@@ -101,7 +101,6 @@ public class CsaProfileCracCreator implements CracCreator<CsaProfileCrac, CsaPro
             .newInstant(CURATIVE_1_INSTANT, InstantKind.CURATIVE)
             .newInstant(CURATIVE_2_INSTANT, InstantKind.CURATIVE)
             .newInstant(CURATIVE_3_INSTANT, InstantKind.CURATIVE);
-        // TODO : add other curative instants here
     }
 
     private void clearNativeCracContextsAndMap(CsaProfileCrac nativeCrac, OffsetDateTime offsetDateTime) {
