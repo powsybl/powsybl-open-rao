@@ -83,6 +83,7 @@ class FlowCnecInstantHelper {
         boolean doNotUsePatlInFinalState = tsosWhichDoNotUsePatlInFinalState.contains(tso);
         Set<Integer> tatlDurations = getAllTatlDurationsOnSide(branch, side);
         // raise exception if a TSO not using the PATL has no TATL either
+        // TODO: log creation context and use PATL everywhere
         if (doNotUsePatlInFinalState && tatlDurations.isEmpty()) {
             throw new OpenRaoException("TSO %s does not use PATL in final state but has no TATL defined for branch %s on side %s, this is not supported.".formatted(tso, branch.getId(), side));
         }
@@ -103,6 +104,7 @@ class FlowCnecInstantHelper {
     // Retrieve instant from limit duration
 
     public Set<String> getPostContingencyInstantsAssociatedToLimitDuration(Map<String, Integer> mapInstantsAndLimits, int limitDuration) {
+        // TODO: what if limitDuration is not a key of the map? still import or not? if yes, take closest greater value? if no such value?
         return mapInstantsAndLimits.entrySet().stream().filter(entry -> entry.getValue() == limitDuration).map(Map.Entry::getKey).collect(Collectors.toSet());
     }
 

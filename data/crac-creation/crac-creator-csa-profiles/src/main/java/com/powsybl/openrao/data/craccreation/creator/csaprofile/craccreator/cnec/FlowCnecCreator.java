@@ -347,6 +347,8 @@ public class FlowCnecCreator extends AbstractCnecCreator {
     private Set<Side> getSidesToCheck(Branch<?> branch) {
         Set<Side> sidesToCheck = new HashSet<>();
         if (defaultMonitoredSides.size() == 2) {
+            // TODO: if TieLine, only put relevant side
+            // TODO: ask TSOs what is the expected behavior
             sidesToCheck.add(Side.LEFT);
             sidesToCheck.add(Side.RIGHT);
         } else {
