@@ -35,11 +35,12 @@ class JsonCsaCracCreationParametersTest {
     }
 
     @Test
-    void deserializeParametersWithRegionEicCode() {
-        CracCreationParameters importedParameters = JsonCracCreationParameters.read(getClass().getResourceAsStream("/parameters/csa-crac-parameters.json"));
+    void deserializeValidParameters() {
+        CracCreationParameters importedParameters = JsonCracCreationParameters.read(getClass().getResourceAsStream("/parameters/csa-crac-parameters-json-csa-crac-creation-parameters-test.json"));
         CsaCracCreationParameters csaCracCreationParameters = importedParameters.getExtension(CsaCracCreationParameters.class);
         assertNotNull(csaCracCreationParameters);
-        assertEquals("10Y1001C--00095L", csaCracCreationParameters.getCapacityCalculationRegionEicCode());
+        assertEquals("10XFR-RTE------Q", csaCracCreationParameters.getCapacityCalculationRegionEicCode());
+        assertEquals(60, csaCracCreationParameters.getSpsMaxTimeToImplementThresholdInSeconds());
         assertEquals(Map.of("REE", false, "REN", true, "RTE", true), csaCracCreationParameters.getUsePatlInFinalState());
         assertEquals(Map.of("curative 1", 300, "curative 2", 600, "curative 3", 1200), csaCracCreationParameters.getCraApplicationWindow());
     }
@@ -51,7 +52,7 @@ class JsonCsaCracCreationParametersTest {
     }
 
     @Test
-    void serializeParametersWithRegionEicCode() {
+    void serializeValidParameters() {
         CracCreationParameters parameters = new CracCreationParameters();
         CsaCracCreationParameters csaParameters = new CsaCracCreationParameters();
         parameters.addExtension(CsaCracCreationParameters.class, csaParameters);
@@ -66,6 +67,7 @@ class JsonCsaCracCreationParametersTest {
         CsaCracCreationParameters csaCracCreationParameters = importedParameters.getExtension(CsaCracCreationParameters.class);
         assertNotNull(csaCracCreationParameters);
         assertEquals("10Y1001C--00095L", csaCracCreationParameters.getCapacityCalculationRegionEicCode());
+        assertEquals(0, csaCracCreationParameters.getSpsMaxTimeToImplementThresholdInSeconds());
         assertEquals(Map.of("REE", false, "REN", true, "RTE", true), csaCracCreationParameters.getUsePatlInFinalState());
         assertEquals(Map.of("curative 1", 300, "curative 2", 600, "curative 3", 1200), csaCracCreationParameters.getCraApplicationWindow());
     }

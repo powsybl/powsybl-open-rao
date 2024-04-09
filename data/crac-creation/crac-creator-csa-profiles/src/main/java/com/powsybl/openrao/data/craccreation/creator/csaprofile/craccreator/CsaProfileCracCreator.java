@@ -56,6 +56,7 @@ public class CsaProfileCracCreator implements CracCreator<CsaProfileCrac, CsaPro
     public CsaProfileCracCreationContext createCrac(CsaProfileCrac nativeCrac, Network network, OffsetDateTime offsetDateTime, CracCreationParameters cracCreationParameters) {
         CsaCracCreationParameters csaParameters = cracCreationParameters.getExtension(CsaCracCreationParameters.class);
         String regionEicCode = csaParameters.getCapacityCalculationRegionEicCode();
+        Integer spsMaxTimeToImplementThreshold = csaParameters.getSpsMaxTimeToImplementThresholdInSeconds();
         this.crac = cracCreationParameters.getCracFactory().create(nativeCrac.toString());
         this.network = network;
         this.creationContext = new CsaProfileCracCreationContext(crac, offsetDateTime, network.getNameOrId());
@@ -89,7 +90,7 @@ public class CsaProfileCracCreator implements CracCreator<CsaProfileCrac, CsaPro
 
         OnConstraintUsageRuleHelper onConstraintUsageRuleAdder = new OnConstraintUsageRuleHelper(creationContext.getCnecCreationContexts(), assessedElements, assessedElementsWithRemedialAction);
         ElementaryActionsHelper elementaryActionsHelper = new ElementaryActionsHelper(gridStateAlterationRemedialAction, schemeRemedialActions, remedialActionSchemes, nativeCrac.getStage(), gridStateAlterationsCollection, assessedElementsWithRemedialAction, contingenciesWithRemedialAction, staticPropertyRanges, topologyActions, rotatingMachineActions, shuntCompensatorModifications, tapPositionActions, nativeCrac.getRemedialActionGroups(), remedialActionDependencies);
-        createRemedialActions(onConstraintUsageRuleAdder, elementaryActionsHelper);
+        createRemedialActions(onConstraintUsageRuleAdder, elementaryActionsHelper, spsMaxTimeToImplementThreshold);
         creationContext.buildCreationReport();
         return creationContext.creationSuccess(crac);
     }
@@ -122,8 +123,8 @@ public class CsaProfileCracCreator implements CracCreator<CsaProfileCrac, CsaPro
         return isValidInterval(offsetDateTime, startTime, endTime);
     }
 
-    private void createRemedialActions(OnConstraintUsageRuleHelper onConstraintUsageRuleAdder, ElementaryActionsHelper elementaryActionsHelper) {
-        new CsaProfileRemedialActionsCreator(crac, network, creationContext, onConstraintUsageRuleAdder, elementaryActionsHelper);
+    private void createRemedialActions(OnConstraintUsageRuleHelper onConstraintUsageRuleAdder, ElementaryActionsHelper elementaryActionsHelper, int spsMaxTimeToImplementThreshold) {
+        new CsaProfileRemedialActionsCreator(crac, network, creationContext, onConstraintUsageRuleAdder, elementaryActionsHelper, spsMaxTimeToImplementThreshold);
     }
 
     private void createContingencies(PropertyBags contingenciesPropertyBags, PropertyBags contingencyEquipmentsPropertyBags) {

@@ -26,6 +26,7 @@ import java.util.Map;
 public class JsonCsaCracCreationParameters implements JsonCracCreationParameters.ExtensionSerializer<CsaCracCreationParameters> {
 
     private static final String CAPACITY_CALCULATION_REGION_EIC_CODE = "capacity-calculation-region-eic-code";
+    private static final String SPS_MAX_TIME_TO_IMPLEMENT_THRESHOLD_IN_SECONDS = "sps-max-time-to-implement-threshold-in-seconds";
     private static final String USE_PATL_IN_FINAL_STATE = "use-patl-in-final-state";
     private static final String CRA_APPLICATION_WINDOW = "cra-application-window";
 
@@ -33,6 +34,7 @@ public class JsonCsaCracCreationParameters implements JsonCracCreationParameters
     public void serialize(CsaCracCreationParameters csaParameters, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
         jsonGenerator.writeStartObject();
         serializeCapacityCalculationRegionEicCode(csaParameters.getCapacityCalculationRegionEicCode(), jsonGenerator);
+        serializeSpsMaxTimeToImplementThresholdInSeconds(csaParameters.getSpsMaxTimeToImplementThresholdInSeconds(), jsonGenerator);
         serializeUsePatlInFinalState(csaParameters.getUsePatlInFinalState(), jsonGenerator);
         serializeCraApplicationWindow(csaParameters.getCraApplicationWindow(), jsonGenerator);
         jsonGenerator.writeEndObject();
@@ -45,6 +47,10 @@ public class JsonCsaCracCreationParameters implements JsonCracCreationParameters
                 case CAPACITY_CALCULATION_REGION_EIC_CODE:
                     jsonParser.nextToken();
                     parameters.setCapacityCalculationRegionEicCode(jsonParser.readValueAs(String.class));
+                    break;
+                case SPS_MAX_TIME_TO_IMPLEMENT_THRESHOLD_IN_SECONDS:
+                    jsonParser.nextToken();
+                    parameters.setSpsMaxTimeToImplementThresholdInSeconds(jsonParser.readValueAs(Integer.class));
                     break;
                 case USE_PATL_IN_FINAL_STATE:
                     jsonParser.nextToken();
@@ -79,6 +85,10 @@ public class JsonCsaCracCreationParameters implements JsonCracCreationParameters
 
     private void serializeCapacityCalculationRegionEicCode(String eicCode, JsonGenerator jsonGenerator) throws IOException {
         jsonGenerator.writeStringField(CAPACITY_CALCULATION_REGION_EIC_CODE, eicCode);
+    }
+
+    private void serializeSpsMaxTimeToImplementThresholdInSeconds(Integer spsMaxTimeToImplementThresholdInSeconds, JsonGenerator jsonGenerator) throws IOException {
+        jsonGenerator.writeStringField(SPS_MAX_TIME_TO_IMPLEMENT_THRESHOLD_IN_SECONDS, spsMaxTimeToImplementThresholdInSeconds.toString());
     }
 
     private void serializeUsePatlInFinalState(Map<String, Boolean> usePatlInFinalState, JsonGenerator jsonGenerator) throws IOException {
