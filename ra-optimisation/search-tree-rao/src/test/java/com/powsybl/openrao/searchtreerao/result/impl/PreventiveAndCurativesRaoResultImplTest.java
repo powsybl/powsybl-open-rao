@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.searchtreerao.result.impl;
 
+import com.powsybl.contingency.ContingencyElementType;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.*;
@@ -87,12 +88,12 @@ class PreventiveAndCurativesRaoResultImplTest {
         crac.newContingency()
             .withId("contingency-1")
             .withName("CO1")
-            .withNetworkElement("element-1")
+            .withContingencyElement("element-1", ContingencyElementType.LINE)
             .add();
         crac.newContingency()
             .withId("contingency-2")
             .withName("CO2")
-            .withNetworkElement("element-2")
+            .withContingencyElement("element-2", ContingencyElementType.LINE)
             .add();
         // FlowCNECs
         cnec1 = crac.newFlowCnec()

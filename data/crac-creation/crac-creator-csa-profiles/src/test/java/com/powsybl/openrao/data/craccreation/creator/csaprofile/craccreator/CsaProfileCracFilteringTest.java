@@ -38,6 +38,6 @@ class CsaProfileCracFilteringTest {
         // check crac content
         assertTrue(crac.getRemedialActions().isEmpty());
         assertEquals(1, crac.getContingencies().size());
-        assertEquals("RTE_co1_fr2_fr3_1", crac.getContingencies().stream().iterator().next().getName());
+        assertEquals("RTE_co1_fr2_fr3_1", crac.getContingencies().stream().iterator().next().getName().get());
     }
 }

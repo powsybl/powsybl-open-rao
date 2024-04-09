@@ -1,5 +1,6 @@
 package com.powsybl.openrao.searchtreerao.commons.optimizationperimeters;
 
+import com.powsybl.contingency.ContingencyElementType;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.*;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
@@ -52,8 +53,8 @@ abstract class AbstractOptimizationPerimeterTest {
             .newInstant(CURATIVE_INSTANT_ID, InstantKind.CURATIVE);
         Instant outageInstant = crac.getInstant(OUTAGE_INSTANT_ID);
         Instant curativeInstant = crac.getInstant(CURATIVE_INSTANT_ID);
-        crac.newContingency().withId("outage-1").withNetworkElement("FFR1AA1  FFR3AA1  1").add();
-        crac.newContingency().withId("outage-2").withNetworkElement("FFR2AA1  DDE3AA1  1").add();
+        crac.newContingency().withId("outage-1").withContingencyElement("FFR1AA1  FFR3AA1  1", ContingencyElementType.LINE).add();
+        crac.newContingency().withId("outage-2").withContingencyElement("FFR2AA1  DDE3AA1  1", ContingencyElementType.LINE).add();
 
         // one preventive CNEC
         pCnec = crac.newFlowCnec()

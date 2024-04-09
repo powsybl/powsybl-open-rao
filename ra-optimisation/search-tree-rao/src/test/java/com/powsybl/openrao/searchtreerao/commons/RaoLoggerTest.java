@@ -10,6 +10,7 @@ package com.powsybl.openrao.searchtreerao.commons;
 import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.read.ListAppender;
+import com.powsybl.contingency.Contingency;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.commons.logs.OpenRaoLogger;
 import com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider;
@@ -313,7 +314,7 @@ class RaoLoggerTest {
         when(curativeInstant.toString()).thenReturn("curative");
         when(curative.getInstant()).thenReturn(curativeInstant);
         Contingency contingency = Mockito.mock(Contingency.class);
-        when(contingency.getName()).thenReturn("contingency");
+        when(contingency.getName()).thenReturn(Optional.of("contingency"));
         when(curative.getContingency()).thenReturn(Optional.of(contingency));
         OpenRaoLogger logger = OpenRaoLoggerProvider.BUSINESS_LOGS;
         List<ILoggingEvent> logsList = registerLogs(RaoBusinessLogs.class).list;
@@ -386,7 +387,7 @@ class RaoLoggerTest {
         State preventive = Mockito.mock(State.class);
         State curative = Mockito.mock(State.class);
         Contingency contingency = Mockito.mock(Contingency.class);
-        when(contingency.getName()).thenReturn("contingency");
+        when(contingency.getName()).thenReturn(Optional.of("contingency"));
         when(curative.getContingency()).thenReturn(Optional.of(contingency));
         OpenRaoLogger logger = OpenRaoLoggerProvider.BUSINESS_LOGS;
         List<ILoggingEvent> logsList = registerLogs(RaoBusinessLogs.class).list;

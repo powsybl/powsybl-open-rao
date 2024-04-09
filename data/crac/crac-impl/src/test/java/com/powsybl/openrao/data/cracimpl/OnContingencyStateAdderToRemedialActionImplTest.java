@@ -6,6 +6,8 @@
  */
 package com.powsybl.openrao.data.cracimpl;
 
+import com.powsybl.contingency.Contingency;
+import com.powsybl.contingency.ContingencyElementType;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.cracapi.*;
 import com.powsybl.openrao.data.cracapi.networkaction.ActionType;
@@ -44,7 +46,7 @@ class OnContingencyStateAdderToRemedialActionImplTest {
 
         contingency = crac.newContingency()
             .withId("contingencyId")
-            .withNetworkElement("networkElementId")
+            .withContingencyElement("networkElementId", ContingencyElementType.LINE)
             .add();
 
         ((CracImpl) crac).addState(contingency, curativeInstant);
