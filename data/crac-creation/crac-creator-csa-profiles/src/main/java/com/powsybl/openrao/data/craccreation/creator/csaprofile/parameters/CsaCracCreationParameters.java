@@ -17,7 +17,6 @@ import java.util.Map;
 public class CsaCracCreationParameters extends AbstractExtension<CracCreationParameters> {
     private String capacityCalculationRegionEicCode = "10Y1001C--00095L"; // swe as default
     private int spsMaxTimeToImplementThresholdInSeconds = 0;
-    private String capacityCalculationRegionEicCode = "10Y1001C--00095L"; // SWE CCR as default
     private Map<String, Boolean> usePatlInFinalState = Map.of("REE", false, "REN", true, "RTE", true);
     private Map<String, Integer> craApplicationWindow = Map.of("curative 1", 300, "curative 2", 600, "curative 3", 1200);
 

@@ -114,15 +114,25 @@ public class CsaProfileRemedialActionsCreator {
     }
 
     private void addOnInstantUsageRules(PropertyBag parentRemedialActionPropertyBag, RemedialActionAdder<?> remedialActionAdder, String remedialActionId, List<String> alterations, int durationLimit) {
-        Instant instant = parentRemedialActionPropertyBag.get(KIND).equals(RemedialActionKind.PREVENTIVE.toString()) ? crac.getPreventiveInstant() : crac.getInstant(InstantKind.CURATIVE);
-        if (instant.isCurative()) {
-            instant = defineInstant(false, parentRemedialActionPropertyBag, remedialActionId, durationLimit);
-        }
         boolean isLinkedToAssessedElements = elementaryActionsHelper.remedialActionIsLinkedToAssessedElements(remedialActionId);
 
-        addOnConstraintUsageRules(instant, remedialActionAdder, remedialActionId, alterations);
-        if (!isLinkedToAssessedElements) {
-            remedialActionAdder.newOnInstantUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withInstant(instant.getId()).add();
+        if (parentRemedialActionPropertyBag.get(KIND).equals(RemedialActionKind.PREVENTIVE.toString())) {
+            addOnConstraintUsageRules(crac.getPreventiveInstant(), remedialActionAdder, remedialActionId, alterations);
+            if (!isLinkedToAssessedElements) {
+                remedialActionAdder.newOnInstantUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withInstant(crac.getPreventiveInstant().getId()).add();
+            }
+        } else if (isAutoInstant(false, parentRemedialActionPropertyBag, remedialActionId, durationLimit)) {
+            addOnConstraintUsageRules(crac.getInstant(InstantKind.AUTO), remedialActionAdder, remedialActionId, alterations);
+            if (!isLinkedToAssessedElements) {
+                remedialActionAdder.newOnInstantUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withInstant(crac.getInstant(InstantKind.AUTO).getId()).add();
+            }
+        } else {
+            for (Instant curativeInstant : crac.getInstants(InstantKind.CURATIVE)) {
+                addOnConstraintUsageRules(curativeInstant, remedialActionAdder, remedialActionId, alterations);
+                if (!isLinkedToAssessedElements) {
+                    remedialActionAdder.newOnInstantUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withInstant(curativeInstant.getId()).add();
+                }
+            }
         }
 
     }
@@ -256,24 +266,33 @@ public class CsaProfileRemedialActionsCreator {
 
         boolean isLinkedToAssessedElements = elementaryActionsHelper.remedialActionIsLinkedToAssessedElements(remedialActionId);
         if (!isLinkedToAssessedElements) {
-            Instant instant = defineInstant(isSchemeRemedialAction, parentRemedialActionPropertyBag, remedialActionId, durationLimit);
+            if (isAutoInstant(isSchemeRemedialAction, parentRemedialActionPropertyBag, remedialActionId, durationLimit)) {
+                validContingencies.forEach(openRaoContingencyId -> remedialActionAdder.newOnContingencyStateUsageRule()
+                    .withInstant(crac.getInstant(InstantKind.AUTO).getId())
+                    .withContingency(openRaoContingencyId.getLeft())
+                    .withUsageMethod(getUsageMethod(openRaoContingencyId.getRight(), isSchemeRemedialAction, crac.getInstant(InstantKind.AUTO), remedialActionType)).add());
 
-            validContingencies.forEach(openRaoContingencyId -> remedialActionAdder.newOnContingencyStateUsageRule()
-                .withInstant(instant.getId())
-                .withContingency(openRaoContingencyId.getLeft())
-                .withUsageMethod(getUsageMethod(openRaoContingencyId.getRight(), isSchemeRemedialAction, instant, remedialActionType)).add());
+                alterations.addAll(ignoredContingenciesMessages);
+            } else {
+                for (Instant curativeInstant : crac.getInstants(InstantKind.CURATIVE)) {
+                    validContingencies.forEach(openRaoContingencyId -> remedialActionAdder.newOnContingencyStateUsageRule()
+                        .withInstant(curativeInstant.getId())
+                        .withContingency(openRaoContingencyId.getLeft())
+                        .withUsageMethod(getUsageMethod(openRaoContingencyId.getRight(), isSchemeRemedialAction, curativeInstant, remedialActionType)).add());
 
-            alterations.addAll(ignoredContingenciesMessages);
+                    alterations.addAll(ignoredContingenciesMessages);
+                }
+            }
         }
     }
 
-    private Instant defineInstant(boolean isSchemeRemedialAction, PropertyBag parentRemedialActionPropertyBag, String remedialActionId, int durationLimit) {
+    private boolean isAutoInstant(boolean isSchemeRemedialAction, PropertyBag parentRemedialActionPropertyBag, String remedialActionId, int durationLimit) {
         if (isSchemeRemedialAction) {
-            return crac.getInstant(InstantKind.AUTO);
+            return true;
         }
         String timeToImplement = parentRemedialActionPropertyBag.get(TIME_TO_IMPLEMENT);
         if (timeToImplement == null) {
-            return crac.getInstant(InstantKind.CURATIVE);
+            return false;
         }
         int durationInSeconds = 0;
         try {
@@ -281,11 +300,7 @@ public class CsaProfileRemedialActionsCreator {
         } catch (RuntimeException e) {
             throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action " + remedialActionId + " will not be imported because of an irregular timeToImplement pattern");
         }
-        if (durationInSeconds <= durationLimit) {
-            return crac.getInstant(InstantKind.AUTO);
-        } else {
-            return crac.getInstant(InstantKind.CURATIVE);
-        }
+        return durationInSeconds <= durationLimit;
     }
 
     private UsageMethod getUsageMethod(ElementCombinationConstraintKind elementCombinationConstraintKind, boolean isSchemeRemedialAction, Instant instant, RemedialActionType remedialActionType) {
