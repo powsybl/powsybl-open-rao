@@ -4,7 +4,8 @@ import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.read.ListAppender;
 import com.powsybl.openrao.commons.Unit;
-import com.powsybl.openrao.data.cracapi.Contingency;
+import com.powsybl.contingency.ContingencyElement;
+import com.powsybl.contingency.Contingency;
 import com.powsybl.openrao.data.cracapi.Instant;
 import com.powsybl.openrao.data.cracapi.NetworkElement;
 import com.powsybl.openrao.data.cracapi.cnec.AngleCnec;
@@ -63,9 +64,8 @@ public final class CsaProfileCracCreationTestUtil {
 
     public static void assertContingencyEquality(Contingency actualContingency, String expectedContingencyId, String expectedContingencyName, Set<String> expectedNetworkElementsIds) {
         assertEquals(expectedContingencyId, actualContingency.getId());
-        assertEquals(expectedContingencyName, actualContingency.getName());
-        assertEquals(expectedNetworkElementsIds.size(), actualContingency.getNetworkElements().size());
-        assertTrue(expectedNetworkElementsIds.containsAll(actualContingency.getNetworkElements().stream().map(NetworkElement::getId).toList()));
+        assertEquals(Optional.of(expectedContingencyName), actualContingency.getName());
+        assertEquals(expectedNetworkElementsIds, actualContingency.getElements().stream().map(ContingencyElement::getId).collect(Collectors.toSet()));
     }
 
     public static void assertContingencyNotImported(CsaProfileCracCreationContext cracCreationContext, String contingencyId, ImportStatus importStatus, String importStatusDetail) {

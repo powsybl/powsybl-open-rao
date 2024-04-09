@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.data.corecneexporter;
 
+import com.powsybl.contingency.ContingencyElementType;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cneexportercommons.CneExporterParameters;
 import com.powsybl.openrao.data.cneexportercommons.CneHelper;
@@ -73,7 +74,7 @@ class CoreCneRemedialActionsCreatorTest {
         crac.newContingency()
                 .withId("cnec1")
                 .withId("contingency-id")
-                .withNetworkElement("BBE2AA1  BBE3AA1  1")
+                .withContingencyElement("BBE2AA1  BBE3AA1  1", ContingencyElementType.LINE)
                 .add();
         crac.newFlowCnec()
                 .withId("cnec2")

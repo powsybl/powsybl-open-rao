@@ -7,6 +7,8 @@
 
 package com.powsybl.openrao.monitoring.voltagemonitoring;
 
+import com.powsybl.computation.ComputationManager;
+import com.powsybl.contingency.Contingency;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.cracapi.*;
 import com.powsybl.openrao.data.cracapi.cnec.Cnec;
@@ -92,7 +94,11 @@ public class VoltageMonitoring {
                     networkPool.submit(() -> {
                         Network networkClone = networkPool.getAvailableNetwork();
                         try {
-                            state.getContingency().orElseThrow().apply(networkClone, null);
+                            Contingency contingency = state.getContingency().orElseThrow();
+                            if (!contingency.isValid(networkClone)) {
+                                throw new OpenRaoException("Unable to apply contingency " + contingency.getId());
+                            }
+                            contingency.toModification().apply(networkClone, (ComputationManager) null);
                             applyOptimalRemedialActionsOnContingencyState(state, networkClone);
                             stateSpecificResults.add(monitorVoltageCnecsAndLog(loadFlowProvider, loadFlowParameters, state, networkClone));
                         } catch (Exception e) {
