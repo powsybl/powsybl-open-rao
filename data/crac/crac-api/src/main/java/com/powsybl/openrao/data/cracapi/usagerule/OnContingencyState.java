@@ -6,7 +6,7 @@
  */
 package com.powsybl.openrao.data.cracapi.usagerule;
 
-import com.powsybl.openrao.data.cracapi.Contingency;
+import com.powsybl.contingency.Contingency;
 import com.powsybl.openrao.data.cracapi.State;
 
 /**
