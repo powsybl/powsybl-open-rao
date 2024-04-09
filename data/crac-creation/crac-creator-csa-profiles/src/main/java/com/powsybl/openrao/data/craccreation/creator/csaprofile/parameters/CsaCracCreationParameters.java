@@ -14,6 +14,7 @@ import com.powsybl.openrao.data.craccreation.creator.api.parameters.CracCreation
  */
 public class CsaCracCreationParameters extends AbstractExtension<CracCreationParameters> {
     private String capacityCalculationRegionEicCode = "10Y1001C--00095L"; // swe as default
+    private int spsMaxTimeToImplementThresholdInSeconds = 0;
 
     @Override
     public String getName() {
@@ -26,5 +27,13 @@ public class CsaCracCreationParameters extends AbstractExtension<CracCreationPar
 
     public void setCapacityCalculationRegionEicCode(String capacityCalculationRegionEicCode) {
         this.capacityCalculationRegionEicCode = capacityCalculationRegionEicCode;
+    }
+
+    public int getSpsMaxTimeToImplementThresholdInSeconds() {
+        return spsMaxTimeToImplementThresholdInSeconds;
+    }
+
+    public void setSpsMaxTimeToImplementThresholdInSeconds(int spsMaxTimeToImplementThresholdInSeconds) {
+        this.spsMaxTimeToImplementThresholdInSeconds = spsMaxTimeToImplementThresholdInSeconds;
     }
 }

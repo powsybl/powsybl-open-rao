@@ -104,24 +104,24 @@ public class ElementaryActionsHelper {
         return linkedContingencyWithRAs;
     }
 
-    public Map<String, Set<PropertyBag>> getTopologyActions(boolean autoRemedialAction) {
-        return autoRemedialAction ? linkedTopologyActionsAuto : linkedTopologyActions;
+    public Map<String, Set<PropertyBag>> getTopologyActions(boolean isSchemeRemedialAction) {
+        return isSchemeRemedialAction ? linkedTopologyActionsAuto : linkedTopologyActions;
     }
 
-    public Map<String, Set<PropertyBag>> getRotatingMachineActions(boolean autoRemedialAction) {
-        return autoRemedialAction ? linkedRotatingMachineActionsAuto : linkedRotatingMachineActions;
+    public Map<String, Set<PropertyBag>> getRotatingMachineActions(boolean isSchemeRemedialAction) {
+        return isSchemeRemedialAction ? linkedRotatingMachineActionsAuto : linkedRotatingMachineActions;
     }
 
-    public Map<String, Set<PropertyBag>> getShuntCompensatorModifications(boolean autoRemedialAction) {
-        return autoRemedialAction ? linkedShuntCompensatorModificationAuto : linkedShuntCompensatorModification;
+    public Map<String, Set<PropertyBag>> getShuntCompensatorModifications(boolean isSchemeRemedialAction) {
+        return isSchemeRemedialAction ? linkedShuntCompensatorModificationAuto : linkedShuntCompensatorModification;
     }
 
-    public Map<String, Set<PropertyBag>> getTapPositionActions(boolean autoRemedialAction) {
-        return autoRemedialAction ? linkedTapPositionActionsAuto : linkedTapPositionActions;
+    public Map<String, Set<PropertyBag>> getTapPositionActions(boolean isSchemeRemedialAction) {
+        return isSchemeRemedialAction ? linkedTapPositionActionsAuto : linkedTapPositionActions;
     }
 
-    public PropertyBags getParentRemedialActionPropertyBags(boolean isAuto) {
-        return isAuto ? schemeRemedialActionsPropertyBags : gridStateAlterationRemedialActionPropertyBags;
+    public PropertyBags getParentRemedialActionPropertyBags(boolean isSchemeRemedialAction) {
+        return isSchemeRemedialAction ? schemeRemedialActionsPropertyBags : gridStateAlterationRemedialActionPropertyBags;
     }
 
     public String getGridStateAlterationCollection(String remedialActionId) {

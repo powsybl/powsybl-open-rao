@@ -23,11 +23,13 @@ import java.io.IOException;
 public class JsonCsaCracCreationParameters implements JsonCracCreationParameters.ExtensionSerializer<CsaCracCreationParameters> {
 
     private static final String CAPACITY_CALCULATION_REGION_EIC_CODE = "capacity-calculation-region-eic-code";
+    private static final String SPS_MAX_TIME_TO_IMPLEMENT_THRESHOLD_IN_SECONDS = "sps-max-time-to-implement-threshold-in-seconds";
 
     @Override
     public void serialize(CsaCracCreationParameters csaParameters, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
         jsonGenerator.writeStartObject();
         serializeCapacityCalculationRegionEicCode(csaParameters.getCapacityCalculationRegionEicCode(), jsonGenerator);
+        serializeSpsMaxTimeToImplementThresholdInSeconds(csaParameters.getSpsMaxTimeToImplementThresholdInSeconds(), jsonGenerator);
         jsonGenerator.writeEndObject();
     }
 
@@ -42,6 +44,9 @@ public class JsonCsaCracCreationParameters implements JsonCracCreationParameters
             if (CAPACITY_CALCULATION_REGION_EIC_CODE.equals(jsonParser.getCurrentName())) {
                 jsonParser.nextToken();
                 parameters.setCapacityCalculationRegionEicCode(jsonParser.readValueAs(String.class));
+            } else if (SPS_MAX_TIME_TO_IMPLEMENT_THRESHOLD_IN_SECONDS.equals(jsonParser.getCurrentName())) {
+                jsonParser.nextToken();
+                parameters.setSpsMaxTimeToImplementThresholdInSeconds(jsonParser.readValueAs(Integer.class));
             } else {
                 throw new OpenRaoException("Unexpected field: " + jsonParser.getCurrentName());
             }
@@ -67,5 +72,9 @@ public class JsonCsaCracCreationParameters implements JsonCracCreationParameters
 
     private void serializeCapacityCalculationRegionEicCode(String eicCode, JsonGenerator jsonGenerator) throws IOException {
         jsonGenerator.writeStringField(CAPACITY_CALCULATION_REGION_EIC_CODE, eicCode);
+    }
+
+    private void serializeSpsMaxTimeToImplementThresholdInSeconds(Integer spsMaxTimeToImplementThresholdInSeconds, JsonGenerator jsonGenerator) throws IOException {
+        jsonGenerator.writeStringField(SPS_MAX_TIME_TO_IMPLEMENT_THRESHOLD_IN_SECONDS, spsMaxTimeToImplementThresholdInSeconds.toString());
     }
 }
