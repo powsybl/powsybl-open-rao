@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.data.craciojson.deserializers;
 
+import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.cracapi.CracFactory;
@@ -38,11 +39,14 @@ public class CracDeserializer extends JsonDeserializer<Crac> {
 
     private CracFactory cracFactory;
 
+    private Network network;
+
     private CracDeserializer() {
     }
 
-    public CracDeserializer(CracFactory cracFactory) {
+    public CracDeserializer(CracFactory cracFactory, Network network) {
         this.cracFactory = cracFactory;
+        this.network = network;
     }
 
     @Override
@@ -90,7 +94,7 @@ public class CracDeserializer extends JsonDeserializer<Crac> {
 
                 case CONTINGENCIES:
                     jsonParser.nextToken();
-                    ContingencyArrayDeserializer.deserialize(jsonParser, crac, deserializedNetworkElementsNamesPerId);
+                    ContingencyArrayDeserializer.deserialize(jsonParser, crac, network);
                     break;
 
                 case FLOW_CNECS:

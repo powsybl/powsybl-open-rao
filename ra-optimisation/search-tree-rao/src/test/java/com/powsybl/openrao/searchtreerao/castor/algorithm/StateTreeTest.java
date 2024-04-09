@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.searchtreerao.castor.algorithm;
 
+import com.powsybl.contingency.ContingencyElementType;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.*;
@@ -1227,7 +1228,7 @@ class StateTreeTest {
     private static void addContingencyToCrac(Crac crac, String contingencyId) {
         crac.newContingency()
             .withId(contingencyId)
-            .withNetworkElement("co-line")
+            .withContingencyElement("co-line", ContingencyElementType.LINE)
             .add();
     }
 

@@ -10,6 +10,9 @@ package com.powsybl.openrao.searchtreerao.castor.algorithm;
 import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.read.ListAppender;
+import com.powsybl.contingency.Contingency;
+import com.powsybl.contingency.ContingencyElementType;
+import com.powsybl.iidm.network.*;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.commons.logs.RaoBusinessLogs;
@@ -33,9 +36,6 @@ import com.powsybl.openrao.raoapi.parameters.SecondPreventiveRaoParameters;
 import com.powsybl.openrao.searchtreerao.result.api.*;
 import com.powsybl.openrao.searchtreerao.result.impl.FailedRaoResultImpl;
 import com.powsybl.openrao.sensitivityanalysis.AppliedRemedialActions;
-import com.powsybl.iidm.network.Country;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.PhaseTapChanger;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -79,7 +79,7 @@ class CastorFullOptimizationTest {
     @BeforeEach
     public void setup() {
         network = Network.read("network_with_alegro_hub.xiidm", getClass().getResourceAsStream("/network/network_with_alegro_hub.xiidm"));
-        crac = CracImporters.importCrac("crac/small-crac.json", getClass().getResourceAsStream("/crac/small-crac.json"));
+        crac = CracImporters.importCrac("crac/small-crac.json", getClass().getResourceAsStream("/crac/small-crac.json"), network);
         preventiveInstant = crac.getInstant(PREVENTIVE_INSTANT_ID);
         autoInstant = crac.getInstant(AUTO_INSTANT_ID);
         curativeInstant = crac.getInstant(CURATIVE_INSTANT_ID);
@@ -237,11 +237,11 @@ class CastorFullOptimizationTest {
             .newInstant(CURATIVE_INSTANT_ID, InstantKind.CURATIVE);
         Contingency contingency1 = crac.newContingency()
                 .withId("contingency1")
-                .withNetworkElement("contingency1-ne")
+                .withContingencyElement("contingency1-ne", ContingencyElementType.LINE)
                 .add();
         Contingency contingency2 = crac.newContingency()
                 .withId("contingency2")
-                .withNetworkElement("contingency2-ne")
+                .withContingencyElement("contingency2-ne", ContingencyElementType.LINE)
                 .add();
         crac.newFlowCnec()
                 .withId("cnec")
@@ -459,11 +459,11 @@ class CastorFullOptimizationTest {
             .newInstant(CURATIVE_INSTANT_ID, InstantKind.CURATIVE);
         Contingency contingency1 = crac.newContingency()
                 .withId("contingency1")
-                .withNetworkElement("contingency1-ne")
+                .withContingencyElement("contingency1-ne", ContingencyElementType.LINE)
                 .add();
         Contingency contingency2 = crac.newContingency()
                 .withId("contingency2")
-                .withNetworkElement("contingency2-ne")
+                .withContingencyElement("contingency2-ne", ContingencyElementType.LINE)
                 .add();
         // ra1 : preventive only
         PstRangeActionAdder adder = crac.newPstRangeAction()
@@ -561,7 +561,7 @@ class CastorFullOptimizationTest {
         // Cannot optimize range actions in unit tests (needs OR-Tools installed)
 
         Network network = Network.read("small-network-2P.uct", getClass().getResourceAsStream("/network/small-network-2P.uct"));
-        crac = CracImporters.importCrac("crac/small-crac-2P.json", getClass().getResourceAsStream("/crac/small-crac-2P.json"));
+        crac = CracImporters.importCrac("crac/small-crac-2P.json", getClass().getResourceAsStream("/crac/small-crac-2P.json"), network);
         RaoInput raoInput = RaoInput.build(network, crac).build();
         RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/RaoParameters_oneIteration_v2.json"));
 
@@ -576,7 +576,7 @@ class CastorFullOptimizationTest {
         // Cannot optimize range actions in unit tests (needs OR-Tools installed)
 
         Network network = Network.read("small-network-2P.uct", getClass().getResourceAsStream("/network/small-network-2P.uct"));
-        crac = CracImporters.importCrac("crac/small-crac-2P.json", getClass().getResourceAsStream("/crac/small-crac-2P.json"));
+        crac = CracImporters.importCrac("crac/small-crac-2P.json", getClass().getResourceAsStream("/crac/small-crac-2P.json"), network);
         RaoInput raoInput = RaoInput.build(network, crac).build();
         RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/RaoParameters_2P_v2.json"));
 
@@ -595,7 +595,7 @@ class CastorFullOptimizationTest {
         // Same RAO as before but activating 2P => results should be better
 
         Network network = Network.read("small-network-2P.uct", getClass().getResourceAsStream("/network/small-network-2P.uct"));
-        crac = CracImporters.importCrac("crac/small-crac-2P.json", getClass().getResourceAsStream("/crac/small-crac-2P.json"));
+        crac = CracImporters.importCrac("crac/small-crac-2P.json", getClass().getResourceAsStream("/crac/small-crac-2P.json"), network);
         RaoInput raoInput = RaoInput.build(network, crac).build();
         RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/RaoParameters_2P_v2.json"));
 
@@ -619,7 +619,7 @@ class CastorFullOptimizationTest {
         // Same RAO as before but activating Global 2P => results should be the same (there are no range actions)
 
         Network network = Network.read("small-network-2P.uct", getClass().getResourceAsStream("/network/small-network-2P.uct"));
-        crac = CracImporters.importCrac("crac/small-crac-2P.json", getClass().getResourceAsStream("/crac/small-crac-2P.json"));
+        crac = CracImporters.importCrac("crac/small-crac-2P.json", getClass().getResourceAsStream("/crac/small-crac-2P.json"), network);
         RaoInput raoInput = RaoInput.build(network, crac).build();
         RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/RaoParameters_2P_v2.json"));
 
@@ -649,7 +649,7 @@ class CastorFullOptimizationTest {
 
         // Set up RAO and run
         Network network = Network.read("small-network-2P.uct", getClass().getResourceAsStream("/network/small-network-2P.uct"));
-        crac = CracImporters.importCrac("crac/small-crac-2P.json", getClass().getResourceAsStream("/crac/small-crac-2P_cost_increase.json"));
+        crac = CracImporters.importCrac("crac/small-crac-2P.json", getClass().getResourceAsStream("/crac/small-crac-2P_cost_increase.json"), network);
         RaoInput raoInput = RaoInput.build(network, crac).build();
         RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/RaoParameters_2P_v2.json"));
         raoParameters.getObjectiveFunctionParameters().setForbidCostIncrease(true);
@@ -678,7 +678,7 @@ class CastorFullOptimizationTest {
             .newInstant("curative2", InstantKind.CURATIVE)
             .newInstant("curative3", InstantKind.CURATIVE);
 
-        Contingency co = crac.newContingency().withId("co1").withNetworkElement("FFR2AA1  FFR3AA1  1").add();
+        Contingency co = crac.newContingency().withId("co1").withContingencyElement("FFR2AA1  FFR3AA1  1", ContingencyElementType.LINE).add();
 
         crac.newFlowCnec().withId("c1-prev").withInstant("preventive").withNetworkElement("FFR1AA1  FFR4AA1  1").withNominalVoltage(400.)
             .newThreshold().withSide(Side.LEFT).withMax(2000.).withUnit(Unit.AMPERE).add()
@@ -765,7 +765,7 @@ class CastorFullOptimizationTest {
             .newInstant("curative2", InstantKind.CURATIVE)
             .newInstant("curative3", InstantKind.CURATIVE);
 
-        Contingency co = crac.newContingency().withId("co1").withNetworkElement("FFR2AA1  FFR3AA1  1").add();
+        Contingency co = crac.newContingency().withId("co1").withContingencyElement("FFR2AA1  FFR3AA1  1", ContingencyElementType.LINE).add();
 
         crac.newFlowCnec().withId("c1-prev").withInstant("preventive").withNetworkElement("FFR1AA1  FFR4AA1  1").withNominalVoltage(400.)
             .newThreshold().withSide(Side.LEFT).withMax(2000.).withUnit(Unit.AMPERE).add()
@@ -864,7 +864,7 @@ class CastorFullOptimizationTest {
     @Test
     void optimizationWithAutoSearchTree() {
         Network network = Network.read("12Nodes_2_twin_lines.uct", getClass().getResourceAsStream("/network/12Nodes_2_twin_lines.uct"));
-        Crac crac = CracImporters.importCrac("crac/small-crac-available-aras.json", getClass().getResourceAsStream("/crac/small-crac-available-aras.json"));
+        Crac crac = CracImporters.importCrac("crac/small-crac-available-aras.json", getClass().getResourceAsStream("/crac/small-crac-available-aras.json"), network);
 
         RaoInput raoInput = RaoInput.build(network, crac).build();
         RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/RaoParameters_DC.json"));
@@ -891,7 +891,7 @@ class CastorFullOptimizationTest {
     @Test
     void optimizationWithAutoSearchTreeAndAutoPsts() {
         Network network = Network.read("12Nodes_2_twin_lines.uct", getClass().getResourceAsStream("/network/12Nodes_2_twin_lines.uct"));
-        Crac crac = CracImporters.importCrac("crac/small-crac-available-aras-low-limits-thresholds.json", getClass().getResourceAsStream("/crac/small-crac-available-aras-low-limits-thresholds.json"));
+        Crac crac = CracImporters.importCrac("crac/small-crac-available-aras-low-limits-thresholds.json", getClass().getResourceAsStream("/crac/small-crac-available-aras-low-limits-thresholds.json"), network);
 
         RaoInput raoInput = RaoInput.build(network, crac).build();
         RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/RaoParameters_DC.json"));

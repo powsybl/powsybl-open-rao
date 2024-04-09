@@ -7,6 +7,11 @@
 
 package com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.contingency;
 
+import com.powsybl.contingency.ContingencyElement;
+import com.powsybl.contingency.ContingencyElementType;
+import com.powsybl.iidm.network.DanglingLine;
+import com.powsybl.iidm.network.Identifiable;
+import com.powsybl.iidm.network.TieLine;
 import com.powsybl.openrao.data.cracapi.ContingencyAdder;
 import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.craccreation.creator.api.ImportStatus;
@@ -14,11 +19,8 @@ import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaP
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileCracCreationContext;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileCracUtils;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileElementaryCreationContext;
-import com.powsybl.openrao.data.craccreation.util.cgmes.CgmesBranchHelper;
-import com.powsybl.iidm.network.DanglingLine;
-import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.TieLine;
+import com.powsybl.openrao.data.craccreation.util.cgmes.CgmesBranchHelper;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
 
@@ -94,13 +96,15 @@ public class CsaProfileContingencyCreator {
                 incorrectContingentStatusElements.add(equipmentId);
             } else {
                 atLeastOneCorrectContingentStatus = true;
-                String networkElementId = this.getNetworkElementIdInNetwork(equipmentId);
-                if (networkElementId == null) {
+                Identifiable<?> networkElement = this.getNetworkElementInNetwork(equipmentId);
+                if (networkElement == null) {
                     isMissingNetworkElement = true;
                     missingNetworkElements.add(equipmentId);
                 } else {
+                    String networkElementId = networkElement.getId();
+                    ContingencyElementType contingencyElementType = ContingencyElement.of(networkElement).getType();
                     atLeastOneNetworkElement = true;
-                    contingencyAdder.withNetworkElement(networkElementId);
+                    contingencyAdder.withContingencyElement(networkElementId, contingencyElementType);
                 }
             }
         }
@@ -148,26 +152,26 @@ public class CsaProfileContingencyCreator {
         return contingencyEquipments;
     }
 
-    private String getNetworkElementIdInNetwork(String networkElementIdInCrac) {
-        String networkElementId = null;
+    private Identifiable<?> getNetworkElementInNetwork(String networkElementIdInCrac) {
+        Identifiable<?> networkElementToReturn = null;
         Identifiable<?> networkElement = network.getIdentifiable(networkElementIdInCrac);
         if (networkElement == null) {
             CgmesBranchHelper cgmesBranchHelper = new CgmesBranchHelper(networkElementIdInCrac, network);
             if (cgmesBranchHelper.isValid()) {
-                networkElementId = cgmesBranchHelper.getIdInNetwork();
+                networkElementToReturn = cgmesBranchHelper.getBranch();
                 networkElement = cgmesBranchHelper.getBranch();
             }
         } else {
-            networkElementId = networkElement.getId();
+            networkElementToReturn = networkElement;
         }
 
         if (networkElement instanceof DanglingLine danglingLine) {
             Optional<TieLine> optionalTieLine = danglingLine.getTieLine();
             if (optionalTieLine.isPresent()) {
-                networkElementId = optionalTieLine.get().getId();
+                networkElementToReturn = optionalTieLine.get();
             }
         }
-        return networkElementId;
+        return networkElementToReturn;
     }
 
     private static String formatNotImportedMessage(String contingencyId, String reason) {

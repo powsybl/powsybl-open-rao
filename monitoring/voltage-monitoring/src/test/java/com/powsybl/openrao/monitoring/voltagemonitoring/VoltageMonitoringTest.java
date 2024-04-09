@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.monitoring.voltagemonitoring;
 
+import com.powsybl.contingency.ContingencyElementType;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.*;
 
@@ -94,9 +95,9 @@ class VoltageMonitoringTest {
             .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add()
             .add();
 
-        crac.newContingency().withId("coL1").withNetworkElement("L1").add();
-        crac.newContingency().withId("coL2").withNetworkElement("L2").add();
-        crac.newContingency().withId("coL1L2").withNetworkElement("L1").withNetworkElement("L2").add();
+        crac.newContingency().withId("coL1").withContingencyElement("L1", ContingencyElementType.LINE).add();
+        crac.newContingency().withId("coL2").withContingencyElement("L2", ContingencyElementType.LINE).add();
+        crac.newContingency().withId("coL1L2").withContingencyElement("L1", ContingencyElementType.LINE).withContingencyElement("L2", ContingencyElementType.LINE).add();
 
         loadFlowParameters = new LoadFlowParameters();
         loadFlowParameters.setDc(false);
@@ -335,7 +336,7 @@ class VoltageMonitoringTest {
 
     @Test
     void testCurPstMakesVoltageLowOn1Cnec() {
-        crac.newContingency().withId("co3").withNetworkElement("L3").add();
+        crac.newContingency().withId("co3").withContingencyElement("L3", ContingencyElementType.LINE).add();
 
         VoltageCnec vc = addVoltageCnec("vc", CURATIVE_INSTANT_ID, "co3", "VL2", 375., 395.);
 
@@ -415,7 +416,7 @@ class VoltageMonitoringTest {
     void testDivergentLoadFlowAfterApplicationOfRemedialAction() {
         setUpCracFactory("network2.xiidm");
 
-        crac.newContingency().withId("co").withNetworkElement("L1").add();
+        crac.newContingency().withId("co").withContingencyElement("L1", ContingencyElementType.LINE).add();
         VoltageCnec vc = addVoltageCnec("vc", CURATIVE_INSTANT_ID, "co", "VL1", 390., 399.);
 
         String networkActionName = "Open L2 - 1";
@@ -437,7 +438,7 @@ class VoltageMonitoringTest {
         setUpCracFactory("network.xiidm");
         mockPreventiveState();
         //Add contingency that doesn't break the loadflow
-        crac.newContingency().withId("coL3").withNetworkElement("L3").add();
+        crac.newContingency().withId("coL3").withContingencyElement("L3", ContingencyElementType.LINE).add();
         VoltageCnec vc = addVoltageCnec("vcCur1", CURATIVE_INSTANT_ID, "coL3", "VL3", 375., 395.);
         crac.newNetworkAction()
             .withId("Open L1 - 2")
@@ -474,7 +475,7 @@ class VoltageMonitoringTest {
             .newOnVoltageConstraintUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withVoltageCnec(vcPrev.getId()).withUsageMethod(UsageMethod.AVAILABLE).add()
             .add();
 
-        crac.newContingency().withId("co").withNetworkElement("L1").add();
+        crac.newContingency().withId("co").withContingencyElement("L1", ContingencyElementType.LINE).add();
         VoltageCnec vc = addVoltageCnec("vc", CURATIVE_INSTANT_ID, "co", "VL1", 390., 399.);
         String networkActionName = "Open L1 - 2";
         RemedialAction<?> networkAction = crac.newNetworkAction()
@@ -501,7 +502,7 @@ class VoltageMonitoringTest {
             .newOnVoltageConstraintUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withVoltageCnec(vcPrev.getId()).withUsageMethod(UsageMethod.AVAILABLE).add()
             .add();
 
-        crac.newContingency().withId("co").withNetworkElement("L1").add();
+        crac.newContingency().withId("co").withContingencyElement("L1", ContingencyElementType.LINE).add();
         VoltageCnec vc = addVoltageCnec("vc", CURATIVE_INSTANT_ID, "co", "VL1", 440., 450.);
         String networkActionName = "Open L1 - 2";
         RemedialAction<?> networkAction = crac.newNetworkAction()
@@ -522,7 +523,7 @@ class VoltageMonitoringTest {
     void testUnsecureInitialSituationWithRemedialActionThatSolveVC() {
         setUpCracFactory("network3.xiidm");
 
-        crac.newContingency().withId("co").withNetworkElement("L1").add();
+        crac.newContingency().withId("co").withContingencyElement("L1", ContingencyElementType.LINE).add();
         VoltageCnec vc = addVoltageCnec("vc", CURATIVE_INSTANT_ID, "co", "VL2", 385., 400.);
         String networkActionName = "Close L1 - 1";
         RemedialAction<?> networkAction = crac.newNetworkAction()
@@ -543,7 +544,7 @@ class VoltageMonitoringTest {
     void testUnsecureInitialSituationWithRemedialActionThatSolveVCBis() {
         setUpCracFactory("network3.xiidm");
 
-        crac.newContingency().withId("co").withNetworkElement("L1").add();
+        crac.newContingency().withId("co").withContingencyElement("L1", ContingencyElementType.LINE).add();
         VoltageCnec vc = addVoltageCnec("vc", CURATIVE_INSTANT_ID, "co", "VL2", 340., 350.);
         String networkActionName = "Close L1 - 1";
         RemedialAction<?> networkAction = crac.newNetworkAction()

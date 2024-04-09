@@ -8,6 +8,7 @@
 
 package com.powsybl.openrao.data.craciojson.serializers;
 
+import com.powsybl.contingency.Contingency;
 import com.powsybl.openrao.data.cracapi.*;
 import com.powsybl.openrao.data.cracapi.cnec.AngleCnec;
 import com.powsybl.openrao.data.cracapi.cnec.Cnec;
@@ -96,11 +97,6 @@ public class CracSerializer extends AbstractJsonSerializer<Crac> {
             networkElements.stream().filter(networkElement -> !networkElement.getId().equals(networkElement.getName()))
                 .forEach(networkElement -> networkElementsNamesPerId.put(networkElement.getId(), networkElement.getName()));
         }
-
-        // Get network elements from Contingencies
-        crac.getContingencies().stream().map(Contingency::getNetworkElements).flatMap(Set::stream)
-                .filter(networkElement -> !networkElement.getId().equals(networkElement.getName()))
-                .forEach(networkElement -> networkElementsNamesPerId.put(networkElement.getId(), networkElement.getName()));
 
         // Get network elements from RemedialActions
         for (RemedialAction<?> remedialAction : crac.getRemedialActions()) {

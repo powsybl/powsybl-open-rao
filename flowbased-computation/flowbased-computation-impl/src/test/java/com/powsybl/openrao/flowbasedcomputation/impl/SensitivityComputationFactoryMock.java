@@ -177,7 +177,7 @@ public class SensitivityComputationFactoryMock implements SensitivityAnalysisPro
     }
 
     @Override
-    public CompletableFuture<Void> run(Network network, String s, SensitivityFactorReader sensitivityFactorReader, SensitivityResultWriter sensitivityResultWriter, List<Contingency> contingencies, List<SensitivityVariableSet> glsks, SensitivityAnalysisParameters sensitivityAnalysisParameters, ComputationManager computationManager, ReportNode reporter) {
+    public CompletableFuture<Void> run(Network network, String s, SensitivityFactorReader sensitivityFactorReader, SensitivityResultWriter sensitivityResultWriter, List<Contingency> contingencies, List<SensitivityVariableSet> glsks, SensitivityAnalysisParameters sensitivityAnalysisParameters, ComputationManager computationManager, ReportNode reportNode) {
         return CompletableFuture.runAsync(() -> {
             writePreContingencySensitivityValues(sensitivityFactorReader, sensitivityResultWriter);
             for (int contingencyIndex = 0; contingencyIndex < contingencies.size(); contingencyIndex++) {

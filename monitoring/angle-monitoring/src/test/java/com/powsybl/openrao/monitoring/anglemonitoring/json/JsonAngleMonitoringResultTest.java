@@ -7,6 +7,8 @@
 
 package com.powsybl.openrao.monitoring.anglemonitoring.json;
 
+import com.powsybl.contingency.Contingency;
+import com.powsybl.contingency.ContingencyElementType;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.*;
@@ -83,7 +85,7 @@ class JsonAngleMonitoringResultTest {
             .newInstant(AUTO_INSTANT_ID, InstantKind.AUTO)
             .newInstant(CURATIVE_INSTANT_ID, InstantKind.CURATIVE);
         curativeInstant = crac.getInstant(CURATIVE_INSTANT_ID);
-        co1 = crac.newContingency().withId("co1").withNetworkElement("co1-ne").add();
+        co1 = crac.newContingency().withId("co1").withContingencyElement("co1-ne", ContingencyElementType.LINE).add();
         ac1 = addAngleCnec("ac1", "impNe1", "expNe1", PREVENTIVE_INSTANT_ID, null, 145., 150.);
         ac2 = addAngleCnec("ac2", "impNe2", "expNe2", CURATIVE_INSTANT_ID, co1.getId(), 140., 145.);
         preventiveState = crac.getPreventiveState();

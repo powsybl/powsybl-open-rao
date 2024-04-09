@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.data.cracioapi;
 
+import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.data.cracapi.Crac;
 import org.apache.commons.lang3.NotImplementedException;
 import org.junit.jupiter.api.Test;
@@ -35,13 +36,13 @@ class CracExportersImportersTest {
 
     @Test
     void testImport() {
-        Crac crac = CracImporters.importCrac(Paths.get(new File(getClass().getResource(cracFile).getFile()).getAbsolutePath()));
+        Crac crac = CracImporters.importCrac(Paths.get(new File(getClass().getResource(cracFile).getFile()).getAbsolutePath()), Mockito.mock(Network.class));
         assertNotNull(crac);
     }
 
     @Test
     void testImportWithInstant() {
-        Crac crac = CracImporters.importCrac(Paths.get(new File(getClass().getResource(cracFile).getFile()).getAbsolutePath()));
+        Crac crac = CracImporters.importCrac(Paths.get(new File(getClass().getResource(cracFile).getFile()).getAbsolutePath()), Mockito.mock(Network.class));
         assertNotNull(crac);
     }
 }

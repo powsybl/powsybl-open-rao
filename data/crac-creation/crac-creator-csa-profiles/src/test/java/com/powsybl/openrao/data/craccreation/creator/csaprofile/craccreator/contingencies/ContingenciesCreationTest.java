@@ -1,7 +1,7 @@
 package com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.contingencies;
 
-import com.powsybl.openrao.data.cracapi.Contingency;
 import com.powsybl.openrao.data.craccreation.creator.api.ImportStatus;
+import com.powsybl.contingency.Contingency;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileCracCreationContext;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileElementaryCreationContext;
 import org.junit.jupiter.api.Test;

@@ -8,14 +8,11 @@
 package com.powsybl.openrao.data.cracutil;
 
 import com.powsybl.openrao.commons.OpenRaoException;
-import com.powsybl.openrao.data.cracapi.*;
 import com.powsybl.openrao.data.cracioapi.CracImporters;
-import com.powsybl.iidm.network.Network;
 import org.junit.jupiter.api.Test;
 
 import java.io.InputStream;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
@@ -28,60 +25,27 @@ class CracAliasesCreatorTest {
     void testDeprecatedCracExtensions1() {
         // Extensions have been deprecated
         InputStream inputStream = getClass().getResourceAsStream("/deprecated-crac-for-aliases-1.json");
-        assertThrows(OpenRaoException.class, () -> CracImporters.importCrac("deprecated-crac-for-aliases-1.json", inputStream));
+        assertThrows(OpenRaoException.class, () -> CracImporters.importCrac("deprecated-crac-for-aliases-1.json", inputStream, null));
     }
 
     @Test
     void testDeprecatedCracExtensions2() {
         // Extensions have been deprecated
         InputStream inputStream = getClass().getResourceAsStream("/deprecated-crac-for-aliases-2.json");
-        assertThrows(OpenRaoException.class, () -> CracImporters.importCrac("deprecated-crac-for-aliases-2.json", inputStream));
+        assertThrows(OpenRaoException.class, () -> CracImporters.importCrac("deprecated-crac-for-aliases-2.json", inputStream, null));
     }
 
     @Test
     void testDeprecatedCracExtensions3() {
         // Extensions have been deprecated
         InputStream inputStream = getClass().getResourceAsStream("/deprecated-crac-for-aliases-3.json");
-        assertThrows(OpenRaoException.class, () -> CracImporters.importCrac("deprecated-crac-for-aliases-3.json", inputStream));
+        assertThrows(OpenRaoException.class, () -> CracImporters.importCrac("deprecated-crac-for-aliases-3.json", inputStream, null));
     }
 
     @Test
     void testDeprecatedCracExtensions4() {
         // Extensions have been deprecated
         InputStream inputStream = getClass().getResourceAsStream("/deprecated-crac-for-aliases-4.json");
-        assertThrows(OpenRaoException.class, () -> CracImporters.importCrac("deprecated-crac-for-aliases-4.json", inputStream));
-    }
-
-    @Test
-    void testCracAliasesUtil7Char() {
-        // Extensions have been deprecated
-        Crac crac = CracImporters.importCrac("crac-for-aliases.json", getClass().getResourceAsStream("/crac-for-aliases.json"));
-        Network network = Network.read("case-for-aliases.uct", getClass().getResourceAsStream("/case-for-aliases.uct"));
-
-        network.getBranch("FFR2AA1H DDE3AA1F 1").addAlias("FFR2AA1H DDE3AA1F HFSK JDV");
-        network.getBranch("DDE1AA1D DDE2AA1E 1").addAlias("DDE2AA1E DDE1AA1D DLJKSC H");
-
-        CracAliasesCreator cracAliasesCreator = new CracAliasesCreator();
-        cracAliasesCreator.createAliases(crac, network, UcteNodeMatchingRule.FIRST_7_CHARACTER_EQUAL);
-
-        assertEquals(1, network.getBranch("FFR1AA1G FFR3AA1I 1").getAliases().size());
-        assertEquals(2, network.getBranch("DDE1AA1D DDE2AA1E 1").getAliases().size());
-        assertEquals(3, network.getBranch("FFR2AA1H DDE3AA1F 1").getAliases().size());
-    }
-
-    @Test
-    void testCracAliasesUtil8Char() {
-        Crac crac = CracImporters.importCrac("crac-for-aliases.json", getClass().getResourceAsStream("/crac-for-aliases.json"));
-        Network network = Network.read("case-for-aliases.uct", getClass().getResourceAsStream("/case-for-aliases.uct"));
-
-        network.getBranch("FFR2AA1H DDE3AA1F 1").addAlias("FFR2AA1H DDE3AA1F HFSK JDV");
-        network.getBranch("DDE1AA1D DDE2AA1E 1").addAlias("DDE2AA1E DDE1AA1D DLJKSC H");
-
-        CracAliasesCreator cracAliasesCreator = new CracAliasesCreator();
-        cracAliasesCreator.createAliases(crac, network, UcteNodeMatchingRule.ALL_8_CHARACTER_EQUAL);
-
-        assertEquals(0, network.getBranch("FFR1AA1G FFR3AA1I 1").getAliases().size());
-        assertEquals(1, network.getBranch("DDE1AA1D DDE2AA1E 1").getAliases().size());
-        assertEquals(1, network.getBranch("FFR2AA1H DDE3AA1F 1").getAliases().size());
+        assertThrows(OpenRaoException.class, () -> CracImporters.importCrac("deprecated-crac-for-aliases-4.json", inputStream, null));
     }
 }

@@ -6,6 +6,7 @@
  */
 package com.powsybl.openrao.data.cracimpl;
 
+import com.powsybl.contingency.ContingencyElementType;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.cracapi.Instant;
@@ -47,7 +48,7 @@ class OnInstantAdderImplTest {
 
         crac.newContingency()
                 .withId("contingencyId")
-                .withNetworkElement("networkElementId")
+                .withContingencyElement("networkElementId", ContingencyElementType.LINE)
                 .add();
         remedialActionAdder = crac.newNetworkAction()
             .withId("networkActionId")

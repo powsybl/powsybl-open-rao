@@ -6,6 +6,7 @@
  */
 package com.powsybl.openrao.data.cracimpl;
 
+import com.powsybl.contingency.ContingencyElementType;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.Crac;
@@ -49,7 +50,7 @@ class OnFlowConstraintInCountryAdderImplTest {
         crac.newContingency()
             .withId("Contingency FR1 FR3")
             .withName("Trip of FFR1AA1 FFR3AA1 1")
-            .withNetworkElement("FFR1AA1  FFR3AA1  1")
+            .withContingencyElement("FFR1AA1  FFR3AA1  1", ContingencyElementType.LINE)
             .add();
 
         crac.newFlowCnec()

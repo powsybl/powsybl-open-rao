@@ -6,6 +6,7 @@
  */
 package com.powsybl.openrao.searchtreerao.commons.optimizationperimeters;
 
+import com.powsybl.contingency.ContingencyElementType;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.Crac;
@@ -64,7 +65,7 @@ class AutoOptimizationPerimeterTest {
 
         crac.newContingency()
             .withId("contingency")
-            .withNetworkElement("contingency-equipment")
+            .withContingencyElement("contingency-equipment", ContingencyElementType.LINE)
             .add();
 
         crac.newFlowCnec()

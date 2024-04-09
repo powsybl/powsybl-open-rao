@@ -7,7 +7,7 @@
 package com.powsybl.openrao.data.craccreation.creator.fbconstraint.craccreator;
 
 import com.powsybl.openrao.commons.Unit;
-import com.powsybl.openrao.data.cracapi.Contingency;
+import com.powsybl.contingency.Contingency;
 import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.cracapi.CracFactory;
 import com.powsybl.openrao.data.cracapi.RaUsageLimits;
@@ -409,9 +409,9 @@ class FbConstraintCracCreatorTest {
 
         Contingency contingency = crac.getFlowCnec("Cnec1 - curative").getState().getContingency().orElse(null);
         assertNotNull(contingency);
-        assertEquals(2, contingency.getNetworkElements().size());
-        assertTrue(contingency.getNetworkElements().stream().anyMatch(ne -> ne.getId().equals("DDE3AA1  XLI_OB1A 1")));
-        assertTrue(contingency.getNetworkElements().stream().anyMatch(ne -> ne.getId().equals("BBE2AA1  XLI_OB1B 1")));
+        assertEquals(2, contingency.getElements().size());
+        assertTrue(contingency.getElements().stream().anyMatch(ne -> ne.getId().equals("DDE3AA1  XLI_OB1A 1")));
+        assertTrue(contingency.getElements().stream().anyMatch(ne -> ne.getId().equals("BBE2AA1  XLI_OB1B 1")));
     }
 
     @Test

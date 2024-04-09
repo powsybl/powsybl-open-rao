@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.data.cracimpl;
 
+import com.powsybl.contingency.Contingency;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.cracapi.*;
 import com.powsybl.openrao.data.cracapi.cnec.*;
@@ -82,10 +83,7 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
      * @return true if the NetworkElement is referenced in a Contingency, a Cnec or a RemedialAction
      */
     private boolean isNetworkElementUsedWithinCrac(String networkElementId) {
-        return getContingencies().stream()
-                .flatMap(co -> co.getNetworkElements().stream())
-                .anyMatch(ne -> ne.getId().equals(networkElementId))
-            || getCnecs().stream()
+        return getCnecs().stream()
                 .map(Cnec::getNetworkElements)
                 .flatMap(Set::stream)
                 .anyMatch(ne -> ((NetworkElement) ne).getId().equals(networkElementId))
@@ -145,7 +143,6 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
             Contingency contingency = contingencies.get(id);
             if (contingency != null) {
                 contingencies.remove(id);
-                safeRemoveNetworkElements(contingency.getNetworkElements().stream().map(NetworkElement::getId).collect(Collectors.toSet()));
                 safeRemoveStates(getStates(contingency).stream().map(State::getId).collect(Collectors.toSet()));
             }
         }
