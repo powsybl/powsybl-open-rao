@@ -88,7 +88,7 @@ class FlowCnecInstantHelper {
         }
         // associate instant to TATL duration, or Integer.MAX_VALUE if PATL
         int longestDuration = doNotUsePatlInFinalState ? tatlDurations.stream().max(Integer::compareTo).get() : Integer.MAX_VALUE; // longest TATL duration or infinite (PATL)
-        instantToLimit.put(OUTAGE_INSTANT, getShortestTatlWithDurationGreaterThanOrReturn(tatlDurations.stream().filter(tatlDuration -> tatlDuration < curative1InstantDuration).collect(Collectors.toSet()), 0, longestDuration));
+        instantToLimit.put(OUTAGE_INSTANT, tatlDurations.stream().filter(tatlDuration -> tatlDuration >= 0 && tatlDuration < curative1InstantDuration).max(Integer::compareTo).orElse(getShortestTatlWithDurationGreaterThanOrReturn(tatlDurations, 0, longestDuration)));
         instantToLimit.put(AUTO_INSTANT, getShortestTatlWithDurationGreaterThanOrReturn(tatlDurations, curative1InstantDuration, longestDuration));
         instantToLimit.put(CURATIVE_1_INSTANT, getShortestTatlWithDurationGreaterThanOrReturn(tatlDurations, curative2InstantDuration, longestDuration));
         instantToLimit.put(CURATIVE_2_INSTANT, getShortestTatlWithDurationGreaterThanOrReturn(tatlDurations, curative3InstantDuration, longestDuration));
@@ -101,13 +101,12 @@ class FlowCnecInstantHelper {
     }
 
     // Retrieve instant from limit duration
-    // TODO: what if same TATL is for two instants? create 2 CNECs? ex: REE's TATL 900 is for outage, auto and curative 1 -> create 3 CNECs?
 
-    public Set<String> getPostContingencyInstantsAssociatedToLimitDuration(Map<String, Double> mapInstantsAndLimits, int limitDuration) {
+    public Set<String> getPostContingencyInstantsAssociatedToLimitDuration(Map<String, Integer> mapInstantsAndLimits, int limitDuration) {
         return mapInstantsAndLimits.entrySet().stream().filter(entry -> entry.getValue() == limitDuration).map(Map.Entry::getKey).collect(Collectors.toSet());
     }
 
-    public Set<String> getPostContingencyInstantsAssociatedToPatl(Map<String, Double> mapInstantsAndLimits) {
+    public Set<String> getPostContingencyInstantsAssociatedToPatl(Map<String, Integer> mapInstantsAndLimits) {
         return getPostContingencyInstantsAssociatedToLimitDuration(mapInstantsAndLimits, Integer.MAX_VALUE);
     }
 

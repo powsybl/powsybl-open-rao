@@ -278,7 +278,7 @@ public class CsaProfileRemedialActionsCreator {
                     validContingencies.forEach(openRaoContingencyId -> remedialActionAdder.newOnContingencyStateUsageRule()
                         .withInstant(curativeInstant.getId())
                         .withContingency(openRaoContingencyId.getLeft())
-                        .withUsageMethod(getUsageMethod(openRaoContingencyId.getRight(), isSchemeRemedialAction, curativeInstant, remedialActionType)).add());
+                        .withUsageMethod(getUsageMethod(openRaoContingencyId.getRight(), false, curativeInstant, remedialActionType)).add());
 
                     alterations.addAll(ignoredContingenciesMessages);
                 }
