@@ -7,12 +7,14 @@
 
 package com.powsybl.openrao.data.craciojson.serializers;
 
+import com.powsybl.contingency.Contingency;
+import com.powsybl.contingency.ContingencyElement;
 import com.powsybl.openrao.data.cracapi.*;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
 
 import java.io.IOException;
-import java.util.Objects;
+import java.util.Optional;
 
 import static com.powsybl.openrao.data.craciojson.JsonSerializationConstants.*;
 
@@ -27,12 +29,13 @@ public class ContingencySerializer extends AbstractJsonSerializer<Contingency> {
 
         gen.writeStringField(ID, value.getId());
 
-        if (!Objects.isNull(value.getName()) && !value.getName().equals(value.getId())) {
-            gen.writeStringField(NAME, value.getName());
+        Optional<String> name = value.getName();
+        if (name.isPresent()) {
+            gen.writeStringField(NAME, name.get());
         }
 
         gen.writeArrayFieldStart(NETWORK_ELEMENTS_IDS);
-        for (NetworkElement networkElement : value.getNetworkElements()) {
+        for (ContingencyElement networkElement : value.getElements()) {
             gen.writeString(networkElement.getId());
         }
         gen.writeEndArray();

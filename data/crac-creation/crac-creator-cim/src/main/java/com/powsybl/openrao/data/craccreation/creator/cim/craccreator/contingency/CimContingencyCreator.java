@@ -7,17 +7,19 @@
 
 package com.powsybl.openrao.data.craccreation.creator.cim.craccreator.contingency;
 
+import com.powsybl.contingency.ContingencyElement;
+import com.powsybl.contingency.ContingencyElementType;
+import com.powsybl.iidm.network.DanglingLine;
+import com.powsybl.iidm.network.TieLine;
 import com.powsybl.openrao.data.cracapi.ContingencyAdder;
 import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.craccreation.creator.api.ImportStatus;
 import com.powsybl.openrao.data.craccreation.creator.cim.craccreator.CimCracCreationContext;
 import com.powsybl.openrao.data.craccreation.creator.cim.craccreator.CimCracUtils;
 import com.powsybl.openrao.data.craccreation.creator.cim.xsd.*;
-import com.powsybl.openrao.data.craccreation.util.cgmes.CgmesBranchHelper;
-import com.powsybl.iidm.network.DanglingLine;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.TieLine;
+import com.powsybl.openrao.data.craccreation.util.cgmes.CgmesBranchHelper;
 
 import java.util.*;
 
@@ -75,9 +77,11 @@ public class CimContingencyCreator {
         boolean allRegisteredResourcesOk = true;
         StringBuilder missingNetworkElements = null;
         for (ContingencyRegisteredResource registeredResource : cimContingency.getRegisteredResource()) {
-            String networkElementId = getNetworkElementIdInNetwork(registeredResource.getMRID().getValue());
-            if (networkElementId != null) {
-                contingencyAdder.withNetworkElement(networkElementId);
+            Identifiable<?> networkElement = getNetworkElementInNetwork(registeredResource.getMRID().getValue());
+            if (networkElement != null) {
+                String networkElementId = networkElement.getId();
+                ContingencyElementType contingencyElementType = ContingencyElement.of(networkElement).getType();
+                contingencyAdder.withContingencyElement(networkElementId, contingencyElementType);
                 anyRegisteredResourceOk = true;
             } else {
                 allRegisteredResourcesOk = false;
@@ -97,27 +101,26 @@ public class CimContingencyCreator {
         }
     }
 
-    private String getNetworkElementIdInNetwork(String networkElementIdInCrac) {
-        String networkElementId = null;
+    private Identifiable<?> getNetworkElementInNetwork(String networkElementIdInCrac) {
+        Identifiable<?> networkElementToReturn = null;
         Identifiable<?> networkElement = network.getIdentifiable(networkElementIdInCrac);
         if (networkElement == null) {
             CgmesBranchHelper cgmesBranchHelper = new CgmesBranchHelper(networkElementIdInCrac, network);
             if (cgmesBranchHelper.isValid()) {
-                networkElementId = cgmesBranchHelper.getIdInNetwork();
+                networkElementToReturn = cgmesBranchHelper.getBranch();
                 networkElement = cgmesBranchHelper.getBranch();
             }
         } else {
-            networkElementId = networkElement.getId();
+            networkElementToReturn = networkElement;
         }
 
         if (networkElement instanceof DanglingLine danglingLine) {
             Optional<TieLine> optionalTieLine = danglingLine.getTieLine();
             if (optionalTieLine.isPresent()) {
-                networkElementId = optionalTieLine.get().getId();
+                networkElementToReturn = optionalTieLine.get();
             }
         }
-
-        return networkElementId;
+        return networkElementToReturn;
     }
 
     private boolean describesContingencyToImport(Series series) {
