@@ -12,10 +12,11 @@ Examples of uses of the OPEN-RAO-crac-io-api are given below:
 
 ~~~java
 // import a CRAC from a PATH
-Crac crac = CracImporters.importCrac(Paths.get("/tmp/crac.json"));
+// (a network is required to reconstruct the contingency elements from the network elements id) 
+Crac crac = CracImporters.importCrac(Paths.get("/tmp/crac.json"), network);
 
 // import a CRAC from an input stream
-Crac crac = CracImporters.importCrac("crac.json", new FileInputStream(new File("/tmp/crac.json")));
+Crac crac = CracImporters.importCrac("crac.json", new FileInputStream(new File("/tmp/crac.json")), network);
 
 // export a CRAC in JSON in a file
 CracExporters.exportCrac(crac, "Json", Paths.get("/tmp/crac.json"));
