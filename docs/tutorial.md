@@ -143,7 +143,7 @@ _NNL3AA1 DDE2AA1 1_, with the following code:
 ```java
 crac.newContingency()
     .withId("contingency")
-    .withNetworkElement("NNL3AA1  DDE2AA1  1")
+    .withContingencyElement("NNL3AA1  DDE2AA1  1", ContingencyElementType.LINE)
     .add();
 ```
 
@@ -486,7 +486,7 @@ public class Main {
         // Add contingency
         crac.newContingency()
             .withId("contingency")
-            .withNetworkElement("DDE2AA1  NNL3AA1  1")
+            .withContingencyElement("DDE2AA1  NNL3AA1  1", ContingencyElementType.LINE)
             .add();
 
         // Add FlowCNECs
