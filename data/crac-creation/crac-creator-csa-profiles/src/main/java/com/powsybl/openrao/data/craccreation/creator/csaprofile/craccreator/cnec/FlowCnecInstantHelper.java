@@ -39,6 +39,10 @@ class FlowCnecInstantHelper {
         curative3InstantDuration = csaParameters.getCraApplicationWindow().get(CURATIVE_3_INSTANT);
     }
 
+    public Set<String> getTsosWhichDoNotUsePatlInFinalState() {
+        return tsosWhichDoNotUsePatlInFinalState;
+    }
+
     // CSA CRAC Creation Parameters checking
 
     private static void checkCsaExtension(CsaCracCreationParameters csaParameters) {
@@ -82,10 +86,6 @@ class FlowCnecInstantHelper {
         boolean doNotUsePatlInFinalState = tsosWhichDoNotUsePatlInFinalState.contains(tso);
         Set<Integer> tatlDurations = getAllTatlDurationsOnSide(branch, side);
         // raise exception if a TSO not using the PATL has no TATL either
-        // TODO: log creation context and use PATL everywhere
-        if (doNotUsePatlInFinalState && tatlDurations.isEmpty()) {
-            throw new OpenRaoException("TSO %s does not use PATL in final state but has no TATL defined for branch %s on side %s, this is not supported.".formatted(tso, branch.getId(), side));
-        }
         // associate instant to TATL duration, or Integer.MAX_VALUE if PATL
         int longestDuration = doNotUsePatlInFinalState ? tatlDurations.stream().max(Integer::compareTo).orElse(Integer.MAX_VALUE) : Integer.MAX_VALUE; // longest TATL duration or infinite (PATL)
         instantToLimit.put(OUTAGE_INSTANT, tatlDurations.stream().filter(tatlDuration -> tatlDuration >= 0 && tatlDuration < curative1InstantDuration).max(Integer::compareTo).orElse(getShortestTatlWithDurationGreaterThanOrReturn(tatlDurations, 0, longestDuration)));

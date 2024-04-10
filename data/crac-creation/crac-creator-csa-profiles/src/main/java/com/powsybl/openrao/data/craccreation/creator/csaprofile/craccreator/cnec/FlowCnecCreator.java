@@ -3,8 +3,6 @@ package com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.cne
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.openrao.data.cracapi.Crac;
-import com.powsybl.openrao.data.cracapi.Instant;
-import com.powsybl.openrao.data.cracapi.InstantKind;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnecAdder;
 import com.powsybl.openrao.data.cracapi.cnec.Side;
 import com.powsybl.openrao.data.cracapi.threshold.BranchThresholdAdder;
@@ -195,19 +193,6 @@ public class FlowCnecCreator extends AbstractCnecCreator {
         return null;
     }
 
-    private Instant getCnecInstant(int acceptableDuration) {
-        if (acceptableDuration < 0) {
-            return null;
-        }
-        if (0 < acceptableDuration && acceptableDuration <= 60) {
-            return crac.getOutageInstant();
-        }
-        if (60 < acceptableDuration && acceptableDuration <= 900) {
-            return crac.getInstant(InstantKind.AUTO);
-        }
-        return crac.getInstant(InstantKind.CURATIVE);
-    }
-
     private void addFlowCnec(Branch<?> networkElement, Contingency contingency, String instantId, Side side, double threshold, boolean useMaxAndMinThresholds, boolean hasNoPatl) {
         FlowCnecAdder cnecAdder = initFlowCnec();
         addCnecBaseInformation(cnecAdder, contingency, instantId, side);
@@ -256,13 +241,24 @@ public class FlowCnecCreator extends AbstractCnecCreator {
             String operatorName = CsaProfileCracUtils.getTsoNameFromUrl(assessedElementOperator);
             Map<String, Integer> instantToDurationMapLeft = instantHelper.mapPostContingencyInstantsAndLimitDurations(networkElement, TwoSides.ONE, operatorName);
             Map<String, Integer> instantToDurationMapRight = instantHelper.mapPostContingencyInstantsAndLimitDurations(networkElement, TwoSides.TWO, operatorName);
+
             // Add PATL
             if (hasPatl) {
-                patlThresholds.forEach(
-                    (twoSides, threshold) -> instantHelper.getPostContingencyInstantsAssociatedToPatl(twoSides == TwoSides.ONE ? instantToDurationMapLeft : instantToDurationMapRight).forEach(
-                        instant -> addFlowCnec(networkElement, contingency, instant, Side.fromIidmSide(twoSides), patlThresholds.get(twoSides), useMaxAndMinThresholds, false)
-                    )
-                );
+                for (Map.Entry<TwoSides, Double> patlThreshold : patlThresholds.entrySet()) {
+                    TwoSides twoSides = patlThreshold.getKey();
+                    boolean operatorDoesNotUsePatlInFinalState = instantHelper.getTsosWhichDoNotUsePatlInFinalState().contains(CsaProfileCracUtils.getTsoNameFromUrl(assessedElementOperator));
+                    Optional<CurrentLimits> branchLimits = networkElement.getCurrentLimits(twoSides);
+                    boolean branchHasNoTatl = branchLimits.isEmpty() || branchLimits.get().getTemporaryLimits().isEmpty();
+                    boolean forceUseOfPatl = operatorDoesNotUsePatlInFinalState && branchHasNoTatl;
+                    instantHelper.getPostContingencyInstantsAssociatedToPatl(twoSides == TwoSides.ONE ? instantToDurationMapLeft : instantToDurationMapRight).forEach(
+                        instant -> {
+                            addFlowCnec(networkElement, contingency, instant, Side.fromIidmSide(twoSides), patlThreshold.getValue(), useMaxAndMinThresholds, false);
+                            if (forceUseOfPatl) {
+                                csaProfileCnecCreationContexts.add(CsaProfileElementaryCreationContext.imported(assessedElementId, getCnecName(instant, contingency, Side.fromIidmSide(twoSides)), assessedElementId, "TSO %s does not use PATL in final state but has no TATL defined for branch %s on side %s, PATL will be used".formatted(CsaProfileCracUtils.getTsoNameFromUrl(assessedElementOperator), networkElement.getId(), Side.fromIidmSide(patlThreshold.getKey())), true));
+                            }
+                        }
+                    );
+                }
             }
             // Add TATLs
             addTatls(networkElement, thresholds, useMaxAndMinThresholds, contingency, instantToDurationMapLeft, instantToDurationMapRight);

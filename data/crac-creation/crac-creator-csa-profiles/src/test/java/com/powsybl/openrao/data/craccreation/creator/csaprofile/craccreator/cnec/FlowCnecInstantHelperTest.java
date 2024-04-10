@@ -232,9 +232,7 @@ class FlowCnecInstantHelperTest {
         assertEquals(buildInstantDurationMap(900, 900, 900, 1200, 1200), helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, false, false, false, false, true, true), TwoSides.TWO, "REE"));
         assertEquals(buildInstantDurationMap(900, 900, 900, 900, 900), helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, false, false, false, false, true, false), TwoSides.TWO, "REE"));
         assertEquals(buildInstantDurationMap(1200, 1200, 1200, 1200, 1200), helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, false, false, false, false, false, true), TwoSides.TWO, "REE"));
-
-        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, false, false, false, false, false, false), TwoSides.TWO, "REE"));
-        assertEquals("TSO REE does not use PATL in final state but has no TATL defined for branch branchId on side TWO, this is not supported.", exception.getMessage());
+        assertEquals(buildInstantDurationMap(Integer.MAX_VALUE, Integer.MAX_VALUE, Integer.MAX_VALUE, Integer.MAX_VALUE, Integer.MAX_VALUE), helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, false, false, false, false, false, false), TwoSides.TWO, "REE"));
     }
 
     @Test
