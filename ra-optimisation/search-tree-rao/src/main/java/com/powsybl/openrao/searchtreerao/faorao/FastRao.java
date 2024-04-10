@@ -285,9 +285,9 @@ public class FastRao implements RaoProvider {
             curativeSemaphore.release();
         }
 
-        preventiveSemaphore.acquire();
-        autoSemaphore.acquire();
         curativeSemaphore.acquire();
+        autoSemaphore.acquire();
+        preventiveSemaphore.acquire();
         raoInput.getNetwork().getVariantManager().setWorkingVariant(finalVariantId);
         return new FastRaoResultImpl(initialResult, postPraSensi.get(), postAraSensi.get(), postCraSensi.get(), raoResult, raoInput.getCrac());
     }
