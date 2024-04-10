@@ -68,8 +68,8 @@ abstract class AbstractFillerTest {
     void init() {
         // arrange some data for all fillers test
         // crac and network
-        crac = CracImporters.importCrac("crac/small-crac.json", getClass().getResourceAsStream("/crac/small-crac.json"));
         network = NetworkImportsUtil.import12NodesNetwork();
+        crac = CracImporters.importCrac("crac/small-crac.json", getClass().getResourceAsStream("/crac/small-crac.json"), network);
 
         // get cnec and rangeAction
         cnec1 = crac.getFlowCnec(CNEC_1_ID);

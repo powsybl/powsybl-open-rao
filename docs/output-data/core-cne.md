@@ -2,13 +2,13 @@
 
 ## Introduction
 
-```{include} introduction.md
+```{include} core-cne/introduction.md
 :parser: markdown
 ```
 
 ## The Java API
 
-```{include} java-api.md
+```{include} core-cne/java-api.md
 :parser: markdown
 ```
 
@@ -19,18 +19,18 @@ Here is an overview of the general structure of the CORE CNE document, detailed 
 
 ### Header
 
-```{include} header.md
+```{include} core-cne/header.md
 :parser: markdown
 ```
 
 ### CNEC results
 
-```{include} cnec-results.md
+```{include} core-cne/cnec-results.md
 :parser: markdown
 ```
 
 ### Remedial action results
 
-```{include} ra-results.md
+```{include} core-cne/ra-results.md
 :parser: markdown
 ```

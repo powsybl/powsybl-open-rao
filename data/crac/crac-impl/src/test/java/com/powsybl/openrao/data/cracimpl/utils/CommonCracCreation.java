@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.data.cracimpl.utils;
 
+import com.powsybl.contingency.ContingencyElementType;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.*;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnecAdder;
@@ -96,12 +97,12 @@ public final class CommonCracCreation {
         crac.newContingency()
             .withId("Contingency FR1 FR3")
             .withName("Trip of FFR1AA1 FFR3AA1 1")
-            .withNetworkElement("FFR1AA1  FFR3AA1  1")
+            .withContingencyElement("FFR1AA1  FFR3AA1  1", ContingencyElementType.BRANCH)
             .add();
         crac.newContingency()
             .withId("Contingency FR1 FR2")
             .withName("Trip of FFR1AA1 FFR2AA1 1")
-            .withNetworkElement("FFR1AA1  FFR2AA1  1")
+            .withContingencyElement("FFR1AA1  FFR2AA1  1", ContingencyElementType.BRANCH)
             .add();
 
         // Cnecs

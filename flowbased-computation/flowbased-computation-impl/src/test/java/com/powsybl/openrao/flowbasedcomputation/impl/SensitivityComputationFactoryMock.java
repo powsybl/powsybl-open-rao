@@ -7,7 +7,7 @@
 package com.powsybl.openrao.flowbasedcomputation.impl;
 
 import com.google.auto.service.AutoService;
-import com.powsybl.commons.reporter.Reporter;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.contingency.ContingencyContextType;
@@ -177,7 +177,7 @@ public class SensitivityComputationFactoryMock implements SensitivityAnalysisPro
     }
 
     @Override
-    public CompletableFuture<Void> run(Network network, String s, SensitivityFactorReader sensitivityFactorReader, SensitivityResultWriter sensitivityResultWriter, List<Contingency> contingencies, List<SensitivityVariableSet> glsks, SensitivityAnalysisParameters sensitivityAnalysisParameters, ComputationManager computationManager, Reporter reporter) {
+    public CompletableFuture<Void> run(Network network, String s, SensitivityFactorReader sensitivityFactorReader, SensitivityResultWriter sensitivityResultWriter, List<Contingency> contingencies, List<SensitivityVariableSet> glsks, SensitivityAnalysisParameters sensitivityAnalysisParameters, ComputationManager computationManager, ReportNode reportNode) {
         return CompletableFuture.runAsync(() -> {
             writePreContingencySensitivityValues(sensitivityFactorReader, sensitivityResultWriter);
             for (int contingencyIndex = 0; contingencyIndex < contingencies.size(); contingencyIndex++) {
