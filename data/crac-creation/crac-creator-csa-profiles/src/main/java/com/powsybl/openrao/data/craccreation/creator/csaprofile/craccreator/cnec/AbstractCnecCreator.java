@@ -3,6 +3,7 @@ package com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.cne
 import com.powsybl.contingency.Contingency;
 import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.cracapi.cnec.CnecAdder;
+import com.powsybl.openrao.data.cracapi.cnec.Side;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileCracCreationContext;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileCracUtils;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileElementaryCreationContext;
@@ -79,9 +80,14 @@ public abstract class AbstractCnecCreator {
         return "%s (%s) - %s%s".formatted(assessedElementName, assessedElementId, contingency == null ? "" : contingency.getName().orElse(contingency.getId()) + " - ", instantId);
     }
 
-    protected String getCnecName(String instantId, Contingency contingency, int tatlDuration) {
+    protected String getCnecName(String instantId, Contingency contingency, Side side) {
+        // Need to include the mRID in the name in case the AssessedElement's name is not unique
+        return "%s (%s) - %s%s - %s".formatted(assessedElementName, assessedElementId, contingency == null ? "" : contingency.getName().orElse(contingency.getId()) + " - ", instantId, side.name());
+    }
+
+    protected String getCnecName(String instantId, Contingency contingency, Side side, int tatlDuration) {
         // Add TATL duration in case to CNECs of the same instant are created with different TATLs
-        return "%s - TATL %s".formatted(getCnecName(instantId, contingency), tatlDuration);
+        return "%s - TATL %s".formatted(getCnecName(instantId, contingency, side), tatlDuration);
     }
 
     protected boolean addCnecBaseInformation(CnecAdder<?> cnecAdder, Contingency contingency, String instantId) {
@@ -90,8 +96,13 @@ public abstract class AbstractCnecCreator {
         return true;
     }
 
-    protected void addCnecBaseInformation(CnecAdder<?> cnecAdder, Contingency contingency, String instantId, int tatlDuration) {
-        String cnecName = getCnecName(instantId, contingency, tatlDuration);
+    protected void addCnecBaseInformation(CnecAdder<?> cnecAdder, Contingency contingency, String instantId, Side side) {
+        String cnecName = getCnecName(instantId, contingency, side);
+        initCnecAdder(cnecAdder, contingency, instantId, cnecName);
+    }
+
+    protected void addCnecBaseInformation(CnecAdder<?> cnecAdder, Contingency contingency, String instantId, Side side, int tatlDuration) {
+        String cnecName = getCnecName(instantId, contingency, side, tatlDuration);
         initCnecAdder(cnecAdder, contingency, instantId, cnecName);
     }
 
