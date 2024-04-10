@@ -7,7 +7,7 @@
 
 package com.powsybl.openrao.data.cracimpl;
 
-import com.powsybl.openrao.data.cracapi.Contingency;
+import com.powsybl.contingency.Contingency;
 import com.powsybl.openrao.data.cracapi.Instant;
 import com.powsybl.openrao.data.cracapi.State;
 import com.powsybl.openrao.data.cracapi.usagerule.OnContingencyState;

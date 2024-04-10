@@ -6,6 +6,9 @@
  */
 package com.powsybl.openrao.monitoring.voltagemonitoring;
 
+import com.powsybl.iidm.network.Branch;
+import com.powsybl.iidm.network.Line;
+import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.Crac;
@@ -32,12 +35,22 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class RaoResultWithVoltageMonitoringTest {
     private static final double DOUBLE_TOLERANCE = 0.1;
 
+    private static Network mockNetworkWithLines(String... lineIds) {
+        Network network = Mockito.mock(Network.class);
+        for (String lineId : lineIds) {
+            Branch l = Mockito.mock(Line.class);
+            Mockito.when(l.getId()).thenReturn(lineId);
+            Mockito.when(network.getIdentifiable(lineId)).thenReturn(l);
+        }
+        return network;
+    }
+
     @Test
     void testRaoResultWithVoltageMonitoring() {
         InputStream raoResultFile = getClass().getResourceAsStream("/rao-result-v1.4.json");
         InputStream cracFile = getClass().getResourceAsStream("/crac-for-rao-result-v1.4.json");
 
-        Crac crac = new JsonImport().importCrac(cracFile);
+        Crac crac = new JsonImport().importCrac(cracFile, mockNetworkWithLines("ne1Id", "ne2Id", "ne3Id"));
         Instant curativeInstant = crac.getInstant("curative");
         RaoResult raoResult = new RaoResultImporter().importRaoResult(raoResultFile, crac);
         VoltageMonitoringResult voltageMonitoringResult = new VoltageMonitoringResultImporter().importVoltageMonitoringResult(getClass().getResourceAsStream("/voltage-monitoring-result.json"), crac);

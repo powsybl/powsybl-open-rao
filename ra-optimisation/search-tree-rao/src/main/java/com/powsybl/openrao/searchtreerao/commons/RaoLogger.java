@@ -9,7 +9,6 @@ package com.powsybl.openrao.searchtreerao.commons;
 
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.commons.logs.OpenRaoLogger;
-import com.powsybl.openrao.data.cracapi.Contingency;
 import com.powsybl.openrao.data.cracapi.Identifiable;
 import com.powsybl.openrao.data.cracapi.State;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
@@ -294,8 +293,9 @@ public final class RaoLogger {
     }
 
     public static String getScenarioName(State state) {
-        Optional<Contingency> optionalContingency = state.getContingency();
-        return optionalContingency.isEmpty() ? "preventive" : optionalContingency.get().getName();
+        return state.getContingency()
+            .map(contingency -> contingency.getName().orElse(contingency.getId()))
+            .orElse("preventive");
     }
 
     public static String formatDouble(double value) {
