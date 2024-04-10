@@ -257,38 +257,22 @@ class FlowCnecInstantHelperTest {
     void getPostContingencyInstantsAssociatedToLimitsOnRealData() {
         // REE
         Map<String, Integer> reeInstantToDurationMap = buildInstantDurationMap(900, 900, 900, 900, 900);
-        assertTrue(helper.getPostContingencyInstantsAssociatedToLimitDuration(reeInstantToDurationMap, 0).isEmpty());
-        assertTrue(helper.getPostContingencyInstantsAssociatedToLimitDuration(reeInstantToDurationMap, 182).isEmpty());
-        assertTrue(helper.getPostContingencyInstantsAssociatedToLimitDuration(reeInstantToDurationMap, 300).isEmpty());
-        assertTrue(helper.getPostContingencyInstantsAssociatedToLimitDuration(reeInstantToDurationMap, 600).isEmpty());
         assertEquals(Set.of("outage", "auto", "curative 1", "curative 2", "curative 3"), helper.getPostContingencyInstantsAssociatedToLimitDuration(reeInstantToDurationMap, 900));
-        assertTrue(helper.getPostContingencyInstantsAssociatedToLimitDuration(reeInstantToDurationMap, 1200).isEmpty());
         assertTrue(helper.getPostContingencyInstantsAssociatedToPatl(reeInstantToDurationMap).isEmpty());
         // REN
         Map<String, Integer> renInstantToDurationMap = buildInstantDurationMap(900, 900, 900, Integer.MAX_VALUE, Integer.MAX_VALUE);
-        assertTrue(helper.getPostContingencyInstantsAssociatedToLimitDuration(renInstantToDurationMap, 0).isEmpty());
-        assertTrue(helper.getPostContingencyInstantsAssociatedToLimitDuration(renInstantToDurationMap, 182).isEmpty());
-        assertTrue(helper.getPostContingencyInstantsAssociatedToLimitDuration(renInstantToDurationMap, 300).isEmpty());
-        assertTrue(helper.getPostContingencyInstantsAssociatedToLimitDuration(renInstantToDurationMap, 600).isEmpty());
         assertEquals(Set.of("outage", "auto", "curative 1"), helper.getPostContingencyInstantsAssociatedToLimitDuration(renInstantToDurationMap, 900));
-        assertTrue(helper.getPostContingencyInstantsAssociatedToLimitDuration(renInstantToDurationMap, 1200).isEmpty());
         assertEquals(Set.of("curative 2", "curative 3"), helper.getPostContingencyInstantsAssociatedToPatl(renInstantToDurationMap));
         // RTE Type 1
         Map<String, Integer> rteType1InstantToDurationMap = buildInstantDurationMap(182, 600, 600, 1200, Integer.MAX_VALUE);
-        assertTrue(helper.getPostContingencyInstantsAssociatedToLimitDuration(rteType1InstantToDurationMap, 0).isEmpty());
+        assertEquals(Set.of("outage"), helper.getPostContingencyInstantsAssociatedToLimitDuration(rteType1InstantToDurationMap, 0));
         assertEquals(Set.of("outage"), helper.getPostContingencyInstantsAssociatedToLimitDuration(rteType1InstantToDurationMap, 182));
-        assertTrue(helper.getPostContingencyInstantsAssociatedToLimitDuration(rteType1InstantToDurationMap, 300).isEmpty());
         assertEquals(Set.of("auto", "curative 1"), helper.getPostContingencyInstantsAssociatedToLimitDuration(rteType1InstantToDurationMap, 600));
-        assertTrue(helper.getPostContingencyInstantsAssociatedToLimitDuration(rteType1InstantToDurationMap, 900).isEmpty());
         assertEquals(Set.of("curative 2"), helper.getPostContingencyInstantsAssociatedToLimitDuration(rteType1InstantToDurationMap, 1200));
         assertEquals(Set.of("curative 3"), helper.getPostContingencyInstantsAssociatedToPatl(rteType1InstantToDurationMap));
         // RTE Type 2
         Map<String, Integer> rteType2InstantToDurationMap = buildInstantDurationMap(300, 300, 1200, 1200, Integer.MAX_VALUE);
-        assertTrue(helper.getPostContingencyInstantsAssociatedToLimitDuration(rteType2InstantToDurationMap, 0).isEmpty());
-        assertTrue(helper.getPostContingencyInstantsAssociatedToLimitDuration(rteType2InstantToDurationMap, 182).isEmpty());
         assertEquals(Set.of("outage", "auto"), helper.getPostContingencyInstantsAssociatedToLimitDuration(rteType2InstantToDurationMap, 300));
-        assertTrue(helper.getPostContingencyInstantsAssociatedToLimitDuration(rteType2InstantToDurationMap, 600).isEmpty());
-        assertTrue(helper.getPostContingencyInstantsAssociatedToLimitDuration(rteType2InstantToDurationMap, 900).isEmpty());
         assertEquals(Set.of("curative 1", "curative 2"), helper.getPostContingencyInstantsAssociatedToLimitDuration(rteType2InstantToDurationMap, 1200));
         assertEquals(Set.of("curative 3"), helper.getPostContingencyInstantsAssociatedToPatl(rteType2InstantToDurationMap));
     }

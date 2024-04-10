@@ -75,7 +75,7 @@ class FlowCnecInstantHelper {
     // TODO: [only in ConductingEquipment mode] what if limits are different between LEFT and RIGHT? ex: spanish side = TATL 900 and french side = TATL 300
 
     Set<Integer> getAllTatlDurationsOnSide(Branch<?> branch, TwoSides side) {
-        return branch.getCurrentLimits(side).isPresent() ? branch.getCurrentLimits(side).get().getTemporaryLimits().stream().map(LoadingLimits.TemporaryLimit::getAcceptableDuration).collect(Collectors.toSet()) : Set.of();
+        return branch.getCurrentLimits(side).map(limits -> limits.getTemporaryLimits().stream().map(LoadingLimits.TemporaryLimit::getAcceptableDuration).collect(Collectors.toSet())).orElseGet(Set::of);
     }
 
     public Map<String, Integer> mapPostContingencyInstantsAndLimitDurations(Branch<?> branch, TwoSides side, String tso) {
@@ -88,7 +88,7 @@ class FlowCnecInstantHelper {
             throw new OpenRaoException("TSO %s does not use PATL in final state but has no TATL defined for branch %s on side %s, this is not supported.".formatted(tso, branch.getId(), side));
         }
         // associate instant to TATL duration, or Integer.MAX_VALUE if PATL
-        int longestDuration = doNotUsePatlInFinalState ? tatlDurations.stream().max(Integer::compareTo).get() : Integer.MAX_VALUE; // longest TATL duration or infinite (PATL)
+        int longestDuration = doNotUsePatlInFinalState ? tatlDurations.stream().max(Integer::compareTo).orElse(Integer.MAX_VALUE) : Integer.MAX_VALUE; // longest TATL duration or infinite (PATL)
         instantToLimit.put(OUTAGE_INSTANT, tatlDurations.stream().filter(tatlDuration -> tatlDuration >= 0 && tatlDuration < curative1InstantDuration).max(Integer::compareTo).orElse(getShortestTatlWithDurationGreaterThanOrReturn(tatlDurations, 0, longestDuration)));
         instantToLimit.put(AUTO_INSTANT, getShortestTatlWithDurationGreaterThanOrReturn(tatlDurations, curative1InstantDuration, longestDuration));
         instantToLimit.put(CURATIVE_1_INSTANT, getShortestTatlWithDurationGreaterThanOrReturn(tatlDurations, curative2InstantDuration, longestDuration));
@@ -104,8 +104,9 @@ class FlowCnecInstantHelper {
     // Retrieve instant from limit duration
 
     public Set<String> getPostContingencyInstantsAssociatedToLimitDuration(Map<String, Integer> mapInstantsAndLimits, int limitDuration) {
-        // TODO: what if limitDuration is not a key of the map? still import or not? if yes, take closest greater value? if no such value?
-        return mapInstantsAndLimits.entrySet().stream().filter(entry -> entry.getValue() == limitDuration).map(Map.Entry::getKey).collect(Collectors.toSet());
+        // if limitDuration is not a key of the map, take closest greater duration
+        int durationThreshold = mapInstantsAndLimits.containsValue(limitDuration) ? limitDuration : mapInstantsAndLimits.values().stream().filter(duration -> duration > limitDuration).min(Integer::compareTo).orElse(Integer.MAX_VALUE);
+        return mapInstantsAndLimits.entrySet().stream().filter(entry -> entry.getValue() == durationThreshold).map(Map.Entry::getKey).collect(Collectors.toSet());
     }
 
     public Set<String> getPostContingencyInstantsAssociatedToPatl(Map<String, Integer> mapInstantsAndLimits) {
