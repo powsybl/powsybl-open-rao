@@ -1,8 +1,8 @@
 package com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.cnec;
 
 import com.powsybl.contingency.Contingency;
+import com.powsybl.contingency.ContingencyElement;
 import com.powsybl.openrao.data.cracapi.Crac;
-import com.powsybl.openrao.data.cracapi.NetworkElement;
 import com.powsybl.openrao.data.cracapi.cnec.CnecAdder;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileCracCreationContext;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileCracUtils;
@@ -116,7 +116,7 @@ public abstract class AbstractCnecCreator {
     }
 
     protected boolean incompatibleLocationsBetweenCnecNetworkElementsAndContingency(Set<String> cnecElementsIds, Contingency contingency) {
-        return contingency != null && !GeographicalFilter.networkElementsShareCommonCountry(cnecElementsIds, contingency.getNetworkElements().stream().map(NetworkElement::getId).collect(Collectors.toSet()), network);
+        return contingency != null && !GeographicalFilter.networkElementsShareCommonCountry(cnecElementsIds, contingency.getElements().stream().map(ContingencyElement::getId).collect(Collectors.toSet()), network);
     }
 
     protected boolean incompatibleLocationsBetweenCnecNetworkElementsAndContingency(String cnecElementId, Contingency contingency) {
