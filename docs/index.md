@@ -5,12 +5,12 @@ maxdepth: 2
 hidden: true
 ---
 
-glossary/glossary.md
-input-data/input-data.md
-output-data/output-data.md
-castor/search-tree-rao.md
-parameters/parameters.md
-tutorial/run-simple-rao.md
+glossary.md
+input-data.md
+output-data.md
+castor.md
+parameters.md
+tutorial.md
 ```
 
 ![PowSyBl Logo](/_static/logos/logo_lfe_powsybl.svg)

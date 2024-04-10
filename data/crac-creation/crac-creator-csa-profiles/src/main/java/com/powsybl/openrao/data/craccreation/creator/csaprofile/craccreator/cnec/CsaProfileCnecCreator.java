@@ -7,7 +7,7 @@
 
 package com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.cnec;
 
-import com.powsybl.openrao.data.cracapi.Contingency;
+import com.powsybl.contingency.Contingency;
 import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.cracapi.cnec.*;
 import com.powsybl.openrao.data.craccreation.creator.api.ImportStatus;

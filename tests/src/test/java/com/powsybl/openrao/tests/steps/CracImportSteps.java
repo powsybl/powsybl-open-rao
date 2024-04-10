@@ -6,6 +6,7 @@
  */
 package com.powsybl.openrao.tests.steps;
 
+import com.powsybl.contingency.Contingency;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
@@ -132,9 +133,9 @@ public class CracImportSteps {
         for (Map<String, String> expectedContingency : expectedContingencies) {
             Contingency contingency = crac.getContingency(expectedContingency.get("ContingencyId"));
             assertNotNull(contingency);
-            assertEquals(expectedContingency.get("ContingencyName"), contingency.getName());
-            assertEquals(Integer.parseInt(expectedContingency.get("NetworkElements")), contingency.getNetworkElements().size());
-            assertTrue(contingency.getNetworkElements().stream().anyMatch(ne -> ne.getId().equals(expectedContingency.get("NetworkElementId"))));
+            assertEquals(Optional.of(expectedContingency.get("ContingencyName")), contingency.getName());
+            assertEquals(Integer.parseInt(expectedContingency.get("NetworkElements")), contingency.getElements().size());
+            assertTrue(contingency.getElements().stream().anyMatch(ne -> ne.getId().equals(expectedContingency.get("NetworkElementId"))));
         }
     }
 
@@ -359,7 +360,7 @@ public class CracImportSteps {
                 assertNotNull(contingencyName);
                 assertEquals(crac.getState(contingency, instant), voltageCnec.getState());
                 if (voltageCnec.getState().getContingency().isPresent()) {
-                    assertEquals(contingencyName, voltageCnec.getState().getContingency().get().getName());
+                    assertEquals(Optional.of(contingencyName), voltageCnec.getState().getContingency().get().getName());
                 } else {
                     throw new OpenRaoException("Contingency should be defined");
                 }

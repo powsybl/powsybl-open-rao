@@ -6,9 +6,11 @@
  */
 package com.powsybl.openrao.searchtreerao.castor.algorithm;
 
+import com.powsybl.computation.ComputationManager;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.RandomizedString;
 import com.powsybl.openrao.commons.Unit;
+import com.powsybl.contingency.Contingency;
 import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.cracapi.Identifiable;
 import com.powsybl.openrao.data.cracapi.State;
@@ -540,7 +542,11 @@ public final class AutomatonSimulator {
 
         // Apply contingency and compute load-flow
         if (state.getContingency().isPresent()) {
-            state.getContingency().orElseThrow().apply(network, null);
+            Contingency contingency = state.getContingency().orElseThrow();
+            if (!contingency.isValid(network)) {
+                throw new OpenRaoException("Unable to apply contingency " + contingency.getId());
+            }
+            contingency.toModification().apply(network, (ComputationManager) null);
         }
         LoadFlow.find(loadFlowProvider).run(network, loadFlowParameters);
 
