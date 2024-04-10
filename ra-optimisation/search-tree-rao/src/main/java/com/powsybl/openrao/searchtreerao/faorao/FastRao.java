@@ -18,7 +18,6 @@ import com.powsybl.openrao.data.cracapi.Identifiable;
 import com.powsybl.openrao.data.cracapi.InstantKind;
 import com.powsybl.openrao.data.cracapi.State;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
-import com.powsybl.openrao.data.cracapi.rangeaction.RangeAction;
 import com.powsybl.openrao.data.craciojson.JsonExport;
 import com.powsybl.openrao.data.craciojson.JsonImport;
 import com.powsybl.openrao.data.raoresultapi.RaoResult;
@@ -83,10 +82,10 @@ public class FastRao implements RaoProvider {
     @Override
     public CompletableFuture<RaoResult> run(RaoInput raoInput, RaoParameters parameters, Instant targetEndInstant) {
         RaoUtil.initData(raoInput, parameters);
-        return launchFilteredRao(raoInput, parameters, targetEndInstant);
+        return launchFilteredRao(raoInput, parameters, targetEndInstant, new HashSet<>());
     }
 
-    private CompletableFuture<RaoResult> launchFilteredRao(RaoInput raoInput, RaoParameters parameters, Instant targetEndInstant) {
+    public CompletableFuture<RaoResult> launchFilteredRao(RaoInput raoInput, RaoParameters parameters, Instant targetEndInstant, Set<FlowCnec> initialCnecs) {
 
         try {
             // 1. Retrieve input data
@@ -104,13 +103,13 @@ public class FastRao implements RaoProvider {
                 toolProvider);
             OpenRaoLogger logger = new RaoBusinessLogs();
 
-            // 3. Run RA-free RAO and get 20 worst CNECs
+            // 3. Run initial sensi (for initial values, and to know which cnecs to put in the first rao)
             PrePerimeterResult initialResult = prePerimeterSensitivityAnalysis.runInitialSensitivityAnalysis(raoInput.getNetwork(), raoInput.getCrac());
             PrePerimeterResult ofResult = initialResult;
             RaoLogger.logMostLimitingElementsResults(logger, initialResult, parameters.getObjectiveFunctionParameters().getType(), 5);
             //computeAvailableRangeActions(initialResult, crac, network, parameters);
 
-            Set<FlowCnec> worstCnecs = new HashSet<>();
+            Set<FlowCnec> worstCnecs = new HashSet<>(initialCnecs);
             FlowCnec worstCnec;
             FastRaoResultImpl raoResult;
 
@@ -190,7 +189,7 @@ public class FastRao implements RaoProvider {
     private FastRaoResultImpl runFilteredRao(RaoInput raoInput, RaoParameters parameters, Instant targetEndInstant, Set<FlowCnec> flowCnecsToKeep, ToolProvider toolProvider, PrePerimeterResult initialResult, AbstractNetworkPool networkPool) throws IOException, InterruptedException {
         Crac crac = raoInput.getCrac();
         // 4. Filter CRAC to only keep the worst CNECs
-        Crac filteredCrac = copyCrac(crac);
+        Crac filteredCrac = copyCrac(crac, raoInput.getNetwork());
         removeFlowCnecsFromCrac(filteredCrac, flowCnecsToKeep);
         // 5. Run filtered RAO
         System.out.println("**************************FILTERED RAO*******************************");
@@ -213,6 +212,12 @@ public class FastRao implements RaoProvider {
         // 6. Apply / Force optimal RAs found on filter RAO
         // 7. Run RAO with applied/forced RAs
         System.out.println("**************************FULL SENSI WITH RAS*******************************");
+        //TODO: Semaphores won't quite work with the current implementation to parallelize the loadflows:
+        // eg if we applied PRAs, we need to give the post PRA result to the autoSensi etc, so the sensitivities are not parallelized
+        // Some options:
+        // - have a runBasedOnInitialAndPrePerimResults that takes a semaphore to be able to run a sensi, and then wait for the semaphore to build the result
+        // - ideally use the security analysis for faster runs anyways => rewrite the method completely
+        // (for now option 1)
         AtomicReference<PrePerimeterResult> postPraSensi = new AtomicReference<>();
         AtomicReference<PrePerimeterResult> postAraSensi = new AtomicReference<>();
         AtomicReference<PrePerimeterResult> postCraSensi = new AtomicReference<>();
@@ -226,7 +231,7 @@ public class FastRao implements RaoProvider {
                 try {
                     Network networkCopy = networkPool.getAvailableNetwork();
                     applyOptimalPreventiveRemedialActions(networkCopy, filteredCrac.getPreventiveState(), raoResult);
-                    postPraSensi.set(runBasedOnInitialAndPrePerimResults(toolProvider, raoInput, networkCopy, parameters, crac.getFlowCnecs(), new AppliedRemedialActions(), initialResult, initialResult));
+                    postPraSensi.set(runBasedOnInitialAndPrePerimResults(toolProvider, raoInput, networkCopy, parameters, crac.getFlowCnecs(), new AppliedRemedialActions(), initialResult, new AtomicReference<>(initialResult), new Semaphore(1)));
                     networkPool.releaseUsedNetwork(networkCopy);
                     preventiveSemaphore.release();
                 } catch (InterruptedException e) {
@@ -245,7 +250,7 @@ public class FastRao implements RaoProvider {
                     Network networkCopy = networkPool.getAvailableNetwork();
                     applyOptimalPreventiveRemedialActions(networkCopy, filteredCrac.getPreventiveState(), raoResult);
                     AppliedRemedialActions appliedAutoRemedialActions = createAutoAppliedRemedialActionsFromRaoResult(filteredCrac, raoResult);
-                    postAraSensi.set(runBasedOnInitialAndPrePerimResults(toolProvider, raoInput, networkCopy, parameters, crac.getFlowCnecs(), appliedAutoRemedialActions, initialResult, postPraSensi.get()));
+                    postAraSensi.set(runBasedOnInitialAndPrePerimResults(toolProvider, raoInput, networkCopy, parameters, crac.getFlowCnecs(), appliedAutoRemedialActions, initialResult, postPraSensi, preventiveSemaphore));
                     networkPool.releaseUsedNetwork(networkCopy);
                     autoSemaphore.release();
                 } else {
@@ -266,7 +271,7 @@ public class FastRao implements RaoProvider {
                     Network networkCopy = networkPool.getAvailableNetwork();
                     applyOptimalPreventiveRemedialActions(networkCopy, filteredCrac.getPreventiveState(), raoResult);
                     AppliedRemedialActions appliedRemedialActions = createAppliedRemedialActionsFromRaoResult(filteredCrac, raoResult);
-                    postCraSensi.set(runBasedOnInitialAndPrePerimResults(toolProvider, raoInput, networkCopy, parameters, raoInput.getCrac().getFlowCnecs(), appliedRemedialActions, initialResult, postAraSensi.get()));
+                    postCraSensi.set(runBasedOnInitialAndPrePerimResults(toolProvider, raoInput, networkCopy, parameters, raoInput.getCrac().getFlowCnecs(), appliedRemedialActions, initialResult, postAraSensi, autoSemaphore));
                     networkPool.releaseUsedNetwork(networkCopy);
                     curativeSemaphore.release();
                 } catch (InterruptedException e) {
@@ -296,11 +301,11 @@ public class FastRao implements RaoProvider {
             .build();
     }
 
-    public static Crac copyCrac(Crac crac) {
+    public static Crac copyCrac(Crac crac, Network network) {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         new JsonExport().exportCrac(crac, outputStream);
         ByteArrayInputStream inputStream = new ByteArrayInputStream(outputStream.toByteArray());
-        return new JsonImport().importCrac(inputStream);
+        return new JsonImport().importCrac(inputStream, network);
     }
 
     public static void removeFlowCnecsFromCrac(Crac crac, Collection<FlowCnec> flowCnecsToKeep) {
@@ -349,7 +354,8 @@ public class FastRao implements RaoProvider {
                                                                    Set<FlowCnec> flowCnecs,
                                                                    AppliedRemedialActions appliedRemedialActions,
                                                                    PrePerimeterResult initialFlowResult,
-                                                                   PrePerimeterResult prePerimeterResult) {
+                                                                   AtomicReference<PrePerimeterResult> prePerimeterResult,
+                                                                   Semaphore semaphore) throws InterruptedException {
         Crac crac = raoInput.getCrac();
         SensitivityComputer.SensitivityComputerBuilder sensitivityComputerBuilder = SensitivityComputer.create()
             .withToolProvider(toolProvider)
@@ -375,17 +381,15 @@ public class FastRao implements RaoProvider {
             sensitivityComputerBuilder.withAppliedRemedialActions(appliedRemedialActions);
         }
         SensitivityComputer sensitivityComputer = sensitivityComputerBuilder.build();
-
-        ObjectiveFunction objectiveFunction = ObjectiveFunction.create().build(flowCnecs, toolProvider.getLoopFlowCnecs(flowCnecs), initialFlowResult, prePerimeterResult, initialFlowResult, crac, new StateTree(crac).getOperatorsNotSharingCras(), raoParameters);
-
-        return runAndGetResult(network, sensitivityComputer, objectiveFunction, crac.getRangeActions());
-    }
-
-    private PrePerimeterResult runAndGetResult(Network network, SensitivityComputer sensitivityComputer, ObjectiveFunction objectiveFunction, Set<RangeAction<?>> rangeActions) {
         sensitivityComputer.compute(network);
+
+        semaphore.acquire();
+        ObjectiveFunction objectiveFunction = ObjectiveFunction.create().build(flowCnecs, toolProvider.getLoopFlowCnecs(flowCnecs), initialFlowResult, prePerimeterResult.get(), initialFlowResult, crac, new StateTree(crac).getOperatorsNotSharingCras(), raoParameters);
+        semaphore.release();
+
         FlowResult flowResult = sensitivityComputer.getBranchResult(network);
         SensitivityResult sensitivityResult = sensitivityComputer.getSensitivityResult();
-        RangeActionSetpointResult rangeActionSetpointResult = RangeActionSetpointResultImpl.buildWithSetpointsFromNetwork(network, rangeActions);
+        RangeActionSetpointResult rangeActionSetpointResult = RangeActionSetpointResultImpl.buildWithSetpointsFromNetwork(network, crac.getRangeActions());
         RangeActionActivationResult rangeActionActivationResult = new RangeActionActivationResultImpl(rangeActionSetpointResult);
         ObjectiveFunctionResult objectiveFunctionResult = objectiveFunction.evaluate(flowResult, rangeActionActivationResult, sensitivityResult, sensitivityResult.getSensitivityStatus());
         return new PrePerimeterSensitivityResultImpl(
