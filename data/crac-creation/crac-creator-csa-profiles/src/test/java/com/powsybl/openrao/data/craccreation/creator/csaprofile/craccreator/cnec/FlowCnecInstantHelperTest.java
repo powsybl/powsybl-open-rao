@@ -40,6 +40,11 @@ class FlowCnecInstantHelperTest {
     }
 
     @Test
+    void getTsosWhichDoNotUsePatlInFinalState() {
+        assertEquals(Set.of("REE"), helper.getTsosWhichDoNotUsePatlInFinalState());
+    }
+
+    @Test
     void checkCracCreationParametersWithoutCsaExtension() {
         OpenRaoException exception = assertThrows(OpenRaoException.class, () -> new FlowCnecInstantHelper(new CracCreationParameters()));
         assertEquals("No CsaCracCreatorParameters extension provided.", exception.getMessage());

@@ -80,14 +80,10 @@ public abstract class AbstractCnecCreator {
         return "%s (%s) - %s%s".formatted(assessedElementName, assessedElementId, contingency == null ? "" : contingency.getName().orElse(contingency.getId()) + " - ", instantId);
     }
 
-    protected String getCnecName(String instantId, Contingency contingency, Side side) {
+    protected String getCnecName(String instantId, Contingency contingency, Side side, int acceptableDuration) {
         // Need to include the mRID in the name in case the AssessedElement's name is not unique
-        return "%s (%s) - %s%s - %s".formatted(assessedElementName, assessedElementId, contingency == null ? "" : contingency.getName().orElse(contingency.getId()) + " - ", instantId, side.name());
-    }
-
-    protected String getCnecName(String instantId, Contingency contingency, Side side, int tatlDuration) {
         // Add TATL duration in case to CNECs of the same instant are created with different TATLs
-        return "%s - TATL %s".formatted(getCnecName(instantId, contingency, side), tatlDuration);
+        return "%s (%s) - %s%s - %s%s".formatted(assessedElementName, assessedElementId, contingency == null ? "" : contingency.getName().orElse(contingency.getId()) + " - ", instantId, side.name(), acceptableDuration == Integer.MAX_VALUE ? "" : " - TATL " + acceptableDuration);
     }
 
     protected boolean addCnecBaseInformation(CnecAdder<?> cnecAdder, Contingency contingency, String instantId) {
@@ -96,14 +92,8 @@ public abstract class AbstractCnecCreator {
         return true;
     }
 
-    protected void addCnecBaseInformation(CnecAdder<?> cnecAdder, Contingency contingency, String instantId, Side side) {
-        String cnecName = getCnecName(instantId, contingency, side);
-        initCnecAdder(cnecAdder, contingency, instantId, cnecName);
-    }
-
-    protected void addCnecBaseInformation(CnecAdder<?> cnecAdder, Contingency contingency, String instantId, Side side, int tatlDuration) {
-        String cnecName = getCnecName(instantId, contingency, side, tatlDuration);
-        initCnecAdder(cnecAdder, contingency, instantId, cnecName);
+    protected void addCnecBaseInformation(CnecAdder<?> cnecAdder, Contingency contingency, String instantId, Side side, int acceptableDuration) {
+        initCnecAdder(cnecAdder, contingency, instantId, getCnecName(instantId, contingency, side, acceptableDuration));
     }
 
     private void initCnecAdder(CnecAdder<?> cnecAdder, Contingency contingency, String instantId, String cnecName) {
