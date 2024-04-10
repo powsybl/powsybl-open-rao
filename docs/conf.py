@@ -75,18 +75,10 @@ html_context = {
 }
 
 html_theme_options = {
-    "icon_links": [
-        {
-            "name": "GitHub",
-            "url": "https://github.com/powsybl/powsybl-open-rao",
-            "icon": "fab fa-github-square",
-        }
-    ],
-    "navbar_start": ["navbar-brand-powsybl-openrao"],
     # the following 3 lines enable edit button
     "source_repository": "https://github.com/powsybl/powsybl-open-rao/",
     "source_branch": "main",
-    "source_directory": "docs/",
+    "source_directory": "docs/"
 }
 
 # Add any paths that contain custom static files (such as style sheets) here,
@@ -99,9 +91,8 @@ todo_include_todos = True
 
 # Links to external documentations : python 3 and pandas
 intersphinx_mapping = {
-    'python': ('https://docs.python.org/3', None),
-    'pandas': ('https://pandas.pydata.org/docs', None),
 }
+intersphinx_disabled_reftypes = ["*"]
 
 # Generate one file per method
 autosummary_generate = True
