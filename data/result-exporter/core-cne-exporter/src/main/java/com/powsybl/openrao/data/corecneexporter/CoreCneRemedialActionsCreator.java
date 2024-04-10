@@ -15,7 +15,7 @@ import com.powsybl.openrao.data.corecneexporter.xsd.ConstraintSeries;
 import com.powsybl.openrao.data.corecneexporter.xsd.ContingencySeries;
 import com.powsybl.openrao.data.corecneexporter.xsd.RemedialActionRegisteredResource;
 import com.powsybl.openrao.data.corecneexporter.xsd.RemedialActionSeries;
-import com.powsybl.openrao.data.cracapi.Identifiable;
+import com.powsybl.contingency.Contingency;
 import com.powsybl.openrao.data.cracapi.InstantKind;
 import com.powsybl.openrao.data.cracapi.State;
 import com.powsybl.openrao.data.cracapi.networkaction.NetworkAction;
@@ -25,10 +25,7 @@ import com.powsybl.openrao.data.craccreation.creator.api.stdcreationcontext.PstR
 import com.powsybl.openrao.data.craccreation.creator.api.stdcreationcontext.RemedialActionCreationContext;
 import com.powsybl.openrao.data.craccreation.creator.api.stdcreationcontext.UcteCracCreationContext;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 import static com.powsybl.openrao.data.cneexportercommons.CneConstants.*;
 import static com.powsybl.openrao.data.cneexportercommons.CneUtil.cutString;
@@ -138,13 +135,13 @@ public final class CoreCneRemedialActionsCreator {
 
     private List<ConstraintSeries> createPostCraRaConstraintSeries(List<PstRangeAction> sortedRangeActions, List<NetworkAction> sortedNetworkActions) {
         List<ConstraintSeries> constraintSeriesList = new ArrayList<>();
-        cneHelper.getCrac().getContingencies().stream().sorted(Comparator.comparing(Identifiable::getId)).forEach(contingency -> {
+        cneHelper.getCrac().getContingencies().stream().sorted(Comparator.comparing(Contingency::getId)).forEach(contingency -> {
             State curativeState = cneHelper.getCrac().getState(contingency.getId(), cneHelper.getCrac().getInstant(InstantKind.CURATIVE));
             if (curativeState == null) {
                 return;
             }
             ConstraintSeries curativeB56 = newConstraintSeries(randomizeString(RA_SERIES, 20), B56_BUSINESS_TYPE);
-            ContingencySeries contingencySeries = newContingencySeries(contingency.getId(), contingency.getName());
+            ContingencySeries contingencySeries = newContingencySeries(contingency.getId(), contingency.getName().orElse(contingency.getId()));
             curativeB56.getContingencySeries().add(contingencySeries);
             sortedRangeActions.forEach(rangeAction -> createPostOptimPstRangeActionSeries(rangeAction, InstantKind.CURATIVE, curativeState, curativeB56));
             sortedNetworkActions.forEach(networkAction -> createPostOptimNetworkRemedialActionSeries(networkAction, InstantKind.CURATIVE, curativeState, curativeB56));
@@ -152,7 +149,7 @@ public final class CoreCneRemedialActionsCreator {
                 // Add remedial actions to corresponding CNECs' B54
                 List<ConstraintSeries> contingencyConstraintSeriesList = cnecsConstraintSeries.stream()
                         .filter(constraintSeries -> constraintSeries.getBusinessType().equals(B54_BUSINESS_TYPE)
-                                && constraintSeries.getContingencySeries().stream().anyMatch(series -> series.getName().equals(contingency.getName())))
+                                && constraintSeries.getContingencySeries().stream().anyMatch(series -> series.getName().equals(contingency.getName().orElse(contingency.getId()))))
                         .toList();
                 addRemedialActionsToOtherConstraintSeries(curativeB56.getRemedialActionSeries(), contingencyConstraintSeriesList);
                 // Add B56 to document

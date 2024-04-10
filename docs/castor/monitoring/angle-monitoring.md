@@ -2,30 +2,30 @@
 
 ## Introduction
 
-```{include} introduction.md
+```{include} angle-monitoring/introduction.md
 :parser: markdown
 ```
 
 ## The Java API
 
-```{include} java-api.md
+```{include} angle-monitoring/java-api.md
 :parser: markdown
 ```
 
 ## The angle monitoring result
 
-```{include} result.md
+```{include} angle-monitoring/result.md
 :parser: markdown
 ```
 
 ## The angle monitoring algorithm
 
-```{include} algorithm.md
+```{include} angle-monitoring/algorithm.md
 :parser: markdown
 ```
 
 ## The output logs
 
-```{include} logs.md
+```{include} angle-monitoring/logs.md
 :parser: markdown
 ```

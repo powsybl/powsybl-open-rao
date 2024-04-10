@@ -1,7 +1,7 @@
 package com.powsybl.openrao.monitoring.monitoringcommon.json;
 
-import com.powsybl.openrao.data.cracapi.Contingency;
 import com.powsybl.openrao.data.cracapi.RemedialAction;
+import com.powsybl.contingency.Contingency;
 import com.powsybl.openrao.data.cracapi.State;
 import com.fasterxml.jackson.core.JsonGenerator;
 

@@ -1,0 +1,8 @@
+{
+    "crac-factory" : "CracImplFactory",
+    "extensions" : {
+      "CsaCracCreatorParameters" : {
+        "sps-max-time-to-implement-threshold-in-seconds" : 0
+      }
+    }
+  }

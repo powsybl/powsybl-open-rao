@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.monitoring.anglemonitoring;
 
+import com.powsybl.contingency.ContingencyElementType;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.*;
@@ -113,16 +114,16 @@ class AngleMonitoringTest {
     }
 
     public void mockCurativeStates() {
-        crac.newContingency().withId("coL1").withNetworkElement("L1").add();
-        crac.newContingency().withId("coL2").withNetworkElement("L2").add();
-        crac.newContingency().withId("coL1L2").withNetworkElement("L1").withNetworkElement("L2").add();
+        crac.newContingency().withId("coL1").withContingencyElement("L1", ContingencyElementType.LINE).add();
+        crac.newContingency().withId("coL2").withContingencyElement("L2", ContingencyElementType.LINE).add();
+        crac.newContingency().withId("coL1L2").withContingencyElement("L1", ContingencyElementType.LINE).withContingencyElement("L2", ContingencyElementType.LINE).add();
         acCur1 = addAngleCnec("acCur1", CURATIVE_INSTANT_ID, "coL1", "VL1", "VL2", -3., null);
     }
 
     public void mockCurativeStatesSecure() {
-        crac.newContingency().withId("coL1").withNetworkElement("L1").add();
-        crac.newContingency().withId("coL2").withNetworkElement("L2").add();
-        crac.newContingency().withId("coL1L2").withNetworkElement("L1").withNetworkElement("L2").add();
+        crac.newContingency().withId("coL1").withContingencyElement("L1", ContingencyElementType.LINE).add();
+        crac.newContingency().withId("coL2").withContingencyElement("L2", ContingencyElementType.LINE).add();
+        crac.newContingency().withId("coL1L2").withContingencyElement("L1", ContingencyElementType.LINE).withContingencyElement("L2", ContingencyElementType.LINE).add();
         acCur1 = addAngleCnec("acCur1", CURATIVE_INSTANT_ID, "coL1", "VL1", "VL2", -6., null);
     }
 
@@ -243,7 +244,7 @@ class AngleMonitoringTest {
     @Test
     void testAngleCnecOnBus() {
         setUpCracFactory("network.xiidm");
-        crac.newContingency().withId("coL1").withNetworkElement("L2").add();
+        crac.newContingency().withId("coL1").withContingencyElement("L2", ContingencyElementType.LINE).add();
         acCur1 = addAngleCnec("acCur1", CURATIVE_INSTANT_ID, "coL1", network.getBusView().getBus("VL1_0").getId(), "VL2", -8., null);
 
         runAngleMonitoring();

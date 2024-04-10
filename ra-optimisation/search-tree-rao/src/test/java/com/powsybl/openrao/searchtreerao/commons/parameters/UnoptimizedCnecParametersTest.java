@@ -6,6 +6,7 @@
  */
 package com.powsybl.openrao.searchtreerao.commons.parameters;
 
+import com.powsybl.contingency.ContingencyElementType;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.cracapi.CracFactory;
@@ -85,7 +86,7 @@ class UnoptimizedCnecParametersTest {
                 .withNominalVoltage(220.)
                 .add();
 
-        crac.newContingency().withId("co2").withNetworkElement("ne22").add();
+        crac.newContingency().withId("co2").withContingencyElement("ne22", ContingencyElementType.LINE).add();
 
         crac.newFlowCnec().withId("flowCnec-2")
                 .withNetworkElement("ne2Id")
