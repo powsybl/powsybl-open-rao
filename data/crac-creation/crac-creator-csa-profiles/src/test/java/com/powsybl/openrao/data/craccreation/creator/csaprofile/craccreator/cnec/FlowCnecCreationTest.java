@@ -29,7 +29,6 @@ class FlowCnecCreationTest {
         CsaProfileCracCreationContext cracCreationContext = getCsaCracCreationContext("/profiles/cnecs/FlowCNECs.zip", NETWORK);
 
         List<FlowCnec> importedFlowCnecs = cracCreationContext.getCrac().getFlowCnecs().stream().sorted(Comparator.comparing(FlowCnec::getId)).toList();
-        // TODO: remove this: previously 30
         assertEquals(55, importedFlowCnecs.size());
 
         CsaProfileCracCreationTestUtil.assertFlowCnecEquality(
