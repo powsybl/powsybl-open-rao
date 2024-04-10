@@ -8,10 +8,10 @@ package com.powsybl.openrao.sensitivityanalysis;
 
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.RandomizedString;
+import com.powsybl.contingency.Contingency;
 import com.powsybl.openrao.data.cracapi.Instant;
 import com.powsybl.openrao.data.cracapi.State;
 import com.powsybl.openrao.data.cracapi.cnec.Cnec;
-import com.powsybl.contingency.Contingency;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.sensitivity.SensitivityAnalysis;
 import com.powsybl.sensitivity.SensitivityAnalysisParameters;
@@ -21,7 +21,6 @@ import com.powsybl.sensitivity.SensitivityFactor;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.powsybl.openrao.sensitivityanalysis.SensitivityAnalysisUtil.convertCracContingencyToPowsybl;
 import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.TECHNICAL_LOGS;
 
 /**
@@ -81,7 +80,7 @@ final class SystematicSensitivityAdapter {
 
         List<Contingency> contingenciesWithoutRa = statesWithoutRa.stream()
             .filter(state -> state.getContingency().isPresent())
-            .map(state -> convertCracContingencyToPowsybl(state.getContingency().get(), network))
+            .map(state -> state.getContingency().get())
             .distinct()
             .toList();
 
@@ -104,7 +103,7 @@ final class SystematicSensitivityAdapter {
         boolean shouldRemoveVariant = false;
         for (State state : statesWithRa) {
 
-            Optional<com.powsybl.openrao.data.cracapi.Contingency> optContingency = state.getContingency();
+            Optional<Contingency> optContingency = state.getContingency();
 
             if (optContingency.isEmpty()) {
                 throw new OpenRaoException("Sensitivity analysis with applied RA does not handle preventive RA.");
@@ -119,7 +118,7 @@ final class SystematicSensitivityAdapter {
 
             appliedRemedialActions.applyOnNetwork(state, network);
 
-            List<Contingency> contingencyList = Collections.singletonList(convertCracContingencyToPowsybl(optContingency.get(), network));
+            List<Contingency> contingencyList = Collections.singletonList(optContingency.get());
 
             result.completeData(SensitivityAnalysis.find(sensitivityProvider).run(network,
                 network.getVariantManager().getWorkingVariantId(),

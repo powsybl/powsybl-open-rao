@@ -8,7 +8,7 @@
 package com.powsybl.openrao.data.swecneexporter;
 
 import com.powsybl.openrao.commons.Unit;
-import com.powsybl.openrao.data.cracapi.Contingency;
+import com.powsybl.contingency.Contingency;
 import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.cracapi.InstantKind;
 import com.powsybl.openrao.data.cracapi.cnec.AngleCnec;
@@ -68,14 +68,16 @@ public class SweAdditionalConstraintSeriesCreator {
             BUSINESS_WARNS.warn("{} angle cnec {} will not be added to CNE file", angleCnec.getState().getInstant(), angleCnecCreationContext.getNativeId());
             return null;
         }
-        AdditionalConstraintSeries additionalConstraintSeries = new AdditionalConstraintSeries();
-        additionalConstraintSeries.setMRID(angleCnecCreationContext.getCreatedCnecId());
-        additionalConstraintSeries.setBusinessType(ANGLE_CNEC_BUSINESS_TYPE);
-        additionalConstraintSeries.setName(angleCnec.getName());
         RaoResult raoResult = sweCneHelper.getRaoResult();
+        // only export if angle check ran
         if (!raoResult.getComputationStatus().equals(ComputationStatus.FAILURE) && !Double.isNaN(raoResult.getAngle(crac.getInstant(InstantKind.CURATIVE), angleCnec, Unit.DEGREE))) {
+            AdditionalConstraintSeries additionalConstraintSeries = new AdditionalConstraintSeries();
+            additionalConstraintSeries.setMRID(angleCnecCreationContext.getCreatedCnecId());
+            additionalConstraintSeries.setBusinessType(ANGLE_CNEC_BUSINESS_TYPE);
+            additionalConstraintSeries.setName(angleCnec.getName());
             additionalConstraintSeries.setQuantityQuantity(BigDecimal.valueOf(raoResult.getAngle(crac.getInstant(InstantKind.CURATIVE), angleCnec, Unit.DEGREE)).setScale(1, RoundingMode.HALF_UP));
+            return additionalConstraintSeries;
         }
-        return additionalConstraintSeries;
+        return null;
     }
 }
