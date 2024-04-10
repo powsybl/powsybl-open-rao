@@ -72,7 +72,6 @@ class FlowCnecInstantHelper {
     }
 
     // Instant to limits mapping
-    // TODO: [only in ConductingEquipment mode] what if limits are different between LEFT and RIGHT? ex: spanish side = TATL 900 and french side = TATL 300
 
     Set<Integer> getAllTatlDurationsOnSide(Branch<?> branch, TwoSides side) {
         return branch.getCurrentLimits(side).map(limits -> limits.getTemporaryLimits().stream().map(LoadingLimits.TemporaryLimit::getAcceptableDuration).collect(Collectors.toSet())).orElseGet(Set::of);

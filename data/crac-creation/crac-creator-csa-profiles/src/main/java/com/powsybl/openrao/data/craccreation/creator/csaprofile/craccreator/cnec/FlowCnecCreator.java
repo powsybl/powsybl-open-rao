@@ -9,8 +9,10 @@ import com.powsybl.openrao.data.cracapi.cnec.FlowCnecAdder;
 import com.powsybl.openrao.data.cracapi.cnec.Side;
 import com.powsybl.openrao.data.cracapi.threshold.BranchThresholdAdder;
 import com.powsybl.openrao.data.craccreation.creator.api.ImportStatus;
+import com.powsybl.openrao.data.craccreation.creator.api.parameters.CracCreationParameters;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileConstants;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileCracCreationContext;
+import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileCracUtils;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileElementaryCreationContext;
 import com.powsybl.iidm.network.*;
 import com.powsybl.triplestore.api.PropertyBag;
@@ -27,11 +29,13 @@ public class FlowCnecCreator extends AbstractCnecCreator {
 
     private final String conductingEquipment;
     private final Set<Side> defaultMonitoredSides;
+    private final FlowCnecInstantHelper instantHelper;
 
-    public FlowCnecCreator(Crac crac, Network network, String assessedElementId, String nativeAssessedElementName, String assessedElementOperator, boolean inBaseCase, PropertyBag currentLimitPropertyBag, String conductingEquipment, List<Contingency> linkedContingencies, Set<CsaProfileElementaryCreationContext> csaProfileCnecCreationContexts, CsaProfileCracCreationContext cracCreationContext, Set<Side> defaultMonitoredSides, String rejectedLinksAssessedElementContingency, boolean aeSecuredForRegion, boolean aeScannedForRegion) {
+    public FlowCnecCreator(Crac crac, Network network, String assessedElementId, String nativeAssessedElementName, String assessedElementOperator, boolean inBaseCase, PropertyBag currentLimitPropertyBag, String conductingEquipment, List<Contingency> linkedContingencies, Set<CsaProfileElementaryCreationContext> csaProfileCnecCreationContexts, CsaProfileCracCreationContext cracCreationContext, String rejectedLinksAssessedElementContingency, boolean aeSecuredForRegion, boolean aeScannedForRegion, CracCreationParameters cracCreationParameters) {
         super(crac, network, assessedElementId, nativeAssessedElementName, assessedElementOperator, inBaseCase, currentLimitPropertyBag, linkedContingencies, csaProfileCnecCreationContexts, cracCreationContext, rejectedLinksAssessedElementContingency, aeSecuredForRegion, aeScannedForRegion);
         this.conductingEquipment = conductingEquipment;
-        this.defaultMonitoredSides = defaultMonitoredSides;
+        this.defaultMonitoredSides = cracCreationParameters.getDefaultMonitoredSides();
+        this.instantHelper = new FlowCnecInstantHelper(cracCreationParameters);
     }
 
     public void addFlowCnecs() {
@@ -249,26 +253,31 @@ public class FlowCnecCreator extends AbstractCnecCreator {
         }
 
         for (Contingency contingency : linkedContingencies) {
+            String operatorName = CsaProfileCracUtils.getTsoNameFromUrl(assessedElementOperator);
+            Map<String, Integer> instantToDurationMapLeft = instantHelper.mapPostContingencyInstantsAndLimitDurations(networkElement, TwoSides.ONE, operatorName);
+            Map<String, Integer> instantToDurationMapRight = instantHelper.mapPostContingencyInstantsAndLimitDurations(networkElement, TwoSides.TWO, operatorName);
             // Add PATL
             if (hasPatl) {
-                patlThresholds.forEach((twoSides, threshold) -> addFlowCnec(networkElement, contingency, crac.getLastInstant().getId(), Side.fromIidmSide(twoSides), patlThresholds.get(twoSides), useMaxAndMinThresholds, false));
+                patlThresholds.forEach(
+                    (twoSides, threshold) -> instantHelper.getPostContingencyInstantsAssociatedToPatl(twoSides == TwoSides.ONE ? instantToDurationMapLeft : instantToDurationMapRight).forEach(
+                        instant -> addFlowCnec(networkElement, contingency, instant, Side.fromIidmSide(twoSides), patlThresholds.get(twoSides), useMaxAndMinThresholds, false)
+                    )
+                );
             }
             // Add TATLs
-            addTatls(networkElement, thresholds, useMaxAndMinThresholds, contingency);
+            addTatls(networkElement, thresholds, useMaxAndMinThresholds, contingency, instantToDurationMapLeft, instantToDurationMapRight);
         }
     }
 
-    private void addTatls(Branch<?> networkElement, Map<Integer, EnumMap<TwoSides, Double>> thresholds, boolean useMaxAndMinThresholds, Contingency contingency) {
+    private void addTatls(Branch<?> networkElement, Map<Integer, EnumMap<TwoSides, Double>> thresholds, boolean useMaxAndMinThresholds, Contingency contingency, Map<String, Integer> instantToDurationMapLeft, Map<String, Integer> instantToDurationMapRight) {
         for (Map.Entry<Integer, EnumMap<TwoSides, Double>> thresholdEntry : thresholds.entrySet()) {
             int acceptableDuration = thresholdEntry.getKey();
             if (acceptableDuration != Integer.MAX_VALUE) {
-                Instant instant = getCnecInstant(acceptableDuration);
-                if (instant == null) {
-                    csaProfileCnecCreationContexts.add(CsaProfileElementaryCreationContext.notImported(assessedElementId, ImportStatus.INCONSISTENCY_IN_DATA, writeAssessedElementIgnoredReasonMessage("TATL acceptable duration is negative: " + acceptableDuration)));
-                    //TODO : this most likely needs fixing, maybe continue is enough as a fix instead of return, but then the context wont be very clear since some will have been imported (can already be the case)
-                    continue;
-                }
-                thresholdEntry.getValue().forEach((twoSides, threshold) -> addCurativeFlowCnec(networkElement, contingency, instant.getId(), Side.fromIidmSide(twoSides), threshold, useMaxAndMinThresholds, acceptableDuration));
+                thresholdEntry.getValue().forEach(
+                    (twoSides, threshold) -> instantHelper.getPostContingencyInstantsAssociatedToLimitDuration(twoSides == TwoSides.ONE ? instantToDurationMapLeft : instantToDurationMapRight, acceptableDuration).forEach(
+                        instant -> addCurativeFlowCnec(networkElement, contingency, instant, Side.fromIidmSide(twoSides), threshold, useMaxAndMinThresholds, acceptableDuration)
+                    )
+                );
             }
         }
     }

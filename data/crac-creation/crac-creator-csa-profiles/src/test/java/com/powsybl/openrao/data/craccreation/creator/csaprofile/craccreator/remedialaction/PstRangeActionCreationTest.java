@@ -85,13 +85,17 @@ class PstRangeActionCreationTest {
         assertContingencyEquality(importedContingencies.get(0), "contingency", "RTE_CO", Set.of("FFR1AA1  FFR2AA1  1"));
 
         List<FlowCnec> importedFlowCnecs = cracCreationContext.getCrac().getFlowCnecs().stream().sorted(Comparator.comparing(FlowCnec::getId)).toList();
-        assertEquals(3, importedFlowCnecs.size());
+        assertEquals(5, importedFlowCnecs.size());
 
         assertFlowCnecEquality(importedFlowCnecs.get(0), "RTE_AE1 (ae-1) - RTE_CO - auto - RIGHT - TATL 900", "FFR2AA1  FFR3AA1  1",
             AUTO_INSTANT_ID, "contingency", null, null, 4000.0, -4000.0, Set.of(Side.RIGHT), "RTE");
-        assertFlowCnecEquality(importedFlowCnecs.get(1), "RTE_AE2 (ae-2) - RTE_CO - curative 3 - RIGHT", "FFR2AA1  FFR3AA1  1",
+        assertFlowCnecEquality(importedFlowCnecs.get(1), "RTE_AE1 (ae-1) - RTE_CO - curative 1 - RIGHT - TATL 900", "FFR2AA1  FFR3AA1  1",
+            CURATIVE_1_INSTANT_ID, "contingency", null, null, 4000.0, -4000.0, Set.of(Side.RIGHT), "RTE");
+        assertFlowCnecEquality(importedFlowCnecs.get(2), "RTE_AE2 (ae-2) - RTE_CO - curative 2 - RIGHT", "FFR2AA1  FFR3AA1  1",
+            CURATIVE_2_INSTANT_ID, "contingency", null, null, 2500.0, -2500.0, Set.of(Side.RIGHT), "RTE");
+        assertFlowCnecEquality(importedFlowCnecs.get(3), "RTE_AE2 (ae-2) - RTE_CO - curative 3 - RIGHT", "FFR2AA1  FFR3AA1  1",
             CURATIVE_3_INSTANT_ID, "contingency", null, null, 2500.0, -2500.0, Set.of(Side.RIGHT), "RTE");
-        assertFlowCnecEquality(importedFlowCnecs.get(2), "RTE_AE2 (ae-2) - preventive - RIGHT", "FFR2AA1  FFR3AA1  1",
+        assertFlowCnecEquality(importedFlowCnecs.get(4), "RTE_AE2 (ae-2) - preventive - RIGHT", "FFR2AA1  FFR3AA1  1",
             PREVENTIVE_INSTANT_ID, null, null, null, 2500.0, -2500.0, Set.of(Side.RIGHT), "RTE");
 
         List<PstRangeAction> importedPstRangeActions = cracCreationContext.getCrac().getPstRangeActions().stream().sorted(Comparator.comparing(PstRangeAction::getId)).toList();
@@ -99,7 +103,9 @@ class PstRangeActionCreationTest {
 
         assertPstRangeActionImported(cracCreationContext, "auto-pst-be2-be3", "BBE2AA1  BBE3AA1  1", false, 1, null);
         assertHasOnFlowConstraintUsageRule(cracCreationContext, "auto-pst-be2-be3", "RTE_AE1 (ae-1) - RTE_CO - auto - RIGHT - TATL 900", cracCreationContext.getCrac().getInstant(AUTO_INSTANT_ID), UsageMethod.FORCED);
-        assertPstRangeActionImported(cracCreationContext, "cra-pst-be2-be3", "BBE2AA1  BBE3AA1  1", false, 3, null);
+        assertPstRangeActionImported(cracCreationContext, "cra-pst-be2-be3", "BBE2AA1  BBE3AA1  1", false, 5, null);
+        assertHasOnFlowConstraintUsageRule(cracCreationContext, "cra-pst-be2-be3", "RTE_AE2 (ae-2) - RTE_CO - curative 2 - RIGHT", cracCreationContext.getCrac().getInstant(CURATIVE_1_INSTANT_ID), UsageMethod.AVAILABLE);
+        assertHasOnFlowConstraintUsageRule(cracCreationContext, "cra-pst-be2-be3", "RTE_AE2 (ae-2) - RTE_CO - curative 2 - RIGHT", cracCreationContext.getCrac().getInstant(CURATIVE_2_INSTANT_ID), UsageMethod.AVAILABLE);
         assertHasOnFlowConstraintUsageRule(cracCreationContext, "cra-pst-be2-be3", "RTE_AE2 (ae-2) - RTE_CO - curative 3 - RIGHT", cracCreationContext.getCrac().getInstant(CURATIVE_1_INSTANT_ID), UsageMethod.AVAILABLE);
         assertHasOnFlowConstraintUsageRule(cracCreationContext, "cra-pst-be2-be3", "RTE_AE2 (ae-2) - RTE_CO - curative 3 - RIGHT", cracCreationContext.getCrac().getInstant(CURATIVE_2_INSTANT_ID), UsageMethod.AVAILABLE);
         assertHasOnFlowConstraintUsageRule(cracCreationContext, "cra-pst-be2-be3", "RTE_AE2 (ae-2) - RTE_CO - curative 3 - RIGHT", cracCreationContext.getCrac().getInstant(CURATIVE_3_INSTANT_ID), UsageMethod.AVAILABLE);
@@ -120,13 +126,17 @@ class PstRangeActionCreationTest {
         assertContingencyEquality(importedContingencies.get(0), "contingency", "RTE_CO", Set.of("FFR1AA1  FFR2AA1  1"));
 
         List<FlowCnec> importedFlowCnecs = cracCreationContext.getCrac().getFlowCnecs().stream().sorted(Comparator.comparing(FlowCnec::getId)).toList();
-        assertEquals(3, importedFlowCnecs.size());
+        assertEquals(5, importedFlowCnecs.size());
 
         assertFlowCnecEquality(importedFlowCnecs.get(0), "RTE_AE1 (ae-1) - RTE_CO - auto - RIGHT - TATL 900", "FFR2AA1  FFR3AA1  1",
             AUTO_INSTANT_ID, "contingency", null, null, 4000.0, -4000.0, Set.of(Side.RIGHT), "RTE");
-        assertFlowCnecEquality(importedFlowCnecs.get(1), "RTE_AE2 (ae-2) - RTE_CO - curative 3 - RIGHT", "FFR2AA1  FFR3AA1  1",
+        assertFlowCnecEquality(importedFlowCnecs.get(1), "RTE_AE1 (ae-1) - RTE_CO - curative 1 - RIGHT - TATL 900", "FFR2AA1  FFR3AA1  1",
+            CURATIVE_1_INSTANT_ID, "contingency", null, null, 4000.0, -4000.0, Set.of(Side.RIGHT), "RTE");
+        assertFlowCnecEquality(importedFlowCnecs.get(2), "RTE_AE2 (ae-2) - RTE_CO - curative 2 - RIGHT", "FFR2AA1  FFR3AA1  1",
+            CURATIVE_2_INSTANT_ID, "contingency", null, null, 2500.0, -2500.0, Set.of(Side.RIGHT), "RTE");
+        assertFlowCnecEquality(importedFlowCnecs.get(3), "RTE_AE2 (ae-2) - RTE_CO - curative 3 - RIGHT", "FFR2AA1  FFR3AA1  1",
             CURATIVE_3_INSTANT_ID, "contingency", null, null, 2500.0, -2500.0, Set.of(Side.RIGHT), "RTE");
-        assertFlowCnecEquality(importedFlowCnecs.get(2), "RTE_AE2 (ae-2) - preventive - RIGHT", "FFR2AA1  FFR3AA1  1",
+        assertFlowCnecEquality(importedFlowCnecs.get(4), "RTE_AE2 (ae-2) - preventive - RIGHT", "FFR2AA1  FFR3AA1  1",
             PREVENTIVE_INSTANT_ID, null, null, null, 2500.0, -2500.0, Set.of(Side.RIGHT), "RTE");
 
         List<PstRangeAction> importedPstRangeActions = cracCreationContext.getCrac().getPstRangeActions().stream().sorted(Comparator.comparing(PstRangeAction::getId)).toList();

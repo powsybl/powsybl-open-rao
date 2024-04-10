@@ -52,8 +52,11 @@ class GroupRemedialActionTest {
         assertHasOnContingencyStateUsageRule(cracCreationContext, "f4e1e04c-0184-42ea-a3cb-75dfe70112f5", "co1_fr2_fr3_1", CURATIVE_2_INSTANT_ID, UsageMethod.FORCED);
         assertHasOnContingencyStateUsageRule(cracCreationContext, "f4e1e04c-0184-42ea-a3cb-75dfe70112f5", "co1_fr2_fr3_1", CURATIVE_3_INSTANT_ID, UsageMethod.FORCED);
 
-        assertNetworkActionImported(cracCreationContext, "7d2833e4-c5a8-4d79-b936-c735a58f1774", Set.of("DDE3AA1  DDE4AA1  1", "BBE1AA1  BBE4AA1  1"), true, 3, "RTE");
+        assertNetworkActionImported(cracCreationContext, "7d2833e4-c5a8-4d79-b936-c735a58f1774", Set.of("DDE3AA1  DDE4AA1  1", "BBE1AA1  BBE4AA1  1"), true, 6, "RTE");
         assertEquals("Topo 1 + Topo 2 - CRA x AE1", cracCreationContext.getCrac().getRemedialAction("7d2833e4-c5a8-4d79-b936-c735a58f1774").getName());
+        assertHasOnFlowConstraintUsageRule(cracCreationContext, "7d2833e4-c5a8-4d79-b936-c735a58f1774", "RTE_AE1 (f7708112-b880-4674-98a1-b005a01a61d5) - RTE_CO1 - curative 1 - RIGHT", cracCreationContext.getCrac().getInstant(CURATIVE_1_INSTANT_ID), UsageMethod.AVAILABLE);
+        assertHasOnFlowConstraintUsageRule(cracCreationContext, "7d2833e4-c5a8-4d79-b936-c735a58f1774", "RTE_AE1 (f7708112-b880-4674-98a1-b005a01a61d5) - RTE_CO1 - curative 2 - RIGHT", cracCreationContext.getCrac().getInstant(CURATIVE_2_INSTANT_ID), UsageMethod.AVAILABLE);
+        assertHasOnFlowConstraintUsageRule(cracCreationContext, "7d2833e4-c5a8-4d79-b936-c735a58f1774", "RTE_AE1 (f7708112-b880-4674-98a1-b005a01a61d5) - RTE_CO1 - curative 2 - RIGHT", cracCreationContext.getCrac().getInstant(CURATIVE_2_INSTANT_ID), UsageMethod.AVAILABLE);
         assertHasOnFlowConstraintUsageRule(cracCreationContext, "7d2833e4-c5a8-4d79-b936-c735a58f1774", "RTE_AE1 (f7708112-b880-4674-98a1-b005a01a61d5) - RTE_CO1 - curative 3 - RIGHT", cracCreationContext.getCrac().getInstant(CURATIVE_1_INSTANT_ID), UsageMethod.AVAILABLE);
         assertHasOnFlowConstraintUsageRule(cracCreationContext, "7d2833e4-c5a8-4d79-b936-c735a58f1774", "RTE_AE1 (f7708112-b880-4674-98a1-b005a01a61d5) - RTE_CO1 - curative 3 - RIGHT", cracCreationContext.getCrac().getInstant(CURATIVE_2_INSTANT_ID), UsageMethod.AVAILABLE);
         assertHasOnFlowConstraintUsageRule(cracCreationContext, "7d2833e4-c5a8-4d79-b936-c735a58f1774", "RTE_AE1 (f7708112-b880-4674-98a1-b005a01a61d5) - RTE_CO1 - curative 3 - RIGHT", cracCreationContext.getCrac().getInstant(CURATIVE_3_INSTANT_ID), UsageMethod.AVAILABLE);
