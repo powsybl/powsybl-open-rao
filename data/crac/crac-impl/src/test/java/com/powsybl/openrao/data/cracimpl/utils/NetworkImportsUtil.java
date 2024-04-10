@@ -133,4 +133,87 @@ public final class NetworkImportsUtil {
         shuntCompensator.getTerminal().setP(0.).setQ(0.);
     }
 
+    public static Network createNetworkWithLines(String... lineIds) {
+        Network network = Network.create("test", "test");
+        Substation s = network.newSubstation()
+            .setId("S1")
+            .setCountry(Country.FR)
+            .setTso("TSO1")
+            .setGeographicalTags("region1")
+            .add();
+        VoltageLevel vl1 = s.newVoltageLevel()
+            .setId("VL1")
+            .setNominalV(400.0)
+            .setTopologyKind(TopologyKind.BUS_BREAKER)
+            .add();
+        vl1.getBusBreakerView().newBus()
+            .setId("B1")
+            .add();
+        vl1.getBusBreakerView().newBus()
+            .setId("B2")
+            .add();
+        vl1.getBusBreakerView().newSwitch()
+            .setId("BR1")
+            .setBus1("B1")
+            .setBus2("B2")
+            .setOpen(false)
+            .add();
+        vl1.newGenerator()
+            .setId("G")
+            .setBus("B1")
+            .setMaxP(100.0)
+            .setMinP(50.0)
+            .setTargetP(100.0)
+            .setTargetV(400.0)
+            .setVoltageRegulatorOn(true)
+            .add();
+        vl1.newLoad()
+            .setId("LD1")
+            .setConnectableBus("B1")
+            .setBus("B1")
+            .setP0(1.0)
+            .setQ0(1.0)
+            .add();
+        vl1.newLoad()
+            .setId("LD2")
+            .setConnectableBus("B2")
+            .setBus("B2")
+            .setP0(1.0)
+            .setQ0(1.0)
+            .add();
+        VoltageLevel vl2 = s.newVoltageLevel()
+            .setId("VL2")
+            .setNominalV(400.0)
+            .setTopologyKind(TopologyKind.BUS_BREAKER)
+            .add();
+        vl2.getBusBreakerView().newBus()
+            .setId("B21")
+            .add();
+        vl2.newGenerator()
+            .setId("G2")
+            .setBus("B21")
+            .setMaxP(100.0)
+            .setMinP(50.0)
+            .setTargetP(100.0)
+            .setTargetV(400.0)
+            .setVoltageRegulatorOn(true)
+            .add();
+        for (String lineId : lineIds) {
+            network.newLine()
+                .setId(lineId)
+                .setVoltageLevel1("VL1")
+                .setBus1("B1")
+                .setVoltageLevel2("VL2")
+                .setBus2("B21")
+                .setR(1.0)
+                .setX(1.0)
+                .setG1(0.0)
+                .setB1(0.0)
+                .setG2(0.0)
+                .setB2(0.0)
+                .add();
+        }
+        return network;
+    }
+
 }

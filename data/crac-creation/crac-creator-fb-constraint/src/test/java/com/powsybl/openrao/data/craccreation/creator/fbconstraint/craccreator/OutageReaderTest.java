@@ -81,9 +81,9 @@ class OutageReaderTest {
 
         assertTrue(outageReader.isOutageValid());
         assertNotNull(crac.getContingency("outageId"));
-        assertEquals("outageName", crac.getContingency("outageId").getName());
-        assertEquals(1, crac.getContingency("outageId").getNetworkElements().size());
-        assertTrue(crac.getContingency("outageId").getNetworkElements().stream().anyMatch(ne -> ne.getId().equals("FFR3AA1  XBEFR11  1 + XBEFR11  BBE2AA1  1")));
+        assertEquals("outageName", crac.getContingency("outageId").getName().get());
+        assertEquals(1, crac.getContingency("outageId").getElements().size());
+        assertTrue(crac.getContingency("outageId").getElements().stream().anyMatch(ne -> ne.getId().equals("FFR3AA1  XBEFR11  1 + XBEFR11  BBE2AA1  1")));
     }
 
     @Test
@@ -95,9 +95,9 @@ class OutageReaderTest {
 
         assertTrue(outageReader.isOutageValid());
         assertNotNull(crac.getContingency("outageId"));
-        assertEquals(2, crac.getContingency("outageId").getNetworkElements().size());
-        assertTrue(crac.getContingency("outageId").getNetworkElements().stream().anyMatch(ne -> ne.getId().equals("FFR3AA1  XBEFR11  1 + XBEFR11  BBE2AA1  1")));
-        assertTrue(crac.getContingency("outageId").getNetworkElements().stream().anyMatch(ne -> ne.getId().equals("FFR1AA2  FFR1AA1  5")));
+        assertEquals(2, crac.getContingency("outageId").getElements().size());
+        assertTrue(crac.getContingency("outageId").getElements().stream().anyMatch(ne -> ne.getId().equals("FFR3AA1  XBEFR11  1 + XBEFR11  BBE2AA1  1")));
+        assertTrue(crac.getContingency("outageId").getElements().stream().anyMatch(ne -> ne.getId().equals("FFR1AA2  FFR1AA1  5")));
     }
 
     @Test
@@ -121,10 +121,10 @@ class OutageReaderTest {
 
         assertTrue(outageReader.isOutageValid());
         assertNotNull(crac.getContingency("outageId"));
-        assertEquals("outageName", crac.getContingency("outageId").getName());
-        assertEquals(2, crac.getContingency("outageId").getNetworkElements().size());
-        assertTrue(crac.getContingency("outageId").getNetworkElements().stream().anyMatch(ne -> ne.getId().equals("BBE2AA1  XBE2AL1  1")));
-        assertTrue(crac.getContingency("outageId").getNetworkElements().stream().anyMatch(ne -> ne.getId().equals("XDE2AL1  DDE2AA1  1")));
+        assertEquals("outageName", crac.getContingency("outageId").getName().get());
+        assertEquals(2, crac.getContingency("outageId").getElements().size());
+        assertTrue(crac.getContingency("outageId").getElements().stream().anyMatch(ne -> ne.getId().equals("BBE2AA1  XBE2AL1  1")));
+        assertTrue(crac.getContingency("outageId").getElements().stream().anyMatch(ne -> ne.getId().equals("XDE2AL1  DDE2AA1  1")));
     }
 
     @Test

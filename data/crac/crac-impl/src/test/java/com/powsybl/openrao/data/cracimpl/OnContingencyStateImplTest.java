@@ -7,6 +7,8 @@
 
 package com.powsybl.openrao.data.cracimpl;
 
+import com.powsybl.contingency.Contingency;
+import com.powsybl.contingency.ContingencyElementType;
 import com.powsybl.openrao.data.cracapi.*;
 import com.powsybl.openrao.data.cracapi.usagerule.UsageMethod;
 import org.junit.jupiter.api.BeforeEach;
@@ -37,11 +39,11 @@ class OnContingencyStateImplTest {
         curativeInstant = crac.getInstant("curative");
         Contingency contingency1 = crac.newContingency()
             .withId("contingency1")
-            .withNetworkElement("anyNetworkElement")
+            .withContingencyElement("anyNetworkElement", ContingencyElementType.LINE)
             .add();
         Contingency contingency2 = crac.newContingency()
             .withId("contingency2")
-            .withNetworkElement("anyNetworkElement")
+            .withContingencyElement("anyNetworkElement", ContingencyElementType.LINE)
             .add();
         initialState = new PreventiveState(preventiveInstant);
         curativeState1 = new PostContingencyState(contingency1, curativeInstant);

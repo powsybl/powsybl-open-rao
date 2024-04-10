@@ -7,6 +7,8 @@
 
 package com.powsybl.openrao.searchtreerao.castor.algorithm;
 
+import com.powsybl.contingency.Contingency;
+import com.powsybl.contingency.ContingencyElementType;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.*;
@@ -99,7 +101,7 @@ class AutomatonSimulatorTest {
             .newInstant(AUTO_INSTANT_ID, InstantKind.AUTO);
         Contingency contingency1 = crac.newContingency()
             .withId("contingency1")
-            .withNetworkElement("NNL1AA11 NNL2AA11 1")
+            .withContingencyElement("NNL1AA11 NNL2AA11 1", ContingencyElementType.LINE)
             .add();
         crac.newFlowCnec()
             .withId("cnec-prev")

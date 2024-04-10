@@ -12,7 +12,7 @@
     </parent>
 
     <artifactId>powsybl-open-rao</artifactId>
-    <version>5.4.0-SNAPSHOT</version>
+    <version>5.5.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>Open RAO</name>
@@ -88,8 +88,8 @@
 
         <!-- Dependencies versions -->
         <apache.commons.lang3>3.13.0</apache.commons.lang3>
-        <commons-io.version>2.11.0</commons-io.version>
         <cucumber.bom.version>7.15.0</cucumber.bom.version>
+        <commonsio.version>2.13.0</commonsio.version>
         <google.autoservice.version>1.1.1</google.autoservice.version>
         <google.guava.version>32.0.0-jre</google.guava.version>
         <google.ortools.version>9.9.3963</google.ortools.version>
@@ -116,9 +116,9 @@
         <maven.source.version>3.2.1</maven.source.version>
         <maven.templating.version>1.0.0</maven.templating.version>
         <mockito.inline.version>5.2.0</mockito.inline.version>
-        <powsybl.core.version>6.2.0</powsybl.core.version>
-        <powsybl.entsoe.version>2.8.0</powsybl.entsoe.version>
-        <powsybl.openloadflow.version>1.7.0</powsybl.openloadflow.version>
+        <powsybl.core.version>6.3.0</powsybl.core.version>
+        <powsybl.entsoe.version>2.9.0</powsybl.entsoe.version>
+        <powsybl.openloadflow.version>1.9.0</powsybl.openloadflow.version>
         <slf4j.version>1.7.36</slf4j.version>
         <xmlunit.core.version>2.8.1</xmlunit.core.version>
     </properties>
@@ -222,6 +222,11 @@
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-lang3</artifactId>
                 <version>${apache.commons.lang3}</version>
+            </dependency>
+            <dependency>
+                <groupId>commons-io</groupId>
+                <artifactId>commons-io</artifactId>
+                <version>${commonsio.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.google.auto.service</groupId>

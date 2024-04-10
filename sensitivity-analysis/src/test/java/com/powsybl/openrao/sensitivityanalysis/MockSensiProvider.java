@@ -7,7 +7,7 @@
 package com.powsybl.openrao.sensitivityanalysis;
 
 import com.google.auto.service.AutoService;
-import com.powsybl.commons.reporter.Reporter;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.contingency.ContingencyContextType;
@@ -26,7 +26,7 @@ import java.util.concurrent.atomic.AtomicReference;
 public final class MockSensiProvider implements SensitivityAnalysisProvider {
 
     @Override
-    public CompletableFuture<Void> run(Network network, String s, SensitivityFactorReader sensitivityFactorReader, SensitivityResultWriter sensitivityResultWriter, List<Contingency> contingencies, List<SensitivityVariableSet> glsks, SensitivityAnalysisParameters sensitivityAnalysisParameters, ComputationManager computationManager, Reporter reporter) {
+    public CompletableFuture<Void> run(Network network, String s, SensitivityFactorReader sensitivityFactorReader, SensitivityResultWriter sensitivityResultWriter, List<Contingency> contingencies, List<SensitivityVariableSet> glsks, SensitivityAnalysisParameters sensitivityAnalysisParameters, ComputationManager computationManager, ReportNode reportNode) {
         return CompletableFuture.runAsync(() -> {
             TwoWindingsTransformer pst = network.getTwoWindingsTransformer("BBE2AA1  BBE3AA1  1");
             if (pst == null || pst.getPhaseTapChanger().getTapPosition() == 0) {
@@ -268,5 +268,4 @@ public final class MockSensiProvider implements SensitivityAnalysisProvider {
     public String getVersion() {
         return "1.0";
     }
-
 }

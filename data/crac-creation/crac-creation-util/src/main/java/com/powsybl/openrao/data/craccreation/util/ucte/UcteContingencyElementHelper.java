@@ -7,6 +7,8 @@
 
 package com.powsybl.openrao.data.craccreation.util.ucte;
 
+import com.powsybl.contingency.ContingencyElement;
+import com.powsybl.contingency.ContingencyElementType;
 import com.powsybl.openrao.data.craccreation.util.ElementHelper;
 import com.powsybl.iidm.network.Identifiable;
 
@@ -24,6 +26,8 @@ import static java.lang.String.format;
  * @author Baptiste Seguinot{@literal <baptiste.seguinot at rte-france.com>}
  */
 public class UcteContingencyElementHelper extends AbstractUcteConnectableHelper implements ElementHelper {
+
+    protected ContingencyElementType connectableContingencyTypeInNetwork;
 
     /**
      * Constructor, based on a separate fields.
@@ -70,6 +74,10 @@ public class UcteContingencyElementHelper extends AbstractUcteConnectableHelper 
         }
     }
 
+    public ContingencyElementType getContingencyTypeInNetwork() {
+        return connectableContingencyTypeInNetwork;
+    }
+
     private void interpretWithNetworkAnalyzer(UcteNetworkAnalyzer ucteNetworkAnalyzer) {
 
         UcteMatchingResult ucteMatchingResult = ucteNetworkAnalyzer.findContingencyElement(from, to, suffix);
@@ -87,6 +95,7 @@ public class UcteContingencyElementHelper extends AbstractUcteConnectableHelper 
         Identifiable<?> networkElement = ucteMatchingResult.getIidmIdentifiable();
 
         this.connectableIdInNetwork = networkElement.getId();
+        this.connectableContingencyTypeInNetwork = ContingencyElement.of(networkElement).getType();
 
     }
 }
