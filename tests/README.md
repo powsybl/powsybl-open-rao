@@ -6,8 +6,8 @@ They are automatically run on each Pull Request using the [dedicated workflow]()
 and are a required check for merging PRs.  
 The package uses the [Cucumber framework](https://cucumber.io/), 
 and the tests are divided into "scenarios" and "features", according to the Cucumber terminology:
-- a feature is one functional test that covers one specific feature of OpenRAO
-- a scenario is a collection of related features
+- a scenario is one functional test that covers one specific tested behavior of OpenRAO
+- a feature is a collection of related scenarios
 
 ## Source code content
 The source code of this package is divided in four main parts:
@@ -25,15 +25,15 @@ The [features](src/test/resources/features) directory contains the "feature" fil
 of the features, written in [Gerkin](https://cucumber.io/docs/gherkin/) syntax.
 
 #### Feature description
-- A "feature" file actually contains multiple features (tests), grouped into one "scenario"
-- A scenario has a title and a number (OpenRAO was historically developed following the Agile methodology, so epic numbers were used)
-- Every feature has a number and a brief title (user story numbers were used, but we continue to use numbers in order to easily identify tests)
-- Every feature can have a set of tags (`@...`) that allows advanced filtering of features
+- A "feature" file actually contains multiple scenarios (tests), grouped into one major "feature"
+- A feature has a title and a number (OpenRAO was historically developed following the Agile methodology, so epic numbers were used)
+- Every scenario has a number and a brief title (user story numbers were used, but we continue to use numbers in order to easily identify tests)
+- Every scenario can have a set of tags (`@...`) that allows advanced filtering of scenarios
 
-#### General feature structure
-A feature is a collection of "steps", which is an instruction written in (almost) natural language, starting with `Given`,
+#### General scenario structure
+A scenario is a collection of "steps", which is an instruction written in (almost) natural language, starting with `Given`,
 `When`, or `Then`.  
-A feature is generally divided into 3 parts (each part can contain multiple steps):
+A scenario is generally divided into 3 parts (each part can contain multiple steps):
 1. Test setup: this consists in selecting the input files for the feature of OpenRAO that is being tested (using `Given` steps). 
    For example, the RAO feature needs at least a CRAC, a Network, and a RaoParameters object.
 2. Feature execution: this consists in calling the tested OpenRAO feature (using `When` steps). Currently, the following 
@@ -61,10 +61,10 @@ OpenRAO's glue code is located in the [test](src/test/java/com/powsybl/openrao/t
 
 ## Contributing
 If your development changes a behavior, you may need to update the tests.  
-- If you add a new behavior to OpenRAO, try to add new "features" that test this behavior, in different contexts
+- If you add a new behavior to OpenRAO, try to add new "scenarios" that test this behavior, in different contexts
 - If you changed or improved some behavior and broke a test, you have to update it. Whenever possible, instead of only 
   changing a given test, try to duplicate it in order to test the old behavior (if it is still possible, using a 
-  specific configuration), and the new one, in two different features.
+  specific configuration), and the new one, in two different scenarios.
 
 > Note: Please read the other contribution guidelines [here](../CONTRIBUTING.md).
 
