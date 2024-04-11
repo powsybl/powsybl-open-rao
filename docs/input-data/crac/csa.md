@@ -63,6 +63,10 @@ fields read by OpenRAO are displayed in the following chart.
 
 ![CSA profiles usage overview](/_static/img/CSA-profiles.png)
 
+## Instants
+
+The CSA CRAC is systematically created with 6 instants: preventive, outage, auto and 3 curative instants (named "curative 1", "curative 2" and "curative 3").
+
 ## Contingencies
 
 The [contingencies](json.md#contingencies) are described in the **CO** profile. They can be represented by three types of
@@ -462,15 +466,14 @@ found in the **EQ** profile (CGMES file).
         <cim:IdentifiedObject.mRID>operational-limit-set</cim:IdentifiedObject.mRID>
         <cim:IdentifiedObject.name>Operational limit set</cim:IdentifiedObject.name>
         <cim:IdentifiedObject.description>Example of operational limit set</cim:IdentifiedObject.description>
-        <cim:OperationalLimitSet.Terminal rdf:resource="#_terminal"/>
+        <cim:OperationalLimitSet.Equipment rdf:resource="#_equipment"/>
     </cim:OperationalLimitSet>
     <cim:OperationalLimitType rdf:ID="_operational-limit-type">
         <cim:IdentifiedObject.mRID>operational-limit-type</cim:IdentifiedObject.mRID>
         <cim:IdentifiedObject.name>Operational limit type</cim:IdentifiedObject.name>
         <cim:IdentifiedObject.description>Example of operational limit type</cim:IdentifiedObject.description>
         <cim:OperationalLimitType.isInfiniteDuration>true</cim:OperationalLimitType.isInfiniteDuration>
-        <cim:OperationalLimitType.direction
-                rdf:resource="http://iec.ch/TC57/CIM100#OperationalLimitDirectionKind.high"/>
+        <entsoe:OperationalLimitType.limitType rdf:resource="http://entsoe.eu/CIM/SchemaExtension/3/1#LimitTypeKind.highVoltage" />
     </cim:OperationalLimitType>
     <nc:VoltageLimit rdf:ID="voltage-limit">
         <cim:IdentifiedObject.mRID>voltage-limit</cim:IdentifiedObject.mRID>
@@ -484,16 +487,16 @@ found in the **EQ** profile (CGMES file).
 </rdf:RDF>
 ```
 
-To be valid, the VoltageCNEC's `isInfiniteDuration` field must be set to `true`. It is missing or set to `false` it will
+To be valid, the VoltageCNEC's `isInfiniteDuration` field must be set to `true`. If it is missing or set to `false` it will
 be ignored.
 
 The CNEC's threshold value (in KILOVOLTS) is determined by the `value` field of the `VoltageLimit` and must be positive.
-Whether this is the maximum or minimum threshold of the CNEC depends on the `OperationalLimitType`'s `direction`:
+Whether this is the maximum or minimum threshold of the CNEC depends on the `OperationalLimitType`'s `limitType`:
 
-- if the `direction` is `high`, the maximum value of the threshold is `+ normalValue`
-- if the `direction` is `low`, the minimum value of the threshold is `- normalValue`
+- if the `limitType` is `highVoltage`, the maximum value of the threshold is `+ normalValue`
+- if the `limitType` is `lowVoltage`, the minimum value of the threshold is `- normalValue`
 
-The VoltageCNEC's network element is determined by the `OperationalLimitSet`'s `Terminal`. The latter must reference an
+The VoltageCNEC's network element is determined by the `OperationalLimitSet`'s `Equipment`. The latter must reference an
 existing BusBarSection in the network.
 
 ## Remedial Actions
@@ -527,8 +530,13 @@ The remedial action is imported only if the `normalAvailable` field is set to `t
 
 As for the [contingencies](#contingencies), the `mRID` is used as the remedial action's identifier and
 the `RemedialActionSystemOperator` and `name` are concatenated together to create the remedial action's name. The
-instant of the remedial action is determined by the `kind` which can be either `preventive` or `curative`. Finally,
-the `timeToImplement` is converted to a number of seconds and used as the remedial action's speed.
+instant of the remedial action is determined by the `kind` which can be either `preventive` or `curative`.
+
+> If the remedial action has its `kind` field set to `curative`, the remedial action will be imported for all 3 curative instants at once.
+
+Finally, the `timeToImplement` is converted to a number of seconds and used as the remedial action's speed.
+
+> This `timeToImplement` may also be used to convert a curative remedial action to an auto remedial action (see [this section](#using-gridstatealterationremedialaction-and-timetoimplement)).
 
 In the following, we describe the different types of remedial actions that can be imported in OpenRAO from the CSA
 profiles. The general pattern is to link a `GridStateAlteration` object which references the parent remedial
@@ -871,11 +879,11 @@ of sections.
 
 #### Using SchemeRemedialActions
 
-TODO
+![CSA SPS](/_static/img/sps-csa.png){.forced-white-background}
 
 #### Using GridStateAlterationRemedialAction and timeToImplement
 
-TODO
+An auto remedial action can also be defined in a more concise way using a `GridStateAlterationRemedialAction` with a `timeToImplement`. If this time, converted to a number of seconds, is below the [sps-max-time-to-implement-threshold-in-seconds](creation-parameters.md#sps-max-time-to-implement-threshold-in-seconds) threshold defined in the CSA CRAC creation parameters, the remedial action will be imported as an ARA instead of a CRA.
 
 ### Usage Rules
 
