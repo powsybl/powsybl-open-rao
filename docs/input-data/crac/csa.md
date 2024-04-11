@@ -342,6 +342,8 @@ both the maximum (positive) and minimum (negative) FlowCNEC's thresholds.
 
 Because of the three curative instants used in the CSA process, the definition of instants for FlowCNECs is based on an algorithm that requires to know the acceptable duration of all the TATLs of a line.
 
+This association is more complex, as the set of TATLs used is not fixed from one line to the next, but the RAO must be able to map each of these limits at all 5 post-contingency instants (outage, auto and curative 1, 2 and 3).
+
 Below are some examples of cases using different sets of TATLs:
 
 ::::{tabs}
