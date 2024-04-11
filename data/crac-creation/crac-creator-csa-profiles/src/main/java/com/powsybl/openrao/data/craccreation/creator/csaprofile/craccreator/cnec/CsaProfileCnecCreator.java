@@ -94,8 +94,7 @@ public class CsaProfileCnecCreator {
 
         if (assessedElementsWithContingencies != null) {
             for (PropertyBag assessedElementWithContingencies : assessedElementsWithContingencies) {
-                boolean isCheckLinkOk = this.addCombinableContingencyFromExplicitAssociation(assessedElementId, assessedElementWithContingencies, combinableContingencies);
-                if (!isCheckLinkOk) {
+                if (!checkAndProcessCombinableContingencyFromExplicitAssociation(assessedElementId, assessedElementWithContingencies, combinableContingencies)) {
                     rejectedLinksAssessedElementContingency = rejectedLinksAssessedElementContingency.concat(assessedElementWithContingencies.getId(CsaProfileConstants.REQUEST_ASSESSED_ELEMENT_WITH_CONTINGENCY) + " ");
                 }
             }
@@ -190,7 +189,7 @@ public class CsaProfileCnecCreator {
         return false;
     }
 
-    private boolean addCombinableContingencyFromExplicitAssociation(String assessedElementId, PropertyBag assessedElementWithContingencies, Set<Contingency> combinableContingenciesSet) {
+    private boolean checkAndProcessCombinableContingencyFromExplicitAssociation(String assessedElementId, PropertyBag assessedElementWithContingencies, Set<Contingency> combinableContingenciesSet) {
         String normalEnabledWithContingency = assessedElementWithContingencies.get(CsaProfileConstants.REQUEST_ASSESSED_ELEMENT_WITH_CONTINGENCY_NORMAL_ENABLED);
         String contingencyId = assessedElementWithContingencies.getId(CsaProfileConstants.REQUEST_CONTINGENCY);
         Contingency contingencyToLink = crac.getContingency(contingencyId);
