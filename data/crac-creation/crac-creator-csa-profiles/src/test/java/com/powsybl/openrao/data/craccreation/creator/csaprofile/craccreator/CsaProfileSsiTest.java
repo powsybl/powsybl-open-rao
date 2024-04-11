@@ -487,7 +487,7 @@ class CsaProfileSsiTest {
         assertAngleCnecEquality(crac.getAngleCnec("RTE_AE1 (assessed-element-1) - RTE_CO1 - curative"), "RTE_AE1 (assessed-element-1) - RTE_CO1 - curative", "BBE1AA1 ", "BBE4AA1 ", CURATIVE_INSTANT_ID, "contingency-1", 30d, -30d, "RTE");
         assertAngleCnecEquality(crac.getAngleCnec("RTE_AE2 (assessed-element-2) - preventive"), "RTE_AE2 (assessed-element-2) - preventive", "BBE4AA1 ", "BBE1AA1 ", PREVENTIVE_INSTANT_ID, null, 45d, -45d, "RTE");
         assertAngleCnecEquality(crac.getAngleCnec("RTE_AE2 (assessed-element-2) - RTE_CO3 - curative"), "RTE_AE2 (assessed-element-2) - RTE_CO3 - curative", "BBE4AA1 ", "BBE1AA1 ", CURATIVE_INSTANT_ID, "contingency-3", 45d, -45d, "RTE");
-        assertCnecNotImported(cracCreationContext, "assessed-element-1", ImportStatus.NOT_FOR_RAO, "AssessedElementWithContingency.normalEnabled is false for contingency contingency-2");
+        assertCnecNotImported(cracCreationContext, "assessed-element-1", ImportStatus.NOT_FOR_RAO, "The link between contingency contingency-2 and the assessed element is disabled");
 
         // With SSI
         cracCreationContext = getCsaCracCreationContext("/profiles/ssi/SSI-15_AssessedElementWithContingency.zip", NETWORK, "2024-01-31T12:30Z");
@@ -497,8 +497,8 @@ class CsaProfileSsiTest {
         assertAngleCnecEquality(crac.getAngleCnec("RTE_AE1 (assessed-element-1) - preventive"), "RTE_AE1 (assessed-element-1) - preventive", "BBE1AA1 ", "BBE4AA1 ", PREVENTIVE_INSTANT_ID, null, 30d, -30d, "RTE");
         assertAngleCnecEquality(crac.getAngleCnec("RTE_AE1 (assessed-element-1) - RTE_CO2 - curative"), "RTE_AE1 (assessed-element-1) - RTE_CO2 - curative", "BBE1AA1 ", "BBE4AA1 ", CURATIVE_INSTANT_ID, "contingency-2", 30d, -30d, "RTE");
         assertAngleCnecEquality(crac.getAngleCnec("RTE_AE2 (assessed-element-2) - preventive"), "RTE_AE2 (assessed-element-2) - preventive", "BBE4AA1 ", "BBE1AA1 ", PREVENTIVE_INSTANT_ID, null, 45d, -45d, "RTE");
-        assertCnecNotImported(cracCreationContext, "assessed-element-1", ImportStatus.NOT_FOR_RAO, "AssessedElementWithContingency.normalEnabled is false for contingency contingency-1");
-        assertCnecNotImported(cracCreationContext, "assessed-element-2", ImportStatus.INCONSISTENCY_IN_DATA, "the contingency contingency-3 linked to the assessed element doesn't exist in the CRAC");
+        assertCnecNotImported(cracCreationContext, "assessed-element-1", ImportStatus.NOT_FOR_RAO, "The link between contingency contingency-1 and the assessed element is disabled");
+        assertCnecNotImported(cracCreationContext, "assessed-element-2", ImportStatus.INCONSISTENCY_IN_DATA, "The contingency contingency-3 linked to the assessed element does not exist in the CRAC");
     }
 
     @Test
