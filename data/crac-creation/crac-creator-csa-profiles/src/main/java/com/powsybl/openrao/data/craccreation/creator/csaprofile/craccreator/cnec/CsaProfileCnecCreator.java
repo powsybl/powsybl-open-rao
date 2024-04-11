@@ -87,19 +87,14 @@ public class CsaProfileCnecCreator {
             return;
         }
 
-        Set<Contingency> combinableContingencies;
-        if (isCombinableWithContingency) {
-            combinableContingencies = cracCreationContext.getCrac().getContingencies();
-        } else {
-            combinableContingencies = new HashSet<>();
-        }
+        Set<Contingency> combinableContingencies = isCombinableWithContingency ? cracCreationContext.getCrac().getContingencies() : new HashSet<>();
 
         String nativeAssessedElementName = assessedElementPropertyBag.get(CsaProfileConstants.REQUEST_ASSESSED_ELEMENT_NAME);
         String assessedSystemOperator = assessedElementPropertyBag.getId(CsaProfileConstants.REQUEST_ASSESSED_ELEMENT_OPERATOR);
 
         if (assessedElementsWithContingencies != null) {
             for (PropertyBag assessedElementWithContingencies : assessedElementsWithContingencies) {
-                boolean isCheckLinkOk = this.checkLinkAssessedElementContingency(assessedElementId, assessedElementWithContingencies, combinableContingencies, isCombinableWithContingency);
+                boolean isCheckLinkOk = this.addCombinableContingencyFromExplicitAssociation(assessedElementId, assessedElementWithContingencies, combinableContingencies);
                 if (!isCheckLinkOk) {
                     rejectedLinksAssessedElementContingency = rejectedLinksAssessedElementContingency.concat(assessedElementWithContingencies.getId(CsaProfileConstants.REQUEST_ASSESSED_ELEMENT_WITH_CONTINGENCY) + " ");
                 }
@@ -195,44 +190,32 @@ public class CsaProfileCnecCreator {
         return false;
     }
 
-    private boolean checkLinkAssessedElementContingency(String assessedElementId, PropertyBag assessedElementWithContingencies, Set<Contingency> combinableContingenciesSet, boolean isCombinableWithContingency) {
-        String normalEnabledWithContingencies = assessedElementWithContingencies.get(CsaProfileConstants.REQUEST_ASSESSED_ELEMENT_WITH_CONTINGENCY_NORMAL_ENABLED);
+    private boolean addCombinableContingencyFromExplicitAssociation(String assessedElementId, PropertyBag assessedElementWithContingencies, Set<Contingency> combinableContingenciesSet) {
+        String normalEnabledWithContingency = assessedElementWithContingencies.get(CsaProfileConstants.REQUEST_ASSESSED_ELEMENT_WITH_CONTINGENCY_NORMAL_ENABLED);
         String contingencyId = assessedElementWithContingencies.getId(CsaProfileConstants.REQUEST_CONTINGENCY);
+        Contingency contingencyToLink = crac.getContingency(contingencyId);
 
-        if (normalEnabledWithContingencies != null && !Boolean.parseBoolean(normalEnabledWithContingencies)) {
-            csaProfileCnecCreationContexts.add(CsaProfileElementaryCreationContext.notImported(assessedElementId, ImportStatus.NOT_FOR_RAO, "AssessedElementWithContingency.normalEnabled is false for contingency " + contingencyId));
+        // Unknown contingency
+        if (contingencyToLink == null) {
+            csaProfileCnecCreationContexts.add(CsaProfileElementaryCreationContext.notImported(assessedElementId, ImportStatus.INCONSISTENCY_IN_DATA, "The contingency " + contingencyId + " linked to the assessed element does not exist in the CRAC"));
             return false;
         }
 
-        String combinationConstraintKind = assessedElementWithContingencies.get(CsaProfileConstants.REQUEST_ASSESSED_ELEMENT_WITH_CONTINGENCY_COMBINATION_CONSTRAINT_KIND);
-        if (CsaProfileConstants.ElementCombinationConstraintKind.CONSIDERED.toString().equals(combinationConstraintKind)) {
-            csaProfileCnecCreationContexts.add(CsaProfileElementaryCreationContext.notImported(assessedElementId, ImportStatus.INCONSISTENCY_IN_DATA, "AssessedElementWithContingency.combinationConstraintKind is considered"));
+        // Illegal element combination constraint kind
+        if (!CsaProfileConstants.ElementCombinationConstraintKind.INCLUDED.toString().equals(assessedElementWithContingencies.get(CsaProfileConstants.REQUEST_ASSESSED_ELEMENT_WITH_CONTINGENCY_COMBINATION_CONSTRAINT_KIND))) {
+            csaProfileCnecCreationContexts.add(CsaProfileElementaryCreationContext.notImported(assessedElementId, ImportStatus.INCONSISTENCY_IN_DATA, "The contingency " + contingencyId + " is linked to the assessed element with an illegal elementCombinationConstraint kind"));
+            combinableContingenciesSet.remove(contingencyToLink);
             return false;
         }
-        if (CsaProfileConstants.ElementCombinationConstraintKind.INCLUDED.toString().equals(combinationConstraintKind) && !isCombinableWithContingency) {
-            Contingency contingencyToLink = crac.getContingency(contingencyId);
-            if (contingencyToLink == null) {
-                csaProfileCnecCreationContexts.add(CsaProfileElementaryCreationContext.notImported(assessedElementId, ImportStatus.INCONSISTENCY_IN_DATA, "the contingency "
-                    + contingencyId + " linked to the assessed element doesn't exist in the CRAC"));
-                return false;
-            } else {
-                combinableContingenciesSet.add(contingencyToLink);
-                return true;
-            }
+
+        // Disabled link to contingency
+        if (normalEnabledWithContingency != null && !Boolean.parseBoolean(normalEnabledWithContingency)) {
+            csaProfileCnecCreationContexts.add(CsaProfileElementaryCreationContext.notImported(assessedElementId, ImportStatus.NOT_FOR_RAO, "The link between contingency " + contingencyId + " and the assessed element is disabled"));
+            combinableContingenciesSet.remove(contingencyToLink);
+            return false;
         }
-        if (CsaProfileConstants.ElementCombinationConstraintKind.EXCLUDED.toString().equals(combinationConstraintKind) && isCombinableWithContingency) {
-            Contingency contingencyToRemove = crac.getContingency(contingencyId);
-            if (contingencyToRemove == null) {
-                csaProfileCnecCreationContexts.add(CsaProfileElementaryCreationContext.notImported(assessedElementId, ImportStatus.INCONSISTENCY_IN_DATA, "the contingency "
-                    + contingencyId + " excluded from the contingencies linked to the assessed element doesn't exist in the CRAC"));
-                return false;
-            } else {
-                combinableContingenciesSet.remove(contingencyToRemove);
-                return true;
-            }
-        }
-        csaProfileCnecCreationContexts.add(CsaProfileElementaryCreationContext.notImported(assessedElementId, ImportStatus.INCONSISTENCY_IN_DATA, "AssessedElementWithContingency.combinationConstraintKind = "
-            + combinationConstraintKind + " and AssessedElement.isCombinableWithContingency = " + isCombinableWithContingency + " have inconsistent values"));
-        return false;
+
+        combinableContingenciesSet.add(contingencyToLink);
+        return true;
     }
 }
