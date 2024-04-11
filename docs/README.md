@@ -9,7 +9,7 @@ The website is hosted on [readthedocs](https://readthedocs.org/). The build work
 [.readthedocs.yml](./.readthedocs.yml). This platform presents many advantages,
 thanks to its workflow of automatic branch/tag building & publication:
 - Multiple versions are activated: you can browse different versions of the documentation for different releases of OpenRAO
-- Pull requests are built automatically and the built status is reported in the PR's checks (["Build documentation" workflow](../.github/workflows/build_doc.yml)).  
+- Pull requests are built automatically and the build status is reported in the PR's checks (["Build documentation" workflow](../.github/workflows/build_doc.yml)).  
   Reviewers have access to the resulting documentation preview in order to make reviewing it easier.
 
 HTML content of the website is built automatically from source files written in [Markdown](https://fr.wikipedia.org/wiki/Markdown),

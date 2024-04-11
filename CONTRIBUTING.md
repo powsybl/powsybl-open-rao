@@ -8,8 +8,8 @@ If you are an OpenRAO user, and you found a bug, or you would like a new feature
 if you are an active OpenRAO developer, and have ideas to improve the code, please let us know! 
 We'll be more than happy to fix all bugs and discuss all improvement ideas.
 - First, make sure that the bug/feature request/improvement idea has not been already reported under [Issues](https://github.com/powsybl/powsybl-open-rao/issues).
-- If not, [open a new one](https://github.com/powsybl/powsybl-open-rao/issues/new). Provide us with the most details 
-  possible, so we can understand the issue and try to address it ASAP. 
+- If not, [open a new one](https://github.com/powsybl/powsybl-open-rao/issues/new). Provide us with as many details as possible, 
+  so we can understand the issue and try to address it ASAP. 
 - Label[^1] your new issue as much as possible, this makes addressing it much more efficient.
 
 Your ideas may be discussed by the OpenRAO developers and the [PowSyBl Technical Steering Committee](https://www.powsybl.org/pages/overview/governance#technical-steering-committee) 
@@ -23,8 +23,8 @@ The best way to get a quick start is to clone the project's main branch and try 
 on your PC. If everything works, then you're good to make your first contribution to the code!
 
 ### Code formatting
-OpenRAO a custom profile for JAVA code formatting.  
-You can download these rules for your IDEA from this directory: [developer-resources](docs/_static/developer-resources).  
+OpenRAO uses a custom profile for JAVA code formatting.  
+You can download these rules for your IDE from this directory: [developer-resources](docs/_static/developer-resources).  
 
 ### Pull Requests
 The `main` branch is protected by a set of rules, and Pull Requests from your branch are mandatory.  
@@ -34,7 +34,7 @@ Here is a set of rules your pull request must follow:
 - the description of the PR should be well detailed: it must be self-explanatory and detailed enough for developers and 
   users to understand **what** has changed, **why**, and **how**
 - if the PR addresses an open issue, the **issue should be linked** in the description
-- you can open a PR even if it's not ready to merge, but in that cas you must set it as a **draft**
+- you can open a PR even if it's not ready to merge, but in that case you must set it as a **draft**
 - the PR must be **reviewed** by at least one other developer before it can be merged
 - you must add unit **tests** and/or [functional tests](tests/README.md) to your new features
 - the PR must pass a few **automatic checks** before it can be merged: build & unit tests, functional tests, sonar quality, sign-off check, doc build check

@@ -2,7 +2,7 @@
 
 ## Introduction
 This package contains 470+ automated functional tests for OpenRAO, for behavior-driven development. 
-They are automatically run on each Pull Request using the [dedicated workflow]() 
+They are automatically run on each Pull Request using the [dedicated workflow](../.github/workflows/run_cucumber_tests.yml) 
 and are a required check for merging PRs.  
 The package uses the [Cucumber framework](https://cucumber.io/), 
 and the tests are divided into "scenarios" and "features", according to the Cucumber terminology:
