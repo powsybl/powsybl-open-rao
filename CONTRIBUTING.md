@@ -36,6 +36,7 @@ Here is a set of rules your pull request must follow:
 - if the PR addresses an open issue, the **issue should be linked** in the description
 - you can open a PR even if it's not ready to merge, but in that cas you must set it as a **draft**
 - the PR must be **reviewed** by at least one other developer before it can be merged
+- you must add unit **tests** and/or [functional tests](tests/README.md) to your new features
 - the PR must pass a few **automatic checks** before it can be merged: build & unit tests, functional tests, sonar quality, sign-off check, doc build check
 - if the PR changes a part of the code that is [documented](https://powsybl.readthedocs.io/projects/openrao/en/latest), 
   then [**documentation**](docs) must be updated before it can be merged
