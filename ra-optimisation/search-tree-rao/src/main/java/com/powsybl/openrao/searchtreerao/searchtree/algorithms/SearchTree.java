@@ -114,11 +114,13 @@ public class SearchTree {
         if (rootLeaf.getStatus().equals(Leaf.Status.ERROR)) {
             topLevelLogger.info("Could not evaluate leaf: {}", rootLeaf);
             logOptimizationSummary(rootLeaf);
+            rootLeaf.finalizeOptimization();
             return CompletableFuture.completedFuture(rootLeaf);
         } else if (stopCriterionReached(rootLeaf)) {
             topLevelLogger.info("Stop criterion reached on {}", rootLeaf);
             RaoLogger.logMostLimitingElementsResults(topLevelLogger, rootLeaf, parameters.getObjectiveFunction(), NUMBER_LOGGED_ELEMENTS_END_TREE);
             logOptimizationSummary(rootLeaf);
+            rootLeaf.finalizeOptimization();
             return CompletableFuture.completedFuture(rootLeaf);
         }
 
@@ -135,6 +137,7 @@ public class SearchTree {
 
         if (stopCriterionReached(rootLeaf)) {
             logOptimizationSummary(optimalLeaf);
+            rootLeaf.finalizeOptimization();
             return CompletableFuture.completedFuture(rootLeaf);
         }
 
@@ -348,6 +351,7 @@ public class SearchTree {
         } else {
             topLevelLogger.info("Could not evaluate {}", leaf);
         }
+        leaf.finalizeOptimization();
     }
 
     Leaf createChildLeaf(Network network, NetworkActionCombination naCombination, boolean shouldRangeActionBeRemoved) {
@@ -370,7 +374,6 @@ public class SearchTree {
         } else {
             TECHNICAL_LOGS.info("No range actions to optimize");
         }
-        leaf.finalizeOptimization();
     }
 
     private SensitivityComputer getSensitivityComputerForEvaluation(boolean isRootLeaf) {
