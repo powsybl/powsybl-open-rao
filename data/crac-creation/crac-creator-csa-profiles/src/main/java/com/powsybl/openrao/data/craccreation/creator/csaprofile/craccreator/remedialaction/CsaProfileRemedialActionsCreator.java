@@ -250,11 +250,10 @@ public class CsaProfileRemedialActionsCreator {
         // If the remedial action is linked to an assessed element, no matter if this link or this assessed element is
         // valid or not, the remedial action cannot have an onContingencyState usage rule because it would make it more
         // available than what it was designed for
-        addOnConstraintUsageRules(crac.getInstant(InstantKind.CURATIVE), remedialActionAdder, remedialActionId, alterations);
+        Instant instant = defineInstant(isSchemeRemedialAction, parentRemedialActionPropertyBag, remedialActionId, durationLimit);
+        addOnConstraintUsageRules(instant, remedialActionAdder, remedialActionId, alterations);
         boolean isLinkedToAssessedElements = elementaryActionsHelper.remedialActionIsLinkedToAssessedElements(remedialActionId);
         if (!isLinkedToAssessedElements) {
-            Instant instant = defineInstant(isSchemeRemedialAction, parentRemedialActionPropertyBag, remedialActionId, durationLimit);
-
             validContingencies.forEach(openRaoContingencyId -> remedialActionAdder.newOnContingencyStateUsageRule()
                 .withInstant(instant.getId())
                 .withContingency(openRaoContingencyId.getLeft())
