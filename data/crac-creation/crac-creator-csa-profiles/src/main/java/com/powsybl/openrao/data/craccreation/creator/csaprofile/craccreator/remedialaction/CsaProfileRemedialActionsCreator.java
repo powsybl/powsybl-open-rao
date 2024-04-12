@@ -213,7 +213,7 @@ public class CsaProfileRemedialActionsCreator {
     }
 
     private static boolean isOnConstraintInstantCoherent(Instant cnecInstant, Instant remedialInstant) {
-        return !cnecInstant.comesBefore(remedialInstant);
+        return remedialInstant.isAuto() ? cnecInstant.isAuto() : !cnecInstant.comesBefore(remedialInstant);
     }
 
     private void addOnContingencyStateUsageRules(PropertyBag parentRemedialActionPropertyBag, String remedialActionId, Map<String, Set<PropertyBag>> linkedContingencyWithRAs, RemedialActionAdder<?> remedialActionAdder, List<String> alterations, boolean isSchemeRemedialAction, int durationLimit, RemedialActionType remedialActionType) {
@@ -250,11 +250,10 @@ public class CsaProfileRemedialActionsCreator {
         // If the remedial action is linked to an assessed element, no matter if this link or this assessed element is
         // valid or not, the remedial action cannot have an onContingencyState usage rule because it would make it more
         // available than what it was designed for
-        addOnConstraintUsageRules(crac.getInstant(InstantKind.CURATIVE), remedialActionAdder, remedialActionId, alterations);
+        Instant instant = defineInstant(isSchemeRemedialAction, parentRemedialActionPropertyBag, remedialActionId, durationLimit);
+        addOnConstraintUsageRules(instant, remedialActionAdder, remedialActionId, alterations);
         boolean isLinkedToAssessedElements = elementaryActionsHelper.remedialActionIsLinkedToAssessedElements(remedialActionId);
         if (!isLinkedToAssessedElements) {
-            Instant instant = defineInstant(isSchemeRemedialAction, parentRemedialActionPropertyBag, remedialActionId, durationLimit);
-
             validContingencies.forEach(openRaoContingencyId -> remedialActionAdder.newOnContingencyStateUsageRule()
                 .withInstant(instant.getId())
                 .withContingency(openRaoContingencyId.getLeft())
@@ -333,7 +332,7 @@ public class CsaProfileRemedialActionsCreator {
             String groupId = propertyBag.get(MRID);
             String groupName = propertyBag.get(REMEDIAL_ACTION_NAME) == null ? groupId : propertyBag.get(REMEDIAL_ACTION_NAME);
             try {
-                Set<PropertyBag> dependingEnabledRemedialActions = remedialActionDependenciesByGroup.get(groupId).stream().filter(raDependency -> Boolean.parseBoolean(raDependency.get(NORMAL_ENABLED)) || raDependency.get(NORMAL_ENABLED) == null).collect(Collectors.toSet());
+                Set<PropertyBag> dependingEnabledRemedialActions = remedialActionDependenciesByGroup.getOrDefault(groupId, Set.of()).stream().filter(raDependency -> Boolean.parseBoolean(raDependency.get(NORMAL_ENABLED)) || raDependency.get(NORMAL_ENABLED) == null).collect(Collectors.toSet());
                 if (!dependingEnabledRemedialActions.isEmpty()) {
 
                     PropertyBag refRemedialActionDependency = dependingEnabledRemedialActions.iterator().next();
