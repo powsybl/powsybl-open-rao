@@ -94,7 +94,7 @@ public class RaoResultWithAngleMonitoring extends RaoResultClone {
         if (physicalParameters.remove(PhysicalParameter.ANGLE)) {
             return raoResult.isSecure(instant, physicalParameters.toArray(new PhysicalParameter[0])) && angleMonitoringResult.isSecure();
         } else {
-            return raoResult.isSecure(instant, physicalParameters.toArray(new PhysicalParameter[0]));
+            return raoResult.isSecure(instant, u);
         }
     }
 
@@ -104,7 +104,7 @@ public class RaoResultWithAngleMonitoring extends RaoResultClone {
         if (physicalParameters.remove(PhysicalParameter.ANGLE)) {
             return raoResult.isSecure(physicalParameters.toArray(new PhysicalParameter[0])) && angleMonitoringResult.isSecure();
         } else {
-            return raoResult.isSecure(physicalParameters.toArray(new PhysicalParameter[0]));
+            return raoResult.isSecure(u);
         }
     }
 

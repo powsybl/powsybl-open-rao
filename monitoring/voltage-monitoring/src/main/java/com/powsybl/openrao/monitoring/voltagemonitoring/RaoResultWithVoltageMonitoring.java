@@ -102,7 +102,7 @@ public class RaoResultWithVoltageMonitoring extends RaoResultClone {
         if (physicalParameters.remove(PhysicalParameter.VOLTAGE)) {
             return raoResult.isSecure(instant, physicalParameters.toArray(new PhysicalParameter[0])) && voltageMonitoringResult.isSecure();
         } else {
-            return raoResult.isSecure(instant, physicalParameters.toArray(new PhysicalParameter[0]));
+            return raoResult.isSecure(instant, u);
         }
     }
 
@@ -112,7 +112,7 @@ public class RaoResultWithVoltageMonitoring extends RaoResultClone {
         if (physicalParameters.remove(PhysicalParameter.VOLTAGE)) {
             return raoResult.isSecure(physicalParameters.toArray(new PhysicalParameter[0])) && voltageMonitoringResult.isSecure();
         } else {
-            return raoResult.isSecure(physicalParameters.toArray(new PhysicalParameter[0]));
+            return raoResult.isSecure(u);
         }
     }
 
