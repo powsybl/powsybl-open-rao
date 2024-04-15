@@ -150,6 +150,7 @@ public class SearchTree {
         RaoLogger.logMostLimitingElementsResults(TECHNICAL_LOGS, optimalLeaf, parameters.getObjectiveFunction(), NUMBER_LOGGED_ELEMENTS_END_TREE);
 
         logOptimizationSummary(optimalLeaf);
+        optimalLeaf.finalizeOptimization();
         return CompletableFuture.completedFuture(optimalLeaf);
     }
 
@@ -351,7 +352,6 @@ public class SearchTree {
         } else {
             topLevelLogger.info("Could not evaluate {}", leaf);
         }
-        leaf.finalizeOptimization();
     }
 
     Leaf createChildLeaf(Network network, NetworkActionCombination naCombination, boolean shouldRangeActionBeRemoved) {
