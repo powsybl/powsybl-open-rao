@@ -24,6 +24,8 @@ import static java.lang.String.format;
  */
 public class UcteTopologicalElementHelper extends AbstractUcteConnectableHelper implements ElementHelper {
 
+    protected Identifiable<?> iidmIdentifiable;
+
     /**
      * Constructor, based on a separate fields.
      *
@@ -69,6 +71,13 @@ public class UcteTopologicalElementHelper extends AbstractUcteConnectableHelper 
         }
     }
 
+    /**
+     * If the connectable is valid, returns its type in the iidm network
+     */
+    public Identifiable<?> getIidmIdentifiable() {
+        return this.iidmIdentifiable;
+    }
+
     private void interpretWithNetworkAnalyzer(UcteNetworkAnalyzer ucteNetworkAnalyzer) {
 
         UcteMatchingResult ucteMatchingResult = ucteNetworkAnalyzer.findTopologicalElement(from, to, suffix);
@@ -83,7 +92,7 @@ public class UcteTopologicalElementHelper extends AbstractUcteConnectableHelper 
             return;
         }
 
-        Identifiable<?> networkElement = ucteMatchingResult.getIidmIdentifiable();
-        this.connectableIdInNetwork = networkElement.getId();
+        this.iidmIdentifiable = ucteMatchingResult.getIidmIdentifiable();
+        this.connectableIdInNetwork = this.iidmIdentifiable.getId();
     }
 }

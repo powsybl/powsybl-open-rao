@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.data.cracapi.networkaction;
 
+import com.powsybl.action.*;
 import com.powsybl.openrao.data.cracapi.RemedialAction;
 import com.powsybl.iidm.network.Network;
 import org.apache.commons.lang3.NotImplementedException;
@@ -17,9 +18,9 @@ import java.util.Set;
  * Remedial action interface specifying a direct action on the network.
  * <p>
  * The Network Action is completely defined by itself.
- * It involves a Set of {@link ElementaryAction}.
- * When the apply method is called, an action is triggered on each of these Elementary
- * Actions.
+ * It involves a Set of {@link Action}.
+ * When the apply method is called, a {@link com.powsybl.iidm.modification.NetworkModification}
+ * is triggered on each of these elementary remedial actions.
  *
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
@@ -45,7 +46,7 @@ public interface NetworkAction extends RemedialAction<NetworkAction> {
     /**
      * Get the set of the elementary actions constituting then network action
      */
-    Set<ElementaryAction> getElementaryActions();
+    Set<Action> getElementaryActions();
 
     /**
      * States if the network action can be applied without infringing on another network action's scope.
@@ -55,26 +56,54 @@ public interface NetworkAction extends RemedialAction<NetworkAction> {
      */
     default boolean isCompatibleWith(NetworkAction otherNetworkAction) {
         return getElementaryActions().stream().allMatch(elementaryAction -> {
-            if (elementaryAction instanceof InjectionSetpoint injectionSetPoint) {
+            if (elementaryAction instanceof GeneratorAction generatorAction) {
                 return otherNetworkAction.getElementaryActions().stream().allMatch(otherElementaryAction -> {
-                    if (otherElementaryAction instanceof InjectionSetpoint otherInjectionSetpoint) {
-                        return !injectionSetPoint.getNetworkElement().equals(otherInjectionSetpoint.getNetworkElement()) || injectionSetPoint.getSetpoint() == otherInjectionSetpoint.getSetpoint() && injectionSetPoint.getUnit() == otherInjectionSetpoint.getUnit();
+                    if (otherElementaryAction instanceof GeneratorAction otherGeneratorAction) {
+                        return !generatorAction.getGeneratorId().equals(otherGeneratorAction.getGeneratorId()) || generatorAction.getActivePowerValue() == otherGeneratorAction.getActivePowerValue();
                     }
                     return true;
                 });
-            } else if (elementaryAction instanceof PstSetpoint pstSetPoint) {
+            } else if (elementaryAction instanceof LoadAction loadAction) {
                 return otherNetworkAction.getElementaryActions().stream().allMatch(otherElementaryAction -> {
-                    if (otherElementaryAction instanceof PstSetpoint otherPstSetpoint) {
-                        return !pstSetPoint.getNetworkElement().equals(otherPstSetpoint.getNetworkElement()) || pstSetPoint.getSetpoint() == otherPstSetpoint.getSetpoint();
+                    if (otherElementaryAction instanceof LoadAction otherLoadAction) {
+                        return !loadAction.getLoadId().equals(otherLoadAction.getLoadId()) || loadAction.getActivePowerValue() == otherLoadAction.getActivePowerValue();
+                    }
+                    return true;
+                });
+            } else if (elementaryAction instanceof DanglingLineAction danglingLineAction) {
+                return otherNetworkAction.getElementaryActions().stream().allMatch(otherElementaryAction -> {
+                    if (otherElementaryAction instanceof DanglingLineAction otherDanglingLineAction) {
+                        return !danglingLineAction.getDanglingLineId().equals(otherDanglingLineAction.getDanglingLineId()) || danglingLineAction.getActivePowerValue() == otherDanglingLineAction.getActivePowerValue();
+                    }
+                    return true;
+                });
+            } else if (elementaryAction instanceof ShuntCompensatorPositionAction shuntCompensatorPositionAction) {
+                return otherNetworkAction.getElementaryActions().stream().allMatch(otherElementaryAction -> {
+                    if (otherElementaryAction instanceof ShuntCompensatorPositionAction otherShuntCompensatorPositionAction) {
+                        return !shuntCompensatorPositionAction.getShuntCompensatorId().equals(otherShuntCompensatorPositionAction.getShuntCompensatorId()) || shuntCompensatorPositionAction.getSectionCount() == otherShuntCompensatorPositionAction.getSectionCount();
+                    }
+                    return true;
+                });
+            } else if (elementaryAction instanceof PhaseTapChangerTapPositionAction phaseTapChangerTapPositionAction) {
+                return otherNetworkAction.getElementaryActions().stream().allMatch(otherElementaryAction -> {
+                    if (otherElementaryAction instanceof PhaseTapChangerTapPositionAction otherPhaseTapChangerTapPositionAction) {
+                        return !phaseTapChangerTapPositionAction.getTransformerId().equals(otherPhaseTapChangerTapPositionAction.getTransformerId()) || phaseTapChangerTapPositionAction.getTapPosition() == otherPhaseTapChangerTapPositionAction.getTapPosition();
                     }
                     return true;
                 });
             } else if (elementaryAction instanceof SwitchPair switchPair) {
                 return otherNetworkAction.getElementaryActions().stream().allMatch(switchPair::isCompatibleWith);
-            } else if (elementaryAction instanceof TopologicalAction topologicalAction) {
+            } else if (elementaryAction instanceof TerminalsConnectionAction terminalsConnectionAction) {
                 return otherNetworkAction.getElementaryActions().stream().allMatch(otherElementaryAction -> {
-                    if (otherElementaryAction instanceof TopologicalAction otherTopologicalAction) {
-                        return !topologicalAction.getNetworkElement().equals(otherTopologicalAction.getNetworkElement()) || topologicalAction.getActionType().equals(otherTopologicalAction.getActionType());
+                    if (otherElementaryAction instanceof TerminalsConnectionAction otherTerminalsConnectionAction) {
+                        return !terminalsConnectionAction.getElementId().equals(otherTerminalsConnectionAction.getElementId()) || terminalsConnectionAction.isOpen() == otherTerminalsConnectionAction.isOpen();
+                    }
+                    return true;
+                });
+            } else if (elementaryAction instanceof SwitchAction switchAction) {
+                return otherNetworkAction.getElementaryActions().stream().allMatch(otherElementaryAction -> {
+                    if (otherElementaryAction instanceof SwitchAction otherSwitchAction) {
+                        return !switchAction.getSwitchId().equals(otherSwitchAction.getSwitchId()) || switchAction.isOpen() == otherSwitchAction.isOpen();
                     }
                     return true;
                 });

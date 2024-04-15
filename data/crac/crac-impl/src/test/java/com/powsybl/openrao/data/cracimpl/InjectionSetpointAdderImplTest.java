@@ -9,8 +9,7 @@ package com.powsybl.openrao.data.cracimpl;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.Crac;
-import com.powsybl.openrao.data.cracapi.networkaction.InjectionSetpoint;
-import com.powsybl.openrao.data.cracapi.networkaction.InjectionSetpointAdder;
+import com.powsybl.openrao.data.cracapi.networkaction.GeneratorActionAdder;
 import com.powsybl.openrao.data.cracapi.networkaction.NetworkAction;
 import com.powsybl.openrao.data.cracapi.networkaction.NetworkActionAdder;
 import org.junit.jupiter.api.BeforeEach;
@@ -55,7 +54,7 @@ class InjectionSetpointAdderImplTest {
 
     @Test
     void testNoNetworkElement() {
-        InjectionSetpointAdder injectionSetpointAdder = networkActionAdder.newInjectionSetPoint()
+        GeneratorActionAdder injectionSetpointAdder = networkActionAdder.newInjectionSetPoint()
             .withSetpoint(100.).withUnit(Unit.MEGAWATT);
         Exception e = assertThrows(OpenRaoException.class, injectionSetpointAdder::add);
         assertEquals("Cannot add InjectionSetPoint without a network element. Please use withNetworkElement() with a non null value", e.getMessage());
@@ -63,7 +62,7 @@ class InjectionSetpointAdderImplTest {
 
     @Test
     void testNoSetpoint() {
-        InjectionSetpointAdder injectionSetpointAdder = networkActionAdder.newInjectionSetPoint()
+        GeneratorActionAdder injectionSetpointAdder = networkActionAdder.newInjectionSetPoint()
             .withNetworkElement("groupNetworkElementId").withUnit(Unit.MEGAWATT);
         Exception e = assertThrows(OpenRaoException.class, injectionSetpointAdder::add);
         assertEquals("Cannot add InjectionSetPoint without a setpoint. Please use withSetPoint() with a non null value", e.getMessage());
@@ -71,7 +70,7 @@ class InjectionSetpointAdderImplTest {
 
     @Test
     void testNoUnit() {
-        InjectionSetpointAdder injectionSetpointAdder = networkActionAdder.newInjectionSetPoint()
+        GeneratorActionAdder injectionSetpointAdder = networkActionAdder.newInjectionSetPoint()
                 .withNetworkElement("groupNetworkElementId").withSetpoint(100.);
         Exception e = assertThrows(OpenRaoException.class, injectionSetpointAdder::add);
         assertEquals("Cannot add InjectionSetPoint without a unit. Please use withUnit() with a non null value", e.getMessage());
@@ -79,7 +78,7 @@ class InjectionSetpointAdderImplTest {
 
     @Test
     void testNegativeSetPointWithSectionCount() {
-        InjectionSetpointAdder injectionSetpointAdder = networkActionAdder.newInjectionSetPoint()
+        GeneratorActionAdder injectionSetpointAdder = networkActionAdder.newInjectionSetPoint()
                 .withNetworkElement("groupNetworkElementId").withSetpoint(-100.).withUnit(Unit.SECTION_COUNT);
         Exception e = assertThrows(OpenRaoException.class, injectionSetpointAdder::add);
         assertEquals("With a SECTION_COUNT unit, setpoint should be a positive integer", e.getMessage());
@@ -87,7 +86,7 @@ class InjectionSetpointAdderImplTest {
 
     @Test
     void testNonIntegerSetPointWithSectionCount() {
-        InjectionSetpointAdder injectionSetpointAdder = networkActionAdder.newInjectionSetPoint()
+        GeneratorActionAdder injectionSetpointAdder = networkActionAdder.newInjectionSetPoint()
                 .withNetworkElement("groupNetworkElementId").withSetpoint(1.3).withUnit(Unit.SECTION_COUNT);
         Exception e = assertThrows(OpenRaoException.class, injectionSetpointAdder::add);
         assertEquals("With a SECTION_COUNT unit, setpoint should be a positive integer", e.getMessage());

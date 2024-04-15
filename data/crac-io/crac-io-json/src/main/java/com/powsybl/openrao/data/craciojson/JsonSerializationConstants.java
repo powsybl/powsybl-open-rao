@@ -123,6 +123,7 @@ public final class JsonSerializationConstants {
 
     public static final String RANGES = "ranges";
     public static final String SETPOINT = "setpoint";
+
     public static final String OPERATOR = "operator";
     public static final String BORDER = "border";
     public static final String ACTION_TYPE = "actionType";

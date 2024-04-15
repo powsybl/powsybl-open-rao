@@ -9,13 +9,14 @@ package com.powsybl.openrao.data.cracapi.networkaction;
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-public interface TopologicalActionAdder {
+public interface LoadActionAdder {
 
-    TopologicalActionAdder withNetworkElement(String networkElementId);
+    LoadActionAdder withNetworkElement(String networkElementId);
 
-    TopologicalActionAdder withNetworkElement(String networkElementId, String networkElementName);
+    LoadActionAdder withNetworkElement(String networkElementId, String networkElementName);
 
-    TopologicalActionAdder withActionType(ActionType actionType);
+    LoadActionAdder withActivePowerValue(double setPoint);
 
     NetworkActionAdder add();
+
 }

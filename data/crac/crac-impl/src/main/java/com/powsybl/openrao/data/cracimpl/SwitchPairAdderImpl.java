@@ -17,7 +17,7 @@ import static com.powsybl.openrao.data.cracimpl.AdderUtils.assertAttributeNotNul
  */
 public class SwitchPairAdderImpl implements SwitchPairAdder {
 
-    private NetworkActionAdderImpl ownerAdder;
+    private final NetworkActionAdderImpl ownerAdder;
     private String switchToOpenId;
     private String switchToOpenName;
     private String switchToCloseId;
@@ -53,14 +53,19 @@ public class SwitchPairAdderImpl implements SwitchPairAdder {
 
     @Override
     public NetworkActionAdder add() {
-        assertAttributeNotNull(switchToOpenId, "SwitchPair", "switch to open", "withSwitchToOpen()");
-        assertAttributeNotNull(switchToCloseId, "SwitchPair", "switch to close", "withSwitchToClose()");
+        assertAttributeNotNull(switchToOpenId, getActionName(), "switch to open", "withSwitchToOpen()");
+        assertAttributeNotNull(switchToCloseId, getActionName(), "switch to close", "withSwitchToClose()");
         if (switchToOpenId.equals(switchToCloseId)) {
             throw new OpenRaoException("A switch pair cannot be created with the same switch to open & close!");
         }
         NetworkElement switchToOpen = this.ownerAdder.getCrac().addNetworkElement(switchToOpenId, switchToOpenName);
         NetworkElement switchToClose = this.ownerAdder.getCrac().addNetworkElement(switchToCloseId, switchToCloseName);
-        ownerAdder.addElementaryAction(new SwitchPairImpl(switchToOpen, switchToClose), switchToOpen, switchToClose);
+        String id = String.format("%s_%s_%s", getActionName(), switchToOpen.getId(), switchToClose.getId());
+        ownerAdder.addElementaryAction(new SwitchPairImpl(id, switchToOpen, switchToClose), switchToOpen, switchToClose);
         return ownerAdder;
+    }
+
+    protected String getActionName() {
+        return "SwitchPair";
     }
 }

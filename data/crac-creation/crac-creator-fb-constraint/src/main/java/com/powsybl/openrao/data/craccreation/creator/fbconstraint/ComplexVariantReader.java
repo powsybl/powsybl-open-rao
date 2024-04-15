@@ -71,7 +71,7 @@ class ComplexVariantReader {
                     .withId(complexVariant.getId())
                     .withName(complexVariant.getName())
                     .withOperator(complexVariant.getTsoOrigin());
-            actionReaders.forEach(action -> action.addAction(networkActionAdder));
+            actionReaders.forEach(action -> action.addAction(networkActionAdder, complexVariant.getId()));
             addUsageRules(networkActionAdder, crac);
             networkActionAdder.add();
         }

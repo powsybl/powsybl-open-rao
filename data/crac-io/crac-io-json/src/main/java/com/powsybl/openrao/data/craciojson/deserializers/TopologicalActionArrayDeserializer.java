@@ -7,14 +7,17 @@
 
 package com.powsybl.openrao.data.craciojson.deserializers;
 
+import com.powsybl.iidm.network.Identifiable;
+import com.powsybl.iidm.network.IdentifiableType;
+import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.OpenRaoException;
-import com.powsybl.openrao.data.cracapi.networkaction.NetworkActionAdder;
-import com.powsybl.openrao.data.cracapi.networkaction.TopologicalActionAdder;
+import com.powsybl.openrao.data.cracapi.networkaction.*;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 
 import java.io.IOException;
 import java.util.Map;
+import java.util.Objects;
 
 import static com.powsybl.openrao.data.craciojson.JsonSerializationConstants.*;
 
@@ -25,30 +28,48 @@ public final class TopologicalActionArrayDeserializer {
     private TopologicalActionArrayDeserializer() {
     }
 
-    public static void deserialize(JsonParser jsonParser, NetworkActionAdder ownerAdder, Map<String, String> networkElementsNamesPerId) throws IOException {
+    public static void deserialize(JsonParser jsonParser, NetworkActionAdder ownerAdder, Map<String, String> networkElementsNamesPerId, Network network) throws IOException {
         if (networkElementsNamesPerId == null) {
             throw new OpenRaoException(String.format("Cannot deserialize %s before %s", TOPOLOGICAL_ACTIONS, NETWORK_ELEMENTS_NAME_PER_ID));
         }
         while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
-            TopologicalActionAdder adder = ownerAdder.newTopologicalAction();
+            String networkElementId = null;
+            ActionType actionType = null;
             while (!jsonParser.nextToken().isStructEnd()) {
                 switch (jsonParser.getCurrentName()) {
                     case NETWORK_ELEMENT_ID:
-                        String networkElementId = jsonParser.nextTextValue();
-                        if (networkElementsNamesPerId.containsKey(networkElementId)) {
-                            adder.withNetworkElement(networkElementId, networkElementsNamesPerId.get(networkElementId));
-                        } else {
-                            adder.withNetworkElement(networkElementId);
-                        }
+                        networkElementId = jsonParser.nextTextValue();
                         break;
                     case ACTION_TYPE:
-                        adder.withActionType(deserializeActionType(jsonParser.nextTextValue()));
+                        actionType = deserializeActionType(jsonParser.nextTextValue());
                         break;
                     default:
                         throw new OpenRaoException("Unexpected field in TopologicalAction: " + jsonParser.getCurrentName());
                 }
             }
-            adder.add();
+            Identifiable<?> identifiable = network.getIdentifiable(networkElementId);
+            if (Objects.isNull(identifiable)) {
+                throw new OpenRaoException("Network element id " + networkElementId + " does not exist in network " + network.getId());
+            }
+            if (identifiable.getType() == IdentifiableType.SWITCH) {
+                SwitchActionAdder switchActionAdder = ownerAdder.newSwitchAction();
+                if (networkElementsNamesPerId.containsKey(networkElementId)) {
+                    switchActionAdder.withNetworkElement(networkElementId, networkElementsNamesPerId.get(networkElementId));
+                } else {
+                    switchActionAdder.withNetworkElement(networkElementId);
+                }
+                switchActionAdder.withActionType(actionType);
+                switchActionAdder.add();
+            } else {
+                TerminalsConnectionActionAdder terminalsConnectionActionAdder = ownerAdder.newTerminalsConnectionAction();
+                if (networkElementsNamesPerId.containsKey(networkElementId)) {
+                    terminalsConnectionActionAdder.withNetworkElement(networkElementId, networkElementsNamesPerId.get(networkElementId));
+                } else {
+                    terminalsConnectionActionAdder.withNetworkElement(networkElementId);
+                }
+                terminalsConnectionActionAdder.withActionType(actionType);
+                terminalsConnectionActionAdder.add();
+            }
         }
     }
 }
