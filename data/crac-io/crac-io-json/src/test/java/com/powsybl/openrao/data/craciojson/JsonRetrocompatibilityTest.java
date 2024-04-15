@@ -13,8 +13,6 @@ import com.powsybl.openrao.data.cracapi.cnec.AngleCnec;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
 import com.powsybl.openrao.data.cracapi.cnec.Side;
 import com.powsybl.openrao.data.cracapi.cnec.VoltageCnec;
-import com.powsybl.openrao.data.cracapi.networkaction.InjectionSetpoint;
-import com.powsybl.openrao.data.cracapi.networkaction.PstSetpoint;
 import com.powsybl.openrao.data.cracapi.networkaction.SwitchPair;
 import com.powsybl.openrao.data.cracapi.range.RangeType;
 import com.powsybl.openrao.data.cracapi.range.StandardRange;

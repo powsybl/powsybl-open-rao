@@ -11,7 +11,6 @@ import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Switch;
 import com.powsybl.openrao.data.cracapi.Identifiable;
 import com.powsybl.openrao.data.cracapi.NetworkElement;
-import com.powsybl.openrao.data.cracapi.networkaction.ElementaryAction;
 import com.powsybl.openrao.data.cracapi.networkaction.NetworkAction;
 import com.powsybl.openrao.data.cracapi.usagerule.UsageRule;
 import com.powsybl.iidm.network.Network;

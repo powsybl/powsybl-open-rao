@@ -50,14 +50,14 @@ class TopologicalActionAdderImplTest {
 
     @Test
     void testNoNetworkElement() {
-        TopologicalActionAdder topologicalActionAdder = networkActionAdder.newTopologicalAction()
+        TerminalsConnectionActionAdder topologicalActionAdder = networkActionAdder.newTopologicalAction()
             .withActionType(ActionType.OPEN);
         assertThrows(OpenRaoException.class, topologicalActionAdder::add);
     }
 
     @Test
     void testNoActionType() {
-        TopologicalActionAdder topologicalActionAdder = networkActionAdder.newTopologicalAction()
+        TerminalsConnectionActionAdder topologicalActionAdder = networkActionAdder.newTopologicalAction()
             .withNetworkElement("branchNetworkElementId");
         assertThrows(OpenRaoException.class, topologicalActionAdder::add);
     }

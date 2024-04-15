@@ -10,7 +10,6 @@ package com.powsybl.openrao.data.cracimpl;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.cracapi.networkaction.NetworkAction;
-import com.powsybl.openrao.data.cracapi.networkaction.PstSetpoint;
 import com.powsybl.openrao.data.cracimpl.utils.NetworkImportsUtil;
 import com.powsybl.iidm.network.Network;
 import org.junit.jupiter.api.Test;

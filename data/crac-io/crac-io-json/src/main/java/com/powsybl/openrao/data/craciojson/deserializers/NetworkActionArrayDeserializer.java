@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.data.craciojson.deserializers;
 
+import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.cracapi.networkaction.NetworkActionAdder;
@@ -25,7 +26,7 @@ public final class NetworkActionArrayDeserializer {
     private NetworkActionArrayDeserializer() {
     }
 
-    public static void deserialize(JsonParser jsonParser, String version, Crac crac, Map<String, String> networkElementsNamesPerId) throws IOException {
+    public static void deserialize(JsonParser jsonParser, String version, Crac crac, Map<String, String> networkElementsNamesPerId, Network network) throws IOException {
         if (networkElementsNamesPerId == null) {
             throw new OpenRaoException(String.format("Cannot deserialize %s before %s", NETWORK_ACTIONS, NETWORK_ELEMENTS_NAME_PER_ID));
         }
@@ -78,7 +79,7 @@ public final class NetworkActionArrayDeserializer {
                         break;
                     case TOPOLOGICAL_ACTIONS:
                         jsonParser.nextToken();
-                        TopologicalActionArrayDeserializer.deserialize(jsonParser, networkActionAdder, networkElementsNamesPerId);
+                        TopologicalActionArrayDeserializer.deserialize(jsonParser, networkActionAdder, networkElementsNamesPerId, network);
                         break;
                     case PST_SETPOINTS:
                         jsonParser.nextToken();
@@ -86,7 +87,7 @@ public final class NetworkActionArrayDeserializer {
                         break;
                     case INJECTION_SETPOINTS:
                         jsonParser.nextToken();
-                        InjectionSetpointArrayDeserializer.deserialize(jsonParser, networkActionAdder, networkElementsNamesPerId, version);
+                        InjectionSetpointArrayDeserializer.deserialize(jsonParser, networkActionAdder, networkElementsNamesPerId, network);
                         break;
                     case SWITCH_PAIRS:
                         jsonParser.nextToken();

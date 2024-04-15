@@ -9,6 +9,7 @@ package com.powsybl.openrao.data.cracapi.networkaction;
 
 import com.powsybl.openrao.data.cracapi.RemedialAction;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.action.Action;
 
 import java.util.Set;
 
@@ -16,9 +17,9 @@ import java.util.Set;
  * Remedial action interface specifying a direct action on the network.
  *
  * The Network Action is completely defined by itself.
- * It involves a Set of {@link ElementaryAction}.
- * When the apply method is called, an action is triggered on each of these Elementary
- * Actions.
+ * It involves a Set of {@link Action}.
+ * When the apply method is called, a {@link com.powsybl.iidm.modification.NetworkModification}
+ * is triggered on each of these elementary remedial actions.
  *
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
@@ -43,7 +44,7 @@ public interface NetworkAction extends RemedialAction<NetworkAction> {
     /**
      * Get the set of the elementary actions constituting then network action
      */
-    Set<ElementaryAction> getElementaryActions();
+    Set<Action> getElementaryActions();
 
 
     /**

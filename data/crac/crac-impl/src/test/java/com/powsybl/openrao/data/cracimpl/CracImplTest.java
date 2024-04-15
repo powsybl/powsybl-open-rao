@@ -18,7 +18,6 @@ import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnecAdder;
 import com.powsybl.openrao.data.cracapi.cnec.Side;
 import com.powsybl.openrao.data.cracapi.networkaction.ActionType;
-import com.powsybl.openrao.data.cracapi.networkaction.ElementaryAction;
 import com.powsybl.openrao.data.cracapi.networkaction.NetworkAction;
 import com.powsybl.openrao.data.cracapi.networkaction.NetworkActionAdder;
 import com.powsybl.openrao.data.cracapi.rangeaction.HvdcRangeAction;

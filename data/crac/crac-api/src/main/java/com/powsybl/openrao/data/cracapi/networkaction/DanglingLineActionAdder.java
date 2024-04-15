@@ -9,13 +9,14 @@ package com.powsybl.openrao.data.cracapi.networkaction;
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-public interface TopologicalActionAdder {
+public interface DanglingLineActionAdder {
 
-    TopologicalActionAdder withNetworkElement(String networkElementId);
+    DanglingLineActionAdder withNetworkElement(String networkElementId);
 
-    TopologicalActionAdder withNetworkElement(String networkElementId, String networkElementName);
+    DanglingLineActionAdder withNetworkElement(String networkElementId, String networkElementName);
 
-    TopologicalActionAdder withActionType(ActionType actionType);
+    DanglingLineActionAdder withActivePowerValue(double setPoint);
 
     NetworkActionAdder add();
+
 }

@@ -107,7 +107,8 @@ class ActionReader {
             throw new OpenRaoException(String.format("This method is only applicable for Action of type %s", TOPO));
         }
 
-        networkActionAdder.newTopologicalAction()
+        // networkElementId is a branch (not a switch)
+        networkActionAdder.newTerminalsConnectionAction()
             .withNetworkElement(networkElementId)
             .withActionType(topologicalActionType)
             .add();

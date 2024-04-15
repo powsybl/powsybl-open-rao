@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.data.cracimpl;
 
+import com.powsybl.action.Action;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider;
 import com.powsybl.openrao.data.cracapi.NetworkElement;
@@ -23,7 +24,7 @@ import java.util.Set;
  */
 public class NetworkActionAdderImpl extends AbstractRemedialActionAdder<NetworkActionAdder> implements NetworkActionAdder {
 
-    private Set<ElementaryAction> elementaryActions;
+    private Set<Action> elementaryActions;
     private Set<NetworkElement> networkElements;
 
     NetworkActionAdderImpl(CracImpl owner) {
@@ -38,18 +39,38 @@ public class NetworkActionAdderImpl extends AbstractRemedialActionAdder<NetworkA
     }
 
     @Override
-    public TopologicalActionAdder newTopologicalAction() {
-        return new TopologicalActionAdderImpl(this);
+    public TerminalsConnectionActionAdder newTerminalsConnectionAction() {
+        return new TerminalsConnectionActionAdderImpl(this);
     }
 
     @Override
-    public PstSetpointAdder newPstSetPoint() {
-        return new PstSetpointAdderImpl(this);
+    public SwitchActionAdder newSwitchAction() {
+        return new SwitchActionAdderImpl(this);
     }
 
     @Override
-    public InjectionSetpointAdder newInjectionSetPoint() {
-        return new InjectionSetpointAdderImpl(this);
+    public PhaseTapChangerTapPositionActionAdder newPhaseTapChangerTapPositionAction() {
+        return new PhaseTapChangerTapPositionActionAdderImpl(this);
+    }
+
+    @Override
+    public GeneratorActionAdder newGeneratorAction() {
+        return new GeneratorActionAdderImpl(this);
+    }
+
+    @Override
+    public LoadActionAdder newLoadAction() {
+        return new LoadActionAdderImpl(this);
+    }
+
+    @Override
+    public DanglingLineActionAdder newDanglingLineAction() {
+        return new DanglingLineActionAdderImpl(this);
+    }
+
+    @Override
+    public ShuntCompensatorPositionActionAdder newShuntCompensatorPositionAction() {
+        return new ShuntCompensatorPositionActionAdderImpl(this);
     }
 
     @Override
@@ -76,7 +97,7 @@ public class NetworkActionAdderImpl extends AbstractRemedialActionAdder<NetworkA
         return networkAction;
     }
 
-    void addElementaryAction(ElementaryAction elementaryAction, NetworkElement... networkElements) {
+    void addElementaryAction(Action elementaryAction, NetworkElement... networkElements) {
         this.elementaryActions.add(elementaryAction);
         Collections.addAll(this.networkElements, networkElements);
     }
