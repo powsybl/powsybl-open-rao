@@ -10,7 +10,6 @@ package com.powsybl.openrao.data.craciojson.serializers;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.powsybl.action.ShuntCompensatorPositionAction;
-import com.powsybl.openrao.commons.Unit;
 
 import java.io.IOException;
 
@@ -24,8 +23,7 @@ public class ShuntCompensatorPositionActionSerializer extends AbstractJsonSerial
     public void serialize(ShuntCompensatorPositionAction value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
         gen.writeStartObject();
         gen.writeStringField(NETWORK_ELEMENT_ID, value.getShuntCompensatorId());
-        gen.writeNumberField(SETPOINT, value.getSectionCount());
-        gen.writeStringField(UNIT, serializeUnit(Unit.SECTION_COUNT));
+        gen.writeNumberField(SECTION_COUNT, value.getSectionCount());
         gen.writeEndObject();
     }
 }

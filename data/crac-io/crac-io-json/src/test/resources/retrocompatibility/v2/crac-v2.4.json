@@ -423,13 +423,13 @@
       "instant" : "preventive",
       "usageMethod" : "available"
     } ],
-    "topologicalActions" : [ {
+    "terminalsConnectionActions" : [ {
       "networkElementId" : "ne1Id",
       "actionType" : "close"
     } ],
-    "pstSetpoints" : [ {
+    "phaseTapChangerTapPositionActions" : [ {
       "networkElementId" : "pst",
-      "setpoint" : 5
+      "tapPosition" : 5
     } ]
   }, {
     "id" : "injectionSetpointRaId",
@@ -440,10 +440,9 @@
       "cnecId" : "cnec3autoId",
       "usageMethod" : "forced"
     } ],
-    "injectionSetpoints" : [ {
+    "generatorActions" : [ {
       "networkElementId" : "injection",
-      "setpoint" : 260.0,
-      "unit" : "megawatt"
+      "activePowerValue" : 260.0
     }]
   }, {
     "id" : "injectionSetpointRa2Id",
@@ -455,16 +454,15 @@
       "country" : "FR",
       "usageMethod" : "available"
     } ],
-    "injectionSetpoints" : [ {
+    "loadActions" : [ {
       "networkElementId" : "LD1",
-      "setpoint" : 260.0,
-      "unit" : "megawatt"
-    },{
-      "networkElementId" : "DL1",
-      "setpoint" : -120.0,
-      "unit" : "megawatt"
+      "activePowerValue" : 260.0
     }],
-    "topologicalActions" : [ {
+    "danglingLineActions" : [ {
+      "networkElementId" : "DL1",
+      "activePowerValue" : -120.0
+    }],
+    "switchActions" : [ {
       "networkElementId" : "BR1",
       "actionType" : "open"
     } ]
@@ -477,10 +475,9 @@
       "country" : "FR",
       "usageMethod" : "available"
     } ],
-    "injectionSetpoints" : [ {
+    "shuntCompensatorPositionActions" : [ {
       "networkElementId" : "SC1",
-      "setpoint" : 260.0,
-      "unit" : "section_count"
+      "sectionCount" : 260.0
     }]
   }, {
     "id" : "pstSetpointRaId",
@@ -495,9 +492,9 @@
       "contingencyId" : "contingency1Id",
       "usageMethod" : "forced"
     } ],
-    "pstSetpoints" : [ {
+    "phaseTapChangerTapPositionActions" : [ {
       "networkElementId" : "pst",
-      "setpoint" : 15
+      "tapPosition" : 15
     } ]
   }, {
     "id" : "switchPairRaId",
