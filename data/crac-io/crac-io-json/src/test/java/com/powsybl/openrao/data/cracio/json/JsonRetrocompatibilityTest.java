@@ -75,7 +75,7 @@ class JsonRetrocompatibilityTest {
 
     @Test
     void testNoNetworkProvided() {
-        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> new JsonImport().importData(getClass().getResourceAsStream("/retrocompatibility/v2/crac-v2.4.json"), CracCreationParameters.load(), null, null));
+        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> new JsonImport().importData(getClass().getResourceAsStream("/retrocompatibility/v2/crac-v2.5.json"), CracCreationParameters.load(), null, null));
         assertEquals("Network object is null but it is needed to map contingency's elements", exception.getMessage());
     }
 
@@ -302,11 +302,22 @@ class JsonRetrocompatibilityTest {
     @Test
     void importV2Point4Test() {
         // Add support for contingency in OnFlowConstraintInCountry
+        // Side left/right replaced by one/two (from powsybl-core)
         InputStream cracFile = getClass().getResourceAsStream("/retrocompatibility/v2/crac-v2.4.json");
 
         Crac crac = new JsonImport().importData(cracFile, CracCreationParameters.load(), network, null).getCrac();
         assertEquals(7, crac.getNetworkActions().size());
         testContentOfV2Point4Crac(crac);
+    }
+
+    @Test
+    void importV2Point5Test() {
+        // ElementaryAction are now Action from powsybl-core (more different types and fields name changes)
+        InputStream cracFile = getClass().getResourceAsStream("/retrocompatibility/v2/crac-v2.5.json");
+
+        Crac crac = new JsonImport().importData(cracFile, CracCreationParameters.load(), network, null).getCrac();
+        assertEquals(7, crac.getNetworkActions().size());
+        testContentOfV2Point5Crac(crac);
     }
 
     private void testContentOfV1Point0Crac(Crac crac) {
@@ -784,5 +795,9 @@ class JsonRetrocompatibilityTest {
         assertEquals("pst", ((PhaseTapChangerTapPositionAction) raCompleActions.get(0)).getTransformerId());
         assertTrue(raCompleActions.get(1) instanceof TerminalsConnectionAction);
         assertEquals("ne1Id", ((TerminalsConnectionAction) raCompleActions.get(1)).getElementId());
+    }
+
+    private void testContentOfV2Point5Crac(Crac crac) {
+        testContentOfV2Point4Crac(crac);
     }
 }
