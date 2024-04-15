@@ -8,38 +8,41 @@
 package com.powsybl.openrao.data.cracimpl;
 
 import com.powsybl.action.SwitchActionBuilder;
+import com.powsybl.iidm.modification.NetworkModification;
 import com.powsybl.openrao.data.cracapi.NetworkElement;
 import com.powsybl.openrao.data.cracapi.networkaction.SwitchPair;
-import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.modification.NetworkModificationList;
 
 /***
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
 public class SwitchPairImpl implements SwitchPair {
+    private final String id;
     private final NetworkElement switchToOpen;
     private final NetworkElement switchToClose;
 
-    SwitchPairImpl(NetworkElement switchToOpen, NetworkElement switchToClose) {
+    SwitchPairImpl(String id, NetworkElement switchToOpen, NetworkElement switchToClose) {
+        this.id = id;
         this.switchToOpen = switchToOpen;
         this.switchToClose = switchToClose;
     }
 
     @Override
-    public void apply(Network network) {
-        new SwitchActionBuilder()
-                .withId("idOpen")
-                .withNetworkElementId(switchToOpen.getId())
-                .withOpen(true)
-            .build()
-            .toModification()
-            .apply(network);
-        new SwitchActionBuilder()
+    public NetworkModification toModification() {
+        return new NetworkModificationList(
+            new SwitchActionBuilder()
+                    .withId("idOpen")
+                    .withNetworkElementId(switchToOpen.getId())
+                    .withOpen(true)
+                .build()
+                .toModification(),
+            new SwitchActionBuilder()
                 .withId("idClose")
                 .withNetworkElementId(switchToClose.getId())
                 .withOpen(false)
             .build()
             .toModification()
-            .apply(network);
+        );
     }
 
     @Override
@@ -67,5 +70,15 @@ public class SwitchPairImpl implements SwitchPair {
     @Override
     public int hashCode() {
         return switchToOpen.hashCode() + 37 * switchToClose.hashCode();
+    }
+
+    @Override
+    public String getType() {
+        return "SWITCH_PAIR";
+    }
+
+    @Override
+    public String getId() {
+        return id;
     }
 }

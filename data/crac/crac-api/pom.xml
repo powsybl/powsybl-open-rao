@@ -48,5 +48,9 @@
             <groupId>com.powsybl</groupId>
             <artifactId>powsybl-contingency-api</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.powsybl</groupId>
+            <artifactId>powsybl-action-api</artifactId>
+        </dependency>
     </dependencies>
 </project>
