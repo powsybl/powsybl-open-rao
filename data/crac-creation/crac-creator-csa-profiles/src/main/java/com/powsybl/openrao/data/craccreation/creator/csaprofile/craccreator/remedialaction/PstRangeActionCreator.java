@@ -33,7 +33,7 @@ public class PstRangeActionCreator {
         this.network = network;
     }
 
-    public PstRangeActionAdder getPstRangeActionAdder(Map<String, Set<PropertyBag>> linkedTapPositionActions, Map<String, Set<PropertyBag>> linkedStaticPropertyRanges, String remedialActionId, String elementaryActionsAggregatorId, List<String> alterations) {
+    public PstRangeActionAdder getPstRangeActionAdder(Map<String, Set<PropertyBag>> linkedTapPositionActions, Map<String, Set<PropertyBag>> linkedStaticPropertyRanges, String remedialActionId, String elementaryActionsAggregatorId) {
         PstRangeActionAdder pstRangeActionAdder = crac.newPstRangeAction().withId(remedialActionId);
 
         if (linkedTapPositionActions.containsKey(elementaryActionsAggregatorId)) {
