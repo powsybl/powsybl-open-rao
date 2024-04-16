@@ -58,7 +58,7 @@ class OnContingencyStateAdderImplTest {
             .withId("networkActionId")
             .withName("networkActionName")
             .withOperator("operator")
-            .newTopologicalAction().withActionType(ActionType.OPEN).withNetworkElement("action-elementId").add();
+            .newSwitchAction().withActionType(ActionType.OPEN).withNetworkElement("action-elementId").add();
     }
 
     @Test

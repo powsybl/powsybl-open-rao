@@ -52,9 +52,9 @@ class NetworkActionAdderImplTest {
             .withId("networkActionId")
             .withName("networkActionName")
             .withOperator("operator")
-            .newPstSetPoint()
+            .newPhaseTapChangerTapPositionAction()
                 .withNetworkElement("pstNetworkElementId")
-                .withSetpoint(6)
+                .withTapPosition(6)
                 .add()
             .newOnInstantUsageRule()
                 .withInstant(PREVENTIVE_INSTANT_ID)
@@ -76,13 +76,13 @@ class NetworkActionAdderImplTest {
             .withId("networkActionId")
             .withName("networkActionName")
             .withOperator("operator")
-            .newPstSetPoint()
+            .newPhaseTapChangerTapPositionAction()
                 .withNetworkElement("pstNetworkElementId")
-                .withSetpoint(6)
+                .withTapPosition(6)
                 .add()
-            .newPstSetPoint()
+            .newPhaseTapChangerTapPositionAction()
                 .withNetworkElement("anotherPstNetworkElementId")
-                .withSetpoint(4)
+                .withTapPosition(4)
                 .add()
             .add();
 
@@ -100,9 +100,9 @@ class NetworkActionAdderImplTest {
             .withId("networkActionId")
             .withName("networkActionName")
             .withOperator("operator")
-            .newPstSetPoint()
+            .newPhaseTapChangerTapPositionAction()
                 .withNetworkElement("pstNetworkElementId")
-                .withSetpoint(6)
+                .withTapPosition(6)
                 .add()
             .newOnInstantUsageRule()
                 .withInstant(PREVENTIVE_INSTANT_ID)
@@ -128,9 +128,9 @@ class NetworkActionAdderImplTest {
         NetworkAction networkAction = crac.newNetworkAction()
             .withId("networkActionId")
             .withOperator("operator")
-            .newPstSetPoint()
+            .newPhaseTapChangerTapPositionAction()
                 .withNetworkElement("pstNetworkElementId")
-                .withSetpoint(6)
+                .withTapPosition(6)
                 .add()
             .add();
 
@@ -146,9 +146,9 @@ class NetworkActionAdderImplTest {
         NetworkAction networkAction = crac.newNetworkAction()
             .withId("networkActionId")
             .withName("networkActionName")
-            .newPstSetPoint()
+            .newPhaseTapChangerTapPositionAction()
                 .withNetworkElement("pstNetworkElementId")
-                .withSetpoint(6)
+                .withTapPosition(6)
                 .add()
             .add();
 
@@ -163,9 +163,9 @@ class NetworkActionAdderImplTest {
         NetworkActionAdder networkActionAdder = crac.newNetworkAction()
                 .withName("networkActionName")
                 .withOperator("operator")
-                .newPstSetPoint()
+                .newPhaseTapChangerTapPositionAction()
                     .withNetworkElement("pstNetworkElementId")
-                    .withSetpoint(6)
+                    .withTapPosition(6)
                     .add();
         OpenRaoException exception = assertThrows(OpenRaoException.class, networkActionAdder::add);
         assertEquals("Cannot add a NetworkAction object with no specified id. Please use withId()", exception.getMessage());
@@ -203,9 +203,9 @@ class NetworkActionAdderImplTest {
                 .withId("networkActionId")
                 .withName("networkActionName")
                 .withOperator("operator")
-                .newPstSetPoint()
+                .newPhaseTapChangerTapPositionAction()
                 .withNetworkElement("pstNetworkElementId")
-                .withSetpoint(6)
+                .withTapPosition(6)
                 .add()
                 .add();
 
@@ -219,9 +219,9 @@ class NetworkActionAdderImplTest {
                 .withName("networkActionName")
                 .withOperator("operator")
                 .withSpeed(123)
-                .newPstSetPoint()
+                .newPhaseTapChangerTapPositionAction()
                 .withNetworkElement("pstNetworkElementId")
-                .withSetpoint(6)
+                .withTapPosition(6)
                 .add()
                 .add();
 

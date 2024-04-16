@@ -7,11 +7,11 @@
 
 package com.powsybl.openrao.data.cracimpl;
 
+import com.powsybl.action.SwitchAction;
 import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.cracapi.NetworkElement;
 import com.powsybl.openrao.data.cracapi.networkaction.NetworkAction;
 import com.powsybl.openrao.data.cracapi.networkaction.SwitchPair;
-import com.powsybl.openrao.data.cracapi.networkaction.TopologicalAction;
 import com.powsybl.iidm.network.Network;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -113,30 +113,30 @@ class SwitchPairImplTest {
         network.getSwitch(switch2.getId()).setOpen(true);
 
         // apply
-        new SwitchPairImpl(switch1, switch2).apply(network);
+        new SwitchPairImpl("id", switch1, switch2).toModification().apply(network);
         assertTrue(network.getSwitch(switch1.getId()).isOpen());
         assertFalse(network.getSwitch(switch2.getId()).isOpen());
 
         // re-apply
-        new SwitchPairImpl(switch1, switch2).apply(network);
+        new SwitchPairImpl("id", switch1, switch2).toModification().apply(network);
         assertTrue(network.getSwitch(switch1.getId()).isOpen());
         assertFalse(network.getSwitch(switch2.getId()).isOpen());
 
         // invert
-        new SwitchPairImpl(switch2, switch1).apply(network);
+        new SwitchPairImpl("id", switch2, switch1).toModification().apply(network);
         assertFalse(network.getSwitch(switch1.getId()).isOpen());
         assertTrue(network.getSwitch(switch2.getId()).isOpen());
     }
 
     @Test
     void testEquals() {
-        SwitchPair switchPair = new SwitchPairImpl(switch1, switch2);
+        SwitchPair switchPair = new SwitchPairImpl("id", switch1, switch2);
         assertNotNull(switchPair);
-        assertNotEquals(Mockito.mock(TopologicalAction.class), switchPair);
-        assertNotEquals(new SwitchPairImpl(switch2, switch1), switchPair);
-        assertEquals(new SwitchPairImpl(switch1, switch2), switchPair);
-        assertNotEquals(new SwitchPairImpl(switch1, new NetworkElementImpl("other")), switchPair);
-        SwitchPairImpl switchPairImpl = new SwitchPairImpl(switch1, switch2);
+        assertNotEquals(Mockito.mock(SwitchAction.class), switchPair);
+        assertNotEquals(new SwitchPairImpl("id", switch2, switch1), switchPair);
+        assertEquals(new SwitchPairImpl("id", switch1, switch2), switchPair);
+        assertNotEquals(new SwitchPairImpl("id", switch1, new NetworkElementImpl("other")), switchPair);
+        SwitchPairImpl switchPairImpl = new SwitchPairImpl("id", switch1, switch2);
         assertEquals(switchPair, switchPairImpl);
     }
 }

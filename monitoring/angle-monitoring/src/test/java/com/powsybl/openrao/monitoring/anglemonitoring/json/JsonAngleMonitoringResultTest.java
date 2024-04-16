@@ -91,12 +91,12 @@ class JsonAngleMonitoringResultTest {
         preventiveState = crac.getPreventiveState();
         na1 = crac.newNetworkAction()
                 .withId("na1")
-                .newInjectionSetPoint().withNetworkElement("ne1").withSetpoint(50.).withUnit(Unit.MEGAWATT).add()
+                .newGeneratorAction().withNetworkElement("ne1").withActivePowerValue(50.).add()
                 .newOnConstraintUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withCnec(ac1.getId()).withUsageMethod(UsageMethod.AVAILABLE).add()
                 .add();
         na2 = crac.newNetworkAction()
                 .withId("na2")
-                .newInjectionSetPoint().withNetworkElement("ne2").withSetpoint(150.).withUnit(Unit.MEGAWATT).add()
+                .newDanglingLineAction().withNetworkElement("ne2").withActivePowerValue(150.).add()
                 .newOnConstraintUsageRule().withInstant(CURATIVE_INSTANT_ID).withCnec(ac2.getId()).withUsageMethod(UsageMethod.AVAILABLE).add()
                 .add();
         angleMonitoringResultImporter = new AngleMonitoringResultImporter();
