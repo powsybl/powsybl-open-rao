@@ -6,6 +6,8 @@
  */
 package com.powsybl.openrao.data.craccreation.creator.cse;
 
+import com.powsybl.iidm.network.Country;
+import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.*;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
@@ -25,8 +27,6 @@ import com.powsybl.openrao.data.craccreation.creator.cse.criticalbranch.CseCriti
 import com.powsybl.openrao.data.craccreation.creator.cse.outage.CseOutageCreationContext;
 import com.powsybl.openrao.data.craccreation.creator.cse.parameters.CseCracCreationParameters;
 import com.powsybl.openrao.data.craccreation.creator.cse.remedialaction.CsePstCreationContext;
-import com.powsybl.iidm.network.Country;
-import com.powsybl.iidm.network.Network;
 import org.junit.jupiter.api.Test;
 
 import java.io.InputStream;

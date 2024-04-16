@@ -8,6 +8,8 @@ package com.powsybl.openrao.data.cracimpl.utils;
 
 import com.powsybl.iidm.network.*;
 
+import java.util.List;
+
 /**
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
@@ -133,7 +135,7 @@ public final class NetworkImportsUtil {
         shuntCompensator.getTerminal().setP(0.).setQ(0.);
     }
 
-    public static Network createNetworkWithLines(String... lineIds) {
+    public static Network createNetworkForJsonRetrocompatibilityTest() {
         Network network = Network.create("test", "test");
         Substation s = network.newSubstation()
             .setId("S1")
@@ -159,7 +161,7 @@ public final class NetworkImportsUtil {
             .setOpen(false)
             .add();
         vl1.newGenerator()
-            .setId("G")
+            .setId("injection")
             .setBus("B1")
             .setMaxP(100.0)
             .setMinP(50.0)
@@ -198,7 +200,7 @@ public final class NetworkImportsUtil {
             .setTargetV(400.0)
             .setVoltageRegulatorOn(true)
             .add();
-        for (String lineId : lineIds) {
+        for (String lineId : List.of("ne1Id", "ne2Id", "ne3Id")) {
             network.newLine()
                 .setId(lineId)
                 .setVoltageLevel1("VL1")

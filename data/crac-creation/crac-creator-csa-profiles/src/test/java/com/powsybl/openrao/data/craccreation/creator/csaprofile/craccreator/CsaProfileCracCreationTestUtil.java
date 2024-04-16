@@ -3,7 +3,7 @@ package com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator;
 import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.read.ListAppender;
-import com.powsybl.openrao.commons.Unit;
+import com.powsybl.action.*;
 import com.powsybl.contingency.ContingencyElement;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.openrao.data.cracapi.Instant;
@@ -202,22 +202,43 @@ public final class CsaProfileCracCreationTestUtil {
         assertEquals(raId, networkAction.getId());
         assertEquals(raName, networkAction.getName());
         assertEquals(1, networkAction.getElementaryActions().size());
-        ElementaryAction elementaryAction = networkAction.getElementaryActions().iterator().next();
-        assertTrue(elementaryAction instanceof TopologicalAction);
-        assertEquals(switchId, ((TopologicalAction) elementaryAction).getNetworkElement().getId());
-        assertEquals(actionType, ((TopologicalAction) elementaryAction).getActionType());
+        Action elementaryAction = networkAction.getElementaryActions().iterator().next();
+        assertTrue(elementaryAction instanceof SwitchAction);
+        assertEquals(switchId, ((SwitchAction) elementaryAction).getSwitchId());
+        assertEquals(actionType == ActionType.OPEN, ((SwitchAction) elementaryAction).isOpen());
         assertEquals(expectedOperator, networkAction.getOperator());
     }
 
-    public static void assertSimpleInjectionSetpointActionImported(NetworkAction networkAction, String raId, String raName, String networkElementId, double setpoint, Unit unit, String expectedOperator) {
+    public static void assertSimpleGeneratorActionImported(NetworkAction networkAction, String raId, String raName, String networkElementId, double setpoint, String expectedOperator) {
         assertEquals(raId, networkAction.getId());
         assertEquals(raName, networkAction.getName());
         assertEquals(1, networkAction.getElementaryActions().size());
-        ElementaryAction elementaryAction = networkAction.getElementaryActions().iterator().next();
-        assertTrue(elementaryAction instanceof InjectionSetpoint);
-        assertEquals(networkElementId, ((InjectionSetpoint) elementaryAction).getNetworkElement().getId());
-        assertEquals(setpoint, ((InjectionSetpoint) elementaryAction).getSetpoint());
-        assertEquals(unit, ((InjectionSetpoint) elementaryAction).getUnit());
+        Action elementaryAction = networkAction.getElementaryActions().iterator().next();
+        assertTrue(elementaryAction instanceof GeneratorAction);
+        assertEquals(networkElementId, ((GeneratorAction) elementaryAction).getGeneratorId());
+        assertEquals(setpoint, ((GeneratorAction) elementaryAction).getActivePowerValue().getAsDouble());
+        assertEquals(expectedOperator, networkAction.getOperator());
+    }
+
+    public static void assertSimpleLoadActionImported(NetworkAction networkAction, String raId, String raName, String networkElementId, double setpoint, String expectedOperator) {
+        assertEquals(raId, networkAction.getId());
+        assertEquals(raName, networkAction.getName());
+        assertEquals(1, networkAction.getElementaryActions().size());
+        Action elementaryAction = networkAction.getElementaryActions().iterator().next();
+        assertTrue(elementaryAction instanceof LoadAction);
+        assertEquals(networkElementId, ((LoadAction) elementaryAction).getLoadId());
+        assertEquals(setpoint, ((LoadAction) elementaryAction).getActivePowerValue().getAsDouble());
+        assertEquals(expectedOperator, networkAction.getOperator());
+    }
+
+    public static void assertSimpleShuntCompensatorActionImported(NetworkAction networkAction, String raId, String raName, String networkElementId, double setpoint, String expectedOperator) {
+        assertEquals(raId, networkAction.getId());
+        assertEquals(raName, networkAction.getName());
+        assertEquals(1, networkAction.getElementaryActions().size());
+        Action elementaryAction = networkAction.getElementaryActions().iterator().next();
+        assertTrue(elementaryAction instanceof ShuntCompensatorPositionAction);
+        assertEquals(networkElementId, ((ShuntCompensatorPositionAction) elementaryAction).getShuntCompensatorId());
+        assertEquals(setpoint, ((ShuntCompensatorPositionAction) elementaryAction).getSectionCount());
         assertEquals(expectedOperator, networkAction.getOperator());
     }
 

@@ -7,14 +7,9 @@
 
 package com.powsybl.openrao.data.cracapi;
 
-import com.powsybl.openrao.commons.Unit;
-import com.powsybl.openrao.data.cracapi.networkaction.ActionType;
-import com.powsybl.openrao.data.cracapi.networkaction.ElementaryAction;
-import com.powsybl.openrao.data.cracapi.networkaction.InjectionSetpoint;
+import com.powsybl.action.*;
 import com.powsybl.openrao.data.cracapi.networkaction.NetworkAction;
-import com.powsybl.openrao.data.cracapi.networkaction.PstSetpoint;
 import com.powsybl.openrao.data.cracapi.networkaction.SwitchPair;
-import com.powsybl.openrao.data.cracapi.networkaction.TopologicalAction;
 import org.junit.jupiter.api.Test;
 
 import java.util.HashSet;
@@ -32,8 +27,8 @@ class NetworkActionTest {
     void compatibility() {
         NetworkAction hvdcFrEs200Mw = mockHvdcAction(-200d);
         NetworkAction hvdcEsFr200Mw = mockHvdcAction(200d);
-        NetworkAction alignedPsts = mockNetworkAction(mockPstSetpoint("pst-fr-1", 4), mockPstSetpoint("pst-fr-2", 4), mockPstSetpoint("pst-fr-3", 4));
-        NetworkAction switchPairAndPst = mockNetworkAction(mockPstSetpoint("pst-fr-2", -2), mockSwitchPair());
+        NetworkAction alignedPsts = mockNetworkAction(mockPhaseTapChangerTapPositionAction("pst-fr-1", 4), mockPhaseTapChangerTapPositionAction("pst-fr-2", 4), mockPhaseTapChangerTapPositionAction("pst-fr-3", 4));
+        NetworkAction switchPairAndPst = mockNetworkAction(mockPhaseTapChangerTapPositionAction("pst-fr-2", -2), mockSwitchPair());
 
         assertTrue(hvdcFrEs200Mw.isCompatibleWith(hvdcFrEs200Mw));
         assertFalse(hvdcFrEs200Mw.isCompatibleWith(hvdcEsFr200Mw));
@@ -48,23 +43,23 @@ class NetworkActionTest {
     }
 
     private NetworkAction mockHvdcAction(double setpoint) {
-        return new NetworkActionUtils.NetworkActionImplTest(Set.of(mockTopologicalAction("switch-fr"), mockTopologicalAction("switch-es"), mockInjectionSetpoint("generator-fr-1", setpoint / 2d), mockInjectionSetpoint("generator-fr-2", setpoint / 2d), mockInjectionSetpoint("generator-es-1", -setpoint / 2d), mockInjectionSetpoint("generator-es-2", -setpoint / 2d)));
+        return new NetworkActionUtils.NetworkActionImplTest(Set.of(mockSwitchActionOpen("switch-fr"), mockSwitchActionOpen("switch-es"), mockGeneratorAction("generator-fr-1", setpoint / 2d), mockGeneratorAction("generator-fr-2", setpoint / 2d), mockGeneratorAction("generator-es-1", -setpoint / 2d), mockGeneratorAction("generator-es-2", -setpoint / 2d)));
     }
 
-    private NetworkAction mockNetworkAction(ElementaryAction... elementaryActions) {
+    private NetworkAction mockNetworkAction(Action... elementaryActions) {
         return new NetworkActionUtils.NetworkActionImplTest(new HashSet<>(List.of(elementaryActions)));
     }
 
-    private TopologicalAction mockTopologicalAction(String switchId) {
-        return new NetworkActionUtils.TopologicalActionImplTest(NetworkActionUtils.createNetworkElement(switchId), ActionType.OPEN);
+    private SwitchAction mockSwitchActionOpen(String switchId) {
+        return new SwitchActionBuilder().withId("id").withNetworkElementId(switchId).withOpen(true).build();
     }
 
-    private InjectionSetpoint mockInjectionSetpoint(String networkElementId, double setpoint) {
-        return new NetworkActionUtils.InjectionSetpointImplTest(NetworkActionUtils.createNetworkElement(networkElementId), setpoint, Unit.MEGAWATT);
+    private GeneratorAction mockGeneratorAction(String networkElementId, double setpoint) {
+        return new GeneratorActionBuilder().withId("id").withGeneratorId(networkElementId).withActivePowerValue(setpoint).withActivePowerRelativeValue(false).build();
     }
 
-    private PstSetpoint mockPstSetpoint(String pstId, int setpoint) {
-        return new NetworkActionUtils.PstSetpointImplTest(NetworkActionUtils.createNetworkElement(pstId), setpoint);
+    private PhaseTapChangerTapPositionAction mockPhaseTapChangerTapPositionAction(String pstId, int setpoint) {
+        return new PhaseTapChangerTapPositionActionBuilder().withId("id").withNetworkElementId(pstId).withTapPosition(setpoint).withRelativeValue(false).build();
     }
 
     private SwitchPair mockSwitchPair() {

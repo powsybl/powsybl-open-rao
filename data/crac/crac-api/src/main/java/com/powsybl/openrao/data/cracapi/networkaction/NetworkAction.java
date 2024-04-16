@@ -59,21 +59,21 @@ public interface NetworkAction extends RemedialAction<NetworkAction> {
             if (elementaryAction instanceof GeneratorAction generatorAction) {
                 return otherNetworkAction.getElementaryActions().stream().allMatch(otherElementaryAction -> {
                     if (otherElementaryAction instanceof GeneratorAction otherGeneratorAction) {
-                        return !generatorAction.getGeneratorId().equals(otherGeneratorAction.getGeneratorId()) || generatorAction.getActivePowerValue() == otherGeneratorAction.getActivePowerValue();
+                        return !generatorAction.getGeneratorId().equals(otherGeneratorAction.getGeneratorId()) || generatorAction.getActivePowerValue().equals(otherGeneratorAction.getActivePowerValue());
                     }
                     return true;
                 });
             } else if (elementaryAction instanceof LoadAction loadAction) {
                 return otherNetworkAction.getElementaryActions().stream().allMatch(otherElementaryAction -> {
                     if (otherElementaryAction instanceof LoadAction otherLoadAction) {
-                        return !loadAction.getLoadId().equals(otherLoadAction.getLoadId()) || loadAction.getActivePowerValue() == otherLoadAction.getActivePowerValue();
+                        return !loadAction.getLoadId().equals(otherLoadAction.getLoadId()) || loadAction.getActivePowerValue().equals(otherLoadAction.getActivePowerValue());
                     }
                     return true;
                 });
             } else if (elementaryAction instanceof DanglingLineAction danglingLineAction) {
                 return otherNetworkAction.getElementaryActions().stream().allMatch(otherElementaryAction -> {
                     if (otherElementaryAction instanceof DanglingLineAction otherDanglingLineAction) {
-                        return !danglingLineAction.getDanglingLineId().equals(otherDanglingLineAction.getDanglingLineId()) || danglingLineAction.getActivePowerValue() == otherDanglingLineAction.getActivePowerValue();
+                        return !danglingLineAction.getDanglingLineId().equals(otherDanglingLineAction.getDanglingLineId()) || danglingLineAction.getActivePowerValue().equals(otherDanglingLineAction.getActivePowerValue());
                     }
                     return true;
                 });
