@@ -6,10 +6,10 @@
  */
 package com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator;
 
+import com.powsybl.action.*;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.cracapi.cnec.AngleCnec;
-import com.powsybl.openrao.data.cracapi.networkaction.ActionType;
 import com.powsybl.openrao.data.cracapi.networkaction.NetworkAction;
 import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.cracapi.usagerule.UsageMethod;
@@ -22,8 +22,7 @@ import java.util.Set;
 
 import static com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileCracCreationTestUtil.*;
 import static com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileCracCreationTestUtil.assertNetworkActionImported;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Thomas Bouquet <thomas.bouquet at rte-france.com>
@@ -62,10 +61,10 @@ class CsaProfileSsiTest {
         assertEquals("RTE_RA1", remedialAction.getName());
 
         assertEquals(1, remedialAction.getElementaryActions().size());
-        ElementaryAction elementaryAction = remedialAction.getElementaryActions().iterator().next();
-        assertTrue(elementaryAction instanceof TopologicalAction);
-        assertEquals("BBE1AA1  BBE4AA1  1", ((TopologicalAction) elementaryAction).getNetworkElement().getId());
-        assertEquals(ActionType.OPEN, ((TopologicalAction) elementaryAction).getActionType());
+        Action elementaryAction = remedialAction.getElementaryActions().iterator().next();
+        assertTrue(elementaryAction instanceof SwitchAction);
+        assertEquals("BBE1AA1  BBE4AA1  1", ((SwitchAction) elementaryAction).getSwitchId());
+        assertTrue(((SwitchAction) elementaryAction).isOpen());
 
         assertEquals(1, remedialAction.getUsageRules().size());
         assertEquals(crac.getInstant(PREVENTIVE_INSTANT_ID), remedialAction.getUsageRules().iterator().next().getInstant());
@@ -84,9 +83,9 @@ class CsaProfileSsiTest {
 
         assertEquals(1, remedialAction.getElementaryActions().size());
         elementaryAction = remedialAction.getElementaryActions().iterator().next();
-        assertTrue(elementaryAction instanceof TopologicalAction);
-        assertEquals("DDE3AA1  DDE4AA1  1", ((TopologicalAction) elementaryAction).getNetworkElement().getId());
-        assertEquals(ActionType.OPEN, ((TopologicalAction) elementaryAction).getActionType());
+        assertTrue(elementaryAction instanceof SwitchAction);
+        assertEquals("DDE3AA1  DDE4AA1  1", ((SwitchAction) elementaryAction).getSwitchId());
+        assertTrue(((SwitchAction) elementaryAction).isOpen());
 
         assertEquals(1, remedialAction.getUsageRules().size());
         assertEquals(crac.getInstant(PREVENTIVE_INSTANT_ID), remedialAction.getUsageRules().iterator().next().getInstant());
@@ -107,10 +106,10 @@ class CsaProfileSsiTest {
         assertEquals("RTE_RA1", remedialAction.getName());
 
         assertEquals(1, remedialAction.getElementaryActions().size());
-        ElementaryAction elementaryAction = remedialAction.getElementaryActions().iterator().next();
-        assertTrue(elementaryAction instanceof TopologicalAction);
-        assertEquals("BBE1AA1  BBE4AA1  1", ((TopologicalAction) elementaryAction).getNetworkElement().getId());
-        assertEquals(ActionType.OPEN, ((TopologicalAction) elementaryAction).getActionType());
+        Action elementaryAction = remedialAction.getElementaryActions().iterator().next();
+        assertTrue(elementaryAction instanceof SwitchAction);
+        assertEquals("BBE1AA1  BBE4AA1  1", ((SwitchAction) elementaryAction).getSwitchId());
+        assertTrue(((SwitchAction) elementaryAction).isOpen());
 
         // With SSI
         cracCreationContext = getCsaCracCreationContext("/profiles/ssi/SSI-3_ChangeTopologicalActionType.zip", NETWORK, "2024-01-31T12:30Z");
@@ -123,9 +122,9 @@ class CsaProfileSsiTest {
 
         assertEquals(1, remedialAction.getElementaryActions().size());
         elementaryAction = remedialAction.getElementaryActions().iterator().next();
-        assertTrue(elementaryAction instanceof TopologicalAction);
-        assertEquals("BBE1AA1  BBE4AA1  1", ((TopologicalAction) elementaryAction).getNetworkElement().getId());
-        assertEquals(ActionType.CLOSE, ((TopologicalAction) elementaryAction).getActionType());
+        assertTrue(elementaryAction instanceof SwitchAction);
+        assertEquals("BBE1AA1  BBE4AA1  1", ((SwitchAction) elementaryAction).getSwitchId());
+        assertFalse(((SwitchAction) elementaryAction).isOpen());
     }
 
     @Test
@@ -169,10 +168,10 @@ class CsaProfileSsiTest {
         assertEquals("RTE_RA", remedialAction.getName());
 
         assertEquals(1, remedialAction.getElementaryActions().size());
-        ElementaryAction elementaryAction = remedialAction.getElementaryActions().iterator().next();
-        assertTrue(elementaryAction instanceof InjectionSetpoint);
-        assertEquals("FFR1AA1 _generator", ((InjectionSetpoint) elementaryAction).getNetworkElement().getId());
-        assertEquals(75d, ((InjectionSetpoint) elementaryAction).getSetpoint());
+        Action elementaryAction = remedialAction.getElementaryActions().iterator().next();
+        assertTrue(elementaryAction instanceof GeneratorAction);
+        assertEquals("FFR1AA1 _generator", ((GeneratorAction) elementaryAction).getGeneratorId());
+        assertEquals(75d, ((GeneratorAction) elementaryAction).getActivePowerValue().getAsDouble());
 
         // With SSI
         cracCreationContext = getCsaCracCreationContext("/profiles/ssi/SSI-5_ChangeRotatingMachineActionSetpoint.zip", NETWORK, "2024-01-31T12:30Z");
@@ -185,9 +184,9 @@ class CsaProfileSsiTest {
 
         assertEquals(1, remedialAction.getElementaryActions().size());
         elementaryAction = remedialAction.getElementaryActions().iterator().next();
-        assertTrue(elementaryAction instanceof InjectionSetpoint);
-        assertEquals("FFR1AA1 _generator", ((InjectionSetpoint) elementaryAction).getNetworkElement().getId());
-        assertEquals(100d, ((InjectionSetpoint) elementaryAction).getSetpoint());
+        assertTrue(elementaryAction instanceof GeneratorAction);
+        assertEquals("FFR1AA1 _generator", ((GeneratorAction) elementaryAction).getGeneratorId());
+        assertEquals(100d, ((GeneratorAction) elementaryAction).getActivePowerValue().getAsDouble());
     }
 
     @Test
@@ -202,10 +201,10 @@ class CsaProfileSsiTest {
         assertEquals("RTE_RA", remedialAction.getName());
 
         assertEquals(1, remedialAction.getElementaryActions().size());
-        ElementaryAction elementaryAction = remedialAction.getElementaryActions().iterator().next();
-        assertTrue(elementaryAction instanceof TopologicalAction);
-        assertEquals("BBE1AA1  BBE4AA1  1", ((TopologicalAction) elementaryAction).getNetworkElement().getId());
-        assertEquals(ActionType.OPEN, ((TopologicalAction) elementaryAction).getActionType());
+        Action elementaryAction = remedialAction.getElementaryActions().iterator().next();
+        assertTrue(elementaryAction instanceof SwitchAction);
+        assertEquals("BBE1AA1  BBE4AA1  1", ((SwitchAction) elementaryAction).getSwitchId());
+        assertTrue(((SwitchAction) elementaryAction).isOpen());
 
         // With SSI
         cracCreationContext = getCsaCracCreationContext("/profiles/ssi/SSI-6_TopologyAction.zip", NETWORK, "2024-01-31T12:30Z");
@@ -218,9 +217,9 @@ class CsaProfileSsiTest {
 
         assertEquals(1, remedialAction.getElementaryActions().size());
         elementaryAction = remedialAction.getElementaryActions().iterator().next();
-        assertTrue(elementaryAction instanceof TopologicalAction);
-        assertEquals("DDE3AA1  DDE4AA1  1", ((TopologicalAction) elementaryAction).getNetworkElement().getId());
-        assertEquals(ActionType.CLOSE, ((TopologicalAction) elementaryAction).getActionType());
+        assertTrue(elementaryAction instanceof SwitchAction);
+        assertEquals("DDE3AA1  DDE4AA1  1", ((SwitchAction) elementaryAction).getSwitchId());
+        assertFalse(((SwitchAction) elementaryAction).isOpen());
     }
 
     @Test
@@ -235,10 +234,10 @@ class CsaProfileSsiTest {
         assertEquals("RTE_RA", remedialAction.getName());
 
         assertEquals(1, remedialAction.getElementaryActions().size());
-        ElementaryAction elementaryAction = remedialAction.getElementaryActions().iterator().next();
-        assertTrue(elementaryAction instanceof InjectionSetpoint);
-        assertEquals("FFR1AA1 _generator", ((InjectionSetpoint) elementaryAction).getNetworkElement().getId());
-        assertEquals(75d, ((InjectionSetpoint) elementaryAction).getSetpoint());
+        Action elementaryAction = remedialAction.getElementaryActions().iterator().next();
+        assertTrue(elementaryAction instanceof GeneratorAction);
+        assertEquals("FFR1AA1 _generator", ((GeneratorAction) elementaryAction).getGeneratorId());
+        assertEquals(75d, ((GeneratorAction) elementaryAction).getActivePowerValue().getAsDouble());
 
         // With SSI
         cracCreationContext = getCsaCracCreationContext("/profiles/ssi/SSI-7_RotatingMachineAction.zip", NETWORK, "2024-01-31T12:30Z");
@@ -251,9 +250,9 @@ class CsaProfileSsiTest {
 
         assertEquals(1, remedialAction.getElementaryActions().size());
         elementaryAction = remedialAction.getElementaryActions().iterator().next();
-        assertTrue(elementaryAction instanceof InjectionSetpoint);
-        assertEquals("FFR2AA1 _generator", ((InjectionSetpoint) elementaryAction).getNetworkElement().getId());
-        assertEquals(100d, ((InjectionSetpoint) elementaryAction).getSetpoint());
+        assertTrue(elementaryAction instanceof GeneratorAction);
+        assertEquals("FFR2AA1 _generator", ((GeneratorAction) elementaryAction).getGeneratorId());
+        assertEquals(100d, ((GeneratorAction) elementaryAction).getActivePowerValue().getAsDouble());
     }
 
     @Test
@@ -312,10 +311,10 @@ class CsaProfileSsiTest {
         assertEquals("RTE_RA", remedialAction.getName());
 
         assertEquals(1, remedialAction.getElementaryActions().size());
-        ElementaryAction elementaryAction = remedialAction.getElementaryActions().iterator().next();
-        assertTrue(elementaryAction instanceof InjectionSetpoint);
-        assertEquals("shunt-compensator", ((InjectionSetpoint) elementaryAction).getNetworkElement().getId());
-        assertEquals(1, ((InjectionSetpoint) elementaryAction).getSetpoint());
+        Action elementaryAction = remedialAction.getElementaryActions().iterator().next();
+        assertTrue(elementaryAction instanceof ShuntCompensatorPositionAction);
+        assertEquals("shunt-compensator", ((ShuntCompensatorPositionAction) elementaryAction).getShuntCompensatorId());
+        assertEquals(1, ((ShuntCompensatorPositionAction) elementaryAction).getSectionCount());
 
         // With SSI
         cracCreationContext = getCsaCracCreationContext("/profiles/ssi/SSI-10_ShuntCompensatorModification.zip", NETWORK, "2024-01-31T12:30Z");
@@ -328,9 +327,9 @@ class CsaProfileSsiTest {
 
         assertEquals(1, remedialAction.getElementaryActions().size());
         elementaryAction = remedialAction.getElementaryActions().iterator().next();
-        assertTrue(elementaryAction instanceof InjectionSetpoint);
-        assertEquals("shunt-compensator", ((InjectionSetpoint) elementaryAction).getNetworkElement().getId());
-        assertEquals(3, ((InjectionSetpoint) elementaryAction).getSetpoint());
+        assertTrue(elementaryAction instanceof ShuntCompensatorPositionAction);
+        assertEquals("shunt-compensator", ((ShuntCompensatorPositionAction) elementaryAction).getShuntCompensatorId());
+        assertEquals(3, ((ShuntCompensatorPositionAction) elementaryAction).getSectionCount());
     }
 
     @Test
@@ -344,20 +343,20 @@ class CsaProfileSsiTest {
         assertEquals("remedial-action-1", remedialAction.getId());
         assertEquals("RTE_RA1", remedialAction.getName());
 
-        List<ElementaryAction> elementaryActions = remedialAction.getElementaryActions().stream().sorted(Comparator.comparing(ElementaryAction::toString)).toList();
+        List<Action> elementaryActions = remedialAction.getElementaryActions().stream().sorted(Comparator.comparing(Action::toString)).toList();
         assertEquals(3, elementaryActions.size());
 
-        assertTrue(elementaryActions.get(0) instanceof InjectionSetpoint);
-        assertEquals("FFR1AA1 _generator", ((InjectionSetpoint) elementaryActions.get(0)).getNetworkElement().getId());
-        assertEquals(75d, ((InjectionSetpoint) elementaryActions.get(0)).getSetpoint());
+        assertTrue(elementaryActions.get(0) instanceof GeneratorAction);
+        assertEquals("FFR1AA1 _generator", ((GeneratorAction) elementaryActions.get(0)).getGeneratorId());
+        assertEquals(75d, ((GeneratorAction) elementaryActions.get(0)).getActivePowerValue().getAsDouble());
 
-        assertTrue(elementaryActions.get(1) instanceof InjectionSetpoint);
-        assertEquals("shunt-compensator", ((InjectionSetpoint) elementaryActions.get(1)).getNetworkElement().getId());
-        assertEquals(1, ((InjectionSetpoint) elementaryActions.get(1)).getSetpoint());
+        assertTrue(elementaryActions.get(1) instanceof ShuntCompensatorPositionAction);
+        assertEquals("shunt-compensator", ((ShuntCompensatorPositionAction) elementaryActions.get(1)).getShuntCompensatorId());
+        assertEquals(1, ((ShuntCompensatorPositionAction) elementaryActions.get(1)).getSectionCount());
 
-        assertTrue(elementaryActions.get(2) instanceof TopologicalAction);
-        assertEquals("BBE1AA1  BBE4AA1  1", ((TopologicalAction) elementaryActions.get(2)).getNetworkElement().getId());
-        assertEquals(ActionType.OPEN, ((TopologicalAction) elementaryActions.get(2)).getActionType());
+        assertTrue(elementaryActions.get(2) instanceof SwitchAction);
+        assertEquals("BBE1AA1  BBE4AA1  1", ((SwitchAction) elementaryActions.get(2)).getSwitchId());
+        assertTrue(((SwitchAction) elementaryActions.get(2)).isOpen());
 
         assertRaNotImported(cracCreationContext, "remedial-action-2", ImportStatus.NOT_FOR_RAO, "Remedial action remedial-action-2 will not be imported because it has no elementary action");
 
@@ -370,20 +369,20 @@ class CsaProfileSsiTest {
         assertEquals("remedial-action-2", remedialAction.getId());
         assertEquals("RTE_RA2", remedialAction.getName());
 
-        elementaryActions = remedialAction.getElementaryActions().stream().sorted(Comparator.comparing(ElementaryAction::toString)).toList();
+        elementaryActions = remedialAction.getElementaryActions().stream().sorted(Comparator.comparing(Action::toString)).toList();
         assertEquals(3, elementaryActions.size());
 
-        assertTrue(elementaryActions.get(0) instanceof InjectionSetpoint);
-        assertEquals("shunt-compensator", ((InjectionSetpoint) elementaryActions.get(0)).getNetworkElement().getId());
-        assertEquals(4, ((InjectionSetpoint) elementaryActions.get(0)).getSetpoint());
+        assertTrue(elementaryActions.get(0) instanceof GeneratorAction);
+        assertEquals("FFR2AA1 _generator", ((GeneratorAction) elementaryActions.get(0)).getGeneratorId());
+        assertEquals(100d, ((GeneratorAction) elementaryActions.get(0)).getActivePowerValue().getAsDouble());
 
-        assertTrue(elementaryActions.get(1) instanceof InjectionSetpoint);
-        assertEquals("FFR2AA1 _generator", ((InjectionSetpoint) elementaryActions.get(1)).getNetworkElement().getId());
-        assertEquals(100d, ((InjectionSetpoint) elementaryActions.get(1)).getSetpoint());
+        assertTrue(elementaryActions.get(1) instanceof ShuntCompensatorPositionAction);
+        assertEquals("shunt-compensator", ((ShuntCompensatorPositionAction) elementaryActions.get(1)).getShuntCompensatorId());
+        assertEquals(4, ((ShuntCompensatorPositionAction) elementaryActions.get(1)).getSectionCount());
 
-        assertTrue(elementaryActions.get(2) instanceof TopologicalAction);
-        assertEquals("DDE3AA1  DDE4AA1  1", ((TopologicalAction) elementaryActions.get(2)).getNetworkElement().getId());
-        assertEquals(ActionType.CLOSE, ((TopologicalAction) elementaryActions.get(2)).getActionType());
+        assertTrue(elementaryActions.get(2) instanceof SwitchAction);
+        assertEquals("DDE3AA1  DDE4AA1  1", ((SwitchAction) elementaryActions.get(2)).getSwitchId());
+        assertFalse(((SwitchAction) elementaryActions.get(2)).isOpen());
 
         assertRaNotImported(cracCreationContext, "remedial-action-1", ImportStatus.NOT_FOR_RAO, "Remedial action remedial-action-1 will not be imported because it has no elementary action");
     }
@@ -571,10 +570,10 @@ class CsaProfileSsiTest {
         assertEquals("RTE_ARA-1", remedialAction.getName());
 
         assertEquals(1, remedialAction.getElementaryActions().size());
-        ElementaryAction elementaryAction = remedialAction.getElementaryActions().iterator().next();
-        assertTrue(elementaryAction instanceof TopologicalAction);
-        assertEquals("BBE1AA1  BBE4AA1  1", ((TopologicalAction) elementaryAction).getNetworkElement().getId());
-        assertEquals(ActionType.OPEN, ((TopologicalAction) elementaryAction).getActionType());
+        Action elementaryAction = remedialAction.getElementaryActions().iterator().next();
+        assertTrue(elementaryAction instanceof SwitchAction);
+        assertEquals("BBE1AA1  BBE4AA1  1", ((SwitchAction) elementaryAction).getSwitchId());
+        assertTrue(((SwitchAction) elementaryAction).isOpen());
 
         assertEquals(1, remedialAction.getUsageRules().size());
         assertEquals(crac.getInstant(AUTO_INSTANT_ID), remedialAction.getUsageRules().iterator().next().getInstant());
@@ -593,9 +592,9 @@ class CsaProfileSsiTest {
 
         assertEquals(1, remedialAction.getElementaryActions().size());
         elementaryAction = remedialAction.getElementaryActions().iterator().next();
-        assertTrue(elementaryAction instanceof TopologicalAction);
-        assertEquals("DDE3AA1  DDE4AA1  1", ((TopologicalAction) elementaryAction).getNetworkElement().getId());
-        assertEquals(ActionType.OPEN, ((TopologicalAction) elementaryAction).getActionType());
+        assertTrue(elementaryAction instanceof SwitchAction);
+        assertEquals("DDE3AA1  DDE4AA1  1", ((SwitchAction) elementaryAction).getSwitchId());
+        assertTrue(((SwitchAction) elementaryAction).isOpen());
 
         assertEquals(1, remedialAction.getUsageRules().size());
         assertEquals(crac.getInstant(AUTO_INSTANT_ID), remedialAction.getUsageRules().iterator().next().getInstant());
@@ -616,10 +615,10 @@ class CsaProfileSsiTest {
         assertEquals("RTE_ARA-1", remedialAction.getName());
 
         assertEquals(1, remedialAction.getElementaryActions().size());
-        ElementaryAction elementaryAction = remedialAction.getElementaryActions().iterator().next();
-        assertTrue(elementaryAction instanceof TopologicalAction);
-        assertEquals("BBE1AA1  BBE4AA1  1", ((TopologicalAction) elementaryAction).getNetworkElement().getId());
-        assertEquals(ActionType.OPEN, ((TopologicalAction) elementaryAction).getActionType());
+        Action elementaryAction = remedialAction.getElementaryActions().iterator().next();
+        assertTrue(elementaryAction instanceof SwitchAction);
+        assertEquals("BBE1AA1  BBE4AA1  1", ((SwitchAction) elementaryAction).getSwitchId());
+        assertTrue(((SwitchAction) elementaryAction).isOpen());
 
         assertEquals(1, remedialAction.getUsageRules().size());
         assertEquals(crac.getInstant(AUTO_INSTANT_ID), remedialAction.getUsageRules().iterator().next().getInstant());
@@ -638,9 +637,9 @@ class CsaProfileSsiTest {
 
         assertEquals(1, remedialAction.getElementaryActions().size());
         elementaryAction = remedialAction.getElementaryActions().iterator().next();
-        assertTrue(elementaryAction instanceof TopologicalAction);
-        assertEquals("DDE3AA1  DDE4AA1  1", ((TopologicalAction) elementaryAction).getNetworkElement().getId());
-        assertEquals(ActionType.OPEN, ((TopologicalAction) elementaryAction).getActionType());
+        assertTrue(elementaryAction instanceof SwitchAction);
+        assertEquals("DDE3AA1  DDE4AA1  1", ((SwitchAction) elementaryAction).getSwitchId());
+        assertTrue(((SwitchAction) elementaryAction).isOpen());
 
         assertEquals(1, remedialAction.getUsageRules().size());
         assertEquals(crac.getInstant(AUTO_INSTANT_ID), remedialAction.getUsageRules().iterator().next().getInstant());

@@ -8,6 +8,7 @@ package com.powsybl.openrao.data.craciojson;
 
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.TwoSides;
+import com.powsybl.action.*;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.*;
 import com.powsybl.openrao.data.cracapi.cnec.AngleCnec;
@@ -52,7 +53,7 @@ class CracImportExportTest {
 
     @Test
     void testNonNullOffsetDateTime() {
-        Network network = NetworkImportsUtil.createNetworkWithLines("ne1Id", "ne2Id", "ne3Id");
+        Network network = NetworkImportsUtil.createNetworkForJsonRetrocompatibilityTest();
         CracCreationContext context = new JsonImport().importData(getClass().getResourceAsStream("/retrocompatibility/v2/crac-v2.4.json"), new CracCreationParameters(), network, Mockito.mock(OffsetDateTime.class));
         assertTrue(context.isCreationSuccessful());
         assertEquals(List.of("[WARN] OffsetDateTime was ignored by the JSON CRAC importer"), context.getCreationReport().getReport());
@@ -224,9 +225,9 @@ class CracImportExportTest {
 
         // check elementaryActions
         assertEquals(1, crac.getNetworkAction("pstSetpointRaId").getElementaryActions().size());
-        assertTrue(crac.getNetworkAction("pstSetpointRaId").getElementaryActions().iterator().next() instanceof PstSetpoint);
+        assertTrue(crac.getNetworkAction("pstSetpointRaId").getElementaryActions().iterator().next() instanceof PhaseTapChangerTapPositionAction);
         assertEquals(1, crac.getNetworkAction("injectionSetpointRaId").getElementaryActions().size());
-        assertTrue(crac.getNetworkAction("injectionSetpointRaId").getElementaryActions().iterator().next() instanceof InjectionSetpoint);
+        assertTrue(crac.getNetworkAction("injectionSetpointRaId").getElementaryActions().iterator().next() instanceof GeneratorAction);
         assertEquals(2, crac.getNetworkAction("complexNetworkActionId").getElementaryActions().size());
 
         // check onInstant usage rule
@@ -281,9 +282,7 @@ class CracImportExportTest {
 
         SwitchPair switchPair = (SwitchPair) crac.getNetworkAction("switchPairRaId").getElementaryActions().iterator().next();
         assertEquals("to-open", switchPair.getSwitchToOpen().getId());
-        assertEquals("to-open", switchPair.getSwitchToOpen().getName());
         assertEquals("to-close", switchPair.getSwitchToClose().getId());
-        assertEquals("to-close-name", switchPair.getSwitchToClose().getName());
 
         // ----------------------------
         // --- test PstRangeActions ---

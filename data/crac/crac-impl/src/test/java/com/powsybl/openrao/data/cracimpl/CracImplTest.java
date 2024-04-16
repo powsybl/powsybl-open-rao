@@ -25,7 +25,6 @@ import com.powsybl.openrao.data.cracapi.rangeaction.HvdcRangeActionAdder;
 import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeActionAdder;
 import com.powsybl.openrao.data.cracapi.usagerule.UsageMethod;
-import com.powsybl.openrao.data.cracapi.usagerule.UsageRule;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -214,8 +213,8 @@ class CracImplTest {
         crac.newNetworkAction()
                 .withId("na")
                 .withOperator("operator")
-                .newTopologicalAction().withActionType(ActionType.OPEN).withNetworkElement("ne4").add()
-                .newTopologicalAction().withActionType(ActionType.OPEN).withNetworkElement("ne5").add()
+                .newTerminalsConnectionAction().withActionType(ActionType.OPEN).withNetworkElement("ne4").add()
+                .newSwitchAction().withActionType(ActionType.OPEN).withNetworkElement("ne5").add()
                 .add();
 
         crac.addNetworkElement("ne6", "ne6");
@@ -265,7 +264,7 @@ class CracImplTest {
         crac.newNetworkAction()
                 .withId("ra")
                 .withOperator("operator")
-                .newPstSetPoint().withNetworkElement("anyPst").withSetpoint(8).add()
+                .newPhaseTapChangerTapPositionAction().withNetworkElement("anyPst").withTapPosition(8).add()
                 .newOnContingencyStateUsageRule()
                 .withContingency("co1")
                 .withInstant(AUTO_INSTANT_ID)
@@ -350,7 +349,7 @@ class CracImplTest {
         crac.newNetworkAction()
                 .withId("na")
                 .withOperator("operator")
-                .newTopologicalAction().withNetworkElement("anyNetworkElement").withActionType(ActionType.CLOSE).add()
+                .newTerminalsConnectionAction().withNetworkElement("anyNetworkElement").withActionType(ActionType.CLOSE).add()
                 .newOnContingencyStateUsageRule().withInstant(CURATIVE_INSTANT_ID).withContingency("co1").withUsageMethod(AVAILABLE).add()
                 .add();
 
@@ -804,25 +803,26 @@ class CracImplTest {
         NetworkElement neCo = crac.addNetworkElement("neCo", "neCo");
         Contingency contingency1 = new Contingency("co1", "co1", Collections.singletonList(getRandomTypeContingencyElement("neCo")));
         crac.addContingency(contingency1);
-        State state1 = crac.addState(contingency1, curativeInstant);
-        UsageRule ur1 = new OnContingencyStateImpl(UsageMethod.AVAILABLE, state1);
-        State state2 = crac.addState(contingency1, outageInstant);
-        UsageRule ur2 = new OnContingencyStateImpl(FORCED, state2);
 
-        NetworkElement ne1 = crac.addNetworkElement("ne1", "ne1");
-        NetworkElement ne2 = crac.addNetworkElement("ne2", "ne2");
+        NetworkActionAdder ra1Adder = crac.newNetworkAction().withId("ra1").withName("ra1").withOperator("operator").withSpeed(10);
+        ra1Adder.newOnContingencyStateUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withContingency("co1").withInstant(CURATIVE_INSTANT_ID).add();
+        ra1Adder.newSwitchAction().withNetworkElement("ne1", "ne1").withActionType(ActionType.OPEN).add();
+        NetworkAction ra1 = ra1Adder.add();
+        NetworkActionAdder ra2Adder = crac.newNetworkAction().withId("ra2").withName("ra2").withOperator("operator").withSpeed(10);
+        ra2Adder.newOnContingencyStateUsageRule().withUsageMethod(UsageMethod.FORCED).withContingency("co1").withInstant(AUTO_INSTANT_ID).add();
+        ra2Adder.newSwitchAction().withNetworkElement("ne1", "ne1").withActionType(ActionType.OPEN).add();
+        NetworkAction ra2 = ra2Adder.add();
+        NetworkActionAdder ra3Adder = crac.newNetworkAction().withId("ra3").withName("ra3").withOperator("operator").withSpeed(10);
+        ra3Adder.newOnContingencyStateUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withContingency("co1").withInstant(CURATIVE_INSTANT_ID).add();
+        ra3Adder.newSwitchAction().withNetworkElement("ne2", "ne2").withActionType(ActionType.CLOSE).add();
+        NetworkAction ra3 = ra3Adder.add();
+        NetworkActionAdder ra4Adder = crac.newNetworkAction().withId("ra4").withName("ra4").withOperator("operator").withSpeed(10);
+        ra4Adder.newOnContingencyStateUsageRule().withUsageMethod(UsageMethod.FORCED).withContingency("co1").withInstant(AUTO_INSTANT_ID).add();
+        ra4Adder.newSwitchAction().withNetworkElement("ne2", "ne2").withActionType(ActionType.CLOSE).add();
+        NetworkAction ra4 = ra4Adder.add();
 
-        ElementaryAction ea1 = new TopologicalActionImpl(ne1, ActionType.OPEN);
-        ElementaryAction ea2 = new TopologicalActionImpl(ne2, ActionType.CLOSE);
-
-        NetworkAction ra1 = new NetworkActionImpl("ra1", "ra1", "operator", Set.of(ur1), Collections.singleton(ea1), 10, Collections.singleton(ne1));
-        crac.addNetworkAction(ra1);
-        NetworkAction ra2 = new NetworkActionImpl("ra2", "ra2", "operator", Set.of(ur2), Collections.singleton(ea1), 10, Collections.singleton(ne1));
-        crac.addNetworkAction(ra2);
-        NetworkAction ra3 = new NetworkActionImpl("ra3", "ra3", "operator", Set.of(ur1), Collections.singleton(ea2), 10, Collections.singleton(ne2));
-        crac.addNetworkAction(ra3);
-        NetworkAction ra4 = new NetworkActionImpl("ra4", "ra4", "operator", Set.of(ur2), Collections.singleton(ea2), 10, Collections.singleton(ne2));
-        crac.addNetworkAction(ra4);
+        State state1 = crac.getState(contingency1, curativeInstant);
+        State state2 = crac.getState(contingency1, autoInstant);
 
         assertTrue(crac.getNetworkActions(state1, FORCED).isEmpty());
         assertEquals(Set.of(ra1, ra3), crac.getNetworkActions(state1, AVAILABLE));
@@ -844,13 +844,13 @@ class CracImplTest {
         assertNull(crac.getNetworkAction("ra2"));
         assertNull(crac.getNetworkElement("ne1")); // unused
         assertNotNull(crac.getState(contingency1, curativeInstant)); // state1, still used by ra3
-        assertNotNull(crac.getState(contingency1, outageInstant)); // state2, still used by RA4
+        assertNotNull(crac.getState(contingency1, autoInstant)); // state2, still used by RA4
 
         crac.removeNetworkAction("ra3");
         assertNull(crac.getNetworkAction("ra3"));
         assertNotNull(crac.getNetworkElement("ne2")); // still used by ra4
         assertNull(crac.getState(contingency1, curativeInstant)); // unused
-        assertNotNull(crac.getState(contingency1, outageInstant)); // state2, still used by ra4
+        assertNotNull(crac.getState(contingency1, autoInstant)); // state2, still used by ra4
 
         crac.removeRemedialAction("ra4");
         assertEquals(0, crac.getRemedialActions().size());
@@ -864,26 +864,26 @@ class CracImplTest {
         NetworkElement neCo = crac.addNetworkElement("neCo", "neCo");
         Contingency contingency1 = new Contingency("co1", "co1", Collections.singletonList(getRandomTypeContingencyElement("neCo")));
         crac.addContingency(contingency1);
-        State state1 = crac.addState(contingency1, curativeInstant);
-        UsageRule ur1 = new OnContingencyStateImpl(UsageMethod.AVAILABLE, state1);
-        State state2 = crac.addState(contingency1, outageInstant);
-        UsageRule ur2 = new OnContingencyStateImpl(FORCED, state2);
-        UsageRule ur3 = new OnContingencyStateImpl(FORCED, state1);
 
-        NetworkElement ne1 = crac.addNetworkElement("ne1", "ne1");
-        NetworkElement ne2 = crac.addNetworkElement("ne2", "ne2");
+        NetworkActionAdder ra1Adder = crac.newNetworkAction().withId("ra1").withName("ra1").withOperator("operator").withSpeed(10);
+        ra1Adder.newOnContingencyStateUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withContingency("co1").withInstant(CURATIVE_INSTANT_ID).add();
+        ra1Adder.newSwitchAction().withNetworkElement("ne1", "ne1").withActionType(ActionType.OPEN).add();
+        NetworkAction ra1 = ra1Adder.add();
+        NetworkActionAdder ra2Adder = crac.newNetworkAction().withId("ra2").withName("ra2").withOperator("operator").withSpeed(10);
+        ra2Adder.newOnContingencyStateUsageRule().withUsageMethod(UsageMethod.FORCED).withContingency("co1").withInstant(AUTO_INSTANT_ID).add();
+        ra2Adder.newSwitchAction().withNetworkElement("ne1", "ne1").withActionType(ActionType.OPEN).add();
+        NetworkAction ra2 = ra2Adder.add();
+        NetworkActionAdder ra3Adder = crac.newNetworkAction().withId("ra3").withName("ra3").withOperator("operator").withSpeed(10);
+        ra3Adder.newOnContingencyStateUsageRule().withUsageMethod(UsageMethod.FORCED).withContingency("co1").withInstant(CURATIVE_INSTANT_ID).add();
+        ra3Adder.newSwitchAction().withNetworkElement("ne2", "ne2").withActionType(ActionType.CLOSE).add();
+        NetworkAction ra3 = ra3Adder.add();
+        NetworkActionAdder ra4Adder = crac.newNetworkAction().withId("ra4").withName("ra4").withOperator("operator").withSpeed(10);
+        ra4Adder.newOnContingencyStateUsageRule().withUsageMethod(UsageMethod.FORCED).withContingency("co1").withInstant(AUTO_INSTANT_ID).add();
+        ra4Adder.newSwitchAction().withNetworkElement("ne2", "ne2").withActionType(ActionType.CLOSE).add();
+        NetworkAction ra4 = ra4Adder.add();
 
-        ElementaryAction ea1 = new TopologicalActionImpl(ne1, ActionType.OPEN);
-        ElementaryAction ea2 = new TopologicalActionImpl(ne2, ActionType.CLOSE);
-
-        NetworkAction ra1 = new NetworkActionImpl("ra1", "ra1", "operator", Set.of(ur1), Collections.singleton(ea1), 10, Collections.singleton(ne1));
-        crac.addNetworkAction(ra1);
-        NetworkAction ra2 = new NetworkActionImpl("ra2", "ra2", "operator", Set.of(ur2), Collections.singleton(ea1), 10, Collections.singleton(ne1));
-        crac.addNetworkAction(ra2);
-        NetworkAction ra3 = new NetworkActionImpl("ra3", "ra3", "operator", Set.of(ur3), Collections.singleton(ea2), 10, Collections.singleton(ne2));
-        crac.addNetworkAction(ra3);
-        NetworkAction ra4 = new NetworkActionImpl("ra4", "ra4", "operator", Set.of(ur2), Collections.singleton(ea2), 10, Collections.singleton(ne2));
-        crac.addNetworkAction(ra4);
+        State state1 = crac.getState(contingency1, curativeInstant);
+        State state2 = crac.getState(contingency1, autoInstant);
 
         assertEquals(Set.of(ra1), crac.getNetworkActions(state1, AVAILABLE));
         assertEquals(Set.of(), crac.getNetworkActions(state2, AVAILABLE));

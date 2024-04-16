@@ -20,7 +20,7 @@ import com.powsybl.openrao.data.cracapi.usagerule.UsageMethod;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.powsybl.openrao.data.cracimpl.utils.NetworkImportsUtil.createNetworkWithLines;
+import static com.powsybl.openrao.data.cracimpl.utils.NetworkImportsUtil.createNetworkForJsonRetrocompatibilityTest;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
@@ -52,7 +52,7 @@ public final class ExhaustiveCracCreation {
 
     public static Network createAssociatedNetwork() {
         // should be Line because of ContingencyElementType.LINE;
-        return createNetworkWithLines("ne1Id", "ne2Id", "ne3Id");
+        return createNetworkForJsonRetrocompatibilityTest();
     }
 
     public static Crac create(CracFactory cracFactory) {
@@ -184,7 +184,7 @@ public final class ExhaustiveCracCreation {
         crac.newNetworkAction().withId("pstSetpointRaId")
             .withName("pstSetpointRaName")
             .withOperator("RTE")
-            .newPstSetPoint().withSetpoint(15).withNetworkElement("pst").add()
+            .newPhaseTapChangerTapPositionAction().withTapPosition(15).withNetworkElement("pst").add()
             .newOnInstantUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withInstant(PREVENTIVE_INSTANT_ID).add()
             .newOnContingencyStateUsageRule().withUsageMethod(UsageMethod.FORCED).withContingency(contingency1Id).withInstant(CURATIVE_INSTANT_ID).add()
             .add();
@@ -193,8 +193,8 @@ public final class ExhaustiveCracCreation {
         crac.newNetworkAction().withId("complexNetworkActionId")
             .withName("complexNetworkActionName")
             .withOperator("RTE")
-            .newPstSetPoint().withSetpoint(5).withNetworkElement("pst").add()
-            .newTopologicalAction().withActionType(ActionType.CLOSE).withNetworkElement("ne1Id").add()
+            .newPhaseTapChangerTapPositionAction().withTapPosition(5).withNetworkElement("pst").add()
+            .newTerminalsConnectionAction().withActionType(ActionType.CLOSE).withNetworkElement("ne1Id").add()
             .newOnInstantUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withInstant(PREVENTIVE_INSTANT_ID).add()
             .newOnContingencyStateUsageRule().withUsageMethod(UsageMethod.FORCED).withInstant(PREVENTIVE_INSTANT_ID).add()
             .add();
@@ -203,7 +203,7 @@ public final class ExhaustiveCracCreation {
         crac.newNetworkAction().withId("injectionSetpointRaId")
             .withName("injectionSetpointRaName")
             .withOperator("RTE")
-            .newInjectionSetPoint().withSetpoint(260).withNetworkElement("injection").withUnit(Unit.SECTION_COUNT).add()
+            .newGeneratorAction().withActivePowerValue(260.0).withNetworkElement("injection").add()
             .newOnConstraintUsageRule().withCnec("cnec3autoId").withInstant(AUTO_INSTANT_ID).withUsageMethod(UsageMethod.FORCED).add()
             .add();
 

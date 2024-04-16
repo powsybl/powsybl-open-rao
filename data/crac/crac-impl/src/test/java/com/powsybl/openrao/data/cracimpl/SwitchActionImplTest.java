@@ -8,13 +8,11 @@
 
 package com.powsybl.openrao.data.cracimpl;
 
+import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.cracapi.networkaction.ActionType;
-import com.powsybl.openrao.data.cracapi.NetworkElement;
 import com.powsybl.openrao.data.cracapi.networkaction.NetworkAction;
 import com.powsybl.openrao.data.cracimpl.utils.NetworkImportsUtil;
-import com.powsybl.iidm.network.Network;
-import org.apache.commons.lang3.NotImplementedException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -25,7 +23,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * @author Pauline JEAN-MARIE {@literal <pauline.jean-marie at artelys.com>}
  */
-class TopologicalActionImplTest {
+class SwitchActionImplTest {
     private NetworkAction topologyOpen;
     private NetworkAction topologyClose;
 
@@ -34,14 +32,14 @@ class TopologicalActionImplTest {
         Crac crac = new CracImplFactory().create("cracId");
         topologyOpen = crac.newNetworkAction()
             .withId("topologyOpen")
-            .newTopologicalAction()
+            .newSwitchAction()
                 .withNetworkElement("FFR2AA1  DDE3AA1  1")
                 .withActionType(ActionType.OPEN)
                 .add()
             .add();
         topologyClose = crac.newNetworkAction()
             .withId("topologyClose")
-            .newTopologicalAction()
+            .newSwitchAction()
                 .withNetworkElement("FFR2AA1  DDE3AA1  1")
                 .withActionType(ActionType.CLOSE)
                 .add()
@@ -56,29 +54,6 @@ class TopologicalActionImplTest {
     }
 
     @Test
-    void hasImpactOnNetworkForLine() {
-        Network network = NetworkImportsUtil.import12NodesNetwork();
-
-        assertTrue(topologyOpen.hasImpactOnNetwork(network));
-        assertFalse(topologyClose.hasImpactOnNetwork(network));
-    }
-
-    @Test
-    void applyOpenCloseLine() {
-        Network network = NetworkImportsUtil.import12NodesNetwork();
-        assertTrue(network.getBranch("FFR2AA1  DDE3AA1  1").getTerminal1().isConnected());
-        assertTrue(network.getBranch("FFR2AA1  DDE3AA1  1").getTerminal2().isConnected());
-
-        topologyOpen.apply(network);
-        assertFalse(network.getBranch("FFR2AA1  DDE3AA1  1").getTerminal1().isConnected());
-        assertFalse(network.getBranch("FFR2AA1  DDE3AA1  1").getTerminal2().isConnected());
-
-        topologyClose.apply(network);
-        assertTrue(network.getBranch("FFR2AA1  DDE3AA1  1").getTerminal1().isConnected());
-        assertTrue(network.getBranch("FFR2AA1  DDE3AA1  1").getTerminal2().isConnected());
-    }
-
-    @Test
     void hasImpactOnNetworkForSwitch() {
         Network network = NetworkImportsUtil.import12NodesNetworkWithSwitch();
         String switchNetworkElementId = "NNL3AA11 NNL3AA12 1";
@@ -86,7 +61,7 @@ class TopologicalActionImplTest {
         Crac crac = new CracImplFactory().create("cracId");
         NetworkAction openSwitchTopology = crac.newNetworkAction()
             .withId("openSwitchTopology")
-            .newTopologicalAction()
+            .newSwitchAction()
                 .withNetworkElement(switchNetworkElementId)
                 .withActionType(ActionType.OPEN)
                 .add()
@@ -96,7 +71,7 @@ class TopologicalActionImplTest {
 
         NetworkAction closeSwitchTopology = crac.newNetworkAction()
             .withId("closeSwitchTopology")
-            .newTopologicalAction()
+            .newSwitchAction()
             .withNetworkElement(switchNetworkElementId)
             .withActionType(ActionType.CLOSE)
             .add()
@@ -109,31 +84,29 @@ class TopologicalActionImplTest {
     void switchTopology() {
         Network network = NetworkImportsUtil.import12NodesNetworkWithSwitch();
         String switchNetworkElementId = "NNL3AA11 NNL3AA12 1";
+        Crac crac = new CracImplFactory().create("cracId");
 
-        NetworkElement networkElement = new NetworkElementImpl(switchNetworkElementId);
-        TopologicalActionImpl openSwitchTopology = new TopologicalActionImpl(
-            networkElement,
-            ActionType.OPEN);
+        NetworkAction openSwitchTopology = crac.newNetworkAction()
+            .withId("openSwitchTopology")
+            .newSwitchAction()
+            .withNetworkElement(switchNetworkElementId)
+            .withActionType(ActionType.OPEN)
+            .add()
+            .add();
 
         openSwitchTopology.apply(network);
         assertTrue(network.getSwitch(switchNetworkElementId).isOpen());
 
-        TopologicalActionImpl closeSwitchTopology = new TopologicalActionImpl(
-            networkElement,
-            ActionType.CLOSE);
+        NetworkAction closeSwitchTopology = crac.newNetworkAction()
+            .withId("closeSwitchTopology")
+            .newSwitchAction()
+            .withNetworkElement(switchNetworkElementId)
+            .withActionType(ActionType.CLOSE)
+            .add()
+            .add();
 
         closeSwitchTopology.apply(network);
         assertFalse(network.getSwitch(switchNetworkElementId).isOpen());
-    }
-
-    @Test
-    void applyOnUnsupportedElement() {
-        Network network = NetworkImportsUtil.import12NodesNetwork();
-        TopologicalActionImpl topologyOnNode = new TopologicalActionImpl(
-                new NetworkElementImpl("FFR2AA1"),
-                ActionType.OPEN);
-
-        assertThrows(NotImplementedException.class, () -> topologyOnNode.apply(network));
     }
 
     @Test
@@ -141,7 +114,7 @@ class TopologicalActionImplTest {
         Crac crac = new CracImplFactory().create("cracId");
         NetworkAction similarTopologyClose = crac.newNetworkAction()
             .withId("topologyClose")
-            .newTopologicalAction()
+            .newSwitchAction()
             .withNetworkElement("FFR2AA1  DDE3AA1  1")
             .withActionType(ActionType.CLOSE)
             .add()

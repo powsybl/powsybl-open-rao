@@ -69,22 +69,22 @@ class VoltageMonitoringTest {
 
         naOpenL1 = crac.newNetworkAction()
             .withId("Open L1")
-            .newTopologicalAction().withNetworkElement("L1").withActionType(ActionType.OPEN).add()
+            .newTerminalsConnectionAction().withNetworkElement("L1").withActionType(ActionType.OPEN).add()
             .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add()
             .add();
         naCloseL1 = crac.newNetworkAction()
             .withId("Close L1")
-            .newTopologicalAction().withNetworkElement("L1").withActionType(ActionType.CLOSE).add()
+            .newTerminalsConnectionAction().withNetworkElement("L1").withActionType(ActionType.CLOSE).add()
             .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add()
             .add();
         naOpenL2 = crac.newNetworkAction()
             .withId("Open L2")
-            .newTopologicalAction().withNetworkElement("L2").withActionType(ActionType.OPEN).add()
+            .newTerminalsConnectionAction().withNetworkElement("L2").withActionType(ActionType.OPEN).add()
             .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add()
             .add();
         naCloseL2 = crac.newNetworkAction()
             .withId("Close L2")
-            .newTopologicalAction().withNetworkElement("L2").withActionType(ActionType.CLOSE).add()
+            .newTerminalsConnectionAction().withNetworkElement("L2").withActionType(ActionType.CLOSE).add()
             .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add()
             .add();
         pst = crac.newPstRangeAction()
@@ -393,7 +393,7 @@ class VoltageMonitoringTest {
         vcPrev = addVoltageCnec("vcPrev", PREVENTIVE_INSTANT_ID, null, "VL45", 145., 150.);
         crac.newNetworkAction()
             .withId("Open L1 - 1")
-            .newTopologicalAction().withNetworkElement("L1").withActionType(ActionType.OPEN).add()
+            .newTerminalsConnectionAction().withNetworkElement("L1").withActionType(ActionType.OPEN).add()
             .newOnConstraintUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withCnec(vcPrev.getId()).withUsageMethod(UsageMethod.AVAILABLE).add()
             .add();
     }
@@ -422,7 +422,7 @@ class VoltageMonitoringTest {
         String networkActionName = "Open L2 - 1";
         crac.newNetworkAction()
             .withId(networkActionName)
-            .newTopologicalAction().withNetworkElement("L2").withActionType(ActionType.OPEN).add()
+            .newTerminalsConnectionAction().withNetworkElement("L2").withActionType(ActionType.OPEN).add()
             .newOnConstraintUsageRule().withInstant(CURATIVE_INSTANT_ID).withCnec(vc.getId()).withUsageMethod(UsageMethod.AVAILABLE).add()
             .add();
 
@@ -442,7 +442,7 @@ class VoltageMonitoringTest {
         VoltageCnec vc = addVoltageCnec("vcCur1", CURATIVE_INSTANT_ID, "coL3", "VL3", 375., 395.);
         crac.newNetworkAction()
             .withId("Open L1 - 2")
-            .newTopologicalAction().withNetworkElement("L1").withActionType(ActionType.OPEN).add()
+            .newTerminalsConnectionAction().withNetworkElement("L1").withActionType(ActionType.OPEN).add()
             .newOnConstraintUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withCnec(vc.getId()).withUsageMethod(UsageMethod.AVAILABLE).add()
             .add();
 
@@ -471,7 +471,7 @@ class VoltageMonitoringTest {
         vcPrev = addVoltageCnec("vcPrev", PREVENTIVE_INSTANT_ID, null, "VL1", 390., 399.);
         crac.newNetworkAction()
             .withId("Open L1 - 1")
-            .newTopologicalAction().withNetworkElement("L1").withActionType(ActionType.OPEN).add()
+            .newTerminalsConnectionAction().withNetworkElement("L1").withActionType(ActionType.OPEN).add()
             .newOnConstraintUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withCnec(vcPrev.getId()).withUsageMethod(UsageMethod.AVAILABLE).add()
             .add();
 
@@ -480,7 +480,7 @@ class VoltageMonitoringTest {
         String networkActionName = "Open L1 - 2";
         RemedialAction<?> networkAction = crac.newNetworkAction()
             .withId(networkActionName)
-            .newTopologicalAction().withNetworkElement("L1").withActionType(ActionType.OPEN).add()
+            .newTerminalsConnectionAction().withNetworkElement("L1").withActionType(ActionType.OPEN).add()
             .newOnConstraintUsageRule().withInstant(CURATIVE_INSTANT_ID).withCnec(vc.getId()).withUsageMethod(UsageMethod.AVAILABLE).add()
             .add();
 
@@ -498,7 +498,7 @@ class VoltageMonitoringTest {
         vcPrev = addVoltageCnec("vcPrev", PREVENTIVE_INSTANT_ID, null, "VL1", 440., 450.);
         crac.newNetworkAction()
             .withId("Open L1 - 1")
-            .newTopologicalAction().withNetworkElement("L1").withActionType(ActionType.OPEN).add()
+            .newTerminalsConnectionAction().withNetworkElement("L1").withActionType(ActionType.OPEN).add()
             .newOnConstraintUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withCnec(vcPrev.getId()).withUsageMethod(UsageMethod.AVAILABLE).add()
             .add();
 
@@ -507,7 +507,7 @@ class VoltageMonitoringTest {
         String networkActionName = "Open L1 - 2";
         RemedialAction<?> networkAction = crac.newNetworkAction()
             .withId(networkActionName)
-            .newTopologicalAction().withNetworkElement("L1").withActionType(ActionType.OPEN).add()
+            .newTerminalsConnectionAction().withNetworkElement("L1").withActionType(ActionType.OPEN).add()
             .newOnConstraintUsageRule().withInstant(CURATIVE_INSTANT_ID).withCnec(vc.getId()).withUsageMethod(UsageMethod.AVAILABLE).add()
             .add();
 
@@ -528,7 +528,7 @@ class VoltageMonitoringTest {
         String networkActionName = "Close L1 - 1";
         RemedialAction<?> networkAction = crac.newNetworkAction()
             .withId(networkActionName)
-            .newTopologicalAction().withNetworkElement("L1").withActionType(ActionType.CLOSE).add()
+            .newTerminalsConnectionAction().withNetworkElement("L1").withActionType(ActionType.CLOSE).add()
             .newOnConstraintUsageRule().withInstant(CURATIVE_INSTANT_ID).withCnec(vc.getId()).withUsageMethod(UsageMethod.AVAILABLE).add()
             .add();
 
@@ -549,7 +549,7 @@ class VoltageMonitoringTest {
         String networkActionName = "Close L1 - 1";
         RemedialAction<?> networkAction = crac.newNetworkAction()
             .withId(networkActionName)
-            .newTopologicalAction().withNetworkElement("L2").withActionType(ActionType.OPEN).add()
+            .newTerminalsConnectionAction().withNetworkElement("L2").withActionType(ActionType.OPEN).add()
             .newOnConstraintUsageRule().withInstant(CURATIVE_INSTANT_ID).withCnec(vc.getId()).withUsageMethod(UsageMethod.AVAILABLE).add()
             .add();
 
