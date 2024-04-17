@@ -134,7 +134,6 @@ public class CsaProfileRemedialActionsCreator {
                 }
             }
         }
-
     }
 
     private void checkElementCombinationConstraintKindsCoherence(String remedialActionId, Map<String, Set<PropertyBag>> linkedContingencyWithRAs, List<String> alterations, boolean isSchemeRemedialAction) {
