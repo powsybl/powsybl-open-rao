@@ -158,7 +158,7 @@ public class CsaProfileRemedialActionsCreator {
 
     private void addOnInstantUsageRules(String remedialActionId, RemedialActionAdder<?> remedialActionAdder, Instant instant) {
         if (instant.isAuto()) {
-            throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action %s will not be imported because no contingency or assessed element is linked to the remedial action".formatted(remedialActionId));
+            throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action %s will not be imported because no contingency or assessed element is linked to the remedial action and this is nor supported for ARAs".formatted(remedialActionId));
         }
         remedialActionAdder.newOnInstantUsageRule().withInstant(instant.getId()).withUsageMethod(UsageMethod.AVAILABLE).add();
     }
