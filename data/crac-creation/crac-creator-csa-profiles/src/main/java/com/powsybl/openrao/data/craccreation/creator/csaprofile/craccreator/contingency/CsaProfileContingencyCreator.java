@@ -60,7 +60,7 @@ public class CsaProfileContingencyCreator {
     }
 
     private void createAndAddContingencies() {
-        this.csaProfileContingencyCreationContexts = new HashSet<>();
+        csaProfileContingencyCreationContexts = new HashSet<>();
 
         for (PropertyBag contingencyPropertyBag : contingenciesPropertyBags) {
             String contingencyId = contingencyPropertyBag.getId(REQUEST_CONTINGENCY);
@@ -71,7 +71,7 @@ public class CsaProfileContingencyCreator {
             }
         }
 
-        this.cracCreationContext.setContingencyCreationContexts(csaProfileContingencyCreationContexts);
+        cracCreationContext.setContingencyCreationContexts(csaProfileContingencyCreationContexts);
     }
 
     private void addContingency(PropertyBag contingencyPropertyBag) {

@@ -84,10 +84,9 @@ public abstract class AbstractCnecCreator {
         return "%s - TATL %s".formatted(getCnecName(instantId, contingency), tatlDuration);
     }
 
-    protected boolean addCnecBaseInformation(CnecAdder<?> cnecAdder, Contingency contingency, String instantId) {
+    protected void addCnecBaseInformation(CnecAdder<?> cnecAdder, Contingency contingency, String instantId) {
         String cnecName = getCnecName(instantId, contingency);
         initCnecAdder(cnecAdder, contingency, instantId, cnecName);
-        return true;
     }
 
     protected void addCnecBaseInformation(CnecAdder<?> cnecAdder, Contingency contingency, String instantId, int tatlDuration) {
