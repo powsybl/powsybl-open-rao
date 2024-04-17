@@ -275,3 +275,29 @@ Feature: US 12.15: export different reason per perimeter in SWE CNE
     When I import data at "2021-04-02 05:00"
     And I export SWE CNE
     Then the exported CNE file is the same as "epic12/ExpectedCNE_12_15_4.xml"
+
+  @fast @cne-export @mock
+  Scenario: US 12.15.5: CNE export with angles
+    # Copy of 12.15.4 with extra angle CNEC and extra angle values in RAO result
+    # Expected CNE is the same as 12.5.4 with the extra angle value information
+    Given network file is "epic12/nordic32.xiidm"
+    Given crac file is "epic12/CIM_12_15_5.xml"
+    Given crac creation parameters file is "epic12/CimCracCreationParameters_MonitorLeftSide.json"
+    Given configuration file is "epic12/raoParametersSweIDCC_minObjectiveDisabled2P.json"
+    Given RaoResult file is "epic12/RaoResult_12_15_5.json"
+    When I import data at "2021-04-02 05:00"
+    And I export SWE CNE
+    Then the exported CNE file is the same as "epic12/ExpectedCNE_12_15_5.xml"
+
+  @fast @cne-export @mock
+  Scenario: US 12.15.6: CNE export with angles, no angle results
+    # Copy of 12.15.4 with extra angle CNEC but no angle values in RAO result
+    # Should not fail. Should instead skip angle CNECs, thus expected CNE is the same as 12.5.4
+    Given network file is "epic12/nordic32.xiidm"
+    Given crac file is "epic12/CIM_12_15_5.xml"
+    Given crac creation parameters file is "epic12/CimCracCreationParameters_MonitorLeftSide.json"
+    Given configuration file is "epic12/raoParametersSweIDCC_minObjectiveDisabled2P.json"
+    Given RaoResult file is "epic12/RaoResult_12_15_4.json"
+    When I import data at "2021-04-02 05:00"
+    And I export SWE CNE
+    Then the exported CNE file is the same as "epic12/ExpectedCNE_12_15_4.xml"
