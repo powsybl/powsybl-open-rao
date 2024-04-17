@@ -8,9 +8,7 @@ package com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.rem
 
 import com.powsybl.contingency.Contingency;
 import com.powsybl.openrao.data.cracapi.Crac;
-import com.powsybl.openrao.data.craccreation.creator.api.ImportStatus;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileConstants;
-import com.powsybl.openrao.data.craccreation.util.OpenRaoImportException;
 import com.powsybl.triplestore.api.PropertyBag;
 
 import java.util.HashMap;
@@ -33,6 +31,12 @@ public final class OnContingencyStateUsageRuleHelper {
 
         for (PropertyBag contingencyWithRemedialActionPropertyBag : linkedContingencyWithRemedialActions) {
             String contingencyId = contingencyWithRemedialActionPropertyBag.getId(REQUEST_CONTINGENCY);
+
+            if (contingencyStatusMap.containsKey(contingencyId)) {
+                contingencyStatusMap.put(contingencyId, new AssociationStatus(false, null, "OnContingencyState usage rule for remedial action %s with contingency %s ignored because this contingency has several conflictual links to the remedial action.".formatted(remedialActionId, contingencyId)));
+                continue;
+            }
+
             Contingency contingency = crac.getContingency(contingencyId);
             String combinationConstraintKindStr = contingencyWithRemedialActionPropertyBag.get(COMBINATION_CONSTRAINT_KIND);
             Optional<String> normalEnabledOpt = Optional.ofNullable(contingencyWithRemedialActionPropertyBag.get(CsaProfileConstants.NORMAL_ENABLED));
@@ -52,12 +56,7 @@ public final class OnContingencyStateUsageRuleHelper {
                 continue;
             }
 
-            CsaProfileConstants.ElementCombinationConstraintKind combinationConstraintKind = CsaProfileConstants.ElementCombinationConstraintKind.INCLUDED.toString().equals(combinationConstraintKindStr) ? CsaProfileConstants.ElementCombinationConstraintKind.INCLUDED : CsaProfileConstants.ElementCombinationConstraintKind.CONSIDERED;
-            if (contingencyStatusMap.containsKey(contingencyId) && combinationConstraintKind != contingencyStatusMap.get(contingencyId).elementCombinationConstraintKind()) {
-                throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action %s will not be imported because the ElementCombinationConstraintKinds that link the remedial action to the contingency %s are different".formatted(remedialActionId, contingencyId));
-            }
-
-            contingencyStatusMap.put(contingencyId, new AssociationStatus(true, combinationConstraintKind, ""));
+            contingencyStatusMap.put(contingencyId, new AssociationStatus(true, CsaProfileConstants.ElementCombinationConstraintKind.INCLUDED.toString().equals(combinationConstraintKindStr) ? CsaProfileConstants.ElementCombinationConstraintKind.INCLUDED : CsaProfileConstants.ElementCombinationConstraintKind.CONSIDERED, ""));
         }
 
         return contingencyStatusMap;

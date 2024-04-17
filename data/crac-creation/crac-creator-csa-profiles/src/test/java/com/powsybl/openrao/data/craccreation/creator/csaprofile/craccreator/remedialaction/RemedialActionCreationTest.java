@@ -29,7 +29,7 @@ class RemedialActionCreationTest {
         CsaProfileCracCreationContext cracCreationContext = getCsaCracCreationContext("/profiles/remedialactions/RemedialActions.zip", NETWORK);
 
         List<RemedialAction<?>> importedRemedialActions = cracCreationContext.getCrac().getRemedialActions().stream().sorted(Comparator.comparing(RemedialAction::getId)).toList();
-        assertEquals(6, importedRemedialActions.size());
+        assertEquals(7, importedRemedialActions.size());
 
         assertPstRangeActionImported((PstRangeAction) importedRemedialActions.get(0), "remedial-action-1", "remedial-action-1", "BBE2AA1  BBE3AA1  1", null, null, null);
         assertHasOnInstantUsageRule(cracCreationContext, "remedial-action-1", PREVENTIVE_INSTANT_ID, UsageMethod.AVAILABLE);
@@ -52,11 +52,13 @@ class RemedialActionCreationTest {
         assertHasOnContingencyStateUsageRule(cracCreationContext, "remedial-action-6", "contingency-1", CURATIVE_INSTANT_ID, UsageMethod.AVAILABLE);
         assertHasOnContingencyStateUsageRule(cracCreationContext, "remedial-action-6", "contingency-2", CURATIVE_INSTANT_ID, UsageMethod.FORCED);
 
-        assertEquals(5, cracCreationContext.getRemedialActionCreationContexts().stream().filter(context -> !context.isImported()).toList().size());
+        assertPstRangeActionImported((PstRangeAction) importedRemedialActions.get(6), "remedial-action-9", "RTE_RA9", "BBE2AA1  BBE3AA1  1", null, null, "RTE");
+        assertEquals(0, importedRemedialActions.get(6).getUsageRules().size());
+
+        assertEquals(4, cracCreationContext.getRemedialActionCreationContexts().stream().filter(context -> !context.isImported()).toList().size());
 
         assertRaNotImported(cracCreationContext, "remedial-action-7", ImportStatus.NOT_FOR_RAO, "Remedial action remedial-action-7 will not be imported because normalAvailable is set to false");
         assertRaNotImported(cracCreationContext, "remedial-action-8", ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action remedial-action-8 will not be imported because it is linked to a contingency but is not curative");
-        assertRaNotImported(cracCreationContext, "remedial-action-9", ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action remedial-action-9 will not be imported because the ElementCombinationConstraintKinds that link the remedial action to the contingency contingency-1 are different");
         assertRaNotImported(cracCreationContext, "remedial-action-10", ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action remedial-action-10 will not be imported because of an irregular timeToImplement pattern");
         assertRaNotImported(cracCreationContext, "remedial-action-11", ImportStatus.NOT_FOR_RAO, "Remedial action remedial-action-11 will not be imported because it has no elementary action");
     }
