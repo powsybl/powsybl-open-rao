@@ -93,14 +93,13 @@ public class FastRao implements RaoProvider {
             // 1. Retrieve input data
             Crac crac = raoInput.getCrac();
             Collection<String> initialNetworkVariants = new HashSet<>(raoInput.getNetwork().getVariantManager().getVariantIds());
-            String startingVariant = raoInput.getNetwork().getVariantManager().getWorkingVariantId();
 
             System.out.println("**************************INITIAL SENSITIVITY*******************************");
             ToolProvider toolProvider = ToolProvider.buildFromRaoInputAndParameters(raoInput, parameters);
 
             PrePerimeterSensitivityAnalysis prePerimeterSensitivityAnalysis = new PrePerimeterSensitivityAnalysis(
-                raoInput.getCrac().getFlowCnecs(),
-                raoInput.getCrac().getRangeActions(),
+                crac.getFlowCnecs(),
+                crac.getRangeActions(),
                 parameters,
                 toolProvider);
             OpenRaoLogger logger = new RaoBusinessLogs();
@@ -210,7 +209,7 @@ public class FastRao implements RaoProvider {
         RaoInput filteredRaoInput = createFilteredRaoInput(raoInput, filteredCrac);
         RaoResult raoResult;
         try {
-            raoResult = new CastorFullOptimization(filteredRaoInput, parameters, targetEndInstant).run().get();
+            raoResult = new CastorFullOptimization(filteredRaoInput, parameters, targetEndInstant).run(initialResult).get();
             List<String> preventiveNetworkActions = raoResult.getActivatedNetworkActionsDuringState(crac.getPreventiveState()).stream()
                 .map(Identifiable::getId)
                 .toList();

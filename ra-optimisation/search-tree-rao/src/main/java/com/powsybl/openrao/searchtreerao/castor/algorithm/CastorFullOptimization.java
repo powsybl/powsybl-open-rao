@@ -78,7 +78,6 @@ public class CastorFullOptimization {
     public CompletableFuture<RaoResult> run() {
 
         RaoUtil.initData(raoInput, raoParameters);
-        StateTree stateTree = new StateTree(raoInput.getCrac());
         ToolProvider toolProvider = ToolProvider.buildFromRaoInputAndParameters(raoInput, raoParameters);
 
         // ----- INITIAL SENSI -----
@@ -90,8 +89,21 @@ public class CastorFullOptimization {
             raoParameters,
             toolProvider);
 
-        PrePerimeterResult initialOutput;
-        initialOutput = prePerimeterSensitivityAnalysis.runInitialSensitivityAnalysis(raoInput.getNetwork(), raoInput.getCrac());
+        PrePerimeterResult initialOutput = prePerimeterSensitivityAnalysis.runInitialSensitivityAnalysis(raoInput.getNetwork(), raoInput.getCrac());
+        return run(initialOutput);
+    }
+
+    public CompletableFuture<RaoResult> run(PrePerimeterResult initialOutput) {
+        RaoUtil.initData(raoInput, raoParameters);
+        ToolProvider toolProvider = ToolProvider.buildFromRaoInputAndParameters(raoInput, raoParameters);
+        PrePerimeterSensitivityAnalysis prePerimeterSensitivityAnalysis = new PrePerimeterSensitivityAnalysis(
+            raoInput.getCrac().getFlowCnecs(),
+            raoInput.getCrac().getRangeActions(),
+            raoParameters,
+            toolProvider);
+        prePerimeterSensitivityAnalysis.buildObjectiveFunction(raoInput.getNetwork(), raoInput.getCrac());
+
+        StateTree stateTree = new StateTree(raoInput.getCrac());
         RaoLogger.logSensitivityAnalysisResults("Initial sensitivity analysis: ",
             prePerimeterSensitivityAnalysis.getObjectiveFunction(),
             new RangeActionActivationResultImpl(RangeActionSetpointResultImpl.buildWithSetpointsFromNetwork(raoInput.getNetwork(), raoInput.getCrac().getRangeActions())),

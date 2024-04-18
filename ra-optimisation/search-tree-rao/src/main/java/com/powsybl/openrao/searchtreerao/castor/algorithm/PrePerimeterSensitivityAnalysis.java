@@ -53,6 +53,10 @@ public class PrePerimeterSensitivityAnalysis {
         this.toolProvider = toolProvider;
     }
 
+    public void buildObjectiveFunction(Network network, Crac crac) {
+        objectiveFunction = ObjectiveFunction.create().buildForInitialSensitivityComputation(flowCnecs, raoParameters, crac, RangeActionSetpointResultImpl.buildWithSetpointsFromNetwork(network, rangeActions));
+    }
+
     public PrePerimeterResult runInitialSensitivityAnalysis(Network network, Crac crac) {
         SensitivityComputer.SensitivityComputerBuilder sensitivityComputerBuilder = buildSensiBuilder()
             .withOutageInstant(crac.getOutageInstant());

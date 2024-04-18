@@ -72,9 +72,7 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
      * @param networkElementIds: IDs of the network elements to remove
      */
     void safeRemoveNetworkElements(Set<String> networkElementIds) {
-        networkElementIds.stream()
-                .filter(networkElementId -> !isNetworkElementUsedWithinCrac(networkElementId))
-                .forEach(networkElements::remove);
+        getNetworkElementsNotUsedWithinCrac(networkElementIds).forEach(networkElements::remove);
     }
 
     /**
@@ -91,6 +89,23 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
                 .map(RemedialAction::getNetworkElements)
                 .flatMap(Set::stream)
                 .anyMatch(ne -> ne.getId().equals(networkElementId));
+    }
+
+    private Set<String> getNetworkElementsNotUsedWithinCrac(Set<String> networkElementIds) {
+        Set<String> networkElementIdsCopy = new HashSet<>(networkElementIds);
+        Set<String> cnecNetworkElements = getCnecs().stream()
+            .map(Cnec::getNetworkElements)
+            .flatMap(Set<NetworkElement>::stream)
+            .map(Identifiable::getId)
+            .collect(Collectors.toSet());
+        Set<String> remedialActionNetworkElements = getRemedialActions().stream()
+            .map(RemedialAction::getNetworkElements)
+            .flatMap(Set<NetworkElement>::stream)
+            .map(Identifiable::getId)
+            .collect(Collectors.toSet());
+        networkElementIdsCopy.removeAll(cnecNetworkElements);
+        networkElementIdsCopy.removeAll(remedialActionNetworkElements);
+        return networkElementIdsCopy;
     }
 
     /**
@@ -355,9 +370,7 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
      * @param stateIds: IDs of the States to remove
      */
     void safeRemoveStates(Set<String> stateIds) {
-        stateIds.stream()
-                .filter(stateId -> !isStateUsedWithinCrac(stateId))
-                .forEach(states::remove);
+        getStatesNotUsedWithinCrac(stateIds).forEach(states::remove);
     }
 
     /**
@@ -372,6 +385,22 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
                 .map(RemedialAction::getUsageRules)
                 .flatMap(Set::stream)
                 .anyMatch(ur -> ur instanceof OnContingencyState onContingencyState && onContingencyState.getState().getId().equals(stateId));
+    }
+
+    private Set<String> getStatesNotUsedWithinCrac(Set<String> stateIds) {
+        Set<String> stateIdsCopy = new HashSet<>(stateIds);
+        Set<String> cnecStates = getCnecs().stream()
+            .map(cnec -> cnec.getState().getId())
+            .collect(Collectors.toSet());
+        Set<String> raUrStates = getRemedialActions().stream()
+            .map(RemedialAction::getUsageRules)
+            .flatMap(Set::stream)
+            .filter(ur -> ur instanceof OnContingencyState)
+            .map(ur -> ((OnContingencyState) ur).getState().getId())
+            .collect(Collectors.toSet());
+        stateIdsCopy.removeAll(cnecStates);
+        stateIdsCopy.removeAll(raUrStates);
+        return stateIdsCopy;
     }
 
     //endregion
