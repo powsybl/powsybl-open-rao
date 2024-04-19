@@ -453,14 +453,14 @@ class CsaProfileSsiTest {
         crac = cracCreationContext.getCrac();
 
         assertAngleCnecEquality(crac.getAngleCnec("RTE_AE1 (assessed-element-1) - preventive"), "RTE_AE1 (assessed-element-1) - preventive", "BBE1AA1 ", "BBE4AA1 ", PREVENTIVE_INSTANT_ID, null, 30d, -30d, "RTE");
-        assertCnecNotImported(cracCreationContext, "assessed-element-2", ImportStatus.NOT_FOR_RAO, "AssessedElement.normalEnabled is false");
+        assertCnecNotImported(cracCreationContext, "assessed-element-2", ImportStatus.NOT_FOR_RAO, "AssessedElement assessed-element-2 ignored because it is not enabled");
 
         // With SSI
         cracCreationContext = getCsaCracCreationContext("/profiles/ssi/SSI-13_AngleCNEC.zip", NETWORK, "2024-01-31T12:30Z");
         crac = cracCreationContext.getCrac();
 
         assertAngleCnecEquality(crac.getAngleCnec("RTE_AE2 (assessed-element-2) - preventive"), "RTE_AE2 (assessed-element-2) - preventive", "BBE4AA1 ", "BBE1AA1 ", PREVENTIVE_INSTANT_ID, null, 45d, -45d, "RTE");
-        assertCnecNotImported(cracCreationContext, "assessed-element-1", ImportStatus.NOT_FOR_RAO, "AssessedElement.normalEnabled is false");
+        assertCnecNotImported(cracCreationContext, "assessed-element-1", ImportStatus.NOT_FOR_RAO, "AssessedElement assessed-element-1 ignored because it is not enabled");
     }
 
     @Test
