@@ -32,8 +32,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
-import static com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileConstants.REQUEST_CONTINGENCY;
-
 /**
  * @author Jean-Pierre Arnould {@literal <jean-pierre.arnould at rte-france.com>}
  */
@@ -63,7 +61,7 @@ public class CsaProfileContingencyCreator {
         csaProfileContingencyCreationContexts = new HashSet<>();
 
         for (PropertyBag contingencyPropertyBag : contingenciesPropertyBags) {
-            String contingencyId = contingencyPropertyBag.getId(REQUEST_CONTINGENCY);
+            String contingencyId = contingencyPropertyBag.getId(CsaProfileConstants.REQUEST_CONTINGENCY);
             try {
                 addContingency(contingencyPropertyBag);
             } catch (OpenRaoImportException exception) {
@@ -90,7 +88,7 @@ public class CsaProfileContingencyCreator {
         csaProfileContingencyCreationContexts.add(CsaProfileElementaryCreationContext.imported(contingencyId, contingencyId, contingencyName, String.join(" ", alterations), !alterations.isEmpty()));
     }
 
-    private static void checkMustStudy(String contingencyId, Boolean mustStudy) {
+    private static void checkMustStudy(String contingencyId, boolean mustStudy) {
         if (!Boolean.TRUE.equals(mustStudy)) {
             throw new OpenRaoImportException(ImportStatus.NOT_FOR_RAO, formatNotImportedMessage(contingencyId, "its field mustStudy is set to false"));
         }
@@ -98,7 +96,7 @@ public class CsaProfileContingencyCreator {
 
     private void addContingencyEquipments(String contingencyId, Set<PropertyBag> contingencyEquipments, ContingencyAdder contingencyAdder, List<String> alterations) {
         if (contingencyEquipments == null || contingencyEquipments.isEmpty()) {
-            throw new OpenRaoImportException(ImportStatus.INCOMPLETE_DATA, formatNotImportedMessage(contingencyId, "no contingency equipment is linked to the contingency"));
+            throw new OpenRaoImportException(ImportStatus.INCOMPLETE_DATA, formatNotImportedMessage(contingencyId, "no contingency equipment is linked to that contingency"));
         }
 
         List<String> incorrectContingentStatusElements = new ArrayList<>();

@@ -22,8 +22,6 @@ import com.powsybl.triplestore.api.PropertyBags;
 
 import java.util.*;
 
-import static com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileCracUtils.getEicFromUrl;
-
 /**
  * @author Jean-Pierre Arnould {@literal <jean-pierre.arnould at rte-france.com>}
  */
@@ -140,7 +138,7 @@ public class CsaProfileCnecCreator {
 
     private boolean isAeSecuredOrScannedForRegion(PropertyBag assessedElementPropertyBag, String propertyName) {
         String rawRegionId = assessedElementPropertyBag.get(propertyName);
-        String region = rawRegionId == null ? null : getEicFromUrl(assessedElementPropertyBag.get(propertyName));
+        String region = rawRegionId == null ? null : CsaProfileCracUtils.getEicFromUrl(assessedElementPropertyBag.get(propertyName));
         return region != null && region.equals(regionEic);
     }
 
@@ -151,7 +149,7 @@ public class CsaProfileCnecCreator {
     private void checkNormalEnabled(PropertyBag assessedElementPropertyBag) {
         String normalEnabled = assessedElementPropertyBag.get(CsaProfileConstants.REQUEST_ASSESSED_ELEMENT_NORMAL_ENABLED);
         if (normalEnabled != null && !Boolean.parseBoolean(normalEnabled)) {
-            throw new OpenRaoImportException(ImportStatus.NOT_FOR_RAO, "AssessedElement.normalEnabled is false");
+            throw new OpenRaoImportException(ImportStatus.NOT_FOR_RAO, "AssessedElement %s ignored because it is not enabled".formatted(assessedElementPropertyBag.getId(CsaProfileConstants.REQUEST_ASSESSED_ELEMENT)));
         }
     }
 
@@ -173,7 +171,7 @@ public class CsaProfileCnecCreator {
         Set<PropertyBag> limits = limitPropertyBags.get(assessedElementPropertyBag.getId(CsaProfileConstants.REQUEST_ASSESSED_ELEMENT_OPERATIONAL_LIMIT));
         if (limits != null) {
             if (limits.size() != 1) {
-                throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, "more than one " + limitType + " limit linked with the assessed element");
+                throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, "AssessedElement %s ignored because more than one %s limit linked with the assessed element".formatted(assessedElementPropertyBag.getId(CsaProfileConstants.REQUEST_ASSESSED_ELEMENT), limitType));
             }
             return true;
         }

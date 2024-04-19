@@ -71,7 +71,7 @@ public class FlowCnecCreator extends AbstractCnecCreator {
     private Identifiable<?> getFlowCnecBranch(String networkElementId) {
         Identifiable<?> networkElement = getNetworkElementInNetwork(networkElementId);
         if (networkElement == null) {
-            throw new OpenRaoImportException(ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK, writeAssessedElementIgnoredReasonMessage("the following element is missing from the network: " + networkElementId));
+            throw new OpenRaoImportException(ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK, writeAssessedElementIgnoredReasonMessage("the following network element is missing from the network: " + networkElementId));
         }
         if (!(networkElement instanceof Branch)) {
             throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, writeAssessedElementIgnoredReasonMessage("the network element " + networkElement.getId() + " is not a branch"));
@@ -147,7 +147,7 @@ public class FlowCnecCreator extends AbstractCnecCreator {
             flowCnecAdder.withIMax(currentLimitLeft, Side.LEFT);
             flowCnecAdder.withIMax(currentLimitRight, Side.RIGHT);
         } else {
-            throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, "Unable to get branch current limits from network for branch " + branch.getId());
+            throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, writeAssessedElementIgnoredReasonMessage("RAO was unable to retrieve the current limits of branch %s from the network".formatted(branch.getId())));
         }
     }
 

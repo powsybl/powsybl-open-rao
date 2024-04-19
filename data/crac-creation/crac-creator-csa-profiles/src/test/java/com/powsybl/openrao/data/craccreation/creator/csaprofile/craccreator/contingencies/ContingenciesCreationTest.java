@@ -39,7 +39,7 @@ class ContingenciesCreationTest {
 
         assertEquals(4, cracCreationContext.getContingencyCreationContexts().stream().filter(context -> !context.isImported()).toList().size());
 
-        assertContingencyNotImported(cracCreationContext, "contingency-8", ImportStatus.INCOMPLETE_DATA, "Contingency contingency-8 will not be imported because no contingency equipment is linked to the contingency");
+        assertContingencyNotImported(cracCreationContext, "contingency-8", ImportStatus.INCOMPLETE_DATA, "Contingency contingency-8 will not be imported because no contingency equipment is linked to that contingency");
         assertContingencyNotImported(cracCreationContext, "contingency-9", ImportStatus.NOT_FOR_RAO, "Contingency contingency-9 will not be imported because its field mustStudy is set to false");
         assertContingencyNotImported(cracCreationContext, "contingency-10", ImportStatus.INCONSISTENCY_IN_DATA, "Contingency contingency-10 will not be imported because all contingency equipments have an incorrect contingent status: FFR1AA1  FFR2AA1  1");
         assertContingencyNotImported(cracCreationContext, "contingency-11", ImportStatus.INCONSISTENCY_IN_DATA, "Contingency contingency-11 will not be imported because all contingency equipments are missing in the network: unknown-network-element");

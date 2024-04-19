@@ -16,7 +16,6 @@ import com.powsybl.openrao.data.craccreation.util.OpenRaoImportException;
 import com.powsybl.triplestore.api.PropertyBag;
 
 import java.util.List;
-import java.util.Objects;
 import java.util.Set;
 
 public class AngleCnecCreator extends AbstractCnecCreator {
@@ -104,7 +103,7 @@ public class AngleCnecCreator extends AbstractCnecCreator {
     }
 
     private void addAngleCnecElements(AngleCnecAdder angleCnecAdder, String networkElement1Id, String networkElement2Id, boolean isFlowToRefTerminal) {
-        if (Objects.equals(networkElement1Id, networkElement2Id)) {
+        if (networkElement1Id.equals(networkElement2Id)) {
             throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, writeAssessedElementIgnoredReasonMessage("AngleCNEC's importing and exporting equipments are the same: " + networkElement1Id));
         }
         String importingElement = isFlowToRefTerminal ? networkElement1Id : networkElement2Id;
