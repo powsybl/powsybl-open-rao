@@ -16,6 +16,7 @@ import com.powsybl.openrao.data.cracapi.usagerule.*;
 import com.powsybl.iidm.network.Network;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -57,8 +58,12 @@ public final class CracValidator {
             return;
         }
         // Find CNECs with no useful RA and duplicate them on outage instant
+        Set<RemedialAction<?>> remedialActions = new HashSet<>();
+        remedialActions.addAll(crac.getPotentiallyAvailableRangeActions(state));
+        remedialActions.addAll(crac.getPotentiallyAvailableNetworkActions(state));
+
         crac.getFlowCnecs(state).stream()
-            .filter(cnec -> crac.getRemedialActions().stream().noneMatch(ra -> isRaUsefulForCnec(ra, cnec, network)))
+            .filter(cnec -> shouldDuplicateCnec(remedialActions, cnec, network))
             .forEach(cnec -> {
                 duplicateCnecOnOutageInstant(crac, cnec);
                 report.add(String.format("CNEC \"%s\" has no associated automaton. It will be cloned on the OUTAGE instant in order to be secured during preventive RAO.", cnec.getId()));
@@ -129,6 +134,32 @@ public final class CracValidator {
                     .anyMatch(ofc -> isOfccUsefulForCnec(ofc, cnec, network));
         }
         return false;
+    }
+
+    private static boolean shouldDuplicateCnec(Set<RemedialAction<?>> remedialActions, FlowCnec flowCnec, Network network) {
+        boolean raForOtherCnecs = false;
+        for (RemedialAction<?> remedialAction : remedialActions) {
+            for (UsageRule usageRule : remedialAction.getUsageRules()) {
+                if (usageRule instanceof OnInstant onInstant && onInstant.getInstant().equals(flowCnec.getState().getInstant())) {
+                    return false;
+                } else if (usageRule instanceof OnContingencyState onContingencyState && onContingencyState.getState().equals(flowCnec.getState())) {
+                    return false;
+                } else if (usageRule instanceof OnFlowConstraint onFlowConstraint && onFlowConstraint.getFlowCnec().getState().equals(flowCnec.getState())) {
+                    if (onFlowConstraint.getFlowCnec().equals(flowCnec)) {
+                        return false;
+                    } else {
+                        raForOtherCnecs = true;
+                    }
+                } else if (usageRule instanceof OnFlowConstraintInCountry onFlowConstraintInCountry && onFlowConstraintInCountry.getInstant().equals(flowCnec.getState().getInstant())) {
+                    if (flowCnec.getLocation(network).contains(Optional.of(onFlowConstraintInCountry.getCountry()))) {
+                        return false;
+                    } else {
+                        raForOtherCnecs = true;
+                    }
+                }
+            }
+        }
+        return raForOtherCnecs;
     }
 
     /**
