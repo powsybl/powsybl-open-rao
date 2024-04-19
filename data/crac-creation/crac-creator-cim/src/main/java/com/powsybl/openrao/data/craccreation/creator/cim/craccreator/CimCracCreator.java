@@ -20,7 +20,6 @@ import com.powsybl.openrao.data.craccreation.creator.cim.craccreator.remedialact
 import com.powsybl.openrao.data.craccreation.creator.cim.parameters.CimCracCreationParameters;
 import com.powsybl.openrao.data.craccreation.creator.cim.xsd.TimeSeries;
 import com.powsybl.openrao.data.craccreation.util.RaUsageLimitsAdder;
-import com.powsybl.openrao.data.cracutil.CracValidator;
 import com.google.auto.service.AutoService;
 import com.powsybl.iidm.network.Network;
 
@@ -83,7 +82,6 @@ public class CimCracCreator implements CracCreator<CimCrac, CimCracCreationConte
         createRemedialActions(cimCracCreationParameters);
         createVoltageCnecs(cimCracCreationParameters);
         creationContext.buildCreationReport();
-        CracValidator.validateCrac(crac, network).forEach(creationContext.getCreationReport()::added);
         return creationContext.creationSuccess(crac);
     }
 

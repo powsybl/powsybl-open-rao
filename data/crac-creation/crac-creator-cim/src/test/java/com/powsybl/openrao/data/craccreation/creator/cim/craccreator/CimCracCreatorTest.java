@@ -978,17 +978,6 @@ class CimCracCreatorTest {
     }
 
     @Test
-    void importAndDuplicateAutoCnecs() {
-        CracCreationParameters cracCreationParameters = new CracCreationParameters();
-        cracCreationParameters.setDefaultMonitoredLineSide(CracCreationParameters.MonitoredLineSide.MONITOR_LINES_ON_BOTH_SIDES);
-        setUp("/cracs/CIM_21_2_1_ARA.xml", baseNetwork, OffsetDateTime.parse("2021-04-01T23:00Z"), cracCreationParameters);
-
-        assertEquals(12, importedCrac.getCnecs().size());
-        assertCnecHasOutageDuplicate("CNEC-4 - Co-1 - auto");
-        assertCnecHasOutageDuplicate("CNEC-4 - Co-2 - auto");
-    }
-
-    @Test
     void testPermissiveImports() {
         // Test that we can import contingencies from B56 & B57, and CNECs from B56
         setUpWithSpeed("/cracs/CIM_21_5_1_permissive.xml", baseNetwork, OffsetDateTime.parse("2021-04-01T23:00Z"), Set.of(new RangeActionSpeed("AUTO_1", 1)));

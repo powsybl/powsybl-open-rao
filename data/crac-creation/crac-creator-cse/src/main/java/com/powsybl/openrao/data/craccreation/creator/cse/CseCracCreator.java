@@ -21,7 +21,6 @@ import com.powsybl.openrao.data.craccreation.creator.cse.xsd.TCRACSeries;
 import com.powsybl.openrao.data.craccreation.util.RaUsageLimitsAdder;
 import com.powsybl.openrao.data.craccreation.util.ucte.UcteNetworkAnalyzer;
 import com.powsybl.openrao.data.craccreation.util.ucte.UcteNetworkAnalyzerProperties;
-import com.powsybl.openrao.data.cracutil.CracValidator;
 import com.google.auto.service.AutoService;
 import com.powsybl.iidm.network.Network;
 
@@ -82,7 +81,6 @@ public class CseCracCreator implements CracCreator<CseCrac, CseCracCreationConte
             tMonitoredElementsAdder.add();
 
             creationContext.buildCreationReport();
-            CracValidator.validateCrac(crac, network).forEach(creationContext.getCreationReport()::added);
             // TODO : add unit test for CracValidator.validateCrac step when auto RAs are handled
             return creationContext.creationSuccess(crac);
         } catch (OpenRaoException e) {
