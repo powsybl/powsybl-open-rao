@@ -19,12 +19,6 @@ import com.powsybl.triplestore.api.PropertyBag;
 import java.util.*;
 
 public class FlowCnecCreator extends AbstractCnecCreator {
-
-    private enum FlowCnecDefinitionMode {
-        CONDUCTING_EQUIPMENT,
-        OPERATIONAL_LIMIT
-    }
-
     private final String conductingEquipment;
     private final Set<Side> defaultMonitoredSides;
 
@@ -32,24 +26,32 @@ public class FlowCnecCreator extends AbstractCnecCreator {
         super(crac, network, assessedElementId, nativeAssessedElementName, assessedElementOperator, inBaseCase, currentLimitPropertyBag, linkedContingencies, csaProfileCnecCreationContexts, cracCreationContext, rejectedLinksAssessedElementContingency, aeSecuredForRegion, aeScannedForRegion);
         this.conductingEquipment = conductingEquipment;
         this.defaultMonitoredSides = defaultMonitoredSides;
+        checkCnecDefinitionMode();
+    }
+
+    private void checkCnecDefinitionMode() {
+        if (conductingEquipment == null && operationalLimitPropertyBag == null) {
+            throw new OpenRaoImportException(ImportStatus.INCOMPLETE_DATA, writeAssessedElementIgnoredReasonMessage("no ConductingEquipment or OperationalLimit was provided"));
+        }
+        if (conductingEquipment != null && operationalLimitPropertyBag != null) {
+            throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, writeAssessedElementIgnoredReasonMessage("an assessed element must be defined using either a ConductingEquipment or an OperationalLimit, not both"));
+        }
     }
 
     public void addFlowCnecs() {
-        FlowCnecDefinitionMode definitionMode = getCnecDefinitionMode();
-
-        String networkElementId = definitionMode == FlowCnecDefinitionMode.CONDUCTING_EQUIPMENT ? conductingEquipment : operationalLimitPropertyBag.getId(CsaProfileConstants.REQUEST_OPERATIONAL_LIMIT_TERMINAL);
+        String networkElementId = conductingEquipment != null ? conductingEquipment : operationalLimitPropertyBag.getId(CsaProfileConstants.REQUEST_OPERATIONAL_LIMIT_TERMINAL);
         Identifiable<?> branch = getFlowCnecBranch(networkElementId);
 
         // The thresholds are a map of acceptable durations to thresholds (per branch side)
         // Integer.MAX_VALUE is used for the PATL's acceptable duration
-        Map<Integer, EnumMap<TwoSides, Double>> thresholds = definitionMode == FlowCnecDefinitionMode.CONDUCTING_EQUIPMENT ? getPermanentAndTemporaryLimitsOfBranch((Branch<?>) branch) : getPermanentAndTemporaryLimitsOfOperationalLimit(branch, networkElementId);
+        Map<Integer, EnumMap<TwoSides, Double>> thresholds = conductingEquipment != null ? getPermanentAndTemporaryLimitsOfBranch((Branch<?>) branch) : getPermanentAndTemporaryLimitsOfOperationalLimit(branch, networkElementId);
         if (thresholds.isEmpty()) {
             throw new OpenRaoImportException(ImportStatus.INCOMPLETE_DATA, writeAssessedElementIgnoredReasonMessage("no PATL or TATLs could be retrieved for the branch " + branch.getId()));
         }
 
         // If the AssessedElement is defined with a conducting equipment, we use both max and min thresholds.
         boolean useMaxAndMinThresholds = true;
-        if (definitionMode == FlowCnecDefinitionMode.OPERATIONAL_LIMIT) {
+        if (conductingEquipment == null) {
             String direction = operationalLimitPropertyBag.get(CsaProfileConstants.REQUEST_OPERATIONAL_LIMIT_DIRECTION);
             if (CsaProfileConstants.OperationalLimitDirectionKind.HIGH.toString().equals(direction)) {
                 useMaxAndMinThresholds = false;
@@ -58,7 +60,7 @@ public class FlowCnecCreator extends AbstractCnecCreator {
             }
         }
 
-        addAllFlowCnecsFromBranchAndOperationalLimits((Branch<?>) branch, thresholds, useMaxAndMinThresholds, definitionMode == FlowCnecDefinitionMode.CONDUCTING_EQUIPMENT);
+        addAllFlowCnecsFromBranchAndOperationalLimits((Branch<?>) branch, thresholds, useMaxAndMinThresholds, conductingEquipment != null);
     }
 
     private FlowCnecAdder initFlowCnec() {
@@ -75,16 +77,6 @@ public class FlowCnecCreator extends AbstractCnecCreator {
             throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, writeAssessedElementIgnoredReasonMessage("the network element " + networkElement.getId() + " is not a branch"));
         }
         return networkElement;
-    }
-
-    private FlowCnecDefinitionMode getCnecDefinitionMode() {
-        if (conductingEquipment == null && operationalLimitPropertyBag == null) {
-            throw new OpenRaoImportException(ImportStatus.INCOMPLETE_DATA, writeAssessedElementIgnoredReasonMessage("no ConductingEquipment or OperationalLimit was provided"));
-        }
-        if (conductingEquipment != null && operationalLimitPropertyBag != null) {
-            throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, writeAssessedElementIgnoredReasonMessage("an assessed element must be defined using either a ConductingEquipment or an OperationalLimit, not both"));
-        }
-        return conductingEquipment != null ? FlowCnecDefinitionMode.CONDUCTING_EQUIPMENT : FlowCnecDefinitionMode.OPERATIONAL_LIMIT;
     }
 
     private Side getSideFromNetworkElement(Identifiable<?> networkElement, String terminalId) {
