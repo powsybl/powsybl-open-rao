@@ -35,11 +35,11 @@ class ContingenciesCreationTest {
         assertContingencyEquality(importedContingencies.get(1), "contingency-12", "RTE_CO12", Set.of("FFR1AA1  FFR2AA1  1"));
 
         assertEquals(1, cracCreationContext.getContingencyCreationContexts().stream().filter(CsaProfileElementaryCreationContext::isAltered).toList().size());
-        assertEquals("incorrect contingent status for equipment(s): FFR1AA1  FFR3AA1  1, FFR1AA1  FFR4AA1  1; missing contingent equipment(s) in network: missing-generator, missing-line", cracCreationContext.getContingencyCreationContexts().stream().filter(CsaProfileElementaryCreationContext::isAltered).toList().get(0).getImportStatusDetail());
+        assertEquals("Incorrect contingent status for equipment(s): FFR1AA1  FFR3AA1  1, FFR1AA1  FFR4AA1  1. Missing contingent equipment(s) in network: missing-generator, missing-line.", cracCreationContext.getContingencyCreationContexts().stream().filter(CsaProfileElementaryCreationContext::isAltered).toList().get(0).getImportStatusDetail());
 
         assertEquals(4, cracCreationContext.getContingencyCreationContexts().stream().filter(context -> !context.isImported()).toList().size());
 
-        assertContingencyNotImported(cracCreationContext, "contingency-8", ImportStatus.INCOMPLETE_DATA, "Contingency contingency-8 will not be imported because no contingency equipment is linked to the contingency");
+        assertContingencyNotImported(cracCreationContext, "contingency-8", ImportStatus.INCOMPLETE_DATA, "Contingency contingency-8 will not be imported because no contingency equipment is linked to that contingency");
         assertContingencyNotImported(cracCreationContext, "contingency-9", ImportStatus.NOT_FOR_RAO, "Contingency contingency-9 will not be imported because its field mustStudy is set to false");
         assertContingencyNotImported(cracCreationContext, "contingency-10", ImportStatus.INCONSISTENCY_IN_DATA, "Contingency contingency-10 will not be imported because all contingency equipments have an incorrect contingent status: FFR1AA1  FFR2AA1  1");
         assertContingencyNotImported(cracCreationContext, "contingency-11", ImportStatus.INCONSISTENCY_IN_DATA, "Contingency contingency-11 will not be imported because all contingency equipments are missing in the network: unknown-network-element");
