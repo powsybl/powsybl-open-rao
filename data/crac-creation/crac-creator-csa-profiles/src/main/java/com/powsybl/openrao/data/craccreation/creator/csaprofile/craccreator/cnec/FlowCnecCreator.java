@@ -13,18 +13,12 @@ import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaP
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileCracCreationContext;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileElementaryCreationContext;
 import com.powsybl.iidm.network.*;
+import com.powsybl.openrao.data.craccreation.util.OpenRaoImportException;
 import com.powsybl.triplestore.api.PropertyBag;
 
 import java.util.*;
 
 public class FlowCnecCreator extends AbstractCnecCreator {
-
-    private enum FlowCnecDefinitionMode {
-        CONDUCTING_EQUIPMENT,
-        OPERATIONAL_LIMIT,
-        WRONG_DEFINITION;
-    }
-
     private final String conductingEquipment;
     private final Set<Side> defaultMonitoredSides;
     private final String flowReliabilityMarginString;
@@ -33,38 +27,38 @@ public class FlowCnecCreator extends AbstractCnecCreator {
         super(crac, network, assessedElementId, nativeAssessedElementName, assessedElementOperator, inBaseCase, currentLimitPropertyBag, linkedContingencies, csaProfileCnecCreationContexts, cracCreationContext, rejectedLinksAssessedElementContingency, aeSecuredForRegion, aeScannedForRegion);
         this.conductingEquipment = conductingEquipment;
         this.defaultMonitoredSides = defaultMonitoredSides;
+        checkCnecDefinitionMode();
         this.flowReliabilityMarginString = flowReliabilityMarginString;
     }
 
-    public void addFlowCnecs() {
-        FlowCnecDefinitionMode definitionMode = getCnecDefinitionMode();
-        if (definitionMode == FlowCnecDefinitionMode.WRONG_DEFINITION) {
-            return;
+    private void checkCnecDefinitionMode() {
+        if (conductingEquipment == null && operationalLimitPropertyBag == null) {
+            throw new OpenRaoImportException(ImportStatus.INCOMPLETE_DATA, writeAssessedElementIgnoredReasonMessage("no ConductingEquipment or OperationalLimit was provided"));
         }
+        if (conductingEquipment != null && operationalLimitPropertyBag != null) {
+            throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, writeAssessedElementIgnoredReasonMessage("an assessed element must be defined using either a ConductingEquipment or an OperationalLimit, not both"));
+        }
+    }
 
-        String networkElementId = definitionMode == FlowCnecDefinitionMode.CONDUCTING_EQUIPMENT ? conductingEquipment : operationalLimitPropertyBag.getId(CsaProfileConstants.REQUEST_OPERATIONAL_LIMIT_TERMINAL);
+    public void addFlowCnecs() {
+        String networkElementId = conductingEquipment != null ? conductingEquipment : operationalLimitPropertyBag.getId(CsaProfileConstants.REQUEST_OPERATIONAL_LIMIT_TERMINAL);
         Identifiable<?> branch = getFlowCnecBranch(networkElementId);
-        if (branch == null) {
-            return;
-        }
 
         // The thresholds are a map of acceptable durations to thresholds (per branch side)
         // Integer.MAX_VALUE is used for the PATL's acceptable duration
-        Map<Integer, EnumMap<TwoSides, Double>> thresholds = definitionMode == FlowCnecDefinitionMode.CONDUCTING_EQUIPMENT ? getPermanentAndTemporaryLimitsOfBranch((Branch<?>) branch) : getPermanentAndTemporaryLimitsOfOperationalLimit(branch, networkElementId);
+        Map<Integer, EnumMap<TwoSides, Double>> thresholds = conductingEquipment != null ? getPermanentAndTemporaryLimitsOfBranch((Branch<?>) branch) : getPermanentAndTemporaryLimitsOfOperationalLimit(branch, networkElementId);
         if (thresholds.isEmpty()) {
-            csaProfileCnecCreationContexts.add(CsaProfileElementaryCreationContext.notImported(assessedElementId, ImportStatus.INCOMPLETE_DATA, writeAssessedElementIgnoredReasonMessage("no PATL or TATLs could be retrieved for the branch " + branch.getId())));
-            return;
+            throw new OpenRaoImportException(ImportStatus.INCOMPLETE_DATA, writeAssessedElementIgnoredReasonMessage("no PATL or TATLs could be retrieved for the branch " + branch.getId()));
         }
 
         // If the AssessedElement is defined with a conducting equipment, we use both max and min thresholds.
         boolean useMaxAndMinThresholds = true;
-        if (definitionMode == FlowCnecDefinitionMode.OPERATIONAL_LIMIT) {
+        if (conductingEquipment == null) {
             String direction = operationalLimitPropertyBag.get(CsaProfileConstants.REQUEST_OPERATIONAL_LIMIT_DIRECTION);
             if (CsaProfileConstants.OperationalLimitDirectionKind.HIGH.toString().equals(direction)) {
                 useMaxAndMinThresholds = false;
             } else if (!CsaProfileConstants.OperationalLimitDirectionKind.ABSOLUTE.toString().equals(direction)) {
-                csaProfileCnecCreationContexts.add(CsaProfileElementaryCreationContext.notImported(assessedElementId, ImportStatus.NOT_FOR_RAO, writeAssessedElementIgnoredReasonMessage("OperationalLimitType.direction is neither 'absoluteValue' nor 'high'")));
-                return;
+                throw new OpenRaoImportException(ImportStatus.NOT_FOR_RAO, writeAssessedElementIgnoredReasonMessage("OperationalLimitType.direction is neither 'absoluteValue' nor 'high'"));
             }
         }
 
@@ -73,7 +67,7 @@ public class FlowCnecCreator extends AbstractCnecCreator {
             return;
         }
 
-        addAllFlowCnecsFromBranchAndOperationalLimits((Branch<?>) branch, thresholds, useMaxAndMinThresholds, definitionMode == FlowCnecDefinitionMode.CONDUCTING_EQUIPMENT, flowReliabilityMargin);
+        addAllFlowCnecsFromBranchAndOperationalLimits((Branch<?>) branch, thresholds, useMaxAndMinThresholds, conductingEquipment != null, flowReliabilityMargin);
     }
 
     private Double parseFlowReliabilityMargin() {
@@ -101,26 +95,12 @@ public class FlowCnecCreator extends AbstractCnecCreator {
     private Identifiable<?> getFlowCnecBranch(String networkElementId) {
         Identifiable<?> networkElement = getNetworkElementInNetwork(networkElementId);
         if (networkElement == null) {
-            csaProfileCnecCreationContexts.add(CsaProfileElementaryCreationContext.notImported(assessedElementId, ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK, writeAssessedElementIgnoredReasonMessage("the following element is missing from the network: " + networkElementId)));
-            return null;
+            throw new OpenRaoImportException(ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK, writeAssessedElementIgnoredReasonMessage("the following network element is missing from the network: " + networkElementId));
         }
         if (!(networkElement instanceof Branch)) {
-            csaProfileCnecCreationContexts.add(CsaProfileElementaryCreationContext.notImported(assessedElementId, ImportStatus.INCONSISTENCY_IN_DATA, writeAssessedElementIgnoredReasonMessage("the network element " + networkElement.getId() + " is not a branch")));
-            return null;
+            throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, writeAssessedElementIgnoredReasonMessage("the network element " + networkElement.getId() + " is not a branch"));
         }
         return networkElement;
-    }
-
-    private FlowCnecDefinitionMode getCnecDefinitionMode() {
-        if (conductingEquipment == null && operationalLimitPropertyBag == null) {
-            csaProfileCnecCreationContexts.add(CsaProfileElementaryCreationContext.notImported(assessedElementId, ImportStatus.INCOMPLETE_DATA, writeAssessedElementIgnoredReasonMessage("no ConductingEquipment or OperationalLimit was provided")));
-            return FlowCnecDefinitionMode.WRONG_DEFINITION;
-        }
-        if (conductingEquipment != null && operationalLimitPropertyBag != null) {
-            csaProfileCnecCreationContexts.add(CsaProfileElementaryCreationContext.notImported(assessedElementId, ImportStatus.INCONSISTENCY_IN_DATA, writeAssessedElementIgnoredReasonMessage("an assessed element must be defined using either a ConductingEquipment or an OperationalLimit, not both")));
-            return FlowCnecDefinitionMode.WRONG_DEFINITION;
-        }
-        return conductingEquipment != null ? FlowCnecDefinitionMode.CONDUCTING_EQUIPMENT : FlowCnecDefinitionMode.OPERATIONAL_LIMIT;
     }
 
     private Side getSideFromNetworkElement(Identifiable<?> networkElement, String terminalId) {
@@ -174,29 +154,25 @@ public class FlowCnecCreator extends AbstractCnecCreator {
         adder.add();
     }
 
-    private boolean setNominalVoltage(FlowCnecAdder flowCnecAdder, Branch<?> branch) {
+    private void setNominalVoltage(FlowCnecAdder flowCnecAdder, Branch<?> branch) {
         double voltageLevelLeft = branch.getTerminal1().getVoltageLevel().getNominalV();
         double voltageLevelRight = branch.getTerminal2().getVoltageLevel().getNominalV();
         if (voltageLevelLeft > 1e-6 && voltageLevelRight > 1e-6) {
             flowCnecAdder.withNominalVoltage(voltageLevelLeft, Side.LEFT);
             flowCnecAdder.withNominalVoltage(voltageLevelRight, Side.RIGHT);
-            return true;
         } else {
-            csaProfileCnecCreationContexts.add(CsaProfileElementaryCreationContext.notImported(assessedElementId, ImportStatus.INCONSISTENCY_IN_DATA, "Voltage level for branch " + branch.getId() + " is 0 in network"));
-            return false;
+            throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, "Voltage level for branch " + branch.getId() + " is 0 in network");
         }
     }
 
-    private boolean setCurrentLimitsFromBranch(FlowCnecAdder flowCnecAdder, Branch<?> branch) {
+    private void setCurrentLimitsFromBranch(FlowCnecAdder flowCnecAdder, Branch<?> branch) {
         Double currentLimitLeft = getCurrentLimitFromBranch(branch, TwoSides.ONE);
         Double currentLimitRight = getCurrentLimitFromBranch(branch, TwoSides.TWO);
         if (Objects.nonNull(currentLimitLeft) && Objects.nonNull(currentLimitRight)) {
             flowCnecAdder.withIMax(currentLimitLeft, Side.LEFT);
             flowCnecAdder.withIMax(currentLimitRight, Side.RIGHT);
-            return true;
         } else {
-            csaProfileCnecCreationContexts.add(CsaProfileElementaryCreationContext.notImported(assessedElementId, ImportStatus.INCONSISTENCY_IN_DATA, "Unable to get branch current limits from network for branch " + branch.getId()));
-            return false;
+            throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, writeAssessedElementIgnoredReasonMessage("RAO was unable to retrieve the current limits of branch %s from the network".formatted(branch.getId())));
         }
     }
 
@@ -235,18 +211,15 @@ public class FlowCnecCreator extends AbstractCnecCreator {
             return;
         }
         FlowCnecAdder cnecAdder = initFlowCnec();
-        if (!addCnecBaseInformation(cnecAdder, contingency, instantId)) {
-            return;
-        }
+        addCnecBaseInformation(cnecAdder, contingency, instantId);
         for (Map.Entry<TwoSides, Double> thresholdEntry : thresholds.entrySet()) {
             TwoSides side = thresholdEntry.getKey();
             double threshold = thresholdEntry.getValue();
             addFlowCnecThreshold(cnecAdder, side == TwoSides.ONE ? Side.LEFT : Side.RIGHT, threshold, useMaxAndMinThresholds, flowReliabilityMargin);
         }
         cnecAdder.withNetworkElement(networkElement.getId());
-        if (!setNominalVoltage(cnecAdder, networkElement) || !setCurrentLimitsFromBranch(cnecAdder, networkElement)) {
-            return;
-        }
+        setNominalVoltage(cnecAdder, networkElement);
+        setCurrentLimitsFromBranch(cnecAdder, networkElement);
         cnecAdder.add();
         if (hasNoPatl) {
             String cnecName = getCnecName(instantId, null);
@@ -268,9 +241,8 @@ public class FlowCnecCreator extends AbstractCnecCreator {
 
         }
         cnecAdder.withNetworkElement(networkElement.getId());
-        if (!setNominalVoltage(cnecAdder, networkElement) || !setCurrentLimitsFromBranch(cnecAdder, networkElement)) {
-            return;
-        }
+        setNominalVoltage(cnecAdder, networkElement);
+        setCurrentLimitsFromBranch(cnecAdder, networkElement);
         cnecAdder.add();
         markCnecAsImportedAndHandleRejectedContingencies(getCnecName(instantId, contingency, tatlDuration));
     }
