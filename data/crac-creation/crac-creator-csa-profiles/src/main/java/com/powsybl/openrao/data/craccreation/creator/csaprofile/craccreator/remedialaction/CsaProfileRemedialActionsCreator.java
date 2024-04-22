@@ -114,7 +114,7 @@ public class CsaProfileRemedialActionsCreator {
     private void addOnInstantUsageRules(PropertyBag parentRemedialActionPropertyBag, RemedialActionAdder<?> remedialActionAdder, String remedialActionId, List<String> alterations, int durationLimit) {
         boolean isLinkedToAssessedElements = elementaryActionsHelper.remedialActionIsLinkedToAssessedElements(remedialActionId);
 
-        if (parentRemedialActionPropertyBag.get(KIND).equals(RemedialActionKind.PREVENTIVE.toString())) {
+        if (parentRemedialActionPropertyBag.get(CsaProfileConstants.KIND).equals(CsaProfileConstants.RemedialActionKind.PREVENTIVE.toString())) {
             addOnConstraintUsageRules(crac.getPreventiveInstant(), remedialActionAdder, remedialActionId, alterations);
             if (!isLinkedToAssessedElements) {
                 remedialActionAdder.newOnInstantUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withInstant(crac.getPreventiveInstant().getId()).add();

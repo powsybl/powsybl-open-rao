@@ -27,8 +27,9 @@ public class FlowCnecCreator extends AbstractCnecCreator {
     public FlowCnecCreator(Crac crac, Network network, String assessedElementId, String nativeAssessedElementName, String assessedElementOperator, boolean inBaseCase, PropertyBag currentLimitPropertyBag, String conductingEquipment, List<Contingency> linkedContingencies, Set<CsaProfileElementaryCreationContext> csaProfileCnecCreationContexts, CsaProfileCracCreationContext cracCreationContext, String rejectedLinksAssessedElementContingency, boolean aeSecuredForRegion, boolean aeScannedForRegion, CracCreationParameters cracCreationParameters) {
         super(crac, network, assessedElementId, nativeAssessedElementName, assessedElementOperator, inBaseCase, currentLimitPropertyBag, linkedContingencies, csaProfileCnecCreationContexts, cracCreationContext, rejectedLinksAssessedElementContingency, aeSecuredForRegion, aeScannedForRegion);
         this.conductingEquipment = conductingEquipment;
-        this.defaultMonitoredSides = defaultMonitoredSides;
+        this.defaultMonitoredSides = cracCreationParameters.getDefaultMonitoredSides();
         checkCnecDefinitionMode();
+        this.instantHelper = new FlowCnecInstantHelper(cracCreationParameters);
     }
 
     private void checkCnecDefinitionMode() {
@@ -38,8 +39,6 @@ public class FlowCnecCreator extends AbstractCnecCreator {
         if (conductingEquipment != null && operationalLimitPropertyBag != null) {
             throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, writeAssessedElementIgnoredReasonMessage("an assessed element must be defined using either a ConductingEquipment or an OperationalLimit, not both"));
         }
-        this.defaultMonitoredSides = cracCreationParameters.getDefaultMonitoredSides();
-        this.instantHelper = new FlowCnecInstantHelper(cracCreationParameters);
     }
 
     public void addFlowCnecs() {
@@ -48,7 +47,7 @@ public class FlowCnecCreator extends AbstractCnecCreator {
 
         // The thresholds are a map of acceptable durations to thresholds (per branch side)
         // Integer.MAX_VALUE is used for the PATL's acceptable duration
-        Map<Integer, Map<TwoSides, Double>> thresholds = definitionMode == FlowCnecDefinitionMode.CONDUCTING_EQUIPMENT ? getPermanentAndTemporaryLimitsOfBranch((Branch<?>) branch) : getPermanentAndTemporaryLimitsOfOperationalLimit(branch, networkElementId);
+        Map<Integer, Map<TwoSides, Double>> thresholds = conductingEquipment != null ? getPermanentAndTemporaryLimitsOfBranch((Branch<?>) branch) : getPermanentAndTemporaryLimitsOfOperationalLimit(branch, networkElementId);
         if (thresholds.isEmpty()) {
             throw new OpenRaoImportException(ImportStatus.INCOMPLETE_DATA, writeAssessedElementIgnoredReasonMessage("no PATL or TATLs could be retrieved for the branch " + branch.getId()));
         }
