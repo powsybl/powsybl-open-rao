@@ -118,7 +118,7 @@ public final class CracValidator {
     }
 
     /**
-     * Indicates whether an auto FlowCNEC should be duplicate in the outage state or not.
+     * Indicates whether an auto FlowCNEC should be duplicated in the outage state or not.
      * A FlowCNEC must be duplicated if no auto remedial action can act on it, leaving only the preventive remedial
      * actions to possibly reduce the flow which means that the CNEC should be added to the preventive perimeter.
      * <p/>
@@ -127,8 +127,8 @@ public final class CracValidator {
      * <p/>
      * If no auto remedial action affects the CNEC and the CNEC does not trigger any auto remedial action, there is no
      * need to duplicate it because this means that no auto remedial action is available for this auto state at all.
-     * This the StateTree algorithm will automatically include all the CNECs from the state to the preventive perimeter.
-     * @param remedialActions The set of remedial action that may affect the CNEC
+     * In this case, the StateTree algorithm will automatically include all the CNECs from the state to the preventive perimeter.
+     * @param remedialActions The set of remedial actions that may affect the CNEC
      * @param flowCnec The FlowCNEC to possibly duplicate
      * @param network The network
      * @return Boolean value that indicates whether the CNEC should be duplicate in the outage state or not
