@@ -16,6 +16,7 @@ import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaP
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileCracUtils;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileElementaryCreationContext;
 import com.powsybl.iidm.network.*;
+import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.cnec.nc.AssessedElement;
 import com.powsybl.openrao.data.craccreation.util.OpenRaoImportException;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
@@ -56,122 +57,101 @@ public class CsaProfileCnecCreator {
         csaProfileCnecCreationContexts = new HashSet<>();
 
         for (PropertyBag assessedElementPropertyBag : assessedElementsPropertyBags) {
-            String assessedElementId = assessedElementPropertyBag.getId(CsaProfileConstants.REQUEST_ASSESSED_ELEMENT);
+            AssessedElement nativeAssessedElement = AssessedElement.fromPropertyBag(assessedElementPropertyBag);
             try {
-                addCnec(assessedElementPropertyBag);
+                addCnec(nativeAssessedElement);
             } catch (OpenRaoImportException exception) {
-                csaProfileCnecCreationContexts.add(CsaProfileElementaryCreationContext.notImported(assessedElementId, exception.getImportStatus(), exception.getMessage()));
+                csaProfileCnecCreationContexts.add(CsaProfileElementaryCreationContext.notImported(nativeAssessedElement.identifier(), exception.getImportStatus(), exception.getMessage()));
             }
         }
         cracCreationContext.setCnecCreationContexts(csaProfileCnecCreationContexts);
     }
 
-    private void addCnec(PropertyBag assessedElementPropertyBag) {
+    private void addCnec(AssessedElement nativeAssessedElement) {
         String rejectedLinksAssessedElementContingency = "";
-        String assessedElementId = assessedElementPropertyBag.getId(CsaProfileConstants.REQUEST_ASSESSED_ELEMENT);
-        checkNormalEnabled(assessedElementPropertyBag);
 
-        String inBaseCaseStr = assessedElementPropertyBag.get(CsaProfileConstants.REQUEST_ASSESSED_ELEMENT_IN_BASE_CASE);
-        boolean inBaseCase = Boolean.parseBoolean(inBaseCaseStr);
-
-        Set<PropertyBag> assessedElementsWithContingencies = this.assessedElementsWithContingenciesPropertyBags.get(assessedElementPropertyBag.getId(CsaProfileConstants.REQUEST_ASSESSED_ELEMENT));
-
-        String isCombinableWithContingencyStr = assessedElementPropertyBag.get(CsaProfileConstants.REQUEST_ASSESSED_ELEMENT_IS_COMBINABLE_WITH_CONTINGENCY);
-        boolean isCombinableWithContingency = Boolean.parseBoolean(isCombinableWithContingencyStr);
-
-        if (!inBaseCase && !isCombinableWithContingency && assessedElementsWithContingencies == null) {
-            throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, "AssessedElement %s ignored because the assessed element is not in base case and not combinable with contingencies, but no explicit link to a contingency was found".formatted(assessedElementId));
+        if (!nativeAssessedElement.normalEnabled()) {
+            throw new OpenRaoImportException(ImportStatus.NOT_FOR_RAO, "AssessedElement %s ignored because it is not enabled".formatted(nativeAssessedElement.identifier()));
         }
 
-        Set<Contingency> combinableContingencies = isCombinableWithContingency ? cracCreationContext.getCrac().getContingencies() : new HashSet<>();
+        Set<PropertyBag> assessedElementsWithContingencies = this.assessedElementsWithContingenciesPropertyBags.get(nativeAssessedElement.identifier());
 
-        String nativeAssessedElementName = assessedElementPropertyBag.get(CsaProfileConstants.REQUEST_ASSESSED_ELEMENT_NAME);
-        String assessedSystemOperator = assessedElementPropertyBag.getId(CsaProfileConstants.REQUEST_ASSESSED_ELEMENT_OPERATOR);
+        if (!nativeAssessedElement.inBaseCase() && !nativeAssessedElement.isCombinableWithContingency() && assessedElementsWithContingencies == null) {
+            throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, "AssessedElement %s ignored because the assessed element is not in base case and not combinable with contingencies, but no explicit link to a contingency was found".formatted(nativeAssessedElement.identifier()));
+        }
+
+        Set<Contingency> combinableContingencies = nativeAssessedElement.isCombinableWithContingency() ? cracCreationContext.getCrac().getContingencies() : new HashSet<>();
 
         if (assessedElementsWithContingencies != null) {
             for (PropertyBag assessedElementWithContingencies : assessedElementsWithContingencies) {
-                if (!checkAndProcessCombinableContingencyFromExplicitAssociation(assessedElementId, assessedElementWithContingencies, combinableContingencies)) {
+                if (!checkAndProcessCombinableContingencyFromExplicitAssociation(nativeAssessedElement.identifier(), assessedElementWithContingencies, combinableContingencies)) {
                     rejectedLinksAssessedElementContingency = rejectedLinksAssessedElementContingency.concat(assessedElementWithContingencies.getId(CsaProfileConstants.REQUEST_ASSESSED_ELEMENT_WITH_CONTINGENCY) + " ");
                 }
             }
         }
 
         // We check whether the AssessedElement is defined using an OperationalLimit
-        CsaProfileConstants.LimitType limitType = getLimit(assessedElementPropertyBag);
-        String conductingEquipment = assessedElementPropertyBag.getId(CsaProfileConstants.REQUEST_ASSESSED_ELEMENT_CONDUCTING_EQUIPMENT);
+        CsaProfileConstants.LimitType limitType = getLimit(nativeAssessedElement);
 
-        checkAeScannedSecuredCoherence(assessedElementId, assessedElementPropertyBag);
+        checkAeScannedSecuredCoherence(nativeAssessedElement);
 
-        boolean aeSecuredForRegion = isAeSecuredForRegion(assessedElementPropertyBag);
-        boolean aeScannedForRegion = isAeScannedForRegion(assessedElementPropertyBag);
+        boolean aeSecuredForRegion = isAeSecuredForRegion(nativeAssessedElement);
+        boolean aeScannedForRegion = isAeScannedForRegion(nativeAssessedElement);
 
         // If not, we check if it is defined with a ConductingEquipment instead, otherwise we ignore
         if (limitType == null) {
-            new FlowCnecCreator(crac, network, assessedElementId, nativeAssessedElementName, assessedSystemOperator, inBaseCase, null, conductingEquipment, combinableContingencies.stream().toList(), csaProfileCnecCreationContexts, cracCreationContext, defaultMonitoredSides, rejectedLinksAssessedElementContingency, aeSecuredForRegion, aeScannedForRegion).addFlowCnecs();
+            new FlowCnecCreator(crac, network, nativeAssessedElement, null, combinableContingencies.stream().toList(), csaProfileCnecCreationContexts, cracCreationContext, defaultMonitoredSides, rejectedLinksAssessedElementContingency, aeSecuredForRegion, aeScannedForRegion).addFlowCnecs();
             return;
         }
 
         if (CsaProfileConstants.LimitType.CURRENT.equals(limitType)) {
-            new FlowCnecCreator(crac, network, assessedElementId, nativeAssessedElementName, assessedSystemOperator, inBaseCase, getOperationalLimitPropertyBag(currentLimitsPropertyBags, assessedElementPropertyBag), conductingEquipment, combinableContingencies.stream().toList(), csaProfileCnecCreationContexts, cracCreationContext, defaultMonitoredSides, rejectedLinksAssessedElementContingency, aeSecuredForRegion, aeScannedForRegion).addFlowCnecs();
+            new FlowCnecCreator(crac, network, nativeAssessedElement, getOperationalLimitPropertyBag(currentLimitsPropertyBags, nativeAssessedElement), combinableContingencies.stream().toList(), csaProfileCnecCreationContexts, cracCreationContext, defaultMonitoredSides, rejectedLinksAssessedElementContingency, aeSecuredForRegion, aeScannedForRegion).addFlowCnecs();
         } else if (CsaProfileConstants.LimitType.VOLTAGE.equals(limitType)) {
-            new VoltageCnecCreator(crac, network, assessedElementId, nativeAssessedElementName, assessedSystemOperator, inBaseCase, getOperationalLimitPropertyBag(voltageLimitsPropertyBags, assessedElementPropertyBag), combinableContingencies.stream().toList(), csaProfileCnecCreationContexts, cracCreationContext, rejectedLinksAssessedElementContingency, aeSecuredForRegion, aeScannedForRegion).addVoltageCnecs();
+            new VoltageCnecCreator(crac, network, nativeAssessedElement, getOperationalLimitPropertyBag(voltageLimitsPropertyBags, nativeAssessedElement), combinableContingencies.stream().toList(), csaProfileCnecCreationContexts, cracCreationContext, rejectedLinksAssessedElementContingency, aeSecuredForRegion, aeScannedForRegion).addVoltageCnecs();
         } else {
-            new AngleCnecCreator(crac, network, assessedElementId, nativeAssessedElementName, assessedSystemOperator, inBaseCase, getOperationalLimitPropertyBag(angleLimitsPropertyBags, assessedElementPropertyBag), combinableContingencies.stream().toList(), csaProfileCnecCreationContexts, cracCreationContext, rejectedLinksAssessedElementContingency, aeSecuredForRegion, aeScannedForRegion).addAngleCnecs();
+            new AngleCnecCreator(crac, network, nativeAssessedElement, getOperationalLimitPropertyBag(angleLimitsPropertyBags, nativeAssessedElement), combinableContingencies.stream().toList(), csaProfileCnecCreationContexts, cracCreationContext, rejectedLinksAssessedElementContingency, aeSecuredForRegion, aeScannedForRegion).addAngleCnecs();
         }
     }
 
-    private void checkAeScannedSecuredCoherence(String assessedElementId, PropertyBag assessedElementPropertyBag) {
-        String rawIdSecured = assessedElementPropertyBag.get(CsaProfileConstants.REQUEST_ASSESSED_ELEMENT_SECURED_FOR_REGION);
-        String rawIdScanned = assessedElementPropertyBag.get(CsaProfileConstants.REQUEST_ASSESSED_ELEMENT_SCANNED_FOR_REGION);
-        if (rawIdSecured != null && rawIdSecured.equals(rawIdScanned)) {
-            throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, "AssessedElement " + assessedElementId + " ignored because an AssessedElement cannot be optimized and monitored at the same time");
+    private void checkAeScannedSecuredCoherence(AssessedElement nativeAssessedElement) {
+        if (nativeAssessedElement.securedForRegion() != null && nativeAssessedElement.securedForRegion().equals(nativeAssessedElement.scannedForRegion())) {
+            throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, "AssessedElement " + nativeAssessedElement.identifier() + " ignored because an AssessedElement cannot be optimized and monitored at the same time");
         }
     }
 
-    private boolean isAeSecuredForRegion(PropertyBag assessedElementPropertyBag) {
-        return isAeSecuredOrScannedForRegion(assessedElementPropertyBag, CsaProfileConstants.REQUEST_ASSESSED_ELEMENT_SECURED_FOR_REGION);
-    }
-
-    private boolean isAeScannedForRegion(PropertyBag assessedElementPropertyBag) {
-        return isAeSecuredOrScannedForRegion(assessedElementPropertyBag, CsaProfileConstants.REQUEST_ASSESSED_ELEMENT_SCANNED_FOR_REGION);
-    }
-
-    private boolean isAeSecuredOrScannedForRegion(PropertyBag assessedElementPropertyBag, String propertyName) {
-        String rawRegionId = assessedElementPropertyBag.get(propertyName);
-        String region = rawRegionId == null ? null : CsaProfileCracUtils.getEicFromUrl(assessedElementPropertyBag.get(propertyName));
+    private boolean isAeSecuredForRegion(AssessedElement nativeAssessedElement) {
+        String region = nativeAssessedElement.securedForRegion() == null ? null : CsaProfileCracUtils.getEicFromUrl(nativeAssessedElement.securedForRegion());
         return region != null && region.equals(regionEic);
     }
 
-    private PropertyBag getOperationalLimitPropertyBag(Map<String, Set<PropertyBag>> operationalLimitPropertyBags, PropertyBag assessedElementPropertyBag) {
-        return operationalLimitPropertyBags.get(assessedElementPropertyBag.getId(CsaProfileConstants.REQUEST_ASSESSED_ELEMENT_OPERATIONAL_LIMIT)).stream().toList().get(0);
+    private boolean isAeScannedForRegion(AssessedElement nativeAssessedElement) {
+        String region = nativeAssessedElement.scannedForRegion() == null ? null : CsaProfileCracUtils.getEicFromUrl(nativeAssessedElement.scannedForRegion());
+        return region != null && region.equals(regionEic);
     }
 
-    private void checkNormalEnabled(PropertyBag assessedElementPropertyBag) {
-        String normalEnabled = assessedElementPropertyBag.get(CsaProfileConstants.REQUEST_ASSESSED_ELEMENT_NORMAL_ENABLED);
-        if (normalEnabled != null && !Boolean.parseBoolean(normalEnabled)) {
-            throw new OpenRaoImportException(ImportStatus.NOT_FOR_RAO, "AssessedElement %s ignored because it is not enabled".formatted(assessedElementPropertyBag.getId(CsaProfileConstants.REQUEST_ASSESSED_ELEMENT)));
-        }
+    private PropertyBag getOperationalLimitPropertyBag(Map<String, Set<PropertyBag>> operationalLimitPropertyBags, AssessedElement nativeAssessedElement) {
+        return operationalLimitPropertyBags.get(nativeAssessedElement.operationalLimit()).stream().toList().get(0);
     }
 
-    private CsaProfileConstants.LimitType getLimit(PropertyBag assessedElementPropertyBag) {
-        if (checkLimit(this.currentLimitsPropertyBags, "current", assessedElementPropertyBag)) {
+    private CsaProfileConstants.LimitType getLimit(AssessedElement nativeAssessedElement) {
+        if (checkLimit(this.currentLimitsPropertyBags, "current", nativeAssessedElement)) {
             return CsaProfileConstants.LimitType.CURRENT;
         }
-        if (checkLimit(this.voltageLimitsPropertyBags, "voltage", assessedElementPropertyBag)) {
+        if (checkLimit(this.voltageLimitsPropertyBags, "voltage", nativeAssessedElement)) {
             return CsaProfileConstants.LimitType.VOLTAGE;
         }
-        if (checkLimit(this.angleLimitsPropertyBags, "angle", assessedElementPropertyBag)) {
+        if (checkLimit(this.angleLimitsPropertyBags, "angle", nativeAssessedElement)) {
             return CsaProfileConstants.LimitType.ANGLE;
         }
 
         return null;
     }
 
-    private boolean checkLimit(Map<String, Set<PropertyBag>> limitPropertyBags, String limitType, PropertyBag assessedElementPropertyBag) {
-        Set<PropertyBag> limits = limitPropertyBags.get(assessedElementPropertyBag.getId(CsaProfileConstants.REQUEST_ASSESSED_ELEMENT_OPERATIONAL_LIMIT));
+    private boolean checkLimit(Map<String, Set<PropertyBag>> limitPropertyBags, String limitType, AssessedElement nativeAssessedElement) {
+        Set<PropertyBag> limits = limitPropertyBags.get(nativeAssessedElement.operationalLimit());
         if (limits != null) {
             if (limits.size() != 1) {
-                throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, "AssessedElement %s ignored because more than one %s limit linked with the assessed element".formatted(assessedElementPropertyBag.getId(CsaProfileConstants.REQUEST_ASSESSED_ELEMENT), limitType));
+                throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, "AssessedElement %s ignored because more than one %s limit linked with the assessed element".formatted(nativeAssessedElement.identifier(), limitType));
             }
             return true;
         }
