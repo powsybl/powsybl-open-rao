@@ -8,11 +8,9 @@ package com.powsybl.openrao.sensitivityanalysis;
 
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
+import com.powsybl.openrao.commons.logs.TechnicalLogs;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
-import com.powsybl.openrao.data.cracapi.rangeaction.HvdcRangeAction;
-import com.powsybl.openrao.data.cracapi.rangeaction.InjectionRangeAction;
-import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeAction;
-import com.powsybl.openrao.data.cracapi.rangeaction.RangeAction;
+import com.powsybl.openrao.data.cracapi.rangeaction.*;
 import com.powsybl.openrao.sensitivityanalysis.rasensihandler.InjectionRangeActionSensiHandler;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.contingency.ContingencyContext;
@@ -23,6 +21,8 @@ import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.*;
 import java.util.stream.Collectors;
+
+import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.TECHNICAL_LOGS;
 
 /**
  * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
@@ -89,6 +89,8 @@ public class RangeActionSensitivityProvider extends LoadflowProvider {
                 sensitivityVariables.put(hvdcRangeAction.getNetworkElement().getId(), SensitivityVariableType.HVDC_LINE_ACTIVE_POWER);
             } else if (ra instanceof InjectionRangeAction injectionRangeAction) {
                 createPositiveAndNegativeGlsks(injectionRangeAction, sensitivityVariables, glskIds);
+            } else if (ra instanceof CounterTradeRangeAction counterTradeRangeAction) {
+                TECHNICAL_LOGS.debug("Unable to compute sensitivity for CounterTradeRangeAction. ({})", counterTradeRangeAction.getId());
             } else {
                 throw new OpenRaoException(String.format("Range action type of %s not implemented yet", ra.getId()));
             }
