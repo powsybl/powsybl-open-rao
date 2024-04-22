@@ -7,6 +7,7 @@
 package com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.remedialaction;
 
 import com.powsybl.openrao.data.craccreation.creator.api.ImportStatus;
+import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileConstants;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileCracUtils;
 import com.powsybl.openrao.data.craccreation.util.OpenRaoImportException;
 import com.powsybl.triplestore.api.PropertyBag;
@@ -17,8 +18,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-
-import static com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileConstants.*;
 
 /**
  * @author Mohamed Ben-rejeb {@literal <mohamed.ben-rejeb at rte-france.com>}
@@ -65,25 +64,25 @@ public class ElementaryActionsHelper {
         this.gridStateAlterationCollectionPropertyBags = gridStateAlterationCollectionPropertyBags;
         this.assessedElementWithRemedialActionPropertyBags = assessedElementWithRemedialActionPropertyBags;
 
-        this.remedialActionDependenciesByGroup = CsaProfileCracUtils.getMappedPropertyBagsSet(remedialActionDependenciesPropertyBags, DEPENDING_REMEDIAL_ACTION_GROUP);
+        this.remedialActionDependenciesByGroup = CsaProfileCracUtils.getMappedPropertyBagsSet(remedialActionDependenciesPropertyBags, CsaProfileConstants.DEPENDING_REMEDIAL_ACTION_GROUP);
 
-        this.linkedContingencyWithRAs = CsaProfileCracUtils.getMappedPropertyBagsSet(contingencyWithRemedialActionsPropertyBags, GRID_STATE_ALTERATION_REMEDIAL_ACTION);
-        this.linkedStaticPropertyRanges = CsaProfileCracUtils.getMappedPropertyBagsSet(staticPropertyRangesPropertyBags, GRID_STATE_ALTERATION_REMEDIAL_ACTION); // the id here is the id of the subclass of gridStateAlteration (tapPositionAction, RotatingMachine, ..)
+        this.linkedContingencyWithRAs = CsaProfileCracUtils.getMappedPropertyBagsSet(contingencyWithRemedialActionsPropertyBags, CsaProfileConstants.GRID_STATE_ALTERATION_REMEDIAL_ACTION);
+        this.linkedStaticPropertyRanges = CsaProfileCracUtils.getMappedPropertyBagsSet(staticPropertyRangesPropertyBags, CsaProfileConstants.GRID_STATE_ALTERATION_REMEDIAL_ACTION); // the id here is the id of the subclass of gridStateAlteration (tapPositionAction, RotatingMachine, ..)
 
-        this.linkedTopologyActions = CsaProfileCracUtils.getMappedPropertyBagsSet(filterElementaryActions(topologyActionsPropertyBags, false), GRID_STATE_ALTERATION_REMEDIAL_ACTION);
-        this.linkedRotatingMachineActions = CsaProfileCracUtils.getMappedPropertyBagsSet(filterElementaryActions(rotatingMachineActionsPropertyBags, false), GRID_STATE_ALTERATION_REMEDIAL_ACTION);
-        this.linkedShuntCompensatorModification = CsaProfileCracUtils.getMappedPropertyBagsSet(filterElementaryActions(shuntCompensatorModificationPropertyBags, false), GRID_STATE_ALTERATION_REMEDIAL_ACTION);
-        this.linkedTapPositionActions = CsaProfileCracUtils.getMappedPropertyBagsSet(filterElementaryActions(tapPositionActionsPropertyBags, false), GRID_STATE_ALTERATION_REMEDIAL_ACTION);
+        this.linkedTopologyActions = CsaProfileCracUtils.getMappedPropertyBagsSet(filterElementaryActions(topologyActionsPropertyBags, false), CsaProfileConstants.GRID_STATE_ALTERATION_REMEDIAL_ACTION);
+        this.linkedRotatingMachineActions = CsaProfileCracUtils.getMappedPropertyBagsSet(filterElementaryActions(rotatingMachineActionsPropertyBags, false), CsaProfileConstants.GRID_STATE_ALTERATION_REMEDIAL_ACTION);
+        this.linkedShuntCompensatorModification = CsaProfileCracUtils.getMappedPropertyBagsSet(filterElementaryActions(shuntCompensatorModificationPropertyBags, false), CsaProfileConstants.GRID_STATE_ALTERATION_REMEDIAL_ACTION);
+        this.linkedTapPositionActions = CsaProfileCracUtils.getMappedPropertyBagsSet(filterElementaryActions(tapPositionActionsPropertyBags, false), CsaProfileConstants.GRID_STATE_ALTERATION_REMEDIAL_ACTION);
 
-        this.linkedTopologyActionsAuto = CsaProfileCracUtils.getMappedPropertyBagsSet(filterElementaryActions(topologyActionsPropertyBags, true), GRID_STATE_ALTERATION_COLLECTION);
-        this.linkedRotatingMachineActionsAuto = CsaProfileCracUtils.getMappedPropertyBagsSet(filterElementaryActions(rotatingMachineActionsPropertyBags, true), GRID_STATE_ALTERATION_COLLECTION);
-        this.linkedShuntCompensatorModificationAuto = CsaProfileCracUtils.getMappedPropertyBagsSet(filterElementaryActions(shuntCompensatorModificationPropertyBags, true), GRID_STATE_ALTERATION_COLLECTION);
-        this.linkedTapPositionActionsAuto = CsaProfileCracUtils.getMappedPropertyBagsSet(filterElementaryActions(tapPositionActionsPropertyBags, true), GRID_STATE_ALTERATION_COLLECTION);
+        this.linkedTopologyActionsAuto = CsaProfileCracUtils.getMappedPropertyBagsSet(filterElementaryActions(topologyActionsPropertyBags, true), CsaProfileConstants.GRID_STATE_ALTERATION_COLLECTION);
+        this.linkedRotatingMachineActionsAuto = CsaProfileCracUtils.getMappedPropertyBagsSet(filterElementaryActions(rotatingMachineActionsPropertyBags, true), CsaProfileConstants.GRID_STATE_ALTERATION_COLLECTION);
+        this.linkedShuntCompensatorModificationAuto = CsaProfileCracUtils.getMappedPropertyBagsSet(filterElementaryActions(shuntCompensatorModificationPropertyBags, true), CsaProfileConstants.GRID_STATE_ALTERATION_COLLECTION);
+        this.linkedTapPositionActionsAuto = CsaProfileCracUtils.getMappedPropertyBagsSet(filterElementaryActions(tapPositionActionsPropertyBags, true), CsaProfileConstants.GRID_STATE_ALTERATION_COLLECTION);
 
     }
 
     private PropertyBags filterElementaryActions(PropertyBags elementaryActionsPropertyBags, boolean autoRemedialAction) {
-        String parentRemedialActionField = autoRemedialAction ? GRID_STATE_ALTERATION_COLLECTION : GRID_STATE_ALTERATION_REMEDIAL_ACTION;
+        String parentRemedialActionField = autoRemedialAction ? CsaProfileConstants.GRID_STATE_ALTERATION_COLLECTION : CsaProfileConstants.GRID_STATE_ALTERATION_REMEDIAL_ACTION;
         Set<PropertyBag> relevantElementaryActionsPropertyBags = elementaryActionsPropertyBags.stream().filter(propertyBag -> Optional.ofNullable(propertyBag.get(parentRemedialActionField)).isPresent()).collect(Collectors.toSet());
         return new PropertyBags(relevantElementaryActionsPropertyBags);
     }
@@ -131,8 +130,8 @@ public class ElementaryActionsHelper {
 
     private String getAssociatedGridStateAlterationCollectionUsingStage(String remedialActionId, String remedialActionScheme) {
         PropertyBag stagePropertyBag = getAssociatedStagePropertyBag(remedialActionId, remedialActionScheme);
-        String gridStateAlterationCollection = stagePropertyBag.getId(GRID_STATE_ALTERATION_COLLECTION);
-        List<PropertyBag> linkedGridStateAlterationCollectionPropertyBags = gridStateAlterationCollectionPropertyBags.stream().filter(pb -> gridStateAlterationCollection.equals(pb.get(MRID))).toList();
+        String gridStateAlterationCollection = stagePropertyBag.getId(CsaProfileConstants.GRID_STATE_ALTERATION_COLLECTION);
+        List<PropertyBag> linkedGridStateAlterationCollectionPropertyBags = gridStateAlterationCollectionPropertyBags.stream().filter(pb -> gridStateAlterationCollection.equals(pb.get(CsaProfileConstants.MRID))).toList();
         if (linkedGridStateAlterationCollectionPropertyBags.isEmpty()) {
             throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action " + remedialActionId + " will not be imported because it has no associated GridStateAlterationCollection");
         }
@@ -140,7 +139,7 @@ public class ElementaryActionsHelper {
     }
 
     private PropertyBag getAssociatedStagePropertyBag(String remedialActionId, String remedialActionScheme) {
-        List<PropertyBag> linkedStagePropertyBags = stagePropertyBags.stream().filter(pb -> remedialActionScheme.equals(pb.getId(REMEDIAL_ACTION_SCHEME))).toList();
+        List<PropertyBag> linkedStagePropertyBags = stagePropertyBags.stream().filter(pb -> remedialActionScheme.equals(pb.getId(CsaProfileConstants.REMEDIAL_ACTION_SCHEME))).toList();
         if (linkedStagePropertyBags.isEmpty()) {
             throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action " + remedialActionId + " will not be imported because it has no associated Stage");
         } else if (linkedStagePropertyBags.size() > 1) {
@@ -150,7 +149,7 @@ public class ElementaryActionsHelper {
     }
 
     private String getAssociatedRemedialActionScheme(String remedialActionId) {
-        List<PropertyBag> linkedRemedialActionSchemePropertyBags = remedialActionSchemePropertyBags.stream().filter(pb -> remedialActionId.equals(pb.getId(SCHEME_REMEDIAL_ACTION))).toList();
+        List<PropertyBag> linkedRemedialActionSchemePropertyBags = remedialActionSchemePropertyBags.stream().filter(pb -> remedialActionId.equals(pb.getId(CsaProfileConstants.SCHEME_REMEDIAL_ACTION))).toList();
         if (linkedRemedialActionSchemePropertyBags.isEmpty()) {
             throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action " + remedialActionId + " will not be imported because it has no associated RemedialActionScheme");
         } else if (linkedRemedialActionSchemePropertyBags.size() > 1) {
@@ -158,13 +157,13 @@ public class ElementaryActionsHelper {
         }
 
         PropertyBag remedialActionSchemePropertyBag = linkedRemedialActionSchemePropertyBags.get(0);
-        String remedialActionSchemeId = remedialActionSchemePropertyBag.getId(MRID);
+        String remedialActionSchemeId = remedialActionSchemePropertyBag.getId(CsaProfileConstants.MRID);
 
-        String remedialActionSchemeKind = remedialActionSchemePropertyBag.get(KIND);
-        if (!remedialActionSchemeKind.equals(SIPS)) {
+        String remedialActionSchemeKind = remedialActionSchemePropertyBag.get(CsaProfileConstants.KIND);
+        if (!remedialActionSchemeKind.equals(CsaProfileConstants.SIPS)) {
             throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action " + remedialActionId + " will not be imported because of an unsupported kind for remedial action schedule (only SIPS allowed)");
         }
-        String remedialActionSchemeNormalArmed = remedialActionSchemePropertyBag.get(NORMAL_ARMED);
+        String remedialActionSchemeNormalArmed = remedialActionSchemePropertyBag.get(CsaProfileConstants.NORMAL_ARMED);
         if (!Boolean.parseBoolean(remedialActionSchemeNormalArmed)) {
             throw new OpenRaoImportException(ImportStatus.NOT_FOR_RAO, "Remedial action " + remedialActionId + " will not be imported because RemedialActionScheme " + remedialActionSchemeId + " is not armed");
         }
