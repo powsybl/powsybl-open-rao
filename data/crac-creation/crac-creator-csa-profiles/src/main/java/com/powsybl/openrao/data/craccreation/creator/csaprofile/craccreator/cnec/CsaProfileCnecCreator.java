@@ -17,11 +17,13 @@ import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaP
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileElementaryCreationContext;
 import com.powsybl.iidm.network.*;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.cnec.nc.AssessedElement;
+import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.cnec.nc.AssessedElementWithContingency;
 import com.powsybl.openrao.data.craccreation.util.OpenRaoImportException;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @author Jean-Pierre Arnould {@literal <jean-pierre.arnould at rte-france.com>}
@@ -58,8 +60,9 @@ public class CsaProfileCnecCreator {
 
         for (PropertyBag assessedElementPropertyBag : assessedElementsPropertyBags) {
             AssessedElement nativeAssessedElement = AssessedElement.fromPropertyBag(assessedElementPropertyBag);
+            Set<AssessedElementWithContingency> nativeAssessedElementWithContingencies = assessedElementsWithContingenciesPropertyBags.getOrDefault(nativeAssessedElement.identifier(), Set.of()).stream().map(AssessedElementWithContingency::fromPropertyBag).collect(Collectors.toSet());
             try {
-                addCnec(nativeAssessedElement);
+                addCnec(nativeAssessedElement, nativeAssessedElementWithContingencies);
             } catch (OpenRaoImportException exception) {
                 csaProfileCnecCreationContexts.add(CsaProfileElementaryCreationContext.notImported(nativeAssessedElement.identifier(), exception.getImportStatus(), exception.getMessage()));
             }
@@ -67,26 +70,22 @@ public class CsaProfileCnecCreator {
         cracCreationContext.setCnecCreationContexts(csaProfileCnecCreationContexts);
     }
 
-    private void addCnec(AssessedElement nativeAssessedElement) {
+    private void addCnec(AssessedElement nativeAssessedElement, Set<AssessedElementWithContingency> nativeAssessedElementWithContingencies) {
         String rejectedLinksAssessedElementContingency = "";
 
         if (!nativeAssessedElement.normalEnabled()) {
             throw new OpenRaoImportException(ImportStatus.NOT_FOR_RAO, "AssessedElement %s ignored because it is not enabled".formatted(nativeAssessedElement.identifier()));
         }
 
-        Set<PropertyBag> assessedElementsWithContingencies = this.assessedElementsWithContingenciesPropertyBags.get(nativeAssessedElement.identifier());
-
-        if (!nativeAssessedElement.inBaseCase() && !nativeAssessedElement.isCombinableWithContingency() && assessedElementsWithContingencies == null) {
+        if (!nativeAssessedElement.inBaseCase() && !nativeAssessedElement.isCombinableWithContingency() && nativeAssessedElementWithContingencies.isEmpty()) {
             throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, "AssessedElement %s ignored because the assessed element is not in base case and not combinable with contingencies, but no explicit link to a contingency was found".formatted(nativeAssessedElement.identifier()));
         }
 
         Set<Contingency> combinableContingencies = nativeAssessedElement.isCombinableWithContingency() ? cracCreationContext.getCrac().getContingencies() : new HashSet<>();
 
-        if (assessedElementsWithContingencies != null) {
-            for (PropertyBag assessedElementWithContingencies : assessedElementsWithContingencies) {
-                if (!checkAndProcessCombinableContingencyFromExplicitAssociation(nativeAssessedElement.identifier(), assessedElementWithContingencies, combinableContingencies)) {
-                    rejectedLinksAssessedElementContingency = rejectedLinksAssessedElementContingency.concat(assessedElementWithContingencies.getId(CsaProfileConstants.REQUEST_ASSESSED_ELEMENT_WITH_CONTINGENCY) + " ");
-                }
+        for (AssessedElementWithContingency assessedElementWithContingency : nativeAssessedElementWithContingencies) {
+            if (!checkAndProcessCombinableContingencyFromExplicitAssociation(nativeAssessedElement.identifier(), assessedElementWithContingency, combinableContingencies)) {
+                rejectedLinksAssessedElementContingency = rejectedLinksAssessedElementContingency.concat(assessedElementWithContingency.identifier() + " ");
             }
         }
 
@@ -158,27 +157,25 @@ public class CsaProfileCnecCreator {
         return false;
     }
 
-    private boolean checkAndProcessCombinableContingencyFromExplicitAssociation(String assessedElementId, PropertyBag assessedElementWithContingencies, Set<Contingency> combinableContingenciesSet) {
-        String normalEnabledWithContingency = assessedElementWithContingencies.get(CsaProfileConstants.REQUEST_ASSESSED_ELEMENT_WITH_CONTINGENCY_NORMAL_ENABLED);
-        String contingencyId = assessedElementWithContingencies.getId(CsaProfileConstants.REQUEST_CONTINGENCY);
-        Contingency contingencyToLink = crac.getContingency(contingencyId);
+    private boolean checkAndProcessCombinableContingencyFromExplicitAssociation(String assessedElementId, AssessedElementWithContingency nativeAssessedElementWithContingency, Set<Contingency> combinableContingenciesSet) {
+        Contingency contingencyToLink = crac.getContingency(nativeAssessedElementWithContingency.contingency());
 
         // Unknown contingency
         if (contingencyToLink == null) {
-            csaProfileCnecCreationContexts.add(CsaProfileElementaryCreationContext.notImported(assessedElementId, ImportStatus.INCONSISTENCY_IN_DATA, "The contingency " + contingencyId + " linked to the assessed element does not exist in the CRAC"));
+            csaProfileCnecCreationContexts.add(CsaProfileElementaryCreationContext.notImported(assessedElementId, ImportStatus.INCONSISTENCY_IN_DATA, "The contingency " + nativeAssessedElementWithContingency.contingency() + " linked to the assessed element does not exist in the CRAC"));
             return false;
         }
 
         // Illegal element combination constraint kind
-        if (!CsaProfileConstants.ElementCombinationConstraintKind.INCLUDED.toString().equals(assessedElementWithContingencies.get(CsaProfileConstants.REQUEST_ASSESSED_ELEMENT_WITH_CONTINGENCY_COMBINATION_CONSTRAINT_KIND))) {
-            csaProfileCnecCreationContexts.add(CsaProfileElementaryCreationContext.notImported(assessedElementId, ImportStatus.INCONSISTENCY_IN_DATA, "The contingency " + contingencyId + " is linked to the assessed element with an illegal elementCombinationConstraint kind"));
+        if (!CsaProfileConstants.ElementCombinationConstraintKind.INCLUDED.toString().equals(nativeAssessedElementWithContingency.combinationConstraintKind())) {
+            csaProfileCnecCreationContexts.add(CsaProfileElementaryCreationContext.notImported(assessedElementId, ImportStatus.INCONSISTENCY_IN_DATA, "The contingency " + nativeAssessedElementWithContingency.contingency() + " is linked to the assessed element with an illegal elementCombinationConstraint kind"));
             combinableContingenciesSet.remove(contingencyToLink);
             return false;
         }
 
         // Disabled link to contingency
-        if (normalEnabledWithContingency != null && !Boolean.parseBoolean(normalEnabledWithContingency)) {
-            csaProfileCnecCreationContexts.add(CsaProfileElementaryCreationContext.notImported(assessedElementId, ImportStatus.NOT_FOR_RAO, "The link between contingency " + contingencyId + " and the assessed element is disabled"));
+        if (!nativeAssessedElementWithContingency.normalEnabled()) {
+            csaProfileCnecCreationContexts.add(CsaProfileElementaryCreationContext.notImported(assessedElementId, ImportStatus.NOT_FOR_RAO, "The link between contingency " + nativeAssessedElementWithContingency.contingency() + " and the assessed element is disabled"));
             combinableContingenciesSet.remove(contingencyToLink);
             return false;
         }
