@@ -8,7 +8,6 @@ package com.powsybl.openrao.sensitivityanalysis;
 
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
-import com.powsybl.openrao.commons.logs.TechnicalLogs;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
 import com.powsybl.openrao.data.cracapi.rangeaction.*;
 import com.powsybl.openrao.sensitivityanalysis.rasensihandler.InjectionRangeActionSensiHandler;
