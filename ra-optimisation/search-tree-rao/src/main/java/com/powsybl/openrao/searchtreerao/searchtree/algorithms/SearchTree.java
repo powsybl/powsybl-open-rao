@@ -114,11 +114,13 @@ public class SearchTree {
         if (rootLeaf.getStatus().equals(Leaf.Status.ERROR)) {
             topLevelLogger.info("Could not evaluate leaf: {}", rootLeaf);
             logOptimizationSummary(rootLeaf);
+            rootLeaf.finalizeOptimization();
             return CompletableFuture.completedFuture(rootLeaf);
         } else if (stopCriterionReached(rootLeaf)) {
             topLevelLogger.info("Stop criterion reached on {}", rootLeaf);
             RaoLogger.logMostLimitingElementsResults(topLevelLogger, rootLeaf, parameters.getObjectiveFunction(), NUMBER_LOGGED_ELEMENTS_END_TREE);
             logOptimizationSummary(rootLeaf);
+            rootLeaf.finalizeOptimization();
             return CompletableFuture.completedFuture(rootLeaf);
         }
 
@@ -134,7 +136,8 @@ public class SearchTree {
         logVirtualCostInformation(rootLeaf, "");
 
         if (stopCriterionReached(rootLeaf)) {
-            logOptimizationSummary(optimalLeaf);
+            logOptimizationSummary(rootLeaf);
+            rootLeaf.finalizeOptimization();
             return CompletableFuture.completedFuture(rootLeaf);
         }
 
@@ -147,6 +150,7 @@ public class SearchTree {
         RaoLogger.logMostLimitingElementsResults(TECHNICAL_LOGS, optimalLeaf, parameters.getObjectiveFunction(), NUMBER_LOGGED_ELEMENTS_END_TREE);
 
         logOptimizationSummary(optimalLeaf);
+        optimalLeaf.finalizeOptimization();
         return CompletableFuture.completedFuture(optimalLeaf);
     }
 
@@ -370,7 +374,6 @@ public class SearchTree {
         } else {
             TECHNICAL_LOGS.info("No range actions to optimize");
         }
-        leaf.finalizeOptimization();
     }
 
     private SensitivityComputer getSensitivityComputerForEvaluation(boolean isRootLeaf) {
