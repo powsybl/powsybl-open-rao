@@ -94,7 +94,7 @@ public final class CsaProfileConstants {
 
     public static final String REQUEST_CONTINGENCIES_CONTINGENT_STATUS = "contingentStatus";
 
-    public static final String IMPORTED_CONTINGENT_STATUS = "http://iec.ch/TC57/CIM100#ContingencyEquipmentStatusKind.outOfService";
+    public static final String OUT_OF_SERVICE_CONTINGENT_STATUS = "http://iec.ch/TC57/CIM100#ContingencyEquipmentStatusKind.outOfService";
 
     /**
      * remedial actions
