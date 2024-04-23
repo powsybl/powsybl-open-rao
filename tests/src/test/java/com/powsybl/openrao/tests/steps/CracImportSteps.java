@@ -6,17 +6,24 @@
  */
 package com.powsybl.openrao.tests.steps;
 
+import com.powsybl.action.*;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.*;
 import com.powsybl.openrao.data.cracapi.cnec.*;
-import com.powsybl.openrao.data.cracapi.range.*;
-import com.powsybl.openrao.data.cracapi.rangeaction.*;
-import com.powsybl.openrao.data.cracapi.networkaction.*;
-import com.powsybl.openrao.data.cracapi.usagerule.*;
+import com.powsybl.openrao.data.cracapi.networkaction.ActionType;
+import com.powsybl.openrao.data.cracapi.networkaction.NetworkAction;
+import com.powsybl.openrao.data.cracapi.networkaction.SwitchPair;
+import com.powsybl.openrao.data.cracapi.range.RangeType;
+import com.powsybl.openrao.data.cracapi.range.StandardRange;
+import com.powsybl.openrao.data.cracapi.rangeaction.HvdcRangeAction;
+import com.powsybl.openrao.data.cracapi.rangeaction.InjectionRangeAction;
+import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeAction;
+import com.powsybl.openrao.data.cracapi.rangeaction.RangeAction;
 import com.powsybl.openrao.data.cracapi.threshold.BranchThreshold;
+import com.powsybl.openrao.data.cracapi.usagerule.*;
 import com.powsybl.openrao.data.craccreation.creator.api.CracCreationContext;
 import com.powsybl.openrao.data.craccreation.creator.api.ImportStatus;
 import com.powsybl.openrao.data.craccreation.creator.api.stdcreationcontext.BranchCnecCreationContext;
@@ -566,26 +573,54 @@ public class CracImportSteps {
             String networkElementId = expectedNetworkAction.get("NetworkElementId");
             String action = expectedNetworkAction.get("Action/Setpoint");
             switch (expectedNetworkAction.get("ElementaryActionType")) {
-                case "PstSetpoint":
-                    int intSetpoint = Integer.parseInt(action);
+                case "PhaseTapChangerTapPositionAction":
+                    int tapPosition = Integer.parseInt(action);
                     assertTrue(networkAction.getElementaryActions().stream().anyMatch(elementaryAction ->
-                        elementaryAction instanceof PstSetpoint pstSetpoint
-                            //&& pstSetpoint.getNetworkElements().iterator().next().getId().equals(networkElementId) TODO
-                            && pstSetpoint.getSetpoint() == intSetpoint));
+                        elementaryAction instanceof PhaseTapChangerTapPositionAction phaseTapChangerTapPositionAction
+                            && Objects.equals(phaseTapChangerTapPositionAction.getTransformerId(), networkElementId)
+                            && phaseTapChangerTapPositionAction.getTapPosition() == tapPosition));
                     break;
-                case "TopologicalAction":
-                    ActionType actionType = ActionType.valueOf(action.toUpperCase());
+                case "TerminalsConnectionAction":
+                    ActionType actionTypeTCA = ActionType.valueOf(action.toUpperCase());
                     assertTrue(networkAction.getElementaryActions().stream().anyMatch(elementaryAction ->
-                        elementaryAction instanceof TopologicalAction topologicalAction
-                            //&& topologicalAction.getNetworkElements().iterator().next().getId().equals(networkElementId) TODO
-                            && topologicalAction.getActionType() == actionType));
+                        elementaryAction instanceof TerminalsConnectionAction terminalsConnectionAction
+                            && Objects.equals(terminalsConnectionAction.getElementId(), networkElementId)
+                            && terminalsConnectionAction.isOpen() == (actionTypeTCA == ActionType.OPEN)));
                     break;
-                case "InjectionSetpoint":
-                    double doubleSetpoint = Double.parseDouble(action);
+                case "SwitchAction":
+                    ActionType actionTypeSA = ActionType.valueOf(action.toUpperCase());
                     assertTrue(networkAction.getElementaryActions().stream().anyMatch(elementaryAction ->
-                        elementaryAction instanceof InjectionSetpoint injectionSetpoint
-                            //&& injectionSetpoint.getNetworkElements().iterator().next().getId().equals(networkElementId) TODO
-                            && injectionSetpoint.getSetpoint() == doubleSetpoint));
+                        elementaryAction instanceof SwitchAction switchAction
+                            && Objects.equals(switchAction.getSwitchId(), networkElementId)
+                            && switchAction.isOpen() == (actionTypeSA == ActionType.OPEN)));
+                    break;
+                case "GeneratorAction":
+                    double activePowerValueGA = Double.parseDouble(action);
+                    assertTrue(networkAction.getElementaryActions().stream().anyMatch(elementaryAction ->
+                        elementaryAction instanceof GeneratorAction generatorAction
+                            && Objects.equals(generatorAction.getGeneratorId(), networkElementId)
+                            && generatorAction.getActivePowerValue().getAsDouble() == activePowerValueGA));
+                    break;
+                case "LoadAction":
+                    double activePowerValueLA = Double.parseDouble(action);
+                    assertTrue(networkAction.getElementaryActions().stream().anyMatch(elementaryAction ->
+                        elementaryAction instanceof LoadAction loadAction
+                            && Objects.equals(loadAction.getLoadId(), networkElementId)
+                            && loadAction.getActivePowerValue().getAsDouble() == activePowerValueLA));
+                    break;
+                case "DanglingLineAction":
+                    double activePowerValueDLA = Double.parseDouble(action);
+                    assertTrue(networkAction.getElementaryActions().stream().anyMatch(elementaryAction ->
+                        elementaryAction instanceof DanglingLineAction danglingLineAction
+                            && Objects.equals(danglingLineAction.getDanglingLineId(), networkElementId)
+                            && danglingLineAction.getActivePowerValue().getAsDouble() == activePowerValueDLA));
+                    break;
+                case "ShuntCompensatorPositionAction":
+                    int sectionCount = Integer.parseInt(action);
+                    assertTrue(networkAction.getElementaryActions().stream().anyMatch(elementaryAction ->
+                        elementaryAction instanceof ShuntCompensatorPositionAction shuntCompensatorPositionAction
+                            && Objects.equals(shuntCompensatorPositionAction.getShuntCompensatorId(), networkElementId)
+                            && shuntCompensatorPositionAction.getSectionCount() == sectionCount));
                     break;
                 case "SwitchPair":
                     assertEquals("OPEN/CLOSE", action);
