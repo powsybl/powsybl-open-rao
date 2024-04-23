@@ -85,45 +85,40 @@ public abstract class AbstractRemedialAction<I extends RemedialAction<I>> extend
 
         for (UsageRule usageRule : usageRules) {
             if (usageRule.getInstant().isPreventive()) {
-                usageMethodPerInstant.put(usageRule.getInstant(), usageRule.getUsageMethod());
+                updateMapWithValue(usageMethodPerInstant, usageRule.getInstant(), usageRule.getUsageMethod());
             } else if (usageRule instanceof OnFlowConstraint ofc) {
                 State state = ofc.getFlowCnec().getState();
-                if (!usageMethodPerState.containsKey(state)) {
-                    usageMethodPerState.put(state, usageRule.getUsageMethod());
-                } else if (usageMethodPerState.get(state) != usageRule.getUsageMethod()) {
-                    usageMethodPerState.put(state, UsageMethod.getStrongestUsageMethod(Set.of(usageMethodPerState.get(state), usageRule.getUsageMethod())));
-                }
+                updateMapWithValue(usageMethodPerState, state, usageRule.getUsageMethod());
             } else if (usageRule instanceof OnAngleConstraint oac) {
                 State state = oac.getAngleCnec().getState();
-                if (!usageMethodPerState.containsKey(state)) {
-                    usageMethodPerState.put(state, usageRule.getUsageMethod());
-                } else if (usageMethodPerState.get(state) != usageRule.getUsageMethod()) {
-                    usageMethodPerState.put(state, UsageMethod.getStrongestUsageMethod(Set.of(usageMethodPerState.get(state), usageRule.getUsageMethod())));
-                }
+                updateMapWithValue(usageMethodPerState, state, usageRule.getUsageMethod());
             } else if (usageRule instanceof OnVoltageConstraint ovc) {
                 State state = ovc.getVoltageCnec().getState();
-                if (!usageMethodPerState.containsKey(state)) {
-                    usageMethodPerState.put(state, usageRule.getUsageMethod());
-                } else if (usageMethodPerState.get(state) != usageRule.getUsageMethod()) {
-                    usageMethodPerState.put(state, UsageMethod.getStrongestUsageMethod(Set.of(usageMethodPerState.get(state), usageRule.getUsageMethod())));
-                }
+                updateMapWithValue(usageMethodPerState, state, usageRule.getUsageMethod());
             } else if (usageRule instanceof OnContingencyState ocs) {
                 State state = ocs.getState();
-                if (!usageMethodPerState.containsKey(state)) {
-                    usageMethodPerState.put(state, usageRule.getUsageMethod());
-                } else if (usageMethodPerState.get(state) != usageRule.getUsageMethod()) {
-                    usageMethodPerState.put(state, UsageMethod.getStrongestUsageMethod(Set.of(usageMethodPerState.get(state), usageRule.getUsageMethod())));
-                }
+                updateMapWithValue(usageMethodPerState, state, usageRule.getUsageMethod());
             } else if (usageRule instanceof OnFlowConstraintInCountry || usageRule instanceof OnInstant) {
-                Instant instant = usageRule.getInstant();
-                if (!usageMethodPerInstant.containsKey(instant)) {
-                    usageMethodPerInstant.put(instant, usageRule.getUsageMethod());
-                } else if (usageMethodPerInstant.get(instant) != usageRule.getUsageMethod()) {
-                    usageMethodPerInstant.put(instant, UsageMethod.getStrongestUsageMethod(Set.of(usageMethodPerInstant.get(instant), usageRule.getUsageMethod())));
-                }
+                updateMapWithValue(usageMethodPerInstant, usageRule.getInstant(), usageRule.getUsageMethod());
             } else {
                 throw new OpenRaoException(String.format("Usage rule of type %s is not implemented yet.", usageRule.getClass().getName()));
             }
+        }
+    }
+
+    private void updateMapWithValue(Map<Instant, UsageMethod> map, Instant key, UsageMethod value) {
+        if (!map.containsKey(key)) {
+            map.put(key, value);
+        } else if (!value.equals(map.get(key))) {
+            map.put(key, UsageMethod.getStrongestUsageMethod(Set.of(map.get(key), value)));
+        }
+    }
+
+    private void updateMapWithValue(Map<State, UsageMethod> map, State key, UsageMethod value) {
+        if (!map.containsKey(key)) {
+            map.put(key, value);
+        } else if (!value.equals(map.get(key))) {
+            map.put(key, UsageMethod.getStrongestUsageMethod(Set.of(map.get(key), value)));
         }
     }
 
@@ -163,9 +158,9 @@ public abstract class AbstractRemedialAction<I extends RemedialAction<I>> extend
 
     private static boolean isCnecInCountry(Cnec<?> cnec, Country country, Network network) {
         return cnec.getLocation(network).stream()
-                .filter(Optional::isPresent)
-                .map(Optional::get)
-                .anyMatch(cnecCountry -> cnecCountry.equals(country));
+            .filter(Optional::isPresent)
+            .map(Optional::get)
+            .anyMatch(cnecCountry -> cnecCountry.equals(country));
     }
 
     @Override
@@ -178,8 +173,8 @@ public abstract class AbstractRemedialAction<I extends RemedialAction<I>> extend
         }
         AbstractRemedialAction<?> remedialAction = (AbstractRemedialAction<?>) o;
         return super.equals(remedialAction)
-                && new HashSet<>(usageRules).equals(new HashSet<>(remedialAction.getUsageRules()))
-                && (operator != null && operator.equals(remedialAction.operator) || operator == null && remedialAction.operator == null);
+            && new HashSet<>(usageRules).equals(new HashSet<>(remedialAction.getUsageRules()))
+            && (operator != null && operator.equals(remedialAction.operator) || operator == null && remedialAction.operator == null);
     }
 
     @Override
