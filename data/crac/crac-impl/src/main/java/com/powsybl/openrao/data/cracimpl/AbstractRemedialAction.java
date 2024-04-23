@@ -84,7 +84,9 @@ public abstract class AbstractRemedialAction<I extends RemedialAction<I>> extend
         usageMethodPerInstant = new HashMap<>();
 
         for (UsageRule usageRule : usageRules) {
-            if (usageRule instanceof OnFlowConstraint ofc) {
+            if (usageRule.getInstant().isPreventive()) {
+                usageMethodPerInstant.put(usageRule.getInstant(), usageRule.getUsageMethod());
+            } else if (usageRule instanceof OnFlowConstraint ofc) {
                 State state = ofc.getFlowCnec().getState();
                 if (!usageMethodPerState.containsKey(state)) {
                     usageMethodPerState.put(state, usageRule.getUsageMethod());
