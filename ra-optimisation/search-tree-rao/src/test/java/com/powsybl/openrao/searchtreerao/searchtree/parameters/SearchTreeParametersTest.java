@@ -6,6 +6,7 @@
  */
 
 package com.powsybl.openrao.searchtreerao.searchtree.parameters;
+import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.cracapi.Instant;
 import com.powsybl.openrao.data.cracapi.RaUsageLimits;
@@ -23,8 +24,10 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
+import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -150,7 +153,10 @@ class SearchTreeParametersTest {
 
     @Test
     void testDecreaseRemedialActionUsageLimits() {
-        Crac crac = CracImporters.importCrac("crac/small-crac-with-comprehensive-usage-limits.json", getClass().getResourceAsStream("/crac/small-crac-with-comprehensive-usage-limits.json"));
+        Crac crac = CracImporters.importCrac(
+            Path.of(Objects.requireNonNull(getClass().getResource("/crac/small-crac-with-comprehensive-usage-limits.json")).getFile()),
+            Network.read(Objects.requireNonNull(getClass().getResource("/network/small-network-2P.uct")).getFile())
+        );
 
         SearchTreeParameters parameters = SearchTreeParameters.create()
             .withGlobalRemedialActionLimitationParameters(

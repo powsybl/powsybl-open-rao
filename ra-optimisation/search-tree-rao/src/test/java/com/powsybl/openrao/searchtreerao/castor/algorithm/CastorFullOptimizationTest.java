@@ -41,6 +41,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.slf4j.LoggerFactory;
 
+import java.nio.file.Path;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -918,7 +919,10 @@ class CastorFullOptimizationTest {
     @Test
     void threeCurativeInstantsWithCumulativeMaximumNumberOfApplicableRemedialActions() {
         Network network = Network.read("12Nodes_4ParallelLines.uct", getClass().getResourceAsStream("/network/12Nodes_4ParallelLines.uct"));
-        Crac crac = CracImporters.importCrac("crac/small-crac-ra-limits-per-instant.json", getClass().getResourceAsStream("/crac/small-crac-ra-limits-per-instant.json"));
+        Crac crac = CracImporters.importCrac(
+            Path.of(Objects.requireNonNull(getClass().getResource("/crac/small-crac-ra-limits-per-instant.json")).getFile()),
+            network
+        );
 
         RaoInput raoInput = RaoInput.build(network, crac).build();
         RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/RaoParameters_DC.json"));
@@ -934,7 +938,10 @@ class CastorFullOptimizationTest {
     @Test
     void threeCurativeInstantsWithCumulativeMaximumNumberOfTsos() {
         Network network = Network.read("12Nodes_4ParallelLines.uct", getClass().getResourceAsStream("/network/12Nodes_4ParallelLines.uct"));
-        Crac crac = CracImporters.importCrac("crac/small-crac-ra-limits-per-instant-3-tsos.json", getClass().getResourceAsStream("/crac/small-crac-ra-limits-per-instant-3-tsos.json"));
+        Crac crac = CracImporters.importCrac(
+            Path.of(Objects.requireNonNull(getClass().getResource("/crac/small-crac-ra-limits-per-instant-3-tsos.json")).getFile()),
+            network
+        );
 
         RaoInput raoInput = RaoInput.build(network, crac).build();
         RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/RaoParameters_DC.json"));

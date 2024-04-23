@@ -70,12 +70,12 @@
   "contingencies" : [ {
     "id" : "contingency",
     "name" : "CO",
-    "networkElementsIds" : [ "line" ]
+    "networkElementsIds" : [ "FFR1AA1  FFR2AA1  1" ]
   } ],
   "flowCnecs" : [ {
     "id" : "network-element - contingency - curative1",
     "name" : "network-element - contingency - curative1",
-    "networkElementId" : "network-element",
+    "networkElementId" : "FFR2AA1  FFR3AA1  1",
     "operator" : null,
     "instant" : "curative1",
     "contingencyId" : "contingency",
@@ -148,7 +148,7 @@
           "rangeType": "absolute"
         }
       ],
-      "networkElementId": "fr-pst"
+      "networkElementId": "FFR2AA1  FFR4AA1  1"
     }, {
       "id": "cur1-pst-be",
       "name": "cur1-pst-be",
@@ -203,7 +203,7 @@
           "rangeType": "absolute"
         }
       ],
-      "networkElementId": "be-pst"
+      "networkElementId": "BBE2AA1  BBE3AA1  1"
     }
   ],
   "hvdcRangeActions" : [ ],
@@ -218,7 +218,7 @@
       "usageMethod" : "available"
     } ],
     "topologicalActions" : [ {
-      "networkElementId" : "be-switch-1",
+      "networkElementId" : "BBE1AA1  BBE2AA1  1",
       "actionType" : "open"
     } ]
   }, {
@@ -230,7 +230,7 @@
       "usageMethod" : "available"
     } ],
     "topologicalActions" : [ {
-      "networkElementId" : "be-switch-2",
+      "networkElementId" : "BBE2AA1  BBE3AA1  1",
       "actionType" : "close"
     } ]
   }, {
@@ -242,7 +242,7 @@
       "usageMethod" : "available"
     } ],
     "topologicalActions" : [ {
-      "networkElementId" : "fr-switch-1",
+      "networkElementId" : "FFR1AA1  FFR3AA1  1",
       "actionType" : "open"
     } ]
   } ]

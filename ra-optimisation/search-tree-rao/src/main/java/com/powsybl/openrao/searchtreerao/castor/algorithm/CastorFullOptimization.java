@@ -379,7 +379,6 @@ public class CastorFullOptimization {
         }
         TECHNICAL_LOGS.debug("Remaining post-contingency scenarios to optimize: {}", remainingScenarios.decrementAndGet());
         networkPool.releaseUsedNetwork(networkClone);
-        // reset map
         return null;
     }
 
