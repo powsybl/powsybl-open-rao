@@ -16,10 +16,10 @@ Feature: US 21.7 : import angle cnecs
       | AngleCnec2  | AngleCnec2-name | _8d8a82ba-b5b0-4e94-861a-192af055f2b8 | _b7998ae6-0cc6-4dfe-8fec-0b549b07b6c3 | CURATIVE | Co-2        | no        | yes       | -47        |            |
     And it should have 1 network actions
     And it should have the following network actions:
-      | NetworkActionId | NetworkActionName                 | ElementaryActions | ElementaryActionType | NetworkElementId                      | Action/Setpoint |
-      | RA-1            | Decrease Generation and open line | 3                 | InjectionSetpoint    | _1dc9afba-23b5-41a0-8540-b479ed8baf4b | 0               |
-      | RA-1            | Decrease Generation and open line | 3                 | InjectionSetpoint    | _550ebe0d-f2b2-48c1-991f-cebea43a21aa | 10              |
-      | RA-1            | Decrease Generation and open line | 3                 | TopologicalAction    | _ffbabc27-1ccd-4fdc-b037-e341706c8d29 | OPEN            |
+      | NetworkActionId | NetworkActionName                 | ElementaryActions | ElementaryActionType      | NetworkElementId                      | Action/Setpoint |
+      | RA-1            | Decrease Generation and open line | 3                 | GeneratorAction           | _1dc9afba-23b5-41a0-8540-b479ed8baf4b | 0               |
+      | RA-1            | Decrease Generation and open line | 3                 | GeneratorAction           | _550ebe0d-f2b2-48c1-991f-cebea43a21aa | 10              |
+      | RA-1            | Decrease Generation and open line | 3                 | TerminalsConnectionAction | _ffbabc27-1ccd-4fdc-b037-e341706c8d29 | OPEN            |
     And the remedial actions should have the following usage rules:
       | RemedialActionId | UsageRules | Rule              | Method    | Instant  | ContingencyId | AngleCnecId |
       | RA-1             | 1          | OnAngleConstraint | AVAILABLE | CURATIVE | Co-1          | AngleCnec1  |
