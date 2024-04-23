@@ -24,7 +24,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-import java.nio.file.Path;
+import java.io.File;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -154,8 +155,8 @@ class SearchTreeParametersTest {
     @Test
     void testDecreaseRemedialActionUsageLimits() {
         Crac crac = CracImporters.importCrac(
-            Path.of(Objects.requireNonNull(getClass().getResource("/crac/small-crac-with-comprehensive-usage-limits.json")).getFile()),
-            Network.read(Objects.requireNonNull(getClass().getResource("/network/small-network-2P.uct")).getFile())
+            Paths.get(new File(Objects.requireNonNull(SearchTreeParametersTest.class.getResource("/crac/small-crac-with-comprehensive-usage-limits.json")).getFile()).toString()),
+            Network.read(Paths.get(new File(Objects.requireNonNull(SearchTreeParametersTest.class.getResource("/network/small-network-2P.uct")).getFile()).toString()))
         );
 
         SearchTreeParameters parameters = SearchTreeParameters.create()
