@@ -8,7 +8,6 @@
 package com.powsybl.openrao.searchtreerao.castor.algorithm;
 
 import com.powsybl.contingency.Contingency;
-import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.cracapi.*;
 import com.powsybl.openrao.data.cracapi.cnec.Cnec;
 import org.apache.commons.lang3.tuple.Pair;
@@ -51,11 +50,11 @@ public class StateTree {
     private void processOutageInstant(Contingency contingency, Crac crac) {
         State outageState = crac.getState(contingency.getId(), crac.getOutageInstant());
         if (outageState != null) {
-            if (anyAvailableRemedialAction(crac, outageState)) {
+            /*if (anyAvailableRemedialAction(crac, outageState)) {
                 throw new OpenRaoException(String.format("Outage state %s has available RAs. This is not supported.", outageState));
-            } else {
-                preventivePerimeter.addOtherState(outageState);
-            }
+            } else {*/
+            preventivePerimeter.addOtherState(outageState);
+            //}
         }
     }
 
