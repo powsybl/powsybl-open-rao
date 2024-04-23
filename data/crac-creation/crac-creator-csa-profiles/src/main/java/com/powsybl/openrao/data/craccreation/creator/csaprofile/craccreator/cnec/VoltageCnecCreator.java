@@ -13,14 +13,14 @@ import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.cracapi.InstantKind;
 import com.powsybl.openrao.data.cracapi.cnec.VoltageCnecAdder;
 import com.powsybl.openrao.data.craccreation.creator.api.ImportStatus;
+import com.powsybl.openrao.data.craccreation.creator.csaprofile.cim.VoltageLimit;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileConstants;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileCracCreationContext;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileElementaryCreationContext;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.cnec.nc.AssessedElement;
+import com.powsybl.openrao.data.craccreation.creator.csaprofile.nc.AssessedElement;
 import com.powsybl.openrao.data.craccreation.util.OpenRaoImportException;
-import com.powsybl.triplestore.api.PropertyBag;
 
 import java.util.List;
 import java.util.Set;
@@ -30,8 +30,11 @@ import java.util.Set;
  */
 public class VoltageCnecCreator extends AbstractCnecCreator {
 
-    public VoltageCnecCreator(Crac crac, Network network, AssessedElement nativeAssessedElement, PropertyBag voltageLimitPropertyBag, List<Contingency> linkedContingencies, Set<CsaProfileElementaryCreationContext> csaProfileCnecCreationContexts, CsaProfileCracCreationContext cracCreationContext, String rejectedLinksAssessedElementContingency, boolean aeSecuredForRegion, boolean aeScannedForRegion) {
-        super(crac, network, nativeAssessedElement, voltageLimitPropertyBag, linkedContingencies, csaProfileCnecCreationContexts, cracCreationContext, rejectedLinksAssessedElementContingency, aeSecuredForRegion, aeScannedForRegion);
+    private final VoltageLimit nativeVoltageLimit;
+
+    public VoltageCnecCreator(Crac crac, Network network, AssessedElement nativeAssessedElement, VoltageLimit nativeVoltageLimit, List<Contingency> linkedContingencies, Set<CsaProfileElementaryCreationContext> csaProfileCnecCreationContexts, CsaProfileCracCreationContext cracCreationContext, String rejectedLinksAssessedElementContingency, boolean aeSecuredForRegion, boolean aeScannedForRegion) {
+        super(crac, network, nativeAssessedElement, linkedContingencies, csaProfileCnecCreationContexts, cracCreationContext, rejectedLinksAssessedElementContingency, aeSecuredForRegion, aeScannedForRegion);
+        this.nativeVoltageLimit = nativeVoltageLimit;
     }
 
     public void addVoltageCnecs() {
@@ -60,10 +63,9 @@ public class VoltageCnecCreator extends AbstractCnecCreator {
     }
 
     private void addVoltageLimit(VoltageCnecAdder voltageCnecAdder) {
-        String equipmentId = operationalLimitPropertyBag.getId(CsaProfileConstants.REQUEST_OPERATIONAL_LIMIT_EQUIPMENT);
-        Identifiable<?> networkElement = this.getNetworkElementInNetwork(equipmentId);
+        Identifiable<?> networkElement = this.getNetworkElementInNetwork(nativeVoltageLimit.equipment());
         if (networkElement == null) {
-            throw new OpenRaoImportException(ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK, writeAssessedElementIgnoredReasonMessage("the voltage limit equipment " + equipmentId + " is missing in network"));
+            throw new OpenRaoImportException(ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK, writeAssessedElementIgnoredReasonMessage("the voltage limit equipment " + nativeVoltageLimit.equipment() + " is missing in network"));
         }
 
         if (!networkElement.getType().equals(IdentifiableType.BUS)) {
@@ -73,32 +75,24 @@ public class VoltageCnecCreator extends AbstractCnecCreator {
         String networkElementId = networkElement.getId();
         voltageCnecAdder.withNetworkElement(networkElementId);
 
-        checkDuration();
-        addVoltageLimitThreshold(voltageCnecAdder, operationalLimitPropertyBag);
+        if (!nativeVoltageLimit.isInfiniteDuration()) {
+            throw new OpenRaoImportException(ImportStatus.NOT_YET_HANDLED_BY_OPEN_RAO, writeAssessedElementIgnoredReasonMessage("only permanent voltage limits (with infinite duration) are currently handled"));
+        }
+
+        addVoltageLimitThreshold(voltageCnecAdder);
     }
 
-    private void addVoltageLimitThreshold(VoltageCnecAdder voltageCnecAdder, PropertyBag voltageLimit) {
-        String valueStr = voltageLimit.get(CsaProfileConstants.REQUEST_OPERATIONAL_LIMIT_VALUE);
-        Double value = Double.valueOf(valueStr);
-        String limitType = voltageLimit.get(CsaProfileConstants.REQUEST_OPERATIONAL_LIMIT_TYPE);
-        if (CsaProfileConstants.LimitTypeKind.HIGH_VOLTAGE.toString().equals(limitType)) {
+    private void addVoltageLimitThreshold(VoltageCnecAdder voltageCnecAdder) {
+        if (CsaProfileConstants.LimitTypeKind.HIGH_VOLTAGE.toString().equals(nativeVoltageLimit.limitType())) {
             voltageCnecAdder.newThreshold()
                 .withUnit(Unit.KILOVOLT)
-                .withMax(value).add();
-        } else if (CsaProfileConstants.LimitTypeKind.LOW_VOLTAGE.toString().equals(limitType)) {
+                .withMax(nativeVoltageLimit.value()).add();
+        } else if (CsaProfileConstants.LimitTypeKind.LOW_VOLTAGE.toString().equals(nativeVoltageLimit.limitType())) {
             voltageCnecAdder.newThreshold()
                 .withUnit(Unit.KILOVOLT)
-                .withMin(value).add();
+                .withMin(nativeVoltageLimit.value()).add();
         } else {
             throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, writeAssessedElementIgnoredReasonMessage("a voltage limit can only be of kind highVoltage or lowVoltage"));
-        }
-    }
-
-    private void checkDuration() {
-        String isInfiniteDurationStr = operationalLimitPropertyBag.get(CsaProfileConstants.REQUEST_VOLTAGE_LIMIT_IS_INFINITE_DURATION);
-        boolean isInfiniteDuration = Boolean.parseBoolean(isInfiniteDurationStr);
-        if (!isInfiniteDuration) {
-            throw new OpenRaoImportException(ImportStatus.NOT_YET_HANDLED_BY_OPEN_RAO, writeAssessedElementIgnoredReasonMessage("only permanent voltage limits (with infinite duration) are currently handled"));
         }
     }
 }

@@ -14,6 +14,8 @@ import com.powsybl.openrao.data.cracapi.cnec.Side;
 import com.powsybl.openrao.data.craccreation.creator.api.CracCreator;
 import com.powsybl.openrao.data.craccreation.creator.api.parameters.CracCreationParameters;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.CsaProfileCrac;
+import com.powsybl.openrao.data.craccreation.creator.csaprofile.cim.CurrentLimit;
+import com.powsybl.openrao.data.craccreation.creator.csaprofile.cim.VoltageLimit;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.cnec.CsaProfileCnecCreator;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.contingency.CsaProfileContingencyCreator;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.remedialaction.CsaProfileRemedialActionsCreator;
@@ -21,6 +23,11 @@ import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.reme
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.remedialaction.OnConstraintUsageRuleHelper;
 import com.google.auto.service.AutoService;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.openrao.data.craccreation.creator.csaprofile.nc.AssessedElement;
+import com.powsybl.openrao.data.craccreation.creator.csaprofile.nc.AssessedElementWithContingency;
+import com.powsybl.openrao.data.craccreation.creator.csaprofile.nc.Contingency;
+import com.powsybl.openrao.data.craccreation.creator.csaprofile.nc.ContingencyEquipment;
+import com.powsybl.openrao.data.craccreation.creator.csaprofile.nc.VoltageAngleLimit;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.parameters.CsaCracCreationParameters;
 import com.powsybl.openrao.data.craccreation.util.RaUsageLimitsAdder;
 import com.powsybl.triplestore.api.PropertyBag;
@@ -29,6 +36,7 @@ import com.powsybl.triplestore.api.PropertyBags;
 import java.time.OffsetDateTime;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileCracUtils.isValidInterval;
 
@@ -59,12 +67,12 @@ public class CsaProfileCracCreator implements CracCreator<CsaProfileCrac, CsaPro
         clearNativeCracContextsAndMap(nativeCrac, offsetDateTime);
 
         Map<String, String> overridingData = nativeCrac.getOverridingCracData(offsetDateTime);
-        PropertyBags contingencies = CsaProfileCracUtils.overrideData(nativeCrac.getContingencies(), overridingData, CsaProfileConstants.OverridingObjectsFields.CONTINGENCY);
-        PropertyBags assessedElements = CsaProfileCracUtils.overrideData(nativeCrac.getAssessedElements(), overridingData, CsaProfileConstants.OverridingObjectsFields.ASSESSED_ELEMENT);
-        PropertyBags assessedElementsWithContingencies = CsaProfileCracUtils.overrideData(nativeCrac.getAssessedElementsWithContingencies(), overridingData, CsaProfileConstants.OverridingObjectsFields.ASSESSED_ELEMENT_WITH_CONTINGENCY);
-        PropertyBags currentLimits = CsaProfileCracUtils.overrideData(nativeCrac.getCurrentLimits(), overridingData, CsaProfileConstants.OverridingObjectsFields.CURRENT_LIMIT);
-        PropertyBags voltageLimits = CsaProfileCracUtils.overrideData(nativeCrac.getVoltageLimits(), overridingData, CsaProfileConstants.OverridingObjectsFields.VOLTAGE_LIMIT);
-        PropertyBags angleLimits = CsaProfileCracUtils.overrideData(nativeCrac.getAngleLimits(), overridingData, CsaProfileConstants.OverridingObjectsFields.VOLTAGE_ANGLE_LIMIT);
+        Set<Contingency> nativeContingencies = CsaProfileCracUtils.overrideData(nativeCrac.getContingencies(), overridingData, CsaProfileConstants.OverridingObjectsFields.CONTINGENCY).stream().map(Contingency::fromPropertyBag).collect(Collectors.toSet());
+        Set<AssessedElement> nativeAssessedElements = CsaProfileCracUtils.overrideData(nativeCrac.getAssessedElements(), overridingData, CsaProfileConstants.OverridingObjectsFields.ASSESSED_ELEMENT).stream().map(AssessedElement::fromPropertyBag).collect(Collectors.toSet());
+        Set<AssessedElementWithContingency> nativeAssessedElementsWithContingencies = CsaProfileCracUtils.overrideData(nativeCrac.getAssessedElementsWithContingencies(), overridingData, CsaProfileConstants.OverridingObjectsFields.ASSESSED_ELEMENT_WITH_CONTINGENCY).stream().map(AssessedElementWithContingency::fromPropertyBag).collect(Collectors.toSet());
+        Set<CurrentLimit> nativeCurrentLimits = CsaProfileCracUtils.overrideData(nativeCrac.getCurrentLimits(), overridingData, CsaProfileConstants.OverridingObjectsFields.CURRENT_LIMIT).stream().map(CurrentLimit::fromPropertyBag).collect(Collectors.toSet());
+        Set<VoltageLimit> nativeVoltageLimits = CsaProfileCracUtils.overrideData(nativeCrac.getVoltageLimits(), overridingData, CsaProfileConstants.OverridingObjectsFields.VOLTAGE_LIMIT).stream().map(VoltageLimit::fromPropertyBag).collect(Collectors.toSet());
+        Set<VoltageAngleLimit> nativeVoltageAngleLimits = CsaProfileCracUtils.overrideData(nativeCrac.getAngleLimits(), overridingData, CsaProfileConstants.OverridingObjectsFields.VOLTAGE_ANGLE_LIMIT).stream().map(VoltageAngleLimit::fromPropertyBag).collect(Collectors.toSet());
         PropertyBags assessedElementsWithRemedialAction = CsaProfileCracUtils.overrideData(nativeCrac.getAssessedElementsWithRemedialAction(), overridingData, CsaProfileConstants.OverridingObjectsFields.ASSESSED_ELEMENT_WITH_REMEDIAL_ACTION);
         PropertyBags contingenciesWithRemedialAction = CsaProfileCracUtils.overrideData(nativeCrac.getContingencyWithRemedialAction(), overridingData, CsaProfileConstants.OverridingObjectsFields.CONTINGENCY_WITH_REMEDIAL_ACTION);
         PropertyBags gridStateAlterationRemedialAction = CsaProfileCracUtils.overrideData(nativeCrac.getGridStateAlterationRemedialAction(), overridingData, CsaProfileConstants.OverridingObjectsFields.GRID_STATE_ALTERATION_REMEDIAL_ACTION);
@@ -78,11 +86,11 @@ public class CsaProfileCracCreator implements CracCreator<CsaProfileCrac, CsaPro
         PropertyBags schemeRemedialActions = CsaProfileCracUtils.overrideData(nativeCrac.getSchemeRemedialActions(), overridingData, CsaProfileConstants.OverridingObjectsFields.SCHEME_REMEDIAL_ACTION);
         PropertyBags remedialActionDependencies = CsaProfileCracUtils.overrideData(nativeCrac.getRemedialActionDependencies(), overridingData, CsaProfileConstants.OverridingObjectsFields.SCHEME_REMEDIAL_ACTION_DEPENDENCY);
 
-        createContingencies(contingencies, nativeCrac.getContingencyEquipments());
+        createContingencies(nativeContingencies, nativeCrac.getContingencyEquipments().stream().map(ContingencyEquipment::fromPropertyBag).collect(Collectors.toSet()));
 
-        createCnecs(assessedElements, assessedElementsWithContingencies, currentLimits, voltageLimits, angleLimits, cracCreationParameters.getDefaultMonitoredSides(), regionEicCode);
+        createCnecs(nativeAssessedElements, nativeAssessedElementsWithContingencies, nativeCurrentLimits, nativeVoltageLimits, nativeVoltageAngleLimits, cracCreationParameters.getDefaultMonitoredSides(), regionEicCode);
 
-        OnConstraintUsageRuleHelper onConstraintUsageRuleAdder = new OnConstraintUsageRuleHelper(creationContext.getCnecCreationContexts(), assessedElements, assessedElementsWithRemedialAction);
+        OnConstraintUsageRuleHelper onConstraintUsageRuleAdder = new OnConstraintUsageRuleHelper(creationContext.getCnecCreationContexts(), nativeAssessedElements, assessedElementsWithRemedialAction);
         ElementaryActionsHelper elementaryActionsHelper = new ElementaryActionsHelper(gridStateAlterationRemedialAction, schemeRemedialActions, remedialActionSchemes, nativeCrac.getStage(), gridStateAlterationsCollection, assessedElementsWithRemedialAction, contingenciesWithRemedialAction, staticPropertyRanges, topologyActions, rotatingMachineActions, shuntCompensatorModifications, tapPositionActions, nativeCrac.getRemedialActionGroups(), remedialActionDependencies);
         createRemedialActions(onConstraintUsageRuleAdder, elementaryActionsHelper, spsMaxTimeToImplementThreshold);
         creationContext.buildCreationReport();
@@ -120,11 +128,11 @@ public class CsaProfileCracCreator implements CracCreator<CsaProfileCrac, CsaPro
         new CsaProfileRemedialActionsCreator(crac, network, creationContext, onConstraintUsageRuleAdder, elementaryActionsHelper, spsMaxTimeToImplementThreshold);
     }
 
-    private void createContingencies(PropertyBags contingenciesPropertyBags, PropertyBags contingencyEquipmentsPropertyBags) {
-        new CsaProfileContingencyCreator(crac, network, contingenciesPropertyBags, contingencyEquipmentsPropertyBags, creationContext);
+    private void createContingencies(Set<Contingency> nativeContingencies, Set<ContingencyEquipment> nativeContingencyEquipments) {
+        new CsaProfileContingencyCreator(crac, network, nativeContingencies, nativeContingencyEquipments, creationContext);
     }
 
-    private void createCnecs(PropertyBags assessedElementsPropertyBags, PropertyBags assessedElementsWithContingenciesPropertyBags, PropertyBags currentLimitsPropertyBags, PropertyBags voltageLimitsPropertyBags, PropertyBags angleLimitsPropertyBags, Set<Side> defaultMonitoredSides, String regionEic) {
-        new CsaProfileCnecCreator(crac, network, assessedElementsPropertyBags, assessedElementsWithContingenciesPropertyBags, currentLimitsPropertyBags, voltageLimitsPropertyBags, angleLimitsPropertyBags, creationContext, defaultMonitoredSides, regionEic);
+    private void createCnecs(Set<AssessedElement> nativeAssessedElements, Set<AssessedElementWithContingency> nativeAssessedElementsWithContingencies, Set<CurrentLimit> nativeCurrentLimits, Set<VoltageLimit> nativeVoltageLimits, Set<VoltageAngleLimit> nativeVoltageAngleLimits, Set<Side> defaultMonitoredSides, String regionEic) {
+        new CsaProfileCnecCreator(crac, network, nativeAssessedElements, nativeAssessedElementsWithContingencies, nativeCurrentLimits, nativeVoltageLimits, nativeVoltageAngleLimits, creationContext, defaultMonitoredSides, regionEic);
     }
 }

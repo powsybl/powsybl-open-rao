@@ -13,23 +13,19 @@ import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.openrao.data.cracapi.ContingencyAdder;
 import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.craccreation.creator.api.ImportStatus;
-import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileConstants;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileCracCreationContext;
-import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileCracUtils;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileElementaryCreationContext;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.contingency.nc.Contingency;
-import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.contingency.nc.ContingencyEquipment;
+import com.powsybl.openrao.data.craccreation.creator.csaprofile.nc.Contingency;
+import com.powsybl.openrao.data.craccreation.creator.csaprofile.nc.ContingencyEquipment;
 import com.powsybl.openrao.data.craccreation.util.OpenRaoImportException;
-import com.powsybl.triplestore.api.PropertyBag;
-import com.powsybl.triplestore.api.PropertyBags;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * @author Jean-Pierre Arnould {@literal <jean-pierre.arnould at rte-france.com>}
@@ -40,28 +36,36 @@ public class CsaProfileContingencyCreator {
 
     private final Network network;
 
-    private final PropertyBags contingenciesPropertyBags;
+    private final Set<Contingency> nativeContingencies;
 
-    private final Map<String, Set<PropertyBag>> contingencyEquipmentsPropertyBags;
+    private final Map<String, Set<ContingencyEquipment>> nativeContingencyEquipmentsPerNativeContingency;
 
     private Set<CsaProfileElementaryCreationContext> csaProfileContingencyCreationContexts;
     private final CsaProfileCracCreationContext cracCreationContext;
 
-    public CsaProfileContingencyCreator(Crac crac, Network network, PropertyBags contingenciesPropertyBags, PropertyBags contingencyEquipmentsPropertyBags, CsaProfileCracCreationContext cracCreationContext) {
+    public CsaProfileContingencyCreator(Crac crac, Network network, Set<Contingency> nativeContingencies, Set<ContingencyEquipment> nativeContingencyEquipments, CsaProfileCracCreationContext cracCreationContext) {
         this.crac = crac;
         this.network = network;
-        this.contingenciesPropertyBags = contingenciesPropertyBags;
-        this.contingencyEquipmentsPropertyBags = CsaProfileCracUtils.getMappedPropertyBagsSet(contingencyEquipmentsPropertyBags, CsaProfileConstants.REQUEST_CONTINGENCY);
+        this.nativeContingencies = nativeContingencies;
+        this.nativeContingencyEquipmentsPerNativeContingency = mapContingencyEquipmentsToContingency(nativeContingencyEquipments);
         this.cracCreationContext = cracCreationContext;
         this.createAndAddContingencies();
+    }
+
+    private static Map<String, Set<ContingencyEquipment>> mapContingencyEquipmentsToContingency(Set<ContingencyEquipment> nativeContingencyEquipments) {
+        Map<String, Set<ContingencyEquipment>> equipmentsPerContingency = new HashMap<>();
+        for (ContingencyEquipment nativeContingencyEquipment : nativeContingencyEquipments) {
+            Set<ContingencyEquipment> equipments = equipmentsPerContingency.computeIfAbsent(nativeContingencyEquipment.contingency(), k -> new HashSet<>());
+            equipments.add(nativeContingencyEquipment);
+        }
+        return equipmentsPerContingency;
     }
 
     private void createAndAddContingencies() {
         csaProfileContingencyCreationContexts = new HashSet<>();
 
-        for (PropertyBag contingencyPropertyBag : contingenciesPropertyBags) {
-            Contingency nativeContingency = Contingency.fromPropertyBag(contingencyPropertyBag);
-            Set<ContingencyEquipment> nativeContingencyEquipments = contingencyEquipmentsPropertyBags.getOrDefault(nativeContingency.identifier(), Set.of()).stream().map(ContingencyEquipment::fromPropertyBag).collect(Collectors.toSet());
+        for (Contingency nativeContingency : nativeContingencies) {
+            Set<ContingencyEquipment> nativeContingencyEquipments = nativeContingencyEquipmentsPerNativeContingency.getOrDefault(nativeContingency.identifier(), Set.of());
             try {
                 addContingency(nativeContingency, nativeContingencyEquipments);
             } catch (OpenRaoImportException exception) {

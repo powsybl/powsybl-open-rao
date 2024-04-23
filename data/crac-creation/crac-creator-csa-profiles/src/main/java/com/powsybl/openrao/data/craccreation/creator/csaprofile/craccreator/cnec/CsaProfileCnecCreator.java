@@ -11,16 +11,17 @@ import com.powsybl.contingency.Contingency;
 import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.cracapi.cnec.*;
 import com.powsybl.openrao.data.craccreation.creator.api.ImportStatus;
+import com.powsybl.openrao.data.craccreation.creator.csaprofile.cim.CurrentLimit;
+import com.powsybl.openrao.data.craccreation.creator.csaprofile.cim.VoltageLimit;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileConstants;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileCracCreationContext;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileCracUtils;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileElementaryCreationContext;
 import com.powsybl.iidm.network.*;
-import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.cnec.nc.AssessedElement;
-import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.cnec.nc.AssessedElementWithContingency;
+import com.powsybl.openrao.data.craccreation.creator.csaprofile.nc.AssessedElement;
+import com.powsybl.openrao.data.craccreation.creator.csaprofile.nc.AssessedElementWithContingency;
+import com.powsybl.openrao.data.craccreation.creator.csaprofile.nc.VoltageAngleLimit;
 import com.powsybl.openrao.data.craccreation.util.OpenRaoImportException;
-import com.powsybl.triplestore.api.PropertyBag;
-import com.powsybl.triplestore.api.PropertyBags;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -31,36 +32,44 @@ import java.util.stream.Collectors;
 public class CsaProfileCnecCreator {
     private final Crac crac;
     private final Network network;
-    private final PropertyBags assessedElementsPropertyBags;
-    private final Map<String, Set<PropertyBag>> assessedElementsWithContingenciesPropertyBags;
-    private final Map<String, Set<PropertyBag>> currentLimitsPropertyBags;
-    private final Map<String, Set<PropertyBag>> voltageLimitsPropertyBags;
-    private final Map<String, Set<PropertyBag>> angleLimitsPropertyBags;
+    private final Set<AssessedElement> nativeAssessedElements;
+    private final Map<String, Set<AssessedElementWithContingency>> nativeAssessedElementWithContingenciesPerNativeAssessedElement;
+    private final Map<String, CurrentLimit> nativeCurrentLimitPerId;
+    private final Map<String, VoltageLimit> nativeVoltageLimitPerId;
+    private final Map<String, VoltageAngleLimit> nativeVoltageAngleLimitPerId;
     private Set<CsaProfileElementaryCreationContext> csaProfileCnecCreationContexts;
     private final CsaProfileCracCreationContext cracCreationContext;
     private final Set<Side> defaultMonitoredSides;
     private final String regionEic;
 
-    public CsaProfileCnecCreator(Crac crac, Network network, PropertyBags assessedElementsPropertyBags, PropertyBags assessedElementsWithContingenciesPropertyBags, PropertyBags currentLimitsPropertyBags, PropertyBags voltageLimitsPropertyBags, PropertyBags angleLimitsPropertyBags, CsaProfileCracCreationContext cracCreationContext, Set<Side> defaultMonitoredSides, String regionEic) {
+    public CsaProfileCnecCreator(Crac crac, Network network, Set<AssessedElement> nativeAssessedElements, Set<AssessedElementWithContingency> nativeAssessedElementsWithContingencies, Set<CurrentLimit> nativeCurrentLimits, Set<VoltageLimit> nativeVoltageLimits, Set<VoltageAngleLimit> nativeVoltageAngleLimits, CsaProfileCracCreationContext cracCreationContext, Set<Side> defaultMonitoredSides, String regionEic) {
         this.crac = crac;
         this.network = network;
-        this.assessedElementsPropertyBags = assessedElementsPropertyBags;
-        this.assessedElementsWithContingenciesPropertyBags = CsaProfileCracUtils.getMappedPropertyBagsSet(assessedElementsWithContingenciesPropertyBags, CsaProfileConstants.REQUEST_ASSESSED_ELEMENT);
-        this.currentLimitsPropertyBags = CsaProfileCracUtils.getMappedPropertyBagsSet(currentLimitsPropertyBags, CsaProfileConstants.REQUEST_CURRENT_LIMIT);
-        this.voltageLimitsPropertyBags = CsaProfileCracUtils.getMappedPropertyBagsSet(voltageLimitsPropertyBags, CsaProfileConstants.REQUEST_VOLTAGE_LIMIT);
-        this.angleLimitsPropertyBags = CsaProfileCracUtils.getMappedPropertyBagsSet(angleLimitsPropertyBags, CsaProfileConstants.REQUEST_VOLTAGE_ANGLE_LIMIT);
+        this.nativeAssessedElements = nativeAssessedElements;
+        this.nativeAssessedElementWithContingenciesPerNativeAssessedElement = mapAssessedElementWithContingencyToAssessedElement(nativeAssessedElementsWithContingencies);
+        this.nativeCurrentLimitPerId = nativeCurrentLimits.stream().collect(Collectors.toMap(CurrentLimit::identifier, currentLimit -> currentLimit));
+        this.nativeVoltageLimitPerId = nativeVoltageLimits.stream().collect(Collectors.toMap(VoltageLimit::identifier, voltageLimit -> voltageLimit));
+        this.nativeVoltageAngleLimitPerId = nativeVoltageAngleLimits.stream().collect(Collectors.toMap(VoltageAngleLimit::identifier, voltageAngleLimit -> voltageAngleLimit));
         this.cracCreationContext = cracCreationContext;
         this.defaultMonitoredSides = defaultMonitoredSides;
         this.regionEic = regionEic;
         this.createAndAddCnecs();
     }
 
+    private static Map<String, Set<AssessedElementWithContingency>> mapAssessedElementWithContingencyToAssessedElement(Set<AssessedElementWithContingency> nativeAssessedElementsWithContingencies) {
+        Map<String, Set<AssessedElementWithContingency>> assessedElementWithContingencyPerAssessedElement = new HashMap<>();
+        for (AssessedElementWithContingency nativeAssessedElementsWithContingency : nativeAssessedElementsWithContingencies) {
+            Set<AssessedElementWithContingency> contingencies = assessedElementWithContingencyPerAssessedElement.computeIfAbsent(nativeAssessedElementsWithContingency.assessedElement(), k -> new HashSet<>());
+            contingencies.add(nativeAssessedElementsWithContingency);
+        }
+        return assessedElementWithContingencyPerAssessedElement;
+    }
+
     private void createAndAddCnecs() {
         csaProfileCnecCreationContexts = new HashSet<>();
 
-        for (PropertyBag assessedElementPropertyBag : assessedElementsPropertyBags) {
-            AssessedElement nativeAssessedElement = AssessedElement.fromPropertyBag(assessedElementPropertyBag);
-            Set<AssessedElementWithContingency> nativeAssessedElementWithContingencies = assessedElementsWithContingenciesPropertyBags.getOrDefault(nativeAssessedElement.identifier(), Set.of()).stream().map(AssessedElementWithContingency::fromPropertyBag).collect(Collectors.toSet());
+        for (AssessedElement nativeAssessedElement : nativeAssessedElements) {
+            Set<AssessedElementWithContingency> nativeAssessedElementWithContingencies = nativeAssessedElementWithContingenciesPerNativeAssessedElement.getOrDefault(nativeAssessedElement.identifier(), Set.of());
             try {
                 addCnec(nativeAssessedElement, nativeAssessedElementWithContingencies);
             } catch (OpenRaoImportException exception) {
@@ -104,11 +113,11 @@ public class CsaProfileCnecCreator {
         }
 
         if (CsaProfileConstants.LimitType.CURRENT.equals(limitType)) {
-            new FlowCnecCreator(crac, network, nativeAssessedElement, getOperationalLimitPropertyBag(currentLimitsPropertyBags, nativeAssessedElement), combinableContingencies.stream().toList(), csaProfileCnecCreationContexts, cracCreationContext, defaultMonitoredSides, rejectedLinksAssessedElementContingency, aeSecuredForRegion, aeScannedForRegion).addFlowCnecs();
+            new FlowCnecCreator(crac, network, nativeAssessedElement, nativeCurrentLimitPerId.get(nativeAssessedElement.operationalLimit()), combinableContingencies.stream().toList(), csaProfileCnecCreationContexts, cracCreationContext, defaultMonitoredSides, rejectedLinksAssessedElementContingency, aeSecuredForRegion, aeScannedForRegion).addFlowCnecs();
         } else if (CsaProfileConstants.LimitType.VOLTAGE.equals(limitType)) {
-            new VoltageCnecCreator(crac, network, nativeAssessedElement, getOperationalLimitPropertyBag(voltageLimitsPropertyBags, nativeAssessedElement), combinableContingencies.stream().toList(), csaProfileCnecCreationContexts, cracCreationContext, rejectedLinksAssessedElementContingency, aeSecuredForRegion, aeScannedForRegion).addVoltageCnecs();
+            new VoltageCnecCreator(crac, network, nativeAssessedElement, nativeVoltageLimitPerId.get(nativeAssessedElement.operationalLimit()), combinableContingencies.stream().toList(), csaProfileCnecCreationContexts, cracCreationContext, rejectedLinksAssessedElementContingency, aeSecuredForRegion, aeScannedForRegion).addVoltageCnecs();
         } else {
-            new AngleCnecCreator(crac, network, nativeAssessedElement, getOperationalLimitPropertyBag(angleLimitsPropertyBags, nativeAssessedElement), combinableContingencies.stream().toList(), csaProfileCnecCreationContexts, cracCreationContext, rejectedLinksAssessedElementContingency, aeSecuredForRegion, aeScannedForRegion).addAngleCnecs();
+            new AngleCnecCreator(crac, network, nativeAssessedElement, nativeVoltageAngleLimitPerId.get(nativeAssessedElement.operationalLimit()), combinableContingencies.stream().toList(), csaProfileCnecCreationContexts, cracCreationContext, rejectedLinksAssessedElementContingency, aeSecuredForRegion, aeScannedForRegion).addAngleCnecs();
         }
     }
 
@@ -128,33 +137,18 @@ public class CsaProfileCnecCreator {
         return region != null && region.equals(regionEic);
     }
 
-    private PropertyBag getOperationalLimitPropertyBag(Map<String, Set<PropertyBag>> operationalLimitPropertyBags, AssessedElement nativeAssessedElement) {
-        return operationalLimitPropertyBags.get(nativeAssessedElement.operationalLimit()).stream().toList().get(0);
-    }
-
     private CsaProfileConstants.LimitType getLimit(AssessedElement nativeAssessedElement) {
-        if (checkLimit(this.currentLimitsPropertyBags, "current", nativeAssessedElement)) {
+        if (nativeCurrentLimitPerId.get(nativeAssessedElement.operationalLimit()) != null) {
             return CsaProfileConstants.LimitType.CURRENT;
         }
-        if (checkLimit(this.voltageLimitsPropertyBags, "voltage", nativeAssessedElement)) {
+        if (nativeVoltageLimitPerId.get(nativeAssessedElement.operationalLimit()) != null) {
             return CsaProfileConstants.LimitType.VOLTAGE;
         }
-        if (checkLimit(this.angleLimitsPropertyBags, "angle", nativeAssessedElement)) {
+        if (nativeVoltageAngleLimitPerId.get(nativeAssessedElement.operationalLimit()) != null) {
             return CsaProfileConstants.LimitType.ANGLE;
         }
 
         return null;
-    }
-
-    private boolean checkLimit(Map<String, Set<PropertyBag>> limitPropertyBags, String limitType, AssessedElement nativeAssessedElement) {
-        Set<PropertyBag> limits = limitPropertyBags.get(nativeAssessedElement.operationalLimit());
-        if (limits != null) {
-            if (limits.size() != 1) {
-                throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, "AssessedElement %s ignored because more than one %s limit linked with the assessed element".formatted(nativeAssessedElement.identifier(), limitType));
-            }
-            return true;
-        }
-        return false;
     }
 
     private boolean checkAndProcessCombinableContingencyFromExplicitAssociation(String assessedElementId, AssessedElementWithContingency nativeAssessedElementWithContingency, Set<Contingency> combinableContingenciesSet) {

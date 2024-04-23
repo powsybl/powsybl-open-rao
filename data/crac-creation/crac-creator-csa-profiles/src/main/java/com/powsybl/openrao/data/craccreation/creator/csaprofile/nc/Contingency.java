@@ -4,7 +4,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.contingency.nc;
+package com.powsybl.openrao.data.craccreation.creator.csaprofile.nc;
 
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileConstants;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileCracUtils;
@@ -20,6 +20,11 @@ public record Contingency(String identifier, boolean normalMustStudy, String nam
     }
 
     public static Contingency fromPropertyBag(PropertyBag propertyBag) {
-        return new Contingency(propertyBag.getId(CsaProfileConstants.REQUEST_CONTINGENCY), Boolean.parseBoolean(propertyBag.get(CsaProfileConstants.REQUEST_CONTINGENCIES_NORMAL_MUST_STUDY)), propertyBag.getId(CsaProfileConstants.REQUEST_CONTINGENCIES_NAME), propertyBag.get(CsaProfileConstants.REQUEST_CONTINGENCIES_EQUIPMENT_OPERATOR));
+        return new Contingency(
+            propertyBag.getId(CsaProfileConstants.REQUEST_CONTINGENCY),
+            Boolean.parseBoolean(propertyBag.get(CsaProfileConstants.REQUEST_CONTINGENCIES_NORMAL_MUST_STUDY)),
+            propertyBag.getId(CsaProfileConstants.REQUEST_CONTINGENCIES_NAME),
+            propertyBag.get(CsaProfileConstants.REQUEST_CONTINGENCIES_EQUIPMENT_OPERATOR)
+        );
     }
 }

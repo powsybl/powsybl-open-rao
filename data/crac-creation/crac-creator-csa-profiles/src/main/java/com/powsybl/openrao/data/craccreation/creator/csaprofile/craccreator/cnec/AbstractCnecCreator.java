@@ -12,13 +12,12 @@ import com.powsybl.openrao.data.cracapi.cnec.CnecAdder;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileCracCreationContext;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileCracUtils;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileElementaryCreationContext;
-import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.cnec.nc.AssessedElement;
+import com.powsybl.openrao.data.craccreation.creator.csaprofile.nc.AssessedElement;
 import com.powsybl.openrao.data.craccreation.util.cgmes.CgmesBranchHelper;
 import com.powsybl.iidm.network.DanglingLine;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.TieLine;
-import com.powsybl.triplestore.api.PropertyBag;
 
 import java.util.List;
 import java.util.Optional;
@@ -32,18 +31,16 @@ public abstract class AbstractCnecCreator {
     protected final Network network;
     protected final AssessedElement nativeAssessedElement;
     protected final List<Contingency> linkedContingencies;
-    protected final PropertyBag operationalLimitPropertyBag;
     protected Set<CsaProfileElementaryCreationContext> csaProfileCnecCreationContexts;
     protected final CsaProfileCracCreationContext cracCreationContext;
     protected final String rejectedLinksAssessedElementContingency;
     protected final boolean aeSecuredForRegion;
     protected final boolean aeScannedForRegion;
 
-    protected AbstractCnecCreator(Crac crac, Network network, AssessedElement nativeAssessedElement, PropertyBag operationalLimitPropertyBag, List<Contingency> linkedContingencies, Set<CsaProfileElementaryCreationContext> csaProfileCnecCreationContexts, CsaProfileCracCreationContext cracCreationContext, String rejectedLinksAssessedElementContingency, boolean aeSecuredForRegion, boolean aeScannedForRegion) {
+    protected AbstractCnecCreator(Crac crac, Network network, AssessedElement nativeAssessedElement, List<Contingency> linkedContingencies, Set<CsaProfileElementaryCreationContext> csaProfileCnecCreationContexts, CsaProfileCracCreationContext cracCreationContext, String rejectedLinksAssessedElementContingency, boolean aeSecuredForRegion, boolean aeScannedForRegion) {
         this.crac = crac;
         this.network = network;
         this.nativeAssessedElement = nativeAssessedElement;
-        this.operationalLimitPropertyBag = operationalLimitPropertyBag;
         this.linkedContingencies = linkedContingencies;
         this.csaProfileCnecCreationContexts = csaProfileCnecCreationContexts;
         this.cracCreationContext = cracCreationContext;

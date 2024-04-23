@@ -9,6 +9,7 @@ package com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.rem
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileConstants;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileElementaryCreationContext;
+import com.powsybl.openrao.data.craccreation.creator.csaprofile.nc.AssessedElement;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
 
@@ -26,16 +27,16 @@ public class OnConstraintUsageRuleHelper {
     private final Map<String, Set<String>> includedCnecsByRemedialAction = new HashMap<>();
     private final Map<String, Set<String>> consideredCnecsByRemedialAction = new HashMap<>();
 
-    public OnConstraintUsageRuleHelper(Set<CsaProfileElementaryCreationContext> csaProfileCnecCreationContexts, PropertyBags assessedElements, PropertyBags assessedElementsWithRemedialAction) {
+    public OnConstraintUsageRuleHelper(Set<CsaProfileElementaryCreationContext> csaProfileCnecCreationContexts, Set<AssessedElement> nativeAssessedElements, PropertyBags assessedElementsWithRemedialAction) {
         this.csaProfileCnecCreationContexts = csaProfileCnecCreationContexts;
-        readAssessedElementsCombinableWithRemedialActions(assessedElements);
+        readAssessedElementsCombinableWithRemedialActions(nativeAssessedElements);
         readAssessedElementsWithRemedialAction(assessedElementsWithRemedialAction);
     }
 
-    private void readAssessedElementsCombinableWithRemedialActions(PropertyBags assessedElements) {
-        List<String> nativeIdsOfCnecsCombinableWithRas = assessedElements.stream()
-            .filter(element -> element.getId(CsaProfileConstants.REQUEST_ASSESSED_ELEMENT_IS_COMBINABLE_WITH_REMEDIAL_ACTION) != null && Boolean.parseBoolean(element.getId(CsaProfileConstants.REQUEST_ASSESSED_ELEMENT_IS_COMBINABLE_WITH_REMEDIAL_ACTION)))
-            .map(element -> element.getId(CsaProfileConstants.REQUEST_ASSESSED_ELEMENT)).toList();
+    private void readAssessedElementsCombinableWithRemedialActions(Set<AssessedElement> nativeAssessedElements) {
+        List<String> nativeIdsOfCnecsCombinableWithRas = nativeAssessedElements.stream()
+            .filter(AssessedElement::isCombinableWithRemedialAction)
+            .map(AssessedElement::identifier).toList();
         Map<String, Set<String>> nativeToOpenRaoCnecIdsCombinableWithRas = getImportedCnecsNativeIdsToOpenRaoIds();
         nativeToOpenRaoCnecIdsCombinableWithRas.keySet().retainAll(nativeIdsOfCnecsCombinableWithRas);
         nativeToOpenRaoCnecIdsCombinableWithRas.values().stream().flatMap(Set::stream).forEach(importedCnecsCombinableWithRas::add);

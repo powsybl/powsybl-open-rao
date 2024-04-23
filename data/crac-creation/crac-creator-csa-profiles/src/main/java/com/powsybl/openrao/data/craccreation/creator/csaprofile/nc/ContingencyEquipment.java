@@ -4,7 +4,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.contingency.nc;
+package com.powsybl.openrao.data.craccreation.creator.csaprofile.nc;
 
 import com.powsybl.iidm.network.DanglingLine;
 import com.powsybl.iidm.network.Identifiable;
@@ -48,6 +48,11 @@ public record ContingencyEquipment(String identifier, String contingency, String
     }
 
     public static ContingencyEquipment fromPropertyBag(PropertyBag propertyBag) {
-        return new ContingencyEquipment(propertyBag.get(CsaProfileConstants.REQUEST_CONTINGENCY_EQUIPMENT), propertyBag.getId(CsaProfileConstants.REQUEST_CONTINGENCY), propertyBag.get(CsaProfileConstants.REQUEST_CONTINGENCIES_CONTINGENT_STATUS), propertyBag.getId(CsaProfileConstants.REQUEST_CONTINGENCIES_EQUIPMENT_ID));
+        return new ContingencyEquipment(
+            propertyBag.get(CsaProfileConstants.REQUEST_CONTINGENCY_EQUIPMENT),
+            propertyBag.getId(CsaProfileConstants.REQUEST_CONTINGENCY),
+            propertyBag.get(CsaProfileConstants.REQUEST_CONTINGENCIES_CONTINGENT_STATUS),
+            propertyBag.getId(CsaProfileConstants.REQUEST_CONTINGENCIES_EQUIPMENT_ID)
+        );
     }
 }
