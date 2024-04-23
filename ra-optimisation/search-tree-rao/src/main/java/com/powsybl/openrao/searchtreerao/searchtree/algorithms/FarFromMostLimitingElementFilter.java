@@ -11,6 +11,7 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.CountryGraph;
 import com.powsybl.openrao.data.cracapi.networkaction.NetworkAction;
 import com.powsybl.openrao.searchtreerao.commons.NetworkActionCombination;
+import com.powsybl.openrao.searchtreerao.result.api.OptimizationResult;
 
 import java.util.HashSet;
 import java.util.Map;
@@ -41,12 +42,12 @@ public class FarFromMostLimitingElementFilter implements NetworkActionCombinatio
      * feature, and setting the number of boundaries allowed between the network action and the limiting element.
      * The most limiting elements are the most limiting functional cost element, and all elements with a non-zero virtual cost.
      */
-    public Map<NetworkActionCombination, Boolean> filter(Map<NetworkActionCombination, Boolean> naCombinations, Leaf fromLeaf) {
+    public Map<NetworkActionCombination, Boolean> filter(Map<NetworkActionCombination, Boolean> naCombinations, OptimizationResult optimizationResult) {
         if (!filterFarElements) {
             return naCombinations;
         }
 
-        Set<Optional<Country>> worstCnecLocation = getOptimizedMostLimitingElementsLocation(fromLeaf);
+        Set<Optional<Country>> worstCnecLocation = getOptimizedMostLimitingElementsLocation(optimizationResult);
 
         Map<NetworkActionCombination, Boolean> filteredNaCombinations = naCombinations.keySet().stream()
             .filter(naCombination -> naCombination.getNetworkActionSet().stream().anyMatch(na -> isNetworkActionCloseToLocations(na, worstCnecLocation, countryGraph)))
@@ -58,11 +59,11 @@ public class FarFromMostLimitingElementFilter implements NetworkActionCombinatio
         return filteredNaCombinations;
     }
 
-    Set<Optional<Country>> getOptimizedMostLimitingElementsLocation(Leaf leaf) {
+    Set<Optional<Country>> getOptimizedMostLimitingElementsLocation(OptimizationResult optimizationResult) {
         Set<Optional<Country>> locations = new HashSet<>();
-        leaf.getMostLimitingElements(1).forEach(element -> locations.addAll(element.getLocation(network)));
-        for (String virtualCost : leaf.getVirtualCostNames()) {
-            leaf.getCostlyElements(virtualCost, Integer.MAX_VALUE).forEach(element -> locations.addAll(element.getLocation(network)));
+        optimizationResult.getMostLimitingElements(1).forEach(element -> locations.addAll(element.getLocation(network)));
+        for (String virtualCost : optimizationResult.getVirtualCostNames()) {
+            optimizationResult.getCostlyElements(virtualCost, Integer.MAX_VALUE).forEach(element -> locations.addAll(element.getLocation(network)));
         }
         return locations;
     }

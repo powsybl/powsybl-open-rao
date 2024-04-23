@@ -9,6 +9,7 @@ package com.powsybl.openrao.searchtreerao.searchtree.algorithms;
 import com.powsybl.openrao.data.cracapi.RemedialAction;
 import com.powsybl.openrao.data.cracapi.State;
 import com.powsybl.openrao.searchtreerao.commons.NetworkActionCombination;
+import com.powsybl.openrao.searchtreerao.result.api.OptimizationResult;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -31,15 +32,15 @@ public class MaximumNumberOfTsosFilter implements NetworkActionCombinationFilter
         this.optimizedStateForNetworkActions = optimizedStateForNetworkActions;
     }
 
-    public Map<NetworkActionCombination, Boolean> filter(Map<NetworkActionCombination, Boolean> naCombinations, Leaf fromLeaf) {
+    public Map<NetworkActionCombination, Boolean> filter(Map<NetworkActionCombination, Boolean> naCombinations, OptimizationResult optimizationResult) {
 
-        Set<String> alreadyActivatedTsos = getTsosWithActivatedNetworkActions(fromLeaf);
+        Set<String> alreadyActivatedTsos = getTsosWithActivatedNetworkActions(optimizationResult);
         Map<NetworkActionCombination, Boolean> filteredNaCombinations = new HashMap<>();
         for (Map.Entry<NetworkActionCombination, Boolean> entry : naCombinations.entrySet()) {
             NetworkActionCombination naCombination = entry.getKey();
             if (!exceedMaxNumberOfTsos(naCombination, alreadyActivatedTsos)) {
                 Set<String> alreadyActivatedTsosWithRangeActions = new HashSet<>(alreadyActivatedTsos);
-                fromLeaf.getActivatedRangeActions(optimizedStateForNetworkActions)
+                optimizationResult.getActivatedRangeActions(optimizedStateForNetworkActions)
                     .stream().map(RemedialAction::getOperator)
                     .filter(Objects::nonNull)
                     .forEach(alreadyActivatedTsosWithRangeActions::add);
@@ -55,8 +56,8 @@ public class MaximumNumberOfTsosFilter implements NetworkActionCombinationFilter
         return filteredNaCombinations;
     }
 
-    Set<String> getTsosWithActivatedNetworkActions(Leaf leaf) {
-        return leaf.getActivatedNetworkActions().stream().map(RemedialAction::getOperator).filter(Objects::nonNull).collect(Collectors.toSet());
+    Set<String> getTsosWithActivatedNetworkActions(OptimizationResult optimizationResult) {
+        return optimizationResult.getActivatedNetworkActions().stream().map(RemedialAction::getOperator).filter(Objects::nonNull).collect(Collectors.toSet());
     }
 
     private boolean exceedMaxNumberOfTsos(NetworkActionCombination naCombination, Set<String> alreadyActivatedTsos) {

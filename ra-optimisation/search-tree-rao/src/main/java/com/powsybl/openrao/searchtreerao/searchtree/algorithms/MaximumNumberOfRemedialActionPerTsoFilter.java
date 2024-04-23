@@ -8,6 +8,7 @@ package com.powsybl.openrao.searchtreerao.searchtree.algorithms;
 
 import com.powsybl.openrao.data.cracapi.State;
 import com.powsybl.openrao.searchtreerao.commons.NetworkActionCombination;
+import com.powsybl.openrao.searchtreerao.result.api.OptimizationResult;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -38,9 +39,9 @@ public class MaximumNumberOfRemedialActionPerTsoFilter implements NetworkActionC
      * </ol>
      * If the first condition is not met for at least one TSO, the combination is not kept. If the second condition is not met for at least one TSO, the combination is kept but the range actions will be unapplied for the next optimization.
      */
-    public Map<NetworkActionCombination, Boolean> filter(Map<NetworkActionCombination, Boolean> naCombinations, Leaf fromLeaf) {
+    public Map<NetworkActionCombination, Boolean> filter(Map<NetworkActionCombination, Boolean> naCombinations, OptimizationResult optimizationResult) {
         Map<NetworkActionCombination, Boolean> filteredNaCombinations = new HashMap<>();
-        Map<String, Integer> maxNaPerTso = getMaxNetworkActionPerTso(fromLeaf);
+        Map<String, Integer> maxNaPerTso = getMaxNetworkActionPerTso(optimizationResult);
         for (Map.Entry<NetworkActionCombination, Boolean> entry : naCombinations.entrySet()) {
             NetworkActionCombination naCombination = entry.getKey();
             Set<String> operators = naCombination.getOperators();
@@ -48,8 +49,8 @@ public class MaximumNumberOfRemedialActionPerTsoFilter implements NetworkActionC
             boolean removeRangeActions = false;
             for (String tso : operators) {
                 int naCombinationSize = (int) naCombination.getNetworkActionSet().stream().filter(networkAction -> tso.equals(networkAction.getOperator())).count();
-                int numberOfAlreadyActivatedRangeActionsForTso = (int) fromLeaf.getActivatedRangeActions(optimizedStateForNetworkActions).stream().filter(ra -> tso.equals(ra.getOperator())).count();
-                int numberOfAlreadyAppliedNetworkActionsForTso = (int) fromLeaf.getActivatedNetworkActions().stream().filter(na -> tso.equals(na.getOperator())).count();
+                int numberOfAlreadyActivatedRangeActionsForTso = (int) optimizationResult.getActivatedRangeActions(optimizedStateForNetworkActions).stream().filter(ra -> tso.equals(ra.getOperator())).count();
+                int numberOfAlreadyAppliedNetworkActionsForTso = (int) optimizationResult.getActivatedNetworkActions().stream().filter(na -> tso.equals(na.getOperator())).count();
                 // The number of already applied network actions is taken in account in getMaxNetworkActionPerTso
                 if (naCombinationSize > maxNaPerTso.getOrDefault(tso, Integer.MAX_VALUE)) {
                     naShouldBeKept = false;
@@ -74,7 +75,7 @@ public class MaximumNumberOfRemedialActionPerTsoFilter implements NetworkActionC
      * This function computes the allowed number of network actions for each TSO, as the minimum between the given
      * parameter and the maximum number of RA reduced by the number of remedial actions already used
      */
-    private Map<String, Integer> getMaxNetworkActionPerTso(Leaf fromLeaf) {
+    private Map<String, Integer> getMaxNetworkActionPerTso(OptimizationResult optimizationResult) {
         Map<String, Integer> updatedMaxTopoPerTso = new HashMap<>();
 
         // get set of all TSOs considered in the max number of RA limitation
@@ -83,7 +84,7 @@ public class MaximumNumberOfRemedialActionPerTsoFilter implements NetworkActionC
 
         // get max number of network action which can still be activated, per Tso
         tsos.forEach(tso -> {
-            int activatedTopoForTso = (int) fromLeaf.getActivatedNetworkActions().stream().filter(networkAction -> tso.equals(networkAction.getOperator())).count();
+            int activatedTopoForTso = (int) optimizationResult.getActivatedNetworkActions().stream().filter(networkAction -> tso.equals(networkAction.getOperator())).count();
 
             int limitationDueToMaxRa = maxRaPerTso.getOrDefault(tso, Integer.MAX_VALUE) - activatedTopoForTso;
             int limitationDueToMaxTopo = maxTopoPerTso.getOrDefault(tso, Integer.MAX_VALUE) - activatedTopoForTso;

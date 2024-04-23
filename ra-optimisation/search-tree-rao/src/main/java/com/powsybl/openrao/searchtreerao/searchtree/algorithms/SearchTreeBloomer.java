@@ -29,7 +29,7 @@ public final class SearchTreeBloomer {
         this.networkActionCombinationFilters = List.of(
             new AlreadyAppliedNetworkActionsFilter(),
             new AlreadyTestedCombinationsFilter(preDefinedNaCombinations),
-            new MaximumNumberOfRemedialActionsFilter(raUsageLimits.getMaxRa()),
+            new MaximumNumberOfRemedialActionsFilter(raUsageLimits.getMaxRa(), input.getOptimizationPerimeter().getMainOptimizationState()),
             new MaximumNumberOfRemedialActionPerTsoFilter(raUsageLimits.getMaxTopoPerTso(), raUsageLimits.getMaxRaPerTso(), input.getOptimizationPerimeter().getMainOptimizationState()),
             new MaximumNumberOfTsosFilter(raUsageLimits.getMaxTso(), input.getOptimizationPerimeter().getMainOptimizationState()),
             new FarFromMostLimitingElementFilter(input.getNetwork(), parameters.getNetworkActionParameters().skipNetworkActionFarFromMostLimitingElements(), parameters.getNetworkActionParameters().getMaxNumberOfBoundariesForSkippingNetworkActions())

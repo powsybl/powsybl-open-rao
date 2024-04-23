@@ -6,7 +6,9 @@
  */
 package com.powsybl.openrao.searchtreerao.searchtree.algorithms;
 
+import com.powsybl.openrao.data.cracapi.State;
 import com.powsybl.openrao.searchtreerao.commons.NetworkActionCombination;
+import com.powsybl.openrao.searchtreerao.result.api.OptimizationResult;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -19,9 +21,11 @@ import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.TECHNICAL_L
 public class MaximumNumberOfRemedialActionsFilter implements NetworkActionCombinationFilter {
 
     private final int maxRa;
+    private final State optimizedStateForNetworkActions;
 
-    public MaximumNumberOfRemedialActionsFilter(int maxRa) {
+    public MaximumNumberOfRemedialActionsFilter(int maxRa, State optimizedStateForNetworkActions) {
         this.maxRa = maxRa;
+        this.optimizedStateForNetworkActions = optimizedStateForNetworkActions;
     }
 
     /**
@@ -32,14 +36,14 @@ public class MaximumNumberOfRemedialActionsFilter implements NetworkActionCombin
      * </ol>
      * If the first condition is not met, the combination is not kept. If the second condition is not met, the combination is kept but the range actions will be unapplied for the next optimization.
      */
-    public Map<NetworkActionCombination, Boolean> filter(Map<NetworkActionCombination, Boolean> naCombinations, Leaf fromLeaf) {
+    public Map<NetworkActionCombination, Boolean> filter(Map<NetworkActionCombination, Boolean> naCombinations, OptimizationResult optimizationResult) {
         Map<NetworkActionCombination, Boolean> filteredNaCombinations = new HashMap<>();
         for (Map.Entry<NetworkActionCombination, Boolean> entry : naCombinations.entrySet()) {
             NetworkActionCombination naCombination = entry.getKey();
             int naCombinationSize = naCombination.getNetworkActionSet().size();
-            int alreadyActivatedNetworkActionsSize = fromLeaf.getActivatedNetworkActions().size();
+            int alreadyActivatedNetworkActionsSize = optimizationResult.getActivatedNetworkActions().size();
             if (naCombinationSize + alreadyActivatedNetworkActionsSize <= maxRa) {
-                boolean removeRangeActions = alreadyActivatedNetworkActionsSize + fromLeaf.getNumberOfActivatedRangeActions() + naCombinationSize > maxRa;
+                boolean removeRangeActions = alreadyActivatedNetworkActionsSize + optimizationResult.getActivatedRangeActions(optimizedStateForNetworkActions).size() + naCombinationSize > maxRa;
                 filteredNaCombinations.put(naCombination, removeRangeActions || naCombinations.get(naCombination));
             }
         }

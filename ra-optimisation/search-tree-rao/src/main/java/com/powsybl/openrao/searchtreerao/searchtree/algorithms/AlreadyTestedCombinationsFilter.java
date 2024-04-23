@@ -8,6 +8,7 @@ package com.powsybl.openrao.searchtreerao.searchtree.algorithms;
 
 import com.powsybl.openrao.data.cracapi.networkaction.NetworkAction;
 import com.powsybl.openrao.searchtreerao.commons.NetworkActionCombination;
+import com.powsybl.openrao.searchtreerao.result.api.OptimizationResult;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,7 +32,7 @@ public class AlreadyTestedCombinationsFilter implements NetworkActionCombination
      * no need to bloom on ra2. If the remedial action ra2 was relevant, the combination ra1+ra2 would have been
      * already selected in the previous depths.
      */
-    public Map<NetworkActionCombination, Boolean> filter(Map<NetworkActionCombination, Boolean> naCombinations, Leaf fromLeaf) {
+    public Map<NetworkActionCombination, Boolean> filter(Map<NetworkActionCombination, Boolean> naCombinations, OptimizationResult optimizationResult) {
         List<NetworkAction> alreadyTestedNetworkActions = new ArrayList<>();
 
         for (NetworkActionCombination preDefinedCombination : preDefinedNaCombinations) {
@@ -41,7 +42,7 @@ public class AlreadyTestedCombinationsFilter implements NetworkActionCombination
 
             // elements of the combination which have not been activated yet
             List<NetworkAction> notTestedNaInCombination = preDefinedCombination.getNetworkActionSet().stream()
-                .filter(na -> !fromLeaf.getActivatedNetworkActions().contains(na))
+                .filter(na -> !optimizationResult.getActivatedNetworkActions().contains(na))
                 .toList();
 
             // if all the actions of the combinations have been selected but one, there is no need
