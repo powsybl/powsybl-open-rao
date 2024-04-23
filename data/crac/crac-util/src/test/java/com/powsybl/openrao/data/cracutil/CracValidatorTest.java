@@ -228,4 +228,33 @@ class CracValidatorTest {
         CracValidator.validateCrac(crac, network);
         assertEquals(3, crac.getFlowCnecs().size());
     }
+
+    @Test
+    void testDuplicateCnecsWithOnFlowConstraints() {
+        crac.newNetworkAction()
+            .withId("network-action-1")
+            .newTopologicalAction().withNetworkElement("FFR2AA1  FFR3AA1  1").withActionType(ActionType.OPEN).add()
+            .newOnFlowConstraintUsageRule().withFlowCnec("auto-cnec-1").withInstant(AUTO_INSTANT_ID).withUsageMethod(UsageMethod.FORCED).add()
+            .add();
+
+        CracValidator.validateCrac(crac, network);
+        assertEquals(4, crac.getFlowCnecs().size());
+        assertNull(crac.getFlowCnec("auto-cnec-1 - OUTAGE DUPLICATE"));
+        assertNotNull(crac.getFlowCnec("auto-cnec-2 - OUTAGE DUPLICATE"));
+    }
+
+    @Test
+    void testDuplicateCnecsWithOnFlowConstraintInCountries() {
+        crac.newNetworkAction()
+            .withId("network-action-1")
+            .newTopologicalAction().withNetworkElement("FFR2AA1  FFR3AA1  1").withActionType(ActionType.OPEN).add()
+            .newOnFlowConstraintInCountryUsageRule().withCountry(Country.BE).withInstant(AUTO_INSTANT_ID).withUsageMethod(UsageMethod.FORCED).add()
+            .add();
+
+        CracValidator.validateCrac(crac, network);
+        assertEquals(4, crac.getFlowCnecs().size());
+        assertNull(crac.getFlowCnec("auto-cnec-1 - OUTAGE DUPLICATE"));
+        assertNotNull(crac.getFlowCnec("auto-cnec-2 - OUTAGE DUPLICATE"));
+        assertNull(crac.getFlowCnec("auto-cnec-3 - OUTAGE DUPLICATE"));
+    }
 }

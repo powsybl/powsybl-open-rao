@@ -16,6 +16,7 @@ import com.powsybl.openrao.data.cracapi.usagerule.*;
 import com.powsybl.iidm.network.Network;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -57,8 +58,12 @@ public final class CracValidator {
             return;
         }
         // Find CNECs with no useful RA and duplicate them on outage instant
+        Set<RemedialAction<?>> remedialActions = new HashSet<>();
+        remedialActions.addAll(crac.getPotentiallyAvailableRangeActions(state));
+        remedialActions.addAll(crac.getPotentiallyAvailableNetworkActions(state));
+
         crac.getFlowCnecs(state).stream()
-            .filter(cnec -> crac.getRemedialActions().stream().noneMatch(ra -> isRaUsefulForCnec(ra, cnec, network)))
+            .filter(cnec -> shouldDuplicateAutoCnecInOutageState(remedialActions, cnec, network))
             .forEach(cnec -> {
                 duplicateCnecOnOutageInstant(crac, cnec);
                 report.add(String.format("CNEC \"%s\" has no associated automaton. It will be cloned on the OUTAGE instant in order to be secured during preventive RAO.", cnec.getId()));
@@ -112,36 +117,45 @@ public final class CracValidator {
         );
     }
 
-    private static boolean isRaUsefulForCnec(RemedialAction<?> ra, FlowCnec cnec, Network network) {
-        if (ra.getUsageMethod(cnec.getState()).equals(UsageMethod.FORCED) || ra.getUsageMethod(cnec.getState()).equals(UsageMethod.AVAILABLE)) {
-            return ra.getUsageRules().stream()
-                .filter(usageRule -> usageRule instanceof OnInstant || usageRule instanceof OnContingencyState)
-                .anyMatch(usageRule -> usageRule.getInstant().equals(cnec.getState().getInstant()))
-                ||
-                ra.getUsageRules().stream()
-                .filter(OnFlowConstraint.class::isInstance)
-                .map(OnFlowConstraint.class::cast)
-                .anyMatch(ofc -> isOfcUsefulForCnec(ofc, cnec))
-                ||
-                ra.getUsageRules().stream()
-                    .filter(OnFlowConstraintInCountry.class::isInstance)
-                    .map(OnFlowConstraintInCountry.class::cast)
-                    .anyMatch(ofc -> isOfccUsefulForCnec(ofc, cnec, network));
+    /**
+     * Indicates whether an auto FlowCNEC should be duplicated in the outage state or not.
+     * A FlowCNEC must be duplicated if no auto remedial action can act on it, leaving only the preventive remedial
+     * actions to possibly reduce the flow which means that the CNEC should be added to the preventive perimeter.
+     * <p/>
+     * This CNEC must however be kept in the auto instant because an overload on this line may be the triggering
+     * condition of auto remedial actions that can affect other FlowCNECs of the same state.
+     * <p/>
+     * If no auto remedial action affects the CNEC and the CNEC does not trigger any auto remedial action, there is no
+     * need to duplicate it because this means that no auto remedial action is available for this auto state at all.
+     * In this case, the StateTree algorithm will automatically include all the CNECs from the state to the preventive perimeter.
+     * @param remedialActions The set of remedial actions that may affect the CNEC
+     * @param flowCnec The FlowCNEC to possibly duplicate
+     * @param network The network
+     * @return Boolean value that indicates whether the CNEC should be duplicate in the outage state or not
+     */
+    private static boolean shouldDuplicateAutoCnecInOutageState(Set<RemedialAction<?>> remedialActions, FlowCnec flowCnec, Network network) {
+        boolean raForOtherCnecs = false;
+        for (RemedialAction<?> remedialAction : remedialActions) {
+            for (UsageRule usageRule : remedialAction.getUsageRules()) {
+                if (usageRule instanceof OnInstant onInstant && onInstant.getInstant().equals(flowCnec.getState().getInstant())) {
+                    return false;
+                } else if (usageRule instanceof OnContingencyState onContingencyState && onContingencyState.getState().equals(flowCnec.getState())) {
+                    return false;
+                } else if (usageRule instanceof OnFlowConstraint onFlowConstraint && onFlowConstraint.getFlowCnec().getState().equals(flowCnec.getState())) {
+                    if (onFlowConstraint.getFlowCnec().equals(flowCnec)) {
+                        return false;
+                    } else {
+                        raForOtherCnecs = true;
+                    }
+                } else if (usageRule instanceof OnFlowConstraintInCountry onFlowConstraintInCountry && onFlowConstraintInCountry.getInstant().equals(flowCnec.getState().getInstant())) {
+                    if (flowCnec.getLocation(network).contains(Optional.of(onFlowConstraintInCountry.getCountry()))) {
+                        return false;
+                    } else {
+                        raForOtherCnecs = true;
+                    }
+                }
+            }
         }
-        return false;
-    }
-
-    /**
-     * Returns true if a given OnFlowConstraint usage rule is applicable for a given FlowCnec
-     */
-    private static boolean isOfcUsefulForCnec(OnFlowConstraint ofc, FlowCnec cnec) {
-        return ofc.getFlowCnec().equals(cnec);
-    }
-
-    /**
-     * Returns true if a given OnFlowConstraintInCountry usage rule is applicable for a given FlowCnec
-     */
-    private static boolean isOfccUsefulForCnec(OnFlowConstraintInCountry ofcc, FlowCnec cnec, Network network) {
-        return cnec.getLocation(network).contains(Optional.of(ofcc.getCountry()));
+        return raForOtherCnecs;
     }
 }
