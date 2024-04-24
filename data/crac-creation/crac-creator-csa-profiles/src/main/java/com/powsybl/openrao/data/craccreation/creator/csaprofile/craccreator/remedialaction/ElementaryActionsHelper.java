@@ -9,6 +9,7 @@ package com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.rem
 import com.powsybl.openrao.data.craccreation.creator.api.ImportStatus;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileConstants;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileCracUtils;
+import com.powsybl.openrao.data.craccreation.creator.csaprofile.nc.RemedialActionGroup;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.nc.RotatingMachineAction;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.nc.ShuntCompensatorModification;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.nc.StaticPropertyRange;
@@ -28,7 +29,7 @@ import java.util.Set;
  * @author Mohamed Ben-rejeb {@literal <mohamed.ben-rejeb at rte-france.com>}
  */
 public class ElementaryActionsHelper {
-    private final PropertyBags remedialActionGroupsPropertyBags;
+    private final Set<RemedialActionGroup> nativeRemedialActionGroups;
     private final PropertyBags gridStateAlterationRemedialActionPropertyBags;
     private final PropertyBags schemeRemedialActionsPropertyBags;
     private final PropertyBags remedialActionSchemePropertyBags;
@@ -59,9 +60,9 @@ public class ElementaryActionsHelper {
                                    Set<RotatingMachineAction> nativeRotatingMachineActions,
                                    Set<ShuntCompensatorModification> nativeShuntCompensatorModifications,
                                    Set<TapPositionAction> nativeTapPositionActions,
-                                   PropertyBags remedialActionGroupsPropertyBags,
+                                   Set<RemedialActionGroup> nativeRemedialActionGroups,
                                    PropertyBags remedialActionDependenciesPropertyBags) {
-        this.remedialActionGroupsPropertyBags = remedialActionGroupsPropertyBags;
+        this.nativeRemedialActionGroups = nativeRemedialActionGroups;
         this.gridStateAlterationRemedialActionPropertyBags = gridStateAlterationRemedialActionPropertyBags;
         this.schemeRemedialActionsPropertyBags = schemeRemedialActionsPropertyBags;
         this.remedialActionSchemePropertyBags = remedialActionSchemePropertyBags;
@@ -147,8 +148,8 @@ public class ElementaryActionsHelper {
         return remedialActionDependenciesByGroup;
     }
 
-    public PropertyBags getRemedialActionGroupsPropertyBags() {
-        return remedialActionGroupsPropertyBags;
+    public Set<RemedialActionGroup> getRemedialActionGroupsPropertyBags() {
+        return nativeRemedialActionGroups;
     }
 
     public Map<String, Set<StaticPropertyRange>> getNativeStaticPropertyRangesPerNativeGridStateAlteration() {

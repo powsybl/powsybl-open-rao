@@ -16,6 +16,7 @@ import com.powsybl.openrao.data.craccreation.creator.csaprofile.nc.AssessedEleme
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.nc.AssessedElementWithContingency;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.nc.Contingency;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.nc.ContingencyEquipment;
+import com.powsybl.openrao.data.craccreation.creator.csaprofile.nc.RemedialActionGroup;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.nc.RotatingMachineAction;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.nc.ShuntCompensatorModification;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.nc.StaticPropertyRange;
@@ -179,8 +180,8 @@ public class CsaProfileCrac implements NativeCrac {
         return getPropertyBags(CsaProfileConstants.REQUEST_SCHEME_REMEDIAL_ACTION, CsaProfileConstants.CsaProfileKeywords.REMEDIAL_ACTION.toString());
     }
 
-    public PropertyBags getRemedialActionGroups() {
-        return getPropertyBags(CsaProfileConstants.REQUEST_REMEDIAL_ACTION_GROUP, CsaProfileConstants.CsaProfileKeywords.REMEDIAL_ACTION.toString());
+    public Set<RemedialActionGroup> getRemedialActionGroups() {
+        return getPropertyBags(CsaProfileConstants.REQUEST_REMEDIAL_ACTION_GROUP, CsaProfileConstants.CsaProfileKeywords.REMEDIAL_ACTION.toString()).stream().map(RemedialActionGroup::fromPropertyBag).collect(Collectors.toSet());
 
     }
 
