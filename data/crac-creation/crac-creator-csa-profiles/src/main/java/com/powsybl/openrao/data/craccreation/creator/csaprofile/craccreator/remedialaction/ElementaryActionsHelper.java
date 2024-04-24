@@ -9,6 +9,7 @@ package com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.rem
 import com.powsybl.openrao.data.craccreation.creator.api.ImportStatus;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileConstants;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileCracUtils;
+import com.powsybl.openrao.data.craccreation.creator.csaprofile.nc.RemedialActionDependency;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.nc.RemedialActionGroup;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.nc.RotatingMachineAction;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.nc.ShuntCompensatorModification;
@@ -36,7 +37,7 @@ public class ElementaryActionsHelper {
     private final PropertyBags stagePropertyBags;
     private final PropertyBags gridStateAlterationCollectionPropertyBags;
     private final PropertyBags assessedElementWithRemedialActionPropertyBags;
-    private final Map<String, Set<PropertyBag>> remedialActionDependenciesByGroup;
+    private final Map<String, Set<RemedialActionDependency>> nativeRemedialActionDependencyPerNativeRemedialActionGroup;
     private final Map<String, Set<TopologyAction>> nativeTopologyActionsPerNativeRemedialAction;
     private final Map<String, Set<TopologyAction>> nativeTopologyActionsPerNativeRemedialActionAuto;
     private final Map<String, Set<RotatingMachineAction>> nativeRotatingMachineActionsPerNativeRemedialAction;
@@ -61,7 +62,7 @@ public class ElementaryActionsHelper {
                                    Set<ShuntCompensatorModification> nativeShuntCompensatorModifications,
                                    Set<TapPositionAction> nativeTapPositionActions,
                                    Set<RemedialActionGroup> nativeRemedialActionGroups,
-                                   PropertyBags remedialActionDependenciesPropertyBags) {
+                                   Set<RemedialActionDependency> nativeRemedialActionDependency) {
         this.nativeRemedialActionGroups = nativeRemedialActionGroups;
         this.gridStateAlterationRemedialActionPropertyBags = gridStateAlterationRemedialActionPropertyBags;
         this.schemeRemedialActionsPropertyBags = schemeRemedialActionsPropertyBags;
@@ -70,7 +71,7 @@ public class ElementaryActionsHelper {
         this.gridStateAlterationCollectionPropertyBags = gridStateAlterationCollectionPropertyBags;
         this.assessedElementWithRemedialActionPropertyBags = assessedElementWithRemedialActionPropertyBags;
 
-        this.remedialActionDependenciesByGroup = CsaProfileCracUtils.getMappedPropertyBagsSet(remedialActionDependenciesPropertyBags, CsaProfileConstants.DEPENDING_REMEDIAL_ACTION_GROUP);
+        this.nativeRemedialActionDependencyPerNativeRemedialActionGroup = mapRemedialActionDependenciesToRemedialActionGroups(nativeRemedialActionDependency);
 
         this.linkedContingencyWithRAs = CsaProfileCracUtils.getMappedPropertyBagsSet(contingencyWithRemedialActionsPropertyBags, CsaProfileConstants.GRID_STATE_ALTERATION_REMEDIAL_ACTION);
         this.nativeStaticPropertyRangesPerNativeGridStateAlteration = mapStaticPropertyRangesToGridStateAlterations(nativeStaticPropertyRanges); // the id here is the id of the subclass of gridStateAlteration (tapPositionAction, RotatingMachine, ..)
@@ -144,8 +145,17 @@ public class ElementaryActionsHelper {
         return tapPositionActionPerRemedialAction;
     }
 
-    public Map<String, Set<PropertyBag>> getRemedialActionDependenciesByGroup() {
-        return remedialActionDependenciesByGroup;
+    private Map<String, Set<RemedialActionDependency>> mapRemedialActionDependenciesToRemedialActionGroups(Set<RemedialActionDependency> nativeRemedialActionDependencies) {
+        Map<String, Set<RemedialActionDependency>> remedialActionDependenciesPerRemedialActionGroup = new HashMap<>();
+        for (RemedialActionDependency nativeRemedialActionDependency : nativeRemedialActionDependencies) {
+            Set<RemedialActionDependency> remedialActionDependencies = remedialActionDependenciesPerRemedialActionGroup.computeIfAbsent(nativeRemedialActionDependency.dependingRemedialActionGroup(), k -> new HashSet<>());
+            remedialActionDependencies.add(nativeRemedialActionDependency);
+        }
+        return remedialActionDependenciesPerRemedialActionGroup;
+    }
+
+    public Map<String, Set<RemedialActionDependency>> getNativeRemedialActionDependencyPerNativeRemedialActionGroup() {
+        return nativeRemedialActionDependencyPerNativeRemedialActionGroup;
     }
 
     public Set<RemedialActionGroup> getRemedialActionGroupsPropertyBags() {
