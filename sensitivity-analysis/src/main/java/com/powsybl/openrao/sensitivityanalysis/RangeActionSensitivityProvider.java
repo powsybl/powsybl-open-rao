@@ -89,7 +89,7 @@ public class RangeActionSensitivityProvider extends LoadflowProvider {
             } else if (ra instanceof InjectionRangeAction injectionRangeAction) {
                 createPositiveAndNegativeGlsks(injectionRangeAction, sensitivityVariables, glskIds);
             } else if (ra instanceof CounterTradeRangeAction counterTradeRangeAction) {
-                TECHNICAL_LOGS.debug("Unable to compute sensitivity for CounterTradeRangeAction. ({})", counterTradeRangeAction.getId());
+                TECHNICAL_LOGS.warn("Unable to compute sensitivity for CounterTradeRangeAction. ({})", counterTradeRangeAction.getId());
             } else {
                 throw new OpenRaoException(String.format("Range action type of %s not implemented yet", ra.getId()));
             }
