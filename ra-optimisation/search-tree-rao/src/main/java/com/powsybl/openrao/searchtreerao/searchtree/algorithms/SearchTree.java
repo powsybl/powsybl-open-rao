@@ -200,8 +200,8 @@ public class SearchTree {
      */
     private void updateOptimalLeafWithNextDepthBestLeaf(AbstractNetworkPool networkPool) throws InterruptedException {
 
-        TreeMap<NetworkActionCombination, Boolean> naCombinationsSorted = new TreeMap<>(this::deterministicNetworkActionCombinationComparison);
-        naCombinationsSorted.putAll(bloomer.bloom(optimalLeaf, input.getOptimizationPerimeter().getNetworkActions()));
+        TreeSet<NetworkActionCombination> naCombinationsSorted = new TreeSet<>(this::deterministicNetworkActionCombinationComparison);
+        naCombinationsSorted.addAll(bloomer.bloom(optimalLeaf, input.getOptimizationPerimeter().getNetworkActions()));
         int numberOfCombinations = naCombinationsSorted.size();
 
         networkPool.initClones(numberOfCombinations);
@@ -212,8 +212,8 @@ public class SearchTree {
             TECHNICAL_LOGS.info("Leaves to evaluate: {}", numberOfCombinations);
         }
         AtomicInteger remainingLeaves = new AtomicInteger(numberOfCombinations);
-        List<ForkJoinTask<Object>> tasks = naCombinationsSorted.keySet().stream().map(naCombination ->
-            networkPool.submit(() -> optimizeOneLeaf(networkPool, naCombination, naCombinationsSorted, remainingLeaves))
+        List<ForkJoinTask<Object>> tasks = naCombinationsSorted.stream().map(naCombination ->
+            networkPool.submit(() -> optimizeOneLeaf(networkPool, naCombination, remainingLeaves))
         ).toList();
         for (ForkJoinTask<Object> task : tasks) {
             try {
@@ -224,11 +224,11 @@ public class SearchTree {
         }
     }
 
-    private Object optimizeOneLeaf(AbstractNetworkPool networkPool, NetworkActionCombination naCombination, TreeMap<NetworkActionCombination, Boolean> naCombinationsSorted, AtomicInteger remainingLeaves) throws InterruptedException {
+    private Object optimizeOneLeaf(AbstractNetworkPool networkPool, NetworkActionCombination naCombination, AtomicInteger remainingLeaves) throws InterruptedException {
         Network networkClone = networkPool.getAvailableNetwork(); //This is where the threads actually wait for available networks
         try {
             if (combinationFulfillingStopCriterion.isEmpty() || deterministicNetworkActionCombinationComparison(naCombination, combinationFulfillingStopCriterion.get()) < 0) {
-                boolean shouldRangeActionBeRemoved = naCombinationsSorted.get(naCombination);
+                boolean shouldRangeActionBeRemoved = bloomer.shouldRangeActionsBeRemovedToApplyNa(naCombination, optimalLeaf);
                 if (shouldRangeActionBeRemoved) {
                     // Remove parentLeaf range actions to respect every maxRa or maxOperator limitation
                     input.getOptimizationPerimeter().getRangeActions().forEach(ra ->
@@ -254,6 +254,10 @@ public class SearchTree {
         TECHNICAL_LOGS.info("Remaining leaves to evaluate: {}", remainingLeaves.decrementAndGet());
         networkPool.releaseUsedNetwork(networkClone);
         return null;
+    }
+
+    private static boolean rangeActionsShouldBeRemoved(NetworkActionCombination naCombination) {
+        return true;
     }
 
     int deterministicNetworkActionCombinationComparison(NetworkActionCombination ra1, NetworkActionCombination ra2) {

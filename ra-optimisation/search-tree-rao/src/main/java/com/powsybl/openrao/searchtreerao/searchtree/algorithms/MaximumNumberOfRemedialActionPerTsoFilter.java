@@ -71,6 +71,32 @@ public class MaximumNumberOfRemedialActionPerTsoFilter implements NetworkActionC
         return filteredNaCombinations;
     }
 
+    public Set<NetworkActionCombination> filterCombinations(Set<NetworkActionCombination> naCombinations, OptimizationResult optimizationResult) {
+        Set<NetworkActionCombination> filteredNaCombinations = new HashSet<>();
+        Map<String, Integer> maxNaPerTso = getMaxNetworkActionPerTso(optimizationResult);
+        for (NetworkActionCombination naCombination : naCombinations) {
+            Set<String> operators = naCombination.getOperators();
+            boolean naShouldBeKept = true;
+            for (String tso : operators) {
+                int naCombinationSize = (int) naCombination.getNetworkActionSet().stream().filter(networkAction -> tso.equals(networkAction.getOperator())).count();
+                // The number of already applied network actions is taken in account in getMaxNetworkActionPerTso
+                if (naCombinationSize > maxNaPerTso.getOrDefault(tso, Integer.MAX_VALUE)) {
+                    naShouldBeKept = false;
+                    break;
+                }
+            }
+            if (naShouldBeKept) {
+                filteredNaCombinations.add(naCombination);
+            }
+        }
+
+        if (naCombinations.size() > filteredNaCombinations.size()) {
+            TECHNICAL_LOGS.info("{} network action combinations have been filtered out because the maximum number of network actions for their TSO has been reached", naCombinations.size() - filteredNaCombinations.size());
+        }
+
+        return filteredNaCombinations;
+    }
+
     /**
      * This function computes the allowed number of network actions for each TSO, as the minimum between the given
      * parameter and the maximum number of RA reduced by the number of remedial actions already used

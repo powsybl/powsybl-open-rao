@@ -37,10 +37,10 @@ class SearchTreeBloomerTest {
         SearchTreeBloomer bloomer = initBloomer(List.of(new NetworkActionCombination(Set.of(na2), true)));
         Leaf leaf = Mockito.mock(Leaf.class);
         Mockito.when(leaf.getActivatedNetworkActions()).thenReturn(Collections.emptySet());
-        Map<NetworkActionCombination, Boolean> result = bloomer.bloom(leaf, Set.of(na1, na2));
-        assertEquals(2, result.size());
-        assertTrue(result.keySet().stream().anyMatch(naCombi -> naCombi.getNetworkActionSet().size() == 1 && naCombi.getNetworkActionSet().contains(na1)));
-        assertTrue(result.keySet().stream().anyMatch(naCombi -> naCombi.getNetworkActionSet().size() == 1 && naCombi.getNetworkActionSet().contains(na2)));
+        Set<NetworkActionCombination> bloomResults = bloomer.bloom(leaf, Set.of(na1, na2));
+        assertEquals(2, bloomResults.size());
+        assertTrue(bloomResults.stream().anyMatch(naCombi -> naCombi.getNetworkActionSet().size() == 1 && naCombi.getNetworkActionSet().contains(na1)));
+        assertTrue(bloomResults.stream().anyMatch(naCombi -> naCombi.getNetworkActionSet().size() == 1 && naCombi.getNetworkActionSet().contains(na2)));
     }
 
     @Test
@@ -53,8 +53,8 @@ class SearchTreeBloomerTest {
         SearchTreeBloomer bloomer = initBloomer(List.of(new NetworkActionCombination(Set.of(na1, na2), false), new NetworkActionCombination(Set.of(na1, na2), false), new NetworkActionCombination(Set.of(na1, na2), true)));
         Leaf leaf = Mockito.mock(Leaf.class);
         Mockito.when(leaf.getActivatedNetworkActions()).thenReturn(Collections.emptySet());
-        Map<NetworkActionCombination, Boolean> result = bloomer.bloom(leaf, Set.of(na1, na2));
-        assertEquals(4, result.size());
+        Set<NetworkActionCombination> bloomResults = bloomer.bloom(leaf, Set.of(na1, na2));
+        assertEquals(4, bloomResults.size());
     }
 
     private SearchTreeBloomer initBloomer(List<NetworkActionCombination> naCombinations) {

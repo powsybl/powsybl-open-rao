@@ -59,6 +59,23 @@ public class FarFromMostLimitingElementFilter implements NetworkActionCombinatio
         return filteredNaCombinations;
     }
 
+    public Set<NetworkActionCombination> filterCombinations(Set<NetworkActionCombination> naCombinations, OptimizationResult optimizationResult) {
+        if (!filterFarElements) {
+            return naCombinations;
+        }
+
+        Set<Optional<Country>> worstCnecLocation = getOptimizedMostLimitingElementsLocation(optimizationResult);
+
+        Set<NetworkActionCombination> filteredNaCombinations = naCombinations.stream()
+            .filter(naCombination -> naCombination.getNetworkActionSet().stream().anyMatch(na -> isNetworkActionCloseToLocations(na, worstCnecLocation, countryGraph)))
+            .collect(Collectors.toSet());
+
+        if (naCombinations.size() > filteredNaCombinations.size()) {
+            TECHNICAL_LOGS.info("{} network action combinations have been filtered out because they are too far from the most limiting element", naCombinations.size() - filteredNaCombinations.size());
+        }
+        return filteredNaCombinations;
+    }
+
     Set<Optional<Country>> getOptimizedMostLimitingElementsLocation(OptimizationResult optimizationResult) {
         Set<Optional<Country>> locations = new HashSet<>();
         optimizationResult.getMostLimitingElements(1).forEach(element -> locations.addAll(element.getLocation(network)));

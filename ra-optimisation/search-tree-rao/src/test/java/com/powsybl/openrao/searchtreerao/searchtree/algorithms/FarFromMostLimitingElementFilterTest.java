@@ -48,7 +48,7 @@ import static org.mockito.Mockito.mock;
  */
 class FarFromMostLimitingElementFilterTest {
     @Test
-    void testRemoveNetworkActionsFarFromMostLimitingElement() {
+    void testRemoveNetworkActionsFarFromMostLimitingElement_() {
         // arrange naCombination list
         List<NetworkActionCombination> listOfNaCombinations = List.of(IND_FR_2, IND_DE_1, IND_BE_1, IND_NL_1, IND_NL_BE, IND_FR_DE, IND_DE_NL, COMB_3_BE, COMB_2_DE, COMB_2_FR_DE_BE, COMB_2_BE_NL);
         Map<NetworkActionCombination, Boolean> naCombinations = new HashMap<>();
@@ -89,6 +89,48 @@ class FarFromMostLimitingElementFilterTest {
         List<NetworkActionCombination> list3 = List.of(IND_FR_2, IND_BE_1, IND_NL_1, IND_NL_BE, IND_FR_DE, IND_DE_NL, COMB_3_BE, COMB_2_FR_DE_BE, COMB_2_BE_NL);
         Map<NetworkActionCombination, Boolean> finalFilteredNaCombination3 = filteredNaCombination;
         list3.forEach(na -> assertTrue(finalFilteredNaCombination3.containsKey(na)));
+    }
+
+    @Test
+    void testRemoveNetworkActionsFarFromMostLimitingElement() {
+        // arrange naCombination list
+        Set<NetworkActionCombination> naCombinations = new HashSet<>(Set.of(IND_FR_2, IND_DE_1, IND_BE_1, IND_NL_1, IND_NL_BE, IND_FR_DE, IND_DE_NL, COMB_3_BE, COMB_2_DE, COMB_2_FR_DE_BE, COMB_2_BE_NL));
+
+        // arrange previous Leaf -> most limiting element is in DE/FR
+        Leaf previousLeaf = mock(Leaf.class);
+        Mockito.when(previousLeaf.getVirtualCostNames()).thenReturn(Collections.emptySet());
+
+        FarFromMostLimitingElementFilter naFilter;
+        Set<NetworkActionCombination> filteredNaCombination;
+
+        // test - no border cross, most limiting element is in BE/FR
+        Mockito.when(previousLeaf.getMostLimitingElements(1)).thenReturn(List.of(NetworkActionCombinationsUtils.CRAC.getFlowCnec("cnec1basecase"))); // be fr
+        naFilter = new FarFromMostLimitingElementFilter(NetworkActionCombinationsUtils.NETWORK, true, 0);
+        filteredNaCombination = naFilter.filterCombinations(naCombinations, previousLeaf);
+
+        assertEquals(7, filteredNaCombination.size());
+        List<NetworkActionCombination> list1 = List.of(IND_FR_2, IND_BE_1, IND_NL_BE, IND_FR_DE, COMB_3_BE, COMB_2_FR_DE_BE, COMB_2_BE_NL);
+        Set<NetworkActionCombination> finalFilteredNaCombination = filteredNaCombination;
+        list1.forEach(na -> assertTrue(finalFilteredNaCombination.contains(na)));
+
+        // test - no border cross, most limiting element is in DE/FR
+        Mockito.when(previousLeaf.getMostLimitingElements(1)).thenReturn(List.of(NetworkActionCombinationsUtils.CRAC.getFlowCnec("cnec2basecase"))); // de fr
+        filteredNaCombination = naFilter.filterCombinations(naCombinations, previousLeaf);
+
+        assertEquals(6, filteredNaCombination.size());
+        List<NetworkActionCombination> list2 = List.of(IND_FR_2, IND_DE_1, IND_FR_DE, IND_DE_NL, COMB_2_DE, COMB_2_FR_DE_BE);
+        Set<NetworkActionCombination> finalFilteredNaCombination2 = filteredNaCombination;
+        list2.forEach(na -> assertTrue(finalFilteredNaCombination2.contains(na)));
+
+        // test - max 1 border cross, most limiting element is in BE
+        Mockito.when(previousLeaf.getMostLimitingElements(1)).thenReturn(List.of(NetworkActionCombinationsUtils.CRAC.getFlowCnec("cnecBe"))); // be
+        naFilter = new FarFromMostLimitingElementFilter(NetworkActionCombinationsUtils.NETWORK, true, 1);
+        filteredNaCombination = naFilter.filterCombinations(naCombinations, previousLeaf);
+
+        assertEquals(9, filteredNaCombination.size());
+        List<NetworkActionCombination> list3 = List.of(IND_FR_2, IND_BE_1, IND_NL_1, IND_NL_BE, IND_FR_DE, IND_DE_NL, COMB_3_BE, COMB_2_FR_DE_BE, COMB_2_BE_NL);
+        Set<NetworkActionCombination> finalFilteredNaCombination3 = filteredNaCombination;
+        list3.forEach(na -> assertTrue(finalFilteredNaCombination3.contains(na)));
     }
 
     @Test

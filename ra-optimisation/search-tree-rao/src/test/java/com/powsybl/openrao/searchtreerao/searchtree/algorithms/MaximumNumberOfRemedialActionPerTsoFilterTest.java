@@ -15,6 +15,7 @@ import org.mockito.Mockito;
 
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -41,7 +42,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  */
 class MaximumNumberOfRemedialActionPerTsoFilterTest {
     @Test
-    void testRemoveCombinationsWhichExceedMaxNumberOfRaPerTso() {
+    void testRemoveCombinationsWhichExceedMaxNumberOfRaPerTso_() {
 
         // arrange naCombination list
         List<NetworkActionCombination> listOfNaCombinations = List.of(IND_FR_2, IND_BE_2, IND_NL_1, IND_FR_DE, COMB_2_FR, COMB_3_BE, COMB_2_BE_NL, COMB_2_FR_NL);
@@ -123,6 +124,90 @@ class MaximumNumberOfRemedialActionPerTsoFilterTest {
         // indFr2, indBe1, indNl1, indFrDe, comb2Fr, comb3Be, comb2BeNl, comb2FrNl
         Map<NetworkActionCombination, Boolean> naToRemove = naFilter.filter(naCombinations, leaf);
         Map<NetworkActionCombination, Boolean> expectedResult = Map.of(IND_FR_2, false, IND_BE_2, true, IND_NL_1, false, IND_FR_DE, false, COMB_2_BE_NL, true, COMB_2_FR_NL, false);
+        assertEquals(expectedResult, naToRemove);
+    }
+
+    @Test
+    void testRemoveCombinationsWhichExceedMaxNumberOfRaPerTso() {
+        // arrange naCombination list
+        Set<NetworkActionCombination> naCombinations = new HashSet<>(Set.of(IND_FR_2, IND_BE_2, IND_NL_1, IND_FR_DE, COMB_2_FR, COMB_3_BE, COMB_2_BE_NL, COMB_2_FR_NL));
+
+        // arrange Leaf -> naFr1 and raBe1 have already been activated in previous leaf
+        // but only naFr1 should count
+        Leaf previousLeaf = Mockito.mock(Leaf.class);
+        Mockito.when(previousLeaf.getActivatedNetworkActions()).thenReturn(Collections.singleton(NA_FR_1));
+        Mockito.when(previousLeaf.getRangeActions()).thenReturn(Collections.singleton(RA_BE_1));
+        Mockito.when(previousLeaf.getOptimizedSetpoint(RA_BE_1, P_STATE)).thenReturn(5.);
+
+        MaximumNumberOfRemedialActionPerTsoFilter naFilter;
+        Set<NetworkActionCombination> filteredNaCombination;
+
+        // filter - max 2 topo in FR and DE
+        Map<String, Integer> maxTopoPerTso = Map.of("fr", 2, "be", 2);
+        naFilter = new MaximumNumberOfRemedialActionPerTsoFilter(maxTopoPerTso, new HashMap<>(), P_STATE);
+        filteredNaCombination = naFilter.filterCombinations(naCombinations, previousLeaf);
+
+        assertEquals(6, filteredNaCombination.size()); // 2 combinations filtered
+        assertFalse(filteredNaCombination.contains(COMB_2_FR));
+        assertFalse(filteredNaCombination.contains(COMB_3_BE));
+
+        // filter - max 1 topo in FR
+        maxTopoPerTso = Map.of("fr", 1);
+        naFilter = new MaximumNumberOfRemedialActionPerTsoFilter(maxTopoPerTso, new HashMap<>(), P_STATE);
+        filteredNaCombination = naFilter.filterCombinations(naCombinations, previousLeaf);
+
+        assertEquals(4, filteredNaCombination.size()); // 4 combinations filtered
+        assertTrue(filteredNaCombination.contains(IND_BE_2));
+        assertTrue(filteredNaCombination.contains(IND_NL_1));
+        assertTrue(filteredNaCombination.contains(COMB_3_BE));
+        assertTrue(filteredNaCombination.contains(COMB_2_BE_NL));
+
+        // filter - max 1 RA in FR and max 2 RA in BE
+        Map<String, Integer> maxRaPerTso = Map.of("fr", 1, "be", 2);
+        naFilter = new MaximumNumberOfRemedialActionPerTsoFilter(new HashMap<>(), maxRaPerTso, P_STATE);
+        filteredNaCombination = naFilter.filterCombinations(naCombinations, previousLeaf);
+
+        assertEquals(3, filteredNaCombination.size());
+        assertTrue(filteredNaCombination.contains(IND_BE_2));
+        assertTrue(filteredNaCombination.contains(IND_NL_1));
+        assertTrue(filteredNaCombination.contains(COMB_2_BE_NL));
+
+        // filter - max 2 topo in FR, max 0 topo in Nl and max 1 RA in BE
+        maxTopoPerTso = Map.of("fr", 2, "nl", 0);
+        maxRaPerTso = Map.of("be", 1);
+        naFilter = new MaximumNumberOfRemedialActionPerTsoFilter(maxTopoPerTso, maxRaPerTso, P_STATE);
+        filteredNaCombination = naFilter.filterCombinations(naCombinations, previousLeaf);
+
+        assertEquals(3, filteredNaCombination.size());
+        assertTrue(filteredNaCombination.contains(IND_FR_2));
+        assertTrue(filteredNaCombination.contains(IND_FR_DE));
+        assertTrue(filteredNaCombination.contains(IND_BE_2));
+
+        // filter - no RA in NL
+        maxTopoPerTso = Map.of("fr", 10, "nl", 10, "be", 10);
+        maxRaPerTso = Map.of("nl", 0);
+        naFilter = new MaximumNumberOfRemedialActionPerTsoFilter(maxTopoPerTso, maxRaPerTso, P_STATE);
+        filteredNaCombination = naFilter.filterCombinations(naCombinations, previousLeaf);
+
+        assertEquals(5, filteredNaCombination.size());
+        assertFalse(filteredNaCombination.contains(IND_NL_1));
+        assertFalse(filteredNaCombination.contains(COMB_2_BE_NL));
+        assertFalse(filteredNaCombination.contains(COMB_2_FR_NL));
+
+        // check booleans in hashmap
+        //Map<NetworkActionCombination, Boolean> naCombinations = Map.of(indFr2, false, indBe2, false, comb3Be, false);
+        Leaf leaf = Mockito.mock(Leaf.class);
+        Mockito.when(leaf.getActivatedNetworkActions()).thenReturn(Set.of(NA_BE_1));
+        Mockito.when(leaf.getActivatedRangeActions(Mockito.any(State.class))).thenReturn(Set.of(RA_BE_1));
+
+        Map<String, Integer> maxNaPerTso = Map.of("fr", 1, "be", 2);
+        maxRaPerTso = Map.of("fr", 2, "be", 2);
+
+        naFilter = new MaximumNumberOfRemedialActionPerTsoFilter(maxNaPerTso, maxRaPerTso, P_STATE);
+        // indFr2, indBe1, indNl1, indFrDe, comb2Fr, comb3Be, comb2BeNl, comb2FrNl
+        Set<NetworkActionCombination> naToRemove = naFilter.filterCombinations(naCombinations, leaf);
+        // TODO: move this to a bloomer test: Set<NetworkActionCombination> expectedResult = Set.of(IND_FR_2, false, IND_BE_2, true, IND_NL_1, false, IND_FR_DE, false, COMB_2_BE_NL, true, COMB_2_FR_NL, false);
+        Set<NetworkActionCombination> expectedResult = Set.of(IND_FR_2, IND_BE_2, IND_NL_1, IND_FR_DE, COMB_2_BE_NL, COMB_2_FR_NL);
         assertEquals(expectedResult, naToRemove);
     }
 

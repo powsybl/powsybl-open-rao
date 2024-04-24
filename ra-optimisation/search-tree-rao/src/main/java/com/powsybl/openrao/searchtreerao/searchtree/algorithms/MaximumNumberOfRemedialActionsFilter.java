@@ -11,7 +11,9 @@ import com.powsybl.openrao.searchtreerao.commons.NetworkActionCombination;
 import com.powsybl.openrao.searchtreerao.result.api.OptimizationResult;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.TECHNICAL_LOGS;
 
@@ -45,6 +47,23 @@ public class MaximumNumberOfRemedialActionsFilter implements NetworkActionCombin
             if (naCombinationSize + alreadyActivatedNetworkActionsSize <= maxRa) {
                 boolean removeRangeActions = alreadyActivatedNetworkActionsSize + optimizationResult.getActivatedRangeActions(optimizedStateForNetworkActions).size() + naCombinationSize > maxRa;
                 filteredNaCombinations.put(naCombination, removeRangeActions || naCombinations.get(naCombination));
+            }
+        }
+
+        if (naCombinations.size() > filteredNaCombinations.size()) {
+            TECHNICAL_LOGS.info("{} network action combinations have been filtered out because the max number of usable RAs has been reached", naCombinations.size() - filteredNaCombinations.size());
+        }
+
+        return filteredNaCombinations;
+    }
+
+    public Set<NetworkActionCombination> filterCombinations(Set<NetworkActionCombination> naCombinations, OptimizationResult optimizationResult) {
+        Set<NetworkActionCombination> filteredNaCombinations = new HashSet<>();
+        for (NetworkActionCombination naCombination : naCombinations) {
+            int naCombinationSize = naCombination.getNetworkActionSet().size();
+            int alreadyActivatedNetworkActionsSize = optimizationResult.getActivatedNetworkActions().size();
+            if (naCombinationSize + alreadyActivatedNetworkActionsSize <= maxRa) {
+                filteredNaCombinations.add(naCombination);
             }
         }
 

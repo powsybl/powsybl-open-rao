@@ -56,6 +56,23 @@ public class MaximumNumberOfTsosFilter implements NetworkActionCombinationFilter
         return filteredNaCombinations;
     }
 
+    public Set<NetworkActionCombination> filterCombinations(Set<NetworkActionCombination> naCombinations, OptimizationResult optimizationResult) {
+
+        Set<String> alreadyActivatedTsos = getTsosWithActivatedNetworkActions(optimizationResult);
+        Set<NetworkActionCombination> filteredNaCombinations = new HashSet<>();
+        for (NetworkActionCombination naCombination : naCombinations) {
+            if (!exceedMaxNumberOfTsos(naCombination, alreadyActivatedTsos)) {
+                filteredNaCombinations.add(naCombination);
+            }
+        }
+
+        if (naCombinations.size() > filteredNaCombinations.size()) {
+            TECHNICAL_LOGS.info("{} network action combinations have been filtered out because the max number of usable TSOs has been reached", naCombinations.size() - filteredNaCombinations.size());
+        }
+
+        return filteredNaCombinations;
+    }
+
     Set<String> getTsosWithActivatedNetworkActions(OptimizationResult optimizationResult) {
         return optimizationResult.getActivatedNetworkActions().stream().map(RemedialAction::getOperator).filter(Objects::nonNull).collect(Collectors.toSet());
     }

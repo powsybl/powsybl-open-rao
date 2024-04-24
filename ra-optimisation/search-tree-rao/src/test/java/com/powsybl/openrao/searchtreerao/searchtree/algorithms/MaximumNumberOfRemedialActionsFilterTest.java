@@ -12,6 +12,7 @@ import org.mockito.Mockito;
 
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -37,7 +38,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  */
 class MaximumNumberOfRemedialActionsFilterTest {
     @Test
-    void testRemoveCombinationsWhichExceedMaxNumberOfRa() {
+    void testRemoveCombinationsWhichExceedMaxNumberOfRa_() {
 
         // arrange naCombination list
         List<NetworkActionCombination> listOfNaCombinations = List.of(IND_FR_2, IND_BE_1, IND_NL_BE, IND_NL_1, COMB_2_FR, COMB_3_BE, COMB_2_BE_NL, COMB_2_FR_DE_BE);
@@ -89,6 +90,60 @@ class MaximumNumberOfRemedialActionsFilterTest {
 
         Map<NetworkActionCombination, Boolean> naToRemove = naFilter.filter(naCombinations, previousLeaf);
         Map<NetworkActionCombination, Boolean> expectedResult = Map.of(IND_FR_2, false, IND_BE_1, false, IND_NL_BE, false, IND_NL_1, false, COMB_2_FR, true, COMB_2_BE_NL, true, COMB_2_FR_DE_BE, true);
+        assertEquals(expectedResult, naToRemove);
+    }
+
+    @Test
+    void testRemoveCombinationsWhichExceedMaxNumberOfRa() {
+        // arrange naCombination list
+        Set<NetworkActionCombination> naCombinations = new HashSet<>(Set.of(IND_FR_2, IND_BE_1, IND_NL_BE, IND_NL_1, COMB_2_FR, COMB_3_BE, COMB_2_BE_NL, COMB_2_FR_DE_BE));
+
+        // arrange previous Leaf -> naFr1 has already been activated
+        Leaf previousLeaf = Mockito.mock(Leaf.class);
+        Mockito.when(previousLeaf.getActivatedNetworkActions()).thenReturn(Collections.singleton(NA_FR_1));
+
+        MaximumNumberOfRemedialActionsFilter naFilter;
+        Set<NetworkActionCombination> filteredNaCombination;
+
+        // filter - max 4 RAs
+        naFilter = new MaximumNumberOfRemedialActionsFilter(4, P_STATE);
+        filteredNaCombination = naFilter.filterCombinations(naCombinations, previousLeaf);
+
+        assertEquals(8, filteredNaCombination.size()); // no combination filtered
+
+        // filter - max 3 RAs
+        naFilter = new MaximumNumberOfRemedialActionsFilter(3, P_STATE);
+        filteredNaCombination = naFilter.filterCombinations(naCombinations, previousLeaf);
+
+        assertEquals(7, filteredNaCombination.size()); // one combination filtered
+        assertFalse(filteredNaCombination.contains(COMB_3_BE));
+
+        // max 2 RAs
+        naFilter = new MaximumNumberOfRemedialActionsFilter(2, P_STATE);
+        filteredNaCombination = naFilter.filterCombinations(naCombinations, previousLeaf);
+
+        assertEquals(4, filteredNaCombination.size());
+        assertTrue(filteredNaCombination.contains(IND_FR_2));
+        assertTrue(filteredNaCombination.contains(IND_BE_1));
+        assertTrue(filteredNaCombination.contains(IND_NL_BE));
+        assertTrue(filteredNaCombination.contains(IND_NL_1));
+
+        // max 1 RAs
+        naFilter = new MaximumNumberOfRemedialActionsFilter(1, P_STATE);
+        filteredNaCombination = naFilter.filterCombinations(naCombinations, previousLeaf);
+
+        assertEquals(0, filteredNaCombination.size()); // all combination filtered
+
+        // check booleans in hashmap -> max 4 RAs
+        previousLeaf = Mockito.mock(Leaf.class);
+        naFilter = new MaximumNumberOfRemedialActionsFilter(4, P_STATE);
+
+        Mockito.when(previousLeaf.getActivatedRangeActions(P_STATE)).thenReturn(Set.of(RA_BE_1));
+        Mockito.when(previousLeaf.getActivatedNetworkActions()).thenReturn(Set.of(NA_FR_1, NA_BE_1));
+
+        Set<NetworkActionCombination> naToRemove = naFilter.filterCombinations(naCombinations, previousLeaf);
+        // TODO: move this in bloomer test: Map<NetworkActionCombination, Boolean> expectedResult = Map.of(IND_FR_2, false, IND_BE_1, false, IND_NL_BE, false, IND_NL_1, false, COMB_2_FR, true, COMB_2_BE_NL, true, COMB_2_FR_DE_BE, true);
+        Set<NetworkActionCombination> expectedResult = Set.of(IND_FR_2, IND_BE_1, IND_NL_BE, IND_NL_1, COMB_2_FR, COMB_2_BE_NL, COMB_2_FR_DE_BE);
         assertEquals(expectedResult, naToRemove);
     }
 }

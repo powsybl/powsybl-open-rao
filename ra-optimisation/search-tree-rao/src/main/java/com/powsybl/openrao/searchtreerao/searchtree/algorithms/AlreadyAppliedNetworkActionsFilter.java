@@ -10,6 +10,7 @@ import com.powsybl.openrao.searchtreerao.commons.NetworkActionCombination;
 import com.powsybl.openrao.searchtreerao.result.api.OptimizationResult;
 
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -20,5 +21,11 @@ public class AlreadyAppliedNetworkActionsFilter implements NetworkActionCombinat
         return naCombinations.keySet().stream()
             .filter(naCombination -> naCombination.getNetworkActionSet().stream().noneMatch(na -> optimizationResult.getActivatedNetworkActions().contains(na)))
             .collect(Collectors.toMap(naCombination -> naCombination, naCombinations::get));
+    }
+
+    public Set<NetworkActionCombination> filterCombinations(Set<NetworkActionCombination> naCombinations, OptimizationResult optimizationResult) {
+        return naCombinations.stream()
+            .filter(naCombination -> naCombination.getNetworkActionSet().stream().noneMatch(na -> optimizationResult.getActivatedNetworkActions().contains(na)))
+            .collect(Collectors.toSet());
     }
 }

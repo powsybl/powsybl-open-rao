@@ -44,7 +44,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  */
 class MaximumNumberOfTsosFilterTest {
     @Test
-    void testRemoveCombinationsWhichExceedMaxNumberOfTsos() {
+    void testRemoveCombinationsWhichExceedMaxNumberOfTsos_() {
 
         // arrange naCombination list
         List<NetworkActionCombination> listOfNaCombinations = List.of(IND_FR_2, IND_BE_1, IND_NL_1, IND_FR_DE, COMB_2_FR, COMB_3_BE, COMB_2_BE_NL, COMB_2_FR_NL, COMB_3_FR_NL_BE);
@@ -89,6 +89,53 @@ class MaximumNumberOfTsosFilterTest {
 
         Map<NetworkActionCombination, Boolean> naToRemove = naFilter.filter(naCombinations, leaf);
         Map<NetworkActionCombination, Boolean> expectedResult = Map.of(IND_FR_2, false, IND_BE_1, false, IND_NL_1, true, IND_FR_DE, false, COMB_2_FR, false, COMB_3_BE, false, COMB_2_FR_NL, true);
+        assertEquals(expectedResult, naToRemove);
+    }
+
+    @Test
+    void testRemoveCombinationsWhichExceedMaxNumberOfTsos() {
+        // arrange naCombination list
+        Set<NetworkActionCombination> naCombinations = new HashSet<>(Set.of(IND_FR_2, IND_BE_1, IND_NL_1, IND_FR_DE, COMB_2_FR, COMB_3_BE, COMB_2_BE_NL, COMB_2_FR_NL, COMB_3_FR_NL_BE));
+
+        // arrange previous Leaf -> naFr1 has already been activated
+        Leaf previousLeaf = Mockito.mock(Leaf.class);
+        Mockito.when(previousLeaf.getActivatedNetworkActions()).thenReturn(Collections.singleton(NA_FR_1));
+
+        MaximumNumberOfTsosFilter naFilter;
+        Set<NetworkActionCombination> filteredNaCombination;
+
+        // max 3 TSOs
+        naFilter = new MaximumNumberOfTsosFilter(3, P_STATE);
+        filteredNaCombination = naFilter.filterCombinations(naCombinations, previousLeaf);
+
+        assertEquals(9, filteredNaCombination.size()); // no combination filtered
+
+        // max 2 TSOs
+        naFilter = new MaximumNumberOfTsosFilter(2, P_STATE);
+        filteredNaCombination = naFilter.filterCombinations(naCombinations, previousLeaf);
+
+        assertEquals(7, filteredNaCombination.size());
+        assertFalse(filteredNaCombination.contains(COMB_2_BE_NL)); // one combination filtered
+
+        // max 1 TSO
+        naFilter = new MaximumNumberOfTsosFilter(1, P_STATE);
+        filteredNaCombination = naFilter.filterCombinations(naCombinations, previousLeaf);
+
+        assertEquals(3, filteredNaCombination.size());
+        assertTrue(filteredNaCombination.contains(IND_FR_2));
+        assertTrue(filteredNaCombination.contains(IND_FR_DE));
+        assertTrue(filteredNaCombination.contains(COMB_2_FR));
+
+        // check booleans in hashmap -> max 2 TSOs
+        Leaf leaf = Mockito.mock(Leaf.class);
+        naFilter = new MaximumNumberOfTsosFilter(2, P_STATE);
+
+        Mockito.when(leaf.getActivatedNetworkActions()).thenReturn(Set.of(NA_FR_1));
+        Mockito.when(leaf.getActivatedRangeActions(Mockito.any(State.class))).thenReturn(Set.of(RA_BE_1));
+
+        Set<NetworkActionCombination> naToRemove = naFilter.filterCombinations(naCombinations, leaf);
+        // TODO: move this to bloomer test: Map<NetworkActionCombination, Boolean> expectedResult = Map.of(IND_FR_2, false, IND_BE_1, false, IND_NL_1, true, IND_FR_DE, false, COMB_2_FR, false, COMB_3_BE, false, COMB_2_FR_NL, true);
+        Set<NetworkActionCombination> expectedResult = Set.of(IND_FR_2, IND_BE_1, IND_NL_1, IND_FR_DE, COMB_2_FR, COMB_3_BE, COMB_2_FR_NL);
         assertEquals(expectedResult, naToRemove);
     }
 

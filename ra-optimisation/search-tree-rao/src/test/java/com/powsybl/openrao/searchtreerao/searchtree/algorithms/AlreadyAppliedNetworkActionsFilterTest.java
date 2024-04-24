@@ -12,8 +12,10 @@ import org.mockito.Mockito;
 
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import static com.powsybl.openrao.searchtreerao.searchtree.algorithms.NetworkActionCombinationsUtils.COMB_2_FR;
 import static com.powsybl.openrao.searchtreerao.searchtree.algorithms.NetworkActionCombinationsUtils.COMB_2_FR_DE_BE;
@@ -32,7 +34,7 @@ import static org.mockito.Mockito.mock;
  */
 class AlreadyAppliedNetworkActionsFilterTest {
     @Test
-    void testRemoveAlreadyAppliedNetworkActions() {
+    void testRemoveAlreadyAppliedNetworkActions_() {
 
         // arrange naCombination list
         List<NetworkActionCombination> listOfNaCombinations = List.of(IND_FR_1, IND_FR_2, IND_BE_1, IND_FR_DE, COMB_3_FR, COMB_2_FR, COMB_2_FR_DE_BE);
@@ -50,5 +52,24 @@ class AlreadyAppliedNetworkActionsFilterTest {
         assertEquals(5, filteredNaCombinations.size());
         assertFalse(filteredNaCombinations.containsKey(IND_FR_1));
         assertFalse(filteredNaCombinations.containsKey(COMB_3_FR));
+    }
+
+    @Test
+    void testRemoveAlreadyAppliedNetworkActions() {
+
+        // arrange naCombination list
+        Set<NetworkActionCombination> naCombinations = new HashSet<>(Set.of(IND_FR_1, IND_FR_2, IND_BE_1, IND_FR_DE, COMB_3_FR, COMB_2_FR, COMB_2_FR_DE_BE));
+
+        // arrange previous Leaf -> naFr1 has already been activated
+        Leaf previousLeaf = mock(Leaf.class);
+        Mockito.when(previousLeaf.getActivatedNetworkActions()).thenReturn(Collections.singleton(NA_FR_1));
+
+        // filter already activated NetworkAction
+        AlreadyAppliedNetworkActionsFilter naFilter = new AlreadyAppliedNetworkActionsFilter();
+        Set<NetworkActionCombination> filteredNaCombinations = naFilter.filterCombinations(naCombinations, previousLeaf);
+
+        assertEquals(5, filteredNaCombinations.size());
+        assertFalse(filteredNaCombinations.contains(IND_FR_1));
+        assertFalse(filteredNaCombinations.contains(COMB_3_FR));
     }
 }

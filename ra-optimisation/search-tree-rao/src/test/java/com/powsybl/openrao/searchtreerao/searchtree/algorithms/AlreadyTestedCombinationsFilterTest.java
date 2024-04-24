@@ -11,6 +11,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -37,7 +38,7 @@ import static org.mockito.Mockito.mock;
  */
 class AlreadyTestedCombinationsFilterTest {
     @Test
-    void testRemoveAlreadyTestedCombinations() {
+    void testRemoveAlreadyTestedCombinations_() {
 
         // arrange naCombination list
         List<NetworkActionCombination> listOfNaCombinations = List.of(IND_FR_2, IND_BE_2, IND_NL_1, IND_DE_1, IND_FR_DE, COMB_2_FR, COMB_2_FR_NL);
@@ -56,5 +57,24 @@ class AlreadyTestedCombinationsFilterTest {
         assertEquals(5, filteredNaCombinations.size());
         assertFalse(filteredNaCombinations.containsKey(IND_NL_1)); // already tested within preDefined comb2BeNl
         assertFalse(filteredNaCombinations.containsKey(IND_FR_DE)); // already tested within preDefined comb2FrDeBe
+    }
+
+    @Test
+    void testRemoveAlreadyTestedCombinations() {
+        // arrange naCombination list
+        Set<NetworkActionCombination> naCombinations = new HashSet<>(Set.of(IND_FR_2, IND_BE_2, IND_NL_1, IND_DE_1, IND_FR_DE, COMB_2_FR, COMB_2_FR_NL));
+        List<NetworkActionCombination> preDefinedNaCombinations = List.of(COMB_2_FR, COMB_3_FR, COMB_3_BE, COMB_2_BE_NL, COMB_2_FR_NL, COMB_2_FR_DE_BE);
+
+        // arrange previous Leaf -> naFr1 has already been activated
+        Leaf previousLeaf = mock(Leaf.class);
+        Mockito.when(previousLeaf.getActivatedNetworkActions()).thenReturn(Set.of(NA_FR_1, NA_BE_1));
+
+        // filter already tested combinations
+        AlreadyTestedCombinationsFilter naFilter = new AlreadyTestedCombinationsFilter(preDefinedNaCombinations);
+        Set<NetworkActionCombination> filteredNaCombinations = naFilter.filterCombinations(naCombinations, previousLeaf);
+
+        assertEquals(5, filteredNaCombinations.size());
+        assertFalse(filteredNaCombinations.contains(IND_NL_1)); // already tested within preDefined comb2BeNl
+        assertFalse(filteredNaCombinations.contains(IND_FR_DE)); // already tested within preDefined comb2FrDeBe
     }
 }
