@@ -13,6 +13,7 @@ import com.powsybl.openrao.data.cracapi.networkaction.NetworkActionAdder;
 import com.powsybl.openrao.data.craccreation.creator.api.ImportStatus;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileConstants;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileCracUtils;
+import com.powsybl.openrao.data.craccreation.creator.csaprofile.nc.TopologyAction;
 import com.powsybl.openrao.data.craccreation.util.OpenRaoImportException;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Load;
@@ -37,7 +38,7 @@ public class NetworkActionCreator {
         this.network = network;
     }
 
-    public NetworkActionAdder getNetworkActionAdder(Map<String, Set<PropertyBag>> linkedTopologyActions, Map<String, Set<PropertyBag>> linkedRotatingMachineActions, Map<String, Set<PropertyBag>> linkedShuntCompensatorModifications, Map<String, Set<PropertyBag>> staticPropertyRanges, String remedialActionId, String elementaryActionsAggregatorId, List<String> alterations) {
+    public NetworkActionAdder getNetworkActionAdder(Map<String, Set<TopologyAction>> linkedTopologyActions, Map<String, Set<PropertyBag>> linkedRotatingMachineActions, Map<String, Set<PropertyBag>> linkedShuntCompensatorModifications, Map<String, Set<PropertyBag>> staticPropertyRanges, String remedialActionId, String elementaryActionsAggregatorId, List<String> alterations) {
         NetworkActionAdder networkActionAdder = crac.newNetworkAction().withId(remedialActionId);
         boolean hasElementaryActions = false;
 
@@ -83,17 +84,27 @@ public class NetworkActionCreator {
         return hasRotatingMachineAction;
     }
 
-    private boolean processLinkedTopologyActions(Map<String, Set<PropertyBag>> linkedTopologyActions, Map<String, Set<PropertyBag>> staticPropertyRanges, String remedialActionId, String networkElementsAggregatorId, NetworkActionAdder networkActionAdder, List<String> alterations) {
+    private boolean processLinkedTopologyActions(Map<String, Set<TopologyAction>> linkedTopologyActions, Map<String, Set<PropertyBag>> staticPropertyRanges, String remedialActionId, String networkElementsAggregatorId, NetworkActionAdder networkActionAdder, List<String> alterations) {
         boolean hasTopologyActions = false;
-        for (PropertyBag topologyActionPropertyBag : linkedTopologyActions.get(networkElementsAggregatorId)) {
-            checkNetworkActionHasExactlyOneStaticPropertyRange(staticPropertyRanges, remedialActionId, topologyActionPropertyBag);
-            hasTopologyActions = addTopologicalElementaryAction(staticPropertyRanges.get(topologyActionPropertyBag.getId(CsaProfileConstants.MRID)),
-                networkActionAdder, topologyActionPropertyBag, remedialActionId, alterations)
+        for (TopologyAction nativeTopologyAction : linkedTopologyActions.get(networkElementsAggregatorId)) {
+            checkNetworkActionHasExactlyOneStaticPropertyRange(staticPropertyRanges, remedialActionId, nativeTopologyAction.identifier());
+            hasTopologyActions = addTopologicalElementaryAction(staticPropertyRanges.get(nativeTopologyAction.identifier()),
+                networkActionAdder, nativeTopologyAction, remedialActionId, alterations)
                 || hasTopologyActions;
         }
         return hasTopologyActions;
     }
 
+    private static void checkNetworkActionHasExactlyOneStaticPropertyRange(Map<String, Set<PropertyBag>> staticPropertyRanges, String remedialActionId, String elementaryActionId) {
+        if (!staticPropertyRanges.containsKey(elementaryActionId)) {
+            throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action " + remedialActionId + " will not be imported because there is no StaticPropertyRange linked to elementary action " + elementaryActionId);
+        }
+        if (staticPropertyRanges.get(elementaryActionId).size() > 1) {
+            throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action " + remedialActionId + " will not be imported because several conflictual StaticPropertyRanges are linked to elementary action " + elementaryActionId);
+        }
+    }
+
+    // TODO: remove when everything works
     private static void checkNetworkActionHasExactlyOneStaticPropertyRange(Map<String, Set<PropertyBag>> staticPropertyRanges, String remedialActionId, PropertyBag networkActionPropertyBag) {
         String elementaryActionId = networkActionPropertyBag.getId(CsaProfileConstants.MRID);
         if (!staticPropertyRanges.containsKey(elementaryActionId)) {
@@ -221,12 +232,11 @@ public class NetworkActionCreator {
         return network.getLoadStream().filter(load -> load.getId().equals(injectionSetPointId)).findAny();
     }
 
-    private boolean addTopologicalElementaryAction(Set<PropertyBag> staticPropertyRangesLinkedToTopologicalElementaryAction, NetworkActionAdder networkActionAdder, PropertyBag topologyActionPropertyBag, String remedialActionId, List<String> alterations) {
-        String switchId = topologyActionPropertyBag.getId(CsaProfileConstants.SWITCH);
-        if (network.getSwitch(switchId) == null) {
-            throw new OpenRaoImportException(ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK, "Remedial action " + remedialActionId + " will not be imported because the network does not contain a switch with id: " + switchId);
+    private boolean addTopologicalElementaryAction(Set<PropertyBag> staticPropertyRangesLinkedToTopologicalElementaryAction, NetworkActionAdder networkActionAdder, TopologyAction nativeTopologyAction, String remedialActionId, List<String> alterations) {
+        if (network.getSwitch(nativeTopologyAction.switchId()) == null) {
+            throw new OpenRaoImportException(ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK, "Remedial action " + remedialActionId + " will not be imported because the network does not contain a switch with id: " + nativeTopologyAction.switchId());
         }
-        CsaProfileCracUtils.checkPropertyReference(topologyActionPropertyBag, remedialActionId, "TopologyAction", CsaProfileConstants.PropertyReference.SWITCH.toString());
+        CsaProfileCracUtils.checkPropertyReference(remedialActionId, "TopologyAction", CsaProfileConstants.PropertyReference.SWITCH, nativeTopologyAction.propertyReference());
 
         PropertyBag staticPropertyRangePropertyBag = staticPropertyRangesLinkedToTopologicalElementaryAction.iterator().next();
         CsaProfileCracUtils.checkPropertyReference(staticPropertyRangePropertyBag, remedialActionId, "StaticPropertyRange", CsaProfileConstants.PropertyReference.SWITCH.toString());
@@ -246,14 +256,13 @@ public class NetworkActionCreator {
             throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action " + remedialActionId + " will not be imported because the RelativeDirectionKind is " + direction + " but should be absolute");
         }
 
-        Optional<String> normalEnabled = Optional.ofNullable(topologyActionPropertyBag.get(CsaProfileConstants.NORMAL_ENABLED));
-        if (normalEnabled.isEmpty() || Boolean.parseBoolean(normalEnabled.get())) {
+        if (nativeTopologyAction.normalEnabled()) {
             networkActionAdder.newTopologicalAction()
-                .withNetworkElement(switchId)
+                .withNetworkElement(nativeTopologyAction.switchId())
                 .withActionType("0".equals(normalValue) ? ActionType.CLOSE : ActionType.OPEN).add();
             return true;
         } else {
-            alterations.add("Elementary topology action on switch %s for remedial action %s ignored because the TopologyAction is disabled".formatted(switchId, remedialActionId));
+            alterations.add("Elementary topology action on switch %s for remedial action %s ignored because the TopologyAction is disabled".formatted(nativeTopologyAction.switchId(), remedialActionId));
             return false;
         }
     }

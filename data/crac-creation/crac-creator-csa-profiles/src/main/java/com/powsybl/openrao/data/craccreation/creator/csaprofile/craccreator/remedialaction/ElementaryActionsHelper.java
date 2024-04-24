@@ -10,6 +10,7 @@ import com.powsybl.openrao.data.craccreation.creator.api.ImportStatus;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileConstants;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileCracUtils;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.nc.TapPositionAction;
+import com.powsybl.openrao.data.craccreation.creator.csaprofile.nc.TopologyAction;
 import com.powsybl.openrao.data.craccreation.util.OpenRaoImportException;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
@@ -34,8 +35,8 @@ public class ElementaryActionsHelper {
     private final PropertyBags gridStateAlterationCollectionPropertyBags;
     private final PropertyBags assessedElementWithRemedialActionPropertyBags;
     private final Map<String, Set<PropertyBag>> remedialActionDependenciesByGroup;
-    private final Map<String, Set<PropertyBag>> linkedTopologyActions;
-    private final Map<String, Set<PropertyBag>> linkedTopologyActionsAuto;
+    private final Map<String, Set<TopologyAction>> nativeTopologyActionPerNativeRemedialAction;
+    private final Map<String, Set<TopologyAction>> nativeTopologyActionPerNativeRemedialActionAuto;
     private final Map<String, Set<PropertyBag>> linkedRotatingMachineActions;
     private final Map<String, Set<PropertyBag>> linkedRotatingMachineActionsAuto;
     private final Map<String, Set<PropertyBag>> linkedShuntCompensatorModification;
@@ -53,7 +54,7 @@ public class ElementaryActionsHelper {
                                    PropertyBags assessedElementWithRemedialActionPropertyBags,
                                    PropertyBags contingencyWithRemedialActionsPropertyBags,
                                    PropertyBags staticPropertyRangesPropertyBags,
-                                   PropertyBags topologyActionsPropertyBags,
+                                   Set<TopologyAction> nativeTopologyActions,
                                    PropertyBags rotatingMachineActionsPropertyBags,
                                    PropertyBags shuntCompensatorModificationPropertyBags,
                                    Set<TapPositionAction> nativeTapPositionActions,
@@ -72,23 +73,38 @@ public class ElementaryActionsHelper {
         this.linkedContingencyWithRAs = CsaProfileCracUtils.getMappedPropertyBagsSet(contingencyWithRemedialActionsPropertyBags, CsaProfileConstants.GRID_STATE_ALTERATION_REMEDIAL_ACTION);
         this.linkedStaticPropertyRanges = CsaProfileCracUtils.getMappedPropertyBagsSet(staticPropertyRangesPropertyBags, CsaProfileConstants.GRID_STATE_ALTERATION_REMEDIAL_ACTION); // the id here is the id of the subclass of gridStateAlteration (tapPositionAction, RotatingMachine, ..)
 
-        this.linkedTopologyActions = CsaProfileCracUtils.getMappedPropertyBagsSet(filterElementaryActions(topologyActionsPropertyBags, false), CsaProfileConstants.GRID_STATE_ALTERATION_REMEDIAL_ACTION);
+        this.nativeTopologyActionPerNativeRemedialAction = mapTopologyActionsToRemedialActions(nativeTopologyActions, false);
         this.linkedRotatingMachineActions = CsaProfileCracUtils.getMappedPropertyBagsSet(filterElementaryActions(rotatingMachineActionsPropertyBags, false), CsaProfileConstants.GRID_STATE_ALTERATION_REMEDIAL_ACTION);
         this.linkedShuntCompensatorModification = CsaProfileCracUtils.getMappedPropertyBagsSet(filterElementaryActions(shuntCompensatorModificationPropertyBags, false), CsaProfileConstants.GRID_STATE_ALTERATION_REMEDIAL_ACTION);
         this.nativeTapPositionActionPerNativeRemedialAction = mapTapPositionActionsToRemedialActions(nativeTapPositionActions, false);
 
-        this.linkedTopologyActionsAuto = CsaProfileCracUtils.getMappedPropertyBagsSet(filterElementaryActions(topologyActionsPropertyBags, true), CsaProfileConstants.GRID_STATE_ALTERATION_COLLECTION);
+        this.nativeTopologyActionPerNativeRemedialActionAuto = mapTopologyActionsToRemedialActions(nativeTopologyActions, true);
         this.linkedRotatingMachineActionsAuto = CsaProfileCracUtils.getMappedPropertyBagsSet(filterElementaryActions(rotatingMachineActionsPropertyBags, true), CsaProfileConstants.GRID_STATE_ALTERATION_COLLECTION);
         this.linkedShuntCompensatorModificationAuto = CsaProfileCracUtils.getMappedPropertyBagsSet(filterElementaryActions(shuntCompensatorModificationPropertyBags, true), CsaProfileConstants.GRID_STATE_ALTERATION_COLLECTION);
         this.nativeTapPositionActionPerNativeRemedialActionAuto = mapTapPositionActionsToRemedialActions(nativeTapPositionActions, true);
 
     }
 
+    private Map<String, Set<TopologyAction>> mapTopologyActionsToRemedialActions(Set<TopologyAction> nativeTopologyActions, boolean autoRemedialAction) {
+        Map<String, Set<TopologyAction>> topologyActionPerRemedialAction = new HashMap<>();
+        for (TopologyAction nativeTopologyAction : nativeTopologyActions) {
+            String parentRemedialActionId = autoRemedialAction ? nativeTopologyAction.gridStateAlterationCollection() : nativeTopologyAction.gridStateAlterationRemedialAction();
+            if (parentRemedialActionId != null) {
+                Set<TopologyAction> topologyActions = topologyActionPerRemedialAction.computeIfAbsent(autoRemedialAction ? nativeTopologyAction.gridStateAlterationCollection() : nativeTopologyAction.gridStateAlterationRemedialAction(), k -> new HashSet<>());
+                topologyActions.add(nativeTopologyAction);
+            }
+        }
+        return topologyActionPerRemedialAction;
+    }
+
     private Map<String, Set<TapPositionAction>> mapTapPositionActionsToRemedialActions(Set<TapPositionAction> nativeTapPositionActions, boolean autoRemedialAction) {
         Map<String, Set<TapPositionAction>> tapPositionActionPerRemedialAction = new HashMap<>();
         for (TapPositionAction nativeTapPositionAction : nativeTapPositionActions) {
-            Set<TapPositionAction> tapPositionActions = tapPositionActionPerRemedialAction.computeIfAbsent(autoRemedialAction ? nativeTapPositionAction.gridStateAlterationCollection() : nativeTapPositionAction.gridStateAlterationRemedialAction(), k -> new HashSet<>());
-            tapPositionActions.add(nativeTapPositionAction);
+            String parentRemedialActionId = autoRemedialAction ? nativeTapPositionAction.gridStateAlterationCollection() : nativeTapPositionAction.gridStateAlterationRemedialAction();
+            if (parentRemedialActionId != null) {
+                Set<TapPositionAction> tapPositionActions = tapPositionActionPerRemedialAction.computeIfAbsent(autoRemedialAction ? nativeTapPositionAction.gridStateAlterationCollection() : nativeTapPositionAction.gridStateAlterationRemedialAction(), k -> new HashSet<>());
+                tapPositionActions.add(nativeTapPositionAction);
+            }
         }
         return tapPositionActionPerRemedialAction;
     }
@@ -115,8 +131,8 @@ public class ElementaryActionsHelper {
         return linkedContingencyWithRAs;
     }
 
-    public Map<String, Set<PropertyBag>> getTopologyActions(boolean isSchemeRemedialAction) {
-        return isSchemeRemedialAction ? linkedTopologyActionsAuto : linkedTopologyActions;
+    public Map<String, Set<TopologyAction>> getTopologyActions(boolean isSchemeRemedialAction) {
+        return isSchemeRemedialAction ? nativeTopologyActionPerNativeRemedialActionAuto : nativeTopologyActionPerNativeRemedialAction;
     }
 
     public Map<String, Set<PropertyBag>> getRotatingMachineActions(boolean isSchemeRemedialAction) {
