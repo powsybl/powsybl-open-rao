@@ -367,7 +367,7 @@ Network actions have one or more registered resources, that represent elementary
 </Series>
 ```
 
-- **topological** elementary actions have a A01, AO2, A07 or a B24 psrType, that respectively stand for tie-line, line, circuit breaker and transformer. In a similar way to other elementary actions, topological elementary actions do not have a minimumCapacity nor a maximumCapacity. Since they aren't defined by a set-point, they don't have a defaultCapacity either. They are entirely defined by the marketObjectStatus : A21 for OPEN, and A22 for CLOSE.
+- **topological** elementary actions have a A01, A02, A07 or a B24 psrType, that respectively stand for tie-line, line, circuit breaker and transformer. In a similar way to other elementary actions, topological elementary actions do not have a minimumCapacity nor a maximumCapacity. Since they aren't defined by a set-point, they don't have a defaultCapacity either. They are entirely defined by the marketObjectStatus : A21 for OPEN, and A22 for CLOSE.
 
 ```xml
 <Series>
