@@ -15,7 +15,7 @@ import com.powsybl.triplestore.api.PropertyBag;
 public record ShuntCompensatorModification(String identifier, String shuntCompensatorId, String propertyReference, boolean normalEnabled, String gridStateAlterationRemedialAction, String gridStateAlterationCollection) {
     public static ShuntCompensatorModification fromPropertyBag(PropertyBag propertyBag) {
         return new ShuntCompensatorModification(
-            propertyBag.getId(CsaProfileConstants.TOPOLOGY_ACTION),
+            propertyBag.getId(CsaProfileConstants.SHUNT_COMPENSATOR_MODIFICATION),
             propertyBag.getId(CsaProfileConstants.SHUNT_COMPENSATOR_ID),
             propertyBag.get(CsaProfileConstants.GRID_ALTERATION_PROPERTY_REFERENCE),
             Boolean.parseBoolean(propertyBag.getOrDefault(CsaProfileConstants.NORMAL_ENABLED, "true")),
