@@ -69,7 +69,29 @@ public class FlowCnecCreator extends AbstractCnecCreator {
             }
         }
 
+        Double flowReliabilityMargin = parseFlowReliabilityMargin();
+        if (flowReliabilityMargin == null) {
+            return;
+        }
+
         addAllFlowCnecsFromBranchAndOperationalLimits((Branch<?>) branch, thresholds, useMaxAndMinThresholds, nativeAssessedElement.conductingEquipment() != null);
+    }
+
+    private Double parseFlowReliabilityMargin() {
+        if (flowReliabilityMarginString == null) {
+            return 0d;
+        }
+        try {
+            double flowReliabilityMargin = Double.parseDouble(flowReliabilityMarginString);
+            if (flowReliabilityMargin < 0 || flowReliabilityMargin > 100) {
+                csaProfileCnecCreationContexts.add(CsaProfileElementaryCreationContext.notImported(assessedElementId, ImportStatus.INCONSISTENCY_IN_DATA, writeAssessedElementIgnoredReasonMessage("of an invalid flow reliability margin (expected a value between 0 and 100)")));
+                return null;
+            }
+            return flowReliabilityMargin;
+        } catch (NumberFormatException exception) {
+            csaProfileCnecCreationContexts.add(CsaProfileElementaryCreationContext.notImported(assessedElementId, ImportStatus.INCONSISTENCY_IN_DATA, writeAssessedElementIgnoredReasonMessage("the flowReliabilityMargin could not be converted to a numerical value")));
+            return null;
+        }
     }
 
     private FlowCnecAdder initFlowCnec() {
@@ -128,12 +150,13 @@ public class FlowCnecCreator extends AbstractCnecCreator {
         return null;
     }
 
-    private void addFlowCnecThreshold(FlowCnecAdder flowCnecAdder, Side side, double threshold, boolean useMaxAndMinThresholds) {
+    private void addFlowCnecThreshold(FlowCnecAdder flowCnecAdder, Side side, double threshold, boolean useMaxAndMinThresholds, double flowReliabilityMargin) {
+        double thresholdWithReliabilityMargin = threshold * (1d - flowReliabilityMargin / 100d);
         BranchThresholdAdder adder = flowCnecAdder.newThreshold().withSide(side)
             .withUnit(Unit.AMPERE)
-            .withMax(threshold);
+            .withMax(thresholdWithReliabilityMargin);
         if (useMaxAndMinThresholds) {
-            adder.withMin(-threshold);
+            adder.withMin(-thresholdWithReliabilityMargin);
         }
         adder.add();
     }
