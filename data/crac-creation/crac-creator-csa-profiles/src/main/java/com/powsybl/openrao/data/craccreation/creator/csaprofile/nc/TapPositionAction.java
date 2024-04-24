@@ -15,7 +15,7 @@ import com.powsybl.triplestore.api.PropertyBag;
 public record TapPositionAction(String identifier, String tapChangerId, String propertyReference, boolean normalEnabled, String gridStateAlterationRemedialAction, String gridStateAlterationCollection) {
     public static TapPositionAction fromPropertyBag(PropertyBag propertyBag) {
         return new TapPositionAction(
-            propertyBag.getId(CsaProfileConstants.TOPOLOGY_ACTION),
+            propertyBag.getId(CsaProfileConstants.TAP_POSITION_ACTION),
             propertyBag.getId(CsaProfileConstants.TAP_CHANGER),
             propertyBag.get(CsaProfileConstants.GRID_ALTERATION_PROPERTY_REFERENCE),
             Boolean.parseBoolean(propertyBag.getOrDefault(CsaProfileConstants.NORMAL_ENABLED, "true")),

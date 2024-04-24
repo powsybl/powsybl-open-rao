@@ -82,10 +82,16 @@ public final class CsaProfileCracUtils {
         }
     }
 
-    public static void checkPropertyReference(PropertyBag propertyBag, String remedialActionId, String propertyBagKind, String expectedPropertyReference) {
+    public static void checkPropertyReference(String remedialActionId, String gridStateAlterationType, CsaProfileConstants.PropertyReference expectedPropertyReference, String actualPropertyReference) {
+        if (!expectedPropertyReference.toString().equals(actualPropertyReference)) {
+            throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, String.format("Remedial action %s will not be imported because %s must have a property reference with %s value, but it was: %s", remedialActionId, gridStateAlterationType, expectedPropertyReference, actualPropertyReference));
+        }
+    }
+
+    public static void checkPropertyReference(PropertyBag propertyBag, String remedialActionId, String gridStateAlterationType, String expectedPropertyReference) {
         String actualPropertyReference = propertyBag.get(CsaProfileConstants.GRID_ALTERATION_PROPERTY_REFERENCE);
         if (!actualPropertyReference.equals(expectedPropertyReference)) {
-            throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, String.format("Remedial action %s will not be imported because %s must have a property reference with %s value, but it was: %s", remedialActionId, propertyBagKind, expectedPropertyReference, actualPropertyReference));
+            throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, String.format("Remedial action %s will not be imported because %s must have a property reference with %s value, but it was: %s", remedialActionId, gridStateAlterationType, expectedPropertyReference, actualPropertyReference));
         }
     }
 

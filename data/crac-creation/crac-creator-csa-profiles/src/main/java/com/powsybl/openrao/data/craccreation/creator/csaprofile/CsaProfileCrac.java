@@ -16,6 +16,7 @@ import com.powsybl.openrao.data.craccreation.creator.csaprofile.nc.AssessedEleme
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.nc.AssessedElementWithContingency;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.nc.Contingency;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.nc.ContingencyEquipment;
+import com.powsybl.openrao.data.craccreation.creator.csaprofile.nc.TapPositionAction;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.nc.VoltageAngleLimit;
 import com.powsybl.openrao.data.nativecracapi.NativeCrac;
 import com.powsybl.triplestore.api.PropertyBag;
@@ -146,8 +147,8 @@ public class CsaProfileCrac implements NativeCrac {
         return getPropertyBags(CsaProfileConstants.SHUNT_COMPENSATOR_MODIFICATION, CsaProfileConstants.CsaProfileKeywords.REMEDIAL_ACTION.toString());
     }
 
-    public PropertyBags getTapPositionAction() {
-        return getPropertyBags(CsaProfileConstants.TAP_POSITION_ACTION, CsaProfileConstants.CsaProfileKeywords.REMEDIAL_ACTION.toString());
+    public Set<TapPositionAction> getTapPositionActions() {
+        return CsaProfileCracUtils.overrideData(getPropertyBags(CsaProfileConstants.TAP_POSITION_ACTION, CsaProfileConstants.CsaProfileKeywords.REMEDIAL_ACTION.toString()), overridingData, CsaProfileConstants.OverridingObjectsFields.TAP_POSITION_ACTION).stream().map(TapPositionAction::fromPropertyBag).collect(Collectors.toSet());
     }
 
     public PropertyBags getStaticPropertyRanges() {

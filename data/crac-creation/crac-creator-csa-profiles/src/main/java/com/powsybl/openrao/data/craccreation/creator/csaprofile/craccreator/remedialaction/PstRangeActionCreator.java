@@ -13,6 +13,7 @@ import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeActionAdder;
 import com.powsybl.openrao.data.craccreation.creator.api.ImportStatus;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileConstants;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileCracUtils;
+import com.powsybl.openrao.data.craccreation.creator.csaprofile.nc.TapPositionAction;
 import com.powsybl.openrao.data.craccreation.util.OpenRaoImportException;
 import com.powsybl.openrao.data.craccreation.util.iidm.IidmPstHelper;
 import com.powsybl.iidm.network.Network;
@@ -32,38 +33,36 @@ public class PstRangeActionCreator {
         this.network = network;
     }
 
-    public PstRangeActionAdder getPstRangeActionAdder(Map<String, Set<PropertyBag>> linkedTapPositionActions, Map<String, Set<PropertyBag>> linkedStaticPropertyRanges, String remedialActionId, String elementaryActionsAggregatorId, List<String> alterations) {
+    public PstRangeActionAdder getPstRangeActionAdder(Map<String, Set<TapPositionAction>> linkedTapPositionActions, Map<String, Set<PropertyBag>> linkedStaticPropertyRanges, String remedialActionId, String elementaryActionsAggregatorId, List<String> alterations) {
         PstRangeActionAdder pstRangeActionAdder = crac.newPstRangeAction().withId(remedialActionId);
 
         if (linkedTapPositionActions.containsKey(elementaryActionsAggregatorId)) {
             if (linkedTapPositionActions.get(elementaryActionsAggregatorId).size() > 1) {
                 throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, String.format("Remedial action %s will not be imported because several TapPositionActions were defined for the same PST Range Action when only one is expected", remedialActionId));
             }
-            PropertyBag tapPositionActionPropertyBag = linkedTapPositionActions.get(elementaryActionsAggregatorId).iterator().next();
+            TapPositionAction nativeTapPositionAction = linkedTapPositionActions.get(elementaryActionsAggregatorId).iterator().next();
             Set<PropertyBag> linkedStaticPropertyRangesToTapPositionAction = new HashSet<>();
-            if (linkedStaticPropertyRanges.containsKey(tapPositionActionPropertyBag.getId(CsaProfileConstants.MRID))) {
-                linkedStaticPropertyRangesToTapPositionAction = linkedStaticPropertyRanges.get(tapPositionActionPropertyBag.getId(CsaProfileConstants.MRID));
+            if (linkedStaticPropertyRanges.containsKey(nativeTapPositionAction.identifier())) {
+                linkedStaticPropertyRangesToTapPositionAction = linkedStaticPropertyRanges.get(nativeTapPositionAction.identifier());
             }
-            addTapPositionElementaryAction(linkedStaticPropertyRangesToTapPositionAction, remedialActionId, pstRangeActionAdder, tapPositionActionPropertyBag);
+            addTapPositionElementaryAction(linkedStaticPropertyRangesToTapPositionAction, remedialActionId, pstRangeActionAdder, nativeTapPositionAction);
         }
 
         return pstRangeActionAdder;
     }
 
-    private void addTapPositionElementaryAction(Set<PropertyBag> linkedStaticPropertyRangesToTapPositionAction, String remedialActionId, PstRangeActionAdder pstRangeActionAdder, PropertyBag tapPositionActionPropertyBag) {
-        Optional<String> normalEnabledOpt = Optional.ofNullable(tapPositionActionPropertyBag.get(CsaProfileConstants.NORMAL_ENABLED));
-        if (normalEnabledOpt.isPresent() && !Boolean.parseBoolean(normalEnabledOpt.get())) {
+    private void addTapPositionElementaryAction(Set<PropertyBag> linkedStaticPropertyRangesToTapPositionAction, String remedialActionId, PstRangeActionAdder pstRangeActionAdder, TapPositionAction nativeTapPositionAction) {
+        if (!nativeTapPositionAction.normalEnabled()) {
             throw new OpenRaoImportException(ImportStatus.NOT_FOR_RAO, String.format("Remedial action %s will not be imported because the field normalEnabled in TapPositionAction is set to false", remedialActionId));
         }
-        CsaProfileCracUtils.checkPropertyReference(tapPositionActionPropertyBag, remedialActionId, "TapPositionAction", CsaProfileConstants.PropertyReference.TAP_CHANGER.toString());
-        String tapChangerId = tapPositionActionPropertyBag.getId(CsaProfileConstants.TAP_CHANGER).replace("+", " ");
-        IidmPstHelper iidmPstHelper = new IidmPstHelper(tapChangerId, network);
+        CsaProfileCracUtils.checkPropertyReference(remedialActionId, "TapPositionAction", CsaProfileConstants.PropertyReference.TAP_CHANGER, nativeTapPositionAction.propertyReference());
+        IidmPstHelper iidmPstHelper = new IidmPstHelper(nativeTapPositionAction.tapChangerId(), network);
         if (!iidmPstHelper.isValid()) {
             throw new OpenRaoImportException(ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK, "Remedial action " + remedialActionId + " will not be imported because " + iidmPstHelper.getInvalidReason());
         }
 
         pstRangeActionAdder
-            .withNetworkElement(tapChangerId)
+            .withNetworkElement(nativeTapPositionAction.tapChangerId())
             .withInitialTap(iidmPstHelper.getInitialTap())
             .withTapToAngleConversionMap(iidmPstHelper.getTapToAngleConversionMap());
 
