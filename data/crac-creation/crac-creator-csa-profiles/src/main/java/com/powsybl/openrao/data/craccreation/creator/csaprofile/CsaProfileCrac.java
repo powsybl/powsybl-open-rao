@@ -18,6 +18,7 @@ import com.powsybl.openrao.data.craccreation.creator.csaprofile.nc.Contingency;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.nc.ContingencyEquipment;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.nc.RotatingMachineAction;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.nc.ShuntCompensatorModification;
+import com.powsybl.openrao.data.craccreation.creator.csaprofile.nc.StaticPropertyRange;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.nc.TapPositionAction;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.nc.TopologyAction;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.nc.VoltageAngleLimit;
@@ -154,8 +155,8 @@ public class CsaProfileCrac implements NativeCrac {
         return CsaProfileCracUtils.overrideData(getPropertyBags(CsaProfileConstants.TAP_POSITION_ACTION, CsaProfileConstants.CsaProfileKeywords.REMEDIAL_ACTION.toString()), overridingData, CsaProfileConstants.OverridingObjectsFields.TAP_POSITION_ACTION).stream().map(TapPositionAction::fromPropertyBag).collect(Collectors.toSet());
     }
 
-    public PropertyBags getStaticPropertyRanges() {
-        return getPropertyBags(CsaProfileConstants.STATIC_PROPERTY_RANGE, CsaProfileConstants.CsaProfileKeywords.REMEDIAL_ACTION.toString());
+    public Set<StaticPropertyRange> getStaticPropertyRanges() {
+        return CsaProfileCracUtils.overrideData(getPropertyBags(CsaProfileConstants.STATIC_PROPERTY_RANGE, CsaProfileConstants.CsaProfileKeywords.REMEDIAL_ACTION.toString()), overridingData, CsaProfileConstants.OverridingObjectsFields.STATIC_PROPERTY_RANGE).stream().map(StaticPropertyRange::fromPropertyBag).collect(Collectors.toSet());
     }
 
     public PropertyBags getContingencyWithRemedialActions() {

@@ -16,7 +16,7 @@ public record StaticPropertyRange(String identifier, double normalValue, String 
     public static StaticPropertyRange fromPropertyBag(PropertyBag propertyBag) {
         return new StaticPropertyRange(
             propertyBag.getId(CsaProfileConstants.STATIC_PROPERTY_RANGE),
-            Double.parseDouble(CsaProfileConstants.NORMAL_VALUE),
+            Double.parseDouble(propertyBag.get(CsaProfileConstants.NORMAL_VALUE)),
             propertyBag.get(CsaProfileConstants.STATIC_PROPERTY_RANGE_VALUE_KIND),
             propertyBag.get(CsaProfileConstants.STATIC_PROPERTY_RANGE_DIRECTION),
             propertyBag.getId(CsaProfileConstants.GRID_STATE_ALTERATION_REMEDIAL_ACTION),
