@@ -123,6 +123,9 @@ GRAPH <%s> {
     OPTIONAL {
                 ?assessedElement nc:AssessedElement.isCombinableWithRemedialAction ?isCombinableWithRemedialAction ;
     }
+    OPTIONAL {
+                ?assessedElement nc:AssessedElement.flowReliabilityMargin ?flowReliabilityMargin .
+            }
 }
 }
 
