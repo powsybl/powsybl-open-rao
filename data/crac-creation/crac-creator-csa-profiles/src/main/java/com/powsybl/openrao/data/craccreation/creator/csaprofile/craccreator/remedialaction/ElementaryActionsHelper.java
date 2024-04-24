@@ -9,6 +9,7 @@ package com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.rem
 import com.powsybl.openrao.data.craccreation.creator.api.ImportStatus;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileConstants;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileCracUtils;
+import com.powsybl.openrao.data.craccreation.creator.csaprofile.nc.RotatingMachineAction;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.nc.TapPositionAction;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.nc.TopologyAction;
 import com.powsybl.openrao.data.craccreation.util.OpenRaoImportException;
@@ -37,8 +38,8 @@ public class ElementaryActionsHelper {
     private final Map<String, Set<PropertyBag>> remedialActionDependenciesByGroup;
     private final Map<String, Set<TopologyAction>> nativeTopologyActionPerNativeRemedialAction;
     private final Map<String, Set<TopologyAction>> nativeTopologyActionPerNativeRemedialActionAuto;
-    private final Map<String, Set<PropertyBag>> linkedRotatingMachineActions;
-    private final Map<String, Set<PropertyBag>> linkedRotatingMachineActionsAuto;
+    private final Map<String, Set<RotatingMachineAction>> nativeRotatingMachineActionsPerNativeRemedialAction;
+    private final Map<String, Set<RotatingMachineAction>> nativeRotatingMachineActionsPerNativeRemedialActionAuto;
     private final Map<String, Set<PropertyBag>> linkedShuntCompensatorModification;
     private final Map<String, Set<PropertyBag>> linkedShuntCompensatorModificationAuto;
     private final Map<String, Set<TapPositionAction>> nativeTapPositionActionPerNativeRemedialAction;
@@ -55,7 +56,7 @@ public class ElementaryActionsHelper {
                                    PropertyBags contingencyWithRemedialActionsPropertyBags,
                                    PropertyBags staticPropertyRangesPropertyBags,
                                    Set<TopologyAction> nativeTopologyActions,
-                                   PropertyBags rotatingMachineActionsPropertyBags,
+                                   Set<RotatingMachineAction> nativeRotatingMachineActions,
                                    PropertyBags shuntCompensatorModificationPropertyBags,
                                    Set<TapPositionAction> nativeTapPositionActions,
                                    PropertyBags remedialActionGroupsPropertyBags,
@@ -74,12 +75,12 @@ public class ElementaryActionsHelper {
         this.linkedStaticPropertyRanges = CsaProfileCracUtils.getMappedPropertyBagsSet(staticPropertyRangesPropertyBags, CsaProfileConstants.GRID_STATE_ALTERATION_REMEDIAL_ACTION); // the id here is the id of the subclass of gridStateAlteration (tapPositionAction, RotatingMachine, ..)
 
         this.nativeTopologyActionPerNativeRemedialAction = mapTopologyActionsToRemedialActions(nativeTopologyActions, false);
-        this.linkedRotatingMachineActions = CsaProfileCracUtils.getMappedPropertyBagsSet(filterElementaryActions(rotatingMachineActionsPropertyBags, false), CsaProfileConstants.GRID_STATE_ALTERATION_REMEDIAL_ACTION);
+        this.nativeRotatingMachineActionsPerNativeRemedialAction = mapRotatingMachineActionsToRemedialActions(nativeRotatingMachineActions, false);
         this.linkedShuntCompensatorModification = CsaProfileCracUtils.getMappedPropertyBagsSet(filterElementaryActions(shuntCompensatorModificationPropertyBags, false), CsaProfileConstants.GRID_STATE_ALTERATION_REMEDIAL_ACTION);
         this.nativeTapPositionActionPerNativeRemedialAction = mapTapPositionActionsToRemedialActions(nativeTapPositionActions, false);
 
         this.nativeTopologyActionPerNativeRemedialActionAuto = mapTopologyActionsToRemedialActions(nativeTopologyActions, true);
-        this.linkedRotatingMachineActionsAuto = CsaProfileCracUtils.getMappedPropertyBagsSet(filterElementaryActions(rotatingMachineActionsPropertyBags, true), CsaProfileConstants.GRID_STATE_ALTERATION_COLLECTION);
+        this.nativeRotatingMachineActionsPerNativeRemedialActionAuto = mapRotatingMachineActionsToRemedialActions(nativeRotatingMachineActions, true);
         this.linkedShuntCompensatorModificationAuto = CsaProfileCracUtils.getMappedPropertyBagsSet(filterElementaryActions(shuntCompensatorModificationPropertyBags, true), CsaProfileConstants.GRID_STATE_ALTERATION_COLLECTION);
         this.nativeTapPositionActionPerNativeRemedialActionAuto = mapTapPositionActionsToRemedialActions(nativeTapPositionActions, true);
 
@@ -95,6 +96,18 @@ public class ElementaryActionsHelper {
             }
         }
         return topologyActionPerRemedialAction;
+    }
+
+    private Map<String, Set<RotatingMachineAction>> mapRotatingMachineActionsToRemedialActions(Set<RotatingMachineAction> nativeRotatingMachineActions, boolean autoRemedialAction) {
+        Map<String, Set<RotatingMachineAction>> rotatingMachineActionPerRemedialAction = new HashMap<>();
+        for (RotatingMachineAction nativeRotatingMachineAction : nativeRotatingMachineActions) {
+            String parentRemedialActionId = autoRemedialAction ? nativeRotatingMachineAction.gridStateAlterationCollection() : nativeRotatingMachineAction.gridStateAlterationRemedialAction();
+            if (parentRemedialActionId != null) {
+                Set<RotatingMachineAction> rotatingMachineActions = rotatingMachineActionPerRemedialAction.computeIfAbsent(autoRemedialAction ? nativeRotatingMachineAction.gridStateAlterationCollection() : nativeRotatingMachineAction.gridStateAlterationRemedialAction(), k -> new HashSet<>());
+                rotatingMachineActions.add(nativeRotatingMachineAction);
+            }
+        }
+        return rotatingMachineActionPerRemedialAction;
     }
 
     private Map<String, Set<TapPositionAction>> mapTapPositionActionsToRemedialActions(Set<TapPositionAction> nativeTapPositionActions, boolean autoRemedialAction) {
@@ -135,8 +148,8 @@ public class ElementaryActionsHelper {
         return isSchemeRemedialAction ? nativeTopologyActionPerNativeRemedialActionAuto : nativeTopologyActionPerNativeRemedialAction;
     }
 
-    public Map<String, Set<PropertyBag>> getRotatingMachineActions(boolean isSchemeRemedialAction) {
-        return isSchemeRemedialAction ? linkedRotatingMachineActionsAuto : linkedRotatingMachineActions;
+    public Map<String, Set<RotatingMachineAction>> getRotatingMachineActions(boolean isSchemeRemedialAction) {
+        return isSchemeRemedialAction ? nativeRotatingMachineActionsPerNativeRemedialActionAuto : nativeRotatingMachineActionsPerNativeRemedialAction;
     }
 
     public Map<String, Set<PropertyBag>> getShuntCompensatorModifications(boolean isSchemeRemedialAction) {

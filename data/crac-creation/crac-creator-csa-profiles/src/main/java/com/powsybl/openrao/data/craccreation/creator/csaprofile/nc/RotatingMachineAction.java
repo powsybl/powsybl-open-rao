@@ -15,7 +15,7 @@ import com.powsybl.triplestore.api.PropertyBag;
 public record RotatingMachineAction(String identifier, String rotatingMachineId, String propertyReference, boolean normalEnabled, String gridStateAlterationRemedialAction, String gridStateAlterationCollection) {
     public static RotatingMachineAction fromPropertyBag(PropertyBag propertyBag) {
         return new RotatingMachineAction(
-            propertyBag.getId(CsaProfileConstants.TOPOLOGY_ACTION),
+            propertyBag.getId(CsaProfileConstants.ROTATING_MACHINE_ACTION),
             propertyBag.getId(CsaProfileConstants.ROTATING_MACHINE),
             propertyBag.get(CsaProfileConstants.GRID_ALTERATION_PROPERTY_REFERENCE),
             Boolean.parseBoolean(propertyBag.getOrDefault(CsaProfileConstants.NORMAL_ENABLED, "true")),

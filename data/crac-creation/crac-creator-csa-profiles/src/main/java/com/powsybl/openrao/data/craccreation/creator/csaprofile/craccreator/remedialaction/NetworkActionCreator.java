@@ -13,6 +13,7 @@ import com.powsybl.openrao.data.cracapi.networkaction.NetworkActionAdder;
 import com.powsybl.openrao.data.craccreation.creator.api.ImportStatus;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileConstants;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileCracUtils;
+import com.powsybl.openrao.data.craccreation.creator.csaprofile.nc.RotatingMachineAction;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.nc.TopologyAction;
 import com.powsybl.openrao.data.craccreation.util.OpenRaoImportException;
 import com.powsybl.iidm.network.Generator;
@@ -38,7 +39,7 @@ public class NetworkActionCreator {
         this.network = network;
     }
 
-    public NetworkActionAdder getNetworkActionAdder(Map<String, Set<TopologyAction>> linkedTopologyActions, Map<String, Set<PropertyBag>> linkedRotatingMachineActions, Map<String, Set<PropertyBag>> linkedShuntCompensatorModifications, Map<String, Set<PropertyBag>> staticPropertyRanges, String remedialActionId, String elementaryActionsAggregatorId, List<String> alterations) {
+    public NetworkActionAdder getNetworkActionAdder(Map<String, Set<TopologyAction>> linkedTopologyActions, Map<String, Set<RotatingMachineAction>> linkedRotatingMachineActions, Map<String, Set<PropertyBag>> linkedShuntCompensatorModifications, Map<String, Set<PropertyBag>> staticPropertyRanges, String remedialActionId, String elementaryActionsAggregatorId, List<String> alterations) {
         NetworkActionAdder networkActionAdder = crac.newNetworkAction().withId(remedialActionId);
         boolean hasElementaryActions = false;
 
@@ -72,13 +73,13 @@ public class NetworkActionCreator {
         return hasShuntCompensatorModification;
     }
 
-    private boolean processLinkedRotatingMachineActions(Map<String, Set<PropertyBag>> linkedRotatingMachineActions, Map<String, Set<PropertyBag>> staticPropertyRanges, String remedialActionId, String networkElementsAggregatorId, NetworkActionAdder networkActionAdder, List<String> alterations) {
+    private boolean processLinkedRotatingMachineActions(Map<String, Set<RotatingMachineAction>> linkedRotatingMachineActions, Map<String, Set<PropertyBag>> staticPropertyRanges, String remedialActionId, String networkElementsAggregatorId, NetworkActionAdder networkActionAdder, List<String> alterations) {
         boolean hasRotatingMachineAction = false;
-        for (PropertyBag rotatingMachineActionPropertyBag : linkedRotatingMachineActions.get(networkElementsAggregatorId)) {
-            checkNetworkActionHasExactlyOneStaticPropertyRange(staticPropertyRanges, remedialActionId, rotatingMachineActionPropertyBag);
+        for (RotatingMachineAction nativeRotatingMachineAction : linkedRotatingMachineActions.get(networkElementsAggregatorId)) {
+            checkNetworkActionHasExactlyOneStaticPropertyRange(staticPropertyRanges, remedialActionId, nativeRotatingMachineAction.identifier());
             hasRotatingMachineAction = addInjectionSetPointFromRotatingMachineAction(
-                staticPropertyRanges.get(rotatingMachineActionPropertyBag.getId(CsaProfileConstants.MRID)),
-                remedialActionId, networkActionAdder, rotatingMachineActionPropertyBag, alterations)
+                staticPropertyRanges.get(nativeRotatingMachineAction.identifier()),
+                remedialActionId, networkActionAdder, nativeRotatingMachineAction, alterations)
                 || hasRotatingMachineAction;
         }
         return hasRotatingMachineAction;
@@ -115,25 +116,23 @@ public class NetworkActionCreator {
         }
     }
 
-    private boolean addInjectionSetPointFromRotatingMachineAction(Set<PropertyBag> staticPropertyRangesLinkedToRotatingMachineAction, String remedialActionId, NetworkActionAdder networkActionAdder, PropertyBag rotatingMachineActionPropertyBag, List<String> alterations) {
-        CsaProfileCracUtils.checkPropertyReference(rotatingMachineActionPropertyBag, remedialActionId, "RotatingMachineAction", CsaProfileConstants.PropertyReference.ROTATING_MACHINE.toString());
-        String rotatingMachineId = rotatingMachineActionPropertyBag.getId(CsaProfileConstants.ROTATING_MACHINE).replace("+", " ");
-        float initialSetPoint = getInitialSetPointRotatingMachine(rotatingMachineId, remedialActionId);
+    private boolean addInjectionSetPointFromRotatingMachineAction(Set<PropertyBag> staticPropertyRangesLinkedToRotatingMachineAction, String remedialActionId, NetworkActionAdder networkActionAdder, RotatingMachineAction nativeRotatingMachineAction, List<String> alterations) {
+        CsaProfileCracUtils.checkPropertyReference(remedialActionId, "RotatingMachineAction", CsaProfileConstants.PropertyReference.ROTATING_MACHINE, nativeRotatingMachineAction.propertyReference());
+        float initialSetPoint = getInitialSetPointRotatingMachine(nativeRotatingMachineAction.rotatingMachineId(), remedialActionId);
 
         PropertyBag staticPropertyRangePropertyBag = staticPropertyRangesLinkedToRotatingMachineAction.iterator().next(); // get a random one because there is only one
         CsaProfileCracUtils.checkPropertyReference(staticPropertyRangePropertyBag, remedialActionId, "StaticPropertyRange", CsaProfileConstants.PropertyReference.ROTATING_MACHINE.toString());
         float setPointValue = getSetPointValue(staticPropertyRangePropertyBag, remedialActionId, false, initialSetPoint);
 
-        Optional<String> normalEnabled = Optional.ofNullable(rotatingMachineActionPropertyBag.get(CsaProfileConstants.NORMAL_ENABLED));
-        if (normalEnabled.isEmpty() || Boolean.parseBoolean(normalEnabled.get())) {
+        if (nativeRotatingMachineAction.normalEnabled()) {
             networkActionAdder.newInjectionSetPoint()
                 .withSetpoint(setPointValue)
-                .withNetworkElement(rotatingMachineId)
+                .withNetworkElement(nativeRotatingMachineAction.rotatingMachineId())
                 .withUnit(Unit.MEGAWATT)
                 .add();
             return true;
         } else {
-            alterations.add("Elementary rotating machine action on rotating machine %s for remedial action %s ignored because the RotatingMachineAction is disabled".formatted(rotatingMachineId, remedialActionId));
+            alterations.add("Elementary rotating machine action on rotating machine %s for remedial action %s ignored because the RotatingMachineAction is disabled".formatted(nativeRotatingMachineAction.rotatingMachineId(), remedialActionId));
             return false;
         }
     }
