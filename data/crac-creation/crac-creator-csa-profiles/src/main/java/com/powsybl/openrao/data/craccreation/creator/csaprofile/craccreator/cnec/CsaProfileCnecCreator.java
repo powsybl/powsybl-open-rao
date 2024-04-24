@@ -42,10 +42,10 @@ public class CsaProfileCnecCreator {
         this.crac = crac;
         this.network = network;
         this.assessedElementsPropertyBags = assessedElementsPropertyBags;
-        this.assessedElementsWithContingenciesPropertyBags = CsaProfileCracUtils.groupPropertyBagsBy(assessedElementsWithContingenciesPropertyBags, CsaProfileConstants.REQUEST_ASSESSED_ELEMENT);
-        this.currentLimitsPropertyBags = CsaProfileCracUtils.groupPropertyBagsBy(currentLimitsPropertyBags, CsaProfileConstants.REQUEST_CURRENT_LIMIT);
-        this.voltageLimitsPropertyBags = CsaProfileCracUtils.groupPropertyBagsBy(voltageLimitsPropertyBags, CsaProfileConstants.REQUEST_VOLTAGE_LIMIT);
-        this.angleLimitsPropertyBags = CsaProfileCracUtils.groupPropertyBagsBy(angleLimitsPropertyBags, CsaProfileConstants.REQUEST_VOLTAGE_ANGLE_LIMIT);
+        this.assessedElementsWithContingenciesPropertyBags = CsaProfileCracUtils.groupPropertyBags(assessedElementsWithContingenciesPropertyBags, CsaProfileConstants.REQUEST_ASSESSED_ELEMENT);
+        this.currentLimitsPropertyBags = CsaProfileCracUtils.groupPropertyBags(currentLimitsPropertyBags, CsaProfileConstants.REQUEST_CURRENT_LIMIT);
+        this.voltageLimitsPropertyBags = CsaProfileCracUtils.groupPropertyBags(voltageLimitsPropertyBags, CsaProfileConstants.REQUEST_VOLTAGE_LIMIT);
+        this.angleLimitsPropertyBags = CsaProfileCracUtils.groupPropertyBags(angleLimitsPropertyBags, CsaProfileConstants.REQUEST_VOLTAGE_ANGLE_LIMIT);
         this.cracCreationContext = cracCreationContext;
         this.defaultMonitoredSides = defaultMonitoredSides;
         this.regionEic = regionEic;

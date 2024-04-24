@@ -43,8 +43,8 @@ public class CsaProfileRemedialActionsCreator {
         this.elementaryActionsHelper = elementaryActionsHelper;
         this.networkActionCreator = new NetworkActionCreator(this.crac, network);
         this.pstRangeActionCreator = new PstRangeActionCreator(this.crac, network);
-        Map<String, Set<PropertyBag>> linkedAeWithRa = CsaProfileCracUtils.groupPropertyBagsBy(assessedElementWithRemedialActions, CsaProfileConstants.REQUEST_REMEDIAL_ACTION);
-        Map<String, Set<PropertyBag>> linkedCoWithRa = CsaProfileCracUtils.groupPropertyBagsBy(contingencyWithRemedialActions, CsaProfileConstants.REQUEST_REMEDIAL_ACTION);
+        Map<String, Set<PropertyBag>> linkedAeWithRa = CsaProfileCracUtils.groupPropertyBags(assessedElementWithRemedialActions, CsaProfileConstants.REQUEST_REMEDIAL_ACTION);
+        Map<String, Set<PropertyBag>> linkedCoWithRa = CsaProfileCracUtils.groupPropertyBags(contingencyWithRemedialActions, CsaProfileConstants.REQUEST_REMEDIAL_ACTION);
         createRemedialActions(false, spsMaxTimeToImplementThreshold, assessedElementPropertyBags, linkedAeWithRa, linkedCoWithRa, cnecCreationContexts);
         createRemedialActions(true, spsMaxTimeToImplementThreshold, assessedElementPropertyBags, linkedAeWithRa, linkedCoWithRa, cnecCreationContexts);
         // standaloneRaIdsImplicatedIntoAGroup contain ids of Ra's depending on a group whether the group is imported or not

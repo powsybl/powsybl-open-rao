@@ -64,20 +64,20 @@ public class ElementaryActionsHelper {
         this.gridStateAlterationCollectionPropertyBags = gridStateAlterationCollectionPropertyBags;
         this.assessedElementWithRemedialActionPropertyBags = assessedElementWithRemedialActionPropertyBags;
 
-        this.remedialActionDependenciesByGroup = CsaProfileCracUtils.groupPropertyBagsBy(remedialActionDependenciesPropertyBags, CsaProfileConstants.DEPENDING_REMEDIAL_ACTION_GROUP);
+        this.remedialActionDependenciesByGroup = CsaProfileCracUtils.groupPropertyBags(remedialActionDependenciesPropertyBags, CsaProfileConstants.DEPENDING_REMEDIAL_ACTION_GROUP);
 
-        this.linkedContingencyWithRAs = CsaProfileCracUtils.groupPropertyBagsBy(contingencyWithRemedialActionsPropertyBags, CsaProfileConstants.GRID_STATE_ALTERATION_REMEDIAL_ACTION);
-        this.linkedStaticPropertyRanges = CsaProfileCracUtils.groupPropertyBagsBy(staticPropertyRangesPropertyBags, CsaProfileConstants.GRID_STATE_ALTERATION_REMEDIAL_ACTION); // the id here is the id of the subclass of gridStateAlteration (tapPositionAction, RotatingMachine, ..)
+        this.linkedContingencyWithRAs = CsaProfileCracUtils.groupPropertyBags(contingencyWithRemedialActionsPropertyBags, CsaProfileConstants.GRID_STATE_ALTERATION_REMEDIAL_ACTION);
+        this.linkedStaticPropertyRanges = CsaProfileCracUtils.groupPropertyBags(staticPropertyRangesPropertyBags, CsaProfileConstants.GRID_STATE_ALTERATION_REMEDIAL_ACTION); // the id here is the id of the subclass of gridStateAlteration (tapPositionAction, RotatingMachine, ..)
 
-        this.linkedTopologyActions = CsaProfileCracUtils.groupPropertyBagsBy(filterElementaryActions(topologyActionsPropertyBags, false), CsaProfileConstants.GRID_STATE_ALTERATION_REMEDIAL_ACTION);
-        this.linkedRotatingMachineActions = CsaProfileCracUtils.groupPropertyBagsBy(filterElementaryActions(rotatingMachineActionsPropertyBags, false), CsaProfileConstants.GRID_STATE_ALTERATION_REMEDIAL_ACTION);
-        this.linkedShuntCompensatorModification = CsaProfileCracUtils.groupPropertyBagsBy(filterElementaryActions(shuntCompensatorModificationPropertyBags, false), CsaProfileConstants.GRID_STATE_ALTERATION_REMEDIAL_ACTION);
-        this.linkedTapPositionActions = CsaProfileCracUtils.groupPropertyBagsBy(filterElementaryActions(tapPositionActionsPropertyBags, false), CsaProfileConstants.GRID_STATE_ALTERATION_REMEDIAL_ACTION);
+        this.linkedTopologyActions = CsaProfileCracUtils.groupPropertyBags(filterElementaryActions(topologyActionsPropertyBags, false), CsaProfileConstants.GRID_STATE_ALTERATION_REMEDIAL_ACTION);
+        this.linkedRotatingMachineActions = CsaProfileCracUtils.groupPropertyBags(filterElementaryActions(rotatingMachineActionsPropertyBags, false), CsaProfileConstants.GRID_STATE_ALTERATION_REMEDIAL_ACTION);
+        this.linkedShuntCompensatorModification = CsaProfileCracUtils.groupPropertyBags(filterElementaryActions(shuntCompensatorModificationPropertyBags, false), CsaProfileConstants.GRID_STATE_ALTERATION_REMEDIAL_ACTION);
+        this.linkedTapPositionActions = CsaProfileCracUtils.groupPropertyBags(filterElementaryActions(tapPositionActionsPropertyBags, false), CsaProfileConstants.GRID_STATE_ALTERATION_REMEDIAL_ACTION);
 
-        this.linkedTopologyActionsAuto = CsaProfileCracUtils.groupPropertyBagsBy(filterElementaryActions(topologyActionsPropertyBags, true), CsaProfileConstants.GRID_STATE_ALTERATION_COLLECTION);
-        this.linkedRotatingMachineActionsAuto = CsaProfileCracUtils.groupPropertyBagsBy(filterElementaryActions(rotatingMachineActionsPropertyBags, true), CsaProfileConstants.GRID_STATE_ALTERATION_COLLECTION);
-        this.linkedShuntCompensatorModificationAuto = CsaProfileCracUtils.groupPropertyBagsBy(filterElementaryActions(shuntCompensatorModificationPropertyBags, true), CsaProfileConstants.GRID_STATE_ALTERATION_COLLECTION);
-        this.linkedTapPositionActionsAuto = CsaProfileCracUtils.groupPropertyBagsBy(filterElementaryActions(tapPositionActionsPropertyBags, true), CsaProfileConstants.GRID_STATE_ALTERATION_COLLECTION);
+        this.linkedTopologyActionsAuto = CsaProfileCracUtils.groupPropertyBags(filterElementaryActions(topologyActionsPropertyBags, true), CsaProfileConstants.GRID_STATE_ALTERATION_COLLECTION);
+        this.linkedRotatingMachineActionsAuto = CsaProfileCracUtils.groupPropertyBags(filterElementaryActions(rotatingMachineActionsPropertyBags, true), CsaProfileConstants.GRID_STATE_ALTERATION_COLLECTION);
+        this.linkedShuntCompensatorModificationAuto = CsaProfileCracUtils.groupPropertyBags(filterElementaryActions(shuntCompensatorModificationPropertyBags, true), CsaProfileConstants.GRID_STATE_ALTERATION_COLLECTION);
+        this.linkedTapPositionActionsAuto = CsaProfileCracUtils.groupPropertyBags(filterElementaryActions(tapPositionActionsPropertyBags, true), CsaProfileConstants.GRID_STATE_ALTERATION_COLLECTION);
 
     }
 

@@ -52,7 +52,7 @@ public class CsaProfileContingencyCreator {
         this.crac = crac;
         this.network = network;
         this.contingenciesPropertyBags = contingenciesPropertyBags;
-        this.contingencyEquipmentsPropertyBags = CsaProfileCracUtils.groupPropertyBagsBy(contingencyEquipmentsPropertyBags, CsaProfileConstants.REQUEST_CONTINGENCY);
+        this.contingencyEquipmentsPropertyBags = CsaProfileCracUtils.groupPropertyBags(contingencyEquipmentsPropertyBags, CsaProfileConstants.REQUEST_CONTINGENCY);
         this.cracCreationContext = cracCreationContext;
         this.createAndAddContingencies();
     }
