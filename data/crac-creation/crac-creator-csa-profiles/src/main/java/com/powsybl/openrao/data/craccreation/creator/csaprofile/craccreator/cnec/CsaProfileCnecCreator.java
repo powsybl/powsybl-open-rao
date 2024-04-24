@@ -68,8 +68,8 @@ public class CsaProfileCnecCreator {
     private void createAndAddCnecs() {
         csaProfileCnecCreationContexts = new HashSet<>();
 
-        for (PropertyBag assessedElementPropertyBag : assessedElementsPropertyBags) {
-            String assessedElementId = assessedElementPropertyBag.getId(CsaProfileConstants.REQUEST_ASSESSED_ELEMENT);
+        for (AssessedElement nativeAssessedElement : nativeAssessedElements) {
+            Set<AssessedElementWithContingency> nativeAssessedElementWithContingencies = nativeAssessedElementWithContingenciesPerNativeAssessedElement.getOrDefault(nativeAssessedElement.identifier(), Set.of());
             try {
                 addCnec(nativeAssessedElement, nativeAssessedElementWithContingencies);
             } catch (OpenRaoImportException exception) {

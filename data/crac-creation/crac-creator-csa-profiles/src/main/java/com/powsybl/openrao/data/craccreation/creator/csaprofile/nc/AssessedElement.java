@@ -13,7 +13,7 @@ import com.powsybl.triplestore.api.PropertyBag;
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
-public record AssessedElement(String identifier, boolean inBaseCase, String name, String operator, String conductingEquipment, String operationalLimit, boolean isCombinableWithContingency, boolean isCombinableWithRemedialAction, boolean normalEnabled, String securedForRegion, String scannedForRegion) {
+public record AssessedElement(String identifier, boolean inBaseCase, String name, String operator, String conductingEquipment, String operationalLimit, boolean isCombinableWithContingency, boolean isCombinableWithRemedialAction, boolean normalEnabled, String securedForRegion, String scannedForRegion, double flowReliabilityMargin) {
 
     public String getUniqueName() {
         return CsaProfileCracUtils.createElementName(name, operator).orElse(identifier);
@@ -31,7 +31,8 @@ public record AssessedElement(String identifier, boolean inBaseCase, String name
             Boolean.parseBoolean(propertyBag.getOrDefault(CsaProfileConstants.REQUEST_ASSESSED_ELEMENT_IS_COMBINABLE_WITH_REMEDIAL_ACTION, "false")),
             Boolean.parseBoolean(propertyBag.getOrDefault(CsaProfileConstants.REQUEST_ASSESSED_ELEMENT_NORMAL_ENABLED, "true")),
             propertyBag.get(CsaProfileConstants.REQUEST_ASSESSED_ELEMENT_SECURED_FOR_REGION),
-            propertyBag.get(CsaProfileConstants.REQUEST_ASSESSED_ELEMENT_SCANNED_FOR_REGION)
+            propertyBag.get(CsaProfileConstants.REQUEST_ASSESSED_ELEMENT_SCANNED_FOR_REGION),
+            propertyBag.get(CsaProfileConstants.REQUEST_FLOW_RELIABILITY_MARGIN) == null ? 0d : Double.parseDouble(propertyBag.get(CsaProfileConstants.REQUEST_FLOW_RELIABILITY_MARGIN))
         );
     }
 }
