@@ -66,7 +66,7 @@ public class CsaProfileCracCreator implements CracCreator<CsaProfileCrac, CsaPro
         RaUsageLimitsAdder.addRaUsageLimits(crac, cracCreationParameters);
         nativeCrac.setForTimestamp(offsetDateTime);
 
-        Map<String, String> overridingData = nativeCrac.getOverridingCracData(offsetDateTime);
+        Map<String, String> overridingData = nativeCrac.getOverridingData();
         PropertyBags assessedElementsWithRemedialAction = CsaProfileCracUtils.overrideData(nativeCrac.getAssessedElementsWithRemedialAction(), overridingData, CsaProfileConstants.OverridingObjectsFields.ASSESSED_ELEMENT_WITH_REMEDIAL_ACTION);
         PropertyBags contingenciesWithRemedialAction = CsaProfileCracUtils.overrideData(nativeCrac.getContingencyWithRemedialAction(), overridingData, CsaProfileConstants.OverridingObjectsFields.CONTINGENCY_WITH_REMEDIAL_ACTION);
         PropertyBags gridStateAlterationRemedialAction = CsaProfileCracUtils.overrideData(nativeCrac.getGridStateAlterationRemedialAction(), overridingData, CsaProfileConstants.OverridingObjectsFields.GRID_STATE_ALTERATION_REMEDIAL_ACTION);

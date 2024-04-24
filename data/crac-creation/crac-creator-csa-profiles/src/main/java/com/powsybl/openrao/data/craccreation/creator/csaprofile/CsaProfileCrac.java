@@ -184,11 +184,14 @@ public class CsaProfileCrac implements NativeCrac {
 
     }
 
-    public Map<String, String> getOverridingCracData(OffsetDateTime importTimestamp) {
-        Map<String, String> overridingData = new HashMap<>();
+    private void setOverridingData(OffsetDateTime importTimestamp) {
+        overridingData = new HashMap<>();
         for (CsaProfileConstants.OverridingObjectsFields overridingObject : CsaProfileConstants.OverridingObjectsFields.values()) {
             addDataFromTripleStoreToMap(overridingData, overridingObject.getRequestName(), overridingObject.getObjectName(), overridingObject.getOverridedFieldName(), overridingObject.getHeaderType(), importTimestamp);
         }
+    }
+
+    public Map<String, String> getOverridingData() {
         return overridingData;
     }
 
@@ -250,7 +253,7 @@ public class CsaProfileCrac implements NativeCrac {
 
     public void setForTimestamp(OffsetDateTime offsetDateTime) {
         clearTimewiseIrrelevantContexts(offsetDateTime);
-        overridingData = getOverridingCracData(offsetDateTime);
+        setOverridingData(offsetDateTime);
     }
 
     private void clearTimewiseIrrelevantContexts(OffsetDateTime offsetDateTime) {
