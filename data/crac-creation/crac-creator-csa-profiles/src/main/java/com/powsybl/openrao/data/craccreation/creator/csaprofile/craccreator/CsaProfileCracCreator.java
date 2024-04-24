@@ -64,15 +64,9 @@ public class CsaProfileCracCreator implements CracCreator<CsaProfileCrac, CsaPro
         this.creationContext = new CsaProfileCracCreationContext(crac, offsetDateTime, network.getNameOrId());
         addCsaInstants();
         RaUsageLimitsAdder.addRaUsageLimits(crac, cracCreationParameters);
-        clearNativeCracContextsAndMap(nativeCrac, offsetDateTime);
+        nativeCrac.setForTimestamp(offsetDateTime);
 
         Map<String, String> overridingData = nativeCrac.getOverridingCracData(offsetDateTime);
-        Set<Contingency> nativeContingencies = CsaProfileCracUtils.overrideData(nativeCrac.getContingencies(), overridingData, CsaProfileConstants.OverridingObjectsFields.CONTINGENCY).stream().map(Contingency::fromPropertyBag).collect(Collectors.toSet());
-        Set<AssessedElement> nativeAssessedElements = CsaProfileCracUtils.overrideData(nativeCrac.getAssessedElements(), overridingData, CsaProfileConstants.OverridingObjectsFields.ASSESSED_ELEMENT).stream().map(AssessedElement::fromPropertyBag).collect(Collectors.toSet());
-        Set<AssessedElementWithContingency> nativeAssessedElementsWithContingencies = CsaProfileCracUtils.overrideData(nativeCrac.getAssessedElementsWithContingencies(), overridingData, CsaProfileConstants.OverridingObjectsFields.ASSESSED_ELEMENT_WITH_CONTINGENCY).stream().map(AssessedElementWithContingency::fromPropertyBag).collect(Collectors.toSet());
-        Set<CurrentLimit> nativeCurrentLimits = CsaProfileCracUtils.overrideData(nativeCrac.getCurrentLimits(), overridingData, CsaProfileConstants.OverridingObjectsFields.CURRENT_LIMIT).stream().map(CurrentLimit::fromPropertyBag).collect(Collectors.toSet());
-        Set<VoltageLimit> nativeVoltageLimits = CsaProfileCracUtils.overrideData(nativeCrac.getVoltageLimits(), overridingData, CsaProfileConstants.OverridingObjectsFields.VOLTAGE_LIMIT).stream().map(VoltageLimit::fromPropertyBag).collect(Collectors.toSet());
-        Set<VoltageAngleLimit> nativeVoltageAngleLimits = CsaProfileCracUtils.overrideData(nativeCrac.getAngleLimits(), overridingData, CsaProfileConstants.OverridingObjectsFields.VOLTAGE_ANGLE_LIMIT).stream().map(VoltageAngleLimit::fromPropertyBag).collect(Collectors.toSet());
         PropertyBags assessedElementsWithRemedialAction = CsaProfileCracUtils.overrideData(nativeCrac.getAssessedElementsWithRemedialAction(), overridingData, CsaProfileConstants.OverridingObjectsFields.ASSESSED_ELEMENT_WITH_REMEDIAL_ACTION);
         PropertyBags contingenciesWithRemedialAction = CsaProfileCracUtils.overrideData(nativeCrac.getContingencyWithRemedialAction(), overridingData, CsaProfileConstants.OverridingObjectsFields.CONTINGENCY_WITH_REMEDIAL_ACTION);
         PropertyBags gridStateAlterationRemedialAction = CsaProfileCracUtils.overrideData(nativeCrac.getGridStateAlterationRemedialAction(), overridingData, CsaProfileConstants.OverridingObjectsFields.GRID_STATE_ALTERATION_REMEDIAL_ACTION);
@@ -86,11 +80,11 @@ public class CsaProfileCracCreator implements CracCreator<CsaProfileCrac, CsaPro
         PropertyBags schemeRemedialActions = CsaProfileCracUtils.overrideData(nativeCrac.getSchemeRemedialActions(), overridingData, CsaProfileConstants.OverridingObjectsFields.SCHEME_REMEDIAL_ACTION);
         PropertyBags remedialActionDependencies = CsaProfileCracUtils.overrideData(nativeCrac.getRemedialActionDependencies(), overridingData, CsaProfileConstants.OverridingObjectsFields.SCHEME_REMEDIAL_ACTION_DEPENDENCY);
 
-        createContingencies(nativeContingencies, nativeCrac.getContingencyEquipments().stream().map(ContingencyEquipment::fromPropertyBag).collect(Collectors.toSet()));
+        createContingencies(nativeCrac.getContingencies(), nativeCrac.getContingencyEquipments());
 
-        createCnecs(nativeAssessedElements, nativeAssessedElementsWithContingencies, nativeCurrentLimits, nativeVoltageLimits, nativeVoltageAngleLimits, cracCreationParameters.getDefaultMonitoredSides(), regionEicCode);
+        createCnecs(nativeCrac.getAssessedElements(), nativeCrac.getAssessedElementsWithContingencies(), nativeCrac.getCurrentLimits(), nativeCrac.getVoltageLimits(), nativeCrac.getVoltageAngleLimits(), cracCreationParameters.getDefaultMonitoredSides(), regionEicCode);
 
-        OnConstraintUsageRuleHelper onConstraintUsageRuleAdder = new OnConstraintUsageRuleHelper(creationContext.getCnecCreationContexts(), nativeAssessedElements, assessedElementsWithRemedialAction);
+        OnConstraintUsageRuleHelper onConstraintUsageRuleAdder = new OnConstraintUsageRuleHelper(creationContext.getCnecCreationContexts(), nativeCrac.getAssessedElements(), assessedElementsWithRemedialAction);
         ElementaryActionsHelper elementaryActionsHelper = new ElementaryActionsHelper(gridStateAlterationRemedialAction, schemeRemedialActions, remedialActionSchemes, nativeCrac.getStage(), gridStateAlterationsCollection, assessedElementsWithRemedialAction, contingenciesWithRemedialAction, staticPropertyRanges, topologyActions, rotatingMachineActions, shuntCompensatorModifications, tapPositionActions, nativeCrac.getRemedialActionGroups(), remedialActionDependencies);
         createRemedialActions(onConstraintUsageRuleAdder, elementaryActionsHelper, spsMaxTimeToImplementThreshold);
         creationContext.buildCreationReport();
@@ -103,25 +97,6 @@ public class CsaProfileCracCreator implements CracCreator<CsaProfileCrac, CsaPro
             .newInstant("auto", InstantKind.AUTO)
             .newInstant("curative", InstantKind.CURATIVE);
         // TODO : add other curative instants here
-    }
-
-    private void clearNativeCracContextsAndMap(CsaProfileCrac nativeCrac, OffsetDateTime offsetDateTime) {
-        nativeCrac.getHeaders().forEach((contextName, properties) -> {
-            if (!properties.isEmpty()) {
-                PropertyBag property = properties.get(0);
-                if (!checkTimeCoherence(property, offsetDateTime)) {
-                    OpenRaoLoggerProvider.BUSINESS_WARNS.warn(String.format("[REMOVED] The file : %s will be ignored. Its dates are not consistent with the import date : %s", contextName, offsetDateTime));
-                    nativeCrac.clearContext(contextName);
-                    nativeCrac.clearKeywordMap(contextName);
-                }
-            }
-        });
-    }
-
-    private boolean checkTimeCoherence(PropertyBag header, OffsetDateTime offsetDateTime) {
-        String startTime = header.getId(CsaProfileConstants.REQUEST_HEADER_START_DATE);
-        String endTime = header.getId(CsaProfileConstants.REQUEST_HEADER_END_DATE);
-        return isValidInterval(offsetDateTime, startTime, endTime);
     }
 
     private void createRemedialActions(OnConstraintUsageRuleHelper onConstraintUsageRuleAdder, ElementaryActionsHelper elementaryActionsHelper, int spsMaxTimeToImplementThreshold) {

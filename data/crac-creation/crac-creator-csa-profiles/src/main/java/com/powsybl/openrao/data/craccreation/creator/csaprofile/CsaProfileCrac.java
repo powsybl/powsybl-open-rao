@@ -8,8 +8,15 @@
 package com.powsybl.openrao.data.craccreation.creator.csaprofile;
 
 import com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider;
+import com.powsybl.openrao.data.craccreation.creator.csaprofile.cim.CurrentLimit;
+import com.powsybl.openrao.data.craccreation.creator.csaprofile.cim.VoltageLimit;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileConstants;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileCracUtils;
+import com.powsybl.openrao.data.craccreation.creator.csaprofile.nc.AssessedElement;
+import com.powsybl.openrao.data.craccreation.creator.csaprofile.nc.AssessedElementWithContingency;
+import com.powsybl.openrao.data.craccreation.creator.csaprofile.nc.Contingency;
+import com.powsybl.openrao.data.craccreation.creator.csaprofile.nc.ContingencyEquipment;
+import com.powsybl.openrao.data.craccreation.creator.csaprofile.nc.VoltageAngleLimit;
 import com.powsybl.openrao.data.nativecracapi.NativeCrac;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
@@ -18,6 +25,9 @@ import com.powsybl.triplestore.api.TripleStore;
 
 import java.time.OffsetDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
+
+import static com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileCracUtils.isValidInterval;
 
 /**
  * @author Jean-Pierre Arnould {@literal <jean-pierre.arnould at rte-france.com>}
@@ -29,11 +39,13 @@ public class CsaProfileCrac implements NativeCrac {
     private final QueryCatalog queryCatalogCsaProfileCrac;
 
     private final Map<String, Set<String>> keywordMap;
+    private Map<String, String> overridingData;
 
     public CsaProfileCrac(TripleStore tripleStoreCsaProfileCrac, Map<String, Set<String>> keywordMap) {
         this.tripleStoreCsaProfileCrac = tripleStoreCsaProfileCrac;
         this.queryCatalogCsaProfileCrac = new QueryCatalog(CsaProfileConstants.SPARQL_FILE_CSA_PROFILE);
         this.keywordMap = keywordMap;
+        this.overridingData = new HashMap<>();
     }
 
     @Override
@@ -86,36 +98,36 @@ public class CsaProfileCrac implements NativeCrac {
         return this.queryTripleStore(csaProfileConstants, namesToRequest);
     }
 
-    public PropertyBags getContingencies() {
-        return getPropertyBags(Arrays.asList(CsaProfileConstants.REQUEST_ORDINARY_CONTINGENCY, CsaProfileConstants.REQUEST_EXCEPTIONAL_CONTINGENCY, CsaProfileConstants.REQUEST_OUT_OF_RANGE_CONTINGENCY), CsaProfileConstants.CsaProfileKeywords.CONTINGENCY.toString());
+    public Set<Contingency> getContingencies() {
+        return CsaProfileCracUtils.overrideData(getPropertyBags(Arrays.asList(CsaProfileConstants.REQUEST_ORDINARY_CONTINGENCY, CsaProfileConstants.REQUEST_EXCEPTIONAL_CONTINGENCY, CsaProfileConstants.REQUEST_OUT_OF_RANGE_CONTINGENCY), CsaProfileConstants.CsaProfileKeywords.CONTINGENCY.toString()), overridingData, CsaProfileConstants.OverridingObjectsFields.CONTINGENCY).stream().map(Contingency::fromPropertyBag).collect(Collectors.toSet());
     }
 
-    public PropertyBags getContingencyEquipments() {
-        return getPropertyBags(CsaProfileConstants.REQUEST_CONTINGENCY_EQUIPMENT, CsaProfileConstants.CsaProfileKeywords.CONTINGENCY.toString());
+    public Set<ContingencyEquipment> getContingencyEquipments() {
+        return getPropertyBags(CsaProfileConstants.REQUEST_CONTINGENCY_EQUIPMENT, CsaProfileConstants.CsaProfileKeywords.CONTINGENCY.toString()).stream().map(ContingencyEquipment::fromPropertyBag).collect(Collectors.toSet());
     }
 
-    public PropertyBags getAssessedElements() {
-        return getPropertyBags(CsaProfileConstants.REQUEST_ASSESSED_ELEMENT, CsaProfileConstants.CsaProfileKeywords.ASSESSED_ELEMENT.toString());
+    public Set<AssessedElement> getAssessedElements() {
+        return CsaProfileCracUtils.overrideData(getPropertyBags(CsaProfileConstants.REQUEST_ASSESSED_ELEMENT, CsaProfileConstants.CsaProfileKeywords.ASSESSED_ELEMENT.toString()), overridingData, CsaProfileConstants.OverridingObjectsFields.ASSESSED_ELEMENT).stream().map(AssessedElement::fromPropertyBag).collect(Collectors.toSet());
     }
 
-    public PropertyBags getAssessedElementsWithContingencies() {
-        return getPropertyBags(CsaProfileConstants.REQUEST_ASSESSED_ELEMENT_WITH_CONTINGENCY, CsaProfileConstants.CsaProfileKeywords.ASSESSED_ELEMENT.toString());
+    public Set<AssessedElementWithContingency> getAssessedElementsWithContingencies() {
+        return CsaProfileCracUtils.overrideData(getPropertyBags(CsaProfileConstants.REQUEST_ASSESSED_ELEMENT_WITH_CONTINGENCY, CsaProfileConstants.CsaProfileKeywords.ASSESSED_ELEMENT.toString()), overridingData, CsaProfileConstants.OverridingObjectsFields.ASSESSED_ELEMENT_WITH_CONTINGENCY).stream().map(AssessedElementWithContingency::fromPropertyBag).collect(Collectors.toSet());
     }
 
     public PropertyBags getAssessedElementsWithRemedialAction() {
         return getPropertyBags(CsaProfileConstants.REQUEST_ASSESSED_ELEMENT_WITH_REMEDIAL_ACTION, CsaProfileConstants.CsaProfileKeywords.ASSESSED_ELEMENT.toString());
     }
 
-    public PropertyBags getCurrentLimits() {
-        return getPropertyBags(CsaProfileConstants.REQUEST_CURRENT_LIMIT, CsaProfileConstants.CGMES);
+    public Set<CurrentLimit> getCurrentLimits() {
+        return CsaProfileCracUtils.overrideData(getPropertyBags(CsaProfileConstants.REQUEST_CURRENT_LIMIT, CsaProfileConstants.CGMES), overridingData, CsaProfileConstants.OverridingObjectsFields.CURRENT_LIMIT).stream().map(CurrentLimit::fromPropertyBag).collect(Collectors.toSet());
     }
 
-    public PropertyBags getVoltageLimits() {
-        return getPropertyBags(CsaProfileConstants.REQUEST_VOLTAGE_LIMIT, CsaProfileConstants.CGMES);
+    public Set<VoltageLimit> getVoltageLimits() {
+        return CsaProfileCracUtils.overrideData(getPropertyBags(CsaProfileConstants.REQUEST_VOLTAGE_LIMIT, CsaProfileConstants.CGMES), overridingData, CsaProfileConstants.OverridingObjectsFields.VOLTAGE_LIMIT).stream().map(VoltageLimit::fromPropertyBag).collect(Collectors.toSet());
     }
 
-    public PropertyBags getAngleLimits() {
-        return getPropertyBags(CsaProfileConstants.REQUEST_VOLTAGE_ANGLE_LIMIT, CsaProfileConstants.CsaProfileKeywords.EQUIPMENT_RELIABILITY.toString());
+    public Set<VoltageAngleLimit> getVoltageAngleLimits() {
+        return CsaProfileCracUtils.overrideData(getPropertyBags(CsaProfileConstants.REQUEST_VOLTAGE_ANGLE_LIMIT, CsaProfileConstants.CsaProfileKeywords.EQUIPMENT_RELIABILITY.toString()), overridingData, CsaProfileConstants.OverridingObjectsFields.VOLTAGE_ANGLE_LIMIT).stream().map(VoltageAngleLimit::fromPropertyBag).collect(Collectors.toSet());
     }
 
     public PropertyBags getGridStateAlterationRemedialAction() {
@@ -234,5 +246,29 @@ public class CsaProfileCrac implements NativeCrac {
             multiContextsPropertyBags.addAll(tripleStoreCsaProfileCrac.query(contextQuery));
         }
         return multiContextsPropertyBags;
+    }
+
+    public void setForTimestamp(OffsetDateTime offsetDateTime) {
+        clearTimewiseIrrelevantContexts(offsetDateTime);
+        overridingData = getOverridingCracData(offsetDateTime);
+    }
+
+    private void clearTimewiseIrrelevantContexts(OffsetDateTime offsetDateTime) {
+        getHeaders().forEach((contextName, properties) -> {
+            if (!properties.isEmpty()) {
+                PropertyBag property = properties.get(0);
+                if (!checkTimeCoherence(property, offsetDateTime)) {
+                    OpenRaoLoggerProvider.BUSINESS_WARNS.warn(String.format("[REMOVED] The file : %s will be ignored. Its dates are not consistent with the import date : %s", contextName, offsetDateTime));
+                    clearContext(contextName);
+                    clearKeywordMap(contextName);
+                }
+            }
+        });
+    }
+
+    private static boolean checkTimeCoherence(PropertyBag header, OffsetDateTime offsetDateTime) {
+        String startTime = header.getId(CsaProfileConstants.REQUEST_HEADER_START_DATE);
+        String endTime = header.getId(CsaProfileConstants.REQUEST_HEADER_END_DATE);
+        return isValidInterval(offsetDateTime, startTime, endTime);
     }
 }
