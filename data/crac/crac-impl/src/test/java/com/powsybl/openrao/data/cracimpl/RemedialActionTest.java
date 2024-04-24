@@ -24,7 +24,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
  */
-class AbstractRemedialActionTest {
+class RemedialActionTest {
     @Test
     void testNoUsageRulesShouldReturnUndefined() {
         State state = Mockito.mock(State.class);
