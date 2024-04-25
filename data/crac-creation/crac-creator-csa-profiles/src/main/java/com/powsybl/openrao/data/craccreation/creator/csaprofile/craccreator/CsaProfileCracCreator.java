@@ -19,7 +19,6 @@ import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.cnec
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.contingency.CsaProfileContingencyCreator;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.remedialaction.CsaProfileRemedialActionsCreator;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.remedialaction.ElementaryActionsHelper;
-import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.remedialaction.OnConstraintUsageRuleHelper;
 import com.google.auto.service.AutoService;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.nc.AssessedElement;
@@ -60,7 +59,6 @@ public class CsaProfileCracCreator implements CracCreator<CsaProfileCrac, CsaPro
         createContingencies(nativeCrac.getContingencies(), nativeCrac.getContingencyEquipments());
         createCnecs(nativeCrac.getAssessedElements(), nativeCrac.getAssessedElementWithContingencies(), nativeCrac.getCurrentLimits(), nativeCrac.getVoltageLimits(), nativeCrac.getVoltageAngleLimits(), cracCreationParameters.getDefaultMonitoredSides(), csaParameters.getCapacityCalculationRegionEicCode());
 
-        OnConstraintUsageRuleHelper onConstraintUsageRuleAdder = new OnConstraintUsageRuleHelper(creationContext.getCnecCreationContexts(), nativeCrac.getAssessedElements(), nativeCrac.getAssessedElementWithRemedialActions());
         ElementaryActionsHelper elementaryActionsHelper = new ElementaryActionsHelper(nativeCrac.getGridStateAlterationRemedialActions(), nativeCrac.getSchemeRemedialActions(), nativeCrac.getRemedialActionSchemes(), nativeCrac.getStages(), nativeCrac.getGridStateAlterationCollections(), nativeCrac.getAssessedElementWithRemedialActions(), nativeCrac.getContingencyWithRemedialActions(), nativeCrac.getStaticPropertyRanges(), nativeCrac.getTopologyActions(), nativeCrac.getRotatingMachineActions(), nativeCrac.getShuntCompensatorModifications(), nativeCrac.getTapPositionActions(), nativeCrac.getRemedialActionGroups(), nativeCrac.getRemedialActionDependencies());
         createRemedialActions(onConstraintUsageRuleAdder, elementaryActionsHelper, csaParameters.getSpsMaxTimeToImplementThresholdInSeconds());
         creationContext.buildCreationReport();
