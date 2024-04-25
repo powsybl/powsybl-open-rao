@@ -47,9 +47,9 @@ public class CsaProfileCnecCreator {
         this.network = network;
         this.nativeAssessedElements = nativeAssessedElements;
         this.nativeAssessedElementWithContingenciesPerNativeAssessedElement = mapAssessedElementWithContingencyToAssessedElement(nativeAssessedElementsWithContingencies);
-        this.nativeCurrentLimitPerId = nativeCurrentLimits.stream().collect(Collectors.toMap(CurrentLimit::identifier, currentLimit -> currentLimit));
-        this.nativeVoltageLimitPerId = nativeVoltageLimits.stream().collect(Collectors.toMap(VoltageLimit::identifier, voltageLimit -> voltageLimit));
-        this.nativeVoltageAngleLimitPerId = nativeVoltageAngleLimits.stream().collect(Collectors.toMap(VoltageAngleLimit::identifier, voltageAngleLimit -> voltageAngleLimit));
+        this.nativeCurrentLimitPerId = nativeCurrentLimits.stream().collect(Collectors.toMap(CurrentLimit::mrid, currentLimit -> currentLimit));
+        this.nativeVoltageLimitPerId = nativeVoltageLimits.stream().collect(Collectors.toMap(VoltageLimit::mrid, voltageLimit -> voltageLimit));
+        this.nativeVoltageAngleLimitPerId = nativeVoltageAngleLimits.stream().collect(Collectors.toMap(VoltageAngleLimit::mrid, voltageAngleLimit -> voltageAngleLimit));
         this.cracCreationContext = cracCreationContext;
         this.defaultMonitoredSides = defaultMonitoredSides;
         this.regionEic = regionEic;
@@ -69,11 +69,11 @@ public class CsaProfileCnecCreator {
         csaProfileCnecCreationContexts = new HashSet<>();
 
         for (AssessedElement nativeAssessedElement : nativeAssessedElements) {
-            Set<AssessedElementWithContingency> nativeAssessedElementWithContingencies = nativeAssessedElementWithContingenciesPerNativeAssessedElement.getOrDefault(nativeAssessedElement.identifier(), Set.of());
+            Set<AssessedElementWithContingency> nativeAssessedElementWithContingencies = nativeAssessedElementWithContingenciesPerNativeAssessedElement.getOrDefault(nativeAssessedElement.mrid(), Set.of());
             try {
                 addCnec(nativeAssessedElement, nativeAssessedElementWithContingencies);
             } catch (OpenRaoImportException exception) {
-                csaProfileCnecCreationContexts.add(CsaProfileElementaryCreationContext.notImported(nativeAssessedElement.identifier(), exception.getImportStatus(), exception.getMessage()));
+                csaProfileCnecCreationContexts.add(CsaProfileElementaryCreationContext.notImported(nativeAssessedElement.mrid(), exception.getImportStatus(), exception.getMessage()));
             }
         }
         cracCreationContext.setCnecCreationContexts(csaProfileCnecCreationContexts);
@@ -83,18 +83,18 @@ public class CsaProfileCnecCreator {
         String rejectedLinksAssessedElementContingency = "";
 
         if (!nativeAssessedElement.normalEnabled()) {
-            throw new OpenRaoImportException(ImportStatus.NOT_FOR_RAO, "AssessedElement %s ignored because it is not enabled".formatted(nativeAssessedElement.identifier()));
+            throw new OpenRaoImportException(ImportStatus.NOT_FOR_RAO, "AssessedElement %s ignored because it is not enabled".formatted(nativeAssessedElement.mrid()));
         }
 
         if (!nativeAssessedElement.inBaseCase() && !nativeAssessedElement.isCombinableWithContingency() && nativeAssessedElementWithContingencies.isEmpty()) {
-            throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, "AssessedElement %s ignored because the assessed element is not in base case and not combinable with contingencies, but no explicit link to a contingency was found".formatted(nativeAssessedElement.identifier()));
+            throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, "AssessedElement %s ignored because the assessed element is not in base case and not combinable with contingencies, but no explicit link to a contingency was found".formatted(nativeAssessedElement.mrid()));
         }
 
         Set<Contingency> combinableContingencies = nativeAssessedElement.isCombinableWithContingency() ? cracCreationContext.getCrac().getContingencies() : new HashSet<>();
 
         for (AssessedElementWithContingency assessedElementWithContingency : nativeAssessedElementWithContingencies) {
-            if (!checkAndProcessCombinableContingencyFromExplicitAssociation(nativeAssessedElement.identifier(), assessedElementWithContingency, combinableContingencies)) {
-                rejectedLinksAssessedElementContingency = rejectedLinksAssessedElementContingency.concat(assessedElementWithContingency.identifier() + " ");
+            if (!checkAndProcessCombinableContingencyFromExplicitAssociation(nativeAssessedElement.mrid(), assessedElementWithContingency, combinableContingencies)) {
+                rejectedLinksAssessedElementContingency = rejectedLinksAssessedElementContingency.concat(assessedElementWithContingency.mrid() + " ");
             }
         }
 
@@ -123,7 +123,7 @@ public class CsaProfileCnecCreator {
 
     private void checkAeScannedSecuredCoherence(AssessedElement nativeAssessedElement) {
         if (nativeAssessedElement.securedForRegion() != null && nativeAssessedElement.securedForRegion().equals(nativeAssessedElement.scannedForRegion())) {
-            throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, "AssessedElement " + nativeAssessedElement.identifier() + " ignored because an AssessedElement cannot be optimized and monitored at the same time");
+            throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, "AssessedElement " + nativeAssessedElement.mrid() + " ignored because an AssessedElement cannot be optimized and monitored at the same time");
         }
     }
 

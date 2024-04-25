@@ -42,8 +42,8 @@ public class PstRangeActionCreator {
             }
             TapPositionAction nativeTapPositionAction = linkedTapPositionActions.get(elementaryActionsAggregatorId).iterator().next();
             Set<StaticPropertyRange> linkedStaticPropertyRangesToTapPositionAction = new HashSet<>();
-            if (linkedStaticPropertyRanges.containsKey(nativeTapPositionAction.identifier())) {
-                linkedStaticPropertyRangesToTapPositionAction = linkedStaticPropertyRanges.get(nativeTapPositionAction.identifier());
+            if (linkedStaticPropertyRanges.containsKey(nativeTapPositionAction.mrid())) {
+                linkedStaticPropertyRangesToTapPositionAction = linkedStaticPropertyRanges.get(nativeTapPositionAction.mrid());
             }
             addTapPositionElementaryAction(linkedStaticPropertyRangesToTapPositionAction, remedialActionId, pstRangeActionAdder, nativeTapPositionAction);
         }

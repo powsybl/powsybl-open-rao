@@ -65,11 +65,11 @@ public class CsaProfileContingencyCreator {
         csaProfileContingencyCreationContexts = new HashSet<>();
 
         for (Contingency nativeContingency : nativeContingencies) {
-            Set<ContingencyEquipment> nativeContingencyEquipments = nativeContingencyEquipmentsPerNativeContingency.getOrDefault(nativeContingency.identifier(), Set.of());
+            Set<ContingencyEquipment> nativeContingencyEquipments = nativeContingencyEquipmentsPerNativeContingency.getOrDefault(nativeContingency.mrid(), Set.of());
             try {
                 addContingency(nativeContingency, nativeContingencyEquipments);
             } catch (OpenRaoImportException exception) {
-                csaProfileContingencyCreationContexts.add(CsaProfileElementaryCreationContext.notImported(nativeContingency.identifier(), exception.getImportStatus(), exception.getMessage()));
+                csaProfileContingencyCreationContexts.add(CsaProfileElementaryCreationContext.notImported(nativeContingency.mrid(), exception.getImportStatus(), exception.getMessage()));
             }
         }
 
@@ -80,14 +80,14 @@ public class CsaProfileContingencyCreator {
         List<String> alterations = new ArrayList<>();
 
         if (!nativeContingency.normalMustStudy()) {
-            throw new OpenRaoImportException(ImportStatus.NOT_FOR_RAO, formatNotImportedMessage(nativeContingency.identifier(), "its field mustStudy is set to false"));
+            throw new OpenRaoImportException(ImportStatus.NOT_FOR_RAO, formatNotImportedMessage(nativeContingency.mrid(), "its field mustStudy is set to false"));
         }
 
-        ContingencyAdder contingencyAdder = crac.newContingency().withId(nativeContingency.identifier()).withName(nativeContingency.getUniqueName());
-        addContingencyEquipments(nativeContingency.identifier(), nativeContingencyEquipments, contingencyAdder, alterations);
+        ContingencyAdder contingencyAdder = crac.newContingency().withId(nativeContingency.mrid()).withName(nativeContingency.getUniqueName());
+        addContingencyEquipments(nativeContingency.mrid(), nativeContingencyEquipments, contingencyAdder, alterations);
         contingencyAdder.add();
 
-        csaProfileContingencyCreationContexts.add(CsaProfileElementaryCreationContext.imported(nativeContingency.identifier(), nativeContingency.identifier(), nativeContingency.getUniqueName(), String.join(" ", alterations), !alterations.isEmpty()));
+        csaProfileContingencyCreationContexts.add(CsaProfileElementaryCreationContext.imported(nativeContingency.mrid(), nativeContingency.mrid(), nativeContingency.getUniqueName(), String.join(" ", alterations), !alterations.isEmpty()));
     }
 
     private void addContingencyEquipments(String contingencyId, Set<ContingencyEquipment> nativeContingencyEquipments, ContingencyAdder contingencyAdder, List<String> alterations) {

@@ -19,7 +19,7 @@ import java.util.Optional;
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
-public record ContingencyEquipment(String identifier, String contingency, String contingentStatus, String equipment) {
+public record ContingencyEquipment(String mrid, String contingency, String contingentStatus, String equipment) {
 
     public boolean isEquipmentOutOfService() {
         return CsaProfileConstants.OUT_OF_SERVICE_CONTINGENT_STATUS.equals(contingentStatus);

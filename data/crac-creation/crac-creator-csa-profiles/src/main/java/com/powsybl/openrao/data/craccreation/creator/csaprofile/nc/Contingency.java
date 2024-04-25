@@ -13,10 +13,10 @@ import com.powsybl.triplestore.api.PropertyBag;
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
-public record Contingency(String identifier, boolean normalMustStudy, String name, String operator) {
+public record Contingency(String mrid, boolean normalMustStudy, String name, String operator) {
 
     public String getUniqueName() {
-        return CsaProfileCracUtils.createElementName(name, operator).orElse(identifier);
+        return CsaProfileCracUtils.createElementName(name, operator).orElse(mrid);
     }
 
     public static Contingency fromPropertyBag(PropertyBag propertyBag) {

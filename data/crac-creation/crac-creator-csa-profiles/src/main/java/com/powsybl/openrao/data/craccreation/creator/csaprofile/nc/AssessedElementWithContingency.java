@@ -12,7 +12,7 @@ import com.powsybl.triplestore.api.PropertyBag;
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
-public record AssessedElementWithContingency(String identifier, String assessedElement, String contingency, String combinationConstraintKind, boolean normalEnabled) {
+public record AssessedElementWithContingency(String mrid, String assessedElement, String contingency, String combinationConstraintKind, boolean normalEnabled) {
     public static AssessedElementWithContingency fromPropertyBag(PropertyBag propertyBag) {
         return new AssessedElementWithContingency(
             propertyBag.getId(CsaProfileConstants.REQUEST_ASSESSED_ELEMENT_WITH_CONTINGENCY),

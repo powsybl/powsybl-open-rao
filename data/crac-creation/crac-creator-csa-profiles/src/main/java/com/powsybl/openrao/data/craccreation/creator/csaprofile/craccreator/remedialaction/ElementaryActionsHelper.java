@@ -209,7 +209,7 @@ public class ElementaryActionsHelper {
 
     private String getAssociatedGridStateAlterationCollectionUsingStage(String remedialActionId, String remedialActionScheme) {
         Stage nativeStage = getAssociatedStagePropertyBag(remedialActionId, remedialActionScheme);
-        List<GridStateAlterationCollection> linkedGridStateAlterationCollectionPropertyBags = nativeGridStateAlterationCollections.stream().filter(nativeGridStateAlterationCollection -> nativeStage.gridStateAlterationCollection().equals(nativeGridStateAlterationCollection.identifier())).toList();
+        List<GridStateAlterationCollection> linkedGridStateAlterationCollectionPropertyBags = nativeGridStateAlterationCollections.stream().filter(nativeGridStateAlterationCollection -> nativeStage.gridStateAlterationCollection().equals(nativeGridStateAlterationCollection.mrid())).toList();
         if (linkedGridStateAlterationCollectionPropertyBags.isEmpty()) {
             throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action " + remedialActionId + " will not be imported because it has no associated GridStateAlterationCollection");
         }
@@ -239,9 +239,9 @@ public class ElementaryActionsHelper {
             throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action " + remedialActionId + " will not be imported because of an unsupported kind for remedial action schedule (only SIPS allowed)");
         }
         if (!nativeRemedialActionScheme.normalArmed()) {
-            throw new OpenRaoImportException(ImportStatus.NOT_FOR_RAO, "Remedial action " + remedialActionId + " will not be imported because RemedialActionScheme " + nativeRemedialActionScheme.identifier() + " is not armed");
+            throw new OpenRaoImportException(ImportStatus.NOT_FOR_RAO, "Remedial action " + remedialActionId + " will not be imported because RemedialActionScheme " + nativeRemedialActionScheme.mrid() + " is not armed");
         }
-        return nativeRemedialActionScheme.identifier();
+        return nativeRemedialActionScheme.mrid();
     }
 
     public boolean remedialActionIsLinkedToAssessedElements(String remedialActionId) {

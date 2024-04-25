@@ -68,12 +68,12 @@ public abstract class AbstractCnecCreator {
     }
 
     protected String writeAssessedElementIgnoredReasonMessage(String reason) {
-        return "AssessedElement " + nativeAssessedElement.identifier() + " ignored because " + reason;
+        return "AssessedElement " + nativeAssessedElement.mrid() + " ignored because " + reason;
     }
 
     protected String getCnecName(String instantId, Contingency contingency) {
         // Need to include the mRID in the name in case the AssessedElement's name is not unique
-        return "%s (%s) - %s%s".formatted(nativeAssessedElement.getUniqueName(), nativeAssessedElement.identifier(), contingency == null ? "" : contingency.getName().orElse(contingency.getId()) + " - ", instantId);
+        return "%s (%s) - %s%s".formatted(nativeAssessedElement.getUniqueName(), nativeAssessedElement.mrid(), contingency == null ? "" : contingency.getName().orElse(contingency.getId()) + " - ", instantId);
     }
 
     protected String getCnecName(String instantId, Contingency contingency, int tatlDuration) {
@@ -103,9 +103,9 @@ public abstract class AbstractCnecCreator {
 
     protected void markCnecAsImportedAndHandleRejectedContingencies(String cnecName) {
         if (rejectedLinksAssessedElementContingency.isEmpty()) {
-            csaProfileCnecCreationContexts.add(CsaProfileElementaryCreationContext.imported(nativeAssessedElement.identifier(), cnecName, cnecName, "", false));
+            csaProfileCnecCreationContexts.add(CsaProfileElementaryCreationContext.imported(nativeAssessedElement.mrid(), cnecName, cnecName, "", false));
         } else {
-            csaProfileCnecCreationContexts.add(CsaProfileElementaryCreationContext.imported(nativeAssessedElement.identifier(), cnecName, cnecName, "some cnec for the same assessed element are not imported because of incorrect data for assessed elements for contingencies : " + rejectedLinksAssessedElementContingency, true));
+            csaProfileCnecCreationContexts.add(CsaProfileElementaryCreationContext.imported(nativeAssessedElement.mrid(), cnecName, cnecName, "some cnec for the same assessed element are not imported because of incorrect data for assessed elements for contingencies : " + rejectedLinksAssessedElementContingency, true));
         }
     }
 }

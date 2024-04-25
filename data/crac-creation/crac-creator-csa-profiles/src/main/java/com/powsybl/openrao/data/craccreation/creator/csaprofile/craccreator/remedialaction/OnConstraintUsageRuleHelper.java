@@ -35,7 +35,7 @@ public class OnConstraintUsageRuleHelper {
     private void readAssessedElementsCombinableWithRemedialActions(Set<AssessedElement> nativeAssessedElements) {
         List<String> nativeIdsOfCnecsCombinableWithRas = nativeAssessedElements.stream()
             .filter(AssessedElement::isCombinableWithRemedialAction)
-            .map(AssessedElement::identifier).toList();
+            .map(AssessedElement::mrid).toList();
         Map<String, Set<String>> nativeToOpenRaoCnecIdsCombinableWithRas = getImportedCnecsNativeIdsToOpenRaoIds();
         nativeToOpenRaoCnecIdsCombinableWithRas.keySet().retainAll(nativeIdsOfCnecsCombinableWithRas);
         nativeToOpenRaoCnecIdsCombinableWithRas.values().stream().flatMap(Set::stream).forEach(importedCnecsCombinableWithRas::add);
@@ -61,7 +61,7 @@ public class OnConstraintUsageRuleHelper {
                         .computeIfAbsent(nativeAssessedElementWithRemedialAction.remedialAction(), k -> new HashSet<>())
                         .addAll(openRaoCnecIds);
                 } else {
-                    throw new OpenRaoException(String.format("Unsupported combinationConstraintKind of AssessedElementsWithRemedialAction with id %s, only  ['INCLUDED', 'EXCLUDED', 'CONSIDERED'] are supported ", nativeAssessedElementWithRemedialAction.identifier()));
+                    throw new OpenRaoException(String.format("Unsupported combinationConstraintKind of AssessedElementsWithRemedialAction with id %s, only  ['INCLUDED', 'EXCLUDED', 'CONSIDERED'] are supported ", nativeAssessedElementWithRemedialAction.mrid()));
                 }
             });
     }

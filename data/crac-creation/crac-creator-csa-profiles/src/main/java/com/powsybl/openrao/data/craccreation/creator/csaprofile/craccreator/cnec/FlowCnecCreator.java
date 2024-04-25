@@ -211,7 +211,7 @@ public class FlowCnecCreator extends AbstractCnecCreator {
         cnecAdder.add();
         if (hasNoPatl) {
             String cnecName = getCnecName(instantId, null);
-            csaProfileCnecCreationContexts.add(CsaProfileElementaryCreationContext.imported(nativeAssessedElement.identifier(), cnecName, cnecName, "the AssessedElement was pointing to a TATL and used inBaseCase. For the preventive instant, this TATL was also used as a PATL to create the CNEC", true));
+            csaProfileCnecCreationContexts.add(CsaProfileElementaryCreationContext.imported(nativeAssessedElement.mrid(), cnecName, cnecName, "the AssessedElement was pointing to a TATL and used inBaseCase. For the preventive instant, this TATL was also used as a PATL to create the CNEC", true));
             return;
         }
         markCnecAsImportedAndHandleRejectedContingencies(getCnecName(instantId, contingency));
@@ -265,7 +265,7 @@ public class FlowCnecCreator extends AbstractCnecCreator {
             if (acceptableDuration != Integer.MAX_VALUE) {
                 Instant instant = getCnecInstant(acceptableDuration);
                 if (instant == null) {
-                    csaProfileCnecCreationContexts.add(CsaProfileElementaryCreationContext.notImported(nativeAssessedElement.identifier(), ImportStatus.INCONSISTENCY_IN_DATA, writeAssessedElementIgnoredReasonMessage("TATL acceptable duration is negative: " + acceptableDuration)));
+                    csaProfileCnecCreationContexts.add(CsaProfileElementaryCreationContext.notImported(nativeAssessedElement.mrid(), ImportStatus.INCONSISTENCY_IN_DATA, writeAssessedElementIgnoredReasonMessage("TATL acceptable duration is negative: " + acceptableDuration)));
                     //TODO : this most likely needs fixing, maybe continue is enough as a fix instead of return, but then the context wont be very clear since some will have been imported (can already be the case)
                     continue;
                 }

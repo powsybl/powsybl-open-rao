@@ -12,7 +12,7 @@ import com.powsybl.triplestore.api.PropertyBag;
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
-public record CurrentLimit(String identifier, double value, String terminal, String limitType, String direction, String acceptableDuration) {
+public record CurrentLimit(String mrid, double value, String terminal, String limitType, String direction, String acceptableDuration) {
     public static CurrentLimit fromPropertyBag(PropertyBag propertyBag) {
         return new CurrentLimit(
             propertyBag.getId(CsaProfileConstants.REQUEST_CURRENT_LIMIT),

@@ -12,7 +12,7 @@ import com.powsybl.triplestore.api.PropertyBag;
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
-public record VoltageLimit(String identifier, double value, String equipment, String limitType, boolean isInfiniteDuration) {
+public record VoltageLimit(String mrid, double value, String equipment, String limitType, boolean isInfiniteDuration) {
     public static VoltageLimit fromPropertyBag(PropertyBag propertyBag) {
         return new VoltageLimit(
             propertyBag.getId(CsaProfileConstants.REQUEST_VOLTAGE_LIMIT),

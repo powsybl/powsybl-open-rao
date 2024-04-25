@@ -65,9 +65,9 @@ public class NetworkActionCreator {
     private boolean processLinkedShuntCompensatorModifications(Map<String, Set<ShuntCompensatorModification>> linkedShuntCompensatorModifications, Map<String, Set<StaticPropertyRange>> staticPropertyRanges, String remedialActionId, String networkElementsAggregatorId, NetworkActionAdder networkActionAdder, List<String> alterations) {
         boolean hasShuntCompensatorModification = false;
         for (ShuntCompensatorModification nativeShuntCompensatorModification : linkedShuntCompensatorModifications.get(networkElementsAggregatorId)) {
-            checkNetworkActionHasExactlyOneStaticPropertyRange(staticPropertyRanges, remedialActionId, nativeShuntCompensatorModification.identifier());
+            checkNetworkActionHasExactlyOneStaticPropertyRange(staticPropertyRanges, remedialActionId, nativeShuntCompensatorModification.mrid());
             hasShuntCompensatorModification = addInjectionSetPointFromShuntCompensatorModification(
-                staticPropertyRanges.get(nativeShuntCompensatorModification.identifier()),
+                staticPropertyRanges.get(nativeShuntCompensatorModification.mrid()),
                 remedialActionId, networkActionAdder, nativeShuntCompensatorModification, alterations)
                 || hasShuntCompensatorModification;
         }
@@ -77,9 +77,9 @@ public class NetworkActionCreator {
     private boolean processLinkedRotatingMachineActions(Map<String, Set<RotatingMachineAction>> linkedRotatingMachineActions, Map<String, Set<StaticPropertyRange>> staticPropertyRanges, String remedialActionId, String networkElementsAggregatorId, NetworkActionAdder networkActionAdder, List<String> alterations) {
         boolean hasRotatingMachineAction = false;
         for (RotatingMachineAction nativeRotatingMachineAction : linkedRotatingMachineActions.get(networkElementsAggregatorId)) {
-            checkNetworkActionHasExactlyOneStaticPropertyRange(staticPropertyRanges, remedialActionId, nativeRotatingMachineAction.identifier());
+            checkNetworkActionHasExactlyOneStaticPropertyRange(staticPropertyRanges, remedialActionId, nativeRotatingMachineAction.mrid());
             hasRotatingMachineAction = addInjectionSetPointFromRotatingMachineAction(
-                staticPropertyRanges.get(nativeRotatingMachineAction.identifier()),
+                staticPropertyRanges.get(nativeRotatingMachineAction.mrid()),
                 remedialActionId, networkActionAdder, nativeRotatingMachineAction, alterations)
                 || hasRotatingMachineAction;
         }
@@ -89,8 +89,8 @@ public class NetworkActionCreator {
     private boolean processLinkedTopologyActions(Map<String, Set<TopologyAction>> linkedTopologyActions, Map<String, Set<StaticPropertyRange>> staticPropertyRanges, String remedialActionId, String networkElementsAggregatorId, NetworkActionAdder networkActionAdder, List<String> alterations) {
         boolean hasTopologyActions = false;
         for (TopologyAction nativeTopologyAction : linkedTopologyActions.get(networkElementsAggregatorId)) {
-            checkNetworkActionHasExactlyOneStaticPropertyRange(staticPropertyRanges, remedialActionId, nativeTopologyAction.identifier());
-            hasTopologyActions = addTopologicalElementaryAction(staticPropertyRanges.get(nativeTopologyAction.identifier()),
+            checkNetworkActionHasExactlyOneStaticPropertyRange(staticPropertyRanges, remedialActionId, nativeTopologyAction.mrid());
+            hasTopologyActions = addTopologicalElementaryAction(staticPropertyRanges.get(nativeTopologyAction.mrid()),
                 networkActionAdder, nativeTopologyAction, remedialActionId, alterations)
                 || hasTopologyActions;
         }

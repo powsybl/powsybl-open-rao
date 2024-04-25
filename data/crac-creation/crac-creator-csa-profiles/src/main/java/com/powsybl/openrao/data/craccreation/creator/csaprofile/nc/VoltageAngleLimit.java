@@ -12,7 +12,7 @@ import com.powsybl.triplestore.api.PropertyBag;
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
-public record VoltageAngleLimit(String identifier, double normalValue, String terminal1, String terminal2, String direction, Boolean isFlowToRefTerminal) {
+public record VoltageAngleLimit(String mrid, double normalValue, String terminal1, String terminal2, String direction, Boolean isFlowToRefTerminal) {
     public static VoltageAngleLimit fromPropertyBag(PropertyBag propertyBag) {
         return new VoltageAngleLimit(
             propertyBag.getId(CsaProfileConstants.REQUEST_VOLTAGE_ANGLE_LIMIT),

@@ -12,7 +12,7 @@ import com.powsybl.triplestore.api.PropertyBag;
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
-public record RemedialActionScheme(String identifier, String kind, boolean normalArmed, String schemeRemedialAction) {
+public record RemedialActionScheme(String mrid, String kind, boolean normalArmed, String schemeRemedialAction) {
     public static RemedialActionScheme fromPropertyBag(PropertyBag propertyBag) {
         return new RemedialActionScheme(
             propertyBag.getId(CsaProfileConstants.REMEDIAL_ACTION_SCHEME),

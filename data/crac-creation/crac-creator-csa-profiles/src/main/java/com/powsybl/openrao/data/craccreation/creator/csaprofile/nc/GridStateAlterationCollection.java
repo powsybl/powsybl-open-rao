@@ -12,7 +12,7 @@ import com.powsybl.triplestore.api.PropertyBag;
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
-public record GridStateAlterationCollection(String identifier) {
+public record GridStateAlterationCollection(String mrid) {
     public static GridStateAlterationCollection fromPropertyBag(PropertyBag propertyBag) {
         return new GridStateAlterationCollection(propertyBag.getId(CsaProfileConstants.GRID_STATE_ALTERATION_COLLECTION));
     }
