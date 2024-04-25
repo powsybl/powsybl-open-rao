@@ -30,10 +30,10 @@ public final class CsaProfileCracUtils {
 
     }
 
-    public static Map<String, Set<PropertyBag>> getMappedPropertyBagsSet(PropertyBags propertyBags, String property) {
+    public static Map<String, Set<PropertyBag>> groupPropertyBags(PropertyBags propertyBags, String groupingPoperty) {
         Map<String, Set<PropertyBag>> mappedPropertyBags = new HashMap<>();
         for (PropertyBag propertyBag : propertyBags) {
-            String propValue = propertyBag.getId(property);
+            String propValue = propertyBag.getId(groupingPoperty);
             Set<PropertyBag> propPropertyBags = mappedPropertyBags.computeIfAbsent(propValue, k -> new HashSet<>());
             propPropertyBags.add(propertyBag);
         }

@@ -62,19 +62,18 @@ class AutoRemedialActionTest {
         assertEquals(InstantKind.AUTO, networkSpsUsageRule.getInstant().getKind());
         assertEquals(UsageMethod.FORCED, networkSpsUsageRule.getUsageMethod());
 
-        assertEquals(12, cracCreationContext.getRemedialActionCreationContexts().stream().filter(ra -> !ra.isImported()).toList().size());
+        assertEquals(11, cracCreationContext.getRemedialActionCreationContexts().stream().filter(ra -> !ra.isImported()).toList().size());
 
         assertRaNotImported(cracCreationContext, "sps-with-multiple-remedial-action-schemes", ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action sps-with-multiple-remedial-action-schemes will not be imported because it has several conflictual RemedialActionSchemes");
         assertRaNotImported(cracCreationContext, "sps-with-multiple-stages", ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action sps-with-multiple-stages will not be imported because it has several conflictual Stages");
         assertRaNotImported(cracCreationContext, "pst-sps-without-speed", ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action pst-sps-without-speed will not be imported because an auto PST range action must have a speed defined");
         assertRaNotImported(cracCreationContext, "preventive-sps", ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action preventive-sps will not be imported because auto remedial action must be of curative kind");
-        assertRaNotImported(cracCreationContext, "not-forced-sps", ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action not-forced-sps will not be imported because it must be linked to the contingency contingency with an 'included' ElementCombinationConstraintKind");
         assertRaNotImported(cracCreationContext, "sps-with-unarmed-remedial-action-scheme", ImportStatus.NOT_FOR_RAO, "Remedial action sps-with-unarmed-remedial-action-scheme will not be imported because RemedialActionScheme 5f7796db-a662-488d-a938-39c8a2b36055 is not armed");
         assertRaNotImported(cracCreationContext, "not-sips-sps", ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action not-sips-sps will not be imported because of an unsupported kind for remedial action schedule (only SIPS allowed)");
         assertRaNotImported(cracCreationContext, "sps-without-remedial-action-scheme", ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action sps-without-remedial-action-scheme will not be imported because it has no associated RemedialActionScheme");
         assertRaNotImported(cracCreationContext, "sps-without-stage", ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action sps-without-stage will not be imported because it has no associated Stage");
         assertRaNotImported(cracCreationContext, "sps-without-grid-state-alteration-collection", ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action sps-without-grid-state-alteration-collection will not be imported because it has no associated GridStateAlterationCollection");
         assertRaNotImported(cracCreationContext, "sps-without-elementary-actions", ImportStatus.NOT_FOR_RAO, "Remedial action sps-without-elementary-actions will not be imported because it has no elementary action");
-        assertRaNotImported(cracCreationContext, "sps-without-contingency", ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action sps-without-contingency will not be imported because no contingency is linked to the remedial action");
+        assertRaNotImported(cracCreationContext, "sps-without-contingency", ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action sps-without-contingency will not be imported because no contingency or assessed element is linked to the remedial action and this is nor supported for ARAs");
     }
 }

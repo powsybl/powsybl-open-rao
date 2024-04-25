@@ -122,7 +122,7 @@ public class NetworkActionCreator {
                 .add();
             return true;
         } else {
-            alterations.add("Elementary rotating machine action on rotating machine %s for remedial action %s ignored because the RotatingMachineAction is disabled".formatted(rotatingMachineId, remedialActionId));
+            alterations.add("Elementary rotating machine action on rotating machine %s for remedial action %s ignored because the RotatingMachineAction is disabled.".formatted(rotatingMachineId, remedialActionId));
             return false;
         }
     }
@@ -145,7 +145,7 @@ public class NetworkActionCreator {
                 .add();
             return true;
         } else {
-            alterations.add("Elementary shunt compensator modification on shunt compensator %s for remedial action %s ignored because the ShuntCompensatorModification is disabled".formatted(shuntCompensatorId, remedialActionId));
+            alterations.add("Elementary shunt compensator modification on shunt compensator %s for remedial action %s ignored because the ShuntCompensatorModification is disabled.".formatted(shuntCompensatorId, remedialActionId));
             return false;
         }
     }
@@ -253,7 +253,7 @@ public class NetworkActionCreator {
                 .withActionType("0".equals(normalValue) ? ActionType.CLOSE : ActionType.OPEN).add();
             return true;
         } else {
-            alterations.add("Elementary topology action on switch %s for remedial action %s ignored because the TopologyAction is disabled".formatted(switchId, remedialActionId));
+            alterations.add("Elementary topology action on switch %s for remedial action %s ignored because the TopologyAction is disabled.".formatted(switchId, remedialActionId));
             return false;
         }
     }
