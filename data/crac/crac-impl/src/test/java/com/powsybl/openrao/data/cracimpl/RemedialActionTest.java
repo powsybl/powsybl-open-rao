@@ -17,6 +17,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.util.Collections;
+import java.util.Optional;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -50,7 +51,7 @@ class RemedialActionTest {
         Mockito.doReturn(instant).when(state).getInstant();
         Set<UsageRule> usageRules = Set.of(
             new OnInstantImpl(UsageMethod.AVAILABLE, instant),
-            new OnFlowConstraintInCountryImpl(UsageMethod.FORCED, instant, Country.FR));
+            new OnFlowConstraintInCountryImpl(UsageMethod.FORCED, instant, Optional.empty(), Country.FR));
         AbstractRemedialAction<?> ra = new NetworkActionImpl("id", "name", "operator", usageRules, Collections.emptySet(), 0);
         assertEquals(UsageMethod.FORCED, ra.getUsageMethod(state));
     }

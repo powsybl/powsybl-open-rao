@@ -132,4 +132,41 @@ class OnFlowConstraintInCountryAdderImplTest {
         OpenRaoException exception = assertThrows(OpenRaoException.class, adder::add);
         assertEquals("Cannot add OnFlowConstraintInCountry without a usage method. Please use withUsageMethod() with a non null value", exception.getMessage());
     }
+
+    @Test
+    void testWithContingency() {
+        RemedialAction<?> remedialAction = remedialActionAdder.newOnFlowConstraintInCountryUsageRule()
+            .withInstant(CURATIVE_INSTANT_ID)
+            .withCountry(Country.FR)
+            .withContingency("Contingency FR1 FR3")
+            .withUsageMethod(UsageMethod.AVAILABLE)
+            .add()
+            .add();
+        assertTrue(remedialAction.getUsageRules().iterator().next() instanceof OnFlowConstraintInCountry);
+        OnFlowConstraintInCountry onFlowConstraint = (OnFlowConstraintInCountry) remedialAction.getUsageRules().iterator().next();
+        assertTrue(onFlowConstraint.getContingency().isPresent());
+        assertEquals("Contingency FR1 FR3", onFlowConstraint.getContingency().get().getId());
+    }
+
+    @Test
+    void testFailWithContingencyOnPreventive() {
+        OnFlowConstraintInCountryAdder<NetworkActionAdder> adder = remedialActionAdder.newOnFlowConstraintInCountryUsageRule()
+            .withInstant(PREVENTIVE_INSTANT_ID)
+            .withCountry(Country.FR)
+            .withContingency("Contingency FR1 FR3")
+            .withUsageMethod(UsageMethod.AVAILABLE);
+        Exception e = assertThrows(OpenRaoException.class, adder::add);
+        assertEquals("You cannot define a contingency in the preventive instant.", e.getMessage());
+    }
+
+    @Test
+    void testFailWithAbsentContingency() {
+        OnFlowConstraintInCountryAdder<NetworkActionAdder> adder = remedialActionAdder.newOnFlowConstraintInCountryUsageRule()
+            .withInstant(CURATIVE_INSTANT_ID)
+            .withCountry(Country.FR)
+            .withContingency("wrong_contingency")
+            .withUsageMethod(UsageMethod.AVAILABLE);
+        Exception e = assertThrows(OpenRaoException.class, adder::add);
+        assertEquals("Contingency wrong_contingency of OnFlowConstraintInCountry usage rule does not exist in the crac. Use crac.newContingency() first.", e.getMessage());
+    }
 }

@@ -39,6 +39,9 @@ public final class OnFlowConstraintInCountryArrayDeserializer {
                             adder.withUsageMethod(deseralizeInstantKind(instantId).equals(InstantKind.AUTO) ? UsageMethod.FORCED : UsageMethod.AVAILABLE);
                         }
                         break;
+                    case CONTINGENCY_ID:
+                        String contingencyId = jsonParser.nextTextValue();
+                        adder.withContingency(contingencyId);
                     case USAGE_METHOD:
                         adder.withUsageMethod(deserializeUsageMethod(jsonParser.nextTextValue()));
                         break;

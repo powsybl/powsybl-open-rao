@@ -6,22 +6,27 @@
  */
 package com.powsybl.openrao.data.cracimpl;
 
+import com.powsybl.contingency.Contingency;
 import com.powsybl.openrao.data.cracapi.Instant;
 import com.powsybl.openrao.data.cracapi.State;
 import com.powsybl.openrao.data.cracapi.usagerule.OnFlowConstraintInCountry;
 import com.powsybl.openrao.data.cracapi.usagerule.UsageMethod;
 import com.powsybl.iidm.network.Country;
 
+import java.util.Optional;
+
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
 public class OnFlowConstraintInCountryImpl extends AbstractUsageRule implements OnFlowConstraintInCountry {
     private final Instant instant;
+    private final Optional<Contingency> contingency;
     private final Country country;
 
-    OnFlowConstraintInCountryImpl(UsageMethod usageMethod, Instant instant, Country country) {
+    OnFlowConstraintInCountryImpl(UsageMethod usageMethod, Instant instant, Optional<Contingency> contingency, Country country) {
         super(usageMethod);
         this.instant = instant;
+        this.contingency = contingency;
         this.country = country;
     }
 
@@ -33,6 +38,11 @@ public class OnFlowConstraintInCountryImpl extends AbstractUsageRule implements 
     @Override
     public Instant getInstant() {
         return instant;
+    }
+
+    @Override
+    public Optional<Contingency> getContingency() {
+        return contingency;
     }
 
     @Override

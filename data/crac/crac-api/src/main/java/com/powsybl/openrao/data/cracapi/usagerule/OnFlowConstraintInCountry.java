@@ -6,8 +6,11 @@
  */
 package com.powsybl.openrao.data.cracapi.usagerule;
 
+import com.powsybl.contingency.Contingency;
 import com.powsybl.openrao.data.cracapi.Instant;
 import com.powsybl.iidm.network.Country;
+
+import java.util.Optional;
 
 /**
  * The OnFlowConstraint UsageRule is defined on a given country.
@@ -18,12 +21,18 @@ import com.powsybl.iidm.network.Country;
  */
 public interface OnFlowConstraintInCountry extends UsageRule {
     /**
-     * Get the FlowCnec that should be constrained
+     * Get the country of the FlowCnec that should be constrained
      */
     Country getCountry();
 
     /**
-     * Get the Instant of the free to use
+     * Get the Instant of the usage rule
      */
     Instant getInstant();
+
+    /**
+     * Get the Contingency of the usage rule
+     * If empty, then there is no Contingency condition
+     */
+    Optional<Contingency> getContingency();
 }

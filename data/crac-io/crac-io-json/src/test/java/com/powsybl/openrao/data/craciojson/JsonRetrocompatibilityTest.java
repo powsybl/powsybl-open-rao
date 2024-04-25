@@ -31,6 +31,7 @@ import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static com.powsybl.openrao.data.cracapi.usagerule.UsageMethod.AVAILABLE;
 import static com.powsybl.openrao.data.cracapi.usagerule.UsageMethod.FORCED;
@@ -260,18 +261,16 @@ class JsonRetrocompatibilityTest {
         InputStream cracFile = getClass().getResourceAsStream("/retrocompatibility/v2/crac-v2.0.json");
 
         Crac crac = new JsonImport().importCrac(cracFile, network);
-
-        assertEquals(2, crac.getContingencies().size());
-        assertEquals(7, crac.getFlowCnecs().size());
-        assertEquals(1, crac.getAngleCnecs().size());
-        assertEquals(1, crac.getVoltageCnecs().size());
-        assertEquals(4, crac.getNetworkActions().size());
-        assertEquals(4, crac.getPstRangeActions().size());
-        assertEquals(2, crac.getHvdcRangeActions().size());
-        assertEquals(1, crac.getInjectionRangeActions().size());
-        assertEquals(1, crac.getCounterTradeRangeActions().size());
-        assertEquals(5, crac.getSortedInstants().size());
         testContentOfV2Point0Crac(crac);
+    }
+
+    @Test
+    void importV2Point2Test() {
+        // Add support for contingency in OnFlowConstraintInCountry
+        InputStream cracFile = getClass().getResourceAsStream("/retrocompatibility/v2/crac-v2.2.json");
+
+        Crac crac = new JsonImport().importCrac(cracFile, network);
+        testContentOfV2Point2Crac(crac);
     }
 
     private void testContentOfV1Point0Crac(Crac crac) {
@@ -635,6 +634,16 @@ class JsonRetrocompatibilityTest {
     }
 
     private void testContentOfV2Point0Crac(Crac crac) {
+        assertEquals(2, crac.getContingencies().size());
+        assertEquals(7, crac.getFlowCnecs().size());
+        assertEquals(1, crac.getAngleCnecs().size());
+        assertEquals(1, crac.getVoltageCnecs().size());
+        assertEquals(4, crac.getNetworkActions().size());
+        assertEquals(4, crac.getPstRangeActions().size());
+        assertEquals(2, crac.getHvdcRangeActions().size());
+        assertEquals(1, crac.getInjectionRangeActions().size());
+        assertEquals(1, crac.getCounterTradeRangeActions().size());
+        assertEquals(5, crac.getSortedInstants().size());
         testContentOfV1Point9Crac(crac);
         // test instants are well-defined
         List<Instant> instants = crac.getSortedInstants();
@@ -653,5 +662,19 @@ class JsonRetrocompatibilityTest {
         assertEquals("curative", instants.get(4).getId());
         assertEquals(InstantKind.CURATIVE, instants.get(4).getKind());
         assertEquals(4, instants.get(4).getOrder());
+    }
+
+    private void testContentOfV2Point2Crac(Crac crac) {
+        Set<OnFlowConstraintInCountry> urs = crac.getRemedialAction("injectionSetpointRaId").getUsageRules()
+            .stream().filter(OnFlowConstraintInCountry.class::isInstance)
+            .map(OnFlowConstraintInCountry.class::cast)
+            .collect(Collectors.toSet());
+        assertEquals(1, urs.size());
+        OnFlowConstraintInCountry ur = urs.iterator().next();
+        assertEquals(crac.getInstant(InstantKind.CURATIVE), ur.getInstant());
+        assertTrue(ur.getContingency().isPresent());
+        assertEquals("contingency2Id", ur.getContingency().get().getId());
+        assertEquals(Country.FR, ur.getCountry());
+        testContentOfV2Point0Crac(crac);
     }
 }
