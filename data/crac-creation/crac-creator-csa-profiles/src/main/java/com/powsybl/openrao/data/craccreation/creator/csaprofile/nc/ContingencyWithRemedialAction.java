@@ -12,12 +12,12 @@ import com.powsybl.triplestore.api.PropertyBag;
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
-public record AssessedElementWithContingency(String identifier, String assessedElement, String contingency, String combinationConstraintKind, boolean normalEnabled) {
-    public static AssessedElementWithContingency fromPropertyBag(PropertyBag propertyBag) {
-        return new AssessedElementWithContingency(
-            propertyBag.getId(CsaProfileConstants.REQUEST_ASSESSED_ELEMENT_WITH_CONTINGENCY),
-            propertyBag.getId(CsaProfileConstants.REQUEST_ASSESSED_ELEMENT),
+public record ContingencyWithRemedialAction(String identifier, String contingency, String remedialAction, String combinationConstraintKind, boolean normalEnabled) {
+    public static ContingencyWithRemedialAction fromPropertyBag(PropertyBag propertyBag) {
+        return new ContingencyWithRemedialAction(
+            propertyBag.getId(CsaProfileConstants.REQUEST_CONTINGENCY_WITH_REMEDIAL_ACTION),
             propertyBag.getId(CsaProfileConstants.REQUEST_CONTINGENCY),
+            propertyBag.getId(CsaProfileConstants.REQUEST_REMEDIAL_ACTION),
             propertyBag.get(CsaProfileConstants.COMBINATION_CONSTRAINT_KIND),
             Boolean.parseBoolean(propertyBag.getOrDefault(CsaProfileConstants.NORMAL_ENABLED, "true"))
         );

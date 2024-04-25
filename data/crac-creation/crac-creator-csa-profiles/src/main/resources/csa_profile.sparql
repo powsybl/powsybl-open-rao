@@ -274,7 +274,7 @@ GRAPH <%s> {
     ?contingencyWithRemedialAction
         rdf:type nc:ContingencyWithRemedialAction ;
         nc:ContingencyWithRemedialAction.mRID ?mRID ;
-        nc:ContingencyWithRemedialAction.RemedialAction ?gridStateAlterationRemedialAction ;
+        nc:ContingencyWithRemedialAction.RemedialAction ?remedialAction ;
         nc:ContingencyWithRemedialAction.Contingency ?contingency ;
         nc:ContingencyWithRemedialAction.combinationConstraintKind ?combinationConstraintKind ;
 
