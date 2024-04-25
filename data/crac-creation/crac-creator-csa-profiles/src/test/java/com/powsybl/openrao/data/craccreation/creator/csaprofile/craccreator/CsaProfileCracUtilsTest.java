@@ -51,7 +51,7 @@ class CsaProfileCracUtilsTest {
 
         sourcesPb.addAll(Arrays.asList(sourcePb1, sourcePb2, sourcePb3));
 
-        Map<String, Set<PropertyBag>> map = CsaProfileCracUtils.getMappedPropertyBagsSet(sourcesPb, "sourceProperty2");
+        Map<String, Set<PropertyBag>> map = CsaProfileCracUtils.groupPropertyBags(sourcesPb, "sourceProperty2");
         Set<PropertyBag> result = map.get(destPb.getId("destProperty3"));
         assertNotNull(result);
         assertEquals(1, result.size());
