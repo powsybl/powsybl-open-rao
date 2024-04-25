@@ -6,7 +6,6 @@
  */
 package com.powsybl.openrao.searchtreerao.searchtree.algorithms;
 
-import com.powsybl.openrao.data.cracapi.State;
 import com.powsybl.openrao.searchtreerao.commons.NetworkActionCombination;
 import com.powsybl.openrao.searchtreerao.result.api.OptimizationResult;
 
@@ -23,12 +22,10 @@ import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.TECHNICAL_L
 public class MaximumNumberOfRemedialActionPerTsoFilter implements NetworkActionCombinationFilter {
     private final Map<String, Integer> maxTopoPerTso;
     private final Map<String, Integer> maxRaPerTso;
-    private final State optimizedStateForNetworkActions;
 
-    public MaximumNumberOfRemedialActionPerTsoFilter(Map<String, Integer> maxTopoPerTso, Map<String, Integer> maxRaPerTso, State optimizedStateForNetworkActions) {
+    public MaximumNumberOfRemedialActionPerTsoFilter(Map<String, Integer> maxTopoPerTso, Map<String, Integer> maxRaPerTso) {
         this.maxTopoPerTso = maxTopoPerTso;
         this.maxRaPerTso = maxRaPerTso;
-        this.optimizedStateForNetworkActions = optimizedStateForNetworkActions;
     }
 
     /**

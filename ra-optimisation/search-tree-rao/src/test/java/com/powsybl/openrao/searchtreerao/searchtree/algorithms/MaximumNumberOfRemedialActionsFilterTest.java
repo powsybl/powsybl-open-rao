@@ -22,10 +22,8 @@ import static com.powsybl.openrao.searchtreerao.searchtree.algorithms.NetworkAct
 import static com.powsybl.openrao.searchtreerao.searchtree.algorithms.NetworkActionCombinationsUtils.IND_FR_2;
 import static com.powsybl.openrao.searchtreerao.searchtree.algorithms.NetworkActionCombinationsUtils.IND_NL_1;
 import static com.powsybl.openrao.searchtreerao.searchtree.algorithms.NetworkActionCombinationsUtils.IND_NL_BE;
-import static com.powsybl.openrao.searchtreerao.searchtree.algorithms.NetworkActionCombinationsUtils.NA_BE_1;
+
 import static com.powsybl.openrao.searchtreerao.searchtree.algorithms.NetworkActionCombinationsUtils.NA_FR_1;
-import static com.powsybl.openrao.searchtreerao.searchtree.algorithms.NetworkActionCombinationsUtils.P_STATE;
-import static com.powsybl.openrao.searchtreerao.searchtree.algorithms.NetworkActionCombinationsUtils.RA_BE_1;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -48,20 +46,20 @@ class MaximumNumberOfRemedialActionsFilterTest {
         Set<NetworkActionCombination> filteredNaCombination;
 
         // filter - max 4 RAs
-        naFilter = new MaximumNumberOfRemedialActionsFilter(4, P_STATE);
+        naFilter = new MaximumNumberOfRemedialActionsFilter(4);
         filteredNaCombination = naFilter.filter(naCombinations, previousLeaf);
 
         assertEquals(8, filteredNaCombination.size()); // no combination filtered
 
         // filter - max 3 RAs
-        naFilter = new MaximumNumberOfRemedialActionsFilter(3, P_STATE);
+        naFilter = new MaximumNumberOfRemedialActionsFilter(3);
         filteredNaCombination = naFilter.filter(naCombinations, previousLeaf);
 
         assertEquals(7, filteredNaCombination.size()); // one combination filtered
         assertFalse(filteredNaCombination.contains(COMB_3_BE));
 
         // max 2 RAs
-        naFilter = new MaximumNumberOfRemedialActionsFilter(2, P_STATE);
+        naFilter = new MaximumNumberOfRemedialActionsFilter(2);
         filteredNaCombination = naFilter.filter(naCombinations, previousLeaf);
 
         assertEquals(4, filteredNaCombination.size());
@@ -71,21 +69,9 @@ class MaximumNumberOfRemedialActionsFilterTest {
         assertTrue(filteredNaCombination.contains(IND_NL_1));
 
         // max 1 RAs
-        naFilter = new MaximumNumberOfRemedialActionsFilter(1, P_STATE);
+        naFilter = new MaximumNumberOfRemedialActionsFilter(1);
         filteredNaCombination = naFilter.filter(naCombinations, previousLeaf);
 
         assertEquals(0, filteredNaCombination.size()); // all combination filtered
-
-        // check booleans in hashmap -> max 4 RAs
-        previousLeaf = Mockito.mock(Leaf.class);
-        naFilter = new MaximumNumberOfRemedialActionsFilter(4, P_STATE);
-
-        Mockito.when(previousLeaf.getActivatedRangeActions(P_STATE)).thenReturn(Set.of(RA_BE_1));
-        Mockito.when(previousLeaf.getActivatedNetworkActions()).thenReturn(Set.of(NA_FR_1, NA_BE_1));
-
-        Set<NetworkActionCombination> naToRemove = naFilter.filter(naCombinations, previousLeaf);
-        // TODO: move this in bloomer test: Map<NetworkActionCombination, Boolean> expectedResult = Map.of(IND_FR_2, false, IND_BE_1, false, IND_NL_BE, false, IND_NL_1, false, COMB_2_FR, true, COMB_2_BE_NL, true, COMB_2_FR_DE_BE, true);
-        Set<NetworkActionCombination> expectedResult = Set.of(IND_FR_2, IND_BE_1, IND_NL_BE, IND_NL_1, COMB_2_FR, COMB_2_BE_NL, COMB_2_FR_DE_BE);
-        assertEquals(expectedResult, naToRemove);
     }
 }

@@ -6,7 +6,6 @@
  */
 package com.powsybl.openrao.searchtreerao.searchtree.algorithms;
 
-import com.powsybl.openrao.data.cracapi.State;
 import com.powsybl.openrao.data.cracapi.networkaction.NetworkAction;
 import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeAction;
 import com.powsybl.openrao.searchtreerao.commons.NetworkActionCombination;
@@ -28,7 +27,6 @@ import static com.powsybl.openrao.searchtreerao.searchtree.algorithms.NetworkAct
 import static com.powsybl.openrao.searchtreerao.searchtree.algorithms.NetworkActionCombinationsUtils.IND_FR_2;
 import static com.powsybl.openrao.searchtreerao.searchtree.algorithms.NetworkActionCombinationsUtils.IND_FR_DE;
 import static com.powsybl.openrao.searchtreerao.searchtree.algorithms.NetworkActionCombinationsUtils.IND_NL_1;
-import static com.powsybl.openrao.searchtreerao.searchtree.algorithms.NetworkActionCombinationsUtils.NA_BE_1;
 import static com.powsybl.openrao.searchtreerao.searchtree.algorithms.NetworkActionCombinationsUtils.NA_FR_1;
 import static com.powsybl.openrao.searchtreerao.searchtree.algorithms.NetworkActionCombinationsUtils.P_STATE;
 import static com.powsybl.openrao.searchtreerao.searchtree.algorithms.NetworkActionCombinationsUtils.RA_BE_1;
@@ -57,7 +55,7 @@ class MaximumNumberOfRemedialActionPerTsoFilterTest {
 
         // filter - max 2 topo in FR and DE
         Map<String, Integer> maxTopoPerTso = Map.of("fr", 2, "be", 2);
-        naFilter = new MaximumNumberOfRemedialActionPerTsoFilter(maxTopoPerTso, new HashMap<>(), P_STATE);
+        naFilter = new MaximumNumberOfRemedialActionPerTsoFilter(maxTopoPerTso, new HashMap<>());
         filteredNaCombination = naFilter.filter(naCombinations, previousLeaf);
 
         assertEquals(6, filteredNaCombination.size()); // 2 combinations filtered
@@ -66,7 +64,7 @@ class MaximumNumberOfRemedialActionPerTsoFilterTest {
 
         // filter - max 1 topo in FR
         maxTopoPerTso = Map.of("fr", 1);
-        naFilter = new MaximumNumberOfRemedialActionPerTsoFilter(maxTopoPerTso, new HashMap<>(), P_STATE);
+        naFilter = new MaximumNumberOfRemedialActionPerTsoFilter(maxTopoPerTso, new HashMap<>());
         filteredNaCombination = naFilter.filter(naCombinations, previousLeaf);
 
         assertEquals(4, filteredNaCombination.size()); // 4 combinations filtered
@@ -77,7 +75,7 @@ class MaximumNumberOfRemedialActionPerTsoFilterTest {
 
         // filter - max 1 RA in FR and max 2 RA in BE
         Map<String, Integer> maxRaPerTso = Map.of("fr", 1, "be", 2);
-        naFilter = new MaximumNumberOfRemedialActionPerTsoFilter(new HashMap<>(), maxRaPerTso, P_STATE);
+        naFilter = new MaximumNumberOfRemedialActionPerTsoFilter(new HashMap<>(), maxRaPerTso);
         filteredNaCombination = naFilter.filter(naCombinations, previousLeaf);
 
         assertEquals(3, filteredNaCombination.size());
@@ -88,7 +86,7 @@ class MaximumNumberOfRemedialActionPerTsoFilterTest {
         // filter - max 2 topo in FR, max 0 topo in Nl and max 1 RA in BE
         maxTopoPerTso = Map.of("fr", 2, "nl", 0);
         maxRaPerTso = Map.of("be", 1);
-        naFilter = new MaximumNumberOfRemedialActionPerTsoFilter(maxTopoPerTso, maxRaPerTso, P_STATE);
+        naFilter = new MaximumNumberOfRemedialActionPerTsoFilter(maxTopoPerTso, maxRaPerTso);
         filteredNaCombination = naFilter.filter(naCombinations, previousLeaf);
 
         assertEquals(3, filteredNaCombination.size());
@@ -99,29 +97,13 @@ class MaximumNumberOfRemedialActionPerTsoFilterTest {
         // filter - no RA in NL
         maxTopoPerTso = Map.of("fr", 10, "nl", 10, "be", 10);
         maxRaPerTso = Map.of("nl", 0);
-        naFilter = new MaximumNumberOfRemedialActionPerTsoFilter(maxTopoPerTso, maxRaPerTso, P_STATE);
+        naFilter = new MaximumNumberOfRemedialActionPerTsoFilter(maxTopoPerTso, maxRaPerTso);
         filteredNaCombination = naFilter.filter(naCombinations, previousLeaf);
 
         assertEquals(5, filteredNaCombination.size());
         assertFalse(filteredNaCombination.contains(IND_NL_1));
         assertFalse(filteredNaCombination.contains(COMB_2_BE_NL));
         assertFalse(filteredNaCombination.contains(COMB_2_FR_NL));
-
-        // check booleans in hashmap
-        //Map<NetworkActionCombination, Boolean> naCombinations = Map.of(indFr2, false, indBe2, false, comb3Be, false);
-        Leaf leaf = Mockito.mock(Leaf.class);
-        Mockito.when(leaf.getActivatedNetworkActions()).thenReturn(Set.of(NA_BE_1));
-        Mockito.when(leaf.getActivatedRangeActions(Mockito.any(State.class))).thenReturn(Set.of(RA_BE_1));
-
-        Map<String, Integer> maxNaPerTso = Map.of("fr", 1, "be", 2);
-        maxRaPerTso = Map.of("fr", 2, "be", 2);
-
-        naFilter = new MaximumNumberOfRemedialActionPerTsoFilter(maxNaPerTso, maxRaPerTso, P_STATE);
-        // indFr2, indBe1, indNl1, indFrDe, comb2Fr, comb3Be, comb2BeNl, comb2FrNl
-        Set<NetworkActionCombination> naToRemove = naFilter.filter(naCombinations, leaf);
-        // TODO: move this to a bloomer test: Set<NetworkActionCombination> expectedResult = Set.of(IND_FR_2, false, IND_BE_2, true, IND_NL_1, false, IND_FR_DE, false, COMB_2_BE_NL, true, COMB_2_FR_NL, false);
-        Set<NetworkActionCombination> expectedResult = Set.of(IND_FR_2, IND_BE_2, IND_NL_1, IND_FR_DE, COMB_2_BE_NL, COMB_2_FR_NL);
-        assertEquals(expectedResult, naToRemove);
     }
 
     @Test
@@ -155,7 +137,7 @@ class MaximumNumberOfRemedialActionPerTsoFilterTest {
         Map<String, Integer> maxTopoPerTso = Map.of("fr", 2, "nl", 2);
         Map<String, Integer> maxRemedialActionsPerTso = Map.of("fr", 2, "nl", 5);
 
-        MaximumNumberOfRemedialActionPerTsoFilter naFilter = new MaximumNumberOfRemedialActionPerTsoFilter(maxTopoPerTso, maxRemedialActionsPerTso, P_STATE);
+        MaximumNumberOfRemedialActionPerTsoFilter naFilter = new MaximumNumberOfRemedialActionPerTsoFilter(maxTopoPerTso, maxRemedialActionsPerTso);
         Set<NetworkActionCombination> filteredNaCombination = naFilter.filter(naCombinations, previousLeaf);
         assertEquals(0, filteredNaCombination.size()); // combination is filtered out
     }

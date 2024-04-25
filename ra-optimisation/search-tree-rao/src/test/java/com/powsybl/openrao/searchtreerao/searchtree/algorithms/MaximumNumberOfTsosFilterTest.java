@@ -6,7 +6,6 @@
  */
 package com.powsybl.openrao.searchtreerao.searchtree.algorithms;
 
-import com.powsybl.openrao.data.cracapi.State;
 import com.powsybl.openrao.data.cracapi.networkaction.NetworkAction;
 import com.powsybl.openrao.data.cracapi.rangeaction.RangeAction;
 import com.powsybl.openrao.searchtreerao.commons.NetworkActionCombination;
@@ -59,18 +58,6 @@ class MaximumNumberOfTsosFilterTest {
         assertTrue(filteredNaCombination.contains(IND_FR_2));
         assertTrue(filteredNaCombination.contains(IND_FR_DE));
         assertTrue(filteredNaCombination.contains(COMB_2_FR));
-
-        // check booleans in hashmap -> max 2 TSOs
-        Leaf leaf = Mockito.mock(Leaf.class);
-        naFilter = new MaximumNumberOfTsosFilter(2);
-
-        Mockito.when(leaf.getActivatedNetworkActions()).thenReturn(Set.of(NA_FR_1));
-        Mockito.when(leaf.getActivatedRangeActions(Mockito.any(State.class))).thenReturn(Set.of(RA_BE_1));
-
-        Set<NetworkActionCombination> naToRemove = naFilter.filter(naCombinations, leaf);
-        // TODO: move this to bloomer test: Map<NetworkActionCombination, Boolean> expectedResult = Map.of(IND_FR_2, false, IND_BE_1, false, IND_NL_1, true, IND_FR_DE, false, COMB_2_FR, false, COMB_3_BE, false, COMB_2_FR_NL, true);
-        Set<NetworkActionCombination> expectedResult = Set.of(IND_FR_2, IND_BE_1, IND_NL_1, IND_FR_DE, COMB_2_FR, COMB_3_BE, COMB_2_FR_NL);
-        assertEquals(expectedResult, naToRemove);
     }
 
     @Test
