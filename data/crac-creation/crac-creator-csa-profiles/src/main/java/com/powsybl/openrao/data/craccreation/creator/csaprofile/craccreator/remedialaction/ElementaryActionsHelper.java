@@ -10,17 +10,18 @@ import com.powsybl.openrao.data.craccreation.creator.api.ImportStatus;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileConstants;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.nc.AssessedElementWithRemedialAction;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.nc.ContingencyWithRemedialAction;
+import com.powsybl.openrao.data.craccreation.creator.csaprofile.nc.GridStateAlterationCollection;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.nc.RemedialAction;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.nc.RemedialActionDependency;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.nc.RemedialActionGroup;
+import com.powsybl.openrao.data.craccreation.creator.csaprofile.nc.RemedialActionScheme;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.nc.RotatingMachineAction;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.nc.ShuntCompensatorModification;
+import com.powsybl.openrao.data.craccreation.creator.csaprofile.nc.Stage;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.nc.StaticPropertyRange;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.nc.TapPositionAction;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.nc.TopologyAction;
 import com.powsybl.openrao.data.craccreation.util.OpenRaoImportException;
-import com.powsybl.triplestore.api.PropertyBag;
-import com.powsybl.triplestore.api.PropertyBags;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -35,9 +36,9 @@ public class ElementaryActionsHelper {
     private final Set<RemedialActionGroup> nativeRemedialActionGroups;
     private final Set<RemedialAction> nativeGridStateAlterationRemedialActions;
     private final Set<RemedialAction> nativeSchemeRemedialActions;
-    private final PropertyBags remedialActionSchemePropertyBags;
-    private final PropertyBags stagePropertyBags;
-    private final PropertyBags gridStateAlterationCollectionPropertyBags;
+    private final Set<RemedialActionScheme> nativeRemedialActionSchemes;
+    private final Set<Stage> nativeStages;
+    private final Set<GridStateAlterationCollection> nativeGridStateAlterationCollections;
     private final Set<AssessedElementWithRemedialAction> nativeAssessedElementWithRemedialActions;
     private final Map<String, Set<RemedialActionDependency>> nativeRemedialActionDependencyPerNativeRemedialActionGroup;
     private final Map<String, Set<TopologyAction>> nativeTopologyActionsPerNativeRemedialAction;
@@ -53,9 +54,9 @@ public class ElementaryActionsHelper {
 
     public ElementaryActionsHelper(Set<RemedialAction> nativeGridStateAlterationRemedialActions,
                                    Set<RemedialAction> nativeSchemeRemedialActions,
-                                   PropertyBags remedialActionSchemePropertyBags,
-                                   PropertyBags stagePropertyBags,
-                                   PropertyBags gridStateAlterationCollectionPropertyBags,
+                                   Set<RemedialActionScheme> nativeRemedialActionSchemes,
+                                   Set<Stage> nativeStages,
+                                   Set<GridStateAlterationCollection> nativeGridStateAlterationCollections,
                                    Set<AssessedElementWithRemedialAction> nativeAssessedElementWithRemedialActions,
                                    Set<ContingencyWithRemedialAction> nativeContingencyWithRemedialActions,
                                    Set<StaticPropertyRange> nativeStaticPropertyRanges,
@@ -68,9 +69,9 @@ public class ElementaryActionsHelper {
         this.nativeRemedialActionGroups = nativeRemedialActionGroups;
         this.nativeGridStateAlterationRemedialActions = nativeGridStateAlterationRemedialActions;
         this.nativeSchemeRemedialActions = nativeSchemeRemedialActions;
-        this.remedialActionSchemePropertyBags = remedialActionSchemePropertyBags;
-        this.stagePropertyBags = stagePropertyBags;
-        this.gridStateAlterationCollectionPropertyBags = gridStateAlterationCollectionPropertyBags;
+        this.nativeRemedialActionSchemes = nativeRemedialActionSchemes;
+        this.nativeStages = nativeStages;
+        this.nativeGridStateAlterationCollections = nativeGridStateAlterationCollections;
         this.nativeAssessedElementWithRemedialActions = nativeAssessedElementWithRemedialActions;
 
         this.nativeRemedialActionDependencyPerNativeRemedialActionGroup = mapRemedialActionDependenciesToRemedialActionGroups(nativeRemedialActionDependency);
@@ -207,17 +208,16 @@ public class ElementaryActionsHelper {
     }
 
     private String getAssociatedGridStateAlterationCollectionUsingStage(String remedialActionId, String remedialActionScheme) {
-        PropertyBag stagePropertyBag = getAssociatedStagePropertyBag(remedialActionId, remedialActionScheme);
-        String gridStateAlterationCollection = stagePropertyBag.getId(CsaProfileConstants.GRID_STATE_ALTERATION_COLLECTION);
-        List<PropertyBag> linkedGridStateAlterationCollectionPropertyBags = gridStateAlterationCollectionPropertyBags.stream().filter(pb -> gridStateAlterationCollection.equals(pb.get(CsaProfileConstants.MRID))).toList();
+        Stage nativeStage = getAssociatedStagePropertyBag(remedialActionId, remedialActionScheme);
+        List<GridStateAlterationCollection> linkedGridStateAlterationCollectionPropertyBags = nativeGridStateAlterationCollections.stream().filter(nativeGridStateAlterationCollection -> nativeStage.gridStateAlterationCollection().equals(nativeGridStateAlterationCollection.identifier())).toList();
         if (linkedGridStateAlterationCollectionPropertyBags.isEmpty()) {
             throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action " + remedialActionId + " will not be imported because it has no associated GridStateAlterationCollection");
         }
-        return gridStateAlterationCollection;
+        return nativeStage.gridStateAlterationCollection();
     }
 
-    private PropertyBag getAssociatedStagePropertyBag(String remedialActionId, String remedialActionScheme) {
-        List<PropertyBag> linkedStagePropertyBags = stagePropertyBags.stream().filter(pb -> remedialActionScheme.equals(pb.getId(CsaProfileConstants.REMEDIAL_ACTION_SCHEME))).toList();
+    private Stage getAssociatedStagePropertyBag(String remedialActionId, String remedialActionScheme) {
+        List<Stage> linkedStagePropertyBags = nativeStages.stream().filter(stage -> remedialActionScheme.equals(stage.remedialActionScheme())).toList();
         if (linkedStagePropertyBags.isEmpty()) {
             throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action " + remedialActionId + " will not be imported because it has no associated Stage");
         } else if (linkedStagePropertyBags.size() > 1) {
@@ -227,25 +227,21 @@ public class ElementaryActionsHelper {
     }
 
     private String getAssociatedRemedialActionScheme(String remedialActionId) {
-        List<PropertyBag> linkedRemedialActionSchemePropertyBags = remedialActionSchemePropertyBags.stream().filter(pb -> remedialActionId.equals(pb.getId(CsaProfileConstants.SCHEME_REMEDIAL_ACTION))).toList();
+        List<RemedialActionScheme> linkedRemedialActionSchemePropertyBags = nativeRemedialActionSchemes.stream().filter(nativeRemedialActionScheme -> remedialActionId.equals(nativeRemedialActionScheme.schemeRemedialAction())).toList();
         if (linkedRemedialActionSchemePropertyBags.isEmpty()) {
             throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action " + remedialActionId + " will not be imported because it has no associated RemedialActionScheme");
         } else if (linkedRemedialActionSchemePropertyBags.size() > 1) {
             throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action " + remedialActionId + " will not be imported because it has several conflictual RemedialActionSchemes");
         }
 
-        PropertyBag remedialActionSchemePropertyBag = linkedRemedialActionSchemePropertyBags.get(0);
-        String remedialActionSchemeId = remedialActionSchemePropertyBag.getId(CsaProfileConstants.MRID);
-
-        String remedialActionSchemeKind = remedialActionSchemePropertyBag.get(CsaProfileConstants.KIND);
-        if (!remedialActionSchemeKind.equals(CsaProfileConstants.SIPS)) {
+        RemedialActionScheme nativeRemedialActionScheme = linkedRemedialActionSchemePropertyBags.get(0);
+        if (!CsaProfileConstants.SIPS.equals(nativeRemedialActionScheme.kind())) {
             throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action " + remedialActionId + " will not be imported because of an unsupported kind for remedial action schedule (only SIPS allowed)");
         }
-        String remedialActionSchemeNormalArmed = remedialActionSchemePropertyBag.get(CsaProfileConstants.NORMAL_ARMED);
-        if (!Boolean.parseBoolean(remedialActionSchemeNormalArmed)) {
-            throw new OpenRaoImportException(ImportStatus.NOT_FOR_RAO, "Remedial action " + remedialActionId + " will not be imported because RemedialActionScheme " + remedialActionSchemeId + " is not armed");
+        if (!nativeRemedialActionScheme.normalArmed()) {
+            throw new OpenRaoImportException(ImportStatus.NOT_FOR_RAO, "Remedial action " + remedialActionId + " will not be imported because RemedialActionScheme " + nativeRemedialActionScheme.identifier() + " is not armed");
         }
-        return remedialActionSchemeId;
+        return nativeRemedialActionScheme.identifier();
     }
 
     public boolean remedialActionIsLinkedToAssessedElements(String remedialActionId) {

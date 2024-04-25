@@ -29,10 +29,8 @@ import com.powsybl.openrao.data.craccreation.creator.csaprofile.nc.ContingencyEq
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.nc.VoltageAngleLimit;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.parameters.CsaCracCreationParameters;
 import com.powsybl.openrao.data.craccreation.util.RaUsageLimitsAdder;
-import com.powsybl.triplestore.api.PropertyBags;
 
 import java.time.OffsetDateTime;
-import java.util.Map;
 import java.util.Set;
 
 /**
@@ -59,16 +57,11 @@ public class CsaProfileCracCreator implements CracCreator<CsaProfileCrac, CsaPro
         RaUsageLimitsAdder.addRaUsageLimits(crac, cracCreationParameters);
         nativeCrac.setForTimestamp(offsetDateTime);
 
-        Map<String, String> overridingData = nativeCrac.getOverridingData();
-        PropertyBags remedialActionSchemes = CsaProfileCracUtils.overrideData(nativeCrac.getRemedialActionSchemes(), overridingData, CsaProfileConstants.OverridingObjectsFields.REMEDIAL_ACTION_SCHEME);
-        PropertyBags gridStateAlterationsCollection = CsaProfileCracUtils.overrideData(nativeCrac.getGridStateAlterationCollections(), overridingData, CsaProfileConstants.OverridingObjectsFields.GRID_STATE_ALTERATION);
-
         createContingencies(nativeCrac.getContingencies(), nativeCrac.getContingencyEquipments());
-
         createCnecs(nativeCrac.getAssessedElements(), nativeCrac.getAssessedElementWithContingencies(), nativeCrac.getCurrentLimits(), nativeCrac.getVoltageLimits(), nativeCrac.getVoltageAngleLimits(), cracCreationParameters.getDefaultMonitoredSides(), csaParameters.getCapacityCalculationRegionEicCode());
 
         OnConstraintUsageRuleHelper onConstraintUsageRuleAdder = new OnConstraintUsageRuleHelper(creationContext.getCnecCreationContexts(), nativeCrac.getAssessedElements(), nativeCrac.getAssessedElementWithRemedialActions());
-        ElementaryActionsHelper elementaryActionsHelper = new ElementaryActionsHelper(nativeCrac.getGridStateAlterationRemedialActions(), nativeCrac.getSchemeRemedialActions(), remedialActionSchemes, nativeCrac.getStages(), gridStateAlterationsCollection, nativeCrac.getAssessedElementWithRemedialActions(), nativeCrac.getContingencyWithRemedialActions(), nativeCrac.getStaticPropertyRanges(), nativeCrac.getTopologyActions(), nativeCrac.getRotatingMachineActions(), nativeCrac.getShuntCompensatorModifications(), nativeCrac.getTapPositionActions(), nativeCrac.getRemedialActionGroups(), nativeCrac.getRemedialActionDependencies());
+        ElementaryActionsHelper elementaryActionsHelper = new ElementaryActionsHelper(nativeCrac.getGridStateAlterationRemedialActions(), nativeCrac.getSchemeRemedialActions(), nativeCrac.getRemedialActionSchemes(), nativeCrac.getStages(), nativeCrac.getGridStateAlterationCollections(), nativeCrac.getAssessedElementWithRemedialActions(), nativeCrac.getContingencyWithRemedialActions(), nativeCrac.getStaticPropertyRanges(), nativeCrac.getTopologyActions(), nativeCrac.getRotatingMachineActions(), nativeCrac.getShuntCompensatorModifications(), nativeCrac.getTapPositionActions(), nativeCrac.getRemedialActionGroups(), nativeCrac.getRemedialActionDependencies());
         createRemedialActions(onConstraintUsageRuleAdder, elementaryActionsHelper, csaParameters.getSpsMaxTimeToImplementThresholdInSeconds());
         creationContext.buildCreationReport();
         return creationContext.creationSuccess(crac);
