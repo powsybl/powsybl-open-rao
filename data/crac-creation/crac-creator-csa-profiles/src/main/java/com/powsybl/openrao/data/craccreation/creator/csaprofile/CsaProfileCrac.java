@@ -14,6 +14,7 @@ import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaP
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileCracUtils;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.nc.AssessedElement;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.nc.AssessedElementWithContingency;
+import com.powsybl.openrao.data.craccreation.creator.csaprofile.nc.AssessedElementWithRemedialAction;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.nc.Contingency;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.nc.ContingencyEquipment;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.nc.ContingencyWithRemedialAction;
@@ -118,12 +119,12 @@ public class CsaProfileCrac implements NativeCrac {
         return CsaProfileCracUtils.overrideData(getPropertyBags(CsaProfileConstants.REQUEST_ASSESSED_ELEMENT, CsaProfileConstants.CsaProfileKeywords.ASSESSED_ELEMENT.toString()), overridingData, CsaProfileConstants.OverridingObjectsFields.ASSESSED_ELEMENT).stream().map(AssessedElement::fromPropertyBag).collect(Collectors.toSet());
     }
 
-    public Set<AssessedElementWithContingency> getAssessedElementsWithContingencies() {
+    public Set<AssessedElementWithContingency> getAssessedElementWithContingencies() {
         return CsaProfileCracUtils.overrideData(getPropertyBags(CsaProfileConstants.REQUEST_ASSESSED_ELEMENT_WITH_CONTINGENCY, CsaProfileConstants.CsaProfileKeywords.ASSESSED_ELEMENT.toString()), overridingData, CsaProfileConstants.OverridingObjectsFields.ASSESSED_ELEMENT_WITH_CONTINGENCY).stream().map(AssessedElementWithContingency::fromPropertyBag).collect(Collectors.toSet());
     }
 
-    public PropertyBags getAssessedElementsWithRemedialAction() {
-        return getPropertyBags(CsaProfileConstants.REQUEST_ASSESSED_ELEMENT_WITH_REMEDIAL_ACTION, CsaProfileConstants.CsaProfileKeywords.ASSESSED_ELEMENT.toString());
+    public Set<AssessedElementWithRemedialAction> getAssessedElementWithRemedialActions() {
+        return CsaProfileCracUtils.overrideData(getPropertyBags(CsaProfileConstants.REQUEST_ASSESSED_ELEMENT_WITH_REMEDIAL_ACTION, CsaProfileConstants.CsaProfileKeywords.ASSESSED_ELEMENT.toString()), overridingData, CsaProfileConstants.OverridingObjectsFields.ASSESSED_ELEMENT_WITH_REMEDIAL_ACTION).stream().map(AssessedElementWithRemedialAction::fromPropertyBag).collect(Collectors.toSet());
     }
 
     public Set<CurrentLimit> getCurrentLimits() {

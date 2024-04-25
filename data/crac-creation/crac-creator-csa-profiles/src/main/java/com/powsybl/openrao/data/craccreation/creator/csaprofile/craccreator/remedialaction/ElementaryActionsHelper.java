@@ -8,6 +8,7 @@ package com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.rem
 
 import com.powsybl.openrao.data.craccreation.creator.api.ImportStatus;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileConstants;
+import com.powsybl.openrao.data.craccreation.creator.csaprofile.nc.AssessedElementWithRemedialAction;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.nc.ContingencyWithRemedialAction;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.nc.RemedialActionDependency;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.nc.RemedialActionGroup;
@@ -36,7 +37,7 @@ public class ElementaryActionsHelper {
     private final PropertyBags remedialActionSchemePropertyBags;
     private final PropertyBags stagePropertyBags;
     private final PropertyBags gridStateAlterationCollectionPropertyBags;
-    private final PropertyBags assessedElementWithRemedialActionPropertyBags;
+    private final Set<AssessedElementWithRemedialAction> nativeAssessedElementWithRemedialActions;
     private final Map<String, Set<RemedialActionDependency>> nativeRemedialActionDependencyPerNativeRemedialActionGroup;
     private final Map<String, Set<TopologyAction>> nativeTopologyActionsPerNativeRemedialAction;
     private final Map<String, Set<TopologyAction>> nativeTopologyActionsPerNativeRemedialActionAuto;
@@ -54,7 +55,7 @@ public class ElementaryActionsHelper {
                                    PropertyBags remedialActionSchemePropertyBags,
                                    PropertyBags stagePropertyBags,
                                    PropertyBags gridStateAlterationCollectionPropertyBags,
-                                   PropertyBags assessedElementWithRemedialActionPropertyBags,
+                                   Set<AssessedElementWithRemedialAction> nativeAssessedElementWithRemedialActions,
                                    Set<ContingencyWithRemedialAction> nativeContingencyWithRemedialActions,
                                    Set<StaticPropertyRange> nativeStaticPropertyRanges,
                                    Set<TopologyAction> nativeTopologyActions,
@@ -69,7 +70,7 @@ public class ElementaryActionsHelper {
         this.remedialActionSchemePropertyBags = remedialActionSchemePropertyBags;
         this.stagePropertyBags = stagePropertyBags;
         this.gridStateAlterationCollectionPropertyBags = gridStateAlterationCollectionPropertyBags;
-        this.assessedElementWithRemedialActionPropertyBags = assessedElementWithRemedialActionPropertyBags;
+        this.nativeAssessedElementWithRemedialActions = nativeAssessedElementWithRemedialActions;
 
         this.nativeRemedialActionDependencyPerNativeRemedialActionGroup = mapRemedialActionDependenciesToRemedialActionGroups(nativeRemedialActionDependency);
 
@@ -247,6 +248,6 @@ public class ElementaryActionsHelper {
     }
 
     public boolean remedialActionIsLinkedToAssessedElements(String remedialActionId) {
-        return assessedElementWithRemedialActionPropertyBags.stream().anyMatch(propertyBag -> remedialActionId.equals(propertyBag.getId("remedialAction")));
+        return nativeAssessedElementWithRemedialActions.stream().anyMatch(nativeAssessedElementWithRemedialAction -> nativeAssessedElementWithRemedialAction.remedialAction().equals(remedialActionId));
     }
 }

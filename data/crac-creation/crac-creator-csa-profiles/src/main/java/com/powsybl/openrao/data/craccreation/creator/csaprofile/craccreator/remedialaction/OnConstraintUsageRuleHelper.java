@@ -10,8 +10,7 @@ import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileConstants;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileElementaryCreationContext;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.nc.AssessedElement;
-import com.powsybl.triplestore.api.PropertyBag;
-import com.powsybl.triplestore.api.PropertyBags;
+import com.powsybl.openrao.data.craccreation.creator.csaprofile.nc.AssessedElementWithRemedialAction;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -27,10 +26,10 @@ public class OnConstraintUsageRuleHelper {
     private final Map<String, Set<String>> includedCnecsByRemedialAction = new HashMap<>();
     private final Map<String, Set<String>> consideredCnecsByRemedialAction = new HashMap<>();
 
-    public OnConstraintUsageRuleHelper(Set<CsaProfileElementaryCreationContext> csaProfileCnecCreationContexts, Set<AssessedElement> nativeAssessedElements, PropertyBags assessedElementsWithRemedialAction) {
+    public OnConstraintUsageRuleHelper(Set<CsaProfileElementaryCreationContext> csaProfileCnecCreationContexts, Set<AssessedElement> nativeAssessedElements, Set<AssessedElementWithRemedialAction> nativeAssessedElementWithRemedialActions) {
         this.csaProfileCnecCreationContexts = csaProfileCnecCreationContexts;
         readAssessedElementsCombinableWithRemedialActions(nativeAssessedElements);
-        readAssessedElementsWithRemedialAction(assessedElementsWithRemedialAction);
+        readAssessedElementsWithRemedialAction(nativeAssessedElementWithRemedialActions);
     }
 
     private void readAssessedElementsCombinableWithRemedialActions(Set<AssessedElement> nativeAssessedElements) {
@@ -42,35 +41,29 @@ public class OnConstraintUsageRuleHelper {
         nativeToOpenRaoCnecIdsCombinableWithRas.values().stream().flatMap(Set::stream).forEach(importedCnecsCombinableWithRas::add);
     }
 
-    private void readAssessedElementsWithRemedialAction(PropertyBags assessedElementsWithRemedialAction) {
-        assessedElementsWithRemedialAction.stream().filter(this::checkNormalEnabled).filter(propertyBag -> getImportedCnecsNativeIdsToOpenRaoIds().containsKey(propertyBag.getId(CsaProfileConstants.REQUEST_ASSESSED_ELEMENT))).forEach(propertyBag -> {
-            String combinationConstraintKind = propertyBag.get(CsaProfileConstants.COMBINATION_CONSTRAINT_KIND);
-            String remedialActionId = propertyBag.getId(CsaProfileConstants.REQUEST_REMEDIAL_ACTION);
-            String assessedElementId = propertyBag.getId(CsaProfileConstants.REQUEST_ASSESSED_ELEMENT);
+    private void readAssessedElementsWithRemedialAction(Set<AssessedElementWithRemedialAction> nativeAssessedElementWithRemedialActions) {
+        nativeAssessedElementWithRemedialActions.stream()
+            .filter(AssessedElementWithRemedialAction::normalEnabled)
+            .filter(nativeAssessedElementWithRemedialAction -> getImportedCnecsNativeIdsToOpenRaoIds().containsKey(nativeAssessedElementWithRemedialAction.assessedElement()))
+            .forEach(nativeAssessedElementWithRemedialAction -> {
+                Set<String> openRaoCnecIds = getImportedCnecsNativeIdsToOpenRaoIds().get(nativeAssessedElementWithRemedialAction.assessedElement());
 
-            Set<String> openRaoCnecIds = getImportedCnecsNativeIdsToOpenRaoIds().get(assessedElementId);
-
-            if (combinationConstraintKind.equals(CsaProfileConstants.ElementCombinationConstraintKind.EXCLUDED.toString())) {
-                excludedCnecsByRemedialAction
-                    .computeIfAbsent(remedialActionId, k -> new HashSet<>())
-                    .addAll(openRaoCnecIds);
-            } else if (combinationConstraintKind.equals(CsaProfileConstants.ElementCombinationConstraintKind.INCLUDED.toString())) {
-                includedCnecsByRemedialAction
-                    .computeIfAbsent(remedialActionId, k -> new HashSet<>())
-                    .addAll(openRaoCnecIds);
-            } else if (combinationConstraintKind.equals(CsaProfileConstants.ElementCombinationConstraintKind.CONSIDERED.toString())) {
-                consideredCnecsByRemedialAction
-                    .computeIfAbsent(remedialActionId, k -> new HashSet<>())
-                    .addAll(openRaoCnecIds);
-            } else {
-                throw new OpenRaoException(String.format("Unsupported combinationConstraintKind of AssessedElementsWithRemedialAction with id %s, only  ['INCLUDED', 'EXCLUDED', 'CONSIDERED'] are supported ", propertyBag.get(CsaProfileConstants.REQUEST_ASSESSED_ELEMENT_WITH_REMEDIAL_ACTION)));
-            }
-        });
-    }
-
-    private boolean checkNormalEnabled(PropertyBag propertyBag) {
-        Optional<String> normalEnabledOpt = Optional.ofNullable(propertyBag.get(CsaProfileConstants.NORMAL_ENABLED));
-        return normalEnabledOpt.isEmpty() || Boolean.parseBoolean(normalEnabledOpt.get());
+                if (CsaProfileConstants.ElementCombinationConstraintKind.EXCLUDED.toString().equals(nativeAssessedElementWithRemedialAction.combinationConstraintKind())) {
+                    excludedCnecsByRemedialAction
+                        .computeIfAbsent(nativeAssessedElementWithRemedialAction.remedialAction(), k -> new HashSet<>())
+                        .addAll(openRaoCnecIds);
+                } else if (CsaProfileConstants.ElementCombinationConstraintKind.INCLUDED.toString().equals(nativeAssessedElementWithRemedialAction.combinationConstraintKind())) {
+                    includedCnecsByRemedialAction
+                        .computeIfAbsent(nativeAssessedElementWithRemedialAction.remedialAction(), k -> new HashSet<>())
+                        .addAll(openRaoCnecIds);
+                } else if (CsaProfileConstants.ElementCombinationConstraintKind.CONSIDERED.toString().equals(nativeAssessedElementWithRemedialAction.combinationConstraintKind())) {
+                    consideredCnecsByRemedialAction
+                        .computeIfAbsent(nativeAssessedElementWithRemedialAction.remedialAction(), k -> new HashSet<>())
+                        .addAll(openRaoCnecIds);
+                } else {
+                    throw new OpenRaoException(String.format("Unsupported combinationConstraintKind of AssessedElementsWithRemedialAction with id %s, only  ['INCLUDED', 'EXCLUDED', 'CONSIDERED'] are supported ", nativeAssessedElementWithRemedialAction.identifier()));
+                }
+            });
     }
 
     private Map<String, Set<String>> getImportedCnecsNativeIdsToOpenRaoIds() {
