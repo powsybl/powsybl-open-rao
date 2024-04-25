@@ -8,6 +8,7 @@
 package com.powsybl.openrao.data.cracimpl;
 
 import com.powsybl.openrao.commons.OpenRaoException;
+import com.powsybl.openrao.data.cracapi.Instant;
 import com.powsybl.openrao.data.cracapi.RemedialAction;
 import com.powsybl.openrao.data.cracapi.State;
 import com.powsybl.openrao.data.cracapi.cnec.Cnec;
@@ -16,10 +17,7 @@ import com.powsybl.openrao.data.cracapi.usagerule.*;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -31,6 +29,9 @@ public abstract class AbstractRemedialAction<I extends RemedialAction<I>> extend
     protected String operator;
     protected Set<UsageRule> usageRules;
     protected Integer speed;
+    private boolean computedUsageMethods = false;
+    private Map<State, UsageMethod> usageMethodPerState;
+    private Map<Instant, UsageMethod> usageMethodPerInstant;
 
     protected AbstractRemedialAction(String id, String name, String operator, Set<UsageRule> usageRules, Integer speed) {
         super(id, name);
@@ -40,6 +41,7 @@ public abstract class AbstractRemedialAction<I extends RemedialAction<I>> extend
     }
 
     void addUsageRule(UsageRule usageRule) {
+        computedUsageMethods = false;
         this.usageRules.add(usageRule);
     }
 
@@ -65,10 +67,59 @@ public abstract class AbstractRemedialAction<I extends RemedialAction<I>> extend
 
     @Override
     public UsageMethod getUsageMethod(State state) {
-        Set<UsageMethod> usageMethods = usageRules.stream()
-            .map(usageRule -> usageRule.getUsageMethod(state))
-            .collect(Collectors.toSet());
-        return UsageMethod.getStrongestUsageMethod(usageMethods);
+        if (!computedUsageMethods) {
+            computeUsageMethodPerStateAndInstant();
+            computedUsageMethods = true;
+        }
+        if (usageMethodPerState.getOrDefault(state, UsageMethod.UNDEFINED).equals(usageMethodPerInstant.getOrDefault(state.getInstant(), UsageMethod.UNDEFINED))) {
+            return usageMethodPerInstant.getOrDefault(state.getInstant(), UsageMethod.UNDEFINED);
+        }
+        return UsageMethod.getStrongestUsageMethod(Set.of(
+            usageMethodPerState.getOrDefault(state, UsageMethod.UNDEFINED),
+            usageMethodPerInstant.getOrDefault(state.getInstant(), UsageMethod.UNDEFINED)));
+    }
+
+    private void computeUsageMethodPerStateAndInstant() {
+        usageMethodPerState = new HashMap<>();
+        usageMethodPerInstant = new HashMap<>();
+
+        for (UsageRule usageRule : usageRules) {
+            if (usageRule.getInstant().isPreventive()) {
+                updateMapWithValue(usageMethodPerInstant, usageRule.getInstant(), usageRule.getUsageMethod());
+            } else if (usageRule instanceof OnFlowConstraint ofc) {
+                State state = ofc.getFlowCnec().getState();
+                updateMapWithValue(usageMethodPerState, state, usageRule.getUsageMethod());
+            } else if (usageRule instanceof OnAngleConstraint oac) {
+                State state = oac.getAngleCnec().getState();
+                updateMapWithValue(usageMethodPerState, state, usageRule.getUsageMethod());
+            } else if (usageRule instanceof OnVoltageConstraint ovc) {
+                State state = ovc.getVoltageCnec().getState();
+                updateMapWithValue(usageMethodPerState, state, usageRule.getUsageMethod());
+            } else if (usageRule instanceof OnContingencyState ocs) {
+                State state = ocs.getState();
+                updateMapWithValue(usageMethodPerState, state, usageRule.getUsageMethod());
+            } else if (usageRule instanceof OnFlowConstraintInCountry || usageRule instanceof OnInstant) {
+                updateMapWithValue(usageMethodPerInstant, usageRule.getInstant(), usageRule.getUsageMethod());
+            } else {
+                throw new OpenRaoException(String.format("Usage rule of type %s is not implemented yet.", usageRule.getClass().getName()));
+            }
+        }
+    }
+
+    private void updateMapWithValue(Map<Instant, UsageMethod> map, Instant key, UsageMethod value) {
+        if (!map.containsKey(key)) {
+            map.put(key, value);
+        } else if (!value.equals(map.get(key))) {
+            map.put(key, UsageMethod.getStrongestUsageMethod(Set.of(map.get(key), value)));
+        }
+    }
+
+    private void updateMapWithValue(Map<State, UsageMethod> map, State key, UsageMethod value) {
+        if (!map.containsKey(key)) {
+            map.put(key, value);
+        } else if (!value.equals(map.get(key))) {
+            map.put(key, UsageMethod.getStrongestUsageMethod(Set.of(map.get(key), value)));
+        }
     }
 
     /**
@@ -107,9 +158,9 @@ public abstract class AbstractRemedialAction<I extends RemedialAction<I>> extend
 
     private static boolean isCnecInCountry(Cnec<?> cnec, Country country, Network network) {
         return cnec.getLocation(network).stream()
-                .filter(Optional::isPresent)
-                .map(Optional::get)
-                .anyMatch(cnecCountry -> cnecCountry.equals(country));
+            .filter(Optional::isPresent)
+            .map(Optional::get)
+            .anyMatch(cnecCountry -> cnecCountry.equals(country));
     }
 
     @Override
@@ -122,8 +173,8 @@ public abstract class AbstractRemedialAction<I extends RemedialAction<I>> extend
         }
         AbstractRemedialAction<?> remedialAction = (AbstractRemedialAction<?>) o;
         return super.equals(remedialAction)
-                && new HashSet<>(usageRules).equals(new HashSet<>(remedialAction.getUsageRules()))
-                && (operator != null && operator.equals(remedialAction.operator) || operator == null && remedialAction.operator == null);
+            && new HashSet<>(usageRules).equals(new HashSet<>(remedialAction.getUsageRules()))
+            && (operator != null && operator.equals(remedialAction.operator) || operator == null && remedialAction.operator == null);
     }
 
     @Override
