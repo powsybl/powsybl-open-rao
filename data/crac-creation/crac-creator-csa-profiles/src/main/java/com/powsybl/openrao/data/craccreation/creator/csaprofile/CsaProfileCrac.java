@@ -204,10 +204,6 @@ public class CsaProfileCrac implements NativeCrac {
         }
     }
 
-    public Map<String, String> getOverridingData() {
-        return overridingData;
-    }
-
     private void addDataFromTripleStoreToMap(Map<String, String> dataMap, String queryName, String queryObjectName, String queryFieldName, CsaProfileConstants.HeaderType headerType, OffsetDateTime importTimestamp) {
         PropertyBags propertyBagsResult = queryTripleStore(queryName, tripleStoreCsaProfileCrac.contextNames());
         for (PropertyBag propertyBag : propertyBagsResult) {

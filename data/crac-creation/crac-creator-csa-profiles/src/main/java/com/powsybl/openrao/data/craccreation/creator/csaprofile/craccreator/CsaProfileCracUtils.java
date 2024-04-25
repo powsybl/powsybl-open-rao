@@ -88,13 +88,6 @@ public final class CsaProfileCracUtils {
         }
     }
 
-    public static void checkPropertyReference(PropertyBag propertyBag, String remedialActionId, String gridStateAlterationType, String expectedPropertyReference) {
-        String actualPropertyReference = propertyBag.get(CsaProfileConstants.GRID_ALTERATION_PROPERTY_REFERENCE);
-        if (!actualPropertyReference.equals(expectedPropertyReference)) {
-            throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, String.format("Remedial action %s will not be imported because %s must have a property reference with %s value, but it was: %s", remedialActionId, gridStateAlterationType, expectedPropertyReference, actualPropertyReference));
-        }
-    }
-
     public static boolean checkProfileValidityInterval(PropertyBag propertyBag, OffsetDateTime importTimestamp) {
         String startTime = propertyBag.get(CsaProfileConstants.REQUEST_HEADER_START_DATE);
         String endTime = propertyBag.get(CsaProfileConstants.REQUEST_HEADER_END_DATE);

@@ -115,7 +115,6 @@ public final class CsaProfileConstants {
     public static final String TAP_POSITION_ACTION = "tapPositionAction";
     public static final String STATIC_PROPERTY_RANGE = "staticPropertyRange";
     public static final String REQUEST_CONTINGENCY_WITH_REMEDIAL_ACTION = "contingencyWithRemedialAction";
-    public static final String MRID = "mRID";
     public static final String TIME_TO_IMPLEMENT = "timeToImplement";
     public static final String TSO = "tso";
     public static final String NORMAL_AVAILABLE = "normalAvailable";
