@@ -84,6 +84,7 @@ public final class SearchTreeBloomer {
 
         return networkActionCombinations.keySet();
     }
+
     boolean shouldRangeActionsBeRemovedToApplyNa(NetworkActionCombination naCombination, OptimizationResult optimizationResult) {
         Set<String> operators = naCombination.getOperators();
         boolean removeRangeActions = false;

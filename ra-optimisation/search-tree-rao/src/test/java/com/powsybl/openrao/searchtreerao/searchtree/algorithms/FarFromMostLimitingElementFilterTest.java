@@ -48,7 +48,7 @@ import static org.mockito.Mockito.mock;
  */
 class FarFromMostLimitingElementFilterTest {
     @Test
-    void testRemoveNetworkActionsFarFromMostLimitingElement_() {
+    void testRemoveNetworkActionsFarFromMostLimitingElement2() {
         // arrange naCombination list
         List<NetworkActionCombination> listOfNaCombinations = List.of(IND_FR_2, IND_DE_1, IND_BE_1, IND_NL_1, IND_NL_BE, IND_FR_DE, IND_DE_NL, COMB_3_BE, COMB_2_DE, COMB_2_FR_DE_BE, COMB_2_BE_NL);
         Map<NetworkActionCombination, Boolean> naCombinations = new HashMap<>();

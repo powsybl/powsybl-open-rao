@@ -44,7 +44,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  */
 class MaximumNumberOfTsosFilterTest {
     @Test
-    void testRemoveCombinationsWhichExceedMaxNumberOfTsos_() {
+    void testRemoveCombinationsWhichExceedMaxNumberOfTsos2() {
 
         // arrange naCombination list
         List<NetworkActionCombination> listOfNaCombinations = List.of(IND_FR_2, IND_BE_1, IND_NL_1, IND_FR_DE, COMB_2_FR, COMB_3_BE, COMB_2_BE_NL, COMB_2_FR_NL, COMB_3_FR_NL_BE);

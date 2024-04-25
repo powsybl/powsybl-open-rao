@@ -42,7 +42,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  */
 class MaximumNumberOfRemedialActionPerTsoFilterTest {
     @Test
-    void testRemoveCombinationsWhichExceedMaxNumberOfRaPerTso_() {
+    void testRemoveCombinationsWhichExceedMaxNumberOfRaPerTso2() {
 
         // arrange naCombination list
         List<NetworkActionCombination> listOfNaCombinations = List.of(IND_FR_2, IND_BE_2, IND_NL_1, IND_FR_DE, COMB_2_FR, COMB_3_BE, COMB_2_BE_NL, COMB_2_FR_NL);

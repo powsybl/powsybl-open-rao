@@ -38,7 +38,7 @@ import static org.mockito.Mockito.mock;
  */
 class AlreadyTestedCombinationsFilterTest {
     @Test
-    void testRemoveAlreadyTestedCombinations_() {
+    void testRemoveAlreadyTestedCombinations2() {
 
         // arrange naCombination list
         List<NetworkActionCombination> listOfNaCombinations = List.of(IND_FR_2, IND_BE_2, IND_NL_1, IND_DE_1, IND_FR_DE, COMB_2_FR, COMB_2_FR_NL);
