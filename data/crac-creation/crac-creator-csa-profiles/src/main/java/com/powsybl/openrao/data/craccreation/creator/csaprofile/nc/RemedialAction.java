@@ -13,7 +13,7 @@ import com.powsybl.triplestore.api.PropertyBag;
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
-public record GridStateAlterationRemedialAction(String identifier, String name, String operator, String kind, boolean normalAvailable, String timeToImplement) {
+public record RemedialAction(String identifier, String name, String operator, String kind, boolean normalAvailable, String timeToImplement) {
 
     public String getUniqueName() {
         return CsaProfileCracUtils.createElementName(name, operator).orElse(identifier);
@@ -26,9 +26,9 @@ public record GridStateAlterationRemedialAction(String identifier, String name, 
         return CsaProfileCracUtils.convertDurationToSeconds(timeToImplement);
     }
 
-    public static GridStateAlterationRemedialAction fromPropertyBag(PropertyBag propertyBag) {
-        return new GridStateAlterationRemedialAction(
-            propertyBag.getId(CsaProfileConstants.REQUEST_GRID_STATE_ALTERATION_REMEDIAL_ACTION),
+    public static RemedialAction fromPropertyBag(PropertyBag propertyBag, boolean isAutoRemedialAction) {
+        return new RemedialAction(
+            propertyBag.getId(isAutoRemedialAction ? CsaProfileConstants.REQUEST_SCHEME_REMEDIAL_ACTION : CsaProfileConstants.GRID_STATE_ALTERATION_REMEDIAL_ACTION),
             propertyBag.get(CsaProfileConstants.REMEDIAL_ACTION_NAME),
             propertyBag.get(CsaProfileConstants.TSO),
             propertyBag.get(CsaProfileConstants.KIND),

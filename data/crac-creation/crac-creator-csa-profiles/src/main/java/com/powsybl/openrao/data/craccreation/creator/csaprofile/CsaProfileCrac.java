@@ -18,6 +18,7 @@ import com.powsybl.openrao.data.craccreation.creator.csaprofile.nc.AssessedEleme
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.nc.Contingency;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.nc.ContingencyEquipment;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.nc.ContingencyWithRemedialAction;
+import com.powsybl.openrao.data.craccreation.creator.csaprofile.nc.RemedialAction;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.nc.RemedialActionDependency;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.nc.RemedialActionGroup;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.nc.RotatingMachineAction;
@@ -139,8 +140,8 @@ public class CsaProfileCrac implements NativeCrac {
         return CsaProfileCracUtils.overrideData(getPropertyBags(CsaProfileConstants.REQUEST_VOLTAGE_ANGLE_LIMIT, CsaProfileConstants.CsaProfileKeywords.EQUIPMENT_RELIABILITY.toString()), overridingData, CsaProfileConstants.OverridingObjectsFields.VOLTAGE_ANGLE_LIMIT).stream().map(VoltageAngleLimit::fromPropertyBag).collect(Collectors.toSet());
     }
 
-    public PropertyBags getGridStateAlterationRemedialActions() {
-        return getPropertyBags(CsaProfileConstants.GRID_STATE_ALTERATION_REMEDIAL_ACTION, CsaProfileConstants.CsaProfileKeywords.REMEDIAL_ACTION.toString());
+    public Set<RemedialAction> getGridStateAlterationRemedialActions() {
+        return CsaProfileCracUtils.overrideData(getPropertyBags(CsaProfileConstants.GRID_STATE_ALTERATION_REMEDIAL_ACTION, CsaProfileConstants.CsaProfileKeywords.REMEDIAL_ACTION.toString()), overridingData, CsaProfileConstants.OverridingObjectsFields.GRID_STATE_ALTERATION_REMEDIAL_ACTION).stream().map(propertyBag -> RemedialAction.fromPropertyBag(propertyBag, false)).collect(Collectors.toSet());
     }
 
     public Set<TopologyAction> getTopologyActions() {
@@ -179,8 +180,8 @@ public class CsaProfileCrac implements NativeCrac {
         return getPropertyBags(CsaProfileConstants.REMEDIAL_ACTION_SCHEME, CsaProfileConstants.CsaProfileKeywords.REMEDIAL_ACTION.toString());
     }
 
-    public PropertyBags getSchemeRemedialActions() {
-        return getPropertyBags(CsaProfileConstants.REQUEST_SCHEME_REMEDIAL_ACTION, CsaProfileConstants.CsaProfileKeywords.REMEDIAL_ACTION.toString());
+    public Set<RemedialAction> getSchemeRemedialActions() {
+        return CsaProfileCracUtils.overrideData(getPropertyBags(CsaProfileConstants.REQUEST_SCHEME_REMEDIAL_ACTION, CsaProfileConstants.CsaProfileKeywords.REMEDIAL_ACTION.toString()), overridingData, CsaProfileConstants.OverridingObjectsFields.SCHEME_REMEDIAL_ACTION).stream().map(propertyBag -> RemedialAction.fromPropertyBag(propertyBag, true)).collect(Collectors.toSet());
     }
 
     public Set<RemedialActionGroup> getRemedialActionGroups() {

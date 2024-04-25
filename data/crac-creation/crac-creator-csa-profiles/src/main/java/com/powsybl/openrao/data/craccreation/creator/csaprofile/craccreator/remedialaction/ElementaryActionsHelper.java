@@ -10,6 +10,7 @@ import com.powsybl.openrao.data.craccreation.creator.api.ImportStatus;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileConstants;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.nc.AssessedElementWithRemedialAction;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.nc.ContingencyWithRemedialAction;
+import com.powsybl.openrao.data.craccreation.creator.csaprofile.nc.RemedialAction;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.nc.RemedialActionDependency;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.nc.RemedialActionGroup;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.nc.RotatingMachineAction;
@@ -32,8 +33,8 @@ import java.util.Set;
  */
 public class ElementaryActionsHelper {
     private final Set<RemedialActionGroup> nativeRemedialActionGroups;
-    private final PropertyBags gridStateAlterationRemedialActionPropertyBags;
-    private final PropertyBags schemeRemedialActionsPropertyBags;
+    private final Set<RemedialAction> nativeGridStateAlterationRemedialActions;
+    private final Set<RemedialAction> nativeSchemeRemedialActions;
     private final PropertyBags remedialActionSchemePropertyBags;
     private final PropertyBags stagePropertyBags;
     private final PropertyBags gridStateAlterationCollectionPropertyBags;
@@ -50,8 +51,8 @@ public class ElementaryActionsHelper {
     private final Map<String, Set<StaticPropertyRange>> nativeStaticPropertyRangesPerNativeGridStateAlteration;
     final Map<String, Set<ContingencyWithRemedialAction>> nativeContingencyWithRemedialActionPerNativeRemedialAction;
 
-    public ElementaryActionsHelper(PropertyBags gridStateAlterationRemedialActionPropertyBags,
-                                   PropertyBags schemeRemedialActionsPropertyBags,
+    public ElementaryActionsHelper(Set<RemedialAction> nativeGridStateAlterationRemedialActions,
+                                   Set<RemedialAction> nativeSchemeRemedialActions,
                                    PropertyBags remedialActionSchemePropertyBags,
                                    PropertyBags stagePropertyBags,
                                    PropertyBags gridStateAlterationCollectionPropertyBags,
@@ -65,8 +66,8 @@ public class ElementaryActionsHelper {
                                    Set<RemedialActionGroup> nativeRemedialActionGroups,
                                    Set<RemedialActionDependency> nativeRemedialActionDependency) {
         this.nativeRemedialActionGroups = nativeRemedialActionGroups;
-        this.gridStateAlterationRemedialActionPropertyBags = gridStateAlterationRemedialActionPropertyBags;
-        this.schemeRemedialActionsPropertyBags = schemeRemedialActionsPropertyBags;
+        this.nativeGridStateAlterationRemedialActions = nativeGridStateAlterationRemedialActions;
+        this.nativeSchemeRemedialActions = nativeSchemeRemedialActions;
         this.remedialActionSchemePropertyBags = remedialActionSchemePropertyBags;
         this.stagePropertyBags = stagePropertyBags;
         this.gridStateAlterationCollectionPropertyBags = gridStateAlterationCollectionPropertyBags;
@@ -196,8 +197,8 @@ public class ElementaryActionsHelper {
         return isSchemeRemedialAction ? nativeTapPositionActionsPerNativeRemedialActionAuto : nativeTapPositionActionsPerNativeRemedialAction;
     }
 
-    public PropertyBags getParentRemedialActionPropertyBags(boolean isSchemeRemedialAction) {
-        return isSchemeRemedialAction ? schemeRemedialActionsPropertyBags : gridStateAlterationRemedialActionPropertyBags;
+    public Set<RemedialAction> getParentRemedialActionPropertyBags(boolean isSchemeRemedialAction) {
+        return isSchemeRemedialAction ? nativeSchemeRemedialActions : nativeGridStateAlterationRemedialActions;
     }
 
     public String getGridStateAlterationCollection(String remedialActionId) {
