@@ -12,7 +12,7 @@ import com.powsybl.triplestore.api.PropertyBag;
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
-public record TopologyAction(String mrid, String switchId, String propertyReference, boolean normalEnabled, String gridStateAlterationRemedialAction, String gridStateAlterationCollection) {
+public record TopologyAction(String mrid, String switchId, String propertyReference, boolean normalEnabled, String gridStateAlterationRemedialAction, String gridStateAlterationCollection) implements GridStateAlteration {
     public static TopologyAction fromPropertyBag(PropertyBag propertyBag) {
         return new TopologyAction(
             propertyBag.getId(CsaProfileConstants.TOPOLOGY_ACTION),

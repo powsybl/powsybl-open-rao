@@ -12,7 +12,7 @@ import com.powsybl.triplestore.api.PropertyBag;
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
-public record RemedialActionDependency(String mrid, String kind, String remedialAction, String dependingRemedialActionGroup, boolean normalEnabled) {
+public record RemedialActionDependency(String mrid, String kind, String remedialAction, String dependingRemedialActionGroup, boolean normalEnabled) implements NCObject {
     public static RemedialActionDependency fromPropertyBag(PropertyBag propertyBag) {
         return new RemedialActionDependency(
             propertyBag.getId(CsaProfileConstants.REQUEST_REMEDIAL_ACTION_DEPENDENCY),

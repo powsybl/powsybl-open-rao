@@ -6,14 +6,15 @@
  */
 package com.powsybl.openrao.data.craccreation.creator.csaprofile.nc;
 
-import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileConstants;
 import com.powsybl.triplestore.api.PropertyBag;
 
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
-public record GridStateAlterationCollection(String mrid) implements NCObject {
-    public static GridStateAlterationCollection fromPropertyBag(PropertyBag propertyBag) {
-        return new GridStateAlterationCollection(propertyBag.getId(CsaProfileConstants.GRID_STATE_ALTERATION_COLLECTION));
+public interface NCObject {
+    String mrid();
+
+    static NCObject fromPropertyBag(PropertyBag propertyBag) {
+        return null;
     }
 }

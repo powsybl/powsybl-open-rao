@@ -8,7 +8,7 @@
 package com.powsybl.openrao.data.craccreation.creator.csaprofile.importer;
 
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.CsaProfileCrac;
-import com.powsybl.openrao.data.craccreation.creator.csaprofile.cim.CurrentLimit;
+import com.powsybl.openrao.data.craccreation.creator.csaprofile.nc.CurrentLimit;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.nc.Contingency;
 import org.junit.jupiter.api.Test;
 

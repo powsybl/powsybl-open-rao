@@ -13,11 +13,7 @@ import com.powsybl.triplestore.api.PropertyBag;
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
-public record RemedialAction(String mrid, String name, String operator, String kind, boolean normalAvailable, String timeToImplement) {
-
-    public String getUniqueName() {
-        return CsaProfileCracUtils.createElementName(name, operator).orElse(mrid);
-    }
+public record RemedialAction(String mrid, String name, String operator, String kind, boolean normalAvailable, String timeToImplement) implements IdentifiedObjectWithOperator {
 
     public Integer getTimeToImplementInSeconds() {
         if (timeToImplement == null) {

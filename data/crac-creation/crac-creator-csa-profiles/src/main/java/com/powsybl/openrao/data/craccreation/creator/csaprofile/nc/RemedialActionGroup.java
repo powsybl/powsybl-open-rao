@@ -12,7 +12,7 @@ import com.powsybl.triplestore.api.PropertyBag;
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
-public record RemedialActionGroup(String mrid, String name) {
+public record RemedialActionGroup(String mrid, String name) implements IdentifiedObject {
     public static RemedialActionGroup fromPropertyBag(PropertyBag propertyBag) {
         return new RemedialActionGroup(propertyBag.getId(CsaProfileConstants.REQUEST_REMEDIAL_ACTION_GROUP), propertyBag.get(CsaProfileConstants.REMEDIAL_ACTION_NAME));
     }

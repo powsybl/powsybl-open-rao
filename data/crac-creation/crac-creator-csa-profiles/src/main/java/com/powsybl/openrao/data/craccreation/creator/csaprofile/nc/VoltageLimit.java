@@ -4,7 +4,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.powsybl.openrao.data.craccreation.creator.csaprofile.cim;
+package com.powsybl.openrao.data.craccreation.creator.csaprofile.nc;
 
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileConstants;
 import com.powsybl.triplestore.api.PropertyBag;
@@ -12,7 +12,7 @@ import com.powsybl.triplestore.api.PropertyBag;
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
-public record VoltageLimit(String mrid, double value, String equipment, String limitType, boolean isInfiniteDuration) {
+public record VoltageLimit(String mrid, double value, String equipment, String limitType, boolean isInfiniteDuration) implements NCObject {
     public static VoltageLimit fromPropertyBag(PropertyBag propertyBag) {
         return new VoltageLimit(
             propertyBag.getId(CsaProfileConstants.REQUEST_VOLTAGE_LIMIT),

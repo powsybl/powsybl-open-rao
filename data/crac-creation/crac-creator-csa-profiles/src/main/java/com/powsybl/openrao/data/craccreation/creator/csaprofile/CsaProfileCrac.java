@@ -8,8 +8,8 @@
 package com.powsybl.openrao.data.craccreation.creator.csaprofile;
 
 import com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider;
-import com.powsybl.openrao.data.craccreation.creator.csaprofile.cim.CurrentLimit;
-import com.powsybl.openrao.data.craccreation.creator.csaprofile.cim.VoltageLimit;
+import com.powsybl.openrao.data.craccreation.creator.csaprofile.nc.CurrentLimit;
+import com.powsybl.openrao.data.craccreation.creator.csaprofile.nc.VoltageLimit;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileConstants;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileCracUtils;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.nc.AssessedElement;

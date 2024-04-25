@@ -12,7 +12,7 @@ import com.powsybl.triplestore.api.PropertyBag;
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
-public record ContingencyWithRemedialAction(String mrid, String contingency, String remedialAction, String combinationConstraintKind, boolean normalEnabled) {
+public record ContingencyWithRemedialAction(String mrid, String contingency, String remedialAction, String combinationConstraintKind, boolean normalEnabled) implements Association {
     public static ContingencyWithRemedialAction fromPropertyBag(PropertyBag propertyBag) {
         return new ContingencyWithRemedialAction(
             propertyBag.getId(CsaProfileConstants.REQUEST_CONTINGENCY_WITH_REMEDIAL_ACTION),

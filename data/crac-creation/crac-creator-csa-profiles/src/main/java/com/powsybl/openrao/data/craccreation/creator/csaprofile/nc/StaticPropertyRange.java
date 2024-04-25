@@ -12,7 +12,7 @@ import com.powsybl.triplestore.api.PropertyBag;
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
-public record StaticPropertyRange(String mrid, double normalValue, String valueKind, String direction, String gridStateAlteration, String propertyReference) {
+public record StaticPropertyRange(String mrid, double normalValue, String valueKind, String direction, String gridStateAlteration, String propertyReference) implements NCObject {
     public static StaticPropertyRange fromPropertyBag(PropertyBag propertyBag) {
         return new StaticPropertyRange(
             propertyBag.getId(CsaProfileConstants.STATIC_PROPERTY_RANGE),

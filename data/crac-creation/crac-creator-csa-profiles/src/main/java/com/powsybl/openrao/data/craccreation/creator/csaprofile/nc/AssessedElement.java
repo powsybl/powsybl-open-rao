@@ -7,18 +7,12 @@
 package com.powsybl.openrao.data.craccreation.creator.csaprofile.nc;
 
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileConstants;
-import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileCracUtils;
 import com.powsybl.triplestore.api.PropertyBag;
 
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
-public record AssessedElement(String mrid, boolean inBaseCase, String name, String operator, String conductingEquipment, String operationalLimit, boolean isCombinableWithContingency, boolean isCombinableWithRemedialAction, boolean normalEnabled, String securedForRegion, String scannedForRegion, double flowReliabilityMargin) {
-
-    public String getUniqueName() {
-        return CsaProfileCracUtils.createElementName(name, operator).orElse(mrid);
-    }
-
+public record AssessedElement(String mrid, boolean inBaseCase, String name, String operator, String conductingEquipment, String operationalLimit, boolean isCombinableWithContingency, boolean isCombinableWithRemedialAction, boolean normalEnabled, String securedForRegion, String scannedForRegion, double flowReliabilityMargin) implements IdentifiedObjectWithOperator {
     public static AssessedElement fromPropertyBag(PropertyBag propertyBag) {
         return new AssessedElement(
             propertyBag.getId(CsaProfileConstants.REQUEST_ASSESSED_ELEMENT),
