@@ -7,13 +7,10 @@
 package com.powsybl.openrao.searchtreerao.searchtree.algorithms;
 
 import com.powsybl.openrao.data.cracapi.RemedialAction;
-import com.powsybl.openrao.data.cracapi.State;
 import com.powsybl.openrao.searchtreerao.commons.NetworkActionCombination;
 import com.powsybl.openrao.searchtreerao.result.api.OptimizationResult;
 
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -25,35 +22,9 @@ import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.TECHNICAL_L
  */
 public class MaximumNumberOfTsosFilter implements NetworkActionCombinationFilter {
     private final int maxTso;
-    private final State optimizedStateForNetworkActions;
 
-    public MaximumNumberOfTsosFilter(int maxTso, State optimizedStateForNetworkActions) {
+    public MaximumNumberOfTsosFilter(int maxTso) {
         this.maxTso = maxTso;
-        this.optimizedStateForNetworkActions = optimizedStateForNetworkActions;
-    }
-
-    public Map<NetworkActionCombination, Boolean> filter(Map<NetworkActionCombination, Boolean> naCombinations, OptimizationResult optimizationResult) {
-
-        Set<String> alreadyActivatedTsos = getTsosWithActivatedNetworkActions(optimizationResult);
-        Map<NetworkActionCombination, Boolean> filteredNaCombinations = new HashMap<>();
-        for (Map.Entry<NetworkActionCombination, Boolean> entry : naCombinations.entrySet()) {
-            NetworkActionCombination naCombination = entry.getKey();
-            if (!exceedMaxNumberOfTsos(naCombination, alreadyActivatedTsos)) {
-                Set<String> alreadyActivatedTsosWithRangeActions = new HashSet<>(alreadyActivatedTsos);
-                optimizationResult.getActivatedRangeActions(optimizedStateForNetworkActions)
-                    .stream().map(RemedialAction::getOperator)
-                    .filter(Objects::nonNull)
-                    .forEach(alreadyActivatedTsosWithRangeActions::add);
-                boolean removeRangeActions = exceedMaxNumberOfTsos(naCombination, alreadyActivatedTsosWithRangeActions);
-                filteredNaCombinations.put(naCombination, removeRangeActions || naCombinations.get(naCombination));
-            }
-        }
-
-        if (naCombinations.size() > filteredNaCombinations.size()) {
-            TECHNICAL_LOGS.info("{} network action combinations have been filtered out because the max number of usable TSOs has been reached", naCombinations.size() - filteredNaCombinations.size());
-        }
-
-        return filteredNaCombinations;
     }
 
     public Set<NetworkActionCombination> filterCombinations(Set<NetworkActionCombination> naCombinations, OptimizationResult optimizationResult) {

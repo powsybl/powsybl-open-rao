@@ -14,7 +14,6 @@ import com.powsybl.openrao.searchtreerao.commons.NetworkActionCombination;
 import com.powsybl.openrao.searchtreerao.result.api.OptimizationResult;
 
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -42,23 +41,6 @@ public class FarFromMostLimitingElementFilter implements NetworkActionCombinatio
      * feature, and setting the number of boundaries allowed between the network action and the limiting element.
      * The most limiting elements are the most limiting functional cost element, and all elements with a non-zero virtual cost.
      */
-    public Map<NetworkActionCombination, Boolean> filter(Map<NetworkActionCombination, Boolean> naCombinations, OptimizationResult optimizationResult) {
-        if (!filterFarElements) {
-            return naCombinations;
-        }
-
-        Set<Optional<Country>> worstCnecLocation = getOptimizedMostLimitingElementsLocation(optimizationResult);
-
-        Map<NetworkActionCombination, Boolean> filteredNaCombinations = naCombinations.keySet().stream()
-            .filter(naCombination -> naCombination.getNetworkActionSet().stream().anyMatch(na -> isNetworkActionCloseToLocations(na, worstCnecLocation, countryGraph)))
-            .collect(Collectors.toMap(naCombination -> naCombination, naCombinations::get));
-
-        if (naCombinations.size() > filteredNaCombinations.size()) {
-            TECHNICAL_LOGS.info("{} network action combinations have been filtered out because they are too far from the most limiting element", naCombinations.size() - filteredNaCombinations.size());
-        }
-        return filteredNaCombinations;
-    }
-
     public Set<NetworkActionCombination> filterCombinations(Set<NetworkActionCombination> naCombinations, OptimizationResult optimizationResult) {
         if (!filterFarElements) {
             return naCombinations;

@@ -9,7 +9,9 @@ package com.powsybl.openrao.searchtreerao.searchtree.algorithms;
 
 import com.powsybl.openrao.data.cracapi.RaUsageLimits;
 import com.powsybl.openrao.data.cracapi.RemedialAction;
+import com.powsybl.openrao.data.cracapi.State;
 import com.powsybl.openrao.data.cracapi.networkaction.NetworkAction;
+import com.powsybl.openrao.data.cracapi.rangeaction.RangeAction;
 import com.powsybl.openrao.searchtreerao.commons.NetworkActionCombination;
 import com.powsybl.openrao.searchtreerao.result.api.OptimizationResult;
 import com.powsybl.openrao.searchtreerao.searchtree.inputs.SearchTreeInput;
@@ -24,7 +26,7 @@ import java.util.stream.Collectors;
 public final class SearchTreeBloomer {
     private final List<NetworkActionCombination> preDefinedNaCombinations;
     private final List<NetworkActionCombinationFilter> networkActionCombinationFilters;
-    private SearchTreeInput input;
+    private final SearchTreeInput input;
     private final SearchTreeParameters parameters;
 
     public SearchTreeBloomer(SearchTreeInput input, SearchTreeParameters parameters) {
@@ -35,7 +37,7 @@ public final class SearchTreeBloomer {
             new AlreadyTestedCombinationsFilter(preDefinedNaCombinations),
             new MaximumNumberOfRemedialActionsFilter(raUsageLimits.getMaxRa(), input.getOptimizationPerimeter().getMainOptimizationState()),
             new MaximumNumberOfRemedialActionPerTsoFilter(raUsageLimits.getMaxTopoPerTso(), raUsageLimits.getMaxRaPerTso(), input.getOptimizationPerimeter().getMainOptimizationState()),
-            new MaximumNumberOfTsosFilter(raUsageLimits.getMaxTso(), input.getOptimizationPerimeter().getMainOptimizationState()),
+            new MaximumNumberOfTsosFilter(raUsageLimits.getMaxTso()),
             new FarFromMostLimitingElementFilter(input.getNetwork(), parameters.getNetworkActionParameters().skipNetworkActionFarFromMostLimitingElements(), parameters.getNetworkActionParameters().getMaxNumberOfBoundariesForSkippingNetworkActions())
         );
         this.input = input;
@@ -62,52 +64,63 @@ public final class SearchTreeBloomer {
     Set<NetworkActionCombination> bloom(Leaf fromLeaf, Set<NetworkAction> networkActions) {
 
         // preDefined combinations
-        Map<NetworkActionCombination, Boolean> networkActionCombinations = preDefinedNaCombinations.stream()
+        Set<NetworkActionCombination> networkActionCombinations = preDefinedNaCombinations.stream()
             .distinct()
             .filter(naCombination -> networkActions.containsAll(naCombination.getNetworkActionSet()))
-            .collect(Collectors.toMap(naCombination -> naCombination, naCombination -> false));
+            .collect(Collectors.toSet());
 
         // + individual available Network Actions
-        final List<NetworkActionCombination> finalNetworkActionCombinations = new ArrayList<>(networkActionCombinations.keySet());
-        Map<NetworkActionCombination, Boolean> effectivelyFinalNACombinations = networkActionCombinations;
+        final List<NetworkActionCombination> finalNetworkActionCombinations = new ArrayList<>(networkActionCombinations);
+        Set<NetworkActionCombination> effectivelyFinalNACombinations = networkActionCombinations;
         networkActions.stream()
             .filter(na ->
                 finalNetworkActionCombinations.stream().noneMatch(naCombi -> naCombi.getNetworkActionSet().size() == 1 && naCombi.getNetworkActionSet().contains(na))
             )
-            .forEach(ra -> effectivelyFinalNACombinations.put(new NetworkActionCombination(Set.of(ra)), false));
-        networkActionCombinations.putAll(effectivelyFinalNACombinations);
+            .forEach(ra -> effectivelyFinalNACombinations.add(new NetworkActionCombination(Set.of(ra))));
+        networkActionCombinations.addAll(effectivelyFinalNACombinations);
 
         // filters
         for (NetworkActionCombinationFilter networkActionCombinationFilter : networkActionCombinationFilters) {
-            networkActionCombinations = networkActionCombinationFilter.filter(networkActionCombinations, fromLeaf);
+            networkActionCombinations = networkActionCombinationFilter.filterCombinations(networkActionCombinations, fromLeaf);
         }
 
-        return networkActionCombinations.keySet();
+        return networkActionCombinations;
     }
 
     boolean shouldRangeActionsBeRemovedToApplyNa(NetworkActionCombination naCombination, OptimizationResult optimizationResult) {
+        State optimizationState = input.getOptimizationPerimeter().getMainOptimizationState();
+        RaUsageLimits raUsageLimits = parameters.getRaLimitationParameters().get(optimizationState.getInstant());
+        if (Objects.isNull(raUsageLimits)) {
+            return false;
+        }
+
+        // maxRa
+        int naCombinationSize = naCombination.getNetworkActionSet().size();
+        Set<NetworkAction> alreadyActivatedNetworkActions = optimizationResult.getActivatedNetworkActions();
+        Set<RangeAction<?>> alreadyActivatedRangeActions = optimizationResult.getActivatedRangeActions(optimizationState);
+        if (alreadyActivatedNetworkActions.size() + alreadyActivatedRangeActions.size() + naCombinationSize > raUsageLimits.getMaxRa()) {
+            return true;
+        }
+
+        // maxTso
         Set<String> operators = naCombination.getOperators();
-        boolean removeRangeActions = false;
+        Set<String> activatedTsos = optimizationResult.getActivatedNetworkActions().stream().map(RemedialAction::getOperator).filter(Objects::nonNull).collect(Collectors.toSet());
+        alreadyActivatedRangeActions.stream().map(RemedialAction::getOperator).filter(Objects::nonNull).forEach(activatedTsos::add);
+        activatedTsos.addAll(operators);
+        if (activatedTsos.size() > raUsageLimits.getMaxTso()) {
+            return true;
+        }
+
+        // maxRaPerTso
         for (String tso : operators) {
-            int naCombinationSize = (int) naCombination.getNetworkActionSet().stream().filter(networkAction -> tso.equals(networkAction.getOperator())).count();
-            int numberOfAlreadyActivatedRangeActionsForTso = (int) optimizationResult.getActivatedRangeActions(input.getOptimizationPerimeter().getMainOptimizationState()).stream().filter(ra -> tso.equals(ra.getOperator())).count();
-            int numberOfAlreadyAppliedNetworkActionsForTso = (int) optimizationResult.getActivatedNetworkActions().stream().filter(na -> tso.equals(na.getOperator())).count();
-            if (numberOfAlreadyAppliedNetworkActionsForTso + numberOfAlreadyActivatedRangeActionsForTso + naCombinationSize > parameters.getRaLimitationParameters().get(input.getOptimizationPerimeter().getMainOptimizationState().getInstant()).getMaxRaPerTso().getOrDefault(tso, Integer.MAX_VALUE)) {
-                removeRangeActions = true;
+            int numberOfAlreadyActivatedRangeActionsForTso = (int) alreadyActivatedRangeActions.stream().filter(ra -> tso.equals(ra.getOperator())).count();
+            int numberOfAlreadyAppliedNetworkActionsForTso = (int) alreadyActivatedNetworkActions.stream().filter(na -> tso.equals(na.getOperator())).count();
+            if (numberOfAlreadyAppliedNetworkActionsForTso + numberOfAlreadyActivatedRangeActionsForTso + naCombinationSize > raUsageLimits.getMaxRaPerTso().getOrDefault(tso, Integer.MAX_VALUE)) {
+                return true;
             }
         }
 
-        int naCombinationSize = naCombination.getNetworkActionSet().size();
-        int alreadyActivatedNetworkActionsSize = optimizationResult.getActivatedNetworkActions().size();
-        removeRangeActions = removeRangeActions || alreadyActivatedNetworkActionsSize + optimizationResult.getActivatedRangeActions(input.getOptimizationPerimeter().getMainOptimizationState()).size() + naCombinationSize > parameters.getRaLimitationParameters().get(input.getOptimizationPerimeter().getMainOptimizationState().getInstant()).getMaxRa();
-
-        Set<String> alreadyActivatedTsos = optimizationResult.getActivatedNetworkActions().stream().map(RemedialAction::getOperator).filter(Objects::nonNull).collect(Collectors.toSet());
-        Set<String> involvedTsos = naCombination.getOperators();
-        involvedTsos.addAll(alreadyActivatedTsos);
-
-        removeRangeActions = removeRangeActions || involvedTsos.size() > parameters.getRaLimitationParameters().get(input.getOptimizationPerimeter().getMainOptimizationState().getInstant()).getMaxTso();
-
-        return removeRangeActions;
+        return false;
     }
 
     boolean hasPreDefinedNetworkActionCombination(NetworkActionCombination naCombination) {

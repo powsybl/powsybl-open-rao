@@ -12,7 +12,6 @@ import com.powsybl.openrao.searchtreerao.result.api.OptimizationResult;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -33,32 +32,6 @@ public class AlreadyTestedCombinationsFilter implements NetworkActionCombination
      * no need to bloom on ra2. If the remedial action ra2 was relevant, the combination ra1+ra2 would have been
      * already selected in the previous depths.
      */
-    public Map<NetworkActionCombination, Boolean> filter(Map<NetworkActionCombination, Boolean> naCombinations, OptimizationResult optimizationResult) {
-        List<NetworkAction> alreadyTestedNetworkActions = new ArrayList<>();
-
-        for (NetworkActionCombination preDefinedCombination : preDefinedNaCombinations) {
-            if (preDefinedCombination.isDetectedDuringRao()) {
-                continue;
-            }
-
-            // elements of the combination which have not been activated yet
-            List<NetworkAction> notTestedNaInCombination = preDefinedCombination.getNetworkActionSet().stream()
-                .filter(na -> !optimizationResult.getActivatedNetworkActions().contains(na))
-                .toList();
-
-            // if all the actions of the combinations have been selected but one, there is no need
-            // to test that individual action anymore
-            if (notTestedNaInCombination.size() == 1) {
-                alreadyTestedNetworkActions.add(notTestedNaInCombination.get(0));
-            }
-        }
-
-        return naCombinations.keySet().stream()
-            .filter(naCombination -> naCombination.getNetworkActionSet().size() != 1
-                || !alreadyTestedNetworkActions.contains(naCombination.getNetworkActionSet().iterator().next()))
-            .collect(Collectors.toMap(naCombination -> naCombination, naCombinations::get));
-    }
-
     public Set<NetworkActionCombination> filterCombinations(Set<NetworkActionCombination> naCombinations, OptimizationResult optimizationResult) {
         List<NetworkAction> alreadyTestedNetworkActions = new ArrayList<>();
 

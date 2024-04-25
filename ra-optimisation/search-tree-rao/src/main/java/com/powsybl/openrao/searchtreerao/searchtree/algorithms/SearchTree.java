@@ -256,10 +256,6 @@ public class SearchTree {
         return null;
     }
 
-    private static boolean rangeActionsShouldBeRemoved(NetworkActionCombination naCombination) {
-        return true;
-    }
-
     int deterministicNetworkActionCombinationComparison(NetworkActionCombination ra1, NetworkActionCombination ra2) {
         // 1. First priority given to combinations detected during RAO
         int comp1 = compareIsDetectedDuringRao(ra1, ra2);

@@ -39,38 +39,6 @@ public class MaximumNumberOfRemedialActionPerTsoFilter implements NetworkActionC
      * </ol>
      * If the first condition is not met for at least one TSO, the combination is not kept. If the second condition is not met for at least one TSO, the combination is kept but the range actions will be unapplied for the next optimization.
      */
-    public Map<NetworkActionCombination, Boolean> filter(Map<NetworkActionCombination, Boolean> naCombinations, OptimizationResult optimizationResult) {
-        Map<NetworkActionCombination, Boolean> filteredNaCombinations = new HashMap<>();
-        Map<String, Integer> maxNaPerTso = getMaxNetworkActionPerTso(optimizationResult);
-        for (Map.Entry<NetworkActionCombination, Boolean> entry : naCombinations.entrySet()) {
-            NetworkActionCombination naCombination = entry.getKey();
-            Set<String> operators = naCombination.getOperators();
-            boolean naShouldBeKept = true;
-            boolean removeRangeActions = false;
-            for (String tso : operators) {
-                int naCombinationSize = (int) naCombination.getNetworkActionSet().stream().filter(networkAction -> tso.equals(networkAction.getOperator())).count();
-                int numberOfAlreadyActivatedRangeActionsForTso = (int) optimizationResult.getActivatedRangeActions(optimizedStateForNetworkActions).stream().filter(ra -> tso.equals(ra.getOperator())).count();
-                int numberOfAlreadyAppliedNetworkActionsForTso = (int) optimizationResult.getActivatedNetworkActions().stream().filter(na -> tso.equals(na.getOperator())).count();
-                // The number of already applied network actions is taken in account in getMaxNetworkActionPerTso
-                if (naCombinationSize > maxNaPerTso.getOrDefault(tso, Integer.MAX_VALUE)) {
-                    naShouldBeKept = false;
-                    break;
-                } else if (numberOfAlreadyAppliedNetworkActionsForTso + numberOfAlreadyActivatedRangeActionsForTso + naCombinationSize > maxRaPerTso.getOrDefault(tso, Integer.MAX_VALUE)) {
-                    removeRangeActions = true;
-                }
-            }
-            if (naShouldBeKept) {
-                filteredNaCombinations.put(naCombination, removeRangeActions || naCombinations.get(naCombination));
-            }
-        }
-
-        if (naCombinations.size() > filteredNaCombinations.size()) {
-            TECHNICAL_LOGS.info("{} network action combinations have been filtered out because the maximum number of network actions for their TSO has been reached", naCombinations.size() - filteredNaCombinations.size());
-        }
-
-        return filteredNaCombinations;
-    }
-
     public Set<NetworkActionCombination> filterCombinations(Set<NetworkActionCombination> naCombinations, OptimizationResult optimizationResult) {
         Set<NetworkActionCombination> filteredNaCombinations = new HashSet<>();
         Map<String, Integer> maxNaPerTso = getMaxNetworkActionPerTso(optimizationResult);

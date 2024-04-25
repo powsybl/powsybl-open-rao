@@ -10,9 +10,7 @@ import com.powsybl.openrao.data.cracapi.State;
 import com.powsybl.openrao.searchtreerao.commons.NetworkActionCombination;
 import com.powsybl.openrao.searchtreerao.result.api.OptimizationResult;
 
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 
 import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.TECHNICAL_LOGS;
@@ -38,25 +36,6 @@ public class MaximumNumberOfRemedialActionsFilter implements NetworkActionCombin
      * </ol>
      * If the first condition is not met, the combination is not kept. If the second condition is not met, the combination is kept but the range actions will be unapplied for the next optimization.
      */
-    public Map<NetworkActionCombination, Boolean> filter(Map<NetworkActionCombination, Boolean> naCombinations, OptimizationResult optimizationResult) {
-        Map<NetworkActionCombination, Boolean> filteredNaCombinations = new HashMap<>();
-        for (Map.Entry<NetworkActionCombination, Boolean> entry : naCombinations.entrySet()) {
-            NetworkActionCombination naCombination = entry.getKey();
-            int naCombinationSize = naCombination.getNetworkActionSet().size();
-            int alreadyActivatedNetworkActionsSize = optimizationResult.getActivatedNetworkActions().size();
-            if (naCombinationSize + alreadyActivatedNetworkActionsSize <= maxRa) {
-                boolean removeRangeActions = alreadyActivatedNetworkActionsSize + optimizationResult.getActivatedRangeActions(optimizedStateForNetworkActions).size() + naCombinationSize > maxRa;
-                filteredNaCombinations.put(naCombination, removeRangeActions || naCombinations.get(naCombination));
-            }
-        }
-
-        if (naCombinations.size() > filteredNaCombinations.size()) {
-            TECHNICAL_LOGS.info("{} network action combinations have been filtered out because the max number of usable RAs has been reached", naCombinations.size() - filteredNaCombinations.size());
-        }
-
-        return filteredNaCombinations;
-    }
-
     public Set<NetworkActionCombination> filterCombinations(Set<NetworkActionCombination> naCombinations, OptimizationResult optimizationResult) {
         Set<NetworkActionCombination> filteredNaCombinations = new HashSet<>();
         for (NetworkActionCombination naCombination : naCombinations) {
