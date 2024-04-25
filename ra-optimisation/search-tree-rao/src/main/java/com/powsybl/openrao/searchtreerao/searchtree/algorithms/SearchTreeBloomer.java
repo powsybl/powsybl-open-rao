@@ -45,15 +45,12 @@ public final class SearchTreeBloomer {
     }
 
     /**
-     * This method generates a map of NetworkActionCombinations and associated boolean.
+     * This method generates a Set of NetworkActionCombinations.
      * The networkActionCombinations generated would be available after this leaf inside the tree.
      * They are either individual NetworkAction as defined in the Crac, or predefined
      * combinations of NetworkActions, defined in the SearchTreeRaoParameters and considered as being efficient when
      * activated together.
-     * If the associated boolean is false, the combination can be applied while keeping parentLeafRangeActions.
-     * If it is true, parentLeafRangeActions must be removed before applying the combination.
-     * <p>
-     * Moreover, the bloom method ensure that the returned NetworkActionCombinations respect the following rules:
+     * The bloom method ensures that the returned NetworkActionCombinations respect the following rules:
      * <ul>
      * <li>they do not exceed the maximum number of usable remedial actions</li>
      * <li>they do not exceed the maximum number of usable remedial actions (PST & topo) per operator</li>
@@ -87,6 +84,12 @@ public final class SearchTreeBloomer {
         return networkActionCombinations;
     }
 
+    /**
+     * This method checks if range action must be removed before applying a network action combination.
+     * If so, parentLeafRangeActions must be removed before applying the combination.
+     * Otherwise, it can be applied while keeping them.
+     * Such a check is performed by analyzing RaUsageLimits for the given state.
+     */
     boolean shouldRangeActionsBeRemovedToApplyNa(NetworkActionCombination naCombination, OptimizationResult optimizationResult) {
         State optimizationState = input.getOptimizationPerimeter().getMainOptimizationState();
         RaUsageLimits raUsageLimits = parameters.getRaLimitationParameters().get(optimizationState.getInstant());
@@ -104,7 +107,7 @@ public final class SearchTreeBloomer {
 
         // maxTso
         Set<String> operators = naCombination.getOperators();
-        Set<String> activatedTsos = optimizationResult.getActivatedNetworkActions().stream().map(RemedialAction::getOperator).filter(Objects::nonNull).collect(Collectors.toSet());
+        Set<String> activatedTsos = alreadyActivatedNetworkActions.stream().map(RemedialAction::getOperator).filter(Objects::nonNull).collect(Collectors.toSet());
         alreadyActivatedRangeActions.stream().map(RemedialAction::getOperator).filter(Objects::nonNull).forEach(activatedTsos::add);
         activatedTsos.addAll(operators);
         if (activatedTsos.size() > raUsageLimits.getMaxTso()) {
