@@ -12,6 +12,7 @@ import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.*;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
 import com.powsybl.openrao.data.cracapi.cnec.Side;
+import com.powsybl.openrao.data.cracapi.rangeaction.CounterTradeRangeAction;
 import com.powsybl.openrao.data.cracapi.rangeaction.HvdcRangeAction;
 import com.powsybl.openrao.data.cracapi.rangeaction.RangeAction;
 import com.powsybl.openrao.data.cracimpl.utils.CommonCracCreation;
@@ -273,5 +274,29 @@ class RangeActionSensitivityProviderTest {
 
         OpenRaoException exception = assertThrows(OpenRaoException.class, () -> provider.getBasecaseFactors(network));
         assertEquals("Range action type of null not implemented yet", exception.getMessage());
+    }
+
+    @Test
+    void testCTDoesNotThrow() {
+        Crac crac = CommonCracCreation.create();
+        FlowCnec flowCnec = crac.newFlowCnec()
+            .withId("cnec")
+            .withNetworkElement("BBE1AA11 FFR5AA11 1")
+            .withInstant(PREVENTIVE_INSTANT_ID)
+            .newThreshold().withMax(1000.).withUnit(Unit.MEGAWATT).withSide(Side.LEFT).add()
+            .add();
+
+        Network network = Network.read("TestCase16NodesWithHvdc.xiidm", getClass().getResourceAsStream("/TestCase16NodesWithHvdc.xiidm"));
+
+        RangeAction<?> ctRa = Mockito.mock(CounterTradeRangeAction.class);
+        RangeActionSensitivityProvider provider = new RangeActionSensitivityProvider(Set.of(ctRa), Set.of(flowCnec), Set.of(Unit.MEGAWATT, Unit.AMPERE));
+
+        List<SensitivityFactor> factors = provider.getBasecaseFactors(network);
+        assertEquals(2, factors.size());
+        for (SensitivityFactor factor : factors) {
+            // By default if no RA, then use a transformer for computing at least flows.
+            assertEquals(SensitivityVariableType.TRANSFORMER_PHASE, factor.getVariableType());
+        }
+
     }
 }
