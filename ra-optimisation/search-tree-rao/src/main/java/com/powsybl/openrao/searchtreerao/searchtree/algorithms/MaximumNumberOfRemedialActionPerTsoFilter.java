@@ -39,7 +39,7 @@ public class MaximumNumberOfRemedialActionPerTsoFilter implements NetworkActionC
      * </ol>
      * If the first condition is not met for at least one TSO, the combination is not kept. If the second condition is not met for at least one TSO, the combination is kept but the range actions will be unapplied for the next optimization.
      */
-    public Set<NetworkActionCombination> filterCombinations(Set<NetworkActionCombination> naCombinations, OptimizationResult optimizationResult) {
+    public Set<NetworkActionCombination> filter(Set<NetworkActionCombination> naCombinations, OptimizationResult optimizationResult) {
         Set<NetworkActionCombination> filteredNaCombinations = new HashSet<>();
         Map<String, Integer> maxNaPerTso = getMaxNetworkActionPerTso(optimizationResult);
         for (NetworkActionCombination naCombination : naCombinations) {

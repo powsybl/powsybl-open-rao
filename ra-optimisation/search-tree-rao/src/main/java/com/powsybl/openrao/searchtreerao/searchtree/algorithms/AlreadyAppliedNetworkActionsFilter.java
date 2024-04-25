@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
  */
 public class AlreadyAppliedNetworkActionsFilter implements NetworkActionCombinationFilter {
 
-    public Set<NetworkActionCombination> filterCombinations(Set<NetworkActionCombination> naCombinations, OptimizationResult optimizationResult) {
+    public Set<NetworkActionCombination> filter(Set<NetworkActionCombination> naCombinations, OptimizationResult optimizationResult) {
         return naCombinations.stream()
             .filter(naCombination -> naCombination.getNetworkActionSet().stream().noneMatch(na -> optimizationResult.getActivatedNetworkActions().contains(na)))
             .collect(Collectors.toSet());

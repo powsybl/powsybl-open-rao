@@ -81,7 +81,7 @@ public final class SearchTreeBloomer {
 
         // filters
         for (NetworkActionCombinationFilter networkActionCombinationFilter : networkActionCombinationFilters) {
-            networkActionCombinations = networkActionCombinationFilter.filterCombinations(networkActionCombinations, fromLeaf);
+            networkActionCombinations = networkActionCombinationFilter.filter(networkActionCombinations, fromLeaf);
         }
 
         return networkActionCombinations;

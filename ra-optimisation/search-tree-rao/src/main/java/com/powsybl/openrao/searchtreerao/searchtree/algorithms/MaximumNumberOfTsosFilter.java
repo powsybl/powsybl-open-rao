@@ -27,7 +27,7 @@ public class MaximumNumberOfTsosFilter implements NetworkActionCombinationFilter
         this.maxTso = maxTso;
     }
 
-    public Set<NetworkActionCombination> filterCombinations(Set<NetworkActionCombination> naCombinations, OptimizationResult optimizationResult) {
+    public Set<NetworkActionCombination> filter(Set<NetworkActionCombination> naCombinations, OptimizationResult optimizationResult) {
 
         Set<String> alreadyActivatedTsos = getTsosWithActivatedNetworkActions(optimizationResult);
         Set<NetworkActionCombination> filteredNaCombinations = new HashSet<>();

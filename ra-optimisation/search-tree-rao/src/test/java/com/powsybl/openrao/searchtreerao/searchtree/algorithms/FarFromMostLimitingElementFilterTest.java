@@ -60,7 +60,7 @@ class FarFromMostLimitingElementFilterTest {
         // test - no border cross, most limiting element is in BE/FR
         Mockito.when(previousLeaf.getMostLimitingElements(1)).thenReturn(List.of(NetworkActionCombinationsUtils.CRAC.getFlowCnec("cnec1basecase"))); // be fr
         naFilter = new FarFromMostLimitingElementFilter(NetworkActionCombinationsUtils.NETWORK, true, 0);
-        filteredNaCombination = naFilter.filterCombinations(naCombinations, previousLeaf);
+        filteredNaCombination = naFilter.filter(naCombinations, previousLeaf);
 
         assertEquals(7, filteredNaCombination.size());
         List<NetworkActionCombination> list1 = List.of(IND_FR_2, IND_BE_1, IND_NL_BE, IND_FR_DE, COMB_3_BE, COMB_2_FR_DE_BE, COMB_2_BE_NL);
@@ -69,7 +69,7 @@ class FarFromMostLimitingElementFilterTest {
 
         // test - no border cross, most limiting element is in DE/FR
         Mockito.when(previousLeaf.getMostLimitingElements(1)).thenReturn(List.of(NetworkActionCombinationsUtils.CRAC.getFlowCnec("cnec2basecase"))); // de fr
-        filteredNaCombination = naFilter.filterCombinations(naCombinations, previousLeaf);
+        filteredNaCombination = naFilter.filter(naCombinations, previousLeaf);
 
         assertEquals(6, filteredNaCombination.size());
         List<NetworkActionCombination> list2 = List.of(IND_FR_2, IND_DE_1, IND_FR_DE, IND_DE_NL, COMB_2_DE, COMB_2_FR_DE_BE);
@@ -79,7 +79,7 @@ class FarFromMostLimitingElementFilterTest {
         // test - max 1 border cross, most limiting element is in BE
         Mockito.when(previousLeaf.getMostLimitingElements(1)).thenReturn(List.of(NetworkActionCombinationsUtils.CRAC.getFlowCnec("cnecBe"))); // be
         naFilter = new FarFromMostLimitingElementFilter(NetworkActionCombinationsUtils.NETWORK, true, 1);
-        filteredNaCombination = naFilter.filterCombinations(naCombinations, previousLeaf);
+        filteredNaCombination = naFilter.filter(naCombinations, previousLeaf);
 
         assertEquals(9, filteredNaCombination.size());
         List<NetworkActionCombination> list3 = List.of(IND_FR_2, IND_BE_1, IND_NL_1, IND_NL_BE, IND_FR_DE, IND_DE_NL, COMB_3_BE, COMB_2_FR_DE_BE, COMB_2_BE_NL);

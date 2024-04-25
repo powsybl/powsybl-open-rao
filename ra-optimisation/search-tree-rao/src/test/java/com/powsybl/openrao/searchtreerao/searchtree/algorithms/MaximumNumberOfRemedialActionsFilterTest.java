@@ -49,20 +49,20 @@ class MaximumNumberOfRemedialActionsFilterTest {
 
         // filter - max 4 RAs
         naFilter = new MaximumNumberOfRemedialActionsFilter(4, P_STATE);
-        filteredNaCombination = naFilter.filterCombinations(naCombinations, previousLeaf);
+        filteredNaCombination = naFilter.filter(naCombinations, previousLeaf);
 
         assertEquals(8, filteredNaCombination.size()); // no combination filtered
 
         // filter - max 3 RAs
         naFilter = new MaximumNumberOfRemedialActionsFilter(3, P_STATE);
-        filteredNaCombination = naFilter.filterCombinations(naCombinations, previousLeaf);
+        filteredNaCombination = naFilter.filter(naCombinations, previousLeaf);
 
         assertEquals(7, filteredNaCombination.size()); // one combination filtered
         assertFalse(filteredNaCombination.contains(COMB_3_BE));
 
         // max 2 RAs
         naFilter = new MaximumNumberOfRemedialActionsFilter(2, P_STATE);
-        filteredNaCombination = naFilter.filterCombinations(naCombinations, previousLeaf);
+        filteredNaCombination = naFilter.filter(naCombinations, previousLeaf);
 
         assertEquals(4, filteredNaCombination.size());
         assertTrue(filteredNaCombination.contains(IND_FR_2));
@@ -72,7 +72,7 @@ class MaximumNumberOfRemedialActionsFilterTest {
 
         // max 1 RAs
         naFilter = new MaximumNumberOfRemedialActionsFilter(1, P_STATE);
-        filteredNaCombination = naFilter.filterCombinations(naCombinations, previousLeaf);
+        filteredNaCombination = naFilter.filter(naCombinations, previousLeaf);
 
         assertEquals(0, filteredNaCombination.size()); // all combination filtered
 
@@ -83,7 +83,7 @@ class MaximumNumberOfRemedialActionsFilterTest {
         Mockito.when(previousLeaf.getActivatedRangeActions(P_STATE)).thenReturn(Set.of(RA_BE_1));
         Mockito.when(previousLeaf.getActivatedNetworkActions()).thenReturn(Set.of(NA_FR_1, NA_BE_1));
 
-        Set<NetworkActionCombination> naToRemove = naFilter.filterCombinations(naCombinations, previousLeaf);
+        Set<NetworkActionCombination> naToRemove = naFilter.filter(naCombinations, previousLeaf);
         // TODO: move this in bloomer test: Map<NetworkActionCombination, Boolean> expectedResult = Map.of(IND_FR_2, false, IND_BE_1, false, IND_NL_BE, false, IND_NL_1, false, COMB_2_FR, true, COMB_2_BE_NL, true, COMB_2_FR_DE_BE, true);
         Set<NetworkActionCombination> expectedResult = Set.of(IND_FR_2, IND_BE_1, IND_NL_BE, IND_NL_1, COMB_2_FR, COMB_2_BE_NL, COMB_2_FR_DE_BE);
         assertEquals(expectedResult, naToRemove);

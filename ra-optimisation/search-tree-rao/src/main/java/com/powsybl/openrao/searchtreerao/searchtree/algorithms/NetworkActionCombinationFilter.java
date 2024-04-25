@@ -16,5 +16,5 @@ import java.util.Set;
  */
 public interface NetworkActionCombinationFilter {
 
-    Set<NetworkActionCombination> filterCombinations(Set<NetworkActionCombination> naCombinations, OptimizationResult optimizationResult);
+    Set<NetworkActionCombination> filter(Set<NetworkActionCombination> naCombinations, OptimizationResult optimizationResult);
 }

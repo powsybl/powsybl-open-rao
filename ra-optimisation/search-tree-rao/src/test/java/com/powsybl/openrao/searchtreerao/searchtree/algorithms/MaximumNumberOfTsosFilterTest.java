@@ -40,20 +40,20 @@ class MaximumNumberOfTsosFilterTest {
 
         // max 3 TSOs
         naFilter = new MaximumNumberOfTsosFilter(3);
-        filteredNaCombination = naFilter.filterCombinations(naCombinations, previousLeaf);
+        filteredNaCombination = naFilter.filter(naCombinations, previousLeaf);
 
         assertEquals(9, filteredNaCombination.size()); // no combination filtered
 
         // max 2 TSOs
         naFilter = new MaximumNumberOfTsosFilter(2);
-        filteredNaCombination = naFilter.filterCombinations(naCombinations, previousLeaf);
+        filteredNaCombination = naFilter.filter(naCombinations, previousLeaf);
 
         assertEquals(7, filteredNaCombination.size());
         assertFalse(filteredNaCombination.contains(COMB_2_BE_NL)); // one combination filtered
 
         // max 1 TSO
         naFilter = new MaximumNumberOfTsosFilter(1);
-        filteredNaCombination = naFilter.filterCombinations(naCombinations, previousLeaf);
+        filteredNaCombination = naFilter.filter(naCombinations, previousLeaf);
 
         assertEquals(3, filteredNaCombination.size());
         assertTrue(filteredNaCombination.contains(IND_FR_2));
@@ -67,7 +67,7 @@ class MaximumNumberOfTsosFilterTest {
         Mockito.when(leaf.getActivatedNetworkActions()).thenReturn(Set.of(NA_FR_1));
         Mockito.when(leaf.getActivatedRangeActions(Mockito.any(State.class))).thenReturn(Set.of(RA_BE_1));
 
-        Set<NetworkActionCombination> naToRemove = naFilter.filterCombinations(naCombinations, leaf);
+        Set<NetworkActionCombination> naToRemove = naFilter.filter(naCombinations, leaf);
         // TODO: move this to bloomer test: Map<NetworkActionCombination, Boolean> expectedResult = Map.of(IND_FR_2, false, IND_BE_1, false, IND_NL_1, true, IND_FR_DE, false, COMB_2_FR, false, COMB_3_BE, false, COMB_2_FR_NL, true);
         Set<NetworkActionCombination> expectedResult = Set.of(IND_FR_2, IND_BE_1, IND_NL_1, IND_FR_DE, COMB_2_FR, COMB_3_BE, COMB_2_FR_NL);
         assertEquals(expectedResult, naToRemove);
@@ -104,7 +104,7 @@ class MaximumNumberOfTsosFilterTest {
 
         // max 2 TSOs
         MaximumNumberOfTsosFilter naFilter = new MaximumNumberOfTsosFilter(2);
-        Set<NetworkActionCombination> filteredNaCombination = naFilter.filterCombinations(naCombinations, previousLeaf);
+        Set<NetworkActionCombination> filteredNaCombination = naFilter.filter(naCombinations, previousLeaf);
 
         assertEquals(1, filteredNaCombination.size()); // no combination filtered, because null operator should not count
     }

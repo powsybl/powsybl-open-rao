@@ -58,7 +58,7 @@ class MaximumNumberOfRemedialActionPerTsoFilterTest {
         // filter - max 2 topo in FR and DE
         Map<String, Integer> maxTopoPerTso = Map.of("fr", 2, "be", 2);
         naFilter = new MaximumNumberOfRemedialActionPerTsoFilter(maxTopoPerTso, new HashMap<>(), P_STATE);
-        filteredNaCombination = naFilter.filterCombinations(naCombinations, previousLeaf);
+        filteredNaCombination = naFilter.filter(naCombinations, previousLeaf);
 
         assertEquals(6, filteredNaCombination.size()); // 2 combinations filtered
         assertFalse(filteredNaCombination.contains(COMB_2_FR));
@@ -67,7 +67,7 @@ class MaximumNumberOfRemedialActionPerTsoFilterTest {
         // filter - max 1 topo in FR
         maxTopoPerTso = Map.of("fr", 1);
         naFilter = new MaximumNumberOfRemedialActionPerTsoFilter(maxTopoPerTso, new HashMap<>(), P_STATE);
-        filteredNaCombination = naFilter.filterCombinations(naCombinations, previousLeaf);
+        filteredNaCombination = naFilter.filter(naCombinations, previousLeaf);
 
         assertEquals(4, filteredNaCombination.size()); // 4 combinations filtered
         assertTrue(filteredNaCombination.contains(IND_BE_2));
@@ -78,7 +78,7 @@ class MaximumNumberOfRemedialActionPerTsoFilterTest {
         // filter - max 1 RA in FR and max 2 RA in BE
         Map<String, Integer> maxRaPerTso = Map.of("fr", 1, "be", 2);
         naFilter = new MaximumNumberOfRemedialActionPerTsoFilter(new HashMap<>(), maxRaPerTso, P_STATE);
-        filteredNaCombination = naFilter.filterCombinations(naCombinations, previousLeaf);
+        filteredNaCombination = naFilter.filter(naCombinations, previousLeaf);
 
         assertEquals(3, filteredNaCombination.size());
         assertTrue(filteredNaCombination.contains(IND_BE_2));
@@ -89,7 +89,7 @@ class MaximumNumberOfRemedialActionPerTsoFilterTest {
         maxTopoPerTso = Map.of("fr", 2, "nl", 0);
         maxRaPerTso = Map.of("be", 1);
         naFilter = new MaximumNumberOfRemedialActionPerTsoFilter(maxTopoPerTso, maxRaPerTso, P_STATE);
-        filteredNaCombination = naFilter.filterCombinations(naCombinations, previousLeaf);
+        filteredNaCombination = naFilter.filter(naCombinations, previousLeaf);
 
         assertEquals(3, filteredNaCombination.size());
         assertTrue(filteredNaCombination.contains(IND_FR_2));
@@ -100,7 +100,7 @@ class MaximumNumberOfRemedialActionPerTsoFilterTest {
         maxTopoPerTso = Map.of("fr", 10, "nl", 10, "be", 10);
         maxRaPerTso = Map.of("nl", 0);
         naFilter = new MaximumNumberOfRemedialActionPerTsoFilter(maxTopoPerTso, maxRaPerTso, P_STATE);
-        filteredNaCombination = naFilter.filterCombinations(naCombinations, previousLeaf);
+        filteredNaCombination = naFilter.filter(naCombinations, previousLeaf);
 
         assertEquals(5, filteredNaCombination.size());
         assertFalse(filteredNaCombination.contains(IND_NL_1));
@@ -118,7 +118,7 @@ class MaximumNumberOfRemedialActionPerTsoFilterTest {
 
         naFilter = new MaximumNumberOfRemedialActionPerTsoFilter(maxNaPerTso, maxRaPerTso, P_STATE);
         // indFr2, indBe1, indNl1, indFrDe, comb2Fr, comb3Be, comb2BeNl, comb2FrNl
-        Set<NetworkActionCombination> naToRemove = naFilter.filterCombinations(naCombinations, leaf);
+        Set<NetworkActionCombination> naToRemove = naFilter.filter(naCombinations, leaf);
         // TODO: move this to a bloomer test: Set<NetworkActionCombination> expectedResult = Set.of(IND_FR_2, false, IND_BE_2, true, IND_NL_1, false, IND_FR_DE, false, COMB_2_BE_NL, true, COMB_2_FR_NL, false);
         Set<NetworkActionCombination> expectedResult = Set.of(IND_FR_2, IND_BE_2, IND_NL_1, IND_FR_DE, COMB_2_BE_NL, COMB_2_FR_NL);
         assertEquals(expectedResult, naToRemove);
@@ -156,7 +156,7 @@ class MaximumNumberOfRemedialActionPerTsoFilterTest {
         Map<String, Integer> maxRemedialActionsPerTso = Map.of("fr", 2, "nl", 5);
 
         MaximumNumberOfRemedialActionPerTsoFilter naFilter = new MaximumNumberOfRemedialActionPerTsoFilter(maxTopoPerTso, maxRemedialActionsPerTso, P_STATE);
-        Set<NetworkActionCombination> filteredNaCombination = naFilter.filterCombinations(naCombinations, previousLeaf);
+        Set<NetworkActionCombination> filteredNaCombination = naFilter.filter(naCombinations, previousLeaf);
         assertEquals(0, filteredNaCombination.size()); // combination is filtered out
     }
 }

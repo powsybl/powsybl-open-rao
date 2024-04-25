@@ -41,7 +41,7 @@ public class FarFromMostLimitingElementFilter implements NetworkActionCombinatio
      * feature, and setting the number of boundaries allowed between the network action and the limiting element.
      * The most limiting elements are the most limiting functional cost element, and all elements with a non-zero virtual cost.
      */
-    public Set<NetworkActionCombination> filterCombinations(Set<NetworkActionCombination> naCombinations, OptimizationResult optimizationResult) {
+    public Set<NetworkActionCombination> filter(Set<NetworkActionCombination> naCombinations, OptimizationResult optimizationResult) {
         if (!filterFarElements) {
             return naCombinations;
         }

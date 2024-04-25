@@ -42,7 +42,7 @@ class AlreadyAppliedNetworkActionsFilterTest {
 
         // filter already activated NetworkAction
         AlreadyAppliedNetworkActionsFilter naFilter = new AlreadyAppliedNetworkActionsFilter();
-        Set<NetworkActionCombination> filteredNaCombinations = naFilter.filterCombinations(naCombinations, previousLeaf);
+        Set<NetworkActionCombination> filteredNaCombinations = naFilter.filter(naCombinations, previousLeaf);
 
         assertEquals(5, filteredNaCombinations.size());
         assertFalse(filteredNaCombinations.contains(IND_FR_1));
