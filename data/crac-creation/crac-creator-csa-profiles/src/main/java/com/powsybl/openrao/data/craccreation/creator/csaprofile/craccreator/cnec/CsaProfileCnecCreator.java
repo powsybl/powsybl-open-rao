@@ -101,7 +101,7 @@ public class CsaProfileCnecCreator {
         // We check whether the AssessedElement is defined using an OperationalLimit
         CsaProfileConstants.LimitType limitType = getLimit(nativeAssessedElement);
 
-        checkAeScannedSecuredCoherence(assessedElementId, assessedElementPropertyBag);
+        checkAeScannedSecuredCoherence(nativeAssessedElement);
 
         boolean aeSecuredForRegion = isAeSecuredForRegion(nativeAssessedElement);
         boolean aeScannedForRegion = isAeScannedForRegion(nativeAssessedElement);

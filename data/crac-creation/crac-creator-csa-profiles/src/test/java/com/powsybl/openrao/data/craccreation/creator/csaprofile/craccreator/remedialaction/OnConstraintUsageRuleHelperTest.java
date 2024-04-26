@@ -12,15 +12,15 @@ import com.powsybl.openrao.data.cracapi.InstantKind;
 import com.powsybl.openrao.data.cracapi.cnec.Side;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileConstants;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileElementaryCreationContext;
+import com.powsybl.openrao.data.craccreation.creator.csaprofile.nc.AssessedElement;
+import com.powsybl.openrao.data.craccreation.creator.csaprofile.nc.AssessedElementWithRemedialAction;
+import com.powsybl.openrao.data.craccreation.creator.csaprofile.nc.ContingencyWithRemedialAction;
 import com.powsybl.openrao.data.cracimpl.CracImpl;
-import com.powsybl.triplestore.api.PropertyBag;
-import com.powsybl.triplestore.api.PropertyBags;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -32,9 +32,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class OnConstraintUsageRuleHelperTest {
     private Crac crac;
     private Set<CsaProfileElementaryCreationContext> cnecCreationContexts;
-    private PropertyBags assessedElementPropertyBags;
-    private Set<PropertyBag> assessedElementWithRemedialActions;
-    private Set<PropertyBag> contingencyWithRemedialActions;
+    private Set<AssessedElement> assessedElements;
+    private Set<AssessedElementWithRemedialAction> assessedElementWithRemedialActions;
+    private Set<ContingencyWithRemedialAction> contingencyWithRemedialActions;
 
     @BeforeEach
     void setUp() {
@@ -101,134 +101,38 @@ class OnConstraintUsageRuleHelperTest {
 
         // Add AssessedElement property bags
 
-        PropertyBag assessedElement1PropertyBag = new PropertyBag(List.of("assessedElement", "isCombinableWithRemedialAction"), true, false);
-        assessedElement1PropertyBag.put("assessedElement", "_assessed-element-1");
-        assessedElement1PropertyBag.put("isCombinableWithRemedialAction", "false");
+        AssessedElement assessedElement1 = new AssessedElement("assessed-element-1", true, null, null, null, null, false, false, true, null, null, 0d);
+        AssessedElement assessedElement2 = new AssessedElement("assessed-element-2", true, null, null, null, null, false, true, true, null, null, 0d);
+        AssessedElement assessedElement3 = new AssessedElement("assessed-element-3", true, null, null, null, null, false, true, true, null, null, 0d);
+        AssessedElement assessedElement4 = new AssessedElement("assessed-element-4", true, null, null, null, null, false, false, true, null, null, 0d);
+        AssessedElement assessedElement5 = new AssessedElement("assessed-element-5", true, null, null, null, null, false, false, true, null, null, 0d);
+        AssessedElement assessedElement6 = new AssessedElement("assessed-element-6", true, null, null, null, null, false, false, true, null, null, 0d);
+        AssessedElement assessedElement8 = new AssessedElement("assessed-element-8", true, null, null, null, null, false, false, true, null, null, 0d);
 
-        PropertyBag assessedElement2PropertyBag = new PropertyBag(List.of("assessedElement", "isCombinableWithRemedialAction"), true, false);
-        assessedElement2PropertyBag.put("assessedElement", "_assessed-element-2");
-        assessedElement2PropertyBag.put("isCombinableWithRemedialAction", "true");
-
-        PropertyBag assessedElement3PropertyBag = new PropertyBag(List.of("assessedElement", "isCombinableWithRemedialAction"), true, false);
-        assessedElement3PropertyBag.put("assessedElement", "_assessed-element-3");
-        assessedElement3PropertyBag.put("isCombinableWithRemedialAction", "true");
-
-        PropertyBag assessedElement4PropertyBag = new PropertyBag(List.of("assessedElement", "isCombinableWithRemedialAction"), true, false);
-        assessedElement4PropertyBag.put("assessedElement", "_assessed-element-4");
-        assessedElement4PropertyBag.put("isCombinableWithRemedialAction", "false");
-
-        PropertyBag assessedElement5PropertyBag = new PropertyBag(List.of("assessedElement", "isCombinableWithRemedialAction"), true, false);
-        assessedElement5PropertyBag.put("assessedElement", "_assessed-element-5");
-        assessedElement5PropertyBag.put("isCombinableWithRemedialAction", "false");
-
-        PropertyBag assessedElement6PropertyBag = new PropertyBag(List.of("assessedElement", "isCombinableWithRemedialAction"), true, false);
-        assessedElement6PropertyBag.put("assessedElement", "_assessed-element-6");
-        assessedElement6PropertyBag.put("isCombinableWithRemedialAction", "false");
-
-        PropertyBag assessedElement8PropertyBag = new PropertyBag(List.of("assessedElement", "isCombinableWithRemedialAction"), true, false);
-        assessedElement8PropertyBag.put("assessedElement", "_assessed-element-8");
-        assessedElement8PropertyBag.put("isCombinableWithRemedialAction", "false");
-
-        assessedElementPropertyBags = new PropertyBags(Set.of(assessedElement1PropertyBag, assessedElement2PropertyBag, assessedElement3PropertyBag, assessedElement4PropertyBag, assessedElement5PropertyBag, assessedElement6PropertyBag, assessedElement8PropertyBag));
+        assessedElements = Set.of(assessedElement1, assessedElement2, assessedElement3, assessedElement4, assessedElement5, assessedElement6, assessedElement8);
 
         // Add AssessedElementWithRemedialAction property bags
 
-        PropertyBag ae1WithRaPropertyBag = new PropertyBag(List.of("assessedElementWithRemedialAction", "remedialAction", "assessedElement", "combinationConstraintKind"), true, false);
-        ae1WithRaPropertyBag.put("assessedElementWithRemedialAction", "_ae1xra");
-        ae1WithRaPropertyBag.put("remedialAction", "remedial-action");
-        ae1WithRaPropertyBag.put("assessedElement", "assessed-element-1");
-        ae1WithRaPropertyBag.put("combinationConstraintKind", "http://entsoe.eu/ns/nc#ElementCombinationConstraintKind.included");
+        AssessedElementWithRemedialAction assessedElement1WithRemedialAction = new AssessedElementWithRemedialAction("ae1xra", "assessed-element-1", "remedial-action", "http://entsoe.eu/ns/nc#ElementCombinationConstraintKind.included", true);
+        AssessedElementWithRemedialAction assessedElement2WithRemedialAction = new AssessedElementWithRemedialAction("ae2xra", "assessed-element-2", "remedial-action", "http://entsoe.eu/ns/nc#ElementCombinationConstraintKind.included", true);
+        AssessedElementWithRemedialAction assessedElement4WithRemedialAction = new AssessedElementWithRemedialAction("ae4xra", "assessed-element-4", "remedial-action", "http://entsoe.eu/ns/nc#ElementCombinationConstraintKind.considered", false);
+        AssessedElementWithRemedialAction assessedElement5WithRemedialActionIncluded = new AssessedElementWithRemedialAction("ae5xra-included", "assessed-element-5", "remedial-action", "http://entsoe.eu/ns/nc#ElementCombinationConstraintKind.included", true);
+        AssessedElementWithRemedialAction assessedElement5WithRemedialActionConsidered = new AssessedElementWithRemedialAction("ae5xra-considered", "assessed-element-5", "remedial-action", "http://entsoe.eu/ns/nc#ElementCombinationConstraintKind.considered", true);
+        AssessedElementWithRemedialAction assessedElement6WithRemedialAction = new AssessedElementWithRemedialAction("ae6xra", "assessed-element-6", "remedial-action", "http://entsoe.eu/ns/nc#ElementCombinationConstraintKind.excluded", true);
+        AssessedElementWithRemedialAction assessedElement7WithRemedialAction = new AssessedElementWithRemedialAction("ae7xra", "assessed-element-7", "remedial-action", "http://entsoe.eu/ns/nc#ElementCombinationConstraintKind.included", true);
+        AssessedElementWithRemedialAction assessedElement8WithRemedialActionIncluded = new AssessedElementWithRemedialAction("ae8xra-included", "assessed-element-8", "remedial-action", "http://entsoe.eu/ns/nc#ElementCombinationConstraintKind.included", true);
+        AssessedElementWithRemedialAction assessedElement8WithRemedialActionConsidered = new AssessedElementWithRemedialAction("ae8xra-considered", "assessed-element-8", "remedial-action", "http://entsoe.eu/ns/nc#ElementCombinationConstraintKind.considered", true);
 
-        PropertyBag ae2WithRaPropertyBag = new PropertyBag(List.of("assessedElementWithRemedialAction", "remedialAction", "assessedElement", "combinationConstraintKind", "normalEnabled"), true, false);
-        ae2WithRaPropertyBag.put("assessedElementWithRemedialAction", "_ae2xra");
-        ae2WithRaPropertyBag.put("remedialAction", "remedial-action");
-        ae2WithRaPropertyBag.put("assessedElement", "assessed-element-2");
-        ae2WithRaPropertyBag.put("combinationConstraintKind", "http://entsoe.eu/ns/nc#ElementCombinationConstraintKind.included");
-        ae2WithRaPropertyBag.put("normalEnabled", "true");
-
-        PropertyBag ae4WithRaPropertyBag = new PropertyBag(List.of("assessedElementWithRemedialAction", "remedialAction", "assessedElement", "combinationConstraintKind", "normalEnabled"), true, false);
-        ae4WithRaPropertyBag.put("assessedElementWithRemedialAction", "_ae4xra");
-        ae4WithRaPropertyBag.put("remedialAction", "remedial-action");
-        ae4WithRaPropertyBag.put("assessedElement", "assessed-element-4");
-        ae4WithRaPropertyBag.put("combinationConstraintKind", "http://entsoe.eu/ns/nc#ElementCombinationConstraintKind.considered");
-        ae4WithRaPropertyBag.put("normalEnabled", "false");
-
-        PropertyBag ae5WithRaPropertyBag1 = new PropertyBag(List.of("assessedElementWithRemedialAction", "remedialAction", "assessedElement", "combinationConstraintKind"), true, false);
-        ae5WithRaPropertyBag1.put("assessedElementWithRemedialAction", "_ae5xra-included");
-        ae5WithRaPropertyBag1.put("remedialAction", "remedial-action");
-        ae5WithRaPropertyBag1.put("assessedElement", "assessed-element-5");
-        ae5WithRaPropertyBag1.put("combinationConstraintKind", "http://entsoe.eu/ns/nc#ElementCombinationConstraintKind.included");
-        ae5WithRaPropertyBag1.setResourceNames(List.of("remedialAction", "assessedElement", "combinationConstraintKind"));
-
-        PropertyBag ae5WithRaPropertyBag2 = new PropertyBag(List.of("assessedElementWithRemedialAction", "remedialAction", "assessedElement", "combinationConstraintKind"), true, false);
-        ae5WithRaPropertyBag2.put("assessedElementWithRemedialAction", "_ae5xra-considered");
-        ae5WithRaPropertyBag2.put("remedialAction", "remedial-action");
-        ae5WithRaPropertyBag2.put("assessedElement", "assessed-element-5");
-        ae5WithRaPropertyBag2.put("combinationConstraintKind", "http://entsoe.eu/ns/nc#ElementCombinationConstraintKind.considered");
-        ae5WithRaPropertyBag2.setResourceNames(List.of("remedialAction", "assessedElement", "combinationConstraintKind"));
-
-        PropertyBag ae6WithRaPropertyBag = new PropertyBag(List.of("assessedElementWithRemedialAction", "remedialAction", "assessedElement", "combinationConstraintKind"), true, false);
-        ae6WithRaPropertyBag.put("assessedElementWithRemedialAction", "_ae6xra");
-        ae6WithRaPropertyBag.put("remedialAction", "remedial-action");
-        ae6WithRaPropertyBag.put("assessedElement", "assessed-element-6");
-        ae6WithRaPropertyBag.put("combinationConstraintKind", "http://entsoe.eu/ns/nc#ElementCombinationConstraintKind.excluded");
-        ae6WithRaPropertyBag.setResourceNames(List.of("remedialAction", "assessedElement", "combinationConstraintKind"));
-
-        PropertyBag ae7WithRaPropertyBag = new PropertyBag(List.of("assessedElementWithRemedialAction", "remedialAction", "assessedElement", "combinationConstraintKind"), true, false);
-        ae7WithRaPropertyBag.put("assessedElementWithRemedialAction", "_ae7xra");
-        ae7WithRaPropertyBag.put("remedialAction", "remedial-action");
-        ae7WithRaPropertyBag.put("assessedElement", "assessed-element-7");
-        ae7WithRaPropertyBag.put("combinationConstraintKind", "http://entsoe.eu/ns/nc#ElementCombinationConstraintKind.included");
-
-        PropertyBag ae8WithRaPropertyBagIncluded = new PropertyBag(List.of("assessedElementWithRemedialAction", "remedialAction", "assessedElement", "combinationConstraintKind"), true, false);
-        ae8WithRaPropertyBagIncluded.put("assessedElementWithRemedialAction", "_ae8xra-included");
-        ae8WithRaPropertyBagIncluded.put("remedialAction", "remedial-action");
-        ae8WithRaPropertyBagIncluded.put("assessedElement", "assessed-element-8");
-        ae8WithRaPropertyBagIncluded.put("combinationConstraintKind", "http://entsoe.eu/ns/nc#ElementCombinationConstraintKind.included");
-
-        PropertyBag ae8WithRaPropertyBagConsidered = new PropertyBag(List.of("assessedElementWithRemedialAction", "remedialAction", "assessedElement", "combinationConstraintKind"), true, false);
-        ae8WithRaPropertyBagConsidered.put("assessedElementWithRemedialAction", "_ae8xra-considered");
-        ae8WithRaPropertyBagConsidered.put("remedialAction", "remedial-action");
-        ae8WithRaPropertyBagConsidered.put("assessedElement", "assessed-element-8");
-        ae8WithRaPropertyBagConsidered.put("combinationConstraintKind", "http://entsoe.eu/ns/nc#ElementCombinationConstraintKind.considered");
-
-        assessedElementWithRemedialActions = Set.of(ae1WithRaPropertyBag, ae2WithRaPropertyBag, ae4WithRaPropertyBag, ae5WithRaPropertyBag1, ae5WithRaPropertyBag2, ae6WithRaPropertyBag, ae7WithRaPropertyBag, ae8WithRaPropertyBagIncluded, ae8WithRaPropertyBagConsidered);
+        assessedElementWithRemedialActions = Set.of(assessedElement1WithRemedialAction, assessedElement2WithRemedialAction, assessedElement4WithRemedialAction, assessedElement5WithRemedialActionIncluded, assessedElement5WithRemedialActionConsidered, assessedElement6WithRemedialAction, assessedElement7WithRemedialAction, assessedElement8WithRemedialActionIncluded, assessedElement8WithRemedialActionConsidered);
 
         // Add ContingencyWithRemedialAction property bags
 
-        PropertyBag co1WithRaPropertyBag = new PropertyBag(List.of("contingencyWithRemedialAction", "mRID", "remedialAction", "contingency", "combinationConstraintKind", "normalEnabled"), true, false);
-        co1WithRaPropertyBag.put("contingencyWithRemedialAction", "_co1xra");
-        co1WithRaPropertyBag.put("mRID", "_co1xra");
-        co1WithRaPropertyBag.put("remedialAction", "remedial-action");
-        co1WithRaPropertyBag.put("contingency", "contingency-1");
-        co1WithRaPropertyBag.put("combinationConstraintKind", "http://entsoe.eu/ns/nc#ElementCombinationConstraintKind.included");
-        co1WithRaPropertyBag.put("normalEnabled", "true");
+        ContingencyWithRemedialAction contingency1WithRemedialAction = new ContingencyWithRemedialAction("co1xra", "contingency-1", "remedial-action", "http://entsoe.eu/ns/nc#ElementCombinationConstraintKind.included", true);
+        ContingencyWithRemedialAction contingency2WithRemedialAction = new ContingencyWithRemedialAction("co2xra", "contingency-2", "remedial-action", "http://entsoe.eu/ns/nc#ElementCombinationConstraintKind.considered", true);
+        ContingencyWithRemedialAction contingency3WithRemedialAction = new ContingencyWithRemedialAction("co3xra", "contingency-3", "remedial-action", "http://entsoe.eu/ns/nc#ElementCombinationConstraintKind.included", true);
+        ContingencyWithRemedialAction contingency4WithRemedialAction = new ContingencyWithRemedialAction("co4xra", "contingency-4", "remedial-action", "http://entsoe.eu/ns/nc#ElementCombinationConstraintKind.considered", true);
 
-        PropertyBag co2WithRaPropertyBag = new PropertyBag(List.of("contingencyWithRemedialAction", "mRID", "remedialAction", "contingency", "combinationConstraintKind", "normalEnabled"), true, false);
-        co2WithRaPropertyBag.put("contingencyWithRemedialAction", "_co2xra");
-        co2WithRaPropertyBag.put("mRID", "_co2xra");
-        co2WithRaPropertyBag.put("remedialAction", "remedial-action");
-        co2WithRaPropertyBag.put("contingency", "contingency-2");
-        co2WithRaPropertyBag.put("combinationConstraintKind", "http://entsoe.eu/ns/nc#ElementCombinationConstraintKind.considered");
-        co2WithRaPropertyBag.put("normalEnabled", "true");
-
-        PropertyBag co3WithRaPropertyBag = new PropertyBag(List.of("contingencyWithRemedialAction", "mRID", "remedialAction", "contingency", "combinationConstraintKind", "normalEnabled"), true, false);
-        co3WithRaPropertyBag.put("contingencyWithRemedialAction", "_co3xra");
-        co3WithRaPropertyBag.put("mRID", "_co3xra");
-        co3WithRaPropertyBag.put("remedialAction", "remedial-action");
-        co3WithRaPropertyBag.put("contingency", "contingency-3");
-        co3WithRaPropertyBag.put("combinationConstraintKind", "http://entsoe.eu/ns/nc#ElementCombinationConstraintKind.included");
-        co3WithRaPropertyBag.put("normalEnabled", "true");
-
-        PropertyBag co4WithRaPropertyBag = new PropertyBag(List.of("contingencyWithRemedialAction", "mRID", "remedialAction", "contingency", "combinationConstraintKind", "normalEnabled"), true, false);
-        co4WithRaPropertyBag.put("contingencyWithRemedialAction", "_co4xra");
-        co4WithRaPropertyBag.put("mRID", "_co4xra");
-        co4WithRaPropertyBag.put("remedialAction", "remedial-action");
-        co4WithRaPropertyBag.put("contingency", "contingency-4");
-        co4WithRaPropertyBag.put("combinationConstraintKind", "http://entsoe.eu/ns/nc#ElementCombinationConstraintKind.considered");
-        co4WithRaPropertyBag.put("normalEnabled", "true");
-
-        contingencyWithRemedialActions = Set.of(co1WithRaPropertyBag, co2WithRaPropertyBag, co3WithRaPropertyBag, co4WithRaPropertyBag);
+        contingencyWithRemedialActions = Set.of(contingency1WithRemedialAction, contingency2WithRemedialAction, contingency3WithRemedialAction, contingency4WithRemedialAction);
     }
 
     @Test
@@ -243,7 +147,7 @@ class OnConstraintUsageRuleHelperTest {
     void getCnecsBuiltFromAssessedElementsCombinableWithRemedialActions() {
         assertEquals(
             Set.of(crac.getFlowCnec("Line 2 - preventive"), crac.getFlowCnec("Line 2 - curative - CO1"), crac.getFlowCnec("Line 2 - curative - CO2"), crac.getFlowCnec("Line 2 - curative - CO3"), crac.getFlowCnec("Line 2 - curative - CO4"), crac.getFlowCnec("Line 2 - curative - CO5"), crac.getFlowCnec("Line 2 - curative - CO6"), crac.getFlowCnec("Line 3 - preventive"), crac.getFlowCnec("Line 3 - curative - CO1"), crac.getFlowCnec("Line 3 - curative - CO2"), crac.getFlowCnec("Line 3 - curative - CO3"), crac.getFlowCnec("Line 3 - curative - CO4"), crac.getFlowCnec("Line 3 - curative - CO5"), crac.getFlowCnec("Line 3 - curative - CO6")),
-            OnConstraintUsageRuleHelper.getCnecsBuiltFromAssessedElementsCombinableWithRemedialActions(crac, cnecCreationContexts, assessedElementPropertyBags)
+            OnConstraintUsageRuleHelper.getCnecsBuiltFromAssessedElementsCombinableWithRemedialActions(crac, cnecCreationContexts, assessedElements)
         );
     }
 
@@ -273,7 +177,7 @@ class OnConstraintUsageRuleHelperTest {
         expectedResult.put("assessed-element-7", new AssociationStatus(false, null, "OnConstraint usage rule for remedial action remedial-action with assessed element assessed-element-7 ignored because no CNEC was imported by Open RAO from this assessed element."));
         expectedResult.put("assessed-element-8", new AssociationStatus(false, null, "OnConstraint usage rule for remedial action remedial-action with assessed element assessed-element-8 ignored because this assessed element has several conflictual links to the remedial action."));
 
-        assertEquals(expectedResult, OnConstraintUsageRuleHelper.processCnecsLinkedToRemedialAction(crac, "remedial-action", assessedElementPropertyBags, assessedElementWithRemedialActions, contingencyWithRemedialActions, cnecCreationContexts));
+        assertEquals(expectedResult, OnConstraintUsageRuleHelper.processCnecsLinkedToRemedialAction(crac, "remedial-action", assessedElements, assessedElementWithRemedialActions, contingencyWithRemedialActions, cnecCreationContexts));
     }
 
     @Test
@@ -300,6 +204,6 @@ class OnConstraintUsageRuleHelperTest {
         expectedResult.put("assessed-element-7", new AssociationStatus(false, null, "OnConstraint usage rule for remedial action remedial-action with assessed element assessed-element-7 ignored because no CNEC was imported by Open RAO from this assessed element."));
         expectedResult.put("assessed-element-8", new AssociationStatus(false, null, "OnConstraint usage rule for remedial action remedial-action with assessed element assessed-element-8 ignored because this assessed element has several conflictual links to the remedial action."));
 
-        assertEquals(expectedResult, OnConstraintUsageRuleHelper.processCnecsLinkedToRemedialAction(crac, "remedial-action", assessedElementPropertyBags, assessedElementWithRemedialActions, Set.of(), cnecCreationContexts));
+        assertEquals(expectedResult, OnConstraintUsageRuleHelper.processCnecsLinkedToRemedialAction(crac, "remedial-action", assessedElements, assessedElementWithRemedialActions, Set.of(), cnecCreationContexts));
     }
 }

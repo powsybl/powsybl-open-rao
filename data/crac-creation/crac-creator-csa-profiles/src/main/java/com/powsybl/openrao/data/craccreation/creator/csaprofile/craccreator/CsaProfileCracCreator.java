@@ -13,6 +13,8 @@ import com.powsybl.openrao.data.cracapi.cnec.Side;
 import com.powsybl.openrao.data.craccreation.creator.api.CracCreator;
 import com.powsybl.openrao.data.craccreation.creator.api.parameters.CracCreationParameters;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.CsaProfileCrac;
+import com.powsybl.openrao.data.craccreation.creator.csaprofile.nc.AssessedElementWithRemedialAction;
+import com.powsybl.openrao.data.craccreation.creator.csaprofile.nc.ContingencyWithRemedialAction;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.nc.CurrentLimit;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.nc.VoltageLimit;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.cnec.CsaProfileCnecCreator;
@@ -60,7 +62,7 @@ public class CsaProfileCracCreator implements CracCreator<CsaProfileCrac, CsaPro
         createCnecs(nativeCrac.getAssessedElements(), nativeCrac.getAssessedElementWithContingencies(), nativeCrac.getCurrentLimits(), nativeCrac.getVoltageLimits(), nativeCrac.getVoltageAngleLimits(), cracCreationParameters.getDefaultMonitoredSides(), csaParameters.getCapacityCalculationRegionEicCode());
 
         ElementaryActionsHelper elementaryActionsHelper = new ElementaryActionsHelper(nativeCrac.getGridStateAlterationRemedialActions(), nativeCrac.getSchemeRemedialActions(), nativeCrac.getRemedialActionSchemes(), nativeCrac.getStages(), nativeCrac.getGridStateAlterationCollections(), nativeCrac.getAssessedElementWithRemedialActions(), nativeCrac.getContingencyWithRemedialActions(), nativeCrac.getStaticPropertyRanges(), nativeCrac.getTopologyActions(), nativeCrac.getRotatingMachineActions(), nativeCrac.getShuntCompensatorModifications(), nativeCrac.getTapPositionActions(), nativeCrac.getRemedialActionGroups(), nativeCrac.getRemedialActionDependencies());
-        createRemedialActions(onConstraintUsageRuleAdder, elementaryActionsHelper, csaParameters.getSpsMaxTimeToImplementThresholdInSeconds());
+        createRemedialActions(nativeCrac.getAssessedElements(), nativeCrac.getAssessedElementWithRemedialActions(), nativeCrac.getContingencyWithRemedialActions(), elementaryActionsHelper, csaParameters.getSpsMaxTimeToImplementThresholdInSeconds());
         creationContext.buildCreationReport();
         return creationContext.creationSuccess(crac);
     }
@@ -73,8 +75,8 @@ public class CsaProfileCracCreator implements CracCreator<CsaProfileCrac, CsaPro
         // TODO : add other curative instants here
     }
 
-    private void createRemedialActions(OnConstraintUsageRuleHelper onConstraintUsageRuleAdder, ElementaryActionsHelper elementaryActionsHelper, int spsMaxTimeToImplementThreshold) {
-        new CsaProfileRemedialActionsCreator(crac, network, creationContext, onConstraintUsageRuleAdder, elementaryActionsHelper, spsMaxTimeToImplementThreshold);
+    private void createRemedialActions(Set<AssessedElement> nativeAssessedElements, Set<AssessedElementWithRemedialAction> nativeAssessedElementWithRemedialActions, Set<ContingencyWithRemedialAction> nativeContingencyWithRemedialActions, ElementaryActionsHelper elementaryActionsHelper, int spsMaxTimeToImplementThreshold) {
+        new CsaProfileRemedialActionsCreator(crac, network, creationContext, nativeAssessedElements, nativeAssessedElementWithRemedialActions, nativeContingencyWithRemedialActions, elementaryActionsHelper, spsMaxTimeToImplementThreshold, creationContext.getCnecCreationContexts());
     }
 
     private void createContingencies(Set<Contingency> nativeContingencies, Set<ContingencyEquipment> nativeContingencyEquipments) {
