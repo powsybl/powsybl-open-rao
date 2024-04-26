@@ -42,10 +42,10 @@ public class CsaProfileCnecCreator {
         this.crac = crac;
         this.network = network;
         this.assessedElementsPropertyBags = assessedElementsPropertyBags;
-        this.assessedElementsWithContingenciesPropertyBags = CsaProfileCracUtils.getMappedPropertyBagsSet(assessedElementsWithContingenciesPropertyBags, CsaProfileConstants.REQUEST_ASSESSED_ELEMENT);
-        this.currentLimitsPropertyBags = CsaProfileCracUtils.getMappedPropertyBagsSet(currentLimitsPropertyBags, CsaProfileConstants.REQUEST_CURRENT_LIMIT);
-        this.voltageLimitsPropertyBags = CsaProfileCracUtils.getMappedPropertyBagsSet(voltageLimitsPropertyBags, CsaProfileConstants.REQUEST_VOLTAGE_LIMIT);
-        this.angleLimitsPropertyBags = CsaProfileCracUtils.getMappedPropertyBagsSet(angleLimitsPropertyBags, CsaProfileConstants.REQUEST_VOLTAGE_ANGLE_LIMIT);
+        this.assessedElementsWithContingenciesPropertyBags = CsaProfileCracUtils.groupPropertyBags(assessedElementsWithContingenciesPropertyBags, CsaProfileConstants.REQUEST_ASSESSED_ELEMENT);
+        this.currentLimitsPropertyBags = CsaProfileCracUtils.groupPropertyBags(currentLimitsPropertyBags, CsaProfileConstants.REQUEST_CURRENT_LIMIT);
+        this.voltageLimitsPropertyBags = CsaProfileCracUtils.groupPropertyBags(voltageLimitsPropertyBags, CsaProfileConstants.REQUEST_VOLTAGE_LIMIT);
+        this.angleLimitsPropertyBags = CsaProfileCracUtils.groupPropertyBags(angleLimitsPropertyBags, CsaProfileConstants.REQUEST_VOLTAGE_ANGLE_LIMIT);
         this.cracCreationContext = cracCreationContext;
         this.regionEic = regionEic;
         this.cracCreationParameters = cracCreationParameters;
@@ -104,6 +104,8 @@ public class CsaProfileCnecCreator {
 
         boolean aeSecuredForRegion = isAeSecuredForRegion(assessedElementPropertyBag);
         boolean aeScannedForRegion = isAeScannedForRegion(assessedElementPropertyBag);
+
+        String flowReliabilityMargin = assessedElementPropertyBag.get(CsaProfileConstants.REQUEST_FLOW_RELIABILITY_MARGIN);
 
         // If not, we check if it is defined with a ConductingEquipment instead, otherwise we ignore
         if (limitType == null) {

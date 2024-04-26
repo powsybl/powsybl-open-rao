@@ -23,13 +23,15 @@ public class FlowCnecCreator extends AbstractCnecCreator {
     private final String conductingEquipment;
     private final Set<Side> defaultMonitoredSides;
     private final FlowCnecInstantHelper instantHelper;
+    private final String flowReliabilityMarginString;
 
-    public FlowCnecCreator(Crac crac, Network network, String assessedElementId, String nativeAssessedElementName, String assessedElementOperator, boolean inBaseCase, PropertyBag currentLimitPropertyBag, String conductingEquipment, List<Contingency> linkedContingencies, Set<CsaProfileElementaryCreationContext> csaProfileCnecCreationContexts, CsaProfileCracCreationContext cracCreationContext, String rejectedLinksAssessedElementContingency, boolean aeSecuredForRegion, boolean aeScannedForRegion, CracCreationParameters cracCreationParameters) {
+    public FlowCnecCreator(Crac crac, Network network, String assessedElementId, String nativeAssessedElementName, String assessedElementOperator, boolean inBaseCase, PropertyBag currentLimitPropertyBag, String conductingEquipment, String flowReliabilityMarginString, List<Contingency> linkedContingencies, Set<CsaProfileElementaryCreationContext> csaProfileCnecCreationContexts, CsaProfileCracCreationContext cracCreationContext, Set<Side> defaultMonitoredSides, String rejectedLinksAssessedElementContingency, boolean aeSecuredForRegion, boolean aeScannedForRegion, CracCreationParameters cracCreationParameters) {
         super(crac, network, assessedElementId, nativeAssessedElementName, assessedElementOperator, inBaseCase, currentLimitPropertyBag, linkedContingencies, csaProfileCnecCreationContexts, cracCreationContext, rejectedLinksAssessedElementContingency, aeSecuredForRegion, aeScannedForRegion);
         this.conductingEquipment = conductingEquipment;
         this.defaultMonitoredSides = cracCreationParameters.getDefaultMonitoredSides();
         checkCnecDefinitionMode();
         this.instantHelper = new FlowCnecInstantHelper(cracCreationParameters);
+        this.flowReliabilityMarginString = flowReliabilityMarginString;
     }
 
     private void checkCnecDefinitionMode() {
@@ -63,7 +65,29 @@ public class FlowCnecCreator extends AbstractCnecCreator {
             }
         }
 
-        addAllFlowCnecsFromBranchAndOperationalLimits((Branch<?>) branch, thresholds, useMaxAndMinThresholds);
+        Double flowReliabilityMargin = parseFlowReliabilityMargin();
+        if (flowReliabilityMargin == null) {
+            return;
+        }
+
+        addAllFlowCnecsFromBranchAndOperationalLimits((Branch<?>) branch, thresholds, useMaxAndMinThresholds, conductingEquipment != null, flowReliabilityMargin);
+    }
+
+    private Double parseFlowReliabilityMargin() {
+        if (flowReliabilityMarginString == null) {
+            return 0d;
+        }
+        try {
+            double flowReliabilityMargin = Double.parseDouble(flowReliabilityMarginString);
+            if (flowReliabilityMargin < 0 || flowReliabilityMargin > 100) {
+                csaProfileCnecCreationContexts.add(CsaProfileElementaryCreationContext.notImported(assessedElementId, ImportStatus.INCONSISTENCY_IN_DATA, writeAssessedElementIgnoredReasonMessage("of an invalid flow reliability margin (expected a value between 0 and 100)")));
+                return null;
+            }
+            return flowReliabilityMargin;
+        } catch (NumberFormatException exception) {
+            csaProfileCnecCreationContexts.add(CsaProfileElementaryCreationContext.notImported(assessedElementId, ImportStatus.INCONSISTENCY_IN_DATA, writeAssessedElementIgnoredReasonMessage("the flowReliabilityMargin could not be converted to a numerical value")));
+            return null;
+        }
     }
 
     private FlowCnecAdder initFlowCnec() {
@@ -121,12 +145,13 @@ public class FlowCnecCreator extends AbstractCnecCreator {
         return null;
     }
 
-    private void addFlowCnecThreshold(FlowCnecAdder flowCnecAdder, Side side, double threshold, boolean useMaxAndMinThresholds) {
+    private void addFlowCnecThreshold(FlowCnecAdder flowCnecAdder, Side side, double threshold, boolean useMaxAndMinThresholds, double flowReliabilityMargin) {
+        double thresholdWithReliabilityMargin = threshold * (1d - flowReliabilityMargin / 100d);
         BranchThresholdAdder adder = flowCnecAdder.newThreshold().withSide(side)
             .withUnit(Unit.AMPERE)
-            .withMax(threshold);
+            .withMax(thresholdWithReliabilityMargin);
         if (useMaxAndMinThresholds) {
-            adder.withMin(-threshold);
+            adder.withMin(-thresholdWithReliabilityMargin);
         }
         adder.add();
     }
