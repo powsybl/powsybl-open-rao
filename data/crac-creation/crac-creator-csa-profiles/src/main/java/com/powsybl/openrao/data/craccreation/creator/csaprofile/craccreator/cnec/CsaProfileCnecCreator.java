@@ -109,12 +109,12 @@ public class CsaProfileCnecCreator {
 
         // If not, we check if it is defined with a ConductingEquipment instead, otherwise we ignore
         if (limitType == null) {
-            new FlowCnecCreator(crac, network, assessedElementId, nativeAssessedElementName, assessedSystemOperator, inBaseCase, null, conductingEquipment, combinableContingencies.stream().toList(), csaProfileCnecCreationContexts, cracCreationContext, rejectedLinksAssessedElementContingency, aeSecuredForRegion, aeScannedForRegion, cracCreationParameters).addFlowCnecs();
+            new FlowCnecCreator(crac, network, assessedElementId, nativeAssessedElementName, assessedSystemOperator, inBaseCase, null, conductingEquipment, flowReliabilityMargin, combinableContingencies.stream().toList(), csaProfileCnecCreationContexts, cracCreationContext, rejectedLinksAssessedElementContingency, aeSecuredForRegion, aeScannedForRegion, cracCreationParameters).addFlowCnecs();
             return;
         }
 
         if (CsaProfileConstants.LimitType.CURRENT.equals(limitType)) {
-            new FlowCnecCreator(crac, network, assessedElementId, nativeAssessedElementName, assessedSystemOperator, inBaseCase, getOperationalLimitPropertyBag(currentLimitsPropertyBags, assessedElementPropertyBag), conductingEquipment, combinableContingencies.stream().toList(), csaProfileCnecCreationContexts, cracCreationContext, rejectedLinksAssessedElementContingency, aeSecuredForRegion, aeScannedForRegion, cracCreationParameters).addFlowCnecs();
+            new FlowCnecCreator(crac, network, assessedElementId, nativeAssessedElementName, assessedSystemOperator, inBaseCase, getOperationalLimitPropertyBag(currentLimitsPropertyBags, assessedElementPropertyBag), conductingEquipment, flowReliabilityMargin, combinableContingencies.stream().toList(), csaProfileCnecCreationContexts, cracCreationContext, rejectedLinksAssessedElementContingency, aeSecuredForRegion, aeScannedForRegion, cracCreationParameters).addFlowCnecs();
         } else if (CsaProfileConstants.LimitType.VOLTAGE.equals(limitType)) {
             new VoltageCnecCreator(crac, network, assessedElementId, nativeAssessedElementName, assessedSystemOperator, inBaseCase, getOperationalLimitPropertyBag(voltageLimitsPropertyBags, assessedElementPropertyBag), combinableContingencies.stream().toList(), csaProfileCnecCreationContexts, cracCreationContext, rejectedLinksAssessedElementContingency, aeSecuredForRegion, aeScannedForRegion).addVoltageCnecs();
         } else {

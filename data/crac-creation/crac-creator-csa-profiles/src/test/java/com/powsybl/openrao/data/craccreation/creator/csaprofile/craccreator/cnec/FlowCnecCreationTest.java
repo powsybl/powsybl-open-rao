@@ -19,6 +19,7 @@ import static com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreat
 import static com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileCracCreationTestUtil.PREVENTIVE_INSTANT_ID;
 import static com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileCracCreationTestUtil.assertCnecNotImported;
 import static com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileCracCreationTestUtil.assertHasOnFlowConstraintUsageRule;
+import static com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileCracCreationTestUtil.assertHasOnInstantUsageRule;
 import static com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileCracCreationTestUtil.getCsaCracCreationContext;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -757,23 +758,57 @@ class FlowCnecCreationTest {
         assertCnecNotImported(cracCreationContext, "assessed-element-13", ImportStatus.INCONSISTENCY_IN_DATA, "AssessedElement assessed-element-13 ignored because the assessed element is not in base case and not combinable with contingencies, but no explicit link to a contingency was found");
         assertCnecNotImported(cracCreationContext, "assessed-element-14", ImportStatus.INCONSISTENCY_IN_DATA, "AssessedElement assessed-element-14 ignored because the network element FFR1AA1 _generator is not a branch");
 
-        assertHasOnFlowConstraintUsageRule(cracCreationContext, "remedial-action-1", "RTE_AE1 (assessed-element-1) - RTE_CO1 - curative", cracCreationContext.getCrac().getInstant(CURATIVE_INSTANT_ID), UsageMethod.FORCED);
-        assertHasOnFlowConstraintUsageRule(cracCreationContext, "remedial-action-2", "RTE_AE4 (assessed-element-4) - RTE_CO1 - curative", cracCreationContext.getCrac().getInstant(CURATIVE_INSTANT_ID), UsageMethod.AVAILABLE);
-        assertHasOnFlowConstraintUsageRule(cracCreationContext, "remedial-action-2", "RTE_AE4 (assessed-element-4) - RTE_CO2 - curative", cracCreationContext.getCrac().getInstant(CURATIVE_INSTANT_ID), UsageMethod.AVAILABLE);
+        assertEquals(15, cracCreationContext.getCrac().getRemedialAction("remedial-action-1").getUsageRules().size());
+
+        assertHasOnFlowConstraintUsageRule(cracCreationContext, "remedial-action-1", "RTE_AE1 (assessed-element-1) - RTE_CO1 - curative 2 - RIGHT", cracCreationContext.getCrac().getInstant(CURATIVE_1_INSTANT_ID), UsageMethod.FORCED);
+        assertHasOnFlowConstraintUsageRule(cracCreationContext, "remedial-action-1", "RTE_AE1 (assessed-element-1) - RTE_CO1 - curative 3 - RIGHT", cracCreationContext.getCrac().getInstant(CURATIVE_1_INSTANT_ID), UsageMethod.FORCED);
+        assertHasOnFlowConstraintUsageRule(cracCreationContext, "remedial-action-1", "RTE_AE1 (assessed-element-1) - RTE_CO1 - curative 2 - RIGHT", cracCreationContext.getCrac().getInstant(CURATIVE_2_INSTANT_ID), UsageMethod.FORCED);
+        assertHasOnFlowConstraintUsageRule(cracCreationContext, "remedial-action-1", "RTE_AE1 (assessed-element-1) - RTE_CO1 - curative 3 - RIGHT", cracCreationContext.getCrac().getInstant(CURATIVE_2_INSTANT_ID), UsageMethod.FORCED);
+        assertHasOnFlowConstraintUsageRule(cracCreationContext, "remedial-action-1", "RTE_AE1 (assessed-element-1) - RTE_CO1 - curative 3 - RIGHT", cracCreationContext.getCrac().getInstant(CURATIVE_3_INSTANT_ID), UsageMethod.FORCED);
+
+        assertHasOnFlowConstraintUsageRule(cracCreationContext, "remedial-action-1", "RTE_AE4 (assessed-element-4) - RTE_CO1 - curative 2 - RIGHT", cracCreationContext.getCrac().getInstant(CURATIVE_1_INSTANT_ID), UsageMethod.AVAILABLE);
+        assertHasOnFlowConstraintUsageRule(cracCreationContext, "remedial-action-1", "RTE_AE4 (assessed-element-4) - RTE_CO1 - curative 3 - RIGHT", cracCreationContext.getCrac().getInstant(CURATIVE_1_INSTANT_ID), UsageMethod.AVAILABLE);
+        assertHasOnFlowConstraintUsageRule(cracCreationContext, "remedial-action-1", "RTE_AE4 (assessed-element-4) - RTE_CO1 - curative 2 - RIGHT", cracCreationContext.getCrac().getInstant(CURATIVE_2_INSTANT_ID), UsageMethod.AVAILABLE);
+        assertHasOnFlowConstraintUsageRule(cracCreationContext, "remedial-action-1", "RTE_AE4 (assessed-element-4) - RTE_CO1 - curative 3 - RIGHT", cracCreationContext.getCrac().getInstant(CURATIVE_2_INSTANT_ID), UsageMethod.AVAILABLE);
+        assertHasOnFlowConstraintUsageRule(cracCreationContext, "remedial-action-1", "RTE_AE4 (assessed-element-4) - RTE_CO1 - curative 3 - RIGHT", cracCreationContext.getCrac().getInstant(CURATIVE_3_INSTANT_ID), UsageMethod.AVAILABLE);
+
+        assertHasOnFlowConstraintUsageRule(cracCreationContext, "remedial-action-1", "RTE_AE4 (assessed-element-4) - RTE_CO2 - curative 2 - RIGHT", cracCreationContext.getCrac().getInstant(CURATIVE_1_INSTANT_ID), UsageMethod.AVAILABLE);
+        assertHasOnFlowConstraintUsageRule(cracCreationContext, "remedial-action-1", "RTE_AE4 (assessed-element-4) - RTE_CO2 - curative 3 - RIGHT", cracCreationContext.getCrac().getInstant(CURATIVE_1_INSTANT_ID), UsageMethod.AVAILABLE);
+        assertHasOnFlowConstraintUsageRule(cracCreationContext, "remedial-action-1", "RTE_AE4 (assessed-element-4) - RTE_CO2 - curative 2 - RIGHT", cracCreationContext.getCrac().getInstant(CURATIVE_2_INSTANT_ID), UsageMethod.AVAILABLE);
+        assertHasOnFlowConstraintUsageRule(cracCreationContext, "remedial-action-1", "RTE_AE4 (assessed-element-4) - RTE_CO2 - curative 3 - RIGHT", cracCreationContext.getCrac().getInstant(CURATIVE_2_INSTANT_ID), UsageMethod.AVAILABLE);
+        assertHasOnFlowConstraintUsageRule(cracCreationContext, "remedial-action-1", "RTE_AE4 (assessed-element-4) - RTE_CO2 - curative 3 - RIGHT", cracCreationContext.getCrac().getInstant(CURATIVE_3_INSTANT_ID), UsageMethod.AVAILABLE);
+
+        assertEquals(13, cracCreationContext.getCrac().getRemedialAction("remedial-action-2").getUsageRules().size());
+
+        assertHasOnInstantUsageRule(cracCreationContext, "remedial-action-2", CURATIVE_1_INSTANT_ID, UsageMethod.AVAILABLE);
+        assertHasOnInstantUsageRule(cracCreationContext, "remedial-action-2", CURATIVE_2_INSTANT_ID, UsageMethod.AVAILABLE);
+        assertHasOnInstantUsageRule(cracCreationContext, "remedial-action-2", CURATIVE_3_INSTANT_ID, UsageMethod.AVAILABLE);
+
+        assertHasOnFlowConstraintUsageRule(cracCreationContext, "remedial-action-2", "RTE_AE4 (assessed-element-4) - RTE_CO1 - curative 2 - RIGHT", cracCreationContext.getCrac().getInstant(CURATIVE_1_INSTANT_ID), UsageMethod.AVAILABLE);
+        assertHasOnFlowConstraintUsageRule(cracCreationContext, "remedial-action-2", "RTE_AE4 (assessed-element-4) - RTE_CO1 - curative 3 - RIGHT", cracCreationContext.getCrac().getInstant(CURATIVE_1_INSTANT_ID), UsageMethod.AVAILABLE);
+        assertHasOnFlowConstraintUsageRule(cracCreationContext, "remedial-action-2", "RTE_AE4 (assessed-element-4) - RTE_CO1 - curative 2 - RIGHT", cracCreationContext.getCrac().getInstant(CURATIVE_2_INSTANT_ID), UsageMethod.AVAILABLE);
+        assertHasOnFlowConstraintUsageRule(cracCreationContext, "remedial-action-2", "RTE_AE4 (assessed-element-4) - RTE_CO1 - curative 3 - RIGHT", cracCreationContext.getCrac().getInstant(CURATIVE_2_INSTANT_ID), UsageMethod.AVAILABLE);
+        assertHasOnFlowConstraintUsageRule(cracCreationContext, "remedial-action-2", "RTE_AE4 (assessed-element-4) - RTE_CO1 - curative 3 - RIGHT", cracCreationContext.getCrac().getInstant(CURATIVE_3_INSTANT_ID), UsageMethod.AVAILABLE);
+
+        assertHasOnFlowConstraintUsageRule(cracCreationContext, "remedial-action-2", "RTE_AE4 (assessed-element-4) - RTE_CO2 - curative 2 - RIGHT", cracCreationContext.getCrac().getInstant(CURATIVE_1_INSTANT_ID), UsageMethod.AVAILABLE);
+        assertHasOnFlowConstraintUsageRule(cracCreationContext, "remedial-action-2", "RTE_AE4 (assessed-element-4) - RTE_CO2 - curative 3 - RIGHT", cracCreationContext.getCrac().getInstant(CURATIVE_1_INSTANT_ID), UsageMethod.AVAILABLE);
+        assertHasOnFlowConstraintUsageRule(cracCreationContext, "remedial-action-2", "RTE_AE4 (assessed-element-4) - RTE_CO2 - curative 2 - RIGHT", cracCreationContext.getCrac().getInstant(CURATIVE_2_INSTANT_ID), UsageMethod.AVAILABLE);
+        assertHasOnFlowConstraintUsageRule(cracCreationContext, "remedial-action-2", "RTE_AE4 (assessed-element-4) - RTE_CO2 - curative 3 - RIGHT", cracCreationContext.getCrac().getInstant(CURATIVE_2_INSTANT_ID), UsageMethod.AVAILABLE);
+        assertHasOnFlowConstraintUsageRule(cracCreationContext, "remedial-action-2", "RTE_AE4 (assessed-element-4) - RTE_CO2 - curative 3 - RIGHT", cracCreationContext.getCrac().getInstant(CURATIVE_3_INSTANT_ID), UsageMethod.AVAILABLE);
     }
 
     @Test
     void importFlowCnecsWithFlowReliabilityMargin() {
-        CsaProfileCracCreationContext cracCreationContext = getCsaCracCreationContext("/profiles/cnecs/FlowCNECsWithReducedLimits.zip", NETWORK);
+        CsaProfileCracCreationContext cracCreationContext = getCsaCracCreationContext("/profiles/cnecs/FlowCNECsWithFlowReliabilityMargin.zip", NETWORK);
 
         List<FlowCnec> importedFlowCnecs = cracCreationContext.getCrac().getFlowCnecs().stream().sorted(Comparator.comparing(FlowCnec::getId)).toList();
-        assertEquals(7, importedFlowCnecs.size());
+        assertEquals(17, importedFlowCnecs.size());
 
         CsaProfileCracCreationTestUtil.assertFlowCnecEquality(
             importedFlowCnecs.get(0),
-            "RTE_AE1 (assessed-element-1) - RTE_CO1 - curative",
+            "RTE_AE1 (assessed-element-1) - RTE_CO1 - curative 2 - RIGHT",
             "FFR2AA1  FFR3AA1  1",
-            CURATIVE_INSTANT_ID,
+            CURATIVE_2_INSTANT_ID,
             "contingency-1",
             null,
             null,
@@ -785,7 +820,21 @@ class FlowCnecCreationTest {
 
         CsaProfileCracCreationTestUtil.assertFlowCnecEquality(
             importedFlowCnecs.get(1),
-            "RTE_AE1 (assessed-element-1) - preventive",
+            "RTE_AE1 (assessed-element-1) - RTE_CO1 - curative 3 - RIGHT",
+            "FFR2AA1  FFR3AA1  1",
+            CURATIVE_3_INSTANT_ID,
+            "contingency-1",
+            null,
+            null,
+            +2250d,
+            -2250d,
+            Set.of(Side.RIGHT),
+            "RTE"
+        );
+
+        CsaProfileCracCreationTestUtil.assertFlowCnecEquality(
+            importedFlowCnecs.get(2),
+            "RTE_AE1 (assessed-element-1) - preventive - RIGHT",
             "FFR2AA1  FFR3AA1  1",
             PREVENTIVE_INSTANT_ID,
             null,
@@ -798,8 +847,8 @@ class FlowCnecCreationTest {
         );
 
         CsaProfileCracCreationTestUtil.assertFlowCnecEquality(
-            importedFlowCnecs.get(2),
-            "RTE_AE2 (assessed-element-2) - RTE_CO2 - auto - TATL 900",
+            importedFlowCnecs.get(3),
+            "RTE_AE2 (assessed-element-2) - RTE_CO2 - auto - RIGHT - TATL 900",
             "FFR2AA1  FFR3AA1  1",
             AUTO_INSTANT_ID,
             "contingency-2",
@@ -812,8 +861,22 @@ class FlowCnecCreationTest {
         );
 
         CsaProfileCracCreationTestUtil.assertFlowCnecEquality(
-            importedFlowCnecs.get(3),
-            "RTE_AE3 (assessed-element-3) - RTE_CO3 - auto - TATL 900",
+            importedFlowCnecs.get(4),
+            "RTE_AE2 (assessed-element-2) - RTE_CO2 - curative 1 - RIGHT - TATL 900",
+            "FFR2AA1  FFR3AA1  1",
+            CURATIVE_1_INSTANT_ID,
+            "contingency-2",
+            null,
+            null,
+            +3400d,
+            -3400d,
+            Set.of(Side.RIGHT),
+            "RTE"
+        );
+
+        CsaProfileCracCreationTestUtil.assertFlowCnecEquality(
+            importedFlowCnecs.get(5),
+            "RTE_AE3 (assessed-element-3) - RTE_CO3 - auto - LEFT - TATL 900",
             "FFR2AA1  FFR3AA1  1",
             AUTO_INSTANT_ID,
             "contingency-3",
@@ -821,27 +884,111 @@ class FlowCnecCreationTest {
             -3200d,
             +3200d,
             -3200d,
-            Set.of(Side.LEFT, Side.RIGHT),
+            Set.of(Side.LEFT),
             "RTE"
         );
 
         CsaProfileCracCreationTestUtil.assertFlowCnecEquality(
-            importedFlowCnecs.get(4),
-            "RTE_AE3 (assessed-element-3) - RTE_CO3 - curative",
+            importedFlowCnecs.get(6),
+            "RTE_AE3 (assessed-element-3) - RTE_CO3 - auto - RIGHT - TATL 900",
             "FFR2AA1  FFR3AA1  1",
-            CURATIVE_INSTANT_ID,
+            AUTO_INSTANT_ID,
+            "contingency-3",
+            +3200d,
+            -3200d,
+            +3200d,
+            -3200d,
+            Set.of(Side.RIGHT),
+            "RTE"
+        );
+
+        CsaProfileCracCreationTestUtil.assertFlowCnecEquality(
+            importedFlowCnecs.get(7),
+            "RTE_AE3 (assessed-element-3) - RTE_CO3 - curative 1 - LEFT - TATL 900",
+            "FFR2AA1  FFR3AA1  1",
+            CURATIVE_1_INSTANT_ID,
+            "contingency-3",
+            +3200d,
+            -3200d,
+            +3200d,
+            -3200d,
+            Set.of(Side.LEFT),
+            "RTE"
+        );
+
+        CsaProfileCracCreationTestUtil.assertFlowCnecEquality(
+            importedFlowCnecs.get(8),
+            "RTE_AE3 (assessed-element-3) - RTE_CO3 - curative 1 - RIGHT - TATL 900",
+            "FFR2AA1  FFR3AA1  1",
+            CURATIVE_1_INSTANT_ID,
+            "contingency-3",
+            +3200d,
+            -3200d,
+            +3200d,
+            -3200d,
+            Set.of(Side.RIGHT),
+            "RTE"
+        );
+
+        CsaProfileCracCreationTestUtil.assertFlowCnecEquality(
+            importedFlowCnecs.get(9),
+            "RTE_AE3 (assessed-element-3) - RTE_CO3 - curative 2 - LEFT",
+            "FFR2AA1  FFR3AA1  1",
+            CURATIVE_2_INSTANT_ID,
             "contingency-3",
             +2000d,
             -2000d,
             +2000d,
             -2000d,
-            Set.of(Side.LEFT, Side.RIGHT),
+            Set.of(Side.LEFT),
             "RTE"
         );
 
         CsaProfileCracCreationTestUtil.assertFlowCnecEquality(
-            importedFlowCnecs.get(5),
-            "RTE_AE3 (assessed-element-3) - RTE_CO3 - outage - TATL 60",
+            importedFlowCnecs.get(10),
+            "RTE_AE3 (assessed-element-3) - RTE_CO3 - curative 2 - RIGHT",
+            "FFR2AA1  FFR3AA1  1",
+            CURATIVE_2_INSTANT_ID,
+            "contingency-3",
+            +2000d,
+            -2000d,
+            +2000d,
+            -2000d,
+            Set.of(Side.RIGHT),
+            "RTE"
+        );
+
+        CsaProfileCracCreationTestUtil.assertFlowCnecEquality(
+            importedFlowCnecs.get(11),
+            "RTE_AE3 (assessed-element-3) - RTE_CO3 - curative 3 - LEFT",
+            "FFR2AA1  FFR3AA1  1",
+            CURATIVE_3_INSTANT_ID,
+            "contingency-3",
+            +2000d,
+            -2000d,
+            +2000d,
+            -2000d,
+            Set.of(Side.LEFT),
+            "RTE"
+        );
+
+        CsaProfileCracCreationTestUtil.assertFlowCnecEquality(
+            importedFlowCnecs.get(12),
+            "RTE_AE3 (assessed-element-3) - RTE_CO3 - curative 3 - RIGHT",
+            "FFR2AA1  FFR3AA1  1",
+            CURATIVE_3_INSTANT_ID,
+            "contingency-3",
+            +2000d,
+            -2000d,
+            +2000d,
+            -2000d,
+            Set.of(Side.RIGHT),
+            "RTE"
+        );
+
+        CsaProfileCracCreationTestUtil.assertFlowCnecEquality(
+            importedFlowCnecs.get(13),
+            "RTE_AE3 (assessed-element-3) - RTE_CO3 - outage - LEFT - TATL 60",
             "FFR2AA1  FFR3AA1  1",
             OUTAGE_INSTANT_ID,
             "contingency-3",
@@ -849,13 +996,27 @@ class FlowCnecCreationTest {
             -4000d,
             +4000d,
             -4000d,
-            Set.of(Side.LEFT, Side.RIGHT),
+            Set.of(Side.LEFT),
             "RTE"
         );
 
         CsaProfileCracCreationTestUtil.assertFlowCnecEquality(
-            importedFlowCnecs.get(6),
-            "RTE_AE3 (assessed-element-3) - preventive",
+            importedFlowCnecs.get(14),
+            "RTE_AE3 (assessed-element-3) - RTE_CO3 - outage - RIGHT - TATL 60",
+            "FFR2AA1  FFR3AA1  1",
+            OUTAGE_INSTANT_ID,
+            "contingency-3",
+            +4000d,
+            -4000d,
+            +4000d,
+            -4000d,
+            Set.of(Side.RIGHT),
+            "RTE"
+        );
+
+        CsaProfileCracCreationTestUtil.assertFlowCnecEquality(
+            importedFlowCnecs.get(15),
+            "RTE_AE3 (assessed-element-3) - preventive - LEFT",
             "FFR2AA1  FFR3AA1  1",
             PREVENTIVE_INSTANT_ID,
             null,
@@ -863,7 +1024,21 @@ class FlowCnecCreationTest {
             -2000d,
             +2000d,
             -2000d,
-            Set.of(Side.LEFT, Side.RIGHT),
+            Set.of(Side.LEFT),
+            "RTE"
+        );
+
+        CsaProfileCracCreationTestUtil.assertFlowCnecEquality(
+            importedFlowCnecs.get(16),
+            "RTE_AE3 (assessed-element-3) - preventive - RIGHT",
+            "FFR2AA1  FFR3AA1  1",
+            PREVENTIVE_INSTANT_ID,
+            null,
+            +2000d,
+            -2000d,
+            +2000d,
+            -2000d,
+            Set.of(Side.RIGHT),
             "RTE"
         );
     }

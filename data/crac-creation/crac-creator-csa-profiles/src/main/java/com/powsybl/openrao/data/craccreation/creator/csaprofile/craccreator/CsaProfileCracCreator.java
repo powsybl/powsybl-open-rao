@@ -26,6 +26,7 @@ import com.powsybl.triplestore.api.PropertyBags;
 
 import java.time.OffsetDateTime;
 import java.util.Map;
+import java.util.Set;
 
 import static com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileConstants.AUTO_INSTANT;
 import static com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileConstants.CURATIVE_1_INSTANT;

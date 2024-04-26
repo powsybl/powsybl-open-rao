@@ -75,8 +75,8 @@ public class CsaProfileRemedialActionsCreator {
                 }
                 speedOpt.ifPresent(remedialActionAdder::withSpeed);
 
-                Instant instant = defineInstant(isSchemeRemedialAction, parentRemedialActionPropertyBag, remedialActionId, spsMaxTimeToImplementThreshold);
-                addUsageRules(remedialActionId, assessedElementPropertyBags, linkedAeWithRa.getOrDefault(remedialActionId, Set.of()), linkedCoWithRa.getOrDefault(remedialActionId, Set.of()), cnecCreationContexts, remedialActionAdder, alterations, instant, isSchemeRemedialAction, remedialActionType);
+                InstantKind instantKind = getInstantKind(isSchemeRemedialAction, parentRemedialActionPropertyBag, remedialActionId, spsMaxTimeToImplementThreshold);
+                crac.getInstants(instantKind).forEach(instant -> addUsageRules(remedialActionId, assessedElementPropertyBags, linkedAeWithRa.getOrDefault(remedialActionId, Set.of()), linkedCoWithRa.getOrDefault(remedialActionId, Set.of()), cnecCreationContexts, remedialActionAdder, alterations, instant, isSchemeRemedialAction, remedialActionType));
                 remedialActionAdder.add();
 
                 if (alterations.isEmpty()) {
@@ -198,16 +198,16 @@ public class CsaProfileRemedialActionsCreator {
         return remedialInstant.isAuto() ? cnecInstant.isAuto() : !cnecInstant.comesBefore(remedialInstant);
     }
 
-    private Instant defineInstant(boolean isSchemeRemedialAction, PropertyBag parentRemedialActionPropertyBag, String remedialActionId, int durationLimit) {
+    private InstantKind getInstantKind(boolean isSchemeRemedialAction, PropertyBag parentRemedialActionPropertyBag, String remedialActionId, int durationLimit) {
         if (CsaProfileConstants.RemedialActionKind.PREVENTIVE.toString().equals(parentRemedialActionPropertyBag.get(CsaProfileConstants.KIND))) {
-            return crac.getPreventiveInstant();
+            return InstantKind.PREVENTIVE;
         }
         if (isSchemeRemedialAction) {
-            return crac.getInstant(InstantKind.AUTO);
+            return InstantKind.AUTO;
         }
         String timeToImplement = parentRemedialActionPropertyBag.get(CsaProfileConstants.TIME_TO_IMPLEMENT);
         if (timeToImplement == null) {
-            return crac.getInstant(InstantKind.CURATIVE);
+            return InstantKind.CURATIVE;
         }
         int durationInSeconds;
         try {
@@ -215,7 +215,7 @@ public class CsaProfileRemedialActionsCreator {
         } catch (RuntimeException e) {
             throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action " + remedialActionId + " will not be imported because of an irregular timeToImplement pattern");
         }
-        return durationInSeconds <= durationLimit ? crac.getInstant(InstantKind.AUTO) : crac.getInstant(InstantKind.CURATIVE);
+        return durationInSeconds <= durationLimit ? InstantKind.AUTO : InstantKind.CURATIVE;
     }
 
     private UsageMethod getUsageMethod(CsaProfileConstants.ElementCombinationConstraintKind elementCombinationConstraintKind, boolean isSchemeRemedialAction, Instant instant, RemedialActionType remedialActionType) {
