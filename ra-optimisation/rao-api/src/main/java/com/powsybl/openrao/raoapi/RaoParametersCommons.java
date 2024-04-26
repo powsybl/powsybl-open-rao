@@ -16,7 +16,7 @@ public final class RaoParametersCommons {
     private RaoParametersCommons() {
     }
 
-    public static final String RAO_PARAMETERS_VERSION = "2.3";
+    public static final String RAO_PARAMETERS_VERSION = "2.4";
 
     // header
     public static final String VERSION = "version";
@@ -29,6 +29,7 @@ public final class RaoParametersCommons {
     public static final String CURATIVE_MIN_OBJ_IMPROVEMENT = "curative-min-obj-improvement";
     public static final String PREVENTIVE_STOP_CRITERION = "preventive-stop-criterion";
     public static final String CURATIVE_STOP_CRITERION = "curative-stop-criterion";
+    public static final String OPTIMIZE_CURATIVE_IF_PREVENTIVE_UNSECURE = "optimize-curative-if-preventive-unsecure";
 
     // range actions optimization parameters
     public static final String RANGE_ACTIONS_OPTIMIZATION = "range-actions-optimization";
