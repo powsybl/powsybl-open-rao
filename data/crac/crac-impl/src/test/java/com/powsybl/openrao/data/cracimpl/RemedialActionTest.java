@@ -96,4 +96,31 @@ class RemedialActionTest {
         AbstractRemedialAction<?> ra = new NetworkActionImpl("id", "name", "operator", usageRules, Collections.emptySet(), 0);
         assertEquals(UsageMethod.FORCED, ra.getUsageMethod(state));
     }
+
+    @Test
+    void testDifferentInstantsBetweenOnCOnstraintUsageRuleAndCnec() {
+        Instant autoInstant = Mockito.mock(Instant.class);
+        Mockito.when(autoInstant.isPreventive()).thenReturn(false);
+        Instant curativeInstant = Mockito.mock(Instant.class);
+        Mockito.when(curativeInstant.isPreventive()).thenReturn(false);
+
+        State autoState = Mockito.mock(State.class);
+        Mockito.when(autoState.getInstant()).thenReturn(autoInstant);
+        State curativeState = Mockito.mock(State.class);
+        Mockito.when(curativeState.getInstant()).thenReturn(curativeInstant);
+
+        FlowCnec autoFlowCnec = Mockito.mock(FlowCnec.class);
+        Mockito.when(autoFlowCnec.getState()).thenReturn(autoState);
+        FlowCnec curativeFlowCnec = Mockito.mock(FlowCnec.class);
+        Mockito.when(curativeFlowCnec.getState()).thenReturn(curativeState);
+
+        Set<UsageRule> usageRules = Set.of(
+            new OnFlowConstraintImpl(UsageMethod.FORCED, autoInstant, autoFlowCnec),
+            new OnFlowConstraintImpl(UsageMethod.FORCED, autoInstant, curativeFlowCnec)
+        );
+
+        AbstractRemedialAction<?> ra = new NetworkActionImpl("id", "name", "operator", usageRules, Collections.emptySet(), 0);
+        assertEquals(UsageMethod.FORCED, ra.getUsageMethod(autoState));
+        assertEquals(UsageMethod.UNDEFINED, ra.getUsageMethod(curativeState));
+    }
 }
