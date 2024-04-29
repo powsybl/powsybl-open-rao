@@ -26,12 +26,14 @@ public class ObjectiveFunctionParameters {
     private static final double DEFAULT_CURATIVE_MIN_OBJ_IMPROVEMENT = 0;
     private static final PreventiveStopCriterion DEFAULT_PREVENTIVE_STOP_CRITERION = PreventiveStopCriterion.SECURE;
     private static final CurativeStopCriterion DEFAULT_CURATIVE_STOP_CRITERION = CurativeStopCriterion.MIN_OBJECTIVE;
+    private static final boolean DEFAULT_OPTIMIZE_CURATIVE_IF_PREVENTIVE_UNSECURE = false;
     // Attributes
     private ObjectiveFunctionType type = DEFAULT_OBJECTIVE_FUNCTION;
     private boolean forbidCostIncrease = DEFAULT_FORBID_COST_INCREASE;
     private double curativeMinObjImprovement = DEFAULT_CURATIVE_MIN_OBJ_IMPROVEMENT;
     private PreventiveStopCriterion preventiveStopCriterion = DEFAULT_PREVENTIVE_STOP_CRITERION;
     private CurativeStopCriterion curativeStopCriterion = DEFAULT_CURATIVE_STOP_CRITERION;
+    private boolean optimizeCurativeIfPreventiveUnsecure = DEFAULT_OPTIMIZE_CURATIVE_IF_PREVENTIVE_UNSECURE;
 
     // Enum
     public enum ObjectiveFunctionType {
@@ -104,6 +106,14 @@ public class ObjectiveFunctionParameters {
         this.curativeStopCriterion = curativeStopCriterion;
     }
 
+    public boolean getOptimizeCurativeIfPreventiveUnsecure() {
+        return optimizeCurativeIfPreventiveUnsecure;
+    }
+
+    public void setOptimizeCurativeIfPreventiveUnsecure(boolean optimizeCurativeIfPreventiveUnsecure) {
+        this.optimizeCurativeIfPreventiveUnsecure = optimizeCurativeIfPreventiveUnsecure;
+    }
+
     public static ObjectiveFunctionParameters load(PlatformConfig platformConfig) {
         Objects.requireNonNull(platformConfig);
         ObjectiveFunctionParameters parameters = new ObjectiveFunctionParameters();
@@ -117,6 +127,7 @@ public class ObjectiveFunctionParameters {
                             DEFAULT_PREVENTIVE_STOP_CRITERION));
                     parameters.setCurativeStopCriterion(config.getEnumProperty(CURATIVE_STOP_CRITERION, CurativeStopCriterion.class,
                             DEFAULT_CURATIVE_STOP_CRITERION));
+                    parameters.setOptimizeCurativeIfPreventiveUnsecure(config.getBooleanProperty(OPTIMIZE_CURATIVE_IF_PREVENTIVE_UNSECURE, DEFAULT_OPTIMIZE_CURATIVE_IF_PREVENTIVE_UNSECURE));
                 });
         return parameters;
     }

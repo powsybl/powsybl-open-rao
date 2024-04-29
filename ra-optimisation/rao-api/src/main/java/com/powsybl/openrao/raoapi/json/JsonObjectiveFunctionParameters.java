@@ -31,6 +31,7 @@ final class JsonObjectiveFunctionParameters {
         jsonGenerator.writeObjectField(PREVENTIVE_STOP_CRITERION, parameters.getObjectiveFunctionParameters().getPreventiveStopCriterion());
         jsonGenerator.writeObjectField(CURATIVE_STOP_CRITERION, parameters.getObjectiveFunctionParameters().getCurativeStopCriterion());
         jsonGenerator.writeNumberField(CURATIVE_MIN_OBJ_IMPROVEMENT, parameters.getObjectiveFunctionParameters().getCurativeMinObjImprovement());
+        jsonGenerator.writeBooleanField(OPTIMIZE_CURATIVE_IF_PREVENTIVE_UNSECURE, parameters.getObjectiveFunctionParameters().getOptimizeCurativeIfPreventiveUnsecure());
         jsonGenerator.writeEndObject();
     }
 
@@ -53,6 +54,10 @@ final class JsonObjectiveFunctionParameters {
                 case CURATIVE_MIN_OBJ_IMPROVEMENT:
                     jsonParser.nextToken();
                     raoParameters.getObjectiveFunctionParameters().setCurativeMinObjImprovement(jsonParser.getValueAsDouble());
+                    break;
+                case OPTIMIZE_CURATIVE_IF_PREVENTIVE_UNSECURE:
+                    jsonParser.nextToken();
+                    raoParameters.getObjectiveFunctionParameters().setOptimizeCurativeIfPreventiveUnsecure(jsonParser.getBooleanValue());
                     break;
                 default:
                     throw new OpenRaoException(String.format("Cannot deserialize objective function parameters: unexpected field in %s (%s)", OBJECTIVE_FUNCTION, jsonParser.getCurrentName()));

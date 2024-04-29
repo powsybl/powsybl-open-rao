@@ -154,8 +154,8 @@ public class CastorFullOptimization {
         // optimize contingency scenarios (auto + curative instants)
 
         // If stop criterion is SECURE and preventive perimeter was not secure, do not run post-contingency RAOs
-        if (raoParameters.getObjectiveFunctionParameters().getPreventiveStopCriterion().equals(ObjectiveFunctionParameters.PreventiveStopCriterion.SECURE)
-            && preventiveOptimalCost > 0) {
+        // (however RAO could continue depending on parameter optimize-curative-if-basecase-unsecure)
+        if (shouldStopOptimisationIfPreventiveUnsecure(preventiveOptimalCost)) {
             BUSINESS_LOGS.info("Preventive perimeter could not be secured; there is no point in optimizing post-contingency perimeters. The RAO will be interrupted here.");
             mergedRaoResults = new PreventiveAndCurativesRaoResultImpl(raoInput.getCrac().getPreventiveState(), initialOutput, preventiveResult, preCurativeSensitivityAnalysisOutput, raoInput.getCrac());
             // log results
@@ -190,6 +190,12 @@ public class CastorFullOptimization {
         }
 
         return postCheckResults(mergedRaoResults, initialOutput, raoParameters.getObjectiveFunctionParameters());
+    }
+
+    private boolean shouldStopOptimisationIfPreventiveUnsecure(double preventiveOptimalCost) {
+        return raoParameters.getObjectiveFunctionParameters().getPreventiveStopCriterion().equals(ObjectiveFunctionParameters.PreventiveStopCriterion.SECURE)
+                && preventiveOptimalCost > 0
+                && !raoParameters.getObjectiveFunctionParameters().getOptimizeCurativeIfPreventiveUnsecure();
     }
 
     /**
@@ -444,6 +450,13 @@ public class CastorFullOptimization {
             BUSINESS_LOGS.info("Cost has not increased during RAO, there is no need to run a 2nd preventive RAO.");
             // it is not necessary to compare initial & post-preventive costs since the preventive RAO cannot increase its own cost
             // only compare initial cost with the curative costs
+            return false;
+        }
+        if (raoParameters.getObjectiveFunctionParameters().getPreventiveStopCriterion().equals(ObjectiveFunctionParameters.PreventiveStopCriterion.SECURE)
+                && firstPreventiveResult.getCost() > 0) {
+            // in case of curative optimization even if preventive unsecure (see parameter optimize-curative-if-preventive-unsecure)
+            // we do not want to run a second preventive that would not be able to fix the situation, to save time
+            BUSINESS_LOGS.info("First preventive RAO was not able to fix all preventive constraints, second preventive RAO cancelled to save computation time.");
             return false;
         }
         ObjectiveFunctionParameters.CurativeStopCriterion curativeStopCriterion = raoParameters.getObjectiveFunctionParameters().getCurativeStopCriterion();

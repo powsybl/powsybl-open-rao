@@ -49,6 +49,7 @@ class RaoParametersConfigTest {
         objectiveFunctionModuleConfig.setStringProperty("curative-min-obj-improvement", Objects.toString(123.0));
         objectiveFunctionModuleConfig.setStringProperty("preventive-stop-criterion", "MIN_OBJECTIVE");
         objectiveFunctionModuleConfig.setStringProperty("curative-stop-criterion", "PREVENTIVE_OBJECTIVE");
+        objectiveFunctionModuleConfig.setStringProperty("optimize-curative-if-preventive-unsecure", "true");
 
         RaoParameters parameters = new RaoParameters();
         RaoParameters.load(parameters, platformCfg);
@@ -58,6 +59,7 @@ class RaoParametersConfigTest {
         assertEquals(123, objectiveFunctionParameters.getCurativeMinObjImprovement(), DOUBLE_TOLERANCE);
         assertEquals(ObjectiveFunctionParameters.PreventiveStopCriterion.MIN_OBJECTIVE, objectiveFunctionParameters.getPreventiveStopCriterion());
         assertEquals(ObjectiveFunctionParameters.CurativeStopCriterion.PREVENTIVE_OBJECTIVE, objectiveFunctionParameters.getCurativeStopCriterion());
+        assertTrue(objectiveFunctionParameters.getOptimizeCurativeIfPreventiveUnsecure());
     }
 
     @Test

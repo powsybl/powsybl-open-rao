@@ -89,6 +89,17 @@ These parameters (objective-function) configure the remedial action optimisation
 - **Usage**: used as a minimum improvement of the preventive RAO objective value for the curative RAO stop criterion,
   when it is set to PREVENTIVE_OBJECTIVE or PREVENTIVE_OBJECTIVE_AND_SECURE.
 
+#### optimize-curative-if-preventive-unsecure
+- **Expected value**: true/false
+- **Default value**: false
+- **Usage**: if this parameter is set to true, OpenRAO will continue optimizing curative states even if preventive state
+  is unsecure.
+  If this parameter is set to false, OpenRAO will stop after preventive if preventive state is unsecure and won't try to 
+  improve curative states.
+  
+  *Note: Only applied when ["preventive-stop-criterion"](#preventive-stop-criterion) is set to SECURE. In this case, if preventive was unsecure,
+second preventive won't be run, even if curative cost is higher, in order to save computation time* 
+
 ### Range actions optimisation parameters
 These parameters (range-actions-optimization) tune the [linear optimiser](/castor/linear-problem/linear-rao.md) used to optimise range actions.  
 (See [Modelling CNECs and range actions](/castor/linear-problem/core-problem-filler.md))
@@ -585,13 +596,14 @@ Zones are seperated by + or -.
 :::{group-tab} JSON
 ~~~json
 {
-  "version" : "2.3",
+  "version" : "2.4",
   "objective-function" : {
     "type" : "MAX_MIN_RELATIVE_MARGIN_IN_AMPERE",
     "forbid-cost-increase" : false,
     "curative-min-obj-improvement" : 0.0,
     "preventive-stop-criterion" : "SECURE",
-    "curative-stop-criterion" : "PREVENTIVE_OBJECTIVE"
+    "curative-stop-criterion" : "PREVENTIVE_OBJECTIVE",
+    "optimize-curative-if-preventive-unsecure" : true
   },
   "range-actions-optimization" : {
     "max-mip-iterations" : 5,
