@@ -149,17 +149,6 @@ class OnFlowConstraintInCountryAdderImplTest {
     }
 
     @Test
-    void testFailWithContingencyOnPreventive() {
-        OnFlowConstraintInCountryAdder<NetworkActionAdder> adder = remedialActionAdder.newOnFlowConstraintInCountryUsageRule()
-            .withInstant(PREVENTIVE_INSTANT_ID)
-            .withCountry(Country.FR)
-            .withContingency("Contingency FR1 FR3")
-            .withUsageMethod(UsageMethod.AVAILABLE);
-        Exception e = assertThrows(OpenRaoException.class, adder::add);
-        assertEquals("You cannot define a contingency in the preventive instant.", e.getMessage());
-    }
-
-    @Test
     void testFailWithAbsentContingency() {
         OnFlowConstraintInCountryAdder<NetworkActionAdder> adder = remedialActionAdder.newOnFlowConstraintInCountryUsageRule()
             .withInstant(CURATIVE_INSTANT_ID)

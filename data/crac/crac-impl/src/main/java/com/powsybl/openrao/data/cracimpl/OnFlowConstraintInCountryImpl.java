@@ -59,11 +59,15 @@ public class OnFlowConstraintInCountryImpl extends AbstractUsageRule implements 
             return false;
         }
         OnFlowConstraintInCountryImpl rule = (OnFlowConstraintInCountryImpl) o;
-        return super.equals(o) && rule.getInstant().equals(instant) && rule.getCountry().equals(country);
+        return super.equals(o) && rule.getInstant().equals(instant)
+            && rule.getContingency().equals(contingency)
+            && rule.getCountry().equals(country);
     }
 
     @Override
     public int hashCode() {
-        return country.hashCode() * 19 + instant.hashCode() * 47;
+        return country.hashCode() * 19
+            + instant.hashCode() * 47
+            + contingency.hashCode() * 59;
     }
 }

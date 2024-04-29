@@ -142,6 +142,7 @@ public abstract class AbstractRemedialAction<I extends RemedialAction<I>> extend
         } else if (usageRule instanceof OnFlowConstraintInCountry onFlowConstraintInCountry) {
             return perimeterCnecs.stream()
                 .filter(cnec -> !cnec.getState().getInstant().comesBefore(usageRule.getInstant()))
+                .filter(cnec -> onFlowConstraintInCountry.getContingency().isEmpty() || onFlowConstraintInCountry.getContingency().equals(cnec.getState().getContingency()))
                 .filter(cnec -> isCnecInCountry(cnec, onFlowConstraintInCountry.getCountry(), network)).collect(Collectors.toSet());
         } else {
             throw new OpenRaoException(String.format("This method should only be used for Ofc Usage rules not for this type of UsageRule: %s", usageRule.getClass().getName()));

@@ -74,9 +74,6 @@ public class OnFlowConstraintInCountryAdderImpl<T extends AbstractRemedialAction
 
         Optional<Contingency> optionalContingency = Optional.empty();
         if (contingencyId != null) {
-            if (instant.isPreventive()) {
-                throw new OpenRaoException("You cannot define a contingency in the preventive instant.");
-            }
             Contingency contingency = owner.getCrac().getContingency(contingencyId);
             if (contingency == null) {
                 throw new OpenRaoException(String.format("Contingency %s of OnFlowConstraintInCountry usage rule does not exist in the crac. Use crac.newContingency() first.", contingencyId));
