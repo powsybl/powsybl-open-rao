@@ -34,6 +34,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
+import static com.powsybl.openrao.raoapi.RaoParametersCommons.RAO_PARAMETERS_VERSION;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -57,6 +58,7 @@ class JsonRaoParametersTest extends AbstractSerDeTest {
         parameters.getObjectiveFunctionParameters().setPreventiveStopCriterion(ObjectiveFunctionParameters.PreventiveStopCriterion.MIN_OBJECTIVE);
         parameters.getObjectiveFunctionParameters().setCurativeStopCriterion(ObjectiveFunctionParameters.CurativeStopCriterion.PREVENTIVE_OBJECTIVE_AND_SECURE);
         parameters.getObjectiveFunctionParameters().setCurativeMinObjImprovement(983);
+        parameters.getObjectiveFunctionParameters().setOptimizeCurativeIfPreventiveUnsecure(true);
         // RangeActionsOptimization parameters
         parameters.getRangeActionsOptimizationParameters().setMaxMipIterations(30);
         parameters.getRangeActionsOptimizationParameters().setPstPenaltyCost(10);
@@ -174,7 +176,7 @@ class JsonRaoParametersTest extends AbstractSerDeTest {
     void testFailOnOldVersion() {
         InputStream inputStream = getClass().getResourceAsStream("/RaoParameters_oldVersion.json");
         OpenRaoException e = assertThrows(OpenRaoException.class, () -> JsonRaoParameters.read(inputStream));
-        assertEquals("RaoParameters version '2.0' cannot be deserialized. The only supported version currently is '2.3'.", e.getMessage());
+        assertEquals(String.format("RaoParameters version '2.0' cannot be deserialized. The only supported version currently is '%s'.", RAO_PARAMETERS_VERSION), e.getMessage());
     }
 
     @ParameterizedTest
