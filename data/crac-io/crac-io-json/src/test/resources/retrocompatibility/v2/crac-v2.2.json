@@ -433,6 +433,15 @@
       "flowCnecId" : "cnec3autoId",
       "usageMethod" : "forced"
     } ],
+    "injectionSetpoints" : [ {
+      "networkElementId" : "injection",
+      "setpoint" : 260.0,
+      "unit" : "megawatt"
+    }]
+  }, {
+    "id" : "injectionSetpointRa2Id",
+    "name" : "injectionSetpointRa2Name",
+    "operator" : "RTE",
     "onFlowConstraintInCountryUsageRules" : [ {
       "instant" : "curative",
       "contingencyId" : "contingency2Id",

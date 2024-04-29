@@ -261,6 +261,7 @@ class JsonRetrocompatibilityTest {
         InputStream cracFile = getClass().getResourceAsStream("/retrocompatibility/v2/crac-v2.0.json");
 
         Crac crac = new JsonImport().importCrac(cracFile, network);
+        assertEquals(4, crac.getNetworkActions().size());
         testContentOfV2Point0Crac(crac);
     }
 
@@ -270,6 +271,7 @@ class JsonRetrocompatibilityTest {
         InputStream cracFile = getClass().getResourceAsStream("/retrocompatibility/v2/crac-v2.2.json");
 
         Crac crac = new JsonImport().importCrac(cracFile, network);
+        assertEquals(5, crac.getNetworkActions().size());
         testContentOfV2Point2Crac(crac);
     }
 
@@ -638,7 +640,6 @@ class JsonRetrocompatibilityTest {
         assertEquals(7, crac.getFlowCnecs().size());
         assertEquals(1, crac.getAngleCnecs().size());
         assertEquals(1, crac.getVoltageCnecs().size());
-        assertEquals(4, crac.getNetworkActions().size());
         assertEquals(4, crac.getPstRangeActions().size());
         assertEquals(2, crac.getHvdcRangeActions().size());
         assertEquals(1, crac.getInjectionRangeActions().size());
@@ -665,13 +666,13 @@ class JsonRetrocompatibilityTest {
     }
 
     private void testContentOfV2Point2Crac(Crac crac) {
-        Set<OnFlowConstraintInCountry> urs = crac.getRemedialAction("injectionSetpointRaId").getUsageRules()
+        Set<OnFlowConstraintInCountry> urs = crac.getRemedialAction("injectionSetpointRa2Id").getUsageRules()
             .stream().filter(OnFlowConstraintInCountry.class::isInstance)
             .map(OnFlowConstraintInCountry.class::cast)
             .collect(Collectors.toSet());
         assertEquals(1, urs.size());
         OnFlowConstraintInCountry ur = urs.iterator().next();
-        assertEquals(crac.getInstant(InstantKind.CURATIVE), ur.getInstant());
+        assertEquals(crac.getInstant("curative"), ur.getInstant());
         assertTrue(ur.getContingency().isPresent());
         assertEquals("contingency2Id", ur.getContingency().get().getId());
         assertEquals(Country.FR, ur.getCountry());

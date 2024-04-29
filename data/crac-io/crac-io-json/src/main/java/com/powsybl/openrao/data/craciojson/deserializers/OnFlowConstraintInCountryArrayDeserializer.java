@@ -40,8 +40,8 @@ public final class OnFlowConstraintInCountryArrayDeserializer {
                         }
                         break;
                     case CONTINGENCY_ID:
-                        String contingencyId = jsonParser.nextTextValue();
-                        adder.withContingency(contingencyId);
+                        adder.withContingency(jsonParser.nextTextValue());
+                        break;
                     case USAGE_METHOD:
                         adder.withUsageMethod(deserializeUsageMethod(jsonParser.nextTextValue()));
                         break;
