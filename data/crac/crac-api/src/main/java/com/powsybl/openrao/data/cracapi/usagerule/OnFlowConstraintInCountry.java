@@ -26,13 +26,15 @@ public interface OnFlowConstraintInCountry extends UsageRule {
     Country getCountry();
 
     /**
-     * Get the Instant of the usage rule
+     * Get the Instant of the usage rule: the usage rule is only triggered when the RA is being used at the
+     * given instant.
      */
     Instant getInstant();
 
     /**
-     * Get the Contingency of the usage rule
-     * If empty, then there is no Contingency condition
+     * Get the Contingency of the usage rule: the usage rule is only triggered if there is a CNEC
+     * with a flow constraint after this given contingency.
+     * If empty, then there is no Contingency condition.
      */
     Optional<Contingency> getContingency();
 }
