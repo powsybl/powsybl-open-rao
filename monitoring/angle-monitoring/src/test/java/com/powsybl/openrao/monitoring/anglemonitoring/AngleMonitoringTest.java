@@ -140,7 +140,7 @@ class AngleMonitoringTest {
     }
 
     private void runAngleMonitoring() {
-        angleMonitoringResult = new AngleMonitoring(crac, network, raoResult, cimGlskDocument).run("OpenLoadFlow", loadFlowParameters, 2, glskOffsetDateTime);
+        angleMonitoringResult = new AngleMonitoring(crac, network, raoResult, cimGlskDocument, glskOffsetDateTime).run("OpenLoadFlow", loadFlowParameters, 2);
     }
 
     @Test
