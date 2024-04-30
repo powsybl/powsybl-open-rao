@@ -24,6 +24,7 @@ import com.powsybl.openrao.data.craccreation.creator.csaprofile.nc.AssessedEleme
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.nc.ContingencyWithRemedialAction;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.nc.RemedialAction;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.nc.RemedialActionDependency;
+import com.powsybl.openrao.data.craccreation.creator.csaprofile.nc.SchemeRemedialAction;
 import com.powsybl.openrao.data.craccreation.util.OpenRaoImportException;
 import com.powsybl.iidm.network.Network;
 
@@ -35,32 +36,34 @@ import java.util.stream.Collectors;
  */
 public class CsaProfileRemedialActionsCreator {
     private final Crac crac;
-    private final CsaProfileCracCreationContext cracCreationContext;
     Map<String, CsaProfileElementaryCreationContext> contextByRaId = new TreeMap<>();
     private final ElementaryActionsHelper elementaryActionsHelper;
     private final NetworkActionCreator networkActionCreator;
     private final PstRangeActionCreator pstRangeActionCreator;
+    private final Set<RemedialAction> nativeRemedialActions;
 
-    public CsaProfileRemedialActionsCreator(Crac crac, Network network, CsaProfileCracCreationContext cracCreationContext, CsaProfileCrac nativeCrac, int spsMaxTimeToImplementThreshold, Set<CsaProfileElementaryCreationContext> cnecCreationContexts) {
+    public CsaProfileRemedialActionsCreator(Crac crac, Network network, CsaProfileCrac nativeCrac, CsaProfileCracCreationContext cracCreationContext, int spsMaxTimeToImplementThreshold, Set<CsaProfileElementaryCreationContext> cnecCreationContexts) {
         this.crac = crac;
-        this.cracCreationContext = cracCreationContext;
         this.elementaryActionsHelper = new ElementaryActionsHelper(nativeCrac);
         this.networkActionCreator = new NetworkActionCreator(this.crac, network);
         this.pstRangeActionCreator = new PstRangeActionCreator(this.crac, network);
         Map<String, Set<AssessedElementWithRemedialAction>> linkedAeWithRa = new NcAggregator<>(AssessedElementWithRemedialAction::remedialAction).aggregate(nativeCrac.getAssessedElementWithRemedialActions());
         Map<String, Set<ContingencyWithRemedialAction>> linkedCoWithRa = new NcAggregator<>(ContingencyWithRemedialAction::remedialAction).aggregate(nativeCrac.getContingencyWithRemedialActions());
-        createRemedialActions(nativeCrac.getAssessedElements(), linkedAeWithRa, linkedCoWithRa, false, spsMaxTimeToImplementThreshold, cnecCreationContexts);
-        createRemedialActions(nativeCrac.getAssessedElements(), linkedAeWithRa, linkedCoWithRa, true, spsMaxTimeToImplementThreshold, cnecCreationContexts);
+        this.nativeRemedialActions = new HashSet<>();
+        this.nativeRemedialActions.addAll(nativeCrac.getGridStateAlterationRemedialActions());
+        this.nativeRemedialActions.addAll(nativeCrac.getSchemeRemedialActions());
+        createRemedialActions(nativeCrac.getAssessedElements(), linkedAeWithRa, linkedCoWithRa, spsMaxTimeToImplementThreshold, cnecCreationContexts);
         // standaloneRaIdsImplicatedIntoAGroup contain ids of Ra's depending on a group whether the group is imported or not
         Set<String> standaloneRaIdsImplicatedIntoAGroup = createRemedialActionGroups();
         standaloneRaIdsImplicatedIntoAGroup.forEach(crac::removeRemedialAction);
         standaloneRaIdsImplicatedIntoAGroup.forEach(importedRaId -> contextByRaId.remove(importedRaId));
-        this.cracCreationContext.setRemedialActionCreationContexts(new HashSet<>(contextByRaId.values()));
+        cracCreationContext.setRemedialActionCreationContexts(new HashSet<>(contextByRaId.values()));
     }
 
-    private void createRemedialActions(Set<AssessedElement> nativeAssessedElements, Map<String, Set<AssessedElementWithRemedialAction>> linkedAeWithRa, Map<String, Set<ContingencyWithRemedialAction>> linkedCoWithRa, boolean isSchemeRemedialAction, int spsMaxTimeToImplementThreshold, Set<CsaProfileElementaryCreationContext> cnecCreationContexts) {
-        for (RemedialAction nativeRemedialAction : elementaryActionsHelper.getParentRemedialAction(isSchemeRemedialAction)) {
+    private void createRemedialActions(Set<AssessedElement> nativeAssessedElements, Map<String, Set<AssessedElementWithRemedialAction>> linkedAeWithRa, Map<String, Set<ContingencyWithRemedialAction>> linkedCoWithRa, int spsMaxTimeToImplementThreshold, Set<CsaProfileElementaryCreationContext> cnecCreationContexts) {
+        for (RemedialAction nativeRemedialAction : nativeRemedialActions) {
             List<String> alterations = new ArrayList<>();
+            boolean isSchemeRemedialAction = nativeRemedialAction instanceof SchemeRemedialAction;
             try {
                 checkKind(nativeRemedialAction, isSchemeRemedialAction);
                 if (!nativeRemedialAction.normalAvailable()) {

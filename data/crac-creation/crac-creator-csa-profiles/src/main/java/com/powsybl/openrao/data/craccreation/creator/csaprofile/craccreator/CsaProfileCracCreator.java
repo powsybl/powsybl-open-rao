@@ -68,7 +68,7 @@ public class CsaProfileCracCreator implements CracCreator<CsaProfileCrac, CsaPro
     }
 
     private void createRemedialActions(int spsMaxTimeToImplementThreshold) {
-        new CsaProfileRemedialActionsCreator(crac, network, creationContext, nativeCrac, spsMaxTimeToImplementThreshold, creationContext.getCnecCreationContexts());
+        new CsaProfileRemedialActionsCreator(crac, network, nativeCrac, creationContext, spsMaxTimeToImplementThreshold, creationContext.getCnecCreationContexts());
     }
 
     private void createContingencies() {
