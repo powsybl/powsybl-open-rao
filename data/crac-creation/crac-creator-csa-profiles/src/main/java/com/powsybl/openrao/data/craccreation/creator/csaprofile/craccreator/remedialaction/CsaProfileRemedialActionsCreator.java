@@ -58,7 +58,7 @@ public class CsaProfileRemedialActionsCreator {
     }
 
     private void createRemedialActions(Set<AssessedElement> nativeAssessedElements, Map<String, Set<AssessedElementWithRemedialAction>> linkedAeWithRa, Map<String, Set<ContingencyWithRemedialAction>> linkedCoWithRa, boolean isSchemeRemedialAction, int spsMaxTimeToImplementThreshold, Set<CsaProfileElementaryCreationContext> cnecCreationContexts) {
-        for (RemedialAction nativeRemedialAction : elementaryActionsHelper.getParentRemedialActionPropertyBags(isSchemeRemedialAction)) {
+        for (RemedialAction nativeRemedialAction : elementaryActionsHelper.getParentRemedialAction(isSchemeRemedialAction)) {
             List<String> alterations = new ArrayList<>();
             try {
                 checkKind(nativeRemedialAction, isSchemeRemedialAction);

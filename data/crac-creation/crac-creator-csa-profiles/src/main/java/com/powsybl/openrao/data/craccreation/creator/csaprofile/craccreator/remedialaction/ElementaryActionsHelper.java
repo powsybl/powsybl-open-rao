@@ -9,14 +9,15 @@ package com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.rem
 import com.powsybl.openrao.data.craccreation.creator.api.ImportStatus;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileConstants;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.NcAggregator;
-import com.powsybl.openrao.data.craccreation.creator.csaprofile.nc.AssessedElementWithRemedialAction;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.nc.ContingencyWithRemedialAction;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.nc.GridStateAlterationCollection;
+import com.powsybl.openrao.data.craccreation.creator.csaprofile.nc.GridStateAlterationRemedialAction;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.nc.RemedialAction;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.nc.RemedialActionDependency;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.nc.RemedialActionGroup;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.nc.RemedialActionScheme;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.nc.RotatingMachineAction;
+import com.powsybl.openrao.data.craccreation.creator.csaprofile.nc.SchemeRemedialAction;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.nc.ShuntCompensatorModification;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.nc.Stage;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.nc.StaticPropertyRange;
@@ -24,8 +25,6 @@ import com.powsybl.openrao.data.craccreation.creator.csaprofile.nc.TapPositionAc
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.nc.TopologyAction;
 import com.powsybl.openrao.data.craccreation.util.OpenRaoImportException;
 
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -35,12 +34,11 @@ import java.util.Set;
  */
 public class ElementaryActionsHelper {
     private final Set<RemedialActionGroup> nativeRemedialActionGroups;
-    private final Set<RemedialAction> nativeGridStateAlterationRemedialActions;
-    private final Set<RemedialAction> nativeSchemeRemedialActions;
+    private final Set<GridStateAlterationRemedialAction> nativeGridStateAlterationRemedialActions;
+    private final Set<SchemeRemedialAction> nativeSchemeRemedialActions;
     private final Set<RemedialActionScheme> nativeRemedialActionSchemes;
     private final Set<Stage> nativeStages;
     private final Set<GridStateAlterationCollection> nativeGridStateAlterationCollections;
-    private final Set<AssessedElementWithRemedialAction> nativeAssessedElementWithRemedialActions;
     private final Map<String, Set<RemedialActionDependency>> nativeRemedialActionDependencyPerNativeRemedialActionGroup;
     private final Map<String, Set<TopologyAction>> nativeTopologyActionsPerNativeRemedialAction;
     private final Map<String, Set<TopologyAction>> nativeTopologyActionsPerNativeRemedialActionAuto;
@@ -53,12 +51,11 @@ public class ElementaryActionsHelper {
     private final Map<String, Set<StaticPropertyRange>> nativeStaticPropertyRangesPerNativeGridStateAlteration;
     final Map<String, Set<ContingencyWithRemedialAction>> nativeContingencyWithRemedialActionPerNativeRemedialAction;
 
-    public ElementaryActionsHelper(Set<RemedialAction> nativeGridStateAlterationRemedialActions,
-                                   Set<RemedialAction> nativeSchemeRemedialActions,
+    public ElementaryActionsHelper(Set<GridStateAlterationRemedialAction> nativeGridStateAlterationRemedialActions,
+                                   Set<SchemeRemedialAction> nativeSchemeRemedialActions,
                                    Set<RemedialActionScheme> nativeRemedialActionSchemes,
                                    Set<Stage> nativeStages,
                                    Set<GridStateAlterationCollection> nativeGridStateAlterationCollections,
-                                   Set<AssessedElementWithRemedialAction> nativeAssessedElementWithRemedialActions,
                                    Set<ContingencyWithRemedialAction> nativeContingencyWithRemedialActions,
                                    Set<StaticPropertyRange> nativeStaticPropertyRanges,
                                    Set<TopologyAction> nativeTopologyActions,
@@ -73,71 +70,22 @@ public class ElementaryActionsHelper {
         this.nativeRemedialActionSchemes = nativeRemedialActionSchemes;
         this.nativeStages = nativeStages;
         this.nativeGridStateAlterationCollections = nativeGridStateAlterationCollections;
-        this.nativeAssessedElementWithRemedialActions = nativeAssessedElementWithRemedialActions;
 
         this.nativeRemedialActionDependencyPerNativeRemedialActionGroup = new NcAggregator<>(RemedialActionDependency::dependingRemedialActionGroup).aggregate(nativeRemedialActionDependencies);
 
         this.nativeContingencyWithRemedialActionPerNativeRemedialAction = new NcAggregator<>(ContingencyWithRemedialAction::remedialAction).aggregate(nativeContingencyWithRemedialActions);
         this.nativeStaticPropertyRangesPerNativeGridStateAlteration = new NcAggregator<>(StaticPropertyRange::gridStateAlteration).aggregate(nativeStaticPropertyRanges); // the id here is the id of the subclass of gridStateAlteration (tapPositionAction, RotatingMachine, ..)
 
-        this.nativeTopologyActionsPerNativeRemedialAction = mapTopologyActionsToRemedialActions(nativeTopologyActions, false);
-        this.nativeRotatingMachineActionsPerNativeRemedialAction = mapRotatingMachineActionsToRemedialActions(nativeRotatingMachineActions, false);
-        this.nativeShuntCompensatorModificationsPerNativeRemedialAction = mapShuntCompensatorModificationsToRemedialActions(nativeShuntCompensatorModifications, false);
-        this.nativeTapPositionActionsPerNativeRemedialAction = mapTapPositionActionsToRemedialActions(nativeTapPositionActions, false);
+        this.nativeTopologyActionsPerNativeRemedialAction = new NcAggregator<>(TopologyAction::gridStateAlterationRemedialAction).aggregate(nativeTopologyActions);
+        this.nativeRotatingMachineActionsPerNativeRemedialAction = new NcAggregator<>(RotatingMachineAction::gridStateAlterationRemedialAction).aggregate(nativeRotatingMachineActions);
+        this.nativeShuntCompensatorModificationsPerNativeRemedialAction = new NcAggregator<>(ShuntCompensatorModification::gridStateAlterationRemedialAction).aggregate(nativeShuntCompensatorModifications);
+        this.nativeTapPositionActionsPerNativeRemedialAction = new NcAggregator<>(TapPositionAction::gridStateAlterationRemedialAction).aggregate(nativeTapPositionActions);
 
-        this.nativeTopologyActionsPerNativeRemedialActionAuto = mapTopologyActionsToRemedialActions(nativeTopologyActions, true);
-        this.nativeRotatingMachineActionsPerNativeRemedialActionAuto = mapRotatingMachineActionsToRemedialActions(nativeRotatingMachineActions, true);
-        this.nativeShuntCompensatorModificationsPerNativeRemedialActionAuto = mapShuntCompensatorModificationsToRemedialActions(nativeShuntCompensatorModifications, true);
-        this.nativeTapPositionActionsPerNativeRemedialActionAuto = mapTapPositionActionsToRemedialActions(nativeTapPositionActions, true);
+        this.nativeTopologyActionsPerNativeRemedialActionAuto = new NcAggregator<>(TopologyAction::gridStateAlterationCollection).aggregate(nativeTopologyActions);
+        this.nativeRotatingMachineActionsPerNativeRemedialActionAuto = new NcAggregator<>(RotatingMachineAction::gridStateAlterationCollection).aggregate(nativeRotatingMachineActions);
+        this.nativeShuntCompensatorModificationsPerNativeRemedialActionAuto = new NcAggregator<>(ShuntCompensatorModification::gridStateAlterationCollection).aggregate(nativeShuntCompensatorModifications);
+        this.nativeTapPositionActionsPerNativeRemedialActionAuto = new NcAggregator<>(TapPositionAction::gridStateAlterationCollection).aggregate(nativeTapPositionActions);
 
-    }
-
-    private Map<String, Set<TopologyAction>> mapTopologyActionsToRemedialActions(Set<TopologyAction> nativeTopologyActions, boolean autoRemedialAction) {
-        Map<String, Set<TopologyAction>> topologyActionPerRemedialAction = new HashMap<>();
-        for (TopologyAction nativeTopologyAction : nativeTopologyActions) {
-            String parentRemedialActionId = autoRemedialAction ? nativeTopologyAction.gridStateAlterationCollection() : nativeTopologyAction.gridStateAlterationRemedialAction();
-            if (parentRemedialActionId != null) {
-                Set<TopologyAction> topologyActions = topologyActionPerRemedialAction.computeIfAbsent(parentRemedialActionId, k -> new HashSet<>());
-                topologyActions.add(nativeTopologyAction);
-            }
-        }
-        return topologyActionPerRemedialAction;
-    }
-
-    private Map<String, Set<RotatingMachineAction>> mapRotatingMachineActionsToRemedialActions(Set<RotatingMachineAction> nativeRotatingMachineActions, boolean autoRemedialAction) {
-        Map<String, Set<RotatingMachineAction>> rotatingMachineActionPerRemedialAction = new HashMap<>();
-        for (RotatingMachineAction nativeRotatingMachineAction : nativeRotatingMachineActions) {
-            String parentRemedialActionId = autoRemedialAction ? nativeRotatingMachineAction.gridStateAlterationCollection() : nativeRotatingMachineAction.gridStateAlterationRemedialAction();
-            if (parentRemedialActionId != null) {
-                Set<RotatingMachineAction> rotatingMachineActions = rotatingMachineActionPerRemedialAction.computeIfAbsent(parentRemedialActionId, k -> new HashSet<>());
-                rotatingMachineActions.add(nativeRotatingMachineAction);
-            }
-        }
-        return rotatingMachineActionPerRemedialAction;
-    }
-
-    private Map<String, Set<ShuntCompensatorModification>> mapShuntCompensatorModificationsToRemedialActions(Set<ShuntCompensatorModification> nativeShuntCompensatorModifications, boolean autoRemedialAction) {
-        Map<String, Set<ShuntCompensatorModification>> shuntCompensatorModificationsPerRemedialAction = new HashMap<>();
-        for (ShuntCompensatorModification nativeShuntCompensatorModification : nativeShuntCompensatorModifications) {
-            String parentRemedialActionId = autoRemedialAction ? nativeShuntCompensatorModification.gridStateAlterationCollection() : nativeShuntCompensatorModification.gridStateAlterationRemedialAction();
-            if (parentRemedialActionId != null) {
-                Set<ShuntCompensatorModification> shuntCompensatorModifications = shuntCompensatorModificationsPerRemedialAction.computeIfAbsent(parentRemedialActionId, k -> new HashSet<>());
-                shuntCompensatorModifications.add(nativeShuntCompensatorModification);
-            }
-        }
-        return shuntCompensatorModificationsPerRemedialAction;
-    }
-
-    private Map<String, Set<TapPositionAction>> mapTapPositionActionsToRemedialActions(Set<TapPositionAction> nativeTapPositionActions, boolean autoRemedialAction) {
-        Map<String, Set<TapPositionAction>> tapPositionActionPerRemedialAction = new HashMap<>();
-        for (TapPositionAction nativeTapPositionAction : nativeTapPositionActions) {
-            String parentRemedialActionId = autoRemedialAction ? nativeTapPositionAction.gridStateAlterationCollection() : nativeTapPositionAction.gridStateAlterationRemedialAction();
-            if (parentRemedialActionId != null) {
-                Set<TapPositionAction> tapPositionActions = tapPositionActionPerRemedialAction.computeIfAbsent(parentRemedialActionId, k -> new HashSet<>());
-                tapPositionActions.add(nativeTapPositionAction);
-            }
-        }
-        return tapPositionActionPerRemedialAction;
     }
 
     public Map<String, Set<RemedialActionDependency>> getNativeRemedialActionDependencyPerNativeRemedialActionGroup() {
@@ -150,10 +98,6 @@ public class ElementaryActionsHelper {
 
     public Map<String, Set<StaticPropertyRange>> getNativeStaticPropertyRangesPerNativeGridStateAlteration() {
         return nativeStaticPropertyRangesPerNativeGridStateAlteration;
-    }
-
-    public Map<String, Set<ContingencyWithRemedialAction>> getContingenciesByRemedialAction() {
-        return nativeContingencyWithRemedialActionPerNativeRemedialAction;
     }
 
     public Map<String, Set<TopologyAction>> getTopologyActions(boolean isSchemeRemedialAction) {
@@ -172,7 +116,7 @@ public class ElementaryActionsHelper {
         return isSchemeRemedialAction ? nativeTapPositionActionsPerNativeRemedialActionAuto : nativeTapPositionActionsPerNativeRemedialAction;
     }
 
-    public Set<RemedialAction> getParentRemedialActionPropertyBags(boolean isSchemeRemedialAction) {
+    public Set<? extends RemedialAction> getParentRemedialAction(boolean isSchemeRemedialAction) {
         return isSchemeRemedialAction ? nativeSchemeRemedialActions : nativeGridStateAlterationRemedialActions;
     }
 
@@ -216,9 +160,5 @@ public class ElementaryActionsHelper {
             throw new OpenRaoImportException(ImportStatus.NOT_FOR_RAO, "Remedial action " + remedialActionId + " will not be imported because RemedialActionScheme " + nativeRemedialActionScheme.mrid() + " is not armed");
         }
         return nativeRemedialActionScheme.mrid();
-    }
-
-    public boolean remedialActionIsLinkedToAssessedElements(String remedialActionId) {
-        return nativeAssessedElementWithRemedialActions.stream().anyMatch(nativeAssessedElementWithRemedialAction -> nativeAssessedElementWithRemedialAction.remedialAction().equals(remedialActionId));
     }
 }
