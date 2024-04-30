@@ -25,7 +25,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * @author Peter Mitri {@literal <peter.mitr at rte-france.com>}
  */
-public class AbstractRemedialActionTest {
+public class AbsRemedialActionTest {
     private static final String CURATIVE_INSTANT_ID = "curative";
 
     private Network network;
