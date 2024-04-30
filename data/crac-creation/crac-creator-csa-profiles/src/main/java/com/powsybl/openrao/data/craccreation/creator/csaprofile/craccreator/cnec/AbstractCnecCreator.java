@@ -17,8 +17,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-import static com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileCracUtils.getTsoNameFromUrl;
-
 public abstract class AbstractCnecCreator {
     protected final Crac crac;
     protected final Network network;
@@ -84,10 +82,9 @@ public abstract class AbstractCnecCreator {
         return "%s - TATL %s".formatted(getCnecName(instantId, contingency), tatlDuration);
     }
 
-    protected boolean addCnecBaseInformation(CnecAdder<?> cnecAdder, Contingency contingency, String instantId) {
+    protected void addCnecBaseInformation(CnecAdder<?> cnecAdder, Contingency contingency, String instantId) {
         String cnecName = getCnecName(instantId, contingency);
         initCnecAdder(cnecAdder, contingency, instantId, cnecName);
-        return true;
     }
 
     protected void addCnecBaseInformation(CnecAdder<?> cnecAdder, Contingency contingency, String instantId, int tatlDuration) {
@@ -100,7 +97,7 @@ public abstract class AbstractCnecCreator {
             .withId(cnecName)
             .withName(cnecName)
             .withInstant(instantId)
-            .withOperator(getTsoNameFromUrl(assessedElementOperator))
+            .withOperator(CsaProfileCracUtils.getTsoNameFromUrl(assessedElementOperator))
             .withOptimized(aeSecuredForRegion)
             .withMonitored(aeScannedForRegion);
     }
