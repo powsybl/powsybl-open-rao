@@ -13,21 +13,11 @@ import com.powsybl.openrao.data.cracapi.cnec.Side;
 import com.powsybl.openrao.data.craccreation.creator.api.CracCreator;
 import com.powsybl.openrao.data.craccreation.creator.api.parameters.CracCreationParameters;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.CsaProfileCrac;
-import com.powsybl.openrao.data.craccreation.creator.csaprofile.nc.AssessedElementWithRemedialAction;
-import com.powsybl.openrao.data.craccreation.creator.csaprofile.nc.ContingencyWithRemedialAction;
-import com.powsybl.openrao.data.craccreation.creator.csaprofile.nc.CurrentLimit;
-import com.powsybl.openrao.data.craccreation.creator.csaprofile.nc.VoltageLimit;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.cnec.CsaProfileCnecCreator;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.contingency.CsaProfileContingencyCreator;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.remedialaction.CsaProfileRemedialActionsCreator;
-import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.remedialaction.ElementaryActionsHelper;
 import com.google.auto.service.AutoService;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.openrao.data.craccreation.creator.csaprofile.nc.AssessedElement;
-import com.powsybl.openrao.data.craccreation.creator.csaprofile.nc.AssessedElementWithContingency;
-import com.powsybl.openrao.data.craccreation.creator.csaprofile.nc.Contingency;
-import com.powsybl.openrao.data.craccreation.creator.csaprofile.nc.ContingencyEquipment;
-import com.powsybl.openrao.data.craccreation.creator.csaprofile.nc.VoltageAngleLimit;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.parameters.CsaCracCreationParameters;
 import com.powsybl.openrao.data.craccreation.util.RaUsageLimitsAdder;
 
@@ -58,11 +48,10 @@ public class CsaProfileCracCreator implements CracCreator<CsaProfileCrac, CsaPro
         RaUsageLimitsAdder.addRaUsageLimits(crac, cracCreationParameters);
         nativeCrac.setForTimestamp(offsetDateTime);
 
-        createContingencies(nativeCrac.getContingencies(), nativeCrac.getContingencyEquipments());
-        createCnecs(nativeCrac.getAssessedElements(), nativeCrac.getAssessedElementWithContingencies(), nativeCrac.getCurrentLimits(), nativeCrac.getVoltageLimits(), nativeCrac.getVoltageAngleLimits(), cracCreationParameters.getDefaultMonitoredSides(), csaParameters.getCapacityCalculationRegionEicCode());
+        createContingencies(nativeCrac);
+        createCnecs(nativeCrac, cracCreationParameters.getDefaultMonitoredSides(), csaParameters.getCapacityCalculationRegionEicCode());
+        createRemedialActions(nativeCrac, csaParameters.getSpsMaxTimeToImplementThresholdInSeconds());
 
-        ElementaryActionsHelper elementaryActionsHelper = new ElementaryActionsHelper(nativeCrac.getGridStateAlterationRemedialActions(), nativeCrac.getSchemeRemedialActions(), nativeCrac.getRemedialActionSchemes(), nativeCrac.getStages(), nativeCrac.getGridStateAlterationCollections(), nativeCrac.getContingencyWithRemedialActions(), nativeCrac.getStaticPropertyRanges(), nativeCrac.getTopologyActions(), nativeCrac.getRotatingMachineActions(), nativeCrac.getShuntCompensatorModifications(), nativeCrac.getTapPositionActions(), nativeCrac.getRemedialActionGroups(), nativeCrac.getRemedialActionDependencies());
-        createRemedialActions(nativeCrac.getAssessedElements(), nativeCrac.getAssessedElementWithRemedialActions(), nativeCrac.getContingencyWithRemedialActions(), elementaryActionsHelper, csaParameters.getSpsMaxTimeToImplementThresholdInSeconds());
         creationContext.buildCreationReport();
         return creationContext.creationSuccess(crac);
     }
@@ -75,15 +64,15 @@ public class CsaProfileCracCreator implements CracCreator<CsaProfileCrac, CsaPro
         // TODO : add other curative instants here
     }
 
-    private void createRemedialActions(Set<AssessedElement> nativeAssessedElements, Set<AssessedElementWithRemedialAction> nativeAssessedElementWithRemedialActions, Set<ContingencyWithRemedialAction> nativeContingencyWithRemedialActions, ElementaryActionsHelper elementaryActionsHelper, int spsMaxTimeToImplementThreshold) {
-        new CsaProfileRemedialActionsCreator(crac, network, creationContext, nativeAssessedElements, nativeAssessedElementWithRemedialActions, nativeContingencyWithRemedialActions, elementaryActionsHelper, spsMaxTimeToImplementThreshold, creationContext.getCnecCreationContexts());
+    private void createRemedialActions(CsaProfileCrac nativeCrac, int spsMaxTimeToImplementThreshold) {
+        new CsaProfileRemedialActionsCreator(crac, network, creationContext, nativeCrac, spsMaxTimeToImplementThreshold, creationContext.getCnecCreationContexts());
     }
 
-    private void createContingencies(Set<Contingency> nativeContingencies, Set<ContingencyEquipment> nativeContingencyEquipments) {
-        new CsaProfileContingencyCreator(crac, network, nativeContingencies, nativeContingencyEquipments, creationContext);
+    private void createContingencies(CsaProfileCrac nativeCrac) {
+        new CsaProfileContingencyCreator(crac, network, nativeCrac, creationContext);
     }
 
-    private void createCnecs(Set<AssessedElement> nativeAssessedElements, Set<AssessedElementWithContingency> nativeAssessedElementsWithContingencies, Set<CurrentLimit> nativeCurrentLimits, Set<VoltageLimit> nativeVoltageLimits, Set<VoltageAngleLimit> nativeVoltageAngleLimits, Set<Side> defaultMonitoredSides, String regionEic) {
-        new CsaProfileCnecCreator(crac, network, nativeAssessedElements, nativeAssessedElementsWithContingencies, nativeCurrentLimits, nativeVoltageLimits, nativeVoltageAngleLimits, creationContext, defaultMonitoredSides, regionEic);
+    private void createCnecs(CsaProfileCrac nativeCrac, Set<Side> defaultMonitoredSides, String regionEic) {
+        new CsaProfileCnecCreator(crac, network, nativeCrac, creationContext, defaultMonitoredSides, regionEic);
     }
 }

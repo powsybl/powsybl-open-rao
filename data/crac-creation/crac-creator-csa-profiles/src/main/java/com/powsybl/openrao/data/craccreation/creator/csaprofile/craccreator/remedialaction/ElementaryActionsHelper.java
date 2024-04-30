@@ -7,6 +7,7 @@
 package com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.remedialaction;
 
 import com.powsybl.openrao.data.craccreation.creator.api.ImportStatus;
+import com.powsybl.openrao.data.craccreation.creator.csaprofile.CsaProfileCrac;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileConstants;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.NcAggregator;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.nc.ContingencyWithRemedialAction;
@@ -51,40 +52,28 @@ public class ElementaryActionsHelper {
     private final Map<String, Set<StaticPropertyRange>> nativeStaticPropertyRangesPerNativeGridStateAlteration;
     final Map<String, Set<ContingencyWithRemedialAction>> nativeContingencyWithRemedialActionPerNativeRemedialAction;
 
-    public ElementaryActionsHelper(Set<GridStateAlterationRemedialAction> nativeGridStateAlterationRemedialActions,
-                                   Set<SchemeRemedialAction> nativeSchemeRemedialActions,
-                                   Set<RemedialActionScheme> nativeRemedialActionSchemes,
-                                   Set<Stage> nativeStages,
-                                   Set<GridStateAlterationCollection> nativeGridStateAlterationCollections,
-                                   Set<ContingencyWithRemedialAction> nativeContingencyWithRemedialActions,
-                                   Set<StaticPropertyRange> nativeStaticPropertyRanges,
-                                   Set<TopologyAction> nativeTopologyActions,
-                                   Set<RotatingMachineAction> nativeRotatingMachineActions,
-                                   Set<ShuntCompensatorModification> nativeShuntCompensatorModifications,
-                                   Set<TapPositionAction> nativeTapPositionActions,
-                                   Set<RemedialActionGroup> nativeRemedialActionGroups,
-                                   Set<RemedialActionDependency> nativeRemedialActionDependencies) {
-        this.nativeRemedialActionGroups = nativeRemedialActionGroups;
-        this.nativeGridStateAlterationRemedialActions = nativeGridStateAlterationRemedialActions;
-        this.nativeSchemeRemedialActions = nativeSchemeRemedialActions;
-        this.nativeRemedialActionSchemes = nativeRemedialActionSchemes;
-        this.nativeStages = nativeStages;
-        this.nativeGridStateAlterationCollections = nativeGridStateAlterationCollections;
+    public ElementaryActionsHelper(CsaProfileCrac nativeCrac) {
+        this.nativeRemedialActionGroups = nativeCrac.getRemedialActionGroups();
+        this.nativeGridStateAlterationRemedialActions = nativeCrac.getGridStateAlterationRemedialActions();
+        this.nativeSchemeRemedialActions = nativeCrac.getSchemeRemedialActions();
+        this.nativeRemedialActionSchemes = nativeCrac.getRemedialActionSchemes();
+        this.nativeStages = nativeCrac.getStages();
+        this.nativeGridStateAlterationCollections = nativeCrac.getGridStateAlterationCollections();
 
-        this.nativeRemedialActionDependencyPerNativeRemedialActionGroup = new NcAggregator<>(RemedialActionDependency::dependingRemedialActionGroup).aggregate(nativeRemedialActionDependencies);
+        this.nativeRemedialActionDependencyPerNativeRemedialActionGroup = new NcAggregator<>(RemedialActionDependency::dependingRemedialActionGroup).aggregate(nativeCrac.getRemedialActionDependencies());
 
-        this.nativeContingencyWithRemedialActionPerNativeRemedialAction = new NcAggregator<>(ContingencyWithRemedialAction::remedialAction).aggregate(nativeContingencyWithRemedialActions);
-        this.nativeStaticPropertyRangesPerNativeGridStateAlteration = new NcAggregator<>(StaticPropertyRange::gridStateAlteration).aggregate(nativeStaticPropertyRanges); // the id here is the id of the subclass of gridStateAlteration (tapPositionAction, RotatingMachine, ..)
+        this.nativeContingencyWithRemedialActionPerNativeRemedialAction = new NcAggregator<>(ContingencyWithRemedialAction::remedialAction).aggregate(nativeCrac.getContingencyWithRemedialActions());
+        this.nativeStaticPropertyRangesPerNativeGridStateAlteration = new NcAggregator<>(StaticPropertyRange::gridStateAlteration).aggregate(nativeCrac.getStaticPropertyRanges()); // the id here is the id of the subclass of gridStateAlteration (tapPositionAction, RotatingMachine, ..)
 
-        this.nativeTopologyActionsPerNativeRemedialAction = new NcAggregator<>(TopologyAction::gridStateAlterationRemedialAction).aggregate(nativeTopologyActions);
-        this.nativeRotatingMachineActionsPerNativeRemedialAction = new NcAggregator<>(RotatingMachineAction::gridStateAlterationRemedialAction).aggregate(nativeRotatingMachineActions);
-        this.nativeShuntCompensatorModificationsPerNativeRemedialAction = new NcAggregator<>(ShuntCompensatorModification::gridStateAlterationRemedialAction).aggregate(nativeShuntCompensatorModifications);
-        this.nativeTapPositionActionsPerNativeRemedialAction = new NcAggregator<>(TapPositionAction::gridStateAlterationRemedialAction).aggregate(nativeTapPositionActions);
+        this.nativeTopologyActionsPerNativeRemedialAction = new NcAggregator<>(TopologyAction::gridStateAlterationRemedialAction).aggregate(nativeCrac.getTopologyActions());
+        this.nativeRotatingMachineActionsPerNativeRemedialAction = new NcAggregator<>(RotatingMachineAction::gridStateAlterationRemedialAction).aggregate(nativeCrac.getRotatingMachineActions());
+        this.nativeShuntCompensatorModificationsPerNativeRemedialAction = new NcAggregator<>(ShuntCompensatorModification::gridStateAlterationRemedialAction).aggregate(nativeCrac.getShuntCompensatorModifications());
+        this.nativeTapPositionActionsPerNativeRemedialAction = new NcAggregator<>(TapPositionAction::gridStateAlterationRemedialAction).aggregate(nativeCrac.getTapPositionActions());
 
-        this.nativeTopologyActionsPerNativeRemedialActionAuto = new NcAggregator<>(TopologyAction::gridStateAlterationCollection).aggregate(nativeTopologyActions);
-        this.nativeRotatingMachineActionsPerNativeRemedialActionAuto = new NcAggregator<>(RotatingMachineAction::gridStateAlterationCollection).aggregate(nativeRotatingMachineActions);
-        this.nativeShuntCompensatorModificationsPerNativeRemedialActionAuto = new NcAggregator<>(ShuntCompensatorModification::gridStateAlterationCollection).aggregate(nativeShuntCompensatorModifications);
-        this.nativeTapPositionActionsPerNativeRemedialActionAuto = new NcAggregator<>(TapPositionAction::gridStateAlterationCollection).aggregate(nativeTapPositionActions);
+        this.nativeTopologyActionsPerNativeRemedialActionAuto = new NcAggregator<>(TopologyAction::gridStateAlterationCollection).aggregate(nativeCrac.getTopologyActions());
+        this.nativeRotatingMachineActionsPerNativeRemedialActionAuto = new NcAggregator<>(RotatingMachineAction::gridStateAlterationCollection).aggregate(nativeCrac.getRotatingMachineActions());
+        this.nativeShuntCompensatorModificationsPerNativeRemedialActionAuto = new NcAggregator<>(ShuntCompensatorModification::gridStateAlterationCollection).aggregate(nativeCrac.getShuntCompensatorModifications());
+        this.nativeTapPositionActionsPerNativeRemedialActionAuto = new NcAggregator<>(TapPositionAction::gridStateAlterationCollection).aggregate(nativeCrac.getTapPositionActions());
 
     }
 

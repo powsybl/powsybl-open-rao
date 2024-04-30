@@ -13,6 +13,7 @@ import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.openrao.data.cracapi.ContingencyAdder;
 import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.craccreation.creator.api.ImportStatus;
+import com.powsybl.openrao.data.craccreation.creator.csaprofile.CsaProfileCrac;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.NcAggregator;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileCracCreationContext;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileElementaryCreationContext;
@@ -43,11 +44,11 @@ public class CsaProfileContingencyCreator {
     private Set<CsaProfileElementaryCreationContext> csaProfileContingencyCreationContexts;
     private final CsaProfileCracCreationContext cracCreationContext;
 
-    public CsaProfileContingencyCreator(Crac crac, Network network, Set<Contingency> nativeContingencies, Set<ContingencyEquipment> nativeContingencyEquipments, CsaProfileCracCreationContext cracCreationContext) {
+    public CsaProfileContingencyCreator(Crac crac, Network network, CsaProfileCrac nativeCrac, CsaProfileCracCreationContext cracCreationContext) {
         this.crac = crac;
         this.network = network;
-        this.nativeContingencies = nativeContingencies;
-        this.nativeContingencyEquipmentsPerNativeContingency = new NcAggregator<>(ContingencyEquipment::contingency).aggregate(nativeContingencyEquipments);
+        this.nativeContingencies = nativeCrac.getContingencies();
+        this.nativeContingencyEquipmentsPerNativeContingency = new NcAggregator<>(ContingencyEquipment::contingency).aggregate(nativeCrac.getContingencyEquipments());
         this.cracCreationContext = cracCreationContext;
         this.createAndAddContingencies();
     }
