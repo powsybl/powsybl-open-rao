@@ -33,6 +33,7 @@ public class CsaProfileCracCreator implements CracCreator<CsaProfileCrac, CsaPro
     private Crac crac;
     private Network network;
     CsaProfileCracCreationContext creationContext;
+    private CsaProfileCrac nativeCrac;
 
     @Override
     public String getNativeCracFormat() {
@@ -44,13 +45,15 @@ public class CsaProfileCracCreator implements CracCreator<CsaProfileCrac, CsaPro
         this.crac = cracCreationParameters.getCracFactory().create(nativeCrac.toString());
         this.network = network;
         this.creationContext = new CsaProfileCracCreationContext(crac, offsetDateTime, network.getNameOrId());
+        this.nativeCrac = nativeCrac;
         addCsaInstants();
         RaUsageLimitsAdder.addRaUsageLimits(crac, cracCreationParameters);
-        nativeCrac.setForTimestamp(offsetDateTime);
 
-        createContingencies(nativeCrac);
-        createCnecs(nativeCrac, cracCreationParameters.getDefaultMonitoredSides(), csaParameters.getCapacityCalculationRegionEicCode());
-        createRemedialActions(nativeCrac, csaParameters.getSpsMaxTimeToImplementThresholdInSeconds());
+        this.nativeCrac.setForTimestamp(offsetDateTime);
+
+        createContingencies();
+        createCnecs(cracCreationParameters.getDefaultMonitoredSides(), csaParameters.getCapacityCalculationRegionEicCode());
+        createRemedialActions(csaParameters.getSpsMaxTimeToImplementThresholdInSeconds());
 
         creationContext.buildCreationReport();
         return creationContext.creationSuccess(crac);
@@ -64,15 +67,15 @@ public class CsaProfileCracCreator implements CracCreator<CsaProfileCrac, CsaPro
         // TODO : add other curative instants here
     }
 
-    private void createRemedialActions(CsaProfileCrac nativeCrac, int spsMaxTimeToImplementThreshold) {
+    private void createRemedialActions(int spsMaxTimeToImplementThreshold) {
         new CsaProfileRemedialActionsCreator(crac, network, creationContext, nativeCrac, spsMaxTimeToImplementThreshold, creationContext.getCnecCreationContexts());
     }
 
-    private void createContingencies(CsaProfileCrac nativeCrac) {
+    private void createContingencies() {
         new CsaProfileContingencyCreator(crac, network, nativeCrac, creationContext);
     }
 
-    private void createCnecs(CsaProfileCrac nativeCrac, Set<Side> defaultMonitoredSides, String regionEic) {
+    private void createCnecs(Set<Side> defaultMonitoredSides, String regionEic) {
         new CsaProfileCnecCreator(crac, network, nativeCrac, creationContext, defaultMonitoredSides, regionEic);
     }
 }
