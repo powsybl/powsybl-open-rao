@@ -113,7 +113,7 @@ public class CsaProfileCracImporter implements NativeCracImporter<CsaProfileCrac
                 }
             }
             if (!isKeywordInFile) {
-                String keyword = CsaProfileConstants.CGMES;
+                String keyword = CsaProfileConstants.CsaProfileKeyword.CGMES.toString();
                 Set<String> newFilesSet = addFileToSet(keywordMap, "contexts:" + zipEntry.getName(), keyword);
                 keywordMap.put(keyword, newFilesSet);
             }

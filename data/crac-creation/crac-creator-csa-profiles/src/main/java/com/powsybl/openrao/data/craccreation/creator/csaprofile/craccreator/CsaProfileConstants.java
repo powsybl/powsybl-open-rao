@@ -20,17 +20,18 @@ public final class CsaProfileConstants {
     /**
      * CSA Profiles keywords
      */
-    public enum CsaProfileKeywords {
+    public enum CsaProfileKeyword {
         ASSESSED_ELEMENT("AE"),
         CONTINGENCY("CO"),
         EQUIPMENT_RELIABILITY("ER"),
         REMEDIAL_ACTION("RA"),
         STEADY_STATE_INSTRUCTION("SSI"),
-        STEADY_STATE_HYPOTHESIS("SSH");
+        STEADY_STATE_HYPOTHESIS("SSH"),
+        CGMES("CGMES");
 
         private final String keyword;
 
-        CsaProfileKeywords(String keyword) {
+        CsaProfileKeyword(String keyword) {
             this.keyword = keyword;
         }
 
@@ -240,7 +241,6 @@ public final class CsaProfileConstants {
     public static final String REQUEST_ROTATING_MACHINE_ACTION = "rotatingMachineAction";
     public static final String REQUEST_SHUNT_COMPENSATOR_MODIFICATION = "shuntCompensatorModification";
     public static final String REQUEST_TAP_POSITION_ACTION = "tapPositionAction";
-    public static final String CGMES = "CGMES";
     public static final String REQUEST_OPERATIONAL_LIMIT_VALUE = "value";
     public static final String REQUEST_VOLTAGE_ANGLE_LIMIT_NORMAL_VALUE = "normalValue";
     public static final String REQUEST_OPERATIONAL_LIMIT_TERMINAL = "terminal";

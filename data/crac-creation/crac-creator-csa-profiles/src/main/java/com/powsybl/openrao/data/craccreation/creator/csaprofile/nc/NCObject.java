@@ -6,15 +6,9 @@
  */
 package com.powsybl.openrao.data.craccreation.creator.csaprofile.nc;
 
-import com.powsybl.triplestore.api.PropertyBag;
-
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
 public interface NCObject {
     String mrid();
-
-    static NCObject fromPropertyBag(PropertyBag propertyBag) {
-        return null;
-    }
 }

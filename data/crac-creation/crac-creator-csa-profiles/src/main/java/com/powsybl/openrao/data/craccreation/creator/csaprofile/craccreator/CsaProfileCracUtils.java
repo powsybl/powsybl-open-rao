@@ -94,7 +94,7 @@ public final class CsaProfileCracUtils {
         return isValidInterval(importTimestamp, startTime, endTime);
     }
 
-    public static boolean checkProfileKeyword(PropertyBag propertyBag, CsaProfileConstants.CsaProfileKeywords csaProfileKeyword) {
+    public static boolean checkProfileKeyword(PropertyBag propertyBag, CsaProfileConstants.CsaProfileKeyword csaProfileKeyword) {
         String keyword = propertyBag.get(CsaProfileConstants.REQUEST_HEADER_KEYWORD);
         return csaProfileKeyword.toString().equals(keyword);
     }
