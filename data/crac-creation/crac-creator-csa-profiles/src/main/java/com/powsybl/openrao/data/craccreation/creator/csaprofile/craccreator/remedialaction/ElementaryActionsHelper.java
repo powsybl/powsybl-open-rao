@@ -8,6 +8,7 @@ package com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.rem
 
 import com.powsybl.openrao.data.craccreation.creator.api.ImportStatus;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileConstants;
+import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.NcAggregator;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.nc.AssessedElementWithRemedialAction;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.nc.ContingencyWithRemedialAction;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.nc.GridStateAlterationCollection;
@@ -65,7 +66,7 @@ public class ElementaryActionsHelper {
                                    Set<ShuntCompensatorModification> nativeShuntCompensatorModifications,
                                    Set<TapPositionAction> nativeTapPositionActions,
                                    Set<RemedialActionGroup> nativeRemedialActionGroups,
-                                   Set<RemedialActionDependency> nativeRemedialActionDependency) {
+                                   Set<RemedialActionDependency> nativeRemedialActionDependencies) {
         this.nativeRemedialActionGroups = nativeRemedialActionGroups;
         this.nativeGridStateAlterationRemedialActions = nativeGridStateAlterationRemedialActions;
         this.nativeSchemeRemedialActions = nativeSchemeRemedialActions;
@@ -74,10 +75,10 @@ public class ElementaryActionsHelper {
         this.nativeGridStateAlterationCollections = nativeGridStateAlterationCollections;
         this.nativeAssessedElementWithRemedialActions = nativeAssessedElementWithRemedialActions;
 
-        this.nativeRemedialActionDependencyPerNativeRemedialActionGroup = mapRemedialActionDependenciesToRemedialActionGroups(nativeRemedialActionDependency);
+        this.nativeRemedialActionDependencyPerNativeRemedialActionGroup = new NcAggregator<>(RemedialActionDependency::dependingRemedialActionGroup).aggregate(nativeRemedialActionDependencies);
 
-        this.nativeContingencyWithRemedialActionPerNativeRemedialAction = mapContingencyWithRemedialActionToRemedialAction(nativeContingencyWithRemedialActions);
-        this.nativeStaticPropertyRangesPerNativeGridStateAlteration = mapStaticPropertyRangesToGridStateAlterations(nativeStaticPropertyRanges); // the id here is the id of the subclass of gridStateAlteration (tapPositionAction, RotatingMachine, ..)
+        this.nativeContingencyWithRemedialActionPerNativeRemedialAction = new NcAggregator<>(ContingencyWithRemedialAction::remedialAction).aggregate(nativeContingencyWithRemedialActions);
+        this.nativeStaticPropertyRangesPerNativeGridStateAlteration = new NcAggregator<>(StaticPropertyRange::gridStateAlteration).aggregate(nativeStaticPropertyRanges); // the id here is the id of the subclass of gridStateAlteration (tapPositionAction, RotatingMachine, ..)
 
         this.nativeTopologyActionsPerNativeRemedialAction = mapTopologyActionsToRemedialActions(nativeTopologyActions, false);
         this.nativeRotatingMachineActionsPerNativeRemedialAction = mapRotatingMachineActionsToRemedialActions(nativeRotatingMachineActions, false);
@@ -89,15 +90,6 @@ public class ElementaryActionsHelper {
         this.nativeShuntCompensatorModificationsPerNativeRemedialActionAuto = mapShuntCompensatorModificationsToRemedialActions(nativeShuntCompensatorModifications, true);
         this.nativeTapPositionActionsPerNativeRemedialActionAuto = mapTapPositionActionsToRemedialActions(nativeTapPositionActions, true);
 
-    }
-
-    private Map<String, Set<StaticPropertyRange>> mapStaticPropertyRangesToGridStateAlterations(Set<StaticPropertyRange> nativeStaticPropertyRanges) {
-        Map<String, Set<StaticPropertyRange>> staticPropertyRangePerGridStateAlteration = new HashMap<>();
-        for (StaticPropertyRange nativeStaticPropertyRange : nativeStaticPropertyRanges) {
-            Set<StaticPropertyRange> staticPropertyRanges = staticPropertyRangePerGridStateAlteration.computeIfAbsent(nativeStaticPropertyRange.gridStateAlteration(), k -> new HashSet<>());
-            staticPropertyRanges.add(nativeStaticPropertyRange);
-        }
-        return staticPropertyRangePerGridStateAlteration;
     }
 
     private Map<String, Set<TopologyAction>> mapTopologyActionsToRemedialActions(Set<TopologyAction> nativeTopologyActions, boolean autoRemedialAction) {
@@ -146,24 +138,6 @@ public class ElementaryActionsHelper {
             }
         }
         return tapPositionActionPerRemedialAction;
-    }
-
-    private Map<String, Set<ContingencyWithRemedialAction>> mapContingencyWithRemedialActionToRemedialAction(Set<ContingencyWithRemedialAction> nativeContingencyWithRemedialActions) {
-        Map<String, Set<ContingencyWithRemedialAction>> contingencyWithRemedialActionsPerRemedialAction = new HashMap<>();
-        for (ContingencyWithRemedialAction nativeContingencyWithRemedialAction : nativeContingencyWithRemedialActions) {
-            Set<ContingencyWithRemedialAction> contingencies = contingencyWithRemedialActionsPerRemedialAction.computeIfAbsent(nativeContingencyWithRemedialAction.remedialAction(), k -> new HashSet<>());
-            contingencies.add(nativeContingencyWithRemedialAction);
-        }
-        return contingencyWithRemedialActionsPerRemedialAction;
-    }
-
-    private Map<String, Set<RemedialActionDependency>> mapRemedialActionDependenciesToRemedialActionGroups(Set<RemedialActionDependency> nativeRemedialActionDependencies) {
-        Map<String, Set<RemedialActionDependency>> remedialActionDependenciesPerRemedialActionGroup = new HashMap<>();
-        for (RemedialActionDependency nativeRemedialActionDependency : nativeRemedialActionDependencies) {
-            Set<RemedialActionDependency> remedialActionDependencies = remedialActionDependenciesPerRemedialActionGroup.computeIfAbsent(nativeRemedialActionDependency.dependingRemedialActionGroup(), k -> new HashSet<>());
-            remedialActionDependencies.add(nativeRemedialActionDependency);
-        }
-        return remedialActionDependenciesPerRemedialActionGroup;
     }
 
     public Map<String, Set<RemedialActionDependency>> getNativeRemedialActionDependencyPerNativeRemedialActionGroup() {

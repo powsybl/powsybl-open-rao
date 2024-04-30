@@ -13,6 +13,7 @@ import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.openrao.data.cracapi.ContingencyAdder;
 import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.craccreation.creator.api.ImportStatus;
+import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.NcAggregator;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileCracCreationContext;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileElementaryCreationContext;
 import com.powsybl.iidm.network.Network;
@@ -21,7 +22,6 @@ import com.powsybl.openrao.data.craccreation.creator.csaprofile.nc.ContingencyEq
 import com.powsybl.openrao.data.craccreation.util.OpenRaoImportException;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -47,18 +47,9 @@ public class CsaProfileContingencyCreator {
         this.crac = crac;
         this.network = network;
         this.nativeContingencies = nativeContingencies;
-        this.nativeContingencyEquipmentsPerNativeContingency = mapContingencyEquipmentsToContingency(nativeContingencyEquipments);
+        this.nativeContingencyEquipmentsPerNativeContingency = new NcAggregator<>(ContingencyEquipment::contingency).aggregate(nativeContingencyEquipments);
         this.cracCreationContext = cracCreationContext;
         this.createAndAddContingencies();
-    }
-
-    private static Map<String, Set<ContingencyEquipment>> mapContingencyEquipmentsToContingency(Set<ContingencyEquipment> nativeContingencyEquipments) {
-        Map<String, Set<ContingencyEquipment>> equipmentsPerContingency = new HashMap<>();
-        for (ContingencyEquipment nativeContingencyEquipment : nativeContingencyEquipments) {
-            Set<ContingencyEquipment> equipments = equipmentsPerContingency.computeIfAbsent(nativeContingencyEquipment.contingency(), k -> new HashSet<>());
-            equipments.add(nativeContingencyEquipment);
-        }
-        return equipmentsPerContingency;
     }
 
     private void createAndAddContingencies() {

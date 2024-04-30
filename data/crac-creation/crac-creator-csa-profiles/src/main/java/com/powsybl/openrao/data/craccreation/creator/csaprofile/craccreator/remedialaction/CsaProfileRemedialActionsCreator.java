@@ -17,6 +17,7 @@ import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaP
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileCracCreationContext;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileCracUtils;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileElementaryCreationContext;
+import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.NcAggregator;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.nc.AssessedElement;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.nc.AssessedElementWithRemedialAction;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.nc.ContingencyWithRemedialAction;
@@ -45,8 +46,8 @@ public class CsaProfileRemedialActionsCreator {
         this.elementaryActionsHelper = elementaryActionsHelper;
         this.networkActionCreator = new NetworkActionCreator(this.crac, network);
         this.pstRangeActionCreator = new PstRangeActionCreator(this.crac, network);
-        Map<String, Set<AssessedElementWithRemedialAction>> linkedAeWithRa = mapAssessedElementsToRemedialActions(nativeAssessedElementWithRemedialActions);
-        Map<String, Set<ContingencyWithRemedialAction>> linkedCoWithRa = mapContingenciesToRemedialActions(nativeContingencyWithRemedialActions);
+        Map<String, Set<AssessedElementWithRemedialAction>> linkedAeWithRa = new NcAggregator<>(AssessedElementWithRemedialAction::remedialAction).aggregate(nativeAssessedElementWithRemedialActions);
+        Map<String, Set<ContingencyWithRemedialAction>> linkedCoWithRa = new NcAggregator<>(ContingencyWithRemedialAction::remedialAction).aggregate(nativeContingencyWithRemedialActions);
         createRemedialActions(nativeAssessedElements, linkedAeWithRa, linkedCoWithRa, false, spsMaxTimeToImplementThreshold, cnecCreationContexts);
         createRemedialActions(nativeAssessedElements, linkedAeWithRa, linkedCoWithRa, true, spsMaxTimeToImplementThreshold, cnecCreationContexts);
         // standaloneRaIdsImplicatedIntoAGroup contain ids of Ra's depending on a group whether the group is imported or not
@@ -54,24 +55,6 @@ public class CsaProfileRemedialActionsCreator {
         standaloneRaIdsImplicatedIntoAGroup.forEach(crac::removeRemedialAction);
         standaloneRaIdsImplicatedIntoAGroup.forEach(importedRaId -> contextByRaId.remove(importedRaId));
         this.cracCreationContext.setRemedialActionCreationContexts(new HashSet<>(contextByRaId.values()));
-    }
-
-    private Map<String, Set<AssessedElementWithRemedialAction>> mapAssessedElementsToRemedialActions(Set<AssessedElementWithRemedialAction> nativeAssessedElementWithRemedialActions) {
-        Map<String, Set<AssessedElementWithRemedialAction>> assessedElementsPerRemedialAction = new HashMap<>();
-        for (AssessedElementWithRemedialAction nativeAssessedElementWithRemedialAction : nativeAssessedElementWithRemedialActions) {
-            Set<AssessedElementWithRemedialAction> assessedElementWithRemedialActions = assessedElementsPerRemedialAction.computeIfAbsent(nativeAssessedElementWithRemedialAction.remedialAction(), k -> new HashSet<>());
-            assessedElementWithRemedialActions.add(nativeAssessedElementWithRemedialAction);
-        }
-        return assessedElementsPerRemedialAction;
-    }
-
-    private Map<String, Set<ContingencyWithRemedialAction>> mapContingenciesToRemedialActions(Set<ContingencyWithRemedialAction> nativeContingencyWithRemedialActions) {
-        Map<String, Set<ContingencyWithRemedialAction>> contingenciesPerRemedialAction = new HashMap<>();
-        for (ContingencyWithRemedialAction nativeContingencyWithRemedialAction : nativeContingencyWithRemedialActions) {
-            Set<ContingencyWithRemedialAction> contingencyWithRemedialActions = contingenciesPerRemedialAction.computeIfAbsent(nativeContingencyWithRemedialAction.remedialAction(), k -> new HashSet<>());
-            contingencyWithRemedialActions.add(nativeContingencyWithRemedialAction);
-        }
-        return contingenciesPerRemedialAction;
     }
 
     private void createRemedialActions(Set<AssessedElement> nativeAssessedElements, Map<String, Set<AssessedElementWithRemedialAction>> linkedAeWithRa, Map<String, Set<ContingencyWithRemedialAction>> linkedCoWithRa, boolean isSchemeRemedialAction, int spsMaxTimeToImplementThreshold, Set<CsaProfileElementaryCreationContext> cnecCreationContexts) {

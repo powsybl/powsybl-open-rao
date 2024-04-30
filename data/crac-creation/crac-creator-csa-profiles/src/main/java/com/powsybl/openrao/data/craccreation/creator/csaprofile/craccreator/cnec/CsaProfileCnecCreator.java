@@ -11,6 +11,7 @@ import com.powsybl.contingency.Contingency;
 import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.cracapi.cnec.*;
 import com.powsybl.openrao.data.craccreation.creator.api.ImportStatus;
+import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.NcAggregator;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.nc.CurrentLimit;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.nc.VoltageLimit;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileConstants;
@@ -46,7 +47,7 @@ public class CsaProfileCnecCreator {
         this.crac = crac;
         this.network = network;
         this.nativeAssessedElements = nativeAssessedElements;
-        this.nativeAssessedElementWithContingenciesPerNativeAssessedElement = mapAssessedElementWithContingencyToAssessedElement(nativeAssessedElementsWithContingencies);
+        this.nativeAssessedElementWithContingenciesPerNativeAssessedElement = new NcAggregator<>(AssessedElementWithContingency::assessedElement).aggregate(nativeAssessedElementsWithContingencies);
         this.nativeCurrentLimitPerId = nativeCurrentLimits.stream().collect(Collectors.toMap(CurrentLimit::mrid, currentLimit -> currentLimit));
         this.nativeVoltageLimitPerId = nativeVoltageLimits.stream().collect(Collectors.toMap(VoltageLimit::mrid, voltageLimit -> voltageLimit));
         this.nativeVoltageAngleLimitPerId = nativeVoltageAngleLimits.stream().collect(Collectors.toMap(VoltageAngleLimit::mrid, voltageAngleLimit -> voltageAngleLimit));
@@ -54,15 +55,6 @@ public class CsaProfileCnecCreator {
         this.defaultMonitoredSides = defaultMonitoredSides;
         this.regionEic = regionEic;
         this.createAndAddCnecs();
-    }
-
-    private static Map<String, Set<AssessedElementWithContingency>> mapAssessedElementWithContingencyToAssessedElement(Set<AssessedElementWithContingency> nativeAssessedElementsWithContingencies) {
-        Map<String, Set<AssessedElementWithContingency>> assessedElementWithContingencyPerAssessedElement = new HashMap<>();
-        for (AssessedElementWithContingency nativeAssessedElementsWithContingency : nativeAssessedElementsWithContingencies) {
-            Set<AssessedElementWithContingency> contingencies = assessedElementWithContingencyPerAssessedElement.computeIfAbsent(nativeAssessedElementsWithContingency.assessedElement(), k -> new HashSet<>());
-            contingencies.add(nativeAssessedElementsWithContingency);
-        }
-        return assessedElementWithContingencyPerAssessedElement;
     }
 
     private void createAndAddCnecs() {
