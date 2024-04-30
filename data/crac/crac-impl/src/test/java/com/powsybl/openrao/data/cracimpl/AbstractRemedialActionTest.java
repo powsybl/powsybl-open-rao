@@ -46,7 +46,7 @@ public class AbstractRemedialActionTest {
 
         assertEquals(Set.of(crac.getCnec("cnec1stateCurativeContingency1"), crac.getCnec("cnec1stateCurativeContingency2")),
             na1.getFlowCnecsConstrainingForOneUsageRule(na1.getUsageRules().iterator().next(), crac.getFlowCnecs(), network));
-        
+
         RemedialAction<?> na2 = crac.newNetworkAction().withId("na2")
             .newTopologicalAction().withNetworkElement("ne1").withActionType(ActionType.OPEN).add()
             .newOnFlowConstraintInCountryUsageRule().withInstant(CURATIVE_INSTANT_ID).withContingency("Contingency FR1 FR3").withCountry(Country.FR).withUsageMethod(UsageMethod.AVAILABLE).add()

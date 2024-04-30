@@ -695,20 +695,29 @@ Two types of remedial action exists in OpenRAO:
 - **Range Actions**: they have the specificity of having a degree of freedom, a set-point. When a Range Action is
   activated, it is activated at a given value of its set-point. PSTs are a typical example of Range Actions.
 
-Both Network Actions and Range Actions have usage rules which define the conditions under which they can be activated.
-The usage rules which exist in OpenRAO are:
-- the **FreeToUse** usage rule (defined for a specific [instant](#instants-and-states)): the remedial action is available in all
+Both Network Actions and Range Actions have usage rules which define the conditions under which they can be activated.  
+A usage rule contains a usage method which can be activated under certain conditions. The usage methods in OpenRAO are: 
+- **UNDEFINED**: this means that the usage rule cannot decide if the remedial action can be used.
+- **AVAILABLE**: when activated, this means that the remedial action is available for the RAO to assess. The RAO can 
+  choose to activate it if it finds that it is optimal. Takes precedence over the above usage method.
+- **FORCED**: when activated, this means that the remedial action must be applied by the RAO (usually used for automatons).
+  Takes precedence over the above usage methods.
+- **UNAVAILABLE**: when activated, this means that the remedial action cannot be used. Takes precedence over the above usage methods.  
+
+OpenRAO has the following usage rules with their activation conditions:
+- the **FreeToUse** usage rule (defined for a specific [instant](#instants-and-states)): the usage method is activated in all
   the states of a given instant.
-- the **OnState** usage rule (defined for a specific [state](#instants-and-states)): the remedial action is available in a given state.
-- the **OnFlowConstraintInCountry** usage rule (defined for a specific [Country](https://github.com/powsybl/powsybl-core/blob/main/iidm/iidm-api/src/main/java/com/powsybl/iidm/network/Country.java)
-  and a specific [instant](#instants-and-states)): the remedial action is available if any FlowCnec in the given country is
-  constrained (ie has a flow greater than one of its thresholds) at the given instant.
+- the **OnState** usage rule (defined for a specific [state](#instants-and-states)): the usage method is activated in a given state.
+- the **OnFlowConstraintInCountry** usage rule (defined for a specific [Country](https://github.com/powsybl/powsybl-core/blob/main/iidm/iidm-api/src/main/java/com/powsybl/iidm/network/Country.java), a specific [instant](#instants-and-states)), 
+  and an optional [contingency](#contingencies): the usage method is activated if any FlowCnec in the given country is
+  constrained (ie has a flow greater than one of its thresholds) at the given instant. If a contingency is defined, then 
+  only constraints on FlowCnecs with the same contingency count.  
 - the **OnFlowConstraint** usage rule (defined for a specific [instant](#instants-and-states) and a specific [FlowCnec](#flow-cnecs)):
-  the remedial action is available if the given FlowCnec is constrained at the given instant.
+  the usage method is activated if the given FlowCnec is constrained at the given instant.
 - the **OnAngleConstraint** usage rule (defined for a specific [instant](#instants-and-states) and a specific [AngleCnec](#angle-cnecs)):
-  the remedial action is available if the given AngleCnec is constrained at the given instant.
+  the usage method is activated if the given AngleCnec is constrained at the given instant.
 - the **OnVoltageConstraint** usage rule (defined for a specific [instant](#instants-and-states) and a specific [VoltageCnec](#voltage-cnecs)):
-  the remedial action is available if the given VoltageCnec is constrained at the given instant.
+  the usage method is activated if the given VoltageCnec is constrained at the given instant.
 
 
 A remedial action has an operator, which is the name of the TSO which operates the remedial action.
@@ -741,6 +750,7 @@ crac.newNetworkAction()
     .newOnFlowConstraintInCountryUsageRule()
         .withInstant("preventive")
         .withCountry(Country.FR)
+        .withContingency("contingency-id")
         .add();
 
 crac.newNetworkAction()
@@ -774,6 +784,7 @@ Complete examples of Network and Range Action in Json format are given in the fo
 } ],
 "onFlowConstraintInCountryUsageRules" : [ {
     "instant" : "preventive",
+    "contingencyId" : "contingency-id",
     "country" : "FR"
 } ],
 "onAngleConstraintUsageRules" : [ {
@@ -796,6 +807,7 @@ Complete examples of Network and Range Action in Json format are given in the fo
 🔴 **contingency**: must be the id of a contingency that exists in the CRAC  
 <ins>**For OnFlowConstraintInCountry usage rules**</ins>  
 🔴 **instant**  
+🔵 **contingency**: must be the id of a contingency that exists in the CRAC  
 🔴 **country**: must be the [alpha-2 code of a country](https://github.com/powsybl/powsybl-core/blob/main/iidm/iidm-api/src/main/java/com/powsybl/iidm/network/Country.java)  
 <ins>**For OnFlowConstraint usage rules**</ins>  
 🔴 **instant**  
