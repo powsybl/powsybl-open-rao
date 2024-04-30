@@ -16,7 +16,7 @@ The source code of this package is divided in four main parts:
 2. The [features](src/test/resources/features) directory contains the "feature" files, that contain the actual description 
    of the features, written in [Gerkin](https://cucumber.io/docs/gherkin/) syntax (see [Features](#features)).
 3. The [files](src/test/resources/files) directory contains the file resources for the tests (CRACs, Networks, etc) 
-   seperated according to their business type.
+   separated according to their business type.
 4. The [java source](src/test/java/com/powsybl/openrao/tests) directory contains code that ["glues"](#glue)
    the [Gerkin features](#features) to the actual OpenRAO code.
 
@@ -54,7 +54,7 @@ public void iExportCoreCne(String timestamp) throws IOException {
 }
 ```
 The `@When(...)` lines glues this `iExportCoreCne` method to the Gerkin phrase `I export CORE CNE at {string}`, 
-where `{string}` is a Gerkin input argument (that representes the timestamp).  
+where `{string}` is a Gerkin input argument (that represents the timestamp).  
 As you can see, the body of the `iExportCoreCne` method simply calls the CORE CNE API of OpenRAO.  
 
 OpenRAO's glue code is located in the [test](src/test/java/com/powsybl/openrao/tests) directory.
@@ -62,7 +62,7 @@ OpenRAO's glue code is located in the [test](src/test/java/com/powsybl/openrao/t
 ## Contributing
 If your development changes a behavior, you may need to update the tests.  
 - If you add a new behavior to OpenRAO, try to add new "scenarios" that test this behavior, in different contexts
-- If you changed or improved some behavior and broke a test, you have to update it. Whenever possible, instead of only 
+- If you changed or improved some behavior and broke a test, you would have to update it. Whenever possible, instead of only 
   changing a given test, try to duplicate it in order to test the old behavior (if it is still possible, using a 
   specific configuration), and the new one, in two different scenarios.
 
