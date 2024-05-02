@@ -47,6 +47,7 @@ import java.util.stream.Collectors;
 
 import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.*;
 import static com.powsybl.openrao.data.raoresultapi.ComputationStatus.DEFAULT;
+import static com.powsybl.openrao.data.raoresultapi.ComputationStatus.FAILURE;
 import static com.powsybl.openrao.searchtreerao.commons.RaoLogger.formatDouble;
 import static com.powsybl.openrao.searchtreerao.commons.RaoUtil.applyRemedialActions;
 
@@ -502,8 +503,14 @@ public class CastorFullOptimization {
                                                     PerimeterResult firstPreventiveResult,
                                                     Map<State, OptimizationResult> postContingencyResults) {
         // Run 2nd preventive RAO
-        SecondPreventiveRaoResult secondPreventiveRaoResult = runSecondPreventiveRao(raoInput, parameters, stateTree, toolProvider, prePerimeterSensitivityAnalysis, initialOutput, firstPreventiveResult, postContingencyResults);
-        if (secondPreventiveRaoResult.postPraSensitivityAnalysisOutput.getSensitivityStatus() == ComputationStatus.FAILURE) {
+        SecondPreventiveRaoResult secondPreventiveRaoResult;
+        try {
+            secondPreventiveRaoResult = runSecondPreventiveRao(raoInput, parameters, stateTree, toolProvider, prePerimeterSensitivityAnalysis, initialOutput, firstPreventiveResult, postContingencyResults);
+            if (secondPreventiveRaoResult.postPraSensitivityAnalysisOutput.getSensitivityStatus() == ComputationStatus.FAILURE) {
+                return new FailedRaoResultImpl();
+            }
+        } catch (OpenRaoException e) {
+            BUSINESS_LOGS.error(e.getMessage());
             return new FailedRaoResultImpl();
         }
 
@@ -626,12 +633,12 @@ public class CastorFullOptimization {
         }
 
         // Run a first sensitivity computation using initial network and applied CRAs
-        // Do not exclude contingencies with failed sensi : by including them in second preventive optimization,
-        // the RAO will try to apply PRAs that prevent divergence on these perimeters
+        // If any sensitivity computation fails, fail and fall back to 1st preventive result
+        // TODO: can we / do we want to improve this behavior by excluding the failed contingencies?
         PrePerimeterResult sensiWithPostContingencyRemedialActions = prePerimeterSensitivityAnalysis.runBasedOnInitialResults(network, crac, initialOutput, initialOutput, stateTree.getOperatorsNotSharingCras(), appliedArasAndCras);
-        if (sensiWithPostContingencyRemedialActions.getSensitivityStatus() == ComputationStatus.FAILURE) {
-            BUSINESS_LOGS.error("Systematic sensitivity analysis after curative remedial actions before second preventive optimization failed");
-            return new SecondPreventiveRaoResult(null, sensiWithPostContingencyRemedialActions, remedialActionsExcluded, appliedArasAndCras);
+        if (sensiWithPostContingencyRemedialActions.getSensitivityStatus() == FAILURE ||
+            appliedArasAndCras.getStatesWithRa(network).stream().anyMatch(state -> sensiWithPostContingencyRemedialActions.getSensitivityStatus(state) == FAILURE)) {
+            throw new OpenRaoException("Systematic sensitivity analysis after curative remedial actions before second preventive optimization failed");
         }
         RaoLogger.logSensitivityAnalysisResults("Systematic sensitivity analysis after curative remedial actions before second preventive optimization: ",
             prePerimeterSensitivityAnalysis.getObjectiveFunction(),
