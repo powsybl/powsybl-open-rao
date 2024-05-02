@@ -64,7 +64,7 @@ Finally, automatic range actions are applied one by one, as long as some of the 
 actions include PSTs and HVDCs. The remedial actions' speed determines the order in which they are applied: the fastest
 range actions are simulated first. Aligned range actions are simulated simultaneously.
 
-> Note that auto PST range actions must have a FORCED usage method. However, the interpretation of FORCED for PSTs is somewhat different of what it means for network actions. Indeed, here, FORCED means that we need to keep on applying the PST range actions as long as the network is not secure.
+> Note that auto range actions must have a FORCED usage method.  
 
 Automatic range actions' setpoint is computed using the results of a sensitivity analysis computation, during which the
 sensitivity $\sigma$ of a range action on a CNEC is computed. By focusing on the worse overloaded CNEC, we can compute
