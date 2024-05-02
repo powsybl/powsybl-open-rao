@@ -20,13 +20,13 @@ import static org.junit.jupiter.api.Assertions.*;
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
 public class RedispatchActionWithAutoGlskTest {
-    private final double SHIFT_TOLERANCE = 0.01;
+    private static final double SHIFT_TOLERANCE = 0.01;
 
     private Network network;
 
     @BeforeEach
     public void setUp() {
-        String networkFileName= "TestCase_with_swe_countries.xiidm";
+        String networkFileName = "TestCase_with_swe_countries.xiidm";
         network = Network.read(networkFileName, getClass().getResourceAsStream("/" + networkFileName));
         // Initial situation in ES (4 generators, total production of 9500 MW):
         // - EES1AA1_generator produces 1500 MW (15.79 %)
