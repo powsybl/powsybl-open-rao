@@ -10,6 +10,7 @@ package com.powsybl.openrao.data.craccreation.creator.api;
 import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.read.ListAppender;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.openrao.commons.logs.RaoBusinessLogs;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -34,54 +35,54 @@ class CracCreationReportTest {
 
     @Test
     void testError() {
-        cracCreationReport.error("message");
+        cracCreationReport.error("message", ReportNode.NO_OP);
         assertEquals(1, cracCreationReport.getReport().size());
         assertEquals("[ERROR] message", cracCreationReport.getReport().get(0));
     }
 
     @Test
     void testRemoved() {
-        cracCreationReport.removed("message");
+        cracCreationReport.removed("message", ReportNode.NO_OP);
         assertEquals(1, cracCreationReport.getReport().size());
         assertEquals("[REMOVED] message", cracCreationReport.getReport().get(0));
     }
 
     @Test
     void testAdded() {
-        cracCreationReport.added("message");
+        cracCreationReport.added("message", ReportNode.NO_OP);
         assertEquals(1, cracCreationReport.getReport().size());
         assertEquals("[ADDED] message", cracCreationReport.getReport().get(0));
     }
 
     @Test
     void testAltered() {
-        cracCreationReport.altered("message");
+        cracCreationReport.altered("message", ReportNode.NO_OP);
         assertEquals(1, cracCreationReport.getReport().size());
         assertEquals("[ALTERED] message", cracCreationReport.getReport().get(0));
     }
 
     @Test
     void testWarn() {
-        cracCreationReport.warn("message");
+        cracCreationReport.warn("message", ReportNode.NO_OP);
         assertEquals(1, cracCreationReport.getReport().size());
         assertEquals("[WARN] message", cracCreationReport.getReport().get(0));
     }
 
     @Test
     void testInfo() {
-        cracCreationReport.info("message");
+        cracCreationReport.info("message", ReportNode.NO_OP);
         assertEquals(1, cracCreationReport.getReport().size());
         assertEquals("[INFO] message", cracCreationReport.getReport().get(0));
     }
 
     @Test
     void testTextReport() {
-        cracCreationReport.error("message1");
-        cracCreationReport.info("message2");
-        cracCreationReport.altered("message3");
-        cracCreationReport.warn("message4");
-        cracCreationReport.info("message5");
-        cracCreationReport.removed("message6");
+        cracCreationReport.error("message1", ReportNode.NO_OP);
+        cracCreationReport.info("message2", ReportNode.NO_OP);
+        cracCreationReport.altered("message3", ReportNode.NO_OP);
+        cracCreationReport.warn("message4", ReportNode.NO_OP);
+        cracCreationReport.info("message5", ReportNode.NO_OP);
+        cracCreationReport.removed("message6", ReportNode.NO_OP);
         assertEquals(6, cracCreationReport.getReport().size());
         assertEquals("[ERROR] message1", cracCreationReport.getReport().get(0));
         assertEquals("[INFO] message2", cracCreationReport.getReport().get(1));
@@ -97,8 +98,8 @@ class CracCreationReportTest {
 
     @Test
     void testCopyConstructor() {
-        cracCreationReport.error("message1");
-        cracCreationReport.info("message2");
+        cracCreationReport.error("message1", ReportNode.NO_OP);
+        cracCreationReport.info("message2", ReportNode.NO_OP);
 
         CracCreationReport cracCreationReport2 = new CracCreationReport(cracCreationReport);
         assertNotSame(cracCreationReport.getReport(), cracCreationReport2.getReport());
@@ -115,8 +116,8 @@ class CracCreationReportTest {
 
     @Test
     void testPrintReport() {
-        cracCreationReport.warn("message1");
-        cracCreationReport.error("message2");
+        cracCreationReport.warn("message1", ReportNode.NO_OP);
+        cracCreationReport.error("message2", ReportNode.NO_OP);
 
         ListAppender<ILoggingEvent> listAppender = getLogs(RaoBusinessLogs.class);
         cracCreationReport.printCreationReport();

@@ -6,6 +6,7 @@
  */
 package com.powsybl.openrao.data.craccreation.creator.cse;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.cracapi.Instant;
@@ -42,10 +43,10 @@ class CseCracCreatorWithMneTest {
     private void setUp(String cracFileName, String networkFileName) {
         InputStream is = getClass().getResourceAsStream(cracFileName);
         CseCracImporter importer = new CseCracImporter();
-        CseCrac cseCrac = importer.importNativeCrac(is);
+        CseCrac cseCrac = importer.importNativeCrac(is, ReportNode.NO_OP);
         Network network = Network.read(networkFileName, getClass().getResourceAsStream(networkFileName));
         CseCracCreator cseCracCreator = new CseCracCreator();
-        cracCreationContext = cseCracCreator.createCrac(cseCrac, network, offsetDateTime, parameters);
+        cracCreationContext = cseCracCreator.createCrac(cseCrac, network, offsetDateTime, parameters, ReportNode.NO_OP);
         preventiveInstant = cracCreationContext.getCrac().getInstant(PREVENTIVE_INSTANT_ID);
         outageInstant = cracCreationContext.getCrac().getInstant(OUTAGE_INSTANT_ID);
         autoInstant = cracCreationContext.getCrac().getInstant(AUTO_INSTANT_ID);

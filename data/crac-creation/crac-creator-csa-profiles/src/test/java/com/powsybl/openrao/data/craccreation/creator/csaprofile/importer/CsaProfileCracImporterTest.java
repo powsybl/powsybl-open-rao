@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.data.craccreation.creator.csaprofile.importer;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.CsaProfileCrac;
 import com.powsybl.triplestore.api.PropertyBags;
 import org.junit.jupiter.api.Test;
@@ -37,7 +38,7 @@ class CsaProfileCracImporterTest {
     void testImportNativeCracWithoutSubdirectory() {
         CsaProfileCracImporter csaProfileCracImporter = new CsaProfileCracImporter();
         InputStream is1 = getClass().getResourceAsStream("/profiles/TestCaseWithoutSubdirectory.zip");
-        CsaProfileCrac csaProfileCrac = csaProfileCracImporter.importNativeCrac(is1);
+        CsaProfileCrac csaProfileCrac = csaProfileCracImporter.importNativeCrac(is1, ReportNode.NO_OP);
         assertNotNull(csaProfileCrac);
 
         PropertyBags contingencies = csaProfileCrac.getContingencies();

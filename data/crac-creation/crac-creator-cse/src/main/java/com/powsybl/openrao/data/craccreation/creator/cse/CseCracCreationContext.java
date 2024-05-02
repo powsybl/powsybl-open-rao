@@ -6,6 +6,7 @@
  */
 package com.powsybl.openrao.data.craccreation.creator.cse;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.craccreation.creator.api.CracCreationReport;
 import com.powsybl.openrao.data.craccreation.creator.api.ElementaryCreationContext;
@@ -96,12 +97,12 @@ public class CseCracCreationContext implements UcteCracCreationContext {
         contexts.stream().filter(ElementaryCreationContext::isAltered)
             .sorted(Comparator.comparing(ElementaryCreationContext::getNativeId))
             .forEach(context ->
-            creationReport.altered(String.format("%s \"%s\" was modified: %s. ", nativeTypeIdentifier, context.getNativeId(), context.getImportStatusDetail()))
+            creationReport.altered(String.format("%s \"%s\" was modified: %s. ", nativeTypeIdentifier, context.getNativeId(), context.getImportStatusDetail()), ReportNode.NO_OP)
         );
         contexts.stream().filter(context -> !context.isImported())
             .sorted(Comparator.comparing(ElementaryCreationContext::getNativeId))
             .forEach(context ->
-            creationReport.removed(String.format("%s \"%s\" was not imported: %s. %s.", nativeTypeIdentifier, context.getNativeId(), context.getImportStatus(), context.getImportStatusDetail()))
+            creationReport.removed(String.format("%s \"%s\" was not imported: %s. %s.", nativeTypeIdentifier, context.getNativeId(), context.getImportStatus(), context.getImportStatusDetail()), ReportNode.NO_OP)
         );
     }
 

@@ -6,6 +6,7 @@
  */
 package com.powsybl.openrao.data.craccreation.creator.fbconstraint.importer;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.craccreation.creator.fbconstraint.FbConstraint;
 import com.powsybl.openrao.data.craccreation.creator.fbconstraint.xsd.FlowBasedConstraintDocument;
@@ -54,7 +55,7 @@ public class FbConstraintImporter implements NativeCracImporter<FbConstraint> {
     }
 
     @Override
-    public FbConstraint importNativeCrac(InputStream inputStream) {
+    public FbConstraint importNativeCrac(InputStream inputStream, ReportNode reportNode) {
         try {
             byte[] bytes = getBytesFromInputStream(inputStream);
             int flowBasedDocumentVersion = flowBasedDocumentVersion(new ByteArrayInputStream(bytes));

@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider;
 import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.cracapi.InstantKind;
@@ -46,7 +47,7 @@ public class CsaProfileCracCreator implements CracCreator<CsaProfileCrac, CsaPro
         return "CsaProfileCrac";
     }
 
-    public CsaProfileCracCreationContext createCrac(CsaProfileCrac nativeCrac, Network network, OffsetDateTime offsetDateTime, CracCreationParameters cracCreationParameters) {
+    public CsaProfileCracCreationContext createCrac(CsaProfileCrac nativeCrac, Network network, OffsetDateTime offsetDateTime, CracCreationParameters cracCreationParameters, ReportNode reportNode) {
         CsaCracCreationParameters csaParameters = cracCreationParameters.getExtension(CsaCracCreationParameters.class);
         String regionEicCode = csaParameters.getCapacityCalculationRegionEicCode();
         Integer spsMaxTimeToImplementThreshold = csaParameters.getSpsMaxTimeToImplementThresholdInSeconds();

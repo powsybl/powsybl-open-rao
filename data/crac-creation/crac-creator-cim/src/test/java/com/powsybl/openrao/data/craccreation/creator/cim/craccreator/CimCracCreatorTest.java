@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.data.craccreation.creator.cim.craccreator;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.contingency.ContingencyElement;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.*;
@@ -83,9 +84,9 @@ class CimCracCreatorTest {
     private void setUp(String fileName, Network network, OffsetDateTime parametrableOffsetDateTime, CracCreationParameters cracCreationParameters) {
         InputStream is = getClass().getResourceAsStream(fileName);
         CimCracImporter cracImporter = new CimCracImporter();
-        CimCrac cimCrac = cracImporter.importNativeCrac(is);
+        CimCrac cimCrac = cracImporter.importNativeCrac(is, ReportNode.NO_OP);
         CimCracCreator cimCracCreator = new CimCracCreator();
-        cracCreationContext = cimCracCreator.createCrac(cimCrac, network, parametrableOffsetDateTime, cracCreationParameters);
+        cracCreationContext = cimCracCreator.createCrac(cimCrac, network, parametrableOffsetDateTime, cracCreationParameters, ReportNode.NO_OP);
         importedCrac = cracCreationContext.getCrac();
         if (!Objects.isNull(importedCrac)) {
             preventiveInstant = importedCrac.getInstant(PREVENTIVE_INSTANT_ID);
@@ -111,9 +112,9 @@ class CimCracCreatorTest {
 
         InputStream is = getClass().getResourceAsStream(fileName);
         CimCracImporter cracImporter = new CimCracImporter();
-        CimCrac cimCrac = cracImporter.importNativeCrac(is);
+        CimCrac cimCrac = cracImporter.importNativeCrac(is, ReportNode.NO_OP);
         CimCracCreator cimCracCreator = new CimCracCreator();
-        cracCreationContext = cimCracCreator.createCrac(cimCrac, network, parametrableOffsetDateTime, cracCreationParameters);
+        cracCreationContext = cimCracCreator.createCrac(cimCrac, network, parametrableOffsetDateTime, cracCreationParameters, ReportNode.NO_OP);
         importedCrac = cracCreationContext.getCrac();
         preventiveInstant = importedCrac.getInstant(PREVENTIVE_INSTANT_ID);
         autoInstant = importedCrac.getInstant(AUTO_INSTANT_ID);
@@ -130,9 +131,9 @@ class CimCracCreatorTest {
         Mockito.when(cimCracCreationParameters.getTimeseriesMrids()).thenReturn(Collections.emptySet());
         InputStream is = getClass().getResourceAsStream(fileName);
         CimCracImporter cracImporter = new CimCracImporter();
-        CimCrac cimCrac = cracImporter.importNativeCrac(is);
+        CimCrac cimCrac = cracImporter.importNativeCrac(is, ReportNode.NO_OP);
         CimCracCreator cimCracCreator = new CimCracCreator();
-        cracCreationContext = cimCracCreator.createCrac(cimCrac, network, parametrableOffsetDateTime, cracCreationParameters);
+        cracCreationContext = cimCracCreator.createCrac(cimCrac, network, parametrableOffsetDateTime, cracCreationParameters, ReportNode.NO_OP);
         importedCrac = cracCreationContext.getCrac();
         preventiveInstant = importedCrac.getInstant(PREVENTIVE_INSTANT_ID);
         autoInstant = importedCrac.getInstant(AUTO_INSTANT_ID);
@@ -148,9 +149,9 @@ class CimCracCreatorTest {
         Mockito.when(cimCracCreationParameters.getTimeseriesMrids()).thenReturn(timeseriesMrids);
         InputStream is = getClass().getResourceAsStream(fileName);
         CimCracImporter cracImporter = new CimCracImporter();
-        CimCrac cimCrac = cracImporter.importNativeCrac(is);
+        CimCrac cimCrac = cracImporter.importNativeCrac(is, ReportNode.NO_OP);
         CimCracCreator cimCracCreator = new CimCracCreator();
-        cracCreationContext = cimCracCreator.createCrac(cimCrac, network, parametrableOffsetDateTime, cracCreationParameters);
+        cracCreationContext = cimCracCreator.createCrac(cimCrac, network, parametrableOffsetDateTime, cracCreationParameters, ReportNode.NO_OP);
         importedCrac = cracCreationContext.getCrac();
         preventiveInstant = importedCrac.getInstant(PREVENTIVE_INSTANT_ID);
         autoInstant = importedCrac.getInstant(AUTO_INSTANT_ID);
@@ -1001,7 +1002,7 @@ class CimCracCreatorTest {
         // Check that CracCreator does not consume CimCrac and make it unusable again
         InputStream is = getClass().getResourceAsStream("/cracs/CIM_2_timeseries.xml");
         CimCracImporter cracImporter = new CimCracImporter();
-        CimCrac cimCrac = cracImporter.importNativeCrac(is);
+        CimCrac cimCrac = cracImporter.importNativeCrac(is, ReportNode.NO_OP);
 
         CracCreationParameters cracCreationParameters = new CracCreationParameters();
         cracCreationParameters.setDefaultMonitoredLineSide(CracCreationParameters.MonitoredLineSide.MONITOR_LINES_ON_LEFT_SIDE);
@@ -1010,12 +1011,12 @@ class CimCracCreatorTest {
         Mockito.when(cracCreationParameters.getExtension(CimCracCreationParameters.class)).thenReturn(cimCracCreationParameters);
 
         Mockito.when(cimCracCreationParameters.getTimeseriesMrids()).thenReturn(Set.of("TimeSeries1"));
-        Crac crac1 = new CimCracCreator().createCrac(cimCrac, baseNetwork, OffsetDateTime.parse("2021-04-01T23:00Z"), cracCreationParameters).getCrac();
+        Crac crac1 = new CimCracCreator().createCrac(cimCrac, baseNetwork, OffsetDateTime.parse("2021-04-01T23:00Z"), cracCreationParameters, ReportNode.NO_OP).getCrac();
         assertEquals(1, crac1.getContingencies().size());
         assertNotNull(crac1.getContingency("Co-1"));
 
         Mockito.when(cimCracCreationParameters.getTimeseriesMrids()).thenReturn(Set.of("TimeSeries2"));
-        Crac crac2 = new CimCracCreator().createCrac(cimCrac, baseNetwork, OffsetDateTime.parse("2021-04-01T23:00Z"), cracCreationParameters).getCrac();
+        Crac crac2 = new CimCracCreator().createCrac(cimCrac, baseNetwork, OffsetDateTime.parse("2021-04-01T23:00Z"), cracCreationParameters, ReportNode.NO_OP).getCrac();
         assertEquals(1, crac2.getContingencies().size());
         assertNotNull(crac2.getContingency("Co-2"));
     }

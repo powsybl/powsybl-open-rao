@@ -6,6 +6,7 @@
  */
 package com.powsybl.openrao.searchtreerao.searchtree.algorithms;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.commons.logs.OpenRaoLogger;
@@ -118,21 +119,21 @@ public class SearchTree {
             return CompletableFuture.completedFuture(rootLeaf);
         } else if (stopCriterionReached(rootLeaf)) {
             topLevelLogger.info("Stop criterion reached on {}", rootLeaf);
-            RaoLogger.logMostLimitingElementsResults(topLevelLogger, rootLeaf, parameters.getObjectiveFunction(), NUMBER_LOGGED_ELEMENTS_END_TREE);
+            RaoLogger.logMostLimitingElementsResults(topLevelLogger, rootLeaf, parameters.getObjectiveFunction(), NUMBER_LOGGED_ELEMENTS_END_TREE, ReportNode.NO_OP);
             logOptimizationSummary(rootLeaf);
             rootLeaf.finalizeOptimization();
             return CompletableFuture.completedFuture(rootLeaf);
         }
 
         TECHNICAL_LOGS.info("{}", rootLeaf);
-        RaoLogger.logMostLimitingElementsResults(TECHNICAL_LOGS, rootLeaf, parameters.getObjectiveFunction(), NUMBER_LOGGED_ELEMENTS_DURING_TREE);
+        RaoLogger.logMostLimitingElementsResults(TECHNICAL_LOGS, rootLeaf, parameters.getObjectiveFunction(), NUMBER_LOGGED_ELEMENTS_DURING_TREE, ReportNode.NO_OP);
 
         TECHNICAL_LOGS.info("Linear optimization on root leaf");
         optimizeLeaf(rootLeaf);
 
         topLevelLogger.info("{}", rootLeaf);
         RaoLogger.logRangeActions(TECHNICAL_LOGS, optimalLeaf, input.getOptimizationPerimeter(), null);
-        RaoLogger.logMostLimitingElementsResults(topLevelLogger, optimalLeaf, parameters.getObjectiveFunction(), NUMBER_LOGGED_ELEMENTS_DURING_TREE);
+        RaoLogger.logMostLimitingElementsResults(topLevelLogger, optimalLeaf, parameters.getObjectiveFunction(), NUMBER_LOGGED_ELEMENTS_DURING_TREE, ReportNode.NO_OP);
         logVirtualCostInformation(rootLeaf, "");
 
         if (stopCriterionReached(rootLeaf)) {
@@ -147,7 +148,7 @@ public class SearchTree {
 
         TECHNICAL_LOGS.info("Best leaf: {}", optimalLeaf);
         RaoLogger.logRangeActions(TECHNICAL_LOGS, optimalLeaf, input.getOptimizationPerimeter(), "Best leaf: ");
-        RaoLogger.logMostLimitingElementsResults(TECHNICAL_LOGS, optimalLeaf, parameters.getObjectiveFunction(), NUMBER_LOGGED_ELEMENTS_END_TREE);
+        RaoLogger.logMostLimitingElementsResults(TECHNICAL_LOGS, optimalLeaf, parameters.getObjectiveFunction(), NUMBER_LOGGED_ELEMENTS_END_TREE, ReportNode.NO_OP);
 
         logOptimizationSummary(optimalLeaf);
         optimalLeaf.finalizeOptimization();
@@ -191,7 +192,7 @@ public class SearchTree {
 
                     topLevelLogger.info("Search depth {} best leaf: {}", depth + 1, optimalLeaf);
                     RaoLogger.logRangeActions(TECHNICAL_LOGS, optimalLeaf, input.getOptimizationPerimeter(), String.format("Search depth %s best leaf: ", depth + 1));
-                    RaoLogger.logMostLimitingElementsResults(topLevelLogger, optimalLeaf, parameters.getObjectiveFunction(), NUMBER_LOGGED_ELEMENTS_DURING_TREE);
+                    RaoLogger.logMostLimitingElementsResults(topLevelLogger, optimalLeaf, parameters.getObjectiveFunction(), NUMBER_LOGGED_ELEMENTS_DURING_TREE, ReportNode.NO_OP);
                 } else {
                     topLevelLogger.info("No better result found in search depth {}, exiting search tree", depth + 1);
                 }
@@ -515,7 +516,9 @@ public class SearchTree {
             // Promote detailed logs about costly elements to BUSINESS_LOGS
             logger = BUSINESS_LOGS;
         }
-        getVirtualCostlyElementsLogs(leaf, virtualCostName, prefix).forEach(logger::info);
+        for (var logElement : getVirtualCostlyElementsLogs(leaf, virtualCostName, prefix)) {
+            logger.info(logElement);
+        }
     }
 
     List<String> getVirtualCostlyElementsLogs(Leaf leaf, String virtualCostName, String prefix) {

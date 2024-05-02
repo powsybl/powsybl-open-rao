@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.data.craccreation.creator.cim.craccreator;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.craccreation.creator.api.CracCreationContext;
 import com.powsybl.openrao.data.craccreation.creator.api.CracCreationReport;
@@ -80,10 +81,10 @@ public class CimCracCreationContext implements CracCreationContext {
 
     private void addToReport(Collection<? extends ElementaryCreationContext> contexts, String nativeTypeIdentifier) {
         contexts.stream().filter(ElementaryCreationContext::isAltered).forEach(context ->
-            creationReport.altered(String.format("%s \"%s\" was modified: %s. ", nativeTypeIdentifier, context.getNativeId(), context.getImportStatusDetail()))
+            creationReport.altered(String.format("%s \"%s\" was modified: %s. ", nativeTypeIdentifier, context.getNativeId(), context.getImportStatusDetail()), ReportNode.NO_OP)
         );
         contexts.stream().filter(context -> !context.isImported()).forEach(context ->
-            creationReport.removed(String.format("%s \"%s\" was not imported: %s. %s.", nativeTypeIdentifier, context.getNativeId(), context.getImportStatus(), context.getImportStatusDetail()))
+            creationReport.removed(String.format("%s \"%s\" was not imported: %s. %s.", nativeTypeIdentifier, context.getNativeId(), context.getImportStatus(), context.getImportStatusDetail()), ReportNode.NO_OP)
         );
     }
 
@@ -91,11 +92,11 @@ public class CimCracCreationContext implements CracCreationContext {
         for (MonitoredSeriesCreationContext monitoredSeriesCreationContext : monitoredSeriesCreationContexts.values()) {
             if (!monitoredSeriesCreationContext.isImported()) {
                 creationReport.removed(String.format("Monitored_Series \"%s\" was not imported: %s. %s.", monitoredSeriesCreationContext.getNativeId(),
-                    monitoredSeriesCreationContext.getImportStatus(), monitoredSeriesCreationContext.getImportStatusDetail()));
+                    monitoredSeriesCreationContext.getImportStatus(), monitoredSeriesCreationContext.getImportStatusDetail()), ReportNode.NO_OP);
             } else {
                 if (monitoredSeriesCreationContext.isAltered()) {
                     creationReport.altered(String.format("Monitored_Series \"%s\" was altered : %s.", monitoredSeriesCreationContext.getNativeId(),
-                        monitoredSeriesCreationContext.getImportStatusDetail()));
+                        monitoredSeriesCreationContext.getImportStatusDetail()), ReportNode.NO_OP);
                 }
                 addToReport(monitoredSeriesCreationContext.getMeasurementCreationContexts(), monitoredSeriesCreationContext.getNativeId());
             }
@@ -106,12 +107,12 @@ public class CimCracCreationContext implements CracCreationContext {
         for (MeasurementCreationContext measurementCreationContext : measurementCreationContexts) {
             if (!measurementCreationContext.isImported()) {
                 creationReport.removed(String.format("A Measurement in Monitored_Series \"%s\" was not imported: %s. %s.", monitoredSeriesNativeId,
-                    measurementCreationContext.getImportStatus(), measurementCreationContext.getImportStatusDetail()));
+                    measurementCreationContext.getImportStatus(), measurementCreationContext.getImportStatusDetail()), ReportNode.NO_OP);
             } else {
                 for (CnecCreationContext cnecCreationContext : measurementCreationContext.getCnecCreationContexts().values()) {
                     if (!cnecCreationContext.isImported()) {
                         creationReport.removed(String.format("A Cnec in Monitored_Series \"%s\" was not imported: %s. %s.", monitoredSeriesNativeId,
-                            cnecCreationContext.getImportStatus(), cnecCreationContext.getImportStatusDetail()));
+                            cnecCreationContext.getImportStatus(), cnecCreationContext.getImportStatusDetail()), ReportNode.NO_OP);
                     }
                 }
             }
@@ -123,7 +124,7 @@ public class CimCracCreationContext implements CracCreationContext {
                 String neId = context.getNativeNetworkElementId() != null ? context.getNativeNetworkElementId() : "all";
                 String instant = context.getInstantId() != null ? context.getInstantId().toLowerCase() : "all";
                 String coName = context.getNativeContingencyName() != null ? context.getNativeContingencyName() : "all";
-                creationReport.removed(String.format("VoltageCnec with network element \"%s\", instant \"%s\" and contingency \"%s\" was not imported: %s. %s.", neId, instant, coName, context.getImportStatus(), context.getImportStatusDetail()));
+                creationReport.removed(String.format("VoltageCnec with network element \"%s\", instant \"%s\" and contingency \"%s\" was not imported: %s. %s.", neId, instant, coName, context.getImportStatus(), context.getImportStatusDetail()), ReportNode.NO_OP);
             }
         );
     }

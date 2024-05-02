@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.data.craccreation.creator.cim.craccreator.remedialaction;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.openrao.data.cracapi.*;
 import com.powsybl.openrao.data.cracapi.cnec.AngleCnec;
@@ -296,7 +297,7 @@ public class RemedialActionSeriesCreator {
                 crac, applicationModeMarketObjectStatus, adder, contingencies, invalidContingencies, flowCnecs, angleCnec, sharedDomain
             );
         } catch (OpenRaoImportException e) {
-            cracCreationContext.getCreationReport().warn(String.format("Extra usage rules for RA %s could not be imported: %s", remedialActionId, e.getMessage()));
+            cracCreationContext.getCreationReport().warn(String.format("Extra usage rules for RA %s could not be imported: %s", remedialActionId, e.getMessage()), ReportNode.NO_OP);
         }
     }
 

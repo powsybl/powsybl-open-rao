@@ -3,6 +3,7 @@ package com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator;
 import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.read.ListAppender;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.contingency.ContingencyElement;
 import com.powsybl.contingency.Contingency;
@@ -285,9 +286,9 @@ public final class CsaProfileCracCreationTestUtil {
     public static CsaProfileCracCreationContext getCsaCracCreationContext(String csaProfilesArchive, Network network, OffsetDateTime offsetDateTime, CracCreationParameters cracCreationParameters) {
         CsaProfileCracImporter cracImporter = new CsaProfileCracImporter();
         InputStream inputStream = CsaProfileCracCreationTestUtil.class.getResourceAsStream(csaProfilesArchive);
-        CsaProfileCrac nativeCrac = cracImporter.importNativeCrac(inputStream);
+        CsaProfileCrac nativeCrac = cracImporter.importNativeCrac(inputStream, ReportNode.NO_OP);
         CsaProfileCracCreator cracCreator = new CsaProfileCracCreator();
-        return cracCreator.createCrac(nativeCrac, network, offsetDateTime, cracCreationParameters);
+        return cracCreator.createCrac(nativeCrac, network, offsetDateTime, cracCreationParameters, ReportNode.NO_OP);
     }
 
     public static Network getNetworkFromResource(String filename) {

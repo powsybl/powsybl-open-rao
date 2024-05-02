@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.data.nativecracioapi;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.nativecracapi.NativeCrac;
 import com.google.common.base.Suppliers;
@@ -32,11 +33,13 @@ public final class NativeCracImporters {
 
     /**
      * Flexible method to import a NativeCrac from a file, trying to guess its format
+     *
      * @param nativeCracPath {@link Path} of the native CRAC file
+     * @param reportNode
      */
-    public static NativeCrac importData(Path nativeCracPath) {
+    public static NativeCrac importData(Path nativeCracPath, ReportNode reportNode) {
         try (InputStream is = new FileInputStream(nativeCracPath.toFile())) {
-            return importData(nativeCracPath.getFileName().toString(), is);
+            return importData(nativeCracPath.getFileName().toString(), is, reportNode);
         } catch (FileNotFoundException e) {
             throw new OpenRaoException("File not found.");
         } catch (IOException e) {
@@ -46,10 +49,12 @@ public final class NativeCracImporters {
 
     /**
      * Flexible method to import a NativeCrac from a file, trying to guess its format
-     * @param fileName name of the native CRAC file
+     *
+     * @param fileName    name of the native CRAC file
      * @param inputStream input stream of the native CRAC file
+     * @param reportNode
      */
-    public static NativeCrac importData(String fileName, InputStream inputStream) {
+    public static NativeCrac importData(String fileName, InputStream inputStream, ReportNode reportNode) {
         try {
             byte[] bytes = getBytesFromInputStream(inputStream);
 
@@ -57,7 +62,7 @@ public final class NativeCracImporters {
             if (importer == null) {
                 throw new OpenRaoException("No importer found for this file");
             }
-            return importer.importNativeCrac(new ByteArrayInputStream(bytes));
+            return importer.importNativeCrac(new ByteArrayInputStream(bytes), reportNode);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }

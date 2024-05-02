@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.data.craccreation.creator.api.mock;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.openrao.data.nativecracioapi.NativeCracImporter;
 import com.google.auto.service.AutoService;
 
@@ -24,7 +25,7 @@ public class NativeCracImporterMock implements NativeCracImporter<NativeCracMock
     }
 
     @Override
-    public NativeCracMock importNativeCrac(InputStream inputStream) {
+    public NativeCracMock importNativeCrac(InputStream inputStream, ReportNode reportNode) {
         return new NativeCracMock(true);
     }
 

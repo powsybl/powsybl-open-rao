@@ -154,7 +154,7 @@ public class VoltageMonitoring {
     private VoltageMonitoringResult monitorVoltageCnecsAndLog(String loadFlowProvider, LoadFlowParameters loadFlowParameters, State state, Network networkClone) {
         BUSINESS_LOGS.info("-- Monitoring voltages at state \"{}\" [start]", state);
         VoltageMonitoringResult result = monitorVoltageCnecs(loadFlowProvider, loadFlowParameters, state, networkClone);
-        result.printConstraints().forEach(BUSINESS_LOGS::info);
+        result.printConstraints().forEach(format -> BUSINESS_LOGS.info(format));
         BUSINESS_LOGS.info("-- Monitoring voltages at state \"{}\" [end]", state);
         return result;
     }
@@ -312,7 +312,7 @@ public class VoltageMonitoring {
         });
         VoltageMonitoringResult.Status securityStatus = concatenateSpecificResults();
         VoltageMonitoringResult result = new VoltageMonitoringResult(extremeVoltageValuesMap, appliedRas, securityStatus);
-        result.printConstraints().forEach(BUSINESS_LOGS::info);
+        result.printConstraints().forEach(format -> BUSINESS_LOGS.info(format));
         BUSINESS_LOGS.info(VOLTAGE_MONITORING_END);
         return result;
     }

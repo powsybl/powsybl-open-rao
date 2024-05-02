@@ -6,6 +6,7 @@
  */
 package com.powsybl.openrao.data.craccreation.creator.cse.remedialaction;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.Crac;
@@ -290,7 +291,7 @@ public class TRemedialActionAdder {
                 injectionRangeActionAdder.withGroupId(groups.get(0).toString());
             } else if (groups.size() > 1) {
                 injectionRangeActionAdder.withGroupId(groups.get(0).toString());
-                cseCracCreationContext.getCreationReport().warn(String.format("GroupId defined multiple times for HVDC %s, only group %s is used.", raId, groups.get(0)));
+                cseCracCreationContext.getCreationReport().warn(String.format("GroupId defined multiple times for HVDC %s, only group %s is used.", raId, groups.get(0)), ReportNode.NO_OP);
             }
         }
 
@@ -362,7 +363,7 @@ public class TRemedialActionAdder {
         try {
             country = Country.valueOf(sharedWithId);
         } catch (IllegalArgumentException e) {
-            cseCracCreationContext.getCreationReport().removed(String.format("RA %s has a non-UCTE sharedWith country : %s. The usage rule was not created.", tRemedialAction.getName().getV(), sharedWithId));
+            cseCracCreationContext.getCreationReport().removed(String.format("RA %s has a non-UCTE sharedWith country : %s. The usage rule was not created.", tRemedialAction.getName().getV(), sharedWithId), ReportNode.NO_OP);
             return;
         }
 

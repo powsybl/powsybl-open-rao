@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.data.craccreation.creator.cim.importer;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.openrao.data.craccreation.creator.cim.CimCrac;
 import org.junit.jupiter.api.Test;
 
@@ -30,7 +31,7 @@ class CimCracImporterTest {
     void importNativeCrac() {
         InputStream is = getClass().getResourceAsStream("/cracs/CIM_21_1_1.xml");
         CimCracImporter importer = new CimCracImporter();
-        CimCrac cimCrac = importer.importNativeCrac(is);
+        CimCrac cimCrac = importer.importNativeCrac(is, ReportNode.NO_OP);
         assertEquals("CIM_CRAC_DOCUMENT", cimCrac.getCracDocument().getMRID());
     }
 }

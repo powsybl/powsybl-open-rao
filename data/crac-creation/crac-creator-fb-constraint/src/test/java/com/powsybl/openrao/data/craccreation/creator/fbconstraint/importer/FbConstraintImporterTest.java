@@ -6,6 +6,7 @@
  */
 package com.powsybl.openrao.data.craccreation.creator.fbconstraint.importer;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.openrao.data.craccreation.creator.fbconstraint.FbConstraint;
 import com.powsybl.openrao.data.nativecracioapi.NativeCracImporter;
 import org.junit.jupiter.api.Test;
@@ -26,7 +27,7 @@ class FbConstraintImporterTest {
 
     @Test
     void testImportSchemaVersion18() {
-        FbConstraint fbConstraint = new FbConstraintImporter().importNativeCrac(getClass().getResourceAsStream("/merged_cb/without_RA.xml"));
+        FbConstraint fbConstraint = new FbConstraintImporter().importNativeCrac(getClass().getResourceAsStream("/merged_cb/without_RA.xml"), ReportNode.NO_OP);
         assertEquals(17, fbConstraint.getFlowBasedDocumentVersion());
     }
 

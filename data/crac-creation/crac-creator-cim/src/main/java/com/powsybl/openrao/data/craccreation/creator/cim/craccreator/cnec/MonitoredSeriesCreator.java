@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.data.craccreation.creator.cim.craccreator.cnec;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.contingency.Contingency;
@@ -155,7 +156,8 @@ public class MonitoredSeriesCreator {
         MonitoredSeriesCreationContext newMscc = mscc;
         if (monitoredSeriesCreationContexts.containsKey(nativeId)) {
             cracCreationContext.getCreationReport().warn(
-                String.format("Multiple Monitored_Series with same mRID \"%s\" detected; they will be merged.", nativeId)
+                String.format("Multiple Monitored_Series with same mRID \"%s\" detected; they will be merged.", nativeId),
+                    ReportNode.NO_OP
             );
             // TSO can define multiple Monitored_Series with same mRID. Add information from new one to old one
             MonitoredSeriesCreationContext mscc2 = monitoredSeriesCreationContexts.get(nativeId);
@@ -303,7 +305,8 @@ public class MonitoredSeriesCreator {
             // This is true if the TSO is consistent in the definition of its CNECs; and two different TSOs can only
             // share tielines, but those are distinguished by the RIGHT/LEFT label)
             cracCreationContext.getCreationReport().warn(
-                String.format("Multiple CNECs on same network element (%s) and same state (%s%s%s) have been detected. Only one CNEC will be created.", branchHelper.getBranch().getId(), contingencyId, Objects.isNull(contingency) ? "" : " - ", instant)
+                String.format("Multiple CNECs on same network element (%s) and same state (%s%s%s) have been detected. Only one CNEC will be created.", branchHelper.getBranch().getId(), contingencyId, Objects.isNull(contingency) ? "" : " - ", instant),
+                ReportNode.NO_OP
             );
         }
         measurementCreationContext.addCnecCreationContext(contingencyId, instant, CnecCreationContext.imported(cnecId));
