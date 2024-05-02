@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.data.craccreation.creator.csaprofile.importer;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.CsaProfileCrac;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileConstants;
@@ -46,11 +47,12 @@ public class CsaProfileCracImporter implements NativeCracImporter<CsaProfileCrac
 
     /**
      * @param inputStream : zip file inputStream
+     * @param reportNode
      * @return csa profile native crac, the tripleStore contains data of every rdf file included in the zip
      * each context of the tripleStore contains one rdf file data
      */
     @Override
-    public CsaProfileCrac importNativeCrac(InputStream inputStream) {
+    public CsaProfileCrac importNativeCrac(InputStream inputStream, ReportNode reportNode) {
         TripleStore tripleStoreCsaProfile = TripleStoreFactory.create(CsaProfileConstants.TRIPLESTORE_RDF4J_NAME);
         ZipEntry zipEntry;
         Map<String, Set<String>> keywordMap = new HashMap<>();

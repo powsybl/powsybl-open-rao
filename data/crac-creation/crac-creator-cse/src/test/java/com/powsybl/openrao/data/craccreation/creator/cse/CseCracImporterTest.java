@@ -6,6 +6,7 @@
  */
 package com.powsybl.openrao.data.craccreation.creator.cse;
 
+import com.powsybl.commons.report.ReportNode;
 import org.junit.jupiter.api.Test;
 
 import java.io.InputStream;
@@ -27,7 +28,7 @@ class CseCracImporterTest {
     void importNativeCrac() {
         InputStream is = getClass().getResourceAsStream("/cracs/cse_crac_1.xml");
         CseCracImporter importer = new CseCracImporter();
-        CseCrac cseCrac = importer.importNativeCrac(is);
+        CseCrac cseCrac = importer.importNativeCrac(is, ReportNode.NO_OP);
         assertEquals("ruleToBeDefined", cseCrac.getCracDocument().getDocumentIdentification().getV());
     }
 
@@ -35,7 +36,7 @@ class CseCracImporterTest {
     void importNativeCracWithMNE() {
         InputStream is = getClass().getResourceAsStream("/cracs/cse_crac_with_MNE.xml");
         CseCracImporter importer = new CseCracImporter();
-        CseCrac cseCrac = importer.importNativeCrac(is);
+        CseCrac cseCrac = importer.importNativeCrac(is, ReportNode.NO_OP);
         assertEquals(100, cseCrac.getCracDocument().getCRACSeries().get(0).getMonitoredElements().getMonitoredElement().get(0).getBranch().get(0).getIlimitMNE().getV());
     }
 }

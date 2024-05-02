@@ -6,6 +6,7 @@
  */
 package com.powsybl.openrao.data.craccreation.creator.api;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.openrao.data.craccreation.creator.api.mock.CracCreatorMock;
 import com.powsybl.openrao.data.craccreation.creator.api.mock.NativeCracMock;
 import com.powsybl.openrao.data.craccreation.creator.api.parameters.CracCreationParameters;
@@ -50,28 +51,28 @@ class CracCreatorsTest {
 
     @Test
     void testCreateCrac() {
-        CracCreationContext cracCreationContext = createCrac(new NativeCracMock(true), network, offsetDateTime);
+        CracCreationContext cracCreationContext = createCrac(new NativeCracMock(true), network, offsetDateTime, ReportNode.NO_OP);
         assertTrue(cracCreationContext.isCreationSuccessful());
 
-        cracCreationContext = createCrac(new NativeCracMock(false), network, offsetDateTime);
+        cracCreationContext = createCrac(new NativeCracMock(false), network, offsetDateTime, ReportNode.NO_OP);
         assertFalse(cracCreationContext.isCreationSuccessful());
     }
 
     @Test
     void testCreateCracWithFactory() {
-        CracCreationContext cracCreationContext = createCrac(new NativeCracMock(true), network, offsetDateTime, new CracCreationParameters());
+        CracCreationContext cracCreationContext = createCrac(new NativeCracMock(true), network, offsetDateTime, new CracCreationParameters(), ReportNode.NO_OP);
         assertTrue(cracCreationContext.isCreationSuccessful());
     }
 
     @Test
     void testCreateAndImportCracFromInputStream() {
-        CracCreationContext cracCreationContext = CracCreators.importAndCreateCrac("empty.txt", getClass().getResourceAsStream("/empty.txt"), network, offsetDateTime);
+        CracCreationContext cracCreationContext = CracCreators.importAndCreateCrac("empty.txt", getClass().getResourceAsStream("/empty.txt"), network, offsetDateTime, ReportNode.NO_OP);
         assertTrue(cracCreationContext.isCreationSuccessful());
     }
 
     @Test
     void testCreateAndImportCracFromPath() {
-        CracCreationContext cracCreationContext = CracCreators.importAndCreateCrac(Paths.get(new File(getClass().getResource("/empty.txt").getFile()).getAbsolutePath()), network, offsetDateTime);
+        CracCreationContext cracCreationContext = CracCreators.importAndCreateCrac(Paths.get(new File(getClass().getResource("/empty.txt").getFile()).getAbsolutePath()), network, offsetDateTime, ReportNode.NO_OP);
         assertTrue(cracCreationContext.isCreationSuccessful());
     }
 }

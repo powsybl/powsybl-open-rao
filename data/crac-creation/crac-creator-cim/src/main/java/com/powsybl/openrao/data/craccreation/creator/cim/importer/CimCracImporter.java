@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.data.craccreation.creator.cim.importer;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.nativecracioapi.NativeCracImporter;
 import com.google.auto.service.AutoService;
@@ -43,7 +44,7 @@ public class CimCracImporter implements NativeCracImporter<CimCrac> {
     }
 
     @Override
-    public CimCrac importNativeCrac(InputStream inputStream) {
+    public CimCrac importNativeCrac(InputStream inputStream, ReportNode reportNode) {
         CRACMarketDocument cracDocumentType;
         try {
             cracDocumentType = JAXBContext.newInstance(CRACMarketDocument.class)

@@ -10,6 +10,7 @@ package com.powsybl.openrao.searchtreerao.castor.algorithm;
 import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.read.ListAppender;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.contingency.ContingencyElementType;
 import com.powsybl.iidm.network.*;
@@ -569,7 +570,7 @@ class CastorFullOptimizationTest {
         RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/RaoParameters_oneIteration_v2.json"));
 
         // Run RAO
-        RaoResult raoResult = new CastorFullOptimization(raoInput, raoParameters, null).run().join();
+        RaoResult raoResult = new CastorFullOptimization(raoInput, raoParameters, null).run(ReportNode.NO_OP).join();
         assertTrue(raoResult instanceof FailedRaoResultImpl);
     }
 
@@ -584,7 +585,7 @@ class CastorFullOptimizationTest {
         RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/RaoParameters_2P_v2.json"));
 
         // Run RAO
-        RaoResult raoResult = new CastorFullOptimization(raoInput, raoParameters, null).run().join();
+        RaoResult raoResult = new CastorFullOptimization(raoInput, raoParameters, null).run(ReportNode.NO_OP).join();
         assertEquals(371.88, raoResult.getFunctionalCost(null), 1.);
         assertEquals(493.56, raoResult.getFunctionalCost(preventiveInstant), 1.);
         assertEquals(256.78, raoResult.getFunctionalCost(curativeInstant), 1.);
@@ -606,7 +607,7 @@ class CastorFullOptimizationTest {
         raoParameters.getSecondPreventiveRaoParameters().setExecutionCondition(SecondPreventiveRaoParameters.ExecutionCondition.POSSIBLE_CURATIVE_IMPROVEMENT);
 
         // Run RAO
-        RaoResult raoResult = new CastorFullOptimization(raoInput, raoParameters, null).run().join();
+        RaoResult raoResult = new CastorFullOptimization(raoInput, raoParameters, null).run(ReportNode.NO_OP).join();
         assertEquals(371.88, raoResult.getFunctionalCost(null), 1.);
         assertEquals(674.6, raoResult.getFunctionalCost(preventiveInstant), 1.);
         assertEquals(-555.91, raoResult.getFunctionalCost(curativeInstant), 1.);
@@ -631,7 +632,7 @@ class CastorFullOptimizationTest {
         raoParameters.getSecondPreventiveRaoParameters().setReOptimizeCurativeRangeActions(true);
 
         // Run RAO
-        RaoResult raoResult = new CastorFullOptimization(raoInput, raoParameters, null).run().join();
+        RaoResult raoResult = new CastorFullOptimization(raoInput, raoParameters, null).run(ReportNode.NO_OP).join();
         assertEquals(371.88, raoResult.getFunctionalCost(null), 1.);
         assertEquals(674.6, raoResult.getFunctionalCost(preventiveInstant), 1.);
         assertEquals(-555.91, raoResult.getFunctionalCost(curativeInstant), 1.);
@@ -656,7 +657,7 @@ class CastorFullOptimizationTest {
         RaoInput raoInput = RaoInput.build(network, crac).build();
         RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/RaoParameters_2P_v2.json"));
         raoParameters.getObjectiveFunctionParameters().setForbidCostIncrease(true);
-        RaoResult raoResult = new CastorFullOptimization(raoInput, raoParameters, null).run().join();
+        RaoResult raoResult = new CastorFullOptimization(raoInput, raoParameters, null).run(ReportNode.NO_OP).join();
 
         // Test Optimization steps executed
         assertEquals(OptimizationStepsExecuted.FIRST_PREVENTIVE_FELLBACK_TO_INITIAL_SITUATION, raoResult.getOptimizationStepsExecuted());
@@ -713,7 +714,7 @@ class CastorFullOptimizationTest {
         RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/RaoParameters_2P_v2.json"));
         raoParameters.getObjectiveFunctionParameters().setType(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_MARGIN_IN_AMPERE);
 
-        RaoResult raoResult = new CastorFullOptimization(raoInput, raoParameters, null).run().join();
+        RaoResult raoResult = new CastorFullOptimization(raoInput, raoParameters, null).run(ReportNode.NO_OP).join();
 
         assertEquals(Set.of(pstPrev), raoResult.getActivatedNetworkActionsDuringState(crac.getPreventiveState()));
         assertEquals(Set.of(naCur1), raoResult.getActivatedNetworkActionsDuringState(crac.getState(co, crac.getInstant("curative1"))));
@@ -807,7 +808,7 @@ class CastorFullOptimizationTest {
         RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/RaoParameters_2P_v2.json"));
         raoParameters.getObjectiveFunctionParameters().setType(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_MARGIN_IN_AMPERE);
 
-        RaoResult raoResult = new CastorFullOptimization(raoInput, raoParameters, null).run().join();
+        RaoResult raoResult = new CastorFullOptimization(raoInput, raoParameters, null).run(ReportNode.NO_OP).join();
 
         assertEquals(Set.of(pstPrev), raoResult.getActivatedNetworkActionsDuringState(crac.getPreventiveState()));
         assertEquals(Set.of(naCur1), raoResult.getActivatedNetworkActionsDuringState(crac.getState(co, crac.getInstant("curative1"))));
@@ -872,7 +873,7 @@ class CastorFullOptimizationTest {
         RaoInput raoInput = RaoInput.build(network, crac).build();
         RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/RaoParameters_DC.json"));
 
-        RaoResult raoResult = new CastorFullOptimization(raoInput, raoParameters, null).run().join();
+        RaoResult raoResult = new CastorFullOptimization(raoInput, raoParameters, null).run(ReportNode.NO_OP).join();
 
         // One FORCED topological ARA is simulated
         // Two AVAILABLE topological ARA are present in the CRAC but one is enough to secure the network
@@ -899,7 +900,7 @@ class CastorFullOptimizationTest {
         RaoInput raoInput = RaoInput.build(network, crac).build();
         RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/RaoParameters_DC.json"));
 
-        RaoResult raoResult = new CastorFullOptimization(raoInput, raoParameters, null).run().join();
+        RaoResult raoResult = new CastorFullOptimization(raoInput, raoParameters, null).run(ReportNode.NO_OP).join();
 
         State automatonState = crac.getState("Contingency DE2 NL3 1", crac.getInstant("auto"));
         List<NetworkAction> appliedNetworkAras = raoResult.getActivatedNetworkActionsDuringState(automatonState).stream().sorted(Comparator.comparing(NetworkAction::getId)).toList();
@@ -929,7 +930,7 @@ class CastorFullOptimizationTest {
         raoParameters.getObjectiveFunctionParameters().setOptimizeCurativeIfPreventiveUnsecure(false);
 
         // Run RAO
-        RaoResult raoResult = new CastorFullOptimization(raoInput, raoParameters, null).run().join();
+        RaoResult raoResult = new CastorFullOptimization(raoInput, raoParameters, null).run(ReportNode.NO_OP).join();
         assertEquals(Collections.emptySet(), raoResult.getActivatedNetworkActionsDuringState(crac.getState("Contingency FFR2AA1  FFR3AA1  1", crac.getLastInstant())));
     }
 
@@ -944,7 +945,7 @@ class CastorFullOptimizationTest {
         raoParameters.getObjectiveFunctionParameters().setOptimizeCurativeIfPreventiveUnsecure(false);
 
         // Run RAO
-        RaoResult raoResult = new CastorFullOptimization(raoInput, raoParameters, null).run().join();
+        RaoResult raoResult = new CastorFullOptimization(raoInput, raoParameters, null).run(ReportNode.NO_OP).join();
         assertEquals(Set.of(crac.getNetworkAction("Open FFR1AA1  FFR4AA1  1")), raoResult.getActivatedNetworkActionsDuringState(crac.getState("Contingency FFR2AA1  FFR3AA1  1", crac.getLastInstant())));
     }
 
@@ -958,7 +959,7 @@ class CastorFullOptimizationTest {
         raoParameters.getObjectiveFunctionParameters().setOptimizeCurativeIfPreventiveUnsecure(false);
 
         // Run RAO
-        RaoResult raoResult = new CastorFullOptimization(raoInput, raoParameters, null).run().join();
+        RaoResult raoResult = new CastorFullOptimization(raoInput, raoParameters, null).run(ReportNode.NO_OP).join();
         assertEquals(Set.of(crac.getNetworkAction("Open FFR1AA1  FFR4AA1  1")), raoResult.getActivatedNetworkActionsDuringState(crac.getState("Contingency FFR2AA1  FFR3AA1  1", crac.getLastInstant())));
     }
 
@@ -973,7 +974,7 @@ class CastorFullOptimizationTest {
         raoParameters.getObjectiveFunctionParameters().setOptimizeCurativeIfPreventiveUnsecure(true);
 
         // Run RAO
-        RaoResult raoResult = new CastorFullOptimization(raoInput, raoParameters, null).run().join();
+        RaoResult raoResult = new CastorFullOptimization(raoInput, raoParameters, null).run(ReportNode.NO_OP).join();
         assertEquals(Set.of(crac.getNetworkAction("Open FFR1AA1  FFR4AA1  1")), raoResult.getActivatedNetworkActionsDuringState(crac.getState("Contingency FFR2AA1  FFR3AA1  1", crac.getLastInstant())));
     }
 
@@ -988,7 +989,7 @@ class CastorFullOptimizationTest {
         raoParameters.getObjectiveFunctionParameters().setOptimizeCurativeIfPreventiveUnsecure(true);
 
         // Run RAO
-        RaoResult raoResult = new CastorFullOptimization(raoInput, raoParameters, null).run().join();
+        RaoResult raoResult = new CastorFullOptimization(raoInput, raoParameters, null).run(ReportNode.NO_OP).join();
         assertEquals(Set.of(crac.getNetworkAction("Open FFR1AA1  FFR4AA1  1")), raoResult.getActivatedNetworkActionsDuringState(crac.getState("Contingency FFR2AA1  FFR3AA1  1", crac.getLastInstant())));
     }
 
@@ -1002,7 +1003,7 @@ class CastorFullOptimizationTest {
         raoParameters.getObjectiveFunctionParameters().setOptimizeCurativeIfPreventiveUnsecure(true);
 
         // Run RAO
-        RaoResult raoResult = new CastorFullOptimization(raoInput, raoParameters, null).run().join();
+        RaoResult raoResult = new CastorFullOptimization(raoInput, raoParameters, null).run(ReportNode.NO_OP).join();
         assertEquals(Set.of(crac.getNetworkAction("Open FFR1AA1  FFR4AA1  1")), raoResult.getActivatedNetworkActionsDuringState(crac.getState("Contingency FFR2AA1  FFR3AA1  1", crac.getLastInstant())));
     }
 }

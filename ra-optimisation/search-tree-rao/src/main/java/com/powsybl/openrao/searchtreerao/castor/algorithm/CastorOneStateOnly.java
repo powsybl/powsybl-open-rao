@@ -6,6 +6,7 @@
  */
 package com.powsybl.openrao.searchtreerao.castor.algorithm;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.openrao.data.cracapi.InstantKind;
 import com.powsybl.openrao.data.cracapi.State;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
@@ -57,7 +58,7 @@ public class CastorOneStateOnly {
         this.raoParameters = raoParameters;
     }
 
-    public CompletableFuture<RaoResult> run() {
+    public CompletableFuture<RaoResult> run(ReportNode raoReportNode) {
 
         RaoUtil.initData(raoInput, raoParameters);
         StateTree stateTree = new StateTree(raoInput.getCrac());
@@ -71,7 +72,7 @@ public class CastorOneStateOnly {
                 toolProvider);
 
         PrePerimeterResult initialResults;
-        initialResults = prePerimeterSensitivityAnalysis.runInitialSensitivityAnalysis(raoInput.getNetwork(), raoInput.getCrac());
+        initialResults = prePerimeterSensitivityAnalysis.runInitialSensitivityAnalysis(raoInput.getNetwork(), raoInput.getCrac(), ReportNode.NO_OP);
         if (initialResults.getSensitivityStatus() == ComputationStatus.FAILURE) {
             BUSINESS_LOGS.error("Initial sensitivity analysis failed");
             return CompletableFuture.completedFuture(new FailedRaoResultImpl());

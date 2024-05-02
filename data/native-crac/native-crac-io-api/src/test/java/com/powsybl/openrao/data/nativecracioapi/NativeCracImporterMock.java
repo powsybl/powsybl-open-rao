@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.data.nativecracioapi;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.openrao.data.nativecracapi.NativeCrac;
 import com.google.auto.service.AutoService;
 import org.mockito.Mockito;
@@ -25,7 +26,7 @@ public class NativeCracImporterMock implements NativeCracImporter {
     }
 
     @Override
-    public NativeCrac importNativeCrac(InputStream inputStream) {
+    public NativeCrac importNativeCrac(InputStream inputStream, ReportNode reportNode) {
         NativeCrac nativeCrac = Mockito.mock(NativeCrac.class);
         Mockito.when(nativeCrac.getFormat()).thenReturn("MockedNativeCracFormat");
         return nativeCrac;

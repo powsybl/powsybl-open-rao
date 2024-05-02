@@ -6,6 +6,7 @@
  */
 package com.powsybl.openrao.data.craccreation.creator.cim.craccreator;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.cracapi.cnec.VoltageCnec;
@@ -59,9 +60,9 @@ class VoltageCnecsCreatorTest {
 
         InputStream is = getClass().getResourceAsStream("/cracs/CIM_21_1_1.xml");
         CimCracImporter cracImporter = new CimCracImporter();
-        CimCrac cimCrac = cracImporter.importNativeCrac(is);
+        CimCrac cimCrac = cracImporter.importNativeCrac(is, ReportNode.NO_OP);
         CimCracCreator cimCracCreator = new CimCracCreator();
-        cracCreationContext = cimCracCreator.createCrac(cimCrac, network, OffsetDateTime.parse("2021-04-01T23:00Z"), new CracCreationParameters());
+        cracCreationContext = cimCracCreator.createCrac(cimCrac, network, OffsetDateTime.parse("2021-04-01T23:00Z"), new CracCreationParameters(), ReportNode.NO_OP);
         crac = cracCreationContext.getCrac();
 
         // Imported contingencies (name -> id):

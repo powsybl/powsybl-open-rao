@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.data.nativecracioapi;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.openrao.data.nativecracapi.NativeCrac;
 
 import java.io.InputStream;
@@ -29,7 +30,7 @@ public interface NativeCracImporter<T extends NativeCrac> {
     /**
      * Import a NativeCrac from an input stream.
      */
-    T importNativeCrac(InputStream inputStream);
+    T importNativeCrac(InputStream inputStream, ReportNode reportNode);
 
     /**
      * Check if a file is importable.

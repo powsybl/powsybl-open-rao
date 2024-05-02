@@ -6,6 +6,7 @@
  */
 package com.powsybl.openrao.data.craccreation.creator.cse;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider;
 import com.powsybl.openrao.data.craccreation.creator.cse.xsd.CRACDocumentType;
@@ -42,7 +43,7 @@ public class CseCracImporter implements NativeCracImporter<CseCrac> {
     }
 
     @Override
-    public CseCrac importNativeCrac(InputStream inputStream) {
+    public CseCrac importNativeCrac(InputStream inputStream, ReportNode reportNode) {
         CRACDocumentType cracDocumentType;
         try {
             cracDocumentType = JAXBContext.newInstance(CRACDocumentType.class)

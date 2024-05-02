@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.data.nativecracioapi;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.nativecracapi.NativeCrac;
 import org.junit.jupiter.api.Test;
@@ -44,14 +45,14 @@ class NativeCracImportersTest {
 
     @Test
     void testImportWithInstant() {
-        NativeCrac nativeCrac = NativeCracImporters.importData("empty.txt", getClass().getResourceAsStream("/empty.txt"));
+        NativeCrac nativeCrac = NativeCracImporters.importData("empty.txt", getClass().getResourceAsStream("/empty.txt"), ReportNode.NO_OP);
         assertNotNull(nativeCrac);
         assertEquals("MockedNativeCracFormat", nativeCrac.getFormat());
     }
 
     @Test
     void testImportFromPath() {
-        NativeCrac nativeCrac = NativeCracImporters.importData(Paths.get(new File(getClass().getResource("/empty.txt").getFile()).getAbsolutePath()));
+        NativeCrac nativeCrac = NativeCracImporters.importData(Paths.get(new File(getClass().getResource("/empty.txt").getFile()).getAbsolutePath()), ReportNode.NO_OP);
         assertNotNull(nativeCrac);
         assertEquals("MockedNativeCracFormat", nativeCrac.getFormat());
 
@@ -60,6 +61,6 @@ class NativeCracImportersTest {
     @Test
     void testImportFileNotFound() {
         Path path = Paths.get("not_found", "file");
-        assertThrows(OpenRaoException.class, () -> NativeCracImporters.importData(path));
+        assertThrows(OpenRaoException.class, () -> NativeCracImporters.importData(path, ReportNode.NO_OP));
     }
 }

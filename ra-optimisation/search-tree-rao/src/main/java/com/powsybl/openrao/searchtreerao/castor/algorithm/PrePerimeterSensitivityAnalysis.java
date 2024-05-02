@@ -6,6 +6,7 @@
  */
 package com.powsybl.openrao.searchtreerao.castor.algorithm;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
 import com.powsybl.openrao.data.cracapi.rangeaction.RangeAction;
@@ -53,7 +54,7 @@ public class PrePerimeterSensitivityAnalysis {
         this.toolProvider = toolProvider;
     }
 
-    public PrePerimeterResult runInitialSensitivityAnalysis(Network network, Crac crac) {
+    public PrePerimeterResult runInitialSensitivityAnalysis(Network network, Crac crac, ReportNode reportNode) {
         SensitivityComputer.SensitivityComputerBuilder sensitivityComputerBuilder = buildSensiBuilder()
             .withOutageInstant(crac.getOutageInstant());
         if (raoParameters.hasExtension(LoopFlowParametersExtension.class)) {
