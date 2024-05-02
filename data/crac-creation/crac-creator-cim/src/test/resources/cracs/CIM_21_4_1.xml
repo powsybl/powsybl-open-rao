@@ -314,7 +314,7 @@
             <RegisteredResource>
               <mRID codingScheme="A02">_1dc9afba-23b5-41a0-8540-b479ed8baf4b</mRID>
               <name>RA1-name</name>
-              <pSRType.psrType>A05</pSRType.psrType>
+              <pSRType.psrType>A04</pSRType.psrType>
               <in_Domain.mRID codingScheme="A01">1------0</in_Domain.mRID>
               <out_Domain.mRID codingScheme="A01">1------0</out_Domain.mRID>
               <marketObjectStatus.status>A26</marketObjectStatus.status>
@@ -569,7 +569,7 @@
             <RegisteredResource>
               <mRID codingScheme="A02">_5a094c9f-0af5-48dc-94e9-89c6c220023c</mRID>
               <name>RA1-name</name>
-              <pSRType.psrType>B24</pSRType.psrType>
+              <pSRType.psrType>A07</pSRType.psrType>
               <in_Domain.mRID codingScheme="A01">1------0</in_Domain.mRID>
               <out_Domain.mRID codingScheme="A01">1------0</out_Domain.mRID>
               <marketObjectStatus.status>A22</marketObjectStatus.status>
