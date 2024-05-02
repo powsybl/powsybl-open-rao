@@ -88,13 +88,19 @@ public abstract class AbstractRemedialAction<I extends RemedialAction<I>> extend
                 updateMapWithValue(usageMethodPerInstant, usageRule.getInstant(), usageRule.getUsageMethod());
             } else if (usageRule instanceof OnFlowConstraint ofc) {
                 State state = ofc.getFlowCnec().getState();
-                updateMapWithValue(usageMethodPerState, state, usageRule.getUsageMethod());
+                if (usageRule.getInstant().equals(state.getInstant())) {
+                    updateMapWithValue(usageMethodPerState, state, usageRule.getUsageMethod());
+                }
             } else if (usageRule instanceof OnAngleConstraint oac) {
                 State state = oac.getAngleCnec().getState();
-                updateMapWithValue(usageMethodPerState, state, usageRule.getUsageMethod());
+                if (usageRule.getInstant().equals(state.getInstant())) {
+                    updateMapWithValue(usageMethodPerState, state, usageRule.getUsageMethod());
+                }
             } else if (usageRule instanceof OnVoltageConstraint ovc) {
                 State state = ovc.getVoltageCnec().getState();
-                updateMapWithValue(usageMethodPerState, state, usageRule.getUsageMethod());
+                if (usageRule.getInstant().equals(state.getInstant())) {
+                    updateMapWithValue(usageMethodPerState, state, usageRule.getUsageMethod());
+                }
             } else if (usageRule instanceof OnContingencyState ocs) {
                 State state = ocs.getState();
                 updateMapWithValue(usageMethodPerState, state, usageRule.getUsageMethod());
