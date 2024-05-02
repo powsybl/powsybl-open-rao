@@ -271,7 +271,7 @@ class JsonRetrocompatibilityTest {
         InputStream cracFile = getClass().getResourceAsStream("/retrocompatibility/v2/crac-v2.2.json");
 
         Crac crac = new JsonImport().importCrac(cracFile, network);
-        assertEquals(5, crac.getNetworkActions().size());
+        assertEquals(6, crac.getNetworkActions().size());
         testContentOfV2Point2Crac(crac);
     }
 
@@ -675,6 +675,17 @@ class JsonRetrocompatibilityTest {
         assertEquals(crac.getInstant("curative"), ur.getInstant());
         assertTrue(ur.getContingency().isPresent());
         assertEquals("contingency2Id", ur.getContingency().get().getId());
+        assertEquals(Country.FR, ur.getCountry());
+        testContentOfV2Point0Crac(crac);
+
+        urs = crac.getRemedialAction("injectionSetpointRa3Id").getUsageRules()
+            .stream().filter(OnFlowConstraintInCountry.class::isInstance)
+            .map(OnFlowConstraintInCountry.class::cast)
+            .collect(Collectors.toSet());
+        assertEquals(1, urs.size());
+        ur = urs.iterator().next();
+        assertEquals(crac.getInstant("curative"), ur.getInstant());
+        assertTrue(ur.getContingency().isEmpty());
         assertEquals(Country.FR, ur.getCountry());
         testContentOfV2Point0Crac(crac);
     }

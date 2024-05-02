@@ -454,6 +454,20 @@
       "unit" : "megawatt"
     }]
   }, {
+    "id" : "injectionSetpointRa3Id",
+    "name" : "injectionSetpointRa3Name",
+    "operator" : "RTE",
+    "onFlowConstraintInCountryUsageRules" : [ {
+      "instant" : "curative",
+      "country" : "FR",
+      "usageMethod" : "available"
+    } ],
+    "injectionSetpoints" : [ {
+      "networkElementId" : "injection",
+      "setpoint" : 260.0,
+      "unit" : "megawatt"
+    }]
+  }, {
     "id" : "pstSetpointRaId",
     "name" : "pstSetpointRaName",
     "operator" : "RTE",
