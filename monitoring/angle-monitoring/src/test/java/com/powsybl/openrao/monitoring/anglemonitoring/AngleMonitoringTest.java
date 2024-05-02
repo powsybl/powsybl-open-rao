@@ -7,8 +7,14 @@
 
 package com.powsybl.openrao.monitoring.anglemonitoring;
 
+import com.google.common.base.Suppliers;
+import com.powsybl.computation.local.LocalComputationManager;
 import com.powsybl.contingency.ContingencyElementType;
+import com.powsybl.glsk.cim.CimGlskDocument;
 import com.powsybl.iidm.network.Country;
+import com.powsybl.iidm.network.ImportConfig;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.loadflow.LoadFlowParameters;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.commons.Unit;
@@ -22,14 +28,7 @@ import com.powsybl.openrao.data.craccreation.creator.cim.CimCrac;
 import com.powsybl.openrao.data.craccreation.creator.cim.craccreator.CimCracCreationContext;
 import com.powsybl.openrao.data.craccreation.creator.cim.craccreator.CimCracCreator;
 import com.powsybl.openrao.data.craccreation.creator.cim.importer.CimCracImporter;
-import com.powsybl.openrao.data.raoresultapi.ComputationStatus;
 import com.powsybl.openrao.data.raoresultapi.RaoResult;
-import com.google.common.base.Suppliers;
-import com.powsybl.computation.local.LocalComputationManager;
-import com.powsybl.glsk.cim.CimGlskDocument;
-import com.powsybl.iidm.network.ImportConfig;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.loadflow.LoadFlowParameters;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -38,7 +37,10 @@ import java.io.File;
 import java.io.InputStream;
 import java.nio.file.Paths;
 import java.time.OffsetDateTime;
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Properties;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
