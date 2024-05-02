@@ -689,7 +689,7 @@ crac.newVoltageCnec()
 ## Remedial actions and usages rules
 A remedial action is an action on the network that is considered capable of reducing constraints on the CNECs.
 
-Two types of remedial action exists in OpenRAO:
+Two types of remedial action exist in OpenRAO:
 - **Network Actions**: they have the specificity of being binary. A Network Action is either applied on the network, or
   not applied. Topological actions are a typical example of Network Actions.
 - **Range Actions**: they have the specificity of having a degree of freedom, a set-point. When a Range Action is
