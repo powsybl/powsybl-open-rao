@@ -31,7 +31,7 @@ public final class JsonSerializationConstants {
     private JsonSerializationConstants() {
     }
 
-    public static final String CRAC_IO_VERSION = "2.1";
+    public static final String CRAC_IO_VERSION = "2.2";
     /*
     v1.1: addition of switchPairs
     v1.2: addition of injectionRangeAction
@@ -43,6 +43,7 @@ public final class JsonSerializationConstants {
     v1.9: addition of counterTradeRangeAction
     v2.0: addition of instants and change in usage method logic
     v2.1: addition of ra-usage-limits
+    v2.2: addition of contingency id in on-flow-constraint-in-country
      */
 
     // headers
