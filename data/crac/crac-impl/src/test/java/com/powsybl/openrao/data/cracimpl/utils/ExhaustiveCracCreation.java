@@ -298,7 +298,7 @@ public final class ExhaustiveCracCreation {
                 .withNetworkElementAndKey(-1., "generator2Id", "generator2Name")
                 .newRange().withMin(-500).withMax(500).add()
                 .newRange().withMin(-1000).withMax(1000).add()
-                .newOnFlowConstraintInCountryUsageRule().withInstant(CURATIVE_INSTANT_ID).withCountry(Country.ES).withUsageMethod(UsageMethod.AVAILABLE).add()
+                .newOnFlowConstraintInCountryUsageRule().withInstant(CURATIVE_INSTANT_ID).withContingency("contingency2Id").withCountry(Country.ES).withUsageMethod(UsageMethod.AVAILABLE).add()
                 .newOnContingencyStateUsageRule().withContingency("contingency1Id").withInstant(CURATIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add()
                 .add();
 

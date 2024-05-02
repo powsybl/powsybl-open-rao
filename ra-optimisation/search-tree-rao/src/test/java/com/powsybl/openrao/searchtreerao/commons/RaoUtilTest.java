@@ -335,8 +335,36 @@ class RaoUtilTest {
         assertIsOnFlowInCountryAvailable(na3, optimizedState, flowResult, false);
     }
 
+    @Test
+    void testIsOnFlowConstraintInCountryAvailableWithContingency() {
+        Instant curativeInstant = crac.getInstant(CURATIVE_INSTANT_ID);
+        State optimizedState = Mockito.mock(State.class);
+        when(optimizedState.getInstant()).thenReturn(curativeInstant);
+
+        FlowCnec cnecCont1 = crac.getFlowCnec("cnec1stateCurativeContingency1");
+        FlowCnec cnecCont2 = crac.getFlowCnec("cnec2stateCurativeContingency2");
+        PrePerimeterResult flowResult = mock(PrePerimeterResult.class);
+
+        RemedialAction<?> na = crac.newNetworkAction().withId("na1")
+            .newTopologicalAction().withNetworkElement("ne1").withActionType(ActionType.OPEN).add()
+            .newOnFlowConstraintInCountryUsageRule().withInstant(CURATIVE_INSTANT_ID).withContingency("Contingency FR1 FR3").withCountry(Country.FR).withUsageMethod(UsageMethod.AVAILABLE).add()
+            .add();
+
+        // cnecCont1 is after same contingency as usage rule, not cnecCont2
+        // So the RA should only be available when cnecCont1 has a negative margin
+        when(flowResult.getMargin(any(), any())).thenReturn(100.);
+
+        when(flowResult.getMargin(eq(cnecCont1), any())).thenReturn(-10.);
+        when(flowResult.getMargin(eq(cnecCont2), any())).thenReturn(10.);
+        assertIsOnFlowInCountryAvailable(na, optimizedState, flowResult, true);
+
+        when(flowResult.getMargin(eq(cnecCont1), any())).thenReturn(10.);
+        when(flowResult.getMargin(eq(cnecCont2), any())).thenReturn(-10.);
+        assertIsOnFlowInCountryAvailable(na, optimizedState, flowResult, false);
+    }
+
     private void assertIsOnFlowInCountryAvailable(RemedialAction<?> ra, State optimizedState, FlowResult flowResult, boolean available) {
-        assertEquals(available, isRemedialActionAvailable(ra, optimizedState, (PrePerimeterResult) flowResult, ra.getFlowCnecsConstrainingUsageRules(crac.getFlowCnecs(), network, optimizedState), network, raoParameters));
+        assertEquals(available, isRemedialActionAvailable(ra, optimizedState, flowResult, ra.getFlowCnecsConstrainingUsageRules(crac.getFlowCnecs(), network, optimizedState), network, raoParameters));
     }
 
     @Test
