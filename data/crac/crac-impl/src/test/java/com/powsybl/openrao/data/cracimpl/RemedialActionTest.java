@@ -10,7 +10,9 @@ package com.powsybl.openrao.data.cracimpl;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.openrao.data.cracapi.Instant;
 import com.powsybl.openrao.data.cracapi.State;
+import com.powsybl.openrao.data.cracapi.cnec.AngleCnec;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
+import com.powsybl.openrao.data.cracapi.cnec.VoltageCnec;
 import com.powsybl.openrao.data.cracapi.usagerule.UsageMethod;
 import com.powsybl.openrao.data.cracapi.usagerule.UsageRule;
 import org.junit.jupiter.api.Test;
@@ -96,5 +98,86 @@ class RemedialActionTest {
             new OnInstantImpl(UsageMethod.FORCED, instant));
         AbstractRemedialAction<?> ra = new NetworkActionImpl("id", "name", "operator", usageRules, Collections.emptySet(), 0);
         assertEquals(UsageMethod.FORCED, ra.getUsageMethod(state));
+    }
+
+    @Test
+    void testDifferentInstantsBetweenOnFlowConstraintUsageRuleAndCnec() {
+        Instant autoInstant = Mockito.mock(Instant.class);
+        Mockito.when(autoInstant.isPreventive()).thenReturn(false);
+        Instant curativeInstant = Mockito.mock(Instant.class);
+        Mockito.when(curativeInstant.isPreventive()).thenReturn(false);
+
+        State autoState = Mockito.mock(State.class);
+        Mockito.when(autoState.getInstant()).thenReturn(autoInstant);
+        State curativeState = Mockito.mock(State.class);
+        Mockito.when(curativeState.getInstant()).thenReturn(curativeInstant);
+
+        FlowCnec autoFlowCnec = Mockito.mock(FlowCnec.class);
+        Mockito.when(autoFlowCnec.getState()).thenReturn(autoState);
+        FlowCnec curativeFlowCnec = Mockito.mock(FlowCnec.class);
+        Mockito.when(curativeFlowCnec.getState()).thenReturn(curativeState);
+
+        Set<UsageRule> usageRules = Set.of(
+            new OnFlowConstraintImpl(UsageMethod.FORCED, autoInstant, autoFlowCnec),
+            new OnFlowConstraintImpl(UsageMethod.FORCED, autoInstant, curativeFlowCnec)
+        );
+
+        AbstractRemedialAction<?> ra = new NetworkActionImpl("id", "name", "operator", usageRules, Collections.emptySet(), 0);
+        assertEquals(UsageMethod.FORCED, ra.getUsageMethod(autoState));
+        assertEquals(UsageMethod.UNDEFINED, ra.getUsageMethod(curativeState));
+    }
+
+    @Test
+    void testDifferentInstantsBetweenOnAngleConstraintUsageRuleAndCnec() {
+        Instant autoInstant = Mockito.mock(Instant.class);
+        Mockito.when(autoInstant.isPreventive()).thenReturn(false);
+        Instant curativeInstant = Mockito.mock(Instant.class);
+        Mockito.when(curativeInstant.isPreventive()).thenReturn(false);
+
+        State autoState = Mockito.mock(State.class);
+        Mockito.when(autoState.getInstant()).thenReturn(autoInstant);
+        State curativeState = Mockito.mock(State.class);
+        Mockito.when(curativeState.getInstant()).thenReturn(curativeInstant);
+
+        AngleCnec autoAngleCnec = Mockito.mock(AngleCnec.class);
+        Mockito.when(autoAngleCnec.getState()).thenReturn(autoState);
+        AngleCnec curativeAngleCnec = Mockito.mock(AngleCnec.class);
+        Mockito.when(curativeAngleCnec.getState()).thenReturn(curativeState);
+
+        Set<UsageRule> usageRules = Set.of(
+            new OnAngleConstraintImpl(UsageMethod.FORCED, autoInstant, autoAngleCnec),
+            new OnAngleConstraintImpl(UsageMethod.FORCED, autoInstant, curativeAngleCnec)
+        );
+
+        AbstractRemedialAction<?> ra = new NetworkActionImpl("id", "name", "operator", usageRules, Collections.emptySet(), 0);
+        assertEquals(UsageMethod.FORCED, ra.getUsageMethod(autoState));
+        assertEquals(UsageMethod.UNDEFINED, ra.getUsageMethod(curativeState));
+    }
+
+    @Test
+    void testDifferentInstantsBetweenOnVoltageConstraintUsageRuleAndCnec() {
+        Instant autoInstant = Mockito.mock(Instant.class);
+        Mockito.when(autoInstant.isPreventive()).thenReturn(false);
+        Instant curativeInstant = Mockito.mock(Instant.class);
+        Mockito.when(curativeInstant.isPreventive()).thenReturn(false);
+
+        State autoState = Mockito.mock(State.class);
+        Mockito.when(autoState.getInstant()).thenReturn(autoInstant);
+        State curativeState = Mockito.mock(State.class);
+        Mockito.when(curativeState.getInstant()).thenReturn(curativeInstant);
+
+        VoltageCnec autoVoltageCnec = Mockito.mock(VoltageCnec.class);
+        Mockito.when(autoVoltageCnec.getState()).thenReturn(autoState);
+        VoltageCnec curativeVoltageCnec = Mockito.mock(VoltageCnec.class);
+        Mockito.when(curativeVoltageCnec.getState()).thenReturn(curativeState);
+
+        Set<UsageRule> usageRules = Set.of(
+            new OnVoltageConstraintImpl(UsageMethod.FORCED, autoInstant, autoVoltageCnec),
+            new OnVoltageConstraintImpl(UsageMethod.FORCED, autoInstant, curativeVoltageCnec)
+        );
+
+        AbstractRemedialAction<?> ra = new NetworkActionImpl("id", "name", "operator", usageRules, Collections.emptySet(), 0);
+        assertEquals(UsageMethod.FORCED, ra.getUsageMethod(autoState));
+        assertEquals(UsageMethod.UNDEFINED, ra.getUsageMethod(curativeState));
     }
 }
