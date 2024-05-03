@@ -218,7 +218,7 @@ OpenRAO creates the opposite keys by itself, therefore there is no need to speci
 
 ### Network Actions
 
-#### injection set-point
+#### generator action
 
 ```xml
 <CRACSeries>
@@ -244,7 +244,7 @@ OpenRAO creates the opposite keys by itself, therefore there is no need to speci
 
 For now the only VariationType handled by OpenRAO is "ABSOLUTE", on the node you filled in, the new set-point value will be the one you defined (in MW).
 
-#### topological actions
+#### switch actions and terminals connection actions
 
 ```xml
 <CRACSeries>
@@ -270,8 +270,11 @@ For now the only VariationType handled by OpenRAO is "ABSOLUTE", on the node you
 ```
 
 As mentioned earlier, the status must be OPEN or CLOSE and default value is OPEN.
+The elementary action will be a switch action if the network element is a switch, otherwise the network element must be
+a connectable and the action will be a terminals connection action.
 
 #### bus bar change
+
 ```xml
 <CRACSeries>
     ...
@@ -301,6 +304,7 @@ As mentioned earlier, the status must be OPEN or CLOSE and default value is OPEN
     </RemedialActions>
 </CRACSeries>
 ```
+
 These remedial actions consist in the changing of one or multiple lines' end from one bus to another.  
 In the example above, the remedial action would move:
 - Line BBE1AA11 BBE2AA1* 1 (* is a wildcard) on the left side from bus BBE1AA11 (InitialNode) to bus BBE1AA12 (FinalNode)

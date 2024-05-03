@@ -834,67 +834,102 @@ OpenRAO handles three different types of usage methods sorted by priority:
 ## Network Actions
 A OpenRAO "Network Action" is a remedial action with a binary state: it is either active or inactive.  
 One network action is a combination of one or multiple "elementary actions", among the following:
-- Topological action: opening or closing a branch or a switch in the network.
-- PST set-point: setting the tap of a PST in the network to a specific position.
-- Injection set-point: setting the active power set-point of an element in the network (load, generator, or [dangling line](https://www.powsybl.org/pages/documentation/grid/model/#dangling-line))
-  or the number of sections of a shunt compensator to a specific value.
+- Terminals connection action: opening or closing all terminals of a connectable in the network.
+- Switch action: opening or closing a switch in the network.
+- Phase tap changer tap position action: setting the tap of a PST in the network to a specific position.
+- Generator action: setting the active power of a generator in the network to a specific value.
+- Load action: setting the active power of a load in the network to a specific value.
+- Dangling line action: setting the active power of a [dangling line](https://www.powsybl.org/pages/documentation/grid/model/#dangling-line)) in the network to a specific value.
+- Shunt compensator position action: setting the number of sections of a shunt compensator to a specific value.
 - Switch pairs: opening a switch in the network and closing another (actually used to model [CSE bus-bar change remedial actions](cse.md#bus-bar-change)).
 
 ::::{tabs}
 :::{group-tab} JAVA creation API
 ~~~java
-// combination of two topological actions
+// combination of two switch actions
 crac.newNetworkAction()
 	.withId("topological-na-id")
     .withName("topological-na-name")
     .withOperator("operator")
-    .newTopologicalAction()
-		.withNetworkElement("network-element-id-1")
+    .newSwitchAction()
+		.withNetworkElement("switch-id-1")
 		.withActionType(ActionType.CLOSE)
 		.add()
-    .newTopologicalAction()
-		.withNetworkElement("network-element-id-2")
+    .newSwitchAction()
+		.withNetworkElement("switch-id-2")
 		.withActionType(ActionType.OPEN)
 		.add()
     .newOnInstantUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withInstant(PREVENTIVE_INSTANT).add()
     .add();
 
-// pst set-point
+// terminals connection action
+crac.newNetworkAction()
+	.withId("terminals-connection-na-id")
+    .withName("terminals-connection-na-name")
+    .withOperator("operator")
+    .newTerminalsConnectionAction()
+		.withNetworkElement("transformer-id")
+		.withActionType(ActionType.CLOSE)
+		.add()
+    .newOnInstantUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withInstant(PREVENTIVE_INSTANT).add()
+    .add();
+
+// phase tap chnager tap position action
 crac.newNetworkAction()
 	.withId("pst-setpoint-na-id")
     .withName("pst-setpoint-na-name")
     .withOperator("operator")
-    .newPstSetPoint()
-		.withSetpoint(15)
-		.withNetworkElement("pst-network-element-id")
+    .newPhaseTapChangerTapPositionAction()
+		.withNormalizedSetpoint(15)
+		.withNetworkElement("pst-id")
 		.add()
     .newOnInstantUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withInstant(PREVENTIVE_INSTANT).add()
     .add();
 
-// injection set-point with two usage rules
+// generator action with two usage rules
 crac.newNetworkAction()
-	.withId("injection-setpoint-na-id")
+	.withId("generator-action-na-id")
 	.withOperator("operator")
-	.newInjectionSetPoint()
-		.withSetpoint(260)
-		.withNetworkElement("generator-network-element-id")
-		.withUnit(Unit.MEGAWATT)
+	.newGeneratorAction()
+		.withActivePowerValue(260.0)
+		.withNetworkElement("generator-id")
 		.add()
     .newOnInstantUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withInstant(PREVENTIVE_INSTANT).add()
     .newOnContingencyStateUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withContingency("contingency-id").withInstant(Instant.CURATIVE).add()
     .add();
+	
+// load action
+crac.newNetworkAction()
+	.withId("load-action-na-id")
+	.withOperator("operator")
+	.newLoadAction()
+		.withActivePowerValue(260.0)
+		.withNetworkElement("load-id")
+		.add()
+    .newOnInstantUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withInstant(PREVENTIVE_INSTANT).add()
+    .add();
+	
+// dangling line action
+crac.newNetworkAction()
+	.withId("dangling-line-na-id")
+	.withOperator("operator")
+	.newDanglingLineAction()
+		.withActivePowerValue(260.0)
+		.withNetworkElement("dangling-line-id")
+		.add()
+    .newOnInstantUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withInstant(PREVENTIVE_INSTANT).add()
+    .add();
 
-// injection set-point on a shunt compensator
-    crac.newNetworkAction()
-        .withId("injection-setpoint-shunt-compensator-id")
-        .withOperator("operator")
-        .newInjectionSetPoint()
-          .withSetpoint(3)
-          .withNetworkElement("shunt-compensator-id")
-          .withUnit(Unit.SECTION_COUNT)
-          .add()
-        .newOnInstantUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withInstant(PREVENTIVE_INSTANT).add()
-        .add();
+// shunt compensator position action
+crac.newNetworkAction()
+    .withId("shunt-compensator-na-id")
+    .withOperator("operator")
+    .newShuntCompensatorPositionAction()
+        .withSetpoint(3)
+        .withNetworkElement("shunt-compensator-id")
+        .add()
+    .newOnInstantUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withInstant(PREVENTIVE_INSTANT).add()
+    .add();
 
 // switch pair
 crac.newNetworkAction()
@@ -919,11 +954,23 @@ crac.newNetworkAction()
       "usageMethod" : "available"
     } ],
     "topologicalActions" : [ {
-      "networkElementId" : "network-element-id-1",
+      "networkElementId" : "switch-id-1",
       "actionType" : "close"
     }, {
-      "networkElementId" : "network-element-id-2",
+      "networkElementId" : "switch-id-2",
       "actionType" : "open"
+    } ]
+  }, {
+    "id" : "terminals-connection-na-id",
+    "name" : "terminals-connection-na-name",
+    "operator" : "operator",
+    "freeToUseUsageRules" : [ {
+      "instant" : "preventive",
+      "usageMethod" : "available"
+    } ],
+    "topologicalActions" : [ {
+      "networkElementId" : "transformer-id",
+      "actionType" : "close"
     } ]
   }, {
     "id" : "pst-setpoint-na-id",
@@ -934,12 +981,12 @@ crac.newNetworkAction()
       "usageMethod" : "available"
     } ],
     "pstSetpoints" : [ {
-      "networkElementId" : "pst-network-element-id",
+      "networkElementId" : "pst-id",
       "setpoint" : 15
     } ]
   }, {
-    "id" : "injection-setpoint-na-id",
-    "name" : "injection-setpoint-na-id",
+    "id" : "generator-action-na-id",
+    "name" : "generator-action-na-id",
     "operator" : "operator",
     "onInstantUsageRules" : [ {
       "instant" : "preventive",
@@ -951,9 +998,48 @@ crac.newNetworkAction()
       "usageMethod" : "available"
     } ],
     "injectionSetpoints" : [ {
-      "networkElementId" : "generator-network-element-id",
+      "networkElementId" : "generator-id",
       "setpoint" : 260.0,
       "unit" : "megawatt"
+    } ]
+  }, {
+    "id" : "load-action-na-id",
+    "name" : "load-action-na-id",
+    "operator" : "operator",
+    "freeToUseUsageRules" : [ {
+      "instant" : "preventive",
+      "usageMethod" : "available"
+    } ],
+    "injectionSetpoints" : [ {
+      "networkElementId" : "load-id",
+      "setpoint" : 260.0,
+      "unit" : "megawatt"
+    } ]
+  }, {
+    "id" : "dangling-line-action-na-id",
+    "name" : "dangling-line-action-na-id",
+    "operator" : "operator",
+    "freeToUseUsageRules" : [ {
+      "instant" : "preventive",
+      "usageMethod" : "available"
+    } ],
+    "injectionSetpoints" : [ {
+      "networkElementId" : "dangling-line-id",
+      "setpoint" : 260.0,
+      "unit" : "megawatt"
+    } ]
+  }, {
+    "id" : "shunt-compensator-na-id",
+    "name" : "shunt-compensator-na-id",
+    "operator" : "operator",
+    "freeToUseUsageRules" : [ {
+      "instant" : "preventive",
+      "usageMethod" : "available"
+    } ],
+    "injectionSetpoints" : [ {
+      "networkElementId" : "shunt-compensator-id",
+      "setpoint" : 3.0,
+      "unit" : "section_count"
     } ]
   }, {
     "id" : "switch-pair-na-id",
@@ -978,16 +1064,27 @@ crac.newNetworkAction()
 ⚪ **onState usage rules**: list of 0 to N OnState usage rules (see previous paragraph on [usage rules](#remedial-actions-and-usages-rules))  
 ⚪ **onFlowConstraintInCountry usage rules**: list of 0 to N OnFlowConstraintInCountry usage rules (see previous paragraph on [usage rules](#remedial-actions-and-usages-rules))  
 ⚪ **onConstraint usage rules**: list of 0 to N OnConstraint usage rules (see previous paragraph on [usage rules](#remedial-actions-and-usages-rules))  
-🔵 **topological actions**: list of 0 to N TopologicalAction  
+🔵 **terminals connection actions**: list of 0 to N TerminalsConnectionAction
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔴 **network element**: id is mandatory, name is optional  
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔴 **action type**  
-🔵 **pst set points**: list of 0 to N PstSetPoint  
+🔵 **switch actions**: list of 0 to N SwitchAction  
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔴 **network element**: id is mandatory, name is optional  
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔴 **setpoint**: integer, new tap of the PST  
-🔵 **injection set points**: list of 0 to N InjectionSetPoint  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔴 **action type**  
+🔵 **phase tap changer tap position**: list of 0 to N PhaseTapChangerTapPositionAction  
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔴 **network element**: id is mandatory, name is optional  
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔴 **setpoint**: double, new value of the injection  
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔴 **unit**: Unit, unit of the InjectionSetPoint (MEGAWATT for generators, loads and dangling lines, or SECTION_COUNT for linear shunt compensators)  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔴 **tap position**: integer, new tap of the PST  
+🔵 **generator actions**: list of 0 to N GeneratorAction  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔴 **network element**: id is mandatory, name is optional  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔴 **active power value**: double, new value of the active power  
+🔵 **load actions**: list of 0 to N LoadAction  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔴 **network element**: id is mandatory, name is optional  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔴 **active power value**: double, new value of the active power  
+🔵 **dangling line action**: list of 0 to N DanglingLineAction  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔴 **network element**: id is mandatory, name is optional  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔴 **active power value**: double, new value of the active power  
+🔵 **shunt compensator position action**: list of 0 to N ShuntCompensatorPositionAction  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔴 **network element**: id is mandatory, name is optional  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔴 **section count**: integer, new value of the section count  
 🔵 **switch pairs**: list of 0 to N SwitchPair  
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔴 **switch to open (network element)**: id is mandatory, name is optional  
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔴 **switch to close (network element)**: id is mandatory, name is optional, must be different from switch to open  

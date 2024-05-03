@@ -250,19 +250,19 @@ crac.newPstRangeAction()
    .add();
 ```
 
-#### Add a curative topological action
+#### Add a curative terminals connection action
 
-We can finish by adding a topological action to the CRAC, which consists in connecting lines _NNL2AA1 BBE3AA1 2_ and
+We can finish by adding a terminals connection action to the CRAC, which consists in connecting lines _NNL2AA1 BBE3AA1 2_ and
 _NNL2AA1 BBE3AA1 3_ (both parallel to _NNL2AA1 BBE3AA1 1_) to the rest of the network.
 
 ```java
 crac.newNetworkAction()
-      .withId("topological-action")
-      .newTopologicalAction()
+      .withId("terminals-connection-action")
+      .newTerminalsConnectionAction()
          .withNetworkElement("NNL2AA1  BBE3AA1  2")
          .withActionType(ActionType.CLOSE)
          .add()
-      .newTopologicalAction()
+      .newTerminalsConnectionAction()
          .withNetworkElement("NNL2AA1  BBE3AA1  3")
          .withActionType(ActionType.CLOSE)
          .add()
@@ -378,7 +378,7 @@ only hold for a limited period of time, curative remedial actions must be applie
 ### Curative optimisation
 
 The RAO will now try applying the curative remedial action we defined in the CRAC, to bring the flow on line
-_NNL2AA1 BBE3AA1 1_ back under the 410 MW PATL. This curative remedial action is a topological action that closes lines
+_NNL2AA1 BBE3AA1 1_ back under the 410 MW PATL. This curative remedial action is a terminals connection action that closes lines
 _NNL2AA1 BBE3AA1 2_ and _NNL2AA1 BBE3AA1 3_, which are both parallel to _NNL2AA1 BBE3AA1 1_, thus dividing the flow in
 three. It is expected that the remedial action can solve the current problem.
 
@@ -397,19 +397,19 @@ three. It is expected that the remedial action can solve the current problem.
 [ForkJoinPool-1-worker-1] INFO  c.p.o.commons.logs.TechnicalLogs - Using base network '12NodesProdNL' on variant 'OpenRaoNetworkPool working variant e2cc75b1-3886-4172-85ae-5fac9232431d'
 [ForkJoinPool-1-worker-1] INFO  c.p.o.commons.logs.TechnicalLogs - Search depth 1 [start]
 [ForkJoinPool-1-worker-1] INFO  c.p.o.commons.logs.TechnicalLogs - Leaves to evaluate: 1
-[ForkJoinPool-2-worker-1] INFO  c.p.o.commons.logs.TechnicalLogs - Evaluated network action(s): topological-action, cost: -76.67 (functional: -76.67, virtual: 0.00)
-[ForkJoinPool-2-worker-1] INFO  c.p.o.commons.logs.TechnicalLogs - Optimized network action(s): topological-action, cost: -76.67 (functional: -76.67, virtual: 0.00)
+[ForkJoinPool-2-worker-1] INFO  c.p.o.commons.logs.TechnicalLogs - Evaluated network action(s): terminals-connection-action, cost: -76.67 (functional: -76.67, virtual: 0.00)
+[ForkJoinPool-2-worker-1] INFO  c.p.o.commons.logs.TechnicalLogs - Optimized network action(s): terminals-connection-action, cost: -76.67 (functional: -76.67, virtual: 0.00)
 [ForkJoinPool-2-worker-1] INFO  c.p.o.commons.logs.TechnicalLogs - Stop criterion reached, other threads may skip optimization.
 [ForkJoinPool-2-worker-1] INFO  c.p.o.commons.logs.TechnicalLogs - Remaining leaves to evaluate: 0
 [ForkJoinPool-1-worker-1] INFO  c.p.o.commons.logs.TechnicalLogs - Search depth 1 [end]
-[ForkJoinPool-1-worker-1] INFO  c.p.o.commons.logs.TechnicalLogs - Search depth 1 best leaf: network action(s): topological-action, cost: -76.67 (functional: -76.67, virtual: 0.00)
+[ForkJoinPool-1-worker-1] INFO  c.p.o.commons.logs.TechnicalLogs - Search depth 1 best leaf: network action(s): terminals-connection-action, cost: -76.67 (functional: -76.67, virtual: 0.00)
 [ForkJoinPool-1-worker-1] INFO  c.p.o.commons.logs.TechnicalLogs - Search depth 1 best leaf: No range actions activated
 [ForkJoinPool-1-worker-1] INFO  c.p.o.commons.logs.TechnicalLogs - Limiting element #01: margin = 76.67 MW, element NNL2AA1  BBE3AA1  1 at state contingency - curative, CNEC ID = "NNL2AA1  BBE3AA1  1 - curative"
 [ForkJoinPool-1-worker-1] INFO  c.p.o.commons.logs.TechnicalLogs - Search-tree RAO completed with status DEFAULT
-[ForkJoinPool-1-worker-1] INFO  c.p.o.commons.logs.TechnicalLogs - Best leaf: network action(s): topological-action, cost: -76.67 (functional: -76.67, virtual: 0.00)
+[ForkJoinPool-1-worker-1] INFO  c.p.o.commons.logs.TechnicalLogs - Best leaf: network action(s): terminals-connection-action, cost: -76.67 (functional: -76.67, virtual: 0.00)
 [ForkJoinPool-1-worker-1] INFO  c.p.o.commons.logs.TechnicalLogs - Best leaf: No range actions activated
 [ForkJoinPool-1-worker-1] INFO  c.p.o.commons.logs.TechnicalLogs - Limiting element #01: margin = 76.67 MW, element NNL2AA1  BBE3AA1  1 at state contingency - curative, CNEC ID = "NNL2AA1  BBE3AA1  1 - curative"
-[ForkJoinPool-1-worker-1] INFO  c.p.o.commons.logs.RaoBusinessLogs - Scenario "contingency": initial cost = 590.00 (functional: 590.00, virtual: 0.00), 1 network action(s) activated : topological-action, cost after curative optimization = -76.67 (functional: -76.67, virtual: 0.00)
+[ForkJoinPool-1-worker-1] INFO  c.p.o.commons.logs.RaoBusinessLogs - Scenario "contingency": initial cost = 590.00 (functional: 590.00, virtual: 0.00), 1 network action(s) activated : terminals-connection-action, cost after curative optimization = -76.67 (functional: -76.67, virtual: 0.00)
 [ForkJoinPool-1-worker-1] INFO  c.p.o.commons.logs.TechnicalLogs - Curative state contingency - curative has been optimized.
 [main] INFO  c.p.o.commons.logs.RaoBusinessLogs - ----- Post-contingency perimeters optimization [end]
 ```
@@ -542,14 +542,14 @@ public class Main {
             .add()
             .add();
 
-        // Add auto topological action
+        // Add auto terminals connection action
         crac.newNetworkAction()
-            .withId("topological-action")
-            .newTopologicalAction()
+            .withId("terminals-connection-action")
+            .newTerminalsConnectionAction()
             .withNetworkElement("NNL2AA1  BBE3AA1  2")
             .withActionType(ActionType.CLOSE)
             .add()
-            .newTopologicalAction()
+            .newTerminalsConnectionAction()
             .withNetworkElement("NNL2AA1  BBE3AA1  3")
             .withActionType(ActionType.CLOSE)
             .add()
