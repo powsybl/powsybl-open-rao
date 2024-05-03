@@ -55,17 +55,33 @@ They are used in the [search-tree RAO](/castor/search-tree-rao.md) only.
 
 One network action can combine one or multiple elementary actions. These are the types of elementary actions handled in OpenRAO:
 
-#### Topological actions
+#### Terminals connection actions
 
-It consists in the opening or the closing of one branch or one switch of the network.
+It consists in the opening or the closing of all terminals of a connectable of the network.
 
-#### PST set-point
+#### Switch actions
+
+It consists in the opening or the closing of one switch of the network.
+
+#### Phase tap changer tap position actions
 
 It consists in the modification of the tap of a PST to a pre-defined target tap.
 
-#### Injection set-point
+#### Generator actions
 
-It consists in the modification of an injection (load, generator, dangling line or shunt compensator) to a pre-defined set-point.
+It consists in the modification of a generator active power to a pre-defined value.
+
+#### Load actions
+
+It consists in the modification of a load active power to a pre-defined value.
+
+#### Dangling line actions
+
+It consists in the modification of a dangling line active power to a pre-defined value.
+
+#### Shunt compensator position actions
+
+It consists in the modification of a shunt compensator section count to a pre-defined value.
 
 #### Switch pair
 
