@@ -17,7 +17,6 @@ import com.google.auto.service.AutoService;
 import java.time.Instant;
 import java.util.concurrent.CompletableFuture;
 
-import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.*;
 import static com.powsybl.openrao.searchtreerao.commons.Reports.reportRao;
 
 /**
@@ -59,8 +58,7 @@ public class Castor implements RaoProvider {
             try {
                 return new CastorOneStateOnly(raoInput, parameters).run(raoReportNode);
             } catch (Exception e) {
-                Reports.reportRaoFailure(raoInput.getOptimizedState().getId(), e.getMessage(), reportNode);
-                BUSINESS_LOGS.error("Optimizing state \"{}\" failed: ", raoInput.getOptimizedState().getId(), e);
+                Reports.reportRaoFailure(raoInput.getOptimizedState().getId(), e, reportNode);
                 return CompletableFuture.completedFuture(new FailedRaoResultImpl());
             }
         } else {
