@@ -10,6 +10,8 @@ package com.powsybl.openrao.searchtreerao.searchtree.algorithms;
 import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.read.ListAppender;
+import com.powsybl.commons.report.ReportNode;
+import com.powsybl.commons.report.TypedValue;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.commons.logs.RaoBusinessLogs;
@@ -94,6 +96,11 @@ class SearchTreeTest {
         mockNetworkPool(network);
     }
 
+    private static ReportNode buildNewRootNode() {
+        ReportNode reportNode = ReportNode.newRootReportNode().withMessageTemplate("root", "Root node for tests").build();
+        return reportNode;
+    }
+
     private void setSearchTreeParameters() {
         int maximumSearchDepth = 1;
         leavesInParallel = 1;
@@ -148,7 +155,7 @@ class SearchTreeTest {
         when(rootLeaf.getStatus()).thenReturn(Leaf.Status.ERROR);
         Mockito.doReturn(rootLeaf).when(searchTree).makeLeaf(optimizationPerimeter, network, prePerimeterResult, appliedRemedialActions);
 
-        OptimizationResult result = searchTree.run().get();
+        OptimizationResult result = searchTree.run(ReportNode.NO_OP).get();
         assertEquals(rootLeaf, result);
     }
 
@@ -163,7 +170,7 @@ class SearchTreeTest {
         when(rootLeaf.getStatus()).thenReturn(Leaf.Status.EVALUATED);
         Mockito.doReturn(rootLeaf).when(searchTree).makeLeaf(optimizationPerimeter, network, prePerimeterResult, appliedRemedialActions);
 
-        OptimizationResult result = searchTree.run().get();
+        OptimizationResult result = searchTree.run(ReportNode.NO_OP).get();
         assertEquals(rootLeaf, result);
         assertEquals(leafCost, result.getCost(), DOUBLE_TOLERANCE);
     }
@@ -180,7 +187,7 @@ class SearchTreeTest {
         when(rootLeaf.getCost()).thenReturn(2.);
         when(rootLeaf.getStatus()).thenReturn(Leaf.Status.EVALUATED, Leaf.Status.OPTIMIZED);
         Mockito.doReturn(rootLeaf).when(searchTree).makeLeaf(optimizationPerimeter, network, prePerimeterResult, appliedRemedialActions);
-        OptimizationResult result = searchTree.run().get();
+        OptimizationResult result = searchTree.run(ReportNode.NO_OP).get();
         assertEquals(rootLeaf, result);
         assertEquals(2., result.getCost(), DOUBLE_TOLERANCE);
     }
@@ -193,7 +200,7 @@ class SearchTreeTest {
         when(rootLeaf.getCost()).thenReturn(4., 2.);
         when(rootLeaf.getStatus()).thenReturn(Leaf.Status.EVALUATED, Leaf.Status.OPTIMIZED);
         Mockito.doReturn(rootLeaf).when(searchTree).makeLeaf(optimizationPerimeter, network, prePerimeterResult, appliedRemedialActions);
-        OptimizationResult result = searchTree.run().get();
+        OptimizationResult result = searchTree.run(ReportNode.NO_OP).get();
         assertEquals(rootLeaf, result);
         assertEquals(2., result.getCost(), DOUBLE_TOLERANCE);
     }
@@ -212,7 +219,7 @@ class SearchTreeTest {
         when(childLeaf.getStatus()).thenReturn(Leaf.Status.ERROR);
         Mockito.doReturn(childLeaf).when(searchTree).createChildLeaf(network, new NetworkActionCombination(networkAction), false);
 
-        OptimizationResult result = searchTree.run().get();
+        OptimizationResult result = searchTree.run(ReportNode.NO_OP).get();
         assertEquals(rootLeaf, result);
         assertEquals(4., result.getCost(), DOUBLE_TOLERANCE);
     }
@@ -271,7 +278,7 @@ class SearchTreeTest {
 
         mockLeafsCosts(rootLeafCostAfterOptim, childLeafCostAfterOptim, childLeaf);
 
-        OptimizationResult result = searchTree.run().get();
+        OptimizationResult result = searchTree.run(ReportNode.NO_OP).get();
         assertEquals(childLeaf, result);
     }
 
@@ -287,7 +294,7 @@ class SearchTreeTest {
 
         mockLeafsCosts(rootLeafCostAfterOptim, childLeafCostAfterOptim, childLeaf);
 
-        OptimizationResult result = searchTree.run().get();
+        OptimizationResult result = searchTree.run(ReportNode.NO_OP).get();
         assertEquals(rootLeaf, result);
     }
 
@@ -326,7 +333,7 @@ class SearchTreeTest {
         when(childLeaf2.getCost()).thenReturn(childLeaf2CostAfterOptim);
         Mockito.doReturn(childLeaf2).when(searchTree).createChildLeaf(any(), eq(availableNaCombinations.get(1)), eq(false));
 
-        OptimizationResult result = searchTree.run().get();
+        OptimizationResult result = searchTree.run(ReportNode.NO_OP).get();
         assertEquals(childLeaf1, result);
     }
 
@@ -344,7 +351,7 @@ class SearchTreeTest {
 
         mockLeafsCosts(rootLeafCostAfterOptim, childLeafCostAfterOptim, childLeaf);
 
-        OptimizationResult result = searchTree.run().get();
+        OptimizationResult result = searchTree.run(ReportNode.NO_OP).get();
         assertEquals(childLeaf, result);
     }
 
@@ -361,7 +368,7 @@ class SearchTreeTest {
         mockRootLeafCost(5.);
         when(rootLeaf.getOptimizedSetpoint(rangeAction2, optimizedState)).thenReturn(3.);
 
-        OptimizationResult result = searchTree.run().get();
+        OptimizationResult result = searchTree.run(ReportNode.NO_OP).get();
         assertEquals(3., result.getOptimizedSetpoint(rangeAction2, optimizedState), DOUBLE_TOLERANCE);
     }
 
@@ -461,7 +468,7 @@ class SearchTreeTest {
         doThrow(OpenRaoException.class).when(rootLeaf).optimize(any(), any());
 
         try {
-            searchTree.run();
+            searchTree.run(ReportNode.NO_OP);
         } catch (OpenRaoException e) {
             fail("Should not have optimized rootleaf as it had already reached the stop criterion");
         }
@@ -484,7 +491,7 @@ class SearchTreeTest {
 
         ListAppender<ILoggingEvent> technical = getLogs(TechnicalLogs.class);
         ListAppender<ILoggingEvent> business = getLogs(RaoBusinessLogs.class);
-        searchTree.run();
+        searchTree.run(ReportNode.NO_OP);
         assertEquals(1, technical.list.size());
         assertEquals(2, business.list.size());
         assertEquals(expectedLog1, technical.list.get(0).toString());
@@ -510,7 +517,7 @@ class SearchTreeTest {
 
         ListAppender<ILoggingEvent> technical = getLogs(TechnicalLogs.class);
         ListAppender<ILoggingEvent> business = getLogs(RaoBusinessLogs.class);
-        searchTree.run();
+        searchTree.run(ReportNode.NO_OP);
         assertEquals(2, technical.list.size());
         assertEquals(1, business.list.size());
         assertEquals(expectedLog1, technical.list.get(0).toString());
@@ -574,10 +581,11 @@ class SearchTreeTest {
     @Test
     void testGetCostlyElementsLogs() {
         setUpForVirtualLogs();
+        ReportNode reportNode = buildNewRootNode();
 
-        List<String> logs = searchTree.getVirtualCostlyElementsLogs(rootLeaf, "loop-flow-cost", "Optimized ");
-        assertEquals(1, logs.size());
-        assertEquals("Optimized leaf-id, limiting \"loop-flow-cost\" constraint #01: flow = 1135.00 MW, threshold = 1000.00 MW, margin = -135.00 MW, element ne-id at state state-id, CNEC ID = \"cnec-id\", CNEC name = \"cnec-name\"", logs.get(0));
+        searchTree.logVirtualCostlyElementsLogs(reportNode, rootLeaf, "loop-flow-cost", "Optimized ", TypedValue.INFO_SEVERITY);
+        assertEquals(1, reportNode.getChildren().size());
+        assertEquals("Optimized leaf-id, limiting 'loop-flow-cost' constraint #01: flow = 1135.00 MW, threshold = 1000.00 MW, margin = -135.00 MW, element ne-id at state state-id, CNEC ID = 'cnec-id', CNEC name = 'cnec-name'", reportNode.getChildren().get(0).getMessage());
     }
 
     @Test
@@ -595,7 +603,7 @@ class SearchTreeTest {
 
         // Functional cost does not satisfy stop criterion
         ListAppender<ILoggingEvent> business = getLogs(RaoBusinessLogs.class);
-        searchTree.logVirtualCostDetails(rootLeaf, "loop-flow-cost", "Optimized ");
+        searchTree.logVirtualCostDetails(rootLeaf, "loop-flow-cost", "Optimized ", ReportNode.NO_OP);
         assertEquals(2, business.list.size());
         assertEquals("[INFO] Optimized leaf-id, stop criterion could have been reached without \"loop-flow-cost\" virtual cost", business.list.get(0).toString());
         assertEquals("[INFO] Optimized leaf-id, limiting \"loop-flow-cost\" constraint #01: flow = 1135.00 MW, threshold = 1000.00 MW, margin = -135.00 MW, element ne-id at state state-id, CNEC ID = \"cnec-id\", CNEC name = \"cnec-name\"", business.list.get(1).toString());

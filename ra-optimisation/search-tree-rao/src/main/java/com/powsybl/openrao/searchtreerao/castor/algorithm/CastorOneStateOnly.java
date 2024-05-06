@@ -118,7 +118,7 @@ public class CastorOneStateOnly {
                     .withToolProvider(toolProvider)
                     .withOutageInstant(raoInput.getCrac().getOutageInstant())
                     .build();
-            optimizationResult = new SearchTree(searchTreeInput, searchTreeParameters, true).run().join();
+            optimizationResult = new SearchTree(searchTreeInput, searchTreeParameters, true).run(ReportNode.NO_OP).join();
 
             // apply RAs and return results
             optimizationResult.getRangeActions().forEach(rangeAction -> rangeAction.apply(raoInput.getNetwork(), optimizationResult.getOptimizedSetpoint(rangeAction, raoInput.getOptimizedState())));

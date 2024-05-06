@@ -11,6 +11,7 @@ import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.read.ListAppender;
 import com.powsybl.commons.report.ReportNode;
+import com.powsybl.commons.report.TypedValue;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.commons.logs.OpenRaoLogger;
@@ -129,82 +130,96 @@ class RaoLoggerTest {
         String relativeMargin = relative ? " relative" : "";
         String ptdfString = (ptdf != null) ? format(" (PTDF %f)", ptdf) : "";
         String descriptor = format("%s at state %s", cnec.getNetworkElement().getName(), cnec.getState().getId());
-        return format(Locale.ENGLISH, "Limiting element #%02d:%s margin = %.2f %s%s, element %s, CNEC ID = \"%s\"", order, relativeMargin, margin, unit, ptdfString, descriptor, cnec.getId());
+        return format(Locale.ENGLISH, "Limiting element #%02d:%s margin = %.2f %s%s, element %s, CNEC ID = '%s'", order, relativeMargin, margin, unit, ptdfString, descriptor, cnec.getId());
     }
 
     @Test
     void testGetSummaryFromObjFunctionResultOnAllStates() {
         // Absolute MW
+        ReportNode reportNode = buildNewRootNode();
         when(objectiveFunctionResult.getMostLimitingElements(anyInt())).thenReturn(List.of(cnec1, cnec2, cnec3, cnec4, cnec5));
-        List<String> summary = RaoLogger.getMostLimitingElementsResults(objectiveFunctionResult, flowResult, null, ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_MARGIN_IN_MEGAWATT, 5, ReportNode.NO_OP);
-        assertEquals(5, summary.size());
-        assertEquals(absoluteMarginLog(1, -10, MEGAWATT, cnec1), summary.get(0));
-        assertEquals(absoluteMarginLog(2, 0, MEGAWATT, cnec2), summary.get(1));
-        assertEquals(absoluteMarginLog(3, 10, MEGAWATT, cnec3), summary.get(2));
-        assertEquals(absoluteMarginLog(4, 20, MEGAWATT, cnec4), summary.get(3));
-        assertEquals(absoluteMarginLog(5, 30, MEGAWATT, cnec5), summary.get(4));
+        RaoLogger.logMostLimitingElementsResults(objectiveFunctionResult, flowResult, null, ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_MARGIN_IN_MEGAWATT, 5, reportNode, TypedValue.INFO_SEVERITY);
+        assertEquals(5, reportNode.getChildren().size());
+        assertEquals(absoluteMarginLog(1, -10, MEGAWATT, cnec1), reportNode.getChildren().get(0).getMessage());
+        assertEquals(absoluteMarginLog(2, 0, MEGAWATT, cnec2), reportNode.getChildren().get(1).getMessage());
+        assertEquals(absoluteMarginLog(3, 10, MEGAWATT, cnec3), reportNode.getChildren().get(2).getMessage());
+        assertEquals(absoluteMarginLog(4, 20, MEGAWATT, cnec4), reportNode.getChildren().get(3).getMessage());
+        assertEquals(absoluteMarginLog(5, 30, MEGAWATT, cnec5), reportNode.getChildren().get(4).getMessage());
 
         // Relative MW
+        reportNode = buildNewRootNode();
         when(objectiveFunctionResult.getMostLimitingElements(anyInt())).thenReturn(List.of(cnec1, cnec2, cnec3, cnec4, cnec5));
-        summary = RaoLogger.getMostLimitingElementsResults(objectiveFunctionResult, flowResult, null, ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT, 5, ReportNode.NO_OP);
-        assertEquals(5, summary.size());
-        assertEquals(absoluteMarginLog(1, -10, MEGAWATT, cnec1), summary.get(0));
-        assertEquals(absoluteMarginLog(2, 0, MEGAWATT, cnec2), summary.get(1));
-        assertEquals(relativeMarginLog(3, 100, .3, MEGAWATT, cnec3), summary.get(2));
-        assertEquals(relativeMarginLog(4, 200, .4, MEGAWATT, cnec4), summary.get(3));
-        assertEquals(relativeMarginLog(5, 300, .5, MEGAWATT, cnec5), summary.get(4));
+        RaoLogger.logMostLimitingElementsResults(objectiveFunctionResult, flowResult, null, ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT, 5, reportNode, TypedValue.DEBUG_SEVERITY);
+        assertEquals(5, reportNode.getChildren().size());
+        assertEquals(absoluteMarginLog(1, -10, MEGAWATT, cnec1), reportNode.getChildren().get(0).getMessage());
+        assertEquals(absoluteMarginLog(2, 0, MEGAWATT, cnec2), reportNode.getChildren().get(1).getMessage());
+        assertEquals(relativeMarginLog(3, 100, .3, MEGAWATT, cnec3), reportNode.getChildren().get(2).getMessage());
+        assertEquals(relativeMarginLog(4, 200, .4, MEGAWATT, cnec4), reportNode.getChildren().get(3).getMessage());
+        assertEquals(relativeMarginLog(5, 300, .5, MEGAWATT, cnec5), reportNode.getChildren().get(4).getMessage());
 
         // Absolute A
+        reportNode = buildNewRootNode();
         when(objectiveFunctionResult.getMostLimitingElements(anyInt())).thenReturn(List.of(cnec2, cnec4, cnec3, cnec5, cnec1));
-        summary = RaoLogger.getMostLimitingElementsResults(objectiveFunctionResult, flowResult, null, ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_MARGIN_IN_AMPERE, 5, ReportNode.NO_OP);
-        assertEquals(5, summary.size());
-        assertEquals(absoluteMarginLog(1, -10, AMPERE, cnec2), summary.get(0));
-        assertEquals(absoluteMarginLog(2, 0, AMPERE, cnec4), summary.get(1));
-        assertEquals(absoluteMarginLog(3, 10, AMPERE, cnec3), summary.get(2));
-        assertEquals(absoluteMarginLog(4, 20, AMPERE, cnec5), summary.get(3));
-        assertEquals(absoluteMarginLog(5, 30, AMPERE, cnec1), summary.get(4));
+        RaoLogger.logMostLimitingElementsResults(objectiveFunctionResult, flowResult, null, ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_MARGIN_IN_AMPERE, 5, reportNode, TypedValue.INFO_SEVERITY);
+        assertEquals(5, reportNode.getChildren().size());
+        assertEquals(absoluteMarginLog(1, -10, AMPERE, cnec2), reportNode.getChildren().get(0).getMessage());
+        assertEquals(absoluteMarginLog(2, 0, AMPERE, cnec4), reportNode.getChildren().get(1).getMessage());
+        assertEquals(absoluteMarginLog(3, 10, AMPERE, cnec3), reportNode.getChildren().get(2).getMessage());
+        assertEquals(absoluteMarginLog(4, 20, AMPERE, cnec5), reportNode.getChildren().get(3).getMessage());
+        assertEquals(absoluteMarginLog(5, 30, AMPERE, cnec1), reportNode.getChildren().get(4).getMessage());
 
         // Relative A
+        reportNode = buildNewRootNode();
         when(objectiveFunctionResult.getMostLimitingElements(anyInt())).thenReturn(List.of(cnec2, cnec4, cnec5, cnec3, cnec1));
-        summary = RaoLogger.getMostLimitingElementsResults(objectiveFunctionResult, flowResult, Set.of(statePreventive, stateCo1Auto, stateCo1Curative, stateCo2Curative), ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN_IN_AMPERE, 5, ReportNode.NO_OP);
-        assertEquals(5, summary.size());
-        assertEquals(absoluteMarginLog(1, -10, AMPERE, cnec2), summary.get(0));
-        assertEquals(absoluteMarginLog(2, 0, AMPERE, cnec4), summary.get(1));
-        assertEquals(relativeMarginLog(3, 100, .5, AMPERE, cnec5), summary.get(2));
-        assertEquals(relativeMarginLog(4, 200, .3, AMPERE, cnec3), summary.get(3));
-        assertEquals(relativeMarginLog(5, 300, .1, AMPERE, cnec1), summary.get(4));
+        RaoLogger.logMostLimitingElementsResults(objectiveFunctionResult, flowResult, Set.of(statePreventive, stateCo1Auto, stateCo1Curative, stateCo2Curative), ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN_IN_AMPERE, 5, reportNode, TypedValue.INFO_SEVERITY);
+        assertEquals(5, reportNode.getChildren().size());
+        assertEquals(absoluteMarginLog(1, -10, AMPERE, cnec2), reportNode.getChildren().get(0).getMessage());
+        assertEquals(absoluteMarginLog(2, 0, AMPERE, cnec4), reportNode.getChildren().get(1).getMessage());
+        assertEquals(relativeMarginLog(3, 100, .5, AMPERE, cnec5), reportNode.getChildren().get(2).getMessage());
+        assertEquals(relativeMarginLog(4, 200, .3, AMPERE, cnec3), reportNode.getChildren().get(3).getMessage());
+        assertEquals(relativeMarginLog(5, 300, .1, AMPERE, cnec1), reportNode.getChildren().get(4).getMessage());
     }
 
     @Test
     void testGetSummaryFromObjFunctionResultOnSomeStates() {
         // Absolute MW
+        ReportNode reportNode = buildNewRootNode();
         when(objectiveFunctionResult.getMostLimitingElements(anyInt())).thenReturn(List.of(cnec1, cnec2, cnec3, cnec4, cnec5));
-        List<String> summary = RaoLogger.getMostLimitingElementsResults(objectiveFunctionResult, flowResult, Set.of(), ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_MARGIN_IN_MEGAWATT, 5, ReportNode.NO_OP);
-        assertEquals(0, summary.size());
-        summary = RaoLogger.getMostLimitingElementsResults(objectiveFunctionResult, flowResult, Set.of(statePreventive), ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_MARGIN_IN_MEGAWATT, 5, ReportNode.NO_OP);
-        assertEquals(1, summary.size());
-        assertEquals(absoluteMarginLog(1, 0, MEGAWATT, cnec2), summary.get(0));
+        RaoLogger.logMostLimitingElementsResults(objectiveFunctionResult, flowResult, Set.of(), ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_MARGIN_IN_MEGAWATT, 5, reportNode, TypedValue.INFO_SEVERITY);
+        assertEquals(0, reportNode.getChildren().size());
+        reportNode = buildNewRootNode();
+        RaoLogger.logMostLimitingElementsResults(objectiveFunctionResult, flowResult, Set.of(statePreventive), ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_MARGIN_IN_MEGAWATT, 5, reportNode, TypedValue.INFO_SEVERITY);
+        assertEquals(1, reportNode.getChildren().size());
+        assertEquals(absoluteMarginLog(1, 0, MEGAWATT, cnec2), reportNode.getChildren().get(0).getMessage());
 
         // Relative MW
+        reportNode = buildNewRootNode();
         when(objectiveFunctionResult.getMostLimitingElements(anyInt())).thenReturn(List.of(cnec1, cnec2, cnec3, cnec4, cnec5));
-        summary = RaoLogger.getMostLimitingElementsResults(objectiveFunctionResult, flowResult, Set.of(statePreventive, stateCo1Curative), ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT, 5, ReportNode.NO_OP);
-        assertEquals(3, summary.size());
-        assertEquals(absoluteMarginLog(1, -10, MEGAWATT, cnec1), summary.get(0));
-        assertEquals(absoluteMarginLog(2, 0, MEGAWATT, cnec2), summary.get(1));
-        assertEquals(relativeMarginLog(3, 300, .5, MEGAWATT, cnec5), summary.get(2));
+        RaoLogger.logMostLimitingElementsResults(objectiveFunctionResult, flowResult, Set.of(statePreventive, stateCo1Curative), ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT, 5, reportNode, TypedValue.INFO_SEVERITY);
+        assertEquals(3, reportNode.getChildren().size());
+        assertEquals(absoluteMarginLog(1, -10, MEGAWATT, cnec1), reportNode.getChildren().get(0).getMessage());
+        assertEquals(absoluteMarginLog(2, 0, MEGAWATT, cnec2), reportNode.getChildren().get(1).getMessage());
+        assertEquals(relativeMarginLog(3, 300, .5, MEGAWATT, cnec5), reportNode.getChildren().get(2).getMessage());
 
         // Absolute A
+        reportNode = buildNewRootNode();
         when(objectiveFunctionResult.getMostLimitingElements(anyInt())).thenReturn(List.of(cnec2, cnec4, cnec3, cnec5, cnec1));
-        summary = RaoLogger.getMostLimitingElementsResults(objectiveFunctionResult, flowResult, Set.of(stateCo2Curative), ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_MARGIN_IN_AMPERE, 5, ReportNode.NO_OP);
-        assertEquals(1, summary.size());
-        assertEquals(absoluteMarginLog(1, 10, AMPERE, cnec3), summary.get(0));
+        RaoLogger.logMostLimitingElementsResults(objectiveFunctionResult, flowResult, Set.of(stateCo2Curative), ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_MARGIN_IN_AMPERE, 5, reportNode, TypedValue.INFO_SEVERITY);
+        assertEquals(1, reportNode.getChildren().size());
+        assertEquals(absoluteMarginLog(1, 10, AMPERE, cnec3), reportNode.getChildren().get(0).getMessage());
 
         // Relative A
+        reportNode = buildNewRootNode();
         when(objectiveFunctionResult.getMostLimitingElements(anyInt())).thenReturn(List.of(cnec2, cnec4, cnec5, cnec3, cnec1));
-        summary = RaoLogger.getMostLimitingElementsResults(objectiveFunctionResult, flowResult, Set.of(stateCo2Curative, stateCo1Auto), ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN_IN_AMPERE, 5, ReportNode.NO_OP);
-        assertEquals(2, summary.size());
-        assertEquals(absoluteMarginLog(1, 0, AMPERE, cnec4), summary.get(0));
-        assertEquals(relativeMarginLog(2, 200, .3, AMPERE, cnec3), summary.get(1));
+        RaoLogger.logMostLimitingElementsResults(objectiveFunctionResult, flowResult, Set.of(stateCo2Curative, stateCo1Auto), ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN_IN_AMPERE, 5, reportNode, TypedValue.INFO_SEVERITY);
+        assertEquals(2, reportNode.getChildren().size());
+        assertEquals(absoluteMarginLog(1, 0, AMPERE, cnec4), reportNode.getChildren().get(0).getMessage());
+        assertEquals(relativeMarginLog(2, 200, .3, AMPERE, cnec3), reportNode.getChildren().get(1).getMessage());
+    }
+
+    private static ReportNode buildNewRootNode() {
+        ReportNode reportNode = ReportNode.newRootReportNode().withMessageTemplate("root", "Root node for tests").build();
+        return reportNode;
     }
 
     @Test
@@ -237,52 +252,56 @@ class RaoLoggerTest {
         mockCnecFlowResult(co1CurativeOptimResult, cnec5, -8, -8, 12, 100, .5);
 
         // Absolute MW
+        ReportNode reportNode = buildNewRootNode();
         when(basecaseOptimResult.getMostLimitingElements(anyInt())).thenReturn(List.of(cnec1, cnec2, cnec3, cnec4, cnec5));
         when(co1AutoOptimResult.getMostLimitingElements(anyInt())).thenReturn(List.of(cnec5, cnec1, cnec4));
         when(co1CurativeOptimResult.getMostLimitingElements(anyInt())).thenReturn(List.of(cnec5, cnec1));
-        List<String> summary = RaoLogger.getMostLimitingElementsResults(preventivePerimeter, basecaseOptimResult, contingencyScenarios, contingencyOptimizationResults, ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_MARGIN_IN_MEGAWATT, 5);
-        assertEquals(5, summary.size());
-        assertEquals(absoluteMarginLog(1, -8, MEGAWATT, cnec5), summary.get(0));
-        assertEquals(absoluteMarginLog(2, 0, MEGAWATT, cnec2), summary.get(1));
-        assertEquals(absoluteMarginLog(3, 2, MEGAWATT, cnec1), summary.get(2));
-        assertEquals(absoluteMarginLog(4, 10, MEGAWATT, cnec3), summary.get(3));
-        assertEquals(absoluteMarginLog(5, 35, MEGAWATT, cnec4), summary.get(4));
+        RaoLogger.logMostLimitingElementsResults(preventivePerimeter, basecaseOptimResult, contingencyScenarios, contingencyOptimizationResults, ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_MARGIN_IN_MEGAWATT, 5, reportNode);
+        assertEquals(5, reportNode.getChildren().size());
+        assertEquals(absoluteMarginLog(1, -8, MEGAWATT, cnec5), reportNode.getChildren().get(0).getMessage());
+        assertEquals(absoluteMarginLog(2, 0, MEGAWATT, cnec2), reportNode.getChildren().get(1).getMessage());
+        assertEquals(absoluteMarginLog(3, 2, MEGAWATT, cnec1), reportNode.getChildren().get(2).getMessage());
+        assertEquals(absoluteMarginLog(4, 10, MEGAWATT, cnec3), reportNode.getChildren().get(3).getMessage());
+        assertEquals(absoluteMarginLog(5, 35, MEGAWATT, cnec4), reportNode.getChildren().get(4).getMessage());
 
         // Relative MW
+        reportNode = buildNewRootNode();
         when(basecaseOptimResult.getMostLimitingElements(anyInt())).thenReturn(List.of(cnec5, cnec4, cnec3, cnec2, cnec1));
         when(co1AutoOptimResult.getMostLimitingElements(anyInt())).thenReturn(List.of(cnec5, cnec1, cnec4));
         when(co1CurativeOptimResult.getMostLimitingElements(anyInt())).thenReturn(List.of(cnec5, cnec1));
-        summary = RaoLogger.getMostLimitingElementsResults(preventivePerimeter, basecaseOptimResult, contingencyScenarios, contingencyOptimizationResults, ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT, 5);
-        assertEquals(5, summary.size());
-        assertEquals(absoluteMarginLog(1, -8, MEGAWATT, cnec5), summary.get(0));
-        assertEquals(absoluteMarginLog(2, 0, MEGAWATT, cnec2), summary.get(1));
-        assertEquals(relativeMarginLog(3, 1, null, MEGAWATT, cnec1), summary.get(2));
-        assertEquals(relativeMarginLog(4, 50, null, MEGAWATT, cnec4), summary.get(3));
-        assertEquals(relativeMarginLog(5, 100, null, MEGAWATT, cnec3), summary.get(4));
+        RaoLogger.logMostLimitingElementsResults(preventivePerimeter, basecaseOptimResult, contingencyScenarios, contingencyOptimizationResults, ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT, 5, reportNode);
+        assertEquals(5, reportNode.getChildren().size());
+        assertEquals(absoluteMarginLog(1, -8, MEGAWATT, cnec5), reportNode.getChildren().get(0).getMessage());
+        assertEquals(absoluteMarginLog(2, 0, MEGAWATT, cnec2), reportNode.getChildren().get(1).getMessage());
+        assertEquals(relativeMarginLog(3, 1, null, MEGAWATT, cnec1), reportNode.getChildren().get(2).getMessage());
+        assertEquals(relativeMarginLog(4, 50, null, MEGAWATT, cnec4), reportNode.getChildren().get(3).getMessage());
+        assertEquals(relativeMarginLog(5, 100, null, MEGAWATT, cnec3), reportNode.getChildren().get(4).getMessage());
 
         // Absolute A
+        reportNode = buildNewRootNode();
         when(basecaseOptimResult.getMostLimitingElements(anyInt())).thenReturn(List.of(cnec2, cnec5, cnec1, cnec3, cnec4));
         when(co1AutoOptimResult.getMostLimitingElements(anyInt())).thenReturn(List.of(cnec4, cnec5, cnec1));
         when(co1CurativeOptimResult.getMostLimitingElements(anyInt())).thenReturn(List.of(cnec1, cnec5));
-        summary = RaoLogger.getMostLimitingElementsResults(preventivePerimeter, basecaseOptimResult, contingencyScenarios, contingencyOptimizationResults, ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_MARGIN_IN_AMPERE, 5);
-        assertEquals(5, summary.size());
-        assertEquals(absoluteMarginLog(1, -21, AMPERE, cnec4), summary.get(0));
-        assertEquals(absoluteMarginLog(2, -10, AMPERE, cnec2), summary.get(1));
-        assertEquals(absoluteMarginLog(3, -8, AMPERE, cnec1), summary.get(2));
-        assertEquals(absoluteMarginLog(4, 10, AMPERE, cnec3), summary.get(3));
-        assertEquals(absoluteMarginLog(5, 12, AMPERE, cnec5), summary.get(4));
+        RaoLogger.logMostLimitingElementsResults(preventivePerimeter, basecaseOptimResult, contingencyScenarios, contingencyOptimizationResults, ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_MARGIN_IN_AMPERE, 5, reportNode);
+        assertEquals(5, reportNode.getChildren().size());
+        assertEquals(absoluteMarginLog(1, -21, AMPERE, cnec4), reportNode.getChildren().get(0).getMessage());
+        assertEquals(absoluteMarginLog(2, -10, AMPERE, cnec2), reportNode.getChildren().get(1).getMessage());
+        assertEquals(absoluteMarginLog(3, -8, AMPERE, cnec1), reportNode.getChildren().get(2).getMessage());
+        assertEquals(absoluteMarginLog(4, 10, AMPERE, cnec3), reportNode.getChildren().get(3).getMessage());
+        assertEquals(absoluteMarginLog(5, 12, AMPERE, cnec5), reportNode.getChildren().get(4).getMessage());
 
         // Relative A
+        reportNode = buildNewRootNode();
         when(basecaseOptimResult.getMostLimitingElements(anyInt())).thenReturn(List.of(cnec4, cnec3, cnec5, cnec1, cnec2));
         when(co1AutoOptimResult.getMostLimitingElements(anyInt())).thenReturn(List.of(cnec4, cnec1, cnec5));
         when(co1CurativeOptimResult.getMostLimitingElements(anyInt())).thenReturn(List.of(cnec1, cnec5));
-        summary = RaoLogger.getMostLimitingElementsResults(preventivePerimeter, basecaseOptimResult, contingencyScenarios, contingencyOptimizationResults, ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN_IN_AMPERE, 5);
-        assertEquals(5, summary.size());
-        assertEquals(absoluteMarginLog(1, -21, AMPERE, cnec4), summary.get(0));
-        assertEquals(absoluteMarginLog(2, -10, AMPERE, cnec2), summary.get(1));
-        assertEquals(absoluteMarginLog(3, -8, AMPERE, cnec1), summary.get(2));
-        assertEquals(relativeMarginLog(4, 100, null, AMPERE, cnec5), summary.get(3));
-        assertEquals(relativeMarginLog(5, 200, null, AMPERE, cnec3), summary.get(4));
+        RaoLogger.logMostLimitingElementsResults(preventivePerimeter, basecaseOptimResult, contingencyScenarios, contingencyOptimizationResults, ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN_IN_AMPERE, 5, reportNode);
+        assertEquals(5, reportNode.getChildren().size());
+        assertEquals(absoluteMarginLog(1, -21, AMPERE, cnec4), reportNode.getChildren().get(0).getMessage());
+        assertEquals(absoluteMarginLog(2, -10, AMPERE, cnec2), reportNode.getChildren().get(1).getMessage());
+        assertEquals(absoluteMarginLog(3, -8, AMPERE, cnec1), reportNode.getChildren().get(2).getMessage());
+        assertEquals(relativeMarginLog(4, 100, null, AMPERE, cnec5), reportNode.getChildren().get(3).getMessage());
+        assertEquals(relativeMarginLog(5, 200, null, AMPERE, cnec3), reportNode.getChildren().get(4).getMessage());
     }
 
     @Test
@@ -347,7 +366,7 @@ class RaoLoggerTest {
         rangeActions.put(fakePST1, -2.);
         rangeActions.put(fakePST2, 4.);
 
-        RaoLogger.logOptimizationSummary(logger, preventive, networkActions, rangeActions, initialObjectiveFunctionResult, objectiveFunctionResult);
+        RaoLogger.logOptimizationSummary(preventive, networkActions, rangeActions, initialObjectiveFunctionResult, objectiveFunctionResult, ReportNode.NO_OP);
         assertEquals("[INFO] Scenario \"preventive\": initial cost = -200.00 (functional: -210.30, virtual: 10.30 {sensi-fallback-cost=10.3})," +
             " 1 network action(s) and 2 range action(s) activated : Open_fake_RA and PST_2: 4, PST_1: -2," +
             " cost after preventive optimization = -100.00 (functional: -150.00, virtual: 50.00 {mnec-violation-cost=42.2, loopflow-violation-cost=7.8})", logsList.get(logsList.size() - 1).toString());
@@ -364,23 +383,23 @@ class RaoLoggerTest {
         when(objectiveFunctionResult.getVirtualCost("mnec-violation-cost")).thenReturn(0.);
         when(objectiveFunctionResult.getVirtualCost("loopflow-violation-cost")).thenReturn(0.);
 
-        RaoLogger.logOptimizationSummary(logger, curative, Collections.emptySet(), rangeActions, initialObjectiveFunctionResult, objectiveFunctionResult);
+        RaoLogger.logOptimizationSummary(curative, Collections.emptySet(), rangeActions, initialObjectiveFunctionResult, objectiveFunctionResult, ReportNode.NO_OP);
         assertEquals("[INFO] Scenario \"contingency\": initial cost = -200.00 (functional: -200.00, virtual: 0.00)," +
             " 2 range action(s) activated : PST_2: 4, PST_1: -2, cost after curative optimization = -100.00 (functional: -100.00, virtual: 0.00)", logsList.get(logsList.size() - 1).toString());
 
-        RaoLogger.logOptimizationSummary(logger, preventive, Collections.emptySet(), Collections.emptyMap(), initialObjectiveFunctionResult, objectiveFunctionResult);
+        RaoLogger.logOptimizationSummary(preventive, Collections.emptySet(), Collections.emptyMap(), initialObjectiveFunctionResult, objectiveFunctionResult, ReportNode.NO_OP);
         assertEquals("[INFO] Scenario \"preventive\": initial cost = -200.00 (functional: -200.00, virtual: 0.00)," +
             " no remedial actions activated, cost after preventive optimization = -100.00 (functional: -100.00, virtual: 0.00)", logsList.get(logsList.size() - 1).toString());
 
-        RaoLogger.logOptimizationSummary(logger, preventive, networkActions, Collections.emptyMap(), initialObjectiveFunctionResult, objectiveFunctionResult);
+        RaoLogger.logOptimizationSummary(preventive, networkActions, Collections.emptyMap(), initialObjectiveFunctionResult, objectiveFunctionResult, ReportNode.NO_OP);
         assertEquals("[INFO] Scenario \"preventive\": initial cost = -200.00 (functional: -200.00, virtual: 0.00)," +
             " 1 network action(s) activated : Open_fake_RA, cost after preventive optimization = -100.00 (functional: -100.00, virtual: 0.00)", logsList.get(logsList.size() - 1).toString());
 
-        RaoLogger.logOptimizationSummary(logger, preventive, Collections.emptySet(), Collections.emptyMap(), null, objectiveFunctionResult);
+        RaoLogger.logOptimizationSummary(preventive, Collections.emptySet(), Collections.emptyMap(), null, objectiveFunctionResult, ReportNode.NO_OP);
         assertEquals("[INFO] Scenario \"preventive\":" +
             " no remedial actions activated, cost after preventive optimization = -100.00 (functional: -100.00, virtual: 0.00)", logsList.get(logsList.size() - 1).toString());
 
-        assertThrows(java.lang.NullPointerException.class, () -> RaoLogger.logOptimizationSummary(logger, preventive, Collections.emptySet(), Collections.emptyMap(), initialObjectiveFunctionResult, null));
+        assertThrows(java.lang.NullPointerException.class, () -> RaoLogger.logOptimizationSummary(preventive, Collections.emptySet(), Collections.emptyMap(), initialObjectiveFunctionResult, null, ReportNode.NO_OP));
     }
 
     @Test
