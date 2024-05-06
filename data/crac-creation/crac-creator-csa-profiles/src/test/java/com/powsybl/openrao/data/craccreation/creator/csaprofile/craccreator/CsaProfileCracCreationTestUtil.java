@@ -186,6 +186,10 @@ public final class CsaProfileCracCreationTestUtil {
         );
     }
 
+    public static void assertHasOnFlowConstraintUsageRule(CsaProfileCracCreationContext cracCreationContext, String raId, String flowCnecId, String instant, UsageMethod usageMethod) {
+        assertHasOnFlowConstraintUsageRule(cracCreationContext, raId, flowCnecId, cracCreationContext.getCrac().getInstant(instant), usageMethod);
+    }
+
     public static void assertHasOnAngleConstraintUsageRule(CsaProfileCracCreationContext cracCreationContext, String raId, String angleCnecId, Instant instant, UsageMethod usageMethod) {
         assertTrue(
             cracCreationContext.getCrac().getRemedialAction(raId).getUsageRules().stream().filter(OnAngleConstraint.class::isInstance)
