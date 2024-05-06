@@ -345,6 +345,62 @@
             </Shared_Domain>
           </RemedialAction_Series>
         </Series>
+        <Series>
+          <mRID>RA-Series-5</mRID>
+          <businessType>B56</businessType>
+          <name>RA_SERIES-5</name>
+          <optimization_MarketObjectStatus.status>A52</optimization_MarketObjectStatus.status>
+          <Contingency_Series>
+            <mRID>CO_1</mRID>
+            <name>GHDOV-UENEDI-1 400 kV</name>
+            <RegisteredResource>
+              <mRID codingScheme="A02">_ffbabc27-1ccd-4fdc-b037-e341706c8d29</mRID>
+              <name>VJRKVJ_EIFOC_1_400</name>
+              <in_Domain.mRID codingScheme="A01">10YES-REE------0</in_Domain.mRID>
+              <out_Domain.mRID codingScheme="A01">10YES-REE------0</out_Domain.mRID>
+            </RegisteredResource>
+          </Contingency_Series>
+          <Contingency_Series>
+            <mRID>CO_2</mRID>
+            <name>GHDOV-ZEGU-1 400 kV</name>
+            <RegisteredResource>
+              <mRID codingScheme="A02">_b58bf21a-096a-4dae-9a01-3f03b60c24c7</mRID>
+              <name>VJRKVJ_ZEGU_1_400</name>
+              <in_Domain.mRID codingScheme="A01">10YES-REE------0</in_Domain.mRID>
+              <out_Domain.mRID codingScheme="A01">10YES-REE------0</out_Domain.mRID>
+            </RegisteredResource>
+          </Contingency_Series>
+          <RemedialAction_Series>
+            <mRID>RA_5</mRID>
+            <name>Mixed RA with country with multiple contingencies</name>
+            <businessType>B59</businessType>
+            <applicationMode_MarketObjectStatus.status>A27</applicationMode_MarketObjectStatus.status>
+            <availability_MarketObjectStatus.status>A39</availability_MarketObjectStatus.status>
+            <RegisteredResource>
+              <mRID codingScheme="A02">_b94318f6-6d24-4f56-96b9-df2531ad6543</mRID>
+              <name>ZFDOVBHLGTZ 1 VJDEOC</name>
+              <pSRType.psrType>A06</pSRType.psrType>
+              <in_Domain.mRID codingScheme="A01">10YPT-REN------W</in_Domain.mRID>
+              <out_Domain.mRID codingScheme="A01">10YPT-REN------W</out_Domain.mRID>
+              <marketObjectStatus.status>A25</marketObjectStatus.status>
+              <resourceCapacity.defaultCapacity>-10</resourceCapacity.defaultCapacity>
+              <resourceCapacity.unitSymbol>C62</resourceCapacity.unitSymbol>
+            </RegisteredResource>
+            <RegisteredResource>
+              <mRID codingScheme="A02">_1dc9afba-23b5-41a0-8540-b479ed8baf4b</mRID>
+              <name>BHEKG3</name>
+              <pSRType.psrType>A04</pSRType.psrType>
+              <in_Domain.mRID codingScheme="A01">10YPT-REN------W</in_Domain.mRID>
+              <out_Domain.mRID codingScheme="A01">10YPT-REN------W</out_Domain.mRID>
+              <marketObjectStatus.status>A26</marketObjectStatus.status>
+              <resourceCapacity.defaultCapacity>480</resourceCapacity.defaultCapacity>
+              <resourceCapacity.unitSymbol>MAW</resourceCapacity.unitSymbol>
+            </RegisteredResource>
+            <Shared_Domain>
+              <mRID codingScheme="A01">10YFR-RTE------C</mRID>
+            </Shared_Domain>
+          </RemedialAction_Series>
+        </Series>
       </Point>
     </Period>
   </TimeSeries>
