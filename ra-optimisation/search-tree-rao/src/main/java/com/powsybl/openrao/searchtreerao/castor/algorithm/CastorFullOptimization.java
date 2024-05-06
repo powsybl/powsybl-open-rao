@@ -47,6 +47,7 @@ import java.util.stream.Collectors;
 
 import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.*;
 import static com.powsybl.openrao.data.raoresultapi.ComputationStatus.DEFAULT;
+import static com.powsybl.openrao.data.raoresultapi.ComputationStatus.FAILURE;
 import static com.powsybl.openrao.searchtreerao.commons.RaoLogger.formatDouble;
 import static com.powsybl.openrao.searchtreerao.commons.RaoUtil.applyRemedialActions;
 
@@ -154,8 +155,8 @@ public class CastorFullOptimization {
         // optimize contingency scenarios (auto + curative instants)
 
         // If stop criterion is SECURE and preventive perimeter was not secure, do not run post-contingency RAOs
-        if (raoParameters.getObjectiveFunctionParameters().getPreventiveStopCriterion().equals(ObjectiveFunctionParameters.PreventiveStopCriterion.SECURE)
-            && preventiveOptimalCost > 0) {
+        // (however RAO could continue depending on parameter optimize-curative-if-basecase-unsecure)
+        if (shouldStopOptimisationIfPreventiveUnsecure(preventiveOptimalCost)) {
             BUSINESS_LOGS.info("Preventive perimeter could not be secured; there is no point in optimizing post-contingency perimeters. The RAO will be interrupted here.");
             mergedRaoResults = new PreventiveAndCurativesRaoResultImpl(raoInput.getCrac().getPreventiveState(), initialOutput, preventiveResult, preCurativeSensitivityAnalysisOutput, raoInput.getCrac());
             // log results
@@ -190,6 +191,12 @@ public class CastorFullOptimization {
         }
 
         return postCheckResults(mergedRaoResults, initialOutput, raoParameters.getObjectiveFunctionParameters());
+    }
+
+    private boolean shouldStopOptimisationIfPreventiveUnsecure(double preventiveOptimalCost) {
+        return raoParameters.getObjectiveFunctionParameters().getPreventiveStopCriterion().equals(ObjectiveFunctionParameters.PreventiveStopCriterion.SECURE)
+                && preventiveOptimalCost > 0
+                && !raoParameters.getObjectiveFunctionParameters().getOptimizeCurativeIfPreventiveUnsecure();
     }
 
     /**
@@ -446,6 +453,13 @@ public class CastorFullOptimization {
             // only compare initial cost with the curative costs
             return false;
         }
+        if (raoParameters.getObjectiveFunctionParameters().getPreventiveStopCriterion().equals(ObjectiveFunctionParameters.PreventiveStopCriterion.SECURE)
+                && firstPreventiveResult.getCost() > 0) {
+            // in case of curative optimization even if preventive unsecure (see parameter optimize-curative-if-preventive-unsecure)
+            // we do not want to run a second preventive that would not be able to fix the situation, to save time
+            BUSINESS_LOGS.info("First preventive RAO was not able to fix all preventive constraints, second preventive RAO cancelled to save computation time.");
+            return false;
+        }
         ObjectiveFunctionParameters.CurativeStopCriterion curativeStopCriterion = raoParameters.getObjectiveFunctionParameters().getCurativeStopCriterion();
         switch (curativeStopCriterion) {
             case MIN_OBJECTIVE:
@@ -489,8 +503,14 @@ public class CastorFullOptimization {
                                                     PerimeterResult firstPreventiveResult,
                                                     Map<State, OptimizationResult> postContingencyResults) {
         // Run 2nd preventive RAO
-        SecondPreventiveRaoResult secondPreventiveRaoResult = runSecondPreventiveRao(raoInput, parameters, stateTree, toolProvider, prePerimeterSensitivityAnalysis, initialOutput, firstPreventiveResult, postContingencyResults);
-        if (secondPreventiveRaoResult.postPraSensitivityAnalysisOutput.getSensitivityStatus() == ComputationStatus.FAILURE) {
+        SecondPreventiveRaoResult secondPreventiveRaoResult;
+        try {
+            secondPreventiveRaoResult = runSecondPreventiveRao(raoInput, parameters, stateTree, toolProvider, prePerimeterSensitivityAnalysis, initialOutput, firstPreventiveResult, postContingencyResults);
+            if (secondPreventiveRaoResult.postPraSensitivityAnalysisOutput.getSensitivityStatus() == ComputationStatus.FAILURE) {
+                return new FailedRaoResultImpl();
+            }
+        } catch (OpenRaoException e) {
+            BUSINESS_LOGS.error(e.getMessage());
             return new FailedRaoResultImpl();
         }
 
@@ -613,12 +633,12 @@ public class CastorFullOptimization {
         }
 
         // Run a first sensitivity computation using initial network and applied CRAs
-        // Do not exclude contingencies with failed sensi : by including them in second preventive optimization,
-        // the RAO will try to apply PRAs that prevent divergence on these perimeters
+        // If any sensitivity computation fails, fail and fall back to 1st preventive result
+        // TODO: can we / do we want to improve this behavior by excluding the failed contingencies?
         PrePerimeterResult sensiWithPostContingencyRemedialActions = prePerimeterSensitivityAnalysis.runBasedOnInitialResults(network, crac, initialOutput, initialOutput, stateTree.getOperatorsNotSharingCras(), appliedArasAndCras);
-        if (sensiWithPostContingencyRemedialActions.getSensitivityStatus() == ComputationStatus.FAILURE) {
-            BUSINESS_LOGS.error("Systematic sensitivity analysis after curative remedial actions before second preventive optimization failed");
-            return new SecondPreventiveRaoResult(null, sensiWithPostContingencyRemedialActions, remedialActionsExcluded, appliedArasAndCras);
+        if (sensiWithPostContingencyRemedialActions.getSensitivityStatus() == FAILURE ||
+            appliedArasAndCras.getStatesWithRa(network).stream().anyMatch(state -> sensiWithPostContingencyRemedialActions.getSensitivityStatus(state) == FAILURE)) {
+            throw new OpenRaoException("Systematic sensitivity analysis after curative remedial actions before second preventive optimization failed");
         }
         RaoLogger.logSensitivityAnalysisResults("Systematic sensitivity analysis after curative remedial actions before second preventive optimization: ",
             prePerimeterSensitivityAnalysis.getObjectiveFunction(),
