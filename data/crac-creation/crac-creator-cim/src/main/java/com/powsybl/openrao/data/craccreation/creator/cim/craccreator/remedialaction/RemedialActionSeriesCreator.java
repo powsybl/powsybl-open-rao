@@ -91,14 +91,22 @@ public class RemedialActionSeriesCreator {
         }
         UsageMethod usageMethod = instant.isAuto() ? UsageMethod.FORCED : UsageMethod.AVAILABLE;
         if (!Objects.isNull(sharedDomain)) {
-            contingencies.forEach(contingency ->
+            if (!Objects.isNull(contingencies) && !contingencies.isEmpty()) {
+                contingencies.forEach(contingency ->
+                    remedialActionAdder.newOnFlowConstraintInCountryUsageRule()
+                        .withInstant(instant.getId())
+                        .withCountry(sharedDomain)
+                        .withUsageMethod(usageMethod)
+                        .withContingency(contingency.getId())
+                        .add()
+                );
+            } else {
                 remedialActionAdder.newOnFlowConstraintInCountryUsageRule()
                     .withInstant(instant.getId())
                     .withCountry(sharedDomain)
                     .withUsageMethod(usageMethod)
-                    .withContingency(contingency.getId())
-                    .add()
-            );
+                    .add();
+            }
             return;
         }
 
