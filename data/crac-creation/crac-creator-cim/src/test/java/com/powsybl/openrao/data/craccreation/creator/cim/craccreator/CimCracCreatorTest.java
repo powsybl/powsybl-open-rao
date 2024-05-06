@@ -704,6 +704,34 @@ class CimCracCreatorTest {
             .map(InjectionSetpoint.class::cast)
             .anyMatch(is -> is.getNetworkElement().getId().equals("_1dc9afba-23b5-41a0-8540-b479ed8baf4b") && is.getSetpoint() == 480)
         );
+
+        // RA_4
+        assertNetworkActionImported("RA_4", Set.of("_b94318f6-6d24-4f56-96b9-df2531ad6543", "_1dc9afba-23b5-41a0-8540-b479ed8baf4b"), false);
+        NetworkAction ra4 = importedCrac.getNetworkAction("RA_4");
+        assertEquals(2, ra4.getUsageRules().size());
+        assertTrue(
+            ra4.getUsageRules().stream()
+                .filter(OnFlowConstraintInCountry.class::isInstance)
+                .map(OnFlowConstraintInCountry.class::cast)
+                .anyMatch(ur -> ur.getInstant().isPreventive() && ur.getContingency().isEmpty() && ur.getCountry().equals(Country.FR))
+        );
+        assertTrue(
+            ra4.getUsageRules().stream()
+                .filter(OnFlowConstraintInCountry.class::isInstance)
+                .map(OnFlowConstraintInCountry.class::cast)
+                .anyMatch(ur -> ur.getInstant().isCurative() && ur.getContingency().orElseThrow().getId().equals("CO_1") && ur.getCountry().equals(Country.FR))
+        );
+        assertEquals(2, ra4.getElementaryActions().size());
+        assertTrue(ra4.getElementaryActions().stream()
+            .filter(PstSetpoint.class::isInstance)
+            .map(PstSetpoint.class::cast)
+            .anyMatch(ps -> ps.getNetworkElement().getId().equals("_b94318f6-6d24-4f56-96b9-df2531ad6543") && ps.getSetpoint() == 0)
+        );
+        assertTrue(ra4.getElementaryActions().stream()
+            .filter(InjectionSetpoint.class::isInstance)
+            .map(InjectionSetpoint.class::cast)
+            .anyMatch(is -> is.getNetworkElement().getId().equals("_1dc9afba-23b5-41a0-8540-b479ed8baf4b") && is.getSetpoint() == 480)
+        );
     }
 
     @Test
