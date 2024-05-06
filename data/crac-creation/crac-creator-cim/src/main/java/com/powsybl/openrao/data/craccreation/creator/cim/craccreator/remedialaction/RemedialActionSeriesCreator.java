@@ -74,45 +74,42 @@ public class RemedialActionSeriesCreator {
         return raSeries;
     }
 
-    public void createAndAddRemedialActionSeries() {
-        this.remedialActionSeriesCreationContexts = new HashSet<>();
-        this.contingencies = new ArrayList<>();
-        this.invalidContingencies = new ArrayList<>();
-
-        for (Series cimSerie : getRaSeries()) {
-            this.angleCnec = null;
-            // Read and store contingencies
-            cimSerie.getContingencySeries().forEach(cimContingency -> {
-                Contingency contingency = getContingencyFromCrac(cimContingency, cracCreationContext);
-                if (Objects.nonNull(contingency)) {
-                    contingencies.add(contingency);
-                } else {
-                    invalidContingencies.add(cimContingency.getMRID());
-                }
-            });
-
-            // Read and store AdditionalConstraint Series
-            if (!readAdditionalConstraintSeries(cimSerie)) {
-                continue;
-            }
-            // Read and store Monitored Series
-            this.flowCnecs = getFlowCnecsFromMonitoredAndContingencySeries(cimSerie);
-            // Read and create / modify RA creators
-            boolean shouldReadSharedDomain = cimSerie.getContingencySeries().isEmpty() && cimSerie.getMonitoredSeries().isEmpty();
-            for (RemedialActionSeries remedialActionSeries : cimSerie.getRemedialActionSeries()) {
-                readRemedialAction(remedialActionSeries, shouldReadSharedDomain);
-            }
-
-            if (hvdcRangeActionCreator != null) {
-                this.hvdcRangeActionCreators.add(hvdcRangeActionCreator);
-                hvdcRangeActionCreator = null;
-            }
-            resetSeriesContingencies();
+    private static void addUsageRulesAtInstant(RemedialActionAdder<?> remedialActionAdder,
+                                               List<Contingency> contingencies,
+                                               List<String> invalidContingencies,
+                                               Set<FlowCnec> flowCnecs,
+                                               AngleCnec angleCnec,
+                                               Country sharedDomain,
+                                               Instant curativeInstant, Instant instant) {
+        if (!flowCnecs.isEmpty()) {
+            flowCnecs.forEach(flowCnec -> addOnFlowConstraintUsageRule(remedialActionAdder, flowCnec, instant));
+            return;
+        }
+        if (Objects.nonNull(angleCnec)) {
+            addOnAngleConstraintUsageRule(remedialActionAdder, angleCnec, curativeInstant);
+            return;
+        }
+        UsageMethod usageMethod = instant.isAuto() ? UsageMethod.FORCED : UsageMethod.AVAILABLE;
+        if (!Objects.isNull(sharedDomain)) {
+            contingencies.forEach(contingency ->
+                remedialActionAdder.newOnFlowConstraintInCountryUsageRule()
+                    .withInstant(instant.getId())
+                    .withCountry(sharedDomain)
+                    .withUsageMethod(usageMethod)
+                    .withContingency(contingency.getId())
+                    .add()
+            );
+            return;
         }
 
-        // Add all RAs from creators to CRAC
-        addAllRemedialActionsToCrac();
-        this.cracCreationContext.setRemedialActionSeriesCreationContexts(remedialActionSeriesCreationContexts);
+        checkUsageRulesContingencies(instant, contingencies, invalidContingencies);
+
+        if (instant.isPreventive() ||
+            instant.isCurative() && (contingencies == null || contingencies.isEmpty())) {
+            addOnInstantUsageRules(remedialActionAdder, instant);
+        } else {
+            RemedialActionSeriesCreator.addOnStateUsageRules(remedialActionAdder, instant, usageMethod, contingencies);
+        }
     }
 
     /**
@@ -389,35 +386,45 @@ public class RemedialActionSeriesCreator {
         }
     }
 
-    private static void addUsageRulesAtInstant(RemedialActionAdder<?> remedialActionAdder,
-                                               List<Contingency> contingencies,
-                                               List<String> invalidContingencies,
-                                               Set<FlowCnec> flowCnecs,
-                                               AngleCnec angleCnec,
-                                               Country sharedDomain,
-                                               Instant curativeInstant, Instant instant) {
-        if (!flowCnecs.isEmpty()) {
-            flowCnecs.forEach(flowCnec -> addOnFlowConstraintUsageRule(remedialActionAdder, flowCnec, instant));
-            return;
-        }
-        if (Objects.nonNull(angleCnec)) {
-            addOnAngleConstraintUsageRule(remedialActionAdder, angleCnec, curativeInstant);
-            return;
-        }
-        UsageMethod usageMethod = instant.isAuto() ? UsageMethod.FORCED : UsageMethod.AVAILABLE;
-        if (!Objects.isNull(sharedDomain)) {
-            remedialActionAdder.newOnFlowConstraintInCountryUsageRule().withInstant(instant.getId()).withCountry(sharedDomain).withUsageMethod(usageMethod).add();
-            return;
+    public void createAndAddRemedialActionSeries() {
+        this.remedialActionSeriesCreationContexts = new HashSet<>();
+        this.contingencies = new ArrayList<>();
+        this.invalidContingencies = new ArrayList<>();
+
+        for (Series cimSerie : getRaSeries()) {
+            this.angleCnec = null;
+            // Read and store contingencies
+            cimSerie.getContingencySeries().forEach(cimContingency -> {
+                Contingency contingency = getContingencyFromCrac(cimContingency, cracCreationContext);
+                if (Objects.nonNull(contingency)) {
+                    contingencies.add(contingency);
+                } else {
+                    invalidContingencies.add(cimContingency.getMRID());
+                }
+            });
+
+            // Read and store AdditionalConstraint Series
+            if (!readAdditionalConstraintSeries(cimSerie)) {
+                continue;
+            }
+            // Read and store Monitored Series
+            this.flowCnecs = getFlowCnecsFromMonitoredAndContingencySeries(cimSerie);
+            // Read and create / modify RA creators
+            boolean shouldReadSharedDomain = cimSerie.getMonitoredSeries().isEmpty();
+            for (RemedialActionSeries remedialActionSeries : cimSerie.getRemedialActionSeries()) {
+                readRemedialAction(remedialActionSeries, shouldReadSharedDomain);
+            }
+
+            if (hvdcRangeActionCreator != null) {
+                this.hvdcRangeActionCreators.add(hvdcRangeActionCreator);
+                hvdcRangeActionCreator = null;
+            }
+            resetSeriesContingencies();
         }
 
-        checkUsageRulesContingencies(instant, contingencies, invalidContingencies);
-
-        if (instant.isPreventive() ||
-            instant.isCurative() && (contingencies == null || contingencies.isEmpty())) {
-            addOnInstantUsageRules(remedialActionAdder, instant);
-        } else {
-            RemedialActionSeriesCreator.addOnStateUsageRules(remedialActionAdder, instant, usageMethod, contingencies);
-        }
+        // Add all RAs from creators to CRAC
+        addAllRemedialActionsToCrac();
+        this.cracCreationContext.setRemedialActionSeriesCreationContexts(remedialActionSeriesCreationContexts);
     }
 
     private static void checkUsageRulesContingencies(Instant instant, List<Contingency> contingencies, List<String> invalidContingencies) {

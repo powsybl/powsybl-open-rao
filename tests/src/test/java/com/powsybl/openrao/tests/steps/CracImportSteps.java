@@ -643,11 +643,13 @@ public class CracImportSteps {
                     break;
                 case "OnFlowConstraintInCountry":
                     Country country = Country.valueOf(expectedUsageRule.get("Country"));
+                    Optional<Contingency> optionalContingency = Optional.ofNullable(crac.getContingency(expectedUsageRule.get("ContingencyId")));
                     assertTrue(remedialAction.getUsageRules().stream().anyMatch(usageRule ->
                         usageRule instanceof OnFlowConstraintInCountry onFlowConstraintInCountry
                             && onFlowConstraintInCountry.getUsageMethod().equals(usageMethod)
                             && onFlowConstraintInCountry.getInstant().equals(instant)
                             && onFlowConstraintInCountry.getCountry().equals(country)
+                            && onFlowConstraintInCountry.getContingency().equals(optionalContingency)
                     ));
                     break;
                 case "OnAngleConstraint":

@@ -28,7 +28,7 @@ Feature: US 21.6 : Import HVDC Range Actions
       | HVDC-direction1 + HVDC-direction2 - BBE2AA12 FFR3AA12 1 | 1          | OnContingencyState | Forced | auto    | Co-1          |            |
 
   @fast @crac @mock
-  Scenario: US 21.6.2: Import on flow constraint in country from CIM CRAC
+  Scenario: US 21.6.2: Import on flow constraint in country with country from CIM CRAC
     Given network file is "epic21/TestCase16NodesWith2Hvdc.xiidm"
     Given crac file is "epic21/CIM_21_6_2.xml"
     Given crac creation parameters file is "epic21/CimCracCreationParameters_21_6_1.json"
@@ -40,5 +40,5 @@ Feature: US 21.6 : Import HVDC Range Actions
       | NetworkActionId | NetworkActionName | ElementaryActions | ElementaryActionType | NetworkElementId   | Action/Setpoint |
       | Auto RA Gen FR  | Auto RA Gen FR    | 1                 | InjectionSetpoint    | FFR1AA11_generator | 0               |
     And the remedial actions should have the following usage rules:
-      | RemedialActionId | UsageRules | Rule                      | Method | Instant | ContingencyId | FlowCnecId | Country |
-      | Auto RA Gen FR   | 1          | OnFlowConstraintInCountry | Forced | auto    | Co-1          |            | FR      |
+      | RemedialActionId | UsageRules | Rule                      | Method | Instant | ContingencyId | Country |
+      | Auto RA Gen FR   | 1          | OnFlowConstraintInCountry | Forced | auto    | Co-1          | FR      |
