@@ -642,10 +642,9 @@ class CimCracCreatorTest {
         assertNetworkActionImported("RA_1", Set.of("_2844585c-0d35-488d-a449-685bcd57afbf", "_ffbabc27-1ccd-4fdc-b037-e341706c8d29"), false);
         NetworkAction ra1 = importedCrac.getNetworkAction("RA_1");
         assertEquals(1, ra1.getUsageRules().size());
-        UsageRule usageRule = ra1.getUsageRules().iterator().next();
-        assertTrue(usageRule instanceof OnFlowConstraintInCountry);
-        assertEquals(preventiveInstant, usageRule.getInstant());
-        assertEquals(Country.PT, ((OnFlowConstraintInCountry) usageRule).getCountry());
+        assertTrue(ra1.getUsageRules().iterator().next() instanceof OnFlowConstraintInCountry);
+        assertEquals(preventiveInstant, ra1.getUsageRules().iterator().next().getInstant());
+        assertEquals(Country.PT, ((OnFlowConstraintInCountry) ra1.getUsageRules().iterator().next()).getCountry());
         assertEquals(2, ra1.getElementaryActions().size());
         assertTrue(ra1.getElementaryActions().stream()
             .filter(InjectionSetpoint.class::isInstance)
