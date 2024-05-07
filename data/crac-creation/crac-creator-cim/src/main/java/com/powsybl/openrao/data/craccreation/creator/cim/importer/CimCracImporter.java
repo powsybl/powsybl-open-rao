@@ -9,6 +9,7 @@ package com.powsybl.openrao.data.craccreation.creator.cim.importer;
 
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.openrao.commons.OpenRaoException;
+import com.powsybl.openrao.data.craccreation.creator.cim.Reports;
 import com.powsybl.openrao.data.nativecracioapi.NativeCracImporter;
 import com.google.auto.service.AutoService;
 import com.powsybl.openrao.data.craccreation.creator.cim.xsd.CRACMarketDocument;
@@ -26,9 +27,6 @@ import javax.xml.validation.SchemaFactory;
 import java.io.*;
 import java.net.MalformedURLException;
 import java.util.Objects;
-
-import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.BUSINESS_LOGS;
-import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.TECHNICAL_LOGS;
 
 /**
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
@@ -58,7 +56,7 @@ public class CimCracImporter implements NativeCracImporter<CimCrac> {
     }
 
     @Override
-    public boolean exists(String s, InputStream inputStream, ReportNode reportNode) {
+    public boolean exists(String filename, InputStream inputStream, ReportNode reportNode) {
         Source xmlFile = new StreamSource(inputStream);
         // The following line triggers sonar issue java:S2755 which prevents us from accessing XSD schema files
         SchemaFactory schemaFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI); //NOSONAR
@@ -70,12 +68,12 @@ public class CimCracImporter implements NativeCracImporter<CimCrac> {
             });
 
             schema.newValidator().validate(xmlFile);
-            BUSINESS_LOGS.info("CIM CRAC document is valid");
-            return FilenameUtils.getExtension(s).equals("xml");
+            Reports.reportValidCimCrac(reportNode, filename);
+            return FilenameUtils.getExtension(filename).equals("xml");
         } catch (MalformedURLException e) {
             throw new OpenRaoException("URL error");
         } catch (SAXException e) {
-            TECHNICAL_LOGS.debug("CIM CRAC document is NOT valid. Reason: {}", e.getMessage());
+            Reports.reportInvalidCimCrac(reportNode, filename, e.getMessage());
             return false;
         } catch (IOException e) {
             throw new UncheckedIOException(e);

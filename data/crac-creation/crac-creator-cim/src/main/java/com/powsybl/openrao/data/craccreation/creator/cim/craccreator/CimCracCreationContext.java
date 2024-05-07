@@ -17,10 +17,7 @@ import com.powsybl.openrao.data.craccreation.creator.cim.craccreator.contingency
 import com.powsybl.openrao.data.craccreation.creator.cim.craccreator.remedialaction.RemedialActionSeriesCreationContext;
 
 import java.time.OffsetDateTime;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -42,19 +39,19 @@ public class CimCracCreationContext implements CracCreationContext {
         this.crac = crac;
         creationReport = new CracCreationReport();
         this.timeStamp = timeStamp;
-        this.angleCnecCreationContexts = new HashSet<>();
-        this.voltageCnecCreationContexts = new HashSet<>();
+        this.angleCnecCreationContexts = new LinkedHashSet<>();
+        this.voltageCnecCreationContexts = new LinkedHashSet<>();
         this.networkName = networkName;
     }
 
     protected CimCracCreationContext(CimCracCreationContext toCopy) {
         this.crac = toCopy.crac;
         this.isCreationSuccessful = toCopy.isCreationSuccessful;
-        this.contingencyCreationContexts = new HashSet<>(toCopy.contingencyCreationContexts);
+        this.contingencyCreationContexts = new LinkedHashSet<>(toCopy.contingencyCreationContexts);
         this.monitoredSeriesCreationContexts = toCopy.monitoredSeriesCreationContexts;
-        this.angleCnecCreationContexts = new HashSet<>(toCopy.angleCnecCreationContexts);
-        this.voltageCnecCreationContexts = new HashSet<>(toCopy.voltageCnecCreationContexts);
-        this.remedialActionSeriesCreationContexts = new HashSet<>(toCopy.remedialActionSeriesCreationContexts);
+        this.angleCnecCreationContexts = new LinkedHashSet<>(toCopy.angleCnecCreationContexts);
+        this.voltageCnecCreationContexts = new LinkedHashSet<>(toCopy.voltageCnecCreationContexts);
+        this.remedialActionSeriesCreationContexts = new LinkedHashSet<>(toCopy.remedialActionSeriesCreationContexts);
         this.creationReport = toCopy.creationReport;
         this.timeStamp = toCopy.timeStamp;
         this.networkName = toCopy.networkName;
@@ -71,60 +68,60 @@ public class CimCracCreationContext implements CracCreationContext {
     }
 
     // Only contains contingency creation context report for the moment
-    public void buildCreationReport() {
-        addToReport(contingencyCreationContexts, "Contingency_Series");
-        addToReport(angleCnecCreationContexts, "AdditionalConstraint_Series");
-        addToReport(monitoredSeriesCreationContexts);
-        addToReport(remedialActionSeriesCreationContexts, "RemedialAction_Series");
-        addToReport(voltageCnecCreationContexts);
+    public void buildCreationReport(ReportNode reportNode) {
+        addToReport(contingencyCreationContexts, "Contingency_Series", reportNode);
+        addToReport(angleCnecCreationContexts, "AdditionalConstraint_Series", reportNode);
+        addToReport(monitoredSeriesCreationContexts, reportNode);
+        addToReport(remedialActionSeriesCreationContexts, "RemedialAction_Series", reportNode);
+        addToReport(voltageCnecCreationContexts, reportNode);
     }
 
-    private void addToReport(Collection<? extends ElementaryCreationContext> contexts, String nativeTypeIdentifier) {
+    private void addToReport(Collection<? extends ElementaryCreationContext> contexts, String nativeTypeIdentifier, ReportNode reportNode) {
         contexts.stream().filter(ElementaryCreationContext::isAltered).forEach(context ->
-            creationReport.altered(String.format("%s \"%s\" was modified: %s. ", nativeTypeIdentifier, context.getNativeId(), context.getImportStatusDetail()), ReportNode.NO_OP)
+            creationReport.altered(String.format("%s \"%s\" was modified: %s. ", nativeTypeIdentifier, context.getNativeId(), context.getImportStatusDetail()), reportNode)
         );
         contexts.stream().filter(context -> !context.isImported()).forEach(context ->
-            creationReport.removed(String.format("%s \"%s\" was not imported: %s. %s.", nativeTypeIdentifier, context.getNativeId(), context.getImportStatus(), context.getImportStatusDetail()), ReportNode.NO_OP)
+            creationReport.removed(String.format("%s \"%s\" was not imported: %s. %s.", nativeTypeIdentifier, context.getNativeId(), context.getImportStatus(), context.getImportStatusDetail()), reportNode)
         );
     }
 
-    private void addToReport(Map<String, MonitoredSeriesCreationContext> monitoredSeriesCreationContexts) {
+    private void addToReport(Map<String, MonitoredSeriesCreationContext> monitoredSeriesCreationContexts, ReportNode reportNode) {
         for (MonitoredSeriesCreationContext monitoredSeriesCreationContext : monitoredSeriesCreationContexts.values()) {
             if (!monitoredSeriesCreationContext.isImported()) {
                 creationReport.removed(String.format("Monitored_Series \"%s\" was not imported: %s. %s.", monitoredSeriesCreationContext.getNativeId(),
-                    monitoredSeriesCreationContext.getImportStatus(), monitoredSeriesCreationContext.getImportStatusDetail()), ReportNode.NO_OP);
+                    monitoredSeriesCreationContext.getImportStatus(), monitoredSeriesCreationContext.getImportStatusDetail()), reportNode);
             } else {
                 if (monitoredSeriesCreationContext.isAltered()) {
                     creationReport.altered(String.format("Monitored_Series \"%s\" was altered : %s.", monitoredSeriesCreationContext.getNativeId(),
-                        monitoredSeriesCreationContext.getImportStatusDetail()), ReportNode.NO_OP);
+                        monitoredSeriesCreationContext.getImportStatusDetail()), reportNode);
                 }
-                addToReport(monitoredSeriesCreationContext.getMeasurementCreationContexts(), monitoredSeriesCreationContext.getNativeId());
+                addToReport(monitoredSeriesCreationContext.getMeasurementCreationContexts(), monitoredSeriesCreationContext.getNativeId(), reportNode);
             }
         }
     }
 
-    private void addToReport(Set<MeasurementCreationContext> measurementCreationContexts, String monitoredSeriesNativeId) {
+    private void addToReport(Set<MeasurementCreationContext> measurementCreationContexts, String monitoredSeriesNativeId, ReportNode reportNode) {
         for (MeasurementCreationContext measurementCreationContext : measurementCreationContexts) {
             if (!measurementCreationContext.isImported()) {
                 creationReport.removed(String.format("A Measurement in Monitored_Series \"%s\" was not imported: %s. %s.", monitoredSeriesNativeId,
-                    measurementCreationContext.getImportStatus(), measurementCreationContext.getImportStatusDetail()), ReportNode.NO_OP);
+                    measurementCreationContext.getImportStatus(), measurementCreationContext.getImportStatusDetail()), reportNode);
             } else {
                 for (CnecCreationContext cnecCreationContext : measurementCreationContext.getCnecCreationContexts().values()) {
                     if (!cnecCreationContext.isImported()) {
                         creationReport.removed(String.format("A Cnec in Monitored_Series \"%s\" was not imported: %s. %s.", monitoredSeriesNativeId,
-                            cnecCreationContext.getImportStatus(), cnecCreationContext.getImportStatusDetail()), ReportNode.NO_OP);
+                            cnecCreationContext.getImportStatus(), cnecCreationContext.getImportStatusDetail()), reportNode);
                     }
                 }
             }
         }
     }
 
-    private void addToReport(Set<VoltageCnecCreationContext> voltageCnecCreationContexts) {
+    private void addToReport(Set<VoltageCnecCreationContext> voltageCnecCreationContexts, ReportNode reportNode) {
         voltageCnecCreationContexts.stream().filter(context -> !context.isImported()).forEach(context -> {
                 String neId = context.getNativeNetworkElementId() != null ? context.getNativeNetworkElementId() : "all";
                 String instant = context.getInstantId() != null ? context.getInstantId().toLowerCase() : "all";
                 String coName = context.getNativeContingencyName() != null ? context.getNativeContingencyName() : "all";
-                creationReport.removed(String.format("VoltageCnec with network element \"%s\", instant \"%s\" and contingency \"%s\" was not imported: %s. %s.", neId, instant, coName, context.getImportStatus(), context.getImportStatusDetail()), ReportNode.NO_OP);
+                creationReport.removed(String.format("VoltageCnec with network element \"%s\", instant \"%s\" and contingency \"%s\" was not imported: %s. %s.", neId, instant, coName, context.getImportStatus(), context.getImportStatusDetail()), reportNode);
             }
         );
     }
@@ -149,7 +146,7 @@ public class CimCracCreationContext implements CracCreationContext {
     }
 
     public Set<AngleCnecCreationContext> getAngleCnecCreationContexts() {
-        return new HashSet<>(angleCnecCreationContexts);
+        return new LinkedHashSet<>(angleCnecCreationContexts);
     }
 
     public AngleCnecCreationContext getAngleCnecCreationContext(String seriesId) {
@@ -161,7 +158,7 @@ public class CimCracCreationContext implements CracCreationContext {
     }
 
     public Set<VoltageCnecCreationContext> getVoltageCnecCreationContexts() {
-        return new HashSet<>(voltageCnecCreationContexts);
+        return new LinkedHashSet<>(voltageCnecCreationContexts);
     }
 
     public VoltageCnecCreationContext getVoltageCnecCreationContext(String nativeNetworkElementId, String instantId, String nativeContingencyName) {
@@ -181,11 +178,11 @@ public class CimCracCreationContext implements CracCreationContext {
     }
 
     public void setContingencyCreationContexts(Set<CimContingencyCreationContext> contingencyCreationContexts) {
-        this.contingencyCreationContexts = new HashSet<>(contingencyCreationContexts);
+        this.contingencyCreationContexts = new LinkedHashSet<>(contingencyCreationContexts);
     }
 
     public Set<CimContingencyCreationContext> getContingencyCreationContexts() {
-        return new HashSet<>(contingencyCreationContexts);
+        return new LinkedHashSet<>(contingencyCreationContexts);
     }
 
     public MonitoredSeriesCreationContext getMonitoredSeriesCreationContext(String seriesId) {
@@ -201,7 +198,7 @@ public class CimCracCreationContext implements CracCreationContext {
     }
 
     public void setRemedialActionSeriesCreationContexts(Set<RemedialActionSeriesCreationContext> remedialActionCreationContexts) {
-        this.remedialActionSeriesCreationContexts = new HashSet<>(remedialActionCreationContexts);
+        this.remedialActionSeriesCreationContexts = new LinkedHashSet<>(remedialActionCreationContexts);
     }
 
     public Set<RemedialActionSeriesCreationContext> getRemedialActionSeriesCreationContexts() {

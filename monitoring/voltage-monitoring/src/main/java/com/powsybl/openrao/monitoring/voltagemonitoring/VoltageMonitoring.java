@@ -170,10 +170,10 @@ public class VoltageMonitoring {
     }
 
     private VoltageMonitoringResult monitorVoltageCnecsAndLog(String loadFlowProvider, LoadFlowParameters loadFlowParameters, State state, Network networkClone, ReportNode reportNode) {
-        ReportNode voltageMoniotirngAtStateReportNode = Reports.reportMonitoringVoltagesAtState(reportNode, state);
-        VoltageMonitoringResult result = monitorVoltageCnecs(loadFlowProvider, loadFlowParameters, state, networkClone, voltageMoniotirngAtStateReportNode);
+        ReportNode voltageMoniotoringAtStateReportNode = Reports.reportMonitoringVoltagesAtState(reportNode, state);
+        VoltageMonitoringResult result = monitorVoltageCnecs(loadFlowProvider, loadFlowParameters, state, networkClone, voltageMoniotoringAtStateReportNode);
         result.reportConstraints(reportNode);
-        Reports.reportMonitoringVoltagesAtStateEnd(voltageMoniotirngAtStateReportNode, state);
+        Reports.reportMonitoringVoltagesAtStateEnd(voltageMoniotoringAtStateReportNode, state);
         return result;
     }
 

@@ -35,10 +35,6 @@ public class CimContingencyCreator {
     private Set<CimContingencyCreationContext> cimContingencyCreationContexts;
     private CimCracCreationContext cracCreationContext;
 
-    public Set<CimContingencyCreationContext> getContingencyCreationContexts() {
-        return new HashSet<>(cimContingencyCreationContexts);
-    }
-
     public CimContingencyCreator(List<TimeSeries> cimTimeSeries, Crac crac, Network network, CimCracCreationContext cracCreationContext) {
         this.cimTimeSeries = cimTimeSeries;
         this.crac = crac;
@@ -47,7 +43,7 @@ public class CimContingencyCreator {
     }
 
     public void createAndAddContingencies() {
-        this.cimContingencyCreationContexts = new HashSet<>();
+        this.cimContingencyCreationContexts = new LinkedHashSet<>();
         CimCracUtils.applyActionToEveryPoint(
                 cimTimeSeries,
                 cracCreationContext.getTimeStamp().toInstant(),

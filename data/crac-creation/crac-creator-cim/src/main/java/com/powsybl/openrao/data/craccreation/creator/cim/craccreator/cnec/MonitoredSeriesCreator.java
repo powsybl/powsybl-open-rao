@@ -52,7 +52,7 @@ public class MonitoredSeriesCreator {
         this.defaultMonitoredSides = defaultMonitoredSides;
     }
 
-    public void createAndAddMonitoredSeries() {
+    public void createAndAddMonitoredSeries(ReportNode reportNode) {
         this.monitoredSeriesCreationContexts = new HashMap<>();
 
         for (Series cimSerie : getCnecSeries()) {
@@ -71,7 +71,7 @@ public class MonitoredSeriesCreator {
                 contingencies = new ArrayList<>(crac.getContingencies());
             }
             for (MonitoredSeries monitoredSeries : cimSerie.getMonitoredSeries()) {
-                readAndAddCnec(monitoredSeries, contingencies, optimizationStatus, invalidContingencies);
+                readAndAddCnec(monitoredSeries, contingencies, optimizationStatus, invalidContingencies, reportNode);
             }
         }
 
@@ -95,16 +95,16 @@ public class MonitoredSeriesCreator {
         return series.getBusinessType().equals(CNECS_SERIES_BUSINESS_TYPE) || series.getBusinessType().equals(REMEDIAL_ACTIONS_SERIES_BUSINESS_TYPE);
     }
 
-    private void readAndAddCnec(MonitoredSeries monitoredSeries, List<Contingency> contingencies, String optimizationStatus, List<String> invalidContingencies) {
+    private void readAndAddCnec(MonitoredSeries monitoredSeries, List<Contingency> contingencies, String optimizationStatus, List<String> invalidContingencies, ReportNode reportNode) {
         String nativeId = monitoredSeries.getMRID();
         String nativeName = monitoredSeries.getName();
         List<MonitoredRegisteredResource> monitoredRegisteredResources = monitoredSeries.getRegisteredResource();
         if (monitoredRegisteredResources.isEmpty()) {
-            saveMonitoredSeriesCreationContexts(nativeId, MonitoredSeriesCreationContext.notImported(nativeId, nativeName, null, null, ImportStatus.INCOMPLETE_DATA, "No registered resources"));
+            saveMonitoredSeriesCreationContexts(nativeId, MonitoredSeriesCreationContext.notImported(nativeId, nativeName, null, null, ImportStatus.INCOMPLETE_DATA, "No registered resources"), reportNode);
             return;
         }
         if (monitoredRegisteredResources.size() > 1) {
-            saveMonitoredSeriesCreationContexts(nativeId, MonitoredSeriesCreationContext.notImported(nativeId, nativeName, null, null, ImportStatus.INCONSISTENCY_IN_DATA, "More than one registered resources"));
+            saveMonitoredSeriesCreationContexts(nativeId, MonitoredSeriesCreationContext.notImported(nativeId, nativeName, null, null, ImportStatus.INCONSISTENCY_IN_DATA, "More than one registered resources"), reportNode);
             return;
         }
 
@@ -117,7 +117,7 @@ public class MonitoredSeriesCreator {
         CgmesBranchHelper branchHelper = new CgmesBranchHelper(monitoredRegisteredResource.getMRID().getValue(), network);
         if (!branchHelper.isValid()) {
             saveMonitoredSeriesCreationContexts(nativeId, MonitoredSeriesCreationContext.notImported(nativeId, nativeName, resourceId, resourceName,
-                ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK, String.format("Network element was not found in network: %s", monitoredRegisteredResource.getMRID().getValue())));
+                ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK, String.format("Network element was not found in network: %s", monitoredRegisteredResource.getMRID().getValue())), reportNode);
             return;
         }
 
@@ -128,8 +128,8 @@ public class MonitoredSeriesCreator {
         } catch (OpenRaoException e) {
             saveMonitoredSeriesCreationContexts(nativeId,
                 MonitoredSeriesCreationContext.notImported(nativeId, nativeName, resourceId, resourceName,
-                    ImportStatus.INCONSISTENCY_IN_DATA, e.getMessage())
-            );
+                    ImportStatus.INCONSISTENCY_IN_DATA, e.getMessage()),
+                    reportNode);
             return;
         }
 
@@ -145,19 +145,19 @@ public class MonitoredSeriesCreator {
         // Read measurements
         monitoredRegisteredResource.getMeasurements().forEach(
             measurement -> monitoredSeriesCreationContext.addMeasurementCreationContext(
-                createCnecFromMeasurement(measurement, cnecId, isMnec, branchHelper, contingencies)
+                createCnecFromMeasurement(measurement, cnecId, isMnec, branchHelper, contingencies, reportNode)
             )
         );
 
-        saveMonitoredSeriesCreationContexts(nativeId, monitoredSeriesCreationContext);
+        saveMonitoredSeriesCreationContexts(nativeId, monitoredSeriesCreationContext, reportNode);
     }
 
-    private void saveMonitoredSeriesCreationContexts(String nativeId, MonitoredSeriesCreationContext mscc) {
+    private void saveMonitoredSeriesCreationContexts(String nativeId, MonitoredSeriesCreationContext mscc, ReportNode reportNode) {
         MonitoredSeriesCreationContext newMscc = mscc;
         if (monitoredSeriesCreationContexts.containsKey(nativeId)) {
             cracCreationContext.getCreationReport().warn(
                 String.format("Multiple Monitored_Series with same mRID \"%s\" detected; they will be merged.", nativeId),
-                    ReportNode.NO_OP
+                    reportNode
             );
             // TSO can define multiple Monitored_Series with same mRID. Add information from new one to old one
             MonitoredSeriesCreationContext mscc2 = monitoredSeriesCreationContexts.get(nativeId);
@@ -191,7 +191,7 @@ public class MonitoredSeriesCreator {
         return Objects.nonNull(optimizationStatus) && optimizationStatus.equals(CNECS_MNEC_MARKET_OBJECT_STATUS);
     }
 
-    private MeasurementCreationContext createCnecFromMeasurement(Analog measurement, String cnecId, boolean isMnec, CgmesBranchHelper branchHelper, List<Contingency> contingencies) {
+    private MeasurementCreationContext createCnecFromMeasurement(Analog measurement, String cnecId, boolean isMnec, CgmesBranchHelper branchHelper, List<Contingency> contingencies, ReportNode reportNode) {
         Instant instant;
         Unit unit;
         String direction;
@@ -205,7 +205,7 @@ public class MonitoredSeriesCreator {
             return MeasurementCreationContext.notImported(ImportStatus.INCONSISTENCY_IN_DATA, e.getMessage());
         }
 
-        return addCnecs(cnecId, branchHelper, isMnec, direction, unit, threshold, contingencies, instant);
+        return addCnecs(cnecId, branchHelper, isMnec, direction, unit, threshold, contingencies, instant, reportNode);
     }
 
     private InstantKind getMeasurementInstant(Analog measurement) {
@@ -249,13 +249,13 @@ public class MonitoredSeriesCreator {
 
     private MeasurementCreationContext addCnecs(String cnecNativeId, CgmesBranchHelper branchHelper,
                                                 boolean isMnec, String direction, Unit unit, double threshold,
-                                                List<Contingency> contingencies, Instant instant) {
+                                                List<Contingency> contingencies, Instant instant, ReportNode reportNode) {
         MeasurementCreationContext measurementCreationContext = MeasurementCreationContext.imported();
         if (instant.isPreventive()) {
-            addCnecsOnContingency(cnecNativeId, branchHelper, isMnec, direction, unit, threshold, null, instant, measurementCreationContext);
+            addCnecsOnContingency(cnecNativeId, branchHelper, isMnec, direction, unit, threshold, null, instant, measurementCreationContext, reportNode);
         } else {
             contingencies.forEach(contingency ->
-                addCnecsOnContingency(cnecNativeId, branchHelper, isMnec, direction, unit, threshold, contingency, instant, measurementCreationContext)
+                addCnecsOnContingency(cnecNativeId, branchHelper, isMnec, direction, unit, threshold, contingency, instant, measurementCreationContext, reportNode)
             );
         }
         return measurementCreationContext;
@@ -263,7 +263,7 @@ public class MonitoredSeriesCreator {
 
     private void addCnecsOnContingency(String cnecNativeId, CgmesBranchHelper branchHelper,
                                        boolean isMnec, String direction, Unit unit, double threshold,
-                                       Contingency contingency, Instant instant, MeasurementCreationContext measurementCreationContext) {
+                                       Contingency contingency, Instant instant, MeasurementCreationContext measurementCreationContext, ReportNode reportNode) {
         FlowCnecAdder flowCnecAdder = crac.newFlowCnec();
         String contingencyId = Objects.isNull(contingency) ? "" : contingency.getId();
 
@@ -306,7 +306,7 @@ public class MonitoredSeriesCreator {
             // share tielines, but those are distinguished by the RIGHT/LEFT label)
             cracCreationContext.getCreationReport().warn(
                 String.format("Multiple CNECs on same network element (%s) and same state (%s%s%s) have been detected. Only one CNEC will be created.", branchHelper.getBranch().getId(), contingencyId, Objects.isNull(contingency) ? "" : " - ", instant),
-                ReportNode.NO_OP
+                reportNode
             );
         }
         measurementCreationContext.addCnecCreationContext(contingencyId, instant, CnecCreationContext.imported(cnecId));
