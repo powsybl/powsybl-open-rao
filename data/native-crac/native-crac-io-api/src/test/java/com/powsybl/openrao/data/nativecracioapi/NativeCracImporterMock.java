@@ -33,7 +33,7 @@ public class NativeCracImporterMock implements NativeCracImporter {
     }
 
     @Override
-    public boolean exists(String fileName, InputStream inputStream) {
+    public boolean exists(String fileName, InputStream inputStream, ReportNode reportNode) {
         return true;
     }
 }

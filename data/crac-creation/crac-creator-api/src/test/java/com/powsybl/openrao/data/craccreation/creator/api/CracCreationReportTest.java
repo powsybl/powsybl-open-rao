@@ -16,6 +16,11 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
+import java.io.StringWriter;
+import java.net.URISyntaxException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -27,6 +32,11 @@ import static org.junit.jupiter.api.Assertions.assertNotSame;
 class CracCreationReportTest {
 
     private CracCreationReport cracCreationReport;
+
+    private static ReportNode buildNewRootNode() {
+        ReportNode reportNode = ReportNode.newRootReportNode().withMessageTemplate("root", "Root node for tests").build();
+        return reportNode;
+    }
 
     @BeforeEach
     public void setUp() {
@@ -126,5 +136,23 @@ class CracCreationReportTest {
         assertEquals(2, logsList.size());
         assertEquals("[INFO] [WARN] message1", logsList.get(0).toString());
         assertEquals("[INFO] [ERROR] message2", logsList.get(1).toString());
+    }
+
+    @Test
+    void testReportNode() throws IOException, URISyntaxException {
+        ReportNode reportNode = buildNewRootNode();
+        cracCreationReport.warn("message1", reportNode);
+        cracCreationReport.error("message2", reportNode);
+        cracCreationReport.info("message3", reportNode);
+        cracCreationReport.added("message4", reportNode);
+        cracCreationReport.altered("message5", reportNode);
+        cracCreationReport.removed("message6", reportNode);
+
+        String expected = Files.readString(Path.of(getClass().getResource("/expectedReportNodeContent.txt").toURI()));
+        try (StringWriter writer = new StringWriter()) {
+            reportNode.print(writer);
+            String actual = writer.toString();
+            assertEquals(expected, actual);
+        }
     }
 }

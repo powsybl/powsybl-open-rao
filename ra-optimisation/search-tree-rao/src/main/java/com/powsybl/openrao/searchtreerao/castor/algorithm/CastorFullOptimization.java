@@ -47,7 +47,6 @@ import java.util.stream.Collectors;
 import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.*;
 import static com.powsybl.openrao.data.raoresultapi.ComputationStatus.DEFAULT;
 import static com.powsybl.openrao.data.raoresultapi.ComputationStatus.FAILURE;
-import static com.powsybl.openrao.searchtreerao.commons.RaoLogger.formatDouble;
 import static com.powsybl.openrao.searchtreerao.commons.RaoUtil.applyRemedialActions;
 
 /**

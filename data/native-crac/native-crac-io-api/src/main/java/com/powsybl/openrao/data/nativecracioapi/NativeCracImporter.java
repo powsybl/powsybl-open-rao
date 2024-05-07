@@ -30,6 +30,13 @@ public interface NativeCracImporter<T extends NativeCrac> {
     /**
      * Import a NativeCrac from an input stream.
      */
+    default T importNativeCrac(InputStream inputStream) {
+        return importNativeCrac(inputStream, ReportNode.NO_OP);
+    }
+
+    /**
+     * Import a NativeCrac from an input stream.
+     */
     T importNativeCrac(InputStream inputStream, ReportNode reportNode);
 
     /**
@@ -38,5 +45,15 @@ public interface NativeCracImporter<T extends NativeCrac> {
      * @param inputStream the input stream of the file
      * @return true if the inputStream is importable, false otherwise
      */
-    boolean exists(String fileName, InputStream inputStream);
+    default boolean exists(String fileName, InputStream inputStream) {
+        return exists(fileName, inputStream, ReportNode.NO_OP);
+    }
+
+    /**
+     * Check if a file is importable.
+     * @param fileName the file name
+     * @param inputStream the input stream of the file
+     * @return true if the inputStream is importable, false otherwise
+     */
+    boolean exists(String fileName, InputStream inputStream, ReportNode reportNode);
 }

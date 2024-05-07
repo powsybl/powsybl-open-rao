@@ -121,8 +121,8 @@ public class VoltageMonitoring {
 
     private ReportNode runPostContingencyTask(String loadFlowProvider, LoadFlowParameters loadFlowParameters, State state, AbstractNetworkPool networkPool) throws InterruptedException {
         ReportNode rootReportNode = Reports.generatePostContingencyRootReportNode();
-
         ReportNode scenarioReportNode = Reports.reportPostContingencyTask(state, rootReportNode);
+
         Network networkClone = networkPool.getAvailableNetwork();
         try {
             Contingency contingency = state.getContingency().orElseThrow();

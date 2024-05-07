@@ -35,6 +35,15 @@ public final class NativeCracImporters {
      * Flexible method to import a NativeCrac from a file, trying to guess its format
      *
      * @param nativeCracPath {@link Path} of the native CRAC file
+     */
+    public static NativeCrac importData(Path nativeCracPath) {
+        return importData(nativeCracPath, ReportNode.NO_OP);
+    }
+
+    /**
+     * Flexible method to import a NativeCrac from a file, trying to guess its format
+     *
+     * @param nativeCracPath {@link Path} of the native CRAC file
      * @param reportNode
      */
     public static NativeCrac importData(Path nativeCracPath, ReportNode reportNode) {
@@ -45,6 +54,16 @@ public final class NativeCracImporters {
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
+    }
+
+    /**
+     * Flexible method to import a NativeCrac from a file, trying to guess its format
+     *
+     * @param fileName    name of the native CRAC file
+     * @param inputStream input stream of the native CRAC file
+     */
+    public static NativeCrac importData(String fileName, InputStream inputStream) {
+        return importData(fileName, inputStream, ReportNode.NO_OP);
     }
 
     /**

@@ -131,7 +131,7 @@ public class CsaProfileCracImporter implements NativeCracImporter<CsaProfileCrac
     }
 
     @Override
-    public boolean exists(String fileName, InputStream inputStream) {
+    public boolean exists(String fileName, InputStream inputStream, ReportNode reportNode) {
         TripleStore tripleStoreCsaProfile = TripleStoreFactory.create(CsaProfileConstants.TRIPLESTORE_RDF4J_NAME);
         tripleStoreCsaProfile.read(inputStream, CsaProfileConstants.RDF_BASE_URL, "");
         return FilenameUtils.getExtension(fileName).equals(CsaProfileConstants.EXTENSION_FILE_CSA_PROFILE);
