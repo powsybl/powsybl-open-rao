@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.monitoring.voltagemonitoring.json;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.contingency.ContingencyElementType;
 import com.powsybl.openrao.commons.OpenRaoException;
@@ -28,6 +29,7 @@ import java.io.OutputStream;
 import java.text.DecimalFormatSymbols;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.powsybl.openrao.monitoring.voltagemonitoring.VoltageMonitoringResult.Status.UNKNOWN;
@@ -50,6 +52,11 @@ class JsonVoltageMonitoringResultTest {
     State preventiveState;
     Contingency co1;
     VoltageMonitoringResultImporter voltageMonitoringResultImporter;
+
+    private static ReportNode buildNewRootNode() {
+        ReportNode reportNode = ReportNode.newRootReportNode().withMessageTemplate("root", "Root node for tests").build();
+        return reportNode;
+    }
 
     public static Stream<Arguments> provideParameters() {
         return Stream.of(
@@ -111,11 +118,15 @@ class JsonVoltageMonitoringResultTest {
         assertEquals(148.4, voltageMonitoringResult.getMaxVoltage(vc1), VOLTAGE_TOLERANCE);
         assertEquals(143.1, voltageMonitoringResult.getMinVoltage(vc2), VOLTAGE_TOLERANCE);
         assertEquals(147.7, voltageMonitoringResult.getMaxVoltage(vc2), VOLTAGE_TOLERANCE);
+
+        ReportNode reportNode = buildNewRootNode();
+        voltageMonitoringResult.reportConstraints(reportNode);
         assertEquals(List.of(
             "Some voltage CNECs are not secure:",
             "Network element VL45 at state preventive has a voltage of 144 - 148 kV.",
             "Network element VL46 at state co1 - curative has a voltage of 143 - 148 kV."),
-            voltageMonitoringResult.printConstraints());
+                reportNode.getChildren().stream().map(ReportNode::getMessage).collect(Collectors.toList())
+        );
 
         OutputStream os = new ByteArrayOutputStream();
         new VoltageMonitoringResultExporter().export(voltageMonitoringResult, os);

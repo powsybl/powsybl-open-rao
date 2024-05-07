@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.monitoring.voltagemonitoring;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.cracapi.RemedialAction;
 import com.powsybl.openrao.data.cracapi.State;
@@ -129,25 +130,17 @@ public class VoltageMonitoringResult {
         return extremeVoltageValues;
     }
 
-    public List<String> printConstraints() {
-        if (constraints == null) {
-            if (constrainedElements.isEmpty()) {
-                constraints = List.of("All voltage CNECs are secure.");
-            } else {
-                constraints = new ArrayList<>();
-                constraints.add("Some voltage CNECs are not secure:");
-                constrainedElements.stream()
-                    .sorted(Comparator.comparing(VoltageCnec::getId)).map(vc ->
-                        String.format("Network element %s at state %s has a voltage of %.0f - %.0f kV.",
-                            vc.getNetworkElement().getId(),
-                            vc.getState().getId(),
-                            extremeVoltageValues.get(vc).getMin(),
-                            extremeVoltageValues.get(vc).getMax()
-                        )
-                    ).forEach(constraints::add);
-            }
+    public void reportConstraints(ReportNode reportNode) {
+        if (constrainedElements.isEmpty()) {
+            Reports.reportNoConstrainedElements(reportNode);
+        } else {
+            constraints = new ArrayList<>();
+            Reports.reportSomeConstrainedElements(reportNode);
+            constrainedElements.stream()
+                .sorted(Comparator.comparing(VoltageCnec::getId)).forEach(vc ->
+                    Reports.reportConstrainedElement(reportNode, vc.getNetworkElement().getId(), vc.getState().getId(), extremeVoltageValues.get(vc).getMin(), extremeVoltageValues.get(vc).getMax())
+                );
         }
-        return constraints;
     }
 
     public boolean isSecure() {

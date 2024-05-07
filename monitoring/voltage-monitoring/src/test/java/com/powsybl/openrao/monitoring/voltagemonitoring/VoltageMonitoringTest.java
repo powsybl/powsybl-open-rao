@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.monitoring.voltagemonitoring;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.contingency.ContingencyElementType;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.*;
@@ -24,10 +25,16 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
+import java.io.IOException;
+import java.io.StringWriter;
+import java.net.URISyntaxException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static com.powsybl.openrao.monitoring.voltagemonitoring.VoltageMonitoringResult.Status.*;
 import static org.junit.jupiter.api.Assertions.*;
@@ -56,6 +63,11 @@ class VoltageMonitoringTest {
     private PstRangeAction pst;
     private VoltageCnec vcPrev;
     private Instant curativeInstant;
+
+    private static ReportNode buildNewRootNode() {
+        ReportNode reportNode = ReportNode.newRootReportNode().withMessageTemplate("root", "Root node for tests").build();
+        return reportNode;
+    }
 
     @BeforeEach
     public void setUp() {
@@ -118,6 +130,10 @@ class VoltageMonitoringTest {
             .add();
     }
 
+    private void runVoltageMonitoring(ReportNode reportNode) {
+        voltageMonitoringResult = new VoltageMonitoring(crac, network, raoResult).run("OpenLoadFlow", loadFlowParameters, 1, reportNode);
+    }
+
     private void runVoltageMonitoring() {
         voltageMonitoringResult = new VoltageMonitoring(crac, network, raoResult).run("OpenLoadFlow", loadFlowParameters, 2);
     }
@@ -130,7 +146,9 @@ class VoltageMonitoringTest {
         assertEquals(400., voltageMonitoringResult.getMaxVoltage("vc"), VOLTAGE_TOLERANCE);
         assertEquals(SECURE, voltageMonitoringResult.getStatus());
         assertTrue(voltageMonitoringResult.getConstrainedElements().isEmpty());
-        assertEquals(List.of("All voltage CNECs are secure."), voltageMonitoringResult.printConstraints());
+        ReportNode reportNode = buildNewRootNode();
+        voltageMonitoringResult.reportConstraints(reportNode);
+        assertEquals(List.of("All voltage CNECs are secure."), reportNode.getChildren().stream().map(ReportNode::getMessage).collect(Collectors.toList()));
         assertTrue(voltageMonitoringResult.isSecure());
     }
 
@@ -143,7 +161,9 @@ class VoltageMonitoringTest {
         assertEquals(386., voltageMonitoringResult.getMaxVoltage("vc2"), VOLTAGE_TOLERANCE);
         assertEquals(SECURE, voltageMonitoringResult.getStatus());
         assertTrue(voltageMonitoringResult.getConstrainedElements().isEmpty());
-        assertEquals(List.of("All voltage CNECs are secure."), voltageMonitoringResult.printConstraints());
+        ReportNode reportNode = buildNewRootNode();
+        voltageMonitoringResult.reportConstraints(reportNode);
+        assertEquals(List.of("All voltage CNECs are secure."), reportNode.getChildren().stream().map(ReportNode::getMessage).collect(Collectors.toList()));
         assertTrue(voltageMonitoringResult.isSecure());
     }
 
@@ -155,8 +175,10 @@ class VoltageMonitoringTest {
         assertEquals(400., voltageMonitoringResult.getMaxVoltage("vc"), VOLTAGE_TOLERANCE);
         assertEquals(HIGH_VOLTAGE_CONSTRAINT, voltageMonitoringResult.getStatus());
         assertEquals(Set.of(crac.getVoltageCnec("vc")), voltageMonitoringResult.getConstrainedElements());
+        ReportNode reportNode = buildNewRootNode();
+        voltageMonitoringResult.reportConstraints(reportNode);
         assertEquals(List.of("Some voltage CNECs are not secure:",
-            "Network element VL1 at state preventive has a voltage of 400 - 400 kV."), voltageMonitoringResult.printConstraints());
+                "Network element VL1 at state preventive has a voltage of 400 - 400 kV."), reportNode.getChildren().stream().map(ReportNode::getMessage).collect(Collectors.toList()));
         assertFalse(voltageMonitoringResult.isSecure());
     }
 
@@ -168,8 +190,10 @@ class VoltageMonitoringTest {
         assertEquals(400., voltageMonitoringResult.getMaxVoltage("vc"), VOLTAGE_TOLERANCE);
         assertEquals(LOW_VOLTAGE_CONSTRAINT, voltageMonitoringResult.getStatus());
         assertEquals(Set.of(crac.getVoltageCnec("vc")), voltageMonitoringResult.getConstrainedElements());
+        ReportNode reportNode = buildNewRootNode();
+        voltageMonitoringResult.reportConstraints(reportNode);
         assertEquals(List.of("Some voltage CNECs are not secure:",
-            "Network element VL1 at state preventive has a voltage of 400 - 400 kV."), voltageMonitoringResult.printConstraints());
+                "Network element VL1 at state preventive has a voltage of 400 - 400 kV."), reportNode.getChildren().stream().map(ReportNode::getMessage).collect(Collectors.toList()));
         assertFalse(voltageMonitoringResult.isSecure());
     }
 
@@ -189,8 +213,10 @@ class VoltageMonitoringTest {
         assertEquals(368., voltageMonitoringResult.getMaxVoltage(vc1), VOLTAGE_TOLERANCE);
         assertEquals(383., voltageMonitoringResult.getMinVoltage(vc2), VOLTAGE_TOLERANCE);
         assertEquals(383., voltageMonitoringResult.getMaxVoltage(vc2), VOLTAGE_TOLERANCE);
+        ReportNode reportNode = buildNewRootNode();
+        voltageMonitoringResult.reportConstraints(reportNode);
         assertEquals(List.of("Some voltage CNECs are not secure:",
-            "Network element VL2 at state preventive has a voltage of 368 - 368 kV."), voltageMonitoringResult.printConstraints());
+                "Network element VL2 at state preventive has a voltage of 368 - 368 kV."), reportNode.getChildren().stream().map(ReportNode::getMessage).collect(Collectors.toList()));
         assertFalse(voltageMonitoringResult.isSecure());
     }
 
@@ -210,8 +236,10 @@ class VoltageMonitoringTest {
         assertEquals(368., voltageMonitoringResult.getMaxVoltage(vc1), VOLTAGE_TOLERANCE);
         assertEquals(383., voltageMonitoringResult.getMinVoltage(vc2), VOLTAGE_TOLERANCE);
         assertEquals(383., voltageMonitoringResult.getMaxVoltage(vc2), VOLTAGE_TOLERANCE);
+        ReportNode reportNode = buildNewRootNode();
+        voltageMonitoringResult.reportConstraints(reportNode);
         assertEquals(List.of("Some voltage CNECs are not secure:",
-            "Network element VL2 at state preventive has a voltage of 368 - 368 kV.", "Network element VL3 at state preventive has a voltage of 383 - 383 kV."), voltageMonitoringResult.printConstraints());
+                "Network element VL2 at state preventive has a voltage of 368 - 368 kV.", "Network element VL3 at state preventive has a voltage of 383 - 383 kV."), reportNode.getChildren().stream().map(ReportNode::getMessage).collect(Collectors.toList()));
         assertFalse(voltageMonitoringResult.isSecure());
     }
 
@@ -231,8 +259,10 @@ class VoltageMonitoringTest {
         assertEquals(368., voltageMonitoringResult.getMaxVoltage(vc1), VOLTAGE_TOLERANCE);
         assertEquals(400., voltageMonitoringResult.getMinVoltage(vc2), VOLTAGE_TOLERANCE);
         assertEquals(400., voltageMonitoringResult.getMaxVoltage(vc2), VOLTAGE_TOLERANCE);
+        ReportNode reportNode = buildNewRootNode();
+        voltageMonitoringResult.reportConstraints(reportNode);
         assertEquals(List.of("Some voltage CNECs are not secure:",
-            "Network element VL3 at state preventive has a voltage of 400 - 400 kV."), voltageMonitoringResult.printConstraints());
+                "Network element VL3 at state preventive has a voltage of 400 - 400 kV."), reportNode.getChildren().stream().map(ReportNode::getMessage).collect(Collectors.toList()));
         assertFalse(voltageMonitoringResult.isSecure());
     }
 
@@ -252,8 +282,10 @@ class VoltageMonitoringTest {
         assertEquals(368., voltageMonitoringResult.getMaxVoltage(vc1), VOLTAGE_TOLERANCE);
         assertEquals(400., voltageMonitoringResult.getMinVoltage(vc2), VOLTAGE_TOLERANCE);
         assertEquals(400., voltageMonitoringResult.getMaxVoltage(vc2), VOLTAGE_TOLERANCE);
+        ReportNode reportNode = buildNewRootNode();
+        voltageMonitoringResult.reportConstraints(reportNode);
         assertEquals(List.of("Some voltage CNECs are not secure:",
-            "Network element VL2 at state preventive has a voltage of 368 - 368 kV.", "Network element VL3 at state preventive has a voltage of 400 - 400 kV."), voltageMonitoringResult.printConstraints());
+                "Network element VL2 at state preventive has a voltage of 368 - 368 kV.", "Network element VL3 at state preventive has a voltage of 400 - 400 kV."), reportNode.getChildren().stream().map(ReportNode::getMessage).collect(Collectors.toList()));
         assertFalse(voltageMonitoringResult.isSecure());
     }
 
@@ -274,8 +306,10 @@ class VoltageMonitoringTest {
         assertEquals(379., voltageMonitoringResult.getMaxVoltage(vc1), VOLTAGE_TOLERANCE);
         assertEquals(387., voltageMonitoringResult.getMinVoltage(vc2), VOLTAGE_TOLERANCE);
         assertEquals(387., voltageMonitoringResult.getMaxVoltage(vc2), VOLTAGE_TOLERANCE);
+        ReportNode reportNode = buildNewRootNode();
+        voltageMonitoringResult.reportConstraints(reportNode);
         assertEquals(List.of("Some voltage CNECs are not secure:",
-            "Network element VL2 at state preventive has a voltage of 379 - 379 kV."), voltageMonitoringResult.printConstraints());
+                "Network element VL2 at state preventive has a voltage of 379 - 379 kV."), reportNode.getChildren().stream().map(ReportNode::getMessage).collect(Collectors.toList()));
         assertFalse(voltageMonitoringResult.isSecure());
     }
 
@@ -299,11 +333,12 @@ class VoltageMonitoringTest {
         assertTrue(Double.isNaN(voltageMonitoringResult.getMaxVoltage(vc1b)));
         assertEquals(400., voltageMonitoringResult.getMinVoltage(vc2b), VOLTAGE_TOLERANCE);
         assertEquals(400., voltageMonitoringResult.getMaxVoltage(vc2b), VOLTAGE_TOLERANCE);
+        ReportNode reportNode = buildNewRootNode();
+        voltageMonitoringResult.reportConstraints(reportNode);
         assertEquals(List.of("Some voltage CNECs are not secure:",
                 "Network element VL2 at state coL1 - curative has a voltage of 368 - 368 kV.",
                 "Network element VL3 at state coL2 - curative has a voltage of 400 - 400 kV.",
-                "Network element VL3 at state coL1L2 - curative has a voltage of 400 - 400 kV."),
-            voltageMonitoringResult.printConstraints());
+                "Network element VL3 at state coL1L2 - curative has a voltage of 400 - 400 kV."), reportNode.getChildren().stream().map(ReportNode::getMessage).collect(Collectors.toList()));
         assertFalse(voltageMonitoringResult.isSecure());
     }
 
@@ -330,7 +365,9 @@ class VoltageMonitoringTest {
         assertEquals(386., voltageMonitoringResult.getMaxVoltage(vc1b), VOLTAGE_TOLERANCE);
         assertEquals(393., voltageMonitoringResult.getMinVoltage(vc2b), VOLTAGE_TOLERANCE);
         assertEquals(393., voltageMonitoringResult.getMaxVoltage(vc2b), VOLTAGE_TOLERANCE);
-        assertEquals(List.of("All voltage CNECs are secure."), voltageMonitoringResult.printConstraints());
+        ReportNode reportNode = buildNewRootNode();
+        voltageMonitoringResult.reportConstraints(reportNode);
+        assertEquals(List.of("All voltage CNECs are secure."), reportNode.getChildren().stream().map(ReportNode::getMessage).collect(Collectors.toList()));
         assertTrue(voltageMonitoringResult.isSecure());
     }
 
@@ -349,8 +386,10 @@ class VoltageMonitoringTest {
         assertEquals(Set.of(vc), voltageMonitoringResult.getConstrainedElements());
         assertEquals(368., voltageMonitoringResult.getMinVoltage(vc), VOLTAGE_TOLERANCE);
         assertEquals(368., voltageMonitoringResult.getMaxVoltage(vc), VOLTAGE_TOLERANCE);
+        ReportNode reportNode = buildNewRootNode();
+        voltageMonitoringResult.reportConstraints(reportNode);
         assertEquals(List.of("Some voltage CNECs are not secure:",
-            "Network element VL2 at state co3 - curative has a voltage of 368 - 368 kV."), voltageMonitoringResult.printConstraints());
+                "Network element VL2 at state co3 - curative has a voltage of 368 - 368 kV."), reportNode.getChildren().stream().map(ReportNode::getMessage).collect(Collectors.toList()));
         assertFalse(voltageMonitoringResult.isSecure());
     }
 
@@ -371,11 +410,12 @@ class VoltageMonitoringTest {
         assertEquals(148.4, voltageMonitoringResult.getMaxVoltage(vc1), VOLTAGE_TOLERANCE);
         assertEquals(143.1, voltageMonitoringResult.getMinVoltage(vc2), VOLTAGE_TOLERANCE);
         assertEquals(147.7, voltageMonitoringResult.getMaxVoltage(vc2), VOLTAGE_TOLERANCE);
+        ReportNode reportNode = buildNewRootNode();
+        voltageMonitoringResult.reportConstraints(reportNode);
         assertEquals(List.of(
                 "Some voltage CNECs are not secure:",
                 "Network element VL45 at state preventive has a voltage of 144 - 148 kV.",
-                "Network element VL46 at state preventive has a voltage of 143 - 148 kV."),
-            voltageMonitoringResult.printConstraints());
+                "Network element VL46 at state preventive has a voltage of 143 - 148 kV."), reportNode.getChildren().stream().map(ReportNode::getMessage).collect(Collectors.toList()));
         assertFalse(voltageMonitoringResult.isSecure());
     }
 
@@ -559,6 +599,23 @@ class VoltageMonitoringTest {
         assertEquals(1, voltageMonitoringResult.getAppliedRas().size());
         assertEquals(Set.of(networkAction), voltageMonitoringResult.getAppliedRas().get(crac.getState("co", curativeInstant)));
         assertTrue(voltageMonitoringResult.isSecure());
+    }
+
+    @Test
+    void testVoltageMonitoringReport() throws IOException, URISyntaxException {
+        addVoltageCnec("vc1", CURATIVE_INSTANT_ID, "coL1", "VL2", 375., 395.);
+        addVoltageCnec("vc2", CURATIVE_INSTANT_ID, "coL2", "VL3", 375., 395.);
+        addVoltageCnec("vc1b", CURATIVE_INSTANT_ID, "coL1L2", "VL2", 375., 395.);
+        addVoltageCnec("vc2b", CURATIVE_INSTANT_ID, "coL1L2", "VL3", 375., 395.);
+
+        ReportNode reportNode = buildNewRootNode();
+        runVoltageMonitoring(reportNode);
+        String expected = Files.readString(Path.of(getClass().getResource("/expectedReportNodeContent.txt").toURI()));
+        try (StringWriter writer = new StringWriter()) {
+            reportNode.print(writer);
+            String actual = writer.toString();
+            assertEquals(expected, actual);
+        }
     }
 }
 
