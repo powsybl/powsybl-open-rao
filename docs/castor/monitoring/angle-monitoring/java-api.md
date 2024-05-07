@@ -15,7 +15,8 @@ With:
 - glskOffsetDateTime: the timestamp for which the computation is made, as it is necessary to correctly read relevant
   values from the CIM GLSK file.
 
-Otherwise, you can still run the angle monitoring algorithm, which will automatically generate a **[proportional GLSK](/input-data/glsk.md#proportional-glsk)** 
+Otherwise, you can still run the angle monitoring algorithm, which will automatically generate a 
+**[proportional-to-target-power GLSK](/input-data/glsk.md#proportional-to-target-power-glsk)** 
 for its internal functioning (ie in order to re-dispatch lost generation when generator-tripping remedial actions are activated):  
 
 ~~~java
