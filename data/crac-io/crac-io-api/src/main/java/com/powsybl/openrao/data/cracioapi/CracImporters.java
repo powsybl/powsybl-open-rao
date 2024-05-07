@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.data.cracioapi;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.cracapi.Crac;
@@ -30,8 +31,12 @@ public final class CracImporters {
     }
 
     public static Crac importCrac(Path cracPath, Network network) {
+        return importCrac(cracPath, network, ReportNode.NO_OP);
+    }
+
+    public static Crac importCrac(Path cracPath, Network network, ReportNode reportNode) {
         try (InputStream is = new FileInputStream(cracPath.toFile())) {
-            return importCrac(cracPath.getFileName().toString(), is, network);
+            return importCrac(cracPath.getFileName().toString(), is, network, reportNode);
         } catch (FileNotFoundException e) {
             throw new OpenRaoException("File not found.");
         } catch (IOException e) {
@@ -47,6 +52,10 @@ public final class CracImporters {
     }
 
     public static Crac importCrac(String fileName, InputStream inputStream, Network network) {
+        return importCrac(fileName, inputStream, network, ReportNode.NO_OP);
+    }
+
+    public static Crac importCrac(String fileName, InputStream inputStream, Network network, ReportNode reportNode) {
         try {
             byte[] bytes = getBytesFromInputStream(inputStream);
 
@@ -61,6 +70,10 @@ public final class CracImporters {
     }
 
     public static CracImporter findImporter(String fileName, InputStream inputStream) {
+        return findImporter(fileName, inputStream, ReportNode.NO_OP);
+    }
+
+    public static CracImporter findImporter(String fileName, InputStream inputStream, ReportNode reportNode) {
         try {
             byte[] bytes = getBytesFromInputStream(inputStream);
 

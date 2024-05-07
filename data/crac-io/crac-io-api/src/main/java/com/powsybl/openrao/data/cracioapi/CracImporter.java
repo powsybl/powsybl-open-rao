@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.data.cracioapi;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.cracapi.CracFactory;
@@ -24,7 +25,20 @@ public interface CracImporter {
 
     Crac importCrac(InputStream inputStream, @Nonnull CracFactory cracFactory, Network network);
 
+    default Crac importCrac(InputStream inputStream, @Nonnull CracFactory cracFactory, Network network, ReportNode reportNode) {
+        return importCrac(inputStream, cracFactory, network);
+    }
+
     Crac importCrac(InputStream inputStream, Network network);
 
+    default Crac importCrac(InputStream inputStream, Network network, ReportNode reportNode) {
+        return importCrac(inputStream, network);
+    }
+
     boolean exists(String fileName, InputStream inputStream);
+
+    default boolean exists(String fileName, InputStream inputStream, ReportNode reportNode) {
+        return exists(fileName, inputStream);
+    }
+
 }

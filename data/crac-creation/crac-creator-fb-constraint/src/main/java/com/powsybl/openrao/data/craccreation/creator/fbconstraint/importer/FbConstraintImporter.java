@@ -69,7 +69,7 @@ public class FbConstraintImporter implements NativeCracImporter<FbConstraint> {
     }
 
     @Override
-    public boolean exists(String s, InputStream inputStream) {
+    public boolean exists(String s, InputStream inputStream, ReportNode reportNode) {
         try {
             byte[] bytes = getBytesFromInputStream(inputStream);
             int flowBasedDocumentVersion = flowBasedDocumentVersion(new ByteArrayInputStream(bytes));

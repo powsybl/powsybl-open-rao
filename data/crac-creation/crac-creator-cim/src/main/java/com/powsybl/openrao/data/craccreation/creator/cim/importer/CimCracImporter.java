@@ -58,7 +58,7 @@ public class CimCracImporter implements NativeCracImporter<CimCrac> {
     }
 
     @Override
-    public boolean exists(String s, InputStream inputStream) {
+    public boolean exists(String s, InputStream inputStream, ReportNode reportNode) {
         Source xmlFile = new StreamSource(inputStream);
         // The following line triggers sonar issue java:S2755 which prevents us from accessing XSD schema files
         SchemaFactory schemaFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI); //NOSONAR

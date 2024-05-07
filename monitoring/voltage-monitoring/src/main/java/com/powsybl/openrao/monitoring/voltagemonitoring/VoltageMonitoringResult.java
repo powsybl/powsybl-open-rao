@@ -47,7 +47,6 @@ public class VoltageMonitoringResult {
     private final Map<VoltageCnec, ExtremeVoltageValues> extremeVoltageValues;
     private final Set<VoltageCnec> constrainedElements;
     private final Map<State, Set<RemedialAction<?>>> appliedRas;
-    private List<String> constraints;
 
     public VoltageMonitoringResult(Map<VoltageCnec, ExtremeVoltageValues> extremeVoltageValues, Map<State, Set<RemedialAction<?>>> appliedRas, Status status) {
         this.extremeVoltageValues = extremeVoltageValues;
@@ -134,7 +133,6 @@ public class VoltageMonitoringResult {
         if (constrainedElements.isEmpty()) {
             Reports.reportNoConstrainedElements(reportNode);
         } else {
-            constraints = new ArrayList<>();
             Reports.reportSomeConstrainedElements(reportNode);
             constrainedElements.stream()
                 .sorted(Comparator.comparing(VoltageCnec::getId)).forEach(vc ->

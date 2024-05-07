@@ -8,17 +8,14 @@
 package com.powsybl.openrao.monitoring.anglemonitoring;
 
 import com.powsybl.commons.report.ReportNode;
-import com.powsybl.commons.report.ReportNode;
 import com.google.common.base.Suppliers;
 import com.powsybl.computation.local.LocalComputationManager;
 import com.powsybl.contingency.ContingencyElementType;
 import com.powsybl.glsk.cim.CimGlskDocument;
-import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.ImportConfig;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.loadflow.LoadFlowParameters;
 import com.powsybl.openrao.commons.OpenRaoException;
-import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.*;
 import com.powsybl.openrao.data.cracapi.cnec.AngleCnec;
@@ -147,7 +144,7 @@ class AngleMonitoringTest {
     }
 
     private void runAngleMonitoring() {
-        angleMonitoringResult = new AngleMonitoring(crac, network, raoResult, cimGlskDocument).run("OpenLoadFlow", loadFlowParameters, 2, glskOffsetDateTime);
+        angleMonitoringResult = new AngleMonitoring(crac, network, raoResult, cimGlskDocument, glskOffsetDateTime).run("OpenLoadFlow", loadFlowParameters, 2);
     }
 
     @Test
