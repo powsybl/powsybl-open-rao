@@ -331,7 +331,7 @@ public class CastorFullOptimization {
 
     private ReportNode runScenario(Crac crac, RaoParameters raoParameters, StateTree stateTree, ToolProvider toolProvider, TreeParameters automatonTreeParameters, TreeParameters curativeTreeParameters, PrePerimeterResult initialSensitivityOutput, PrePerimeterResult prePerimeterSensitivityOutput, boolean automatonsOnly, ContingencyScenario optimizedScenario, AbstractNetworkPool networkPool, AutomatonSimulator automatonSimulator, Map<State, OptimizationResult> contingencyScenarioResults, AtomicInteger remainingScenarios) throws InterruptedException {
         ReportNode rootReportNode = ReportNode.newRootReportNode()
-                .withMessageTemplate("postContingencyScenarioOptimization", "Optimizing scenario post-contingency ${contingencyId}.")
+                .withMessageTemplate("postContingencyScenarioOptimization", "Optimizing scenario post-contingency.")
                 .build();
 
         ReportNode scenarioReportNode = rootReportNode.newReportNode()
