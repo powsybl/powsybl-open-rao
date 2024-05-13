@@ -11,6 +11,7 @@ import com.powsybl.openrao.commons.CountryGraph;
 import com.powsybl.openrao.data.cracapi.RemedialAction;
 import com.powsybl.openrao.data.cracapi.State;
 import com.powsybl.openrao.data.cracapi.networkaction.NetworkAction;
+import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeAction;
 import com.powsybl.openrao.searchtreerao.commons.NetworkActionCombination;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
@@ -265,8 +266,9 @@ public final class SearchTreeBloomer {
     }
 
     Map<NetworkActionCombination, Boolean> removeCombinationsWhichExceedMaxElementaryActionsPerTso(Map<NetworkActionCombination, Boolean> naCombinations, Leaf fromLeaf) {
-        // TODO: add check for PST
+        // TODO : pst injection = 1 ea or abs(newtap - initialtap)?
         Map<NetworkActionCombination, Boolean> filteredNaCombinations = new HashMap<>();
+        Map<String, Integer> movedPstTapsPerTso = getNumberOfPstTapsMovedByTso(fromLeaf);
         naCombinations.forEach((naCombination, mustBeFiltered) -> {
             int elementaryActions = 0;
             for (NetworkAction networkAction : naCombination.getNetworkActionSet()) {
@@ -275,6 +277,7 @@ public final class SearchTreeBloomer {
             }
             boolean combinationHasBeenRemoved = false;
             for (String operator : naCombination.getOperators()) {
+                // The network action combination alone has more elementary action than the accepted limit, so it must be removed
                 if (elementaryActions > maxElementaryActionsPerTso.getOrDefault(operator, Integer.MAX_VALUE)) {
                     TECHNICAL_LOGS.info("{} network action combinations have been filtered out because the maximum number of elementary actions for TSO {} has been reached", naCombinations.size() - filteredNaCombinations.size(), operator);
                     combinationHasBeenRemoved = true;
@@ -282,8 +285,12 @@ public final class SearchTreeBloomer {
                 }
             }
             if (!combinationHasBeenRemoved) {
-                // TODO: boolean must be set to true if removing PST allows full TOPO
-                filteredNaCombinations.put(naCombination, mustBeFiltered);
+                boolean shouldRemovePsts = false;
+                for (String operator : naCombination.getOperators()) {
+                    // The network action combination has less elementary actions than the limit but PST range actions must be removed first
+                    shouldRemovePsts = shouldRemovePsts || elementaryActions + movedPstTapsPerTso.getOrDefault(operator, 0) > maxElementaryActionsPerTso.getOrDefault(operator, Integer.MAX_VALUE);
+                }
+                filteredNaCombinations.put(naCombination, mustBeFiltered || shouldRemovePsts);
             }
         });
         return filteredNaCombinations;
@@ -355,5 +362,16 @@ public final class SearchTreeBloomer {
 
     boolean hasPreDefinedNetworkActionCombination(NetworkActionCombination naCombination) {
         return this.preDefinedNaCombinations.contains(naCombination);
+    }
+
+    Map<String, Integer> getNumberOfPstTapsMovedByTso(Leaf leaf) {
+        Map<String, Integer> pstTapsMovedByTso = new HashMap<>();
+        Set<PstRangeAction> activatedRangeActions = leaf.getActivatedRangeActions(optimizedStateForNetworkActions).stream().filter(PstRangeAction.class::isInstance).map(ra -> (PstRangeAction) ra).collect(Collectors.toSet());
+        for (PstRangeAction pstRangeAction : activatedRangeActions) {
+            String operator = pstRangeAction.getOperator();
+            int tapsMoved = Math.abs(pstRangeAction.getCurrentTapPosition(network) - pstRangeAction.getInitialTap());
+            pstTapsMovedByTso.put(operator, pstTapsMovedByTso.getOrDefault(operator, 0) + tapsMoved);
+        }
+        return pstTapsMovedByTso;
     }
 }

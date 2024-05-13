@@ -19,6 +19,7 @@ import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.cracapi.rangeaction.RangeAction;
 import com.powsybl.openrao.data.cracapi.range.RangeType;
 import com.powsybl.openrao.data.cracapi.usagerule.UsageMethod;
+import com.powsybl.openrao.data.cracimpl.PstRangeActionImpl;
 import com.powsybl.openrao.data.cracimpl.utils.CommonCracCreation;
 import com.powsybl.openrao.data.cracimpl.utils.NetworkImportsUtil;
 import com.powsybl.openrao.searchtreerao.commons.NetworkActionCombination;
@@ -573,6 +574,9 @@ class SearchTreeBloomerTest {
 
     @Test
     void testRemoveCombinationsWhichExceedMaxElementaryActionsPerTso() {
+        PstRangeAction pstRangeAction = addPstRangeActionToCrac();
+        pstRangeAction.apply(network, pstRangeAction.getTapToAngleConversionMap().get(3));
+
         TopologicalAction topoFr1 = Mockito.mock(TopologicalAction.class);
         TopologicalAction topoFr2 = Mockito.mock(TopologicalAction.class);
         NetworkAction naFr = Mockito.mock(NetworkAction.class);
@@ -596,15 +600,44 @@ class SearchTreeBloomerTest {
 
         NetworkActionCombination networkActionCombinationFrNl = new NetworkActionCombination(Set.of(naFr, naNl));
         NetworkActionCombination networkActionCombinationBe = new NetworkActionCombination(Set.of(naBe));
-        // TODO: this will be kept but PST will need to be removed
         NetworkActionCombination networkActionCombinationDe = new NetworkActionCombination(Set.of(naDe));
 
         Leaf leaf = Mockito.mock(Leaf.class);
         Mockito.when(leaf.getActivatedNetworkActions()).thenReturn(Collections.emptySet());
+        Mockito.when(leaf.getActivatedRangeActions(pState)).thenReturn(Set.of(pstRangeAction));
 
         SearchTreeBloomer bloomer = new SearchTreeBloomer(network, Integer.MAX_VALUE, Integer.MAX_VALUE, new HashMap<>(), new HashMap<>(), Map.of("BE", 3, "DE", 2, "FR", 2, "NL", 2), false, 0, List.of(), pState);
-        Map<NetworkActionCombination, Boolean> result = bloomer.removeCombinationsWhichExceedMaxElementaryActionsPerTso(Map.of(networkActionCombinationFrNl, false, networkActionCombinationBe, true, networkActionCombinationDe, false), leaf);
+        Map<NetworkActionCombination, Boolean> result = bloomer.removeCombinationsWhichExceedMaxElementaryActionsPerTso(Map.of(networkActionCombinationFrNl, false, networkActionCombinationBe, false, networkActionCombinationDe, true), leaf);
 
-        assertEquals(result, Map.of(networkActionCombinationBe, true, networkActionCombinationDe, false));
+        assertEquals(result, Map.of(networkActionCombinationBe, true, networkActionCombinationDe, true));
+    }
+
+    @Test
+    void testGetNumberOfPstTapsMovedByTso() {
+        PstRangeAction pstRangeAction = addPstRangeActionToCrac();
+        pstRangeAction.apply(network, pstRangeAction.getTapToAngleConversionMap().get(10));
+
+        assertEquals(10, network.getTwoWindingsTransformer("BBE2AA1  BBE3AA1  1").getPhaseTapChanger().getTapPosition());
+
+        Leaf leaf = Mockito.mock(Leaf.class);
+        Mockito.when(leaf.getActivatedRangeActions(pState)).thenReturn(Set.of(pstRangeAction));
+
+        SearchTreeBloomer bloomer = new SearchTreeBloomer(network, Integer.MAX_VALUE, Integer.MAX_VALUE, new HashMap<>(), new HashMap<>(), new HashMap<>(), false, 0, List.of(), pState);
+        assertEquals(Map.of("BE", 10), bloomer.getNumberOfPstTapsMovedByTso(leaf));
+    }
+
+    private PstRangeAction addPstRangeActionToCrac() {
+        CommonCracCreation.IidmPstHelper iidmPstHelper = new CommonCracCreation.IidmPstHelper("BBE2AA1  BBE3AA1  1", network);
+
+        crac.newPstRangeAction()
+            .withId("pst-range-action")
+            .withName("pst-range-action")
+            .withOperator("BE")
+            .withNetworkElement("BBE2AA1  BBE3AA1  1")
+            .withInitialTap(iidmPstHelper.getInitialTap())
+            .withTapToAngleConversionMap(iidmPstHelper.getTapToAngleConversionMap())
+            .add();
+
+        return crac.getPstRangeAction("pst-range-action");
     }
 }

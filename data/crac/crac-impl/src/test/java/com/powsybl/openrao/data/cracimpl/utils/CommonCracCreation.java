@@ -35,7 +35,7 @@ public final class CommonCracCreation {
     private static final String AUTO_INSTANT_ID = "auto";
     private static final String CURATIVE_INSTANT_ID = "curative";
 
-    private static class IidmPstHelper {
+    public static class IidmPstHelper {
 
         private final String pstId;
         private int initialTapPosition;
