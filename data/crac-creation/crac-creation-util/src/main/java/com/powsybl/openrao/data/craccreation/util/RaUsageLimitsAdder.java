@@ -27,6 +27,7 @@ public final class RaUsageLimitsAdder {
             .withMaxRaPerTso(raUsageLimits.getMaxRaPerTso())
             .withMaxPstPerTso(raUsageLimits.getMaxPstPerTso())
             .withMaxTopoPerTso(raUsageLimits.getMaxTopoPerTso())
+            .withMaxElementaryActionPerTso(raUsageLimits.getMaxElementaryActionsPerTso())
             .add());
     }
 }

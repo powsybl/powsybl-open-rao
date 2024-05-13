@@ -71,6 +71,7 @@ class CracImportExportTest {
         assertEquals(new HashMap<>(Map.of("FR", 12)), expectedUsageLimits.getMaxRaPerTso());
         assertEquals(new HashMap<>(Map.of("FR", 7)), expectedUsageLimits.getMaxPstPerTso());
         assertEquals(new HashMap<>(Map.of("FR", 5, "BE", 6)), expectedUsageLimits.getMaxTopoPerTso());
+        assertEquals(new HashMap<>(Map.of("FR", 21)), expectedUsageLimits.getMaxElementaryActionsPerTso());
         // check instant with no limits
         assertEquals(new RaUsageLimits(), crac.getRaUsageLimits(preventiveInstant));
 
