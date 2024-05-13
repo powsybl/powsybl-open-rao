@@ -21,7 +21,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  * @author Thomas Bouquet <thomas.bouquet at rte-france.com>
  */
 class OnContingencyStateUsageRuleHelperTest {
-    private final List<String> properties = List.of("mRID", "remedialAction", "contingency", "combinationConstraintKind", "normalEnabled");
 
     @Test
     void processContingenciesLinkedToRemedialAction() {
