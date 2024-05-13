@@ -1,6 +1,6 @@
-Some CRAC files can define angle constraints on network elements.  
-These are constraints that monitor that the current phase shift between two network elements does not exceed a given
-threshold.  
+Some CRAC files can define voltage angle constraints on network elements.  
+These are constraints that monitor that the current voltage angle difference between two network elements does not 
+exceed a given threshold.  
 OpenRAO allows modelling these constraints in [AngleCnec](/input-data/crac/json.md#angle-cnecs) objects.  
 However, modelling the impact of remedial actions on angle values is highly complex and non-linear. This is why CASTOR
 does not inherently support angle constraints.  
