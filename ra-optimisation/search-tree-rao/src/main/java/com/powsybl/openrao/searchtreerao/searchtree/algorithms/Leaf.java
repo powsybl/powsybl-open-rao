@@ -253,12 +253,14 @@ public class Leaf implements OptimizationResult {
                         int alreadyActivatedNetworkActionsForTso = appliedRemedialActionsInSecondaryStates.getAppliedNetworkActions(state).stream().filter(na -> entry.getKey().equals(na.getOperator())).collect(Collectors.toSet()).size();
                         entry.setValue(entry.getValue() - alreadyActivatedNetworkActionsForTso);
                     });
+                    Map<String, Integer> maxElementaryActionsPerTso = raUsageLimits.getMaxElementaryActionsPerTso();
 
                     limitationParameters.setMaxRangeAction(state, maxRa);
                     limitationParameters.setMaxTso(state, maxTso);
                     limitationParameters.setMaxTsoExclusion(state, tsoWithAlreadyActivatedRa);
                     limitationParameters.setMaxPstPerTso(state, maxPstPerTso);
                     limitationParameters.setMaxRangeActionPerTso(state, maxRaPerTso);
+                    limitationParameters.setMaxElementaryActionsPerTso(state, maxElementaryActionsPerTso);
                 });
         } else {
             int maxRa = raUsageLimits.getMaxRa() - appliedNetworkActionsInPrimaryState.size();
@@ -270,12 +272,14 @@ public class Leaf implements OptimizationResult {
                 int activatedNetworkActionsForTso = appliedNetworkActionsInPrimaryState.stream().filter(na -> entry.getKey().equals(na.getOperator())).collect(Collectors.toSet()).size();
                 entry.setValue(entry.getValue() - activatedNetworkActionsForTso);
             });
+            Map<String, Integer> maxElementaryActionsPerTso = raUsageLimits.getMaxElementaryActionsPerTso();
 
             limitationParameters.setMaxRangeAction(context.getMainOptimizationState(), maxRa);
             limitationParameters.setMaxTso(context.getMainOptimizationState(), maxTso);
             limitationParameters.setMaxTsoExclusion(context.getMainOptimizationState(), tsoWithAlreadyActivatedRa);
             limitationParameters.setMaxPstPerTso(context.getMainOptimizationState(), maxPstPerTso);
             limitationParameters.setMaxRangeActionPerTso(context.getMainOptimizationState(), maxRaPerTso);
+            limitationParameters.setMaxElementaryActionsPerTso(context.getMainOptimizationState(), maxElementaryActionsPerTso);
         }
         return limitationParameters;
     }

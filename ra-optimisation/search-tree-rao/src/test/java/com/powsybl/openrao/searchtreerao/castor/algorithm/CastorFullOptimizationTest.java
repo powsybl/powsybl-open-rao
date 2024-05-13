@@ -24,6 +24,7 @@ import com.powsybl.openrao.data.cracapi.networkaction.NetworkAction;
 import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeActionAdder;
 import com.powsybl.openrao.data.cracapi.rangeaction.RangeAction;
 import com.powsybl.openrao.data.cracapi.usagerule.UsageMethod;
+import com.powsybl.openrao.data.cracimpl.utils.CommonCracCreation;
 import com.powsybl.openrao.data.cracimpl.utils.NetworkImportsUtil;
 import com.powsybl.openrao.data.cracioapi.CracImporters;
 import com.powsybl.openrao.data.raoresultapi.RaoResult;
@@ -1004,5 +1005,21 @@ class CastorFullOptimizationTest {
         // Run RAO
         RaoResult raoResult = new CastorFullOptimization(raoInput, raoParameters, null).run().join();
         assertEquals(Set.of(crac.getNetworkAction("Open FFR1AA1  FFR4AA1  1")), raoResult.getActivatedNetworkActionsDuringState(crac.getState("Contingency FFR2AA1  FFR3AA1  1", crac.getLastInstant())));
+    }
+
+    @Test
+    void pstOptimizationWithElementaryActionsLimit() {
+        Network network = Network.read("small-network-2P-unsecure.uct", getClass().getResourceAsStream("/network/small-network-2P-unsecure.uct"));
+        crac = CracImporters.importCrac("crac/small-crac-with-max-elementary-actions.json", getClass().getResourceAsStream("/crac/small-crac-with-max-elementary-actions.json"), network);
+        RaoInput raoInput = RaoInput.build(network, crac).build();
+        RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/RaoParameters_2P_discrete.json"));
+
+        // Optimization is on MIN_OBJECTIVE mode so the PST should go up to the tap -16 resulting in a flow of -23 A
+        // However, it stops at tap -3 (-452 A) because the maximum number of elementary actions for BE is set to 3
+
+        // Run RAO
+        RaoResult raoResult = new CastorFullOptimization(raoInput, raoParameters, null).run().join();
+        assertEquals(-3, raoResult.getOptimizedTapOnState(crac.getPreventiveState(), crac.getPstRangeAction("pstRangeAction")));
+        assertEquals(-452d, raoResult.getFlow(crac.getPreventiveState().getInstant(), crac.getFlowCnec("BBE1AA1  BBE2AA1  1 - preventive"), Side.LEFT, Unit.AMPERE));
     }
 }

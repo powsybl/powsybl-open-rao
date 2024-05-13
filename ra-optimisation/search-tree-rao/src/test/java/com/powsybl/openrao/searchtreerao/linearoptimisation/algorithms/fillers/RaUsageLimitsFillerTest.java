@@ -434,4 +434,43 @@ class RaUsageLimitsFillerTest extends AbstractFillerTest {
         Exception e = assertThrows(OpenRaoException.class, () -> linearProblem.getMaxPstPerTsoConstraint("opB", state));
         assertEquals("Constraint maxpstpertso_opB_preventive_constraint has not been created yet", e.getMessage());
     }
+
+    @Test
+    void testLimitElementaryActionsWithContinuousPsts() {
+        RangeActionLimitationParameters raLimitationParameters = new RangeActionLimitationParameters();
+        raLimitationParameters.setMaxElementaryActionsPerTso(state, Map.of("opA", 1, "opC", 3));
+        RaUsageLimitsFiller raUsageLimitsFiller = new RaUsageLimitsFiller(
+            rangeActionsPerState,
+            prePerimeterRangeActionSetpointResult,
+            raLimitationParameters,
+            false);
+
+        linearProblem = new LinearProblemBuilder()
+            .withProblemFiller(coreProblemFiller)
+            .withProblemFiller(raUsageLimitsFiller)
+            .withSolver(mpSolver)
+            .build();
+
+        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> linearProblem.fill(flowResult, sensitivityResult));
+        assertEquals("The PSTs must be approximated as integers to use the limitations of elementary actions as a constraint in the RAO.", exception.getMessage());
+    }
+
+    @Test
+    void testLimitElementaryActions() {
+        RangeActionLimitationParameters raLimitationParameters = new RangeActionLimitationParameters();
+        raLimitationParameters.setMaxElementaryActionsPerTso(state, Map.of("opA", 1, "opC", 3));
+        RaUsageLimitsFiller raUsageLimitsFiller = new RaUsageLimitsFiller(
+            rangeActionsPerState,
+            prePerimeterRangeActionSetpointResult,
+            raLimitationParameters,
+            true);
+
+        linearProblem = new LinearProblemBuilder()
+            .withProblemFiller(coreProblemFiller)
+            .withProblemFiller(raUsageLimitsFiller)
+            .withSolver(mpSolver)
+            .build();
+
+        linearProblem.fill(flowResult, sensitivityResult);
+    }
 }

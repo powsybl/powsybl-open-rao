@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.fillers;
 
+import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.cracapi.RemedialAction;
 import com.powsybl.openrao.data.cracapi.State;
 import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeAction;
@@ -20,6 +21,7 @@ import com.powsybl.openrao.searchtreerao.result.api.RangeActionActivationResult;
 import com.powsybl.openrao.searchtreerao.result.api.RangeActionSetpointResult;
 import com.powsybl.openrao.searchtreerao.result.api.SensitivityResult;
 
+import java.util.Arrays;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
@@ -69,6 +71,9 @@ public class RaUsageLimitsFiller implements ProblemFiller {
             if (!rangeActionLimitationParameters.getMaxPstPerTso(state).isEmpty()) {
                 addMaxPstPerTsoConstraint(linearProblem, state);
             }
+            if (!rangeActionLimitationParameters.getMaxElementaryActionsPerTso(state).isEmpty()) {
+                addMaxElementaryActionsPerTsoConstraint(linearProblem, state);
+            }
         });
     }
 
@@ -93,7 +98,7 @@ public class RaUsageLimitsFiller implements ProblemFiller {
     /**
      *  Get relaxation term to add to correct the initial setpoint, to ensure problem feasibility depending on the approximations.
      *  If PSTs are modelled with approximate integers, make sure that the initial setpoint is feasible (it should be at
-     *  a distance smaller then 0.3 * getAverageAbsoluteTapToAngleConversionFactor from a feasible setpoint in the MIP)
+     *  a distance smaller than 0.3 * getAverageAbsoluteTapToAngleConversionFactor from a feasible setpoint in the MIP)
      */
     private double getInitialSetpointRelaxation(RangeAction rangeAction) {
         if (rangeAction instanceof PstRangeAction pstRangeAction && arePstSetpointsApproximated) {
@@ -182,5 +187,25 @@ public class RaUsageLimitsFiller implements ProblemFiller {
             rangeActions.get(state).stream().filter(ra -> ra instanceof PstRangeAction && tso.equals(ra.getOperator()))
                 .forEach(ra -> maxPstPerTsoConstraint.setCoefficient(linearProblem.getRangeActionVariationBinary(ra, state), 1));
         });
+    }
+
+    private void addMaxElementaryActionsPerTsoConstraint(LinearProblem linearProblem, State state) {
+        Map<String, Integer> maxElementaryActionsPerTso = rangeActionLimitationParameters.getMaxElementaryActionsPerTso(state);
+        if (maxElementaryActionsPerTso == null) {
+            return;
+        }
+        if (!arePstSetpointsApproximated) {
+            throw new OpenRaoException("The PSTs must be approximated as integers to use the limitations of elementary actions as a constraint in the RAO.");
+        }
+        rangeActions.getOrDefault(state, Set.of()).stream()
+            .filter(PstRangeAction.class::isInstance)
+            .filter(rangeAction -> maxElementaryActionsPerTso.containsKey(rangeAction.getOperator()))
+            .map(PstRangeAction.class::cast)
+            .forEach(
+                pstRangeAction -> Arrays.stream(LinearProblem.VariationDirectionExtension.values())
+                    .map(direction -> linearProblem.getPstTapVariationVariable(pstRangeAction, state, direction))
+                    .forEach(tapVariable -> tapVariable.setUb(Math.min(tapVariable.ub(), maxElementaryActionsPerTso.get(pstRangeAction.getOperator())))
+                )
+            );
     }
 }

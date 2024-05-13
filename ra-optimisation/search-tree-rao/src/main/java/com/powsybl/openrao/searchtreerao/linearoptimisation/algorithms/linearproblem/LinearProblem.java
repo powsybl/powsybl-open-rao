@@ -410,6 +410,14 @@ public final class LinearProblem {
         return solver.getConstraint(tsoRaUsedConstraintId(operator, rangeAction, state));
     }
 
+    public OpenRaoMPConstraint addTsoMaxElementaryActionsConstraint(double lb, double ub, String operator, RangeAction<?> rangeAction, State state) {
+        return solver.makeConstraint(lb, ub, maxElementaryActionsPerTsoConstraintId(operator, rangeAction, state));
+    }
+
+    public OpenRaoMPConstraint getTsoMaxElementaryActionsConstraint(String operator, RangeAction<?> rangeAction, State state) {
+        return solver.getConstraint(maxElementaryActionsPerTsoConstraintId(operator, rangeAction, state));
+    }
+
     public static double infinity() {
         return LP_INFINITY;
     }

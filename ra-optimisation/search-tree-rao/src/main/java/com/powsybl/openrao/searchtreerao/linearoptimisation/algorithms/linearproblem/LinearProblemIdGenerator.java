@@ -43,6 +43,7 @@ public final class LinearProblemIdGenerator {
     private static final String MAX_RA_PER_TSO = "maxrapertso";
     private static final String MAX_PST_PER_TSO = "maxpstpertso";
     private static final String TSO_RA_USED = "tsoraused";
+    private static final String MAX_ELEMENTARY_ACTIONS_PER_TSO = "maxelementaryactionspertso";
 
     private LinearProblemIdGenerator() {
         // Should not be instantiated
@@ -194,5 +195,9 @@ public final class LinearProblemIdGenerator {
 
     public static String tsoRaUsedConstraintId(String operator, RangeAction<?> rangeAction, State state) {
         return TSO_RA_USED + SEPARATOR + operator + SEPARATOR + rangeAction.getId() + SEPARATOR + state.getId() + SEPARATOR + CONSTRAINT_SUFFIX;
+    }
+
+    public static String maxElementaryActionsPerTsoConstraintId(String operator, RangeAction<?> rangeAction, State state) {
+        return MAX_ELEMENTARY_ACTIONS_PER_TSO + SEPARATOR + operator + SEPARATOR + rangeAction.getId() + SEPARATOR + state.getId() + SEPARATOR + CONSTRAINT_SUFFIX;
     }
 }
