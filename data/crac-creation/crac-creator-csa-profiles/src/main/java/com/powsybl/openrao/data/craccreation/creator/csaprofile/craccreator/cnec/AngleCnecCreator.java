@@ -12,12 +12,12 @@ import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.cracapi.InstantKind;
 import com.powsybl.openrao.data.cracapi.cnec.AngleCnecAdder;
 import com.powsybl.openrao.data.craccreation.creator.api.ImportStatus;
-import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileConstants;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileCracCreationContext;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileElementaryCreationContext;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.IdentifiableType;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.constants.OperationalLimitDirectionKind;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.nc.AssessedElement;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.nc.VoltageAngleLimit;
 import com.powsybl.openrao.data.craccreation.util.OpenRaoImportException;
@@ -81,17 +81,17 @@ public class AngleCnecCreator extends AbstractCnecCreator {
         if (nativeVoltageAngleLimit.normalValue() < 0) {
             throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, writeAssessedElementIgnoredReasonMessage("the angle limit's normal value is negative"));
         }
-        if (CsaProfileConstants.OperationalLimitDirectionKind.HIGH.toString().equals(nativeVoltageAngleLimit.direction())) {
-            handleMissingIsFlowToRefTerminalForNotAbsoluteDirection(CsaProfileConstants.OperationalLimitDirectionKind.HIGH);
+        if (OperationalLimitDirectionKind.HIGH.toString().equals(nativeVoltageAngleLimit.direction())) {
+            handleMissingIsFlowToRefTerminalForNotAbsoluteDirection(OperationalLimitDirectionKind.HIGH);
             angleCnecAdder.newThreshold()
                 .withUnit(Unit.DEGREE)
                 .withMax(nativeVoltageAngleLimit.normalValue()).add();
-        } else if (CsaProfileConstants.OperationalLimitDirectionKind.LOW.toString().equals(nativeVoltageAngleLimit.direction())) {
-            handleMissingIsFlowToRefTerminalForNotAbsoluteDirection(CsaProfileConstants.OperationalLimitDirectionKind.LOW);
+        } else if (OperationalLimitDirectionKind.LOW.toString().equals(nativeVoltageAngleLimit.direction())) {
+            handleMissingIsFlowToRefTerminalForNotAbsoluteDirection(OperationalLimitDirectionKind.LOW);
             angleCnecAdder.newThreshold()
                 .withUnit(Unit.DEGREE)
                 .withMin(-nativeVoltageAngleLimit.normalValue()).add();
-        } else if (CsaProfileConstants.OperationalLimitDirectionKind.ABSOLUTE.toString().equals(nativeVoltageAngleLimit.direction())) {
+        } else if (OperationalLimitDirectionKind.ABSOLUTE.toString().equals(nativeVoltageAngleLimit.direction())) {
             angleCnecAdder.newThreshold()
                 .withUnit(Unit.DEGREE)
                 .withMin(-nativeVoltageAngleLimit.normalValue())
@@ -99,7 +99,7 @@ public class AngleCnecCreator extends AbstractCnecCreator {
         }
     }
 
-    private void handleMissingIsFlowToRefTerminalForNotAbsoluteDirection(CsaProfileConstants.OperationalLimitDirectionKind direction) {
+    private void handleMissingIsFlowToRefTerminalForNotAbsoluteDirection(OperationalLimitDirectionKind direction) {
         if (nativeVoltageAngleLimit.isFlowToRefTerminal() == null) {
             throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, writeAssessedElementIgnoredReasonMessage("of an ambiguous angle limit direction definition from an undefined VoltageAngleLimit.isFlowToRefTerminal and an OperationalLimit.OperationalLimitType: " + direction));
         }

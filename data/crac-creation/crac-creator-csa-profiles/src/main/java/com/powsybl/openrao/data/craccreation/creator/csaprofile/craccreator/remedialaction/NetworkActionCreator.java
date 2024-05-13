@@ -11,8 +11,10 @@ import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.cracapi.networkaction.ActionType;
 import com.powsybl.openrao.data.cracapi.networkaction.NetworkActionAdder;
 import com.powsybl.openrao.data.craccreation.creator.api.ImportStatus;
-import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileConstants;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileCracUtils;
+import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.constants.PropertyReference;
+import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.constants.RelativeDirectionKind;
+import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.constants.ValueOffsetKind;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.nc.RotatingMachineAction;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.nc.ShuntCompensatorModification;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.nc.StaticPropertyRange;
@@ -107,11 +109,11 @@ public class NetworkActionCreator {
     }
 
     private boolean addInjectionSetPointFromRotatingMachineAction(Set<StaticPropertyRange> staticPropertyRangesLinkedToRotatingMachineAction, String remedialActionId, NetworkActionAdder networkActionAdder, RotatingMachineAction nativeRotatingMachineAction, List<String> alterations) {
-        CsaProfileCracUtils.checkPropertyReference(remedialActionId, "RotatingMachineAction", CsaProfileConstants.PropertyReference.ROTATING_MACHINE, nativeRotatingMachineAction.propertyReference());
+        CsaProfileCracUtils.checkPropertyReference(remedialActionId, "RotatingMachineAction", PropertyReference.ROTATING_MACHINE, nativeRotatingMachineAction.propertyReference());
         float initialSetPoint = getInitialSetPointRotatingMachine(nativeRotatingMachineAction.rotatingMachineId(), remedialActionId);
 
         StaticPropertyRange nativeStaticPropertyRange = staticPropertyRangesLinkedToRotatingMachineAction.iterator().next(); // get a random one because there is only one
-        CsaProfileCracUtils.checkPropertyReference(remedialActionId, "StaticPropertyRange", CsaProfileConstants.PropertyReference.ROTATING_MACHINE, nativeStaticPropertyRange.propertyReference());
+        CsaProfileCracUtils.checkPropertyReference(remedialActionId, "StaticPropertyRange", PropertyReference.ROTATING_MACHINE, nativeStaticPropertyRange.propertyReference());
         double setPointValue = getSetPointValue(nativeStaticPropertyRange, remedialActionId, false, initialSetPoint);
 
         if (nativeRotatingMachineAction.normalEnabled()) {
@@ -128,11 +130,11 @@ public class NetworkActionCreator {
     }
 
     private boolean addInjectionSetPointFromShuntCompensatorModification(Set<StaticPropertyRange> staticPropertyRangesLinkedToShuntCompensatorModification, String remedialActionId, NetworkActionAdder networkActionAdder, ShuntCompensatorModification nativeShuntCompensatorModification, List<String> alterations) {
-        CsaProfileCracUtils.checkPropertyReference(remedialActionId, "ShuntCompensatorModification", CsaProfileConstants.PropertyReference.SHUNT_COMPENSATOR, nativeShuntCompensatorModification.propertyReference());
+        CsaProfileCracUtils.checkPropertyReference(remedialActionId, "ShuntCompensatorModification", PropertyReference.SHUNT_COMPENSATOR, nativeShuntCompensatorModification.propertyReference());
         float initialSetPoint = getInitialSetPointShuntCompensator(nativeShuntCompensatorModification.shuntCompensatorId(), remedialActionId);
 
         StaticPropertyRange nativeStaticPropertyRange = staticPropertyRangesLinkedToShuntCompensatorModification.iterator().next(); // get a random one because there is only one
-        CsaProfileCracUtils.checkPropertyReference(remedialActionId, "StaticPropertyRange", CsaProfileConstants.PropertyReference.SHUNT_COMPENSATOR, nativeStaticPropertyRange.propertyReference());
+        CsaProfileCracUtils.checkPropertyReference(remedialActionId, "StaticPropertyRange", PropertyReference.SHUNT_COMPENSATOR, nativeStaticPropertyRange.propertyReference());
         double setPointValue = getSetPointValue(nativeStaticPropertyRange, remedialActionId, true, initialSetPoint);
 
         if (nativeShuntCompensatorModification.normalEnabled()) {
@@ -175,14 +177,14 @@ public class NetworkActionCreator {
         checkCompatibility(remedialActionId, nativeStaticPropertyRange);
 
         double setPointValue;
-        if (CsaProfileConstants.ValueOffsetKind.ABSOLUTE.toString().equals(nativeStaticPropertyRange.valueKind())) {
+        if (ValueOffsetKind.ABSOLUTE.toString().equals(nativeStaticPropertyRange.valueKind())) {
             setPointValue = nativeStaticPropertyRange.normalValue();
-        } else if (CsaProfileConstants.ValueOffsetKind.INCREMENTAL.toString().equals(nativeStaticPropertyRange.valueKind())) {
-            setPointValue = CsaProfileConstants.RelativeDirectionKind.UP.toString().equals(nativeStaticPropertyRange.direction()) ?
+        } else if (ValueOffsetKind.INCREMENTAL.toString().equals(nativeStaticPropertyRange.valueKind())) {
+            setPointValue = RelativeDirectionKind.UP.toString().equals(nativeStaticPropertyRange.direction()) ?
                 initialSetPoint + nativeStaticPropertyRange.normalValue() :
                 initialSetPoint - nativeStaticPropertyRange.normalValue();
         } else {
-            setPointValue = CsaProfileConstants.RelativeDirectionKind.UP.toString().equals(nativeStaticPropertyRange.direction()) ?
+            setPointValue = RelativeDirectionKind.UP.toString().equals(nativeStaticPropertyRange.direction()) ?
                 initialSetPoint + (nativeStaticPropertyRange.normalValue() * initialSetPoint) / 100d :
                 initialSetPoint - (nativeStaticPropertyRange.normalValue() * initialSetPoint) / 100d;
         }
@@ -200,9 +202,9 @@ public class NetworkActionCreator {
 
     // TODO: rename this method to make it more explicit what it does
     private static void checkCompatibility(String remedialActionId, StaticPropertyRange nativeStaticPropertyRange) {
-        if (CsaProfileConstants.ValueOffsetKind.ABSOLUTE.toString().equals(nativeStaticPropertyRange.valueKind()) && !CsaProfileConstants.RelativeDirectionKind.NONE.toString().equals(nativeStaticPropertyRange.direction())
-            || !CsaProfileConstants.ValueOffsetKind.ABSOLUTE.toString().equals(nativeStaticPropertyRange.valueKind()) && CsaProfileConstants.RelativeDirectionKind.NONE.toString().equals(nativeStaticPropertyRange.direction())
-            || CsaProfileConstants.RelativeDirectionKind.UP_AND_DOWN.toString().equals(nativeStaticPropertyRange.direction())) {
+        if (ValueOffsetKind.ABSOLUTE.toString().equals(nativeStaticPropertyRange.valueKind()) && !RelativeDirectionKind.NONE.toString().equals(nativeStaticPropertyRange.direction())
+            || !ValueOffsetKind.ABSOLUTE.toString().equals(nativeStaticPropertyRange.valueKind()) && RelativeDirectionKind.NONE.toString().equals(nativeStaticPropertyRange.direction())
+            || RelativeDirectionKind.UP_AND_DOWN.toString().equals(nativeStaticPropertyRange.direction())) {
             throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action " + remedialActionId + " will not be imported because its StaticPropertyRange uses an illegal combination of ValueOffsetKind and RelativeDirectionKind");
         }
     }
@@ -215,20 +217,20 @@ public class NetworkActionCreator {
         if (network.getSwitch(nativeTopologyAction.switchId()) == null) {
             throw new OpenRaoImportException(ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK, "Remedial action " + remedialActionId + " will not be imported because the network does not contain a switch with id: " + nativeTopologyAction.switchId());
         }
-        CsaProfileCracUtils.checkPropertyReference(remedialActionId, "TopologyAction", CsaProfileConstants.PropertyReference.SWITCH, nativeTopologyAction.propertyReference());
+        CsaProfileCracUtils.checkPropertyReference(remedialActionId, "TopologyAction", PropertyReference.SWITCH, nativeTopologyAction.propertyReference());
 
         StaticPropertyRange nativeStaticPropertyRange = staticPropertyRangesLinkedToTopologicalElementaryAction.iterator().next();
-        CsaProfileCracUtils.checkPropertyReference(remedialActionId, "StaticPropertyRange", CsaProfileConstants.PropertyReference.SWITCH, nativeStaticPropertyRange.propertyReference());
+        CsaProfileCracUtils.checkPropertyReference(remedialActionId, "StaticPropertyRange", PropertyReference.SWITCH, nativeStaticPropertyRange.propertyReference());
 
         if (0d != nativeStaticPropertyRange.normalValue() && 1d != nativeStaticPropertyRange.normalValue()) {
             throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action " + remedialActionId + " will not be imported because the normalValue is " + nativeStaticPropertyRange.normalValue() + " which does not define a proper action type (open 1 / close 0)");
         }
 
-        if (!CsaProfileConstants.ValueOffsetKind.ABSOLUTE.toString().equals(nativeStaticPropertyRange.valueKind())) {
+        if (!ValueOffsetKind.ABSOLUTE.toString().equals(nativeStaticPropertyRange.valueKind())) {
             throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action " + remedialActionId + " will not be imported because the ValueOffsetKind is " + nativeStaticPropertyRange.valueKind() + " but should be none");
         }
 
-        if (!CsaProfileConstants.RelativeDirectionKind.NONE.toString().equals(nativeStaticPropertyRange.direction())) {
+        if (!RelativeDirectionKind.NONE.toString().equals(nativeStaticPropertyRange.direction())) {
             throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action " + remedialActionId + " will not be imported because the RelativeDirectionKind is " + nativeStaticPropertyRange.direction() + " but should be absolute");
         }
 

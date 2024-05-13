@@ -15,8 +15,10 @@ import com.powsybl.openrao.data.cracapi.cnec.FlowCnecAdder;
 import com.powsybl.openrao.data.cracapi.cnec.Side;
 import com.powsybl.openrao.data.cracapi.threshold.BranchThresholdAdder;
 import com.powsybl.openrao.data.craccreation.creator.api.ImportStatus;
+import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.constants.LimitTypeKind;
+import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.constants.OperationalLimitDirectionKind;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.nc.CurrentLimit;
-import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileConstants;
+import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.constants.CsaProfileConstants;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileCracCreationContext;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileElementaryCreationContext;
 import com.powsybl.iidm.network.*;
@@ -62,9 +64,9 @@ public class FlowCnecCreator extends AbstractCnecCreator {
         // If the AssessedElement is defined with a conducting equipment, we use both max and min thresholds.
         boolean useMaxAndMinThresholds = true;
         if (nativeAssessedElement.conductingEquipment() == null) {
-            if (CsaProfileConstants.OperationalLimitDirectionKind.HIGH.toString().equals(nativeCurrentLimit.direction())) {
+            if (OperationalLimitDirectionKind.HIGH.toString().equals(nativeCurrentLimit.direction())) {
                 useMaxAndMinThresholds = false;
-            } else if (!CsaProfileConstants.OperationalLimitDirectionKind.ABSOLUTE.toString().equals(nativeCurrentLimit.direction())) {
+            } else if (!OperationalLimitDirectionKind.ABSOLUTE.toString().equals(nativeCurrentLimit.direction())) {
                 throw new OpenRaoImportException(ImportStatus.NOT_FOR_RAO, writeAssessedElementIgnoredReasonMessage("OperationalLimitType.direction is neither 'absoluteValue' nor 'high'"));
             }
         }
@@ -281,9 +283,9 @@ public class FlowCnecCreator extends AbstractCnecCreator {
 
         if (side != null) {
             int acceptableDuration;
-            if (CsaProfileConstants.LimitTypeKind.PATL.toString().equals(nativeCurrentLimit.limitType())) {
+            if (LimitTypeKind.PATL.toString().equals(nativeCurrentLimit.limitType())) {
                 acceptableDuration = Integer.MAX_VALUE;
-            } else if (CsaProfileConstants.LimitTypeKind.TATL.toString().equals(nativeCurrentLimit.limitType())) {
+            } else if (LimitTypeKind.TATL.toString().equals(nativeCurrentLimit.limitType())) {
                 acceptableDuration = Integer.parseInt(nativeCurrentLimit.acceptableDuration());
             } else {
                 return thresholds;

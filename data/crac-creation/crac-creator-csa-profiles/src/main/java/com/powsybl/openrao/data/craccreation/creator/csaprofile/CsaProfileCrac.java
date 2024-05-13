@@ -9,11 +9,14 @@ package com.powsybl.openrao.data.craccreation.creator.csaprofile;
 
 import com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.NcPropertyBagsConverter;
+import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.constants.CsaProfileKeyword;
+import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.constants.HeaderType;
+import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.constants.OverridingObjectsFields;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.nc.CurrentLimit;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.nc.GridStateAlterationRemedialAction;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.nc.SchemeRemedialAction;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.nc.VoltageLimit;
-import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileConstants;
+import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.constants.CsaProfileConstants;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileCracUtils;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.nc.AssessedElement;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.nc.AssessedElementWithContingency;
@@ -83,7 +86,7 @@ public class CsaProfileCrac implements NativeCrac {
         }
     }
 
-    private Set<String> getContextNamesToRequest(CsaProfileConstants.CsaProfileKeyword keyword) {
+    private Set<String> getContextNamesToRequest(CsaProfileKeyword keyword) {
         return keywordMap.getOrDefault(keyword.toString(), Collections.emptySet());
     }
 
@@ -93,7 +96,7 @@ public class CsaProfileCrac implements NativeCrac {
         return returnMap;
     }
 
-    public PropertyBags getPropertyBags(CsaProfileConstants.CsaProfileKeyword keyword, String... queries) {
+    public PropertyBags getPropertyBags(CsaProfileKeyword keyword, String... queries) {
         Set<String> namesToRequest = getContextNamesToRequest(keyword);
         if (namesToRequest.isEmpty()) {
             return new PropertyBags();
@@ -101,113 +104,113 @@ public class CsaProfileCrac implements NativeCrac {
         return this.queryTripleStore(List.of(queries), namesToRequest);
     }
 
-    public PropertyBags getPropertyBags(CsaProfileConstants.CsaProfileKeyword keyword, CsaProfileConstants.OverridingObjectsFields withOverride, String... queries) {
+    public PropertyBags getPropertyBags(CsaProfileKeyword keyword, OverridingObjectsFields withOverride, String... queries) {
         return withOverride == null ? getPropertyBags(keyword, queries) : CsaProfileCracUtils.overrideData(getPropertyBags(keyword, queries), overridingData, withOverride);
     }
 
     public Set<Contingency> getContingencies() {
-        return new NcPropertyBagsConverter<>(Contingency::fromPropertyBag).convert(getPropertyBags(CsaProfileConstants.CsaProfileKeyword.CONTINGENCY, CsaProfileConstants.OverridingObjectsFields.CONTINGENCY, CsaProfileConstants.REQUEST_ORDINARY_CONTINGENCY, CsaProfileConstants.REQUEST_EXCEPTIONAL_CONTINGENCY, CsaProfileConstants.REQUEST_OUT_OF_RANGE_CONTINGENCY));
+        return new NcPropertyBagsConverter<>(Contingency::fromPropertyBag).convert(getPropertyBags(CsaProfileKeyword.CONTINGENCY, OverridingObjectsFields.CONTINGENCY, CsaProfileConstants.REQUEST_ORDINARY_CONTINGENCY, CsaProfileConstants.REQUEST_EXCEPTIONAL_CONTINGENCY, CsaProfileConstants.REQUEST_OUT_OF_RANGE_CONTINGENCY));
     }
 
     public Set<ContingencyEquipment> getContingencyEquipments() {
-        return new NcPropertyBagsConverter<>(ContingencyEquipment::fromPropertyBag).convert(getPropertyBags(CsaProfileConstants.CsaProfileKeyword.CONTINGENCY, CsaProfileConstants.REQUEST_CONTINGENCY_EQUIPMENT));
+        return new NcPropertyBagsConverter<>(ContingencyEquipment::fromPropertyBag).convert(getPropertyBags(CsaProfileKeyword.CONTINGENCY, CsaProfileConstants.REQUEST_CONTINGENCY_EQUIPMENT));
     }
 
     public Set<AssessedElement> getAssessedElements() {
-        return new NcPropertyBagsConverter<>(AssessedElement::fromPropertyBag).convert(getPropertyBags(CsaProfileConstants.CsaProfileKeyword.ASSESSED_ELEMENT, CsaProfileConstants.OverridingObjectsFields.ASSESSED_ELEMENT, CsaProfileConstants.REQUEST_ASSESSED_ELEMENT));
+        return new NcPropertyBagsConverter<>(AssessedElement::fromPropertyBag).convert(getPropertyBags(CsaProfileKeyword.ASSESSED_ELEMENT, OverridingObjectsFields.ASSESSED_ELEMENT, CsaProfileConstants.REQUEST_ASSESSED_ELEMENT));
     }
 
     public Set<AssessedElementWithContingency> getAssessedElementWithContingencies() {
-        return new NcPropertyBagsConverter<>(AssessedElementWithContingency::fromPropertyBag).convert(getPropertyBags(CsaProfileConstants.CsaProfileKeyword.ASSESSED_ELEMENT, CsaProfileConstants.OverridingObjectsFields.ASSESSED_ELEMENT_WITH_CONTINGENCY, CsaProfileConstants.REQUEST_ASSESSED_ELEMENT_WITH_CONTINGENCY));
+        return new NcPropertyBagsConverter<>(AssessedElementWithContingency::fromPropertyBag).convert(getPropertyBags(CsaProfileKeyword.ASSESSED_ELEMENT, OverridingObjectsFields.ASSESSED_ELEMENT_WITH_CONTINGENCY, CsaProfileConstants.REQUEST_ASSESSED_ELEMENT_WITH_CONTINGENCY));
     }
 
     public Set<AssessedElementWithRemedialAction> getAssessedElementWithRemedialActions() {
-        return new NcPropertyBagsConverter<>(AssessedElementWithRemedialAction::fromPropertyBag).convert(getPropertyBags(CsaProfileConstants.CsaProfileKeyword.ASSESSED_ELEMENT, CsaProfileConstants.OverridingObjectsFields.ASSESSED_ELEMENT_WITH_REMEDIAL_ACTION, CsaProfileConstants.REQUEST_ASSESSED_ELEMENT_WITH_REMEDIAL_ACTION));
+        return new NcPropertyBagsConverter<>(AssessedElementWithRemedialAction::fromPropertyBag).convert(getPropertyBags(CsaProfileKeyword.ASSESSED_ELEMENT, OverridingObjectsFields.ASSESSED_ELEMENT_WITH_REMEDIAL_ACTION, CsaProfileConstants.REQUEST_ASSESSED_ELEMENT_WITH_REMEDIAL_ACTION));
     }
 
     public Set<CurrentLimit> getCurrentLimits() {
-        return new NcPropertyBagsConverter<>(CurrentLimit::fromPropertyBag).convert(getPropertyBags(CsaProfileConstants.CsaProfileKeyword.CGMES, CsaProfileConstants.OverridingObjectsFields.CURRENT_LIMIT, CsaProfileConstants.REQUEST_CURRENT_LIMIT));
+        return new NcPropertyBagsConverter<>(CurrentLimit::fromPropertyBag).convert(getPropertyBags(CsaProfileKeyword.CGMES, OverridingObjectsFields.CURRENT_LIMIT, CsaProfileConstants.REQUEST_CURRENT_LIMIT));
     }
 
     public Set<VoltageLimit> getVoltageLimits() {
-        return new NcPropertyBagsConverter<>(VoltageLimit::fromPropertyBag).convert(getPropertyBags(CsaProfileConstants.CsaProfileKeyword.CGMES, CsaProfileConstants.OverridingObjectsFields.VOLTAGE_LIMIT, CsaProfileConstants.REQUEST_VOLTAGE_LIMIT));
+        return new NcPropertyBagsConverter<>(VoltageLimit::fromPropertyBag).convert(getPropertyBags(CsaProfileKeyword.CGMES, OverridingObjectsFields.VOLTAGE_LIMIT, CsaProfileConstants.REQUEST_VOLTAGE_LIMIT));
     }
 
     public Set<VoltageAngleLimit> getVoltageAngleLimits() {
-        return new NcPropertyBagsConverter<>(VoltageAngleLimit::fromPropertyBag).convert(getPropertyBags(CsaProfileConstants.CsaProfileKeyword.EQUIPMENT_RELIABILITY, CsaProfileConstants.OverridingObjectsFields.VOLTAGE_ANGLE_LIMIT, CsaProfileConstants.REQUEST_VOLTAGE_ANGLE_LIMIT));
+        return new NcPropertyBagsConverter<>(VoltageAngleLimit::fromPropertyBag).convert(getPropertyBags(CsaProfileKeyword.EQUIPMENT_RELIABILITY, OverridingObjectsFields.VOLTAGE_ANGLE_LIMIT, CsaProfileConstants.REQUEST_VOLTAGE_ANGLE_LIMIT));
     }
 
     public Set<GridStateAlterationRemedialAction> getGridStateAlterationRemedialActions() {
-        return new NcPropertyBagsConverter<>(GridStateAlterationRemedialAction::fromPropertyBag).convert(getPropertyBags(CsaProfileConstants.CsaProfileKeyword.REMEDIAL_ACTION, CsaProfileConstants.OverridingObjectsFields.GRID_STATE_ALTERATION_REMEDIAL_ACTION, CsaProfileConstants.GRID_STATE_ALTERATION_REMEDIAL_ACTION));
+        return new NcPropertyBagsConverter<>(GridStateAlterationRemedialAction::fromPropertyBag).convert(getPropertyBags(CsaProfileKeyword.REMEDIAL_ACTION, OverridingObjectsFields.GRID_STATE_ALTERATION_REMEDIAL_ACTION, CsaProfileConstants.GRID_STATE_ALTERATION_REMEDIAL_ACTION));
     }
 
     public Set<TopologyAction> getTopologyActions() {
-        return new NcPropertyBagsConverter<>(TopologyAction::fromPropertyBag).convert(getPropertyBags(CsaProfileConstants.CsaProfileKeyword.REMEDIAL_ACTION, CsaProfileConstants.OverridingObjectsFields.TOPOLOGY_ACTION, CsaProfileConstants.TOPOLOGY_ACTION));
+        return new NcPropertyBagsConverter<>(TopologyAction::fromPropertyBag).convert(getPropertyBags(CsaProfileKeyword.REMEDIAL_ACTION, OverridingObjectsFields.TOPOLOGY_ACTION, CsaProfileConstants.TOPOLOGY_ACTION));
     }
 
     public Set<RotatingMachineAction> getRotatingMachineActions() {
-        return new NcPropertyBagsConverter<>(RotatingMachineAction::fromPropertyBag).convert(getPropertyBags(CsaProfileConstants.CsaProfileKeyword.REMEDIAL_ACTION, CsaProfileConstants.OverridingObjectsFields.ROTATING_MACHINE_ACTION, CsaProfileConstants.ROTATING_MACHINE_ACTION));
+        return new NcPropertyBagsConverter<>(RotatingMachineAction::fromPropertyBag).convert(getPropertyBags(CsaProfileKeyword.REMEDIAL_ACTION, OverridingObjectsFields.ROTATING_MACHINE_ACTION, CsaProfileConstants.ROTATING_MACHINE_ACTION));
     }
 
     public Set<ShuntCompensatorModification> getShuntCompensatorModifications() {
-        return new NcPropertyBagsConverter<>(ShuntCompensatorModification::fromPropertyBag).convert(getPropertyBags(CsaProfileConstants.CsaProfileKeyword.REMEDIAL_ACTION, CsaProfileConstants.OverridingObjectsFields.SHUNT_COMPENSATOR_MODIFICATION, CsaProfileConstants.SHUNT_COMPENSATOR_MODIFICATION));
+        return new NcPropertyBagsConverter<>(ShuntCompensatorModification::fromPropertyBag).convert(getPropertyBags(CsaProfileKeyword.REMEDIAL_ACTION, OverridingObjectsFields.SHUNT_COMPENSATOR_MODIFICATION, CsaProfileConstants.SHUNT_COMPENSATOR_MODIFICATION));
     }
 
     public Set<TapPositionAction> getTapPositionActions() {
-        return new NcPropertyBagsConverter<>(TapPositionAction::fromPropertyBag).convert(getPropertyBags(CsaProfileConstants.CsaProfileKeyword.REMEDIAL_ACTION, CsaProfileConstants.OverridingObjectsFields.TAP_POSITION_ACTION, CsaProfileConstants.TAP_POSITION_ACTION));
+        return new NcPropertyBagsConverter<>(TapPositionAction::fromPropertyBag).convert(getPropertyBags(CsaProfileKeyword.REMEDIAL_ACTION, OverridingObjectsFields.TAP_POSITION_ACTION, CsaProfileConstants.TAP_POSITION_ACTION));
     }
 
     public Set<StaticPropertyRange> getStaticPropertyRanges() {
-        return new NcPropertyBagsConverter<>(StaticPropertyRange::fromPropertyBag).convert(getPropertyBags(CsaProfileConstants.CsaProfileKeyword.REMEDIAL_ACTION, CsaProfileConstants.OverridingObjectsFields.STATIC_PROPERTY_RANGE, CsaProfileConstants.STATIC_PROPERTY_RANGE));
+        return new NcPropertyBagsConverter<>(StaticPropertyRange::fromPropertyBag).convert(getPropertyBags(CsaProfileKeyword.REMEDIAL_ACTION, OverridingObjectsFields.STATIC_PROPERTY_RANGE, CsaProfileConstants.STATIC_PROPERTY_RANGE));
     }
 
     public Set<ContingencyWithRemedialAction> getContingencyWithRemedialActions() {
-        return new NcPropertyBagsConverter<>(ContingencyWithRemedialAction::fromPropertyBag).convert(getPropertyBags(CsaProfileConstants.CsaProfileKeyword.REMEDIAL_ACTION, CsaProfileConstants.OverridingObjectsFields.CONTINGENCY_WITH_REMEDIAL_ACTION, CsaProfileConstants.REQUEST_CONTINGENCY_WITH_REMEDIAL_ACTION));
+        return new NcPropertyBagsConverter<>(ContingencyWithRemedialAction::fromPropertyBag).convert(getPropertyBags(CsaProfileKeyword.REMEDIAL_ACTION, OverridingObjectsFields.CONTINGENCY_WITH_REMEDIAL_ACTION, CsaProfileConstants.REQUEST_CONTINGENCY_WITH_REMEDIAL_ACTION));
     }
 
     public Set<Stage> getStages() {
-        return new NcPropertyBagsConverter<>(Stage::fromPropertyBag).convert(getPropertyBags(CsaProfileConstants.CsaProfileKeyword.REMEDIAL_ACTION, CsaProfileConstants.STAGE));
+        return new NcPropertyBagsConverter<>(Stage::fromPropertyBag).convert(getPropertyBags(CsaProfileKeyword.REMEDIAL_ACTION, CsaProfileConstants.STAGE));
     }
 
     public Set<GridStateAlterationCollection> getGridStateAlterationCollections() {
-        return new NcPropertyBagsConverter<>(GridStateAlterationCollection::fromPropertyBag).convert(getPropertyBags(CsaProfileConstants.CsaProfileKeyword.REMEDIAL_ACTION, CsaProfileConstants.GRID_STATE_ALTERATION_COLLECTION));
+        return new NcPropertyBagsConverter<>(GridStateAlterationCollection::fromPropertyBag).convert(getPropertyBags(CsaProfileKeyword.REMEDIAL_ACTION, CsaProfileConstants.GRID_STATE_ALTERATION_COLLECTION));
     }
 
     public Set<RemedialActionScheme> getRemedialActionSchemes() {
-        return new NcPropertyBagsConverter<>(RemedialActionScheme::fromPropertyBag).convert(getPropertyBags(CsaProfileConstants.CsaProfileKeyword.REMEDIAL_ACTION, CsaProfileConstants.OverridingObjectsFields.REMEDIAL_ACTION_SCHEME, CsaProfileConstants.REMEDIAL_ACTION_SCHEME));
+        return new NcPropertyBagsConverter<>(RemedialActionScheme::fromPropertyBag).convert(getPropertyBags(CsaProfileKeyword.REMEDIAL_ACTION, OverridingObjectsFields.REMEDIAL_ACTION_SCHEME, CsaProfileConstants.REMEDIAL_ACTION_SCHEME));
     }
 
     public Set<SchemeRemedialAction> getSchemeRemedialActions() {
-        return new NcPropertyBagsConverter<>(SchemeRemedialAction::fromPropertyBag).convert(getPropertyBags(CsaProfileConstants.CsaProfileKeyword.REMEDIAL_ACTION, CsaProfileConstants.OverridingObjectsFields.SCHEME_REMEDIAL_ACTION, CsaProfileConstants.REQUEST_SCHEME_REMEDIAL_ACTION));
+        return new NcPropertyBagsConverter<>(SchemeRemedialAction::fromPropertyBag).convert(getPropertyBags(CsaProfileKeyword.REMEDIAL_ACTION, OverridingObjectsFields.SCHEME_REMEDIAL_ACTION, CsaProfileConstants.REQUEST_SCHEME_REMEDIAL_ACTION));
     }
 
     public Set<RemedialActionGroup> getRemedialActionGroups() {
-        return new NcPropertyBagsConverter<>(RemedialActionGroup::fromPropertyBag).convert(getPropertyBags(CsaProfileConstants.CsaProfileKeyword.REMEDIAL_ACTION, CsaProfileConstants.REQUEST_REMEDIAL_ACTION_GROUP));
+        return new NcPropertyBagsConverter<>(RemedialActionGroup::fromPropertyBag).convert(getPropertyBags(CsaProfileKeyword.REMEDIAL_ACTION, CsaProfileConstants.REQUEST_REMEDIAL_ACTION_GROUP));
 
     }
 
     public Set<RemedialActionDependency> getRemedialActionDependencies() {
-        return new NcPropertyBagsConverter<>(RemedialActionDependency::fromPropertyBag).convert(getPropertyBags(CsaProfileConstants.CsaProfileKeyword.REMEDIAL_ACTION, CsaProfileConstants.OverridingObjectsFields.SCHEME_REMEDIAL_ACTION_DEPENDENCY, CsaProfileConstants.REQUEST_REMEDIAL_ACTION_DEPENDENCY));
+        return new NcPropertyBagsConverter<>(RemedialActionDependency::fromPropertyBag).convert(getPropertyBags(CsaProfileKeyword.REMEDIAL_ACTION, OverridingObjectsFields.SCHEME_REMEDIAL_ACTION_DEPENDENCY, CsaProfileConstants.REQUEST_REMEDIAL_ACTION_DEPENDENCY));
     }
 
     private void setOverridingData(OffsetDateTime importTimestamp) {
         overridingData = new HashMap<>();
-        for (CsaProfileConstants.OverridingObjectsFields overridingObject : CsaProfileConstants.OverridingObjectsFields.values()) {
+        for (OverridingObjectsFields overridingObject : OverridingObjectsFields.values()) {
             addDataFromTripleStoreToMap(overridingData, overridingObject.getRequestName(), overridingObject.getObjectName(), overridingObject.getOverridedFieldName(), overridingObject.getHeaderType(), importTimestamp);
         }
     }
 
-    private void addDataFromTripleStoreToMap(Map<String, String> dataMap, String queryName, String queryObjectName, String queryFieldName, CsaProfileConstants.HeaderType headerType, OffsetDateTime importTimestamp) {
+    private void addDataFromTripleStoreToMap(Map<String, String> dataMap, String queryName, String queryObjectName, String queryFieldName, HeaderType headerType, OffsetDateTime importTimestamp) {
         PropertyBags propertyBagsResult = queryTripleStore(queryName, tripleStoreCsaProfileCrac.contextNames());
         for (PropertyBag propertyBag : propertyBagsResult) {
-            if (CsaProfileConstants.HeaderType.START_END_DATE.equals(headerType)) {
-                if (CsaProfileCracUtils.checkProfileKeyword(propertyBag, CsaProfileConstants.CsaProfileKeyword.STEADY_STATE_INSTRUCTION) && CsaProfileCracUtils.checkProfileValidityInterval(propertyBag, importTimestamp)) {
+            if (HeaderType.START_END_DATE.equals(headerType)) {
+                if (CsaProfileCracUtils.checkProfileKeyword(propertyBag, CsaProfileKeyword.STEADY_STATE_INSTRUCTION) && CsaProfileCracUtils.checkProfileValidityInterval(propertyBag, importTimestamp)) {
                     String id = propertyBag.getId(queryObjectName);
                     String overridedValue = propertyBag.get(queryFieldName);
                     dataMap.put(id, overridedValue);
                 }
             } else {
-                if (CsaProfileCracUtils.checkProfileKeyword(propertyBag, CsaProfileConstants.CsaProfileKeyword.STEADY_STATE_HYPOTHESIS)) {
+                if (CsaProfileCracUtils.checkProfileKeyword(propertyBag, CsaProfileKeyword.STEADY_STATE_HYPOTHESIS)) {
                     OffsetDateTime scenarioTime = OffsetDateTime.parse(propertyBag.get(CsaProfileConstants.SCENARIO_TIME));
                     if (importTimestamp.isEqual(scenarioTime)) {
                         String id = propertyBag.getId(queryObjectName);

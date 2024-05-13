@@ -6,7 +6,7 @@
  */
 package com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.remedialaction;
 
-import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileConstants;
+import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.constants.ElementCombinationConstraintKind;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.nc.ContingencyWithRemedialAction;
 import com.powsybl.openrao.data.cracimpl.CracImpl;
 import org.junit.jupiter.api.Test;
@@ -43,8 +43,8 @@ class OnContingencyStateUsageRuleHelperTest {
         Map<String, AssociationStatus> contingencyStatusMap = OnContingencyStateUsageRuleHelper.processContingenciesLinkedToRemedialAction(crac, "remedial-action", Set.of(contingency1WithRemedialAction, contingency2WithRemedialAction, contingency3WithRemedialAction, contingency4WithRemedialAction, contingency5WithRemedialAction, contingency6WithRemedialActionIncluded, contingency6WithRemedialActionConsidered));
         assertEquals(
             Map.of(
-                "contingency-1", new AssociationStatus(true, CsaProfileConstants.ElementCombinationConstraintKind.INCLUDED, ""),
-                "contingency-2", new AssociationStatus(true, CsaProfileConstants.ElementCombinationConstraintKind.CONSIDERED, ""),
+                "contingency-1", new AssociationStatus(true, ElementCombinationConstraintKind.INCLUDED, ""),
+                "contingency-2", new AssociationStatus(true, ElementCombinationConstraintKind.CONSIDERED, ""),
                 "contingency-3", new AssociationStatus(false, null, "OnContingencyState usage rule for remedial action remedial-action with contingency contingency-3 ignored because the association is disabled."),
                 "contingency-4", new AssociationStatus(false, null, "OnContingencyState usage rule for remedial action remedial-action with contingency contingency-4 ignored because of an illegal combinationConstraintKind."),
                 "contingency-5", new AssociationStatus(false, null, "OnContingencyState usage rule for remedial action remedial-action with contingency contingency-5 ignored because this contingency does not exist or was not imported by Open RAO."),

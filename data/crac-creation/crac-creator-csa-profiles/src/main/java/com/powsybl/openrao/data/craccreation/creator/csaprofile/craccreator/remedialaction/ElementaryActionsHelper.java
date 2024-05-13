@@ -8,7 +8,7 @@ package com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.rem
 
 import com.powsybl.openrao.data.craccreation.creator.api.ImportStatus;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.CsaProfileCrac;
-import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileConstants;
+import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.constants.CsaProfileConstants;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.NcAggregator;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.nc.ContingencyWithRemedialAction;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.nc.GridStateAlterationCollection;

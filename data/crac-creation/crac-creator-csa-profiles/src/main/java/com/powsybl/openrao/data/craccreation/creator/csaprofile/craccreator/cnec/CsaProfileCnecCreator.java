@@ -13,9 +13,10 @@ import com.powsybl.openrao.data.cracapi.cnec.*;
 import com.powsybl.openrao.data.craccreation.creator.api.ImportStatus;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.CsaProfileCrac;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.NcAggregator;
+import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.constants.ElementCombinationConstraintKind;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.nc.CurrentLimit;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.nc.VoltageLimit;
-import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileConstants;
+import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.constants.LimitType;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileCracCreationContext;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileCracUtils;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileElementaryCreationContext;
@@ -92,7 +93,7 @@ public class CsaProfileCnecCreator {
         }
 
         // We check whether the AssessedElement is defined using an OperationalLimit
-        CsaProfileConstants.LimitType limitType = getLimit(nativeAssessedElement);
+        LimitType limitType = getLimit(nativeAssessedElement);
 
         checkAeScannedSecuredCoherence(nativeAssessedElement);
 
@@ -105,9 +106,9 @@ public class CsaProfileCnecCreator {
             return;
         }
 
-        if (CsaProfileConstants.LimitType.CURRENT.equals(limitType)) {
+        if (LimitType.CURRENT.equals(limitType)) {
             new FlowCnecCreator(crac, network, nativeAssessedElement, nativeCurrentLimitPerId.get(nativeAssessedElement.operationalLimit()), combinableContingencies.stream().toList(), csaProfileCnecCreationContexts, cracCreationContext, defaultMonitoredSides, rejectedLinksAssessedElementContingency, aeSecuredForRegion, aeScannedForRegion).addFlowCnecs();
-        } else if (CsaProfileConstants.LimitType.VOLTAGE.equals(limitType)) {
+        } else if (LimitType.VOLTAGE.equals(limitType)) {
             new VoltageCnecCreator(crac, network, nativeAssessedElement, nativeVoltageLimitPerId.get(nativeAssessedElement.operationalLimit()), combinableContingencies.stream().toList(), csaProfileCnecCreationContexts, cracCreationContext, rejectedLinksAssessedElementContingency, aeSecuredForRegion, aeScannedForRegion).addVoltageCnecs();
         } else {
             new AngleCnecCreator(crac, network, nativeAssessedElement, nativeVoltageAngleLimitPerId.get(nativeAssessedElement.operationalLimit()), combinableContingencies.stream().toList(), csaProfileCnecCreationContexts, cracCreationContext, rejectedLinksAssessedElementContingency, aeSecuredForRegion, aeScannedForRegion).addAngleCnecs();
@@ -130,15 +131,15 @@ public class CsaProfileCnecCreator {
         return region != null && region.equals(regionEic);
     }
 
-    private CsaProfileConstants.LimitType getLimit(AssessedElement nativeAssessedElement) {
+    private LimitType getLimit(AssessedElement nativeAssessedElement) {
         if (nativeCurrentLimitPerId.get(nativeAssessedElement.operationalLimit()) != null) {
-            return CsaProfileConstants.LimitType.CURRENT;
+            return LimitType.CURRENT;
         }
         if (nativeVoltageLimitPerId.get(nativeAssessedElement.operationalLimit()) != null) {
-            return CsaProfileConstants.LimitType.VOLTAGE;
+            return LimitType.VOLTAGE;
         }
         if (nativeVoltageAngleLimitPerId.get(nativeAssessedElement.operationalLimit()) != null) {
-            return CsaProfileConstants.LimitType.ANGLE;
+            return LimitType.ANGLE;
         }
 
         return null;
@@ -154,7 +155,7 @@ public class CsaProfileCnecCreator {
         }
 
         // Illegal element combination constraint kind
-        if (!CsaProfileConstants.ElementCombinationConstraintKind.INCLUDED.toString().equals(nativeAssessedElementWithContingency.combinationConstraintKind())) {
+        if (!ElementCombinationConstraintKind.INCLUDED.toString().equals(nativeAssessedElementWithContingency.combinationConstraintKind())) {
             csaProfileCnecCreationContexts.add(CsaProfileElementaryCreationContext.notImported(assessedElementId, ImportStatus.INCONSISTENCY_IN_DATA, "The contingency " + nativeAssessedElementWithContingency.contingency() + " is linked to the assessed element with an illegal elementCombinationConstraint kind"));
             combinableContingenciesSet.remove(contingencyToLink);
             return false;

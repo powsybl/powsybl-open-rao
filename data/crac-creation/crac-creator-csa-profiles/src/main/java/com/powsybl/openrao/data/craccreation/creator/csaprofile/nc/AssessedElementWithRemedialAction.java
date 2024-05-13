@@ -1,6 +1,6 @@
 package com.powsybl.openrao.data.craccreation.creator.csaprofile.nc;
 
-import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileConstants;
+import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.constants.CsaProfileConstants;
 import com.powsybl.triplestore.api.PropertyBag;
 
 public record AssessedElementWithRemedialAction(String mrid, String assessedElement, String remedialAction, String combinationConstraintKind, boolean normalEnabled) implements Association {

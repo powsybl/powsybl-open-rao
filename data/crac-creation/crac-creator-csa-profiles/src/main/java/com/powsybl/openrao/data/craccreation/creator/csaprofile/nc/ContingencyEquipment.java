@@ -10,7 +10,7 @@ import com.powsybl.iidm.network.DanglingLine;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.TieLine;
-import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileConstants;
+import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.constants.CsaProfileConstants;
 import com.powsybl.openrao.data.craccreation.util.cgmes.CgmesBranchHelper;
 import com.powsybl.triplestore.api.PropertyBag;
 

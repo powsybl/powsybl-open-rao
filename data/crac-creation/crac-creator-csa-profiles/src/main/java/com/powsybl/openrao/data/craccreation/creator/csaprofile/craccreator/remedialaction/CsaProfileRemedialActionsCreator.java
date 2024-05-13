@@ -14,11 +14,12 @@ import com.powsybl.openrao.data.cracapi.networkaction.*;
 import com.powsybl.openrao.data.cracapi.usagerule.*;
 import com.powsybl.openrao.data.craccreation.creator.api.ImportStatus;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.CsaProfileCrac;
-import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileConstants;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileCracCreationContext;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileCracUtils;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileElementaryCreationContext;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.NcAggregator;
+import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.constants.ElementCombinationConstraintKind;
+import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.constants.RemedialActionKind;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.nc.AssessedElement;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.nc.AssessedElementWithRemedialAction;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.nc.ContingencyWithRemedialAction;
@@ -184,7 +185,7 @@ public class CsaProfileRemedialActionsCreator {
     }
 
     private Instant defineInstant(boolean isSchemeRemedialAction, RemedialAction nativeRemedialAction, int durationLimit) {
-        if (CsaProfileConstants.RemedialActionKind.PREVENTIVE.toString().equals(nativeRemedialAction.kind())) {
+        if (RemedialActionKind.PREVENTIVE.toString().equals(nativeRemedialAction.kind())) {
             return crac.getPreventiveInstant();
         }
         if (isSchemeRemedialAction) {
@@ -197,18 +198,18 @@ public class CsaProfileRemedialActionsCreator {
         return timeToImplement <= durationLimit ? crac.getInstant(InstantKind.AUTO) : crac.getInstant(InstantKind.CURATIVE);
     }
 
-    private UsageMethod getUsageMethod(CsaProfileConstants.ElementCombinationConstraintKind elementCombinationConstraintKind, boolean isSchemeRemedialAction, Instant instant, RemedialActionType remedialActionType) {
+    private UsageMethod getUsageMethod(ElementCombinationConstraintKind elementCombinationConstraintKind, boolean isSchemeRemedialAction, Instant instant, RemedialActionType remedialActionType) {
         boolean isPstRangeAuto = instant.isAuto() && remedialActionType == RemedialActionType.PST_RANGE_ACTION;
-        return isSchemeRemedialAction || CsaProfileConstants.ElementCombinationConstraintKind.INCLUDED.equals(elementCombinationConstraintKind) || isPstRangeAuto ? UsageMethod.FORCED : UsageMethod.AVAILABLE;
+        return isSchemeRemedialAction || ElementCombinationConstraintKind.INCLUDED.equals(elementCombinationConstraintKind) || isPstRangeAuto ? UsageMethod.FORCED : UsageMethod.AVAILABLE;
     }
 
     private static void checkKind(RemedialAction nativeRemedialAction, boolean isSchemeRemedialAction) {
         if (isSchemeRemedialAction) {
-            if (!CsaProfileConstants.RemedialActionKind.CURATIVE.toString().equals(nativeRemedialAction.kind())) {
+            if (!RemedialActionKind.CURATIVE.toString().equals(nativeRemedialAction.kind())) {
                 throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action " + nativeRemedialAction.mrid() + " will not be imported because auto remedial action must be of curative kind");
             }
         } else {
-            if (!CsaProfileConstants.RemedialActionKind.CURATIVE.toString().equals(nativeRemedialAction.kind()) && !CsaProfileConstants.RemedialActionKind.PREVENTIVE.toString().equals(nativeRemedialAction.kind())) {
+            if (!RemedialActionKind.CURATIVE.toString().equals(nativeRemedialAction.kind()) && !RemedialActionKind.PREVENTIVE.toString().equals(nativeRemedialAction.kind())) {
                 throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action " + nativeRemedialAction.mrid() + " will not be imported because remedial action must be of curative or preventive kind");
             }
         }

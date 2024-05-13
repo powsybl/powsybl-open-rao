@@ -8,7 +8,7 @@ package com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.rem
 
 import com.powsybl.contingency.Contingency;
 import com.powsybl.openrao.data.cracapi.Crac;
-import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileConstants;
+import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.constants.ElementCombinationConstraintKind;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.nc.ContingencyWithRemedialAction;
 
 import java.util.HashMap;
@@ -42,12 +42,12 @@ public final class OnContingencyStateUsageRuleHelper {
                 continue;
             }
 
-            if (!CsaProfileConstants.ElementCombinationConstraintKind.INCLUDED.toString().equals(nativeContingencyWithRemedialAction.combinationConstraintKind()) && !CsaProfileConstants.ElementCombinationConstraintKind.CONSIDERED.toString().equals(nativeContingencyWithRemedialAction.combinationConstraintKind())) {
+            if (!ElementCombinationConstraintKind.INCLUDED.toString().equals(nativeContingencyWithRemedialAction.combinationConstraintKind()) && !ElementCombinationConstraintKind.CONSIDERED.toString().equals(nativeContingencyWithRemedialAction.combinationConstraintKind())) {
                 contingencyStatusMap.put(nativeContingencyWithRemedialAction.contingency(), new AssociationStatus(false, null, "OnContingencyState usage rule for remedial action %s with contingency %s ignored because of an illegal combinationConstraintKind.".formatted(remedialActionId, nativeContingencyWithRemedialAction.contingency())));
                 continue;
             }
 
-            contingencyStatusMap.put(nativeContingencyWithRemedialAction.contingency(), new AssociationStatus(true, CsaProfileConstants.ElementCombinationConstraintKind.INCLUDED.toString().equals(nativeContingencyWithRemedialAction.combinationConstraintKind()) ? CsaProfileConstants.ElementCombinationConstraintKind.INCLUDED : CsaProfileConstants.ElementCombinationConstraintKind.CONSIDERED, ""));
+            contingencyStatusMap.put(nativeContingencyWithRemedialAction.contingency(), new AssociationStatus(true, ElementCombinationConstraintKind.INCLUDED.toString().equals(nativeContingencyWithRemedialAction.combinationConstraintKind()) ? ElementCombinationConstraintKind.INCLUDED : ElementCombinationConstraintKind.CONSIDERED, ""));
         }
 
         return contingencyStatusMap;

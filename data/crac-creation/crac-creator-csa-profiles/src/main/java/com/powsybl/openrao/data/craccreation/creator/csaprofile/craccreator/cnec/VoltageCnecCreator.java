@@ -13,8 +13,8 @@ import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.cracapi.InstantKind;
 import com.powsybl.openrao.data.cracapi.cnec.VoltageCnecAdder;
 import com.powsybl.openrao.data.craccreation.creator.api.ImportStatus;
+import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.constants.LimitTypeKind;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.nc.VoltageLimit;
-import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileConstants;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileCracCreationContext;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileElementaryCreationContext;
 import com.powsybl.iidm.network.Identifiable;
@@ -83,11 +83,11 @@ public class VoltageCnecCreator extends AbstractCnecCreator {
     }
 
     private void addVoltageLimitThreshold(VoltageCnecAdder voltageCnecAdder) {
-        if (CsaProfileConstants.LimitTypeKind.HIGH_VOLTAGE.toString().equals(nativeVoltageLimit.limitType())) {
+        if (LimitTypeKind.HIGH_VOLTAGE.toString().equals(nativeVoltageLimit.limitType())) {
             voltageCnecAdder.newThreshold()
                 .withUnit(Unit.KILOVOLT)
                 .withMax(nativeVoltageLimit.value()).add();
-        } else if (CsaProfileConstants.LimitTypeKind.LOW_VOLTAGE.toString().equals(nativeVoltageLimit.limitType())) {
+        } else if (LimitTypeKind.LOW_VOLTAGE.toString().equals(nativeVoltageLimit.limitType())) {
             voltageCnecAdder.newThreshold()
                 .withUnit(Unit.KILOVOLT)
                 .withMin(nativeVoltageLimit.value()).add();
