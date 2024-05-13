@@ -30,6 +30,7 @@ public final class SearchTreeBloomer {
     private final int maxTso;
     private final Map<String, Integer> maxTopoPerTso;
     private final Map<String, Integer> maxRaPerTso;
+    private final Map<String, Integer> maxElementaryActionsPerTso;
     private final boolean filterFarElements;
     private final int maxNumberOfBoundariesForSkippingNetworkActions;
     private final List<NetworkActionCombination> preDefinedNaCombinations;
@@ -40,6 +41,7 @@ public final class SearchTreeBloomer {
                              int maxTso,
                              Map<String, Integer> maxTopoPerTso,
                              Map<String, Integer> maxRaPerTso,
+                             Map<String, Integer> maxElementaryActionsPerTso,
                              boolean filterFarElements,
                              int maxNumberOfBoundariesForSkippingNetworkActions,
                              List<NetworkActionCombination> preDefinedNaCombinations,
@@ -50,6 +52,7 @@ public final class SearchTreeBloomer {
         this.maxTso = maxTso;
         this.maxTopoPerTso = maxTopoPerTso;
         this.maxRaPerTso = maxRaPerTso;
+        this.maxElementaryActionsPerTso = maxElementaryActionsPerTso;
         this.filterFarElements = filterFarElements;
         this.maxNumberOfBoundariesForSkippingNetworkActions = maxNumberOfBoundariesForSkippingNetworkActions;
         this.preDefinedNaCombinations = preDefinedNaCombinations;
@@ -100,6 +103,7 @@ public final class SearchTreeBloomer {
         networkActionCombinations = removeCombinationsWhichExceedMaxNumberOfRaPerTso(networkActionCombinations, fromLeaf);
         networkActionCombinations = removeCombinationsWhichExceedMaxNumberOfTsos(networkActionCombinations, fromLeaf);
         networkActionCombinations = removeCombinationsFarFromMostLimitingElement(networkActionCombinations, fromLeaf);
+        networkActionCombinations = removeCombinationsWhichExceedMaxElementaryActionsPerTso(networkActionCombinations, fromLeaf);
 
         return networkActionCombinations;
     }
@@ -257,6 +261,31 @@ public final class SearchTreeBloomer {
         if (naCombinations.size() > filteredNaCombinations.size()) {
             TECHNICAL_LOGS.info("{} network action combinations have been filtered out because they are too far from the most limiting element", naCombinations.size() - filteredNaCombinations.size());
         }
+        return filteredNaCombinations;
+    }
+
+    Map<NetworkActionCombination, Boolean> removeCombinationsWhichExceedMaxElementaryActionsPerTso(Map<NetworkActionCombination, Boolean> naCombinations, Leaf fromLeaf) {
+        // TODO: add check for PST
+        Map<NetworkActionCombination, Boolean> filteredNaCombinations = new HashMap<>();
+        naCombinations.forEach((naCombination, mustBeFiltered) -> {
+            int elementaryActions = 0;
+            for (NetworkAction networkAction : naCombination.getNetworkActionSet()) {
+                // TODO: what if some network actions share common elementary action?
+                elementaryActions = elementaryActions + networkAction.getElementaryActions().size();
+            }
+            boolean combinationHasBeenRemoved = false;
+            for (String operator : naCombination.getOperators()) {
+                if (elementaryActions > maxElementaryActionsPerTso.getOrDefault(operator, Integer.MAX_VALUE)) {
+                    TECHNICAL_LOGS.info("{} network action combinations have been filtered out because the maximum number of elementary actions for TSO {} has been reached", naCombinations.size() - filteredNaCombinations.size(), operator);
+                    combinationHasBeenRemoved = true;
+                    break;
+                }
+            }
+            if (!combinationHasBeenRemoved) {
+                // TODO: boolean must be set to true if removing PST allows full TOPO
+                filteredNaCombinations.put(naCombination, mustBeFiltered);
+            }
+        });
         return filteredNaCombinations;
     }
 

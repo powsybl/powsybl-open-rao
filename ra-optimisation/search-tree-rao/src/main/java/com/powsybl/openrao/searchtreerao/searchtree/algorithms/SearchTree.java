@@ -98,6 +98,7 @@ public class SearchTree {
             raUsageLimits.getMaxTso(),
             raUsageLimits.getMaxTopoPerTso(),
             raUsageLimits.getMaxRaPerTso(),
+            raUsageLimits.getMaxElementaryActionsPerTso(),
             parameters.getNetworkActionParameters().skipNetworkActionFarFromMostLimitingElements(),
             parameters.getNetworkActionParameters().getMaxNumberOfBoundariesForSkippingNetworkActions(),
             parameters.getNetworkActionParameters().getNetworkActionCombinations(),
