@@ -12,7 +12,7 @@ public final class Reports {
 
     public static ReportNode reportCsaProfileCracImportFile(ReportNode reportNode, String filename) {
         ReportNode addedNode = reportNode.newReportNode()
-            .withMessageTemplate("raoFailure", "csa profile crac import : import of file ${filename}")
+            .withMessageTemplate("csaProfileCracImportFile", "csa profile crac import : import of file ${filename}")
             .withUntypedValue("filename", filename)
             .withSeverity(TypedValue.INFO_SEVERITY)
             .add();

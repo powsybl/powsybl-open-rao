@@ -70,7 +70,7 @@ public class CseCracImporter implements NativeCracImporter<CseCrac> {
             });
 
             schema.newValidator().validate(xmlFile);
-            OpenRaoLoggerProvider.BUSINESS_LOGS.info("CSE CRAC document is valid");
+            Reports.reportCseValidCracDocument(reportNode);
             return FilenameUtils.getExtension(s).equals("xml");
         } catch (MalformedURLException e) {
             throw new OpenRaoException("URL error");
