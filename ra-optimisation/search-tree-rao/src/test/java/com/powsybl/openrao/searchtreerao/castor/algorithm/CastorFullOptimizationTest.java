@@ -42,6 +42,8 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
+import java.nio.file.Paths;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -917,6 +919,45 @@ class CastorFullOptimizationTest {
         assertEquals(-1000.0, raoResult.getFlow(crac.getInstant("outage"), crac.getFlowCnec("NNL2AA1  BBE3AA1  1 - Contingency DE2 NL3 1 - outage"), Side.LEFT, Unit.MEGAWATT), 1.);
         assertEquals(-131.0, raoResult.getFlow(crac.getInstant("auto"), crac.getFlowCnec("NNL2AA1  BBE3AA1  1 - Contingency DE2 NL3 1 - auto"), Side.LEFT, Unit.MEGAWATT), 1.);
         assertEquals(-131.0, raoResult.getFlow(crac.getInstant("curative"), crac.getFlowCnec("NNL2AA1  BBE3AA1  1 - Contingency DE2 NL3 1 - curative"), Side.LEFT, Unit.MEGAWATT), 1.);
+    }
+
+    @Test
+    void threeCurativeInstantsWithCumulativeMaximumNumberOfApplicableRemedialActions() {
+        Network network = Network.read("12Nodes_4ParallelLines.uct", getClass().getResourceAsStream("/network/12Nodes_4ParallelLines.uct"));
+        Crac crac = CracImporters.importCrac(
+            Paths.get(new File(Objects.requireNonNull(CastorFullOptimizationTest.class.getResource("/crac/small-crac-ra-limits-per-instant.json")).getFile()).toString()),
+            network
+        );
+
+        RaoInput raoInput = RaoInput.build(network, crac).build();
+        RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/RaoParameters_DC.json"));
+
+        RaoResult raoResult = new CastorFullOptimization(raoInput, raoParameters, null).run().join();
+
+        // SearchTree stop criterion is MIN_OBJECTIVE so all 3 remedial actions should be applied during the first curative instant
+        // Yet, the number of RAs that can be applied is restricted to 1 (resp. 2) in total for curative1 (resp. curative2)
+        assertEquals(1, raoResult.getActivatedNetworkActionsDuringState(crac.getState("contingency", crac.getInstant("curative1"))).size());
+        assertEquals(1, raoResult.getActivatedNetworkActionsDuringState(crac.getState("contingency", crac.getInstant("curative2"))).size());
+    }
+
+    @Test
+    void threeCurativeInstantsWithCumulativeMaximumNumberOfTsos() {
+        Network network = Network.read("12Nodes_4ParallelLines.uct", getClass().getResourceAsStream("/network/12Nodes_4ParallelLines.uct"));
+        Crac crac = CracImporters.importCrac(
+            Paths.get(new File(Objects.requireNonNull(CastorFullOptimizationTest.class.getResource("/crac/small-crac-ra-limits-per-instant-3-tsos.json")).getFile()).toString()),
+            network
+        );
+
+        RaoInput raoInput = RaoInput.build(network, crac).build();
+        RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/RaoParameters_DC.json"));
+
+        RaoResult raoResult = new CastorFullOptimization(raoInput, raoParameters, null).run().join();
+
+        // SearchTree stop criterion is MIN_OBJECTIVE so all 3 remedial actions should be applied during the first curative instant
+        // Yet, the number of RAs that can be applied is restricted to 2 (resp. 1) in total for curative1 (resp. curative2)
+        assertEquals(2, raoResult.getActivatedNetworkActionsDuringState(crac.getState("contingency", crac.getInstant("curative1"))).size());
+        assertEquals(0, raoResult.getActivatedNetworkActionsDuringState(crac.getState("contingency", crac.getInstant("curative2"))).size());
+        assertEquals(1, raoResult.getActivatedNetworkActionsDuringState(crac.getState("contingency", crac.getInstant("curative3"))).size());
     }
 
     @Test

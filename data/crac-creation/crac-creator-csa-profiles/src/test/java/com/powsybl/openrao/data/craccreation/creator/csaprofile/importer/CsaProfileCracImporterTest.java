@@ -9,10 +9,12 @@ package com.powsybl.openrao.data.craccreation.creator.csaprofile.importer;
 
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.CsaProfileCrac;
-import com.powsybl.triplestore.api.PropertyBags;
+import com.powsybl.openrao.data.craccreation.creator.csaprofile.nc.CurrentLimit;
+import com.powsybl.openrao.data.craccreation.creator.csaprofile.nc.Contingency;
 import org.junit.jupiter.api.Test;
 
 import java.io.InputStream;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -41,10 +43,10 @@ class CsaProfileCracImporterTest {
         CsaProfileCrac csaProfileCrac = csaProfileCracImporter.importNativeCrac(is1, ReportNode.NO_OP);
         assertNotNull(csaProfileCrac);
 
-        PropertyBags contingencies = csaProfileCrac.getContingencies();
+        Set<Contingency> contingencies = csaProfileCrac.getContingencies();
         assertEquals(1, contingencies.size());
 
-        PropertyBags currentLimits = csaProfileCrac.getCurrentLimits();
+        Set<CurrentLimit> currentLimits = csaProfileCrac.getCurrentLimits();
         assertEquals(52, currentLimits.size());
     }
 }
