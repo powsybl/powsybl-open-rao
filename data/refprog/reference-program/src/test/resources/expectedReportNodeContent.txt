@@ -1,0 +1,2 @@
++ This is a parent report node for report tests
+   LoadFlow could not be computed. The ReferenceProgram will be built without a prior LoadFlow computation: No LoadFlowProvider providers found

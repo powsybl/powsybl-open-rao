@@ -6,13 +6,18 @@
  */
 package com.powsybl.openrao.data.refprog.refprogxmlimporter;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.refprog.referenceprogram.ReferenceProgram;
 import com.powsybl.openrao.commons.EICode;
 import com.powsybl.iidm.network.Country;
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
 import java.io.InputStream;
+import java.io.StringWriter;
+import java.net.URISyntaxException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.OffsetDateTime;
@@ -118,5 +123,40 @@ class RefProgImporterTest {
         assertEquals(374, referenceProgram.getExchange(areaCz, areaSk), DOUBLE_TOLERANCE);
         assertEquals(-4249, referenceProgram.getGlobalNetPosition(areaEs), DOUBLE_TOLERANCE);
         assertEquals(11366, referenceProgram.getGlobalNetPosition(areaFr), DOUBLE_TOLERANCE);
+    }
+
+    @Test
+    void checkGeneratedReportNode() throws IOException, URISyntaxException {
+        ReportNode reportNode = ReportNode.newRootReportNode()
+                .withMessageTemplate("Test report node", "This is a parent report node for report tests")
+                .build();
+
+        offsetDateTime = OffsetDateTime.of(2015, 1, 11, 19, 15, 0, 0, ZoneOffset.UTC);
+        ReferenceProgram referenceProgram = RefProgImporter.importRefProg(getClass().getResourceAsStream("/large_refProg.xml"), offsetDateTime, reportNode);
+
+        String expected = Files.readString(Path.of(getClass().getResource("/expectedReportNodeContent.txt").toURI()));
+        try (StringWriter writer = new StringWriter()) {
+            reportNode.print(writer);
+            String actual = writer.toString();
+            assertEquals(expected, actual);
+        }
+    }
+
+    @Test
+    void checkGeneratedReportNodeWrongTimestamp() throws IOException, URISyntaxException {
+        ReportNode reportNode = ReportNode.newRootReportNode()
+                .withMessageTemplate("Test report node", "This is a parent report node for report tests")
+                .build();
+
+        offsetDateTime = OffsetDateTime.of(2020, 1, 6, 23, 0, 0, 0, ZoneOffset.UTC);
+        InputStream inputStream = getClass().getResourceAsStream("/refProg_12nodes.xml");
+        assertThrows(OpenRaoException.class, () -> RefProgImporter.importRefProg(inputStream, offsetDateTime, reportNode));
+
+        String expected = Files.readString(Path.of(getClass().getResource("/expectedReportNodeContentWrongTimestamp.txt").toURI()));
+        try (StringWriter writer = new StringWriter()) {
+            reportNode.print(writer);
+            String actual = writer.toString();
+            assertEquals(expected, actual);
+        }
     }
 }

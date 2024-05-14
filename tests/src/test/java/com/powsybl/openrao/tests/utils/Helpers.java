@@ -176,7 +176,7 @@ public final class Helpers {
 
         InputStream refProgInputStream = new FileInputStream(refProgFile);
         OffsetDateTime offsetDateTime = getOffsetDateTimeFromBrusselsTimestamp(timestamp);
-        return RefProgImporter.importRefProg(refProgInputStream, offsetDateTime);
+        return RefProgImporter.importRefProg(refProgInputStream, offsetDateTime, ReportNode.NO_OP);
     }
 
     public static RaoResult importRaoResult(File raoResultFile) throws IOException {
