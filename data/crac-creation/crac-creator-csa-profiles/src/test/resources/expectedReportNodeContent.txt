@@ -1,0 +1,8 @@
++ This is a parent report node for report tests
+   csa profile crac import : import of file TestCase16NodesCGMES_new_EQ.xml
+   csa profile crac import : import of file TestCase16NodesCGMES_new_SSH.xml
+   csa profile crac import : import of file TestCase16NodesCGMES_new_SV.xml
+   csa profile crac import : import of file TestCase16NodesCGMES_new_TP.xml
+   csa profile crac import : import of file TestCase_13_5_4_AE.xml
+   csa profile crac import : import of file TestCase_13_5_4_CO.xml
+   csa profile crac import : import of file TestCase_13_5_4_RA.xml

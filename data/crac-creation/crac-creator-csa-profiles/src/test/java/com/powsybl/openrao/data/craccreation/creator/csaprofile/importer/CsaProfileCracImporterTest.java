@@ -13,7 +13,12 @@ import com.powsybl.openrao.data.craccreation.creator.csaprofile.nc.CurrentLimit;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.nc.Contingency;
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
 import java.io.InputStream;
+import java.io.StringWriter;
+import java.net.URISyntaxException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -48,5 +53,23 @@ class CsaProfileCracImporterTest {
 
         Set<CurrentLimit> currentLimits = csaProfileCrac.getCurrentLimits();
         assertEquals(52, currentLimits.size());
+    }
+
+    @Test
+    void testGeneratedReportNode() throws IOException, URISyntaxException {
+        ReportNode reportNode = ReportNode.newRootReportNode()
+            .withMessageTemplate("Test report node", "This is a parent report node for report tests")
+            .build();
+
+        CsaProfileCracImporter csaProfileCracImporter = new CsaProfileCracImporter();
+        InputStream is1 = getClass().getResourceAsStream("/profiles/TestCaseWithoutSubdirectory.zip");
+        CsaProfileCrac csaProfileCrac = csaProfileCracImporter.importNativeCrac(is1, reportNode);
+
+        String expected = Files.readString(Path.of(getClass().getResource("/expectedReportNodeContent.txt").toURI()));
+        try (StringWriter writer = new StringWriter()) {
+            reportNode.print(writer);
+            String actual = writer.toString();
+            assertEquals(expected, actual);
+        }
     }
 }

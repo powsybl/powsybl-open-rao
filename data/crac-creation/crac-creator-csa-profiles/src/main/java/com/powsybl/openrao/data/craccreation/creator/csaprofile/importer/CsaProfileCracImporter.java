@@ -67,7 +67,7 @@ public class CsaProfileCracImporter implements NativeCracImporter<CsaProfileCrac
             while ((zipEntry = zipInputStream.getNextEntry()) != null && countEntries < maxNbEntries) { //NOSONAR
                 countEntries++;
                 if (!zipEntry.isDirectory()) {
-                    importZipEntry(zipEntry, zipInputStream, maxSizeEntry, keywordPattern, keywordMap, tripleStoreCsaProfile);
+                    importZipEntry(zipEntry, zipInputStream, maxSizeEntry, keywordPattern, keywordMap, tripleStoreCsaProfile, reportNode);
                 }
             }
         } catch (IOException e) {
@@ -76,8 +76,8 @@ public class CsaProfileCracImporter implements NativeCracImporter<CsaProfileCrac
         return new CsaProfileCrac(tripleStoreCsaProfile, keywordMap);
     }
 
-    private static void importZipEntry(ZipEntry zipEntry, ZipInputStream zipInputStream, int maxSizeEntry, Pattern keywordPattern, Map<String, Set<String>> keywordMap, TripleStore tripleStoreCsaProfile) throws IOException {
-        OpenRaoLoggerProvider.BUSINESS_LOGS.info("csa profile crac import : import of file {}", zipEntry.getName());
+    private static void importZipEntry(ZipEntry zipEntry, ZipInputStream zipInputStream, int maxSizeEntry, Pattern keywordPattern, Map<String, Set<String>> keywordMap, TripleStore tripleStoreCsaProfile, ReportNode reportNode) throws IOException {
+        Reports.reportCsaProfileCracImportFile(reportNode, zipEntry.getName());
         int currentSizeEntry = 0;
         File tempFile;
         boolean tempFileOk;
