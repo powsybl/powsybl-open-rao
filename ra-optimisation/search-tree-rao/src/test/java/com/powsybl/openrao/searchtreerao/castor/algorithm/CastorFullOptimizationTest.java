@@ -932,7 +932,7 @@ class CastorFullOptimizationTest {
         RaoInput raoInput = RaoInput.build(network, crac).build();
         RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/RaoParameters_DC.json"));
 
-        RaoResult raoResult = new CastorFullOptimization(raoInput, raoParameters, null).run().join();
+        RaoResult raoResult = new CastorFullOptimization(raoInput, raoParameters, null).run(ReportNode.NO_OP).join();
 
         // SearchTree stop criterion is MIN_OBJECTIVE so all 3 remedial actions should be applied during the first curative instant
         // Yet, the number of RAs that can be applied is restricted to 1 (resp. 2) in total for curative1 (resp. curative2)
@@ -951,7 +951,7 @@ class CastorFullOptimizationTest {
         RaoInput raoInput = RaoInput.build(network, crac).build();
         RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/RaoParameters_DC.json"));
 
-        RaoResult raoResult = new CastorFullOptimization(raoInput, raoParameters, null).run().join();
+        RaoResult raoResult = new CastorFullOptimization(raoInput, raoParameters, null).run(ReportNode.NO_OP).join();
 
         // SearchTree stop criterion is MIN_OBJECTIVE so all 3 remedial actions should be applied during the first curative instant
         // Yet, the number of RAs that can be applied is restricted to 2 (resp. 1) in total for curative1 (resp. curative2)
