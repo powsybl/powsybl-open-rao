@@ -7,7 +7,6 @@
 package com.powsybl.openrao.data.cracimpl;
 
 import com.powsybl.openrao.data.cracapi.Instant;
-import com.powsybl.openrao.data.cracapi.State;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
 import com.powsybl.openrao.data.cracapi.usagerule.OnFlowConstraint;
 import com.powsybl.openrao.data.cracapi.usagerule.UsageMethod;
@@ -15,49 +14,13 @@ import com.powsybl.openrao.data.cracapi.usagerule.UsageMethod;
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
-public class OnFlowConstraintImpl extends AbstractUsageRule implements OnFlowConstraint {
-    private final Instant instant;
-    private final FlowCnec flowCnec;
-
+public class OnFlowConstraintImpl extends AbstractOnConstraintUsageRule<FlowCnec> implements OnFlowConstraint {
     OnFlowConstraintImpl(UsageMethod usageMethod, Instant instant, FlowCnec flowCnec) {
-        super(usageMethod);
-        this.instant = instant;
-        this.flowCnec = flowCnec;
+        super(usageMethod, instant, flowCnec);
     }
 
     @Override
     public FlowCnec getFlowCnec() {
-        return flowCnec;
-    }
-
-    @Override
-    public Instant getInstant() {
-        return instant;
-    }
-
-    @Override
-    public UsageMethod getUsageMethod(State state) {
-        if (state.isPreventive()) {
-            return state.getInstant().equals(instant) ? usageMethod : UsageMethod.UNDEFINED;
-        } else {
-            return state.getInstant().equals(instant) && state.equals(this.flowCnec.getState()) ? usageMethod : UsageMethod.UNDEFINED;
-        }
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        OnFlowConstraintImpl rule = (OnFlowConstraintImpl) o;
-        return super.equals(o) && rule.getInstant().equals(instant) && rule.getFlowCnec().equals(flowCnec);
-    }
-
-    @Override
-    public int hashCode() {
-        return flowCnec.hashCode() * 19 + instant.hashCode() * 47;
+        return cnec;
     }
 }

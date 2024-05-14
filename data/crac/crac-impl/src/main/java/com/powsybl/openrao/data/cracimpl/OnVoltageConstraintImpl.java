@@ -7,7 +7,6 @@
 package com.powsybl.openrao.data.cracimpl;
 
 import com.powsybl.openrao.data.cracapi.Instant;
-import com.powsybl.openrao.data.cracapi.State;
 import com.powsybl.openrao.data.cracapi.cnec.VoltageCnec;
 import com.powsybl.openrao.data.cracapi.usagerule.OnVoltageConstraint;
 import com.powsybl.openrao.data.cracapi.usagerule.UsageMethod;
@@ -15,50 +14,13 @@ import com.powsybl.openrao.data.cracapi.usagerule.UsageMethod;
 /**
  * @author Fabrice Buscaylet {@literal <fabrice.buscaylet at artelys.com>}
  */
-public class OnVoltageConstraintImpl extends AbstractUsageRule implements OnVoltageConstraint {
-    private final Instant instant;
-
-    private final VoltageCnec voltageCnec;
-
-    OnVoltageConstraintImpl(UsageMethod usageMethod, Instant instant, VoltageCnec angleCnec) {
-        super(usageMethod);
-        this.instant = instant;
-        this.voltageCnec = angleCnec;
+public class OnVoltageConstraintImpl extends AbstractOnConstraintUsageRule<VoltageCnec> implements OnVoltageConstraint {
+    OnVoltageConstraintImpl(UsageMethod usageMethod, Instant instant, VoltageCnec voltageCnec) {
+        super(usageMethod, instant, voltageCnec);
     }
 
     @Override
     public VoltageCnec getVoltageCnec() {
-        return voltageCnec;
-    }
-
-    @Override
-    public Instant getInstant() {
-        return instant;
-    }
-
-    @Override
-    public UsageMethod getUsageMethod(State state) {
-        if (state.isPreventive()) {
-            return state.getInstant().equals(instant) ? usageMethod : UsageMethod.UNDEFINED;
-        } else {
-            return state.getInstant().equals(instant) && state.equals(this.voltageCnec.getState()) ? usageMethod : UsageMethod.UNDEFINED;
-        }
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        OnVoltageConstraintImpl rule = (OnVoltageConstraintImpl) o;
-        return super.equals(o) && rule.getInstant().equals(instant) && rule.getVoltageCnec().equals(voltageCnec);
-    }
-
-    @Override
-    public int hashCode() {
-        return voltageCnec.hashCode() * 19 + instant.hashCode() * 47;
+        return cnec;
     }
 }
