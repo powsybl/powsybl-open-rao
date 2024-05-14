@@ -24,14 +24,6 @@ Start by creating a Maven `pom.xml` file and add the following dependencies:
 ```xml
 <dependency>
     <groupId>com.powsybl</groupId>
-    <artifactId>open-rao-crac-creator-fb-constraint</artifactId>
-    <version>5.0.1</version>
-</dependency>
-```
-
-```xml
-<dependency>
-    <groupId>com.powsybl</groupId>
     <artifactId>open-rao-crac-impl</artifactId>
     <version>5.0.1</version>
 </dependency>
