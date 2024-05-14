@@ -11,7 +11,6 @@ import com.powsybl.openrao.data.craccreation.creator.csaprofile.nc.ContingencyWi
 import com.powsybl.openrao.data.cracimpl.CracImpl;
 import org.junit.jupiter.api.Test;
 
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
