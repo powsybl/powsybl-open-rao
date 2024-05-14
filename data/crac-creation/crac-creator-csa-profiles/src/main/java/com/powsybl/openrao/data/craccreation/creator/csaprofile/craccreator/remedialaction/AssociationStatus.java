@@ -6,12 +6,12 @@
  */
 package com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.remedialaction;
 
-import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileConstants;
+import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.constants.ElementCombinationConstraintKind;
 
 /**
  * @author Thomas Bouquet <thomas.bouquet at rte-france.com>
  */
 public record AssociationStatus(boolean isValid,
-                                CsaProfileConstants.ElementCombinationConstraintKind elementCombinationConstraintKind,
+                                ElementCombinationConstraintKind elementCombinationConstraintKind,
                                 String statusDetails) {
 }

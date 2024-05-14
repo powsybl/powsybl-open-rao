@@ -1,3 +1,9 @@
+/*
+ * Copyright (c) 2024, RTE (http://www.rte-france.com)
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
 package com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.cnec;
 
 import com.powsybl.contingency.Contingency;
@@ -6,42 +12,35 @@ import com.powsybl.openrao.data.cracapi.cnec.CnecAdder;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileCracCreationContext;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileCracUtils;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileElementaryCreationContext;
+import com.powsybl.openrao.data.craccreation.creator.csaprofile.nc.AssessedElement;
 import com.powsybl.openrao.data.craccreation.util.cgmes.CgmesBranchHelper;
 import com.powsybl.iidm.network.DanglingLine;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.TieLine;
-import com.powsybl.triplestore.api.PropertyBag;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+/**
+ * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
+ */
 public abstract class AbstractCnecCreator {
     protected final Crac crac;
     protected final Network network;
-    protected final String assessedElementId;
-    protected final String nativeAssessedElementName;
-    protected final String assessedElementName;
-    protected final String assessedElementOperator;
-    protected final boolean inBaseCase;
+    protected final AssessedElement nativeAssessedElement;
     protected final List<Contingency> linkedContingencies;
-    protected final PropertyBag operationalLimitPropertyBag;
     protected Set<CsaProfileElementaryCreationContext> csaProfileCnecCreationContexts;
     protected final CsaProfileCracCreationContext cracCreationContext;
     protected final String rejectedLinksAssessedElementContingency;
     protected final boolean aeSecuredForRegion;
     protected final boolean aeScannedForRegion;
 
-    protected AbstractCnecCreator(Crac crac, Network network, String assessedElementId, String nativeAssessedElementName, String assessedElementOperator, boolean inBaseCase, PropertyBag operationalLimitPropertyBag, List<Contingency> linkedContingencies, Set<CsaProfileElementaryCreationContext> csaProfileCnecCreationContexts, CsaProfileCracCreationContext cracCreationContext, String rejectedLinksAssessedElementContingency, boolean aeSecuredForRegion, boolean aeScannedForRegion) {
+    protected AbstractCnecCreator(Crac crac, Network network, AssessedElement nativeAssessedElement, List<Contingency> linkedContingencies, Set<CsaProfileElementaryCreationContext> csaProfileCnecCreationContexts, CsaProfileCracCreationContext cracCreationContext, String rejectedLinksAssessedElementContingency, boolean aeSecuredForRegion, boolean aeScannedForRegion) {
         this.crac = crac;
         this.network = network;
-        this.assessedElementId = assessedElementId;
-        this.nativeAssessedElementName = nativeAssessedElementName;
-        this.assessedElementOperator = assessedElementOperator;
-        this.assessedElementName = CsaProfileCracUtils.getUniqueName(assessedElementOperator, nativeAssessedElementName);
-        this.inBaseCase = inBaseCase;
-        this.operationalLimitPropertyBag = operationalLimitPropertyBag;
+        this.nativeAssessedElement = nativeAssessedElement;
         this.linkedContingencies = linkedContingencies;
         this.csaProfileCnecCreationContexts = csaProfileCnecCreationContexts;
         this.cracCreationContext = cracCreationContext;
@@ -69,12 +68,12 @@ public abstract class AbstractCnecCreator {
     }
 
     protected String writeAssessedElementIgnoredReasonMessage(String reason) {
-        return "AssessedElement " + assessedElementId + " ignored because " + reason;
+        return "AssessedElement " + nativeAssessedElement.mrid() + " ignored because " + reason;
     }
 
     protected String getCnecName(String instantId, Contingency contingency) {
         // Need to include the mRID in the name in case the AssessedElement's name is not unique
-        return "%s (%s) - %s%s".formatted(assessedElementName, assessedElementId, contingency == null ? "" : contingency.getName().orElse(contingency.getId()) + " - ", instantId);
+        return "%s (%s) - %s%s".formatted(nativeAssessedElement.getUniqueName(), nativeAssessedElement.mrid(), contingency == null ? "" : contingency.getName().orElse(contingency.getId()) + " - ", instantId);
     }
 
     protected String getCnecName(String instantId, Contingency contingency, int tatlDuration) {
@@ -97,16 +96,16 @@ public abstract class AbstractCnecCreator {
             .withId(cnecName)
             .withName(cnecName)
             .withInstant(instantId)
-            .withOperator(CsaProfileCracUtils.getTsoNameFromUrl(assessedElementOperator))
+            .withOperator(CsaProfileCracUtils.getTsoNameFromUrl(nativeAssessedElement.operator()))
             .withOptimized(aeSecuredForRegion)
             .withMonitored(aeScannedForRegion);
     }
 
     protected void markCnecAsImportedAndHandleRejectedContingencies(String cnecName) {
         if (rejectedLinksAssessedElementContingency.isEmpty()) {
-            csaProfileCnecCreationContexts.add(CsaProfileElementaryCreationContext.imported(assessedElementId, cnecName, cnecName, "", false));
+            csaProfileCnecCreationContexts.add(CsaProfileElementaryCreationContext.imported(nativeAssessedElement.mrid(), cnecName, cnecName, "", false));
         } else {
-            csaProfileCnecCreationContexts.add(CsaProfileElementaryCreationContext.imported(assessedElementId, cnecName, cnecName, "some cnec for the same assessed element are not imported because of incorrect data for assessed elements for contingencies : " + rejectedLinksAssessedElementContingency, true));
+            csaProfileCnecCreationContexts.add(CsaProfileElementaryCreationContext.imported(nativeAssessedElement.mrid(), cnecName, cnecName, "some cnec for the same assessed element are not imported because of incorrect data for assessed elements for contingencies : " + rejectedLinksAssessedElementContingency, true));
         }
     }
 }

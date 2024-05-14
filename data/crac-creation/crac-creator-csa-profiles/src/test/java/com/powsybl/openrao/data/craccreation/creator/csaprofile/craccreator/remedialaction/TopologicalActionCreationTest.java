@@ -43,7 +43,7 @@ class TopologicalActionCreationTest {
         assertRaNotImported(cracCreationContext, "remedial-action-7", ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action remedial-action-7 will not be imported because the RelativeDirectionKind is http://entsoe.eu/ns/nc#RelativeDirectionKind.up but should be absolute");
         assertRaNotImported(cracCreationContext, "remedial-action-8", ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action remedial-action-8 will not be imported because the ValueOffsetKind is http://entsoe.eu/ns/nc#ValueOffsetKind.incrementalPercentage but should be none");
         assertRaNotImported(cracCreationContext, "remedial-action-9", ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action remedial-action-9 will not be imported because there is no StaticPropertyRange linked to elementary action topology-action-9");
-        assertRaNotImported(cracCreationContext, "remedial-action-10", ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action remedial-action-10 will not be imported because the normalValue is 2 which does not define a proper action type (open 1 / close 0)");
+        assertRaNotImported(cracCreationContext, "remedial-action-10", ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action remedial-action-10 will not be imported because the normalValue is 2.0 which does not define a proper action type (open 1 / close 0)");
         assertRaNotImported(cracCreationContext, "remedial-action-11", ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action remedial-action-11 will not be imported because several conflictual StaticPropertyRanges are linked to elementary action topology-action-11");
     }
 }

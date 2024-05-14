@@ -9,22 +9,20 @@ package com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.rem
 import com.powsybl.contingency.Contingency;
 import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.cracapi.cnec.Cnec;
-import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileConstants;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileElementaryCreationContext;
-import com.powsybl.triplestore.api.PropertyBag;
-import com.powsybl.triplestore.api.PropertyBags;
+import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.constants.ElementCombinationConstraintKind;
+import com.powsybl.openrao.data.craccreation.creator.csaprofile.nc.AssessedElement;
+import com.powsybl.openrao.data.craccreation.creator.csaprofile.nc.AssessedElementWithRemedialAction;
+import com.powsybl.openrao.data.craccreation.creator.csaprofile.nc.ContingencyWithRemedialAction;
 
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileConstants.COMBINATION_CONSTRAINT_KIND;
-import static com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileConstants.REQUEST_ASSESSED_ELEMENT;
-
 /**
+ * @author Mohamed Ben-rejeb {@literal <mohamed.ben-rejeb at rte-france.com>}
  * @author Thomas Bouquet <thomas.bouquet at rte-france.com>
  */
 public final class OnConstraintUsageRuleHelper {
@@ -36,9 +34,9 @@ public final class OnConstraintUsageRuleHelper {
         return cnecCreationContexts.stream().filter(context -> context.isImported() && assessedElementId.equals(context.getNativeId())).map(context -> crac.getCnec(context.getElementId())).collect(Collectors.toSet());
     }
 
-    public static Set<Cnec> getCnecsBuiltFromAssessedElementsCombinableWithRemedialActions(Crac crac, Set<CsaProfileElementaryCreationContext> cnecCreationContexts, PropertyBags assessedElementPropertyBags) {
+    public static Set<Cnec> getCnecsBuiltFromAssessedElementsCombinableWithRemedialActions(Crac crac, Set<CsaProfileElementaryCreationContext> cnecCreationContexts, Set<AssessedElement> nativeAssessedElements) {
         Set<Cnec> cnecsCombinableWithRemedialActions = new HashSet<>();
-        assessedElementPropertyBags.stream().filter(propertyBag -> Boolean.parseBoolean(propertyBag.getId(CsaProfileConstants.REQUEST_ASSESSED_ELEMENT_IS_COMBINABLE_WITH_REMEDIAL_ACTION))).forEach(propertyBag -> cnecsCombinableWithRemedialActions.addAll(getImportedCnecFromAssessedElementId(propertyBag.getId(CsaProfileConstants.REQUEST_ASSESSED_ELEMENT), crac, cnecCreationContexts)));
+        nativeAssessedElements.stream().filter(AssessedElement::isCombinableWithRemedialAction).forEach(nativeAssessedElement -> cnecsCombinableWithRemedialActions.addAll(getImportedCnecFromAssessedElementId(nativeAssessedElement.mrid(), crac, cnecCreationContexts)));
         return cnecsCombinableWithRemedialActions;
     }
 
@@ -46,50 +44,46 @@ public final class OnConstraintUsageRuleHelper {
         return cnecs.stream().filter(cnec -> cnec.getState().getContingency().isPresent() && contingenciesIds.contains(cnec.getState().getContingency().get().getId())).collect(Collectors.toSet());
     }
 
-    public static Map<String, AssociationStatus> processCnecsLinkedToRemedialAction(Crac crac, String remedialActionId, PropertyBags assessedElementPropertyBags, Set<PropertyBag> linkedAssessedElementWithRemedialActions, Set<PropertyBag> linkedContingencyWithRemedialActions, Set<CsaProfileElementaryCreationContext> cnecCreationContexts) {
+    public static Map<String, AssociationStatus> processCnecsLinkedToRemedialAction(Crac crac, String remedialActionId, Set<AssessedElement> nativeAssessedElements, Set<AssessedElementWithRemedialAction> linkedAssessedElementWithRemedialActions, Set<ContingencyWithRemedialAction> linkedContingencyWithRemedialActions, Set<CsaProfileElementaryCreationContext> cnecCreationContexts) {
         Map<String, AssociationStatus> contingencyStatusMap = OnContingencyStateUsageRuleHelper.processContingenciesLinkedToRemedialAction(crac, remedialActionId, linkedContingencyWithRemedialActions);
         Map<String, AssociationStatus> cnecStatusMap = new HashMap<>();
-        Set<Cnec> cnecsCombinableWithRemedialAction = getCnecsBuiltFromAssessedElementsCombinableWithRemedialActions(crac, cnecCreationContexts, assessedElementPropertyBags);
-        Map<String, CsaProfileConstants.ElementCombinationConstraintKind> validContingenciesUsageRules = contingencyStatusMap.entrySet().stream().filter(entry -> entry.getValue().isValid()).collect(Collectors.toMap(Map.Entry::getKey, entry -> entry.getValue().elementCombinationConstraintKind()));
+        Set<Cnec> cnecsCombinableWithRemedialAction = getCnecsBuiltFromAssessedElementsCombinableWithRemedialActions(crac, cnecCreationContexts, nativeAssessedElements);
+        Map<String, ElementCombinationConstraintKind> validContingenciesUsageRules = contingencyStatusMap.entrySet().stream().filter(entry -> entry.getValue().isValid()).collect(Collectors.toMap(Map.Entry::getKey, entry -> entry.getValue().elementCombinationConstraintKind()));
 
-        for (PropertyBag assessedElementWithRemedialActionPropertyBag : linkedAssessedElementWithRemedialActions) {
-            String assessedElementId = assessedElementWithRemedialActionPropertyBag.getId(REQUEST_ASSESSED_ELEMENT);
-            Set<Cnec> cnecs = contingencyStatusMap.isEmpty() ? getImportedCnecFromAssessedElementId(assessedElementId, crac, cnecCreationContexts) : filterCnecsThatHaveGivenContingencies(getImportedCnecFromAssessedElementId(assessedElementId, crac, cnecCreationContexts), validContingenciesUsageRules.keySet());
+        for (AssessedElementWithRemedialAction nativeAssessedElementWithRemedialAction : linkedAssessedElementWithRemedialActions) {
+            Set<Cnec> cnecs = contingencyStatusMap.isEmpty() ? getImportedCnecFromAssessedElementId(nativeAssessedElementWithRemedialAction.assessedElement(), crac, cnecCreationContexts) : filterCnecsThatHaveGivenContingencies(getImportedCnecFromAssessedElementId(nativeAssessedElementWithRemedialAction.assessedElement(), crac, cnecCreationContexts), validContingenciesUsageRules.keySet());
 
-            if (cnecStatusMap.containsKey(assessedElementId) || cnecs.stream().anyMatch(cnec -> cnecStatusMap.containsKey(cnec.getId()))) {
-                cnecStatusMap.put(assessedElementId, new AssociationStatus(false, null, "OnConstraint usage rule for remedial action %s with assessed element %s ignored because this assessed element has several conflictual links to the remedial action.".formatted(remedialActionId, assessedElementId)));
+            if (cnecStatusMap.containsKey(nativeAssessedElementWithRemedialAction.assessedElement()) || cnecs.stream().anyMatch(cnec -> cnecStatusMap.containsKey(cnec.getId()))) {
+                cnecStatusMap.put(nativeAssessedElementWithRemedialAction.assessedElement(), new AssociationStatus(false, null, "OnConstraint usage rule for remedial action %s with assessed element %s ignored because this assessed element has several conflictual links to the remedial action.".formatted(remedialActionId, nativeAssessedElementWithRemedialAction.assessedElement())));
                 cnecs.stream().map(Cnec::getId).forEach(cnecStatusMap::remove);
                 continue;
             }
 
-            String combinationConstraintKindStr = assessedElementWithRemedialActionPropertyBag.get(COMBINATION_CONSTRAINT_KIND);
-            Optional<String> normalEnabledOpt = Optional.ofNullable(assessedElementWithRemedialActionPropertyBag.get(CsaProfileConstants.NORMAL_ENABLED));
-
             cnecsCombinableWithRemedialAction.removeAll(cnecs);
 
             if (cnecs.isEmpty()) {
-                cnecStatusMap.put(assessedElementId, new AssociationStatus(false, null, "OnConstraint usage rule for remedial action %s with assessed element %s ignored because no CNEC was imported by Open RAO from this assessed element.".formatted(remedialActionId, assessedElementId)));
+                cnecStatusMap.put(nativeAssessedElementWithRemedialAction.assessedElement(), new AssociationStatus(false, null, "OnConstraint usage rule for remedial action %s with assessed element %s ignored because no CNEC was imported by Open RAO from this assessed element.".formatted(remedialActionId, nativeAssessedElementWithRemedialAction.assessedElement())));
                 continue;
             }
 
-            if (normalEnabledOpt.isPresent() && !Boolean.parseBoolean(normalEnabledOpt.get())) {
-                cnecStatusMap.put(assessedElementId, new AssociationStatus(false, null, "OnConstraint usage rule for remedial action %s with assessed element %s ignored because the association is disabled.".formatted(remedialActionId, assessedElementId)));
+            if (!nativeAssessedElementWithRemedialAction.normalEnabled()) {
+                cnecStatusMap.put(nativeAssessedElementWithRemedialAction.assessedElement(), new AssociationStatus(false, null, "OnConstraint usage rule for remedial action %s with assessed element %s ignored because the association is disabled.".formatted(remedialActionId, nativeAssessedElementWithRemedialAction.assessedElement())));
                 continue;
             }
 
-            if (!combinationConstraintKindStr.equals(CsaProfileConstants.ElementCombinationConstraintKind.INCLUDED.toString()) && !combinationConstraintKindStr.equals(CsaProfileConstants.ElementCombinationConstraintKind.CONSIDERED.toString())) {
-                cnecStatusMap.put(assessedElementId, new AssociationStatus(false, null, "OnConstraint usage rule for remedial action %s with assessed element %s ignored because of an illegal combinationConstraintKind.".formatted(remedialActionId, assessedElementId)));
+            if (!ElementCombinationConstraintKind.INCLUDED.toString().equals(nativeAssessedElementWithRemedialAction.combinationConstraintKind()) && !ElementCombinationConstraintKind.CONSIDERED.toString().equals(nativeAssessedElementWithRemedialAction.combinationConstraintKind())) {
+                cnecStatusMap.put(nativeAssessedElementWithRemedialAction.assessedElement(), new AssociationStatus(false, null, "OnConstraint usage rule for remedial action %s with assessed element %s ignored because of an illegal combinationConstraintKind.".formatted(remedialActionId, nativeAssessedElementWithRemedialAction.assessedElement())));
                 continue;
             }
 
-            CsaProfileConstants.ElementCombinationConstraintKind combinationConstraintKind = CsaProfileConstants.ElementCombinationConstraintKind.INCLUDED.toString().equals(combinationConstraintKindStr) ? CsaProfileConstants.ElementCombinationConstraintKind.INCLUDED : CsaProfileConstants.ElementCombinationConstraintKind.CONSIDERED;
+            ElementCombinationConstraintKind combinationConstraintKind = ElementCombinationConstraintKind.INCLUDED.toString().equals(nativeAssessedElementWithRemedialAction.combinationConstraintKind()) ? ElementCombinationConstraintKind.INCLUDED : ElementCombinationConstraintKind.CONSIDERED;
 
             cnecs.forEach(
                 cnec -> {
                     if (cnec.getState().getContingency().isPresent()) {
                         Contingency contingency = cnec.getState().getContingency().get();
                         if (validContingenciesUsageRules.containsKey(contingency.getId()) && combinationConstraintKind != validContingenciesUsageRules.get(contingency.getId())) {
-                            cnecStatusMap.put(cnec.getId(), new AssociationStatus(false, null, "OnConstraint usage rule for remedial action %s with CNEC %s ignored because the combinationConstraintKinds between of the AssessedElementWithRemedialAction for assessed element %s and the ContingencyWithRemedialAction for contingency %s are different.".formatted(remedialActionId, cnec.getId(), assessedElementId, contingency.getId())));
+                            cnecStatusMap.put(cnec.getId(), new AssociationStatus(false, null, "OnConstraint usage rule for remedial action %s with CNEC %s ignored because the combinationConstraintKinds between of the AssessedElementWithRemedialAction for assessed element %s and the ContingencyWithRemedialAction for contingency %s are different.".formatted(remedialActionId, cnec.getId(), nativeAssessedElementWithRemedialAction.assessedElement(), contingency.getId())));
                             return;
                         }
                     }
@@ -101,7 +95,7 @@ public final class OnConstraintUsageRuleHelper {
         // Add CNECs built from AssessedElements which are combinable with remedial actions
         if (contingencyStatusMap.isEmpty()) {
             // The remedial action is not associated to contingencies
-            cnecsCombinableWithRemedialAction.forEach(cnec -> cnecStatusMap.put(cnec.getId(), new AssociationStatus(true, CsaProfileConstants.ElementCombinationConstraintKind.CONSIDERED, "")));
+            cnecsCombinableWithRemedialAction.forEach(cnec -> cnecStatusMap.put(cnec.getId(), new AssociationStatus(true, ElementCombinationConstraintKind.CONSIDERED, "")));
         } else {
             // The remedial action is associated to contingencies (valid or not)
             filterCnecsThatHaveGivenContingencies(cnecsCombinableWithRemedialAction, validContingenciesUsageRules.keySet()).forEach(cnec -> cnecStatusMap.put(cnec.getId(), new AssociationStatus(true, validContingenciesUsageRules.get(cnec.getState().getContingency().orElseThrow().getId()), "")));
