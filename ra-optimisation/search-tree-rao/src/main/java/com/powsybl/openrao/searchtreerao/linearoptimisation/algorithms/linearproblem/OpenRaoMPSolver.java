@@ -136,6 +136,7 @@ public class OpenRaoMPSolver {
     public LinearProblemStatus solve() {
         if (OpenRaoLoggerProvider.TECHNICAL_LOGS.isTraceEnabled()) {
             mpSolver.enableOutput();
+            mpSolver.e
         }
         return convertResultStatus(mpSolver.solve(solveConfiguration));
     }

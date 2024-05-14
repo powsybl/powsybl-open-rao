@@ -8,25 +8,15 @@
 package com.powsybl.openrao.data.cracimpl;
 
 import com.powsybl.iidm.network.Country;
-import com.powsybl.openrao.commons.OpenRaoException;
-import com.powsybl.openrao.commons.Unit;
-import com.powsybl.contingency.Contingency;
 import com.powsybl.openrao.data.cracapi.Instant;
-import com.powsybl.openrao.data.cracapi.InstantKind;
 import com.powsybl.openrao.data.cracapi.State;
-import com.powsybl.openrao.data.cracapi.cnec.AngleCnec;
-import com.powsybl.openrao.data.cracapi.cnec.AngleCnecAdder;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
-import com.powsybl.openrao.data.cracapi.threshold.AngleThresholdAdder;
 import com.powsybl.openrao.data.cracapi.usagerule.UsageMethod;
 import com.powsybl.openrao.data.cracapi.usagerule.UsageRule;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.util.Collections;
-import java.util.HashSet;
-import java.util.Optional;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -34,7 +24,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
  */
-class AbstractRemedialActionTest {
+class RemedialActionTest {
     @Test
     void testNoUsageRulesShouldReturnUndefined() {
         State state = Mockito.mock(State.class);
