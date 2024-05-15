@@ -122,7 +122,6 @@ class RaUsageLimitsTest {
         assertEquals("The value -4 provided for max number of RAs for TSO FR is smaller than 0. It will be set to 0 instead.", logsList.get(2).getFormattedMessage());
     }
 
-
     @Test
     void testReportNode() throws IOException, URISyntaxException {
         ReportNode reportNode = ReportNode.newRootReportNode()
