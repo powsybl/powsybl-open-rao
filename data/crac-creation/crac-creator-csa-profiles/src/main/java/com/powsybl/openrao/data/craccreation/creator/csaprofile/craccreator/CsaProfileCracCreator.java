@@ -21,7 +21,13 @@ import com.powsybl.openrao.data.craccreation.creator.csaprofile.parameters.CsaCr
 import com.powsybl.openrao.data.craccreation.util.RaUsageLimitsAdder;
 
 import java.time.OffsetDateTime;
-import java.util.Set;
+
+import static com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.constants.CsaProfileConstants.AUTO_INSTANT;
+import static com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.constants.CsaProfileConstants.CURATIVE_1_INSTANT;
+import static com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.constants.CsaProfileConstants.CURATIVE_2_INSTANT;
+import static com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.constants.CsaProfileConstants.CURATIVE_3_INSTANT;
+import static com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.constants.CsaProfileConstants.OUTAGE_INSTANT;
+import static com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.constants.CsaProfileConstants.PREVENTIVE_INSTANT;
 
 /**
  * @author Jean-Pierre Arnould {@literal <jean-pierre.arnould at rte-france.com>}
@@ -51,7 +57,7 @@ public class CsaProfileCracCreator implements CracCreator<CsaProfileCrac, CsaPro
         this.nativeCrac.setForTimestamp(offsetDateTime);
 
         createContingencies();
-        createCnecs(cracCreationParameters.getDefaultMonitoredSides(), csaParameters.getCapacityCalculationRegionEicCode());
+        createCnecs(cracCreationParameters);
         createRemedialActions(csaParameters.getSpsMaxTimeToImplementThresholdInSeconds());
 
         creationContext.buildCreationReport();
@@ -75,7 +81,7 @@ public class CsaProfileCracCreator implements CracCreator<CsaProfileCrac, CsaPro
         new CsaProfileContingencyCreator(crac, network, nativeCrac, creationContext);
     }
 
-    private void createCnecs(Set<Side> defaultMonitoredSides, String regionEic) {
-        new CsaProfileCnecCreator(crac, network, nativeCrac, creationContext, defaultMonitoredSides, regionEic);
+    private void createCnecs(CracCreationParameters cracCreationParameters) {
+        new CsaProfileCnecCreator(crac, network, nativeCrac, creationContext, cracCreationParameters);
     }
 }

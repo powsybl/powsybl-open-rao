@@ -80,7 +80,7 @@ public abstract class AbstractCnecCreator {
     protected String getCnecName(String instantId, Contingency contingency, Side side, int acceptableDuration) {
         // Need to include the mRID in the name in case the AssessedElement's name is not unique
         // Add TATL duration in case to CNECs of the same instant are created with different TATLs
-        return "%s (%s) - %s%s - %s%s".formatted(assessedElementName, assessedElementId, contingency == null ? "" : contingency.getName().orElse(contingency.getId()) + " - ", instantId, side.name(), acceptableDuration == Integer.MAX_VALUE ? "" : " - TATL " + acceptableDuration);
+        return "%s (%s) - %s%s - %s%s".formatted(nativeAssessedElement.getUniqueName(), nativeAssessedElement.mrid(), contingency == null ? "" : contingency.getName().orElse(contingency.getId()) + " - ", instantId, side.name(), acceptableDuration == Integer.MAX_VALUE ? "" : " - TATL " + acceptableDuration);
     }
 
     protected void addCnecBaseInformation(CnecAdder<?> cnecAdder, Contingency contingency, String instantId) {

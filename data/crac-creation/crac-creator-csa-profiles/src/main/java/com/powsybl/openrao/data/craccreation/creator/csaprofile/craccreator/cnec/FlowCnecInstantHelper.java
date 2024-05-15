@@ -12,11 +12,11 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileConstants.AUTO_INSTANT;
-import static com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileConstants.CURATIVE_1_INSTANT;
-import static com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileConstants.CURATIVE_2_INSTANT;
-import static com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileConstants.CURATIVE_3_INSTANT;
-import static com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileConstants.OUTAGE_INSTANT;
+import static com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.constants.CsaProfileConstants.AUTO_INSTANT;
+import static com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.constants.CsaProfileConstants.CURATIVE_1_INSTANT;
+import static com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.constants.CsaProfileConstants.CURATIVE_2_INSTANT;
+import static com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.constants.CsaProfileConstants.CURATIVE_3_INSTANT;
+import static com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.constants.CsaProfileConstants.OUTAGE_INSTANT;
 
 class FlowCnecInstantHelper {
 

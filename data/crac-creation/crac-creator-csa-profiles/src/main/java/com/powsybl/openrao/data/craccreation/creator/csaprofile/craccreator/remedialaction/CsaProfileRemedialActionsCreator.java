@@ -84,8 +84,8 @@ public class CsaProfileRemedialActionsCreator {
                     throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action " + nativeRemedialAction.mrid() + " will not be imported because an auto PST range action must have a speed defined");
                 }
 
-                InstantKind instantKind = getInstantKind(isSchemeRemedialAction, parentRemedialActionPropertyBag, remedialActionId, spsMaxTimeToImplementThreshold);
-                crac.getInstants(instantKind).forEach(instant -> addUsageRules(remedialActionId, assessedElementPropertyBags, linkedAeWithRa.getOrDefault(remedialActionId, Set.of()), linkedCoWithRa.getOrDefault(remedialActionId, Set.of()), cnecCreationContexts, remedialActionAdder, alterations, instant, isSchemeRemedialAction, remedialActionType));
+                InstantKind instantKind = getInstantKind(isSchemeRemedialAction, nativeRemedialAction, spsMaxTimeToImplementThreshold);
+                crac.getInstants(instantKind).forEach(instant -> addUsageRules(nativeRemedialAction.mrid(), nativeAssessedElements, linkedAeWithRa.getOrDefault(nativeRemedialAction.mrid(), Set.of()), linkedCoWithRa.getOrDefault(nativeRemedialAction.mrid(), Set.of()), cnecCreationContexts, remedialActionAdder, alterations, instant, isSchemeRemedialAction, remedialActionType));
                 remedialActionAdder.add();
 
                 if (alterations.isEmpty()) {
@@ -185,7 +185,7 @@ public class CsaProfileRemedialActionsCreator {
         return remedialInstant.isAuto() ? cnecInstant.isAuto() : !cnecInstant.comesBefore(remedialInstant);
     }
 
-    private InstantKind getInstantKind(boolean isSchemeRemedialAction, RemedialAction nativeRemedialAction, String remedialActionId, int durationLimit) {
+    private InstantKind getInstantKind(boolean isSchemeRemedialAction, RemedialAction nativeRemedialAction, int durationLimit) {
         if (RemedialActionKind.PREVENTIVE.toString().equals(nativeRemedialAction.kind())) {
             return InstantKind.PREVENTIVE;
         }
@@ -195,12 +195,6 @@ public class CsaProfileRemedialActionsCreator {
         Integer timeToImplement = nativeRemedialAction.getTimeToImplementInSeconds();
         if (timeToImplement == null) {
             return InstantKind.CURATIVE;
-        }
-        int durationInSeconds;
-        try {
-            durationInSeconds = CsaProfileCracUtils.convertDurationToSeconds(timeToImplement);
-        } catch (RuntimeException e) {
-            throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action " + remedialActionId + " will not be imported because of an irregular timeToImplement pattern");
         }
         return timeToImplement <= durationLimit ? InstantKind.AUTO : InstantKind.CURATIVE;
     }
