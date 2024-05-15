@@ -20,11 +20,11 @@ tutorial.md
 OpenRAO stands for "*Open Remedial Actions Optimizer*". It is an open-source
 toolbox that aims at providing a modular engine for remedial actions optimisation
 and an efficient solution for electrical power systems'  Coordinated Capacity Calculation,
-Local Security Analysis and Coordinated Security Analysis..
+Local Security Analysis and Coordinated Security Analysis...
 
 OpenRAO is a [PowSyBl](https://www.powsybl.org) based toolbox that provides software
 solutions for power systems coordinated capacity calculation and security analysis projects.
-It is published on [GitHub](https://github.com/OpenRAO-community) under the [Mozilla Public License 2.0](https://www.mozilla.org/en-US/MPL/2.0/).
+It is published on [GitHub](https://github.com/powsybl/powsybl-open-rao) under the [Mozilla Public License 2.0](https://www.mozilla.org/en-US/MPL/2.0/).
 
 # Why choose OpenRAO?
 
@@ -71,7 +71,7 @@ As Entso-e stated in 2020 [Annual Work Programme](https://eepublicdownloads.ents
 
 # Functional overview
 
-[OpenRAO toolbox](https://github.com/OpenRAO-community/OpenRAO-core) functional perimeter is declined following three main development axis:
+[OpenRAO toolbox](https://github.com/powsybl/powsybl-open-rao) functional perimeter is declined following three main development axis:
 
 - Business data modelisation - providing a java modelisation of all the business objects
 for power systems coordinated capacity calculation and security analysis projects.

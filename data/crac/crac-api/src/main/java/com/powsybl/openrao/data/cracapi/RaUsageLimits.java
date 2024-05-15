@@ -25,6 +25,7 @@ public class RaUsageLimits {
     private static final Map<String, Integer> DEFAULT_MAX_ELEMENTARY_ACTIONS_PER_TSO = new HashMap<>();
     private int maxRa = DEFAULT_MAX_RA;
     private int maxTso = DEFAULT_MAX_TSO;
+    private final Set<String> maxTsoExclusion = new HashSet<>();
     private Map<String, Integer> maxTopoPerTso = DEFAULT_MAX_TOPO_PER_TSO;
     private Map<String, Integer> maxPstPerTso = DEFAULT_MAX_PST_PER_TSO;
     private Map<String, Integer> maxRaPerTso = DEFAULT_MAX_RA_PER_TSO;
@@ -108,6 +109,10 @@ public class RaUsageLimits {
         return maxElementaryActionsPerTso;
     }
 
+    public Set<String> getMaxTsoExclusion() {
+        return maxTsoExclusion;
+    }
+
     private Map<String, Integer> replaceNegativeValues(Map<String, Integer> limitsPerTso) {
         limitsPerTso.forEach((tso, limit) -> {
             if (limit < 0) {
@@ -133,6 +138,10 @@ public class RaUsageLimits {
                 throw new OpenRaoException(String.format("TSO %s has a maximum number of allowed RAs smaller than the number of allowed PST RAs. This is not supported.", tso));
             }
         });
+    }
+
+    public void addTsoToExclude(String tso) {
+        maxTsoExclusion.add(tso);
     }
 
     @Override
