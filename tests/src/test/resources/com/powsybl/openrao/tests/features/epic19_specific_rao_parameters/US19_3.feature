@@ -132,3 +132,16 @@ Feature: US 19.3: Handle maximum CRA and maximum curative PSTs per TSO
     And the tap of PstRangeAction "pst_fr" should be 5 after "co1_fr2_fr3_1" at "curative"
     And the worst margin is 399 A on cnec "FFR3AA1  FFR5AA1  1 - co1_fr2_fr3_1 - curative"
     And the margin on cnec "FFR1AA1  FFR2AA1  1 - co1_fr2_fr3_1 - curative" after CRA should be 900 A
+
+  @fast @rao @mock @ac @contingency-scenarios
+  Scenario: US 19.3.11: Limit taps on PST with a maximum number of elementary actions
+    Given network file is "epic19/small-network-2P-unsecure.uct"
+    Given crac file is "epic19/small-crac-with-max-elementary-actions.json"
+    Given configuration file is "epic19/RaoParameters_2P_discrete.json"
+    When I launch search_tree_rao
+    Then 1 remedial actions are used in preventive
+    # The PST to go down to -16 to increase the margin but the limit on elementary actions restricts it to -3
+    And the tap of PstRangeAction "pst_be" should be -3 in preventive
+    And the worst margin is 48 MW
+
+  # TODO [max-elementary-actions]: test with topos only, test with both PSTs and topos, test where PSTs must be remove to apply topos

@@ -43,8 +43,8 @@
   ],
   "pstRangeActions": [
     {
-      "id": "pstRangeAction",
-      "name": "pstRangeAction",
+      "id": "pst_be",
+      "name": "pst_be",
       "operator": "BE",
       "onInstantUsageRules": [
         {

@@ -197,7 +197,7 @@ public final class LinearProblemIdGenerator {
         return TSO_RA_USED + SEPARATOR + operator + SEPARATOR + rangeAction.getId() + SEPARATOR + state.getId() + SEPARATOR + CONSTRAINT_SUFFIX;
     }
 
-    public static String maxElementaryActionsPerTsoConstraintId(String operator, RangeAction<?> rangeAction, State state) {
-        return MAX_ELEMENTARY_ACTIONS_PER_TSO + SEPARATOR + operator + SEPARATOR + rangeAction.getId() + SEPARATOR + state.getId() + SEPARATOR + CONSTRAINT_SUFFIX;
+    public static String maxElementaryActionsPerTsoConstraintId(String operator, State state) {
+        return MAX_ELEMENTARY_ACTIONS_PER_TSO + SEPARATOR + operator + SEPARATOR + state.getId() + SEPARATOR + CONSTRAINT_SUFFIX;
     }
 }

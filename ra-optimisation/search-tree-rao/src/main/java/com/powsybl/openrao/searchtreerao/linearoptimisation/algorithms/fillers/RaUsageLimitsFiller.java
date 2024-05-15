@@ -22,6 +22,8 @@ import com.powsybl.openrao.searchtreerao.result.api.RangeActionSetpointResult;
 import com.powsybl.openrao.searchtreerao.result.api.SensitivityResult;
 
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
@@ -96,9 +98,9 @@ public class RaUsageLimitsFiller implements ProblemFiller {
     }
 
     /**
-     *  Get relaxation term to add to correct the initial setpoint, to ensure problem feasibility depending on the approximations.
-     *  If PSTs are modelled with approximate integers, make sure that the initial setpoint is feasible (it should be at
-     *  a distance smaller than 0.3 * getAverageAbsoluteTapToAngleConversionFactor from a feasible setpoint in the MIP)
+     * Get relaxation term to add to correct the initial setpoint, to ensure problem feasibility depending on the approximations.
+     * If PSTs are modelled with approximate integers, make sure that the initial setpoint is feasible (it should be at
+     * a distance smaller than 0.3 * getAverageAbsoluteTapToAngleConversionFactor from a feasible setpoint in the MIP)
      */
     private double getInitialSetpointRelaxation(RangeAction rangeAction) {
         if (rangeAction instanceof PstRangeAction pstRangeAction && arePstSetpointsApproximated) {
@@ -197,15 +199,21 @@ public class RaUsageLimitsFiller implements ProblemFiller {
         if (!arePstSetpointsApproximated) {
             throw new OpenRaoException("The PSTs must be approximated as integers to use the limitations of elementary actions as a constraint in the RAO.");
         }
+
+        Map<String, Set<PstRangeAction>> pstRangeActionsPerTso = new HashMap<>();
         rangeActions.getOrDefault(state, Set.of()).stream()
             .filter(PstRangeAction.class::isInstance)
             .filter(rangeAction -> maxElementaryActionsPerTso.containsKey(rangeAction.getOperator()))
             .map(PstRangeAction.class::cast)
-            .forEach(
+            .forEach(pstRangeAction -> pstRangeActionsPerTso.computeIfAbsent(pstRangeAction.getOperator(), tso -> new HashSet<>()).add(pstRangeAction));
+
+        for (String tso : maxElementaryActionsPerTso.keySet()) {
+            OpenRaoMPConstraint constraint = linearProblem.addTsoMaxElementaryActionsConstraint(0, maxElementaryActionsPerTso.get(tso), tso, state);
+            pstRangeActionsPerTso.getOrDefault(tso, Set.of()).forEach(
                 pstRangeAction -> Arrays.stream(LinearProblem.VariationDirectionExtension.values())
                     .map(direction -> linearProblem.getPstTapVariationVariable(pstRangeAction, state, direction))
-                    .forEach(tapVariable -> tapVariable.setUb(Math.min(tapVariable.ub(), maxElementaryActionsPerTso.get(pstRangeAction.getOperator())))
-                )
+                    .forEach(tapVariable -> constraint.setCoefficient(tapVariable, 1d))
             );
+        }
     }
 }

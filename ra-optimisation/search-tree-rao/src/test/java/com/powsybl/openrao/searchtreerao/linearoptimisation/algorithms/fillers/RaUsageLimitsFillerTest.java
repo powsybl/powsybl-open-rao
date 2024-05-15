@@ -471,6 +471,12 @@ class RaUsageLimitsFillerTest extends AbstractFillerTest {
             .withSolver(mpSolver)
             .build();
 
+        // TODO: add variables of PST
+
         linearProblem.fill(flowResult, sensitivityResult);
+
+        assertEquals(0, linearProblem.getTsoMaxElementaryActionsConstraint("opA", state).lb());
+        assertEquals(1, linearProblem.getTsoMaxElementaryActionsConstraint("opA", state).ub());
+        assertEquals("", linearProblem.getTsoMaxElementaryActionsConstraint("opA", state).name());
     }
 }
