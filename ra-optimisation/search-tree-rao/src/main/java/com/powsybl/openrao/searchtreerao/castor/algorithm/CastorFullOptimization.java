@@ -147,7 +147,7 @@ public class CastorFullOptimization {
             new RangeActionActivationResultImpl(RangeActionSetpointResultImpl.buildWithSetpointsFromNetwork(raoInput.getNetwork(), raoInput.getCrac().getRangeActions())),
             preCurativeSensitivityAnalysisOutput,
             raoParameters,
-            NUMBER_LOGGED_ELEMENTS_DURING_RAO, ReportNode.NO_OP);// TODO change this
+            NUMBER_LOGGED_ELEMENTS_DURING_RAO, ReportNode.NO_OP); // TODO change this
 
         RaoResult mergedRaoResults;
 
