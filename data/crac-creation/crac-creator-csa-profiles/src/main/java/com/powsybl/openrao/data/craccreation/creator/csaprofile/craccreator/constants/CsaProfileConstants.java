@@ -5,7 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator;
+package com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.constants;
 
 import java.util.List;
 
@@ -22,29 +22,6 @@ public final class CsaProfileConstants {
     public static final String CURATIVE_3_INSTANT = "curative 3";
 
     private CsaProfileConstants() {
-    }
-
-    /**
-     * CSA Profiles keywords
-     */
-    public enum CsaProfileKeywords {
-        ASSESSED_ELEMENT("AE"),
-        CONTINGENCY("CO"),
-        EQUIPMENT_RELIABILITY("ER"),
-        REMEDIAL_ACTION("RA"),
-        STEADY_STATE_INSTRUCTION("SSI"),
-        STEADY_STATE_HYPOTHESIS("SSH");
-
-        private final String keyword;
-
-        CsaProfileKeywords(String keyword) {
-            this.keyword = keyword;
-        }
-
-        @Override
-        public String toString() {
-            return keyword;
-        }
     }
 
     /**
@@ -101,7 +78,7 @@ public final class CsaProfileConstants {
 
     public static final String REQUEST_CONTINGENCIES_CONTINGENT_STATUS = "contingentStatus";
 
-    public static final String IMPORTED_CONTINGENT_STATUS = "http://iec.ch/TC57/CIM100#ContingencyEquipmentStatusKind.outOfService";
+    public static final String OUT_OF_SERVICE_CONTINGENT_STATUS = "http://iec.ch/TC57/CIM100#ContingencyEquipmentStatusKind.outOfService";
 
     /**
      * remedial actions
@@ -122,7 +99,6 @@ public final class CsaProfileConstants {
     public static final String TAP_POSITION_ACTION = "tapPositionAction";
     public static final String STATIC_PROPERTY_RANGE = "staticPropertyRange";
     public static final String REQUEST_CONTINGENCY_WITH_REMEDIAL_ACTION = "contingencyWithRemedialAction";
-    public static final String MRID = "mRID";
     public static final String TIME_TO_IMPLEMENT = "timeToImplement";
     public static final String TSO = "tso";
     public static final String NORMAL_AVAILABLE = "normalAvailable";
@@ -138,86 +114,12 @@ public final class CsaProfileConstants {
     public static final String REQUEST_SCHEME_REMEDIAL_ACTION = "schemeRemedialAction";
     public static final String REQUEST_REMEDIAL_ACTION_GROUP = "remedialActionGroup";
     public static final String REQUEST_REMEDIAL_ACTION_DEPENDENCY = "remedialActionDependency";
-
-    public enum PropertyReference {
-        SWITCH("Switch.open"),
-        ROTATING_MACHINE("RotatingMachine.p"),
-        TAP_CHANGER("TapChanger.step"),
-        SHUNT_COMPENSATOR("ShuntCompensator.sections");
-
-        PropertyReference(String name) {
-            this.name = name;
-        }
-
-        private final String name;
-        private static final String URL = "http://energy.referencedata.eu/PropertyReference/";
-
-        @Override
-        public String toString() {
-            return PropertyReference.URL + this.name;
-        }
-    }
-
     public static final String ROTATING_MACHINE = "rotatingMachineId";
     public static final String TAP_CHANGER = "tapChangerId";
     public static final String NORMAL_VALUE = "normalValue";
     public static final String OVERRIDE_VALUE = "value";
     public static final String STATIC_PROPERTY_RANGE_VALUE_KIND = "valueKind";
     public static final String STATIC_PROPERTY_RANGE_DIRECTION = "direction";
-
-    public enum RelativeDirectionKind {
-        NONE("none"),
-        DOWN("down"),
-        UP("up"),
-        UP_AND_DOWN("upAndDown");
-
-        RelativeDirectionKind(String name) {
-            this.name = name;
-        }
-
-        private final String name;
-        private static final String URL = ENTSOE_NS_NC_URL + "#RelativeDirectionKind.";
-
-        @Override
-        public String toString() {
-            return RelativeDirectionKind.URL + this.name;
-        }
-    }
-
-    public enum ValueOffsetKind {
-        ABSOLUTE("absolute"),
-        INCREMENTAL("incremental"),
-        INCREMENTAL_PERCENTAGE("incrementalPercentage");
-
-        ValueOffsetKind(String name) {
-            this.name = name;
-        }
-
-        private final String name;
-        private static final String URL = ENTSOE_NS_NC_URL + "#ValueOffsetKind.";
-
-        @Override
-        public String toString() {
-            return ValueOffsetKind.URL + this.name;
-        }
-    }
-
-    public enum RemedialActionKind {
-        CURATIVE("curative"),
-        PREVENTIVE("preventive");
-
-        RemedialActionKind(String name) {
-            this.name = name;
-        }
-
-        private final String name;
-        private static final String URL = ENTSOE_NS_NC_URL + "#RemedialActionKind.";
-
-        @Override
-        public String toString() {
-            return RemedialActionKind.URL + this.name;
-        }
-    }
 
     /**
      * requests for flow cnec
@@ -248,7 +150,6 @@ public final class CsaProfileConstants {
     public static final String REQUEST_ROTATING_MACHINE_ACTION = "rotatingMachineAction";
     public static final String REQUEST_SHUNT_COMPENSATOR_MODIFICATION = "shuntCompensatorModification";
     public static final String REQUEST_TAP_POSITION_ACTION = "tapPositionAction";
-    public static final String CGMES = "CGMES";
     public static final String REQUEST_OPERATIONAL_LIMIT_VALUE = "value";
     public static final String REQUEST_VOLTAGE_ANGLE_LIMIT_NORMAL_VALUE = "normalValue";
     public static final String REQUEST_OPERATIONAL_LIMIT_TERMINAL = "terminal";
@@ -264,144 +165,11 @@ public final class CsaProfileConstants {
     public static final String IEC_URL = "http://iec.ch/TC57/";
     public static final String ENTSOE_URL = "http://entsoe.eu/CIM/SchemaExtension/3/1#";
 
-    public enum ElementCombinationConstraintKind {
-        CONSIDERED("considered"),
-        INCLUDED("included"),
-        EXCLUDED("excluded");
-
-        ElementCombinationConstraintKind(String name) {
-            this.name = name;
-        }
-
-        private final String name;
-        private static final String URL = ENTSOE_NS_NC_URL + "#ElementCombinationConstraintKind.";
-
-        @Override
-        public String toString() {
-            return ElementCombinationConstraintKind.URL + this.name;
-        }
-    }
-
-    public enum LimitTypeKind {
-        PATL("patl"),
-        TATL("tatl"),
-        HIGH_VOLTAGE("highVoltage"),
-        LOW_VOLTAGE("lowVoltage");
-
-        LimitTypeKind(String name) {
-            this.name = name;
-        }
-
-        private final String name;
-        private static final String URL = ENTSOE_URL + "LimitTypeKind.";
-
-        @Override
-        public String toString() {
-            return LimitTypeKind.URL + this.name;
-        }
-    }
-
-    public enum OperationalLimitDirectionKind {
-        ABSOLUTE("absoluteValue"),
-        HIGH("high"),
-        LOW("low");
-
-        OperationalLimitDirectionKind(String direction) {
-            this.direction = direction;
-        }
-
-        private final String direction;
-        private static final String URL = IEC_URL + "CIM100#OperationalLimitDirectionKind.";
-
-        @Override
-        public String toString() {
-            return OperationalLimitDirectionKind.URL + this.direction;
-        }
-    }
-
     /**
      * requests for angle cnec
      */
 
     public static final String REQUEST_IS_FLOW_TO_REF_TERMINAL = "isFlowToRefTerminal";
     public static final String REQUEST_VOLTAGE_ANGLE_LIMIT = "voltageAngleLimit";
-
-    public enum LimitType {
-        ANGLE(REQUEST_VOLTAGE_ANGLE_LIMIT),
-        CURRENT(REQUEST_CURRENT_LIMIT),
-        VOLTAGE(REQUEST_VOLTAGE_LIMIT);
-
-        LimitType(String type) {
-            this.type = type;
-        }
-
-        private final String type;
-
-        @Override
-        public String toString() {
-            return this.type;
-        }
-    }
-
-    public enum HeaderType {
-        START_END_DATE,
-        SCENARIO_TIME;
-    }
-
-    public enum OverridingObjectsFields {
-        CONTINGENCY("contingencyOverriding", REQUEST_CONTINGENCY, REQUEST_CONTINGENCIES_NORMAL_MUST_STUDY, REQUEST_CONTINGENCIES_OVERRIDE_MUST_STUDY, HeaderType.START_END_DATE),
-        ASSESSED_ELEMENT("assessedElementOverriding", REQUEST_ASSESSED_ELEMENT, NORMAL_ENABLED, OVERRIDE_ENABLED, HeaderType.START_END_DATE),
-        ASSESSED_ELEMENT_WITH_CONTINGENCY("assessedElementWithContingencyOverriding", REQUEST_ASSESSED_ELEMENT_WITH_CONTINGENCY, NORMAL_ENABLED, OVERRIDE_ENABLED, HeaderType.START_END_DATE),
-        ASSESSED_ELEMENT_WITH_REMEDIAL_ACTION("assessedElementWithRemedialActionOverriding", REQUEST_ASSESSED_ELEMENT_WITH_REMEDIAL_ACTION, NORMAL_ENABLED, OVERRIDE_ENABLED, HeaderType.START_END_DATE),
-        CONTINGENCY_WITH_REMEDIAL_ACTION("contingencyWithRemedialActionOverriding", REQUEST_CONTINGENCY_WITH_REMEDIAL_ACTION, NORMAL_ENABLED, OVERRIDE_ENABLED, HeaderType.START_END_DATE),
-        GRID_STATE_ALTERATION_REMEDIAL_ACTION("gridStateAlterationRemedialActionOverriding", REQUEST_GRID_STATE_ALTERATION_REMEDIAL_ACTION, NORMAL_AVAILABLE, OVERRIDE_AVAILABLE, HeaderType.START_END_DATE),
-        GRID_STATE_ALTERATION("gridStateAlterationOverriding", "gridStateAlteration", NORMAL_ENABLED, OVERRIDE_ENABLED, HeaderType.START_END_DATE),
-        STATIC_PROPERTY_RANGE("staticPropertyRangeOverriding", CsaProfileConstants.STATIC_PROPERTY_RANGE, NORMAL_VALUE, OVERRIDE_VALUE, HeaderType.START_END_DATE),
-        REMEDIAL_ACTION_SCHEME("remedialActionSchemeOverriding", CsaProfileConstants.REMEDIAL_ACTION_SCHEME, NORMAL_ARMED, OVERRIDE_ARMED, HeaderType.START_END_DATE),
-        VOLTAGE_ANGLE_LIMIT("voltageAngleLimitOverriding", "voltageAngleLimit", NORMAL_VALUE, OVERRIDE_VALUE, HeaderType.START_END_DATE),
-        CURRENT_LIMIT("currentLimitOverriding", REQUEST_CURRENT_LIMIT, NORMAL_VALUE, OVERRIDE_VALUE, HeaderType.SCENARIO_TIME),
-        VOLTAGE_LIMIT("voltageLimitOverriding", REQUEST_VOLTAGE_LIMIT, NORMAL_VALUE, OVERRIDE_VALUE, HeaderType.SCENARIO_TIME),
-        TOPOLOGY_ACTION("topologyActionOverriding", REQUEST_TOPOLOGY_ACTION, NORMAL_ENABLED, OVERRIDE_ENABLED, HeaderType.START_END_DATE),
-        ROTATING_MACHINE_ACTION("rotatingMachineActionOverriding", REQUEST_ROTATING_MACHINE_ACTION, NORMAL_ENABLED, OVERRIDE_ENABLED, HeaderType.START_END_DATE),
-        SHUNT_COMPENSATOR_MODIFICATION("shuntCompensatorModificationOverriding", REQUEST_SHUNT_COMPENSATOR_MODIFICATION, NORMAL_ENABLED, OVERRIDE_ENABLED, HeaderType.START_END_DATE),
-        TAP_POSITION_ACTION("tapPositionActionOverriding", REQUEST_TAP_POSITION_ACTION, NORMAL_ENABLED, OVERRIDE_ENABLED, HeaderType.START_END_DATE),
-        SCHEME_REMEDIAL_ACTION("schemeRemedialActionOverriding", REQUEST_SCHEME_REMEDIAL_ACTION, NORMAL_AVAILABLE, OVERRIDE_AVAILABLE, HeaderType.START_END_DATE),
-        SCHEME_REMEDIAL_ACTION_DEPENDENCY("remedialActionDependencyOverriding", REQUEST_REMEDIAL_ACTION_DEPENDENCY, NORMAL_ENABLED, OVERRIDE_ENABLED, HeaderType.START_END_DATE);
-
-        final String requestName;
-        final String objectName;
-        final String initialFieldName;
-        final String overriddenFieldName;
-        final HeaderType headerType;
-
-        OverridingObjectsFields(String requestName, String objectName, String initialFieldName, String overridedFieldName, HeaderType headerType) {
-            this.requestName = requestName;
-            this.objectName = objectName;
-            this.initialFieldName = initialFieldName;
-            this.overriddenFieldName = overridedFieldName;
-            this.headerType = headerType;
-        }
-
-        public String getRequestName() {
-            return this.requestName;
-        }
-
-        public String getObjectName() {
-            return this.objectName;
-        }
-
-        public String getInitialFieldName() {
-            return this.initialFieldName;
-        }
-
-        public String getOverridedFieldName() {
-            return this.overriddenFieldName;
-        }
-
-        public HeaderType getHeaderType() {
-            return this.headerType;
-        }
-    }
-
     public static final String SCENARIO_TIME = "scenarioTime";
 }

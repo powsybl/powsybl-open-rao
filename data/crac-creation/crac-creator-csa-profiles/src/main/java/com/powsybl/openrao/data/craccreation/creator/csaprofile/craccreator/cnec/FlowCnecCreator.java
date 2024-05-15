@@ -1,3 +1,9 @@
+/*
+ * Copyright (c) 2024, RTE (http://www.rte-france.com)
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
 package com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.cnec;
 
 import com.powsybl.openrao.commons.Unit;
@@ -13,81 +19,59 @@ import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaP
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileCracUtils;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileElementaryCreationContext;
 import com.powsybl.iidm.network.*;
+import com.powsybl.openrao.data.craccreation.creator.csaprofile.nc.AssessedElement;
 import com.powsybl.openrao.data.craccreation.util.OpenRaoImportException;
-import com.powsybl.triplestore.api.PropertyBag;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
+/**
+ * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
+ */
 public class FlowCnecCreator extends AbstractCnecCreator {
-    private final String conductingEquipment;
     private final Set<Side> defaultMonitoredSides;
     private final FlowCnecInstantHelper instantHelper;
     private final String flowReliabilityMarginString;
+    private final CurrentLimit nativeCurrentLimit;
 
-    public FlowCnecCreator(Crac crac, Network network, String assessedElementId, String nativeAssessedElementName, String assessedElementOperator, boolean inBaseCase, PropertyBag currentLimitPropertyBag, String conductingEquipment, String flowReliabilityMarginString, List<Contingency> linkedContingencies, Set<CsaProfileElementaryCreationContext> csaProfileCnecCreationContexts, CsaProfileCracCreationContext cracCreationContext, String rejectedLinksAssessedElementContingency, boolean aeSecuredForRegion, boolean aeScannedForRegion, CracCreationParameters cracCreationParameters) {
-        super(crac, network, assessedElementId, nativeAssessedElementName, assessedElementOperator, inBaseCase, currentLimitPropertyBag, linkedContingencies, csaProfileCnecCreationContexts, cracCreationContext, rejectedLinksAssessedElementContingency, aeSecuredForRegion, aeScannedForRegion);
-        this.conductingEquipment = conductingEquipment;
-        this.defaultMonitoredSides = cracCreationParameters.getDefaultMonitoredSides();
+    public FlowCnecCreator(Crac crac, Network network, AssessedElement nativeAssessedElement, CurrentLimit nativeCurrentLimit, List<Contingency> linkedContingencies, Set<CsaProfileElementaryCreationContext> csaProfileCnecCreationContexts, CsaProfileCracCreationContext cracCreationContext, Set<Side> defaultMonitoredSides, String rejectedLinksAssessedElementContingency, boolean aeSecuredForRegion, boolean aeScannedForRegion) {
+        super(crac, network, nativeAssessedElement, linkedContingencies, csaProfileCnecCreationContexts, cracCreationContext, rejectedLinksAssessedElementContingency, aeSecuredForRegion, aeScannedForRegion);
+        this.defaultMonitoredSides = defaultMonitoredSides;
+        this.nativeCurrentLimit = nativeCurrentLimit;
         checkCnecDefinitionMode();
-        this.instantHelper = new FlowCnecInstantHelper(cracCreationParameters);
-        this.flowReliabilityMarginString = flowReliabilityMarginString;
     }
 
     private void checkCnecDefinitionMode() {
-        if (conductingEquipment == null && operationalLimitPropertyBag == null) {
+        if (nativeAssessedElement.conductingEquipment() == null && nativeCurrentLimit == null) {
             throw new OpenRaoImportException(ImportStatus.INCOMPLETE_DATA, writeAssessedElementIgnoredReasonMessage("no ConductingEquipment or OperationalLimit was provided"));
         }
-        if (conductingEquipment != null && operationalLimitPropertyBag != null) {
+        if (nativeAssessedElement.conductingEquipment() != null && nativeCurrentLimit != null) {
             throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, writeAssessedElementIgnoredReasonMessage("an assessed element must be defined using either a ConductingEquipment or an OperationalLimit, not both"));
         }
     }
 
     public void addFlowCnecs() {
-        String networkElementId = conductingEquipment != null ? conductingEquipment : operationalLimitPropertyBag.getId(CsaProfileConstants.REQUEST_OPERATIONAL_LIMIT_TERMINAL);
+        String networkElementId = nativeAssessedElement.conductingEquipment() != null ? nativeAssessedElement.conductingEquipment() : nativeCurrentLimit.terminal();
         Identifiable<?> branch = getFlowCnecBranch(networkElementId);
 
         // The thresholds are a map of acceptable durations to thresholds (per branch side)
         // Integer.MAX_VALUE is used for the PATL's acceptable duration
-        Map<Integer, Map<TwoSides, Double>> thresholds = conductingEquipment != null ? getPermanentAndTemporaryLimitsOfBranch((Branch<?>) branch) : getPermanentAndTemporaryLimitsOfOperationalLimit(branch, networkElementId);
+        Map<Integer, Map<TwoSides, Double>> thresholds = nativeAssessedElement.conductingEquipment() != null ? getPermanentAndTemporaryLimitsOfBranch((Branch<?>) branch) : getPermanentAndTemporaryLimitsOfOperationalLimit(branch, networkElementId);
         if (thresholds.isEmpty()) {
             throw new OpenRaoImportException(ImportStatus.INCOMPLETE_DATA, writeAssessedElementIgnoredReasonMessage("no PATL or TATLs could be retrieved for the branch " + branch.getId()));
         }
 
         // If the AssessedElement is defined with a conducting equipment, we use both max and min thresholds.
         boolean useMaxAndMinThresholds = true;
-        if (conductingEquipment == null) {
-            String direction = operationalLimitPropertyBag.get(CsaProfileConstants.REQUEST_OPERATIONAL_LIMIT_DIRECTION);
-            if (CsaProfileConstants.OperationalLimitDirectionKind.HIGH.toString().equals(direction)) {
+        if (nativeAssessedElement.conductingEquipment() == null) {
+            if (OperationalLimitDirectionKind.HIGH.toString().equals(nativeCurrentLimit.direction())) {
                 useMaxAndMinThresholds = false;
-            } else if (!CsaProfileConstants.OperationalLimitDirectionKind.ABSOLUTE.toString().equals(direction)) {
+            } else if (!OperationalLimitDirectionKind.ABSOLUTE.toString().equals(nativeCurrentLimit.direction())) {
                 throw new OpenRaoImportException(ImportStatus.NOT_FOR_RAO, writeAssessedElementIgnoredReasonMessage("OperationalLimitType.direction is neither 'absoluteValue' nor 'high'"));
             }
         }
 
-        Double flowReliabilityMargin = parseFlowReliabilityMargin();
-        if (flowReliabilityMargin == null) {
-            return;
-        }
-
-        addAllFlowCnecsFromBranchAndOperationalLimits((Branch<?>) branch, thresholds, useMaxAndMinThresholds, flowReliabilityMargin);
-    }
-
-    private Double parseFlowReliabilityMargin() {
-        if (flowReliabilityMarginString == null) {
-            return 0d;
-        }
-        try {
-            double flowReliabilityMargin = Double.parseDouble(flowReliabilityMarginString);
-            if (flowReliabilityMargin < 0 || flowReliabilityMargin > 100) {
-                csaProfileCnecCreationContexts.add(CsaProfileElementaryCreationContext.notImported(assessedElementId, ImportStatus.INCONSISTENCY_IN_DATA, writeAssessedElementIgnoredReasonMessage("of an invalid flow reliability margin (expected a value between 0 and 100)")));
-                return null;
-            }
-            return flowReliabilityMargin;
-        } catch (NumberFormatException exception) {
-            csaProfileCnecCreationContexts.add(CsaProfileElementaryCreationContext.notImported(assessedElementId, ImportStatus.INCONSISTENCY_IN_DATA, writeAssessedElementIgnoredReasonMessage("the flowReliabilityMargin could not be converted to a numerical value")));
-            return null;
-        }
+        addAllFlowCnecsFromBranchAndOperationalLimits((Branch<?>) branch, thresholds, useMaxAndMinThresholds, nativeAssessedElement.conductingEquipment() != null);
     }
 
     private FlowCnecAdder initFlowCnec() {
@@ -145,8 +129,11 @@ public class FlowCnecCreator extends AbstractCnecCreator {
         return null;
     }
 
-    private void addFlowCnecThreshold(FlowCnecAdder flowCnecAdder, Side side, double threshold, boolean useMaxAndMinThresholds, double flowReliabilityMargin) {
-        double thresholdWithReliabilityMargin = threshold * (1d - flowReliabilityMargin / 100d);
+    private void addFlowCnecThreshold(FlowCnecAdder flowCnecAdder, Side side, double threshold, boolean useMaxAndMinThresholds) {
+        if (nativeAssessedElement.flowReliabilityMargin() < 0 || nativeAssessedElement.flowReliabilityMargin() > 100) {
+            throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, writeAssessedElementIgnoredReasonMessage("of an invalid flow reliability margin (expected a value between 0 and 100)"));
+        }
+        double thresholdWithReliabilityMargin = threshold * (1d - nativeAssessedElement.flowReliabilityMargin() / 100d);
         BranchThresholdAdder adder = flowCnecAdder.newThreshold().withSide(side)
             .withUnit(Unit.AMPERE)
             .withMax(thresholdWithReliabilityMargin);
@@ -251,18 +238,14 @@ public class FlowCnecCreator extends AbstractCnecCreator {
     private Map<Integer, Map<TwoSides, Double>> getPermanentAndTemporaryLimitsOfOperationalLimit(Identifiable<?> branch, String terminalId) {
         Map<Integer, Map<TwoSides, Double>> thresholds = new HashMap<>();
 
-        String limitType = operationalLimitPropertyBag.get(CsaProfileConstants.REQUEST_OPERATIONAL_LIMIT_TYPE);
         Side side = getSideFromNetworkElement(branch, terminalId);
-        String valueStr = operationalLimitPropertyBag.get(CsaProfileConstants.REQUEST_OPERATIONAL_LIMIT_VALUE);
-        Double value = Double.valueOf(valueStr);
 
         if (side != null) {
             int acceptableDuration;
-            if (CsaProfileConstants.LimitTypeKind.PATL.toString().equals(limitType)) {
+            if (LimitTypeKind.PATL.toString().equals(nativeCurrentLimit.limitType())) {
                 acceptableDuration = Integer.MAX_VALUE;
-            } else if (CsaProfileConstants.LimitTypeKind.TATL.toString().equals(limitType)) {
-                String acceptableDurationStr = operationalLimitPropertyBag.get(CsaProfileConstants.REQUEST_OPERATIONAL_LIMIT_ACCEPTABLE_DURATION);
-                acceptableDuration = Integer.parseInt(acceptableDurationStr);
+            } else if (LimitTypeKind.TATL.toString().equals(nativeCurrentLimit.limitType())) {
+                acceptableDuration = Integer.parseInt(nativeCurrentLimit.acceptableDuration());
             } else {
                 return thresholds;
             }
