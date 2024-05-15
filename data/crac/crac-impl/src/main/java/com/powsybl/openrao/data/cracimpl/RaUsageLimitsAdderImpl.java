@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.data.cracimpl;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.cracapi.*;
 
@@ -19,8 +20,9 @@ public class RaUsageLimitsAdderImpl implements RaUsageLimitsAdder {
     CracImpl owner;
     private final Instant instant;
     private final RaUsageLimits raUsageLimits = new RaUsageLimits();
+    private final ReportNode reportNode;
 
-    RaUsageLimitsAdderImpl(CracImpl owner, String instantName) {
+    RaUsageLimitsAdderImpl(CracImpl owner, String instantName, ReportNode reportNode) {
         Objects.requireNonNull(owner);
         this.owner = owner;
         List<Instant> instants = this.owner.getSortedInstants().stream().filter(cracInstant -> cracInstant.getId().equals(instantName)).toList();
@@ -28,35 +30,36 @@ public class RaUsageLimitsAdderImpl implements RaUsageLimitsAdder {
             throw new OpenRaoException(String.format("The instant %s does not exist in the crac.", instantName));
         }
         this.instant = instants.get(0);
+        this.reportNode = reportNode;
     }
 
     @Override
     public RaUsageLimitsAdder withMaxRa(int maxRa) {
-        raUsageLimits.setMaxRa(maxRa);
+        raUsageLimits.setMaxRa(maxRa, reportNode);
         return this;
     }
 
     @Override
     public RaUsageLimitsAdder withMaxTso(int maxTso) {
-        raUsageLimits.setMaxTso(maxTso);
+        raUsageLimits.setMaxTso(maxTso, reportNode);
         return this;
     }
 
     @Override
     public RaUsageLimitsAdder withMaxTopoPerTso(Map<String, Integer> maxTopoPerTso) {
-        raUsageLimits.setMaxTopoPerTso(maxTopoPerTso);
+        raUsageLimits.setMaxTopoPerTso(maxTopoPerTso, reportNode);
         return this;
     }
 
     @Override
     public RaUsageLimitsAdder withMaxPstPerTso(Map<String, Integer> maxPstPerTso) {
-        raUsageLimits.setMaxPstPerTso(maxPstPerTso);
+        raUsageLimits.setMaxPstPerTso(maxPstPerTso, reportNode);
         return this;
     }
 
     @Override
     public RaUsageLimitsAdder withMaxRaPerTso(Map<String, Integer> maxRaPerTso) {
-        raUsageLimits.setMaxRaPerTso(maxRaPerTso);
+        raUsageLimits.setMaxRaPerTso(maxRaPerTso, reportNode);
         return this;
     }
 

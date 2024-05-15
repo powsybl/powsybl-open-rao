@@ -147,7 +147,7 @@ public class CastorFullOptimization {
             new RangeActionActivationResultImpl(RangeActionSetpointResultImpl.buildWithSetpointsFromNetwork(raoInput.getNetwork(), raoInput.getCrac().getRangeActions())),
             preCurativeSensitivityAnalysisOutput,
             raoParameters,
-            NUMBER_LOGGED_ELEMENTS_DURING_RAO, ReportNode.NO_OP);
+            NUMBER_LOGGED_ELEMENTS_DURING_RAO, ReportNode.NO_OP);// TODO change this
 
         RaoResult mergedRaoResults;
 
@@ -246,7 +246,7 @@ public class CastorFullOptimization {
         if (objectiveFunctionParameters.getForbidCostIncrease() && finalCost > initialCost) {
             Reports.reportRaoIncreasedOverallCost(reportNode, initialCost, initialFunctionalCost, initialVirtualCost, finalCost, finalFunctionalCost, finalVirtualCost);
             // log results
-            RaoLogger.logMostLimitingElementsResults(initialResult, objectiveFunctionParameters.getType(), NUMBER_LOGGED_ELEMENTS_END_RAO, ReportNode.NO_OP, TypedValue.INFO_SEVERITY);
+            RaoLogger.logMostLimitingElementsResults(initialResult, objectiveFunctionParameters.getType(), NUMBER_LOGGED_ELEMENTS_END_RAO, reportNode, TypedValue.INFO_SEVERITY);
             finalRaoResult = new UnoptimizedRaoResultImpl(initialResult);
             finalCost = initialCost;
             finalFunctionalCost = initialFunctionalCost;
@@ -440,7 +440,7 @@ public class CastorFullOptimization {
             .withUnoptimizedCnecParameters(UnoptimizedCnecParameters.build(raoParameters.getNotOptimizedCnecsParameters(), stateTree.getOperatorsNotSharingCras(), raoInput.getCrac()))
             .build();
 
-        searchTreeParameters.decreaseRemedialActionUsageLimits(resultsPerPerimeter);
+        searchTreeParameters.decreaseRemedialActionUsageLimits(resultsPerPerimeter, reportNode);
 
         SearchTreeInput searchTreeInput = SearchTreeInput.create()
             .withNetwork(network)
@@ -453,7 +453,7 @@ public class CastorFullOptimization {
             .withOutageInstant(crac.getOutageInstant())
             .build();
 
-        OptimizationResult result = new SearchTree(searchTreeInput, searchTreeParameters, false).run(ReportNode.NO_OP).join();
+        OptimizationResult result = new SearchTree(searchTreeInput, searchTreeParameters, false).run(reportNode).join();
         reportNode.newReportNode()
                 .withMessageTemplate("curativeStateOptimized", "Curative state ${curativeStateId} has been optimized.")
                 .withUntypedValue("curativeStateId", curativeState.getId())
@@ -737,7 +737,7 @@ public class CastorFullOptimization {
         // update RaUsageLimits with already applied RangeActions
         Set<RangeAction<?>> excludedRangeActions = new HashSet<>(getRangeActionsExcludedFromSecondPreventive(crac));
         if (!excludedRangeActions.isEmpty() && searchTreeParameters.getRaLimitationParameters().containsKey(crac.getPreventiveInstant())) {
-            searchTreeParameters.setRaLimitationsForSecondPreventive(searchTreeParameters.getRaLimitationParameters().get(crac.getPreventiveInstant()), excludedRangeActions, crac.getPreventiveInstant());
+            searchTreeParameters.setRaLimitationsForSecondPreventive(searchTreeParameters.getRaLimitationParameters().get(crac.getPreventiveInstant()), excludedRangeActions, crac.getPreventiveInstant(), reportNode);
         }
 
         if (raoParameters.getSecondPreventiveRaoParameters().getHintFromFirstPreventiveRao()) {
@@ -756,7 +756,7 @@ public class CastorFullOptimization {
             .withOutageInstant(crac.getOutageInstant())
             .build();
 
-        OptimizationResult result = new SearchTree(searchTreeInput, searchTreeParameters, true).run(ReportNode.NO_OP).join();
+        OptimizationResult result = new SearchTree(searchTreeInput, searchTreeParameters, true).run(reportNode).join();
 
         // apply PRAs
         raoInput.getNetwork().getVariantManager().setWorkingVariant(SECOND_PREVENTIVE_SCENARIO_BEFORE_OPT);

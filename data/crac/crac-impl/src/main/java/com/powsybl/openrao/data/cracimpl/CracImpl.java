@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.data.cracimpl;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.cracapi.*;
@@ -872,7 +873,7 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
 
     @Override
     public RaUsageLimitsAdder newRaUsageLimits(String instantName) {
-        return new RaUsageLimitsAdderImpl(this, instantName);
+        return new RaUsageLimitsAdderImpl(this, instantName, ReportNode.NO_OP); // TODO change this
     }
 
     @Override

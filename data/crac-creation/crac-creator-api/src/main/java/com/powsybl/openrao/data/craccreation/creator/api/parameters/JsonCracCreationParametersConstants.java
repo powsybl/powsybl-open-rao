@@ -9,6 +9,7 @@ package com.powsybl.openrao.data.craccreation.creator.api.parameters;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.cracapi.RaUsageLimits;
 import org.apache.commons.lang3.tuple.Pair;
@@ -84,9 +85,9 @@ public final class JsonCracCreationParametersConstants {
         jsonGenerator.writeEndArray();
     }
 
-    static void deserializeRaUsageLimitsAndUpdateParameters(JsonParser jsonParser, CracCreationParameters parameters) throws IOException {
+    static void deserializeRaUsageLimitsAndUpdateParameters(JsonParser jsonParser, CracCreationParameters parameters, ReportNode reportNode) throws IOException {
         while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
-            Pair<String, RaUsageLimits> pairOfInstantAndItsRaUsageLimits = deserializeRaUsageLimits(jsonParser);
+            Pair<String, RaUsageLimits> pairOfInstantAndItsRaUsageLimits = deserializeRaUsageLimits(jsonParser, reportNode);
             parameters.addRaUsageLimitsForInstant(pairOfInstantAndItsRaUsageLimits.getLeft(), pairOfInstantAndItsRaUsageLimits.getRight());
         }
     }
@@ -105,7 +106,7 @@ public final class JsonCracCreationParametersConstants {
         return map;
     }
 
-    private static Pair<String, RaUsageLimits> deserializeRaUsageLimits(JsonParser jsonParser) throws IOException {
+    private static Pair<String, RaUsageLimits> deserializeRaUsageLimits(JsonParser jsonParser, ReportNode reportNode) throws IOException {
         RaUsageLimits raUsageLimits = new RaUsageLimits();
         String instant = null;
         while (!jsonParser.nextToken().isStructEnd()) {
@@ -116,23 +117,23 @@ public final class JsonCracCreationParametersConstants {
                     break;
                 case MAX_RA:
                     jsonParser.nextToken();
-                    raUsageLimits.setMaxRa(jsonParser.getIntValue());
+                    raUsageLimits.setMaxRa(jsonParser.getIntValue(), reportNode);
                     break;
                 case MAX_TSO:
                     jsonParser.nextToken();
-                    raUsageLimits.setMaxTso(jsonParser.getIntValue());
+                    raUsageLimits.setMaxTso(jsonParser.getIntValue(), reportNode);
                     break;
                 case MAX_TOPO_PER_TSO:
                     jsonParser.nextToken();
-                    raUsageLimits.setMaxTopoPerTso(readStringToPositiveIntMap(jsonParser));
+                    raUsageLimits.setMaxTopoPerTso(readStringToPositiveIntMap(jsonParser), reportNode);
                     break;
                 case MAX_PST_PER_TSO:
                     jsonParser.nextToken();
-                    raUsageLimits.setMaxPstPerTso(readStringToPositiveIntMap(jsonParser));
+                    raUsageLimits.setMaxPstPerTso(readStringToPositiveIntMap(jsonParser), reportNode);
                     break;
                 case MAX_RA_PER_TSO:
                     jsonParser.nextToken();
-                    raUsageLimits.setMaxRaPerTso(readStringToPositiveIntMap(jsonParser));
+                    raUsageLimits.setMaxRaPerTso(readStringToPositiveIntMap(jsonParser), reportNode);
                     break;
                 default:
                     throw new OpenRaoException(String.format("Cannot deserialize ra-usage-limits-per-instant parameters: unexpected field in %s (%s)", RA_USAGE_LIMITS_PER_INSTANT, jsonParser.getCurrentName()));

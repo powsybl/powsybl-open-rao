@@ -6,6 +6,7 @@
  */
 package com.powsybl.openrao.searchtreerao.searchtree.parameters;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.cracapi.Instant;
 import com.powsybl.openrao.data.cracapi.RaUsageLimits;
@@ -115,6 +116,10 @@ public class SearchTreeParameters {
     }
 
     public void setRaLimitationsForSecondPreventive(RaUsageLimits raUsageLimits, Set<RangeAction<?>> rangeActionSet, Instant preventiveInstant) {
+        setRaLimitationsForSecondPreventive(raUsageLimits, rangeActionSet, preventiveInstant, ReportNode.NO_OP);
+    }
+
+    public void setRaLimitationsForSecondPreventive(RaUsageLimits raUsageLimits, Set<RangeAction<?>> rangeActionSet, Instant preventiveInstant, ReportNode reportNode) {
         Set<String> tsoCount = new HashSet<>();
         int raCount = 0;
         Map<String, Integer> currentPstPerTsoLimits = raUsageLimits.getMaxPstPerTso();
@@ -127,17 +132,21 @@ public class SearchTreeParameters {
             currentRaPerTsoLimits.computeIfPresent(tso, (key, currentLimit) -> Math.max(0, currentLimit - 1));
             currentPstPerTsoLimits.computeIfPresent(tso, (key, currentLimit) -> Math.max(0, currentLimit - 1));
         }
-        raUsageLimits.setMaxRa(Math.max(0, raUsageLimits.getMaxRa() - raCount));
-        raUsageLimits.setMaxTso(Math.max(0, raUsageLimits.getMaxTso() - tsoCount.size()));
+        raUsageLimits.setMaxRa(Math.max(0, raUsageLimits.getMaxRa() - raCount), reportNode);
+        raUsageLimits.setMaxTso(Math.max(0, raUsageLimits.getMaxTso() - tsoCount.size()), reportNode);
         currentTopoPerTsoLimits.forEach((tso, raLimits) -> currentTopoPerTsoLimits.put(tso, Math.min(raLimits, currentRaPerTsoLimits.getOrDefault(tso, Integer.MAX_VALUE))));
         currentPstPerTsoLimits.forEach((tso, raLimits) -> currentPstPerTsoLimits.put(tso, Math.min(raLimits, currentRaPerTsoLimits.getOrDefault(tso, Integer.MAX_VALUE))));
-        raUsageLimits.setMaxPstPerTso(currentPstPerTsoLimits);
-        raUsageLimits.setMaxTopoPerTso(currentTopoPerTsoLimits);
-        raUsageLimits.setMaxRaPerTso(currentRaPerTsoLimits);
+        raUsageLimits.setMaxPstPerTso(currentPstPerTsoLimits, reportNode);
+        raUsageLimits.setMaxTopoPerTso(currentTopoPerTsoLimits, reportNode);
+        raUsageLimits.setMaxRaPerTso(currentRaPerTsoLimits, reportNode);
         this.raLimitationParameters.put(preventiveInstant, raUsageLimits);
     }
 
     public void decreaseRemedialActionUsageLimits(Map<State, OptimizationResult> resultsPerOptimizationState) {
+        decreaseRemedialActionUsageLimits(resultsPerOptimizationState, ReportNode.NO_OP);
+    }
+
+    public void decreaseRemedialActionUsageLimits(Map<State, OptimizationResult> resultsPerOptimizationState, ReportNode reportNode) {
         resultsPerOptimizationState.forEach((optimizedState, result) ->
             raLimitationParameters.keySet().forEach(
                 otherInstant -> {
@@ -151,12 +160,12 @@ public class SearchTreeParameters {
                         int decreasedMaxTso = decreaseMaxTso(raUsageLimits, optimizedState, result);
 
                         RaUsageLimits decreasedRaUsageLimits = new RaUsageLimits();
-                        decreasedRaUsageLimits.setMaxRa(decreasedMaxRa);
-                        decreasedRaUsageLimits.setMaxRaPerTso(decreasedMaxRaPerTso);
-                        decreasedRaUsageLimits.setMaxTopoPerTso(decreasedMaxTopoPerTso);
-                        decreasedRaUsageLimits.setMaxPstPerTso(decreasedMaxPstPerTso);
+                        decreasedRaUsageLimits.setMaxRa(decreasedMaxRa, reportNode);
+                        decreasedRaUsageLimits.setMaxRaPerTso(decreasedMaxRaPerTso, reportNode);
+                        decreasedRaUsageLimits.setMaxTopoPerTso(decreasedMaxTopoPerTso, reportNode);
+                        decreasedRaUsageLimits.setMaxPstPerTso(decreasedMaxPstPerTso, reportNode);
                         raUsageLimits.getMaxTsoExclusion().forEach(decreasedRaUsageLimits::addTsoToExclude);
-                        decreasedRaUsageLimits.setMaxTso(decreasedMaxTso);
+                        decreasedRaUsageLimits.setMaxTso(decreasedMaxTso, reportNode);
 
                         raLimitationParameters.put(otherInstant, decreasedRaUsageLimits);
                     }

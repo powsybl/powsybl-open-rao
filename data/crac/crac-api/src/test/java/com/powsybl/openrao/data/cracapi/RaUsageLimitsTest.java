@@ -10,11 +10,17 @@ package com.powsybl.openrao.data.cracapi;
 import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.read.ListAppender;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.logs.RaoBusinessWarns;
 import org.junit.jupiter.api.Test;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
+import java.io.StringWriter;
+import java.net.URISyntaxException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -114,5 +120,24 @@ class RaUsageLimitsTest {
         assertEquals("The value -3 provided for max number of TSOs is smaller than 0. It will be set to 0 instead.", logsList.get(0).getFormattedMessage());
         assertEquals("The value -2 provided for max number of RAs is smaller than 0. It will be set to 0 instead.", logsList.get(1).getFormattedMessage());
         assertEquals("The value -4 provided for max number of RAs for TSO FR is smaller than 0. It will be set to 0 instead.", logsList.get(2).getFormattedMessage());
+    }
+
+
+    @Test
+    void testReportNode() throws IOException, URISyntaxException {
+        ReportNode reportNode = ReportNode.newRootReportNode()
+            .withMessageTemplate("Test report node", "This is a parent report node for report tests")
+            .build();
+
+        raUsageLimits.setMaxTso(-3, reportNode);
+        raUsageLimits.setMaxRa(-2, reportNode);
+        raUsageLimits.setMaxTopoPerTso(new HashMap<>(Map.of("FR", -4)), reportNode);
+
+        String expected = Files.readString(Path.of(getClass().getResource("/expectedReportNodeContentRaUsageLimits.txt").toURI()));
+        try (StringWriter writer = new StringWriter()) {
+            reportNode.print(writer);
+            String actual = writer.toString();
+            assertEquals(expected, actual);
+        }
     }
 }

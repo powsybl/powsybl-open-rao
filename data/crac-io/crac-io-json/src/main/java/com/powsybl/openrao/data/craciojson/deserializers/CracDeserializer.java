@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.data.craciojson.deserializers;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.cracapi.Crac;
@@ -51,6 +52,7 @@ public class CracDeserializer extends JsonDeserializer<Crac> {
 
     @Override
     public Crac deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
+        ReportNode reportNode = ReportNode.NO_OP;  // TODO how to get a reporter here ?
 
         // check header
         if (!jsonParser.nextFieldName().equals(TYPE)) {
@@ -149,7 +151,7 @@ public class CracDeserializer extends JsonDeserializer<Crac> {
 
                 case RA_USAGE_LIMITS_PER_INSTANT:
                     jsonParser.nextToken();
-                    RaUsageLimitsDeserializer.deserialize(jsonParser, crac);
+                    RaUsageLimitsDeserializer.deserialize(jsonParser, crac, reportNode);
                     break;
 
                 default:
