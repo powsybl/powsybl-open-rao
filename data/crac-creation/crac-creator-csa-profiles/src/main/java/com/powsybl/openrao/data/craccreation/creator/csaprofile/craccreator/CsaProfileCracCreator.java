@@ -50,7 +50,7 @@ public class CsaProfileCracCreator implements CracCreator<CsaProfileCrac, CsaPro
         addCsaInstants();
         RaUsageLimitsAdder.addRaUsageLimits(crac, cracCreationParameters);
 
-        this.nativeCrac.setForTimestamp(offsetDateTime);
+        this.nativeCrac.setForTimestamp(offsetDateTime, reportNode);
 
         createContingencies();
         createCnecs(cracCreationParameters.getDefaultMonitoredSides(), csaParameters.getCapacityCalculationRegionEicCode());

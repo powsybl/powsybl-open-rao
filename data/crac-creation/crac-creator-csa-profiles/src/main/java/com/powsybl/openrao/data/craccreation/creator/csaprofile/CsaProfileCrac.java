@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.data.craccreation.creator.csaprofile;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.NcPropertyBagsConverter;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.constants.CsaProfileKeyword;
@@ -256,17 +257,17 @@ public class CsaProfileCrac implements NativeCrac {
         return multiContextsPropertyBags;
     }
 
-    public void setForTimestamp(OffsetDateTime offsetDateTime) {
-        clearTimewiseIrrelevantContexts(offsetDateTime);
+    public void setForTimestamp(OffsetDateTime offsetDateTime, ReportNode reportNode) {
+        clearTimewiseIrrelevantContexts(offsetDateTime, reportNode);
         setOverridingData(offsetDateTime);
     }
 
-    private void clearTimewiseIrrelevantContexts(OffsetDateTime offsetDateTime) {
+    private void clearTimewiseIrrelevantContexts(OffsetDateTime offsetDateTime, ReportNode reportNode) {
         getHeaders().forEach((contextName, properties) -> {
             if (!properties.isEmpty()) {
                 PropertyBag property = properties.get(0);
                 if (!checkTimeCoherence(property, offsetDateTime)) {
-                    OpenRaoLoggerProvider.BUSINESS_WARNS.warn(String.format("[REMOVED] The file : %s will be ignored. Its dates are not consistent with the import date : %s", contextName, offsetDateTime));
+                    Reports.reportCsaProfileCracDateInconsistency(reportNode, contextName, offsetDateTime);
                     clearContext(contextName);
                     clearKeywordMap(contextName);
                 }

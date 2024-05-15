@@ -65,7 +65,7 @@ class CsaProfileCracImporterTest {
         InputStream is1 = getClass().getResourceAsStream("/profiles/TestCaseWithoutSubdirectory.zip");
         CsaProfileCrac csaProfileCrac = csaProfileCracImporter.importNativeCrac(is1, reportNode);
 
-        String expected = Files.readString(Path.of(getClass().getResource("/expectedReportNodeContent.txt").toURI()));
+        String expected = Files.readString(Path.of(getClass().getResource("/expectedReportNodeContentCsaProfileImporter.txt").toURI()));
         try (StringWriter writer = new StringWriter()) {
             reportNode.print(writer);
             String actual = writer.toString();

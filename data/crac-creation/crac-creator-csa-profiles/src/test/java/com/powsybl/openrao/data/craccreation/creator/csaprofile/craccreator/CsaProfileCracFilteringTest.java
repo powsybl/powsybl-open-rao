@@ -2,10 +2,16 @@ package com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator;
 
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.read.ListAppender;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.openrao.commons.logs.RaoBusinessWarns;
 import com.powsybl.openrao.data.cracapi.Crac;
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
+import java.io.StringWriter;
+import java.net.URISyntaxException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Comparator;
 import java.util.List;
 
@@ -26,7 +32,7 @@ class CsaProfileCracFilteringTest {
 
         // check files filtering
         assertEquals(7, logsList.size());
-        logsList.sort(Comparator.comparing(ILoggingEvent::getMessage));
+        logsList.sort(Comparator.comparing(ILoggingEvent::getFormattedMessage));
         assertEquals("[REMOVED] The file : contexts:CSA_RA_bad_end_date_remove.xml will be ignored. Its dates are not consistent with the import date : 2023-03-29T12:00Z", logsList.get(0).getFormattedMessage());
         assertEquals("[REMOVED] The file : contexts:CSA_RA_bad_start_date_remove.xml will be ignored. Its dates are not consistent with the import date : 2023-03-29T12:00Z", logsList.get(1).getFormattedMessage());
         assertEquals("[REMOVED] The file : contexts:CSA_RA_missing_end_date_remove.xml will be ignored. Its dates are not consistent with the import date : 2023-03-29T12:00Z", logsList.get(2).getFormattedMessage());
@@ -39,5 +45,20 @@ class CsaProfileCracFilteringTest {
         assertTrue(crac.getRemedialActions().isEmpty());
         assertEquals(1, crac.getContingencies().size());
         assertEquals("RTE_co1_fr2_fr3_1", crac.getContingencies().stream().iterator().next().getName().get());
+    }
+
+    @Test
+    void testCracCreatorFiltersOutBadTimeStampsWithReport() throws IOException, URISyntaxException {
+        ReportNode reportNode = ReportNode.newRootReportNode()
+            .withMessageTemplate("Test report node", "This is a parent report node for report tests")
+            .build();
+        CsaProfileCracCreationContext context = getCsaCracCreationContext("/profiles/ProfilesWithIncoherentTimestamps.zip", reportNode);
+
+        String expected = Files.readString(Path.of(getClass().getResource("/expectedReportNodeContentCsaProfileFiltering.txt").toURI()));
+        try (StringWriter writer = new StringWriter()) {
+            reportNode.print(writer);
+            String actual = writer.toString();
+            assertEquals(expected, actual);
+        }
     }
 }
