@@ -5,8 +5,8 @@ import com.powsybl.commons.report.TypedValue;
 
 import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.BUSINESS_LOGS;
 
-public final class Reports {
-    private Reports() {
+public final class CseCracReports {
+    private CseCracReports() {
         // utility class
     }
 
@@ -17,5 +17,12 @@ public final class Reports {
             .add();
         BUSINESS_LOGS.info("CSE CRAC document is valid");
         return addedNode;
+    }
+
+    public static ReportNode reportCseCracCreator(ReportNode reportNode) {
+        return reportNode.newReportNode()
+            .withMessageTemplate("cseCracCreator", "CSE CRAC creator")
+            .withSeverity(TypedValue.INFO_SEVERITY)
+            .add();
     }
 }

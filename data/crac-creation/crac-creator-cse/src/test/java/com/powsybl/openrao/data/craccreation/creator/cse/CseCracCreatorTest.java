@@ -29,13 +29,22 @@ import com.powsybl.openrao.data.craccreation.creator.cse.remedialaction.CsePstCr
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
+import java.io.IOException;
 import java.io.InputStream;
+import java.io.StringWriter;
+import java.net.URISyntaxException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.time.OffsetDateTime;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Stream;
 
 import static com.powsybl.openrao.data.craccreation.creator.api.ImportStatus.*;
 import static org.junit.jupiter.api.Assertions.*;
@@ -56,14 +65,15 @@ class CseCracCreatorTest {
     private Instant preventiveInstant;
     private Instant outageInstant;
     private Instant curativeInstant;
+    private ReportNode reportNode = ReportNode.NO_OP;
 
     private void setUp(String cracFileName, String networkFileName) {
         InputStream is = getClass().getResourceAsStream(cracFileName);
         CseCracImporter importer = new CseCracImporter();
-        CseCrac cseCrac = importer.importNativeCrac(is, ReportNode.NO_OP);
+        CseCrac cseCrac = importer.importNativeCrac(is, reportNode);
         Network network = Network.read(networkFileName, getClass().getResourceAsStream(networkFileName));
         CseCracCreator cseCracCreator = new CseCracCreator();
-        cracCreationContext = cseCracCreator.createCrac(cseCrac, network, offsetDateTime, parameters, ReportNode.NO_OP);
+        cracCreationContext = cseCracCreator.createCrac(cseCrac, network, offsetDateTime, parameters, reportNode);
         importedCrac = cracCreationContext.getCrac();
         preventiveInstant = importedCrac.getInstant(PREVENTIVE_INSTANT_ID);
         outageInstant = importedCrac.getInstant(OUTAGE_INSTANT_ID);
@@ -619,5 +629,41 @@ class CseCracCreatorTest {
         assertRemedialActionNotImported("ara_1", NOT_YET_HANDLED_BY_OPEN_RAO);
         assertEquals(9, importedCrac.getFlowCnecs().size());
         assertFalse(cracCreationContext.getCreationReport().getReport().contains("[ADDED] CNEC \"French line 1 - FFR1AA1 ->FFR2AA1   - outage_1 - auto\" has no associated automaton. It will be cloned on the OUTAGE instant in order to be secured during preventive RAO."));
+    }
+
+    public static Stream<Arguments> provideParameters() {
+        return Stream.of(
+            Arguments.of("/cracs/cse_crac_1.xml", "/reports/expectedReportNodeContent_cse_crac_ruleToBeDefined.txt"),
+            Arguments.of("/cracs/cse_crac_2.xml", "/reports/expectedReportNodeContent_cse_crac_2021_04_30.txt"),
+            Arguments.of("/cracs/cse_crac_auto.xml", "/reports/expectedReportNodeContent_cse_crac_ruleToBeDefined.txt"),
+            Arguments.of("/cracs/cse_crac_empty_ra.xml", "/reports/expectedReportNodeContent_cse_crac_ruleToBeDefined.txt"),
+            Arguments.of("/cracs/cse_crac_halflines.xml", "/reports/expectedReportNodeContent_cse_crac_ruleToBeDefined.txt"),
+            Arguments.of("/cracs/cse_crac_inverted_pst.xml", "/reports/expectedReportNodeContent_cse_crac_2021_04_30.txt"),
+            Arguments.of("/cracs/cse_crac_onConstraint.xml", "/reports/expectedReportNodeContent_cse_crac_2021_04_30.txt"),
+            Arguments.of("/cracs/cse_crac_onConstraintInSpecificCountry.xml", "/reports/expectedReportNodeContent_cse_crac_2021_04_30.txt"),
+            Arguments.of("/cracs/cse_crac_pct_limit.xml", "/reports/expectedReportNodeContent_cse_crac_2021_04_30.txt"),
+            Arguments.of("/cracs/cse_crac_transformer_cnec.xml", "/reports/expectedReportNodeContent_cse_crac_2021_04_30.txt"),
+            Arguments.of("/cracs/cse_crac_with_hvdc.xml", "/reports/expectedReportNodeContent_cse_crac_2021_04_30.txt"),
+            Arguments.of("/cracs/cse_crac_with_MNE.xml", "/reports/expectedReportNodeContent_cse_crac_ruleToBeDefined.txt"),
+            Arguments.of("/cracs/cseCrac_ep15us10-1case1.xml", "/reports/expectedReportNodeContent_cse_crac_2021_04_30.txt"),
+            Arguments.of("/cracs/cseCrac_ep15us10-1case5.xml", "/reports/expectedReportNodeContent_cse_crac_2021_04_30.txt")
+        );
+    }
+
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("provideParameters")
+    void createCracwithReports(String cracFileName, String expectedReportFileName) throws IOException, URISyntaxException {
+        reportNode = ReportNode.newRootReportNode()
+            .withMessageTemplate("Test report node", "This is a parent report node for report tests")
+            .build();
+
+        setUp(cracFileName);
+
+        String expected = Files.readString(Path.of(getClass().getResource(expectedReportFileName).toURI()));
+        try (StringWriter writer = new StringWriter()) {
+            reportNode.print(writer);
+            String actual = writer.toString();
+            assertEquals(expected, actual);
+        }
     }
 }

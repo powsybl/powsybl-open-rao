@@ -57,7 +57,7 @@ class CseCracImporterTest {
         InputStream is = getClass().getResourceAsStream(filename);
         CseCracImporter importer = new CseCracImporter();
         importer.exists(filename, is, reportNode);
-        String expected = Files.readString(Path.of(getClass().getResource("/expectedReportNodeContent.txt").toURI()));
+        String expected = Files.readString(Path.of(getClass().getResource("/reports/expectedReportNodeContentCseCracImporter.txt").toURI()));
         try (StringWriter writer = new StringWriter()) {
             reportNode.print(writer);
             String actual = writer.toString();

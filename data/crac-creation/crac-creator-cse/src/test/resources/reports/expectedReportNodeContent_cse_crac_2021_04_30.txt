@@ -1,0 +1,3 @@
++ This is a parent report node for report tests
+   + CSE CRAC creator
+      New crac "2021_04_30_TEST_CSE_CRAC_1" called "2021_04_30_TEST_CSE_CRAC_1"
