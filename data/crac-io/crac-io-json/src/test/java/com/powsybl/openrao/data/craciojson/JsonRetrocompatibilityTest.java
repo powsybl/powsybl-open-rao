@@ -686,7 +686,6 @@ class JsonRetrocompatibilityTest {
         assertTrue(ur.getContingency().isPresent());
         assertEquals("contingency2Id", ur.getContingency().get().getId());
         assertEquals(Country.FR, ur.getCountry());
-        testContentOfV2Point0Crac(crac);
 
         urs = crac.getRemedialAction("injectionSetpointRa3Id").getUsageRules()
             .stream().filter(OnFlowConstraintInCountry.class::isInstance)
@@ -697,32 +696,12 @@ class JsonRetrocompatibilityTest {
         assertEquals(crac.getInstant("curative"), ur.getInstant());
         assertTrue(ur.getContingency().isEmpty());
         assertEquals(Country.FR, ur.getCountry());
+
         testContentOfV2Point0Crac(crac);
     }
 
     private void testContentOfV2Point3Crac(Crac crac) {
-        Set<OnFlowConstraintInCountry> urs = crac.getRemedialAction("injectionSetpointRa2Id").getUsageRules()
-                .stream().filter(OnFlowConstraintInCountry.class::isInstance)
-                .map(OnFlowConstraintInCountry.class::cast)
-                .collect(Collectors.toSet());
-        assertEquals(1, urs.size());
-        OnFlowConstraintInCountry ur = urs.iterator().next();
-        assertEquals(crac.getInstant("curative"), ur.getInstant());
-        assertTrue(ur.getContingency().isPresent());
-        assertEquals("contingency2Id", ur.getContingency().get().getId());
-        assertEquals(Country.FR, ur.getCountry());
-        testContentOfV2Point0Crac(crac);
-
-        urs = crac.getRemedialAction("injectionSetpointRa3Id").getUsageRules()
-                .stream().filter(OnFlowConstraintInCountry.class::isInstance)
-                .map(OnFlowConstraintInCountry.class::cast)
-                .collect(Collectors.toSet());
-        assertEquals(1, urs.size());
-        ur = urs.iterator().next();
-        assertEquals(crac.getInstant("curative"), ur.getInstant());
-        assertTrue(ur.getContingency().isEmpty());
-        assertEquals(Country.FR, ur.getCountry());
-        testContentOfV2Point0Crac(crac);
+        testContentOfV2Point2Crac(crac);
 
         // check that RangeAction4 are present
         assertNotNull(crac.getRangeAction("pstRange4Id"));
