@@ -62,6 +62,10 @@ class CracImplTest {
     private Instant curativeInstant;
     private ReportNode reportNode;
 
+    private static ReportNode buildNewRootNode() {
+        return ReportNode.newRootReportNode().withMessageTemplate("Test report node", "This is a parent report node for report tests").build();
+    }
+
     private ContingencyElementType getRandomTypeContingency() {
         return ContingencyElementType.LINE;
     }
@@ -72,9 +76,7 @@ class CracImplTest {
 
     @BeforeEach
     public void setUp() {
-        reportNode = ReportNode.newRootReportNode()
-            .withMessageTemplate("Test report node", "This is a parent report node for report tests")
-            .build();
+        reportNode = buildNewRootNode();
 
         crac = new CracImpl("test-crac", reportNode)
             .newInstant(PREVENTIVE_INSTANT_ID, InstantKind.PREVENTIVE)

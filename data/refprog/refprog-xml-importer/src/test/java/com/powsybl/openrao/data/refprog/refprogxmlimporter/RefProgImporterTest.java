@@ -33,6 +33,10 @@ class RefProgImporterTest {
     private static final double DOUBLE_TOLERANCE = 1e-3;
     private OffsetDateTime offsetDateTime = OffsetDateTime.of(2020, 1, 6, 23, 0, 0, 0, ZoneOffset.UTC);
 
+    private static ReportNode buildNewRootNode() {
+        return ReportNode.newRootReportNode().withMessageTemplate("Test report node", "This is a parent report node for report tests").build();
+    }
+
     @Test
     void testUnexistantFile() {
         Path path = Paths.get("/refProg_12nodes_doesntexist.xml");
@@ -127,9 +131,7 @@ class RefProgImporterTest {
 
     @Test
     void checkGeneratedReportNode() throws IOException, URISyntaxException {
-        ReportNode reportNode = ReportNode.newRootReportNode()
-                .withMessageTemplate("Test report node", "This is a parent report node for report tests")
-                .build();
+        ReportNode reportNode = buildNewRootNode();
 
         offsetDateTime = OffsetDateTime.of(2015, 1, 11, 19, 15, 0, 0, ZoneOffset.UTC);
         ReferenceProgram referenceProgram = RefProgImporter.importRefProg(getClass().getResourceAsStream("/large_refProg.xml"), offsetDateTime, reportNode);
@@ -144,9 +146,7 @@ class RefProgImporterTest {
 
     @Test
     void checkGeneratedReportNodeWrongTimestamp() throws IOException, URISyntaxException {
-        ReportNode reportNode = ReportNode.newRootReportNode()
-                .withMessageTemplate("Test report node", "This is a parent report node for report tests")
-                .build();
+        ReportNode reportNode = buildNewRootNode();
 
         offsetDateTime = OffsetDateTime.of(2020, 1, 6, 23, 0, 0, 0, ZoneOffset.UTC);
         InputStream inputStream = getClass().getResourceAsStream("/refProg_12nodes.xml");

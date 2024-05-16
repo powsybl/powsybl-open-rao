@@ -77,7 +77,7 @@ class AngleMonitoringTest {
     private Instant curativeInstant;
 
     private static ReportNode buildNewRootNode() {
-        return ReportNode.newRootReportNode().withMessageTemplate("root", "Root node for tests").build();
+        return ReportNode.newRootReportNode().withMessageTemplate("Test report node", "This is a parent report node for report tests").build();
     }
 
     @BeforeEach

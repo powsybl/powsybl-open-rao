@@ -218,8 +218,7 @@ class RaoLoggerTest {
     }
 
     private static ReportNode buildNewRootNode() {
-        ReportNode reportNode = ReportNode.newRootReportNode().withMessageTemplate("root", "Root node for tests").build();
-        return reportNode;
+        return ReportNode.newRootReportNode().withMessageTemplate("Test report node", "This is a parent report node for report tests").build();
     }
 
     @Test

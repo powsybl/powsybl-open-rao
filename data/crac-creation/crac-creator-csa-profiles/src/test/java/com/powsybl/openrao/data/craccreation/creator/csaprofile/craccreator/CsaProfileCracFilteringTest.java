@@ -21,6 +21,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class CsaProfileCracFilteringTest {
+    private static ReportNode buildNewRootNode() {
+        return ReportNode.newRootReportNode().withMessageTemplate("Test report node", "This is a parent report node for report tests").build();
+    }
 
     @Test
     void testCracCreatorFiltersOutBadTimeStamps() {
@@ -49,10 +52,8 @@ class CsaProfileCracFilteringTest {
 
     @Test
     void testCracCreatorFiltersOutBadTimeStampsWithReport() throws IOException, URISyntaxException {
-        ReportNode reportNode = ReportNode.newRootReportNode()
-            .withMessageTemplate("Test report node", "This is a parent report node for report tests")
-            .build();
-        CsaProfileCracCreationContext context = getCsaCracCreationContext("/profiles/ProfilesWithIncoherentTimestamps.zip", reportNode);
+        ReportNode reportNode = buildNewRootNode();
+        getCsaCracCreationContext("/profiles/ProfilesWithIncoherentTimestamps.zip", reportNode);
 
         String expected = Files.readString(Path.of(getClass().getResource("/reports/expectedReportNodeContentCsaProfileFiltering.txt").toURI()));
         try (StringWriter writer = new StringWriter()) {

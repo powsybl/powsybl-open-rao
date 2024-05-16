@@ -15,11 +15,13 @@ import java.io.IOException;
 import java.io.StringWriter;
 
 public class ReportsTest {
+    private static ReportNode buildNewRootNode() {
+        return ReportNode.newRootReportNode().withMessageTemplate("Test report node", "This is a parent report node for report tests").build();
+    }
+
     @Test
     void checkThatProvidedReportNodeIsUsed() throws IOException {
-        ReportNode reportNode = ReportNode.newRootReportNode()
-                .withMessageTemplate("Test report node", "This is a parent report node for report tests")
-                .build();
+        ReportNode reportNode = buildNewRootNode();
 
         Network network = Network.read("small-network-2P.uct", getClass().getResourceAsStream("/network/small-network-2P.uct"));
         Crac crac = CracImporters.importCrac("crac/small-crac-2P.json", getClass().getResourceAsStream("/crac/small-crac-2P.json"), network);

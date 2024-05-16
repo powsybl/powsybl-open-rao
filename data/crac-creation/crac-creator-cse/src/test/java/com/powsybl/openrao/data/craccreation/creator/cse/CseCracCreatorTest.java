@@ -67,6 +67,10 @@ class CseCracCreatorTest {
     private Instant curativeInstant;
     private ReportNode reportNode = ReportNode.NO_OP;
 
+    private static ReportNode buildNewRootNode() {
+        return ReportNode.newRootReportNode().withMessageTemplate("Test report node", "This is a parent report node for report tests").build();
+    }
+
     private void setUp(String cracFileName, String networkFileName) {
         InputStream is = getClass().getResourceAsStream(cracFileName);
         CseCracImporter importer = new CseCracImporter();
@@ -653,9 +657,7 @@ class CseCracCreatorTest {
     @ParameterizedTest(name = "{0}")
     @MethodSource("provideParameters")
     void createCracwithReports(String cracFileName, String expectedReportFileName) throws IOException, URISyntaxException {
-        reportNode = ReportNode.newRootReportNode()
-            .withMessageTemplate("Test report node", "This is a parent report node for report tests")
-            .build();
+        reportNode = buildNewRootNode();
 
         setUp(cracFileName);
 

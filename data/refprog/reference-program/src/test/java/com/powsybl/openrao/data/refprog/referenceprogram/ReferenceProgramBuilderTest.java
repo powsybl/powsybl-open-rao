@@ -33,6 +33,10 @@ class ReferenceProgramBuilderTest {
     private EICode eiCodeNetherlands;
     private EICode eiCodeGermany;
 
+    private static ReportNode buildNewRootNode() {
+        return ReportNode.newRootReportNode().withMessageTemplate("Test report node", "This is a parent report node for report tests").build();
+    }
+
     @BeforeEach
     public void setUp() {
         eiCodeFrance = new EICode(Country.FR);
@@ -69,9 +73,7 @@ class ReferenceProgramBuilderTest {
 
     @Test
     void testGeneratedReportNode() throws IOException, URISyntaxException {
-        ReportNode reportNode = ReportNode.newRootReportNode()
-                .withMessageTemplate("Test report node", "This is a parent report node for report tests")
-                .build();
+        ReportNode reportNode = buildNewRootNode();
 
         Network network = Network.read("testCase.xiidm", getClass().getResourceAsStream("/testCase.xiidm"));
         ReferenceProgram referenceProgram = ReferenceProgramBuilder.buildReferenceProgram(network, "default-impl-name", new LoadFlowParameters(), reportNode);

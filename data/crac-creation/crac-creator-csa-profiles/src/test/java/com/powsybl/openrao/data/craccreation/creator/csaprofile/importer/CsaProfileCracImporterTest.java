@@ -27,6 +27,9 @@ import static org.junit.jupiter.api.Assertions.*;
  * @author Jean-Pierre Arnould {@literal <jean-pierre.arnould at rte-france.com>}
  */
 class CsaProfileCracImporterTest {
+    private static ReportNode buildNewRootNode() {
+        return ReportNode.newRootReportNode().withMessageTemplate("Test report node", "This is a parent report node for report tests").build();
+    }
 
     @Test
     void getFormat() {
@@ -57,9 +60,7 @@ class CsaProfileCracImporterTest {
 
     @Test
     void testGeneratedReportNode() throws IOException, URISyntaxException {
-        ReportNode reportNode = ReportNode.newRootReportNode()
-            .withMessageTemplate("Test report node", "This is a parent report node for report tests")
-            .build();
+        ReportNode reportNode = buildNewRootNode();
 
         CsaProfileCracImporter csaProfileCracImporter = new CsaProfileCracImporter();
         InputStream is1 = getClass().getResourceAsStream("/profiles/TestCaseWithoutSubdirectory.zip");

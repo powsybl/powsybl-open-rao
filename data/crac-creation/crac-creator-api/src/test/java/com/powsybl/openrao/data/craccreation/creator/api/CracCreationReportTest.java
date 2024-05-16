@@ -24,7 +24,6 @@ import java.nio.file.Path;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotSame;
 
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
@@ -32,88 +31,75 @@ import static org.junit.jupiter.api.Assertions.assertNotSame;
 class CracCreationReportTest {
 
     private CracCreationReport cracCreationReport;
+    private ReportNode reportNode;
 
     private static ReportNode buildNewRootNode() {
-        ReportNode reportNode = ReportNode.newRootReportNode().withMessageTemplate("root", "Root node for tests").build();
-        return reportNode;
+        return ReportNode.newRootReportNode().withMessageTemplate("Test report node", "This is a parent report node for report tests").build();
     }
 
     @BeforeEach
     public void setUp() {
         cracCreationReport = new CracCreationReport();
+        reportNode = buildNewRootNode();
     }
 
     @Test
     void testError() {
-        cracCreationReport.error("message", ReportNode.NO_OP);
-        assertEquals(1, cracCreationReport.getReport().size());
-        assertEquals("[ERROR] message", cracCreationReport.getReport().get(0));
+        cracCreationReport.error("message", reportNode);
+        assertEquals(1, reportNode.getChildren().size());
+        assertEquals("[ERROR] message", reportNode.getChildren().get(0).getMessage());
     }
 
     @Test
     void testRemoved() {
-        cracCreationReport.removed("message", ReportNode.NO_OP);
-        assertEquals(1, cracCreationReport.getReport().size());
-        assertEquals("[REMOVED] message", cracCreationReport.getReport().get(0));
+        cracCreationReport.removed("message", reportNode);
+        assertEquals(1, reportNode.getChildren().size());
+        assertEquals("[REMOVED] message", reportNode.getChildren().get(0).getMessage());
     }
 
     @Test
     void testAdded() {
-        cracCreationReport.added("message", ReportNode.NO_OP);
-        assertEquals(1, cracCreationReport.getReport().size());
-        assertEquals("[ADDED] message", cracCreationReport.getReport().get(0));
+        cracCreationReport.added("message", reportNode);
+        assertEquals(1, reportNode.getChildren().size());
+        assertEquals("[ADDED] message", reportNode.getChildren().get(0).getMessage());
     }
 
     @Test
     void testAltered() {
-        cracCreationReport.altered("message", ReportNode.NO_OP);
-        assertEquals(1, cracCreationReport.getReport().size());
-        assertEquals("[ALTERED] message", cracCreationReport.getReport().get(0));
+        cracCreationReport.altered("message", reportNode);
+        assertEquals(1, reportNode.getChildren().size());
+        assertEquals("[ALTERED] message", reportNode.getChildren().get(0).getMessage());
     }
 
     @Test
     void testWarn() {
-        cracCreationReport.warn("message", ReportNode.NO_OP);
-        assertEquals(1, cracCreationReport.getReport().size());
-        assertEquals("[WARN] message", cracCreationReport.getReport().get(0));
+        cracCreationReport.warn("message", reportNode);
+        assertEquals(1, reportNode.getChildren().size());
+        assertEquals("[WARN] message", reportNode.getChildren().get(0).getMessage());
     }
 
     @Test
     void testInfo() {
-        cracCreationReport.info("message", ReportNode.NO_OP);
-        assertEquals(1, cracCreationReport.getReport().size());
-        assertEquals("[INFO] message", cracCreationReport.getReport().get(0));
+        cracCreationReport.info("message", reportNode);
+        assertEquals(1, reportNode.getChildren().size());
+        assertEquals("[INFO] message", reportNode.getChildren().get(0).getMessage());
     }
 
     @Test
     void testTextReport() {
-        cracCreationReport.error("message1", ReportNode.NO_OP);
-        cracCreationReport.info("message2", ReportNode.NO_OP);
-        cracCreationReport.altered("message3", ReportNode.NO_OP);
-        cracCreationReport.warn("message4", ReportNode.NO_OP);
-        cracCreationReport.info("message5", ReportNode.NO_OP);
-        cracCreationReport.removed("message6", ReportNode.NO_OP);
-        assertEquals(6, cracCreationReport.getReport().size());
-        assertEquals("[ERROR] message1", cracCreationReport.getReport().get(0));
-        assertEquals("[INFO] message2", cracCreationReport.getReport().get(1));
-        assertEquals("[ALTERED] message3", cracCreationReport.getReport().get(2));
-        assertEquals("[WARN] message4", cracCreationReport.getReport().get(3));
-        assertEquals("[INFO] message5", cracCreationReport.getReport().get(4));
-        assertEquals("[REMOVED] message6", cracCreationReport.getReport().get(5));
-        assertEquals(
-            String.join("\n", "[ERROR] message1", "[INFO] message2",
-                "[ALTERED] message3", "[WARN] message4", "[INFO] message5", "[REMOVED] message6"),
-            cracCreationReport.toString());
-    }
-
-    @Test
-    void testCopyConstructor() {
-        cracCreationReport.error("message1", ReportNode.NO_OP);
-        cracCreationReport.info("message2", ReportNode.NO_OP);
-
-        CracCreationReport cracCreationReport2 = new CracCreationReport(cracCreationReport);
-        assertNotSame(cracCreationReport.getReport(), cracCreationReport2.getReport());
-        assertEquals(cracCreationReport.getReport(), cracCreationReport2.getReport());
+        cracCreationReport.error("message1", reportNode);
+        cracCreationReport.info("message2", reportNode);
+        cracCreationReport.altered("message3", reportNode);
+        cracCreationReport.warn("message4", reportNode);
+        cracCreationReport.info("message5", reportNode);
+        cracCreationReport.removed("message6", reportNode);
+        assertEquals(6, reportNode.getChildren().size());
+        assertEquals("[ERROR] message1", reportNode.getChildren().get(0).getMessage());
+        assertEquals("[INFO] message2", reportNode.getChildren().get(1).getMessage());
+        assertEquals("[ALTERED] message3", reportNode.getChildren().get(2).getMessage());
+        assertEquals("[WARN] message4", reportNode.getChildren().get(3).getMessage());
+        assertEquals("[INFO] message5", reportNode.getChildren().get(4).getMessage());
+        assertEquals("[REMOVED] message6", reportNode.getChildren().get(5).getMessage());
     }
 
     private ListAppender<ILoggingEvent> getLogs(Class clazz) {
@@ -126,8 +112,8 @@ class CracCreationReportTest {
 
     @Test
     void testPrintReport() {
-        cracCreationReport.warn("message1", ReportNode.NO_OP);
-        cracCreationReport.error("message2", ReportNode.NO_OP);
+        cracCreationReport.warn("message1", reportNode);
+        cracCreationReport.error("message2", reportNode);
 
         ListAppender<ILoggingEvent> listAppender = getLogs(RaoBusinessLogs.class);
         cracCreationReport.printCreationReport();
@@ -140,7 +126,6 @@ class CracCreationReportTest {
 
     @Test
     void testReportNode() throws IOException, URISyntaxException {
-        ReportNode reportNode = buildNewRootNode();
         cracCreationReport.warn("message1", reportNode);
         cracCreationReport.error("message2", reportNode);
         cracCreationReport.info("message3", reportNode);

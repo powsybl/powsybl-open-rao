@@ -518,9 +518,10 @@ class FbConstraintCracCreatorTest {
     @Test
     void testWrongTsCreationContext() {
         Network network = Network.read("TestCase12Nodes_with_Xnodes.uct", getClass().getResourceAsStream("/network/TestCase12Nodes_with_Xnodes.uct"));
-        FbConstraint fbConstraint = new FbConstraintImporter().importNativeCrac(getClass().getResourceAsStream("/merged_cb/wrong_ts.xml"), ReportNode.NO_OP);
+        ReportNode reportNode = ReportNode.NO_OP;
+        FbConstraint fbConstraint = new FbConstraintImporter().importNativeCrac(getClass().getResourceAsStream("/merged_cb/wrong_ts.xml"), reportNode);
         OffsetDateTime timestamp = OffsetDateTime.parse("2019-01-08T10:30Z");
-        creationContext = new FbConstraintCracCreator().createCrac(fbConstraint, network, timestamp, parameters, ReportNode.NO_OP);
+        creationContext = new FbConstraintCracCreator().createCrac(fbConstraint, network, timestamp, parameters, reportNode);
         Crac crac = creationContext.getCrac();
 
         assertEquals(2, creationContext.getCreationReport().getReport().size());

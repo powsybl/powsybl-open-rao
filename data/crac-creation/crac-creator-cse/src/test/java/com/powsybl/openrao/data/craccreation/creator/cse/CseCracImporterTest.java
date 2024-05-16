@@ -23,6 +23,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  * @author Alexandre Montigny {@literal <alexandre.montigny at rte-france.com>}
  */
 class CseCracImporterTest {
+    private static ReportNode buildNewRootNode() {
+        return ReportNode.newRootReportNode().withMessageTemplate("Test report node", "This is a parent report node for report tests").build();
+    }
 
     @Test
     void getFormat() {
@@ -49,9 +52,7 @@ class CseCracImporterTest {
     @Test
     @Disabled("TODO find a valid CSE crac file...")
     void testGeneratedReportNode() throws IOException, URISyntaxException {
-        ReportNode reportNode = ReportNode.newRootReportNode()
-            .withMessageTemplate("Test report node", "This is a parent report node for report tests")
-            .build();
+        ReportNode reportNode = buildNewRootNode();
 
         String filename = "/cracs/cse_crac_valid.xml";
         InputStream is = getClass().getResourceAsStream(filename);

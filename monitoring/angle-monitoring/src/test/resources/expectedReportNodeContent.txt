@@ -1,4 +1,4 @@
-+ Root node for tests
++ This is a parent report node for report tests
    + Angle monitoring
       + Monitoring angles at state 'preventive'
          + Load-flow computation

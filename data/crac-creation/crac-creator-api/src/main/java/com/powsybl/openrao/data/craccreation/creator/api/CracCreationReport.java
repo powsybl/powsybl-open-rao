@@ -105,9 +105,4 @@ public final class CracCreationReport {
     public List<String> getReport() {
         return creationReport;
     }
-
-    // TODO remove this :)
-    public String toString() {
-        return String.join("\n", creationReport);
-    }
 }

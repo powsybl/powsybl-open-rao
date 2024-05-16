@@ -1,4 +1,4 @@
-+ Root node for tests
++ This is a parent report node for report tests
    [WARN] message1
    [ERROR] message2
    [INFO] message3

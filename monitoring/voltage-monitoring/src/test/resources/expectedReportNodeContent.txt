@@ -1,4 +1,4 @@
-+ Root node for tests
++ This is a parent report node for report tests
    + Voltage monitoring
       + Monitoring voltages at state 'preventive'
          + Load-flow computation
