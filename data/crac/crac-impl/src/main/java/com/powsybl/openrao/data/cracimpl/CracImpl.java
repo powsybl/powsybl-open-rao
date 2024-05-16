@@ -45,6 +45,7 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
     private final Map<String, CounterTradeRangeAction> counterTradeRangeActions = new HashMap<>();
     private final Map<String, NetworkAction> networkActions = new HashMap<>();
     private final Map<Instant, RaUsageLimits> raUsageLimitsPerInstant = new HashMap<>();
+    private ReportNode reportNode = ReportNode.NO_OP;
     private Instant lastInstantAdded = null;
 
     public CracImpl(String id, String name) {
@@ -873,7 +874,7 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
 
     @Override
     public RaUsageLimitsAdder newRaUsageLimits(String instantName) {
-        return new RaUsageLimitsAdderImpl(this, instantName, ReportNode.NO_OP); // TODO change this
+        return new RaUsageLimitsAdderImpl(this, instantName, reportNode);
     }
 
     @Override
@@ -891,5 +892,11 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
     @Override
     public int hashCode() {
         return getId().hashCode();
+    }
+
+    @Override
+    public CracImpl setReportNode(ReportNode reportNode) {
+        this.reportNode = reportNode;
+        return this;
     }
 }

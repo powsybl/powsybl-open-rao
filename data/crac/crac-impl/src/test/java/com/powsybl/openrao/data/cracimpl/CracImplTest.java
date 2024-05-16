@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.data.cracimpl;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.contingency.BranchContingency;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.contingency.ContingencyElement;
@@ -31,6 +32,11 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
+import java.io.IOException;
+import java.io.StringWriter;
+import java.net.URISyntaxException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.*;
 
 import static com.powsybl.openrao.data.cracapi.usagerule.UsageMethod.*;
@@ -54,6 +60,7 @@ class CracImplTest {
     private Instant outageInstant;
     private Instant autoInstant;
     private Instant curativeInstant;
+    private ReportNode reportNode;
 
     private ContingencyElementType getRandomTypeContingency() {
         return ContingencyElementType.LINE;
@@ -65,7 +72,12 @@ class CracImplTest {
 
     @BeforeEach
     public void setUp() {
+        reportNode = ReportNode.newRootReportNode()
+            .withMessageTemplate("Test report node", "This is a parent report node for report tests")
+            .build();
+
         crac = new CracImpl("test-crac")
+            .setReportNode(reportNode)
             .newInstant(PREVENTIVE_INSTANT_ID, InstantKind.PREVENTIVE)
             .newInstant(OUTAGE_INSTANT_ID, InstantKind.OUTAGE)
             .newInstant(AUTO_INSTANT_ID, InstantKind.AUTO)
@@ -1050,5 +1062,19 @@ class CracImplTest {
         assertEquals("The instant fake_instant does not exist in the crac.", exception.getMessage());
         assertFalse(crac.getRaUsageLimitsPerInstant().containsKey(fakeInstant));
         assertEquals(new RaUsageLimits(), crac.getRaUsageLimits(fakeInstant));
+    }
+
+    @Test
+    void testRaUsageLimitsWithReports() throws IOException, URISyntaxException {
+        crac.newRaUsageLimits("preventive")
+            .withMaxTso(-3)
+            .withMaxRa(-2)
+            .withMaxTopoPerTso(new HashMap<>(Map.of("FR", -4)));
+        String expected = Files.readString(Path.of(getClass().getResource("/reports/expectedReportNodeContentCracRaUsageLimits.txt").toURI()));
+        try (StringWriter writer = new StringWriter()) {
+            reportNode.print(writer);
+            String actual = writer.toString();
+            assertEquals(expected, actual);
+        }
     }
 }

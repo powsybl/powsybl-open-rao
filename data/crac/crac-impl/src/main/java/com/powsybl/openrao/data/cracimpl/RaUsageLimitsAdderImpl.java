@@ -30,7 +30,7 @@ public class RaUsageLimitsAdderImpl implements RaUsageLimitsAdder {
             throw new OpenRaoException(String.format("The instant %s does not exist in the crac.", instantName));
         }
         this.instant = instants.get(0);
-        this.reportNode = reportNode;
+        this.reportNode = CracImplReports.reportNewRaUsageLimitsAtInstant(reportNode, instantName);
     }
 
     @Override
