@@ -68,23 +68,43 @@ public class CoreProblemFiller implements ProblemFiller {
 
     @Override
     public void fill(LinearProblem linearProblem, FlowResult flowResult, SensitivityResult sensitivityResult) {
-        // add variables
-        buildFlowVariables(linearProblem);
+        // Filter out CNECs with states that failed sensitivity computation, in order to avoid NaN values in MIP
+        Set<FlowCnec> filteredFlowCnecs = FillersUtil.getValidFlowCnecs(flowCnecs, sensitivityResult);
+
+        // add flow variables & constraints
+        makeFlowVariablesAndConstraints(linearProblem, filteredFlowCnecs);
+
+        // add range action variables
         buildRangeActionVariables(linearProblem);
 
-        // add constraints
-        buildFlowConstraints(linearProblem, flowResult, sensitivityResult);
+        // fill values in flow constraints
+        updateFlowConstraints(linearProblem, filteredFlowCnecs, flowResult, sensitivityResult, raActivationFromParentLeaf);
+
+        // add range action constraints
         buildRangeActionConstraints(linearProblem);
 
         // complete objective
         fillObjectiveWithRangeActionPenaltyCost(linearProblem);
+    }
 
+    /**
+     * Build one flow variable and constraint for each Cnec c that is not filtered out of MIP.
+     * When updating between sensitivity iterations, it is necessary to remove variables and constraints for
+     * CNECs that are filtered out but that were not in the previous iteration.
+     */
+    private void makeFlowVariablesAndConstraints(LinearProblem linearProblem, Set<FlowCnec> filteredFlowCnecs) {
+        makeFlowVariables(linearProblem, filteredFlowCnecs);
+        makeFlowConstraints(linearProblem, filteredFlowCnecs);
     }
 
     @Override
     public void updateBetweenSensiIteration(LinearProblem linearProblem, FlowResult flowResult, SensitivityResult sensitivityResult, RangeActionActivationResult rangeActionActivationResult) {
+        // Filter out CNECs with states that failed sensitivity computation, in order to avoid NaN values in MIP
+        Set<FlowCnec> filteredFlowCnecs = FillersUtil.getValidFlowCnecs(flowCnecs, sensitivityResult);
+        // Update list of flow variables & constraints in case sensitivity computation status has changed on some states
+        makeFlowVariablesAndConstraints(linearProblem, filteredFlowCnecs);
         // update reference flow and sensitivities of flow constraints
-        updateFlowConstraints(linearProblem, flowResult, sensitivityResult, rangeActionActivationResult);
+        updateFlowConstraints(linearProblem, filteredFlowCnecs, flowResult, sensitivityResult, rangeActionActivationResult);
         if (raRangeShrinking) {
             updateRangeActionConstraints(linearProblem, rangeActionActivationResult);
         }
@@ -99,9 +119,22 @@ public class CoreProblemFiller implements ProblemFiller {
      * Build one flow variable F[c] for each Cnec c
      * This variable describes the estimated flow on the given Cnec c, in MEGAWATT
      */
-    private void buildFlowVariables(LinearProblem linearProblem) {
-        flowCnecs.forEach(cnec ->
-                cnec.getMonitoredSides().forEach(side -> linearProblem.addFlowVariable(-LinearProblem.infinity(), LinearProblem.infinity(), cnec, side))
+    private void makeFlowVariables(LinearProblem linearProblem, Set<FlowCnec> filteredFlowCnecs) {
+        // Create variables for filtered CNECs
+        filteredFlowCnecs.forEach(cnec ->
+            cnec.getMonitoredSides().forEach(side -> {
+                if (!linearProblem.hasFlowVariable(cnec, side)) {
+                    linearProblem.addFlowVariable(-LinearProblem.infinity(), LinearProblem.infinity(), cnec, side);
+                }
+            })
+        );
+        // Remove variables of other CNECs
+        flowCnecs.stream().filter(cnec -> !filteredFlowCnecs.contains(cnec)).forEach(cnec ->
+            cnec.getMonitoredSides().forEach(side -> {
+                if (linearProblem.hasFlowVariable(cnec, side)) {
+                    linearProblem.removeFlowVariable(cnec, side);
+                }
+            })
         );
     }
 
@@ -113,11 +146,10 @@ public class CoreProblemFiller implements ProblemFiller {
      *     <li>in MEGAWATT for HVDC range actions</li>
      *     <li>in MEGAWATT for Injection range actions</li>
      * </ul>
-     *
+     * <p>
      * Build one absolute variation variable AV[r] for each RangeAction r
      * This variable describes the absolute difference between the range action setpoint
      * and its initial value. It is given in the same unit as S[r].
-     *
      */
     private void buildRangeActionVariables(LinearProblem linearProblem) {
         optimizationContext.getRangeActionsPerState().forEach((state, rangeActions) ->
@@ -128,32 +160,33 @@ public class CoreProblemFiller implements ProblemFiller {
         );
     }
 
-    /**
-     * Build one flow constraint for each Cnec c.
-     * These constraints link the estimated flow on a Cnec with the impact of the RangeActions
-     * on this Cnec.
-     * F[c] = f_ref[c] + sum{r in RangeAction} sensitivity[c,r] * (S[r] - currentSetPoint[r])
-     */
-    private void buildFlowConstraints(LinearProblem linearProblem, FlowResult flowResult, SensitivityResult sensitivityResult) {
-        flowCnecs.forEach(cnec -> cnec.getMonitoredSides().forEach(side -> {
-            // create constraint
-            double referenceFlow = flowResult.getFlow(cnec, side, unit) * RaoUtil.getFlowUnitMultiplier(cnec, side, unit, Unit.MEGAWATT);
-            OpenRaoMPConstraint flowConstraint = linearProblem.addFlowConstraint(referenceFlow, referenceFlow, cnec, side);
-
-            OpenRaoMPVariable flowVariable = linearProblem.getFlowVariable(cnec, side);
-            flowConstraint.setCoefficient(flowVariable, 1);
-
-            // add sensitivity coefficients
-            addImpactOfRangeActionOnCnec(linearProblem, sensitivityResult, cnec, side, raActivationFromParentLeaf);
+    private void makeFlowConstraints(LinearProblem linearProblem, Set<FlowCnec> filteredFlowCnecs) {
+        // Create constraints for filtered CNECs
+        filteredFlowCnecs.forEach(cnec -> cnec.getMonitoredSides().forEach(side -> {
+            if (!linearProblem.hasFlowConstraint(cnec, side)) {
+                OpenRaoMPConstraint flowConstraint = linearProblem.addFlowConstraint(0., 0., cnec, side);
+                OpenRaoMPVariable flowVariable = linearProblem.getFlowVariable(cnec, side);
+                flowConstraint.setCoefficient(flowVariable, 1);
+            }
         }));
+        // Remove constraints of other CNECs
+        flowCnecs.stream().filter(cnec -> !filteredFlowCnecs.contains(cnec)).forEach(cnec ->
+            cnec.getMonitoredSides().forEach(side -> {
+                if (linearProblem.hasFlowConstraint(cnec, side)) {
+                    linearProblem.removeFlowConstraint(cnec, side);
+                }
+            })
+        );
     }
 
     /**
      * Update the flow constraints, with the new reference flows and new sensitivities
+     * These constraints link the estimated flow on a Cnec with the impact of the RangeActions
+     * on this Cnec.
      * F[c] = f_ref[c] + sum{r in RangeAction} sensitivity[c,r] * (S[r] - currentSetPoint[r])
      */
-    private void updateFlowConstraints(LinearProblem linearProblem, FlowResult flowResult, SensitivityResult sensitivityResult, RangeActionActivationResult rangeActionActivationResult) {
-        flowCnecs.forEach(cnec -> cnec.getMonitoredSides().forEach(side -> {
+    private void updateFlowConstraints(LinearProblem linearProblem, Set<FlowCnec> filteredFlowCnecs, FlowResult flowResult, SensitivityResult sensitivityResult, RangeActionActivationResult rangeActionActivationResult) {
+        filteredFlowCnecs.forEach(cnec -> cnec.getMonitoredSides().forEach(side -> {
             double referenceFlow = flowResult.getFlow(cnec, side, unit) * RaoUtil.getFlowUnitMultiplier(cnec, side, unit, Unit.MEGAWATT);
             OpenRaoMPConstraint flowConstraint = linearProblem.getFlowConstraint(cnec, side);
 
@@ -161,7 +194,7 @@ public class CoreProblemFiller implements ProblemFiller {
             flowConstraint.setUb(referenceFlow);
             flowConstraint.setLb(referenceFlow);
 
-            //reset sensitivity coefficients
+            // reset sensitivity coefficients
             addImpactOfRangeActionOnCnec(linearProblem, sensitivityResult, cnec, side, rangeActionActivationResult);
         }));
     }
@@ -226,8 +259,8 @@ public class CoreProblemFiller implements ProblemFiller {
             .sorted(Comparator.comparingInt(e -> e.getKey().getInstant().getOrder()))
             .forEach(entry ->
                 entry.getValue().forEach(rangeAction -> buildConstraintsForRangeActionAndState(linearProblem, rangeAction, entry.getKey())
-            )
-        );
+                )
+            );
     }
 
     private void updateRangeActionConstraints(LinearProblem linearProblem, RangeActionActivationResult rangeActionActivationResult) {

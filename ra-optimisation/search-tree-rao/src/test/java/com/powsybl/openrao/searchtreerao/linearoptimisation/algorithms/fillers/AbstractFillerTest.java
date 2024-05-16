@@ -14,6 +14,9 @@ import com.powsybl.openrao.data.cracapi.range.RangeType;
 import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.cracimpl.utils.NetworkImportsUtil;
 import com.powsybl.openrao.data.cracioapi.CracImporters;
+import com.powsybl.openrao.data.raoresultapi.ComputationStatus;
+import com.powsybl.openrao.raoapi.parameters.RangeActionsOptimizationParameters;
+import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.LinearProblem;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.OpenRaoMPSolver;
 import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
 import com.powsybl.openrao.searchtreerao.result.api.SensitivityResult;
@@ -22,6 +25,7 @@ import org.mockito.Mockito;
 
 import java.util.Map;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 /**
@@ -30,6 +34,7 @@ import static org.mockito.Mockito.when;
  */
 abstract class AbstractFillerTest {
     static final double DOUBLE_TOLERANCE = 1e-4;
+    static final double INFINITY_TOLERANCE = LinearProblem.infinity() * 0.001;
 
     static final String PREVENTIVE_INSTANT_ID = "preventive";
 
@@ -77,7 +82,7 @@ abstract class AbstractFillerTest {
         pstRangeAction = crac.getPstRangeAction(RANGE_ACTION_ID);
 
         // MPSolver and linearRaoProblem
-        mpSolver = new OpenRaoMPSolver();
+        mpSolver = new OpenRaoMPSolver("rao", RangeActionsOptimizationParameters.Solver.SCIP);
 
         flowResult = Mockito.mock(FlowResult.class);
         when(flowResult.getFlow(cnec1, Side.LEFT, Unit.MEGAWATT)).thenReturn(REF_FLOW_CNEC1_IT1);
@@ -86,6 +91,7 @@ abstract class AbstractFillerTest {
         sensitivityResult = Mockito.mock(SensitivityResult.class);
         when(sensitivityResult.getSensitivityValue(cnec1, Side.LEFT, pstRangeAction, Unit.MEGAWATT)).thenReturn(SENSI_CNEC1_IT1);
         when(sensitivityResult.getSensitivityValue(cnec2, Side.RIGHT, pstRangeAction, Unit.MEGAWATT)).thenReturn(SENSI_CNEC2_IT1);
+        when(sensitivityResult.getSensitivityStatus(any())).thenReturn(ComputationStatus.DEFAULT);
     }
 
     protected void addPstGroupInCrac() {

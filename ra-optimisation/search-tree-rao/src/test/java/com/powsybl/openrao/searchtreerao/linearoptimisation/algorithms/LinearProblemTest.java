@@ -12,6 +12,7 @@ import com.powsybl.openrao.data.cracapi.State;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
 import com.powsybl.openrao.data.cracapi.cnec.Side;
 import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeAction;
+import com.powsybl.openrao.raoapi.parameters.RangeActionsOptimizationParameters;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.OpenRaoMPSolver;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.LinearProblem;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.LinearProblemBuilder;
@@ -47,7 +48,7 @@ class LinearProblemTest {
 
     @BeforeEach
     public void setUp() {
-        OpenRaoMPSolver solver = new OpenRaoMPSolver();
+        OpenRaoMPSolver solver = new OpenRaoMPSolver("rao", RangeActionsOptimizationParameters.Solver.SCIP);
         linearProblem = new LinearProblemBuilder().withSolver(solver).build();
 
         rangeAction = Mockito.mock(PstRangeAction.class);

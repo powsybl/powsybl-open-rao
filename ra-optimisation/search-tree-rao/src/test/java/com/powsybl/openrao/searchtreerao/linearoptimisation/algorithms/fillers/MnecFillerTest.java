@@ -141,7 +141,7 @@ class MnecFillerTest extends AbstractFillerTest {
                 OpenRaoMPVariable variable = linearProblem.getMnecViolationVariable(cnec, side);
                 assertNotNull(variable);
                 assertEquals(0, variable.lb(), DOUBLE_TOLERANCE);
-                assertEquals(LinearProblem.infinity(), variable.ub(), DOUBLE_TOLERANCE);
+                assertEquals(LinearProblem.infinity(), variable.ub(), INFINITY_TOLERANCE);
             } else {
                 Exception e = assertThrows(OpenRaoException.class, () -> linearProblem.getMnecViolationVariable(cnec, side));
                 assertEquals(String.format("Variable %s has not been created yet", LinearProblemIdGenerator.mnecViolationVariableId(cnec, side)), e.getMessage());
@@ -160,7 +160,7 @@ class MnecFillerTest extends AbstractFillerTest {
 
         OpenRaoMPConstraint ct1Max = linearProblem.getMnecFlowConstraint(mnec1, Side.RIGHT, LinearProblem.MarginExtension.BELOW_THRESHOLD);
         assertNotNull(ct1Max);
-        assertEquals(-LinearProblem.infinity(), ct1Max.lb(), DOUBLE_TOLERANCE);
+        assertEquals(-LinearProblem.infinity(), ct1Max.lb(), INFINITY_TOLERANCE);
         double mnec1MaxFlow = 1000 - 3.5;
         assertEquals(mnec1MaxFlow, ct1Max.ub(), DOUBLE_TOLERANCE);
         assertEquals(1, ct1Max.getCoefficient(linearProblem.getFlowVariable(mnec1, Side.RIGHT)), DOUBLE_TOLERANCE);
@@ -170,13 +170,13 @@ class MnecFillerTest extends AbstractFillerTest {
         assertNotNull(ct1Min);
         double mnec1MinFlow = -1000 + 3.5;
         assertEquals(mnec1MinFlow, ct1Min.lb(), DOUBLE_TOLERANCE);
-        assertEquals(LinearProblem.infinity(), ct1Min.ub(), DOUBLE_TOLERANCE);
+        assertEquals(LinearProblem.infinity(), ct1Min.ub(), INFINITY_TOLERANCE);
         assertEquals(1, ct1Min.getCoefficient(linearProblem.getFlowVariable(mnec1, Side.RIGHT)), DOUBLE_TOLERANCE);
         assertEquals(1, ct1Min.getCoefficient(linearProblem.getMnecViolationVariable(mnec1, Side.RIGHT)), DOUBLE_TOLERANCE);
 
         OpenRaoMPConstraint ct2Max = linearProblem.getMnecFlowConstraint(mnec2, Side.LEFT, LinearProblem.MarginExtension.BELOW_THRESHOLD);
         assertNotNull(ct2Max);
-        assertEquals(-LinearProblem.infinity(), ct2Max.lb(), DOUBLE_TOLERANCE);
+        assertEquals(-LinearProblem.infinity(), ct2Max.lb(), INFINITY_TOLERANCE);
         double mnec2MaxFlow = 100 - 3.5;
         assertEquals(mnec2MaxFlow, ct2Max.ub(), DOUBLE_TOLERANCE);
         assertEquals(1, ct2Max.getCoefficient(linearProblem.getFlowVariable(mnec2, Side.LEFT)), DOUBLE_TOLERANCE);
@@ -186,7 +186,7 @@ class MnecFillerTest extends AbstractFillerTest {
         assertNotNull(ct2Min);
         double mnec2MinFlow = -250 + 3.5;
         assertEquals(mnec2MinFlow, ct2Min.lb(), DOUBLE_TOLERANCE);
-        assertEquals(LinearProblem.infinity(), ct2Min.ub(), DOUBLE_TOLERANCE);
+        assertEquals(LinearProblem.infinity(), ct2Min.ub(), INFINITY_TOLERANCE);
         assertEquals(1, ct2Min.getCoefficient(linearProblem.getFlowVariable(mnec2, Side.LEFT)), DOUBLE_TOLERANCE);
         assertEquals(1, ct2Min.getCoefficient(linearProblem.getMnecViolationVariable(mnec2, Side.LEFT)), DOUBLE_TOLERANCE);
     }

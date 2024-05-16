@@ -14,6 +14,8 @@ import com.google.ortools.linearsolver.MPVariable;
  * @author Philippe Edwards {@literal <philippe.edwards at rte-international.com>}
  */
 public class OpenRaoMPVariable {
+    // TODO: test this class
+
     private final MPVariable mpVariable;
     private final int numberOfBitsToRoundOff;
 
@@ -52,5 +54,12 @@ public class OpenRaoMPVariable {
 
     public double solutionValue() {
         return mpVariable.solutionValue();
+    }
+
+    void remove() {
+        // It is currently impossible to remove a variable from an OR-Tools MPSolver
+        // mpVariable.delete(); does not remove the variable
+        // The only (almost) equivalent workaround is to remove all constraints on the variable
+        setBounds(-LinearProblem.infinity(), LinearProblem.infinity());
     }
 }

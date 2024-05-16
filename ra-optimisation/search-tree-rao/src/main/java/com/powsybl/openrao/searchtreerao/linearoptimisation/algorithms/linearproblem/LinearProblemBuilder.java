@@ -25,14 +25,6 @@ import java.util.stream.Collectors;
  */
 public class LinearProblemBuilder {
 
-    static {
-        try {
-            Loader.loadNativeLibraries();
-        } catch (Exception e) {
-            OpenRaoLoggerProvider.TECHNICAL_LOGS.error("Native library jniortools could not be loaded. You can ignore this message if it is not needed.");
-        }
-    }
-
     private static final String OPT_PROBLEM_NAME = "RangeActionOptProblem";
 
     private final List<ProblemFiller> problemFillers = new ArrayList<>();

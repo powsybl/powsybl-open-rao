@@ -129,12 +129,28 @@ public final class LinearProblem {
         return solver.getVariable(flowVariableId(cnec, side));
     }
 
+    public boolean hasFlowVariable(FlowCnec cnec, Side side) {
+        return solver.hasVariable(flowVariableId(cnec, side));
+    }
+
+    public void removeFlowVariable(FlowCnec cnec, Side side) {
+        solver.removeVariable(flowVariableId(cnec, side));
+    }
+
     public OpenRaoMPConstraint addFlowConstraint(double lb, double ub, FlowCnec cnec, Side side) {
         return solver.makeConstraint(lb, ub, flowConstraintId(cnec, side));
     }
 
     public OpenRaoMPConstraint getFlowConstraint(FlowCnec cnec, Side side) {
         return solver.getConstraint(flowConstraintId(cnec, side));
+    }
+
+    public boolean hasFlowConstraint(FlowCnec cnec, Side side) {
+        return solver.hasConstraint(flowConstraintId(cnec, side));
+    }
+
+    public void removeFlowConstraint(FlowCnec cnec, Side side) {
+        solver.removeConstraint(flowConstraintId(cnec, side));
     }
 
     public OpenRaoMPVariable addRangeActionSetpointVariable(double lb, double ub, RangeAction<?> rangeAction, State state) {

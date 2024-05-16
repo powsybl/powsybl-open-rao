@@ -247,7 +247,7 @@ class UnoptimizedCnecFillerPstLimitationRuleTest extends AbstractFillerTest {
 
         OpenRaoMPConstraint optimizeCnecConstraintBelowThreshold = linearProblem.getDontOptimizeCnecConstraint(cnecInSeries, Side.LEFT, LinearProblem.MarginExtension.BELOW_THRESHOLD);
         assertNotNull(optimizeCnecConstraintBelowThreshold);
-        assertEquals(LinearProblem.infinity(), optimizeCnecConstraintBelowThreshold.ub(), DOUBLE_TOLERANCE);
+        assertEquals(LinearProblem.infinity(), optimizeCnecConstraintBelowThreshold.ub(), INFINITY_TOLERANCE);
         assertEquals(-5 * 3 - 1000, optimizeCnecConstraintBelowThreshold.lb(), DOUBLE_TOLERANCE);
         assertEquals(1., optimizeCnecConstraintBelowThreshold.getCoefficient(flowVar), DOUBLE_TOLERANCE);
         assertEquals(-5., optimizeCnecConstraintBelowThreshold.getCoefficient(setPointVar), DOUBLE_TOLERANCE);
@@ -255,7 +255,7 @@ class UnoptimizedCnecFillerPstLimitationRuleTest extends AbstractFillerTest {
 
         OpenRaoMPConstraint optimizeCnecConstraintAboveThreshold = linearProblem.getDontOptimizeCnecConstraint(cnecInSeries, Side.LEFT, LinearProblem.MarginExtension.ABOVE_THRESHOLD);
         assertNotNull(optimizeCnecConstraintAboveThreshold);
-        assertEquals(LinearProblem.infinity(), optimizeCnecConstraintAboveThreshold.ub(), DOUBLE_TOLERANCE);
+        assertEquals(LinearProblem.infinity(), optimizeCnecConstraintAboveThreshold.ub(), INFINITY_TOLERANCE);
         assertEquals(-5 * -0.5 - 800, optimizeCnecConstraintAboveThreshold.lb(), DOUBLE_TOLERANCE);
         assertEquals(-1., optimizeCnecConstraintAboveThreshold.getCoefficient(flowVar), DOUBLE_TOLERANCE);
         assertEquals(5., optimizeCnecConstraintAboveThreshold.getCoefficient(setPointVar), DOUBLE_TOLERANCE);
@@ -284,7 +284,7 @@ class UnoptimizedCnecFillerPstLimitationRuleTest extends AbstractFillerTest {
 
         OpenRaoMPConstraint optimizeCnecConstraintBelowThreshold = linearProblem.getDontOptimizeCnecConstraint(cnecInSeries, Side.LEFT, LinearProblem.MarginExtension.BELOW_THRESHOLD);
         assertNotNull(optimizeCnecConstraintBelowThreshold);
-        assertEquals(LinearProblem.infinity(), optimizeCnecConstraintBelowThreshold.ub(), DOUBLE_TOLERANCE);
+        assertEquals(LinearProblem.infinity(), optimizeCnecConstraintBelowThreshold.ub(), INFINITY_TOLERANCE);
         assertEquals(-4 * -0.5 - 1000, optimizeCnecConstraintBelowThreshold.lb(), DOUBLE_TOLERANCE);
         assertEquals(1., optimizeCnecConstraintBelowThreshold.getCoefficient(flowVar), DOUBLE_TOLERANCE);
         assertEquals(4., optimizeCnecConstraintBelowThreshold.getCoefficient(setPointVar), DOUBLE_TOLERANCE);
@@ -292,7 +292,7 @@ class UnoptimizedCnecFillerPstLimitationRuleTest extends AbstractFillerTest {
 
         OpenRaoMPConstraint optimizeCnecConstraintAboveThreshold = linearProblem.getDontOptimizeCnecConstraint(cnecInSeries, Side.LEFT, LinearProblem.MarginExtension.ABOVE_THRESHOLD);
         assertNotNull(optimizeCnecConstraintAboveThreshold);
-        assertEquals(LinearProblem.infinity(), optimizeCnecConstraintAboveThreshold.ub(), DOUBLE_TOLERANCE);
+        assertEquals(LinearProblem.infinity(), optimizeCnecConstraintAboveThreshold.ub(), INFINITY_TOLERANCE);
         assertEquals(-4 * 3 - 800, optimizeCnecConstraintAboveThreshold.lb(), DOUBLE_TOLERANCE);
         assertEquals(-1., optimizeCnecConstraintAboveThreshold.getCoefficient(flowVar), DOUBLE_TOLERANCE);
         assertEquals(-4., optimizeCnecConstraintAboveThreshold.getCoefficient(setPointVar), DOUBLE_TOLERANCE);
@@ -321,7 +321,7 @@ class UnoptimizedCnecFillerPstLimitationRuleTest extends AbstractFillerTest {
 
         OpenRaoMPConstraint optimizeCnecConstraintBelowThreshold = linearProblem.getDontOptimizeCnecConstraint(cnecInSeries, Side.LEFT, LinearProblem.MarginExtension.BELOW_THRESHOLD);
         assertNotNull(optimizeCnecConstraintBelowThreshold);
-        assertEquals(LinearProblem.infinity(), optimizeCnecConstraintBelowThreshold.ub(), DOUBLE_TOLERANCE);
+        assertEquals(LinearProblem.infinity(), optimizeCnecConstraintBelowThreshold.ub(), INFINITY_TOLERANCE);
         assertEquals(5 * -3 - 1000, optimizeCnecConstraintBelowThreshold.lb(), DOUBLE_TOLERANCE);
         assertEquals(1., optimizeCnecConstraintBelowThreshold.getCoefficient(flowVar), DOUBLE_TOLERANCE);
         assertEquals(-5., optimizeCnecConstraintBelowThreshold.getCoefficient(setPointVar), DOUBLE_TOLERANCE);
@@ -329,7 +329,7 @@ class UnoptimizedCnecFillerPstLimitationRuleTest extends AbstractFillerTest {
 
         OpenRaoMPConstraint optimizeCnecConstraintAboveThreshold = linearProblem.getDontOptimizeCnecConstraint(cnecInSeries, Side.LEFT, LinearProblem.MarginExtension.ABOVE_THRESHOLD);
         assertNotNull(optimizeCnecConstraintAboveThreshold);
-        assertEquals(LinearProblem.infinity(), optimizeCnecConstraintAboveThreshold.ub(), DOUBLE_TOLERANCE);
+        assertEquals(LinearProblem.infinity(), optimizeCnecConstraintAboveThreshold.ub(), INFINITY_TOLERANCE);
         assertEquals(-5 * -0.5 - 800, optimizeCnecConstraintAboveThreshold.lb(), DOUBLE_TOLERANCE);
         assertEquals(-1., optimizeCnecConstraintAboveThreshold.getCoefficient(flowVar), DOUBLE_TOLERANCE);
         assertEquals(5., optimizeCnecConstraintAboveThreshold.getCoefficient(setPointVar), DOUBLE_TOLERANCE);
@@ -358,7 +358,7 @@ class UnoptimizedCnecFillerPstLimitationRuleTest extends AbstractFillerTest {
 
         OpenRaoMPConstraint optimizeCnecConstraintBelowThreshold = linearProblem.getDontOptimizeCnecConstraint(cnecInSeries, Side.LEFT, LinearProblem.MarginExtension.BELOW_THRESHOLD);
         assertNotNull(optimizeCnecConstraintBelowThreshold);
-        assertEquals(LinearProblem.infinity(), optimizeCnecConstraintBelowThreshold.ub(), DOUBLE_TOLERANCE);
+        assertEquals(LinearProblem.infinity(), optimizeCnecConstraintBelowThreshold.ub(), INFINITY_TOLERANCE);
         assertEquals(-4 * -0.5 - 1000, optimizeCnecConstraintBelowThreshold.lb(), DOUBLE_TOLERANCE);
         assertEquals(1., optimizeCnecConstraintBelowThreshold.getCoefficient(flowVar), DOUBLE_TOLERANCE);
         assertEquals(4., optimizeCnecConstraintBelowThreshold.getCoefficient(setPointVar), DOUBLE_TOLERANCE);
@@ -366,7 +366,7 @@ class UnoptimizedCnecFillerPstLimitationRuleTest extends AbstractFillerTest {
 
         OpenRaoMPConstraint optimizeCnecConstraintAboveThreshold = linearProblem.getDontOptimizeCnecConstraint(cnecInSeries, Side.LEFT, LinearProblem.MarginExtension.ABOVE_THRESHOLD);
         assertNotNull(optimizeCnecConstraintAboveThreshold);
-        assertEquals(LinearProblem.infinity(), optimizeCnecConstraintAboveThreshold.ub(), DOUBLE_TOLERANCE);
+        assertEquals(LinearProblem.infinity(), optimizeCnecConstraintAboveThreshold.ub(), INFINITY_TOLERANCE);
         assertEquals(-4 * 3 - 800, optimizeCnecConstraintAboveThreshold.lb(), DOUBLE_TOLERANCE);
         assertEquals(-1., optimizeCnecConstraintAboveThreshold.getCoefficient(flowVar), DOUBLE_TOLERANCE);
         assertEquals(-4., optimizeCnecConstraintAboveThreshold.getCoefficient(setPointVar), DOUBLE_TOLERANCE);
@@ -435,7 +435,7 @@ class UnoptimizedCnecFillerPstLimitationRuleTest extends AbstractFillerTest {
 
         OpenRaoMPConstraint optimizeCnecConstraintBelowThreshold = linearProblem.getDontOptimizeCnecConstraint(cnecInSeries, Side.LEFT, LinearProblem.MarginExtension.BELOW_THRESHOLD);
         assertNotNull(optimizeCnecConstraintBelowThreshold);
-        assertEquals(LinearProblem.infinity(), optimizeCnecConstraintBelowThreshold.ub(), DOUBLE_TOLERANCE);
+        assertEquals(LinearProblem.infinity(), optimizeCnecConstraintBelowThreshold.ub(), INFINITY_TOLERANCE);
         assertEquals(-1000., optimizeCnecConstraintBelowThreshold.lb(), 1e-6);
         assertEquals(1., optimizeCnecConstraintBelowThreshold.getCoefficient(flowVar), 1e-6);
         assertEquals(0., optimizeCnecConstraintBelowThreshold.getCoefficient(setPointVar), 1e-6);
@@ -443,7 +443,7 @@ class UnoptimizedCnecFillerPstLimitationRuleTest extends AbstractFillerTest {
 
         OpenRaoMPConstraint optimizeCnecConstraintAboveThreshold = linearProblem.getDontOptimizeCnecConstraint(cnecInSeries, Side.LEFT, LinearProblem.MarginExtension.ABOVE_THRESHOLD);
         assertNotNull(optimizeCnecConstraintAboveThreshold);
-        assertEquals(LinearProblem.infinity(), optimizeCnecConstraintAboveThreshold.ub(), DOUBLE_TOLERANCE);
+        assertEquals(LinearProblem.infinity(), optimizeCnecConstraintAboveThreshold.ub(), INFINITY_TOLERANCE);
         assertEquals(-800., optimizeCnecConstraintAboveThreshold.lb(), 1e-6);
         assertEquals(-1., optimizeCnecConstraintAboveThreshold.getCoefficient(flowVar), 1e-6);
         assertEquals(0., optimizeCnecConstraintAboveThreshold.getCoefficient(setPointVar), 1e-6);

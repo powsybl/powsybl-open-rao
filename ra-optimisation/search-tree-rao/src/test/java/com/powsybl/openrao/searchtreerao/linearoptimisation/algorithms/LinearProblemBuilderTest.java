@@ -47,10 +47,9 @@ class LinearProblemBuilderTest {
         linearProblemBuilder = new LinearProblemBuilder();
         inputs = Mockito.mock(IteratingLinearOptimizerInput.class);
         parameters = Mockito.mock(IteratingLinearOptimizerParameters.class);
-        linearProblemBuilder = Mockito.spy(linearProblemBuilder);
-        doReturn(new OpenRaoMPSolver()).when(linearProblemBuilder).buildSolver();
 
         solverParameters = Mockito.mock(RangeActionsOptimizationParameters.LinearOptimizationSolver.class);
+        when(solverParameters.getSolver()).thenReturn(RangeActionsOptimizationParameters.Solver.SCIP);
         when(parameters.getSolverParameters()).thenReturn(solverParameters);
         rangeActionParameters = Mockito.mock(RangeActionsOptimizationParameters.class);
         when(parameters.getRangeActionParameters()).thenReturn(rangeActionParameters);

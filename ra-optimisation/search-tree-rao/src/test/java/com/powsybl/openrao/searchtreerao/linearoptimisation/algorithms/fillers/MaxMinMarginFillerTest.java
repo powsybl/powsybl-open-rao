@@ -100,9 +100,9 @@ class MaxMinMarginFillerTest extends AbstractFillerTest {
         OpenRaoMPConstraint cnec1BelowThreshold = linearProblem.getMinimumMarginConstraint(cnec1, Side.LEFT, LinearProblem.MarginExtension.BELOW_THRESHOLD);
         assertNotNull(cnec1AboveThreshold);
         assertNotNull(cnec1BelowThreshold);
-        assertEquals(-LinearProblem.infinity(), cnec1BelowThreshold.lb(), DOUBLE_TOLERANCE);
+        assertEquals(-LinearProblem.infinity(), cnec1BelowThreshold.lb(), INFINITY_TOLERANCE);
         assertEquals(-MIN_FLOW_1, cnec1BelowThreshold.ub(), DOUBLE_TOLERANCE);
-        assertEquals(-LinearProblem.infinity(), cnec1AboveThreshold.lb(), DOUBLE_TOLERANCE);
+        assertEquals(-LinearProblem.infinity(), cnec1AboveThreshold.lb(), INFINITY_TOLERANCE);
         assertEquals(MAX_FLOW_1, cnec1AboveThreshold.ub(), DOUBLE_TOLERANCE);
         assertEquals(-1, cnec1BelowThreshold.getCoefficient(flowCnec1), DOUBLE_TOLERANCE);
         assertEquals(1, cnec1AboveThreshold.getCoefficient(flowCnec1), DOUBLE_TOLERANCE);
@@ -142,9 +142,9 @@ class MaxMinMarginFillerTest extends AbstractFillerTest {
         OpenRaoMPConstraint cnec1BelowThreshold = linearProblem.getMinimumMarginConstraint(cnec1, Side.LEFT, LinearProblem.MarginExtension.BELOW_THRESHOLD);
         assertNotNull(cnec1AboveThreshold);
         assertNotNull(cnec1BelowThreshold);
-        assertEquals(-LinearProblem.infinity(), cnec1BelowThreshold.lb(), DOUBLE_TOLERANCE);
+        assertEquals(-LinearProblem.infinity(), cnec1BelowThreshold.lb(), INFINITY_TOLERANCE);
         assertEquals(-MIN_FLOW_1, cnec1BelowThreshold.ub(), DOUBLE_TOLERANCE);
-        assertEquals(-LinearProblem.infinity(), cnec1AboveThreshold.lb(), DOUBLE_TOLERANCE);
+        assertEquals(-LinearProblem.infinity(), cnec1AboveThreshold.lb(), INFINITY_TOLERANCE);
         assertEquals(MAX_FLOW_1, cnec1AboveThreshold.ub(), DOUBLE_TOLERANCE);
         assertEquals(-1, cnec1BelowThreshold.getCoefficient(flowCnec1), DOUBLE_TOLERANCE);
         assertEquals(1, cnec1AboveThreshold.getCoefficient(flowCnec1), DOUBLE_TOLERANCE);

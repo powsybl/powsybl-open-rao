@@ -111,6 +111,9 @@ public final class RaoUtil {
      */
 
     public static double roundDouble(double value, int numberOfBitsToRoundOff) {
+        if (Double.isNaN(value)) {
+            throw new OpenRaoException("Trying to add a NaN value in MIP!");
+        }
         double t = value * (1L << numberOfBitsToRoundOff);
         if (t != Double.POSITIVE_INFINITY && value != Double.NEGATIVE_INFINITY && !Double.isNaN(t)) {
             return value - t + t;
