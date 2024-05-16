@@ -8,6 +8,7 @@
 package com.powsybl.openrao.data.cracapi;
 
 import com.google.auto.service.AutoService;
+import com.powsybl.commons.report.ReportNode;
 
 /**
  * Mock CracFactory implementation, for unit tests only
@@ -16,7 +17,7 @@ import com.google.auto.service.AutoService;
 @AutoService(CracFactory.class)
 public class MockCracFactory2 implements CracFactory {
     @Override
-    public Crac create(String id, String name) {
+    public Crac create(String id, String name, ReportNode reportNode) {
         return null;
     }
 

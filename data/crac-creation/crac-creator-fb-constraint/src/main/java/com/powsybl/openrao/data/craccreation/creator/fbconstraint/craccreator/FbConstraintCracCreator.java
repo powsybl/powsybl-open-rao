@@ -51,18 +51,18 @@ public class FbConstraintCracCreator implements CracCreator<FbConstraint, FbCons
     @Override
     public FbConstraintCreationContext createCrac(FbConstraint fbConstraintDocument, Network network, OffsetDateTime offsetDateTime, CracCreationParameters cracCreatorParameters, ReportNode reportNode) {
         FbConstraintCreationContext creationContext = new FbConstraintCreationContext(offsetDateTime, network.getNameOrId());
-        Crac crac = cracCreatorParameters.getCracFactory().create(fbConstraintDocument.getDocument().getDocumentIdentification().getV());
+        Crac crac = cracCreatorParameters.getCracFactory().create(fbConstraintDocument.getDocument().getDocumentIdentification().getV(), reportNode);
         addFbContraintInstants(crac);
         RaUsageLimitsAdder.addRaUsageLimits(crac, cracCreatorParameters);
 
         // check timestamp
-        if (!checkTimeStamp(offsetDateTime, fbConstraintDocument.getDocument().getConstraintTimeInterval().getV(), creationContext)) {
+        if (!checkTimeStamp(offsetDateTime, fbConstraintDocument.getDocument().getConstraintTimeInterval().getV(), creationContext, reportNode)) {
             return creationContext.creationFailure();
         }
 
         // Check for UCTE network
         if (!network.getSourceFormat().equals("UCTE")) {
-            creationContext.getCreationReport().error("FlowBasedConstraintDocument CRAC creation is only possible with a UCTE network", ReportNode.NO_OP);
+            creationContext.getCreationReport().error("FlowBasedConstraintDocument CRAC creation is only possible with a UCTE network", reportNode);
             return creationContext.creationFailure();
         }
 
@@ -72,10 +72,10 @@ public class FbConstraintCracCreator implements CracCreator<FbConstraint, FbCons
         List<OutageReader> outageReaders = new ArrayList<>();
 
         // read Critical Branches information
-        readCriticalBranches(fbConstraintDocument, offsetDateTime, crac, creationContext, ucteNetworkAnalyzer, outageReaders, cracCreatorParameters.getDefaultMonitoredSides());
+        readCriticalBranches(fbConstraintDocument, offsetDateTime, crac, creationContext, ucteNetworkAnalyzer, outageReaders, cracCreatorParameters.getDefaultMonitoredSides(), reportNode);
 
         // read Complex Variants information
-        readComplexVariants(fbConstraintDocument, offsetDateTime, crac, creationContext, ucteNetworkAnalyzer, outageReaders);
+        readComplexVariants(fbConstraintDocument, offsetDateTime, crac, creationContext, ucteNetworkAnalyzer, outageReaders, reportNode);
 
         // logs
         creationContext.buildCreationReport();
@@ -86,7 +86,7 @@ public class FbConstraintCracCreator implements CracCreator<FbConstraint, FbCons
         outageReaders.forEach(or -> or.addContingency(crac));
     }
 
-    private void readCriticalBranches(FbConstraint fbConstraintDocument, OffsetDateTime offsetDateTime, Crac crac, FbConstraintCreationContext creationContext, UcteNetworkAnalyzer ucteNetworkAnalyzer, List<OutageReader> outageReaders, Set<Side> defaultMonitoredSides) {
+    private void readCriticalBranches(FbConstraint fbConstraintDocument, OffsetDateTime offsetDateTime, Crac crac, FbConstraintCreationContext creationContext, UcteNetworkAnalyzer ucteNetworkAnalyzer, List<OutageReader> outageReaders, Set<Side> defaultMonitoredSides, ReportNode reportNode) {
         List<CriticalBranchType> criticalBranchForTimeStamp = selectCriticalBranchesForTimeStamp(fbConstraintDocument.getDocument(), offsetDateTime);
 
         if (!isEmpty(criticalBranchForTimeStamp)) {
@@ -104,7 +104,7 @@ public class FbConstraintCracCreator implements CracCreator<FbConstraint, FbCons
             createCnecs(crac, criticalBranchReaders, creationContext);
 
         } else {
-            creationContext.getCreationReport().warn("the flow-based constraint document does not contain any critical branch for the requested timestamp", ReportNode.NO_OP);
+            creationContext.getCreationReport().warn("the flow-based constraint document does not contain any critical branch for the requested timestamp", reportNode);
         }
         createCnecTimestampFilteringInformation(fbConstraintDocument, offsetDateTime, creationContext);
     }
@@ -127,17 +127,17 @@ public class FbConstraintCracCreator implements CracCreator<FbConstraint, FbCons
             ));
     }
 
-    private void readComplexVariants(FbConstraint fbConstraintDocument, OffsetDateTime offsetDateTime, Crac crac, FbConstraintCreationContext creationContext, UcteNetworkAnalyzer ucteNetworkAnalyzer, List<OutageReader> outageReaders) {
+    private void readComplexVariants(FbConstraint fbConstraintDocument, OffsetDateTime offsetDateTime, Crac crac, FbConstraintCreationContext creationContext, UcteNetworkAnalyzer ucteNetworkAnalyzer, List<OutageReader> outageReaders, ReportNode reportNode) {
         if (Objects.isNull(fbConstraintDocument.getDocument().getComplexVariants())
             || Objects.isNull(fbConstraintDocument.getDocument().getComplexVariants().getComplexVariant())
             || fbConstraintDocument.getDocument().getComplexVariants().getComplexVariant().isEmpty()) {
-            creationContext.getCreationReport().warn("the flow-based constraint document does not contain any complex variant", ReportNode.NO_OP);
+            creationContext.getCreationReport().warn("the flow-based constraint document does not contain any complex variant", reportNode);
         } else {
             List<IndependantComplexVariant> remedialActionForTimeStamp = selectRemedialActionsForTimeStamp(fbConstraintDocument.getDocument(), offsetDateTime);
             if (!isEmpty(remedialActionForTimeStamp)) {
                 createRemedialAction(crac, ucteNetworkAnalyzer, remedialActionForTimeStamp, outageReaders, creationContext);
             } else {
-                creationContext.getCreationReport().warn("the flow-based constraint document does not contain any complex variant for the requested timestamp", ReportNode.NO_OP);
+                creationContext.getCreationReport().warn("the flow-based constraint document does not contain any complex variant for the requested timestamp", reportNode);
             }
             createRaTimestampFilteringInformation(fbConstraintDocument, offsetDateTime, creationContext);
         }
@@ -204,14 +204,14 @@ public class FbConstraintCracCreator implements CracCreator<FbConstraint, FbCons
         }
     }
 
-    private boolean checkTimeStamp(OffsetDateTime offsetDateTime, String fbConstraintDocumentTimeInterval, FbConstraintCreationContext creationContext) {
+    private boolean checkTimeStamp(OffsetDateTime offsetDateTime, String fbConstraintDocumentTimeInterval, FbConstraintCreationContext creationContext, ReportNode reportNode) {
         if (Objects.isNull(offsetDateTime)) {
-            creationContext.getCreationReport().error("when creating a CRAC from a flow-based constraint, timestamp must be non-null", ReportNode.NO_OP);
+            creationContext.getCreationReport().error("when creating a CRAC from a flow-based constraint, timestamp must be non-null", reportNode);
             return false;
         }
 
         if (!isInTimeInterval(offsetDateTime, fbConstraintDocumentTimeInterval)) {
-            creationContext.getCreationReport().error(String.format("timestamp %s is not in the time interval of the flow-based constraint document: %s", offsetDateTime.toString(), fbConstraintDocumentTimeInterval), ReportNode.NO_OP);
+            creationContext.getCreationReport().error(String.format("timestamp %s is not in the time interval of the flow-based constraint document: %s", offsetDateTime.toString(), fbConstraintDocumentTimeInterval), reportNode);
             return false;
         }
 

@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.data.cracimpl;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.cracapi.CracFactory;
 import com.google.auto.service.AutoService;
@@ -27,12 +28,7 @@ public class CracImplFactory implements CracFactory {
     }
 
     @Override
-    public Crac create(String id, String name) {
-        return new CracImpl(id, name);
-    }
-
-    @Override
-    public Crac create(String id) {
-        return new CracImpl(id);
+    public Crac create(String id, String name, ReportNode reportNode) {
+        return new CracImpl(id, name, reportNode);
     }
 }

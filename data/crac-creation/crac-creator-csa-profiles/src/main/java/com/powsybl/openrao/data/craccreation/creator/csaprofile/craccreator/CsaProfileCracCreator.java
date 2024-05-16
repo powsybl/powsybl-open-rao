@@ -43,7 +43,7 @@ public class CsaProfileCracCreator implements CracCreator<CsaProfileCrac, CsaPro
 
     public CsaProfileCracCreationContext createCrac(CsaProfileCrac nativeCrac, Network network, OffsetDateTime offsetDateTime, CracCreationParameters cracCreationParameters, ReportNode reportNode) {
         CsaCracCreationParameters csaParameters = cracCreationParameters.getExtension(CsaCracCreationParameters.class);
-        this.crac = cracCreationParameters.getCracFactory().create(nativeCrac.toString());
+        this.crac = cracCreationParameters.getCracFactory().create("csa-profile-crac", reportNode); // TODO find a way to store a crac ID, maybe in the native crac ?
         this.network = network;
         this.creationContext = new CsaProfileCracCreationContext(crac, offsetDateTime, network.getNameOrId());
         this.nativeCrac = nativeCrac;

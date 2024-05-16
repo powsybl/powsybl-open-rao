@@ -76,7 +76,7 @@ public class CracDeserializer extends JsonDeserializer<Crac> {
             throw new OpenRaoException(String.format("The JSON Crac must contain a %s field after the %s field", NAME, ID));
         }
         String name = jsonParser.nextTextValue();
-        Crac crac = cracFactory.create(id, name);
+        Crac crac = cracFactory.create(id, name, reportNode);
         if (getPrimaryVersionNumber(version) < 2) {
             crac.newInstant("preventive", InstantKind.PREVENTIVE)
                 .newInstant("outage", InstantKind.OUTAGE)

@@ -1119,7 +1119,7 @@ class CimCracCreatorTest {
     void testReportNodeGenerated() throws IOException, URISyntaxException {
         ReportNode reportNode = buildNewRootNode();
         setUp("/cracs/CIM_21_7_1.xml", baseNetwork, OffsetDateTime.parse("2021-04-01T23:00Z"), new CracCreationParameters(), reportNode);
-        String expected = Files.readString(Path.of(getClass().getResource("/expectedReportNodeContent.txt").toURI()));
+        String expected = Files.readString(Path.of(getClass().getResource("/expectedReportNodeContentCimCracCreator.txt").toURI()));
         try (StringWriter writer = new StringWriter()) {
             reportNode.print(writer);
             String actual = writer.toString();

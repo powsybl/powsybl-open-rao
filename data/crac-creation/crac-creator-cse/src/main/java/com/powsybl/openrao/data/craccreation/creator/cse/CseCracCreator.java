@@ -44,25 +44,25 @@ public class CseCracCreator implements CracCreator<CseCrac, CseCracCreationConte
     @Override
     public CseCracCreationContext createCrac(CseCrac cseCrac, Network network, OffsetDateTime offsetDateTime, CracCreationParameters cracCreationParameters, ReportNode reportNode) {
         // Set attributes
-        Crac crac = cracCreationParameters.getCracFactory().create(cseCrac.getCracDocument().getDocumentIdentification().getV());
+        Crac crac = cracCreationParameters.getCracFactory().create(cseCrac.getCracDocument().getDocumentIdentification().getV(), reportNode);
         addCseInstants(crac);
         RaUsageLimitsAdder.addRaUsageLimits(crac, cracCreationParameters);
         this.creationContext = new CseCracCreationContext(crac, offsetDateTime, network.getNameOrId());
 
         // Check timestamp field
         if (offsetDateTime != null) {
-            creationContext.getCreationReport().warn("Timestamp filtering is not implemented for cse crac creator. The timestamp will be ignored.", ReportNode.NO_OP);
+            creationContext.getCreationReport().warn("Timestamp filtering is not implemented for cse crac creator. The timestamp will be ignored.", reportNode);
         }
 
         // Get warning messages from parameters parsing
         CseCracCreationParameters cseCracCreationParameters = cracCreationParameters.getExtension(CseCracCreationParameters.class);
         if (cseCracCreationParameters != null) {
-            cseCracCreationParameters.getFailedParseWarnings().forEach(message -> creationContext.getCreationReport().warn(message, ReportNode.NO_OP));
+            cseCracCreationParameters.getFailedParseWarnings().forEach(message -> creationContext.getCreationReport().warn(message, reportNode));
         }
 
         // Check for UCTE compatibility
         if (!network.getSourceFormat().equals("UCTE")) {
-            creationContext.getCreationReport().error("CSE CRAC creation is only possible with a UCTE network", ReportNode.NO_OP);
+            creationContext.getCreationReport().error("CSE CRAC creation is only possible with a UCTE network", reportNode);
             return creationContext.creationFailure();
         }
 
@@ -83,11 +83,11 @@ public class CseCracCreator implements CracCreator<CseCrac, CseCracCreationConte
             tMonitoredElementsAdder.add();
 
             creationContext.buildCreationReport();
-            CracValidator.validateCrac(crac, network).forEach(addedReason -> creationContext.getCreationReport().added(addedReason, ReportNode.NO_OP));
+            CracValidator.validateCrac(crac, network).forEach(addedReason -> creationContext.getCreationReport().added(addedReason, reportNode));
             // TODO : add unit test for CracValidator.validateCrac step when auto RAs are handled
             return creationContext.creationSuccess(crac);
         } catch (OpenRaoException e) {
-            creationContext.getCreationReport().error(String.format("CRAC could not be created: %s", e.getMessage()), ReportNode.NO_OP);
+            creationContext.getCreationReport().error(String.format("CRAC could not be created: %s", e.getMessage()), reportNode);
             return creationContext.creationFailure();
         }
     }

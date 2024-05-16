@@ -1,4 +1,5 @@
 + Root node for tests
+   New crac "CIM_CRAC_DOCUMENT" called "CIM_CRAC_DOCUMENT"
    [REMOVED] Contingency_Series "InvalidCo" was not imported: ELEMENT_NOT_FOUND_IN_NETWORK. None of the contingency's registered resources was found in network.
    [REMOVED] AdditionalConstraint_Series "AngleCnec2" was not imported: INCONSISTENCY_IN_DATA. Wrong measurement unit : AMP.
    [REMOVED] AdditionalConstraint_Series "AngleCnec7" was not imported: INCONSISTENCY_IN_DATA. Wrong businessType: B88.
