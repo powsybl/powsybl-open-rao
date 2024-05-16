@@ -305,7 +305,7 @@ class CracImportExportTest {
                 .filter(tapRange -> tapRange.getRangeType().equals(RangeType.RELATIVE_TO_INITIAL_NETWORK))
                 .findAny().orElse(null);
         TapRange relTimestampRange = crac.getPstRangeAction("pstRange2Id").getRanges().stream()
-                .filter(tapRange -> tapRange.getRangeType().equals(RangeType.RELATIVE_TO_PREVIOUS_TIMESTAMP))
+                .filter(tapRange -> tapRange.getRangeType().equals(RangeType.RELATIVE_TO_PREVIOUS_TIME_STEP))
                 .findAny().orElse(null);
 
         assertNotNull(absRange);
