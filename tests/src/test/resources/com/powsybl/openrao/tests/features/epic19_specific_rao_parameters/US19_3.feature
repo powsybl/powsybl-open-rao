@@ -135,28 +135,60 @@ Feature: US 19.3: Handle maximum CRA and maximum curative PSTs per TSO
 
   @fast @rao @mock @ac @contingency-scenarios
   Scenario: US 19.3.11: Limit taps on PST with a maximum number of 3 elementary actions
-    Given network file is "epic19/small-network-2P-unsecure.uct"
-    Given crac file is "epic19/small-crac-with-max-3-elementary-actions.json"
-    Given configuration file is "epic19/RaoParameters_2P_discrete.json"
+    Given network file is "epic19/small-network-2P.uct"
+    Given crac file is "epic19/small-crac-with-max-3-elementary-actions-pst.json"
+    Given configuration file is "epic19/RaoParameters_dc_discrete.json"
     When I launch search_tree_rao
     Then 1 remedial actions are used in preventive
-    # The PST could go down to -16 (23 MW) to increase the margin but the limit on elementary actions restricts it to -3 (452 MW)
+    # The PST could go down to -16 (33 MW) to increase the margin but the limit on elementary actions restricts it to -3 (462 MW)
     And the initial flow on cnec "BBE1AA1  BBE2AA1  1 - preventive" should be -561.0 MW
+    And the remedial action "pst_be" is used in preventive
     And the tap of PstRangeAction "pst_be" should be -3 in preventive
     And the flow on cnec "BBE1AA1  BBE2AA1  1 - preventive" after PRA should be -462.0 MW
     And the worst margin is 38 MW
 
   @fast @rao @mock @ac @contingency-scenarios
   Scenario: US 19.3.12: Limit taps on PST with a maximum number of 7 elementary actions
-    Given network file is "epic19/small-network-2P-unsecure.uct"
-    Given crac file is "epic19/small-crac-with-max-7-elementary-actions.json"
-    Given configuration file is "epic19/RaoParameters_2P_discrete.json"
+    Given network file is "epic19/small-network-2P.uct"
+    Given crac file is "epic19/small-crac-with-max-7-elementary-actions-pst.json"
+    Given configuration file is "epic19/RaoParameters_dc_discrete.json"
     When I launch search_tree_rao
     Then 1 remedial actions are used in preventive
-    # The PST could go down to -16 (23 MW) to increase the margin but the limit on elementary actions restricts it to -7 (-306 MW)
+    # The PST could go down to -16 (33 MW) to increase the margin but the limit on elementary actions restricts it to -7 (-329 MW)
     And the initial flow on cnec "BBE1AA1  BBE2AA1  1 - preventive" should be -561.0 MW
+    And the remedial action "pst_be" is used in preventive
     And the tap of PstRangeAction "pst_be" should be -7 in preventive
     And the flow on cnec "BBE1AA1  BBE2AA1  1 - preventive" after PRA should be -329.0 MW
     And the worst margin is 171.0 MW
 
-  # TODO [max-elementary-actions]: test with topos only, test with both PSTs and topos, test where PSTs must be remove to apply topos
+  @fast @rao @mock @ac @contingency-scenarios
+  Scenario: US 19.3.13: Select less efficient network action because it has less elementary actions
+    Given network file is "epic19/small-network-2P-open-twin-lines.uct"
+    Given crac file is "epic19/small-crac-with-max-1-elementary-action-topo.json"
+    Given configuration file is "epic19/RaoParameters_dc_discrete.json"
+    When I launch search_tree_rao
+    Then 1 remedial actions are used in preventive
+    # To maximize the margin, both BE1-BE3 lines should be closed (-561 MW), but only one elementary action is allowed (-572 MW)
+    And the initial flow on cnec "BBE1AA1  BBE2AA1  1 - preventive" should be -596.0 MW
+    And the remedial action "close_be1_be3_1" is used in preventive
+    And the flow on cnec "BBE1AA1  BBE2AA1  1 - preventive" after PRA should be -572.0 MW
+    And the worst margin is 3.0 MW
+
+  @fast @rao @mock @ac @contingency-scenarios
+  Scenario: US 19.3.14: Limit elementary actions with topos and PSTs
+    Given network file is "epic19/small-network-2P-open-twin-lines.uct"
+    Given crac file is "epic19/small-crac-with-max-3-elementary-actions-topo-and-pst.json"
+    Given configuration file is "epic19/RaoParameters_dc_discrete.json"
+    When I launch search_tree_rao
+    Then 2 remedial actions are used in preventive
+    And the initial flow on cnec "BBE1AA1  BBE2AA1  1 - preventive" should be -596.0 MW
+    And the remedial action "close_be1_be3_1" is used in preventive
+    And the remedial action "pst_be" is used in preventive
+    And the tap of PstRangeAction "pst_be" should be -2 in preventive
+    And the flow on cnec "BBE1AA1  BBE2AA1  1 - preventive" after PRA should be -511.0 MW
+    And the worst margin is 39.0 MW
+
+  # TODO: /!\ PST moved in preventive => use previous instant's tap and not initial tap (PST prev + cur) (-5 prev, -8 curatif)
+  # TODO [max-elementary-actions]: test with multi-curative
+  # TODO: non PST range actions
+  # TODO: second prev

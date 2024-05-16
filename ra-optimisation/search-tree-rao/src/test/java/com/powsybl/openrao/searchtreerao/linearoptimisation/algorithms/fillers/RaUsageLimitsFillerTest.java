@@ -465,30 +465,4 @@ class RaUsageLimitsFillerTest extends AbstractFillerTest {
         OpenRaoException exception = assertThrows(OpenRaoException.class, () -> linearProblem.fill(flowResult, sensitivityResult));
         assertEquals("The PSTs must be approximated as integers to use the limitations of elementary actions as a constraint in the RAO.", exception.getMessage());
     }
-
-    @Test
-    void testLimitElementaryActions() {
-        RangeActionLimitationParameters raLimitationParameters = new RangeActionLimitationParameters();
-        raLimitationParameters.setMaxElementaryActionsPerTso(state, Map.of("opA", 1, "opC", 3));
-        RaUsageLimitsFiller raUsageLimitsFiller = new RaUsageLimitsFiller(
-            rangeActionsPerState,
-            prePerimeterRangeActionSetpointResult,
-            raLimitationParameters,
-            true,
-            network);
-
-        linearProblem = new LinearProblemBuilder()
-            .withProblemFiller(coreProblemFiller)
-            .withProblemFiller(raUsageLimitsFiller)
-            .withSolver(mpSolver)
-            .build();
-
-        // TODO: add variables of PST
-
-        linearProblem.fill(flowResult, sensitivityResult);
-
-        assertEquals(0, linearProblem.getTsoMaxElementaryActionsConstraint("opA", state).lb());
-        assertEquals(1, linearProblem.getTsoMaxElementaryActionsConstraint("opA", state).ub());
-        assertEquals("", linearProblem.getTsoMaxElementaryActionsConstraint("opA", state).name());
-    }
 }

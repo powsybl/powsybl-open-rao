@@ -253,7 +253,11 @@ public class Leaf implements OptimizationResult {
                         int alreadyActivatedNetworkActionsForTso = appliedRemedialActionsInSecondaryStates.getAppliedNetworkActions(state).stream().filter(na -> entry.getKey().equals(na.getOperator())).collect(Collectors.toSet()).size();
                         entry.setValue(entry.getValue() - alreadyActivatedNetworkActionsForTso);
                     });
-                    Map<String, Integer> maxElementaryActionsPerTso = raUsageLimits.getMaxElementaryActionsPerTso();
+                    Map<String, Integer> maxElementaryActionsPerTso = new HashMap<>(raUsageLimits.getMaxElementaryActionsPerTso());
+                    maxElementaryActionsPerTso.entrySet().forEach(entry -> {
+                        int alreadyActivatedNetworkActionsForTso = appliedRemedialActionsInSecondaryStates.getAppliedNetworkActions(state).stream().filter(na -> entry.getKey().equals(na.getOperator())).mapToInt(na -> na.getElementaryActions().size()).sum();
+                        entry.setValue(entry.getValue() - alreadyActivatedNetworkActionsForTso);
+                    });
 
                     limitationParameters.setMaxRangeAction(state, maxRa);
                     limitationParameters.setMaxTso(state, maxTso);
@@ -272,7 +276,11 @@ public class Leaf implements OptimizationResult {
                 int activatedNetworkActionsForTso = appliedNetworkActionsInPrimaryState.stream().filter(na -> entry.getKey().equals(na.getOperator())).collect(Collectors.toSet()).size();
                 entry.setValue(entry.getValue() - activatedNetworkActionsForTso);
             });
-            Map<String, Integer> maxElementaryActionsPerTso = raUsageLimits.getMaxElementaryActionsPerTso();
+            Map<String, Integer> maxElementaryActionsPerTso = new HashMap<>(raUsageLimits.getMaxElementaryActionsPerTso());
+            maxElementaryActionsPerTso.entrySet().forEach(entry -> {
+                int alreadyActivatedNetworkActionsForTso = appliedNetworkActionsInPrimaryState.stream().filter(na -> entry.getKey().equals(na.getOperator())).mapToInt(na -> na.getElementaryActions().size()).sum();
+                entry.setValue(entry.getValue() - alreadyActivatedNetworkActionsForTso);
+            });
 
             limitationParameters.setMaxRangeAction(context.getMainOptimizationState(), maxRa);
             limitationParameters.setMaxTso(context.getMainOptimizationState(), maxTso);

@@ -22,7 +22,6 @@ import com.powsybl.openrao.searchtreerao.result.api.RangeActionActivationResult;
 import com.powsybl.openrao.searchtreerao.result.api.RangeActionSetpointResult;
 import com.powsybl.openrao.searchtreerao.result.api.SensitivityResult;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -101,11 +100,12 @@ public class RaUsageLimitsFiller implements ProblemFiller {
 
             for (String tso : maxElementaryActionsPerTso.keySet()) {
                 for (PstRangeAction pstRangeAction : pstRangeActionsPerTso.getOrDefault(tso, Set.of())) {
-                    int initialTap = pstRangeAction.getInitialTap();
+                    // use pre-perimeter tap because PST's tap may be different from the initial tap after previous perimeter
+                    int initialTap = prePerimeterRangeActionSetpoints.getTap(pstRangeAction);
                     int currentTap = rangeActionActivationResult.getOptimizedTap(pstRangeAction, state);
 
-                    linearProblem.getPstAbsoluteVariationFromInitialTapConstraint(pstRangeAction, state, 1).setLb((double) currentTap - initialTap);
-                    linearProblem.getPstAbsoluteVariationFromInitialTapConstraint(pstRangeAction, state, 2).setLb((double) initialTap - currentTap);
+                    linearProblem.getPstAbsoluteVariationFromInitialTapConstraint(pstRangeAction, state, LinearProblem.AbsExtension.POSITIVE).setLb((double) currentTap - initialTap);
+                    linearProblem.getPstAbsoluteVariationFromInitialTapConstraint(pstRangeAction, state, LinearProblem.AbsExtension.NEGATIVE).setLb((double) initialTap - currentTap);
                 }
             }
         });
@@ -232,22 +232,23 @@ public class RaUsageLimitsFiller implements ProblemFiller {
         for (String tso : maxElementaryActionsPerTso.keySet()) {
             OpenRaoMPConstraint maxElementaryActionsConstraint = linearProblem.addTsoMaxElementaryActionsConstraint(0, maxElementaryActionsPerTso.get(tso), tso, state);
             for (PstRangeAction pstRangeAction : pstRangeActionsPerTso.getOrDefault(tso, Set.of())) {
-                int initialTap = pstRangeAction.getInitialTap();
+                // use pre-perimeter tap because PST's tap may be different from the initial tap after previous perimeter
+                int initialTap = prePerimeterRangeActionSetpoints.getTap(pstRangeAction);
                 int currentTap = pstRangeAction.getCurrentTapPosition(network);
 
                 OpenRaoMPVariable pstAbsoluteVariationFromInitialTapVariable = linearProblem.addPstAbsoluteVariationFromInitialTapVariable(pstRangeAction, state);
                 OpenRaoMPVariable pstTapVariationUpwardVariable = linearProblem.getPstTapVariationVariable(pstRangeAction, state, LinearProblem.VariationDirectionExtension.UPWARD);
                 OpenRaoMPVariable pstTapVariationDownwardVariable = linearProblem.getPstTapVariationVariable(pstRangeAction, state, LinearProblem.VariationDirectionExtension.DOWNWARD);
 
-                OpenRaoMPConstraint pstAbsoluteVariationFromInitialTapConstraint1 = linearProblem.addPstAbsoluteVariationFromInitialTapConstraint((double) currentTap - initialTap, LinearProblem.LP_INFINITY, pstRangeAction, state, 1);
-                pstAbsoluteVariationFromInitialTapConstraint1.setCoefficient(pstAbsoluteVariationFromInitialTapVariable, 1d);
-                pstAbsoluteVariationFromInitialTapConstraint1.setCoefficient(pstTapVariationUpwardVariable, -1d);
-                pstAbsoluteVariationFromInitialTapConstraint1.setCoefficient(pstTapVariationDownwardVariable, 1d);
+                OpenRaoMPConstraint pstAbsoluteVariationFromInitialTapConstraintPositive = linearProblem.addPstAbsoluteVariationFromInitialTapConstraint((double) currentTap - initialTap, LinearProblem.LP_INFINITY, pstRangeAction, state, LinearProblem.AbsExtension.POSITIVE);
+                pstAbsoluteVariationFromInitialTapConstraintPositive.setCoefficient(pstAbsoluteVariationFromInitialTapVariable, 1d);
+                pstAbsoluteVariationFromInitialTapConstraintPositive.setCoefficient(pstTapVariationUpwardVariable, -1d);
+                pstAbsoluteVariationFromInitialTapConstraintPositive.setCoefficient(pstTapVariationDownwardVariable, 1d);
 
-                OpenRaoMPConstraint pstAbsoluteVariationFromInitialTapConstraint2 = linearProblem.addPstAbsoluteVariationFromInitialTapConstraint((double) initialTap - currentTap, LinearProblem.LP_INFINITY, pstRangeAction, state, 2);
-                pstAbsoluteVariationFromInitialTapConstraint2.setCoefficient(pstAbsoluteVariationFromInitialTapVariable, 1d);
-                pstAbsoluteVariationFromInitialTapConstraint2.setCoefficient(pstTapVariationUpwardVariable, 1d);
-                pstAbsoluteVariationFromInitialTapConstraint2.setCoefficient(pstTapVariationDownwardVariable, -1d);
+                OpenRaoMPConstraint pstAbsoluteVariationFromInitialTapConstraintNegative = linearProblem.addPstAbsoluteVariationFromInitialTapConstraint((double) initialTap - currentTap, LinearProblem.LP_INFINITY, pstRangeAction, state, LinearProblem.AbsExtension.NEGATIVE);
+                pstAbsoluteVariationFromInitialTapConstraintNegative.setCoefficient(pstAbsoluteVariationFromInitialTapVariable, 1d);
+                pstAbsoluteVariationFromInitialTapConstraintNegative.setCoefficient(pstTapVariationUpwardVariable, 1d);
+                pstAbsoluteVariationFromInitialTapConstraintNegative.setCoefficient(pstTapVariationDownwardVariable, -1d);
 
                 maxElementaryActionsConstraint.setCoefficient(pstAbsoluteVariationFromInitialTapVariable, 1d);
             }

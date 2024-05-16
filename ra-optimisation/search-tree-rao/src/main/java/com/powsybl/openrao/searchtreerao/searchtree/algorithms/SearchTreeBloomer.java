@@ -15,6 +15,7 @@ import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeAction;
 import com.powsybl.openrao.searchtreerao.commons.NetworkActionCombination;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.openrao.searchtreerao.result.api.PrePerimeterResult;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -36,6 +37,7 @@ public final class SearchTreeBloomer {
     private final int maxNumberOfBoundariesForSkippingNetworkActions;
     private final List<NetworkActionCombination> preDefinedNaCombinations;
     private final State optimizedStateForNetworkActions;
+    private final PrePerimeterResult prePerimeterResult;
 
     public SearchTreeBloomer(Network network,
                              int maxRa,
@@ -46,7 +48,8 @@ public final class SearchTreeBloomer {
                              boolean filterFarElements,
                              int maxNumberOfBoundariesForSkippingNetworkActions,
                              List<NetworkActionCombination> preDefinedNaCombinations,
-                             State optimizedStateForNetworkActions) {
+                             State optimizedStateForNetworkActions,
+                             PrePerimeterResult prePerimeterResult) {
         this.network = network;
         countryGraph = new CountryGraph(network);
         this.maxRa = maxRa;
@@ -58,6 +61,7 @@ public final class SearchTreeBloomer {
         this.maxNumberOfBoundariesForSkippingNetworkActions = maxNumberOfBoundariesForSkippingNetworkActions;
         this.preDefinedNaCombinations = preDefinedNaCombinations;
         this.optimizedStateForNetworkActions = optimizedStateForNetworkActions;
+        this.prePerimeterResult = prePerimeterResult;
     }
 
     /**
@@ -369,7 +373,7 @@ public final class SearchTreeBloomer {
         Set<PstRangeAction> activatedRangeActions = leaf.getActivatedRangeActions(optimizedStateForNetworkActions).stream().filter(PstRangeAction.class::isInstance).map(ra -> (PstRangeAction) ra).collect(Collectors.toSet());
         for (PstRangeAction pstRangeAction : activatedRangeActions) {
             String operator = pstRangeAction.getOperator();
-            int tapsMoved = Math.abs(pstRangeAction.getCurrentTapPosition(network) - pstRangeAction.getInitialTap());
+            int tapsMoved = Math.abs(leaf.getOptimizedTap(pstRangeAction, optimizedStateForNetworkActions) - prePerimeterResult.getTap(pstRangeAction));
             pstTapsMovedByTso.put(operator, pstTapsMovedByTso.getOrDefault(operator, 0) + tapsMoved);
         }
         return pstTapsMovedByTso;

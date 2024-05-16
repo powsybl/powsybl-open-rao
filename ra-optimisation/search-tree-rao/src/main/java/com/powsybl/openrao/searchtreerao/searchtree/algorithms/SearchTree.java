@@ -102,8 +102,8 @@ public class SearchTree {
             parameters.getNetworkActionParameters().skipNetworkActionFarFromMostLimitingElements(),
             parameters.getNetworkActionParameters().getMaxNumberOfBoundariesForSkippingNetworkActions(),
             parameters.getNetworkActionParameters().getNetworkActionCombinations(),
-            input.getOptimizationPerimeter().getMainOptimizationState()
-        );
+            input.getOptimizationPerimeter().getMainOptimizationState(),
+            input.getPrePerimeterResult());
     }
 
     public CompletableFuture<OptimizationResult> run() {

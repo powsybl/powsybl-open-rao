@@ -203,8 +203,8 @@ public final class LinearProblemIdGenerator {
         return PST_ABSOLUTE_VARIATION_FROM_INITIAL_TAP + SEPARATOR + pstRangeAction.getId() + SEPARATOR + state.getId() + SEPARATOR + VARIABLE_SUFFIX;
     }
 
-    public static String pstAbsoluteVariationFromInitialTapConstraintId(PstRangeAction pstRangeAction, State state, int constraintOrder) {
-        return PST_ABSOLUTE_VARIATION_FROM_INITIAL_TAP + SEPARATOR + pstRangeAction.getId() + SEPARATOR + state.getId() + SEPARATOR + CONSTRAINT_SUFFIX + SEPARATOR + constraintOrder;
+    public static String pstAbsoluteVariationFromInitialTapConstraintId(PstRangeAction pstRangeAction, State state, LinearProblem.AbsExtension positiveOrNegative) {
+        return PST_ABSOLUTE_VARIATION_FROM_INITIAL_TAP + SEPARATOR + pstRangeAction.getId() + SEPARATOR + state.getId() + SEPARATOR + CONSTRAINT_SUFFIX + SEPARATOR + positiveOrNegative;
     }
 
     public static String maxElementaryActionsPerTsoConstraintId(String operator, State state) {

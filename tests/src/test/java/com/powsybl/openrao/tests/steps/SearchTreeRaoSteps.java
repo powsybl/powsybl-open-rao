@@ -8,7 +8,6 @@ package com.powsybl.openrao.tests.steps;
 
 import com.powsybl.glsk.commons.ZonalData;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.loadflow.LoadFlow;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.Crac;
