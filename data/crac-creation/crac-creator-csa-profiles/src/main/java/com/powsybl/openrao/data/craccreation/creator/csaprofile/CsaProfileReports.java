@@ -7,8 +7,8 @@ import java.time.OffsetDateTime;
 
 import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.BUSINESS_WARNS;
 
-public final class Reports {
-    private Reports() {
+public final class CsaProfileReports {
+    private CsaProfileReports() {
         // utility class
     }
 

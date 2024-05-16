@@ -101,10 +101,12 @@ public final class CracCreationReport {
         creationReport.forEach(format -> BUSINESS_LOGS.info(format));
     }
 
+    // TODO remove this :)
     public List<String> getReport() {
         return creationReport;
     }
 
+    // TODO remove this :)
     public String toString() {
         return String.join("\n", creationReport);
     }

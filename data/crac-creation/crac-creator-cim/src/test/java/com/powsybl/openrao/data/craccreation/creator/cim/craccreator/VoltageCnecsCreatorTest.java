@@ -54,15 +54,17 @@ class VoltageCnecsCreatorTest {
 
     @BeforeEach
     public void setUp() {
+        ReportNode reportNode = ReportNode.NO_OP;
+
         Properties importParams = new Properties();
         importParams.put("iidm.import.cgmes.source-for-iidm-id", "rdfID");
         network = Network.read(Paths.get(new File(CimCracCreatorTest.class.getResource("/networks/MicroGrid.zip").getFile()).toString()), LocalComputationManager.getDefault(), Suppliers.memoize(ImportConfig::load).get(), importParams);
 
         InputStream is = getClass().getResourceAsStream("/cracs/CIM_21_1_1.xml");
         CimCracImporter cracImporter = new CimCracImporter();
-        CimCrac cimCrac = cracImporter.importNativeCrac(is, ReportNode.NO_OP);
+        CimCrac cimCrac = cracImporter.importNativeCrac(is, reportNode);
         CimCracCreator cimCracCreator = new CimCracCreator();
-        cracCreationContext = cimCracCreator.createCrac(cimCrac, network, OffsetDateTime.parse("2021-04-01T23:00Z"), new CracCreationParameters(), ReportNode.NO_OP);
+        cracCreationContext = cimCracCreator.createCrac(cimCrac, network, OffsetDateTime.parse("2021-04-01T23:00Z"), new CracCreationParameters(), reportNode);
         crac = cracCreationContext.getCrac();
 
         // Imported contingencies (name -> id):

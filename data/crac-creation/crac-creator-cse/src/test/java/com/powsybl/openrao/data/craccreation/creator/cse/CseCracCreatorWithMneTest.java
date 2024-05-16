@@ -41,9 +41,10 @@ class CseCracCreatorWithMneTest {
     private Instant curativeInstant;
 
     private void setUp(String cracFileName, String networkFileName) {
+        ReportNode reportNode = ReportNode.NO_OP;
         InputStream is = getClass().getResourceAsStream(cracFileName);
         CseCracImporter importer = new CseCracImporter();
-        CseCrac cseCrac = importer.importNativeCrac(is, ReportNode.NO_OP);
+        CseCrac cseCrac = importer.importNativeCrac(is, reportNode);
         Network network = Network.read(networkFileName, getClass().getResourceAsStream(networkFileName));
         CseCracCreator cseCracCreator = new CseCracCreator();
         cracCreationContext = cseCracCreator.createCrac(cseCrac, network, offsetDateTime, parameters, ReportNode.NO_OP);

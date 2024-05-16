@@ -6,8 +6,8 @@ import com.powsybl.commons.report.TypedValue;
 import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.BUSINESS_LOGS;
 import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.TECHNICAL_LOGS;
 
-public final class Reports {
-    private Reports() {
+public final class CimCracReports {
+    private CimCracReports() {
     }
 
     public static ReportNode reportValidCimCrac(ReportNode reportNode, String filename) {

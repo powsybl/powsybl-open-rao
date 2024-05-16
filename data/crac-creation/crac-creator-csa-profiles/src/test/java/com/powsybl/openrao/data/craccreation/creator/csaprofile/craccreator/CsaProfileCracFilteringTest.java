@@ -54,7 +54,7 @@ class CsaProfileCracFilteringTest {
             .build();
         CsaProfileCracCreationContext context = getCsaCracCreationContext("/profiles/ProfilesWithIncoherentTimestamps.zip", reportNode);
 
-        String expected = Files.readString(Path.of(getClass().getResource("/expectedReportNodeContentCsaProfileFiltering.txt").toURI()));
+        String expected = Files.readString(Path.of(getClass().getResource("/reports/expectedReportNodeContentCsaProfileFiltering.txt").toURI()));
         try (StringWriter writer = new StringWriter()) {
             reportNode.print(writer);
             String actual = writer.toString();

@@ -45,7 +45,7 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
     private final Map<String, CounterTradeRangeAction> counterTradeRangeActions = new HashMap<>();
     private final Map<String, NetworkAction> networkActions = new HashMap<>();
     private final Map<Instant, RaUsageLimits> raUsageLimitsPerInstant = new HashMap<>();
-    private ReportNode reportNode = ReportNode.NO_OP;
+    private ReportNode reportNode;
     private Instant lastInstantAdded = null;
 
     public CracImpl(String id, String name, ReportNode reportNode) {

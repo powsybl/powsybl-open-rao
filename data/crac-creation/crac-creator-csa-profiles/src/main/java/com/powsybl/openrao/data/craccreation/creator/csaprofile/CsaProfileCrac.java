@@ -267,7 +267,7 @@ public class CsaProfileCrac implements NativeCrac {
             if (!properties.isEmpty()) {
                 PropertyBag property = properties.get(0);
                 if (!checkTimeCoherence(property, offsetDateTime)) {
-                    Reports.reportCsaProfileCracDateInconsistency(reportNode, contextName, offsetDateTime);
+                    CsaProfileReports.reportCsaProfileCracDateInconsistency(reportNode, contextName, offsetDateTime);
                     clearContext(contextName);
                     clearKeywordMap(contextName);
                 }

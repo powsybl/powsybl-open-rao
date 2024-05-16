@@ -9,7 +9,7 @@ package com.powsybl.openrao.data.craccreation.creator.cim.importer;
 
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.openrao.commons.OpenRaoException;
-import com.powsybl.openrao.data.craccreation.creator.cim.Reports;
+import com.powsybl.openrao.data.craccreation.creator.cim.CimCracReports;
 import com.powsybl.openrao.data.nativecracioapi.NativeCracImporter;
 import com.google.auto.service.AutoService;
 import com.powsybl.openrao.data.craccreation.creator.cim.xsd.CRACMarketDocument;
@@ -68,12 +68,12 @@ public class CimCracImporter implements NativeCracImporter<CimCrac> {
             });
 
             schema.newValidator().validate(xmlFile);
-            Reports.reportValidCimCrac(reportNode, filename);
+            CimCracReports.reportValidCimCrac(reportNode, filename);
             return FilenameUtils.getExtension(filename).equals("xml");
         } catch (MalformedURLException e) {
             throw new OpenRaoException("URL error");
         } catch (SAXException e) {
-            Reports.reportInvalidCimCrac(reportNode, filename, e.getMessage());
+            CimCracReports.reportInvalidCimCrac(reportNode, filename, e.getMessage());
             return false;
         } catch (IOException e) {
             throw new UncheckedIOException(e);
