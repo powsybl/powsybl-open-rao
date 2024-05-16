@@ -9,7 +9,6 @@ package com.powsybl.openrao.searchtreerao.searchtree.algorithms;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.commons.logs.OpenRaoLogger;
-import com.powsybl.openrao.data.cracapi.RaUsageLimits;
 import com.powsybl.openrao.data.cracapi.State;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
 import com.powsybl.openrao.data.cracapi.cnec.Side;
@@ -91,19 +90,7 @@ public class SearchTree {
 
         // build from inputs
         this.purelyVirtual = input.getOptimizationPerimeter().getOptimizedFlowCnecs().isEmpty();
-        RaUsageLimits raUsageLimits = parameters.getRaLimitationParameters().getOrDefault(input.getOptimizationPerimeter().getMainOptimizationState().getInstant(), new RaUsageLimits());
-        this.bloomer = new SearchTreeBloomer(
-            input.getNetwork(),
-            raUsageLimits.getMaxRa(),
-            raUsageLimits.getMaxTso(),
-            raUsageLimits.getMaxTopoPerTso(),
-            raUsageLimits.getMaxRaPerTso(),
-            raUsageLimits.getMaxElementaryActionsPerTso(),
-            parameters.getNetworkActionParameters().skipNetworkActionFarFromMostLimitingElements(),
-            parameters.getNetworkActionParameters().getMaxNumberOfBoundariesForSkippingNetworkActions(),
-            parameters.getNetworkActionParameters().getNetworkActionCombinations(),
-            input.getOptimizationPerimeter().getMainOptimizationState(),
-            input.getPrePerimeterResult());
+        this.bloomer = new SearchTreeBloomer(input, parameters);
     }
 
     public CompletableFuture<OptimizationResult> run() {
@@ -213,8 +200,8 @@ public class SearchTree {
      */
     private void updateOptimalLeafWithNextDepthBestLeaf(AbstractNetworkPool networkPool) throws InterruptedException {
 
-        TreeMap<NetworkActionCombination, Boolean> naCombinationsSorted = new TreeMap<>(this::deterministicNetworkActionCombinationComparison);
-        naCombinationsSorted.putAll(bloomer.bloom(optimalLeaf, input.getOptimizationPerimeter().getNetworkActions()));
+        TreeSet<NetworkActionCombination> naCombinationsSorted = new TreeSet<>(this::deterministicNetworkActionCombinationComparison);
+        naCombinationsSorted.addAll(bloomer.bloom(optimalLeaf, input.getOptimizationPerimeter().getNetworkActions()));
         int numberOfCombinations = naCombinationsSorted.size();
 
         networkPool.initClones(numberOfCombinations);
@@ -225,8 +212,8 @@ public class SearchTree {
             TECHNICAL_LOGS.info("Leaves to evaluate: {}", numberOfCombinations);
         }
         AtomicInteger remainingLeaves = new AtomicInteger(numberOfCombinations);
-        List<ForkJoinTask<Object>> tasks = naCombinationsSorted.keySet().stream().map(naCombination ->
-            networkPool.submit(() -> optimizeOneLeaf(networkPool, naCombination, naCombinationsSorted, remainingLeaves))
+        List<ForkJoinTask<Object>> tasks = naCombinationsSorted.stream().map(naCombination ->
+            networkPool.submit(() -> optimizeOneLeaf(networkPool, naCombination, remainingLeaves))
         ).toList();
         for (ForkJoinTask<Object> task : tasks) {
             try {
@@ -237,11 +224,11 @@ public class SearchTree {
         }
     }
 
-    private Object optimizeOneLeaf(AbstractNetworkPool networkPool, NetworkActionCombination naCombination, TreeMap<NetworkActionCombination, Boolean> naCombinationsSorted, AtomicInteger remainingLeaves) throws InterruptedException {
+    private Object optimizeOneLeaf(AbstractNetworkPool networkPool, NetworkActionCombination naCombination, AtomicInteger remainingLeaves) throws InterruptedException {
         Network networkClone = networkPool.getAvailableNetwork(); //This is where the threads actually wait for available networks
         try {
             if (combinationFulfillingStopCriterion.isEmpty() || deterministicNetworkActionCombinationComparison(naCombination, combinationFulfillingStopCriterion.get()) < 0) {
-                boolean shouldRangeActionBeRemoved = naCombinationsSorted.get(naCombination);
+                boolean shouldRangeActionBeRemoved = bloomer.shouldRangeActionsBeRemovedToApplyNa(naCombination, optimalLeaf);
                 if (shouldRangeActionBeRemoved) {
                     // Remove parentLeaf range actions to respect every maxRa or maxOperator limitation
                     input.getOptimizationPerimeter().getRangeActions().forEach(ra ->
