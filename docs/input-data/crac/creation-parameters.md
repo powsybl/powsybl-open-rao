@@ -88,6 +88,7 @@ The RAs usage limits contain the following fields :
     - _Default value:_ empty map
     - _Usage:_ It defines the maximum number of elementary actions allowed for each TSO, for the given instant. For PST range actions, moving one tap is considered to be an elementary action.
     The TSOs should be identified using the same IDs as in the CRAC. If a TSO is not listed in this map, then the number of its allowed RAs is supposed infinite.
+    _⚠️ This usage limit is only applicable if PSTs are approximated as integer taps (see [APPROXIMATED_INTEGERS](/parameters.md#pst-model))._
 
 ### complete example
 ::::{tabs}

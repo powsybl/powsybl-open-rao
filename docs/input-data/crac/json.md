@@ -428,7 +428,7 @@ crac.newFlowCnec()
 ::::
 
 #### Loop-flow extension
-When a FlowCnec carries a LoopFlowThreshold extension (and if [loop-flow constraints are enabled in the RAO](/parameters/parameters.md#loop-flow-extension)),
+When a FlowCnec carries a LoopFlowThreshold extension (and if [loop-flow constraints are enabled in the RAO](/parameters.md#loop-flow-extension)),
 its loop-flow is monitored by the RAO, that will keep it [under its threshold](/castor/special-features/loop-flows.md)
 when optimising remedial actions.  
 The loop-flow extension defines the loop-flow threshold to be respected by the RAO (even though the initial loop-flow

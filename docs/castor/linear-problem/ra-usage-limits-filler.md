@@ -60,7 +60,7 @@ $$
 *⚠️ In order to mitigate rounding issues, and ensure that the max and min setpoints are feasible, a small "epsilon" (
 1e-5) is added to max / subtracted to min setpoint.*
 
-*⚠️ In order to mitigate PST tap ↔ angle approximation in "[APPROXIMATED_INTEGERS](/parameters/parameters.md#pst-model)"
+*⚠️ In order to mitigate PST tap ↔ angle approximation in "[APPROXIMATED_INTEGERS](/parameters.md#pst-model)"
 mode, and ensure that the initial setpoint is feasible, a correction factor is added or subtracted from the initial
 setpoint in the constraints above. This coefficient is computed as 30% of the average tap to angle conversion factor:*  
 *correction = 0.3 x abs((max angle - min angle) / (max tap - min tap))*
@@ -116,6 +116,8 @@ $$
 
 ### Define the absolute tap variation variable
 
+_️⚠️ Only if [APPROXIMATED_INTEGERS](/parameters.md#pst-model) mode._
+
 _💡 Ideally, we would like to define $\Delta t (r) = | t_{n}(r) + \Delta t^{+} (r) - \Delta t^{-} (r) - t_{0}(r) |$
 but this is not linear. Instead, a classical workaround is done as follows:_
 
@@ -130,6 +132,8 @@ $$
 $$
 
 ### Maximum number of elementary actions per TSO
+
+_️⚠️ Only if [APPROXIMATED_INTEGERS](/parameters.md#pst-model) mode._
 
 $$
 \begin{equation}
