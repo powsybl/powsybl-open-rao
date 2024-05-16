@@ -15,5 +15,6 @@ package com.powsybl.openrao.data.cracapi.range;
 public enum RangeType {
     ABSOLUTE,
     RELATIVE_TO_PREVIOUS_INSTANT,
-    RELATIVE_TO_INITIAL_NETWORK
+    RELATIVE_TO_INITIAL_NETWORK,
+    RELATIVE_TO_PREVIOUS_TIMESTAMP
 }
