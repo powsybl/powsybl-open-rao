@@ -50,19 +50,21 @@ public class FbConstraintCracCreator implements CracCreator<FbConstraint, FbCons
 
     @Override
     public FbConstraintCreationContext createCrac(FbConstraint fbConstraintDocument, Network network, OffsetDateTime offsetDateTime, CracCreationParameters cracCreatorParameters, ReportNode reportNode) {
-        FbConstraintCreationContext creationContext = new FbConstraintCreationContext(offsetDateTime, network.getNameOrId());
-        Crac crac = cracCreatorParameters.getCracFactory().create(fbConstraintDocument.getDocument().getDocumentIdentification().getV(), reportNode);
+        ReportNode fbConstraintCracCreatorReportNode = FbConstraintReports.reportFbConstraintCracCreator(reportNode);
+        ReportNode fbConstraintCracCreationContextReportNode = FbConstraintReports.reportFbConstraintCracCreationContext(fbConstraintCracCreatorReportNode);
+        FbConstraintCreationContext creationContext = new FbConstraintCreationContext(offsetDateTime, network.getNameOrId(), fbConstraintCracCreationContextReportNode);
+        Crac crac = cracCreatorParameters.getCracFactory().create(fbConstraintDocument.getDocument().getDocumentIdentification().getV(), fbConstraintCracCreatorReportNode);
         addFbContraintInstants(crac);
         RaUsageLimitsAdder.addRaUsageLimits(crac, cracCreatorParameters);
 
         // check timestamp
-        if (!checkTimeStamp(offsetDateTime, fbConstraintDocument.getDocument().getConstraintTimeInterval().getV(), creationContext, reportNode)) {
+        if (!checkTimeStamp(offsetDateTime, fbConstraintDocument.getDocument().getConstraintTimeInterval().getV(), creationContext, fbConstraintCracCreatorReportNode)) {
             return creationContext.creationFailure();
         }
 
         // Check for UCTE network
         if (!network.getSourceFormat().equals("UCTE")) {
-            creationContext.getCreationReport().error("FlowBasedConstraintDocument CRAC creation is only possible with a UCTE network", reportNode);
+            creationContext.getCreationReport().error("FlowBasedConstraintDocument CRAC creation is only possible with a UCTE network", fbConstraintCracCreatorReportNode);
             return creationContext.creationFailure();
         }
 
@@ -72,10 +74,10 @@ public class FbConstraintCracCreator implements CracCreator<FbConstraint, FbCons
         List<OutageReader> outageReaders = new ArrayList<>();
 
         // read Critical Branches information
-        readCriticalBranches(fbConstraintDocument, offsetDateTime, crac, creationContext, ucteNetworkAnalyzer, outageReaders, cracCreatorParameters.getDefaultMonitoredSides(), reportNode);
+        readCriticalBranches(fbConstraintDocument, offsetDateTime, crac, creationContext, ucteNetworkAnalyzer, outageReaders, cracCreatorParameters.getDefaultMonitoredSides(), fbConstraintCracCreatorReportNode);
 
         // read Complex Variants information
-        readComplexVariants(fbConstraintDocument, offsetDateTime, crac, creationContext, ucteNetworkAnalyzer, outageReaders, reportNode);
+        readComplexVariants(fbConstraintDocument, offsetDateTime, crac, creationContext, ucteNetworkAnalyzer, outageReaders, fbConstraintCracCreatorReportNode);
 
         // logs
         creationContext.buildCreationReport();

@@ -1,0 +1,6 @@
++ This is a parent report node for report tests
+   + Fb constraint crac creator
+      + Fb constraint crac creation context
+         [REMOVED] Remedial action "RA_BE_0003" was not imported: INCONSISTENCY_IN_DATA. Invalid because other ComplexVariant(s) is(are) defined on same branch and perimeter.
+         [REMOVED] Remedial action "RA_BE_0002" was not imported: INCONSISTENCY_IN_DATA. Invalid because other ComplexVariant(s) is(are) defined on same branch and perimeter.
+      New crac "17XTSO-CS------W-20190108-F301v1" called "17XTSO-CS------W-20190108-F301v1"
