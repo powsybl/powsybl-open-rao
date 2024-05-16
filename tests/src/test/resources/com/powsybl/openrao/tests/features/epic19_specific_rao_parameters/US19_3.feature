@@ -134,14 +134,29 @@ Feature: US 19.3: Handle maximum CRA and maximum curative PSTs per TSO
     And the margin on cnec "FFR1AA1  FFR2AA1  1 - co1_fr2_fr3_1 - curative" after CRA should be 900 A
 
   @fast @rao @mock @ac @contingency-scenarios
-  Scenario: US 19.3.11: Limit taps on PST with a maximum number of elementary actions
+  Scenario: US 19.3.11: Limit taps on PST with a maximum number of 3 elementary actions
     Given network file is "epic19/small-network-2P-unsecure.uct"
-    Given crac file is "epic19/small-crac-with-max-elementary-actions.json"
+    Given crac file is "epic19/small-crac-with-max-3-elementary-actions.json"
     Given configuration file is "epic19/RaoParameters_2P_discrete.json"
     When I launch search_tree_rao
     Then 1 remedial actions are used in preventive
-    # The PST to go down to -16 to increase the margin but the limit on elementary actions restricts it to -3
+    # The PST could go down to -16 (23 MW) to increase the margin but the limit on elementary actions restricts it to -3 (452 MW)
+    And the initial flow on cnec "BBE1AA1  BBE2AA1  1 - preventive" should be -561.0 MW
     And the tap of PstRangeAction "pst_be" should be -3 in preventive
-    And the worst margin is 48 MW
+    And the flow on cnec "BBE1AA1  BBE2AA1  1 - preventive" after PRA should be -462.0 MW
+    And the worst margin is 38 MW
+
+  @fast @rao @mock @ac @contingency-scenarios
+  Scenario: US 19.3.12: Limit taps on PST with a maximum number of 7 elementary actions
+    Given network file is "epic19/small-network-2P-unsecure.uct"
+    Given crac file is "epic19/small-crac-with-max-7-elementary-actions.json"
+    Given configuration file is "epic19/RaoParameters_2P_discrete.json"
+    When I launch search_tree_rao
+    Then 1 remedial actions are used in preventive
+    # The PST could go down to -16 (23 MW) to increase the margin but the limit on elementary actions restricts it to -7 (-306 MW)
+    And the initial flow on cnec "BBE1AA1  BBE2AA1  1 - preventive" should be -561.0 MW
+    And the tap of PstRangeAction "pst_be" should be -7 in preventive
+    And the flow on cnec "BBE1AA1  BBE2AA1  1 - preventive" after PRA should be -329.0 MW
+    And the worst margin is 171.0 MW
 
   # TODO [max-elementary-actions]: test with topos only, test with both PSTs and topos, test where PSTs must be remove to apply topos

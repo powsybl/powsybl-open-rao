@@ -208,7 +208,8 @@ public class LinearProblemBuilder {
             inputs.getOptimizationPerimeter().getRangeActionsPerState(),
             inputs.getPrePerimeterSetpoints(),
             parameters.getRaLimitationParameters(),
-            parameters.getRangeActionParameters().getPstModel() == RangeActionsOptimizationParameters.PstModel.APPROXIMATED_INTEGERS);
+            parameters.getRangeActionParameters().getPstModel() == RangeActionsOptimizationParameters.PstModel.APPROXIMATED_INTEGERS,
+            inputs.getNetwork());
     }
 
     private Map<State, Set<RangeAction<?>>> copyWithoutPstRangeActions(Map<State, Set<RangeAction<?>>> inRangeActions) {

@@ -124,7 +124,8 @@ class RaUsageLimitsFillerTest extends AbstractFillerTest {
             rangeActionsPerState,
             prePerimeterRangeActionSetpointResult,
             raLimitationParameters,
-            false);
+            false,
+            network);
         linearProblem = new LinearProblemBuilder()
             .withProblemFiller(coreProblemFiller)
             .withProblemFiller(raUsageLimitsFiller)
@@ -146,7 +147,8 @@ class RaUsageLimitsFillerTest extends AbstractFillerTest {
             rangeActionsPerState,
             prePerimeterRangeActionSetpointResult,
             raLimitationParameters,
-            false);
+            false,
+            network);
         linearProblem = new LinearProblemBuilder()
             .withProblemFiller(coreProblemFiller)
             .withProblemFiller(raUsageLimitsFiller)
@@ -178,7 +180,8 @@ class RaUsageLimitsFillerTest extends AbstractFillerTest {
             rangeActionsPerState,
             prePerimeterRangeActionSetpointResult,
             raLimitationParameters,
-            true);
+            true,
+            network);
         linearProblem = new LinearProblemBuilder()
             .withProblemFiller(coreProblemFiller)
             .withProblemFiller(raUsageLimitsFiller)
@@ -218,7 +221,8 @@ class RaUsageLimitsFillerTest extends AbstractFillerTest {
             rangeActionsPerState,
             prePerimeterRangeActionSetpointResult,
             raLimitationParameters,
-            false);
+            false,
+            network);
         linearProblem = new LinearProblemBuilder()
             .withProblemFiller(coreProblemFiller)
             .withProblemFiller(raUsageLimitsFiller)
@@ -250,7 +254,8 @@ class RaUsageLimitsFillerTest extends AbstractFillerTest {
             rangeActionsPerState,
             prePerimeterRangeActionSetpointResult,
             raLimitationParameters,
-            false);
+            false,
+            network);
         linearProblem = new LinearProblemBuilder()
             .withProblemFiller(coreProblemFiller)
             .withProblemFiller(raUsageLimitsFiller)
@@ -270,7 +275,8 @@ class RaUsageLimitsFillerTest extends AbstractFillerTest {
             rangeActionsPerState,
             prePerimeterRangeActionSetpointResult,
             raLimitationParameters,
-            false);
+            false,
+            network);
 
         linearProblem = new LinearProblemBuilder()
             .withProblemFiller(coreProblemFiller)
@@ -304,7 +310,8 @@ class RaUsageLimitsFillerTest extends AbstractFillerTest {
             rangeActionsPerState,
             prePerimeterRangeActionSetpointResult,
             raLimitationParameters,
-            false);
+            false,
+            network);
         linearProblem = new LinearProblemBuilder()
             .withProblemFiller(coreProblemFiller)
             .withProblemFiller(raUsageLimitsFiller)
@@ -336,7 +343,8 @@ class RaUsageLimitsFillerTest extends AbstractFillerTest {
             rangeActionsPerState,
             prePerimeterRangeActionSetpointResult,
             raLimitationParameters,
-            false);
+            false,
+            network);
         linearProblem = new LinearProblemBuilder()
             .withProblemFiller(coreProblemFiller)
             .withProblemFiller(raUsageLimitsFiller)
@@ -362,7 +370,8 @@ class RaUsageLimitsFillerTest extends AbstractFillerTest {
             rangeActionsPerState,
             prePerimeterRangeActionSetpointResult,
             raLimitationParameters,
-            false);
+            false,
+            network);
 
         linearProblem = new LinearProblemBuilder()
             .withProblemFiller(coreProblemFiller)
@@ -402,7 +411,8 @@ class RaUsageLimitsFillerTest extends AbstractFillerTest {
             rangeActionsPerState,
             prePerimeterRangeActionSetpointResult,
             raLimitationParameters,
-            false);
+            false,
+            network);
 
         linearProblem = new LinearProblemBuilder()
             .withProblemFiller(coreProblemFiller)
@@ -443,7 +453,8 @@ class RaUsageLimitsFillerTest extends AbstractFillerTest {
             rangeActionsPerState,
             prePerimeterRangeActionSetpointResult,
             raLimitationParameters,
-            false);
+            false,
+            network);
 
         linearProblem = new LinearProblemBuilder()
             .withProblemFiller(coreProblemFiller)
@@ -463,7 +474,8 @@ class RaUsageLimitsFillerTest extends AbstractFillerTest {
             rangeActionsPerState,
             prePerimeterRangeActionSetpointResult,
             raLimitationParameters,
-            true);
+            true,
+            network);
 
         linearProblem = new LinearProblemBuilder()
             .withProblemFiller(coreProblemFiller)

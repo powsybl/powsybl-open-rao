@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.fillers;
 
+import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.cracapi.RemedialAction;
 import com.powsybl.openrao.data.cracapi.State;
@@ -43,15 +44,18 @@ public class RaUsageLimitsFiller implements ProblemFiller {
     private final RangeActionLimitationParameters rangeActionLimitationParameters;
     private boolean arePstSetpointsApproximated;
     private static final double RANGE_ACTION_SETPOINT_EPSILON = 1e-5;
+    private final Network network;
 
     public RaUsageLimitsFiller(Map<State, Set<RangeAction<?>>> rangeActions,
                                RangeActionSetpointResult prePerimeterRangeActionSetpoints,
                                RangeActionLimitationParameters rangeActionLimitationParameters,
-                               boolean arePstSetpointsApproximated) {
+                               boolean arePstSetpointsApproximated,
+                               Network network) {
         this.rangeActions = rangeActions;
         this.prePerimeterRangeActionSetpoints = prePerimeterRangeActionSetpoints;
         this.rangeActionLimitationParameters = rangeActionLimitationParameters;
         this.arePstSetpointsApproximated = arePstSetpointsApproximated;
+        this.network = network;
     }
 
     @Override
@@ -86,7 +90,25 @@ public class RaUsageLimitsFiller implements ProblemFiller {
 
     @Override
     public void updateBetweenMipIteration(LinearProblem linearProblem, RangeActionActivationResult rangeActionActivationResult) {
-        // nothing to do, we are only comparing optimal and pre-perimeter setpoints
+        rangeActions.forEach((state, rangeActionSet) -> {
+            Map<String, Integer> maxElementaryActionsPerTso = rangeActionLimitationParameters.getMaxElementaryActionsPerTso(state);
+            Map<String, Set<PstRangeAction>> pstRangeActionsPerTso = new HashMap<>();
+            rangeActionSet.stream()
+                .filter(PstRangeAction.class::isInstance)
+                .filter(rangeAction -> maxElementaryActionsPerTso.containsKey(rangeAction.getOperator()))
+                .map(PstRangeAction.class::cast)
+                .forEach(pstRangeAction -> pstRangeActionsPerTso.computeIfAbsent(pstRangeAction.getOperator(), tso -> new HashSet<>()).add(pstRangeAction));
+
+            for (String tso : maxElementaryActionsPerTso.keySet()) {
+                for (PstRangeAction pstRangeAction : pstRangeActionsPerTso.getOrDefault(tso, Set.of())) {
+                    int initialTap = pstRangeAction.getInitialTap();
+                    int currentTap = rangeActionActivationResult.getOptimizedTap(pstRangeAction, state);
+
+                    linearProblem.getPstAbsoluteVariationFromInitialTapConstraint(pstRangeAction, state, 1).setLb((double) currentTap - initialTap);
+                    linearProblem.getPstAbsoluteVariationFromInitialTapConstraint(pstRangeAction, state, 2).setLb((double) initialTap - currentTap);
+                }
+            }
+        });
     }
 
     private double getAverageAbsoluteTapToAngleConversionFactor(PstRangeAction pstRangeAction) {
@@ -208,12 +230,27 @@ public class RaUsageLimitsFiller implements ProblemFiller {
             .forEach(pstRangeAction -> pstRangeActionsPerTso.computeIfAbsent(pstRangeAction.getOperator(), tso -> new HashSet<>()).add(pstRangeAction));
 
         for (String tso : maxElementaryActionsPerTso.keySet()) {
-            OpenRaoMPConstraint constraint = linearProblem.addTsoMaxElementaryActionsConstraint(0, maxElementaryActionsPerTso.get(tso), tso, state);
-            pstRangeActionsPerTso.getOrDefault(tso, Set.of()).forEach(
-                pstRangeAction -> Arrays.stream(LinearProblem.VariationDirectionExtension.values())
-                    .map(direction -> linearProblem.getPstTapVariationVariable(pstRangeAction, state, direction))
-                    .forEach(tapVariable -> constraint.setCoefficient(tapVariable, 1d))
-            );
+            OpenRaoMPConstraint maxElementaryActionsConstraint = linearProblem.addTsoMaxElementaryActionsConstraint(0, maxElementaryActionsPerTso.get(tso), tso, state);
+            for (PstRangeAction pstRangeAction : pstRangeActionsPerTso.getOrDefault(tso, Set.of())) {
+                int initialTap = pstRangeAction.getInitialTap();
+                int currentTap = pstRangeAction.getCurrentTapPosition(network);
+
+                OpenRaoMPVariable pstAbsoluteVariationFromInitialTapVariable = linearProblem.addPstAbsoluteVariationFromInitialTapVariable(pstRangeAction, state);
+                OpenRaoMPVariable pstTapVariationUpwardVariable = linearProblem.getPstTapVariationVariable(pstRangeAction, state, LinearProblem.VariationDirectionExtension.UPWARD);
+                OpenRaoMPVariable pstTapVariationDownwardVariable = linearProblem.getPstTapVariationVariable(pstRangeAction, state, LinearProblem.VariationDirectionExtension.DOWNWARD);
+
+                OpenRaoMPConstraint pstAbsoluteVariationFromInitialTapConstraint1 = linearProblem.addPstAbsoluteVariationFromInitialTapConstraint((double) currentTap - initialTap, LinearProblem.LP_INFINITY, pstRangeAction, state, 1);
+                pstAbsoluteVariationFromInitialTapConstraint1.setCoefficient(pstAbsoluteVariationFromInitialTapVariable, 1d);
+                pstAbsoluteVariationFromInitialTapConstraint1.setCoefficient(pstTapVariationUpwardVariable, -1d);
+                pstAbsoluteVariationFromInitialTapConstraint1.setCoefficient(pstTapVariationDownwardVariable, 1d);
+
+                OpenRaoMPConstraint pstAbsoluteVariationFromInitialTapConstraint2 = linearProblem.addPstAbsoluteVariationFromInitialTapConstraint((double) initialTap - currentTap, LinearProblem.LP_INFINITY, pstRangeAction, state, 2);
+                pstAbsoluteVariationFromInitialTapConstraint2.setCoefficient(pstAbsoluteVariationFromInitialTapVariable, 1d);
+                pstAbsoluteVariationFromInitialTapConstraint2.setCoefficient(pstTapVariationUpwardVariable, 1d);
+                pstAbsoluteVariationFromInitialTapConstraint2.setCoefficient(pstTapVariationDownwardVariable, -1d);
+
+                maxElementaryActionsConstraint.setCoefficient(pstAbsoluteVariationFromInitialTapVariable, 1d);
+            }
         }
     }
 }
