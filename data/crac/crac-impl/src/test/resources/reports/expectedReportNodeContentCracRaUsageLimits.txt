@@ -1,5 +1,6 @@
 + This is a parent report node for report tests
-   + New RA usage limit at instant "preventive".
-      The value -3 provided for max number of TSOs is smaller than 0. It will be set to 0 instead.
-      The value -2 provided for max number of RAs is smaller than 0. It will be set to 0 instead.
-      The value -4 provided for max number of RAs for TSO FR is smaller than 0. It will be set to 0 instead.
+   + New crac "test-crac" called "test-crac"
+      + New RA usage limit at instant "preventive".
+         The value -3 provided for max number of TSOs is smaller than 0. It will be set to 0 instead.
+         The value -2 provided for max number of RAs is smaller than 0. It will be set to 0 instead.
+         The value -4 provided for max number of RAs for TSO FR is smaller than 0. It will be set to 0 instead.

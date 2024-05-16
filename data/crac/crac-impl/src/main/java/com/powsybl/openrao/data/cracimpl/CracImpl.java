@@ -48,8 +48,17 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
     private ReportNode reportNode = ReportNode.NO_OP;
     private Instant lastInstantAdded = null;
 
-    public CracImpl(String id, String name) {
+    public CracImpl(String id, String name, ReportNode reportNode) {
         super(id, name);
+        this.reportNode = CracImplReports.reportNewCrac(reportNode, getId(), getName());
+    }
+
+    public CracImpl(String id, ReportNode reportNode) {
+        this(id, id, reportNode);
+    }
+
+    public CracImpl(String id, String name) {
+        this(id, name, ReportNode.NO_OP);
     }
 
     public CracImpl(String id) {
@@ -892,11 +901,5 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
     @Override
     public int hashCode() {
         return getId().hashCode();
-    }
-
-    @Override
-    public CracImpl setReportNode(ReportNode reportNode) {
-        this.reportNode = reportNode;
-        return this;
     }
 }

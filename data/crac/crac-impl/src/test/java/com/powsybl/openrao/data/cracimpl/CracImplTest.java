@@ -76,8 +76,7 @@ class CracImplTest {
             .withMessageTemplate("Test report node", "This is a parent report node for report tests")
             .build();
 
-        crac = new CracImpl("test-crac")
-            .setReportNode(reportNode)
+        crac = new CracImpl("test-crac", reportNode)
             .newInstant(PREVENTIVE_INSTANT_ID, InstantKind.PREVENTIVE)
             .newInstant(OUTAGE_INSTANT_ID, InstantKind.OUTAGE)
             .newInstant(AUTO_INSTANT_ID, InstantKind.AUTO)
@@ -1070,6 +1069,7 @@ class CracImplTest {
             .withMaxTso(-3)
             .withMaxRa(-2)
             .withMaxTopoPerTso(new HashMap<>(Map.of("FR", -4)));
+
         String expected = Files.readString(Path.of(getClass().getResource("/reports/expectedReportNodeContentCracRaUsageLimits.txt").toURI()));
         try (StringWriter writer = new StringWriter()) {
             reportNode.print(writer);

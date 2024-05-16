@@ -15,4 +15,13 @@ public final class CracImplReports {
             .withSeverity(TypedValue.INFO_SEVERITY)
             .add();
     }
+
+    public static ReportNode reportNewCrac(ReportNode reportNode, String id, String name) {
+        return reportNode.newReportNode()
+            .withMessageTemplate("reportNewCrac", "New crac \"${id}\" called \"${name}\"")
+            .withUntypedValue("id", id)
+            .withUntypedValue("name", name)
+            .withSeverity(TypedValue.INFO_SEVERITY)
+            .add();
+    }
 }
