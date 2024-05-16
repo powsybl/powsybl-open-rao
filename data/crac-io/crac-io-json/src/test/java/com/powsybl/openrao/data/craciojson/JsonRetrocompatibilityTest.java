@@ -746,6 +746,4 @@ class JsonRetrocompatibilityTest {
         assertEquals(Unit.TAP, relTimeStepRange.getUnit());
 
     }
-
-
 }
