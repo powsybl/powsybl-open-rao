@@ -102,7 +102,8 @@ public final class NetworkActionCombinationsUtils {
     static PstRangeAction addPstRangeActionToCrac() {
         CommonCracCreation.IidmPstHelper iidmPstHelper = new CommonCracCreation.IidmPstHelper("BBE2AA1  BBE3AA1  1", NETWORK);
 
-        CRAC.newPstRangeAction()
+        Crac crac = CommonCracCreation.create();
+        crac.newPstRangeAction()
             .withId("pst-range-action")
             .withName("pst-range-action")
             .withOperator("BE")
@@ -111,6 +112,6 @@ public final class NetworkActionCombinationsUtils {
             .withTapToAngleConversionMap(iidmPstHelper.getTapToAngleConversionMap())
             .add();
 
-        return CRAC.getPstRangeAction("pst-range-action");
+        return crac.getPstRangeAction("pst-range-action");
     }
 }

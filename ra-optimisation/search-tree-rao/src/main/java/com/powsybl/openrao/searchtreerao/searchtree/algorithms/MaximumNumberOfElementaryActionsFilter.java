@@ -37,6 +37,9 @@ public class MaximumNumberOfElementaryActionsFilter implements NetworkActionComb
                 elementaryActions = elementaryActions + networkAction.getElementaryActions().size();
             }
             // TODO: will require elementaryActionsPerTso instead (create test)
+            if (networkActionCombination.getOperators().isEmpty()) {
+                filteredNaCombinations.add(networkActionCombination);
+            }
             for (String operator : networkActionCombination.getOperators()) {
                 // The network action combination alone has more elementary action than the accepted limit, so it must be removed
                 if (elementaryActions > maxElementaryActionsPerTso.getOrDefault(operator, Integer.MAX_VALUE)) {
