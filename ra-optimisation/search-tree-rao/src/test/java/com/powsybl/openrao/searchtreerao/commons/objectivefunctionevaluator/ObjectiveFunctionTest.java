@@ -7,12 +7,11 @@
 
 package com.powsybl.openrao.searchtreerao.commons.objectivefunctionevaluator;
 
+import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
 import com.powsybl.openrao.data.raoresultapi.ComputationStatus;
-import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
-import com.powsybl.openrao.searchtreerao.result.api.ObjectiveFunctionResult;
-import com.powsybl.openrao.searchtreerao.result.api.RangeActionActivationResult;
-import com.powsybl.openrao.searchtreerao.result.api.SensitivityResult;
+import com.powsybl.openrao.raoapi.parameters.RaoParameters;
+import com.powsybl.openrao.searchtreerao.result.api.*;
 import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -133,5 +132,22 @@ class ObjectiveFunctionTest {
         assertEquals(List.of(cnec1), result.getCostlyElements("mnec-cost", 10));
         assertEquals(100., result.getVirtualCost("loop-flow-cost"), DOUBLE_TOLERANCE);
         assertEquals(List.of(cnec2), result.getCostlyElements("loop-flow-cost", 10));
+    }
+
+    @Test
+    public void testBuildForInitialSensitivityComputation() {
+        RaoParameters raoParameters = new RaoParameters();
+
+        raoParameters.getLoadFlowAndSensitivityParameters().setSensitivityFailureOvercost(0.);
+        ObjectiveFunction objectiveFunction = new ObjectiveFunction.ObjectiveFunctionBuilder().buildForInitialSensitivityComputation(
+            Set.of(cnec1, cnec2), raoParameters, Mockito.mock(Crac.class), Mockito.mock(RangeActionSetpointResult.class)
+        );
+        assertTrue(objectiveFunction.getVirtualCostNames().isEmpty());
+
+        raoParameters.getLoadFlowAndSensitivityParameters().setSensitivityFailureOvercost(1.);
+        objectiveFunction = new ObjectiveFunction.ObjectiveFunctionBuilder().buildForInitialSensitivityComputation(
+            Set.of(cnec1, cnec2), raoParameters, Mockito.mock(Crac.class), Mockito.mock(RangeActionSetpointResult.class)
+        );
+        assertEquals(Set.of("sensitivity-failure-cost"), objectiveFunction.getVirtualCostNames());
     }
 }
