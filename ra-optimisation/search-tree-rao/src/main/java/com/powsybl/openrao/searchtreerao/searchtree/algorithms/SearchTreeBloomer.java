@@ -11,6 +11,7 @@ import com.powsybl.openrao.data.cracapi.RaUsageLimits;
 import com.powsybl.openrao.data.cracapi.RemedialAction;
 import com.powsybl.openrao.data.cracapi.State;
 import com.powsybl.openrao.data.cracapi.networkaction.NetworkAction;
+import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.cracapi.rangeaction.RangeAction;
 import com.powsybl.openrao.searchtreerao.commons.NetworkActionCombination;
 import com.powsybl.openrao.searchtreerao.result.api.OptimizationResult;
@@ -38,7 +39,8 @@ public final class SearchTreeBloomer {
             new MaximumNumberOfRemedialActionsFilter(raUsageLimits.getMaxRa()),
             new MaximumNumberOfRemedialActionPerTsoFilter(raUsageLimits.getMaxTopoPerTso(), raUsageLimits.getMaxRaPerTso()),
             new MaximumNumberOfTsosFilter(raUsageLimits.getMaxTso()),
-            new FarFromMostLimitingElementFilter(input.getNetwork(), parameters.getNetworkActionParameters().skipNetworkActionFarFromMostLimitingElements(), parameters.getNetworkActionParameters().getMaxNumberOfBoundariesForSkippingNetworkActions())
+            new FarFromMostLimitingElementFilter(input.getNetwork(), parameters.getNetworkActionParameters().skipNetworkActionFarFromMostLimitingElements(), parameters.getNetworkActionParameters().getMaxNumberOfBoundariesForSkippingNetworkActions()),
+            new MaximumNumberOfElementaryActionsFilter(raUsageLimits.getMaxElementaryActionsPerTso())
         );
         this.input = input;
         this.parameters = parameters;
@@ -123,6 +125,20 @@ public final class SearchTreeBloomer {
             }
         }
 
+        // maxElementaryActionPerTso
+        Map<String, Integer> movedPstTapsPerTso = getNumberOfPstTapsMovedByTso(optimizationResult);
+        for (String tso : raUsageLimits.getMaxElementaryActionsPerTso().keySet()) {
+            int elementaryActions = 0;
+            Set<NetworkAction> tsosNetworkActions = naCombination.getNetworkActionSet().stream().filter(networkAction -> tso.equals(networkAction.getOperator())).collect(Collectors.toSet());
+            for (NetworkAction networkAction : tsosNetworkActions) {
+                // TODO: what if some network actions share common elementary action?
+                elementaryActions = elementaryActions + networkAction.getElementaryActions().size();
+            }
+            if (elementaryActions + movedPstTapsPerTso.getOrDefault(tso, 0) > raUsageLimits.getMaxElementaryActionsPerTso().getOrDefault(tso, Integer.MAX_VALUE)) {
+                return true;
+            }
+        }
+
         return false;
     }
 
@@ -130,12 +146,12 @@ public final class SearchTreeBloomer {
         return this.preDefinedNaCombinations.contains(naCombination);
     }
 
-    Map<String, Integer> getNumberOfPstTapsMovedByTso(Leaf leaf) {
+    Map<String, Integer> getNumberOfPstTapsMovedByTso(OptimizationResult optimizationResult) {
         Map<String, Integer> pstTapsMovedByTso = new HashMap<>();
-        Set<PstRangeAction> activatedRangeActions = leaf.getActivatedRangeActions(optimizedStateForNetworkActions).stream().filter(PstRangeAction.class::isInstance).map(ra -> (PstRangeAction) ra).collect(Collectors.toSet());
+        Set<PstRangeAction> activatedRangeActions = optimizationResult.getActivatedRangeActions(input.getOptimizationPerimeter().getMainOptimizationState()).stream().filter(PstRangeAction.class::isInstance).map(ra -> (PstRangeAction) ra).collect(Collectors.toSet());
         for (PstRangeAction pstRangeAction : activatedRangeActions) {
             String operator = pstRangeAction.getOperator();
-            int tapsMoved = Math.abs(leaf.getOptimizedTap(pstRangeAction, optimizedStateForNetworkActions) - prePerimeterResult.getTap(pstRangeAction));
+            int tapsMoved = Math.abs(optimizationResult.getOptimizedTap(pstRangeAction, input.getOptimizationPerimeter().getMainOptimizationState()) - input.getPrePerimeterResult().getTap(pstRangeAction));
             pstTapsMovedByTso.put(operator, pstTapsMovedByTso.getOrDefault(operator, 0) + tapsMoved);
         }
         return pstTapsMovedByTso;
