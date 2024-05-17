@@ -21,9 +21,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
-public class FillersUtilTest {
+class FillersUtilTest {
     @Test
-    public void testGetValidFlowCnecs() {
+    void testGetValidFlowCnecs() {
         State state1 = Mockito.mock(State.class);
         State state2 = Mockito.mock(State.class);
         FlowCnec cnec1 = Mockito.mock(FlowCnec.class);

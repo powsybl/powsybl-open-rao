@@ -20,7 +20,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-international.com>}
  */
-public class OpenRaoMPSolverTest {
+class OpenRaoMPSolverTest {
     static final double DOUBLE_TOLERANCE = 1e-4;
     static final double INFINITY_TOLERANCE = LinearProblem.infinity() * 0.001;
 
@@ -28,13 +28,13 @@ public class OpenRaoMPSolverTest {
     private MPSolver mpSolver;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         openRaoMPSolver = new OpenRaoMPSolver("test", RangeActionsOptimizationParameters.Solver.SCIP);
         mpSolver = openRaoMPSolver.getMpSolver();
     }
 
     @Test
-    public void basicTest() {
+    void basicTest() {
         assertNotNull(openRaoMPSolver.getObjective());
         assertEquals(RangeActionsOptimizationParameters.Solver.SCIP, openRaoMPSolver.getSolver());
         assertEquals(MPSolver.OptimizationProblemType.SCIP_MIXED_INTEGER_PROGRAMMING, openRaoMPSolver.getMpSolver().problemType());
@@ -45,7 +45,7 @@ public class OpenRaoMPSolverTest {
     }
 
     @Test
-    public void testAddAndRemoveVariable() {
+    void testAddAndRemoveVariable() {
         String varName = "var1";
         assertEquals(0, openRaoMPSolver.numVariables());
 
@@ -91,7 +91,7 @@ public class OpenRaoMPSolverTest {
     }
 
     @Test
-    public void testAddIntVar() {
+    void testAddIntVar() {
         openRaoMPSolver.makeIntVar(5, 10, "var1");
         MPVariable orToolsVar = mpSolver.lookupVariableOrNull("var1");
         assertNotNull(orToolsVar);
@@ -100,7 +100,7 @@ public class OpenRaoMPSolverTest {
     }
 
     @Test
-    public void testAddBoolVar() {
+    void testAddBoolVar() {
         openRaoMPSolver.makeBoolVar("var1");
         MPVariable orToolsVar = mpSolver.lookupVariableOrNull("var1");
         assertNotNull(orToolsVar);
@@ -109,7 +109,7 @@ public class OpenRaoMPSolverTest {
     }
 
     @Test
-    public void testAddAndRemoveConstraint() {
+    void testAddAndRemoveConstraint() {
         String varName = "var1";
         String constName = "const1";
 
@@ -169,7 +169,7 @@ public class OpenRaoMPSolverTest {
     }
 
     @Test
-    public void testAddConstraintWithNoBounds() {
+    void testAddConstraintWithNoBounds() {
         String constName = "const1";
         // Add constraint
         OpenRaoMPConstraint const1 = openRaoMPSolver.makeConstraint(constName);

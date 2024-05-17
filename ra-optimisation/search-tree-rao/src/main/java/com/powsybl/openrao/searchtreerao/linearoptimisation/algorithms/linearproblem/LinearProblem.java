@@ -20,7 +20,6 @@ import com.powsybl.openrao.searchtreerao.result.api.RangeActionActivationResult;
 import com.powsybl.openrao.searchtreerao.result.api.SensitivityResult;
 
 import java.util.List;
-import java.util.Set;
 
 import static com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.LinearProblemIdGenerator.*;
 
@@ -37,7 +36,6 @@ public final class LinearProblem {
     private final List<ProblemFiller> fillerList;
     private final double relativeMipGap;
     private final String solverSpecificParameters;
-    private Set<State> lastFailedStates;
 
     public enum AbsExtension {
         POSITIVE,
