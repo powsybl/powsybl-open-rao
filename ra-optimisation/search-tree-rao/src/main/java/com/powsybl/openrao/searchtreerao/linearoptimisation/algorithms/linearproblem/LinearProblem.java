@@ -89,11 +89,7 @@ public final class LinearProblem {
         this.fillerList = fillerList;
         this.relativeMipGap = relativeMipGap;
         this.solverSpecificParameters = solverSpecificParameters;
-        this.solver.getObjective().setMinimization();
-    }
-
-    private void resetSolver() {
-        this.solver = new OpenRaoMPSolver(OPT_PROBLEM_NAME, solver.getSolver());
+        this.solver.setMinimization();
     }
 
     public List<ProblemFiller> getFillers() {
@@ -105,10 +101,11 @@ public final class LinearProblem {
     }
 
     public void updateBetweenSensiIteration(FlowResult flowResult, SensitivityResult sensitivityResult, RangeActionActivationResult rangeActionActivationResult) {
-        // TODO : only reste if failed states have changed?
-        resetSolver();
+        // TODO: only reset if failed states have changed? Then we need access to all CRAC states in order to query the sensitivity result
+        this.solver.resetModel();
         fill(flowResult, sensitivityResult);
-        // TODO: remove update when rangeActionActivationResult can be used by fill
+        // TODO: remove "update" when "rangeActionActivationResult" can be used by "fill"
+        // (used in discrete PST fillers & for RA range shrinking in CoreProblemFiller)
         fillerList.forEach(problemFiller -> problemFiller.updateBetweenSensiIteration(this, flowResult, sensitivityResult, rangeActionActivationResult));
     }
 
@@ -124,6 +121,10 @@ public final class LinearProblem {
 
     public OpenRaoMPObjective getObjective() {
         return solver.getObjective();
+    }
+
+    public boolean minimization() {
+        return solver.minimization();
     }
 
     public int numVariables() {
@@ -142,20 +143,12 @@ public final class LinearProblem {
         return solver.getVariable(flowVariableId(cnec, side));
     }
 
-    public boolean hasFlowVariable(FlowCnec cnec, Side side) {
-        return solver.hasVariable(flowVariableId(cnec, side));
-    }
-
     public OpenRaoMPConstraint addFlowConstraint(double lb, double ub, FlowCnec cnec, Side side) {
         return solver.makeConstraint(lb, ub, flowConstraintId(cnec, side));
     }
 
     public OpenRaoMPConstraint getFlowConstraint(FlowCnec cnec, Side side) {
         return solver.getConstraint(flowConstraintId(cnec, side));
-    }
-
-    public boolean hasFlowConstraint(FlowCnec cnec, Side side) {
-        return solver.hasConstraint(flowConstraintId(cnec, side));
     }
 
     public OpenRaoMPVariable addRangeActionSetpointVariable(double lb, double ub, RangeAction<?> rangeAction, State state) {

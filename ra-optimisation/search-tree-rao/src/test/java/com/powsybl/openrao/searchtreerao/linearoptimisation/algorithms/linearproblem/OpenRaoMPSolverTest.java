@@ -237,10 +237,10 @@ public class OpenRaoMPSolverTest {
     void testObjective() {
         checkObjectiveSense(true); // minimization by default
 
-        openRaoMPSolver.getObjective().setMaximization();
+        openRaoMPSolver.setMaximization();
         checkObjectiveSense(false);
 
-        openRaoMPSolver.getObjective().setMinimization();
+        openRaoMPSolver.setMinimization();
         checkObjectiveSense(true);
 
         String varName = "var1";
@@ -257,8 +257,8 @@ public class OpenRaoMPSolverTest {
 
     private void checkObjectiveSense(boolean minim) {
         // OpenRAO object
-        assertEquals(minim, openRaoMPSolver.getObjective().minimization());
-        assertEquals(!minim, openRaoMPSolver.getObjective().maximization());
+        assertEquals(minim, openRaoMPSolver.minimization());
+        assertEquals(!minim, openRaoMPSolver.maximization());
         // OR-Tools object
         assertEquals(minim, mpSolver.objective().minimization());
         assertEquals(!minim, mpSolver.objective().maximization());
@@ -278,11 +278,20 @@ public class OpenRaoMPSolverTest {
         constraint.setCoefficient(y, 1);
         openRaoMPSolver.getObjective().setCoefficient(x, 2);
         openRaoMPSolver.getObjective().setCoefficient(y, 1);
-        openRaoMPSolver.getObjective().setMaximization();
+        openRaoMPSolver.setMaximization();
         LinearProblemStatus result = openRaoMPSolver.solve();
 
+        assertTrue(mpSolver.objective().maximization());
+        assertFalse(mpSolver.objective().minimization());
         assertEquals(LinearProblemStatus.OPTIMAL, result);
         assertEquals(4., x.solutionValue(), DOUBLE_TOLERANCE);
         assertEquals(6., y.solutionValue(), DOUBLE_TOLERANCE);
+
+        // Test that after resetting, solver & obj sense is the same
+        openRaoMPSolver.resetModel();
+        assertNotNull(openRaoMPSolver.getObjective());
+        checkObjectiveSense(false);
+        assertEquals(RangeActionsOptimizationParameters.Solver.SCIP, openRaoMPSolver.getSolver());
+        assertEquals(MPSolver.OptimizationProblemType.SCIP_MIXED_INTEGER_PROGRAMMING, openRaoMPSolver.getMpSolver().problemType());
     }
 }

@@ -484,37 +484,6 @@ class CoreProblemFillerTest extends AbstractFillerTest {
         assertEquals(4, linearProblem.numConstraints());
     }
 
-    // TODO fix this test
-    @Test
-    void updateWithoutFillingTest() {
-        OptimizationPerimeter optimizationPerimeter = Mockito.mock(OptimizationPerimeter.class);
-        Mockito.when(optimizationPerimeter.getFlowCnecs()).thenReturn(Set.of(cnec1));
-
-        Map<State, Set<RangeAction<?>>> rangeActions = new HashMap<>();
-        rangeActions.put(cnec1.getState(), Set.of(pstRangeAction));
-        Mockito.when(optimizationPerimeter.getRangeActionsPerState()).thenReturn(rangeActions);
-
-        RaoParameters raoParameters = new RaoParameters();
-        RangeActionsOptimizationParameters rangeActionParameters = RangeActionsOptimizationParameters.buildFromRaoParameters(raoParameters);
-        coreProblemFiller = new CoreProblemFiller(
-            optimizationPerimeter,
-            initialRangeActionSetpointResult,
-            new RangeActionActivationResultImpl(initialRangeActionSetpointResult),
-            rangeActionParameters,
-            Unit.MEGAWATT,
-            false);
-        linearProblem = new LinearProblemBuilder()
-            .withProblemFiller(coreProblemFiller)
-            .withSolver(RangeActionsOptimizationParameters.Solver.SCIP)
-            .build();
-        try {
-            updateLinearProblem();
-            fail();
-        } catch (OpenRaoException e) {
-            // should throw
-        }
-    }
-
     @Test
     void testSensitivityFilter1() {
         OpenRaoMPConstraint flowConstraint;

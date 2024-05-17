@@ -8,25 +8,21 @@
 package com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem;
 
 import com.google.ortools.Loader;
-import com.google.ortools.linearsolver.MPConstraint;
-import com.google.ortools.linearsolver.MPVariable;
+import com.google.ortools.linearsolver.MPSolver;
+import com.google.ortools.linearsolver.MPSolverParameters;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider;
 import com.powsybl.openrao.raoapi.parameters.RangeActionsOptimizationParameters;
-import com.powsybl.openrao.searchtreerao.commons.RaoUtil;
 import com.powsybl.openrao.searchtreerao.result.api.LinearProblemStatus;
-import com.google.ortools.linearsolver.MPSolver;
-import com.google.ortools.linearsolver.MPSolverParameters;
-import org.apache.commons.lang3.NotImplementedException;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.TreeMap;
 
 /**
  * Encapsulates OR-Tools' MPSolver objects in order to round up doubles
- *
  * @author Philippe Edwards {@literal <philippe.edwards at rte-international.com>}
+ * @author Peter Mitri {@literal <peter.mitri at rte-international.com>}
  */
 public class OpenRaoMPSolver {
     static {
@@ -38,18 +34,34 @@ public class OpenRaoMPSolver {
     }
 
     private static final int NUMBER_OF_BITS_TO_ROUND_OFF = 30;
-    private final MPSolver mpSolver;
     private final RangeActionsOptimizationParameters.Solver solver;
+    private final String optProblemName;
+    private MPSolver mpSolver;
     private MPSolverParameters solveConfiguration;
-    Map<String, OpenRaoMPConstraint> constraints = new HashMap<>();
-    Map<String, OpenRaoMPVariable> variables = new HashMap<>();
+    private String solverSpecificParameters;
+    Map<String, OpenRaoMPConstraint> constraints = new TreeMap<>();
+    Map<String, OpenRaoMPVariable> variables = new TreeMap<>();
     OpenRaoMPObjective objective;
+    private boolean objectiveMinimization = true;
 
     public OpenRaoMPSolver(String optProblemName, RangeActionsOptimizationParameters.Solver solver) {
         this.solver = solver;
-        this.mpSolver = new MPSolver(optProblemName, getOrToolsProblemType(solver));
-        this.objective = new OpenRaoMPObjective(mpSolver.objective(), NUMBER_OF_BITS_TO_ROUND_OFF);
+        this.optProblemName = optProblemName;
         solveConfiguration = new MPSolverParameters();
+        resetModel();
+    }
+
+    public void resetModel() {
+        this.mpSolver = new MPSolver(optProblemName, getOrToolsProblemType(solver));
+        constraints = new TreeMap<>();
+        variables = new TreeMap<>();
+        this.objective = new OpenRaoMPObjective(mpSolver.objective(), NUMBER_OF_BITS_TO_ROUND_OFF);
+        setSolverSpecificParametersAsString(solverSpecificParameters);
+        if (objectiveMinimization) {
+            setMinimization();
+        } else {
+            setMaximization();
+        }
     }
 
     public RangeActionsOptimizationParameters.Solver getSolver() {
@@ -139,6 +151,7 @@ public class OpenRaoMPSolver {
     }
 
     public boolean setSolverSpecificParametersAsString(String solverSpecificParameters) {
+        this.solverSpecificParameters = solverSpecificParameters;
         if (solverSpecificParameters != null) {
             return mpSolver.setSolverSpecificParametersAsString(solverSpecificParameters);
         } else {
@@ -175,6 +188,24 @@ public class OpenRaoMPSolver {
 
     public int numConstraints() {
         return constraints.size();
+    }
+
+    public boolean minimization() {
+        return objectiveMinimization;
+    }
+
+    public void setMinimization() {
+        mpSolver.objective().setMinimization();
+        objectiveMinimization = true;
+    }
+
+    public boolean maximization() {
+        return !objectiveMinimization;
+    }
+
+    public void setMaximization() {
+        mpSolver.objective().setMaximization();
+        objectiveMinimization = false;
     }
 
     /* Method used to make sure the MIP is reproducible. This basically rounds the least significant bits of a double.

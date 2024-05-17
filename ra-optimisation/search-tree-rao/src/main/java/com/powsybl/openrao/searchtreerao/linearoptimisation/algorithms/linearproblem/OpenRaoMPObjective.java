@@ -28,20 +28,4 @@ public class OpenRaoMPObjective {
     public void setCoefficient(OpenRaoMPVariable variable, double coeff) {
         mpObjective.setCoefficient(variable.getMPVariable(), OpenRaoMPSolver.roundDouble(coeff, numberOfBitsToRoundOff));
     }
-
-    public boolean minimization() {
-        return mpObjective.minimization();
-    }
-
-    public void setMinimization() {
-        mpObjective.setMinimization();
-    }
-
-    public boolean maximization() {
-        return mpObjective.maximization();
-    }
-
-    public void setMaximization() {
-        mpObjective.setMaximization();
-    }
 }
