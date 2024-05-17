@@ -127,7 +127,7 @@ class UnoptimizedCnecFillerPstLimitationRuleTest extends AbstractFillerTest {
             .withProblemFiller(coreProblemFiller)
             .withProblemFiller(maxMinMarginFiller)
             .withProblemFiller(unoptimizedCnecFiller)
-            .withSolver(mpSolver)
+            .withSolver(RangeActionsOptimizationParameters.Solver.SCIP)
             .build();
         linearProblem.fill(flowResult, sensitivityResult);
     }
@@ -150,7 +150,7 @@ class UnoptimizedCnecFillerPstLimitationRuleTest extends AbstractFillerTest {
                 .withProblemFiller(coreProblemFiller)
                 .withProblemFiller(maxMinMarginFiller)
                 .withProblemFiller(unoptimizedCnecFiller)
-                .withSolver(mpSolver)
+                .withSolver(RangeActionsOptimizationParameters.Solver.SCIP)
                 .build();
         linearProblem.fill(flowResult, sensitivityResult);
     }
@@ -185,7 +185,7 @@ class UnoptimizedCnecFillerPstLimitationRuleTest extends AbstractFillerTest {
             .withProblemFiller(coreProblemFiller)
             .withProblemFiller(maxMinRelativeMarginFiller)
             .withProblemFiller(unoptimizedCnecFiller)
-            .withSolver(mpSolver)
+            .withSolver(RangeActionsOptimizationParameters.Solver.SCIP)
             .build();
         linearProblem.fill(flowResult, sensitivityResult);
     }
@@ -220,7 +220,7 @@ class UnoptimizedCnecFillerPstLimitationRuleTest extends AbstractFillerTest {
                 .withProblemFiller(coreProblemFiller)
                 .withProblemFiller(maxMinRelativeMarginFiller)
                 .withProblemFiller(unoptimizedCnecFiller)
-                .withSolver(mpSolver)
+                .withSolver(RangeActionsOptimizationParameters.Solver.SCIP)
                 .build();
         linearProblem.fill(flowResult, sensitivityResult);
     }

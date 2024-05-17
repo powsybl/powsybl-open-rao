@@ -12,6 +12,7 @@ import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
 import com.powsybl.openrao.data.cracapi.cnec.Side;
 import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.cracapi.rangeaction.RangeAction;
+import com.powsybl.openrao.raoapi.parameters.RangeActionsOptimizationParameters;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.fillers.ProblemFiller;
 import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
 import com.powsybl.openrao.searchtreerao.result.api.LinearProblemStatus;
@@ -19,6 +20,7 @@ import com.powsybl.openrao.searchtreerao.result.api.RangeActionActivationResult;
 import com.powsybl.openrao.searchtreerao.result.api.SensitivityResult;
 
 import java.util.List;
+import java.util.Set;
 
 import static com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.LinearProblemIdGenerator.*;
 
@@ -29,10 +31,13 @@ import static com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.li
 public final class LinearProblem {
 
     public static final double LP_INFINITY = 1e10;
-    private final OpenRaoMPSolver solver;
+    private static final String OPT_PROBLEM_NAME = "RangeActionOptProblem";
+
+    private OpenRaoMPSolver solver;
     private final List<ProblemFiller> fillerList;
     private final double relativeMipGap;
     private final String solverSpecificParameters;
+    private Set<State> lastFailedStates;
 
     public enum AbsExtension {
         POSITIVE,
@@ -79,12 +84,16 @@ public final class LinearProblem {
         return new LinearProblemBuilder();
     }
 
-    LinearProblem(List<ProblemFiller> fillerList, OpenRaoMPSolver solver, double relativeMipGap, String solverSpecificParameters) {
-        this.solver = solver;
+    LinearProblem(List<ProblemFiller> fillerList, RangeActionsOptimizationParameters.Solver solver, double relativeMipGap, String solverSpecificParameters) {
+        this.solver = new OpenRaoMPSolver(OPT_PROBLEM_NAME, solver);
         this.fillerList = fillerList;
         this.relativeMipGap = relativeMipGap;
         this.solverSpecificParameters = solverSpecificParameters;
-        this.solver.objective().setMinimization();
+        this.solver.getObjective().setMinimization();
+    }
+
+    private void resetSolver() {
+        this.solver = new OpenRaoMPSolver(OPT_PROBLEM_NAME, solver.getSolver());
     }
 
     public List<ProblemFiller> getFillers() {
@@ -96,6 +105,10 @@ public final class LinearProblem {
     }
 
     public void updateBetweenSensiIteration(FlowResult flowResult, SensitivityResult sensitivityResult, RangeActionActivationResult rangeActionActivationResult) {
+        // TODO : only reste if failed states have changed?
+        resetSolver();
+        fill(flowResult, sensitivityResult);
+        // TODO: remove update when rangeActionActivationResult can be used by fill
         fillerList.forEach(problemFiller -> problemFiller.updateBetweenSensiIteration(this, flowResult, sensitivityResult, rangeActionActivationResult));
     }
 

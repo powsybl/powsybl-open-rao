@@ -42,11 +42,13 @@ public class MaxMinMarginFiller implements ProblemFiller {
 
     @Override
     public void fill(LinearProblem linearProblem, FlowResult flowResult, SensitivityResult sensitivityResult) {
+        Set<FlowCnec> validFlowCnecs = FillersUtil.getValidFlowCnecs(optimizedCnecs, sensitivityResult);
+
         // build variables
-        buildMinimumMarginVariable(linearProblem);
+        buildMinimumMarginVariable(linearProblem, validFlowCnecs);
 
         // build constraints
-        buildMinimumMarginConstraints(linearProblem);
+        buildMinimumMarginConstraints(linearProblem, validFlowCnecs);
 
         // complete objective
         fillObjectiveWithMinMargin(linearProblem);
@@ -67,8 +69,8 @@ public class MaxMinMarginFiller implements ProblemFiller {
      * MM represents the smallest margin of all Cnecs.
      * It is given in MEGAWATT.
      */
-    private void buildMinimumMarginVariable(LinearProblem linearProblem) {
-        if (!optimizedCnecs.isEmpty()) {
+    private void buildMinimumMarginVariable(LinearProblem linearProblem, Set<FlowCnec> validFlowCnecs) {
+        if (!validFlowCnecs.isEmpty()) {
             linearProblem.addMinimumMarginVariable(-LinearProblem.infinity(), LinearProblem.infinity());
         } else {
             // if there is no Cnecs, the minMarginVariable is forced to zero.
@@ -93,10 +95,10 @@ public class MaxMinMarginFiller implements ProblemFiller {
      * MM <= (fmax[c] - F[c]) * 1000 / (Unom * sqrt(3))     (ABOVE_THRESHOLD)
      * MM <= (F[c] - fmin[c]) * 1000 / (Unom * sqrt(3))     (BELOW_THRESHOLD)
      */
-    private void buildMinimumMarginConstraints(LinearProblem linearProblem) {
+    private void buildMinimumMarginConstraints(LinearProblem linearProblem, Set<FlowCnec> validFlowCnecs) {
         OpenRaoMPVariable minimumMarginVariable = linearProblem.getMinimumMarginVariable();
 
-        optimizedCnecs.forEach(cnec -> cnec.getMonitoredSides().forEach(side -> {
+        validFlowCnecs.forEach(cnec -> cnec.getMonitoredSides().forEach(side -> {
             OpenRaoMPVariable flowVariable = linearProblem.getFlowVariable(cnec, side);
 
             Optional<Double> minFlow;

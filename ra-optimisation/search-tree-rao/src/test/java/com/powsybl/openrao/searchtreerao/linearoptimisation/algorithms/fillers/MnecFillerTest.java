@@ -128,7 +128,7 @@ class MnecFillerTest extends AbstractFillerTest {
         linearProblem = new LinearProblemBuilder()
                 .withProblemFiller(coreProblemFiller)
                 .withProblemFiller(mnecFiller)
-                .withSolver(mpSolver)
+                .withSolver(RangeActionsOptimizationParameters.Solver.SCIP)
                 .build();
         linearProblem.fill(flowResult, sensitivityResult);
     }

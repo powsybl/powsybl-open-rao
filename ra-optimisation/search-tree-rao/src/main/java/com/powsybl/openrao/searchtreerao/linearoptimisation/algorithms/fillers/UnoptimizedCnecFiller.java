@@ -35,10 +35,10 @@ import static com.powsybl.openrao.commons.Unit.MEGAWATT;
 /**
  * This filler adds variables and constraints allowing the RAO to ignore some
  * cnecs, if they should not be optimized. This can happen in the following cases :
- *  * selectedRule = MARGIN_DECREASE : some operators' CNECs' margins will not be taken into account in the objective function,
+ * * selectedRule = MARGIN_DECREASE : some operators' CNECs' margins will not be taken into account in the objective function,
  * unless they are worse than their pre-perimeter margins.
- *  * selectedRule = PST_LIMITATION : some cnecs parametrized as in series with a pst will not be taken into account in the objective
- *  function, as long as a there are enough setpoints on the pst left to absorb the margin deficit
+ * * selectedRule = PST_LIMITATION : some cnecs parametrized as in series with a pst will not be taken into account in the objective
+ * function, as long as a there are enough setpoints on the pst left to absorb the margin deficit
  *
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
@@ -88,19 +88,22 @@ public class UnoptimizedCnecFiller implements ProblemFiller {
         // define UnoptimizedCnecFillerRule
         selectUnoptimizedCnecFillerRule();
 
+        // Get list of valid flow CNECs
+        Set<FlowCnec> validFlowCnecs = getValidFlowCnecs(sensitivityResult);
+
         // build variables
-        buildDontOptimizeCnecVariables(linearProblem);
+        buildDontOptimizeCnecVariables(linearProblem, validFlowCnecs);
 
         // build constraints
-        buildDontOptimizeCnecConstraints(linearProblem, sensitivityResult);
+        buildDontOptimizeCnecConstraints(linearProblem, validFlowCnecs, sensitivityResult);
 
         // update minimum margin objective function constraints
-        updateMinimumMarginConstraints(linearProblem);
+        updateMinimumMarginConstraints(linearProblem, validFlowCnecs);
     }
 
     @Override
     public void updateBetweenSensiIteration(LinearProblem linearProblem, FlowResult flowResult, SensitivityResult sensitivityResult, RangeActionActivationResult rangeActionActivationResult) {
-        updateDontOptimizeCnecConstraints(linearProblem, sensitivityResult);
+        updateDontOptimizeCnecConstraints(linearProblem, getValidFlowCnecs(sensitivityResult), sensitivityResult);
     }
 
     @Override
@@ -112,8 +115,8 @@ public class UnoptimizedCnecFiller implements ProblemFiller {
      * This method defines a binary variable that detects the decrease of the margin on the given CNEC compared to the preperimeter margin
      * The variable should be equal to 1 if there is a decrease
      */
-    private void buildDontOptimizeCnecVariables(LinearProblem linearProblem) {
-        getFlowCnecs().forEach(cnec -> cnec.getMonitoredSides().forEach(side ->
+    private void buildDontOptimizeCnecVariables(LinearProblem linearProblem, Set<FlowCnec> validFlowCnecs) {
+        validFlowCnecs.forEach(cnec -> cnec.getMonitoredSides().forEach(side ->
             linearProblem.addOptimizeCnecBinaryVariable(cnec, side)
         ));
     }
@@ -121,29 +124,29 @@ public class UnoptimizedCnecFiller implements ProblemFiller {
     /**
      * Gathers flow cnecs that can be unoptimized depending on the ongoing UnoptimizedCnecFillerRule.
      */
-    private Set<FlowCnec> getFlowCnecs() {
+    private Set<FlowCnec> getValidFlowCnecs(SensitivityResult sensitivityResult) {
         if (selectedRule.equals(UnoptimizedCnecFillerRule.MARGIN_DECREASE)) {
-            return flowCnecs.stream()
-                    .filter(cnec -> operatorsNotToOptimize.contains(cnec.getOperator()))
-                    .collect(Collectors.toSet());
+            return FillersUtil.getValidFlowCnecs(flowCnecs, sensitivityResult).stream()
+                .filter(cnec -> operatorsNotToOptimize.contains(cnec.getOperator()))
+                .collect(Collectors.toSet());
         } else {
-            return optimizationContext.getFlowCnecs().stream()
-                    .filter(flowCnecRangeActionMap::containsKey)
-                    .collect(Collectors.toSet());
+            return FillersUtil.getValidFlowCnecs(optimizationContext.getFlowCnecs(), sensitivityResult).stream()
+                .filter(flowCnecRangeActionMap::containsKey)
+                .collect(Collectors.toSet());
         }
     }
 
-    private void buildDontOptimizeCnecConstraints(LinearProblem linearProblem, SensitivityResult sensitivityResult) {
+    private void buildDontOptimizeCnecConstraints(LinearProblem linearProblem, Set<FlowCnec> validFlowCnecs, SensitivityResult sensitivityResult) {
         if (selectedRule.equals(UnoptimizedCnecFillerRule.MARGIN_DECREASE)) {
-            buildDontOptimizeCnecConstraintsForTsosThatDoNotShareRas(linearProblem);
+            buildDontOptimizeCnecConstraintsForTsosThatDoNotShareRas(linearProblem, validFlowCnecs);
         } else {
-            buildDontOptimizeCnecConstraintsForCnecsInSeriesWithPsts(linearProblem, sensitivityResult);
+            buildDontOptimizeCnecConstraintsForCnecsInSeriesWithPsts(linearProblem, validFlowCnecs, sensitivityResult);
         }
     }
 
-    private void updateDontOptimizeCnecConstraints(LinearProblem linearProblem, SensitivityResult sensitivityResult) {
+    private void updateDontOptimizeCnecConstraints(LinearProblem linearProblem, Set<FlowCnec> validFlowCnecs, SensitivityResult sensitivityResult) {
         if (selectedRule.equals(UnoptimizedCnecFillerRule.PST_LIMITATION)) {
-            updateDontOptimizeCnecConstraintsForCnecsInSeriesWithPsts(linearProblem, sensitivityResult);
+            updateDontOptimizeCnecConstraintsForCnecsInSeriesWithPsts(linearProblem, validFlowCnecs, sensitivityResult);
         }
     }
 
@@ -156,12 +159,12 @@ public class UnoptimizedCnecFiller implements ProblemFiller {
      * bigM is computed to be equal to the maximum margin decrease possible, which is the amount that decreases the
      * cnec's margin to the initial worst margin
      */
-    private void buildDontOptimizeCnecConstraintsForTsosThatDoNotShareRas(LinearProblem linearProblem) {
+    private void buildDontOptimizeCnecConstraintsForTsosThatDoNotShareRas(LinearProblem linearProblem, Set<FlowCnec> validFlowCnecs) {
         double worstMarginDecrease = 20 * highestThresholdValue;
         // No margin should be smaller than the worst margin computed above, otherwise it means the linear optimizer or
         // the search tree rao is degrading the situation
         // So we can use this to estimate the worst decrease possible of the margins on cnecs
-        getFlowCnecs().forEach(cnec -> cnec.getMonitoredSides().forEach(side -> {
+        validFlowCnecs.forEach(cnec -> cnec.getMonitoredSides().forEach(side -> {
             double prePerimeterMargin = prePerimeterFlowResult.getMargin(cnec, side, MEGAWATT);
 
             OpenRaoMPVariable flowVariable = linearProblem.getFlowVariable(cnec, side);
@@ -174,9 +177,9 @@ public class UnoptimizedCnecFiller implements ProblemFiller {
 
             if (minFlow.isPresent()) {
                 OpenRaoMPConstraint decreaseMinmumThresholdMargin = linearProblem.addDontOptimizeCnecConstraint(
-                        prePerimeterMargin + minFlow.get(),
-                        LinearProblem.infinity(), cnec, side,
-                        LinearProblem.MarginExtension.BELOW_THRESHOLD
+                    prePerimeterMargin + minFlow.get(),
+                    LinearProblem.infinity(), cnec, side,
+                    LinearProblem.MarginExtension.BELOW_THRESHOLD
                 );
                 decreaseMinmumThresholdMargin.setCoefficient(flowVariable, 1);
                 decreaseMinmumThresholdMargin.setCoefficient(optimizeCnecBinaryVariable, worstMarginDecrease);
@@ -184,9 +187,9 @@ public class UnoptimizedCnecFiller implements ProblemFiller {
 
             if (maxFlow.isPresent()) {
                 OpenRaoMPConstraint decreaseMinmumThresholdMargin = linearProblem.addDontOptimizeCnecConstraint(
-                        prePerimeterMargin - maxFlow.get(),
-                        LinearProblem.infinity(), cnec, side,
-                        LinearProblem.MarginExtension.ABOVE_THRESHOLD
+                    prePerimeterMargin - maxFlow.get(),
+                    LinearProblem.infinity(), cnec, side,
+                    LinearProblem.MarginExtension.ABOVE_THRESHOLD
                 );
                 decreaseMinmumThresholdMargin.setCoefficient(flowVariable, -1);
                 decreaseMinmumThresholdMargin.setCoefficient(optimizeCnecBinaryVariable, worstMarginDecrease);
@@ -194,8 +197,8 @@ public class UnoptimizedCnecFiller implements ProblemFiller {
         }));
     }
 
-    private void defineDontOptimizeCnecConstraintsForCnecsInSeriesWithPsts(LinearProblem linearProblem, SensitivityResult sensitivityResult, boolean buildConstraint) {
-        getFlowCnecs().forEach(cnec -> cnec.getMonitoredSides()
+    private void defineDontOptimizeCnecConstraintsForCnecsInSeriesWithPsts(LinearProblem linearProblem, Set<FlowCnec> validFlowCnecs, SensitivityResult sensitivityResult, boolean buildConstraint) {
+        validFlowCnecs.forEach(cnec -> cnec.getMonitoredSides()
             .forEach(side -> defineDontOptimizeCnecConstraintsForCnecInSeriesWithPsts(linearProblem, sensitivityResult, buildConstraint, cnec, side)));
     }
 
@@ -224,10 +227,10 @@ public class UnoptimizedCnecFiller implements ProblemFiller {
             OpenRaoMPConstraint extendSetpointBounds;
             if (buildConstraint) {
                 extendSetpointBounds = linearProblem.addDontOptimizeCnecConstraint(
-                        -LinearProblem.infinity(),
-                        LinearProblem.infinity(), cnec,
+                    -LinearProblem.infinity(),
+                    LinearProblem.infinity(), cnec,
                     side,
-                        LinearProblem.MarginExtension.BELOW_THRESHOLD);
+                    LinearProblem.MarginExtension.BELOW_THRESHOLD);
                 extendSetpointBounds.setCoefficient(flowVariable, 1);
             } else {
                 extendSetpointBounds = linearProblem.getDontOptimizeCnecConstraint(cnec, side, LinearProblem.MarginExtension.BELOW_THRESHOLD);
@@ -246,9 +249,9 @@ public class UnoptimizedCnecFiller implements ProblemFiller {
             OpenRaoMPConstraint extendSetpointBounds;
             if (buildConstraint) {
                 extendSetpointBounds = linearProblem.addDontOptimizeCnecConstraint(
-                        -LinearProblem.infinity(),
-                        LinearProblem.infinity(), cnec, side,
-                        LinearProblem.MarginExtension.ABOVE_THRESHOLD);
+                    -LinearProblem.infinity(),
+                    LinearProblem.infinity(), cnec, side,
+                    LinearProblem.MarginExtension.ABOVE_THRESHOLD);
                 extendSetpointBounds.setCoefficient(flowVariable, -1);
             } else {
                 extendSetpointBounds = linearProblem.getDontOptimizeCnecConstraint(cnec, side, LinearProblem.MarginExtension.ABOVE_THRESHOLD);
@@ -271,20 +274,20 @@ public class UnoptimizedCnecFiller implements ProblemFiller {
      * As long as a there are enough setpoints on the pst left to absorb the margin deficit, the cnec should not
      * participate in the definition of the minimum margin (i.e. the binary variable optimize cnec is 0)
      * When sensitivity >= 0 :
-     *      (1) setpoint <= maxSetpoint - -(maxFlow - flow)/sensitivity + bigM * optimize_cnec
-     *      (2) setpoint >= minSetpoint + -(flow - minFlow)/sensitivity - bigM * optimize_cnec
+     * (1) setpoint <= maxSetpoint - -(maxFlow - flow)/sensitivity + bigM * optimize_cnec
+     * (2) setpoint >= minSetpoint + -(flow - minFlow)/sensitivity - bigM * optimize_cnec
      * * When sensitivity < 0 :
-     *      (1) setpoint <= maxSetpoint - -(flow - minFlow)/-sensitivity + bigM * optimize_cnec
-     *      (2) setpoint >= minSetpoint + -(maxFlow - flow)/-sensitivity - bigM * optimize_cnec
+     * (1) setpoint <= maxSetpoint - -(flow - minFlow)/-sensitivity + bigM * optimize_cnec
+     * (2) setpoint >= minSetpoint + -(maxFlow - flow)/-sensitivity - bigM * optimize_cnec
      * bigM is computed to allow the PST to reach its bounds with optimize_cnec set to 1 :
      * bigM = maxSetpoint - minSetpoint
      */
-    private void buildDontOptimizeCnecConstraintsForCnecsInSeriesWithPsts(LinearProblem linearProblem, SensitivityResult sensitivityResult) {
-        defineDontOptimizeCnecConstraintsForCnecsInSeriesWithPsts(linearProblem, sensitivityResult, true);
+    private void buildDontOptimizeCnecConstraintsForCnecsInSeriesWithPsts(LinearProblem linearProblem, Set<FlowCnec> validFlowCnecs, SensitivityResult sensitivityResult) {
+        defineDontOptimizeCnecConstraintsForCnecsInSeriesWithPsts(linearProblem, validFlowCnecs, sensitivityResult, true);
     }
 
-    private void updateDontOptimizeCnecConstraintsForCnecsInSeriesWithPsts(LinearProblem linearProblem, SensitivityResult sensitivityResult) {
-        defineDontOptimizeCnecConstraintsForCnecsInSeriesWithPsts(linearProblem, sensitivityResult, false);
+    private void updateDontOptimizeCnecConstraintsForCnecsInSeriesWithPsts(LinearProblem linearProblem, Set<FlowCnec> validFlowCnecs, SensitivityResult sensitivityResult) {
+        defineDontOptimizeCnecConstraintsForCnecsInSeriesWithPsts(linearProblem, validFlowCnecs, sensitivityResult, false);
     }
 
     /**
@@ -293,26 +296,26 @@ public class UnoptimizedCnecFiller implements ProblemFiller {
      **/
     private State getLastStateWithRangeActionAvailableForCnec(FlowCnec cnec) {
         List<State> statesBeforeCnec = FillersUtil.getPreviousStates(cnec.getState(), optimizationContext).stream()
-                .sorted((s1, s2) -> Integer.compare(s2.getInstant().getOrder(), s1.getInstant().getOrder())) // start with curative state
-                .toList();
+            .sorted((s1, s2) -> Integer.compare(s2.getInstant().getOrder(), s1.getInstant().getOrder())) // start with curative state
+            .toList();
 
         Optional<State> lastState = statesBeforeCnec.stream().filter(state ->
                 optimizationContext.getRangeActionsPerState().get(state).contains(flowCnecRangeActionMap.get(cnec)))
-                .findFirst();
+            .findFirst();
         // Range action (referenced for "cnec" in flowCnecPstRangeActionMap) can be unavailable for cnec
         return lastState.orElse(null);
     }
 
-/**
+    /**
      * For CNECs with binary variable optimize_cnecs set to 0, deactivate their participation in the definition of the minimum margin
      * Do this by adding (1 - optimize_cnecs) * bigM to the right side of the inequality
      * bigM is computed as 2 times the largest absolute threshold between all CNECs
      * Of course this can be restrictive as CNECs can have hypothetically infinite margins if they are monitored in one direction only
      * But we'll suppose for now that the minimum margin can never be greater than 1 * the largest threshold
      */
-    private void updateMinimumMarginConstraints(LinearProblem linearProblem) {
+    private void updateMinimumMarginConstraints(LinearProblem linearProblem, Set<FlowCnec> validFlowCnecs) {
         double bigM = 2 * highestThresholdValue;
-        getFlowCnecs().forEach(cnec -> cnec.getMonitoredSides().forEach(side -> {
+        validFlowCnecs.forEach(cnec -> cnec.getMonitoredSides().forEach(side -> {
             OpenRaoMPVariable optimizeCnecBinaryVariable = linearProblem.getOptimizeCnecBinaryVariable(cnec, side);
             try {
                 updateMinimumMarginConstraint(

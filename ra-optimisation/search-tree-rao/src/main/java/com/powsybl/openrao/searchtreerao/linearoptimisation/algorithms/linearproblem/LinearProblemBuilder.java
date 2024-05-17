@@ -6,8 +6,6 @@
  */
 package com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem;
 
-import com.google.ortools.Loader;
-import com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider;
 import com.powsybl.openrao.data.cracapi.State;
 import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.cracapi.rangeaction.RangeAction;
@@ -24,24 +22,20 @@ import java.util.stream.Collectors;
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 public class LinearProblemBuilder {
-
-    private static final String OPT_PROBLEM_NAME = "RangeActionOptProblem";
-
     private final List<ProblemFiller> problemFillers = new ArrayList<>();
-    private OpenRaoMPSolver solver;
+    private RangeActionsOptimizationParameters.Solver solver;
     private double relativeMipGap = RangeActionsOptimizationParameters.LinearOptimizationSolver.DEFAULT_RELATIVE_MIP_GAP;
     private String solverSpecificParameters = RangeActionsOptimizationParameters.LinearOptimizationSolver.DEFAULT_SOLVER_SPECIFIC_PARAMETERS;
     private IteratingLinearOptimizerInput inputs;
     private IteratingLinearOptimizerParameters parameters;
 
     public LinearProblem buildFromInputsAndParameters(IteratingLinearOptimizerInput inputs, IteratingLinearOptimizerParameters parameters) {
-
         Objects.requireNonNull(inputs);
         Objects.requireNonNull(parameters);
         this.inputs = inputs;
         this.parameters = parameters;
 
-        this.withSolver(buildSolver())
+        this.withSolver(parameters.getSolverParameters().getSolver())
             .withRelativeMipGap(parameters.getSolverParameters().getRelativeMipGap())
             .withSolverSpecificParameters(parameters.getSolverParameters().getSolverSpecificParameters())
             .withProblemFiller(buildCoreProblemFiller());
@@ -101,7 +95,7 @@ public class LinearProblemBuilder {
         return this;
     }
 
-    public LinearProblemBuilder withSolver(OpenRaoMPSolver solver) {
+    public LinearProblemBuilder withSolver(RangeActionsOptimizationParameters.Solver solver) {
         this.solver = solver;
         return this;
     }
@@ -114,10 +108,6 @@ public class LinearProblemBuilder {
     public LinearProblemBuilder withSolverSpecificParameters(String solverSpecificParameters) {
         this.solverSpecificParameters = solverSpecificParameters;
         return this;
-    }
-
-    public OpenRaoMPSolver buildSolver() {
-        return new OpenRaoMPSolver(OPT_PROBLEM_NAME, parameters.getSolverParameters().getSolver());
     }
 
     private ProblemFiller buildCoreProblemFiller() {

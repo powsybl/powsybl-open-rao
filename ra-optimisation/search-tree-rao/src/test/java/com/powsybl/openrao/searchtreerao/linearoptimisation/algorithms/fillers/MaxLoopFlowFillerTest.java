@@ -102,7 +102,7 @@ class MaxLoopFlowFillerTest extends AbstractFillerTest {
         linearProblem = new LinearProblemBuilder()
             .withProblemFiller(coreProblemFiller)
             .withProblemFiller(maxLoopFlowFiller)
-            .withSolver(mpSolver)
+            .withSolver(RangeActionsOptimizationParameters.Solver.SCIP)
             .build();
         linearProblem.fill(flowResult, sensitivityResult);
     }

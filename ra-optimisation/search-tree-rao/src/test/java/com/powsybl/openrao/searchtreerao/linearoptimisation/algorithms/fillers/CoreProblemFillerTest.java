@@ -16,10 +16,10 @@ import com.powsybl.openrao.data.raoresultapi.ComputationStatus;
 import com.powsybl.openrao.raoapi.parameters.RangeActionsOptimizationParameters;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.OptimizationPerimeter;
-import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.OpenRaoMPConstraint;
-import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.OpenRaoMPVariable;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.LinearProblem;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.LinearProblemBuilder;
+import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.OpenRaoMPConstraint;
+import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.OpenRaoMPVariable;
 import com.powsybl.openrao.searchtreerao.result.api.RangeActionSetpointResult;
 import com.powsybl.openrao.searchtreerao.result.impl.RangeActionActivationResultImpl;
 import com.powsybl.openrao.searchtreerao.result.impl.RangeActionSetpointResultImpl;
@@ -62,7 +62,7 @@ class CoreProblemFillerTest extends AbstractFillerTest {
     private void buildLinearProblem() {
         linearProblem = new LinearProblemBuilder()
             .withProblemFiller(coreProblemFiller)
-            .withSolver(mpSolver)
+            .withSolver(RangeActionsOptimizationParameters.Solver.SCIP)
             .build();
         linearProblem.fill(flowResult, sensitivityResult);
     }
@@ -484,6 +484,7 @@ class CoreProblemFillerTest extends AbstractFillerTest {
         assertEquals(4, linearProblem.numConstraints());
     }
 
+    // TODO fix this test
     @Test
     void updateWithoutFillingTest() {
         OptimizationPerimeter optimizationPerimeter = Mockito.mock(OptimizationPerimeter.class);
@@ -504,7 +505,7 @@ class CoreProblemFillerTest extends AbstractFillerTest {
             false);
         linearProblem = new LinearProblemBuilder()
             .withProblemFiller(coreProblemFiller)
-            .withSolver(mpSolver)
+            .withSolver(RangeActionsOptimizationParameters.Solver.SCIP)
             .build();
         try {
             updateLinearProblem();

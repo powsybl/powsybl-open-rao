@@ -110,7 +110,7 @@ class UnoptimizedCnecFillerMarginDecreaseRuleTest extends AbstractFillerTest {
             .withProblemFiller(coreProblemFiller)
             .withProblemFiller(maxMinMarginFiller)
             .withProblemFiller(unoptimizedCnecFiller)
-            .withSolver(mpSolver)
+            .withSolver(RangeActionsOptimizationParameters.Solver.SCIP)
             .build();
         linearProblem.fill(flowResult, sensitivityResult);
     }
@@ -145,7 +145,7 @@ class UnoptimizedCnecFillerMarginDecreaseRuleTest extends AbstractFillerTest {
             .withProblemFiller(coreProblemFiller)
             .withProblemFiller(maxMinRelativeMarginFiller)
             .withProblemFiller(unoptimizedCnecFiller)
-            .withSolver(mpSolver)
+            .withSolver(RangeActionsOptimizationParameters.Solver.SCIP)
             .build();
         linearProblem.fill(flowResult, sensitivityResult);
     }

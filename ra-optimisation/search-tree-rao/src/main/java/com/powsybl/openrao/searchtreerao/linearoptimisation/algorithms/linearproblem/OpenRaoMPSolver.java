@@ -39,14 +39,21 @@ public class OpenRaoMPSolver {
 
     private static final int NUMBER_OF_BITS_TO_ROUND_OFF = 30;
     private final MPSolver mpSolver;
+    private final RangeActionsOptimizationParameters.Solver solver;
     private MPSolverParameters solveConfiguration;
     Map<String, OpenRaoMPConstraint> constraints = new HashMap<>();
     Map<String, OpenRaoMPVariable> variables = new HashMap<>();
     OpenRaoMPObjective objective;
 
     public OpenRaoMPSolver(String optProblemName, RangeActionsOptimizationParameters.Solver solver) {
+        this.solver = solver;
         this.mpSolver = new MPSolver(optProblemName, getOrToolsProblemType(solver));
+        this.objective = new OpenRaoMPObjective(mpSolver.objective(), NUMBER_OF_BITS_TO_ROUND_OFF);
         solveConfiguration = new MPSolverParameters();
+    }
+
+    public RangeActionsOptimizationParameters.Solver getSolver() {
+        return solver;
     }
 
     private MPSolver.OptimizationProblemType getOrToolsProblemType(RangeActionsOptimizationParameters.Solver solver) {
@@ -107,13 +114,6 @@ public class OpenRaoMPSolver {
     }
 
     public OpenRaoMPObjective getObjective() {
-        return this.objective;
-    }
-
-    public OpenRaoMPObjective objective() {
-        if (this.objective == null) {
-            this.objective = new OpenRaoMPObjective(mpSolver.objective(), NUMBER_OF_BITS_TO_ROUND_OFF);
-        }
         return this.objective;
     }
 

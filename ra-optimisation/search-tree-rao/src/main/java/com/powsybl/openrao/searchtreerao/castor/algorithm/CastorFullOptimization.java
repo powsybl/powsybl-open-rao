@@ -643,8 +643,7 @@ public class CastorFullOptimization {
         // If any sensitivity computation fails, fail and fall back to 1st preventive result
         // TODO: can we / do we want to improve this behavior by excluding the failed contingencies?
         PrePerimeterResult sensiWithPostContingencyRemedialActions = prePerimeterSensitivityAnalysis.runBasedOnInitialResults(network, crac, initialOutput, initialOutput, stateTree.getOperatorsNotSharingCras(), appliedArasAndCras);
-        if (sensiWithPostContingencyRemedialActions.getSensitivityStatus() == FAILURE ||
-            appliedArasAndCras.getStatesWithRa(network).stream().anyMatch(state -> sensiWithPostContingencyRemedialActions.getSensitivityStatus(state) == FAILURE)) {
+        if (sensiWithPostContingencyRemedialActions.getSensitivityStatus() == FAILURE) {
             throw new OpenRaoException("Systematic sensitivity analysis after curative remedial actions before second preventive optimization failed");
         }
         RaoLogger.logSensitivityAnalysisResults("Systematic sensitivity analysis after curative remedial actions before second preventive optimization: ",

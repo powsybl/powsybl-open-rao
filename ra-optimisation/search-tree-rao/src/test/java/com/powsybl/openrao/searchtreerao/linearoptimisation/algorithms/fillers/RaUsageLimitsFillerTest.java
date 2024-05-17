@@ -128,7 +128,7 @@ class RaUsageLimitsFillerTest extends AbstractFillerTest {
         linearProblem = new LinearProblemBuilder()
             .withProblemFiller(coreProblemFiller)
             .withProblemFiller(raUsageLimitsFiller)
-            .withSolver(mpSolver)
+            .withSolver(RangeActionsOptimizationParameters.Solver.SCIP)
             .build();
         linearProblem.fill(flowResult, sensitivityResult);
 
@@ -150,7 +150,7 @@ class RaUsageLimitsFillerTest extends AbstractFillerTest {
         linearProblem = new LinearProblemBuilder()
             .withProblemFiller(coreProblemFiller)
             .withProblemFiller(raUsageLimitsFiller)
-            .withSolver(mpSolver)
+            .withSolver(RangeActionsOptimizationParameters.Solver.SCIP)
             .build();
         linearProblem.fill(flowResult, sensitivityResult);
 
@@ -182,7 +182,7 @@ class RaUsageLimitsFillerTest extends AbstractFillerTest {
         linearProblem = new LinearProblemBuilder()
             .withProblemFiller(coreProblemFiller)
             .withProblemFiller(raUsageLimitsFiller)
-            .withSolver(mpSolver)
+            .withSolver(RangeActionsOptimizationParameters.Solver.SCIP)
             .build();
         linearProblem.fill(flowResult, sensitivityResult);
 
@@ -222,7 +222,7 @@ class RaUsageLimitsFillerTest extends AbstractFillerTest {
         linearProblem = new LinearProblemBuilder()
             .withProblemFiller(coreProblemFiller)
             .withProblemFiller(raUsageLimitsFiller)
-            .withSolver(mpSolver)
+            .withSolver(RangeActionsOptimizationParameters.Solver.SCIP)
             .build();
         linearProblem.fill(flowResult, sensitivityResult);
 
@@ -254,7 +254,7 @@ class RaUsageLimitsFillerTest extends AbstractFillerTest {
         linearProblem = new LinearProblemBuilder()
             .withProblemFiller(coreProblemFiller)
             .withProblemFiller(raUsageLimitsFiller)
-            .withSolver(mpSolver)
+            .withSolver(RangeActionsOptimizationParameters.Solver.SCIP)
             .build();
         linearProblem.fill(flowResult, sensitivityResult);
 
@@ -275,7 +275,7 @@ class RaUsageLimitsFillerTest extends AbstractFillerTest {
         linearProblem = new LinearProblemBuilder()
             .withProblemFiller(coreProblemFiller)
             .withProblemFiller(raUsageLimitsFiller)
-            .withSolver(mpSolver)
+            .withSolver(RangeActionsOptimizationParameters.Solver.SCIP)
             .build();
         linearProblem.fill(flowResult, sensitivityResult);
 
@@ -308,7 +308,7 @@ class RaUsageLimitsFillerTest extends AbstractFillerTest {
         linearProblem = new LinearProblemBuilder()
             .withProblemFiller(coreProblemFiller)
             .withProblemFiller(raUsageLimitsFiller)
-            .withSolver(mpSolver)
+            .withSolver(RangeActionsOptimizationParameters.Solver.SCIP)
             .build();
         linearProblem.fill(flowResult, sensitivityResult);
 
@@ -340,7 +340,7 @@ class RaUsageLimitsFillerTest extends AbstractFillerTest {
         linearProblem = new LinearProblemBuilder()
             .withProblemFiller(coreProblemFiller)
             .withProblemFiller(raUsageLimitsFiller)
-            .withSolver(mpSolver)
+            .withSolver(RangeActionsOptimizationParameters.Solver.SCIP)
             .build();
         linearProblem.fill(flowResult, sensitivityResult);
 
@@ -367,7 +367,7 @@ class RaUsageLimitsFillerTest extends AbstractFillerTest {
         linearProblem = new LinearProblemBuilder()
             .withProblemFiller(coreProblemFiller)
             .withProblemFiller(raUsageLimitsFiller)
-            .withSolver(mpSolver)
+            .withSolver(RangeActionsOptimizationParameters.Solver.SCIP)
             .build();
         linearProblem.fill(flowResult, sensitivityResult);
 
@@ -407,7 +407,7 @@ class RaUsageLimitsFillerTest extends AbstractFillerTest {
         linearProblem = new LinearProblemBuilder()
             .withProblemFiller(coreProblemFiller)
             .withProblemFiller(raUsageLimitsFiller)
-            .withSolver(mpSolver)
+            .withSolver(RangeActionsOptimizationParameters.Solver.SCIP)
             .build();
         linearProblem.fill(flowResult, sensitivityResult);
 

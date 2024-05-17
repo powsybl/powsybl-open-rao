@@ -56,15 +56,16 @@ public class MaxMinRelativeMarginFiller extends MaxMinMarginFiller {
         super.fill(linearProblem, flowResult, sensitivityResult);
         buildMinimumRelativeMarginSignBinaryVariable(linearProblem);
         updateMinimumNegativeMarginDefinition(linearProblem);
-        buildMinimumRelativeMarginVariable(linearProblem);
-        buildMinimumRelativeMarginConstraints(linearProblem);
+        Set<FlowCnec> validFlowCnecs = FillersUtil.getValidFlowCnecs(optimizedCnecs, sensitivityResult);
+        buildMinimumRelativeMarginVariable(linearProblem, validFlowCnecs);
+        buildMinimumRelativeMarginConstraints(linearProblem, validFlowCnecs);
         fillObjectiveWithMinRelMargin(linearProblem);
     }
 
     @Override
     public void updateBetweenSensiIteration(LinearProblem linearProblem, FlowResult flowResult, SensitivityResult sensitivityResult, RangeActionActivationResult rangeActionActivationResult) {
         if (ptdfApproximationLevel.shouldUpdatePtdfWithPstChange()) {
-            optimizedCnecs.forEach(cnec -> cnec.getMonitoredSides().forEach(side ->
+            FillersUtil.getValidFlowCnecs(optimizedCnecs, sensitivityResult).forEach(cnec -> cnec.getMonitoredSides().forEach(side ->
                 setOrUpdateRelativeMarginCoefficients(linearProblem, flowResult, cnec, side)
             ));
         }
@@ -87,8 +88,8 @@ public class MaxMinRelativeMarginFiller extends MaxMinMarginFiller {
      * Add a new minimum relative margin variable. Unfortunately, we cannot force it to be positive since it
      * should be able to be negative in unsecured cases (see constraints)
      */
-    private void buildMinimumRelativeMarginVariable(LinearProblem linearProblem) {
-        if (!optimizedCnecs.isEmpty()) {
+    private void buildMinimumRelativeMarginVariable(LinearProblem linearProblem, Set<FlowCnec> validFlowCnecs) {
+        if (!validFlowCnecs.isEmpty()) {
             linearProblem.addMinimumRelativeMarginVariable(-LinearProblem.infinity(), LinearProblem.infinity());
         } else {
             // if there is no Cnecs, the minRelativeMarginVariable is forced to zero.
@@ -108,7 +109,7 @@ public class MaxMinRelativeMarginFiller extends MaxMinMarginFiller {
     /**
      * Define the minimum relative margin (like absolute margin but by dividing by sum of PTDFs)
      */
-    private void buildMinimumRelativeMarginConstraints(LinearProblem linearProblem) {
+    private void buildMinimumRelativeMarginConstraints(LinearProblem linearProblem, Set<FlowCnec> validFlowCnecs) {
         OpenRaoMPVariable minRelMarginVariable = linearProblem.getMinimumRelativeMarginVariable();
         OpenRaoMPVariable minRelMarginSignBinaryVariable = linearProblem.getMinimumRelativeMarginSignBinaryVariable();
 
@@ -119,7 +120,7 @@ public class MaxMinRelativeMarginFiller extends MaxMinMarginFiller {
         minimumRelativeMarginSetToZero.setCoefficient(minRelMarginSignBinaryVariable, -maxPositiveRelativeRam);
         minimumRelativeMarginSetToZero.setCoefficient(minRelMarginVariable, 1);
 
-        optimizedCnecs.forEach(cnec -> cnec.getMonitoredSides().forEach(side ->
+        validFlowCnecs.forEach(cnec -> cnec.getMonitoredSides().forEach(side ->
             setOrUpdateRelativeMarginCoefficients(linearProblem, initialFlowResult, cnec, side)
         ));
     }

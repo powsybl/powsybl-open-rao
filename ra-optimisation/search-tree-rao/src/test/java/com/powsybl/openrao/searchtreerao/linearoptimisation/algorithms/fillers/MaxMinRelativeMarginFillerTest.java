@@ -100,7 +100,7 @@ class MaxMinRelativeMarginFillerTest extends AbstractFillerTest {
         linearProblem = new LinearProblemBuilder()
             .withProblemFiller(coreProblemFiller)
             .withProblemFiller(maxMinRelativeMarginFiller)
-            .withSolver(mpSolver)
+            .withSolver(RangeActionsOptimizationParameters.Solver.SCIP)
             .build();
         linearProblem.fill(flowResult, sensitivityResult);
     }

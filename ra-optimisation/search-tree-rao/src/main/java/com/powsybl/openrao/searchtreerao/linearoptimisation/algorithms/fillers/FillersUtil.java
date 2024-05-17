@@ -19,6 +19,7 @@ import java.util.stream.Collectors;
 
 /**
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
+ * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
 public final class FillersUtil {
     private FillersUtil() {
@@ -38,7 +39,6 @@ public final class FillersUtil {
      * @param sensitivityResult: the sensitivity result containing computation statuses for the flow CNECs' states
      * @return a set of filtered CNECs, containing only flow CNECs with a state that succeeded sensitivity computation
      */
-    // TODO : unit test for this
     static Set<FlowCnec> getValidFlowCnecs(Set<FlowCnec> flowCnecs, SensitivityResult sensitivityResult) {
         Set<State> skippedStates = flowCnecs.stream().map(Cnec::getState).distinct()
             .filter(state -> sensitivityResult.getSensitivityStatus(state).equals(ComputationStatus.FAILURE)).collect(Collectors.toSet());

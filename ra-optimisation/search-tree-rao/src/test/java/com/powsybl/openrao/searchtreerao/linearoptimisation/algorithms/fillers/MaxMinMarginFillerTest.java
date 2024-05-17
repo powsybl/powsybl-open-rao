@@ -78,7 +78,7 @@ class MaxMinMarginFillerTest extends AbstractFillerTest {
         linearProblem = new LinearProblemBuilder()
             .withProblemFiller(coreProblemFiller)
             .withProblemFiller(maxMinMarginFiller)
-            .withSolver(mpSolver)
+            .withSolver(RangeActionsOptimizationParameters.Solver.SCIP)
             .build();
         linearProblem.fill(flowResult, sensitivityResult);
     }
@@ -167,7 +167,7 @@ class MaxMinMarginFillerTest extends AbstractFillerTest {
         createMaxMinMarginFiller(Unit.MEGAWATT);
         linearProblem = new LinearProblemBuilder()
             .withProblemFiller(maxMinMarginFiller)
-            .withSolver(mpSolver)
+            .withSolver(RangeActionsOptimizationParameters.Solver.SCIP)
             .build();
 
         // AbsoluteRangeActionVariables present, but no the FlowVariables
@@ -182,7 +182,7 @@ class MaxMinMarginFillerTest extends AbstractFillerTest {
             createMaxMinMarginFiller(Unit.MEGAWATT);
             linearProblem = new LinearProblemBuilder()
                 .withProblemFiller(maxMinMarginFiller)
-                .withSolver(mpSolver)
+                .withSolver(RangeActionsOptimizationParameters.Solver.SCIP)
                 .build();
 
             // FlowVariables present , but not the absoluteRangeActionVariables present,

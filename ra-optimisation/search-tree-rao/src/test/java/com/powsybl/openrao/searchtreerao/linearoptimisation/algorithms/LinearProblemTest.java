@@ -13,7 +13,6 @@ import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
 import com.powsybl.openrao.data.cracapi.cnec.Side;
 import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeAction;
 import com.powsybl.openrao.raoapi.parameters.RangeActionsOptimizationParameters;
-import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.OpenRaoMPSolver;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.LinearProblem;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.LinearProblemBuilder;
 import org.junit.jupiter.api.BeforeEach;
@@ -23,8 +22,9 @@ import org.mockito.Mockito;
 import java.util.Collections;
 import java.util.Optional;
 
-import static com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.LinearProblem.VariationDirectionExtension.*;
-import static com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.LinearProblem.VariationReferenceExtension.*;
+import static com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.LinearProblem.VariationDirectionExtension.DOWNWARD;
+import static com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.LinearProblem.VariationDirectionExtension.UPWARD;
+import static com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.LinearProblem.VariationReferenceExtension.PREVIOUS_ITERATION;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -48,8 +48,7 @@ class LinearProblemTest {
 
     @BeforeEach
     public void setUp() {
-        OpenRaoMPSolver solver = new OpenRaoMPSolver("rao", RangeActionsOptimizationParameters.Solver.SCIP);
-        linearProblem = new LinearProblemBuilder().withSolver(solver).build();
+        linearProblem = new LinearProblemBuilder().withSolver(RangeActionsOptimizationParameters.Solver.SCIP).build();
 
         rangeAction = Mockito.mock(PstRangeAction.class);
         cnec = Mockito.mock(FlowCnec.class);
