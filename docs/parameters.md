@@ -641,11 +641,7 @@ Zones are seperated by + or -.
     "hint-from-first-preventive-rao" : true
   },
   "not-optimized-cnecs" : {
-    "do-not-optimize-curative-cnecs-for-tsos-without-cras" : false,
-    "do-not-optimize-cnec-secured-by-its-pst" : {
-      "NE1" : "PST1",
-      "NE2" : "PST2"
-    }
+    "do-not-optimize-curative-cnecs-for-tsos-without-cras" : false
   },
   "load-flow-and-sensitivity-computation" : {
     "load-flow-provider" : "OpenLoadFlow",

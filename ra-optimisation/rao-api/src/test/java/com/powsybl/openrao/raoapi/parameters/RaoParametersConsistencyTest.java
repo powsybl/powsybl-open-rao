@@ -102,65 +102,6 @@ class RaoParametersConsistencyTest {
     }
 
     @Test
-    void testNonNullMaps() {
-        NotOptimizedCnecsParameters nocp = parameters.getNotOptimizedCnecsParameters();
-        nocp.setDoNotOptimizeCnecsSecuredByTheirPst(Map.of("cnec1", "pst1"));
-        nocp.setDoNotOptimizeCnecsSecuredByTheirPst(null);
-        assertNotNull(nocp.getDoNotOptimizeCnecsSecuredByTheirPst());
-        assertTrue(nocp.getDoNotOptimizeCnecsSecuredByTheirPst().isEmpty());
-    }
-
-    @Test
-    void testIncompatibleParameters1() {
-        NotOptimizedCnecsParameters nocp = parameters.getNotOptimizedCnecsParameters();
-
-        nocp.setDoNotOptimizeCnecsSecuredByTheirPst(Map.of("cnec1", "pst1"));
-        assertThrows(OpenRaoException.class, () -> nocp.setDoNotOptimizeCurativeCnecsForTsosWithoutCras(true));
-    }
-
-    @Test
-    void testIncompatibleParameters2() {
-        NotOptimizedCnecsParameters nocp = parameters.getNotOptimizedCnecsParameters();
-
-        nocp.setDoNotOptimizeCurativeCnecsForTsosWithoutCras(true);
-        Map<String, String> stringMap = Map.of("cnec1", "pst1");
-        assertThrows(OpenRaoException.class, () -> nocp.setDoNotOptimizeCnecsSecuredByTheirPst(stringMap));
-    }
-
-    @Test
-    void testIncompatibleParameters3() {
-        NotOptimizedCnecsParameters nocp = parameters.getNotOptimizedCnecsParameters();
-        nocp.setDoNotOptimizeCurativeCnecsForTsosWithoutCras(false);
-        nocp.setDoNotOptimizeCnecsSecuredByTheirPst(Map.of("cnec1", "pst1"));
-        assertEquals(Map.of("cnec1", "pst1"), nocp.getDoNotOptimizeCnecsSecuredByTheirPst());
-    }
-
-    @Test
-    void testIncompatibleParameters4() {
-        NotOptimizedCnecsParameters nocp = parameters.getNotOptimizedCnecsParameters();
-        nocp.setDoNotOptimizeCnecsSecuredByTheirPst(null);
-        nocp.setDoNotOptimizeCurativeCnecsForTsosWithoutCras(true);
-        assertEquals(Collections.emptyMap(), nocp.getDoNotOptimizeCnecsSecuredByTheirPst());
-
-    }
-
-    @Test
-    void testIncompatibleParameters5() {
-        NotOptimizedCnecsParameters nocp = parameters.getNotOptimizedCnecsParameters();
-        nocp.setDoNotOptimizeCurativeCnecsForTsosWithoutCras(true);
-        nocp.setDoNotOptimizeCnecsSecuredByTheirPst(Collections.emptyMap());
-        assertEquals(Collections.emptyMap(), nocp.getDoNotOptimizeCnecsSecuredByTheirPst());
-    }
-
-    @Test
-    void testIncompatibleParameters6() {
-        NotOptimizedCnecsParameters nocp = parameters.getNotOptimizedCnecsParameters();
-        nocp.setDoNotOptimizeCnecsSecuredByTheirPst(Map.of("cnec1", "pst1"));
-        nocp.setDoNotOptimizeCurativeCnecsForTsosWithoutCras(false);
-        assertFalse(nocp.getDoNotOptimizeCurativeCnecsForTsosWithoutCras());
-    }
-
-    @Test
     void testFailsOnLowSensitivityThreshold() {
         RangeActionsOptimizationParameters rangeActionsOptimizationParameters = parameters.getRangeActionsOptimizationParameters();
 
