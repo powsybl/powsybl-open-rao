@@ -68,6 +68,25 @@ Feature: US 19.11: Handle maximum number of elementary actions per TSO
     And the flow on cnec "BBE1AA1  BBE2AA1  1 - preventive" after PRA should be -511.0 MW
     And the worst margin is 39.0 MW
 
+  @fast @rao @preventive-only
+  Scenario: US 19.11.4: Limit elementary actions with PSTs and 3 curative instants
+    Given network file is "epic19/small-network-2P-open-twin-lines.uct"
+    Given crac file is "epic19/small-crac-with-max-elementary-actions-pst-3-curative-instants.json"
+    Given configuration file is "epic19/RaoParameters_dc_discrete.json"
+    When I launch search_tree_rao
+    # At each curative instant, the PST could theoretically go down to tap -16
+    # But the tap decreases more slowly over the 3 curative instants
+    Then the initial flow on cnec "BBE1AA1  BBE2AA1  1 - preventive" should be -596.0 MW
+    And 1 remedial actions are used after "co1_fr1_fr3_1" at "curative1"
+    And the remedial action "pst_be" is used after "co1_fr1_fr3_1" at "curative1"
+    And the tap of PstRangeAction "pst_be" should be -1 after "co1_fr1_fr3_1" at "curative1"
+    And 1 remedial actions are used after "co1_fr1_fr3_1" at "curative2"
+    And the remedial action "pst_be" is used after "co1_fr1_fr3_1" at "curative2"
+    And the tap of PstRangeAction "pst_be" should be -3 after "co1_fr1_fr3_1" at "curative2"
+    And 1 remedial actions are used after "co1_fr1_fr3_1" at "curative3"
+    And the remedial action "pst_be" is used after "co1_fr1_fr3_1" at "curative3"
+    And the tap of PstRangeAction "pst_be" should be -7 after "co1_fr1_fr3_1" at "curative3"
+
   # TODO: /!\ PST moved in preventive => use previous instant's tap and not initial tap (PST prev + cur) (-5 prev, -8 curatif)
   # TODO [max-elementary-actions]: test with multi-curative
   # TODO: non PST range actions
