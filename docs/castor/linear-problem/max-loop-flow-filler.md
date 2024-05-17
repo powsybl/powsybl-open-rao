@@ -4,15 +4,13 @@
 
 | Name                      | Symbol                    | Details                                                                                                                                                                                                                                          |
 |---------------------------|---------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| LoopFlowCnecs             | $c \in \mathcal{C} ^{lf}$ | Set of FlowCnecs[^2] with a loop-flow threshold. (for example, in CORE CC, loop-flows are monitored on cross-border CNECs). LoopFlowCnecs is a subset of [FlowCnecs](core-problem-filler.md#input-data): $\mathcal{C} ^{lf} \subset \mathcal{C}$ |
-| Reference commercial flow | $f^{commercial} (c)$      | Commercial flow[^1], of LoopFlowCnec $c$, at the beginning of the optimization, in MW.                                                                                                                                                           |
+| LoopFlowCnecs             | $c \in \mathcal{C} ^{lf}$ | Set of FlowCnecs[^1] with a loop-flow threshold. (for example, in CORE CC, loop-flows are monitored on cross-border CNECs). LoopFlowCnecs is a subset of [FlowCnecs](core-problem-filler.md#input-data): $\mathcal{C} ^{lf} \subset \mathcal{C}$ |
+| Reference commercial flow | $f^{commercial} (c)$      | Commercial flow[^2], of LoopFlowCnec $c$, at the beginning of the optimization, in MW.                                                                                                                                                           |
 | initial loop-flow         | $f^{loop} _ {0} (c)$      | loop-flow before RAO of LoopFlowCnec $c$, in MW                                                                                                                                                                                                  |
 | loop-flow threshold       | $lf^{threshold} (c)$      | loop-flow threshold of the LoopFlowCnec $c$, in MW, as defined in the CRAC.                                                                                                                                                                      |
 
-[^1]: The commercial flow is computed oustide the MILP,
-see [loop-flow computation](/castor/special-features/loop-flows.md#computation)
-
-[^2]: CNECs that belong to a state for which sensitivity computations failed are ignored in the MILP
+[^1]: CNECs that belong to a state for which sensitivity computations failed are ignored in the MILP  
+[^2]: The commercial flow is computed oustide the MILP, see [loop-flow computation](/castor/special-features/loop-flows.md#computation)
 
 ## Used parameters
 

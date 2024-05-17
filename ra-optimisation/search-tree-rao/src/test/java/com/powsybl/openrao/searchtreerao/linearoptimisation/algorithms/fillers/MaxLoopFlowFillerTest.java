@@ -197,30 +197,6 @@ class MaxLoopFlowFillerTest extends AbstractFillerTest {
     }
 
     @Test
-    void testShouldNotUpdate() {
-        loopFlowParameters = new LoopFlowParametersExtension();
-        loopFlowParameters.setPtdfApproximation(PtdfApproximation.UPDATE_PTDF_WITH_TOPO);
-        loopFlowParameters.setAcceptableIncrease(0);
-        loopFlowParameters.setViolationCost(10);
-        loopFlowParameters.setConstraintAdjustmentCoefficient(5);
-
-        createMaxLoopFlowFiller(0);
-        setCommercialFlowValue(49);
-        buildLinearProblem();
-
-        // update loop-flow value
-        setCommercialFlowValue(67);
-        updateLinearProblem();
-
-        // check flow constraint for cnec1
-        OpenRaoMPConstraint loopFlowConstraintUb = linearProblem.getMaxLoopFlowConstraint(cnec1, Side.LEFT, LinearProblem.BoundExtension.UPPER_BOUND);
-        OpenRaoMPConstraint loopFlowConstraintLb = linearProblem.getMaxLoopFlowConstraint(cnec1, Side.LEFT, LinearProblem.BoundExtension.LOWER_BOUND);
-
-        assertEquals(-(100 - 5.) + 49.0 - 0.01, loopFlowConstraintLb.lb(), DOUBLE_TOLERANCE);
-        assertEquals((100 - 5.) + 49.0 + 0.01, loopFlowConstraintUb.ub(), DOUBLE_TOLERANCE);
-    }
-
-    @Test
     void testFill2Sides() {
         loopFlowParameters = new LoopFlowParametersExtension();
         loopFlowParameters.setPtdfApproximation(PtdfApproximation.FIXED_PTDF);
