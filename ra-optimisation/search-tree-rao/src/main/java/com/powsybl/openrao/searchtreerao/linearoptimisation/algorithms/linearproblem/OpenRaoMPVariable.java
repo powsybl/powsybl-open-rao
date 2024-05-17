@@ -7,15 +7,12 @@
 
 package com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem;
 
-import com.powsybl.openrao.searchtreerao.commons.RaoUtil;
 import com.google.ortools.linearsolver.MPVariable;
 
 /**
  * @author Philippe Edwards {@literal <philippe.edwards at rte-international.com>}
  */
 public class OpenRaoMPVariable {
-    // TODO: test this class
-
     private final MPVariable mpVariable;
     private final int numberOfBitsToRoundOff;
 
@@ -37,15 +34,15 @@ public class OpenRaoMPVariable {
     }
 
     public void setLb(double lb) {
-        mpVariable.setLb(RaoUtil.roundDouble(lb, numberOfBitsToRoundOff));
+        mpVariable.setLb(OpenRaoMPSolver.roundDouble(lb, numberOfBitsToRoundOff));
     }
 
     public void setUb(double ub) {
-        mpVariable.setUb(RaoUtil.roundDouble(ub, numberOfBitsToRoundOff));
+        mpVariable.setUb(OpenRaoMPSolver.roundDouble(ub, numberOfBitsToRoundOff));
     }
 
     public void setBounds(double lb, double ub) {
-        mpVariable.setBounds(RaoUtil.roundDouble(lb, numberOfBitsToRoundOff), RaoUtil.roundDouble(ub, numberOfBitsToRoundOff));
+        mpVariable.setBounds(OpenRaoMPSolver.roundDouble(lb, numberOfBitsToRoundOff), OpenRaoMPSolver.roundDouble(ub, numberOfBitsToRoundOff));
     }
 
     MPVariable getMPVariable() {
@@ -54,12 +51,5 @@ public class OpenRaoMPVariable {
 
     public double solutionValue() {
         return mpVariable.solutionValue();
-    }
-
-    void remove() {
-        // It is currently impossible to remove a variable from an OR-Tools MPSolver
-        // mpVariable.delete(); does not remove the variable
-        // The only (almost) equivalent workaround is to remove all constraints on the variable
-        setBounds(-LinearProblem.infinity(), LinearProblem.infinity());
     }
 }

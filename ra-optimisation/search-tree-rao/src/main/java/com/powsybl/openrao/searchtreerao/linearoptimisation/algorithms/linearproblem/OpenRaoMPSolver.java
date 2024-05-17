@@ -83,15 +83,6 @@ public class OpenRaoMPSolver {
         }
     }
 
-    public void removeConstraint(String name) {
-        if (hasConstraint(name)) {
-            constraints.get(name).remove(mpSolver);
-            constraints.remove(name);
-        } else {
-            throw new OpenRaoException(String.format("Constraint %s has not been created yet", name));
-        }
-    }
-
     public boolean hasVariable(String name) {
         return variables.containsKey(name);
     }
@@ -99,15 +90,6 @@ public class OpenRaoMPSolver {
     public OpenRaoMPVariable getVariable(String name) {
         if (hasVariable(name)) {
             return variables.get(name);
-        } else {
-            throw new OpenRaoException(String.format("Variable %s has not been created yet", name));
-        }
-    }
-
-    public void removeVariable(String name) {
-        if (hasVariable(name)) {
-            variables.get(name).remove();
-            variables.remove(name);
         } else {
             throw new OpenRaoException(String.format("Variable %s has not been created yet", name));
         }
@@ -132,41 +114,21 @@ public class OpenRaoMPSolver {
     private OpenRaoMPVariable makeVar(double lb, double ub, boolean integer, String name) {
         if (hasVariable(name)) {
             throw new OpenRaoException(String.format("Variable %s already exists", name));
-        } else {
-            double roundedLb = RaoUtil.roundDouble(lb, NUMBER_OF_BITS_TO_ROUND_OFF);
-            double roundedUb = RaoUtil.roundDouble(ub, NUMBER_OF_BITS_TO_ROUND_OFF);
-            MPVariable mpVariable;
-            if (mpSolver.lookupVariableOrNull(name) != null) {
-                // This means that the variable was created before but removed in the meantime during an update
-                // Since it could not be removed from OR-Tools, we should re-use it
-                mpVariable = mpSolver.lookupVariableOrNull(name);
-                mpVariable.setBounds(roundedLb, roundedUb);
-                mpVariable.setInteger(integer);
-            } else {
-                mpVariable = mpSolver.makeVar(roundedLb, roundedUb, integer, name);
-            }
-            OpenRaoMPVariable variable = new OpenRaoMPVariable(mpVariable, NUMBER_OF_BITS_TO_ROUND_OFF);
-            variables.put(name, variable);
-            return variable;
         }
+        double roundedLb = roundDouble(lb, NUMBER_OF_BITS_TO_ROUND_OFF);
+        double roundedUb = roundDouble(ub, NUMBER_OF_BITS_TO_ROUND_OFF);
+        OpenRaoMPVariable variable = new OpenRaoMPVariable(mpSolver.makeVar(roundedLb, roundedUb, integer, name), NUMBER_OF_BITS_TO_ROUND_OFF);
+        variables.put(name, variable);
+        return variable;
     }
 
     public OpenRaoMPConstraint makeConstraint(double lb, double ub, String name) {
         if (hasConstraint(name)) {
             throw new OpenRaoException(String.format("Constraint %s already exists", name));
         } else {
-            double roundedLb = RaoUtil.roundDouble(lb, NUMBER_OF_BITS_TO_ROUND_OFF);
-            double roundedUb = RaoUtil.roundDouble(ub, NUMBER_OF_BITS_TO_ROUND_OFF);
-            MPConstraint mpConstraint;
-            if (mpSolver.lookupConstraintOrNull(name) != null) {
-                // This means that the constraint was created before but removed in the meantime during an update
-                // Since it could not be removed from OR-Tools, we should re-use it
-                mpConstraint = mpSolver.lookupConstraintOrNull(name);
-                mpConstraint.setBounds(roundedLb, roundedUb);
-            } else {
-                mpConstraint = mpSolver.makeConstraint(roundedLb, roundedUb, name);
-            }
-            OpenRaoMPConstraint constraint = new OpenRaoMPConstraint(mpConstraint, NUMBER_OF_BITS_TO_ROUND_OFF);
+            double roundedLb = roundDouble(lb, NUMBER_OF_BITS_TO_ROUND_OFF);
+            double roundedUb = roundDouble(ub, NUMBER_OF_BITS_TO_ROUND_OFF);
+            OpenRaoMPConstraint constraint = new OpenRaoMPConstraint(mpSolver.makeConstraint(roundedLb, roundedUb, name), NUMBER_OF_BITS_TO_ROUND_OFF);
             constraints.put(name, constraint);
             return constraint;
         }
@@ -189,14 +151,13 @@ public class OpenRaoMPSolver {
     }
 
     public LinearProblemStatus solve() {
-        String lp = mpSolver.exportModelAsLpFormat();
         if (OpenRaoLoggerProvider.TECHNICAL_LOGS.isTraceEnabled()) {
             mpSolver.enableOutput();
         }
         return convertResultStatus(mpSolver.solve(solveConfiguration));
     }
 
-    private static LinearProblemStatus convertResultStatus(MPSolver.ResultStatus status) {
+    static LinearProblemStatus convertResultStatus(MPSolver.ResultStatus status) {
         return switch (status) {
             case OPTIMAL -> LinearProblemStatus.OPTIMAL;
             case ABNORMAL -> LinearProblemStatus.ABNORMAL;
@@ -204,7 +165,7 @@ public class OpenRaoMPSolver {
             case UNBOUNDED -> LinearProblemStatus.UNBOUNDED;
             case INFEASIBLE -> LinearProblemStatus.INFEASIBLE;
             case NOT_SOLVED -> LinearProblemStatus.NOT_SOLVED;
-            default -> throw new NotImplementedException(String.format("Status %s not handled.", status));
+            default -> throw new OpenRaoException(String.format("Status %s not handled.", status));
         };
     }
 
@@ -214,5 +175,29 @@ public class OpenRaoMPSolver {
 
     public int numConstraints() {
         return constraints.size();
+    }
+
+    /* Method used to make sure the MIP is reproducible. This basically rounds the least significant bits of a double.
+     Let's say a double has 10 precision bits (in reality, 52)
+     We take an initial double:
+       .............//////////.....
+     To which we add a "bigger" double :
+       .........\\\\\\\\\\..........
+      =>
+       .........\\\\||||||..........
+       (we "lose" the least significant bits of the first double because the sum double doesn't have enough precision to show them)
+     Then we subtract the same "bigger" double:
+       .............//////..........
+       We get back our original bits for the most significant part, but the least significant bits are still gone.
+     */
+    static double roundDouble(double value, int numberOfBitsToRoundOff) {
+        if (Double.isNaN(value)) {
+            throw new OpenRaoException("Trying to add a NaN value in MIP!");
+        }
+        double t = value * (1L << numberOfBitsToRoundOff);
+        if (t != Double.POSITIVE_INFINITY && value != Double.NEGATIVE_INFINITY && !Double.isNaN(t)) {
+            return value - t + t;
+        }
+        return value;
     }
 }

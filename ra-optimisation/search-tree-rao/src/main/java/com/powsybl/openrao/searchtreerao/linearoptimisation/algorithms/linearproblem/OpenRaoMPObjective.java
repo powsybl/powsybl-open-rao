@@ -7,7 +7,6 @@
 
 package com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem;
 
-import com.powsybl.openrao.searchtreerao.commons.RaoUtil;
 import com.google.ortools.linearsolver.MPObjective;
 
 /**
@@ -27,7 +26,7 @@ public class OpenRaoMPObjective {
     }
 
     public void setCoefficient(OpenRaoMPVariable variable, double coeff) {
-        mpObjective.setCoefficient(variable.getMPVariable(), RaoUtil.roundDouble(coeff, numberOfBitsToRoundOff));
+        mpObjective.setCoefficient(variable.getMPVariable(), OpenRaoMPSolver.roundDouble(coeff, numberOfBitsToRoundOff));
     }
 
     public boolean minimization() {

@@ -11,6 +11,8 @@ import com.google.ortools.linearsolver.MPSolver;
 import com.google.ortools.linearsolver.MPVariable;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.raoapi.parameters.RangeActionsOptimizationParameters;
+import com.powsybl.openrao.searchtreerao.commons.RaoUtil;
+import com.powsybl.openrao.searchtreerao.result.api.LinearProblemStatus;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -33,9 +35,14 @@ public class OpenRaoMPSolverTest {
     }
 
     @Test
-    public void testConstruct() {
-        assertEquals(MPSolver.OptimizationProblemType.SCIP_MIXED_INTEGER_PROGRAMMING, new OpenRaoMPSolver("rao_test_prob", RangeActionsOptimizationParameters.Solver.SCIP).getMpSolver().problemType());
-        assertEquals(MPSolver.OptimizationProblemType.CBC_MIXED_INTEGER_PROGRAMMING, new OpenRaoMPSolver("rao_test_prob", RangeActionsOptimizationParameters.Solver.CBC).getMpSolver().problemType());
+    public void basicTest() {
+        assertNotNull(openRaoMPSolver.getObjective());
+        assertEquals(RangeActionsOptimizationParameters.Solver.SCIP, openRaoMPSolver.getSolver());
+        assertEquals(MPSolver.OptimizationProblemType.SCIP_MIXED_INTEGER_PROGRAMMING, openRaoMPSolver.getMpSolver().problemType());
+
+        openRaoMPSolver = new OpenRaoMPSolver("rao_test_prob", RangeActionsOptimizationParameters.Solver.CBC);
+        assertEquals(RangeActionsOptimizationParameters.Solver.CBC, openRaoMPSolver.getSolver());
+        assertEquals(MPSolver.OptimizationProblemType.CBC_MIXED_INTEGER_PROGRAMMING, openRaoMPSolver.getMpSolver().problemType());
     }
 
     @Test
@@ -43,16 +50,19 @@ public class OpenRaoMPSolverTest {
         String varName = "var1";
         assertEquals(0, openRaoMPSolver.numVariables());
 
+        // Check exception on get before adding variable
+        Exception e = assertThrows(OpenRaoException.class, () -> openRaoMPSolver.getVariable(varName));
+        assertEquals("Variable var1 has not been created yet", e.getMessage());
+
         // Add variable
         OpenRaoMPVariable var1 = openRaoMPSolver.makeNumVar(-5, 3.6, varName);
 
         // Check exception when re-adding
-        Exception e = assertThrows(OpenRaoException.class, () -> openRaoMPSolver.makeNumVar(-5, 3.6, varName));
+        e = assertThrows(OpenRaoException.class, () -> openRaoMPSolver.makeNumVar(-5, 3.6, varName));
         assertEquals("Variable var1 already exists", e.getMessage());
 
         // Check OpenRaoMPVariable
-        assertEquals(-5, var1.lb(), DOUBLE_TOLERANCE);
-        assertEquals(3.6, var1.ub(), DOUBLE_TOLERANCE);
+        assertEquals(varName, var1.name());
         assertTrue(openRaoMPSolver.hasVariable(varName));
         assertEquals(var1, openRaoMPSolver.getVariable(varName));
         assertEquals(1, openRaoMPSolver.numVariables());
@@ -60,42 +70,25 @@ public class OpenRaoMPSolverTest {
         // Check OR-Tools object
         MPVariable orToolsVar1 = mpSolver.lookupVariableOrNull(varName);
         assertNotNull(orToolsVar1);
-        assertEquals(-5, orToolsVar1.lb(), DOUBLE_TOLERANCE);
-        assertEquals(3.6, orToolsVar1.ub(), DOUBLE_TOLERANCE);
 
-        // Remove variable
-        openRaoMPSolver.removeVariable(varName);
+        checkVarBounds(var1, orToolsVar1, -5, 3.6);
 
-        // Check OpenRaoMPVariable has disappeared
-        assertFalse(openRaoMPSolver.hasVariable(varName));
-        assertEquals(0, openRaoMPSolver.numVariables());
-        e = assertThrows(OpenRaoException.class, () -> openRaoMPSolver.getVariable(varName));
-        assertEquals("Variable var1 has not been created yet", e.getMessage());
+        // Change lb/ub & check
+        var1.setLb(-100.);
+        var1.setUb(150.7);
+        checkVarBounds(var1, orToolsVar1, -100., 150.7);
 
-        // Check OR-Tools object
-        orToolsVar1 = mpSolver.lookupVariableOrNull(varName);
-        assertEquals(-LinearProblem.infinity(), orToolsVar1.lb(), INFINITY_TOLERANCE);
-        assertEquals(LinearProblem.infinity(), orToolsVar1.ub(), INFINITY_TOLERANCE);
+        var1.setBounds(-98.5, -97.6);
+        checkVarBounds(var1, orToolsVar1, -98.5, -97.6);
+    }
 
-        // Re-add variable
-        var1 = openRaoMPSolver.makeNumVar(10.7, 30.6, varName);
-
-        // Check OpenRaoMPVariable
-        assertEquals(10.7, var1.lb(), DOUBLE_TOLERANCE);
-        assertEquals(30.6, var1.ub(), DOUBLE_TOLERANCE);
-        assertTrue(openRaoMPSolver.hasVariable(varName));
-        assertEquals(var1, openRaoMPSolver.getVariable(varName));
-        assertEquals(1, openRaoMPSolver.numVariables());
-
-        // Check OR-Tools object
-        orToolsVar1 = mpSolver.lookupVariableOrNull(varName);
-        assertNotNull(orToolsVar1);
-        assertEquals(10.7, orToolsVar1.lb(), DOUBLE_TOLERANCE);
-        assertEquals(30.6, orToolsVar1.ub(), DOUBLE_TOLERANCE);
-
-        // Check throws if trying to remove null variable
-        e = assertThrows(OpenRaoException.class, () -> openRaoMPSolver.removeVariable("var2"));
-        assertEquals("Variable var2 has not been created yet", e.getMessage());
+    private void checkVarBounds(OpenRaoMPVariable raoVar, MPVariable ortoolsVar, double expectedLb, double expectedUb) {
+        // OpenRAO object
+        assertEquals(expectedLb, raoVar.lb(), DOUBLE_TOLERANCE);
+        assertEquals(expectedUb, raoVar.ub(), DOUBLE_TOLERANCE);
+        // OR-Tools object
+        assertEquals(expectedLb, ortoolsVar.lb(), DOUBLE_TOLERANCE);
+        assertEquals(expectedUb, ortoolsVar.ub(), DOUBLE_TOLERANCE);
     }
 
     @Test
@@ -126,64 +119,54 @@ public class OpenRaoMPSolverTest {
         // Add variable
         OpenRaoMPVariable var1 = openRaoMPSolver.makeNumVar(-5, 3.6, varName);
 
+        // Check exception on get before adding constraint
+        Exception e = assertThrows(OpenRaoException.class, () -> openRaoMPSolver.getConstraint(constName));
+        assertEquals("Constraint const1 has not been created yet", e.getMessage());
+
         // Add constraint & coefficient
         OpenRaoMPConstraint const1 = openRaoMPSolver.makeConstraint(-121.6, 65.956, constName);
         const1.setCoefficient(var1, 648.9);
 
         // Check exception when re-adding
-        Exception e = assertThrows(OpenRaoException.class, () -> openRaoMPSolver.makeConstraint(-121.6, 65.956, constName));
+        e = assertThrows(OpenRaoException.class, () -> openRaoMPSolver.makeConstraint(-121.6, 65.956, constName));
         assertEquals("Constraint const1 already exists", e.getMessage());
 
         // Check OpenRaoMPConstraint
-        assertEquals(-121.6, const1.lb(), DOUBLE_TOLERANCE);
-        assertEquals(65.956, const1.ub(), DOUBLE_TOLERANCE);
         assertTrue(openRaoMPSolver.hasConstraint(constName));
         assertEquals(const1, openRaoMPSolver.getConstraint(constName));
         assertEquals(648.9, const1.getCoefficient(var1), DOUBLE_TOLERANCE);
         assertEquals(1, openRaoMPSolver.numConstraints());
+        assertEquals(constName, const1.name());
 
         // Check OR-Tools object
         MPConstraint orToolsConst1 = mpSolver.lookupConstraintOrNull(constName);
         assertNotNull(orToolsConst1);
-        assertEquals(-121.6, orToolsConst1.lb(), DOUBLE_TOLERANCE);
-        assertEquals(65.956, orToolsConst1.ub(), DOUBLE_TOLERANCE);
         MPVariable orToolsVar1 = mpSolver.lookupVariableOrNull(varName);
         assertEquals(648.9, orToolsConst1.getCoefficient(orToolsVar1), DOUBLE_TOLERANCE);
 
-        // Remove constraint
-        openRaoMPSolver.removeConstraint(constName);
+        checkConstBounds(const1, orToolsConst1, -121.6, 65.956);
 
-        // Check OpenRaoMPConstraint has disappeared
-        assertFalse(openRaoMPSolver.hasConstraint(constName));
-        assertEquals(0, openRaoMPSolver.numConstraints());
-        e = assertThrows(OpenRaoException.class, () -> openRaoMPSolver.getConstraint(constName));
-        assertEquals("Constraint const1 has not been created yet", e.getMessage());
+        // Change lb/ub & check
+        const1.setLb(-100.);
+        const1.setUb(150.7);
+        checkConstBounds(const1, orToolsConst1, -100., 150.7);
 
-        // Check OR-Tools object
-        orToolsConst1 = mpSolver.lookupConstraintOrNull(constName);
-        assertEquals(-LinearProblem.infinity(), orToolsConst1.lb(), INFINITY_TOLERANCE);
-        assertEquals(LinearProblem.infinity(), orToolsConst1.ub(), INFINITY_TOLERANCE);
-        assertEquals(0., orToolsConst1.getCoefficient(orToolsVar1), DOUBLE_TOLERANCE);
+        const1.setBounds(-98.5, -97.6);
+        checkConstBounds(const1, orToolsConst1, -98.5, -97.6);
 
-        // Re-add constraint
-        const1 = openRaoMPSolver.makeConstraint(10.7, 30.6, constName);
+        // Change coef & check
+        const1.setCoefficient(var1, 465.9);
+        assertEquals(465.9, const1.getCoefficient(var1), DOUBLE_TOLERANCE);
+        assertEquals(465.9, orToolsConst1.getCoefficient(orToolsVar1), DOUBLE_TOLERANCE);
+    }
 
-        // Check OpenRaoMPVariable
-        assertEquals(10.7, const1.lb(), DOUBLE_TOLERANCE);
-        assertEquals(30.6, const1.ub(), DOUBLE_TOLERANCE);
-        assertTrue(openRaoMPSolver.hasConstraint(constName));
-        assertEquals(const1, openRaoMPSolver.getConstraint(constName));
-        assertEquals(1, openRaoMPSolver.numConstraints());
-
-        // Check OR-Tools object
-        orToolsConst1 = mpSolver.lookupConstraintOrNull(constName);
-        assertNotNull(orToolsConst1);
-        assertEquals(10.7, orToolsConst1.lb(), DOUBLE_TOLERANCE);
-        assertEquals(30.6, orToolsConst1.ub(), DOUBLE_TOLERANCE);
-
-        // Check throws if trying to remove null variable
-        e = assertThrows(OpenRaoException.class, () -> openRaoMPSolver.removeConstraint("const2"));
-        assertEquals("Constraint const2 has not been created yet", e.getMessage());
+    private void checkConstBounds(OpenRaoMPConstraint raoConst, MPConstraint ortoolsConst, double expectedLb, double expectedUb) {
+        // OpenRAO object
+        assertEquals(expectedLb, raoConst.lb(), DOUBLE_TOLERANCE);
+        assertEquals(expectedUb, raoConst.ub(), DOUBLE_TOLERANCE);
+        // OR-Tools object
+        assertEquals(expectedLb, ortoolsConst.lb(), DOUBLE_TOLERANCE);
+        assertEquals(expectedUb, ortoolsConst.ub(), DOUBLE_TOLERANCE);
     }
 
     @Test
@@ -203,5 +186,103 @@ public class OpenRaoMPSolverTest {
         assertNotNull(orToolsConst1);
         assertEquals(-LinearProblem.infinity(), orToolsConst1.lb(), INFINITY_TOLERANCE);
         assertEquals(LinearProblem.infinity(), orToolsConst1.ub(), INFINITY_TOLERANCE);
+    }
+
+    @Test
+    void testRounding() {
+        double d1 = 1.;
+
+        // big enough deltas are not rounded out by the rounding method
+        double eps = 1e-6;
+        double d2 = d1 + eps;
+        for (int i = 0; i <= 30; i++) {
+            assertNotEquals(OpenRaoMPSolver.roundDouble(d1, i), OpenRaoMPSolver.roundDouble(d2, i), 1e-20);
+        }
+
+        // small deltas are rounded out as long as we round enough bits
+        eps = 1e-15;
+        d2 = d1 + eps;
+        for (int i = 20; i <= 30; i++) {
+            assertEquals(OpenRaoMPSolver.roundDouble(d1, i), OpenRaoMPSolver.roundDouble(d2, i), 1e-20);
+        }
+
+        // infinity
+        assertEquals(Double.POSITIVE_INFINITY, OpenRaoMPSolver.roundDouble(Double.POSITIVE_INFINITY, 30));
+    }
+
+    @Test
+    void testRoundingFailsOnNan() {
+        Exception e = assertThrows(OpenRaoException.class, () -> OpenRaoMPSolver.roundDouble(Double.NaN, 20));
+        assertEquals("Trying to add a NaN value in MIP!", e.getMessage());
+    }
+
+    @Test
+    void testSetSolverSpecificParametersAsString() {
+        assertTrue(openRaoMPSolver.setSolverSpecificParametersAsString(null)); // acceptable
+        assertTrue(openRaoMPSolver.setSolverSpecificParametersAsString("parallel/maxnthreads 1, lp/presolving TRUE")); // acceptable SCIP parameters
+        assertFalse(openRaoMPSolver.setSolverSpecificParametersAsString("parallel/maxnthreads 1, lp/pre_solving TRUE")); // not acceptable SCIP parameters
+    }
+
+    @Test
+    void testConvertResultStatus() {
+        assertEquals(LinearProblemStatus.OPTIMAL, OpenRaoMPSolver.convertResultStatus(MPSolver.ResultStatus.OPTIMAL));
+        assertEquals(LinearProblemStatus.ABNORMAL, OpenRaoMPSolver.convertResultStatus(MPSolver.ResultStatus.ABNORMAL));
+        assertEquals(LinearProblemStatus.FEASIBLE, OpenRaoMPSolver.convertResultStatus(MPSolver.ResultStatus.FEASIBLE));
+        assertEquals(LinearProblemStatus.UNBOUNDED, OpenRaoMPSolver.convertResultStatus(MPSolver.ResultStatus.UNBOUNDED));
+        assertEquals(LinearProblemStatus.INFEASIBLE, OpenRaoMPSolver.convertResultStatus(MPSolver.ResultStatus.INFEASIBLE));
+        assertEquals(LinearProblemStatus.NOT_SOLVED, OpenRaoMPSolver.convertResultStatus(MPSolver.ResultStatus.NOT_SOLVED));
+    }
+
+    @Test
+    void testObjective() {
+        checkObjectiveSense(true); // minimization by default
+
+        openRaoMPSolver.getObjective().setMaximization();
+        checkObjectiveSense(false);
+
+        openRaoMPSolver.getObjective().setMinimization();
+        checkObjectiveSense(true);
+
+        String varName = "var1";
+        OpenRaoMPVariable var1 = openRaoMPSolver.makeNumVar(-5, 3.6, varName);
+
+        openRaoMPSolver.getObjective().setCoefficient(var1, 3.5);
+        assertEquals(3.5, openRaoMPSolver.getObjective().getCoefficient(var1));
+        assertEquals(3.5, mpSolver.objective().getCoefficient(mpSolver.lookupVariableOrNull(varName)));
+
+        openRaoMPSolver.getObjective().setCoefficient(var1, -963.5);
+        assertEquals(-963.5, openRaoMPSolver.getObjective().getCoefficient(var1));
+        assertEquals(-963.5, mpSolver.objective().getCoefficient(mpSolver.lookupVariableOrNull(varName)));
+    }
+
+    private void checkObjectiveSense(boolean minim) {
+        // OpenRAO object
+        assertEquals(minim, openRaoMPSolver.getObjective().minimization());
+        assertEquals(!minim, openRaoMPSolver.getObjective().maximization());
+        // OR-Tools object
+        assertEquals(minim, mpSolver.objective().minimization());
+        assertEquals(!minim, mpSolver.objective().maximization());
+    }
+
+    @Test
+    void testSolve() {
+        // Maximize 2 * x + y
+        // such that: x + y <= 10
+        //            0 <= x <= 4
+        //            0 <= y <= 10
+        // Should result in: x = 4, y = 6, obj = 14
+        OpenRaoMPVariable x = openRaoMPSolver.makeNumVar(0, 4, "x");
+        OpenRaoMPVariable y = openRaoMPSolver.makeNumVar(0, 10, "y");
+        OpenRaoMPConstraint constraint = openRaoMPSolver.makeConstraint(-LinearProblem.LP_INFINITY, 10, "constraint");
+        constraint.setCoefficient(x, 1);
+        constraint.setCoefficient(y, 1);
+        openRaoMPSolver.getObjective().setCoefficient(x, 2);
+        openRaoMPSolver.getObjective().setCoefficient(y, 1);
+        openRaoMPSolver.getObjective().setMaximization();
+        LinearProblemStatus result = openRaoMPSolver.solve();
+
+        assertEquals(LinearProblemStatus.OPTIMAL, result);
+        assertEquals(4., x.solutionValue(), DOUBLE_TOLERANCE);
+        assertEquals(6., y.solutionValue(), DOUBLE_TOLERANCE);
     }
 }
