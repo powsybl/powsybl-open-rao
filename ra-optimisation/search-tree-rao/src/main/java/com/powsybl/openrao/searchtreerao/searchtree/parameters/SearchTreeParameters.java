@@ -207,12 +207,20 @@ public class SearchTreeParameters {
 
     private static Map<String, Integer> decreaseMaxElementaryActionsPerTso(RaUsageLimits raUsageLimits, State optimizedState, OptimizationResult result, PrePerimeterResult prePerimeterResult) {
         Map<String, Integer> decreasedMaxElementaryActionsPerTso = new HashMap<>();
-        raUsageLimits.getMaxElementaryActionsPerTso().forEach(
-            (tso, eaLimit) -> decreasedMaxElementaryActionsPerTso.put(tso, Math.max(0, eaLimit
-                - result.getActivatedNetworkActions().stream().filter(networkAction -> tso.equals(networkAction.getOperator())).mapToInt(networkAction -> networkAction.getElementaryActions().size()).sum()
-                - result.getActivatedRangeActions(optimizedState).stream().filter(rangeAction -> tso.equals(rangeAction.getOperator())).filter(PstRangeAction.class::isInstance).map(PstRangeAction.class::cast).mapToInt(pstRangeAction -> Math.abs(result.getOptimizedTap(pstRangeAction, optimizedState) - prePerimeterResult.getTap(pstRangeAction))).sum()
-            )));
+        raUsageLimits.getMaxElementaryActionsPerTso().forEach((tso, eaLimit) -> decreasedMaxElementaryActionsPerTso.put(tso, Math.max(0, eaLimit - computeActivatedElementaryActionsForTso(tso, optimizedState, result, prePerimeterResult))));
         return decreasedMaxElementaryActionsPerTso;
+    }
+
+    private static int computeActivatedElementaryActionsForTso(String tso, State optimizedState, OptimizationResult result, PrePerimeterResult prePerimeterResult) {
+        return computeActivatedElementaryNetworkActionsForTso(tso, result) + computeTotalTapsMovedForTso(tso, optimizedState, result, prePerimeterResult);
+    }
+
+    private static int computeActivatedElementaryNetworkActionsForTso(String tso, OptimizationResult result) {
+        return result.getActivatedNetworkActions().stream().filter(networkAction -> tso.equals(networkAction.getOperator())).mapToInt(networkAction -> networkAction.getElementaryActions().size()).sum();
+    }
+
+    private static int computeTotalTapsMovedForTso(String tso, State optimizedState, OptimizationResult result, PrePerimeterResult prePerimeterResult) {
+        return result.getActivatedRangeActions(optimizedState).stream().filter(rangeAction -> tso.equals(rangeAction.getOperator())).filter(PstRangeAction.class::isInstance).map(PstRangeAction.class::cast).mapToInt(pstRangeAction -> Math.abs(result.getOptimizedTap(pstRangeAction, optimizedState) - prePerimeterResult.getTap(pstRangeAction))).sum();
     }
 
     public static SearchTreeParametersBuilder create() {
