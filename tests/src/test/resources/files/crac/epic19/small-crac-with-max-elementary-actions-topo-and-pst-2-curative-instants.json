@@ -14,12 +14,19 @@
       "kind": "OUTAGE"
     },
     {
-      "id": "curative",
+      "id": "curative1",
+      "kind": "CURATIVE"
+    },
+    {
+      "id": "curative2",
       "kind": "CURATIVE"
     }
   ],
   "networkElementsNamePerId": {},
-  "contingencies": [],
+  "contingencies": [ {
+    "id" : "co1_fr1_fr3_1",
+    "networkElementsIds" : [ "FFR1AA1  FFR3AA1  1" ]
+  } ],
   "flowCnecs": [
     {
       "id": "BBE1AA1  BBE2AA1  1 - preventive",
@@ -28,6 +35,60 @@
       "operator": "BE",
       "contingencyId" : null,
       "instant": "preventive",
+      "optimized" : true,
+      "monitored" : false,
+      "reliabilityMargin" : 0.0,
+      "iMax" : [ NaN ],
+      "nominalV" : [ 400.0 ],
+      "thresholds" : [ {
+        "unit" : "megawatt",
+        "min" : -600.0,
+        "max" : 600.0,
+        "side" : "left"
+      } ]
+    }, {
+      "id": "BBE1AA1  BBE2AA1  1 - co1_fr1_fr3_1 - outage",
+      "name": "BBE1AA1  BBE2AA1  1 - co1_fr1_fr3_1 - outage",
+      "networkElementId": "BBE1AA1  BBE2AA1  1",
+      "operator": "BE",
+      "contingencyId" : "co1_fr1_fr3_1",
+      "instant": "outage",
+      "optimized" : true,
+      "monitored" : false,
+      "reliabilityMargin" : 0.0,
+      "iMax" : [ NaN ],
+      "nominalV" : [ 400.0 ],
+      "thresholds" : [ {
+        "unit" : "megawatt",
+        "min" : -620.0,
+        "max" : 620.0,
+        "side" : "left"
+      } ]
+    }, {
+      "id": "BBE1AA1  BBE2AA1  1 - co1_fr1_fr3_1 - curative1",
+      "name": "BBE1AA1  BBE2AA1  1 - co1_fr1_fr3_1 - curative1",
+      "networkElementId": "BBE1AA1  BBE2AA1  1",
+      "operator": "BE",
+      "contingencyId" : "co1_fr1_fr3_1",
+      "instant": "curative1",
+      "optimized" : true,
+      "monitored" : false,
+      "reliabilityMargin" : 0.0,
+      "iMax" : [ NaN ],
+      "nominalV" : [ 400.0 ],
+      "thresholds" : [ {
+        "unit" : "megawatt",
+        "min" : -580.0,
+        "max" : 580.0,
+        "side" : "left"
+      } ]
+    }, {
+      "id": "BBE1AA1  BBE2AA1  1 - co1_fr1_fr3_1 - curative2",
+      "name": "BBE1AA1  BBE2AA1  1 - co1_fr1_fr3_1 - curative2",
+      "networkElementId": "BBE1AA1  BBE2AA1  1",
+      "operator": "BE",
+      "contingencyId" : "co1_fr1_fr3_1",
+      "instant": "curative2",
       "optimized" : true,
       "monitored" : false,
       "reliabilityMargin" : 0.0,
@@ -46,12 +107,13 @@
       "id": "pst_be",
       "name": "pst_be",
       "operator": "BE",
-      "onInstantUsageRules": [
-        {
-          "instant": "preventive",
-          "usageMethod": "available"
-        }
-      ],
+      "onInstantUsageRules": [ {
+        "instant" : "curative1",
+        "usageMethod" : "available"
+      }, {
+        "instant" : "curative2",
+        "usageMethod" : "available"
+      } ],
       "networkElementId": "BBE2AA1  BBE3AA1  1",
       "initialTap": 0,
       "tapToAngleConversionMap": {
@@ -105,7 +167,7 @@
     "name" : "close_be1_be3_1",
     "operator" : "BE",
     "onInstantUsageRules" : [ {
-      "instant" : "preventive",
+      "instant" : "curative2",
       "usageMethod" : "available"
     } ],
     "topologicalActions" : [ {
@@ -117,7 +179,10 @@
     "name" : "close_be1_be3_1_and_2",
     "operator" : "BE",
     "onInstantUsageRules" : [ {
-      "instant" : "preventive",
+      "instant" : "curative1",
+      "usageMethod" : "available"
+    }, {
+      "instant" : "curative2",
       "usageMethod" : "available"
     } ],
     "topologicalActions" : [ {
@@ -129,7 +194,10 @@
     } ]
   }],
   "ra-usage-limits-per-instant" : [ {
-    "instant": "preventive",
+    "instant": "curative1",
+    "max-elementary-actions-per-tso" : {"BE": 1}
+  }, {
+    "instant": "curative2",
     "max-elementary-actions-per-tso" : {"BE": 3}
   } ]
 }

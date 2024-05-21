@@ -256,7 +256,7 @@ public class Leaf implements OptimizationResult {
                     Map<String, Integer> maxElementaryActionsPerTso = new HashMap<>(raUsageLimits.getMaxElementaryActionsPerTso());
                     maxElementaryActionsPerTso.entrySet().forEach(entry -> {
                         int alreadyActivatedNetworkActionsForTso = appliedRemedialActionsInSecondaryStates.getAppliedNetworkActions(state).stream().filter(na -> entry.getKey().equals(na.getOperator())).mapToInt(na -> na.getElementaryActions().size()).sum();
-                        entry.setValue(entry.getValue() - alreadyActivatedNetworkActionsForTso);
+                        entry.setValue(Math.max(0, entry.getValue() - alreadyActivatedNetworkActionsForTso));
                     });
 
                     limitationParameters.setMaxRangeAction(state, maxRa);
@@ -279,7 +279,7 @@ public class Leaf implements OptimizationResult {
             Map<String, Integer> maxElementaryActionsPerTso = new HashMap<>(raUsageLimits.getMaxElementaryActionsPerTso());
             maxElementaryActionsPerTso.entrySet().forEach(entry -> {
                 int alreadyActivatedNetworkActionsForTso = appliedNetworkActionsInPrimaryState.stream().filter(na -> entry.getKey().equals(na.getOperator())).mapToInt(na -> na.getElementaryActions().size()).sum();
-                entry.setValue(entry.getValue() - alreadyActivatedNetworkActionsForTso);
+                entry.setValue(Math.max(0, entry.getValue() - alreadyActivatedNetworkActionsForTso));
             });
 
             limitationParameters.setMaxRangeAction(context.getMainOptimizationState(), maxRa);

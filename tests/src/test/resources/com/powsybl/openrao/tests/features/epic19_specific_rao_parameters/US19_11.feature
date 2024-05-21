@@ -74,7 +74,7 @@ Feature: US 19.11: Handle maximum number of elementary actions per TSO
     Given crac file is "epic19/small-crac-with-max-3-elementary-actions-pst-in-curative.json"
     Given configuration file is "epic19/RaoParameters_dc_discrete.json"
     When I launch search_tree_rao
-    And 1 remedial actions are used in preventive
+    Then 1 remedial actions are used in preventive
     And the remedial action "pst_be_prev" is used in preventive
     And the tap of PstRangeAction "pst_be_prev" should be -5 in preventive
     # The initial tap of the CRA is set to 0 but the preventive optimization moves the tap to -5
@@ -84,5 +84,18 @@ Feature: US 19.11: Handle maximum number of elementary actions per TSO
     And the tap of PstRangeAction "pst_be_cur" should be -8 after "co1_fr1_fr3_1" at "curative"
     And the worst margin is 1.0 MW
 
-  # TODO [max-elementary-actions]: test with multi-curative
+  @fast @rao @preventive-only
+  Scenario: US 19.11.6: Limit elementary actions with PST and topology actions in multi-curative situation
+    Given network file is "epic19/small-network-2P-open-twin-lines.uct"
+    Given crac file is "epic19/small-crac-with-max-elementary-actions-topo-and-pst-2-curative-instants.json"
+    Given configuration file is "epic19/RaoParameters_dc_discrete.json"
+    When I launch search_tree_rao
+    Then 1 remedial actions are used after "co1_fr1_fr3_1" at "curative1"
+    And the remedial action "pst_be" is used after "co1_fr1_fr3_1" at "curative1"
+    And the tap of PstRangeAction "pst_be" should be -1 after "co1_fr1_fr3_1" at "curative1"
+    And 2 remedial actions are used after "co1_fr1_fr3_1" at "curative2"
+    And the remedial action "close_be1_be3_1" is used after "co1_fr1_fr3_1" at "curative2"
+    And the remedial action "pst_be" is used after "co1_fr1_fr3_1" at "curative2"
+    And the tap of PstRangeAction "pst_be" should be -2 after "co1_fr1_fr3_1" at "curative2"
+
   # TODO: second prev
