@@ -31,7 +31,7 @@ public final class JsonSerializationConstants {
     private JsonSerializationConstants() {
     }
 
-    public static final String CRAC_IO_VERSION = "2.2";
+    public static final String CRAC_IO_VERSION = "2.3";
     /*
     v1.1: addition of switchPairs
     v1.2: addition of injectionRangeAction
@@ -44,6 +44,7 @@ public final class JsonSerializationConstants {
     v2.0: addition of instants and change in usage method logic
     v2.1: addition of ra-usage-limits
     v2.2: addition of contingency id in on-flow-constraint-in-country
+    v2.3: addition of border attribute for cnecs
      */
 
     // headers
@@ -119,6 +120,7 @@ public final class JsonSerializationConstants {
     public static final String RANGES = "ranges";
     public static final String SETPOINT = "setpoint";
     public static final String OPERATOR = "operator";
+    public static final String BORDER = "border";
     public static final String ACTION_TYPE = "actionType";
     public static final String RANGE_TYPE = "rangeType";
     public static final String INITIAL_SETPOINT = "initialSetpoint";
