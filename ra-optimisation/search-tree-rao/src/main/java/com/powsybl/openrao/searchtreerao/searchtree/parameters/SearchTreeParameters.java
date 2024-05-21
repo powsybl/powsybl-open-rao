@@ -220,7 +220,11 @@ public class SearchTreeParameters {
     }
 
     private static int computeTotalTapsMovedForTso(String tso, State optimizedState, OptimizationResult result, PrePerimeterResult prePerimeterResult) {
-        return result.getActivatedRangeActions(optimizedState).stream().filter(rangeAction -> tso.equals(rangeAction.getOperator())).filter(PstRangeAction.class::isInstance).map(PstRangeAction.class::cast).mapToInt(pstRangeAction -> Math.abs(result.getOptimizedTap(pstRangeAction, optimizedState) - prePerimeterResult.getTap(pstRangeAction))).sum();
+        return result.getActivatedRangeActions(optimizedState).stream().filter(rangeAction -> tso.equals(rangeAction.getOperator())).filter(PstRangeAction.class::isInstance).map(PstRangeAction.class::cast).mapToInt(pstRangeAction -> computeTapsMoved(pstRangeAction, optimizedState, result, prePerimeterResult)).sum();
+    }
+
+    private static int computeTapsMoved(PstRangeAction pstRangeAction, State optimizedState, OptimizationResult result, PrePerimeterResult prePerimeterResult) {
+        return Math.abs(result.getOptimizedTap(pstRangeAction, optimizedState) - prePerimeterResult.getTap(pstRangeAction));
     }
 
     public static SearchTreeParametersBuilder create() {
