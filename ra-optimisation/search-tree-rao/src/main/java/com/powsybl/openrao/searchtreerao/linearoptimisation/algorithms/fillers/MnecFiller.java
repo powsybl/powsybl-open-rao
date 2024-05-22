@@ -39,7 +39,7 @@ public class MnecFiller implements ProblemFiller {
     public MnecFiller(FlowResult initialFlowResult, Set<FlowCnec> monitoredCnecs, Unit unit, MnecParametersExtension mnecParameters) {
         this.initialFlowResult = initialFlowResult;
         this.monitoredCnecs = new TreeSet<>(Comparator.comparing(Identifiable::getId));
-        this.monitoredCnecs.addAll(monitoredCnecs);
+        this.monitoredCnecs.addAll(FillersUtil.getValidFlowCnecs(monitoredCnecs, initialFlowResult));
         this.unit = unit;
         this.mnecViolationCost = mnecParameters.getViolationCost();
         this.mnecAcceptableMarginDecrease = mnecParameters.getAcceptableMarginDecrease();

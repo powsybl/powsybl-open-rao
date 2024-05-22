@@ -256,8 +256,8 @@ class OpenRaoMPSolverTest {
 
     private void checkObjectiveSense(boolean minim) {
         // OpenRAO object
-        assertEquals(minim, openRaoMPSolver.minimization());
-        assertEquals(!minim, openRaoMPSolver.maximization());
+        assertEquals(minim, openRaoMPSolver.isMinimization());
+        assertEquals(!minim, openRaoMPSolver.isMaximization());
         // OR-Tools object
         assertEquals(minim, mpSolver.objective().minimization());
         assertEquals(!minim, mpSolver.objective().maximization());

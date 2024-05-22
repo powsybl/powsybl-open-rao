@@ -131,7 +131,9 @@ public class MaxMinRelativeMarginFiller extends MaxMinMarginFiller {
         OpenRaoMPVariable flowVariable = linearProblem.getFlowVariable(cnec, side);
 
         double unitConversionCoefficient = RaoUtil.getFlowUnitMultiplier(cnec, side, unit, MEGAWATT);
-        double relMarginCoef = Math.max(flowResult.getPtdfZonalSum(cnec, side), ptdfSumLowerBound);
+        // If PTDF computation failed for some reason, instead of ignoring the CNEC completely, set its PTDF to the lowest value
+        double relMarginCoef = Double.isNaN(flowResult.getPtdfZonalSum(cnec, side)) ?
+            ptdfSumLowerBound : Math.max(flowResult.getPtdfZonalSum(cnec, side), ptdfSumLowerBound);
 
         Optional<Double> minFlow = cnec.getLowerBound(side, MEGAWATT);
         Optional<Double> maxFlow = cnec.getUpperBound(side, MEGAWATT);

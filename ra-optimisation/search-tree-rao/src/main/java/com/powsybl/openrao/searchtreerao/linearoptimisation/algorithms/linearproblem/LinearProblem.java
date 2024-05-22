@@ -122,7 +122,7 @@ public final class LinearProblem {
     }
 
     public boolean minimization() {
-        return solver.minimization();
+        return solver.isMinimization();
     }
 
     public int numVariables() {

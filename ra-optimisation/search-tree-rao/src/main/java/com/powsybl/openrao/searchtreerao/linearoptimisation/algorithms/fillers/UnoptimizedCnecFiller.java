@@ -62,7 +62,7 @@ public class UnoptimizedCnecFiller implements ProblemFiller {
                                  RangeActionsOptimizationParameters rangeActionParameters) {
         this.optimizationContext = optimizationContext;
         this.flowCnecs = new TreeSet<>(Comparator.comparing(Identifiable::getId));
-        this.flowCnecs.addAll(flowCnecs);
+        this.flowCnecs.addAll(FillersUtil.getValidFlowCnecs(flowCnecs, prePerimeterFlowResult));
         this.prePerimeterFlowResult = prePerimeterFlowResult;
         this.operatorsNotToOptimize = unoptimizedCnecParameters.getOperatorsNotToOptimize();
         this.highestThresholdValue = RaoUtil.getLargestCnecThreshold(flowCnecs, MEGAWATT);

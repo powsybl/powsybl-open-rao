@@ -94,11 +94,19 @@ class UnoptimizedCnecFillerMarginDecreaseRuleTest extends AbstractFillerTest {
     }
 
     private void buildLinearProblemWithMaxMinMargin() {
+        buildLinearProblemWithMaxMinMargin(false);
+    }
+
+    private void buildLinearProblemWithMaxMinMargin(boolean initialFlowsAreNan) {
         UnoptimizedCnecParameters unoptimizedCnecParameters = new UnoptimizedCnecParameters(Set.of("NL"), null);
         MaxMinMarginFiller maxMinMarginFiller = new MaxMinMarginFiller(Set.of(cnecNl, cnecFr), Unit.MEGAWATT);
         FlowResult initialFlowResult = Mockito.mock(FlowResult.class);
         when(initialFlowResult.getMargin(cnecNl, Side.RIGHT, Unit.MEGAWATT)).thenReturn(400.);
         when(initialFlowResult.getMargin(cnecFr, Side.LEFT, Unit.MEGAWATT)).thenReturn(600.);
+        if (initialFlowsAreNan) {
+            when(initialFlowResult.getFlow(cnecNl, Side.RIGHT, MEGAWATT)).thenReturn(Double.NaN);
+            when(initialFlowResult.getFlow(cnecFr, Side.LEFT, MEGAWATT)).thenReturn(Double.NaN);
+        }
         unoptimizedCnecFiller = new UnoptimizedCnecFiller(
                 optimizationPerimeter,
                 Set.of(cnecNl, cnecFr),
@@ -255,5 +263,16 @@ class UnoptimizedCnecFillerMarginDecreaseRuleTest extends AbstractFillerTest {
         OpenRaoMPConstraint minMarginDefMax = linearProblem.getMinimumMarginConstraint(cnecNl, Side.RIGHT, LinearProblem.MarginExtension.ABOVE_THRESHOLD);
         assertEquals(800 + 2 * MAX_ABS_THRESHOLD, minMarginDefMax.ub(), DOUBLE_TOLERANCE);
         assertEquals(2 * MAX_ABS_THRESHOLD, minMarginDefMax.getCoefficient(marginDecreaseVariable), DOUBLE_TOLERANCE);
+    }
+
+    @Test
+    void testFilterCnecWithInitialNanFlow() {
+        buildLinearProblemWithMaxMinMargin(true);
+
+        Exception e = assertThrows(OpenRaoException.class, () -> linearProblem.getOptimizeCnecBinaryVariable(cnecFr, Side.RIGHT));
+        assertEquals("Variable Tieline BE FR - N - preventive_right_optimizecnec_variable has not been created yet", e.getMessage());
+
+        e = assertThrows(OpenRaoException.class, () -> linearProblem.getOptimizeCnecBinaryVariable(cnecNl, Side.LEFT));
+        assertEquals("Variable Line NL - N - preventive_left_optimizecnec_variable has not been created yet", e.getMessage());
     }
 }

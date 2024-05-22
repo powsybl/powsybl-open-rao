@@ -9,11 +9,13 @@ package com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.fillers;
 
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
+import com.powsybl.openrao.data.cracapi.InstantKind;
 import com.powsybl.openrao.data.cracapi.State;
 import com.powsybl.openrao.data.cracapi.cnec.Cnec;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
 import com.powsybl.openrao.data.cracapi.cnec.Side;
 import com.powsybl.openrao.data.cracapi.rangeaction.RangeAction;
+import com.powsybl.openrao.data.raoresultapi.ComputationStatus;
 import com.powsybl.openrao.raoapi.parameters.RangeActionsOptimizationParameters;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.MnecParametersExtension;
@@ -23,6 +25,7 @@ import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
 import com.powsybl.openrao.searchtreerao.result.api.RangeActionSetpointResult;
 import com.powsybl.openrao.searchtreerao.result.impl.RangeActionActivationResultImpl;
 import com.powsybl.openrao.searchtreerao.result.impl.RangeActionSetpointResultImpl;
+import net.bytebuddy.dynamic.scaffold.MethodGraph;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -76,14 +79,15 @@ class MnecFillerTest extends AbstractFillerTest {
                 .add();
 
         mnec3 = crac.newFlowCnec()
-                .withId("MNEC3 - N - preventive")
+                .withId("MNEC3 - curative")
                 .withNetworkElement("NNL2AA1  BBE3AA1  1")
                 .newThreshold().withMin(-100.).withSide(Side.LEFT).withMax(100.0).withUnit(Unit.MEGAWATT).add()
                 .newThreshold().withMin(-100.).withSide(Side.RIGHT).withMax(100.0).withUnit(Unit.MEGAWATT).add()
                 .withNominalVoltage(380.)
                 .withOptimized(true)
                 .withMonitored(true)
-                .withInstant(PREVENTIVE_INSTANT_ID)
+                .withContingency("N-1 NL1-NL3")
+                .withInstant(crac.getInstant(InstantKind.CURATIVE).getId())
                 .add();
 
         RangeActionSetpointResult initialRangeActionSetpointResult = new RangeActionSetpointResultImpl(Collections.emptyMap());
@@ -207,5 +211,44 @@ class MnecFillerTest extends AbstractFillerTest {
             OpenRaoMPVariable mnecViolationVariable = linearProblem.getMnecViolationVariable(cnec, side);
             assertEquals(10.0 / 0.658179 / cnec.getMonitoredSides().size(), linearProblem.getObjective().getCoefficient(mnecViolationVariable), DOUBLE_TOLERANCE);
         }));
+    }
+
+    @Test
+    void testFilterCnecWithNoInitialFlow() {
+        MnecParametersExtension parameters = new MnecParametersExtension();
+        parameters.setAcceptableMarginDecrease(50);
+        parameters.setViolationCost(10);
+        parameters.setConstraintAdjustmentCoefficient(3.5);
+        FlowResult flowResult = Mockito.mock(FlowResult.class);
+        when(flowResult.getFlow(mnec1, Side.RIGHT, Unit.MEGAWATT)).thenReturn(900.);
+        when(flowResult.getFlow(mnec2, Side.LEFT, Unit.MEGAWATT)).thenReturn(-200.);
+        when(flowResult.getFlow(mnec3, Side.LEFT, Unit.MEGAWATT)).thenReturn(-200.);
+        when(flowResult.getFlow(mnec3, Side.RIGHT, Unit.MEGAWATT)).thenReturn(Double.NaN);
+        when(sensitivityResult.getSensitivityStatus(crac.getState("N-1 NL1-NL3", crac.getInstant(InstantKind.CURATIVE)))).thenReturn(ComputationStatus.FAILURE);
+        MnecFiller mnecFiller = new MnecFiller(
+            flowResult,
+            Set.of(mnec1, mnec2, mnec3),
+            Unit.MEGAWATT,
+            parameters);
+        linearProblem = new LinearProblemBuilder()
+            .withProblemFiller(coreProblemFiller)
+            .withProblemFiller(mnecFiller)
+            .withSolver(RangeActionsOptimizationParameters.Solver.SCIP)
+            .build();
+        linearProblem.fill(flowResult, sensitivityResult);
+
+        Exception e = assertThrows(OpenRaoException.class, () -> linearProblem.getMnecFlowConstraint(mnec3, Side.LEFT, LinearProblem.MarginExtension.ABOVE_THRESHOLD));
+        assertEquals("Constraint MNEC3 - curative_left_mnecflow_above_threshold_constraint has not been created yet", e.getMessage());
+        e = assertThrows(OpenRaoException.class, () -> linearProblem.getMnecFlowConstraint(mnec3, Side.LEFT, LinearProblem.MarginExtension.BELOW_THRESHOLD));
+        assertEquals("Constraint MNEC3 - curative_left_mnecflow_below_threshold_constraint has not been created yet", e.getMessage());
+        e = assertThrows(OpenRaoException.class, () -> linearProblem.getMnecFlowConstraint(mnec3, Side.RIGHT, LinearProblem.MarginExtension.ABOVE_THRESHOLD));
+        assertEquals("Constraint MNEC3 - curative_right_mnecflow_above_threshold_constraint has not been created yet", e.getMessage());
+        e = assertThrows(OpenRaoException.class, () -> linearProblem.getMnecFlowConstraint(mnec3, Side.RIGHT, LinearProblem.MarginExtension.BELOW_THRESHOLD));
+        assertEquals("Constraint MNEC3 - curative_right_mnecflow_below_threshold_constraint has not been created yet", e.getMessage());
+
+        e = assertThrows(OpenRaoException.class, () -> linearProblem.getMnecViolationVariable(mnec3, Side.LEFT));
+        assertEquals("Variable MNEC3 - curative_left_mnecviolation_variable has not been created yet", e.getMessage());
+        e = assertThrows(OpenRaoException.class, () -> linearProblem.getMnecViolationVariable(mnec3, Side.RIGHT));
+        assertEquals("Variable MNEC3 - curative_right_mnecviolation_variable has not been created yet", e.getMessage());
     }
 }

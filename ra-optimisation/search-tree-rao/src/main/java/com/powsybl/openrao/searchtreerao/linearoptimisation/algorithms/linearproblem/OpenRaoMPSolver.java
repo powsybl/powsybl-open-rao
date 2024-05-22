@@ -190,7 +190,7 @@ public class OpenRaoMPSolver {
         return constraints.size();
     }
 
-    public boolean minimization() {
+    public boolean isMinimization() {
         return objectiveMinimization;
     }
 
@@ -199,7 +199,7 @@ public class OpenRaoMPSolver {
         objectiveMinimization = true;
     }
 
-    public boolean maximization() {
+    public boolean isMaximization() {
         return !objectiveMinimization;
     }
 

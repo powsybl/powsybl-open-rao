@@ -7,10 +7,14 @@
 
 package com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.fillers;
 
+import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.State;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
+import com.powsybl.openrao.data.cracapi.cnec.Side;
 import com.powsybl.openrao.data.raoresultapi.ComputationStatus;
+import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
 import com.powsybl.openrao.searchtreerao.result.api.SensitivityResult;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
@@ -22,8 +26,27 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
 class FillersUtilTest {
+    private State state1;
+    private State state2;
+    private FlowCnec cnec1;
+    private FlowCnec cnec2;
+    private Set<FlowCnec> cnecs;
+
+    @BeforeEach
+    void setUp() {
+        state1 = Mockito.mock(State.class);
+        state2 = Mockito.mock(State.class);
+        cnec1 = Mockito.mock(FlowCnec.class);
+        Mockito.when(cnec1.getState()).thenReturn(state1);
+        Mockito.when(cnec1.getMonitoredSides()).thenReturn(Set.of(Side.LEFT, Side.RIGHT));
+        cnec2 = Mockito.mock(FlowCnec.class);
+        Mockito.when(cnec2.getState()).thenReturn(state2);
+        Mockito.when(cnec2.getMonitoredSides()).thenReturn(Set.of(Side.RIGHT));
+        cnecs = Set.of(cnec1, cnec2);
+    }
+
     @Test
-    void testGetValidFlowCnecs() {
+    void testGetValidFlowCnecsSensi() {
         State state1 = Mockito.mock(State.class);
         State state2 = Mockito.mock(State.class);
         FlowCnec cnec1 = Mockito.mock(FlowCnec.class);
@@ -49,5 +72,29 @@ class FillersUtilTest {
         Mockito.when(sensitivityResult.getSensitivityStatus(state1)).thenReturn(ComputationStatus.FAILURE);
         Mockito.when(sensitivityResult.getSensitivityStatus(state2)).thenReturn(ComputationStatus.FAILURE);
         assertEquals(Set.of(), FillersUtil.getValidFlowCnecs(cnecs, sensitivityResult));
+    }
+
+    @Test
+    void testGetValidFlowCnecsFlow() {
+        FlowResult flowResult = Mockito.mock(FlowResult.class);
+
+        Mockito.when(flowResult.getFlow(cnec1, Side.LEFT, Unit.MEGAWATT)).thenReturn(1.0);
+        Mockito.when(flowResult.getFlow(cnec1, Side.RIGHT, Unit.MEGAWATT)).thenReturn(Double.NaN);
+        Mockito.when(flowResult.getFlow(cnec2, Side.LEFT, Unit.MEGAWATT)).thenReturn(Double.NaN);
+        Mockito.when(flowResult.getFlow(cnec2, Side.RIGHT, Unit.MEGAWATT)).thenReturn(Double.NaN);
+        assertEquals(Set.of(), FillersUtil.getValidFlowCnecs(cnecs, flowResult));
+
+        Mockito.when(flowResult.getFlow(cnec1, Side.LEFT, Unit.MEGAWATT)).thenReturn(1.0);
+        Mockito.when(flowResult.getFlow(cnec1, Side.RIGHT, Unit.MEGAWATT)).thenReturn(1.0);
+        Mockito.when(flowResult.getFlow(cnec2, Side.LEFT, Unit.MEGAWATT)).thenReturn(1.0);
+        Mockito.when(flowResult.getFlow(cnec2, Side.RIGHT, Unit.MEGAWATT)).thenReturn(Double.NaN);
+        assertEquals(Set.of(cnec1), FillersUtil.getValidFlowCnecs(cnecs, flowResult));
+
+        Mockito.when(flowResult.getFlow(cnec1, Side.LEFT, Unit.MEGAWATT)).thenReturn(1.0);
+        Mockito.when(flowResult.getFlow(cnec1, Side.RIGHT, Unit.MEGAWATT)).thenReturn(Double.NaN);
+        Mockito.when(flowResult.getFlow(cnec1, Side.RIGHT, Unit.AMPERE)).thenReturn(4.0);
+        Mockito.when(flowResult.getFlow(cnec2, Side.LEFT, Unit.MEGAWATT)).thenReturn(Double.NaN);
+        Mockito.when(flowResult.getFlow(cnec2, Side.RIGHT, Unit.MEGAWATT)).thenReturn(3.0);
+        assertEquals(Set.of(cnec2), FillersUtil.getValidFlowCnecs(cnecs, flowResult));
     }
 }

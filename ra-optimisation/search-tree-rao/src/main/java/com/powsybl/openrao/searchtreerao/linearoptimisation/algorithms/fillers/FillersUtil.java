@@ -7,11 +7,13 @@
 
 package com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.fillers;
 
+import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.State;
 import com.powsybl.openrao.data.cracapi.cnec.Cnec;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
 import com.powsybl.openrao.data.raoresultapi.ComputationStatus;
 import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.OptimizationPerimeter;
+import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
 import com.powsybl.openrao.searchtreerao.result.api.SensitivityResult;
 
 import java.util.Set;
@@ -43,5 +45,20 @@ public final class FillersUtil {
         Set<State> skippedStates = flowCnecs.stream().map(Cnec::getState).distinct()
             .filter(state -> sensitivityResult.getSensitivityStatus(state).equals(ComputationStatus.FAILURE)).collect(Collectors.toSet());
         return flowCnecs.stream().filter(cnec -> !skippedStates.contains(cnec.getState())).collect(Collectors.toSet());
+    }
+
+    /**
+     * Filters out flow CNECs that failed flow computation
+     *
+     * @param flowCnecs:  the flow CNECs to filter through
+     * @param flowResult: the flow result containing real or NaN values for CNEC flows
+     * @return a set of filtered CNECs, containing only flow CNECs with a non-NaN flow value
+     */
+    static Set<FlowCnec> getValidFlowCnecs(Set<FlowCnec> flowCnecs, FlowResult flowResult) {
+        // TODO : add a computation status per state to FlowResult and filter on states, like with SensitivityComputationResult
+        return flowCnecs.stream().filter(cnec ->
+            cnec.getMonitoredSides().stream().noneMatch(side ->
+                Double.isNaN(flowResult.getFlow(cnec, side, Unit.MEGAWATT)))
+        ).collect(Collectors.toSet());
     }
 }

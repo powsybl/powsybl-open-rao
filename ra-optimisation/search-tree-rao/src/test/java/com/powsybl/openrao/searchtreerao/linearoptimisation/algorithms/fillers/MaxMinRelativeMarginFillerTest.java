@@ -225,4 +225,22 @@ class MaxMinRelativeMarginFillerTest extends AbstractFillerTest {
         assertEquals(6, linearProblem.numVariables());
         assertEquals(9, linearProblem.numConstraints());
     }
+
+    @Test
+    void testPtdfIsNaN() {
+        parameters.setPtdfApproximation(PtdfApproximation.UPDATE_PTDF_WITH_TOPO_AND_PST);
+        parameters.setPtdfSumLowerBound(0.1234);
+        FlowResult initialFlowResult = Mockito.mock(FlowResult.class);
+        when(initialFlowResult.getPtdfZonalSum(cnec1, Side.LEFT)).thenReturn(Double.NaN);
+        maxMinRelativeMarginFiller = new MaxMinRelativeMarginFiller(
+            Set.of(cnec1),
+            initialFlowResult,
+            MEGAWATT,
+            parameters
+        );
+        buildLinearProblem();
+        checkFillerContentMw(0.1234);
+        linearProblem.updateBetweenSensiIteration(mockFlowResult(Double.NaN), sensitivityResult, new RangeActionActivationResultImpl(initialRangeActionSetpointResult));
+        checkFillerContentMw(0.1234);
+    }
 }

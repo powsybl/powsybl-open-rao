@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.fillers;
 
+import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.State;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
@@ -34,8 +35,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
 
 /**
@@ -249,5 +249,32 @@ class MaxLoopFlowFillerTest extends AbstractFillerTest {
         // violation cost
         assertEquals(10. / 2, linearProblem.getObjective().getCoefficient(linearProblem.getLoopflowViolationVariable(cnecOn2sides, Side.LEFT)), DOUBLE_TOLERANCE);
         assertEquals(10. / 2, linearProblem.getObjective().getCoefficient(linearProblem.getLoopflowViolationVariable(cnecOn2sides, Side.RIGHT)), DOUBLE_TOLERANCE);
+    }
+
+    @Test
+    void testFilterCnecWithNoInitialFlow() {
+        loopFlowParameters = new LoopFlowParametersExtension();
+        loopFlowParameters.setPtdfApproximation(PtdfApproximation.FIXED_PTDF);
+        loopFlowParameters.setAcceptableIncrease(13);
+        loopFlowParameters.setViolationCost(10);
+        loopFlowParameters.setConstraintAdjustmentCoefficient(5);
+
+        FlowResult initialFlowResult = Mockito.mock(FlowResult.class);
+        when(initialFlowResult.getLoopFlow(cnec1, Side.LEFT, Unit.MEGAWATT)).thenReturn(90.);
+        when(initialFlowResult.getFlow(cnec1, Side.LEFT, Unit.MEGAWATT)).thenReturn(Double.NaN);
+        maxLoopFlowFiller = new MaxLoopFlowFiller(
+            Set.of(cnec1),
+            initialFlowResult,
+            loopFlowParameters
+        );
+        setCommercialFlowValue(49);
+        buildLinearProblem();
+
+        Exception e = assertThrows(OpenRaoException.class, () -> linearProblem.getMaxLoopFlowConstraint(cnec1, Side.LEFT, LinearProblem.BoundExtension.UPPER_BOUND));
+        assertEquals("Constraint Tieline BE FR - N - preventive_left_maxloopflow_upper_bound_constraint has not been created yet", e.getMessage());
+        e = assertThrows(OpenRaoException.class, () -> linearProblem.getMaxLoopFlowConstraint(cnec1, Side.LEFT, LinearProblem.BoundExtension.LOWER_BOUND));
+        assertEquals("Constraint Tieline BE FR - N - preventive_left_maxloopflow_lower_bound_constraint has not been created yet", e.getMessage());
+        e = assertThrows(OpenRaoException.class, () -> linearProblem.getLoopflowViolationVariable(cnec1, Side.LEFT));
+        assertEquals("Variable Tieline BE FR - N - preventive_left_loopflowviolation_variable has not been created yet", e.getMessage());
     }
 }
