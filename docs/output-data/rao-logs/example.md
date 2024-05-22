@@ -4,6 +4,16 @@ Here is a full RAO logs example divided into multiple steps.
 _Note: for the sake of being exhaustive, DEBUG level is shown. But information at this level is not always interesting 
 to the end user._
 
+## Open RAO version
+
+The first log that is outputed by Open RAO is about the version of Open RAO which is used.
+~~~
+WARN  c.p.o.commons.logs.RaoBusinessWarns - Running RAO using Open RAO version 5.6.0-SNAPSHOT from git commit 45eb3cf9d26a3509eeeb260bd9fe157ff006e1c2.
+~~~
+This shows the version of the project (which snapshot or which release is used), and the exact git commit on which Open RAO was compiled.
+
+This can be useful when trying to find which version had a bug, or for keeping track of the version deployed.
+
 ## Initial sensitivity analysis
 
 In this step, the RAO assesses the initial network against the different constraints in the CRAC.  
