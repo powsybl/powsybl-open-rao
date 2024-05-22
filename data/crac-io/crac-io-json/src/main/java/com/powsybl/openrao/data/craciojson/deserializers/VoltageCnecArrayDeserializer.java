@@ -94,19 +94,13 @@ public final class VoltageCnecArrayDeserializer {
     }
 
     private static void readReliabilityMargin(JsonParser jsonParser, String version, VoltageCnecAdder voltageCnecAdder) throws IOException {
-        //"frm" renamed to "reliabilityMargin" in 1.4
-        if (getPrimaryVersionNumber(version) <= 1 && getSubVersionNumber(version) <= 3) {
-            throw new OpenRaoException(String.format("Unexpected field for version %s : %s", version, RELIABILITY_MARGIN));
-        }
+        CnecDeserializerUtils.checkReliabilityMargin(version);
         jsonParser.nextToken();
         voltageCnecAdder.withReliabilityMargin(jsonParser.getDoubleValue());
     }
 
     private static void readFrm(JsonParser jsonParser, String version, VoltageCnecAdder voltageCnecAdder) throws IOException {
-        //"frm" renamed to "reliabilityMargin" in 1.4
-        if (getPrimaryVersionNumber(version) > 1 || getSubVersionNumber(version) > 3) {
-            throw new OpenRaoException(String.format("Unexpected field for version %s : %s", version, FRM));
-        }
+        CnecDeserializerUtils.checkFrm(version);
         jsonParser.nextToken();
         voltageCnecAdder.withReliabilityMargin(jsonParser.getDoubleValue());
     }

@@ -41,7 +41,7 @@ public class VoltageCnecSerializer<I extends VoltageCnec> extends AbstractJsonSe
         }
         gen.writeObjectField(OPTIMIZED, voltageCnec.isOptimized());
         gen.writeObjectField(MONITORED, voltageCnec.isMonitored());
-        gen.writeNumberField(RELIABILITY_MARGIN, voltageCnec.getReliabilityMargin());
+        // TODO: remove: gen.writeNumberField(RELIABILITY_MARGIN, voltageCnec.getReliabilityMargin());
 
         serializeThresholds(voltageCnec, gen);
 
