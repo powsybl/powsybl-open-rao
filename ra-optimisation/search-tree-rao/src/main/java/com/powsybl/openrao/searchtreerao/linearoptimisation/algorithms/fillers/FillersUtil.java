@@ -41,7 +41,7 @@ public final class FillersUtil {
      * @param sensitivityResult: the sensitivity result containing computation statuses for the flow CNECs' states
      * @return a set of filtered CNECs, containing only flow CNECs with a state that succeeded sensitivity computation
      */
-    static Set<FlowCnec> getValidFlowCnecs(Set<FlowCnec> flowCnecs, SensitivityResult sensitivityResult) {
+    static Set<FlowCnec> getFlowCnecsComputationStatusOk(Set<FlowCnec> flowCnecs, SensitivityResult sensitivityResult) {
         Set<State> skippedStates = flowCnecs.stream().map(Cnec::getState).distinct()
             .filter(state -> sensitivityResult.getSensitivityStatus(state).equals(ComputationStatus.FAILURE)).collect(Collectors.toSet());
         return flowCnecs.stream().filter(cnec -> !skippedStates.contains(cnec.getState())).collect(Collectors.toSet());
@@ -54,7 +54,7 @@ public final class FillersUtil {
      * @param flowResult: the flow result containing real or NaN values for CNEC flows
      * @return a set of filtered CNECs, containing only flow CNECs with a non-NaN flow value
      */
-    static Set<FlowCnec> getValidFlowCnecs(Set<FlowCnec> flowCnecs, FlowResult flowResult) {
+    static Set<FlowCnec> getFlowCnecsNotNaNFlow(Set<FlowCnec> flowCnecs, FlowResult flowResult) {
         // TODO : add a computation status per state to FlowResult and filter on states, like with SensitivityComputationResult
         return flowCnecs.stream().filter(cnec ->
             cnec.getMonitoredSides().stream().noneMatch(side ->

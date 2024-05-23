@@ -68,7 +68,7 @@ public class CoreProblemFiller implements ProblemFiller {
 
     @Override
     public void fill(LinearProblem linearProblem, FlowResult flowResult, SensitivityResult sensitivityResult) {
-        Set<FlowCnec> validFlowCnecs = FillersUtil.getValidFlowCnecs(flowCnecs, sensitivityResult);
+        Set<FlowCnec> validFlowCnecs = FillersUtil.getFlowCnecsComputationStatusOk(flowCnecs, sensitivityResult);
 
         // add variables
         buildFlowVariables(linearProblem, validFlowCnecs);
@@ -86,7 +86,7 @@ public class CoreProblemFiller implements ProblemFiller {
     @Override
     public void updateBetweenSensiIteration(LinearProblem linearProblem, FlowResult flowResult, SensitivityResult sensitivityResult, RangeActionActivationResult rangeActionActivationResult) {
         // update reference flow and sensitivities of flow constraints
-        Set<FlowCnec> validFlowCnecs = FillersUtil.getValidFlowCnecs(flowCnecs, sensitivityResult);
+        Set<FlowCnec> validFlowCnecs = FillersUtil.getFlowCnecsComputationStatusOk(flowCnecs, sensitivityResult);
         updateFlowConstraints(linearProblem, validFlowCnecs, flowResult, sensitivityResult, rangeActionActivationResult);
         if (raRangeShrinking) {
             updateRangeActionConstraints(linearProblem, rangeActionActivationResult);

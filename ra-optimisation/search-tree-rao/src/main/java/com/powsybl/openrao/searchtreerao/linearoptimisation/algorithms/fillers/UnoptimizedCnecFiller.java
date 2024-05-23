@@ -62,7 +62,7 @@ public class UnoptimizedCnecFiller implements ProblemFiller {
                                  RangeActionsOptimizationParameters rangeActionParameters) {
         this.optimizationContext = optimizationContext;
         this.flowCnecs = new TreeSet<>(Comparator.comparing(Identifiable::getId));
-        this.flowCnecs.addAll(FillersUtil.getValidFlowCnecs(flowCnecs, prePerimeterFlowResult));
+        this.flowCnecs.addAll(FillersUtil.getFlowCnecsNotNaNFlow(flowCnecs, prePerimeterFlowResult));
         this.prePerimeterFlowResult = prePerimeterFlowResult;
         this.operatorsNotToOptimize = unoptimizedCnecParameters.getOperatorsNotToOptimize();
         this.highestThresholdValue = RaoUtil.getLargestCnecThreshold(flowCnecs, MEGAWATT);
@@ -126,11 +126,11 @@ public class UnoptimizedCnecFiller implements ProblemFiller {
      */
     private Set<FlowCnec> getValidFlowCnecs(SensitivityResult sensitivityResult) {
         if (selectedRule.equals(UnoptimizedCnecFillerRule.MARGIN_DECREASE)) {
-            return FillersUtil.getValidFlowCnecs(flowCnecs, sensitivityResult).stream()
+            return FillersUtil.getFlowCnecsComputationStatusOk(flowCnecs, sensitivityResult).stream()
                 .filter(cnec -> operatorsNotToOptimize.contains(cnec.getOperator()))
                 .collect(Collectors.toSet());
         } else {
-            return FillersUtil.getValidFlowCnecs(optimizationContext.getFlowCnecs(), sensitivityResult).stream()
+            return FillersUtil.getFlowCnecsComputationStatusOk(optimizationContext.getFlowCnecs(), sensitivityResult).stream()
                 .filter(flowCnecRangeActionMap::containsKey)
                 .collect(Collectors.toSet());
         }

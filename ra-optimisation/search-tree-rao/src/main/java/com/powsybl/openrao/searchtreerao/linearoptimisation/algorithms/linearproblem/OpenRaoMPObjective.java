@@ -14,11 +14,9 @@ import com.google.ortools.linearsolver.MPObjective;
  */
 public class OpenRaoMPObjective {
     private final MPObjective mpObjective;
-    private final int numberOfBitsToRoundOff;
 
-    protected OpenRaoMPObjective(MPObjective mpObjective, int numberOfBitsToRoundOff) {
+    protected OpenRaoMPObjective(MPObjective mpObjective) {
         this.mpObjective = mpObjective;
-        this.numberOfBitsToRoundOff = numberOfBitsToRoundOff;
     }
 
     public double getCoefficient(OpenRaoMPVariable variable) {
@@ -26,6 +24,6 @@ public class OpenRaoMPObjective {
     }
 
     public void setCoefficient(OpenRaoMPVariable variable, double coeff) {
-        mpObjective.setCoefficient(variable.getMPVariable(), OpenRaoMPSolver.roundDouble(coeff, numberOfBitsToRoundOff));
+        mpObjective.setCoefficient(variable.getMPVariable(), OpenRaoMPSolver.roundDouble(coeff));
     }
 }

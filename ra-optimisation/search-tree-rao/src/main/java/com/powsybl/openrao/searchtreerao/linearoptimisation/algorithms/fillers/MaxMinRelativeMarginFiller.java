@@ -56,7 +56,7 @@ public class MaxMinRelativeMarginFiller extends MaxMinMarginFiller {
         super.fill(linearProblem, flowResult, sensitivityResult);
         buildMinimumRelativeMarginSignBinaryVariable(linearProblem);
         updateMinimumNegativeMarginDefinition(linearProblem);
-        Set<FlowCnec> validFlowCnecs = FillersUtil.getValidFlowCnecs(optimizedCnecs, sensitivityResult);
+        Set<FlowCnec> validFlowCnecs = FillersUtil.getFlowCnecsComputationStatusOk(optimizedCnecs, sensitivityResult);
         buildMinimumRelativeMarginVariable(linearProblem, validFlowCnecs);
         buildMinimumRelativeMarginConstraints(linearProblem, validFlowCnecs);
         fillObjectiveWithMinRelMargin(linearProblem);
@@ -65,7 +65,7 @@ public class MaxMinRelativeMarginFiller extends MaxMinMarginFiller {
     @Override
     public void updateBetweenSensiIteration(LinearProblem linearProblem, FlowResult flowResult, SensitivityResult sensitivityResult, RangeActionActivationResult rangeActionActivationResult) {
         if (ptdfApproximationLevel.shouldUpdatePtdfWithPstChange()) {
-            FillersUtil.getValidFlowCnecs(optimizedCnecs, sensitivityResult).forEach(cnec -> cnec.getMonitoredSides().forEach(side ->
+            FillersUtil.getFlowCnecsComputationStatusOk(optimizedCnecs, sensitivityResult).forEach(cnec -> cnec.getMonitoredSides().forEach(side ->
                 setOrUpdateRelativeMarginCoefficients(linearProblem, flowResult, cnec, side)
             ));
         }

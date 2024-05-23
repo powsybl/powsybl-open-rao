@@ -14,11 +14,9 @@ import com.google.ortools.linearsolver.MPConstraint;
  */
 public class OpenRaoMPConstraint {
     private final MPConstraint mpConstraint;
-    private final int numberOfBitsToRoundOff;
 
-    protected OpenRaoMPConstraint(MPConstraint mpConstraint, int numberOfBitsToRoundOff) {
+    protected OpenRaoMPConstraint(MPConstraint mpConstraint) {
         this.mpConstraint = mpConstraint;
-        this.numberOfBitsToRoundOff = numberOfBitsToRoundOff;
     }
 
     public String name() {
@@ -30,7 +28,7 @@ public class OpenRaoMPConstraint {
     }
 
     public void setCoefficient(OpenRaoMPVariable variable, double coeff) {
-        mpConstraint.setCoefficient(variable.getMPVariable(), OpenRaoMPSolver.roundDouble(coeff, numberOfBitsToRoundOff));
+        mpConstraint.setCoefficient(variable.getMPVariable(), OpenRaoMPSolver.roundDouble(coeff));
     }
 
     public double lb() {
@@ -42,14 +40,14 @@ public class OpenRaoMPConstraint {
     }
 
     public void setLb(double lb) {
-        mpConstraint.setLb(OpenRaoMPSolver.roundDouble(lb, numberOfBitsToRoundOff));
+        mpConstraint.setLb(OpenRaoMPSolver.roundDouble(lb));
     }
 
     public void setUb(double ub) {
-        mpConstraint.setUb(OpenRaoMPSolver.roundDouble(ub, numberOfBitsToRoundOff));
+        mpConstraint.setUb(OpenRaoMPSolver.roundDouble(ub));
     }
 
     public void setBounds(double lb, double ub) {
-        mpConstraint.setBounds(OpenRaoMPSolver.roundDouble(lb, numberOfBitsToRoundOff), OpenRaoMPSolver.roundDouble(ub, numberOfBitsToRoundOff));
+        mpConstraint.setBounds(OpenRaoMPSolver.roundDouble(lb), OpenRaoMPSolver.roundDouble(ub));
     }
 }

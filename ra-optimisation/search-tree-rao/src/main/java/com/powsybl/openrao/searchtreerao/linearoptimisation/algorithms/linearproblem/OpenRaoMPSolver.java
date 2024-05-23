@@ -55,7 +55,7 @@ public class OpenRaoMPSolver {
         this.mpSolver = new MPSolver(optProblemName, getOrToolsProblemType(solver));
         constraints = new TreeMap<>();
         variables = new TreeMap<>();
-        this.objective = new OpenRaoMPObjective(mpSolver.objective(), NUMBER_OF_BITS_TO_ROUND_OFF);
+        this.objective = new OpenRaoMPObjective(mpSolver.objective());
         setSolverSpecificParametersAsString(solverSpecificParameters);
         if (objectiveMinimization) {
             setMinimization();
@@ -127,9 +127,9 @@ public class OpenRaoMPSolver {
         if (hasVariable(name)) {
             throw new OpenRaoException(String.format("Variable %s already exists", name));
         }
-        double roundedLb = roundDouble(lb, NUMBER_OF_BITS_TO_ROUND_OFF);
-        double roundedUb = roundDouble(ub, NUMBER_OF_BITS_TO_ROUND_OFF);
-        OpenRaoMPVariable variable = new OpenRaoMPVariable(mpSolver.makeVar(roundedLb, roundedUb, integer, name), NUMBER_OF_BITS_TO_ROUND_OFF);
+        double roundedLb = roundDouble(lb);
+        double roundedUb = roundDouble(ub);
+        OpenRaoMPVariable variable = new OpenRaoMPVariable(mpSolver.makeVar(roundedLb, roundedUb, integer, name));
         variables.put(name, variable);
         return variable;
     }
@@ -138,9 +138,9 @@ public class OpenRaoMPSolver {
         if (hasConstraint(name)) {
             throw new OpenRaoException(String.format("Constraint %s already exists", name));
         } else {
-            double roundedLb = roundDouble(lb, NUMBER_OF_BITS_TO_ROUND_OFF);
-            double roundedUb = roundDouble(ub, NUMBER_OF_BITS_TO_ROUND_OFF);
-            OpenRaoMPConstraint constraint = new OpenRaoMPConstraint(mpSolver.makeConstraint(roundedLb, roundedUb, name), NUMBER_OF_BITS_TO_ROUND_OFF);
+            double roundedLb = roundDouble(lb);
+            double roundedUb = roundDouble(ub);
+            OpenRaoMPConstraint constraint = new OpenRaoMPConstraint(mpSolver.makeConstraint(roundedLb, roundedUb, name));
             constraints.put(name, constraint);
             return constraint;
         }
@@ -221,11 +221,11 @@ public class OpenRaoMPSolver {
        .............//////..........
        We get back our original bits for the most significant part, but the least significant bits are still gone.
      */
-    static double roundDouble(double value, int numberOfBitsToRoundOff) {
+    static double roundDouble(double value) {
         if (Double.isNaN(value)) {
             throw new OpenRaoException("Trying to add a NaN value in MIP!");
         }
-        double t = value * (1L << numberOfBitsToRoundOff);
+        double t = value * (1L << NUMBER_OF_BITS_TO_ROUND_OFF);
         if (t != Double.POSITIVE_INFINITY && value != Double.NEGATIVE_INFINITY && !Double.isNaN(t)) {
             return value - t + t;
         }

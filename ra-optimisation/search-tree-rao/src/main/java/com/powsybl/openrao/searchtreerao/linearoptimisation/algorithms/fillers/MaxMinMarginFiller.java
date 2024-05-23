@@ -42,7 +42,7 @@ public class MaxMinMarginFiller implements ProblemFiller {
 
     @Override
     public void fill(LinearProblem linearProblem, FlowResult flowResult, SensitivityResult sensitivityResult) {
-        Set<FlowCnec> validFlowCnecs = FillersUtil.getValidFlowCnecs(optimizedCnecs, sensitivityResult);
+        Set<FlowCnec> validFlowCnecs = FillersUtil.getFlowCnecsComputationStatusOk(optimizedCnecs, sensitivityResult);
 
         // build variables
         buildMinimumMarginVariable(linearProblem, validFlowCnecs);

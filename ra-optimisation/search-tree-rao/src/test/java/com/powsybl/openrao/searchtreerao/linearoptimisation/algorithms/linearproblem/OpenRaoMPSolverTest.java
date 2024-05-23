@@ -194,24 +194,20 @@ class OpenRaoMPSolverTest {
         // big enough deltas are not rounded out by the rounding method
         double eps = 1e-6;
         double d2 = d1 + eps;
-        for (int i = 0; i <= 30; i++) {
-            assertNotEquals(OpenRaoMPSolver.roundDouble(d1, i), OpenRaoMPSolver.roundDouble(d2, i), 1e-20);
-        }
+        assertNotEquals(OpenRaoMPSolver.roundDouble(d1), OpenRaoMPSolver.roundDouble(d2), 1e-20);
 
         // small deltas are rounded out as long as we round enough bits
         eps = 1e-15;
         d2 = d1 + eps;
-        for (int i = 20; i <= 30; i++) {
-            assertEquals(OpenRaoMPSolver.roundDouble(d1, i), OpenRaoMPSolver.roundDouble(d2, i), 1e-20);
-        }
+        assertEquals(OpenRaoMPSolver.roundDouble(d1), OpenRaoMPSolver.roundDouble(d2), 1e-20);
 
         // infinity
-        assertEquals(Double.POSITIVE_INFINITY, OpenRaoMPSolver.roundDouble(Double.POSITIVE_INFINITY, 30));
+        assertEquals(Double.POSITIVE_INFINITY, OpenRaoMPSolver.roundDouble(Double.POSITIVE_INFINITY));
     }
 
     @Test
     void testRoundingFailsOnNan() {
-        Exception e = assertThrows(OpenRaoException.class, () -> OpenRaoMPSolver.roundDouble(Double.NaN, 20));
+        Exception e = assertThrows(OpenRaoException.class, () -> OpenRaoMPSolver.roundDouble(Double.NaN));
         assertEquals("Trying to add a NaN value in MIP!", e.getMessage());
     }
 

@@ -39,7 +39,7 @@ public class MnecFiller implements ProblemFiller {
     public MnecFiller(FlowResult initialFlowResult, Set<FlowCnec> monitoredCnecs, Unit unit, MnecParametersExtension mnecParameters) {
         this.initialFlowResult = initialFlowResult;
         this.monitoredCnecs = new TreeSet<>(Comparator.comparing(Identifiable::getId));
-        this.monitoredCnecs.addAll(FillersUtil.getValidFlowCnecs(monitoredCnecs, initialFlowResult));
+        this.monitoredCnecs.addAll(FillersUtil.getFlowCnecsNotNaNFlow(monitoredCnecs, initialFlowResult));
         this.unit = unit;
         this.mnecViolationCost = mnecParameters.getViolationCost();
         this.mnecAcceptableMarginDecrease = mnecParameters.getAcceptableMarginDecrease();
@@ -48,7 +48,7 @@ public class MnecFiller implements ProblemFiller {
 
     @Override
     public void fill(LinearProblem linearProblem, FlowResult flowResult, SensitivityResult sensitivityResult) {
-        Set<FlowCnec> validMonitoredCnecs = FillersUtil.getValidFlowCnecs(monitoredCnecs, sensitivityResult);
+        Set<FlowCnec> validMonitoredCnecs = FillersUtil.getFlowCnecsComputationStatusOk(monitoredCnecs, sensitivityResult);
         buildMarginViolationVariable(linearProblem, validMonitoredCnecs);
         buildMnecMarginConstraints(linearProblem, validMonitoredCnecs);
         fillObjectiveWithMnecPenaltyCost(linearProblem, validMonitoredCnecs);

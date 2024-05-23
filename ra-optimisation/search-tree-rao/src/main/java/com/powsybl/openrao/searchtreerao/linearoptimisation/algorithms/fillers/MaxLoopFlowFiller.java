@@ -37,7 +37,7 @@ public class MaxLoopFlowFiller implements ProblemFiller {
 
     public MaxLoopFlowFiller(Set<FlowCnec> loopFlowCnecs, FlowResult initialFlowResult, LoopFlowParametersExtension loopFlowParameters) {
         this.loopFlowCnecs = new TreeSet<>(Comparator.comparing(Identifiable::getId));
-        this.loopFlowCnecs.addAll(FillersUtil.getValidFlowCnecs(loopFlowCnecs, initialFlowResult));
+        this.loopFlowCnecs.addAll(FillersUtil.getFlowCnecsNotNaNFlow(loopFlowCnecs, initialFlowResult));
         this.initialFlowResult = initialFlowResult;
         this.loopFlowPtdfApproximationLevel = loopFlowParameters.getPtdfApproximation();
         this.loopFlowAcceptableAugmentation = loopFlowParameters.getAcceptableIncrease();
@@ -46,7 +46,7 @@ public class MaxLoopFlowFiller implements ProblemFiller {
     }
 
     private Set<FlowCnec> getValidLoopFlowCnecs(SensitivityResult sensitivityResult) {
-        return FillersUtil.getValidFlowCnecs(loopFlowCnecs, sensitivityResult);
+        return FillersUtil.getFlowCnecsComputationStatusOk(loopFlowCnecs, sensitivityResult);
     }
 
     @Override

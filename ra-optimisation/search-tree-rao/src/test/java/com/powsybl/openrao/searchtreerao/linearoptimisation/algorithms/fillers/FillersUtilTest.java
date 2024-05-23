@@ -59,19 +59,19 @@ class FillersUtilTest {
 
         Mockito.when(sensitivityResult.getSensitivityStatus(state1)).thenReturn(ComputationStatus.DEFAULT);
         Mockito.when(sensitivityResult.getSensitivityStatus(state2)).thenReturn(ComputationStatus.DEFAULT);
-        assertEquals(Set.of(cnec1, cnec2), FillersUtil.getValidFlowCnecs(cnecs, sensitivityResult));
+        assertEquals(Set.of(cnec1, cnec2), FillersUtil.getFlowCnecsComputationStatusOk(cnecs, sensitivityResult));
 
         Mockito.when(sensitivityResult.getSensitivityStatus(state1)).thenReturn(ComputationStatus.DEFAULT);
         Mockito.when(sensitivityResult.getSensitivityStatus(state2)).thenReturn(ComputationStatus.FAILURE);
-        assertEquals(Set.of(cnec1), FillersUtil.getValidFlowCnecs(cnecs, sensitivityResult));
+        assertEquals(Set.of(cnec1), FillersUtil.getFlowCnecsComputationStatusOk(cnecs, sensitivityResult));
 
         Mockito.when(sensitivityResult.getSensitivityStatus(state1)).thenReturn(ComputationStatus.FAILURE);
         Mockito.when(sensitivityResult.getSensitivityStatus(state2)).thenReturn(ComputationStatus.DEFAULT);
-        assertEquals(Set.of(cnec2), FillersUtil.getValidFlowCnecs(cnecs, sensitivityResult));
+        assertEquals(Set.of(cnec2), FillersUtil.getFlowCnecsComputationStatusOk(cnecs, sensitivityResult));
 
         Mockito.when(sensitivityResult.getSensitivityStatus(state1)).thenReturn(ComputationStatus.FAILURE);
         Mockito.when(sensitivityResult.getSensitivityStatus(state2)).thenReturn(ComputationStatus.FAILURE);
-        assertEquals(Set.of(), FillersUtil.getValidFlowCnecs(cnecs, sensitivityResult));
+        assertEquals(Set.of(), FillersUtil.getFlowCnecsComputationStatusOk(cnecs, sensitivityResult));
     }
 
     @Test
@@ -82,19 +82,19 @@ class FillersUtilTest {
         Mockito.when(flowResult.getFlow(cnec1, Side.RIGHT, Unit.MEGAWATT)).thenReturn(Double.NaN);
         Mockito.when(flowResult.getFlow(cnec2, Side.LEFT, Unit.MEGAWATT)).thenReturn(Double.NaN);
         Mockito.when(flowResult.getFlow(cnec2, Side.RIGHT, Unit.MEGAWATT)).thenReturn(Double.NaN);
-        assertEquals(Set.of(), FillersUtil.getValidFlowCnecs(cnecs, flowResult));
+        assertEquals(Set.of(), FillersUtil.getFlowCnecsNotNaNFlow(cnecs, flowResult));
 
         Mockito.when(flowResult.getFlow(cnec1, Side.LEFT, Unit.MEGAWATT)).thenReturn(1.0);
         Mockito.when(flowResult.getFlow(cnec1, Side.RIGHT, Unit.MEGAWATT)).thenReturn(1.0);
         Mockito.when(flowResult.getFlow(cnec2, Side.LEFT, Unit.MEGAWATT)).thenReturn(1.0);
         Mockito.when(flowResult.getFlow(cnec2, Side.RIGHT, Unit.MEGAWATT)).thenReturn(Double.NaN);
-        assertEquals(Set.of(cnec1), FillersUtil.getValidFlowCnecs(cnecs, flowResult));
+        assertEquals(Set.of(cnec1), FillersUtil.getFlowCnecsNotNaNFlow(cnecs, flowResult));
 
         Mockito.when(flowResult.getFlow(cnec1, Side.LEFT, Unit.MEGAWATT)).thenReturn(1.0);
         Mockito.when(flowResult.getFlow(cnec1, Side.RIGHT, Unit.MEGAWATT)).thenReturn(Double.NaN);
         Mockito.when(flowResult.getFlow(cnec1, Side.RIGHT, Unit.AMPERE)).thenReturn(4.0);
         Mockito.when(flowResult.getFlow(cnec2, Side.LEFT, Unit.MEGAWATT)).thenReturn(Double.NaN);
         Mockito.when(flowResult.getFlow(cnec2, Side.RIGHT, Unit.MEGAWATT)).thenReturn(3.0);
-        assertEquals(Set.of(cnec2), FillersUtil.getValidFlowCnecs(cnecs, flowResult));
+        assertEquals(Set.of(cnec2), FillersUtil.getFlowCnecsNotNaNFlow(cnecs, flowResult));
     }
 }
