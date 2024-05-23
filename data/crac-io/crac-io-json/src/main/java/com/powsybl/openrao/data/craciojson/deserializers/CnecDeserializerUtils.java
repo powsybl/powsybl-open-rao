@@ -7,7 +7,7 @@ import static com.powsybl.openrao.data.craciojson.JsonSerializationConstants.REL
 import static com.powsybl.openrao.data.craciojson.JsonSerializationConstants.getPrimaryVersionNumber;
 import static com.powsybl.openrao.data.craciojson.JsonSerializationConstants.getSubVersionNumber;
 
-public class CnecDeserializerUtils {
+public final class CnecDeserializerUtils {
     private CnecDeserializerUtils() {
     }
 
@@ -22,7 +22,7 @@ public class CnecDeserializerUtils {
         //"frm" renamed to "reliabilityMargin" in 1.4 and abandoned in 1.5
         int primaryVersionNumber = getPrimaryVersionNumber(version);
         int subVersionNumber = getSubVersionNumber(version);
-        if (primaryVersionNumber <= 1 && subVersionNumber <= 3 || primaryVersionNumber >= 1 && subVersionNumber >= 5) {
+        if (primaryVersionNumber <= 1 && subVersionNumber <= 3 || primaryVersionNumber >= 2 && subVersionNumber >= 3) {
             throw new OpenRaoException(String.format("Unexpected field for version %s : %s", version, RELIABILITY_MARGIN));
         }
     }

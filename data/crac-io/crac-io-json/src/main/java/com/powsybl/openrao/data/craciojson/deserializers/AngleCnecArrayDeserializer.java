@@ -10,6 +10,8 @@ package com.powsybl.openrao.data.craciojson.deserializers;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.cracapi.cnec.*;
+import com.powsybl.openrao.data.cracapi.threshold.AngleThresholdAdder;
+import com.powsybl.openrao.data.cracapi.threshold.VoltageThresholdAdder;
 import com.powsybl.openrao.data.craciojson.ExtensionsHandler;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
@@ -19,8 +21,10 @@ import com.powsybl.commons.json.JsonUtil;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import static com.powsybl.openrao.data.craciojson.JsonSerializationConstants.*;
 
@@ -36,6 +40,8 @@ public final class AngleCnecArrayDeserializer {
         if (networkElementsNamesPerId == null) {
             throw new OpenRaoException(String.format("Cannot deserialize %s before %s", ANGLE_CNECS, NETWORK_ELEMENTS_NAME_PER_ID));
         }
+        Set<AngleThresholdArrayDeserializer.AngleThreshold> thresholds = new HashSet<>();
+        double reliabilityMargin = 0;
         while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
             AngleCnecAdder angleCnecAdder = crac.newAngleCnec();
             List<Extension<AngleCnec>> extensions = new ArrayList<>();
@@ -69,14 +75,14 @@ public final class AngleCnecArrayDeserializer {
                         angleCnecAdder.withMonitored(jsonParser.nextBooleanValue());
                         break;
                     case FRM:
-                        readFrm(jsonParser, version, angleCnecAdder);
+                        reliabilityMargin = readFrm(jsonParser, version, angleCnecAdder);
                         break;
                     case RELIABILITY_MARGIN:
-                        readReliabilityMargin(jsonParser, version, angleCnecAdder);
+                        reliabilityMargin = readReliabilityMargin(jsonParser, version, angleCnecAdder);
                         break;
                     case THRESHOLDS:
                         jsonParser.nextToken();
-                        AngleThresholdArrayDeserializer.deserialize(jsonParser, angleCnecAdder);
+                        thresholds = new HashSet<>(AngleThresholdArrayDeserializer.deserialize(jsonParser, angleCnecAdder));
                         break;
                     case EXTENSIONS:
                         jsonParser.nextToken();
@@ -86,6 +92,10 @@ public final class AngleCnecArrayDeserializer {
                         throw new OpenRaoException("Unexpected field in AngleCnec: " + jsonParser.getCurrentName());
                 }
             }
+            if (reliabilityMargin != 0) {
+                // Workaround to support frm/reliability margin from older versions
+                overrideThresholdsWithReliabilityMargin(angleCnecAdder, thresholds, reliabilityMargin);
+            }
             AngleCnec cnec = angleCnecAdder.add();
             if (!extensions.isEmpty()) {
                 ExtensionsHandler.getExtensionsSerializers().addExtensions(cnec, extensions);
@@ -93,16 +103,29 @@ public final class AngleCnecArrayDeserializer {
         }
     }
 
-    private static void readReliabilityMargin(JsonParser jsonParser, String version, AngleCnecAdder angleCnecAdder) throws IOException {
-        CnecDeserializerUtils.checkReliabilityMargin(version);
-        jsonParser.nextToken();
-        angleCnecAdder.withReliabilityMargin(jsonParser.getDoubleValue());
+    private static void overrideThresholdsWithReliabilityMargin(AngleCnecAdder angleCnecAdder, Set<AngleThresholdArrayDeserializer.AngleThreshold> thresholds, double reliabilityMargin) {
+        thresholds.forEach(threshold -> {
+            AngleThresholdAdder thresholdAdder = angleCnecAdder.newThreshold().withUnit(threshold.unit());
+            if (threshold.min() != null) {
+                thresholdAdder.withMin(threshold.min() + reliabilityMargin);
+            }
+            if (threshold.max() != null) {
+                thresholdAdder.withMax(threshold.max() - reliabilityMargin);
+            }
+            thresholdAdder.add();
+        });
     }
 
-    private static void readFrm(JsonParser jsonParser, String version, AngleCnecAdder angleCnecAdder) throws IOException {
+    private static double readReliabilityMargin(JsonParser jsonParser, String version, AngleCnecAdder angleCnecAdder) throws IOException {
+        CnecDeserializerUtils.checkReliabilityMargin(version);
+        jsonParser.nextToken();
+        return jsonParser.getDoubleValue();
+    }
+
+    private static double readFrm(JsonParser jsonParser, String version, AngleCnecAdder angleCnecAdder) throws IOException {
         CnecDeserializerUtils.checkFrm(version);
         jsonParser.nextToken();
-        angleCnecAdder.withReliabilityMargin(jsonParser.getDoubleValue());
+        return jsonParser.getDoubleValue();
     }
 
     private static void readImportingNetworkElementId(JsonParser jsonParser, Map<String, String> networkElementsNamesPerId, AngleCnecAdder angleCnecAdder) throws IOException {
