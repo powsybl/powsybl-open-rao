@@ -30,4 +30,18 @@ public final class CimCracReports {
         TECHNICAL_LOGS.debug("CIM CRAC document is NOT valid. Reason: {}", reason);
         return addedNode;
     }
+
+    public static ReportNode reportCimCracCreator(ReportNode reportNode) {
+        return reportNode.newReportNode()
+            .withMessageTemplate("cimCracCreator", "CIM CRAC creator")
+            .withSeverity(TypedValue.INFO_SEVERITY)
+            .add();
+    }
+
+    public static ReportNode reportCimCracCreationReport(ReportNode reportNode) {
+        return reportNode.newReportNode()
+            .withMessageTemplate("cimCracCreationReport", "CIM CRAC creation report")
+            .withSeverity(TypedValue.INFO_SEVERITY)
+            .add();
+    }
 }

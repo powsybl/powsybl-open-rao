@@ -1,6 +1,5 @@
 + This is a parent report node for report tests
    + CSE CRAC creator
-      New crac "ruleToBeDefined" called "ruleToBeDefined"
       + CSE CRAC creation report
          [REMOVED] Outage "outage_3" was not imported: ELEMENT_NOT_FOUND_IN_NETWORK. branch was not found in the Network (from: BBE1AA1 , to: BBE2ZZ1 , suffix: 1).
          [REMOVED] Critical branch "French line 2 - FFRFAK2 - FFRFAK1 - outage_2" was not imported: ELEMENT_NOT_FOUND_IN_NETWORK. branch was not found in the Network (from: FFRFAK2, to: FFRFAK1, suffix: 1).
@@ -9,3 +8,4 @@
          [REMOVED] Remedial action "cra_4" was not imported: ELEMENT_NOT_FOUND_IN_NETWORK. PST was not found in the Network (from: BBE2AA1 , to: BBE3ZZ1 , suffix: 1).
          [REMOVED] Remedial action "cra_5" was not imported: ELEMENT_NOT_FOUND_IN_NETWORK. element was not found in the Network (from: FFR1AA1 , to: FFR3ZZ1 , suffix: 1).
          [REMOVED] Remedial action "cra_6" was not imported: ELEMENT_NOT_FOUND_IN_NETWORK. No bus in the network matches bus id FFR3ZZ1 .
+      New crac "ruleToBeDefined" called "ruleToBeDefined"

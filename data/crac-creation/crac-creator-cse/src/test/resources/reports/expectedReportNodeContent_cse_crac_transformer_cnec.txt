@@ -1,6 +1,6 @@
 + This is a parent report node for report tests
    + CSE CRAC creator
-      New crac "2021_04_30_TEST_CSE_CRAC_1" called "2021_04_30_TEST_CSE_CRAC_1"
       + CSE CRAC creation report
          [REMOVED] Critical branch "basecase_branch_1 - BBE2AA1  - BBE3AA2  - basecase" was not imported: ELEMENT_NOT_FOUND_IN_NETWORK. branch was not found in the Network (from: BBE2AA1 , to: BBE3AA2 , suffix: 1).
          [REMOVED] Critical branch "basecase_branch_2 - BBE2AA1  - BBE3AA2  - basecase" was not imported: ELEMENT_NOT_FOUND_IN_NETWORK. branch was not found in the Network (from: BBE2AA1 , to: BBE3AA2 , suffix: 1).
+      New crac "2021_04_30_TEST_CSE_CRAC_1" called "2021_04_30_TEST_CSE_CRAC_1"

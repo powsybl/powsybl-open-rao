@@ -1,0 +1,19 @@
++ This is a parent report node for report tests
+   + CIM CRAC creator
+      + CIM CRAC creation report
+         [REMOVED] Contingency_Series "InvalidCo" was not imported: ELEMENT_NOT_FOUND_IN_NETWORK. None of the contingency's registered resources was found in network.
+         [REMOVED] AdditionalConstraint_Series "AngleCnec2" was not imported: INCONSISTENCY_IN_DATA. Wrong measurement unit : AMP.
+         [REMOVED] AdditionalConstraint_Series "AngleCnec7" was not imported: INCONSISTENCY_IN_DATA. Wrong businessType: B88.
+         [REMOVED] AdditionalConstraint_Series "AngleCnec8" was not imported: ELEMENT_NOT_FOUND_IN_NETWORK. ELEMENT_NOT_FOUND is not a Voltage Level.
+         [REMOVED] AdditionalConstraint_Series "AngleCnec9" was not imported: INCONSISTENCY_IN_DATA. Wrong number of registered resources : 1 instead of 2.
+         [REMOVED] AdditionalConstraint_Series "AngleCnec10" was not imported: INCONSISTENCY_IN_DATA. Wrong market object status : A48.
+         [REMOVED] RemedialAction_Series "RA2" was not imported: INCONSISTENCY_IN_DATA. Associated angle cnec could not be imported.
+         [REMOVED] RemedialAction_Series "Angle4" was not imported: INCONSISTENCY_IN_DATA. Angle cnec series has an ill defined contingency series.
+         [REMOVED] RemedialAction_Series "Angle5" was not imported: INCONSISTENCY_IN_DATA. Angle cnec series has an ill defined contingency series.
+         [REMOVED] RemedialAction_Series "Angle6" was not imported: INCONSISTENCY_IN_DATA. Angle cnec series has an ill defined contingency series.
+         [REMOVED] RemedialAction_Series "RA7" was not imported: INCONSISTENCY_IN_DATA. Associated angle cnec could not be imported.
+         [REMOVED] RemedialAction_Series "RA8" was not imported: INCONSISTENCY_IN_DATA. Associated angle cnec could not be imported.
+         [REMOVED] RemedialAction_Series "RA9" was not imported: INCONSISTENCY_IN_DATA. Associated angle cnec could not be imported.
+         [REMOVED] RemedialAction_Series "RA10" was not imported: INCONSISTENCY_IN_DATA. Associated angle cnec could not be imported.
+         [REMOVED] RemedialAction_Series "RA11" was not imported: ELEMENT_NOT_FOUND_IN_NETWORK. WRONG_ID is neither a generator nor a load.
+      New crac "CIM_CRAC_DOCUMENT" called "CIM_CRAC_DOCUMENT"

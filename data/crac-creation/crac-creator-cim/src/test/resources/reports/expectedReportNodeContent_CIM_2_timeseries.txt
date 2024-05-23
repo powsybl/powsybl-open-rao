@@ -1,0 +1,5 @@
++ This is a parent report node for report tests
+   + CIM CRAC creator
+      + CIM CRAC creation report
+         [WARN] Requested TimeSeries mRID "TimeSeries3" in CimCracCreationParameters was not found in the CRAC file.
+      New crac "CIM_CRAC_DOCUMENT" called "CIM_CRAC_DOCUMENT"

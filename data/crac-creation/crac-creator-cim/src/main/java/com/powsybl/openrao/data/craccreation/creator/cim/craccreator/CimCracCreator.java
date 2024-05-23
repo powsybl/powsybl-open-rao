@@ -14,6 +14,7 @@ import com.powsybl.openrao.data.cracapi.cnec.Side;
 import com.powsybl.openrao.data.craccreation.creator.api.CracCreator;
 import com.powsybl.openrao.data.craccreation.creator.api.parameters.CracCreationParameters;
 import com.powsybl.openrao.data.craccreation.creator.cim.CimCrac;
+import com.powsybl.openrao.data.craccreation.creator.cim.CimCracReports;
 import com.powsybl.openrao.data.craccreation.creator.cim.craccreator.cnec.MonitoredSeriesCreator;
 import com.powsybl.openrao.data.craccreation.creator.cim.craccreator.cnec.VoltageCnecsCreator;
 import com.powsybl.openrao.data.craccreation.creator.cim.craccreator.contingency.CimContingencyCreator;
@@ -47,8 +48,10 @@ public class CimCracCreator implements CracCreator<CimCrac, CimCracCreationConte
 
     @Override
     public CimCracCreationContext createCrac(CimCrac cimCrac, Network network, OffsetDateTime offsetDateTime, CracCreationParameters parameters, ReportNode reportNode) {
+        ReportNode cimCracCreatorReportNode = CimCracReports.reportCimCracCreator(reportNode);
+        ReportNode cimCracCreationReportReportNode = CimCracReports.reportCimCracCreationReport(cimCracCreatorReportNode);
         // Set attributes
-        this.crac = parameters.getCracFactory().create(cimCrac.getCracDocument().getMRID(), reportNode);
+        this.crac = parameters.getCracFactory().create(cimCrac.getCracDocument().getMRID(), cimCracCreatorReportNode);
         addCimInstants();
         RaUsageLimitsAdder.addRaUsageLimits(crac, parameters);
         this.network = network;
@@ -58,33 +61,33 @@ public class CimCracCreator implements CracCreator<CimCrac, CimCracCreationConte
         // Get warning messages from parameters parsing
         CimCracCreationParameters cimCracCreationParameters = parameters.getExtension(CimCracCreationParameters.class);
         if (cimCracCreationParameters != null) {
-            cimCracCreationParameters.getFailedParseWarnings().forEach(message -> creationContext.getCreationReport().warn(message, reportNode));
+            cimCracCreationParameters.getFailedParseWarnings().forEach(message -> creationContext.getCreationReport().warn(message, cimCracCreationReportReportNode));
             if (!cimCracCreationParameters.getTimeseriesMrids().isEmpty()) {
                 this.cimTimeSeries.removeIf(ts -> !cimCracCreationParameters.getTimeseriesMrids().contains(ts.getMRID()));
                 cimCracCreationParameters.getTimeseriesMrids().stream()
                     .filter(mrid -> this.cimTimeSeries.stream().map(TimeSeries::getMRID).noneMatch(id -> id.equals(mrid)))
-                    .forEach(mrid -> creationContext.getCreationReport().warn(String.format("Requested TimeSeries mRID \"%s\" in CimCracCreationParameters was not found in the CRAC file.", mrid), reportNode));
+                    .forEach(mrid -> creationContext.getCreationReport().warn(String.format("Requested TimeSeries mRID \"%s\" in CimCracCreationParameters was not found in the CRAC file.", mrid), cimCracCreationReportReportNode));
             }
         }
 
         if (offsetDateTime == null) {
-            creationContext.getCreationReport().error("Timestamp is null for cim crac creator.", reportNode);
+            creationContext.getCreationReport().error("Timestamp is null for cim crac creator.", cimCracCreationReportReportNode);
             return creationContext.creationFailure();
         } else {
             String cracTimePeriodStart = cimCrac.getCracDocument().getTimePeriodTimeInterval().getStart();
             String cracTimePeriodEnd = cimCrac.getCracDocument().getTimePeriodTimeInterval().getEnd();
             if (!isInTimeInterval(offsetDateTime, cracTimePeriodStart, cracTimePeriodEnd)) {
-                creationContext.getCreationReport().error(String.format("Timestamp %s is not in time interval [%s %s].", offsetDateTime, cracTimePeriodStart, cracTimePeriodEnd), reportNode);
+                creationContext.getCreationReport().error(String.format("Timestamp %s is not in time interval [%s %s].", offsetDateTime, cracTimePeriodStart, cracTimePeriodEnd), cimCracCreationReportReportNode);
                 return creationContext.creationFailure();
             }
         }
 
         createContingencies();
-        createCnecs(parameters.getDefaultMonitoredSides(), reportNode);
-        createRemedialActions(cimCracCreationParameters, reportNode);
+        createCnecs(parameters.getDefaultMonitoredSides(), cimCracCreationReportReportNode);
+        createRemedialActions(cimCracCreationParameters, cimCracCreatorReportNode);
         createVoltageCnecs(cimCracCreationParameters);
-        creationContext.buildCreationReport(reportNode);
-        CracValidator.validateCrac(crac, network).forEach(addedReason -> creationContext.getCreationReport().added(addedReason, reportNode));
+        creationContext.buildCreationReport(cimCracCreationReportReportNode);
+        CracValidator.validateCrac(crac, network).stream().sorted().forEach(addedReason -> creationContext.getCreationReport().added(addedReason, cimCracCreationReportReportNode));
         return creationContext.creationSuccess(crac);
     }
 

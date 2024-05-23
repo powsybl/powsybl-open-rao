@@ -1,8 +1,8 @@
 + This is a parent report node for report tests
    + CSE CRAC creator
-      New crac "2021_04_30_TEST_CSE_CRAC_1" called "2021_04_30_TEST_CSE_CRAC_1"
       + CSE CRAC creation report
          [REMOVED] Outage "outage_3" was not imported: ELEMENT_NOT_FOUND_IN_NETWORK. branch was not found in the Network (from: BBE1AA1 , to: BBE2ZZ1 , suffix: 1).
          [REMOVED] Critical branch "French line 2 - FFRFAK2 - FFRFAK1 - outage_2" was not imported: ELEMENT_NOT_FOUND_IN_NETWORK. branch was not found in the Network (from: FFRFAK2, to: FFRFAK1, suffix: 1).
          [REMOVED] Remedial action "cra_1" was not imported: ELEMENT_NOT_FOUND_IN_NETWORK. No bus in the network matches bus id FFR3ZZ1 .
          [REMOVED] Remedial action "cra_3" was not imported: ELEMENT_NOT_FOUND_IN_NETWORK. No bus in the network matches bus id FFR3ZZ1 .
+      New crac "2021_04_30_TEST_CSE_CRAC_1" called "2021_04_30_TEST_CSE_CRAC_1"

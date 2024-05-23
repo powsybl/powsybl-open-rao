@@ -1,0 +1,14 @@
++ This is a parent report node for report tests
+   + CIM CRAC creator
+      + CIM CRAC creation report
+         [WARN] Multiple CNECs on same network element (_ffbabc27-1ccd-4fdc-b037-e341706c8d29) and same state (preventive) have been detected. Only one CNEC will be created.
+         [WARN] Multiple CNECs on same network element (_ffbabc27-1ccd-4fdc-b037-e341706c8d29) and same state (Co-2 - auto) have been detected. Only one CNEC will be created.
+         [WARN] Multiple CNECs on same network element (_ffbabc27-1ccd-4fdc-b037-e341706c8d29) and same state (Co-1 - auto) have been detected. Only one CNEC will be created.
+         [WARN] Multiple Monitored_Series with same mRID "CNEC-3" detected; they will be merged.
+         [REMOVED] Contingency_Series "Fake-Co" was not imported: ELEMENT_NOT_FOUND_IN_NETWORK. None of the contingency's registered resources was found in network.
+         [ALTERED] Monitored_Series "MNEC-1" was altered : Contingencies Fake-Co were not imported.
+         [ALTERED] Monitored_Series "MNEC-2" was altered : Contingencies Fake-Co were not imported.
+         [REMOVED] Monitored_Series "CNEC-2" was not imported: ELEMENT_NOT_FOUND_IN_NETWORK. Network element was not found in network: FAKE_ID.
+         [ADDED] CNEC "CNEC-4 - Co-1 - auto" has no associated automaton. It will be cloned on the OUTAGE instant in order to be secured during preventive RAO.
+         [ADDED] CNEC "CNEC-4 - Co-2 - auto" has no associated automaton. It will be cloned on the OUTAGE instant in order to be secured during preventive RAO.
+      New crac "CIM_CRAC_DOCUMENT" called "CIM_CRAC_DOCUMENT"

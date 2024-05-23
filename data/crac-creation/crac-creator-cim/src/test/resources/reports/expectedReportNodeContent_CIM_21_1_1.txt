@@ -1,0 +1,7 @@
++ This is a parent report node for report tests
+   + CIM CRAC creator
+      + CIM CRAC creation report
+         [ALTERED] Contingency_Series "Co-3" was modified: Some network elements were not found in the network: DOES_NOT_EXIST. 
+         [REMOVED] Contingency_Series "Co-4" was not imported: ELEMENT_NOT_FOUND_IN_NETWORK. None of the contingency's registered resources was found in network.
+         [REMOVED] Contingency_Series "Co-5" was not imported: INCOMPLETE_DATA. No registered resources.
+      New crac "CIM_CRAC_DOCUMENT" called "CIM_CRAC_DOCUMENT"

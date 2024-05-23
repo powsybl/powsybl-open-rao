@@ -87,11 +87,10 @@ public class CseCracCreationContext implements UcteCracCreationContext {
     }
 
     void buildCreationReport(ReportNode reportNode) {
-        ReportNode cseCracCreationContextReportNode = CseCracReports.reportCseCracCreationReport(reportNode);
-        addToReport(outageCreationContexts.values(), "Outage", cseCracCreationContextReportNode);
-        addToReport(criticalBranchCreationContexts.values(), "Critical branch", cseCracCreationContextReportNode);
-        addToReport(monitoredElementCreationContexts.values(), "Monitored element", cseCracCreationContextReportNode);
-        addToReport(remedialActionCreationContexts.values(), "Remedial action", cseCracCreationContextReportNode);
+        addToReport(outageCreationContexts.values(), "Outage", reportNode);
+        addToReport(criticalBranchCreationContexts.values(), "Critical branch", reportNode);
+        addToReport(monitoredElementCreationContexts.values(), "Monitored element", reportNode);
+        addToReport(remedialActionCreationContexts.values(), "Remedial action", reportNode);
     }
 
     private void addToReport(Collection<? extends ElementaryCreationContext> contexts, String nativeTypeIdentifier, ReportNode reportNode) {
