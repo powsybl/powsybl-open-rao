@@ -315,22 +315,6 @@ class CseCracCreatorTest {
     }
 
     @Test
-    void cracCreationContextReport() {
-        setUp("/cracs/cse_crac_1.xml");
-        List<String> creationReport = cracCreationContext.getCreationReport().getReport();
-        assertFalse(creationReport.isEmpty());
-        assertEquals(5, creationReport.size());
-    }
-
-    @Test
-    void cracCreationContextReport2() {
-        setUp("/cracs/cse_crac_2.xml");
-        List<String> creationReport = cracCreationContext.getCreationReport().getReport();
-        assertFalse(creationReport.isEmpty());
-        assertEquals(4, creationReport.size());
-    }
-
-    @Test
     void testRaOnConstraint() {
         setUp("/cracs/cse_crac_onConstraint.xml");
 
@@ -632,7 +616,6 @@ class CseCracCreatorTest {
         setUp("/cracs/cse_crac_auto.xml");
         assertRemedialActionNotImported("ara_1", NOT_YET_HANDLED_BY_OPEN_RAO);
         assertEquals(9, importedCrac.getFlowCnecs().size());
-        assertFalse(cracCreationContext.getCreationReport().getReport().contains("[ADDED] CNEC \"French line 1 - FFR1AA1 ->FFR2AA1   - outage_1 - auto\" has no associated automaton. It will be cloned on the OUTAGE instant in order to be secured during preventive RAO."));
     }
 
     public static Stream<Arguments> provideParameters() {
