@@ -1,3 +1,0 @@
-+ This is a parent report node for report tests
-   + CSE CRAC creator
-      New crac "ruleToBeDefined" called "ruleToBeDefined"

@@ -25,4 +25,11 @@ public final class CseCracReports {
             .withSeverity(TypedValue.INFO_SEVERITY)
             .add();
     }
+
+    public static ReportNode reportCseCracCreationReport(ReportNode reportNode) {
+        return reportNode.newReportNode()
+            .withMessageTemplate("cseCracCreationReport", "CSE CRAC creation report")
+            .withSeverity(TypedValue.INFO_SEVERITY)
+            .add();
+    }
 }

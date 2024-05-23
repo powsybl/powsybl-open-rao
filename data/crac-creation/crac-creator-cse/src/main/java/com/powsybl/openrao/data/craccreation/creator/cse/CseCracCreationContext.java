@@ -86,23 +86,24 @@ public class CseCracCreationContext implements UcteCracCreationContext {
         return crac;
     }
 
-    void buildCreationReport() {
-        addToReport(outageCreationContexts.values(), "Outage");
-        addToReport(criticalBranchCreationContexts.values(), "Critical branch");
-        addToReport(monitoredElementCreationContexts.values(), "Monitored element");
-        addToReport(remedialActionCreationContexts.values(), "Remedial action");
+    void buildCreationReport(ReportNode reportNode) {
+        ReportNode cseCracCreationContextReportNode = CseCracReports.reportCseCracCreationReport(reportNode);
+        addToReport(outageCreationContexts.values(), "Outage", cseCracCreationContextReportNode);
+        addToReport(criticalBranchCreationContexts.values(), "Critical branch", cseCracCreationContextReportNode);
+        addToReport(monitoredElementCreationContexts.values(), "Monitored element", cseCracCreationContextReportNode);
+        addToReport(remedialActionCreationContexts.values(), "Remedial action", cseCracCreationContextReportNode);
     }
 
-    private void addToReport(Collection<? extends ElementaryCreationContext> contexts, String nativeTypeIdentifier) {
+    private void addToReport(Collection<? extends ElementaryCreationContext> contexts, String nativeTypeIdentifier, ReportNode reportNode) {
         contexts.stream().filter(ElementaryCreationContext::isAltered)
             .sorted(Comparator.comparing(ElementaryCreationContext::getNativeId))
             .forEach(context ->
-            creationReport.altered(String.format("%s \"%s\" was modified: %s. ", nativeTypeIdentifier, context.getNativeId(), context.getImportStatusDetail()), ReportNode.NO_OP)
+            creationReport.altered(String.format("%s \"%s\" was modified: %s. ", nativeTypeIdentifier, context.getNativeId(), context.getImportStatusDetail()), reportNode)
         );
         contexts.stream().filter(context -> !context.isImported())
             .sorted(Comparator.comparing(ElementaryCreationContext::getNativeId))
             .forEach(context ->
-            creationReport.removed(String.format("%s \"%s\" was not imported: %s. %s.", nativeTypeIdentifier, context.getNativeId(), context.getImportStatus(), context.getImportStatusDetail()), ReportNode.NO_OP)
+            creationReport.removed(String.format("%s \"%s\" was not imported: %s. %s.", nativeTypeIdentifier, context.getNativeId(), context.getImportStatus(), context.getImportStatusDetail()), reportNode)
         );
     }
 

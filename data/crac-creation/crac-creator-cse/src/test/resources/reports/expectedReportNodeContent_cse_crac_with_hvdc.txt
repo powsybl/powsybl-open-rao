@@ -1,0 +1,13 @@
++ This is a parent report node for report tests
+   + CSE CRAC creator
+      New crac "2021_04_30_TEST_CSE_CRAC_1" called "2021_04_30_TEST_CSE_CRAC_1"
+      + CSE CRAC creation report
+         [REMOVED] Outage "fake_contingency_because_we_have_to" was not imported: ELEMENT_NOT_FOUND_IN_NETWORK. branch was not found in the Network (from: AAAAAA11, to: BBBBBB11, suffix: 1).
+         [REMOVED] Critical branch "be1_fr5_n - BBE1AA11 - FFR5AA11 - basecase" was not imported: ELEMENT_NOT_FOUND_IN_NETWORK. branch was not found in the Network (from: BBE1AA11, to: FFR5AA11, suffix: 1).
+         [REMOVED] Critical branch "fake_because_we_have_to - AAAAAA11 - BBBBBB11 - null" was not imported: ELEMENT_NOT_FOUND_IN_NETWORK. branch was not found in the Network (from: AAAAAA11, to: BBBBBB11, suffix: 1).
+         [REMOVED] Remedial action "CRA_HVDC" was not imported: ELEMENT_NOT_FOUND_IN_NETWORK. No bus in the network matches bus id FFR3AA12 & No bus in the network matches bus id BBE2AA12.
+         [REMOVED] Remedial action "CRA_HVDC_2" was not imported: ELEMENT_NOT_FOUND_IN_NETWORK. No bus in the network matches bus id FFR3AA12 & No bus in the network matches bus id BBE2AA12.
+         [REMOVED] Remedial action "CRA_HVDC_fake" was not imported: NOT_YET_HANDLED_BY_OPEN_RAO. HVDC CRA_HVDC_fake is not defined with an ABSOLUTE variation type (only ABSOLUTE is handled).
+         [REMOVED] Remedial action "HVDC_WITH_NON_OPPOSITE_GENERATORS" was not imported: ELEMENT_NOT_FOUND_IN_NETWORK. No bus in the network matches bus id FFR3AA11 & No bus in the network matches bus id BBE2AA11.
+         [REMOVED] Remedial action "PRA_HVDC" was not imported: ELEMENT_NOT_FOUND_IN_NETWORK. No bus in the network matches bus id BBE2AA12 & No bus in the network matches bus id FFR3AA12.
+         [REMOVED] Remedial action "WEIRD_HVDC_WITH_2_HVDCNODES" was not imported: INCONSISTENCY_IN_DATA. HVDC WEIRD_HVDC_WITH_2_HVDCNODES has 2 (>1) HVDC nodes.

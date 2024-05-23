@@ -83,7 +83,7 @@ public class CseCracCreator implements CracCreator<CseCrac, CseCracCreationConte
             TMonitoredElementsAdder tMonitoredElementsAdder = new TMonitoredElementsAdder(tcracSeries, crac, ucteNetworkAnalyzer, creationContext, cracCreationParameters.getDefaultMonitoredSides());
             tMonitoredElementsAdder.add();
 
-            creationContext.buildCreationReport();
+            creationContext.buildCreationReport(cseCracCreatorReportNode);
             CracValidator.validateCrac(crac, network).forEach(addedReason -> creationContext.getCreationReport().added(addedReason, cseCracCreatorReportNode));
             // TODO : add unit test for CracValidator.validateCrac step when auto RAs are handled
             return creationContext.creationSuccess(crac);

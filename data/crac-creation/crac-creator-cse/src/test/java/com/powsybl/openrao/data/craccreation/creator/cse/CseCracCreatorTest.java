@@ -637,20 +637,20 @@ class CseCracCreatorTest {
 
     public static Stream<Arguments> provideParameters() {
         return Stream.of(
-            Arguments.of("/cracs/cse_crac_1.xml", "/reports/expectedReportNodeContent_cse_crac_ruleToBeDefined.txt"),
-            Arguments.of("/cracs/cse_crac_2.xml", "/reports/expectedReportNodeContent_cse_crac_2021_04_30.txt"),
-            Arguments.of("/cracs/cse_crac_auto.xml", "/reports/expectedReportNodeContent_cse_crac_ruleToBeDefined.txt"),
-            Arguments.of("/cracs/cse_crac_empty_ra.xml", "/reports/expectedReportNodeContent_cse_crac_ruleToBeDefined.txt"),
-            Arguments.of("/cracs/cse_crac_halflines.xml", "/reports/expectedReportNodeContent_cse_crac_ruleToBeDefined.txt"),
-            Arguments.of("/cracs/cse_crac_inverted_pst.xml", "/reports/expectedReportNodeContent_cse_crac_2021_04_30.txt"),
-            Arguments.of("/cracs/cse_crac_onConstraint.xml", "/reports/expectedReportNodeContent_cse_crac_2021_04_30.txt"),
-            Arguments.of("/cracs/cse_crac_onConstraintInSpecificCountry.xml", "/reports/expectedReportNodeContent_cse_crac_2021_04_30.txt"),
-            Arguments.of("/cracs/cse_crac_pct_limit.xml", "/reports/expectedReportNodeContent_cse_crac_2021_04_30.txt"),
-            Arguments.of("/cracs/cse_crac_transformer_cnec.xml", "/reports/expectedReportNodeContent_cse_crac_2021_04_30.txt"),
-            Arguments.of("/cracs/cse_crac_with_hvdc.xml", "/reports/expectedReportNodeContent_cse_crac_2021_04_30.txt"),
-            Arguments.of("/cracs/cse_crac_with_MNE.xml", "/reports/expectedReportNodeContent_cse_crac_ruleToBeDefined.txt"),
-            Arguments.of("/cracs/cseCrac_ep15us10-1case1.xml", "/reports/expectedReportNodeContent_cse_crac_2021_04_30.txt"),
-            Arguments.of("/cracs/cseCrac_ep15us10-1case5.xml", "/reports/expectedReportNodeContent_cse_crac_2021_04_30.txt")
+            Arguments.of("/cracs/cseCrac_ep15us10-1case1.xml", "/reports/expectedReportNodeContent_cse_crac_ep15us10-1case1.txt"),
+            Arguments.of("/cracs/cseCrac_ep15us10-1case5.xml", "/reports/expectedReportNodeContent_cse_crac_ep15us10-1case5.txt"),
+            Arguments.of("/cracs/cse_crac_1.xml", "/reports/expectedReportNodeContent_cse_crac_1.txt"),
+            Arguments.of("/cracs/cse_crac_2.xml", "/reports/expectedReportNodeContent_cse_crac_2.txt"),
+            Arguments.of("/cracs/cse_crac_auto.xml", "/reports/expectedReportNodeContent_cse_crac_auto.txt"),
+            Arguments.of("/cracs/cse_crac_empty_ra.xml", "/reports/expectedReportNodeContent_cse_crac_empty_ra.txt"),
+            Arguments.of("/cracs/cse_crac_halflines.xml", "/reports/expectedReportNodeContent_cse_crac_halflines.txt"),
+            Arguments.of("/cracs/cse_crac_inverted_pst.xml", "/reports/expectedReportNodeContent_cse_crac_inverted_pst.txt"),
+            Arguments.of("/cracs/cse_crac_onConstraint.xml", "/reports/expectedReportNodeContent_cse_crac_onConstraint.txt"),
+            Arguments.of("/cracs/cse_crac_onConstraintInSpecificCountry.xml", "/reports/expectedReportNodeContent_cse_crac_onConstraintInSpecificCountry.txt"),
+            Arguments.of("/cracs/cse_crac_pct_limit.xml", "/reports/expectedReportNodeContent_cse_crac_pct_limit.txt"),
+            Arguments.of("/cracs/cse_crac_transformer_cnec.xml", "/reports/expectedReportNodeContent_cse_crac_transformer_cnec.txt"),
+            Arguments.of("/cracs/cse_crac_with_MNE.xml", "/reports/expectedReportNodeContent_cse_crac_with_MNE.txt"),
+            Arguments.of("/cracs/cse_crac_with_hvdc.xml", "/reports/expectedReportNodeContent_cse_crac_with_hvdc.txt")
         );
     }
 

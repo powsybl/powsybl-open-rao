@@ -1,0 +1,5 @@
++ This is a parent report node for report tests
+   + CSE CRAC creator
+      New crac "2021_04_30_TEST_CSE_CRAC_1" called "2021_04_30_TEST_CSE_CRAC_1"
+      + CSE CRAC creation report
+         [REMOVED] Remedial action "Bus bar ok test" was not imported: INCOMPLETE_DATA. CSE CRAC creation parameters is missing or does not contain information for the switches to open/close.

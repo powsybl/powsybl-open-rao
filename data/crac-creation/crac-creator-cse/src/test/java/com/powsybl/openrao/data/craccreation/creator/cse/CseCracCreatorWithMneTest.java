@@ -18,7 +18,12 @@ import com.powsybl.openrao.data.craccreation.creator.cse.criticalbranch.CseCriti
 import com.powsybl.iidm.network.Network;
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
 import java.io.InputStream;
+import java.io.StringWriter;
+import java.net.URISyntaxException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.time.OffsetDateTime;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -40,14 +45,17 @@ class CseCracCreatorWithMneTest {
     private Instant autoInstant;
     private Instant curativeInstant;
 
-    private void setUp(String cracFileName, String networkFileName) {
-        ReportNode reportNode = ReportNode.NO_OP;
+    private static ReportNode buildNewRootNode() {
+        return ReportNode.newRootReportNode().withMessageTemplate("Test report node", "This is a parent report node for report tests").build();
+    }
+
+    private void setUp(String cracFileName, String networkFileName, ReportNode reportNode) {
         InputStream is = getClass().getResourceAsStream(cracFileName);
         CseCracImporter importer = new CseCracImporter();
         CseCrac cseCrac = importer.importNativeCrac(is, reportNode);
         Network network = Network.read(networkFileName, getClass().getResourceAsStream(networkFileName));
         CseCracCreator cseCracCreator = new CseCracCreator();
-        cracCreationContext = cseCracCreator.createCrac(cseCrac, network, offsetDateTime, parameters, ReportNode.NO_OP);
+        cracCreationContext = cseCracCreator.createCrac(cseCrac, network, offsetDateTime, parameters, reportNode);
         preventiveInstant = cracCreationContext.getCrac().getInstant(PREVENTIVE_INSTANT_ID);
         outageInstant = cracCreationContext.getCrac().getInstant(OUTAGE_INSTANT_ID);
         autoInstant = cracCreationContext.getCrac().getInstant(AUTO_INSTANT_ID);
@@ -206,12 +214,18 @@ class CseCracCreatorWithMneTest {
     }
 
     @Test
-    void createCracWithMNELittleCase() {
-        setUp("/cracs/cse_crac_with_MNE.xml", "/networks/TestCase12Nodes_with_Xnodes.uct");
+    void createCracWithMNELittleCase() throws IOException, URISyntaxException {
+        ReportNode reportNode = buildNewRootNode();
+        setUp("/cracs/cse_crac_with_MNE.xml", "/networks/TestCase12Nodes_with_Xnodes.uct", reportNode);
         assertTrue(cracCreationContext.isCreationSuccessful());
         assertAllMneCorrectlyImportedInCriticalBranchesCreationContext();
         assertAllMneCorrectlyImportedInCrac();
-        assertEquals("[REMOVED] Monitored element \"mne_test - NNL2AA1  - NNL3AA1  - outage_3\" was not imported: INCOMPLETE_DATA. CNEC is defined on outage outage_3 which is not defined.", cracCreationContext.getCreationReport().getReport().get(3));
-        assertEquals("[REMOVED] Monitored element \"fake_mne_1 ; fake_mne_2\" was not imported: INCONSISTENCY_IN_DATA. MonitoredElement has more than 1 Branch.", cracCreationContext.getCreationReport().getReport().get(2));
+
+        String expected = Files.readString(Path.of(getClass().getResource("/reports/expectedReportNodeContentWithMNELittleCase.txt").toURI()));
+        try (StringWriter writer = new StringWriter()) {
+            reportNode.print(writer);
+            String actual = writer.toString();
+            assertEquals(expected, actual);
+        }
     }
 }
