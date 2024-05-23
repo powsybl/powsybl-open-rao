@@ -48,10 +48,11 @@ public class TRemedialActionAdder {
     private final CseCracCreationContext cseCracCreationContext;
     private final Map<String, Set<String>> remedialActionsForCnecsMap;
     private final CseCracCreationParameters cseCracCreationParameters;
+    private final ReportNode reportNode;
 
     private static final String ABSOLUTE_VARIATION_TYPE = "ABSOLUTE";
 
-    public TRemedialActionAdder(TCRACSeries tcracSeries, Crac crac, Network network, UcteNetworkAnalyzer ucteNetworkAnalyzer, Map<String, Set<String>> remedialActionsForCnecsMap, CseCracCreationContext cseCracCreationContext, CseCracCreationParameters cseCracCreationParameters) {
+    public TRemedialActionAdder(TCRACSeries tcracSeries, Crac crac, Network network, UcteNetworkAnalyzer ucteNetworkAnalyzer, Map<String, Set<String>> remedialActionsForCnecsMap, CseCracCreationContext cseCracCreationContext, CseCracCreationParameters cseCracCreationParameters, ReportNode reportNode) {
         this.tcracSeries = tcracSeries;
         this.crac = crac;
         this.network = network;
@@ -59,6 +60,7 @@ public class TRemedialActionAdder {
         this.cseCracCreationContext = cseCracCreationContext;
         this.remedialActionsForCnecsMap = remedialActionsForCnecsMap;
         this.cseCracCreationParameters = cseCracCreationParameters;
+        this.reportNode = reportNode;
     }
 
     public void add() {
@@ -292,7 +294,7 @@ public class TRemedialActionAdder {
                 injectionRangeActionAdder.withGroupId(groups.get(0).toString());
             } else if (groups.size() > 1) {
                 injectionRangeActionAdder.withGroupId(groups.get(0).toString());
-                CracCreationReport.warn(String.format("GroupId defined multiple times for HVDC %s, only group %s is used.", raId, groups.get(0)), ReportNode.NO_OP);
+                CracCreationReport.warn(String.format("GroupId defined multiple times for HVDC %s, only group %s is used.", raId, groups.get(0)), reportNode);
             }
         }
 
@@ -364,7 +366,7 @@ public class TRemedialActionAdder {
         try {
             country = Country.valueOf(sharedWithId);
         } catch (IllegalArgumentException e) {
-            CracCreationReport.removed(String.format("RA %s has a non-UCTE sharedWith country : %s. The usage rule was not created.", tRemedialAction.getName().getV(), sharedWithId), ReportNode.NO_OP);
+            CracCreationReport.removed(String.format("RA %s has a non-UCTE sharedWith country : %s. The usage rule was not created.", tRemedialAction.getName().getV(), sharedWithId), reportNode);
             return;
         }
 

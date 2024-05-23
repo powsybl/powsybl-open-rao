@@ -37,7 +37,7 @@ class CseCracImporterTest {
     void importNativeCrac() {
         InputStream is = getClass().getResourceAsStream("/cracs/cse_crac_1.xml");
         CseCracImporter importer = new CseCracImporter();
-        CseCrac cseCrac = importer.importNativeCrac(is, ReportNode.NO_OP);
+        CseCrac cseCrac = importer.importNativeCrac(is);
         assertEquals("ruleToBeDefined", cseCrac.getCracDocument().getDocumentIdentification().getV());
     }
 
@@ -45,7 +45,7 @@ class CseCracImporterTest {
     void importNativeCracWithMNE() {
         InputStream is = getClass().getResourceAsStream("/cracs/cse_crac_with_MNE.xml");
         CseCracImporter importer = new CseCracImporter();
-        CseCrac cseCrac = importer.importNativeCrac(is, ReportNode.NO_OP);
+        CseCrac cseCrac = importer.importNativeCrac(is);
         assertEquals(100, cseCrac.getCracDocument().getCRACSeries().get(0).getMonitoredElements().getMonitoredElement().get(0).getBranch().get(0).getIlimitMNE().getV());
     }
 

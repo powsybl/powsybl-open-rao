@@ -22,4 +22,18 @@ public final class CsaProfileReports {
         BUSINESS_WARNS.warn("[REMOVED] The file : {} will be ignored. Its dates are not consistent with the import date : {}", contextName, offsetDateTime);
         return addedNode;
     }
+
+    public static ReportNode reportCsaProfileCracCreator(ReportNode reportNode) {
+        return reportNode.newReportNode()
+            .withMessageTemplate("csaCracCreator", "CSA Profile CRAC creator")
+            .withSeverity(TypedValue.INFO_SEVERITY)
+            .add();
+    }
+
+    public static ReportNode reportCsaProfileCracCreationReport(ReportNode reportNode) {
+        return reportNode.newReportNode()
+            .withMessageTemplate("csaCracCreationReport", "CSA Profile CRAC creation report")
+            .withSeverity(TypedValue.INFO_SEVERITY)
+            .add();
+    }
 }

@@ -36,4 +36,14 @@ public interface CracCreator<T extends NativeCrac, S extends CracCreationContext
      * - null cracCreationParameters might be acceptatble for CracCreator implementations
      */
     S createCrac(T nativeCrac, Network network, OffsetDateTime offsetDateTime, CracCreationParameters cracCreationParameters, ReportNode reportNode);
+
+    /**
+     * Create a Crac object from a NativeCrac, a Network, an OffsetDateTime and cracCreationParameters.
+     * Note that :
+     * - null offsetDateTime might be acceptable for CracCreator implementations
+     * - null cracCreationParameters might be acceptatble for CracCreator implementations
+     */
+    default S createCrac(T nativeCrac, Network network, OffsetDateTime offsetDateTime, CracCreationParameters cracCreationParameters) {
+        return createCrac(nativeCrac, network, offsetDateTime, cracCreationParameters, ReportNode.NO_OP);
+    }
 }

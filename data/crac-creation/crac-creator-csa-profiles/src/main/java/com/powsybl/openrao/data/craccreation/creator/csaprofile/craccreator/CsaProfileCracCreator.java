@@ -14,6 +14,7 @@ import com.powsybl.openrao.data.cracapi.cnec.Side;
 import com.powsybl.openrao.data.craccreation.creator.api.CracCreator;
 import com.powsybl.openrao.data.craccreation.creator.api.parameters.CracCreationParameters;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.CsaProfileCrac;
+import com.powsybl.openrao.data.craccreation.creator.csaprofile.CsaProfileReports;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.cnec.CsaProfileCnecCreator;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.contingency.CsaProfileContingencyCreator;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.remedialaction.CsaProfileRemedialActionsCreator;
@@ -42,21 +43,23 @@ public class CsaProfileCracCreator implements CracCreator<CsaProfileCrac, CsaPro
     }
 
     public CsaProfileCracCreationContext createCrac(CsaProfileCrac nativeCrac, Network network, OffsetDateTime offsetDateTime, CracCreationParameters cracCreationParameters, ReportNode reportNode) {
+        ReportNode csaProfileCracCreatorReportNode = CsaProfileReports.reportCsaProfileCracCreator(reportNode);
+        ReportNode csaProfileCracCreationReportReportNode = CsaProfileReports.reportCsaProfileCracCreationReport(csaProfileCracCreatorReportNode);
         CsaCracCreationParameters csaParameters = cracCreationParameters.getExtension(CsaCracCreationParameters.class);
-        this.crac = cracCreationParameters.getCracFactory().create("csa-profile-crac", reportNode); // TODO find a way to store a crac ID, maybe in the native crac ?
+        this.crac = cracCreationParameters.getCracFactory().create("csa-profile-crac", csaProfileCracCreatorReportNode); // TODO find a way to store a crac ID, maybe in the native crac ?
         this.network = network;
         this.creationContext = new CsaProfileCracCreationContext(crac, offsetDateTime, network.getNameOrId());
         this.nativeCrac = nativeCrac;
         addCsaInstants();
         RaUsageLimitsAdder.addRaUsageLimits(crac, cracCreationParameters);
 
-        this.nativeCrac.setForTimestamp(offsetDateTime, reportNode);
+        this.nativeCrac.setForTimestamp(offsetDateTime, csaProfileCracCreatorReportNode);
 
         createContingencies();
         createCnecs(cracCreationParameters.getDefaultMonitoredSides(), csaParameters.getCapacityCalculationRegionEicCode());
         createRemedialActions(csaParameters.getSpsMaxTimeToImplementThresholdInSeconds());
 
-        creationContext.buildCreationReport();
+        creationContext.buildCreationReport(csaProfileCracCreationReportReportNode);
         return creationContext.creationSuccess(crac);
     }
 

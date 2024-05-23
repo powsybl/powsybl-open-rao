@@ -112,7 +112,7 @@ class CimCracCreatorTest {
         setUp(fileName, network, parametrableOffsetDateTime, cracCreationParameters, ReportNode.NO_OP);
     }
 
-    private void setUpWithGroupId(String fileName, Network network, OffsetDateTime parametrableOffsetDateTime, List<List<String>> alignedRangeActions, ReportNode reportNode) {
+    private void setUpWithGroupId(String fileName, Network network, OffsetDateTime parametrableOffsetDateTime, List<List<String>> alignedRangeActions) {
         CracCreationParameters cracCreationParameters = new CracCreationParameters();
         cracCreationParameters.setDefaultMonitoredLineSide(CracCreationParameters.MonitoredLineSide.MONITOR_LINES_ON_LEFT_SIDE);
         cracCreationParameters = Mockito.spy(cracCreationParameters);
@@ -125,16 +125,16 @@ class CimCracCreatorTest {
 
         InputStream is = getClass().getResourceAsStream(fileName);
         CimCracImporter cracImporter = new CimCracImporter();
-        CimCrac cimCrac = cracImporter.importNativeCrac(is, reportNode);
+        CimCrac cimCrac = cracImporter.importNativeCrac(is);
         CimCracCreator cimCracCreator = new CimCracCreator();
-        cracCreationContext = cimCracCreator.createCrac(cimCrac, network, parametrableOffsetDateTime, cracCreationParameters, reportNode);
+        cracCreationContext = cimCracCreator.createCrac(cimCrac, network, parametrableOffsetDateTime, cracCreationParameters);
         importedCrac = cracCreationContext.getCrac();
         preventiveInstant = importedCrac.getInstant(PREVENTIVE_INSTANT_ID);
         autoInstant = importedCrac.getInstant(AUTO_INSTANT_ID);
         curativeInstant = importedCrac.getInstant(CURATIVE_INSTANT_ID);
     }
 
-    private void setUpWithSpeed(String fileName, Network network, OffsetDateTime parametrableOffsetDateTime, Set<RangeActionSpeed> rangeActionSpeeds, ReportNode reportNode) {
+    private void setUpWithSpeed(String fileName, Network network, OffsetDateTime parametrableOffsetDateTime, Set<RangeActionSpeed> rangeActionSpeeds) {
         CracCreationParameters cracCreationParameters = new CracCreationParameters();
         cracCreationParameters.setDefaultMonitoredLineSide(CracCreationParameters.MonitoredLineSide.MONITOR_LINES_ON_LEFT_SIDE);
         cracCreationParameters = Mockito.spy(cracCreationParameters);
@@ -144,9 +144,9 @@ class CimCracCreatorTest {
         Mockito.when(cimCracCreationParameters.getTimeseriesMrids()).thenReturn(Collections.emptySet());
         InputStream is = getClass().getResourceAsStream(fileName);
         CimCracImporter cracImporter = new CimCracImporter();
-        CimCrac cimCrac = cracImporter.importNativeCrac(is, reportNode);
+        CimCrac cimCrac = cracImporter.importNativeCrac(is);
         CimCracCreator cimCracCreator = new CimCracCreator();
-        cracCreationContext = cimCracCreator.createCrac(cimCrac, network, parametrableOffsetDateTime, cracCreationParameters, reportNode);
+        cracCreationContext = cimCracCreator.createCrac(cimCrac, network, parametrableOffsetDateTime, cracCreationParameters);
         importedCrac = cracCreationContext.getCrac();
         preventiveInstant = importedCrac.getInstant(PREVENTIVE_INSTANT_ID);
         autoInstant = importedCrac.getInstant(AUTO_INSTANT_ID);
@@ -513,7 +513,7 @@ class CimCracCreatorTest {
 
     @Test
     void testImportHvdcRangeActions() {
-        setUpWithSpeed("/cracs/CIM_21_6_1.xml", hvdcNetwork, OffsetDateTime.parse("2021-04-01T23:00Z"), Set.of(new RangeActionSpeed("BBE2AA11 FFR3AA11 1", 1), new RangeActionSpeed("BBE2AA12 FFR3AA12 1", 2)), ReportNode.NO_OP);
+        setUpWithSpeed("/cracs/CIM_21_6_1.xml", hvdcNetwork, OffsetDateTime.parse("2021-04-01T23:00Z"), Set.of(new RangeActionSpeed("BBE2AA11 FFR3AA11 1", 1), new RangeActionSpeed("BBE2AA12 FFR3AA12 1", 2)));
 
         // RA-Series-2
         assertRemedialActionNotImported("HVDC-direction21", INCONSISTENCY_IN_DATA);
@@ -558,14 +558,14 @@ class CimCracCreatorTest {
 
     @Test
     void testImportKOHvdcRangeActions() {
-        setUpWithSpeed("/cracs/CIM_21_6_1.xml", hvdcNetwork, OffsetDateTime.parse("2021-04-01T23:00Z"), null, ReportNode.NO_OP);
+        setUpWithSpeed("/cracs/CIM_21_6_1.xml", hvdcNetwork, OffsetDateTime.parse("2021-04-01T23:00Z"), null);
         assertRemedialActionNotImported("HVDC-direction11", INCONSISTENCY_IN_DATA);
         assertRemedialActionNotImported("HVDC-direction12", INCONSISTENCY_IN_DATA);
     }
 
     @Test
     void testImportAlignedRangeActions() {
-        setUpWithGroupId("/cracs/CIM_21_3_1.xml", baseNetwork, OffsetDateTime.parse("2021-04-01T23:00Z"), List.of(List.of("PRA_1", "PRA_22")), ReportNode.NO_OP);
+        setUpWithGroupId("/cracs/CIM_21_3_1.xml", baseNetwork, OffsetDateTime.parse("2021-04-01T23:00Z"), List.of(List.of("PRA_1", "PRA_22")));
         assertPstRangeActionImported("PRA_1", "_a708c3bc-465d-4fe7-b6ef-6fa6408a62b0", false);
         assertPstRangeActionImported("PRA_22", "_a708c3bc-465d-4fe7-b6ef-6fa6408a62b0", true);
         assertEquals(5, importedCrac.getPstRangeActions().size());
@@ -579,7 +579,7 @@ class CimCracCreatorTest {
     void testImportAlignedRangeActionsGroupIdNull() {
         List<String> groupIds = new ArrayList<>();
         groupIds.add(null);
-        setUpWithGroupId("/cracs/CIM_21_3_1.xml", baseNetwork, OffsetDateTime.parse("2021-04-01T23:00Z"), List.of(groupIds), ReportNode.NO_OP);
+        setUpWithGroupId("/cracs/CIM_21_3_1.xml", baseNetwork, OffsetDateTime.parse("2021-04-01T23:00Z"), List.of(groupIds));
         assertPstRangeActionImported("PRA_1", "_a708c3bc-465d-4fe7-b6ef-6fa6408a62b0", false);
         assertPstRangeActionImported("PRA_22", "_a708c3bc-465d-4fe7-b6ef-6fa6408a62b0", true);
         assertEquals(5, importedCrac.getPstRangeActions().size());
@@ -589,7 +589,7 @@ class CimCracCreatorTest {
 
     @Test
     void testImportAlignedRangeActionsGroupIdAlreadyDefined() {
-        setUpWithGroupId("/cracs/CIM_21_3_1.xml", baseNetwork, OffsetDateTime.parse("2021-04-01T23:00Z"), List.of(List.of("PRA_1", "PRA_22"), List.of("PRA_1")), ReportNode.NO_OP);
+        setUpWithGroupId("/cracs/CIM_21_3_1.xml", baseNetwork, OffsetDateTime.parse("2021-04-01T23:00Z"), List.of(List.of("PRA_1", "PRA_22"), List.of("PRA_1")));
         assertRemedialActionNotImported("PRA_1", INCONSISTENCY_IN_DATA);
         assertPstRangeActionImported("PRA_22", "_a708c3bc-465d-4fe7-b6ef-6fa6408a62b0", true);
         assertEquals(4, importedCrac.getPstRangeActions().size());
@@ -599,7 +599,7 @@ class CimCracCreatorTest {
 
     @Test
     void testImportOnFlowConstraintUsageRules() {
-        setUpWithSpeed("/cracs/CIM_21_5_1.xml", baseNetwork, OffsetDateTime.parse("2021-04-01T23:00Z"), Set.of(new RangeActionSpeed("AUTO_1", 1)), ReportNode.NO_OP);
+        setUpWithSpeed("/cracs/CIM_21_5_1.xml", baseNetwork, OffsetDateTime.parse("2021-04-01T23:00Z"), Set.of(new RangeActionSpeed("AUTO_1", 1)));
 
         // PRA_1
         assertPstRangeActionImported("PRA_1", "_a708c3bc-465d-4fe7-b6ef-6fa6408a62b0", false);
@@ -1030,7 +1030,7 @@ class CimCracCreatorTest {
         // Check that CracCreator does not consume CimCrac and make it unusable again
         InputStream is = getClass().getResourceAsStream("/cracs/CIM_2_timeseries.xml");
         CimCracImporter cracImporter = new CimCracImporter();
-        CimCrac cimCrac = cracImporter.importNativeCrac(is, ReportNode.NO_OP);
+        CimCrac cimCrac = cracImporter.importNativeCrac(is);
 
         CracCreationParameters cracCreationParameters = new CracCreationParameters();
         cracCreationParameters.setDefaultMonitoredLineSide(CracCreationParameters.MonitoredLineSide.MONITOR_LINES_ON_LEFT_SIDE);
@@ -1039,12 +1039,12 @@ class CimCracCreatorTest {
         Mockito.when(cracCreationParameters.getExtension(CimCracCreationParameters.class)).thenReturn(cimCracCreationParameters);
 
         Mockito.when(cimCracCreationParameters.getTimeseriesMrids()).thenReturn(Set.of("TimeSeries1"));
-        Crac crac1 = new CimCracCreator().createCrac(cimCrac, baseNetwork, OffsetDateTime.parse("2021-04-01T23:00Z"), cracCreationParameters, ReportNode.NO_OP).getCrac();
+        Crac crac1 = new CimCracCreator().createCrac(cimCrac, baseNetwork, OffsetDateTime.parse("2021-04-01T23:00Z"), cracCreationParameters).getCrac();
         assertEquals(1, crac1.getContingencies().size());
         assertNotNull(crac1.getContingency("Co-1"));
 
         Mockito.when(cimCracCreationParameters.getTimeseriesMrids()).thenReturn(Set.of("TimeSeries2"));
-        Crac crac2 = new CimCracCreator().createCrac(cimCrac, baseNetwork, OffsetDateTime.parse("2021-04-01T23:00Z"), cracCreationParameters, ReportNode.NO_OP).getCrac();
+        Crac crac2 = new CimCracCreator().createCrac(cimCrac, baseNetwork, OffsetDateTime.parse("2021-04-01T23:00Z"), cracCreationParameters).getCrac();
         assertEquals(1, crac2.getContingencies().size());
         assertNotNull(crac2.getContingency("Co-2"));
     }
@@ -1089,7 +1089,7 @@ class CimCracCreatorTest {
     @Test
     void testPermissiveImports() {
         // Test that we can import contingencies from B56 & B57, and CNECs from B56
-        setUpWithSpeed("/cracs/CIM_21_5_1_permissive.xml", baseNetwork, OffsetDateTime.parse("2021-04-01T23:00Z"), Set.of(new RangeActionSpeed("AUTO_1", 1)), ReportNode.NO_OP);
+        setUpWithSpeed("/cracs/CIM_21_5_1_permissive.xml", baseNetwork, OffsetDateTime.parse("2021-04-01T23:00Z"), Set.of(new RangeActionSpeed("AUTO_1", 1)));
 
         // Contingencies
         assertEquals(3, importedCrac.getContingencies().size());

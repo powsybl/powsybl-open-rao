@@ -83,12 +83,12 @@ class FbConstraintCracCreatorTest {
     @Test
     void importCracWithParameters() {
         Network network = Network.read("TestCase12Nodes_with_Xnodes.uct", getClass().getResourceAsStream("/network/TestCase12Nodes_with_Xnodes.uct"));
-        FbConstraint fbConstraint = new FbConstraintImporter().importNativeCrac(getClass().getResourceAsStream("/merged_cb/without_RA.xml"), ReportNode.NO_OP);
+        FbConstraint fbConstraint = new FbConstraintImporter().importNativeCrac(getClass().getResourceAsStream("/merged_cb/without_RA.xml"));
         OffsetDateTime timestamp = OffsetDateTime.parse("2019-01-08T00:30Z");
         RaUsageLimits raUsageLimits = new RaUsageLimits();
         raUsageLimits.setMaxRa(12);
         parameters.addRaUsageLimitsForInstant("preventive", raUsageLimits);
-        creationContext = new FbConstraintCracCreator().createCrac(fbConstraint, network, timestamp, parameters, ReportNode.NO_OP);
+        creationContext = new FbConstraintCracCreator().createCrac(fbConstraint, network, timestamp, parameters);
         assertTrue(creationContext.isCreationSuccessful());
         assertEquals(12, creationContext.getCrac().getRaUsageLimits(creationContext.getCrac().getInstant("preventive")).getMaxRa());
     }
@@ -96,33 +96,33 @@ class FbConstraintCracCreatorTest {
     @Test
     void importCracWithTimestampFilter() {
         Network network = Network.read("TestCase12Nodes_with_Xnodes.uct", getClass().getResourceAsStream("/network/TestCase12Nodes_with_Xnodes.uct"));
-        FbConstraint fbConstraint = new FbConstraintImporter().importNativeCrac(getClass().getResourceAsStream("/merged_cb/without_RA.xml"), ReportNode.NO_OP);
+        FbConstraint fbConstraint = new FbConstraintImporter().importNativeCrac(getClass().getResourceAsStream("/merged_cb/without_RA.xml"));
 
         OffsetDateTime timestamp = OffsetDateTime.parse("2019-01-08T00:30Z");
-        creationContext = new FbConstraintCracCreator().createCrac(fbConstraint, network, timestamp, parameters, ReportNode.NO_OP);
+        creationContext = new FbConstraintCracCreator().createCrac(fbConstraint, network, timestamp, parameters);
         assertTrue(creationContext.isCreationSuccessful());
         assertEquals(2, creationContext.getCrac().getContingencies().size());
         assertEquals(10, creationContext.getCrac().getFlowCnecs().size());
         assertEquals(5, creationContext.getCrac().getStates().size());
 
         timestamp = OffsetDateTime.parse("2019-01-08T10:30Z");
-        creationContext = new FbConstraintCracCreator().createCrac(fbConstraint, network, timestamp, parameters, ReportNode.NO_OP);
+        creationContext = new FbConstraintCracCreator().createCrac(fbConstraint, network, timestamp, parameters);
         assertTrue(creationContext.isCreationSuccessful());
         assertEquals(3, creationContext.getCrac().getContingencies().size());
         assertEquals(12, creationContext.getCrac().getFlowCnecs().size());
         assertEquals(7, creationContext.getCrac().getStates().size());
 
         timestamp = OffsetDateTime.parse("2019-01-10T10:30Z");
-        creationContext = new FbConstraintCracCreator().createCrac(fbConstraint, network, timestamp, parameters, ReportNode.NO_OP);
+        creationContext = new FbConstraintCracCreator().createCrac(fbConstraint, network, timestamp, parameters);
         assertFalse(creationContext.isCreationSuccessful());
     }
 
     @Test
     void importCriticalBranches() {
         Network network = Network.read("TestCase12Nodes_with_Xnodes.uct", getClass().getResourceAsStream("/network/TestCase12Nodes_with_Xnodes.uct"));
-        FbConstraint fbConstraint = new FbConstraintImporter().importNativeCrac(getClass().getResourceAsStream("/merged_cb/without_RA.xml"), ReportNode.NO_OP);
+        FbConstraint fbConstraint = new FbConstraintImporter().importNativeCrac(getClass().getResourceAsStream("/merged_cb/without_RA.xml"));
         OffsetDateTime timestamp = OffsetDateTime.parse("2019-01-08T10:30Z");
-        creationContext = new FbConstraintCracCreator().createCrac(fbConstraint, network, timestamp, parameters, ReportNode.NO_OP);
+        creationContext = new FbConstraintCracCreator().createCrac(fbConstraint, network, timestamp, parameters);
         Crac crac = creationContext.getCrac();
 
         // BE_CBCO_000001
@@ -170,9 +170,9 @@ class FbConstraintCracCreatorTest {
     @Test
     void importComplexVariants() {
         Network network = Network.read("TestCase12Nodes_with_Xnodes.uct", getClass().getResourceAsStream("/network/TestCase12Nodes_with_Xnodes.uct"));
-        FbConstraint fbConstraint = new FbConstraintImporter().importNativeCrac(getClass().getResourceAsStream("/merged_cb/with_RA.xml"), ReportNode.NO_OP);
+        FbConstraint fbConstraint = new FbConstraintImporter().importNativeCrac(getClass().getResourceAsStream("/merged_cb/with_RA.xml"));
         OffsetDateTime timestamp = OffsetDateTime.parse("2019-01-08T00:30Z");
-        creationContext = new FbConstraintCracCreator().createCrac(fbConstraint, network, timestamp, parameters, ReportNode.NO_OP);
+        creationContext = new FbConstraintCracCreator().createCrac(fbConstraint, network, timestamp, parameters);
         Crac crac = creationContext.getCrac();
 
         // CNECs
@@ -251,9 +251,9 @@ class FbConstraintCracCreatorTest {
     @Test
     void importMnecs() {
         Network network = Network.read("TestCase12Nodes_with_Xnodes.uct", getClass().getResourceAsStream("/network/TestCase12Nodes_with_Xnodes.uct"));
-        FbConstraint fbConstraint = new FbConstraintImporter().importNativeCrac(getClass().getResourceAsStream("/merged_cb/MNEC_test.xml"), ReportNode.NO_OP);
+        FbConstraint fbConstraint = new FbConstraintImporter().importNativeCrac(getClass().getResourceAsStream("/merged_cb/MNEC_test.xml"));
         OffsetDateTime timestamp = OffsetDateTime.parse("2019-01-08T00:30Z");
-        creationContext = new FbConstraintCracCreator().createCrac(fbConstraint, network, timestamp, parameters, ReportNode.NO_OP);
+        creationContext = new FbConstraintCracCreator().createCrac(fbConstraint, network, timestamp, parameters);
         Crac crac = creationContext.getCrac();
 
         assertEquals(3, crac.getFlowCnecs().size());
@@ -281,9 +281,9 @@ class FbConstraintCracCreatorTest {
     void importThresholdsOnLeftSide() {
         parameters.setDefaultMonitoredLineSide(CracCreationParameters.MonitoredLineSide.MONITOR_LINES_ON_LEFT_SIDE);
         Network network = Network.read("TestCase12Nodes_for_thresholds_test.uct", getClass().getResourceAsStream("/network/TestCase12Nodes_for_thresholds_test.uct"));
-        FbConstraint fbConstraint = new FbConstraintImporter().importNativeCrac(getClass().getResourceAsStream("/merged_cb/thresholds_test.xml"), ReportNode.NO_OP);
+        FbConstraint fbConstraint = new FbConstraintImporter().importNativeCrac(getClass().getResourceAsStream("/merged_cb/thresholds_test.xml"));
         OffsetDateTime timestamp = OffsetDateTime.parse("2019-01-08T00:30Z");
-        creationContext = new FbConstraintCracCreator().createCrac(fbConstraint, network, timestamp, parameters, ReportNode.NO_OP);
+        creationContext = new FbConstraintCracCreator().createCrac(fbConstraint, network, timestamp, parameters);
         Crac crac = creationContext.getCrac();
 
         assertEquals(9, crac.getFlowCnecs().size());
@@ -318,9 +318,9 @@ class FbConstraintCracCreatorTest {
     void importThresholdsOnRightSide() {
         parameters.setDefaultMonitoredLineSide(CracCreationParameters.MonitoredLineSide.MONITOR_LINES_ON_RIGHT_SIDE);
         Network network = Network.read("TestCase12Nodes_for_thresholds_test.uct", getClass().getResourceAsStream("/network/TestCase12Nodes_for_thresholds_test.uct"));
-        FbConstraint fbConstraint = new FbConstraintImporter().importNativeCrac(getClass().getResourceAsStream("/merged_cb/thresholds_test.xml"), ReportNode.NO_OP);
+        FbConstraint fbConstraint = new FbConstraintImporter().importNativeCrac(getClass().getResourceAsStream("/merged_cb/thresholds_test.xml"));
         OffsetDateTime timestamp = OffsetDateTime.parse("2019-01-08T00:30Z");
-        Crac crac = new FbConstraintCracCreator().createCrac(fbConstraint, network, timestamp, parameters, ReportNode.NO_OP).getCrac();
+        Crac crac = new FbConstraintCracCreator().createCrac(fbConstraint, network, timestamp, parameters).getCrac();
 
         // No threshold specification will be set to default relative-100
         assertHasThresholds(crac.getFlowCnec("CBCO_000001 - preventive"), Set.of(Side.RIGHT), Unit.PERCENT_IMAX, null, 1.);
@@ -352,9 +352,9 @@ class FbConstraintCracCreatorTest {
     void importThresholdsOnBothSides() {
         parameters.setDefaultMonitoredLineSide(CracCreationParameters.MonitoredLineSide.MONITOR_LINES_ON_BOTH_SIDES);
         Network network = Network.read("TestCase12Nodes_for_thresholds_test.uct", getClass().getResourceAsStream("/network/TestCase12Nodes_for_thresholds_test.uct"));
-        FbConstraint fbConstraint = new FbConstraintImporter().importNativeCrac(getClass().getResourceAsStream("/merged_cb/thresholds_test.xml"), ReportNode.NO_OP);
+        FbConstraint fbConstraint = new FbConstraintImporter().importNativeCrac(getClass().getResourceAsStream("/merged_cb/thresholds_test.xml"));
         OffsetDateTime timestamp = OffsetDateTime.parse("2019-01-08T00:30Z");
-        Crac crac = new FbConstraintCracCreator().createCrac(fbConstraint, network, timestamp, parameters, ReportNode.NO_OP).getCrac();
+        Crac crac = new FbConstraintCracCreator().createCrac(fbConstraint, network, timestamp, parameters).getCrac();
 
         // No threshold specification will be set to default relative-100
         assertHasThresholds(crac.getFlowCnec("CBCO_000001 - preventive"), Set.of(Side.LEFT, Side.RIGHT), Unit.PERCENT_IMAX, null, 1.);
@@ -386,9 +386,9 @@ class FbConstraintCracCreatorTest {
     @Test
     void importLoopFlowExtensions() {
         Network network = Network.read("TestCase12Nodes_with_Xnodes.uct", getClass().getResourceAsStream("/network/TestCase12Nodes_with_Xnodes.uct"));
-        FbConstraint fbConstraint = new FbConstraintImporter().importNativeCrac(getClass().getResourceAsStream("/merged_cb/with_crosszonal_branches.xml"), ReportNode.NO_OP);
+        FbConstraint fbConstraint = new FbConstraintImporter().importNativeCrac(getClass().getResourceAsStream("/merged_cb/with_crosszonal_branches.xml"));
         OffsetDateTime timestamp = OffsetDateTime.parse("2019-01-08T00:30Z");
-        creationContext = new FbConstraintCracCreator().createCrac(fbConstraint, network, timestamp, parameters, ReportNode.NO_OP);
+        creationContext = new FbConstraintCracCreator().createCrac(fbConstraint, network, timestamp, parameters);
         Crac crac = creationContext.getCrac();
 
         assertEquals(6, crac.getFlowCnecs().size());
@@ -412,9 +412,9 @@ class FbConstraintCracCreatorTest {
     @Test
     void testImportHvdcVhOutage() {
         Network network = Network.read("TestCase12NodesHvdc.uct", getClass().getResourceAsStream("/network/TestCase12NodesHvdc.uct"));
-        FbConstraint fbConstraint = new FbConstraintImporter().importNativeCrac(getClass().getResourceAsStream("/merged_cb/hvdcvh-outage.xml"), ReportNode.NO_OP);
+        FbConstraint fbConstraint = new FbConstraintImporter().importNativeCrac(getClass().getResourceAsStream("/merged_cb/hvdcvh-outage.xml"));
         OffsetDateTime timestamp = OffsetDateTime.parse("2019-01-08T00:30Z");
-        creationContext = new FbConstraintCracCreator().createCrac(fbConstraint, network, timestamp, parameters, ReportNode.NO_OP);
+        creationContext = new FbConstraintCracCreator().createCrac(fbConstraint, network, timestamp, parameters);
         Crac crac = creationContext.getCrac();
 
         Contingency contingency = crac.getFlowCnec("Cnec1 - curative").getState().getContingency().orElse(null);
@@ -427,9 +427,9 @@ class FbConstraintCracCreatorTest {
     @Test
     void testImportAndCleanCriticalBranches() {
         Network network = Network.read("TestCase_severalVoltageLevels_Xnodes.uct", getClass().getResourceAsStream("/network/TestCase_severalVoltageLevels_Xnodes.uct"));
-        FbConstraint fbConstraint = new FbConstraintImporter().importNativeCrac(getClass().getResourceAsStream("/merged_cb/critical_branches.xml"), ReportNode.NO_OP);
+        FbConstraint fbConstraint = new FbConstraintImporter().importNativeCrac(getClass().getResourceAsStream("/merged_cb/critical_branches.xml"));
         OffsetDateTime timestamp = OffsetDateTime.parse("2019-01-08T00:30Z");
-        creationContext = new FbConstraintCracCreator().createCrac(fbConstraint, network, timestamp, parameters, ReportNode.NO_OP);
+        creationContext = new FbConstraintCracCreator().createCrac(fbConstraint, network, timestamp, parameters);
         Crac crac = creationContext.getCrac();
 
         assertEquals(7, creationContext.getBranchCnecCreationContexts().size());
@@ -454,9 +454,9 @@ class FbConstraintCracCreatorTest {
     @Test
     void testImportAndCleanComplexVariants() {
         Network network = Network.read("TestCase_severalVoltageLevels_Xnodes.uct", getClass().getResourceAsStream("/network/TestCase_severalVoltageLevels_Xnodes.uct"));
-        FbConstraint fbConstraint = new FbConstraintImporter().importNativeCrac(getClass().getResourceAsStream("/merged_cb/complex_variants.xml"), ReportNode.NO_OP);
+        FbConstraint fbConstraint = new FbConstraintImporter().importNativeCrac(getClass().getResourceAsStream("/merged_cb/complex_variants.xml"));
         OffsetDateTime timestamp = OffsetDateTime.parse("2019-01-08T00:30Z");
-        creationContext = new FbConstraintCracCreator().createCrac(fbConstraint, network, timestamp, parameters, ReportNode.NO_OP);
+        creationContext = new FbConstraintCracCreator().createCrac(fbConstraint, network, timestamp, parameters);
         Crac crac = creationContext.getCrac();
 
         assertEquals(13, creationContext.getRemedialActionCreationContexts().size());
@@ -483,9 +483,9 @@ class FbConstraintCracCreatorTest {
     @Test
     void testInvertPstRangeAction() {
         Network network = Network.read("TestCase_severalVoltageLevels_Xnodes.uct", getClass().getResourceAsStream("/network/TestCase_severalVoltageLevels_Xnodes.uct"));
-        FbConstraint fbConstraint = new FbConstraintImporter().importNativeCrac(getClass().getResourceAsStream("/merged_cb/complex_variants_invert.xml"), ReportNode.NO_OP);
+        FbConstraint fbConstraint = new FbConstraintImporter().importNativeCrac(getClass().getResourceAsStream("/merged_cb/complex_variants_invert.xml"));
         OffsetDateTime timestamp = OffsetDateTime.parse("2019-01-08T00:30Z");
-        creationContext = new FbConstraintCracCreator().createCrac(fbConstraint, network, timestamp, parameters, ReportNode.NO_OP);
+        creationContext = new FbConstraintCracCreator().createCrac(fbConstraint, network, timestamp, parameters);
         Crac crac = creationContext.getCrac();
 
         // RA_BE_0001 should not be inverted
@@ -589,22 +589,22 @@ class FbConstraintCracCreatorTest {
     @Test
     void importHalflineThresholds() {
         Network network = Network.read("TestCase12Nodes_with_Xnodes.uct", getClass().getResourceAsStream("/network/TestCase12Nodes_with_Xnodes.uct"));
-        FbConstraint fbConstraint = new FbConstraintImporter().importNativeCrac(getClass().getResourceAsStream("/merged_cb/halflines.xml"), ReportNode.NO_OP);
+        FbConstraint fbConstraint = new FbConstraintImporter().importNativeCrac(getClass().getResourceAsStream("/merged_cb/halflines.xml"));
         OffsetDateTime timestamp = OffsetDateTime.parse("2019-01-08T10:30Z");
         Crac crac;
 
         parameters.setDefaultMonitoredLineSide(CracCreationParameters.MonitoredLineSide.MONITOR_LINES_ON_BOTH_SIDES);
-        crac = new FbConstraintCracCreator().createCrac(fbConstraint, network, timestamp, parameters, ReportNode.NO_OP).getCrac();
+        crac = new FbConstraintCracCreator().createCrac(fbConstraint, network, timestamp, parameters).getCrac();
         assertHasThresholds(crac.getFlowCnec("FR_CBCO_000001 - preventive"), Set.of(Side.RIGHT), Unit.PERCENT_IMAX, -1., null);
         assertHasThresholds(crac.getFlowCnec("FR_CBCO_000002 - preventive"), Set.of(Side.LEFT), Unit.PERCENT_IMAX, null, 1.);
 
         parameters.setDefaultMonitoredLineSide(CracCreationParameters.MonitoredLineSide.MONITOR_LINES_ON_LEFT_SIDE);
-        crac = new FbConstraintCracCreator().createCrac(fbConstraint, network, timestamp, parameters, ReportNode.NO_OP).getCrac();
+        crac = new FbConstraintCracCreator().createCrac(fbConstraint, network, timestamp, parameters).getCrac();
         assertHasThresholds(crac.getFlowCnec("FR_CBCO_000001 - preventive"), Set.of(Side.RIGHT), Unit.PERCENT_IMAX, -1., null);
         assertHasThresholds(crac.getFlowCnec("FR_CBCO_000002 - preventive"), Set.of(Side.LEFT), Unit.PERCENT_IMAX, null, 1.);
 
         parameters.setDefaultMonitoredLineSide(CracCreationParameters.MonitoredLineSide.MONITOR_LINES_ON_RIGHT_SIDE);
-        crac = new FbConstraintCracCreator().createCrac(fbConstraint, network, timestamp, parameters, ReportNode.NO_OP).getCrac();
+        crac = new FbConstraintCracCreator().createCrac(fbConstraint, network, timestamp, parameters).getCrac();
         assertHasThresholds(crac.getFlowCnec("FR_CBCO_000001 - preventive"), Set.of(Side.RIGHT), Unit.PERCENT_IMAX, -1., null);
         assertHasThresholds(crac.getFlowCnec("FR_CBCO_000002 - preventive"), Set.of(Side.LEFT), Unit.PERCENT_IMAX, null, 1.);
     }
@@ -612,24 +612,24 @@ class FbConstraintCracCreatorTest {
     @Test
     void testTransformerCnecThresholds() {
         Network network = Network.read("TestCase_severalVoltageLevels_Xnodes.uct", getClass().getResourceAsStream("/network/TestCase_severalVoltageLevels_Xnodes.uct"));
-        FbConstraint fbConstraint = new FbConstraintImporter().importNativeCrac(getClass().getResourceAsStream("/merged_cb/transformers.xml"), ReportNode.NO_OP);
+        FbConstraint fbConstraint = new FbConstraintImporter().importNativeCrac(getClass().getResourceAsStream("/merged_cb/transformers.xml"));
         OffsetDateTime timestamp = OffsetDateTime.parse("2019-01-08T00:30Z");
 
         // CBCO_1 is in %Imax, thresholds should be created depending on default monitored side
         // CBCO_2 is in A, threshold should be defined on high voltage level side
 
         parameters.setDefaultMonitoredLineSide(CracCreationParameters.MonitoredLineSide.MONITOR_LINES_ON_BOTH_SIDES);
-        Crac crac = new FbConstraintCracCreator().createCrac(fbConstraint, network, timestamp, parameters, ReportNode.NO_OP).getCrac();
+        Crac crac = new FbConstraintCracCreator().createCrac(fbConstraint, network, timestamp, parameters).getCrac();
         assertHasThresholds(crac.getFlowCnec("CBCO_1 - preventive"), Set.of(Side.LEFT, Side.RIGHT), Unit.PERCENT_IMAX, -1.0, null);
         assertHasThresholds(crac.getFlowCnec("CBCO_2 - preventive"), Set.of(Side.LEFT), Unit.AMPERE, -100., null);
 
         parameters.setDefaultMonitoredLineSide(CracCreationParameters.MonitoredLineSide.MONITOR_LINES_ON_LEFT_SIDE);
-        crac = new FbConstraintCracCreator().createCrac(fbConstraint, network, timestamp, parameters, ReportNode.NO_OP).getCrac();
+        crac = new FbConstraintCracCreator().createCrac(fbConstraint, network, timestamp, parameters).getCrac();
         assertHasThresholds(crac.getFlowCnec("CBCO_1 - preventive"), Set.of(Side.LEFT), Unit.PERCENT_IMAX, -1.0, null);
         assertHasThresholds(crac.getFlowCnec("CBCO_2 - preventive"), Set.of(Side.LEFT), Unit.AMPERE, -100., null);
 
         parameters.setDefaultMonitoredLineSide(CracCreationParameters.MonitoredLineSide.MONITOR_LINES_ON_RIGHT_SIDE);
-        crac = new FbConstraintCracCreator().createCrac(fbConstraint, network, timestamp, parameters, ReportNode.NO_OP).getCrac();
+        crac = new FbConstraintCracCreator().createCrac(fbConstraint, network, timestamp, parameters).getCrac();
         assertHasThresholds(crac.getFlowCnec("CBCO_1 - preventive"), Set.of(Side.RIGHT), Unit.PERCENT_IMAX, -1.0, null);
         assertHasThresholds(crac.getFlowCnec("CBCO_2 - preventive"), Set.of(Side.LEFT), Unit.AMPERE, -100., null);
     }

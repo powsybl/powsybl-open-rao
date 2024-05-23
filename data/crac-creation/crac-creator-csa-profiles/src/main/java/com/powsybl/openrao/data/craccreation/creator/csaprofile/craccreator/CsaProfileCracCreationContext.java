@@ -116,18 +116,18 @@ public class CsaProfileCracCreationContext implements CracCreationContext {
         return this;
     }
 
-    public void buildCreationReport() {
-        addToReport(contingencyCreationContexts, "Contingencies");
-        addToReport(cnecCreationContexts, "Cnecs");
-        addToReport(remedialActionCreationContexts, "RemedialActions");
+    public void buildCreationReport(ReportNode reportNode) {
+        addToReport(contingencyCreationContexts, "Contingencies", reportNode);
+        addToReport(cnecCreationContexts, "Cnecs", reportNode);
+        addToReport(remedialActionCreationContexts, "RemedialActions", reportNode);
     }
 
-    private void addToReport(Collection<? extends ElementaryCreationContext> contexts, String nativeTypeIdentifier) {
+    private void addToReport(Collection<? extends ElementaryCreationContext> contexts, String nativeTypeIdentifier, ReportNode reportNode) {
         contexts.stream().filter(ElementaryCreationContext::isAltered).forEach(context ->
-            CracCreationReport.altered(String.format("%s \"%s\" was modified: %s. ", nativeTypeIdentifier, context.getNativeId(), context.getImportStatusDetail()), ReportNode.NO_OP)
+            CracCreationReport.altered(String.format("%s \"%s\" was modified: %s. ", nativeTypeIdentifier, context.getNativeId(), context.getImportStatusDetail()), reportNode)
         );
         contexts.stream().filter(context -> !context.isImported()).forEach(context ->
-            CracCreationReport.removed(String.format("%s \"%s\" was not imported: %s. %s.", nativeTypeIdentifier, context.getNativeId(), context.getImportStatus(), context.getImportStatusDetail()), ReportNode.NO_OP)
+            CracCreationReport.removed(String.format("%s \"%s\" was not imported: %s. %s.", nativeTypeIdentifier, context.getNativeId(), context.getImportStatus(), context.getImportStatusDetail()), reportNode)
         );
     }
 }

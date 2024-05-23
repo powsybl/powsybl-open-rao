@@ -48,7 +48,7 @@ class CsaProfileCracImporterTest {
     void testImportNativeCracWithoutSubdirectory() {
         CsaProfileCracImporter csaProfileCracImporter = new CsaProfileCracImporter();
         InputStream is1 = getClass().getResourceAsStream("/profiles/TestCaseWithoutSubdirectory.zip");
-        CsaProfileCrac csaProfileCrac = csaProfileCracImporter.importNativeCrac(is1, ReportNode.NO_OP);
+        CsaProfileCrac csaProfileCrac = csaProfileCracImporter.importNativeCrac(is1);
         assertNotNull(csaProfileCrac);
 
         Set<Contingency> contingencies = csaProfileCrac.getContingencies();

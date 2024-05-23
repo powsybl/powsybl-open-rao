@@ -12,11 +12,13 @@
    csa profile crac import : import of file CSA_RA_outdated_remove.xml
    csa profile crac import : import of file CSA_RA_missing_end_date_remove.xml
    csa profile crac import : import of file CSA_RA_bad_end_date_remove.xml
-   New crac "csa-profile-crac" called "csa-profile-crac"
-   [REMOVED] The file : contexts:CSA_RA_outdated_remove.xml will be ignored. Its dates are not consistent with the import date : 2023-03-29T12:00Z
-   [REMOVED] The file : contexts:CSA_RA_bad_end_date_remove.xml will be ignored. Its dates are not consistent with the import date : 2023-03-29T12:00Z
-   [REMOVED] The file : contexts:CSA_RA_bad_start_date_remove.xml will be ignored. Its dates are not consistent with the import date : 2023-03-29T12:00Z
-   [REMOVED] The file : contexts:CSA_RA_missing_end_date_remove.xml will be ignored. Its dates are not consistent with the import date : 2023-03-29T12:00Z
-   [REMOVED] The file : contexts:CSA_RA_start_date_after_end_date_remove.xml will be ignored. Its dates are not consistent with the import date : 2023-03-29T12:00Z
-   [REMOVED] The file : contexts:CSA_RA_missing_start_date_remove.xml will be ignored. Its dates are not consistent with the import date : 2023-03-29T12:00Z
-   [REMOVED] The file : contexts:CSA_RA_not_yet_valid_remove.xml will be ignored. Its dates are not consistent with the import date : 2023-03-29T12:00Z
+   + CSA Profile CRAC creator
+      CSA Profile CRAC creation report
+      New crac "csa-profile-crac" called "csa-profile-crac"
+      [REMOVED] The file : contexts:CSA_RA_outdated_remove.xml will be ignored. Its dates are not consistent with the import date : 2023-03-29T12:00Z
+      [REMOVED] The file : contexts:CSA_RA_bad_end_date_remove.xml will be ignored. Its dates are not consistent with the import date : 2023-03-29T12:00Z
+      [REMOVED] The file : contexts:CSA_RA_bad_start_date_remove.xml will be ignored. Its dates are not consistent with the import date : 2023-03-29T12:00Z
+      [REMOVED] The file : contexts:CSA_RA_missing_end_date_remove.xml will be ignored. Its dates are not consistent with the import date : 2023-03-29T12:00Z
+      [REMOVED] The file : contexts:CSA_RA_start_date_after_end_date_remove.xml will be ignored. Its dates are not consistent with the import date : 2023-03-29T12:00Z
+      [REMOVED] The file : contexts:CSA_RA_missing_start_date_remove.xml will be ignored. Its dates are not consistent with the import date : 2023-03-29T12:00Z
+      [REMOVED] The file : contexts:CSA_RA_not_yet_valid_remove.xml will be ignored. Its dates are not consistent with the import date : 2023-03-29T12:00Z
