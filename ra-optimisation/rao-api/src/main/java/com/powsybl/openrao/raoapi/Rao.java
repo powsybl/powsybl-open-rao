@@ -15,11 +15,15 @@ import com.google.common.base.Suppliers;
 import com.powsybl.commons.Versionable;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.util.ServiceLoaderCache;
+import com.powsybl.tools.Version;
 
 import java.time.Instant;
 import java.util.List;
 import java.util.Objects;
+import java.util.ServiceLoader;
 import java.util.concurrent.CompletableFuture;
+
+import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.BUSINESS_WARNS;
 
 /**
  * RA optimisation main API. It is a utility class (so with only static methods) used as an entry point for running
@@ -53,6 +57,10 @@ public final class Rao {
             Objects.requireNonNull(parameters, "parameters should not be null");
             Objects.requireNonNull(reportNode, "Report node should nod be null");
 
+            Version openRaoVersion = ServiceLoader.load(Version.class).findFirst().orElseThrow();
+            BUSINESS_WARNS.warn("Running RAO using Open RAO version {} from git commit {}.", openRaoVersion.getMavenProjectVersion(), openRaoVersion.getGitVersion());
+            // TODO change this !
+
             return provider.run(raoInput, parameters, targetEndInstant, reportNode);
         }
 
@@ -76,6 +84,9 @@ public final class Rao {
             Objects.requireNonNull(raoInput, "RAO input should not be null");
             Objects.requireNonNull(parameters, "parameters should not be null");
             Objects.requireNonNull(reportNode, "Report node should nod be null");
+
+            Version openRaoVersion = ServiceLoader.load(Version.class).findFirst().orElseThrow();
+            BUSINESS_WARNS.warn("Running RAO using Open RAO version {} from git commit {}.", openRaoVersion.getMavenProjectVersion(), openRaoVersion.getGitVersion()); // TODO change this
 
             return provider.run(raoInput, parameters, targetEndInstant, reportNode).join();
         }
