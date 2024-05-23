@@ -534,7 +534,7 @@ public class CastorFullOptimization {
         // -- Gather all post contingency remedial actions
         // ---- Curative remedial actions :
         // ------ appliedCras from secondPreventiveRaoResult
-        AppliedRemedialActions appliedArasAndCras = secondPreventiveRaoResult.appliedArasAndCras.copyCurative();
+        AppliedRemedialActions appliedArasAndCras = secondPreventiveRaoResult.appliedArasAndCras().copyCurative();
         // ------ + curative range actions optimized during second preventive with global optimization
         if (raoParameters.getSecondPreventiveRaoParameters().getReOptimizeCurativeRangeActions()) {
             for (Map.Entry<State, OptimizationResult> entry : postContingencyResults.entrySet()) {
@@ -542,7 +542,7 @@ public class CastorFullOptimization {
                 if (!state.getInstant().isCurative()) {
                     continue;
                 }
-                secondPreventiveRaoResult.perimeterResult.getActivatedRangeActions(state)
+                secondPreventiveRaoResult.perimeterResult().getActivatedRangeActions(state)
                     .forEach(rangeAction -> appliedArasAndCras.addAppliedRangeAction(state, rangeAction, secondPreventiveRaoResult.perimeterResult.getOptimizedSetpoint(rangeAction, state)));
             }
         }
@@ -572,7 +572,7 @@ public class CastorFullOptimization {
             if (entry.getValue() instanceof SkippedOptimizationResultImpl) {
                 newPostContingencyResults.put(state, new SkippedOptimizationResultImpl(state, new HashSet<>(), new HashSet<>(), postCraSensitivityAnalysisOutput.getSensitivityStatus(entry.getKey()), raoParameters.getLoadFlowAndSensitivityParameters().getSensitivityFailureOvercost()));
             } else {
-                newPostContingencyResults.put(state, new CurativeWithSecondPraoResult(state, entry.getValue(), secondPreventiveRaoResult.perimeterResult, secondPreventiveRaoResult.remedialActionsExcluded, postCraSensitivityAnalysisOutput));
+                newPostContingencyResults.put(state, new CurativeWithSecondPraoResult(state, entry.getValue(), secondPreventiveRaoResult.perimeterResult(), secondPreventiveRaoResult.remedialActionsExcluded(), postCraSensitivityAnalysisOutput));
             }
         }
         RaoLogger.logMostLimitingElementsResults(BUSINESS_LOGS, postCraSensitivityAnalysisOutput, parameters.getObjectiveFunctionParameters().getType(), NUMBER_LOGGED_ELEMENTS_END_RAO);
@@ -580,26 +580,18 @@ public class CastorFullOptimization {
         return new PreventiveAndCurativesRaoResultImpl(stateTree,
             initialOutput,
             firstPreventiveResult,
-            secondPreventiveRaoResult.perimeterResult,
-            secondPreventiveRaoResult.remedialActionsExcluded,
-            secondPreventiveRaoResult.postPraSensitivityAnalysisOutput,
+            secondPreventiveRaoResult.perimeterResult(),
+            secondPreventiveRaoResult.remedialActionsExcluded(),
+            secondPreventiveRaoResult.postPraSensitivityAnalysisOutput(),
             newPostContingencyResults,
             postCraSensitivityAnalysisOutput,
             raoInput.getCrac());
     }
 
-    private static class SecondPreventiveRaoResult {
-        private final PerimeterResult perimeterResult;
-        private final PrePerimeterResult postPraSensitivityAnalysisOutput;
-        private final Set<RemedialAction<?>> remedialActionsExcluded;
-        private final AppliedRemedialActions appliedArasAndCras;
-
-        public SecondPreventiveRaoResult(PerimeterResult perimeterResult, PrePerimeterResult postPraSensitivityAnalysisOutput, Set<RemedialAction<?>> remedialActionsExcluded, AppliedRemedialActions appliedArasAndCras) {
-            this.perimeterResult = perimeterResult;
-            this.postPraSensitivityAnalysisOutput = postPraSensitivityAnalysisOutput;
-            this.remedialActionsExcluded = remedialActionsExcluded;
-            this.appliedArasAndCras = appliedArasAndCras;
-        }
+    private record SecondPreventiveRaoResult(PerimeterResult perimeterResult,
+                                             PrePerimeterResult postPraSensitivityAnalysisOutput,
+                                             Set<RemedialAction<?>> remedialActionsExcluded,
+                                             AppliedRemedialActions appliedArasAndCras) {
     }
 
     /**

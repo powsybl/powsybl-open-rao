@@ -52,8 +52,8 @@ public class CurativeWithSecondPraoResult implements OptimizationResult {
     }
 
     private void checkCnec(Cnec<?> cnec) {
-        if (!cnec.getState().equals(state)) {
-            throw new OpenRaoException(String.format("Cnec %s has a different state than this result's state (%s)", cnec.getId(), state.getId()));
+        if (!cnec.getState().getContingency().equals(state.getContingency())) {
+            throw new OpenRaoException(String.format("Cnec %s has a different contingency than this result's state (%s)", cnec.getId(), state.getId()));
         }
     }
 
