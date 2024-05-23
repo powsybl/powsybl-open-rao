@@ -143,7 +143,7 @@ class CracImportExportTest {
         assertEquals(Unit.MEGAWATT, threshold.getUnit());
         assertEquals(Side.LEFT, threshold.getSide());
         assertTrue(threshold.min().isEmpty());
-        assertEquals(500., threshold.max().orElse(0.0), 1e-3);
+        assertEquals(480., threshold.max().orElse(0.0), 1e-3);
         assertEquals(4, crac.getFlowCnec("cnec2prevId").getThresholds().size());
 
         // ----------------------

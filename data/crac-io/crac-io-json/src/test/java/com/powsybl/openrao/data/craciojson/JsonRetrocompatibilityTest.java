@@ -732,4 +732,6 @@ class JsonRetrocompatibilityTest {
         assertEquals("border4", crac.getCnec("angleCnecId").getBorder());
         assertEquals("border5", crac.getCnec("voltageCnecId").getBorder());
     }
+
+    // TODO: add test with reliability margin to check import for older versions
 }

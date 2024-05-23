@@ -139,7 +139,6 @@ class FbConstraintCracCreatorTest {
         assertEquals("[BE-BE] BBE3 - BBE2 [DIR]", crac.getFlowCnec("BE_CBCO_000003 - outage").getName());
         assertEquals("BE", crac.getFlowCnec("BE_CBCO_000003 - outage").getOperator());
         assertEquals("BBE2AA1  BBE3AA1  1", crac.getFlowCnec("BE_CBCO_000003 - outage").getNetworkElement().getId());
-        assertEquals(150., crac.getFlowCnec("BE_CBCO_000003 - outage").getReliabilityMargin(), 1e-6);
         assertEquals(OUTAGE_INSTANT_ID, crac.getFlowCnec("BE_CBCO_000003 - outage").getState().getInstant().toString());
         assertEquals("BE_CO_00001", crac.getFlowCnec("BE_CBCO_000003 - outage").getState().getContingency().orElseThrow().getId());
 

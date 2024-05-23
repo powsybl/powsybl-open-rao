@@ -141,7 +141,7 @@ public final class FlowCnecArrayDeserializer {
                 if (iMax == null) {
                     throw new OpenRaoException("Undefined iMax");
                 }
-                return reliabilityMarginInAmpere / iMax * 100;
+                return reliabilityMarginInAmpere / iMax;
             } else {
                 throw new OpenRaoException("Unsupported branch threshold unit %s".formatted(targetUnit));
             }

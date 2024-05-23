@@ -121,21 +121,6 @@ class VoltageCnecAdderImplTest {
     }
 
     @Test
-    void testReliabilityMarginHandling() {
-        double maxValue = 100.0;
-        double reliabilityMargin = 5.0;
-        VoltageCnec cnec = crac.newVoltageCnec().withId("Cnec ID")
-            .withInstant(OUTAGE_INSTANT_ID)
-            .withContingency(contingency1Id)
-            .withNetworkElement("neId")
-            .newThreshold().withUnit(Unit.KILOVOLT).withMax(maxValue).withMin(-maxValue).add()
-            .withReliabilityMargin(reliabilityMargin)
-            .add();
-        assertEquals(maxValue - reliabilityMargin, cnec.getUpperBound(Unit.KILOVOLT).orElseThrow(OpenRaoException::new), DOUBLE_TOLERANCE);
-        assertEquals(reliabilityMargin - maxValue, cnec.getLowerBound(Unit.KILOVOLT).orElseThrow(OpenRaoException::new), DOUBLE_TOLERANCE);
-    }
-
-    @Test
     void testNotOptimizedMonitored() {
         VoltageCnec cnec = crac.newVoltageCnec().withId("Cnec ID")
             .withInstant(OUTAGE_INSTANT_ID)

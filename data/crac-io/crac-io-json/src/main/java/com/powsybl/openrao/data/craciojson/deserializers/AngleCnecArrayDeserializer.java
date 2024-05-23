@@ -11,7 +11,6 @@ import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.cracapi.cnec.*;
 import com.powsybl.openrao.data.cracapi.threshold.AngleThresholdAdder;
-import com.powsybl.openrao.data.cracapi.threshold.VoltageThresholdAdder;
 import com.powsybl.openrao.data.craciojson.ExtensionsHandler;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;

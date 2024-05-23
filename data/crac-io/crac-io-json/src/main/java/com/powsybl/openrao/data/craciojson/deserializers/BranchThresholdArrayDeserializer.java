@@ -17,9 +17,7 @@ import com.fasterxml.jackson.core.JsonToken;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 
 import static com.powsybl.openrao.data.craciojson.JsonSerializationConstants.*;
