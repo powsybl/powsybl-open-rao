@@ -117,7 +117,10 @@ public class CimCracCreationContext implements CracCreationContext {
     }
 
     private void addToReport(Set<VoltageCnecCreationContext> voltageCnecCreationContexts, ReportNode reportNode) {
-        voltageCnecCreationContexts.stream().filter(context -> !context.isImported()).forEach(context -> {
+        voltageCnecCreationContexts.stream()
+            .filter(context -> !context.isImported())
+            .sorted(Comparator.comparing(VoltageCnecCreationContext::getImportStatusDetail))
+            .forEach(context -> {
                 String neId = context.getNativeNetworkElementId() != null ? context.getNativeNetworkElementId() : "all";
                 String instant = context.getInstantId() != null ? context.getInstantId().toLowerCase() : "all";
                 String coName = context.getNativeContingencyName() != null ? context.getNativeContingencyName() : "all";

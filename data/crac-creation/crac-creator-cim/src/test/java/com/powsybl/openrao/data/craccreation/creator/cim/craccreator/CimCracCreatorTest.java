@@ -1065,7 +1065,6 @@ class CimCracCreatorTest {
         assertEquals(flowCnec.getNominalVoltage(Side.LEFT), duplicate.getNominalVoltage(Side.LEFT), 1e-6);
         assertEquals(flowCnec.getNominalVoltage(Side.RIGHT), duplicate.getNominalVoltage(Side.RIGHT), 1e-6);
         assertEquals(flowCnec.getThresholds(), duplicate.getThresholds());
-        assertTrue(cracCreationContext.getCreationReport().getReport().contains(String.format("[ADDED] CNEC \"%s\" has no associated automaton. It will be cloned on the OUTAGE instant in order to be secured during preventive RAO.", flowCnecId)));
     }
 
     @Test

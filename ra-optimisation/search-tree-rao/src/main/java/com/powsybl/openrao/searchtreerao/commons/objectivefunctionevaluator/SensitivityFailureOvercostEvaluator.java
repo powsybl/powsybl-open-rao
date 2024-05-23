@@ -43,14 +43,14 @@ public class SensitivityFailureOvercostEvaluator implements CostEvaluator {
     @Override
     public Pair<Double, List<FlowCnec>> computeCostAndLimitingElements(FlowResult flowResult, RangeActionActivationResult rangeActionActivationResult, SensitivityResult sensitivityResult, ComputationStatus sensitivityStatus, Set<String> contingenciesToExclude) {
         if (sensitivityStatus == ComputationStatus.FAILURE) {
-            TECHNICAL_LOGS.info(String.format("Sensitivity failure : assigning virtual overcost of %s", sensitivityFailureOvercost));
+            TECHNICAL_LOGS.info("Sensitivity failure : assigning virtual overcost of %s", sensitivityFailureOvercost);
             return Pair.of(sensitivityFailureOvercost, new ArrayList<>());
         }
         for (State state : states) {
             Optional<Contingency> contingency = state.getContingency();
             if ((state.getContingency().isEmpty() || contingency.isPresent()) &&
                     sensitivityResult.getSensitivityStatus(state) == ComputationStatus.FAILURE) {
-                TECHNICAL_LOGS.info(String.format("Sensitivity failure for state %s : assigning virtual overcost of %s", state.getId(), sensitivityFailureOvercost));
+                TECHNICAL_LOGS.info("Sensitivity failure for state %s : assigning virtual overcost of %s", state.getId(), sensitivityFailureOvercost);
                 return Pair.of(sensitivityFailureOvercost, new ArrayList<>());
             }
         }

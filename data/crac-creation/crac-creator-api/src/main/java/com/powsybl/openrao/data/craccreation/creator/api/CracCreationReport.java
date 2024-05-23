@@ -32,77 +32,56 @@ public final class CracCreationReport {
     }
 
     public void error(String errorReason, ReportNode reportNode) {
-        String message = String.format("[ERROR] %s", errorReason);
-        creationReport.add(message);
         reportNode.newReportNode()
                 .withMessageTemplate("cracCreationError", "[ERROR] ${reason}")
                 .withUntypedValue("reason", errorReason)
                 .withSeverity(TypedValue.ERROR_SEVERITY)
                 .add();
-        BUSINESS_LOGS.error(message);
+        BUSINESS_LOGS.error("[ERROR] %s", errorReason);
     }
 
     public void removed(String removedReason, ReportNode reportNode) {
-        String message = String.format("[REMOVED] %s", removedReason);
-        creationReport.add(message);
         reportNode.newReportNode()
                 .withMessageTemplate("cracCreationRemoved", "[REMOVED] ${removedReason}")
                 .withUntypedValue("removedReason", removedReason)
                 .withSeverity(TypedValue.WARN_SEVERITY)
                 .add();
-        BUSINESS_WARNS.warn(message);
+        BUSINESS_WARNS.warn("[REMOVED] %s", removedReason);
     }
 
     public void added(String addedReason, ReportNode reportNode) {
-        String message = String.format("[ADDED] %s", addedReason);
-        creationReport.add(message);
         reportNode.newReportNode()
                 .withMessageTemplate("cracCreationAdded", "[ADDED] ${addedReason}")
                 .withUntypedValue("addedReason", addedReason)
                 .withSeverity(TypedValue.WARN_SEVERITY)
                 .add();
-        BUSINESS_WARNS.warn(message);
+        BUSINESS_WARNS.warn("[ADDED] %s", addedReason);
     }
 
     public void altered(String alteredReason, ReportNode reportNode) {
-        String message = String.format("[ALTERED] %s", alteredReason);
-        creationReport.add(message);
         reportNode.newReportNode()
                 .withMessageTemplate("cracCreationAltered", "[ALTERED] ${alteredReason}")
                 .withUntypedValue("alteredReason", alteredReason)
                 .withSeverity(TypedValue.WARN_SEVERITY)
                 .add();
-        BUSINESS_WARNS.warn(message);
+        BUSINESS_WARNS.warn("[ALTERED] %s", alteredReason);
     }
 
     public void warn(String warnReason, ReportNode reportNode) {
-        String message = String.format("[WARN] %s", warnReason);
-        creationReport.add(message);
         reportNode.newReportNode()
                 .withMessageTemplate("cracCreationWarn", "[WARN] ${warnReason}")
                 .withUntypedValue("warnReason", warnReason)
                 .withSeverity(TypedValue.WARN_SEVERITY)
                 .add();
-        BUSINESS_WARNS.warn(message);
+        BUSINESS_WARNS.warn("[WARN] %s", warnReason);
     }
 
     public void info(String infoReason, ReportNode reportNode) {
-        String message = String.format("[INFO] %s", infoReason);
-        creationReport.add(message);
         reportNode.newReportNode()
                 .withMessageTemplate("cracCreationInfo", "[INFO] ${infoReason}")
                 .withUntypedValue("infoReason", infoReason)
                 .withSeverity(TypedValue.WARN_SEVERITY)
                 .add();
-        TECHNICAL_LOGS.info(message);
-    }
-
-    public void printCreationReport() {
-        creationReport.forEach(format -> BUSINESS_LOGS.info(format));
-    }
-
-    // TODO remove this :)
-    public List<String> getReport() {
-        return creationReport;
+        TECHNICAL_LOGS.info("[INFO] %s", infoReason);
     }
 }

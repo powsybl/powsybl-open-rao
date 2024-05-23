@@ -111,20 +111,6 @@ class CracCreationReportTest {
     }
 
     @Test
-    void testPrintReport() {
-        cracCreationReport.warn("message1", reportNode);
-        cracCreationReport.error("message2", reportNode);
-
-        ListAppender<ILoggingEvent> listAppender = getLogs(RaoBusinessLogs.class);
-        cracCreationReport.printCreationReport();
-        List<ILoggingEvent> logsList = listAppender.list;
-
-        assertEquals(2, logsList.size());
-        assertEquals("[INFO] [WARN] message1", logsList.get(0).toString());
-        assertEquals("[INFO] [ERROR] message2", logsList.get(1).toString());
-    }
-
-    @Test
     void testReportNode() throws IOException, URISyntaxException {
         cracCreationReport.warn("message1", reportNode);
         cracCreationReport.error("message2", reportNode);

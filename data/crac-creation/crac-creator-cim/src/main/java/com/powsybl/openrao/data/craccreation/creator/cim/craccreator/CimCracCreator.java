@@ -84,7 +84,7 @@ public class CimCracCreator implements CracCreator<CimCrac, CimCracCreationConte
 
         createContingencies();
         createCnecs(parameters.getDefaultMonitoredSides(), cimCracCreationReportReportNode);
-        createRemedialActions(cimCracCreationParameters, cimCracCreatorReportNode);
+        createRemedialActions(cimCracCreationParameters, cimCracCreationReportReportNode);
         createVoltageCnecs(cimCracCreationParameters);
         creationContext.buildCreationReport(cimCracCreationReportReportNode);
         CracValidator.validateCrac(crac, network).stream().sorted().forEach(addedReason -> creationContext.getCreationReport().added(addedReason, cimCracCreationReportReportNode));
