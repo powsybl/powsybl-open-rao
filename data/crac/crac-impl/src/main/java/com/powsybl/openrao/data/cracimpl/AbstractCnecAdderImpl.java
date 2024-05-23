@@ -83,12 +83,6 @@ public abstract class AbstractCnecAdderImpl<J extends CnecAdder<J>> extends Abst
     }
 
     @Override
-    public J withReliabilityMargin(double reliabilityMargin) {
-        this.reliabilityMargin = reliabilityMargin;
-        return (J) this;
-    }
-
-    @Override
     public J withNetworkElement(String networkElementId, String networkElementName) {
         this.networkElementsIdAndName.put(networkElementId, networkElementName);
         return (J) this;

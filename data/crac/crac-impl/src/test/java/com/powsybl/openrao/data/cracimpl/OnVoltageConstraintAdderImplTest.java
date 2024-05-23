@@ -62,8 +62,7 @@ class OnVoltageConstraintAdderImplTest {
             .withNetworkElement("FFR1AA1")
             .withOperator("operator2")
             .withOptimized(false)
-            .withReliabilityMargin(55.0)
-            .newThreshold().withUnit(Unit.KILOVOLT).withMin(-1500.).withMax(1500.).add()
+            .newThreshold().withUnit(Unit.KILOVOLT).withMin(-1445.).withMax(1445.).add()
             .add();
 
         remedialActionAdder = crac.newNetworkAction()

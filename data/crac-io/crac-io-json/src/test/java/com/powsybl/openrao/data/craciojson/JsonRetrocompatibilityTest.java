@@ -689,4 +689,6 @@ class JsonRetrocompatibilityTest {
         assertEquals(Country.FR, ur.getCountry());
         testContentOfV2Point0Crac(crac);
     }
+
+    // TODO: add test with reliability margin to check import for older versions
 }

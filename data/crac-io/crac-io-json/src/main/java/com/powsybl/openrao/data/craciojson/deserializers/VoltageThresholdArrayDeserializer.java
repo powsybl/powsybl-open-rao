@@ -9,16 +9,13 @@ package com.powsybl.openrao.data.craciojson.deserializers;
 
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
-import com.powsybl.openrao.data.cracapi.cnec.Side;
 import com.powsybl.openrao.data.cracapi.cnec.VoltageCnecAdder;
 import com.powsybl.openrao.data.cracapi.threshold.VoltageThresholdAdder;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 
 import static com.powsybl.openrao.data.craciojson.JsonSerializationConstants.*;

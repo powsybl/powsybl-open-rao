@@ -100,20 +100,4 @@ class LoopFlowThresholdImplTest {
         assertEquals(1000 * 1000 / (nominalV * sqrt(3)), loopFlowThreshold.getThreshold(Unit.AMPERE), DOUBLE_TOLERANCE);
         assertEquals(1000, loopFlowThreshold.getThreshold(Unit.MEGAWATT), DOUBLE_TOLERANCE);
     }
-
-    @Test
-    void getThresholdWithFrm() {
-
-        FlowCnec cnecWithFrm = crac.getFlowCnec("cnec2stateCurativeContingency2"); // contains frm of 95. MW
-
-        cnecWithFrm.newExtension(LoopFlowThresholdAdder.class)
-            .withUnit(Unit.MEGAWATT)
-            .withValue(1000)
-            .add();
-
-        LoopFlowThreshold loopFlowThreshold = cnecWithFrm.getExtension(LoopFlowThreshold.class);
-        assertEquals(905. * 1000 / (nominalV * sqrt(3) * iMax), loopFlowThreshold.getThresholdWithReliabilityMargin(Unit.PERCENT_IMAX), DOUBLE_TOLERANCE);
-        assertEquals(905. * 1000 / (nominalV * sqrt(3)), loopFlowThreshold.getThresholdWithReliabilityMargin(Unit.AMPERE), DOUBLE_TOLERANCE);
-        assertEquals(905., loopFlowThreshold.getThresholdWithReliabilityMargin(Unit.MEGAWATT), DOUBLE_TOLERANCE);
-    }
 }

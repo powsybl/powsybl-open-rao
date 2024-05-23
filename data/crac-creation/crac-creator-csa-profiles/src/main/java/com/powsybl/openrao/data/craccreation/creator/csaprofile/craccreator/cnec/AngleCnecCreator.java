@@ -55,7 +55,7 @@ public class AngleCnecCreator extends AbstractCnecCreator {
     }
 
     private AngleCnecAdder initAngleCnec() {
-        return crac.newAngleCnec().withReliabilityMargin(0);
+        return crac.newAngleCnec();
     }
 
     private void addAngleLimit(AngleCnecAdder angleCnecAdder) {
