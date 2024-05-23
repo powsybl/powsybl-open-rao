@@ -63,7 +63,7 @@ public final class CracImporters {
             if (importer == null) {
                 throw new OpenRaoException("No importer found for this file");
             }
-            return importer.importCrac(new ByteArrayInputStream(bytes), network);
+            return importer.importCrac(new ByteArrayInputStream(bytes), network, reportNode);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }

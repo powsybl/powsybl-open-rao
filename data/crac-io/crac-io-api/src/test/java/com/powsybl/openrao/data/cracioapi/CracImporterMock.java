@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.data.cracioapi;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.cracapi.CracFactory;
@@ -23,17 +24,17 @@ import java.io.InputStream;
 public class CracImporterMock implements CracImporter {
 
     @Override
-    public Crac importCrac(InputStream inputStream, @Nonnull CracFactory cracFactory, Network network) {
+    public Crac importCrac(InputStream inputStream, @Nonnull CracFactory cracFactory, Network network, ReportNode reportNode) {
         return Mockito.mock(Crac.class);
     }
 
     @Override
-    public Crac importCrac(InputStream inputStream, Network network) {
+    public Crac importCrac(InputStream inputStream, Network network, ReportNode reportNode) {
         return Mockito.mock(Crac.class);
     }
 
     @Override
-    public boolean exists(String fileName, InputStream inputStream) {
+    public boolean exists(String fileName, InputStream inputStream, ReportNode reportNode) {
         return true;
     }
 }

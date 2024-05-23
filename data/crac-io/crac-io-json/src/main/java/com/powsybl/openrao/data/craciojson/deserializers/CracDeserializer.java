@@ -38,22 +38,22 @@ public class CracDeserializer extends JsonDeserializer<Crac> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CracDeserializer.class);
 
-    private CracFactory cracFactory;
-
-    private Network network;
-
-    private CracDeserializer() {
-    }
+    private final CracFactory cracFactory;
+    private final Network network;
+    private final ReportNode reportNode;
 
     public CracDeserializer(CracFactory cracFactory, Network network) {
+        this(cracFactory, network, ReportNode.NO_OP);
+    }
+
+    public CracDeserializer(CracFactory cracFactory, Network network, ReportNode reportNode) {
         this.cracFactory = cracFactory;
         this.network = network;
+        this.reportNode = reportNode;
     }
 
     @Override
     public Crac deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
-        ReportNode reportNode = ReportNode.NO_OP;  // TODO how to get a reporter here ?
-
         // check header
         if (!jsonParser.nextFieldName().equals(TYPE)) {
             throw new OpenRaoException(String.format("json CRAC must start with field %s", TYPE));

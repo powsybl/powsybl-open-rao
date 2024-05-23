@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.data.craciojson;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.cracapi.Crac;
@@ -46,20 +47,20 @@ public class JsonImport implements CracImporter {
     }
 
     @Override
-    public Crac importCrac(InputStream inputStream, @Nonnull CracFactory cracFactory, Network network) {
+    public Crac importCrac(InputStream inputStream, @Nonnull CracFactory cracFactory, Network network, ReportNode reportNode) {
         if (network == null) {
             throw new OpenRaoException("Network object is null but it is needed to map contingency's elements");
         }
-        return importCrac(inputStream, new CracDeserializer(cracFactory, network));
+        return importCrac(inputStream, new CracDeserializer(cracFactory, network, reportNode));
     }
 
     @Override
-    public Crac importCrac(InputStream inputStream, Network network) {
-        return importCrac(inputStream, CracFactory.findDefault(), network);
+    public Crac importCrac(InputStream inputStream, Network network, ReportNode reportNode) {
+        return importCrac(inputStream, CracFactory.findDefault(), network, reportNode);
     }
 
     @Override
-    public boolean exists(String fileName, InputStream inputStream) {
+    public boolean exists(String fileName, InputStream inputStream, ReportNode reportNode) {
         return validCracFile(fileName);
     }
 

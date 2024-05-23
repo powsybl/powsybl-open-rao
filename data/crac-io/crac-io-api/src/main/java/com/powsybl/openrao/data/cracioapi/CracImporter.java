@@ -23,22 +23,22 @@ import java.io.InputStream;
 
 public interface CracImporter {
 
-    Crac importCrac(InputStream inputStream, @Nonnull CracFactory cracFactory, Network network);
+    Crac importCrac(InputStream inputStream, @Nonnull CracFactory cracFactory, Network network, ReportNode reportNode);
 
-    default Crac importCrac(InputStream inputStream, @Nonnull CracFactory cracFactory, Network network, ReportNode reportNode) {
-        return importCrac(inputStream, cracFactory, network);
+    default Crac importCrac(InputStream inputStream, @Nonnull CracFactory cracFactory, Network network) {
+        return importCrac(inputStream, cracFactory, network, ReportNode.NO_OP);
     }
 
-    Crac importCrac(InputStream inputStream, Network network);
+    Crac importCrac(InputStream inputStream, Network network, ReportNode reportNode);
 
-    default Crac importCrac(InputStream inputStream, Network network, ReportNode reportNode) {
-        return importCrac(inputStream, network);
+    default Crac importCrac(InputStream inputStream, Network network) {
+        return importCrac(inputStream, network, ReportNode.NO_OP);
     }
 
-    boolean exists(String fileName, InputStream inputStream);
+    boolean exists(String fileName, InputStream inputStream, ReportNode reportNode);
 
-    default boolean exists(String fileName, InputStream inputStream, ReportNode reportNode) {
-        return exists(fileName, inputStream);
+    default boolean exists(String fileName, InputStream inputStream) {
+        return exists(fileName, inputStream, ReportNode.NO_OP);
     }
 
 }
