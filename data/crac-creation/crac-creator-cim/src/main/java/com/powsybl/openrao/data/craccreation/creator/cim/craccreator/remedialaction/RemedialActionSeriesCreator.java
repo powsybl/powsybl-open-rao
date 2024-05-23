@@ -14,6 +14,7 @@ import com.powsybl.openrao.data.cracapi.cnec.AngleCnec;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
 import com.powsybl.openrao.data.cracapi.usagerule.OnFlowConstraintInCountryAdder;
 import com.powsybl.openrao.data.cracapi.usagerule.UsageMethod;
+import com.powsybl.openrao.data.craccreation.creator.api.CracCreationReport;
 import com.powsybl.openrao.data.craccreation.creator.api.ImportStatus;
 import com.powsybl.openrao.data.craccreation.creator.cim.craccreator.CimCracCreationContext;
 import com.powsybl.openrao.data.craccreation.creator.cim.craccreator.CimCracUtils;
@@ -297,7 +298,7 @@ public class RemedialActionSeriesCreator {
                 crac, applicationModeMarketObjectStatus, adder, contingencies, invalidContingencies, flowCnecs, angleCnec, sharedDomain
             );
         } catch (OpenRaoImportException e) {
-            cracCreationContext.getCreationReport().warn(String.format("Extra usage rules for RA %s could not be imported: %s", remedialActionId, e.getMessage()), reportNode);
+            CracCreationReport.warn(String.format("Extra usage rules for RA %s could not be imported: %s", remedialActionId, e.getMessage()), reportNode);
         }
     }
 

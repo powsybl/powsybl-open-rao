@@ -39,13 +39,11 @@ public class CseCracCreationContext implements UcteCracCreationContext {
         this.crac = crac;
         this.timestamp = timestamp;
         this.networkName = networkName;
-        creationReport = new CracCreationReport();
     }
 
     protected CseCracCreationContext(CseCracCreationContext toCopy) {
         this.crac = toCopy.crac;
         this.isCreationSuccessful = toCopy.isCreationSuccessful;
-        this.creationReport = new CracCreationReport(toCopy.creationReport);
         this.criticalBranchCreationContexts = new HashMap<>(toCopy.criticalBranchCreationContexts);
         this.monitoredElementCreationContexts = new HashMap<>(toCopy.monitoredElementCreationContexts);
         this.outageCreationContexts = new HashMap<>(toCopy.outageCreationContexts);
@@ -97,18 +95,13 @@ public class CseCracCreationContext implements UcteCracCreationContext {
         contexts.stream().filter(ElementaryCreationContext::isAltered)
             .sorted(Comparator.comparing(ElementaryCreationContext::getNativeId))
             .forEach(context ->
-            creationReport.altered(String.format("%s \"%s\" was modified: %s. ", nativeTypeIdentifier, context.getNativeId(), context.getImportStatusDetail()), reportNode)
+            CracCreationReport.altered(String.format("%s \"%s\" was modified: %s. ", nativeTypeIdentifier, context.getNativeId(), context.getImportStatusDetail()), reportNode)
         );
         contexts.stream().filter(context -> !context.isImported())
             .sorted(Comparator.comparing(ElementaryCreationContext::getNativeId))
             .forEach(context ->
-            creationReport.removed(String.format("%s \"%s\" was not imported: %s. %s.", nativeTypeIdentifier, context.getNativeId(), context.getImportStatus(), context.getImportStatusDetail()), reportNode)
+            CracCreationReport.removed(String.format("%s \"%s\" was not imported: %s. %s.", nativeTypeIdentifier, context.getNativeId(), context.getImportStatus(), context.getImportStatusDetail()), reportNode)
         );
-    }
-
-    @Override
-    public CracCreationReport getCreationReport() {
-        return creationReport;
     }
 
     public void addCriticalBranchCreationContext(CseCriticalBranchCreationContext cseCriticalBranchCreationContext) {

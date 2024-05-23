@@ -16,6 +16,7 @@ import com.powsybl.openrao.data.cracapi.Instant;
 import com.powsybl.openrao.data.cracapi.InstantKind;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnecAdder;
 import com.powsybl.openrao.data.cracapi.cnec.Side;
+import com.powsybl.openrao.data.craccreation.creator.api.CracCreationReport;
 import com.powsybl.openrao.data.craccreation.creator.api.ImportStatus;
 import com.powsybl.openrao.data.craccreation.creator.cim.craccreator.CimCracCreationContext;
 import com.powsybl.openrao.data.craccreation.creator.cim.craccreator.CimCracUtils;
@@ -155,7 +156,7 @@ public class MonitoredSeriesCreator {
     private void saveMonitoredSeriesCreationContexts(String nativeId, MonitoredSeriesCreationContext mscc, ReportNode reportNode) {
         MonitoredSeriesCreationContext newMscc = mscc;
         if (monitoredSeriesCreationContexts.containsKey(nativeId)) {
-            cracCreationContext.getCreationReport().warn(
+            CracCreationReport.warn(
                 String.format("Multiple Monitored_Series with same mRID \"%s\" detected; they will be merged.", nativeId),
                     reportNode
             );
@@ -304,7 +305,7 @@ public class MonitoredSeriesCreator {
             // (we know network element and state are the same, we assume that thresholds are the same.
             // This is true if the TSO is consistent in the definition of its CNECs; and two different TSOs can only
             // share tielines, but those are distinguished by the RIGHT/LEFT label)
-            cracCreationContext.getCreationReport().warn(
+            CracCreationReport.warn(
                 String.format("Multiple CNECs on same network element (%s) and same state (%s%s%s) have been detected. Only one CNEC will be created.", branchHelper.getBranch().getId(), contingencyId, Objects.isNull(contingency) ? "" : " - ", instant),
                 reportNode
             );

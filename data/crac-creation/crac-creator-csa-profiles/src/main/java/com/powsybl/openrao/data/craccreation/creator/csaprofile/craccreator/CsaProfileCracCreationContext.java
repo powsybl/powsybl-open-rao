@@ -41,7 +41,6 @@ public class CsaProfileCracCreationContext implements CracCreationContext {
 
     CsaProfileCracCreationContext(Crac crac, OffsetDateTime timeStamp, String networkName) {
         this.crac = crac;
-        this.creationReport = new CracCreationReport();
         this.timeStamp = timeStamp;
         this.networkName = networkName;
     }
@@ -105,11 +104,6 @@ public class CsaProfileCracCreationContext implements CracCreationContext {
         return new HashSet<>(this.cnecCreationContexts);
     }
 
-    @Override
-    public CracCreationReport getCreationReport() {
-        return this.creationReport;
-    }
-
     CsaProfileCracCreationContext creationFailure() {
         this.isCreationSuccessful = false;
         this.crac = null;
@@ -123,7 +117,6 @@ public class CsaProfileCracCreationContext implements CracCreationContext {
     }
 
     public void buildCreationReport() {
-        creationReport = new CracCreationReport();
         addToReport(contingencyCreationContexts, "Contingencies");
         addToReport(cnecCreationContexts, "Cnecs");
         addToReport(remedialActionCreationContexts, "RemedialActions");
@@ -131,10 +124,10 @@ public class CsaProfileCracCreationContext implements CracCreationContext {
 
     private void addToReport(Collection<? extends ElementaryCreationContext> contexts, String nativeTypeIdentifier) {
         contexts.stream().filter(ElementaryCreationContext::isAltered).forEach(context ->
-            creationReport.altered(String.format("%s \"%s\" was modified: %s. ", nativeTypeIdentifier, context.getNativeId(), context.getImportStatusDetail()), ReportNode.NO_OP)
+            CracCreationReport.altered(String.format("%s \"%s\" was modified: %s. ", nativeTypeIdentifier, context.getNativeId(), context.getImportStatusDetail()), ReportNode.NO_OP)
         );
         contexts.stream().filter(context -> !context.isImported()).forEach(context ->
-            creationReport.removed(String.format("%s \"%s\" was not imported: %s. %s.", nativeTypeIdentifier, context.getNativeId(), context.getImportStatus(), context.getImportStatusDetail()), ReportNode.NO_OP)
+            CracCreationReport.removed(String.format("%s \"%s\" was not imported: %s. %s.", nativeTypeIdentifier, context.getNativeId(), context.getImportStatus(), context.getImportStatusDetail()), ReportNode.NO_OP)
         );
     }
 }

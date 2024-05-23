@@ -11,6 +11,7 @@ import com.powsybl.commons.report.ReportNode;
 import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.cracapi.InstantKind;
 import com.powsybl.openrao.data.cracapi.cnec.Side;
+import com.powsybl.openrao.data.craccreation.creator.api.CracCreationReport;
 import com.powsybl.openrao.data.craccreation.creator.api.CracCreator;
 import com.powsybl.openrao.data.craccreation.creator.api.parameters.CracCreationParameters;
 import com.powsybl.openrao.data.craccreation.creator.cim.CimCrac;
@@ -61,23 +62,23 @@ public class CimCracCreator implements CracCreator<CimCrac, CimCracCreationConte
         // Get warning messages from parameters parsing
         CimCracCreationParameters cimCracCreationParameters = parameters.getExtension(CimCracCreationParameters.class);
         if (cimCracCreationParameters != null) {
-            cimCracCreationParameters.getFailedParseWarnings().forEach(message -> creationContext.getCreationReport().warn(message, cimCracCreationReportReportNode));
+            cimCracCreationParameters.getFailedParseWarnings().forEach(message -> CracCreationReport.warn(message, cimCracCreationReportReportNode));
             if (!cimCracCreationParameters.getTimeseriesMrids().isEmpty()) {
                 this.cimTimeSeries.removeIf(ts -> !cimCracCreationParameters.getTimeseriesMrids().contains(ts.getMRID()));
                 cimCracCreationParameters.getTimeseriesMrids().stream()
                     .filter(mrid -> this.cimTimeSeries.stream().map(TimeSeries::getMRID).noneMatch(id -> id.equals(mrid)))
-                    .forEach(mrid -> creationContext.getCreationReport().warn(String.format("Requested TimeSeries mRID \"%s\" in CimCracCreationParameters was not found in the CRAC file.", mrid), cimCracCreationReportReportNode));
+                    .forEach(mrid -> CracCreationReport.warn(String.format("Requested TimeSeries mRID \"%s\" in CimCracCreationParameters was not found in the CRAC file.", mrid), cimCracCreationReportReportNode));
             }
         }
 
         if (offsetDateTime == null) {
-            creationContext.getCreationReport().error("Timestamp is null for cim crac creator.", cimCracCreationReportReportNode);
+            CracCreationReport.error("Timestamp is null for cim crac creator.", cimCracCreationReportReportNode);
             return creationContext.creationFailure();
         } else {
             String cracTimePeriodStart = cimCrac.getCracDocument().getTimePeriodTimeInterval().getStart();
             String cracTimePeriodEnd = cimCrac.getCracDocument().getTimePeriodTimeInterval().getEnd();
             if (!isInTimeInterval(offsetDateTime, cracTimePeriodStart, cracTimePeriodEnd)) {
-                creationContext.getCreationReport().error(String.format("Timestamp %s is not in time interval [%s %s].", offsetDateTime, cracTimePeriodStart, cracTimePeriodEnd), cimCracCreationReportReportNode);
+                CracCreationReport.error(String.format("Timestamp %s is not in time interval [%s %s].", offsetDateTime, cracTimePeriodStart, cracTimePeriodEnd), cimCracCreationReportReportNode);
                 return creationContext.creationFailure();
             }
         }
@@ -87,7 +88,7 @@ public class CimCracCreator implements CracCreator<CimCrac, CimCracCreationConte
         createRemedialActions(cimCracCreationParameters, cimCracCreationReportReportNode);
         createVoltageCnecs(cimCracCreationParameters);
         creationContext.buildCreationReport(cimCracCreationReportReportNode);
-        CracValidator.validateCrac(crac, network).stream().sorted().forEach(addedReason -> creationContext.getCreationReport().added(addedReason, cimCracCreationReportReportNode));
+        CracValidator.validateCrac(crac, network).stream().sorted().forEach(addedReason -> CracCreationReport.added(addedReason, cimCracCreationReportReportNode));
         return creationContext.creationSuccess(crac);
     }
 

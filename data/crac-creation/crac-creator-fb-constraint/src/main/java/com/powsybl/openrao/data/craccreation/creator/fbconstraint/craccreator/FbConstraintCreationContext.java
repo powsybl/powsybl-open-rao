@@ -28,7 +28,6 @@ public class FbConstraintCreationContext implements UcteCracCreationContext {
     private final String networkName;
     private final Map<String, CriticalBranchCreationContext> criticalBranchCreationContexts;
     private final Map<String, ComplexVariantCreationContext> complexVariantCreationContexts;
-    private final CracCreationReport creationReport;
     private final ReportNode reportNode;
 
     @Override
@@ -62,11 +61,6 @@ public class FbConstraintCreationContext implements UcteCracCreationContext {
     }
 
     @Override
-    public CracCreationReport getCreationReport() {
-        return creationReport;
-    }
-
-    @Override
     public CriticalBranchCreationContext getBranchCnecCreationContext(String criticalBranchId) {
         return criticalBranchCreationContexts.get(criticalBranchId);
     }
@@ -91,7 +85,6 @@ public class FbConstraintCreationContext implements UcteCracCreationContext {
         this.timeStamp = timeStamp;
         this.networkName = networkName;
         this.reportNode = reportNode;
-        this.creationReport = new CracCreationReport();
     }
 
     protected FbConstraintCreationContext(FbConstraintCreationContext toCopy) {
@@ -101,7 +94,6 @@ public class FbConstraintCreationContext implements UcteCracCreationContext {
         this.timeStamp = toCopy.timeStamp;
         this.networkName = toCopy.networkName;
         this.reportNode = toCopy.reportNode;
-        this.creationReport = new CracCreationReport(toCopy.creationReport);
         this.crac = toCopy.crac;
     }
 
@@ -124,10 +116,10 @@ public class FbConstraintCreationContext implements UcteCracCreationContext {
 
     private void addToReport(Collection<? extends ElementaryCreationContext> contexts, String nativeTypeIdentifier) {
         contexts.stream().filter(ElementaryCreationContext::isAltered).forEach(context ->
-            creationReport.altered(String.format("%s \"%s\" was modified: %s. ", nativeTypeIdentifier, context.getNativeId(), context.getImportStatusDetail()), reportNode)
+            CracCreationReport.altered(String.format("%s \"%s\" was modified: %s. ", nativeTypeIdentifier, context.getNativeId(), context.getImportStatusDetail()), reportNode)
         );
         contexts.stream().filter(context -> !context.isImported()).forEach(context ->
-            creationReport.removed(String.format("%s \"%s\" was not imported: %s. %s.", nativeTypeIdentifier, context.getNativeId(), context.getImportStatus(), context.getImportStatusDetail()), reportNode)
+            CracCreationReport.removed(String.format("%s \"%s\" was not imported: %s. %s.", nativeTypeIdentifier, context.getNativeId(), context.getImportStatus(), context.getImportStatusDetail()), reportNode)
         );
     }
 }
