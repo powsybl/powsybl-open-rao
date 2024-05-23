@@ -8,7 +8,9 @@
 package com.powsybl.openrao.data.craciojson.deserializers;
 
 import com.powsybl.openrao.commons.OpenRaoException;
+import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.Crac;
+import com.powsybl.openrao.data.cracapi.threshold.BranchThresholdAdder;
 import com.powsybl.openrao.data.craciojson.ExtensionsHandler;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnecAdder;
@@ -37,10 +39,13 @@ public final class FlowCnecArrayDeserializer {
         if (networkElementsNamesPerId == null) {
             throw new OpenRaoException(String.format("Cannot deserialize %s before %s", FLOW_CNECS, NETWORK_ELEMENTS_NAME_PER_ID));
         }
+        Set<BranchThresholdArrayDeserializer.BranchThreshold> thresholds = new HashSet<>();
+        double reliabilityMargin = 0;
         while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
             FlowCnecAdder flowCnecAdder = crac.newFlowCnec();
             List<Extension<FlowCnec>> extensions = new ArrayList<>();
             Pair<Double, Double> nominalV = null;
+            Pair<Double, Double> iMax = null;
             while (!jsonParser.nextToken().isStructEnd()) {
                 switch (jsonParser.getCurrentName()) {
                     case ID:
@@ -71,20 +76,20 @@ public final class FlowCnecArrayDeserializer {
                         flowCnecAdder.withMonitored(jsonParser.nextBooleanValue());
                         break;
                     case FRM:
-                        readFrm(jsonParser, version, flowCnecAdder);
+                        reliabilityMargin = readFrm(jsonParser, version);
                         break;
                     case RELIABILITY_MARGIN:
-                        readReliabilityMargin(jsonParser, version, flowCnecAdder);
+                        reliabilityMargin = readReliabilityMargin(jsonParser, version);
                         break;
                     case I_MAX:
-                        readImax(jsonParser, flowCnecAdder);
+                        iMax = readImax(jsonParser, flowCnecAdder);
                         break;
                     case NOMINAL_VOLTAGE:
                         nominalV = readNominalVoltage(jsonParser, flowCnecAdder);
                         break;
                     case THRESHOLDS:
                         jsonParser.nextToken();
-                        BranchThresholdArrayDeserializer.deserialize(jsonParser, flowCnecAdder, nominalV, version);
+                        thresholds = new HashSet<>(BranchThresholdArrayDeserializer.deserialize(jsonParser, flowCnecAdder, nominalV, version));
                         break;
                     case EXTENSIONS:
                         jsonParser.nextToken();
@@ -94,9 +99,51 @@ public final class FlowCnecArrayDeserializer {
                         throw new OpenRaoException("Unexpected field in FlowCnec: " + jsonParser.getCurrentName());
                 }
             }
+            if (reliabilityMargin != 0) {
+                // Workaround to support frm/reliability margin from older versions
+                overrideThresholdsWithReliabilityMargin(flowCnecAdder, thresholds, reliabilityMargin, nominalV, iMax);
+            }
             FlowCnec cnec = flowCnecAdder.add();
             if (!extensions.isEmpty()) {
                 ExtensionsHandler.getExtensionsSerializers().addExtensions(cnec, extensions);
+            }
+        }
+    }
+
+    private static void overrideThresholdsWithReliabilityMargin(FlowCnecAdder flowCnecAdder, Set<BranchThresholdArrayDeserializer.BranchThreshold> thresholds, double reliabilityMargin, Pair<Double, Double> nominalV, Pair<Double, Double> iMax) {
+        Pair<Double, Double> actualNominalV = nominalV == null ? Pair.of(null, null) : nominalV;
+        Pair<Double, Double> actualIMax = iMax == null ? Pair.of(null, null) : iMax;
+        thresholds.forEach(threshold -> {
+            double reliabilityMarginInTargetUnit = convertReliabilityMarginInTargetUnit(reliabilityMargin, threshold.unit(), Side.LEFT.equals(threshold.side()) ? actualNominalV.getLeft() : actualNominalV.getRight(), Side.LEFT.equals(threshold.side()) ? actualIMax.getLeft() : actualIMax.getRight());
+            BranchThresholdAdder thresholdAdder = flowCnecAdder.newThreshold().withUnit(threshold.unit()).withSide(threshold.side());
+            if (threshold.min() != null) {
+                thresholdAdder.withMin(threshold.min() + reliabilityMarginInTargetUnit);
+            }
+            if (threshold.max() != null) {
+                thresholdAdder.withMax(threshold.max() - reliabilityMarginInTargetUnit);
+            }
+            thresholdAdder.add();
+        });
+    }
+
+    private static double convertReliabilityMarginInTargetUnit(double reliabilityMargin, Unit targetUnit, Double nominalVoltage, Double iMax) {
+        // Reliability margin is always in MW
+        if (Unit.MEGAWATT.equals(targetUnit)) {
+            return reliabilityMargin;
+        } else {
+            if (nominalVoltage == null) {
+                throw new OpenRaoException("Undefined nominal voltage");
+            }
+            double reliabilityMarginInAmpere = reliabilityMargin * 1000 / (nominalVoltage * Math.sqrt(3));
+            if (Unit.AMPERE.equals(targetUnit)) {
+                return reliabilityMarginInAmpere;
+            } else if (Unit.PERCENT_IMAX.equals(targetUnit)) {
+                if (iMax == null) {
+                    throw new OpenRaoException("Undefined iMax");
+                }
+                return reliabilityMarginInAmpere / iMax * 100;
+            } else {
+                throw new OpenRaoException("Unsupported branch threshold unit %s".formatted(targetUnit));
             }
         }
     }
@@ -117,29 +164,32 @@ public final class FlowCnecArrayDeserializer {
         return null;
     }
 
-    private static void readImax(JsonParser jsonParser, FlowCnecAdder flowCnecAdder) throws IOException {
+    private static Pair<Double, Double> readImax(JsonParser jsonParser, FlowCnecAdder flowCnecAdder) throws IOException {
         jsonParser.nextToken();
         Double[] iMax = jsonParser.readValueAs(Double[].class);
         if (iMax.length == 1) {
             flowCnecAdder.withIMax(iMax[0]);
+            return Pair.of(iMax[0], iMax[0]);
         } else if (iMax.length == 2) {
             flowCnecAdder.withIMax(iMax[0], Side.LEFT);
             flowCnecAdder.withIMax(iMax[1], Side.RIGHT);
+            return Pair.of(iMax[0], iMax[1]);
         } else if (iMax.length > 2) {
             throw new OpenRaoException("iMax array of a flowCnec cannot contain more than 2 values");
         }
+        return null;
     }
 
-    private static void readReliabilityMargin(JsonParser jsonParser, String version, FlowCnecAdder flowCnecAdder) throws IOException {
+    private static double readReliabilityMargin(JsonParser jsonParser, String version) throws IOException {
         CnecDeserializerUtils.checkReliabilityMargin(version);
         jsonParser.nextToken();
-        flowCnecAdder.withReliabilityMargin(jsonParser.getDoubleValue());
+        return jsonParser.getDoubleValue();
     }
 
-    private static void readFrm(JsonParser jsonParser, String version, FlowCnecAdder flowCnecAdder) throws IOException {
+    private static double readFrm(JsonParser jsonParser, String version) throws IOException {
         CnecDeserializerUtils.checkFrm(version);
         jsonParser.nextToken();
-        flowCnecAdder.withReliabilityMargin(jsonParser.getDoubleValue());
+        return jsonParser.getDoubleValue();
     }
 
     private static void readNetworkElementId(JsonParser jsonParser, Map<String, String> networkElementsNamesPerId, FlowCnecAdder flowCnecAdder) throws IOException {

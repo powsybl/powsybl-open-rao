@@ -8,13 +8,19 @@
 package com.powsybl.openrao.data.craciojson.deserializers;
 
 import com.powsybl.openrao.commons.OpenRaoException;
+import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnecAdder;
+import com.powsybl.openrao.data.cracapi.cnec.Side;
 import com.powsybl.openrao.data.cracapi.threshold.BranchThresholdAdder;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 import static com.powsybl.openrao.data.craciojson.JsonSerializationConstants.*;
 
@@ -26,37 +32,52 @@ public final class BranchThresholdArrayDeserializer {
     private BranchThresholdArrayDeserializer() {
     }
 
-    public static void deserialize(JsonParser jsonParser, FlowCnecAdder ownerAdder, Pair<Double, Double> nominalV, String version) throws IOException {
+    public record BranchThreshold(Unit unit, Double min, Double max, Side side) {
+    }
+
+    public static Set<BranchThreshold> deserialize(JsonParser jsonParser, FlowCnecAdder ownerAdder, Pair<Double, Double> nominalV, String version) throws IOException {
+        Set<BranchThreshold> branchThresholds = new HashSet<>();
         while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
             BranchThresholdAdder branchThresholdAdder = ownerAdder.newThreshold();
+            Unit unit = null;
+            Double min = null;
+            Double max = null;
+            Side side = null;
             while (!jsonParser.nextToken().isStructEnd()) {
                 switch (jsonParser.getCurrentName()) {
                     case UNIT:
-                        branchThresholdAdder.withUnit(deserializeUnit(jsonParser.nextTextValue()));
+                        unit = deserializeUnit(jsonParser.nextTextValue());
+                        branchThresholdAdder.withUnit(unit);
                         break;
                     case MIN:
                         jsonParser.nextToken();
-                        branchThresholdAdder.withMin(jsonParser.getDoubleValue());
+                        min = jsonParser.getDoubleValue();
+                        branchThresholdAdder.withMin(min);
                         break;
                     case MAX:
                         jsonParser.nextToken();
-                        branchThresholdAdder.withMax(jsonParser.getDoubleValue());
+                        max = jsonParser.getDoubleValue();
+                        branchThresholdAdder.withMax(max);
                         break;
                     case RULE:
                         if (getPrimaryVersionNumber(version) > 1 || getSubVersionNumber(version) > 5) {
                             throw new OpenRaoException("Branch threshold rule is not handled since CRAC version 1.6");
                         } else {
-                            branchThresholdAdder.withSide(convertBranchThresholdRuleToSide(jsonParser.nextTextValue(), nominalV));
+                            side = convertBranchThresholdRuleToSide(jsonParser.nextTextValue(), nominalV);
+                            branchThresholdAdder.withSide(side);
                         }
                         break;
                     case SIDE:
-                        branchThresholdAdder.withSide(deserializeSide(jsonParser.nextTextValue()));
+                        side = deserializeSide(jsonParser.nextTextValue());
+                        branchThresholdAdder.withSide(side);
                         break;
                     default:
                         throw new OpenRaoException("Unexpected field in BranchThreshold: " + jsonParser.getCurrentName());
                 }
             }
             branchThresholdAdder.add();
+            branchThresholds.add(new BranchThreshold(unit, min, max, side));
         }
+        return branchThresholds;
     }
 }

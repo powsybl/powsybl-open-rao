@@ -10,17 +10,23 @@ package com.powsybl.openrao.data.craciojson.deserializers;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.cracapi.cnec.*;
+import com.powsybl.openrao.data.cracapi.threshold.BranchThresholdAdder;
+import com.powsybl.openrao.data.cracapi.threshold.VoltageThresholdAdder;
 import com.powsybl.openrao.data.craciojson.ExtensionsHandler;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.json.JsonUtil;
+import org.apache.commons.lang3.tuple.Pair;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import static com.powsybl.openrao.data.craciojson.JsonSerializationConstants.*;
 
@@ -36,6 +42,8 @@ public final class VoltageCnecArrayDeserializer {
         if (networkElementsNamesPerId == null) {
             throw new OpenRaoException(String.format("Cannot deserialize %s before %s", VOLTAGE_CNECS, NETWORK_ELEMENTS_NAME_PER_ID));
         }
+        Set<VoltageThresholdArrayDeserializer.VoltageThreshold> thresholds = new HashSet<>();
+        double reliabilityMargin = 0;
         while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
             VoltageCnecAdder voltageCnecAdder = crac.newVoltageCnec();
             List<Extension<VoltageCnec>> extensions = new ArrayList<>();
@@ -69,14 +77,14 @@ public final class VoltageCnecArrayDeserializer {
                         voltageCnecAdder.withMonitored(jsonParser.nextBooleanValue());
                         break;
                     case FRM:
-                        readFrm(jsonParser, version, voltageCnecAdder);
+                        reliabilityMargin = readFrm(jsonParser, version, voltageCnecAdder);
                         break;
                     case RELIABILITY_MARGIN:
-                        readReliabilityMargin(jsonParser, version, voltageCnecAdder);
+                        reliabilityMargin = readReliabilityMargin(jsonParser, version, voltageCnecAdder);
                         break;
                     case THRESHOLDS:
                         jsonParser.nextToken();
-                        VoltageThresholdArrayDeserializer.deserialize(jsonParser, voltageCnecAdder);
+                        thresholds = new HashSet<>(VoltageThresholdArrayDeserializer.deserialize(jsonParser, voltageCnecAdder));
                         break;
                     case EXTENSIONS:
                         jsonParser.nextToken();
@@ -86,6 +94,10 @@ public final class VoltageCnecArrayDeserializer {
                         throw new OpenRaoException("Unexpected field in VoltageCnec: " + jsonParser.getCurrentName());
                 }
             }
+            if (reliabilityMargin != 0) {
+                // Workaround to support frm/reliability margin from older versions
+                overrideThresholdsWithReliabilityMargin(voltageCnecAdder, thresholds, reliabilityMargin);
+            }
             VoltageCnec cnec = voltageCnecAdder.add();
             if (!extensions.isEmpty()) {
                 ExtensionsHandler.getExtensionsSerializers().addExtensions(cnec, extensions);
@@ -93,16 +105,29 @@ public final class VoltageCnecArrayDeserializer {
         }
     }
 
-    private static void readReliabilityMargin(JsonParser jsonParser, String version, VoltageCnecAdder voltageCnecAdder) throws IOException {
-        CnecDeserializerUtils.checkReliabilityMargin(version);
-        jsonParser.nextToken();
-        voltageCnecAdder.withReliabilityMargin(jsonParser.getDoubleValue());
+    private static void overrideThresholdsWithReliabilityMargin(VoltageCnecAdder voltageCnecAdder, Set<VoltageThresholdArrayDeserializer.VoltageThreshold> thresholds, double reliabilityMargin) {
+        thresholds.forEach(threshold -> {
+            VoltageThresholdAdder thresholdAdder = voltageCnecAdder.newThreshold().withUnit(threshold.unit());
+            if (threshold.min() != null) {
+                thresholdAdder.withMin(threshold.min() + reliabilityMargin);
+            }
+            if (threshold.max() != null) {
+                thresholdAdder.withMax(threshold.max() - reliabilityMargin);
+            }
+            thresholdAdder.add();
+        });
     }
 
-    private static void readFrm(JsonParser jsonParser, String version, VoltageCnecAdder voltageCnecAdder) throws IOException {
+    private static double readReliabilityMargin(JsonParser jsonParser, String version, VoltageCnecAdder voltageCnecAdder) throws IOException {
+        CnecDeserializerUtils.checkReliabilityMargin(version);
+        jsonParser.nextToken();
+        return jsonParser.getDoubleValue();
+    }
+
+    private static double readFrm(JsonParser jsonParser, String version, VoltageCnecAdder voltageCnecAdder) throws IOException {
         CnecDeserializerUtils.checkFrm(version);
         jsonParser.nextToken();
-        voltageCnecAdder.withReliabilityMargin(jsonParser.getDoubleValue());
+        return jsonParser.getDoubleValue();
     }
 
     private static void readNetworkElementId(JsonParser jsonParser, Map<String, String> networkElementsNamesPerId, VoltageCnecAdder voltageCnecAdder) throws IOException {
