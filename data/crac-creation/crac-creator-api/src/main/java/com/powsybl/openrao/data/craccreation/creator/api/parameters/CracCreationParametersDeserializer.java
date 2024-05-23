@@ -26,8 +26,11 @@ import static com.powsybl.openrao.data.craccreation.creator.api.parameters.JsonC
  */
 public class CracCreationParametersDeserializer extends StdDeserializer<CracCreationParameters> {
 
-    CracCreationParametersDeserializer() {
+    private final ReportNode reportNode;
+
+    CracCreationParametersDeserializer(ReportNode reportNode) {
         super(CracCreationParameters.class);
+        this.reportNode = reportNode;
     }
 
     @Override
@@ -37,8 +40,6 @@ public class CracCreationParametersDeserializer extends StdDeserializer<CracCrea
 
     @Override
     public CracCreationParameters deserialize(JsonParser parser, DeserializationContext deserializationContext, CracCreationParameters parameters) throws IOException {
-
-        ReportNode reportNode = ReportNode.NO_OP; // TODO how to get a reporter here ?
         List<Extension<CracCreationParameters>> extensions = Collections.emptyList();
         while (parser.nextToken() != JsonToken.END_OBJECT) {
             switch (parser.getCurrentName()) {

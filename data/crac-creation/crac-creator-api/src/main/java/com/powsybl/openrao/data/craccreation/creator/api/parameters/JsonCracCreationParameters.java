@@ -13,6 +13,7 @@ import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.extensions.ExtensionJsonSerializer;
 import com.powsybl.commons.extensions.ExtensionProviders;
 import com.powsybl.commons.json.JsonUtil;
+import com.powsybl.commons.report.ReportNode;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -47,26 +48,34 @@ public final class JsonCracCreationParameters {
     }
 
     public static CracCreationParameters read(Path jsonFile) {
-        return update(new CracCreationParameters(), jsonFile);
+        return read(jsonFile, ReportNode.NO_OP);
+    }
+
+    public static CracCreationParameters read(Path jsonFile, ReportNode reportNode) {
+        return update(new CracCreationParameters(), jsonFile, reportNode);
     }
 
     public static CracCreationParameters read(InputStream jsonStream) {
-        return update(new CracCreationParameters(), jsonStream);
+        return read(jsonStream, ReportNode.NO_OP);
     }
 
-    public static CracCreationParameters update(CracCreationParameters parameters, Path jsonFile) {
+    public static CracCreationParameters read(InputStream jsonStream, ReportNode reportNode) {
+        return update(new CracCreationParameters(), jsonStream, reportNode);
+    }
+
+    public static CracCreationParameters update(CracCreationParameters parameters, Path jsonFile, ReportNode reportNode) {
         Objects.requireNonNull(jsonFile);
 
         try (InputStream is = Files.newInputStream(jsonFile)) {
-            return update(parameters, is);
+            return update(parameters, is, reportNode);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
     }
 
-    public static CracCreationParameters update(CracCreationParameters parameters, InputStream jsonStream) {
+    public static CracCreationParameters update(CracCreationParameters parameters, InputStream jsonStream, ReportNode reportNode) {
         try {
-            ObjectMapper objectMapper = createObjectMapper();
+            ObjectMapper objectMapper = createObjectMapper(reportNode);
             return objectMapper.readerForUpdating(parameters).readValue(jsonStream);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
@@ -74,18 +83,26 @@ public final class JsonCracCreationParameters {
     }
 
     public static void write(CracCreationParameters parameters, Path jsonFile) {
+        write(parameters, jsonFile, ReportNode.NO_OP);
+    }
+
+    public static void write(CracCreationParameters parameters, Path jsonFile, ReportNode reportNode) {
         Objects.requireNonNull(jsonFile);
 
         try (OutputStream outputStream = Files.newOutputStream(jsonFile)) {
-            write(parameters, outputStream);
+            write(parameters, outputStream, reportNode);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
     }
 
     public static void write(CracCreationParameters parameters, OutputStream outputStream) {
+        write(parameters, outputStream, ReportNode.NO_OP);
+    }
+
+    public static void write(CracCreationParameters parameters, OutputStream outputStream, ReportNode reportNode) {
         try {
-            ObjectMapper objectMapper = createObjectMapper();
+            ObjectMapper objectMapper = createObjectMapper(reportNode);
             ObjectWriter writer = objectMapper.writerWithDefaultPrettyPrinter();
             writer.writeValue(outputStream, parameters);
         } catch (IOException e) {
@@ -93,8 +110,8 @@ public final class JsonCracCreationParameters {
         }
     }
 
-    private static ObjectMapper createObjectMapper() {
+    private static ObjectMapper createObjectMapper(ReportNode reportNode) {
         return JsonUtil.createObjectMapper()
-                .registerModule(new CracCreationParametersJsonModule());
+                .registerModule(new CracCreationParametersJsonModule(reportNode));
     }
 }
