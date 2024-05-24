@@ -29,11 +29,7 @@ In order to build **powsybl-open-rao**, you need the following environment avail
 
 ### Installing
 
-Before installing **powsybl-open-rao**, you need to install OR-Tools, a software suite for optimisation that is used by Open RAO.
-
-Please refer to [OR-tools website](https://developers.google.com/optimization/install/download) for installation instructions.
-
-Open RAO also needs a load flow implementation and a sensitivity analysis implementation at runtime, following the interfaces of **powsybl-core** which documentation is available in [PowSyBl website](https://www.powsybl.org/pages/documentation/). Note that for obvious reasons, included performances, reliability and transparency, Open RAO uses [Powsybl Open Load Flow](https://github.com/powsybl/powsybl-open-loadflow) by default, but you can prefer you own implementation.
+Open RAO needs a load flow implementation and a sensitivity analysis implementation at runtime, following the interfaces of **powsybl-core** which documentation is available in [PowSyBl website](https://www.powsybl.org/pages/documentation/). Note that for obvious reasons, included performances, reliability and transparency, Open RAO uses [Powsybl Open Load Flow](https://github.com/powsybl/powsybl-open-loadflow) by default, but you can prefer you own implementation.
 
 ### Running
 
@@ -65,7 +61,13 @@ cd <install-prefix>/bin
 
 For more information about *itools*, do not hesitate to visit [PowSyBl documentation](https://www.powsybl.org/docs/).
 
+### Quick tutorial
+If you prefer to get familiar with OpenRAO using a real example, take a look at this [tutorial](https://powsybl.readthedocs.io/projects/openrao/en/stable/tutorial.html).
+
 ## License
 
 This project is licensed under the Mozilla Public License 2.0 - see the [LICENSE.txt](https://github.com/powsybl/powsybl-open-rao/blob/main/LICENSE.txt) file for details.
  
+## Contributing
+
+Please read the instructions [here](CONTRIBUTING.md).
