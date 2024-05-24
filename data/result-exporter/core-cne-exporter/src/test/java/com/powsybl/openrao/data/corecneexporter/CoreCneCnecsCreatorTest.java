@@ -152,7 +152,6 @@ class CoreCneCnecsCreatorTest {
             .withInstant(PREVENTIVE_INSTANT_ID)
             .withOptimized()
             .withNominalVoltage(400.)
-            .withReliabilityMargin(0.)
             .newThreshold().withUnit(Unit.MEGAWATT).withMax(100.).withSide(Side.RIGHT).add()
             .add();
 
@@ -165,8 +164,7 @@ class CoreCneCnecsCreatorTest {
             .withInstant(PREVENTIVE_INSTANT_ID)
             .withOptimized()
             .withNominalVoltage(400.)
-            .withReliabilityMargin(10.)
-            .newThreshold().withUnit(Unit.MEGAWATT).withMax(1000.).withSide(Side.RIGHT).add()
+            .newThreshold().withUnit(Unit.MEGAWATT).withMax(990.).withSide(Side.RIGHT).add()
             .add();
 
         mockCnecResult(cnec2, 800, -100, -200, -99999999, -999999999, .2);
@@ -182,6 +180,7 @@ class CoreCneCnecsCreatorTest {
 
         // check contents
         // start with cnec2 (name starts with aaa)
+        // TODO: use CracCreationContext to retrieve original thresholds and frm
         checkConstraintSeriesContent(cnecsConstraintSeries.get(0), cnec2, "B88", List.of("10X1001A1001A361"), false,
             800., 1443., 1000., 10., 1443., 1000., .2, 190., 950.,
             190., 950., null, null);
@@ -217,7 +216,6 @@ class CoreCneCnecsCreatorTest {
             .withInstant(PREVENTIVE_INSTANT_ID)
             .withMonitored()
             .withNominalVoltage(400.)
-            .withReliabilityMargin(0.)
             .newThreshold().withUnit(Unit.MEGAWATT).withMax(100.).withSide(Side.RIGHT).add()
             .add();
 
@@ -255,8 +253,7 @@ class CoreCneCnecsCreatorTest {
             .withOptimized()
             .withMonitored()
             .withNominalVoltage(400.)
-            .withReliabilityMargin(10.)
-            .newThreshold().withUnit(Unit.MEGAWATT).withMax(100.).withSide(Side.RIGHT).add()
+            .newThreshold().withUnit(Unit.MEGAWATT).withMax(90.).withSide(Side.RIGHT).add()
             .add();
 
         mockCnecResult(cnec1, 80, 10, 20, 100, 200, .1);
@@ -307,8 +304,7 @@ class CoreCneCnecsCreatorTest {
             .withInstant(PREVENTIVE_INSTANT_ID)
             .withOptimized()
             .withNominalVoltage(400.)
-            .withReliabilityMargin(30.)
-            .newThreshold().withUnit(Unit.MEGAWATT).withMax(100.).withSide(Side.RIGHT).add()
+            .newThreshold().withUnit(Unit.MEGAWATT).withMax(70.).withSide(Side.RIGHT).add()
             .add();
         FlowCnec cnecOutage = crac.newFlowCnec()
             .withId("cnec1 - Outage")
@@ -318,8 +314,7 @@ class CoreCneCnecsCreatorTest {
             .withContingency("contingency1")
             .withOptimized()
             .withNominalVoltage(400.)
-            .withReliabilityMargin(20.)
-            .newThreshold().withUnit(Unit.MEGAWATT).withMax(200.).withSide(Side.RIGHT).add()
+            .newThreshold().withUnit(Unit.MEGAWATT).withMax(180.).withSide(Side.RIGHT).add()
             .add();
         FlowCnec cnecCur = crac.newFlowCnec()
             .withId("cnec1 - Curative")
@@ -329,8 +324,7 @@ class CoreCneCnecsCreatorTest {
             .withContingency("contingency1")
             .withOptimized()
             .withNominalVoltage(400.)
-            .withReliabilityMargin(20.)
-            .newThreshold().withUnit(Unit.MEGAWATT).withMax(150.).withSide(Side.RIGHT).add()
+            .newThreshold().withUnit(Unit.MEGAWATT).withMax(130.).withSide(Side.RIGHT).add()
             .add();
 
         mockCnecResult(cnecPrev, 80, 10, 20, 100, 200, .1);
@@ -383,7 +377,6 @@ class CoreCneCnecsCreatorTest {
             .withInstant(PREVENTIVE_INSTANT_ID)
             .withOptimized()
             .withNominalVoltage(400.)
-            .withReliabilityMargin(0.)
             .newThreshold().withUnit(Unit.MEGAWATT).withMax(100.).withSide(Side.RIGHT).add()
             .add();
         cnec1.newExtension(LoopFlowThresholdAdder.class).withValue(321.).withUnit(Unit.MEGAWATT).add();
