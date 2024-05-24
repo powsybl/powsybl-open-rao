@@ -15,9 +15,9 @@ import com.powsybl.openrao.raoapi.parameters.extensions.MnecParametersExtension;
 import com.powsybl.openrao.raoapi.parameters.extensions.RelativeMarginsParametersExtension;
 import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.CurativeOptimizationPerimeter;
 import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.OptimizationPerimeter;
-import com.powsybl.openrao.searchtreerao.commons.parameters.*;
+import com.powsybl.openrao.searchtreerao.commons.parameters.RangeActionLimitationParameters;
+import com.powsybl.openrao.searchtreerao.commons.parameters.UnoptimizedCnecParameters;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.fillers.*;
-import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.OpenRaoMPSolver;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.LinearProblem;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.LinearProblemBuilder;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.inputs.IteratingLinearOptimizerInput;
@@ -26,10 +26,11 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-import java.util.*;
+import java.util.List;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.when;
 
 /**
  * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
@@ -47,10 +48,9 @@ class LinearProblemBuilderTest {
         linearProblemBuilder = new LinearProblemBuilder();
         inputs = Mockito.mock(IteratingLinearOptimizerInput.class);
         parameters = Mockito.mock(IteratingLinearOptimizerParameters.class);
-        linearProblemBuilder = Mockito.spy(linearProblemBuilder);
-        doReturn(new OpenRaoMPSolver()).when(linearProblemBuilder).buildSolver();
 
         solverParameters = Mockito.mock(RangeActionsOptimizationParameters.LinearOptimizationSolver.class);
+        when(solverParameters.getSolver()).thenReturn(RangeActionsOptimizationParameters.Solver.SCIP);
         when(parameters.getSolverParameters()).thenReturn(solverParameters);
         rangeActionParameters = Mockito.mock(RangeActionsOptimizationParameters.class);
         when(parameters.getRangeActionParameters()).thenReturn(rangeActionParameters);

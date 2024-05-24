@@ -2,12 +2,14 @@
 
 ## Used input data
 
-| Name | Symbol | Details                                                                                                                                                                                                                         |
-|---|---|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| OptimisedFlowCnecs | $c \in \mathcal{C} ^{o}$ | Set of FlowCnecs which are ['optimised'](/input-data/crac/json.md#optimised-and-monitored-cnecs). OptimisedFlowCnecs is a subset of [FlowCnecs](core-problem-filler.md#used-input-data): $\mathcal{C} ^{o} \subset \mathcal{C}$ |
-| upper threshold | $f^{+}_{threshold} (c)$ | Upper threshold of FlowCnec $c$, in MW, as defined in the CRAC                                                                                                                                                                  |
-| lower threshold | $f^{-}_{threshold} (c)$ | Lower threshold of FlowCnec $c$, in MW, defined in the CRAC                                                                                                                                                                     |
-| nominal voltage | $U_{nom}(c)$ | Nominal voltage of OptimizedFlowCnec $c$                                                                                                                                                                                        |
+| Name               | Symbol                   | Details                                                                                                                                                                                                                             |
+|--------------------|--------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| OptimisedFlowCnecs | $c \in \mathcal{C} ^{o}$ | Set of FlowCnecs[^1] which are ['optimised'](/input-data/crac/json.md#optimised-and-monitored-cnecs). OptimisedFlowCnecs is a subset of [FlowCnecs](core-problem-filler.md#used-input-data): $\mathcal{C} ^{o} \subset \mathcal{C}$ |
+| upper threshold    | $f^{+}_{threshold} (c)$  | Upper threshold of FlowCnec $c$, in MW, as defined in the CRAC                                                                                                                                                                      |
+| lower threshold    | $f^{-}_{threshold} (c)$  | Lower threshold of FlowCnec $c$, in MW, defined in the CRAC                                                                                                                                                                         |
+| nominal voltage    | $U_{nom}(c)$             | Nominal voltage of OptimizedFlowCnec $c$                                                                                                                                                                                            |
+
+[^1]: CNECs that belong to a state for which sensitivity computations failed are ignored in the MILP
 
 ## Used parameters
 

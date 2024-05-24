@@ -7,64 +7,100 @@
 
 package com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem;
 
+import com.google.ortools.Loader;
+import com.google.ortools.linearsolver.MPSolver;
+import com.google.ortools.linearsolver.MPSolverParameters;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider;
 import com.powsybl.openrao.raoapi.parameters.RangeActionsOptimizationParameters;
-import com.powsybl.openrao.searchtreerao.commons.RaoUtil;
 import com.powsybl.openrao.searchtreerao.result.api.LinearProblemStatus;
-import com.google.ortools.linearsolver.MPSolver;
-import com.google.ortools.linearsolver.MPSolverParameters;
-import org.apache.commons.lang3.NotImplementedException;
 
-import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
+import java.util.TreeMap;
 
 /**
  * Encapsulates OR-Tools' MPSolver objects in order to round up doubles
- *
  * @author Philippe Edwards {@literal <philippe.edwards at rte-international.com>}
+ * @author Peter Mitri {@literal <peter.mitri at rte-international.com>}
  */
 public class OpenRaoMPSolver {
-
-    private static final int NUMBER_OF_BITS_TO_ROUND_OFF = 30;
-    private final MPSolver mpSolver;
-    private MPSolverParameters solveConfiguration;
-    Map<String, OpenRaoMPConstraint> constraints = new HashMap<>();
-    Map<String, OpenRaoMPVariable> variables = new HashMap<>();
-    OpenRaoMPObjective objective;
-
-    // Only for tests
-    protected OpenRaoMPSolver() {
-        mpSolver = null;
+    static {
+        try {
+            Loader.loadNativeLibraries();
+        } catch (Exception e) {
+            OpenRaoLoggerProvider.TECHNICAL_LOGS.error("Native library jniortools could not be loaded. You can ignore this message if it is not needed.");
+        }
     }
 
+    private static final int NUMBER_OF_BITS_TO_ROUND_OFF = 30;
+    private final RangeActionsOptimizationParameters.Solver solver;
+    private final String optProblemName;
+    private MPSolver mpSolver;
+    private MPSolverParameters solveConfiguration;
+    private String solverSpecificParameters;
+    Map<String, OpenRaoMPConstraint> constraints = new TreeMap<>();
+    Map<String, OpenRaoMPVariable> variables = new TreeMap<>();
+    OpenRaoMPObjective objective;
+    private boolean objectiveMinimization = true;
+
     public OpenRaoMPSolver(String optProblemName, RangeActionsOptimizationParameters.Solver solver) {
-        switch (solver) {
-            case CBC:
-                this.mpSolver = new MPSolver(optProblemName, MPSolver.OptimizationProblemType.CBC_MIXED_INTEGER_PROGRAMMING);
-                break;
-            case SCIP:
-                this.mpSolver = new MPSolver(optProblemName, MPSolver.OptimizationProblemType.SCIP_MIXED_INTEGER_PROGRAMMING);
-                break;
-            case XPRESS:
-                this.mpSolver = new MPSolver(optProblemName, MPSolver.OptimizationProblemType.XPRESS_MIXED_INTEGER_PROGRAMMING);
-                break;
-            default:
-                throw new OpenRaoException(String.format("unknown solver %s in RAO parameters", solver));
-        }
+        this.solver = solver;
+        this.optProblemName = optProblemName;
         solveConfiguration = new MPSolverParameters();
+        resetModel();
+    }
+
+    public void resetModel() {
+        this.mpSolver = new MPSolver(optProblemName, getOrToolsProblemType(solver));
+        constraints = new TreeMap<>();
+        variables = new TreeMap<>();
+        this.objective = new OpenRaoMPObjective(mpSolver.objective());
+        setSolverSpecificParametersAsString(solverSpecificParameters);
+        if (objectiveMinimization) {
+            setMinimization();
+        } else {
+            setMaximization();
+        }
+    }
+
+    public RangeActionsOptimizationParameters.Solver getSolver() {
+        return solver;
+    }
+
+    private MPSolver.OptimizationProblemType getOrToolsProblemType(RangeActionsOptimizationParameters.Solver solver) {
+        Objects.requireNonNull(solver);
+        return switch (solver) {
+            case CBC -> MPSolver.OptimizationProblemType.CBC_MIXED_INTEGER_PROGRAMMING;
+            case SCIP -> MPSolver.OptimizationProblemType.SCIP_MIXED_INTEGER_PROGRAMMING;
+            case XPRESS -> MPSolver.OptimizationProblemType.XPRESS_MIXED_INTEGER_PROGRAMMING;
+            default -> throw new OpenRaoException(String.format("unknown solver %s in RAO parameters", solver));
+        };
+    }
+
+    // Only for this class' tests
+    MPSolver getMpSolver() {
+        return mpSolver;
+    }
+
+    public boolean hasConstraint(String name) {
+        return constraints.containsKey(name);
     }
 
     public OpenRaoMPConstraint getConstraint(String name) {
-        if (constraints.containsKey(name)) {
+        if (hasConstraint(name)) {
             return constraints.get(name);
         } else {
             throw new OpenRaoException(String.format("Constraint %s has not been created yet", name));
         }
     }
 
+    public boolean hasVariable(String name) {
+        return variables.containsKey(name);
+    }
+
     public OpenRaoMPVariable getVariable(String name) {
-        if (variables.containsKey(name)) {
+        if (hasVariable(name)) {
             return variables.get(name);
         } else {
             throw new OpenRaoException(String.format("Variable %s has not been created yet", name));
@@ -75,53 +111,47 @@ public class OpenRaoMPSolver {
         return this.objective;
     }
 
-    public OpenRaoMPObjective objective() {
-        if (this.objective == null) {
-            this.objective = new OpenRaoMPObjective(mpSolver.objective(), NUMBER_OF_BITS_TO_ROUND_OFF);
-        }
-        return this.objective;
-    }
-
     public OpenRaoMPVariable makeNumVar(double lb, double ub, String name) {
-        OpenRaoMPVariable mpVariable = new OpenRaoMPVariable(
-            mpSolver.makeNumVar(RaoUtil.roundDouble(lb, NUMBER_OF_BITS_TO_ROUND_OFF), RaoUtil.roundDouble(ub, NUMBER_OF_BITS_TO_ROUND_OFF), name),
-            NUMBER_OF_BITS_TO_ROUND_OFF
-        );
-        variables.put(name, mpVariable);
-        return mpVariable;
+        return makeVar(lb, ub, false, name);
     }
 
     public OpenRaoMPVariable makeIntVar(double lb, double ub, String name) {
-        OpenRaoMPVariable mpVariable = new OpenRaoMPVariable(
-            mpSolver.makeIntVar(RaoUtil.roundDouble(lb, NUMBER_OF_BITS_TO_ROUND_OFF), RaoUtil.roundDouble(ub, NUMBER_OF_BITS_TO_ROUND_OFF), name),
-            NUMBER_OF_BITS_TO_ROUND_OFF
-        );
-        variables.put(name, mpVariable);
-        return mpVariable;
+        return makeVar(lb, ub, true, name);
     }
 
     public OpenRaoMPVariable makeBoolVar(String name) {
-        OpenRaoMPVariable mpVariable = new OpenRaoMPVariable(mpSolver.makeBoolVar(name), NUMBER_OF_BITS_TO_ROUND_OFF);
-        variables.put(name, mpVariable);
-        return mpVariable;
+        return makeVar(0, 1, true, name);
+    }
+
+    private OpenRaoMPVariable makeVar(double lb, double ub, boolean integer, String name) {
+        if (hasVariable(name)) {
+            throw new OpenRaoException(String.format("Variable %s already exists", name));
+        }
+        double roundedLb = roundDouble(lb);
+        double roundedUb = roundDouble(ub);
+        OpenRaoMPVariable variable = new OpenRaoMPVariable(mpSolver.makeVar(roundedLb, roundedUb, integer, name));
+        variables.put(name, variable);
+        return variable;
     }
 
     public OpenRaoMPConstraint makeConstraint(double lb, double ub, String name) {
-        OpenRaoMPConstraint mpConstraint = new OpenRaoMPConstraint(
-            mpSolver.makeConstraint(RaoUtil.roundDouble(lb, NUMBER_OF_BITS_TO_ROUND_OFF), RaoUtil.roundDouble(ub, NUMBER_OF_BITS_TO_ROUND_OFF), name),
-            NUMBER_OF_BITS_TO_ROUND_OFF
-        );
-        constraints.put(name, mpConstraint);
-        return mpConstraint;
+        if (hasConstraint(name)) {
+            throw new OpenRaoException(String.format("Constraint %s already exists", name));
+        } else {
+            double roundedLb = roundDouble(lb);
+            double roundedUb = roundDouble(ub);
+            OpenRaoMPConstraint constraint = new OpenRaoMPConstraint(mpSolver.makeConstraint(roundedLb, roundedUb, name));
+            constraints.put(name, constraint);
+            return constraint;
+        }
     }
 
     public OpenRaoMPConstraint makeConstraint(String name) {
-        OpenRaoMPConstraint mpConstraint = new OpenRaoMPConstraint(mpSolver.makeConstraint(name), NUMBER_OF_BITS_TO_ROUND_OFF);
-        constraints.put(name, mpConstraint);
-        return mpConstraint;
+        return makeConstraint(-LinearProblem.infinity(), LinearProblem.infinity(), name);
     }
 
     public boolean setSolverSpecificParametersAsString(String solverSpecificParameters) {
+        this.solverSpecificParameters = solverSpecificParameters;
         if (solverSpecificParameters != null) {
             return mpSolver.setSolverSpecificParametersAsString(solverSpecificParameters);
         } else {
@@ -140,30 +170,65 @@ public class OpenRaoMPSolver {
         return convertResultStatus(mpSolver.solve(solveConfiguration));
     }
 
-    private static LinearProblemStatus convertResultStatus(MPSolver.ResultStatus status) {
-        switch (status) {
-            case OPTIMAL:
-                return LinearProblemStatus.OPTIMAL;
-            case ABNORMAL:
-                return LinearProblemStatus.ABNORMAL;
-            case FEASIBLE:
-                return LinearProblemStatus.FEASIBLE;
-            case UNBOUNDED:
-                return LinearProblemStatus.UNBOUNDED;
-            case INFEASIBLE:
-                return LinearProblemStatus.INFEASIBLE;
-            case NOT_SOLVED:
-                return LinearProblemStatus.NOT_SOLVED;
-            default:
-                throw new NotImplementedException(String.format("Status %s not handled.", status));
-        }
+    static LinearProblemStatus convertResultStatus(MPSolver.ResultStatus status) {
+        return switch (status) {
+            case OPTIMAL -> LinearProblemStatus.OPTIMAL;
+            case ABNORMAL -> LinearProblemStatus.ABNORMAL;
+            case FEASIBLE -> LinearProblemStatus.FEASIBLE;
+            case UNBOUNDED -> LinearProblemStatus.UNBOUNDED;
+            case INFEASIBLE -> LinearProblemStatus.INFEASIBLE;
+            case NOT_SOLVED -> LinearProblemStatus.NOT_SOLVED;
+            default -> throw new OpenRaoException(String.format("Status %s not handled.", status));
+        };
     }
 
     public int numVariables() {
-        return mpSolver.numVariables();
+        return variables.size();
     }
 
     public int numConstraints() {
-        return mpSolver.numConstraints();
+        return constraints.size();
+    }
+
+    public boolean isMinimization() {
+        return objectiveMinimization;
+    }
+
+    public void setMinimization() {
+        mpSolver.objective().setMinimization();
+        objectiveMinimization = true;
+    }
+
+    public boolean isMaximization() {
+        return !objectiveMinimization;
+    }
+
+    public void setMaximization() {
+        mpSolver.objective().setMaximization();
+        objectiveMinimization = false;
+    }
+
+    /* Method used to make sure the MIP is reproducible. This basically rounds the least significant bits of a double.
+     Let's say a double has 10 precision bits (in reality, 52)
+     We take an initial double:
+       .............//////////.....
+     To which we add a "bigger" double :
+       .........\\\\\\\\\\..........
+      =>
+       .........\\\\||||||..........
+       (we "lose" the least significant bits of the first double because the sum double doesn't have enough precision to show them)
+     Then we subtract the same "bigger" double:
+       .............//////..........
+       We get back our original bits for the most significant part, but the least significant bits are still gone.
+     */
+    static double roundDouble(double value) {
+        if (Double.isNaN(value)) {
+            throw new OpenRaoException("Trying to add a NaN value in MIP!");
+        }
+        double t = value * (1L << NUMBER_OF_BITS_TO_ROUND_OFF);
+        if (t != Double.POSITIVE_INFINITY && value != Double.NEGATIVE_INFINITY && !Double.isNaN(t)) {
+            return value - t + t;
+        }
+        return value;
     }
 }

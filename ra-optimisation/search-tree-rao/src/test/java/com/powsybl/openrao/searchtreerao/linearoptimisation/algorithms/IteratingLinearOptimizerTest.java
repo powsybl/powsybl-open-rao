@@ -20,7 +20,7 @@ import com.powsybl.openrao.searchtreerao.commons.objectivefunctionevaluator.Obje
 import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.OptimizationPerimeter;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.LinearProblem;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.LinearProblemBuilder;
-import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.MPVariableMock;
+import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.OpenRaoMPVariable;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.inputs.IteratingLinearOptimizerInput;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.parameters.IteratingLinearOptimizerParameters;
 import com.powsybl.openrao.searchtreerao.result.api.*;
@@ -174,10 +174,10 @@ class IteratingLinearOptimizerTest {
             public Object answer(InvocationOnMock invocation) {
                 count += 1;
                 if (statuses.get(count - 1) == LinearProblemStatus.OPTIMAL) {
-                    MPVariableMock absVariationMpVarMock = Mockito.mock(MPVariableMock.class);
+                    OpenRaoMPVariable absVariationMpVarMock = Mockito.mock(OpenRaoMPVariable.class);
                     when(absVariationMpVarMock.solutionValue()).thenReturn(Math.abs(setPoints.get(count - 1)));
                     when(linearProblem.getAbsoluteRangeActionVariationVariable(rangeAction, optimizedState)).thenReturn(absVariationMpVarMock);
-                    MPVariableMock setpointMpVarMock = Mockito.mock(MPVariableMock.class);
+                    OpenRaoMPVariable setpointMpVarMock = Mockito.mock(OpenRaoMPVariable.class);
                     when(setpointMpVarMock.solutionValue()).thenReturn(setPoints.get(count - 1));
                     when(linearProblem.getRangeActionSetpointVariable(rangeAction, optimizedState)).thenReturn(setpointMpVarMock);
                 }

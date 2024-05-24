@@ -7,7 +7,6 @@
 
 package com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem;
 
-import com.powsybl.openrao.searchtreerao.commons.RaoUtil;
 import com.google.ortools.linearsolver.MPVariable;
 
 /**
@@ -15,11 +14,9 @@ import com.google.ortools.linearsolver.MPVariable;
  */
 public class OpenRaoMPVariable {
     private final MPVariable mpVariable;
-    private final int numberOfBitsToRoundOff;
 
-    protected OpenRaoMPVariable(MPVariable mpVariable, int numberOfBitsToRoundOff) {
+    protected OpenRaoMPVariable(MPVariable mpVariable) {
         this.mpVariable = mpVariable;
-        this.numberOfBitsToRoundOff = numberOfBitsToRoundOff;
     }
 
     public String name() {
@@ -35,15 +32,15 @@ public class OpenRaoMPVariable {
     }
 
     public void setLb(double lb) {
-        mpVariable.setLb(RaoUtil.roundDouble(lb, numberOfBitsToRoundOff));
+        mpVariable.setLb(OpenRaoMPSolver.roundDouble(lb));
     }
 
     public void setUb(double ub) {
-        mpVariable.setUb(RaoUtil.roundDouble(ub, numberOfBitsToRoundOff));
+        mpVariable.setUb(OpenRaoMPSolver.roundDouble(ub));
     }
 
     public void setBounds(double lb, double ub) {
-        mpVariable.setBounds(RaoUtil.roundDouble(lb, numberOfBitsToRoundOff), RaoUtil.roundDouble(ub, numberOfBitsToRoundOff));
+        mpVariable.setBounds(OpenRaoMPSolver.roundDouble(lb), OpenRaoMPSolver.roundDouble(ub));
     }
 
     MPVariable getMPVariable() {

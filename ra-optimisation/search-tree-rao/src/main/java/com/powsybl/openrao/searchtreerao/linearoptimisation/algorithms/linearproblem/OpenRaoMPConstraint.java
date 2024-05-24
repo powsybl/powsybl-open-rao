@@ -7,7 +7,6 @@
 
 package com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem;
 
-import com.powsybl.openrao.searchtreerao.commons.RaoUtil;
 import com.google.ortools.linearsolver.MPConstraint;
 
 /**
@@ -15,11 +14,9 @@ import com.google.ortools.linearsolver.MPConstraint;
  */
 public class OpenRaoMPConstraint {
     private final MPConstraint mpConstraint;
-    private final int numberOfBitsToRoundOff;
 
-    protected OpenRaoMPConstraint(MPConstraint mpConstraint, int numberOfBitsToRoundOff) {
+    protected OpenRaoMPConstraint(MPConstraint mpConstraint) {
         this.mpConstraint = mpConstraint;
-        this.numberOfBitsToRoundOff = numberOfBitsToRoundOff;
     }
 
     public String name() {
@@ -31,7 +28,7 @@ public class OpenRaoMPConstraint {
     }
 
     public void setCoefficient(OpenRaoMPVariable variable, double coeff) {
-        mpConstraint.setCoefficient(variable.getMPVariable(), RaoUtil.roundDouble(coeff, numberOfBitsToRoundOff));
+        mpConstraint.setCoefficient(variable.getMPVariable(), OpenRaoMPSolver.roundDouble(coeff));
     }
 
     public double lb() {
@@ -43,14 +40,14 @@ public class OpenRaoMPConstraint {
     }
 
     public void setLb(double lb) {
-        mpConstraint.setLb(RaoUtil.roundDouble(lb, numberOfBitsToRoundOff));
+        mpConstraint.setLb(OpenRaoMPSolver.roundDouble(lb));
     }
 
     public void setUb(double ub) {
-        mpConstraint.setUb(RaoUtil.roundDouble(ub, numberOfBitsToRoundOff));
+        mpConstraint.setUb(OpenRaoMPSolver.roundDouble(ub));
     }
 
     public void setBounds(double lb, double ub) {
-        mpConstraint.setBounds(RaoUtil.roundDouble(lb, numberOfBitsToRoundOff), RaoUtil.roundDouble(ub, numberOfBitsToRoundOff));
+        mpConstraint.setBounds(OpenRaoMPSolver.roundDouble(lb), OpenRaoMPSolver.roundDouble(ub));
     }
 }

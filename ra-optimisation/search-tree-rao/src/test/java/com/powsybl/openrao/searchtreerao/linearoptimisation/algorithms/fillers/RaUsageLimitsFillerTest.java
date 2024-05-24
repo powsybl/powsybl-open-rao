@@ -37,8 +37,8 @@ import static org.mockito.Mockito.*;
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
 class RaUsageLimitsFillerTest extends AbstractFillerTest {
-    private static final double DOUBLE_TOLERANCE = 1e-6;
-    private static final double RANGE_ACTION_SETPOINT_EPSILON = 1e-5;
+    private static final double DOUBLE_TOLERANCE = 1e-5;
+    private static final double RANGE_ACTION_SETPOINT_EPSILON = 1e-4;
 
     private PstRangeAction pst1;
     private PstRangeAction pst2;
@@ -128,7 +128,7 @@ class RaUsageLimitsFillerTest extends AbstractFillerTest {
         linearProblem = new LinearProblemBuilder()
             .withProblemFiller(coreProblemFiller)
             .withProblemFiller(raUsageLimitsFiller)
-            .withSolver(mpSolver)
+            .withSolver(RangeActionsOptimizationParameters.Solver.SCIP)
             .build();
         linearProblem.fill(flowResult, sensitivityResult);
 
@@ -150,7 +150,7 @@ class RaUsageLimitsFillerTest extends AbstractFillerTest {
         linearProblem = new LinearProblemBuilder()
             .withProblemFiller(coreProblemFiller)
             .withProblemFiller(raUsageLimitsFiller)
-            .withSolver(mpSolver)
+            .withSolver(RangeActionsOptimizationParameters.Solver.SCIP)
             .build();
         linearProblem.fill(flowResult, sensitivityResult);
 
@@ -166,7 +166,7 @@ class RaUsageLimitsFillerTest extends AbstractFillerTest {
 
             assertEquals(1, constraint.getCoefficient(absoluteVariationVariable), DOUBLE_TOLERANCE);
             assertEquals(-(ra.getMaxAdmissibleSetpoint(initialSetpoint) + RANGE_ACTION_SETPOINT_EPSILON - ra.getMinAdmissibleSetpoint(initialSetpoint)), constraint.getCoefficient(binary), DOUBLE_TOLERANCE);
-            assertEquals(-LinearProblem.infinity(), constraint.lb(), DOUBLE_TOLERANCE);
+            assertEquals(-LinearProblem.infinity(), constraint.lb(), INFINITY_TOLERANCE);
         });
     }
 
@@ -182,7 +182,7 @@ class RaUsageLimitsFillerTest extends AbstractFillerTest {
         linearProblem = new LinearProblemBuilder()
             .withProblemFiller(coreProblemFiller)
             .withProblemFiller(raUsageLimitsFiller)
-            .withSolver(mpSolver)
+            .withSolver(RangeActionsOptimizationParameters.Solver.SCIP)
             .build();
         linearProblem.fill(flowResult, sensitivityResult);
 
@@ -206,7 +206,7 @@ class RaUsageLimitsFillerTest extends AbstractFillerTest {
 
             assertEquals(1, constraint.getCoefficient(absoluteVariationVariable), DOUBLE_TOLERANCE);
             assertEquals(-(ra.getMaxAdmissibleSetpoint(initialSetpoint) + RANGE_ACTION_SETPOINT_EPSILON - ra.getMinAdmissibleSetpoint(initialSetpoint)), constraint.getCoefficient(binary), DOUBLE_TOLERANCE);
-            assertEquals(-LinearProblem.infinity(), constraint.lb(), DOUBLE_TOLERANCE);
+            assertEquals(-LinearProblem.infinity(), constraint.lb(), INFINITY_TOLERANCE);
         });
     }
 
@@ -222,7 +222,7 @@ class RaUsageLimitsFillerTest extends AbstractFillerTest {
         linearProblem = new LinearProblemBuilder()
             .withProblemFiller(coreProblemFiller)
             .withProblemFiller(raUsageLimitsFiller)
-            .withSolver(mpSolver)
+            .withSolver(RangeActionsOptimizationParameters.Solver.SCIP)
             .build();
         linearProblem.fill(flowResult, sensitivityResult);
 
@@ -254,7 +254,7 @@ class RaUsageLimitsFillerTest extends AbstractFillerTest {
         linearProblem = new LinearProblemBuilder()
             .withProblemFiller(coreProblemFiller)
             .withProblemFiller(raUsageLimitsFiller)
-            .withSolver(mpSolver)
+            .withSolver(RangeActionsOptimizationParameters.Solver.SCIP)
             .build();
         linearProblem.fill(flowResult, sensitivityResult);
 
@@ -275,7 +275,7 @@ class RaUsageLimitsFillerTest extends AbstractFillerTest {
         linearProblem = new LinearProblemBuilder()
             .withProblemFiller(coreProblemFiller)
             .withProblemFiller(raUsageLimitsFiller)
-            .withSolver(mpSolver)
+            .withSolver(RangeActionsOptimizationParameters.Solver.SCIP)
             .build();
         linearProblem.fill(flowResult, sensitivityResult);
 
@@ -291,7 +291,7 @@ class RaUsageLimitsFillerTest extends AbstractFillerTest {
         OpenRaoMPConstraint constraint = linearProblem.getTsoRaUsedConstraint(tso, ra, state);
         assertNotNull(constraint);
         assertEquals(0, constraint.lb(), DOUBLE_TOLERANCE);
-        assertEquals(LinearProblem.infinity(), constraint.ub(), DOUBLE_TOLERANCE);
+        assertEquals(LinearProblem.infinity(), constraint.ub(), INFINITY_TOLERANCE);
         assertEquals(1, constraint.getCoefficient(linearProblem.getTsoRaUsedVariable(tso, state)), DOUBLE_TOLERANCE);
         assertEquals(-1, constraint.getCoefficient(linearProblem.getRangeActionVariationBinary(ra, state)), DOUBLE_TOLERANCE);
     }
@@ -308,7 +308,7 @@ class RaUsageLimitsFillerTest extends AbstractFillerTest {
         linearProblem = new LinearProblemBuilder()
             .withProblemFiller(coreProblemFiller)
             .withProblemFiller(raUsageLimitsFiller)
-            .withSolver(mpSolver)
+            .withSolver(RangeActionsOptimizationParameters.Solver.SCIP)
             .build();
         linearProblem.fill(flowResult, sensitivityResult);
 
@@ -340,7 +340,7 @@ class RaUsageLimitsFillerTest extends AbstractFillerTest {
         linearProblem = new LinearProblemBuilder()
             .withProblemFiller(coreProblemFiller)
             .withProblemFiller(raUsageLimitsFiller)
-            .withSolver(mpSolver)
+            .withSolver(RangeActionsOptimizationParameters.Solver.SCIP)
             .build();
         linearProblem.fill(flowResult, sensitivityResult);
 
@@ -367,7 +367,7 @@ class RaUsageLimitsFillerTest extends AbstractFillerTest {
         linearProblem = new LinearProblemBuilder()
             .withProblemFiller(coreProblemFiller)
             .withProblemFiller(raUsageLimitsFiller)
-            .withSolver(mpSolver)
+            .withSolver(RangeActionsOptimizationParameters.Solver.SCIP)
             .build();
         linearProblem.fill(flowResult, sensitivityResult);
 
@@ -407,7 +407,7 @@ class RaUsageLimitsFillerTest extends AbstractFillerTest {
         linearProblem = new LinearProblemBuilder()
             .withProblemFiller(coreProblemFiller)
             .withProblemFiller(raUsageLimitsFiller)
-            .withSolver(mpSolver)
+            .withSolver(RangeActionsOptimizationParameters.Solver.SCIP)
             .build();
         linearProblem.fill(flowResult, sensitivityResult);
 

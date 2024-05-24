@@ -39,22 +39,19 @@ public class MnecFiller implements ProblemFiller {
     public MnecFiller(FlowResult initialFlowResult, Set<FlowCnec> monitoredCnecs, Unit unit, MnecParametersExtension mnecParameters) {
         this.initialFlowResult = initialFlowResult;
         this.monitoredCnecs = new TreeSet<>(Comparator.comparing(Identifiable::getId));
-        this.monitoredCnecs.addAll(monitoredCnecs);
+        this.monitoredCnecs.addAll(FillersUtil.getFlowCnecsNotNaNFlow(monitoredCnecs, initialFlowResult));
         this.unit = unit;
         this.mnecViolationCost = mnecParameters.getViolationCost();
         this.mnecAcceptableMarginDecrease = mnecParameters.getAcceptableMarginDecrease();
         this.mnecConstraintAdjustmentCoefficient = mnecParameters.getConstraintAdjustmentCoefficient();
     }
 
-    private Set<FlowCnec> getMonitoredCnecs() {
-        return monitoredCnecs;
-    }
-
     @Override
     public void fill(LinearProblem linearProblem, FlowResult flowResult, SensitivityResult sensitivityResult) {
-        buildMarginViolationVariable(linearProblem);
-        buildMnecMarginConstraints(linearProblem);
-        fillObjectiveWithMnecPenaltyCost(linearProblem);
+        Set<FlowCnec> validMonitoredCnecs = FillersUtil.getFlowCnecsComputationStatusOk(monitoredCnecs, sensitivityResult);
+        buildMarginViolationVariable(linearProblem, validMonitoredCnecs);
+        buildMnecMarginConstraints(linearProblem, validMonitoredCnecs);
+        fillObjectiveWithMnecPenaltyCost(linearProblem, validMonitoredCnecs);
     }
 
     @Override
@@ -67,14 +64,14 @@ public class MnecFiller implements ProblemFiller {
         // nothing to do
     }
 
-    private void buildMarginViolationVariable(LinearProblem linearProblem) {
-        getMonitoredCnecs().forEach(mnec -> mnec.getMonitoredSides().forEach(side ->
+    private void buildMarginViolationVariable(LinearProblem linearProblem, Set<FlowCnec> validMonitoredCnecs) {
+        validMonitoredCnecs.forEach(mnec -> mnec.getMonitoredSides().forEach(side ->
             linearProblem.addMnecViolationVariable(0, LinearProblem.infinity(), mnec, side)
         ));
     }
 
-    private void buildMnecMarginConstraints(LinearProblem linearProblem) {
-        getMonitoredCnecs().forEach(mnec -> mnec.getMonitoredSides().forEach(side -> {
+    private void buildMnecMarginConstraints(LinearProblem linearProblem, Set<FlowCnec> validMonitoredCnecs) {
+        validMonitoredCnecs.forEach(mnec -> mnec.getMonitoredSides().forEach(side -> {
                 double mnecInitialFlowInMW = initialFlowResult.getFlow(mnec, side, unit) * RaoUtil.getFlowUnitMultiplier(mnec, side, unit, MEGAWATT);
 
                 OpenRaoMPVariable flowVariable = linearProblem.getFlowVariable(mnec, side);
@@ -99,8 +96,8 @@ public class MnecFiller implements ProblemFiller {
         ));
     }
 
-    public void fillObjectiveWithMnecPenaltyCost(LinearProblem linearProblem) {
-        getMonitoredCnecs().stream().filter(FlowCnec::isMonitored).forEach(mnec ->
+    public void fillObjectiveWithMnecPenaltyCost(LinearProblem linearProblem, Set<FlowCnec> validMonitoredCnecs) {
+        validMonitoredCnecs.stream().filter(FlowCnec::isMonitored).forEach(mnec ->
             mnec.getMonitoredSides().forEach(side ->
             linearProblem.getObjective().setCoefficient(linearProblem.getMnecViolationVariable(mnec, side),
                     RaoUtil.getFlowUnitMultiplier(mnec, side, MEGAWATT, unit) * mnecViolationCost / mnec.getMonitoredSides().size())

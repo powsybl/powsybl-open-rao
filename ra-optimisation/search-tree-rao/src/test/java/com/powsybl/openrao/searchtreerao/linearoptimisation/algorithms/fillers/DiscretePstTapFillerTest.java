@@ -73,7 +73,7 @@ class DiscretePstTapFillerTest extends AbstractFillerTest {
         LinearProblem linearProblem = new LinearProblemBuilder()
             .withProblemFiller(coreProblemFiller)
             .withProblemFiller(discretePstTapFiller)
-            .withSolver(mpSolver)
+            .withSolver(RangeActionsOptimizationParameters.Solver.SCIP)
             .build();
 
         // fill linear problem

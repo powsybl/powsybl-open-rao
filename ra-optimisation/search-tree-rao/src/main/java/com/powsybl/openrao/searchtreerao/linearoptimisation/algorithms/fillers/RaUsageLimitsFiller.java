@@ -38,7 +38,7 @@ public class RaUsageLimitsFiller implements ProblemFiller {
     private final RangeActionSetpointResult prePerimeterRangeActionSetpoints;
     private final RangeActionLimitationParameters rangeActionLimitationParameters;
     private boolean arePstSetpointsApproximated;
-    private static final double RANGE_ACTION_SETPOINT_EPSILON = 1e-5;
+    private static final double RANGE_ACTION_SETPOINT_EPSILON = 1e-4;
 
     public RaUsageLimitsFiller(Map<State, Set<RangeAction<?>>> rangeActions,
                                RangeActionSetpointResult prePerimeterRangeActionSetpoints,
