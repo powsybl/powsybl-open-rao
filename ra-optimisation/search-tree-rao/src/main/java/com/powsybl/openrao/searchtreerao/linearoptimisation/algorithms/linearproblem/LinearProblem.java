@@ -423,7 +423,7 @@ public final class LinearProblem {
     }
 
     public OpenRaoMPVariable addPstAbsoluteVariationFromInitialTapVariable(PstRangeAction pstRangeAction, State state) {
-        return solver.makeIntVar(0, LP_INFINITY, pstAbsoluteVariationFromInitialTapVariableId(pstRangeAction, state));
+        return solver.makeIntVar(0, infinity(), pstAbsoluteVariationFromInitialTapVariableId(pstRangeAction, state));
     }
 
     public OpenRaoMPVariable getPstAbsoluteVariationFromInitialTapVariable(PstRangeAction pstRangeAction, State state) {

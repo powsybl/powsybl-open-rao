@@ -460,7 +460,7 @@ class RaUsageLimitsFillerTest extends AbstractFillerTest {
         linearProblem = new LinearProblemBuilder()
             .withProblemFiller(coreProblemFiller)
             .withProblemFiller(raUsageLimitsFiller)
-            .withSolver(mpSolver)
+            .withSolver(RangeActionsOptimizationParameters.Solver.SCIP)
             .build();
 
         OpenRaoException exception = assertThrows(OpenRaoException.class, () -> linearProblem.fill(flowResult, sensitivityResult));
@@ -491,7 +491,7 @@ class RaUsageLimitsFillerTest extends AbstractFillerTest {
             .withProblemFiller(coreProblemFiller)
             .withProblemFiller(discretePstTapFiller)
             .withProblemFiller(raUsageLimitsFiller)
-            .withSolver(mpSolver)
+            .withSolver(RangeActionsOptimizationParameters.Solver.SCIP)
             .build();
 
         linearProblem.fill(flowResult, sensitivityResult);
@@ -500,7 +500,7 @@ class RaUsageLimitsFillerTest extends AbstractFillerTest {
         OpenRaoMPVariable pst1AbsoluteVariationFromInitialTapVariable = linearProblem.getPstAbsoluteVariationFromInitialTapVariable(pst1, state);
         assertEquals("pstabsolutevariationfrominitialtap_pst1_preventive_variable", pst1AbsoluteVariationFromInitialTapVariable.name());
         assertEquals(0, pst1AbsoluteVariationFromInitialTapVariable.lb());
-        assertEquals(LinearProblem.LP_INFINITY, pst1AbsoluteVariationFromInitialTapVariable.ub());
+        assertEquals(LinearProblem.infinity(), pst1AbsoluteVariationFromInitialTapVariable.ub(), INFINITY_TOLERANCE);
 
         OpenRaoMPVariable pst1TapVariationUpwardVariable = linearProblem.getPstTapVariationVariable(pst1, state, LinearProblem.VariationDirectionExtension.UPWARD);
         OpenRaoMPVariable pst1TapVariationDownwardVariable = linearProblem.getPstTapVariationVariable(pst1, state, LinearProblem.VariationDirectionExtension.DOWNWARD);
@@ -508,7 +508,7 @@ class RaUsageLimitsFillerTest extends AbstractFillerTest {
         OpenRaoMPConstraint pst1AbsoluteVariationFromInitialTapConstraintPositive = linearProblem.getPstAbsoluteVariationFromInitialTapConstraint(pst1, state, LinearProblem.AbsExtension.POSITIVE);
         assertEquals("pstabsolutevariationfrominitialtap_pst1_preventive_constraint_POSITIVE", pst1AbsoluteVariationFromInitialTapConstraintPositive.name());
         assertEquals(-2, pst1AbsoluteVariationFromInitialTapConstraintPositive.lb());
-        assertEquals(LinearProblem.LP_INFINITY, pst1AbsoluteVariationFromInitialTapConstraintPositive.ub());
+        assertEquals(LinearProblem.infinity(), pst1AbsoluteVariationFromInitialTapConstraintPositive.ub(), INFINITY_TOLERANCE);
         assertEquals(1d, pst1AbsoluteVariationFromInitialTapConstraintPositive.getCoefficient(pst1AbsoluteVariationFromInitialTapVariable));
         assertEquals(-1d, pst1AbsoluteVariationFromInitialTapConstraintPositive.getCoefficient(pst1TapVariationUpwardVariable));
         assertEquals(1d, pst1AbsoluteVariationFromInitialTapConstraintPositive.getCoefficient(pst1TapVariationDownwardVariable));
@@ -516,7 +516,7 @@ class RaUsageLimitsFillerTest extends AbstractFillerTest {
         OpenRaoMPConstraint pst1AbsoluteVariationFromInitialTapConstraintNegative = linearProblem.getPstAbsoluteVariationFromInitialTapConstraint(pst1, state, LinearProblem.AbsExtension.NEGATIVE);
         assertEquals("pstabsolutevariationfrominitialtap_pst1_preventive_constraint_NEGATIVE", pst1AbsoluteVariationFromInitialTapConstraintNegative.name());
         assertEquals(2, pst1AbsoluteVariationFromInitialTapConstraintNegative.lb());
-        assertEquals(LinearProblem.LP_INFINITY, pst1AbsoluteVariationFromInitialTapConstraintNegative.ub());
+        assertEquals(LinearProblem.infinity(), pst1AbsoluteVariationFromInitialTapConstraintNegative.ub(), INFINITY_TOLERANCE);
         assertEquals(1d, pst1AbsoluteVariationFromInitialTapConstraintNegative.getCoefficient(pst1AbsoluteVariationFromInitialTapVariable));
         assertEquals(1d, pst1AbsoluteVariationFromInitialTapConstraintNegative.getCoefficient(pst1TapVariationUpwardVariable));
         assertEquals(-1d, pst1AbsoluteVariationFromInitialTapConstraintNegative.getCoefficient(pst1TapVariationDownwardVariable));
@@ -525,7 +525,7 @@ class RaUsageLimitsFillerTest extends AbstractFillerTest {
         OpenRaoMPVariable pst2AbsoluteVariationFromInitialTapVariable = linearProblem.getPstAbsoluteVariationFromInitialTapVariable(pst2, state);
         assertEquals("pstabsolutevariationfrominitialtap_pst2_preventive_variable", pst2AbsoluteVariationFromInitialTapVariable.name());
         assertEquals(0, pst2AbsoluteVariationFromInitialTapVariable.lb());
-        assertEquals(LinearProblem.LP_INFINITY, pst2AbsoluteVariationFromInitialTapVariable.ub());
+        assertEquals(LinearProblem.infinity(), pst2AbsoluteVariationFromInitialTapVariable.ub(), INFINITY_TOLERANCE);
 
         OpenRaoMPVariable pst2TapVariationUpwardVariable = linearProblem.getPstTapVariationVariable(pst2, state, LinearProblem.VariationDirectionExtension.UPWARD);
         OpenRaoMPVariable pst2TapVariationDownwardVariable = linearProblem.getPstTapVariationVariable(pst2, state, LinearProblem.VariationDirectionExtension.DOWNWARD);
@@ -533,7 +533,7 @@ class RaUsageLimitsFillerTest extends AbstractFillerTest {
         OpenRaoMPConstraint pst2AbsoluteVariationFromInitialTapConstraintPositive = linearProblem.getPstAbsoluteVariationFromInitialTapConstraint(pst2, state, LinearProblem.AbsExtension.POSITIVE);
         assertEquals("pstabsolutevariationfrominitialtap_pst2_preventive_constraint_POSITIVE", pst2AbsoluteVariationFromInitialTapConstraintPositive.name());
         assertEquals(-1, pst2AbsoluteVariationFromInitialTapConstraintPositive.lb());
-        assertEquals(LinearProblem.LP_INFINITY, pst2AbsoluteVariationFromInitialTapConstraintPositive.ub());
+        assertEquals(LinearProblem.infinity(), pst2AbsoluteVariationFromInitialTapConstraintPositive.ub(), INFINITY_TOLERANCE);
         assertEquals(1d, pst2AbsoluteVariationFromInitialTapConstraintPositive.getCoefficient(pst2AbsoluteVariationFromInitialTapVariable));
         assertEquals(-1d, pst2AbsoluteVariationFromInitialTapConstraintPositive.getCoefficient(pst2TapVariationUpwardVariable));
         assertEquals(1d, pst2AbsoluteVariationFromInitialTapConstraintPositive.getCoefficient(pst2TapVariationDownwardVariable));
@@ -541,7 +541,7 @@ class RaUsageLimitsFillerTest extends AbstractFillerTest {
         OpenRaoMPConstraint pst2AbsoluteVariationFromInitialTapConstraintNegative = linearProblem.getPstAbsoluteVariationFromInitialTapConstraint(pst2, state, LinearProblem.AbsExtension.NEGATIVE);
         assertEquals("pstabsolutevariationfrominitialtap_pst2_preventive_constraint_NEGATIVE", pst2AbsoluteVariationFromInitialTapConstraintNegative.name());
         assertEquals(1, pst2AbsoluteVariationFromInitialTapConstraintNegative.lb());
-        assertEquals(LinearProblem.LP_INFINITY, pst2AbsoluteVariationFromInitialTapConstraintNegative.ub());
+        assertEquals(LinearProblem.infinity(), pst2AbsoluteVariationFromInitialTapConstraintNegative.ub(), INFINITY_TOLERANCE);
         assertEquals(1d, pst2AbsoluteVariationFromInitialTapConstraintNegative.getCoefficient(pst2AbsoluteVariationFromInitialTapVariable));
         assertEquals(1d, pst2AbsoluteVariationFromInitialTapConstraintNegative.getCoefficient(pst2TapVariationUpwardVariable));
         assertEquals(-1d, pst2AbsoluteVariationFromInitialTapConstraintNegative.getCoefficient(pst2TapVariationDownwardVariable));
