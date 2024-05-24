@@ -19,7 +19,7 @@ public record StaticPropertyRange(String mrid, double normalValue, String valueK
             Double.parseDouble(propertyBag.get(CsaProfileConstants.NORMAL_VALUE)),
             propertyBag.get(CsaProfileConstants.STATIC_PROPERTY_RANGE_VALUE_KIND),
             propertyBag.get(CsaProfileConstants.STATIC_PROPERTY_RANGE_DIRECTION),
-            propertyBag.getId(CsaProfileConstants.GRID_STATE_ALTERATION_REMEDIAL_ACTION),
+            propertyBag.getId(CsaProfileConstants.GRID_STATE_ALTERATION),
             propertyBag.get(CsaProfileConstants.GRID_ALTERATION_PROPERTY_REFERENCE)
         );
     }
