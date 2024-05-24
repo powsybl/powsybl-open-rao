@@ -362,21 +362,6 @@ optimisation of specific CNECs in specific conditions.
   If it is set to false, all CNECs are treated equally in the curative RAO.  
   This parameter has no effect on the preventive RAO.  
   This parameter should be set to true for CORE CC.
-  This parameter is not compatible with [do-not-optimize-cnec-secured-by-its-pst](#do-not-optimize-cnec-secured-by-its-pst) 
-  for technical reasons.
-
-#### do-not-optimize-cnec-secured-by-its-pst
-- **Expected value**: a map with string keys and values. The keys should represent critical network element IDs, and the
-  values should represent PST network element IDs.
-- **Default value**: empty map
-- **Usage**: when a critical network element (identified by its PowSyBl ID) is associated to a PST (identified by its
-  PowSyBl ID) in this parameter, CNECs defined on the critical element will not be taken into account in the minimum
-  margin objective function, as long as they can be secured by the associated PST. In other words, they will only be
-  taken into account if the PST has too few tap positions left to reduce the flow constraints on these CNECs.  
-  This parameter affects both preventive and curative RAOs.  
-  It is actually used for the SWE CC process.
-  This parameter is not compatible with [do-not-optimize-curative-cnecs-for-tsos-without-cras](#do-not-optimize-curative-cnecs-for-tsos-without-cras)
-  for technical reasons.
 
 ### Load-flow and sensitivity computation parameters
 These parameters (load-flow-and-sensitivity-computation) configure the load-flow and sensitivity computations providers 
