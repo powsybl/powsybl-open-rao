@@ -16,7 +16,9 @@ import org.junit.jupiter.api.Test;
 import java.util.Comparator;
 import java.util.List;
 
-import static com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileCracCreationTestUtil.CURATIVE_INSTANT_ID;
+import static com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileCracCreationTestUtil.CURATIVE_1_INSTANT_ID;
+import static com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileCracCreationTestUtil.CURATIVE_2_INSTANT_ID;
+import static com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileCracCreationTestUtil.CURATIVE_3_INSTANT_ID;
 import static com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileCracCreationTestUtil.NETWORK;
 import static com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileCracCreationTestUtil.PREVENTIVE_INSTANT_ID;
 import static com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileCracCreationTestUtil.assertHasOnInstantUsageRule;
@@ -38,10 +40,14 @@ class InjectionSetPointActionCreationTest {
         assertHasOnInstantUsageRule(cracCreationContext, "remedial-action-1", PREVENTIVE_INSTANT_ID, UsageMethod.AVAILABLE);
 
         assertSimpleInjectionSetpointActionImported(importedInjectionSetpointActions.get(1), "remedial-action-2", "RTE_RA2", "FFR2AA1 _generator", 2350d, Unit.MEGAWATT, "RTE");
-        assertHasOnInstantUsageRule(cracCreationContext, "remedial-action-2", CURATIVE_INSTANT_ID, UsageMethod.AVAILABLE);
+        assertHasOnInstantUsageRule(cracCreationContext, "remedial-action-2", CURATIVE_1_INSTANT_ID, UsageMethod.AVAILABLE);
+        assertHasOnInstantUsageRule(cracCreationContext, "remedial-action-2", CURATIVE_2_INSTANT_ID, UsageMethod.AVAILABLE);
+        assertHasOnInstantUsageRule(cracCreationContext, "remedial-action-2", CURATIVE_3_INSTANT_ID, UsageMethod.AVAILABLE);
 
         assertSimpleInjectionSetpointActionImported(importedInjectionSetpointActions.get(2), "remedial-action-3", "RTE_RA3", "FFR2AA1 _generator", 1790d, Unit.MEGAWATT, "RTE");
-        assertHasOnInstantUsageRule(cracCreationContext, "remedial-action-3", CURATIVE_INSTANT_ID, UsageMethod.AVAILABLE);
+        assertHasOnInstantUsageRule(cracCreationContext, "remedial-action-3", CURATIVE_1_INSTANT_ID, UsageMethod.AVAILABLE);
+        assertHasOnInstantUsageRule(cracCreationContext, "remedial-action-3", CURATIVE_2_INSTANT_ID, UsageMethod.AVAILABLE);
+        assertHasOnInstantUsageRule(cracCreationContext, "remedial-action-3", CURATIVE_3_INSTANT_ID, UsageMethod.AVAILABLE);
 
         assertSimpleInjectionSetpointActionImported(importedInjectionSetpointActions.get(3), "remedial-action-4", "RTE_RA4", "FFR1AA1 _load", 1150d, Unit.MEGAWATT, "RTE");
         assertHasOnInstantUsageRule(cracCreationContext, "remedial-action-4", PREVENTIVE_INSTANT_ID, UsageMethod.AVAILABLE);
@@ -74,10 +80,14 @@ class InjectionSetPointActionCreationTest {
         assertHasOnInstantUsageRule(cracCreationContext, "remedial-action-1", PREVENTIVE_INSTANT_ID, UsageMethod.AVAILABLE);
 
         assertSimpleInjectionSetpointActionImported(importedInjectionSetpointActions.get(1), "remedial-action-2", "RTE_RA2", "shunt-compensator", 3d, Unit.SECTION_COUNT, "RTE");
-        assertHasOnInstantUsageRule(cracCreationContext, "remedial-action-2", CURATIVE_INSTANT_ID, UsageMethod.AVAILABLE);
+        assertHasOnInstantUsageRule(cracCreationContext, "remedial-action-2", CURATIVE_1_INSTANT_ID, UsageMethod.AVAILABLE);
+        assertHasOnInstantUsageRule(cracCreationContext, "remedial-action-2", CURATIVE_2_INSTANT_ID, UsageMethod.AVAILABLE);
+        assertHasOnInstantUsageRule(cracCreationContext, "remedial-action-2", CURATIVE_3_INSTANT_ID, UsageMethod.AVAILABLE);
 
         assertSimpleInjectionSetpointActionImported(importedInjectionSetpointActions.get(2), "remedial-action-3", "RTE_RA3", "shunt-compensator", 0d, Unit.SECTION_COUNT, "RTE");
-        assertHasOnInstantUsageRule(cracCreationContext, "remedial-action-3", CURATIVE_INSTANT_ID, UsageMethod.AVAILABLE);
+        assertHasOnInstantUsageRule(cracCreationContext, "remedial-action-3", CURATIVE_1_INSTANT_ID, UsageMethod.AVAILABLE);
+        assertHasOnInstantUsageRule(cracCreationContext, "remedial-action-3", CURATIVE_2_INSTANT_ID, UsageMethod.AVAILABLE);
+        assertHasOnInstantUsageRule(cracCreationContext, "remedial-action-3", CURATIVE_3_INSTANT_ID, UsageMethod.AVAILABLE);
 
         assertSimpleInjectionSetpointActionImported(importedInjectionSetpointActions.get(3), "remedial-action-4", "RTE_RA4", "shunt-compensator", 2d, Unit.SECTION_COUNT, "RTE");
         assertHasOnInstantUsageRule(cracCreationContext, "remedial-action-4", PREVENTIVE_INSTANT_ID, UsageMethod.AVAILABLE);
