@@ -701,8 +701,6 @@ class JsonRetrocompatibilityTest {
     }
 
     private void testContentOfV2Point3Crac(Crac crac) {
-        testContentOfV2Point2Crac(crac);
-
         // check that RangeAction4 are present
         assertNotNull(crac.getRangeAction("pstRange4Id"));
 
@@ -724,5 +722,6 @@ class JsonRetrocompatibilityTest {
         assertEquals(4, relTimeStepRange.getMaxTap());
         assertEquals(Unit.TAP, relTimeStepRange.getUnit());
 
+        testContentOfV2Point2Crac(crac);
     }
 }
