@@ -295,6 +295,31 @@ class CracImportExportTest {
         assertSame(crac.getCnec("cnec3prevId"), onFlowConstraint2.getFlowCnec());
         assertEquals(AVAILABLE, onFlowConstraint2.getUsageMethod());
 
+        // check Tap Range
+        assertEquals(3, crac.getPstRangeAction("pstRange2Id").getRanges().size());
+
+        absRange = crac.getPstRangeAction("pstRange2Id").getRanges().stream()
+                .filter(tapRange -> tapRange.getRangeType().equals(RangeType.ABSOLUTE))
+                .findAny().orElse(null);
+        relRange = crac.getPstRangeAction("pstRange2Id").getRanges().stream()
+                .filter(tapRange -> tapRange.getRangeType().equals(RangeType.RELATIVE_TO_INITIAL_NETWORK))
+                .findAny().orElse(null);
+        TapRange relTimestampRange = crac.getPstRangeAction("pstRange2Id").getRanges().stream()
+                .filter(tapRange -> tapRange.getRangeType().equals(RangeType.RELATIVE_TO_PREVIOUS_TIME_STEP))
+                .findAny().orElse(null);
+
+        assertNotNull(absRange);
+        assertEquals(-4, absRange.getMinTap());
+        assertEquals(3, absRange.getMaxTap());
+        assertNotNull(relRange);
+        assertEquals(-5, relRange.getMinTap());
+        assertEquals(1, relRange.getMaxTap());
+        assertNotNull(relTimestampRange);
+        assertEquals(-2, relTimestampRange.getMinTap());
+        assertEquals(5, relTimestampRange.getMaxTap());
+        assertEquals(Unit.TAP, relRange.getUnit());
+        assertEquals(Unit.TAP, relTimestampRange.getUnit());
+
         // check OnAngleConstraint usage rule
         assertEquals(1, crac.getPstRangeAction("pstRange3Id").getUsageRules().size());
         UsageRule pstRange3UsageRule = crac.getPstRangeAction("pstRange3Id").getUsageRules().iterator().next();
@@ -388,6 +413,8 @@ class CracImportExportTest {
         ur = (OnFlowConstraintInCountry) usageRules.stream().filter(OnFlowConstraintInCountry.class::isInstance).findAny().orElseThrow();
         assertEquals(curativeInstant, ur.getInstant());
         assertEquals(Country.ES, ur.getCountry());
+        assertTrue(ur.getContingency().isPresent());
+        assertEquals("contingency2Id", ur.getContingency().get().getId());
 
         // ---------------------------------
         // --- test CounterTradeRangeAction ---

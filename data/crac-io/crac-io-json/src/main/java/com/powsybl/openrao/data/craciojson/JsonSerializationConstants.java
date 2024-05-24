@@ -31,7 +31,7 @@ public final class JsonSerializationConstants {
     private JsonSerializationConstants() {
     }
 
-    public static final String CRAC_IO_VERSION = "2.1";
+    public static final String CRAC_IO_VERSION = "2.3";
     /*
     v1.1: addition of switchPairs
     v1.2: addition of injectionRangeAction
@@ -43,6 +43,8 @@ public final class JsonSerializationConstants {
     v1.9: addition of counterTradeRangeAction
     v2.0: addition of instants and change in usage method logic
     v2.1: addition of ra-usage-limits
+    v2.2: addition of contingency id in on-flow-constraint-in-country
+    v2.3: addition of RELATIVE_TO_PREVIOUS_TIME_STEP RangeType, and border attribute for cnecs
      */
 
     // headers
@@ -118,6 +120,7 @@ public final class JsonSerializationConstants {
     public static final String RANGES = "ranges";
     public static final String SETPOINT = "setpoint";
     public static final String OPERATOR = "operator";
+    public static final String BORDER = "border";
     public static final String ACTION_TYPE = "actionType";
     public static final String RANGE_TYPE = "rangeType";
     public static final String INITIAL_SETPOINT = "initialSetpoint";
@@ -177,6 +180,7 @@ public final class JsonSerializationConstants {
     public static final String ABSOLUTE_RANGE = "absolute";
     public static final String RELATIVE_TO_PREVIOUS_INSTANT_RANGE = "relativeToPreviousInstant";
     public static final String RELATIVE_TO_INITIAL_NETWORK_RANGE = "relativeToInitialNetwork";
+    public static final String RELATIVE_TO_PREVIOUS_TIME_STEP = "relativeToPreviousTimeStep";
 
     // action types
     public static final String OPEN_ACTION = "open";
@@ -366,6 +370,8 @@ public final class JsonSerializationConstants {
                 return RELATIVE_TO_PREVIOUS_INSTANT_RANGE;
             case RELATIVE_TO_INITIAL_NETWORK:
                 return RELATIVE_TO_INITIAL_NETWORK_RANGE;
+            case RELATIVE_TO_PREVIOUS_TIME_STEP:
+                return RELATIVE_TO_PREVIOUS_TIME_STEP;
             default:
                 throw new OpenRaoException(String.format("Unsupported range type %s", rangeType));
         }
@@ -379,6 +385,8 @@ public final class JsonSerializationConstants {
                 return RangeType.RELATIVE_TO_PREVIOUS_INSTANT;
             case RELATIVE_TO_INITIAL_NETWORK_RANGE:
                 return RangeType.RELATIVE_TO_INITIAL_NETWORK;
+            case RELATIVE_TO_PREVIOUS_TIME_STEP:
+                return RangeType.RELATIVE_TO_PREVIOUS_TIME_STEP;
             default:
                 throw new OpenRaoException(String.format("Unrecognized range type %s", stringValue));
         }

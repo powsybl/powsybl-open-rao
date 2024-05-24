@@ -51,18 +51,20 @@ set-points, PST set-points, switch pairs.
 
 #### Automatic network actions simulation
 
-First, all automatic network actions which are forced are applied on the network.
+First, all automatic network actions with a FORCED usage method are applied on the network. FORCED means that no optimization is carried out and that as long as the triggering conditions are met, the remedial action is applied.
 
 #### Automatic search tree
 
 Then, the automatic network actions which are available (i.e. not mandatory to apply) are selected by the RAO if they
-help making the network secure, using a search-tree algorithm.
+help making the network secure, using a search-tree algorithm (similar to what is done in preventive or curative).
 
 #### Automatic range actions simulation
 
 Finally, automatic range actions are applied one by one, as long as some of the perimeter's CNECs are overloaded. Range
 actions include PSTs and HVDCs. The remedial actions' speed determines the order in which they are applied: the fastest
 range actions are simulated first. Aligned range actions are simulated simultaneously.
+
+> Note that auto range actions must have a FORCED usage method.  
 
 Automatic range actions' setpoint is computed using the results of a sensitivity analysis computation, during which the
 sensitivity $\sigma$ of a range action on a CNEC is computed. By focusing on the worse overloaded CNEC, we can compute

@@ -31,6 +31,7 @@ import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static com.powsybl.openrao.data.cracapi.usagerule.UsageMethod.AVAILABLE;
 import static com.powsybl.openrao.data.cracapi.usagerule.UsageMethod.FORCED;
@@ -260,18 +261,28 @@ class JsonRetrocompatibilityTest {
         InputStream cracFile = getClass().getResourceAsStream("/retrocompatibility/v2/crac-v2.0.json");
 
         Crac crac = new JsonImport().importCrac(cracFile, network);
-
-        assertEquals(2, crac.getContingencies().size());
-        assertEquals(7, crac.getFlowCnecs().size());
-        assertEquals(1, crac.getAngleCnecs().size());
-        assertEquals(1, crac.getVoltageCnecs().size());
         assertEquals(4, crac.getNetworkActions().size());
-        assertEquals(4, crac.getPstRangeActions().size());
-        assertEquals(2, crac.getHvdcRangeActions().size());
-        assertEquals(1, crac.getInjectionRangeActions().size());
-        assertEquals(1, crac.getCounterTradeRangeActions().size());
-        assertEquals(5, crac.getSortedInstants().size());
         testContentOfV2Point0Crac(crac);
+    }
+
+    @Test
+    void importV2Point2Test() {
+        // Add support for contingency in OnFlowConstraintInCountry
+        InputStream cracFile = getClass().getResourceAsStream("/retrocompatibility/v2/crac-v2.2.json");
+
+        Crac crac = new JsonImport().importCrac(cracFile, network);
+        assertEquals(6, crac.getNetworkActions().size());
+        testContentOfV2Point2Crac(crac);
+    }
+
+    @Test
+    void importV2Point3Test() {
+        // Add support for contingency in OnFlowConstraintInCountry
+        InputStream cracFile = getClass().getResourceAsStream("/retrocompatibility/v2/crac-v2.3.json");
+
+        Crac crac = new JsonImport().importCrac(cracFile, network);
+        assertEquals(6, crac.getNetworkActions().size());
+        testContentOfV2Point3Crac(crac);
     }
 
     private void testContentOfV1Point0Crac(Crac crac) {
@@ -635,6 +646,15 @@ class JsonRetrocompatibilityTest {
     }
 
     private void testContentOfV2Point0Crac(Crac crac) {
+        assertEquals(2, crac.getContingencies().size());
+        assertEquals(7, crac.getFlowCnecs().size());
+        assertEquals(1, crac.getAngleCnecs().size());
+        assertEquals(1, crac.getVoltageCnecs().size());
+        assertEquals(4, crac.getPstRangeActions().size());
+        assertEquals(2, crac.getHvdcRangeActions().size());
+        assertEquals(1, crac.getInjectionRangeActions().size());
+        assertEquals(1, crac.getCounterTradeRangeActions().size());
+        assertEquals(5, crac.getSortedInstants().size());
         testContentOfV1Point9Crac(crac);
         // test instants are well-defined
         List<Instant> instants = crac.getSortedInstants();
@@ -653,5 +673,63 @@ class JsonRetrocompatibilityTest {
         assertEquals("curative", instants.get(4).getId());
         assertEquals(InstantKind.CURATIVE, instants.get(4).getKind());
         assertEquals(4, instants.get(4).getOrder());
+    }
+
+    private void testContentOfV2Point2Crac(Crac crac) {
+        testContentOfV2Point0Crac(crac);
+
+        Set<OnFlowConstraintInCountry> urs = crac.getRemedialAction("injectionSetpointRa2Id").getUsageRules()
+            .stream().filter(OnFlowConstraintInCountry.class::isInstance)
+            .map(OnFlowConstraintInCountry.class::cast)
+            .collect(Collectors.toSet());
+        assertEquals(1, urs.size());
+        OnFlowConstraintInCountry ur = urs.iterator().next();
+        assertEquals(crac.getInstant("curative"), ur.getInstant());
+        assertTrue(ur.getContingency().isPresent());
+        assertEquals("contingency2Id", ur.getContingency().get().getId());
+        assertEquals(Country.FR, ur.getCountry());
+
+        urs = crac.getRemedialAction("injectionSetpointRa3Id").getUsageRules()
+            .stream().filter(OnFlowConstraintInCountry.class::isInstance)
+            .map(OnFlowConstraintInCountry.class::cast)
+            .collect(Collectors.toSet());
+        assertEquals(1, urs.size());
+        ur = urs.iterator().next();
+        assertEquals(crac.getInstant("curative"), ur.getInstant());
+        assertTrue(ur.getContingency().isEmpty());
+        assertEquals(Country.FR, ur.getCountry());
+    }
+
+    private void testContentOfV2Point3Crac(Crac crac) {
+        testContentOfV2Point2Crac(crac);
+
+        // check that RangeAction4 is present with new range relative to previous instant
+        assertNotNull(crac.getRangeAction("pstRange4Id"));
+        assertEquals(2, crac.getPstRangeAction("pstRange4Id").getRanges().size());
+        TapRange absRange = crac.getPstRangeAction("pstRange4Id").getRanges().stream()
+            .filter(tapRange -> tapRange.getRangeType().equals(RangeType.ABSOLUTE))
+            .findAny().orElse(null);
+        TapRange relTimeStepRange = crac.getPstRangeAction("pstRange4Id").getRanges().stream()
+            .filter(tapRange -> tapRange.getRangeType().equals(RangeType.RELATIVE_TO_PREVIOUS_TIME_STEP))
+            .findAny().orElse(null);
+
+        assertNotNull(absRange);
+        assertEquals(-2, absRange.getMinTap());
+        assertEquals(7, absRange.getMaxTap());
+        assertNotNull(relTimeStepRange);
+        assertEquals(-1, relTimeStepRange.getMinTap());
+        assertEquals(4, relTimeStepRange.getMaxTap());
+        assertEquals(Unit.TAP, relTimeStepRange.getUnit());
+
+        // check new border attribute
+        assertEquals("border1", crac.getCnec("cnec1outageId").getBorder());
+        assertEquals("border1", crac.getCnec("cnec1prevId").getBorder());
+        assertEquals("border2", crac.getCnec("cnec2prevId").getBorder());
+        assertEquals("border3", crac.getCnec("cnec3autoId").getBorder());
+        assertEquals("border3", crac.getCnec("cnec3curId").getBorder());
+        assertEquals("border3", crac.getCnec("cnec3prevId").getBorder());
+        assertEquals("border1", crac.getCnec("cnec4prevId").getBorder());
+        assertEquals("border4", crac.getCnec("angleCnecId").getBorder());
+        assertEquals("border5", crac.getCnec("voltageCnecId").getBorder());
     }
 }

@@ -9,12 +9,16 @@ package com.powsybl.openrao.data.craccreation.creator.csaprofile.parameters;
 import com.powsybl.commons.extensions.AbstractExtension;
 import com.powsybl.openrao.data.craccreation.creator.api.parameters.CracCreationParameters;
 
+import java.util.Map;
+
 /**
  * @author Mohamed Ben-rejeb {@literal <mohamed.ben-rejeb at rte-france.com>}
  */
 public class CsaCracCreationParameters extends AbstractExtension<CracCreationParameters> {
     private String capacityCalculationRegionEicCode = "10Y1001C--00095L"; // swe as default
     private int spsMaxTimeToImplementThresholdInSeconds = 0;
+    private Map<String, Boolean> usePatlInFinalState = Map.of("REE", false, "REN", true, "RTE", true);
+    private Map<String, Integer> craApplicationWindow = Map.of("curative 1", 300, "curative 2", 600, "curative 3", 1200);
 
     @Override
     public String getName() {
@@ -23,6 +27,14 @@ public class CsaCracCreationParameters extends AbstractExtension<CracCreationPar
 
     public String getCapacityCalculationRegionEicCode() {
         return capacityCalculationRegionEicCode;
+    }
+
+    public Map<String, Boolean> getUsePatlInFinalState() {
+        return usePatlInFinalState;
+    }
+
+    public Map<String, Integer> getCraApplicationWindow() {
+        return craApplicationWindow;
     }
 
     public void setCapacityCalculationRegionEicCode(String capacityCalculationRegionEicCode) {
@@ -35,5 +47,13 @@ public class CsaCracCreationParameters extends AbstractExtension<CracCreationPar
 
     public void setSpsMaxTimeToImplementThresholdInSeconds(int spsMaxTimeToImplementThresholdInSeconds) {
         this.spsMaxTimeToImplementThresholdInSeconds = spsMaxTimeToImplementThresholdInSeconds;
+    }
+
+    public void setUsePatlInFinalState(Map<String, Boolean> usePatlInFinalState) {
+        this.usePatlInFinalState = usePatlInFinalState;
+    }
+
+    public void setCraApplicationWindow(Map<String, Integer> craApplicationWindow) {
+        this.craApplicationWindow = craApplicationWindow;
     }
 }

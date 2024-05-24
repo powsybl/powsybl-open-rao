@@ -46,7 +46,9 @@ public final class CsaProfileCracCreationTestUtil {
     public static final String PREVENTIVE_INSTANT_ID = "preventive";
     public static final String OUTAGE_INSTANT_ID = "outage";
     public static final String AUTO_INSTANT_ID = "auto";
-    public static final String CURATIVE_INSTANT_ID = "curative";
+    public static final String CURATIVE_1_INSTANT_ID = "curative 1";
+    public static final String CURATIVE_2_INSTANT_ID = "curative 2";
+    public static final String CURATIVE_3_INSTANT_ID = "curative 3";
     public static final Network NETWORK = getNetworkFromResource("/networks/16Nodes.zip");
 
     private CsaProfileCracCreationTestUtil() {

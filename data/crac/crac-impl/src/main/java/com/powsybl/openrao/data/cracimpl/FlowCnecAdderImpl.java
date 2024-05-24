@@ -100,7 +100,7 @@ public class FlowCnecAdderImpl extends AbstractCnecAdderImpl<FlowCnecAdder> impl
         checkAndInitThresholds();
         State state = getState();
 
-        FlowCnec cnec = new FlowCnecImpl(id, name, owner.getNetworkElement(networkElementsIdAndName.keySet().iterator().next()), operator, state, optimized, monitored,
+        FlowCnec cnec = new FlowCnecImpl(id, name, owner.getNetworkElement(networkElementsIdAndName.keySet().iterator().next()), operator, border, state, optimized, monitored,
             thresholds.stream().map(BranchThreshold.class::cast).collect(Collectors.toSet()),
             reliabilityMargin, nominalVLeft, nominalVRight, iMaxLeft, iMaxRight);
 
