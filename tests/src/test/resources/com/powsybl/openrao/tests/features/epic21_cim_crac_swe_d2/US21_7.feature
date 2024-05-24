@@ -12,8 +12,8 @@ Feature: US 21.7 : import angle cnecs
     When I import crac at "2021-04-02 05:00"
     Then it should have the following angle CNECs:
       | AngleCnecId | Name            | ImportingElementId                    | ExportingElementId                    | Instant  | Contingency | Optimized | Monitored | UpperBound | LowerBound |
-      | AngleCnec1  | AngleCnec1-name | _d77b61ef-61aa-4b22-95f6-b56ca080788d | _8d8a82ba-b5b0-4e94-861a-192af055f2b8 | CURATIVE | Co-1        | no        | yes       | 30         | -30        |
-      | AngleCnec2  | AngleCnec2-name | _8d8a82ba-b5b0-4e94-861a-192af055f2b8 | _b7998ae6-0cc6-4dfe-8fec-0b549b07b6c3 | CURATIVE | Co-2        | no        | yes       | -47        | 47         |
+      | AngleCnec1  | AngleCnec1-name | _d77b61ef-61aa-4b22-95f6-b56ca080788d | _8d8a82ba-b5b0-4e94-861a-192af055f2b8 | CURATIVE | Co-1        | no        | yes       | 30         |            |
+      | AngleCnec2  | AngleCnec2-name | _8d8a82ba-b5b0-4e94-861a-192af055f2b8 | _b7998ae6-0cc6-4dfe-8fec-0b549b07b6c3 | CURATIVE | Co-2        | no        | yes       | -47        |            |
     And it should have 1 network actions
     And it should have the following network actions:
       | NetworkActionId | NetworkActionName                 | ElementaryActions | ElementaryActionType | NetworkElementId                      | Action/Setpoint |

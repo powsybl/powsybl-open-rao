@@ -224,7 +224,10 @@ Finally, a CNEC can be named in the following way : _[network element name] - [s
   </RemedialAction_Series>
 </Series>
 ```
-AngleCnecs are easily distinguishable thanks to the AdditionalConstraint_Series tag.  They define an AngleCnec in curative with an importing element, an exporting element (cf. the two registered resources) and with a threshold with a max bound defined by quantity.  
+AngleCnecs are easily distinguishable thanks to the AdditionalConstraint_Series tag.  
+They define an AngleCnec in curative with an importing element, an exporting element (cf. the two registered resources) 
+and with a threshold with a max bound defined by quantity. In order to be secure, they must respect:  
+exporting element angle - importing element angle <= max bound    
 In the CIM CRAC, AngleCnecs are actually defined with their corresponding remedial actions in B56 Series (ie Remedial Action series). The Contingency_Series (unique) refers to the contingency after which the AngleCnec is monitored.  
 
 ### VoltageCnecs 
