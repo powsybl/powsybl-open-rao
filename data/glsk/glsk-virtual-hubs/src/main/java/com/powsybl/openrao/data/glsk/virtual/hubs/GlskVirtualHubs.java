@@ -7,9 +7,9 @@
 
 package com.powsybl.openrao.data.glsk.virtual.hubs;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.openrao.commons.EICode;
 import com.powsybl.openrao.commons.OpenRaoException;
-import com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider;
 import com.powsybl.openrao.data.refprog.referenceprogram.ReferenceProgram;
 import com.powsybl.openrao.virtualhubs.VirtualHub;
 import com.powsybl.openrao.virtualhubs.VirtualHubsConfiguration;
@@ -35,15 +35,16 @@ public final class GlskVirtualHubs {
      *                Loads which are virtual hubs
      * @param referenceProgram : Reference Program object
      *
+     * @param reportNode
      * @return one LinearGlsk for each virtual hub given in the referenceProgram and found
      * in the network
      */
-    public static ZonalData<SensitivityVariableSet> getVirtualHubGlsks(VirtualHubsConfiguration virtualHubsConfiguration, Network network, ReferenceProgram referenceProgram) {
+    public static ZonalData<SensitivityVariableSet> getVirtualHubGlsks(VirtualHubsConfiguration virtualHubsConfiguration, Network network, ReferenceProgram referenceProgram, ReportNode reportNode) {
         List<String> countryCodes = referenceProgram.getListOfAreas().stream()
             .filter(eiCode -> !eiCode.isCountryCode())
             .map(EICode::getAreaCode)
             .toList();
-        return getVirtualHubGlsks(virtualHubsConfiguration, network, countryCodes);
+        return getVirtualHubGlsks(virtualHubsConfiguration, network, countryCodes, reportNode);
     }
 
     /**
@@ -53,18 +54,20 @@ public final class GlskVirtualHubs {
      *                Loads which are virtual hubs
      * @param eiCodes : list of EI Codes of virtual hubs
      *
+     * @param rootReportNode
      * @return one LinearGlsk for each virtual hub given in eiCodes and found in the network
      */
-    public static ZonalData<SensitivityVariableSet> getVirtualHubGlsks(VirtualHubsConfiguration virtualHubsConfiguration, Network network, List<String> eiCodes) {
+    public static ZonalData<SensitivityVariableSet> getVirtualHubGlsks(VirtualHubsConfiguration virtualHubsConfiguration, Network network, List<String> eiCodes, ReportNode rootReportNode) {
+        ReportNode reportNode = GlskVirtualHubsReports.reportGlskVirtualHubsBuild(rootReportNode);
         Map<String, SensitivityVariableSet> glsks = new HashMap<>();
-        Map<String, Injection<?>> injections = buildInjectionsMap(virtualHubsConfiguration, network);
+        Map<String, Injection<?>> injections = buildInjectionsMap(virtualHubsConfiguration, network, reportNode);
 
         eiCodes.forEach(eiCode -> {
 
             if (!injections.containsKey(eiCode)) {
-                OpenRaoLoggerProvider.BUSINESS_WARNS.warn("No load found for virtual hub {}", eiCode);
+                GlskVirtualHubsReports.reportGlskVirtualHubsNoLoadFound(reportNode, eiCode);
             } else {
-                OpenRaoLoggerProvider.TECHNICAL_LOGS.debug("Load {} found for virtual hub {}", injections.get(eiCode).getId(), eiCode);
+                GlskVirtualHubsReports.reportGlskVirtualHubsLoadFound(reportNode, injections.get(eiCode).getId(), eiCode);
                 Optional<SensitivityVariableSet> virtualHubGlsk = createGlskFromVirtualHub(eiCode, injections.get(eiCode));
                 virtualHubGlsk.ifPresent(linearGlsk -> glsks.put(eiCode, linearGlsk));
             }
@@ -72,11 +75,11 @@ public final class GlskVirtualHubs {
         return new ZonalDataImpl<>(glsks);
     }
 
-    private static Map<String, Injection<?>> buildInjectionsMap(VirtualHubsConfiguration virtualHubsConfiguration, Network network) {
+    private static Map<String, Injection<?>> buildInjectionsMap(VirtualHubsConfiguration virtualHubsConfiguration, Network network, ReportNode reportnode) {
         Map<String, Injection<?>> injections = new HashMap<>();
         virtualHubsConfiguration.getVirtualHubs()
                 .forEach(virtualHub -> {
-                    Injection<?> injection = getInjection(network, virtualHub);
+                    Injection<?> injection = getInjection(network, virtualHub, reportnode);
                     if (injection != null) {
                         injections.put(virtualHub.eic(), injection);
                     }
@@ -94,14 +97,14 @@ public final class GlskVirtualHubs {
         }
     }
 
-    private static Injection<?> getInjection(Network network, VirtualHub virtualHub) {
+    private static Injection<?> getInjection(Network network, VirtualHub virtualHub, ReportNode reportnode) {
 
         Optional<Bus> bus = findBusById(network, virtualHub.nodeName());
         if (bus.isPresent()) {
             // virtual hub is on a real network node
             Optional<Load> busLoad = bus.get().getLoadStream().findFirst();
             if (busLoad.isEmpty()) {
-                OpenRaoLoggerProvider.BUSINESS_WARNS.warn("Virtual hub {} cannot be assigned on node {} as it has no load in the network", virtualHub.eic(), virtualHub.nodeName());
+                GlskVirtualHubsReports.reportGlskVirtualHubsAssigmentErrorNoLoad(reportnode, virtualHub.eic(), virtualHub.nodeName());
                 return null;
             }
             return busLoad.get();
@@ -112,7 +115,7 @@ public final class GlskVirtualHubs {
             return danglingLine.get();
         }
 
-        OpenRaoLoggerProvider.BUSINESS_WARNS.warn("Virtual hub {} cannot be assigned on node {} as it was not found in the network", virtualHub.eic(), virtualHub.nodeName());
+        GlskVirtualHubsReports.reportGlskVirtualHubsAssigmentErrorNoNode(reportnode, virtualHub.eic(), virtualHub.nodeName());
         return null;
     }
 

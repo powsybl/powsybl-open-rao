@@ -6,6 +6,7 @@
  */
 package com.powsybl.openrao.tests.steps;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.glsk.cim.CimGlskDocument;
 import com.powsybl.glsk.commons.ZonalData;
 import com.powsybl.iidm.network.Network;
@@ -258,6 +259,8 @@ public final class CommonTestData {
     }
 
     public static void loadData(String timestamp) throws IOException {
+        ReportNode reportNode = ReportNode.NO_OP; // TODO change this and integrate it
+
         // Detect the CRAC format first. If CIM, we have to import the network using RDF IDs as identifiable IDs
         String cracFormat = null;
         if (cracPath != null) {
@@ -326,7 +329,7 @@ public final class CommonTestData {
         if (virtualHubsConfigPath != null) {
             if (referenceProgram != null && glsks != null) {
                 VirtualHubsConfiguration virtualHubsConfiguration = XmlVirtualHubsConfiguration.importConfiguration(new FileInputStream(getFile(virtualHubsConfigPath)));
-                ZonalData<SensitivityVariableSet> glskOfVirtualHubs = GlskVirtualHubs.getVirtualHubGlsks(virtualHubsConfiguration, network, referenceProgram);
+                ZonalData<SensitivityVariableSet> glskOfVirtualHubs = GlskVirtualHubs.getVirtualHubGlsks(virtualHubsConfiguration, network, referenceProgram, reportNode);
                 glsks.addAll(glskOfVirtualHubs);
             } else {
                 throw new OpenRaoException("In order to import a virtual hubs configuration file, you should define a reference program file and a GLSK file.");
