@@ -51,7 +51,7 @@ $$
 <br>
 
 *⚠️ In order to mitigate rounding issues, and ensure that the max and min setpoints are feasible, a small "epsilon" (
-1e-5) is added to max / subtracted to min setpoint.*
+1e-4) is added to max / subtracted to min setpoint.*
 
 *⚠️ In order to mitigate PST tap ↔ angle approximation in "[APPROXIMATED_INTEGERS](/parameters/parameters.md#pst-model)"
 mode, and ensure that the initial setpoint is feasible, a correction factor is added or subtracted from the initial

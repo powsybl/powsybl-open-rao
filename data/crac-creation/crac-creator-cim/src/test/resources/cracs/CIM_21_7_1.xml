@@ -193,7 +193,7 @@
             <businessType>B87</businessType>
             <name>AngleCnec3-name</name>
             <measurement_Unit.name>DD</measurement_Unit.name>
-            <quantity.quantity>30</quantity.quantity>
+            <quantity.quantity>40</quantity.quantity>
             <RegisteredResource>
               <mRID codingScheme="A02">_8d8a82ba-b5b0-4e94-861a-192af055f2b8</mRID>
               <name>rr1</name>
@@ -662,7 +662,7 @@
             <businessType>B87</businessType>
             <name>AngleCnec11-name</name>
             <measurement_Unit.name>DD</measurement_Unit.name>
-            <quantity.quantity>30</quantity.quantity>
+            <quantity.quantity>60</quantity.quantity>
             <RegisteredResource>
               <mRID codingScheme="A02">_8d8a82ba-b5b0-4e94-861a-192af055f2b8</mRID>
               <name>rr1</name>

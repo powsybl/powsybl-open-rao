@@ -1,3 +1,9 @@
+/*
+ * Copyright (c) 2024, RTE (http://www.rte-france.com)
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
 package com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.cnec;
 
 import com.powsybl.openrao.commons.Unit;
@@ -6,26 +12,33 @@ import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.cracapi.InstantKind;
 import com.powsybl.openrao.data.cracapi.cnec.AngleCnecAdder;
 import com.powsybl.openrao.data.craccreation.creator.api.ImportStatus;
-import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileConstants;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileCracCreationContext;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileElementaryCreationContext;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.IdentifiableType;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.constants.OperationalLimitDirectionKind;
+import com.powsybl.openrao.data.craccreation.creator.csaprofile.nc.AssessedElement;
+import com.powsybl.openrao.data.craccreation.creator.csaprofile.nc.VoltageAngleLimit;
 import com.powsybl.openrao.data.craccreation.util.OpenRaoImportException;
-import com.powsybl.triplestore.api.PropertyBag;
 
 import java.util.List;
 import java.util.Set;
 
+/**
+ * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
+ */
 public class AngleCnecCreator extends AbstractCnecCreator {
 
-    public AngleCnecCreator(Crac crac, Network network, String assessedElementId, String nativeAssessedElementName, String assessedElementOperator, boolean inBaseCase, PropertyBag angleLimitPropertyBag, List<Contingency> linkedContingencies, Set<CsaProfileElementaryCreationContext> csaProfileCnecCreationContexts, CsaProfileCracCreationContext cracCreationContext, String rejectedLinksAssessedElementContingency, boolean aeSecuredForRegion, boolean aeScannedForRegion) {
-        super(crac, network, assessedElementId, nativeAssessedElementName, assessedElementOperator, inBaseCase, angleLimitPropertyBag, linkedContingencies, csaProfileCnecCreationContexts, cracCreationContext, rejectedLinksAssessedElementContingency, aeSecuredForRegion, aeScannedForRegion);
+    private final VoltageAngleLimit nativeVoltageAngleLimit;
+
+    public AngleCnecCreator(Crac crac, Network network, AssessedElement nativeAssessedElement, VoltageAngleLimit nativeVoltageAngleLimit, List<Contingency> linkedContingencies, Set<CsaProfileElementaryCreationContext> csaProfileCnecCreationContexts, CsaProfileCracCreationContext cracCreationContext, String rejectedLinksAssessedElementContingency, boolean aeSecuredForRegion, boolean aeScannedForRegion) {
+        super(crac, network, nativeAssessedElement, linkedContingencies, csaProfileCnecCreationContexts, cracCreationContext, rejectedLinksAssessedElementContingency, aeSecuredForRegion, aeScannedForRegion);
+        this.nativeVoltageAngleLimit = nativeVoltageAngleLimit;
     }
 
     public void addAngleCnecs() {
-        if (inBaseCase) {
+        if (nativeAssessedElement.inBaseCase()) {
             addAngleCnec(crac.getPreventiveInstant().getId(), null);
         }
         for (Contingency contingency : linkedContingencies) {
@@ -46,18 +59,11 @@ public class AngleCnecCreator extends AbstractCnecCreator {
     }
 
     private void addAngleLimit(AngleCnecAdder angleCnecAdder) {
-        String isFlowToRefTerminalStr = operationalLimitPropertyBag.get(CsaProfileConstants.REQUEST_IS_FLOW_TO_REF_TERMINAL);
-        boolean isFlowToRefTerminalIsNull = isFlowToRefTerminalStr == null;
-        boolean isFlowToRefTerminal = isFlowToRefTerminalIsNull || Boolean.parseBoolean(isFlowToRefTerminalStr);
+        String networkElement1Id = checkAngleNetworkElementAndGetId(nativeVoltageAngleLimit.terminal1());
+        String networkElement2Id = checkAngleNetworkElementAndGetId(nativeVoltageAngleLimit.terminal2());
 
-        String terminal1Id = operationalLimitPropertyBag.getId("terminal1");
-        String terminal2Id = operationalLimitPropertyBag.getId("terminal2");
-
-        String networkElement1Id = checkAngleNetworkElementAndGetId(terminal1Id);
-        String networkElement2Id = checkAngleNetworkElementAndGetId(terminal2Id);
-
-        addAngleCnecElements(angleCnecAdder, networkElement1Id, networkElement2Id, isFlowToRefTerminal);
-        addAngleLimitThreshold(angleCnecAdder, operationalLimitPropertyBag, isFlowToRefTerminalIsNull);
+        addAngleCnecElements(angleCnecAdder, networkElement1Id, networkElement2Id);
+        addAngleLimitThreshold(angleCnecAdder);
     }
 
     private String checkAngleNetworkElementAndGetId(String terminalId) {
@@ -71,43 +77,40 @@ public class AngleCnecCreator extends AbstractCnecCreator {
         return networkElement.getId();
     }
 
-    private void addAngleLimitThreshold(AngleCnecAdder angleCnecAdder, PropertyBag angleLimit, boolean isFlowToRefTerminalIsNull) {
-        String normalValueStr = angleLimit.get(CsaProfileConstants.REQUEST_VOLTAGE_ANGLE_LIMIT_NORMAL_VALUE);
-        Double normalValue = Double.valueOf(normalValueStr);
-        if (normalValue < 0) {
+    private void addAngleLimitThreshold(AngleCnecAdder angleCnecAdder) {
+        if (nativeVoltageAngleLimit.normalValue() < 0) {
             throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, writeAssessedElementIgnoredReasonMessage("the angle limit's normal value is negative"));
         }
-        String direction = angleLimit.get(CsaProfileConstants.REQUEST_OPERATIONAL_LIMIT_DIRECTION);
-        if (CsaProfileConstants.OperationalLimitDirectionKind.HIGH.toString().equals(direction)) {
-            handleMissingIsFlowToRefTerminalForNotAbsoluteDirection(isFlowToRefTerminalIsNull, CsaProfileConstants.OperationalLimitDirectionKind.HIGH);
+        if (OperationalLimitDirectionKind.HIGH.toString().equals(nativeVoltageAngleLimit.direction())) {
+            handleMissingIsFlowToRefTerminalForNotAbsoluteDirection(OperationalLimitDirectionKind.HIGH);
             angleCnecAdder.newThreshold()
                 .withUnit(Unit.DEGREE)
-                .withMax(normalValue).add();
-        } else if (CsaProfileConstants.OperationalLimitDirectionKind.LOW.toString().equals(direction)) {
-            handleMissingIsFlowToRefTerminalForNotAbsoluteDirection(isFlowToRefTerminalIsNull, CsaProfileConstants.OperationalLimitDirectionKind.LOW);
+                .withMax(nativeVoltageAngleLimit.normalValue()).add();
+        } else if (OperationalLimitDirectionKind.LOW.toString().equals(nativeVoltageAngleLimit.direction())) {
+            handleMissingIsFlowToRefTerminalForNotAbsoluteDirection(OperationalLimitDirectionKind.LOW);
             angleCnecAdder.newThreshold()
                 .withUnit(Unit.DEGREE)
-                .withMin(-normalValue).add();
-        } else if (CsaProfileConstants.OperationalLimitDirectionKind.ABSOLUTE.toString().equals(direction)) {
+                .withMin(-nativeVoltageAngleLimit.normalValue()).add();
+        } else if (OperationalLimitDirectionKind.ABSOLUTE.toString().equals(nativeVoltageAngleLimit.direction())) {
             angleCnecAdder.newThreshold()
                 .withUnit(Unit.DEGREE)
-                .withMin(-normalValue)
-                .withMax(normalValue).add();
+                .withMin(-nativeVoltageAngleLimit.normalValue())
+                .withMax(nativeVoltageAngleLimit.normalValue()).add();
         }
     }
 
-    private void handleMissingIsFlowToRefTerminalForNotAbsoluteDirection(boolean isFlowToRefTerminalIsNull, CsaProfileConstants.OperationalLimitDirectionKind direction) {
-        if (isFlowToRefTerminalIsNull) {
+    private void handleMissingIsFlowToRefTerminalForNotAbsoluteDirection(OperationalLimitDirectionKind direction) {
+        if (nativeVoltageAngleLimit.isFlowToRefTerminal() == null) {
             throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, writeAssessedElementIgnoredReasonMessage("of an ambiguous angle limit direction definition from an undefined VoltageAngleLimit.isFlowToRefTerminal and an OperationalLimit.OperationalLimitType: " + direction));
         }
     }
 
-    private void addAngleCnecElements(AngleCnecAdder angleCnecAdder, String networkElement1Id, String networkElement2Id, boolean isFlowToRefTerminal) {
+    private void addAngleCnecElements(AngleCnecAdder angleCnecAdder, String networkElement1Id, String networkElement2Id) {
         if (networkElement1Id.equals(networkElement2Id)) {
             throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, writeAssessedElementIgnoredReasonMessage("AngleCNEC's importing and exporting equipments are the same: " + networkElement1Id));
         }
-        String importingElement = isFlowToRefTerminal ? networkElement1Id : networkElement2Id;
-        String exportingElement = isFlowToRefTerminal ? networkElement2Id : networkElement1Id;
+        String importingElement = nativeVoltageAngleLimit.isFlowToRefTerminal() == null || nativeVoltageAngleLimit.isFlowToRefTerminal() ? networkElement1Id : networkElement2Id;
+        String exportingElement = nativeVoltageAngleLimit.isFlowToRefTerminal() == null || nativeVoltageAngleLimit.isFlowToRefTerminal() ? networkElement2Id : networkElement1Id;
         angleCnecAdder.withImportingNetworkElement(importingElement).withExportingNetworkElement(exportingElement);
     }
 }

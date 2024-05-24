@@ -7,11 +7,13 @@
 
 package com.powsybl.openrao.data.craciojson.serializers;
 
+import com.powsybl.contingency.Contingency;
 import com.powsybl.openrao.data.cracapi.usagerule.OnFlowConstraintInCountry;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
 
 import java.io.IOException;
+import java.util.Optional;
 
 import static com.powsybl.openrao.data.craciojson.JsonSerializationConstants.*;
 
@@ -24,6 +26,10 @@ public class OnFlowConstraintInCountrySerializer extends AbstractJsonSerializer<
         gen.writeStartObject();
         gen.writeStringField(INSTANT, value.getInstant().getId());
         gen.writeStringField(COUNTRY, value.getCountry().toString());
+        Optional<Contingency> optionalContingency = value.getContingency();
+        if (optionalContingency.isPresent()) {
+            gen.writeStringField(CONTINGENCY_ID, optionalContingency.get().getId());
+        }
         gen.writeStringField(USAGE_METHOD, serializeUsageMethod(value.getUsageMethod()));
         gen.writeEndObject();
     }

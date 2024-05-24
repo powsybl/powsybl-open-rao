@@ -147,7 +147,9 @@ public final class CracValidator {
                     } else {
                         raForOtherCnecs = true;
                     }
-                } else if (usageRule instanceof OnFlowConstraintInCountry onFlowConstraintInCountry && onFlowConstraintInCountry.getInstant().equals(flowCnec.getState().getInstant())) {
+                } else if (usageRule instanceof OnFlowConstraintInCountry onFlowConstraintInCountry
+                    && onFlowConstraintInCountry.getInstant().equals(flowCnec.getState().getInstant()) // TODO: why not comesBefore?
+                    && (onFlowConstraintInCountry.getContingency().isEmpty() || flowCnec.getState().getContingency().equals(onFlowConstraintInCountry.getContingency()))) {
                     if (flowCnec.getLocation(network).contains(Optional.of(onFlowConstraintInCountry.getCountry()))) {
                         return false;
                     } else {
