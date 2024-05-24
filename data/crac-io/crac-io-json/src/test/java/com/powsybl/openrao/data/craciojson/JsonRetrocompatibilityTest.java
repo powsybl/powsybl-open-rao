@@ -703,6 +703,25 @@ class JsonRetrocompatibilityTest {
     private void testContentOfV2Point3Crac(Crac crac) {
         testContentOfV2Point2Crac(crac);
 
+        // check that RangeAction4 is present with new range relative to previous instant
+        assertNotNull(crac.getRangeAction("pstRange4Id"));
+        assertEquals(2, crac.getPstRangeAction("pstRange4Id").getRanges().size());
+        TapRange absRange = crac.getPstRangeAction("pstRange4Id").getRanges().stream()
+            .filter(tapRange -> tapRange.getRangeType().equals(RangeType.ABSOLUTE))
+            .findAny().orElse(null);
+        TapRange relTimeStepRange = crac.getPstRangeAction("pstRange4Id").getRanges().stream()
+            .filter(tapRange -> tapRange.getRangeType().equals(RangeType.RELATIVE_TO_PREVIOUS_TIME_STEP))
+            .findAny().orElse(null);
+
+        assertNotNull(absRange);
+        assertEquals(-2, absRange.getMinTap());
+        assertEquals(7, absRange.getMaxTap());
+        assertNotNull(relTimeStepRange);
+        assertEquals(-1, relTimeStepRange.getMinTap());
+        assertEquals(4, relTimeStepRange.getMaxTap());
+        assertEquals(Unit.TAP, relTimeStepRange.getUnit());
+
+        // check new border attribute
         assertEquals("border1", crac.getCnec("cnec1outageId").getBorder());
         assertEquals("border1", crac.getCnec("cnec1prevId").getBorder());
         assertEquals("border2", crac.getCnec("cnec2prevId").getBorder());

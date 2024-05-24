@@ -14,8 +14,6 @@ import com.powsybl.openrao.data.cracapi.networkaction.InjectionSetpoint;
 import com.powsybl.openrao.data.cracapi.networkaction.NetworkAction;
 import com.powsybl.openrao.data.cracapi.networkaction.TopologicalAction;
 import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeAction;
-import com.powsybl.openrao.data.cracapi.usagerule.OnAngleConstraint;
-import com.powsybl.openrao.data.cracapi.usagerule.OnContingencyState;
 import com.powsybl.openrao.data.cracapi.usagerule.UsageMethod;
 import com.powsybl.openrao.data.craccreation.creator.api.ImportStatus;
 import org.junit.jupiter.api.Test;
@@ -409,17 +407,17 @@ class CsaProfileSsiTest {
 
         assertEquals("remedial-action-1", networkActions.get(0).getId());
         assertEquals("RTE_RA1", networkActions.get(0).getName());
-        assertEquals(1, networkActions.get(0).getUsageRules().size());
-        assertTrue(networkActions.get(0).getUsageRules().iterator().next() instanceof OnContingencyState);
-        assertEquals(crac.getInstant(CURATIVE_INSTANT_ID), networkActions.get(0).getUsageRules().iterator().next().getInstant());
-        assertEquals("contingency-1", ((OnContingencyState) networkActions.get(0).getUsageRules().iterator().next()).getContingency().getId());
+        assertEquals(3, networkActions.get(0).getUsageRules().size());
+        assertHasOnContingencyStateUsageRule(cracCreationContext, "remedial-action-1", "contingency-1", CURATIVE_1_INSTANT_ID, UsageMethod.FORCED);
+        assertHasOnContingencyStateUsageRule(cracCreationContext, "remedial-action-1", "contingency-1", CURATIVE_2_INSTANT_ID, UsageMethod.FORCED);
+        assertHasOnContingencyStateUsageRule(cracCreationContext, "remedial-action-1", "contingency-1", CURATIVE_3_INSTANT_ID, UsageMethod.FORCED);
 
         assertEquals("remedial-action-2", networkActions.get(1).getId());
         assertEquals("RTE_RA2", networkActions.get(1).getName());
-        assertEquals(1, networkActions.get(1).getUsageRules().size());
-        assertTrue(networkActions.get(1).getUsageRules().iterator().next() instanceof OnContingencyState);
-        assertEquals(crac.getInstant(CURATIVE_INSTANT_ID), networkActions.get(1).getUsageRules().iterator().next().getInstant());
-        assertEquals("contingency-3", ((OnContingencyState) networkActions.get(1).getUsageRules().iterator().next()).getContingency().getId());
+        assertEquals(3, networkActions.get(1).getUsageRules().size());
+        assertHasOnContingencyStateUsageRule(cracCreationContext, "remedial-action-2", "contingency-3", CURATIVE_1_INSTANT_ID, UsageMethod.FORCED);
+        assertHasOnContingencyStateUsageRule(cracCreationContext, "remedial-action-2", "contingency-3", CURATIVE_2_INSTANT_ID, UsageMethod.FORCED);
+        assertHasOnContingencyStateUsageRule(cracCreationContext, "remedial-action-2", "contingency-3", CURATIVE_3_INSTANT_ID, UsageMethod.FORCED);
 
         // With SSI
         cracCreationContext = getCsaCracCreationContext("/profiles/ssi/SSI-12_ContingencyWithRemedialAction.zip", NETWORK, "2024-01-31T12:30Z");
@@ -436,10 +434,10 @@ class CsaProfileSsiTest {
 
         assertEquals("remedial-action-1", networkActions.get(0).getId());
         assertEquals("RTE_RA1", networkActions.get(0).getName());
-        assertEquals(1, networkActions.get(0).getUsageRules().size());
-        assertTrue(networkActions.get(0).getUsageRules().iterator().next() instanceof OnContingencyState);
-        assertEquals(crac.getInstant(CURATIVE_INSTANT_ID), networkActions.get(0).getUsageRules().iterator().next().getInstant());
-        assertEquals("contingency-2", ((OnContingencyState) networkActions.get(0).getUsageRules().iterator().next()).getContingency().getId());
+        assertEquals(3, networkActions.get(0).getUsageRules().size());
+        assertHasOnContingencyStateUsageRule(cracCreationContext, "remedial-action-1", "contingency-2", CURATIVE_1_INSTANT_ID, UsageMethod.FORCED);
+        assertHasOnContingencyStateUsageRule(cracCreationContext, "remedial-action-1", "contingency-2", CURATIVE_2_INSTANT_ID, UsageMethod.FORCED);
+        assertHasOnContingencyStateUsageRule(cracCreationContext, "remedial-action-1", "contingency-2", CURATIVE_3_INSTANT_ID, UsageMethod.FORCED);
 
         assertEquals("remedial-action-2", networkActions.get(1).getId());
         assertEquals("RTE_RA2", networkActions.get(1).getName());
@@ -484,9 +482,9 @@ class CsaProfileSsiTest {
 
         assertEquals(4, crac.getAngleCnecs().size());
         assertAngleCnecEquality(crac.getAngleCnec("RTE_AE1 (assessed-element-1) - preventive"), "RTE_AE1 (assessed-element-1) - preventive", "BBE1AA1 ", "BBE4AA1 ", PREVENTIVE_INSTANT_ID, null, 30d, -30d, "RTE");
-        assertAngleCnecEquality(crac.getAngleCnec("RTE_AE1 (assessed-element-1) - RTE_CO1 - curative"), "RTE_AE1 (assessed-element-1) - RTE_CO1 - curative", "BBE1AA1 ", "BBE4AA1 ", CURATIVE_INSTANT_ID, "contingency-1", 30d, -30d, "RTE");
+        assertAngleCnecEquality(crac.getAngleCnec("RTE_AE1 (assessed-element-1) - RTE_CO1 - curative 3"), "RTE_AE1 (assessed-element-1) - RTE_CO1 - curative 3", "BBE1AA1 ", "BBE4AA1 ", CURATIVE_3_INSTANT_ID, "contingency-1", 30d, -30d, "RTE");
         assertAngleCnecEquality(crac.getAngleCnec("RTE_AE2 (assessed-element-2) - preventive"), "RTE_AE2 (assessed-element-2) - preventive", "BBE4AA1 ", "BBE1AA1 ", PREVENTIVE_INSTANT_ID, null, 45d, -45d, "RTE");
-        assertAngleCnecEquality(crac.getAngleCnec("RTE_AE2 (assessed-element-2) - RTE_CO3 - curative"), "RTE_AE2 (assessed-element-2) - RTE_CO3 - curative", "BBE4AA1 ", "BBE1AA1 ", CURATIVE_INSTANT_ID, "contingency-3", 45d, -45d, "RTE");
+        assertAngleCnecEquality(crac.getAngleCnec("RTE_AE2 (assessed-element-2) - RTE_CO3 - curative 3"), "RTE_AE2 (assessed-element-2) - RTE_CO3 - curative 3", "BBE4AA1 ", "BBE1AA1 ", CURATIVE_3_INSTANT_ID, "contingency-3", 45d, -45d, "RTE");
         assertCnecNotImported(cracCreationContext, "assessed-element-1", ImportStatus.NOT_FOR_RAO, "The link between contingency contingency-2 and the assessed element is disabled");
 
         // With SSI
@@ -495,7 +493,7 @@ class CsaProfileSsiTest {
 
         assertEquals(3, crac.getAngleCnecs().size());
         assertAngleCnecEquality(crac.getAngleCnec("RTE_AE1 (assessed-element-1) - preventive"), "RTE_AE1 (assessed-element-1) - preventive", "BBE1AA1 ", "BBE4AA1 ", PREVENTIVE_INSTANT_ID, null, 30d, -30d, "RTE");
-        assertAngleCnecEquality(crac.getAngleCnec("RTE_AE1 (assessed-element-1) - RTE_CO2 - curative"), "RTE_AE1 (assessed-element-1) - RTE_CO2 - curative", "BBE1AA1 ", "BBE4AA1 ", CURATIVE_INSTANT_ID, "contingency-2", 30d, -30d, "RTE");
+        assertAngleCnecEquality(crac.getAngleCnec("RTE_AE1 (assessed-element-1) - RTE_CO2 - curative 3"), "RTE_AE1 (assessed-element-1) - RTE_CO2 - curative 3", "BBE1AA1 ", "BBE4AA1 ", CURATIVE_3_INSTANT_ID, "contingency-2", 30d, -30d, "RTE");
         assertAngleCnecEquality(crac.getAngleCnec("RTE_AE2 (assessed-element-2) - preventive"), "RTE_AE2 (assessed-element-2) - preventive", "BBE4AA1 ", "BBE1AA1 ", PREVENTIVE_INSTANT_ID, null, 45d, -45d, "RTE");
         assertCnecNotImported(cracCreationContext, "assessed-element-1", ImportStatus.NOT_FOR_RAO, "The link between contingency contingency-1 and the assessed element is disabled");
         assertCnecNotImported(cracCreationContext, "assessed-element-2", ImportStatus.INCONSISTENCY_IN_DATA, "The contingency contingency-3 linked to the assessed element does not exist in the CRAC");
@@ -512,28 +510,28 @@ class CsaProfileSsiTest {
 
         assertEquals(6, crac.getAngleCnecs().size());
         assertAngleCnecEquality(crac.getAngleCnec("RTE_AE1 (assessed-element-1) - preventive"), "RTE_AE1 (assessed-element-1) - preventive", "BBE1AA1 ", "BBE4AA1 ", PREVENTIVE_INSTANT_ID, null, 30d, -30d, "RTE");
-        assertAngleCnecEquality(crac.getAngleCnec("RTE_AE1 (assessed-element-1) - RTE_CO - curative"), "RTE_AE1 (assessed-element-1) - RTE_CO - curative", "BBE1AA1 ", "BBE4AA1 ", CURATIVE_INSTANT_ID, "contingency", 30d, -30d, "RTE");
+        assertAngleCnecEquality(crac.getAngleCnec("RTE_AE1 (assessed-element-1) - RTE_CO - curative 3"), "RTE_AE1 (assessed-element-1) - RTE_CO - curative 3", "BBE1AA1 ", "BBE4AA1 ", CURATIVE_3_INSTANT_ID, "contingency", 30d, -30d, "RTE");
         assertAngleCnecEquality(crac.getAngleCnec("RTE_AE2 (assessed-element-2) - preventive"), "RTE_AE2 (assessed-element-2) - preventive", "BBE4AA1 ", "BBE1AA1 ", PREVENTIVE_INSTANT_ID, null, 45d, -45d, "RTE");
-        assertAngleCnecEquality(crac.getAngleCnec("RTE_AE2 (assessed-element-2) - RTE_CO - curative"), "RTE_AE2 (assessed-element-2) - RTE_CO - curative", "BBE4AA1 ", "BBE1AA1 ", CURATIVE_INSTANT_ID, "contingency", 45d, -45d, "RTE");
+        assertAngleCnecEquality(crac.getAngleCnec("RTE_AE2 (assessed-element-2) - RTE_CO - curative 3"), "RTE_AE2 (assessed-element-2) - RTE_CO - curative 3", "BBE4AA1 ", "BBE1AA1 ", CURATIVE_3_INSTANT_ID, "contingency", 45d, -45d, "RTE");
         assertAngleCnecEquality(crac.getAngleCnec("RTE_AE3 (assessed-element-3) - preventive"), "RTE_AE3 (assessed-element-3) - preventive", "BBE1AA1 ", "BBE4AA1 ", PREVENTIVE_INSTANT_ID, null, 15d, -15d, "RTE");
-        assertAngleCnecEquality(crac.getAngleCnec("RTE_AE3 (assessed-element-3) - RTE_CO - curative"), "RTE_AE3 (assessed-element-3) - RTE_CO - curative", "BBE1AA1 ", "BBE4AA1 ", CURATIVE_INSTANT_ID, "contingency", 15d, -15d, "RTE");
+        assertAngleCnecEquality(crac.getAngleCnec("RTE_AE3 (assessed-element-3) - RTE_CO - curative 3"), "RTE_AE3 (assessed-element-3) - RTE_CO - curative 3", "BBE1AA1 ", "BBE4AA1 ", CURATIVE_3_INSTANT_ID, "contingency", 15d, -15d, "RTE");
 
         List<NetworkAction> remedialActions = crac.getNetworkActions().stream().sorted(Comparator.comparing(NetworkAction::getId)).toList();
         assertEquals(2, remedialActions.size());
 
         assertEquals("remedial-action-1", remedialActions.get(0).getId());
         assertEquals("RTE_RA1", remedialActions.get(0).getName());
-        assertEquals(1, remedialActions.get(0).getUsageRules().size());
-        assertTrue(remedialActions.get(0).getUsageRules().iterator().next() instanceof OnAngleConstraint);
-        assertEquals(crac.getInstant(CURATIVE_INSTANT_ID), remedialActions.get(0).getUsageRules().iterator().next().getInstant());
-        assertEquals("RTE_AE1 (assessed-element-1) - RTE_CO - curative", ((OnAngleConstraint) remedialActions.get(0).getUsageRules().iterator().next()).getAngleCnec().getId());
+        assertEquals(3, remedialActions.get(0).getUsageRules().size());
+        assertHasOnAngleConstraintUsageRule(cracCreationContext, "remedial-action-1", "RTE_AE1 (assessed-element-1) - RTE_CO - curative 3", crac.getInstant(CURATIVE_1_INSTANT_ID), UsageMethod.FORCED);
+        assertHasOnAngleConstraintUsageRule(cracCreationContext, "remedial-action-1", "RTE_AE1 (assessed-element-1) - RTE_CO - curative 3", crac.getInstant(CURATIVE_2_INSTANT_ID), UsageMethod.FORCED);
+        assertHasOnAngleConstraintUsageRule(cracCreationContext, "remedial-action-1", "RTE_AE1 (assessed-element-1) - RTE_CO - curative 3", crac.getInstant(CURATIVE_3_INSTANT_ID), UsageMethod.FORCED);
 
         assertEquals("remedial-action-2", remedialActions.get(1).getId());
         assertEquals("RTE_RA2", remedialActions.get(1).getName());
-        assertEquals(1, remedialActions.get(1).getUsageRules().size());
-        assertTrue(remedialActions.get(1).getUsageRules().iterator().next() instanceof OnAngleConstraint);
-        assertEquals(crac.getInstant(CURATIVE_INSTANT_ID), remedialActions.get(1).getUsageRules().iterator().next().getInstant());
-        assertEquals("RTE_AE3 (assessed-element-3) - RTE_CO - curative", ((OnAngleConstraint) remedialActions.get(1).getUsageRules().iterator().next()).getAngleCnec().getId());
+        assertEquals(3, remedialActions.get(1).getUsageRules().size());
+        assertHasOnAngleConstraintUsageRule(cracCreationContext, "remedial-action-2", "RTE_AE3 (assessed-element-3) - RTE_CO - curative 3", crac.getInstant(CURATIVE_1_INSTANT_ID), UsageMethod.FORCED);
+        assertHasOnAngleConstraintUsageRule(cracCreationContext, "remedial-action-2", "RTE_AE3 (assessed-element-3) - RTE_CO - curative 3", crac.getInstant(CURATIVE_2_INSTANT_ID), UsageMethod.FORCED);
+        assertHasOnAngleConstraintUsageRule(cracCreationContext, "remedial-action-2", "RTE_AE3 (assessed-element-3) - RTE_CO - curative 3", crac.getInstant(CURATIVE_3_INSTANT_ID), UsageMethod.FORCED);
 
         // With SSI
         cracCreationContext = getCsaCracCreationContext("/profiles/ssi/SSI-16_AssessedElementWithRemedialAction.zip", NETWORK, "2024-01-31T12:30Z");
@@ -544,19 +542,19 @@ class CsaProfileSsiTest {
 
         assertEquals(4, crac.getAngleCnecs().size());
         assertAngleCnecEquality(crac.getAngleCnec("RTE_AE1 (assessed-element-1) - preventive"), "RTE_AE1 (assessed-element-1) - preventive", "BBE1AA1 ", "BBE4AA1 ", PREVENTIVE_INSTANT_ID, null, 30d, -30d, "RTE");
-        assertAngleCnecEquality(crac.getAngleCnec("RTE_AE1 (assessed-element-1) - RTE_CO - curative"), "RTE_AE1 (assessed-element-1) - RTE_CO - curative", "BBE1AA1 ", "BBE4AA1 ", CURATIVE_INSTANT_ID, "contingency", 30d, -30d, "RTE");
+        assertAngleCnecEquality(crac.getAngleCnec("RTE_AE1 (assessed-element-1) - RTE_CO - curative 3"), "RTE_AE1 (assessed-element-1) - RTE_CO - curative 3", "BBE1AA1 ", "BBE4AA1 ", CURATIVE_3_INSTANT_ID, "contingency", 30d, -30d, "RTE");
         assertAngleCnecEquality(crac.getAngleCnec("RTE_AE2 (assessed-element-2) - preventive"), "RTE_AE2 (assessed-element-2) - preventive", "BBE4AA1 ", "BBE1AA1 ", PREVENTIVE_INSTANT_ID, null, 45d, -45d, "RTE");
-        assertAngleCnecEquality(crac.getAngleCnec("RTE_AE2 (assessed-element-2) - RTE_CO - curative"), "RTE_AE2 (assessed-element-2) - RTE_CO - curative", "BBE4AA1 ", "BBE1AA1 ", CURATIVE_INSTANT_ID, "contingency", 45d, -45d, "RTE");
+        assertAngleCnecEquality(crac.getAngleCnec("RTE_AE2 (assessed-element-2) - RTE_CO - curative 3"), "RTE_AE2 (assessed-element-2) - RTE_CO - curative 3", "BBE4AA1 ", "BBE1AA1 ", CURATIVE_3_INSTANT_ID, "contingency", 45d, -45d, "RTE");
 
         remedialActions = crac.getNetworkActions().stream().sorted(Comparator.comparing(NetworkAction::getId)).toList();
         assertEquals(2, remedialActions.size());
 
         assertEquals("remedial-action-1", remedialActions.get(0).getId());
         assertEquals("RTE_RA1", remedialActions.get(0).getName());
-        assertEquals(1, remedialActions.get(0).getUsageRules().size());
-        assertTrue(remedialActions.get(0).getUsageRules().iterator().next() instanceof OnAngleConstraint);
-        assertEquals(crac.getInstant(CURATIVE_INSTANT_ID), remedialActions.get(0).getUsageRules().iterator().next().getInstant());
-        assertEquals("RTE_AE2 (assessed-element-2) - RTE_CO - curative", ((OnAngleConstraint) remedialActions.get(0).getUsageRules().iterator().next()).getAngleCnec().getId());
+        assertEquals(3, remedialActions.get(0).getUsageRules().size());
+        assertHasOnAngleConstraintUsageRule(cracCreationContext, "remedial-action-1", "RTE_AE2 (assessed-element-2) - RTE_CO - curative 3", crac.getInstant(CURATIVE_1_INSTANT_ID), UsageMethod.FORCED);
+        assertHasOnAngleConstraintUsageRule(cracCreationContext, "remedial-action-1", "RTE_AE2 (assessed-element-2) - RTE_CO - curative 3", crac.getInstant(CURATIVE_2_INSTANT_ID), UsageMethod.FORCED);
+        assertHasOnAngleConstraintUsageRule(cracCreationContext, "remedial-action-1", "RTE_AE2 (assessed-element-2) - RTE_CO - curative 3", crac.getInstant(CURATIVE_3_INSTANT_ID), UsageMethod.FORCED);
 
         assertEquals("remedial-action-2", remedialActions.get(1).getId());
         assertEquals("RTE_RA2", remedialActions.get(1).getName());
