@@ -6,6 +6,7 @@
  */
 package com.powsybl.openrao.tests.steps;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.glsk.api.GlskPoint;
 import com.powsybl.glsk.api.util.converters.GlskPointLinearGlskConverter;
 import com.powsybl.glsk.cim.CimGlskDocument;
@@ -149,7 +150,7 @@ public class FlowbasedComputationSteps {
             ZonalData<SensitivityVariableSet> linGlsk = new ZonalDataImpl<>(glsks);
 
             FlowbasedComputationProvider flowbasedComputationProvider = new FlowbasedComputationImpl();
-            flowBasedComputationResult = flowbasedComputationProvider.run(network, crac, null, linGlsk, fbParams).join();
+            flowBasedComputationResult = flowbasedComputationProvider.run(network, crac, null, linGlsk, fbParams, ReportNode.NO_OP).join();
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }

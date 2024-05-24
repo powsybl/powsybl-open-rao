@@ -6,6 +6,7 @@
  */
 package com.powsybl.openrao.flowbasedcomputation;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.glsk.commons.ZonalData;
 import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.flowbaseddomain.DataDomain;
@@ -24,7 +25,7 @@ import java.util.concurrent.CompletableFuture;
 public class FlowbasedComputationProviderMock implements FlowbasedComputationProvider {
 
     @Override
-    public CompletableFuture<FlowbasedComputationResult> run(Network network, Crac crac, RaoResult raoResult, ZonalData<SensitivityVariableSet> glsk, FlowbasedComputationParameters parameters) {
+    public CompletableFuture<FlowbasedComputationResult> run(Network network, Crac crac, RaoResult raoResult, ZonalData<SensitivityVariableSet> glsk, FlowbasedComputationParameters parameters, ReportNode reportNode) {
         return CompletableFuture.completedFuture(new FlowbasedComputationResultImpl(FlowbasedComputationResult.Status.SUCCESS, Mockito.mock(DataDomain.class)));
     }
 

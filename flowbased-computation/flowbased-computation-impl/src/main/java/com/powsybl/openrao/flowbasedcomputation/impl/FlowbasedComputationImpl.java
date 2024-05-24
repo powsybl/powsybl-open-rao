@@ -6,6 +6,7 @@
  */
 package com.powsybl.openrao.flowbasedcomputation.impl;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.openrao.commons.RandomizedString;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.glsk.commons.ZonalData;
@@ -19,10 +20,7 @@ import com.powsybl.openrao.data.cracapi.rangeaction.RangeAction;
 import com.powsybl.openrao.data.cracapi.usagerule.UsageMethod;
 import com.powsybl.openrao.data.flowbaseddomain.*;
 import com.powsybl.openrao.data.raoresultapi.RaoResult;
-import com.powsybl.openrao.flowbasedcomputation.FlowbasedComputationParameters;
-import com.powsybl.openrao.flowbasedcomputation.FlowbasedComputationProvider;
-import com.powsybl.openrao.flowbasedcomputation.FlowbasedComputationResult;
-import com.powsybl.openrao.flowbasedcomputation.FlowbasedComputationResultImpl;
+import com.powsybl.openrao.flowbasedcomputation.*;
 import com.powsybl.openrao.sensitivityanalysis.AppliedRemedialActions;
 import com.powsybl.openrao.sensitivityanalysis.SystematicSensitivityInterface;
 import com.powsybl.openrao.sensitivityanalysis.SystematicSensitivityResult;
@@ -34,9 +32,6 @@ import com.powsybl.sensitivity.WeightedSensitivityVariable;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
-
-import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.BUSINESS_WARNS;
-import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.TECHNICAL_LOGS;
 
 /**
  * Flowbased computation implementation
@@ -59,23 +54,24 @@ public class FlowbasedComputationImpl implements FlowbasedComputationProvider {
     }
 
     @Override
-    public CompletableFuture<FlowbasedComputationResult> run(Network network, Crac crac, RaoResult raoResult, ZonalData<SensitivityVariableSet> glsk, FlowbasedComputationParameters parameters) {
+    public CompletableFuture<FlowbasedComputationResult> run(Network network, Crac crac, RaoResult raoResult, ZonalData<SensitivityVariableSet> glsk, FlowbasedComputationParameters parameters, ReportNode rootReportNode) {
         Objects.requireNonNull(network);
         Objects.requireNonNull(crac);
         Objects.requireNonNull(glsk);
         Objects.requireNonNull(parameters);
+        ReportNode reportNode = FlowbasedComputationReports.reportFlowbasedComputation(rootReportNode);
 
         AppliedRemedialActions appliedRemedialActions = new AppliedRemedialActions();
 
         if (raoResult == null) {
-            TECHNICAL_LOGS.debug("RAO result is null: applying all network actions from CRAC.");
+            FlowbasedComputationReports.reportNullRaoResult(reportNode);
             crac.getStates().forEach(state -> {
                 if (state.getInstant().isCurative()) {
-                    appliedRemedialActions.addAppliedNetworkActions(state, findAllAvailableRemedialActionsForState(crac, state));
+                    appliedRemedialActions.addAppliedNetworkActions(state, findAllAvailableRemedialActionsForState(crac, state, reportNode));
                 }
             });
         } else {
-            TECHNICAL_LOGS.debug("RAO result is not null: applying remedial actions selected by the RAO.");
+            FlowbasedComputationReports.reportNotNullRaoResult(reportNode);
             crac.getStates().forEach(state -> {
                 if (state.getInstant().isCurative()) {
                     appliedRemedialActions.addAppliedNetworkActions(state, findAppliedNetworkActionsForState(raoResult, state, crac.getNetworkActions()));
@@ -96,7 +92,7 @@ public class FlowbasedComputationImpl implements FlowbasedComputationProvider {
         String initialNetworkId = network.getVariantManager().getWorkingVariantId();
         network.getVariantManager().cloneVariant(initialNetworkId, INITIAL_STATE_WITH_PRA);
         network.getVariantManager().setWorkingVariant(INITIAL_STATE_WITH_PRA);
-        applyPreventiveRemedialActions(raoResult, crac, network);
+        applyPreventiveRemedialActions(raoResult, crac, network, reportNode);
         SystematicSensitivityResult result = systematicSensitivityInterface.run(network);
         FlowbasedComputationResult flowBasedComputationResult = new FlowbasedComputationResultImpl(FlowbasedComputationResult.Status.SUCCESS, buildFlowbasedDomain(crac, glsk, result));
 
@@ -107,18 +103,18 @@ public class FlowbasedComputationImpl implements FlowbasedComputationProvider {
         return CompletableFuture.completedFuture(flowBasedComputationResult);
     }
 
-    private void applyPreventiveRemedialActions(RaoResult raoResult, Crac crac, Network network) {
+    private void applyPreventiveRemedialActions(RaoResult raoResult, Crac crac, Network network, ReportNode reportNode) {
         if (raoResult == null) {
-            TECHNICAL_LOGS.debug("RAO result is null: applying all network actions from CRAC.");
+            FlowbasedComputationReports.reportNullRaoResult(reportNode);
             crac.getNetworkActions().forEach(na -> {
                 UsageMethod usageMethod = na.getUsageMethod(crac.getPreventiveState());
                 if (usageMethod.equals(UsageMethod.AVAILABLE)) {
-                    BUSINESS_WARNS.warn("Remedial action may be available only on constraint. Condition is not checked but remedial action is applied");
+                    FlowbasedComputationReports.reportRemedialActionAppliedEvenIfConditionNotChecked(reportNode);
                     na.apply(network);
                 }
             });
         } else {
-            TECHNICAL_LOGS.debug("RAO result is not null: applying remedial actions selected by the RAO.");
+            FlowbasedComputationReports.reportNotNullRaoResult(reportNode);
             crac.getNetworkActions().forEach(na -> {
                 if (raoResult.isActivated(crac.getPreventiveState(), na)) {
                     na.apply(network);
@@ -202,14 +198,15 @@ public class FlowbasedComputationImpl implements FlowbasedComputationProvider {
      *
      * @param crac CRAC that should contain result extension
      * @param state State for which the RAs should be applied
+     * @param reportNode
      */
-    public static Set<NetworkAction> findAllAvailableRemedialActionsForState(Crac crac, State state) {
+    public static Set<NetworkAction> findAllAvailableRemedialActionsForState(Crac crac, State state, ReportNode reportNode) {
         Set<NetworkAction> networkActionsAppl = new HashSet<>();
 
         crac.getNetworkActions().forEach(na -> {
             UsageMethod usageMethod = na.getUsageMethod(state);
             if (usageMethod.equals(UsageMethod.AVAILABLE) || usageMethod.equals(UsageMethod.FORCED)) {
-                BUSINESS_WARNS.warn("Remedial action may be available only on constraint. Condition is not checked but remedial action is applied");
+                FlowbasedComputationReports.reportRemedialActionAppliedEvenIfConditionNotChecked(reportNode);
                 networkActionsAppl.add(na);
             }
         });

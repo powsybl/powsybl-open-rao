@@ -42,10 +42,6 @@ public class CracDeserializer extends JsonDeserializer<Crac> {
     private final Network network;
     private final ReportNode reportNode;
 
-    public CracDeserializer(CracFactory cracFactory, Network network) {
-        this(cracFactory, network, ReportNode.NO_OP);
-    }
-
     public CracDeserializer(CracFactory cracFactory, Network network, ReportNode reportNode) {
         this.cracFactory = cracFactory;
         this.network = network;

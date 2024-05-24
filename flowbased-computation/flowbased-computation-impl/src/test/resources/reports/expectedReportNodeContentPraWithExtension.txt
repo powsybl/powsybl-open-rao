@@ -1,0 +1,5 @@
++ This is a parent report node for report tests
+   + Flow based computation
+      RAO result is null: applying all network actions from CRAC.
+      RAO result is null: applying all network actions from CRAC.
+      Remedial action may be available only on constraint. Condition is not checked but remedial action is applied
