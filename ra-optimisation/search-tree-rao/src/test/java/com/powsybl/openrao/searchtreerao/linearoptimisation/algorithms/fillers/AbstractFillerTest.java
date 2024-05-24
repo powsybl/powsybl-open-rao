@@ -6,6 +6,7 @@
  */
 package com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.fillers;
 
+import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
@@ -14,14 +15,15 @@ import com.powsybl.openrao.data.cracapi.range.RangeType;
 import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.cracimpl.utils.NetworkImportsUtil;
 import com.powsybl.openrao.data.cracioapi.CracImporters;
-import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.OpenRaoMPSolver;
+import com.powsybl.openrao.data.raoresultapi.ComputationStatus;
+import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.LinearProblem;
 import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
 import com.powsybl.openrao.searchtreerao.result.api.SensitivityResult;
-import com.powsybl.iidm.network.Network;
 import org.mockito.Mockito;
 
 import java.util.Map;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 /**
@@ -30,6 +32,7 @@ import static org.mockito.Mockito.when;
  */
 abstract class AbstractFillerTest {
     static final double DOUBLE_TOLERANCE = 1e-4;
+    static final double INFINITY_TOLERANCE = LinearProblem.infinity() * 0.001;
 
     static final String PREVENTIVE_INSTANT_ID = "preventive";
 
@@ -56,7 +59,6 @@ abstract class AbstractFillerTest {
     static final String RANGE_ACTION_ID = "PRA_PST_BE";
     static final String RANGE_ACTION_ELEMENT_ID = "BBE2AA1  BBE3AA1  1";
 
-    OpenRaoMPSolver mpSolver;
     FlowCnec cnec1;
     FlowCnec cnec2;
     PstRangeAction pstRangeAction;
@@ -76,9 +78,6 @@ abstract class AbstractFillerTest {
         cnec2 = crac.getFlowCnec(CNEC_2_ID);
         pstRangeAction = crac.getPstRangeAction(RANGE_ACTION_ID);
 
-        // MPSolver and linearRaoProblem
-        mpSolver = new OpenRaoMPSolver();
-
         flowResult = Mockito.mock(FlowResult.class);
         when(flowResult.getFlow(cnec1, Side.LEFT, Unit.MEGAWATT)).thenReturn(REF_FLOW_CNEC1_IT1);
         when(flowResult.getFlow(cnec2, Side.RIGHT, Unit.MEGAWATT)).thenReturn(REF_FLOW_CNEC2_IT1);
@@ -86,6 +85,7 @@ abstract class AbstractFillerTest {
         sensitivityResult = Mockito.mock(SensitivityResult.class);
         when(sensitivityResult.getSensitivityValue(cnec1, Side.LEFT, pstRangeAction, Unit.MEGAWATT)).thenReturn(SENSI_CNEC1_IT1);
         when(sensitivityResult.getSensitivityValue(cnec2, Side.RIGHT, pstRangeAction, Unit.MEGAWATT)).thenReturn(SENSI_CNEC2_IT1);
+        when(sensitivityResult.getSensitivityStatus(any())).thenReturn(ComputationStatus.DEFAULT);
     }
 
     protected void addPstGroupInCrac() {

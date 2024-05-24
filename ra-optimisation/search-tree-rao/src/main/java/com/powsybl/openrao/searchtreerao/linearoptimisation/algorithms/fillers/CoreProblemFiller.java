@@ -68,12 +68,14 @@ public class CoreProblemFiller implements ProblemFiller {
 
     @Override
     public void fill(LinearProblem linearProblem, FlowResult flowResult, SensitivityResult sensitivityResult) {
+        Set<FlowCnec> validFlowCnecs = FillersUtil.getFlowCnecsComputationStatusOk(flowCnecs, sensitivityResult);
+
         // add variables
-        buildFlowVariables(linearProblem);
+        buildFlowVariables(linearProblem, validFlowCnecs);
         buildRangeActionVariables(linearProblem);
 
         // add constraints
-        buildFlowConstraints(linearProblem, flowResult, sensitivityResult);
+        buildFlowConstraints(linearProblem, validFlowCnecs, flowResult, sensitivityResult);
         buildRangeActionConstraints(linearProblem);
 
         // complete objective
@@ -84,7 +86,8 @@ public class CoreProblemFiller implements ProblemFiller {
     @Override
     public void updateBetweenSensiIteration(LinearProblem linearProblem, FlowResult flowResult, SensitivityResult sensitivityResult, RangeActionActivationResult rangeActionActivationResult) {
         // update reference flow and sensitivities of flow constraints
-        updateFlowConstraints(linearProblem, flowResult, sensitivityResult, rangeActionActivationResult);
+        Set<FlowCnec> validFlowCnecs = FillersUtil.getFlowCnecsComputationStatusOk(flowCnecs, sensitivityResult);
+        updateFlowConstraints(linearProblem, validFlowCnecs, flowResult, sensitivityResult, rangeActionActivationResult);
         if (raRangeShrinking) {
             updateRangeActionConstraints(linearProblem, rangeActionActivationResult);
         }
@@ -99,9 +102,9 @@ public class CoreProblemFiller implements ProblemFiller {
      * Build one flow variable F[c] for each Cnec c
      * This variable describes the estimated flow on the given Cnec c, in MEGAWATT
      */
-    private void buildFlowVariables(LinearProblem linearProblem) {
-        flowCnecs.forEach(cnec ->
-                cnec.getMonitoredSides().forEach(side -> linearProblem.addFlowVariable(-LinearProblem.infinity(), LinearProblem.infinity(), cnec, side))
+    private void buildFlowVariables(LinearProblem linearProblem, Set<FlowCnec> validFlowCnecs) {
+        validFlowCnecs.forEach(cnec ->
+            cnec.getMonitoredSides().forEach(side -> linearProblem.addFlowVariable(-LinearProblem.infinity(), LinearProblem.infinity(), cnec, side))
         );
     }
 
@@ -134,8 +137,8 @@ public class CoreProblemFiller implements ProblemFiller {
      * on this Cnec.
      * F[c] = f_ref[c] + sum{r in RangeAction} sensitivity[c,r] * (S[r] - currentSetPoint[r])
      */
-    private void buildFlowConstraints(LinearProblem linearProblem, FlowResult flowResult, SensitivityResult sensitivityResult) {
-        flowCnecs.forEach(cnec -> cnec.getMonitoredSides().forEach(side -> {
+    private void buildFlowConstraints(LinearProblem linearProblem, Set<FlowCnec> validFlowCnecs, FlowResult flowResult, SensitivityResult sensitivityResult) {
+        validFlowCnecs.forEach(cnec -> cnec.getMonitoredSides().forEach(side -> {
             // create constraint
             double referenceFlow = flowResult.getFlow(cnec, side, unit) * RaoUtil.getFlowUnitMultiplier(cnec, side, unit, Unit.MEGAWATT);
             OpenRaoMPConstraint flowConstraint = linearProblem.addFlowConstraint(referenceFlow, referenceFlow, cnec, side);
@@ -152,8 +155,8 @@ public class CoreProblemFiller implements ProblemFiller {
      * Update the flow constraints, with the new reference flows and new sensitivities
      * F[c] = f_ref[c] + sum{r in RangeAction} sensitivity[c,r] * (S[r] - currentSetPoint[r])
      */
-    private void updateFlowConstraints(LinearProblem linearProblem, FlowResult flowResult, SensitivityResult sensitivityResult, RangeActionActivationResult rangeActionActivationResult) {
-        flowCnecs.forEach(cnec -> cnec.getMonitoredSides().forEach(side -> {
+    private void updateFlowConstraints(LinearProblem linearProblem, Set<FlowCnec> validFlowCnecs, FlowResult flowResult, SensitivityResult sensitivityResult, RangeActionActivationResult rangeActionActivationResult) {
+        validFlowCnecs.forEach(cnec -> cnec.getMonitoredSides().forEach(side -> {
             double referenceFlow = flowResult.getFlow(cnec, side, unit) * RaoUtil.getFlowUnitMultiplier(cnec, side, unit, Unit.MEGAWATT);
             OpenRaoMPConstraint flowConstraint = linearProblem.getFlowConstraint(cnec, side);
 
@@ -225,9 +228,7 @@ public class CoreProblemFiller implements ProblemFiller {
         optimizationContext.getRangeActionsPerState().entrySet().stream()
             .sorted(Comparator.comparingInt(e -> e.getKey().getInstant().getOrder()))
             .forEach(entry ->
-                entry.getValue().forEach(rangeAction -> buildConstraintsForRangeActionAndState(linearProblem, rangeAction, entry.getKey())
-            )
-        );
+                entry.getValue().forEach(rangeAction -> buildConstraintsForRangeActionAndState(linearProblem, rangeAction, entry.getKey())));
     }
 
     private void updateRangeActionConstraints(LinearProblem linearProblem, RangeActionActivationResult rangeActionActivationResult) {

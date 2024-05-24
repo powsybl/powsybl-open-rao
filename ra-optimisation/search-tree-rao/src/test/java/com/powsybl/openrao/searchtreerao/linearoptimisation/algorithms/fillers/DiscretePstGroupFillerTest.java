@@ -84,7 +84,7 @@ class DiscretePstGroupFillerTest extends AbstractFillerTest {
             .withProblemFiller(coreProblemFiller)
             .withProblemFiller(discretePstTapFiller)
             .withProblemFiller(discretePstGroupFiller)
-            .withSolver(mpSolver)
+            .withSolver(RangeActionsOptimizationParameters.Solver.SCIP)
             .build();
 
         // fill problem
