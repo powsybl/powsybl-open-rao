@@ -10,6 +10,10 @@ package com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.TsoEICode;
 import com.powsybl.openrao.data.craccreation.creator.api.ImportStatus;
+import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.constants.CsaProfileConstants;
+import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.constants.CsaProfileKeyword;
+import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.constants.OverridingObjectsFields;
+import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.constants.PropertyReference;
 import com.powsybl.openrao.data.craccreation.util.OpenRaoImportException;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
@@ -28,16 +32,6 @@ public final class CsaProfileCracUtils {
 
     private CsaProfileCracUtils() {
 
-    }
-
-    public static Map<String, Set<PropertyBag>> getMappedPropertyBagsSet(PropertyBags propertyBags, String property) {
-        Map<String, Set<PropertyBag>> mappedPropertyBags = new HashMap<>();
-        for (PropertyBag propertyBag : propertyBags) {
-            String propValue = propertyBag.getId(property);
-            Set<PropertyBag> propPropertyBags = mappedPropertyBags.computeIfAbsent(propValue, k -> new HashSet<>());
-            propPropertyBags.add(propertyBag);
-        }
-        return mappedPropertyBags;
     }
 
     public static String getUniqueName(String prefixUrl, String suffix) {
@@ -82,10 +76,9 @@ public final class CsaProfileCracUtils {
         }
     }
 
-    public static void checkPropertyReference(PropertyBag propertyBag, String remedialActionId, String propertyBagKind, String expectedPropertyReference) {
-        String actualPropertyReference = propertyBag.get(CsaProfileConstants.GRID_ALTERATION_PROPERTY_REFERENCE);
-        if (!actualPropertyReference.equals(expectedPropertyReference)) {
-            throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, String.format("Remedial action %s will not be imported because %s must have a property reference with %s value, but it was: %s", remedialActionId, propertyBagKind, expectedPropertyReference, actualPropertyReference));
+    public static void checkPropertyReference(String remedialActionId, String gridStateAlterationType, PropertyReference expectedPropertyReference, String actualPropertyReference) {
+        if (!expectedPropertyReference.toString().equals(actualPropertyReference)) {
+            throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, String.format("Remedial action %s will not be imported because %s must have a property reference with %s value, but it was: %s", remedialActionId, gridStateAlterationType, expectedPropertyReference, actualPropertyReference));
         }
     }
 
@@ -95,7 +88,7 @@ public final class CsaProfileCracUtils {
         return isValidInterval(importTimestamp, startTime, endTime);
     }
 
-    public static boolean checkProfileKeyword(PropertyBag propertyBag, CsaProfileConstants.CsaProfileKeywords csaProfileKeyword) {
+    public static boolean checkProfileKeyword(PropertyBag propertyBag, CsaProfileKeyword csaProfileKeyword) {
         String keyword = propertyBag.get(CsaProfileConstants.REQUEST_HEADER_KEYWORD);
         return csaProfileKeyword.toString().equals(keyword);
     }
@@ -106,7 +99,7 @@ public final class CsaProfileCracUtils {
         return returnSet;
     }
 
-    public static PropertyBags overrideData(PropertyBags propertyBags, Map<String, String> dataMap, CsaProfileConstants.OverridingObjectsFields overridingObjectsFields) {
+    public static PropertyBags overrideData(PropertyBags propertyBags, Map<String, String> dataMap, OverridingObjectsFields overridingObjectsFields) {
         for (PropertyBag propertyBag : propertyBags) {
             String id = propertyBag.getId(overridingObjectsFields.getObjectName());
             String data = dataMap.get(id);

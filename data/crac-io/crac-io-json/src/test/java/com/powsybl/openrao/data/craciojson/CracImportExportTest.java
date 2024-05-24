@@ -388,6 +388,8 @@ class CracImportExportTest {
         ur = (OnFlowConstraintInCountry) usageRules.stream().filter(OnFlowConstraintInCountry.class::isInstance).findAny().orElseThrow();
         assertEquals(curativeInstant, ur.getInstant());
         assertEquals(Country.ES, ur.getCountry());
+        assertTrue(ur.getContingency().isPresent());
+        assertEquals("contingency2Id", ur.getContingency().get().getId());
 
         // ---------------------------------
         // --- test CounterTradeRangeAction ---

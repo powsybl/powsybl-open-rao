@@ -62,7 +62,7 @@ class GroupRemedialActionTest {
         UsageRule ur3 = cracCreationContext.getCrac().getNetworkAction("7d2833e4-c5a8-4d79-b936-c735a58f1774").getUsageRules().iterator().next();
         assertTrue(ur3 instanceof OnFlowConstraint);
         assertEquals(InstantKind.CURATIVE, ur3.getInstant().getKind());
-        assertEquals(UsageMethod.AVAILABLE, ur3.getUsageMethod());
+        assertEquals(UsageMethod.FORCED, ur3.getUsageMethod());
         assertEquals("RTE_AE1 (f7708112-b880-4674-98a1-b005a01a61d5) - RTE_CO1 - curative", ((OnFlowConstraint) ur3).getFlowCnec().getId());
 
         assertNetworkActionImported(cracCreationContext, "66979f64-3c52-486c-84f7-b5439cd71765", Set.of("BBE1AA1  BBE4AA1  1"), true, 1, "RTE");
@@ -129,6 +129,12 @@ class GroupRemedialActionTest {
         return elementaryActions.stream()
             .filter(TopologicalAction.class::isInstance)
             .anyMatch(action -> ((TopologicalAction) action).getNetworkElement().getId().equals(elementId) && ((TopologicalAction) action).getActionType().equals(actionType));
+    }
+
+    @Test
+    void testImportRemedialActionGroupFromInvalidTopologyAction() {
+        CsaProfileCracCreationContext cracCreationContext = getCsaCracCreationContext("/profiles/remedialactions/RemedialActionGroupFromInvalidTopologyAction.zip", NETWORK);
+        assertTrue(cracCreationContext.getCrac().getNetworkActions().isEmpty());
     }
 
 }
