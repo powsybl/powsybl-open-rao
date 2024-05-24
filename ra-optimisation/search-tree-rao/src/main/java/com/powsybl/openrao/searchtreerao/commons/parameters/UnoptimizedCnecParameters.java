@@ -26,12 +26,7 @@ public class UnoptimizedCnecParameters {
         return operatorNotToOptimize;
     }
 
-    // unoptimizedCnecsInSeriesWithPsts and operatorNotToOptimize cannot be activated together.
     public static UnoptimizedCnecParameters build(NotOptimizedCnecsParameters parameters, Set<String> operatorsNotSharingCras) {
-        if (parameters.getDoNotOptimizeCurativeCnecsForTsosWithoutCras()) {
-            return new UnoptimizedCnecParameters(operatorsNotSharingCras);
-        } else {
-            return null;
-        }
+        return parameters.getDoNotOptimizeCurativeCnecsForTsosWithoutCras() ? new UnoptimizedCnecParameters(operatorsNotSharingCras) : null;
     }
 }

@@ -108,11 +108,9 @@ class UnoptimizedCnecFillerMarginDecreaseRuleTest extends AbstractFillerTest {
             when(initialFlowResult.getFlow(cnecFr, Side.LEFT, MEGAWATT)).thenReturn(Double.NaN);
         }
         unoptimizedCnecFiller = new UnoptimizedCnecFiller(
-                optimizationPerimeter,
                 Set.of(cnecNl, cnecFr),
                 initialFlowResult,
-                unoptimizedCnecParameters,
-                rangeActionParameters
+                unoptimizedCnecParameters
         );
         linearProblem = new LinearProblemBuilder()
             .withProblemFiller(coreProblemFiller)
@@ -143,11 +141,9 @@ class UnoptimizedCnecFillerMarginDecreaseRuleTest extends AbstractFillerTest {
         constraintCoeff = 5 * RaoUtil.getLargestCnecThreshold(Set.of(cnecNl, cnecFr), MEGAWATT) / maxMinRelativeMarginParameters.getPtdfSumLowerBound() * unitConversionCoefficient * relMarginCoef;
 
         unoptimizedCnecFiller = new UnoptimizedCnecFiller(
-                optimizationPerimeter,
                 Set.of(cnecNl, cnecFr),
                 initialFlowResult,
-                unoptimizedCnecParameters,
-                rangeActionParameters
+                unoptimizedCnecParameters
         );
         linearProblem = new LinearProblemBuilder()
             .withProblemFiller(coreProblemFiller)

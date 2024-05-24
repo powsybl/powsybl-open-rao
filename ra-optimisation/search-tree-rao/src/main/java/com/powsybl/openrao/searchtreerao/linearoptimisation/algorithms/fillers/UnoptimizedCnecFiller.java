@@ -10,9 +10,7 @@ package com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.fillers;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.cracapi.Identifiable;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
-import com.powsybl.openrao.raoapi.parameters.RangeActionsOptimizationParameters;
 import com.powsybl.openrao.searchtreerao.commons.RaoUtil;
-import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.OptimizationPerimeter;
 import com.powsybl.openrao.searchtreerao.commons.parameters.UnoptimizedCnecParameters;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.OpenRaoMPConstraint;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.OpenRaoMPVariable;
@@ -36,28 +34,19 @@ import static com.powsybl.openrao.commons.Unit.MEGAWATT;
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
  */
 public class UnoptimizedCnecFiller implements ProblemFiller {
-    public static final String VARIABLE_NOT_CREATED = "%s variable has not yet been created for Cnec %s (side %s)";
-    public static final String OPTIMIZE_CNEC_BINARY = "Optimize cnec binary";
     private final Set<FlowCnec> flowCnecs;
     private final FlowResult prePerimeterFlowResult;
     private final Set<String> operatorsNotToOptimize;
     private final double highestThresholdValue;
 
-    public UnoptimizedCnecFiller(OptimizationPerimeter optimizationContext,
-                                 Set<FlowCnec> flowCnecs,
+    public UnoptimizedCnecFiller(Set<FlowCnec> flowCnecs,
                                  FlowResult prePerimeterFlowResult,
-                                 UnoptimizedCnecParameters unoptimizedCnecParameters,
-                                 RangeActionsOptimizationParameters rangeActionParameters) {
+                                 UnoptimizedCnecParameters unoptimizedCnecParameters) {
         this.flowCnecs = new TreeSet<>(Comparator.comparing(Identifiable::getId));
         this.flowCnecs.addAll(FillersUtil.getFlowCnecsNotNaNFlow(flowCnecs, prePerimeterFlowResult));
         this.prePerimeterFlowResult = prePerimeterFlowResult;
         this.operatorsNotToOptimize = unoptimizedCnecParameters.getOperatorsNotToOptimize();
         this.highestThresholdValue = RaoUtil.getLargestCnecThreshold(flowCnecs, MEGAWATT);
-    }
-
-    public enum UnoptimizedCnecFillerRule {
-        MARGIN_DECREASE,
-        PST_LIMITATION
     }
 
     @Override
