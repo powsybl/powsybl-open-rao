@@ -67,10 +67,10 @@ class FlowCnecInstantHelper {
                 throw new OpenRaoException("cra-application-window map is missing \"" + instant + "\" key.");
             }
         }
-        if (craApplicationWindow.get(CURATIVE_1_INSTANT) > craApplicationWindow.get(CURATIVE_2_INSTANT)) {
+        if (craApplicationWindow.get(CURATIVE_1_INSTANT) >= craApplicationWindow.get(CURATIVE_2_INSTANT)) {
             throw new OpenRaoException("The TATL acceptable duration for %s cannot be longer than the acceptable duration for %s.".formatted(CURATIVE_1_INSTANT, CURATIVE_2_INSTANT));
         }
-        if (craApplicationWindow.get(CURATIVE_2_INSTANT) > craApplicationWindow.get(CURATIVE_3_INSTANT)) {
+        if (craApplicationWindow.get(CURATIVE_2_INSTANT) >= craApplicationWindow.get(CURATIVE_3_INSTANT)) {
             throw new OpenRaoException("The TATL acceptable duration for %s cannot be longer than the acceptable duration for %s.".formatted(CURATIVE_2_INSTANT, CURATIVE_3_INSTANT));
         }
     }

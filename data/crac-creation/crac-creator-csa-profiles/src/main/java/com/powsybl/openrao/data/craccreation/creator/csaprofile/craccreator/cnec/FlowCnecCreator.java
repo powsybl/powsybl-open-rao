@@ -212,7 +212,7 @@ public class FlowCnecCreator extends AbstractCnecCreator {
         if (!linkedContingencies.isEmpty()) {
             String operatorName = CsaProfileCracUtils.getTsoNameFromUrl(nativeAssessedElement.operator());
             Map<TwoSides, Map<String, Integer>> instantToDurationMaps = Arrays.stream(TwoSides.values()).collect(Collectors.toMap(twoSides -> twoSides, twoSides -> instantHelper.mapPostContingencyInstantsAndLimitDurations(networkElement, twoSides, operatorName)));
-            boolean operatorDoesNotUsePatlInFinalState = instantHelper.getTsosWhichDoNotUsePatlInFinalState().contains(CsaProfileCracUtils.getTsoNameFromUrl(nativeAssessedElement.operator()));
+            boolean operatorDoesNotUsePatlInFinalState = instantHelper.getTsosWhichDoNotUsePatlInFinalState().contains(operatorName);
 
             // If an operator does not use the PATL for the final state but has no TATL defined, the use of PATL if forced
             Map<TwoSides, Boolean> forceUseOfPatl = Arrays.stream(TwoSides.values()).collect(Collectors.toMap(
