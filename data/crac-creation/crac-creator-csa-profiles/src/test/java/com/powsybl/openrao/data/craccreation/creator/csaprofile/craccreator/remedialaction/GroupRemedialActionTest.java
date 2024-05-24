@@ -124,4 +124,10 @@ class GroupRemedialActionTest {
             .anyMatch(action -> ((TopologicalAction) action).getNetworkElement().getId().equals(elementId) && ((TopologicalAction) action).getActionType().equals(actionType));
     }
 
+    @Test
+    void testImportRemedialActionGroupFromInvalidTopologyAction() {
+        CsaProfileCracCreationContext cracCreationContext = getCsaCracCreationContext("/profiles/remedialactions/RemedialActionGroupFromInvalidTopologyAction.zip", NETWORK);
+        assertTrue(cracCreationContext.getCrac().getNetworkActions().isEmpty());
+    }
+
 }

@@ -255,7 +255,7 @@ public class CsaProfileRemedialActionsCreator {
                     }
 
                     NetworkAction refNetworkAction = crac.getNetworkAction(refRemedialActionDependency.remedialAction());
-                    if (refRemedialActionDependency.remedialAction() == null) {
+                    if (refNetworkAction == null) {
                         standaloneRasImplicatedIntoAGroup.addAll(dependingEnabledRemedialActions.stream().map(RemedialActionDependency::remedialAction).collect(Collectors.toSet()));
                         throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action group " + remedialActionGroup.mrid() + " will not be imported because the remedial action " + refRemedialActionDependency.remedialAction() + " does not exist or not imported. All RA's depending in that group will be ignored: " + printRaIds(dependingEnabledRemedialActions));
                     }
