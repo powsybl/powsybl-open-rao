@@ -8,6 +8,7 @@
 package com.powsybl.openrao.monitoring.anglemonitoring;
 
 import com.powsybl.iidm.modification.scalable.Scalable;
+import com.powsybl.iidm.modification.scalable.ScalingParameters;
 import com.powsybl.iidm.network.Network;
 
 import java.util.Objects;
@@ -23,12 +24,12 @@ import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.BUSINESS_WA
  */
 public class RedispatchAction {
     private final double powerToBeRedispatched;
+    private final Set<String> networkElementsToBeExcluded;
     private final Scalable scalable;
 
     RedispatchAction(double powerToBeRedispatched, Set<String> networkElementsToBeExcluded, Scalable scalable) {
         this.powerToBeRedispatched = powerToBeRedispatched; // positive for generation, negative for load
-        // TODO : filter scalable when possible in powsybl-core (see PR #2346)
-        // this.scalable = scalable.filter(networkElementsToBeExcluded)
+        this.networkElementsToBeExcluded = networkElementsToBeExcluded;
         this.scalable = Objects.requireNonNull(scalable);
     }
 
@@ -36,7 +37,8 @@ public class RedispatchAction {
      * Scales powerToBeRedispatched on network.
      */
     public void apply(Network network) {
-        double redispatchedPower = scalable.scale(network, powerToBeRedispatched);
+        ScalingParameters scalingParameters = new ScalingParameters().setIgnoredInjectionIds(networkElementsToBeExcluded);
+        double redispatchedPower = scalable.scale(network, powerToBeRedispatched, scalingParameters);
         if (Math.abs(redispatchedPower - powerToBeRedispatched) > 1) {
             BUSINESS_WARNS.warn("Redispatching failed: asked={} MW, applied={} MW", powerToBeRedispatched, redispatchedPower);
         }
