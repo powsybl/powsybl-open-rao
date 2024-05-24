@@ -84,8 +84,8 @@ public class CsaProfileRemedialActionsCreator {
                     throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action " + nativeRemedialAction.mrid() + " will not be imported because an auto PST range action must have a speed defined");
                 }
 
-                Instant instant = defineInstant(isSchemeRemedialAction, nativeRemedialAction, spsMaxTimeToImplementThreshold);
-                addUsageRules(nativeRemedialAction.mrid(), nativeAssessedElements, linkedAeWithRa.getOrDefault(nativeRemedialAction.mrid(), Set.of()), linkedCoWithRa.getOrDefault(nativeRemedialAction.mrid(), Set.of()), cnecCreationContexts, remedialActionAdder, alterations, instant, isSchemeRemedialAction, remedialActionType);
+                InstantKind instantKind = getInstantKind(isSchemeRemedialAction, nativeRemedialAction, spsMaxTimeToImplementThreshold);
+                crac.getInstants(instantKind).forEach(instant -> addUsageRules(nativeRemedialAction.mrid(), nativeAssessedElements, linkedAeWithRa.getOrDefault(nativeRemedialAction.mrid(), Set.of()), linkedCoWithRa.getOrDefault(nativeRemedialAction.mrid(), Set.of()), cnecCreationContexts, remedialActionAdder, alterations, instant, isSchemeRemedialAction, remedialActionType));
                 remedialActionAdder.add();
 
                 if (alterations.isEmpty()) {
@@ -181,21 +181,22 @@ public class CsaProfileRemedialActionsCreator {
     }
 
     private static boolean isOnConstraintInstantCoherent(Instant cnecInstant, Instant remedialInstant) {
+        // TODO: add test to cover all the possible cases
         return remedialInstant.isAuto() ? cnecInstant.isAuto() : !cnecInstant.comesBefore(remedialInstant);
     }
 
-    private Instant defineInstant(boolean isSchemeRemedialAction, RemedialAction nativeRemedialAction, int durationLimit) {
+    private InstantKind getInstantKind(boolean isSchemeRemedialAction, RemedialAction nativeRemedialAction, int durationLimit) {
         if (RemedialActionKind.PREVENTIVE.toString().equals(nativeRemedialAction.kind())) {
-            return crac.getPreventiveInstant();
+            return InstantKind.PREVENTIVE;
         }
         if (isSchemeRemedialAction) {
-            return crac.getInstant(InstantKind.AUTO);
+            return InstantKind.AUTO;
         }
         Integer timeToImplement = nativeRemedialAction.getTimeToImplementInSeconds();
         if (timeToImplement == null) {
-            return crac.getInstant(InstantKind.CURATIVE);
+            return InstantKind.CURATIVE;
         }
-        return timeToImplement <= durationLimit ? crac.getInstant(InstantKind.AUTO) : crac.getInstant(InstantKind.CURATIVE);
+        return timeToImplement <= durationLimit ? InstantKind.AUTO : InstantKind.CURATIVE;
     }
 
     private UsageMethod getUsageMethod(ElementCombinationConstraintKind elementCombinationConstraintKind, boolean isSchemeRemedialAction, Instant instant, RemedialActionType remedialActionType) {
@@ -254,7 +255,7 @@ public class CsaProfileRemedialActionsCreator {
                     }
 
                     NetworkAction refNetworkAction = crac.getNetworkAction(refRemedialActionDependency.remedialAction());
-                    if (refRemedialActionDependency.remedialAction() == null) {
+                    if (refNetworkAction == null) {
                         standaloneRasImplicatedIntoAGroup.addAll(dependingEnabledRemedialActions.stream().map(RemedialActionDependency::remedialAction).collect(Collectors.toSet()));
                         throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action group " + remedialActionGroup.mrid() + " will not be imported because the remedial action " + refRemedialActionDependency.remedialAction() + " does not exist or not imported. All RA's depending in that group will be ignored: " + printRaIds(dependingEnabledRemedialActions));
                     }

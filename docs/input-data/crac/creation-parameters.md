@@ -13,6 +13,7 @@ when creating a CRAC object to be used in the RAO.
 This is the purpose of OpenRAO's "CRAC creation parameters".
 
 ## Creating a CracCreationParameters object
+
 (and reading/writing it to a file).  
 Some examples:  
 ```java
@@ -112,11 +113,13 @@ cracCreationParameters.addRaUsageLimitsForAGivenInstant("curative", raUsageLimit
 ::::
 
 ## CSE-specific parameters
+
 The [CSE native crac format](cse) lacks important information that other formats don't.  
 The user can define a [CseCracCreationParameters](https://github.com/powsybl/powsybl-open-rao/blob/main/data/crac-creation/crac-creator-cse/src/main/java/com/powsybl/openrao/data/craccreation/creator/cse/parameters/CseCracCreationParameters.java) 
 extension to the CracCreationParameters object in order to define them.  
 
 ### range-action-groups (CSE)
+
 The CSE native CRAC format does not allow defining [aligned range actions](introduction.md#range-action). This extra parameter 
 allows the user to do just that.  
 To use it, you have to define a list of strings containing the IDs of range actions that have to be aligned seperated by a 
@@ -124,6 +127,7 @@ To use it, you have to define a list of strings containing the IDs of range acti
 See [example below](#full-cse-example) for a better illustration.
 
 ### bus-bar-change-switches
+
 As explained in the CSE native CRAC format section [here](cse.md#bus-bar-change), bus-bar-change remedial actions are defined in OpenRAO 
 as [switch pair network actions](introduction.md#switch-pair).  
 These switches are not defined in the native CRAC nor in the original network, they should be created artificially in the 
@@ -132,7 +136,8 @@ This parameter allows the definition of the switch(es) to open and the switch(es
 To use it, for every bus-bar-change remedial action ID, define the IDs of the pairs of switches to open/close.  
 See [example below](#full-cse-example) for a better illustration.
 
-### full CSE example
+### Full CSE example
+
 ::::{tabs}
 :::{group-tab} JAVA API
 ```java
@@ -194,11 +199,13 @@ cracCreationParameters.addExtension(CseCracCreationParameters.class, cseParamete
 ::::
 
 ## CIM-specific parameters
+
 The [CIM native CRAC format](cim) lacks important information that other formats don't.  
 The user can define a [CimCracCreationParameters](https://github.com/powsybl/powsybl-open-rao/blob/main/data/crac-creation/crac-creator-cim/src/main/java/com/powsybl/openrao/data/craccreation/creator/cim/parameters/CimCracCreationParameters.java)
 extension to the CracCreationParameters object in order to define them.
 
 ### timeseries-mrids
+
 Some processes require the RAO to split the CIM CRAC into multiple smaller CRACs, in particular in order to optimize different 
 borders separately. For example, the SWE CC process requires the RAO to be split into one France-Spain RAO and one 
 Spain-Portugal RAO. This is possible thanks to the CIM CRAC's TimeSeries tags, that can allocate crac objects to one of 
@@ -208,6 +215,7 @@ to define the CNECs and remedial actions of the border-specific RAO. TimeSeries 
 See [example below](#full-cim-example) for a better illustration.
 
 ### range-action-groups (CIM)
+
 Like the CSE native CRAC format, the CIM format does not allow defining [aligned range actions](introduction.md#range-action). 
 This extra parameter allows the user to do just that.  
 To use it, you have to define a list of strings containing the IDs of range actions that have to be aligned seperated by a
@@ -215,6 +223,7 @@ To use it, you have to define a list of strings containing the IDs of range acti
 See [example below](#full-cim-example) for a better illustration.
 
 ### range-action-speeds
+
 OpenRAO can simulate range-action automatons, that is automatons that shift their set-points until one or many CNECs are secured.  
 In order to do that, OpenRAO must know which automaton is quicker than the other, because activating one automaton can render 
 the others useless.
@@ -225,6 +234,7 @@ must have the same speed.
 See [example below](#full-cim-example) for a better illustration.
 
 ### voltage-cnecs-creation-parameters
+
 The CIM CRAC does not allow the definition of [VoltageCnecs](json.md#voltage-cnecs). This parameter allows the user 
 to add VoltageCnecs during CRAC creation.  
 To define voltage CNECs, the user has to define:
@@ -236,7 +246,8 @@ at defined instants (the contingences shall be identified by their CIM CRAC mRID
 See [example below](#full-cim-example) for a better illustration.
 
 
-### full CIM example
+### Full CIM example
+
 ::::{tabs}
 :::{group-tab} JAVA API
 ```java
@@ -354,6 +365,81 @@ cracCreationParameters.addExtension(CimCracCreationParameters.class, cimParamete
           "ne1",
           "ne2"
         ]
+      }
+    }
+  }
+}
+```
+:::
+::::
+
+## CSA-specific parameters
+
+The CSA profiles from the [CSA native CRAC format](csa) need additional information to be converted to the internal OpenRAO CRAC format. The user can define a [CsaCracCreationParameters](https://github.com/powsybl/powsybl-open-rao/blob/main/data/crac-creation/crac-creator-csa-profiles/src/main/java/com/powsybl/openrao/data/craccreation/creator/csaprofile/parameters/CsaCracCreationParameters.java) extension to the CracCreationParameters object in order to define them.
+
+### capacity-calculation-region-eic-code
+
+In the CSA profiles, the [AssessedElements](csa.md#cnecs) objects can be declared with a `SecuredForRegion` or a `ScannedForRegion` attribute to respectively indicate if the resulting CNEC should be optimized or simply monitored. Both these fields point to the EI code of a Capacity Calculation Region (CCR). For the importer to know which code to expect, it has to be declared in the CRAC creation parameters.
+
+### sps-max-time-to-implement-threshold-in-seconds
+
+Instead of using a `SchemeRemedialAction` to define an [auto remedial action](csa.md#using-gridstatealterationremedialaction-and-timetoimplement), it is possible to declare a classical curative `GridStateAlterationRemedialAction` with a `timeToImplement` attribute set to a certain value, which, if below a general configurable time threshold (in seconds), means that the remedial action must be considered as an ARA instead of a CRA.
+
+### cra-application-window
+
+Because of the three curative instants used in CSA, the definition of the instant of a FlowCNEC is [quite complex](csa.md#tatl-to-flowcnec-instant-association) and each curative instant must be linked to an application time for the importer to know which instant must be associated to a given TATL (or PATL).
+
+### use-patl-in-final-state
+
+Usually, the PATL is used as the operational limit for the final state (i.e. after all three batches of CRAs have been applied) but some TSOs may want to use a TATL instead so this information has to be configurable.
+
+### Full CSA example
+
+::::{tabs}
+:::{group-tab} JAVA API
+```java
+// Create CracCreationParameters and set global parameters
+CracCreationParameters cracCreationParameters = new CracCreationParameters();
+// Create CSA-specific parameters
+CimCracCreationParameters csaParameters = new CsaCracCreationParameters();
+// Indicate the EI Code of the CCR region (SWE)
+csaParameters.setCapacityCalculationRegionEicCode("10Y1001C--00095L");
+// Force all curative GridStateAlterationRemedialActions with a timeToImplement of 0 to be processed as ARAs
+csaParameters.setSpsMaxTimeToImplementThresholdInSeconds(0);
+// Indicate that REN and RTE use the PATL as the final state limit, but that REE does not
+csaParameters.setUsePatlInFinalState(Map.of(
+    "REE", false,
+    "REN", true,
+    "RTE", true
+));
+// Associate each curative instant to an application time
+csaParameters.setCraApplicationWindow(Map.of(
+    "curative 1", 300,
+    "curative 2", 600,
+    "curative 3", 1200
+));
+// Add CSA extension to CracCreationParameters
+cracCreationParameters.addExtension(CsaCracCreationParameters.class, csaParameters);
+```
+:::
+
+:::{group-tab} JSON file
+```json
+{
+  "crac-factory" : "CracImplFactory",
+  "extensions" : {
+    "CsaCracCreatorParameters" : {
+      "capacity-calculation-region-eic-code": "10Y1001C--00095L",
+      "sps-max-time-to-implement-threshold-in-seconds": 0,
+      "use-patl-in-final-state": {
+        "REE": false,
+        "REN": true,
+        "RTE": true
+      },
+      "cra-application-window": {
+        "curative 1": 300,
+        "curative 2": 600,
+        "curative 3": 1200
       }
     }
   }

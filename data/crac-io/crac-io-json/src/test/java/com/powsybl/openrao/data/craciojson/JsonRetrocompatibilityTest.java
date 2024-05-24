@@ -275,6 +275,16 @@ class JsonRetrocompatibilityTest {
         testContentOfV2Point2Crac(crac);
     }
 
+    @Test
+    void importV2Point3Test() {
+        // Add support for contingency in OnFlowConstraintInCountry
+        InputStream cracFile = getClass().getResourceAsStream("/retrocompatibility/v2/crac-v2.3.json");
+
+        Crac crac = new JsonImport().importCrac(cracFile, network);
+        assertEquals(6, crac.getNetworkActions().size());
+        testContentOfV2Point3Crac(crac);
+    }
+
     private void testContentOfV1Point0Crac(Crac crac) {
         Instant preventiveInstant = crac.getInstant("preventive");
         Instant autoInstant = crac.getInstant("auto");
@@ -676,7 +686,6 @@ class JsonRetrocompatibilityTest {
         assertTrue(ur.getContingency().isPresent());
         assertEquals("contingency2Id", ur.getContingency().get().getId());
         assertEquals(Country.FR, ur.getCountry());
-        testContentOfV2Point0Crac(crac);
 
         urs = crac.getRemedialAction("injectionSetpointRa3Id").getUsageRules()
             .stream().filter(OnFlowConstraintInCountry.class::isInstance)
@@ -687,6 +696,32 @@ class JsonRetrocompatibilityTest {
         assertEquals(crac.getInstant("curative"), ur.getInstant());
         assertTrue(ur.getContingency().isEmpty());
         assertEquals(Country.FR, ur.getCountry());
+
         testContentOfV2Point0Crac(crac);
+    }
+
+    private void testContentOfV2Point3Crac(Crac crac) {
+        // check that RangeAction4 are present
+        assertNotNull(crac.getRangeAction("pstRange4Id"));
+
+        // check Tap Range
+        assertEquals(2, crac.getPstRangeAction("pstRange4Id").getRanges().size());
+
+        TapRange absRange = crac.getPstRangeAction("pstRange4Id").getRanges().stream()
+                .filter(tapRange -> tapRange.getRangeType().equals(RangeType.ABSOLUTE))
+                .findAny().orElse(null);
+        TapRange relTimeStepRange = crac.getPstRangeAction("pstRange4Id").getRanges().stream()
+                .filter(tapRange -> tapRange.getRangeType().equals(RangeType.RELATIVE_TO_PREVIOUS_TIME_STEP))
+                .findAny().orElse(null);
+
+        assertNotNull(absRange);
+        assertEquals(-2, absRange.getMinTap());
+        assertEquals(7, absRange.getMaxTap());
+        assertNotNull(relTimeStepRange);
+        assertEquals(-1, relTimeStepRange.getMinTap());
+        assertEquals(4, relTimeStepRange.getMaxTap());
+        assertEquals(Unit.TAP, relTimeStepRange.getUnit());
+
+        testContentOfV2Point2Crac(crac);
     }
 }

@@ -10,7 +10,6 @@ package com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.cracapi.InstantKind;
-import com.powsybl.openrao.data.cracapi.cnec.Side;
 import com.powsybl.openrao.data.craccreation.creator.api.CracCreator;
 import com.powsybl.openrao.data.craccreation.creator.api.parameters.CracCreationParameters;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.CsaProfileCrac;
@@ -24,7 +23,13 @@ import com.powsybl.openrao.data.craccreation.creator.csaprofile.parameters.CsaCr
 import com.powsybl.openrao.data.craccreation.util.RaUsageLimitsAdder;
 
 import java.time.OffsetDateTime;
-import java.util.Set;
+
+import static com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.constants.CsaProfileConstants.AUTO_INSTANT;
+import static com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.constants.CsaProfileConstants.CURATIVE_1_INSTANT;
+import static com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.constants.CsaProfileConstants.CURATIVE_2_INSTANT;
+import static com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.constants.CsaProfileConstants.CURATIVE_3_INSTANT;
+import static com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.constants.CsaProfileConstants.OUTAGE_INSTANT;
+import static com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.constants.CsaProfileConstants.PREVENTIVE_INSTANT;
 
 /**
  * @author Jean-Pierre Arnould {@literal <jean-pierre.arnould at rte-france.com>}
@@ -56,7 +61,7 @@ public class CsaProfileCracCreator implements CracCreator<CsaProfileCrac, CsaPro
         this.nativeCrac.setForTimestamp(offsetDateTime, csaProfileCracCreatorReportNode);
 
         createContingencies();
-        createCnecs(cracCreationParameters.getDefaultMonitoredSides(), csaParameters.getCapacityCalculationRegionEicCode());
+        createCnecs(cracCreationParameters);
         createRemedialActions(csaParameters.getSpsMaxTimeToImplementThresholdInSeconds());
 
         creationContext.buildCreationReport(csaProfileCracCreationReportReportNode);
@@ -64,11 +69,12 @@ public class CsaProfileCracCreator implements CracCreator<CsaProfileCrac, CsaPro
     }
 
     private void addCsaInstants() {
-        crac.newInstant("preventive", InstantKind.PREVENTIVE)
-            .newInstant("outage", InstantKind.OUTAGE)
-            .newInstant("auto", InstantKind.AUTO)
-            .newInstant("curative", InstantKind.CURATIVE);
-        // TODO : add other curative instants here
+        crac.newInstant(PREVENTIVE_INSTANT, InstantKind.PREVENTIVE)
+            .newInstant(OUTAGE_INSTANT, InstantKind.OUTAGE)
+            .newInstant(AUTO_INSTANT, InstantKind.AUTO)
+            .newInstant(CURATIVE_1_INSTANT, InstantKind.CURATIVE)
+            .newInstant(CURATIVE_2_INSTANT, InstantKind.CURATIVE)
+            .newInstant(CURATIVE_3_INSTANT, InstantKind.CURATIVE);
     }
 
     private void createRemedialActions(int spsMaxTimeToImplementThreshold) {
@@ -79,7 +85,7 @@ public class CsaProfileCracCreator implements CracCreator<CsaProfileCrac, CsaPro
         new CsaProfileContingencyCreator(crac, network, nativeCrac, creationContext);
     }
 
-    private void createCnecs(Set<Side> defaultMonitoredSides, String regionEic) {
-        new CsaProfileCnecCreator(crac, network, nativeCrac, creationContext, defaultMonitoredSides, regionEic);
+    private void createCnecs(CracCreationParameters cracCreationParameters) {
+        new CsaProfileCnecCreator(crac, network, nativeCrac, creationContext, cracCreationParameters);
     }
 }

@@ -37,7 +37,7 @@ public class MaxLoopFlowFiller implements ProblemFiller {
 
     public MaxLoopFlowFiller(Set<FlowCnec> loopFlowCnecs, FlowResult initialFlowResult, LoopFlowParametersExtension loopFlowParameters) {
         this.loopFlowCnecs = new TreeSet<>(Comparator.comparing(Identifiable::getId));
-        this.loopFlowCnecs.addAll(loopFlowCnecs);
+        this.loopFlowCnecs.addAll(FillersUtil.getFlowCnecsNotNaNFlow(loopFlowCnecs, initialFlowResult));
         this.initialFlowResult = initialFlowResult;
         this.loopFlowPtdfApproximationLevel = loopFlowParameters.getPtdfApproximation();
         this.loopFlowAcceptableAugmentation = loopFlowParameters.getAcceptableIncrease();
@@ -45,18 +45,18 @@ public class MaxLoopFlowFiller implements ProblemFiller {
         this.loopFlowConstraintAdjustmentCoefficient = loopFlowParameters.getConstraintAdjustmentCoefficient();
     }
 
-    private Set<FlowCnec> getLoopFlowCnecs() {
-        return loopFlowCnecs;
+    private Set<FlowCnec> getValidLoopFlowCnecs(SensitivityResult sensitivityResult) {
+        return FillersUtil.getFlowCnecsComputationStatusOk(loopFlowCnecs, sensitivityResult);
     }
 
     @Override
     public void fill(LinearProblem linearProblem, FlowResult flowResult, SensitivityResult sensitivityResult) {
-        buildLoopFlowConstraintsAndUpdateObjectiveFunction(linearProblem, flowResult);
+        buildLoopFlowConstraintsAndUpdateObjectiveFunction(linearProblem, getValidLoopFlowCnecs(sensitivityResult), flowResult);
     }
 
     @Override
     public void updateBetweenSensiIteration(LinearProblem linearProblem, FlowResult flowResult, SensitivityResult sensitivityResult, RangeActionActivationResult rangeActionActivationResult) {
-        updateLoopFlowConstraints(linearProblem, flowResult);
+        updateLoopFlowConstraints(linearProblem, getValidLoopFlowCnecs(sensitivityResult), flowResult);
     }
 
     @Override
@@ -86,9 +86,9 @@ public class MaxLoopFlowFiller implements ProblemFiller {
      * NEGATIVE_INF <= flowVariable - loopflowViolationVariable <= MaxLoopFlow + CommercialFlow
      * and a "virtual cost" is added to objective function as "loopflowViolationVariable * Loopflow violation cost"
      */
-    private void buildLoopFlowConstraintsAndUpdateObjectiveFunction(LinearProblem linearProblem, FlowResult flowResult) {
+    private void buildLoopFlowConstraintsAndUpdateObjectiveFunction(LinearProblem linearProblem, Set<FlowCnec> validLoopFlowCnecs, FlowResult flowResult) {
 
-        for (FlowCnec cnec : getLoopFlowCnecs()) {
+        for (FlowCnec cnec : validLoopFlowCnecs) {
             for (Side side : cnec.getMonitoredSides()) {
 
                 // build loopFlow upper bound, with inputThreshold, initial loop-flows, and configuration parameters
@@ -141,13 +141,13 @@ public class MaxLoopFlowFiller implements ProblemFiller {
     /**
      * Update LoopFlow constraints' bounds when commercial flows have changed
      */
-    private void updateLoopFlowConstraints(LinearProblem linearProblem, FlowResult flowResult) {
+    private void updateLoopFlowConstraints(LinearProblem linearProblem, Set<FlowCnec> validLoopFlowCnecs, FlowResult flowResult) {
 
         if (!loopFlowPtdfApproximationLevel.shouldUpdatePtdfWithPstChange()) {
             return;
         }
 
-        for (FlowCnec loopFlowCnec : getLoopFlowCnecs()) {
+        for (FlowCnec loopFlowCnec : validLoopFlowCnecs) {
             for (Side side : loopFlowCnec.getMonitoredSides()) {
                 double loopFlowUpperBound = getLoopFlowUpperBound(loopFlowCnec, side);
                 if (loopFlowUpperBound == Double.POSITIVE_INFINITY) {

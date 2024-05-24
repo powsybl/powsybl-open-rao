@@ -220,7 +220,7 @@ class CimCracCreatorTest {
         assertEquals(expectedCnecIds, importedCnecIds);
     }
 
-    private void assertAngleCnecImportedWithContingency(String id, String contingencyId, Set<String> networkElementIds) {
+    private void assertAngleCnecImportedWithContingency(String id, String contingencyId, Set<String> networkElementIds, double max) {
         AngleCnecCreationContext angleCnecCreationContext = cracCreationContext.getAngleCnecCreationContext(id);
         assertNotNull(angleCnecCreationContext);
         assertTrue(angleCnecCreationContext.isImported());
@@ -230,6 +230,9 @@ class CimCracCreatorTest {
         importedAngleCnecNetworkElements.add(importedCrac.getAngleCnec(id).getExportingNetworkElement().toString());
         assertEquals(networkElementIds, importedAngleCnecNetworkElements);
         assertEquals(contingencyId, angleCnecCreationContext.getContingencyId());
+        assertEquals(1, importedCrac.getAngleCnec(id).getThresholds().size());
+        assertEquals(max, importedCrac.getAngleCnec(id).getThresholds().iterator().next().max().orElseThrow());
+        assertTrue(importedCrac.getAngleCnec(id).getThresholds().iterator().next().min().isEmpty());
     }
 
     private void assertAngleCnecNotImported(String id, ImportStatus importStatus) {
@@ -815,15 +818,15 @@ class CimCracCreatorTest {
         setUp("/cracs/CIM_21_7_1.xml", baseNetwork, OffsetDateTime.parse("2021-04-01T23:00Z"), new CracCreationParameters());
         // -- Imported
         // Angle cnec and associated RA imported :
-        assertAngleCnecImportedWithContingency("AngleCnec1", "Co-1", Set.of("_8d8a82ba-b5b0-4e94-861a-192af055f2b8", "_b7998ae6-0cc6-4dfe-8fec-0b549b07b6c3"));
+        assertAngleCnecImportedWithContingency("AngleCnec1", "Co-1", Set.of("_8d8a82ba-b5b0-4e94-861a-192af055f2b8", "_b7998ae6-0cc6-4dfe-8fec-0b549b07b6c3"), 30.);
         assertNetworkActionImported("RA1", Set.of("_1dc9afba-23b5-41a0-8540-b479ed8baf4b", "_2844585c-0d35-488d-a449-685bcd57afbf"), false);
         assertHasOnAngleUsageRule("RA1", "AngleCnec1");
         assertEquals(1, importedCrac.getRemedialAction("RA1").getUsageRules().size());
         // -- Partially imported
         // Angle cnec without an associated RA :
-        assertAngleCnecImportedWithContingency("AngleCnec3", "Co-1", Set.of("_8d8a82ba-b5b0-4e94-861a-192af055f2b8", "_b7998ae6-0cc6-4dfe-8fec-0b549b07b6c3"));
+        assertAngleCnecImportedWithContingency("AngleCnec3", "Co-1", Set.of("_8d8a82ba-b5b0-4e94-861a-192af055f2b8", "_b7998ae6-0cc6-4dfe-8fec-0b549b07b6c3"), 40.);
         // Angle cnec with ill defined RA :
-        assertAngleCnecImportedWithContingency("AngleCnec11", "Co-1", Set.of("_8d8a82ba-b5b0-4e94-861a-192af055f2b8", "_b7998ae6-0cc6-4dfe-8fec-0b549b07b6c3"));
+        assertAngleCnecImportedWithContingency("AngleCnec11", "Co-1", Set.of("_8d8a82ba-b5b0-4e94-861a-192af055f2b8", "_b7998ae6-0cc6-4dfe-8fec-0b549b07b6c3"), 60.);
         assertRemedialActionNotImported("RA11", ELEMENT_NOT_FOUND_IN_NETWORK);
 
         // -- Not imported
