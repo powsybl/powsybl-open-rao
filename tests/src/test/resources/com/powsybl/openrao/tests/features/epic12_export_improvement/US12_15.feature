@@ -21,7 +21,7 @@ Feature: US 12.15: export different reason per perimeter in SWE CNE
     And the remedial action "PRA_OPEN_N1013_N1014" is used in preventive
     And 0 remedial actions are used after "CO_N4011_N4021" at "curative"
     And the worst margin is 6.2 A on cnec "N1011_N1013 - preventive"
-    And the value of the objective function initially should be 75.6
+    And the value of the objective function initially should be 10075.6
     And the value of the objective function after PRA should be 9993.8
     And the value of the objective function after CRA should be 9993.8
 
@@ -38,7 +38,7 @@ Feature: US 12.15: export different reason per perimeter in SWE CNE
     And the remedial action "PRA_OPEN_N1013_N1014" is used in preventive
     And 0 remedial actions are used after "CO_N4011_N4021" at "curative"
     And the worst margin is 6.2 A on cnec "N1011_N1013 - preventive"
-    And the value of the objective function initially should be 75.6
+    And the value of the objective function initially should be 10075.6
     And the value of the objective function after PRA should be 9993.8
     And the value of the objective function after CRA should be 9993.8
 
@@ -55,7 +55,7 @@ Feature: US 12.15: export different reason per perimeter in SWE CNE
     And the remedial action "PRA_OPEN_N1013_N1014" is used in preventive
     And 0 remedial actions are used after "CO_N4011_N4021" at "curative"
     And the worst margin is 6.2 A on cnec "N1011_N1013 - preventive"
-    And the value of the objective function initially should be 75.6
+    And the value of the objective function initially should be 10075.6
     And the value of the objective function after PRA should be 9993.8
     And the value of the objective function after CRA should be 9993.8
 
