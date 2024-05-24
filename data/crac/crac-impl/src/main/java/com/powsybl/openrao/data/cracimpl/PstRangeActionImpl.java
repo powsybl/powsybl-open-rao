@@ -26,7 +26,7 @@ import java.util.concurrent.atomic.AtomicReference;
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
 public final class PstRangeActionImpl extends AbstractRangeAction<PstRangeAction> implements PstRangeAction {
-
+    // Note : Ranges of type RELATIVE_TO_PREVIOUS_TIME_STEP are not taken into account
     private static final double EPSILON = 1e-3;
 
     private final NetworkElement networkElement;
