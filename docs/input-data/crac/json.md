@@ -1016,6 +1016,7 @@ TapRanges can be of different types:
 - **absolute**: the mix/max admissible tap of the PST, given in the convention of the PowSyBl network model
 - **relative to initial network**: the maximum variation of the tap of the PST relatively to its initial tap
 - **relative to previous instant**: the maximum variation of the tap of the PST relatively to its tap in the previous instant. Note that this type of range does not make sense for PstRangeActions which are only available in the preventive instant, as there is no instant before the preventive one.
+- **relative to previous time-step** : the maximum variation of the tap of the PST relatively to its tap during the previous time-step **(currently ignored by RAO)** 
 
 The final validity range of the PstRangeAction is the intersection of its TapRanges, with the intersection of the min/max feasible taps of the PST.  
 The PstRangeAction also requires additional data, notably to be able to interpret the TapRanges. Those additional data are: the initial tap of the PST, and a conversion map which gives for each feasible tap of the PST its corresponding angle. Utility methods have been developed in OpenRAO to ease the management of these additional data during the creation of a PstRangeAction.

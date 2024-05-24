@@ -2,12 +2,14 @@
 
 ## Used input data
 
-| Name               | Symbol                   | Details                                                                                                                                                                                                                         |
-|--------------------|--------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| MonitoredFlowCnecs | $c \in \mathcal{C} ^{m}$ | Set of FlowCnecs which are ['monitored'](/input-data/crac/json.md#optimised-and-monitored-cnecs). MonitoredFlowCnecs is a subset of [FlowCnecs](core-problem-filler.md#used-input-data): $\mathcal{C} ^{o} \subset \mathcal{C}$ |
-| Initial flow       | $f_{0} (c)$              | flow before RAO of MonitoredFlowCnec $c$, in MW                                                                                                                                                                                 |
-| Upper threshold    | $f^{+}_{threshold} (c)$  | Upper threshold of FlowCnec $c$, in MW, defined in the CRAC                                                                                                                                                                     |
-| Lower threshold    | $f^{-}_{threshold} (c)$  | Lower threshold of FlowCnec $c$, in MW, defined in the CRAC                                                                                                                                                                     |
+| Name               | Symbol                   | Details                                                                                                                                                                                                                             |
+|--------------------|--------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| MonitoredFlowCnecs | $c \in \mathcal{C} ^{m}$ | Set of FlowCnecs[^1] which are ['monitored'](/input-data/crac/json.md#optimised-and-monitored-cnecs). MonitoredFlowCnecs is a subset of [FlowCnecs](core-problem-filler.md#used-input-data): $\mathcal{C} ^{o} \subset \mathcal{C}$ |
+| Initial flow       | $f_{0} (c)$              | flow before RAO of MonitoredFlowCnec $c$, in MW                                                                                                                                                                                     |
+| Upper threshold    | $f^{+}_{threshold} (c)$  | Upper threshold of FlowCnec $c$, in MW, defined in the CRAC                                                                                                                                                                         |
+| Lower threshold    | $f^{-}_{threshold} (c)$  | Lower threshold of FlowCnec $c$, in MW, defined in the CRAC                                                                                                                                                                         |
+
+[^1]: CNECs that belong to a state for which sensitivity computations failed are ignored in the MILP
 
 ## Used parameters
 
