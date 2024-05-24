@@ -2,7 +2,18 @@
     "crac-factory" : "CracImplFactory",
     "extensions" : {
       "CsaCracCreatorParameters" : {
-        "sps-max-time-to-implement-threshold-in-seconds" : 0
+        "capacity-calculation-region-eic-code": "10Y1001C--00095L",
+        "sps-max-time-to-implement-threshold-in-seconds" : 0,
+        "use-patl-in-final-state": {
+          "REE": false,
+          "REN": true,
+          "RTE": true
+        },
+        "cra-application-window": {
+          "curative 1": 300,
+          "curative 2": 600,
+          "curative 3": 1200
+        }
       }
     }
   }

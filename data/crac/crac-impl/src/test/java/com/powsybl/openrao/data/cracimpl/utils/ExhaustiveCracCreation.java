@@ -235,8 +235,9 @@ public final class ExhaustiveCracCreation {
                 .withGroupId("group-1-pst")
                 .withInitialTap(1)
                 .withTapToAngleConversionMap(Map.of(-3, 0., -2, .5, -1, 1., 0, 1.5, 1, 2., 2, 2.5, 3, 3.))
-                .newTapRange().withRangeType(RangeType.ABSOLUTE).withMinTap(1).withMaxTap(7).add()
-                .newTapRange().withRangeType(RangeType.RELATIVE_TO_INITIAL_NETWORK).withMinTap(-3).withMaxTap(3).add()
+                .newTapRange().withRangeType(RangeType.ABSOLUTE).withMinTap(-4).withMaxTap(3).add()
+                .newTapRange().withRangeType(RangeType.RELATIVE_TO_INITIAL_NETWORK).withMinTap(-5).withMaxTap(1).add()
+                .newTapRange().withRangeType(RangeType.RELATIVE_TO_PREVIOUS_TIME_STEP).withMinTap(-2).withMaxTap(5).add()
                 .newOnFlowConstraintUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withFlowCnec("cnec3prevId").withUsageMethod(UsageMethod.AVAILABLE).add()
                 .add();
 

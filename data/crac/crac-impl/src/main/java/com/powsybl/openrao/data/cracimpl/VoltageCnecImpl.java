@@ -29,12 +29,13 @@ public class VoltageCnecImpl extends AbstractCnec<VoltageCnec> implements Voltag
                     String name,
                     NetworkElement networkElement,
                     String operator,
+                    String border,
                     State state,
                     boolean optimized,
                     boolean monitored,
                     Set<Threshold> thresholds,
                     double reliabilityMargin) {
-        super(id, name, Set.of(networkElement), operator, state, optimized, monitored, reliabilityMargin);
+        super(id, name, Set.of(networkElement), operator, border, state, optimized, monitored, reliabilityMargin);
         this.thresholds = thresholds;
     }
 

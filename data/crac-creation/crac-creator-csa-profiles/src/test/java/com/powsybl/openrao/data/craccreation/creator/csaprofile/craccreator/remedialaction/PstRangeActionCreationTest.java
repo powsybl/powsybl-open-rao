@@ -22,7 +22,9 @@ import java.util.List;
 import java.util.Set;
 
 import static com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileCracCreationTestUtil.AUTO_INSTANT_ID;
-import static com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileCracCreationTestUtil.CURATIVE_INSTANT_ID;
+import static com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileCracCreationTestUtil.CURATIVE_1_INSTANT_ID;
+import static com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileCracCreationTestUtil.CURATIVE_2_INSTANT_ID;
+import static com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileCracCreationTestUtil.CURATIVE_3_INSTANT_ID;
 import static com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileCracCreationTestUtil.NETWORK;
 import static com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileCracCreationTestUtil.PREVENTIVE_INSTANT_ID;
 import static com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileCracCreationTestUtil.assertContingencyEquality;
@@ -48,10 +50,14 @@ class PstRangeActionCreationTest {
         assertHasOnInstantUsageRule(cracCreationContext, "remedial-action-1", PREVENTIVE_INSTANT_ID, UsageMethod.AVAILABLE);
 
         assertPstRangeActionImported(importedPstRangeActions.get(1), "remedial-action-2", "RTE_RA2", "FFR2AA1  FFR4AA1  1", 3, null, "RTE");
-        assertHasOnInstantUsageRule(cracCreationContext, "remedial-action-2", CURATIVE_INSTANT_ID, UsageMethod.AVAILABLE);
+        assertHasOnInstantUsageRule(cracCreationContext, "remedial-action-2", CURATIVE_1_INSTANT_ID, UsageMethod.AVAILABLE);
+        assertHasOnInstantUsageRule(cracCreationContext, "remedial-action-2", CURATIVE_2_INSTANT_ID, UsageMethod.AVAILABLE);
+        assertHasOnInstantUsageRule(cracCreationContext, "remedial-action-2", CURATIVE_3_INSTANT_ID, UsageMethod.AVAILABLE);
 
         assertPstRangeActionImported(importedPstRangeActions.get(2), "remedial-action-3", "RTE_RA3", "FFR2AA1  FFR4AA1  1", null, 17, "RTE");
-        assertHasOnInstantUsageRule(cracCreationContext, "remedial-action-3", CURATIVE_INSTANT_ID, UsageMethod.AVAILABLE);
+        assertHasOnInstantUsageRule(cracCreationContext, "remedial-action-3", CURATIVE_1_INSTANT_ID, UsageMethod.AVAILABLE);
+        assertHasOnInstantUsageRule(cracCreationContext, "remedial-action-3", CURATIVE_2_INSTANT_ID, UsageMethod.AVAILABLE);
+        assertHasOnInstantUsageRule(cracCreationContext, "remedial-action-3", CURATIVE_3_INSTANT_ID, UsageMethod.AVAILABLE);
 
         assertPstRangeActionImported(importedPstRangeActions.get(3), "remedial-action-4", "RTE_RA4", "BBE2AA1  BBE3AA1  1", 5, 15, "RTE");
         assertHasOnInstantUsageRule(cracCreationContext, "remedial-action-4", PREVENTIVE_INSTANT_ID, UsageMethod.AVAILABLE);
@@ -79,24 +85,34 @@ class PstRangeActionCreationTest {
         assertContingencyEquality(importedContingencies.get(0), "contingency", "RTE_CO", Set.of("FFR1AA1  FFR2AA1  1"));
 
         List<FlowCnec> importedFlowCnecs = cracCreationContext.getCrac().getFlowCnecs().stream().sorted(Comparator.comparing(FlowCnec::getId)).toList();
-        assertEquals(3, importedFlowCnecs.size());
+        assertEquals(5, importedFlowCnecs.size());
 
-        assertFlowCnecEquality(importedFlowCnecs.get(0), "RTE_AE1 (ae-1) - RTE_CO - auto - TATL 900", "FFR2AA1  FFR3AA1  1",
+        assertFlowCnecEquality(importedFlowCnecs.get(0), "RTE_AE1 (ae-1) - RTE_CO - auto - RIGHT - TATL 900", "FFR2AA1  FFR3AA1  1",
             AUTO_INSTANT_ID, "contingency", null, null, 4000.0, -4000.0, Set.of(Side.RIGHT), "RTE");
-        assertFlowCnecEquality(importedFlowCnecs.get(1), "RTE_AE2 (ae-2) - RTE_CO - curative", "FFR2AA1  FFR3AA1  1",
-            CURATIVE_INSTANT_ID, "contingency", null, null, 2500.0, -2500.0, Set.of(Side.RIGHT), "RTE");
-        assertFlowCnecEquality(importedFlowCnecs.get(2), "RTE_AE2 (ae-2) - preventive", "FFR2AA1  FFR3AA1  1",
+        assertFlowCnecEquality(importedFlowCnecs.get(1), "RTE_AE1 (ae-1) - RTE_CO - curative 1 - RIGHT - TATL 900", "FFR2AA1  FFR3AA1  1",
+            CURATIVE_1_INSTANT_ID, "contingency", null, null, 4000.0, -4000.0, Set.of(Side.RIGHT), "RTE");
+        assertFlowCnecEquality(importedFlowCnecs.get(2), "RTE_AE2 (ae-2) - RTE_CO - curative 2 - RIGHT", "FFR2AA1  FFR3AA1  1",
+            CURATIVE_2_INSTANT_ID, "contingency", null, null, 2500.0, -2500.0, Set.of(Side.RIGHT), "RTE");
+        assertFlowCnecEquality(importedFlowCnecs.get(3), "RTE_AE2 (ae-2) - RTE_CO - curative 3 - RIGHT", "FFR2AA1  FFR3AA1  1",
+            CURATIVE_3_INSTANT_ID, "contingency", null, null, 2500.0, -2500.0, Set.of(Side.RIGHT), "RTE");
+        assertFlowCnecEquality(importedFlowCnecs.get(4), "RTE_AE2 (ae-2) - preventive - RIGHT", "FFR2AA1  FFR3AA1  1",
             PREVENTIVE_INSTANT_ID, null, null, null, 2500.0, -2500.0, Set.of(Side.RIGHT), "RTE");
 
         List<PstRangeAction> importedPstRangeActions = cracCreationContext.getCrac().getPstRangeActions().stream().sorted(Comparator.comparing(PstRangeAction::getId)).toList();
         assertEquals(3, importedPstRangeActions.size());
 
         assertPstRangeActionImported(cracCreationContext, "auto-pst-be2-be3", "BBE2AA1  BBE3AA1  1", false, 1, null);
-        assertHasOnFlowConstraintUsageRule(cracCreationContext, "auto-pst-be2-be3", "RTE_AE1 (ae-1) - RTE_CO - auto - TATL 900", cracCreationContext.getCrac().getInstant(AUTO_INSTANT_ID), UsageMethod.FORCED);
-        assertPstRangeActionImported(cracCreationContext, "cra-pst-be2-be3", "BBE2AA1  BBE3AA1  1", false, 1, null);
-        assertHasOnFlowConstraintUsageRule(cracCreationContext, "cra-pst-be2-be3", "RTE_AE2 (ae-2) - RTE_CO - curative", cracCreationContext.getCrac().getInstant(CURATIVE_INSTANT_ID), UsageMethod.AVAILABLE);
-        assertPstRangeActionImported(cracCreationContext, "cra-pst-fr2-fr4", "FFR2AA1  FFR4AA1  1", false, 1, null);
-        assertHasOnInstantUsageRule(cracCreationContext, "cra-pst-fr2-fr4", CURATIVE_INSTANT_ID, UsageMethod.AVAILABLE);
+        assertHasOnFlowConstraintUsageRule(cracCreationContext, "auto-pst-be2-be3", "RTE_AE1 (ae-1) - RTE_CO - auto - RIGHT - TATL 900", cracCreationContext.getCrac().getInstant(AUTO_INSTANT_ID), UsageMethod.FORCED);
+        assertPstRangeActionImported(cracCreationContext, "cra-pst-be2-be3", "BBE2AA1  BBE3AA1  1", false, 5, null);
+        assertHasOnFlowConstraintUsageRule(cracCreationContext, "cra-pst-be2-be3", "RTE_AE2 (ae-2) - RTE_CO - curative 2 - RIGHT", cracCreationContext.getCrac().getInstant(CURATIVE_1_INSTANT_ID), UsageMethod.AVAILABLE);
+        assertHasOnFlowConstraintUsageRule(cracCreationContext, "cra-pst-be2-be3", "RTE_AE2 (ae-2) - RTE_CO - curative 2 - RIGHT", cracCreationContext.getCrac().getInstant(CURATIVE_2_INSTANT_ID), UsageMethod.AVAILABLE);
+        assertHasOnFlowConstraintUsageRule(cracCreationContext, "cra-pst-be2-be3", "RTE_AE2 (ae-2) - RTE_CO - curative 3 - RIGHT", cracCreationContext.getCrac().getInstant(CURATIVE_1_INSTANT_ID), UsageMethod.AVAILABLE);
+        assertHasOnFlowConstraintUsageRule(cracCreationContext, "cra-pst-be2-be3", "RTE_AE2 (ae-2) - RTE_CO - curative 3 - RIGHT", cracCreationContext.getCrac().getInstant(CURATIVE_2_INSTANT_ID), UsageMethod.AVAILABLE);
+        assertHasOnFlowConstraintUsageRule(cracCreationContext, "cra-pst-be2-be3", "RTE_AE2 (ae-2) - RTE_CO - curative 3 - RIGHT", cracCreationContext.getCrac().getInstant(CURATIVE_3_INSTANT_ID), UsageMethod.AVAILABLE);
+        assertPstRangeActionImported(cracCreationContext, "cra-pst-fr2-fr4", "FFR2AA1  FFR4AA1  1", false, 3, null);
+        assertHasOnInstantUsageRule(cracCreationContext, "cra-pst-fr2-fr4", CURATIVE_1_INSTANT_ID, UsageMethod.AVAILABLE);
+        assertHasOnInstantUsageRule(cracCreationContext, "cra-pst-fr2-fr4", CURATIVE_2_INSTANT_ID, UsageMethod.AVAILABLE);
+        assertHasOnInstantUsageRule(cracCreationContext, "cra-pst-fr2-fr4", CURATIVE_3_INSTANT_ID, UsageMethod.AVAILABLE);
     }
 
     @Test
@@ -110,13 +126,17 @@ class PstRangeActionCreationTest {
         assertContingencyEquality(importedContingencies.get(0), "contingency", "RTE_CO", Set.of("FFR1AA1  FFR2AA1  1"));
 
         List<FlowCnec> importedFlowCnecs = cracCreationContext.getCrac().getFlowCnecs().stream().sorted(Comparator.comparing(FlowCnec::getId)).toList();
-        assertEquals(3, importedFlowCnecs.size());
+        assertEquals(5, importedFlowCnecs.size());
 
-        assertFlowCnecEquality(importedFlowCnecs.get(0), "RTE_AE1 (ae-1) - RTE_CO - auto - TATL 900", "FFR2AA1  FFR3AA1  1",
+        assertFlowCnecEquality(importedFlowCnecs.get(0), "RTE_AE1 (ae-1) - RTE_CO - auto - RIGHT - TATL 900", "FFR2AA1  FFR3AA1  1",
             AUTO_INSTANT_ID, "contingency", null, null, 4000.0, -4000.0, Set.of(Side.RIGHT), "RTE");
-        assertFlowCnecEquality(importedFlowCnecs.get(1), "RTE_AE2 (ae-2) - RTE_CO - curative", "FFR2AA1  FFR3AA1  1",
-            CURATIVE_INSTANT_ID, "contingency", null, null, 2500.0, -2500.0, Set.of(Side.RIGHT), "RTE");
-        assertFlowCnecEquality(importedFlowCnecs.get(2), "RTE_AE2 (ae-2) - preventive", "FFR2AA1  FFR3AA1  1",
+        assertFlowCnecEquality(importedFlowCnecs.get(1), "RTE_AE1 (ae-1) - RTE_CO - curative 1 - RIGHT - TATL 900", "FFR2AA1  FFR3AA1  1",
+            CURATIVE_1_INSTANT_ID, "contingency", null, null, 4000.0, -4000.0, Set.of(Side.RIGHT), "RTE");
+        assertFlowCnecEquality(importedFlowCnecs.get(2), "RTE_AE2 (ae-2) - RTE_CO - curative 2 - RIGHT", "FFR2AA1  FFR3AA1  1",
+            CURATIVE_2_INSTANT_ID, "contingency", null, null, 2500.0, -2500.0, Set.of(Side.RIGHT), "RTE");
+        assertFlowCnecEquality(importedFlowCnecs.get(3), "RTE_AE2 (ae-2) - RTE_CO - curative 3 - RIGHT", "FFR2AA1  FFR3AA1  1",
+            CURATIVE_3_INSTANT_ID, "contingency", null, null, 2500.0, -2500.0, Set.of(Side.RIGHT), "RTE");
+        assertFlowCnecEquality(importedFlowCnecs.get(4), "RTE_AE2 (ae-2) - preventive - RIGHT", "FFR2AA1  FFR3AA1  1",
             PREVENTIVE_INSTANT_ID, null, null, null, 2500.0, -2500.0, Set.of(Side.RIGHT), "RTE");
 
         List<PstRangeAction> importedPstRangeActions = cracCreationContext.getCrac().getPstRangeActions().stream().sorted(Comparator.comparing(PstRangeAction::getId)).toList();
@@ -124,9 +144,13 @@ class PstRangeActionCreationTest {
 
         assertPstRangeActionImported(cracCreationContext, "auto-pst-be2-be3", "BBE2AA1  BBE3AA1  1", false, 1, null);
         assertHasOnContingencyStateUsageRule(cracCreationContext, "auto-pst-be2-be3", "contingency", AUTO_INSTANT_ID, UsageMethod.FORCED);
-        assertPstRangeActionImported(cracCreationContext, "cra-pst-be2-be3", "BBE2AA1  BBE3AA1  1", false, 1, null);
-        assertHasOnContingencyStateUsageRule(cracCreationContext, "cra-pst-be2-be3", "contingency", CURATIVE_INSTANT_ID, UsageMethod.AVAILABLE);
-        assertPstRangeActionImported(cracCreationContext, "cra-pst-fr2-fr4", "FFR2AA1  FFR4AA1  1", false, 1, null);
-        assertHasOnInstantUsageRule(cracCreationContext, "cra-pst-fr2-fr4", CURATIVE_INSTANT_ID, UsageMethod.AVAILABLE);
+        assertPstRangeActionImported(cracCreationContext, "cra-pst-be2-be3", "BBE2AA1  BBE3AA1  1", false, 3, null);
+        assertHasOnContingencyStateUsageRule(cracCreationContext, "cra-pst-be2-be3", "contingency", CURATIVE_1_INSTANT_ID, UsageMethod.AVAILABLE);
+        assertHasOnContingencyStateUsageRule(cracCreationContext, "cra-pst-be2-be3", "contingency", CURATIVE_2_INSTANT_ID, UsageMethod.AVAILABLE);
+        assertHasOnContingencyStateUsageRule(cracCreationContext, "cra-pst-be2-be3", "contingency", CURATIVE_3_INSTANT_ID, UsageMethod.AVAILABLE);
+        assertPstRangeActionImported(cracCreationContext, "cra-pst-fr2-fr4", "FFR2AA1  FFR4AA1  1", false, 3, null);
+        assertHasOnInstantUsageRule(cracCreationContext, "cra-pst-fr2-fr4", CURATIVE_1_INSTANT_ID, UsageMethod.AVAILABLE);
+        assertHasOnInstantUsageRule(cracCreationContext, "cra-pst-fr2-fr4", CURATIVE_2_INSTANT_ID, UsageMethod.AVAILABLE);
+        assertHasOnInstantUsageRule(cracCreationContext, "cra-pst-fr2-fr4", CURATIVE_3_INSTANT_ID, UsageMethod.AVAILABLE);
     }
 }

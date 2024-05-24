@@ -368,7 +368,7 @@ GRAPH <%s> {
         nc:RangeConstraint.normalValue ?normalValue ;
         nc:RangeConstraint.valueKind ?valueKind ;
         nc:RangeConstraint.direction ?direction ;
-        nc:RangeConstraint.GridStateAlteration ?gridStateAlterationRemedialAction ;
+        nc:RangeConstraint.GridStateAlteration ?gridStateAlteration ;
         nc:StaticPropertyRange.PropertyReference ?propertyReference;
 }
 }
