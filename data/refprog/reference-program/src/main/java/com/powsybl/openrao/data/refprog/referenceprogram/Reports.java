@@ -25,7 +25,7 @@ public final class Reports {
                 .withUntypedValue("exceptionMessage", exceptionMessage)
                 .withSeverity(TypedValue.WARN_SEVERITY)
                 .add();
-        BUSINESS_WARNS.warn("LoadFlow could not be computed. The ReferenceProgram will be built without a prior LoadFlow computation: %s", exceptionMessage);
+        BUSINESS_WARNS.warn("LoadFlow could not be computed. The ReferenceProgram will be built without a prior LoadFlow computation: {}", exceptionMessage);
         return addedNode;
     }
 }

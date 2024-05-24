@@ -7,8 +7,8 @@
 
 package com.powsybl.openrao.data.cracimpl;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.openrao.commons.OpenRaoException;
-import com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider;
 import com.powsybl.openrao.data.cracapi.NetworkElement;
 import com.powsybl.openrao.data.cracapi.rangeaction.HvdcRangeAction;
 import com.powsybl.openrao.data.cracapi.rangeaction.HvdcRangeActionAdder;
@@ -34,8 +34,8 @@ public class HvdcRangeActionAdderImpl extends AbstractStandardRangeActionAdder<H
         return HVDC_RANGE_ACTION;
     }
 
-    HvdcRangeActionAdderImpl(CracImpl owner) {
-        super(owner);
+    HvdcRangeActionAdderImpl(CracImpl owner, ReportNode reportNode) {
+        super(owner, CracImplReports.reportNewHvdcRangeAction(reportNode));
         this.ranges = new ArrayList<>();
     }
 
@@ -63,7 +63,7 @@ public class HvdcRangeActionAdderImpl extends AbstractStandardRangeActionAdder<H
         }
 
         if (usageRules.isEmpty()) {
-            OpenRaoLoggerProvider.BUSINESS_WARNS.warn("HvdcRangeAction {} does not contain any usage rule, by default it will never be available", id);
+            CracImplReports.reportActionWithoutAnyUsageRule(reportNode, "HvdcRangeAction", id);
         }
 
         NetworkElement networkElement = this.getCrac().addNetworkElement(networkElementId, networkElementName);

@@ -16,4 +16,6 @@
          [REMOVED] RemedialAction_Series "RA9" was not imported: INCONSISTENCY_IN_DATA. Associated angle cnec could not be imported.
          [REMOVED] RemedialAction_Series "RA10" was not imported: INCONSISTENCY_IN_DATA. Associated angle cnec could not be imported.
          [REMOVED] RemedialAction_Series "RA11" was not imported: ELEMENT_NOT_FOUND_IN_NETWORK. WRONG_ID is neither a generator nor a load.
-      New crac "CIM_CRAC_DOCUMENT" called "CIM_CRAC_DOCUMENT"
+      + New crac "CIM_CRAC_DOCUMENT" called "CIM_CRAC_DOCUMENT"
+         New network action
+         New network action

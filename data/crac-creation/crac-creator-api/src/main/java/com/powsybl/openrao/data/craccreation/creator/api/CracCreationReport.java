@@ -28,7 +28,7 @@ public final class CracCreationReport {
                 .withUntypedValue("reason", errorReason)
                 .withSeverity(TypedValue.ERROR_SEVERITY)
                 .add();
-        BUSINESS_LOGS.error("[ERROR] %s", errorReason);
+        BUSINESS_LOGS.error("[ERROR] {}", errorReason);
     }
 
     public static void removed(String removedReason, ReportNode reportNode) {
@@ -37,7 +37,7 @@ public final class CracCreationReport {
                 .withUntypedValue("removedReason", removedReason)
                 .withSeverity(TypedValue.WARN_SEVERITY)
                 .add();
-        BUSINESS_WARNS.warn("[REMOVED] %s", removedReason);
+        BUSINESS_WARNS.warn("[REMOVED] {}", removedReason);
     }
 
     public static void added(String addedReason, ReportNode reportNode) {
@@ -46,7 +46,7 @@ public final class CracCreationReport {
                 .withUntypedValue("addedReason", addedReason)
                 .withSeverity(TypedValue.WARN_SEVERITY)
                 .add();
-        BUSINESS_WARNS.warn("[ADDED] %s", addedReason);
+        BUSINESS_WARNS.warn("[ADDED] {}", addedReason);
     }
 
     public static void altered(String alteredReason, ReportNode reportNode) {
@@ -55,7 +55,7 @@ public final class CracCreationReport {
                 .withUntypedValue("alteredReason", alteredReason)
                 .withSeverity(TypedValue.WARN_SEVERITY)
                 .add();
-        BUSINESS_WARNS.warn("[ALTERED] %s", alteredReason);
+        BUSINESS_WARNS.warn("[ALTERED] {}", alteredReason);
     }
 
     public static void warn(String warnReason, ReportNode reportNode) {
@@ -64,7 +64,7 @@ public final class CracCreationReport {
                 .withUntypedValue("warnReason", warnReason)
                 .withSeverity(TypedValue.WARN_SEVERITY)
                 .add();
-        BUSINESS_WARNS.warn("[WARN] %s", warnReason);
+        BUSINESS_WARNS.warn("[WARN] {}", warnReason);
     }
 
     public static void info(String infoReason, ReportNode reportNode) {
@@ -73,6 +73,6 @@ public final class CracCreationReport {
                 .withUntypedValue("infoReason", infoReason)
                 .withSeverity(TypedValue.WARN_SEVERITY)
                 .add();
-        TECHNICAL_LOGS.info("[INFO] %s", infoReason);
+        TECHNICAL_LOGS.info("[INFO] {}", infoReason);
     }
 }

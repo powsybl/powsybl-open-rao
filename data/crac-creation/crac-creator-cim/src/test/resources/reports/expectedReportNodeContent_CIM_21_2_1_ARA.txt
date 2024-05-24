@@ -11,4 +11,5 @@
          [REMOVED] Monitored_Series "CNEC-2" was not imported: ELEMENT_NOT_FOUND_IN_NETWORK. Network element was not found in network: FAKE_ID.
          [ADDED] CNEC "CNEC-4 - Co-1 - auto" has no associated automaton. It will be cloned on the OUTAGE instant in order to be secured during preventive RAO.
          [ADDED] CNEC "CNEC-4 - Co-2 - auto" has no associated automaton. It will be cloned on the OUTAGE instant in order to be secured during preventive RAO.
-      New crac "CIM_CRAC_DOCUMENT" called "CIM_CRAC_DOCUMENT"
+      + New crac "CIM_CRAC_DOCUMENT" called "CIM_CRAC_DOCUMENT"
+         New network action

@@ -3,4 +3,5 @@
       + Fb constraint crac creation context
          [REMOVED] Critical branch "BE_CBCO_000001" was not imported: NOT_FOR_REQUESTED_TIMESTAMP. CriticalBranch is not valid for the requested timestamp.
          [REMOVED] Remedial action "RA_BE_0001" was not imported: NOT_FOR_REQUESTED_TIMESTAMP. ComplexVariant is not valid for the requested timestamp.
-      New crac "17XTSO-CS------W-20190108-F301v1" called "17XTSO-CS------W-20190108-F301v1"
+      + New crac "17XTSO-CS------W-20190108-F301v1" called "17XTSO-CS------W-20190108-F301v1"
+         New network action

@@ -197,7 +197,7 @@ public final class CoreCneRemedialActionsCreator {
                 remedialActionSeries.getPartyMarketParticipant().add(newPartyMarketParticipant(TsoEICode.fromShortId(operator).getEICode()));
             }
         } catch (IllegalArgumentException e) {
-            OpenRaoLoggerProvider.TECHNICAL_LOGS.warn("Operator %s is not a country id.", operator);
+            OpenRaoLoggerProvider.TECHNICAL_LOGS.warn("Operator {} is not a country id.", operator);
         }
 
         return remedialActionSeries;

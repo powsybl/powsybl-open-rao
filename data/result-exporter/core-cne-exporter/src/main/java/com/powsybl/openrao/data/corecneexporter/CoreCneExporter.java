@@ -99,7 +99,7 @@ public class CoreCneExporter {
             Validator validator = schema.newValidator();
             validator.validate(new StreamSource(new StringReader(xmlContent)));
         } catch (IOException | SAXException e) {
-            OpenRaoLoggerProvider.TECHNICAL_LOGS.warn("Exception: %s", e.getMessage());
+            OpenRaoLoggerProvider.TECHNICAL_LOGS.warn("Exception: {}", e.getMessage());
             return false;
         }
         return true;

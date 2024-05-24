@@ -2,4 +2,5 @@
    + CSE CRAC creator
       + CSE CRAC creation report
          [REMOVED] Remedial action "cra_1" was not imported: INCOMPLETE_DATA. field 'Status' of a topological remedial action cannot be empty.
-      New crac "ruleToBeDefined" called "ruleToBeDefined"
+      + New crac "ruleToBeDefined" called "ruleToBeDefined"
+         New network action

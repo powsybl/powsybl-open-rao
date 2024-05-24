@@ -6,6 +6,7 @@
  */
 package com.powsybl.openrao.data.cracimpl;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.cracapi.range.StandardRange;
 import com.powsybl.openrao.data.cracapi.range.StandardRangeAdder;
@@ -24,8 +25,8 @@ public abstract class AbstractStandardRangeActionAdder<T extends StandardRangeAc
     protected double initialSetpoint;
     protected List<StandardRange> ranges;
 
-    AbstractStandardRangeActionAdder(CracImpl crac) {
-        super(crac);
+    AbstractStandardRangeActionAdder(CracImpl crac, ReportNode reportNode) {
+        super(crac, reportNode);
         this.ranges = new ArrayList<>();
     }
 

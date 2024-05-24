@@ -637,22 +637,22 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
 
     @Override
     public PstRangeActionAdder newPstRangeAction() {
-        return new PstRangeActionAdderImpl(this);
+        return new PstRangeActionAdderImpl(this, reportNode);
     }
 
     @Override
     public HvdcRangeActionAdder newHvdcRangeAction() {
-        return new HvdcRangeActionAdderImpl(this);
+        return new HvdcRangeActionAdderImpl(this, reportNode);
     }
 
     @Override
     public InjectionRangeActionAdder newInjectionRangeAction() {
-        return new InjectionRangeActionAdderImpl(this);
+        return new InjectionRangeActionAdderImpl(this, reportNode);
     }
 
     @Override
     public CounterTradeRangeActionAdder newCounterTradeRangeAction() {
-        return new CounterTradeRangeActionAdderImpl(this);
+        return new CounterTradeRangeActionAdderImpl(this, reportNode);
     }
 
     @Override
@@ -843,7 +843,7 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
 
     @Override
     public NetworkActionAdder newNetworkAction() {
-        return new NetworkActionAdderImpl(this);
+        return new NetworkActionAdderImpl(this, reportNode);
     }
 
     @Override

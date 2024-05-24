@@ -5,4 +5,10 @@
          [REMOVED] Critical branch "French line 2 - FFRFAK2 - FFRFAK1 - outage_2" was not imported: ELEMENT_NOT_FOUND_IN_NETWORK. branch was not found in the Network (from: FFRFAK2, to: FFRFAK1, suffix: 1).
          [REMOVED] Remedial action "cra_1" was not imported: ELEMENT_NOT_FOUND_IN_NETWORK. No bus in the network matches bus id FFR3ZZ1 .
          [REMOVED] Remedial action "cra_3" was not imported: ELEMENT_NOT_FOUND_IN_NETWORK. No bus in the network matches bus id FFR3ZZ1 .
-      New crac "2021_04_30_TEST_CSE_CRAC_1" called "2021_04_30_TEST_CSE_CRAC_1"
+      + New crac "2021_04_30_TEST_CSE_CRAC_1" called "2021_04_30_TEST_CSE_CRAC_1"
+         New network action
+         + New network action
+            NetworkAction "cra_2" does not contain any usage rule, by default it will never be available
+         New network action
+         + New network action
+            NetworkAction "cra_4" does not contain any usage rule, by default it will never be available

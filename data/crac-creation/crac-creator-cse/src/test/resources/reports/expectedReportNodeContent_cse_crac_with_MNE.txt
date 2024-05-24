@@ -8,4 +8,11 @@
          [REMOVED] Remedial action "cra_4" was not imported: ELEMENT_NOT_FOUND_IN_NETWORK. PST was not found in the Network (from: BBE2AA1 , to: BBE3ZZ1 , suffix: 1).
          [REMOVED] Remedial action "cra_5" was not imported: ELEMENT_NOT_FOUND_IN_NETWORK. element was not found in the Network (from: FFR1AA1 , to: FFR3ZZ1 , suffix: 1).
          [REMOVED] Remedial action "cra_6" was not imported: ELEMENT_NOT_FOUND_IN_NETWORK. No bus in the network matches bus id FFR3ZZ1 .
-      New crac "ruleToBeDefined" called "ruleToBeDefined"
+      + New crac "ruleToBeDefined" called "ruleToBeDefined"
+         + New network action
+            NetworkAction "cra_1" does not contain any usage rule, by default it will never be available
+         + New network action
+            NetworkAction "cra_2" does not contain any usage rule, by default it will never be available
+         New pst range action
+         New network action
+         New network action

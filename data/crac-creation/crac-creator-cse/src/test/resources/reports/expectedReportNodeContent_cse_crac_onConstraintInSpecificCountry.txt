@@ -2,4 +2,11 @@
    + CSE CRAC creator
       + CSE CRAC creation report
          [REMOVED] RA cra_6 has a non-UCTE sharedWith country : WRONG_COUNTRY. The usage rule was not created.
-      New crac "2021_04_30_TEST_CSE_CRAC_1" called "2021_04_30_TEST_CSE_CRAC_1"
+      + New crac "2021_04_30_TEST_CSE_CRAC_1" called "2021_04_30_TEST_CSE_CRAC_1"
+         New network action
+         New network action
+         New network action
+         New network action
+         New network action
+         + New network action
+            NetworkAction "cra_6" does not contain any usage rule, by default it will never be available

@@ -156,7 +156,7 @@ public final class RaoUtil {
             return false;
         }
         if (!state.getInstant().isAuto() && finalUsageMethod.equals(UsageMethod.FORCED)) {
-            OpenRaoLoggerProvider.BUSINESS_WARNS.warn(format("The 'forced' usage method is for automatons only. Therefore, %s will be ignored for this state: %s", remedialAction.getName(), state.getId()));
+            OpenRaoLoggerProvider.BUSINESS_WARNS.warn(format("The 'forced' usage method is for automatons only. Therefore, {} will be ignored for this state: {}", remedialAction.getName(), state.getId()));
             return false;
         }
         return finalUsageMethod.equals(UsageMethod.FORCED);
@@ -165,7 +165,7 @@ public final class RaoUtil {
     private static UsageMethod getFinalUsageMethod(RemedialAction<?> remedialAction, State state, FlowResult flowResult, Set<FlowCnec> flowCnecs, Network network, RaoParameters raoParameters) {
         Set<UsageRule> usageRules = remedialAction.getUsageRules();
         if (usageRules.isEmpty()) {
-            OpenRaoLoggerProvider.BUSINESS_WARNS.warn(format("The remedial action %s has no usage rule and therefore will not be available.", remedialAction.getName()));
+            OpenRaoLoggerProvider.BUSINESS_WARNS.warn(format("The remedial action {} has no usage rule and therefore will not be available.", remedialAction.getName()));
             return null;
         }
 

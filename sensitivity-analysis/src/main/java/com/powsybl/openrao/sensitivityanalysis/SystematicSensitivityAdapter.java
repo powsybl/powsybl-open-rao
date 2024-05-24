@@ -46,7 +46,7 @@ final class SystematicSensitivityAdapter {
                     cnecSensitivityProvider.getVariableSets(),
                     sensitivityComputationParameters);
         } catch (Exception e) {
-            TECHNICAL_LOGS.error("Systematic sensitivity analysis failed: %s", e.getMessage());
+            TECHNICAL_LOGS.error("Systematic sensitivity analysis failed: {}", e.getMessage());
             return new SystematicSensitivityResult(SystematicSensitivityResult.SensitivityComputationStatus.FAILURE);
         }
         TECHNICAL_LOGS.debug("Systematic sensitivity analysis [end]");
