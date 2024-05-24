@@ -32,6 +32,7 @@ public abstract class AbstractBranchCnec<T extends BranchCnec<T>> extends Abstra
                         String name,
                         NetworkElement networkElement,
                         String operator,
+                        String border,
                         State state,
                         boolean optimized,
                         boolean monitored,
@@ -39,7 +40,7 @@ public abstract class AbstractBranchCnec<T extends BranchCnec<T>> extends Abstra
                         double frm,
                         Double nominalVLeft,
                         Double nominalVRight) {
-        super(id, name, Collections.singleton(networkElement), operator, state, optimized, monitored, frm);
+        super(id, name, Collections.singleton(networkElement), operator, border, state, optimized, monitored, frm);
         this.thresholds = thresholds;
         this.nominalVoltages[0] = nominalVLeft;
         this.nominalVoltages[1] = nominalVRight;

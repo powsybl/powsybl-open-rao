@@ -44,7 +44,7 @@ public final class JsonSerializationConstants {
     v2.0: addition of instants and change in usage method logic
     v2.1: addition of ra-usage-limits
     v2.2: addition of contingency id in on-flow-constraint-in-country
-    v2.3: addition of RELATIVE_TO_PREVIOUS_TIME_STEP RangeType
+    v2.3: addition of RELATIVE_TO_PREVIOUS_TIME_STEP RangeType, and border attribute for cnecs
      */
 
     // headers
@@ -120,6 +120,7 @@ public final class JsonSerializationConstants {
     public static final String RANGES = "ranges";
     public static final String SETPOINT = "setpoint";
     public static final String OPERATOR = "operator";
+    public static final String BORDER = "border";
     public static final String ACTION_TYPE = "actionType";
     public static final String RANGE_TYPE = "rangeType";
     public static final String INITIAL_SETPOINT = "initialSetpoint";

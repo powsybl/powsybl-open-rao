@@ -74,6 +74,11 @@ public interface Cnec<I extends Cnec<I>> extends Identifiable<I> {
     String getOperator();
 
     /**
+     * Getter of the border of the Cnec
+     */
+    String getBorder();
+
+    /**
      * Returns the location of the cnec, as a set of optional countries
      *
      * @param network: the network object used to look for the location of the network element of the Cnec

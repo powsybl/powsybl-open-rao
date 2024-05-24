@@ -22,13 +22,15 @@ public abstract class AbstractCnec<I extends Cnec<I>> extends AbstractIdentifiab
     protected final State state;
     protected boolean optimized;
     protected boolean monitored;
-    protected String operator = null;
+    protected final String operator;
+    protected final String border;
     protected double reliabilityMargin = 0;
 
     protected AbstractCnec(String id,
                            String name,
                            Set<NetworkElement> networkElements,
                            String operator,
+                           String border,
                            State state,
                            boolean optimized,
                            boolean monitored,
@@ -36,6 +38,7 @@ public abstract class AbstractCnec<I extends Cnec<I>> extends AbstractIdentifiab
         super(id, name);
         this.networkElements = networkElements;
         this.operator = operator;
+        this.border = border;
         this.state = state;
         this.optimized = optimized;
         this.monitored = monitored;
@@ -77,6 +80,11 @@ public abstract class AbstractCnec<I extends Cnec<I>> extends AbstractIdentifiab
     @Override
     public String getOperator() {
         return this.operator;
+    }
+
+    @Override
+    public String getBorder() {
+        return border;
     }
 
     @Override

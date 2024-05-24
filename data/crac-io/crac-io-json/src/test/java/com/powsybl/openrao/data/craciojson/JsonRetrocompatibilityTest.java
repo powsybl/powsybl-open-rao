@@ -676,6 +676,8 @@ class JsonRetrocompatibilityTest {
     }
 
     private void testContentOfV2Point2Crac(Crac crac) {
+        testContentOfV2Point0Crac(crac);
+
         Set<OnFlowConstraintInCountry> urs = crac.getRemedialAction("injectionSetpointRa2Id").getUsageRules()
             .stream().filter(OnFlowConstraintInCountry.class::isInstance)
             .map(OnFlowConstraintInCountry.class::cast)
@@ -696,23 +698,20 @@ class JsonRetrocompatibilityTest {
         assertEquals(crac.getInstant("curative"), ur.getInstant());
         assertTrue(ur.getContingency().isEmpty());
         assertEquals(Country.FR, ur.getCountry());
-
-        testContentOfV2Point0Crac(crac);
     }
 
     private void testContentOfV2Point3Crac(Crac crac) {
-        // check that RangeAction4 are present
+        testContentOfV2Point2Crac(crac);
+
+        // check that RangeAction4 is present with new range relative to previous instant
         assertNotNull(crac.getRangeAction("pstRange4Id"));
-
-        // check Tap Range
         assertEquals(2, crac.getPstRangeAction("pstRange4Id").getRanges().size());
-
         TapRange absRange = crac.getPstRangeAction("pstRange4Id").getRanges().stream()
-                .filter(tapRange -> tapRange.getRangeType().equals(RangeType.ABSOLUTE))
-                .findAny().orElse(null);
+            .filter(tapRange -> tapRange.getRangeType().equals(RangeType.ABSOLUTE))
+            .findAny().orElse(null);
         TapRange relTimeStepRange = crac.getPstRangeAction("pstRange4Id").getRanges().stream()
-                .filter(tapRange -> tapRange.getRangeType().equals(RangeType.RELATIVE_TO_PREVIOUS_TIME_STEP))
-                .findAny().orElse(null);
+            .filter(tapRange -> tapRange.getRangeType().equals(RangeType.RELATIVE_TO_PREVIOUS_TIME_STEP))
+            .findAny().orElse(null);
 
         assertNotNull(absRange);
         assertEquals(-2, absRange.getMinTap());
@@ -722,6 +721,15 @@ class JsonRetrocompatibilityTest {
         assertEquals(4, relTimeStepRange.getMaxTap());
         assertEquals(Unit.TAP, relTimeStepRange.getUnit());
 
-        testContentOfV2Point2Crac(crac);
+        // check new border attribute
+        assertEquals("border1", crac.getCnec("cnec1outageId").getBorder());
+        assertEquals("border1", crac.getCnec("cnec1prevId").getBorder());
+        assertEquals("border2", crac.getCnec("cnec2prevId").getBorder());
+        assertEquals("border3", crac.getCnec("cnec3autoId").getBorder());
+        assertEquals("border3", crac.getCnec("cnec3curId").getBorder());
+        assertEquals("border3", crac.getCnec("cnec3prevId").getBorder());
+        assertEquals("border1", crac.getCnec("cnec4prevId").getBorder());
+        assertEquals("border4", crac.getCnec("angleCnecId").getBorder());
+        assertEquals("border5", crac.getCnec("voltageCnecId").getBorder());
     }
 }
