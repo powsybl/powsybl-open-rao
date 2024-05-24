@@ -6,6 +6,7 @@
  */
 package com.powsybl.openrao.tests.utils;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.cneexportercommons.CneExporterParameters;
@@ -72,7 +73,7 @@ public final class CneHelper {
             "receiverId", CneExporterParameters.RoleType.CAPACITY_COORDINATOR,
             "2021-04-02T12:00:00Z/2021-04-02T13:00:00Z");
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        (new SweCneExporter()).exportCne(crac, network, (CimCracCreationContext) cracCreationContext, raoResult, raoParameters, exporterParameters, outputStream);
+        (new SweCneExporter()).exportCne(crac, network, (CimCracCreationContext) cracCreationContext, raoResult, raoParameters, exporterParameters, outputStream, ReportNode.NO_OP);
         return outputStream.toString();
     }
 

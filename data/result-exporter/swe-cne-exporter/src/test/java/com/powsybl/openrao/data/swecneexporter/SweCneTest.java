@@ -103,7 +103,7 @@ class SweCneTest {
             "receiverId", CneExporterParameters.RoleType.CAPACITY_COORDINATOR,
             "2021-04-02T12:00:00Z/2021-04-02T13:00:00Z");
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        new SweCneExporter().exportCne(crac, network, (CimCracCreationContext) cracCreationContext, raoResultWithAngle, new RaoParameters(), params, outputStream);
+        new SweCneExporter().exportCne(crac, network, (CimCracCreationContext) cracCreationContext, raoResultWithAngle, new RaoParameters(), params, outputStream, ReportNode.NO_OP);
         try {
             InputStream inputStream = new FileInputStream(SweCneTest.class.getResource("/SweCNE_Z01.xml").getFile());
             compareCneFiles(inputStream, new ByteArrayInputStream(outputStream.toByteArray()));
@@ -120,7 +120,7 @@ class SweCneTest {
                 "receiverId", CneExporterParameters.RoleType.CAPACITY_COORDINATOR,
                 "2021-04-02T12:00:00Z/2021-04-02T13:00:00Z");
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        new SweCneExporter().exportCne(crac, network, (CimCracCreationContext) cracCreationContext, raoResultFailureWithAngle, new RaoParameters(), params, outputStream);
+        new SweCneExporter().exportCne(crac, network, (CimCracCreationContext) cracCreationContext, raoResultFailureWithAngle, new RaoParameters(), params, outputStream, ReportNode.NO_OP);
         try {
             InputStream inputStream = new FileInputStream(SweCneTest.class.getResource("/SweCNEWithFailure_Z01.xml").getFile());
             compareCneFiles(inputStream, new ByteArrayInputStream(outputStream.toByteArray()));

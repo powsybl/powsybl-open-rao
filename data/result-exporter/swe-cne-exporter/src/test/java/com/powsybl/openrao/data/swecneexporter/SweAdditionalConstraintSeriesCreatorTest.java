@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.data.swecneexporter;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.*;
@@ -21,6 +22,11 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
+import java.io.IOException;
+import java.io.StringWriter;
+import java.net.URISyntaxException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -38,6 +44,10 @@ class SweAdditionalConstraintSeriesCreatorTest {
     private Instant outageInstant;
     private Instant autoInstant;
     private Instant curativeInstant;
+
+    private static ReportNode buildNewRootNode() {
+        return ReportNode.newRootReportNode().withMessageTemplate("Test report node", "This is a parent report node for report tests").build();
+    }
 
     @BeforeEach
     public void setup() {
@@ -60,7 +70,7 @@ class SweAdditionalConstraintSeriesCreatorTest {
         Mockito.when(sweCneHelper.getRaoResult()).thenReturn(raoResult);
     }
 
-    private SweAdditionalConstraintSeriesCreator setUpAngleCnecs(Contingency contingency) {
+    private SweAdditionalConstraintSeriesCreator setUpAngleCnecs(Contingency contingency, ReportNode reportNode) {
         Mockito.when(contingency.getId()).thenReturn("contingency");
         AngleCnecCreationContext acc1 = createAdcs("AngleCnecId1", "contingency");
         AngleCnecCreationContext acc2 = createAdcs("AngleCnecId2", "contingency");
@@ -77,7 +87,7 @@ class SweAdditionalConstraintSeriesCreatorTest {
         Mockito.when(curativeState.getInstant()).thenReturn(curativeInstant);
         Mockito.when(angleCnec1.getState()).thenReturn(curativeState);
         Mockito.when(angleCnec2.getState()).thenReturn(curativeState);
-        return new SweAdditionalConstraintSeriesCreator(sweCneHelper, cracCreationContext);
+        return new SweAdditionalConstraintSeriesCreator(sweCneHelper, cracCreationContext, reportNode);
     }
 
     private void setUpNanAngleCnecs(Contingency contingency) {
@@ -100,7 +110,8 @@ class SweAdditionalConstraintSeriesCreatorTest {
     }
 
     @Test
-    void generatePreventiveAdditionalConstraintSeriesTest() {
+    void generatePreventiveAdditionalConstraintSeriesTest() throws IOException, URISyntaxException {
+        ReportNode reportNode = buildNewRootNode();
         AngleCnecCreationContext accPrev = createAdcs("AngleCnecIdPrev", null);
         AngleCnec angleCnecPrev = Mockito.mock(AngleCnec.class);
         Mockito.when(crac.getAngleCnec(accPrev.getCreatedCnecId())).thenReturn(angleCnecPrev);
@@ -109,13 +120,21 @@ class SweAdditionalConstraintSeriesCreatorTest {
         Mockito.when(prevState.getInstant()).thenReturn(preventiveInstant);
         Mockito.when(angleCnecPrev.getState()).thenReturn(prevState);
         Mockito.when(cracCreationContext.getAngleCnecCreationContexts()).thenReturn(Set.of(accPrev));
-        SweAdditionalConstraintSeriesCreator additionalConstraintSeriesCreator = new SweAdditionalConstraintSeriesCreator(sweCneHelper, cracCreationContext);
+        SweAdditionalConstraintSeriesCreator additionalConstraintSeriesCreator = new SweAdditionalConstraintSeriesCreator(sweCneHelper, cracCreationContext, reportNode);
         List<AdditionalConstraintSeries> basecaseAngleSeries = additionalConstraintSeriesCreator.generateAdditionalConstraintSeries(null);
         assertEquals(0, basecaseAngleSeries.size());
+
+        String expected = Files.readString(Path.of(getClass().getResource("/reports/expectedReportNodeContentPreventiveAdditionalConstraintSeries.txt").toURI()));
+        try (StringWriter writer = new StringWriter()) {
+            reportNode.print(writer);
+            String actual = writer.toString();
+            assertEquals(expected, actual);
+        }
     }
 
     @Test
-    void generateWrongPostContingencyAdditionalConstraintSeriesTest() {
+    void generateWrongPostContingencyAdditionalConstraintSeriesTest() throws IOException, URISyntaxException {
+        ReportNode reportNode = buildNewRootNode();
         AngleCnecCreationContext accOutage = createAdcs("AngleCnecIdOutage", "contingency");
         AngleCnecCreationContext accAuto = createAdcs("AngleCnecIdAuto", "contingency");
         AngleCnec angleCnecOutage = Mockito.mock(AngleCnec.class);
@@ -131,17 +150,24 @@ class SweAdditionalConstraintSeriesCreatorTest {
         Mockito.when(autoState.getInstant()).thenReturn(autoInstant);
         Mockito.when(angleCnecAuto.getState()).thenReturn(autoState);
         Mockito.when(cracCreationContext.getAngleCnecCreationContexts()).thenReturn(Set.of(accOutage, accAuto));
-        SweAdditionalConstraintSeriesCreator additionalConstraintSeriesCreator = new SweAdditionalConstraintSeriesCreator(sweCneHelper, cracCreationContext);
+        SweAdditionalConstraintSeriesCreator additionalConstraintSeriesCreator = new SweAdditionalConstraintSeriesCreator(sweCneHelper, cracCreationContext, reportNode);
         Contingency contingency = Mockito.mock(Contingency.class);
         Mockito.when(contingency.getId()).thenReturn("contingency");
         List<AdditionalConstraintSeries> otherAngleSeries = additionalConstraintSeriesCreator.generateAdditionalConstraintSeries(contingency);
         assertEquals(0, otherAngleSeries.size());
+
+        String expected = Files.readString(Path.of(getClass().getResource("/reports/expectedReportNodeContentWrongPostContingencyAdditionalConstraintSeries.txt").toURI()));
+        try (StringWriter writer = new StringWriter()) {
+            reportNode.print(writer);
+            String actual = writer.toString();
+            assertEquals(expected, actual);
+        }
     }
 
     @Test
     void generateContingencyAdditionalConstraintSeriesTest() {
         Contingency contingency = Mockito.mock(Contingency.class);
-        SweAdditionalConstraintSeriesCreator additionalConstraintSeriesCreator = setUpAngleCnecs(contingency);
+        SweAdditionalConstraintSeriesCreator additionalConstraintSeriesCreator = setUpAngleCnecs(contingency, ReportNode.NO_OP);
         List<AdditionalConstraintSeries> contingencyAngleSeries = additionalConstraintSeriesCreator.generateAdditionalConstraintSeries(contingency);
         assertEquals(2, contingencyAngleSeries.size());
         assertEquals("AngleCnecId1", contingencyAngleSeries.get(0).getMRID());
@@ -155,11 +181,11 @@ class SweAdditionalConstraintSeriesCreatorTest {
     }
 
     @Test
-    void noGenerateContingencyAdditionalConstraintSeriesWithDivergentAngleMonitoringIfFailureTest() {
+    void noGenerateContingencyAdditionalConstraintSeriesWithDivergentAngleMonitoringIfFailureTest() throws IOException, URISyntaxException {
         Contingency contingency = Mockito.mock(Contingency.class);
         Mockito.when(raoResult.getComputationStatus()).thenReturn(ComputationStatus.FAILURE);
-        setUpAngleCnecs(contingency);
-        SweAdditionalConstraintSeriesCreator additionalConstraintSeriesCreator = new SweAdditionalConstraintSeriesCreator(sweCneHelper, cracCreationContext);
+        setUpAngleCnecs(contingency, ReportNode.NO_OP);
+        SweAdditionalConstraintSeriesCreator additionalConstraintSeriesCreator = new SweAdditionalConstraintSeriesCreator(sweCneHelper, cracCreationContext, ReportNode.NO_OP);
         List<AdditionalConstraintSeries> contingencyAngleSeries = additionalConstraintSeriesCreator.generateAdditionalConstraintSeries(contingency);
         assertEquals(0, contingencyAngleSeries.size());
     }
@@ -169,7 +195,7 @@ class SweAdditionalConstraintSeriesCreatorTest {
         Contingency contingency = Mockito.mock(Contingency.class);
         Mockito.when(raoResult.getComputationStatus()).thenReturn(ComputationStatus.DEFAULT);
         setUpNanAngleCnecs(contingency);
-        SweAdditionalConstraintSeriesCreator additionalConstraintSeriesCreator = new SweAdditionalConstraintSeriesCreator(sweCneHelper, cracCreationContext);
+        SweAdditionalConstraintSeriesCreator additionalConstraintSeriesCreator = new SweAdditionalConstraintSeriesCreator(sweCneHelper, cracCreationContext, ReportNode.NO_OP);
         List<AdditionalConstraintSeries> contingencyAngleSeries = additionalConstraintSeriesCreator.generateAdditionalConstraintSeries(contingency);
         assertEquals(0, contingencyAngleSeries.size());
     }
