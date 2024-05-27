@@ -6,6 +6,7 @@ import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.cracapi.Instant;
 import com.powsybl.openrao.data.cracapi.State;
+import com.powsybl.openrao.data.cracapi.cnec.Cnec;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
 import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.cracapi.rangeaction.RangeAction;
@@ -15,6 +16,7 @@ import com.powsybl.openrao.raoapi.parameters.RangeActionsOptimizationParameters;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.searchtreerao.commons.objectivefunctionevaluator.ObjectiveFunction;
 import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.OptimizationPerimeter;
+import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.PreventiveOptimizationPerimeter;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.IteratingLinearOptimizer;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.fillers.BetweenTimeStepsFiller;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.fillers.CoreProblemFiller;
@@ -31,130 +33,167 @@ import com.powsybl.openrao.searchtreerao.result.impl.RangeActionSetpointResultIm
 import com.powsybl.openrao.sensitivityanalysis.SystematicSensitivityInterface;
 import com.powsybl.openrao.sensitivityanalysis.SystematicSensitivityResult;
 import com.powsybl.sensitivity.SensitivityAnalysisParameters;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static org.mockito.Mockito.when;
 
 public class NewRAOTest {
 
+    List<Network> networks;
+    List<Crac> cracs;
+    List<RangeActionSetpointResult> initialSetpoints;
+    List<OptimizationPerimeter> optimizationPerimeters;
+    List<Map<State, Set<PstRangeAction>>> rangeActionsPerStatePerTimestamp;
+
+    @BeforeEach
+    public void setUp() {
+        networks = new ArrayList<>();
+        networks.add(Network.read("network/12NodesProdFR.uct", getClass().getResourceAsStream("/network/12NodesProdFR.uct")));
+        networks.add(Network.read("network/12NodesProdNL.uct", getClass().getResourceAsStream("/network/12NodesProdNL.uct")));
+
+        cracs = new ArrayList<>();
+        cracs.add(CracImporters.importCrac("crac/crac-with-pst-range-action.json",
+            getClass().getResourceAsStream("/crac/crac-with-pst-range-action.json"),
+            networks.get(0)));
+        cracs.add(CracImporters.importCrac("crac/crac-with-pst-range-action_2.json",
+            getClass().getResourceAsStream("/crac/crac-with-pst-range-action_2.json"),
+            networks.get(1)));
+
+        initialSetpoints = computeInitialSetpointsResults();
+        optimizationPerimeters = computeOptimizationPerimeters();
+        rangeActionsPerStatePerTimestamp = computeRangeActionsPerStatePerTimestamp();
+
+
+    }
+
+    private List<RangeActionSetpointResult> computeInitialSetpointsResults() {
+        List<RangeActionSetpointResult> results = new ArrayList<>();
+        for (int i = 0; i < cracs.size(); i++) {
+            results.add(RangeActionSetpointResultImpl.buildWithSetpointsFromNetwork(networks.get(i), cracs.get(i).getRangeActions()));
+        }
+        return results;
+    }
+
+    private List<OptimizationPerimeter> computeOptimizationPerimeters() {
+        List<OptimizationPerimeter> perimeters = new ArrayList<>();
+        for (Crac crac : cracs) {
+            perimeters.add(new PreventiveOptimizationPerimeter(
+                crac.getPreventiveState(),
+                crac.getFlowCnecs(),
+                new HashSet<>(),
+                crac.getNetworkActions(),
+                crac.getRangeActions()));
+        }
+        return perimeters;
+    }
+
+    private List<Map<State, Set<PstRangeAction>>> computeRangeActionsPerStatePerTimestamp() {
+        List<Map<State, Set<PstRangeAction>>> rangeActionsPerStatePerTimestamp = new ArrayList<>();
+        for (Crac crac : cracs) {
+            Map<State, Set<PstRangeAction>> rangeActionsPerState = new HashMap<>();
+            crac.getStates().forEach(state -> rangeActionsPerState.put(state,
+                crac.getPotentiallyAvailableRangeActions(state).stream()
+                    .filter(ra -> ra instanceof PstRangeAction)
+                    .map(ra -> (PstRangeAction) ra)
+                    .collect(Collectors.toSet())));
+            rangeActionsPerStatePerTimestamp.add(rangeActionsPerState);
+        }
+        return rangeActionsPerStatePerTimestamp;
+
+    }
+
     @Test
     public void testNewRAO() {
-        Network network1 = Network.read("network/12NodesProdFR.uct", getClass().getResourceAsStream("/network/12NodesProdFR.uct"));
-        Network network2 = Network.read("network/12NodesProdNL.uct", getClass().getResourceAsStream("/network/12NodesProdNL.uct"));
-
-        Crac crac1 = CracImporters.importCrac("crac/crac-with-pst-range-action.json", getClass().getResourceAsStream("/crac/crac-with-pst-range-action.json"), network1);
-        Crac crac2 = CracImporters.importCrac("crac/crac-with-pst-range-action_2.json", getClass().getResourceAsStream("/crac/crac-with-pst-range-action_2.json"), network2);
-
-        RangeActionsOptimizationParameters.PstModel pstModel = RangeActionsOptimizationParameters.PstModel.APPROXIMATED_INTEGERS;
-
-        // prepare data
-        State state1 = crac1.getPreventiveState();
-        State state2 = crac2.getPreventiveState();
-
-        PstRangeAction pstRa1 = crac1.getPstRangeAction("pst_be - TS1");
-        PstRangeAction pstRa2 = crac2.getPstRangeAction("pst_be - TS2");
-
-        FlowCnec cnec1 = crac1.getFlowCnec("BBE2AA1  FFR3AA1  1 - preventive - TS1");
-        FlowCnec cnec2 = crac2.getFlowCnec("BBE2AA1  FFR3AA1  1 - preventive - TS2");
-
-        Map<Integer, Double> tapToAngle = pstRa1.getTapToAngleConversionMap(); // both PSTs have the same map
-        double initialAlpha = tapToAngle.get(0);
-        RangeActionSetpointResult initialRangeActionSetpointResult1 = new RangeActionSetpointResultImpl(Map.of(pstRa1, initialAlpha));
-        RangeActionSetpointResult initialRangeActionSetpointResult2 = new RangeActionSetpointResultImpl(Map.of(pstRa2, initialAlpha));
-
-        OptimizationPerimeter optimizationPerimeter1 = Mockito.mock(OptimizationPerimeter.class);
-        Mockito.when(optimizationPerimeter1.getFlowCnecs()).thenReturn(Set.of(cnec1));
-        Map<State, Set<RangeAction<?>>> rangeActions1 = new HashMap<>();
-        rangeActions1.put(state1, Set.of(pstRa1));
-        Mockito.when(optimizationPerimeter1.getRangeActionsPerState()).thenReturn(rangeActions1);
-        OptimizationPerimeter optimizationPerimeter2 = Mockito.mock(OptimizationPerimeter.class);
-        Mockito.when(optimizationPerimeter2.getFlowCnecs()).thenReturn(Set.of(cnec2));
-        Map<State, Set<RangeAction<?>>> rangeActions2 = new HashMap<>();
-        rangeActions2.put(state1, Set.of(pstRa2));
-        Mockito.when(optimizationPerimeter2.getRangeActionsPerState()).thenReturn(rangeActions2);
-
         RangeActionsOptimizationParameters rangeActionParameters = RangeActionsOptimizationParameters.buildFromRaoParameters(new RaoParameters());
-        rangeActionParameters.setPstModel(pstModel);
+        rangeActionParameters.setPstModel(RangeActionsOptimizationParameters.PstModel.APPROXIMATED_INTEGERS);
         OpenRaoMPSolver orMpSolver = new OpenRaoMPSolver("solver", RangeActionsOptimizationParameters.Solver.SCIP);
 
+        CoreProblemFiller coreProblemFiller0 = new CoreProblemFiller(
+            optimizationPerimeters.get(0),
+            initialSetpoints.get(0),
+            new RangeActionActivationResultImpl(initialSetpoints.get(0)),
+            rangeActionParameters,
+            Unit.MEGAWATT,
+            false);
         CoreProblemFiller coreProblemFiller1 = new CoreProblemFiller(
-            optimizationPerimeter1,
-            initialRangeActionSetpointResult1,
-            new RangeActionActivationResultImpl(initialRangeActionSetpointResult1),
+            optimizationPerimeters.get(1),
+            initialSetpoints.get(1),
+            new RangeActionActivationResultImpl(initialSetpoints.get(1)),
             rangeActionParameters,
             Unit.MEGAWATT,
             false);
-        CoreProblemFiller coreProblemFiller2 = new CoreProblemFiller(
-            optimizationPerimeter2,
-            initialRangeActionSetpointResult2,
-            new RangeActionActivationResultImpl(initialRangeActionSetpointResult2),
-            rangeActionParameters,
-            Unit.MEGAWATT,
-            false);
-        Map<State, Set<PstRangeAction>> rangeActionsPst1 = new HashMap<>();
-        rangeActionsPst1.put(state1, Set.of(pstRa1));
+
+        DiscretePstTapFiller discretePstTapFiller0 = new DiscretePstTapFiller(
+            networks.get(0),
+            optimizationPerimeters.get(0).getMainOptimizationState(),
+            rangeActionsPerStatePerTimestamp.get(0),
+            initialSetpoints.get(0));
         DiscretePstTapFiller discretePstTapFiller1 = new DiscretePstTapFiller(
-            network1,
-            state1,
-            rangeActionsPst1,
-            initialRangeActionSetpointResult1);
+            networks.get(1),
+            optimizationPerimeters.get(1).getMainOptimizationState(),
+            rangeActionsPerStatePerTimestamp.get(1),
+            initialSetpoints.get(1));
 
-        Map<State, Set<PstRangeAction>> rangeActionsPst2 = new HashMap<>();
-        rangeActionsPst2.put(state1, Set.of(pstRa2));
-        DiscretePstTapFiller discretePstTapFiller2 = new DiscretePstTapFiller(
-            network2,
-            state1,
-            rangeActionsPst2,
-            initialRangeActionSetpointResult2);
+        Set<FlowCnec> allCnecs = new HashSet<>();
+        allCnecs.addAll(cracs.get(0).getFlowCnecs());
+        allCnecs.addAll(cracs.get(1).getFlowCnecs());
+        MaxMinMarginFiller maxMinMarginFiller = new MaxMinMarginFiller(allCnecs, Unit.MEGAWATT);
 
-        MaxMinMarginFiller maxMinMarginFiller = new MaxMinMarginFiller(Set.of(cnec1, cnec2), Unit.MEGAWATT);
         BetweenTimeStepsFiller betweenTimeStepsFiller = new BetweenTimeStepsFiller(
-            List.of(crac1, crac2),
-            List.of(network1, network2),
-            state1,
+            cracs,
+            networks,
+            optimizationPerimeters.get(0).getMainOptimizationState(),
             rangeActionParameters);
+
         LinearProblem linearProblemMerge = new LinearProblemBuilder()
             .withSolver(orMpSolver)
+            .withProblemFiller(coreProblemFiller0)
             .withProblemFiller(coreProblemFiller1)
-            .withProblemFiller(coreProblemFiller2)
             .withProblemFiller(maxMinMarginFiller)
+            .withProblemFiller(discretePstTapFiller0)
             .withProblemFiller(discretePstTapFiller1)
-            .withProblemFiller(discretePstTapFiller2)
             .withProblemFiller(betweenTimeStepsFiller)
             .build();
+
+        SystematicSensitivityInterface systematicSensitivityInterface0 = SystematicSensitivityInterface.builder()
+            .withSensitivityProviderName("OpenLoadFlow")
+            .withParameters(new SensitivityAnalysisParameters())
+            .withRangeActionSensitivities(cracs.get(0).getRangeActions(), cracs.get(0).getFlowCnecs(), Set.of(Unit.MEGAWATT))
+            .withOutageInstant(cracs.get(0).getOutageInstant())
+            .build();
+        SystematicSensitivityResult systematicSensitivityResult0 = systematicSensitivityInterface0.run(networks.get(0));
 
         SystematicSensitivityInterface systematicSensitivityInterface1 = SystematicSensitivityInterface.builder()
             .withSensitivityProviderName("OpenLoadFlow")
             .withParameters(new SensitivityAnalysisParameters())
-            .withRangeActionSensitivities(Set.of(pstRa1), Set.of(cnec1), Set.of(Unit.MEGAWATT))
-            .withOutageInstant(crac1.getOutageInstant())
+            .withRangeActionSensitivities(cracs.get(1).getRangeActions(), cracs.get(1).getFlowCnecs(), Set.of(Unit.MEGAWATT))
+            .withOutageInstant(cracs.get(1).getOutageInstant())
             .build();
-        SystematicSensitivityResult systematicSensitivityResult1 = systematicSensitivityInterface1.run(network1);
-        SystematicSensitivityInterface systematicSensitivityInterface2 = SystematicSensitivityInterface.builder()
-            .withSensitivityProviderName("OpenLoadFlow")
-            .withParameters(new SensitivityAnalysisParameters())
-            .withRangeActionSensitivities(Set.of(pstRa2), Set.of(cnec2), Set.of(Unit.MEGAWATT))
-            .withOutageInstant(crac2.getOutageInstant())
-            .build();
-        SystematicSensitivityResult systematicSensitivityResult2 = systematicSensitivityInterface2.run(network2);
+        SystematicSensitivityResult systematicSensitivityResult1 = systematicSensitivityInterface1.run(networks.get(1));
 
         MultipleSensitivityResult multipleSensitivityResult = new MultipleSensitivityResult();
-        multipleSensitivityResult.addResult(systematicSensitivityResult1, Set.of(cnec1));
-        multipleSensitivityResult.addResult(systematicSensitivityResult2, Set.of(cnec2));
+        multipleSensitivityResult.addResult(systematicSensitivityResult0, cracs.get(0).getFlowCnecs());
+        multipleSensitivityResult.addResult(systematicSensitivityResult1, cracs.get(1).getFlowCnecs());
 
         linearProblemMerge.fill(multipleSensitivityResult, multipleSensitivityResult);
         linearProblemMerge.solve();
 //        System.out.println(orMpSolver.getMpSolver().exportModelAsLpFormat());
 
         // Pour avoir le setpoint après résolution du problème
+        PstRangeAction pstRa0 = cracs.get(0).getPstRangeActions().iterator().next();
+        PstRangeAction pstRa1 = cracs.get(1).getPstRangeActions().iterator().next();
+        State state0 = optimizationPerimeters.get(0).getMainOptimizationState();
+        State state1 = optimizationPerimeters.get(1).getMainOptimizationState();
+        double setpointMerge0 = linearProblemMerge.getRangeActionSetpointVariable(pstRa0, state0).solutionValue();
         double setpointMerge1 = linearProblemMerge.getRangeActionSetpointVariable(pstRa1, state1).solutionValue();
-        double setpointMerge2 = linearProblemMerge.getRangeActionSetpointVariable(pstRa2, state1).solutionValue();
 
+        System.out.println(setpointMerge0);
         System.out.println(setpointMerge1);
-        System.out.println(setpointMerge2);
 
         // --------------------------
 
@@ -164,12 +203,12 @@ public class NewRAOTest {
 //        FlowResultImpl initialFlowResult = new FlowResultImpl();
 
         ObjectiveFunction objectiveFunction = ObjectiveFunction.create().build(
-            Set.of(cnec1,cnec2),
+            allCnecs,
             Collections.emptySet(),
             multipleSensitivityResult,
             multipleSensitivityResult,
-            initialRangeActionSetpointResult1, //??
-            crac1, //??
+            initialSetpoints.get(0), //??
+            cracs.get(0), //??
             Collections.emptySet(),
             RaoParameters.load()
             );
@@ -240,7 +279,7 @@ public class NewRAOTest {
 //        System.out.println(setpoint1);
 //        System.out.println(setpoint2);
 //
-//        System.out.println(orMpSolver2.getMpSolver().exportModelAsLpFormat());
+//        System.out.println(orMpSolver2.getMpSolver().exportModelAsLpFormat());/**/
 
     }
 }
