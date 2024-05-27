@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem;
 
+import com.google.ortools.Loader;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider;
 import com.powsybl.openrao.raoapi.parameters.RangeActionsOptimizationParameters;
@@ -26,6 +27,14 @@ import java.util.Map;
  */
 public class OpenRaoMPSolver {
 
+    static {
+        try {
+            Loader.loadNativeLibraries();
+        } catch (Exception e) {
+            OpenRaoLoggerProvider.TECHNICAL_LOGS.error("Native library jniortools could not be loaded. You can ignore this message if it is not needed.");
+        }
+    }
+
     private static final int NUMBER_OF_BITS_TO_ROUND_OFF = 30;
     private final MPSolver mpSolver;
     private MPSolverParameters solveConfiguration;
@@ -34,8 +43,12 @@ public class OpenRaoMPSolver {
     OpenRaoMPObjective objective;
 
     // Only for tests
-    protected OpenRaoMPSolver() {
-        mpSolver = null;
+    public OpenRaoMPSolver() {
+        this("test", RangeActionsOptimizationParameters.Solver.SCIP);
+    }
+
+    public MPSolver getMpSolver(){
+        return mpSolver;
     }
 
     public OpenRaoMPSolver(String optProblemName, RangeActionsOptimizationParameters.Solver solver) {
