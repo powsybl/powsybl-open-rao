@@ -1,5 +1,6 @@
 package com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem;
 
+import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.Crac;
@@ -9,16 +10,21 @@ import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
 import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.cracapi.rangeaction.RangeAction;
 import com.powsybl.openrao.data.cracioapi.CracImporters;
+import com.powsybl.openrao.raoapi.parameters.ObjectiveFunctionParameters;
 import com.powsybl.openrao.raoapi.parameters.RangeActionsOptimizationParameters;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
+import com.powsybl.openrao.searchtreerao.commons.objectivefunctionevaluator.ObjectiveFunction;
 import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.OptimizationPerimeter;
+import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.IteratingLinearOptimizer;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.fillers.BetweenTimeStepsFiller;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.fillers.CoreProblemFiller;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.fillers.DiscretePstTapFiller;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.fillers.MaxMinMarginFiller;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.inputs.IteratingLinearOptimizerInput;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.parameters.IteratingLinearOptimizerParameters;
+import com.powsybl.openrao.searchtreerao.result.api.LinearOptimizationResult;
 import com.powsybl.openrao.searchtreerao.result.api.RangeActionSetpointResult;
+import com.powsybl.openrao.searchtreerao.result.impl.FlowResultImpl;
 import com.powsybl.openrao.searchtreerao.result.impl.MultipleSensitivityResult;
 import com.powsybl.openrao.searchtreerao.result.impl.RangeActionActivationResultImpl;
 import com.powsybl.openrao.searchtreerao.result.impl.RangeActionSetpointResultImpl;
@@ -28,12 +34,9 @@ import com.powsybl.sensitivity.SensitivityAnalysisParameters;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
-//import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.when;
 
 public class NewRAOTest {
 
@@ -144,7 +147,7 @@ public class NewRAOTest {
 
         linearProblemMerge.fill(multipleSensitivityResult, multipleSensitivityResult);
         linearProblemMerge.solve();
-        System.out.println(orMpSolver.getMpSolver().exportModelAsLpFormat());
+//        System.out.println(orMpSolver.getMpSolver().exportModelAsLpFormat());
 
         // Pour avoir le setpoint après résolution du problème
         double setpointMerge1 = linearProblemMerge.getRangeActionSetpointVariable(pstRa1, state1).solutionValue();
@@ -153,27 +156,60 @@ public class NewRAOTest {
         System.out.println(setpointMerge1);
         System.out.println(setpointMerge2);
 
-        IteratingLinearOptimizerInput input;
-        IteratingLinearOptimizerParameters parameters;
-        Instant preventiveInstant = Mockito.mock(Instant.class);
+        // --------------------------
 
-//
-//        input = Mockito.mock(IteratingLinearOptimizerInput.class);
-//        when(input.getObjectiveFunction()).thenReturn(objectiveFunction);
-//        when(input.getPreOptimizationSensitivityResult()).thenReturn(multipleSensitivityResult);
-//
-//        // which perimeter??
-//        when(input.getOptimizationPerimeter()).thenReturn(optimizationPerimeter1);
-//
-//        parameters = Mockito.mock(IteratingLinearOptimizerParameters.class);
-//        RangeActionsOptimizationParameters.LinearOptimizationSolver solverParameters = Mockito.mock(RangeActionsOptimizationParameters.LinearOptimizationSolver.class);
-//        when(solverParameters.getSolver()).thenReturn(RangeActionsOptimizationParameters.Solver.CBC);
-//        when(parameters.getSolverParameters()).thenReturn(solverParameters);
-//        when(parameters.getMaxNumberOfIterations()).thenReturn(5);
-//        when(parameters.getObjectiveFunction()).thenReturn(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_MARGIN_IN_MEGAWATT);
-//        when(parameters.getRaRangeShrinking()).thenReturn(false);
-//
-//        LinearOptimizationResult result = IteratingLinearOptimizer.optimize(input, parameters, preventiveInstant);
+        Instant preventiveInstant = Mockito.mock(Instant.class);
+        Instant outageInstant = Mockito.mock(Instant.class);
+
+//        FlowResultImpl initialFlowResult = new FlowResultImpl();
+
+        ObjectiveFunction objectiveFunction = ObjectiveFunction.create().build(
+            Set.of(cnec1,cnec2),
+            Collections.emptySet(),
+            multipleSensitivityResult,
+            multipleSensitivityResult,
+            initialRangeActionSetpointResult1, //??
+            crac1, //??
+            Collections.emptySet(),
+            RaoParameters.load()
+            );
+//        ObjectiveFunction.create().build(optPerimeter.getFlowCnecs(), optPerimeter.getLoopFlowCnecs(), initialResult, initialResult, initialResult, raoInput.getCrac(), Collections.emptySet(), raoParameters)
+
+
+        IteratingLinearOptimizerInput input = IteratingLinearOptimizerInput.create()
+            .withNetwork(network1)
+            .withOptimizationPerimeter(optimizationPerimeter1)
+            .withInitialFlowResult(multipleSensitivityResult)
+            .withPrePerimeterFlowResult(multipleSensitivityResult)
+            .withPrePerimeterSetpoints(initialRangeActionSetpointResult1)
+            .withPreOptimizationFlowResult(multipleSensitivityResult) //??
+            .withPreOptimizationSensitivityResult(multipleSensitivityResult) //???
+//            .withPreOptimizationAppliedRemedialActions(appliedRemedialActionsInSecondaryStates)
+            .withRaActivationFromParentLeaf(new RangeActionActivationResultImpl(initialRangeActionSetpointResult1))
+            .withObjectiveFunction(objectiveFunction)
+//            .withToolProvider(searchTreeInput.getToolProvider())
+//            .withOutageInstant(searchTreeInput.getOutageInstant())
+            .build();
+
+
+        IteratingLinearOptimizerParameters parameters = IteratingLinearOptimizerParameters.create()
+            .withObjectiveFunction(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_MARGIN_IN_MEGAWATT)
+            .withRangeActionParameters(rangeActionParameters)
+//            .withMnecParameters(parameters.getMnecParameters())
+            .withMaxMinRelativeMarginParameters(parameters.getMaxMinRelativeMarginParameters())
+//            .withLoopFlowParameters(parameters.getLoopFlowParameters())
+//            .withUnoptimizedCnecParameters(parameters.getUnoptimizedCnecParameters())
+//            .withRaLimitationParameters(getRaLimitationParameters(searchTreeInput.getOptimizationPerimeter(), parameters))
+            .withSolverParameters(RangeActionsOptimizationParameters.LinearOptimizationSolver.load(PlatformConfig.defaultConfig()))
+            .withMaxNumberOfIterations(3)
+//            .withRaRangeShrinking(parameters.getTreeParameters().raRangeShrinking())
+            .build();
+
+        LinearOptimizationResult result = IteratingLinearOptimizer.optimize(input, parameters, preventiveInstant);
+
+        System.out.println(result.getStatus());
+        System.out.println(result.getOptimizedSetpoint(pstRa1, state1));
+
 
 //        // Résultat des deux LP séparés
 //        OpenRaoMPSolver orMpSolver1 = new OpenRaoMPSolver("solver1", RangeActionsOptimizationParameters.Solver.SCIP);
