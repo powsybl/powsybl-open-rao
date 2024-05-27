@@ -224,7 +224,10 @@ Finally, a CNEC can be named in the following way : _[network element name] - [s
   </RemedialAction_Series>
 </Series>
 ```
-AngleCnecs are easily distinguishable thanks to the AdditionalConstraint_Series tag.  They define an AngleCnec in curative with an importing element, an exporting element (cf. the two registered resources) and with a threshold with a max bound defined by quantity.  
+AngleCnecs are easily distinguishable thanks to the AdditionalConstraint_Series tag.  
+They define an AngleCnec in curative with an importing element, an exporting element (cf. the two registered resources) 
+and with a threshold with a max bound defined by quantity. In order to be secure, they must respect:  
+exporting element angle - importing element angle <= max bound    
 In the CIM CRAC, AngleCnecs are actually defined with their corresponding remedial actions in B56 Series (ie Remedial Action series). The Contingency_Series (unique) refers to the contingency after which the AngleCnec is monitored.  
 
 ### VoltageCnecs 
@@ -274,7 +277,7 @@ By default, the operator is read from the RemedialAction_Series' mRID, as the st
 RemedialAction_Series may also contain Contingency_Series, Monitored_Series and Shared_Domain tags. Remedial actions' [usage rules](json.md#remedial-actions-and-usages-rules) will be defined depending on these tags: 
 - RemedialAction_Series that don't have any Monitored_Series children tags nor any Shared_Domain tags define **FreeToUse** remedial actions.
 - When Monitored_Series tags exist, they define CNECs for which the remedial action series is available. These CNECs could have been defined previously in B57 series, or they are only defined in this B56 series following the [same logic described previously](#cnecs). When the RemedialAction_Series also contains a Contingency_Series, the only CNECs from the Monitored_Series tags that will be considered are those that list CNECs defined with a contingency from the Contingency_Series. For each remaining CNEC, the remedial action is defined with a **OnFlowConstraint** on the remedial action's instant.
-- When the RemedialAction_Series has no Contingency_Series, no Monitored_Series, and a Shared_Domain tag, the Shared_Domain tag must be taken into account. It represents a country. Then, the remedial action is defined with a **OnFlowConstraintInCountry** on the remedial action's instant.  
+- When the RemedialAction_Series has no Monitored_Series, and a Shared_Domain tag, the Shared_Domain tag must be taken into account. It represents a country. Then, the remedial action is defined with a **OnFlowConstraintInCountry** on the remedial action's instant after the given contingencies.  
 
 Some remedial actions may have to be aligned in order to keep the same set-point value. 
 When it's the case, this information is retrieved [from the CracCreationParameters file](creation-parameters.md#range-action-groups-cim) 

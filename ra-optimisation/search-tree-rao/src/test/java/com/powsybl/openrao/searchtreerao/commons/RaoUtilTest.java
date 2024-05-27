@@ -158,25 +158,6 @@ class RaoUtilTest {
     }
 
     @Test
-    void testRounding() {
-        double d1 = 1.;
-
-        // big enough deltas are not rounded out by the rounding method
-        double eps = 1e-6;
-        double d2 = d1 + eps;
-        for (int i = 0; i <= 30; i++) {
-            assertNotEquals(RaoUtil.roundDouble(d1, i), RaoUtil.roundDouble(d2, i), 1e-20);
-        }
-
-        // small deltas are rounded out as long as we round enough bits
-        eps = 1e-15;
-        d2 = d1 + eps;
-        for (int i = 20; i <= 30; i++) {
-            assertEquals(RaoUtil.roundDouble(d1, i), RaoUtil.roundDouble(d2, i), 1e-20);
-        }
-    }
-
-    @Test
     void testGetLargestCnecThreshold() {
         FlowCnec cnecA = Mockito.mock(FlowCnec.class);
         FlowCnec cnecB = Mockito.mock(FlowCnec.class);
@@ -340,6 +321,7 @@ class RaoUtilTest {
         Instant curativeInstant = crac.getInstant(CURATIVE_INSTANT_ID);
         State optimizedState = Mockito.mock(State.class);
         when(optimizedState.getInstant()).thenReturn(curativeInstant);
+        when(optimizedState.getContingency()).thenReturn(Optional.of(crac.getContingency("Contingency FR1 FR3")));
 
         FlowCnec cnecCont1 = crac.getFlowCnec("cnec1stateCurativeContingency1");
         FlowCnec cnecCont2 = crac.getFlowCnec("cnec2stateCurativeContingency2");
