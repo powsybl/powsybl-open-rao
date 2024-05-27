@@ -47,7 +47,7 @@ public class OpenRaoMPSolver {
         this("test", RangeActionsOptimizationParameters.Solver.SCIP);
     }
 
-    public MPSolver getMpSolver(){
+    public MPSolver getMpSolver() {
         return mpSolver;
     }
 

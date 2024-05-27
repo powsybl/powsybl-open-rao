@@ -50,7 +50,7 @@ public class BetweenTimeStepsFiller implements ProblemFiller {
     public void updateBetweenSensiIteration(LinearProblem linearProblem, FlowResult flowResult, SensitivityResult sensitivityResult, RangeActionActivationResult rangeActionActivationResult) {
         //run?
         if (rangeActionParameters.getPstModel() == RangeActionsOptimizationParameters.PstModel.APPROXIMATED_INTEGERS) {
-            for (Map.Entry<RangeAction<?>,RangeAction<?>> rangeAction: rangeActionsConstraintsToUpdate.entrySet()) {
+            for (Map.Entry<RangeAction<?>, RangeAction<?>> rangeAction : rangeActionsConstraintsToUpdate.entrySet()) {
                 updateTapValueContraints(linearProblem, rangeAction.getKey(), rangeAction.getValue(), state, rangeActionActivationResult);
             }
         }
@@ -59,7 +59,7 @@ public class BetweenTimeStepsFiller implements ProblemFiller {
     @Override
     public void updateBetweenMipIteration(LinearProblem linearProblem, RangeActionActivationResult rangeActionActivationResult) {
         if (rangeActionParameters.getPstModel() == RangeActionsOptimizationParameters.PstModel.APPROXIMATED_INTEGERS) {
-            for (Map.Entry<RangeAction<?>,RangeAction<?>> rangeAction: rangeActionsConstraintsToUpdate.entrySet()) {
+            for (Map.Entry<RangeAction<?>, RangeAction<?>> rangeAction : rangeActionsConstraintsToUpdate.entrySet()) {
                 updateTapValueContraints(linearProblem, rangeAction.getKey(), rangeAction.getValue(), state, rangeActionActivationResult);
             }
         }
@@ -74,31 +74,31 @@ public class BetweenTimeStepsFiller implements ProblemFiller {
         for (int i = 1; i < cracsList.size(); i++) {
             for (PstRangeAction currentRangeAction : cracsList.get(i).getPstRangeActions()) {
                 Set<PstRangeAction> previousRangeActionSet = cracsList.get(i - 1)
-                        .getPstRangeActions()
-                        .stream()
-                        .filter(pstRangeAction -> pstRangeAction.getNetworkElement().getName().equals(currentRangeAction.getNetworkElement().getName()))
-                        .collect(Collectors.toSet());
+                    .getPstRangeActions()
+                    .stream()
+                    .filter(pstRangeAction -> pstRangeAction.getNetworkElement().getName().equals(currentRangeAction.getNetworkElement().getName()))
+                    .collect(Collectors.toSet());
                 if (previousRangeActionSet.size() == 1) {
                     if (rangeActionParameters.getPstModel() == RangeActionsOptimizationParameters.PstModel.CONTINUOUS) {
                         buildConstraintOneTimeStepContinuous(
-                                linearProblem,
-                                currentRangeAction,
-                                previousRangeActionSet.stream().findAny().orElse(null),
-                                state);
+                            linearProblem,
+                            currentRangeAction,
+                            previousRangeActionSet.stream().findAny().orElse(null),
+                            state);
                     } else if (rangeActionParameters.getPstModel() == RangeActionsOptimizationParameters.PstModel.APPROXIMATED_INTEGERS) {
                         buildConstraintOneTimeStepDiscrete(
-                                linearProblem,
-                                currentRangeAction,
-                                previousRangeActionSet.stream().findAny().orElse(null),
-                                state,
-                                i);
+                            linearProblem,
+                            currentRangeAction,
+                            previousRangeActionSet.stream().findAny().orElse(null),
+                            state,
+                            i);
                     }
 
                 } else if (previousRangeActionSet.size() > 1) {
                     throw new NotImplementedException(
-                            previousRangeActionSet.size()
-                                    + " PST found for the same network element: "
-                                    + currentRangeAction.getNetworkElement().getName()
+                        previousRangeActionSet.size()
+                            + " PST found for the same network element: "
+                            + currentRangeAction.getNetworkElement().getName()
                     );
                 }
             }
@@ -108,16 +108,15 @@ public class BetweenTimeStepsFiller implements ProblemFiller {
     /**
      * Add constraint on the preivous time step for a Pst
      * Continuous case: constraint on setpoint variables
-     *
      */
     private void buildConstraintOneTimeStepContinuous(LinearProblem linearProblem, PstRangeAction currentRangeAction, PstRangeAction previousRangeAction, State state) {
         OpenRaoMPVariable currentTimeStepVariable = linearProblem.getRangeActionSetpointVariable(currentRangeAction, state);
         OpenRaoMPVariable previousTimeStepVariable = linearProblem.getRangeActionSetpointVariable(previousRangeAction, state);
         List<TapRange> ranges = currentRangeAction.getRanges();
         List<TapRange> rangesRelativeTimeStep = ranges
-                .stream()
-                .filter(range -> range.getRangeType() == RangeType.RELATIVE_TO_PREVIOUS_TIME_STEP)
-                .toList();
+            .stream()
+            .filter(range -> range.getRangeType() == RangeType.RELATIVE_TO_PREVIOUS_TIME_STEP)
+            .toList();
         for (TapRange range : rangesRelativeTimeStep) {
             List<Integer> minAndMaxRelativeSetPoints = getMinAndMaxTapsTimeStep(range);
 
@@ -133,11 +132,9 @@ public class BetweenTimeStepsFiller implements ProblemFiller {
         }
     }
 
-
     /**
      * Add constrainton the preivous time step for a Pst
      * Discrete case: constraint on tap variables
-     *
      */
     private void buildConstraintOneTimeStepDiscrete(LinearProblem linearProblem, PstRangeAction currentRangeAction, PstRangeAction previousRangeAction, State state, int timeStepIndex) {
         OpenRaoMPVariable pstTapCurrentDownwardVariationVariable = linearProblem.getPstTapVariationVariable(currentRangeAction, state, LinearProblem.VariationDirectionExtension.DOWNWARD);
@@ -145,16 +142,14 @@ public class BetweenTimeStepsFiller implements ProblemFiller {
         OpenRaoMPVariable pstTapPreviousDownwardVariationVariable = linearProblem.getPstTapVariationVariable(previousRangeAction, state, LinearProblem.VariationDirectionExtension.DOWNWARD);
         OpenRaoMPVariable pstTapPreviousUpwardVariationVariable = linearProblem.getPstTapVariationVariable(previousRangeAction, state, LinearProblem.VariationDirectionExtension.UPWARD);
 
-
         List<TapRange> ranges = currentRangeAction.getRanges();
         List<TapRange> rangesRelativeTimeStep = ranges
-                .stream()
-                .filter(range -> range.getRangeType() == RangeType.RELATIVE_TO_PREVIOUS_TIME_STEP)
-                .toList();
+            .stream()
+            .filter(range -> range.getRangeType() == RangeType.RELATIVE_TO_PREVIOUS_TIME_STEP)
+            .toList();
         for (TapRange range : rangesRelativeTimeStep) {
             List<Integer> minAndMaxRelativeTaps = getMinAndMaxTapsTimeStep(range);
             rangeActionsConstraintsToUpdate.put(currentRangeAction, previousRangeAction);
-
 
             double minRelativeTap = minAndMaxRelativeTaps.get(0);
             double maxRelativeTap = minAndMaxRelativeTaps.get(1);
@@ -173,7 +168,6 @@ public class BetweenTimeStepsFiller implements ProblemFiller {
             relSetPointConstraint.setCoefficient(pstTapPreviousDownwardVariationVariable, 1);
         }
     }
-
 
     private List<Integer> getMinAndMaxTapsTimeStep(TapRange range) {
 
@@ -196,9 +190,9 @@ public class BetweenTimeStepsFiller implements ProblemFiller {
 
             List<TapRange> ranges = pstCurrentRangeAction.getRanges();
             List<TapRange> rangesRelativeTimeStep = ranges
-                    .stream()
-                    .filter(range -> range.getRangeType() == RangeType.RELATIVE_TO_PREVIOUS_TIME_STEP)
-                    .toList();
+                .stream()
+                .filter(range -> range.getRangeType() == RangeType.RELATIVE_TO_PREVIOUS_TIME_STEP)
+                .toList();
 
             for (TapRange range : rangesRelativeTimeStep) {
                 List<Integer> minAndMaxRelativeTaps = getMinAndMaxTapsTimeStep(range);
@@ -212,7 +206,7 @@ public class BetweenTimeStepsFiller implements ProblemFiller {
                 double ubConstraintUpdate = maxRelativeTap - currentTimeStepTapOptimized + previousTimeStepTapOptimized;
                 System.out.println(lbConstraintUpdate);
                 System.out.println(ubConstraintUpdate);
-                tapRelTimeStepConstraint.setBounds(lbConstraintUpdate,ubConstraintUpdate);
+                tapRelTimeStepConstraint.setBounds(lbConstraintUpdate, ubConstraintUpdate);
             }
         }
     }

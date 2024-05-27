@@ -136,6 +136,7 @@ class MaxMinMarginFillerTest extends AbstractFillerTest {
         // check minimum margin variable
         OpenRaoMPVariable minimumMargin = linearProblem.getMinimumMarginVariable();
         assertNotNull(minimumMargin);
+        System.out.println(mpSolver.getMpSolver().exportModelAsLpFormat());
 
         // check minimum margin constraints
         OpenRaoMPConstraint cnec1AboveThreshold = linearProblem.getMinimumMarginConstraint(cnec1, Side.LEFT, LinearProblem.MarginExtension.ABOVE_THRESHOLD);

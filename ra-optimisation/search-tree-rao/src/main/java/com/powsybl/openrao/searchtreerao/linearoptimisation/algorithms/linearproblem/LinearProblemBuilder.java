@@ -6,8 +6,6 @@
  */
 package com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem;
 
-import com.google.ortools.Loader;
-import com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider;
 import com.powsybl.openrao.data.cracapi.State;
 import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.cracapi.rangeaction.RangeAction;
@@ -166,11 +164,11 @@ public class LinearProblemBuilder {
 
     private ProblemFiller buildUnoptimizedCnecFiller() {
         return new UnoptimizedCnecFiller(
-                inputs.getOptimizationPerimeter(),
-                inputs.getOptimizationPerimeter().getFlowCnecs(),
-                inputs.getPrePerimeterFlowResult(),
-                parameters.getUnoptimizedCnecParameters(),
-                parameters.getRangeActionParameters()
+            inputs.getOptimizationPerimeter(),
+            inputs.getOptimizationPerimeter().getFlowCnecs(),
+            inputs.getPrePerimeterFlowResult(),
+            parameters.getUnoptimizedCnecParameters(),
+            parameters.getRangeActionParameters()
         );
     }
 
