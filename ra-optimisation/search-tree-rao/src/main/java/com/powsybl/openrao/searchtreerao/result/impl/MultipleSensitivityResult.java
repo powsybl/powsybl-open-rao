@@ -62,7 +62,7 @@ public class MultipleSensitivityResult implements SensitivityResult, FlowResult 
 
     @Override
     public ComputationStatus getSensitivityStatus() {
-        for (SystematicSensitivityResult systematicSensitivityResult:systematicSensitivityResults.values()) {
+        for (SystematicSensitivityResult systematicSensitivityResult : systematicSensitivityResults.values()) {
             switch (systematicSensitivityResult.getStatus()) {
                 case SUCCESS:
                     continue;
@@ -77,7 +77,7 @@ public class MultipleSensitivityResult implements SensitivityResult, FlowResult 
 
     @Override
     public ComputationStatus getSensitivityStatus(State state) {
-        for (SystematicSensitivityResult systematicSensitivityResult:systematicSensitivityResults.values()) {
+        for (SystematicSensitivityResult systematicSensitivityResult : systematicSensitivityResults.values()) {
             switch (systematicSensitivityResult.getStatus(state)) {
                 case SUCCESS:
                     continue;
@@ -93,8 +93,8 @@ public class MultipleSensitivityResult implements SensitivityResult, FlowResult 
     @Override
     public Set<String> getContingencies() {
         return systematicSensitivityResults.values().stream()
-                .flatMap(sensitivityResult -> sensitivityResult.getContingencies().stream())
-                .collect(Collectors.toSet());
+            .flatMap(sensitivityResult -> sensitivityResult.getContingencies().stream())
+            .collect(Collectors.toSet());
     }
 
     @Override

@@ -38,7 +38,7 @@ public final class PstRangeActionImpl extends AbstractRangeAction<PstRangeAction
     private final int highTapPosition;
 
     PstRangeActionImpl(String id, String name, String operator, Set<UsageRule> usageRules, List<TapRange> ranges,
-                              NetworkElement networkElement, String groupId, int initialTap, Map<Integer, Double> tapToAngleConversionMap, Integer speed) {
+                       NetworkElement networkElement, String groupId, int initialTap, Map<Integer, Double> tapToAngleConversionMap, Integer speed) {
         super(id, name, operator, usageRules, groupId, speed);
         this.networkElement = networkElement;
         this.ranges = ranges;
@@ -166,7 +166,7 @@ public final class PstRangeActionImpl extends AbstractRangeAction<PstRangeAction
 
         for (TapRange range : ranges) {
             //TODO: rewrite this a cleaner way
-            if (range.getRangeType() != RangeType.RELATIVE_TO_PREVIOUS_TIME_STEP){
+            if (range.getRangeType() != RangeType.RELATIVE_TO_PREVIOUS_TIME_STEP) {
                 minTap = Math.max(minTap, getRangeMinTapAsAbsoluteCenteredOnZero(range, previousInstantTap));
                 maxTap = Math.min(maxTap, getRangeMaxTapAsAbsoluteCenteredOnZero(range, previousInstantTap));
             }
