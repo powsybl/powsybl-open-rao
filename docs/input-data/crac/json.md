@@ -728,13 +728,8 @@ OpenRAO has the following usage rules with their activation conditions:
   and an optional [contingency](#contingencies): the usage method is activated if any FlowCnec in the given country is
   constrained (ie has a flow greater than one of its thresholds) at the given instant. If a contingency is defined, then 
   only constraints on FlowCnecs with the same contingency count.  
-- the **OnFlowConstraint** usage rule (defined for a specific [instant](#instants-and-states) and a specific [FlowCnec](#flow-cnecs)):
-  the usage method is activated if the given FlowCnec is constrained at the given instant.
-- the **OnAngleConstraint** usage rule (defined for a specific [instant](#instants-and-states) and a specific [AngleCnec](#angle-cnecs)):
-  the usage method is activated if the given AngleCnec is constrained at the given instant.
-- the **OnVoltageConstraint** usage rule (defined for a specific [instant](#instants-and-states) and a specific [VoltageCnec](#voltage-cnecs)):
-  the usage method is activated if the given VoltageCnec is constrained at the given instant.
-
+- the **OnConstraint** usage rule (defined for a specific [instant](#instants-and-states) and a specific [Cnec](#cnecs)):
+  the usage method is activated if the given Cnec is constrained at the given instant.
 
 A remedial action has an operator, which is the name of the TSO which operates the remedial action.
 
@@ -757,9 +752,9 @@ crac.newNetworkAction()
         .add();
 
 crac.newNetworkAction()
-    .newOnFlowConstraintUsageRule()
+    .newOnConstraintUsageRule()
         .withInstant("auto")
-        .withFlowCnec("flow-cnec-id")
+        .withCnec("flow-cnec-id")
         .add();
 
 crac.newNetworkAction()
@@ -770,46 +765,44 @@ crac.newNetworkAction()
         .add();
 
 crac.newNetworkAction()
-    .newOnAngleConstraintUsageRule()
+    .newOnConstraintUsageRule()
         .withInstant("curative")
-        .withAngleCnec("angle-cnec-id")
+        .withCnec("angle-cnec-id")
         .add();
 
 crac.newNetworkAction()
-    .newOnVoltageConstraintUsageRule()
+    .newOnConstraintUsageRule()
         .withInstant("curative")
-        .withVoltageCnec("voltage-cnec-id")
+        .withCnec("voltage-cnec-id")
         .add();
 ~~~
 :::
 :::{group-tab} JSON file
 Complete examples of Network and Range Action in Json format are given in the following paragraphs
 ~~~json
-"freeToUseUsageRules" : [ {
+"onInstantUsageRules" : [ {
   "instant" : "preventive",
   "usageMethod" : "available"
 } ],
-"onStateUsageRules" : [ {
+"onContingencyStateUsageRules" : [ {
   "instant" : "curative",
   "contingencyId" : "contingency-id",
   "usageMethod" : "available"
 } ],
-"onFlowConstraintUsageRules" : [ {
+"onConstraintUsageRules" : [ {
     "instant" : "auto",
     "flowCnecId" : "flow-cnec-id"
+}, {
+    "instant" : "curative",
+    "angleCnecId" : "angle-cnec-id"
+}, {
+    "instant" : "curative",
+    "voltageCnecId" : "voltage-cnec-id"
 } ],
 "onFlowConstraintInCountryUsageRules" : [ {
     "instant" : "preventive",
     "contingencyId" : "contingency-id",
     "country" : "FR"
-} ],
-"onAngleConstraintUsageRules" : [ {
-    "instant" : "curative",
-    "angleCnecId" : "angle-cnec-id"
-} ],
-"onVoltageConstraintUsageRules" : [ {
-    "instant" : "curative",
-    "voltageCnecId" : "voltage-cnec-id"
 } ]
 ~~~
 :::
@@ -825,15 +818,9 @@ Complete examples of Network and Range Action in Json format are given in the fo
 🔴 **instant**  
 🔵 **contingency**: must be the id of a contingency that exists in the CRAC  
 🔴 **country**: must be the [alpha-2 code of a country](https://github.com/powsybl/powsybl-core/blob/main/iidm/iidm-api/src/main/java/com/powsybl/iidm/network/Country.java)  
-<ins>**For OnFlowConstraint usage rules**</ins>  
+<ins>**For OnConstraint usage rules**</ins>  
 🔴 **instant**  
-🔴 **flowCnecId**: must be the id of a [FlowCnec](#flow-cnecs) that exists in the CRAC  
-<ins>**For OnAngleConstraint usage rules**</ins>  
-🔴 **instant**  
-🔴 **angleCnecId**: must be the id of an [AngleCnec](#angle-cnecs) that exists in the CRAC  
-<ins>**For OnVoltageConstraint usage rules**</ins>  
-🔴 **instant**  
-🔴 **voltageCnecId**: must be the id of an [VoltageCnec](#voltage-cnecs) that exists in the CRAC  
+🔴 **cnecId**: must be the id of a [Cnec](#cnecs) that exists in the CRAC  
 <ins>**Usage methods**</ins>  
 OpenRAO handles three different types of usage methods sorted by priority:
 1- **UNAVAILABLE**: the remedial action can not be considered by the RAO.
@@ -927,7 +914,7 @@ crac.newNetworkAction()
     "id" : "topological-na-id",
     "name" : "topological-na-name",
     "operator" : "operator",
-    "freeToUseUsageRules" : [ {
+    "onInstantUsageRules" : [ {
       "instant" : "preventive",
       "usageMethod" : "available"
     } ],
@@ -942,7 +929,7 @@ crac.newNetworkAction()
     "id" : "pst-setpoint-na-id",
     "name" : "pst-setpoint-na-name",
     "operator" : "operator",
-    "freeToUseUsageRules" : [ {
+    "onInstantUsageRules" : [ {
       "instant" : "preventive",
       "usageMethod" : "available"
     } ],
@@ -954,11 +941,11 @@ crac.newNetworkAction()
     "id" : "injection-setpoint-na-id",
     "name" : "injection-setpoint-na-id",
     "operator" : "operator",
-    "freeToUseUsageRules" : [ {
+    "onInstantUsageRules" : [ {
       "instant" : "preventive",
       "usageMethod" : "available"
     } ],
-    "onStateUsageRules" : [ {
+    "onContingencyStateUsageRules" : [ {
       "instant" : "curative",
       "contingencyId" : "contingency-id",
       "usageMethod" : "available"
@@ -972,7 +959,7 @@ crac.newNetworkAction()
     "id" : "switch-pair-na-id",
     "name" : "switch-pair-na-id",
     "operator" : "operator",
-    "freeToUseUsageRules" : [ {
+    "onInstantUsageRules" : [ {
       "instant" : "preventive",
       "usageMethod" : "available"
     } ],
@@ -990,8 +977,7 @@ crac.newNetworkAction()
 ⚪ **freeToUse usage rules**: list of 0 to N FreeToUse usage rules (see previous paragraph on [usage rules](#remedial-actions-and-usages-rules))  
 ⚪ **onState usage rules**: list of 0 to N OnState usage rules (see previous paragraph on [usage rules](#remedial-actions-and-usages-rules))  
 ⚪ **onFlowConstraintInCountry usage rules**: list of 0 to N OnFlowConstraintInCountry usage rules (see previous paragraph on [usage rules](#remedial-actions-and-usages-rules))  
-⚪ **onFlowConstraint usage rules**: list of 0 to N OnFlowConstraint usage rules (see previous paragraph on [usage rules](#remedial-actions-and-usages-rules))  
-⚪ **onAngleConstraint usage rules**: list of 0 to N OnAngleConstraint usage rules (see previous paragraph on [usage rules](#remedial-actions-and-usages-rules))  
+⚪ **onConstraint usage rules**: list of 0 to N OnConstraint usage rules (see previous paragraph on [usage rules](#remedial-actions-and-usages-rules))  
 🔵 **topological actions**: list of 0 to N TopologicalAction  
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔴 **network element**: id is mandatory, name is optional  
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔴 **action type**  
@@ -1124,8 +1110,7 @@ group ID you like, as long as you use the same for all the range actions you wan
 ⚪ **onInstant usage rules**: list of 0 to N OnInstant usage rules (see paragraph on [usage rules](#remedial-actions-and-usages-rules))  
 ⚪ **onState usage rules**: list of 0 to N OnContingencyState usage rules (see paragraph on [usage rules](#remedial-actions-and-usages-rules))  
 ⚪ **onFlowConstraintInCountry usage rules**: list of 0 to N OnFlowConstraintInCountry usage rules (see previous paragraph on [usage rules](#remedial-actions-and-usages-rules))  
-⚪ **onFlowConstraint usage rules**: list of 0 to N OnFlowConstraint usage rules (see previous paragraph on [usage rules](#remedial-actions-and-usages-rules))  
-⚪ **onAngleConstraint usage rules**: list of 0 to N OnAngleConstraint usage rules (see previous paragraph on [usage rules](#remedial-actions-and-usages-rules))
+⚪ **onConstraint usage rules**: list of 0 to N OnConstraint usage rules (see previous paragraph on [usage rules](#remedial-actions-and-usages-rules))  
 :::
 ::::
 
@@ -1163,7 +1148,7 @@ In that case, the validity domain of the HVDC is [-5; 10].
     "id" : "hvdc-range-action-id",
     "name" : "hvdc-range-action-name",
     "operator" : "operator",
-    "freeToUseUsageRules" : [ {
+    "onInstantUsageRules" : [ {
       "instant" : "preventive",
       "usageMethod" : "available"
     } ],
@@ -1187,7 +1172,7 @@ In that case, the validity domain of the HVDC is [-5; 10].
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔴 **max**  
 ⚪ **onInstant usage rules**: list of 0 to N OnInstant usage rules (see paragraph on [usage rules](#remedial-actions-and-usages-rules))  
 ⚪ **onContingencyState usage rules**: list of 0 to N OnContingencyState usage rules (see paragraph on [usage rules](#remedial-actions-and-usages-rules))  
-⚪ **onFlowConstraint usage rules**: list of 0 to N OnFlowConstraint usage rules (see paragraph on [usage rules](#remedial-actions-and-usages-rules))  
+⚪ **onFlowConstraint usage rules**: list of 0 to N OnFlowConstraint usage rules (see paragraph on [usage rules](#remedial-actions-and-usages-rules))  
 :::
 ::::
 
@@ -1256,7 +1241,7 @@ This means the set-point of "network-element-1" (key = 1) can be changed between
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔴 **max**  
 ⚪ **onInstant usage rules**: list of 0 to N OnInstant usage rules (see paragraph on usage rules)  
 ⚪ **onContingencyState usage rules**: list of 0 to N OnContingencyState usage rules (see paragraph on usage rules)  
-⚪ **onFlowConstraint usage rules**: list of 0 to N OnFlowConstraint usage rules (see paragraph on usage rules)  
+⚪ **onConstraint usage rules**: list of 0 to N OnConstraint usage rules (see paragraph on usage rules)  
 :::
 ::::
 
@@ -1320,9 +1305,7 @@ exported from France to Spain.
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔴 **max**  
 ⚪ **onInstant usage rules**: list of 0 to N OnInstant usage rules (see paragraph on usage rules)  
 ⚪ **onContingencyState usage rules**: list of 0 to N OnContingencyState usage rules (see paragraph on usage rules)  
-⚪ **onFlowConstraint usage rules**: list of 0 to N OnFlowConstraint usage rules (see paragraph on usage rules)  
-⚪ **onAngleConstraint usage rules**: list of 0 to N OnAngleConstraint usage rules (see paragraph on usage rules)  
-⚪ **onVoltageConstraint usage rules**: list of 0 to N OnVoltageConstraint usage rules (see paragraph on usage rules)  
+⚪ **onConstraint usage rules**: list of 0 to N OnConstraint usage rules (see paragraph on usage rules)  
 :::
 ::::
 
