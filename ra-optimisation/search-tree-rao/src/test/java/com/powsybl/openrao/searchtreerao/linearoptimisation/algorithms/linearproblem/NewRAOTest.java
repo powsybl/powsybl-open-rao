@@ -14,9 +14,14 @@ import com.powsybl.openrao.data.cracioapi.CracImporters;
 import com.powsybl.openrao.raoapi.parameters.ObjectiveFunctionParameters;
 import com.powsybl.openrao.raoapi.parameters.RangeActionsOptimizationParameters;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.LoopFlowParametersExtension;
+import com.powsybl.openrao.raoapi.parameters.extensions.MnecParametersExtension;
+import com.powsybl.openrao.raoapi.parameters.extensions.RelativeMarginsParametersExtension;
+import com.powsybl.openrao.searchtreerao.commons.ToolProvider;
 import com.powsybl.openrao.searchtreerao.commons.objectivefunctionevaluator.ObjectiveFunction;
 import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.OptimizationPerimeter;
 import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.PreventiveOptimizationPerimeter;
+import com.powsybl.openrao.searchtreerao.commons.parameters.RangeActionLimitationParameters;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.IteratingLinearOptimizer;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.IteratingLinearOptimizerMultiTS;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.fillers.BetweenTimeStepsFiller;
@@ -32,6 +37,7 @@ import com.powsybl.openrao.searchtreerao.result.impl.FlowResultImpl;
 import com.powsybl.openrao.searchtreerao.result.impl.MultipleSensitivityResult;
 import com.powsybl.openrao.searchtreerao.result.impl.RangeActionActivationResultImpl;
 import com.powsybl.openrao.searchtreerao.result.impl.RangeActionSetpointResultImpl;
+import com.powsybl.openrao.sensitivityanalysis.AppliedRemedialActions;
 import com.powsybl.openrao.sensitivityanalysis.SystematicSensitivityInterface;
 import com.powsybl.openrao.sensitivityanalysis.SystematicSensitivityResult;
 import com.powsybl.sensitivity.SensitivityAnalysisParameters;
@@ -214,6 +220,7 @@ public class NewRAOTest {
         allCnecs.addAll(cracs.get(1).getFlowCnecs());
 
         //FlowResultImpl initialFlowResult = new FlowResultImpl();
+        RaoParameters raoParameters = RaoParameters.load();
 
         ObjectiveFunction objectiveFunction = ObjectiveFunction.create().build(
             allCnecs,
@@ -223,10 +230,10 @@ public class NewRAOTest {
             initialSetpoints,
             null, //crac(s), not useful (CNECs secured by PST)
             Collections.emptySet(), // operators not sharing CRAs
-            RaoParameters.load()
-            );
+            raoParameters);
         //ObjectiveFunction.create().build(optPerimeter.getFlowCnecs(), optPerimeter.getLoopFlowCnecs(), initialResult, initialResult, initialResult, raoInput.getCrac(), Collections.emptySet(), raoParameters)
 
+        ToolProvider toolProvider = ToolProvider.create().withNetwork(networks.get(0)).withRaoParameters(raoParameters).build(); //the attributes in the class are only used for loopflow things
 
         IteratingLinearOptimizerMultiTSInput input = IteratingLinearOptimizerMultiTSInput.create()
             .withNetworks(networks)
@@ -236,31 +243,31 @@ public class NewRAOTest {
             .withPrePerimeterSetpoints(initialSetpoints)
             .withPreOptimizationFlowResult(initialSensiResult)
             .withPreOptimizationSensitivityResult(initialSensiResult)
-//            .withPreOptimizationAppliedRemedialActions(appliedRemedialActionsInSecondaryStates)
-            .withRaActivationFromParentLeaf(new RangeActionActivationResultImpl(initialRangeActionSetpointResult1))
+            .withPreOptimizationAppliedRemedialActions(new AppliedRemedialActions())
+            .withRaActivationFromParentLeaf(new RangeActionActivationResultImpl(initialSetpoints))
             .withObjectiveFunction(objectiveFunction)
-//            .withToolProvider(searchTreeInput.getToolProvider())
-//            .withOutageInstant(searchTreeInput.getOutageInstant())
+            .withToolProvider(toolProvider)
+            .withOutageInstant(cracs.get(0).getOutageInstant()) //TODO: check if multiple are needed
             .build();
 
 
         IteratingLinearOptimizerParameters parameters = IteratingLinearOptimizerParameters.create()
-            .withObjectiveFunction(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_MARGIN_IN_MEGAWATT)
-            .withRangeActionParameters(rangeActionParameters)
-//            .withMnecParameters(parameters.getMnecParameters())
-            .withMaxMinRelativeMarginParameters(parameters.getMaxMinRelativeMarginParameters())
-//            .withLoopFlowParameters(parameters.getLoopFlowParameters())
-//            .withUnoptimizedCnecParameters(parameters.getUnoptimizedCnecParameters())
-//            .withRaLimitationParameters(getRaLimitationParameters(searchTreeInput.getOptimizationPerimeter(), parameters))
+            .withObjectiveFunction(raoParameters.getObjectiveFunctionParameters().getType())
+            .withRangeActionParameters(raoParameters.getRangeActionsOptimizationParameters())
+            .withMnecParameters(raoParameters.getExtension(MnecParametersExtension.class))
+            .withMaxMinRelativeMarginParameters(raoParameters.getExtension(RelativeMarginsParametersExtension.class))
+            .withLoopFlowParameters(raoParameters.getExtension(LoopFlowParametersExtension.class))
+            .withUnoptimizedCnecParameters(null)
+            .withRaLimitationParameters(new RangeActionLimitationParameters())
             .withSolverParameters(RangeActionsOptimizationParameters.LinearOptimizationSolver.load(PlatformConfig.defaultConfig()))
             .withMaxNumberOfIterations(3)
-//            .withRaRangeShrinking(parameters.getTreeParameters().raRangeShrinking())
+            .withRaRangeShrinking(false) //TODO: maybe set to true
             .build();
 
-        LinearOptimizationResult result = IteratingLinearOptimizer.optimize(input, parameters, preventiveInstant);
+        LinearOptimizationResult result = IteratingLinearOptimizerMultiTS.optimize(input, parameters, preventiveInstant);
 
         System.out.println(result.getStatus());
-        System.out.println(result.getOptimizedSetpoint(pstRa1, state1));
+        //System.out.println(result.getOptimizedSetpoint(pstRa1, state1));
 
 
 //        // Résultat des deux LP séparés
