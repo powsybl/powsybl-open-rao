@@ -32,12 +32,13 @@ public class AngleCnecImpl extends AbstractCnec<AngleCnec> implements AngleCnec 
                  NetworkElement exportingNetworkElement,
                  NetworkElement importingNetworkElement,
                  String operator,
+                 String border,
                  State state,
                  boolean optimized,
                  boolean monitored,
                   Set<Threshold> thresholds,
                  double reliabilityMargin) {
-        super(id, name, Set.of(exportingNetworkElement, importingNetworkElement), operator, state, optimized, monitored, reliabilityMargin);
+        super(id, name, Set.of(exportingNetworkElement, importingNetworkElement), operator, border, state, optimized, monitored, reliabilityMargin);
         this.thresholds = thresholds;
         this.exportingNetworkElement = exportingNetworkElement;
         this.importingNetworkElement = importingNetworkElement;

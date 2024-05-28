@@ -30,6 +30,7 @@ public abstract class AbstractCnecAdderImpl<J extends CnecAdder<J>> extends Abst
     protected boolean monitored = false;
     protected double reliabilityMargin = .0;
     protected String operator;
+    protected String border = "";
 
     protected AbstractCnecAdderImpl(CracImpl owner) {
         Objects.requireNonNull(owner);
@@ -102,6 +103,12 @@ public abstract class AbstractCnecAdderImpl<J extends CnecAdder<J>> extends Abst
     @Override
     public J withOperator(String operator) {
         this.operator = operator;
+        return (J) this;
+    }
+
+    @Override
+    public J withBorder(String border) {
+        this.border = border;
         return (J) this;
     }
 
