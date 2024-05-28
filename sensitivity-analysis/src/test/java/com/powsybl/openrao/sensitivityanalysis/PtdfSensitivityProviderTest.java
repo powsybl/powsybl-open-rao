@@ -21,6 +21,11 @@ import com.powsybl.sensitivity.WeightedSensitivityVariable;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
+import java.io.StringWriter;
+import java.net.URISyntaxException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -33,6 +38,10 @@ class PtdfSensitivityProviderTest {
     Network network;
     Crac crac;
     ZonalData<SensitivityVariableSet> glskMock;
+
+    private static ReportNode buildNewRootNode() {
+        return ReportNode.newRootReportNode().withMessageTemplate("Test report node", "This is a parent report node for report tests").build();
+    }
 
     @BeforeEach
     public void setUp() {
@@ -80,9 +89,17 @@ class PtdfSensitivityProviderTest {
     }
 
     @Test
-    void testDoNotHandleAmpere() {
-        PtdfSensitivityProvider ptdfSensitivityProvider = new PtdfSensitivityProvider(glskMock, crac.getFlowCnecs(), Collections.singleton(Unit.AMPERE), ReportNode.NO_OP);
+    void testDoNotHandleAmpere() throws IOException, URISyntaxException {
+        ReportNode reportNode = buildNewRootNode();
+        PtdfSensitivityProvider ptdfSensitivityProvider = new PtdfSensitivityProvider(glskMock, crac.getFlowCnecs(), Collections.singleton(Unit.AMPERE), reportNode);
         assertFalse(ptdfSensitivityProvider.factorsInAmpere);
         assertTrue(ptdfSensitivityProvider.factorsInMegawatt);
+
+        String expected = Files.readString(Path.of(getClass().getResource("/reports/expectedReportNodePdfSensitivityProviderDoNotHandleAmpere.txt").toURI()));
+        try (StringWriter writer = new StringWriter()) {
+            reportNode.print(writer);
+            String actual = writer.toString();
+            assertEquals(expected, actual);
+        }
     }
 }

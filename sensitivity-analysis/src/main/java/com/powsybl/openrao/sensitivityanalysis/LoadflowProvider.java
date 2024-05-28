@@ -38,7 +38,7 @@ public class LoadflowProvider extends AbstractSimpleSensitivityProvider {
     Pair<String, SensitivityVariableType> defaultSensitivityVariable;
 
     LoadflowProvider(Set<FlowCnec> cnecs, Set<Unit> units, ReportNode reportNode) {
-        super(cnecs, units, reportNode);
+        super(cnecs, units, SensitivityAnalysisReports.reportSystematicSensitivityLoadFlowProvider(reportNode));
     }
 
     @Override

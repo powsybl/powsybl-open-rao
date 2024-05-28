@@ -43,6 +43,11 @@ import org.mockito.Mockito;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.io.IOException;
+import java.io.StringWriter;
+import java.net.URISyntaxException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -79,6 +84,10 @@ class CastorFullOptimizationTest {
     private Instant preventiveInstant;
     private Instant autoInstant;
     private Instant curativeInstant;
+
+    private static ReportNode buildNewRootNode() {
+        return ReportNode.newRootReportNode().withMessageTemplate("Test report node", "This is a parent report node for report tests").build();
+    }
 
     @BeforeEach
     public void setup() {
@@ -562,7 +571,8 @@ class CastorFullOptimizationTest {
     }
 
     @Test
-    void smallRaoWithDivergingInitialSensi() {
+    void smallRaoWithDivergingInitialSensi() throws IOException, URISyntaxException {
+        ReportNode reportNode = buildNewRootNode();
         // Small RAO with diverging initial sensi
         // Cannot optimize range actions in unit tests (needs OR-Tools installed)
 
@@ -572,8 +582,15 @@ class CastorFullOptimizationTest {
         RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/RaoParameters_oneIteration_v2.json"));
 
         // Run RAO
-        RaoResult raoResult = new CastorFullOptimization(raoInput, raoParameters, null).run(ReportNode.NO_OP).join();
+        RaoResult raoResult = new CastorFullOptimization(raoInput, raoParameters, null).run(reportNode).join();
         assertTrue(raoResult instanceof FailedRaoResultImpl);
+
+        String expected = Files.readString(Path.of(getClass().getResource("/reports/expectedReportNodeSmallRaoWithDivergingInitialSensi.txt").toURI()));
+        try (StringWriter writer = new StringWriter()) {
+            reportNode.print(writer);
+            String actual = writer.toString();
+            assertEquals(expected, actual);
+        }
     }
 
     @Test

@@ -32,11 +32,11 @@ public class PtdfSensitivityProvider extends AbstractSimpleSensitivityProvider {
     private final ZonalData<SensitivityVariableSet> glsk;
 
     PtdfSensitivityProvider(ZonalData<SensitivityVariableSet> glsk, Set<FlowCnec> cnecs, Set<Unit> units, ReportNode reportNode) {
-        super(cnecs, units, reportNode);
+        super(cnecs, units, SensitivityAnalysisReports.reportPtdfSensitivityProvider(reportNode));
 
         // todo : handle PTDFs in AMPERE
         if (factorsInAmpere || !factorsInMegawatt) {
-            SensitivityAnalysisReports.reportSensitivityOnlyHandleMegawattUnit(reportNode);
+            SensitivityAnalysisReports.reportSensitivityOnlyHandleMegawattUnit(super.reportNode);
             factorsInMegawatt = true;
             factorsInAmpere = false;
         }

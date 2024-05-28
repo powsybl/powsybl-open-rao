@@ -27,6 +27,11 @@ import com.powsybl.sensitivity.SensitivityVariableType;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
+import java.io.IOException;
+import java.io.StringWriter;
+import java.net.URISyntaxException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -39,6 +44,10 @@ import static org.junit.jupiter.api.Assertions.*;
 class RangeActionSensitivityProviderTest {
     private static final String PREVENTIVE_INSTANT_ID = "preventive";
     private static final String CURATIVE_INSTANT_ID = "curative";
+
+    private static ReportNode buildNewRootNode() {
+        return ReportNode.newRootReportNode().withMessageTemplate("Test report node", "This is a parent report node for report tests").build();
+    }
 
     @Test
     void contingenciesCracPstWithRange() {
@@ -278,7 +287,8 @@ class RangeActionSensitivityProviderTest {
     }
 
     @Test
-    void testCTDoesNotThrow() {
+    void testCTDoesNotThrow() throws IOException, URISyntaxException {
+        ReportNode reportNode = buildNewRootNode();
         Crac crac = CommonCracCreation.create();
         FlowCnec flowCnec = crac.newFlowCnec()
             .withId("cnec")
@@ -290,7 +300,8 @@ class RangeActionSensitivityProviderTest {
         Network network = Network.read("TestCase16NodesWithHvdc.xiidm", getClass().getResourceAsStream("/TestCase16NodesWithHvdc.xiidm"));
 
         RangeAction<?> ctRa = Mockito.mock(CounterTradeRangeAction.class);
-        RangeActionSensitivityProvider provider = new RangeActionSensitivityProvider(Set.of(ctRa), Set.of(flowCnec), Set.of(Unit.MEGAWATT, Unit.AMPERE), ReportNode.NO_OP);
+        Mockito.when(ctRa.getId()).thenReturn("dummy_ctRaId");
+        RangeActionSensitivityProvider provider = new RangeActionSensitivityProvider(Set.of(ctRa), Set.of(flowCnec), Set.of(Unit.MEGAWATT, Unit.AMPERE), reportNode);
 
         List<SensitivityFactor> factors = provider.getBasecaseFactors(network);
         assertEquals(2, factors.size());
@@ -299,5 +310,11 @@ class RangeActionSensitivityProviderTest {
             assertEquals(SensitivityVariableType.TRANSFORMER_PHASE, factor.getVariableType());
         }
 
+        String expected = Files.readString(Path.of(getClass().getResource("/reports/expectedReportNodeRangeActionSensitivityProviderWithCounterTrading.txt").toURI()));
+        try (StringWriter writer = new StringWriter()) {
+            reportNode.print(writer);
+            String actual = writer.toString();
+            assertEquals(expected, actual);
+        }
     }
 }

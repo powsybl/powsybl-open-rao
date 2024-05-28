@@ -56,7 +56,7 @@ public abstract class AbstractSimpleSensitivityProvider implements CnecSensitivi
                     factorsInAmpere = true;
                     break;
                 default:
-                    SensitivityAnalysisReports.reportSensitivityProviderUnhandledUnit(reportNode, unit.toString());
+                    SensitivityAnalysisReports.reportSensitivityProviderUnhandledUnit(reportNode, unit.toString()); // TODO test this...
             }
         }
 

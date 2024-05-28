@@ -149,4 +149,25 @@ public final class SensitivityAnalysisReports {
         TECHNICAL_LOGS.warn("PtdfSensitivity provider currently only handle Megawatt unit");
         return addedNode;
     }
+
+    public static ReportNode reportSystematicSensitivityLoadFlowProvider(ReportNode reportNode) {
+        return reportNode.newReportNode()
+            .withMessageTemplate("reportSystematicSensitivityLoadFlowProvider", "New systematic sensitivity load flow provider")
+            .withSeverity(TypedValue.INFO_SEVERITY)
+            .add();
+    }
+
+    public static ReportNode reportPtdfSensitivityProvider(ReportNode reportNode) {
+        return reportNode.newReportNode()
+            .withMessageTemplate("reportPtdfSensitivityProvider", "New PTDF sensitivity provider")
+            .withSeverity(TypedValue.INFO_SEVERITY)
+            .add();
+    }
+
+    public static ReportNode reportRangeActionSensitivityProvider(ReportNode reportNode) {
+        return reportNode.newReportNode()
+            .withMessageTemplate("reportRangeActionSensitivityProvider", "New range action sensitivity provider")
+            .withSeverity(TypedValue.INFO_SEVERITY)
+            .add();
+    }
 }

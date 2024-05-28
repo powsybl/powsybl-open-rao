@@ -30,7 +30,7 @@ public class RangeActionSensitivityProvider extends LoadflowProvider {
     private final Map<String, SensitivityVariableSet> glsks;
 
     RangeActionSensitivityProvider(Set<RangeAction<?>> rangeActions, Set<FlowCnec> cnecs, Set<Unit> units, ReportNode reportNode) {
-        super(cnecs, units, reportNode);
+        super(cnecs, units, SensitivityAnalysisReports.reportRangeActionSensitivityProvider(reportNode));
         this.rangeActions = rangeActions;
         glsks = new HashMap<>();
     }
