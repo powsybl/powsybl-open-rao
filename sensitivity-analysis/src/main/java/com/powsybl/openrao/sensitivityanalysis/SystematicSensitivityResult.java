@@ -32,7 +32,6 @@ public class SystematicSensitivityResult {
         private final Map<String, Map<Side, Double>> referenceFlows = new HashMap<>();
         private final Map<String, Map<Side, Double>> referenceIntensities = new HashMap<>();
         private final Map<String, Map<String, Map<Side, Double>>> flowSensitivities = new HashMap<>();
-        private final Map<String, Map<String, Map<Side, Double>>> intensitySensitivities = new HashMap<>();
 
         private SensitivityComputationStatus getSensitivityComputationStatus() {
             return status;
@@ -48,10 +47,6 @@ public class SystematicSensitivityResult {
 
         private Map<String, Map<String, Map<Side, Double>>> getFlowSensitivities() {
             return flowSensitivities;
-        }
-
-        private Map<String, Map<String, Map<Side, Double>>> getIntensitySensitivities() {
-            return intensitySensitivities;
         }
     }
 
@@ -77,12 +72,11 @@ public class SystematicSensitivityResult {
     public SystematicSensitivityResult completeData(SensitivityAnalysisResult results, Integer instantOrder) {
         postContingencyResults.putIfAbsent(instantOrder, new HashMap<>());
 
-        if (results == null) {
-            this.status = SensitivityComputationStatus.FAILURE;
-            return this;
-        }
         // status set to failure initially, and set to success if we find at least one non NaN value
         this.status = SensitivityComputationStatus.FAILURE;
+        if (results == null) {
+            return this;
+        }
 
         results.getPreContingencyValues().forEach(sensitivityValue -> fillIndividualValue(sensitivityValue, nStateResult, results.getFactors(), SensitivityAnalysisResult.Status.SUCCESS));
         for (SensitivityAnalysisResult.SensitivityContingencyStatus contingencyStatus : results.getContingencyStatuses()) {
@@ -117,14 +111,6 @@ public class SystematicSensitivityResult {
                         }
                     });
                 }
-                if (stateResult.getIntensitySensitivities().containsKey(neId)) {
-                    sideAndFlow.forEach((side, flow) -> {
-                        if (flow < 0) {
-                            Map<String, Map<Side, Double>> sensitivities = stateResult.getIntensitySensitivities().get(neId);
-                            sensitivities.forEach((actionId, sideToSensi) -> sensitivities.get(actionId).put(side, -sideToSensi.get(side)));
-                        }
-                    });
-                }
             });
     }
 
@@ -145,11 +131,6 @@ public class SystematicSensitivityResult {
                         cnecFlowSensis.put(networkElementId, invertMapValues(cnecFlowSensis.get(networkElementId)));
                     }
                 });
-                stateResult.getIntensitySensitivities().forEach((cnecId, cnecIntensitySensis) -> {
-                    if (cnecIntensitySensis.containsKey(networkElementId)) {
-                        cnecIntensitySensis.put(networkElementId, invertMapValues(cnecIntensitySensis.get(networkElementId)));
-                    }
-                });
             }
         });
     }
@@ -163,7 +144,6 @@ public class SystematicSensitivityResult {
     private void fillIndividualValue(SensitivityValue value, StateResult stateResult, List<SensitivityFactor> factors, SensitivityAnalysisResult.Status status) {
         double reference = status.equals(SensitivityAnalysisResult.Status.FAILURE) ? Double.NaN : value.getFunctionReference();
         double sensitivity = status.equals(SensitivityAnalysisResult.Status.FAILURE) ? Double.NaN : value.getValue();
-        SensitivityFactor factor = factors.get(value.getFactorIndex());
 
         if (!Double.isNaN(reference) && !Double.isNaN(sensitivity)) {
             this.status = SensitivityComputationStatus.SUCCESS;
@@ -175,25 +155,28 @@ public class SystematicSensitivityResult {
 
         Side side = null;
         double activePowerCoefficient = 0;
-        if (factor.getFunctionType().equals(SensitivityFunctionType.BRANCH_ACTIVE_POWER_1) || factor.getFunctionType().equals(SensitivityFunctionType.BRANCH_CURRENT_1)) {
+        SensitivityFactor factor = factors.get(value.getFactorIndex());
+        SensitivityFunctionType functionType = factor.getFunctionType();
+        String functionId = factor.getFunctionId();
+        if (functionType.equals(SensitivityFunctionType.BRANCH_ACTIVE_POWER_1) || functionType.equals(SensitivityFunctionType.BRANCH_CURRENT_1)) {
             side = Side.LEFT;
             activePowerCoefficient = 1;
-        } else if (factor.getFunctionType().equals(SensitivityFunctionType.BRANCH_ACTIVE_POWER_2) || factor.getFunctionType().equals(SensitivityFunctionType.BRANCH_CURRENT_2)) {
+        } else if (functionType.equals(SensitivityFunctionType.BRANCH_ACTIVE_POWER_2) || functionType.equals(SensitivityFunctionType.BRANCH_CURRENT_2)) {
             side = Side.RIGHT;
             activePowerCoefficient = -1; // Open RAO always considers flows as seen from Side 1. Sensitivity providers invert side flows.
         }
 
-        if (factor.getFunctionType().equals(SensitivityFunctionType.BRANCH_ACTIVE_POWER_1) || factor.getFunctionType().equals(SensitivityFunctionType.BRANCH_ACTIVE_POWER_2)) {
+        if (functionType.equals(SensitivityFunctionType.BRANCH_ACTIVE_POWER_1) || functionType.equals(SensitivityFunctionType.BRANCH_ACTIVE_POWER_2)) {
             stateResult.getReferenceFlows()
-                .computeIfAbsent(factor.getFunctionId(), k -> new EnumMap<>(Side.class))
+                .computeIfAbsent(functionId, k -> new EnumMap<>(Side.class))
                 .putIfAbsent(side, reference * activePowerCoefficient);
             stateResult.getFlowSensitivities()
-                .computeIfAbsent(factor.getFunctionId(), k -> new HashMap<>())
+                .computeIfAbsent(functionId, k -> new HashMap<>())
                 .computeIfAbsent(factor.getVariableId(), k -> new EnumMap<>(Side.class))
                 .putIfAbsent(side, sensitivity * activePowerCoefficient);
-        } else if (factor.getFunctionType().equals(SensitivityFunctionType.BRANCH_CURRENT_1) || factor.getFunctionType().equals(SensitivityFunctionType.BRANCH_CURRENT_2)) {
+        } else if (functionType.equals(SensitivityFunctionType.BRANCH_CURRENT_1) || functionType.equals(SensitivityFunctionType.BRANCH_CURRENT_2)) {
             stateResult.getReferenceIntensities()
-                .computeIfAbsent(factor.getFunctionId(), k -> new EnumMap<>(Side.class))
+                .computeIfAbsent(functionId, k -> new EnumMap<>(Side.class))
                 .putIfAbsent(side, reference);
         }
     }
