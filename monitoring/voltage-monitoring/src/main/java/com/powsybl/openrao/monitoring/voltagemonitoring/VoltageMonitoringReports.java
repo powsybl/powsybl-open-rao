@@ -6,8 +6,8 @@ import com.powsybl.openrao.data.cracapi.State;
 
 import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.*;
 
-public final class Reports {
-    private Reports() {
+public final class VoltageMonitoringReports {
+    private VoltageMonitoringReports() {
     }
 
     private static String formatDouble(double doubleValue) {

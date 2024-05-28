@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.monitoring.anglemonitoring;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.modification.scalable.Scalable;
 import com.powsybl.iidm.network.*;
 
@@ -61,7 +62,7 @@ public class RedispatchActionWithAutoGlsk extends AbstractRedispatchAction {
     }
 
     @Override
-    public void apply(Network network, double powerToRedispatch) {
-        super.apply(network, powerToRedispatch, getCountryGeneratorsScalable(network, country, networkElementsToBeExcluded));
+    public void apply(Network network, double powerToRedispatch, ReportNode reportNode) {
+        super.apply(network, powerToRedispatch, getCountryGeneratorsScalable(network, country, networkElementsToBeExcluded), reportNode);
     }
 }

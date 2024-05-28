@@ -82,11 +82,11 @@ public class VoltageMonitoring {
      */
     @Deprecated
     public VoltageMonitoringResult run(String loadFlowProvider, LoadFlowParameters loadFlowParameters, int numberOfLoadFlowsInParallel, ReportNode reportNode) {
-        ReportNode voltageMonitoringReportNode = Reports.reportVoltageMonitoringStart(reportNode);
+        ReportNode voltageMonitoringReportNode = VoltageMonitoringReports.reportVoltageMonitoringStart(reportNode);
         stateSpecificResults = new ArrayList<>();
 
         if (crac.getVoltageCnecs().isEmpty()) {
-            Reports.reportNoVoltageCnecsDefined(voltageMonitoringReportNode);
+            VoltageMonitoringReports.reportNoVoltageCnecsDefined(voltageMonitoringReportNode);
             stateSpecificResults.add(new VoltageMonitoringResult(Collections.emptyMap(), Collections.emptyMap(), VoltageMonitoringResult.Status.SECURE));
             return assembleVoltageMonitoringResults(voltageMonitoringReportNode);
         }
@@ -120,8 +120,8 @@ public class VoltageMonitoring {
     }
 
     private ReportNode runPostContingencyTask(String loadFlowProvider, LoadFlowParameters loadFlowParameters, State state, AbstractNetworkPool networkPool) throws InterruptedException {
-        ReportNode rootReportNode = Reports.generatePostContingencyRootReportNode();
-        ReportNode scenarioReportNode = Reports.reportPostContingencyTask(state, rootReportNode);
+        ReportNode rootReportNode = VoltageMonitoringReports.generatePostContingencyRootReportNode();
+        ReportNode scenarioReportNode = VoltageMonitoringReports.reportPostContingencyTask(state, rootReportNode);
 
         Network networkClone = networkPool.getAvailableNetwork();
         try {
@@ -170,10 +170,10 @@ public class VoltageMonitoring {
     }
 
     private VoltageMonitoringResult monitorVoltageCnecsAndLog(String loadFlowProvider, LoadFlowParameters loadFlowParameters, State state, Network networkClone, ReportNode reportNode) {
-        ReportNode voltageMoniotoringAtStateReportNode = Reports.reportMonitoringVoltagesAtState(reportNode, state);
+        ReportNode voltageMoniotoringAtStateReportNode = VoltageMonitoringReports.reportMonitoringVoltagesAtState(reportNode, state);
         VoltageMonitoringResult result = monitorVoltageCnecs(loadFlowProvider, loadFlowParameters, state, networkClone, voltageMoniotoringAtStateReportNode);
         result.reportConstraints(reportNode);
-        Reports.reportMonitoringVoltagesAtStateEnd(voltageMoniotoringAtStateReportNode, state);
+        VoltageMonitoringReports.reportMonitoringVoltagesAtStateEnd(voltageMoniotoringAtStateReportNode, state);
         return result;
     }
 
@@ -199,7 +199,7 @@ public class VoltageMonitoring {
         }
         // If some action were applied, recompute a loadflow. If the loadflow doesn't converge, it is unsecure
         if (!appliedNetworkActions.isEmpty() && !computeLoadFlow(loadFlowProvider, loadFlowParameters, networkClone, reportNode)) {
-            Reports.reportLoadflowComputationFailed(reportNode, state.getId());
+            VoltageMonitoringReports.reportLoadflowComputationFailed(reportNode, state.getId());
             return new VoltageMonitoringResult(voltageValues, new HashMap<>(), VoltageMonitoringResult.getUnsecureStatus(voltageValues));
         }
         Map<State, Set<RemedialAction<?>>> appliedRa = new HashMap<>();
@@ -260,11 +260,11 @@ public class VoltageMonitoring {
                         .anyMatch(onVoltageConstraint -> onVoltageConstraint.getVoltageCnec().equals(voltageCnec)))
                 .collect(Collectors.toSet());
         if (availableRemedialActions.isEmpty()) {
-            Reports.reportNoRaAvailable(reportNode, voltageCnec.getId(), state.getId());
+            VoltageMonitoringReports.reportNoRaAvailable(reportNode, voltageCnec.getId(), state.getId());
             return Collections.emptySet();
         }
         if (state.isPreventive()) {
-            Reports.reportConstraintInPreventive(reportNode, voltageCnec.getId());
+            VoltageMonitoringReports.reportConstraintInPreventive(reportNode, voltageCnec.getId());
             return Collections.emptySet();
         }
         // Convert remedial actions to network actions
@@ -272,11 +272,11 @@ public class VoltageMonitoring {
             if (remedialAction instanceof NetworkAction) {
                 return true;
             } else {
-                Reports.reportIgnoredRemedialAction(reportNode, remedialAction.getId(), voltageCnec.getId(), state.getId());
+                VoltageMonitoringReports.reportIgnoredRemedialAction(reportNode, remedialAction.getId(), voltageCnec.getId(), state.getId());
                 return false;
             }
         }).map(NetworkAction.class::cast).collect(Collectors.toSet());
-        Reports.reportAppliedNetworkActions(reportNode, voltageCnec.getId(), networkActions.stream().map(com.powsybl.openrao.data.cracapi.Identifiable::getId).collect(Collectors.joining(", ")));
+        VoltageMonitoringReports.reportAppliedNetworkActions(reportNode, voltageCnec.getId(), networkActions.stream().map(com.powsybl.openrao.data.cracapi.Identifiable::getId).collect(Collectors.joining(", ")));
         return networkActions;
     }
 
@@ -301,13 +301,13 @@ public class VoltageMonitoring {
      * Returns false if loadFlow has not converged.
      */
     private boolean computeLoadFlow(String loadFlowProvider, LoadFlowParameters loadFlowParameters, Network networkClone, ReportNode reportNode) {
-        ReportNode loadflowReportNode = Reports.reportLoadflowComputationStart(reportNode);
+        ReportNode loadflowReportNode = VoltageMonitoringReports.reportLoadflowComputationStart(reportNode);
         LoadFlowResult loadFlowResult = LoadFlow.find(loadFlowProvider)
             .run(networkClone, networkClone.getVariantManager().getWorkingVariantId(), LocalComputationManager.getDefault(), loadFlowParameters, loadflowReportNode);
         if (!loadFlowResult.isOk()) {
-            Reports.reportLoadflowError(loadflowReportNode);
+            VoltageMonitoringReports.reportLoadflowError(loadflowReportNode);
         }
-        Reports.reportLoadflowComputationEnd(loadflowReportNode);
+        VoltageMonitoringReports.reportLoadflowComputationEnd(loadflowReportNode);
         return loadFlowResult.isOk();
     }
 
@@ -331,7 +331,7 @@ public class VoltageMonitoring {
         VoltageMonitoringResult.Status securityStatus = concatenateSpecificResults();
         VoltageMonitoringResult result = new VoltageMonitoringResult(extremeVoltageValuesMap, appliedRas, securityStatus);
         result.reportConstraints(reportNode);
-        Reports.reportVoltageMonitoringEnd(reportNode);
+        VoltageMonitoringReports.reportVoltageMonitoringEnd(reportNode);
         return result;
     }
 
@@ -373,7 +373,7 @@ public class VoltageMonitoring {
     }
 
     private VoltageMonitoringResult catchVoltageMonitoringResult(State state, VoltageMonitoringResult.Status securityStatus, ReportNode reportNode) {
-        Reports.reportVoltageMonitoringFailureAtState(reportNode, state.getId());
+        VoltageMonitoringReports.reportVoltageMonitoringFailureAtState(reportNode, state.getId());
         Map<VoltageCnec, ExtremeVoltageValues> voltagePerCnec = new HashMap<>();
         crac.getVoltageCnecs(state).forEach(vc ->
             voltagePerCnec.put(vc, new ExtremeVoltageValues(new HashSet<>(Arrays.asList(Double.NaN))))

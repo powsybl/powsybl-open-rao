@@ -6,8 +6,8 @@ import com.powsybl.openrao.data.cracapi.State;
 
 import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.*;
 
-public final class Reports {
-    private Reports() {
+public final class AngleMonitoringReports {
+    private AngleMonitoringReports() {
     }
 
     private static String formatDouble(double doubleValue) {
@@ -258,6 +258,17 @@ public final class Reports {
             .withSeverity(TypedValue.INFO_SEVERITY)
             .add();
         BUSINESS_LOGS.info("Redispatching {} MW in {} [end]", redispatchingValue, countryId);
+        return addedNode;
+    }
+
+    public static ReportNode reportRedispatchingFailed(ReportNode reportNode, double powerToRedispatch, double redispatchedPower) {
+        ReportNode addedNode = reportNode.newReportNode()
+            .withMessageTemplate("reportRedispatchingFailed", "Redispatching failed: asked=${powerToRedispatch} MW, applied=${redispatchedPower} MW") // TODO check if MW in string is required
+            .withTypedValue("powerToRedispatch", powerToRedispatch, TypedValue.ACTIVE_POWER)
+            .withTypedValue("redispatchedPower", redispatchedPower, TypedValue.ACTIVE_POWER)
+            .withSeverity(TypedValue.WARN_SEVERITY)
+            .add();
+        BUSINESS_WARNS.warn("Redispatching failed: asked={} MW, applied={} MW", powerToRedispatch, redispatchedPower);
         return addedNode;
     }
 }

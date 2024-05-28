@@ -8,6 +8,7 @@
 
 package com.powsybl.openrao.monitoring.anglemonitoring;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.modification.scalable.Scalable;
 import com.powsybl.iidm.network.Network;
 
@@ -19,10 +20,10 @@ import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.BUSINESS_WA
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
 public abstract class AbstractRedispatchAction implements RedispatchAction {
-    protected void apply(Network network, double powerToRedispatch, Scalable scalable) {
+    protected void apply(Network network, double powerToRedispatch, Scalable scalable, ReportNode reportNode) {
         double redispatchedPower = scalable.scale(network, powerToRedispatch);
         if (Math.abs(redispatchedPower - powerToRedispatch) > 1) {
-            BUSINESS_WARNS.warn("Redispatching failed: asked={} MW, applied={} MW", powerToRedispatch, redispatchedPower);
+            AngleMonitoringReports.reportRedispatchingFailed(reportNode, powerToRedispatch, redispatchedPower);
         }
     }
 }

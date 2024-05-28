@@ -127,17 +127,17 @@ public class AngleMonitoringResult {
 
     public void reportConstraints(ReportNode reportNode) {
         if (isDivergent()) {
-            Reports.reportLoadflowDivergence(reportNode);
+            AngleMonitoringReports.reportLoadflowDivergence(reportNode);
         } else if (isSecure()) {
-            Reports.reportNoConstrainedElements(reportNode);
+            AngleMonitoringReports.reportNoConstrainedElements(reportNode);
         } else if (isUnknown()) {
-            Reports.reportUnknownStatusOnAngleCnecs(reportNode);
+            AngleMonitoringReports.reportUnknownStatusOnAngleCnecs(reportNode);
         } else {
-            Reports.reportSomeConstrainedElements(reportNode);
+            AngleMonitoringReports.reportSomeConstrainedElements(reportNode);
             angleCnecsWithAngle.stream()
                 .filter(angleResult -> AngleMonitoring.thresholdOvershoot(angleResult.getAngleCnec(), angleResult.getAngle()))
                 .sorted(Comparator.comparing(AngleResult::getId))
-                .forEach(angleResult -> Reports.reportConstrainedElement(reportNode,
+                .forEach(angleResult -> AngleMonitoringReports.reportConstrainedElement(reportNode,
                     angleResult.getAngleCnec().getId(),
                     angleResult.getAngleCnec().getImportingNetworkElement().getId(),
                     angleResult.getAngleCnec().getExportingNetworkElement().getId(),
