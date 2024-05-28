@@ -8,8 +8,6 @@ package com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.rem
 
 import com.powsybl.openrao.data.cracapi.*;
 import com.powsybl.openrao.data.cracapi.cnec.Cnec;
-import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
-import com.powsybl.openrao.data.cracapi.cnec.VoltageCnec;
 import com.powsybl.openrao.data.cracapi.networkaction.*;
 import com.powsybl.openrao.data.cracapi.usagerule.*;
 import com.powsybl.openrao.data.craccreation.creator.api.ImportStatus;
@@ -117,25 +115,11 @@ public class CsaProfileRemedialActionsCreator {
                 Cnec<?> cnec = crac.getCnec(cnecId);
                 UsageMethod usageMethod = getUsageMethod(cnecStatus.elementCombinationConstraintKind(), isSchemeRemedialAction, instant, remedialActionType);
                 if (isOnConstraintInstantCoherent(cnec.getState().getInstant(), instant)) {
-                    if (cnec instanceof FlowCnec) {
-                        remedialActionAdder.newOnFlowConstraintUsageRule()
-                            .withInstant(instant.getId())
-                            .withFlowCnec(cnecId)
-                            .withUsageMethod(usageMethod)
-                            .add();
-                    } else if (cnec instanceof VoltageCnec) {
-                        remedialActionAdder.newOnVoltageConstraintUsageRule()
-                            .withInstant(instant.getId())
-                            .withVoltageCnec(cnecId)
-                            .withUsageMethod(usageMethod)
-                            .add();
-                    } else {
-                        remedialActionAdder.newOnAngleConstraintUsageRule()
-                            .withInstant(instant.getId())
-                            .withAngleCnec(cnecId)
-                            .withUsageMethod(usageMethod)
-                            .add();
-                    }
+                    remedialActionAdder.newOnConstraintUsageRule()
+                        .withInstant(instant.getId())
+                        .withCnec(cnecId)
+                        .withUsageMethod(usageMethod)
+                        .add();
                 }
             } else {
                 alterations.add(cnecStatus.statusDetails());
@@ -259,9 +243,7 @@ public class CsaProfileRemedialActionsCreator {
                         standaloneRasImplicatedIntoAGroup.addAll(dependingEnabledRemedialActions.stream().map(RemedialActionDependency::remedialAction).collect(Collectors.toSet()));
                         throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action group " + remedialActionGroup.mrid() + " will not be imported because the remedial action " + refRemedialActionDependency.remedialAction() + " does not exist or not imported. All RA's depending in that group will be ignored: " + printRaIds(dependingEnabledRemedialActions));
                     }
-                    List<UsageRule> onAngleConstraintUsageRules = refNetworkAction.getUsageRules().stream().filter(OnAngleConstraint.class::isInstance).toList();
-                    List<UsageRule> onFlowConstraintUsageRules = refNetworkAction.getUsageRules().stream().filter(OnFlowConstraint.class::isInstance).toList();
-                    List<UsageRule> onVoltageConstraintUsageRules = refNetworkAction.getUsageRules().stream().filter(OnVoltageConstraint.class::isInstance).toList();
+                    List<UsageRule> onConstraintUsageRules = refNetworkAction.getUsageRules().stream().filter(OnConstraint.class::isInstance).toList();
                     List<UsageRule> onContingencyStateUsageRules = refNetworkAction.getUsageRules().stream().filter(OnContingencyState.class::isInstance).toList();
                     List<UsageRule> onInstantUsageRules = refNetworkAction.getUsageRules().stream().filter(OnInstant.class::isInstance).toList();
 
@@ -289,7 +271,7 @@ public class CsaProfileRemedialActionsCreator {
                     if (operators.size() == 1) {
                         networkActionAdder.withOperator(operators.iterator().next());
                     }
-                    addUsageRulesToGroup(onAngleConstraintUsageRules, onFlowConstraintUsageRules, onVoltageConstraintUsageRules, onContingencyStateUsageRules, onInstantUsageRules, injectionSetpoints, pstSetPoints, topologicalActions, networkActionAdder);
+                    addUsageRulesToGroup(onConstraintUsageRules, onContingencyStateUsageRules, onInstantUsageRules, injectionSetpoints, pstSetPoints, topologicalActions, networkActionAdder);
                     addElementaryActionsToGroup(injectionSetpoints, pstSetPoints, topologicalActions, networkActionAdder);
                     networkActionAdder.add();
                     contextByRaId.put(remedialActionGroup.mrid(), CsaProfileElementaryCreationContext.imported(remedialActionGroup.mrid(), remedialActionGroup.mrid(), groupName, "The RemedialActionGroup with mRID " + remedialActionGroup.mrid() + " was turned into a remedial action from the following remedial actions: " + printRaIds(dependingEnabledRemedialActions), true));
@@ -328,29 +310,13 @@ public class CsaProfileRemedialActionsCreator {
         });
     }
 
-    private static void addUsageRulesToGroup(List<UsageRule> onAngleConstraintUsageRules, List<UsageRule> onFlowConstraintUsageRules, List<UsageRule> onVoltageConstraintUsageRules, List<UsageRule> onContingencyStateUsageRules, List<UsageRule> onInstantUsageRules, List<ElementaryAction> injectionSetpoints, List<ElementaryAction> pstSetPoints, List<ElementaryAction> topologicalActions, NetworkActionAdder networkActionAdder) {
-        onAngleConstraintUsageRules.forEach(ur -> {
-            OnAngleConstraint onAngleConstraintUsageRule = (OnAngleConstraint) ur;
-            networkActionAdder.newOnAngleConstraintUsageRule()
+    private static void addUsageRulesToGroup(List<UsageRule> onConstraintUsageRules, List<UsageRule> onContingencyStateUsageRules, List<UsageRule> onInstantUsageRules, List<ElementaryAction> injectionSetpoints, List<ElementaryAction> pstSetPoints, List<ElementaryAction> topologicalActions, NetworkActionAdder networkActionAdder) {
+        onConstraintUsageRules.forEach(ur -> {
+            OnConstraint<?> onAngleConstraintUsageRule = (OnConstraint<?>) ur;
+            networkActionAdder.newOnConstraintUsageRule()
                 .withInstant(onAngleConstraintUsageRule.getInstant().getId())
                 .withUsageMethod(onAngleConstraintUsageRule.getUsageMethod())
-                .withAngleCnec(onAngleConstraintUsageRule.getAngleCnec().getId())
-                .add();
-        });
-        onFlowConstraintUsageRules.forEach(ur -> {
-            OnFlowConstraint onFlowConstraintUsageRule = (OnFlowConstraint) ur;
-            networkActionAdder.newOnFlowConstraintUsageRule()
-                .withInstant(onFlowConstraintUsageRule.getInstant().getId())
-                .withUsageMethod(onFlowConstraintUsageRule.getUsageMethod())
-                .withFlowCnec(onFlowConstraintUsageRule.getFlowCnec().getId())
-                .add();
-        });
-        onVoltageConstraintUsageRules.forEach(ur -> {
-            OnVoltageConstraint onVoltageConstraintUsageRule = (OnVoltageConstraint) ur;
-            networkActionAdder.newOnVoltageConstraintUsageRule()
-                .withInstant(onVoltageConstraintUsageRule.getInstant().getId())
-                .withUsageMethod(onVoltageConstraintUsageRule.getUsageMethod())
-                .withVoltageCnec(onVoltageConstraintUsageRule.getVoltageCnec().getId())
+                .withCnec(onAngleConstraintUsageRule.getCnec().getId())
                 .add();
         });
         onContingencyStateUsageRules.forEach(ur -> {

@@ -88,22 +88,22 @@ class JsonSerializationConstantsTest {
             when(ur.getState()).thenReturn(state);
             usageRule = ur;
         } else if (flowCnecId != null) {
-            OnFlowConstraint ur = mock(OnFlowConstraint.class);
+            OnConstraint<FlowCnec> ur = mock(OnConstraint.class);
             FlowCnec flowCnec = mock(FlowCnec.class);
             when(flowCnec.getId()).thenReturn(flowCnecId);
-            when(ur.getFlowCnec()).thenReturn(flowCnec);
+            when(ur.getCnec()).thenReturn(flowCnec);
             usageRule = ur;
         } else if (angleCnecId != null) {
-            OnAngleConstraint ur = mock(OnAngleConstraint.class);
+            OnConstraint<AngleCnec> ur = mock(OnConstraint.class);
             AngleCnec angleCnec = mock(AngleCnec.class);
             when(angleCnec.getId()).thenReturn(angleCnecId);
-            when(ur.getAngleCnec()).thenReturn(angleCnec);
+            when(ur.getCnec()).thenReturn(angleCnec);
             usageRule = ur;
         } else if (voltageCnecId != null) {
-            OnVoltageConstraint ur = mock(OnVoltageConstraint.class);
+            OnConstraint<VoltageCnec> ur = mock(OnConstraint.class);
             VoltageCnec voltageCnec = mock(VoltageCnec.class);
             when(voltageCnec.getId()).thenReturn(voltageCnecId);
-            when(ur.getVoltageCnec()).thenReturn(voltageCnec);
+            when(ur.getCnec()).thenReturn(voltageCnec);
             usageRule = ur;
         } else if (country != null) {
             OnFlowConstraintInCountry ur = mock(OnFlowConstraintInCountry.class);
@@ -174,10 +174,10 @@ class JsonSerializationConstantsTest {
         assertTrue(comparator.compare(ovc2, ovc1) < 0);
 
         assertTrue(comparator.compare(oi1, ocs1) > 0);
-        assertTrue(comparator.compare(ocs1, ofc1) < 0);
+        assertTrue(comparator.compare(ocs1, ofc1) > 0);
         assertTrue(comparator.compare(ofc2, ofcc1) < 0);
         assertTrue(comparator.compare(oac1, ocs2) < 0);
-        assertTrue(comparator.compare(oac1, ovc2) < 0);
+        assertTrue(comparator.compare(oac1, ovc2) >= 0);
     }
 
     @Test
