@@ -12,8 +12,6 @@ import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.modification.scalable.Scalable;
 import com.powsybl.iidm.network.Network;
 
-import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.BUSINESS_WARNS;
-
 /**
  * This abstract implementation uses a Scalable to apply redispatching
  *

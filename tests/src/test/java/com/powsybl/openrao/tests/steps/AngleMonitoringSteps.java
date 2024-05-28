@@ -6,6 +6,7 @@
  */
 package com.powsybl.openrao.tests.steps;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.glsk.cim.CimGlskDocument;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.loadflow.LoadFlowParameters;
@@ -58,7 +59,7 @@ public class AngleMonitoringSteps {
         Network network = CommonTestData.getNetwork();
         RaoResult raoResult = CommonTestData.getRaoResult();
         CimGlskDocument cimGlskDocument = CommonTestData.getCimGlskDocument();
-        AngleMonitoringResult result = roundTripOnAngleMonitoringResult(new AngleMonitoring(CommonTestData.getCrac(), network, raoResult, cimGlskDocument, glskOffsetDateTime).run("OpenLoadFlow", loadFlowParameters, numberOfLoadFlowsInParallel), CommonTestData.getCrac());
+        AngleMonitoringResult result = roundTripOnAngleMonitoringResult(new AngleMonitoring(CommonTestData.getCrac(), network, raoResult, cimGlskDocument, glskOffsetDateTime).run("OpenLoadFlow", loadFlowParameters, numberOfLoadFlowsInParallel, ReportNode.NO_OP), CommonTestData.getCrac());
         CommonTestData.setAngleMonitoringResult(result);
     }
 
