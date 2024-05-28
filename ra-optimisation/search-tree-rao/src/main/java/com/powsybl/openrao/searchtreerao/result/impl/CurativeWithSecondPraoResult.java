@@ -2,6 +2,7 @@ package com.powsybl.openrao.searchtreerao.result.impl;
 
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
+import com.powsybl.openrao.data.cracapi.Instant;
 import com.powsybl.openrao.data.cracapi.RemedialAction;
 import com.powsybl.openrao.data.cracapi.State;
 import com.powsybl.openrao.data.cracapi.cnec.Cnec;
@@ -65,6 +66,12 @@ public class CurativeWithSecondPraoResult implements OptimizationResult {
     public double getFlow(FlowCnec flowCnec, Side side, Unit unit) {
         checkCnec(flowCnec);
         return postCraSensitivityFlowResult.getFlow(flowCnec, side, unit);
+    }
+
+    @Override
+    public double getFlow(FlowCnec flowCnec, Side side, Unit unit, Instant instant) {
+        checkCnec(flowCnec);
+        return postCraSensitivityFlowResult.getFlow(flowCnec, side, unit, instant);
     }
 
     @Override

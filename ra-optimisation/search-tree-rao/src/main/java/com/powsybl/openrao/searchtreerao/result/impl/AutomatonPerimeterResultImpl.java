@@ -9,6 +9,7 @@ package com.powsybl.openrao.searchtreerao.result.impl;
 
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
+import com.powsybl.openrao.data.cracapi.Instant;
 import com.powsybl.openrao.data.cracapi.State;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
 import com.powsybl.openrao.data.cracapi.cnec.Side;
@@ -54,6 +55,11 @@ public class AutomatonPerimeterResultImpl implements PerimeterResult {
     @Override
     public double getFlow(FlowCnec flowCnec, Side side, Unit unit) {
         return postAutomatonSensitivityAnalysisOutput.getFlow(flowCnec, side, unit);
+    }
+
+    @Override
+    public double getFlow(FlowCnec flowCnec, Side side, Unit unit, Instant instant) {
+        return postAutomatonSensitivityAnalysisOutput.getFlow(flowCnec, side, unit, instant);
     }
 
     @Override

@@ -594,6 +594,12 @@ Feature: US 91.12: Multi-curative
     Given configuration file is "epic91/RaoParameters_case_91_12_secure_2PRAO.json"
     When I launch search_tree_rao
     Then the optimization steps executed by the RAO should be "SECOND_PREVENTIVE_IMPROVED_FIRST"
+    # Initial
+    And the initial flow on cnec "NNL2AA1  BBE3AA1  1 - preventive" should be 500.0 MW
+    And the initial flow on cnec "NNL2AA1  BBE3AA1  1 - Contingency DE2 DE3 1 - outage" should be 500.0 MW
+    And the initial flow on cnec "NNL2AA1  BBE3AA1  1 - Contingency DE2 DE3 1 - curative1" should be 500.0 MW
+    And the initial flow on cnec "NNL2AA1  BBE3AA1  1 - Contingency DE2 DE3 1 - curative2" should be 500.0 MW
+    And the initial flow on cnec "NNL2AA1  BBE3AA1  1 - Contingency DE2 DE3 1 - curative3" should be 500.0 MW
     # Preventive
     And 1 remedial actions are used in preventive
     And the remedial action "PRA_PST_BE" is used in preventive

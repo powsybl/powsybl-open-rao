@@ -9,6 +9,7 @@ package com.powsybl.openrao.searchtreerao.commons.adapter;
 
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
+import com.powsybl.openrao.data.cracapi.Instant;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
 import com.powsybl.openrao.data.cracapi.cnec.Side;
 import com.powsybl.openrao.loopflowcomputation.LoopFlowComputation;
@@ -56,6 +57,11 @@ public final class BranchResultAdapterImpl implements BranchResultAdapter {
                 }
 
                 @Override
+                public double getFlow(FlowCnec flowCnec, Side side, Unit unit, Instant instant) {
+                    throw new NotImplementedException();
+                }
+
+                @Override
                 public double getCommercialFlow(FlowCnec flowCnec, Side side, Unit unit) {
                     throw new NotImplementedException();
                 }
@@ -88,6 +94,11 @@ public final class BranchResultAdapterImpl implements BranchResultAdapter {
             commercialFlows = new FlowResult() {
                 @Override
                 public double getFlow(FlowCnec flowCnec, Side side, Unit unit) {
+                    throw new NotImplementedException();
+                }
+
+                @Override
+                public double getFlow(FlowCnec flowCnec, Side side, Unit unit, Instant instant) {
                     throw new NotImplementedException();
                 }
 
