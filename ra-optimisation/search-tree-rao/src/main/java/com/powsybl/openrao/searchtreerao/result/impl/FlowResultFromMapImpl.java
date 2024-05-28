@@ -9,6 +9,7 @@ package com.powsybl.openrao.searchtreerao.result.impl;
 
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
+import com.powsybl.openrao.data.cracapi.Instant;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
 import com.powsybl.openrao.data.cracapi.cnec.Side;
 import com.powsybl.openrao.searchtreerao.commons.RaoUtil;
@@ -43,6 +44,22 @@ public class FlowResultFromMapImpl implements FlowResult {
             double intensity = systematicSensitivityResult.getReferenceIntensity(flowCnec, side);
             if (Double.isNaN(intensity) || Math.abs(intensity) <= 1e-6) {
                 return systematicSensitivityResult.getReferenceFlow(flowCnec, side) * RaoUtil.getFlowUnitMultiplier(flowCnec, side, Unit.MEGAWATT, Unit.AMPERE);
+            } else {
+                return intensity;
+            }
+        } else {
+            throw new OpenRaoException("Unknown unit for flow.");
+        }
+    }
+
+    @Override
+    public double getFlow(FlowCnec flowCnec, Side side, Unit unit, Instant instant) {
+        if (unit == Unit.MEGAWATT) {
+            return systematicSensitivityResult.getReferenceFlow(flowCnec, side, instant);
+        } else if (unit == Unit.AMPERE) {
+            double intensity = systematicSensitivityResult.getReferenceIntensity(flowCnec, side, instant);
+            if (Double.isNaN(intensity) || Math.abs(intensity) <= 1e-6) {
+                return systematicSensitivityResult.getReferenceFlow(flowCnec, side, instant) * RaoUtil.getFlowUnitMultiplier(flowCnec, side, Unit.MEGAWATT, Unit.AMPERE);
             } else {
                 return intensity;
             }

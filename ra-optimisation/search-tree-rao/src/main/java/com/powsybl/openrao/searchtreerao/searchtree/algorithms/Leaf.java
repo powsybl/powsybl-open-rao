@@ -8,6 +8,7 @@ package com.powsybl.openrao.searchtreerao.searchtree.algorithms;
 
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
+import com.powsybl.openrao.data.cracapi.Instant;
 import com.powsybl.openrao.data.cracapi.RaUsageLimits;
 import com.powsybl.openrao.data.cracapi.RemedialAction;
 import com.powsybl.openrao.data.cracapi.State;
@@ -335,6 +336,17 @@ public class Leaf implements OptimizationResult {
             return preOptimFlowResult.getFlow(flowCnec, side, unit);
         } else if (status == Status.OPTIMIZED) {
             return postOptimResult.getFlow(flowCnec, side, unit);
+        } else {
+            throw new OpenRaoException(NO_RESULTS_AVAILABLE);
+        }
+    }
+
+    @Override
+    public double getFlow(FlowCnec flowCnec, Side side, Unit unit, Instant instant) {
+        if (status == Status.EVALUATED) {
+            return preOptimFlowResult.getFlow(flowCnec, side, unit, instant);
+        } else if (status == Status.OPTIMIZED) {
+            return postOptimResult.getFlow(flowCnec, side, unit, instant);
         } else {
             throw new OpenRaoException(NO_RESULTS_AVAILABLE);
         }

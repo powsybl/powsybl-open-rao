@@ -281,7 +281,7 @@ public class PreventiveAndCurativesRaoResultImpl implements RaoResult {
     public double getFlow(Instant optimizedInstant, FlowCnec flowCnec, Side side, Unit unit) {
         FlowResult flowResult = getFlowResult(optimizedInstant, flowCnec);
         if (Objects.nonNull(flowResult)) {
-            return flowResult.getFlow(flowCnec, side, unit);
+            return flowResult.getFlow(flowCnec, side, unit, optimizedInstant);
         } else {
             return Double.NaN;
         }
