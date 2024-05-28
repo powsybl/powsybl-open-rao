@@ -6,6 +6,7 @@
  */
 package com.powsybl.openrao.sensitivityanalysis;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
@@ -21,8 +22,6 @@ import org.apache.commons.lang3.tuple.Pair;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.TECHNICAL_LOGS;
-
 /**
  * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
  */
@@ -30,8 +29,8 @@ public class RangeActionSensitivityProvider extends LoadflowProvider {
     private final Set<RangeAction<?>> rangeActions;
     private final Map<String, SensitivityVariableSet> glsks;
 
-    RangeActionSensitivityProvider(Set<RangeAction<?>> rangeActions, Set<FlowCnec> cnecs, Set<Unit> units) {
-        super(cnecs, units);
+    RangeActionSensitivityProvider(Set<RangeAction<?>> rangeActions, Set<FlowCnec> cnecs, Set<Unit> units, ReportNode reportNode) {
+        super(cnecs, units, reportNode);
         this.rangeActions = rangeActions;
         glsks = new HashMap<>();
     }
@@ -89,7 +88,7 @@ public class RangeActionSensitivityProvider extends LoadflowProvider {
             } else if (ra instanceof InjectionRangeAction injectionRangeAction) {
                 createPositiveAndNegativeGlsks(injectionRangeAction, sensitivityVariables, glskIds);
             } else if (ra instanceof CounterTradeRangeAction counterTradeRangeAction) {
-                TECHNICAL_LOGS.warn("Unable to compute sensitivity for CounterTradeRangeAction. ({})", counterTradeRangeAction.getId());
+                SensitivityAnalysisReports.reportUnableComputeSensitivityForCounterTradeRangeAction(reportNode, counterTradeRangeAction.getId());
             } else {
                 throw new OpenRaoException(String.format("Range action type of %s not implemented yet", ra.getId()));
             }

@@ -2,8 +2,9 @@
    + Flow based computation
       RAO result is not null: applying remedial actions selected by the RAO.
       + New systematic sensitivity interface
-         Systematic sensitivity analysis with applied RA [start]
-         ... (1/2) 2 state(s) without RA
-         ... (2/2) state with RA N-1 FR-BE - curative
-         Systematic sensitivity analysis with applied RA [end]]
+         New sensitivity provider
+         + Systematic sensitivity analysis with applied RA [start]
+            ... (1/2) 2 state(s) without RA
+            ... (2/2) state with RA N-1 FR-BE - curative
+            Systematic sensitivity analysis with applied RA [end]]
       RAO result is not null: applying remedial actions selected by the RAO.

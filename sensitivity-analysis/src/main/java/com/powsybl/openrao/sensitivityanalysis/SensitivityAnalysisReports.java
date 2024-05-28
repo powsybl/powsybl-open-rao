@@ -112,4 +112,41 @@ public final class SensitivityAnalysisReports {
         TECHNICAL_LOGS.debug("Systematic sensitivity analysis [end]");
         return addedNode;
     }
+
+    public static ReportNode reportSensitivityProviderUnhandledUnit(ReportNode reportNode, String unit) {
+        ReportNode addedNode = reportNode.newReportNode()
+            .withMessageTemplate("reportSensitivityProviderUnhandledUnit", "Unit ${unit} cannot be handled by the sensitivity provider as it is not a flow unit")
+            .withUntypedValue("unit", unit)
+            .withSeverity(TypedValue.TRACE_SEVERITY)
+            .add();
+        TECHNICAL_LOGS.warn("Unit {} cannot be handled by the sensitivity provider as it is not a flow unit", unit);
+        return addedNode;
+
+    }
+
+    public static ReportNode reportNewSensitivityProvider(ReportNode reportNode) {
+        return reportNode.newReportNode()
+            .withMessageTemplate("reportNewSensitivityProvider", "New sensitivity provider")
+            .withSeverity(TypedValue.INFO_SEVERITY)
+            .add();
+    }
+
+    public static ReportNode reportUnableComputeSensitivityForCounterTradeRangeAction(ReportNode reportNode, String counterTradeRangeActionId) {
+        ReportNode addedNode = reportNode.newReportNode()
+            .withMessageTemplate("reportUnableComputeSensitivityForCounterTradeRangeAction", "Unable to compute sensitivity for CounterTradeRangeAction. (${counterTradeRangeActionId})")
+            .withUntypedValue("counterTradeRangeActionId", counterTradeRangeActionId)
+            .withSeverity(TypedValue.TRACE_SEVERITY)
+            .add();
+        TECHNICAL_LOGS.warn("Unable to compute sensitivity for CounterTradeRangeAction. ({})", counterTradeRangeActionId);
+        return addedNode;
+    }
+
+    public static ReportNode reportSensitivityOnlyHandleMegawattUnit(ReportNode reportNode) {
+        ReportNode addedNode = reportNode.newReportNode()
+            .withMessageTemplate("reportSensitivityOnlyHandleMegawattUnit", "PtdfSensitivity provider currently only handle Megawatt unit")
+            .withSeverity(TypedValue.TRACE_SEVERITY)
+            .add();
+        TECHNICAL_LOGS.warn("PtdfSensitivity provider currently only handle Megawatt unit");
+        return addedNode;
+    }
 }

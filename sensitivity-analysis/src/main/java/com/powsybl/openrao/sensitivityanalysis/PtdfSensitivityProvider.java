@@ -6,8 +6,8 @@
  */
 package com.powsybl.openrao.sensitivityanalysis;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.openrao.commons.Unit;
-import com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider;
 import com.powsybl.openrao.data.cracapi.NetworkElement;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
 import com.powsybl.openrao.data.cracapi.cnec.Side;
@@ -31,12 +31,12 @@ import java.util.stream.Stream;
 public class PtdfSensitivityProvider extends AbstractSimpleSensitivityProvider {
     private final ZonalData<SensitivityVariableSet> glsk;
 
-    PtdfSensitivityProvider(ZonalData<SensitivityVariableSet> glsk, Set<FlowCnec> cnecs, Set<Unit> units) {
-        super(cnecs, units);
+    PtdfSensitivityProvider(ZonalData<SensitivityVariableSet> glsk, Set<FlowCnec> cnecs, Set<Unit> units, ReportNode reportNode) {
+        super(cnecs, units, reportNode);
 
         // todo : handle PTDFs in AMPERE
         if (factorsInAmpere || !factorsInMegawatt) {
-            OpenRaoLoggerProvider.TECHNICAL_LOGS.warn("PtdfSensitivity provider currently only handle Megawatt unit");
+            SensitivityAnalysisReports.reportSensitivityOnlyHandleMegawattUnit(reportNode);
             factorsInMegawatt = true;
             factorsInAmpere = false;
         }

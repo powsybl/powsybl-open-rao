@@ -6,6 +6,7 @@
  */
 package com.powsybl.openrao.sensitivityanalysis;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
@@ -36,8 +37,8 @@ public class LoadflowProvider extends AbstractSimpleSensitivityProvider {
 
     Pair<String, SensitivityVariableType> defaultSensitivityVariable;
 
-    LoadflowProvider(Set<FlowCnec> cnecs, Set<Unit> units) {
-        super(cnecs, units);
+    LoadflowProvider(Set<FlowCnec> cnecs, Set<Unit> units, ReportNode reportNode) {
+        super(cnecs, units, reportNode);
     }
 
     @Override

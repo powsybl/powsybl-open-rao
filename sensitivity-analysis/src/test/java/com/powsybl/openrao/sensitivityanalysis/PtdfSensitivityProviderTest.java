@@ -6,6 +6,7 @@
  */
 package com.powsybl.openrao.sensitivityanalysis;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.cracimpl.utils.CommonCracCreation;
@@ -51,7 +52,7 @@ class PtdfSensitivityProviderTest {
 
     @Test
     void getFactorsOnCommonCrac() {
-        PtdfSensitivityProvider ptdfSensitivityProvider = new PtdfSensitivityProvider(glskMock, crac.getFlowCnecs(), Collections.singleton(Unit.MEGAWATT));
+        PtdfSensitivityProvider ptdfSensitivityProvider = new PtdfSensitivityProvider(glskMock, crac.getFlowCnecs(), Collections.singleton(Unit.MEGAWATT), ReportNode.NO_OP);
         List<SensitivityFactor> sensitivityFactors = ptdfSensitivityProvider.getBasecaseFactors(network);
         assertEquals(8, sensitivityFactors.size());
         assertTrue(sensitivityFactors.stream().anyMatch(sensitivityFactor -> sensitivityFactor.getFunctionId().contains("FFR2AA1  DDE3AA1  1")
@@ -65,7 +66,7 @@ class PtdfSensitivityProviderTest {
 
     @Test
     void testDisableFactorForBaseCase() {
-        PtdfSensitivityProvider ptdfSensitivityProvider = new PtdfSensitivityProvider(glskMock, crac.getFlowCnecs(), Collections.singleton(Unit.MEGAWATT));
+        PtdfSensitivityProvider ptdfSensitivityProvider = new PtdfSensitivityProvider(glskMock, crac.getFlowCnecs(), Collections.singleton(Unit.MEGAWATT), ReportNode.NO_OP);
 
         // factors with basecase and contingency
         assertEquals(8, ptdfSensitivityProvider.getBasecaseFactors(network).size());
@@ -80,7 +81,7 @@ class PtdfSensitivityProviderTest {
 
     @Test
     void testDoNotHandleAmpere() {
-        PtdfSensitivityProvider ptdfSensitivityProvider = new PtdfSensitivityProvider(glskMock, crac.getFlowCnecs(), Collections.singleton(Unit.AMPERE));
+        PtdfSensitivityProvider ptdfSensitivityProvider = new PtdfSensitivityProvider(glskMock, crac.getFlowCnecs(), Collections.singleton(Unit.AMPERE), ReportNode.NO_OP);
         assertFalse(ptdfSensitivityProvider.factorsInAmpere);
         assertTrue(ptdfSensitivityProvider.factorsInMegawatt);
     }

@@ -6,6 +6,7 @@
  */
 package com.powsybl.openrao.sensitivityanalysis;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.cracapi.cnec.Side;
@@ -34,7 +35,7 @@ class LoadflowProviderTest {
     void inAmpereAndMegawattOnOneSide() {
         Crac crac = CommonCracCreation.create(Set.of(Side.LEFT));
         Network network = NetworkImportsUtil.import12NodesNetwork();
-        LoadflowProvider provider = new LoadflowProvider(crac.getFlowCnecs(), Set.of(Unit.MEGAWATT, Unit.AMPERE));
+        LoadflowProvider provider = new LoadflowProvider(crac.getFlowCnecs(), Set.of(Unit.MEGAWATT, Unit.AMPERE), ReportNode.NO_OP);
 
         // Common Crac contains 6 CNEC (2 network element) and 1 range action
         List<SensitivityFactor> factorList = provider.getBasecaseFactors(network);
@@ -51,7 +52,7 @@ class LoadflowProviderTest {
     void inAmpereAndMegawattOnTwoSides() {
         Crac crac = CommonCracCreation.create(Set.of(Side.LEFT, Side.RIGHT));
         Network network = NetworkImportsUtil.import12NodesNetwork();
-        LoadflowProvider provider = new LoadflowProvider(crac.getFlowCnecs(), Set.of(Unit.MEGAWATT, Unit.AMPERE));
+        LoadflowProvider provider = new LoadflowProvider(crac.getFlowCnecs(), Set.of(Unit.MEGAWATT, Unit.AMPERE), ReportNode.NO_OP);
 
         // Common Crac contains 6 CNEC (2 network element) and 1 range action
         List<SensitivityFactor> factorList = provider.getBasecaseFactors(network);
@@ -76,7 +77,7 @@ class LoadflowProviderTest {
         Network network = NetworkImportsUtil.import12NodesNetwork();
         network.getBranch("BBE2AA1  FFR3AA1  1").getTerminal2().getVoltageLevel().setNominalV(200);
 
-        LoadflowProvider provider = new LoadflowProvider(Set.of(crac.getFlowCnec("cnec1basecase")), Set.of(Unit.AMPERE));
+        LoadflowProvider provider = new LoadflowProvider(Set.of(crac.getFlowCnec("cnec1basecase")), Set.of(Unit.AMPERE), ReportNode.NO_OP);
 
         // When nominalV on side 1 & side 2 are not the same, only use side 1 factor
         List<SensitivityFactor> factorList = provider.getBasecaseFactors(network);
@@ -89,7 +90,7 @@ class LoadflowProviderTest {
     void inMegawattOnly() {
         Crac crac = CommonCracCreation.create();
         Network network = NetworkImportsUtil.import12NodesNetwork();
-        LoadflowProvider provider = new LoadflowProvider(crac.getFlowCnecs(), Collections.singleton(Unit.MEGAWATT));
+        LoadflowProvider provider = new LoadflowProvider(crac.getFlowCnecs(), Collections.singleton(Unit.MEGAWATT), ReportNode.NO_OP);
 
         // Common Crac contains 6 CNEC (2 network element) and 1 range action
         List<SensitivityFactor> factorList = provider.getBasecaseFactors(network);

@@ -6,6 +6,7 @@
  */
 package com.powsybl.openrao.sensitivityanalysis;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.contingency.ContingencyElementType;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
@@ -106,7 +107,7 @@ class RangeActionSensitivityProviderTest {
             .withContingency("contingency-busbar-section")
             .add();
 
-        RangeActionSensitivityProvider provider = new RangeActionSensitivityProvider(crac.getRangeActions(), crac.getFlowCnecs(), Stream.of(Unit.MEGAWATT, Unit.AMPERE).collect(Collectors.toSet()));
+        RangeActionSensitivityProvider provider = new RangeActionSensitivityProvider(crac.getRangeActions(), crac.getFlowCnecs(), Stream.of(Unit.MEGAWATT, Unit.AMPERE).collect(Collectors.toSet()), ReportNode.NO_OP);
 
         // Common Crac contains 6 CNEC (2 network element) and 1 range action
         List<Contingency> contingencyList = provider.getContingencies(network);
@@ -122,7 +123,7 @@ class RangeActionSensitivityProviderTest {
     void testDisableFactorForBaseCase() {
         Network network = NetworkImportsUtil.import12NodesNetwork();
         Crac crac = CommonCracCreation.createWithPreventivePstRange();
-        RangeActionSensitivityProvider provider = new RangeActionSensitivityProvider(crac.getRangeActions(), crac.getFlowCnecs(), Stream.of(Unit.MEGAWATT, Unit.AMPERE).collect(Collectors.toSet()));
+        RangeActionSensitivityProvider provider = new RangeActionSensitivityProvider(crac.getRangeActions(), crac.getFlowCnecs(), Stream.of(Unit.MEGAWATT, Unit.AMPERE).collect(Collectors.toSet()), ReportNode.NO_OP);
 
         // factors with basecase and contingency
         assertEquals(4, provider.getBasecaseFactors(network).size());
@@ -140,7 +141,7 @@ class RangeActionSensitivityProviderTest {
         Crac crac = CommonCracCreation.createWithPreventivePstRange(Set.of(Side.LEFT, Side.RIGHT));
         Network network = NetworkImportsUtil.import12NodesNetwork();
 
-        RangeActionSensitivityProvider provider = new RangeActionSensitivityProvider(crac.getRangeActions(), crac.getFlowCnecs(), Set.of(Unit.MEGAWATT, Unit.AMPERE));
+        RangeActionSensitivityProvider provider = new RangeActionSensitivityProvider(crac.getRangeActions(), crac.getFlowCnecs(), Set.of(Unit.MEGAWATT, Unit.AMPERE), ReportNode.NO_OP);
 
         // Common Crac contains 6 CNEC (2 network elements) and 1 range action
         List<SensitivityFactor> factorList = provider.getBasecaseFactors(network);
@@ -165,7 +166,7 @@ class RangeActionSensitivityProviderTest {
         Network network = NetworkImportsUtil.import12NodesNetwork();
 
         RangeActionSensitivityProvider provider = new RangeActionSensitivityProvider(crac.getRangeActions(),
-            crac.getFlowCnecs(), Stream.of(Unit.MEGAWATT, Unit.AMPERE).collect(Collectors.toSet()));
+            crac.getFlowCnecs(), Stream.of(Unit.MEGAWATT, Unit.AMPERE).collect(Collectors.toSet()), ReportNode.NO_OP);
 
         // Common Crac contains 6 CNEC and 1 range action
         List<SensitivityFactor> factorList = provider.getBasecaseFactors(network);
@@ -183,7 +184,7 @@ class RangeActionSensitivityProviderTest {
         Crac crac = CommonCracCreation.create(Set.of(Side.LEFT, Side.RIGHT));
         Network network = NetworkImportsUtil.import12NodesNoPstNetwork();
 
-        RangeActionSensitivityProvider provider = new RangeActionSensitivityProvider(crac.getRangeActions(), crac.getFlowCnecs(), Set.of(Unit.MEGAWATT, Unit.AMPERE));
+        RangeActionSensitivityProvider provider = new RangeActionSensitivityProvider(crac.getRangeActions(), crac.getFlowCnecs(), Set.of(Unit.MEGAWATT, Unit.AMPERE), ReportNode.NO_OP);
 
         // Common Crac contains 6 CNEC and 1 range action
         List<SensitivityFactor> factorList = provider.getBasecaseFactors(network);
@@ -221,7 +222,7 @@ class RangeActionSensitivityProviderTest {
         HvdcRangeAction mockHvdcRangeAction = Mockito.mock(HvdcRangeAction.class);
         Mockito.when(mockHvdcRangeAction.getNetworkElement()).thenReturn(hvdc);
 
-        RangeActionSensitivityProvider provider = new RangeActionSensitivityProvider(Set.of(mockHvdcRangeAction), Set.of(flowCnec), Set.of(Unit.MEGAWATT, Unit.AMPERE));
+        RangeActionSensitivityProvider provider = new RangeActionSensitivityProvider(Set.of(mockHvdcRangeAction), Set.of(flowCnec), Set.of(Unit.MEGAWATT, Unit.AMPERE), ReportNode.NO_OP);
 
         List<SensitivityFactor> factorList = provider.getBasecaseFactors(network);
 
@@ -270,7 +271,7 @@ class RangeActionSensitivityProviderTest {
         RangeAction<?> mockHvdcRangeAction = Mockito.mock(RangeAction.class);
         Mockito.when(mockHvdcRangeAction.getNetworkElements()).thenReturn(Set.of(line));
 
-        RangeActionSensitivityProvider provider = new RangeActionSensitivityProvider(Set.of(mockHvdcRangeAction), Set.of(flowCnec), Set.of(Unit.MEGAWATT, Unit.AMPERE));
+        RangeActionSensitivityProvider provider = new RangeActionSensitivityProvider(Set.of(mockHvdcRangeAction), Set.of(flowCnec), Set.of(Unit.MEGAWATT, Unit.AMPERE), ReportNode.NO_OP);
 
         OpenRaoException exception = assertThrows(OpenRaoException.class, () -> provider.getBasecaseFactors(network));
         assertEquals("Range action type of null not implemented yet", exception.getMessage());
@@ -289,7 +290,7 @@ class RangeActionSensitivityProviderTest {
         Network network = Network.read("TestCase16NodesWithHvdc.xiidm", getClass().getResourceAsStream("/TestCase16NodesWithHvdc.xiidm"));
 
         RangeAction<?> ctRa = Mockito.mock(CounterTradeRangeAction.class);
-        RangeActionSensitivityProvider provider = new RangeActionSensitivityProvider(Set.of(ctRa), Set.of(flowCnec), Set.of(Unit.MEGAWATT, Unit.AMPERE));
+        RangeActionSensitivityProvider provider = new RangeActionSensitivityProvider(Set.of(ctRa), Set.of(flowCnec), Set.of(Unit.MEGAWATT, Unit.AMPERE), ReportNode.NO_OP);
 
         List<SensitivityFactor> factors = provider.getBasecaseFactors(network);
         assertEquals(2, factors.size());

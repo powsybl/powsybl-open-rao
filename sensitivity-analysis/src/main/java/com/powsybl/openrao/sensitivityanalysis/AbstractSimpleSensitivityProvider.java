@@ -6,9 +6,9 @@
  */
 package com.powsybl.openrao.sensitivityanalysis;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
-import com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
 import com.powsybl.iidm.network.Network;
@@ -21,13 +21,15 @@ import java.util.*;
  */
 public abstract class AbstractSimpleSensitivityProvider implements CnecSensitivityProvider {
     protected Set<FlowCnec> cnecs;
+    protected final ReportNode reportNode;
     protected Map<String, ArrayList<FlowCnec> > cnecsPerContingencyId = new HashMap<>();
     protected boolean factorsInMegawatt = false;
     protected boolean factorsInAmpere = false;
     protected boolean afterContingencyOnly = false;
 
-    AbstractSimpleSensitivityProvider(Set<FlowCnec> cnecs, Set<Unit> requestedUnits) {
+    AbstractSimpleSensitivityProvider(Set<FlowCnec> cnecs, Set<Unit> requestedUnits, ReportNode reportNode) {
         this.cnecs = cnecs;
+        this.reportNode = SensitivityAnalysisReports.reportNewSensitivityProvider(reportNode);
         for (FlowCnec cnec : cnecs) {
             if (cnec.getState().isPreventive()) {
                 cnecsPerContingencyId.computeIfAbsent(null, string -> new ArrayList<>());
@@ -54,7 +56,7 @@ public abstract class AbstractSimpleSensitivityProvider implements CnecSensitivi
                     factorsInAmpere = true;
                     break;
                 default:
-                    OpenRaoLoggerProvider.TECHNICAL_LOGS.warn("Unit {} cannot be handled by the sensitivity provider as it is not a flow unit", unit);
+                    SensitivityAnalysisReports.reportSensitivityProviderUnhandledUnit(reportNode, unit.toString());
             }
         }
 

@@ -7,6 +7,7 @@
 package com.powsybl.openrao.sensitivityanalysis;
 
 import com.powsybl.commons.report.ReportNode;
+import com.powsybl.computation.local.LocalComputationManager;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.RandomizedString;
 import com.powsybl.contingency.Contingency;
@@ -44,7 +45,9 @@ final class SystematicSensitivityAdapter {
                     cnecSensitivityProvider.getAllFactors(network),
                     cnecSensitivityProvider.getContingencies(network),
                     cnecSensitivityProvider.getVariableSets(),
-                    sensitivityComputationParameters);
+                    sensitivityComputationParameters,
+                    LocalComputationManager.getDefault(), // TODO check if this is ok ?
+                    reportNode);
         } catch (Exception e) {
             SensitivityAnalysisReports.reportSystematicSensitivityAnalysisFailed(reportNode, e.getMessage());
             return new SystematicSensitivityResult(SystematicSensitivityResult.SensitivityComputationStatus.FAILURE);
@@ -64,7 +67,7 @@ final class SystematicSensitivityAdapter {
             return runSensitivity(network, cnecSensitivityProvider, sensitivityComputationParameters, sensitivityProvider, outageInstant, reportNode);
         }
 
-        SensitivityAnalysisReports.reportSystematicSensitivityAnalysisWithAppliedRAStart(reportNode);
+        ReportNode reportNodeStart = SensitivityAnalysisReports.reportSystematicSensitivityAnalysisWithAppliedRAStart(reportNode);
         // Information : for contingencies with auto RA but no curative RA, SystematicSensitivityResult::getCnecStateResult will
         // retrieve sensi information for curative state from auto state to take into account auto RAs.
         // (When auto AND curative RAs are applied, they will both be included in statesWithRa and both sensis
@@ -74,7 +77,7 @@ final class SystematicSensitivityAdapter {
         statesWithoutRa.removeAll(statesWithRa);
 
         // systematic analysis for states without RA
-        SensitivityAnalysisReports.reportSystematicSensitivityAnalysisForStatesWithoutRA(reportNode, statesWithRa.size() + 1, statesWithoutRa.size());
+        ReportNode reportNodeWithoutRa = SensitivityAnalysisReports.reportSystematicSensitivityAnalysisForStatesWithoutRA(reportNodeStart, statesWithRa.size() + 1, statesWithoutRa.size());
 
         List<Contingency> contingenciesWithoutRa = statesWithoutRa.stream()
             .filter(state -> state.getContingency().isPresent())
@@ -90,7 +93,9 @@ final class SystematicSensitivityAdapter {
             allFactorsWithoutRa,
             contingenciesWithoutRa,
             cnecSensitivityProvider.getVariableSets(),
-            sensitivityComputationParameters), outageInstant.getOrder());
+            sensitivityComputationParameters,
+            LocalComputationManager.getDefault(),
+            reportNodeWithoutRa), outageInstant.getOrder());
 
         // systematic analyses for states with RA
         cnecSensitivityProvider.disableFactorsForBaseCaseSituation();
@@ -107,7 +112,7 @@ final class SystematicSensitivityAdapter {
                 throw new OpenRaoException("Sensitivity analysis with applied RA does not handle preventive RA.");
             }
 
-            SensitivityAnalysisReports.reportSystematicSensitivityAnalysisForStatesWithRA(reportNode, counterForLogs, statesWithRa.size() + 1, state.getId());
+            ReportNode reportNodeWithRa = SensitivityAnalysisReports.reportSystematicSensitivityAnalysisForStatesWithRA(reportNodeStart, counterForLogs, statesWithRa.size() + 1, state.getId());
 
             //TODO: We can save a bit of time by unapplying previous remedial actions here if we find a clean way to do it
             network.getVariantManager().cloneVariant(workingVariantId, variantForState, true);
@@ -123,7 +128,9 @@ final class SystematicSensitivityAdapter {
                 cnecSensitivityProvider.getContingencyFactors(network, contingencyList),
                 contingencyList,
                 cnecSensitivityProvider.getVariableSets(),
-                sensitivityComputationParameters), state.getInstant().getOrder());
+                sensitivityComputationParameters,
+                LocalComputationManager.getDefault(),
+                reportNodeWithRa), state.getInstant().getOrder());
             counterForLogs++;
         }
 
@@ -131,7 +138,7 @@ final class SystematicSensitivityAdapter {
             network.getVariantManager().removeVariant(variantForState);
         }
 
-        SensitivityAnalysisReports.reportSystematicSensitivityAnalysisWithAppliedRAEnd(reportNode);
+        SensitivityAnalysisReports.reportSystematicSensitivityAnalysisWithAppliedRAEnd(reportNodeStart);
 
         network.getVariantManager().setWorkingVariant(workingVariantId);
         return result.postTreatIntensities().postTreatHvdcs(network, cnecSensitivityProvider.getHvdcs());

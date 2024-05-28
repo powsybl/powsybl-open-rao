@@ -95,15 +95,15 @@ public final class SystematicSensitivityInterface {
         }
 
         public SystematicSensitivityInterfaceBuilder withPtdfSensitivities(ZonalData<SensitivityVariableSet> glsk, Set<FlowCnec> cnecs, Set<Unit> units) {
-            return this.withSensitivityProvider(new PtdfSensitivityProvider(glsk, cnecs, units));
+            return this.withSensitivityProvider(new PtdfSensitivityProvider(glsk, cnecs, units, reportNode));
         }
 
         public SystematicSensitivityInterfaceBuilder withRangeActionSensitivities(Set<RangeAction<?>> rangeActions, Set<FlowCnec> cnecs, Set<Unit> units) {
-            return this.withSensitivityProvider(new RangeActionSensitivityProvider(rangeActions, cnecs, units));
+            return this.withSensitivityProvider(new RangeActionSensitivityProvider(rangeActions, cnecs, units, reportNode));
         }
 
         public SystematicSensitivityInterfaceBuilder withLoadflow(Set<FlowCnec> cnecs, Set<Unit> units) {
-            return this.withSensitivityProvider(new LoadflowProvider(cnecs, units));
+            return this.withSensitivityProvider(new LoadflowProvider(cnecs, units, reportNode));
         }
 
         public SystematicSensitivityInterfaceBuilder withAppliedRemedialActions(AppliedRemedialActions appliedRemedialActions) {
