@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.searchtreerao.commons;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.openrao.commons.EICode;
 import com.powsybl.openrao.data.cracapi.Instant;
 import com.powsybl.openrao.data.cracapi.State;
@@ -70,7 +71,7 @@ class ToolProviderTest {
         Instant outageInstant = Mockito.mock(Instant.class);
         Mockito.when(outageInstant.isOutage()).thenReturn(true);
         SystematicSensitivityInterface sensitivityInterface = toolProvider.getSystematicSensitivityInterface(
-                Set.of(cnec1, cnec2), Set.of(Mockito.mock(RangeAction.class)), false, false, outageInstant);
+                Set.of(cnec1, cnec2), Set.of(Mockito.mock(RangeAction.class)), false, false, outageInstant, ReportNode.NO_OP);
         assertNotNull(sensitivityInterface);
     }
 

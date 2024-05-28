@@ -80,8 +80,10 @@ public final class ToolProvider {
     public SystematicSensitivityInterface getSystematicSensitivityInterface(Set<FlowCnec> cnecs,
                                                                             Set<RangeAction<?>> rangeActions,
                                                                             boolean computePtdfs,
-                                                                            boolean computeLoopFlows, Instant outageInstant) {
-        return getSystematicSensitivityInterface(cnecs, rangeActions, computePtdfs, computeLoopFlows, null, outageInstant);
+                                                                            boolean computeLoopFlows,
+                                                                            Instant outageInstant,
+                                                                            ReportNode reportNode) {
+        return getSystematicSensitivityInterface(cnecs, rangeActions, computePtdfs, computeLoopFlows, null, outageInstant, reportNode);
     }
 
     public SystematicSensitivityInterface getSystematicSensitivityInterface(Set<FlowCnec> cnecs,
@@ -89,9 +91,10 @@ public final class ToolProvider {
                                                                             boolean computePtdfs,
                                                                             boolean computeLoopFlows,
                                                                             AppliedRemedialActions appliedRemedialActions,
-                                                                            Instant outageInstant) {
+                                                                            Instant outageInstant,
+                                                                            ReportNode reportNode) {
 
-        SystematicSensitivityInterface.SystematicSensitivityInterfaceBuilder builder = SystematicSensitivityInterface.builder()
+        SystematicSensitivityInterface.SystematicSensitivityInterfaceBuilder builder = SystematicSensitivityInterface.builder(reportNode)
             .withSensitivityProviderName(raoParameters.getLoadFlowAndSensitivityParameters().getSensitivityProvider())
             .withParameters(raoParameters.getLoadFlowAndSensitivityParameters().getSensitivityWithLoadFlowParameters())
             .withRangeActionSensitivities(rangeActions, cnecs, Collections.singleton(Unit.MEGAWATT))

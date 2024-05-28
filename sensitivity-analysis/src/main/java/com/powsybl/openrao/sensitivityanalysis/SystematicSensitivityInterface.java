@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.sensitivityanalysis;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.glsk.commons.ZonalData;
@@ -19,8 +20,6 @@ import com.powsybl.sensitivity.SensitivityVariableSet;
 
 import java.util.Objects;
 import java.util.Set;
-
-import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.*;
 
 /**
  * An interface with the engine that computes sensitivities and flows needed in the RAO.
@@ -49,12 +48,22 @@ public final class SystematicSensitivityInterface {
      * The remedialActions that are applied in the initial network or after some contingencies
      */
     private AppliedRemedialActions appliedRemedialActions;
+
+    /**
+     * The outage instant
+     */
     private Instant outageInstant;
+
+    /**
+     * The report node
+     */
+    private ReportNode reportNode;
 
     /**
      * Builder
      */
     public static final class SystematicSensitivityInterfaceBuilder {
+        private final ReportNode reportNode;
         private String sensitivityProvider;
         private SensitivityAnalysisParameters defaultParameters;
         private final MultipleSensitivityProvider multipleSensitivityProvider = new MultipleSensitivityProvider();
@@ -62,8 +71,8 @@ public final class SystematicSensitivityInterface {
         private boolean providerInitialised = false;
         private Instant outageInstant;
 
-        private SystematicSensitivityInterfaceBuilder() {
-
+        private SystematicSensitivityInterfaceBuilder(ReportNode reportNode) {
+            this.reportNode = SensitivityAnalysisReports.reportNewSystematicSensitivityInterface(reportNode);
         }
 
         public SystematicSensitivityInterfaceBuilder withSensitivityProviderName(String sensitivityProvider) {
@@ -129,12 +138,13 @@ public final class SystematicSensitivityInterface {
             systematicSensitivityInterface.cnecSensitivityProvider = multipleSensitivityProvider;
             systematicSensitivityInterface.appliedRemedialActions = appliedRemedialActions;
             systematicSensitivityInterface.outageInstant = outageInstant;
+            systematicSensitivityInterface.reportNode = reportNode;
             return systematicSensitivityInterface;
         }
     }
 
-    public static SystematicSensitivityInterfaceBuilder builder() {
-        return new SystematicSensitivityInterfaceBuilder();
+    public static SystematicSensitivityInterfaceBuilder builder(ReportNode reportNode) {
+        return new SystematicSensitivityInterfaceBuilder(reportNode);
     }
 
     SystematicSensitivityInterface() {
@@ -148,7 +158,7 @@ public final class SystematicSensitivityInterface {
     public SystematicSensitivityResult run(Network network) {
         SystematicSensitivityResult result = runWithConfig(network);
         if (!result.isSuccess()) {
-            BUSINESS_WARNS.warn("Sensitivity analysis failed.");
+            SensitivityAnalysisReports.reportSensitivityAnalysisFailed(reportNode);
         }
         return result;
     }
@@ -159,10 +169,10 @@ public final class SystematicSensitivityInterface {
      */
     private SystematicSensitivityResult runWithConfig(Network network) {
         SystematicSensitivityResult tempSystematicSensitivityAnalysisResult = SystematicSensitivityAdapter
-                .runSensitivity(network, cnecSensitivityProvider, appliedRemedialActions, parameters, sensitivityProvider, outageInstant);
+                .runSensitivity(network, cnecSensitivityProvider, appliedRemedialActions, parameters, sensitivityProvider, outageInstant, reportNode);
 
         if (!tempSystematicSensitivityAnalysisResult.isSuccess()) {
-            TECHNICAL_LOGS.error("Sensitivity analysis failed: no output data available.");
+            SensitivityAnalysisReports.reportSensitivityAnalysisFailedNoOutputDataAvailable(reportNode);
         }
         return tempSystematicSensitivityAnalysisResult;
     }

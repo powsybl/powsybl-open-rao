@@ -80,7 +80,7 @@ public class FlowbasedComputationImpl implements FlowbasedComputationProvider {
             });
         }
 
-        SystematicSensitivityInterface systematicSensitivityInterface = SystematicSensitivityInterface.builder()
+        SystematicSensitivityInterface systematicSensitivityInterface = SystematicSensitivityInterface.builder(reportNode)
                 .withSensitivityProviderName(parameters.getSensitivityProvider())
                 .withParameters(parameters.getSensitivityAnalysisParameters())
                 .withPtdfSensitivities(glsk, crac.getFlowCnecs(), Collections.singleton(Unit.MEGAWATT))

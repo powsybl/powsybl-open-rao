@@ -108,7 +108,7 @@ public class SearchTree {
 
         initLeaves(input);
         ReportNode rootLeafReportNode = Reports.reportRootLeafEvaluation(reportNode);
-        rootLeaf.evaluate(input.getObjectiveFunction(), getSensitivityComputerForEvaluation(true));
+        rootLeaf.evaluate(input.getObjectiveFunction(), getSensitivityComputerForEvaluation(true, reportNode));
         if (rootLeaf.getStatus().equals(Leaf.Status.ERROR)) {
             Reports.reportLeafEvaluationError(rootLeafReportNode, rootLeaf, reportSeverity());
             logOptimizationSummary(rootLeaf, rootLeafReportNode);
@@ -330,7 +330,7 @@ public class SearchTree {
             throw e;
         }
         // We evaluate the leaf with taking the results of the previous optimal leaf if we do not want to update some results
-        leaf.evaluate(input.getObjectiveFunction(), getSensitivityComputerForEvaluation(shouldRangeActionBeRemoved));
+        leaf.evaluate(input.getObjectiveFunction(), getSensitivityComputerForEvaluation(shouldRangeActionBeRemoved, ReportNode.NO_OP));
 
         logger().info("Evaluated {}", leaf);
         if (!leaf.getStatus().equals(Leaf.Status.ERROR)) {
@@ -374,9 +374,9 @@ public class SearchTree {
         }
     }
 
-    private SensitivityComputer getSensitivityComputerForEvaluation(boolean isRootLeaf) {
+    private SensitivityComputer getSensitivityComputerForEvaluation(boolean isRootLeaf, ReportNode reportNode) {
 
-        SensitivityComputer.SensitivityComputerBuilder sensitivityComputerBuilder = SensitivityComputer.create()
+        SensitivityComputer.SensitivityComputerBuilder sensitivityComputerBuilder = SensitivityComputer.create(reportNode)
             .withToolProvider(input.getToolProvider())
             .withCnecs(input.getOptimizationPerimeter().getFlowCnecs())
             .withRangeActions(input.getOptimizationPerimeter().getRangeActions())

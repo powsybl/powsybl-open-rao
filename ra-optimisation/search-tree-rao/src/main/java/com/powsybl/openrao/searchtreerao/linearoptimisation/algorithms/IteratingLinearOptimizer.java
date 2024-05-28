@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.openrao.data.cracapi.Instant;
 import com.powsybl.openrao.data.raoresultapi.ComputationStatus;
 import com.powsybl.openrao.raoapi.parameters.RangeActionsOptimizationParameters;
@@ -179,7 +180,7 @@ public final class IteratingLinearOptimizer {
 
     private static SensitivityComputer createSensitivityComputer(AppliedRemedialActions appliedRemedialActions, IteratingLinearOptimizerInput input, IteratingLinearOptimizerParameters parameters) {
 
-        SensitivityComputer.SensitivityComputerBuilder builder = SensitivityComputer.create()
+        SensitivityComputer.SensitivityComputerBuilder builder = SensitivityComputer.create(ReportNode.NO_OP)
                 .withCnecs(input.getOptimizationPerimeter().getFlowCnecs())
                 .withRangeActions(input.getOptimizationPerimeter().getRangeActions())
                 .withAppliedRemedialActions(appliedRemedialActions)

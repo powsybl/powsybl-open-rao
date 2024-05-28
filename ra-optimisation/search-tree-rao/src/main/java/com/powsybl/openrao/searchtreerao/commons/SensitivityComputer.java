@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.searchtreerao.commons;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.cracapi.Instant;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
@@ -18,6 +19,7 @@ import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
 import com.powsybl.openrao.searchtreerao.result.api.SensitivityResult;
 import com.powsybl.openrao.searchtreerao.result.impl.SensitivityResultImpl;
 import com.powsybl.openrao.sensitivityanalysis.AppliedRemedialActions;
+import com.powsybl.openrao.sensitivityanalysis.SensitivityAnalysisReports;
 import com.powsybl.openrao.sensitivityanalysis.SystematicSensitivityInterface;
 import com.powsybl.openrao.sensitivityanalysis.SystematicSensitivityResult;
 import com.powsybl.iidm.network.Network;
@@ -48,11 +50,12 @@ public final class SensitivityComputer {
         return new SensitivityResultImpl(result);
     }
 
-    public static SensitivityComputerBuilder create() {
-        return new SensitivityComputerBuilder();
+    public static SensitivityComputerBuilder create(ReportNode reportNode) {
+        return new SensitivityComputerBuilder(reportNode);
     }
 
     public static final class SensitivityComputerBuilder {
+        private final ReportNode reportNode;
         private ToolProvider toolProvider;
         private Set<FlowCnec> flowCnecs;
         private Set<RangeAction<?>> rangeActions;
@@ -63,6 +66,10 @@ public final class SensitivityComputer {
         private Set<FlowCnec> loopFlowCnecs;
         private AppliedRemedialActions appliedRemedialActions;
         private Instant outageInstant;
+
+        public SensitivityComputerBuilder(ReportNode reportNode) {
+            this.reportNode = SensitivityAnalysisReports.reportNewSensitivityComputer(reportNode);
+        }
 
         public SensitivityComputerBuilder withToolProvider(ToolProvider toolProvider) {
             this.toolProvider = toolProvider;
@@ -128,7 +135,8 @@ public final class SensitivityComputer {
                     computePtdfs,
                     computeLoopFlows,
                     appliedRemedialActions,
-                    outageInstant);
+                    outageInstant,
+                    reportNode);
             BranchResultAdapterImpl.BranchResultAdpaterBuilder builder = BranchResultAdapterImpl.create();
             if (loopFlowComputation != null) {
                 builder.withCommercialFlowsResults(loopFlowComputation, loopFlowCnecs);

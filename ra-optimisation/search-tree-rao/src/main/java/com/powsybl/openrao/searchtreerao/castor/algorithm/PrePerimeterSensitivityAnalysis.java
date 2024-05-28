@@ -55,7 +55,7 @@ public class PrePerimeterSensitivityAnalysis {
     }
 
     public PrePerimeterResult runInitialSensitivityAnalysis(Network network, Crac crac, ReportNode reportNode) {
-        SensitivityComputer.SensitivityComputerBuilder sensitivityComputerBuilder = buildSensiBuilder()
+        SensitivityComputer.SensitivityComputerBuilder sensitivityComputerBuilder = buildSensiBuilder(reportNode)
             .withOutageInstant(crac.getOutageInstant());
         if (raoParameters.hasExtension(LoopFlowParametersExtension.class)) {
             sensitivityComputerBuilder.withCommercialFlowsResults(toolProvider.getLoopFlowComputation(), toolProvider.getLoopFlowCnecs(flowCnecs));
@@ -75,9 +75,10 @@ public class PrePerimeterSensitivityAnalysis {
                                                        FlowResult initialFlowResult,
                                                        RangeActionSetpointResult initialRangeActionSetpointResult,
                                                        Set<String> operatorsNotSharingCras,
-                                                       AppliedRemedialActions appliedCurativeRemedialActions) {
+                                                       AppliedRemedialActions appliedCurativeRemedialActions,
+                                                       ReportNode reportNode) {
 
-        SensitivityComputer.SensitivityComputerBuilder sensitivityComputerBuilder = buildSensiBuilder()
+        SensitivityComputer.SensitivityComputerBuilder sensitivityComputerBuilder = buildSensiBuilder(reportNode)
             .withOutageInstant(crac.getOutageInstant());
         if (raoParameters.hasExtension(LoopFlowParametersExtension.class)) {
             if (raoParameters.getExtension(LoopFlowParametersExtension.class).getPtdfApproximation().shouldUpdatePtdfWithTopologicalChange()) {
@@ -108,8 +109,8 @@ public class PrePerimeterSensitivityAnalysis {
         return objectiveFunction;
     }
 
-    private SensitivityComputer.SensitivityComputerBuilder buildSensiBuilder() {
-        return SensitivityComputer.create()
+    private SensitivityComputer.SensitivityComputerBuilder buildSensiBuilder(ReportNode reportNode) {
+        return SensitivityComputer.create(reportNode)
                 .withToolProvider(toolProvider)
                 .withCnecs(flowCnecs)
                 .withRangeActions(rangeActions);
