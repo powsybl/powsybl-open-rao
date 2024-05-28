@@ -50,7 +50,6 @@ public final class OnConstraintArrayDeserializer {
                         adder.withUsageMethod(deserializeUsageMethod(jsonParser.nextTextValue()));
                         break;
                     case CNEC_ID:
-                        // TODO: need to check version >= 2.4 here?
                         adder.withCnec(jsonParser.nextTextValue());
                         break;
                     case ANGLE_CNEC_ID:

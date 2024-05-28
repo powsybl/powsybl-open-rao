@@ -286,6 +286,16 @@ class JsonRetrocompatibilityTest {
         testContentOfV2Point3Crac(crac);
     }
 
+    @Test
+    void importV2Point4Test() {
+        // Add support for contingency in OnFlowConstraintInCountry
+        InputStream cracFile = getClass().getResourceAsStream("/retrocompatibility/v2/crac-v2.4.json");
+
+        Crac crac = new JsonImport().importCrac(cracFile, network);
+        assertEquals(6, crac.getNetworkActions().size());
+        testContentOfV2Point4Crac(crac);
+    }
+
     private void testContentOfV1Point0Crac(Crac crac) {
         Instant preventiveInstant = crac.getInstant("preventive");
         Instant autoInstant = crac.getInstant("auto");
@@ -736,5 +746,9 @@ class JsonRetrocompatibilityTest {
         assertEquals("border1", crac.getCnec("cnec4prevId").getBorder());
         assertEquals("border4", crac.getCnec("angleCnecId").getBorder());
         assertEquals("border5", crac.getCnec("voltageCnecId").getBorder());
+    }
+
+    private void testContentOfV2Point4Crac(Crac crac) {
+        testContentOfV2Point3Crac(crac);
     }
 }
