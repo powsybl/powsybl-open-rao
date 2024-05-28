@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.searchtreerao.commons;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.openrao.commons.*;
 import com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider;
 import com.powsybl.openrao.data.cracapi.Instant;
@@ -195,7 +196,7 @@ public final class ToolProvider {
         }
     }
 
-    public static ToolProvider buildFromRaoInputAndParameters(RaoInput raoInput, RaoParameters raoParameters) {
+    public static ToolProvider buildFromRaoInputAndParameters(RaoInput raoInput, RaoParameters raoParameters, ReportNode reportNode) {
 
         ToolProvider.ToolProviderBuilder toolProviderBuilder = ToolProvider.create()
             .withNetwork(raoInput.getNetwork())
@@ -206,8 +207,8 @@ public final class ToolProvider {
                 raoInput.getGlskProvider(),
                 new LoopFlowComputationImpl(
                     raoInput.getGlskProvider(),
-                    raoInput.getReferenceProgram()
-                )
+                    raoInput.getReferenceProgram(),
+                    reportNode)
             );
         }
         if (raoParameters.getObjectiveFunctionParameters().getType().relativePositiveMargins()) {

@@ -8,3 +8,5 @@
          Outer loop VoltageMonitoring
          Outer loop ReactiveLimits
          AC load flow completed successfully (solverStatus=CONVERGED, outerloopStatus=STABLE)
+   + New loop flow computation
+      No GLSK found for reference area 10YFR-RTE------C

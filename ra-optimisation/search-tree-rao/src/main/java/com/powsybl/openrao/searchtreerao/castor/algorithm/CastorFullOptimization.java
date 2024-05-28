@@ -74,11 +74,11 @@ public class CastorFullOptimization {
         this.targetEndInstant = targetEndInstant;
     }
 
-    public CompletableFuture<RaoResult> run(ReportNode raoReportNode) {
-
+    public CompletableFuture<RaoResult> run(ReportNode reportNode) {
+        ReportNode raoReportNode = CastorReports.reportRunCastorFullOptimization(reportNode);
         RaoUtil.initData(raoInput, raoParameters);
         StateTree stateTree = new StateTree(raoInput.getCrac());
-        ToolProvider toolProvider = ToolProvider.buildFromRaoInputAndParameters(raoInput, raoParameters);
+        ToolProvider toolProvider = ToolProvider.buildFromRaoInputAndParameters(raoInput, raoParameters, raoReportNode);
 
         // ----- INITIAL SENSI -----
         // compute initial sensitivity on all CNECs
@@ -147,7 +147,8 @@ public class CastorFullOptimization {
             new RangeActionActivationResultImpl(RangeActionSetpointResultImpl.buildWithSetpointsFromNetwork(raoInput.getNetwork(), raoInput.getCrac().getRangeActions())),
             preCurativeSensitivityAnalysisOutput,
             raoParameters,
-            NUMBER_LOGGED_ELEMENTS_DURING_RAO, ReportNode.NO_OP); // TODO change this
+            NUMBER_LOGGED_ELEMENTS_DURING_RAO,
+            raoReportNode);
 
         RaoResult mergedRaoResults;
 

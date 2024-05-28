@@ -58,11 +58,12 @@ public class CastorOneStateOnly {
         this.raoParameters = raoParameters;
     }
 
-    public CompletableFuture<RaoResult> run(ReportNode raoReportNode) {
+    public CompletableFuture<RaoResult> run(ReportNode reportNode) {
+        ReportNode raoReportNode = CastorReports.reportRunCastorOneStateOnly(reportNode);
 
         RaoUtil.initData(raoInput, raoParameters);
         StateTree stateTree = new StateTree(raoInput.getCrac());
-        ToolProvider toolProvider = ToolProvider.buildFromRaoInputAndParameters(raoInput, raoParameters);
+        ToolProvider toolProvider = ToolProvider.buildFromRaoInputAndParameters(raoInput, raoParameters, raoReportNode);
 
         // compute initial sensitivity on CNECs of the only optimized state
         PrePerimeterSensitivityAnalysis prePerimeterSensitivityAnalysis = new PrePerimeterSensitivityAnalysis(
@@ -72,7 +73,7 @@ public class CastorOneStateOnly {
                 toolProvider);
 
         PrePerimeterResult initialResults;
-        initialResults = prePerimeterSensitivityAnalysis.runInitialSensitivityAnalysis(raoInput.getNetwork(), raoInput.getCrac(), ReportNode.NO_OP);
+        initialResults = prePerimeterSensitivityAnalysis.runInitialSensitivityAnalysis(raoInput.getNetwork(), raoInput.getCrac(), raoReportNode);
         if (initialResults.getSensitivityStatus() == ComputationStatus.FAILURE) {
             BUSINESS_LOGS.error("Initial sensitivity analysis failed");
             return CompletableFuture.completedFuture(new FailedRaoResultImpl());
@@ -118,7 +119,7 @@ public class CastorOneStateOnly {
                     .withToolProvider(toolProvider)
                     .withOutageInstant(raoInput.getCrac().getOutageInstant())
                     .build();
-            optimizationResult = new SearchTree(searchTreeInput, searchTreeParameters, true).run(ReportNode.NO_OP).join();
+            optimizationResult = new SearchTree(searchTreeInput, searchTreeParameters, true).run(raoReportNode).join();
 
             // apply RAs and return results
             optimizationResult.getRangeActions().forEach(rangeAction -> rangeAction.apply(raoInput.getNetwork(), optimizationResult.getOptimizedSetpoint(rangeAction, raoInput.getOptimizedState())));

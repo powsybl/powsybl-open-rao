@@ -6,11 +6,11 @@
  */
 package com.powsybl.openrao.loopflowcomputation;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.openrao.commons.EICode;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.glsk.commons.ZonalData;
-import com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider;
 import com.powsybl.openrao.data.cracapi.Instant;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
 import com.powsybl.openrao.data.refprog.referenceprogram.ReferenceProgram;
@@ -33,10 +33,12 @@ public class LoopFlowComputationImpl implements LoopFlowComputation {
     protected ZonalData<SensitivityVariableSet> glsk;
     protected ReferenceProgram referenceProgram;
     protected Map<EICode, SensitivityVariableSet> glskMap;
+    private final ReportNode reportNode;
 
-    public LoopFlowComputationImpl(ZonalData<SensitivityVariableSet> glsk, ReferenceProgram referenceProgram) {
+    public LoopFlowComputationImpl(ZonalData<SensitivityVariableSet> glsk, ReferenceProgram referenceProgram, ReportNode reportNode) {
         this.glsk = requireNonNull(glsk, "glskProvider should not be null");
         this.referenceProgram = requireNonNull(referenceProgram, "referenceProgram should not be null");
+        this.reportNode = LoopFlowReports.reportNewLoopFlowComputation(reportNode);
         this.glskMap = buildRefProgGlskMap();
     }
 
@@ -114,7 +116,7 @@ public class LoopFlowComputationImpl implements LoopFlowComputation {
         for (EICode area : referenceProgram.getListOfAreas()) {
             SensitivityVariableSet glskForArea = glsk.getData(area.getAreaCode());
             if (glskForArea == null) {
-                OpenRaoLoggerProvider.BUSINESS_WARNS.warn("No GLSK found for reference area {}", area.getAreaCode());
+                LoopFlowReports.reportNoGlskFoundForReferenceArea(reportNode, area.getAreaCode());
             } else {
                 refProgGlskMap.put(area, glskForArea);
             }

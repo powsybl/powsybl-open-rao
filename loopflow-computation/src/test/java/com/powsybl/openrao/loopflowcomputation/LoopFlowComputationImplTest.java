@@ -88,7 +88,7 @@ class LoopFlowComputationImplTest {
         Mockito.doReturn(mockInjection(true)).when(gen).getTerminal();
         Mockito.doReturn(mockInjection(true)).when(load).getTerminal();
 
-        LoopFlowComputation loopFlowComputation = new LoopFlowComputationImpl(glsk, referenceProgram);
+        LoopFlowComputation loopFlowComputation = new LoopFlowComputationImpl(glsk, referenceProgram, ReportNode.NO_OP);
         LoopFlowResult loopFlowResult = loopFlowComputation.buildLoopFlowsFromReferenceFlowAndPtdf(ptdfsAndFlows, crac.getFlowCnecs(), network);
 
         assertEquals(-50., loopFlowResult.getLoopFlow(crac.getFlowCnec("FR-BE1"), Side.LEFT), DOUBLE_TOLERANCE);
@@ -235,7 +235,7 @@ class LoopFlowComputationImplTest {
         Mockito.doReturn(mockInjection(false)).when(loadBe).getTerminal();
         Mockito.doReturn(mockInjection(false)).when(danglingLine).getTerminal();
 
-        LoopFlowComputation loopFlowComputation = new LoopFlowComputationImpl(glsk, referenceProgram);
+        LoopFlowComputation loopFlowComputation = new LoopFlowComputationImpl(glsk, referenceProgram, ReportNode.NO_OP);
         LoopFlowResult loopFlowResult = loopFlowComputation.buildLoopFlowsFromReferenceFlowAndPtdf(ptdfsAndFlows, crac.getFlowCnecs(), network);
 
         assertEquals(30., loopFlowResult.getLoopFlow(crac.getFlowCnec("FR-BE1"), Side.LEFT), DOUBLE_TOLERANCE);
@@ -264,7 +264,7 @@ class LoopFlowComputationImplTest {
         Network network = ExampleGenerator.network();
         SensitivityAnalysisParameters sensitivityAnalysisParameters = new SensitivityAnalysisParameters();
         sensitivityAnalysisParameters.getLoadFlowParameters().setDc(true);
-        LoopFlowResult loopFlowResult = new LoopFlowComputationImpl(glsk, referenceProgram).calculateLoopFlows(network, "OpenLoadFlow", sensitivityAnalysisParameters, crac.getFlowCnecs(), crac.getOutageInstant());
+        LoopFlowResult loopFlowResult = new LoopFlowComputationImpl(glsk, referenceProgram, ReportNode.NO_OP).calculateLoopFlows(network, "OpenLoadFlow", sensitivityAnalysisParameters, crac.getFlowCnecs(), crac.getOutageInstant());
 
         assertEquals(-20., loopFlowResult.getLoopFlow(crac.getFlowCnec("FR-BE1"), Side.LEFT), DOUBLE_TOLERANCE);
         assertEquals(80., loopFlowResult.getLoopFlow(crac.getFlowCnec("BE1-BE2"), Side.LEFT), DOUBLE_TOLERANCE);
@@ -293,7 +293,7 @@ class LoopFlowComputationImplTest {
         OffsetDateTime offsetDateTime = ZonedDateTime.of(LocalDateTime.parse(timestamp, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")), ZoneId.of("Europe/Brussels")).toOffsetDateTime();
         ZonalData<SensitivityVariableSet> glsk = UcteGlskDocument.importGlsk(getClass().getResourceAsStream("/IntegrationTest/glsk_ep10us2case2.xml")).getZonalGlsks(network, offsetDateTime.toInstant());
         ReferenceProgram referenceProgram = ReferenceProgramBuilder.buildReferenceProgram(network, LoadFlow.find().getName(), new LoadFlowParameters(), reportNode);
-        LoopFlowComputationImpl loopFlowComputation = new LoopFlowComputationImpl(glsk, referenceProgram);
+        LoopFlowComputationImpl loopFlowComputation = new LoopFlowComputationImpl(glsk, referenceProgram, reportNode);
 
         String expected = Files.readString(Path.of(getClass().getResource("/IntegrationTest/expectedReportNodeContentNoGlskFoundForReferenceArea.txt").toURI()));
         try (StringWriter writer = new StringWriter()) {

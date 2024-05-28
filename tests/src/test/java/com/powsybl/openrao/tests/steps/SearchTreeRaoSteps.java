@@ -672,7 +672,7 @@ public class SearchTreeRaoSteps {
             ZonalData<SensitivityVariableSet> glsks = CommonTestData.getGlsks();
 
             // run loopFlowComputation
-            LoopFlowComputation loopFlowComputation = new LoopFlowComputationImpl(glsks, referenceProgram);
+            LoopFlowComputation loopFlowComputation = new LoopFlowComputationImpl(glsks, referenceProgram, ReportNode.NO_OP);
             this.loopFlowResult = loopFlowComputation.calculateLoopFlows(network, sensitivityProvider, raoParameters.getLoadFlowAndSensitivityParameters().getSensitivityWithLoadFlowParameters(), crac.getFlowCnecs(), crac.getOutageInstant());
 
         } catch (IOException e) {
