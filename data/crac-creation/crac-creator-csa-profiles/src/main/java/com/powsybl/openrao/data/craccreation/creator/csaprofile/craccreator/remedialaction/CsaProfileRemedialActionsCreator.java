@@ -312,11 +312,11 @@ public class CsaProfileRemedialActionsCreator {
 
     private static void addUsageRulesToGroup(List<UsageRule> onConstraintUsageRules, List<UsageRule> onContingencyStateUsageRules, List<UsageRule> onInstantUsageRules, List<ElementaryAction> injectionSetpoints, List<ElementaryAction> pstSetPoints, List<ElementaryAction> topologicalActions, NetworkActionAdder networkActionAdder) {
         onConstraintUsageRules.forEach(ur -> {
-            OnConstraint<?> onAngleConstraintUsageRule = (OnConstraint<?>) ur;
+            OnConstraint<?> onConstraintUsageRule = (OnConstraint<?>) ur;
             networkActionAdder.newOnConstraintUsageRule()
-                .withInstant(onAngleConstraintUsageRule.getInstant().getId())
-                .withUsageMethod(onAngleConstraintUsageRule.getUsageMethod())
-                .withCnec(onAngleConstraintUsageRule.getCnec().getId())
+                .withInstant(onConstraintUsageRule.getInstant().getId())
+                .withUsageMethod(onConstraintUsageRule.getUsageMethod())
+                .withCnec(onConstraintUsageRule.getCnec().getId())
                 .add();
         });
         onContingencyStateUsageRules.forEach(ur -> {

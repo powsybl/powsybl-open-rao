@@ -22,7 +22,7 @@ import static com.powsybl.openrao.data.cracimpl.AdderUtils.assertAttributeNotNul
  */
 public class OnConstraintAdderImpl<T extends AbstractRemedialActionAdder<T>, J extends Cnec<?>> implements OnConstraintAdder<T, J> {
     public static final String ON_CONSTRAINT = "OnConstraint";
-    private T owner;
+    private final T owner;
     private String instantId;
     private String cnecId;
     private UsageMethod usageMethod;

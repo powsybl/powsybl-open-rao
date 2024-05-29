@@ -7,21 +7,27 @@
 
 package com.powsybl.openrao.data.craciojson;
 
+import com.fasterxml.jackson.core.JsonParser;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.InstantKind;
+import com.powsybl.openrao.data.cracapi.RemedialActionAdder;
 import com.powsybl.openrao.data.cracapi.cnec.Side;
 import com.powsybl.openrao.data.cracapi.networkaction.ActionType;
+import com.powsybl.openrao.data.cracapi.networkaction.NetworkActionAdder;
 import com.powsybl.openrao.data.cracapi.range.RangeType;
 import com.powsybl.openrao.data.cracapi.threshold.BranchThreshold;
 import com.powsybl.openrao.data.cracapi.threshold.Threshold;
 import com.powsybl.openrao.data.cracapi.usagerule.*;
+import com.powsybl.openrao.data.craciojson.deserializers.OnConstraintArrayDeserializer;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Objects;
+import java.util.function.Function;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
@@ -458,8 +464,8 @@ public final class JsonSerializationConstants {
             if (o1 instanceof OnFlowConstraintInCountry ofcic1) {
                 return ofcic1.getCountry().toString().compareTo(((OnFlowConstraintInCountry) o2).getCountry().toString());
             }
-            if (o1 instanceof OnConstraint<?> oac1) {
-                return oac1.getCnec().getId().compareTo(((OnConstraint<?>) o2).getCnec().getId());
+            if (o1 instanceof OnConstraint<?> oc1) {
+                return oc1.getCnec().getId().compareTo(((OnConstraint<?>) o2).getCnec().getId());
             }
             throw new OpenRaoException(String.format("Unknown usage rule type: %s", o1.getClass()));
         }

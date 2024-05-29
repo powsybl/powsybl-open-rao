@@ -125,7 +125,7 @@ public abstract class AbstractRemedialAction<I extends RemedialAction<I>> extend
     public Set<FlowCnec> getFlowCnecsConstrainingUsageRules(Set<FlowCnec> perimeterCnecs, Network network, State optimizedState) {
         Set<FlowCnec> toBeConsideredCnecs = new HashSet<>();
         Set<UsageRule> usageRulesOnFlowConstraint = new HashSet<>();
-        usageRulesOnFlowConstraint.addAll((Collection<? extends UsageRule>) getUsageRules(OnConstraint.class, optimizedState).stream().filter(onConstraint -> onConstraint.getCnec() instanceof FlowCnec).toList());
+        usageRulesOnFlowConstraint.addAll(getUsageRules(OnConstraint.class, optimizedState).stream().filter(onConstraint -> onConstraint.getCnec() instanceof FlowCnec).toList());
         usageRulesOnFlowConstraint.addAll(getUsageRules(OnFlowConstraintInCountry.class, optimizedState));
         usageRulesOnFlowConstraint.forEach(usageRule -> toBeConsideredCnecs.addAll(getFlowCnecsConstrainingForOneUsageRule(usageRule, perimeterCnecs, network)));
         return toBeConsideredCnecs;

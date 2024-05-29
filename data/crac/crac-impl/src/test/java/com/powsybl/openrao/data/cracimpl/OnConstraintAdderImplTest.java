@@ -34,9 +34,9 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
@@ -155,7 +155,7 @@ class OnConstraintAdderImplTest {
         assertEquals(UsageMethod.AVAILABLE, onConstraint.getUsageMethod(crac.getPreventiveState()));
         assertEquals(UsageMethod.UNDEFINED, onConstraint.getUsageMethod(crac.getState(crac.getContingency("Contingency FR1 FR3"), curativeInstant)));
         assertEquals("angleCnec2stateCurativeContingency1", onConstraint.getCnec().getId());
-        assertTrue(onConstraint.getCnec() instanceof AngleCnec);
+        assertInstanceOf(AngleCnec.class, onConstraint.getCnec());
 
         Set<UsageRule> onFlowConstraintUsageRules = getOnConstraintUsageRulesForGivenCnecType(networkAction.getUsageRules(), FlowCnec.class);
         assertEquals(1, onFlowConstraintUsageRules.size());
@@ -165,7 +165,7 @@ class OnConstraintAdderImplTest {
         assertEquals(UsageMethod.AVAILABLE, onConstraint.getUsageMethod(crac.getPreventiveState()));
         assertEquals(UsageMethod.UNDEFINED, onConstraint.getUsageMethod(crac.getState(crac.getContingency("Contingency FR1 FR3"), curativeInstant)));
         assertEquals("flowCnec2stateCurativeContingency1", onConstraint.getCnec().getId());
-        assertTrue(onConstraint.getCnec() instanceof FlowCnec);
+        assertInstanceOf(FlowCnec.class, onConstraint.getCnec());
 
         Set<UsageRule> onVoltageConstraintUsageRules = getOnConstraintUsageRulesForGivenCnecType(networkAction.getUsageRules(), VoltageCnec.class);
         assertEquals(1, onVoltageConstraintUsageRules.size());
@@ -175,7 +175,7 @@ class OnConstraintAdderImplTest {
         assertEquals(UsageMethod.AVAILABLE, onConstraint.getUsageMethod(crac.getPreventiveState()));
         assertEquals(UsageMethod.UNDEFINED, onConstraint.getUsageMethod(crac.getState(crac.getContingency("Contingency FR1 FR3"), curativeInstant)));
         assertEquals("voltageCnec2stateCurativeContingency1", onConstraint.getCnec().getId());
-        assertTrue(onConstraint.getCnec() instanceof VoltageCnec);
+        assertInstanceOf(VoltageCnec.class, onConstraint.getCnec());
     }
 
     @Test
@@ -208,7 +208,7 @@ class OnConstraintAdderImplTest {
         assertEquals(UsageMethod.AVAILABLE, onConstraint.getUsageMethod());
         assertEquals(UsageMethod.AVAILABLE, onConstraint.getUsageMethod(crac.getState(crac.getContingency("Contingency FR1 FR3"), curativeInstant)));
         assertEquals("angleCnec2stateCurativeContingency1", onConstraint.getCnec().getId());
-        assertTrue(onConstraint.getCnec() instanceof AngleCnec);
+        assertInstanceOf(AngleCnec.class, onConstraint.getCnec());
 
         Set<UsageRule> onFlowConstraintUsageRules = getOnConstraintUsageRulesForGivenCnecType(networkAction.getUsageRules(), FlowCnec.class);
         assertEquals(1, onFlowConstraintUsageRules.size());
@@ -217,7 +217,7 @@ class OnConstraintAdderImplTest {
         assertEquals(UsageMethod.AVAILABLE, onConstraint.getUsageMethod());
         assertEquals(UsageMethod.AVAILABLE, onConstraint.getUsageMethod(crac.getState(crac.getContingency("Contingency FR1 FR3"), curativeInstant)));
         assertEquals("flowCnec2stateCurativeContingency1", onConstraint.getCnec().getId());
-        assertTrue(onConstraint.getCnec() instanceof FlowCnec);
+        assertInstanceOf(FlowCnec.class, onConstraint.getCnec());
 
         Set<UsageRule> onVoltageConstraintUsageRules = getOnConstraintUsageRulesForGivenCnecType(networkAction.getUsageRules(), VoltageCnec.class);
         assertEquals(1, onVoltageConstraintUsageRules.size());
@@ -226,7 +226,7 @@ class OnConstraintAdderImplTest {
         assertEquals(UsageMethod.AVAILABLE, onConstraint.getUsageMethod());
         assertEquals(UsageMethod.AVAILABLE, onConstraint.getUsageMethod(crac.getState(crac.getContingency("Contingency FR1 FR3"), curativeInstant)));
         assertEquals("voltageCnec2stateCurativeContingency1", onConstraint.getCnec().getId());
-        assertTrue(onConstraint.getCnec() instanceof VoltageCnec);
+        assertInstanceOf(VoltageCnec.class, onConstraint.getCnec());
     }
 
     @Test
@@ -311,7 +311,7 @@ class OnConstraintAdderImplTest {
 
     @Test
     void testOnConstraintInstantCheck() {
-        // todo : mm chose pour on flow constraint in country, dans le code
+        // todo : same thing for on flow constraint in country, in the code
         addAngleCnec("angle-cnec-prev", PREVENTIVE_INSTANT_ID);
         addAngleCnec("angle-cnec-out", OUTAGE_INSTANT_ID);
         addAngleCnec("angle-cnec-auto", AUTO_INSTANT_ID);

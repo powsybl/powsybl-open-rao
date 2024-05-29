@@ -268,7 +268,7 @@ class JsonRetrocompatibilityTest {
 
     @Test
     void importV2Point2Test() {
-        // Add support for contingency in OnFlowConstraintInCountry
+        // Add support for CNECs' borders and relative-to-previous-time-step ranges for PSTs
         InputStream cracFile = getClass().getResourceAsStream("/retrocompatibility/v2/crac-v2.2.json");
 
         Crac crac = new JsonImport().importCrac(cracFile, network);
@@ -278,7 +278,7 @@ class JsonRetrocompatibilityTest {
 
     @Test
     void importV2Point3Test() {
-        // Add support for contingency in OnFlowConstraintInCountry
+        // Add support for unified onConstraint usage rules
         InputStream cracFile = getClass().getResourceAsStream("/retrocompatibility/v2/crac-v2.3.json");
 
         Crac crac = new JsonImport().importCrac(cracFile, network);
@@ -541,7 +541,7 @@ class JsonRetrocompatibilityTest {
 
         // check usage rules
         assertEquals(3, (int) crac.getRemedialActions().stream().map(RemedialAction::getUsageRules).flatMap(Set::stream).filter(OnContingencyState.class::isInstance).count());
-        assertEquals(3, (int) crac.getRemedialActions().stream().map(RemedialAction::getUsageRules).flatMap(Set::stream).filter(OnConstraint.class::isInstance).filter(oc -> ((OnConstraint<?>) oc).getCnec() instanceof FlowCnec).count()); // flow
+        assertEquals(3, (int) crac.getRemedialActions().stream().map(RemedialAction::getUsageRules).flatMap(Set::stream).filter(OnConstraint.class::isInstance).filter(oc -> ((OnConstraint<?>) oc).getCnec() instanceof FlowCnec).count());
     }
 
     void testContentOfV1Point3Crac(Crac crac) {
