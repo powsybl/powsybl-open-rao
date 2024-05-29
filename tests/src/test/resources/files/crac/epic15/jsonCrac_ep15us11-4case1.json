@@ -194,10 +194,10 @@
       "rule" : "onRegulatedSide"
     } ],
     "extensions" : {
-      "LoopFlowThreshold" : {
-        "inputThreshold" : 0.0,
-        "inputThresholdUnit" : "percent_imax"
-      }
+    "LoopFlowThreshold" : {
+      "inputThreshold" : 0.0,
+      "inputThresholdUnit" : "percent_imax"
+    }
     }
   }, {
     "id" : "FR2-DE3-DO - curative",
@@ -221,10 +221,10 @@
       "rule" : "onRegulatedSide"
     } ],
     "extensions" : {
-      "LoopFlowThreshold" : {
-        "inputThreshold" : 0.0,
-        "inputThresholdUnit" : "percent_imax"
-      }
+    "LoopFlowThreshold" : {
+      "inputThreshold" : 0.0,
+      "inputThresholdUnit" : "percent_imax"
+    }
     }
   }, {
     "id" : "FR2-DE3-DO - outage",
@@ -248,10 +248,10 @@
       "rule" : "onRegulatedSide"
     } ],
     "extensions" : {
-      "LoopFlowThreshold" : {
-        "inputThreshold" : 0.0,
-        "inputThresholdUnit" : "percent_imax"
-      }
+    "LoopFlowThreshold" : {
+      "inputThreshold" : 0.0,
+      "inputThresholdUnit" : "percent_imax"
+    }
     }
   }, {
     "id" : "FR2-DE3-O - preventive",
@@ -274,10 +274,10 @@
       "rule" : "onRegulatedSide"
     } ],
     "extensions" : {
-      "LoopFlowThreshold" : {
-        "inputThreshold" : 0.0,
-        "inputThresholdUnit" : "percent_imax"
-      }
+    "LoopFlowThreshold" : {
+      "inputThreshold" : 0.0,
+      "inputThresholdUnit" : "percent_imax"
+    }
     }
   }, {
     "id" : "FR2-DE3-OO - curative",
@@ -301,10 +301,10 @@
       "rule" : "onRegulatedSide"
     } ],
     "extensions" : {
-      "LoopFlowThreshold" : {
-        "inputThreshold" : 0.0,
-        "inputThresholdUnit" : "percent_imax"
-      }
+    "LoopFlowThreshold" : {
+      "inputThreshold" : 0.0,
+      "inputThresholdUnit" : "percent_imax"
+    }
     }
   }, {
     "id" : "FR2-DE3-OO - outage",
@@ -328,10 +328,10 @@
       "rule" : "onRegulatedSide"
     } ],
     "extensions" : {
-      "LoopFlowThreshold" : {
-        "inputThreshold" : 0.0,
-        "inputThresholdUnit" : "percent_imax"
-      }
+    "LoopFlowThreshold" : {
+      "inputThreshold" : 0.0,
+      "inputThresholdUnit" : "percent_imax"
+    }
     }
   }, {
     "id" : "FR2-FR3-D - preventive",
@@ -559,10 +559,10 @@
       "rule" : "onRegulatedSide"
     } ],
     "extensions" : {
-      "LoopFlowThreshold" : {
-        "inputThreshold" : 0.0,
-        "inputThresholdUnit" : "percent_imax"
-      }
+    "LoopFlowThreshold" : {
+      "inputThreshold" : 0.0,
+      "inputThresholdUnit" : "percent_imax"
+    }
     }
   }, {
     "id" : "NL2-BE3-D - outage",
@@ -582,10 +582,10 @@
       "rule" : "onRegulatedSide"
     } ],
     "extensions" : {
-      "LoopFlowThreshold" : {
-        "inputThreshold" : 0.0,
-        "inputThresholdUnit" : "percent_imax"
-      }
+    "LoopFlowThreshold" : {
+      "inputThreshold" : 0.0,
+      "inputThresholdUnit" : "percent_imax"
+    }
     }
   }, {
     "id" : "NL2-BE3-O - curative",
@@ -605,10 +605,10 @@
       "rule" : "onRegulatedSide"
     } ],
     "extensions" : {
-      "LoopFlowThreshold" : {
-        "inputThreshold" : 0.0,
-        "inputThresholdUnit" : "percent_imax"
-      }
+    "LoopFlowThreshold" : {
+      "inputThreshold" : 0.0,
+      "inputThresholdUnit" : "percent_imax"
+    }
     }
   }, {
     "id" : "NL2-BE3-O - auto",
@@ -628,10 +628,10 @@
       "rule" : "onRegulatedSide"
     } ],
     "extensions" : {
-      "LoopFlowThreshold" : {
-        "inputThreshold" : 0.0,
-        "inputThresholdUnit" : "percent_imax"
-      }
+    "LoopFlowThreshold" : {
+      "inputThreshold" : 0.0,
+      "inputThresholdUnit" : "percent_imax"
+    }
     }
   }, {
     "id" : "NL2-BE3-O - outage",
@@ -651,10 +651,10 @@
       "rule" : "onRegulatedSide"
     } ],
     "extensions" : {
-      "LoopFlowThreshold" : {
-        "inputThreshold" : 0.0,
-        "inputThresholdUnit" : "percent_imax"
-      }
+    "LoopFlowThreshold" : {
+      "inputThreshold" : 0.0,
+      "inputThresholdUnit" : "percent_imax"
+    }
     }
   }, {
     "id" : "NL2-NL3-D - preventive",

@@ -10,7 +10,8 @@
     "networkElementsIds" : [ "FFR2AA1  FFR3AA1  1" ]
   }, {
     "id" : "co2_be1_be3",
-    "networkElementsIds" : [ "BBE1AA1  BBE3AA1  1", "BBE1AA1  BBE3AA1  2" ]
+    "networkElementsIds" : [ "BBE1AA1  BBE3AA1  1",
+    "BBE1AA1  BBE3AA1  2" ]
   } ],
   "flowCnecs" : [ {
     "id" : "BBE2AA1  FFR3AA1  1 - co2_be1_be3 - auto",
@@ -190,7 +191,7 @@
       "max" : 16,
       "rangeType" : "absolute"
     } ]
-  },  {
+  }, {
     "id" : "useless_pst",
     "name" : "useless_pst",
     "operator" : "be",

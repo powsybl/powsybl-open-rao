@@ -19,7 +19,8 @@
     "optimized" : true,
     "monitored" : false,
     "frm" : 0.0,
-    "iMax" : [ 1500.0, 500.0 ],
+    "iMax" : [ 1500.0,
+    500.0 ],
     "nominalV" : [ 400.0 ],
     "thresholds" : [ {
       "unit" : "percent_imax",
@@ -41,7 +42,8 @@
     "optimized" : true,
     "monitored" : false,
     "frm" : 0.0,
-    "iMax" : [ 1500.0, 500.0 ],
+    "iMax" : [ 1500.0,
+    500.0 ],
     "nominalV" : [ 400.0 ],
     "thresholds" : [ {
       "unit" : "percent_imax",

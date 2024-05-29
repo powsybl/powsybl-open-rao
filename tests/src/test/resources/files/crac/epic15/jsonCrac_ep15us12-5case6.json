@@ -10,7 +10,8 @@
     "networkElementsIds" : [ "BBE1AA11 FFR5AA11 1" ]
   }, {
     "id" : "co2_be1fr5_be4fr5",
-    "networkElementsIds" : [ "BBE1AA11 FFR5AA11 1", "BBE4AA11 FFR5AA11 1" ]
+    "networkElementsIds" : [ "BBE1AA11 FFR5AA11 1",
+    "BBE4AA11 FFR5AA11 1" ]
   } ],
   "flowCnecs" : [ {
     "id" : "be1_be2_n - BBE1AA11->BBE2AA11 - preventive",

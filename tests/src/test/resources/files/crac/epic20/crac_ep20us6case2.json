@@ -45,7 +45,7 @@
       "max" : 2600.0,
       "rule" : "onNonRegulatedSide"
     } ]
-  },{
+  }, {
     "id" : "DDE2AA1  NNL3AA1  1 - preventive",
     "name" : "de2 nl3 preventive",
     "networkElementId" : "DDE2AA1  NNL3AA1  1",

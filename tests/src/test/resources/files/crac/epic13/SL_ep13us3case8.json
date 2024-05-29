@@ -10,7 +10,8 @@
     "networkElementsIds" : [ "FFR2AA1  FFR3AA1  1" ]
   }, {
     "id" : "co2_be1_be3",
-    "networkElementsIds" : [ "BBE1AA1  BBE3AA1  1", "BBE1AA1  BBE3AA1  2" ]
+    "networkElementsIds" : [ "BBE1AA1  BBE3AA1  1",
+    "BBE1AA1  BBE3AA1  2" ]
   }, {
     "id" : "co3_fr1_fr3",
     "networkElementsIds" : [ "FFR1AA1  FFR3AA1  1" ]
