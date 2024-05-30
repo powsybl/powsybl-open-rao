@@ -447,27 +447,6 @@ class RaUsageLimitsFillerTest extends AbstractFillerTest {
     }
 
     @Test
-    void testLimitElementaryActionsWithContinuousPsts() {
-        RangeActionLimitationParameters raLimitationParameters = new RangeActionLimitationParameters();
-        raLimitationParameters.setMaxElementaryActionsPerTso(state, Map.of("opA", 1, "opC", 3));
-        RaUsageLimitsFiller raUsageLimitsFiller = new RaUsageLimitsFiller(
-            rangeActionsPerState,
-            prePerimeterRangeActionSetpointResult,
-            raLimitationParameters,
-            false,
-            network);
-
-        linearProblem = new LinearProblemBuilder()
-            .withProblemFiller(coreProblemFiller)
-            .withProblemFiller(raUsageLimitsFiller)
-            .withSolver(RangeActionsOptimizationParameters.Solver.SCIP)
-            .build();
-
-        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> linearProblem.fill(flowResult, sensitivityResult));
-        assertEquals("The PSTs must be approximated as integers to use the limitations of elementary actions as a constraint in the RAO.", exception.getMessage());
-    }
-
-    @Test
     void testMaxElementaryActionsPerTsoConstraint() {
         when(prePerimeterRangeActionSetpointResult.getTap(pst1)).thenReturn(1);
         when(prePerimeterRangeActionSetpointResult.getTap(pst2)).thenReturn(1);

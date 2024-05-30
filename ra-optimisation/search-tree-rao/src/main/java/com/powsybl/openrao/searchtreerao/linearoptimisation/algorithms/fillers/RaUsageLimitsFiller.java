@@ -8,7 +8,6 @@
 package com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.fillers;
 
 import com.powsybl.iidm.network.Network;
-import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.cracapi.RemedialAction;
 import com.powsybl.openrao.data.cracapi.State;
 import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeAction;
@@ -42,7 +41,7 @@ public class RaUsageLimitsFiller implements ProblemFiller {
     private final Map<State, Set<RangeAction<?>>> rangeActions;
     private final RangeActionSetpointResult prePerimeterRangeActionSetpoints;
     private final RangeActionLimitationParameters rangeActionLimitationParameters;
-    private boolean arePstSetpointsApproximated;
+    private final boolean arePstSetpointsApproximated;
     private static final double RANGE_ACTION_SETPOINT_EPSILON = 1e-4;
     private final Network network;
 
@@ -218,9 +217,6 @@ public class RaUsageLimitsFiller implements ProblemFiller {
         Map<String, Integer> maxElementaryActionsPerTso = rangeActionLimitationParameters.getMaxElementaryActionsPerTso(state);
         if (maxElementaryActionsPerTso == null) {
             return;
-        }
-        if (!arePstSetpointsApproximated) {
-            throw new OpenRaoException("The PSTs must be approximated as integers to use the limitations of elementary actions as a constraint in the RAO.");
         }
 
         Map<String, Set<PstRangeAction>> pstRangeActionsPerTso = new HashMap<>();
