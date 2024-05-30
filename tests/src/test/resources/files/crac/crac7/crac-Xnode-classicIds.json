@@ -1,49 +1,70 @@
 {
-  "type" : "simple-crac",
-  "id" : "Crac-with-Xnode-handling",
-  "name" : "CoucouCracName",
-  "networkElementsNamePerId" : { },
-  "contingencies" : [ {
-    "id" : "N-1 DE-FR",
-    "networkElementsIds" : [ "DDE3AA1  X_DEFR1  1" ]
-  }, {
-    "id" : "N-1 DE-FR-fail-because-inverted",
-    "networkElementsIds" : [ "X_DEFR1  DDE3AA1  1" ]
-  }, {
-    "id" : "N-1 DE-FR-fail-because-full-line-definition",
-    "networkElementsIds" : [ "DDE3AA1  FFR2AA1  1" ]
-  } ],
-  "flowCnecs" : [ {
-    "id" : "BE-NL - N-1 - N-1 DE-FR",
-    "name" : "Tieline BE NL in N-1",
-    "networkElementId" : "NNL2AA1  X_NLBE1  1",
-    "thresholds" : [ {
-      "unit" : "megawatt",
-      "max" : 750,
-      "rule" : "onLeftSide"
-    } ],
-    "optimized" : true,
-    "contingencyId" : "N-1 DE-FR",
-    "instant" : "outage"
-  }, {
-    "id" : "BE-NL - N - preventive",
-    "name" : "Tieline BE NL in N",
-    "networkElementId" : "BBE3AA1  X_NLBE1  1",
-    "thresholds" : [ {
-      "unit" : "megawatt",
-      "max" : 750,
-      "rule" : "onLeftSide"
-    } ],
-    "optimized" : true,
-    "instant" : "preventive"
-  } ],
-  "networkActions" : [ {
-    "id" : "complexNetworkActionId",
-    "name" : "open BE-FR",
-    "operator" : "RTE",
-    "topologicalActions" : [ {
-      "networkElementId" : "BBE2AA1  X_BEFR1  1",
-      "actionType" : "close"
-    } ]
-  } ]
+  "type": "simple-crac",
+  "id": "Crac-with-Xnode-handling",
+  "name": "CoucouCracName",
+  "networkElementsNamePerId": {},
+  "contingencies": [
+    {
+      "id": "N-1 DE-FR",
+      "networkElementsIds": [
+        "DDE3AA1  X_DEFR1  1"
+      ]
+    },
+    {
+      "id": "N-1 DE-FR-fail-because-inverted",
+      "networkElementsIds": [
+        "X_DEFR1  DDE3AA1  1"
+      ]
+    },
+    {
+      "id": "N-1 DE-FR-fail-because-full-line-definition",
+      "networkElementsIds": [
+        "DDE3AA1  FFR2AA1  1"
+      ]
+    }
+  ],
+  "flowCnecs": [
+    {
+      "id": "BE-NL - N-1 - N-1 DE-FR",
+      "name": "Tieline BE NL in N-1",
+      "networkElementId": "NNL2AA1  X_NLBE1  1",
+      "thresholds": [
+        {
+          "unit": "megawatt",
+          "max": 750,
+          "rule": "onLeftSide"
+        }
+      ],
+      "optimized": true,
+      "contingencyId": "N-1 DE-FR",
+      "instant": "outage"
+    },
+    {
+      "id": "BE-NL - N - preventive",
+      "name": "Tieline BE NL in N",
+      "networkElementId": "BBE3AA1  X_NLBE1  1",
+      "thresholds": [
+        {
+          "unit": "megawatt",
+          "max": 750,
+          "rule": "onLeftSide"
+        }
+      ],
+      "optimized": true,
+      "instant": "preventive"
+    }
+  ],
+  "networkActions": [
+    {
+      "id": "complexNetworkActionId",
+      "name": "open BE-FR",
+      "operator": "RTE",
+      "topologicalActions": [
+        {
+          "networkElementId": "BBE2AA1  X_BEFR1  1",
+          "actionType": "close"
+        }
+      ]
+    }
+  ]
 }
