@@ -329,19 +329,17 @@ public class SystematicSensitivityResult {
     }
 
     private StateResult getCnecStateResult(Cnec<?> cnec, Instant instant) {
-        if (instant == null) {
-            return nStateResult;
-        }
         Optional<Contingency> optionalContingency = cnec.getState().getContingency();
         if (optionalContingency.isPresent()) {
+            int maxAdmissibleInstantOrder = instant == null ? 1 : Math.max(1, instant.getOrder()); // when dealing with post-contingency CNECs, a null instant refers to the outage instant
             List<Integer> possibleInstants = postContingencyResults.keySet().stream()
-                .filter(instantOrder -> instantOrder <= cnec.getState().getInstant().getOrder() && instantOrder <= Math.max(1, instant.getOrder()))
+                .filter(instantOrder -> instantOrder <= cnec.getState().getInstant().getOrder() && instantOrder <= maxAdmissibleInstantOrder)
                 .sorted(Comparator.reverseOrder())
                 .toList();
             String contingencyId = optionalContingency.get().getId();
             return possibleInstants.isEmpty() ? null : postContingencyResults.get(possibleInstants.get(0)).get(contingencyId);
         } else {
-            return nStateResult;
+            return nStateResult; // when dealing with preventive CNECs, a null instant refers to the initial instant
         }
     }
 }
