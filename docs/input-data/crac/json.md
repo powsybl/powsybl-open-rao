@@ -1172,7 +1172,7 @@ In that case, the validity domain of the HVDC is [-5; 10].
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔴 **max**  
 ⚪ **onInstant usage rules**: list of 0 to N OnInstant usage rules (see paragraph on [usage rules](#remedial-actions-and-usages-rules))  
 ⚪ **onContingencyState usage rules**: list of 0 to N OnContingencyState usage rules (see paragraph on [usage rules](#remedial-actions-and-usages-rules))  
-⚪ **onFlowConstraint usage rules**: list of 0 to N OnFlowConstraint usage rules (see paragraph on [usage rules](#remedial-actions-and-usages-rules))  
+⚪ **onConstraint usage rules**: list of 0 to N OnConstraint usage rules (see paragraph on [usage rules](#remedial-actions-and-usages-rules))  
 :::
 ::::
 

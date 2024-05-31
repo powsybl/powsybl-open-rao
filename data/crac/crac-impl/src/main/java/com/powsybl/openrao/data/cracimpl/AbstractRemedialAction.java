@@ -133,7 +133,7 @@ public abstract class AbstractRemedialAction<I extends RemedialAction<I>> extend
 
     // TODO: move this method to RaoUtil
     public Set<FlowCnec> getFlowCnecsConstrainingForOneUsageRule(UsageRule usageRule, Set<FlowCnec> perimeterCnecs, Network network) {
-        if (usageRule instanceof OnConstraint<?> onConstraint && onConstraint.get(Cnec()) instanceof FlowCnec flowCnec) {
+        if (usageRule instanceof OnConstraint<?> onConstraint && onConstraint.getCnec() instanceof FlowCnec flowCnec) {
             return Set.of(flowCnec);
         } else if (usageRule instanceof OnFlowConstraintInCountry onFlowConstraintInCountry) {
             return perimeterCnecs.stream()

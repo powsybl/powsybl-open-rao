@@ -20,7 +20,7 @@ import static com.powsybl.openrao.data.cracimpl.AdderUtils.assertAttributeNotNul
 /**
  * @author Thomas Bouquet <thomas.bouquet at rte-france.com>
  */
-public class OnConstraintAdderImpl<T extends AbstractRemedialActionAdder<T>, J extends Cnec<?>> implements OnConstraintAdder<T, J> {
+public class OnConstraintAdderImpl<T extends AbstractRemedialActionAdder<T>, S extends Cnec<?>> implements OnConstraintAdder<T, S> {
     public static final String ON_CONSTRAINT = "OnConstraint";
     private final T owner;
     private String instantId;
@@ -32,19 +32,19 @@ public class OnConstraintAdderImpl<T extends AbstractRemedialActionAdder<T>, J e
     }
 
     @Override
-    public OnConstraintAdderImpl<T, J> withInstant(String instantId) {
+    public OnConstraintAdderImpl<T, S> withInstant(String instantId) {
         this.instantId = instantId;
         return this;
     }
 
     @Override
-    public OnConstraintAdderImpl<T, J> withUsageMethod(UsageMethod usageMethod) {
+    public OnConstraintAdderImpl<T, S> withUsageMethod(UsageMethod usageMethod) {
         this.usageMethod = usageMethod;
         return this;
     }
 
     @Override
-    public OnConstraintAdderImpl<T, J> withCnec(String cnecId) {
+    public OnConstraintAdderImpl<T, S> withCnec(String cnecId) {
         this.cnecId = cnecId;
         return this;
     }
@@ -63,14 +63,14 @@ public class OnConstraintAdderImpl<T extends AbstractRemedialActionAdder<T>, J e
             owner.getCrac().addPreventiveState();
         }
 
-        J cnec = (J) owner.getCrac().getCnec(cnecId);
+        S cnec = (S) owner.getCrac().getCnec(cnecId);
         if (Objects.isNull(cnec)) {
             throw new OpenRaoException(String.format("Cnec %s does not exist in crac. Consider adding it first.", cnecId));
         }
 
         AbstractRemedialActionAdder.checkOnConstraintUsageRules(instant, cnec);
 
-        OnConstraint<J> onConstraint = new OnConstraintImpl<>(usageMethod, instant, cnec);
+        OnConstraint<S> onConstraint = new OnConstraintImpl<>(usageMethod, instant, cnec);
         owner.addUsageRule(onConstraint);
         return owner;
     }

@@ -12,12 +12,12 @@ import com.powsybl.openrao.data.cracapi.cnec.Cnec;
 /**
  * @author Thomas Bouquet <thomas.bouquet at rte-france.com>
  */
-public interface OnConstraintAdder<T extends RemedialActionAdder<T>, J extends Cnec<?>> {
-    OnConstraintAdder<T, J> withInstant(String instantId);
+public interface OnConstraintAdder<T extends RemedialActionAdder<T>, S extends Cnec<?>> {
+    OnConstraintAdder<T, S> withInstant(String instantId);
 
-    OnConstraintAdder<T, J> withCnec(String cnecId);
+    OnConstraintAdder<T, S> withCnec(String cnecId);
 
-    OnConstraintAdder<T, J> withUsageMethod(UsageMethod usageMethod);
+    OnConstraintAdder<T, S> withUsageMethod(UsageMethod usageMethod);
 
     T add();
 }

@@ -106,7 +106,7 @@ public final class StandardRangeActionDeserializer {
     }
 
     private static void deserializeOlderOnConstraintUsageRules(JsonParser jsonParser, String keyword, String version, StandardRangeActionAdder<?> standardRangeActionAdder) throws IOException {
-        if (getPrimaryVersionNumber(version) < 2 || getPrimaryVersionNumber(version) == 2 && getSubVersionNumber(version) <= 3) {
+        if (getPrimaryVersionNumber(version) < 2 || getPrimaryVersionNumber(version) == 2 && getSubVersionNumber(version) < 4) {
             OnConstraintArrayDeserializer.deserialize(jsonParser, standardRangeActionAdder, version);
         } else {
             throw new OpenRaoException("Unsupported field %s in CRAC version >= 2.4".formatted(keyword));
