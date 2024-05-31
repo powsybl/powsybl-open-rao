@@ -36,7 +36,7 @@ class SensitivityResultImplTest {
 
         RangeAction<?> rangeAction = Mockito.mock(RangeAction.class);
         FlowCnec cnec = Mockito.mock(FlowCnec.class);
-        when(systematicSensitivityResult.getSensitivityOnFlow(rangeAction, cnec, LEFT)).thenReturn(8.);
+        when(systematicSensitivityResult.getSensitivityOnFlow(rangeAction, cnec, LEFT, cnec.getState().getInstant())).thenReturn(8.);
 
         assertEquals(8, sensitivityResultImpl.getSensitivityValue(cnec, LEFT, rangeAction, MEGAWATT), DOUBLE_TOLERANCE);
 

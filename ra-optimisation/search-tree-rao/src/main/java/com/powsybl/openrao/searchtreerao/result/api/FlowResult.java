@@ -21,16 +21,6 @@ import java.util.Map;
 public interface FlowResult {
 
     /**
-     * It gives the flow on a {@link FlowCnec} and in a given {@link Unit}.
-     *
-     * @param flowCnec: The branch to be studied.
-     * @param side: The side of the branch to be queried.
-     * @param unit: The unit in which the flow is queried. Only accepted values are MEGAWATT or AMPERE.
-     * @return The flow on the branch in the given unit.
-     */
-    double getFlow(FlowCnec flowCnec, Side side, Unit unit);
-
-    /**
      * It gives the flow on a {@link FlowCnec}, at a given {@link com.powsybl.openrao.data.cracapi.Instant} and in a given {@link Unit}.
      *
      * @param flowCnec: The branch to be studied.
@@ -67,7 +57,7 @@ public interface FlowResult {
      * @return The margin on the branch in the given unit.
      */
     default double getMargin(FlowCnec flowCnec, Side side, Unit unit) {
-        return flowCnec.computeMargin(getFlow(flowCnec, side, unit), side, unit);
+        return flowCnec.computeMargin(getFlow(flowCnec, side, unit, flowCnec.getState().getInstant()), side, unit);
     }
 
     /**
@@ -121,7 +111,7 @@ public interface FlowResult {
      * @return The loop flow on the branch in the given unit.
      */
     default double getLoopFlow(FlowCnec flowCnec, Side side, Unit unit) {
-        return getFlow(flowCnec, side, unit) - getCommercialFlow(flowCnec, side, unit);
+        return getFlow(flowCnec, side, unit, flowCnec.getState().getInstant()) - getCommercialFlow(flowCnec, side, unit);
     }
 
     /**

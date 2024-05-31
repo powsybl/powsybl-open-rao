@@ -361,7 +361,7 @@ class RaoUtilTest {
         assertTrue(RaoUtil.cnecShouldBeOptimized(Map.of(), flowResult, cnec, Side.LEFT, Map.of(), prePerimeterRangeActionSetpointResult, sensitivityResult, Unit.MEGAWATT));
 
         // Margins > 0
-        when(flowResult.getFlow(cnec, Side.LEFT, Unit.MEGAWATT)).thenReturn(0.);
+        when(flowResult.getFlow(cnec, Side.LEFT, Unit.MEGAWATT, cnec.getState().getInstant())).thenReturn(0.);
         assertFalse(RaoUtil.cnecShouldBeOptimized(Map.of(cnec, pst), flowResult, cnec, Side.LEFT, Map.of(), prePerimeterRangeActionSetpointResult, sensitivityResult, Unit.MEGAWATT));
     }
 
@@ -375,7 +375,7 @@ class RaoUtilTest {
         Map<FlowCnec, RangeAction<?>> map = Map.of(cnec, pst);
 
         // Upper margin < 0 (max threshold is 2279 A)
-        when(flowResult.getFlow(cnec, Side.LEFT, Unit.AMPERE)).thenReturn(2379.);
+        when(flowResult.getFlow(cnec, Side.LEFT, Unit.AMPERE, cnec.getState().getInstant())).thenReturn(2379.);
 
         // Sensi > 0
         when(sensitivityResult.getSensitivityValue(cnec, Side.LEFT, pst, Unit.MEGAWATT)).thenReturn(33.); // = 50 A
@@ -401,7 +401,7 @@ class RaoUtilTest {
         Map<FlowCnec, RangeAction<?>> map = Map.of(cnec, pst);
 
         // Lower margin < 0 (min threshold is -1500 MW)
-        when(flowResult.getFlow(cnec, Side.LEFT, Unit.MEGAWATT)).thenReturn(-1700.);
+        when(flowResult.getFlow(cnec, Side.LEFT, Unit.MEGAWATT, cnec.getState().getInstant())).thenReturn(-1700.);
 
         // Sensi > 0
         when(sensitivityResult.getSensitivityValue(cnec, Side.LEFT, pst, Unit.MEGAWATT)).thenReturn(50.);

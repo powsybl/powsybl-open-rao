@@ -119,11 +119,6 @@ public class IteratingLinearOptimizationResultImpl implements LinearOptimization
     }
 
     @Override
-    public double getFlow(FlowCnec branchCnec, Side side, Unit unit) {
-        return flowResult.getFlow(branchCnec, side, unit);
-    }
-
-    @Override
     public double getFlow(FlowCnec branchCnec, Side side, Unit unit, Instant instant) {
         return flowResult.getFlow(branchCnec, side, unit, instant);
     }

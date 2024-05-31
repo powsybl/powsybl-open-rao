@@ -8,6 +8,8 @@
 package com.powsybl.openrao.searchtreerao.result.impl;
 
 import com.powsybl.openrao.commons.OpenRaoException;
+import com.powsybl.openrao.data.cracapi.Instant;
+import com.powsybl.openrao.data.cracapi.State;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
 import com.powsybl.openrao.sensitivityanalysis.SystematicSensitivityResult;
 import org.junit.jupiter.api.BeforeEach;
@@ -22,6 +24,7 @@ import static com.powsybl.openrao.data.cracapi.cnec.Side.RIGHT;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 /**
@@ -38,8 +41,13 @@ class FlowResultFromMapImplTest {
     @BeforeEach
     public void setUp() {
         systematicSensitivityResult = Mockito.mock(SystematicSensitivityResult.class);
+        Instant instant = mock(Instant.class);
+        State state = mock(State.class);
+        when(state.getInstant()).thenReturn(instant);
         loopFlowCnec = Mockito.mock(FlowCnec.class);
+        when(loopFlowCnec.getState()).thenReturn(state);
         optimizedCnec = Mockito.mock(FlowCnec.class);
+        when(optimizedCnec.getState()).thenReturn(state);
         branchResultFromMap = new FlowResultFromMapImpl(
                 systematicSensitivityResult,
                 Map.of(loopFlowCnec, Map.of(LEFT, 200., RIGHT, 250.)),
@@ -49,23 +57,23 @@ class FlowResultFromMapImplTest {
 
     @Test
     void testBasicReturns() {
-        when(systematicSensitivityResult.getReferenceFlow(loopFlowCnec, LEFT)).thenReturn(200.);
-        when(systematicSensitivityResult.getReferenceFlow(loopFlowCnec, RIGHT)).thenReturn(250.);
-        when(systematicSensitivityResult.getReferenceIntensity(loopFlowCnec, LEFT)).thenReturn(58.);
-        when(systematicSensitivityResult.getReferenceIntensity(loopFlowCnec, RIGHT)).thenReturn(63.);
-        when(systematicSensitivityResult.getReferenceFlow(optimizedCnec, LEFT)).thenReturn(500.);
-        when(systematicSensitivityResult.getReferenceFlow(optimizedCnec, RIGHT)).thenReturn(550.);
-        when(systematicSensitivityResult.getReferenceIntensity(optimizedCnec, LEFT)).thenReturn(235.);
-        when(systematicSensitivityResult.getReferenceIntensity(optimizedCnec, RIGHT)).thenReturn(285.);
+        when(systematicSensitivityResult.getReferenceFlow(loopFlowCnec, LEFT, loopFlowCnec.getState().getInstant())).thenReturn(200.);
+        when(systematicSensitivityResult.getReferenceFlow(loopFlowCnec, RIGHT, loopFlowCnec.getState().getInstant())).thenReturn(250.);
+        when(systematicSensitivityResult.getReferenceIntensity(loopFlowCnec, LEFT, loopFlowCnec.getState().getInstant())).thenReturn(58.);
+        when(systematicSensitivityResult.getReferenceIntensity(loopFlowCnec, RIGHT, loopFlowCnec.getState().getInstant())).thenReturn(63.);
+        when(systematicSensitivityResult.getReferenceFlow(optimizedCnec, LEFT, optimizedCnec.getState().getInstant())).thenReturn(500.);
+        when(systematicSensitivityResult.getReferenceFlow(optimizedCnec, RIGHT, optimizedCnec.getState().getInstant())).thenReturn(550.);
+        when(systematicSensitivityResult.getReferenceIntensity(optimizedCnec, LEFT, optimizedCnec.getState().getInstant())).thenReturn(235.);
+        when(systematicSensitivityResult.getReferenceIntensity(optimizedCnec, RIGHT, optimizedCnec.getState().getInstant())).thenReturn(285.);
 
-        assertEquals(200, branchResultFromMap.getFlow(loopFlowCnec, LEFT, MEGAWATT), DOUBLE_TOLERANCE);
-        assertEquals(250, branchResultFromMap.getFlow(loopFlowCnec, RIGHT, MEGAWATT), DOUBLE_TOLERANCE);
-        assertEquals(58, branchResultFromMap.getFlow(loopFlowCnec, LEFT, AMPERE), DOUBLE_TOLERANCE);
-        assertEquals(63, branchResultFromMap.getFlow(loopFlowCnec, RIGHT, AMPERE), DOUBLE_TOLERANCE);
-        assertEquals(500, branchResultFromMap.getFlow(optimizedCnec, LEFT, MEGAWATT), DOUBLE_TOLERANCE);
-        assertEquals(550, branchResultFromMap.getFlow(optimizedCnec, RIGHT, MEGAWATT), DOUBLE_TOLERANCE);
-        assertEquals(235, branchResultFromMap.getFlow(optimizedCnec, LEFT, AMPERE), DOUBLE_TOLERANCE);
-        assertEquals(285, branchResultFromMap.getFlow(optimizedCnec, RIGHT, AMPERE), DOUBLE_TOLERANCE);
+        assertEquals(200, branchResultFromMap.getFlow(loopFlowCnec, LEFT, MEGAWATT, loopFlowCnec.getState().getInstant()), DOUBLE_TOLERANCE);
+        assertEquals(250, branchResultFromMap.getFlow(loopFlowCnec, RIGHT, MEGAWATT, loopFlowCnec.getState().getInstant()), DOUBLE_TOLERANCE);
+        assertEquals(58, branchResultFromMap.getFlow(loopFlowCnec, LEFT, AMPERE, loopFlowCnec.getState().getInstant()), DOUBLE_TOLERANCE);
+        assertEquals(63, branchResultFromMap.getFlow(loopFlowCnec, RIGHT, AMPERE, loopFlowCnec.getState().getInstant()), DOUBLE_TOLERANCE);
+        assertEquals(500, branchResultFromMap.getFlow(optimizedCnec, LEFT, MEGAWATT, optimizedCnec.getState().getInstant()), DOUBLE_TOLERANCE);
+        assertEquals(550, branchResultFromMap.getFlow(optimizedCnec, RIGHT, MEGAWATT, optimizedCnec.getState().getInstant()), DOUBLE_TOLERANCE);
+        assertEquals(235, branchResultFromMap.getFlow(optimizedCnec, LEFT, AMPERE, optimizedCnec.getState().getInstant()), DOUBLE_TOLERANCE);
+        assertEquals(285, branchResultFromMap.getFlow(optimizedCnec, RIGHT, AMPERE, optimizedCnec.getState().getInstant()), DOUBLE_TOLERANCE);
 
         assertThrows(OpenRaoException.class, () -> branchResultFromMap.getPtdfZonalSum(loopFlowCnec, LEFT));
         assertThrows(OpenRaoException.class, () -> branchResultFromMap.getPtdfZonalSum(loopFlowCnec, RIGHT));
@@ -83,21 +91,21 @@ class FlowResultFromMapImplTest {
 
     @Test
     void testNanFlow() {
-        when(systematicSensitivityResult.getReferenceIntensity(optimizedCnec, LEFT)).thenReturn(Double.NaN);
-        when(systematicSensitivityResult.getReferenceIntensity(optimizedCnec, RIGHT)).thenReturn(Double.NaN);
-        when(systematicSensitivityResult.getReferenceFlow(optimizedCnec, LEFT)).thenReturn(500.);
-        when(systematicSensitivityResult.getReferenceFlow(optimizedCnec, RIGHT)).thenReturn(550.);
+        when(systematicSensitivityResult.getReferenceIntensity(optimizedCnec, LEFT, optimizedCnec.getState().getInstant())).thenReturn(Double.NaN);
+        when(systematicSensitivityResult.getReferenceIntensity(optimizedCnec, RIGHT, optimizedCnec.getState().getInstant())).thenReturn(Double.NaN);
+        when(systematicSensitivityResult.getReferenceFlow(optimizedCnec, LEFT, optimizedCnec.getState().getInstant())).thenReturn(500.);
+        when(systematicSensitivityResult.getReferenceFlow(optimizedCnec, RIGHT, optimizedCnec.getState().getInstant())).thenReturn(550.);
         when(optimizedCnec.getNominalVoltage(any())).thenReturn(400.);
 
-        assertEquals(721.69, branchResultFromMap.getFlow(optimizedCnec, LEFT, AMPERE), DOUBLE_TOLERANCE);
-        assertEquals(793.86, branchResultFromMap.getFlow(optimizedCnec, RIGHT, AMPERE), DOUBLE_TOLERANCE);
+        assertEquals(721.69, branchResultFromMap.getFlow(optimizedCnec, LEFT, AMPERE, optimizedCnec.getState().getInstant()), DOUBLE_TOLERANCE);
+        assertEquals(793.86, branchResultFromMap.getFlow(optimizedCnec, RIGHT, AMPERE, optimizedCnec.getState().getInstant()), DOUBLE_TOLERANCE);
     }
 
     @Test
     void testWrongFlowUnit() {
-        assertThrows(OpenRaoException.class, () -> branchResultFromMap.getFlow(optimizedCnec, LEFT, KILOVOLT));
-        assertThrows(OpenRaoException.class, () -> branchResultFromMap.getFlow(optimizedCnec, RIGHT, DEGREE));
-        assertThrows(OpenRaoException.class, () -> branchResultFromMap.getFlow(optimizedCnec, LEFT, PERCENT_IMAX));
-        assertThrows(OpenRaoException.class, () -> branchResultFromMap.getFlow(optimizedCnec, RIGHT, TAP));
+        assertThrows(OpenRaoException.class, () -> branchResultFromMap.getFlow(optimizedCnec, LEFT, KILOVOLT, optimizedCnec.getState().getInstant()));
+        assertThrows(OpenRaoException.class, () -> branchResultFromMap.getFlow(optimizedCnec, RIGHT, DEGREE, optimizedCnec.getState().getInstant()));
+        assertThrows(OpenRaoException.class, () -> branchResultFromMap.getFlow(optimizedCnec, LEFT, PERCENT_IMAX, optimizedCnec.getState().getInstant()));
+        assertThrows(OpenRaoException.class, () -> branchResultFromMap.getFlow(optimizedCnec, RIGHT, TAP, optimizedCnec.getState().getInstant()));
     }
 }

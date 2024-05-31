@@ -331,17 +331,6 @@ public class Leaf implements OptimizationResult {
     }
 
     @Override
-    public double getFlow(FlowCnec flowCnec, Side side, Unit unit) {
-        if (status == Status.EVALUATED) {
-            return preOptimFlowResult.getFlow(flowCnec, side, unit);
-        } else if (status == Status.OPTIMIZED) {
-            return postOptimResult.getFlow(flowCnec, side, unit);
-        } else {
-            throw new OpenRaoException(NO_RESULTS_AVAILABLE);
-        }
-    }
-
-    @Override
     public double getFlow(FlowCnec flowCnec, Side side, Unit unit, Instant instant) {
         if (status == Status.EVALUATED) {
             return preOptimFlowResult.getFlow(flowCnec, side, unit, instant);

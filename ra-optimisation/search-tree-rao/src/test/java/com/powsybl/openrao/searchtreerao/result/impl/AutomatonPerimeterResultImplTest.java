@@ -8,6 +8,7 @@
 package com.powsybl.openrao.searchtreerao.result.impl;
 
 import com.powsybl.openrao.commons.OpenRaoException;
+import com.powsybl.openrao.data.cracapi.Instant;
 import com.powsybl.openrao.data.cracapi.State;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
 import com.powsybl.openrao.data.cracapi.networkaction.NetworkAction;
@@ -51,9 +52,13 @@ class AutomatonPerimeterResultImplTest {
 
     @BeforeEach
     public void setUp() {
+        Instant instant = mock(Instant.class);
         state1 = mock(State.class);
+        when(state1.getInstant()).thenReturn(instant);
         cnec1 = mock(FlowCnec.class);
+        when(cnec1.getState()).thenReturn(state1);
         cnec2 = mock(FlowCnec.class);
+        when(cnec2.getState()).thenReturn(state1);
         networkAction1 = mock(NetworkAction.class);
         networkAction2 = mock(NetworkAction.class);
         pstRangeActionShifted = mock(PstRangeAction.class);
@@ -75,10 +80,10 @@ class AutomatonPerimeterResultImplTest {
 
     @Test
     void testGetFlow() {
-        when(postAutoSensitivity.getFlow(cnec1, RIGHT, AMPERE)).thenReturn(10.);
-        when(postAutoSensitivity.getFlow(cnec1, RIGHT, MEGAWATT)).thenReturn(100.);
-        assertEquals(10., result.getFlow(cnec1, RIGHT, AMPERE), DOUBLE_TOLERANCE);
-        assertEquals(100., result.getFlow(cnec1, RIGHT, MEGAWATT), DOUBLE_TOLERANCE);
+        when(postAutoSensitivity.getFlow(cnec1, RIGHT, AMPERE, cnec1.getState().getInstant())).thenReturn(10.);
+        when(postAutoSensitivity.getFlow(cnec1, RIGHT, MEGAWATT, cnec1.getState().getInstant())).thenReturn(100.);
+        assertEquals(10., result.getFlow(cnec1, RIGHT, AMPERE, cnec1.getState().getInstant()), DOUBLE_TOLERANCE);
+        assertEquals(100., result.getFlow(cnec1, RIGHT, MEGAWATT, cnec1.getState().getInstant()), DOUBLE_TOLERANCE);
     }
 
     @Test

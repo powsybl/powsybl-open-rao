@@ -234,16 +234,6 @@ public class SystematicSensitivityResult {
         return postContingencyResults.values().stream().flatMap(contingencyResult -> contingencyResult.keySet().stream()).collect(Collectors.toSet());
     }
 
-    public double getReferenceFlow(FlowCnec cnec, Side side) {
-        StateResult stateResult = getCnecStateResult(cnec);
-        if (stateResult == null ||
-                !stateResult.getReferenceFlows().containsKey(cnec.getNetworkElement().getId()) ||
-                !stateResult.getReferenceFlows().get(cnec.getNetworkElement().getId()).containsKey(side)) {
-            return 0.0;
-        }
-        return stateResult.getReferenceFlows().get(cnec.getNetworkElement().getId()).get(side);
-    }
-
     public double getReferenceFlow(FlowCnec cnec, Side side, Instant instant) {
         StateResult stateResult = getCnecStateResult(cnec, instant);
         if (stateResult == null ||
@@ -252,16 +242,6 @@ public class SystematicSensitivityResult {
             return 0.0;
         }
         return stateResult.getReferenceFlows().get(cnec.getNetworkElement().getId()).get(side);
-    }
-
-    public double getReferenceIntensity(FlowCnec cnec, Side side) {
-        StateResult stateResult = getCnecStateResult(cnec);
-        if (stateResult == null ||
-                !stateResult.getReferenceIntensities().containsKey(cnec.getNetworkElement().getId()) ||
-                !stateResult.getReferenceIntensities().get(cnec.getNetworkElement().getId()).containsKey(side)) {
-            return 0.0;
-        }
-        return stateResult.getReferenceIntensities().get(cnec.getNetworkElement().getId()).get(side);
     }
 
     public double getReferenceIntensity(FlowCnec cnec, Side side, Instant instant) {
@@ -274,23 +254,12 @@ public class SystematicSensitivityResult {
         return stateResult.getReferenceIntensities().get(cnec.getNetworkElement().getId()).get(side);
     }
 
-    public double getSensitivityOnFlow(RangeAction<?> rangeAction, FlowCnec cnec, Side side) {
-        return RangeActionSensiHandler.get(rangeAction).getSensitivityOnFlow(cnec, side, this);
+    public double getSensitivityOnFlow(RangeAction<?> rangeAction, FlowCnec cnec, Side side, Instant instant) {
+        return RangeActionSensiHandler.get(rangeAction).getSensitivityOnFlow(cnec, side, this, instant);
     }
 
     public double getSensitivityOnFlow(SensitivityVariableSet glsk, FlowCnec cnec, Side side) {
-        return getSensitivityOnFlow(glsk.getId(), cnec, side);
-    }
-
-    public double getSensitivityOnFlow(String variableId, FlowCnec cnec, Side side) {
-        StateResult stateResult = getCnecStateResult(cnec);
-        if (stateResult == null ||
-                !stateResult.getFlowSensitivities().containsKey(cnec.getNetworkElement().getId()) ||
-                !stateResult.getFlowSensitivities().get(cnec.getNetworkElement().getId()).containsKey(variableId) ||
-                !stateResult.getFlowSensitivities().get(cnec.getNetworkElement().getId()).get(variableId).containsKey(side)) {
-            return 0.0;
-        }
-        return stateResult.getFlowSensitivities().get(cnec.getNetworkElement().getId()).get(variableId).get(side);
+        return getSensitivityOnFlow(glsk.getId(), cnec, side, cnec.getState().getInstant());
     }
 
     public double getSensitivityOnFlow(String variableId, FlowCnec cnec, Side side, Instant instant) {
@@ -329,6 +298,7 @@ public class SystematicSensitivityResult {
     }
 
     private StateResult getCnecStateResult(Cnec<?> cnec, Instant instant) {
+        // TODO: memoize stuff
         Optional<Contingency> optionalContingency = cnec.getState().getContingency();
         if (optionalContingency.isPresent()) {
             int maxAdmissibleInstantOrder = instant == null ? 1 : Math.max(1, instant.getOrder()); // when dealing with post-contingency CNECs, a null instant refers to the outage instant

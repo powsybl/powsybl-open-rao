@@ -9,6 +9,7 @@ package com.powsybl.openrao.searchtreerao.result.impl;
 
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
+import com.powsybl.openrao.data.cracapi.Instant;
 import com.powsybl.openrao.data.cracapi.State;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
 import com.powsybl.openrao.data.cracapi.cnec.Side;
@@ -48,6 +49,10 @@ class PerimeterResultImplTest {
     private RangeAction<?> ra2;
     private FlowCnec flowCnec1;
     private FlowCnec flowCnec2;
+    private State state1;
+    private State state2;
+    private Instant instant1;
+    private Instant instant2;
     private NetworkAction na1;
     private NetworkAction na2;
     private PstRangeAction pst1;
@@ -66,6 +71,18 @@ class PerimeterResultImplTest {
 
         flowCnec1 = mock(FlowCnec.class);
         flowCnec2 = mock(FlowCnec.class);
+
+        state1 = mock(State.class);
+        state2 = mock(State.class);
+
+        instant1 = mock(Instant.class);
+        instant2 = mock(Instant.class);
+
+        when(state1.getInstant()).thenReturn(instant1);
+        when(state2.getInstant()).thenReturn(instant2);
+
+        when(flowCnec1.getState()).thenReturn(state1);
+        when(flowCnec2.getState()).thenReturn(state2);
 
         na1 = mock(NetworkAction.class);
         na2 = mock(NetworkAction.class);
@@ -88,10 +105,10 @@ class PerimeterResultImplTest {
 
     @Test
     void testGetFlow() {
-        when(optimizationResult.getFlow(flowCnec1, LEFT, Unit.MEGAWATT)).thenReturn(100.);
-        when(optimizationResult.getFlow(flowCnec2, RIGHT, Unit.AMPERE)).thenReturn(200.);
-        assertEquals(100., perimeterResultImpl.getFlow(flowCnec1, LEFT, Unit.MEGAWATT), DOUBLE_TOLERANCE);
-        assertEquals(200., perimeterResultImpl.getFlow(flowCnec2, RIGHT, Unit.AMPERE), DOUBLE_TOLERANCE);
+        when(optimizationResult.getFlow(flowCnec1, LEFT, Unit.MEGAWATT, flowCnec1.getState().getInstant())).thenReturn(100.);
+        when(optimizationResult.getFlow(flowCnec2, RIGHT, Unit.AMPERE, flowCnec2.getState().getInstant())).thenReturn(200.);
+        assertEquals(100., perimeterResultImpl.getFlow(flowCnec1, LEFT, Unit.MEGAWATT, flowCnec1.getState().getInstant()), DOUBLE_TOLERANCE);
+        assertEquals(200., perimeterResultImpl.getFlow(flowCnec2, RIGHT, Unit.AMPERE, flowCnec2.getState().getInstant()), DOUBLE_TOLERANCE);
     }
 
     @Test

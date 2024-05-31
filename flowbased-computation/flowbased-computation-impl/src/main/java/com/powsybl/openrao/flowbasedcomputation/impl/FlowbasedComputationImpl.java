@@ -181,7 +181,7 @@ public class FlowbasedComputationImpl implements FlowbasedComputationProvider {
                 cnec.getNetworkElement().getId(),
                 minThreshold,
                 maxThreshold,
-                zeroIfNaN(result.getReferenceFlow(cnec, Side.LEFT)), // TODO : handle both sides if needed
+                zeroIfNaN(result.getReferenceFlow(cnec, Side.LEFT, cnec.getState().getInstant())), // TODO : handle both sides if needed
                 buildDataPtdfPerCountry(cnec, glsk, result)
         );
     }
@@ -192,7 +192,7 @@ public class FlowbasedComputationImpl implements FlowbasedComputationProvider {
                 .map(glsk ->
                         new DataPtdfPerCountry(
                                 glsk.getId(),
-                                zeroIfNaN(result.getSensitivityOnFlow(glsk.getId(), cnec, Side.LEFT)) // TODO : handle both sides if needed
+                                zeroIfNaN(result.getSensitivityOnFlow(glsk.getId(), cnec, Side.LEFT, cnec.getState().getInstant())) // TODO : handle both sides if needed
                         )
                 ).toList();
     }

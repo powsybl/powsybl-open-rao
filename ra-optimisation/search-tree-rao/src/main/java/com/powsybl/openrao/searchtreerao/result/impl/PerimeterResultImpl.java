@@ -39,11 +39,6 @@ public class PerimeterResultImpl implements PerimeterResult {
     }
 
     @Override
-    public double getFlow(FlowCnec flowCnec, Side side, Unit unit) {
-        return optimizationResult.getFlow(flowCnec, side, unit);
-    }
-
-    @Override
     public double getFlow(FlowCnec flowCnec, Side side, Unit unit, Instant instant) {
         return optimizationResult.getFlow(flowCnec, side, unit, instant);
     }

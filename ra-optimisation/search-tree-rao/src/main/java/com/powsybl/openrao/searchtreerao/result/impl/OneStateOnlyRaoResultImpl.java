@@ -96,7 +96,7 @@ public class OneStateOnlyRaoResultImpl implements RaoResult {
 
     @Override
     public double getFlow(Instant optimizedInstant, FlowCnec flowCnec, Side side, Unit unit) {
-        return getAppropriateResult(optimizedInstant, flowCnec).getFlow(flowCnec, side, unit);
+        return getAppropriateResult(optimizedInstant, flowCnec).getFlow(flowCnec, side, unit, optimizedInstant);
     }
 
     @Override

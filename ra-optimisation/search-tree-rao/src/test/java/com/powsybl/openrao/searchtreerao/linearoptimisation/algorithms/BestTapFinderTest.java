@@ -56,24 +56,27 @@ class BestTapFinderTest {
 
     @BeforeEach
     public void setUp() {
+        optimizedState = Mockito.mock(State.class);
+        when(optimizedState.getContingency()).thenReturn(Optional.empty());
+        Instant preventiveInstant = Mockito.mock(Instant.class);
+        when(optimizedState.getInstant()).thenReturn(preventiveInstant);
+
         cnec1 = Mockito.mock(FlowCnec.class);
         when(cnec1.getMonitoredSides()).thenReturn(Collections.singleton(Side.LEFT));
+        when(cnec1.getState()).thenReturn(optimizedState);
         cnec2 = Mockito.mock(FlowCnec.class);
         when(cnec2.getMonitoredSides()).thenReturn(Collections.singleton(Side.RIGHT));
+        when(cnec2.getState()).thenReturn(optimizedState);
         network = Mockito.mock(Network.class);
 
         linearOptimizationResult = mock(LinearOptimizationResult.class);
         when(linearOptimizationResult.getMostLimitingElements(anyInt())).thenReturn(List.of(cnec1, cnec2));
 
-        when(linearOptimizationResult.getFlow(cnec1, Side.LEFT, Unit.MEGAWATT)).thenReturn(REF_FLOW_1);
-        when(linearOptimizationResult.getFlow(cnec2, Side.RIGHT, Unit.MEGAWATT)).thenReturn(REF_FLOW_2);
+        when(linearOptimizationResult.getFlow(cnec1, Side.LEFT, Unit.MEGAWATT, cnec1.getState().getInstant())).thenReturn(REF_FLOW_1);
+        when(linearOptimizationResult.getFlow(cnec2, Side.RIGHT, Unit.MEGAWATT, cnec2.getState().getInstant())).thenReturn(REF_FLOW_2);
 
         rangeActionActivationResult = Mockito.mock(RangeActionActivationResult.class);
         pstRangeAction = createPst();
-        optimizedState = Mockito.mock(State.class);
-        when(optimizedState.getContingency()).thenReturn(Optional.empty());
-        Instant preventiveInstant = Mockito.mock(Instant.class);
-        when(optimizedState.getInstant()).thenReturn(preventiveInstant);
         optimizationPerimeter = Mockito.mock(OptimizationPerimeter.class);
         when(optimizationPerimeter.getMainOptimizationState()).thenReturn(optimizedState);
         when(optimizationPerimeter.getRangeActionOptimizationStates()).thenReturn(Set.of(optimizedState));

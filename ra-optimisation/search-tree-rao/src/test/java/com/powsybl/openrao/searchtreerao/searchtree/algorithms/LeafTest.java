@@ -327,7 +327,11 @@ class LeafTest {
         double expectedCost = 5.;
         Leaf leaf = prepareLeafForEvaluation(na1, expectedSensitivityStatus, expectedFlowResult, expectedCost);
 
-        FlowCnec flowCnec = Mockito.mock(FlowCnec.class);
+        Instant instant = mock(Instant.class);
+        State state = mock(State.class);
+        FlowCnec flowCnec = mock(FlowCnec.class);
+        when(state.getInstant()).thenReturn(instant);
+        when(flowCnec.getState()).thenReturn(state);
 
         FlowResult flowResult = Mockito.mock(FlowResult.class);
         when(sensitivityComputer.getBranchResult(network)).thenReturn(flowResult);
@@ -335,9 +339,9 @@ class LeafTest {
 
         double expectedFlow = 3.;
         Unit unit = MEGAWATT;
-        when(flowResult.getFlow(flowCnec, LEFT, unit)).thenReturn(expectedFlow);
+        when(flowResult.getFlow(flowCnec, LEFT, unit, flowCnec.getState().getInstant())).thenReturn(expectedFlow);
         when(flowResult.getCommercialFlow(flowCnec, LEFT, unit)).thenReturn(expectedFlow);
-        assertEquals(expectedFlow, leaf.getFlow(flowCnec, LEFT, unit), DOUBLE_TOLERANCE);
+        assertEquals(expectedFlow, leaf.getFlow(flowCnec, LEFT, unit, flowCnec.getState().getInstant()), DOUBLE_TOLERANCE);
         assertEquals(expectedFlow, leaf.getCommercialFlow(flowCnec, LEFT, unit), DOUBLE_TOLERANCE);
 
         double expectedPtdf = 4.;
@@ -358,13 +362,17 @@ class LeafTest {
         prepareLinearProblemBuilder(linearOptimizationResult);
         leaf.optimize(searchTreeInput, searchTreeParameters);
 
-        FlowCnec flowCnec = Mockito.mock(FlowCnec.class);
+        Instant instant = mock(Instant.class);
+        State state = mock(State.class);
+        FlowCnec flowCnec = mock(FlowCnec.class);
+        when(state.getInstant()).thenReturn(instant);
+        when(flowCnec.getState()).thenReturn(state);
 
         double expectedFlow = 3.;
         Unit unit = MEGAWATT;
-        when(linearOptimizationResult.getFlow(flowCnec, LEFT, unit)).thenReturn(expectedFlow);
+        when(linearOptimizationResult.getFlow(flowCnec, LEFT, unit, flowCnec.getState().getInstant())).thenReturn(expectedFlow);
         when(linearOptimizationResult.getCommercialFlow(flowCnec, LEFT, unit)).thenReturn(expectedFlow);
-        assertEquals(expectedFlow, leaf.getFlow(flowCnec, LEFT, unit), DOUBLE_TOLERANCE);
+        assertEquals(expectedFlow, leaf.getFlow(flowCnec, LEFT, unit, flowCnec.getState().getInstant()), DOUBLE_TOLERANCE);
         assertEquals(expectedFlow, leaf.getCommercialFlow(flowCnec, LEFT, unit), DOUBLE_TOLERANCE);
 
         double expectedPtdf = 4.;
@@ -380,8 +388,12 @@ class LeafTest {
     @Test
     void getFlowOnFlowCnecBeforeEvaluation() {
         Leaf leaf = buildNotEvaluatedRootLeaf();
-        FlowCnec flowCnec = Mockito.mock(FlowCnec.class);
-        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> leaf.getFlow(flowCnec, LEFT, MEGAWATT));
+        Instant instant = mock(Instant.class);
+        State state = mock(State.class);
+        FlowCnec flowCnec = mock(FlowCnec.class);
+        when(state.getInstant()).thenReturn(instant);
+        when(flowCnec.getState()).thenReturn(state);
+        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> leaf.getFlow(flowCnec, LEFT, MEGAWATT, flowCnec.getState().getInstant()));
         assertEquals("No results available.", exception.getMessage());
     }
 

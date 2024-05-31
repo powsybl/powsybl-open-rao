@@ -119,10 +119,10 @@ class MnecFillerTest extends AbstractFillerTest {
         parameters.setViolationCost(10);
         parameters.setConstraintAdjustmentCoefficient(3.5);
         FlowResult flowResult = Mockito.mock(FlowResult.class);
-        when(flowResult.getFlow(mnec1, Side.RIGHT, Unit.MEGAWATT)).thenReturn(900.);
-        when(flowResult.getFlow(mnec2, Side.LEFT, Unit.MEGAWATT)).thenReturn(-200.);
-        when(flowResult.getFlow(mnec3, Side.LEFT, Unit.MEGAWATT)).thenReturn(-200.);
-        when(flowResult.getFlow(mnec3, Side.RIGHT, Unit.MEGAWATT)).thenReturn(-200.);
+        when(flowResult.getFlow(mnec1, Side.RIGHT, Unit.MEGAWATT, mnec1.getState().getInstant())).thenReturn(900.);
+        when(flowResult.getFlow(mnec2, Side.LEFT, Unit.MEGAWATT, mnec2.getState().getInstant())).thenReturn(-200.);
+        when(flowResult.getFlow(mnec3, Side.LEFT, Unit.MEGAWATT, mnec3.getState().getInstant())).thenReturn(-200.);
+        when(flowResult.getFlow(mnec3, Side.RIGHT, Unit.MEGAWATT, mnec3.getState().getInstant())).thenReturn(-200.);
         MnecFiller mnecFiller = new MnecFiller(
                 flowResult,
                 Set.of(mnec1, mnec2, mnec3),
@@ -219,10 +219,10 @@ class MnecFillerTest extends AbstractFillerTest {
         parameters.setViolationCost(10);
         parameters.setConstraintAdjustmentCoefficient(3.5);
         FlowResult flowResult = Mockito.mock(FlowResult.class);
-        when(flowResult.getFlow(mnec1, Side.RIGHT, Unit.MEGAWATT)).thenReturn(900.);
-        when(flowResult.getFlow(mnec2, Side.LEFT, Unit.MEGAWATT)).thenReturn(-200.);
-        when(flowResult.getFlow(mnec3, Side.LEFT, Unit.MEGAWATT)).thenReturn(-200.);
-        when(flowResult.getFlow(mnec3, Side.RIGHT, Unit.MEGAWATT)).thenReturn(Double.NaN);
+        when(flowResult.getFlow(mnec1, Side.RIGHT, Unit.MEGAWATT, mnec1.getState().getInstant())).thenReturn(900.);
+        when(flowResult.getFlow(mnec2, Side.LEFT, Unit.MEGAWATT, mnec2.getState().getInstant())).thenReturn(-200.);
+        when(flowResult.getFlow(mnec3, Side.LEFT, Unit.MEGAWATT, mnec3.getState().getInstant())).thenReturn(-200.);
+        when(flowResult.getFlow(mnec3, Side.RIGHT, Unit.MEGAWATT, mnec3.getState().getInstant())).thenReturn(Double.NaN);
         when(sensitivityResult.getSensitivityStatus(crac.getState("N-1 NL1-NL3", crac.getInstant(InstantKind.CURATIVE)))).thenReturn(ComputationStatus.FAILURE);
         MnecFiller mnecFiller = new MnecFiller(
             flowResult,

@@ -225,8 +225,8 @@ public final class RaoUtil {
         }
 
         RangeAction<?> ra = flowCnecPstRangeActionMap.get(flowCnec);
-        double cnecMarginToUpperBound = flowCnec.getUpperBound(side, unit).orElse(Double.POSITIVE_INFINITY) - flowResult.getFlow(flowCnec, side, unit);
-        double cnecMarginToLowerBound = flowResult.getFlow(flowCnec, side, unit) - flowCnec.getLowerBound(side, unit).orElse(Double.NEGATIVE_INFINITY);
+        double cnecMarginToUpperBound = flowCnec.getUpperBound(side, unit).orElse(Double.POSITIVE_INFINITY) - flowResult.getFlow(flowCnec, side, unit, flowCnec.getState().getInstant());
+        double cnecMarginToLowerBound = flowResult.getFlow(flowCnec, side, unit, flowCnec.getState().getInstant()) - flowCnec.getLowerBound(side, unit).orElse(Double.NEGATIVE_INFINITY);
         if (cnecMarginToUpperBound >= 0 && cnecMarginToLowerBound >= 0) {
             return false;
         }

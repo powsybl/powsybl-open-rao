@@ -53,7 +53,7 @@ public class UnoptimizedRaoResultImpl implements RaoResult {
 
     @Override
     public double getFlow(Instant optimizedInstant, FlowCnec flowCnec, Side side, Unit unit) {
-        return initialResult.getFlow(flowCnec, side, unit);
+        return initialResult.getFlow(flowCnec, side, unit, flowCnec.getState().getInstant());
     }
 
     @Override

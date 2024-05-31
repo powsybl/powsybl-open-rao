@@ -10,6 +10,7 @@ package com.powsybl.openrao.searchtreerao.result.impl;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.contingency.Contingency;
+import com.powsybl.openrao.data.cracapi.Instant;
 import com.powsybl.openrao.data.cracapi.State;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
 import com.powsybl.openrao.data.cracapi.cnec.Side;
@@ -27,6 +28,7 @@ import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
@@ -36,6 +38,7 @@ class SkippedOptimizationResultImplTest {
 
     @Test
     void testBasicReturns() {
+        Instant instant = mock(Instant.class);
         FlowCnec flowCnec = mock(FlowCnec.class);
         Side side = mock(Side.class);
         Unit unit = mock(Unit.class);
@@ -43,6 +46,9 @@ class SkippedOptimizationResultImplTest {
         State state = mock(State.class);
         PstRangeAction pstRangeAction = mock(PstRangeAction.class);
         RangeAction rangeAction = mock(RangeAction.class);
+
+        when(state.getInstant()).thenReturn(instant);
+        when(flowCnec.getState()).thenReturn(state);
 
         SkippedOptimizationResultImpl skippedOptimizationResult = new SkippedOptimizationResultImpl(state, new HashSet<>(), new HashSet<>(), ComputationStatus.FAILURE, sensitivityFailureOverCost);
 
@@ -58,7 +64,7 @@ class SkippedOptimizationResultImplTest {
         assertEquals("sensitivity-failure-cost", skippedOptimizationResult.getVirtualCostNames().iterator().next());
         assertThrows(OpenRaoException.class, () -> skippedOptimizationResult.getSensitivityValue(flowCnec, side, rangeAction, unit));
         assertThrows(OpenRaoException.class, () -> skippedOptimizationResult.getSensitivityValue(flowCnec, side, sensitivityVariableSet, unit));
-        assertThrows(OpenRaoException.class, () -> skippedOptimizationResult.getFlow(flowCnec, side, unit));
+        assertThrows(OpenRaoException.class, () -> skippedOptimizationResult.getFlow(flowCnec, side, unit, flowCnec.getState().getInstant()));
         assertThrows(OpenRaoException.class, () -> skippedOptimizationResult.getCommercialFlow(flowCnec, side, unit));
         assertThrows(OpenRaoException.class, () -> skippedOptimizationResult.getPtdfZonalSum(flowCnec, side));
         assertThrows(OpenRaoException.class, () -> skippedOptimizationResult.getPtdfZonalSums());

@@ -7,6 +7,7 @@
 package com.powsybl.openrao.sensitivityanalysis.rasensihandler;
 
 import com.powsybl.openrao.commons.OpenRaoException;
+import com.powsybl.openrao.data.cracapi.Instant;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
 import com.powsybl.openrao.data.cracapi.cnec.Side;
 import com.powsybl.openrao.data.cracapi.rangeaction.InjectionRangeAction;
@@ -35,9 +36,9 @@ public class InjectionRangeActionSensiHandler implements RangeActionSensiHandler
     }
 
     @Override
-    public double getSensitivityOnFlow(FlowCnec cnec, Side side, SystematicSensitivityResult sensitivityResult) {
-        return sensitivityResult.getSensitivityOnFlow(getPositiveGlskMapId(), cnec, side) * getKeySum(getPositiveGlskMap())
-                - sensitivityResult.getSensitivityOnFlow(getNegativeGlskMapId(), cnec, side) * getKeySum(getNegativeGlskMap());
+    public double getSensitivityOnFlow(FlowCnec cnec, Side side, SystematicSensitivityResult sensitivityResult, Instant instant) {
+        return sensitivityResult.getSensitivityOnFlow(getPositiveGlskMapId(), cnec, side, instant) * getKeySum(getPositiveGlskMap())
+                - sensitivityResult.getSensitivityOnFlow(getNegativeGlskMapId(), cnec, side, instant) * getKeySum(getNegativeGlskMap());
     }
 
     @Override

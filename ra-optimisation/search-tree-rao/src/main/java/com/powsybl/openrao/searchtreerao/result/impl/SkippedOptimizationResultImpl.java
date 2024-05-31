@@ -76,11 +76,6 @@ public class SkippedOptimizationResultImpl implements OptimizationResult {
     }
 
     @Override
-    public double getFlow(FlowCnec flowCnec, Side side, Unit unit) {
-        throw new OpenRaoException(SHOULD_NOT_BE_USED);
-    }
-
-    @Override
     public double getFlow(FlowCnec flowCnec, Side side, Unit unit, Instant instant) {
         throw new OpenRaoException(SHOULD_NOT_BE_USED);
     }

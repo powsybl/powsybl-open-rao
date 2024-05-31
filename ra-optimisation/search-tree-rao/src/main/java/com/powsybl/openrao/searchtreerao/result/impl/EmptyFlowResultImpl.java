@@ -22,11 +22,6 @@ import java.util.Map;
 public class EmptyFlowResultImpl implements FlowResult {
 
     @Override
-    public double getFlow(FlowCnec flowCnec, Side side, Unit unit) {
-        return Double.NaN;
-    }
-
-    @Override
     public double getFlow(FlowCnec flowCnec, Side side, Unit unit, Instant instant) {
         return Double.NaN;
     }

@@ -237,7 +237,7 @@ public final class BestTapFinder {
             for (Side side : flowCnec.getMonitoredSides()) {
                 double sensitivity = linearOptimizationResult.getSensitivityValue(flowCnec, side, pstRangeAction, MEGAWATT);
                 double currentSetPoint = pstRangeAction.getCurrentSetpoint(network);
-                double referenceFlow = linearOptimizationResult.getFlow(flowCnec, side, unit) * RaoUtil.getFlowUnitMultiplier(flowCnec, side, unit, MEGAWATT);
+                double referenceFlow = linearOptimizationResult.getFlow(flowCnec, side, unit, flowCnec.getState().getInstant()) * RaoUtil.getFlowUnitMultiplier(flowCnec, side, unit, MEGAWATT);
 
                 double flow1 = sensitivity * (angle1 - currentSetPoint) + referenceFlow;
                 double flow2 = sensitivity * (angle2 - currentSetPoint) + referenceFlow;

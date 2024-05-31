@@ -61,7 +61,7 @@ public class SensitivityResultImpl implements SensitivityResult {
     @Override
     public double getSensitivityValue(FlowCnec flowCnec, Side side, RangeAction<?> rangeAction, Unit unit) {
         if (unit == Unit.MEGAWATT) {
-            return systematicSensitivityResult.getSensitivityOnFlow(rangeAction, flowCnec, side);
+            return systematicSensitivityResult.getSensitivityOnFlow(rangeAction, flowCnec, side, flowCnec.getState().getInstant());
         } else {
             throw new OpenRaoException(format("Unhandled unit for sensitivity value on range action : %s.", unit));
         }

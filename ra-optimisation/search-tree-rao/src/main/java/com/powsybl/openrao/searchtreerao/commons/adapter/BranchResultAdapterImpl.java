@@ -52,11 +52,6 @@ public final class BranchResultAdapterImpl implements BranchResultAdapter {
             ptdfs = new FlowResult() {
 
                 @Override
-                public double getFlow(FlowCnec flowCnec, Side side, Unit unit) {
-                    throw new NotImplementedException();
-                }
-
-                @Override
                 public double getFlow(FlowCnec flowCnec, Side side, Unit unit, Instant instant) {
                     throw new NotImplementedException();
                 }
@@ -92,10 +87,6 @@ public final class BranchResultAdapterImpl implements BranchResultAdapter {
                     network
             );
             commercialFlows = new FlowResult() {
-                @Override
-                public double getFlow(FlowCnec flowCnec, Side side, Unit unit) {
-                    throw new NotImplementedException();
-                }
 
                 @Override
                 public double getFlow(FlowCnec flowCnec, Side side, Unit unit, Instant instant) {

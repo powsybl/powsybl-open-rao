@@ -606,11 +606,11 @@ class PreventiveAndCurativesRaoResultImplTest {
 
     @Test
     void testGetLoopFlow() {
+        when(cnec3.getState()).thenReturn(curativeState2);
         when(initialResult.getLoopFlow(cnec1, LEFT, MEGAWATT)).thenReturn(10.);
         when(preCurativeResult.getLoopFlow(cnec2, RIGHT, AMPERE)).thenReturn(20.);
-        when(curativeResult2.getFlow(cnec3, RIGHT, MEGAWATT)).thenReturn(90.);
+        when(curativeResult2.getFlow(cnec3, RIGHT, MEGAWATT, cnec3.getState().getInstant())).thenReturn(90.);
         when(curativeResult2.getCommercialFlow(cnec3, RIGHT, MEGAWATT)).thenReturn(60.);
-        when(cnec3.getState()).thenReturn(curativeState2);
         assertEquals(10., output.getLoopFlow(null, cnec1, LEFT, MEGAWATT), DOUBLE_TOLERANCE);
         assertEquals(20., output.getLoopFlow(preventiveInstant, cnec2, RIGHT, AMPERE), DOUBLE_TOLERANCE);
         assertEquals(30., output.getLoopFlow(curativeInstant, cnec3, RIGHT, MEGAWATT), DOUBLE_TOLERANCE);

@@ -568,7 +568,7 @@ class SearchTreeTest {
         when(rootLeaf.getIdentifier()).thenReturn("leaf-id");
         when(rootLeaf.getMargin(cnec, Side.LEFT, Unit.MEGAWATT)).thenReturn(-135.);
         when(rootLeaf.getMargin(cnec, Side.RIGHT, Unit.MEGAWATT)).thenReturn(-134.);
-        when(rootLeaf.getFlow(cnec, Side.LEFT, Unit.MEGAWATT)).thenReturn(1135.);
+        when(rootLeaf.getFlow(cnec, Side.LEFT, Unit.MEGAWATT, cnec.getState().getInstant())).thenReturn(1135.);
     }
 
     @Test

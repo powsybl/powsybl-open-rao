@@ -140,7 +140,7 @@ public class CoreProblemFiller implements ProblemFiller {
     private void buildFlowConstraints(LinearProblem linearProblem, Set<FlowCnec> validFlowCnecs, FlowResult flowResult, SensitivityResult sensitivityResult) {
         validFlowCnecs.forEach(cnec -> cnec.getMonitoredSides().forEach(side -> {
             // create constraint
-            double referenceFlow = flowResult.getFlow(cnec, side, unit) * RaoUtil.getFlowUnitMultiplier(cnec, side, unit, Unit.MEGAWATT);
+            double referenceFlow = flowResult.getFlow(cnec, side, unit, cnec.getState().getInstant()) * RaoUtil.getFlowUnitMultiplier(cnec, side, unit, Unit.MEGAWATT);
             OpenRaoMPConstraint flowConstraint = linearProblem.addFlowConstraint(referenceFlow, referenceFlow, cnec, side);
 
             OpenRaoMPVariable flowVariable = linearProblem.getFlowVariable(cnec, side);
@@ -157,7 +157,7 @@ public class CoreProblemFiller implements ProblemFiller {
      */
     private void updateFlowConstraints(LinearProblem linearProblem, Set<FlowCnec> validFlowCnecs, FlowResult flowResult, SensitivityResult sensitivityResult, RangeActionActivationResult rangeActionActivationResult) {
         validFlowCnecs.forEach(cnec -> cnec.getMonitoredSides().forEach(side -> {
-            double referenceFlow = flowResult.getFlow(cnec, side, unit) * RaoUtil.getFlowUnitMultiplier(cnec, side, unit, Unit.MEGAWATT);
+            double referenceFlow = flowResult.getFlow(cnec, side, unit, cnec.getState().getInstant()) * RaoUtil.getFlowUnitMultiplier(cnec, side, unit, Unit.MEGAWATT);
             OpenRaoMPConstraint flowConstraint = linearProblem.getFlowConstraint(cnec, side);
 
             //reset bounds

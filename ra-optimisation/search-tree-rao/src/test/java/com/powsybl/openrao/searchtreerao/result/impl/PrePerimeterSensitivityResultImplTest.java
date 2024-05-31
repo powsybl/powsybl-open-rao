@@ -8,6 +8,8 @@
 package com.powsybl.openrao.searchtreerao.result.impl;
 
 import com.powsybl.openrao.commons.Unit;
+import com.powsybl.openrao.data.cracapi.Instant;
+import com.powsybl.openrao.data.cracapi.State;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
 import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.cracapi.rangeaction.RangeAction;
@@ -24,6 +26,7 @@ import java.util.Map;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static com.powsybl.openrao.data.cracapi.cnec.Side.LEFT;
 import static com.powsybl.openrao.data.cracapi.cnec.Side.RIGHT;
@@ -36,8 +39,14 @@ class PrePerimeterSensitivityResultImplTest {
 
     @Test
     void testBasicReturns() {
-        FlowCnec cnec1 = Mockito.mock(FlowCnec.class);
-        FlowCnec cnec2 = Mockito.mock(FlowCnec.class);
+        Instant instant = mock(Instant.class);
+        State state = mock(State.class);
+        when(state.getInstant()).thenReturn(instant);
+
+        FlowCnec cnec1 = mock(FlowCnec.class);
+        when(cnec1.getState()).thenReturn(state);
+        FlowCnec cnec2 = mock(FlowCnec.class);
+        when(cnec2.getState()).thenReturn(state);
 
         PstRangeAction ra1 = Mockito.mock(PstRangeAction.class);
         RangeAction<?> ra2 = Mockito.mock(RangeAction.class);
@@ -61,10 +70,10 @@ class PrePerimeterSensitivityResultImplTest {
         when(sensitivityResult.getSensitivityValue(cnec2, LEFT, linearGlsk, Unit.MEGAWATT)).thenReturn(51.);
         assertEquals(51., output.getSensitivityValue(cnec2, LEFT, linearGlsk, Unit.MEGAWATT), DOUBLE_TOLERANCE);
 
-        when(flowResult.getFlow(cnec1, RIGHT, Unit.MEGAWATT)).thenReturn(10.);
-        when(flowResult.getFlow(cnec2, LEFT, Unit.AMPERE)).thenReturn(117.);
-        assertEquals(10., output.getFlow(cnec1, RIGHT, Unit.MEGAWATT), DOUBLE_TOLERANCE);
-        assertEquals(117., output.getFlow(cnec2, LEFT, Unit.AMPERE), DOUBLE_TOLERANCE);
+        when(flowResult.getFlow(cnec1, RIGHT, Unit.MEGAWATT, cnec1.getState().getInstant())).thenReturn(10.);
+        when(flowResult.getFlow(cnec2, LEFT, Unit.AMPERE, cnec2.getState().getInstant())).thenReturn(117.);
+        assertEquals(10., output.getFlow(cnec1, RIGHT, Unit.MEGAWATT, cnec1.getState().getInstant()), DOUBLE_TOLERANCE);
+        assertEquals(117., output.getFlow(cnec2, LEFT, Unit.AMPERE, cnec2.getState().getInstant()), DOUBLE_TOLERANCE);
 
         when(flowResult.getRelativeMargin(cnec1, RIGHT, Unit.MEGAWATT)).thenReturn(564.);
         when(flowResult.getRelativeMargin(cnec2, LEFT, Unit.AMPERE)).thenReturn(-451.);
