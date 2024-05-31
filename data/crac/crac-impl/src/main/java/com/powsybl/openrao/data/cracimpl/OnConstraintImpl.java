@@ -10,16 +10,17 @@ package com.powsybl.openrao.data.cracimpl;
 import com.powsybl.openrao.data.cracapi.Instant;
 import com.powsybl.openrao.data.cracapi.State;
 import com.powsybl.openrao.data.cracapi.cnec.Cnec;
+import com.powsybl.openrao.data.cracapi.usagerule.OnConstraint;
 import com.powsybl.openrao.data.cracapi.usagerule.UsageMethod;
 
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
-public abstract class AbstractOnConstraintUsageRule<T extends Cnec<?>> extends AbstractUsageRule {
+public class OnConstraintImpl<T extends Cnec<?>> extends AbstractUsageRule implements OnConstraint<T> {
     protected Instant instant;
     protected T cnec;
 
-    protected AbstractOnConstraintUsageRule(UsageMethod usageMethod, Instant instant, T cnec) {
+    protected OnConstraintImpl(UsageMethod usageMethod, Instant instant, T cnec) {
         super(usageMethod);
         this.instant = instant;
         this.cnec = cnec;
@@ -51,7 +52,7 @@ public abstract class AbstractOnConstraintUsageRule<T extends Cnec<?>> extends A
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        AbstractOnConstraintUsageRule<?> rule = (AbstractOnConstraintUsageRule<?>) o;
+        OnConstraintImpl<?> rule = (OnConstraintImpl<?>) o;
         return super.equals(o) && rule.getInstant().equals(instant) && rule.getCnec().equals(cnec);
     }
 
