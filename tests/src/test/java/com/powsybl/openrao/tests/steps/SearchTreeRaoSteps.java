@@ -16,7 +16,7 @@ import com.powsybl.openrao.data.cracapi.InstantKind;
 import com.powsybl.openrao.data.cracapi.State;
 import com.powsybl.openrao.data.cracapi.cnec.Cnec;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
-import com.powsybl.openrao.data.cracapi.cnec.Side;
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.cracapi.networkaction.NetworkAction;
 import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.cracapi.rangeaction.RangeAction;
@@ -452,25 +452,25 @@ public class SearchTreeRaoSteps {
     // TODO : add steps to check flows on both sides
     @Then("the initial flow on cnec {string} should be {double} A")
     public void initialFlowInA(String cnecId, Double expectedFlow) {
-        Side side = crac.getFlowCnec(cnecId).getMonitoredSides().iterator().next();
+        TwoSides side = crac.getFlowCnec(cnecId).getMonitoredSides().iterator().next();
         assertEquals(expectedFlow, raoResult.getFlow(null, crac.getFlowCnec(cnecId), side, Unit.AMPERE), flowAmpereTolerance(expectedFlow));
     }
 
     @Then("the flow on cnec {string} after PRA should be {double} A")
     public void afterPraFlowInA(String cnecId, Double expectedFlow) {
-        Side side = crac.getFlowCnec(cnecId).getMonitoredSides().iterator().next();
+        TwoSides side = crac.getFlowCnec(cnecId).getMonitoredSides().iterator().next();
         assertEquals(expectedFlow, raoResult.getFlow(crac.getPreventiveInstant(), crac.getFlowCnec(cnecId), side, Unit.AMPERE), flowAmpereTolerance(expectedFlow));
     }
 
     @Then("the flow on cnec {string} after ARA should be {double} A")
     public void afterAraFlowInA(String cnecId, Double expectedFlow) {
-        Side side = crac.getFlowCnec(cnecId).getMonitoredSides().iterator().next();
+        TwoSides side = crac.getFlowCnec(cnecId).getMonitoredSides().iterator().next();
         assertEquals(expectedFlow, raoResult.getFlow(crac.getInstant(InstantKind.AUTO), crac.getFlowCnec(cnecId), side, Unit.AMPERE), flowAmpereTolerance(expectedFlow));
     }
 
     @Then("the flow on cnec {string} after CRA should be {double} A")
     public void afterCraFlowInA(String cnecId, Double expectedFlow) {
-        Side side = crac.getFlowCnec(cnecId).getMonitoredSides().iterator().next();
+        TwoSides side = crac.getFlowCnec(cnecId).getMonitoredSides().iterator().next();
         assertEquals(expectedFlow, raoResult.getFlow(crac.getInstant(InstantKind.CURATIVE), crac.getFlowCnec(cnecId), side, Unit.AMPERE), flowAmpereTolerance(expectedFlow));
     }
 
@@ -480,32 +480,32 @@ public class SearchTreeRaoSteps {
 
     @Then("the initial flow on cnec {string} should be {double} MW")
     public void initialFlowInMW(String cnecId, Double expectedFlow) {
-        Side side = crac.getFlowCnec(cnecId).getMonitoredSides().iterator().next();
+        TwoSides side = crac.getFlowCnec(cnecId).getMonitoredSides().iterator().next();
         assertEquals(expectedFlow, raoResult.getFlow(null, crac.getFlowCnec(cnecId), side, Unit.MEGAWATT), flowMegawattTolerance(expectedFlow));
     }
 
     @Then("the flow on cnec {string} after PRA should be {double} MW")
     public void afterPraFlowInMW(String cnecId, Double expectedFlow) {
-        Side side = crac.getFlowCnec(cnecId).getMonitoredSides().iterator().next();
+        TwoSides side = crac.getFlowCnec(cnecId).getMonitoredSides().iterator().next();
         assertEquals(expectedFlow, raoResult.getFlow(crac.getPreventiveInstant(), crac.getFlowCnec(cnecId), side, Unit.MEGAWATT), flowMegawattTolerance(expectedFlow));
     }
 
     @Then("the flow on cnec {string} after ARA should be {double} MW")
     public void afterAraFlowInMW(String cnecId, Double expectedFlow) {
-        Side side = crac.getFlowCnec(cnecId).getMonitoredSides().iterator().next();
+        TwoSides side = crac.getFlowCnec(cnecId).getMonitoredSides().iterator().next();
         assertEquals(expectedFlow, raoResult.getFlow(crac.getInstant(InstantKind.AUTO), crac.getFlowCnec(cnecId), side, Unit.MEGAWATT), flowMegawattTolerance(expectedFlow));
     }
 
     @Then("the flow on cnec {string} after CRA should be {double} MW")
     public void afterCraFlowInMW(String cnecId, Double expectedFlow) {
-        Side side = crac.getFlowCnec(cnecId).getMonitoredSides().iterator().next();
+        TwoSides side = crac.getFlowCnec(cnecId).getMonitoredSides().iterator().next();
         Instant lastCurativeInstant = crac.getInstants(InstantKind.CURATIVE).stream().sorted(Comparator.comparingInt(instant -> -instant.getOrder())).toList().get(0);
         assertEquals(expectedFlow, raoResult.getFlow(lastCurativeInstant, crac.getFlowCnec(cnecId), side, Unit.MEGAWATT), flowMegawattTolerance(expectedFlow));
     }
 
     @Then("the flow on cnec {string} after {string} instant remedial actions should be {double} MW")
     public void afterInstantFlowInMW(String cnecId, String instantId, Double expectedFlow) {
-        Side side = crac.getFlowCnec(cnecId).getMonitoredSides().iterator().next();
+        TwoSides side = crac.getFlowCnec(cnecId).getMonitoredSides().iterator().next();
         Instant instant = crac.getInstant(instantId);
         assertEquals(expectedFlow, raoResult.getFlow(instant, crac.getFlowCnec(cnecId), side, Unit.MEGAWATT), flowMegawattTolerance(expectedFlow));
     }
@@ -519,7 +519,7 @@ public class SearchTreeRaoSteps {
         if (cnec.getMonitoredSides().size() != 1) {
             throw new OpenRaoException("Cannot chose side");
         }
-        Side side = cnec.getMonitoredSides().iterator().next();
+        TwoSides side = cnec.getMonitoredSides().iterator().next();
         Double bound = null;
         if (upperOrLower.equalsIgnoreCase("upper")) {
             bound = crac.getFlowCnec(cnecId).getUpperBound(side, unit).orElseThrow();

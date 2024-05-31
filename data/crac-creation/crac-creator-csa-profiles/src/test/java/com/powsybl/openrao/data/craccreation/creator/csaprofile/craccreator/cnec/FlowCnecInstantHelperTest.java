@@ -94,7 +94,7 @@ class FlowCnecInstantHelperTest {
     void getAllTatlDurationsOnSide() {
         Branch<?> branch = Mockito.mock(Branch.class);
 
-        // No TATL on LEFT side / TATLs on RIGHT side
+        // No TATL on side ONE / TATLs on side TWO
         CurrentLimits currentLimitsRight = Mockito.mock(CurrentLimits.class);
         Mockito.when(currentLimitsRight.getTemporaryLimits()).thenReturn(mockBranchTatls(true, true, true, true, true, true));
         Mockito.when(branch.getCurrentLimits(TwoSides.ONE)).thenReturn(Optional.empty());

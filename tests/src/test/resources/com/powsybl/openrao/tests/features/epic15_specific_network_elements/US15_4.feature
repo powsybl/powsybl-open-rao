@@ -16,10 +16,10 @@ Feature: US 15.4: Consider two margins on tie-lines for each half-line with rela
       | Cnec BE-FR Left | BBE2AA1  X_BEFR1  1 + FFR3AA1  X_BEFR1  1 | outage     | N-1 DE-NL   | yes       | no        | 5000.0   | 5000.0    | 400.0              | 400.0               |
     And the flow cnecs should have the following thresholds:
       | CnecId                                                         | Unit   | Min   | Max  | Side  |
-      | BBE2AA1  X_BEFR1  1 + FFR3AA1  X_BEFR1  1 - preventive         | AMPERE | -1500 | 1500 | LEFT  |
-      | BBE2AA1  X_BEFR1  1 + FFR3AA1  X_BEFR1  1 - preventive         | AMPERE | -500  | 500  | RIGHT |
-      | BBE2AA1  X_BEFR1  1 + FFR3AA1  X_BEFR1  1 - N-1 DE-NL - outage | AMPERE | -1500 | 1500 | LEFT  |
-      | BBE2AA1  X_BEFR1  1 + FFR3AA1  X_BEFR1  1 - N-1 DE-NL - outage | AMPERE | -500  | 500  | RIGHT |
+      | BBE2AA1  X_BEFR1  1 + FFR3AA1  X_BEFR1  1 - preventive         | AMPERE | -1500 | 1500 | ONE  |
+      | BBE2AA1  X_BEFR1  1 + FFR3AA1  X_BEFR1  1 - preventive         | AMPERE | -500  | 500  | TWO |
+      | BBE2AA1  X_BEFR1  1 + FFR3AA1  X_BEFR1  1 - N-1 DE-NL - outage | AMPERE | -1500 | 1500 | ONE  |
+      | BBE2AA1  X_BEFR1  1 + FFR3AA1  X_BEFR1  1 - N-1 DE-NL - outage | AMPERE | -500  | 500  | TWO |
     And it should have the following PST range actions:
       | PstRangeActionId | PstRangeActionName | NetworkElementId    | InitialTap | MinTap | MaxTap | MinTapAngle | MaxTapAngle |
       | PST_BE           | PST_BE             | BBE2AA1  BBE3AA1  1 | 0          | -16    | 16     | -6.23       | 6.23        |

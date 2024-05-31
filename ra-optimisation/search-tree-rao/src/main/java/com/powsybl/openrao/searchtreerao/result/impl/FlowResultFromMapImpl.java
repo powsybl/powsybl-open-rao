@@ -10,7 +10,7 @@ package com.powsybl.openrao.searchtreerao.result.impl;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
-import com.powsybl.openrao.data.cracapi.cnec.Side;
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.searchtreerao.commons.RaoUtil;
 import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
 import com.powsybl.openrao.sensitivityanalysis.SystematicSensitivityResult;
@@ -24,19 +24,19 @@ import static java.lang.String.format;
  */
 public class FlowResultFromMapImpl implements FlowResult {
     protected final SystematicSensitivityResult systematicSensitivityResult;
-    private final Map<FlowCnec, Map<Side, Double>> commercialFlows;
-    private final Map<FlowCnec, Map<Side, Double>> ptdfZonalSums;
+    private final Map<FlowCnec, Map<TwoSides, Double>> commercialFlows;
+    private final Map<FlowCnec, Map<TwoSides, Double>> ptdfZonalSums;
 
     public FlowResultFromMapImpl(SystematicSensitivityResult systematicSensitivityResult,
-                                 Map<FlowCnec, Map<Side, Double>> commercialFlows,
-                                 Map<FlowCnec, Map<Side, Double>> ptdfZonalSums) {
+                                 Map<FlowCnec, Map<TwoSides, Double>> commercialFlows,
+                                 Map<FlowCnec, Map<TwoSides, Double>> ptdfZonalSums) {
         this.systematicSensitivityResult = systematicSensitivityResult;
         this.commercialFlows = commercialFlows;
         this.ptdfZonalSums = ptdfZonalSums;
     }
 
     @Override
-    public double getFlow(FlowCnec flowCnec, Side side, Unit unit) {
+    public double getFlow(FlowCnec flowCnec, TwoSides side, Unit unit) {
         if (unit == Unit.MEGAWATT) {
             return systematicSensitivityResult.getReferenceFlow(flowCnec, side);
         } else if (unit == Unit.AMPERE) {
@@ -52,7 +52,7 @@ public class FlowResultFromMapImpl implements FlowResult {
     }
 
     @Override
-    public double getCommercialFlow(FlowCnec flowCnec, Side side, Unit unit) {
+    public double getCommercialFlow(FlowCnec flowCnec, TwoSides side, Unit unit) {
         if (unit != Unit.MEGAWATT) {
             throw new OpenRaoException("Commercial flows only in MW.");
         }
@@ -63,7 +63,7 @@ public class FlowResultFromMapImpl implements FlowResult {
     }
 
     @Override
-    public double getPtdfZonalSum(FlowCnec flowCnec, Side side) {
+    public double getPtdfZonalSum(FlowCnec flowCnec, TwoSides side) {
         if (!ptdfZonalSums.containsKey(flowCnec) || !ptdfZonalSums.get(flowCnec).containsKey(side)) {
             throw new OpenRaoException(format("No PTDF computed on the CNEC %s on side %s", flowCnec.getName(), side));
         }
@@ -71,7 +71,7 @@ public class FlowResultFromMapImpl implements FlowResult {
     }
 
     @Override
-    public Map<FlowCnec, Map<Side, Double>> getPtdfZonalSums() {
+    public Map<FlowCnec, Map<TwoSides, Double>> getPtdfZonalSums() {
         return ptdfZonalSums;
     }
 }

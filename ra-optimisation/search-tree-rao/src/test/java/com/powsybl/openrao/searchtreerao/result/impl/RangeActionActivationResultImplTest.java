@@ -11,7 +11,7 @@ import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.cracapi.Instant;
 import com.powsybl.openrao.data.cracapi.State;
-import com.powsybl.openrao.data.cracapi.cnec.Side;
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.cracapi.usagerule.UsageMethod;
 import com.powsybl.openrao.data.cracimpl.utils.CommonCracCreation;
@@ -53,7 +53,7 @@ class RangeActionActivationResultImplTest {
             .withNetworkElement("BBE2AA1  FFR3AA1  1")
             .withInstant(OUTAGE_INSTANT_ID)
             .withContingency("Contingency FR1 FR3")
-            .newThreshold().withUnit(Unit.MEGAWATT).withSide(Side.LEFT).withMin(-1500.).withMax(1500.).add()
+            .newThreshold().withUnit(Unit.MEGAWATT).withSide(TwoSides.ONE).withMin(-1500.).withMax(1500.).add()
             .add();
 
         pState = crac.getPreventiveState();

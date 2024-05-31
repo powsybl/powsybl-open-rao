@@ -181,7 +181,7 @@ crac.newFlowCnec()
        .withMin(-410d)
        .withMax(+410d)
        .withUnit(Unit.MEGAWATT)
-       .withSide(Side.LEFT)
+       .withSide(TwoSides.ONE)
        .add()
     .add();
 ```
@@ -200,7 +200,7 @@ crac.newFlowCnec()
         .withMin(-1000d)
         .withMax(+1000d)
         .withUnit(Unit.MEGAWATT)
-        .withSide(Side.LEFT)
+        .withSide(TwoSides.ONE)
         .add()
     .add();
 ```
@@ -218,7 +218,7 @@ crac.newFlowCnec()
         .withMin(-410d)
         .withMax(+410d)
         .withUnit(Unit.MEGAWATT)
-        .withSide(Side.LEFT)
+        .withSide(TwoSides.ONE)
         .add()
     .add();
 ```
@@ -446,7 +446,7 @@ import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.cracapi.CracFactory;
 import com.powsybl.openrao.data.cracapi.InstantKind;
-import com.powsybl.openrao.data.cracapi.cnec.Side;
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.cracapi.networkaction.ActionType;
 import com.powsybl.openrao.data.cracapi.range.RangeType;
 import com.powsybl.openrao.data.cracapi.usagerule.UsageMethod;
@@ -491,7 +491,7 @@ public class Main {
             .withMin(-410d)
             .withMax(+410d)
             .withUnit(Unit.MEGAWATT)
-            .withSide(Side.LEFT)
+            .withSide(TwoSides.ONE)
             .add()
             .add();
 
@@ -505,7 +505,7 @@ public class Main {
             .withMin(-1000d)
             .withMax(+1000d)
             .withUnit(Unit.MEGAWATT)
-            .withSide(Side.LEFT)
+            .withSide(TwoSides.ONE)
             .add()
             .add();
 
@@ -519,7 +519,7 @@ public class Main {
             .withMin(-410d)
             .withMax(+410d)
             .withUnit(Unit.MEGAWATT)
-            .withSide(Side.LEFT)
+            .withSide(TwoSides.ONE)
             .add()
             .add();
 

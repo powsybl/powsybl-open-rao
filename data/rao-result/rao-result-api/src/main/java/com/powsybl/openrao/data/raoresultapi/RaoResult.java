@@ -16,7 +16,7 @@ import com.powsybl.openrao.data.cracapi.RemedialAction;
 import com.powsybl.openrao.data.cracapi.State;
 import com.powsybl.openrao.data.cracapi.cnec.AngleCnec;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
-import com.powsybl.openrao.data.cracapi.cnec.Side;
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.cracapi.cnec.VoltageCnec;
 import com.powsybl.openrao.data.cracapi.networkaction.NetworkAction;
 import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeAction;
@@ -55,7 +55,7 @@ public interface RaoResult {
      * @param unit:             The unit in which the flow is queried. Only accepted values are MEGAWATT or AMPERE.
      * @return The flow on the branch at the optimization state in the given unit.
      */
-    double getFlow(Instant optimizedInstant, FlowCnec flowCnec, Side side, Unit unit);
+    double getFlow(Instant optimizedInstant, FlowCnec flowCnec, TwoSides side, Unit unit);
 
     /**
      * It gives the angle on an {@link AngleCnec} at a given {@link Instant} and in a
@@ -148,7 +148,7 @@ public interface RaoResult {
      * @param unit:             The unit in which the commercial flow is queried. Only accepted values are MEGAWATT or AMPERE.
      * @return The commercial flow on the branch at the optimization state in the given unit.
      */
-    double getCommercialFlow(Instant optimizedInstant, FlowCnec flowCnec, Side side, Unit unit);
+    double getCommercialFlow(Instant optimizedInstant, FlowCnec flowCnec, TwoSides side, Unit unit);
 
     /**
      * It gives the value of loop flow (according to CORE D-2 CC methodology) on a {@link FlowCnec} at a given
@@ -160,7 +160,7 @@ public interface RaoResult {
      * @param unit:             The unit in which the loop flow is queried. Only accepted values are MEGAWATT or AMPERE.
      * @return The loop flow on the branch at the optimization state in the given unit.
      */
-    double getLoopFlow(Instant optimizedInstant, FlowCnec flowCnec, Side side, Unit unit);
+    double getLoopFlow(Instant optimizedInstant, FlowCnec flowCnec, TwoSides side, Unit unit);
 
     /**
      * It gives the sum of the computation areas' zonal PTDFs on a {@link FlowCnec} at a given
@@ -171,7 +171,7 @@ public interface RaoResult {
      * @param flowCnec:         The branch to be studied.
      * @return The sum of the computation areas' zonal PTDFs on the branch at the optimization state.
      */
-    double getPtdfZonalSum(Instant optimizedInstant, FlowCnec flowCnec, Side side);
+    double getPtdfZonalSum(Instant optimizedInstant, FlowCnec flowCnec, TwoSides side);
 
     /**
      * It gives the global cost of the situation at a given {@link Instant} according to the objective

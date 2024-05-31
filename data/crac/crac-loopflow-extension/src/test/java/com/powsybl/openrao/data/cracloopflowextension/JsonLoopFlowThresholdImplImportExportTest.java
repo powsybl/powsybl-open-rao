@@ -11,7 +11,7 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.cracapi.InstantKind;
-import com.powsybl.openrao.data.cracapi.cnec.Side;
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.cracimpl.CracImplFactory;
 import com.powsybl.openrao.data.cracioapi.CracExporters;
 import com.powsybl.openrao.data.cracioapi.CracImporters;
@@ -39,7 +39,7 @@ class JsonLoopFlowThresholdImplImportExportTest {
                 .withId("cnec1")
                 .withNetworkElement("ne1")
                 .withInstant(PREVENTIVE_INSTANT_ID)
-                .newThreshold().withSide(Side.LEFT).withUnit(Unit.AMPERE).withMin(-500.).add()
+                .newThreshold().withSide(TwoSides.ONE).withUnit(Unit.AMPERE).withMin(-500.).add()
                 .withNominalVoltage(380.)
                 .add()
                 .newExtension(LoopFlowThresholdAdder.class).withValue(100).withUnit(Unit.AMPERE).add();
@@ -48,7 +48,7 @@ class JsonLoopFlowThresholdImplImportExportTest {
                 .withId("cnec2")
                 .withNetworkElement("ne2")
                 .withInstant(PREVENTIVE_INSTANT_ID)
-                .newThreshold().withSide(Side.LEFT).withUnit(Unit.PERCENT_IMAX).withMin(-0.3).add()
+                .newThreshold().withSide(TwoSides.ONE).withUnit(Unit.PERCENT_IMAX).withMin(-0.3).add()
                 .withNominalVoltage(380.)
                 .withIMax(5000.)
                 .add()
@@ -58,7 +58,7 @@ class JsonLoopFlowThresholdImplImportExportTest {
                 .withId("cnec3")
                 .withNetworkElement("ne3")
                 .withInstant(PREVENTIVE_INSTANT_ID)
-                .newThreshold().withSide(Side.LEFT).withUnit(Unit.MEGAWATT).withMin(-700.).withMax(700.).add()
+                .newThreshold().withSide(TwoSides.ONE).withUnit(Unit.MEGAWATT).withMin(-700.).withMax(700.).add()
                 .add();
 
         // export Crac
