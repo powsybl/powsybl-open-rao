@@ -58,17 +58,21 @@ public final class PstRangeActionArrayDeserializer {
                     case ON_STATE_USAGE_RULES:
                         deserializeOnStateUsageRules(jsonParser, version, pstRangeActionAdder);
                         break;
+                    case ON_CONSTRAINT_USAGE_RULES:
+                        jsonParser.nextToken();
+                        OnConstraintArrayDeserializer.deserialize(jsonParser, pstRangeActionAdder, version);
+                        break;
                     case ON_FLOW_CONSTRAINT_USAGE_RULES:
                         jsonParser.nextToken();
-                        OnFlowConstraintArrayDeserializer.deserialize(jsonParser, pstRangeActionAdder, version);
+                        deserializeOlderOnConstraintUsageRules(jsonParser, ON_FLOW_CONSTRAINT_USAGE_RULES, version, pstRangeActionAdder);
                         break;
                     case ON_ANGLE_CONSTRAINT_USAGE_RULES:
                         jsonParser.nextToken();
-                        OnAngleConstraintArrayDeserializer.deserialize(jsonParser, pstRangeActionAdder, version);
+                        deserializeOlderOnConstraintUsageRules(jsonParser, ON_ANGLE_CONSTRAINT_USAGE_RULES, version, pstRangeActionAdder);
                         break;
                     case ON_VOLTAGE_CONSTRAINT_USAGE_RULES:
                         jsonParser.nextToken();
-                        OnVoltageConstraintArrayDeserializer.deserialize(jsonParser, pstRangeActionAdder, version);
+                        deserializeOlderOnConstraintUsageRules(jsonParser, ON_VOLTAGE_CONSTRAINT_USAGE_RULES, version, pstRangeActionAdder);
                         break;
                     case ON_FLOW_CONSTRAINT_IN_COUNTRY_USAGE_RULES:
                         jsonParser.nextToken();
@@ -143,5 +147,13 @@ public final class PstRangeActionArrayDeserializer {
             }
         });
         return map;
+    }
+
+    private static void deserializeOlderOnConstraintUsageRules(JsonParser jsonParser, String keyword, String version, PstRangeActionAdder pstRangeActionAdder) throws IOException {
+        if (getPrimaryVersionNumber(version) < 2 || getPrimaryVersionNumber(version) == 2 && getSubVersionNumber(version) < 4) {
+            OnConstraintArrayDeserializer.deserialize(jsonParser, pstRangeActionAdder, version);
+        } else {
+            throw new OpenRaoException("Unsupported field %s in CRAC version >= 2.4".formatted(keyword));
+        }
     }
 }

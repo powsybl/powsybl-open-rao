@@ -635,10 +635,10 @@ public class CracImportSteps {
                     FlowCnec flowCnec = crac.getFlowCnec(expectedUsageRule.get("FlowCnecId"));
                     assertNotNull(flowCnec);
                     assertTrue(remedialAction.getUsageRules().stream().anyMatch(usageRule ->
-                        usageRule instanceof OnFlowConstraint onFlowConstraint
+                        usageRule instanceof OnConstraint<?> onFlowConstraint
                             && onFlowConstraint.getUsageMethod().equals(usageMethod)
                             && onFlowConstraint.getInstant().equals(instant)
-                            && onFlowConstraint.getFlowCnec().equals(flowCnec)
+                            && onFlowConstraint.getCnec().equals(flowCnec)
                     ));
                     break;
                 case "OnFlowConstraintInCountry":
@@ -656,10 +656,10 @@ public class CracImportSteps {
                     AngleCnec angleCnec = crac.getAngleCnec(expectedUsageRule.get("AngleCnecId"));
                     assertNotNull(angleCnec);
                     assertTrue(remedialAction.getUsageRules().stream().anyMatch(usageRule ->
-                        usageRule instanceof OnAngleConstraint onAngleConstraint
+                        usageRule instanceof OnConstraint<?> onAngleConstraint
                             && onAngleConstraint.getUsageMethod().equals(usageMethod)
                             && onAngleConstraint.getInstant().equals(instant)
-                            && onAngleConstraint.getAngleCnec().equals(angleCnec)
+                            && onAngleConstraint.getCnec().equals(angleCnec)
                     ));
                     break;
                 default:
