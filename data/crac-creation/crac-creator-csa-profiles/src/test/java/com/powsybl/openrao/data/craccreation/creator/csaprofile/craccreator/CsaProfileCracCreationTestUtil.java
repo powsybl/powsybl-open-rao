@@ -9,6 +9,7 @@ import com.powsybl.contingency.Contingency;
 import com.powsybl.openrao.data.cracapi.Instant;
 import com.powsybl.openrao.data.cracapi.NetworkElement;
 import com.powsybl.openrao.data.cracapi.cnec.AngleCnec;
+import com.powsybl.openrao.data.cracapi.cnec.Cnec;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
 import com.powsybl.openrao.data.cracapi.cnec.Side;
 import com.powsybl.openrao.data.cracapi.cnec.VoltageCnec;
@@ -180,32 +181,16 @@ public final class CsaProfileCracCreationTestUtil {
         assertHasOnContingencyStateUsageRule(cracCreationContext, raId, contingencyId, cracCreationContext.getCrac().getInstant(instant), usageMethod);
     }
 
-    public static void assertHasOnFlowConstraintUsageRule(CsaProfileCracCreationContext cracCreationContext, String raId, String flowCnecId, Instant instant, UsageMethod usageMethod) {
+    public static void assertHasOnConstraintUsageRule(CsaProfileCracCreationContext cracCreationContext, String raId, String cnecId, Instant instant, UsageMethod usageMethod, Class<? extends Cnec<?>> cnecType) {
         assertTrue(
-            cracCreationContext.getCrac().getRemedialAction(raId).getUsageRules().stream().filter(OnFlowConstraint.class::isInstance)
-                .map(OnFlowConstraint.class::cast)
-                .anyMatch(ur -> ur.getFlowCnec().getId().equals(flowCnecId) && ur.getInstant().equals(instant) && ur.getUsageMethod().equals(usageMethod))
+            cracCreationContext.getCrac().getRemedialAction(raId).getUsageRules().stream().filter(OnConstraint.class::isInstance)
+                .map(OnConstraint.class::cast)
+                .anyMatch(ur -> ur.getCnec().getId().equals(cnecId) && cnecType.isInstance(ur.getCnec()) && ur.getInstant().equals(instant) && ur.getUsageMethod().equals(usageMethod))
         );
     }
 
-    public static void assertHasOnFlowConstraintUsageRule(CsaProfileCracCreationContext cracCreationContext, String raId, String flowCnecId, String instant, UsageMethod usageMethod) {
-        assertHasOnFlowConstraintUsageRule(cracCreationContext, raId, flowCnecId, cracCreationContext.getCrac().getInstant(instant), usageMethod);
-    }
-
-    public static void assertHasOnAngleConstraintUsageRule(CsaProfileCracCreationContext cracCreationContext, String raId, String angleCnecId, Instant instant, UsageMethod usageMethod) {
-        assertTrue(
-            cracCreationContext.getCrac().getRemedialAction(raId).getUsageRules().stream().filter(OnAngleConstraint.class::isInstance)
-                .map(OnAngleConstraint.class::cast)
-                .anyMatch(ur -> ur.getAngleCnec().getId().equals(angleCnecId) && ur.getInstant().equals(instant) && ur.getUsageMethod().equals(usageMethod))
-        );
-    }
-
-    public static void assertHasOnVoltageConstraintUsageRule(CsaProfileCracCreationContext cracCreationContext, String raId, String voltageCnecId, Instant instant, UsageMethod usageMethod) {
-        assertTrue(
-            cracCreationContext.getCrac().getRemedialAction(raId).getUsageRules().stream().filter(OnVoltageConstraint.class::isInstance)
-                .map(OnVoltageConstraint.class::cast)
-                .anyMatch(ur -> ur.getVoltageCnec().getId().equals(voltageCnecId) && ur.getInstant().equals(instant) && ur.getUsageMethod().equals(usageMethod))
-        );
+    public static void assertHasOnConstraintUsageRule(CsaProfileCracCreationContext cracCreationContext, String raId, String flowCnecId, String instant, UsageMethod usageMethod, Class<? extends Cnec<?>> cnecType) {
+        assertHasOnConstraintUsageRule(cracCreationContext, raId, flowCnecId, cracCreationContext.getCrac().getInstant(instant), usageMethod, cnecType);
     }
 
     public static void assertRaNotImported(CsaProfileCracCreationContext cracCreationContext, String raId, ImportStatus importStatus, String importStatusDetail) {

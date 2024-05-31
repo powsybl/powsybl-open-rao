@@ -12,6 +12,7 @@ import com.powsybl.openrao.data.cracapi.Instant;
 import com.powsybl.openrao.data.cracapi.NetworkElement;
 import com.powsybl.openrao.data.cracapi.RaUsageLimits;
 import com.powsybl.openrao.data.cracapi.cnec.AngleCnec;
+import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
 import com.powsybl.openrao.data.cracapi.cnec.Side;
 import com.powsybl.openrao.data.cracapi.cnec.VoltageCnec;
 import com.powsybl.openrao.data.cracapi.networkaction.InjectionSetpoint;
@@ -230,9 +231,10 @@ class CracImportExportTest {
         assertEquals(1, crac.getNetworkAction("injectionSetpointRaId").getUsageRules().size());
         UsageRule injectionSetpointRaUsageRule = crac.getNetworkAction("injectionSetpointRaId").getUsageRules().iterator().next();
 
-        assertTrue(injectionSetpointRaUsageRule instanceof OnFlowConstraint);
-        OnFlowConstraint onFlowConstraint1 = (OnFlowConstraint) injectionSetpointRaUsageRule;
-        assertEquals("cnec3autoId", onFlowConstraint1.getFlowCnec().getId());
+        assertTrue(injectionSetpointRaUsageRule instanceof OnConstraint<?>);
+        OnConstraint<?> onFlowConstraint1 = (OnConstraint<?>) injectionSetpointRaUsageRule;
+        assertEquals("cnec3autoId", onFlowConstraint1.getCnec().getId());
+        assertTrue(onFlowConstraint1.getCnec() instanceof FlowCnec);
         assertEquals(autoInstant, onFlowConstraint1.getInstant());
         assertEquals(FORCED, onFlowConstraint1.getUsageMethod());
 
@@ -290,10 +292,11 @@ class CracImportExportTest {
         assertEquals(1, crac.getPstRangeAction("pstRange2Id").getUsageRules().size());
         UsageRule pstRange2UsageRule = crac.getPstRangeAction("pstRange2Id").getUsageRules().iterator().next();
 
-        assertTrue(pstRange2UsageRule instanceof OnFlowConstraint);
-        OnFlowConstraint onFlowConstraint2 = (OnFlowConstraint) pstRange2UsageRule;
+        assertTrue(pstRange2UsageRule instanceof OnConstraint<?>);
+        OnConstraint<?> onFlowConstraint2 = (OnConstraint<?>) pstRange2UsageRule;
         assertEquals(preventiveInstant, onFlowConstraint2.getInstant());
-        assertSame(crac.getCnec("cnec3prevId"), onFlowConstraint2.getFlowCnec());
+        assertSame(crac.getCnec("cnec3prevId"), onFlowConstraint2.getCnec());
+        assertTrue(onFlowConstraint2.getCnec() instanceof FlowCnec);
         assertEquals(AVAILABLE, onFlowConstraint2.getUsageMethod());
 
         // check Tap Range
@@ -325,27 +328,29 @@ class CracImportExportTest {
         assertEquals(1, crac.getPstRangeAction("pstRange3Id").getUsageRules().size());
         UsageRule pstRange3UsageRule = crac.getPstRangeAction("pstRange3Id").getUsageRules().iterator().next();
 
-        assertTrue(pstRange3UsageRule instanceof OnAngleConstraint);
-        OnAngleConstraint onAngleConstraint = (OnAngleConstraint) pstRange3UsageRule;
-        assertEquals(curativeInstant, onAngleConstraint.getInstant());
-        assertSame(crac.getCnec("angleCnecId"), onAngleConstraint.getAngleCnec());
-        assertEquals(AVAILABLE, onAngleConstraint.getUsageMethod());
+        assertTrue(pstRange3UsageRule instanceof OnConstraint<?>);
+        OnConstraint<?> onConstraint = (OnConstraint<?>) pstRange3UsageRule;
+        assertEquals(curativeInstant, onConstraint.getInstant());
+        assertSame(crac.getCnec("angleCnecId"), onConstraint.getCnec());
+        assertTrue(onConstraint.getCnec() instanceof AngleCnec);
+        assertEquals(AVAILABLE, onConstraint.getUsageMethod());
 
         // check OnVoltageConstraint usage rule
         Set<UsageRule> pstRange4IdUsageRules = crac.getPstRangeAction("pstRange4Id").getUsageRules();
         assertEquals(1, pstRange4IdUsageRules.size());
         UsageRule pstRange4IdFirstUsageRules = pstRange4IdUsageRules.iterator().next();
-        assertTrue(pstRange4IdFirstUsageRules instanceof OnVoltageConstraint);
-        OnVoltageConstraint onVoltageConstraint = (OnVoltageConstraint) pstRange4IdFirstUsageRules;
+        assertTrue(pstRange4IdFirstUsageRules instanceof OnConstraint<?>);
+        OnConstraint<?> onVoltageConstraint = (OnConstraint<?>) pstRange4IdFirstUsageRules;
         assertEquals(curativeInstant, onVoltageConstraint.getInstant());
-        assertSame(crac.getCnec("voltageCnecId"), onVoltageConstraint.getVoltageCnec());
+        assertSame(crac.getCnec("voltageCnecId"), onVoltageConstraint.getCnec());
+        assertTrue(onVoltageConstraint.getCnec() instanceof VoltageCnec);
         assertEquals(AVAILABLE, onVoltageConstraint.getUsageMethod());
 
         // check Usage Method for pst5
         PstRangeAction pst5 = crac.getPstRangeAction("pstRange5Id");
         assertEquals(2, pst5.getUsageRules().size());
 
-        List<UsageRule> onFlowConstrainRule = pst5.getUsageRules().stream().filter(usageRule -> usageRule instanceof OnFlowConstraint).collect(Collectors.toList());
+        List<UsageRule> onFlowConstrainRule = pst5.getUsageRules().stream().filter(usageRule -> usageRule instanceof OnConstraint<?>).filter(oc -> ((OnConstraint<?>) oc).getCnec() instanceof FlowCnec).toList();
         assertEquals(1, onFlowConstrainRule.size());
         assertEquals(UsageMethod.AVAILABLE, onFlowConstrainRule.get(0).getUsageMethod(crac.getPreventiveState()));
 
@@ -369,10 +374,11 @@ class CracImportExportTest {
 
         // check preventive OnFlowConstraint usage rule
         assertEquals(3, crac.getHvdcRangeAction("hvdcRange2Id").getUsageRules().size());
-        OnFlowConstraint onFlowConstraint3 = (OnFlowConstraint) crac.getHvdcRangeAction("hvdcRange2Id").getUsageRules().stream().filter(OnFlowConstraint.class::isInstance).findAny().orElseThrow();
+        OnConstraint<?> onFlowConstraint3 = (OnConstraint<?>) crac.getHvdcRangeAction("hvdcRange2Id").getUsageRules().stream().filter(OnConstraint.class::isInstance).filter(oc -> ((OnConstraint<?>) oc).getCnec() instanceof FlowCnec).findAny().orElseThrow();
         assertEquals(preventiveInstant, onFlowConstraint3.getInstant());
         assertEquals(AVAILABLE, onFlowConstraint3.getUsageMethod());
-        assertSame(crac.getCnec("cnec3curId"), onFlowConstraint3.getFlowCnec());
+        assertSame(crac.getCnec("cnec3curId"), onFlowConstraint3.getCnec());
+        assertTrue(onFlowConstraint3.getCnec() instanceof FlowCnec);
 
         // check Hvdc range
         assertEquals(1, crac.getHvdcRangeAction("hvdcRange1Id").getRanges().size());

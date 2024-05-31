@@ -19,7 +19,7 @@ import com.powsybl.openrao.data.cracapi.networkaction.ActionType;
 import com.powsybl.openrao.data.cracapi.networkaction.NetworkAction;
 import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.cracapi.rangeaction.RangeAction;
-import com.powsybl.openrao.data.cracapi.usagerule.OnFlowConstraint;
+import com.powsybl.openrao.data.cracapi.usagerule.OnConstraint;
 import com.powsybl.openrao.data.cracapi.usagerule.OnInstant;
 import com.powsybl.openrao.data.cracapi.usagerule.UsageMethod;
 import com.powsybl.openrao.data.cracimpl.utils.CommonCracCreation;
@@ -205,7 +205,7 @@ class RaoUtilTest {
 
         RemedialAction<?> na2 = crac.newNetworkAction().withId("na2")
             .newTopologicalAction().withNetworkElement("ne2").withActionType(ActionType.OPEN).add()
-            .newOnFlowConstraintUsageRule().withInstant(CURATIVE_INSTANT_ID).withFlowCnec(flowCnec.getId()).withUsageMethod(UsageMethod.AVAILABLE).add()
+            .newOnConstraintUsageRule().withInstant(CURATIVE_INSTANT_ID).withCnec(flowCnec.getId()).withUsageMethod(UsageMethod.AVAILABLE).add()
             .add();
 
         when(flowResult.getMargin(eq(flowCnec), any())).thenReturn(10.);
@@ -241,7 +241,7 @@ class RaoUtilTest {
         NetworkAction automatonRa = Mockito.mock(NetworkAction.class);
         when(automatonRa.getName()).thenReturn("fake automaton");
         OnInstant onInstant = Mockito.mock(OnInstant.class);
-        OnFlowConstraint onFlowConstraint = Mockito.mock(OnFlowConstraint.class);
+        OnConstraint<FlowCnec> onFlowConstraint = Mockito.mock(OnConstraint.class);
         State automatonState = Mockito.mock(State.class);
         when(automatonState.getInstant()).thenReturn(crac.getInstant(AUTO_INSTANT_ID));
         when(automatonState.getId()).thenReturn("fake automaton state");
