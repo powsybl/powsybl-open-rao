@@ -7,6 +7,8 @@
 package com.powsybl.openrao.searchtreerao.searchtree.algorithms;
 
 import com.powsybl.openrao.searchtreerao.commons.NetworkActionCombination;
+import com.powsybl.openrao.searchtreerao.result.api.OptimizationResult;
+import com.powsybl.openrao.searchtreerao.result.impl.OptimizationResultImpl;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
@@ -40,7 +42,9 @@ class MaximumNumberOfRemedialActionsFilterTest {
 
         // arrange previous Leaf -> naFr1 has already been activated
         Leaf previousLeaf = Mockito.mock(Leaf.class);
-        Mockito.when(previousLeaf.getOptimizationResult().getActivatedNetworkActions()).thenReturn(Collections.singleton(NA_FR_1));
+        OptimizationResult optimizationResult = Mockito.mock(OptimizationResultImpl.class);
+        Mockito.when(optimizationResult.getActivatedNetworkActions()).thenReturn(Collections.singleton(NA_FR_1));
+        Mockito.when(previousLeaf.getOptimizationResult()).thenReturn(optimizationResult);
 
         MaximumNumberOfRemedialActionsFilter naFilter;
         Set<NetworkActionCombination> filteredNaCombination;

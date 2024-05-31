@@ -13,6 +13,8 @@ import com.powsybl.openrao.data.cracapi.networkaction.NetworkAction;
 import com.powsybl.openrao.searchtreerao.commons.NetworkActionCombination;
 import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.OptimizationPerimeter;
 import com.powsybl.openrao.searchtreerao.commons.parameters.NetworkActionParameters;
+import com.powsybl.openrao.searchtreerao.result.api.OptimizationResult;
+import com.powsybl.openrao.searchtreerao.result.impl.OptimizationResultImpl;
 import com.powsybl.openrao.searchtreerao.searchtree.inputs.SearchTreeInput;
 import com.powsybl.openrao.searchtreerao.searchtree.parameters.SearchTreeParameters;
 import org.junit.jupiter.api.Test;
@@ -39,7 +41,9 @@ class SearchTreeBloomerTest {
 
         SearchTreeBloomer bloomer = initBloomer(List.of(new NetworkActionCombination(Set.of(na2), true)), Map.of(P_STATE.getInstant(), new RaUsageLimits()));
         Leaf leaf = Mockito.mock(Leaf.class);
-        Mockito.when(leaf.getOptimizationResult().getActivatedNetworkActions()).thenReturn(Collections.emptySet());
+        OptimizationResult optimizationResult = Mockito.mock(OptimizationResultImpl.class);
+        Mockito.when(optimizationResult.getActivatedNetworkActions()).thenReturn(Collections.emptySet());
+        Mockito.when(leaf.getOptimizationResult()).thenReturn(optimizationResult);
         Set<NetworkActionCombination> bloomResults = bloomer.bloom(leaf, Set.of(na1, na2));
         assertEquals(2, bloomResults.size());
         assertTrue(bloomResults.stream().anyMatch(naCombi -> naCombi.getNetworkActionSet().size() == 1 && naCombi.getNetworkActionSet().contains(na1)));
@@ -55,7 +59,9 @@ class SearchTreeBloomerTest {
 
         SearchTreeBloomer bloomer = initBloomer(List.of(new NetworkActionCombination(Set.of(na1, na2), false), new NetworkActionCombination(Set.of(na1, na2), false), new NetworkActionCombination(Set.of(na1, na2), true)), Map.of(P_STATE.getInstant(), new RaUsageLimits()));
         Leaf leaf = Mockito.mock(Leaf.class);
-        Mockito.when(leaf.getOptimizationResult().getActivatedNetworkActions()).thenReturn(Collections.emptySet());
+        OptimizationResult optimizationResult = Mockito.mock(OptimizationResultImpl.class);
+        Mockito.when(optimizationResult.getActivatedNetworkActions()).thenReturn(Collections.emptySet());
+        Mockito.when(leaf.getOptimizationResult()).thenReturn(optimizationResult);
         Set<NetworkActionCombination> bloomResults = bloomer.bloom(leaf, Set.of(na1, na2));
         assertEquals(4, bloomResults.size());
     }
@@ -67,8 +73,10 @@ class SearchTreeBloomerTest {
 
         // mock Leaf
         Leaf leaf = Mockito.mock(Leaf.class);
-        Mockito.when(leaf.getOptimizationResult().getActivatedNetworkActions()).thenReturn(Set.of(NA_FR_1));
-        Mockito.when(leaf.getOptimizationResult().getActivatedRangeActions(Mockito.any(State.class))).thenReturn(Set.of(RA_BE_1));
+        OptimizationResult optimizationResult = Mockito.mock(OptimizationResultImpl.class);
+        Mockito.when(optimizationResult.getActivatedNetworkActions()).thenReturn(Set.of(NA_FR_1));
+        Mockito.when(optimizationResult.getActivatedRangeActions(Mockito.any(State.class))).thenReturn(Set.of(RA_BE_1));
+        Mockito.when(leaf.getOptimizationResult()).thenReturn(optimizationResult);
 
         // init bloomer with raUsageLimits
         RaUsageLimits raUsageLimits = new RaUsageLimits();
@@ -100,8 +108,10 @@ class SearchTreeBloomerTest {
 
         // mock Leaf
         Leaf leaf = Mockito.mock(Leaf.class);
-        Mockito.when(leaf.getOptimizationResult().getActivatedNetworkActions()).thenReturn(Set.of(NA_FR_1));
-        Mockito.when(leaf.getOptimizationResult().getActivatedRangeActions(Mockito.any(State.class))).thenReturn(Set.of(RA_BE_1));
+        OptimizationResult optimizationResult = Mockito.mock(OptimizationResultImpl.class);
+        Mockito.when(optimizationResult.getActivatedNetworkActions()).thenReturn(Set.of(NA_FR_1));
+        Mockito.when(optimizationResult.getActivatedRangeActions(Mockito.any(State.class))).thenReturn(Set.of(RA_BE_1));
+        Mockito.when(leaf.getOptimizationResult()).thenReturn(optimizationResult);
 
         // init bloomer with fake raUsageLimits
         Instant fakeInstant = Mockito.mock(Instant.class);

@@ -21,6 +21,8 @@ import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.Iterating
 import com.powsybl.openrao.searchtreerao.linearoptimisation.inputs.IteratingLinearOptimizerInput;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.parameters.IteratingLinearOptimizerParameters;
 import com.powsybl.openrao.searchtreerao.result.api.*;
+import com.powsybl.openrao.searchtreerao.result.impl.LinearOptimizationResultWithNetworkActions;
+import com.powsybl.openrao.searchtreerao.result.impl.OptimizationResultImpl;
 import com.powsybl.openrao.searchtreerao.result.impl.RangeActionActivationResultImpl;
 import com.powsybl.openrao.searchtreerao.searchtree.inputs.SearchTreeInput;
 import com.powsybl.openrao.searchtreerao.searchtree.parameters.SearchTreeParameters;
@@ -322,11 +324,19 @@ public class Leaf {
         }
     }
 
+    public Set<NetworkAction> getActivatedNetworkActions() {
+        return new HashSet<>(appliedNetworkActionsInPrimaryState);
+    }
+
+    public boolean isActivated(NetworkAction networkAction) {
+        return appliedNetworkActionsInPrimaryState.contains(networkAction);
+    }
+
     public OptimizationResult getOptimizationResult() {
         if (status == Status.EVALUATED) {
-            return (OptimizationResult) preOptimSensitivityResult;
+            return new OptimizationResultImpl(preOptimFlowResult, preOptimSensitivityResult, preOptimObjectiveFunctionResult, raActivationResultFromParentLeaf, appliedNetworkActionsInPrimaryState);
         } else if (status == Status.OPTIMIZED) {
-            return (OptimizationResult) postOptimResult;
+            return new LinearOptimizationResultWithNetworkActions(postOptimResult, appliedNetworkActionsInPrimaryState);
         } else {
             throw new OpenRaoException(NO_RESULTS_AVAILABLE);
         }

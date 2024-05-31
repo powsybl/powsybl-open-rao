@@ -9,6 +9,8 @@ package com.powsybl.openrao.searchtreerao.searchtree.algorithms;
 import com.powsybl.openrao.data.cracapi.networkaction.NetworkAction;
 import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeAction;
 import com.powsybl.openrao.searchtreerao.commons.NetworkActionCombination;
+import com.powsybl.openrao.searchtreerao.result.api.OptimizationResult;
+import com.powsybl.openrao.searchtreerao.result.impl.OptimizationResultImpl;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
@@ -46,9 +48,11 @@ class MaximumNumberOfRemedialActionPerTsoFilterTest {
         // arrange Leaf -> naFr1 and raBe1 have already been activated in previous leaf
         // but only naFr1 should count
         Leaf previousLeaf = Mockito.mock(Leaf.class);
-        Mockito.when(previousLeaf.getOptimizationResult().getActivatedNetworkActions()).thenReturn(Collections.singleton(NA_FR_1));
-        Mockito.when(previousLeaf.getOptimizationResult().getRangeActions()).thenReturn(Collections.singleton(RA_BE_1));
-        Mockito.when(previousLeaf.getOptimizationResult().getOptimizedSetpoint(RA_BE_1, P_STATE)).thenReturn(5.);
+        OptimizationResult optimizationResult = Mockito.mock(OptimizationResultImpl.class);
+        Mockito.when(optimizationResult.getActivatedNetworkActions()).thenReturn(Collections.singleton(NA_FR_1));
+        Mockito.when(optimizationResult.getRangeActions()).thenReturn(Collections.singleton(RA_BE_1));
+        Mockito.when(optimizationResult.getOptimizedSetpoint(RA_BE_1, P_STATE)).thenReturn(5.);
+        Mockito.when(previousLeaf.getOptimizationResult()).thenReturn(optimizationResult);
 
         MaximumNumberOfRemedialActionPerTsoFilter naFilter;
         Set<NetworkActionCombination> filteredNaCombination;
@@ -129,10 +133,12 @@ class MaximumNumberOfRemedialActionPerTsoFilterTest {
         PstRangeAction raFr2 = createPstRangeActionWithOperator("lineFr2", "fr");
 
         Leaf previousLeaf = Mockito.mock(Leaf.class);
-        Mockito.when(previousLeaf.getOptimizationResult().getActivatedNetworkActions()).thenReturn(Collections.emptySet());
-        Mockito.when(previousLeaf.getOptimizationResult().getActivatedRangeActions(Mockito.any())).thenReturn(Set.of(raFr1, raFr2));
-        Mockito.when(previousLeaf.getOptimizationResult().getOptimizedSetpoint(raFr1, P_STATE)).thenReturn(5.);
-        Mockito.when(previousLeaf.getOptimizationResult().getOptimizedSetpoint(raFr2, P_STATE)).thenReturn(5.);
+        OptimizationResult optimizationResult = Mockito.mock(OptimizationResultImpl.class);
+        Mockito.when(optimizationResult.getActivatedNetworkActions()).thenReturn(Collections.emptySet());
+        Mockito.when(optimizationResult.getActivatedRangeActions(Mockito.any())).thenReturn(Set.of(raFr1, raFr2));
+        Mockito.when(optimizationResult.getOptimizedSetpoint(raFr1, P_STATE)).thenReturn(5.);
+        Mockito.when(optimizationResult.getOptimizedSetpoint(raFr2, P_STATE)).thenReturn(5.);
+        Mockito.when(previousLeaf.getOptimizationResult()).thenReturn(optimizationResult);
 
         Map<String, Integer> maxTopoPerTso = Map.of("fr", 2, "nl", 2);
         Map<String, Integer> maxRemedialActionsPerTso = Map.of("fr", 2, "nl", 5);

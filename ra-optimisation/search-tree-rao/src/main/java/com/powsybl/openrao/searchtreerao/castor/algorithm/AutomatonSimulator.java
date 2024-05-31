@@ -198,6 +198,10 @@ public final class AutomatonSimulator {
     }
 
     public static Map<RangeAction<?>, Double> getRangeActionsAndTheirTapsAppliedOnState(OptimizationResult optimizationResult, State state) {
+        // TODO: should not happen
+        if (optimizationResult == null) {
+            return Map.of();
+        }
         Set< RangeAction<?>> setActivatedRangeActions = optimizationResult.getActivatedRangeActions(state);
         Map<RangeAction<?>, Double> allRangeActions = new HashMap<>();
         setActivatedRangeActions.stream().filter(PstRangeAction.class::isInstance).map(PstRangeAction.class::cast).forEach(pstRangeAction -> allRangeActions.put(pstRangeAction, (double) optimizationResult.getOptimizedTap(pstRangeAction, state)));

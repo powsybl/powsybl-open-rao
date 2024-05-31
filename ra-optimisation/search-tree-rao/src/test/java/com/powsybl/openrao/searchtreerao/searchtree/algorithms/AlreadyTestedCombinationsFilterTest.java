@@ -7,6 +7,8 @@
 package com.powsybl.openrao.searchtreerao.searchtree.algorithms;
 
 import com.powsybl.openrao.searchtreerao.commons.NetworkActionCombination;
+import com.powsybl.openrao.searchtreerao.result.api.OptimizationResult;
+import com.powsybl.openrao.searchtreerao.result.impl.OptimizationResultImpl;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
@@ -43,7 +45,9 @@ class AlreadyTestedCombinationsFilterTest {
 
         // arrange previous Leaf -> naFr1 has already been activated
         Leaf previousLeaf = mock(Leaf.class);
-        Mockito.when(previousLeaf.getOptimizationResult().getActivatedNetworkActions()).thenReturn(Set.of(NA_FR_1, NA_BE_1));
+        OptimizationResult optimizationResult = Mockito.mock(OptimizationResultImpl.class);
+        Mockito.when(optimizationResult.getActivatedNetworkActions()).thenReturn(Set.of(NA_FR_1, NA_BE_1));
+        Mockito.when(previousLeaf.getOptimizationResult()).thenReturn(optimizationResult);
 
         // filter already tested combinations
         AlreadyTestedCombinationsFilter naFilter = new AlreadyTestedCombinationsFilter(preDefinedNaCombinations);

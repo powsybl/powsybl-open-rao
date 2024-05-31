@@ -13,6 +13,8 @@ import com.powsybl.openrao.data.cracapi.networkaction.ActionType;
 import com.powsybl.openrao.data.cracapi.networkaction.NetworkAction;
 import com.powsybl.openrao.data.cracapi.usagerule.UsageMethod;
 import com.powsybl.openrao.searchtreerao.commons.NetworkActionCombination;
+import com.powsybl.openrao.searchtreerao.result.api.OptimizationResult;
+import com.powsybl.openrao.searchtreerao.result.impl.OptimizationResultImpl;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
@@ -52,13 +54,16 @@ class FarFromMostLimitingElementFilterTest {
 
         // arrange previous Leaf -> most limiting element is in DE/FR
         Leaf previousLeaf = mock(Leaf.class);
-        Mockito.when(previousLeaf.getOptimizationResult().getVirtualCostNames()).thenReturn(Collections.emptySet());
+        OptimizationResult optimizationResult = Mockito.mock(OptimizationResultImpl.class);
+        Mockito.when(optimizationResult.getVirtualCostNames()).thenReturn(Collections.emptySet());
+        Mockito.when(previousLeaf.getOptimizationResult()).thenReturn(optimizationResult);
 
         FarFromMostLimitingElementFilter naFilter;
         Set<NetworkActionCombination> filteredNaCombination;
 
         // test - no border cross, most limiting element is in BE/FR
-        Mockito.when(previousLeaf.getOptimizationResult().getMostLimitingElements(1)).thenReturn(List.of(NetworkActionCombinationsUtils.CRAC.getFlowCnec("cnec1basecase"))); // be fr
+        Mockito.when(optimizationResult.getMostLimitingElements(1)).thenReturn(List.of(NetworkActionCombinationsUtils.CRAC.getFlowCnec("cnec1basecase"))); // be fr
+        Mockito.when(previousLeaf.getOptimizationResult()).thenReturn(optimizationResult);
         naFilter = new FarFromMostLimitingElementFilter(NetworkActionCombinationsUtils.NETWORK, true, 0);
         filteredNaCombination = naFilter.filter(naCombinations, previousLeaf.getOptimizationResult());
 
@@ -68,7 +73,8 @@ class FarFromMostLimitingElementFilterTest {
         list1.forEach(na -> assertTrue(finalFilteredNaCombination.contains(na)));
 
         // test - no border cross, most limiting element is in DE/FR
-        Mockito.when(previousLeaf.getOptimizationResult().getMostLimitingElements(1)).thenReturn(List.of(NetworkActionCombinationsUtils.CRAC.getFlowCnec("cnec2basecase"))); // de fr
+        Mockito.when(optimizationResult.getMostLimitingElements(1)).thenReturn(List.of(NetworkActionCombinationsUtils.CRAC.getFlowCnec("cnec2basecase"))); // de fr
+        Mockito.when(previousLeaf.getOptimizationResult()).thenReturn(optimizationResult);
         filteredNaCombination = naFilter.filter(naCombinations, previousLeaf.getOptimizationResult());
 
         assertEquals(6, filteredNaCombination.size());
@@ -77,7 +83,8 @@ class FarFromMostLimitingElementFilterTest {
         list2.forEach(na -> assertTrue(finalFilteredNaCombination2.contains(na)));
 
         // test - max 1 border cross, most limiting element is in BE
-        Mockito.when(previousLeaf.getOptimizationResult().getMostLimitingElements(1)).thenReturn(List.of(NetworkActionCombinationsUtils.CRAC.getFlowCnec("cnecBe"))); // be
+        Mockito.when(optimizationResult.getMostLimitingElements(1)).thenReturn(List.of(NetworkActionCombinationsUtils.CRAC.getFlowCnec("cnecBe"))); // be
+        Mockito.when(previousLeaf.getOptimizationResult()).thenReturn(optimizationResult);
         naFilter = new FarFromMostLimitingElementFilter(NetworkActionCombinationsUtils.NETWORK, true, 1);
         filteredNaCombination = naFilter.filter(naCombinations, previousLeaf.getOptimizationResult());
 
@@ -92,31 +99,37 @@ class FarFromMostLimitingElementFilterTest {
         FarFromMostLimitingElementFilter naFilter = new FarFromMostLimitingElementFilter(NetworkActionCombinationsUtils.NETWORK, false, 0);
 
         Leaf leaf = mock(Leaf.class);
-        Mockito.when(leaf.getOptimizationResult().getVirtualCostNames()).thenReturn(Set.of("mnec", "lf"));
+        OptimizationResult optimizationResult = Mockito.mock(OptimizationResultImpl.class);
+        Mockito.when(optimizationResult.getVirtualCostNames()).thenReturn(Set.of("mnec", "lf"));
 
-        Mockito.when(leaf.getOptimizationResult().getMostLimitingElements(1)).thenReturn(List.of(NetworkActionCombinationsUtils.CRAC.getFlowCnec("cnec1basecase"))); // be fr
-        Mockito.when(leaf.getOptimizationResult().getCostlyElements(eq("mnec"), anyInt())).thenReturn(List.of(NetworkActionCombinationsUtils.CRAC.getFlowCnec("cnec2basecase"))); // de fr
-        Mockito.when(leaf.getOptimizationResult().getCostlyElements(eq("lf"), anyInt())).thenReturn(Collections.emptyList());
+        Mockito.when(optimizationResult.getMostLimitingElements(1)).thenReturn(List.of(NetworkActionCombinationsUtils.CRAC.getFlowCnec("cnec1basecase"))); // be fr
+        Mockito.when(optimizationResult.getCostlyElements(eq("mnec"), anyInt())).thenReturn(List.of(NetworkActionCombinationsUtils.CRAC.getFlowCnec("cnec2basecase"))); // de fr
+        Mockito.when(optimizationResult.getCostlyElements(eq("lf"), anyInt())).thenReturn(Collections.emptyList());
+        Mockito.when(leaf.getOptimizationResult()).thenReturn(optimizationResult);
         assertEquals(Set.of(Optional.of(Country.BE), Optional.of(Country.FR), Optional.of(Country.DE)), naFilter.getOptimizedMostLimitingElementsLocation(leaf.getOptimizationResult()));
 
-        Mockito.when(leaf.getOptimizationResult().getMostLimitingElements(1)).thenReturn(List.of(NetworkActionCombinationsUtils.CRAC.getFlowCnec("cnec1basecase"))); // be fr
-        Mockito.when(leaf.getOptimizationResult().getCostlyElements(eq("mnec"), anyInt())).thenReturn(Collections.emptyList());
-        Mockito.when(leaf.getOptimizationResult().getCostlyElements(eq("lf"), anyInt())).thenReturn(Collections.emptyList());
+        Mockito.when(optimizationResult.getMostLimitingElements(1)).thenReturn(List.of(NetworkActionCombinationsUtils.CRAC.getFlowCnec("cnec1basecase"))); // be fr
+        Mockito.when(optimizationResult.getCostlyElements(eq("mnec"), anyInt())).thenReturn(Collections.emptyList());
+        Mockito.when(optimizationResult.getCostlyElements(eq("lf"), anyInt())).thenReturn(Collections.emptyList());
+        Mockito.when(leaf.getOptimizationResult()).thenReturn(optimizationResult);
         assertEquals(Set.of(Optional.of(Country.BE), Optional.of(Country.FR)), naFilter.getOptimizedMostLimitingElementsLocation(leaf.getOptimizationResult()));
 
-        Mockito.when(leaf.getOptimizationResult().getMostLimitingElements(1)).thenReturn(Collections.emptyList());
-        Mockito.when(leaf.getOptimizationResult().getCostlyElements(eq("mnec"), anyInt())).thenReturn(Collections.emptyList());
-        Mockito.when(leaf.getOptimizationResult().getCostlyElements(eq("lf"), anyInt())).thenReturn(List.of(NetworkActionCombinationsUtils.CRAC.getFlowCnec("cnec2basecase"))); // de fr
+        Mockito.when(optimizationResult.getMostLimitingElements(1)).thenReturn(Collections.emptyList());
+        Mockito.when(optimizationResult.getCostlyElements(eq("mnec"), anyInt())).thenReturn(Collections.emptyList());
+        Mockito.when(optimizationResult.getCostlyElements(eq("lf"), anyInt())).thenReturn(List.of(NetworkActionCombinationsUtils.CRAC.getFlowCnec("cnec2basecase"))); // de fr
+        Mockito.when(leaf.getOptimizationResult()).thenReturn(optimizationResult);
         assertEquals(Set.of(Optional.of(Country.FR), Optional.of(Country.DE)), naFilter.getOptimizedMostLimitingElementsLocation(leaf.getOptimizationResult()));
 
-        Mockito.when(leaf.getOptimizationResult().getMostLimitingElements(1)).thenReturn(Collections.emptyList());
-        Mockito.when(leaf.getOptimizationResult().getCostlyElements(eq("mnec"), anyInt())).thenReturn(List.of(NetworkActionCombinationsUtils.CRAC.getFlowCnec("cnec1basecase"), NetworkActionCombinationsUtils.CRAC.getFlowCnec("cnec2basecase"))); // be de fr
-        Mockito.when(leaf.getOptimizationResult().getCostlyElements(eq("lf"), anyInt())).thenReturn(Collections.emptyList());
+        Mockito.when(optimizationResult.getMostLimitingElements(1)).thenReturn(Collections.emptyList());
+        Mockito.when(optimizationResult.getCostlyElements(eq("mnec"), anyInt())).thenReturn(List.of(NetworkActionCombinationsUtils.CRAC.getFlowCnec("cnec1basecase"), NetworkActionCombinationsUtils.CRAC.getFlowCnec("cnec2basecase"))); // be de fr
+        Mockito.when(optimizationResult.getCostlyElements(eq("lf"), anyInt())).thenReturn(Collections.emptyList());
+        Mockito.when(leaf.getOptimizationResult()).thenReturn(optimizationResult);
         assertEquals(Set.of(Optional.of(Country.BE), Optional.of(Country.FR), Optional.of(Country.DE)), naFilter.getOptimizedMostLimitingElementsLocation(leaf.getOptimizationResult()));
 
-        Mockito.when(leaf.getOptimizationResult().getMostLimitingElements(1)).thenReturn(Collections.emptyList());
-        Mockito.when(leaf.getOptimizationResult().getCostlyElements(eq("mnec"), anyInt())).thenReturn(List.of(NetworkActionCombinationsUtils.CRAC.getFlowCnec("cnec2basecase")));
-        Mockito.when(leaf.getOptimizationResult().getCostlyElements(eq("lf"), anyInt())).thenReturn(List.of(NetworkActionCombinationsUtils.CRAC.getFlowCnec("cnec1basecase")));
+        Mockito.when(optimizationResult.getMostLimitingElements(1)).thenReturn(Collections.emptyList());
+        Mockito.when(optimizationResult.getCostlyElements(eq("mnec"), anyInt())).thenReturn(List.of(NetworkActionCombinationsUtils.CRAC.getFlowCnec("cnec2basecase")));
+        Mockito.when(optimizationResult.getCostlyElements(eq("lf"), anyInt())).thenReturn(List.of(NetworkActionCombinationsUtils.CRAC.getFlowCnec("cnec1basecase")));
+        Mockito.when(leaf.getOptimizationResult()).thenReturn(optimizationResult);
         assertEquals(Set.of(Optional.of(Country.BE), Optional.of(Country.FR), Optional.of(Country.DE)), naFilter.getOptimizedMostLimitingElementsLocation(leaf.getOptimizationResult()));
     }
 
