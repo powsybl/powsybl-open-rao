@@ -42,20 +42,7 @@ public class PreventiveState implements State {
     public Optional<Contingency> getContingency() {
         return Optional.empty();
     }
-/*
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        return o != null && getClass() == o.getClass();
-    }
 
-    @Override
-    public int hashCode() {
-        return getId().hashCode();
-    }
-*/
     @Override
     public String toString() {
         return getId();

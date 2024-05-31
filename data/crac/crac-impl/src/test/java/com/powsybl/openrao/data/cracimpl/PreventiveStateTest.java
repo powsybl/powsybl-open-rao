@@ -21,20 +21,6 @@ class PreventiveStateTest {
     private static final Instant PREVENTIVE_INSTANT = new InstantImpl("preventive", InstantKind.PREVENTIVE, null);
 
     @Test
-    void testEqualsForPreventive() {
-        PreventiveState state1 = new PreventiveState(PREVENTIVE_INSTANT);
-        PreventiveState state2 = new PreventiveState(PREVENTIVE_INSTANT);
-
-        assertEquals(state1, state2);
-    }
-
-    @Test
-    void testHashCodeForPreventive() {
-        PreventiveState state = new PreventiveState(PREVENTIVE_INSTANT);
-        assertEquals("preventive".hashCode(), state.hashCode());
-    }
-
-    @Test
     void testToStringForPreventive() {
         PreventiveState state = new PreventiveState(PREVENTIVE_INSTANT);
         assertEquals("preventive", state.toString());
