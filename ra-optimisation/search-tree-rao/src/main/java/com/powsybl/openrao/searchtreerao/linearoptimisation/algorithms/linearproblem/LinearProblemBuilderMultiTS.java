@@ -14,7 +14,6 @@ import com.powsybl.openrao.raoapi.parameters.RangeActionsOptimizationParameters;
 import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.CurativeOptimizationPerimeter;
 import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.OptimizationPerimeter;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.fillers.*;
-import com.powsybl.openrao.searchtreerao.linearoptimisation.inputs.IteratingLinearOptimizerInput;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.inputs.IteratingLinearOptimizerMultiTSInput;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.parameters.IteratingLinearOptimizerParameters;
 
@@ -55,23 +54,23 @@ public class LinearProblemBuilderMultiTS {
 
         // MNEC
         if (parameters.isRaoWithMnecLimitation()) {
-            for (OptimizationPerimeter optimizationPerimeter: inputs.getOptimizationPerimeters()) {
+            for (OptimizationPerimeter optimizationPerimeter : inputs.getOptimizationPerimeters()) {
                 this.withProblemFiller(buildMnecFiller(inputs, parameters, optimizationPerimeter));
             }
         }
 
         // loop-flow limitation
         if (parameters.isRaoWithLoopFlowLimitation()) {
-            for (OptimizationPerimeter optimizationPerimeter: inputs.getOptimizationPerimeters()){
+            for (OptimizationPerimeter optimizationPerimeter : inputs.getOptimizationPerimeters()) {
                 this.withProblemFiller(buildLoopFlowFiller(inputs, parameters, optimizationPerimeter));
             }
         }
 
         // unoptimized CNECs for TSOs without curative RA
         if (!Objects.isNull(parameters.getUnoptimizedCnecParameters())) {
-            for (OptimizationPerimeter optimizationPerimeter: inputs.getOptimizationPerimeters()){
+            for (OptimizationPerimeter optimizationPerimeter : inputs.getOptimizationPerimeters()) {
                 if (!Objects.isNull(parameters.getUnoptimizedCnecParameters().getOperatorsNotToOptimize()) && optimizationPerimeter instanceof CurativeOptimizationPerimeter
-                || !Objects.isNull(parameters.getUnoptimizedCnecParameters().getDoNotOptimizeCnecsSecuredByTheirPst())) {
+                    || !Objects.isNull(parameters.getUnoptimizedCnecParameters().getDoNotOptimizeCnecsSecuredByTheirPst())) {
                     this.withProblemFiller(buildUnoptimizedCnecFiller(inputs, parameters, optimizationPerimeter));
                 }
             }
@@ -150,7 +149,6 @@ public class LinearProblemBuilderMultiTS {
         );
     }
 
-
     private ProblemFiller buildMaxMinRelativeMarginFiller(IteratingLinearOptimizerMultiTSInput inputs, IteratingLinearOptimizerParameters parameters) {
         Set<FlowCnec> optimizedCnecs = new HashSet<>();
         for (OptimizationPerimeter perimeter : inputs.getOptimizationPerimeters()) {
@@ -222,7 +220,7 @@ public class LinearProblemBuilderMultiTS {
     private ProblemFiller buildContinuousRangeActionGroupFiller(Map<State, Set<RangeAction<?>>> rangeActionsPerState) {
         return new ContinuousRangeActionGroupFiller(rangeActionsPerState);
     }
-    
+
     private ProblemFiller buildRaUageLimitsFiller(IteratingLinearOptimizerMultiTSInput inputs, IteratingLinearOptimizerParameters parameters, OptimizationPerimeter optimizationPerimeter) {
         return new RaUsageLimitsFiller(
             optimizationPerimeter.getRangeActionsPerState(),

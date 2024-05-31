@@ -15,11 +15,8 @@ import com.powsybl.openrao.data.cracapi.rangeaction.RangeAction;
 import com.powsybl.openrao.loopflowcomputation.LoopFlowComputation;
 import com.powsybl.openrao.searchtreerao.commons.adapter.BranchResultAdapter;
 import com.powsybl.openrao.searchtreerao.commons.adapter.BranchResultAdapterImpl;
-import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.OptimizationPerimeter;
 import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
-import com.powsybl.openrao.searchtreerao.result.api.SensitivityResult;
 import com.powsybl.openrao.searchtreerao.result.impl.MultipleSensitivityResult;
-import com.powsybl.openrao.searchtreerao.result.impl.SensitivityResultImpl;
 import com.powsybl.openrao.sensitivityanalysis.AppliedRemedialActions;
 import com.powsybl.openrao.sensitivityanalysis.SystematicSensitivityInterface;
 import com.powsybl.openrao.sensitivityanalysis.SystematicSensitivityResult;
@@ -39,6 +36,10 @@ public final class SensitivityComputerMultiTS {
         // Should not be used
     }
 
+    public static SensitivityComputerBuilder create() {
+        return new SensitivityComputerBuilder();
+    }
+
     public void compute(List<Network> networks) {
         results = new ArrayList<>(); //besoin d'initialiser?
         for (int i = 0; i < networks.size(); i++) {
@@ -52,14 +53,10 @@ public final class SensitivityComputerMultiTS {
 
     public MultipleSensitivityResult getSensitivityResults() {
         MultipleSensitivityResult multipleSensitivityResult = new MultipleSensitivityResult();
-        for (int i = 0; i<results.size();i++) {
+        for (int i = 0; i < results.size(); i++) {
             multipleSensitivityResult.addResult(results.get(i), flowCnecsList.get(i));
         }
         return multipleSensitivityResult;
-    }
-
-    public static SensitivityComputerBuilder create() {
-        return new SensitivityComputerBuilder();
     }
 
     public static final class SensitivityComputerBuilder {
@@ -159,8 +156,6 @@ public final class SensitivityComputerMultiTS {
                 branchResultAdapters.add(builder.build());
             }
             sensitivityComputer.branchResultAdapters = branchResultAdapters;
-
-
             return sensitivityComputer;
         }
     }

@@ -31,7 +31,6 @@ public class LinearProblemResult extends RangeActionActivationResultImpl {
         );
     }
 
-
     public LinearProblemResult(LinearProblem linearProblem, RangeActionSetpointResult prePerimeterSetpoints, List<OptimizationPerimeter> optimizationContexts) {
         super(prePerimeterSetpoints);
 

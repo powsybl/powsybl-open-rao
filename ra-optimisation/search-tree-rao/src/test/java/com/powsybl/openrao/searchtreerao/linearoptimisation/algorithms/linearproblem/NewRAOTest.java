@@ -6,12 +6,10 @@ import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.cracapi.Instant;
 import com.powsybl.openrao.data.cracapi.State;
-import com.powsybl.openrao.data.cracapi.cnec.Cnec;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
 import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.cracapi.rangeaction.RangeAction;
 import com.powsybl.openrao.data.cracioapi.CracImporters;
-import com.powsybl.openrao.raoapi.parameters.ObjectiveFunctionParameters;
 import com.powsybl.openrao.raoapi.parameters.RangeActionsOptimizationParameters;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.LoopFlowParametersExtension;
@@ -23,33 +21,25 @@ import com.powsybl.openrao.searchtreerao.commons.objectivefunctionevaluator.Obje
 import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.OptimizationPerimeter;
 import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.PreventiveOptimizationPerimeter;
 import com.powsybl.openrao.searchtreerao.commons.parameters.RangeActionLimitationParameters;
-import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.IteratingLinearOptimizer;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.IteratingLinearOptimizerMultiTS;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.fillers.BetweenTimeStepsFiller;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.fillers.CoreProblemFiller;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.fillers.DiscretePstTapFiller;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.fillers.MaxMinMarginFiller;
-import com.powsybl.openrao.searchtreerao.linearoptimisation.inputs.IteratingLinearOptimizerInput;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.inputs.IteratingLinearOptimizerMultiTSInput;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.parameters.IteratingLinearOptimizerParameters;
 import com.powsybl.openrao.searchtreerao.result.api.LinearOptimizationResult;
 import com.powsybl.openrao.searchtreerao.result.api.RangeActionSetpointResult;
-import com.powsybl.openrao.searchtreerao.result.impl.FlowResultImpl;
 import com.powsybl.openrao.searchtreerao.result.impl.MultipleSensitivityResult;
 import com.powsybl.openrao.searchtreerao.result.impl.RangeActionActivationResultImpl;
 import com.powsybl.openrao.searchtreerao.result.impl.RangeActionSetpointResultImpl;
 import com.powsybl.openrao.sensitivityanalysis.AppliedRemedialActions;
-import com.powsybl.openrao.sensitivityanalysis.SystematicSensitivityInterface;
-import com.powsybl.openrao.sensitivityanalysis.SystematicSensitivityResult;
-import com.powsybl.sensitivity.SensitivityAnalysisParameters;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.util.*;
 import java.util.stream.Collectors;
-
-import static org.mockito.Mockito.when;
 
 public class NewRAOTest {
 
@@ -119,8 +109,8 @@ public class NewRAOTest {
     }
 
     private MultipleSensitivityResult runInitialSensi() {
-        List<Set<FlowCnec>>cnecsList = List.of(cracs.get(0).getFlowCnecs(),cracs.get(1).getFlowCnecs());
-        List<Set<RangeAction<?>>>rangeActionsList = List.of(cracs.get(0).getRangeActions(),cracs.get(1).getRangeActions());
+        List<Set<FlowCnec>> cnecsList = List.of(cracs.get(0).getFlowCnecs(), cracs.get(1).getFlowCnecs());
+        List<Set<RangeAction<?>>> rangeActionsList = List.of(cracs.get(0).getRangeActions(), cracs.get(1).getRangeActions());
 
         RaoParameters raoParameters = RaoParameters.load();
         ToolProvider toolProvider = ToolProvider.create().withNetwork(networks.get(0)).withRaoParameters(raoParameters).build(); //the attributes in the class are only used for loopflow things
@@ -191,7 +181,6 @@ public class NewRAOTest {
         linearProblemMerge.fill(initialSensiResult, initialSensiResult);
         linearProblemMerge.solve();
         //System.out.println(orMpSolver.getMpSolver().exportModelAsLpFormat());
-
         // Pour avoir le setpoint après résolution du problème
         PstRangeAction pstRa0 = cracs.get(0).getPstRangeActions().iterator().next();
         PstRangeAction pstRa1 = cracs.get(1).getPstRangeActions().iterator().next();
@@ -244,7 +233,6 @@ public class NewRAOTest {
             .withToolProvider(toolProvider)
             .withOutageInstant(cracs.get(0).getOutageInstant()) //TODO: check if multiple are needed
             .build();
-
 
         IteratingLinearOptimizerParameters parameters = IteratingLinearOptimizerParameters.create()
             .withObjectiveFunction(raoParameters.getObjectiveFunctionParameters().getType())
