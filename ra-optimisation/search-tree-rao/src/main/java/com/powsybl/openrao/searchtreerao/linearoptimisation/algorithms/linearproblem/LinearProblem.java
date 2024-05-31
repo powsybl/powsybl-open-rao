@@ -32,7 +32,7 @@ public final class LinearProblem {
     public static final double LP_INFINITY = 1e10;
     private static final String OPT_PROBLEM_NAME = "RangeActionOptProblem";
 
-    private OpenRaoMPSolver solver;
+    private final OpenRaoMPSolver solver;
     private final List<ProblemFiller> fillerList;
     private final double relativeMipGap;
     private final String solverSpecificParameters;
@@ -80,6 +80,10 @@ public final class LinearProblem {
 
     public static LinearProblemBuilder create() {
         return new LinearProblemBuilder();
+    }
+
+    public static LinearProblemBuilderMultiTS createMultiTS() {
+        return new LinearProblemBuilderMultiTS();
     }
 
     LinearProblem(List<ProblemFiller> fillerList, RangeActionsOptimizationParameters.Solver solver, double relativeMipGap, String solverSpecificParameters) {

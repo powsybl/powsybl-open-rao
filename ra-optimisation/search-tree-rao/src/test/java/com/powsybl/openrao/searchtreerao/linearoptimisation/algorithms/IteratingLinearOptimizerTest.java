@@ -145,7 +145,7 @@ class IteratingLinearOptimizerTest {
 
     private void prepareLinearProblemBuilder() {
         LinearProblemBuilder linearProblemBuilder = Mockito.mock(LinearProblemBuilder.class);
-        when(linearProblemBuilder.buildFromInputsAndParameters(Mockito.any(), Mockito.any())).thenReturn(linearProblem);
+        when(linearProblemBuilder.buildFromInputsAndParameters(Mockito.any(IteratingLinearOptimizerInput.class), Mockito.any())).thenReturn(linearProblem);
         linearProblemMockedStatic.when(LinearProblem::create).thenReturn(linearProblemBuilder);
     }
 

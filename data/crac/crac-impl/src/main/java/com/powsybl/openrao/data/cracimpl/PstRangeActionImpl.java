@@ -26,7 +26,7 @@ import java.util.concurrent.atomic.AtomicReference;
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
 public final class PstRangeActionImpl extends AbstractRangeAction<PstRangeAction> implements PstRangeAction {
-
+    // Note : Ranges of type RELATIVE_TO_PREVIOUS_TIME_STEP are not taken into account
     private static final double EPSILON = 1e-3;
 
     private final NetworkElement networkElement;
@@ -38,7 +38,7 @@ public final class PstRangeActionImpl extends AbstractRangeAction<PstRangeAction
     private final int highTapPosition;
 
     PstRangeActionImpl(String id, String name, String operator, Set<UsageRule> usageRules, List<TapRange> ranges,
-                              NetworkElement networkElement, String groupId, int initialTap, Map<Integer, Double> tapToAngleConversionMap, Integer speed) {
+                       NetworkElement networkElement, String groupId, int initialTap, Map<Integer, Double> tapToAngleConversionMap, Integer speed) {
         super(id, name, operator, usageRules, groupId, speed);
         this.networkElement = networkElement;
         this.ranges = ranges;
@@ -165,8 +165,11 @@ public final class PstRangeActionImpl extends AbstractRangeAction<PstRangeAction
         int previousInstantTap = convertAngleToTap(previousInstantSetPoint);
 
         for (TapRange range : ranges) {
-            minTap = Math.max(minTap, getRangeMinTapAsAbsoluteCenteredOnZero(range, previousInstantTap));
-            maxTap = Math.min(maxTap, getRangeMaxTapAsAbsoluteCenteredOnZero(range, previousInstantTap));
+            //rewrite this in a cleaner way ?
+            if (range.getRangeType() != RangeType.RELATIVE_TO_PREVIOUS_TIME_STEP) {
+                minTap = Math.max(minTap, getRangeMinTapAsAbsoluteCenteredOnZero(range, previousInstantTap));
+                maxTap = Math.min(maxTap, getRangeMaxTapAsAbsoluteCenteredOnZero(range, previousInstantTap));
+            }
         }
 
         return Pair.of(minTap, maxTap);
