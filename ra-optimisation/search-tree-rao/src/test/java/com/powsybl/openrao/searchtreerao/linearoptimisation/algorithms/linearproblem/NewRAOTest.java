@@ -262,7 +262,6 @@ public class NewRAOTest {
         System.out.println(pstOptimizedSetPoint0);
         System.out.println(pstOptimizedSetPoint1);
 
-
 //        // Résultat des deux LP séparés
 //        OpenRaoMPSolver orMpSolver1 = new OpenRaoMPSolver("solver1", RangeActionsOptimizationParameters.Solver.SCIP);
 //        OpenRaoMPSolver orMpSolver2 = new OpenRaoMPSolver("solver2", RangeActionsOptimizationParameters.Solver.SCIP);
@@ -293,6 +292,5 @@ public class NewRAOTest {
 //        System.out.println(setpoint2);
 //
 //        System.out.println(orMpSolver2.getMpSolver().exportModelAsLpFormat());/**/
-
     }
 }

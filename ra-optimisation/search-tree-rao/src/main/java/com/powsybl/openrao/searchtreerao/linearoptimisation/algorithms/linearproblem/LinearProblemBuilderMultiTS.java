@@ -44,7 +44,6 @@ public class LinearProblemBuilderMultiTS {
             this.withProblemFiller(buildCoreProblemFiller(inputs, parameters, optimizationPerimeter));
         }
 
-
         // max.min margin, or max.min relative margin
         if (parameters.getObjectiveFunction().relativePositiveMargins()) {
             this.withProblemFiller(buildMaxMinRelativeMarginFiller(inputs, parameters));
@@ -91,7 +90,6 @@ public class LinearProblemBuilderMultiTS {
                 this.withProblemFiller(buildDiscretePstGroupFiller(inputs, pstRangeActionsPerTS.get(i), i));
                 this.withProblemFiller(buildContinuousRangeActionGroupFiller(otherRaPerTS.get(i)));
             }
-
 
         } else {
             for (OptimizationPerimeter optimizationPerimeter : inputs.getOptimizationPerimeters()) {

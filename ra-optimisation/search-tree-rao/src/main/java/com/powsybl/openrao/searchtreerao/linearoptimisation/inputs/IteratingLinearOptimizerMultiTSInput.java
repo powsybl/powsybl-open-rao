@@ -73,6 +73,7 @@ public class IteratingLinearOptimizerMultiTSInput {
     public List<Network> getNetworks() {
         return networks;
     }
+
     public Network getNetwork(int i) {
         return networks.get(i);
     }
