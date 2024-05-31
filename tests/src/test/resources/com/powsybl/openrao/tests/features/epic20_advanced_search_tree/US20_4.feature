@@ -30,8 +30,8 @@ Feature: US 20.4: Handle MNECs in second preventive optimization
     Then 2 remedial actions are used in preventive
     And the remedial action "Open line NL1-NL2" is used in preventive
     And the tap of PstRangeAction "PRA_PST_BE" should be -3 in preventive
-    And 1 remedial actions are used after "Contingency_FR1_FR3" at "curative"
-    And the tap of PstRangeAction "CRA_PST_DE" should be 1 after "Contingency_FR1_FR3" at "curative"
+    And 0 remedial actions are used after "Contingency_FR1_FR3" at "curative"
+    And the remedial action "CRA_PST_DE" is not used after "Contingency_FR1_FR3" at "curative"
     And the worst margin is -161 MW
     And the value of the objective function after CRA should be 161
     And the margin on cnec "FR2-FR3-O - preventive" after PRA should be -161 MW
