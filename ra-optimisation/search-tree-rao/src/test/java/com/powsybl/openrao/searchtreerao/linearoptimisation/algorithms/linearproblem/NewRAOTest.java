@@ -17,6 +17,7 @@ import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.LoopFlowParametersExtension;
 import com.powsybl.openrao.raoapi.parameters.extensions.MnecParametersExtension;
 import com.powsybl.openrao.raoapi.parameters.extensions.RelativeMarginsParametersExtension;
+import com.powsybl.openrao.searchtreerao.commons.SensitivityComputerMultiTS;
 import com.powsybl.openrao.searchtreerao.commons.ToolProvider;
 import com.powsybl.openrao.searchtreerao.commons.objectivefunctionevaluator.ObjectiveFunction;
 import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.OptimizationPerimeter;
@@ -118,27 +119,20 @@ public class NewRAOTest {
     }
 
     private MultipleSensitivityResult runInitialSensi() {
-        SystematicSensitivityInterface systematicSensitivityInterface0 = SystematicSensitivityInterface.builder()
-            .withSensitivityProviderName("OpenLoadFlow")
-            .withParameters(new SensitivityAnalysisParameters())
-            .withRangeActionSensitivities(cracs.get(0).getRangeActions(), cracs.get(0).getFlowCnecs(), Set.of(Unit.MEGAWATT))
+        List<Set<FlowCnec>>cnecsList = List.of(cracs.get(0).getFlowCnecs(),cracs.get(1).getFlowCnecs());
+        List<Set<RangeAction<?>>>rangeActionsList = List.of(cracs.get(0).getRangeActions(),cracs.get(1).getRangeActions());
+
+        RaoParameters raoParameters = RaoParameters.load();
+        ToolProvider toolProvider = ToolProvider.create().withNetwork(networks.get(0)).withRaoParameters(raoParameters).build(); //the attributes in the class are only used for loopflow things
+
+        SensitivityComputerMultiTS sensitivityComputerMultiTS = SensitivityComputerMultiTS.create()
+            .withCnecs(cnecsList)
+            .withRangeActions(rangeActionsList)
             .withOutageInstant(cracs.get(0).getOutageInstant())
+            .withToolProvider(toolProvider)
             .build();
-        SystematicSensitivityResult systematicSensitivityResult0 = systematicSensitivityInterface0.run(networks.get(0));
-
-        SystematicSensitivityInterface systematicSensitivityInterface1 = SystematicSensitivityInterface.builder()
-            .withSensitivityProviderName("OpenLoadFlow")
-            .withParameters(new SensitivityAnalysisParameters())
-            .withRangeActionSensitivities(cracs.get(1).getRangeActions(), cracs.get(1).getFlowCnecs(), Set.of(Unit.MEGAWATT))
-            .withOutageInstant(cracs.get(1).getOutageInstant())
-            .build();
-        SystematicSensitivityResult systematicSensitivityResult1 = systematicSensitivityInterface1.run(networks.get(1));
-
-        MultipleSensitivityResult multipleSensitivityResult = new MultipleSensitivityResult();
-        multipleSensitivityResult.addResult(systematicSensitivityResult0, cracs.get(0).getFlowCnecs());
-        multipleSensitivityResult.addResult(systematicSensitivityResult1, cracs.get(1).getFlowCnecs());
-
-        return  multipleSensitivityResult;
+        sensitivityComputerMultiTS.compute(networks);
+        return sensitivityComputerMultiTS.getSensitivityResults();
     }
 
     @Test
@@ -196,7 +190,7 @@ public class NewRAOTest {
 
         linearProblemMerge.fill(initialSensiResult, initialSensiResult);
         linearProblemMerge.solve();
-        System.out.println(orMpSolver.getMpSolver().exportModelAsLpFormat());
+        //System.out.println(orMpSolver.getMpSolver().exportModelAsLpFormat());
 
         // Pour avoir le setpoint après résolution du problème
         PstRangeAction pstRa0 = cracs.get(0).getPstRangeActions().iterator().next();
@@ -221,6 +215,7 @@ public class NewRAOTest {
 
         //FlowResultImpl initialFlowResult = new FlowResultImpl();
         RaoParameters raoParameters = RaoParameters.load();
+        raoParameters.getRangeActionsOptimizationParameters().setPstModel(RangeActionsOptimizationParameters.PstModel.APPROXIMATED_INTEGERS);
 
         ObjectiveFunction objectiveFunction = ObjectiveFunction.create().build(
             allCnecs,
@@ -267,7 +262,17 @@ public class NewRAOTest {
         LinearOptimizationResult result = IteratingLinearOptimizerMultiTS.optimize(input, parameters, preventiveInstant);
 
         System.out.println(result.getStatus());
-        //System.out.println(result.getOptimizedSetpoint(pstRa1, state1));
+
+        PstRangeAction pstRa0 = cracs.get(0).getPstRangeActions().iterator().next();
+        PstRangeAction pstRa1 = cracs.get(1).getPstRangeActions().iterator().next();
+
+        State state0 = optimizationPerimeters.get(0).getMainOptimizationState();
+        State state1 = optimizationPerimeters.get(1).getMainOptimizationState();
+        double pstOptimizedSetPoint0 = result.getRangeActionActivationResult().getOptimizedSetpoint(pstRa0, state0);
+        double pstOptimizedSetPoint1 = result.getRangeActionActivationResult().getOptimizedSetpoint(pstRa1, state1);
+
+        System.out.println(pstOptimizedSetPoint0);
+        System.out.println(pstOptimizedSetPoint1);
 
 
 //        // Résultat des deux LP séparés

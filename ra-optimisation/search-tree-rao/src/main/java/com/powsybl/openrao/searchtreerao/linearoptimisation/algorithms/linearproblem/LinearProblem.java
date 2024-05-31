@@ -79,6 +79,10 @@ public final class LinearProblem {
         return new LinearProblemBuilder();
     }
 
+    public static LinearProblemBuilderMultiTS createMultiTS() {
+        return new LinearProblemBuilderMultiTS();
+    }
+
     LinearProblem(List<ProblemFiller> fillerList, OpenRaoMPSolver solver, double relativeMipGap, String solverSpecificParameters) {
         this.solver = solver;
         this.fillerList = fillerList;

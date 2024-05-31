@@ -42,7 +42,7 @@ public class PreventiveState implements State {
     public Optional<Contingency> getContingency() {
         return Optional.empty();
     }
-
+/*
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -55,7 +55,7 @@ public class PreventiveState implements State {
     public int hashCode() {
         return getId().hashCode();
     }
-
+*/
     @Override
     public String toString() {
         return getId();

@@ -7,11 +7,12 @@
 package com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem;
 
 import com.powsybl.openrao.data.cracapi.State;
+import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
 import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.cracapi.rangeaction.RangeAction;
 import com.powsybl.openrao.raoapi.parameters.RangeActionsOptimizationParameters;
 import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.CurativeOptimizationPerimeter;
-import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.IteratingLinearOptimizerMultiTS;
+import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.OptimizationPerimeter;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.fillers.*;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.inputs.IteratingLinearOptimizerInput;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.inputs.IteratingLinearOptimizerMultiTSInput;
@@ -23,7 +24,7 @@ import java.util.stream.Collectors;
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-public class LinearProblemBuilder {
+public class LinearProblemBuilderMultiTS {
 
     private static final String OPT_PROBLEM_NAME = "RangeActionOptProblem";
 
@@ -32,15 +33,18 @@ public class LinearProblemBuilder {
     private double relativeMipGap = RangeActionsOptimizationParameters.LinearOptimizationSolver.DEFAULT_RELATIVE_MIP_GAP;
     private String solverSpecificParameters = RangeActionsOptimizationParameters.LinearOptimizationSolver.DEFAULT_SOLVER_SPECIFIC_PARAMETERS;
 
-    public LinearProblem buildFromInputsAndParameters(IteratingLinearOptimizerInput inputs, IteratingLinearOptimizerParameters parameters) {
-
+    public LinearProblem buildFromInputsAndParameters(IteratingLinearOptimizerMultiTSInput inputs, IteratingLinearOptimizerParameters parameters) {
         Objects.requireNonNull(inputs);
         Objects.requireNonNull(parameters);
 
         this.withSolver(buildSolver(parameters))
             .withRelativeMipGap(parameters.getSolverParameters().getRelativeMipGap())
-            .withSolverSpecificParameters(parameters.getSolverParameters().getSolverSpecificParameters())
-            .withProblemFiller(buildCoreProblemFiller(inputs, parameters));
+            .withSolverSpecificParameters(parameters.getSolverParameters().getSolverSpecificParameters());
+
+        for (OptimizationPerimeter optimizationPerimeter : inputs.getOptimizationPerimeters()) {
+            this.withProblemFiller(buildCoreProblemFiller(inputs, parameters, optimizationPerimeter));
+        }
+
 
         // max.min margin, or max.min relative margin
         if (parameters.getObjectiveFunction().relativePositiveMargins()) {
@@ -51,40 +55,59 @@ public class LinearProblemBuilder {
 
         // MNEC
         if (parameters.isRaoWithMnecLimitation()) {
-            this.withProblemFiller(buildMnecFiller(inputs, parameters));
+            for (OptimizationPerimeter optimizationPerimeter: inputs.getOptimizationPerimeters()) {
+                this.withProblemFiller(buildMnecFiller(inputs, parameters, optimizationPerimeter));
+            }
         }
 
         // loop-flow limitation
         if (parameters.isRaoWithLoopFlowLimitation()) {
-            this.withProblemFiller(buildLoopFlowFiller(inputs, parameters));
+            for (OptimizationPerimeter optimizationPerimeter: inputs.getOptimizationPerimeters()){
+                this.withProblemFiller(buildLoopFlowFiller(inputs, parameters, optimizationPerimeter));
+            }
         }
 
         // unoptimized CNECs for TSOs without curative RA
         if (!Objects.isNull(parameters.getUnoptimizedCnecParameters())) {
-            if (!Objects.isNull(parameters.getUnoptimizedCnecParameters().getOperatorsNotToOptimize()) && inputs.getOptimizationPerimeter() instanceof CurativeOptimizationPerimeter
+            for (OptimizationPerimeter optimizationPerimeter: inputs.getOptimizationPerimeters()){
+                if (!Objects.isNull(parameters.getUnoptimizedCnecParameters().getOperatorsNotToOptimize()) && optimizationPerimeter instanceof CurativeOptimizationPerimeter
                 || !Objects.isNull(parameters.getUnoptimizedCnecParameters().getDoNotOptimizeCnecsSecuredByTheirPst())) {
-                this.withProblemFiller(buildUnoptimizedCnecFiller(inputs, parameters));
+                    this.withProblemFiller(buildUnoptimizedCnecFiller(inputs, parameters, optimizationPerimeter));
+                }
             }
         }
 
         // MIP optimization vs. CONTINUOUS optimization
         if (parameters.getRangeActionParameters().getPstModel().equals(RangeActionsOptimizationParameters.PstModel.APPROXIMATED_INTEGERS)) {
-            Map<State, Set<PstRangeAction>> pstRangeActions = copyOnlyPstRangeActions(inputs.getOptimizationPerimeter().getRangeActionsPerState());
-            Map<State, Set<RangeAction<?>>> otherRa = copyWithoutPstRangeActions(inputs.getOptimizationPerimeter().getRangeActionsPerState());
-            this.withProblemFiller(buildIntegerPstTapFiller(inputs, pstRangeActions));
-            this.withProblemFiller(buildDiscretePstGroupFiller(inputs, pstRangeActions));
-            this.withProblemFiller(buildContinuousRangeActionGroupFiller(otherRa));
+            List<Map<State, Set<PstRangeAction>>> pstRangeActionsPerTS = new ArrayList<>();
+            List<Map<State, Set<RangeAction<?>>>> otherRaPerTS = new ArrayList<>();
+
+            for (OptimizationPerimeter optimizationPerimeter : inputs.getOptimizationPerimeters()) {
+                pstRangeActionsPerTS.add(copyOnlyPstRangeActions(optimizationPerimeter.getRangeActionsPerState()));
+                otherRaPerTS.add(copyWithoutPstRangeActions(optimizationPerimeter.getRangeActionsPerState()));
+            }
+
+            for (int i = 0; i < inputs.getNetworks().size(); i++) {
+                this.withProblemFiller(buildIntegerPstTapFiller(inputs, pstRangeActionsPerTS.get(i), i));
+                this.withProblemFiller(buildDiscretePstGroupFiller(inputs, pstRangeActionsPerTS.get(i), i));
+                this.withProblemFiller(buildContinuousRangeActionGroupFiller(otherRaPerTS.get(i)));
+            }
+
+
         } else {
-            this.withProblemFiller(buildContinuousRangeActionGroupFiller(inputs.getOptimizationPerimeter().getRangeActionsPerState()));
+            for (OptimizationPerimeter optimizationPerimeter : inputs.getOptimizationPerimeters()) {
+                this.withProblemFiller(buildContinuousRangeActionGroupFiller(optimizationPerimeter.getRangeActionsPerState()));
+            }
         }
 
         // RA limitation
-        if (parameters.getRaLimitationParameters() != null
-            && inputs.getOptimizationPerimeter().getRangeActionOptimizationStates().stream()
-            .anyMatch(state -> parameters.getRaLimitationParameters().areRangeActionLimitedForState(state))) {
-            this.withProblemFiller(buildRaUageLimitsFiller(inputs, parameters));
+        for (OptimizationPerimeter optimizationPerimeter : inputs.getOptimizationPerimeters()) {
+            if (parameters.getRaLimitationParameters() != null
+                && optimizationPerimeter.getRangeActionOptimizationStates().stream()
+                .anyMatch(state -> parameters.getRaLimitationParameters().areRangeActionLimitedForState(state))) {
+                this.withProblemFiller(buildRaUageLimitsFiller(inputs, parameters, optimizationPerimeter));
+            }
         }
-
         return new LinearProblem(problemFillers, solver, relativeMipGap, solverSpecificParameters);
     }
 
@@ -92,22 +115,22 @@ public class LinearProblemBuilder {
         return new LinearProblem(problemFillers, solver, relativeMipGap, solverSpecificParameters);
     }
 
-    public LinearProblemBuilder withProblemFiller(ProblemFiller problemFiller) {
+    public LinearProblemBuilderMultiTS withProblemFiller(ProblemFiller problemFiller) {
         problemFillers.add(problemFiller);
         return this;
     }
 
-    public LinearProblemBuilder withSolver(OpenRaoMPSolver solver) {
+    public LinearProblemBuilderMultiTS withSolver(OpenRaoMPSolver solver) {
         this.solver = solver;
         return this;
     }
 
-    public LinearProblemBuilder withRelativeMipGap(double relativeMipGap) {
+    public LinearProblemBuilderMultiTS withRelativeMipGap(double relativeMipGap) {
         this.relativeMipGap = relativeMipGap;
         return this;
     }
 
-    public LinearProblemBuilder withSolverSpecificParameters(String solverSpecificParameters) {
+    public LinearProblemBuilderMultiTS withSolverSpecificParameters(String solverSpecificParameters) {
         this.solverSpecificParameters = solverSpecificParameters;
         return this;
     }
@@ -116,9 +139,9 @@ public class LinearProblemBuilder {
         return new OpenRaoMPSolver(OPT_PROBLEM_NAME, parameters.getSolverParameters().getSolver());
     }
 
-    private ProblemFiller buildCoreProblemFiller(IteratingLinearOptimizerInput inputs, IteratingLinearOptimizerParameters parameters) {
+    private ProblemFiller buildCoreProblemFiller(IteratingLinearOptimizerMultiTSInput inputs, IteratingLinearOptimizerParameters parameters, OptimizationPerimeter optimizationPerimeter) {
         return new CoreProblemFiller(
-            inputs.getOptimizationPerimeter(),
+            optimizationPerimeter,
             inputs.getPrePerimeterSetpoints(),
             inputs.getRaActivationFromParentLeaf(),
             parameters.getRangeActionParameters(),
@@ -127,62 +150,71 @@ public class LinearProblemBuilder {
         );
     }
 
-    private ProblemFiller buildMaxMinRelativeMarginFiller(IteratingLinearOptimizerInput inputs, IteratingLinearOptimizerParameters parameters) {
+
+    private ProblemFiller buildMaxMinRelativeMarginFiller(IteratingLinearOptimizerMultiTSInput inputs, IteratingLinearOptimizerParameters parameters) {
+        Set<FlowCnec> optimizedCnecs = new HashSet<>();
+        for (OptimizationPerimeter perimeter : inputs.getOptimizationPerimeters()) {
+            optimizedCnecs.addAll(perimeter.getOptimizedFlowCnecs());
+        }
         return new MaxMinRelativeMarginFiller(
-            inputs.getOptimizationPerimeter().getOptimizedFlowCnecs(),
+            optimizedCnecs,
             inputs.getPreOptimizationFlowResult(),
             parameters.getObjectiveFunction().getUnit(),
             parameters.getMaxMinRelativeMarginParameters()
         );
     }
 
-    private ProblemFiller buildMaxMinMarginFiller(IteratingLinearOptimizerInput inputs, IteratingLinearOptimizerParameters parameters) {
+    private ProblemFiller buildMaxMinMarginFiller(IteratingLinearOptimizerMultiTSInput inputs, IteratingLinearOptimizerParameters parameters) {
+        Set<FlowCnec> optimizedCnecs = new HashSet<>();
+        for (OptimizationPerimeter perimeter : inputs.getOptimizationPerimeters()) {
+            optimizedCnecs.addAll(perimeter.getOptimizedFlowCnecs());
+        }
         return new MaxMinMarginFiller(
-            inputs.getOptimizationPerimeter().getOptimizedFlowCnecs(),
+            optimizedCnecs,
             parameters.getObjectiveFunctionUnit()
         );
     }
 
-    private ProblemFiller buildMnecFiller(IteratingLinearOptimizerInput inputs, IteratingLinearOptimizerParameters parameters) {
+    private ProblemFiller buildMnecFiller(IteratingLinearOptimizerMultiTSInput inputs, IteratingLinearOptimizerParameters parameters, OptimizationPerimeter optimizationPerimeter) {
         return new MnecFiller(
             inputs.getInitialFlowResult(),
-            inputs.getOptimizationPerimeter().getMonitoredFlowCnecs(),
+            optimizationPerimeter.getMonitoredFlowCnecs(),
             parameters.getObjectiveFunctionUnit(),
             parameters.getMnecParameters()
         );
     }
 
-    private ProblemFiller buildLoopFlowFiller(IteratingLinearOptimizerInput inputs, IteratingLinearOptimizerParameters parameters) {
+    private ProblemFiller buildLoopFlowFiller(IteratingLinearOptimizerMultiTSInput inputs, IteratingLinearOptimizerParameters parameters, OptimizationPerimeter optimizationPerimeter) {
         return new MaxLoopFlowFiller(
-            inputs.getOptimizationPerimeter().getLoopFlowCnecs(),
+            optimizationPerimeter.getLoopFlowCnecs(),
             inputs.getInitialFlowResult(),
             parameters.getLoopFlowParameters()
         );
     }
 
-    private ProblemFiller buildUnoptimizedCnecFiller(IteratingLinearOptimizerInput inputs, IteratingLinearOptimizerParameters parameters) {
+    private ProblemFiller buildUnoptimizedCnecFiller(IteratingLinearOptimizerMultiTSInput inputs, IteratingLinearOptimizerParameters parameters, OptimizationPerimeter optimizationPerimeter) {
         return new UnoptimizedCnecFiller(
-            inputs.getOptimizationPerimeter(),
-            inputs.getOptimizationPerimeter().getFlowCnecs(),
+            optimizationPerimeter,
+            optimizationPerimeter.getFlowCnecs(),
             inputs.getPrePerimeterFlowResult(),
             parameters.getUnoptimizedCnecParameters(),
             parameters.getRangeActionParameters()
         );
     }
 
-    private ProblemFiller buildIntegerPstTapFiller(IteratingLinearOptimizerInput inputs, Map<State, Set<PstRangeAction>> pstRangeActions) {
+    private ProblemFiller buildIntegerPstTapFiller(IteratingLinearOptimizerMultiTSInput inputs, Map<State, Set<PstRangeAction>> pstRangeActions, int i) {
         return new DiscretePstTapFiller(
-            inputs.getNetwork(),
-            inputs.getOptimizationPerimeter().getMainOptimizationState(),
+            inputs.getNetwork(i),
+            inputs.getOptimizationPerimeter(i).getMainOptimizationState(),
             pstRangeActions,
             inputs.getPrePerimeterSetpoints()
         );
     }
 
-    private ProblemFiller buildDiscretePstGroupFiller(IteratingLinearOptimizerInput inputs, Map<State, Set<PstRangeAction>> pstRangeActions) {
+    private ProblemFiller buildDiscretePstGroupFiller(IteratingLinearOptimizerMultiTSInput inputs, Map<State, Set<PstRangeAction>> pstRangeActions, int i) {
         return new DiscretePstGroupFiller(
-            inputs.getNetwork(),
-            inputs.getOptimizationPerimeter().getMainOptimizationState(),
+            inputs.getNetwork(i),
+            inputs.getOptimizationPerimeter(i).getMainOptimizationState(),
             pstRangeActions
         );
     }
@@ -190,10 +222,10 @@ public class LinearProblemBuilder {
     private ProblemFiller buildContinuousRangeActionGroupFiller(Map<State, Set<RangeAction<?>>> rangeActionsPerState) {
         return new ContinuousRangeActionGroupFiller(rangeActionsPerState);
     }
-
-    private ProblemFiller buildRaUageLimitsFiller(IteratingLinearOptimizerInput inputs, IteratingLinearOptimizerParameters parameters) {
+    
+    private ProblemFiller buildRaUageLimitsFiller(IteratingLinearOptimizerMultiTSInput inputs, IteratingLinearOptimizerParameters parameters, OptimizationPerimeter optimizationPerimeter) {
         return new RaUsageLimitsFiller(
-            inputs.getOptimizationPerimeter().getRangeActionsPerState(),
+            optimizationPerimeter.getRangeActionsPerState(),
             inputs.getPrePerimeterSetpoints(),
             parameters.getRaLimitationParameters(),
             parameters.getRangeActionParameters().getPstModel() == RangeActionsOptimizationParameters.PstModel.APPROXIMATED_INTEGERS);

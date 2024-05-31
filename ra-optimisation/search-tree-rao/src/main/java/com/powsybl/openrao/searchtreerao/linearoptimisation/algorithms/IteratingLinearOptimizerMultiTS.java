@@ -9,9 +9,12 @@ package com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms;
 
 import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.data.cracapi.Instant;
+import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
+import com.powsybl.openrao.data.cracapi.rangeaction.RangeAction;
 import com.powsybl.openrao.data.raoresultapi.ComputationStatus;
 import com.powsybl.openrao.raoapi.parameters.RangeActionsOptimizationParameters;
 import com.powsybl.openrao.searchtreerao.commons.SensitivityComputer;
+import com.powsybl.openrao.searchtreerao.commons.SensitivityComputerMultiTS;
 import com.powsybl.openrao.searchtreerao.commons.objectivefunctionevaluator.ObjectiveFunction;
 import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.GlobalOptimizationPerimeter;
 import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.OptimizationPerimeter;
@@ -25,8 +28,10 @@ import com.powsybl.openrao.searchtreerao.result.impl.LinearProblemResult;
 import com.powsybl.openrao.sensitivityanalysis.AppliedRemedialActions;
 import org.apache.commons.lang3.tuple.Pair;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 
 import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.*;
 
@@ -50,9 +55,9 @@ public final class IteratingLinearOptimizerMultiTS {
 
         IteratingLinearOptimizationResultImpl previousResult = bestResult;
 
-        SensitivityComputer sensitivityComputer = null;
+        SensitivityComputerMultiTS sensitivityComputerMultiTS = null;
 
-        LinearProblem linearProblem = LinearProblem.create()
+        LinearProblem linearProblem = LinearProblem.createMultiTS()
                 .buildFromInputsAndParameters(input, parameters);
 
         linearProblem.fill(input.getPreOptimizationFlowResult(), input.getPreOptimizationSensitivityResult());
@@ -83,15 +88,15 @@ public final class IteratingLinearOptimizerMultiTS {
                 return bestResult;
             }
 
-            sensitivityComputer = runSensitivityAnalysis(sensitivityComputer, iteration, currentRangeActionActivationResult, input, parameters);
-            if (sensitivityComputer.getSensitivityResult().getSensitivityStatus() == ComputationStatus.FAILURE) {
+            sensitivityComputerMultiTS = runSensitivityAnalysis(sensitivityComputerMultiTS, iteration, currentRangeActionActivationResult, input, parameters);
+            if (sensitivityComputerMultiTS.getSensitivityResults().getSensitivityStatus() == ComputationStatus.FAILURE) {
                 bestResult.setStatus(LinearProblemStatus.SENSITIVITY_COMPUTATION_FAILED);
                 return bestResult;
             }
 
             IteratingLinearOptimizationResultImpl currentResult = createResult(
-                    sensitivityComputer.getBranchResult(input.getNetwork(0)), // TODO: network is only useful for loopflows
-                    sensitivityComputer.getSensitivityResult(),
+                    sensitivityComputerMultiTS.getBranchResult(input.getNetwork(0), 0), // TODO: network is only useful for loopflows
+                    sensitivityComputerMultiTS.getSensitivityResults(),
                     currentRangeActionActivationResult,
                     iteration,
                     input.getObjectiveFunction()
@@ -109,19 +114,19 @@ public final class IteratingLinearOptimizerMultiTS {
         return bestResult;
     }
 
-    private static SensitivityComputer runSensitivityAnalysis(SensitivityComputer sensitivityComputer, int iteration, RangeActionActivationResult currentRangeActionActivationResult, IteratingLinearOptimizerMultiTSInput input, IteratingLinearOptimizerParameters parameters) {
-        SensitivityComputer tmpSensitivityComputer = sensitivityComputer;
+    private static SensitivityComputerMultiTS runSensitivityAnalysis(SensitivityComputerMultiTS sensitivityComputerMultiTS, int iteration, RangeActionActivationResult currentRangeActionActivationResult, IteratingLinearOptimizerMultiTSInput input, IteratingLinearOptimizerParameters parameters) {
+        SensitivityComputerMultiTS tmpSensitivityComputerMultiTS = sensitivityComputerMultiTS;
         if (input.getOptimizationPerimeter(0) instanceof GlobalOptimizationPerimeter) {
             AppliedRemedialActions appliedRemedialActionsInSecondaryStates = applyRangeActions(currentRangeActionActivationResult, input);
-            tmpSensitivityComputer = createSensitivityComputer(appliedRemedialActionsInSecondaryStates, input, parameters);
+            tmpSensitivityComputerMultiTS = createSensitivityComputer(appliedRemedialActionsInSecondaryStates, input, parameters);
         } else {
             applyRangeActions(currentRangeActionActivationResult, input);
-            if (tmpSensitivityComputer == null) { // first iteration, do not need to be updated afterwards
-                tmpSensitivityComputer = createSensitivityComputer(input.getPreOptimizationAppliedRemedialActions(), input, parameters);
+            if (tmpSensitivityComputerMultiTS == null) { // first iteration, do not need to be updated afterwards
+                tmpSensitivityComputerMultiTS = createSensitivityComputer(input.getPreOptimizationAppliedRemedialActions(), input, parameters);
             }
         }
-        runSensitivityAnalysis(tmpSensitivityComputer, input.getNetworks(), iteration);
-        return tmpSensitivityComputer;
+        runSensitivityAnalysis(tmpSensitivityComputerMultiTS, input.getNetworks(), iteration);
+        return tmpSensitivityComputerMultiTS;
     }
 
     private static RangeActionActivationResult resolveIfApproximatedPstTaps(IteratingLinearOptimizationResultImpl bestResult, LinearProblem linearProblem, int iteration, RangeActionActivationResult currentRangeActionActivationResult, IteratingLinearOptimizerMultiTSInput input, IteratingLinearOptimizerParameters parameters) {
@@ -183,37 +188,46 @@ public final class IteratingLinearOptimizerMultiTS {
         return shouldReturnAppliedRemedialActions ? appliedRemedialActions : null;
     }
 
-    private static SensitivityComputer createSensitivityComputer(AppliedRemedialActions appliedRemedialActions, IteratingLinearOptimizerMultiTSInput input, IteratingLinearOptimizerParameters parameters) {
+    private static SensitivityComputerMultiTS createSensitivityComputer(AppliedRemedialActions appliedRemedialActions, IteratingLinearOptimizerMultiTSInput input, IteratingLinearOptimizerParameters parameters) {
         //TODO : adapt sensitivity computer
-        SensitivityComputer.SensitivityComputerBuilder builder = SensitivityComputer.create();
-        /*        .withCnecs(input.getOptimizationPerimeter().getFlowCnecs())
-                .withRangeActions(input.getOptimizationPerimeter().getRangeActions())
+        List<Set<FlowCnec>> cnecsList = new ArrayList<>();
+        List<Set<FlowCnec>> loopFlowCnecsList = new ArrayList<>();
+        List<Set<RangeAction<?>>> rangeActionsList = new ArrayList<>();
+        for (OptimizationPerimeter perimeter:input.getOptimizationPerimeters()) {
+            cnecsList.add(perimeter.getFlowCnecs());
+            rangeActionsList.add(perimeter.getRangeActions());
+            loopFlowCnecsList.add(perimeter.getLoopFlowCnecs());
+        }
+
+        SensitivityComputerMultiTS.SensitivityComputerBuilder builder = SensitivityComputerMultiTS.create()
+                .withCnecs(cnecsList)
+                .withRangeActions(rangeActionsList)
                 .withAppliedRemedialActions(appliedRemedialActions)
                 .withToolProvider(input.getToolProvider())
                 .withOutageInstant(input.getOutageInstant());
 
         if (parameters.isRaoWithLoopFlowLimitation() && parameters.getLoopFlowParameters().getPtdfApproximation().shouldUpdatePtdfWithPstChange()) {
-            builder.withCommercialFlowsResults(input.getToolProvider().getLoopFlowComputation(), input.getOptimizationPerimeter().getLoopFlowCnecs());
+            builder.withCommercialFlowsResults(input.getToolProvider().getLoopFlowComputation(), loopFlowCnecsList);
         } else if (parameters.isRaoWithLoopFlowLimitation()) {
             builder.withCommercialFlowsResults(input.getPreOptimizationFlowResult());
         }
         if (parameters.getObjectiveFunction().relativePositiveMargins()) {
             if (parameters.getMaxMinRelativeMarginParameters().getPtdfApproximation().shouldUpdatePtdfWithPstChange()) {
-                builder.withPtdfsResults(input.getToolProvider().getAbsolutePtdfSumsComputation(), input.getOptimizationPerimeter().getFlowCnecs());
+                builder.withPtdfsResults(input.getToolProvider().getAbsolutePtdfSumsComputation(), cnecsList);
             } else {
                 builder.withPtdfsResults(input.getPreOptimizationFlowResult());
             }
-        }*/
+        }
 
         return builder.build();
     }
 
-    private static void runSensitivityAnalysis(SensitivityComputer sensitivityComputer, List<Network> networks, int iteration) {
-        //TODO: sensitivityComputer will be adapted to take a list of network
-        sensitivityComputer.compute(networks);
-        if (sensitivityComputer.getSensitivityResult().getSensitivityStatus() == ComputationStatus.FAILURE) {
-            BUSINESS_WARNS.warn("Systematic sensitivity computation failed at iteration {}", iteration);
+    private static void runSensitivityAnalysis(SensitivityComputerMultiTS sensitivityComputerMultiTS, List<Network> networks, int iteration) {
+        sensitivityComputerMultiTS.compute(networks);
+        if (sensitivityComputerMultiTS.getSensitivityResults().getSensitivityStatus() == ComputationStatus.FAILURE){
+                BUSINESS_WARNS.warn("Systematic sensitivity computation failed at iteration {}", iteration);
         }
+
     }
 
     private static IteratingLinearOptimizationResultImpl createResult(FlowResult flowResult,

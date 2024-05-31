@@ -42,6 +42,6 @@ public class LinearProblemResult extends RangeActionActivationResultImpl {
                     activate(rangeAction, state, setpoint);
                 }
             })
-        );
+        ));
     }
 }
