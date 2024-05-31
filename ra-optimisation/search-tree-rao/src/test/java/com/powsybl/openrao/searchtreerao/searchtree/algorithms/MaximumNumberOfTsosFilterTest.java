@@ -32,27 +32,27 @@ class MaximumNumberOfTsosFilterTest {
 
         // arrange previous Leaf -> naFr1 has already been activated
         Leaf previousLeaf = Mockito.mock(Leaf.class);
-        Mockito.when(previousLeaf.getActivatedNetworkActions()).thenReturn(Collections.singleton(NA_FR_1));
+        Mockito.when(previousLeaf.getOptimizationResult().getActivatedNetworkActions()).thenReturn(Collections.singleton(NA_FR_1));
 
         MaximumNumberOfTsosFilter naFilter;
         Set<NetworkActionCombination> filteredNaCombination;
 
         // max 3 TSOs
         naFilter = new MaximumNumberOfTsosFilter(3);
-        filteredNaCombination = naFilter.filter(naCombinations, previousLeaf);
+        filteredNaCombination = naFilter.filter(naCombinations, previousLeaf.getOptimizationResult());
 
         assertEquals(9, filteredNaCombination.size()); // no combination filtered
 
         // max 2 TSOs
         naFilter = new MaximumNumberOfTsosFilter(2);
-        filteredNaCombination = naFilter.filter(naCombinations, previousLeaf);
+        filteredNaCombination = naFilter.filter(naCombinations, previousLeaf.getOptimizationResult());
 
         assertEquals(7, filteredNaCombination.size());
         assertFalse(filteredNaCombination.contains(COMB_2_BE_NL)); // one combination filtered
 
         // max 1 TSO
         naFilter = new MaximumNumberOfTsosFilter(1);
-        filteredNaCombination = naFilter.filter(naCombinations, previousLeaf);
+        filteredNaCombination = naFilter.filter(naCombinations, previousLeaf.getOptimizationResult());
 
         assertEquals(3, filteredNaCombination.size());
         assertTrue(filteredNaCombination.contains(IND_FR_2));
@@ -68,13 +68,13 @@ class MaximumNumberOfTsosFilterTest {
         rangeActions.add(RA_BE_1);
 
         Leaf leaf = Mockito.mock(Leaf.class);
-        Mockito.when(leaf.getActivatedNetworkActions()).thenReturn(Collections.singleton(NA_FR_1));
-        Mockito.when(leaf.getRangeActions()).thenReturn(rangeActions);
-        Mockito.when(leaf.getOptimizedSetpoint(RA_BE_1, P_STATE)).thenReturn(5.);
-        Mockito.when(leaf.getOptimizedSetpoint(nonActivatedRa, P_STATE)).thenReturn(0.);
+        Mockito.when(leaf.getOptimizationResult().getActivatedNetworkActions()).thenReturn(Collections.singleton(NA_FR_1));
+        Mockito.when(leaf.getOptimizationResult().getRangeActions()).thenReturn(rangeActions);
+        Mockito.when(leaf.getOptimizationResult().getOptimizedSetpoint(RA_BE_1, P_STATE)).thenReturn(5.);
+        Mockito.when(leaf.getOptimizationResult().getOptimizedSetpoint(nonActivatedRa, P_STATE)).thenReturn(0.);
 
         MaximumNumberOfTsosFilter naFilter = new MaximumNumberOfTsosFilter(Integer.MAX_VALUE);
-        Set<String> activatedTsos = naFilter.getTsosWithActivatedNetworkActions(leaf);
+        Set<String> activatedTsos = naFilter.getTsosWithActivatedNetworkActions(leaf.getOptimizationResult());
 
         // only network actions count when counting activated RAs in previous leaf
         assertEquals(Set.of("fr"), activatedTsos);
@@ -87,11 +87,11 @@ class MaximumNumberOfTsosFilterTest {
 
         // previous Leaf -> naFr1 has already been activated
         Leaf previousLeaf = Mockito.mock(Leaf.class);
-        Mockito.when(previousLeaf.getActivatedNetworkActions()).thenReturn(Collections.singleton(NA_FR_1));
+        Mockito.when(previousLeaf.getOptimizationResult().getActivatedNetworkActions()).thenReturn(Collections.singleton(NA_FR_1));
 
         // max 2 TSOs
         MaximumNumberOfTsosFilter naFilter = new MaximumNumberOfTsosFilter(2);
-        Set<NetworkActionCombination> filteredNaCombination = naFilter.filter(naCombinations, previousLeaf);
+        Set<NetworkActionCombination> filteredNaCombination = naFilter.filter(naCombinations, previousLeaf.getOptimizationResult());
 
         assertEquals(1, filteredNaCombination.size()); // no combination filtered, because null operator should not count
     }

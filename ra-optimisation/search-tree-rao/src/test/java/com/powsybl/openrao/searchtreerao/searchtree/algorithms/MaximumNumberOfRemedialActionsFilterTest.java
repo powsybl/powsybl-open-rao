@@ -40,27 +40,27 @@ class MaximumNumberOfRemedialActionsFilterTest {
 
         // arrange previous Leaf -> naFr1 has already been activated
         Leaf previousLeaf = Mockito.mock(Leaf.class);
-        Mockito.when(previousLeaf.getActivatedNetworkActions()).thenReturn(Collections.singleton(NA_FR_1));
+        Mockito.when(previousLeaf.getOptimizationResult().getActivatedNetworkActions()).thenReturn(Collections.singleton(NA_FR_1));
 
         MaximumNumberOfRemedialActionsFilter naFilter;
         Set<NetworkActionCombination> filteredNaCombination;
 
         // filter - max 4 RAs
         naFilter = new MaximumNumberOfRemedialActionsFilter(4);
-        filteredNaCombination = naFilter.filter(naCombinations, previousLeaf);
+        filteredNaCombination = naFilter.filter(naCombinations, previousLeaf.getOptimizationResult());
 
         assertEquals(8, filteredNaCombination.size()); // no combination filtered
 
         // filter - max 3 RAs
         naFilter = new MaximumNumberOfRemedialActionsFilter(3);
-        filteredNaCombination = naFilter.filter(naCombinations, previousLeaf);
+        filteredNaCombination = naFilter.filter(naCombinations, previousLeaf.getOptimizationResult());
 
         assertEquals(7, filteredNaCombination.size()); // one combination filtered
         assertFalse(filteredNaCombination.contains(COMB_3_BE));
 
         // max 2 RAs
         naFilter = new MaximumNumberOfRemedialActionsFilter(2);
-        filteredNaCombination = naFilter.filter(naCombinations, previousLeaf);
+        filteredNaCombination = naFilter.filter(naCombinations, previousLeaf.getOptimizationResult());
 
         assertEquals(4, filteredNaCombination.size());
         assertTrue(filteredNaCombination.contains(IND_FR_2));
@@ -70,7 +70,7 @@ class MaximumNumberOfRemedialActionsFilterTest {
 
         // max 1 RAs
         naFilter = new MaximumNumberOfRemedialActionsFilter(1);
-        filteredNaCombination = naFilter.filter(naCombinations, previousLeaf);
+        filteredNaCombination = naFilter.filter(naCombinations, previousLeaf.getOptimizationResult());
 
         assertEquals(0, filteredNaCombination.size()); // all combination filtered
     }

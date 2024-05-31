@@ -139,8 +139,8 @@ class LeafTest {
     @Test
     void testRootLeafDefinition() {
         Leaf rootLeaf = new Leaf(optimizationPerimeter, network, prePerimeterResult, appliedRemedialActions);
-        assertTrue(rootLeaf.getActivatedNetworkActions().isEmpty());
-        assert rootLeaf.getActivatedNetworkActions().isEmpty();
+        assertTrue(rootLeaf.getOptimizationResult().getActivatedNetworkActions().isEmpty());
+        assert rootLeaf.getOptimizationResult().getActivatedNetworkActions().isEmpty();
         assertTrue(rootLeaf.isRoot());
         assertEquals(Leaf.Status.EVALUATED, rootLeaf.getStatus());
     }
@@ -155,29 +155,29 @@ class LeafTest {
     void testMultipleLeafsDefinition() {
         RangeActionActivationResult rangeActionActivationResult = Mockito.mock(RangeActionActivationResult.class);
         Leaf rootLeaf = new Leaf(optimizationPerimeter, network, prePerimeterResult, appliedRemedialActions);
-        Leaf leaf1 = new Leaf(optimizationPerimeter, network, rootLeaf.getActivatedNetworkActions(), new NetworkActionCombination(na1), rangeActionActivationResult, prePerimeterResult, appliedRemedialActions);
-        Leaf leaf2 = new Leaf(optimizationPerimeter, network, leaf1.getActivatedNetworkActions(), new NetworkActionCombination(na2), rangeActionActivationResult, prePerimeterResult, appliedRemedialActions);
-        assertEquals(1, leaf1.getActivatedNetworkActions().size());
-        assertEquals(2, leaf2.getActivatedNetworkActions().size());
-        assertTrue(leaf1.getActivatedNetworkActions().contains(na1));
-        assertTrue(leaf2.getActivatedNetworkActions().contains(na1));
-        assertTrue(leaf2.getActivatedNetworkActions().contains(na2));
+        Leaf leaf1 = new Leaf(optimizationPerimeter, network, rootLeaf.getOptimizationResult().getActivatedNetworkActions(), new NetworkActionCombination(na1), rangeActionActivationResult, prePerimeterResult, appliedRemedialActions);
+        Leaf leaf2 = new Leaf(optimizationPerimeter, network, leaf1.getOptimizationResult().getActivatedNetworkActions(), new NetworkActionCombination(na2), rangeActionActivationResult, prePerimeterResult, appliedRemedialActions);
+        assertEquals(1, leaf1.getOptimizationResult().getActivatedNetworkActions().size());
+        assertEquals(2, leaf2.getOptimizationResult().getActivatedNetworkActions().size());
+        assertTrue(leaf1.getOptimizationResult().getActivatedNetworkActions().contains(na1));
+        assertTrue(leaf2.getOptimizationResult().getActivatedNetworkActions().contains(na1));
+        assertTrue(leaf2.getOptimizationResult().getActivatedNetworkActions().contains(na2));
         assertFalse(leaf1.isRoot());
         assertFalse(leaf2.isRoot());
         assertEquals(Leaf.Status.CREATED, leaf1.getStatus());
         assertEquals(Leaf.Status.CREATED, leaf2.getStatus());
-        assert leaf1.isActivated(na1);
-        assertFalse(leaf1.isActivated(na2));
+        assert leaf1.getOptimizationResult().isActivated(na1);
+        assertFalse(leaf1.getOptimizationResult().isActivated(na2));
     }
 
     @Test
     void testMultipleLeafDefinitionWithSameNetworkAction() {
         RangeActionActivationResult rangeActionActivationResult = Mockito.mock(RangeActionActivationResult.class);
         Leaf rootLeaf = new Leaf(optimizationPerimeter, network, prePerimeterResult, appliedRemedialActions);
-        Leaf leaf1 = new Leaf(optimizationPerimeter, network, rootLeaf.getActivatedNetworkActions(), new NetworkActionCombination(na1), rangeActionActivationResult, prePerimeterResult, appliedRemedialActions);
-        Leaf leaf2 = new Leaf(optimizationPerimeter, network, leaf1.getActivatedNetworkActions(), new NetworkActionCombination(na1), rangeActionActivationResult, prePerimeterResult, appliedRemedialActions);
-        assertEquals(1, leaf2.getActivatedNetworkActions().size());
-        assertTrue(leaf2.getActivatedNetworkActions().contains(na1));
+        Leaf leaf1 = new Leaf(optimizationPerimeter, network, rootLeaf.getOptimizationResult().getActivatedNetworkActions(), new NetworkActionCombination(na1), rangeActionActivationResult, prePerimeterResult, appliedRemedialActions);
+        Leaf leaf2 = new Leaf(optimizationPerimeter, network, leaf1.getOptimizationResult().getActivatedNetworkActions(), new NetworkActionCombination(na1), rangeActionActivationResult, prePerimeterResult, appliedRemedialActions);
+        assertEquals(1, leaf2.getOptimizationResult().getActivatedNetworkActions().size());
+        assertTrue(leaf2.getOptimizationResult().getActivatedNetworkActions().contains(na1));
         assertFalse(leaf2.isRoot());
     }
 
@@ -196,7 +196,7 @@ class LeafTest {
         when(networkAction.apply(any())).thenReturn(true);
         Leaf rootLeaf = new Leaf(optimizationPerimeter, network, prePerimeterResult, appliedRemedialActions);
         RangeActionActivationResult rangeActionActivationResult = Mockito.mock(RangeActionActivationResult.class);
-        Leaf leaf = new Leaf(optimizationPerimeter, network, rootLeaf.getActivatedNetworkActions(), new NetworkActionCombination(networkAction), rangeActionActivationResult, prePerimeterResult, appliedRemedialActions);
+        Leaf leaf = new Leaf(optimizationPerimeter, network, rootLeaf.getOptimizationResult().getActivatedNetworkActions(), new NetworkActionCombination(networkAction), rangeActionActivationResult, prePerimeterResult, appliedRemedialActions);
         SensitivityResult expectedSensitivityResult = Mockito.mock(SensitivityResult.class);
         when(sensitivityComputer.getSensitivityResult()).thenReturn(expectedSensitivityResult);
         when(expectedSensitivityResult.getSensitivityStatus()).thenReturn(expectedSensitivityStatus);
@@ -230,8 +230,8 @@ class LeafTest {
 
         assertEquals(Leaf.Status.EVALUATED, leaf1.getStatus());
         assertEquals(expectedFlowResult, leaf1.getPreOptimBranchResult());
-        assertEquals(expectedSensitivityStatus, leaf1.getSensitivityStatus());
-        assertEquals(expectedCost, leaf1.getCost(), DOUBLE_TOLERANCE);
+        assertEquals(expectedSensitivityStatus, leaf1.getOptimizationResult().getSensitivityStatus());
+        assertEquals(expectedCost, leaf1.getOptimizationResult().getCost(), DOUBLE_TOLERANCE);
     }
 
     @Test
@@ -337,16 +337,16 @@ class LeafTest {
         Unit unit = MEGAWATT;
         when(flowResult.getFlow(flowCnec, LEFT, unit)).thenReturn(expectedFlow);
         when(flowResult.getCommercialFlow(flowCnec, LEFT, unit)).thenReturn(expectedFlow);
-        assertEquals(expectedFlow, leaf.getFlow(flowCnec, LEFT, unit), DOUBLE_TOLERANCE);
-        assertEquals(expectedFlow, leaf.getCommercialFlow(flowCnec, LEFT, unit), DOUBLE_TOLERANCE);
+        assertEquals(expectedFlow, leaf.getOptimizationResult().getFlow(flowCnec, LEFT, unit), DOUBLE_TOLERANCE);
+        assertEquals(expectedFlow, leaf.getOptimizationResult().getCommercialFlow(flowCnec, LEFT, unit), DOUBLE_TOLERANCE);
 
         double expectedPtdf = 4.;
         when(flowResult.getPtdfZonalSum(flowCnec, LEFT)).thenReturn(expectedPtdf);
-        assertEquals(expectedPtdf, leaf.getPtdfZonalSum(flowCnec, LEFT), DOUBLE_TOLERANCE);
+        assertEquals(expectedPtdf, leaf.getOptimizationResult().getPtdfZonalSum(flowCnec, LEFT), DOUBLE_TOLERANCE);
 
         Map<FlowCnec, Map<Side, Double>> expectedPtdfZonalSums = new HashMap<>();
         when(flowResult.getPtdfZonalSums()).thenReturn(expectedPtdfZonalSums);
-        assertEquals(expectedPtdfZonalSums, leaf.getPtdfZonalSums());
+        assertEquals(expectedPtdfZonalSums, leaf.getOptimizationResult().getPtdfZonalSums());
     }
 
     @Test
@@ -364,16 +364,16 @@ class LeafTest {
         Unit unit = MEGAWATT;
         when(linearOptimizationResult.getFlow(flowCnec, LEFT, unit)).thenReturn(expectedFlow);
         when(linearOptimizationResult.getCommercialFlow(flowCnec, LEFT, unit)).thenReturn(expectedFlow);
-        assertEquals(expectedFlow, leaf.getFlow(flowCnec, LEFT, unit), DOUBLE_TOLERANCE);
-        assertEquals(expectedFlow, leaf.getCommercialFlow(flowCnec, LEFT, unit), DOUBLE_TOLERANCE);
+        assertEquals(expectedFlow, leaf.getOptimizationResult().getFlow(flowCnec, LEFT, unit), DOUBLE_TOLERANCE);
+        assertEquals(expectedFlow, leaf.getOptimizationResult().getCommercialFlow(flowCnec, LEFT, unit), DOUBLE_TOLERANCE);
 
         double expectedPtdf = 4.;
         when(linearOptimizationResult.getPtdfZonalSum(flowCnec, LEFT)).thenReturn(expectedPtdf);
-        assertEquals(expectedPtdf, leaf.getPtdfZonalSum(flowCnec, LEFT), DOUBLE_TOLERANCE);
+        assertEquals(expectedPtdf, leaf.getOptimizationResult().getPtdfZonalSum(flowCnec, LEFT), DOUBLE_TOLERANCE);
 
         Map<FlowCnec, Map<Side, Double>> expectedPtdfZonalSums = new HashMap<>();
         when(linearOptimizationResult.getPtdfZonalSums()).thenReturn(expectedPtdfZonalSums);
-        assertEquals(expectedPtdfZonalSums, leaf.getPtdfZonalSums());
+        assertEquals(expectedPtdfZonalSums, leaf.getOptimizationResult().getPtdfZonalSums());
 
     }
 
@@ -381,7 +381,7 @@ class LeafTest {
     void getFlowOnFlowCnecBeforeEvaluation() {
         Leaf leaf = buildNotEvaluatedRootLeaf();
         FlowCnec flowCnec = Mockito.mock(FlowCnec.class);
-        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> leaf.getFlow(flowCnec, LEFT, MEGAWATT));
+        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> leaf.getOptimizationResult().getFlow(flowCnec, LEFT, MEGAWATT));
         assertEquals("No results available.", exception.getMessage());
     }
 
@@ -389,7 +389,7 @@ class LeafTest {
     void getCommercialFlowOnFlowCnecBeforeEvaluation() {
         Leaf leaf = buildNotEvaluatedRootLeaf();
         FlowCnec flowCnec = Mockito.mock(FlowCnec.class);
-        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> leaf.getCommercialFlow(flowCnec, LEFT, MEGAWATT));
+        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> leaf.getOptimizationResult().getCommercialFlow(flowCnec, LEFT, MEGAWATT));
         assertEquals("No results available.", exception.getMessage());
     }
 
@@ -397,14 +397,14 @@ class LeafTest {
     void getPtdfZonalSumOnCnecBeforeEvaluation() {
         Leaf leaf = buildNotEvaluatedRootLeaf();
         FlowCnec flowCnec = Mockito.mock(FlowCnec.class);
-        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> leaf.getPtdfZonalSum(flowCnec, LEFT));
+        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> leaf.getOptimizationResult().getPtdfZonalSum(flowCnec, LEFT));
         assertEquals("No results available.", exception.getMessage());
     }
 
     @Test
     void getPtdfZonalSumsBeforeEvaluation() {
         Leaf leaf = buildNotEvaluatedRootLeaf();
-        OpenRaoException exception = assertThrows(OpenRaoException.class, leaf::getPtdfZonalSums);
+        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> leaf.getOptimizationResult().getPtdfZonalSums());
         assertEquals("No results available.", exception.getMessage());
     }
 
@@ -416,7 +416,7 @@ class LeafTest {
         double expectedCost = 5.;
         Leaf leaf = prepareLeafForEvaluation(na1, expectedSensitivityStatus, expectedFlowResult, expectedCost);
         leaf.evaluate(costEvaluatorMock, sensitivityComputer);
-        assertEquals(expectedCost / 2, leaf.getFunctionalCost(), DOUBLE_TOLERANCE);
+        assertEquals(expectedCost / 2, leaf.getOptimizationResult().getFunctionalCost(), DOUBLE_TOLERANCE);
     }
 
     @Test
@@ -427,13 +427,13 @@ class LeafTest {
         leaf.optimize(searchTreeInput, searchTreeParameters);
         double expectedFunctionalCost = 3.;
         when(linearOptimizationResult.getFunctionalCost()).thenReturn(expectedFunctionalCost);
-        assertEquals(expectedFunctionalCost, leaf.getFunctionalCost(), DOUBLE_TOLERANCE);
+        assertEquals(expectedFunctionalCost, leaf.getOptimizationResult().getFunctionalCost(), DOUBLE_TOLERANCE);
     }
 
     @Test
     void getFunctionalCostBeforeOptimization() {
         Leaf leaf = buildNotEvaluatedRootLeaf();
-        OpenRaoException exception = assertThrows(OpenRaoException.class, leaf::getFunctionalCost);
+        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> leaf.getOptimizationResult().getFunctionalCost());
         assertEquals("No results available.", exception.getMessage());
     }
 
@@ -446,8 +446,8 @@ class LeafTest {
         double expectedCost = 5.;
         Leaf leaf = prepareLeafForEvaluation(na1, expectedSensitivityStatus, expectedFlowResult, expectedCost);
         leaf.evaluate(costEvaluatorMock, sensitivityComputer);
-        assertEquals(expectedCost / 2, leaf.getVirtualCost(), DOUBLE_TOLERANCE);
-        assertEquals(expectedCost / 2, leaf.getVirtualCost(virtualCostName), DOUBLE_TOLERANCE);
+        assertEquals(expectedCost / 2, leaf.getOptimizationResult().getVirtualCost(), DOUBLE_TOLERANCE);
+        assertEquals(expectedCost / 2, leaf.getOptimizationResult().getVirtualCost(virtualCostName), DOUBLE_TOLERANCE);
     }
 
     @Test
@@ -458,22 +458,22 @@ class LeafTest {
         leaf.optimize(searchTreeInput, searchTreeParameters);
         double expectedVirtualCost = 3.;
         when(linearOptimizationResult.getVirtualCost()).thenReturn(expectedVirtualCost);
-        assertEquals(expectedVirtualCost, leaf.getVirtualCost(), DOUBLE_TOLERANCE);
+        assertEquals(expectedVirtualCost, leaf.getOptimizationResult().getVirtualCost(), DOUBLE_TOLERANCE);
         when(linearOptimizationResult.getVirtualCost(virtualCostName)).thenReturn(expectedVirtualCost);
-        assertEquals(expectedVirtualCost, leaf.getVirtualCost(virtualCostName), DOUBLE_TOLERANCE);
+        assertEquals(expectedVirtualCost, leaf.getOptimizationResult().getVirtualCost(virtualCostName), DOUBLE_TOLERANCE);
     }
 
     @Test
     void getVirtualCostBeforeOptimization() {
         Leaf leaf = buildNotEvaluatedRootLeaf();
-        OpenRaoException exception = assertThrows(OpenRaoException.class, leaf::getVirtualCost);
+        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> leaf.getOptimizationResult().getVirtualCost());
         assertEquals("No results available.", exception.getMessage());
     }
 
     @Test
     void getSpecificVirtualCostBeforeOptimization() {
         Leaf leaf = buildNotEvaluatedRootLeaf();
-        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> leaf.getVirtualCost(virtualCostName));
+        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> leaf.getOptimizationResult().getVirtualCost(virtualCostName));
         assertEquals("No results available.", exception.getMessage());
     }
 
@@ -487,8 +487,8 @@ class LeafTest {
         List<FlowCnec> flowCnecs = Collections.singletonList(flowCnec);
         Leaf leaf = prepareLeafForEvaluation(na1, expectedSensitivityStatus, expectedFlowResult, expectedCost, flowCnecs);
         leaf.evaluate(costEvaluatorMock, sensitivityComputer);
-        assertEquals(flowCnecs, leaf.getMostLimitingElements(flowCnecs.size()));
-        assertEquals(flowCnecs, leaf.getCostlyElements(virtualCostName, flowCnecs.size()));
+        assertEquals(flowCnecs, leaf.getOptimizationResult().getMostLimitingElements(flowCnecs.size()));
+        assertEquals(flowCnecs, leaf.getOptimizationResult().getCostlyElements(virtualCostName, flowCnecs.size()));
     }
 
     @Test
@@ -500,22 +500,22 @@ class LeafTest {
         FlowCnec flowCnec = Mockito.mock(FlowCnec.class);
         List<FlowCnec> flowCnecs = Collections.singletonList(flowCnec);
         when(linearOptimizationResult.getMostLimitingElements(flowCnecs.size())).thenReturn(flowCnecs);
-        assertEquals(flowCnecs, leaf.getMostLimitingElements(flowCnecs.size()));
+        assertEquals(flowCnecs, leaf.getOptimizationResult().getMostLimitingElements(flowCnecs.size()));
         when(linearOptimizationResult.getCostlyElements(virtualCostName, flowCnecs.size())).thenReturn(flowCnecs);
-        assertEquals(flowCnecs, leaf.getCostlyElements(virtualCostName, flowCnecs.size()));
+        assertEquals(flowCnecs, leaf.getOptimizationResult().getCostlyElements(virtualCostName, flowCnecs.size()));
     }
 
     @Test
     void getMostLimitingElementsBeforeOptimization() {
         Leaf leaf = buildNotEvaluatedRootLeaf();
-        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> leaf.getMostLimitingElements(0));
+        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> leaf.getOptimizationResult().getMostLimitingElements(0));
         assertEquals("No results available.", exception.getMessage());
     }
 
     @Test
     void getCostlyElementsBeforeOptimization() {
         Leaf leaf = buildNotEvaluatedRootLeaf();
-        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> leaf.getCostlyElements(virtualCostName, 0));
+        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> leaf.getOptimizationResult().getCostlyElements(virtualCostName, 0));
         assertEquals("No results available.", exception.getMessage());
     }
 
@@ -528,7 +528,7 @@ class LeafTest {
         virtualCostNames.add(virtualCostName);
         when(objectiveFunctionResult.getVirtualCostNames()).thenReturn(virtualCostNames);
         leaf.evaluate(costEvaluatorMock, sensitivityComputer);
-        assertEquals(virtualCostNames, leaf.getVirtualCostNames());
+        assertEquals(virtualCostNames, leaf.getOptimizationResult().getVirtualCostNames());
     }
 
     @Test
@@ -559,11 +559,11 @@ class LeafTest {
         Leaf leaf = new Leaf(optimizationPerimeter, network, prePerimeterResult, appliedRemedialActions);
         leaf.evaluate(costEvaluatorMock, sensitivityComputer);
 
-        assertEquals(rangeActions, leaf.getRangeActions());
-        assertEquals(optimalTap, leaf.getOptimizedTap(pstRangeAction, optimizedState));
-        assertEquals(optimizedTaps, leaf.getOptimizedTapsOnState(optimizedState));
-        assertEquals(optimalSetpoint, leaf.getOptimizedSetpoint(rangeAction, optimizedState), DOUBLE_TOLERANCE);
-        assertEquals(optimizedSetPoints, leaf.getOptimizedSetpointsOnState(optimizedState));
+        assertEquals(rangeActions, leaf.getOptimizationResult().getRangeActions());
+        assertEquals(optimalTap, leaf.getOptimizationResult().getOptimizedTap(pstRangeAction, optimizedState));
+        assertEquals(optimizedTaps, leaf.getOptimizationResult().getOptimizedTapsOnState(optimizedState));
+        assertEquals(optimalSetpoint, leaf.getOptimizationResult().getOptimizedSetpoint(rangeAction, optimizedState), DOUBLE_TOLERANCE);
+        assertEquals(optimizedSetPoints, leaf.getOptimizationResult().getOptimizedSetpointsOnState(optimizedState));
     }
 
     @Test
@@ -586,26 +586,26 @@ class LeafTest {
         rangeActions.add(rangeAction);
 
         when(optimizationPerimeter.getRangeActions()).thenReturn(rangeActions);
-        assertEquals(rangeActions, leaf.getRangeActions());
+        assertEquals(rangeActions, leaf.getOptimizationResult().getRangeActions());
 
         when(linearOptimizationResult.getOptimizedTap(pstRangeAction, optimizedState)).thenReturn(optimalTap);
-        assertEquals(optimalTap, leaf.getOptimizedTap(pstRangeAction, optimizedState));
+        assertEquals(optimalTap, leaf.getOptimizationResult().getOptimizedTap(pstRangeAction, optimizedState));
 
         when(linearOptimizationResult.getOptimizedTapsOnState(optimizedState)).thenReturn(optimizedTaps);
-        assertEquals(optimizedTaps, leaf.getOptimizedTapsOnState(optimizedState));
+        assertEquals(optimizedTaps, leaf.getOptimizationResult().getOptimizedTapsOnState(optimizedState));
 
         when(linearOptimizationResult.getOptimizedSetpoint(rangeAction, optimizedState)).thenReturn(optimalSetpoint);
-        assertEquals(optimalSetpoint, leaf.getOptimizedSetpoint(rangeAction, optimizedState), DOUBLE_TOLERANCE);
+        assertEquals(optimalSetpoint, leaf.getOptimizationResult().getOptimizedSetpoint(rangeAction, optimizedState), DOUBLE_TOLERANCE);
 
         when(linearOptimizationResult.getOptimizedSetpointsOnState(optimizedState)).thenReturn(optimizedSetPoints);
-        assertEquals(optimizedSetPoints, leaf.getOptimizedSetpointsOnState(optimizedState));
+        assertEquals(optimizedSetPoints, leaf.getOptimizationResult().getOptimizedSetpointsOnState(optimizedState));
     }
 
     @Test
     void getRangeActionsBeforeEvaluation() {
         Leaf leaf = buildNotEvaluatedRootLeaf();
         assertEquals(Leaf.Status.CREATED, leaf.getStatus());
-        assertTrue(leaf.getRangeActions().isEmpty());
+        assertTrue(leaf.getOptimizationResult().getRangeActions().isEmpty());
 
         PstRangeAction pstRangeAction = Mockito.mock(PstRangeAction.class);
         RangeAction<?> rangeAction = Mockito.mock(RangeAction.class);
@@ -614,28 +614,28 @@ class LeafTest {
         rangeActions.add(rangeAction);
         when(optimizationPerimeter.getRangeActions()).thenReturn(rangeActions);
         assertEquals(Leaf.Status.CREATED, leaf.getStatus());
-        assertEquals(rangeActions, leaf.getRangeActions());
+        assertEquals(rangeActions, leaf.getOptimizationResult().getRangeActions());
     }
 
     @Test
     void getOptimizedTapBeforeEvaluation() {
         Leaf leaf = buildNotEvaluatedRootLeaf();
         PstRangeAction pstRangeAction = Mockito.mock(PstRangeAction.class);
-        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> leaf.getOptimizedTap(pstRangeAction, optimizedState));
+        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> leaf.getOptimizationResult().getOptimizedTap(pstRangeAction, optimizedState));
         assertEquals("No results available.", exception.getMessage());
     }
 
     @Test
     void getOptimizedTapsBeforeEvaluation() {
         Leaf leaf = buildNotEvaluatedRootLeaf();
-        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> leaf.getOptimizedTapsOnState(optimizedState));
+        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> leaf.getOptimizationResult().getOptimizedTapsOnState(optimizedState));
         assertEquals("No results available.", exception.getMessage());
     }
 
     @Test
     void getOptimizedSetpointsBeforeEvaluation() {
         Leaf leaf = buildNotEvaluatedRootLeaf();
-        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> leaf.getOptimizedSetpointsOnState(optimizedState));
+        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> leaf.getOptimizationResult().getOptimizedSetpointsOnState(optimizedState));
         assertEquals("No results available.", exception.getMessage());
     }
 
@@ -643,7 +643,7 @@ class LeafTest {
     void getOptimizedSetPointBeforeEvaluation() {
         Leaf leaf = buildNotEvaluatedRootLeaf();
         RangeAction<?> rangeAction = Mockito.mock(RangeAction.class);
-        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> leaf.getOptimizedSetpoint(rangeAction, optimizedState));
+        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> leaf.getOptimizationResult().getOptimizedSetpoint(rangeAction, optimizedState));
         assertEquals("No results available.", exception.getMessage());
     }
 
@@ -652,7 +652,7 @@ class LeafTest {
         Leaf leaf = new Leaf(optimizationPerimeter, network, prePerimeterResult, appliedRemedialActions);
         ComputationStatus sensitivityStatus = Mockito.mock(ComputationStatus.class);
         when(prePerimeterResult.getSensitivityStatus()).thenReturn(sensitivityStatus);
-        assertEquals(sensitivityStatus, leaf.getSensitivityStatus());
+        assertEquals(sensitivityStatus, leaf.getOptimizationResult().getSensitivityStatus());
     }
 
     @Test
@@ -665,13 +665,13 @@ class LeafTest {
 
         leaf.optimize(searchTreeInput, searchTreeParameters);
 
-        assertEquals(sensitivityStatus, leaf.getSensitivityStatus());
+        assertEquals(sensitivityStatus, leaf.getOptimizationResult().getSensitivityStatus());
     }
 
     @Test
     void getSensitivityStatusBeforeEvaluation() {
         Leaf leaf = buildNotEvaluatedRootLeaf();
-        OpenRaoException exception = assertThrows(OpenRaoException.class, leaf::getSensitivityStatus);
+        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> leaf.getOptimizationResult().getSensitivityStatus());
         assertEquals("No results available.", exception.getMessage());
     }
 
@@ -687,8 +687,8 @@ class LeafTest {
         when(prePerimeterResult.getSensitivityValue(flowCnec, RIGHT, rangeAction, MEGAWATT)).thenReturn(expectedSensi);
         when(prePerimeterResult.getSensitivityValue(flowCnec, RIGHT, linearGlsk, MEGAWATT)).thenReturn(expectedSensi);
 
-        assertEquals(expectedSensi, leaf.getSensitivityValue(flowCnec, RIGHT, rangeAction, MEGAWATT), DOUBLE_TOLERANCE);
-        assertEquals(expectedSensi, leaf.getSensitivityValue(flowCnec, RIGHT, linearGlsk, MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(expectedSensi, leaf.getOptimizationResult().getSensitivityValue(flowCnec, RIGHT, rangeAction, MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(expectedSensi, leaf.getOptimizationResult().getSensitivityValue(flowCnec, RIGHT, linearGlsk, MEGAWATT), DOUBLE_TOLERANCE);
     }
 
     @Test
@@ -707,8 +707,8 @@ class LeafTest {
         when(linearOptimizationResult.getSensitivityValue(flowCnec, RIGHT, linearGlsk, MEGAWATT)).thenReturn(expectedSensi);
         when(linearOptimizationResult.getRangeActions()).thenReturn(Set.of(rangeAction));
 
-        assertEquals(expectedSensi, leaf.getSensitivityValue(flowCnec, RIGHT, rangeAction, MEGAWATT), DOUBLE_TOLERANCE);
-        assertEquals(expectedSensi, leaf.getSensitivityValue(flowCnec, RIGHT, linearGlsk, MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(expectedSensi, leaf.getOptimizationResult().getSensitivityValue(flowCnec, RIGHT, rangeAction, MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(expectedSensi, leaf.getOptimizationResult().getSensitivityValue(flowCnec, RIGHT, linearGlsk, MEGAWATT), DOUBLE_TOLERANCE);
     }
 
     @Test
@@ -716,7 +716,7 @@ class LeafTest {
         Leaf leaf = buildNotEvaluatedRootLeaf();
         FlowCnec flowCnec = Mockito.mock(FlowCnec.class);
         RangeAction<?> rangeAction = Mockito.mock(RangeAction.class);
-        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> leaf.getSensitivityValue(flowCnec, RIGHT, rangeAction, MEGAWATT));
+        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> leaf.getOptimizationResult().getSensitivityValue(flowCnec, RIGHT, rangeAction, MEGAWATT));
         assertEquals("No results available.", exception.getMessage());
     }
 
@@ -725,14 +725,14 @@ class LeafTest {
         Leaf leaf = buildNotEvaluatedRootLeaf();
         FlowCnec flowCnec = Mockito.mock(FlowCnec.class);
         SensitivityVariableSet linearGlsk = Mockito.mock(SensitivityVariableSet.class);
-        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> leaf.getSensitivityValue(flowCnec, RIGHT, linearGlsk, MEGAWATT));
+        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> leaf.getOptimizationResult().getSensitivityValue(flowCnec, RIGHT, linearGlsk, MEGAWATT));
         assertEquals("No results available.", exception.getMessage());
     }
 
     @Test
     void getObjectiveFunctionBeforeEvaluation() {
         Leaf leaf = buildNotEvaluatedRootLeaf();
-        OpenRaoException exception = assertThrows(OpenRaoException.class, leaf::getObjectiveFunction);
+        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> leaf.getOptimizationResult().getObjectiveFunction());
         assertEquals("No results available.", exception.getMessage());
     }
 
@@ -746,7 +746,7 @@ class LeafTest {
         ObjectiveFunction objectiveFunction = Mockito.mock(ObjectiveFunction.class);
         doReturn(objectiveFunction).when(linearOptimizationResult).getObjectiveFunction();
 
-        assertEquals(objectiveFunction, leaf.getObjectiveFunction());
+        assertEquals(objectiveFunction, leaf.getOptimizationResult().getObjectiveFunction());
     }
 
     @Test
@@ -821,7 +821,7 @@ class LeafTest {
 
         // test for preventive with 1 topological actions
         Leaf rootLeaf = new Leaf(optimizationPerimeter, network, prePerimeterResult, appliedRemedialActions);
-        Leaf leaftWith1Topo = new Leaf(optimizationPerimeter, network, rootLeaf.getActivatedNetworkActions(), new NetworkActionCombination(na1), Mockito.mock(RangeActionActivationResult.class), prePerimeterResult, appliedRemedialActions);
+        Leaf leaftWith1Topo = new Leaf(optimizationPerimeter, network, rootLeaf.getOptimizationResult().getActivatedNetworkActions(), new NetworkActionCombination(na1), Mockito.mock(RangeActionActivationResult.class), prePerimeterResult, appliedRemedialActions);
         raLimitationParameters = leaftWith1Topo.getRaLimitationParameters(optimizationPerimeter, searchTreeParameters);
         assertEquals(2, raLimitationParameters.getMaxRangeActions(optimizedState));
 

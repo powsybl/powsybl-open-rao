@@ -159,7 +159,7 @@ class SearchTreeTest {
         setStopCriterionAtTargetObjectiveValue(3.);
 
         double leafCost = 2.;
-        when(rootLeaf.getCost()).thenReturn(leafCost);
+        when(rootLeaf.getOptimizationResult().getCost()).thenReturn(leafCost);
         when(rootLeaf.getStatus()).thenReturn(Leaf.Status.EVALUATED);
         Mockito.doReturn(rootLeaf).when(searchTree).makeLeaf(optimizationPerimeter, network, prePerimeterResult, appliedRemedialActions);
 
@@ -177,7 +177,7 @@ class SearchTreeTest {
     void runAndOptimizeOnlyRootLeaf() throws Exception {
         raoWithoutLoopFlowLimitation();
         setStopCriterionAtMinObjective();
-        when(rootLeaf.getCost()).thenReturn(2.);
+        when(rootLeaf.getOptimizationResult().getCost()).thenReturn(2.);
         when(rootLeaf.getStatus()).thenReturn(Leaf.Status.EVALUATED, Leaf.Status.OPTIMIZED);
         Mockito.doReturn(rootLeaf).when(searchTree).makeLeaf(optimizationPerimeter, network, prePerimeterResult, appliedRemedialActions);
         OptimizationResult result = searchTree.run().get();
@@ -190,7 +190,7 @@ class SearchTreeTest {
         raoWithoutLoopFlowLimitation();
         setStopCriterionAtTargetObjectiveValue(3.);
         searchTreeWithOneChildLeaf();
-        when(rootLeaf.getCost()).thenReturn(4., 2.);
+        when(rootLeaf.getOptimizationResult().getCost()).thenReturn(4., 2.);
         when(rootLeaf.getStatus()).thenReturn(Leaf.Status.EVALUATED, Leaf.Status.OPTIMIZED);
         Mockito.doReturn(rootLeaf).when(searchTree).makeLeaf(optimizationPerimeter, network, prePerimeterResult, appliedRemedialActions);
         OptimizationResult result = searchTree.run().get();
@@ -204,7 +204,7 @@ class SearchTreeTest {
         setStopCriterionAtMinObjective();
         searchTreeWithOneChildLeaf();
 
-        when(rootLeaf.getCost()).thenReturn(4.);
+        when(rootLeaf.getOptimizationResult().getCost()).thenReturn(4.);
         when(rootLeaf.getStatus()).thenReturn(Leaf.Status.EVALUATED, Leaf.Status.OPTIMIZED);
         Mockito.doReturn(rootLeaf).when(searchTree).makeLeaf(optimizationPerimeter, network, prePerimeterResult, appliedRemedialActions);
 
@@ -319,11 +319,11 @@ class SearchTreeTest {
         mockRootLeafCost(rootLeafCostAfterOptim);
 
         when(childLeaf1.getStatus()).thenReturn(Leaf.Status.EVALUATED, Leaf.Status.OPTIMIZED);
-        when(childLeaf1.getCost()).thenReturn(childLeaf1CostAfterOptim);
+        when(childLeaf1.getOptimizationResult().getCost()).thenReturn(childLeaf1CostAfterOptim);
         Mockito.doReturn(childLeaf1).when(searchTree).createChildLeaf(any(), eq(availableNaCombinations.get(0)), eq(false));
 
         when(childLeaf2.getStatus()).thenReturn(Leaf.Status.EVALUATED, Leaf.Status.OPTIMIZED);
-        when(childLeaf2.getCost()).thenReturn(childLeaf2CostAfterOptim);
+        when(childLeaf2.getOptimizationResult().getCost()).thenReturn(childLeaf2CostAfterOptim);
         Mockito.doReturn(childLeaf2).when(searchTree).createChildLeaf(any(), eq(availableNaCombinations.get(1)), eq(false));
 
         OptimizationResult result = searchTree.run().get();
@@ -359,7 +359,7 @@ class SearchTreeTest {
         setMaxPstPerTso(tsoName, maxPstOfTso);
 
         mockRootLeafCost(5.);
-        when(rootLeaf.getOptimizedSetpoint(rangeAction2, optimizedState)).thenReturn(3.);
+        when(rootLeaf.getOptimizationResult().getOptimizedSetpoint(rangeAction2, optimizedState)).thenReturn(3.);
 
         OptimizationResult result = searchTree.run().get();
         assertEquals(3., result.getOptimizedSetpoint(rangeAction2, optimizedState), DOUBLE_TOLERANCE);
@@ -384,12 +384,12 @@ class SearchTreeTest {
         availableRangeActions.add(rangeAction2);
 
         FlowCnec mostLimitingElement = Mockito.mock(FlowCnec.class);
-        when(rootLeaf.getMostLimitingElements(1)).thenReturn(Collections.singletonList(mostLimitingElement));
+        when(rootLeaf.getOptimizationResult().getMostLimitingElements(1)).thenReturn(Collections.singletonList(mostLimitingElement));
     }
 
     private void mockRootLeafCost(double cost) throws Exception {
-        when(rootLeaf.getCost()).thenReturn(cost);
-        when(rootLeaf.getVirtualCost()).thenReturn(cost);
+        when(rootLeaf.getOptimizationResult().getCost()).thenReturn(cost);
+        when(rootLeaf.getOptimizationResult().getVirtualCost()).thenReturn(cost);
         when(rootLeaf.getStatus()).thenReturn(Leaf.Status.EVALUATED, Leaf.Status.OPTIMIZED);
         Mockito.doReturn(rootLeaf).when(searchTree).makeLeaf(optimizationPerimeter, network, prePerimeterResult, appliedRemedialActions);
     }
@@ -408,8 +408,8 @@ class SearchTreeTest {
     private void mockLeafsCosts(double rootLeafCostAfterOptim, double childLeafCostAfterOptim, Leaf childLeaf) throws Exception {
         mockRootLeafCost(rootLeafCostAfterOptim);
         when(childLeaf.getStatus()).thenReturn(Leaf.Status.EVALUATED, Leaf.Status.OPTIMIZED);
-        when(childLeaf.getCost()).thenReturn(childLeafCostAfterOptim);
-        when(childLeaf.getVirtualCost()).thenReturn(childLeafCostAfterOptim);
+        when(childLeaf.getOptimizationResult().getCost()).thenReturn(childLeafCostAfterOptim);
+        when(childLeaf.getOptimizationResult().getVirtualCost()).thenReturn(childLeafCostAfterOptim);
         Mockito.doReturn(childLeaf).when(searchTree).createChildLeaf(eq(network), any(), eq(false));
     }
 
@@ -453,8 +453,8 @@ class SearchTreeTest {
         when(optimizationPerimeter.getRangeActions()).thenReturn(Set.of(ra));
 
         double leafCost = 0.;
-        when(rootLeaf.getCost()).thenReturn(leafCost);
-        when(rootLeaf.getVirtualCost()).thenReturn(0.);
+        when(rootLeaf.getOptimizationResult().getCost()).thenReturn(leafCost);
+        when(rootLeaf.getOptimizationResult().getVirtualCost()).thenReturn(0.);
         when(rootLeaf.getStatus()).thenReturn(Leaf.Status.EVALUATED);
         Mockito.doReturn(rootLeaf).when(searchTree).makeLeaf(optimizationPerimeter, network, prePerimeterResult, appliedRemedialActions);
         // rootLeaf should not be optimized : its virtual cost is zero so stop criterion is already reached
@@ -564,11 +564,11 @@ class SearchTreeTest {
         when(state.getId()).thenReturn("state-id");
         when(networkElement.getId()).thenReturn("ne-id");
 
-        when(rootLeaf.getCostlyElements(eq("loop-flow-cost"), anyInt())).thenReturn(List.of(cnec));
+        when(rootLeaf.getOptimizationResult().getCostlyElements(eq("loop-flow-cost"), anyInt())).thenReturn(List.of(cnec));
         when(rootLeaf.getIdentifier()).thenReturn("leaf-id");
-        when(rootLeaf.getMargin(cnec, Side.LEFT, Unit.MEGAWATT)).thenReturn(-135.);
-        when(rootLeaf.getMargin(cnec, Side.RIGHT, Unit.MEGAWATT)).thenReturn(-134.);
-        when(rootLeaf.getFlow(cnec, Side.LEFT, Unit.MEGAWATT)).thenReturn(1135.);
+        when(rootLeaf.getOptimizationResult().getMargin(cnec, Side.LEFT, Unit.MEGAWATT)).thenReturn(-135.);
+        when(rootLeaf.getOptimizationResult().getMargin(cnec, Side.RIGHT, Unit.MEGAWATT)).thenReturn(-134.);
+        when(rootLeaf.getOptimizationResult().getFlow(cnec, Side.LEFT, Unit.MEGAWATT)).thenReturn(1135.);
     }
 
     @Test
@@ -590,8 +590,8 @@ class SearchTreeTest {
         // virtual cost = 200
         // overall cost = 100 (unsecure)
         when(rootLeaf.isRoot()).thenReturn(true);
-        when(rootLeaf.getCost()).thenReturn(100.);
-        when(rootLeaf.getVirtualCost("loop-flow-cost")).thenReturn(200.);
+        when(rootLeaf.getOptimizationResult().getCost()).thenReturn(100.);
+        when(rootLeaf.getOptimizationResult().getVirtualCost("loop-flow-cost")).thenReturn(200.);
 
         // Functional cost does not satisfy stop criterion
         ListAppender<ILoggingEvent> business = getLogs(RaoBusinessLogs.class);
@@ -614,7 +614,7 @@ class SearchTreeTest {
         when(rangeAction1.getName()).thenReturn("PST1");
         when(rangeAction2.getName()).thenReturn("PST2");
         when(searchTreeInput.getOptimizationPerimeter().getRangeActionOptimizationStates()).thenReturn(Set.of(optimizedState));
-        when(rootLeaf.getActivatedRangeActions(optimizedState)).thenReturn(Set.of(rangeAction1, rangeAction2));
+        when(rootLeaf.getOptimizationResult().getActivatedRangeActions(optimizedState)).thenReturn(Set.of(rangeAction1, rangeAction2));
 
         logRangeActions(TECHNICAL_LOGS, rootLeaf, searchTreeInput.getOptimizationPerimeter(), "");
         // PST can be logged in any order

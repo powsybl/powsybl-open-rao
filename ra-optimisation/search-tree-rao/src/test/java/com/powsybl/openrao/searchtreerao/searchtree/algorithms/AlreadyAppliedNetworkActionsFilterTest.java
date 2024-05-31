@@ -38,11 +38,11 @@ class AlreadyAppliedNetworkActionsFilterTest {
 
         // arrange previous Leaf -> naFr1 has already been activated
         Leaf previousLeaf = mock(Leaf.class);
-        Mockito.when(previousLeaf.getActivatedNetworkActions()).thenReturn(Collections.singleton(NA_FR_1));
+        Mockito.when(previousLeaf.getOptimizationResult().getActivatedNetworkActions()).thenReturn(Collections.singleton(NA_FR_1));
 
         // filter already activated NetworkAction
         AlreadyAppliedNetworkActionsFilter naFilter = new AlreadyAppliedNetworkActionsFilter();
-        Set<NetworkActionCombination> filteredNaCombinations = naFilter.filter(naCombinations, previousLeaf);
+        Set<NetworkActionCombination> filteredNaCombinations = naFilter.filter(naCombinations, previousLeaf.getOptimizationResult());
 
         assertEquals(5, filteredNaCombinations.size());
         assertFalse(filteredNaCombinations.contains(IND_FR_1));
