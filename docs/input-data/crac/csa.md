@@ -929,12 +929,6 @@ If the remedial action is linked to an assessed element (a CNEC), its usage meth
 **onConstraint**. This link is created with a `AssessedElementWithRemedialAction` object that bounds together the
 assessed element and the contingency.
 
-The type of onConstraint usage rule depends on the type of the CNEC the remedial action is bounded to:
-
-- if it is a FlowCNEC, the usage rule is **onFlowConstraint**
-- if it is an AngleCNEC, the usage rule is **onAngleConstraint**
-- if it is a VoltageCNEC, the usage rule is **onVoltageConstraint**
-
 ```xml
 <!-- AE Profile -->
 <rdf:RDF>
