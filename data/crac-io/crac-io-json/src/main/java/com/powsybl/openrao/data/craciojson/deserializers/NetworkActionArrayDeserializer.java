@@ -56,17 +56,21 @@ public final class NetworkActionArrayDeserializer {
                     case ON_STATE_USAGE_RULES:
                         deserializeOnStateUsageRules(jsonParser, version, networkActionAdder);
                         break;
+                    case ON_CONSTRAINT_USAGE_RULES:
+                        jsonParser.nextToken();
+                        OnConstraintArrayDeserializer.deserialize(jsonParser, networkActionAdder, version);
+                        break;
                     case ON_FLOW_CONSTRAINT_USAGE_RULES:
                         jsonParser.nextToken();
-                        OnFlowConstraintArrayDeserializer.deserialize(jsonParser, networkActionAdder, version);
+                        deserializeOlderOnConstraintUsageRules(jsonParser, ON_FLOW_CONSTRAINT_USAGE_RULES, version, networkActionAdder);
                         break;
                     case ON_ANGLE_CONSTRAINT_USAGE_RULES:
                         jsonParser.nextToken();
-                        OnAngleConstraintArrayDeserializer.deserialize(jsonParser, networkActionAdder, version);
+                        deserializeOlderOnConstraintUsageRules(jsonParser, ON_ANGLE_CONSTRAINT_USAGE_RULES, version, networkActionAdder);
                         break;
                     case ON_VOLTAGE_CONSTRAINT_USAGE_RULES:
                         jsonParser.nextToken();
-                        OnVoltageConstraintArrayDeserializer.deserialize(jsonParser, networkActionAdder, version);
+                        deserializeOlderOnConstraintUsageRules(jsonParser, ON_VOLTAGE_CONSTRAINT_USAGE_RULES, version, networkActionAdder);
                         break;
                     case ON_FLOW_CONSTRAINT_IN_COUNTRY_USAGE_RULES:
                         jsonParser.nextToken();
@@ -117,6 +121,14 @@ public final class NetworkActionArrayDeserializer {
         } else {
             jsonParser.nextToken();
             OnInstantArrayDeserializer.deserialize(jsonParser, networkActionAdder);
+        }
+    }
+
+    private static void deserializeOlderOnConstraintUsageRules(JsonParser jsonParser, String keyword, String version, NetworkActionAdder networkActionAdder) throws IOException {
+        if (getPrimaryVersionNumber(version) < 2 || getPrimaryVersionNumber(version) == 2 && getSubVersionNumber(version) < 4) {
+            OnConstraintArrayDeserializer.deserialize(jsonParser, networkActionAdder, version);
+        } else {
+            throw new OpenRaoException("Unsupported field %s in CRAC version >= 2.4".formatted(keyword));
         }
     }
 }

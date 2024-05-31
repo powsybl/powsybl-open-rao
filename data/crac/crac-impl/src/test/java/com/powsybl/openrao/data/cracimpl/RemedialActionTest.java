@@ -81,7 +81,7 @@ class RemedialActionTest {
 
         Set<UsageRule> usageRules = Set.of(
             new OnContingencyStateImpl(UsageMethod.AVAILABLE, state),
-            new OnFlowConstraintImpl(UsageMethod.FORCED, instant, flowCnec));
+            new OnConstraintImpl<>(UsageMethod.FORCED, instant, flowCnec));
         AbstractRemedialAction<?> ra = new NetworkActionImpl("id", "name", "operator", usageRules, Collections.emptySet(), 0);
         assertEquals(UsageMethod.FORCED, ra.getUsageMethod(state));
     }
@@ -118,8 +118,8 @@ class RemedialActionTest {
         Mockito.when(curativeFlowCnec.getState()).thenReturn(curativeState);
 
         Set<UsageRule> usageRules = Set.of(
-            new OnFlowConstraintImpl(UsageMethod.FORCED, autoInstant, autoFlowCnec),
-            new OnFlowConstraintImpl(UsageMethod.FORCED, autoInstant, curativeFlowCnec)
+            new OnConstraintImpl<>(UsageMethod.FORCED, autoInstant, autoFlowCnec),
+            new OnConstraintImpl<>(UsageMethod.FORCED, autoInstant, curativeFlowCnec)
         );
 
         AbstractRemedialAction<?> ra = new NetworkActionImpl("id", "name", "operator", usageRules, Collections.emptySet(), 0);
@@ -145,8 +145,8 @@ class RemedialActionTest {
         Mockito.when(curativeAngleCnec.getState()).thenReturn(curativeState);
 
         Set<UsageRule> usageRules = Set.of(
-            new OnAngleConstraintImpl(UsageMethod.FORCED, autoInstant, autoAngleCnec),
-            new OnAngleConstraintImpl(UsageMethod.FORCED, autoInstant, curativeAngleCnec)
+            new OnConstraintImpl<>(UsageMethod.FORCED, autoInstant, autoAngleCnec),
+            new OnConstraintImpl<>(UsageMethod.FORCED, autoInstant, curativeAngleCnec)
         );
 
         AbstractRemedialAction<?> ra = new NetworkActionImpl("id", "name", "operator", usageRules, Collections.emptySet(), 0);
@@ -172,8 +172,8 @@ class RemedialActionTest {
         Mockito.when(curativeVoltageCnec.getState()).thenReturn(curativeState);
 
         Set<UsageRule> usageRules = Set.of(
-            new OnVoltageConstraintImpl(UsageMethod.FORCED, autoInstant, autoVoltageCnec),
-            new OnVoltageConstraintImpl(UsageMethod.FORCED, autoInstant, curativeVoltageCnec)
+            new OnConstraintImpl<>(UsageMethod.FORCED, autoInstant, autoVoltageCnec),
+            new OnConstraintImpl<>(UsageMethod.FORCED, autoInstant, curativeVoltageCnec)
         );
 
         AbstractRemedialAction<?> ra = new NetworkActionImpl("id", "name", "operator", usageRules, Collections.emptySet(), 0);
