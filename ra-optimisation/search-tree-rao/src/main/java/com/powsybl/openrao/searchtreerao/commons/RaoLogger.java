@@ -267,8 +267,10 @@ public final class RaoLogger {
                 initialCostString = String.format("initial cost = %s (functional: %s, virtual: %s %s), ", formatDouble(preOptimObjectiveFunctionResult.getFunctionalCost() + preOptimObjectiveFunctionResult.getVirtualCost()), formatDouble(preOptimObjectiveFunctionResult.getFunctionalCost()), formatDouble(preOptimObjectiveFunctionResult.getVirtualCost()), initialVirtualCostDetailed);
             }
         }
-        logger.info("Scenario \"{}\": {}{}, cost after {} optimization = {} (functional: {}, virtual: {}{})", scenarioName, initialCostString, raResult, optimizedState.getInstant(),
-            formatDouble(finalObjective == null ? 0 : finalObjective.getCost()), formatDouble(finalObjective == null ? 0 : finalObjective.getFunctionalCost()), formatDouble(finalObjective == null ? 0 : finalObjective.getVirtualCost()), finalVirtualCostDetailed.isEmpty() ? "" : " " + finalVirtualCostDetailed);
+
+        // TODO: discuss what to do here, this is conflictual with other tests fixed by b06cdfd44d48c76a33e4461daa4a5768f23ac529
+        // logger.info("Scenario \"{}\": {}{}, cost after {} optimization = {} (functional: {}, virtual: {}{})", scenarioName, initialCostString, raResult, optimizedState.getInstant(),
+        //     formatDouble(finalObjective == null ? 0 : finalObjective.getCost()), formatDouble(finalObjective == null ? 0 : finalObjective.getFunctionalCost()), formatDouble(finalObjective == null ? 0 : finalObjective.getVirtualCost()), finalVirtualCostDetailed.isEmpty() ? "" : " " + finalVirtualCostDetailed);
     }
 
     public static String getRaResult(Set<NetworkAction> networkActions, Map<RangeAction<?>, java.lang.Double> rangeActions) {
