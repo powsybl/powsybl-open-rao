@@ -4,10 +4,8 @@
          + New sensitivity computer
             + New systematic sensitivity interface
                + New range action sensitivity provider
-                  + New systematic sensitivity load flow provider
-                     New sensitivity provider
-               + New systematic sensitivity load flow provider
-                  New sensitivity provider
+                  New systematic sensitivity load flow provider
+               New systematic sensitivity load flow provider
                Systematic sensitivity analysis [start]
                + Sensitivity analysis on network 'small-network-2P'
                   + Network CC0 SC0

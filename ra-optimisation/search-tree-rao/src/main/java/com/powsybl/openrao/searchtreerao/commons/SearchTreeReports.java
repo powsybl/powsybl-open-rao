@@ -9,19 +9,21 @@ package com.powsybl.openrao.searchtreerao.commons;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.report.TypedValue;
 import com.powsybl.openrao.commons.Unit;
+import com.powsybl.openrao.commons.logs.OpenRaoLogger;
+import com.powsybl.openrao.data.raoresultapi.ComputationStatus;
 import com.powsybl.openrao.searchtreerao.searchtree.algorithms.Leaf;
 
 import java.time.Instant;
 import java.util.Locale;
 
-import static com.powsybl.commons.report.TypedValue.DEBUG_SEVERITY;
-import static com.powsybl.commons.report.TypedValue.INFO_SEVERITY;
+import static com.powsybl.commons.report.TypedValue.*;
 import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.*;
 
 /**
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
+ * @author Hugo Schindler {@literal <hugo.schindler at rte-france.com>}
  */
-public final class Reports {
+public final class SearchTreeReports {
     private static String formatDouble(double value) {
         if (value >= Double.MAX_VALUE) {
             return "+infinity";
@@ -36,7 +38,11 @@ public final class Reports {
         return String.format("#%02d", index);
     }
 
-    private Reports() {
+    private static OpenRaoLogger logger(TypedValue severity) {
+        return INFO_SEVERITY.equals(severity) ? BUSINESS_LOGS : TECHNICAL_LOGS;
+    }
+
+    private SearchTreeReports() {
     }
 
     public static ReportNode reportRao(String networkId, ReportNode reportNode) {
@@ -105,7 +111,7 @@ public final class Reports {
                 .withSeverity(severity)
                 .add();
         String message = String.format(Locale.ENGLISH, "Limiting element #%02d:%s margin = %.2f %s%s, element %s at state %s, CNEC ID = \"%s\"", index, isRelativeMargin, cnecMargin, unit, ptdfIfRelative, cnecNetworkElementName, cnecStateId, cnecId);
-        severityBasedLogging(severity, message);
+        logger(severity).info(message);
         return addedNode;
     }
 
@@ -367,19 +373,18 @@ public final class Reports {
                 .withUntypedValue("leafDescription", rootLeaf.toString())
                 .withSeverity(severity)
                 .add();
-        if (INFO_SEVERITY.equals(severity)) {
-            BUSINESS_LOGS.info("Could not evaluate leaf: {}", rootLeaf);
-        } else {
-            TECHNICAL_LOGS.info("Could not evaluate leaf: {}", rootLeaf);
-        }
+        logger(severity).info("Could not evaluate leaf: {}", rootLeaf);
         return addedNode;
     }
 
-    public static ReportNode reportOptimizationSummaryOnScenario(ReportNode reportNode, String scenarioName, String initialCostString, String raResult, String instant, double finalCost, double finalFunctionalCost, double finalVirtualCost, String finalVirtualCostDetailed) {
+    public static ReportNode reportOptimizationSummaryOnScenario(ReportNode reportNode, String scenarioName, String initialCost, String initialFunctionalCost, String initialVirtualCost, String initialVirtualCostDetailed, String raResult, String instant, double finalCost, double finalFunctionalCost, double finalVirtualCost, String finalVirtualCostDetailed) {
         ReportNode addedNode = reportNode.newReportNode()
-                .withMessageTemplate("optimizationSummaryOnScenario", "Scenario '${scenarioName}': initial cost = ${initialCost} (functional: ${initialFunctionalCost}, virtual: ${initialVirtualCost}${initialVirtualCostDetailed}), ${raResult}, cost after ${instant} optimization = ${finalCost} (functional: ${finalFunctionalCost}, virtual: ${finalVirtualCost}${finalVirtualCostDetailed})")
+                .withMessageTemplate("optimizationSummaryOnScenario", "Scenario '${scenarioName}': initial cost = ${initialCost} (functional: ${initialFunctionalCost}, virtual: ${initialVirtualCost}, detail: ${initialVirtualCostDetailed}), ${raResult}, cost after ${instant} optimization = ${finalCost} (functional: ${finalFunctionalCost}, virtual: ${finalVirtualCost}, detail: ${finalVirtualCostDetailed})")
                 .withUntypedValue("scenarioName", scenarioName)
-                .withUntypedValue("initialCostString", initialCostString)
+                .withUntypedValue("initialCost", initialCost)
+                .withUntypedValue("initialFunctionalCost", initialFunctionalCost)
+                .withUntypedValue("initialVirtualCost", initialVirtualCost)
+                .withUntypedValue("initialVirtualCostDetailed", initialVirtualCostDetailed)
                 .withUntypedValue("raResult", raResult)
                 .withUntypedValue("instant", instant)
                 .withUntypedValue("finalCost", formatDouble(finalCost))
@@ -388,7 +393,10 @@ public final class Reports {
                 .withUntypedValue("finalVirtualCostDetailed", finalVirtualCostDetailed)
                 .withSeverity(INFO_SEVERITY)
                 .add();
-        BUSINESS_LOGS.info("Scenario \"{}\": {}{}, cost after {} optimization = {} (functional: {}, virtual: {}{})", scenarioName, initialCostString, raResult, instant,
+        BUSINESS_LOGS.info("Scenario \"{}\": initial cost = {} (functional: {}, virtual: {}, detail: {}), {}, cost after {} optimization = {} (functional: {}, virtual: {}, detail: {})",
+                scenarioName,
+                initialCost, initialFunctionalCost, initialVirtualCost, initialVirtualCostDetailed,
+                raResult, instant,
                 formatDouble(finalCost), formatDouble(finalFunctionalCost), formatDouble(finalVirtualCost), finalVirtualCostDetailed);
         return addedNode;
     }
@@ -401,11 +409,7 @@ public final class Reports {
                 .withUntypedValue("virtualCostName", virtualCostName)
                 .withSeverity(severity)
                 .add();
-        if (INFO_SEVERITY.equals(severity)) {
-            BUSINESS_LOGS.info("{}{}, stop criterion could have been reached without \"{}\" virtual cost", prefix, identifier, virtualCostName);
-        } else {
-            TECHNICAL_LOGS.info("{}{}, stop criterion could have been reached without \"{}\" virtual cost", prefix, identifier, virtualCostName);
-        }
+        logger(severity).info("{}{}, stop criterion could have been reached without \"{}\" virtual cost", prefix, identifier, virtualCostName);
         return addedNode;
     }
 
@@ -437,15 +441,251 @@ public final class Reports {
                 margin, unit,
                 networkElementId, stateId,
                 cnecId, cnecName);
-        severityBasedLogging(severity, message);
+        logger(severity).info(message);
         return addedNode;
     }
 
-    private static void severityBasedLogging(TypedValue severity, String message) {
-        if (INFO_SEVERITY.equals(severity)) {
-            BUSINESS_LOGS.info(message);
-        } else {
-            TECHNICAL_LOGS.info(message);
-        }
+    public static ReportNode reportAutomatonSimulationFailedRangeActionSensitivityComputation(ReportNode reportNode, String stateId, String instantQualifier) {
+        ReportNode addedNode = reportNode.newReportNode()
+            .withMessageTemplate("reportAutomatonSimulationFailedRangeActionSensitivityComputation", "Automaton state ${stateId} has failed during sensitivity computation ${instantQualifier} automaton simulation.")
+            .withUntypedValue("stateId", stateId)
+            .withUntypedValue("instantQualifier", instantQualifier)
+            .withSeverity(TRACE_SEVERITY)
+            .add();
+        TECHNICAL_LOGS.info("Automaton state {} has failed during sensitivity computation {} automaton simulation.", stateId, instantQualifier);
+        return addedNode;
+    }
+
+    public static ReportNode reportFailedOptimizationSummary(ReportNode reportNode, String scenarioName, String raResult) {
+        ReportNode addedNode = reportNode.newReportNode()
+            .withMessageTemplate("reportFailedOptimizationSummary", "Scenario \"${scenarioName}\": ${raResult}")
+            .withUntypedValue("scenarioName", scenarioName)
+            .withUntypedValue("raResult", raResult)
+            .withSeverity(INFO_SEVERITY)
+            .add();
+        BUSINESS_LOGS.info("Scenario \"{}\": {}", scenarioName, raResult);
+        return addedNode;
+    }
+
+    public static ReportNode reportHvdcRangeActionNotActivatedOutsideRange(ReportNode reportNode, String hvdcRaId, double activePowerSetpoint, double minAdmissibleSetpoint, double maxAdmissibleSetpoint) {
+        ReportNode addedNode = reportNode.newReportNode()
+            .withMessageTemplate("reportHvdcRangeActionNotActivatedOutsideRange", "HVDC range action ${hvdcRaId} could not be activated because its initial set-point (${activePowerSetpoint}) does not fall within its allowed range (${minAdmissibleSetpoint} - ${maxAdmissibleSetpoint})")
+            .withUntypedValue("hvdcRaId", hvdcRaId)
+            .withUntypedValue("activePowerSetpoint", activePowerSetpoint)
+            .withUntypedValue("minAdmissibleSetpoint", minAdmissibleSetpoint)
+            .withUntypedValue("maxAdmissibleSetpoint", maxAdmissibleSetpoint)
+            .withSeverity(INFO_SEVERITY)
+            .add();
+        BUSINESS_LOGS.info(String.format("HVDC range action %s could not be activated because its initial set-point (%.1f) does not fall within its allowed range (%.1f - %.1f)",
+            hvdcRaId, activePowerSetpoint, minAdmissibleSetpoint, maxAdmissibleSetpoint));
+        return addedNode;
+    }
+
+    public static ReportNode reportNewAutomatonSimulator(ReportNode reportNode) {
+        return reportNode.newReportNode()
+            .withMessageTemplate("reportNewAutomatonSimulator", "New  automaton simulator")
+            .withSeverity(INFO_SEVERITY)
+            .add();
+    }
+
+    public static ReportNode reportOptimizingAutomatingState(ReportNode reportNode, String automatonStateId) {
+        ReportNode addedNode = reportNode.newReportNode()
+            .withMessageTemplate("reportOptimizingAutomatingState", "Optimizing automaton state ${automatonStateId}.")
+            .withUntypedValue("automatonStateId", automatonStateId)
+            .withSeverity(TRACE_SEVERITY)
+            .add();
+        TECHNICAL_LOGS.info("Optimizing automaton state {}.", automatonStateId);
+        return addedNode;
+    }
+
+    public static ReportNode reportAutomatonSimulatorInitialSituation(ReportNode reportNode) {
+        ReportNode addedNode = reportNode.newReportNode()
+            .withMessageTemplate("reportAutomatonSimulatorInitialSituation", "Initial situation:")
+            .withSeverity(TRACE_SEVERITY)
+            .add();
+        TECHNICAL_LOGS.info("Initial situation:");
+        return addedNode;
+    }
+
+    public static ReportNode reportAutomatonStateOptimized(ReportNode reportNode, String automatonStateId) {
+        ReportNode addedNode = reportNode.newReportNode()
+            .withMessageTemplate("reportAutomatonStateOptimized", "Automaton state ${automatonStateId} has been optimized.")
+            .withUntypedValue("automatonStateId", automatonStateId)
+            .withSeverity(TRACE_SEVERITY)
+            .add();
+        TECHNICAL_LOGS.info("Automaton state {} has been optimized.", automatonStateId);
+        return addedNode;
+    }
+
+    public static ReportNode reportLoopflowComputationErrorLackOfReferenceProgramOrGlskProvider(ReportNode reportNode, String cracId) {
+        ReportNode addedNode = reportNode.newReportNode()
+            .withMessageTemplate("reportLoopflowComputationErrorLackOfReferenceProgramOrGlskProvider", "Loopflow computation cannot be performed on CRAC ${cracId} because it lacks a ReferenceProgram or a GlskProvider")
+            .withUntypedValue("cracId", cracId)
+            .withSeverity(ERROR_SEVERITY)
+            .add();
+        BUSINESS_LOGS.error("Loopflow computation cannot be performed on CRAC %s because it lacks a ReferenceProgram or a GlskProvider", cracId);
+        return addedNode;
+    }
+
+    public static ReportNode reportReferenceProgramWillBeGeneratedFromNetwork(ReportNode reportNode) {
+        ReportNode addedNode = reportNode.newReportNode()
+            .withMessageTemplate("reportReferenceProgramWillBeGeneratedFromNetwork", "A ReferenceProgram will be generated using information in the network file.")
+            .withSeverity(WARN_SEVERITY)
+            .add();
+        BUSINESS_WARNS.warn("No ReferenceProgram provided. A ReferenceProgram will be generated using information in the network file.");
+        return addedNode;
+    }
+
+    public static ReportNode reportLinearOptimization(ReportNode reportNode) {
+        return reportNode.newReportNode()
+            .withMessageTemplate("reportLinearOptimization", "Linear optimization")
+            .withSeverity(INFO_SEVERITY)
+            .add();
+    }
+
+    public static ReportNode reportLinearOptimizationFeasible(ReportNode reportNode) {
+        ReportNode addedNode = reportNode.newReportNode()
+            .withMessageTemplate("reportLinearOptimizationFeasible", "The solver was interrupted. A feasible solution has been produced.")
+            .withSeverity(TRACE_SEVERITY)
+            .add();
+        TECHNICAL_LOGS.warn("The solver was interrupted. A feasible solution has been produced.");
+        return addedNode;
+    }
+
+    public static ReportNode reportLinearOptimizationFailed(ReportNode reportNode, int iteration) {
+        ReportNode addedNode = reportNode.newReportNode()
+            .withMessageTemplate("reportLinearOptimizationFailed", "Linear optimization failed at iteration ${iteration}")
+            .withUntypedValue("iteration", iteration)
+            .withSeverity(ERROR_SEVERITY)
+            .add();
+        BUSINESS_LOGS.error("Linear optimization failed at iteration {}", iteration);
+        return addedNode;
+    }
+
+    public static ReportNode reportLinearOptimizationFailedAtFirstIteration(ReportNode reportNode, String solveStatus) {
+        ReportNode addedNode = reportNode.newReportNode()
+            .withMessageTemplate("reportLinearOptimizationFailedAtFirstIteration", "Linear problem failed with the following status : ${solveStatus}, initial situation is kept.")
+            .withUntypedValue("solveStatus", solveStatus)
+            .withSeverity(INFO_SEVERITY)
+            .add();
+        BUSINESS_LOGS.info("Linear problem failed with the following status : {}, initial situation is kept.", solveStatus);
+        return addedNode;
+    }
+
+    public static ReportNode reportLinearOptimizationSameResultAsPreviousIteration(ReportNode reportNode, int iteration) {
+        ReportNode addedNode = reportNode.newReportNode()
+            .withMessageTemplate("reportLinearOptimizationSameResultAsPreviousIteration", "Iteration ${iteration}: same results as previous iterations, optimal solution found")
+            .withUntypedValue("iteration", iteration)
+            .withSeverity(TRACE_SEVERITY)
+            .add();
+        TECHNICAL_LOGS.info("Iteration {}: same results as previous iterations, optimal solution found", iteration);
+        return addedNode;
+    }
+
+    public static ReportNode reportLinearProblemSolveStart(ReportNode reportNode, int iteration) {
+        ReportNode addedNode = reportNode.newReportNode()
+            .withMessageTemplate("reportLinearProblemSolveStart", "Iteration ${iteration}: linear optimization [start]")
+            .withUntypedValue("iteration", iteration)
+            .withSeverity(TRACE_SEVERITY)
+            .add();
+        TECHNICAL_LOGS.debug("Iteration {}: linear optimization [start]", iteration);
+        return addedNode;
+    }
+
+    public static ReportNode reportLinearProblemSolveEnd(ReportNode reportNode, int iteration) {
+        ReportNode addedNode = reportNode.newReportNode()
+            .withMessageTemplate("reportLinearProblemSolveEnd", "Iteration ${iteration}: linear optimization [end]")
+            .withUntypedValue("iteration", iteration)
+            .withSeverity(TRACE_SEVERITY)
+            .add();
+        TECHNICAL_LOGS.debug("Iteration {}: linear optimization [end]", iteration);
+        return addedNode;
+    }
+
+    public static ReportNode reportLinearOptimizationSystematicSensitivityComputationFailed(ReportNode reportNode, int iteration) {
+        ReportNode addedNode = reportNode.newReportNode()
+            .withMessageTemplate("reportLinearOptimizationSystematicSensitivityComputationFailed", "Systematic sensitivity computation failed at iteration ${iteration}")
+            .withUntypedValue("iteration", iteration)
+            .withSeverity(WARN_SEVERITY)
+            .add();
+        BUSINESS_WARNS.warn("Systematic sensitivity computation failed at iteration {}", iteration);
+        return addedNode;
+    }
+
+    public static ReportNode reportLinearOptimizationBetterResult(ReportNode reportNode, int iteration, double cost, double functionalCost) {
+        ReportNode addedNode = reportNode.newReportNode()
+            .withMessageTemplate("reportLinearOptimizationBetterResult", "Iteration ${iteration}: better solution found with a cost of ${cost} (functional: ${functionalCost})")
+            .withUntypedValue("iteration", iteration)
+            .withUntypedValue("cost", formatDouble(cost))
+            .withUntypedValue("functionalCost", formatDouble(functionalCost))
+            .withSeverity(TRACE_SEVERITY)
+            .add();
+        TECHNICAL_LOGS.info("Iteration {}: better solution found with a cost of {} (functional: {})", iteration,
+            formatDouble(cost), formatDouble(functionalCost));
+        return addedNode;
+    }
+
+    public static ReportNode reportLinearOptimizationWorseResult(ReportNode reportNode, int iteration, double bestCost, double currentCost, double bestFunctionalCost, double currentFunctionalCost) {
+        ReportNode addedNode = reportNode.newReportNode()
+            .withMessageTemplate("reportLinearOptimizationWorseResult", "Iteration ${iteration}: linear optimization found a worse result than best iteration, with a cost increasing from ${bestCost} to ${currentCost} (functional: from ${bestFunctionalCost} to ${currentFunctionalCost})")
+            .withUntypedValue("iteration", iteration)
+            .withUntypedValue("bestCost", formatDouble(bestCost))
+            .withUntypedValue("currentCost", formatDouble(currentCost))
+            .withUntypedValue("bestFunctionalCost", formatDouble(bestFunctionalCost))
+            .withUntypedValue("currentFunctionalCost", formatDouble(currentFunctionalCost))
+            .withSeverity(TRACE_SEVERITY)
+            .add();
+        TECHNICAL_LOGS.info("Iteration {}: linear optimization found a worse result than best iteration, with a cost increasing from {} to {} (functional: from {} to {})", iteration,
+            formatDouble(bestCost), formatDouble(currentCost), formatDouble(bestFunctionalCost), formatDouble(currentFunctionalCost));
+        return addedNode;
+    }
+
+    public static ReportNode reportSearchTreeStopCriterionReached(ReportNode reportNode, Leaf rootLeaf, TypedValue severity) {
+        ReportNode addedNode = reportNode.newReportNode()
+            .withMessageTemplate("reportSearchTreeStopCriterionReached", "Stop criterion reached on ${rootLeaf}")
+            .withUntypedValue("rootLeaf", rootLeaf.toString())
+            .withSeverity(INFO_SEVERITY)
+            .add();
+        logger(severity).info("Stop criterion reached on {}", rootLeaf);
+        return addedNode;
+    }
+
+    public static ReportNode reportSearchTreeLeaf(ReportNode reportNode, Leaf rootLeaf, TypedValue severity) {
+        ReportNode addedNode = reportNode.newReportNode()
+            .withMessageTemplate("reportSearchTreeLeaf", "${rootLeaf}")
+            .withUntypedValue("rootLeaf", rootLeaf.toString())
+            .withSeverity(TRACE_SEVERITY)
+            .add();
+        logger(severity).info("{}", rootLeaf);
+        return addedNode;
+    }
+
+    public static ReportNode reportSearchTreeLinearOptimization(ReportNode reportNode) {
+        ReportNode addedNode = reportNode.newReportNode()
+            .withMessageTemplate("reportSearchTreeLinearOptimization", "Linear optimization on root leaf")
+            .withSeverity(TRACE_SEVERITY)
+            .add();
+        TECHNICAL_LOGS.info("Linear optimization on root leaf");
+        return addedNode;
+    }
+
+    public static ReportNode reportSearchTreeRaoCompleted(ReportNode reportNode, ComputationStatus sensitivityStatus) {
+        ReportNode addedNode = reportNode.newReportNode()
+            .withMessageTemplate("reportSearchTreeRaoCompleted", "Search-tree RAO completed with status ${sensitivityStatus}")
+            .withUntypedValue("sensitivityStatus", sensitivityStatus.toString())
+            .withSeverity(TRACE_SEVERITY)
+            .add();
+        TECHNICAL_LOGS.info("Search-tree RAO completed with status {}", sensitivityStatus);
+        return addedNode;
+    }
+
+    public static ReportNode reportSearchTreeBestLeaf(ReportNode reportNode, Leaf optimalLeaf) {
+        ReportNode addedNode = reportNode.newReportNode()
+            .withMessageTemplate("reportSearchTreeLeaf", "${rootLeaf}")
+            .withUntypedValue("rootLeaf", optimalLeaf.toString())
+            .withSeverity(TRACE_SEVERITY)
+            .add();
+        TECHNICAL_LOGS.info("Best leaf: {}", optimalLeaf);
+        return addedNode;
     }
 }

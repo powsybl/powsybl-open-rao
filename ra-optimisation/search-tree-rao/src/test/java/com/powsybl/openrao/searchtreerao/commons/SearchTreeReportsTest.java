@@ -14,7 +14,7 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 import java.io.StringWriter;
 
-public class ReportsTest {
+public class SearchTreeReportsTest {
     private static ReportNode buildNewRootNode() {
         return ReportNode.newRootReportNode().withMessageTemplate("Test report node", "This is a parent report node for report tests").build();
     }

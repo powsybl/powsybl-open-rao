@@ -6,6 +6,7 @@
  */
 package com.powsybl.openrao.searchtreerao.searchtree.algorithms;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.RaUsageLimits;
@@ -218,7 +219,7 @@ public class Leaf implements OptimizationResult {
                     .withRaRangeShrinking(parameters.getTreeParameters().raRangeShrinking())
                     .build();
 
-            postOptimResult = IteratingLinearOptimizer.optimize(linearOptimizerInput, linearOptimizerParameters, searchTreeInput.getOutageInstant());
+            postOptimResult = IteratingLinearOptimizer.optimize(linearOptimizerInput, linearOptimizerParameters, searchTreeInput.getOutageInstant(), ReportNode.NO_OP);
 
             status = Status.OPTIMIZED;
         } else if (status.equals(Status.ERROR)) {

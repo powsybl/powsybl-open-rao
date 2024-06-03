@@ -327,10 +327,12 @@ class SearchTreeTest {
         when(childLeaf1.getStatus()).thenReturn(Leaf.Status.EVALUATED, Leaf.Status.OPTIMIZED);
         when(childLeaf1.getCost()).thenReturn(childLeaf1CostAfterOptim);
         Mockito.doReturn(childLeaf1).when(searchTree).createChildLeaf(any(), eq(availableNaCombinations.get(0)), eq(false));
+        when(childLeaf1.getSensitivityStatus()).thenReturn(ComputationStatus.DEFAULT);
 
         when(childLeaf2.getStatus()).thenReturn(Leaf.Status.EVALUATED, Leaf.Status.OPTIMIZED);
         when(childLeaf2.getCost()).thenReturn(childLeaf2CostAfterOptim);
         Mockito.doReturn(childLeaf2).when(searchTree).createChildLeaf(any(), eq(availableNaCombinations.get(1)), eq(false));
+        when(childLeaf2.getSensitivityStatus()).thenReturn(ComputationStatus.DEFAULT);
 
         OptimizationResult result = searchTree.run(ReportNode.NO_OP).get();
         assertEquals(childLeaf1, result);
@@ -398,6 +400,7 @@ class SearchTreeTest {
         when(rootLeaf.getVirtualCost()).thenReturn(cost);
         when(rootLeaf.getStatus()).thenReturn(Leaf.Status.EVALUATED, Leaf.Status.OPTIMIZED);
         Mockito.doReturn(rootLeaf).when(searchTree).makeLeaf(optimizationPerimeter, network, prePerimeterResult, appliedRemedialActions);
+        when(rootLeaf.getSensitivityStatus()).thenReturn(ComputationStatus.DEFAULT);
     }
 
     private void setMaxPstPerTso(String tsoName, int maxPstOfTso) {
@@ -417,6 +420,7 @@ class SearchTreeTest {
         when(childLeaf.getCost()).thenReturn(childLeafCostAfterOptim);
         when(childLeaf.getVirtualCost()).thenReturn(childLeafCostAfterOptim);
         Mockito.doReturn(childLeaf).when(searchTree).createChildLeaf(eq(network), any(), eq(false));
+        when(childLeaf.getSensitivityStatus()).thenReturn(ComputationStatus.DEFAULT);
     }
 
     private void mockNetworkPool(Network network) throws Exception {
@@ -486,7 +490,7 @@ class SearchTreeTest {
         when(rootLeaf.getPreOptimObjectiveFunctionResult()).thenReturn(initialResult);
         String expectedLog1 = "[DEBUG] Evaluating root leaf";
         String expectedLog2 = "[INFO] Could not evaluate leaf: root leaf description";
-        String expectedLog3 = "[INFO] Scenario \"preventive\": initial cost = 0.00 (functional: 0.00, virtual: 0.00), no remedial actions activated, cost after preventive optimization = 0.00 (functional: 0.00, virtual: 0.00)";
+        String expectedLog3 = "[INFO] Scenario \"preventive\": initial cost = 0.00 (functional: 0.00, virtual: 0.00, detail: null), no remedial actions activated, cost after preventive optimization = 0.00 (functional: 0.00, virtual: 0.00, detail: null)";
 
         ListAppender<ILoggingEvent> technical = getLogs(TechnicalLogs.class);
         ListAppender<ILoggingEvent> business = getLogs(RaoBusinessLogs.class);
@@ -512,7 +516,7 @@ class SearchTreeTest {
         when(rootLeaf.getPreOptimObjectiveFunctionResult()).thenReturn(initialResult);
         String expectedLog1 = "[DEBUG] Evaluating root leaf";
         String expectedLog2 = "[INFO] Could not evaluate leaf: root leaf description";
-        String expectedLog3 = "[INFO] Scenario \"preventive\": initial cost = 0.00 (functional: 0.00, virtual: 0.00), no remedial actions activated, cost after preventive optimization = 0.00 (functional: 0.00, virtual: 0.00)";
+        String expectedLog3 = "[INFO] Scenario \"preventive\": initial cost = 0.00 (functional: 0.00, virtual: 0.00, detail: null), no remedial actions activated, cost after preventive optimization = 0.00 (functional: 0.00, virtual: 0.00, detail: null)";
 
         ListAppender<ILoggingEvent> technical = getLogs(TechnicalLogs.class);
         ListAppender<ILoggingEvent> business = getLogs(RaoBusinessLogs.class);

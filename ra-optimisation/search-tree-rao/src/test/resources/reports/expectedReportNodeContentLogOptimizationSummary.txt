@@ -1,0 +1,6 @@
++ This is a parent report node for report tests
+   Scenario 'preventive': initial cost = -200.00 (functional: -210.30, virtual: 10.30, detail: {sensi-fallback-cost=10.3}), 1 network action(s) and 2 range action(s) activated : Open_fake_RA and PST_2: 4, PST_1: -2, cost after preventive optimization = -100.00 (functional: -150.00, virtual: 50.00, detail: {mnec-violation-cost=42.2, loopflow-violation-cost=7.8})
+   Scenario 'contingency': initial cost = -200.00 (functional: -200.00, virtual: 0.00, detail: null), 2 range action(s) activated : PST_2: 4, PST_1: -2, cost after curative optimization = -100.00 (functional: -100.00, virtual: 0.00, detail: null)
+   Scenario 'preventive': initial cost = -200.00 (functional: -200.00, virtual: 0.00, detail: null), no remedial actions activated, cost after preventive optimization = -100.00 (functional: -100.00, virtual: 0.00, detail: null)
+   Scenario 'preventive': initial cost = -200.00 (functional: -200.00, virtual: 0.00, detail: null), 1 network action(s) activated : Open_fake_RA, cost after preventive optimization = -100.00 (functional: -100.00, virtual: 0.00, detail: null)
+   Scenario 'preventive': initial cost = null (functional: null, virtual: null, detail: null), no remedial actions activated, cost after preventive optimization = -100.00 (functional: -100.00, virtual: 0.00, detail: null)

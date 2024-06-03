@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.searchtreerao.commons;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.Crac;
@@ -92,7 +93,7 @@ class RaoUtilTest {
         raoParameters.addExtension(RelativeMarginsParametersExtension.class, new RelativeMarginsParametersExtension());
         raoParameters.getExtension(RelativeMarginsParametersExtension.class).setPtdfBoundariesFromString(new ArrayList<>(Arrays.asList("{FR}-{ES}", "{ES}-{PT}")));
         raoParameters.getObjectiveFunctionParameters().setType(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN_IN_AMPERE);
-        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> RaoUtil.checkParameters(raoParameters, raoInput));
+        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> RaoUtil.checkParameters(raoParameters, raoInput, ReportNode.NO_OP));
         assertEquals("Objective function MAX_MIN_RELATIVE_MARGIN_IN_AMPERE requires glsks", exception.getMessage());
     }
 
@@ -100,7 +101,7 @@ class RaoUtilTest {
     void testExceptionForNoPtdfParametersOnRelativeMargin() {
         addGlskProvider();
         raoParameters.getObjectiveFunctionParameters().setType(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN_IN_AMPERE);
-        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> RaoUtil.checkParameters(raoParameters, raoInput));
+        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> RaoUtil.checkParameters(raoParameters, raoInput, ReportNode.NO_OP));
         assertEquals("Objective function MAX_MIN_RELATIVE_MARGIN_IN_AMPERE requires a config with a non empty boundary set", exception.getMessage());
     }
 
@@ -108,7 +109,7 @@ class RaoUtilTest {
     void testExceptionForNullBoundariesOnRelativeMargin() {
         addGlskProvider();
         raoParameters.getObjectiveFunctionParameters().setType(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN_IN_AMPERE);
-        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> RaoUtil.checkParameters(raoParameters, raoInput));
+        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> RaoUtil.checkParameters(raoParameters, raoInput, ReportNode.NO_OP));
         assertEquals("Objective function MAX_MIN_RELATIVE_MARGIN_IN_AMPERE requires a config with a non empty boundary set", exception.getMessage());
     }
 
@@ -118,7 +119,7 @@ class RaoUtilTest {
         raoParameters.addExtension(RelativeMarginsParametersExtension.class, new RelativeMarginsParametersExtension());
         raoParameters.getExtension(RelativeMarginsParametersExtension.class).setPtdfBoundariesFromString(new ArrayList<>());
         raoParameters.getObjectiveFunctionParameters().setType(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT);
-        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> RaoUtil.checkParameters(raoParameters, raoInput));
+        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> RaoUtil.checkParameters(raoParameters, raoInput, ReportNode.NO_OP));
         assertEquals("Objective function MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT requires a config with a non empty boundary set", exception.getMessage());
     }
 
@@ -126,7 +127,7 @@ class RaoUtilTest {
     void testAmpereWithDc() {
         raoParameters.getObjectiveFunctionParameters().setType(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN_IN_AMPERE);
         raoParameters.getLoadFlowAndSensitivityParameters().getSensitivityWithLoadFlowParameters().getLoadFlowParameters().setDc(true);
-        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> RaoUtil.checkParameters(raoParameters, raoInput));
+        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> RaoUtil.checkParameters(raoParameters, raoInput, ReportNode.NO_OP));
         assertEquals("Objective function MAX_MIN_RELATIVE_MARGIN_IN_AMPERE cannot be calculated with a DC default sensitivity engine", exception.getMessage());
     }
 

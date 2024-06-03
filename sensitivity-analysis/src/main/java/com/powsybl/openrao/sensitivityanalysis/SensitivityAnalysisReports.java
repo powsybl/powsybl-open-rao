@@ -124,13 +124,6 @@ public final class SensitivityAnalysisReports {
 
     }
 
-    public static ReportNode reportNewSensitivityProvider(ReportNode reportNode) {
-        return reportNode.newReportNode()
-            .withMessageTemplate("reportNewSensitivityProvider", "New sensitivity provider")
-            .withSeverity(TypedValue.INFO_SEVERITY)
-            .add();
-    }
-
     public static ReportNode reportUnableComputeSensitivityForCounterTradeRangeAction(ReportNode reportNode, String counterTradeRangeActionId) {
         ReportNode addedNode = reportNode.newReportNode()
             .withMessageTemplate("reportUnableComputeSensitivityForCounterTradeRangeAction", "Unable to compute sensitivity for CounterTradeRangeAction. (${counterTradeRangeActionId})")

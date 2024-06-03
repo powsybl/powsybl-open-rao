@@ -29,7 +29,7 @@ public abstract class AbstractSimpleSensitivityProvider implements CnecSensitivi
 
     AbstractSimpleSensitivityProvider(Set<FlowCnec> cnecs, Set<Unit> requestedUnits, ReportNode reportNode) {
         this.cnecs = cnecs;
-        this.reportNode = SensitivityAnalysisReports.reportNewSensitivityProvider(reportNode);
+        this.reportNode = reportNode;
         for (FlowCnec cnec : cnecs) {
             if (cnec.getState().isPreventive()) {
                 cnecsPerContingencyId.computeIfAbsent(null, string -> new ArrayList<>());

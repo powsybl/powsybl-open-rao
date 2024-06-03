@@ -43,8 +43,8 @@ public final class RaoUtil {
     private RaoUtil() {
     }
 
-    public static void initData(RaoInput raoInput, RaoParameters raoParameters) {
-        checkParameters(raoParameters, raoInput);
+    public static void initData(RaoInput raoInput, RaoParameters raoParameters, ReportNode reportNode) {
+        checkParameters(raoParameters, raoInput, reportNode);
         initNetwork(raoInput.getNetwork(), raoInput.getNetworkVariantId());
     }
 
@@ -52,7 +52,7 @@ public final class RaoUtil {
         network.getVariantManager().setWorkingVariant(networkVariantId);
     }
 
-    public static void checkParameters(RaoParameters raoParameters, RaoInput raoInput) {
+    public static void checkParameters(RaoParameters raoParameters, RaoInput raoInput, ReportNode reportNode) {
         if (raoParameters.getObjectiveFunctionParameters().getType().getUnit().equals(Unit.AMPERE)
                 && raoParameters.getLoadFlowAndSensitivityParameters().getSensitivityWithLoadFlowParameters().getLoadFlowParameters().isDc()) {
             throw new OpenRaoException(format("Objective function %s cannot be calculated with a DC default sensitivity engine", raoParameters.getObjectiveFunctionParameters().getType().toString()));
@@ -70,16 +70,15 @@ public final class RaoUtil {
         if ((raoParameters.hasExtension(LoopFlowParametersExtension.class)
                 || raoParameters.getObjectiveFunctionParameters().getType().relativePositiveMargins())
                 && (Objects.isNull(raoInput.getReferenceProgram()))) {
-            OpenRaoLoggerProvider.BUSINESS_WARNS.warn("No ReferenceProgram provided. A ReferenceProgram will be generated using information in the network file.");
-            raoInput.setReferenceProgram(ReferenceProgramBuilder.buildReferenceProgram(raoInput.getNetwork(), raoParameters.getLoadFlowAndSensitivityParameters().getLoadFlowProvider(), raoParameters.getLoadFlowAndSensitivityParameters().getSensitivityWithLoadFlowParameters().getLoadFlowParameters(), ReportNode.NO_OP));
+            SearchTreeReports.reportReferenceProgramWillBeGeneratedFromNetwork(reportNode);
+            raoInput.setReferenceProgram(ReferenceProgramBuilder.buildReferenceProgram(raoInput.getNetwork(), raoParameters.getLoadFlowAndSensitivityParameters().getLoadFlowProvider(), raoParameters.getLoadFlowAndSensitivityParameters().getSensitivityWithLoadFlowParameters().getLoadFlowParameters(), reportNode));
         }
 
         if (raoParameters.hasExtension(LoopFlowParametersExtension.class) && (Objects.isNull(raoInput.getReferenceProgram()) || Objects.isNull(raoInput.getGlskProvider()))) {
-            String msg = format(
+            SearchTreeReports.reportLoopflowComputationErrorLackOfReferenceProgramOrGlskProvider(reportNode, raoInput.getCrac().getId());
+            throw new OpenRaoException(format(
                     "Loopflow computation cannot be performed on CRAC %s because it lacks a ReferenceProgram or a GlskProvider",
-                    raoInput.getCrac().getId());
-            OpenRaoLoggerProvider.BUSINESS_LOGS.error(msg);
-            throw new OpenRaoException(msg);
+                    raoInput.getCrac().getId()));
         }
     }
 

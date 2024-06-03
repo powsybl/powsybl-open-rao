@@ -51,13 +51,13 @@ public final class RaoLogger {
                                                      int numberOfLoggedLimitingElements,
                                                      ReportNode reportNode) {
 
-        if (!BUSINESS_LOGS.isInfoEnabled()) {
+        if (!BUSINESS_LOGS.isInfoEnabled()) { // TODO: should we remove this ?
             return;
         }
 
         ObjectiveFunctionResult prePerimeterObjectiveFunctionResult = objectiveFunction.evaluate(sensitivityAnalysisResult, rangeActionActivationResult,
             sensitivityAnalysisResult, sensitivityAnalysisResult.getSensitivityStatus());
-        Reports.reportSensitivityAnalysisResults(reportNode,
+        SearchTreeReports.reportSensitivityAnalysisResults(reportNode,
                 prefix,
                 prePerimeterObjectiveFunctionResult.getCost(),
                 prePerimeterObjectiveFunctionResult.getFunctionalCost(),
@@ -126,7 +126,7 @@ public final class RaoLogger {
             String isRelativeMargin = (relativePositiveMargins && cnecMargin > 0) ? " relative" : "";
             Side mostConstrainedSide = getMostConstrainedSide(cnec, flowResult, objectiveFunction);
             String ptdfIfRelative = (relativePositiveMargins && cnecMargin > 0) ? format(" (PTDF %f)", flowResult.getPtdfZonalSum(cnec, mostConstrainedSide)) : "";
-            Reports.reportMostLimitingElement(reportNode, reportSeverity, i + 1, isRelativeMargin, cnecMargin, unit, ptdfIfRelative, cnecNetworkElementName, cnecStateId, cnec.getId());
+            SearchTreeReports.reportMostLimitingElement(reportNode, reportSeverity, i + 1, isRelativeMargin, cnecMargin, unit, ptdfIfRelative, cnecNetworkElementName, cnecStateId, cnec.getId());
         }
     }
 
@@ -181,7 +181,7 @@ public final class RaoLogger {
             double cnecMargin = mostLimitingElementsAndMargins.get(cnec);
 
             String isRelativeMargin = (relativePositiveMargins && cnecMargin > 0) ? " relative" : "";
-            Reports.reportMostLimitingElement(reportNode, TypedValue.INFO_SEVERITY, i + 1, isRelativeMargin, cnecMargin, unit, "", cnecNetworkElementName, cnecStateId, cnec.getId());
+            SearchTreeReports.reportMostLimitingElement(reportNode, TypedValue.INFO_SEVERITY, i + 1, isRelativeMargin, cnecMargin, unit, "", cnecNetworkElementName, cnecStateId, cnec.getId());
         }
     }
 
@@ -213,28 +213,35 @@ public final class RaoLogger {
         return mostLimitingElementsAndMargins;
     }
 
-    public static void logFailedOptimizationSummary(OpenRaoLogger logger, State optimizedState, Set<NetworkAction> networkActions, Map<RangeAction<?>, java.lang.Double> rangeActions) {
+    public static void logFailedOptimizationSummary(State optimizedState, Set<NetworkAction> networkActions, Map<RangeAction<?>, java.lang.Double> rangeActions, ReportNode reportNode) {
         String scenarioName = getScenarioName(optimizedState);
         String raResult = getRaResult(networkActions, rangeActions);
-        logger.info("Scenario \"{}\": {}", scenarioName, raResult);
+        SearchTreeReports.reportFailedOptimizationSummary(reportNode, scenarioName, raResult);
     }
 
     public static void logOptimizationSummary(State optimizedState, Set<NetworkAction> networkActions, Map<RangeAction<?>, Double> rangeActions, ObjectiveFunctionResult preOptimObjectiveFunctionResult, ObjectiveFunctionResult finalObjective, ReportNode reportNode) {
         String scenarioName = getScenarioName(optimizedState);
         String raResult = getRaResult(networkActions, rangeActions);
         Map<String, Double> finalVirtualCostDetailed = getVirtualCostDetailed(finalObjective);
-        String initialCostString;
-        if (preOptimObjectiveFunctionResult == null) {
-            initialCostString = "";
+        String finalVirtualCostDetailedString = finalVirtualCostDetailed.isEmpty() ? "null" : finalVirtualCostDetailed.toString();
+
+        Map<String, Double> initialVirtualCostDetailed;
+        String preOptimObjectiveFunctionResultCost;
+        String preOptimObjectiveFunctionResultFunctionalCost;
+        String preOptimObjectiveFunctionResultVirtualCost;
+        if (Objects.isNull(preOptimObjectiveFunctionResult)) {
+            initialVirtualCostDetailed = Collections.emptyMap();
+            preOptimObjectiveFunctionResultCost = "null";
+            preOptimObjectiveFunctionResultFunctionalCost = "null";
+            preOptimObjectiveFunctionResultVirtualCost = "null";
         } else {
-            Map<String, Double> initialVirtualCostDetailed = getVirtualCostDetailed(preOptimObjectiveFunctionResult);
-            if (initialVirtualCostDetailed.isEmpty()) {
-                initialCostString = String.format("initial cost = %s (functional: %s, virtual: %s), ", formatDouble(preOptimObjectiveFunctionResult.getFunctionalCost() + preOptimObjectiveFunctionResult.getVirtualCost()), formatDouble(preOptimObjectiveFunctionResult.getFunctionalCost()), formatDouble(preOptimObjectiveFunctionResult.getVirtualCost()));
-            } else {
-                initialCostString = String.format("initial cost = %s (functional: %s, virtual: %s %s), ", formatDouble(preOptimObjectiveFunctionResult.getFunctionalCost() + preOptimObjectiveFunctionResult.getVirtualCost()), formatDouble(preOptimObjectiveFunctionResult.getFunctionalCost()), formatDouble(preOptimObjectiveFunctionResult.getVirtualCost()), initialVirtualCostDetailed);
-            }
+            initialVirtualCostDetailed = getVirtualCostDetailed(preOptimObjectiveFunctionResult);
+            preOptimObjectiveFunctionResultCost = formatDouble(preOptimObjectiveFunctionResult.getCost());
+            preOptimObjectiveFunctionResultFunctionalCost = formatDouble(preOptimObjectiveFunctionResult.getFunctionalCost());
+            preOptimObjectiveFunctionResultVirtualCost = formatDouble(preOptimObjectiveFunctionResult.getVirtualCost());
         }
-        Reports.reportOptimizationSummaryOnScenario(reportNode, scenarioName, initialCostString, raResult, optimizedState.getInstant().toString(), finalObjective.getCost(), finalObjective.getFunctionalCost(), finalObjective.getVirtualCost(), finalVirtualCostDetailed.isEmpty() ? "" : " " + finalVirtualCostDetailed);
+        String initialVirtualCostDetailedString = initialVirtualCostDetailed.isEmpty() ? "null" : initialVirtualCostDetailed.toString();
+        SearchTreeReports.reportOptimizationSummaryOnScenario(reportNode, scenarioName, preOptimObjectiveFunctionResultCost, preOptimObjectiveFunctionResultFunctionalCost, preOptimObjectiveFunctionResultVirtualCost, initialVirtualCostDetailedString, raResult, optimizedState.getInstant().toString(), finalObjective.getCost(), finalObjective.getFunctionalCost(), finalObjective.getVirtualCost(), finalVirtualCostDetailedString);
     }
 
     public static String getRaResult(Set<NetworkAction> networkActions, Map<RangeAction<?>, java.lang.Double> rangeActions) {

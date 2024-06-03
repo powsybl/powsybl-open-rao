@@ -133,7 +133,7 @@ class IteratingLinearOptimizerTest {
         sensitivityComputerMockedStatic = Mockito.mockStatic(SensitivityComputer.class);
         SensitivityComputer.SensitivityComputerBuilder sensitivityComputerBuilder = Mockito.spy(new SensitivityComputer.SensitivityComputerBuilder(ReportNode.NO_OP));
         doReturn(sensitivityComputer).when(sensitivityComputerBuilder).build();
-        sensitivityComputerMockedStatic.when(() -> SensitivityComputer.create(ReportNode.NO_OP)).thenReturn(sensitivityComputerBuilder);
+        sensitivityComputerMockedStatic.when(() -> SensitivityComputer.create(any())).thenReturn(sensitivityComputerBuilder);
 
         when(input.getOutageInstant()).thenReturn(outageInstant);
     }
@@ -192,7 +192,7 @@ class IteratingLinearOptimizerTest {
         mockLinearProblem(List.of(LinearProblemStatus.INFEASIBLE), Collections.emptyList());
         mockFunctionalCost(100.);
         prepareLinearProblemBuilder();
-        LinearOptimizationResult result = IteratingLinearOptimizer.optimize(input, parameters, outageInstant);
+        LinearOptimizationResult result = IteratingLinearOptimizer.optimize(input, parameters, outageInstant, ReportNode.NO_OP);
 
         assertEquals(LinearProblemStatus.INFEASIBLE, result.getStatus());
     }
@@ -204,7 +204,7 @@ class IteratingLinearOptimizerTest {
         mockFunctionalCost(100.);
         prepareLinearProblemBuilder();
 
-        LinearOptimizationResult result = IteratingLinearOptimizer.optimize(input, parameters, outageInstant);
+        LinearOptimizationResult result = IteratingLinearOptimizer.optimize(input, parameters, outageInstant, ReportNode.NO_OP);
 
         assertEquals(LinearProblemStatus.OPTIMAL, result.getStatus());
         assertEquals(1, ((IteratingLinearOptimizationResultImpl) result).getNbOfIteration());
@@ -218,7 +218,7 @@ class IteratingLinearOptimizerTest {
         mockFunctionalCost(100., 50.);
         prepareLinearProblemBuilder();
 
-        LinearOptimizationResult result = IteratingLinearOptimizer.optimize(input, parameters, outageInstant);
+        LinearOptimizationResult result = IteratingLinearOptimizer.optimize(input, parameters, outageInstant, ReportNode.NO_OP);
 
         assertEquals(LinearProblemStatus.OPTIMAL, result.getStatus());
         assertEquals(2, ((IteratingLinearOptimizationResultImpl) result).getNbOfIteration());
@@ -233,7 +233,7 @@ class IteratingLinearOptimizerTest {
         mockFunctionalCost(100., 150., 140., 130., 120., 110.);
         prepareLinearProblemBuilder();
 
-        LinearOptimizationResult result = IteratingLinearOptimizer.optimize(input, parameters, outageInstant);
+        LinearOptimizationResult result = IteratingLinearOptimizer.optimize(input, parameters, outageInstant, ReportNode.NO_OP);
 
         assertEquals(LinearProblemStatus.MAX_ITERATION_REACHED, result.getStatus());
         assertEquals(5, ((IteratingLinearOptimizationResultImpl) result).getNbOfIteration());
@@ -247,7 +247,7 @@ class IteratingLinearOptimizerTest {
         mockFunctionalCost(100., 150., 140., 130., 120., 110.);
         prepareLinearProblemBuilder();
 
-        LinearOptimizationResult result = IteratingLinearOptimizer.optimize(input, parameters, outageInstant);
+        LinearOptimizationResult result = IteratingLinearOptimizer.optimize(input, parameters, outageInstant, ReportNode.NO_OP);
 
         assertEquals(LinearProblemStatus.OPTIMAL, result.getStatus());
         assertEquals(1, ((IteratingLinearOptimizationResultImpl) result).getNbOfIteration());
@@ -262,7 +262,7 @@ class IteratingLinearOptimizerTest {
         mockFunctionalCost(100., 120., 105., 90., 100., 95.);
         prepareLinearProblemBuilder();
 
-        LinearOptimizationResult result = IteratingLinearOptimizer.optimize(input, parameters, outageInstant);
+        LinearOptimizationResult result = IteratingLinearOptimizer.optimize(input, parameters, outageInstant, ReportNode.NO_OP);
 
         assertEquals(LinearProblemStatus.MAX_ITERATION_REACHED, result.getStatus());
         assertEquals(5, ((IteratingLinearOptimizationResultImpl) result).getNbOfIteration());
@@ -276,7 +276,7 @@ class IteratingLinearOptimizerTest {
         mockFunctionalCost(100., 90., 80., 70., 60., 50.);
         prepareLinearProblemBuilder();
 
-        LinearOptimizationResult result = IteratingLinearOptimizer.optimize(input, parameters, outageInstant);
+        LinearOptimizationResult result = IteratingLinearOptimizer.optimize(input, parameters, outageInstant, ReportNode.NO_OP);
 
         assertEquals(LinearProblemStatus.MAX_ITERATION_REACHED, result.getStatus());
         assertEquals(5, ((IteratingLinearOptimizationResultImpl) result).getNbOfIteration());
@@ -290,7 +290,7 @@ class IteratingLinearOptimizerTest {
         mockFunctionalCost(100., 50.);
         prepareLinearProblemBuilder();
 
-        LinearOptimizationResult result = IteratingLinearOptimizer.optimize(input, parameters, outageInstant);
+        LinearOptimizationResult result = IteratingLinearOptimizer.optimize(input, parameters, outageInstant, ReportNode.NO_OP);
 
         assertEquals(LinearProblemStatus.FEASIBLE, result.getStatus());
         assertEquals(2, ((IteratingLinearOptimizationResultImpl) result).getNbOfIteration());
@@ -308,7 +308,7 @@ class IteratingLinearOptimizerTest {
         mockFunctionalCost(100.);
         prepareLinearProblemBuilder();
 
-        LinearOptimizationResult result = IteratingLinearOptimizer.optimize(input, parameters, outageInstant);
+        LinearOptimizationResult result = IteratingLinearOptimizer.optimize(input, parameters, outageInstant, ReportNode.NO_OP);
 
         assertEquals(LinearProblemStatus.SENSITIVITY_COMPUTATION_FAILED, result.getStatus());
         assertEquals(1, ((IteratingLinearOptimizationResultImpl) result).getNbOfIteration());
@@ -337,7 +337,7 @@ class IteratingLinearOptimizerTest {
         when(input.getRaActivationFromParentLeaf()).thenReturn(rangeActionActivationResult);
         prepareLinearProblemBuilder();
 
-        IteratingLinearOptimizer.optimize(input, parameters, outageInstant);
+        IteratingLinearOptimizer.optimize(input, parameters, outageInstant, ReportNode.NO_OP);
         assertEquals(3, network.getTwoWindingsTransformer("BBE2AA1  BBE3AA1  1").getPhaseTapChanger().getTapPosition());
     }
 }
