@@ -152,7 +152,7 @@ class SearchTreeTest {
         Mockito.doReturn(rootLeaf).when(searchTree).makeLeaf(optimizationPerimeter, network, prePerimeterResult, appliedRemedialActions);
 
         OptimizationResult result = searchTree.run().get();
-        assertEquals(rootLeaf, result);
+        assertNull(result);
     }
 
     @Test

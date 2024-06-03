@@ -268,7 +268,7 @@ public final class RaoLogger {
             }
         }
         logger.info("Scenario \"{}\": {}{}, cost after {} optimization = {} (functional: {}, virtual: {}{})", scenarioName, initialCostString, raResult, optimizedState.getInstant(),
-            formatDouble(finalObjective.getCost()), formatDouble(finalObjective.getFunctionalCost()), formatDouble(finalObjective.getVirtualCost()), finalVirtualCostDetailed.isEmpty() ? "" : " " + finalVirtualCostDetailed);
+            formatDouble(finalObjective == null ? 0 : finalObjective.getCost()), formatDouble(finalObjective == null ? 0 : finalObjective.getFunctionalCost()), formatDouble(finalObjective == null ? 0 : finalObjective.getVirtualCost()), finalVirtualCostDetailed.isEmpty() ? "" : " " + finalVirtualCostDetailed);
     }
 
     public static String getRaResult(Set<NetworkAction> networkActions, Map<RangeAction<?>, java.lang.Double> rangeActions) {
@@ -313,7 +313,7 @@ public final class RaoLogger {
      * these information to be used in the Rao logs
      */
     public static Map<String, Double> getVirtualCostDetailed(ObjectiveFunctionResult objectiveFunctionResult) {
-        return objectiveFunctionResult.getVirtualCostNames().stream()
+        return objectiveFunctionResult == null ? Map.of() : objectiveFunctionResult.getVirtualCostNames().stream()
             .filter(virtualCostName -> objectiveFunctionResult.getVirtualCost(virtualCostName) > 1e-6)
             .collect(Collectors.toMap(Function.identity(),
                 name -> Math.round(objectiveFunctionResult.getVirtualCost(name) * 100.0) / 100.0));

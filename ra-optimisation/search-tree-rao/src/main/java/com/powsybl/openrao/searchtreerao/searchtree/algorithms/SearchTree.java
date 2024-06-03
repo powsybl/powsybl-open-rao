@@ -480,9 +480,11 @@ public class SearchTree {
      * This method logs information about positive virtual costs
      */
     private void logVirtualCostInformation(Leaf leaf, String prefix) {
-        leaf.getOptimizationResult().getVirtualCostNames().stream()
-            .filter(virtualCostName -> leaf.getOptimizationResult().getVirtualCost(virtualCostName) > 1e-6)
-            .forEach(virtualCostName -> logVirtualCostDetails(leaf, virtualCostName, prefix));
+        if (leaf.getOptimizationResult() != null) {
+            leaf.getOptimizationResult().getVirtualCostNames().stream()
+                .filter(virtualCostName -> leaf.getOptimizationResult().getVirtualCost(virtualCostName) > 1e-6)
+                .forEach(virtualCostName -> logVirtualCostDetails(leaf, virtualCostName, prefix));
+        }
     }
 
     /**
