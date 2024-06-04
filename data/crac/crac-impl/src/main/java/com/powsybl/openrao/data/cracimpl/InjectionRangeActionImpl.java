@@ -6,6 +6,8 @@
  */
 package com.powsybl.openrao.data.cracimpl;
 
+import com.powsybl.action.GeneratorActionBuilder;
+import com.powsybl.action.LoadActionBuilder;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.cracapi.NetworkElement;
 import com.powsybl.openrao.data.cracapi.range.StandardRange;
@@ -76,14 +78,29 @@ public class InjectionRangeActionImpl extends AbstractRangeAction<InjectionRange
     private void applyInjection(Network network, String injectionId, double targetSetpoint) {
         Generator generator = network.getGenerator(injectionId);
         if (generator != null) {
-            generator.setTargetP(targetSetpoint);
+            new GeneratorActionBuilder()
+                .withId("id")
+                .withGeneratorId(injectionId)
+                .withActivePowerRelativeValue(false)
+                .withActivePowerValue(targetSetpoint)
+                .build()
+                .toModification()
+                .apply(network);
             return;
         }
 
         Load load = network.getLoad(injectionId);
         if (load != null) {
-            load.setP0(-targetSetpoint);
+            new LoadActionBuilder()
+                .withId("id")
+                .withLoadId(injectionId)
+                .withRelativeValue(false)
+                .withActivePowerValue(-targetSetpoint)
+                .build()
+                .toModification()
+                .apply(network);
             return;
+
         }
 
         if (network.getIdentifiable(injectionId) == null) {
