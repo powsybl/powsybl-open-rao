@@ -67,7 +67,7 @@ public class PrePerimeterSensitivityAnalysis {
         sensitivityComputer = sensitivityComputerBuilder.build();
         objectiveFunction = ObjectiveFunction.create().buildForInitialSensitivityComputation(flowCnecs, raoParameters, crac, RangeActionSetpointResultImpl.buildWithSetpointsFromNetwork(network, rangeActions));
 
-        return runAndGetResult(network, objectiveFunction);
+        return runAndGetResult(network, objectiveFunction, reportNode);
     }
 
     public PrePerimeterResult runBasedOnInitialResults(Network network,
@@ -102,7 +102,7 @@ public class PrePerimeterSensitivityAnalysis {
 
         objectiveFunction = ObjectiveFunction.create().build(flowCnecs, toolProvider.getLoopFlowCnecs(flowCnecs), initialFlowResult, initialFlowResult, initialRangeActionSetpointResult, crac, operatorsNotSharingCras, raoParameters);
 
-        return runAndGetResult(network, objectiveFunction);
+        return runAndGetResult(network, objectiveFunction, reportNode);
     }
 
     public ObjectiveFunction getObjectiveFunction() {
@@ -116,13 +116,13 @@ public class PrePerimeterSensitivityAnalysis {
                 .withRangeActions(rangeActions);
     }
 
-    private PrePerimeterResult runAndGetResult(Network network, ObjectiveFunction objectiveFunction) {
+    private PrePerimeterResult runAndGetResult(Network network, ObjectiveFunction objectiveFunction, ReportNode reportNode) {
         sensitivityComputer.compute(network);
         FlowResult flowResult = sensitivityComputer.getBranchResult(network);
         SensitivityResult sensitivityResult = sensitivityComputer.getSensitivityResult();
         RangeActionSetpointResult rangeActionSetpointResult = RangeActionSetpointResultImpl.buildWithSetpointsFromNetwork(network, rangeActions);
         RangeActionActivationResult rangeActionActivationResult = new RangeActionActivationResultImpl(rangeActionSetpointResult);
-        ObjectiveFunctionResult objectiveFunctionResult = getResult(objectiveFunction, flowResult, rangeActionActivationResult, sensitivityResult);
+        ObjectiveFunctionResult objectiveFunctionResult = getResult(objectiveFunction, flowResult, rangeActionActivationResult, sensitivityResult, reportNode);
         return new PrePerimeterSensitivityResultImpl(
                 flowResult,
                 sensitivityResult,
@@ -131,7 +131,7 @@ public class PrePerimeterSensitivityAnalysis {
         );
     }
 
-    private ObjectiveFunctionResult getResult(ObjectiveFunction objectiveFunction, FlowResult flowResult, RangeActionActivationResult rangeActionActivationResult, SensitivityResult sensitivityResult) {
-        return objectiveFunction.evaluate(flowResult, rangeActionActivationResult, sensitivityResult, sensitivityResult.getSensitivityStatus());
+    private ObjectiveFunctionResult getResult(ObjectiveFunction objectiveFunction, FlowResult flowResult, RangeActionActivationResult rangeActionActivationResult, SensitivityResult sensitivityResult, ReportNode reportNode) {
+        return objectiveFunction.evaluate(flowResult, rangeActionActivationResult, sensitivityResult, sensitivityResult.getSensitivityStatus(), reportNode);
     }
 }

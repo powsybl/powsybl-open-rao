@@ -6,6 +6,7 @@
  */
 package com.powsybl.openrao.searchtreerao.commons.objectivefunctionevaluator;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
@@ -46,7 +47,7 @@ public class LoopFlowViolationCostEvaluator implements CostEvaluator {
     }
 
     @Override
-    public Pair<Double, List<FlowCnec>> computeCostAndLimitingElements(FlowResult flowResult, RangeActionActivationResult rangeActionActivationResult, SensitivityResult sensitivityResult, ComputationStatus sensitivityStatus, Set<String> contingenciesToExclude) {
+    public Pair<Double, List<FlowCnec>> computeCostAndLimitingElements(FlowResult flowResult, RangeActionActivationResult rangeActionActivationResult, SensitivityResult sensitivityResult, ComputationStatus sensitivityStatus, Set<String> contingenciesToExclude, ReportNode reportNode) {
         List<FlowCnec> costlyElements = getCostlyElements(flowResult, contingenciesToExclude);
         double cost = costlyElements
             .stream()

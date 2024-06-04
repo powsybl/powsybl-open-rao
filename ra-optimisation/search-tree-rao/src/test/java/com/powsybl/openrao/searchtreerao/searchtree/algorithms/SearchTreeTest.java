@@ -230,8 +230,8 @@ class SearchTreeTest {
         when(sensitivityComputer.getBranchResult(network)).thenReturn(null);
         Mockito.doNothing().when(sensitivityComputer).compute(network);
         ObjectiveFunction objectiveFunction = Mockito.mock(ObjectiveFunction.class);
-        when(objectiveFunction.evaluate(any(), any(), any(), any())).thenReturn(null);
-        leaf.evaluate(objectiveFunction, sensitivityComputer);
+        when(objectiveFunction.evaluate(any(), any(), any(), any(), any())).thenReturn(null);
+        leaf.evaluate(objectiveFunction, sensitivityComputer, ReportNode.NO_OP);
     }
 
     @Test

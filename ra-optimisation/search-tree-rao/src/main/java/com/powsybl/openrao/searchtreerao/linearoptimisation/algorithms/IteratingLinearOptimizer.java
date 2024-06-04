@@ -43,7 +43,8 @@ public final class IteratingLinearOptimizer {
                 input.getPreOptimizationSensitivityResult(),
                 input.getRaActivationFromParentLeaf(),
                 0,
-                input.getObjectiveFunction());
+                input.getObjectiveFunction(),
+                reportNode);
 
         IteratingLinearOptimizationResultImpl previousResult = bestResult;
 
@@ -91,7 +92,8 @@ public final class IteratingLinearOptimizer {
                     sensitivityComputer.getSensitivityResult(),
                     currentRangeActionActivationResult,
                     iteration,
-                    input.getObjectiveFunction()
+                    input.getObjectiveFunction(),
+                    reportNode
             );
             previousResult = currentResult;
 
@@ -209,12 +211,13 @@ public final class IteratingLinearOptimizer {
     }
 
     private static IteratingLinearOptimizationResultImpl createResult(FlowResult flowResult,
-                                                               SensitivityResult sensitivityResult,
-                                                               RangeActionActivationResult rangeActionActivation,
-                                                               int nbOfIterations,
-                                                               ObjectiveFunction objectiveFunction) {
+                                                                      SensitivityResult sensitivityResult,
+                                                                      RangeActionActivationResult rangeActionActivation,
+                                                                      int nbOfIterations,
+                                                                      ObjectiveFunction objectiveFunction,
+                                                                      ReportNode reportNode) {
         return new IteratingLinearOptimizationResultImpl(LinearProblemStatus.OPTIMAL, nbOfIterations, rangeActionActivation, flowResult,
-                objectiveFunction.evaluate(flowResult, rangeActionActivation, sensitivityResult, sensitivityResult.getSensitivityStatus()), sensitivityResult);
+                objectiveFunction.evaluate(flowResult, rangeActionActivation, sensitivityResult, sensitivityResult.getSensitivityStatus(), reportNode), sensitivityResult);
     }
 
     private static RangeActionActivationResult roundResult(RangeActionActivationResult linearProblemResult, IteratingLinearOptimizationResultImpl previousResult, IteratingLinearOptimizerInput input, IteratingLinearOptimizerParameters parameters) {

@@ -55,7 +55,7 @@ public final class RaoLogger {
         }
 
         ObjectiveFunctionResult prePerimeterObjectiveFunctionResult = objectiveFunction.evaluate(sensitivityAnalysisResult, rangeActionActivationResult,
-            sensitivityAnalysisResult, sensitivityAnalysisResult.getSensitivityStatus());
+            sensitivityAnalysisResult, sensitivityAnalysisResult.getSensitivityStatus(), reportNode);
         SearchTreeReports.reportSensitivityAnalysisResults(reportNode,
                 prefix,
                 prePerimeterObjectiveFunctionResult.getCost(),

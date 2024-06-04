@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.searchtreerao.commons.objectivefunctionevaluator;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.cracapi.cnec.Cnec;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
@@ -33,8 +34,8 @@ public final class ObjectiveFunction {
         this.virtualCostEvaluators = virtualCostEvaluators;
     }
 
-    public ObjectiveFunctionResult evaluate(FlowResult flowResult, RangeActionActivationResult rangeActionActivationResult, SensitivityResult sensitivityResult, ComputationStatus sensitivityStatus) {
-        return new ObjectiveFunctionResultImpl(this, flowResult, rangeActionActivationResult, sensitivityResult, sensitivityStatus);
+    public ObjectiveFunctionResult evaluate(FlowResult flowResult, RangeActionActivationResult rangeActionActivationResult, SensitivityResult sensitivityResult, ComputationStatus sensitivityStatus, ReportNode reportNode) {
+        return new ObjectiveFunctionResultImpl(this, flowResult, rangeActionActivationResult, sensitivityResult, sensitivityStatus, reportNode);
     }
 
     public static ObjectiveFunctionBuilder create() {
@@ -51,23 +52,23 @@ public final class ObjectiveFunction {
         return functionalCostEvaluator.computeCostAndLimitingElements(flowResult, rangeActionActivationResult, sensitivityResult, sensitivityStatus);
     }
 
-    public Pair<Double, List<FlowCnec>> getFunctionalCostAndLimitingElements(FlowResult flowResult, RangeActionActivationResult rangeActionActivationResult, SensitivityResult sensitivityResult, ComputationStatus sensitivityStatus, Set<String> contingenciesToExclude) {
-        return functionalCostEvaluator.computeCostAndLimitingElements(flowResult, rangeActionActivationResult, sensitivityResult, sensitivityStatus, contingenciesToExclude);
+    public Pair<Double, List<FlowCnec>> getFunctionalCostAndLimitingElements(FlowResult flowResult, RangeActionActivationResult rangeActionActivationResult, SensitivityResult sensitivityResult, ComputationStatus sensitivityStatus, Set<String> contingenciesToExclude, ReportNode reportNode) {
+        return functionalCostEvaluator.computeCostAndLimitingElements(flowResult, rangeActionActivationResult, sensitivityResult, sensitivityStatus, contingenciesToExclude, reportNode);
     }
 
     public Set<String> getVirtualCostNames() {
         return virtualCostEvaluators.stream().map(CostEvaluator::getName).collect(Collectors.toSet());
     }
 
-    public Pair<Double, List<FlowCnec>> getVirtualCostAndCostlyElements(FlowResult flowResult, RangeActionActivationResult rangeActionActivationResult, SensitivityResult sensitivityResult, ComputationStatus sensitivityStatus, String virtualCostName) {
-        return getVirtualCostAndCostlyElements(flowResult, rangeActionActivationResult, sensitivityResult, sensitivityStatus, virtualCostName, new HashSet<>());
+    public Pair<Double, List<FlowCnec>> getVirtualCostAndCostlyElements(FlowResult flowResult, RangeActionActivationResult rangeActionActivationResult, SensitivityResult sensitivityResult, ComputationStatus sensitivityStatus, String virtualCostName, ReportNode reportNode) {
+        return getVirtualCostAndCostlyElements(flowResult, rangeActionActivationResult, sensitivityResult, sensitivityStatus, virtualCostName, new HashSet<>(), reportNode);
     }
 
-    public Pair<Double, List<FlowCnec>> getVirtualCostAndCostlyElements(FlowResult flowResult, RangeActionActivationResult rangeActionActivationResult, SensitivityResult sensitivityResult, ComputationStatus sensitivityStatus, String virtualCostName, Set<String> contingenciesToExclude) {
+    public Pair<Double, List<FlowCnec>> getVirtualCostAndCostlyElements(FlowResult flowResult, RangeActionActivationResult rangeActionActivationResult, SensitivityResult sensitivityResult, ComputationStatus sensitivityStatus, String virtualCostName, Set<String> contingenciesToExclude, ReportNode reportNode) {
         return virtualCostEvaluators.stream()
             .filter(costEvaluator -> costEvaluator.getName().equals(virtualCostName))
             .findAny()
-            .map(costEvaluator -> costEvaluator.computeCostAndLimitingElements(flowResult, rangeActionActivationResult, sensitivityResult, sensitivityStatus, contingenciesToExclude))
+            .map(costEvaluator -> costEvaluator.computeCostAndLimitingElements(flowResult, rangeActionActivationResult, sensitivityResult, sensitivityStatus, contingenciesToExclude, reportNode))
             .orElse(Pair.of(Double.NaN, new ArrayList<>()));
     }
 

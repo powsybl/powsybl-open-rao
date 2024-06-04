@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.searchtreerao.commons.objectivefunctionevaluator;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
 import com.powsybl.openrao.data.raoresultapi.ComputationStatus;
@@ -52,17 +53,17 @@ class ObjectiveFunctionTest {
 
         minMarginEvaluator = Mockito.mock(MinMarginEvaluator.class);
         when(minMarginEvaluator.computeCostAndLimitingElements(flowResult, rangeActionActivationResult, sensitivityResult, sensitivityStatus)).thenReturn(Pair.of(-300., List.of(cnec1, cnec2)));
-        when(minMarginEvaluator.computeCostAndLimitingElements(flowResult, rangeActionActivationResult, sensitivityResult, sensitivityStatus, new HashSet<>())).thenReturn(Pair.of(-300., List.of(cnec1, cnec2)));
+        when(minMarginEvaluator.computeCostAndLimitingElements(flowResult, rangeActionActivationResult, sensitivityResult, sensitivityStatus, new HashSet<>(), ReportNode.NO_OP)).thenReturn(Pair.of(-300., List.of(cnec1, cnec2)));
 
         mnecViolationCostEvaluator = Mockito.mock(MnecViolationCostEvaluator.class);
         when(mnecViolationCostEvaluator.getName()).thenReturn("mnec-cost");
         when(mnecViolationCostEvaluator.computeCostAndLimitingElements(flowResult, rangeActionActivationResult, sensitivityResult, sensitivityStatus)).thenReturn(Pair.of(1000., List.of(cnec1)));
-        when(mnecViolationCostEvaluator.computeCostAndLimitingElements(flowResult, rangeActionActivationResult, sensitivityResult, sensitivityStatus, new HashSet<>())).thenReturn(Pair.of(1000., List.of(cnec1)));
+        when(mnecViolationCostEvaluator.computeCostAndLimitingElements(flowResult, rangeActionActivationResult, sensitivityResult, sensitivityStatus, new HashSet<>(), ReportNode.NO_OP)).thenReturn(Pair.of(1000., List.of(cnec1)));
 
         loopFlowViolationCostEvaluator = Mockito.mock(LoopFlowViolationCostEvaluator.class);
         when(loopFlowViolationCostEvaluator.getName()).thenReturn("loop-flow-cost");
         when(loopFlowViolationCostEvaluator.computeCostAndLimitingElements(flowResult, rangeActionActivationResult, sensitivityResult, sensitivityStatus)).thenReturn(Pair.of(100., List.of(cnec2)));
-        when(loopFlowViolationCostEvaluator.computeCostAndLimitingElements(flowResult, rangeActionActivationResult, sensitivityResult, sensitivityStatus, new HashSet<>())).thenReturn(Pair.of(100., List.of(cnec2)));
+        when(loopFlowViolationCostEvaluator.computeCostAndLimitingElements(flowResult, rangeActionActivationResult, sensitivityResult, sensitivityStatus, new HashSet<>(), ReportNode.NO_OP)).thenReturn(Pair.of(100., List.of(cnec2)));
     }
 
     @Test
@@ -77,11 +78,11 @@ class ObjectiveFunctionTest {
 
         // virtual cost
         assertTrue(objectiveFunction.getVirtualCostNames().isEmpty());
-        assertTrue(Double.isNaN(objectiveFunction.getVirtualCostAndCostlyElements(flowResult, rangeActionActivationResult, sensitivityResult, sensitivityStatus, "mnec-cost").getLeft()));
-        assertTrue(objectiveFunction.getVirtualCostAndCostlyElements(flowResult, rangeActionActivationResult, sensitivityResult, sensitivityStatus, "mnec-cost").getRight().isEmpty());
+        assertTrue(Double.isNaN(objectiveFunction.getVirtualCostAndCostlyElements(flowResult, rangeActionActivationResult, sensitivityResult, sensitivityStatus, "mnec-cost", ReportNode.NO_OP).getLeft()));
+        assertTrue(objectiveFunction.getVirtualCostAndCostlyElements(flowResult, rangeActionActivationResult, sensitivityResult, sensitivityStatus, "mnec-cost", ReportNode.NO_OP).getRight().isEmpty());
 
         // ObjectiveFunctionResult
-        ObjectiveFunctionResult result = objectiveFunction.evaluate(flowResult, rangeActionActivationResult, sensitivityResult, sensitivityStatus);
+        ObjectiveFunctionResult result = objectiveFunction.evaluate(flowResult, rangeActionActivationResult, sensitivityResult, sensitivityStatus, ReportNode.NO_OP);
         assertEquals(-300., result.getFunctionalCost(), DOUBLE_TOLERANCE);
         assertEquals(0., result.getVirtualCost(), DOUBLE_TOLERANCE);
         assertEquals(-300., result.getCost(), DOUBLE_TOLERANCE);
@@ -113,15 +114,15 @@ class ObjectiveFunctionTest {
         assertTrue(objectiveFunction.getVirtualCostNames().containsAll(Set.of("mnec-cost", "loop-flow-cost")));
 
         // mnec virtual cost
-        assertEquals(1000., objectiveFunction.getVirtualCostAndCostlyElements(flowResult, rangeActionActivationResult, sensitivityResult, sensitivityStatus, "mnec-cost").getLeft(), DOUBLE_TOLERANCE);
-        assertEquals(List.of(cnec1), objectiveFunction.getVirtualCostAndCostlyElements(flowResult, rangeActionActivationResult, sensitivityResult, sensitivityStatus, "mnec-cost").getRight());
+        assertEquals(1000., objectiveFunction.getVirtualCostAndCostlyElements(flowResult, rangeActionActivationResult, sensitivityResult, sensitivityStatus, "mnec-cost", ReportNode.NO_OP).getLeft(), DOUBLE_TOLERANCE);
+        assertEquals(List.of(cnec1), objectiveFunction.getVirtualCostAndCostlyElements(flowResult, rangeActionActivationResult, sensitivityResult, sensitivityStatus, "mnec-cost", ReportNode.NO_OP).getRight());
 
         // loopflow virtual cost
-        assertEquals(100., objectiveFunction.getVirtualCostAndCostlyElements(flowResult, rangeActionActivationResult, sensitivityResult, sensitivityStatus, "loop-flow-cost").getLeft(), DOUBLE_TOLERANCE);
-        assertEquals(List.of(cnec2), objectiveFunction.getVirtualCostAndCostlyElements(flowResult, rangeActionActivationResult, sensitivityResult, sensitivityStatus, "loop-flow-cost").getRight());
+        assertEquals(100., objectiveFunction.getVirtualCostAndCostlyElements(flowResult, rangeActionActivationResult, sensitivityResult, sensitivityStatus, "loop-flow-cost", ReportNode.NO_OP).getLeft(), DOUBLE_TOLERANCE);
+        assertEquals(List.of(cnec2), objectiveFunction.getVirtualCostAndCostlyElements(flowResult, rangeActionActivationResult, sensitivityResult, sensitivityStatus, "loop-flow-cost", ReportNode.NO_OP).getRight());
 
         // ObjectiveFunctionResult
-        ObjectiveFunctionResult result = objectiveFunction.evaluate(flowResult, rangeActionActivationResult, sensitivityResult, sensitivityStatus);
+        ObjectiveFunctionResult result = objectiveFunction.evaluate(flowResult, rangeActionActivationResult, sensitivityResult, sensitivityStatus, ReportNode.NO_OP);
         assertEquals(-300., result.getFunctionalCost(), DOUBLE_TOLERANCE);
         assertEquals(1100., result.getVirtualCost(), DOUBLE_TOLERANCE);
         assertEquals(800., result.getCost(), DOUBLE_TOLERANCE);

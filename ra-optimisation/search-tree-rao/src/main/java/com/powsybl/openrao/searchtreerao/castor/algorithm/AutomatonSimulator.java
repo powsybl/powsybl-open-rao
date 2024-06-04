@@ -155,7 +155,7 @@ public final class AutomatonSimulator {
             return failedAutomatonPerimeterResultImpl;
         }
         // Build and return optimization result
-        PrePerimeterResult prePerimeterResultForOptimizedState = buildPrePerimeterResultForOptimizedState(rangeAutomatonSimulationResult.getPerimeterResult(), automatonState);
+        PrePerimeterResult prePerimeterResultForOptimizedState = buildPrePerimeterResultForOptimizedState(rangeAutomatonSimulationResult.getPerimeterResult(), automatonState, automatonStateReportNode);
         AutomatonPerimeterResultImpl automatonPerimeterResultImpl = new AutomatonPerimeterResultImpl(
             prePerimeterResultForOptimizedState,
             topoSimulationResult.getActivatedNetworkActions(),
@@ -806,7 +806,7 @@ public final class AutomatonSimulator {
         return rangeAction.getTapToAngleConversionMap().get(rangeAction.convertAngleToTap(angleToBeRounded));
     }
 
-    private PrePerimeterResult buildPrePerimeterResultForOptimizedState(PrePerimeterResult postAutoResult, State optimizedState) {
+    private PrePerimeterResult buildPrePerimeterResultForOptimizedState(PrePerimeterResult postAutoResult, State optimizedState, ReportNode reportNode) {
         // Gather variables necessary for PrePerimeterResult construction
         FlowResult flowResult = postAutoResult.getFlowResult();
         SensitivityResult sensitivityResult = postAutoResult.getSensitivityResult();
@@ -818,7 +818,7 @@ public final class AutomatonSimulator {
         ObjectiveFunction objectiveFunction = ObjectiveFunction.create().build(cnecsForOptimizedState, toolProvider.getLoopFlowCnecs(cnecsForOptimizedState), initialFlowResult, prePerimeterSensitivityOutput, prePerimeterRangeActionSetpointResult, crac, operatorsNotSharingCras, raoParameters);
         RangeActionActivationResult rangeActionActivationResult = new RangeActionActivationResultImpl(rangeActionSetpointResult);
         ComputationStatus status = postAutoResult.getSensitivityStatus(optimizedState);
-        ObjectiveFunctionResult objectiveFunctionResult = new ObjectiveFunctionResultImpl(objectiveFunction, flowResult, rangeActionActivationResult, sensitivityResult, status);
+        ObjectiveFunctionResult objectiveFunctionResult = new ObjectiveFunctionResultImpl(objectiveFunction, flowResult, rangeActionActivationResult, sensitivityResult, status, reportNode);
         return new PrePerimeterSensitivityResultImpl(flowResult, sensitivityResult, rangeActionSetpointResult, objectiveFunctionResult);
 
     }

@@ -148,10 +148,10 @@ public class Leaf implements OptimizationResult {
      * This method performs a systematic sensitivity computation on the leaf only if it has not been done previously.
      * If the computation works fine status is updated to EVALUATED otherwise it is set to ERROR.
      */
-    void evaluate(ObjectiveFunction objectiveFunction, SensitivityComputer sensitivityComputer) {
+    void evaluate(ObjectiveFunction objectiveFunction, SensitivityComputer sensitivityComputer, ReportNode reportNode) {
         if (status.equals(Status.EVALUATED)) {
             TECHNICAL_LOGS.debug("Leaf has already been evaluated");
-            preOptimObjectiveFunctionResult = objectiveFunction.evaluate(preOptimFlowResult, raActivationResultFromParentLeaf, preOptimSensitivityResult, preOptimSensitivityResult.getSensitivityStatus());
+            preOptimObjectiveFunctionResult = objectiveFunction.evaluate(preOptimFlowResult, raActivationResultFromParentLeaf, preOptimSensitivityResult, preOptimSensitivityResult.getSensitivityStatus(), reportNode);
             return;
         }
         TECHNICAL_LOGS.debug("Evaluating {}", this);
@@ -163,7 +163,7 @@ public class Leaf implements OptimizationResult {
         }
         preOptimSensitivityResult = sensitivityComputer.getSensitivityResult();
         preOptimFlowResult = sensitivityComputer.getBranchResult(network);
-        preOptimObjectiveFunctionResult = objectiveFunction.evaluate(preOptimFlowResult, raActivationResultFromParentLeaf, preOptimSensitivityResult, preOptimSensitivityResult.getSensitivityStatus());
+        preOptimObjectiveFunctionResult = objectiveFunction.evaluate(preOptimFlowResult, raActivationResultFromParentLeaf, preOptimSensitivityResult, preOptimSensitivityResult.getSensitivityStatus(), reportNode);
         status = Status.EVALUATED;
     }
 

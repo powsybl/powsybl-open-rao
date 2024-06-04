@@ -16,7 +16,9 @@
                Systematic sensitivity analysis failed: com.powsybl.commons.PowsyblException: Load flow ended with status MAX_ITERATION_REACHED
                Sensitivity analysis failed: no output data available.
                Sensitivity analysis failed.
+         Sensitivity failure : assigning virtual overcost of 100000.0
          Initial sensitivity analysis: cost = 99000.0 (functional: -1000.0, virtual: 100000.0)
+         Sensitivity failure : assigning virtual overcost of 100000.0
          Limiting element #01: margin = 1000.00 A, element FFR3AA1  FFR5AA1  1 at state co1_fr2_fr3_1 - curative, CNEC ID = 'FFR3AA1  FFR5AA1  1 - co1_fr2_fr3_1 - curative'
          Limiting element #02: margin = 1200.00 A, element FFR3AA1  FFR5AA1  1 at state co1_fr2_fr3_1 - outage, CNEC ID = 'FFR3AA1  FFR5AA1  1 - co1_fr2_fr3_1 - outage'
          Initial sensitivity analysis failed

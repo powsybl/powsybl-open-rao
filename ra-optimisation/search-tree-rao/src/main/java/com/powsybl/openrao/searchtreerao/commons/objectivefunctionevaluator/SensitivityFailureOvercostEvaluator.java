@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.searchtreerao.commons.objectivefunctionevaluator;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.openrao.data.cracapi.State;
@@ -20,8 +21,6 @@ import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.*;
 import java.util.stream.Collectors;
-
-import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.TECHNICAL_LOGS;
 
 /**
  * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
@@ -41,16 +40,16 @@ public class SensitivityFailureOvercostEvaluator implements CostEvaluator {
     }
 
     @Override
-    public Pair<Double, List<FlowCnec>> computeCostAndLimitingElements(FlowResult flowResult, RangeActionActivationResult rangeActionActivationResult, SensitivityResult sensitivityResult, ComputationStatus sensitivityStatus, Set<String> contingenciesToExclude) {
+    public Pair<Double, List<FlowCnec>> computeCostAndLimitingElements(FlowResult flowResult, RangeActionActivationResult rangeActionActivationResult, SensitivityResult sensitivityResult, ComputationStatus sensitivityStatus, Set<String> contingenciesToExclude, ReportNode reportNode) {
         if (sensitivityStatus == ComputationStatus.FAILURE) {
-            TECHNICAL_LOGS.info("Sensitivity failure : assigning virtual overcost of {}", sensitivityFailureOvercost);
+            ObjectiveFunctionEvaluatorReports.reportSensitivityFailure(reportNode, sensitivityFailureOvercost);
             return Pair.of(sensitivityFailureOvercost, new ArrayList<>());
         }
         for (State state : states) {
             Optional<Contingency> contingency = state.getContingency();
             if ((state.getContingency().isEmpty() || contingency.isPresent()) &&
                     sensitivityResult.getSensitivityStatus(state) == ComputationStatus.FAILURE) {
-                TECHNICAL_LOGS.info("Sensitivity failure for state {} : assigning virtual overcost of {}", state.getId(), sensitivityFailureOvercost);
+                ObjectiveFunctionEvaluatorReports.reportSensitivityFailureForState(reportNode, state.getId(), sensitivityFailureOvercost);
                 return Pair.of(sensitivityFailureOvercost, new ArrayList<>());
             }
         }
