@@ -17,8 +17,6 @@ import com.google.auto.service.AutoService;
 import java.time.Instant;
 import java.util.concurrent.CompletableFuture;
 
-import static com.powsybl.openrao.searchtreerao.commons.SearchTreeReports.reportRao;
-
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
@@ -51,14 +49,14 @@ public class Castor implements RaoProvider {
     @Override
     public CompletableFuture<RaoResult> run(RaoInput raoInput, RaoParameters parameters, Instant targetEndInstant, ReportNode reportNode) {
         RaoUtil.initData(raoInput, parameters, reportNode);
-        ReportNode raoReportNode = reportRao(raoInput.getNetwork().getId(), reportNode);
+        ReportNode raoReportNode = CastorReports.reportRao(raoInput.getNetwork().getId(), reportNode);
 
         // optimization is made on one given state only
         if (raoInput.getOptimizedState() != null) {
             try {
                 return new CastorOneStateOnly(raoInput, parameters).run(raoReportNode);
             } catch (Exception e) {
-                SearchTreeReports.reportRaoFailure(raoInput.getOptimizedState().getId(), e, reportNode);
+                CastorReports.reportRaoFailure(raoInput.getOptimizedState().getId(), e, reportNode);
                 return CompletableFuture.completedFuture(new FailedRaoResultImpl());
             }
         } else {

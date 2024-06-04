@@ -27,7 +27,6 @@ import com.powsybl.openrao.data.raoresultapi.ComputationStatus;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.searchtreerao.commons.RaoLogger;
 import com.powsybl.openrao.searchtreerao.commons.RaoUtil;
-import com.powsybl.openrao.searchtreerao.commons.SearchTreeReports;
 import com.powsybl.openrao.searchtreerao.commons.ToolProvider;
 import com.powsybl.openrao.searchtreerao.commons.objectivefunctionevaluator.ObjectiveFunction;
 import com.powsybl.openrao.searchtreerao.commons.objectivefunctionevaluator.ObjectiveFunctionResultImpl;
@@ -93,7 +92,7 @@ public final class AutomatonSimulator {
         this.operatorsNotSharingCras = operatorsNotSharingCras;
         this.numberLoggedElementsDuringRao = numberLoggedElementsDuringRao;
         this.flowCnecRangeActionMap = UnoptimizedCnecParameters.getDoNotOptimizeCnecsSecuredByTheirPst(raoParameters.getNotOptimizedCnecsParameters(), crac);
-        this.reportNode = SearchTreeReports.reportNewAutomatonSimulator(reportNode);
+        this.reportNode = CastorReports.reportNewAutomatonSimulator(reportNode);
     }
 
     /**
@@ -102,8 +101,8 @@ public final class AutomatonSimulator {
      * Returns an AutomatonPerimeterResult
      */
     AutomatonPerimeterResultImpl simulateAutomatonState(State automatonState, Set<State> curativeStates, Network network, StateTree stateTree, TreeParameters automatonTreeParameters) {
-        ReportNode automatonStateReportNode = SearchTreeReports.reportOptimizingAutomatingState(reportNode, automatonState.getId());
-        ReportNode initialStateReportNode = SearchTreeReports.reportAutomatonSimulatorInitialSituation(automatonStateReportNode);
+        ReportNode automatonStateReportNode = CastorReports.reportOptimizingAutomatingState(reportNode, automatonState.getId());
+        ReportNode initialStateReportNode = CastorReports.reportAutomatonSimulatorInitialSituation(automatonStateReportNode);
         RaoLogger.logMostLimitingElementsResults(prePerimeterSensitivityOutput, Set.of(automatonState), raoParameters.getObjectiveFunctionParameters().getType(), numberLoggedElementsDuringRao, initialStateReportNode, TypedValue.DEBUG_SEVERITY);
 
         PrePerimeterSensitivityAnalysis preAutoPstOptimizationSensitivityAnalysis = getPreAutoPerimeterSensitivityAnalysis(automatonState, curativeStates);
@@ -150,7 +149,7 @@ public final class AutomatonSimulator {
                     rangeAutomatonSimulationResult.getRangeActionsWithSetpoint(),
                     automatonState);
             failedAutomatonPerimeterResultImpl.setComputationStatus(ComputationStatus.FAILURE);
-            SearchTreeReports.reportAutomatonSimulationFailedRangeActionSensitivityComputation(automatonStateReportNode, automatonState.getId(), "during range");
+            CastorReports.reportAutomatonSimulationFailedRangeActionSensitivityComputation(automatonStateReportNode, automatonState.getId(), "during range");
             RaoLogger.logFailedOptimizationSummary(automatonState, failedAutomatonPerimeterResultImpl.getActivatedNetworkActions(), getRangeActionsAndTheirTapsAppliedOnState(failedAutomatonPerimeterResultImpl, automatonState), automatonStateReportNode);
             return failedAutomatonPerimeterResultImpl;
         }
@@ -163,7 +162,7 @@ public final class AutomatonSimulator {
             rangeAutomatonSimulationResult.getActivatedRangeActions(),
             rangeAutomatonSimulationResult.getRangeActionsWithSetpoint(),
             automatonState);
-        SearchTreeReports.reportAutomatonStateOptimized(automatonStateReportNode, automatonState.getId());
+        CastorReports.reportAutomatonStateOptimized(automatonStateReportNode, automatonState.getId());
         RaoLogger.logOptimizationSummary(automatonState, automatonPerimeterResultImpl.getActivatedNetworkActions(), getRangeActionsAndTheirTapsAppliedOnState(automatonPerimeterResultImpl, automatonState), null, automatonPerimeterResultImpl, automatonStateReportNode);
         return automatonPerimeterResultImpl;
     }
@@ -219,7 +218,7 @@ public final class AutomatonSimulator {
                 new HashMap<>(),
                 autoState);
         failedAutomatonPerimeterResultImpl.setComputationStatus(ComputationStatus.FAILURE);
-        SearchTreeReports.reportAutomatonSimulationFailedRangeActionSensitivityComputation(automatonStateReportNode, autoState.getId(), String.format("%s topological", defineMoment));
+        CastorReports.reportAutomatonSimulationFailedRangeActionSensitivityComputation(automatonStateReportNode, autoState.getId(), String.format("%s topological", defineMoment));
         RaoLogger.logFailedOptimizationSummary(autoState, failedAutomatonPerimeterResultImpl.getActivatedNetworkActions(), getRangeActionsAndTheirTapsAppliedOnState(failedAutomatonPerimeterResultImpl, autoState), automatonStateReportNode);
         return failedAutomatonPerimeterResultImpl;
     }
@@ -522,7 +521,7 @@ public final class AutomatonSimulator {
                 activePowerSetpoints.put(hvdcRa, activePowerSetpoint);
                 disableHvdcAngleDroopActivePowerControl(hvdcLineId, network, activePowerSetpoint);
             } else {
-                SearchTreeReports.reportHvdcRangeActionNotActivatedOutsideRange(automatonStateReportNode, hvdcRa.getId(),
+                CastorReports.reportHvdcRangeActionNotActivatedOutsideRange(automatonStateReportNode, hvdcRa.getId(),
                     activePowerSetpoint, minAdmissibleSetpoint, maxAdmissibleSetpoint);
             }
         });
