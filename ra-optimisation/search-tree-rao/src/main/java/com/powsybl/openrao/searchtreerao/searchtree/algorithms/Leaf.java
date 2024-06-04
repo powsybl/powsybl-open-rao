@@ -177,7 +177,7 @@ public class Leaf implements OptimizationResult {
      * is either the same as the initial variant ID if the optimization has not been efficient or a new ID
      * corresponding to a new variant created by the IteratingLinearOptimizer.
      */
-    void optimize(SearchTreeInput searchTreeInput, SearchTreeParameters parameters) {
+    void optimize(SearchTreeInput searchTreeInput, SearchTreeParameters parameters, ReportNode reportNode) {
         if (!optimizationDataPresent) {
             throw new OpenRaoException("Cannot optimize leaf, because optimization data has been deleted");
         }
@@ -219,7 +219,7 @@ public class Leaf implements OptimizationResult {
                     .withRaRangeShrinking(parameters.getTreeParameters().raRangeShrinking())
                     .build();
 
-            postOptimResult = IteratingLinearOptimizer.optimize(linearOptimizerInput, linearOptimizerParameters, searchTreeInput.getOutageInstant(), ReportNode.NO_OP);
+            postOptimResult = IteratingLinearOptimizer.optimize(linearOptimizerInput, linearOptimizerParameters, searchTreeInput.getOutageInstant(), reportNode);
 
             status = Status.OPTIMIZED;
         } else if (status.equals(Status.ERROR)) {

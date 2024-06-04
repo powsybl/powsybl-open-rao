@@ -47,7 +47,6 @@ import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
-import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.TECHNICAL_LOGS;
 import static com.powsybl.openrao.searchtreerao.commons.RaoLogger.logRangeActions;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
@@ -468,7 +467,7 @@ class SearchTreeTest {
         when(rootLeaf.getStatus()).thenReturn(Leaf.Status.EVALUATED);
         Mockito.doReturn(rootLeaf).when(searchTree).makeLeaf(optimizationPerimeter, network, prePerimeterResult, appliedRemedialActions);
         // rootLeaf should not be optimized : its virtual cost is zero so stop criterion is already reached
-        doThrow(OpenRaoException.class).when(rootLeaf).optimize(any(), any());
+        doThrow(OpenRaoException.class).when(rootLeaf).optimize(any(), any(), any());
 
         try {
             searchTree.run(ReportNode.NO_OP);
@@ -616,7 +615,7 @@ class SearchTreeTest {
     void testLogRangeActions() {
         setUpForVirtualLogs();
         List<ILoggingEvent> logsList = getLogs(TechnicalLogs.class).list;
-        logRangeActions(TECHNICAL_LOGS, rootLeaf, searchTreeInput.getOptimizationPerimeter(), "");
+        logRangeActions(rootLeaf, searchTreeInput.getOptimizationPerimeter(), "", ReportNode.NO_OP);
         assertEquals("[INFO] No range actions activated", logsList.get(logsList.size() - 1).toString());
 
         // apply 2 range actions
@@ -627,7 +626,7 @@ class SearchTreeTest {
         when(searchTreeInput.getOptimizationPerimeter().getRangeActionOptimizationStates()).thenReturn(Set.of(optimizedState));
         when(rootLeaf.getActivatedRangeActions(optimizedState)).thenReturn(Set.of(rangeAction1, rangeAction2));
 
-        logRangeActions(TECHNICAL_LOGS, rootLeaf, searchTreeInput.getOptimizationPerimeter(), "");
+        logRangeActions(rootLeaf, searchTreeInput.getOptimizationPerimeter(), "", ReportNode.NO_OP);
         // PST can be logged in any order
         assert logsList.get(logsList.size() - 1).toString().contains("[INFO] range action(s):");
         assert logsList.get(logsList.size() - 1).toString().contains("PST1: 0");

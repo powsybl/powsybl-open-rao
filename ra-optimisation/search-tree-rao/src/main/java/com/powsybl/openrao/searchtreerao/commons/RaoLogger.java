@@ -10,7 +10,6 @@ package com.powsybl.openrao.searchtreerao.commons;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.report.TypedValue;
 import com.powsybl.openrao.commons.Unit;
-import com.powsybl.openrao.commons.logs.OpenRaoLogger;
 import com.powsybl.openrao.data.cracapi.Identifiable;
 import com.powsybl.openrao.data.cracapi.State;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
@@ -70,10 +69,10 @@ public final class RaoLogger {
             reportNode, TypedValue.INFO_SEVERITY);
     }
 
-    public static void logRangeActions(OpenRaoLogger logger,
-                                       Leaf leaf,
-                                       OptimizationPerimeter
-                                           optimizationContext, String prefix) {
+    public static void logRangeActions(Leaf leaf,
+                                       OptimizationPerimeter optimizationContext,
+                                       String prefix,
+                                       ReportNode reportNode) {
 
         boolean globalPstOptimization = optimizationContext instanceof GlobalOptimizationPerimeter;
 
@@ -87,9 +86,9 @@ public final class RaoLogger {
 
         boolean isRangeActionSetPointEmpty = rangeActionSetpoints.isEmpty();
         if (isRangeActionSetPointEmpty) {
-            logger.info("{}No range actions activated", prefix == null ? "" : prefix);
+            SearchTreeReports.reportSearchTreeOneLeafNoRangeActionActivated(reportNode, prefix);
         } else {
-            logger.info("{}range action(s): {}", prefix == null ? "" : prefix, String.join(", ", rangeActionSetpoints));
+            SearchTreeReports.reportSearchTreeOneLeafRangeActionActivated(reportNode, prefix, String.join(", ", rangeActionSetpoints));
         }
     }
 

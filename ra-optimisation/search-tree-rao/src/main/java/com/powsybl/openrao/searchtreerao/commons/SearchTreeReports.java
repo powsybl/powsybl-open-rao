@@ -11,7 +11,6 @@ import com.powsybl.commons.report.TypedValue;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.commons.logs.OpenRaoLogger;
 import com.powsybl.openrao.data.raoresultapi.ComputationStatus;
-import com.powsybl.openrao.searchtreerao.searchtree.algorithms.Leaf;
 
 import java.time.Instant;
 import java.util.Locale;
@@ -292,7 +291,7 @@ public final class SearchTreeReports {
         return addedNode;
     }
 
-    public static ReportNode reportPreSecondPreventiveSensitivityAnalysisFailed(ReportNode reportNode) {
+    public static ReportNode reportPreSecondPreventiveSensitivityAnalysisFailed(ReportNode reportNode) { // TODO not used !
         ReportNode addedNode = reportNode.newReportNode()
                 .withMessageTemplate("preSecondPreventiveSensitivityAnalysisFailed", "Systematic sensitivity analysis after curative remedial actions before second preventive optimization failed")
                 .withSeverity(TypedValue.ERROR_SEVERITY)
@@ -367,10 +366,10 @@ public final class SearchTreeReports {
         return addedNode;
     }
 
-    public static ReportNode reportLeafEvaluationError(ReportNode reportNode, Leaf rootLeaf, TypedValue severity) {
+    public static ReportNode reportLeafEvaluationError(ReportNode reportNode, String rootLeaf, TypedValue severity) {
         ReportNode addedNode = reportNode.newReportNode()
                 .withMessageTemplate("leafEvaluationError", "Could not evaluate leaf: ${leafDescription}")
-                .withUntypedValue("leafDescription", rootLeaf.toString())
+                .withUntypedValue("leafDescription", rootLeaf)
                 .withSeverity(severity)
                 .add();
         logger(severity).info("Could not evaluate leaf: {}", rootLeaf);
@@ -640,21 +639,21 @@ public final class SearchTreeReports {
         return addedNode;
     }
 
-    public static ReportNode reportSearchTreeStopCriterionReached(ReportNode reportNode, Leaf rootLeaf, TypedValue severity) {
+    public static ReportNode reportSearchTreeStopCriterionReached(ReportNode reportNode, String rootLeaf, TypedValue severity) {
         ReportNode addedNode = reportNode.newReportNode()
             .withMessageTemplate("reportSearchTreeStopCriterionReached", "Stop criterion reached on ${rootLeaf}")
-            .withUntypedValue("rootLeaf", rootLeaf.toString())
+            .withUntypedValue("rootLeaf", rootLeaf)
             .withSeverity(INFO_SEVERITY)
             .add();
         logger(severity).info("Stop criterion reached on {}", rootLeaf);
         return addedNode;
     }
 
-    public static ReportNode reportSearchTreeLeaf(ReportNode reportNode, Leaf rootLeaf, TypedValue severity) {
+    public static ReportNode reportSearchTreeLeaf(ReportNode reportNode, String rootLeaf, TypedValue severity) {
         ReportNode addedNode = reportNode.newReportNode()
             .withMessageTemplate("reportSearchTreeLeaf", "${rootLeaf}")
-            .withUntypedValue("rootLeaf", rootLeaf.toString())
-            .withSeverity(TRACE_SEVERITY)
+            .withUntypedValue("rootLeaf", rootLeaf)
+            .withSeverity(INFO_SEVERITY)
             .add();
         logger(severity).info("{}", rootLeaf);
         return addedNode;
@@ -679,13 +678,244 @@ public final class SearchTreeReports {
         return addedNode;
     }
 
-    public static ReportNode reportSearchTreeBestLeaf(ReportNode reportNode, Leaf optimalLeaf) {
+    public static ReportNode reportSearchTreeBestLeaf(ReportNode reportNode, String optimalLeaf) {
         ReportNode addedNode = reportNode.newReportNode()
-            .withMessageTemplate("reportSearchTreeLeaf", "${rootLeaf}")
-            .withUntypedValue("rootLeaf", optimalLeaf.toString())
+            .withMessageTemplate("reportSearchTreeBestLeaf", "Best leaf: ${optimalLeaf}")
+            .withUntypedValue("optimalLeaf", optimalLeaf)
             .withSeverity(TRACE_SEVERITY)
             .add();
         TECHNICAL_LOGS.info("Best leaf: {}", optimalLeaf);
         return addedNode;
+    }
+
+    public static ReportNode reportSearchTreeNoNetworkActionAvailable(ReportNode reportNode, TypedValue severity) {
+        ReportNode addedNode = reportNode.newReportNode()
+            .withMessageTemplate("reportSearchTreeNoNetworkActionAvailable", "No network action available")
+            .withSeverity(INFO_SEVERITY)
+            .add();
+        logger(severity).info("No network action available");
+        return addedNode;
+    }
+
+    public static ReportNode reportSearchTreeLeavesInParallel(ReportNode reportNode, int leavesInParallel) {
+        ReportNode addedNode = reportNode.newReportNode()
+            .withMessageTemplate("reportSearchTreeLeavesInParallel", "Evaluating ${leavesInParallel} leaves in parallel")
+            .withUntypedValue("leavesInParallel", leavesInParallel)
+            .withSeverity(TRACE_SEVERITY)
+            .add();
+        TECHNICAL_LOGS.debug("Evaluating {} leaves in parallel", leavesInParallel);
+        return addedNode;
+    }
+
+    public static ReportNode reportSearchTreeDepthStart(ReportNode reportNode, int depth) {
+        ReportNode addedNode = reportNode.newReportNode()
+            .withMessageTemplate("reportSearchTreeDepthStart", "Search depth ${depth} [start]")
+            .withUntypedValue("depth", depth)
+            .withSeverity(TRACE_SEVERITY)
+            .add();
+        TECHNICAL_LOGS.info("Search depth {} [start]", depth);
+        return addedNode;
+    }
+
+    public static ReportNode reportSearchTreeDepthEnd(ReportNode reportNode, int depth) {
+        ReportNode addedNode = reportNode.newReportNode()
+            .withMessageTemplate("reportSearchTreeDepthEnd", "Search depth ${depth} [end]")
+            .withUntypedValue("depth", depth)
+            .withSeverity(TRACE_SEVERITY)
+            .add();
+        TECHNICAL_LOGS.info("Search depth {} [end]", depth);
+        return addedNode;
+    }
+
+    public static ReportNode reportSearchTreeBestLeafAtDepth(ReportNode reportNode, int depth, String optimalLeaf, TypedValue severity) {
+        ReportNode addedNode = reportNode.newReportNode()
+            .withMessageTemplate("reportSearchTreeBestLeafAtDepth", "Search depth ${depth} best leaf: ${optimalLeaf}")
+            .withUntypedValue("depth", depth)
+            .withUntypedValue("optimalLeaf", optimalLeaf)
+            .withSeverity(INFO_SEVERITY)
+            .add();
+        logger(severity).info("Search depth {} best leaf: {}", depth, optimalLeaf);
+        return addedNode;
+    }
+
+    public static ReportNode reportSearchTreeDepthNoBetterResult(ReportNode reportNode, int depth, TypedValue severity) {
+        ReportNode addedNode = reportNode.newReportNode()
+            .withMessageTemplate("reportSearchTreeDepthNoBetterResult", "No better result found in search depth ${depth}, exiting search tree")
+            .withUntypedValue("depth", depth)
+            .withSeverity(INFO_SEVERITY)
+            .add();
+        logger(severity).info("No better result found in search depth {}, exiting search tree", depth);
+        return addedNode;
+    }
+
+    public static ReportNode reportSearchTreeMaxDepth(ReportNode reportNode, TypedValue severity) {
+        ReportNode addedNode = reportNode.newReportNode()
+            .withMessageTemplate("reportSearchTreeMaxDepth", "maximum search depth has been reached, exiting search tree")
+            .withSeverity(INFO_SEVERITY)
+            .add();
+        logger(severity).info("maximum search depth has been reached, exiting search tree");
+        return addedNode;
+    }
+
+    public static ReportNode reportSearchTreeInterrupted(ReportNode reportNode) {
+        ReportNode addedNode = reportNode.newReportNode()
+            .withMessageTemplate("reportSearchTreeInterrupted", "A computation thread was interrupted")
+            .withSeverity(TRACE_SEVERITY)
+            .add();
+        TECHNICAL_LOGS.warn("A computation thread was interrupted");
+        return addedNode;
+    }
+
+    public static ReportNode reportSeachTreeNoMoreNetworkAction(ReportNode reportNode) {
+        ReportNode addedNode = reportNode.newReportNode()
+            .withMessageTemplate("reportSeachTreeNoMoreNetworkAction", "No more network action available")
+            .withSeverity(TRACE_SEVERITY)
+            .add();
+        TECHNICAL_LOGS.info("No more network action available");
+        return addedNode;
+    }
+
+    public static ReportNode reportSeachTreeLeavesToEvaluate(ReportNode reportNode, int numberOfCombinations) {
+        ReportNode addedNode = reportNode.newReportNode()
+            .withMessageTemplate("reportSeachTreeLeavesToEvaluate", "Leaves to evaluate: ${numberOfCombination}")
+            .withUntypedValue("numberOfCombinations", numberOfCombinations)
+            .withSeverity(TRACE_SEVERITY)
+            .add();
+        TECHNICAL_LOGS.info("Leaves to evaluate: {}", numberOfCombinations);
+        return addedNode;
+    }
+
+    public static ReportNode generateOneLeafRootReportNode() {
+        return ReportNode.newRootReportNode()
+            .withMessageTemplate("generateOneLeafRootReportNode", "Optimization of one search tree leaf")
+            .build();
+    }
+
+    public static ReportNode reportSearchTreeOneLeaf(ReportNode reportNode, String concatenatedId, int remainingLeaves) {
+        return reportNode.newReportNode()
+            .withMessageTemplate("reportSearchTreeOneLeaf", "Leaf with network actions ${concatenatedId} and ${remainingLeaves} remaining leaves")
+            .withUntypedValue("concatenatedId", concatenatedId)
+            .withUntypedValue("remainingLeaves", remainingLeaves)
+            .add();
+    }
+
+    public static ReportNode reportSearchTreeOneLeafSkipped(ReportNode reportNode, String concatenatedId, TypedValue severity) {
+        ReportNode addedNode = reportNode.newReportNode()
+            .withMessageTemplate("reportSearchTreeOneLeafSkipped", "Skipping ${concatenatedId} optimization because earlier combination fulfills stop criterion.")
+            .withUntypedValue("concatenatedId", concatenatedId)
+            .withSeverity(TRACE_SEVERITY)
+            .add();
+        logger(severity).info("Skipping {} optimization because earlier combination fulfills stop criterion.", concatenatedId);
+        return addedNode;
+    }
+
+    public static ReportNode reportSearchTreeOneLeafCannotOptimize(ReportNode reportNode, String concatenatedId, String message) {
+        ReportNode addedNode = reportNode.newReportNode()
+            .withMessageTemplate("reportSearchTreeOneLeafCannotOptimize", "Cannot optimize remedial action combination ${concatenatedId}: ${message}")
+            .withUntypedValue("concatenatedId", concatenatedId)
+            .withUntypedValue("message", message)
+            .withSeverity(WARN_SEVERITY)
+            .add();
+        BUSINESS_WARNS.warn("Cannot optimize remedial action combination {}: {}", concatenatedId, message);
+        return addedNode;
+    }
+
+    public static ReportNode reportSearchTreeOneLeafRemainingLeaves(ReportNode reportNode, int remainingLeaves) {
+        ReportNode addedNode = reportNode.newReportNode()
+            .withMessageTemplate("reportSearchTreeOneLeafRemainingLeaves", "Remaining leaves to evaluate: ${remainingLeaves}")
+            .withUntypedValue("remainingLeaves", remainingLeaves)
+            .withSeverity(TRACE_SEVERITY)
+            .add();
+        TECHNICAL_LOGS.info("Remaining leaves to evaluate: {}", remainingLeaves);
+        return addedNode;
+    }
+
+    public static ReportNode reportSearchTreeOneLeafCouldNotEvaluateCombination(ReportNode reportNode, String networkActions, String message, TypedValue severity) {
+        ReportNode addedNode = reportNode.newReportNode()
+            .withMessageTemplate("reportSearchTreeOneLeafCouldNotEvaluateCombination", "Could not evaluate network action combination \"${networkActions}\": ${message}")
+            .withUntypedValue("networkActions", networkActions)
+            .withUntypedValue("message", message)
+            .withSeverity(TRACE_SEVERITY)
+            .add();
+        logger(severity).info("Could not evaluate network action combination \"{}\": {}", networkActions, message);
+        return addedNode;
+    }
+
+    public static ReportNode reportSearchTreeOneLeafEvaluated(ReportNode reportNode, String leaf, TypedValue severity) {
+        ReportNode addedNode = reportNode.newReportNode()
+            .withMessageTemplate("reportSearchTreeOneLeafEvaluated", "Evaluated ${leaf}")
+            .withUntypedValue("leaf", leaf)
+            .withSeverity(TRACE_SEVERITY)
+            .add();
+        logger(severity).info("Evaluated {}", leaf);
+        return addedNode;
+    }
+
+    public static ReportNode reportSearchTreeOneLeafOptimized(ReportNode reportNode, String leaf, TypedValue severity) {
+        ReportNode addedNode = reportNode.newReportNode()
+            .withMessageTemplate("reportSearchTreeOneLeafOptimized", "Optimized ${leaf}")
+            .withUntypedValue("leaf", leaf)
+            .withSeverity(TRACE_SEVERITY)
+            .add();
+        logger(severity).info("Optimized {}", leaf);
+        return addedNode;
+    }
+
+    public static ReportNode reportLeafFailedToOptimize(ReportNode reportNode, String leaf, TypedValue severity) {
+        ReportNode addedNode = reportNode.newReportNode()
+            .withMessageTemplate("reportLeafFailedToOptimize", "Failed to optimize leaf: ${leaf}")
+            .withUntypedValue("leaf", leaf)
+            .withSeverity(TRACE_SEVERITY)
+            .add();
+        logger(severity).info("Failed to optimize leaf: {}", leaf);
+        return addedNode;
+    }
+
+    public static ReportNode reportSearchTreeOneLeafNoRangeActionToOptimize(ReportNode reportNode) {
+        ReportNode addedNode = reportNode.newReportNode()
+            .withMessageTemplate("reportSearchTreeOneLeafNoRangeActionToOptimize", "No range actions to optimize")
+            .withSeverity(TRACE_SEVERITY)
+            .add();
+        TECHNICAL_LOGS.info("No range actions to optimize");
+        return addedNode;
+    }
+
+    public static ReportNode reportSearchTreeOneLeafStopCriterionReached(ReportNode reportNode) {
+        ReportNode addedNode = reportNode.newReportNode()
+            .withMessageTemplate("reportSearchTreeOneLeafStopCriterionReached", "Stop criterion reached, other threads may skip optimization.")
+            .withSeverity(TRACE_SEVERITY)
+            .add();
+        TECHNICAL_LOGS.info("Stop criterion reached, other threads may skip optimization.");
+        return addedNode;
+    }
+
+    public static ReportNode reportSearchTreeOneLeafPerimeterPurelyVirtual(ReportNode reportNode) {
+        ReportNode addedNode = reportNode.newReportNode()
+            .withMessageTemplate("reportSearchTreeOneLeafPerimeterPurelyVirtual", "Perimeter is purely virtual and virtual cost is zero. Exiting search tree.")
+            .withSeverity(TRACE_SEVERITY)
+            .add();
+        TECHNICAL_LOGS.debug("Perimeter is purely virtual and virtual cost is zero. Exiting search tree.");
+        return addedNode;
+    }
+
+    public static ReportNode reportSearchTreeOneLeafNoRangeActionActivated(ReportNode reportNode, String prefix) {
+        ReportNode addedNode = reportNode.newReportNode()
+            .withMessageTemplate("reportSearchTreeOneLeafNoRangeActionActivated", "${prefix}No range actions activated")
+            .withUntypedValue("prefix", prefix)
+            .withSeverity(TRACE_SEVERITY)
+            .add();
+        TECHNICAL_LOGS.info("{}No range actions activated", prefix);
+        return addedNode;
+    }
+
+    public static ReportNode reportSearchTreeOneLeafRangeActionActivated(ReportNode reportNode, String prefix, String rangeActionSetpoints) {
+        ReportNode addedNode = reportNode.newReportNode()
+            .withMessageTemplate("reportSearchTreeOneLeafRangeActionActivated", "${prefix}range action(s): ${rangeActionSetpoints}")
+            .withUntypedValue("prefix", prefix)
+            .withUntypedValue("rangeActionSetpoints", rangeActionSetpoints)
+            .withSeverity(TRACE_SEVERITY)
+            .add();
+        TECHNICAL_LOGS.info("{}range action(s): {}", prefix, rangeActionSetpoints);
+        return null;
     }
 }
