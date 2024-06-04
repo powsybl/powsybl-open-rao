@@ -156,7 +156,7 @@ public final class RaoUtil {
     private static Set<UsageMethod> getAllUsageMethods(Set<UsageRule> usageRules, RemedialAction<?> remedialAction, State state, FlowResult flowResult, Set<FlowCnec> flowCnecs, Network network, RaoParameters raoParameters) {
         return usageRules.stream()
             .filter(ur -> ur instanceof OnContingencyState || ur instanceof OnInstant
-                || (ur instanceof OnFlowConstraint || ur instanceof OnFlowConstraintInCountry)
+                || (ur instanceof OnFlowConstraintInCountry || ur instanceof OnConstraint<?> onConstraint && onConstraint.getCnec() instanceof FlowCnec)
                 && isAnyMarginNegative(flowResult, remedialAction.getFlowCnecsConstrainingForOneUsageRule(ur, flowCnecs, network), raoParameters.getObjectiveFunctionParameters().getType().getUnit()))
             .map(ur -> ur.getUsageMethod(state))
             .collect(Collectors.toSet());
