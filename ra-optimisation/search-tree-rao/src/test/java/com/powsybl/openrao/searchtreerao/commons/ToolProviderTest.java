@@ -47,7 +47,7 @@ class ToolProviderTest {
     @BeforeEach
     public void setUp() {
         network = NetworkImportsUtil.import12NodesNetwork();
-        raoParameters = new RaoParameters();
+        raoParameters = new RaoParameters(ReportNode.NO_OP);
         cnec1 = Mockito.mock(FlowCnec.class);
         cnec2 = Mockito.mock(FlowCnec.class);
         State preventiveState = Mockito.mock(State.class);

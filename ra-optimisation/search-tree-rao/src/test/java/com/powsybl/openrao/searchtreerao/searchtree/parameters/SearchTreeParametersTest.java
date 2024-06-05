@@ -6,6 +6,7 @@
  */
 
 package com.powsybl.openrao.searchtreerao.searchtree.parameters;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.cracapi.Instant;
@@ -47,7 +48,7 @@ class SearchTreeParametersTest {
 
     @Test
     void testWithConstantParametersOverAllRao() {
-        RaoParameters raoParameters = new RaoParameters();
+        RaoParameters raoParameters = new RaoParameters(ReportNode.NO_OP);
         Crac crac = Mockito.mock(Crac.class);
         builder.withConstantParametersOverAllRao(raoParameters, crac);
         SearchTreeParameters searchTreeParameters = builder.build();

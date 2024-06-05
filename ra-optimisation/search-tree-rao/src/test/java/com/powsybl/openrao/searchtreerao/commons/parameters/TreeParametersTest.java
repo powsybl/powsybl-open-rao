@@ -6,6 +6,7 @@
  */
 package com.powsybl.openrao.searchtreerao.commons.parameters;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.openrao.raoapi.parameters.ObjectiveFunctionParameters;
 import com.powsybl.openrao.raoapi.parameters.RangeActionsOptimizationParameters;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
@@ -24,7 +25,7 @@ class TreeParametersTest {
 
     @BeforeEach
     public void setUp() {
-        raoParameters = new RaoParameters();
+        raoParameters = new RaoParameters(ReportNode.NO_OP);
         raoParameters.getTopoOptimizationParameters().setMaxPreventiveSearchTreeDepth(6);
         raoParameters.getTopoOptimizationParameters().setMaxAutoSearchTreeDepth(2);
         raoParameters.getTopoOptimizationParameters().setMaxCurativeSearchTreeDepth(6);

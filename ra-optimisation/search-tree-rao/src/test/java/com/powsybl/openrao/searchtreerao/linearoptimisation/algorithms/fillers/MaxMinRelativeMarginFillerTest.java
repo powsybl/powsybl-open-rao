@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.fillers;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.State;
 import com.powsybl.openrao.data.cracapi.cnec.Side;
@@ -66,7 +67,7 @@ class MaxMinRelativeMarginFillerTest extends AbstractFillerTest {
         rangeActions.put(cnec1.getState(), Set.of(pstRangeAction));
         Mockito.when(optimizationPerimeter.getRangeActionsPerState()).thenReturn(rangeActions);
 
-        RaoParameters raoParameters = new RaoParameters();
+        RaoParameters raoParameters = new RaoParameters(ReportNode.NO_OP);
         raoParameters.getRangeActionsOptimizationParameters().setPstPenaltyCost(0.01);
         raoParameters.getRangeActionsOptimizationParameters().setHvdcPenaltyCost(0.01);
         raoParameters.getRangeActionsOptimizationParameters().setInjectionRaPenaltyCost(0.01);

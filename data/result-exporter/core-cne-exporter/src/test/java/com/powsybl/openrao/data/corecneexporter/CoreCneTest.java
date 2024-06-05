@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.data.corecneexporter;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.openrao.data.cneexportercommons.CneExporterParameters;
 import com.powsybl.openrao.data.cneexportercommons.CneUtil;
 import com.powsybl.openrao.data.corecneexporter.xsd.CriticalNetworkElementMarketDocument;
@@ -43,7 +44,7 @@ class CoreCneTest {
         network = Network.read("TestCase12Nodes.uct", getClass().getResourceAsStream("/TestCase12Nodes.uct"));
         crac = CracFactory.findDefault().create("test-crac");
         raoResult = Mockito.mock(RaoResult.class);
-        raoParameters = new RaoParameters();
+        raoParameters = new RaoParameters(ReportNode.NO_OP);
         cracCreationContext = Mockito.mock(UcteCracCreationContext.class);
         Mockito.when(cracCreationContext.getBranchCnecCreationContexts()).thenReturn(new ArrayList<>());
         Mockito.when(cracCreationContext.getRemedialActionCreationContexts()).thenReturn(new ArrayList<>());

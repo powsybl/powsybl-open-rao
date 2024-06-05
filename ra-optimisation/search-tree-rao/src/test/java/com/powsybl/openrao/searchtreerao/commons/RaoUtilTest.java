@@ -76,7 +76,7 @@ class RaoUtilTest {
         raoInput = RaoInput.buildWithPreventiveState(network, crac)
             .withNetworkVariantId(variantId)
             .build();
-        raoParameters = new RaoParameters();
+        raoParameters = new RaoParameters(ReportNode.NO_OP);
     }
 
     private void addGlskProvider() {

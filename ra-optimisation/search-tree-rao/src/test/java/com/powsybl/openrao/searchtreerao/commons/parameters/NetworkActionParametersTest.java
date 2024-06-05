@@ -6,6 +6,7 @@
  */
 package com.powsybl.openrao.searchtreerao.commons.parameters;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.cracapi.CracFactory;
 import com.powsybl.openrao.data.cracapi.InstantKind;
@@ -41,7 +42,7 @@ class NetworkActionParametersTest {
 
     @Test
     void buildFromRaoParametersTestOk() {
-        RaoParameters raoParameters = new RaoParameters();
+        RaoParameters raoParameters = new RaoParameters(ReportNode.NO_OP);
 
         raoParameters.getTopoOptimizationParameters().setPredefinedCombinations(Collections.singletonList(List.of("complexNetworkActionId", "switchPairRaId")));
         raoParameters.getTopoOptimizationParameters().setAbsoluteMinImpactThreshold(20.);
@@ -103,7 +104,7 @@ class NetworkActionParametersTest {
                 .add();
 
         // test list
-        RaoParameters parameters = new RaoParameters();
+        RaoParameters parameters = new RaoParameters(ReportNode.NO_OP);
 
         parameters.getTopoOptimizationParameters().setPredefinedCombinations(List.of(
                 List.of("topological-action-1", "topological-action-2"), // OK

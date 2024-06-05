@@ -6,6 +6,7 @@
  */
 package com.powsybl.openrao.searchtreerao.commons.parameters;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.contingency.ContingencyElementType;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.Crac;
@@ -49,7 +50,7 @@ class UnoptimizedCnecParametersTest {
 
     @Test
     void buildWithoutOptimizingOperatorsNotSharingCras() {
-        RaoParameters raoParameters = new RaoParameters();
+        RaoParameters raoParameters = new RaoParameters(ReportNode.NO_OP);
         raoParameters.getNotOptimizedCnecsParameters().setDoNotOptimizeCurativeCnecsForTsosWithoutCras(true);
 
         UnoptimizedCnecParameters ocp = UnoptimizedCnecParameters.build(raoParameters.getNotOptimizedCnecsParameters(), Set.of("BE"), crac);
@@ -60,7 +61,7 @@ class UnoptimizedCnecParametersTest {
 
     @Test
     void buildWhileOptimizingOperatorsNotSharingCras() {
-        RaoParameters raoParameters = new RaoParameters();
+        RaoParameters raoParameters = new RaoParameters(ReportNode.NO_OP);
         raoParameters.getNotOptimizedCnecsParameters().setDoNotOptimizeCurativeCnecsForTsosWithoutCras(false);
 
         UnoptimizedCnecParameters ocp = UnoptimizedCnecParameters.build(raoParameters.getNotOptimizedCnecsParameters(), Set.of("BE"), crac);
@@ -121,7 +122,7 @@ class UnoptimizedCnecParametersTest {
                 .newTapRange().withRangeType(RangeType.RELATIVE_TO_INITIAL_NETWORK).withMinTap(-3).withMaxTap(3).add()
                 .add();
 
-        RaoParameters raoParameters = new RaoParameters();
+        RaoParameters raoParameters = new RaoParameters(ReportNode.NO_OP);
         raoParameters.getNotOptimizedCnecsParameters().setDoNotOptimizeCnecsSecuredByTheirPst(Map.of("ne1Id", "pst1",
                 "ne2Id", "fakeId",
                 "fakeId", "pst2"));
@@ -145,7 +146,7 @@ class UnoptimizedCnecParametersTest {
                 .newTapRange().withRangeType(RangeType.ABSOLUTE).withMinTap(1).withMaxTap(7).add()
                 .newTapRange().withRangeType(RangeType.RELATIVE_TO_INITIAL_NETWORK).withMinTap(-3).withMaxTap(3).add()
                 .add();
-        RaoParameters newRaoParameters = new RaoParameters();
+        RaoParameters newRaoParameters = new RaoParameters(ReportNode.NO_OP);
         newRaoParameters.getNotOptimizedCnecsParameters().setDoNotOptimizeCnecsSecuredByTheirPst(Map.of("ne1Id", "pst2"));
         Map<FlowCnec, RangeAction<?>> newMap = UnoptimizedCnecParameters.getDoNotOptimizeCnecsSecuredByTheirPst(newRaoParameters.getNotOptimizedCnecsParameters(), crac);
         assertEquals(0, newMap.size());

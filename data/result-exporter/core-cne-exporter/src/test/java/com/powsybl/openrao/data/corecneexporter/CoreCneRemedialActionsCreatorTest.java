@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.data.corecneexporter;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.contingency.ContingencyElementType;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cneexportercommons.CneExporterParameters;
@@ -84,7 +85,7 @@ class CoreCneRemedialActionsCreatorTest {
                 .newThreshold().withUnit(Unit.MEGAWATT).withMax(100.).withSide(Side.RIGHT).add()
                 .add();
         raoResult = Mockito.mock(RaoResult.class);
-        raoParameters = new RaoParameters();
+        raoParameters = new RaoParameters(ReportNode.NO_OP);
 
         ContingencySeries contingencySeries = new ContingencySeries();
         contingencySeries.setName("contingency-id");

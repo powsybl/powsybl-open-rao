@@ -1,5 +1,6 @@
 package com.powsybl.openrao.searchtreerao.commons.optimizationperimeters;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.contingency.ContingencyElementType;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.*;
@@ -44,7 +45,7 @@ abstract class AbstractOptimizationPerimeterTest {
     @BeforeEach
     public void setUp() {
         network = NetworkImportsUtil.import12NodesNetwork();
-        raoParameters = new RaoParameters();
+        raoParameters = new RaoParameters(ReportNode.NO_OP);
 
         crac = CracFactory.findDefault().create("cracId")
             .newInstant(PREVENTIVE_INSTANT_ID, InstantKind.PREVENTIVE)

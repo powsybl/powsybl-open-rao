@@ -23,8 +23,6 @@ import java.util.Objects;
 import java.util.ServiceLoader;
 import java.util.concurrent.CompletableFuture;
 
-import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.BUSINESS_WARNS;
-
 /**
  * RA optimisation main API. It is a utility class (so with only static methods) used as an entry point for running
  * a RA optimisation allowing to choose either a specific find implementation or just to rely on default one.
@@ -58,8 +56,7 @@ public final class Rao {
             Objects.requireNonNull(reportNode, "Report node should nod be null");
 
             Version openRaoVersion = ServiceLoader.load(Version.class).findFirst().orElseThrow();
-            BUSINESS_WARNS.warn("Running RAO using Open RAO version {} from git commit {}.", openRaoVersion.getMavenProjectVersion(), openRaoVersion.getGitVersion());
-            // TODO change this !
+            RaoReports.reportRaoVersionAndCommit(reportNode, openRaoVersion.getMavenProjectVersion(), openRaoVersion.getGitVersion());
 
             return provider.run(raoInput, parameters, targetEndInstant, reportNode);
         }
@@ -77,18 +74,11 @@ public final class Rao {
         }
 
         public CompletableFuture<RaoResult> runAsync(RaoInput raoInput, Instant targetEndInstant) {
-            return runAsync(raoInput, RaoParameters.load(), targetEndInstant);
+            return runAsync(raoInput, RaoParameters.load(ReportNode.NO_OP), targetEndInstant);
         }
 
         public RaoResult run(RaoInput raoInput, RaoParameters parameters, Instant targetEndInstant, ReportNode reportNode) {
-            Objects.requireNonNull(raoInput, "RAO input should not be null");
-            Objects.requireNonNull(parameters, "parameters should not be null");
-            Objects.requireNonNull(reportNode, "Report node should nod be null");
-
-            Version openRaoVersion = ServiceLoader.load(Version.class).findFirst().orElseThrow();
-            BUSINESS_WARNS.warn("Running RAO using Open RAO version {} from git commit {}.", openRaoVersion.getMavenProjectVersion(), openRaoVersion.getGitVersion()); // TODO change this
-
-            return provider.run(raoInput, parameters, targetEndInstant, reportNode).join();
+            return runAsync(raoInput, parameters, targetEndInstant, reportNode).join();
         }
 
         public RaoResult run(RaoInput raoInput, RaoParameters parameters, Instant targetEndInstant) {
@@ -100,7 +90,7 @@ public final class Rao {
         }
 
         public RaoResult run(RaoInput raoInput) {
-            return run(raoInput, RaoParameters.load(), null);
+            return run(raoInput, RaoParameters.load(ReportNode.NO_OP), null);
         }
 
         @Override

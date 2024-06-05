@@ -6,6 +6,7 @@
  */
 package com.powsybl.openrao.raoapi.parameters;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.openrao.commons.EICode;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.raoapi.parameters.extensions.RelativeMarginsParametersExtension;
@@ -19,7 +20,7 @@ import static org.junit.jupiter.api.Assertions.*;
  @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
  */
 class RaoParametersConsistencyTest {
-    private final RaoParameters parameters = new RaoParameters();
+    private final RaoParameters parameters = new RaoParameters(ReportNode.NO_OP);
 
     @Test
     void testSetBoundariesFromCountryCodes() {

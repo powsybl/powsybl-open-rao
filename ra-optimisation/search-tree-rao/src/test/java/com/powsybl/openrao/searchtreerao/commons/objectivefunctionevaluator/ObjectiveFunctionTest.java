@@ -137,7 +137,7 @@ class ObjectiveFunctionTest {
 
     @Test
     void testBuildForInitialSensitivityComputation() {
-        RaoParameters raoParameters = new RaoParameters();
+        RaoParameters raoParameters = new RaoParameters(ReportNode.NO_OP);
 
         raoParameters.getLoadFlowAndSensitivityParameters().setSensitivityFailureOvercost(0.);
         ObjectiveFunction objectiveFunction = new ObjectiveFunction.ObjectiveFunctionBuilder().buildForInitialSensitivityComputation(

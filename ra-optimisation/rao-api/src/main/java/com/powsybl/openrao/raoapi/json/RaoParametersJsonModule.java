@@ -6,6 +6,7 @@
  */
 package com.powsybl.openrao.raoapi.json;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 
@@ -14,8 +15,8 @@ import com.fasterxml.jackson.databind.module.SimpleModule;
  */
 public class RaoParametersJsonModule extends SimpleModule {
 
-    public RaoParametersJsonModule() {
-        addDeserializer(RaoParameters.class, new RaoParametersDeserializer());
+    public RaoParametersJsonModule(ReportNode reportNode) {
+        addDeserializer(RaoParameters.class, new RaoParametersDeserializer(reportNode));
         addSerializer(RaoParameters.class, new RaoParametersSerializer());
     }
 }

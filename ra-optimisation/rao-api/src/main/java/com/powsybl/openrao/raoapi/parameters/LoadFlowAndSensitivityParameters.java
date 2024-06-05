@@ -8,12 +8,13 @@
 package com.powsybl.openrao.raoapi.parameters;
 
 import com.powsybl.commons.config.PlatformConfig;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.loadflow.LoadFlowParameters;
+import com.powsybl.openrao.raoapi.RaoReports;
 import com.powsybl.sensitivity.SensitivityAnalysisParameters;
 
 import java.util.Objects;
 import static com.powsybl.openrao.raoapi.RaoParametersCommons.*;
-import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.BUSINESS_WARNS;
 
 /**
  * LoadFlow and sensitivity computation parameters for RAO
@@ -28,7 +29,13 @@ public class LoadFlowAndSensitivityParameters {
     private String sensitivityProvider = DEFAULT_SENSITIVITY_PROVIDER;
 
     private double sensitivityFailureOvercost = DEFAULT_SENSITIVITY_FAILURE_OVERCOST;
-    private SensitivityAnalysisParameters sensitivityWithLoadFlowParameters = cleanLoadFlowParameters(new SensitivityAnalysisParameters());
+    private final ReportNode reportNode;
+    private SensitivityAnalysisParameters sensitivityWithLoadFlowParameters;
+
+    public LoadFlowAndSensitivityParameters(ReportNode reportNode) {
+        this.reportNode = reportNode;
+        this.sensitivityWithLoadFlowParameters = cleanLoadFlowParameters(new SensitivityAnalysisParameters());
+    }
 
     // Getters and setters
     public SensitivityAnalysisParameters getSensitivityWithLoadFlowParameters() {
@@ -61,14 +68,14 @@ public class LoadFlowAndSensitivityParameters {
 
     public void setSensitivityFailureOvercost(double sensitivityFailureOvercost) {
         if (sensitivityFailureOvercost < 0) {
-            BUSINESS_WARNS.warn("The value {} for `sensitivity-failure-overcost` is smaller than 0. This would encourage the optimizer to make the loadflow diverge. Thus, it will be set to + {}", sensitivityFailureOvercost, -sensitivityFailureOvercost);
+            RaoReports.reportNegativeSensitivityFailureOvercost(reportNode, sensitivityFailureOvercost);
         }
         this.sensitivityFailureOvercost = Math.abs(sensitivityFailureOvercost);
     }
 
-    public static LoadFlowAndSensitivityParameters load(PlatformConfig platformConfig) {
+    public static LoadFlowAndSensitivityParameters load(PlatformConfig platformConfig, ReportNode reportNode) {
         Objects.requireNonNull(platformConfig);
-        LoadFlowAndSensitivityParameters parameters = new LoadFlowAndSensitivityParameters();
+        LoadFlowAndSensitivityParameters parameters = new LoadFlowAndSensitivityParameters(reportNode);
         platformConfig.getOptionalModuleConfig(LOAD_FLOW_AND_SENSITIVITY_COMPUTATION_SECTION)
                 .ifPresent(config -> {
                     parameters.setLoadFlowProvider(config.getStringProperty(LOAD_FLOW_PROVIDER, DEFAULT_LOADFLOW_PROVIDER));
@@ -87,8 +94,7 @@ public class LoadFlowAndSensitivityParameters {
         // in DC, as emulation AC is supported for LF but not for sensitivity analyses, it could
         // lead to incoherence.
         if (loadFlowParameters.isDc()) {
-            BUSINESS_WARNS.warn("The runs are in DC but the HvdcAcEmulation parameter is on: this is not compatible." +
-                    "HvdcAcEmulation parameter set to false.");
+            RaoReports.reportDisablingHvdcAcEmulation(reportNode);
             loadFlowParameters.setHvdcAcEmulation(false);
         }
         return sensitivityAnalysisParameters;

@@ -65,7 +65,7 @@ class PrePerimeterSensitivityAnalysisTest {
         network = NetworkImportsUtil.import12NodesNetwork();
         crac = CommonCracCreation.create();
         outageInstant = crac.getInstant("outage");
-        raoParameters = new RaoParameters();
+        raoParameters = new RaoParameters(ReportNode.NO_OP);
         cnec = Mockito.mock(FlowCnec.class);
 
         optimizationResult = Mockito.mock(OptimizationResult.class);

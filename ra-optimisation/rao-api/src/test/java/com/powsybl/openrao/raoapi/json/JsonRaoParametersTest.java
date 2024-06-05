@@ -6,6 +6,7 @@
  */
 package com.powsybl.openrao.raoapi.json;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.raoapi.parameters.ObjectiveFunctionParameters;
 import com.powsybl.openrao.raoapi.parameters.RangeActionsOptimizationParameters;
@@ -45,13 +46,13 @@ class JsonRaoParametersTest extends AbstractSerDeTest {
 
     @Test
     void roundTripDefault() throws IOException {
-        RaoParameters parameters = new RaoParameters();
-        roundTripTest(parameters, JsonRaoParameters::write, JsonRaoParameters::read, "/RaoParameters_v2.json");
+        RaoParameters parameters = new RaoParameters(ReportNode.NO_OP);
+        roundTripTest(parameters, (parameters1, jsonFile1) -> JsonRaoParameters.write(parameters1, jsonFile1, ReportNode.NO_OP), jsonFile -> JsonRaoParameters.read(jsonFile, ReportNode.NO_OP), "/RaoParameters_v2.json");
     }
 
     @Test
     void roundTrip() throws IOException {
-        RaoParameters parameters = new RaoParameters();
+        RaoParameters parameters = new RaoParameters(ReportNode.NO_OP);
         // Objective Function parameters
         parameters.getObjectiveFunctionParameters().setType(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_MARGIN_IN_AMPERE);
         parameters.getObjectiveFunctionParameters().setForbidCostIncrease(true);
@@ -116,14 +117,14 @@ class JsonRaoParametersTest extends AbstractSerDeTest {
         parameters.getExtension(RelativeMarginsParametersExtension.class).setPtdfApproximation(PtdfApproximation.UPDATE_PTDF_WITH_TOPO);
         parameters.getExtension(RelativeMarginsParametersExtension.class).setPtdfSumLowerBound(0.05);
 
-        roundTripTest(parameters, JsonRaoParameters::write, JsonRaoParameters::read, "/RaoParametersSet_v2.json");
+        roundTripTest(parameters, (parameters1, jsonFile1) -> JsonRaoParameters.write(parameters1, jsonFile1, ReportNode.NO_OP), jsonFile -> JsonRaoParameters.read(jsonFile, ReportNode.NO_OP), "/RaoParametersSet_v2.json");
     }
 
     @Test
     void update() {
-        RaoParameters parameters = JsonRaoParameters.read(getClass().getResourceAsStream("/RaoParameters_default_v2.json"));
+        RaoParameters parameters = JsonRaoParameters.read(getClass().getResourceAsStream("/RaoParameters_default_v2.json"), ReportNode.NO_OP);
         assertEquals(1, parameters.getExtensions().size());
-        JsonRaoParameters.update(parameters, getClass().getResourceAsStream("/RaoParameters_update_v2.json"));
+        JsonRaoParameters.update(parameters, getClass().getResourceAsStream("/RaoParameters_update_v2.json"), ReportNode.NO_OP);
         assertEquals(2, parameters.getExtensions().size());
         assertEquals(ObjectiveFunctionParameters.PreventiveStopCriterion.MIN_OBJECTIVE, parameters.getObjectiveFunctionParameters().getPreventiveStopCriterion());
         assertEquals(5, parameters.getTopoOptimizationParameters().getMaxPreventiveSearchTreeDepth(), DOUBLE_TOLERANCE);
@@ -152,14 +153,14 @@ class JsonRaoParametersTest extends AbstractSerDeTest {
 
     @Test
     void writeExtension() throws IOException {
-        RaoParameters parameters = new RaoParameters();
+        RaoParameters parameters = new RaoParameters(ReportNode.NO_OP);
         parameters.addExtension(DummyExtension.class, new DummyExtension());
-        writeTest(parameters, JsonRaoParameters::write, ComparisonUtils::compareTxt, "/RaoParametersWithExtension_v2.json");
+        writeTest(parameters, (parameters1, jsonFile) -> JsonRaoParameters.write(parameters1, jsonFile, ReportNode.NO_OP), ComparisonUtils::compareTxt, "/RaoParametersWithExtension_v2.json");
     }
 
     @Test
     void readExtension() {
-        RaoParameters parameters = JsonRaoParameters.read(getClass().getResourceAsStream("/RaoParametersWithExtension_v2.json"));
+        RaoParameters parameters = JsonRaoParameters.read(getClass().getResourceAsStream("/RaoParametersWithExtension_v2.json"), ReportNode.NO_OP);
         assertEquals(1, parameters.getExtensions().size());
         assertNotNull(parameters.getExtension(DummyExtension.class));
         assertNotNull(parameters.getExtensionByName("dummy-extension"));
@@ -168,14 +169,14 @@ class JsonRaoParametersTest extends AbstractSerDeTest {
     @Test
     void readErrorUnexpectedExtension() {
         InputStream inputStream = getClass().getResourceAsStream("/RaoParametersError_v2.json");
-        OpenRaoException e = assertThrows(OpenRaoException.class, () -> JsonRaoParameters.read(inputStream));
+        OpenRaoException e = assertThrows(OpenRaoException.class, () -> JsonRaoParameters.read(inputStream, ReportNode.NO_OP));
         assertEquals("Unexpected field in rao parameters: unknownField", e.getMessage());
     }
 
     @Test
     void testFailOnOldVersion() {
         InputStream inputStream = getClass().getResourceAsStream("/RaoParameters_oldVersion.json");
-        OpenRaoException e = assertThrows(OpenRaoException.class, () -> JsonRaoParameters.read(inputStream));
+        OpenRaoException e = assertThrows(OpenRaoException.class, () -> JsonRaoParameters.read(inputStream, ReportNode.NO_OP));
         assertEquals(String.format("RaoParameters version '2.0' cannot be deserialized. The only supported version currently is '%s'.", RAO_PARAMETERS_VERSION), e.getMessage());
     }
 
@@ -183,7 +184,7 @@ class JsonRaoParametersTest extends AbstractSerDeTest {
     @ValueSource(strings = {"LoopFlowError", "PrevStopCriterionError", "CurStopCriterionError", "WrongField"})
     void importNokTest(String source) {
         InputStream inputStream = getClass().getResourceAsStream("/RaoParametersWith" + source + "_v2.json");
-        assertThrows(OpenRaoException.class, () -> JsonRaoParameters.read(inputStream));
+        assertThrows(OpenRaoException.class, () -> JsonRaoParameters.read(inputStream, ReportNode.NO_OP));
     }
 
     static class DummyExtension extends AbstractExtension<RaoParameters> {

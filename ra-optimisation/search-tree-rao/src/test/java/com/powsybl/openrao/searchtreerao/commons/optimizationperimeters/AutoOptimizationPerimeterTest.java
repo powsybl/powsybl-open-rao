@@ -6,6 +6,7 @@
  */
 package com.powsybl.openrao.searchtreerao.commons.optimizationperimeters;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.contingency.ContingencyElementType;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
@@ -45,7 +46,7 @@ class AutoOptimizationPerimeterTest {
     void buildAutoOptimizationPerimeter() {
         Crac crac = initCrac();
         State automatonState = crac.getState("contingency", crac.getInstant("auto"));
-        AutoOptimizationPerimeter autoOptimizationPerimeter = AutoOptimizationPerimeter.build(automatonState, crac, null, new RaoParameters(), null);
+        AutoOptimizationPerimeter autoOptimizationPerimeter = AutoOptimizationPerimeter.build(automatonState, crac, null, new RaoParameters(ReportNode.NO_OP), null);
 
         // Only available topological actions are considered in the perimeter
         assertEquals(automatonState, autoOptimizationPerimeter.getMainOptimizationState());

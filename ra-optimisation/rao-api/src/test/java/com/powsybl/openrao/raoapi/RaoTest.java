@@ -6,6 +6,7 @@
  */
 package com.powsybl.openrao.raoapi;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.raoresultapi.RaoResult;
@@ -63,10 +64,10 @@ class RaoTest {
         assertEquals("1.0", defaultRao.getVersion());
 
         // run rao
-        RaoResult result = defaultRao.run(raoInput, new RaoParameters());
+        RaoResult result = defaultRao.run(raoInput, new RaoParameters(ReportNode.NO_OP));
         assertNotNull(result);
         //todo : assertEquals(RaoResultImpl.Status.DEFAULT, result.getStatus());
-        RaoResult resultAsync = defaultRao.runAsync(raoInput, new RaoParameters()).join();
+        RaoResult resultAsync = defaultRao.runAsync(raoInput, new RaoParameters(ReportNode.NO_OP)).join();
         assertNotNull(resultAsync);
         // todo: assertEquals(RaoResultImpl.Status.DEFAULT, resultAsync.getStatus());
     }
